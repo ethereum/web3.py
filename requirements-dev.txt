@@ -1,0 +1,3 @@
+pytest>=2.8.2
+pytest-pythonpath>=0.3
+tox>=1.8.0

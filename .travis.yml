@@ -1,0 +1,18 @@
+sudo: false
+language: python
+python:
+  - "3.5"
+env:
+  matrix:
+    - TOX_ENV=py27
+    - TOX_ENV=py34
+    - TOX_ENV=py35
+    - TOX_ENV=flake8
+cache: pip
+install:
+  - "travis_retry pip install setuptools --upgrade"
+  - "travis_retry pip install tox"
+script:
+  - tox -e $TOX_ENV
+after_script:
+  - cat .tox/$TOX_ENV/log/*.log
