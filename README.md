@@ -7,3 +7,9 @@
    
 
 A python implementation of [web3.js](https://github.com/ethereum/web3.js)
+
+
+## Goals
+
+* Python 2.7, 3.4, 3.5 support
+* Provide a feature-for-feature python implementation of Web3.js
