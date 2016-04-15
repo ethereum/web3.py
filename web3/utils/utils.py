@@ -1,5 +1,6 @@
 # General string formatting and utility functions
 import json
+import six
 
 
 def padLeft(string, chars, sign="0"):
@@ -16,25 +17,25 @@ def padRight(string, chars, sign="0"):
     return string + sign*(chars-len(string)+1)
 
 
-def isBigNumber(obj):
+def isInteger(obj):
     """
-    Returns true if object is BigNumber, otherwise false
+    Returns true if object is an integer/long, otherwise false
     """
-    raise NotImplementedError()
+    return isinstance(obj, six.integer_types)
 
 
 def isString(obj):
     """
     Returns true if object is string, otherwise false
     """
-    return isinstance(obj, str)
+    return isinstance(obj, six.string_types)
 
 
 def isFunction(obj):
     """
     Returns true if object is function, otherwise false
     """
-    return hasattr(obj, "__call__")
+    return callable(obj)
 
 
 def isObject(obj):
