@@ -137,7 +137,7 @@ class Iban:
             return False
 
         if re.match(r"^XE[0-9]{2}(ETH[0-9A-Z]{13}|[0-9A-Z]{30,31})$", self._iban) and \
-            mod9710(iso13616Prepare(self._iban)) == 1:
+                mod9710(iso13616Prepare(self._iban)) == 1:
             return True
 
         return False
