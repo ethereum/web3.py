@@ -10,8 +10,19 @@
 
 A python implementation of [web3.js](https://github.com/ethereum/web3.js)
 
-
 ## Goals
 
 * Python 2.7, 3.4, 3.5 support
 * Provide a feature-for-feature python implementation of Web3.js
+
+
+# API
+
+## `web3.sha3`
+
+```python
+>>> web3.sha3(b'some text')
+'46ba1b442d3606a3437800ee7ae5a0249756405e676739b46aa8f6e85b13fe2b'
+>>> web3.sha3('0x80', encoding='hex')
+'56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421'
+```
