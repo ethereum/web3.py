@@ -71,6 +71,9 @@ class IsValid(object):
     """
     Should be called to check if iban is correct
 
+    Note: This is implemented as a descriptor so that it can be called as
+          either an instance method.
+
     @method isValid
     @returns {Boolean} true if it is, otherwise false
     """
