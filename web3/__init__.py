@@ -5,6 +5,6 @@ import pkg_resources
 __version__ = pkg_resources.get_distribution("web3.py").version
 
 
-from web3.utils.crypto import (
+from web3.utils.crypto import (  # noqa
     sha3
 )
