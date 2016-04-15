@@ -36,5 +36,5 @@ import web3
     )
 )
 def test_sha3(value, expected, encoding):
-    actual = web3.web3.sha3(value, encoding=encoding)
+    actual = web3.sha3(value, encoding=encoding)
     assert expected == actual
