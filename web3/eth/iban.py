@@ -1,4 +1,8 @@
+from __future__ import unicode_literals
 import re
+import functools
+
+import six
 
 
 def padLeft(string, bytes):
@@ -63,8 +67,31 @@ def baseN(num, b, numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
         (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
 
 
-class Iban:
+class IsValid(object):
+    """
+    Should be called to check if iban is correct
 
+    @method isValid
+    @returns {Boolean} true if it is, otherwise false
+    """
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self.validate
+        return functools.partial(self.validate, instance._iban)
+
+    @staticmethod
+    def validate(iban_address):
+        if not isinstance(iban_address, six.string_types):
+            return False
+
+        if re.match(r"^XE[0-9]{2}(ETH[0-9A-Z]{13}|[0-9A-Z]{30,31})$", iban_address) and \
+                mod9710(iso13616Prepare(iban_address)) == 1:
+            return True
+
+        return False
+
+
+class Iban(object):
     def __init__(self, iban):
         self._iban = iban
 
@@ -114,33 +141,7 @@ class Iban:
         """
         return Iban.fromBban("ETH" + options["institution"] + options["identifier"])
 
-    @staticmethod
-    def isValidStatic(iban):
-        """
-        This method should be used to check if given string is valid iban object
-
-        @method isValid
-        @param {String} iban string
-        @return {Boolean} true if it is valid IBAN
-        """
-        i = Iban(iban)
-        return i.isValid()
-
-    def isValid(self):
-        """
-        Should be called to check if iban is correct
-
-        @method isValid
-        @returns {Boolean} true if it is, otherwise false
-        """
-        if not isinstance(self._iban, str):
-            return False
-
-        if re.match(r"^XE[0-9]{2}(ETH[0-9A-Z]{13}|[0-9A-Z]{30,31})$", self._iban) and \
-                mod9710(iso13616Prepare(self._iban)) == 1:
-            return True
-
-        return False
+    isValid = IsValid()
 
     def isDirect(self):
         """

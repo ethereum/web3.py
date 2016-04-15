@@ -18,6 +18,8 @@ A python implementation of [web3.js](https://github.com/ethereum/web3.js)
 
 # API
 
+## `web3`
+
 ## `web3.sha3`
 
 ```python
