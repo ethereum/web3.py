@@ -25,4 +25,4 @@ def extractTypeName(name):
     Returns overloaded part of function/event name
     """
     length = name.find("(")
-    return name[length + 1:len(name) - 1 - (length+1)].replace(" ", "") if length != -1 else ""
+    return name[length + 1:len(name) - 1].replace(" ", "") if length != -1 else ""
