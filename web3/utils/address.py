@@ -10,6 +10,9 @@ def isAddress(address):
     Checks if the given string is an address
     """
 
+    if not utils.isString(address):
+        return False
+
     if not re.match(r"^(0x)?[0-9a-fA-F]{40}$", address):
         return False
     elif re.match(r"^(0x)?[0-9a-f]{40}", address) or re.match(r"(0x)?[0-9A-F]{40}$", address):
@@ -22,6 +25,10 @@ def isChecksumAddress(address):
     """
     Checks if the given string is a checksummed address
     """
+
+    if not utils.isString(address):
+        return False
+
     address = address.replace("0x", "")
     addressHash = sha3.sha3(address.lower())
 
@@ -37,6 +44,10 @@ def isStrictAddress(address):
     """
     Checks if the given string is strictly an address
     """
+
+    if not utils.isString(address):
+        return False
+
     return re.match(r"^0x[0-9a-fA-F]{40}$", address) is not None
 
 
@@ -44,6 +55,10 @@ def toChecksumAddress(address):
     """
     Makes a checksum address
     """
+
+    if not utils.isString(address):
+        return False
+
     address = address.lower().replace("0x", "")
     addressHash = sha3.sha3(address)
     checksumAddress = "0x"
@@ -61,6 +76,10 @@ def toAddress(address):
     """
     Transforms given string to valid 20 bytes-length addres with 0x prefix
     """
+
+    if not utils.isString(address):
+        return False
+
     if isStrictAddress(address):
         return address
 
