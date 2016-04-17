@@ -59,11 +59,11 @@ def fromUtf8(str):
     """
     Should be called to get hex representation (prefixed by 0x) of utf8 string
     """
-    return binascii.hexlify(str.encode("utf8"))
+    return "0x" + binascii.hexlify(str.encode("utf8"))
 
 
 def fromAscii(str):
     """
     Should be called to get hex representation (prefixed by 0x) of ascii string
     """
-    return binascii.hexlify(str.encode("ascii"))
+    return "0x" + binascii.hexlify(str.encode("ascii"))
