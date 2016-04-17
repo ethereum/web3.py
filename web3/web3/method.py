@@ -2,7 +2,7 @@ import utils.utils
 import errors
 
 
-class Method:
+class Method(object):
 
     def __init__(self, options):
         self.name = options["name"]
