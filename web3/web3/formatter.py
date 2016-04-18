@@ -59,6 +59,7 @@ def inputTransactionFormatter(options):
 
     return options
 
+
 def outputTransactionFormatter(tx):
     """
     Formats the output of a transaction to its proper values
@@ -91,6 +92,7 @@ def outputTransactionReceiptFormatter(receipt):
 
     return receipt
 
+
 def outputBlockFormatter(block):
     """
     Formats the output of a block to its proper values
@@ -114,6 +116,7 @@ def outputBlockFormatter(block):
 
     return block
 
+
 def outputLogFormatter(log):
     """
     Formats the output of a log
@@ -124,8 +127,9 @@ def outputLogFormatter(log):
         log["transactionIndex"] = int(log["transactionIndex"])
     if log.get("logIndex"):
         log["logIndex"] = int(log["logIndex"])
-    
+
     return log
+
 
 def inputPostFormatter(post):
     """
@@ -139,9 +143,11 @@ def inputPostFormatter(post):
     if not utils.isArray(post.get("topics")):
         post["topics"] = [post["topics"]] if post.get("topics") else []
 
-    post["topics"] = [topic if topic.startswith("0x") else encoding.fromUtf8(topic) for topic in post["topics"]]
+    post["topics"] = [topic if topic.startswith("0x") else encoding.fromUtf8(topic)
+                      for topic in post["topics"]]
 
     return post
+
 
 def outputPostFormatter(post):
     """
@@ -160,6 +166,7 @@ def outputPostFormatter(post):
 
     return post
 
+
 def inputAddressFormatter(address):
     iban = Iban(address)
     if iban.isValid() and iban.isDirect():
@@ -170,6 +177,7 @@ def inputAddressFormatter(address):
         return "0x" + address
 
     raise Exception("invalid address")
+
 
 def outputSyncingFormatter(result):
     result["startingBlock"] = int(result["startingBlock"])
