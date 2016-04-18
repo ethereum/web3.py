@@ -1,0 +1,102 @@
+import formatters as f
+from param import SolidityParam
+import math
+import re
+
+class SolidityType(object):
+
+    def __init__(self, config):
+        self._inputFormatter = config._inputFormatter
+        self._outputFormatter = config._outputFormatter
+
+    def isType(self, name):
+        raise Exception("this method should be overwritten for type: " + name)
+
+    def staticPartLength(self, name):
+        raise Exception("this method should be overwritten for type: " + name)
+
+    def isDynamicArray(self, name):
+        nestedTypes = self.nestedTypes(name)
+        return nestedTypes is not None and not re.match(r"[0-9]{1,}", nestedTypes[-1])#regex /g
+
+    def isStaticArray(self, name):
+        nestedTypes = self.nestedTypes(name)
+        return nestedTypes is not None and re.match(r"[0-9]{1,}", nestedTypes[-1]) is not None
+
+    def nestedName(self, name):
+        nestedTypes = self.nestedTypes(name)
+        if not nestedTypes:
+            return name
+
+        return name[:-len(nestedTypes[-1
+
+    def isDynamicType(self):
+        return False
+
+    def nestedTypes(self, name):
+        return re.findall(r"(\[[0-9]*\])", name)
+
+    def encode(self, value, name):
+        if self.isDynamicArray(name):
+            length = len(value)
+            nestedName = self.nestedName(name)
+            result = []
+            result.append(f.formatInputInt(length).encode())
+
+            for v in value:
+                result.append(self.encode(v, nestedName))
+
+            return result
+
+        elif self.isStaticArray(self, name):
+            length = self.staticArrayLength(name)
+            nestedName = self.nestedName(name)
+
+            result = []
+
+            for i in range(length):
+                result.append(self.encode(value[i], nestedName))
+
+            return result
+
+        return self._inputFormatter(value, name).encode()
+
+    def decode(self, bytes, offset, name):
+        if self.isDynamicArray(name):
+            arrayOffset = int(bytes[offset * 2 : offset * 2 + 64], 16)
+            length = int(bytes[arrayOffset * 2, arrayOffset * 2 + 64], 16)
+            arrayStart = arrayOffset + 32
+
+            nestedName = self.nestedName(name)
+            nestedStaticPartLength = self.staticPartLength(nestedName)
+            roundedNestedStaticPartLength = math.floor(float(nestedStaticPartLength + 31) / 32) * 32
+
+            result = []
+
+            for i in range(0, length * roundedNestedStaticPartLength, roundedNestedStaticPartLength):
+                result.append(sef.decode(bytes, arrayStart + i, nestedName))
+
+            return result
+
+        elif self.isStaticArray(name):
+            length = self.staticArrayLength(name)
+            arrayStart = offset
+          
+            nestedName = self.nestedName(name)
+            nestedStaticPartLength = self.staticPartLength(nestedName)
+            result = []
+
+            for i in range(0, length * roundedNestedStaticPartLength, roundedNestedStaticPartLength):
+                result.append(self.decode(bytes, arrayStart + i, nestedName))
+
+            return result
+
+        elif self.isDynamicType(name):
+            dynamicOffset = int(bytes[offset * 2: offset * 2 + 64], 16)
+            length = int(bytes[dynamicOffset * 2, dynamicOffset * 2 +64, 16)
+            roundedLength = math.floor(float(length + 31) / 32)
+
+            return self._outputFormatter(SolidityParam(bytes[dynamicOffset * 2 : dynamicOffset * 2 + (1 + roundedLength) * 64], 0))
+
+        length = self.staticPartLength(name)
+        return self._outputFormatter(SolidityParam(bytes[offset * 2 : offset * 2 + length * 2]))
