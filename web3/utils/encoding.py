@@ -7,7 +7,21 @@ def toHex(val):
     """
     Auto converts any given value into it's hex representation.
     """
-    raise NotImplementedError()
+    if utils.isBoolean(val):
+        return "0x1" if val else "0x0"
+
+    if utils.isObject(val):
+        return fromUtf8(json.dumps(val))
+
+    if utils.isString(val):
+        if val.startswith("-0x"):
+            return fromDecimal(val)
+        elif val.startswith("0x"):
+            return val
+        elif not utils.isNumber(val):
+            return fromAscii(val)
+
+    return fromDecimal(val)
 
 
 def toBigNumber(number):
@@ -22,7 +36,15 @@ def toDecimal(value):
     """
     Converts value to it's decimal representation in string
     """
-    return int(value)
+    if utils.isString(value):
+        if value.startswith("0x") or value.startswith("-0x"):
+            value = int(value, 16)
+        else:
+            value = int(value)
+    else:
+        value = int(value)
+
+    return value
 
 
 def fromDecimal(value):
@@ -61,7 +83,7 @@ def fromUtf8(str):
     """
     Should be called to get hex representation (prefixed by 0x) of utf8 string
     """
-    return "0x" + binascii.hexlify(str.encode("utf8"))
+    return "0x" + binascii.hexlify(str.encode("utf8")).decode("utf8")
 
 
 def fromAscii(obj):
