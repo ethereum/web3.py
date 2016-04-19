@@ -65,4 +65,4 @@ def fromAscii(obj):
     """
     Should be called to get hex representation (prefixed by 0x) of ascii string
     """
-    return "0x" + binascii.hexlify(obj.encode("ascii")).decode("ascii")
+    return "0x" + binascii.hexlify(obj.encode("ascii", "ignore")).decode("ascii", "ignore")
