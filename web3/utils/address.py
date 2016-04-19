@@ -1,7 +1,7 @@
 # Address utilities
-import encoding
-import utils
-from crypto import sha3
+import web3.utils.encoding as encoding
+import web3.utils.utils as utils
+from web3.utils.crypto import sha3
 import re
 
 

@@ -1,6 +1,7 @@
 # String encodings and numeric representations
 import binascii
-import utils
+import web3.utils.utils as utils
+
 
 def toHex(val):
     """
@@ -30,7 +31,7 @@ def fromDecimal(value):
     """
     if utils.isString(value):
         value = int(value)
-    
+
     result = hex(value)
     return result
 
@@ -60,8 +61,8 @@ def fromUtf8(str):
     return "0x" + binascii.hexlify(str.encode("utf8"))
 
 
-def fromAscii(str):
+def fromAscii(obj):
     """
     Should be called to get hex representation (prefixed by 0x) of ascii string
     """
-    return "0x" + binascii.hexlify(str.encode("ascii", "ignore"))
+    return "0x" + binascii.hexlify(obj.encode("ascii")).decode("ascii")
