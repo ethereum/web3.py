@@ -25,6 +25,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "six>=1.10.0",
+        "pysha3>=0.3",
     ],
     py_modules=['web3'],
     license="MIT",
