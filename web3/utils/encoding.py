@@ -30,7 +30,10 @@ def fromDecimal(value):
     Converts value to it's hex representation
     """
     if utils.isString(value):
-        value = int(value)
+        if value.startswith("0x") or value.startswith("-0x"):
+            value = int(value, 16)
+        else:
+            value = int(value)
 
     result = hex(value)
     return result
