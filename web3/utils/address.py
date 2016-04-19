@@ -1,7 +1,7 @@
 # Address utilities
 import encoding
 import utils
-import sha3
+from crypto import sha3
 import re
 
 
@@ -30,11 +30,11 @@ def isChecksumAddress(address):
         return False
 
     address = address.replace("0x", "")
-    addressHash = sha3.sha3(address.lower())
+    addressHash = sha3(address.lower())
 
     for i in range(40):
         if (int(addressHash[i], 16) > 7 and address[i].upper() != address[i]) or \
-                (int(addressHash[i]) <= 7 and address[i].lower() != address[i]):
+                (int(addressHash[i], 16) <= 7 and address[i].lower() != address[i]):
             return False
 
     return True
@@ -60,7 +60,7 @@ def toChecksumAddress(address):
         return False
 
     address = address.lower().replace("0x", "")
-    addressHash = sha3.sha3(address)
+    addressHash = sha3(address)
     checksumAddress = "0x"
 
     for i in range(len(address)):
