@@ -7,14 +7,22 @@ def padLeft(string, chars, sign="0"):
     """
     Should be called to pad string to expected length
     """
-    return sign*(chars-len(string)+1) + string
+    numchars = chars - len(string)
+    prefix = ""
+    if numchars > 0:
+        prefix = sign * numchars
+    return prefix + string
 
 
 def padRight(string, chars, sign="0"):
     """
     Should be called to pad string to expected length
     """
-    return string + sign*(chars-len(string)+1)
+    numchars = chars - len(string)
+    postfix = ""
+    if numchars > 0:
+        postfix = sign * numchars
+    return string + postfix
 
 
 def isInteger(obj):
@@ -65,8 +73,8 @@ def isJson(string):
     """
     try:
         decoded = json.loads(string)
-        if decoded:
+        if decoded or decoded == {}:
             return True
-    except ValueError:
+    except:
         pass
     return False
