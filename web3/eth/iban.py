@@ -8,7 +8,7 @@ import six
 def padLeft(string, bytes):
     result = string
     while len(result) < bytes*2:
-        result = "00"+result
+        result = "0"+result
     return result
 
 
