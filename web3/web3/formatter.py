@@ -1,10 +1,12 @@
 import web3.utils.address as address
 import web3.utils.encoding as encoding
 import web3.utils.utils as utils
+import web3.utils.config as config
 from web3.eth.iban import Iban
 
 fromDecimal = encoding.fromDecimal
 toDecimal = encoding.toDecimal
+
 
 def isPredefinedBlockNumber(blockNumber):
     return blockNumber in ["latest", "pending", "earliest"]
