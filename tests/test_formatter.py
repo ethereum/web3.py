@@ -35,7 +35,7 @@ def test_inputAddressFormatter2(value):
     ('latest', 'latest'),
     ('pending', 'pending'),
     ('earliest', 'earliest'),
-    (1, '0x1')
+    (1, '0x1'),
     ('0x1', '0x1')
     ]
 )
