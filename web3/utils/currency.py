@@ -43,12 +43,14 @@ def fromWei(number, unit):
     """
     Takes a number of wei and converts it to any other ether unit.
     """
-    return number/getValueOfUnit(unit)
+    print((int(number) / float(getValueOfUnit(unit))))
+    result = "%.15f" % (int(number) / float(getValueOfUnit(unit)))
+    return result.rstrip("0").rstrip(".")
 
 
 def toWei(number, unit):
     """
     Takes a number of a unit and converts it to wei.
     """
-    returnValue = int(number)*getValueOfUnit(unit)
+    returnValue = int(number)*int(getValueOfUnit(unit))
     return str(returnValue)
