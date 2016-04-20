@@ -32,7 +32,7 @@ def inputCallFormatter(options):
     Formats the input of a transaction and converts all values to HEX
     """
 
-    options["from"] = options.get("from") or config["defaultAccount"]
+    options.setdefault("from", config.defaultAccount)
 
     if options.get("from"):
         options["from"] = inputAddressFormatter(options["from"])
@@ -40,7 +40,7 @@ def inputCallFormatter(options):
     if options.get("to"):
         options["to"] = inputAddressFormatter(options["to"])
 
-    for key in ["gasPrice", "gas", "value", "nonce"]:
+    for key in ("gasPrice", "gas", "value", "nonce"):
         if key in options:
             options[key] = encoding.fromDecimal(options[key])
 
@@ -51,13 +51,13 @@ def inputTransactionFormatter(options):
     """
     Formats the input of a transaction and converts all values to HEX
     """
-    options["from"] = options.get("from") or config["defaultAccount"]
+    options.setdefault("from", config.defaultAccount)
     options["from"] = inputAddressFormatter(options["from"])
 
     if options.get("to"):
         options["to"] = inputAddressFormatter(options["to"])
 
-    for key in ["gasPrice", "gas", "value", "nonce"]:
+    for key in ("gasPrice", "gas", "value", "nonce"):
         if key in options:
             options[key] = encoding.fromDecimal(options[key])
 
@@ -181,7 +181,7 @@ def inputAddressFormatter(addr):
     elif address.isAddress(addr):
         return "0x" + addr
 
-    raise Exception("invalid address")
+    raise ValueError("invalid address")
 
 
 def outputSyncingFormatter(result):

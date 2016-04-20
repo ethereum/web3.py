@@ -26,7 +26,7 @@ def test_inputAddressFormatter(value, expected):
     ]
 )
 def test_inputAddressFormatter2(value):
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         formatter.inputAddressFormatter(value)
 
 @pytest.mark.parametrize(
