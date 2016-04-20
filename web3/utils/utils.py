@@ -25,6 +25,13 @@ def padRight(string, chars, sign="0"):
     return string + postfix
 
 
+def isNumber(obj):
+    """
+    Returns true if object is an integer/long/float, otherwise false
+    """
+    return isinstance(obj, six.integer_types) or isinstance(obj, six.integer_types)
+
+
 def isInteger(obj):
     """
     Returns true if object is an integer/long, otherwise false

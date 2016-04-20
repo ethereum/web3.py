@@ -65,7 +65,19 @@ def test_fromAscii(value, expected):
     (
         '-0',
         '0x0'
-    )
+    ),
+    (
+        "0x0",
+        "0x0"
+    ),
+    (
+        "-0x0",
+        "0x0"
+    ),
+    (
+        "0x5",
+        "0x5"
+    ),
     ]
 )
 def test_fromDecimal(value, expected):
