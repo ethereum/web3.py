@@ -116,8 +116,8 @@ def outputBlockFormatter(block):
 
     if utils.isArray(block.get("transactions")):
         for item in block["transactions"]:
-            #WTF?!
-            pass
+            if not utils.isString(item):
+                item = outputTransactionFormatter(item)
 
     return block
 
