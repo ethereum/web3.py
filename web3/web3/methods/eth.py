@@ -1,9 +1,11 @@
-from web3.web3.method import Method
-from web3.web3.property import Property
-import web3.web3.formatters as formatters
-import web3.utils.config as config
-import web3.utils.utils as utils
-from web3.web3.contract import Contract
+from web3.method import Method
+from web3.property import Property
+import web3.formatters as formatters
+import utils.config as config
+import utils.encoding as encoding
+import utils.utils as utils
+from web3.contract import Contract
+from web3.iban import Iban
 
 
 def alternativeCall(a, b):
@@ -31,7 +33,7 @@ methods = [
         "name": "getStorageAt",
         "call": "eth_getStorageAt",
         "params": 2,
-        "inputFormatter": [None, utils.toHex, formatters.inputDefaultBlockNumberFormatter]
+        "inputFormatter": [None, encoding.toHex, formatters.inputDefaultBlockNumberFormatter]
     },
     {
         "name": "getCode",
@@ -50,7 +52,7 @@ methods = [
         "name": "getUncle",
         "call": "eth_Uncle",
         "params": 2,
-        "inputFormatter": [None, utils.toHex, formatters.inputBlockNumberFormatter, utils.toHex],
+        "inputFormatter": [None, encoding.toHex, formatters.inputBlockNumberFormatter, encoding.toHex],
         "outputFormatter": formatters.outputBlockFormatter
     },
     {
@@ -63,14 +65,14 @@ methods = [
         "call": getBlockTransactionCountCall,
         "params": 1,
         "inputFormatter": [formatters.inputBlockNumberFormatter],
-        "outputFormatter": utils.toDecimal
+        "outputFormatter": encoding.toDecimal
     },
     {
         "name": "getBlockUncleCount",
         "call": uncleCountCall,
         "params": 1,
         "inputFormatter": [formatters.inputBlockNumberFormatter],
-        "outputFormatter": utils.toDecimal
+        "outputFormatter": encoding.toDecimal
     },
     {
         "name": "getTranscation",
@@ -82,7 +84,7 @@ methods = [
         "name": "getTransactionFromBlock",
         "call": transactionFromBlockCall,
         "params": 2,
-        "inputFormatter": [formatters.inputBlockNumberFormatter, utils.toHex],
+        "inputFormatter": [formatters.inputBlockNumberFormatter, encoding.toHex],
         "outputFormatter": formatters.outputTransactionFormatter
 
     },
@@ -97,7 +99,7 @@ methods = [
         "call": "eth_getTransactionCount",
         "params": 2,
         "inputFormatter": [None, formatters.inputDefaultBlockNumberFormatter],
-        "outputFormatter": utils.toDecimal
+        "outputFormatter": encoding.toDecimal
 
     },
     {
@@ -116,7 +118,7 @@ methods = [
         "name": "sign",
         "call": "eth_sign",
         "params": 2,
-        "inputFormatter": [formatters.inputAddressFormatter, null]
+        "inputFormatter": [formatters.inputAddressFormatter, None]
     },
     {
         "name": "call",
@@ -129,7 +131,7 @@ methods = [
         "call": "eth_estimateGas",
         "params": 1,
         "inputFormatter": [formatters.inputCallFormatter],
-        "outputFormatter": utils.toDecimal
+        "outputFormatter": encoding.toDecimal
     },
     # compileSolidity, compileLLL, compileSerpent deprecated
     {
@@ -157,7 +159,7 @@ properties = [
     {
         "name": "hashrate",
         "getter": "eth_hashrate",
-        "outputFormatter": utils.toDecimal
+        "outputFormatter": encoding.toDecimal
     },
     {
         "name": "syncing",
@@ -176,7 +178,7 @@ properties = [
     {
         "name": "blockNumber",
         "getter": "eth_blockNumber",
-        "outputFormatter": utils.toDecimal
+        "outputFormatter": encoding.toDecimal
     }
 ]
 
@@ -189,7 +191,7 @@ class Eth(object):
         self.defaultAccount = config.defaultAccount
 
         self.iban = Iban
-        self.sendIBANTransaction = lambda: raise NotImplementedError()
+        #self.sendIBANTransaction = lambda: raise NotImplementedError()
 
         for method in methods:
             method = Method(method)

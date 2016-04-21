@@ -1,4 +1,4 @@
-from web3.web3.method import Method
+from web3.method import Method
 
 methods = [
     {
@@ -23,7 +23,7 @@ methods = [
     }
 ]
 
-class DB(object):
+class Db(object):
 
     def __init__(self, web3):
         self._requestManager = web3._requestManager

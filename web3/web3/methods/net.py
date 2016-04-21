@@ -1,5 +1,5 @@
-from web3.web3.property import Property
-import web3.utils.utils as utils
+from web3.property import Property
+import utils.encoding as encoding
 
 properties = [
     {
@@ -9,11 +9,11 @@ properties = [
     {
         "name": "peerCount",
         "call": "net_peerCount",
-        "outputFormatter": utils.toDecimal
+        "outputFormatter": encoding.toDecimal
     }
 ]
 
-class DB(object):
+class Net(object):
 
     def __init__(self, web3):
         self._requestManager = web3._requestManager

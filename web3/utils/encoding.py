@@ -1,6 +1,6 @@
 # String encodings and numeric representations
 import binascii
-import web3.utils.utils as utils
+import utils
 import json
 
 
