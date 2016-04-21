@@ -12,15 +12,20 @@ class RequestManager(object):
         """Should be used to set provider of request manager"""
         self.provider = provider
 
-    def send(self, data, timeout=None):
+    def send(self, data, *args, **kwargs):
         """Should be used to synchronously send request"""
+
+        if not "timeout" in kwargs:
+            timeout = None
+        else:
+            timeout = kwargs["timeout"]
+
         requestid = self.forward(data)
 
         if timeout == 0:
             return requestid
 
         result = self.receive(requestid, timeout)
-
         return result["result"]
 
     def forward(self, data):

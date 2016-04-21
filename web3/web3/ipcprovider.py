@@ -31,21 +31,23 @@ class IPCProvider(Provider):
         super(IPCProvider, self).__init__(*args, **kwargs)
 
     def getSocket(self):
-        socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        socket.connect(self.ipcpath)
-        socket.settimeout(2)
-        return socket
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        sock.connect(self.ipcpath)
+        sock.settimeout(0.001)
+        return sock
 
     def _make_request(self, request):
+
         for _ in range(3):
             self.socket.sendall(request)
-
             response_raw = ""
             while True:
                 try:
                     response_raw += self.socket.recv(4096)
+                    print("here",response_raw)
                 except socket.timeout:
-                    break
+                    if response_raw != "":
+                        break
 
             if response_raw == "":
                 self.socket.close()
@@ -55,5 +57,4 @@ class IPCProvider(Provider):
             break
         else:
             raise ValueError("No JSON returned by socket")
-
         return response_raw

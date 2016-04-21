@@ -1,4 +1,4 @@
-import utils.utils
+import utils.utils as utils
 import web3.exceptions
 
 
@@ -46,9 +46,12 @@ class Method(object):
         """
         if not self.inputFormatter:
             return args
-
-        return self.inputFormatter.map(lambda formatter, index:
-                formatter(args[index]) if formatter else args[index])
+        # print(self.name, args, self.inputFormatter)
+        formatted = []
+        for index, formatter in enumerate(self.inputFormatter):
+            arg = args[index] if len(args) > index else None
+            formatted.append(formatter(arg) if formatter else arg)
+        return formatted
 
     def formatOutput(self, result):
         """
@@ -58,7 +61,10 @@ class Method(object):
         @param {Object}
         @return {Object}
         """
-        return self.outputFormatter and self.outputFormatter(result) if result else result
+        if result and self.outputFormatter:
+            return self.outputFormatter(result)
+        else:
+            return result
 
     def toPayload(self, args):
         """
@@ -91,9 +97,9 @@ class Method(object):
 
     def buildCall(self):
 
-        def send(*arguments):
+        def send(*arguments, **kwargs):
             payload = self.toPayload(list(arguments))
-            return self.formatOutput(self.requestManager.send(payload, *arguments))
+            return self.formatOutput(self.requestManager.send(payload, *arguments, **kwargs))
 
         # send.request = self.request.bind(self)
         return send
