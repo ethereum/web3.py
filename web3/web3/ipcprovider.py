@@ -21,10 +21,10 @@ def getDefaultIPCPath():
 class IPCProvider(Provider):
 
     def __init__(self, ipcpath=None, *args, **kwargs):
-        if path is None:
+        if ipcpath is None:
             self.ipcpath = getDefaultIPCPath()
         else:
-            self.ipcpath = path
+            self.ipcpath = ipcpath
 
         self.socket = self.getSocket()
 
