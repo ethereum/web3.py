@@ -99,6 +99,3 @@ properties = [
         "inputFormatter": encoding.toDecimal
     })
 ]
-
-w = Web3(IPCProvider())
-print(w.eth.getBalance("0xb794F5eA0ba39494cE839613fffBA74279579268", timeout=None))
