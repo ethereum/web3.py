@@ -11,10 +11,10 @@ class RequestManager(object):
         """Should be used to set provider of request manager"""
         self.provider = provider
 
-    def send(self, data):
+    def send(self, data, timeout=None):
         """Should be used to synchronously send request"""
         requestid = self.sendAsync(payload)
-        result = self.receiveAsync(requestid, timeout=None)
+        result = self.receiveAsync(requestid, timeout)
 
         if not Jsonrpc.isValidResponse(result):
             raise errors.InvalidResponse(result)
