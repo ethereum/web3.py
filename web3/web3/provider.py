@@ -13,14 +13,14 @@ class Provider(object):
 
     def process_requests(self):
         while True:
-            request = self.requests.get()
+            reqid, request = self.requests.get()
 
             try:
                 response = self._make_request(request)
             except Exception as e:
                 response = e
 
-            self.responses[request["id"]] = response
+            self.responses[reqid] = response
 
     def _make_request(self, request):
         raise NotImplementedError("Providers must implement this method")

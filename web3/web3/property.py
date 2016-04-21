@@ -1,4 +1,4 @@
-import web3.utils.utils as utils
+import utils.utils as utils
 
 class Property(object):
 
@@ -30,28 +30,28 @@ class Property(object):
         name = names[0]
         if len(names) > 1:
             if not getattr(obj, names[0]):
-                setattr(obj, names[0], object())
+                setattr(obj, names[0], object())# object vs dict
             obj = getattr(obj, names[0])
             name = names[1]
-        setattr(obj, asyncGetterName(name), self.buildGet())
+        # print(obj, self.asyncGetterName(name), self.buildGet())
+        setattr(obj, self.asyncGetterName(name), self.buildGet())
 
     def asyncGetterName(self, name):
         return "get" + name[0].upper() + name[1:]
 
-    def buildGet():
+    def buildGet(self):
+        @staticmethod# wait what, this works?!
         def get(*arguments):
             return self.formatOutput(self.requestManager.send(
-                {
-                "method": self.getter
-                },
+                self.request(),
                 *arguments
                 ))
         return get
 
-    def request():
+    def request(self):
         payload = {
             "method": self.getter,
             "params": [],
         }
-        payload["format"] = self.formatOutput(self)
+        payload["format"] = self.formatOutput
         return payload

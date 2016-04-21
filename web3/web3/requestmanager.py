@@ -1,5 +1,5 @@
-import web3.web3.errors as errors
-from web3.web3.jsonrpc import Jsonrpc
+import web3.exceptions as exceptions
+from web3.jsonrpc import Jsonrpc
 import time
 
 class RequestManager(object):
@@ -14,7 +14,7 @@ class RequestManager(object):
 
     def send(self, data, timeout=None):
         """Should be used to synchronously send request"""
-        requestid = self.forward(payload)
+        requestid = self.forward(data)
 
         if timeout == 0:
             return requestid
@@ -28,10 +28,10 @@ class RequestManager(object):
         if not self.provider:
             raise errors.InvalidProvider()
 
-        reqid += 1
-        self.provider.requests.put(Jsonrpc.toPayload(reqid, data["method"], data["params"]))
+        self.reqid += 1
+        self.provider.requests.put(Jsonrpc.toPayload(self.reqid, data["method"], data["params"]))
 
-        return reqid
+        return self.reqid
 
     def receive(self, requestid, timeout=0):
         start = time.time()
@@ -39,7 +39,7 @@ class RequestManager(object):
         while True:
 
             if requestid in self.provider.responses:
-                return Jsonrpc.fromPayload(self.provider.pop(requestid))
+                return Jsonrpc.fromPayload(self.provider.responses.pop(requestid))
 
             if timeout is not None and time.time()-start >= timeout:
                 if timeout == 0:

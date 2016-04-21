@@ -1,5 +1,5 @@
 import utils.utils
-import errors
+import web3.exceptions
 
 
 class Method(object):
@@ -81,6 +81,7 @@ class Method(object):
         func = self.buildCall()
         func.call = self.call
         name = self.name.split(".")
+        # print(obj, self.name, func)
         if len(name) > 1:
             if not getattr(obj, name[0]):
                 setattr(obj, name[0], object())
@@ -94,7 +95,7 @@ class Method(object):
             payload = self.toPayload(list(arguments))
             return self.formatOutput(self.requestManager.send(payload, *arguments))
 
-        send.request = self.request.bind(self)
+        # send.request = self.request.bind(self)
         return send
 
     def request(self, *arguments):

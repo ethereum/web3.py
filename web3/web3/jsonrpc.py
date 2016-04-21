@@ -1,32 +1,41 @@
 import json
+import web3.exceptions as exceptions
+import utils.utils as utils
 
 class Jsonrpc(object):
 
-    def toPayload(self, reqid, method, params):
+    @staticmethod
+    def toPayload(reqid, method, params):
         """
         Should be called to valid json create payload object
         """
         if not method:
             raise Exception("jsonrpc method should be specified!")
 
-        return json.dumps({
+        return (reqid, json.dumps({
             "jsonrpc": "2.0",
             "method": method,
             "params": params or [],
             "id": reqid
-        })
+        }))
 
-    def fromPayload(self, raw):
-        result = json.loads(raw)
+    @staticmethod
+    def fromPayload(raw):
+        try:
+            result = json.loads(raw)
+        except TypeError:
+            raise exceptions.InvalidResponseException("Invalid response")
+
         if not Jsonrpc.isValidResponse(result):
-            raise errors.InvalidResponse(result)
+            raise exceptions.InvalidResponseException(result)
         return result
 
-    def isValidResponse(self, response):
+    @staticmethod
+    def isValidResponse(response):
         """
         Should be called to check if jsonrpc response is valid
         """
-        return response is not None and not response["error"] and \
+        return response is not None and not "error" in response and \
                 response["jsonrpc"] == "2.0" and \
                 utils.isInteger(response["id"]) and \
                 response["result"] is not None
