@@ -45,7 +45,6 @@ class IPCProvider(Provider):
             while True:
                 try:
                     response_raw += self.socket.recv(4096)
-                    print("here", response_raw)
                 except socket.timeout:
                     if response_raw != "":
                         break
