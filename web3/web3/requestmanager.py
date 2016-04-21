@@ -6,6 +6,7 @@ class RequestManager(object):
 
     def __init__(self, provider):
         self.provider = provider
+        self.reqid = 0
 
     def setProvider(self, provider):
         """Should be used to set provider of request manager"""
@@ -13,32 +14,32 @@ class RequestManager(object):
 
     def send(self, data, timeout=None):
         """Should be used to synchronously send request"""
-        requestid = self.sendAsync(payload)
-        result = self.receiveAsync(requestid, timeout)
+        requestid = self.forward(payload)
 
-        if not Jsonrpc.isValidResponse(result):
-            raise errors.InvalidResponse(result)
+        if timeout == 0:
+            return requestid
+
+        result = self.receive(requestid, timeout)
 
         return result["result"]
 
-    def sendAsync(self, data):
+    def forward(self, data):
         """Should be used to asynchronously send request"""
         if not self.provider:
             raise errors.InvalidProvider()
 
-        payload = Jsonrpc.toPayload(data["method"], data["params"])
-        requestid = payload["messageId"]
-        self.provider.requests.put(payload)
+        reqid += 1
+        self.provider.requests.put(Jsonrpc.toPayload(reqid, data["method"], data["params"]))
 
-        return requestid
+        return reqid
 
-    def receiveAsync(self, requestid, timeout=0):
+    def receive(self, requestid, timeout=0):
         start = time.time()
 
         while True:
 
             if requestid in self.provider.responses:
-                return self.provider.pop(requestid)
+                return Jsonrpc.fromPayload(self.provider.pop(requestid))
 
             if timeout is not None and time.time()-start >= timeout:
                 if timeout == 0:

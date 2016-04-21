@@ -20,7 +20,7 @@ class Provider(object):
             except Exception as e:
                 response = e
 
-            self.responses[request["messageId"]] = response
+            self.responses[request["id"]] = response
 
     def _make_request(self, request):
         raise NotImplementedError("Providers must implement this method")

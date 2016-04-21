@@ -5,11 +5,11 @@ import errors
 class Method(object):
 
     def __init__(self, options):
-        self.name = options["name"]
-        self.call = options["call"]
-        self.params = options["params"] if "params" in options else 0
-        self.inputFormatter = options["inputFormatter"]
-        self.outputFormatter = options["outputFormatter"]
+        self.name = options.get("name")
+        self.call = options.get("call")
+        self.params = options.get("params", 0)
+        self.inputFormatter = options.get("inputFormatter")
+        self.outputFormatter = options.get("outputFormatter")
         self.requestManager = None
 
     def setRequestManager(self, rm):
@@ -24,17 +24,6 @@ class Method(object):
         @return {String} name of jsonrpc method
         """
         return self.call(args) if utils.isFunction(self.call) else self.call
-
-    def extractCallback(self, args):
-        """
-        Should be used to extract callback from array of arguments. Modifies input param
-
-        @method extractCallback
-        @param {Array} arguments
-        @return {Function|Null} callback, if exists
-        """
-        if utils.isFunction(args[-1]):
-            return args[:-1]
 
     def validateArgs(self, args):
         """
@@ -80,14 +69,12 @@ class Method(object):
         @return {Object}
         """
         call = self.getCall(args)
-        callback = self.extractCallback(args)
         params = self.formatInput(args)
         self.validateArgs(params)
 
         return {
             "method": call,
             "params": params,
-            "callback": callback
         }
 
     def attachToObject(self, obj):
@@ -95,21 +82,17 @@ class Method(object):
         func.call = self.call
         name = self.name.split(".")
         if len(name) > 1:
-            obj[name[0]] = obj[name[0]] if name[0] in obj else {}
-            obj[name[0]][name[1]] = func
+            if not getattr(obj, name[0]):
+                setattr(obj, name[0], object())
+            setattr(getattr(obj, name[0]), name[1], func)
         else:
-            obj[name[0]] = func
+            setattr(obj, name[0], func)
 
     def buildCall(self):
-        method = self
 
         def send(*arguments):
-            payload = method.toPayload(list(arguments))
-            if "callback" in payload:
-                return method.requestManager.sendAsync(payload,
-                        lambda err, result: payload.callback(err, method.formatOutput(result)))
-
-            return method.formatOutput(method.requestManager.send(payload))
+            payload = self.toPayload(list(arguments))
+            return self.formatOutput(self.requestManager.send(payload, *arguments))
 
         send.request = self.request.bind(self)
         return send
@@ -123,5 +106,5 @@ class Method(object):
         @return {Object} jsonrpc request
         """
         payload = self.toPayload(list(arguments))
-        payload.format = self.formatOutput.bind(self)
+        payload["format"] = self.formatOutput
         return payload

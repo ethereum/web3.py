@@ -20,7 +20,7 @@ def getDefaultIPCPath():
 
 class IPCProvider(Provider):
 
-    def __init__(self, ipcpath=None):
+    def __init__(self, ipcpath=None, *args, **kwargs):
         if path is None:
             self.ipcpath = getDefaultIPCPath()
         else:
@@ -28,7 +28,7 @@ class IPCProvider(Provider):
 
         self.socket = self.getSocket()
 
-        super(IPCProvider, self).__init__()
+        super(IPCProvider, self).__init__(*args, **kwargs)
 
     def getSocket(self):
         socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)

@@ -13,7 +13,6 @@ class Property(object):
     def setRequestManager(self, rm):
         self.requestManager = rm
 
-
     def formatInput(self, arg):
         """
         Should be called to format input args of method
@@ -26,15 +25,6 @@ class Property(object):
         """
         return self.outputFormatter(result) if result and self.outputFormatter else result
 
-
-    def extractCallback(self, args):
-        """
-        Should be used to extract callback from array of arguments. Modifies input param
-        """
-        if utils.isFunction(args[-1]):
-            return args.pop()
-
-
     def attachToObject(self, obj):
         names = self.name.split(".")
         name = names[0]
@@ -43,37 +33,25 @@ class Property(object):
                 setattr(obj, names[0], object())
             obj = getattr(obj, names[0])
             name = names[1]
-        setattr(obj, asyncGetterName(name), self.buildGet())# buildAsyncGet()
-
+        setattr(obj, asyncGetterName(name), self.buildGet())
 
     def asyncGetterName(self, name):
         return "get" + name[0].upper() + name[1:]
 
     def buildGet():
-        def get():
+        def get(*arguments):
             return self.formatOutput(self.requestManager.send(
                 {
                 "method": self.getter
-                }
+                },
+                *arguments
                 ))
         return get
 
-
-    def buildAsyncGet():
-        def get(callback):
-            return self.requestManager.sendAsync(
-                {
-                "method": self.getter
-                }
-            )
-        return get
-
-
-    def request(*arguments):
+    def request():
         payload = {
             "method": self.getter,
             "params": [],
-            "callback": self.extractCallback(arguments)
         }
         payload["format"] = self.formatOutput(self)
         return payload
