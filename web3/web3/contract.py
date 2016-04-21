@@ -23,7 +23,7 @@ def addEventsToContract(contract):
     """
     events = [json for json in contract.abi if json["type"] == "event"]
 
-    All = AllEvents(conrract._eth._requestManager, events, contract.address)
+    All = AllEvents(contract._eth._requestManager, events, contract.address)
     All.attachToContract(contract)
 
     for json in events:
@@ -49,8 +49,6 @@ class ContractFactory(object):
         contract = Contract(self.eth, self.abi)
 
         options = {}
-        # if utils.isFunction(args[-1]):
-        #    callback = args.pop()
 
         if utils.isObject(args[-1]) and not utils.isArray(args[-1]):
             options = args.pop()
