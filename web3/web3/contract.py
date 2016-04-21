@@ -1,4 +1,4 @@
-import web3.utils.utils as utils
+import utils.utils
 
 
 def encodeConstructorParams(abi, params):

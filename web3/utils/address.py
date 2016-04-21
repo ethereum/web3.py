@@ -1,7 +1,7 @@
 # Address utilities
-import encoding
-import utils
-from crypto import sha3
+from __future__ import absolute_import
+from . import encoding, utils
+from utils.crypto import sha3
 import re
 
 

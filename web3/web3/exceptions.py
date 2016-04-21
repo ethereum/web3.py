@@ -18,7 +18,7 @@ class InvalidProviderException(Exception):
 
 class InvalidResponseException(Exception):
     def __init__(self, result):
-        if result and result["error"] and result["error"]["message"]:
+        if isinstance(result, dict) and result["error"] and result["error"]["message"]:
             message = result["error"]["message"]
         else:
             message = "Invalid JSON RPC response: " + json.dumps(result)
