@@ -16,6 +16,7 @@ from web3.property import Property
 from web3.rpcprovider import RPCProvider
 from web3.ipcprovider import IPCProvider
 
+
 class Web3:
 
     def __init__(self, provider):
@@ -27,10 +28,10 @@ class Web3:
         self.net = Net(self)
         self.personal = Personal(self)
         self.settings = settings
-        
+
         class Version:
             api = version.version
-        
+
         self.version = Version
 
         self.providers = {
@@ -41,7 +42,6 @@ class Web3:
         for prop in properties:
             prop.attachToObject(self)
             prop.setRequestManager(self._requestManager)
-
 
         # Expose providers on the class
         self.RPCProvider = RPCProvider

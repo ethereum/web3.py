@@ -31,6 +31,7 @@ properties = [
     }
 ]
 
+
 class Personal(object):
 
     def __init__(self, web3):

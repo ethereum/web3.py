@@ -2,6 +2,7 @@ import web3.exceptions as exceptions
 from web3.jsonrpc import Jsonrpc
 import time
 
+
 class RequestManager(object):
 
     def __init__(self, provider):
@@ -34,7 +35,8 @@ class RequestManager(object):
             raise errors.InvalidProvider()
 
         self.reqid += 1
-        self.provider.requests.put(Jsonrpc.toPayload(self.reqid, data["method"], data["params"]))
+        self.provider.requests.put(
+            Jsonrpc.toPayload(self.reqid, data["method"], data["params"]))
 
         return self.reqid
 
@@ -46,8 +48,9 @@ class RequestManager(object):
             if requestid in self.provider.responses:
                 return Jsonrpc.fromPayload(self.provider.responses.pop(requestid))
 
-            if timeout is not None and time.time()-start >= timeout:
+            if timeout is not None and time.time() - start >= timeout:
                 if timeout == 0:
                     return None
                 else:
-                    raise ValueError("Timeout waiting for {0}".format(requestid))
+                    raise ValueError(
+                        "Timeout waiting for {0}".format(requestid))

@@ -31,6 +31,7 @@ methods = [
     }
 ]
 
+
 class Shh(object):
 
     def __init__(self, web3):

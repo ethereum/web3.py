@@ -1,6 +1,7 @@
 from six.moves.queue import Queue
 import threading
 
+
 class Provider(object):
 
     def __init__(self):

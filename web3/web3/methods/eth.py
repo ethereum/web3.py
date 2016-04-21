@@ -17,10 +17,14 @@ def alternativeCall(a, b):
     return partial
 
 blockCall = alternativeCall("eth_getBlockByHash", "eth_getBlockByNumber")
-transactionFromBlockCall = alternativeCall("eth_getTransactionByBlockHashAndIndex", "eth_getTransactionByBlockNumberAndIndex")
-uncleCall = alternativeCall("eth_getUncleByBlockHashAndIndex", "eth_getUncleByBlockNumberAndIndex")
-getBlockTransactionCountCall = alternativeCall("eth_getBlockTransactionCountByHash", "eth_getBlockTransactionCountByNumber")
-uncleCountCall = alternativeCall("eth_getUncleCountByBlockHash", "eth_getUncleCountByBlockNumber")
+transactionFromBlockCall = alternativeCall(
+    "eth_getTransactionByBlockHashAndIndex", "eth_getTransactionByBlockNumberAndIndex")
+uncleCall = alternativeCall(
+    "eth_getUncleByBlockHashAndIndex", "eth_getUncleByBlockNumberAndIndex")
+getBlockTransactionCountCall = alternativeCall(
+    "eth_getBlockTransactionCountByHash", "eth_getBlockTransactionCountByNumber")
+uncleCountCall = alternativeCall(
+    "eth_getUncleCountByBlockHash", "eth_getUncleCountByBlockNumber")
 
 methods = [
     {
@@ -182,6 +186,7 @@ properties = [
     }
 ]
 
+
 class Eth(object):
 
     def __init__(self, web3):
@@ -191,7 +196,7 @@ class Eth(object):
         self.defaultAccount = config.defaultAccount
 
         self.iban = Iban
-        #self.sendIBANTransaction = lambda: raise NotImplementedError()
+        # self.sendIBANTransaction = lambda: raise NotImplementedError()
 
         for method in methods:
             method = Method(method)

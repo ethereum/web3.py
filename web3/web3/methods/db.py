@@ -23,6 +23,7 @@ methods = [
     }
 ]
 
+
 class Db(object):
 
     def __init__(self, web3):

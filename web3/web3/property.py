@@ -1,5 +1,6 @@
 import utils.utils as utils
 
+
 class Property(object):
 
     def __init__(self, options):
@@ -30,7 +31,7 @@ class Property(object):
         name = names[0]
         if len(names) > 1:
             if not getattr(obj, names[0]):
-                setattr(obj, names[0], object())# object vs dict
+                setattr(obj, names[0], object())  # object vs dict
             obj = getattr(obj, names[0])
             name = names[1]
         # print(obj, self.asyncGetterName(name), self.buildGet())
@@ -40,12 +41,12 @@ class Property(object):
         return "get" + name[0].upper() + name[1:]
 
     def buildGet(self):
-        @staticmethod# wait what, this works?!
+        @staticmethod  # wait what, this works?!
         def get(*arguments):
             return self.formatOutput(self.requestManager.send(
                 self.request(),
                 *arguments
-                ))
+            ))
         return get
 
     def request(self):

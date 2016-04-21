@@ -3,6 +3,7 @@ from web3.provider import Provider
 import sys
 import os
 
+
 def getDefaultIPCPath():
     if sys.platform == 'darwin':
         ipc_path = os.path.expanduser("~/Library/Ethereum/geth.ipc")
@@ -44,7 +45,7 @@ class IPCProvider(Provider):
             while True:
                 try:
                     response_raw += self.socket.recv(4096)
-                    print("here",response_raw)
+                    print("here", response_raw)
                 except socket.timeout:
                     if response_raw != "":
                         break

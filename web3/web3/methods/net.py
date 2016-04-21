@@ -13,6 +13,7 @@ properties = [
     }
 ]
 
+
 class Net(object):
 
     def __init__(self, web3):

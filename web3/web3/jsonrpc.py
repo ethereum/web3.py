@@ -2,6 +2,7 @@ import json
 import web3.exceptions as exceptions
 import utils.utils as utils
 
+
 class Jsonrpc(object):
 
     @staticmethod
@@ -36,9 +37,9 @@ class Jsonrpc(object):
         Should be called to check if jsonrpc response is valid
         """
         return response is not None and not "error" in response and \
-                response["jsonrpc"] == "2.0" and \
-                utils.isInteger(response["id"]) and \
-                response["result"] is not None
+            response["jsonrpc"] == "2.0" and \
+            utils.isInteger(response["id"]) and \
+            response["result"] is not None
 
     # def toBatchPayload(self, messages):
     #    return [self.toPayload(message["method"], message["params"]) for]
