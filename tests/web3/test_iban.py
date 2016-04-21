@@ -1,7 +1,5 @@
 import pytest
-
 import web3
-
 
 @pytest.mark.parametrize(
     'value,expected',
