@@ -1,27 +1,26 @@
+import json
+
 class Jsonrpc(object):
 
-    def __init__(self):
-        self.messageId = 0
-
-    @staticmethod
-    def getInstance():
-        return Jsonrpc()
-
-    def toPayload(self, method, params):
+    def toPayload(self, reqid, method, params):
         """
         Should be called to valid json create payload object
         """
         if not method:
             raise Exception("jsonrpc method should be specified!")
 
-        self.messageId += 1
-
-        return {
+        return json.dumps({
             "jsonrpc": "2.0",
             "method": method,
             "params": params or [],
-            "id": self.messageId
-        }
+            "id": reqid
+        })
+
+    def fromPayload(self, raw):
+        result = json.loads(raw)
+        if not Jsonrpc.isValidResponse(result):
+            raise errors.InvalidResponse(result)
+        return result
 
     def isValidResponse(self, response):
         """
@@ -32,5 +31,5 @@ class Jsonrpc(object):
                 utils.isInteger(response["id"]) and \
                 response["result"] is not None
 
-    def toBatchPayload(self, messages):
-        return [self.toPayload(message["method"], message["params"]) for]
+    # def toBatchPayload(self, messages):
+    #    return [self.toPayload(message["method"], message["params"]) for]
