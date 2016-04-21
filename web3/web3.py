@@ -1,5 +1,4 @@
 from web3.requestmanager import RequestManager
-from web3.iban import Iban
 from web3.methods.eth import Eth
 from web3.methods.db import Db
 from web3.methods.shh import Shh
@@ -10,7 +9,6 @@ import version
 import utils.encoding as encoding
 import utils.currency as currency
 import utils.address as address
-import utils.utils as utils
 from utils.crypto import sha3
 from web3.property import Property
 from web3.rpcprovider import RPCProvider
@@ -67,16 +65,16 @@ class Web3:
 
     def reset(self, keepIsSyncing):
         self._requestManager.reset(keepIsSyncing)
-        self.settings = Settings()
+        # self.settings = Settings()
 
     def sha3(self, string, options):
         return "0x" + sha3.sha3(string, options)
 
-    def isConnected():
+    def isConnected(self):
         return self.currentProvider and self.currentProvider.isConnected()
 
-    def createBatch():
-        return Batch(self)
+    # def createBatch(self):
+    #    return Batch(self)
 
 properties = [
     Property({

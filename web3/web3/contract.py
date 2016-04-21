@@ -5,7 +5,9 @@ def encodeConstructorParams(abi, params):
     """
     Should be called to encode constructor params
     """
-    return [coder.encodeParams(json["type"], params) for json in abi if json["type"] == "constructor" and json["inputs"]["length"] == params["length"]][0] or ""
+    return [coder.encodeParams(json["type"], params) for json in abi
+            if json["type"] == "constructor" and json["inputs"]["length"] == params["length"]][0] or ""
+
 
 def addFunctionsToContract(contract):
     """
@@ -27,7 +29,8 @@ def addEventsToContract(contract):
     All.attachToContract(contract)
 
     for json in events:
-        evt = SolidityEvent(contract._eth._requestManager, json, contract.address)
+        evt = SolidityEvent(
+            contract._eth._requestManager, json, contract.address)
         evt.attachToContract(contract)
 
 
@@ -35,6 +38,7 @@ def checkForContractAddress(contract):
     """
     Should be called to check if the contract gets properly deployed on the blockchain.
     """
+
 
 class ContractFactory(object):
 

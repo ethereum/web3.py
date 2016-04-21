@@ -1,5 +1,4 @@
 from web3.method import Method
-from web3.property import Property
 import web3.formatters as formatters
 
 methods = [

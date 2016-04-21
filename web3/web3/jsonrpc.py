@@ -36,7 +36,7 @@ class Jsonrpc(object):
         """
         Should be called to check if jsonrpc response is valid
         """
-        return response is not None and not "error" in response and \
+        return response is not None and "error" not in response and \
             response["jsonrpc"] == "2.0" and \
             utils.isInteger(response["id"]) and \
             response["result"] is not None

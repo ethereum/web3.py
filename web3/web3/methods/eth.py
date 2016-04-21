@@ -31,32 +31,37 @@ methods = [
         "name": "getBalance",
         "call": "eth_getBalance",
         "params": 2,
-        "inputFormatter": [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter]
+        "inputFormatter":
+        [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter]
     },
     {
         "name": "getStorageAt",
         "call": "eth_getStorageAt",
         "params": 2,
-        "inputFormatter": [None, encoding.toHex, formatters.inputDefaultBlockNumberFormatter]
+        "inputFormatter":
+        [None, encoding.toHex, formatters.inputDefaultBlockNumberFormatter]
     },
     {
         "name": "getCode",
         "call": "eth_getCode",
         "params": 2,
-        "inputFormatter": [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter]
+        "inputFormatter":
+        [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter]
     },
     {
         "name": "getBlock",
         "call": blockCall,
         "params": 2,
-        "inputFormatter": [formatters.inputBlockNumberFormatter, lambda val: val is not None],
+        "inputFormatter":
+        [formatters.inputBlockNumberFormatter, lambda val: val is not None],
         "outputFormatter": formatters.outputBlockFormatter
     },
     {
         "name": "getUncle",
         "call": "eth_Uncle",
         "params": 2,
-        "inputFormatter": [None, encoding.toHex, formatters.inputBlockNumberFormatter, encoding.toHex],
+        "inputFormatter":
+        [None, encoding.toHex, formatters.inputBlockNumberFormatter, encoding.toHex],
         "outputFormatter": formatters.outputBlockFormatter
     },
     {
@@ -128,7 +133,8 @@ methods = [
         "name": "call",
         "call": "eth_call",
         "params": 2,
-        "inputFormatter": [formatters.inputCallFormatter, formatters.inputDefaultBlockNumberFormatter]
+        "inputFormatter":
+        [formatters.inputCallFormatter, formatters.inputDefaultBlockNumberFormatter]
     },
     {
         "name": "estimateGas",
@@ -208,14 +214,14 @@ class Eth(object):
             prop.attachToObject(self)
             prop.setRequestManager(web3._requestManager)
 
-    def contract(abi):
+    def contract(self, abi):
         return Contract(self, abi)
 
-    def namereg():
+    def namereg(self):
         raise NotImplementedError()
 
-    def icapNamereg():
+    def icapNamereg(self):
         raise NotImplementedError()
 
-    def isSyncing():
+    def isSyncing(self):
         raise NotImplementedError()

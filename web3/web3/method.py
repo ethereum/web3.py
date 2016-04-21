@@ -1,5 +1,5 @@
 import utils.utils as utils
-import web3.exceptions
+import web3.exceptions as exceptions
 
 
 class Method(object):
@@ -34,7 +34,7 @@ class Method(object):
         @throws {Error} if it is not
         """
         if len(args) != self.params:
-            raise errors.InvalidNumberOfParams()
+            raise exceptions.InvalidNumberOfParamsException()
 
     def formatInput(self, args):
         """

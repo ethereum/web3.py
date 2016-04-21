@@ -1,6 +1,3 @@
-import utils.utils as utils
-
-
 class Property(object):
 
     def __init__(self, options):

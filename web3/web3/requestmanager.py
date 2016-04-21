@@ -16,7 +16,7 @@ class RequestManager(object):
     def send(self, data, *args, **kwargs):
         """Should be used to synchronously send request"""
 
-        if not "timeout" in kwargs:
+        if "timeout" not in kwargs:
             timeout = None
         else:
             timeout = kwargs["timeout"]
@@ -32,7 +32,7 @@ class RequestManager(object):
     def forward(self, data):
         """Should be used to asynchronously send request"""
         if not self.provider:
-            raise errors.InvalidProvider()
+            raise exceptions.InvalidProviderException()
 
         self.reqid += 1
         self.provider.requests.put(
