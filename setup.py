@@ -15,7 +15,7 @@ readme = open(os.path.join(DIR, 'README.md')).read()
 
 
 setup(
-    name='web3.py',
+    name='web3',
     version='0.1.0',
     description="""Web3.py""",
     long_description=readme,
