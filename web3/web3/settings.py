@@ -1,0 +1,2 @@
+defaultBlock = "latest"
+defaultAccount = None
