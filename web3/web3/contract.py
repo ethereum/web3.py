@@ -1,4 +1,5 @@
-import utils.utils
+import utils.utils as utils
+import utils.encoding as encoding
 
 
 def encodeConstructorParams(abi, params):
@@ -13,7 +14,7 @@ def addFunctionsToContract(contract):
     """
     Should be called to add functions to contract object
     """
-    for json in contract["abi"]:
+    for json in contract.abi:
         if json["type"] == "function":
             f = SolidityFunction(contract._eth, json, contract.address)
             f.attachToContract(contract)
@@ -44,6 +45,9 @@ class ContractFactory(object):
 
     def __init__(self, eth, abi):
         self.eth = eth
+
+        if utils.isString(abi):
+            abi = encoding.abiToJson(abi)
         self.abi = abi
 
     def new(self, *args):
@@ -63,6 +67,14 @@ class ContractFactory(object):
         txhash = self.eth.sendTransaction(options)
         contract.transactionHash = txhash
         checkForContractAddress(contract)
+
+        return contract
+
+    def at(self, address):
+        contract = Contract(self.eth, self.abi, address)
+
+        addFunctionsToContract(contract)
+        addEventsToContract(contract)
 
         return contract
 
