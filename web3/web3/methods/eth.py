@@ -4,7 +4,7 @@ import web3.formatters as formatters
 import utils.config as config
 import utils.encoding as encoding
 import utils.utils as utils
-from web3.contract import Contract
+from web3.contract import ContractFactory
 from web3.iban import Iban
 
 
@@ -216,7 +216,7 @@ class Eth(object):
             prop.setRequestManager(web3._requestManager)
 
     def contract(self, abi):
-        return Contract(self, abi)
+        return ContractFactory(self, abi)
 
     def namereg(self):
         raise NotImplementedError()
