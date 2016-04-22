@@ -1,6 +1,6 @@
 # String encodings and numeric representations
 import binascii
-import utils
+from . import utils
 import json
 
 

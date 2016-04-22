@@ -32,7 +32,8 @@ methods = [
         "call": "eth_getBalance",
         "params": 2,
         "inputFormatter":
-        [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter]
+        [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter],
+        "outputFormatter": encoding.toDecimal
     },
     {
         "name": "getStorageAt",
