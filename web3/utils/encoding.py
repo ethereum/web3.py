@@ -92,3 +92,10 @@ def fromAscii(obj):
     Should be called to get hex representation (prefixed by 0x) of ascii string
     """
     return "0x" + binascii.hexlify(obj.encode("ascii", "ignore")).decode("ascii", "ignore")
+
+
+def abiToJson(obj):
+    """
+    Converts abi string to python object
+    """
+    return json.loads(obj)
