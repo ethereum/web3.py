@@ -38,7 +38,6 @@ class Property(object):
         return "get" + name[0].upper() + name[1:]
 
     def buildGet(self):
-        @staticmethod  # wait what, this works?!
         def get(*arguments):
             return self.formatOutput(self.requestManager.send(
                 self.request(),
