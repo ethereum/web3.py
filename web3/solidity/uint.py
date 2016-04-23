@@ -5,7 +5,7 @@ import re
 class SolidityTypeUInt(types.SolidityType):
 
     def __init__(self):
-        self._inputFormatter = f.formatInputUInt
+        self._inputFormatter = f.formatInputInt
         self._outputFormatter = f.formatOutputUInt
 
     def isType(self, name):
