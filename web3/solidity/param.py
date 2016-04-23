@@ -29,6 +29,9 @@ class SolidityParam(object):
     def dynamicPart(self):
         return self.value if self.isDynamic() else ""
 
+    def encode(self):
+        return self.staticPart() + self.dynamicPart()
+
     def encodeList(self, params):
         totalOffset = len(params) * 32
         def mapf(param):
