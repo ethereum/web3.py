@@ -58,7 +58,7 @@ class SolidityCoder(object):
                 e = self.encodeWithOffset(types[i], solidityTypes[i], encodeds[i], dynamicOffset)
                 dynamicOffset += len(e) / 2
             else:
-                result += self.encodeWithOffset(types[i], solidityTypes[i], encodeds[i], dynamicOffset)
+                result += self.encodeWithOffset(types[i], solidityTypes[i], encodeds[i], dynamicOffset).encode()
 
             # TODO: figure out nested arrays
 
@@ -75,6 +75,8 @@ class SolidityCoder(object):
         if solidityType.isDynamicArray(type):
             nestedName = solidityType.nestedName(type)
             nestedStaticPartLength = solidityType.staticPartLength(nestedName)
+
+            result = encoded[0]
 
             previousLength = 2
             if solidityType.isDynamicArray(nestedName):
