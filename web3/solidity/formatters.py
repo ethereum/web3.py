@@ -1,4 +1,4 @@
-from ..utils import utils, config
+from utils import utils, config
 from param import SolidityParam
 from math import floor
 
@@ -38,7 +38,7 @@ def formatOutputInt(param):
     if not value:
         value = "0"
 
-    if signedIsNegative(value):
+    if value < 0:
         return int(value, 16) - int("f" * 64, 16) + 1
 
     return int(value, 16)
