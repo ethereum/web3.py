@@ -1,5 +1,6 @@
 import utils.utils as utils
 import utils.encoding as encoding
+from web3.function import SolidityFunction
 
 
 def encodeConstructorParams(abi, params):
@@ -74,7 +75,7 @@ class ContractFactory(object):
         contract = Contract(self.eth, self.abi, address)
 
         addFunctionsToContract(contract)
-        addEventsToContract(contract)
+        #addEventsToContract(contract)
 
         return contract
 
