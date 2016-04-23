@@ -2,7 +2,7 @@ import formatters as f
 import types
 import re
 
-class SolidityTypeBytes(types.SolidityType):
+class SolidityTypeDynamicBytes(types.SolidityType):
 
     def __init__(self):
         self._inputFormatter = f.formatInputDynamicBytes
