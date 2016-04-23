@@ -1,4 +1,4 @@
-from ..utils import utils
+from utils import utils
 
 class SolidityParam(object):
 
@@ -13,7 +13,7 @@ class SolidityParam(object):
         return SolidityParam(self.value, offset)
 
     def combine(self, param):
-        return new SolidityParam(self.value + param.value)
+        return SolidityParam(self.value + param.value)
 
     def isDynamic(self):
         return self.offset != None
