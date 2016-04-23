@@ -8,7 +8,7 @@ def transformToFullName(jsn):
     if jsn["name"].find("(") != -1:
         return jsn["name"]
 
-    typeName = ",".join([i.type for i in jsn["inputs"]])
+    typeName = ",".join([i["type"] for i in jsn["inputs"]])
     return jsn["name"] + "(" + typeName + ")"
 
 
