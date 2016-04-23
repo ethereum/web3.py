@@ -1,16 +1,17 @@
-import web3.solidity.coder
-import web3.utils.utils as utils
+import utils.utils as utils
+import utils.abi as abi
+from solidity.coder import coder
 import web3.formatters as formatters
-from web3.utils.crypto import sha3
+from utils.crypto import sha3
 
 class SolidityFunction(object):
 
     def __init__(self, eth, json, address):
         self._eth = eth
-        self._inputTypes = [i.type for i in json["inputs"]]
-        self._outputTypes = [o.type for o in json["outputs"]]
+        self._inputTypes = [i["type"] for i in json["inputs"]]
+        self._outputTypes = [o["type"] for o in json["outputs"]]
         self._constant = json["constant"]
-        self._name = utils.transformToFullName(json)
+        self._name = abi.transformToFullName(json)
         self._address = address 
 
     def extractDefaultBlock(self, args):
@@ -90,20 +91,20 @@ class SolidityFunction(object):
         """
         Should be used to get function display name
         """
-        return utils.extractDisplayName(self._name)
+        return abi.extractDisplayName(self._name)
 
     def typeName(self):
         """
         Should be used to get function type name
         """
-        return utils.extractTypeName(self._name)
+        return abi.extractTypeName(self._name)
 
     def request(self, *arguments):
         """
         Should be called to get rpc requests from solidity function
         """
         return {
-            "method": "eth_call" if self._constant else "eth_sendTransaction"
+            "method": "eth_call" if self._constant else "eth_sendTransaction",
             "params": [self.toPayload(arguments)],
             "format": self.unpackOutput
         }
@@ -117,8 +118,17 @@ class SolidityFunction(object):
             return self.call(arguments)
 
     def attachToContract(self, contract):
+        execute = self.execute
+        """
         displayName = self.displayName()
         # still missing arguments here
-        if not getattr(contract, displayName):
+        print(displayName, self.typeName())
+        try:
+            getattr(contract, displayName)
+        except AttributeError:
             setattr(contract, displayName, execute)
-        setattr(getattr(contract, displayName), self.typeName(), execute)
+        m = getattr(contract, displayName)
+        setattr(m, self.typeName(), execute)
+        """
+        setattr(contract, self.displayName(), execute)
+        #setattr(contract, self.typeName(), execute)
