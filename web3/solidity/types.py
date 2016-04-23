@@ -17,20 +17,27 @@ class SolidityType(object):
 
     def isDynamicArray(self, name):
         nestedTypes = self.nestedTypes(name)
-        return nestedTypes is not None and not re.match(r"[0-9]{1,}", nestedTypes[-1])#regex /g
+        return nestedTypes and not re.match(r"[0-9]{1,}", nestedTypes[-1])#regex /g
 
     def isStaticArray(self, name):
         nestedTypes = self.nestedTypes(name)
-        return nestedTypes is not None and re.match(r"[0-9]{1,}", nestedTypes[-1]) is not None
+        return nestedTypes and re.match(r"[0-9]{1,}", nestedTypes[-1]) is not None
+
+    def staticArrayLength(self, name):
+        nestedTypes = self.nestedTypes(name)
+        if nestedTypes:
+            return re.findall(r"[0-9]{1,}", nestedTypes[-1])[0]
+
+        return 1
 
     def nestedName(self, name):
         nestedTypes = self.nestedTypes(name)
         if not nestedTypes:
             return name
 
-        return name[:-len(nestedTypes[-1
+        return name[:-len(nestedTypes[-1])]
 
-    def isDynamicType(self):
+    def isDynamicType(self, name):
         return False
 
     def nestedTypes(self, name):
@@ -93,7 +100,7 @@ class SolidityType(object):
 
         elif self.isDynamicType(name):
             dynamicOffset = int(bytes[offset * 2: offset * 2 + 64], 16)
-            length = int(bytes[dynamicOffset * 2, dynamicOffset * 2 +64, 16)
+            length = int(bytes[dynamicOffset * 2, dynamicOffset * 2 + 64], 16)
             roundedLength = math.floor(float(length + 31) / 32)
 
             return self._outputFormatter(SolidityParam(bytes[dynamicOffset * 2 : dynamicOffset * 2 + (1 + roundedLength) * 64], 0))
