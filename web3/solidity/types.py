@@ -55,7 +55,7 @@ class SolidityType(object):
 
             return result
 
-        elif self.isStaticArray(self, name):
+        elif self.isStaticArray(name):
             length = self.staticArrayLength(name)
             nestedName = self.nestedName(name)
 
@@ -66,7 +66,7 @@ class SolidityType(object):
 
             return result
 
-        return self._inputFormatter(value, name).encode()
+        return self._inputFormatter(value).encode()
 
     def decode(self, bytes, offset, name):
         if self.isDynamicArray(name):
