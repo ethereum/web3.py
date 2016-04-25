@@ -2,6 +2,7 @@ import socket
 from web3.provider import Provider
 import sys
 import os
+import six
 
 
 def getDefaultIPCPath(testnet=False):
@@ -46,10 +47,10 @@ class IPCProvider(Provider):
 
         for _ in range(3):
             self.socket.sendall(request)
-            response_raw = ""
+            response_raw = u""
             while True:
                 try:
-                    response_raw += self.socket.recv(4096)
+                    response_raw += self.socket.recv(4096).decode()
                 except socket.timeout:
                     if response_raw != "":
                         break

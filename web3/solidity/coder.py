@@ -50,7 +50,7 @@ class SolidityCoder(object):
         return result
 
     def encodeMultiWithOffset(self, types, solidityTypes, encodeds, dynamicOffset):
-        result = ""
+        result = u""
 
         def isDynamic(i):
             return solidityTypes[i].isDynamicArray(types[i]) or solidityTypes[i].isDynamicType(types[i])
@@ -63,7 +63,7 @@ class SolidityCoder(object):
                 dynamicOffset += len(e) / 2
             else:
                 result += self.encodeWithOffset(
-                    types[i], solidityTypes[i], encodeds[i], dynamicOffset).encode()
+                    types[i], solidityTypes[i], encodeds[i], dynamicOffset)
 
             # TODO: figure out nested arrays
 
