@@ -4,26 +4,31 @@ import sys
 import os
 
 
-def getDefaultIPCPath():
+def getDefaultIPCPath(testnet=False):
+    if testnet:
+        testnet = "testnet/"
+    else:
+        testnet = ""
+
     if sys.platform == 'darwin':
-        ipc_path = os.path.expanduser("~/Library/Ethereum/geth.ipc")
+        ipc_path = os.path.expanduser("~/Library/Ethereum/"+testnet+"geth.ipc")
     elif sys.platform == 'linux2':
-        ipc_path = os.path.expanduser("~/.ethereum/geth.ipc")
+        ipc_path = os.path.expanduser("~/.ethereum/"+testnet+"geth.ipc")
     elif sys.platform == 'win32':
         ipc_path = os.path.expanduser("\\~\\AppData\\Roaming\\Ethereum")
     else:
         raise ValueError(
-            "Unsupported platform.  Only darwin/linux2/win32 are "
-            "supported.  You must specify the ipc_path"
+            "Unsupported platform '{0}'.  Only darwin/linux2/win32 are "
+            "supported.  You must specify the ipc_path".format(sys.platform)
         )
     return ipc_path
 
 
 class IPCProvider(Provider):
 
-    def __init__(self, ipcpath=None, *args, **kwargs):
+    def __init__(self, ipcpath=None, testnet=False, *args, **kwargs):
         if ipcpath is None:
-            self.ipcpath = getDefaultIPCPath()
+            self.ipcpath = getDefaultIPCPath(testnet)
         else:
             self.ipcpath = ipcpath
 
