@@ -1,14 +1,15 @@
-import formatters as f
-from address import SolidityTypeAddress
-from bool import SolidityTypeBool
-from int import SolidityTypeInt
-from uint import SolidityTypeUInt
-from dynamicbytes import SolidityTypeDynamicBytes
-from string import SolidityTypeString
-from real import SolidityTypeReal
-from ureal import SolidityTypeUReal
-from bytes import SolidityTypeBytes
+import solidity.formatters as f
+from solidity.address import SolidityTypeAddress
+from solidity.bool import SolidityTypeBool
+from solidity.int import SolidityTypeInt
+from solidity.uint import SolidityTypeUInt
+from solidity.dynamicbytes import SolidityTypeDynamicBytes
+from solidity.string import SolidityTypeString
+from solidity.real import SolidityTypeReal
+from solidity.ureal import SolidityTypeUReal
+from solidity.bytes import SolidityTypeBytes
 import math
+
 
 class SolidityCoder(object):
 
@@ -39,10 +40,12 @@ class SolidityCoder(object):
         dynamicOffset = 0
         for index, solidityType in enumerate(solidityTypes):
             staticPartLength = solidityType.staticPartLength(types[index])
-            roundedStaticPartLength = math.floor((staticPartLength + 31) / 32) * 32
+            roundedStaticPartLength = math.floor(
+                (staticPartLength + 31) / 32) * 32
             dynamicOffset += roundedStaticPartLength
-        
-        result = self.encodeMultiWithOffset(types, solidityTypes, encodeds, dynamicOffset)
+
+        result = self.encodeMultiWithOffset(
+            types, solidityTypes, encodeds, dynamicOffset)
 
         return result
 
@@ -50,22 +53,25 @@ class SolidityCoder(object):
         result = ""
 
         def isDynamic(i):
-            return solidityTypes[i].isDynamicArray(types[i]) or solidityTypes[i].isDynamicType(types[i]) 
+            return solidityTypes[i].isDynamicArray(types[i]) or solidityTypes[i].isDynamicType(types[i])
 
         for i, t in enumerate(types):
             if isDynamic(i):
                 result += f.formatInputInt(dynamicOffset).encode()
-                e = self.encodeWithOffset(types[i], solidityTypes[i], encodeds[i], dynamicOffset)
+                e = self.encodeWithOffset(
+                    types[i], solidityTypes[i], encodeds[i], dynamicOffset)
                 dynamicOffset += len(e) / 2
             else:
-                result += self.encodeWithOffset(types[i], solidityTypes[i], encodeds[i], dynamicOffset).encode()
+                result += self.encodeWithOffset(
+                    types[i], solidityTypes[i], encodeds[i], dynamicOffset).encode()
 
             # TODO: figure out nested arrays
 
         for i, t in enumerate(types):
             if isDynamic(i):
-                e = self.encodeWithOffset(types[i], solidityTypes[i], encodeds[i], dynamicOffset)
-                dynamicOffset += e.length / 2;
+                e = self.encodeWithOffset(
+                    types[i], solidityTypes[i], encodeds[i], dynamicOffset)
+                dynamicOffset += e.length / 2
                 result += e
 
         return result
@@ -82,12 +88,13 @@ class SolidityCoder(object):
             if solidityType.isDynamicArray(nestedName):
                 for i in range(1, len(encoded)):
                     previousLength += encoded[i - 1][0] or 0
-                    result += f.formatInputInt(offset + i * nestedStaticPartLength + previousLength * 32).encode()
-
+                    result += f.formatInputInt(
+                        offset + i * nestedStaticPartLength + previousLength * 32).encode()
 
             for i in range(len(encoded) - 1):
                 additionalOffset = result / 2
-                result += self.encodeWithOffset(nestedName, solidityType, encoded[i + 1], offset + additionalOffset)
+                result += self.encodeWithOffset(
+                    nestedName, solidityType, encoded[i + 1], offset + additionalOffset)
 
             return result
 
@@ -100,12 +107,13 @@ class SolidityCoder(object):
                 previousLength = 0
                 for i in range(len(encoded)):
                     previousLength += encoded[i - 1][0] or 0
-                    result += f.formatInputInt(offset + i * nestedStaticPartLength + previousLength * 32).encode()
-
+                    result += f.formatInputInt(
+                        offset + i * nestedStaticPartLength + previousLength * 32).encode()
 
             for i in range(len(encoded)):
                 additionalOffset = result / 2
-                result += self.encodeWithOffset(nestedName, solidityType, encoded[i], offset + additionalOffset)
+                result += self.encodeWithOffset(
+                    nestedName, solidityType, encoded[i], offset + additionalOffset)
 
             return result
 
@@ -117,7 +125,6 @@ class SolidityCoder(object):
         """
         return self.decodeParams([type], bytes)[0]
 
-
     def decodeParams(self, types, bytes):
         """
         Should be used to decode list of params
@@ -127,7 +134,8 @@ class SolidityCoder(object):
 
         result = []
         for index, solidityType in enumerate(solidityTypes):
-            result.append(solidityType.decode(bytes, offsets[index], types[index]))
+            result.append(solidityType.decode(
+                bytes, offsets[index], types[index]))
 
         return result
 
@@ -137,10 +145,11 @@ class SolidityCoder(object):
             lengths.append(solidityType.staticPartLength(types[index]))
 
         for i in range(1, len(lengths)):
-            lengths[i] += lengths[i-1]
+            lengths[i] += lengths[i - 1]
 
         for index, length in enumerate(lengths):
-            staticPartLength = solidityTypes[index].staticPartLength(types[index])
+            staticPartLength = solidityTypes[
+                index].staticPartLength(types[index])
             lengths[index] = length - staticPartLength
 
         return lengths

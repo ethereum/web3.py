@@ -1,6 +1,7 @@
-import formatters as f
-import types
+import solidity.formatters as f
+import solidity.types as types
 import re
+
 
 class SolidityTypeDynamicBytes(types.SolidityType):
 

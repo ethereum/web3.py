@@ -1,5 +1,6 @@
 from utils import utils
 
+
 class SolidityParam(object):
 
     def __init__(self, value="", offset=None):
@@ -19,7 +20,7 @@ class SolidityParam(object):
         return self.offset != None
 
     def offsetAsBytes(self):
-        return "" if not self.isDynamic() else utils.padLeft(utils.toTwosComplement(self.offset).toString(16), 64)#toHex
+        return "" if not self.isDynamic() else utils.padLeft(utils.toTwosComplement(self.offset).toString(16), 64)  # toHex
 
     def staticPart(self):
         if not self.isDynamic():
@@ -34,6 +35,7 @@ class SolidityParam(object):
 
     def encodeList(self, params):
         totalOffset = len(params) * 32
+
         def mapf(param):
             if not param.isDynamic():
                 return param
@@ -44,9 +46,9 @@ class SolidityParam(object):
 
         # Encode everything!
         result = ""
-        for p in offsetParams:
+        for param in offsetParams:
             result += param.staticPart()
-        for p in offsetParams:
+        for param in offsetParams:
             result += param.dynamicPart()
 
         return result
