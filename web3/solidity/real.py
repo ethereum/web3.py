@@ -9,8 +9,10 @@ class SolidityTypeReal(types.SolidityType):
         self._inputFormatter = f.formatInputReal
         self._outputFormatter = f.formatOutputReal
 
+    @classmethod
     def isType(self, name):
         return re.match(r"real([0-9]*)?(\[([0-9]*)\])?", name) is not None
 
+    @classmethod
     def staticPartLength(self, name):
         return 32 * self.staticArrayLength(name)

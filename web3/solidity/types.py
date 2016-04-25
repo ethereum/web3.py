@@ -10,20 +10,25 @@ class SolidityType(object):
         self._inputFormatter = config._inputFormatter
         self._outputFormatter = config._outputFormatter
 
+    @classmethod
     def isType(self, name):
         raise Exception("this method should be overwritten for type: " + name)
 
+    @classmethod
     def staticPartLength(self, name):
         raise Exception("this method should be overwritten for type: " + name)
 
+    @classmethod
     def isDynamicArray(self, name):
         nestedTypes = self.nestedTypes(name)
         return nestedTypes and not re.match(r"[0-9]{1,}", nestedTypes[-1])  # regex /g
 
+    @classmethod
     def isStaticArray(self, name):
         nestedTypes = self.nestedTypes(name)
         return nestedTypes and re.match(r"[0-9]{1,}", nestedTypes[-1]) is not None
 
+    @classmethod
     def staticArrayLength(self, name):
         nestedTypes = self.nestedTypes(name)
         if nestedTypes:
@@ -31,6 +36,7 @@ class SolidityType(object):
 
         return 1
 
+    @classmethod
     def nestedName(self, name):
         nestedTypes = self.nestedTypes(name)
         if not nestedTypes:
@@ -38,9 +44,11 @@ class SolidityType(object):
 
         return name[:-len(nestedTypes[-1])]
 
+    @classmethod
     def isDynamicType(self, name):
         return False
 
+    @classmethod
     def nestedTypes(self, name):
         return re.findall(r"(\[[0-9]*\])", name)
 
