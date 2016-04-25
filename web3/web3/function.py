@@ -4,6 +4,7 @@ from solidity.coder import coder
 import web3.formatters as formatters
 from utils.crypto import sha3
 
+
 class SolidityFunction(object):
 
     def __init__(self, eth, json, address):
@@ -12,7 +13,7 @@ class SolidityFunction(object):
         self._outputTypes = [o["type"] for o in json["outputs"]]
         self._constant = json["constant"]
         self._name = abi.transformToFullName(json)
-        self._address = address 
+        self._address = address
 
     def extractDefaultBlock(self, args):
         if (len(args) > len(self._inputTypes) and utils.isObject(args[-1])):
@@ -23,10 +24,11 @@ class SolidityFunction(object):
         Should be used to create payload from arguments
         """
         options = {}
-        if len(args) > self._inputTypes and utils.isObject(args[-1]):
+        if len(args) > len(self._inputTypes) and utils.isObject(args[-1]):
             options = args[-1]
         options["to"] = self._address
-        options["data"] = "0x" + self.signature() + coder.encodeParams(self._inputTypes, args)
+        options["data"] = "0x" + \
+            self.signature() + coder.encodeParams(self._inputTypes, args)
         return options
 
     def signature(self):
@@ -131,4 +133,4 @@ class SolidityFunction(object):
         setattr(m, self.typeName(), execute)
         """
         setattr(contract, self.displayName(), execute)
-        #setattr(contract, self.typeName(), execute)
+        # setattr(contract, self.typeName(), execute)

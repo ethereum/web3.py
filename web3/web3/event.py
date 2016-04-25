@@ -35,7 +35,6 @@ class SolidityEvent(object):
     def signature(self):
         return sha3(self._name)
 
-
     def encode(self, indexed={}, options={}):
         """
         Should be used to encode indexed params and options to one final object
@@ -48,7 +47,7 @@ class SolidityEvent(object):
 
         result["topics"] = []
         result["address"] = self._address
-        
+
         if not self._anonymous:
             result["topics"].append("0x" + self.signature())
 
@@ -62,10 +61,12 @@ class SolidityEvent(object):
                     continue
 
                 if utils.isArray(value):
-                    indexedTopics.append(["0x" + coder.encodeParam(i["type", v]) for v in value])
+                    indexedTopics.append(
+                        ["0x" + coder.encodeParam(i["type", v]) for v in value])
                     continue
 
-                indexedTopics.append("0x" + coder.encodeParam(i["type"], value))
+                indexedTopics.append(
+                    "0x" + coder.encodeParam(i["type"], value))
 
         result["topics"] = result["topics"] + indexedTopics
         return result
