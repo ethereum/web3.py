@@ -12,7 +12,7 @@ def getDefaultIPCPath(testnet=False):
 
     if sys.platform == 'darwin':
         ipc_path = os.path.expanduser("~/Library/Ethereum/"+testnet+"geth.ipc")
-    elif sys.platform == 'linux2':
+    elif sys.platform.startswith('linux'):
         ipc_path = os.path.expanduser("~/.ethereum/"+testnet+"geth.ipc")
     elif sys.platform == 'win32':
         ipc_path = os.path.expanduser("\\~\\AppData\\Roaming\\Ethereum")
