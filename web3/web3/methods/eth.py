@@ -32,7 +32,8 @@ methods = [
         "call": "eth_getBalance",
         "params": 2,
         "inputFormatter":
-        [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter],
+        [formatters.inputAddressFormatter,
+            formatters.inputDefaultBlockNumberFormatter],
         "outputFormatter": encoding.toDecimal
     },
     {
@@ -47,7 +48,8 @@ methods = [
         "call": "eth_getCode",
         "params": 2,
         "inputFormatter":
-        [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter]
+        [formatters.inputAddressFormatter,
+            formatters.inputDefaultBlockNumberFormatter]
     },
     {
         "name": "getBlock",
@@ -62,7 +64,8 @@ methods = [
         "call": "eth_Uncle",
         "params": 2,
         "inputFormatter":
-        [None, encoding.toHex, formatters.inputBlockNumberFormatter, encoding.toHex],
+        [None, encoding.toHex,
+            formatters.inputBlockNumberFormatter, encoding.toHex],
         "outputFormatter": formatters.outputBlockFormatter
     },
     {
@@ -135,7 +138,8 @@ methods = [
         "call": "eth_call",
         "params": 2,
         "inputFormatter":
-        [formatters.inputCallFormatter, formatters.inputDefaultBlockNumberFormatter]
+        [formatters.inputCallFormatter,
+            formatters.inputDefaultBlockNumberFormatter]
     },
     {
         "name": "estimateGas",
@@ -194,13 +198,26 @@ properties = [
 ]
 
 
+class DefaultAccount:
+
+    def __init__(self):
+        self.value = config.defaultAccount
+
+    def __set__(self, v):
+        self.value = v
+        config.defaultAccount = self.value
+
+    def __get__(self):
+        return config.defaultAccount
+
+
 class Eth(object):
 
     def __init__(self, web3):
         self._requestManager = web3._requestManager
 
         self.defaultBlock = config.defaultBlock
-        self.defaultAccount = config.defaultAccount
+        self.defaultAccount = DefaultAccount()  # config.defaultAccount
 
         self.iban = Iban
         # self.sendIBANTransaction = lambda: raise NotImplementedError()

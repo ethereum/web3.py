@@ -1,6 +1,7 @@
 import json
 import web3.exceptions as exceptions
 import utils.utils as utils
+import six
 
 
 class Jsonrpc(object):
@@ -13,18 +14,22 @@ class Jsonrpc(object):
         if not method:
             raise Exception("jsonrpc method should be specified!")
 
-        return (reqid, json.dumps({
+        rawrequest = json.dumps({
             "jsonrpc": "2.0",
             "method": method,
             "params": params or [],
             "id": reqid
-        }))
+        })
+
+        if six.PY3:
+            rawrequest = rawrequest.encode("utf8")
+        return (reqid, rawrequest)
 
     @staticmethod
     def fromPayload(raw):
         try:
             result = json.loads(raw)
-        except TypeError:
+        except IndexError:
             raise exceptions.InvalidResponseException("Invalid response")
 
         if not Jsonrpc.isValidResponse(result):

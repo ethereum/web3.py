@@ -1,5 +1,7 @@
 import utils.utils as utils
 import utils.encoding as encoding
+import solidity.coder as coder
+from web3.function import SolidityFunction
 
 
 def encodeConstructorParams(abi, params):
@@ -7,7 +9,8 @@ def encodeConstructorParams(abi, params):
     Should be called to encode constructor params
     """
     return [coder.encodeParams(json["type"], params) for json in abi
-            if json["type"] == "constructor" and json["inputs"]["length"] == params["length"]][0] or ""
+            if json["type"] == "constructor" and
+            json["inputs"]["length"] == params["length"]][0] or ""
 
 
 def addFunctionsToContract(contract):
@@ -19,7 +22,7 @@ def addFunctionsToContract(contract):
             f = SolidityFunction(contract._eth, json, contract.address)
             f.attachToContract(contract)
 
-
+'''
 def addEventsToContract(contract):
     """
     Should be called to add events to contract object
@@ -33,12 +36,14 @@ def addEventsToContract(contract):
         evt = SolidityEvent(
             contract._eth._requestManager, json, contract.address)
         evt.attachToContract(contract)
+'''
 
 
 def checkForContractAddress(contract):
     """
     Should be called to check if the contract gets properly deployed on the blockchain.
     """
+    raise NotImplementedError()
 
 
 class ContractFactory(object):
@@ -74,7 +79,7 @@ class ContractFactory(object):
         contract = Contract(self.eth, self.abi, address)
 
         addFunctionsToContract(contract)
-        addEventsToContract(contract)
+        # addEventsToContract(contract)
 
         return contract
 
