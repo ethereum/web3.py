@@ -1,6 +1,6 @@
 import utils.utils as utils
 import utils.encoding as encoding
-import web3.solidity.coder as coder
+import solidity.coder as coder
 from web3.function import SolidityFunction
 
 
