@@ -6,11 +6,11 @@ from web3.web3.methods.db import Db
 from web3.web3.methods.shh import Shh
 from web3.web3.methods.net import Net
 from web3.web3.methods.personal import Personal
-import web3.web3.settings as settings
 import web3.version as version
 import web3.utils.encoding as encoding
 import web3.utils.currency as currency
 import web3.utils.address as address
+import web3.utils.config as config
 from web3.utils.crypto import sha3
 from web3.web3.property import Property
 from web3.web3.rpcprovider import RPCProvider
@@ -27,12 +27,27 @@ class Web3:
         self.shh = Shh(self)
         self.net = Net(self)
         self.personal = Personal(self)
-        self.settings = settings
 
         class Version:
             api = version.version
 
         self.version = Version
+
+        class Config:
+
+            def __getattr__(self, key):
+                if key == "defaultAccount":
+                    return config.defaultAccount
+                elif key == "defaultBlock":
+                    return config.defaultBlock
+
+            def __setattr__(self, key, value):
+                if key == "defaultAccount":
+                    config.defaultAccount = value
+                elif key == "defaultBlock":
+                    config.defaultBlock = value
+
+        self.config = Config()
 
         self.providers = {
             "RPCProvider": RPCProvider,
@@ -67,7 +82,6 @@ class Web3:
 
     def reset(self, keepIsSyncing):
         self._requestManager.reset(keepIsSyncing)
-        # self.settings = Settings()
 
     def sha3(self, string, options):
         return "0x" + sha3.sha3(string, options)

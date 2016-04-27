@@ -1,2 +1,0 @@
-defaultBlock = "latest"
-defaultAccount = None
