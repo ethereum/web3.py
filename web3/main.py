@@ -1,18 +1,20 @@
-from web3.requestmanager import RequestManager
-from web3.methods.eth import Eth
-from web3.methods.db import Db
-from web3.methods.shh import Shh
-from web3.methods.net import Net
-from web3.methods.personal import Personal
-import web3.settings as settings
-import version
-import utils.encoding as encoding
-import utils.currency as currency
-import utils.address as address
-from utils.crypto import sha3
-from web3.property import Property
-from web3.rpcprovider import RPCProvider
-from web3.ipcprovider import IPCProvider
+from __future__ import absolute_import
+
+from web3.web3.requestmanager import RequestManager
+from web3.web3.methods.eth import Eth
+from web3.web3.methods.db import Db
+from web3.web3.methods.shh import Shh
+from web3.web3.methods.net import Net
+from web3.web3.methods.personal import Personal
+import web3.web3.settings as settings
+import web3.version as version
+import web3.utils.encoding as encoding
+import web3.utils.currency as currency
+import web3.utils.address as address
+from web3.utils.crypto import sha3
+from web3.web3.property import Property
+from web3.web3.rpcprovider import RPCProvider
+from web3.web3.ipcprovider import IPCProvider
 
 
 class Web3:
