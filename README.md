@@ -15,12 +15,29 @@ A python implementation of [web3.js](https://github.com/ethereum/web3.js)
 * Python 2.7, 3.4, 3.5 support
 * Provide a feature-for-feature python implementation of Web3.js
 
+## Installation
+The pip package will probably be renamed to just "web3" in the near future.
+```sh
+pip install web3py
+```
 
 ## API
 
 This documentation is not yet complete, although the API should offer most functionality described in the [Javascript API documentation](https://github.com/ethereum/wiki/wiki/JavaScript-API), except for contract events and filters.
 
 ### Initialisation
+
+Initialising the Ethereum node
+```sh
+# IPC
+geth --unlock 0 console
+
+# RPC, if required, with --rpcaddr "localhost" --rpcport <port>
+geth --rpc --unlock 0 console
+```
+
+Connecting to the Ethereum node
+
 ```python
 from web3 import Web3, RPCProvider, IPCProvider
 
