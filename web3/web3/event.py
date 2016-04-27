@@ -1,8 +1,8 @@
-import utils.utils as utils
-import utils.abi as abi
-import solidity.coder as coder
-import web3.formatters as formatters
-from utils.crypto import sha3
+import web3.web3.utils.utils as utils
+import web3.utils.abi as abi
+import web3.solidity.coder as coder
+import web3.web3.web3.formatters as formatters
+from web3.utils.crypto import sha3
 
 
 class SolidityEvent(object):

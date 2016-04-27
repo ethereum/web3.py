@@ -1,5 +1,5 @@
-from web3.property import Property
-import utils.encoding as encoding
+from web3.web3.property import Property
+import web3.utils.encoding as encoding
 
 properties = [
     {

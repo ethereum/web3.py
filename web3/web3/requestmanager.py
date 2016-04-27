@@ -1,5 +1,5 @@
-import web3.exceptions as exceptions
-from web3.jsonrpc import Jsonrpc
+import web3.web3.exceptions as exceptions
+from web3.web3.jsonrpc import Jsonrpc
 import time
 
 

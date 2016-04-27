@@ -1,11 +1,11 @@
-from web3.method import Method
-from web3.property import Property
-import web3.formatters as formatters
-import utils.config as config
-import utils.encoding as encoding
-import utils.utils as utils
-from web3.contract import ContractFactory
-from web3.iban import Iban
+from web3.web3.method import Method
+from web3.web3.property import Property
+import web3.web3.formatters as formatters
+import web3.utils.config as config
+import web3.utils.encoding as encoding
+import web3.utils.utils as utils
+from web3.web3.contract import ContractFactory
+from web3.web3.iban import Iban
 
 
 def alternativeCall(a, b):

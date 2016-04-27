@@ -1,4 +1,4 @@
-from web3.method import Method
+from web3.web3.method import Method
 
 methods = [
     {

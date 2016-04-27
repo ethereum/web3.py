@@ -1,5 +1,5 @@
 import socket
-from web3.provider import Provider
+from web3.web3.provider import Provider
 import sys
 import os
 import six

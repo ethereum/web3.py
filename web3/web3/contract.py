@@ -1,7 +1,7 @@
-import utils.utils as utils
-import utils.encoding as encoding
-import solidity.coder as coder
-from web3.function import SolidityFunction
+import web3.utils.utils as utils
+import web3.utils.encoding as encoding
+import web3.solidity.coder as coder
+from web3.web3.function import SolidityFunction
 
 
 def encodeConstructorParams(abi, params):

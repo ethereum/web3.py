@@ -1,5 +1,5 @@
-import utils.utils as utils
-import web3.exceptions as exceptions
+import web3.utils.utils as utils
+import web3.web3.exceptions as exceptions
 
 
 class Method(object):

@@ -1,5 +1,5 @@
 import requests
-from web3.provider import Provider
+from web3.web3.provider import Provider
 
 
 class RPCProvider(Provider):

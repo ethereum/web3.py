@@ -1,8 +1,8 @@
-import utils.address as address
-import utils.encoding as encoding
-import utils.utils as utils
-import utils.config as config
-from web3.iban import Iban
+import web3.utils.address as address
+import web3.utils.encoding as encoding
+import web3.utils.utils as utils
+import web3.utils.config as config
+from web3.web3.iban import Iban
 
 fromDecimal = encoding.fromDecimal
 toDecimal = encoding.toDecimal
