@@ -1,7 +1,7 @@
 # Address utilities
 from __future__ import absolute_import
 from . import encoding, utils
-from utils.crypto import sha3
+from web3.utils.crypto import sha3
 import re
 
 
