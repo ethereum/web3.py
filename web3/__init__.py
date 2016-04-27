@@ -6,9 +6,12 @@ from .utils.crypto import (
     sha3,
 )
 
-__version__ = pkg_resources.get_distribution("web3").version
+from web3.main import Web3
+
+__version__ = pkg_resources.get_distribution("web3py").version
 
 __all__ = [
     "__version__",
     "sha3",
+    "web3"
 ]
