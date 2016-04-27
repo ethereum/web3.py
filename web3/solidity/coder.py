@@ -1,13 +1,13 @@
-import solidity.formatters as f
-from solidity.address import SolidityTypeAddress
-from solidity.bool import SolidityTypeBool
-from solidity.int import SolidityTypeInt
-from solidity.uint import SolidityTypeUInt
-from solidity.dynamicbytes import SolidityTypeDynamicBytes
-from solidity.string import SolidityTypeString
-from solidity.real import SolidityTypeReal
-from solidity.ureal import SolidityTypeUReal
-from solidity.bytes import SolidityTypeBytes
+import web3.solidity.formatters as f
+from web3.solidity.address import SolidityTypeAddress
+from web3.solidity.bool import SolidityTypeBool
+from web3.solidity.int import SolidityTypeInt
+from web3.solidity.uint import SolidityTypeUInt
+from web3.solidity.dynamicbytes import SolidityTypeDynamicBytes
+from web3.solidity.string import SolidityTypeString
+from web3.solidity.real import SolidityTypeReal
+from web3.solidity.ureal import SolidityTypeUReal
+from web3.solidity.bytes import SolidityTypeBytes
 import math
 
 

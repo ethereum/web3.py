@@ -1,5 +1,5 @@
-from utils import utils, config
-from solidity.param import SolidityParam
+from web3.utils import utils, config
+from web3.solidity.param import SolidityParam
 from math import floor
 
 

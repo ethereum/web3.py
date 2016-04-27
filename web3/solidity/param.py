@@ -1,4 +1,4 @@
-from utils import utils
+from web3.utils import utils
 
 
 class SolidityParam(object):

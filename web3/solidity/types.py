@@ -1,5 +1,5 @@
-import solidity.formatters as f
-from solidity.param import SolidityParam
+import web3.solidity.formatters as f
+from web3.solidity.param import SolidityParam
 import math
 import re
 

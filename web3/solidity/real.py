@@ -1,5 +1,5 @@
-import solidity.formatters as f
-import solidity.types as types
+import web3.solidity.formatters as f
+import web3.solidity.types as types
 import re
 
 
