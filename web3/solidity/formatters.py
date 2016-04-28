@@ -1,22 +1,26 @@
-from web3.utils import utils, config
+from web3.utils import utils, config, encoding
 from web3.solidity.param import SolidityParam
 from math import floor
 
 
 def formatInputInt(value):
-    result = utils.padLeft(hex(int(value))[2:], 64)  # utils.toTwosComplement
+    if utils.isString(value) and value.startswith("0x"):
+        value = int(value, 16)
+    else:
+        value = int(value)
+    result = utils.padLeft(hex(value)[2:], 64)  # utils.toTwosComplement
     return SolidityParam(result)
 
 
 def formatInputBytes(value):
-    result = utils.toHex(value)[2:]
+    result = encoding.toHex(value)[2:]
     l = floor(float(len(result) + 63) / 64)
     result = utils.padRight(result, l * 64)
     return SolidityParam(result)
 
 
 def formatInputDynamicBytes(value):
-    result = utils.toHex(value)[2:]
+    result = encoding.toHex(value)[2:]
     length = len(result) / 2
     l = floor(float(len(result) + 63) / 64)
     result = utils.padRight(result, l * 64)
@@ -24,7 +28,7 @@ def formatInputDynamicBytes(value):
 
 
 def formatInputString(value):
-    result = utils.fromUtf8(value)[2:]
+    result = encoding.fromUtf8(value)[2:]
     length = len(result) / 2
     l = floor(float(len(result) + 63) / 64)
     result = utils.padRight(result, l * 64)
@@ -84,7 +88,7 @@ def formatOutputDynamicBytes(param):
 
 def formatOutputString(param):
     length = int(param.dynamicPart()[:64], 16) * 2
-    return utils.toUtf8(param.dynamicPart()[64:64 + length])
+    return encoding.toUtf8(param.dynamicPart()[64:64 + length])
 
 
 def formatOutputAddress(param):
