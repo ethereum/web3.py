@@ -4,8 +4,6 @@ from math import floor
 
 
 def formatInputInt(value):
-    if isinstance(value, tuple):
-        value = value[0]
     result = utils.padLeft(hex(int(value))[2:], 64)  # utils.toTwosComplement
     return SolidityParam(result)
 
