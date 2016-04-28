@@ -55,7 +55,6 @@ class SolidityFunction(object):
         """
         Calls a contract function.
         """
-        args = [a for a in arguments if a]
         defaultBlock = self.extractDefaultBlock(args)
         payload = self.toPayload(args)
 
