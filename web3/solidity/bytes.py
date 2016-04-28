@@ -15,6 +15,6 @@ class SolidityTypeBytes(types.SolidityType):
 
     @classmethod
     def staticPartLength(self, name):
-        matches = re.findall(r"^bytes([0-9]*)")
+        matches = re.findall(r"^bytes([0-9]*)", name)
         size = int(matches[1])
         return size * self.staticArrayLength(name)
