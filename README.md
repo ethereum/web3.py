@@ -16,7 +16,6 @@ A python implementation of [web3.js](https://github.com/ethereum/web3.js)
 * Provide a feature-for-feature python implementation of Web3.js
 
 ## Installation
-The pip package will probably be renamed to just "web3" in the near future.
 ```sh
 pip install web3
 ```
@@ -66,7 +65,20 @@ contract = contractFactory.at("0xaddress")
 
 ### `web3`
 
-#### web3: .db, .eth, .net, .personal, .ssh
+#### web3.db.*
+Available as described in the [Javascript API documentation](https://github.com/ethereum/wiki/wiki/JavaScript-API).
+
+#### web3.eth.*,
+Available as described in the [Javascript API documentation](https://github.com/ethereum/wiki/wiki/JavaScript-API).
+
+#### web3.net.*
+Available as described in the [Javascript API documentation](https://github.com/ethereum/wiki/wiki/JavaScript-API).
+
+#### web3.personal.*
+
+Available as described in the [Javascript API documentation](https://github.com/ethereum/wiki/wiki/JavaScript-API).
+
+#### web3.ssh.*
 
 Available as described in the [Javascript API documentation](https://github.com/ethereum/wiki/wiki/JavaScript-API).
 
