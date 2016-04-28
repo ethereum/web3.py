@@ -18,7 +18,7 @@ A python implementation of [web3.js](https://github.com/ethereum/web3.js)
 ## Installation
 The pip package will probably be renamed to just "web3" in the near future.
 ```sh
-pip install web3py
+pip install web3
 ```
 
 ## API
