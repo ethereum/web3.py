@@ -115,9 +115,9 @@ class SolidityFunction(object):
         transaction = not self._constant
 
         if transaction:
-            return self.sendTransaction(arguments)
+            return self.sendTransaction(*arguments)
         else:
-            return self.call(arguments)
+            return self.call(*arguments)
 
     def attachToContract(self, contract):
         execute = self.execute
