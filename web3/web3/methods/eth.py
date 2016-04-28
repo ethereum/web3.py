@@ -200,11 +200,7 @@ properties = [
 
 class DefaultAccount:
 
-    def __init__(self):
-        self.value = config.defaultAccount
-
     def __set__(self, v):
-        self.value = v
         config.defaultAccount = self.value
 
     def __get__(self):
