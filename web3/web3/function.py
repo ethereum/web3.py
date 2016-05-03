@@ -19,7 +19,7 @@ class SolidityFunction(object):
         if (len(args) > len(self._inputTypes) and utils.isObject(args[-1])):
             return formatters.inputDefaultBlockNumberFormatter(args.pop())
 
-    def toPayload(self, args):
+    def toPayload(self, args, **kwargs):
         """
         Should be used to create payload from arguments
         """
@@ -29,6 +29,10 @@ class SolidityFunction(object):
         options["to"] = self._address
         options["data"] = "0x" + \
             self.signature() + coder.encodeParams(self._inputTypes, args)
+
+        for key in kwargs:
+            options[key] = kwargs[key]
+
         return options
 
     def signature(self):
@@ -62,12 +66,12 @@ class SolidityFunction(object):
         output = self._eth.call(payload, defaultBlock)
         return self.unpackOutput(output)
 
-    def sendTransaction(self, *arguments):
+    def sendTransaction(self, *arguments, **kwargs):
         """
         Should be used to sendTransaction to solidity function
         """
         args = [a for a in arguments if a]
-        payload = self.toPayload(args)
+        payload = self.toPayload(args, **kwargs)
 
         return self._eth.sendTransaction(payload)
 
@@ -111,11 +115,11 @@ class SolidityFunction(object):
             "format": self.unpackOutput
         }
 
-    def execute(self, *arguments):
+    def execute(self, *arguments, **kwargs):
         transaction = not self._constant
 
         if transaction:
-            return self.sendTransaction(*arguments)
+            return self.sendTransaction(*arguments, **kwargs)
         else:
             return self.call(*arguments)
 
