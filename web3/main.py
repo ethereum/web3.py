@@ -92,6 +92,9 @@ class Web3:
     # def createBatch(self):
     #    return Batch(self)
 
+    def receive(self, requestid, timeout=0):
+        return self._requestManager.receive(requestid, timeout)
+
 properties = [
     Property({
         "name": "version.node",

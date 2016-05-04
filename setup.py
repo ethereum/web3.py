@@ -16,13 +16,13 @@ readme = open(os.path.join(DIR, 'README.md')).read()
 
 setup(
     name='web3',
-    version='0.1.7',
+    version='0.1.8',
     description="""Web3.py""",
     long_description=readme,
     author='Piper Merriam',
     author_email='pipermerriam@gmail.com',
     url='https://github.com/pipermerriam/web3.py',
-    download_url="https://github.com/pipermerriam/web3.py/tarball/0.1.7",
+    download_url="https://github.com/pipermerriam/web3.py/tarball/0.1.8",
     include_package_data=True,
     install_requires=[
         "six>=1.10.0",
