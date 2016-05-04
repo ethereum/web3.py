@@ -79,11 +79,12 @@ All function and property requests block by default until the result is availabl
 id = web3.eth.getBalance("0xaddress", timeout=0)
 
 # This id can be used to poll the Web3 instance later:
-web3.receive(id, timeout=0)
+web3.receive(id, timeout=0, keep=False)
 
 # By default, the timeout is 0 and the receive function does not block, returning None if
 # the response wasn't available. Otherwise, the timeout argument has the same behaviour
 # as a normal call described above.
+# Receive will discard the response after the call unless keep is true.
 ```
 
 ### `web3`
