@@ -26,8 +26,7 @@ class RequestManager(object):
         if timeout == 0:
             return requestid
 
-        result = self.receive(requestid, timeout)
-        return result["result"]
+        return self.receive(requestid, timeout)
 
     def forward(self, data):
         """Should be used to asynchronously send request"""
@@ -46,7 +45,7 @@ class RequestManager(object):
         while True:
 
             if requestid in self.provider.responses:
-                return Jsonrpc.fromPayload(self.provider.responses.pop(requestid))
+                return Jsonrpc.fromPayload(self.provider.responses.pop(requestid))["result"]
 
             if timeout is not None and time.time() - start >= timeout:
                 if timeout == 0:
