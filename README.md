@@ -63,6 +63,29 @@ contract = contractFactory.at("0xaddress")
 # The abi methods should now be available on the contract instance
 ```
 
+### Timeouts, blocking and nonblocking requests
+All function and property requests block by default until the result is available. It is possible to provide an additional keyword argument 'timeout'.
+```python
+# Blocks indefinitely
+>>> web3.eth.getBalance("0xaddress", timeout=None)
+23423234
+
+# Blocks until the response is available until the timeout is reached
+# returning the response or raising a ValueError with the request id
+>>> web3.eth.getBalance("0xaddress", timeout=3) # in seconds
+23423234
+
+# Does not block, returns the unique request id immediately
+id = web3.eth.getBalance("0xaddress", timeout=0)
+
+# This id can be used to poll the Web3 instance later:
+web3.receive(id, timeout=0)
+
+# By default, the timeout is 0 and the receive function does not block, returning None if
+# the response wasn't available. Otherwise, the timeout argument has the same behaviour
+# as a normal call described above.
+```
+
 ### `web3`
 
 #### web3.db.*
