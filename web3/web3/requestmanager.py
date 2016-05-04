@@ -39,13 +39,17 @@ class RequestManager(object):
 
         return self.reqid
 
-    def receive(self, requestid, timeout=0):
+    def receive(self, requestid, timeout=0, keep=False):
         start = time.time()
 
         while True:
 
             if requestid in self.provider.responses:
-                return Jsonrpc.fromPayload(self.provider.responses.pop(requestid))["result"]
+                if keep:
+                    payload = self.provider.responses[requestid]
+                else:
+                    payload = self.provider.responses.pop(requestid)
+                return Jsonrpc.fromPayload(payload)["result"]
 
             if timeout is not None and time.time() - start >= timeout:
                 if timeout == 0:

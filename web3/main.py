@@ -92,8 +92,8 @@ class Web3:
     # def createBatch(self):
     #    return Batch(self)
 
-    def receive(self, requestid, timeout=0):
-        return self._requestManager.receive(requestid, timeout)
+    def receive(self, requestid, timeout=0, keep=False):
+        return self._requestManager.receive(requestid, timeout, keep)
 
 properties = [
     Property({
