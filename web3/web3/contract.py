@@ -64,9 +64,9 @@ class ContractFactory(object):
         options = {}
 
         if utils.isObject(args[-1]) and not utils.isArray(args[-1]):
-            options = args.pop()
+            options = args[-1]
 
-        bytestring = encodeConstructorParams(self.abi, args)
+        bytestring = encodeConstructorParams(self.abi, args[:-1])
         options["data"] += bytestring
 
         txhash = self.eth.sendTransaction(options)
