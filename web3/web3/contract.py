@@ -73,9 +73,10 @@ class ContractFactory(object):
 
         txhash = self.eth.sendTransaction(options)
         contract.transactionHash = txhash
-        checkForContractAddress(contract)
+        # TODO: Implement check for contract address.
+        # checkForContractAddress(contract)
 
-        return contract
+        return txhash
 
     def at(self, address):
         contract = Contract(self.eth, self.abi, address)
