@@ -71,7 +71,7 @@ class SolidityCoder(object):
             if isDynamic(i):
                 e = self.encodeWithOffset(
                     types[i], solidityTypes[i], encodeds[i], dynamicOffset)
-                dynamicOffset += e.length / 2
+                dynamicOffset += len(e) / 2
                 result += e
 
         return result

@@ -1,6 +1,6 @@
 import web3.utils.utils as utils
 import web3.utils.encoding as encoding
-import web3.solidity.coder as coder
+from web3.solidity.coder import coder
 from web3.web3.function import SolidityFunction
 
 
@@ -8,9 +8,11 @@ def encodeConstructorParams(abi, params):
     """
     Should be called to encode constructor params
     """
-    return [coder.encodeParams(json["type"], params) for json in abi
-            if json["type"] == "constructor" and
-            json["inputs"]["length"] == params["length"]][0] or ""
+    for json in abi:
+        if json["type"] == "constructor" and len(json["inputs"]) == len(params):
+                types = tuple(inp["type"] for inp in json["inputs"])
+                return coder.encodeParams(types, params)
+    return ""
 
 
 def addFunctionsToContract(contract):
@@ -21,6 +23,7 @@ def addFunctionsToContract(contract):
         if json["type"] == "function":
             f = SolidityFunction(contract._eth, json, contract.address)
             f.attachToContract(contract)
+
 
 '''
 def addEventsToContract(contract):
@@ -47,7 +50,6 @@ def checkForContractAddress(contract):
 
 
 class ContractFactory(object):
-
     def __init__(self, eth, abi):
         self.eth = eth
 
@@ -85,7 +87,6 @@ class ContractFactory(object):
 
 
 class Contract(object):
-
     def __init__(self, eth, abi, address=None):
         self._eth = eth
         self.transactionhash = None
