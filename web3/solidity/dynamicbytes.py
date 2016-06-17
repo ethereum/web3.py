@@ -18,5 +18,5 @@ class SolidityTypeDynamicBytes(types.SolidityType):
         return 32 * self.staticArrayLength(name)
 
     @classmethod
-    def isDynamicType(self):
+    def isDynamicType(self, name):
         return True
