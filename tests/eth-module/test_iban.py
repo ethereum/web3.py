@@ -1,7 +1,5 @@
 import pytest
 
-import web3
-
 
 @pytest.mark.parametrize(
     'value,expected',
@@ -12,8 +10,8 @@ import web3
         ),
     )
 )
-def test_createIndirect(value, expected):
-    actual = web3.eth.iban.createIndirect(value).toString()
+def test_createIndirect(value, expected, web3_tester):
+    actual = web3_tester.eth.iban.createIndirect(value).toString()
     assert actual == expected
 
 
@@ -42,8 +40,8 @@ def test_createIndirect(value, expected):
         ),
     ),
 )
-def test_fromAddress(value, expected):
-    actual = web3.eth.iban.fromAddress(value).toString()
+def test_fromAddress(value, expected, web3_tester):
+    actual = web3_tester.eth.iban.fromAddress(value).toString()
     assert actual == expected
 
 
@@ -120,11 +118,11 @@ def test_fromAddress(value, expected):
         ),
     ),
 )
-def test_isValid(value, expected):
-    actual = web3.eth.iban.isValid(value)
+def test_isValid(value, expected, web3_tester):
+    actual = web3_tester.eth.iban.isValid(value)
     assert actual is expected
 
-    iban = web3.eth.iban(value)
+    iban = web3_tester.eth.iban(value)
     assert iban.isValid() is expected
 
 
@@ -138,6 +136,6 @@ def test_isValid(value, expected):
         ),
     )
 )
-def test_toAddress(value, expected):
-    actual = web3.eth.iban(value).address()
+def test_toAddress(value, expected, web3_tester):
+    actual = web3_tester.eth.iban(value).address()
     assert actual == expected
