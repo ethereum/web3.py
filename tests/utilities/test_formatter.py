@@ -241,7 +241,7 @@ def test_outputBlockFormatter(value, expected):
                 "transactionHash": '0xd6960376d6c6dea93647383ffb245cfced97ccc5c7525397a543a72fdaea5265',
                 "blockHash": '0xd6960376d6c6dea93647383ffb245cfced97ccc5c7525397a543a72fdaea5265',
                 "data": '0x7b2274657374223a2274657374227',
-                "topics": ['0x68656c6c6f','0x6d79746f70696373']                
+                "topics": ['0x68656c6c6f','0x6d79746f70696373']
             }, {
                 "transactionIndex": 1000,
                 "logIndex": 1000,
@@ -261,7 +261,7 @@ def test_outputBlockFormatter(value, expected):
                 "transactionHash": None,
                 "blockHash": None,
                 "data": '0x7b2274657374223a2274657374227',
-                "topics": ['0x68656c6c6f','0x6d79746f70696373']                
+                "topics": ['0x68656c6c6f','0x6d79746f70696373']
             }, {
                 "transactionIndex": None,
                 "logIndex": None,
@@ -288,7 +288,7 @@ def test_outputLogFormatter(value, expected):
                 "ttl": '0x3e8',
                 "workProved": '0x3e8',
                 "payload": '0x7b2274657374223a2274657374227d',
-                "topics": ['0x68656c6c6f','0x6d79746f70696373']                
+                "topics": ['0x68656c6c6f','0x6d79746f70696373']
             }, {
                 "expiry": 1000,
                 "sent": 1000,
