@@ -2,7 +2,6 @@ import socket
 from web3.web3.provider import Provider
 import sys
 import os
-import six
 
 
 def getDefaultIPCPath(testnet=False):

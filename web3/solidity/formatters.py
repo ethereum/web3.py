@@ -1,4 +1,7 @@
-from web3.utils import utils, config, encoding
+from web3.utils import (
+    utils,
+    encoding,
+)
 from web3.solidity.param import SolidityParam
 from math import floor
 

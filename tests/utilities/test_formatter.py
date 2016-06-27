@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
-import web3.web3.formatter as formatter
+from web3.web3 import formatters
 
 
 @pytest.mark.parametrize(
@@ -13,7 +13,7 @@ import web3.web3.formatter as formatter
     ]
 )
 def test_inputAddressFormatter(value, expected):
-    assert formatter.inputAddressFormatter(value) == expected
+    assert formatters.inputAddressFormatter(value) == expected
 
 @pytest.mark.parametrize(
     "value",
@@ -27,7 +27,7 @@ def test_inputAddressFormatter(value, expected):
 )
 def test_inputAddressFormatter2(value):
     with pytest.raises(ValueError):
-        formatter.inputAddressFormatter(value)
+        formatters.inputAddressFormatter(value)
 
 @pytest.mark.parametrize(
     "value,expected",
@@ -40,7 +40,7 @@ def test_inputAddressFormatter2(value):
     ]
 )
 def test_inputDefaultBlockNumberFormatter(value, expected):
-    assert formatter.inputDefaultBlockNumberFormatter(value) == expected
+    assert formatters.inputDefaultBlockNumberFormatter(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -66,7 +66,7 @@ def test_inputDefaultBlockNumberFormatter(value, expected):
     ]
 )
 def test_inputPostFormatter(value, expected):
-    assert formatter.inputPostFormatter(value) == expected
+    assert formatters.inputPostFormatter(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -150,7 +150,7 @@ def test_inputPostFormatter(value, expected):
     )]
 )
 def test_inputTransactionFormatter(value, expected):
-    assert formatter.inputTransactionFormatter(value) == expected
+    assert formatters.inputTransactionFormatter(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -227,7 +227,7 @@ def test_inputTransactionFormatter(value, expected):
     ]
 )
 def test_outputBlockFormatter(value, expected):
-    assert formatter.outputBlockFormatter(value) == expected
+    assert formatters.outputBlockFormatter(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -241,7 +241,7 @@ def test_outputBlockFormatter(value, expected):
                 "transactionHash": '0xd6960376d6c6dea93647383ffb245cfced97ccc5c7525397a543a72fdaea5265',
                 "blockHash": '0xd6960376d6c6dea93647383ffb245cfced97ccc5c7525397a543a72fdaea5265',
                 "data": '0x7b2274657374223a2274657374227',
-                "topics": ['0x68656c6c6f','0x6d79746f70696373']                
+                "topics": ['0x68656c6c6f','0x6d79746f70696373']
             }, {
                 "transactionIndex": 1000,
                 "logIndex": 1000,
@@ -261,7 +261,7 @@ def test_outputBlockFormatter(value, expected):
                 "transactionHash": None,
                 "blockHash": None,
                 "data": '0x7b2274657374223a2274657374227',
-                "topics": ['0x68656c6c6f','0x6d79746f70696373']                
+                "topics": ['0x68656c6c6f','0x6d79746f70696373']
             }, {
                 "transactionIndex": None,
                 "logIndex": None,
@@ -276,7 +276,7 @@ def test_outputBlockFormatter(value, expected):
     ]
 )
 def test_outputLogFormatter(value, expected):
-    assert formatter.outputLogFormatter(value) == expected
+    assert formatters.outputLogFormatter(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -288,7 +288,7 @@ def test_outputLogFormatter(value, expected):
                 "ttl": '0x3e8',
                 "workProved": '0x3e8',
                 "payload": '0x7b2274657374223a2274657374227d',
-                "topics": ['0x68656c6c6f','0x6d79746f70696373']                
+                "topics": ['0x68656c6c6f','0x6d79746f70696373']
             }, {
                 "expiry": 1000,
                 "sent": 1000,
@@ -300,7 +300,7 @@ def test_outputLogFormatter(value, expected):
     ]
 )
 def test_outputPostFormatter(value, expected):
-    assert formatter.outputPostFormatter(value) == expected
+    assert formatters.outputPostFormatter(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -332,4 +332,4 @@ def test_outputPostFormatter(value, expected):
     ]
 )
 def test_outputTransactionFormatter(value, expected):
-    assert formatter.outputTransactionFormatter(value) == expected
+    assert formatters.outputTransactionFormatter(value) == expected

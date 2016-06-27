@@ -8,7 +8,7 @@ class SolidityParam(object):
         self.offset = offset
 
     def dynamicPartLength(self):
-        return len(self.dynamicPart()) / 2
+        return len(self.dynamicPart()) // 2
 
     def withOffset(self, offset):
         return SolidityParam(self.value, offset)
@@ -17,10 +17,13 @@ class SolidityParam(object):
         return SolidityParam(self.value + param.value)
 
     def isDynamic(self):
-        return self.offset != None
+        return self.offset is not None
 
     def offsetAsBytes(self):
-        return "" if not self.isDynamic() else utils.padLeft(utils.toTwosComplement(self.offset).toString(16), 64)  # toHex
+        if not self.isDynamic():
+            return b""
+        else:
+            return utils.padLeft(utils.toTwosComplement(self.offset).toString(16), 64)  # toHex
 
     def staticPart(self):
         if not self.isDynamic():
@@ -28,7 +31,7 @@ class SolidityParam(object):
         return self.offsetAsBytes()
 
     def dynamicPart(self):
-        return self.value if self.isDynamic() else ""
+        return self.value if self.isDynamic() else b""
 
     def encode(self):
         return self.staticPart() + self.dynamicPart()
@@ -40,12 +43,13 @@ class SolidityParam(object):
             if not param.isDynamic():
                 return param
             offset = totalOffset
-            totalOffset += param.dynamicPartLength()
+            totalOffset += param.dynamicPartLength()  # NOQA
             return param.withOffset(offset)
+
         offsetParams = [mapf(p) for p in params]
 
         # Encode everything!
-        result = ""
+        result = b""
         for param in offsetParams:
             result += param.staticPart()
         for param in offsetParams:
