@@ -9,6 +9,11 @@ import web3
     'value,expected,encoding',
     (
         (
+            '',
+            'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
+            None,
+        ),
+        (
             'test123',
             'f81b517a242b218999ec8eec0ea6e2ddbef2a367a14e93f4a32a39e260f686ad',
             None,
