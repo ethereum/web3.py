@@ -1,24 +1,39 @@
 from __future__ import absolute_import
 
+import copy
+
 from web3.web3.requestmanager import RequestManager
 from web3.web3.methods.eth import Eth
 from web3.web3.methods.db import Db
 from web3.web3.methods.shh import Shh
 from web3.web3.methods.net import Net
 from web3.web3.methods.personal import Personal
-import web3.version as version
+from web3.version import Version
+
+from web3.web3.rpcprovider import (
+    RPCProvider,
+    TestRPCProvider,
+    is_testrpc_available,
+)
+
+from web3.web3.ipcprovider import IPCProvider
 import web3.utils.encoding as encoding
 import web3.utils.currency as currency
 import web3.utils.address as address
 import web3.utils.config as config
 from web3.utils.crypto import sha3
-from web3.web3.property import Property
-from web3.web3.rpcprovider import RPCProvider
-from web3.web3.ipcprovider import IPCProvider
 
 
-class Web3:
+DEFAULT_PROVIDERS = {
+    "RPCProvider": RPCProvider,
+    "IPCProvider": IPCProvider
+}
 
+if is_testrpc_available():
+    DEFAULT_PROVIDERS['TestRPCProvider'] = TestRPCProvider
+
+
+class Web3(object):
     def __init__(self, provider):
         self._requestManager = RequestManager(provider)
         self.currentProvider = provider
@@ -28,10 +43,9 @@ class Web3:
         self.net = Net(self)
         self.personal = Personal(self)
 
-        class Version:
-            api = version.version
+        self.providers = copy.copy(DEFAULT_PROVIDERS)
 
-        self.version = Version
+        self.version = Version(self._requestManager)
 
         class Config:
 
@@ -48,11 +62,6 @@ class Web3:
                     config.defaultBlock = value
 
         self.config = Config()
-
-        self.providers = {
-            "RPCProvider": RPCProvider,
-            "IPCProvider": IPCProvider
-        }
 
         for prop in properties:
             prop.attachToObject(self)
@@ -95,24 +104,24 @@ class Web3:
     def receive(self, requestid, timeout=0, keep=False):
         return self._requestManager.receive(requestid, timeout, keep)
 
-properties = [
-    Property({
-        "name": "version.node",
-        "getter": "web3_clientVersion"
-    }),
-    Property({
-        "name": "version.network",
-        "getter": "net_version",
-        "inputFormatter": encoding.toDecimal
-    }),
-    Property({
-        "name": "version.ethereum",
-        "getter": "eth_protocolVersion",
-        "inputFormatter": encoding.toDecimal
-    }),
-    Property({
-        "name": "version.whisper",
-        "getter": "shh_version",
-        "inputFormatter": encoding.toDecimal
-    })
-]
+properties = []
+#    Property({
+#        "name": "version.node",
+#        "getter": "web3_clientVersion"
+#    }),
+#    Property({
+#        "name": "version.network",
+#        "getter": "net_version",
+#        "inputFormatter": encoding.toDecimal
+#    }),
+#    Property({
+#        "name": "version.ethereum",
+#        "getter": "eth_protocolVersion",
+#        "inputFormatter": encoding.toDecimal
+#    }),
+#    Property({
+#        "name": "version.whisper",
+#        "getter": "shh_version",
+#        "inputFormatter": encoding.toDecimal
+#    })
+#]

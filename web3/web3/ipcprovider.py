@@ -1,65 +1,81 @@
 import socket
-from web3.web3.provider import Provider
 import sys
 import os
+import threading
+
+from web3.web3.provider import BaseProvider
+from web3.utils.socket import get_ipc_socket
 
 
-def getDefaultIPCPath(testnet=False):
+def get_default_ipc_path(testnet=False):
     if testnet:
-        testnet = "testnet/"
+        testnet = "testnet"
     else:
         testnet = ""
 
     if sys.platform == 'darwin':
-        ipc_path = os.path.expanduser("~/Library/Ethereum/"+testnet+"geth.ipc")
+        return os.path.expanduser(os.path.join(
+            "~",
+            "Library",
+            "Ethereum",
+            testnet,
+            "geth.ipc",
+        ))
     elif sys.platform.startswith('linux'):
-        ipc_path = os.path.expanduser("~/.ethereum/"+testnet+"geth.ipc")
+        return os.path.expanduser(os.path.join(
+            "~",
+            "ethereum",
+            testnet,
+            "geth.ipc",
+        ))
     elif sys.platform == 'win32':
-        ipc_path = os.path.expanduser("\\~\\AppData\\Roaming\\Ethereum")
+        return os.path.expanduser(os.path.join(
+            "~",
+            "AppData",
+            "Roaming",
+            "Ethereum",
+        ))
     else:
         raise ValueError(
             "Unsupported platform '{0}'.  Only darwin/linux2/win32 are "
             "supported.  You must specify the ipc_path".format(sys.platform)
         )
-    return ipc_path
 
 
-class IPCProvider(Provider):
-
-    def __init__(self, ipcpath=None, testnet=False, *args, **kwargs):
-        if ipcpath is None:
-            self.ipcpath = getDefaultIPCPath(testnet)
+class IPCProvider(BaseProvider):
+    def __init__(self, ipc_path=None, testnet=False, *args, **kwargs):
+        if ipc_path is None:
+            self.ipc_path = get_default_ipc_path(testnet)
         else:
-            self.ipcpath = ipcpath
+            self.ipc_path = ipc_path
 
-        self.socket = self.getSocket()
-
+        self._lock = threading.Lock()
         super(IPCProvider, self).__init__(*args, **kwargs)
 
-    def getSocket(self):
-        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        sock.connect(self.ipcpath)
-        sock.settimeout(0.001)
-        return sock
+    def make_request(self, method, params):
+        request = self.encode_rpc_request(method, params)
 
-    def _make_request(self, request):
+        self._lock.acquire()
 
-        for _ in range(3):
-            self.socket.sendall(request)
-            response_raw = u""
-            while True:
-                try:
-                    response_raw += self.socket.recv(4096).decode()
-                except socket.timeout:
-                    if response_raw != "":
-                        break
+        try:
+            with get_ipc_socket(self.ipc_path) as sock:
+                sock.sendall(request)
+                response_raw = b""
 
-            if response_raw == "":
-                self.socket.close()
-                self.socket = self.getSocket()
-                continue
+                while True:
+                    try:
+                        response_raw += sock.recv(4096)
+                    except socket.timeout:
+                        if response_raw != b"":
+                            break
 
-            break
-        else:
-            raise ValueError("No JSON returned by socket")
+                    if response_raw == b"":
+                        continue
+
+                    break
+                else:
+                    raise ValueError("No JSON returned by socket")
+        finally:
+            self._lock.release()
+
         return response_raw
