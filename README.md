@@ -48,6 +48,26 @@ web3ipc = Web3(IPCProvider(ipcpath=None, testnet=False))
 # Both arguments can be omitted, the ipcpath should be found automatically
 ```
 
+For testing you can use the `TestRPCProvider`.  This depends on
+`eth-testrpc>=0.2.0` which must be installed independently (It is not included
+as a hard dependency for this package.)
+
+
+```python
+from web3 import Web3, TestRPCProvider
+
+# Initialising a Web3 instance with an RPCProvider:
+web3rpc = Web3(TestRPCProvider())
+
+# or specifying host and port.
+web3rpc = Web3(TestRPCProvider(host="127.0.0.1", port="8545"))
+```
+
+The `TestRPCProvider` uses an EVM backed by the `ethereum.tester` module from
+the `pyethereum` package.  This can be quite useful for testing your code which
+uses `web3.py`.
+
+
 ### Setting defaults
 ```python
 web3.config.defaultAccount = <your (unlocked) account>
