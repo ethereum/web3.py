@@ -15,8 +15,8 @@ from web3.web3.rpcprovider import (
     TestRPCProvider,
     is_testrpc_available,
 )
-
 from web3.web3.ipcprovider import IPCProvider
+
 import web3.utils.encoding as encoding
 import web3.utils.currency as currency
 import web3.utils.address as address
@@ -37,15 +37,15 @@ class Web3(object):
     def __init__(self, provider):
         self._requestManager = RequestManager(provider)
         self.currentProvider = provider
-        self.eth = Eth(self)
-        self.db = Db(self)
-        self.shh = Shh(self)
-        self.net = Net(self)
-        self.personal = Personal(self)
+
+        self.eth = Eth(self._requestManager)
+        self.db = Db(self._requestManager)
+        self.shh = Shh(self._requestManager)
+        self.net = Net(self._requestManager)
+        self.personal = Personal(self._requestManager)
+        self.version = Version(self._requestManager)
 
         self.providers = copy.copy(DEFAULT_PROVIDERS)
-
-        self.version = Version(self._requestManager)
 
         class Config:
 
@@ -63,13 +63,9 @@ class Web3(object):
 
         self.config = Config()
 
-        for prop in properties:
-            prop.attachToObject(self)
-            prop.setRequestManager(self._requestManager)
-
         # Expose providers on the class
-        self.RPCProvider = RPCProvider
-        self.IPCProvider = IPCProvider
+        for class_name, klass in DEFAULT_PROVIDERS.items():
+            setattr(self, class_name, klass)
 
         # Expose utility functions
         self.toHex = encoding.toHex
@@ -93,35 +89,13 @@ class Web3(object):
         self._requestManager.reset(keepIsSyncing)
 
     def sha3(self, string, options):
-        return "0x" + sha3.sha3(string, options)
+        return b"0x" + sha3.sha3(string, options)
 
     def isConnected(self):
         return self.currentProvider and self.currentProvider.isConnected()
 
-    # def createBatch(self):
-    #    return Batch(self)
+    def createBatch(self):
+        raise NotImplementedError("Not Implemented")
 
     def receive(self, requestid, timeout=0, keep=False):
         return self._requestManager.receive(requestid, timeout, keep)
-
-properties = []
-#    Property({
-#        "name": "version.node",
-#        "getter": "web3_clientVersion"
-#    }),
-#    Property({
-#        "name": "version.network",
-#        "getter": "net_version",
-#        "inputFormatter": encoding.toDecimal
-#    }),
-#    Property({
-#        "name": "version.ethereum",
-#        "getter": "eth_protocolVersion",
-#        "inputFormatter": encoding.toDecimal
-#    }),
-#    Property({
-#        "name": "version.whisper",
-#        "getter": "shh_version",
-#        "inputFormatter": encoding.toDecimal
-#    })
-#]

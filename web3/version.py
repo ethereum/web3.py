@@ -23,3 +23,17 @@ class Version(object):
 
     def getNetwork(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def ethereum(self):
+        return self.request_manager.request_blocking("eth_protocolVersion", [])
+
+    def getEthereum(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def whisper(self):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    def getWhisper(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")

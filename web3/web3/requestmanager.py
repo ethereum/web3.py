@@ -1,10 +1,6 @@
-import web3.web3.exceptions as exceptions
-from web3.web3.jsonrpc import Jsonrpc
-
 import uuid
+import json
 import gevent
-
-
 
 
 class RequestManager(object):
@@ -16,11 +12,22 @@ class RequestManager(object):
         """
         Make a synchronous request using the provider
         """
-        return self.provider.make_request(method, params)
+        response_raw = self.provider.make_request(method, params)
+
+        response = json.loads(response_raw)
+
+        if "error" in response:
+            raise ValueError(response["error"])
+
+        return response['result']
 
     def request_async(self, method, params):
         request_id = uuid.uuid4()
-        self.pending_requests[request_id] = gevent.spawn(self.request_blocking, method, params)
+        self.pending_requests[request_id] = gevent.spawn(
+            self.request_blocking,
+            method,
+            params,
+        )
         return request_id
 
     def receive_blocking(self, request_id, timeout=None):
@@ -31,7 +38,14 @@ class RequestManager(object):
         else:
             if timeout is not None:
                 timeout = gevent.Timeout(timeout).start()
-            return request.get(timeout=timeout)
+            response_raw = request.get(timeout=timeout)
+
+        response = json.loads(response_raw)
+
+        if "error" in response:
+            raise ValueError(response["error"])
+
+        return response['result']
 
     def receive_async(self, request_id, *args, **kwargs):
         raise NotImplementedError("Callback pattern not implemented")
