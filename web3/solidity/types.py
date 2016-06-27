@@ -88,10 +88,13 @@ class SolidityType(object):
             roundedNestedStaticPartLength = math.floor(
                 float(nestedStaticPartLength + 31) / 32) * 32
 
-            result = []
+            limit = length * roundedNestedStaticPartLength
+            step = roundedNestedStaticPartLength
 
-            for i in range(0, length * roundedNestedStaticPartLength, roundedNestedStaticPartLength):
-                result.append(sef.decode(bytes, arrayStart + i, nestedName))
+            result = [
+                self.decode(bytes, arrayStart + i, nestedName)
+                for i in range(0, limit, step)
+            ]
 
             return result
 
@@ -101,10 +104,17 @@ class SolidityType(object):
 
             nestedName = self.nestedName(name)
             nestedStaticPartLength = self.staticPartLength(nestedName)
-            result = []
+            roundedNestedStaticPartLength = math.floor(
+                float(nestedStaticPartLength + 31) / 32
+            ) * 32
 
-            for i in range(0, length * roundedNestedStaticPartLength, roundedNestedStaticPartLength):
-                result.append(self.decode(bytes, arrayStart + i, nestedName))
+            limit = length * roundedNestedStaticPartLength
+            step = roundedNestedStaticPartLength
+
+            result = [
+                self.decode(bytes, arrayStart + i, nestedName)
+                for i in range(0, limit, step)
+            ]
 
             return result
 
@@ -113,7 +123,12 @@ class SolidityType(object):
             length = int(bytes[dynamicOffset * 2, dynamicOffset * 2 + 64], 16)
             roundedLength = math.floor(float(length + 31) / 32)
 
-            return self._outputFormatter(SolidityParam(bytes[dynamicOffset * 2: dynamicOffset * 2 + (1 + roundedLength) * 64], 0))
+            return self._outputFormatter(
+                SolidityParam(
+                    bytes[dynamicOffset * 2: dynamicOffset * 2 + (1 + roundedLength) * 64],
+                    0,
+                )
+            )
 
         length = self.staticPartLength(name)
         return self._outputFormatter(SolidityParam(bytes[offset * 2: offset * 2 + length * 2]))

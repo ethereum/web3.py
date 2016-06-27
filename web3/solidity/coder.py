@@ -53,7 +53,12 @@ class SolidityCoder(object):
         result = u""
 
         def isDynamic(i):
-            return solidityTypes[i].isDynamicArray(types[i]) or solidityTypes[i].isDynamicType(types[i])
+            if solidityTypes[i].isDynamicArray(types[i]):
+                return True
+            elif solidityTypes[i].isDynamicType(types[i]):
+                return True
+            else:
+                return False
 
         for i, t in enumerate(types):
             if isDynamic(i):
