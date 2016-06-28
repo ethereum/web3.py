@@ -198,8 +198,7 @@ properties = [
 ]
 
 
-class DefaultAccount:
-
+class DefaultAccount(object):
     def __set__(self, v):
         config.defaultAccount = self.value
 
@@ -208,9 +207,8 @@ class DefaultAccount:
 
 
 class Eth(object):
-
-    def __init__(self, web3):
-        self._requestManager = web3._requestManager
+    def __init__(self, request_manager):
+        self.request_manager = request_manager
 
         self.defaultBlock = config.defaultBlock
         self.defaultAccount = DefaultAccount()  # config.defaultAccount
@@ -218,24 +216,131 @@ class Eth(object):
         self.iban = Iban
         # self.sendIBANTransaction = lambda: raise NotImplementedError()
 
-        for method in methods:
-            method = Method(method)
-            method.attachToObject(self)
-            method.setRequestManager(web3._requestManager)
-
-        for prop in properties:
-            prop = Property(prop)
-            prop.attachToObject(self)
-            prop.setRequestManager(web3._requestManager)
-
-    def contract(self, abi):
-        return ContractFactory(self, abi)
-
     def namereg(self):
         raise NotImplementedError()
 
     def icapNamereg(self):
         raise NotImplementedError()
 
-    def isSyncing(self):
+    @property
+    def syncing(self):
+        return self.request_manager.request_blocking("eth_syncing", [])
+
+    def getSyncing(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    def isSyncing(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def coinbase(self):
+        return self.request_manager.request_blocking("eth_coinbase", [])
+
+    def getCoinbase(self):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def mining(self):
+        return self.request_manager.request_blocking("eth_mining", [])
+
+    def getMining(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def hashrate(self):
+        return self.request_manager.request_blocking("eth_hashrate", [])
+
+    def getHashrate(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def gasPrice(self):
+        return self.request_manager.request_blocking("eth_gasPrice", [])
+
+    def getGasPrice(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def accounts(self):
+        return self.request_manager.request_blocking("eth_accounts", [])
+
+    def getAccounts(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def blockNumber(self):
+        return self.request_manager.request_blocking("eth_blockNumber", [])
+
+    def getBlockNumber(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    def getBalance(self, account, block_number="latest"):
+        return self.request_manager.request_blocking("eth_getBalance", [account, block_number])
+
+    def getStorageAt(self, account, position, block_number="latest")
+        return self.request_manager.request_blocking("eth_getStorageAt", [account, position, block_number])
+
+    def getCode(self, account, block_number="latest")
+        return self.request_manager.request_blocking("eth_getCode", [account, block_number])
+
+    def getBlock(self, block_identifier, full_txns):
+        """
+        `eth_getBlockByHash`
+        `eth_getBlockByNumber`
+        """
+        raise NotImplementedError("TODO")
+
+    def getBlockTransactionCount(self, block_identifier):
+        """
+        `eth_getBlockTransactionCountByHash`
+        `eth_getBlockTransactionCountByNumber`
+        """
+        raise NotImplementedError("TODO")
+
+    def getUncle(self, block_identifier):
+        """
+        `eth_getUncleCountByBlockHash`
+        `eth_getUncleCountByBlockNumber`
+        """
+        raise NotImplementedError("TODO")
+
+    def getTransaction(self, txn_hash):
+        return self.request_manager.request_blocking("eth_getTransactionByHash", [txn_hash])
+
+    def getTransactionFromBlock(self, block_identifier, txn_index):
         raise NotImplementedError()
+
+    def getTransactionReciept(self, txn_hash):
+        return self.request_manager.request_blocking("eth_getTransactionReceipt", [txn_hash])
+
+    def getTransactionCount(self, account, block_number="latest"):
+        return self.request_manager.request_blocking("eth_getTransactionCount", [account, block_number])
+
+    def sendTransaction(self, *args, **kwargs):
+        raise NotImplementedError("TODO")
+
+    def sendRawTransaction(self, *args, **kwargs):
+        raise NotImplementedError("TODO")
+
+    def sign(self, account, data):
+        return self.request_manager.request_blocking("eth_sign", [account, data])
+
+    def call(self, *args, **kwargs):
+        raise NotImplementedError("TODO")
+
+    def estimateGas(self, *args, **kwargs):
+        raise NotImplementedError("TODO")
+
+    def filter(self, *args, **kwargs):
+        """
+        `eth_newFilter`
+        `eth_newBlockFilter`
+        `eth_uninstallFilter`
+        """
+        raise NotImplementedError("TODO")
+
+    def contract(self, abi):
+        return ContractFactory(self, abi)
+
+    def getCompilers(self):
+        return self.request_manager.request_blocking("eth_getCompilers", [])

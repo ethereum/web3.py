@@ -1,7 +1,7 @@
-from web3.web3.method import Method
-from web3.web3.property import Property
 import web3.web3.formatters as formatters
 
+
+# TODO: remove this list
 methods = [
     {
         "name": "newAccount",
@@ -24,25 +24,31 @@ methods = [
 ]
 
 
-properties = [
-    {
-        "name": "listAccounts",
-        "getter": "personal_listAccounts",
-    }
-]
-
-
 class Personal(object):
+    """
+    https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal
+    """
+    def __init__(self, request_manager):
+        self.request_manager = request_manager
 
-    def __init__(self, web3):
-        self._requestManager = web3._requestManager
+    def importRawKey(self, *args, **kwargs):
+        raise NotImplementedError()
 
-        for method in methods:
-            method = Method(method)
-            method.attachToObject(self)
-            method.setRequestManager(web3._requestManager)
+    def newAccount(self, *args, **kwargs):
+        raise NotImplementedError()
 
-        for prop in properties:
-            prop = Property(prop)
-            prop.attachToObject(self)
-            prop.setRequestManager(web3._requestManager)
+    @property
+    def listAccounts(self):
+        return self.request_manager.request_blocking("personal_listAccounts", [])
+
+    def getListAccounts(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    def signAndSendTransaction(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    def lockAccount(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    def unlockAccount(self, *args, **kwargs):
+        raise NotImplementedError()
