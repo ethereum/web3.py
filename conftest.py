@@ -1,6 +1,7 @@
 import pytest
 import contextlib
 import tempfile
+import shutil
 
 # This has to go here so that the `gevent.monkey.patch_all()` happens in the
 # main thread.
@@ -62,8 +63,12 @@ def wait_for_block():
 
 @contextlib.contextmanager
 def tempdir():
-    with tempfile.TemporaryDirectory() as directory:
+    directory = tempfile.mkdtemp()
+
+    try:
         yield directory
+    finally:
+        shutil.rmtree(directory)
 
 
 @contextlib.contextmanager
