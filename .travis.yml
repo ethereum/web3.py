@@ -8,7 +8,8 @@ before_install:
   - sudo add-apt-repository -y ppa:ethereum/ethereum
   - sudo apt-get update
   - sudo apt-get install -y ethereum
-  - geth makedag
+  - mkdir -p ~/.ethash
+  - geth makedag 0 ~/.ethash
 env:
   matrix:
     - TOX_ENV=py27

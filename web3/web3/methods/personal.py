@@ -1,3 +1,6 @@
+import getpass
+
+
 class Personal(object):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal
@@ -8,8 +11,19 @@ class Personal(object):
     def importRawKey(self, *args, **kwargs):
         raise NotImplementedError()
 
-    def newAccount(self, *args, **kwargs):
-        raise NotImplementedError()
+    def newAccount(self, password=None):
+        if password is None:
+            password1 = getpass.getpass("Passphrase:")
+            password2 = getpass.getpass("Repeat passphrase:")
+            if password1 != password2:
+                raise ValueError("Passwords do not match")
+
+            password = password1
+
+        if not password:
+            raise ValueError("Cannot have an empty password")
+
+        return self.request_manager.request_blocking("personal_newAccount", [password])
 
     @property
     def listAccounts(self):
