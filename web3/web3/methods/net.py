@@ -1,5 +1,5 @@
-from web3.web3.property import Property
 import web3.utils.encoding as encoding
+from web3.utils.functional import apply_formatters
 
 properties = [
     {
@@ -27,6 +27,7 @@ class Net(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
+    @apply_formatters(encoding.toDecimal)
     def peerCount(self):
         return self.request_manager.request_blocking("net_peerCount", [])
 
