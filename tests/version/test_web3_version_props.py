@@ -1,9 +1,9 @@
-import web3
+import web3 as web3_module
 import testrpc
 
 
 def test_api_property(web3):
-    assert web3.version.api == web3.__version__
+    assert web3.version.api == web3_module.__version__
 
 
 def test_node_property(web3):
