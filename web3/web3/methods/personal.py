@@ -1,29 +1,3 @@
-import web3.web3.formatters as formatters
-
-
-# TODO: remove this list
-methods = [
-    {
-        "name": "newAccount",
-        "call": "personal_newAccount",
-        "params": 1,
-        "inputFormatter": [None]
-    },
-    {
-        "name": "unlockAccount",
-        "call": "personal_unlockAccount",
-        "params": 3,
-        "inputFormatter": [formatters.inputAddressFormatter, None, None]
-    },
-    {
-        "name": "lockAccount",
-        "call": "personal_lockAccount",
-        "params": 1,
-        "inputFormatter": [formatters.inputAddressFormatter]
-    }
-]
-
-
 class Personal(object):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal

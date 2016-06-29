@@ -1,4 +1,5 @@
 # String encodings and numeric representations
+import sys
 import binascii
 from . import utils
 import json
@@ -99,3 +100,105 @@ def abiToJson(obj):
     Converts abi string to python object
     """
     return json.loads(obj)
+
+
+if sys.version_info.major == 2:
+    binary_types = (bytes, bytearray)
+    text_types = (unicode,)  # NOQA
+    string_types = (basestring, bytearray)  # NOQA
+else:
+    binary_types = (bytes, bytearray)
+    text_types = (str,)
+    string_types = (bytes, str, bytearray)
+
+
+def is_binary(value):
+    return isinstance(value, binary_types)
+
+
+def is_text(value):
+    return isinstance(value, text_types)
+
+
+def is_string(value):
+    return isinstance(value, string_types)
+
+
+if sys.version_info.major == 2:
+    def force_bytes(value):
+        if is_binary(value):
+            return str(value)
+        elif is_text(value):
+            return value.encode('latin1')
+        else:
+            raise TypeError("Unsupported type: {0}".format(type(value)))
+
+    def force_text(value):
+        if is_text(value):
+            return value
+        elif is_binary(value):
+            return unicode(force_bytes(value), 'latin1')  # NOQA
+        else:
+            raise TypeError("Unsupported type: {0}".format(type(value)))
+else:
+    def force_bytes(value):
+        if is_binary(value):
+            return bytes(value)
+        elif is_text(value):
+            return bytes(value, 'latin1')
+        else:
+            raise TypeError("Unsupported type: {0}".format(type(value)))
+
+    def force_text(value):
+        if isinstance(value, text_types):
+            return value
+        elif isinstance(value, binary_types):
+            return str(value, 'latin1')
+        else:
+            raise TypeError("Unsupported type: {0}".format(type(value)))
+
+
+def force_obj_to_bytes(obj, skip_unsupported=False):
+    if is_string(obj):
+        return force_bytes(obj)
+    elif isinstance(obj, dict):
+        return {
+            k: force_obj_to_bytes(v, skip_unsupported) for k, v in obj.items()
+        }
+    elif isinstance(obj, (list, tuple)):
+        return type(obj)(force_obj_to_bytes(v, skip_unsupported) for v in obj)
+    elif not skip_unsupported:
+        raise ValueError("Unsupported type: {0}".format(type(obj)))
+    else:
+        return obj
+
+
+def force_obj_to_text(obj, skip_unsupported=False):
+    if is_string(obj):
+        return force_text(obj)
+    elif isinstance(obj, dict):
+        return {
+            k: force_obj_to_text(v, skip_unsupported) for k, v in obj.items()
+        }
+    elif isinstance(obj, (list, tuple)):
+        return type(obj)(force_obj_to_text(v, skip_unsupported) for v in obj)
+    elif not skip_unsupported:
+        raise ValueError("Unsupported type: {0}".format(type(obj)))
+    else:
+        return obj
+
+
+def coerce_args_to_bytes(fn):
+    @functools.wraps(fn)
+    def inner(*args, **kwargs):
+        bytes_args = force_obj_to_bytes(args, True)
+        bytes_kwargs = force_obj_to_bytes(kwargs, True)
+        return fn(*bytes_args, **bytes_kwargs)
+    return inner
+
+
+def coerce_return_to_bytes(fn):
+    @functools.wraps(fn)
+    def inner(*args, **kwargs):
+        return force_obj_to_bytes(fn(*args, **kwargs), True)
+    return inner

@@ -274,13 +274,19 @@ class Eth(object):
     def getBlockNumber(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
 
-    def getBalance(self, account, block_number="latest"):
+    def getBalance(self, account, block_number=None):
+        if block_number is None:
+            block_number = self.defaultBlock
         return self.request_manager.request_blocking("eth_getBalance", [account, block_number])
 
-    def getStorageAt(self, account, position, block_number="latest")
+    def getStorageAt(self, account, position, block_number=None):
+        if block_number is None:
+            block_number = self.defaultBlock
         return self.request_manager.request_blocking("eth_getStorageAt", [account, position, block_number])
 
-    def getCode(self, account, block_number="latest")
+    def getCode(self, account, block_number=None):
+        if block_number is None:
+            block_number = self.defaultBlock
         return self.request_manager.request_blocking("eth_getCode", [account, block_number])
 
     def getBlock(self, block_identifier, full_txns):
@@ -313,7 +319,9 @@ class Eth(object):
     def getTransactionReciept(self, txn_hash):
         return self.request_manager.request_blocking("eth_getTransactionReceipt", [txn_hash])
 
-    def getTransactionCount(self, account, block_number="latest"):
+    def getTransactionCount(self, account, block_number=None):
+        if block_number is None:
+            block_number = self.defaultBlock
         return self.request_manager.request_blocking("eth_getTransactionCount", [account, block_number])
 
     def sendTransaction(self, *args, **kwargs):

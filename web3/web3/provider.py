@@ -1,5 +1,9 @@
+from __future__ import absolute_import
+
 import json
 import itertools
+
+from web3.utils.encoding import force_bytes
 
 
 class BaseProvider(object):
@@ -10,9 +14,9 @@ class BaseProvider(object):
         raise NotImplementedError("Providers must implement this method")
 
     def encode_rpc_request(self, method, params):
-        return json.dumps({
+        return force_bytes(json.dumps({
             "jsonrpc": "2.0",
             "method": method,
             "params": params or [],
             "id": next(self.request_counter),
-        })
+        }))

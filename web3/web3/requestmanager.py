@@ -2,6 +2,8 @@ import uuid
 import json
 import gevent
 
+from web3.utils.encoding import force_text
+
 
 class RequestManager(object):
     def __init__(self, provider):
@@ -14,7 +16,7 @@ class RequestManager(object):
         """
         response_raw = self.provider.make_request(method, params)
 
-        response = json.loads(response_raw)
+        response = json.loads(force_text(response_raw))
 
         if "error" in response:
             raise ValueError(response["error"])
