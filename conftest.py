@@ -1,4 +1,10 @@
 import pytest
+import contextlib
+import tempfile
+
+# This has to go here so that the `gevent.monkey.patch_all()` happens in the
+# main thread.
+from pygeth.geth import DevGethProcess
 
 
 def get_open_port():
@@ -41,37 +47,84 @@ def wait_for_ipc_connection(ipc_path, timeout=30):
             raise ValueError("Unable to establish HTTP connection")
 
 
-@pytest.yield_fixture(params=['tester', 'rpc', 'ipc'])
-def web3(request, tmpdir):
-    from web3 import Web3
-    from pygeth.geth import DevGethProcess
+@pytest.fixture()
+def wait_for_block():
+    import gevent
 
-    if request.param == "tester":
-        from web3.web3.rpcprovider import TestRPCProvider
-        provider = TestRPCProvider(port=get_open_port())
-    elif request.param == "rpc":
-        from web3.web3.rpcprovider import RPCProvider
-        geth = DevGethProcess('testing', base_dir=str(tmpdir.mkdir("data-dir")))
+    def _wait_for_block(web3, block_number=1, timeout=60):
+        with gevent.Timeout(timeout):
+            while True:
+                if web3.eth.blockNumber >= block_number:
+                    break
+                gevent.sleep(1)
+    return _wait_for_block
+
+
+@contextlib.contextmanager
+def tempdir():
+    with tempfile.TemporaryDirectory() as directory:
+        yield directory
+
+
+@contextlib.contextmanager
+def setup_tester_rpc_provider():
+    from testrpc import testrpc
+
+    from web3.web3.rpcprovider import TestRPCProvider
+    port = get_open_port()
+    provider = TestRPCProvider(port=port)
+
+    testrpc.evm_reset()
+    testrpc.rpc_configure('eth_mining', False)
+    testrpc.evm_mine()
+
+    wait_for_http_connection(port)
+    yield provider
+    provider.server.shutdown()
+    provider.server.server_close()
+
+
+@contextlib.contextmanager
+def setup_rpc_provider():
+    from web3.web3.rpcprovider import RPCProvider
+
+    with tempdir() as base_dir:
+        geth = DevGethProcess('testing', base_dir=base_dir)
         geth.start()
         wait_for_http_connection(geth.rpc_port)
         provider = RPCProvider(port=geth.rpc_port)
-    elif request.param == "ipc":
-        from web3.web3.ipcprovider import IPCProvider
-        geth = DevGethProcess('testing', base_dir=str(tmpdir.mkdir("data-dir")))
+        provider._geth = geth
+        yield provider
+        geth.stop()
+
+
+@contextlib.contextmanager
+def setup_ipc_provider():
+    from web3.web3.ipcprovider import IPCProvider
+
+    with tempdir() as base_dir:
+        geth = DevGethProcess('testing', base_dir=base_dir)
         geth.start()
         wait_for_ipc_connection(geth.ipc_path)
         provider = IPCProvider(geth.ipc_path)
-    else:
-        raise ValueError("Unknown param")
+        provider._geth = geth
+        yield provider
+        geth.stop()
 
-    _web3 = Web3(provider)
 
-    yield _web3
+@pytest.yield_fixture(params=['tester', 'rpc', 'ipc'])
+def web3(request):
+    from web3 import Web3
 
     if request.param == "tester":
-        _web3.currentProvider.server.shutdown()
-        _web3.currentProvider.server.server_close()
-    elif request.param in {"rpc", "ipc"}:
-        geth.stop()
+        setup_fn = setup_tester_rpc_provider
+    elif request.param == "rpc":
+        setup_fn = setup_rpc_provider
+    elif request.param == "ipc":
+        setup_fn = setup_ipc_provider
     else:
         raise ValueError("Unknown param")
+
+    with setup_fn() as provider:
+        _web3 = Web3(provider)
+        yield _web3

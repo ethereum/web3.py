@@ -1,4 +1,5 @@
 # String encodings and numeric representations
+import functools
 import sys
 import binascii
 from . import utils
@@ -103,13 +104,19 @@ def abiToJson(obj):
 
 
 if sys.version_info.major == 2:
+    integer_types = (int, long)
     binary_types = (bytes, bytearray)
     text_types = (unicode,)  # NOQA
     string_types = (basestring, bytearray)  # NOQA
 else:
+    integer_types = (int,)
     binary_types = (bytes, bytearray)
     text_types = (str,)
     string_types = (bytes, str, bytearray)
+
+
+def is_integer(value):
+    return isinstance(value, integer_types)
 
 
 def is_binary(value):

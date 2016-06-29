@@ -1,9 +1,8 @@
-from web3.web3.method import Method
-from web3.web3.property import Property
 import web3.web3.formatters as formatters
 import web3.utils.config as config
 import web3.utils.encoding as encoding
 import web3.utils.utils as utils
+from web3.utils.functional import apply_formatters
 from web3.web3.contract import ContractFactory
 from web3.web3.iban import Iban
 
@@ -254,6 +253,7 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
+    @apply_formatters(encoding.toDecimal)
     def gasPrice(self):
         return self.request_manager.request_blocking("eth_gasPrice", [])
 
@@ -268,6 +268,7 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
+    @apply_formatters(encoding.toDecimal)
     def blockNumber(self):
         return self.request_manager.request_blocking("eth_blockNumber", [])
 
@@ -289,12 +290,20 @@ class Eth(object):
             block_number = self.defaultBlock
         return self.request_manager.request_blocking("eth_getCode", [account, block_number])
 
-    def getBlock(self, block_identifier, full_txns):
+    def getBlock(self, block_identifier, full_txns=False):
         """
         `eth_getBlockByHash`
         `eth_getBlockByNumber`
         """
-        raise NotImplementedError("TODO")
+        if encoding.is_integer(block_identifier):
+            method = 'eth_getBlockByNumber'
+        else:
+            method = 'eth_getBlockByHash'
+
+        return self.request_manager.request_blocking(
+            method,
+            [block_identifier, full_txns],
+        )
 
     def getBlockTransactionCount(self, block_identifier):
         """
