@@ -8,8 +8,11 @@ class Personal(object):
     def __init__(self, request_manager):
         self.request_manager = request_manager
 
-    def importRawKey(self, *args, **kwargs):
-        raise NotImplementedError()
+    def importRawKey(self, private_key, passphrase):
+        return self.request_manager.request_blocking(
+            "personal_importRawKey",
+            [private_key, passphrase],
+        )
 
     def newAccount(self, password=None):
         if password is None:
@@ -38,5 +41,8 @@ class Personal(object):
     def lockAccount(self, *args, **kwargs):
         raise NotImplementedError()
 
-    def unlockAccount(self, *args, **kwargs):
-        raise NotImplementedError()
+    def unlockAccount(self, account, passphrase):
+        return self.request_manager.request_blocking(
+            "personal_listAccounts",
+            [account, passphrase],
+        )

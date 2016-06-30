@@ -320,21 +320,33 @@ class Eth(object):
         raise NotImplementedError("TODO")
 
     def getTransaction(self, txn_hash):
-        return self.request_manager.request_blocking("eth_getTransactionByHash", [txn_hash])
+        return self.request_manager.request_blocking(
+            "eth_getTransactionByHash",
+            [txn_hash],
+        )
 
     def getTransactionFromBlock(self, block_identifier, txn_index):
         raise NotImplementedError()
 
     def getTransactionReciept(self, txn_hash):
-        return self.request_manager.request_blocking("eth_getTransactionReceipt", [txn_hash])
+        return self.request_manager.request_blocking(
+            "eth_getTransactionReceipt",
+            [txn_hash],
+        )
 
     def getTransactionCount(self, account, block_number=None):
         if block_number is None:
             block_number = self.defaultBlock
-        return self.request_manager.request_blocking("eth_getTransactionCount", [account, block_number])
+        return self.request_manager.request_blocking(
+            "eth_getTransactionCount",
+            [account, block_number],
+        )
 
-    def sendTransaction(self, *args, **kwargs):
-        raise NotImplementedError("TODO")
+    def sendTransaction(self, transaction):
+        return self.request_manager.request_blocking(
+            "eth_sendTransaction",
+            [transaction],
+        )
 
     def sendRawTransaction(self, *args, **kwargs):
         raise NotImplementedError("TODO")

@@ -7,12 +7,15 @@ def test_api_property(web3):
 
 
 def test_node_property(web3):
-    assert web3.version.node == testrpc.testrpc.web3_clientVersion()
+    client_name, client_version, platform_name, platform_version = web3.version.node.split('/')
+
+    assert client_name in {"Geth", "TestRPC"}
+    assert platform_name in {"darwin", "linux", "linux2", "linux3"}
 
 
 def test_network_property(web3):
-    assert web3.version.network == testrpc.testrpc.net_version()
+    assert web3.version.network == "0x3f"
 
 
 def test_ethereum_property(web3):
-    assert web3.version.ethereum == testrpc.testrpc.eth_protocolVersion()
+    assert web3.version.ethereum == "0x1"

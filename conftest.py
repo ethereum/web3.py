@@ -61,6 +61,22 @@ def wait_for_block():
     return _wait_for_block
 
 
+@pytest.fixture()
+def wait_for_transaction(web3):
+    import gevent
+
+    def _wait_for_transaction(txn_hash, timeout=60):
+        with gevent.Timeout(timeout):
+            while True:
+                txn_receipt = web3.eth.getTransactionReciept(txn_hash)
+                if txn_receipt is not None:
+                    break
+                gevent.sleep(1)
+
+        return txn_receipt
+    return _wait_for_transaction
+
+
 @contextlib.contextmanager
 def tempdir():
     directory = tempfile.mkdtemp()
@@ -79,8 +95,10 @@ def setup_tester_rpc_provider():
     port = get_open_port()
     provider = TestRPCProvider(port=port)
 
-    testrpc.evm_reset()
+    testrpc.full_reset()
     testrpc.rpc_configure('eth_mining', False)
+    testrpc.rpc_configure('eth_protocolVersion', '0x3f')
+    testrpc.rpc_configure('net_version', 1)
     testrpc.evm_mine()
 
     wait_for_http_connection(port)
