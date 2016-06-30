@@ -4,7 +4,7 @@ import os
 import threading
 
 from web3.web3.provider import BaseProvider
-from web3.utils.socket import get_ipc_socket
+from web3.utils.networking import get_ipc_socket
 
 
 def get_default_ipc_path(testnet=False):
