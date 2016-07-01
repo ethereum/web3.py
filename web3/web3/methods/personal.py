@@ -35,14 +35,20 @@ class Personal(object):
     def getListAccounts(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
 
-    def signAndSendTransaction(self, *args, **kwargs):
-        raise NotImplementedError()
+    def signAndSendTransaction(self, tx, passphrase):
+        return self.request_manager.request_blocking(
+            "personal_sendTransaction",
+            [tx, passphrase],
+        )
 
-    def lockAccount(self, *args, **kwargs):
-        raise NotImplementedError()
+    def lockAccount(self, account):
+        return self.request_manager.request_blocking(
+            "personal_lockAccount",
+            [account],
+        )
 
     def unlockAccount(self, account, passphrase):
         return self.request_manager.request_blocking(
-            "personal_listAccounts",
+            "personal_unlockAccount",
             [account, passphrase],
         )

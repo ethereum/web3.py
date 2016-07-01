@@ -13,7 +13,19 @@ def compose(*functions):
     return functools.reduce(combine, functions, identity)
 
 
-def apply_formatters(*formatters):
+def apply_formatters_to_args(*formatters):
+    formatter = compose(*formatters)
+
+    def outer(fn):
+        @functools.wraps(fn)
+        def inner(*args, **kwargs):
+            value = fn(*args, **kwargs)
+            return formatter(value)
+        return inner
+    return outer
+
+
+def apply_formatters_to_return(*formatters):
     formatter = compose(*formatters)
 
     def outer(fn):

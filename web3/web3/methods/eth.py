@@ -2,7 +2,9 @@ import web3.web3.formatters as formatters
 import web3.utils.config as config
 import web3.utils.encoding as encoding
 import web3.utils.utils as utils
-from web3.utils.functional import apply_formatters
+from web3.utils.functional import (
+    apply_formatters_to_return,
+)
 from web3.web3.contract import ContractFactory
 from web3.web3.iban import Iban
 
@@ -253,7 +255,7 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
-    @apply_formatters(encoding.toDecimal)
+    @apply_formatters_to_return(encoding.toDecimal)
     def gasPrice(self):
         return self.request_manager.request_blocking("eth_gasPrice", [])
 
@@ -268,13 +270,14 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
-    @apply_formatters(encoding.toDecimal)
+    @apply_formatters_to_return(encoding.toDecimal)
     def blockNumber(self):
         return self.request_manager.request_blocking("eth_blockNumber", [])
 
     def getBlockNumber(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
 
+    @apply_formatters_to_return(encoding.toDecimal)
     def getBalance(self, account, block_number=None):
         if block_number is None:
             block_number = self.defaultBlock
@@ -299,6 +302,7 @@ class Eth(object):
             [account, block_number],
         )
 
+    @apply_formatters_to_return(formatters.outputBlockFormatter)
     def getBlock(self, block_identifier, full_txns=False):
         """
         `eth_getBlockByHash`
@@ -314,7 +318,7 @@ class Eth(object):
             [block_identifier, full_txns],
         )
 
-    @apply_formatters(encoding.toDecimal)
+    @apply_formatters_to_return(encoding.toDecimal)
     def getBlockTransactionCount(self, block_identifier):
         """
         `eth_getBlockTransactionCountByHash`
@@ -333,12 +337,14 @@ class Eth(object):
         """
         raise NotImplementedError("TODO")
 
+    @apply_formatters_to_return(formatters.outputTransactionFormatter)
     def getTransaction(self, txn_hash):
         return self.request_manager.request_blocking(
             "eth_getTransactionByHash",
             [txn_hash],
         )
 
+    @apply_formatters_to_return(formatters.outputTransactionFormatter)
     def getTransactionFromBlock(self, block_identifier, txn_index):
         """
         `eth_getTransactionByBlockHashAndIndex`
@@ -353,12 +359,14 @@ class Eth(object):
             [block_identifier, txn_index],
         )
 
+    @apply_formatters_to_return(formatters.outputTransactionReceiptFormatter)
     def getTransactionReciept(self, txn_hash):
         return self.request_manager.request_blocking(
             "eth_getTransactionReceipt",
             [txn_hash],
         )
 
+    @apply_formatters_to_return(encoding.toDecimal)
     def getTransactionCount(self, account, block_number=None):
         if block_number is None:
             block_number = self.defaultBlock
@@ -373,8 +381,11 @@ class Eth(object):
             [transaction],
         )
 
-    def sendRawTransaction(self, *args, **kwargs):
-        raise NotImplementedError("TODO")
+    def sendRawTransaction(self, raw_txn):
+        return self.request_manager.request_blocking(
+            "eth_sendRawTransaction",
+            [raw_txn],
+        )
 
     def sign(self, account, data):
         return self.request_manager.request_blocking("eth_sign", [account, data])
