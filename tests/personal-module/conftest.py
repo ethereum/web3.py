@@ -21,7 +21,8 @@ def account_public_key(account_private_key):
 
 @pytest.fixture()
 def password_account(web3, account_password,
-                     account_private_key, account_public_key):
+                     account_private_key, account_public_key,
+                     wait_for_transaction):
     from eth_tester_client.utils import normalize_address
     address = web3.personal.importRawKey(account_private_key, account_password)
 
@@ -30,11 +31,12 @@ def password_account(web3, account_password,
 
     initial_balance = 1000000000000000000000  # 1,000 ether
 
-    web3.eth.sendTransaction({
+    funding_txn_hash = web3.eth.sendTransaction({
         'from': web3.eth.coinbase,
         'to': address,
         'value': initial_balance,
     })
+    wait_for_transaction(funding_txn_hash)
 
     assert web3.eth.getBalance(address) == initial_balance
     return address
