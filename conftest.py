@@ -5,7 +5,14 @@ import shutil
 
 # This has to go here so that the `gevent.monkey.patch_all()` happens in the
 # main thread.
-from pygeth.geth import DevGethProcess
+from pygeth.geth import (
+    LoggingMixin,
+    DevGethProcess,
+)
+
+
+class GethProcess(LoggingMixin, DevGethProcess):
+    pass
 
 
 def get_open_port():
@@ -65,7 +72,7 @@ def wait_for_block():
 def wait_for_transaction(web3):
     import gevent
 
-    def _wait_for_transaction(txn_hash, timeout=60):
+    def _wait_for_transaction(txn_hash, timeout=120):
         with gevent.Timeout(timeout):
             while True:
                 txn_receipt = web3.eth.getTransactionReciept(txn_hash)
@@ -112,7 +119,7 @@ def setup_rpc_provider():
     from web3.web3.rpcprovider import RPCProvider
 
     with tempdir() as base_dir:
-        geth = DevGethProcess('testing', base_dir=base_dir)
+        geth = GethProcess('testing', base_dir=base_dir)
         geth.start()
         wait_for_http_connection(geth.rpc_port)
         provider = RPCProvider(port=geth.rpc_port)
@@ -126,7 +133,7 @@ def setup_ipc_provider():
     from web3.web3.ipcprovider import IPCProvider
 
     with tempdir() as base_dir:
-        geth = DevGethProcess('testing', base_dir=base_dir)
+        geth = GethProcess('testing', base_dir=base_dir)
         geth.start()
         wait_for_ipc_connection(geth.ipc_path)
         provider = IPCProvider(geth.ipc_path)
