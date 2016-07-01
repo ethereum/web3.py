@@ -9,8 +9,6 @@ def wait_for_first_block(web3, wait_for_block):
 
 
 def test_eth_getTransactionReciept(web3, extra_accounts, wait_for_transaction):
-    initial_balance = int(web3.eth.getBalance(extra_accounts[1]), 16)
-
     txn_hash = web3.eth.sendTransaction({
         "from": web3.eth.coinbase,
         "to": extra_accounts[1],
