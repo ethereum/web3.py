@@ -278,17 +278,26 @@ class Eth(object):
     def getBalance(self, account, block_number=None):
         if block_number is None:
             block_number = self.defaultBlock
-        return self.request_manager.request_blocking("eth_getBalance", [account, block_number])
+        return self.request_manager.request_blocking(
+            "eth_getBalance",
+            [account, block_number],
+        )
 
     def getStorageAt(self, account, position, block_number=None):
         if block_number is None:
             block_number = self.defaultBlock
-        return self.request_manager.request_blocking("eth_getStorageAt", [account, position, block_number])
+        return self.request_manager.request_blocking(
+            "eth_getStorageAt",
+            [account, position, block_number],
+        )
 
     def getCode(self, account, block_number=None):
         if block_number is None:
             block_number = self.defaultBlock
-        return self.request_manager.request_blocking("eth_getCode", [account, block_number])
+        return self.request_manager.request_blocking(
+            "eth_getCode",
+            [account, block_number],
+        )
 
     def getBlock(self, block_identifier, full_txns=False):
         """
@@ -339,7 +348,10 @@ class Eth(object):
             method = 'eth_getTransactionByBlockNumberAndIndex'
         else:
             method = 'eth_getTransactionByBlockHashAndIndex'
-        return self.request_manager.request_blocking(method, [block_identifier, txn_index])
+        return self.request_manager.request_blocking(
+            method,
+            [block_identifier, txn_index],
+        )
 
     def getTransactionReciept(self, txn_hash):
         return self.request_manager.request_blocking(

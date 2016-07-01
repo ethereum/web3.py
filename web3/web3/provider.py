@@ -9,7 +9,6 @@ from web3.utils.encoding import (
 )
 
 
-
 class BaseProvider(object):
     def __init__(self):
         self.request_counter = itertools.count()
