@@ -12,6 +12,7 @@ def test_eth_getCode(web3, wait_for_transaction, MATH_CODE, MATH_RUNTIME):
     txn_hash = web3.eth.sendTransaction({
         "from": web3.eth.coinbase,
         "data": MATH_CODE,
+        "gas": 3000000,
     })
 
     wait_for_transaction(txn_hash)

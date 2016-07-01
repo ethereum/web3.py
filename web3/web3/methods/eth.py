@@ -305,12 +305,17 @@ class Eth(object):
             [block_identifier, full_txns],
         )
 
+    @apply_formatters(encoding.toDecimal)
     def getBlockTransactionCount(self, block_identifier):
         """
         `eth_getBlockTransactionCountByHash`
         `eth_getBlockTransactionCountByNumber`
         """
-        raise NotImplementedError("TODO")
+        if encoding.is_integer(block_identifier):
+            method = 'eth_getBlockTransactionCountByNumber'
+        else:
+            method = 'eth_getBlockTransactionCountByHash'
+        return self.request_manager.request_blocking(method, [block_identifier])
 
     def getUncle(self, block_identifier):
         """
@@ -326,7 +331,15 @@ class Eth(object):
         )
 
     def getTransactionFromBlock(self, block_identifier, txn_index):
-        raise NotImplementedError()
+        """
+        `eth_getTransactionByBlockHashAndIndex`
+        `eth_getTransactionByBlockNumberAndIndex`
+        """
+        if encoding.is_integer(block_identifier):
+            method = 'eth_getTransactionByBlockNumberAndIndex'
+        else:
+            method = 'eth_getTransactionByBlockHashAndIndex'
+        return self.request_manager.request_blocking(method, [block_identifier, txn_index])
 
     def getTransactionReciept(self, txn_hash):
         return self.request_manager.request_blocking(
