@@ -17,6 +17,9 @@ from web3.web3.rpcprovider import (
 )
 from web3.web3.ipcprovider import IPCProvider
 
+from web3.utils.encoding import (
+    decode_hex,
+)
 import web3.utils.encoding as encoding
 import web3.utils.currency as currency
 import web3.utils.address as address
@@ -88,8 +91,11 @@ class Web3(object):
     def reset(self, keepIsSyncing):
         self._requestManager.reset(keepIsSyncing)
 
-    def sha3(self, string, options):
-        return b"0x" + sha3.sha3(string, options)
+    def sha3(self, string, encoding=None):
+        if encoding == "hex":
+            string = decode_hex(string)
+        string_hash = sha3(string)
+        return self._requestManager.request_blocking('web3_sha3', [string_hash])
 
     def isConnected(self):
         return self.currentProvider and self.currentProvider.isConnected()

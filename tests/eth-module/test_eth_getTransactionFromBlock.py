@@ -35,7 +35,7 @@ def test_eth_getTransactionFromBlock(web3, extra_accounts, wait_for_transaction)
         key=lambda r: r['blockNumber'],
     )
     all_receipts_by_block = {
-        int(key, 16): tuple(value)
+        key: tuple(value)
         for key, value in itertools.groupby(all_receipts, lambda r: r['blockNumber'])
     }
 
