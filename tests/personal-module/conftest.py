@@ -8,7 +8,7 @@ def account_password():
 
 @pytest.fixture()
 def account_private_key():
-    from eth_tester_client.utils import mk_random_privkey
+    from eth_tester_client.utils import mk_random_privkey, force_bytes
     return mk_random_privkey()
 
 

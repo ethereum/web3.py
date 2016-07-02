@@ -2,8 +2,14 @@
 import functools
 import sys
 import binascii
-from . import utils
 import json
+
+from . import utils
+
+from rlp.utils import (
+    decode_hex as _decode_hex,
+    encode_hex as _encode_hex,
+)
 
 
 def toHex(val):
@@ -25,14 +31,6 @@ def toHex(val):
             return fromAscii(val)
 
     return fromDecimal(val)
-
-
-def toBigNumber(number):
-    raise NotImplementedError()
-
-
-def toTwosComplement(number):
-    raise NotImplementedError()
 
 
 def toDecimal(value):
@@ -105,12 +103,12 @@ def abiToJson(obj):
 
 if sys.version_info.major == 2:
     integer_types = (int, long)
-    binary_types = (bytes, bytearray)
+    bytes_types = (bytes, bytearray)
     text_types = (unicode,)  # NOQA
     string_types = (basestring, bytearray)  # NOQA
 else:
     integer_types = (int,)
-    binary_types = (bytes, bytearray)
+    bytes_types = (bytes, bytearray)
     text_types = (str,)
     string_types = (bytes, str, bytearray)
 
@@ -119,8 +117,8 @@ def is_integer(value):
     return isinstance(value, integer_types)
 
 
-def is_binary(value):
-    return isinstance(value, binary_types)
+def is_bytes(value):
+    return isinstance(value, bytes_types)
 
 
 def is_text(value):
@@ -133,7 +131,7 @@ def is_string(value):
 
 if sys.version_info.major == 2:
     def force_bytes(value):
-        if is_binary(value):
+        if is_bytes(value):
             return str(value)
         elif is_text(value):
             return value.encode('latin1')
@@ -143,13 +141,13 @@ if sys.version_info.major == 2:
     def force_text(value):
         if is_text(value):
             return value
-        elif is_binary(value):
+        elif is_bytes(value):
             return unicode(force_bytes(value), 'latin1')  # NOQA
         else:
             raise TypeError("Unsupported type: {0}".format(type(value)))
 else:
     def force_bytes(value):
-        if is_binary(value):
+        if is_bytes(value):
             return bytes(value)
         elif is_text(value):
             return bytes(value, 'latin1')
@@ -159,7 +157,7 @@ else:
     def force_text(value):
         if isinstance(value, text_types):
             return value
-        elif isinstance(value, binary_types):
+        elif isinstance(value, bytes_types):
             return str(value, 'latin1')
         else:
             raise TypeError("Unsupported type: {0}".format(type(value)))
@@ -205,3 +203,25 @@ def coerce_return_to_bytes(fn):
     def inner(*args, **kwargs):
         return force_obj_to_bytes(fn(*args, **kwargs))
     return inner
+
+
+@coerce_args_to_bytes
+def remove_0x_prefix(value):
+    if value.startswith(b'0x'):
+        return value[2:]
+    return value
+
+
+@coerce_args_to_bytes
+def add_0x_prefix(value):
+    return b'0x' + remove_0x_prefix(value)
+
+
+@coerce_args_to_bytes
+def decode_hex(value):
+    return _decode_hex(remove_0x_prefix(value))
+
+
+@coerce_args_to_bytes
+def encode_hex(value):
+    return add_0x_prefix(_encode_hex(value))

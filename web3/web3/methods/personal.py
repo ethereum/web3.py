@@ -1,4 +1,13 @@
+from __future__ import absolute_import
 import getpass
+
+from rlp.utils import encode_hex
+
+from web3.utils.encoding import (
+    remove_0x_prefix,
+    decode_hex,
+    encode_hex,
+)
 
 
 class Personal(object):
@@ -9,6 +18,14 @@ class Personal(object):
         self.request_manager = request_manager
 
     def importRawKey(self, private_key, passphrase):
+        if len(private_key) == 66:
+            private_key = remove_0x_prefix(private_key)
+        elif len(private_key) == 32:
+            private_key = remove_0x_prefix(encode_hex(private_key))
+        elif len(private_key) == 64:
+            pass
+        else:
+            raise ValueError("Unknown private key format")
         return self.request_manager.request_blocking(
             "personal_importRawKey",
             [private_key, passphrase],
