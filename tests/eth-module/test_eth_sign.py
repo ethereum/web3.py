@@ -16,24 +16,24 @@ from web3.web3.rpcprovider import TestRPCProvider
 
 def test_eth_sign(web3):
     private_key_hex = b'0x5e95384d8050109aab08c1922d3c230739bc16976553c317e5d0b87b59371f2a'
-    private_key = decode_hex(private_key)
+    private_key = decode_hex(private_key_hex)
     address = web3.personal.importRawKey(private_key, "password")
     web3.personal.unlockAccount(address, "password")
 
-    data = '1234567890abcdefghijklmnopqrstuvwxyz'
+    data = b'1234567890abcdefghijklmnopqrstuvwxyz'
     data_hash = web3.sha3(data)
 
-    signed_data = web3.eth.sign(address, data_hash)
+    signature_hex = web3.eth.sign(address, data_hash)
+    signature_bytes = decode_hex(signature_hex)
 
-    assert False, "TODO"
-    pk = PrivateKey(private_key)
-    pk.public_key = pk.ecdsa_recover(
-        rawhash,
-        pk.ecdsa_recoverable_deserialize(
-            zpad(utils.bytearray_to_bytestr(int_to_32bytearray(self.r)), 32) + zpad(utils.bytearray_to_bytestr(int_to_32bytearray(self.s)), 32),
-            self.v - 27
-        ),
-        raw=True
+    assert False
+    import ipdb; ipdb.set_trace()
+    priv_key = PrivateKey(private_key, raw=True)
+    pub_key = priv_key.pubkey
+    signature = pub_key.ecdsa_deserialize_compact(signature_bytes)
+    is_valid = pub_key.ecdsa_verify(
+        msg=data,
+        raw_sig=signature
     )
-    pub = pk.serialize(compressed=False)
+
     assert expected == signed_data
