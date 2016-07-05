@@ -388,10 +388,13 @@ class Eth(object):
         )
 
     def sign(self, account, data):
-        return self.request_manager.request_blocking("eth_sign", [account, data])
+        data_hash = self.request_manager.request_blocking("web3_sha3", [data])
+        return self.request_manager.request_blocking("eth_sign", [account, data_hash])
 
-    def call(self, *args, **kwargs):
-        raise NotImplementedError("TODO")
+    def call(self, transaction, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
+        return self.request_manager.request_blocking("eth_call", [transaction, block_identifier])
 
     def estimateGas(self, *args, **kwargs):
         raise NotImplementedError("TODO")

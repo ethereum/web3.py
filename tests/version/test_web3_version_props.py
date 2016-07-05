@@ -14,8 +14,8 @@ def test_node_property(web3):
 
 
 def test_network_property(web3):
-    assert web3.version.network == "0x3f"
+    assert web3.version.network in {1, 2, 3, 1234}
 
 
 def test_ethereum_property(web3):
-    assert web3.version.ethereum == "0x1"
+    assert web3.version.ethereum == 63

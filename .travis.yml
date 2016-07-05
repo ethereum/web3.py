@@ -23,6 +23,8 @@ cache:
 install:
   - "travis_retry pip install setuptools --upgrade"
   - "travis_retry pip install tox"
+before_script:
+  - geth version
 script:
   - tox -e $TOX_ENV
 after_script:
