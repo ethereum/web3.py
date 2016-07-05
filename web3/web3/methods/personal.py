@@ -1,11 +1,8 @@
 from __future__ import absolute_import
 import getpass
 
-from rlp.utils import encode_hex
-
 from web3.utils.encoding import (
     remove_0x_prefix,
-    decode_hex,
     encode_hex,
 )
 
