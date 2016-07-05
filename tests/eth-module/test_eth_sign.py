@@ -73,7 +73,7 @@ def test_eth_sign(web3):
     # sanit check the extract_ecdsa_signer function works as expected.
     vector_sig = priv_key.ecdsa_sign_recoverable(data_hash_bytes, raw=True, digest=sha3_256)
     vector_sig_bytes, rec_id = priv_key.ecdsa_recoverable_serialize(vector_sig)
-    vector_sig_bytes_full = vector_sig_bytes + bytes([rec_id])
+    vector_sig_bytes_full = vector_sig_bytes + force_bytes(chr(rec_id))
     vector_address = extract_ecdsa_signer(data_hash_bytes, vector_sig_bytes_full)
 
     assert vector_address == address

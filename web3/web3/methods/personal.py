@@ -61,8 +61,8 @@ class Personal(object):
             [account],
         )
 
-    def unlockAccount(self, account, passphrase):
+    def unlockAccount(self, account, passphrase, duration=None):
         return self.request_manager.request_blocking(
             "personal_unlockAccount",
-            [account, passphrase],
+            [account, passphrase, duration],
         )

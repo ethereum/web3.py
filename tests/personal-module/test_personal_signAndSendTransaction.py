@@ -1,9 +1,10 @@
 def test_personal_signAndSendTransaction(web3, password_account,
                                          account_password,
-                                         wait_for_transaction):
-    txn_hash = web3.eth.sendTransaction({
+                                         wait_for_transaction,
+                                         empty_account):
+    txn_hash = web3.personal.signAndSendTransaction({
         'from': password_account,
-        'to': web3.eth.coinbase,
+        'to': empty_account,
         'value': 1234,
     }, account_password)
     wait_for_transaction(txn_hash)

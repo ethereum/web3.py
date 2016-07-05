@@ -158,3 +158,13 @@ def web3(request):
     with setup_fn() as provider:
         _web3 = Web3(provider)
         yield _web3
+
+
+@pytest.fixture()
+def empty_account(web3, wait_for_transaction):
+    from eth_tester_client.utils import normalize_address
+    from eth_tester_client.utils import mk_random_privkey, force_bytes
+    address = web3.personal.importRawKey(mk_random_privkey(), "a-password")
+
+    assert web3.eth.getBalance(address) == 0
+    return address

@@ -29,3 +29,4 @@ script:
   - tox -e $TOX_ENV
 after_script:
   - cat .tox/$TOX_ENV/log/*.log
+  - cat logs/*.log
