@@ -47,7 +47,7 @@ def test_eth_sendRawTransaction(web3, wait_for_transaction, extra_accounts):
 
     txn_hash = web3.eth.sendRawTransaction(raw_tx_hex)
     wait_for_transaction(txn_hash)
-    txn_receipt = web3.eth.getTransactionReciept(txn_hash)
+    txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
 
     after_balance = web3.eth.getBalance(extra_accounts[1])
 

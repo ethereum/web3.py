@@ -360,7 +360,7 @@ class Eth(object):
         )
 
     @apply_formatters_to_return(formatters.outputTransactionReceiptFormatter)
-    def getTransactionReciept(self, txn_hash):
+    def getTransactionReceipt(self, txn_hash):
         return self.request_manager.request_blocking(
             "eth_getTransactionReceipt",
             [txn_hash],

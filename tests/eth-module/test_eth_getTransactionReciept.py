@@ -8,7 +8,7 @@ def wait_for_first_block(web3, wait_for_block):
     wait_for_block(web3)
 
 
-def test_eth_getTransactionReciept(web3, extra_accounts, wait_for_transaction):
+def test_eth_getTransactionReceipt(web3, extra_accounts, wait_for_transaction):
     txn_hash = web3.eth.sendTransaction({
         "from": web3.eth.coinbase,
         "to": extra_accounts[1],
@@ -17,11 +17,11 @@ def test_eth_getTransactionReciept(web3, extra_accounts, wait_for_transaction):
 
     wait_for_transaction(txn_hash)
 
-    txn_reciept = web3.eth.getTransactionReciept(txn_hash)
-    assert txn_reciept['transactionHash'] == txn_hash
+    txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
+    assert txn_receipt['transactionHash'] == txn_hash
 
 
-def test_eth_getTransactionReciept_returns_null_for_unresolved_hash(web3):
+def test_eth_getTransactionReceipt_returns_null_for_unresolved_hash(web3):
     txn_hash = b'0xb903239f8543d04b5dc1ba6579132b143087c68db1b2168786408fcbce568238'
-    txn_reciept = web3.eth.getTransactionReciept(txn_hash)
-    assert txn_reciept is None
+    txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
+    assert txn_receipt is None

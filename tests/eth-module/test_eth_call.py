@@ -19,7 +19,7 @@ def test_eth_call_with_no_args(web3, wait_for_transaction, MATH_CODE, MATH_RUNTI
 
     wait_for_transaction(txn_hash)
 
-    txn_receipt = web3.eth.getTransactionReciept(txn_hash)
+    txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     contract_address = txn_receipt['contractAddress']
 
     assert force_bytes(web3.eth.getCode(contract_address)) == MATH_RUNTIME

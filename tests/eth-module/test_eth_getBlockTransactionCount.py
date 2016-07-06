@@ -30,7 +30,7 @@ def test_eth_getBlockTransactionCount(web3, extra_accounts, wait_for_transaction
 
     # gather all receipts and sort/group them by block number.
     all_receipts = sorted(
-        [web3.eth.getTransactionReciept(txn_hash) for txn_hash in transaction_hashes],
+        [web3.eth.getTransactionReceipt(txn_hash) for txn_hash in transaction_hashes],
         key=lambda r: r['blockNumber'],
     )
     all_receipts_by_block = {

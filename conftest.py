@@ -75,7 +75,7 @@ def wait_for_transaction(web3):
     def _wait_for_transaction(txn_hash, timeout=120):
         with gevent.Timeout(timeout):
             while True:
-                txn_receipt = web3.eth.getTransactionReciept(txn_hash)
+                txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
                 if txn_receipt is not None:
                     break
                 gevent.sleep(1)

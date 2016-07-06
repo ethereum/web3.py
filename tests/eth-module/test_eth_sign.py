@@ -17,6 +17,7 @@ from web3.utils.encoding import (
     encode_hex,
     decode_hex,
     add_0x_prefix,
+    is_string,
 )
 
 
@@ -34,10 +35,13 @@ def extract_ecdsa_signer(msg_hash, signature):
     signature_bytes = decode_hex(signature) if signature.startswith(b'0x') else signature
 
     pk = PublicKey(flags=ALL_FLAGS)
+    rec_id = signature_bytes[64]
+    if is_string(rec_id):
+        rec_id = ord(rec_id)
     pk.public_key = pk.ecdsa_recover(
         msg_hash_bytes,
         pk.ecdsa_recoverable_deserialize(
-            signature_bytes[:64], signature_bytes[64]
+            signature_bytes[:64], rec_id,
         ),
         raw=True,
     )
