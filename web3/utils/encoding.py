@@ -102,7 +102,7 @@ def abiToJson(obj):
 
 
 if sys.version_info.major == 2:
-    integer_types = (int, long)
+    integer_types = (int, long)  # NOQA
     bytes_types = (bytes, bytearray)
     text_types = (unicode,)  # NOQA
     string_types = (basestring, bytearray)  # NOQA
