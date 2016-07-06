@@ -51,7 +51,8 @@ class Personal(object):
 
     def signAndSendTransaction(self, tx, passphrase):
         return self.request_manager.request_blocking(
-            "personal_sendTransaction",
+            # "personal_sendTransaction",
+            "personal_signAndSendTransaction",
             [tx, passphrase],
         )
 
