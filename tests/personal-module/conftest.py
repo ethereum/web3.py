@@ -31,11 +31,11 @@ def password_account(web3, account_password,
 
     initial_balance = 1000000000000000000000  # 1,000 ether
 
-    funding_txn_hash = web3.eth.sendTransaction({
+    funding_txn_hash = web3.personal.signAndSendTransaction({
         'from': web3.eth.coinbase,
         'to': address,
         'value': initial_balance,
-    })
+    }, account_password)
     wait_for_transaction(funding_txn_hash)
 
     assert web3.eth.getBalance(address) == initial_balance

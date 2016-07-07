@@ -93,7 +93,7 @@ class Web3(object):
     def sha3(self, string, encoding=None):
         if encoding is not None:
             raise ValueError("encoding parameter currently not supported")
-        return self._requestManager.request_blocking('web3_sha3', [encode_hex(string)])
+        return self._requestManager.request_blocking('web3_sha3', [string])
 
     def isConnected(self):
         return self.currentProvider and self.currentProvider.isConnected()

@@ -12,6 +12,7 @@ from eth_tester_client.utils import (
     coerce_args_to_bytes,
 )
 
+from web3.web3.rpcprovider import TestRPCProvider
 from web3.utils.encoding import (
     force_bytes,
     encode_hex,
@@ -51,6 +52,9 @@ def extract_ecdsa_signer(msg_hash, signature):
 
 
 def test_eth_sign(web3):
+    if isinstance(web3.currentProvider, TestRPCProvider):
+        pytest.skip("testrpc doesn't implement `getBlockTransactionCount`")
+
     private_key_hex = b'0x5e95384d8050109aab08c1922d3c230739bc16976553c317e5d0b87b59371f2a'
     private_key = decode_hex(private_key_hex)
 
@@ -95,9 +99,12 @@ def test_eth_sign(web3):
 
     # Verify the signature against the public key derived from the
     # original private key.  It fails.
+    rec_id = signature_bytes[64]
+    if is_string(rec_id):
+        rec_id = ord(rec_id)
     recoverable_signature = priv_key.ecdsa_recoverable_deserialize(
         signature_bytes[:64],
-        signature_bytes[64],
+        rec_id,
     )
     signature = priv_key.ecdsa_recoverable_convert(recoverable_signature)
     is_valid = priv_key.pubkey.ecdsa_verify(
