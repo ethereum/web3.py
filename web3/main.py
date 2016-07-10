@@ -90,10 +90,14 @@ class Web3(object):
     def reset(self, keepIsSyncing):
         self._requestManager.reset(keepIsSyncing)
 
-    def sha3(self, string, encoding=None):
-        if encoding is not None:
-            raise ValueError("encoding parameter currently not supported")
-        return self._requestManager.request_blocking('web3_sha3', [string])
+    def sha3(self, value, encoding=None):
+        if encoding is None:
+            hex_string = encode_hex(value)
+        elif encoding == 'hex':
+            hex_string = value
+        else:
+            raise ValueError("Unsupported encoding")
+        return self._requestManager.request_blocking('web3_sha3', [hex_string])
 
     def isConnected(self):
         return self.currentProvider and self.currentProvider.isConnected()

@@ -2,8 +2,6 @@ from __future__ import unicode_literals
 
 import pytest
 
-import web3
-
 
 @pytest.mark.parametrize(
     'value,expected,encoding',
@@ -40,6 +38,6 @@ import web3
         )
     )
 )
-def test_sha3(value, expected, encoding):
+def test_sha3(web3, value, expected, encoding):
     actual = web3.sha3(value, encoding=encoding)
     assert expected == actual

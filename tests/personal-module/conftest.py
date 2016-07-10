@@ -35,7 +35,7 @@ def password_account(web3, account_password,
         'from': web3.eth.coinbase,
         'to': address,
         'value': initial_balance,
-    }, account_password)
+    }, 'this-is-not-a-secure-password')
     wait_for_transaction(funding_txn_hash)
 
     assert web3.eth.getBalance(address) == initial_balance
