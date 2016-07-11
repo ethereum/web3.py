@@ -70,7 +70,7 @@ def test_eth_sign(web3):
     # the data to be signed
     data = b'1234567890abcdefghijklmnopqrstuvwxyz'
     # the hash of the data `0x089c33d56ed10bd8b571a0f493cedb28db1ae0f40c6cd266243001528c06eab3`
-    data_hash = web3.sha3(data)
+    data_hash = web3.sha3(data, encoding=None)
     data_hash_bytes = decode_hex(data_hash)
 
     assert force_bytes(data_hash) == sha3(data)

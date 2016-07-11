@@ -24,7 +24,7 @@ def test_eth_call_with_no_args(web3, wait_for_transaction, MATH_CODE, MATH_RUNTI
 
     assert force_bytes(web3.eth.getCode(contract_address)) == MATH_RUNTIME
 
-    abi_signature = web3.sha3("return13()")[:10]
+    abi_signature = web3.sha3("return13()", encoding=None)[:10]
     # sanity
     assert abi_signature == '0x16216f39'
     actual_result_hex = web3.eth.call({
