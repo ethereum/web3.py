@@ -1,27 +1,25 @@
-from six.moves.queue import Queue
-import threading
+from __future__ import absolute_import
+
+import json
+import itertools
+
+from web3.utils.encoding import (
+    force_bytes,
+    force_obj_to_text,
+)
 
 
-class Provider(object):
-
+class BaseProvider(object):
     def __init__(self):
-        self.requests = Queue()
-        self.responses = {}
+        self.request_counter = itertools.count()
 
-        self.request_thread = threading.Thread(target=self.process_requests)
-        self.request_thread.daemon = True
-        self.request_thread.start()
-
-    def process_requests(self):
-        while True:
-            reqid, request = self.requests.get()
-
-            try:
-                response = self._make_request(request)
-            except Exception as e:
-                response = e
-
-            self.responses[reqid] = response
-
-    def _make_request(self, request):
+    def make_request(self, method, params):
         raise NotImplementedError("Providers must implement this method")
+
+    def encode_rpc_request(self, method, params):
+        return force_bytes(json.dumps(force_obj_to_text({
+            "jsonrpc": "2.0",
+            "method": method,
+            "params": params or [],
+            "id": next(self.request_counter),
+        })))

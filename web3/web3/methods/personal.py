@@ -1,48 +1,69 @@
-from web3.web3.method import Method
-from web3.web3.property import Property
-import web3.web3.formatters as formatters
+from __future__ import absolute_import
+import getpass
 
-methods = [
-    {
-        "name": "newAccount",
-        "call": "personal_newAccount",
-        "params": 1,
-        "inputFormatter": [None]
-    },
-    {
-        "name": "unlockAccount",
-        "call": "personal_unlockAccount",
-        "params": 3,
-        "inputFormatter": [formatters.inputAddressFormatter, None, None]
-    },
-    {
-        "name": "lockAccount",
-        "call": "personal_lockAccount",
-        "params": 1,
-        "inputFormatter": [formatters.inputAddressFormatter]
-    }
-]
-
-
-properties = [
-    {
-        "name": "listAccounts",
-        "getter": "personal_listAccounts",
-    }
-]
+from web3.utils.encoding import (
+    remove_0x_prefix,
+    encode_hex,
+)
 
 
 class Personal(object):
+    """
+    https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal
+    """
+    def __init__(self, request_manager):
+        self.request_manager = request_manager
 
-    def __init__(self, web3):
-        self._requestManager = web3._requestManager
+    def importRawKey(self, private_key, passphrase):
+        if len(private_key) == 66:
+            private_key = remove_0x_prefix(private_key)
+        elif len(private_key) == 32:
+            private_key = remove_0x_prefix(encode_hex(private_key))
+        elif len(private_key) == 64:
+            pass
+        else:
+            raise ValueError("Unknown private key format")
+        return self.request_manager.request_blocking(
+            "personal_importRawKey",
+            [private_key, passphrase],
+        )
 
-        for method in methods:
-            method = Method(method)
-            method.attachToObject(self)
-            method.setRequestManager(web3._requestManager)
+    def newAccount(self, password=None):
+        if password is None:
+            password1 = getpass.getpass("Passphrase:")
+            password2 = getpass.getpass("Repeat passphrase:")
+            if password1 != password2:
+                raise ValueError("Passwords do not match")
 
-        for prop in properties:
-            prop = Property(prop)
-            prop.attachToObject(self)
-            prop.setRequestManager(web3._requestManager)
+            password = password1
+
+        if not password:
+            raise ValueError("Cannot have an empty password")
+
+        return self.request_manager.request_blocking("personal_newAccount", [password])
+
+    @property
+    def listAccounts(self):
+        return self.request_manager.request_blocking("personal_listAccounts", [])
+
+    def getListAccounts(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    def signAndSendTransaction(self, tx, passphrase):
+        return self.request_manager.request_blocking(
+            # "personal_sendTransaction",
+            "personal_signAndSendTransaction",
+            [tx, passphrase],
+        )
+
+    def lockAccount(self, account):
+        return self.request_manager.request_blocking(
+            "personal_lockAccount",
+            [account],
+        )
+
+    def unlockAccount(self, account, passphrase, duration=None):
+        return self.request_manager.request_blocking(
+            "personal_unlockAccount",
+            [account, passphrase, duration],
+        )

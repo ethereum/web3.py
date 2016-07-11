@@ -5,7 +5,7 @@ from web3.utils.crypto import sha3
 import re
 
 
-def isAddress(address):
+def is_address(address):
     """
     Checks if the given string is an address
     """
@@ -19,6 +19,9 @@ def isAddress(address):
         return True
     else:
         return isChecksumAddress(address)
+
+
+isAddress = is_address
 
 
 def isChecksumAddress(address):

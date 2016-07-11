@@ -1,59 +1,53 @@
-import web3.web3.exceptions as exceptions
-from web3.web3.jsonrpc import Jsonrpc
-import time
+import uuid
+import json
+import gevent
+
+from web3.utils.encoding import force_text
 
 
 class RequestManager(object):
-
     def __init__(self, provider):
-        self.provider = provider
-        self.reqid = 0
-
-    def setProvider(self, provider):
-        """Should be used to set provider of request manager"""
+        self.pending_requests = {}
         self.provider = provider
 
-    def send(self, data, *args, **kwargs):
-        """Should be used to synchronously send request"""
+    def request_blocking(self, method, params):
+        """
+        Make a synchronous request using the provider
+        """
+        response_raw = self.provider.make_request(method, params)
 
-        if "timeout" not in kwargs:
-            timeout = None
+        response = json.loads(force_text(response_raw))
+
+        if "error" in response:
+            raise ValueError(response["error"])
+
+        return response['result']
+
+    def request_async(self, method, params):
+        request_id = uuid.uuid4()
+        self.pending_requests[request_id] = gevent.spawn(
+            self.request_blocking,
+            method,
+            params,
+        )
+        return request_id
+
+    def receive_blocking(self, request_id, timeout=None):
+        try:
+            request = self.pending_requests.pop(request_id)
+        except KeyError:
+            raise KeyError("Request for id:{0} not found".format(request_id))
         else:
-            timeout = kwargs["timeout"]
+            if timeout is not None:
+                timeout = gevent.Timeout(timeout).start()
+            response_raw = request.get(timeout=timeout)
 
-        requestid = self.forward(data)
+        response = json.loads(response_raw)
 
-        if timeout == 0:
-            return requestid
+        if "error" in response:
+            raise ValueError(response["error"])
 
-        return self.receive(requestid, timeout)
+        return response['result']
 
-    def forward(self, data):
-        """Should be used to asynchronously send request"""
-        if not self.provider:
-            raise exceptions.InvalidProviderException()
-
-        self.reqid += 1
-        self.provider.requests.put(
-            Jsonrpc.toPayload(self.reqid, data["method"], data["params"]))
-
-        return self.reqid
-
-    def receive(self, requestid, timeout=0, keep=False):
-        start = time.time()
-
-        while True:
-
-            if requestid in self.provider.responses:
-                if keep:
-                    payload = self.provider.responses[requestid]
-                else:
-                    payload = self.provider.responses.pop(requestid)
-                return Jsonrpc.fromPayload(payload)["result"]
-
-            if timeout is not None and time.time() - start >= timeout:
-                if timeout == 0:
-                    return None
-                else:
-                    raise ValueError(
-                        "Timeout waiting for {0}".format(requestid))
+    def receive_async(self, request_id, *args, **kwargs):
+        raise NotImplementedError("Callback pattern not implemented")

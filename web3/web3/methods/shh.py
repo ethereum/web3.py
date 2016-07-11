@@ -1,6 +1,7 @@
-from web3.web3.method import Method
 import web3.web3.formatters as formatters
 
+
+# TODO: remove this list
 methods = [
     {
         "name": "post",
@@ -32,11 +33,23 @@ methods = [
 
 
 class Shh(object):
+    """
+    TODO: flesh this out.
+    """
+    def __init__(self, request_manager):
+        self.request_manager = request_manager
 
-    def __init__(self, web3):
-        self._requestManager = web3._requestManager
+    def post(self, *args, **kwargs):
+        raise NotImplementedError("Not Implemented")
 
-        for method in methods:
-            method = Method(method)
-            method.attachToObject(self)
-            method.setRequestManager(web3._requestManager)
+    def newIdentity(self, *args, **kwargs):
+        raise NotImplementedError("Not Implemented")
+
+    def hasIdentity(self, *args, **kwargs):
+        raise NotImplementedError("Not Implemented")
+
+    def newGroup(self, *args, **kwargs):
+        raise NotImplementedError("Not Implemented")
+
+    def addToGroup(self, *args, **kwargs):
+        raise NotImplementedError("Not Implemented")

@@ -15,14 +15,18 @@ A python implementation of [web3.js](https://github.com/ethereum/web3.js)
 * Python 2.7, 3.4, 3.5 support
 * Provide a feature-for-feature python implementation of Web3.js
 
+
 ## Installation
+
 ```sh
 pip install web3
 ```
 
+
 ## API
 
 This documentation is not yet complete, although the API should offer most functionality described in the [Javascript API documentation](https://github.com/ethereum/wiki/wiki/JavaScript-API), except for contract events and filters.
+
 
 ### Initialisation
 
@@ -47,6 +51,29 @@ web3rpc = Web3(RPCProvider(host="127.0.0.1", port="8545"))
 web3ipc = Web3(IPCProvider(ipcpath=None, testnet=False))
 # Both arguments can be omitted, the ipcpath should be found automatically
 ```
+
+
+### Testing
+
+For testing you can use the `TestRPCProvider`.  This depends on
+`eth-testrpc>=0.2.0` which must be installed independently (It is not included
+as a hard dependency for this package.)
+
+
+```python
+from web3 import Web3, TestRPCProvider
+
+# Initialising a Web3 instance with an RPCProvider:
+web3rpc = Web3(TestRPCProvider())
+
+# or specifying host and port.
+web3rpc = Web3(TestRPCProvider(host="127.0.0.1", port="8545"))
+```
+
+The `TestRPCProvider` uses an EVM backed by the `ethereum.tester` module from
+the `pyethereum` package.  This can be quite useful for testing your code which
+uses `web3.py`.
+
 
 ### Setting defaults
 ```python

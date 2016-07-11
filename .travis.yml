@@ -2,16 +2,29 @@ sudo: false
 language: python
 python:
   - "3.5"
+dist: trusty
+sudo: required
+before_install:
+  - sudo add-apt-repository -y ppa:ethereum/ethereum
+  - sudo apt-get update
+  - sudo apt-get install -y ethereum
+  - mkdir -p ~/.ethash
+  - geth makedag 0 ~/.ethash
 env:
   matrix:
     - TOX_ENV=py27
     - TOX_ENV=py34
     - TOX_ENV=py35
     - TOX_ENV=flake8
-cache: pip
+cache:
+  pip: true
+  directories:
+    - ~/.ethash
 install:
   - "travis_retry pip install setuptools --upgrade"
   - "travis_retry pip install tox"
+before_script:
+  - geth version
 script:
   - tox -e $TOX_ENV
 after_script:

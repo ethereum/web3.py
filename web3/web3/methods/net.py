@@ -1,5 +1,7 @@
-from web3.web3.property import Property
 import web3.utils.encoding as encoding
+from web3.utils.functional import (
+    apply_formatters_to_return,
+)
 
 properties = [
     {
@@ -16,10 +18,20 @@ properties = [
 
 class Net(object):
 
-    def __init__(self, web3):
-        self._requestManager = web3._requestManager
+    def __init__(self, request_manager):
+        self.request_manager = request_manager
 
-        for prop in properties:
-            prop = Property(prop)
-            prop.attachToObject(self)
-            prop.setRequestManager(web3._requestManager)
+    @property
+    def listening(self):
+        return self.request_manager.request_blocking("net_listening", [])
+
+    def getListening(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    @apply_formatters_to_return(encoding.toDecimal)
+    def peerCount(self):
+        return self.request_manager.request_blocking("net_peerCount", [])
+
+    def getPeerCount(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")

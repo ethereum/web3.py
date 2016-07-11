@@ -84,6 +84,9 @@ def outputTransactionReceiptFormatter(receipt):
     """
     Formats the output of a transaction receipt to its proper values
     """
+    if receipt is None:
+        return None
+
     if receipt.get("blockNumber"):
         receipt["blockNumber"] = toDecimal(receipt["blockNumber"])
     if receipt.get("transactionIndex"):

@@ -1,9 +1,10 @@
-from web3.web3.method import Method
-from web3.web3.property import Property
 import web3.web3.formatters as formatters
 import web3.utils.config as config
 import web3.utils.encoding as encoding
 import web3.utils.utils as utils
+from web3.utils.functional import (
+    apply_formatters_to_return,
+)
 from web3.web3.contract import ContractFactory
 from web3.web3.iban import Iban
 
@@ -198,8 +199,7 @@ properties = [
 ]
 
 
-class DefaultAccount:
-
+class DefaultAccount(object):
     def __set__(self, v):
         config.defaultAccount = self.value
 
@@ -208,9 +208,8 @@ class DefaultAccount:
 
 
 class Eth(object):
-
-    def __init__(self, web3):
-        self._requestManager = web3._requestManager
+    def __init__(self, request_manager):
+        self.request_manager = request_manager
 
         self.defaultBlock = config.defaultBlock
         self.defaultAccount = DefaultAccount()  # config.defaultAccount
@@ -218,24 +217,198 @@ class Eth(object):
         self.iban = Iban
         # self.sendIBANTransaction = lambda: raise NotImplementedError()
 
-        for method in methods:
-            method = Method(method)
-            method.attachToObject(self)
-            method.setRequestManager(web3._requestManager)
-
-        for prop in properties:
-            prop = Property(prop)
-            prop.attachToObject(self)
-            prop.setRequestManager(web3._requestManager)
-
-    def contract(self, abi):
-        return ContractFactory(self, abi)
-
     def namereg(self):
         raise NotImplementedError()
 
     def icapNamereg(self):
         raise NotImplementedError()
 
-    def isSyncing(self):
-        raise NotImplementedError()
+    @property
+    def syncing(self):
+        return self.request_manager.request_blocking("eth_syncing", [])
+
+    def getSyncing(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    def isSyncing(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def coinbase(self):
+        return self.request_manager.request_blocking("eth_coinbase", [])
+
+    def getCoinbase(self):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def mining(self):
+        return self.request_manager.request_blocking("eth_mining", [])
+
+    def getMining(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def hashrate(self):
+        return self.request_manager.request_blocking("eth_hashrate", [])
+
+    def getHashrate(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    @apply_formatters_to_return(encoding.toDecimal)
+    def gasPrice(self):
+        return self.request_manager.request_blocking("eth_gasPrice", [])
+
+    def getGasPrice(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def accounts(self):
+        return self.request_manager.request_blocking("eth_accounts", [])
+
+    def getAccounts(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    @apply_formatters_to_return(encoding.toDecimal)
+    def blockNumber(self):
+        return self.request_manager.request_blocking("eth_blockNumber", [])
+
+    def getBlockNumber(self, *args, **kwargs):
+        raise NotImplementedError("Async calling has not been implemented")
+
+    @apply_formatters_to_return(encoding.toDecimal)
+    def getBalance(self, account, block_number=None):
+        if block_number is None:
+            block_number = self.defaultBlock
+        return self.request_manager.request_blocking(
+            "eth_getBalance",
+            [account, block_number],
+        )
+
+    def getStorageAt(self, account, position, block_number=None):
+        if block_number is None:
+            block_number = self.defaultBlock
+        return self.request_manager.request_blocking(
+            "eth_getStorageAt",
+            [account, position, block_number],
+        )
+
+    def getCode(self, account, block_number=None):
+        if block_number is None:
+            block_number = self.defaultBlock
+        return self.request_manager.request_blocking(
+            "eth_getCode",
+            [account, block_number],
+        )
+
+    @apply_formatters_to_return(formatters.outputBlockFormatter)
+    def getBlock(self, block_identifier, full_txns=False):
+        """
+        `eth_getBlockByHash`
+        `eth_getBlockByNumber`
+        """
+        if encoding.is_integer(block_identifier):
+            method = 'eth_getBlockByNumber'
+        else:
+            method = 'eth_getBlockByHash'
+
+        return self.request_manager.request_blocking(
+            method,
+            [block_identifier, full_txns],
+        )
+
+    @apply_formatters_to_return(encoding.toDecimal)
+    def getBlockTransactionCount(self, block_identifier):
+        """
+        `eth_getBlockTransactionCountByHash`
+        `eth_getBlockTransactionCountByNumber`
+        """
+        if encoding.is_integer(block_identifier):
+            method = 'eth_getBlockTransactionCountByNumber'
+        else:
+            method = 'eth_getBlockTransactionCountByHash'
+        return self.request_manager.request_blocking(method, [block_identifier])
+
+    def getUncle(self, block_identifier):
+        """
+        `eth_getUncleCountByBlockHash`
+        `eth_getUncleCountByBlockNumber`
+        """
+        raise NotImplementedError("TODO")
+
+    @apply_formatters_to_return(formatters.outputTransactionFormatter)
+    def getTransaction(self, txn_hash):
+        return self.request_manager.request_blocking(
+            "eth_getTransactionByHash",
+            [txn_hash],
+        )
+
+    @apply_formatters_to_return(formatters.outputTransactionFormatter)
+    def getTransactionFromBlock(self, block_identifier, txn_index):
+        """
+        `eth_getTransactionByBlockHashAndIndex`
+        `eth_getTransactionByBlockNumberAndIndex`
+        """
+        if encoding.is_integer(block_identifier):
+            method = 'eth_getTransactionByBlockNumberAndIndex'
+        else:
+            method = 'eth_getTransactionByBlockHashAndIndex'
+        return self.request_manager.request_blocking(
+            method,
+            [block_identifier, txn_index],
+        )
+
+    @apply_formatters_to_return(formatters.outputTransactionReceiptFormatter)
+    def getTransactionReceipt(self, txn_hash):
+        return self.request_manager.request_blocking(
+            "eth_getTransactionReceipt",
+            [txn_hash],
+        )
+
+    @apply_formatters_to_return(encoding.toDecimal)
+    def getTransactionCount(self, account, block_number=None):
+        if block_number is None:
+            block_number = self.defaultBlock
+        return self.request_manager.request_blocking(
+            "eth_getTransactionCount",
+            [account, block_number],
+        )
+
+    def sendTransaction(self, transaction):
+        return self.request_manager.request_blocking(
+            "eth_sendTransaction",
+            [transaction],
+        )
+
+    def sendRawTransaction(self, raw_txn):
+        return self.request_manager.request_blocking(
+            "eth_sendRawTransaction",
+            [raw_txn],
+        )
+
+    def sign(self, account, data):
+        data_hash = self.request_manager.request_blocking("web3_sha3", [data])
+        return self.request_manager.request_blocking("eth_sign", [account, data_hash])
+
+    def call(self, transaction, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
+        return self.request_manager.request_blocking("eth_call", [transaction, block_identifier])
+
+    def estimateGas(self, *args, **kwargs):
+        raise NotImplementedError("TODO")
+
+    def filter(self, *args, **kwargs):
+        """
+        `eth_newFilter`
+        `eth_newBlockFilter`
+        `eth_uninstallFilter`
+        """
+        raise NotImplementedError("TODO")
+
+    def contract(self, abi):
+        return ContractFactory(self, abi)
+
+    def getCompilers(self):
+        return self.request_manager.request_blocking("eth_getCompilers", [])
