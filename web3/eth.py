@@ -12,6 +12,8 @@ from web3.utils.types import (
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
+from web3.contract import construct_contract_class
+from web3.iban import Iban
 
 
 class DefaultAccount(object):
@@ -222,8 +224,8 @@ class Eth(object):
         """
         raise NotImplementedError("TODO")
 
-    def contract(self, abi):
-        raise NotImplementedError('Not implemented')
+    def contract(self, abi, **kwargs):
+        return construct_contract_class(self, abi, **kwargs)
 
     def getCompilers(self):
         return self.request_manager.request_blocking("eth_getCompilers", [])

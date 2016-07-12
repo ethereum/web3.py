@@ -1,95 +1,80 @@
-import web3.utils.utils as utils
-import web3.utils.encoding as encoding
-from web3.solidity.coder import coder
-from web3.web3.function import SolidityFunction
+"""
+new web3.eth.contract(abi, address);
+> {
+   address: '0x123456...',
+   deploy: function(options){...},
+   encodeABI: function(options){...},
+   // events
+   on: function(event, options, callback){...},
+   pastEvents:  function(event, options, callback){...},
+   // methods
+   estimateGas: function(options){...},
+   call: function(options){...},
+   transact: function(options){...}
+}
+"""
 
 
-def encodeConstructorParams(abi, params):
-    """
-    Should be called to encode constructor params
-    """
-    for json in abi:
-        if json["type"] == "constructor" and len(json["inputs"]) == len(params):
-                types = tuple(inp["type"] for inp in json["inputs"])
-                return coder.encodeParams(types, params)
-    return ""
+class _Contract(object):
+    # set during class construction
+    _web3 = None
+    _abi = None
 
+    # class properties
+    address = None
 
-def addFunctionsToContract(contract):
-    """
-    Should be called to add functions to contract object
-    """
-    for json in contract.abi:
-        if json["type"] == "function":
-            f = SolidityFunction(contract._eth, json, contract.address)
-            f.attachToContract(contract)
-
-
-'''
-def addEventsToContract(contract):
-    """
-    Should be called to add events to contract object
-    """
-    events = [json for json in contract.abi if json["type"] == "event"]
-
-    All = AllEvents(contract._eth._requestManager, events, contract.address)
-    All.attachToContract(contract)
-
-    for json in events:
-        evt = SolidityEvent(
-            contract._eth._requestManager, json, contract.address)
-        evt.attachToContract(contract)
-'''
-
-
-def checkForContractAddress(contract):
-    """
-    Should be called to check if the contract gets properly deployed on the blockchain.
-    """
-    raise NotImplementedError()
-
-
-class ContractFactory(object):
-    def __init__(self, eth, abi):
-        self.eth = eth
-
-        if utils.isString(abi):
-            abi = encoding.abiToJson(abi)
-        self.abi = abi
-
-    def new(self, *args):
-        """
-        Should be called to create new contract on a blockchain
-        """
-        contract = Contract(self.eth, self.abi)
-
-        options = {}
-
-        if utils.isObject(args[-1]) and not utils.isArray(args[-1]):
-            options = args[-1]
-
-        bytestring = encodeConstructorParams(self.abi, args[:-1])
-        options["data"] += bytestring
-
-        txhash = self.eth.sendTransaction(options)
-        contract.transactionHash = txhash
-        # TODO: Implement check for contract address.
-        # checkForContractAddress(contract)
-
-        return txhash
-
-    def at(self, address):
-        contract = Contract(self.eth, self.abi, address)
-
-        addFunctionsToContract(contract)
-        # addEventsToContract(contract)
-
-        return contract
-
-
-class Contract(object):
-    def __init__(self, eth, abi, address=None):
-        self._eth = eth
-        self.transactionhash = None
+    def __init__(self, address=None):
+        if self._web3 is None or self._abi is None:
+            raise AttributeError('The `Contract` class has not been initialized.  Please use the `web3.contract` interface to create your contract class.')
         self.address = address
-        self.abi = abi
+
+    def deploy(self, transaction):
+        """
+        deploys the contract.
+        """
+        raise NotImplementedError('Not implemented')
+
+    def encodeABI(self, method, arguments, data=None):
+        """
+        encodes the arguments using the Ethereum ABI.
+        """
+        raise NotImplementedError('Not implemented')
+
+    def on(self, event, filters, callback):
+        """
+        register a callback to be triggered on the appropriate events.
+        """
+        raise NotImplementedError('Not implemented')
+
+    def pastEvents(self, event, filters, callback):
+        """
+        register a callback to be triggered on all past events.
+        """
+        raise NotImplementedError('Not implemented')
+
+    def estimateGas(self, *args, **kwargs):
+        """
+        Estimate the gas for a call
+        """
+        raise NotImplementedError('Not implemented')
+
+    def call(self, *args, **kwargs):
+        """
+        Execute a contract function call using the `eth_call` interface.
+        """
+        raise NotImplementedError('Not implemented')
+
+    def transact(self, *args, **kwargs):
+        """
+        Execute a contract function call using the `eth_sendTransaction` interface.
+        """
+        raise NotImplementedError('Not implemented')
+
+
+def construct_contract_class(web3, abi, address=None):
+    _dict = {
+        'web3': web3,
+        'abi': abi,
+        'address': address,
+    }
+    return type('Contract', (_Contract,), _dict)
