@@ -44,7 +44,7 @@ class Web3(object):
         self._requestManager = RequestManager(provider)
         self.currentProvider = provider
 
-        self.eth = Eth(self._requestManager)
+        self.eth = Eth(self)
         self.db = Db(self._requestManager)
         self.shh = Shh(self._requestManager)
         self.net = Net(self._requestManager)

@@ -114,6 +114,15 @@ def setup_tester_rpc_provider():
     provider.server.server_close()
 
 
+@pytest.yield_fixture()
+def web3_tester():
+    from web3 import Web3
+
+    with setup_tester_rpc_provider() as provider:
+        _web3 = Web3(provider)
+        yield _web3
+
+
 @contextlib.contextmanager
 def setup_rpc_provider():
     from web3.providers.rpc import RPCProvider

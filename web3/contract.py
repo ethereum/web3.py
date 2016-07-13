@@ -17,14 +17,16 @@ new web3.eth.contract(abi, address);
 
 class _Contract(object):
     # set during class construction
-    _web3 = None
-    _abi = None
+    web3 = None
+    abi = None
+    code = None
+    code_runtime = None
 
     # class properties
     address = None
 
     def __init__(self, address=None):
-        if self._web3 is None or self._abi is None:
+        if self.web3 is None or self.abi is None:
             raise AttributeError('The `Contract` class has not been initialized.  Please use the `web3.contract` interface to create your contract class.')
         self.address = address
 
@@ -71,10 +73,14 @@ class _Contract(object):
         raise NotImplementedError('Not implemented')
 
 
-def construct_contract_class(web3, abi, address=None):
+def construct_contract_class(web3, abi, address=None, code=None,
+                             code_runtime=None, source=None):
     _dict = {
         'web3': web3,
         'abi': abi,
         'address': address,
+        'code': code,
+        'code_runtime': code_runtime,
+        'source', source,
     }
     return type('Contract', (_Contract,), _dict)
