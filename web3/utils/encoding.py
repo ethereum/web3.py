@@ -16,6 +16,8 @@ from .types import (
 from .formatting import (
     remove_0x_prefix,
     add_0x_prefix,
+    is_prefixed,
+    is_0x_prefixed,
 )
 
 
@@ -89,8 +91,8 @@ def fromDecimal(value):
     """
     Converts value to it's hex representation
     """
-    if utils.isString(value):
-        if value.startswith("0x") or value.startswith("-0x"):
+    if is_string(value):
+        if is_0x_prefixed(value) or is_prefixed(value, '-0x'):
             value = int(value, 16)
         else:
             value = int(value)
@@ -99,33 +101,8 @@ def fromDecimal(value):
     return result
 
 
-def toUtf8(hex):
-    """
-    Should be called to get utf8 from it's hex representation
-    """
-    if hex.startswith("0x"):
-        hex = hex[2:]
-    return binascii.unhexlify(hex).decode("utf8")
-
-
-def toAscii(hex):
-    """
-    Should be called to get ascii from it's hex representation
-    """
-    if hex.startswith("0x"):
-        hex = hex[2:]
-    return binascii.unhexlify(hex).decode("ascii")
-
-
 def fromAscii(obj):
     """
     Should be called to get hex representation (prefixed by 0x) of ascii string
     """
     return "0x" + binascii.hexlify(obj.encode("ascii", "ignore")).decode("ascii", "ignore")
-
-
-def abiToJson(obj):
-    """
-    Converts abi string to python object
-    """
-    return json.loads(obj)
