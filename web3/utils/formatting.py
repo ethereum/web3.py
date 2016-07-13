@@ -31,7 +31,7 @@ def pad_right(string, chars, filler="0"):
 
 def is_prefixed(value, prefix):
     return value.startswith(
-        force_bytes(prefix) if is_bytes(prefix) else force_text(prefix)
+        force_bytes(prefix) if is_bytes(value) else force_text(prefix)
     )
 
 
