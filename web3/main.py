@@ -2,20 +2,20 @@ from __future__ import absolute_import
 
 import copy
 
-from web3.web3.requestmanager import RequestManager
-from web3.web3.methods.eth import Eth
-from web3.web3.methods.db import Db
-from web3.web3.methods.shh import Shh
-from web3.web3.methods.net import Net
-from web3.web3.methods.personal import Personal
+from web3.eth import Eth
+from web3.db import Db
+from web3.shh import Shh
+from web3.net import Net
+from web3.personal import Personal
 from web3.version import Version
 
-from web3.web3.rpcprovider import (
+from web3.providers.rpc import (
     RPCProvider,
     TestRPCProvider,
     is_testrpc_available,
 )
-from web3.web3.ipcprovider import IPCProvider
+from web3.providers.ipc import IPCProvider
+from web3.providers.manager import RequestManager
 
 from web3.utils.string import (
     force_bytes,
