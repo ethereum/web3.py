@@ -1,19 +1,9 @@
-import web3.utils.encoding as encoding
+from web3.utils.encoding import (
+    to_decimal,
+)
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
-
-properties = [
-    {
-        "name": "listening",
-        "call": "net_listening",
-    },
-    {
-        "name": "peerCount",
-        "call": "net_peerCount",
-        "outputFormatter": encoding.toDecimal
-    }
-]
 
 
 class Net(object):
@@ -29,7 +19,7 @@ class Net(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
-    @apply_formatters_to_return(encoding.toDecimal)
+    @apply_formatters_to_return(to_decimal)
     def peerCount(self):
         return self.request_manager.request_blocking("net_peerCount", [])
 

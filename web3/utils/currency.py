@@ -1,55 +1,58 @@
-# Currency unit converters
+import decimal
 
-unitMap = {
-    'noether':      '0',
-    'wei':          '1',
-    'kwei':         '1000',
-    'Kwei':         '1000',
-    'babbage':      '1000',
-    'femtoether':   '1000',
-    'mwei':         '1000000',
-    'Mwei':         '1000000',
-    'lovelace':     '1000000',
-    'picoether':    '1000000',
-    'gwei':         '1000000000',
-    'Gwei':         '1000000000',
-    'shannon':      '1000000000',
-    'nanoether':    '1000000000',
-    'nano':         '1000000000',
-    'szabo':        '1000000000000',
-    'microether':   '1000000000000',
-    'micro':        '1000000000000',
-    'finney':       '1000000000000000',
-    'milliether':    '1000000000000000',
-    'milli':         '1000000000000000',
-    'ether':        '1000000000000000000',
-    'kether':       '1000000000000000000000',
-    'grand':        '1000000000000000000000',
-    'mether':       '1000000000000000000000000',
-    'gether':       '1000000000000000000000000000',
-    'tether':       '1000000000000000000000000000000'
+
+units = {
+    'noether':      decimal.Decimal(0),
+    'wei':          decimal.Decimal(1e0),
+    'kwei':         decimal.Decimal(1e3),
+    'babbage':      decimal.Decimal(1e3),
+    'femtoether':   decimal.Decimal(1e3),
+    'mwei':         decimal.Decimal(1e6),
+    'lovelace':     decimal.Decimal(1e6),
+    'picoether':    decimal.Decimal(1e6),
+    'gwei':         decimal.Decimal(1e9),
+    'shannon':      decimal.Decimal(1e9),
+    'nanoether':    decimal.Decimal(1e9),
+    'nano':         decimal.Decimal(1e9),
+    'szabo':        decimal.Decimal(1e12),
+    'microether':   decimal.Decimal(1e12),
+    'micro':        decimal.Decimal(1e12),
+    'finney':       decimal.Decimal(1e15),
+    'milliether':   decimal.Decimal(1e15),
+    'milli':        decimal.Decimal(1e15),
+    'ether':        decimal.Decimal(1e18),
+    'kether':       decimal.Decimal(1e21),
+    'grand':        decimal.Decimal(1e21),
+    'mether':       decimal.Decimal(1e24),
+    'gether':       decimal.Decimal(1e27),
+    'tether':       decimal.Decimal(1e30),
 }
 
 
-def getValueOfUnit(unit="ether"):
-    """
-    Returns value of unit in Wei
-    """
-    unit = unit.lower()
-    return unitMap[unit]
-
-
-def fromWei(number, unit):
+def from_wei(number, unit):
     """
     Takes a number of wei and converts it to any other ether unit.
     """
-    result = "%.15f" % (int(number) / float(getValueOfUnit(unit)))
-    return result.rstrip("0").rstrip(".")
+    if unit.lower() not in units:
+        raise ValueError(
+            "Unknown unit.  Must be one of {0}".format('/'.join(units.keys()))
+        )
+
+    d_number = decimal.Decimal(number)
+    unit_value = units[unit.lower()]
+
+    return d_number / unit_value
 
 
-def toWei(number, unit):
+def to_wei(number, unit):
     """
     Takes a number of a unit and converts it to wei.
     """
-    returnValue = int(number)*int(getValueOfUnit(unit))
-    return str(returnValue)
+    if unit.lower() not in units:
+        raise ValueError(
+            "Unknown unit.  Must be one of {0}".format('/'.join(units.keys()))
+        )
+    d_number = decimal.Decimal(number)
+    unit_value = units[unit.lower()]
+
+    return d_number * unit_value

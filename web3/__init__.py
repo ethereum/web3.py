@@ -4,8 +4,8 @@ import pkg_resources
 
 
 from web3.main import Web3  # NOQA
-from web3.web3.rpcprovider import RPCProvider  # NOQA
-from web3.web3.ipcprovider import IPCProvider  # NOQA
+from web3.providers.rpc import RPCProvider  # NOQA
+from web3.providers.ipc import IPCProvider  # NOQA
 
 __version__ = pkg_resources.get_distribution("web3").version
 

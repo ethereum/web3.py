@@ -33,28 +33,9 @@ def is_boolean(value):
     return isinstance(value, bool)
 
 
-def is_Object(obj):
-    """
-    Returns true if object is Objet, otherwise false
-    """
+def is_object(obj):
     return isinstance(obj, dict)
 
 
-def isArray(obj):
-    """
-    Returns true if object is array, otherwise false
-    """
+def is_array(obj):
     return isinstance(obj, list)
-
-
-def isJson(string):
-    """
-    Returns true if given string is valid json object
-    """
-    try:
-        decoded = json.loads(string)
-        if decoded or decoded == {}:
-            return True
-    except:
-        pass
-    return False

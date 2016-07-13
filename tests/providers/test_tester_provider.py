@@ -1,8 +1,11 @@
 import pytest
 import socket
 
-from web3.web3.requestmanager import RequestManager
-from web3.web3.rpcprovider import TestRPCProvider, is_testrpc_available
+from web3.providers.manager import RequestManager
+from web3.providers.rpc import (
+    TestRPCProvider,
+    is_testrpc_available,
+)
 
 
 def get_open_port():

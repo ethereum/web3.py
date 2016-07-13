@@ -1,15 +1,31 @@
-import web3.utils.address as address
-import web3.utils.encoding as encoding
-import web3.utils.utils as utils
-import web3.utils.config as config
-from web3.web3.iban import Iban
+from web3.iban import Iban
 
-fromDecimal = encoding.fromDecimal
-toDecimal = encoding.toDecimal
+from web3.utils.string import (
+    force_text,
+)
+from web3.utils.address import (
+    is_address,
+    is_strict_address,
+)
+from web3.utils.types import (
+    is_array,
+    is_string,
+)
+from web3.utils.formatting import (
+    is_0x_prefixed,
+)
+from web3.utils.encoding import (
+    to_hex,
+    encode_hex,
+    decode_hex,
+    from_decimal,
+    to_decimal,
+)
+import web3.utils.config as config
 
 
 def isPredefinedBlockNumber(blockNumber):
-    return blockNumber in ["latest", "pending", "earliest"]
+    return force_text(blockNumber) in {"latest", "pending", "earliest"}
 
 
 def inputDefaultBlockNumberFormatter(blockNumber=None):
@@ -24,7 +40,7 @@ def inputBlockNumberFormatter(blockNumber):
         return None
     elif isPredefinedBlockNumber(blockNumber):
         return blockNumber
-    return encoding.to_hex(blockNumber)
+    return to_hex(blockNumber)
 
 
 def inputCallFormatter(options):
@@ -42,7 +58,7 @@ def inputCallFormatter(options):
 
     for key in ("gasPrice", "gas", "value", "nonce"):
         if key in options:
-            options[key] = encoding.fromDecimal(options[key])
+            options[key] = from_decimal(options[key])
 
     return options
 
@@ -59,7 +75,7 @@ def inputTransactionFormatter(options):
 
     for key in ("gasPrice", "gas", "value", "nonce"):
         if key in options:
-            options[key] = encoding.fromDecimal(options[key])
+            options[key] = from_decimal(options[key])
 
     return options
 
@@ -69,14 +85,14 @@ def outputTransactionFormatter(tx):
     Formats the output of a transaction to its proper values
     """
     if tx.get("blockNumber"):
-        tx["blockNumber"] = toDecimal(tx["blockNumber"])
+        tx["blockNumber"] = to_decimal(tx["blockNumber"])
     if tx.get("transactionIndex"):
-        tx["transactionIndex"] = toDecimal(tx["transactionIndex"])
+        tx["transactionIndex"] = to_decimal(tx["transactionIndex"])
 
-    tx["nonce"] = toDecimal(tx["nonce"])
-    tx["gas"] = toDecimal(tx["gas"])
-    tx["gasPrice"] = toDecimal(tx["gasPrice"])
-    tx["value"] = toDecimal(tx["value"])
+    tx["nonce"] = to_decimal(tx["nonce"])
+    tx["gas"] = to_decimal(tx["gas"])
+    tx["gasPrice"] = to_decimal(tx["gasPrice"])
+    tx["value"] = to_decimal(tx["value"])
     return tx
 
 
@@ -88,13 +104,13 @@ def outputTransactionReceiptFormatter(receipt):
         return None
 
     if receipt.get("blockNumber"):
-        receipt["blockNumber"] = toDecimal(receipt["blockNumber"])
+        receipt["blockNumber"] = to_decimal(receipt["blockNumber"])
     if receipt.get("transactionIndex"):
-        receipt["transactionIndex"] = toDecimal(receipt["transactionIndex"])
-    receipt["cumulativeGasUsed"] = toDecimal(receipt["cumulativeGasUsed"])
-    receipt["gasUsed"] = toDecimal(receipt["gasUsed"])
+        receipt["transactionIndex"] = to_decimal(receipt["transactionIndex"])
+    receipt["cumulativeGasUsed"] = to_decimal(receipt["cumulativeGasUsed"])
+    receipt["gasUsed"] = to_decimal(receipt["gasUsed"])
 
-    if utils.isArray(receipt.get("logs")):
+    if is_array(receipt.get("logs")):
         receipt["logs"] = [outputLogFormatter(log) for log in receipt["logs"]]
 
     return receipt
@@ -106,20 +122,20 @@ def outputBlockFormatter(block):
     """
 
     # Transform to number
-    block["gasLimit"] = toDecimal(block["gasLimit"])
-    block["gasUsed"] = toDecimal(block["gasUsed"])
-    block["size"] = toDecimal(block["size"])
-    block["timestamp"] = toDecimal(block["timestamp"])
+    block["gasLimit"] = to_decimal(block["gasLimit"])
+    block["gasUsed"] = to_decimal(block["gasUsed"])
+    block["size"] = to_decimal(block["size"])
+    block["timestamp"] = to_decimal(block["timestamp"])
 
     if block.get("number"):
-        block["number"] = toDecimal(block["number"])
+        block["number"] = to_decimal(block["number"])
 
-    block["difficulty"] = toDecimal(block["difficulty"])
-    block["totalDifficulty"] = toDecimal(block["totalDifficulty"])
+    block["difficulty"] = to_decimal(block["difficulty"])
+    block["totalDifficulty"] = to_decimal(block["totalDifficulty"])
 
-    if utils.isArray(block.get("transactions")):
+    if is_array(block.get("transactions")):
         for item in block["transactions"]:
-            if not utils.isString(item):
+            if is_string(item):
                 item = outputTransactionFormatter(item)
 
     return block
@@ -130,11 +146,11 @@ def outputLogFormatter(log):
     Formats the output of a log
     """
     if log.get("blockNumber"):
-        log["blockNumber"] = toDecimal(log["blockNumber"])
+        log["blockNumber"] = to_decimal(log["blockNumber"])
     if log.get("transactionIndex"):
-        log["transactionIndex"] = toDecimal(log["transactionIndex"])
+        log["transactionIndex"] = to_decimal(log["transactionIndex"])
     if log.get("logIndex"):
-        log["logIndex"] = toDecimal(log["logIndex"])
+        log["logIndex"] = to_decimal(log["logIndex"])
 
     return log
 
@@ -144,14 +160,14 @@ def inputPostFormatter(post):
     Formats the input of a whisper post and converts all values to HEX
     """
 
-    post["ttl"] = fromDecimal(post["ttl"])
-    post["workToProve"] = fromDecimal(post.get("workToProve", 0))
-    post["priority"] = fromDecimal(post["priority"])
+    post["ttl"] = from_decimal(post["ttl"])
+    post["workToProve"] = from_decimal(post.get("workToProve", 0))
+    post["priority"] = from_decimal(post["priority"])
 
-    if not utils.isArray(post.get("topics")):
+    if not is_array(post.get("topics")):
         post["topics"] = [post["topics"]] if post.get("topics") else []
 
-    post["topics"] = [topic if topic.startswith("0x") else encoding.fromUtf8(topic)
+    post["topics"] = [topic if is_0x_prefixed(topic) else encode_hex(topic)
                       for topic in post["topics"]]
 
     return post
@@ -162,15 +178,15 @@ def outputPostFormatter(post):
     Formats the output of a received post message
     """
 
-    post["expiry"] = toDecimal(post["expiry"])
-    post["sent"] = toDecimal(post["sent"])
-    post["ttl"] = toDecimal(post["ttl"])
-    post["workProved"] = toDecimal(post["workProved"])
+    post["expiry"] = to_decimal(post["expiry"])
+    post["sent"] = to_decimal(post["sent"])
+    post["ttl"] = to_decimal(post["ttl"])
+    post["workProved"] = to_decimal(post["workProved"])
 
     if not post.get("topics"):
         post["topics"] = []
 
-    post["topics"] = [encoding.toAscii(topic) for topic in post["topics"]]
+    post["topics"] = [decode_hex(topic) for topic in post["topics"]]
 
     return post
 
@@ -179,17 +195,17 @@ def inputAddressFormatter(addr):
     iban = Iban(addr)
     if iban.isValid() and iban.isDirect():
         return "0x" + iban.address()
-    elif address.isStrictAddress(addr):
+    elif is_strict_address(addr):
         return addr
-    elif address.isAddress(addr):
+    elif is_address(addr):
         return "0x" + addr
 
     raise ValueError("invalid address")
 
 
 def outputSyncingFormatter(result):
-    result["startingBlock"] = toDecimal(result["startingBlock"])
-    result["currentBlock"] = toDecimal(result["currentBlock"])
-    result["highestBlock"] = toDecimal(result["highestBlock"])
+    result["startingBlock"] = to_decimal(result["startingBlock"])
+    result["currentBlock"] = to_decimal(result["currentBlock"])
+    result["highestBlock"] = to_decimal(result["highestBlock"])
 
     return result

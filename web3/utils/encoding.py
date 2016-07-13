@@ -1,15 +1,10 @@
 # String encodings and numeric representations
-import functools
 import sys
 import binascii
 import json
 
 from .types import (
-    is_bytes,
-    is_text,
     is_string,
-    is_number,
-    is_integer,
     is_boolean,
     is_object,
 )
@@ -62,14 +57,14 @@ def to_hex(value):
         return encode_hex(json.dumps(value))
 
     if is_string(value):
-        if value.startswith("-0x"):
-            return fromDecimal(value)
-        elif value.startswith("0x"):
+        if is_prefixed(value, '-0x'):
+            return from_decimal(value)
+        elif is_0x_prefixed(value):
             return value
-        elif not is_number(value):
-            return fromAscii(value)
+        else:
+            return encode_hex(value)
 
-    return from_decimal(val)
+    return from_decimal(value)
 
 
 def to_decimal(value):
@@ -77,7 +72,7 @@ def to_decimal(value):
     Converts value to it's decimal representation in string
     """
     if is_string(value):
-        if value.startswith("0x") or value.startswith("-0x"):
+        if is_0x_prefixed(value) or is_prefixed(value, '-0x'):
             value = int(value, 16)
         else:
             value = int(value)
@@ -87,7 +82,7 @@ def to_decimal(value):
     return value
 
 
-def fromDecimal(value):
+def from_decimal(value):
     """
     Converts value to it's hex representation
     """
@@ -99,10 +94,3 @@ def fromDecimal(value):
 
     result = hex(value)
     return result
-
-
-def fromAscii(obj):
-    """
-    Should be called to get hex representation (prefixed by 0x) of ascii string
-    """
-    return "0x" + binascii.hexlify(obj.encode("ascii", "ignore")).decode("ascii", "ignore")

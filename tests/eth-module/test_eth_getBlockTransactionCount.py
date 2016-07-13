@@ -2,7 +2,7 @@ import collections
 import itertools
 import pytest
 
-from web3.web3.rpcprovider import TestRPCProvider
+from web3.providers.rpc import TestRPCProvider
 
 
 @pytest.fixture(autouse=True)

@@ -1,10 +1,17 @@
-import web3.web3.formatters as formatters
+from web3 import formatters
+from web3.iban import Iban
+
 import web3.utils.config as config
-import web3.utils.encoding as encoding
+
+from web3.utils.encoding import (
+    to_decimal,
+)
+from web3.utils.types import (
+    is_integer,
+)
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
-from web3.web3.iban import Iban
 
 
 class DefaultAccount(object):
@@ -63,7 +70,7 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
-    @apply_formatters_to_return(encoding.toDecimal)
+    @apply_formatters_to_return(to_decimal)
     def gasPrice(self):
         return self.request_manager.request_blocking("eth_gasPrice", [])
 
@@ -78,14 +85,14 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
-    @apply_formatters_to_return(encoding.toDecimal)
+    @apply_formatters_to_return(to_decimal)
     def blockNumber(self):
         return self.request_manager.request_blocking("eth_blockNumber", [])
 
     def getBlockNumber(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
 
-    @apply_formatters_to_return(encoding.toDecimal)
+    @apply_formatters_to_return(to_decimal)
     def getBalance(self, account, block_number=None):
         if block_number is None:
             block_number = self.defaultBlock
@@ -116,7 +123,7 @@ class Eth(object):
         `eth_getBlockByHash`
         `eth_getBlockByNumber`
         """
-        if encoding.is_integer(block_identifier):
+        if is_integer(block_identifier):
             method = 'eth_getBlockByNumber'
         else:
             method = 'eth_getBlockByHash'
@@ -126,13 +133,13 @@ class Eth(object):
             [block_identifier, full_txns],
         )
 
-    @apply_formatters_to_return(encoding.toDecimal)
+    @apply_formatters_to_return(to_decimal)
     def getBlockTransactionCount(self, block_identifier):
         """
         `eth_getBlockTransactionCountByHash`
         `eth_getBlockTransactionCountByNumber`
         """
-        if encoding.is_integer(block_identifier):
+        if is_integer(block_identifier):
             method = 'eth_getBlockTransactionCountByNumber'
         else:
             method = 'eth_getBlockTransactionCountByHash'
@@ -158,7 +165,7 @@ class Eth(object):
         `eth_getTransactionByBlockHashAndIndex`
         `eth_getTransactionByBlockNumberAndIndex`
         """
-        if encoding.is_integer(block_identifier):
+        if is_integer(block_identifier):
             method = 'eth_getTransactionByBlockNumberAndIndex'
         else:
             method = 'eth_getTransactionByBlockHashAndIndex'
@@ -174,7 +181,7 @@ class Eth(object):
             [txn_hash],
         )
 
-    @apply_formatters_to_return(encoding.toDecimal)
+    @apply_formatters_to_return(to_decimal)
     def getTransactionCount(self, account, block_number=None):
         if block_number is None:
             block_number = self.defaultBlock

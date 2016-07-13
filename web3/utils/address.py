@@ -7,14 +7,14 @@ from .crypto import (
     sha3,
 )
 from .encoding import (
-    to_hex,
+    encode_hex,
 )
 from .types import (
     is_string,
 )
 from .formatting import (
+    add_0x_prefix,
     remove_0x_prefix,
-    pad_left,
 )
 
 
@@ -48,26 +48,25 @@ def is_checksum_address(address):
     return address == checksum_address
 
 
-def isStrictAddress(address):
+def is_strict_address(address):
     """
     Checks if the given string is strictly an address
     """
 
-    if not utils.isString(address):
+    if not is_string(address):
         return False
 
     return re.match(r"^0x[0-9a-fA-F]{40}$", address) is not None
 
 
-def toChecksumAddress(address):
+def to_checksum_address(address):
     """
     Makes a checksum address
     """
-
-    if not utils.isString(address):
+    if not is_string(address):
         return False
 
-    address = address.lower().replace("0x", "")
+    address = remove_0x_prefix(address.lower())
     addressHash = sha3(address)
     checksumAddress = "0x"
 
@@ -80,18 +79,17 @@ def toChecksumAddress(address):
     return checksumAddress
 
 
-def toAddress(address):
+def to_address(address):
     """
     Transforms given string to valid 20 bytes-length addres with 0x prefix
     """
 
-    if not utils.isString(address):
-        return False
+    if is_string(address):
+        if len(address) == 42:
+            return address
+        elif len(address) == 40:
+            return add_0x_prefix(address)
+        elif len(address) == 20:
+            return encode_hex(address)
 
-    if isStrictAddress(address):
-        return address
-
-    if re.match(r"^[0-9a-f]{3}$", address):
-        return "0x"+address
-
-    return "0x" + pad_left(to_hex(address)[2:], 40)
+    raise ValueError("Unknown address format")

@@ -9,7 +9,7 @@ from eth_tester_client.utils import (
     encode_data,
 )
 
-from web3.web3.rpcprovider import TestRPCProvider
+from web3.providers.rpc import TestRPCProvider
 
 
 def test_eth_sendRawTransaction(web3, wait_for_transaction, extra_accounts):
