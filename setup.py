@@ -28,6 +28,8 @@ setup(
         "six>=1.10.0",
         "pysha3>=0.3",
         "requests>=2.10.0",
+        "rlp>=0.4.6",
+        "gevent>=1.1.1",
     ],
     py_modules=['web3'],
     license="MIT",
