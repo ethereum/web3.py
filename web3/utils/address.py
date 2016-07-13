@@ -1,8 +1,21 @@
 # Address utilities
 from __future__ import absolute_import
-from . import encoding, utils
-from web3.utils.crypto import sha3
+
 import re
+
+from .crypto import (
+    sha3,
+)
+from .encoding import (
+    to_hex,
+)
+from .types import (
+    is_string,
+)
+from .formatting import (
+    remove_0x_prefix,
+    pad_left,
+)
 
 
 def is_address(address):
@@ -10,7 +23,7 @@ def is_address(address):
     Checks if the given string is an address
     """
 
-    if not utils.isString(address):
+    if not is_string(address):
         return False
 
     if not re.match(r"^(0x)?[0-9a-fA-F]{40}$", address):
@@ -18,29 +31,21 @@ def is_address(address):
     elif re.match(r"^(0x)?[0-9a-f]{40}", address) or re.match(r"(0x)?[0-9A-F]{40}$", address):
         return True
     else:
-        return isChecksumAddress(address)
+        return is_checksum_address(address)
 
 
-isAddress = is_address
-
-
-def isChecksumAddress(address):
+def is_checksum_address(address):
     """
     Checks if the given string is a checksummed address
     """
 
-    if not utils.isString(address):
+    if not is_string(address):
         return False
 
-    address = address.replace("0x", "")
-    addressHash = sha3(address.lower())
+    address = remove_0x_prefix(address)
+    checksum_address = to_checksum_address(address)
 
-    for i in range(40):
-        if (int(addressHash[i], 16) > 7 and address[i].upper() != address[i]) or \
-                (int(addressHash[i], 16) <= 7 and address[i].lower() != address[i]):
-            return False
-
-    return True
+    return address == checksum_address
 
 
 def isStrictAddress(address):
@@ -89,4 +94,4 @@ def toAddress(address):
     if re.match(r"^[0-9a-f]{3}$", address):
         return "0x"+address
 
-    return "0x" + utils.padLeft(encoding.toHex(address)[2:], 40)
+    return "0x" + pad_left(to_hex(address)[2:], 40)

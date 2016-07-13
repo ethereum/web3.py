@@ -17,6 +17,9 @@ from web3.web3.rpcprovider import (
 )
 from web3.web3.ipcprovider import IPCProvider
 
+from web3.utils.string import (
+    force_bytes,
+)
 from web3.utils.encoding import (
     encode_hex,
 )
@@ -70,11 +73,11 @@ class Web3(object):
             setattr(self, class_name, klass)
 
         # Expose utility functions
-        self.toHex = encoding.toHex
-        self.toAscii = encoding.toAscii
+        self.toHex = self.to_hex = encoding.to_hex
+        self.toAscii = self.to_ascii = self.to_bytes = force_bytes
         self.toUtf8 = encoding.toUtf8
         self.fromAscii = encoding.fromAscii
-        self.fromUtf8 = encoding.fromUtf8
+        self.fromUtf8 = encode_hex
         self.toDecimal = encoding.toDecimal
         self.fromDecimal = encoding.fromDecimal
         self.toWei = currency.toWei

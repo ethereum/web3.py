@@ -24,7 +24,7 @@ def inputBlockNumberFormatter(blockNumber):
         return None
     elif isPredefinedBlockNumber(blockNumber):
         return blockNumber
-    return encoding.toHex(blockNumber)
+    return encoding.to_hex(blockNumber)
 
 
 def inputCallFormatter(options):
