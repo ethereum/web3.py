@@ -30,7 +30,7 @@ def filter_by_encodability(arguments, contract_abi):
 def check_if_arguments_can_be_encoded(types, arguments):
     try:
         encode_abi(types, arguments)
-    except EncodingError:
+    except (EncodingError, IndexError):
         return False
     else:
         return True
