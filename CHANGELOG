@@ -1,3 +1,9 @@
+1.1.0
+-----
+
+* Add missing `isConnected()` method.
+* Add test coverage for `setProvider()`
+
 1.0.1
 -----
 
