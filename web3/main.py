@@ -98,7 +98,7 @@ class Web3(object):
         return self._requestManager.request_blocking('web3_sha3', [hex_string])
 
     def isConnected(self):
-        return self.currentProvider and self.currentProvider.isConnected()
+        return self.currentProvider is not None and self.currentProvider.isConnected()
 
     def createBatch(self):
         raise NotImplementedError("Not Implemented")

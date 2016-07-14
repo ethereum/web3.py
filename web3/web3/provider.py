@@ -6,7 +6,7 @@ import itertools
 from web3.utils.encoding import (
     force_bytes,
     force_obj_to_text,
-)
+    force_text)
 
 
 class BaseProvider(object):
@@ -23,3 +23,15 @@ class BaseProvider(object):
             "params": params or [],
             "id": next(self.request_counter),
         })))
+
+    def isConnected(self):
+        try:
+            response_raw = self.make_request('web3_clientVersion', [])
+            response = json.loads(force_text(response_raw))
+        except IOError:
+            return False
+        else:
+            assert response['jsonrpc'] == '2.0'
+            assert 'error' not in response
+            return True
+        assert False
