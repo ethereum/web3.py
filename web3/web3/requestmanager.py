@@ -10,6 +10,9 @@ class RequestManager(object):
         self.pending_requests = {}
         self.provider = provider
 
+    def setProvider(self, provider):
+        self.provider = provider
+
     def request_blocking(self, method, params):
         """
         Make a synchronous request using the provider
