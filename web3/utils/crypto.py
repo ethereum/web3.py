@@ -6,8 +6,10 @@ from sha3 import sha3_256
 
 
 def sha3(value, encoding=None):
-    from .encoding import (
+    from .formatting import (
         remove_0x_prefix,
+    )
+    from .string import (
         force_bytes,
     )
 

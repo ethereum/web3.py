@@ -142,7 +142,11 @@ def setup_ipc_provider():
         geth.stop()
 
 
-@pytest.yield_fixture(params=['tester', 'rpc', 'ipc'])
+@pytest.yield_fixture(params=[
+    'tester',
+    pytest.mark.slow('rpc'),
+    pytest.mark.slow('ipc'),
+])
 def web3(request):
     from web3 import Web3
 
