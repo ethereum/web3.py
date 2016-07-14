@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 import pytest
-import web3.utils.utils as utils
+
+from web3.utils.formatting import (
+    pad_left,
+    pad_right,
+)
 
 
 @pytest.mark.parametrize(
@@ -13,7 +17,7 @@ import web3.utils.utils as utils
     ]
 )
 def test_padLeft(value, expected):
-    assert utils.padLeft(*value) == expected
+    assert pad_left(*value) == expected
 
 
 @pytest.mark.parametrize(
@@ -26,4 +30,4 @@ def test_padLeft(value, expected):
     ]
 )
 def test_padRight(value, expected):
-    assert utils.padRight(*value) == expected
+    assert pad_right(*value) == expected

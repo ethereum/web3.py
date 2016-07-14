@@ -2,6 +2,7 @@ from web3.iban import Iban
 
 from web3.utils.string import (
     force_text,
+    coerce_return_to_text,
 )
 from web3.utils.address import (
     is_address,
@@ -25,6 +26,8 @@ import web3.utils.config as config
 
 
 def isPredefinedBlockNumber(blockNumber):
+    if not is_string(blockNumber):
+        return False
     return force_text(blockNumber) in {"latest", "pending", "earliest"}
 
 
@@ -43,6 +46,7 @@ def inputBlockNumberFormatter(blockNumber):
     return to_hex(blockNumber)
 
 
+@coerce_return_to_text
 def inputCallFormatter(options):
     """
     Formats the input of a transaction and converts all values to HEX
@@ -63,6 +67,7 @@ def inputCallFormatter(options):
     return options
 
 
+@coerce_return_to_text
 def inputTransactionFormatter(options):
     """
     Formats the input of a transaction and converts all values to HEX
@@ -80,6 +85,7 @@ def inputTransactionFormatter(options):
     return options
 
 
+@coerce_return_to_text
 def outputTransactionFormatter(tx):
     """
     Formats the output of a transaction to its proper values
@@ -96,6 +102,7 @@ def outputTransactionFormatter(tx):
     return tx
 
 
+@coerce_return_to_text
 def outputTransactionReceiptFormatter(receipt):
     """
     Formats the output of a transaction receipt to its proper values
@@ -116,6 +123,7 @@ def outputTransactionReceiptFormatter(receipt):
     return receipt
 
 
+@coerce_return_to_text
 def outputBlockFormatter(block):
     """
     Formats the output of a block to its proper values
@@ -141,6 +149,7 @@ def outputBlockFormatter(block):
     return block
 
 
+@coerce_return_to_text
 def outputLogFormatter(log):
     """
     Formats the output of a log
@@ -155,6 +164,7 @@ def outputLogFormatter(log):
     return log
 
 
+@coerce_return_to_text
 def inputPostFormatter(post):
     """
     Formats the input of a whisper post and converts all values to HEX
@@ -173,6 +183,7 @@ def inputPostFormatter(post):
     return post
 
 
+@coerce_return_to_text
 def outputPostFormatter(post):
     """
     Formats the output of a received post message

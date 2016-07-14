@@ -1,6 +1,9 @@
 import decimal
 
 
+# Set the decimal precision
+decimal.DefaultContext.prec = 999
+
 units = {
     'wei':          decimal.Decimal('1'),
     'kwei':         decimal.Decimal('1000'),
@@ -27,7 +30,9 @@ units = {
     'tether':       decimal.Decimal('1000000000000000000000000000000'),
 }
 
-CURRENCY_CONTEXT = decimal.Context(prec=60, rounding=decimal.ROUND_DOWN)
+
+MIN_WEI = 0
+MAX_WEI = 2 ** 256 - 1
 
 
 def from_wei(number, unit):
@@ -39,7 +44,13 @@ def from_wei(number, unit):
             "Unknown unit.  Must be one of {0}".format('/'.join(units.keys()))
         )
 
-    d_number = CURRENCY_CONTEXT.create_decimal(number)
+    if number == 0:
+        return 0
+
+    if number < MIN_WEI or number > MAX_WEI:
+        raise ValueError("value must be between 1 and 2**256 - 1")
+
+    d_number = decimal.Decimal(number)
     unit_value = units[unit.lower()]
 
     return d_number / unit_value
@@ -53,7 +64,16 @@ def to_wei(number, unit):
         raise ValueError(
             "Unknown unit.  Must be one of {0}".format('/'.join(units.keys()))
         )
-    d_number = CURRENCY_CONTEXT.create_decimal(number)
+
+    if number == 0:
+        return 0
+
+    d_number = decimal.Decimal(number)
     unit_value = units[unit.lower()]
 
-    return d_number * unit_value
+    result_value = d_number * unit_value
+
+    if result_value < MIN_WEI or result_value > MAX_WEI:
+        raise ValueError("Resulting wei value must be between 1 and 2**256 - 1")
+
+    return result_value

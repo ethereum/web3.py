@@ -81,3 +81,10 @@ def coerce_return_to_bytes(fn):
     def inner(*args, **kwargs):
         return force_obj_to_bytes(fn(*args, **kwargs))
     return inner
+
+
+def coerce_return_to_text(fn):
+    @functools.wraps(fn)
+    def inner(*args, **kwargs):
+        return force_obj_to_text(fn(*args, **kwargs))
+    return inner
