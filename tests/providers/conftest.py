@@ -1,7 +1,7 @@
 import pytest
 
-from web3.web3.ipcprovider import IPCProvider
-from web3.web3.rpcprovider import TestRPCProvider, RPCProvider
+from web3.providers.ipc import IPCProvider
+from web3.providers.rpc import TestRPCProvider, RPCProvider
 
 
 @pytest.fixture(params=['tester', 'rpc', 'ipc'])
