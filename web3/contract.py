@@ -30,8 +30,38 @@ class _Contract(object):
     def __init__(self, abi=None, address=None, code=None, code_runtime=None, source=None):
         if self.web3 is None:
             raise AttributeError('The `Contract` class has not been initialized.  Please use the `web3.contract` interface to create your contract class.')
-        self._code = TODO
+        self._abi = abi
+        self._code = code
+        self._code_runtime = code_runtime
+        self._source = source
         self.address = address
+
+    @property
+    def abi(self):
+        if self._abi is not None:
+            return self._abi
+        # TODO: abi can be derived from the contract source.
+        raise AttributeError("No contract abi was specified for thes contract")
+
+    @property
+    def code(self):
+        if self._code is not None:
+            return self._code
+        # TODO: code can be derived from the contract source.
+        raise AttributeError("No contract code was specified for thes contract")
+
+    @property
+    def code_runtime(self):
+        if self._code_runtime is not None:
+            return self._code_runtime
+        # TODO: runtime can be derived from the contract source.
+        raise AttributeError("No contract code_runtime was specified for thes contract")
+
+    @property
+    def source(self):
+        if self._source is not None:
+            return self._source
+        raise AttributeError("No contract source was specified for thes contract")
 
     def deploy(self, transaction):
         """

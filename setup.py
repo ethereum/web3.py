@@ -25,7 +25,6 @@ setup(
     download_url="https://github.com/pipermerriam/web3.py/tarball/0.1.9",
     include_package_data=True,
     install_requires=[
-        "six>=1.10.0",
         "pysha3>=0.3",
         "requests>=2.10.0",
         "rlp>=0.4.6",
