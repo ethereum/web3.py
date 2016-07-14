@@ -13,6 +13,32 @@ new web3.eth.contract(abi, address);
    transact: function(options){...}
 }
 """
+import functools
+
+from eth_abi import (
+    encode_abi,
+)
+
+from web3.utils.encoding import (
+    encode_hex,
+)
+from web3.utils.formatting import (
+    add_0x_prefix,
+    remove_0x_prefix,
+)
+from web3.utils.string import (
+    force_bytes,
+    coerce_return_to_text,
+)
+from web3.utils.functional import (
+    compose,
+)
+from web3.utils.abi import (
+    filter_by_type,
+    filter_by_name,
+    filter_by_encodability,
+    get_abi_types,
+)
 
 
 class _Contract(object):
@@ -69,11 +95,40 @@ class _Contract(object):
         """
         raise NotImplementedError('Not implemented')
 
-    def encodeABI(self, method, arguments, data=None):
+    #
+    # ABI Helpers
+    #
+    @classmethod
+    def find_matching_abi(cls, fn_name, arguments):
+        filter_fn = compose(
+            functools.partial(filter_by_type, 'function'),
+            functools.partial(filter_by_name, fn_name),
+            functools.partial(filter_by_encodability, arguments),
+        )
+        matches = filter_fn(cls.abi)
+        if len(matches) == 1:
+            return matches[0]
+        elif len(matches) == 0:
+            raise ValueError("No matching functions found")
+        else:
+            raise ValueError("Multiple functions found")
+
+    @classmethod
+    @coerce_return_to_text
+    def encodeABI(cls, fn_name, arguments, data=None):
         """
         encodes the arguments using the Ethereum ABI.
         """
-        raise NotImplementedError('Not implemented')
+        function_abi = cls.find_matching_abi(fn_name, arguments)
+        function_types = get_abi_types(function_abi)
+        encoded_arguments = encode_abi(function_types, arguments)
+        if data:
+            return add_0x_prefix(
+                force_bytes(remove_0x_prefix(data)) +
+                force_bytes(remove_0x_prefix(encode_hex(encoded_arguments)))
+            )
+        else:
+            return encode_hex(encoded_arguments)
 
     def on(self, event, filters, callback):
         """
@@ -114,6 +169,6 @@ def construct_contract_class(web3, abi, address=None, code=None,
         'abi': abi,
         'code': code,
         'code_runtime': code_runtime,
-        'source', source,
+        'source': source,
     }
     return type('Contract', (_Contract,), _dict)

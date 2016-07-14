@@ -36,7 +36,7 @@ from web3.utils.address import (
     is_checksum_address,
     to_checksum_address,
 )
-import web3.utils.config as config
+from web3.utils import config
 
 
 class Web3(object):

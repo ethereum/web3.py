@@ -1,6 +1,6 @@
 import pytest
 
-from web3.web3.contract import _Contract
+from web3.contract import _Contract
 
 
 def test_class_construction_sets_class_vars(web3_tester, MATH_ABI, MATH_CODE,
