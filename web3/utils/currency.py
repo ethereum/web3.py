@@ -2,7 +2,6 @@ import decimal
 
 
 units = {
-    'noether':      decimal.Decimal(0),
     'wei':          decimal.Decimal(1e0),
     'kwei':         decimal.Decimal(1e3),
     'babbage':      decimal.Decimal(1e3),
