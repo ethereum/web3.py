@@ -1,3 +1,15 @@
+1.2.0
+-----
+
+* Restructure project modules to be more *flat*
+* Add ability to run test suite without the *slow* tests.
+* Breakup `encoding` utils into smaller modules.
+* Basic pep8 formatting.
+* Apply python naming conventions to internal APIs
+* Lots of minor bugfixes.
+* Removal of dead code left behing from `1.0.0` refactor.
+* Removal of `web3/solidity` module.
+
 1.1.0
 -----
 
