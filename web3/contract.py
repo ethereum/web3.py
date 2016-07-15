@@ -29,13 +29,12 @@ from web3.utils.formatting import (
 from web3.utils.string import (
     force_bytes,
     coerce_return_to_text,
-)
-from web3.utils.functional import (
-    compose,
+    force_obj_to_bytes,
 )
 from web3.utils.abi import (
     filter_by_type,
     filter_by_name,
+    filter_by_argument_count,
     filter_by_encodability,
     get_abi_types,
 )
@@ -100,15 +99,23 @@ class _Contract(object):
     #
     @classmethod
     def find_matching_abi(cls, fn_name, arguments):
-        filter_fn = compose(
-            functools.partial(filter_by_type, 'function'),
+        filters = [
             functools.partial(filter_by_name, fn_name),
+            functools.partial(filter_by_argument_count, arguments),
             functools.partial(filter_by_encodability, arguments),
-        )
-        matches = filter_fn(cls.abi)
-        if len(matches) == 1:
-            return matches[0]
-        elif len(matches) == 0:
+        ]
+
+        function_candidates = filter_by_type('function', cls.abi)
+
+        for filter_fn in filters:
+            function_candidates = filter_fn(function_candidates)
+
+            if len(function_candidates) == 1:
+                return function_candidates[0]
+            elif not function_candidates:
+                break
+
+        if not function_candidates:
             raise ValueError("No matching functions found")
         else:
             raise ValueError("Multiple functions found")
@@ -119,9 +126,9 @@ class _Contract(object):
         """
         encodes the arguments using the Ethereum ABI.
         """
-        function_abi = cls.find_matching_abi(fn_name, arguments)
+        function_abi = cls.find_matching_abi(fn_name, force_obj_to_bytes(arguments))
         function_types = get_abi_types(function_abi)
-        encoded_arguments = encode_abi(function_types, arguments)
+        encoded_arguments = encode_abi(function_types, force_obj_to_bytes(arguments))
         if data:
             return add_0x_prefix(
                 force_bytes(remove_0x_prefix(data)) +
