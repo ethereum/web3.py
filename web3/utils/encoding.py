@@ -92,5 +92,5 @@ def from_decimal(value):
         else:
             value = int(value)
 
-    result = hex(value)
+    result = hex(value).rstrip('L')
     return result
