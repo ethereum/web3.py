@@ -20,6 +20,9 @@ cache:
   pip: true
   directories:
     - ~/.ethash
+    - .tox/py27/.hypothesis
+    - .tox/py34/.hypothesis
+    - .tox/py35/.hypothesis
 install:
   - "travis_retry pip install setuptools --upgrade"
   - "travis_retry pip install tox"

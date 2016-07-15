@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
-from web3.web3 import formatters
+from web3 import formatters
 
 
 @pytest.mark.parametrize(

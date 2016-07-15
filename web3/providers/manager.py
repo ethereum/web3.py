@@ -2,7 +2,7 @@ import uuid
 import json
 import gevent
 
-from web3.utils.encoding import force_text
+from web3.utils.string import force_text
 
 
 class RequestManager(object):

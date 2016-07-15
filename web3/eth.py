@@ -1,202 +1,17 @@
-import web3.web3.formatters as formatters
+from web3 import formatters
+from web3.iban import Iban
+
 import web3.utils.config as config
-import web3.utils.encoding as encoding
-import web3.utils.utils as utils
+
+from web3.utils.encoding import (
+    to_decimal,
+)
+from web3.utils.types import (
+    is_integer,
+)
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
-from web3.web3.contract import ContractFactory
-from web3.web3.iban import Iban
-
-
-def alternativeCall(a, b):
-    def partial(args):
-        if utils.isString(args[0]) and args[0].startswith("0x"):
-            return a
-        else:
-            return b
-    return partial
-
-blockCall = alternativeCall("eth_getBlockByHash", "eth_getBlockByNumber")
-transactionFromBlockCall = alternativeCall(
-    "eth_getTransactionByBlockHashAndIndex", "eth_getTransactionByBlockNumberAndIndex")
-uncleCall = alternativeCall(
-    "eth_getUncleByBlockHashAndIndex", "eth_getUncleByBlockNumberAndIndex")
-getBlockTransactionCountCall = alternativeCall(
-    "eth_getBlockTransactionCountByHash", "eth_getBlockTransactionCountByNumber")
-uncleCountCall = alternativeCall(
-    "eth_getUncleCountByBlockHash", "eth_getUncleCountByBlockNumber")
-
-methods = [
-    {
-        "name": "getBalance",
-        "call": "eth_getBalance",
-        "params": 2,
-        "inputFormatter":
-        [formatters.inputAddressFormatter,
-            formatters.inputDefaultBlockNumberFormatter],
-        "outputFormatter": encoding.toDecimal
-    },
-    {
-        "name": "getStorageAt",
-        "call": "eth_getStorageAt",
-        "params": 2,
-        "inputFormatter":
-        [None, encoding.toHex, formatters.inputDefaultBlockNumberFormatter]
-    },
-    {
-        "name": "getCode",
-        "call": "eth_getCode",
-        "params": 2,
-        "inputFormatter":
-        [formatters.inputAddressFormatter,
-            formatters.inputDefaultBlockNumberFormatter]
-    },
-    {
-        "name": "getBlock",
-        "call": blockCall,
-        "params": 2,
-        "inputFormatter":
-        [formatters.inputBlockNumberFormatter, lambda val: val is not None],
-        "outputFormatter": formatters.outputBlockFormatter
-    },
-    {
-        "name": "getUncle",
-        "call": "eth_Uncle",
-        "params": 2,
-        "inputFormatter":
-        [None, encoding.toHex,
-            formatters.inputBlockNumberFormatter, encoding.toHex],
-        "outputFormatter": formatters.outputBlockFormatter
-    },
-    {
-        "name": "getCompilers",
-        "call": "eth_getCompilers",
-        "params": 0,
-    },
-    {
-        "name": "getBlockTransactionCount",
-        "call": getBlockTransactionCountCall,
-        "params": 1,
-        "inputFormatter": [formatters.inputBlockNumberFormatter],
-        "outputFormatter": encoding.toDecimal
-    },
-    {
-        "name": "getBlockUncleCount",
-        "call": uncleCountCall,
-        "params": 1,
-        "inputFormatter": [formatters.inputBlockNumberFormatter],
-        "outputFormatter": encoding.toDecimal
-    },
-    {
-        "name": "getTranscation",
-        "call": "eth_getTransactionByHash",
-        "params": 1,
-        "inputFormatter": [formatters.inputBlockNumberFormatter],
-    },
-    {
-        "name": "getTransactionFromBlock",
-        "call": transactionFromBlockCall,
-        "params": 2,
-        "inputFormatter": [formatters.inputBlockNumberFormatter, encoding.toHex],
-        "outputFormatter": formatters.outputTransactionFormatter
-
-    },
-    {
-        "name": "getTransactionReceipt",
-        "call": "eth_getTransactionReceipt",
-        "params": 1,
-        "outputFormatter": formatters.outputTransactionReceiptFormatter
-    },
-    {
-        "name": "getTransactionCount",
-        "call": "eth_getTransactionCount",
-        "params": 2,
-        "inputFormatter": [None, formatters.inputDefaultBlockNumberFormatter],
-        "outputFormatter": encoding.toDecimal
-
-    },
-    {
-        "name": "sendRawTransaction",
-        "call": "eth_sendRawTransaction",
-        "params": 1,
-        "inputFormatter": [None]
-    },
-    {
-        "name": "sendTransaction",
-        "call": "eth_sendTransaction",
-        "params": 1,
-        "inputFormatter": [formatters.inputTransactionFormatter]
-    },
-    {
-        "name": "sign",
-        "call": "eth_sign",
-        "params": 2,
-        "inputFormatter": [formatters.inputAddressFormatter, None]
-    },
-    {
-        "name": "call",
-        "call": "eth_call",
-        "params": 2,
-        "inputFormatter":
-        [formatters.inputCallFormatter,
-            formatters.inputDefaultBlockNumberFormatter]
-    },
-    {
-        "name": "estimateGas",
-        "call": "eth_estimateGas",
-        "params": 1,
-        "inputFormatter": [formatters.inputCallFormatter],
-        "outputFormatter": encoding.toDecimal
-    },
-    # compileSolidity, compileLLL, compileSerpent deprecated
-    {
-        "name": "submitWork",
-        "call": "eth_submitWork",
-        "params": 3,
-    },
-    {
-        "name": "getWork",
-        "call": "eth_getWork",
-        "params": 1,
-    }
-]
-
-
-properties = [
-    {
-        "name": "coinbase",
-        "getter": "eth_coinbase"
-    },
-    {
-        "name": "mining",
-        "getter": "eth_mining"
-    },
-    {
-        "name": "hashrate",
-        "getter": "eth_hashrate",
-        "outputFormatter": encoding.toDecimal
-    },
-    {
-        "name": "syncing",
-        "getter": "eth_syncing",
-        "outputFormatter": formatters.outputSyncingFormatter
-    },
-    {
-        "name": "gasPrice",
-        "getter": "eth_gasPrice"
-        # "outputFormatter": formatters.outputNumberFormatter
-    },
-    {
-        "name": "accounts",
-        "getter": "eth_accounts",
-    },
-    {
-        "name": "blockNumber",
-        "getter": "eth_blockNumber",
-        "outputFormatter": encoding.toDecimal
-    }
-]
 
 
 class DefaultAccount(object):
@@ -255,7 +70,7 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
-    @apply_formatters_to_return(encoding.toDecimal)
+    @apply_formatters_to_return(to_decimal)
     def gasPrice(self):
         return self.request_manager.request_blocking("eth_gasPrice", [])
 
@@ -270,14 +85,14 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
-    @apply_formatters_to_return(encoding.toDecimal)
+    @apply_formatters_to_return(to_decimal)
     def blockNumber(self):
         return self.request_manager.request_blocking("eth_blockNumber", [])
 
     def getBlockNumber(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
 
-    @apply_formatters_to_return(encoding.toDecimal)
+    @apply_formatters_to_return(to_decimal)
     def getBalance(self, account, block_number=None):
         if block_number is None:
             block_number = self.defaultBlock
@@ -308,7 +123,7 @@ class Eth(object):
         `eth_getBlockByHash`
         `eth_getBlockByNumber`
         """
-        if encoding.is_integer(block_identifier):
+        if is_integer(block_identifier):
             method = 'eth_getBlockByNumber'
         else:
             method = 'eth_getBlockByHash'
@@ -318,13 +133,13 @@ class Eth(object):
             [block_identifier, full_txns],
         )
 
-    @apply_formatters_to_return(encoding.toDecimal)
+    @apply_formatters_to_return(to_decimal)
     def getBlockTransactionCount(self, block_identifier):
         """
         `eth_getBlockTransactionCountByHash`
         `eth_getBlockTransactionCountByNumber`
         """
-        if encoding.is_integer(block_identifier):
+        if is_integer(block_identifier):
             method = 'eth_getBlockTransactionCountByNumber'
         else:
             method = 'eth_getBlockTransactionCountByHash'
@@ -350,7 +165,7 @@ class Eth(object):
         `eth_getTransactionByBlockHashAndIndex`
         `eth_getTransactionByBlockNumberAndIndex`
         """
-        if encoding.is_integer(block_identifier):
+        if is_integer(block_identifier):
             method = 'eth_getTransactionByBlockNumberAndIndex'
         else:
             method = 'eth_getTransactionByBlockHashAndIndex'
@@ -366,7 +181,7 @@ class Eth(object):
             [txn_hash],
         )
 
-    @apply_formatters_to_return(encoding.toDecimal)
+    @apply_formatters_to_return(to_decimal)
     def getTransactionCount(self, account, block_number=None):
         if block_number is None:
             block_number = self.defaultBlock
@@ -408,7 +223,7 @@ class Eth(object):
         raise NotImplementedError("TODO")
 
     def contract(self, abi):
-        return ContractFactory(self, abi)
+        raise NotImplementedError('Not implemented')
 
     def getCompilers(self):
         return self.request_manager.request_blocking("eth_getCompilers", [])

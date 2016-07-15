@@ -1,38 +1,42 @@
 from __future__ import absolute_import
 
-import copy
-
-from web3.web3.requestmanager import RequestManager
-from web3.web3.methods.eth import Eth
-from web3.web3.methods.db import Db
-from web3.web3.methods.shh import Shh
-from web3.web3.methods.net import Net
-from web3.web3.methods.personal import Personal
+from web3.eth import Eth
+from web3.db import Db
+from web3.shh import Shh
+from web3.net import Net
+from web3.personal import Personal
 from web3.version import Version
 
-from web3.web3.rpcprovider import (
+from web3.providers.rpc import (
     RPCProvider,
     TestRPCProvider,
-    is_testrpc_available,
 )
-from web3.web3.ipcprovider import IPCProvider
+from web3.providers.ipc import IPCProvider
+from web3.providers.manager import RequestManager
 
+from web3.utils.functional import (
+    compose,
+)
+from web3.utils.string import (
+    force_text,
+)
 from web3.utils.encoding import (
+    to_hex,
+    decode_hex,
     encode_hex,
+    to_decimal,
+    from_decimal,
 )
-import web3.utils.encoding as encoding
-import web3.utils.currency as currency
-import web3.utils.address as address
+from web3.utils.currency import (
+    to_wei,
+    from_wei,
+)
+from web3.utils.address import (
+    is_address,
+    is_checksum_address,
+    to_checksum_address,
+)
 import web3.utils.config as config
-
-
-DEFAULT_PROVIDERS = {
-    "RPCProvider": RPCProvider,
-    "IPCProvider": IPCProvider
-}
-
-if is_testrpc_available():
-    DEFAULT_PROVIDERS['TestRPCProvider'] = TestRPCProvider
 
 
 class Web3(object):
@@ -47,7 +51,15 @@ class Web3(object):
         self.personal = Personal(self._requestManager)
         self.version = Version(self._requestManager)
 
-        self.providers = copy.copy(DEFAULT_PROVIDERS)
+        self.providers = {
+            'RPCProvider': RPCProvider,
+            'IPCProvider': IPCProvider,
+            'TestRPCProvider': TestRPCProvider,
+        }
+
+        self.RPCProvider = RPCProvider
+        self.IPCProvider = IPCProvider
+        self.TestRPCProvider = TestRPCProvider
 
         class Config:
 
@@ -65,23 +77,23 @@ class Web3(object):
 
         self.config = Config()
 
-        # Expose providers on the class
-        for class_name, klass in DEFAULT_PROVIDERS.items():
-            setattr(self, class_name, klass)
+        # Encoding and Decoding
+        self.toHex = to_hex
+        self.toAscii = decode_hex
+        self.toUtf8 = compose(decode_hex, force_text)
+        self.fromAscii = encode_hex
+        self.fromUtf8 = encode_hex
+        self.toDecimal = to_decimal
+        self.fromDecimal = from_decimal
 
-        # Expose utility functions
-        self.toHex = encoding.toHex
-        self.toAscii = encoding.toAscii
-        self.toUtf8 = encoding.toUtf8
-        self.fromAscii = encoding.fromAscii
-        self.fromUtf8 = encoding.fromUtf8
-        self.toDecimal = encoding.toDecimal
-        self.fromDecimal = encoding.fromDecimal
-        self.toWei = currency.toWei
-        self.fromWei = currency.fromWei
-        self.isAddress = address.isAddress
-        self.isChecksumAddress = address.isChecksumAddress
-        self.toChecksumAddress = address.toChecksumAddress
+        # Currency Utility
+        self.toWei = to_wei
+        self.fromWei = from_wei
+
+        # Address Utility
+        self.isAddress = is_address
+        self.isChecksumAddress = is_checksum_address
+        self.toChecksumAddress = to_checksum_address
 
     def setProvider(self, provider):
         self._requestManager.setProvider(provider)

@@ -1,8 +1,24 @@
 # Address utilities
 from __future__ import absolute_import
-from . import encoding, utils
-from web3.utils.crypto import sha3
+
 import re
+
+from .crypto import (
+    sha3,
+)
+from .encoding import (
+    encode_hex,
+)
+from .string import (
+    force_text,
+)
+from .types import (
+    is_string,
+)
+from .formatting import (
+    add_0x_prefix,
+    remove_0x_prefix,
+)
 
 
 def is_address(address):
@@ -10,7 +26,7 @@ def is_address(address):
     Checks if the given string is an address
     """
 
-    if not utils.isString(address):
+    if not is_string(address):
         return False
 
     if not re.match(r"^(0x)?[0-9a-fA-F]{40}$", address):
@@ -18,75 +34,65 @@ def is_address(address):
     elif re.match(r"^(0x)?[0-9a-f]{40}", address) or re.match(r"(0x)?[0-9A-F]{40}$", address):
         return True
     else:
-        return isChecksumAddress(address)
+        return is_checksum_address(address)
 
 
-isAddress = is_address
-
-
-def isChecksumAddress(address):
+def is_checksum_address(address):
     """
     Checks if the given string is a checksummed address
     """
 
-    if not utils.isString(address):
+    if not is_string(address):
         return False
 
-    address = address.replace("0x", "")
-    addressHash = sha3(address.lower())
+    checksum_address = to_checksum_address(address)
 
-    for i in range(40):
-        if (int(addressHash[i], 16) > 7 and address[i].upper() != address[i]) or \
-                (int(addressHash[i], 16) <= 7 and address[i].lower() != address[i]):
-            return False
-
-    return True
+    return force_text(address) == force_text(checksum_address)
 
 
-def isStrictAddress(address):
+def is_strict_address(address):
     """
     Checks if the given string is strictly an address
     """
 
-    if not utils.isString(address):
+    if not is_string(address):
         return False
 
     return re.match(r"^0x[0-9a-fA-F]{40}$", address) is not None
 
 
-def toChecksumAddress(address):
+def to_checksum_address(address):
     """
     Makes a checksum address
     """
-
-    if not utils.isString(address):
+    if not is_string(address):
         return False
 
-    address = address.lower().replace("0x", "")
+    address = remove_0x_prefix(address.lower())
     addressHash = sha3(address)
     checksumAddress = "0x"
 
     for i in range(len(address)):
         if int(addressHash[i], 16) > 7:
-            checksumAddress += addressHash[i].upper()
+            checksumAddress += address[i].upper()
         else:
-            checksumAddress += addressHash[i]
+            checksumAddress += address[i]
 
     return checksumAddress
 
 
-def toAddress(address):
+def to_address(address):
     """
     Transforms given string to valid 20 bytes-length addres with 0x prefix
     """
 
-    if not utils.isString(address):
-        return False
+    if is_string(address):
+        address = address.lower()
+        if len(address) == 42:
+            return address
+        elif len(address) == 40:
+            return add_0x_prefix(address)
+        elif len(address) == 20:
+            return encode_hex(address)
 
-    if isStrictAddress(address):
-        return address
-
-    if re.match(r"^[0-9a-f]{3}$", address):
-        return "0x"+address
-
-    return "0x" + utils.padLeft(encoding.toHex(address)[2:], 40)
+    raise ValueError("Unknown address format")

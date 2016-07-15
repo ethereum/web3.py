@@ -1,7 +1,7 @@
 import requests
-import threading
+import gevent
 
-from web3.web3.provider import BaseProvider
+from .base import BaseProvider
 
 
 class RPCProvider(BaseProvider):
@@ -44,8 +44,6 @@ class TestRPCProvider(RPCProvider):
 
         self.server = make_server(host, port, application)
 
-        self.thread = threading.Thread(target=self.server.serve_forever)
-        self.thread.daemon = True
-        self.thread.start()
+        self.thread = gevent.spawn(self.server.serve_forever)
 
         super(TestRPCProvider, self).__init__(host, str(port), *args, **kwargs)

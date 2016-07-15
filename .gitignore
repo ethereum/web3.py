@@ -43,3 +43,6 @@ docs/_build
 
 # Blockchain
 chains
+
+# Hypothese Property base testing
+.hypothesis

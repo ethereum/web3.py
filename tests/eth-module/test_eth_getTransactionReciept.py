@@ -1,6 +1,6 @@
 import pytest
 
-from web3.utils.encoding import force_bytes
+from web3.utils.string import force_bytes
 
 
 @pytest.fixture(autouse=True)

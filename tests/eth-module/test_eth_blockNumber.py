@@ -1,4 +1,4 @@
-from web3.utils.encoding import (
+from web3.utils.types import (
     is_integer,
 )
 

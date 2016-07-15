@@ -98,7 +98,7 @@ def tempdir():
 def setup_tester_rpc_provider():
     from testrpc import testrpc
 
-    from web3.web3.rpcprovider import TestRPCProvider
+    from web3.providers.rpc import TestRPCProvider
     port = get_open_port()
     provider = TestRPCProvider(port=port)
 
@@ -116,7 +116,7 @@ def setup_tester_rpc_provider():
 
 @contextlib.contextmanager
 def setup_rpc_provider():
-    from web3.web3.rpcprovider import RPCProvider
+    from web3.providers.rpc import RPCProvider
 
     with tempdir() as base_dir:
         geth = GethProcess('testing', base_dir=base_dir)
@@ -130,7 +130,7 @@ def setup_rpc_provider():
 
 @contextlib.contextmanager
 def setup_ipc_provider():
-    from web3.web3.ipcprovider import IPCProvider
+    from web3.providers.ipc import IPCProvider
 
     with tempdir() as base_dir:
         geth = GethProcess('testing', base_dir=base_dir)
@@ -142,7 +142,11 @@ def setup_ipc_provider():
         geth.stop()
 
 
-@pytest.yield_fixture(params=['tester', 'rpc', 'ipc'])
+@pytest.yield_fixture(params=[
+    'tester',
+    pytest.mark.slow('rpc'),
+    pytest.mark.slow('ipc'),
+])
 def web3(request):
     from web3 import Web3
 

@@ -12,13 +12,19 @@ from eth_tester_client.utils import (
     coerce_args_to_bytes,
 )
 
-from web3.web3.rpcprovider import TestRPCProvider
-from web3.utils.encoding import (
+from web3.providers.rpc import TestRPCProvider
+from web3.utils.string import (
     force_bytes,
+)
+from web3.utils.types import (
+    is_string,
+)
+from web3.utils.formatting import (
+    add_0x_prefix,
+)
+from web3.utils.encoding import (
     encode_hex,
     decode_hex,
-    add_0x_prefix,
-    is_string,
 )
 
 
