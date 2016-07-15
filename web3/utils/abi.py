@@ -2,7 +2,11 @@ from eth_abi.abi import (
     process_type,
 )
 
+from .crypto import sha3
 from .string import coerce_args_to_bytes
+from .formatting import (
+    add_0x_prefix,
+)
 from .types import (
     is_array,
     is_string,
@@ -19,8 +23,12 @@ def filter_by_name(name, contract_abi):
     return [abi for abi in contract_abi if abi['name'] == name]
 
 
-def get_abi_types(abi):
-    return [input['type'] for input in abi['inputs']]
+def get_abi_input_types(abi):
+    return [arg['type'] for arg in abi['inputs']]
+
+
+def get_abi_output_types(abi):
+    return [arg['type'] for arg in abi['outputs']]
 
 
 def filter_by_argument_count(arguments, contract_abi):
@@ -79,7 +87,7 @@ def filter_by_encodability(arguments, contract_abi):
         abi
         for abi
         in contract_abi
-        if check_if_arguments_can_be_encoded(get_abi_types(abi), arguments)
+        if check_if_arguments_can_be_encoded(get_abi_input_types(abi), arguments)
     ]
 
 
@@ -103,3 +111,18 @@ def get_constructor_abi(contract_abi):
         return None
     elif len(candidates) > 1:
         raise ValueError("Found multiple constructors.")
+
+
+def abi_to_4byte_function_selector(function_abi):
+    function_signature = "{fn_name}({fn_input_types})".format(
+        fn_name=function_abi['name'],
+        fn_input_types=','.join([
+            arg['type'] for arg in function_abi.get('inputs', [])
+        ]),
+    )
+    return function_signature
+
+
+def function_abi_to_4byte_selector(function_abi):
+    function_signature = abi_to_4byte_function_selector(function_abi)
+    return add_0x_prefix(sha3(function_signature)[:8])

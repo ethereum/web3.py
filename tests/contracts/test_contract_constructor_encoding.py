@@ -13,8 +13,8 @@ def test_contract_constructor_abi_encoding_with_no_constructor_fn(MathContract, 
     assert deploy_data == MATH_CODE
 
 
-def test_contract_constructor_abi_encoding_with_no_constructor_fn(SimpleConstructorContract,
-                                                                  CONTRACT_SIMPLE_CONSTRUCTOR_CODE):
+def test_contract_constructor_abi_encoding_with_constructor_with_no_args(SimpleConstructorContract,
+                                                                         CONTRACT_SIMPLE_CONSTRUCTOR_CODE):
     deploy_data = SimpleConstructorContract.encodeConstructorData()
     assert deploy_data == CONTRACT_SIMPLE_CONSTRUCTOR_CODE
 
