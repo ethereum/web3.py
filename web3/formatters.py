@@ -143,7 +143,7 @@ def outputBlockFormatter(block):
 
     if is_array(block.get("transactions")):
         for item in block["transactions"]:
-            if is_string(item):
+            if not is_string(item):
                 item = outputTransactionFormatter(item)
 
     return block
