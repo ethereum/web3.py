@@ -98,10 +98,13 @@ class _Contract(object):
         raise AttributeError("No contract source was specified for thes contract")
 
     @classmethod
-    def deploy(cls, transaction, arguments=None):
+    def deploy(cls, transaction=None, arguments=None):
         """
         deploys the contract.
         """
+        if transaction is None:
+            transaction = {}
+
         if not cls.code:
             raise ValueError(
                 "Cannot deploy a contract that does not have 'code' associated with it"
@@ -118,7 +121,7 @@ class _Contract(object):
         transaction['data'] = cls.encodeConstructorData(arguments)
 
         # TODO: handle asynchronous contract creation
-        txn_hash = cls.web3.sendTransaction(transaction)
+        txn_hash = cls.web3.eth.sendTransaction(transaction)
         return txn_hash
 
     #

@@ -64,3 +64,94 @@ def MATH_SOURCE():
 @pytest.fixture(scope="session")
 def MATH_ABI():
     return CONTRACT_ABI
+
+
+@pytest.fixture()
+def MathContract(web3_tester, MATH_ABI, MATH_CODE, MATH_RUNTIME, MATH_SOURCE):
+    return web3_tester.eth.contract(
+        abi=MATH_ABI,
+        code=MATH_CODE,
+        code_runtime=MATH_RUNTIME,
+        source=MATH_SOURCE,
+    )
+
+
+CONTRACT_SIMPLE_CONSTRUCTOR_SOURCE = "contract WithNoArgumentConstructor { uint public data; function WithNoArgumentConstructor() { data = 3; }}"
+CONTRACT_SIMPLE_CONSTRUCTOR_CODE = b'0x60606040526003600055602c8060156000396000f3606060405260e060020a600035046373d4a13a8114601a575b005b602260005481565b6060908152602090f3'
+CONTRACT_SIMPLE_CONSTRUCTOR_RUNTIME = b'0x606060405260e060020a600035046373d4a13a8114601a575b005b602260005481565b6060908152602090f3'
+CONTRACT_SIMPLE_CONSTRUCTOR_ABI = json.loads('[{"constant":true,"inputs":[],"name":"data","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"inputs":[],"type":"constructor"}]')
+
+
+@pytest.fixture(scope="session")
+def SIMPLE_CONSTRUCTOR_SOURCE():
+    return CONTRACT_SIMPLE_CONSTRUCTOR_SOURCE
+
+
+@pytest.fixture(scope="session")
+def SIMPLE_CONSTRUCTOR_CODE():
+    return CONTRACT_SIMPLE_CONSTRUCTOR_CODE
+
+
+@pytest.fixture(scope="session")
+def SIMPLE_CONSTRUCTOR_RUNTIME():
+    return CONTRACT_SIMPLE_CONSTRUCTOR_RUNTIME
+
+
+@pytest.fixture(scope="session")
+def SIMPLE_CONSTRUCTOR_ABI():
+    return CONTRACT_SIMPLE_CONSTRUCTOR_ABI
+
+
+@pytest.fixture()
+def SimpleConstructorContract(web3_tester,
+                              SIMPLE_CONSTRUCTOR_SOURCE,
+                              SIMPLE_CONSTRUCTOR_CODE,
+                              SIMPLE_CONSTRUCTOR_RUNTIME,
+                              SIMPLE_CONSTRUCTOR_ABI):
+    return web3_tester.eth.contract(
+        abi=SIMPLE_CONSTRUCTOR_ABI,
+        code=SIMPLE_CONSTRUCTOR_CODE,
+        code_runtime=SIMPLE_CONSTRUCTOR_RUNTIME,
+        source=SIMPLE_CONSTRUCTOR_SOURCE,
+    )
+
+
+CONTRACT_WITH_CONSTRUCTOR_ARGUMENTS_SOURCE =  "contract WithConstructorArguments { uint public data_a; bytes32 public data_b; function WithConstructorArguments(uint a, bytes32 b) { data_a = a; data_b = b; }}"
+
+CONTRACT_WITH_CONSTRUCTOR_ARGUMENTS_CODE = b"0x60606040818152806066833960a09052516080516000918255600155603e908190602890396000f3606060405260e060020a600035046388ec134681146024578063d4c46c7614602c575b005b603460005481565b603460015481565b6060908152602090f3"
+CONTRACT_WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME = b"0x606060405260e060020a600035046388ec134681146024578063d4c46c7614602c575b005b603460005481565b603460015481565b6060908152602090f3"
+CONTRACT_WITH_CONSTRUCTOR_ARGUMENTS_ABI = json.loads('[{"constant":true,"inputs":[],"name":"data_a","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":true,"inputs":[],"name":"data_b","outputs":[{"name":"","type":"bytes32"}],"type":"function"},{"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"bytes32"}],"type":"constructor"}]')
+
+
+@pytest.fixture()
+def WITH_CONSTRUCTOR_ARGUMENTS_SOURCE():
+    return CONTRACT_WITH_CONSTRUCTOR_ARGUMENTS_SOURCE
+
+
+@pytest.fixture()
+def WITH_CONSTRUCTOR_ARGUMENTS_CODE():
+    return CONTRACT_WITH_CONSTRUCTOR_ARGUMENTS_CODE
+
+
+@pytest.fixture()
+def WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME():
+    return CONTRACT_WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME
+
+
+@pytest.fixture()
+def WITH_CONSTRUCTOR_ARGUMENTS_ABI():
+    return CONTRACT_WITH_CONSTRUCTOR_ARGUMENTS_ABI
+
+
+@pytest.fixture()
+def WithConstructorArgumentsContract(web3_tester,
+                                     WITH_CONSTRUCTOR_ARGUMENTS_SOURCE,
+                                     WITH_CONSTRUCTOR_ARGUMENTS_CODE,
+                                     WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+                                     WITH_CONSTRUCTOR_ARGUMENTS_ABI):
+    return web3_tester.eth.contract(
+        abi=WITH_CONSTRUCTOR_ARGUMENTS_ABI,
+        code=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
+        code_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+        source=WITH_CONSTRUCTOR_ARGUMENTS_SOURCE,
+    )
