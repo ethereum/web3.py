@@ -227,7 +227,27 @@ class _Contract(object):
         if transaction is None:
             transaction = {}
 
-        return FunctionSelector(self, transaction, FunctionCaller)
+        if 'data' in transaction:
+            raise ValueError("Cannot set data in call transaction")
+        if 'to' in transaction:
+            raise ValueError("Cannot set to in call transaction")
+
+        transaction['to'] = self.address
+        transaction.setdefault('from', self.web3.eth.coinbase)
+
+        contract = self
+
+        class Caller(object):
+            def __getattr__(self, function_name):
+                callable_fn = functools.partial(
+                    call_contract_function,
+                    contract,
+                    function_name,
+                    transaction,
+                )
+                return callable_fn
+
+        return Caller()
 
     def transact(self, *args, **kwargs):
         """
@@ -236,45 +256,30 @@ class _Contract(object):
         raise NotImplementedError('Not implemented')
 
 
-class FunctionCaller(object):
-    def __init__(self, contract, function_name, transaction):
-        self.contract = contract
-        self.function_name = function_name
-        self.transaction = transaction
+def call_contract_function(contract=None,
+                           function_name=None,
+                           transaction=None,
+                           *arguments):
+    if not arguments:
+        arguments = []
 
-    def __call__(self, arguments=None):
-        if arguments is None:
-            arguments = []
+    function_abi = contract.find_matching_abi(function_name, arguments)
+    function_selector = function_abi_to_4byte_selector(function_abi)
 
-        function_abi = self.contract.find_matching_abi(self.function_name, arguments)
-        function_selector = function_abi_to_4byte_selector(function_abi)
+    transaction['data'] = contract.encodeABI(
+        function_name,
+        arguments,
+        data=function_selector,
+    )
 
-        self.transaction['data'] = self.contract.encodeABI(
-            self.function_name,
-            arguments,
-            data=function_selector,
-        )
+    return_data = contract.web3.eth.call(transaction)
 
-        return_data = self.contract.web3.eth.call(self.transaction)
-
-        output_types = get_abi_output_types(function_abi)
-        output_data = decode_abi(output_types, return_data)
+    output_types = get_abi_output_types(function_abi)
+    output_data = decode_abi(output_types, return_data)
+    if len(output_data) == 1:
+        return output_data[0]
+    else:
         return output_data
-
-
-class FunctionSelector(object):
-    def __init__(self, contract, transaction, execution_class):
-        self.contract
-        self.transaction = transaction
-        self.execution_class,
-
-    def __getattribute__(self, function_name):
-        callable_fn = self.execution_class(
-            contract=self.contract,
-            function_name=function_name,
-            transaction=self.transaction,
-        )
-        return callable_fn
 
 
 def construct_contract_class(web3, abi, code=None,
