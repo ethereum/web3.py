@@ -85,7 +85,21 @@ def filter_by_encodability(arguments, contract_abi):
 
 @coerce_args_to_bytes
 def check_if_arguments_can_be_encoded(types, arguments):
+    if len(types) != len(arguments):
+        raise ValueError("Length mismatch between types and arguments")
     return all(
         is_encodable(_type, arg)
         for _type, arg in zip(types, arguments)
     )
+
+
+def get_constructor_abi(contract_abi):
+    candidates = [
+        abi for abi in contract_abi if abi['type'] == 'constructor'
+    ]
+    if len(candidates) == 1:
+        return candidates[0]
+    elif len(candidates) == 0:
+        return None
+    elif len(candidates) > 1:
+        raise ValueError("Found multiple constructors.")

@@ -225,8 +225,13 @@ class Eth(object):
         """
         raise NotImplementedError("TODO")
 
-    def contract(self, abi, **kwargs):
-        return construct_contract_class(self.web3, abi, **kwargs)
+    def contract(self, abi, address=None, **kwargs):
+        contract_class = construct_contract_class(self.web3, abi, **kwargs)
+
+        if address is None:
+            return contract_class
+        else:
+            return contract_class(address=address)
 
     def getCompilers(self):
         return self.request_manager.request_blocking("eth_getCompilers", [])

@@ -32,11 +32,14 @@ from web3.utils.string import (
     force_obj_to_bytes,
 )
 from web3.utils.abi import (
+    is_encodable,
     filter_by_type,
     filter_by_name,
     filter_by_argument_count,
     filter_by_encodability,
     get_abi_types,
+    get_constructor_abi,
+    check_if_arguments_can_be_encoded,
 )
 
 
@@ -44,21 +47,27 @@ class _Contract(object):
     # set during class construction
     web3 = None
 
+    # class properties (overridable at instance level)
     _abi = None
     _code = None
     _code_runtime = None
     _source = None
 
-    # class properties
+    # instance level properties
     address = None
 
     def __init__(self, abi=None, address=None, code=None, code_runtime=None, source=None):
         if self.web3 is None:
             raise AttributeError('The `Contract` class has not been initialized.  Please use the `web3.contract` interface to create your contract class.')
-        self._abi = abi
-        self._code = code
-        self._code_runtime = code_runtime
-        self._source = source
+        if abi is not None:
+            self._abi = abi
+        if code is not None:
+            self._code = code
+        if code_runtime is not None:
+            self._code_runtime = code_runtime
+        if source is not None:
+            self._source = source
+
         self.address = address
 
     @property
@@ -88,11 +97,29 @@ class _Contract(object):
             return self._source
         raise AttributeError("No contract source was specified for thes contract")
 
-    def deploy(self, transaction):
+    @classmethod
+    def deploy(cls, transaction, arguments=None):
         """
         deploys the contract.
         """
-        raise NotImplementedError('Not implemented')
+        if not cls.code:
+            raise ValueError(
+                "Cannot deploy a contract that does not have 'code' associated with it"
+            )
+        if 'data' in transaction:
+            raise ValueError(
+                "Cannot specify `data` for contract deployment"
+            )
+        if 'to' in transaction:
+            raise ValueError(
+                "Cannot specify `to` for contract deployment"
+            )
+
+        transaction['data'] = cls.encodeConstructorData(arguments)
+
+        # TODO: handle asynchronous contract creation
+        txn_hash = cls.web3.sendTransaction(transaction)
+        return txn_hash
 
     #
     # ABI Helpers
@@ -127,8 +154,12 @@ class _Contract(object):
         encodes the arguments using the Ethereum ABI.
         """
         function_abi = cls.find_matching_abi(fn_name, force_obj_to_bytes(arguments))
-        function_types = get_abi_types(function_abi)
-        encoded_arguments = encode_abi(function_types, force_obj_to_bytes(arguments))
+        return cls._encodeABI(function_abi, arguments, data)
+
+    @classmethod
+    def _encodeABI(cls, abi, arguments, data=None):
+        arguent_types = get_abi_types(abi)
+        encoded_arguments = encode_abi(arguent_types, force_obj_to_bytes(arguments))
         if data:
             return add_0x_prefix(
                 force_bytes(remove_0x_prefix(data)) +
@@ -136,6 +167,34 @@ class _Contract(object):
             )
         else:
             return encode_hex(encoded_arguments)
+
+    @classmethod
+    def encodeConstructorData(cls, arguments=None):
+        if arguments is None:
+            arguments = []
+
+        constructor = get_constructor_abi(cls.abi)
+        if constructor:
+            if constructor['inputs'] and not arguments:
+                raise ValueError(
+                    "This contract requires {0} constructor arguments".format(
+                        len(constructor['inputs']),
+                    )
+                )
+            if arguments and len(arguments) != len(constructor['inputs']):
+                raise ValueError(
+                    "This contract requires {0} constructor arguments".format(
+                        len(constructor['inputs']),
+                    )
+                )
+            if arguments and not check_if_arguments_can_be_encoded(get_abi_types(constructor), arguments):
+                raise ValueError("Unable to encode provided arguments.")
+
+            deploy_data = add_0x_prefix(cls._encodeABI(constructor, arguments, data=cls.code))
+        else:
+            deploy_data = add_0x_prefix(cls.code)
+
+        return deploy_data
 
     def on(self, event, filters, callback):
         """
@@ -168,11 +227,10 @@ class _Contract(object):
         raise NotImplementedError('Not implemented')
 
 
-def construct_contract_class(web3, abi, address=None, code=None,
+def construct_contract_class(web3, abi, code=None,
                              code_runtime=None, source=None):
     _dict = {
         'web3': web3,
-        'address': address,
         'abi': abi,
         'code': code,
         'code_runtime': code_runtime,
