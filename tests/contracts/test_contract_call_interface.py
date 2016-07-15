@@ -1,11 +1,6 @@
 import pytest
 
 
-@pytest.fixture(autouse=True)
-def wait_for_first_block(web3_tester, wait_for_block):
-    wait_for_block(web3_tester)
-
-
 @pytest.fixture()
 def math_contract(web3_tester, MathContract):
     deploy_txn = MathContract.deploy()

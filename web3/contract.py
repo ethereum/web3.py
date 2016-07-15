@@ -249,11 +249,34 @@ class _Contract(object):
 
         return Caller()
 
-    def transact(self, *args, **kwargs):
+    def transact(self, transaction=None):
         """
         Execute a contract function call using the `eth_sendTransaction` interface.
         """
-        raise NotImplementedError('Not implemented')
+        if transaction is None:
+            transaction = {}
+
+        if 'data' in transaction:
+            raise ValueError("Cannot set data in call transaction")
+        if 'to' in transaction:
+            raise ValueError("Cannot set to in call transaction")
+
+        transaction['to'] = self.address
+        transaction.setdefault('from', self.web3.eth.coinbase)
+
+        contract = self
+
+        class Transactor(object):
+            def __getattr__(self, function_name):
+                callable_fn = functools.partial(
+                    transact_with_contract_function,
+                    contract,
+                    function_name,
+                    transaction,
+                )
+                return callable_fn
+
+        return Transactor()
 
 
 def call_contract_function(contract=None,
@@ -280,6 +303,26 @@ def call_contract_function(contract=None,
         return output_data[0]
     else:
         return output_data
+
+
+def transact_with_contract_function(contract=None,
+                                    function_name=None,
+                                    transaction=None,
+                                    *arguments):
+    if not arguments:
+        arguments = []
+
+    function_abi = contract.find_matching_abi(function_name, arguments)
+    function_selector = function_abi_to_4byte_selector(function_abi)
+
+    transaction['data'] = contract.encodeABI(
+        function_name,
+        arguments,
+        data=function_selector,
+    )
+
+    txn_hash = contract.web3.eth.sendTransaction(transaction)
+    return txn_hash
 
 
 def construct_contract_class(web3, abi, code=None,
