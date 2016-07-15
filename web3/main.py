@@ -27,11 +27,11 @@ from web3.utils.encoding import (
     to_decimal,
     from_decimal,
 )
-from web3.utils.currency import(
+from web3.utils.currency import (
     to_wei,
     from_wei,
 )
-from web3.utils.address import(
+from web3.utils.address import (
     is_address,
     is_checksum_address,
     to_checksum_address,
