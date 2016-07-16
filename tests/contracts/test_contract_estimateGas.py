@@ -31,6 +31,13 @@ def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, MATH_SOURCE,
     return _math_contract
 
 
+def test_needs_skipping(web3):
+    if not isinstance(web3.currentProvider, TestRPCProvider):
+        pytest.skip("N/A")
+    with pytest.raises(ValueError):
+        web3.eth.estimateGas()
+
+
 def test_contract_estimateGas(web3, math_contract):
     if isinstance(web3.currentProvider, TestRPCProvider):
         pytest.skip("The testrpc server doesn't implement `eth_estimateGas`")
