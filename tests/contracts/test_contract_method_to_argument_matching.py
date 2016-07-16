@@ -2,7 +2,7 @@ import json
 import pytest
 
 from web3.utils.abi import (
-    get_abi_types,
+    get_abi_input_types,
 )
 
 
@@ -51,7 +51,7 @@ def test_finds_function_with_matching_args(web3_tester, arguments, expected_type
     abi = Contract.find_matching_abi('a', arguments)
     assert abi['name'] == 'a'
     assert len(abi['inputs']) == len(expected_types)
-    assert set(get_abi_types(abi)) == set(expected_types)
+    assert set(get_abi_input_types(abi)) == set(expected_types)
 
 
 def test_error_when_duplicate_match(web3_tester):
