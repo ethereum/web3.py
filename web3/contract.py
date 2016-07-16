@@ -214,11 +214,34 @@ class _Contract(object):
         """
         raise NotImplementedError('Not implemented')
 
-    def estimateGas(self, *args, **kwargs):
+    def estimateGas(self, transaction=None):
         """
         Estimate the gas for a call
         """
-        raise NotImplementedError('Not implemented')
+        if transaction is None:
+            transaction = {}
+
+        if 'data' in transaction:
+            raise ValueError("Cannot set data in call transaction")
+        if 'to' in transaction:
+            raise ValueError("Cannot set to in call transaction")
+
+        transaction['to'] = self.address
+        transaction.setdefault('from', self.web3.eth.coinbase)
+
+        contract = self
+
+        class Caller(object):
+            def __getattr__(self, function_name):
+                callable_fn = functools.partial(
+                    estimate_gas_for_function,
+                    contract,
+                    function_name,
+                    transaction,
+                )
+                return callable_fn
+
+        return Caller()
 
     def call(self, transaction=None):
         """
@@ -323,6 +346,26 @@ def transact_with_contract_function(contract=None,
 
     txn_hash = contract.web3.eth.sendTransaction(transaction)
     return txn_hash
+
+
+def estimate_gas_for_function(contract=None,
+                              function_name=None,
+                              transaction=None,
+                              *arguments):
+    if not arguments:
+        arguments = []
+
+    function_abi = contract.find_matching_abi(function_name, arguments)
+    function_selector = function_abi_to_4byte_selector(function_abi)
+
+    transaction['data'] = contract.encodeABI(
+        function_name,
+        arguments,
+        data=function_selector,
+    )
+
+    gas_estimate = contract.web3.eth.estimateGas(transaction)
+    return gas_estimate
 
 
 def construct_contract_class(web3, abi, code=None,

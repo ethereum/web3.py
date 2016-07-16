@@ -13,7 +13,6 @@ from web3.utils.functional import (
     apply_formatters_to_return,
 )
 from web3.contract import construct_contract_class
-from web3.iban import Iban
 
 
 class DefaultAccount(object):
@@ -214,8 +213,9 @@ class Eth(object):
             block_identifier = self.defaultBlock
         return self.request_manager.request_blocking("eth_call", [transaction, block_identifier])
 
-    def estimateGas(self, *args, **kwargs):
-        raise NotImplementedError("TODO")
+    @apply_formatters_to_return(to_decimal)
+    def estimateGas(self, transaction):
+        return self.request_manager.request_blocking("eth_estimateGas", [transaction])
 
     def filter(self, *args, **kwargs):
         """

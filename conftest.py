@@ -59,7 +59,7 @@ def wait_for_ipc_connection(ipc_path, timeout=30):
 def wait_for_block():
     import gevent
 
-    def _wait_for_block(web3, block_number=1, timeout=60):
+    def _wait_for_block(web3, block_number=1, timeout=60 * 10):
         with gevent.Timeout(timeout):
             while True:
                 if web3.eth.blockNumber >= block_number:
