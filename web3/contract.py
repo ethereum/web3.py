@@ -33,7 +33,6 @@ from web3.utils.string import (
     force_obj_to_bytes,
 )
 from web3.utils.abi import (
-    is_encodable,
     filter_by_type,
     filter_by_name,
     filter_by_argument_count,
@@ -61,7 +60,10 @@ class _Contract(object):
 
     def __init__(self, abi=None, address=None, code=None, code_runtime=None, source=None):
         if self.web3 is None:
-            raise AttributeError('The `Contract` class has not been initialized.  Please use the `web3.contract` interface to create your contract class.')
+            raise AttributeError(
+                'The `Contract` class has not been initialized.  Please use the '
+                '`web3.contract` interface to create your contract class.'
+            )
         if abi is not None:
             self._abi = abi
         if code is not None:
@@ -187,14 +189,20 @@ class _Contract(object):
                         len(constructor['inputs']),
                     )
                 )
-            if arguments and len(arguments) != len(constructor['inputs']):
-                raise ValueError(
-                    "This contract requires {0} constructor arguments".format(
-                        len(constructor['inputs']),
+            if arguments:
+                if len(arguments) != len(constructor['inputs']):
+                    raise ValueError(
+                        "This contract requires {0} constructor arguments".format(
+                            len(constructor['inputs']),
+                        )
                     )
+
+                is_encodable = check_if_arguments_can_be_encoded(
+                    get_abi_input_types(constructor),
+                    arguments,
                 )
-            if arguments and not check_if_arguments_can_be_encoded(get_abi_input_types(constructor), arguments):
-                raise ValueError("Unable to encode provided arguments.")
+                if not is_encodable:
+                    raise ValueError("Unable to encode provided arguments.")
 
             deploy_data = add_0x_prefix(cls._encodeABI(constructor, arguments, data=cls.code))
         else:
