@@ -35,7 +35,7 @@ def test_needs_skipping(web3):
     if not isinstance(web3.currentProvider, TestRPCProvider):
         pytest.skip("N/A")
     with pytest.raises(ValueError):
-        web3.eth.estimateGas()
+        web3.eth.estimateGas({})
 
 
 def test_contract_estimateGas(web3, math_contract):
