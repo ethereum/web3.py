@@ -14,9 +14,9 @@ def test_contract_constructor_abi_encoding_with_no_constructor_fn(MathContract, 
 
 
 def test_contract_constructor_abi_encoding_with_constructor_with_no_args(SimpleConstructorContract,
-                                                                         CONTRACT_SIMPLE_CONSTRUCTOR_CODE):
+                                                                         SIMPLE_CONSTRUCTOR_CODE):
     deploy_data = SimpleConstructorContract.encodeConstructorData()
-    assert deploy_data == CONTRACT_SIMPLE_CONSTRUCTOR_CODE
+    assert deploy_data == SIMPLE_CONSTRUCTOR_CODE
 
 
 @pytest.mark.parametrize(
