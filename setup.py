@@ -29,6 +29,7 @@ setup(
         "requests>=2.10.0",
         "rlp>=0.4.6",
         "gevent>=1.1.1",
+        "ethereum-abi-utils>=0.2.1",
     ],
     py_modules=['web3'],
     license="MIT",
