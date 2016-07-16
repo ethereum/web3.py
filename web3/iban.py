@@ -10,6 +10,10 @@ from web3.utils.formatting import (
 )
 
 
+def pad_left_hex(value, num_bytes):
+    return pad_left(value, num_bytes * 2)
+
+
 def iso13616Prepare(iban):
     """
     Prepare an IBAN for mod 97 computation by moving the first
@@ -108,7 +112,7 @@ class Iban(object):
         """
         asInt = int(address, 16)
         base36 = baseN(asInt, 36)
-        padded = pad_left(base36, 15)
+        padded = pad_left_hex(base36, 15)
         return Iban.fromBban(padded.upper())
 
     @staticmethod
@@ -208,7 +212,7 @@ class Iban(object):
         if self.isDirect():
             base36 = self._iban[4:]
             asInt = int(base36, 36)
-            return pad_left(baseN(asInt, 16), 20)
+            return pad_left_hex(baseN(asInt, 16), 20)
 
         return ""
 
