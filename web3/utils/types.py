@@ -14,7 +14,7 @@ else:
 
 
 def is_integer(value):
-    return isinstance(value, integer_types)
+    return isinstance(value, integer_types) and not isinstance(value, bool)
 
 
 def is_bytes(value):

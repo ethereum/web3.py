@@ -36,7 +36,7 @@ from web3.utils.address import (
     is_checksum_address,
     to_checksum_address,
 )
-import web3.utils.config as config
+from web3.utils import config
 
 
 class Web3(object):
@@ -44,7 +44,7 @@ class Web3(object):
         self._requestManager = RequestManager(provider)
         self.currentProvider = provider
 
-        self.eth = Eth(self._requestManager)
+        self.eth = Eth(self)
         self.db = Db(self._requestManager)
         self.shh = Shh(self._requestManager)
         self.net = Net(self._requestManager)

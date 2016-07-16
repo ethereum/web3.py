@@ -2,14 +2,16 @@ from __future__ import unicode_literals
 import re
 import functools
 
-import six
+from web3.utils.types import (
+    is_string,
+)
+from web3.utils.formatting import (
+    pad_left,
+)
 
 
-def padLeft(string, bytes):
-    result = string
-    while len(result) < bytes*2:
-        result = "0"+result
-    return result
+def pad_left_hex(value, num_bytes):
+    return pad_left(value, num_bytes * 2)
 
 
 def iso13616Prepare(iban):
@@ -84,7 +86,7 @@ class IsValid(object):
 
     @staticmethod
     def validate(iban_address):
-        if not isinstance(iban_address, six.string_types):
+        if not is_string(iban_address):
             return False
 
         if re.match(r"^XE[0-9]{2}(ETH[0-9A-Z]{13}|[0-9A-Z]{30,31})$", iban_address) and \
@@ -110,7 +112,7 @@ class Iban(object):
         """
         asInt = int(address, 16)
         base36 = baseN(asInt, 36)
-        padded = padLeft(base36, 15)
+        padded = pad_left_hex(base36, 15)
         return Iban.fromBban(padded.upper())
 
     @staticmethod
@@ -210,7 +212,7 @@ class Iban(object):
         if self.isDirect():
             base36 = self._iban[4:]
             asInt = int(base36, 36)
-            return padLeft(baseN(asInt, 16), 20)
+            return pad_left_hex(baseN(asInt, 16), 20)
 
         return ""
 

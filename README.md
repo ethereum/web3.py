@@ -83,35 +83,31 @@ web3.config.defaultBlock = "latest"
 ```
 
 ### Interacting with contracts
+
+
 ```python
-abi = "<abi string>"
-contractFactory = web3.eth.contract(abi)
-contract = contractFactory.at("0xaddress")
-# The abi methods should now be available on the contract instance
+>>> abi = json.joads("<abi-json-string>")
+>>> ContractFactory = web3.eth.contracT(abi, code="0x...")
+>>> ContractFactory.deploy()
+... '0x461e829a731d96539ec1f147232f1d52b475225ed343e5853ff6bf3b237c6e79'
+>>> contract = web3.eth.contract(abi, address="0x...")
+>>> contract.transact().someMethod()
+... '0xfbb0f76aa6a6bb8d178bc2b54de8fc7ca778d704af47d135c188ca7b5d25f2e4'
+>>> contract.call().return13()
+... 13
+>>> contract.estimateGas().someMethod()
+... 23212
 ```
 
 ### Timeouts, blocking and nonblocking requests
-All function and property requests block by default until the result is available. It is possible to provide an additional keyword argument 'timeout'.
+
+
+All function and property requests block until a respose is received.  Asynchronous function calling has not yet been implemented.
+
 ```python
 # Blocks indefinitely
 >>> web3.eth.getBalance("0xaddress", timeout=None)
 23423234
-
-# Blocks until the response is available until the timeout is reached
-# returning the response or raising a ValueError with the request id
->>> web3.eth.getBalance("0xaddress", timeout=3) # in seconds
-23423234
-
-# Does not block, returns the unique request id immediately
-id = web3.eth.getBalance("0xaddress", timeout=0)
-
-# This id can be used to poll the Web3 instance later:
-web3.receive(id, timeout=0, keep=False)
-
-# By default, the timeout is 0 and the receive function does not block, returning None if
-# the response wasn't available. Otherwise, the timeout argument has the same behaviour
-# as a normal call described above.
-# Receive will discard the response after the call unless keep is true.
 ```
 
 ### `web3`

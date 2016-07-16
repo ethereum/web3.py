@@ -59,7 +59,7 @@ def wait_for_ipc_connection(ipc_path, timeout=30):
 def wait_for_block():
     import gevent
 
-    def _wait_for_block(web3, block_number=1, timeout=60):
+    def _wait_for_block(web3, block_number=1, timeout=60 * 10):
         with gevent.Timeout(timeout):
             while True:
                 if web3.eth.blockNumber >= block_number:
@@ -112,6 +112,15 @@ def setup_tester_rpc_provider():
     yield provider
     provider.server.shutdown()
     provider.server.server_close()
+
+
+@pytest.yield_fixture()
+def web3_tester():
+    from web3 import Web3
+
+    with setup_tester_rpc_provider() as provider:
+        _web3 = Web3(provider)
+        yield _web3
 
 
 @contextlib.contextmanager

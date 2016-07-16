@@ -12,6 +12,7 @@ from web3.utils.types import (
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
+from web3.contract import construct_contract_class
 
 
 class DefaultAccount(object):
@@ -23,8 +24,9 @@ class DefaultAccount(object):
 
 
 class Eth(object):
-    def __init__(self, request_manager):
-        self.request_manager = request_manager
+    def __init__(self, web3):
+        self.web3 = web3
+        self.request_manager = web3._requestManager
 
         self.defaultBlock = config.defaultBlock
         self.defaultAccount = DefaultAccount()  # config.defaultAccount
@@ -211,8 +213,9 @@ class Eth(object):
             block_identifier = self.defaultBlock
         return self.request_manager.request_blocking("eth_call", [transaction, block_identifier])
 
-    def estimateGas(self, *args, **kwargs):
-        raise NotImplementedError("TODO")
+    @apply_formatters_to_return(to_decimal)
+    def estimateGas(self, transaction):
+        return self.request_manager.request_blocking("eth_estimateGas", [transaction])
 
     def filter(self, *args, **kwargs):
         """
@@ -222,8 +225,13 @@ class Eth(object):
         """
         raise NotImplementedError("TODO")
 
-    def contract(self, abi):
-        raise NotImplementedError('Not implemented')
+    def contract(self, abi, address=None, **kwargs):
+        contract_class = construct_contract_class(self.web3, abi, **kwargs)
+
+        if address is None:
+            return contract_class
+        else:
+            return contract_class(address=address)
 
     def getCompilers(self):
         return self.request_manager.request_blocking("eth_getCompilers", [])

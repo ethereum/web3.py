@@ -12,10 +12,12 @@ from web3.utils.types import (
 @pytest.mark.parametrize(
     "value,expected",
     [
-    (3, True),
-    (None, False),
-    ("3", False),
-    ("0x3", False),
+        (3, True),
+        (None, False),
+        ("3", False),
+        ("0x3", False),
+        (True, False),
+        (False, False),
     ]
 )
 def test_is_integer(value, expected):
