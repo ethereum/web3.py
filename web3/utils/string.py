@@ -76,6 +76,15 @@ def coerce_args_to_bytes(fn):
     return inner
 
 
+def coerce_args_to_text(fn):
+    @functools.wraps(fn)
+    def inner(*args, **kwargs):
+        text_args = force_obj_to_text(args)
+        text_kwargs = force_obj_to_text(kwargs)
+        return fn(*text_args, **text_kwargs)
+    return inner
+
+
 def coerce_return_to_bytes(fn):
     @functools.wraps(fn)
     def inner(*args, **kwargs):
