@@ -43,3 +43,18 @@ def test_contract_deployment_with_constructor_with_arguments(web3_tester,
 
     blockchain_code = web3_tester.eth.getCode(contract_address)
     assert force_bytes(blockchain_code) == force_bytes(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
+
+
+def test_contract_deployment_with_constructor_with_address_argument(web3_tester,
+                                                                    WithConstructorAddressArgumentsContract,
+                                                                    WITH_CONSTRUCTOR_ADDRESS_RUNTIME):
+    deploy_txn = WithConstructorAddressArgumentsContract.deploy(arguments=["0x16d9983245de15e7a9a73bc586e01ff6e08de737"])
+
+    txn_receipt = web3_tester.eth.getTransactionReceipt(deploy_txn)
+    assert txn_receipt is not None
+
+    assert txn_receipt['contractAddress']
+    contract_address = txn_receipt['contractAddress']
+
+    blockchain_code = web3_tester.eth.getCode(contract_address)
+    assert force_bytes(blockchain_code) == force_bytes(WITH_CONSTRUCTOR_ADDRESS_RUNTIME)

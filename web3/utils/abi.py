@@ -13,6 +13,9 @@ from .types import (
     is_integer,
     is_boolean,
 )
+from .address import (
+    is_address,
+)
 
 
 def filter_by_type(_type, contract_abi):
@@ -78,6 +81,10 @@ def is_encodable(_type, value):
 
         max_length = int(sub)
         return len(value) <= max_length
+    elif base == 'address':
+        if not is_address(value):
+            return False
+        return True
     else:
         raise ValueError("Unsupported type")
 

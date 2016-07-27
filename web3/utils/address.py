@@ -29,6 +29,7 @@ def is_address(address):
     if not is_string(address):
         return False
 
+    address = force_text(address)  # python3 requires both re.match arguments to be the same type
     if not re.match(r"^(0x)?[0-9a-fA-F]{40}$", address):
         return False
     elif re.match(r"^(0x)?[0-9a-f]{40}", address) or re.match(r"(0x)?[0-9A-F]{40}$", address):
