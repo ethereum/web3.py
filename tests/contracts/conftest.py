@@ -155,3 +155,43 @@ def WithConstructorArgumentsContract(web3_tester,
         code_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
         source=WITH_CONSTRUCTOR_ARGUMENTS_SOURCE,
     )
+
+
+CONTRACT_WITH_CONSTRUCTOR_ADDRESS_SOURCE = "contract WithAddrArg { address testAddr; function WithAddrArg(address _testAddr){ testAddr = _testAddr; }}"
+CONTRACT_WITH_CONSTRUCTOR_ADDRESS_CODE = b"0x60606040526040516020806063833981016040528080519060200190919050505b80600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908302179055505b50600a8060596000396000f360606040526008565b00"
+CONTRACT_WITH_CONSTRUCTOR_ADDRESS_RUNTIME = b"0x60606040526008565b00"
+CONTRACT_WITH_CONSTRUCTOR_ADDRESS_ABI = json.loads('[{"inputs":[{"name":"_testAddr","type":"address"}],"type":"constructor"}]')
+
+
+@pytest.fixture()
+def WITH_CONSTRUCTOR_ADDRESS_SOURCE():
+    return CONTRACT_WITH_CONSTRUCTOR_ADDRESS_SOURCE
+
+
+@pytest.fixture()
+def WITH_CONSTRUCTOR_ADDRESS_CODE():
+    return CONTRACT_WITH_CONSTRUCTOR_ADDRESS_CODE
+
+
+@pytest.fixture()
+def WITH_CONSTRUCTOR_ADDRESS_RUNTIME():
+    return CONTRACT_WITH_CONSTRUCTOR_ADDRESS_RUNTIME
+
+
+@pytest.fixture()
+def WITH_CONSTRUCTOR_ADDRESS_ABI():
+    return CONTRACT_WITH_CONSTRUCTOR_ADDRESS_ABI
+
+
+@pytest.fixture()
+def WithConstructorAddressArgumentsContract(web3_tester,
+                                     WITH_CONSTRUCTOR_ADDRESS_SOURCE,
+                                     WITH_CONSTRUCTOR_ADDRESS_CODE,
+                                     WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
+                                     WITH_CONSTRUCTOR_ADDRESS_ABI):
+    return web3_tester.eth.contract(
+        abi=WITH_CONSTRUCTOR_ADDRESS_ABI,
+        code=WITH_CONSTRUCTOR_ADDRESS_CODE,
+        code_runtime=WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
+        source=WITH_CONSTRUCTOR_ADDRESS_SOURCE,
+    )

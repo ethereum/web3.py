@@ -78,6 +78,12 @@ def is_encodable(_type, value):
 
         max_length = int(sub)
         return len(value) <= max_length
+    elif base == 'address':
+        if not is_string(value):
+            return False
+        if len(value) != 42:
+            return False
+        return True
     else:
         raise ValueError("Unsupported type")
 
