@@ -5,7 +5,7 @@ import shutil
 
 # This has to go here so that the `gevent.monkey.patch_all()` happens in the
 # main thread.
-from pygeth import (
+from geth import (
     LoggingMixin,
     DevGethProcess,
 )
