@@ -1,3 +1,9 @@
+Upcoming
+--------
+
+* Rename `web3.contract._Contract` to `web3.contract.Contract`
+  to expose it for static analysis and auto completion tools
+
 1.4.0
 -----
 
