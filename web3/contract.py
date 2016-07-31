@@ -16,6 +16,9 @@ from web3.utils.formatting import (
     add_0x_prefix,
     remove_0x_prefix,
 )
+from web3.utils.types import (
+    is_array,
+)
 from web3.utils.string import (
     force_bytes,
     coerce_return_to_text,
@@ -25,12 +28,21 @@ from web3.utils.abi import (
     filter_by_type,
     filter_by_name,
     filter_by_argument_count,
+    filter_by_argument_name,
     filter_by_encodability,
     get_abi_input_types,
     get_abi_output_types,
     get_constructor_abi,
     check_if_arguments_can_be_encoded,
     function_abi_to_4byte_selector,
+    event_abi_to_log_topic,
+)
+from web3.utils.functional import (
+    compose,
+)
+from web3.utils.filters import (
+    construct_event_filter_params,
+    LogFilter,
 )
 
 
@@ -232,7 +244,7 @@ class Contract(object):
     # ABI Helpers
     #
     @classmethod
-    def find_matching_abi(cls, fn_name, arguments):
+    def find_matching_fn_abi(cls, fn_name, arguments):
         filters = [
             functools.partial(filter_by_name, fn_name),
             functools.partial(filter_by_argument_count, arguments),
@@ -255,12 +267,29 @@ class Contract(object):
             raise ValueError("Multiple functions found")
 
     @classmethod
+    def find_matching_event_abi(cls, event_name, argument_names):
+        filter_fn = compose(
+            functools.partial(filter_by_type, 'event'),
+            functools.partial(filter_by_name, event_name),
+            functools.partial(filter_by_argument_name, argument_names),
+        )
+
+        event_abi_candidates = filter_fn(cls.abi)
+
+        if len(event_abi_candidates) == 1:
+            return event_abi_candidates[0]
+        elif not event_abi_candidates:
+            raise ValueError("No matching functions found")
+        else:
+            raise ValueError("Multiple functions found")
+
+    @classmethod
     @coerce_return_to_text
     def encodeABI(cls, fn_name, arguments, data=None):
         """
         encodes the arguments using the Ethereum ABI.
         """
-        function_abi = cls.find_matching_abi(fn_name, force_obj_to_bytes(arguments))
+        function_abi = cls.find_matching_fn_abi(fn_name, force_obj_to_bytes(arguments))
         return cls._encodeABI(function_abi, arguments, data)
 
     @classmethod
@@ -309,17 +338,61 @@ class Contract(object):
 
         return deploy_data
 
-    def on(self, event, filters, callback):
+    def on(self, event_name, default_filter_params=None, *callbacks):
         """
         register a callback to be triggered on the appropriate events.
         """
-        raise NotImplementedError('Not implemented')
+        if default_filter_params is None:
+            default_filter_params = {}
 
-    def pastEvents(self, event, filters, callback):
+        argument_filters = default_filter_params.pop('filter', {})
+        argument_filter_names = list(argument_filters.keys())
+        event_abi = self.find_matching_event_abi(event_name, argument_filter_names)
+
+        filter_params = construct_event_filter_params(
+            event_abi,
+            contract_address=self.address,
+            argument_filters=argument_filters,
+            **default_filter_params
+        )
+
+        filter = self.web3.eth.filter(filter_params)
+
+        if callbacks:
+            filter.watch(*callbacks)
+
+        filter.filter_params = filter_params
+        return filter
+
+    def pastEvents(self, event_name, default_filter_params=None, *callbacks):
         """
         register a callback to be triggered on all past events.
         """
-        raise NotImplementedError('Not implemented')
+        if default_filter_params is None:
+            default_filter_params = {}
+
+        if 'fromBlock' in default_filter_params or 'toBlock' in default_filter_params:
+            raise ValueError("Cannot provide `fromBlock` or `toBlock` in `pastEvents` calls")
+
+        argument_filters = default_filter_params.pop('filter', {})
+        argument_filter_names = list(argument_filters.keys())
+        event_abi = self.find_matching_event_abi(event_name, argument_filter_names)
+
+        filter_params = construct_event_filter_params(
+            event_abi,
+            contract_address=self.address,
+            argument_filters=argument_filters,
+            fromBlock="earliest",
+            toBlock=self.web3.eth.blockNumber,
+            **default_filter_params
+        )
+
+        filter = self.web3.eth.filter(filter_params)
+
+        if callbacks:
+            filter.watch(*callbacks)
+
+        return filter
 
     def estimateGas(self, transaction=None):
         """
@@ -506,7 +579,7 @@ def call_contract_function(contract=None,
     if not arguments:
         arguments = []
 
-    function_abi = contract.find_matching_abi(function_name, arguments)
+    function_abi = contract.find_matching_fn_abi(function_name, arguments)
     function_selector = function_abi_to_4byte_selector(function_abi)
 
     transaction['data'] = contract.encodeABI(
@@ -590,7 +663,7 @@ def transact_with_contract_function(contract=None,
     if not arguments:
         arguments = []
 
-    function_abi = contract.find_matching_abi(function_name, arguments)
+    function_abi = contract.find_matching_fn_abi(function_name, arguments)
     function_selector = function_abi_to_4byte_selector(function_abi)
 
     transaction['data'] = contract.encodeABI(
@@ -615,7 +688,7 @@ def estimate_gas_for_function(contract=None,
     if not arguments:
         arguments = []
 
-    function_abi = contract.find_matching_abi(function_name, arguments)
+    function_abi = contract.find_matching_fn_abi(function_name, arguments)
     function_selector = function_abi_to_4byte_selector(function_abi)
 
     transaction['data'] = contract.encodeABI(

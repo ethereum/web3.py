@@ -42,7 +42,7 @@ def test_contract_estimateGas(web3, math_contract):
     if isinstance(web3.currentProvider, TestRPCProvider):
         pytest.skip("The testrpc server doesn't implement `eth_estimateGas`")
 
-    increment_abi = math_contract.find_matching_abi('increment', [])
+    increment_abi = math_contract.find_matching_fn_abi('increment', [])
     call_data = function_abi_to_4byte_selector(increment_abi)
     gas_estimate = math_contract.estimateGas().increment()
 
