@@ -1,18 +1,8 @@
+"""Interaction with smart contracts over Web3 connector.
+
+See https://github.com/ethereum/wiki/wiki/JavaScript-API for more details.
 """
-new web3.eth.contract(abi, address);
-> {
-   address: '0x123456...',
-   deploy: function(options){...},
-   encodeABI: function(options){...},
-   // events
-   on: function(event, options, callback){...},
-   pastEvents:  function(event, options, callback){...},
-   // methods
-   estimateGas: function(options){...},
-   call: function(options){...},
-   transact: function(options){...}
-}
-"""
+
 import functools
 
 from eth_abi import (
@@ -46,6 +36,11 @@ from web3.utils.abi import (
 
 
 class _Contract(object):
+    """Base class for Contract proxy classes.
+
+    See :func:`construct_contract_class` for creating your own Contract instances.
+    """
+
     # set during class construction
     web3 = None
 
@@ -314,6 +309,24 @@ def call_contract_function(contract=None,
                            function_name=None,
                            transaction=None,
                            *arguments):
+    """Calls a contract constant or function.
+
+    The function must not have state changing effects.
+    For those see :func:`transact_with_contract_function`
+
+
+    Example:
+
+    .. code-block:: python
+
+            call_contract_function(my_token_address, "balanceOf", {})
+
+    :param contract: :class:`web3.contract.Contract` object instance
+    :param function_name: Contract function name to call
+    :param transaction: Transaction parameters to pass to underlying ``web3.eth.call``
+    :param *arguments: Arguments to be passed to contract function. Automatically encoded
+    :return: Function call results, encoded to Python object
+    """
     if not arguments:
         arguments = []
 
@@ -340,6 +353,55 @@ def transact_with_contract_function(contract=None,
                                     function_name=None,
                                     transaction=None,
                                     *arguments):
+    """Transacts with a contract.
+
+    Sends in a transaction that interacts with the contract.
+    You should specify the account that pays the gas for this
+    transaction in `transaction`.
+
+    Example:
+
+    .. code-block:: python
+
+        def withdraw(self, to_address: str, amount_in_eth: Decimal, from_account=None, max_gas=50000) -> str:
+            '''Withdraw funds from a wallet contract.
+
+            :param amount_in_eth: How much as ETH
+            :param to_address: Destination address we are withdrawing to
+            :param from_account: Which Geth accout pays the gas
+            :return: Transaction hash
+            '''
+
+            assert isinstance(amount_in_eth, Decimal)  # Don't let floats slip through
+
+            wei = to_wei(amount_in_eth)
+
+            if not from_account:
+                # Default to coinbase for transaction fees
+                from_account = self.contract.web3.eth.coinbase
+
+            tx_info = {
+                # The Ethereum account that pays the gas for this operation
+                "from": from_account,
+                "gas": max_gas,
+            }
+
+            # Interact with underlying wrapped contract
+            txid = transact_with_contract_function(self.contract, "withdraw", tx_info, to_address, wei)
+            return txid
+
+    The transaction is created in the Ethereum node memory pool.
+    Transaction receipt is not available until the transaction has been mined.
+    See :func:`populus.transaction.wait_for_transaction_receipt`.
+
+    :param contract: :class:`web3.contract.Contract` object instance
+    :param function_name: Contract function name to call
+    :param transaction: Dictionary of transaction parameters to pass to underlying ``web3.eth.sendTransaction``
+    :param *arguments: Arguments to be passed to contract function. Automatically encoded
+    :return: String, 0x formatted transaction hash.
+    """
+
+
     if not arguments:
         arguments = []
 
@@ -378,6 +440,53 @@ def estimate_gas_for_function(contract=None,
 
 def construct_contract_class(web3, abi, code=None,
                              code_runtime=None, source=None):
+    """Creates a new Contract class.
+
+    Contract lass is a Python proxy class to interact with smart contracts.
+
+    ``abi`` and other contract definition fields are coming from
+    ``solc`` compiler or ``build/contracts.json`` in the
+    case of Populus framework.
+
+    After contract has been instiated you can interact with it
+    using :meth:`transact_with_contract_function` and
+     :meth:`call_contract_function`.
+
+    Example:
+
+    .. code-block:: python
+
+        # Assume we have a contract called Token from token.sol, as
+        # previously build by Populus command line client
+        contract_abis = json.load(open("build/contracts.json", "rt"))
+        contract_definition = contract_abis["Token"]
+
+        # contract_class is now Python "Token" class
+        contract_class = construct_contract_class(
+            web3=web3,
+            abi=contract_definition["abi"],
+            code=contract_definition["code"],
+            code_runtime=contract_definition["code_runtime"],
+            source=contract_definition["source"],
+                )
+
+        # Create Contract proxy object based on a given
+        # smart contract address in block chain
+        contract = contract_class(
+            address=address,
+            abi=contract_definition["abi"],
+            code=contract_definition["code"],
+            code_runtime=contract_definition["code_runtime"],
+            source=contract_definition["source"])
+
+
+    :param web3: Web3 connection
+    :param abi: As given by solc compiler
+    :param code: As given by solc compiler
+    :param code_runtime: As given by solc compiler
+    :param source: As given by solc compiler
+    :return: Contract class (not instance)
+    """
     _dict = {
         'web3': web3,
         'abi': abi,
