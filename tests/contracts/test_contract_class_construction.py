@@ -1,6 +1,6 @@
 import pytest
 
-from web3.contract import _Contract
+from web3.contract import Contract
 
 
 def test_class_construction_sets_class_vars(web3_tester, MATH_ABI, MATH_CODE,
@@ -20,7 +20,7 @@ def test_class_construction_sets_class_vars(web3_tester, MATH_ABI, MATH_CODE,
 
 def test_error_to_instantiate_base_class():
     with pytest.raises(AttributeError):
-        _Contract()
+        Contract()
 
 
 def test_can_instantiate_without_address(web3_tester, MATH_ABI):

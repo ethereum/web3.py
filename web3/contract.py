@@ -1,6 +1,5 @@
 """Interaction with smart contracts over Web3 connector.
 
-See https://github.com/ethereum/wiki/wiki/JavaScript-API for more details.
 """
 
 import functools
@@ -35,10 +34,19 @@ from web3.utils.abi import (
 )
 
 
-class _Contract(object):
+class Contract(object):
     """Base class for Contract proxy classes.
 
-    See :func:`construct_contract_class` for creating your own Contract instances.
+    First you need to create your Contract classes using :func:`construct_contract_class`
+    that takes compiled Solidity contract ABI definitions as input.
+    The created class object will be a subclass of this base class.
+
+    After you have your Contract proxy class created you can interact with smart contracts
+
+    * Create a Contract proxy object for an existing deployed smart contract by its address
+      using :meth:`__init__`
+
+    * Deploy a new smart contract using :py:meth:`Contract.deploy`
     """
 
     # set during class construction
@@ -54,6 +62,14 @@ class _Contract(object):
     address = None
 
     def __init__(self, abi=None, address=None, code=None, code_runtime=None, source=None):
+        """Create a new smart contract proxy object.
+
+        :param address: Contract address as 0x hex string
+        :param abi: Override class level definition
+        :param code: Override class level definition
+        :param code_runtime: Override class level definition
+        :param source: Override class level definition
+        """
         if self.web3 is None:
             raise AttributeError(
                 'The `Contract` class has not been initialized.  Please use the '
@@ -100,7 +116,95 @@ class _Contract(object):
     @classmethod
     def deploy(cls, transaction=None, arguments=None):
         """
-        deploys the contract.
+        Deploys the contract on a blockchain.
+
+        Example:
+
+        .. code-block:: python
+
+            from typing import Optional, Tuple
+
+            from gevent import Timeout
+            from web3 import Web3
+            from web3.contract import Contract, construct_contract_class
+
+            from populus.utils.transactions import (
+                get_contract_address_from_txn,
+                wait_for_transaction_receipt
+            )
+
+
+            def deploy_contract(
+                    web3: Web3,
+                    contract_definition: dict,
+                    gas=1500000,
+                    timeout=60.0,
+                    constructor_arguments: Optional[list]=None,
+                    from_account=None) -> Tuple[Contract, str]:
+                '''Deploys a single contract using Web3 client.
+
+                :param web3: Web3 client instance
+
+                :param contract_definition: Dictionary of describing the contract interface,
+                    as read from ``contracts.json`` Contains
+
+                :param gas: Max gas
+
+                :param timeout: How many seconds to wait the transaction to
+                    confirm to get the contract address.
+
+                :param constructor_arguments: Arguments passed to the smart contract
+                    constructor. Automatically encoded through ABI signature.
+
+                :param from_account: Geth account that's balance is used for deployment.
+                    By default, the gas is spent from Web3 coinbase account.
+                    Account must be unlocked.
+
+                :return: Tuple containing Contract proxy object and the
+                    transaction hash where it was deployed
+
+                :raise gevent.timeout.Timeout: If we can't get our contract
+                    in a block within given timeout
+                '''
+
+                # Check we are passed valid contract definition
+                assert "abi" in contract_definition, \
+                    "Please pass a valid contract definition dictionary, got {}".
+                        format(contract_definition)
+
+                contract_class = construct_contract_class(
+                    web3=web3,
+                    abi=contract_definition["abi"],
+                    code=contract_definition["code"],
+                    code_runtime=contract_definition["code_runtime"],
+                    source=contract_definition["source"],
+                        )
+
+                if not from_account:
+                    from_account = web3.eth.coinbase
+
+                # Set transaction parameters
+                transaction = {
+                    "gas": gas,
+                    "from": from_account,
+                }
+
+                # Call web3 to deploy the contract
+                txn_hash = contract_class.deploy(transaction, constructor_arguments)
+
+                # Wait until we get confirmation and address
+                address = get_contract_address_from_txn(web3, txn_hash, timeout=timeout)
+
+                # Create Contract proxy object
+                contract = contract_class(address=address)
+
+                return contract, txn_hash
+
+        :param transaction: Transaction parameters for the deployment transaction as a dict
+
+        :param arguments: The contract constructor arguments
+
+        :return: 0x string formatted transaction hash of the deployment transaction
         """
         if transaction is None:
             transaction = {}
@@ -249,6 +353,30 @@ class _Contract(object):
     def call(self, transaction=None):
         """
         Execute a contract function call using the `eth_call` interface.
+
+        This method prepares a ``Caller`` object that exposes the contract
+        functions and publib variables as callable Python functions.
+
+        Reading a public ``owner`` address variable example:
+
+        .. code-block:: python
+
+            contract_class = construct_contract_class(
+                web3=web3,
+                abi=wallet_contract_definition["abi"]
+
+            # Not a real contract address
+            contract = contract_class("0x2f70d3d26829e412a602e83fe8eebf80255aeea5")
+
+            # Read "owner" public variable
+            bin_addr = contract.call().owner()
+
+            # Convert address to 0x format
+            address = "0x" + bin_addr.decode("ascii")
+
+        :param transaction: Dictionary of transaction info for web3 interface
+        :return: ``Caller`` object that has contract public functions
+            and variables exposed as Python methods
         """
         if transaction is None:
             transaction = {}
@@ -278,6 +406,58 @@ class _Contract(object):
     def transact(self, transaction=None):
         """
         Execute a contract function call using the `eth_sendTransaction` interface.
+
+        You should specify the account that pays the gas for this
+        transaction in `transaction`. If no account is specified the coinbase
+        account of web3 interface is used.
+
+        Example:
+
+        .. code-block:: python
+
+            # Assumes self.contract points to a Contract instance having withdraw() function
+
+            def withdraw(self,
+                    to_address: str,
+                    amount_in_eth: Decimal,
+                    from_account=None, max_gas=50000) -> str:
+                '''Withdraw funds from a hosted wallet contract.
+
+                :param amount_in_eth: How much as ETH
+                :param to_address: Destination address we are withdrawing to
+                :param from_account: Which Geth account pays the gas
+                :return: Transaction hash as 0x string
+                '''
+
+                assert isinstance(amount_in_eth, Decimal)  # Don't let floats slip through
+
+                wei = to_wei(amount_in_eth)
+
+                if not from_account:
+                    # Default to coinbase for transaction fees
+                    from_account = self.contract.web3.eth.coinbase
+
+                tx_info = {
+                    # The Ethereum account that pays the gas for this operation
+                    "from": from_account,
+                    "gas": max_gas,
+                }
+
+                # Interact with underlying wrapped contract
+                txid = self.contract.transact(tx_info).withdraw(to_address, wei)
+                return txid
+
+        The transaction is created in the Ethereum node memory pool.
+        Transaction receipt is not available until the transaction has been mined.
+        See :func:`populus.transaction.wait_for_transaction_receipt`.
+
+        :param transaction: Dictionary of transaction info for web3 interface.
+            Variables include ``from``, ``gas``.
+
+        :return: ``Transactor`` object that has contract
+            public functions exposed as Python methods.
+            Calling these methods will execute a transaction against the contract.
+
         """
         if transaction is None:
             transaction = {}
@@ -314,12 +494,8 @@ def call_contract_function(contract=None,
     The function must not have state changing effects.
     For those see :func:`transact_with_contract_function`
 
-
-    Example:
-
-    .. code-block:: python
-
-            call_contract_function(my_token_address, "balanceOf", {})
+    For usual cases, you do not want to call this directly,
+    but interact with your contract through :meth:`Contract.call` method.
 
     :param contract: :class:`web3.contract.Contract` object instance
     :param function_name: Contract function name to call
@@ -356,51 +532,16 @@ def transact_with_contract_function(contract=None,
     """Transacts with a contract.
 
     Sends in a transaction that interacts with the contract.
-    You should specify the account that pays the gas for this
-    transaction in `transaction`.
-
-    Example:
-
-    .. code-block:: python
-
-        def withdraw(self, to_address: str, amount_in_eth: Decimal, from_account=None, max_gas=50000) -> str:
-            '''Withdraw funds from a wallet contract.
-
-            :param amount_in_eth: How much as ETH
-            :param to_address: Destination address we are withdrawing to
-            :param from_account: Which Geth accout pays the gas
-            :return: Transaction hash
-            '''
-
-            assert isinstance(amount_in_eth, Decimal)  # Don't let floats slip through
-
-            wei = to_wei(amount_in_eth)
-
-            if not from_account:
-                # Default to coinbase for transaction fees
-                from_account = self.contract.web3.eth.coinbase
-
-            tx_info = {
-                # The Ethereum account that pays the gas for this operation
-                "from": from_account,
-                "gas": max_gas,
-            }
-
-            # Interact with underlying wrapped contract
-            txid = transact_with_contract_function(self.contract, "withdraw", tx_info, to_address, wei)
-            return txid
-
-    The transaction is created in the Ethereum node memory pool.
-    Transaction receipt is not available until the transaction has been mined.
-    See :func:`populus.transaction.wait_for_transaction_receipt`.
+    Usually there is no reason to call directly. Instead
+    use :meth:`Contract.transact` interface.
 
     :param contract: :class:`web3.contract.Contract` object instance
     :param function_name: Contract function name to call
-    :param transaction: Dictionary of transaction parameters to pass to underlying ``web3.eth.sendTransaction``
+    :param transaction: Dictionary of transaction parameters to pass
+        to underlying ``web3.eth.sendTransaction``
     :param *arguments: Arguments to be passed to contract function. Automatically encoded
     :return: String, 0x formatted transaction hash.
     """
-
 
     if not arguments:
         arguments = []
@@ -422,6 +563,11 @@ def estimate_gas_for_function(contract=None,
                               function_name=None,
                               transaction=None,
                               *arguments):
+    """Estimates gas cost a function call would take.
+
+    Don't call this directly, instead use :meth:`Contract.estimateGas`
+    on your contract instance.
+    """
     if not arguments:
         arguments = []
 
@@ -494,4 +640,4 @@ def construct_contract_class(web3, abi, code=None,
         'code_runtime': code_runtime,
         'source': source,
     }
-    return type('Contract', (_Contract,), _dict)
+    return type('Contract', (Contract,), _dict)
