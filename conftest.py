@@ -128,13 +128,12 @@ def setup_rpc_provider():
     from web3.providers.rpc import RPCProvider
 
     with tempdir() as base_dir:
-        geth = GethProcess('testing', base_dir=base_dir)
-        geth.start()
-        wait_for_http_connection(geth.rpc_port)
-        provider = RPCProvider(port=geth.rpc_port)
-        provider._geth = geth
-        yield provider
-        geth.stop()
+        with GethProcess('testing', base_dir=base_dir) as geth:
+            geth.wait_for_rpc(30)
+            geth.wait_for_dag(600)
+            provider = RPCProvider(port=geth.rpc_port)
+            provider._geth = geth
+            yield provider
 
 
 @contextlib.contextmanager
@@ -142,13 +141,12 @@ def setup_ipc_provider():
     from web3.providers.ipc import IPCProvider
 
     with tempdir() as base_dir:
-        geth = GethProcess('testing', base_dir=base_dir)
-        geth.start()
-        wait_for_ipc_connection(geth.ipc_path)
-        provider = IPCProvider(geth.ipc_path)
-        provider._geth = geth
-        yield provider
-        geth.stop()
+        with GethProcess('testing', base_dir=base_dir) as geth:
+            geth.wait_for_ipc(30)
+            geth.wait_for_dag(600)
+            provider = IPCProvider(geth.ipc_path)
+            provider._geth = geth
+            yield provider
 
 
 @pytest.yield_fixture(params=[
