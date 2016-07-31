@@ -363,7 +363,11 @@ def transact_with_contract_function(contract=None,
 
     .. code-block:: python
 
-        def withdraw(self, to_address: str, amount_in_eth: Decimal, from_account=None, max_gas=50000) -> str:
+        def withdraw(self,
+                     to_address: str,
+                     amount_in_eth: Decimal,
+                     from_account=None,
+                     max_gas=50000) -> str:
             '''Withdraw funds from a wallet contract.
 
             :param amount_in_eth: How much as ETH
@@ -387,7 +391,9 @@ def transact_with_contract_function(contract=None,
             }
 
             # Interact with underlying wrapped contract
-            txid = transact_with_contract_function(self.contract, "withdraw", tx_info, to_address, wei)
+            txid = transact_with_contract_function(
+                self.contract, "withdraw", tx_info, to_address, wei,
+            )
             return txid
 
     The transaction is created in the Ethereum node memory pool.
@@ -396,11 +402,11 @@ def transact_with_contract_function(contract=None,
 
     :param contract: :class:`web3.contract.Contract` object instance
     :param function_name: Contract function name to call
-    :param transaction: Dictionary of transaction parameters to pass to underlying ``web3.eth.sendTransaction``
+    :param transaction: Dictionary of transaction parameters to pass to
+                        underlying ``web3.eth.sendTransaction``
     :param *arguments: Arguments to be passed to contract function. Automatically encoded
     :return: String, 0x formatted transaction hash.
     """
-
 
     if not arguments:
         arguments = []
