@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import functools
+
 from web3.iban import Iban
 
 from web3.utils.string import (
@@ -27,6 +29,7 @@ from web3.utils.encoding import (
 )
 from web3.utils.functional import (
     identity,
+    compose,
 )
 import web3.utils.config as config
 
@@ -110,25 +113,29 @@ def output_transaction_formatter(txn):
     }
 
 
+@coerce_args_to_text
 @coerce_return_to_text
-def outputTransactionReceiptFormatter(receipt):
+def output_transaction_receipt_formatter(receipt):
     """
     Formats the output of a transaction receipt to its proper values
     """
     if receipt is None:
         return None
 
-    if receipt.get("blockNumber"):
-        receipt["blockNumber"] = to_decimal(receipt["blockNumber"])
-    if receipt.get("transactionIndex"):
-        receipt["transactionIndex"] = to_decimal(receipt["transactionIndex"])
-    receipt["cumulativeGasUsed"] = to_decimal(receipt["cumulativeGasUsed"])
-    receipt["gasUsed"] = to_decimal(receipt["gasUsed"])
+    logs_formatter = compose(functools.partial(map, outputLogFormatter), list)
 
-    if is_array(receipt.get("logs")):
-        receipt["logs"] = [outputLogFormatter(log) for log in receipt["logs"]]
+    formatters = {
+        'blockNumber': to_decimal,
+        'transactionIndex': to_decimal,
+        'cumulativeGasUsed': to_decimal,
+        'gasUsed': to_decimal,
+        'logs': lambda l: logs_formatter(l) if is_array(l) else l,
+    }
 
-    return receipt
+    return {
+        key: formatters.get(key, identity)(value)
+        for key, value in receipt.items()
+    }
 
 
 @coerce_return_to_text
@@ -152,7 +159,7 @@ def outputBlockFormatter(block):
     if is_array(block.get("transactions")):
         for item in block["transactions"]:
             if not is_string(item):
-                item = outputTransactionFormatter(item)
+                item = output_transaction_formatter(item)
 
     return block
 

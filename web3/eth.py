@@ -176,7 +176,7 @@ class Eth(object):
             [block_identifier, txn_index],
         )
 
-    @apply_formatters_to_return(formatters.outputTransactionReceiptFormatter)
+    @apply_formatters_to_return(formatters.output_transaction_receipt_formatter)
     def getTransactionReceipt(self, txn_hash):
         return self.request_manager.request_blocking(
             "eth_getTransactionReceipt",

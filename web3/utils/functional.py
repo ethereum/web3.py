@@ -10,7 +10,7 @@ def combine(f, g):
 
 
 def compose(*functions):
-    return functools.reduce(combine, functions, identity)
+    return functools.reduce(combine, reversed(functions), identity)
 
 
 def apply_formatters_to_return(*formatters):
