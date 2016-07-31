@@ -128,7 +128,10 @@ class Contract(object):
             from web3 import Web3
             from web3.contract import Contract, construct_contract_class
 
-            from populus.utils.transactions import get_contract_address_from_txn, wait_for_transaction_receipt
+            from populus.utils.transactions import (
+                get_contract_address_from_txn,
+                wait_for_transaction_receipt
+            )
 
 
             def deploy_contract(
@@ -154,16 +157,20 @@ class Contract(object):
                     constructor. Automatically encoded through ABI signature.
 
                 :param from_account: Geth account that's balance is used for deployment.
-                    By default, the gas is spent from Web3 coinbase account. Account must be unlocked.
+                    By default, the gas is spent from Web3 coinbase account.
+                    Account must be unlocked.
 
-                :return: Tuple containing Contract proxy object and the transaction hash where it was deployed
+                :return: Tuple containing Contract proxy object and the
+                    transaction hash where it was deployed
 
-                :raise gevent.timeout.Timeout: If we can't get our contract in a block within given timeout
+                :raise gevent.timeout.Timeout: If we can't get our contract
+                    in a block within given timeout
                 '''
 
                 # Check we are passed valid contract definition
                 assert "abi" in contract_definition, \
-                    "Please pass a valid contract definition dictionary, got {}".format(contract_definition)
+                    "Please pass a valid contract definition dictionary, got {}".
+                        format(contract_definition)
 
                 contract_class = construct_contract_class(
                     web3=web3,
@@ -368,7 +375,8 @@ class Contract(object):
             address = "0x" + bin_addr.decode("ascii")
 
         :param transaction: Dictionary of transaction info for web3 interface
-        :return: ``Caller`` object that has contract public functions and variables exposed as Python methods
+        :return: ``Caller`` object that has contract public functions
+            and variables exposed as Python methods
         """
         if transaction is None:
             transaction = {}
@@ -409,7 +417,10 @@ class Contract(object):
 
             # Assumes self.contract points to a Contract instance having withdraw() function
 
-            def withdraw(self, to_address: str, amount_in_eth: Decimal, from_account=None, max_gas=50000) -> str:
+            def withdraw(self,
+                    to_address: str,
+                    amount_in_eth: Decimal,
+                    from_account=None, max_gas=50000) -> str:
                 '''Withdraw funds from a hosted wallet contract.
 
                 :param amount_in_eth: How much as ETH
@@ -440,8 +451,11 @@ class Contract(object):
         Transaction receipt is not available until the transaction has been mined.
         See :func:`populus.transaction.wait_for_transaction_receipt`.
 
-        :param transaction: Dictionary of transaction info for web3 interface. Variables include ``from``, ``gas``.
-        :return: ``Transactor`` object that has contract public functions exposed as Python methods.
+        :param transaction: Dictionary of transaction info for web3 interface.
+            Variables include ``from``, ``gas``.
+
+        :return: ``Transactor`` object that has contract
+            public functions exposed as Python methods.
             Calling these methods will execute a transaction against the contract.
 
         """
@@ -523,11 +537,11 @@ def transact_with_contract_function(contract=None,
 
     :param contract: :class:`web3.contract.Contract` object instance
     :param function_name: Contract function name to call
-    :param transaction: Dictionary of transaction parameters to pass to underlying ``web3.eth.sendTransaction``
+    :param transaction: Dictionary of transaction parameters to pass
+        to underlying ``web3.eth.sendTransaction``
     :param *arguments: Arguments to be passed to contract function. Automatically encoded
     :return: String, 0x formatted transaction hash.
     """
-
 
     if not arguments:
         arguments = []
