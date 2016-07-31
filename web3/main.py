@@ -6,6 +6,8 @@ from web3.shh import Shh
 from web3.net import Net
 from web3.personal import Personal
 from web3.version import Version
+from web3.txpool import TxPool
+from web3.miner import Miner
 
 from web3.providers.rpc import (
     RPCProvider,
@@ -50,6 +52,8 @@ class Web3(object):
         self.net = Net(self._requestManager)
         self.personal = Personal(self._requestManager)
         self.version = Version(self._requestManager)
+        self.txpool = TxPool(self._requestManager)
+        self.miner = Miner(self._requestManager)
 
         self.providers = {
             'RPCProvider': RPCProvider,

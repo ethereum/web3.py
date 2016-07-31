@@ -235,3 +235,28 @@ def outputSyncingFormatter(result):
     result["highestBlock"] = to_decimal(result["highestBlock"])
 
     return result
+
+
+def transaction_pool_formatter(value, txn_formatter):
+    return {
+        'pending': {
+            sender: {
+                to_decimal(nonce): [txn_formatter(txn) for txn in txns]
+                for nonce, txns in txns_by_sender.items()
+            } for sender, txns_by_sender in value.get('pending', {}).items()
+        },
+        'queued': {
+            sender: {
+                to_decimal(nonce): [txn_formatter(txn) for txn in txns]
+                for nonce, txns in txns_by_sender.items()
+            } for sender, txns_by_sender in value.get('queued', {}).items()
+        },
+    }
+
+
+def transaction_pool_content_formatter(value):
+    return transaction_pool_formatter(value, output_transaction_formatter)
+
+
+def transaction_pool_inspect_formatter(value):
+    return transaction_pool_formatter(value, identity)
