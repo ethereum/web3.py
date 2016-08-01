@@ -2,6 +2,9 @@ import pytest
 import contextlib
 import tempfile
 import shutil
+import random
+
+import gevent
 
 # This has to go here so that the `gevent.monkey.patch_all()` happens in the
 # main thread.
@@ -42,17 +45,13 @@ def wait_for_http_connection(port, timeout=30):
             raise ValueError("Unable to establish HTTP connection")
 
 
-def wait_for_ipc_connection(ipc_path, timeout=30):
-    import os
-    import gevent
-
-    with gevent.Timeout(timeout):
-        while True:
-            if os.path.exists(ipc_path):
-                break
-            gevent.sleep(0.1)
-        else:
-            raise ValueError("Unable to establish HTTP connection")
+@pytest.fixture()
+def wait_for_miner_start():
+    def _wait_for_miner_start(web3, timeout=30):
+        with gevent.Timeout(timeout):
+            while not web3.eth.mining or not web3.eth.hashrate:
+                gevent.sleep(random.random())
+    return _wait_for_miner_start
 
 
 @pytest.fixture()

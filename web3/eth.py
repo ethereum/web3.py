@@ -65,6 +65,7 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
+    @apply_formatters_to_return(to_decimal)
     def hashrate(self):
         return self.request_manager.request_blocking("eth_hashrate", [])
 
