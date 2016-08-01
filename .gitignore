@@ -46,3 +46,9 @@ chains
 
 # Hypothese Property base testing
 .hypothesis
+
+# tox/pytest cache
+.cache
+
+# Test output logs
+logs
