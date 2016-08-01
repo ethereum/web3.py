@@ -51,5 +51,28 @@ EVENT_1_ABI = {
     ),
 )
 def test_construct_event_filter_params(event_abi, fn_kwargs, expected):
-    actual = construct_event_filter_params(event_abi, **fn_kwargs)
+    _, actual = construct_event_filter_params(event_abi, **fn_kwargs)
+    assert actual == expected
+
+
+def hex_and_pad(i):
+    unpadded_hex_value = hex(i)
+    return '0x' + unpadded_hex_value[2:].zfill(64)
+
+
+@pytest.mark.parametrize(
+    "event_abi,fn_kwargs,expected",
+    (
+        (EVENT_1_ABI, {}, [[]]),
+        (EVENT_1_ABI, {'argument_filters': {'arg0': 1}}, [[hex_and_pad(1)]]),
+        (EVENT_1_ABI, {'argument_filters': {'arg0': [1]}}, [[hex_and_pad(1)]]),
+        (EVENT_1_ABI, {'argument_filters': {'arg0': [1, 2]}}, [
+            [hex_and_pad(1)],
+            [hex_and_pad(2)],
+        ]),
+    ),
+)
+def test_construct_event_filter_params_for_data_filters(event_abi, fn_kwargs,
+                                                        expected):
+    actual, _ = construct_event_filter_params(event_abi, **fn_kwargs)
     assert actual == expected

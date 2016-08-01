@@ -16,9 +16,6 @@ from web3.utils.formatting import (
     add_0x_prefix,
     remove_0x_prefix,
 )
-from web3.utils.types import (
-    is_array,
-)
 from web3.utils.string import (
     force_bytes,
     coerce_return_to_text,
@@ -35,14 +32,12 @@ from web3.utils.abi import (
     get_constructor_abi,
     check_if_arguments_can_be_encoded,
     function_abi_to_4byte_selector,
-    event_abi_to_log_topic,
 )
 from web3.utils.functional import (
     compose,
 )
 from web3.utils.filters import (
     construct_event_filter_params,
-    LogFilter,
 )
 
 
@@ -349,20 +344,21 @@ class Contract(object):
         argument_filter_names = list(argument_filters.keys())
         event_abi = self.find_matching_event_abi(event_name, argument_filter_names)
 
-        filter_params = construct_event_filter_params(
+        data_filter_set, filter_params = construct_event_filter_params(
             event_abi,
             contract_address=self.address,
             argument_filters=argument_filters,
             **default_filter_params
         )
 
-        filter = self.web3.eth.filter(filter_params)
+        log_filter = self.web3.eth.filter(filter_params)
+        log_filter.set_data_filters(data_filter_set)
 
         if callbacks:
-            filter.watch(*callbacks)
+            log_filter.watch(*callbacks)
 
-        filter.filter_params = filter_params
-        return filter
+        log_filter.filter_params = filter_params
+        return log_filter
 
     def pastEvents(self, event_name, default_filter_params=None, *callbacks):
         """
@@ -378,7 +374,7 @@ class Contract(object):
         argument_filter_names = list(argument_filters.keys())
         event_abi = self.find_matching_event_abi(event_name, argument_filter_names)
 
-        filter_params = construct_event_filter_params(
+        data_filter_set, filter_params = construct_event_filter_params(
             event_abi,
             contract_address=self.address,
             argument_filters=argument_filters,
@@ -387,12 +383,13 @@ class Contract(object):
             **default_filter_params
         )
 
-        filter = self.web3.eth.filter(filter_params)
+        log_filter = self.web3.eth.filter(filter_params)
+        log_filter.set_data_filters(data_filter_set)
 
         if callbacks:
-            filter.watch(*callbacks)
+            log_filter.watch(*callbacks)
 
-        return filter
+        return log_filter
 
     def estimateGas(self, transaction=None):
         """

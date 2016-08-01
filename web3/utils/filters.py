@@ -1,3 +1,4 @@
+import re
 import random
 import gevent
 
@@ -50,7 +51,9 @@ def construct_event_filter_params(event_abi,
     if toBlock is not None:
         filter_params['toBlock'] = toBlock
 
-    return filter_params
+    data_filters_set = construct_event_data_set(event_abi, argument_filters)
+
+    return data_filters_set, filter_params
 
 
 class BaseFilter(gevent.Greenlet):
@@ -72,19 +75,32 @@ class BaseFilter(gevent.Greenlet):
             raise ValueError("Cannot restart a Filter")
         self.running = True
 
+        self.rejected_logs = []
         previous_logs = self.web3.eth.getFilterLogs(self.filter_id)
         if previous_logs:
-            for log in previous_logs:
+            for entry in previous_logs:
                 for callback_fn in self.callbacks:
-                    callback_fn(log)
+                    if self.is_valid_entry(entry):
+                        callback_fn(entry)
+                    else:
+                        self.rejected_logs.append(entry)
 
         while self.running:
             changes = self.web3.eth.getFilterChanges(self.filter_id)
             if changes:
-                for log in changes:
+                for entry in changes:
                     for callback_fn in self.callbacks:
-                        callback_fn(log)
+                        if self.is_valid_entry(entry):
+                            callback_fn(entry)
+                        else:
+                            self.rejected_logs.append(entry)
             gevent.sleep(random.random())
+
+    def is_valid_entry(self, entry):
+        """
+        Hook for subclasses to implement additional filtering layers.
+        """
+        return True
 
     def watch(self, *callbacks):
         if self.stopped:
@@ -111,7 +127,28 @@ class TransactionFilter(BaseFilter):
     pass
 
 
+ZERO_32BYTES = '[a-f0-9]{64}'
+
+
+def construct_data_filter_regex(data_filter_set):
+    return re.compile((
+        '^' +
+        '|'.join((
+            '0x' + ''.join(
+                (ZERO_32BYTES if v is None else v[2:] for v in data_filter)
+            )
+            for data_filter in data_filter_set
+        )) +
+        '$'
+    ))
+
+
 class LogFilter(BaseFilter):
+    data_filter_set = None
+
+    def __init__(self, *args, **kwargs):
+        super(LogFilter, self).__init__(*args, **kwargs)
+
     def get(self, only_changes=True):
         if self.running:
             raise ValueError(
@@ -121,3 +158,12 @@ class LogFilter(BaseFilter):
             return self.web3.eth.getFilterChanges(self.filter_id)
         else:
             return self.web3.eth.getFilterChanges(self.filter_id)
+
+    def set_data_filters(self, data_filter_set):
+        self.data_filter_set = data_filter_set
+        self.data_filter_set_regex = construct_data_filter_regex(data_filter_set)
+
+    def is_valid_entry(self, entry):
+        if self.data_filter_set is None:
+            return True
+        return bool(self.data_filter_set_regex.match(entry['data']))
