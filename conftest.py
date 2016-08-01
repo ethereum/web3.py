@@ -96,8 +96,8 @@ def tempdir():
         shutil.rmtree(directory)
 
 
-@contextlib.contextmanager
-def setup_tester_rpc_provider():
+@pytest.yield_fixture(scope="session")
+def web3_tester_provider():
     from testrpc import testrpc
 
     from web3.providers.rpc import TestRPCProvider
@@ -110,24 +110,31 @@ def setup_tester_rpc_provider():
     testrpc.rpc_configure('net_version', 1)
     testrpc.evm_mine()
 
+    provider.testrpc = testrpc
     wait_for_http_connection(port)
+
     yield provider
+
     provider.server.shutdown()
     provider.server.server_close()
 
 
-@pytest.yield_fixture()
-def web3_tester():
+@pytest.fixture()
+def web3_tester(request, web3_tester_provider):
     from web3 import Web3
 
-    with setup_tester_rpc_provider() as provider:
-        _web3 = Web3(provider)
-        yield _web3
+    if getattr(request, 'reset_chain', True):
+        web3_tester_provider.testrpc.full_reset()
+
+    web3 = Web3(web3_tester_provider)
+    return web3
 
 
-@contextlib.contextmanager
-def setup_rpc_provider():
-    from web3.providers.rpc import RPCProvider
+def _web3_rpc():
+    from web3 import (
+        Web3,
+        RPCProvider,
+    )
 
     with tempdir() as base_dir:
         with GethProcess('testing', base_dir=base_dir) as geth:
@@ -135,12 +142,26 @@ def setup_rpc_provider():
             geth.wait_for_dag(600)
             provider = RPCProvider(port=geth.rpc_port)
             provider._geth = geth
-            yield provider
+            web3 = Web3(provider)
+            yield web3
+
+web3_rpc_empty = pytest.yield_fixture()(_web3_rpc)
+web3_rpc_persistent = pytest.yield_fixture(scope="session")(_web3_rpc)
 
 
-@contextlib.contextmanager
-def setup_ipc_provider():
-    from web3.providers.ipc import IPCProvider
+@pytest.fixture()
+def web3_rpc(request):
+    if getattr(request, 'reset_chain', False):
+        return request.getfuncargvalue('web3_rpc_empty')
+    else:
+        return request.getfuncargvalue('web3_rpc_persistent')
+
+
+def _web3_ipc():
+    from web3 import (
+        Web3,
+        IPCProvider,
+    )
 
     with tempdir() as base_dir:
         with GethProcess('testing', base_dir=base_dir) as geth:
@@ -148,35 +169,40 @@ def setup_ipc_provider():
             geth.wait_for_dag(600)
             provider = IPCProvider(geth.ipc_path)
             provider._geth = geth
-            yield provider
+            web3 = Web3(provider)
+            yield web3
+
+web3_ipc_empty = pytest.yield_fixture()(_web3_ipc)
+web3_ipc_persistent = pytest.yield_fixture(scope="session")(_web3_ipc)
 
 
-@pytest.yield_fixture(params=[
+@pytest.fixture()
+def web3_ipc(request):
+    if getattr(request, 'reset_chain', False):
+        return request.getfuncargvalue('web3_ipc_empty')
+    else:
+        return request.getfuncargvalue('web3_ipc_persistent')
+
+
+@pytest.fixture(params=[
     'tester',
     pytest.mark.slow('rpc'),
     pytest.mark.slow('ipc'),
 ])
 def web3(request):
-    from web3 import Web3
-
     if request.param == "tester":
-        setup_fn = setup_tester_rpc_provider
+        return request.getfuncargvalue('web3_tester')
     elif request.param == "rpc":
-        setup_fn = setup_rpc_provider
+        return request.getfuncargvalue('web3_rpc')
     elif request.param == "ipc":
-        setup_fn = setup_ipc_provider
+        return request.getfuncargvalue('web3_ipc')
     else:
         raise ValueError("Unknown param")
-
-    with setup_fn() as provider:
-        _web3 = Web3(provider)
-        yield _web3
 
 
 @pytest.fixture()
 def empty_account(web3, wait_for_transaction):
-    from eth_tester_client.utils import normalize_address
-    from eth_tester_client.utils import mk_random_privkey, force_bytes
+    from eth_tester_client.utils import mk_random_privkey
     address = web3.personal.importRawKey(mk_random_privkey(), "a-password")
 
     assert web3.eth.getBalance(address) == 0
