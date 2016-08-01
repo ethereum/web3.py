@@ -145,9 +145,7 @@ def construct_data_filter_regex(data_filter_set):
 
 class LogFilter(BaseFilter):
     data_filter_set = None
-
-    def __init__(self, *args, **kwargs):
-        super(LogFilter, self).__init__(*args, **kwargs)
+    data_filter_set_regex = None
 
     def get(self, only_changes=True):
         if self.running:
@@ -161,9 +159,12 @@ class LogFilter(BaseFilter):
 
     def set_data_filters(self, data_filter_set):
         self.data_filter_set = data_filter_set
-        self.data_filter_set_regex = construct_data_filter_regex(data_filter_set)
+        if any(data_filter_set):
+            self.data_filter_set_regex = construct_data_filter_regex(
+                data_filter_set,
+            )
 
     def is_valid_entry(self, entry):
-        if self.data_filter_set is None:
+        if not self.data_filter_set_regex:
             return True
         return bool(self.data_filter_set_regex.match(entry['data']))
