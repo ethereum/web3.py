@@ -12,8 +12,9 @@ from web3 import formatters
     ('0x11f4d0a3c12e86b4b5f39b213f7e19d048276dae', '0x11f4d0a3c12e86b4b5f39b213f7e19d048276dae')
     ]
 )
-def test_inputAddressFormatter(value, expected):
-    assert formatters.inputAddressFormatter(value) == expected
+def test_input_address_formatter(value, expected):
+    assert formatters.input_address_formatter(value) == expected
+
 
 @pytest.mark.parametrize(
     "value",
@@ -25,9 +26,10 @@ def test_inputAddressFormatter(value, expected):
     ('0x'),
     ]
 )
-def test_inputAddressFormatter2(value):
+def test_input_address_formatter_errors(value):
     with pytest.raises(ValueError):
-        formatters.inputAddressFormatter(value)
+        formatters.input_address_formatter(value)
+
 
 @pytest.mark.parametrize(
     "value,expected",
@@ -149,8 +151,8 @@ def test_inputPostFormatter(value, expected):
         }
     )]
 )
-def test_inputTransactionFormatter(value, expected):
-    assert formatters.inputTransactionFormatter(value) == expected
+def test_input_transaction_formatter(value, expected):
+    assert formatters.input_transaction_formatter(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -331,5 +333,5 @@ def test_outputPostFormatter(value, expected):
         })
     ]
 )
-def test_outputTransactionFormatter(value, expected):
-    assert formatters.outputTransactionFormatter(value) == expected
+def test_output_transaction_formatter(value, expected):
+    assert formatters.output_transaction_formatter(value) == expected

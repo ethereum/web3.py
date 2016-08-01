@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 
+import functools
+
 from web3.iban import Iban
 
 from web3.utils.string import (
     force_text,
+    coerce_args_to_text,
     coerce_return_to_text,
 )
 from web3.utils.address import (
@@ -23,6 +26,10 @@ from web3.utils.encoding import (
     decode_hex,
     from_decimal,
     to_decimal,
+)
+from web3.utils.functional import (
+    identity,
+    compose,
 )
 import web3.utils.config as config
 
@@ -48,81 +55,87 @@ def inputBlockNumberFormatter(blockNumber):
     return to_hex(blockNumber)
 
 
+@coerce_args_to_text
 @coerce_return_to_text
-def inputCallFormatter(options):
-    """
-    Formats the input of a transaction and converts all values to HEX
-    """
-
-    options.setdefault("from", config.defaultAccount)
-
-    if options.get("from"):
-        options["from"] = inputAddressFormatter(options["from"])
-
-    if options.get("to"):
-        options["to"] = inputAddressFormatter(options["to"])
-
-    for key in ("gasPrice", "gas", "value", "nonce"):
-        if key in options:
-            options[key] = from_decimal(options[key])
-
-    return options
+def input_call_formatter(txn):
+    defaults = {
+        'from': config.defaultAccount,
+    }
+    formatters = {
+        'from': input_address_formatter,
+        'to': input_address_formatter,
+        'gasPrice': from_decimal,
+        'gas': from_decimal,
+        'value': from_decimal,
+        'nonce': from_decimal,
+    }
+    return {
+        key: formatters.get(key, identity)(txn.get(key, defaults.get(key)))
+        for key in set(tuple(txn.keys()) + tuple(defaults.keys()))
+    }
 
 
+@coerce_args_to_text
 @coerce_return_to_text
-def inputTransactionFormatter(options):
-    """
-    Formats the input of a transaction and converts all values to HEX
-    """
-    options.setdefault("from", config.defaultAccount)
-    options["from"] = inputAddressFormatter(options["from"])
+def input_transaction_formatter(txn):
+    defaults = {
+        'from': config.defaultAccount,
+    }
+    formatters = {
+        'from': input_address_formatter,
+        'to': input_address_formatter,
+        'gasPrice': from_decimal,
+        'gas': from_decimal,
+        'value': from_decimal,
+        'nonce': from_decimal,
+    }
+    return {
+        key: formatters.get(key, identity)(txn.get(key, defaults.get(key)))
+        for key in set(tuple(txn.keys()) + tuple(defaults.keys()))
+    }
 
-    if options.get("to"):
-        options["to"] = inputAddressFormatter(options["to"])
 
-    for key in ("gasPrice", "gas", "value", "nonce"):
-        if key in options:
-            options[key] = from_decimal(options[key])
-
-    return options
-
-
+@coerce_args_to_text
 @coerce_return_to_text
-def outputTransactionFormatter(tx):
-    """
-    Formats the output of a transaction to its proper values
-    """
-    if tx.get("blockNumber"):
-        tx["blockNumber"] = to_decimal(tx["blockNumber"])
-    if tx.get("transactionIndex"):
-        tx["transactionIndex"] = to_decimal(tx["transactionIndex"])
+def output_transaction_formatter(txn):
+    formatters = {
+        'blockNumber': lambda v: None if v is None else to_decimal(v),
+        'transactionIndex': lambda v: None if v is None else to_decimal(v),
+        'nonce': to_decimal,
+        'gas': to_decimal,
+        'gasPrice': to_decimal,
+        'value': to_decimal,
+    }
 
-    tx["nonce"] = to_decimal(tx["nonce"])
-    tx["gas"] = to_decimal(tx["gas"])
-    tx["gasPrice"] = to_decimal(tx["gasPrice"])
-    tx["value"] = to_decimal(tx["value"])
-    return tx
+    return {
+        key: formatters.get(key, identity)(value)
+        for key, value in txn.items()
+    }
 
 
+@coerce_args_to_text
 @coerce_return_to_text
-def outputTransactionReceiptFormatter(receipt):
+def output_transaction_receipt_formatter(receipt):
     """
     Formats the output of a transaction receipt to its proper values
     """
     if receipt is None:
         return None
 
-    if receipt.get("blockNumber"):
-        receipt["blockNumber"] = to_decimal(receipt["blockNumber"])
-    if receipt.get("transactionIndex"):
-        receipt["transactionIndex"] = to_decimal(receipt["transactionIndex"])
-    receipt["cumulativeGasUsed"] = to_decimal(receipt["cumulativeGasUsed"])
-    receipt["gasUsed"] = to_decimal(receipt["gasUsed"])
+    logs_formatter = compose(functools.partial(map, outputLogFormatter), list)
 
-    if is_array(receipt.get("logs")):
-        receipt["logs"] = [outputLogFormatter(log) for log in receipt["logs"]]
+    formatters = {
+        'blockNumber': to_decimal,
+        'transactionIndex': to_decimal,
+        'cumulativeGasUsed': to_decimal,
+        'gasUsed': to_decimal,
+        'logs': lambda l: logs_formatter(l) if is_array(l) else l,
+    }
 
-    return receipt
+    return {
+        key: formatters.get(key, identity)(value)
+        for key, value in receipt.items()
+    }
 
 
 @coerce_return_to_text
@@ -146,7 +159,7 @@ def outputBlockFormatter(block):
     if is_array(block.get("transactions")):
         for item in block["transactions"]:
             if not is_string(item):
-                item = outputTransactionFormatter(item)
+                item = output_transaction_formatter(item)
 
     return block
 
@@ -204,7 +217,7 @@ def outputPostFormatter(post):
     return post
 
 
-def inputAddressFormatter(addr):
+def input_address_formatter(addr):
     iban = Iban(addr)
     if iban.isValid() and iban.isDirect():
         return "0x" + iban.address()
