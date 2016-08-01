@@ -101,13 +101,34 @@ web3.config.defaultBlock = "latest"
 
 ### Timeouts, blocking and nonblocking requests
 
-
-All function and property requests block until a respose is received.  Asynchronous function calling has not yet been implemented.
+All function and property requests block until a response is received.  Asynchronous function calling has not yet been implemented.
 
 ```python
 # Blocks indefinitely
 >>> web3.eth.getBalance("0xaddress", timeout=None)
 23423234
+```
+
+### Not implemented functionality
+
+web3.py does not implement all JavaScript API yet. In the case of missing functionality you can directly call the underlying RPC API using [ethereum-rpc-client](https://github.com/pipermerriam/ethereum-rpc-client). For example you can use this to access the filter logs for events (topics) of smart contracts.
+
+Example:
+
+```python
+from eth_rpc_client import Client
+
+def get_rpc_client(web3: Web3) -> Client:
+    """Get a raw Ethereum RPC client for an underyling web3 client."""
+
+    c = Client(web3.currentProvider.host, web3.currentProvider.port)
+    c.session = web3.currentProvider.session
+    return c
+
+
+client = get_rpc_client(web3)
+logs = client.get_logs(address="0x0....")
+
 ```
 
 ### `web3`
