@@ -72,6 +72,10 @@ def is_encodable(_type, value):
         if value <= -1 * 2**(exp - 1) or value >= 2**(exp - 1):
             return False
         return True
+    elif base == 'string':
+        if not is_string(value):
+            return False
+        return True
     elif base == 'bytes':
         if not is_string(value):
             return False
