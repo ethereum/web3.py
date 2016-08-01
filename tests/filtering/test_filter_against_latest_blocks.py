@@ -15,6 +15,6 @@ def test_filter_against_latest_blocks(web3, wait_for_block):
     expected_block_hashes = [
         web3.eth.getBlock(n)['hash'] for n in range(current_block + 1, current_block + 4)
     ]
-    assert len(seen_blocks) > 2
+    assert len(seen_blocks) >= 2
 
     assert set(expected_block_hashes).issuperset(seen_blocks)
