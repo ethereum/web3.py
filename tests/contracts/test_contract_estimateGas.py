@@ -7,7 +7,8 @@ from web3.utils.abi import (
 
 @pytest.fixture(autouse=True)
 def wait_for_first_block(web3, wait_for_block):
-    wait_for_block(web3)
+    if not isinstance(web3.currentProvider, TestRPCProvider):
+        wait_for_block(web3)
 
 
 @pytest.fixture()
