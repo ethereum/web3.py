@@ -5,6 +5,9 @@ from eth_tester_client.utils import (
 )
 
 
+reset_chain = True
+
+
 def test_personal_importRawKey_as_bytes(web3, account_private_key, account_password,
                                account_public_key):
     address = web3.personal.importRawKey(account_private_key, account_password)

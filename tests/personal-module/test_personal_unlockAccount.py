@@ -1,6 +1,9 @@
 import pytest
 
 
+reset_chain = True
+
+
 @pytest.fixture(autouse=True)
 def wait_for_first_block(web3, wait_for_block):
     wait_for_block(web3)

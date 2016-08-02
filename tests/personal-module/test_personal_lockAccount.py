@@ -1,6 +1,9 @@
 import pytest
 
 
+reset_chain = True
+
+
 def test_personal_lockAccount(web3, password_account, account_password,
                               wait_for_transaction, empty_account):
     initial_balancee = web3.eth.getBalance(empty_account)
