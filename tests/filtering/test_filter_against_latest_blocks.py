@@ -1,3 +1,7 @@
+import random
+import gevent
+
+
 def test_filter_against_latest_blocks(web3, wait_for_block):
     seen_blocks = []
     txn_filter = web3.eth.filter("latest")
@@ -6,6 +10,10 @@ def test_filter_against_latest_blocks(web3, wait_for_block):
     current_block = web3.eth.blockNumber
 
     wait_for_block(web3, current_block + 3)
+
+    with gevent.Timeout(5):
+        while not seen_blocks >= 2:
+            gevent.sleep(random.random())
 
     txn_filter.stop_watching(3)
 
