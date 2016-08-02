@@ -7,7 +7,7 @@ from web3.utils.filters import (
 
 def hex_and_pad(*i):
     return '0x' + ''.join(
-        hex(v)[2:].zfill(64)
+        hex(v).rstrip('L')[2:].zfill(64)
         for v in i
     )
 

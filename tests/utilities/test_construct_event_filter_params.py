@@ -56,7 +56,7 @@ def test_construct_event_filter_params(event_abi, fn_kwargs, expected):
 
 
 def hex_and_pad(i):
-    unpadded_hex_value = hex(i)
+    unpadded_hex_value = hex(i).rstrip('L')
     return '0x' + unpadded_hex_value[2:].zfill(64)
 
 

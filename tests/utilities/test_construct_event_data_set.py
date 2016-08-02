@@ -23,7 +23,7 @@ EVENT_1_TOPIC = '0xa7144ed450ecab4a6283d3b1e290ff6c889232d922b84d88203eb7619222f
 
 
 def hex_and_pad(i):
-    unpadded_hex_value = hex(i)
+    unpadded_hex_value = hex(i).rstrip('L')
     return '0x' + unpadded_hex_value[2:].zfill(64)
 
 

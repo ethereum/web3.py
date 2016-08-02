@@ -2,9 +2,11 @@ import random
 
 import gevent
 
+from flaky import flaky
 
+
+@flaky(max_runs=3)
 def test_miner_stop(web3):
-    # sanity
     assert web3.eth.mining
     assert web3.miner.hashrate
 
