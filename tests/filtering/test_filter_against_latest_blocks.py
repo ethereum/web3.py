@@ -17,9 +17,6 @@ def test_filter_against_latest_blocks(web3, wait_for_block):
 
     txn_filter.stop_watching(3)
 
-    # give the gevent threads a moment to catch the latest block.
-    wait_for_block(web3, web3.eth.blockNumber + 1)
-
     expected_block_hashes = [
         web3.eth.getBlock(n)['hash'] for n in range(current_block + 1, current_block + 4)
     ]
