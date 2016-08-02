@@ -1,7 +1,9 @@
 import random
 import gevent
+from flaky import flaky
 
 
+@flaky(max_runs=3)
 def test_filter_against_latest_blocks(web3, wait_for_block):
     seen_blocks = []
     txn_filter = web3.eth.filter("latest")

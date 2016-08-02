@@ -1,7 +1,9 @@
 import random
 import gevent
+from flaky import flaky
 
 
+@flaky(max_runs=3)
 def test_filter_against_log_events(web3,
                                    emitter,
                                    wait_for_transaction,

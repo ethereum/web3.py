@@ -1,7 +1,9 @@
 import random
 import gevent
+from flaky import flaky
 
 
+@flaky(max_runs=3)
 def test_past_events_filter_with_only_event_name(web3,
                                                  emitter,
                                                  wait_for_transaction,
