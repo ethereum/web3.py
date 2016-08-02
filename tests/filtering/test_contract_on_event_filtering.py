@@ -15,7 +15,9 @@ def test_on_filter_with_only_event_name(web3,
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(txn_hash)
 
-    gevent.sleep(1)
+    with gevent.Timeout(5):
+        while not seen_logs:
+            gevent.sleep(random.random())
 
     filter.stop_watching(10)
 
@@ -48,7 +50,9 @@ def test_on_filter_with_event_name_and_single_argument(web3,
     for txn_hash in txn_hashes:
         wait_for_transaction(txn_hash)
 
-    gevent.sleep(1)
+    with gevent.Timeout(5):
+        while not seen_logs:
+            gevent.sleep(random.random())
 
     filter.stop_watching(10)
 
@@ -81,7 +85,9 @@ def test_on_filter_with_event_name_and_non_indexed_argument(web3,
     for txn_hash in txn_hashes:
         wait_for_transaction(txn_hash)
 
-    gevent.sleep(1)
+    with gevent.Timeout(5):
+        while not seen_logs:
+            gevent.sleep(random.random())
 
     filter.stop_watching(10)
 

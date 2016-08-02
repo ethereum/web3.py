@@ -1,3 +1,7 @@
+import random
+import gevent
+
+
 def test_filter_against_log_events(web3,
                                    emitter,
                                    wait_for_transaction,
@@ -14,6 +18,10 @@ def test_filter_against_log_events(web3,
 
     for txn_hash in txn_hashes:
         wait_for_transaction(txn_hash)
+
+    with gevent.Timeout(5):
+        while not seen_logs:
+            gevent.sleep(random.random())
 
     txn_filter.stop_watching(30)
 
