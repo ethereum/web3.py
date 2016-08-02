@@ -2,6 +2,9 @@ import random
 import gevent
 
 
+reset_chain = True
+
+
 def test_txpool_content(web3):
     web3.miner.stop()
 

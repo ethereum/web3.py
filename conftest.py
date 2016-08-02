@@ -47,7 +47,7 @@ def wait_for_http_connection(port, timeout=30):
 
 @pytest.fixture()
 def wait_for_miner_start():
-    def _wait_for_miner_start(web3, timeout=30):
+    def _wait_for_miner_start(web3, timeout=60):
         with gevent.Timeout(timeout):
             while not web3.eth.mining or not web3.eth.hashrate:
                 gevent.sleep(random.random())

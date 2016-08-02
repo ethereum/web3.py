@@ -1,6 +1,9 @@
 import pytest
 
 
+reset_chain = True
+
+
 @pytest.fixture()
 def account_password():
     return "a-password"

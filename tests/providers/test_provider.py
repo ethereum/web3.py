@@ -40,4 +40,3 @@ def test_isConnected_disconnected(disconnected_provider):
     """
     web3 = Web3(disconnected_provider)
     assert web3.isConnected() is False
-
