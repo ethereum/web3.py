@@ -99,16 +99,27 @@ web3.config.defaultBlock = "latest"
 ... 23212
 ```
 
-### Timeouts, blocking and nonblocking requests
-
-
-All function and property requests block until a respose is received.  Asynchronous function calling has not yet been implemented.
+You can listen for events using the `on` and `pastEvents` functions on a
+contract.
 
 ```python
-# Blocks indefinitely
->>> web3.eth.getBalance("0xaddress", timeout=None)
-23423234
+def transfer_callback(log_entry):
+    ...  # do something with the log.
+
+# create a filter and register a callback.
+filter = MyContract.on("Transfer", {})
+filter.watch(transfer_callback)
+
+filter.stop_watching()
 ```
+
+The underlying asynchronous operations are managed by `gevent`.
+
+
+### Timeouts, blocking and nonblocking requests
+
+Web3.py does not currently support asynchronous calling patterns.
+
 
 ### `web3`
 

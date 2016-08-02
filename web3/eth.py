@@ -8,9 +8,15 @@ from web3.utils.encoding import (
 )
 from web3.utils.types import (
     is_integer,
+    is_string,
 )
 from web3.utils.functional import (
     apply_formatters_to_return,
+)
+from web3.utils.filters import (
+    BlockFilter,
+    TransactionFilter,
+    LogFilter,
 )
 from web3.contract import construct_contract_class
 
@@ -218,13 +224,35 @@ class Eth(object):
     def estimateGas(self, transaction):
         return self.request_manager.request_blocking("eth_estimateGas", [transaction])
 
-    def filter(self, *args, **kwargs):
-        """
-        `eth_newFilter`
-        `eth_newBlockFilter`
-        `eth_uninstallFilter`
-        """
-        raise NotImplementedError("TODO")
+    def filter(self, filter_params):
+        if is_string(filter_params):
+            if filter_params == "latest":
+                filter_id = self.request_manager.request_blocking("eth_newBlockFilter", [])
+                return BlockFilter(self.web3, filter_id)
+            elif filter_params == "pending":
+                filter_id = self.request_manager.request_blocking(
+                    "eth_newPendingTransactionFilter", [],
+                )
+                return TransactionFilter(self.web3, filter_id)
+            else:
+                raise ValueError(
+                    "The filter API only accepts the values of `pending` or "
+                    "`latest` for string based filters"
+                )
+        elif isinstance(filter_params, dict):
+            filter_id = self.request_manager.request_blocking("eth_newFilter", [filter_params])
+            return LogFilter(self.web3, filter_id)
+        else:
+            raise ValueError("Must provide either a string or a valid filter object")
+
+    def getFilterChanges(self, filter_id):
+        return self.request_manager.request_blocking("eth_getFilterChanges", [filter_id])
+
+    def getFilterLogs(self, filter_id):
+        return self.request_manager.request_blocking("eth_getFilterLogs", [filter_id])
+
+    def uninstallFilter(self, filter_id):
+        return self.request_manager.request_blocking("eth_uninstallFilter", [filter_id])
 
     def contract(self, abi, address=None, **kwargs):
         contract_class = construct_contract_class(self.web3, abi, **kwargs)

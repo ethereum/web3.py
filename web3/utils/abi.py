@@ -1,9 +1,16 @@
+import itertools
+
 from eth_abi.abi import (
     process_type,
+    encode_single,
 )
 
+from .encoding import encode_hex
 from .crypto import sha3
-from .string import coerce_args_to_bytes
+from .string import (
+    coerce_args_to_bytes,
+    coerce_return_to_text,
+)
 from .formatting import (
     add_0x_prefix,
 )
@@ -34,12 +41,34 @@ def get_abi_output_types(abi):
     return [arg['type'] for arg in abi['outputs']]
 
 
+def get_abi_input_names(abi):
+    return [arg['name'] for arg in abi['inputs']]
+
+
+def get_indexed_event_inputs(event_abi):
+    return [arg for arg in event_abi['inputs'] if arg['indexed'] is True]
+
+
+def exclude_indexed_event_inputs(event_abi):
+    return [arg for arg in event_abi['inputs'] if arg['indexed'] is False]
+
+
 def filter_by_argument_count(arguments, contract_abi):
     return [
         abi
         for abi
         in contract_abi
         if len(abi['inputs']) == len(arguments)
+    ]
+
+
+def filter_by_argument_name(argument_names, contract_abi):
+    return [
+        abi
+        for abi in contract_abi
+        if set(argument_names).intersection(
+            get_abi_input_names(abi)
+        ) == set(argument_names)
     ]
 
 
@@ -124,7 +153,7 @@ def get_constructor_abi(contract_abi):
         raise ValueError("Found multiple constructors.")
 
 
-def abi_to_4byte_function_selector(function_abi):
+def abi_to_signature(function_abi):
     function_signature = "{fn_name}({fn_input_types})".format(
         fn_name=function_abi['name'],
         fn_input_types=','.join([
@@ -135,5 +164,95 @@ def abi_to_4byte_function_selector(function_abi):
 
 
 def function_abi_to_4byte_selector(function_abi):
-    function_signature = abi_to_4byte_function_selector(function_abi)
+    function_signature = abi_to_signature(function_abi)
     return add_0x_prefix(sha3(function_signature)[:8])
+
+
+def event_abi_to_log_topic(event_abi):
+    event_signature = abi_to_signature(event_abi)
+    return add_0x_prefix(sha3(event_signature))
+
+
+@coerce_return_to_text
+def construct_event_topic_set(event_abi, arguments=None):
+    if arguments is None:
+        arguments = {}
+    if isinstance(arguments, (list, tuple)):
+        if len(arguments) != len(event_abi['inputs']):
+            raise ValueError(
+                "When passing an argument list, the number of arguments must "
+                "match the event constructor."
+            )
+        arguments = {
+            arg['name']: [arg_value]
+            for arg, arg_value
+            in zip(event_abi['inputs'], arguments)
+        }
+
+    normalized_args = {
+        key: value if is_array(value) else [value]
+        for key, value in arguments.items()
+    }
+
+    event_topic = event_abi_to_log_topic(event_abi)
+    indexed_args = get_indexed_event_inputs(event_abi)
+    zipped_abi_and_args = [
+        (arg, normalized_args.get(arg['name'], [None]))
+        for arg in indexed_args
+    ]
+    encoded_args = [
+        [
+            None if option is None else encode_hex(encode_single(arg['type'], option))
+            for option in arg_options]
+        for arg, arg_options in zipped_abi_and_args
+    ]
+
+    topics = [
+        [event_topic] + list(permutation)
+        if any(value is not None for value in permutation)
+        else [event_topic]
+        for permutation in itertools.product(*encoded_args)
+    ]
+    return topics
+
+
+@coerce_return_to_text
+def construct_event_data_set(event_abi, arguments=None):
+    if arguments is None:
+        arguments = {}
+    if isinstance(arguments, (list, tuple)):
+        if len(arguments) != len(event_abi['inputs']):
+            raise ValueError(
+                "When passing an argument list, the number of arguments must "
+                "match the event constructor."
+            )
+        arguments = {
+            arg['name']: [arg_value]
+            for arg, arg_value
+            in zip(event_abi['inputs'], arguments)
+        }
+
+    normalized_args = {
+        key: value if is_array(value) else [value]
+        for key, value in arguments.items()
+    }
+
+    indexed_args = exclude_indexed_event_inputs(event_abi)
+    zipped_abi_and_args = [
+        (arg, normalized_args.get(arg['name'], [None]))
+        for arg in indexed_args
+    ]
+    encoded_args = [
+        [
+            None if option is None else encode_hex(encode_single(arg['type'], option))
+            for option in arg_options]
+        for arg, arg_options in zipped_abi_and_args
+    ]
+
+    topics = [
+        list(permutation)
+        if any(value is not None for value in permutation)
+        else []
+        for permutation in itertools.product(*encoded_args)
+    ]
+    return topics
