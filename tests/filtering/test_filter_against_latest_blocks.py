@@ -12,7 +12,7 @@ def test_filter_against_latest_blocks(web3, wait_for_block):
     wait_for_block(web3, current_block + 3)
 
     with gevent.Timeout(5):
-        while not seen_blocks >= 2:
+        while len(seen_blocks) < 2:
             gevent.sleep(random.random())
 
     txn_filter.stop_watching(3)
