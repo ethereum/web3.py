@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def skip_testrpc_and_wait_for_mining_start(web3_ipc_empty, wait_for_miner_start):
+def always_wait_for_mining_start(web3_ipc_empty, wait_for_miner_start):
     web3 = web3_ipc_empty
 
     wait_for_miner_start(web3)
