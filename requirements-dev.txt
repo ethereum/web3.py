@@ -4,8 +4,7 @@ tox>=1.8.0
 eth-testrpc>=0.5.0
 ethereum-tester-client>=0.8.0
 py-geth>=0.6.0
-# Until pyethereum > 1.3.6 is released.
-https://github.com/ethereum/pyethereum/tarball/b06829e56e2a3de5276077a611ed8813b6cf5e74
+ethereum>=1.5.2
 secp256k1>=0.12.0
 rlp==0.4.6
 hypothesis==3.4.2
