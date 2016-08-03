@@ -3,6 +3,9 @@ import gevent
 from flaky import flaky
 
 
+reset_chain = True
+
+
 @flaky(max_runs=3)
 def test_filter_against_pending_transactions(web3, wait_for_transaction):
     seen_txns = []
@@ -20,8 +23,8 @@ def test_filter_against_pending_transactions(web3, wait_for_transaction):
         'value': 54321,
     })
 
-    wait_for_transaction(txn_1_hash)
-    wait_for_transaction(txn_2_hash)
+    wait_for_transaction(web3, txn_1_hash)
+    wait_for_transaction(web3, txn_2_hash)
 
     with gevent.Timeout(5):
         while not seen_txns:

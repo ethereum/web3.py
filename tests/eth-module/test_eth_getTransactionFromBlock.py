@@ -27,7 +27,7 @@ def test_eth_getTransactionFromBlock(web3, extra_accounts, wait_for_transaction)
 
     # wait for them to resolve
     for txn_hash in transaction_hashes:
-        wait_for_transaction(txn_hash)
+        wait_for_transaction(web3, txn_hash)
 
     # gather all receipts and sort/group them by block number.
     all_receipts = sorted(

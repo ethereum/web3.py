@@ -15,7 +15,7 @@ def test_eth_getCode(web3, wait_for_transaction, MATH_CODE, MATH_RUNTIME):
         "gas": 3000000,
     })
 
-    wait_for_transaction(txn_hash)
+    wait_for_transaction(web3, txn_hash)
 
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     contract_address = txn_receipt['contractAddress']

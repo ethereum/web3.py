@@ -2,10 +2,9 @@ import random
 import gevent
 
 
-reset_chain = True
+def test_txpool_content(web3_ipc_empty):
+    web3 = web3_ipc_empty
 
-
-def test_txpool_content(web3):
     web3.miner.stop()
 
     with gevent.Timeout(30):

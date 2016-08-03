@@ -36,7 +36,7 @@ def password_account(web3, account_password,
         'to': address,
         'value': initial_balance,
     }, 'this-is-not-a-secure-password')
-    wait_for_transaction(funding_txn_hash)
+    wait_for_transaction(web3, funding_txn_hash)
 
     assert web3.eth.getBalance(address) == initial_balance
     return address

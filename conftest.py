@@ -71,10 +71,10 @@ def wait_for_block():
 
 
 @pytest.fixture()
-def wait_for_transaction(web3):
+def wait_for_transaction():
     import gevent
 
-    def _wait_for_transaction(txn_hash, timeout=120):
+    def _wait_for_transaction(web3, txn_hash, timeout=120):
         with gevent.Timeout(timeout):
             while True:
                 txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
@@ -201,7 +201,7 @@ def web3(request):
 
 
 @pytest.fixture()
-def empty_account(web3, wait_for_transaction):
+def empty_account(web3):
     from eth_tester_client.utils import mk_random_privkey
     address = web3.personal.importRawKey(mk_random_privkey(), "a-password")
 

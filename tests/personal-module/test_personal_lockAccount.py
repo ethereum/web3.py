@@ -14,7 +14,7 @@ def test_personal_lockAccount(web3, password_account, account_password,
         'to': empty_account,
         'value': 1234,
     })
-    wait_for_transaction(txn_hash)
+    wait_for_transaction(web3, txn_hash)
 
     after_balance = web3.eth.getBalance(empty_account)
 

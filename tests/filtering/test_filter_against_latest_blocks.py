@@ -3,6 +3,9 @@ import gevent
 from flaky import flaky
 
 
+reset_chain = True
+
+
 @flaky(max_runs=3)
 def test_filter_against_latest_blocks(web3, wait_for_block):
     seen_blocks = []

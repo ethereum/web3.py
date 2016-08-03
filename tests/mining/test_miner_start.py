@@ -3,10 +3,9 @@ import random
 import gevent
 
 
-reset_chain = True
+def test_miner_start(web3_ipc_empty, wait_for_miner_start):
+    web3 = web3_ipc_empty
 
-
-def test_miner_start(web3, wait_for_miner_start):
     # sanity
     assert web3.eth.mining
     assert web3.miner.hashrate

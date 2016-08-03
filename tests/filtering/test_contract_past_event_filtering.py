@@ -3,6 +3,9 @@ import gevent
 from flaky import flaky
 
 
+reset_chain = True
+
+
 @flaky(max_runs=3)
 def test_past_events_filter_with_only_event_name(web3,
                                                  emitter,
@@ -10,7 +13,7 @@ def test_past_events_filter_with_only_event_name(web3,
                                                  emitter_log_topics,
                                                  emitter_event_ids):
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
-    txn_receipt = wait_for_transaction(txn_hash)
+    txn_receipt = wait_for_transaction(web3, txn_hash)
 
     seen_logs = []
 

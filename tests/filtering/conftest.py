@@ -126,7 +126,7 @@ def Emitter(web3, EMITTER):
 def emitter(web3, Emitter, wait_for_transaction, wait_for_block):
     wait_for_block(web3)
     deploy_txn_hash = Emitter.deploy({'from': web3.eth.coinbase, 'gas': 1000000})
-    deploy_receipt = wait_for_transaction(deploy_txn_hash)
+    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = deploy_receipt['contractAddress']
 
     code = web3.eth.getCode(contract_address)

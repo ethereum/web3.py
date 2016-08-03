@@ -3,6 +3,9 @@ import gevent
 from flaky import flaky
 
 
+reset_chain = True
+
+
 @flaky(max_runs=3)
 def test_on_filter_with_only_event_name(web3,
                                         emitter,
@@ -15,7 +18,7 @@ def test_on_filter_with_only_event_name(web3,
     filter = emitter.on('LogNoArguments', {}, seen_logs.append)
 
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
-    txn_receipt = wait_for_transaction(txn_hash)
+    txn_receipt = wait_for_transaction(web3, txn_hash)
 
     with gevent.Timeout(5):
         while not seen_logs:
@@ -51,7 +54,7 @@ def test_on_filter_with_event_name_and_single_argument(web3,
         emitter.transact().logTriple(emitter_event_ids.LogTripleWithIndex, 12345, 2, 54321)
     )
     for txn_hash in txn_hashes:
-        wait_for_transaction(txn_hash)
+        wait_for_transaction(web3, txn_hash)
 
     with gevent.Timeout(5):
         while not seen_logs:
@@ -87,7 +90,7 @@ def test_on_filter_with_event_name_and_non_indexed_argument(web3,
         emitter.transact().logTriple(emitter_event_ids.LogTripleWithIndex, 12345, 2, 54321)
     )
     for txn_hash in txn_hashes:
-        wait_for_transaction(txn_hash)
+        wait_for_transaction(web3, txn_hash)
 
     with gevent.Timeout(5):
         while not seen_logs:

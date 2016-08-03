@@ -5,10 +5,9 @@ import gevent
 from web3.utils.encoding import decode_hex
 
 
-reset_chain = True
+def test_miner_setExtra(web3_ipc_empty, wait_for_block):
+    web3 = web3_ipc_empty
 
-
-def test_miner_setExtra(web3, wait_for_block):
     initial_extra = decode_hex(web3.eth.getBlock(web3.eth.blockNumber)['extraData'])
 
     new_extra_data = b'-this-is-32-bytes-of-extra-data-'

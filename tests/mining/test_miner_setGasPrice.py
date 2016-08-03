@@ -1,7 +1,6 @@
-reset_chain = True
+def test_miner_setGasPrice(web3_ipc_empty, wait_for_block):
+    web3 = web3_ipc_empty
 
-
-def test_miner_setGasPrice(web3, wait_for_block):
     initial_gas_price = web3.eth.gasPrice
 
     # sanity check

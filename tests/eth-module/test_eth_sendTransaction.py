@@ -18,7 +18,7 @@ def test_eth_sendTransaction_with_value_only_transaction(web3, extra_accounts,
         "value": 1234,
     })
 
-    wait_for_transaction(txn_hash)
+    wait_for_transaction(web3, txn_hash)
 
     after_balance = web3.eth.getBalance(extra_accounts[1])
 
@@ -32,7 +32,7 @@ def test_eth_sendTransaction_with_data(web3, wait_for_transaction, MATH_CODE, MA
         "gas": 3000000,
     })
 
-    wait_for_transaction(txn_hash)
+    wait_for_transaction(web3, txn_hash)
 
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     contract_address = txn_receipt['contractAddress']
