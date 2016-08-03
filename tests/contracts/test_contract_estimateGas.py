@@ -20,7 +20,7 @@ def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, MATH_SOURCE,
         source=MATH_SOURCE,
     )
     deploy_txn = MathContract.deploy({'from': web3.eth.coinbase})
-    deploy_receipt = wait_for_transaction(deploy_txn)
+    deploy_receipt = wait_for_transaction(web3, deploy_txn)
 
     assert deploy_receipt is not None
     contract_address = deploy_receipt['contractAddress']
