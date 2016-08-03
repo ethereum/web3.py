@@ -57,12 +57,15 @@ def wait_for_miner_start():
 @pytest.fixture()
 def wait_for_block():
     import gevent
+    from web3.providers.rpc import TestRPCProvider
 
     def _wait_for_block(web3, block_number=1, timeout=60 * 10):
         with gevent.Timeout(timeout):
             while True:
                 if web3.eth.blockNumber >= block_number:
                     break
+                if isinstance(web3.currentProvider, TestRPCProvider):
+                    web3._requestManager.request_blocking("evm_mine", [])
                 gevent.sleep(1)
     return _wait_for_block
 
