@@ -21,6 +21,17 @@ def string_contract(web3_tester, StringContract):
     return _math_contract
 
 
+@pytest.fixture()
+def address_contract(web3_tester, WithConstructorAddressArgumentsContract):
+    deploy_txn = WithConstructorAddressArgumentsContract.deploy(arguments=[
+        "0xd3cda913deb6f67967b99d67acdfa1712c293601",
+    ])
+    deploy_receipt = web3_tester.eth.getTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    _address_contract = WithConstructorAddressArgumentsContract(address=deploy_receipt['contractAddress'])
+    return _address_contract
+
+
 def test_call_with_no_arguments(math_contract):
     result = math_contract.call().return13()
     assert result == 13
@@ -41,9 +52,14 @@ def test_call_get_string_value(string_contract):
     # eth_abi.decode_api() does not assume implicit utf-8
     # encoding of string return values. Thus, we need to decode
     # ourselves for fair comparison.
-    assert result.decode("utf-8") == "Caqalai"
+    assert result == "Caqalai"
 
 
 def test_call_read_string_variable(string_contract):
     result = string_contract.call().constString()
-    assert result.decode("utf-8") == u"ToholampiÅÄÖ"
+    assert result == "ToholampiÅÄÖ"
+
+
+def test_call_read_address_variable(address_contract):
+    result = address_contract.call().testAddr()
+    assert result == "0xd3cda913deb6f67967b99d67acdfa1712c293601"

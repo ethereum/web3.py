@@ -157,10 +157,10 @@ def WithConstructorArgumentsContract(web3_tester,
     )
 
 
-CONTRACT_WITH_CONSTRUCTOR_ADDRESS_SOURCE = "contract WithAddrArg { address testAddr; function WithAddrArg(address _testAddr){ testAddr = _testAddr; }}"
-CONTRACT_WITH_CONSTRUCTOR_ADDRESS_CODE = b"0x60606040526040516020806063833981016040528080519060200190919050505b80600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908302179055505b50600a8060596000396000f360606040526008565b00"
-CONTRACT_WITH_CONSTRUCTOR_ADDRESS_RUNTIME = b"0x60606040526008565b00"
-CONTRACT_WITH_CONSTRUCTOR_ADDRESS_ABI = json.loads('[{"inputs":[{"name":"_testAddr","type":"address"}],"type":"constructor"}]')
+CONTRACT_WITH_CONSTRUCTOR_ADDRESS_SOURCE = "contract WithAddrArg { address public testAddr; function WithAddrArg(address _testAddr){ testAddr = _testAddr; }}"
+CONTRACT_WITH_CONSTRUCTOR_ADDRESS_CODE = b"0x6060604052604051602080607683395060806040525160008054600160a060020a031916821790555060428060346000396000f3606060405260e060020a600035046334664e3a8114601a575b005b603860005473ffffffffffffffffffffffffffffffffffffffff1681565b6060908152602090f3"
+CONTRACT_WITH_CONSTRUCTOR_ADDRESS_RUNTIME = b"0x606060405260e060020a600035046334664e3a8114601a575b005b603860005473ffffffffffffffffffffffffffffffffffffffff1681565b6060908152602090f3"
+CONTRACT_WITH_CONSTRUCTOR_ADDRESS_ABI = json.loads('[{"constant":true,"inputs":[],"name":"testAddr","outputs":[{"name":"","type":"address"}],"type":"function"},{"inputs":[{"name":"_testAddr","type":"address"}],"type":"constructor"}]')
 
 
 @pytest.fixture()

@@ -1,5 +1,6 @@
 import sys
 import functools
+import codecs
 
 from .types import (
     is_bytes,
@@ -12,7 +13,7 @@ if sys.version_info.major == 2:
         if is_bytes(value):
             return str(value)
         elif is_text(value):
-            return value.encode('latin1')
+            return codecs.encode(value, "utf8", "ignore")
         else:
             raise TypeError("Unsupported type: {0}".format(type(value)))
 
@@ -20,7 +21,7 @@ if sys.version_info.major == 2:
         if is_text(value):
             return value
         elif is_bytes(value):
-            return unicode(force_bytes(value), 'latin1')  # NOQA
+            return codecs.decode(force_bytes(value), 'utf8', 'ignore')
         else:
             raise TypeError("Unsupported type: {0}".format(type(value)))
 else:
@@ -28,7 +29,7 @@ else:
         if is_bytes(value):
             return bytes(value)
         elif is_text(value):
-            return bytes(value, 'latin1')
+            return codecs.encode(value, encoding="utf8", errors="ignore")
         else:
             raise TypeError("Unsupported type: {0}".format(type(value)))
 
@@ -36,7 +37,7 @@ else:
         if is_text(value):
             return value
         elif is_bytes(value):
-            return str(value, 'latin1')
+            return codecs.decode(value, encoding="utf8", errors="ignore")
         else:
             raise TypeError("Unsupported type: {0}".format(type(value)))
 
