@@ -30,6 +30,7 @@ setup(
         "rlp>=0.4.6",
         "gevent>=1.1.1",
         "ethereum-abi-utils>=0.2.1",
+        "pysha3==0.3",
     ],
     py_modules=['web3'],
     license="MIT",

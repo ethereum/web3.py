@@ -1,4 +1,3 @@
-import sys
 import functools
 import codecs
 
@@ -8,38 +7,23 @@ from .types import (
     is_string,
 )
 
-if sys.version_info.major == 2:
-    def force_bytes(value):
-        if is_bytes(value):
-            return str(value)
-        elif is_text(value):
-            return codecs.encode(value, "iso-8859-1")
-        else:
-            raise TypeError("Unsupported type: {0}".format(type(value)))
 
-    def force_text(value):
-        if is_text(value):
-            return value
-        elif is_bytes(value):
-            return codecs.decode(force_bytes(value), "iso-8859-1")
-        else:
-            raise TypeError("Unsupported type: {0}".format(type(value)))
-else:
-    def force_bytes(value):
-        if is_bytes(value):
-            return bytes(value)
-        elif is_text(value):
-            return codecs.encode(value, encoding="iso-8859-1")
-        else:
-            raise TypeError("Unsupported type: {0}".format(type(value)))
+def force_bytes(value):
+    if is_bytes(value):
+        return bytes(value)
+    elif is_text(value):
+        return codecs.encode(value, "iso-8859-1")
+    else:
+        raise TypeError("Unsupported type: {0}".format(type(value)))
 
-    def force_text(value):
-        if is_text(value):
-            return value
-        elif is_bytes(value):
-            return codecs.decode(value, encoding="iso-8859-1")
-        else:
-            raise TypeError("Unsupported type: {0}".format(type(value)))
+
+def force_text(value):
+    if is_text(value):
+        return value
+    elif is_bytes(value):
+        return codecs.decode(value, "iso-8859-1")
+    else:
+        raise TypeError("Unsupported type: {0}".format(type(value)))
 
 
 def force_obj_to_bytes(obj):
