@@ -1,7 +1,9 @@
-def test_personal_signAndSendTransaction(web3, password_account,
+def test_personal_signAndSendTransaction(web3_empty, password_account,
                                          account_password,
                                          wait_for_transaction,
                                          empty_account):
+    web3 = web3_empty
+
     txn_hash = web3.personal.signAndSendTransaction({
         'from': password_account,
         'to': empty_account,

@@ -3,15 +3,13 @@ import gevent
 from flaky import flaky
 
 
-reset_chain = True
-
-
 @flaky(max_runs=3)
-def test_filter_against_log_events(web3,
+def test_filter_against_log_events(web3_empty,
                                    emitter,
                                    wait_for_transaction,
                                    emitter_log_topics,
                                    emitter_event_ids):
+    web3 = web3_empty
 
     seen_logs = []
     txn_filter = web3.eth.filter({})

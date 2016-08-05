@@ -3,15 +3,13 @@ import gevent
 from flaky import flaky
 
 
-reset_chain = True
-
-
 @flaky(max_runs=3)
-def test_on_filter_with_only_event_name(web3,
+def test_on_filter_with_only_event_name(web3_empty,
                                         emitter,
                                         wait_for_transaction,
                                         emitter_log_topics,
                                         emitter_event_ids):
+    web3 = web3_empty
 
     seen_logs = []
 
@@ -31,11 +29,12 @@ def test_on_filter_with_only_event_name(web3,
 
 
 @flaky(max_runs=3)
-def test_on_filter_with_event_name_and_single_argument(web3,
+def test_on_filter_with_event_name_and_single_argument(web3_empty,
                                                        emitter,
                                                        wait_for_transaction,
                                                        emitter_log_topics,
                                                        emitter_event_ids):
+    web3 = web3_empty
 
     seen_logs = []
 
@@ -67,11 +66,12 @@ def test_on_filter_with_event_name_and_single_argument(web3,
 
 
 @flaky(max_runs=3)
-def test_on_filter_with_event_name_and_non_indexed_argument(web3,
+def test_on_filter_with_event_name_and_non_indexed_argument(web3_empty,
                                                             emitter,
                                                             wait_for_transaction,
                                                             emitter_log_topics,
                                                             emitter_event_ids):
+    web3 = web3_empty
 
     seen_logs = []
 

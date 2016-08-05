@@ -3,8 +3,8 @@ import random
 import gevent
 
 
-def test_miner_start(web3_ipc_empty, wait_for_miner_start):
-    web3 = web3_ipc_empty
+def test_miner_start(web3_empty, wait_for_miner_start):
+    web3 = web3_empty
 
     # sanity
     assert web3.eth.mining
@@ -12,7 +12,7 @@ def test_miner_start(web3_ipc_empty, wait_for_miner_start):
 
     web3.miner.stop()
 
-    with gevent.Timeout(30):
+    with gevent.Timeout(60):
         while web3.eth.mining or web3.eth.hashrate:
             gevent.sleep(random.random())
 

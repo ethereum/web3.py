@@ -4,6 +4,7 @@ import tempfile
 import shutil
 import random
 
+import requests
 import gevent
 
 # This has to go here so that the `gevent.monkey.patch_all()` happens in the
@@ -28,10 +29,7 @@ def get_open_port():
     return port
 
 
-def wait_for_http_connection(port, timeout=30):
-    import gevent
-    import requests
-
+def wait_for_http_connection(port, timeout=60):
     with gevent.Timeout(timeout):
         while True:
             try:
@@ -46,6 +44,16 @@ def wait_for_http_connection(port, timeout=30):
 
 
 @pytest.fixture()
+def skip_if_testrpc():
+    from web3.providers.rpc import TestRPCProvider
+
+    def _skip_if_testrpc(web3):
+        if isinstance(web3.currentProvider, TestRPCProvider):
+            pytest.skip()
+    return _skip_if_testrpc
+
+
+@pytest.fixture()
 def wait_for_miner_start():
     def _wait_for_miner_start(web3, timeout=60):
         with gevent.Timeout(timeout):
@@ -56,7 +64,6 @@ def wait_for_miner_start():
 
 @pytest.fixture()
 def wait_for_block():
-    import gevent
     from web3.providers.rpc import TestRPCProvider
 
     def _wait_for_block(web3, block_number=1, timeout=60 * 10):
@@ -72,8 +79,6 @@ def wait_for_block():
 
 @pytest.fixture()
 def wait_for_transaction():
-    import gevent
-
     def _wait_for_transaction(web3, txn_hash, timeout=120):
         with gevent.Timeout(timeout):
             while True:
@@ -120,7 +125,7 @@ def web3_tester_provider():
 
 
 @pytest.fixture()
-def web3_tester(request, web3_tester_provider):
+def web3_tester_empty(request, web3_tester_provider):
     from web3 import Web3
 
     if getattr(request, 'reset_chain', True):
@@ -130,58 +135,89 @@ def web3_tester(request, web3_tester_provider):
     return web3
 
 
-def _web3_rpc():
-    from web3 import (
-        Web3,
-        RPCProvider,
-    )
+@pytest.fixture()
+def web3_tester_persistent(request, web3_tester_provider):
+    from web3 import Web3
 
-    with tempdir() as base_dir:
-        with GethProcess('testing', base_dir=base_dir) as geth:
-            geth.wait_for_rpc(30)
-            geth.wait_for_dag(600)
-            provider = RPCProvider(port=geth.rpc_port)
-            provider._geth = geth
-            web3 = Web3(provider)
-            yield web3
-
-web3_rpc_empty = pytest.yield_fixture()(_web3_rpc)
-web3_rpc_persistent = pytest.yield_fixture(scope="session")(_web3_rpc)
+    web3 = Web3(web3_tester_provider)
+    return web3
 
 
 @pytest.fixture()
-def web3_rpc(request):
-    if getattr(request, 'reset_chain', False):
-        return request.getfuncargvalue('web3_rpc_empty')
-    else:
-        return request.getfuncargvalue('web3_rpc_persistent')
+def web3_tester(web3_tester_persistent):
+    # alias
+    return web3_tester_persistent
 
 
-def _web3_ipc():
+@contextlib.contextmanager
+def setup_testing_geth():
+    with tempdir() as base_dir:
+        geth_process = GethProcess(
+            'testing',
+            base_dir=base_dir,
+            overrides={'verbosity': '3'},
+        )
+        with geth_process as running_geth_process:
+            running_geth_process.wait_for_ipc(60)
+            running_geth_process.wait_for_rpc(60)
+            running_geth_process.wait_for_dag(600)
+            yield running_geth_process
+
+
+@pytest.yield_fixture(scope="session")
+def geth_persistent():
+    with setup_testing_geth() as geth:
+        yield geth
+
+
+@pytest.fixture(scope="session")
+def web3_rpc_persistent(geth_persistent):
     from web3 import (
-        Web3,
-        IPCProvider,
+        Web3, RPCProvider,
     )
 
-    with tempdir() as base_dir:
-        with GethProcess('testing', base_dir=base_dir) as geth:
-            geth.wait_for_ipc(30)
-            geth.wait_for_dag(600)
-            provider = IPCProvider(geth.ipc_path)
-            provider._geth = geth
-            web3 = Web3(provider)
-            yield web3
-
-web3_ipc_empty = pytest.yield_fixture()(_web3_ipc)
-web3_ipc_persistent = pytest.yield_fixture(scope="session")(_web3_ipc)
+    provider = RPCProvider(port=geth_persistent.rpc_port)
+    provider._geth = geth_persistent
+    web3 = Web3(provider)
+    return web3
 
 
-@pytest.fixture()
-def web3_ipc(request):
-    if getattr(request, 'reset_chain', False):
-        return request.getfuncargvalue('web3_ipc_empty')
-    else:
-        return request.getfuncargvalue('web3_ipc_persistent')
+@pytest.yield_fixture()
+def web3_rpc_empty():
+    from web3 import (
+        Web3, RPCProvider,
+    )
+
+    with setup_testing_geth() as geth:
+        provider = RPCProvider(port=geth.rpc_port)
+        provider._geth = geth
+        web3 = Web3(provider)
+        yield web3
+
+
+@pytest.fixture(scope="session")
+def web3_ipc_persistent(geth_persistent):
+    from web3 import (
+        Web3, IPCProvider,
+    )
+
+    provider = IPCProvider(ipc_path=geth_persistent.ipc_path)
+    provider._geth = geth_persistent
+    web3 = Web3(provider)
+    return web3
+
+
+@pytest.yield_fixture()
+def web3_ipc_empty():
+    from web3 import (
+        Web3, IPCProvider,
+    )
+
+    with setup_testing_geth() as geth:
+        provider = IPCProvider(ipc_path=geth.ipc_path)
+        provider._geth = geth
+        web3 = Web3(provider)
+        yield web3
 
 
 @pytest.fixture(params=[
@@ -191,19 +227,26 @@ def web3_ipc(request):
 ])
 def web3(request):
     if request.param == "tester":
-        return request.getfuncargvalue('web3_tester')
+        return request.getfuncargvalue('web3_tester_persistent')
     elif request.param == "rpc":
-        return request.getfuncargvalue('web3_rpc')
+        return request.getfuncargvalue('web3_rpc_persistent')
     elif request.param == "ipc":
-        return request.getfuncargvalue('web3_ipc')
+        return request.getfuncargvalue('web3_ipc_persistent')
     else:
         raise ValueError("Unknown param")
 
 
-@pytest.fixture()
-def empty_account(web3):
-    from eth_tester_client.utils import mk_random_privkey
-    address = web3.personal.importRawKey(mk_random_privkey(), "a-password")
-
-    assert web3.eth.getBalance(address) == 0
-    return address
+@pytest.fixture(params=[
+    'tester',
+    pytest.mark.slow('rpc'),
+    pytest.mark.slow('ipc'),
+])
+def web3_empty(request):
+    if request.param == "tester":
+        return request.getfuncargvalue('web3_tester_empty')
+    elif request.param == "rpc":
+        return request.getfuncargvalue('web3_rpc_empty')
+    elif request.param == "ipc":
+        return request.getfuncargvalue('web3_ipc_empty')
+    else:
+        raise ValueError("Unknown param")

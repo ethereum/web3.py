@@ -57,9 +57,8 @@ def extract_ecdsa_signer(msg_hash, signature):
     return address
 
 
-def test_eth_sign(web3):
-    if isinstance(web3.currentProvider, TestRPCProvider):
-        pytest.skip("testrpc doesn't implement `getBlockTransactionCount`")
+def test_eth_sign(web3, skip_if_testrpc):
+    skip_if_testrpc(web3)
 
     private_key_hex = '0x5e95384d8050109aab08c1922d3c230739bc16976553c317e5d0b87b59371f2a'
     private_key = decode_hex(private_key_hex)

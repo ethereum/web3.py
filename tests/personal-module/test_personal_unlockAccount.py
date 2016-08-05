@@ -1,16 +1,15 @@
 import pytest
 
 
-reset_chain = True
-
-
 @pytest.fixture(autouse=True)
-def wait_for_first_block(web3, wait_for_block):
-    wait_for_block(web3)
+def wait_for_first_block(web3_empty, wait_for_block):
+    wait_for_block(web3_empty)
 
 
-def test_personal_unlockAccount(web3, password_account, account_password,
+def test_personal_unlockAccount(web3_empty, password_account, account_password,
                                 wait_for_transaction, empty_account):
+    web3 = web3_empty
+
     initial_balancee = web3.eth.getBalance(empty_account)
 
     with pytest.raises(ValueError):

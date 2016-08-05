@@ -3,9 +3,6 @@ import gevent
 from flaky import flaky
 
 
-reset_chain = True
-
-
 @flaky(max_runs=3)
 def test_filter_against_pending_transactions(web3, wait_for_transaction):
     seen_txns = []

@@ -2,8 +2,8 @@ import random
 import gevent
 
 
-def test_miner_setGasPrice(web3_ipc_empty, wait_for_block):
-    web3 = web3_ipc_empty
+def test_miner_setGasPrice(web3_empty, wait_for_block):
+    web3 = web3_empty
 
     initial_gas_price = web3.eth.gasPrice
 
@@ -12,7 +12,7 @@ def test_miner_setGasPrice(web3_ipc_empty, wait_for_block):
 
     web3.miner.setGasPrice(initial_gas_price // 2)
 
-    with gevent.Timeout(30):
+    with gevent.Timeout(60):
         while web3.eth.gasPrice == initial_gas_price:
             gevent.sleep(random.random())
 
