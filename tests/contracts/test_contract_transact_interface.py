@@ -75,4 +75,4 @@ def test_transacting_with_contract_with_string_argument(web3_tester, string_cont
 
     final_value = string_contract.call().getValue()
 
-    assert final_value == "ÄLÄMÖLÖ"
+    assert force_bytes(final_value) == force_bytes("ÄLÄMÖLÖ")

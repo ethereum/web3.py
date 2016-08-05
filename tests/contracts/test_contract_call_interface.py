@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-
 import pytest
+import codecs
+
+from web3.utils.string import (
+    force_bytes,
+)
 
 
 @pytest.fixture()
@@ -57,8 +61,7 @@ def test_call_get_string_value(string_contract):
 
 def test_call_read_string_variable(string_contract):
     result = string_contract.call().constString()
-    assert result == "ToholampiÃ\x85Ã\x84Ã\x96"
-    assert result.encode('latin1').decode('utf8') == "ToholampiÅÄÖ"
+    assert force_bytes(result).decode('utf8') == u"ToholampiÅÄÖ"
 
 
 def test_call_read_address_variable(address_contract):
