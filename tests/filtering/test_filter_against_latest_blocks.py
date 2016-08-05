@@ -4,7 +4,9 @@ from flaky import flaky
 
 
 @flaky(max_runs=3)
-def test_filter_against_latest_blocks(web3, wait_for_block):
+def test_filter_against_latest_blocks(web3_empty, wait_for_block):
+    web3 = web3_empty
+
     seen_blocks = []
     txn_filter = web3.eth.filter("latest")
     txn_filter.watch(seen_blocks.append)

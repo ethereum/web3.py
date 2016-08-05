@@ -57,7 +57,9 @@ def extract_ecdsa_signer(msg_hash, signature):
     return address
 
 
-def test_eth_sign(web3, skip_if_testrpc):
+def test_eth_sign(web3_empty, skip_if_testrpc):
+    web3 = web3_empty
+
     skip_if_testrpc(web3)
 
     private_key_hex = '0x5e95384d8050109aab08c1922d3c230739bc16976553c317e5d0b87b59371f2a'

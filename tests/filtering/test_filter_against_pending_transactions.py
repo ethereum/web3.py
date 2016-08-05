@@ -4,7 +4,9 @@ from flaky import flaky
 
 
 @flaky(max_runs=3)
-def test_filter_against_pending_transactions(web3, wait_for_transaction):
+def test_filter_against_pending_transactions(web3_empty, wait_for_transaction):
+    web3 = web3_empty
+
     seen_txns = []
     txn_filter = web3.eth.filter("pending")
     txn_filter.watch(seen_txns.append)
