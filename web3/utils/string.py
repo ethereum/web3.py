@@ -13,7 +13,7 @@ if sys.version_info.major == 2:
         if is_bytes(value):
             return str(value)
         elif is_text(value):
-            return codecs.encode(value, "utf8", "ignore")
+            return codecs.encode(value, "iso-8859-1")
         else:
             raise TypeError("Unsupported type: {0}".format(type(value)))
 
@@ -21,7 +21,7 @@ if sys.version_info.major == 2:
         if is_text(value):
             return value
         elif is_bytes(value):
-            return codecs.decode(force_bytes(value), 'utf8', 'ignore')
+            return codecs.decode(force_bytes(value), "iso-8859-1")
         else:
             raise TypeError("Unsupported type: {0}".format(type(value)))
 else:
@@ -29,7 +29,7 @@ else:
         if is_bytes(value):
             return bytes(value)
         elif is_text(value):
-            return codecs.encode(value, encoding="utf8", errors="ignore")
+            return codecs.encode(value, encoding="iso-8859-1")
         else:
             raise TypeError("Unsupported type: {0}".format(type(value)))
 
@@ -37,7 +37,7 @@ else:
         if is_text(value):
             return value
         elif is_bytes(value):
-            return codecs.decode(value, encoding="utf8", errors="ignore")
+            return codecs.decode(value, encoding="iso-8859-1")
         else:
             raise TypeError("Unsupported type: {0}".format(type(value)))
 

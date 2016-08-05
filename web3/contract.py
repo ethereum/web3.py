@@ -300,6 +300,7 @@ class Contract(object):
             return encode_hex(encoded_arguments)
 
     @classmethod
+    @coerce_return_to_text
     def encodeConstructorData(cls, arguments=None):
         if arguments is None:
             arguments = []

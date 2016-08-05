@@ -1,12 +1,16 @@
 # String encodings and numeric representations
-import sys
-import binascii
 import json
+import codecs
 
 from .types import (
     is_string,
     is_boolean,
     is_object,
+)
+from .string import (
+    coerce_args_to_bytes,
+    coerce_return_to_text,
+    coerce_return_to_bytes,
 )
 from .formatting import (
     remove_0x_prefix,
@@ -16,34 +20,19 @@ from .formatting import (
 )
 
 
-if sys.version_info.major == 2:
-    def decode_hex(value):
-        if isinstance(value, bytearray):
-            value = str(value)
-        if not is_string(value):
-            raise TypeError('Value must be an instance of str or unicode')
-        return remove_0x_prefix(value).decode('hex')
+@coerce_return_to_bytes
+def decode_hex(value):
+    if not is_string(value):
+        raise TypeError('Value must be an instance of str or unicode')
+    return codecs.decode(remove_0x_prefix(value), 'hex')
 
-    def encode_hex(value):
-        if isinstance(value, bytearray):
-            value = str(value)
-        if not is_string(value):
-            raise TypeError('Value must be an instance of str or unicode')
-        return add_0x_prefix(value.encode('hex'))
-else:
-    def decode_hex(s):
-        if isinstance(s, str):
-            return bytes.fromhex(remove_0x_prefix(s))
-        if isinstance(s, bytes):
-            return binascii.unhexlify(remove_0x_prefix(s))
-        raise TypeError('Value must be an instance of str or bytes')
 
-    def encode_hex(b):
-        if isinstance(b, str):
-            b = bytes(b, 'utf-8')
-        if isinstance(b, bytes):
-            return add_0x_prefix(binascii.hexlify(b))
-        raise TypeError('Value must be an instance of str or bytes')
+@coerce_args_to_bytes
+@coerce_return_to_text
+def encode_hex(value):
+    if not is_string(value):
+        raise TypeError('Value must be an instance of str or unicode')
+    return add_0x_prefix(codecs.encode(value, 'hex'))
 
 
 def to_hex(value):

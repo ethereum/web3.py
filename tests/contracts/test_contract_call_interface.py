@@ -57,7 +57,8 @@ def test_call_get_string_value(string_contract):
 
 def test_call_read_string_variable(string_contract):
     result = string_contract.call().constString()
-    assert result == "ToholampiÅÄÖ"
+    assert result == "ToholampiÃ\x85Ã\x84Ã\x96"
+    assert result.encode('latin1').decode('utf8') == "ToholampiÅÄÖ"
 
 
 def test_call_read_address_variable(address_contract):
