@@ -3,18 +3,14 @@ import json
 import textwrap
 from sha3 import sha3_256
 
-from web3.providers.rpc import TestRPCProvider
-
-
 assert sha3_256(b'').hexdigest() == 'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
 
 
 @pytest.fixture(autouse=True)
-def skip_testrpc_and_wait_for_mining_start(web3, wait_for_block):
-    if isinstance(web3.currentProvider, TestRPCProvider):
-        pytest.skip("No miner interface on eth-testrpc")
-
-    wait_for_block(web3)
+def skip_testrpc_and_wait_for_mining_start(web3_empty, wait_for_block,
+                                           skip_if_testrpc):
+    skip_if_testrpc(web3_empty)  # TODO: enable testrpc
+    wait_for_block(web3_empty)
 
 
 CONTRACT_EMITTER_SOURCE = textwrap.dedent(("""
@@ -118,15 +114,18 @@ def EMITTER(EMITTER_CODE,
 
 
 @pytest.fixture()
-def Emitter(web3, EMITTER):
+def Emitter(web3_empty, EMITTER):
+    web3 = web3_empty
     return web3.eth.contract(**EMITTER)
 
 
 @pytest.fixture()
-def emitter(web3, Emitter, wait_for_transaction, wait_for_block):
+def emitter(web3_empty, Emitter, wait_for_transaction, wait_for_block):
+    web3 = web3_empty
+
     wait_for_block(web3)
     deploy_txn_hash = Emitter.deploy({'from': web3.eth.coinbase, 'gas': 1000000})
-    deploy_receipt = wait_for_transaction(deploy_txn_hash)
+    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = deploy_receipt['contractAddress']
 
     code = web3.eth.getCode(contract_address)

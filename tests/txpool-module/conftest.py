@@ -1,12 +1,13 @@
 import pytest
 
-from web3.providers.rpc import TestRPCProvider
-
 
 @pytest.fixture(autouse=True)
-def skip_testrpc_and_wait_for_mining_start(web3, wait_for_miner_start):
-    if isinstance(web3.currentProvider, TestRPCProvider):
-        pytest.skip("No miner interface on eth-testrpc")
+def skip_testrpc_and_wait_for_mining_start(web3_empty,
+                                           wait_for_miner_start,
+                                           skip_if_testrpc):
+    web3 = web3_empty
+
+    skip_if_testrpc(web3)
 
     wait_for_miner_start(web3)
 

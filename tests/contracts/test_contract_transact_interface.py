@@ -2,6 +2,11 @@
 
 import pytest
 
+from web3.utils.string import (
+    force_text,
+    force_bytes,
+)
+
 
 @pytest.fixture()
 def math_contract(web3_tester, MathContract):
@@ -64,10 +69,10 @@ def test_transacting_with_contract_with_string_argument(web3_tester, string_cont
 
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
-    txn_hash = string_contract.transact().setValue(u"ÄLÄMÖLÖ".encode("utf-8"))
+    txn_hash = string_contract.transact().setValue(force_bytes("ÄLÄMÖLÖ"))
     txn_receipt = web3_tester.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt is not None
 
     final_value = string_contract.call().getValue()
 
-    assert final_value.decode("utf-8") == u"ÄLÄMÖLÖ"
+    assert force_bytes(final_value) == force_bytes("ÄLÄMÖLÖ")

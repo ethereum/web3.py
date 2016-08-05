@@ -4,11 +4,12 @@ from flaky import flaky
 
 
 @flaky(max_runs=3)
-def test_filter_against_log_events(web3,
+def test_filter_against_log_events(web3_empty,
                                    emitter,
                                    wait_for_transaction,
                                    emitter_log_topics,
                                    emitter_event_ids):
+    web3 = web3_empty
 
     seen_logs = []
     txn_filter = web3.eth.filter({})
@@ -19,7 +20,7 @@ def test_filter_against_log_events(web3,
     txn_hashes.append(emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments))
 
     for txn_hash in txn_hashes:
-        wait_for_transaction(txn_hash)
+        wait_for_transaction(web3, txn_hash)
 
     with gevent.Timeout(5):
         while not seen_logs:

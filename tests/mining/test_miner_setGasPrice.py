@@ -1,4 +1,10 @@
-def test_miner_setGasPrice(web3, wait_for_block):
+import random
+import gevent
+
+
+def test_miner_setGasPrice(web3_empty, wait_for_block):
+    web3 = web3_empty
+
     initial_gas_price = web3.eth.gasPrice
 
     # sanity check
@@ -6,7 +12,9 @@ def test_miner_setGasPrice(web3, wait_for_block):
 
     web3.miner.setGasPrice(initial_gas_price // 2)
 
-    wait_for_block(web3, web3.eth.blockNumber + 2, timeout=60)
+    with gevent.Timeout(60):
+        while web3.eth.gasPrice == initial_gas_price:
+            gevent.sleep(random.random())
 
     after_gas_price = web3.eth.gasPrice
     assert after_gas_price < initial_gas_price

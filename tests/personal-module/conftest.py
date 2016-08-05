@@ -20,10 +20,15 @@ def account_public_key(account_private_key):
 
 
 @pytest.fixture()
-def password_account(web3, account_password,
-                     account_private_key, account_public_key,
+def password_account(web3_empty,
+                     account_password,
+                     account_private_key,
+                     account_public_key,
                      wait_for_transaction):
     from eth_tester_client.utils import normalize_address
+
+    web3 = web3_empty
+
     address = web3.personal.importRawKey(account_private_key, account_password)
 
     # sanity check
@@ -36,7 +41,18 @@ def password_account(web3, account_password,
         'to': address,
         'value': initial_balance,
     }, 'this-is-not-a-secure-password')
-    wait_for_transaction(funding_txn_hash)
+    wait_for_transaction(web3, funding_txn_hash)
 
     assert web3.eth.getBalance(address) == initial_balance
+    return address
+
+
+@pytest.fixture()
+def empty_account(web3_empty):
+    web3 = web3_empty
+
+    from eth_tester_client.utils import mk_random_privkey
+    address = web3.personal.importRawKey(mk_random_privkey(), "a-password")
+
+    assert web3.eth.getBalance(address) == 0
     return address

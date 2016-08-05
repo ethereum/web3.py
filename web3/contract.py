@@ -300,6 +300,7 @@ class Contract(object):
             return encode_hex(encoded_arguments)
 
     @classmethod
+    @coerce_return_to_text
     def encodeConstructorData(cls, arguments=None):
         if arguments is None:
             arguments = []
@@ -555,6 +556,7 @@ class Contract(object):
         return Transactor()
 
 
+@coerce_return_to_text
 def call_contract_function(contract=None,
                            function_name=None,
                            transaction=None,
@@ -589,10 +591,16 @@ def call_contract_function(contract=None,
 
     output_types = get_abi_output_types(function_abi)
     output_data = decode_abi(output_types, return_data)
-    if len(output_data) == 1:
-        return output_data[0]
+
+    normalized_data = [
+        add_0x_prefix(data_value) if data_type == 'address' else data_value
+        for data_type, data_value
+        in zip(output_types, output_data)
+    ]
+    if len(normalized_data) == 1:
+        return normalized_data[0]
     else:
-        return output_data
+        return normalized_data
 
 
 def transact_with_contract_function(contract=None,

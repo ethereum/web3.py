@@ -1,6 +1,5 @@
-from web3.providers.rpc import TestRPCProvider
+def test_miner_hashrate(web3_empty, wait_for_miner_start):
+    web3 = web3_empty
 
-
-def test_miner_hashrate(web3, wait_for_miner_start):
     hashrate = web3.miner.hashrate
     assert hashrate > 0

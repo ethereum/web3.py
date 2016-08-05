@@ -21,7 +21,7 @@ def test_eth_sendRawTransaction(web3, wait_for_transaction, extra_accounts):
         "to": address,
         "value": 10000000000000000,
     })
-    wait_for_transaction(funding_txn_hash)
+    wait_for_transaction(web3, funding_txn_hash)
 
     if isinstance(web3.currentProvider, TestRPCProvider):
         # ethereum-tester-client doesn't quite implement the
@@ -46,7 +46,7 @@ def test_eth_sendRawTransaction(web3, wait_for_transaction, extra_accounts):
     raw_tx_hex = encode_data(raw_tx)
 
     txn_hash = web3.eth.sendRawTransaction(raw_tx_hex)
-    wait_for_transaction(txn_hash)
+    wait_for_transaction(web3, txn_hash)
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
 
     after_balance = web3.eth.getBalance(extra_accounts[1])

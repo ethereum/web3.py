@@ -2,13 +2,12 @@ import random
 import gevent
 
 
-def test_txpool_inspect(web3):
-    """
-    TODO: How can this test be modified to be different from the test for `txpool_content`
-    """
+def test_txpool_inspect(web3_empty):
+    web3 = web3_empty
+
     web3.miner.stop()
 
-    with gevent.Timeout(30):
+    with gevent.Timeout(60):
         while web3.miner.hashrate or web3.eth.mining:
             gevent.sleep(random.random())
 
