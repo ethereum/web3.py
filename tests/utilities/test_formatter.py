@@ -151,8 +151,8 @@ def test_inputPostFormatter(value, expected):
         }
     )]
 )
-def test_input_transaction_formatter(value, expected):
-    assert formatters.input_transaction_formatter(value) == expected
+def test_input_transaction_formatter(web3_tester, value, expected):
+    assert formatters.input_transaction_formatter(web3_tester, value) == expected
 
 
 @pytest.mark.parametrize(
