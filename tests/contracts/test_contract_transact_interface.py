@@ -89,14 +89,14 @@ def test_transacting_with_contract_respects_explicit_gas(web3,
     StringContract = web3.eth.contract(**STRING_CONTRACT)
 
     deploy_txn = StringContract.deploy(arguments=["Caqalai"])
-    deploy_receipt = wait_for_transaction_receipt(web3, deploy_txn, 15)
+    deploy_receipt = wait_for_transaction_receipt(web3, deploy_txn, 30)
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt['contractAddress'])
 
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
     txn_hash = string_contract.transact({'gas': 200000}).setValue(force_bytes("ÄLÄMÖLÖ"))
-    txn_receipt = wait_for_transaction_receipt(web3, txn_hash, 15)
+    txn_receipt = wait_for_transaction_receipt(web3, txn_hash, 30)
     assert txn_receipt is not None
 
     final_value = string_contract.call().getValue()
@@ -117,7 +117,7 @@ def test_auto_gas_computation_when_transacting(web3,
     StringContract = web3.eth.contract(**STRING_CONTRACT)
 
     deploy_txn = StringContract.deploy(arguments=["Caqalai"])
-    deploy_receipt = wait_for_transaction_receipt(web3, deploy_txn, 15)
+    deploy_receipt = wait_for_transaction_receipt(web3, deploy_txn, 30)
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt['contractAddress'])
 
@@ -126,7 +126,7 @@ def test_auto_gas_computation_when_transacting(web3,
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
     txn_hash = string_contract.transact().setValue(force_bytes("ÄLÄMÖLÖ"))
-    txn_receipt = wait_for_transaction_receipt(web3, txn_hash, 15)
+    txn_receipt = wait_for_transaction_receipt(web3, txn_hash, 30)
     assert txn_receipt is not None
 
     final_value = string_contract.call().getValue()
