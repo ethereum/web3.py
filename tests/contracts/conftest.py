@@ -257,7 +257,7 @@ def STRING_CONTRACT(STRING_SOURCE, STRING_CODE, STRING_RUNTIME, STRING_ABI):
         'source': STRING_SOURCE,
     }
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def StringContract(web3_tester, STRING_CONTRACT):
     return web3_tester.eth.contract(**STRING_CONTRACT)
 

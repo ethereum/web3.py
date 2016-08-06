@@ -64,10 +64,6 @@ def input_call_formatter(eth, txn):
     formatters = {
         'from': input_address_formatter,
         'to': input_address_formatter,
-        'gasPrice': from_decimal,
-        'gas': from_decimal,
-        'value': from_decimal,
-        'nonce': from_decimal,
     }
     return {
         key: formatters.get(key, identity)(txn.get(key, defaults.get(key)))
@@ -84,10 +80,6 @@ def input_transaction_formatter(eth, txn):
     formatters = {
         'from': input_address_formatter,
         'to': input_address_formatter,
-        'gasPrice': from_decimal,
-        'gas': from_decimal,
-        'value': from_decimal,
-        'nonce': from_decimal,
     }
     return {
         key: formatters.get(key, identity)(txn.get(key, defaults.get(key)))
