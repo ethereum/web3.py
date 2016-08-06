@@ -1,8 +1,6 @@
 from web3 import formatters
 from web3.iban import Iban
 
-import web3.utils.config as config
-
 from web3.utils.encoding import (
     to_decimal,
 )
@@ -21,24 +19,27 @@ from web3.utils.filters import (
 from web3.contract import construct_contract_class
 
 
-class DefaultAccount(object):
-    def __set__(self, v):
-        config.defaultAccount = self.value
-
-    def __get__(self):
-        return config.defaultAccount
-
-
 class Eth(object):
     def __init__(self, web3):
         self.web3 = web3
         self.request_manager = web3._requestManager
 
-        self.defaultBlock = config.defaultBlock
-        self.defaultAccount = DefaultAccount()  # config.defaultAccount
-
         self.iban = Iban
         # self.sendIBANTransaction = lambda: raise NotImplementedError()
+
+    _defaultAccount = None
+
+    @property
+    def defaultAccount(self):
+        if self._defaultAccount is not None:
+            return self._defaultAccount
+        return self.coinbase
+
+    @defaultAccount.setter
+    def defaultAccount(self, value):
+        self._defaultAccount = value
+
+    defaultBlock = "latest"
 
     def namereg(self):
         raise NotImplementedError()
@@ -200,9 +201,11 @@ class Eth(object):
         )
 
     def sendTransaction(self, transaction):
+        formatted_transaction = formatters.input_transaction_formatter(self, transaction)
+
         return self.request_manager.request_blocking(
             "eth_sendTransaction",
-            [transaction],
+            [formatted_transaction],
         )
 
     def sendRawTransaction(self, raw_txn):
@@ -216,9 +219,13 @@ class Eth(object):
         return self.request_manager.request_blocking("eth_sign", [account, data_hash])
 
     def call(self, transaction, block_identifier=None):
+        formatted_transaction = formatters.input_call_formatter(self, transaction)
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return self.request_manager.request_blocking("eth_call", [transaction, block_identifier])
+        return self.request_manager.request_blocking(
+            "eth_call",
+            [formatted_transaction, block_identifier],
+        )
 
     @apply_formatters_to_return(to_decimal)
     def estimateGas(self, transaction):

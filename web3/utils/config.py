@@ -1,8 +1,6 @@
 ETH_PADDING = 32
 ETH_SIGNATURE_LENGTH = 4
 ETH_POLLING_TIMEOUT = 500
-defaultBlock = "latest"
-defaultAccount = None
 
 ETH_UNITS = [
     'wei',
