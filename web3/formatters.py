@@ -57,17 +57,13 @@ def inputBlockNumberFormatter(blockNumber):
 
 @coerce_args_to_text
 @coerce_return_to_text
-def input_call_formatter(txn):
+def input_call_formatter(eth, txn):
     defaults = {
-        'from': config.defaultAccount,
+        'from': eth.defaultAccount,
     }
     formatters = {
         'from': input_address_formatter,
         'to': input_address_formatter,
-        'gasPrice': from_decimal,
-        'gas': from_decimal,
-        'value': from_decimal,
-        'nonce': from_decimal,
     }
     return {
         key: formatters.get(key, identity)(txn.get(key, defaults.get(key)))
@@ -77,17 +73,13 @@ def input_call_formatter(txn):
 
 @coerce_args_to_text
 @coerce_return_to_text
-def input_transaction_formatter(txn):
+def input_transaction_formatter(eth, txn):
     defaults = {
-        'from': config.defaultAccount,
+        'from': eth.defaultAccount,
     }
     formatters = {
         'from': input_address_formatter,
         'to': input_address_formatter,
-        'gasPrice': from_decimal,
-        'gas': from_decimal,
-        'value': from_decimal,
-        'nonce': from_decimal,
     }
     return {
         key: formatters.get(key, identity)(txn.get(key, defaults.get(key)))
