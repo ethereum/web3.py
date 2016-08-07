@@ -1,9 +1,16 @@
-Upcoming
+1.5.0
 --------
 
 * Rename `web3.contract._Contract` to `web3.contract.Contract`
   to expose it for static analysis and auto completion tools
 * Allow passing string parameters to functions
+* Automatically compute gas requirements for contract deployment and
+* transactions.
+* Contract Filters
+* Block, Transaction, and Log filters
+* `web3.eth.txpool` interface
+* `web3.eth.mining` interface
+* Fixes for encoding.
 
 1.4.0
 -----
