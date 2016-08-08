@@ -1,7 +1,10 @@
 import random
 import gevent
 
+from flaky import flaky
 
+
+@flaky(max_runs=3)
 def test_miner_setGasPrice(web3_empty, wait_for_block):
     web3 = web3_empty
 

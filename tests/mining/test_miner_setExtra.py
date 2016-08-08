@@ -1,10 +1,13 @@
 import random
 
+from flaky import flaky
+
 import gevent
 
 from web3.utils.encoding import decode_hex
 
 
+@flaky(max_runs=3)
 def test_miner_setExtra(web3_empty, wait_for_block):
     web3 = web3_empty
 
