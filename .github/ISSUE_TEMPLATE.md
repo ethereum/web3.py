@@ -8,4 +8,4 @@
 
 #### Cute Animal Picture
 
-> put a cute animal picture here.
+![Cute animal picture]()
