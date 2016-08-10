@@ -22,8 +22,8 @@ def string_contract(web3_tester, StringContract):
     deploy_txn = StringContract.deploy(arguments=["Caqalai"])
     deploy_receipt = web3_tester.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    _math_contract = StringContract(address=deploy_receipt['contractAddress'])
-    return _math_contract
+    _string_contract = StringContract(address=deploy_receipt['contractAddress'])
+    return _string_contract
 
 
 @pytest.fixture()
