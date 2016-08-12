@@ -1,10 +1,17 @@
 from __future__ import absolute_import
 
-import socket
 import sys
 import os
-import threading
 import contextlib
+import json
+
+import gevent
+from gevent import socket
+from gevent import threading
+
+from web3.utils.string import (
+    force_text,
+)
 
 from .base import BaseProvider
 
