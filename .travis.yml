@@ -5,9 +5,10 @@ python:
 dist: trusty
 sudo: required
 before_install:
-  - sudo add-apt-repository -y ppa:ethereum/ethereum
-  - sudo apt-get update
-  - sudo apt-get install -y ethereum
+  - travis_retry sudo add-apt-repository -y ppa:ethereum/ethereum
+  - travis_retry sudo apt-get update
+  - travis_retry sudo apt-get install -y ethereum
+  - travis_retry sudo apt-get install -y solc
   - mkdir -p ~/.ethash
   - geth makedag 0 ~/.ethash
 env:
