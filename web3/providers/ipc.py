@@ -83,9 +83,15 @@ class IPCProvider(BaseProvider):
                             break
 
                     if response_raw == b"":
-                        continue
+                        gevent.sleep(0)
+                    else:
+                        try:
+                            json.loads(force_text(response_raw))
+                        except json.JSONDecodeError:
+                            continue
+                        else:
+                            break
 
-                    break
                 else:
                     raise ValueError("No JSON returned by socket")
         finally:

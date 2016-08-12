@@ -6,7 +6,8 @@ import itertools
 from web3.utils.string import (
     force_bytes,
     force_obj_to_text,
-    force_text)
+    force_text,
+)
 
 
 class BaseProvider(object):
