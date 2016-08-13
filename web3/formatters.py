@@ -252,3 +252,19 @@ def transaction_pool_content_formatter(value):
 
 def transaction_pool_inspect_formatter(value):
     return transaction_pool_formatter(value, identity)
+
+
+def syncing_formatter(value):
+    if not value:
+        return value
+
+    formatters = {
+        'startingBlock': to_decimal,
+        'currentBlock': to_decimal,
+        'highestBlock': to_decimal,
+    }
+
+    return {
+        key: formatters.get(key, identity)(value)
+        for key, value in value.items()
+    }
