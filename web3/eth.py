@@ -48,6 +48,7 @@ class Eth(object):
         raise NotImplementedError()
 
     @property
+    @apply_formatters_to_return(formatters.syncing_formatter)
     def syncing(self):
         return self.request_manager.request_blocking("eth_syncing", [])
 
