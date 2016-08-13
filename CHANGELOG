@@ -1,3 +1,10 @@
+1.7.0
+--------
+
+* Add `eth.admin` interface.
+* Bugfix: Format the return value of `web3.eth.syncing`
+* Bugfix: IPCProvider socket interactions are now more robust.
+
 1.6.0
 --------
 
