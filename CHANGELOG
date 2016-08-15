@@ -1,3 +1,9 @@
+1.8.0
+--------
+
+* BugFix: `RPCProvider` not sending a content-type header
+* Bugfix: `web3.toWei` now returns an integer instead of a decimal.Decimal
+
 1.7.1
 --------
 
