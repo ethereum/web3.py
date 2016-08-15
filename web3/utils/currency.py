@@ -76,4 +76,4 @@ def to_wei(number, unit):
     if result_value < MIN_WEI or result_value > MAX_WEI:
         raise ValueError("Resulting wei value must be between 1 and 2**256 - 1")
 
-    return result_value
+    return int(result_value)
