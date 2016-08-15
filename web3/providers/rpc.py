@@ -10,6 +10,7 @@ class RPCProvider(BaseProvider):
         self.host = host
         self.port = port
         self.session = requests.session()
+        self.session.headers.update({'content-type': 'application/json'})
 
         super(RPCProvider, self).__init__(*args, **kwargs)
 
