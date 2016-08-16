@@ -1,3 +1,8 @@
+1.9.0
+--------
+
+* BugFix: fix for python3 only `json.JSONDecodeError` handling.
+
 1.8.0
 --------
 
