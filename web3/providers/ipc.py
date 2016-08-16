@@ -5,6 +5,11 @@ import os
 import contextlib
 import json
 
+try:
+    from json import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
+
 import gevent
 from gevent import socket
 from gevent import threading
@@ -94,7 +99,7 @@ class IPCProvider(BaseProvider):
                     else:
                         try:
                             json.loads(force_text(response_raw))
-                        except json.JSONDecodeError:
+                        except JSONDecodeError:
                             continue
                         else:
                             break
