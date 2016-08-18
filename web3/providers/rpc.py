@@ -31,7 +31,7 @@ class RPCProvider(BaseProvider):
 
 def is_testrpc_available():
     try:
-        import testrpc  # noqa: E401
+        import testrpc  # noqa: F401
         return True
     except ImportError:
         return False
