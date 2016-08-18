@@ -220,28 +220,30 @@ class Contract(object):
         :return: 0x string formatted transaction hash of the deployment transaction
         """
         if transaction is None:
-            transaction = {}
+            deploy_transaction = {}
+        else:
+            deploy_transaction = dict(**transaction)
 
         if not cls.code:
             raise ValueError(
                 "Cannot deploy a contract that does not have 'code' associated with it"
             )
-        if 'data' in transaction:
+        if 'data' in deploy_transaction:
             raise ValueError(
                 "Cannot specify `data` for contract deployment"
             )
-        if 'to' in transaction:
+        if 'to' in deploy_transaction:
             raise ValueError(
                 "Cannot specify `to` for contract deployment"
             )
 
-        transaction['data'] = cls.encodeConstructorData(arguments)
+        deploy_transaction['data'] = cls.encodeConstructorData(arguments)
 
-        if 'gas' not in transaction:
-            transaction['gas'] = cls.getBufferedGasEstimate(transaction)
+        if 'gas' not in deploy_transaction:
+            deploy_transaction['gas'] = cls.getBufferedGasEstimate(deploy_transaction)
 
         # TODO: handle asynchronous contract creation
-        txn_hash = cls.web3.eth.sendTransaction(transaction)
+        txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
         return txn_hash
 
     @classmethod
@@ -422,15 +424,17 @@ class Contract(object):
         Estimate the gas for a call
         """
         if transaction is None:
-            transaction = {}
+            estimate_transaction = {}
+        else:
+            estimate_transaction = dict(**transaction)
 
-        if 'data' in transaction:
+        if 'data' in estimate_transaction:
             raise ValueError("Cannot set data in call transaction")
-        if 'to' in transaction:
+        if 'to' in estimate_transaction:
             raise ValueError("Cannot set to in call transaction")
 
-        transaction['to'] = self.address
-        transaction.setdefault('from', self.web3.eth.coinbase)
+        estimate_transaction['to'] = self.address
+        estimate_transaction.setdefault('from', self.web3.eth.coinbase)
 
         contract = self
 
@@ -440,7 +444,7 @@ class Contract(object):
                     estimate_gas_for_function,
                     contract,
                     function_name,
-                    transaction,
+                    estimate_transaction,
                 )
                 return callable_fn
 
@@ -475,15 +479,17 @@ class Contract(object):
             and variables exposed as Python methods
         """
         if transaction is None:
-            transaction = {}
+            call_transaction = {}
+        else:
+            call_transaction = dict(**transaction)
 
-        if 'data' in transaction:
+        if 'data' in call_transaction:
             raise ValueError("Cannot set data in call transaction")
-        if 'to' in transaction:
+        if 'to' in call_transaction:
             raise ValueError("Cannot set to in call transaction")
 
-        transaction['to'] = self.address
-        transaction.setdefault('from', self.web3.eth.coinbase)
+        call_transaction['to'] = self.address
+        call_transaction.setdefault('from', self.web3.eth.coinbase)
 
         contract = self
 
@@ -493,7 +499,7 @@ class Contract(object):
                     call_contract_function,
                     contract,
                     function_name,
-                    transaction,
+                    call_transaction,
                 )
                 return callable_fn
 
@@ -556,15 +562,17 @@ class Contract(object):
 
         """
         if transaction is None:
-            transaction = {}
+            transact_transaction = {}
+        else:
+            transact_transaction = dict(**transaction)
 
-        if 'data' in transaction:
+        if 'data' in transact_transaction:
             raise ValueError("Cannot set data in call transaction")
-        if 'to' in transaction:
+        if 'to' in transact_transaction:
             raise ValueError("Cannot set to in call transaction")
 
-        transaction['to'] = self.address
-        transaction.setdefault('from', self.web3.eth.coinbase)
+        transact_transaction['to'] = self.address
+        transact_transaction.setdefault('from', self.web3.eth.coinbase)
 
         contract = self
 
@@ -574,7 +582,7 @@ class Contract(object):
                     transact_with_contract_function,
                     contract,
                     function_name,
-                    transaction,
+                    transact_transaction,
                 )
                 return callable_fn
 
@@ -600,19 +608,24 @@ def call_contract_function(contract=None,
     :param *arguments: Arguments to be passed to contract function. Automatically encoded
     :return: Function call results, encoded to Python object
     """
+    if transaction is None:
+        call_transaction = {}
+    else:
+        call_transaction = dict(**call_transaction)
+
     if not arguments:
         arguments = []
 
     function_abi = contract.find_matching_fn_abi(function_name, arguments)
     function_selector = function_abi_to_4byte_selector(function_abi)
 
-    transaction['data'] = contract.encodeABI(
+    call_transaction['data'] = contract.encodeABI(
         function_name,
         arguments,
         data=function_selector,
     )
 
-    return_data = contract.web3.eth.call(transaction)
+    return_data = contract.web3.eth.call(call_transaction)
 
     output_types = get_abi_output_types(function_abi)
     output_data = decode_abi(output_types, return_data)
@@ -689,6 +702,10 @@ def transact_with_contract_function(contract=None,
     :param *arguments: Arguments to be passed to contract function. Automatically encoded
     :return: String, 0x formatted transaction hash.
     """
+    if transaction is None:
+        transact_transaction = {}
+    else:
+        transact_transaction = dict(**transaction)
 
     if not arguments:
         arguments = []
@@ -696,16 +713,16 @@ def transact_with_contract_function(contract=None,
     function_abi = contract.find_matching_fn_abi(function_name, arguments)
     function_selector = function_abi_to_4byte_selector(function_abi)
 
-    transaction['data'] = contract.encodeABI(
+    transact_transaction['data'] = contract.encodeABI(
         function_name,
         arguments,
         data=function_selector,
     )
 
-    if 'gas' not in transaction:
-        transaction['gas'] = contract.getBufferedGasEstimate(transaction)
+    if 'gas' not in transact_transaction:
+        transact_transaction['gas'] = contract.getBufferedGasEstimate(transact_transaction)
 
-    txn_hash = contract.web3.eth.sendTransaction(transaction)
+    txn_hash = contract.web3.eth.sendTransaction(transact_transaction)
     return txn_hash
 
 
@@ -718,19 +735,24 @@ def estimate_gas_for_function(contract=None,
     Don't call this directly, instead use :meth:`Contract.estimateGas`
     on your contract instance.
     """
+    if transaction is None:
+        estimate_transaction = {}
+    else:
+        estimate_transaction = dict(**transaction)
+
     if not arguments:
         arguments = []
 
     function_abi = contract.find_matching_fn_abi(function_name, arguments)
     function_selector = function_abi_to_4byte_selector(function_abi)
 
-    transaction['data'] = contract.encodeABI(
+    estimate_transaction['data'] = contract.encodeABI(
         function_name,
         arguments,
         data=function_selector,
     )
 
-    gas_estimate = contract.web3.eth.estimateGas(transaction)
+    gas_estimate = contract.web3.eth.estimateGas(estimate_transaction)
     return gas_estimate
 
 

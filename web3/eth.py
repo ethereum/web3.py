@@ -3,6 +3,7 @@ from web3.iban import Iban
 
 from web3.utils.encoding import (
     to_decimal,
+    encode_hex,
 )
 from web3.utils.types import (
     is_integer,
@@ -216,7 +217,7 @@ class Eth(object):
         )
 
     def sign(self, account, data):
-        data_hash = self.request_manager.request_blocking("web3_sha3", [data])
+        data_hash = self.request_manager.request_blocking("web3_sha3", [encode_hex(data)])
         return self.request_manager.request_blocking("eth_sign", [account, data_hash])
 
     def call(self, transaction, block_identifier=None):

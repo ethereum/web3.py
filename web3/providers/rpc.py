@@ -3,6 +3,7 @@ from gevent import monkey
 
 
 monkey.patch_socket()
+monkey.patch_select()
 
 
 from .base import BaseProvider  # noqa: E402
