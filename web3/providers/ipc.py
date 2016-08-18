@@ -12,7 +12,7 @@ except ImportError:
 
 import gevent
 from gevent import socket
-from gevent import threading
+from gevent.threading import Lock
 
 from web3.utils.string import (
     force_text,
@@ -74,7 +74,7 @@ class IPCProvider(BaseProvider):
         else:
             self.ipc_path = ipc_path
 
-        self._lock = threading.Lock()
+        self._lock = Lock()
         super(IPCProvider, self).__init__(*args, **kwargs)
 
     def make_request(self, method, params):

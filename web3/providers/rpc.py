@@ -1,7 +1,14 @@
-import requests
+# pep8: disable=E402
 import gevent
+from gevent import monkey
 
-from .base import BaseProvider
+
+monkey.patch_socket()
+
+
+from .base import BaseProvider  # noqa: E402
+
+import requests  # noqa: E402
 
 
 class RPCProvider(BaseProvider):
@@ -9,15 +16,14 @@ class RPCProvider(BaseProvider):
     def __init__(self, host="127.0.0.1", port="8545", *args, **kwargs):
         self.host = host
         self.port = port
-        self.session = requests.session()
-        self.session.headers.update({'content-type': 'application/json'})
 
         super(RPCProvider, self).__init__(*args, **kwargs)
 
     def make_request(self, method, params):
         request = self.encode_rpc_request(method, params)
-        response = self.session.post(
+        response = requests.post(
             "http://{host}:{port}/".format(host=self.host, port=self.port),
+            headers={'content-type': 'application/json'},
             data=request
         )
 
@@ -26,7 +32,7 @@ class RPCProvider(BaseProvider):
 
 def is_testrpc_available():
     try:
-        import testrpc  # NOQA
+        import testrpc  # noqa: E401
         return True
     except ImportError:
         return False
@@ -36,14 +42,16 @@ class TestRPCProvider(RPCProvider):
     def __init__(self, host="127.0.0.1", port=8545, *args, **kwargs):
         if not is_testrpc_available():
             raise Exception("`TestRPCProvider` requires the `eth-testrpc` package to be installed")
-        from wsgiref.simple_server import make_server
-
+        from gevent.pywsgi import WSGIServer
         from testrpc.server import application
         from testrpc.testrpc import evm_reset
 
         evm_reset()
 
-        self.server = make_server(host, port, application)
+        self.server = WSGIServer(
+            (host, port),
+            application,
+        )
 
         self.thread = gevent.spawn(self.server.serve_forever)
 
