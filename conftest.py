@@ -11,6 +11,7 @@ from gevent import socket
 
 # needed to use the requests library
 monkey.patch_socket()
+monkey.patch_select()
 
 import requests  # noqa: E402
 
