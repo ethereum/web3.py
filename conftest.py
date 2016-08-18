@@ -126,6 +126,8 @@ def web3_tester_provider():
     yield provider
 
     provider.server.stop()
+    provider.server.close()
+    provider.thread.kill()
 
 
 @pytest.fixture()
