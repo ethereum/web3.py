@@ -124,8 +124,7 @@ def web3_tester_provider():
 
     yield provider
 
-    provider.server.shutdown()
-    provider.server.server_close()
+    provider.server.stop()
 
 
 @pytest.fixture()
