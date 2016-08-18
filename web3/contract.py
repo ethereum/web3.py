@@ -611,7 +611,7 @@ def call_contract_function(contract=None,
     if transaction is None:
         call_transaction = {}
     else:
-        call_transaction = dict(**call_transaction)
+        call_transaction = dict(**transaction)
 
     if not arguments:
         arguments = []
