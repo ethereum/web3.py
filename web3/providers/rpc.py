@@ -1,4 +1,3 @@
-# pep8: disable=E402
 import gevent
 from gevent import monkey
 
