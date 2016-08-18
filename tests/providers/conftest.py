@@ -1,11 +1,12 @@
 import pytest
 
+from gevent import socket
+
 from web3.providers.ipc import IPCProvider
 from web3.providers.rpc import TestRPCProvider, RPCProvider
 
 
 def get_open_port():
-    import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(("", 0))
     s.listen(1)
@@ -24,8 +25,7 @@ def disconnected_provider(request):
     if request.param == 'tester':
         port = get_open_port()
         provider = TestRPCProvider(port=port)
-        provider.server.shutdown()
-        provider.server.server_close()
+        provider.server.stop()
         return provider
     elif request.param == 'rpc':
         return RPCProvider(port=9999)
