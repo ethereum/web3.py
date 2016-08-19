@@ -1,5 +1,5 @@
 import pytest
-import socket
+from gevent import socket
 
 from web3.providers.manager import RequestManager
 from web3.providers.rpc import (

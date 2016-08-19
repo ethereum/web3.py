@@ -2,10 +2,10 @@ import sys
 
 
 if sys.version_info.major == 2:
-    integer_types = (int, long)  # NOQA
+    integer_types = (int, long)  # noqa: F821
     bytes_types = (bytes, bytearray)
-    text_types = (unicode,)  # NOQA
-    string_types = (basestring, bytearray)  # NOQA
+    text_types = (unicode,)  # noqa: F821
+    string_types = (basestring, bytearray)  # noqa: F821
 else:
     integer_types = (int,)
     bytes_types = (bytes, bytearray)

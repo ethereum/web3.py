@@ -1,15 +1,21 @@
-import pytest
 import contextlib
 import tempfile
 import shutil
 import random
 
-import requests
-import gevent
+import pytest
 
-# This has to go here so that the `gevent.monkey.patch_all()` happens in the
-# main thread.
-from geth import (
+import gevent
+from gevent import monkey
+from gevent import socket
+
+# needed to use the requests library
+monkey.patch_socket()
+monkey.patch_select()
+
+import requests  # noqa: E402
+
+from geth import (  # noqa: E402
     LoggingMixin,
     DevGethProcess,
 )
@@ -20,7 +26,6 @@ class GethProcess(LoggingMixin, DevGethProcess):
 
 
 def get_open_port():
-    import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(("", 0))
     s.listen(1)
@@ -120,8 +125,9 @@ def web3_tester_provider():
 
     yield provider
 
-    provider.server.shutdown()
-    provider.server.server_close()
+    provider.server.stop()
+    provider.server.close()
+    provider.thread.kill()
 
 
 @pytest.fixture()

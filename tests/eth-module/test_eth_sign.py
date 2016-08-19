@@ -99,10 +99,7 @@ def test_eth_sign(web3_empty, skip_if_testrpc):
 
     actual_signer = extract_ecdsa_signer(data_hash_bytes, signature_bytes)
 
-    with pytest.raises(AssertionError):
-        # For some unknown reason, the extracted account from the signature
-        # returned from geth is not present in the account list.
-        assert actual_signer == address
+    assert actual_signer == address
 
     # Verify the signature against the public key derived from the
     # original private key.  It fails.
@@ -120,8 +117,4 @@ def test_eth_sign(web3_empty, skip_if_testrpc):
         digest=sha3_256,
     )
 
-    assert is_valid is False
-    # TODO: figure out why this happens and fix it.
-    # For some unknown reason, the extracted account from the signature
-    # returned from geth is not present in the account list.
-    pytest.skip("This is not behaving as expected")
+    assert is_valid
