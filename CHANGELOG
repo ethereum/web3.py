@@ -1,3 +1,11 @@
+2.0.0
+--------
+
+* Pull in downstream updates to proper gevent usage.
+* Fix `eth_sign`
+* Bugfix with contract operations mutating the transaction object that is passed in.
+* More explicit linting ignore statements.
+
 1.9.0
 --------
 
