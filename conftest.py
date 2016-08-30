@@ -6,14 +6,7 @@ import random
 import pytest
 
 import gevent
-from gevent import monkey
 from gevent import socket
-
-# needed to use the requests library
-monkey.patch_socket()
-monkey.patch_select()
-
-import requests  # noqa: E402
 
 from geth import (  # noqa: E402
     LoggingMixin,
@@ -37,10 +30,12 @@ def get_open_port():
 def wait_for_http_connection(port, timeout=60):
     with gevent.Timeout(timeout):
         while True:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.timeout = 1
             try:
-                requests.post("http://127.0.0.1:{0}".format(port))
-            except requests.ConnectionError:
-                gevent.sleep(0.1)
+                s.connect(('127.0.0.1', port))
+            except (socket.timeout, ConnectionRefusedError):
+                gevent.sleep(random.random())
                 continue
             else:
                 break
