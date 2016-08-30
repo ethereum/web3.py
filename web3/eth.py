@@ -1,26 +1,23 @@
 from web3 import formatters
 from web3.iban import Iban
 
-import web3.utils.config as config
-
 from web3.utils.encoding import (
     to_decimal,
+    encode_hex,
 )
 from web3.utils.types import (
     is_integer,
+    is_string,
 )
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
+from web3.utils.filters import (
+    BlockFilter,
+    TransactionFilter,
+    LogFilter,
+)
 from web3.contract import construct_contract_class
-
-
-class DefaultAccount(object):
-    def __set__(self, v):
-        config.defaultAccount = self.value
-
-    def __get__(self):
-        return config.defaultAccount
 
 
 class Eth(object):
@@ -28,11 +25,22 @@ class Eth(object):
         self.web3 = web3
         self.request_manager = web3._requestManager
 
-        self.defaultBlock = config.defaultBlock
-        self.defaultAccount = DefaultAccount()  # config.defaultAccount
-
         self.iban = Iban
         # self.sendIBANTransaction = lambda: raise NotImplementedError()
+
+    _defaultAccount = None
+
+    @property
+    def defaultAccount(self):
+        if self._defaultAccount is not None:
+            return self._defaultAccount
+        return self.coinbase
+
+    @defaultAccount.setter
+    def defaultAccount(self, value):
+        self._defaultAccount = value
+
+    defaultBlock = "latest"
 
     def namereg(self):
         raise NotImplementedError()
@@ -41,6 +49,7 @@ class Eth(object):
         raise NotImplementedError()
 
     @property
+    @apply_formatters_to_return(formatters.syncing_formatter)
     def syncing(self):
         return self.request_manager.request_blocking("eth_syncing", [])
 
@@ -194,9 +203,11 @@ class Eth(object):
         )
 
     def sendTransaction(self, transaction):
+        formatted_transaction = formatters.input_transaction_formatter(self, transaction)
+
         return self.request_manager.request_blocking(
             "eth_sendTransaction",
-            [transaction],
+            [formatted_transaction],
         )
 
     def sendRawTransaction(self, raw_txn):
@@ -206,25 +217,51 @@ class Eth(object):
         )
 
     def sign(self, account, data):
-        data_hash = self.request_manager.request_blocking("web3_sha3", [data])
+        data_hash = self.request_manager.request_blocking("web3_sha3", [encode_hex(data)])
         return self.request_manager.request_blocking("eth_sign", [account, data_hash])
 
     def call(self, transaction, block_identifier=None):
+        formatted_transaction = formatters.input_call_formatter(self, transaction)
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return self.request_manager.request_blocking("eth_call", [transaction, block_identifier])
+        return self.request_manager.request_blocking(
+            "eth_call",
+            [formatted_transaction, block_identifier],
+        )
 
     @apply_formatters_to_return(to_decimal)
     def estimateGas(self, transaction):
         return self.request_manager.request_blocking("eth_estimateGas", [transaction])
 
-    def filter(self, *args, **kwargs):
-        """
-        `eth_newFilter`
-        `eth_newBlockFilter`
-        `eth_uninstallFilter`
-        """
-        raise NotImplementedError("TODO")
+    def filter(self, filter_params):
+        if is_string(filter_params):
+            if filter_params == "latest":
+                filter_id = self.request_manager.request_blocking("eth_newBlockFilter", [])
+                return BlockFilter(self.web3, filter_id)
+            elif filter_params == "pending":
+                filter_id = self.request_manager.request_blocking(
+                    "eth_newPendingTransactionFilter", [],
+                )
+                return TransactionFilter(self.web3, filter_id)
+            else:
+                raise ValueError(
+                    "The filter API only accepts the values of `pending` or "
+                    "`latest` for string based filters"
+                )
+        elif isinstance(filter_params, dict):
+            filter_id = self.request_manager.request_blocking("eth_newFilter", [filter_params])
+            return LogFilter(self.web3, filter_id)
+        else:
+            raise ValueError("Must provide either a string or a valid filter object")
+
+    def getFilterChanges(self, filter_id):
+        return self.request_manager.request_blocking("eth_getFilterChanges", [filter_id])
+
+    def getFilterLogs(self, filter_id):
+        return self.request_manager.request_blocking("eth_getFilterLogs", [filter_id])
+
+    def uninstallFilter(self, filter_id):
+        return self.request_manager.request_blocking("eth_uninstallFilter", [filter_id])
 
     def contract(self, abi, address=None, **kwargs):
         contract_class = construct_contract_class(self.web3, abi, **kwargs)

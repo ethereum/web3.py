@@ -57,17 +57,13 @@ def inputBlockNumberFormatter(blockNumber):
 
 @coerce_args_to_text
 @coerce_return_to_text
-def input_call_formatter(txn):
+def input_call_formatter(eth, txn):
     defaults = {
-        'from': config.defaultAccount,
+        'from': eth.defaultAccount,
     }
     formatters = {
         'from': input_address_formatter,
         'to': input_address_formatter,
-        'gasPrice': from_decimal,
-        'gas': from_decimal,
-        'value': from_decimal,
-        'nonce': from_decimal,
     }
     return {
         key: formatters.get(key, identity)(txn.get(key, defaults.get(key)))
@@ -77,17 +73,13 @@ def input_call_formatter(txn):
 
 @coerce_args_to_text
 @coerce_return_to_text
-def input_transaction_formatter(txn):
+def input_transaction_formatter(eth, txn):
     defaults = {
-        'from': config.defaultAccount,
+        'from': eth.defaultAccount,
     }
     formatters = {
         'from': input_address_formatter,
         'to': input_address_formatter,
-        'gasPrice': from_decimal,
-        'gas': from_decimal,
-        'value': from_decimal,
-        'nonce': from_decimal,
     }
     return {
         key: formatters.get(key, identity)(txn.get(key, defaults.get(key)))
@@ -260,3 +252,19 @@ def transaction_pool_content_formatter(value):
 
 def transaction_pool_inspect_formatter(value):
     return transaction_pool_formatter(value, identity)
+
+
+def syncing_formatter(value):
+    if not value:
+        return value
+
+    formatters = {
+        'startingBlock': to_decimal,
+        'currentBlock': to_decimal,
+        'highestBlock': to_decimal,
+    }
+
+    return {
+        key: formatters.get(key, identity)(value)
+        for key, value in value.items()
+    }

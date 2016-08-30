@@ -1,10 +1,22 @@
 from __future__ import absolute_import
 
-import socket
 import sys
 import os
-import threading
 import contextlib
+import json
+
+try:
+    from json import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
+
+import gevent
+from gevent import socket
+from gevent.threading import Lock
+
+from web3.utils.string import (
+    force_text,
+)
 
 from .base import BaseProvider
 
@@ -62,7 +74,7 @@ class IPCProvider(BaseProvider):
         else:
             self.ipc_path = ipc_path
 
-        self._lock = threading.Lock()
+        self._lock = Lock()
         super(IPCProvider, self).__init__(*args, **kwargs)
 
     def make_request(self, method, params):
@@ -83,9 +95,15 @@ class IPCProvider(BaseProvider):
                             break
 
                     if response_raw == b"":
-                        continue
+                        gevent.sleep(0)
+                    else:
+                        try:
+                            json.loads(force_text(response_raw))
+                        except JSONDecodeError:
+                            continue
+                        else:
+                            break
 
-                    break
                 else:
                     raise ValueError("No JSON returned by socket")
         finally:

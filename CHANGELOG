@@ -1,9 +1,53 @@
-Upcoming
+2.0.0
+--------
+
+* Pull in downstream updates to proper gevent usage.
+* Fix `eth_sign`
+* Bugfix with contract operations mutating the transaction object that is passed in.
+* More explicit linting ignore statements.
+
+1.9.0
+--------
+
+* BugFix: fix for python3 only `json.JSONDecodeError` handling.
+
+1.8.0
+--------
+
+* BugFix: `RPCProvider` not sending a content-type header
+* Bugfix: `web3.toWei` now returns an integer instead of a decimal.Decimal
+
+1.7.1
+--------
+
+* `TestRPCProvider` can now be imported directly from `web3`
+
+1.7.0
+--------
+
+* Add `eth.admin` interface.
+* Bugfix: Format the return value of `web3.eth.syncing`
+* Bugfix: IPCProvider socket interactions are now more robust.
+
+1.6.0
+--------
+
+* Downstream package upgrades for `eth-testrpc` and `ethereum-tester-client` to
+  handle configuration of the Homestead and DAO fork block numbers.
+
+1.5.0
 --------
 
 * Rename `web3.contract._Contract` to `web3.contract.Contract`
   to expose it for static analysis and auto completion tools
 * Allow passing string parameters to functions
+* Automatically compute gas requirements for contract deployment and
+* transactions.
+* Contract Filters
+* Block, Transaction, and Log filters
+* `web3.eth.txpool` interface
+* `web3.eth.mining` interface
+* Fixes for encoding.
 
 1.4.0
 -----

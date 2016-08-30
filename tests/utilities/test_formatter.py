@@ -84,12 +84,12 @@ def test_inputPostFormatter(value, expected):
         },
         {
             "data": '0x34234bf23bf4234',
-            "value": '0x64',
+            "value": 100,
             "from": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
             "to": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
-            "nonce": '0x3e8',
-            "gas": '0x3e8',
-            "gasPrice": '0x3e8'
+            "nonce": 1000,
+            "gas": 1000,
+            "gasPrice": 1000
         }
     ),({
             "data": '0x34234bf23bf4234',
@@ -99,7 +99,7 @@ def test_inputPostFormatter(value, expected):
         },
         {
             "data": '0x34234bf23bf4234',
-            "value": '0x64',
+            "value": 100,
             "from": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
             "to": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
         }
@@ -108,51 +108,51 @@ def test_inputPostFormatter(value, expected):
             "value": 100,
             "from": '00c5496aee77c1ba1f0854206a26dda82a81d6d8',
             "to": '00c5496aee77c1ba1f0854206a26dda82a81d6d8',
-            "gas": '1000',
+            "gas": 1000,
             "gasPrice": 1000
         },
         {
             "data": '0x34234bf23bf4234',
-            "value": '0x64',
+            "value": 100,
             "from": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
             "to": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
-            "gas": '0x3e8',
-            "gasPrice": '0x3e8'
+            "gas": 1000,
+            "gasPrice": 1000
         },
     ), ({
             "data": '0x34234bf23bf4234',
             "value": 100,
             "from": 'XE7338O073KYGTWWZN0F2WZ0R8PX5ZPPZS',
             "to": 'XE7338O073KYGTWWZN0F2WZ0R8PX5ZPPZS',
-            "gas": '1000',
+            "gas": 1000,
             "gasPrice": 1000
         },
         {
             "data": '0x34234bf23bf4234',
-            "value": '0x64',
+            "value": 100,
             "from": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
             "to": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
-            "gas": '0x3e8',
-            "gasPrice": '0x3e8'
+            "gas": 1000,
+            "gasPrice": 1000
         },
     ), ({
             "data": '0x34234bf23bf4234',
             "value": 100,
             "from": 'XE7338O073KYGTWWZN0F2WZ0R8PX5ZPPZS',
-            "gas": '1000',
+            "gas": 1000,
             "gasPrice": 1000
         },
         {
             "data": '0x34234bf23bf4234',
-            "value": '0x64',
+            "value": 100,
             "from": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
-            "gas": '0x3e8',
-            "gasPrice": '0x3e8'
+            "gas": 1000,
+            "gasPrice": 1000
         }
     )]
 )
-def test_input_transaction_formatter(value, expected):
-    assert formatters.input_transaction_formatter(value) == expected
+def test_input_transaction_formatter(web3_tester, value, expected):
+    assert formatters.input_transaction_formatter(web3_tester.eth, value) == expected
 
 
 @pytest.mark.parametrize(

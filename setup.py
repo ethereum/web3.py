@@ -16,7 +16,7 @@ readme = open(os.path.join(DIR, 'README.md')).read()
 
 setup(
     name='web3',
-    version='1.4.0',
+    version='2.0.0',
     description="""Web3.py""",
     long_description=readme,
     author='Piper Merriam',
@@ -30,6 +30,7 @@ setup(
         "rlp>=0.4.6",
         "gevent>=1.1.1",
         "ethereum-abi-utils>=0.2.1",
+        "pysha3>=0.3",
     ],
     py_modules=['web3'],
     license="MIT",

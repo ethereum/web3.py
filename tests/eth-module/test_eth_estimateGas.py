@@ -1,6 +1,5 @@
 import pytest
 
-from web3.providers.rpc import TestRPCProvider
 from web3.utils.abi import (
     function_abi_to_4byte_selector,
 )
@@ -21,7 +20,7 @@ def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, MATH_SOURCE,
         source=MATH_SOURCE,
     )
     deploy_txn = MathContract.deploy({'from': web3.eth.coinbase})
-    deploy_receipt = wait_for_transaction(deploy_txn)
+    deploy_receipt = wait_for_transaction(web3, deploy_txn)
 
     assert deploy_receipt is not None
     contract_address = deploy_receipt['contractAddress']
@@ -31,18 +30,8 @@ def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, MATH_SOURCE,
     return _math_contract
 
 
-def test_needs_skipping(web3):
-    if not isinstance(web3.currentProvider, TestRPCProvider):
-        pytest.skip("N/A")
-    with pytest.raises(ValueError):
-        web3.eth.estimateGas({})
-
-
 def test_eth_estimateGas(web3, math_contract):
-    if isinstance(web3.currentProvider, TestRPCProvider):
-        pytest.skip("The testrpc server doesn't implement `eth_estimateGas`")
-
-    increment_abi = math_contract.find_matching_abi('increment', [])
+    increment_abi = math_contract.find_matching_fn_abi('increment', [])
     call_data = function_abi_to_4byte_selector(increment_abi)
     gas_estimate = web3.eth.estimateGas({
         'to': math_contract.address,
@@ -50,4 +39,8 @@ def test_eth_estimateGas(web3, math_contract):
         'data': call_data,
     })
 
-    assert abs(gas_estimate - 21272) < 200
+    try:
+        assert abs(gas_estimate - 21272) < 200  # Geth
+    except AssertionError:
+        assert abs(gas_estimate - 42820) < 200  # TestRPC
+        pass

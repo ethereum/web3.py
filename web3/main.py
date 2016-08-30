@@ -1,13 +1,14 @@
 from __future__ import absolute_import
 
-from web3.eth import Eth
+from web3.admin import Admin
 from web3.db import Db
-from web3.shh import Shh
+from web3.eth import Eth
+from web3.miner import Miner
 from web3.net import Net
 from web3.personal import Personal
-from web3.version import Version
+from web3.shh import Shh
 from web3.txpool import TxPool
-from web3.miner import Miner
+from web3.version import Version
 
 from web3.providers.rpc import (
     RPCProvider,
@@ -54,6 +55,7 @@ class Web3(object):
         self.version = Version(self._requestManager)
         self.txpool = TxPool(self._requestManager)
         self.miner = Miner(self._requestManager)
+        self.admin = Admin(self._requestManager)
 
         self.providers = {
             'RPCProvider': RPCProvider,

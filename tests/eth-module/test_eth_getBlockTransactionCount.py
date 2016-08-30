@@ -2,18 +2,14 @@ import collections
 import itertools
 import pytest
 
-from web3.providers.rpc import TestRPCProvider
-
 
 @pytest.fixture(autouse=True)
-def wait_for_first_block(web3, wait_for_block):
+def wait_for_first_block(web3, wait_for_block, skip_if_testrpc):
+    skip_if_testrpc(web3)
     wait_for_block(web3)
 
 
 def test_eth_getBlockTransactionCount(web3, extra_accounts, wait_for_transaction):
-    if isinstance(web3.currentProvider, TestRPCProvider):
-        pytest.skip("testrpc doesn't implement `getBlockTransactionCount`")
-
     transaction_hashes = []
 
     # send some transaction
@@ -26,7 +22,7 @@ def test_eth_getBlockTransactionCount(web3, extra_accounts, wait_for_transaction
 
     # wait for them to resolve
     for txn_hash in transaction_hashes:
-        wait_for_transaction(txn_hash)
+        wait_for_transaction(web3, txn_hash)
 
     # gather all receipts and sort/group them by block number.
     all_receipts = sorted(

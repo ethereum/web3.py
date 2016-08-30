@@ -1,10 +1,11 @@
 pytest>=2.8.2
 pytest-pythonpath>=0.3
 tox>=1.8.0
-eth-testrpc==0.4.2
-py-geth>=0.6.0
-# Until pyethereum > 1.3.6 is released.
-https://github.com/ethereum/pyethereum/tarball/b06829e56e2a3de5276077a611ed8813b6cf5e74
-secp256k1>=0.12.0
-rlp==0.4.6
-hypothesis==3.4.2
+eth-testrpc>=0.8.0
+ethereum-tester-client>=1.0.0
+py-geth>=1.2.0
+ethereum>=1.5.2
+secp256k1>=0.13.1
+rlp>=0.4.6
+hypothesis>=3.4.2
+flaky>=3.3.0

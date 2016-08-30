@@ -15,7 +15,7 @@ def test_eth_getTransactionReceipt(web3, extra_accounts, wait_for_transaction):
         "value": 1234,
     })
 
-    wait_for_transaction(txn_hash)
+    wait_for_transaction(web3, txn_hash)
 
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt['transactionHash'] == txn_hash

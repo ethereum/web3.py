@@ -37,7 +37,7 @@ def test_error_if_invalid_arguments_supplied(WithConstructorArgumentsContract, a
 
 def test_contract_constructor_encoding_encoding(WithConstructorArgumentsContract):
     deploy_data = WithConstructorArgumentsContract.encodeConstructorData([1234, 'abcd'])
-    encoded_args = b'0x00000000000000000000000000000000000000000000000000000000000004d26162636400000000000000000000000000000000000000000000000000000000'
+    encoded_args = '0x00000000000000000000000000000000000000000000000000000000000004d26162636400000000000000000000000000000000000000000000000000000000'
     expected_ending = encode_hex(encode_abi(['uint256', 'bytes32'], [1234, b'abcd']))
     assert expected_ending == encoded_args
     assert deploy_data.endswith(remove_0x_prefix(expected_ending))
