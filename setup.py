@@ -26,9 +26,9 @@ setup(
     include_package_data=True,
     install_requires=[
         "pysha3>=0.3",
-        "requests>=2.10.0",
         "rlp>=0.4.6",
         "gevent>=1.1.1",
+        "geventhttpclient>=1.3.1",
         "ethereum-abi-utils>=0.2.1",
         "pysha3>=0.3",
     ],
