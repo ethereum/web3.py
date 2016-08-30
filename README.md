@@ -77,8 +77,8 @@ uses `web3.py`.
 
 ### Setting defaults
 ```python
-web3.config.defaultAccount = <your (unlocked) account>
-web3.config.defaultBlock = "latest"
+web3.eth.defaultAccount = <your (unlocked) account>
+web3.eth.defaultBlock = "latest"
 # Can also be an integer or one of "latest", "pending", "earliest"
 ```
 

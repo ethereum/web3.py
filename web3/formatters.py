@@ -31,20 +31,12 @@ from web3.utils.functional import (
     identity,
     compose,
 )
-import web3.utils.config as config
 
 
 def isPredefinedBlockNumber(blockNumber):
     if not is_string(blockNumber):
         return False
     return force_text(blockNumber) in {"latest", "pending", "earliest"}
-
-
-def inputDefaultBlockNumberFormatter(blockNumber=None):
-    if not blockNumber:
-        return config.defaultBlock
-
-    return inputBlockNumberFormatter(blockNumber)
 
 
 def inputBlockNumberFormatter(blockNumber):
