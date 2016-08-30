@@ -34,20 +34,6 @@ def test_input_address_formatter_errors(value):
 @pytest.mark.parametrize(
     "value,expected",
     [
-    ('latest', 'latest'),
-    ('pending', 'pending'),
-    ('earliest', 'earliest'),
-    (1, '0x1'),
-    ('0x1', '0x1')
-    ]
-)
-def test_inputDefaultBlockNumberFormatter(value, expected):
-    assert formatters.inputDefaultBlockNumberFormatter(value) == expected
-
-
-@pytest.mark.parametrize(
-    "value,expected",
-    [
     ({
         "from": '0x00000',
         "to": '0x00000',

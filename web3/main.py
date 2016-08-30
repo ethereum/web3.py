@@ -39,7 +39,6 @@ from web3.utils.address import (
     is_checksum_address,
     to_checksum_address,
 )
-from web3.utils import config
 
 
 class Web3(object):
@@ -66,22 +65,6 @@ class Web3(object):
         self.RPCProvider = RPCProvider
         self.IPCProvider = IPCProvider
         self.TestRPCProvider = TestRPCProvider
-
-        class Config:
-
-            def __getattr__(self, key):
-                if key == "defaultAccount":
-                    return config.defaultAccount
-                elif key == "defaultBlock":
-                    return config.defaultBlock
-
-            def __setattr__(self, key, value):
-                if key == "defaultAccount":
-                    config.defaultAccount = value
-                elif key == "defaultBlock":
-                    config.defaultBlock = value
-
-        self.config = Config()
 
         # Encoding and Decoding
         self.toHex = to_hex
