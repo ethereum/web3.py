@@ -9,7 +9,7 @@ from .base import BaseProvider  # noqa: E402
 class RPCProvider(BaseProvider):
     def __init__(self, host="127.0.0.1", port="8545", *args, **kwargs):
         self.host = host
-        self.port = port
+        self.port = int(port)
 
         super(RPCProvider, self).__init__(*args, **kwargs)
 
