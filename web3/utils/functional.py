@@ -23,3 +23,10 @@ def apply_formatters_to_return(*formatters):
             return formatter(value)
         return inner
     return outer
+
+
+def replace_key(_dict, key, replacement):
+    return {
+        k: replacement if k == key else value
+        for k, value in _dict.items()
+    }
