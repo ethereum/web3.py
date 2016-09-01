@@ -257,7 +257,8 @@ class Contract(object):
         if gas_estimate > gas_limit:
             raise ValueError(
                 "Contract does not appear to be delpoyable within the "
-                "current network gas limits"
+                "current network gas limits.  Estimated: {0}. Current gas "
+                "limit: {1}".format(gas_estimate, gas_limit)
             )
 
         return min(gas_limit, gas_estimate + cls.gas_buffer)
@@ -266,12 +267,17 @@ class Contract(object):
     # ABI Helpers
     #
     @classmethod
-    def find_matching_fn_abi(cls, fn_name, arguments):
-        filters = [
-            functools.partial(filter_by_name, fn_name),
-            functools.partial(filter_by_argument_count, arguments),
-            functools.partial(filter_by_encodability, arguments),
-        ]
+    def find_matching_fn_abi(cls, fn_name=None, arguments=None):
+        filters = []
+
+        if fn_name:
+            filters.append(functools.partial(filter_by_name, fn_name))
+
+        if arguments is not None:
+            filters.extend([
+                functools.partial(filter_by_argument_count, arguments),
+                functools.partial(filter_by_encodability, arguments),
+            ])
 
         function_candidates = filter_by_type('function', cls.abi)
 
