@@ -295,12 +295,20 @@ class Contract(object):
             raise ValueError("Multiple functions found")
 
     @classmethod
-    def find_matching_event_abi(cls, event_name, argument_names):
-        filter_fn = compose(
+    def find_matching_event_abi(cls, event_name=None, argument_names=None):
+        filters = [
             functools.partial(filter_by_type, 'event'),
-            functools.partial(filter_by_name, event_name),
-            functools.partial(filter_by_argument_name, argument_names),
-        )
+        ]
+
+        if event_name is not None:
+            filters.append(functools.partial(filter_by_name, event_name))
+
+        if argument_names is not None:
+            filters.append(
+                functools.partial(filter_by_argument_name, argument_names)
+            )
+
+        filter_fn = compose(*filters)
 
         event_abi_candidates = filter_fn(cls.abi)
 
