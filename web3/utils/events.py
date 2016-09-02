@@ -1,4 +1,3 @@
-import functools
 import itertools
 
 from eth_abi import (
