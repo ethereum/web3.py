@@ -20,6 +20,7 @@ from web3.utils.types import (
 )
 from web3.utils.formatting import (
     is_0x_prefixed,
+    add_0x_prefix,
 )
 from web3.utils.encoding import (
     to_hex,
@@ -32,6 +33,15 @@ from web3.utils.functional import (
     identity,
     compose,
 )
+
+
+def apply_if_not_null(fn):
+    @functools.wraps(fn)
+    def inner(value):
+        if value is not None:
+            return fn(value)
+        return value
+    return inner
 
 
 def isPredefinedBlockNumber(blockNumber):
@@ -84,8 +94,8 @@ def input_transaction_formatter(eth, txn):
 @coerce_return_to_text
 def output_transaction_formatter(txn):
     formatters = {
-        'blockNumber': lambda v: None if v is None else to_decimal(v),
-        'transactionIndex': lambda v: None if v is None else to_decimal(v),
+        'blockNumber': apply_if_not_null(to_decimal),
+        'transactionIndex': apply_if_not_null(to_decimal),
         'nonce': to_decimal,
         'gas': to_decimal,
         'gasPrice': to_decimal,
@@ -155,9 +165,9 @@ def output_log_formatter(log):
     Formats the output of a log
     """
     formatters = {
-        'blockNumber': to_decimal,
-        'transactionIndex': to_decimal,
-        'logIndex': to_decimal,
+        'blockNumber': apply_if_not_null(to_decimal),
+        'transactionIndex': apply_if_not_null(to_decimal),
+        'logIndex': apply_if_not_null(to_decimal),
         'address': to_address,
     }
 

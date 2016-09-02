@@ -254,9 +254,11 @@ class Eth(object):
         else:
             raise ValueError("Must provide either a string or a valid filter object")
 
+    @apply_formatters_to_return(formatters.output_log_formatter)
     def getFilterChanges(self, filter_id):
         return self.request_manager.request_blocking("eth_getFilterChanges", [filter_id])
 
+    @apply_formatters_to_return(formatters.output_log_formatter)
     def getFilterLogs(self, filter_id):
         return self.request_manager.request_blocking("eth_getFilterLogs", [filter_id])
 
