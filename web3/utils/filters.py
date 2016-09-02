@@ -81,8 +81,15 @@ class BaseFilter(gevent.Greenlet):
                 for entry in changes:
                     for callback_fn in self.callbacks:
                         if self.is_valid_entry(entry):
-                            callback_fn(entry)
+                            callback_fn(self.format_entry(entry))
             gevent.sleep(random.random())
+
+    def format_entry(entry):
+        """
+        Hook for subclasses to change the format of the value that is passed
+        into the callback functions.
+        """
+        return entry
 
     def is_valid_entry(self, entry):
         """
@@ -134,6 +141,16 @@ def construct_data_filter_regex(data_filter_set):
 class LogFilter(BaseFilter):
     data_filter_set = None
     data_filter_set_regex = None
+    log_entry_formatter = None
+
+    def __init__(self, *args, **kwargs):
+        self.log_entry_formatter = kwargs.pop(
+            'log_entry_formatter',
+            self.log_entry_formatter,
+        )
+        if 'data_filter_set' in kwargs:
+            self.set_data_filters(kwargs.pop('data_filter_set'))
+        super(LogFilter, self).__init__(*args, **kwargs)
 
     def get(self, only_changes=True):
         if self.running:
@@ -141,9 +158,19 @@ class LogFilter(BaseFilter):
                 "Cannot call `get` on a filter object which is actively watching"
             )
         if only_changes:
-            return self.web3.eth.getFilterChanges(self.filter_id)
+            log_entries = self.web3.eth.getFilterChanges(self.filter_id)
         else:
-            return self.web3.eth.getFilterChanges(self.filter_id)
+            log_entries = self.web3.eth.getFilterChanges(self.filter_id)
+
+        formatted_log_entries = [
+            self.format_entry(log_entry) for log_entry in log_entries
+        ]
+        return formatted_log_entries
+
+    def format_entry(self, entry):
+        if self.log_entry_formatter:
+            return self.log_entry_formatter(entry)
+        return entry
 
     def set_data_filters(self, data_filter_set):
         self.data_filter_set = data_filter_set
@@ -170,6 +197,6 @@ class PastLogFilter(LogFilter):
             for entry in previous_logs:
                 for callback_fn in self.callbacks:
                     if self.is_valid_entry(entry):
-                        callback_fn(entry)
+                        callback_fn(self.format_entry(entry))
 
         self.running = False

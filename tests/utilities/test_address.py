@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import pytest
 
 from web3.utils.address import (
@@ -67,7 +69,15 @@ def test_is_strict_address(value, expected):
     "value,expected",
     (
         (
+            b'0xc6d9d2cd449a754c494264e1809c50e34d64562b',
             '0xc6d9d2cd449a754c494264e1809c50e34d64562b',
+        ),
+        (
+            '0xc6d9d2cd449a754c494264e1809c50e34d64562b',
+            '0xc6d9d2cd449a754c494264e1809c50e34d64562b',
+        ),
+        (
+            b'0XC6D9D2CD449A754C494264E1809C50E34D64562B',
             '0xc6d9d2cd449a754c494264e1809c50e34d64562b',
         ),
         (
@@ -81,6 +91,18 @@ def test_is_strict_address(value, expected):
         (
             'C6D9D2CD449A754C494264E1809C50E34D64562B',
             '0xc6d9d2cd449a754c494264e1809c50e34d64562b',
+        ),
+        (
+            '0x000000000000000000000000c305c901078781c232a2a521c2af7980f8385ee9',
+            '0xc305c901078781c232a2a521c2af7980f8385ee9',
+        ),
+        (
+            b'0x000000000000000000000000c305c901078781c232a2a521c2af7980f8385ee9',
+            '0xc305c901078781c232a2a521c2af7980f8385ee9',
+        ),
+        (
+            '000000000000000000000000c305c901078781c232a2a521c2af7980f8385ee9',
+            '0xc305c901078781c232a2a521c2af7980f8385ee9',
         ),
     )
 )

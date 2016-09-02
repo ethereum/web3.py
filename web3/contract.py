@@ -39,6 +39,9 @@ from web3.utils.abi import (
 from web3.utils.transactions import (
     get_block_gas_limit,
 )
+from web3.utils.events import (
+    get_event_data,
+)
 from web3.utils.filters import (
     construct_event_filter_params,
     PastLogFilter,
@@ -394,13 +397,17 @@ class Contract(object):
             **default_filter_params
         )
 
+        log_data_extract_fn = functools.partial(get_event_data, event_abi)
+
         log_filter = self.web3.eth.filter(filter_params)
+
         log_filter.set_data_filters(data_filter_set)
+        log_filter.log_entry_formatter = log_data_extract_fn
+        log_filter.filter_params = filter_params
 
         if callbacks:
             log_filter.watch(*callbacks)
 
-        log_filter.filter_params = filter_params
         return log_filter
 
     def pastEvents(self, event_name, default_filter_params=None, *callbacks):
@@ -413,27 +420,24 @@ class Contract(object):
         if 'fromBlock' in default_filter_params or 'toBlock' in default_filter_params:
             raise ValueError("Cannot provide `fromBlock` or `toBlock` in `pastEvents` calls")
 
-        argument_filters = default_filter_params.pop('filter', {})
-        argument_filter_names = list(argument_filters.keys())
-        event_abi = self.find_matching_event_abi(event_name, argument_filter_names)
+        filter_params = {}
+        filter_params.update(default_filter_params)
+        filter_params.update({
+            'fromBlock': "earliest",
+            'toBlock': self.web3.eth.blockNumber,
+        })
 
-        data_filter_set, filter_params = construct_event_filter_params(
-            event_abi,
-            contract_address=self.address,
-            argument_filters=argument_filters,
-            fromBlock="earliest",
-            toBlock=self.web3.eth.blockNumber,
-            **default_filter_params
+        log_filter = self.on(
+            event_name,
+            default_filter_params=filter_params,
         )
-
-        log_filter = self.web3.eth.filter(filter_params)
 
         past_log_filter = PastLogFilter(
             web3=log_filter.web3,
             filter_id=log_filter.filter_id,
+            log_entry_formatter=log_filter.log_entry_formatter,
+            data_filter_set=log_filter.data_filter_set,
         )
-        past_log_filter.callbacks.extend(log_filter.callbacks)
-        past_log_filter.set_data_filters(data_filter_set)
 
         if callbacks:
             past_log_filter.watch(*callbacks)

@@ -1,4 +1,5 @@
 import functools
+import itertools
 
 from eth_abi import (
     decode_abi,
@@ -32,7 +33,11 @@ def get_event_data(event_abi, log_entry):
     """
     Given an event ABI and a log entry for that event, return the decoded
     """
-    log_topics = log_entry['topics'][1:]
+    if event_abi['anonymous']:
+        log_topics = log_entry['topics']
+    else:
+        log_topics = log_entry['topics'][1:]
+
     log_topics_abi = get_indexed_event_inputs(event_abi)
     log_topic_raw_types = get_abi_input_types({'inputs': log_topics_abi})
     log_topic_types = coerce_event_abi_types_for_decoding(log_topic_raw_types)
@@ -50,6 +55,15 @@ def get_event_data(event_abi, log_entry):
     log_data_types = coerce_event_abi_types_for_decoding(log_data_raw_types)
     log_data_names = get_abi_input_names({'inputs': log_data_abi})
 
+    # sanity check that there are not name intersections between the topic
+    # names and the data argument names.
+    duplicate_names = set(log_topic_names).intersection(log_data_names)
+    if duplicate_names:
+        raise ValueError(
+            "Invalid Event ABI:  The following argument names are duplicated "
+            "between event inputs: '{0}'".format(', '.join(duplicate_names))
+        )
+
     decoded_log_data = decode_abi(log_data_types, log_data)
     decoded_topic_data = [
         decode_single(topic_type, topic_data)
@@ -57,8 +71,19 @@ def get_event_data(event_abi, log_entry):
         in zip(log_topic_types, log_topics)
     ]
 
-    decoded_data = {
-        'topics': dict(zip(log_topic_names, decoded_topic_data)),
-        'data': dict(zip(log_data_names, decoded_log_data)),
+    event_args = dict(itertools.chain(
+        dict(zip(log_topic_names, decoded_topic_data)),
+        dict(zip(log_data_names, decoded_log_data)),
+    ))
+
+    event_data = {
+        'args': event_args,
+        'event': event_abi['name'],
+        'logIndex': log_entry['logIndex'],
+        'transactionIndex': log_entry['transactionIndex'],
+        'address': log_entry['address'],
+        'blockHash': log_entry['blockHash'],
+        'blockNumber': log_entry['blockNumber'],
     }
-    return decoded_data
+
+    return event_data

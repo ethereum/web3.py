@@ -12,6 +12,7 @@ from web3.utils.string import (
 from web3.utils.address import (
     is_address,
     is_strict_address,
+    to_address,
 )
 from web3.utils.types import (
     is_array,
@@ -106,7 +107,7 @@ def output_transaction_receipt_formatter(receipt):
     if receipt is None:
         return None
 
-    logs_formatter = compose(functools.partial(map, outputLogFormatter), list)
+    logs_formatter = compose(functools.partial(map, output_log_formatter), list)
 
     formatters = {
         'blockNumber': to_decimal,
@@ -149,18 +150,21 @@ def outputBlockFormatter(block):
 
 
 @coerce_return_to_text
-def outputLogFormatter(log):
+def output_log_formatter(log):
     """
     Formats the output of a log
     """
-    if log.get("blockNumber"):
-        log["blockNumber"] = to_decimal(log["blockNumber"])
-    if log.get("transactionIndex"):
-        log["transactionIndex"] = to_decimal(log["transactionIndex"])
-    if log.get("logIndex"):
-        log["logIndex"] = to_decimal(log["logIndex"])
+    formatters = {
+        'blockNumber': to_decimal,
+        'transactionIndex': to_decimal,
+        'logIndex': to_decimal,
+        'address': to_address,
+    }
 
-    return log
+    return {
+        key: formatters.get(key, identity)(value)
+        for key, value in log.items()
+    }
 
 
 @coerce_return_to_text
@@ -204,11 +208,11 @@ def outputPostFormatter(post):
 def input_address_formatter(addr):
     iban = Iban(addr)
     if iban.isValid() and iban.isDirect():
-        return "0x" + iban.address()
+        return add_0x_prefix(iban.address())
     elif is_strict_address(addr):
         return addr
     elif is_address(addr):
-        return "0x" + addr
+        return add_0x_prefix(addr)
 
     raise ValueError("invalid address")
 

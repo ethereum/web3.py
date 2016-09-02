@@ -12,6 +12,7 @@ from .encoding import (
 from .string import (
     force_text,
     coerce_args_to_text,
+    coerce_return_to_text,
 )
 from .types import (
     is_string,
@@ -19,6 +20,7 @@ from .types import (
 from .formatting import (
     add_0x_prefix,
     remove_0x_prefix,
+    is_prefixed,
 )
 
 
@@ -39,6 +41,7 @@ def is_address(address):
         return is_checksum_address(address)
 
 
+@coerce_args_to_text
 def is_checksum_address(address):
     """
     Checks if the given string is a checksummed address
@@ -52,6 +55,7 @@ def is_checksum_address(address):
     return force_text(address) == force_text(checksum_address)
 
 
+@coerce_args_to_text
 def is_strict_address(address):
     """
     Checks if the given string is strictly an address
@@ -63,6 +67,8 @@ def is_strict_address(address):
     return re.match(r"^0x[0-9a-fA-F]{40}$", address) is not None
 
 
+@coerce_args_to_text
+@coerce_return_to_text
 def to_checksum_address(address):
     """
     Makes a checksum address
@@ -83,6 +89,8 @@ def to_checksum_address(address):
     return checksumAddress
 
 
+@coerce_args_to_text
+@coerce_return_to_text
 def to_address(address):
     """
     Transforms given string to valid 20 bytes-length addres with 0x prefix
@@ -90,11 +98,16 @@ def to_address(address):
 
     if is_string(address):
         address = address.lower()
+
         if len(address) == 42:
             return address
         elif len(address) == 40:
             return add_0x_prefix(address)
         elif len(address) == 20:
             return encode_hex(address)
+        elif len(address) in {66, 64}:
+            long_address = remove_0x_prefix(address)
+            if is_prefixed(long_address, '000000000000000000000000'):
+                return add_0x_prefix(address[-40:])
 
     raise ValueError("Unknown address format")
