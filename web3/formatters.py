@@ -39,6 +39,10 @@ from web3.utils.functional import (
 
 
 def apply_if_passes_test(test_fn):
+    """
+    Constructs a decorator that will cause the underlying function to only be
+    applied to the given value if the `test_fn` returns true for that value.
+    """
     def outer_fn(fn):
         @functools.wraps(fn)
         def inner(value):
@@ -148,6 +152,11 @@ apply_if_array_of_dicts = apply_if_passes_test(compose(
 ))
 
 
+filter_output_formatter = apply_if_not_null(apply_if_array_of_dicts(
+    log_array_formatter
+))
+
+
 @coerce_args_to_text
 @coerce_return_to_text
 def output_transaction_receipt_formatter(receipt):
@@ -193,9 +202,6 @@ def output_block_formatter(block):
         key: formatters.get(key, identity)(value)
         for key, value in block.items()
     }
-
-
-filter_output_formatter = apply_if_array_of_dicts(log_array_formatter)
 
 
 @coerce_return_to_text
