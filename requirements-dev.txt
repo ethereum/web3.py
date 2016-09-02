@@ -1,8 +1,8 @@
 pytest>=2.8.2
 pytest-pythonpath>=0.3
 tox>=1.8.0
-eth-testrpc>=0.8.2
-ethereum-tester-client>=1.1.1
+eth-testrpc>=0.8.3
+ethereum-tester-client>=1.2.0
 py-geth>=1.2.0
 ethereum>=1.5.2
 secp256k1>=0.13.1
