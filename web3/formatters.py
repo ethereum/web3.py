@@ -56,6 +56,14 @@ def apply_if_passes_test(test_fn):
 apply_if_not_null = apply_if_passes_test(compose(is_null, operator.not_))
 apply_if_string = apply_if_passes_test(is_string)
 apply_if_array = apply_if_passes_test(is_array)
+apply_if_object = apply_if_passes_test(is_object)
+
+
+def apply_to_array(formatter_fn):
+    return compose(
+        functools.partial(map, formatter_fn),
+        list,
+    )
 
 
 def isPredefinedBlockNumber(blockNumber):
@@ -140,38 +148,24 @@ def output_log_formatter(log):
     }
 
 
-log_array_formatter = apply_if_not_null(compose(
-    functools.partial(map, output_log_formatter),
-    list,
-))
-
-
-apply_if_array_of_dicts = apply_if_passes_test(compose(
-    functools.partial(map, is_object),
-    all,
-))
-
-
-filter_output_formatter = apply_if_not_null(apply_if_array_of_dicts(
-    log_array_formatter
-))
+log_array_formatter = apply_if_not_null(apply_to_array(apply_if_object(
+    output_log_formatter
+)))
 
 
 @coerce_args_to_text
 @coerce_return_to_text
+@apply_if_not_null
 def output_transaction_receipt_formatter(receipt):
     """
     Formats the output of a transaction receipt to its proper values
     """
-    if receipt is None:
-        return None
-
     formatters = {
         'blockNumber': to_decimal,
         'transactionIndex': to_decimal,
         'cumulativeGasUsed': to_decimal,
         'gasUsed': to_decimal,
-        'logs': apply_if_array_of_dicts(log_array_formatter),
+        'logs': log_array_formatter,
     }
 
     return {
@@ -193,9 +187,9 @@ def output_block_formatter(block):
         'number': apply_if_not_null(to_decimal),
         'difficulty': to_decimal,
         'totalDifficulty': to_decimal,
-        'transactions': apply_if_array(
-            functools.partial(map, apply_if_string(output_transaction_formatter)),
-        )
+        'transactions': apply_if_array(apply_to_array(apply_if_object(
+            output_transaction_formatter,
+        ))),
     }
 
     return {
@@ -254,14 +248,6 @@ def input_address_formatter(addr):
     raise ValueError("invalid address")
 
 
-def outputSyncingFormatter(result):
-    result["startingBlock"] = to_decimal(result["startingBlock"])
-    result["currentBlock"] = to_decimal(result["currentBlock"])
-    result["highestBlock"] = to_decimal(result["highestBlock"])
-
-    return result
-
-
 def transaction_pool_formatter(value, txn_formatter):
     return {
         'pending': {
@@ -287,6 +273,7 @@ def transaction_pool_inspect_formatter(value):
     return transaction_pool_formatter(value, identity)
 
 
+@apply_if_not_null
 def syncing_formatter(value):
     if not value:
         return value
