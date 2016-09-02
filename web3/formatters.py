@@ -195,6 +195,9 @@ def output_block_formatter(block):
     }
 
 
+filter_output_formatter = apply_if_array_of_dicts(log_array_formatter)
+
+
 @coerce_return_to_text
 def inputPostFormatter(post):
     """

@@ -84,7 +84,7 @@ class BaseFilter(gevent.Greenlet):
                             callback_fn(self.format_entry(entry))
             gevent.sleep(random.random())
 
-    def format_entry(entry):
+    def format_entry(self, entry):
         """
         Hook for subclasses to change the format of the value that is passed
         into the callback functions.
