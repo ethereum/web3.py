@@ -257,7 +257,8 @@ class Contract(object):
         if gas_estimate > gas_limit:
             raise ValueError(
                 "Contract does not appear to be delpoyable within the "
-                "current network gas limits"
+                "current network gas limits.  Estimated: {0}. Current gas "
+                "limit: {1}".format(gas_estimate, gas_limit)
             )
 
         return min(gas_limit, gas_estimate + cls.gas_buffer)
@@ -266,12 +267,17 @@ class Contract(object):
     # ABI Helpers
     #
     @classmethod
-    def find_matching_fn_abi(cls, fn_name, arguments):
-        filters = [
-            functools.partial(filter_by_name, fn_name),
-            functools.partial(filter_by_argument_count, arguments),
-            functools.partial(filter_by_encodability, arguments),
-        ]
+    def find_matching_fn_abi(cls, fn_name=None, arguments=None):
+        filters = []
+
+        if fn_name:
+            filters.append(functools.partial(filter_by_name, fn_name))
+
+        if arguments is not None:
+            filters.extend([
+                functools.partial(filter_by_argument_count, arguments),
+                functools.partial(filter_by_encodability, arguments),
+            ])
 
         function_candidates = filter_by_type('function', cls.abi)
 
@@ -289,12 +295,20 @@ class Contract(object):
             raise ValueError("Multiple functions found")
 
     @classmethod
-    def find_matching_event_abi(cls, event_name, argument_names):
-        filter_fn = compose(
+    def find_matching_event_abi(cls, event_name=None, argument_names=None):
+        filters = [
             functools.partial(filter_by_type, 'event'),
-            functools.partial(filter_by_name, event_name),
-            functools.partial(filter_by_argument_name, argument_names),
-        )
+        ]
+
+        if event_name is not None:
+            filters.append(functools.partial(filter_by_name, event_name))
+
+        if argument_names is not None:
+            filters.append(
+                functools.partial(filter_by_argument_name, argument_names)
+            )
+
+        filter_fn = compose(*filters)
 
         event_abi_candidates = filter_fn(cls.abi)
 
