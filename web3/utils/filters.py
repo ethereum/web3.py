@@ -75,16 +75,6 @@ class BaseFilter(gevent.Greenlet):
             raise ValueError("Cannot restart a Filter")
         self.running = True
 
-        self.rejected_logs = []
-        previous_logs = self.web3.eth.getFilterLogs(self.filter_id)
-        if previous_logs:
-            for entry in previous_logs:
-                for callback_fn in self.callbacks:
-                    if self.is_valid_entry(entry):
-                        callback_fn(entry)
-                    else:
-                        self.rejected_logs.append(entry)
-
         while self.running:
             changes = self.web3.eth.getFilterChanges(self.filter_id)
             if changes:
@@ -92,8 +82,6 @@ class BaseFilter(gevent.Greenlet):
                     for callback_fn in self.callbacks:
                         if self.is_valid_entry(entry):
                             callback_fn(entry)
-                        else:
-                            self.rejected_logs.append(entry)
             gevent.sleep(random.random())
 
     def is_valid_entry(self, entry):
@@ -168,3 +156,20 @@ class LogFilter(BaseFilter):
         if not self.data_filter_set_regex:
             return True
         return bool(self.data_filter_set_regex.match(entry['data']))
+
+
+class PastLogFilter(LogFilter):
+    def _run(self):
+        if self.stopped:
+            raise ValueError("Cannot restart a Filter")
+        self.running = True
+
+        previous_logs = self.web3.eth.getFilterLogs(self.filter_id)
+
+        if previous_logs:
+            for entry in previous_logs:
+                for callback_fn in self.callbacks:
+                    if self.is_valid_entry(entry):
+                        callback_fn(entry)
+
+        self.running = False

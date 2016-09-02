@@ -41,6 +41,7 @@ from web3.utils.transactions import (
 )
 from web3.utils.filters import (
     construct_event_filter_params,
+    PastLogFilter,
 )
 
 
@@ -426,12 +427,18 @@ class Contract(object):
         )
 
         log_filter = self.web3.eth.filter(filter_params)
-        log_filter.set_data_filters(data_filter_set)
+
+        past_log_filter = PastLogFilter(
+            web3=log_filter.web3,
+            filter_id=log_filter.filter_id,
+        )
+        past_log_filter.callbacks.extend(log_filter.callbacks)
+        past_log_filter.set_data_filters(data_filter_set)
 
         if callbacks:
-            log_filter.watch(*callbacks)
+            past_log_filter.watch(*callbacks)
 
-        return log_filter
+        return past_log_filter
 
     def estimateGas(self, transaction=None):
         """

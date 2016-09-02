@@ -9,7 +9,6 @@ assert sha3_256(b'').hexdigest() == 'c5d2460186f7233c927e7db2dcc703c0e500b653ca8
 @pytest.fixture(autouse=True)
 def skip_testrpc_and_wait_for_mining_start(web3_empty, wait_for_block,
                                            skip_if_testrpc):
-    skip_if_testrpc(web3_empty)  # TODO: enable testrpc
     wait_for_block(web3_empty)
 
 
