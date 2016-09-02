@@ -11,21 +11,21 @@ from .abi import (
     get_indexed_event_inputs,
     exclude_indexed_event_inputs,
 )
-from .functional import (
-    replace_key,
-)
 
 
-def coerce_event_abi_types_for_decoding(abi_inputs):
+ABI_EVENT_TYPE_MAP = {
+}
+
+
+def coerce_event_abi_types_for_decoding(input_types):
     """
     Event logs use the `sha3(value)` for inputs of type `bytes` or `string`.
     Because of this we need to modify the types so that we can decode the log
     entries using the correct types.
     """
-    replace_fn = functools.partial(replace_key, key='type', replacement='bytes32')
     return [
-        arg if arg['type'] not in {'bytes', 'string'} else replace_fn(arg)
-        for arg in abi_inputs
+        'bytes32' if arg_type in {'bytes', 'string'} else arg_type
+        for arg_type in input_types
     ]
 
 
@@ -72,8 +72,8 @@ def get_event_data(event_abi, log_entry):
     ]
 
     event_args = dict(itertools.chain(
-        dict(zip(log_topic_names, decoded_topic_data)),
-        dict(zip(log_data_names, decoded_log_data)),
+        zip(log_topic_names, decoded_topic_data),
+        zip(log_data_names, decoded_log_data),
     ))
 
     event_data = {
@@ -81,6 +81,7 @@ def get_event_data(event_abi, log_entry):
         'event': event_abi['name'],
         'logIndex': log_entry['logIndex'],
         'transactionIndex': log_entry['transactionIndex'],
+        'transactionHash': log_entry['transactionHash'],
         'address': log_entry['address'],
         'blockHash': log_entry['blockHash'],
         'blockNumber': log_entry['blockNumber'],

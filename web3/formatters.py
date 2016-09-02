@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import functools
+import operator
 
 from web3.iban import Iban
 
@@ -17,6 +18,8 @@ from web3.utils.address import (
 from web3.utils.types import (
     is_array,
     is_string,
+    is_null,
+    is_object,
 )
 from web3.utils.formatting import (
     is_0x_prefixed,
@@ -35,13 +38,20 @@ from web3.utils.functional import (
 )
 
 
-def apply_if_not_null(fn):
-    @functools.wraps(fn)
-    def inner(value):
-        if value is not None:
-            return fn(value)
-        return value
-    return inner
+def apply_if_passes_test(test_fn):
+    def outer_fn(fn):
+        @functools.wraps(fn)
+        def inner(value):
+            if test_fn(value):
+                return fn(value)
+            return value
+        return inner
+    return outer_fn
+
+
+apply_if_not_null = apply_if_passes_test(compose(is_null, operator.not_))
+apply_if_string = apply_if_passes_test(is_string)
+apply_if_array = apply_if_passes_test(is_array)
 
 
 def isPredefinedBlockNumber(blockNumber):
@@ -108,57 +118,6 @@ def output_transaction_formatter(txn):
     }
 
 
-@coerce_args_to_text
-@coerce_return_to_text
-def output_transaction_receipt_formatter(receipt):
-    """
-    Formats the output of a transaction receipt to its proper values
-    """
-    if receipt is None:
-        return None
-
-    logs_formatter = compose(functools.partial(map, output_log_formatter), list)
-
-    formatters = {
-        'blockNumber': to_decimal,
-        'transactionIndex': to_decimal,
-        'cumulativeGasUsed': to_decimal,
-        'gasUsed': to_decimal,
-        'logs': lambda l: logs_formatter(l) if is_array(l) else l,
-    }
-
-    return {
-        key: formatters.get(key, identity)(value)
-        for key, value in receipt.items()
-    }
-
-
-@coerce_return_to_text
-def outputBlockFormatter(block):
-    """
-    Formats the output of a block to its proper values
-    """
-
-    # Transform to number
-    block["gasLimit"] = to_decimal(block["gasLimit"])
-    block["gasUsed"] = to_decimal(block["gasUsed"])
-    block["size"] = to_decimal(block["size"])
-    block["timestamp"] = to_decimal(block["timestamp"])
-
-    if block.get("number"):
-        block["number"] = to_decimal(block["number"])
-
-    block["difficulty"] = to_decimal(block["difficulty"])
-    block["totalDifficulty"] = to_decimal(block["totalDifficulty"])
-
-    if is_array(block.get("transactions")):
-        for item in block["transactions"]:
-            if not is_string(item):
-                item = output_transaction_formatter(item)
-
-    return block
-
-
 @coerce_return_to_text
 def output_log_formatter(log):
     """
@@ -174,6 +133,65 @@ def output_log_formatter(log):
     return {
         key: formatters.get(key, identity)(value)
         for key, value in log.items()
+    }
+
+
+log_array_formatter = apply_if_not_null(compose(
+    functools.partial(map, output_log_formatter),
+    list,
+))
+
+
+apply_if_array_of_dicts = apply_if_passes_test(compose(
+    functools.partial(map, is_object),
+    all,
+))
+
+
+@coerce_args_to_text
+@coerce_return_to_text
+def output_transaction_receipt_formatter(receipt):
+    """
+    Formats the output of a transaction receipt to its proper values
+    """
+    if receipt is None:
+        return None
+
+    formatters = {
+        'blockNumber': to_decimal,
+        'transactionIndex': to_decimal,
+        'cumulativeGasUsed': to_decimal,
+        'gasUsed': to_decimal,
+        'logs': apply_if_array_of_dicts(log_array_formatter),
+    }
+
+    return {
+        key: formatters.get(key, identity)(value)
+        for key, value in receipt.items()
+    }
+
+
+@coerce_return_to_text
+def output_block_formatter(block):
+    """
+    Formats the output of a block to its proper values
+    """
+    formatters = {
+        'gasLimit': to_decimal,
+        'gasUsed': to_decimal,
+        'size': to_decimal,
+        'timestamp': to_decimal,
+        'number': apply_if_not_null(to_decimal),
+        'difficulty': to_decimal,
+        'totalDifficulty': to_decimal,
+        'transactions': apply_if_array(
+            functools.partial(map, apply_if_string(output_transaction_formatter)),
+        )
+    }
+
+    return {
+        key: formatters.get(key, identity)(value)
+        for key, value in block.items()
     }
 
 

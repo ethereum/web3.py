@@ -425,7 +425,7 @@ def emitter_event_ids():
 
 def event_topic(event_signature):
     from web3.utils.string import force_bytes
-    return force_bytes("0x" + sha3_256(force_bytes(event_signature)).hexdigest())
+    return "0x" + sha3_256(force_bytes(event_signature)).hexdigest()
 
 
 class LogTopics(object):

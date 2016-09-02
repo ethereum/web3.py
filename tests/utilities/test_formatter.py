@@ -214,8 +214,8 @@ def test_input_transaction_formatter(web3_tester, value, expected):
         })
     ]
 )
-def test_outputBlockFormatter(value, expected):
-    assert formatters.outputBlockFormatter(value) == expected
+def test_output_block_formatter(value, expected):
+    assert formatters.output_block_formatter(value) == expected
 
 
 @pytest.mark.parametrize(

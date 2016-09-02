@@ -129,7 +129,7 @@ class Eth(object):
             [account, block_number],
         )
 
-    @apply_formatters_to_return(formatters.outputBlockFormatter)
+    @apply_formatters_to_return(formatters.output_block_formatter)
     def getBlock(self, block_identifier, full_txns=False):
         """
         `eth_getBlockByHash`
@@ -254,11 +254,11 @@ class Eth(object):
         else:
             raise ValueError("Must provide either a string or a valid filter object")
 
-    @apply_formatters_to_return(formatters.output_log_formatter)
+    @apply_formatters_to_return(formatters.log_array_formatter)
     def getFilterChanges(self, filter_id):
         return self.request_manager.request_blocking("eth_getFilterChanges", [filter_id])
 
-    @apply_formatters_to_return(formatters.output_log_formatter)
+    @apply_formatters_to_return(formatters.log_array_formatter)
     def getFilterLogs(self, filter_id):
         return self.request_manager.request_blocking("eth_getFilterLogs", [filter_id])
 
