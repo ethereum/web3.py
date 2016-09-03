@@ -39,3 +39,7 @@ def is_object(obj):
 
 def is_array(obj):
     return isinstance(obj, list)
+
+
+def is_null(obj):
+    return obj is None

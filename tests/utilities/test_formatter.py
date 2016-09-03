@@ -214,8 +214,8 @@ def test_input_transaction_formatter(web3_tester, value, expected):
         })
     ]
 )
-def test_outputBlockFormatter(value, expected):
-    assert formatters.outputBlockFormatter(value) == expected
+def test_output_block_formatter(value, expected):
+    assert formatters.output_block_formatter(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -229,7 +229,8 @@ def test_outputBlockFormatter(value, expected):
                 "transactionHash": '0xd6960376d6c6dea93647383ffb245cfced97ccc5c7525397a543a72fdaea5265',
                 "blockHash": '0xd6960376d6c6dea93647383ffb245cfced97ccc5c7525397a543a72fdaea5265',
                 "data": '0x7b2274657374223a2274657374227',
-                "topics": ['0x68656c6c6f','0x6d79746f70696373']
+                "topics": ['0x68656c6c6f','0x6d79746f70696373'],
+                "address": "0x000000000000000000000000c305c901078781c232a2a521c2af7980f8385ee9",
             }, {
                 "transactionIndex": 1000,
                 "logIndex": 1000,
@@ -237,7 +238,8 @@ def test_outputBlockFormatter(value, expected):
                 "transactionHash": '0xd6960376d6c6dea93647383ffb245cfced97ccc5c7525397a543a72fdaea5265',
                 "blockHash": '0xd6960376d6c6dea93647383ffb245cfced97ccc5c7525397a543a72fdaea5265',
                 "data": '0x7b2274657374223a2274657374227',
-                "topics": ['0x68656c6c6f','0x6d79746f70696373']
+                "topics": ['0x68656c6c6f','0x6d79746f70696373'],
+                "address": "0xc305c901078781c232a2a521c2af7980f8385ee9",
         }),
 
 
@@ -249,7 +251,8 @@ def test_outputBlockFormatter(value, expected):
                 "transactionHash": None,
                 "blockHash": None,
                 "data": '0x7b2274657374223a2274657374227',
-                "topics": ['0x68656c6c6f','0x6d79746f70696373']
+                "topics": ['0x68656c6c6f','0x6d79746f70696373'],
+                "address": "0x000000000000000000000000c305c901078781c232a2a521c2af7980f8385ee9",
             }, {
                 "transactionIndex": None,
                 "logIndex": None,
@@ -257,14 +260,15 @@ def test_outputBlockFormatter(value, expected):
                 "transactionHash": None,
                 "blockHash": None,
                 "data": '0x7b2274657374223a2274657374227',
-                "topics": ['0x68656c6c6f','0x6d79746f70696373']
+                "topics": ['0x68656c6c6f','0x6d79746f70696373'],
+                "address": "0xc305c901078781c232a2a521c2af7980f8385ee9",
         })
 
 
     ]
 )
-def test_outputLogFormatter(value, expected):
-    assert formatters.outputLogFormatter(value) == expected
+def test_output_log_formatter(value, expected):
+    assert formatters.output_log_formatter(value) == expected
 
 
 @pytest.mark.parametrize(

@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import functools
+import operator
 
 from web3.iban import Iban
 
@@ -12,13 +13,17 @@ from web3.utils.string import (
 from web3.utils.address import (
     is_address,
     is_strict_address,
+    to_address,
 )
 from web3.utils.types import (
     is_array,
     is_string,
+    is_null,
+    is_object,
 )
 from web3.utils.formatting import (
     is_0x_prefixed,
+    add_0x_prefix,
 )
 from web3.utils.encoding import (
     to_hex,
@@ -31,6 +36,34 @@ from web3.utils.functional import (
     identity,
     compose,
 )
+
+
+def apply_if_passes_test(test_fn):
+    """
+    Constructs a decorator that will cause the underlying function to only be
+    applied to the given value if the `test_fn` returns true for that value.
+    """
+    def outer_fn(fn):
+        @functools.wraps(fn)
+        def inner(value):
+            if test_fn(value):
+                return fn(value)
+            return value
+        return inner
+    return outer_fn
+
+
+apply_if_not_null = apply_if_passes_test(compose(is_null, operator.not_))
+apply_if_string = apply_if_passes_test(is_string)
+apply_if_array = apply_if_passes_test(is_array)
+apply_if_object = apply_if_passes_test(is_object)
+
+
+def apply_to_array(formatter_fn):
+    return compose(
+        functools.partial(map, formatter_fn),
+        list,
+    )
 
 
 def isPredefinedBlockNumber(blockNumber):
@@ -83,8 +116,8 @@ def input_transaction_formatter(eth, txn):
 @coerce_return_to_text
 def output_transaction_formatter(txn):
     formatters = {
-        'blockNumber': lambda v: None if v is None else to_decimal(v),
-        'transactionIndex': lambda v: None if v is None else to_decimal(v),
+        'blockNumber': apply_if_not_null(to_decimal),
+        'transactionIndex': apply_if_not_null(to_decimal),
         'nonce': to_decimal,
         'gas': to_decimal,
         'gasPrice': to_decimal,
@@ -97,23 +130,42 @@ def output_transaction_formatter(txn):
     }
 
 
+@coerce_return_to_text
+def output_log_formatter(log):
+    """
+    Formats the output of a log
+    """
+    formatters = {
+        'blockNumber': apply_if_not_null(to_decimal),
+        'transactionIndex': apply_if_not_null(to_decimal),
+        'logIndex': apply_if_not_null(to_decimal),
+        'address': to_address,
+    }
+
+    return {
+        key: formatters.get(key, identity)(value)
+        for key, value in log.items()
+    }
+
+
+log_array_formatter = apply_if_not_null(apply_to_array(apply_if_object(
+    output_log_formatter
+)))
+
+
 @coerce_args_to_text
 @coerce_return_to_text
+@apply_if_not_null
 def output_transaction_receipt_formatter(receipt):
     """
     Formats the output of a transaction receipt to its proper values
     """
-    if receipt is None:
-        return None
-
-    logs_formatter = compose(functools.partial(map, outputLogFormatter), list)
-
     formatters = {
         'blockNumber': to_decimal,
         'transactionIndex': to_decimal,
         'cumulativeGasUsed': to_decimal,
         'gasUsed': to_decimal,
-        'logs': lambda l: logs_formatter(l) if is_array(l) else l,
+        'logs': log_array_formatter,
     }
 
     return {
@@ -123,44 +175,27 @@ def output_transaction_receipt_formatter(receipt):
 
 
 @coerce_return_to_text
-def outputBlockFormatter(block):
+def output_block_formatter(block):
     """
     Formats the output of a block to its proper values
     """
+    formatters = {
+        'gasLimit': to_decimal,
+        'gasUsed': to_decimal,
+        'size': to_decimal,
+        'timestamp': to_decimal,
+        'number': apply_if_not_null(to_decimal),
+        'difficulty': to_decimal,
+        'totalDifficulty': to_decimal,
+        'transactions': apply_if_array(apply_to_array(apply_if_object(
+            output_transaction_formatter,
+        ))),
+    }
 
-    # Transform to number
-    block["gasLimit"] = to_decimal(block["gasLimit"])
-    block["gasUsed"] = to_decimal(block["gasUsed"])
-    block["size"] = to_decimal(block["size"])
-    block["timestamp"] = to_decimal(block["timestamp"])
-
-    if block.get("number"):
-        block["number"] = to_decimal(block["number"])
-
-    block["difficulty"] = to_decimal(block["difficulty"])
-    block["totalDifficulty"] = to_decimal(block["totalDifficulty"])
-
-    if is_array(block.get("transactions")):
-        for item in block["transactions"]:
-            if not is_string(item):
-                item = output_transaction_formatter(item)
-
-    return block
-
-
-@coerce_return_to_text
-def outputLogFormatter(log):
-    """
-    Formats the output of a log
-    """
-    if log.get("blockNumber"):
-        log["blockNumber"] = to_decimal(log["blockNumber"])
-    if log.get("transactionIndex"):
-        log["transactionIndex"] = to_decimal(log["transactionIndex"])
-    if log.get("logIndex"):
-        log["logIndex"] = to_decimal(log["logIndex"])
-
-    return log
+    return {
+        key: formatters.get(key, identity)(value)
+        for key, value in block.items()
+    }
 
 
 @coerce_return_to_text
@@ -204,21 +239,13 @@ def outputPostFormatter(post):
 def input_address_formatter(addr):
     iban = Iban(addr)
     if iban.isValid() and iban.isDirect():
-        return "0x" + iban.address()
+        return add_0x_prefix(iban.address())
     elif is_strict_address(addr):
         return addr
     elif is_address(addr):
-        return "0x" + addr
+        return add_0x_prefix(addr)
 
     raise ValueError("invalid address")
-
-
-def outputSyncingFormatter(result):
-    result["startingBlock"] = to_decimal(result["startingBlock"])
-    result["currentBlock"] = to_decimal(result["currentBlock"])
-    result["highestBlock"] = to_decimal(result["highestBlock"])
-
-    return result
 
 
 def transaction_pool_formatter(value, txn_formatter):
@@ -246,6 +273,7 @@ def transaction_pool_inspect_formatter(value):
     return transaction_pool_formatter(value, identity)
 
 
+@apply_if_not_null
 def syncing_formatter(value):
     if not value:
         return value
