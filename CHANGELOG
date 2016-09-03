@@ -1,3 +1,9 @@
+2.2.0
+--------
+
+* The filters that come back from the contract `on` and `pastEvents` methods
+  now call their callbacks with the same data format as `web3.js`.
+
 2.1.1
 --------
 
