@@ -25,7 +25,7 @@ def test_on_filter_using_get_interface(web3_empty,
 
     with gevent.Timeout(10):
         while not filter.get(False):
-            gevent.sleep(0)
+            gevent.sleep(random.random())
 
     log_entries = filter.get(False)
 
