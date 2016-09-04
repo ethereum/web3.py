@@ -36,6 +36,9 @@ from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
     function_abi_to_4byte_selector,
 )
+from web3.utils.decorators import (
+    combomethod,
+)
 from web3.utils.transactions import (
     get_block_gas_limit,
 )
@@ -379,6 +382,7 @@ class Contract(object):
 
         return deploy_data
 
+    @combomethod
     def on(self, event_name, default_filter_params=None, *callbacks):
         """
         register a callback to be triggered on the appropriate events.
@@ -410,6 +414,7 @@ class Contract(object):
 
         return log_filter
 
+    @combomethod
     def pastEvents(self, event_name, default_filter_params=None, *callbacks):
         """
         register a callback to be triggered on all past events.
