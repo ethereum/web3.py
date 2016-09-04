@@ -27,7 +27,7 @@ def test_on_filter_using_get_interface(web3_empty,
         while not filter.get(False):
             gevent.sleep(random.random())
 
-    log_entries = filter.get(False)
+    log_entries = filter.get()
 
     assert len(log_entries) == 1
     assert log_entries[0]['transactionHash'] == txn_hash

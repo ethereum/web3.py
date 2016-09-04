@@ -160,7 +160,7 @@ class LogFilter(BaseFilter):
         if only_changes:
             log_entries = self.web3.eth.getFilterChanges(self.filter_id)
         else:
-            log_entries = self.web3.eth.getFilterChanges(self.filter_id)
+            log_entries = self.web3.eth.getFilterLogs(self.filter_id)
 
         formatted_log_entries = [
             self.format_entry(log_entry) for log_entry in log_entries
