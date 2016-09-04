@@ -23,7 +23,11 @@ def test_on_filter_using_get_interface(web3_empty,
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
-    log_entries = filter.get()
+    with gevent.Timeout(10):
+        while not filter.get(False):
+            gevent.sleep(0)
+
+    log_entries = filter.get(False)
 
     assert len(log_entries) == 1
     assert log_entries[0]['transactionHash'] == txn_hash

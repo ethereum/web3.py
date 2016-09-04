@@ -62,7 +62,11 @@ def test_past_events_filter_using_get_api(web3_empty,
     else:
         filter = Emitter.pastEvents('LogNoArguments')
 
-    log_entries = filter.get()
+    with gevent.Timeout(10):
+        while not filter.get(False):
+            gevent.sleep(0)
+
+    log_entries = filter.get(False)
 
     assert len(log_entries) == 1
     event_data = log_entries[0]
