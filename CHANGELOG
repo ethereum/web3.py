@@ -1,3 +1,9 @@
+2.3.0
+--------
+
+* Upstream fixes for filters
+* Filter APIs `on` and `pastEvents` now callable as both instance and class methods.
+
 2.2.0
 --------
 
