@@ -280,7 +280,12 @@ class Contract(object):
         if fn_name:
             filters.append(functools.partial(filter_by_name, fn_name))
 
-        if args is not None and kwargs is not None:
+        if args is not None or kwargs is not None:
+            if args is None:
+                args = tuple()
+            if kwargs is None:
+                kwargs = {}
+
             num_arguments = len(args) + len(kwargs)
             filters.extend([
                 functools.partial(filter_by_argument_count, num_arguments),
