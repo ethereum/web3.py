@@ -22,7 +22,11 @@ FUNCTION_ABI = {
 @pytest.mark.parametrize(
     'args,kwargs,expected_args',
     (
-        ([1, 4, 2, 3], {}, [1, 4, 2, 3]),
+        ((1, 4, 2, 3), {}, (1, 4, 2, 3)),
+        ((1, 4, 2), {'d': 3}, (1, 4, 2, 3)),
+        ((1, 4), {'d': 3, 'c': 2}, (1, 4, 2, 3)),
+        ((1,), {'d': 3, 'b': 4, 'c': 2}, (1, 4, 2, 3)),
+        (tuple(), {'d': 3, 'b': 4, 'a': 1, 'c': 2}, (1, 4, 2, 3)),
     ),
 )
 def test_merging_of_args_and_kwargs(args, kwargs, expected_args):
