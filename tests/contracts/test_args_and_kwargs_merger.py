@@ -1,6 +1,6 @@
 import pytest
 
-from web3.contract import (
+from web3.utils.abi import (
     merge_args_and_kwargs,
 )
 
@@ -13,6 +13,15 @@ FUNCTION_ABI = {
         {"name":"c", "type":"int256"},
         {"name":"d", "type":"int256"},
     ],
+    "name": "testFn",
+    "outputs": [],
+    "type":"function",
+}
+
+
+NO_INPUTS_FUNCTION_ABI = {
+    "constant": False
+    ,"inputs": [],
     "name": "testFn",
     "outputs": [],
     "type":"function",
@@ -32,3 +41,8 @@ FUNCTION_ABI = {
 def test_merging_of_args_and_kwargs(args, kwargs, expected_args):
     actual_args = merge_args_and_kwargs(FUNCTION_ABI, args, kwargs)
     assert actual_args == expected_args
+
+
+def test_merging_of_args_and_kwargs_with_no_inputs():
+    actual = merge_args_and_kwargs(NO_INPUTS_FUNCTION_ABI, tuple(), {})
+    assert actual == tuple()

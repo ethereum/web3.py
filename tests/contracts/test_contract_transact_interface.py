@@ -41,6 +41,13 @@ def test_transacting_with_contract_no_arguments(web3_tester, math_contract):
     assert final_value - initial_value == 1
 
 
+@pytest.mark.parametrize(
+    'transact_args,transact_kwargs',
+    (
+        ((5,), {}),
+        (tuple(), {'amt': 5}),
+    ),
+)
 def test_transacting_with_contract_with_arguments(web3_tester, math_contract):
     initial_value = math_contract.call().counter()
 

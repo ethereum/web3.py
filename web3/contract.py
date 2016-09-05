@@ -1,7 +1,6 @@
 """Interaction with smart contracts over Web3 connector.
 
 """
-import itertools
 import functools
 
 from eth_abi import (
@@ -35,6 +34,7 @@ from web3.utils.abi import (
     get_constructor_abi,
     check_if_arguments_can_be_encoded,
     function_abi_to_4byte_selector,
+    merge_args_and_kwargs,
 )
 from web3.utils.decorators import (
     combomethod,
@@ -274,16 +274,17 @@ class Contract(object):
     # ABI Helpers
     #
     @classmethod
-    def find_matching_fn_abi(cls, fn_name=None, arguments=None):
+    def find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
         filters = []
 
         if fn_name:
             filters.append(functools.partial(filter_by_name, fn_name))
 
-        if arguments is not None:
+        if args is not None and kwargs is not None:
+            num_arguments = len(args) + len(kwargs)
             filters.extend([
-                functools.partial(filter_by_argument_count, arguments),
-                functools.partial(filter_by_encodability, arguments),
+                functools.partial(filter_by_argument_count, num_arguments),
+                functools.partial(filter_by_encodability, args, kwargs),
             ])
 
         function_candidates = filter_by_type('function', cls.abi)
@@ -370,8 +371,9 @@ class Contract(object):
                     )
 
                 is_encodable = check_if_arguments_can_be_encoded(
-                    get_abi_input_types(constructor),
+                    constructor,
                     arguments,
+                    {},
                 )
                 if not is_encodable:
                     raise ValueError("Unable to encode provided arguments.")
@@ -620,10 +622,11 @@ class Contract(object):
 
 
 @coerce_return_to_text
-def call_contract_function(contract=None,
-                           function_name=None,
-                           transaction=None,
-                           *arguments):
+def call_contract_function(contract,
+                           function_name,
+                           transaction,
+                           *args,
+                           **kwargs):
     """Calls a contract constant or function.
 
     The function must not have state changing effects.
@@ -643,11 +646,10 @@ def call_contract_function(contract=None,
     else:
         call_transaction = dict(**transaction)
 
-    if not arguments:
-        arguments = []
-
-    function_abi = contract.find_matching_fn_abi(function_name, arguments)
+    function_abi = contract.find_matching_fn_abi(function_name, args, kwargs)
     function_selector = function_abi_to_4byte_selector(function_abi)
+
+    arguments = merge_args_and_kwargs(function_abi, args, kwargs)
 
     call_transaction['data'] = contract.encodeABI(
         function_name,
@@ -674,7 +676,8 @@ def call_contract_function(contract=None,
 def transact_with_contract_function(contract=None,
                                     function_name=None,
                                     transaction=None,
-                                    *arguments):
+                                    *args,
+                                    **kwargs):
     """Transacts with a contract.
 
     Sends in a transaction that interacts with the contract.
@@ -737,11 +740,10 @@ def transact_with_contract_function(contract=None,
     else:
         transact_transaction = dict(**transaction)
 
-    if not arguments:
-        arguments = []
-
-    function_abi = contract.find_matching_fn_abi(function_name, arguments)
+    function_abi = contract.find_matching_fn_abi(function_name, args, kwargs)
     function_selector = function_abi_to_4byte_selector(function_abi)
+
+    arguments = merge_args_and_kwargs(function_abi, args, kwargs)
 
     transact_transaction['data'] = contract.encodeABI(
         function_name,
@@ -759,7 +761,8 @@ def transact_with_contract_function(contract=None,
 def estimate_gas_for_function(contract=None,
                               function_name=None,
                               transaction=None,
-                              *arguments):
+                              *args,
+                              **kwargs):
     """Estimates gas cost a function call would take.
 
     Don't call this directly, instead use :meth:`Contract.estimateGas`
@@ -770,11 +773,10 @@ def estimate_gas_for_function(contract=None,
     else:
         estimate_transaction = dict(**transaction)
 
-    if not arguments:
-        arguments = []
-
-    function_abi = contract.find_matching_fn_abi(function_name, arguments)
+    function_abi = contract.find_matching_fn_abi(function_name, args, kwargs)
     function_selector = function_abi_to_4byte_selector(function_abi)
+
+    arguments = merge_args_and_kwargs(function_abi, args, kwargs)
 
     estimate_transaction['data'] = contract.encodeABI(
         function_name,
@@ -843,44 +845,3 @@ def construct_contract_class(web3, abi, code=None,
         'source': source,
     }
     return type('Contract', (Contract,), _dict)
-
-
-def merge_args_and_kwargs(function_abi, args, kwargs):
-    if len(args) + len(kwargs) != len(function_abi['inputs']):
-        raise TypeError(
-            "Incorrect argument count.  Expected '{0}'.  Got '{1}'".format(
-                len(function_abi['input']),
-                len(args) + len(kwargs),
-            )
-        )
-    args_as_kwargs = {
-        arg_abi['name']: arg
-        for arg_abi, arg in zip(function_abi['inputs'], args)
-    }
-    duplicate_keys = set(args_as_kwargs).intersection(kwargs.keys())
-    if duplicate_keys:
-        raise TypeError(
-            "{fn_name}() got multiple values for argument(s) '{dups}'".format(
-                fn_name=function_abi['name'],
-                dups=', '.join(duplicate_keys),
-            )
-        )
-
-    sorted_arg_names = [arg_abi['name'] for arg_abi in function_abi['inputs']]
-
-    unknown_kwargs = {key for key in kwargs.keys() if key not in sorted_arg_names}
-    if unknown_kwargs:
-        raise TypeError(
-            "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
-                fn_name=function_abi['name'],
-                dups=', '.join(unknown_kwargs),
-            )
-        )
-
-    sorted_args = list(zip(
-        *sorted(
-            itertools.chain(kwargs.items(), args_as_kwargs.items()),
-            key=lambda kv: sorted_arg_names.index(kv[0])
-        )
-    ))
-    return sorted_args[1]

@@ -53,12 +53,12 @@ def exclude_indexed_event_inputs(event_abi):
     return [arg for arg in event_abi['inputs'] if arg['indexed'] is False]
 
 
-def filter_by_argument_count(arguments, contract_abi):
+def filter_by_argument_count(num_arguments, contract_abi):
     return [
         abi
         for abi
         in contract_abi
-        if len(abi['inputs']) == len(arguments)
+        if len(abi['inputs']) == num_arguments
     ]
 
 
@@ -122,23 +122,75 @@ def is_encodable(_type, value):
         raise ValueError("Unsupported type")
 
 
-def filter_by_encodability(arguments, contract_abi):
+def filter_by_encodability(args, kwargs, contract_abi):
     return [
-        abi
-        for abi
+        function_abi
+        for function_abi
         in contract_abi
-        if check_if_arguments_can_be_encoded(get_abi_input_types(abi), arguments)
+        if check_if_arguments_can_be_encoded(function_abi, args, kwargs)
     ]
 
 
 @coerce_args_to_bytes
-def check_if_arguments_can_be_encoded(types, arguments):
-    if len(types) != len(arguments):
-        raise ValueError("Length mismatch between types and arguments")
+def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
+    try:
+        arguments = merge_args_and_kwargs(function_abi, args, kwargs)
+    except TypeError:
+        return False
+
+    if len(function_abi['inputs']) != len(arguments):
+        return False
+
+    types = get_abi_input_types(function_abi)
+
     return all(
         is_encodable(_type, arg)
         for _type, arg in zip(types, arguments)
     )
+
+
+def merge_args_and_kwargs(function_abi, args, kwargs):
+    if len(args) + len(kwargs) != len(function_abi['inputs']):
+        raise TypeError(
+            "Incorrect argument count.  Expected '{0}'.  Got '{1}'".format(
+                len(function_abi['input']),
+                len(args) + len(kwargs),
+            )
+        )
+    args_as_kwargs = {
+        arg_abi['name']: arg
+        for arg_abi, arg in zip(function_abi['inputs'], args)
+    }
+    duplicate_keys = set(args_as_kwargs).intersection(kwargs.keys())
+    if duplicate_keys:
+        raise TypeError(
+            "{fn_name}() got multiple values for argument(s) '{dups}'".format(
+                fn_name=function_abi['name'],
+                dups=', '.join(duplicate_keys),
+            )
+        )
+
+    sorted_arg_names = [arg_abi['name'] for arg_abi in function_abi['inputs']]
+
+    unknown_kwargs = {key for key in kwargs.keys() if key not in sorted_arg_names}
+    if unknown_kwargs:
+        raise TypeError(
+            "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
+                fn_name=function_abi['name'],
+                dups=', '.join(unknown_kwargs),
+            )
+        )
+
+    sorted_args = list(zip(
+        *sorted(
+            itertools.chain(kwargs.items(), args_as_kwargs.items()),
+            key=lambda kv: sorted_arg_names.index(kv[0])
+        )
+    ))
+    if sorted_args:
+        return sorted_args[1]
+    else:
+        return tuple()
 
 
 def get_constructor_abi(contract_abi):
