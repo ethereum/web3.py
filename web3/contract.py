@@ -843,3 +843,44 @@ def construct_contract_class(web3, abi, code=None,
         'source': source,
     }
     return type('Contract', (Contract,), _dict)
+
+
+def merge_args_and_kwargs(function_abi, args, kwargs):
+    if len(args) + len(kwargs) != len(function_abi['inputs']):
+        raise TypeError(
+            "Incorrect argument count.  Expected '{0}'.  Got '{1}'".format(
+                len(function_abi['input']),
+                len(args) + len(kwargs),
+            )
+        )
+    args_as_kwargs = {
+        arg_abi['name']: arg
+        for arg_abi, arg in zip(function_abi['inputs'], args)
+    }
+    duplicate_keys = set(args_as_kwargs).intersection(kwargs.keys())
+    if duplicate_keys:
+        raise TypeError(
+            "{fn_name}() got multiple values for argument(s) '{dups}'".format(
+                fn_name=function_abi['name'],
+                dups=', '.join(duplicate_keys),
+            )
+        )
+
+    sorted_arg_names = [arg_abi['name'] for arg_abi in function_abi['inputs']]
+
+    unknown_kwargs = {key for key in kwargs.keys() if key not in sorted_arg_names}
+    if unknown_kwargs:
+        raise TypeError(
+            "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
+                fn_name=function_abi['name'],
+                dups=', '.join(unknown_kwargs),
+            )
+        )
+
+    sorted_args = list(zip(
+        *sorted(
+            kwargs.items(),
+            key=lambda kv: sorted_arg_names.index(kv[0])
+        )
+    ))[0]
+    return sorted_args
