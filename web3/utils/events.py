@@ -19,6 +19,7 @@ from .abi import (
     get_indexed_event_inputs,
     exclude_indexed_event_inputs,
     event_abi_to_log_topic,
+    normalize_return_type,
 )
 
 
@@ -119,6 +120,7 @@ def coerce_event_abi_types_for_decoding(input_types):
     ]
 
 
+@coerce_return_to_text
 def get_event_data(event_abi, log_entry):
     """
     Given an event ABI and a log entry for that event, return the decoded
@@ -155,15 +157,26 @@ def get_event_data(event_abi, log_entry):
         )
 
     decoded_log_data = decode_abi(log_data_types, log_data)
+    normalized_log_data = [
+        normalize_return_type(data_type, data_value)
+        for data_type, data_value
+        in zip(log_data_types, decoded_log_data)
+    ]
+
     decoded_topic_data = [
         decode_single(topic_type, topic_data)
         for topic_type, topic_data
         in zip(log_topic_types, log_topics)
     ]
+    normalized_topic_data = [
+        normalize_return_type(data_type, data_value)
+        for data_type, data_value
+        in zip(log_topic_types, decoded_topic_data)
+    ]
 
     event_args = dict(itertools.chain(
-        zip(log_topic_names, decoded_topic_data),
-        zip(log_data_names, decoded_log_data),
+        zip(log_topic_names, normalized_topic_data),
+        zip(log_data_names, normalized_log_data),
     ))
 
     event_data = {
