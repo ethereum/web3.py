@@ -38,3 +38,17 @@ def test_eth_sendTransaction_with_data(web3, wait_for_transaction, MATH_CODE, MA
     contract_address = txn_receipt['contractAddress']
 
     assert force_bytes(web3.eth.getCode(contract_address)) == MATH_RUNTIME
+
+
+def test_eth_sendTransaction_auto_estimates_gas_if_not_provided(web3, wait_for_transaction, MATH_CODE, MATH_RUNTIME):
+    txn_hash = web3.eth.sendTransaction({
+        "from": web3.eth.coinbase,
+        "data": MATH_CODE,
+    })
+
+    wait_for_transaction(web3, txn_hash)
+
+    txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
+    contract_address = txn_receipt['contractAddress']
+
+    assert force_bytes(web3.eth.getCode(contract_address)) == MATH_RUNTIME
