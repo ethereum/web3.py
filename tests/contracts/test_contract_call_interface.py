@@ -47,8 +47,16 @@ def test_call_with_one_argument(math_contract):
     assert result == 21
 
 
-def test_call_with_multiple_arguments(math_contract):
-    result = math_contract.call().add(9, 7)
+@pytest.mark.parametrize(
+    'call_args,call_kwargs',
+    (
+        ((9, 7), {}),
+        ((9,), {'b': 7}),
+        (tuple(), {'a': 9, 'b': 7}),
+    ),
+)
+def test_call_with_multiple_arguments(math_contract, call_args, call_kwargs):
+    result = math_contract.call().add(*call_args, **call_kwargs)
     assert result == 16
 
 

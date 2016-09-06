@@ -100,7 +100,7 @@ def test_on_filter_with_event_name_and_single_argument(web3_empty,
         wait_for_transaction(web3, txn_hash)
 
     with gevent.Timeout(5):
-        while not seen_logs:
+        while len(seen_logs) < 2:
             gevent.sleep(random.random())
 
     filter.stop_watching(10)

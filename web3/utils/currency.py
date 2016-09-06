@@ -31,6 +31,9 @@ units = {
 }
 
 
+denoms = type('denoms', (object,), units)
+
+
 MIN_WEI = 0
 MAX_WEI = 2 ** 256 - 1
 

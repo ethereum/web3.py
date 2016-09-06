@@ -41,10 +41,20 @@ def test_transacting_with_contract_no_arguments(web3_tester, math_contract):
     assert final_value - initial_value == 1
 
 
-def test_transacting_with_contract_with_arguments(web3_tester, math_contract):
+@pytest.mark.parametrize(
+    'transact_args,transact_kwargs',
+    (
+        ((5,), {}),
+        (tuple(), {'amt': 5}),
+    ),
+)
+def test_transacting_with_contract_with_arguments(web3_tester,
+                                                  math_contract,
+                                                  transact_args,
+                                                  transact_kwargs):
     initial_value = math_contract.call().counter()
 
-    txn_hash = math_contract.transact().increment(5)
+    txn_hash = math_contract.transact().increment(*transact_args, **transact_kwargs)
     txn_receipt = web3_tester.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt is not None
 
