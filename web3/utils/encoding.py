@@ -6,8 +6,10 @@ from .types import (
     is_string,
     is_boolean,
     is_object,
+    is_integer,
 )
 from .string import (
+    coerce_args_to_text,
     coerce_args_to_bytes,
     coerce_return_to_text,
     coerce_return_to_bytes,
@@ -35,15 +37,16 @@ def encode_hex(value):
     return add_0x_prefix(codecs.encode(value, 'hex'))
 
 
+@coerce_args_to_text
 def to_hex(value):
     """
-    Auto converts any given value into it's hex representation.
+    Auto converts any supported value into it's hex representation.
     """
     if is_boolean(value):
         return "0x1" if value else "0x0"
 
     if is_object(value):
-        return encode_hex(json.dumps(value))
+        return encode_hex(json.dumps(value, sort_keys=True))
 
     if is_string(value):
         if is_prefixed(value, '-0x'):
@@ -53,7 +56,13 @@ def to_hex(value):
         else:
             return encode_hex(value)
 
-    return from_decimal(value)
+    if is_integer(value):
+        return from_decimal(value)
+
+    raise TypeError(
+        "Unsupported type: '{0}'.  Must be one of Boolean, Dictionary, String, "
+        "or Integer.".format(repr(type(value)))
+    )
 
 
 def to_decimal(value):
@@ -73,7 +82,7 @@ def to_decimal(value):
 
 def from_decimal(value):
     """
-    Converts value to it's hex representation
+    Converts numeric value to it's hex representation
     """
     if is_string(value):
         if is_0x_prefixed(value) or is_prefixed(value, '-0x'):
@@ -81,5 +90,7 @@ def from_decimal(value):
         else:
             value = int(value)
 
+    # python2 longs end up with an `L` hanging off the end of their hexidecimal
+    # representation.
     result = hex(value).rstrip('L')
     return result
