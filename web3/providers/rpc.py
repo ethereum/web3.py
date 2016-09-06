@@ -1,6 +1,7 @@
 import contextlib
 import gevent
 from geventhttpclient import HTTPClient
+import logging
 
 
 from .base import BaseProvider  # noqa: E402
@@ -51,11 +52,18 @@ class TestRPCProvider(RPCProvider):
         from testrpc.server import application
         from testrpc.testrpc import evm_reset
 
+        try:
+            logger = kwargs.pop('logger')
+        except KeyError:
+            logger = logging.getLogger('testrpc')
+
         evm_reset()
 
         self.server = WSGIServer(
             (host, port),
             application,
+            log=logger,
+            error_log=logger,
         )
 
         self.thread = gevent.spawn(self.server.serve_forever)
