@@ -1,7 +1,7 @@
 import pytest
 
 
-from web3.utils.abi import (
+from web3.utils.events import (
     construct_event_topic_set,
 )
 

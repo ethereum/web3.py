@@ -6,7 +6,7 @@ from .types import (
     is_string,
     is_array,
 )
-from .abi import (
+from .events import (
     construct_event_topic_set,
     construct_event_data_set,
 )
