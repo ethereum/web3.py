@@ -40,6 +40,10 @@ output/*/index.html
 
 # Sphinx
 docs/_build
+docs/modules.rst
+docs/web3.rst
+docs/web3.providers.rst
+docs/web3.utils.rst
 
 # Blockchain
 chains

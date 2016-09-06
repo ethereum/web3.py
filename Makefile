@@ -30,6 +30,14 @@ test:
 test-all:
 	tox
 
+docs:
+	rm -f docs/web3.rst
+	rm -f docs/modules.rst
+	sphinx-apidoc -o docs/ web3
+	$(MAKE) -C docs clean
+	$(MAKE) -C docs html
+	open docs/_build/html/index.html
+
 release: clean
 	python setup.py sdist bdist_wheel upload
 
