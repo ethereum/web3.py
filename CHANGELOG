@@ -1,3 +1,8 @@
+2.4.0
+--------
+
+* Contract functions can now be called using keyword arguments.
+
 2.3.0
 --------
 
