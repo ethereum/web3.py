@@ -12,6 +12,9 @@ from web3.utils.types import (
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
+from web3.utils.transactions import (
+    get_buffered_gas_estimate,
+)
 from web3.utils.filters import (
     BlockFilter,
     TransactionFilter,
@@ -204,6 +207,11 @@ class Eth(object):
 
     def sendTransaction(self, transaction):
         formatted_transaction = formatters.input_transaction_formatter(self, transaction)
+        if 'gas' not in formatted_transaction and 'data' in formatted_transaction:
+            formatted_transaction['gas'] = get_buffered_gas_estimate(
+                self.web3,
+                transaction=formatted_transaction,
+            )
 
         return self.request_manager.request_blocking(
             "eth_sendTransaction",

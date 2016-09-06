@@ -17,3 +17,20 @@ def get_block_gas_limit(web3, block_identifier=None):
         block_identifier = web3.eth.blockNumber
     block = web3.eth.getBlock(block_identifier)
     return block['gasLimit']
+
+
+def get_buffered_gas_estimate(web3, transaction, gas_buffer=100000):
+    gas_estimate_transaction = dict(**transaction)
+
+    gas_estimate = web3.eth.estimateGas(gas_estimate_transaction)
+
+    gas_limit = get_block_gas_limit(web3)
+
+    if gas_estimate > gas_limit:
+        raise ValueError(
+            "Contract does not appear to be delpoyable within the "
+            "current network gas limits.  Estimated: {0}. Current gas "
+            "limit: {1}".format(gas_estimate, gas_limit)
+        )
+
+    return min(gas_limit, gas_estimate + gas_buffer)

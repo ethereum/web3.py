@@ -143,4 +143,4 @@ def test_auto_gas_computation_when_transacting(web3,
     assert force_bytes(final_value) == force_bytes("ÄLÄMÖLÖ")
 
     txn = web3.eth.getTransaction(txn_hash)
-    assert txn['gas'] == gas_estimate + string_contract.gas_buffer
+    assert txn['gas'] == gas_estimate + 100000

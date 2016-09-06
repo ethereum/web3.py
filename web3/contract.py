@@ -39,9 +39,6 @@ from web3.utils.abi import (
 from web3.utils.decorators import (
     combomethod,
 )
-from web3.utils.transactions import (
-    get_block_gas_limit,
-)
 from web3.utils.events import (
     get_event_data,
 )
@@ -77,9 +74,6 @@ class Contract(object):
 
     # instance level properties
     address = None
-
-    # extra gas to include when auto-computing transaction gas.
-    gas_buffer = 100000
 
     def __init__(self, abi=None, address=None, code=None, code_runtime=None, source=None):
         """Create a new smart contract proxy object.
@@ -246,29 +240,9 @@ class Contract(object):
 
         deploy_transaction['data'] = cls.encodeConstructorData(arguments)
 
-        if 'gas' not in deploy_transaction:
-            deploy_transaction['gas'] = cls.getBufferedGasEstimate(deploy_transaction)
-
         # TODO: handle asynchronous contract creation
         txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
         return txn_hash
-
-    @classmethod
-    def getBufferedGasEstimate(cls, transaction):
-        gas_estimate_transaction = dict(**transaction)
-
-        gas_estimate = cls.web3.eth.estimateGas(gas_estimate_transaction)
-
-        gas_limit = get_block_gas_limit(cls.web3)
-
-        if gas_estimate > gas_limit:
-            raise ValueError(
-                "Contract does not appear to be delpoyable within the "
-                "current network gas limits.  Estimated: {0}. Current gas "
-                "limit: {1}".format(gas_estimate, gas_limit)
-            )
-
-        return min(gas_limit, gas_estimate + cls.gas_buffer)
 
     #
     # ABI Helpers
@@ -755,9 +729,6 @@ def transact_with_contract_function(contract=None,
         arguments,
         data=function_selector,
     )
-
-    if 'gas' not in transact_transaction:
-        transact_transaction['gas'] = contract.getBufferedGasEstimate(transact_transaction)
 
     txn_hash = contract.web3.eth.sendTransaction(transact_transaction)
     return txn_hash
