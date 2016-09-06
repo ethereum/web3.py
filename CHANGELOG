@@ -1,3 +1,10 @@
+2.5.0
+--------
+
+* All transactions which contain a `data` element will now have their gas
+  automatically estimated with 100k additional buffer.  This was previously
+  only true with transactions initiated from a `Contract` object.
+
 2.4.0
 --------
 
