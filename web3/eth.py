@@ -111,28 +111,28 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @apply_formatters_to_return(to_decimal)
-    def getBalance(self, account, block_number=None):
-        if block_number is None:
-            block_number = self.defaultBlock
+    def getBalance(self, account, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getBalance",
-            [account, block_number],
+            [account, block_identifier],
         )
 
-    def getStorageAt(self, account, position, block_number=None):
-        if block_number is None:
-            block_number = self.defaultBlock
+    def getStorageAt(self, account, position, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getStorageAt",
-            [account, position, block_number],
+            [account, self.web3.toHex(position), block_identifier],
         )
 
-    def getCode(self, account, block_number=None):
-        if block_number is None:
-            block_number = self.defaultBlock
+    def getCode(self, account, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getCode",
-            [account, block_number],
+            [account, block_identifier],
         )
 
     @apply_formatters_to_return(formatters.output_block_formatter)
@@ -200,12 +200,12 @@ class Eth(object):
         )
 
     @apply_formatters_to_return(to_decimal)
-    def getTransactionCount(self, account, block_number=None):
-        if block_number is None:
-            block_number = self.defaultBlock
+    def getTransactionCount(self, account, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getTransactionCount",
-            [account, block_number],
+            [account, block_identifier],
         )
 
     def sendTransaction(self, transaction):
