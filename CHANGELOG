@@ -1,3 +1,14 @@
+2.7.0
+--------
+
+* Bugfix for usage of block identifiers 'latest', 'earliest', 'pending'
+* Sphinx documentation
+* Non-data transactions now default to 90000 gas.
+* Web3 object now has helpers set as static methods rather than being set at
+  initialization.
+* RPCProvider now takes a `path` parameter to allow configuration for requests
+  to go to paths other than `/`.
+
 2.6.0
 --------
 
