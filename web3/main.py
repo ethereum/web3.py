@@ -89,7 +89,7 @@ class Web3(object):
         if encoding == 'hex':
             hex_string = value
         else:
-            hex_string = to_hex(value)
+            hex_string = encode_hex(value)
         return self._requestManager.request_blocking('web3_sha3', [hex_string])
 
     def isConnected(self):
