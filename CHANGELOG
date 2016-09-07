@@ -1,3 +1,10 @@
+2.6.0
+--------
+
+* TestRPCProvider no longer dumps logging output to stdout and stderr.
+* Bugfix for return types of `address[]`
+* Bugfix for event data types of `address`
+
 2.5.0
 --------
 
