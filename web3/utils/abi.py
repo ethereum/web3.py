@@ -7,6 +7,7 @@ from eth_abi.abi import (
 from .crypto import sha3
 from .string import (
     coerce_args_to_bytes,
+    coerce_args_to_text,
     coerce_return_to_text,
 )
 from .formatting import (
@@ -147,6 +148,7 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     )
 
 
+@coerce_args_to_text
 def merge_args_and_kwargs(function_abi, args, kwargs):
     if len(args) + len(kwargs) != len(function_abi['inputs']):
         raise TypeError(
