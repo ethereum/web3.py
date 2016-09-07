@@ -42,6 +42,28 @@ from web3.utils.address import (
 
 
 class Web3(object):
+    RPCProvider = RPCProvider
+    IPCProvider = IPCProvider
+    TestRPCProvider = TestRPCProvider
+
+    # Encoding and Decoding
+    toHex = staticmethod(to_hex)
+    toAscii = staticmethod(decode_hex)
+    toUtf8 = staticmethod(compose(decode_hex, force_text))
+    fromAscii = staticmethod(encode_hex)
+    fromUtf8 = staticmethod(encode_hex)
+    toDecimal = staticmethod(to_decimal)
+    fromDecimal = staticmethod(from_decimal)
+
+    # Currency Utility
+    toWei = staticmethod(to_wei)
+    fromWei = staticmethod(from_wei)
+
+    # Address Utility
+    isAddress = staticmethod(is_address)
+    isChecksumAddress = staticmethod(is_checksum_address)
+    toChecksumAddress = staticmethod(to_checksum_address)
+
     def __init__(self, provider):
         self._requestManager = RequestManager(provider)
         self.currentProvider = provider
@@ -55,34 +77,6 @@ class Web3(object):
         self.txpool = TxPool(self._requestManager)
         self.miner = Miner(self._requestManager)
         self.admin = Admin(self._requestManager)
-
-        self.providers = {
-            'RPCProvider': RPCProvider,
-            'IPCProvider': IPCProvider,
-            'TestRPCProvider': TestRPCProvider,
-        }
-
-        self.RPCProvider = RPCProvider
-        self.IPCProvider = IPCProvider
-        self.TestRPCProvider = TestRPCProvider
-
-        # Encoding and Decoding
-        self.toHex = to_hex
-        self.toAscii = decode_hex
-        self.toUtf8 = compose(decode_hex, force_text)
-        self.fromAscii = encode_hex
-        self.fromUtf8 = encode_hex
-        self.toDecimal = to_decimal
-        self.fromDecimal = from_decimal
-
-        # Currency Utility
-        self.toWei = to_wei
-        self.fromWei = from_wei
-
-        # Address Utility
-        self.isAddress = is_address
-        self.isChecksumAddress = is_checksum_address
-        self.toChecksumAddress = to_checksum_address
 
     def setProvider(self, provider):
         self._requestManager.setProvider(provider)

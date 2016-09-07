@@ -111,32 +111,32 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @apply_formatters_to_return(to_decimal)
-    def getBalance(self, account, block_number=None):
-        if block_number is None:
-            block_number = self.defaultBlock
+    def getBalance(self, account, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getBalance",
-            [account, block_number],
+            [account, block_identifier],
         )
 
-    def getStorageAt(self, account, position, block_number=None):
-        if block_number is None:
-            block_number = self.defaultBlock
+    def getStorageAt(self, account, position, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getStorageAt",
-            [account, position, block_number],
+            [account, self.web3.toHex(position), block_identifier],
         )
 
-    def getCode(self, account, block_number=None):
-        if block_number is None:
-            block_number = self.defaultBlock
+    def getCode(self, account, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getCode",
-            [account, block_number],
+            [account, block_identifier],
         )
 
     @apply_formatters_to_return(formatters.output_block_formatter)
-    def getBlock(self, block_identifier, full_txns=False):
+    def getBlock(self, block_identifier, full_transactions=False):
         """
         `eth_getBlockByHash`
         `eth_getBlockByNumber`
@@ -148,7 +148,7 @@ class Eth(object):
 
         return self.request_manager.request_blocking(
             method,
-            [block_identifier, full_txns],
+            [block_identifier, full_transactions],
         )
 
     @apply_formatters_to_return(to_decimal)
@@ -171,14 +171,14 @@ class Eth(object):
         raise NotImplementedError("TODO")
 
     @apply_formatters_to_return(formatters.output_transaction_formatter)
-    def getTransaction(self, txn_hash):
+    def getTransaction(self, transaction_hash):
         return self.request_manager.request_blocking(
             "eth_getTransactionByHash",
-            [txn_hash],
+            [transaction_hash],
         )
 
     @apply_formatters_to_return(formatters.output_transaction_formatter)
-    def getTransactionFromBlock(self, block_identifier, txn_index):
+    def getTransactionFromBlock(self, block_identifier, transaction_index):
         """
         `eth_getTransactionByBlockHashAndIndex`
         `eth_getTransactionByBlockNumberAndIndex`
@@ -189,23 +189,23 @@ class Eth(object):
             method = 'eth_getTransactionByBlockHashAndIndex'
         return self.request_manager.request_blocking(
             method,
-            [block_identifier, txn_index],
+            [block_identifier, transaction_index],
         )
 
     @apply_formatters_to_return(formatters.output_transaction_receipt_formatter)
-    def getTransactionReceipt(self, txn_hash):
+    def getTransactionReceipt(self, transaction_hash):
         return self.request_manager.request_blocking(
             "eth_getTransactionReceipt",
-            [txn_hash],
+            [transaction_hash],
         )
 
     @apply_formatters_to_return(to_decimal)
-    def getTransactionCount(self, account, block_number=None):
-        if block_number is None:
-            block_number = self.defaultBlock
+    def getTransactionCount(self, account, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getTransactionCount",
-            [account, block_number],
+            [account, block_identifier],
         )
 
     def sendTransaction(self, transaction):
@@ -215,16 +215,18 @@ class Eth(object):
                 self.web3,
                 transaction=formatted_transaction,
             )
+        elif 'gas' not in formatted_transaction:
+            formatted_transaction['gas'] = 90000
 
         return self.request_manager.request_blocking(
             "eth_sendTransaction",
             [formatted_transaction],
         )
 
-    def sendRawTransaction(self, raw_txn):
+    def sendRawTransaction(self, raw_transaction):
         return self.request_manager.request_blocking(
             "eth_sendRawTransaction",
-            [raw_txn],
+            [raw_transaction],
         )
 
     def sign(self, account, data):

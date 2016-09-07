@@ -266,6 +266,8 @@ def syncing_formatter(value):
         'startingBlock': to_decimal,
         'currentBlock': to_decimal,
         'highestBlock': to_decimal,
+        'knownStates': to_decimal,
+        'pulledStates': to_decimal,
     }
 
     return {
