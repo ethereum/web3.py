@@ -45,3 +45,14 @@ def test_eth_getBlock_by_hash_with_full_transactions(web3):
     assert block_1_by_hash['number'] == 1
     assert block_1_by_hash['hash'] == block_1_hash
     assert all(isinstance(txn, dict) for txn in block_1['transactions'])
+
+
+def test_eth_getBlock_using_latest(web3):
+    assert web3.eth.blockNumber >= 1
+
+    current_block_number = web3.eth.blockNumber
+
+    block = web3.eth.getBlock('latest')
+    block_number = block['number']
+
+    assert block_number >= current_block_number
