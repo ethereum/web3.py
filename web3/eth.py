@@ -157,7 +157,7 @@ class Eth(object):
         `eth_getBlockTransactionCountByHash`
         `eth_getBlockTransactionCountByNumber`
         """
-        if is_integer(block_identifier):
+        if is_predefined_block_number(block_identifier) or is_integer(block_identifier):
             method = 'eth_getBlockTransactionCountByNumber'
         else:
             method = 'eth_getBlockTransactionCountByHash'
@@ -183,7 +183,7 @@ class Eth(object):
         `eth_getTransactionByBlockHashAndIndex`
         `eth_getTransactionByBlockNumberAndIndex`
         """
-        if is_integer(block_identifier):
+        if is_predefined_block_number(block_identifier) or is_integer(block_identifier):
             method = 'eth_getTransactionByBlockNumberAndIndex'
         else:
             method = 'eth_getTransactionByBlockHashAndIndex'
