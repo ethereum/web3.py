@@ -158,8 +158,9 @@ The ``web3.eth`` object exposes methods to interact with the RPC APIs under the
     * Delegates to ``eth_getBlockByNumber`` or ``eth_getBlockByHash`` RPC Methods
 
     Returns the block specified by ``block_identifier``.  Delegates to
-    ``eth_getBlockByNumber`` if ``block_identifier`` is an integer, otherwise
-    delegates to ``eth_getBlockByHash``.
+    ``eth_getBlockByNumber`` if ``block_identifier`` is an integer or one of
+    the predefined block parameters ``'latest', 'earliest', 'pending'``,
+    otherwise delegates to ``eth_getBlockByHash``.
 
     If ``full_txns`` is ``True`` then the ``'transactions'`` key will contain
     full transactions objects.  Otherwise it will be an array of transaction
@@ -189,3 +190,20 @@ The ``web3.eth`` object exposes methods to interact with the RPC APIs under the
             'transactionsRoot': '0xb31f174d27b99cdae8e746bd138a01ce60d8dd7b224f7c60845914def05ecc58',
             'uncles': [],
         }
+
+
+.. py:method:: Eth.getBlockTransactionCount(block_identifier)
+
+    * Delegates to ``eth_getBlockTransactionCountByNumber`` or
+      ``eth_getBlockTransactionCountByHash`` RPC Methods
+
+    Returns the number of transactions in the block specified by
+    ``block_identifier``.  Delegates to
+    ``eth_getBlockTransactionCountByNumber`` if ``block_identifier`` is an
+    integer or one of the predefined block parameters ``'latest', 'earliest',
+    'pending'``, otherwise delegates to ``eth_getBlockTransactionCountByHash``.
+
+    .. code-block:: python
+
+        >>> web3.eth.getBlockTransactionCount(46147)
+        1

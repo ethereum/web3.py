@@ -171,14 +171,14 @@ class Eth(object):
         raise NotImplementedError("TODO")
 
     @apply_formatters_to_return(formatters.output_transaction_formatter)
-    def getTransaction(self, txn_hash):
+    def getTransaction(self, transaction_hash):
         return self.request_manager.request_blocking(
             "eth_getTransactionByHash",
-            [txn_hash],
+            [transaction_hash],
         )
 
     @apply_formatters_to_return(formatters.output_transaction_formatter)
-    def getTransactionFromBlock(self, block_identifier, txn_index):
+    def getTransactionFromBlock(self, block_identifier, transaction_index):
         """
         `eth_getTransactionByBlockHashAndIndex`
         `eth_getTransactionByBlockNumberAndIndex`
@@ -189,7 +189,7 @@ class Eth(object):
             method = 'eth_getTransactionByBlockHashAndIndex'
         return self.request_manager.request_blocking(
             method,
-            [block_identifier, txn_index],
+            [block_identifier, transaction_index],
         )
 
     @apply_formatters_to_return(formatters.output_transaction_receipt_formatter)
