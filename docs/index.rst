@@ -15,7 +15,7 @@ Contents
     quickstart
     overview
     conventions
-    web3
+    web3.main
     web3.eth
     web3.db
     web3.shh

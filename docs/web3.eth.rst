@@ -1,6 +1,9 @@
 Eth API
 =======
 
+.. py:module:: web3.eth
+.. py:currentmodule:: web3.eth
+
 .. py:class:: Eth
 
 The ``web3.eth`` object exposes the following properties and methods to
@@ -10,7 +13,7 @@ interact with the RPC APIs under the ``eth_`` namespace.
 Properties
 ----------
 
-The following properties are available on the ``web3.eth`` object.
+The following properties are available on the ``web3.eth`` namespace.
 
 
 .. py:attribute:: Eth.defaultAccount
@@ -119,7 +122,7 @@ The following properties are available on the ``web3.eth`` object.
 Methods
 -------
 
-The following methods are available on the ``web3.eth`` object.
+The following methods are available on the ``web3.eth`` namespace.
 
 
 .. py:method:: Eth.getBalance(account, block_identifier=eth.defaultBlock)
@@ -225,7 +228,7 @@ The following methods are available on the ``web3.eth`` object.
 
 .. py:method:: Eth.getUncle(block_identifier)
 
-    .. attention:: Not Implemented
+    .. note:: Not Implemented
 
 
 .. py:method:: Eth.getTransaction(transaction_hash)
