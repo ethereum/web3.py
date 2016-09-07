@@ -15,15 +15,16 @@ Contents
     quickstart
     overview
     conventions
-    api
-    api.eth
-    api.db
-    api.shh
-    api.personal
-    api.version
-    api.txpool
-    api.miner
-    api.admin
+    web3
+    web3.eth
+    web3.db
+    web3.shh
+    web3.personal
+    web3.version
+    web3.txpool
+    web3.miner
+    web3.admin
+    filters
 
 
 Indices and tables

@@ -515,3 +515,73 @@ with the filtering API.
         <TransactionFilter at 0x10b780340>
         >>> web3.eth.filter({'fromBlock': 1000000, 'toBlock': 1000100, 'address': '0x6c8f2a135f6ed072de4503bd7c4999a1a17f824b'})
         <LogFilter at 0x10b7803d8>
+
+.. py:method:: Eth.getFilterChanges(self, filter_id)
+
+    * Delegates to ``eth_getFilterChanges`` RPC Method.
+
+    Returns all new entries which occurred since the last call to this method
+    for the given ``filter_id``
+
+    .. code-block:: python
+
+        >>> filter = web3.eth.filter()
+        >>> web3.eth.getFilterChanges(filter.filter_id)
+        [
+            {
+                'address': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24',
+                'blockHash': '0xb72256286ca528e09022ffd408856a73ef90e7216ac560187c6e43b4c4efd2f0',
+                'blockNumber': 2217196,
+                'data': '0x0000000000000000000000000000000000000000000000000000000000000001',
+                'logIndex': 0,
+                'topics': ['0xe65b00b698ba37c614af350761c735c5f4a82b4ab365a1f1022d49d9dfc8e930',
+                '0x000000000000000000000000754c50465885f1ed1fa1a55b95ee8ecf3f1f4324',
+                '0x296c7fb6ccafa3e689950b947c2895b07357c95b066d5cdccd58c301f41359a3'],
+                'transactionHash': '0xfe1289fd3915794b99702202f65eea2e424b2f083a12749d29b4dd51f6dce40d',
+                'transactionIndex': 1,
+            },
+            ...
+        ]
+
+
+.. py:method:: Eth.getFilterLogs(self, filter_id)
+
+    * Delegates to ``eth_getFilterLogs`` RPC Method.
+
+    Returns all entries for the given ``filter_id``
+
+    .. code-block:: python
+
+        >>> filter = web3.eth.filter()
+        >>> web3.eth.getFilterLogs(filter.filter_id)
+        [
+            {
+                'address': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24',
+                'blockHash': '0xb72256286ca528e09022ffd408856a73ef90e7216ac560187c6e43b4c4efd2f0',
+                'blockNumber': 2217196,
+                'data': '0x0000000000000000000000000000000000000000000000000000000000000001',
+                'logIndex': 0,
+                'topics': ['0xe65b00b698ba37c614af350761c735c5f4a82b4ab365a1f1022d49d9dfc8e930',
+                '0x000000000000000000000000754c50465885f1ed1fa1a55b95ee8ecf3f1f4324',
+                '0x296c7fb6ccafa3e689950b947c2895b07357c95b066d5cdccd58c301f41359a3'],
+                'transactionHash': '0xfe1289fd3915794b99702202f65eea2e424b2f083a12749d29b4dd51f6dce40d',
+                'transactionIndex': 1,
+            },
+            ...
+        ]
+
+
+.. py:method:: Eth.uninstallFilter(self, filter_id)
+
+    * Delegates to ``eth_uninstallFilter`` RPC Method.
+
+    Uninstalls the filter specified by the given ``filter_id``.  Returns
+    boolean as to whether the filter was successfully uninstalled.
+
+    .. code-block:: python
+
+        >>> filter = web3.eth.filter()
+        >>> web3.eth.uninstallFilter(filter.filter_id)
+        True
+        >>> web3.eth.uninstallFilter(filter.filter_id)
+        False  # already uninstalled.

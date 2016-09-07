@@ -3,6 +3,9 @@ Web3 API
 
 .. contents:: :local:
 
+.. py:module:: web3
+.. py:currentmodule:: web3
+
 
 .. py:class:: Web3(provider)
 
@@ -119,35 +122,35 @@ Each ``web3`` instance also exposes these namespaced APIs.
 
 .. py:attribute:: Web3.eth
 
-    See :doc:`./api.eth`
+    See :doc:`./web3.eth`
 
 .. py:attribute:: Web3.db
 
-    See :doc:`./api.db`
+    See :doc:`./web3.db`
 
 .. py:attribute:: Web3.shh
 
-    See :doc:`./api.shh`
+    See :doc:`./web3.shh`
 
 .. py:attribute:: Web3.personal
 
-    See :doc:`./api.personal`
+    See :doc:`./web3.personal`
 
 .. py:attribute:: Web3.version
 
-    See :doc:`./api.version`
+    See :doc:`./web3.version`
 
 .. py:attribute:: Web3.txpool
 
-    See :doc:`./api.txpool`
+    See :doc:`./web3.txpool`
 
 .. py:attribute:: Web3.miner
 
-    See :doc:`./api.miner`
+    See :doc:`./web3.miner`
 
 .. py:attribute:: Web3.admin
 
-    See :doc:`./api.admin`
+    See :doc:`./web3.admin`
 
 
 .. _EIP55: https://github.com/ethereum/EIPs/issues/55
