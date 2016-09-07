@@ -6,7 +6,6 @@ import operator
 from web3.iban import Iban
 
 from web3.utils.string import (
-    force_text,
     coerce_args_to_text,
     coerce_return_to_text,
 )
@@ -26,7 +25,6 @@ from web3.utils.formatting import (
     add_0x_prefix,
 )
 from web3.utils.encoding import (
-    to_hex,
     encode_hex,
     decode_hex,
     from_decimal,
