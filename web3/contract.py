@@ -35,6 +35,7 @@ from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
     function_abi_to_4byte_selector,
     merge_args_and_kwargs,
+    normalize_return_type,
 )
 from web3.utils.decorators import (
     combomethod,
@@ -642,10 +643,11 @@ def call_contract_function(contract,
     output_data = decode_abi(output_types, return_data)
 
     normalized_data = [
-        add_0x_prefix(data_value) if data_type == 'address' else data_value
+        normalize_return_type(data_type, data_value)
         for data_type, data_value
         in zip(output_types, output_data)
     ]
+
     if len(normalized_data) == 1:
         return normalized_data[0]
     else:
