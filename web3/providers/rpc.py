@@ -8,9 +8,10 @@ from .base import BaseProvider  # noqa: E402
 
 
 class RPCProvider(BaseProvider):
-    def __init__(self, host="127.0.0.1", port="8545", *args, **kwargs):
+    def __init__(self, host="127.0.0.1", port="8545", path="/", *args, **kwargs):
         self.host = host
         self.port = int(port)
+        self.path = path
 
         super(RPCProvider, self).__init__(*args, **kwargs)
 
@@ -30,7 +31,7 @@ class RPCProvider(BaseProvider):
             },
         )
         with contextlib.closing(client):
-            response = client.post('/', body=request_data)
+            response = client.post(self.path, body=request_data)
             response_body = response.read()
 
         return response_body
