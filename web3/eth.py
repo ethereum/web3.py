@@ -136,7 +136,7 @@ class Eth(object):
         )
 
     @apply_formatters_to_return(formatters.output_block_formatter)
-    def getBlock(self, block_identifier, full_txns=False):
+    def getBlock(self, block_identifier, full_transactions=False):
         """
         `eth_getBlockByHash`
         `eth_getBlockByNumber`
@@ -148,7 +148,7 @@ class Eth(object):
 
         return self.request_manager.request_blocking(
             method,
-            [block_identifier, full_txns],
+            [block_identifier, full_transactions],
         )
 
     @apply_formatters_to_return(to_decimal)
@@ -193,10 +193,10 @@ class Eth(object):
         )
 
     @apply_formatters_to_return(formatters.output_transaction_receipt_formatter)
-    def getTransactionReceipt(self, txn_hash):
+    def getTransactionReceipt(self, transaction_hash):
         return self.request_manager.request_blocking(
             "eth_getTransactionReceipt",
-            [txn_hash],
+            [transaction_hash],
         )
 
     @apply_formatters_to_return(to_decimal)
@@ -215,16 +215,18 @@ class Eth(object):
                 self.web3,
                 transaction=formatted_transaction,
             )
+        elif 'gas' not in formatted_transaction:
+            formatted_transaction['gas'] = 90000
 
         return self.request_manager.request_blocking(
             "eth_sendTransaction",
             [formatted_transaction],
         )
 
-    def sendRawTransaction(self, raw_txn):
+    def sendRawTransaction(self, raw_transaction):
         return self.request_manager.request_blocking(
             "eth_sendRawTransaction",
-            [raw_txn],
+            [raw_transaction],
         )
 
     def sign(self, account, data):

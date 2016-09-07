@@ -56,7 +56,7 @@ def construct_event_filter_params(event_abi,
     return data_filters_set, filter_params
 
 
-class BaseFilter(gevent.Greenlet):
+class Filter(gevent.Greenlet):
     callbacks = None
     running = None
     stopped = False
@@ -114,11 +114,11 @@ class BaseFilter(gevent.Greenlet):
     stopWatching = stop_watching
 
 
-class BlockFilter(BaseFilter):
+class BlockFilter(Filter):
     pass
 
 
-class TransactionFilter(BaseFilter):
+class TransactionFilter(Filter):
     pass
 
 
@@ -138,7 +138,7 @@ def construct_data_filter_regex(data_filter_set):
     ))
 
 
-class LogFilter(BaseFilter):
+class LogFilter(Filter):
     data_filter_set = None
     data_filter_set_regex = None
     log_entry_formatter = None
