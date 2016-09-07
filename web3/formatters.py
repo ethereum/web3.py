@@ -66,20 +66,6 @@ def apply_to_array(formatter_fn):
     )
 
 
-def isPredefinedBlockNumber(blockNumber):
-    if not is_string(blockNumber):
-        return False
-    return force_text(blockNumber) in {"latest", "pending", "earliest"}
-
-
-def inputBlockNumberFormatter(blockNumber):
-    if not blockNumber:
-        return None
-    elif isPredefinedBlockNumber(blockNumber):
-        return blockNumber
-    return to_hex(blockNumber)
-
-
 @coerce_args_to_text
 @coerce_return_to_text
 def input_call_formatter(eth, txn):

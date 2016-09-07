@@ -20,6 +20,9 @@ from web3.utils.filters import (
     TransactionFilter,
     LogFilter,
 )
+from web3.utils.blocks import (
+    is_predefined_block_number,
+)
 from web3.contract import construct_contract_class
 
 
@@ -138,7 +141,7 @@ class Eth(object):
         `eth_getBlockByHash`
         `eth_getBlockByNumber`
         """
-        if is_integer(block_identifier):
+        if is_predefined_block_number(block_identifier) or is_integer(block_identifier):
             method = 'eth_getBlockByNumber'
         else:
             method = 'eth_getBlockByHash'

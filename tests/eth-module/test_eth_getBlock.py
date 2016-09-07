@@ -9,7 +9,6 @@ def wait_for_first_block(web3, wait_for_block):
 
 
 def test_eth_getBlock_by_number(web3):
-    assert web3.eth.blockNumber >= 1
     block_1 = web3.eth.getBlock(1)
     assert block_1
     assert block_1['number'] == 1
@@ -17,7 +16,6 @@ def test_eth_getBlock_by_number(web3):
 
 
 def test_eth_getBlock_by_hash(web3):
-    assert web3.eth.blockNumber >= 1
     block_1 = web3.eth.getBlock(1)
     block_1_hash = block_1['hash']
 
@@ -29,14 +27,12 @@ def test_eth_getBlock_by_hash(web3):
 
 
 def test_eth_getBlock_by_number_with_full_transactions(web3):
-    assert web3.eth.blockNumber >= 1
     block_1 = web3.eth.getBlock(1, True)
     assert block_1['number'] == 1
     assert all(isinstance(txn, dict) for txn in block_1['transactions'])
 
 
 def test_eth_getBlock_by_hash_with_full_transactions(web3):
-    assert web3.eth.blockNumber >= 1
     block_1 = web3.eth.getBlock(1, True)
     block_1_hash = block_1['hash']
 
@@ -48,11 +44,20 @@ def test_eth_getBlock_by_hash_with_full_transactions(web3):
 
 
 def test_eth_getBlock_using_latest(web3):
-    assert web3.eth.blockNumber >= 1
-
     current_block_number = web3.eth.blockNumber
 
     block = web3.eth.getBlock('latest')
     block_number = block['number']
 
     assert block_number >= current_block_number
+
+
+def test_eth_getBlock_using_earliest(web3):
+    current_block_number = web3.eth.blockNumber
+
+    block = web3.eth.getBlock('earliest')
+
+    assert block['number'] == 0
+
+    block_1 = web3.eth.getBlock(0)
+    assert block == block_1
