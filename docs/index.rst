@@ -14,7 +14,8 @@ Contents
 
     quickstart
     overview
-    conventions
+    filters
+    contracts
     web3.main
     web3.eth
     web3.db
@@ -24,7 +25,7 @@ Contents
     web3.txpool
     web3.miner
     web3.admin
-    filters
+    conventions
 
 
 Indices and tables
