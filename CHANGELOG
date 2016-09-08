@@ -1,3 +1,8 @@
+2.7.1
+--------
+
+* Bugfix: Fix KeyError in merge_args_and_kwargs helper fn.
+
 2.7.0
 --------
 
