@@ -588,3 +588,27 @@ with the filtering API.
         True
         >>> web3.eth.uninstallFilter(filter.filter_id)
         False  # already uninstalled.
+
+
+Contracts
+---------
+
+.. py:method:: Eth.contract(abi, address=None, code=None, code_runtime=None, source=None)
+
+    If ``address`` is provided then this method will return an instance of the
+    contract defined by ``abi``.
+
+    If ``address`` is ``None`` then this method will return a Contract Factory,
+    which can be though of as the python class that represents your contract.
+
+    The ``abi`` parameter should be an array containing the ABI definition of
+    the contract functions and events.
+
+    The ``code`` parameter should be the full contract bytecode.
+
+    The ``code_runtime`` parameter should be the runtime part of the contract bytecode.
+
+    The ``source`` parameter should be a string containing the full source code
+    of the contract.
+
+    See :doc:`./contracts` for more information about how to use contracts.
