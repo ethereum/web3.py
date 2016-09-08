@@ -153,7 +153,7 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
     if len(args) + len(kwargs) != len(function_abi['inputs']):
         raise TypeError(
             "Incorrect argument count.  Expected '{0}'.  Got '{1}'".format(
-                len(function_abi['input']),
+                len(function_abi['inputs']),
                 len(args) + len(kwargs),
             )
         )
