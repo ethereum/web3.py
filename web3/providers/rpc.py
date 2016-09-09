@@ -9,7 +9,14 @@ from .base import BaseProvider  # noqa: E402
 
 class RPCProvider(BaseProvider):
 
-    def __init__(self, host="127.0.0.1", port="8545", path="/", connection_timeout=10, network_timeout=10, *args, **kwargs):
+    def __init__(self, 
+                 host="127.0.0.1", 
+                 port="8545", 
+                 path="/", 
+                 connection_timeout=10, 
+                 network_timeout=10, 
+                 *args, 
+                 **kwargs):
         """Create a new RPC client.
 
         :param connection_timeout: See :class:`geventhttpclient.HTTPClient`
