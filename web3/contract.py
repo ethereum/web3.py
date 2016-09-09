@@ -7,6 +7,9 @@ from eth_abi import (
     encode_abi,
     decode_abi,
 )
+from eth_abi.exceptions import (
+    EncodingError,
+)
 
 from web3.utils.encoding import (
     encode_hex,
@@ -35,6 +38,7 @@ from web3.utils.abi import (
     function_abi_to_4byte_selector,
     merge_args_and_kwargs,
     normalize_return_type,
+    check_if_arguments_can_be_encoded,
 )
 from web3.utils.decorators import (
     combomethod,
@@ -254,6 +258,11 @@ class Contract(object):
 
     @classmethod
     def get_function_info(cls, fn_name, args=None, kwargs=None):
+        if args is None:
+            args = tuple()
+        if kwargs is None:
+            kwargs = {}
+
         fn_abi = cls.find_matching_fn_abi(fn_name, args, kwargs)
         fn_selector = function_abi_to_4byte_selector(fn_abi)
 
@@ -306,11 +315,27 @@ class Contract(object):
 
     @classmethod
     def _encodeABI(cls, abi, arguments, data=None):
-        arguent_types = get_abi_input_types(abi)
-        encoded_arguments = encode_abi(
-            arguent_types,
-            force_obj_to_bytes(arguments),
-        )
+        argument_types = get_abi_input_types(abi)
+
+        if not check_if_arguments_can_be_encoded(abi, arguments, {}):
+            raise TypeError(
+                "One or more arguments could not be encoded to the necessary "
+                "ABI type.  Expected types are: {0}".format(
+                    ', '.join(argument_types),
+                )
+            )
+
+        try:
+            encoded_arguments = encode_abi(
+                argument_types,
+                force_obj_to_bytes(arguments),
+            )
+        except EncodingError as e:
+            raise TypeError(
+                "One or more arguments could not be encoded to the necessary "
+                "ABI type: {0}".format(str(e))
+            )
+
         if data:
             return add_0x_prefix(
                 force_bytes(remove_0x_prefix(data)) +
@@ -331,19 +356,6 @@ class Contract(object):
                 kwargs = {}
 
             arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
-
-            if constructor_abi['inputs'] and not arguments:
-                raise ValueError(
-                    "This contract requires {0} constructor arguments".format(
-                        len(constructor_abi['inputs']),
-                    )
-                )
-            if arguments and len(arguments) != len(constructor_abi['inputs']):
-                raise ValueError(
-                    "This contract requires {0} constructor arguments".format(
-                        len(constructor_abi['inputs']),
-                    )
-                )
 
             deploy_data = add_0x_prefix(
                 cls._encodeABI(constructor_abi, arguments, data=cls.code)

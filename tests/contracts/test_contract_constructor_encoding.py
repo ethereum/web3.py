@@ -31,7 +31,7 @@ def test_contract_constructor_abi_encoding_with_constructor_with_no_args(SimpleC
     ),
 )
 def test_error_if_invalid_arguments_supplied(WithConstructorArgumentsContract, arguments):
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         WithConstructorArgumentsContract._encodeConstructorData(arguments)
 
 
