@@ -100,7 +100,7 @@ Each Contract Factory exposes the following methods.
         "0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd"
 
 
-.. py:method:: Contract.call(transaction).myMethod(*args)
+.. py:method:: Contract.call(transaction).myMethod(*args, **kwargs)
 
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
@@ -121,7 +121,7 @@ Each Contract Factory exposes the following methods.
         54321  # the token balance for the account `web3.eth.accounts[1]`
 
 
-.. py:method:: Contract.estimateGas(transaction).myMethod(*args)
+.. py:method:: Contract.estimateGas(transaction).myMethod(*args, **kwargs)
 
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
@@ -214,12 +214,7 @@ Events
     Creates a new :py:class:`web3.utils.filters.PastLogFilter` instance which
     will match historical event logs.
 
-    All parameters behave the same as the :py:method::`Contract.on` method with
-    the exception that:
-
-    * ``filter_params`` parameter may not contain the keys ``toBlock`` or
-      ``fromBlock``.
-
+    All parameters behave the same as the :py:method::`Contract.on` method.
 
     .. code-block:: python
 

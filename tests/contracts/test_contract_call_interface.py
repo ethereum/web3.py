@@ -19,7 +19,7 @@ def math_contract(web3_tester, MathContract):
 
 @pytest.fixture()
 def string_contract(web3_tester, StringContract):
-    deploy_txn = StringContract.deploy(arguments=["Caqalai"])
+    deploy_txn = StringContract.deploy(args=["Caqalai"])
     deploy_receipt = web3_tester.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     _string_contract = StringContract(address=deploy_receipt['contractAddress'])
@@ -28,7 +28,7 @@ def string_contract(web3_tester, StringContract):
 
 @pytest.fixture()
 def address_contract(web3_tester, WithConstructorAddressArgumentsContract):
-    deploy_txn = WithConstructorAddressArgumentsContract.deploy(arguments=[
+    deploy_txn = WithConstructorAddressArgumentsContract.deploy(args=[
         "0xd3cda913deb6f67967b99d67acdfa1712c293601",
     ])
     deploy_receipt = web3_tester.eth.getTransactionReceipt(deploy_txn)

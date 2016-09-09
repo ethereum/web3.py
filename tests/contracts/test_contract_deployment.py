@@ -33,7 +33,7 @@ def test_contract_deployment_with_constructor_without_args(web3_tester,
 def test_contract_deployment_with_constructor_with_arguments(web3_tester,
                                                              WithConstructorArgumentsContract,
                                                              WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME):
-    deploy_txn = WithConstructorArgumentsContract.deploy(arguments=[1234, 'abcd'])
+    deploy_txn = WithConstructorArgumentsContract.deploy(args=[1234, 'abcd'])
 
     txn_receipt = web3_tester.eth.getTransactionReceipt(deploy_txn)
     assert txn_receipt is not None
@@ -48,7 +48,7 @@ def test_contract_deployment_with_constructor_with_arguments(web3_tester,
 def test_contract_deployment_with_constructor_with_address_argument(web3_tester,
                                                                     WithConstructorAddressArgumentsContract,
                                                                     WITH_CONSTRUCTOR_ADDRESS_RUNTIME):
-    deploy_txn = WithConstructorAddressArgumentsContract.deploy(arguments=["0x16d9983245de15e7a9a73bc586e01ff6e08de737"])
+    deploy_txn = WithConstructorAddressArgumentsContract.deploy(args=["0x16d9983245de15e7a9a73bc586e01ff6e08de737"])
 
     txn_receipt = web3_tester.eth.getTransactionReceipt(deploy_txn)
     assert txn_receipt is not None

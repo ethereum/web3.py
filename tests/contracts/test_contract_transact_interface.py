@@ -22,7 +22,7 @@ def math_contract(web3_tester, MathContract):
 
 @pytest.fixture()
 def string_contract(web3_tester, StringContract):
-    deploy_txn = StringContract.deploy(arguments=["Caqalai"])
+    deploy_txn = StringContract.deploy(args=["Caqalai"])
     deploy_receipt = web3_tester.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     _math_contract = StringContract(address=deploy_receipt['contractAddress'])
@@ -98,7 +98,7 @@ def test_transacting_with_contract_respects_explicit_gas(web3,
 
     StringContract = web3.eth.contract(**STRING_CONTRACT)
 
-    deploy_txn = StringContract.deploy(arguments=["Caqalai"])
+    deploy_txn = StringContract.deploy(args=["Caqalai"])
     deploy_receipt = wait_for_transaction_receipt(web3, deploy_txn, 30)
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt['contractAddress'])
@@ -126,7 +126,7 @@ def test_auto_gas_computation_when_transacting(web3,
 
     StringContract = web3.eth.contract(**STRING_CONTRACT)
 
-    deploy_txn = StringContract.deploy(arguments=["Caqalai"])
+    deploy_txn = StringContract.deploy(args=["Caqalai"])
     deploy_receipt = wait_for_transaction_receipt(web3, deploy_txn, 30)
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt['contractAddress'])

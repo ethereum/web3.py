@@ -7,6 +7,9 @@ from eth_abi import (
     encode_abi,
     decode_abi,
 )
+from eth_abi.exceptions import (
+    EncodingError,
+)
 
 from web3.utils.encoding import (
     encode_hex,
@@ -32,10 +35,10 @@ from web3.utils.abi import (
     get_abi_input_types,
     get_abi_output_types,
     get_constructor_abi,
-    check_if_arguments_can_be_encoded,
     function_abi_to_4byte_selector,
     merge_args_and_kwargs,
     normalize_return_type,
+    check_if_arguments_can_be_encoded,
 )
 from web3.utils.decorators import (
     combomethod,
@@ -52,14 +55,16 @@ from web3.utils.filters import (
 class Contract(object):
     """Base class for Contract proxy classes.
 
-    First you need to create your Contract classes using :func:`construct_contract_class`
-    that takes compiled Solidity contract ABI definitions as input.
-    The created class object will be a subclass of this base class.
+    First you need to create your Contract classes using
+    :func:`construct_contract_factory` that takes compiled Solidity contract
+    ABI definitions as input.  The created class object will be a subclass of
+    this base class.
 
-    After you have your Contract proxy class created you can interact with smart contracts
+    After you have your Contract proxy class created you can interact with
+    smart contracts
 
-    * Create a Contract proxy object for an existing deployed smart contract by its address
-      using :meth:`__init__`
+    * Create a Contract proxy object for an existing deployed smart contract by
+      its address using :meth:`__init__`
 
     * Deploy a new smart contract using :py:meth:`Contract.deploy`
     """
@@ -76,7 +81,12 @@ class Contract(object):
     # instance level properties
     address = None
 
-    def __init__(self, abi=None, address=None, code=None, code_runtime=None, source=None):
+    def __init__(self,
+                 abi=None,
+                 address=None,
+                 code=None,
+                 code_runtime=None,
+                 source=None):
         """Create a new smart contract proxy object.
 
         :param address: Contract address as 0x hex string
@@ -120,7 +130,9 @@ class Contract(object):
         if self._code_runtime is not None:
             return self._code_runtime
         # TODO: runtime can be derived from the contract source.
-        raise AttributeError("No contract code_runtime was specified for thes contract")
+        raise AttributeError(
+            "No contract code_runtime was specified for thes contract"
+        )
 
     @property
     def source(self):
@@ -129,7 +141,7 @@ class Contract(object):
         raise AttributeError("No contract source was specified for thes contract")
 
     @classmethod
-    def deploy(cls, transaction=None, arguments=None):
+    def deploy(cls, transaction=None, args=None, kwargs=None):
         """
         Deploys the contract on a blockchain.
 
@@ -137,89 +149,23 @@ class Contract(object):
 
         .. code-block:: python
 
-            from typing import Optional, Tuple
-
-            from gevent import Timeout
-            from web3 import Web3
-            from web3.contract import Contract, construct_contract_class
-
-            from populus.utils.transactions import (
-                get_contract_address_from_txn,
-                wait_for_transaction_receipt
+            >>> MyContract.deploy(
+                transaction={
+                    'from': web3.eth.accounts[1],
+                    'value': 12345,
+                },
+                args=('DGD', 18),
             )
+            '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
 
+        :param transaction: Transaction parameters for the deployment
+                            transaction as a dict
 
-            def deploy_contract(
-                    web3: Web3,
-                    contract_definition: dict,
-                    gas=1500000,
-                    timeout=60.0,
-                    constructor_arguments: Optional[list]=None,
-                    from_account=None) -> Tuple[Contract, str]:
-                '''Deploys a single contract using Web3 client.
+        :param args: The contract constructor arguments as positional arguments
+        :param kwargs: The contract constructor arguments as keyword arguments
 
-                :param web3: Web3 client instance
-
-                :param contract_definition: Dictionary of describing the contract interface,
-                    as read from ``contracts.json`` Contains
-
-                :param gas: Max gas
-
-                :param timeout: How many seconds to wait the transaction to
-                    confirm to get the contract address.
-
-                :param constructor_arguments: Arguments passed to the smart contract
-                    constructor. Automatically encoded through ABI signature.
-
-                :param from_account: Geth account that's balance is used for deployment.
-                    By default, the gas is spent from Web3 coinbase account.
-                    Account must be unlocked.
-
-                :return: Tuple containing Contract proxy object and the
-                    transaction hash where it was deployed
-
-                :raise gevent.timeout.Timeout: If we can't get our contract
-                    in a block within given timeout
-                '''
-
-                # Check we are passed valid contract definition
-                assert "abi" in contract_definition, \
-                    "Please pass a valid contract definition dictionary, got {}".
-                        format(contract_definition)
-
-                contract_class = construct_contract_class(
-                    web3=web3,
-                    abi=contract_definition["abi"],
-                    code=contract_definition["code"],
-                    code_runtime=contract_definition["code_runtime"],
-                    source=contract_definition["source"],
-                        )
-
-                if not from_account:
-                    from_account = web3.eth.coinbase
-
-                # Set transaction parameters
-                transaction = {
-                    "gas": gas,
-                    "from": from_account,
-                }
-
-                # Call web3 to deploy the contract
-                txn_hash = contract_class.deploy(transaction, constructor_arguments)
-
-                # Wait until we get confirmation and address
-                address = get_contract_address_from_txn(web3, txn_hash, timeout=timeout)
-
-                # Create Contract proxy object
-                contract = contract_class(address=address)
-
-                return contract, txn_hash
-
-        :param transaction: Transaction parameters for the deployment transaction as a dict
-
-        :param arguments: The contract constructor arguments
-
-        :return: 0x string formatted transaction hash of the deployment transaction
+        :return: hexidecimal transaction hash of the deployment
+                 transaction
         """
         if transaction is None:
             deploy_transaction = {}
@@ -228,28 +174,297 @@ class Contract(object):
 
         if not cls.code:
             raise ValueError(
-                "Cannot deploy a contract that does not have 'code' associated with it"
+                "Cannot deploy a contract that does not have 'code' associated "
+                "with it"
             )
+
         if 'data' in deploy_transaction:
             raise ValueError(
                 "Cannot specify `data` for contract deployment"
             )
+
         if 'to' in deploy_transaction:
             raise ValueError(
                 "Cannot specify `to` for contract deployment"
             )
 
-        deploy_transaction['data'] = cls.encodeConstructorData(arguments)
+        deploy_transaction['data'] = cls._encode_constructor_data(args, kwargs)
 
         # TODO: handle asynchronous contract creation
         txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
         return txn_hash
 
     #
-    # ABI Helpers
+    #  Public API
     #
     @classmethod
-    def find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
+    @coerce_return_to_text
+    def encodeABI(cls, fn_name, args=None, kwargs=None, data=None):
+        """
+        encodes the arguments using the Ethereum ABI for the contract function
+        that matches the given name and arguments..
+        """
+        fn_abi, _, fn_arguments = cls._get_function_info(
+            fn_name, args, kwargs,
+        )
+        return cls._encode_abi(fn_abi, fn_arguments, data)
+
+    @combomethod
+    def on(self, event_name, filter_params=None, *callbacks):
+        """
+        register a callback to be triggered on the appropriate events.
+        """
+        if filter_params is None:
+            filter_params = {}
+
+        argument_filters = filter_params.pop('filter', {})
+        argument_filter_names = list(argument_filters.keys())
+        event_abi = self._find_matching_event_abi(
+            event_name,
+            argument_filter_names,
+        )
+
+        data_filter_set, event_filter_params = construct_event_filter_params(
+            event_abi,
+            contract_address=self.address,
+            argument_filters=argument_filters,
+            **filter_params
+        )
+
+        log_data_extract_fn = functools.partial(get_event_data, event_abi)
+
+        log_filter = self.web3.eth.filter(event_filter_params)
+
+        log_filter.set_data_filters(data_filter_set)
+        log_filter.log_entry_formatter = log_data_extract_fn
+        log_filter.filter_params = event_filter_params
+
+        if callbacks:
+            log_filter.watch(*callbacks)
+
+        return log_filter
+
+    @combomethod
+    def pastEvents(self, event_name, filter_params=None, *callbacks):
+        """
+        register a callback to be triggered on all past events.
+        """
+        if filter_params is None:
+            filter_params = {}
+
+        event_filter_params = {}
+        event_filter_params.update(filter_params)
+        event_filter_params.setdefault('fromBlock', 'earliest')
+        event_filter_params.setdefault('toBlock', self.web3.eth.blockNumber)
+
+        log_filter = self.on(
+            event_name,
+            filter_params=event_filter_params,
+        )
+
+        past_log_filter = PastLogFilter(
+            web3=log_filter.web3,
+            filter_id=log_filter.filter_id,
+            log_entry_formatter=log_filter.log_entry_formatter,
+            data_filter_set=log_filter.data_filter_set,
+        )
+
+        if callbacks:
+            past_log_filter.watch(*callbacks)
+
+        return past_log_filter
+
+    @combomethod
+    def estimateGas(self, transaction=None):
+        """
+        Estimate the gas for a call
+        """
+        if transaction is None:
+            estimate_transaction = {}
+        else:
+            estimate_transaction = dict(**transaction)
+
+        if 'data' in estimate_transaction:
+            raise ValueError("Cannot set data in call transaction")
+        if 'to' in estimate_transaction:
+            raise ValueError("Cannot set to in call transaction")
+
+        if self.address:
+            estimate_transaction.setdefault('to', self.address)
+        estimate_transaction.setdefault('from', self.web3.eth.coinbase)
+
+        if 'to' not in estimate_transaction:
+            if isinstance(self, type):
+                raise ValueError(
+                    "When using `Contract.estimateGas` from a contract factory "
+                    "you must provide a `to` address with the transaction"
+                )
+            else:
+                raise ValueError(
+                    "Please ensure that this contract instance has an address."
+                )
+
+        contract = self
+
+        class Caller(object):
+            def __getattr__(self, function_name):
+                callable_fn = functools.partial(
+                    estimate_gas_for_function,
+                    contract,
+                    function_name,
+                    estimate_transaction,
+                )
+                return callable_fn
+
+        return Caller()
+
+    @combomethod
+    def call(self, transaction=None):
+        """
+        Execute a contract function call using the `eth_call` interface.
+
+        This method prepares a ``Caller`` object that exposes the contract
+        functions and publib variables as callable Python functions.
+
+        Reading a public ``owner`` address variable example:
+
+        .. code-block:: python
+
+            ContractFactory = construct_contract_factory(
+                web3=web3,
+                abi=wallet_contract_definition["abi"]
+            )
+
+            # Not a real contract address
+            contract = contract_class("0x2f70d3d26829e412a602e83fe8eebf80255aeea5")
+
+            # Read "owner" public variable
+            addr = contract.call().owner()
+
+        :param transaction: Dictionary of transaction info for web3 interface
+        :return: ``Caller`` object that has contract public functions
+            and variables exposed as Python methods
+        """
+        if transaction is None:
+            call_transaction = {}
+        else:
+            call_transaction = dict(**transaction)
+
+        if 'data' in call_transaction:
+            raise ValueError("Cannot set data in call transaction")
+
+        if self.address:
+            call_transaction.setdefault('to', self.address)
+        call_transaction.setdefault('from', self.web3.eth.coinbase)
+
+        if 'to' not in call_transaction:
+            if isinstance(self, type):
+                raise ValueError(
+                    "When using `Contract.call` from a contract factory you "
+                    "must provide a `to` address with the transaction"
+                )
+            else:
+                raise ValueError(
+                    "Please ensure that this contract instance has an address."
+                )
+
+        contract = self
+
+        class Caller(object):
+            def __getattr__(self, function_name):
+                callable_fn = functools.partial(
+                    call_contract_function,
+                    contract,
+                    function_name,
+                    call_transaction,
+                )
+                return callable_fn
+
+        return Caller()
+
+    @combomethod
+    def transact(self, transaction=None):
+        """
+        Execute a contract function call using the `eth_sendTransaction`
+        interface.
+
+        You should specify the account that pays the gas for this transaction
+        in `transaction`. If no account is specified the coinbase account of
+        web3 interface is used.
+
+        Example:
+
+        .. code-block:: python
+
+            # Assume we have a Wallet contract with the following methods.
+            # * Wallet.deposit()  # deposits to `msg.sender`
+            # * Wallet.deposit(address to)  # deposits to the account indicated
+            #   by the `to` parameter.
+            # * Wallet.withdraw(address amount)
+
+            >>> wallet = Wallet(address='0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24')
+            # Deposit to the `web3.eth.coinbase` account.
+            >>> wallet.transact({'value': 12345}).deposit()
+            '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
+            # Deposit to some other account using funds from `web3.eth.coinbase`.
+            >>> wallet.transact({'value': 54321}).deposit(web3.eth.accounts[1])
+            '0xe122ba26d25a93911e241232d3ba7c76f5a6bfe9f8038b66b198977115fb1ddf'
+            # Withdraw 12345 wei.
+            >>> wallet.transact().withdraw(12345)
+
+        The new public transaction will be created.  Transaction receipt will
+        be available once the transaction has been mined.
+
+        :param transaction: Dictionary of transaction info for web3 interface.
+        Variables include ``from``, ``gas``, ``value``, ``gasPrice``.
+
+        :return: ``Transactor`` object that has contract
+            public functions exposed as Python methods.
+            Calling these methods will execute a transaction against the contract.
+
+        """
+        if transaction is None:
+            transact_transaction = {}
+        else:
+            transact_transaction = dict(**transaction)
+
+        if 'data' in transact_transaction:
+            raise ValueError("Cannot set data in call transaction")
+
+        if self.address is not None:
+            transact_transaction.setdefault('to', self.address)
+        transact_transaction.setdefault('from', self.web3.eth.coinbase)
+
+        if 'to' not in transact_transaction:
+            if isinstance(self, type):
+                raise ValueError(
+                    "When using `Contract.transact` from a contract factory you "
+                    "must provide a `to` address with the transaction"
+                )
+            else:
+                raise ValueError(
+                    "Please ensure that this contract instance has an address."
+                )
+
+        contract = self
+
+        class Transactor(object):
+            def __getattr__(self, function_name):
+                callable_fn = functools.partial(
+                    transact_with_contract_function,
+                    contract,
+                    function_name,
+                    transact_transaction,
+                )
+                return callable_fn
+
+        return Transactor()
+
+    #
+    # Private Helpers
+    #
+    @classmethod
+    def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
         filters = []
 
         if fn_name:
@@ -283,7 +498,7 @@ class Contract(object):
             raise ValueError("Multiple functions found")
 
     @classmethod
-    def find_matching_event_abi(cls, event_name=None, argument_names=None):
+    def _find_matching_event_abi(cls, event_name=None, argument_names=None):
         filters = [
             functools.partial(filter_by_type, 'event'),
         ]
@@ -308,18 +523,69 @@ class Contract(object):
             raise ValueError("Multiple functions found")
 
     @classmethod
-    @coerce_return_to_text
-    def encodeABI(cls, fn_name, arguments, data=None):
+    def _get_function_info(cls, fn_name, args=None, kwargs=None):
+        if args is None:
+            args = tuple()
+        if kwargs is None:
+            kwargs = {}
+
+        fn_abi = cls._find_matching_fn_abi(fn_name, args, kwargs)
+        fn_selector = function_abi_to_4byte_selector(fn_abi)
+
+        fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
+
+        return fn_abi, fn_selector, fn_arguments
+
+    @combomethod
+    def _prepare_transaction(cls,
+                             fn_name,
+                             fn_args=None,
+                             fn_kwargs=None,
+                             transaction=None):
         """
-        encodes the arguments using the Ethereum ABI.
+        Returns a dictionary of the transaction that could be used to call this
         """
-        function_abi = cls.find_matching_fn_abi(fn_name, force_obj_to_bytes(arguments))
-        return cls._encodeABI(function_abi, arguments, data)
+        if transaction is None:
+            prepared_transaction = {}
+        else:
+            prepared_transaction = dict(**transaction)
+
+        if 'data' in prepared_transaction:
+            raise ValueError("Transaction parameter may not contain a 'data' key")
+
+        if cls.address:
+            prepared_transaction.setdefault('to', cls.address)
+
+        prepared_transaction['data'] = cls._encode_transaction_data(
+            fn_name,
+            fn_args,
+            fn_kwargs,
+        )
+        return prepared_transaction
 
     @classmethod
-    def _encodeABI(cls, abi, arguments, data=None):
-        arguent_types = get_abi_input_types(abi)
-        encoded_arguments = encode_abi(arguent_types, force_obj_to_bytes(arguments))
+    def _encode_abi(cls, abi, arguments, data=None):
+        argument_types = get_abi_input_types(abi)
+
+        if not check_if_arguments_can_be_encoded(abi, arguments, {}):
+            raise TypeError(
+                "One or more arguments could not be encoded to the necessary "
+                "ABI type.  Expected types are: {0}".format(
+                    ', '.join(argument_types),
+                )
+            )
+
+        try:
+            encoded_arguments = encode_abi(
+                argument_types,
+                force_obj_to_bytes(arguments),
+            )
+        except EncodingError as e:
+            raise TypeError(
+                "One or more arguments could not be encoded to the necessary "
+                "ABI type: {0}".format(str(e))
+            )
+
         if data:
             return add_0x_prefix(
                 force_bytes(remove_0x_prefix(data)) +
@@ -330,275 +596,32 @@ class Contract(object):
 
     @classmethod
     @coerce_return_to_text
-    def encodeConstructorData(cls, arguments=None):
-        if arguments is None:
-            arguments = []
+    def _encode_transaction_data(cls, fn_name, args=None, kwargs=None):
+        fn_abi, fn_selector, fn_arguments = cls._get_function_info(
+            fn_name, args, kwargs,
+        )
+        return add_0x_prefix(cls._encode_abi(fn_abi, fn_arguments, fn_selector))
 
-        constructor = get_constructor_abi(cls.abi)
-        if constructor:
-            if constructor['inputs'] and not arguments:
-                raise ValueError(
-                    "This contract requires {0} constructor arguments".format(
-                        len(constructor['inputs']),
-                    )
-                )
-            if arguments:
-                if len(arguments) != len(constructor['inputs']):
-                    raise ValueError(
-                        "This contract requires {0} constructor arguments".format(
-                            len(constructor['inputs']),
-                        )
-                    )
+    @classmethod
+    @coerce_return_to_text
+    def _encode_constructor_data(cls, args=None, kwargs=None):
+        constructor_abi = get_constructor_abi(cls.abi)
 
-                is_encodable = check_if_arguments_can_be_encoded(
-                    constructor,
-                    arguments,
-                    {},
-                )
-                if not is_encodable:
-                    raise ValueError("Unable to encode provided arguments.")
+        if constructor_abi:
+            if args is None:
+                args = tuple()
+            if kwargs is None:
+                kwargs = {}
 
-            deploy_data = add_0x_prefix(cls._encodeABI(constructor, arguments, data=cls.code))
+            arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
+
+            deploy_data = add_0x_prefix(
+                cls._encode_abi(constructor_abi, arguments, data=cls.code)
+            )
         else:
             deploy_data = add_0x_prefix(cls.code)
 
         return deploy_data
-
-    @combomethod
-    def on(self, event_name, filter_params=None, *callbacks):
-        """
-        register a callback to be triggered on the appropriate events.
-        """
-        if filter_params is None:
-            filter_params = {}
-
-        argument_filters = filter_params.pop('filter', {})
-        argument_filter_names = list(argument_filters.keys())
-        event_abi = self.find_matching_event_abi(event_name, argument_filter_names)
-
-        data_filter_set, event_filter_params = construct_event_filter_params(
-            event_abi,
-            contract_address=self.address,
-            argument_filters=argument_filters,
-            **filter_params
-        )
-
-        log_data_extract_fn = functools.partial(get_event_data, event_abi)
-
-        log_filter = self.web3.eth.filter(event_filter_params)
-
-        log_filter.set_data_filters(data_filter_set)
-        log_filter.log_entry_formatter = log_data_extract_fn
-        log_filter.filter_params = event_filter_params
-
-        if callbacks:
-            log_filter.watch(*callbacks)
-
-        return log_filter
-
-    @combomethod
-    def pastEvents(self, event_name, filter_params=None, *callbacks):
-        """
-        register a callback to be triggered on all past events.
-        """
-        if filter_params is None:
-            filter_params = {}
-
-        if 'fromBlock' in filter_params or 'toBlock' in filter_params:
-            raise ValueError("Cannot provide `fromBlock` or `toBlock` in `pastEvents` calls")
-
-        event_filter_params = {}
-        event_filter_params.update(filter_params)
-        event_filter_params.update({
-            'fromBlock': "earliest",
-            'toBlock': self.web3.eth.blockNumber,
-        })
-
-        log_filter = self.on(
-            event_name,
-            filter_params=event_filter_params,
-        )
-
-        past_log_filter = PastLogFilter(
-            web3=log_filter.web3,
-            filter_id=log_filter.filter_id,
-            log_entry_formatter=log_filter.log_entry_formatter,
-            data_filter_set=log_filter.data_filter_set,
-        )
-
-        if callbacks:
-            past_log_filter.watch(*callbacks)
-
-        return past_log_filter
-
-    def estimateGas(self, transaction=None):
-        """
-        Estimate the gas for a call
-        """
-        if transaction is None:
-            estimate_transaction = {}
-        else:
-            estimate_transaction = dict(**transaction)
-
-        if 'data' in estimate_transaction:
-            raise ValueError("Cannot set data in call transaction")
-        if 'to' in estimate_transaction:
-            raise ValueError("Cannot set to in call transaction")
-
-        estimate_transaction['to'] = self.address
-        estimate_transaction.setdefault('from', self.web3.eth.coinbase)
-
-        contract = self
-
-        class Caller(object):
-            def __getattr__(self, function_name):
-                callable_fn = functools.partial(
-                    estimate_gas_for_function,
-                    contract,
-                    function_name,
-                    estimate_transaction,
-                )
-                return callable_fn
-
-        return Caller()
-
-    def call(self, transaction=None):
-        """
-        Execute a contract function call using the `eth_call` interface.
-
-        This method prepares a ``Caller`` object that exposes the contract
-        functions and publib variables as callable Python functions.
-
-        Reading a public ``owner`` address variable example:
-
-        .. code-block:: python
-
-            contract_class = construct_contract_class(
-                web3=web3,
-                abi=wallet_contract_definition["abi"]
-
-            # Not a real contract address
-            contract = contract_class("0x2f70d3d26829e412a602e83fe8eebf80255aeea5")
-
-            # Read "owner" public variable
-            bin_addr = contract.call().owner()
-
-            # Convert address to 0x format
-            address = "0x" + bin_addr.decode("ascii")
-
-        :param transaction: Dictionary of transaction info for web3 interface
-        :return: ``Caller`` object that has contract public functions
-            and variables exposed as Python methods
-        """
-        if transaction is None:
-            call_transaction = {}
-        else:
-            call_transaction = dict(**transaction)
-
-        if 'data' in call_transaction:
-            raise ValueError("Cannot set data in call transaction")
-        if 'to' in call_transaction:
-            raise ValueError("Cannot set to in call transaction")
-
-        call_transaction['to'] = self.address
-        call_transaction.setdefault('from', self.web3.eth.coinbase)
-
-        contract = self
-
-        class Caller(object):
-            def __getattr__(self, function_name):
-                callable_fn = functools.partial(
-                    call_contract_function,
-                    contract,
-                    function_name,
-                    call_transaction,
-                )
-                return callable_fn
-
-        return Caller()
-
-    def transact(self, transaction=None):
-        """
-        Execute a contract function call using the `eth_sendTransaction` interface.
-
-        You should specify the account that pays the gas for this
-        transaction in `transaction`. If no account is specified the coinbase
-        account of web3 interface is used.
-
-        Example:
-
-        .. code-block:: python
-
-            # Assumes self.contract points to a Contract instance having withdraw() function
-
-            def withdraw(self,
-                    to_address: str,
-                    amount_in_eth: Decimal,
-                    from_account=None, max_gas=50000) -> str:
-                '''Withdraw funds from a hosted wallet contract.
-
-                :param amount_in_eth: How much as ETH
-                :param to_address: Destination address we are withdrawing to
-                :param from_account: Which Geth account pays the gas
-                :return: Transaction hash as 0x string
-                '''
-
-                assert isinstance(amount_in_eth, Decimal)  # Don't let floats slip through
-
-                wei = to_wei(amount_in_eth)
-
-                if not from_account:
-                    # Default to coinbase for transaction fees
-                    from_account = self.contract.web3.eth.coinbase
-
-                tx_info = {
-                    # The Ethereum account that pays the gas for this operation
-                    "from": from_account,
-                    "gas": max_gas,
-                }
-
-                # Interact with underlying wrapped contract
-                txid = self.contract.transact(tx_info).withdraw(to_address, wei)
-                return txid
-
-        The transaction is created in the Ethereum node memory pool.
-        Transaction receipt is not available until the transaction has been mined.
-        See :func:`populus.transaction.wait_for_transaction_receipt`.
-
-        :param transaction: Dictionary of transaction info for web3 interface.
-            Variables include ``from``, ``gas``.
-
-        :return: ``Transactor`` object that has contract
-            public functions exposed as Python methods.
-            Calling these methods will execute a transaction against the contract.
-
-        """
-        if transaction is None:
-            transact_transaction = {}
-        else:
-            transact_transaction = dict(**transaction)
-
-        if 'data' in transact_transaction:
-            raise ValueError("Cannot set data in call transaction")
-        if 'to' in transact_transaction:
-            raise ValueError("Cannot set to in call transaction")
-
-        transact_transaction['to'] = self.address
-        transact_transaction.setdefault('from', self.web3.eth.coinbase)
-
-        contract = self
-
-        class Transactor(object):
-            def __getattr__(self, function_name):
-                callable_fn = functools.partial(
-                    transact_with_contract_function,
-                    contract,
-                    function_name,
-                    transact_transaction,
-                )
-                return callable_fn
-
-        return Transactor()
 
 
 @coerce_return_to_text
@@ -607,37 +630,20 @@ def call_contract_function(contract,
                            transaction,
                            *args,
                            **kwargs):
-    """Calls a contract constant or function.
-
-    The function must not have state changing effects.
-    For those see :func:`transact_with_contract_function`
-
-    For usual cases, you do not want to call this directly,
-    but interact with your contract through :meth:`Contract.call` method.
-
-    :param contract: :class:`web3.contract.Contract` object instance
-    :param function_name: Contract function name to call
-    :param transaction: Transaction parameters to pass to underlying ``web3.eth.call``
-    :param *arguments: Arguments to be passed to contract function. Automatically encoded
-    :return: Function call results, encoded to Python object
     """
-    if transaction is None:
-        call_transaction = {}
-    else:
-        call_transaction = dict(**transaction)
-
-    function_abi = contract.find_matching_fn_abi(function_name, args, kwargs)
-    function_selector = function_abi_to_4byte_selector(function_abi)
-
-    arguments = merge_args_and_kwargs(function_abi, args, kwargs)
-
-    call_transaction['data'] = contract.encodeABI(
-        function_name,
-        arguments,
-        data=function_selector,
+    Helper function for interacting with a contract function using the
+    `eth_call` API.
+    """
+    call_transaction = contract._prepare_transaction(
+        fn_name=function_name,
+        fn_args=args,
+        fn_kwargs=kwargs,
+        transaction=transaction,
     )
 
     return_data = contract.web3.eth.call(call_transaction)
+
+    function_abi = contract._find_matching_fn_abi(function_name, args, kwargs)
 
     output_types = get_abi_output_types(function_abi)
     output_data = decode_abi(output_types, return_data)
@@ -659,77 +665,15 @@ def transact_with_contract_function(contract=None,
                                     transaction=None,
                                     *args,
                                     **kwargs):
-    """Transacts with a contract.
-
-    Sends in a transaction that interacts with the contract.
-    You should specify the account that pays the gas for this
-    transaction in `transaction`.
-
-    Example:
-
-    .. code-block:: python
-
-        def withdraw(self,
-                     to_address: str,
-                     amount_in_eth: Decimal,
-                     from_account=None,
-                     max_gas=50000) -> str:
-            '''Withdraw funds from a wallet contract.
-
-            :param amount_in_eth: How much as ETH
-            :param to_address: Destination address we are withdrawing to
-            :param from_account: Which Geth accout pays the gas
-            :return: Transaction hash
-            '''
-
-            assert isinstance(amount_in_eth, Decimal)  # Don't let floats slip through
-
-            wei = to_wei(amount_in_eth)
-
-            if not from_account:
-                # Default to coinbase for transaction fees
-                from_account = self.contract.web3.eth.coinbase
-
-            tx_info = {
-                # The Ethereum account that pays the gas for this operation
-                "from": from_account,
-                "gas": max_gas,
-            }
-
-            # Interact with underlying wrapped contract
-            txid = transact_with_contract_function(
-                self.contract, "withdraw", tx_info, to_address, wei,
-            )
-            return txid
-
-    The transaction is created in the Ethereum node memory pool.
-    Transaction receipt is not available until the transaction has been mined.
-    See :func:`populus.utils.transactions.wait_for_transaction`.
-
-    Usually there is no reason to call directly. Instead
-    use :meth:`Contract.transact` interface.
-
-    :param contract: :class:`web3.contract.Contract` object instance
-    :param function_name: Contract function name to call
-    :param transaction: Dictionary of transaction parameters to pass to
-                        underlying ``web3.eth.sendTransaction``
-    :param *arguments: Arguments to be passed to contract function. Automatically encoded
-    :return: String, 0x formatted transaction hash.
     """
-    if transaction is None:
-        transact_transaction = {}
-    else:
-        transact_transaction = dict(**transaction)
-
-    function_abi = contract.find_matching_fn_abi(function_name, args, kwargs)
-    function_selector = function_abi_to_4byte_selector(function_abi)
-
-    arguments = merge_args_and_kwargs(function_abi, args, kwargs)
-
-    transact_transaction['data'] = contract.encodeABI(
-        function_name,
-        arguments,
-        data=function_selector,
+    Helper function for interacting with a contract function by sending a
+    transaction.
+    """
+    transact_transaction = contract._prepare_transaction(
+        fn_name=function_name,
+        fn_args=args,
+        fn_kwargs=kwargs,
+        transaction=transaction,
     )
 
     txn_hash = contract.web3.eth.sendTransaction(transact_transaction)
@@ -746,28 +690,23 @@ def estimate_gas_for_function(contract=None,
     Don't call this directly, instead use :meth:`Contract.estimateGas`
     on your contract instance.
     """
-    if transaction is None:
-        estimate_transaction = {}
-    else:
-        estimate_transaction = dict(**transaction)
-
-    function_abi = contract.find_matching_fn_abi(function_name, args, kwargs)
-    function_selector = function_abi_to_4byte_selector(function_abi)
-
-    arguments = merge_args_and_kwargs(function_abi, args, kwargs)
-
-    estimate_transaction['data'] = contract.encodeABI(
-        function_name,
-        arguments,
-        data=function_selector,
+    estimate_transaction = contract._prepare_transaction(
+        fn_name=function_name,
+        fn_args=args,
+        fn_kwargs=kwargs,
+        transaction=transaction,
     )
 
     gas_estimate = contract.web3.eth.estimateGas(estimate_transaction)
     return gas_estimate
 
 
-def construct_contract_class(web3, abi, code=None,
-                             code_runtime=None, source=None):
+def construct_contract_factory(web3,
+                               abi,
+                               code=None,
+                               code_runtime=None,
+                               source=None,
+                               contract_name='Contract'):
     """Creates a new Contract class.
 
     Contract lass is a Python proxy class to interact with smart contracts.
@@ -784,28 +723,31 @@ def construct_contract_class(web3, abi, code=None,
 
     .. code-block:: python
 
-        # Assume we have a contract called Token from token.sol, as
-        # previously build by Populus command line client
-        contract_abis = json.load(open("build/contracts.json", "rt"))
-        contract_definition = contract_abis["Token"]
+        # Assume we have a Token contract
+        token_contract_data = {
+            'abi': [...],
+            'code': '0x...',
+            'code_runtime': '0x...',
+            'source': 'contract Token {.....}',
+        }
 
-        # contract_class is now Python "Token" class
-        contract_class = construct_contract_class(
+        # contract_factory is a python class that can be used to interact with
+        # or deploy the "Token" contract.
+        token_contract_factory = construct_contract_factory(
             web3=web3,
-            abi=contract_definition["abi"],
-            code=contract_definition["code"],
-            code_runtime=contract_definition["code_runtime"],
-            source=contract_definition["source"],
+            abi=token_contract_data["abi"],
+            code=token_contract_data["code"],
+            code_runtime=token_contract_data["code_runtime"],
+            source=token_contract_data["source"],
                 )
 
-        # Create Contract proxy object based on a given
-        # smart contract address in block chain
-        contract = contract_class(
+        # Create Contract instance to interact with a deployed smart contract.
+        token_contract = token_contract_factory(
             address=address,
-            abi=contract_definition["abi"],
-            code=contract_definition["code"],
-            code_runtime=contract_definition["code_runtime"],
-            source=contract_definition["source"])
+            abi=token_contract_data["abi"],
+            code=token_contract_data["code"],
+            code_runtime=token_contract_data["code_runtime"],
+            source=token_contract_data["source"])
 
 
     :param web3: Web3 connection
@@ -822,4 +764,4 @@ def construct_contract_class(web3, abi, code=None,
         'code_runtime': code_runtime,
         'source': source,
     }
-    return type('Contract', (Contract,), _dict)
+    return type(contract_name, (Contract,), _dict)
