@@ -553,17 +553,13 @@ class Contract(object):
         if 'data' in prepared_transaction:
             raise ValueError("Transaction parameter may not contain a 'data' key")
 
-        fn_abi, fn_selector, fn_arguments = cls._get_function_info(
-            fn_name, fn_args, fn_kwargs,
-        )
-
         if cls.address:
             prepared_transaction.setdefault('to', cls.address)
 
-        prepared_transaction['data'] = cls._encode_abi(
-            fn_abi,
-            fn_arguments,
-            data=fn_selector,
+        prepared_transaction['data'] = cls._encode_transaction_data(
+            fn_name,
+            fn_args,
+            fn_kwargs,
         )
         return prepared_transaction
 
@@ -597,6 +593,14 @@ class Contract(object):
             )
         else:
             return encode_hex(encoded_arguments)
+
+    @classmethod
+    @coerce_return_to_text
+    def _encode_transaction_data(cls, fn_name, args=None, kwargs=None):
+        fn_abi, fn_selector, fn_arguments = cls._get_function_info(
+            fn_name, args, kwargs,
+        )
+        return add_0x_prefix(cls._encode_abi(fn_abi, fn_arguments, fn_selector))
 
     @classmethod
     @coerce_return_to_text
