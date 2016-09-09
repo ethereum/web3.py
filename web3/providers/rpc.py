@@ -8,11 +8,27 @@ from .base import BaseProvider  # noqa: E402
 
 
 class RPCProvider(BaseProvider):
-    def __init__(self, host="127.0.0.1", port="8545", path="/", ssl=False, *args, **kwargs):
+    def __init__(self,
+                 host="127.0.0.1",
+                 port="8545",
+                 path="/",
+                 ssl=False,
+                 connection_timeout=10,
+                 network_timeout=10,
+                 *args,
+                 **kwargs):
+        """Create a new RPC client.
+
+        :param connection_timeout: See :class:`geventhttpclient.HTTPClient`
+
+        :param network_timeout: See :class:`geventhttpclient.HTTPClient`
+        """
         self.host = host
         self.port = int(port)
         self.path = path
         self.ssl = ssl
+        self.connection_timeout = connection_timeout
+        self.network_timeout = network_timeout
 
         super(RPCProvider, self).__init__(*args, **kwargs)
 
@@ -27,6 +43,8 @@ class RPCProvider(BaseProvider):
             host=self.host,
             port=self.port,
             ssl=self.ssl,
+            connection_timeout=self.connection_timeout,
+            network_timeout=self.network_timeout,
             headers={
                 'Content-Type': 'application/json',
                 'User-Agent': request_user_agent,
