@@ -100,7 +100,7 @@ Each Contract Factory exposes the following methods.
         "0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd"
 
 
-.. py:method:: Contract.call(transaction).myMethod(*args)
+.. py:method:: Contract.call(transaction).myMethod(*args, **kwargs)
 
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
@@ -121,7 +121,7 @@ Each Contract Factory exposes the following methods.
         54321  # the token balance for the account `web3.eth.accounts[1]`
 
 
-.. py:method:: Contract.estimateGas(transaction).myMethod(*args)
+.. py:method:: Contract.estimateGas(transaction).myMethod(*args, **kwargs)
 
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.

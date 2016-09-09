@@ -61,7 +61,7 @@ def test_event_data_extraction(web3_tester_persistent,
     assert len(txn_receipt['logs']) == 1
     log_entry = txn_receipt['logs'][0]
 
-    event_abi = emitter.find_matching_event_abi(event_name)
+    event_abi = emitter._find_matching_event_abi(event_name)
 
     event_topic = getattr(emitter_log_topics, event_name)
     is_anonymous = event_abi['anonymous']

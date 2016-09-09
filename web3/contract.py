@@ -188,119 +188,15 @@ class Contract(object):
                 "Cannot specify `to` for contract deployment"
             )
 
-        deploy_transaction['data'] = cls._encodeConstructorData(args, kwargs)
+        deploy_transaction['data'] = cls._encode_constructor_data(args, kwargs)
 
         # TODO: handle asynchronous contract creation
         txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
         return txn_hash
 
     #
-    # ABI Helpers
+    #  Public API
     #
-    @classmethod
-    def find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
-        filters = []
-
-        if fn_name:
-            filters.append(functools.partial(filter_by_name, fn_name))
-
-        if args is not None or kwargs is not None:
-            if args is None:
-                args = tuple()
-            if kwargs is None:
-                kwargs = {}
-
-            num_arguments = len(args) + len(kwargs)
-            filters.extend([
-                functools.partial(filter_by_argument_count, num_arguments),
-                functools.partial(filter_by_encodability, args, kwargs),
-            ])
-
-        function_candidates = filter_by_type('function', cls.abi)
-
-        for filter_fn in filters:
-            function_candidates = filter_fn(function_candidates)
-
-            if len(function_candidates) == 1:
-                return function_candidates[0]
-            elif not function_candidates:
-                break
-
-        if not function_candidates:
-            raise ValueError("No matching functions found")
-        else:
-            raise ValueError("Multiple functions found")
-
-    @classmethod
-    def find_matching_event_abi(cls, event_name=None, argument_names=None):
-        filters = [
-            functools.partial(filter_by_type, 'event'),
-        ]
-
-        if event_name is not None:
-            filters.append(functools.partial(filter_by_name, event_name))
-
-        if argument_names is not None:
-            filters.append(
-                functools.partial(filter_by_argument_name, argument_names)
-            )
-
-        filter_fn = compose(*filters)
-
-        event_abi_candidates = filter_fn(cls.abi)
-
-        if len(event_abi_candidates) == 1:
-            return event_abi_candidates[0]
-        elif not event_abi_candidates:
-            raise ValueError("No matching functions found")
-        else:
-            raise ValueError("Multiple functions found")
-
-    @classmethod
-    def get_function_info(cls, fn_name, args=None, kwargs=None):
-        if args is None:
-            args = tuple()
-        if kwargs is None:
-            kwargs = {}
-
-        fn_abi = cls.find_matching_fn_abi(fn_name, args, kwargs)
-        fn_selector = function_abi_to_4byte_selector(fn_abi)
-
-        fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
-
-        return fn_abi, fn_selector, fn_arguments
-
-    @combomethod
-    def _prepare_transaction(cls,
-                             fn_name,
-                             fn_args=None,
-                             fn_kwargs=None,
-                             transaction=None):
-        """
-        Returns a dictionary of the transaction that could be used to call this
-        """
-        if transaction is None:
-            prepared_transaction = {}
-        else:
-            prepared_transaction = dict(**transaction)
-
-        if 'data' in prepared_transaction:
-            raise ValueError("Transaction parameter may not contain a 'data' key")
-
-        fn_abi, fn_selector, fn_arguments = cls.get_function_info(
-            fn_name, fn_args, fn_kwargs,
-        )
-
-        if cls.address:
-            prepared_transaction.setdefault('to', cls.address)
-
-        prepared_transaction['data'] = cls._encodeABI(
-            fn_abi,
-            fn_arguments,
-            data=fn_selector,
-        )
-        return prepared_transaction
-
     @classmethod
     @coerce_return_to_text
     def encodeABI(cls, fn_name, args=None, kwargs=None, data=None):
@@ -308,62 +204,10 @@ class Contract(object):
         encodes the arguments using the Ethereum ABI for the contract function
         that matches the given name and arguments..
         """
-        fn_abi, _, fn_arguments = cls.get_function_info(
+        fn_abi, _, fn_arguments = cls._get_function_info(
             fn_name, args, kwargs,
         )
-        return cls._encodeABI(fn_abi, fn_arguments, data)
-
-    @classmethod
-    def _encodeABI(cls, abi, arguments, data=None):
-        argument_types = get_abi_input_types(abi)
-
-        if not check_if_arguments_can_be_encoded(abi, arguments, {}):
-            raise TypeError(
-                "One or more arguments could not be encoded to the necessary "
-                "ABI type.  Expected types are: {0}".format(
-                    ', '.join(argument_types),
-                )
-            )
-
-        try:
-            encoded_arguments = encode_abi(
-                argument_types,
-                force_obj_to_bytes(arguments),
-            )
-        except EncodingError as e:
-            raise TypeError(
-                "One or more arguments could not be encoded to the necessary "
-                "ABI type: {0}".format(str(e))
-            )
-
-        if data:
-            return add_0x_prefix(
-                force_bytes(remove_0x_prefix(data)) +
-                force_bytes(remove_0x_prefix(encode_hex(encoded_arguments)))
-            )
-        else:
-            return encode_hex(encoded_arguments)
-
-    @classmethod
-    @coerce_return_to_text
-    def _encodeConstructorData(cls, args=None, kwargs=None):
-        constructor_abi = get_constructor_abi(cls.abi)
-
-        if constructor_abi:
-            if args is None:
-                args = tuple()
-            if kwargs is None:
-                kwargs = {}
-
-            arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
-
-            deploy_data = add_0x_prefix(
-                cls._encodeABI(constructor_abi, arguments, data=cls.code)
-            )
-        else:
-            deploy_data = add_0x_prefix(cls.code)
-
-        return deploy_data
+        return cls._encode_abi(fn_abi, fn_arguments, data)
 
     @combomethod
     def on(self, event_name, filter_params=None, *callbacks):
@@ -375,7 +219,10 @@ class Contract(object):
 
         argument_filters = filter_params.pop('filter', {})
         argument_filter_names = list(argument_filters.keys())
-        event_abi = self.find_matching_event_abi(event_name, argument_filter_names)
+        event_abi = self._find_matching_event_abi(
+            event_name,
+            argument_filter_names,
+        )
 
         data_filter_set, event_filter_params = construct_event_filter_params(
             event_abi,
@@ -613,6 +460,166 @@ class Contract(object):
 
         return Transactor()
 
+    #
+    # Private Helpers
+    #
+    @classmethod
+    def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
+        filters = []
+
+        if fn_name:
+            filters.append(functools.partial(filter_by_name, fn_name))
+
+        if args is not None or kwargs is not None:
+            if args is None:
+                args = tuple()
+            if kwargs is None:
+                kwargs = {}
+
+            num_arguments = len(args) + len(kwargs)
+            filters.extend([
+                functools.partial(filter_by_argument_count, num_arguments),
+                functools.partial(filter_by_encodability, args, kwargs),
+            ])
+
+        function_candidates = filter_by_type('function', cls.abi)
+
+        for filter_fn in filters:
+            function_candidates = filter_fn(function_candidates)
+
+            if len(function_candidates) == 1:
+                return function_candidates[0]
+            elif not function_candidates:
+                break
+
+        if not function_candidates:
+            raise ValueError("No matching functions found")
+        else:
+            raise ValueError("Multiple functions found")
+
+    @classmethod
+    def _find_matching_event_abi(cls, event_name=None, argument_names=None):
+        filters = [
+            functools.partial(filter_by_type, 'event'),
+        ]
+
+        if event_name is not None:
+            filters.append(functools.partial(filter_by_name, event_name))
+
+        if argument_names is not None:
+            filters.append(
+                functools.partial(filter_by_argument_name, argument_names)
+            )
+
+        filter_fn = compose(*filters)
+
+        event_abi_candidates = filter_fn(cls.abi)
+
+        if len(event_abi_candidates) == 1:
+            return event_abi_candidates[0]
+        elif not event_abi_candidates:
+            raise ValueError("No matching functions found")
+        else:
+            raise ValueError("Multiple functions found")
+
+    @classmethod
+    def _get_function_info(cls, fn_name, args=None, kwargs=None):
+        if args is None:
+            args = tuple()
+        if kwargs is None:
+            kwargs = {}
+
+        fn_abi = cls._find_matching_fn_abi(fn_name, args, kwargs)
+        fn_selector = function_abi_to_4byte_selector(fn_abi)
+
+        fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
+
+        return fn_abi, fn_selector, fn_arguments
+
+    @combomethod
+    def _prepare_transaction(cls,
+                             fn_name,
+                             fn_args=None,
+                             fn_kwargs=None,
+                             transaction=None):
+        """
+        Returns a dictionary of the transaction that could be used to call this
+        """
+        if transaction is None:
+            prepared_transaction = {}
+        else:
+            prepared_transaction = dict(**transaction)
+
+        if 'data' in prepared_transaction:
+            raise ValueError("Transaction parameter may not contain a 'data' key")
+
+        fn_abi, fn_selector, fn_arguments = cls._get_function_info(
+            fn_name, fn_args, fn_kwargs,
+        )
+
+        if cls.address:
+            prepared_transaction.setdefault('to', cls.address)
+
+        prepared_transaction['data'] = cls._encode_abi(
+            fn_abi,
+            fn_arguments,
+            data=fn_selector,
+        )
+        return prepared_transaction
+
+    @classmethod
+    def _encode_abi(cls, abi, arguments, data=None):
+        argument_types = get_abi_input_types(abi)
+
+        if not check_if_arguments_can_be_encoded(abi, arguments, {}):
+            raise TypeError(
+                "One or more arguments could not be encoded to the necessary "
+                "ABI type.  Expected types are: {0}".format(
+                    ', '.join(argument_types),
+                )
+            )
+
+        try:
+            encoded_arguments = encode_abi(
+                argument_types,
+                force_obj_to_bytes(arguments),
+            )
+        except EncodingError as e:
+            raise TypeError(
+                "One or more arguments could not be encoded to the necessary "
+                "ABI type: {0}".format(str(e))
+            )
+
+        if data:
+            return add_0x_prefix(
+                force_bytes(remove_0x_prefix(data)) +
+                force_bytes(remove_0x_prefix(encode_hex(encoded_arguments)))
+            )
+        else:
+            return encode_hex(encoded_arguments)
+
+    @classmethod
+    @coerce_return_to_text
+    def _encode_constructor_data(cls, args=None, kwargs=None):
+        constructor_abi = get_constructor_abi(cls.abi)
+
+        if constructor_abi:
+            if args is None:
+                args = tuple()
+            if kwargs is None:
+                kwargs = {}
+
+            arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
+
+            deploy_data = add_0x_prefix(
+                cls._encode_abi(constructor_abi, arguments, data=cls.code)
+            )
+        else:
+            deploy_data = add_0x_prefix(cls.code)
+
+        return deploy_data
+
+
 
 @coerce_return_to_text
 def call_contract_function(contract,
@@ -633,7 +640,7 @@ def call_contract_function(contract,
 
     return_data = contract.web3.eth.call(call_transaction)
 
-    function_abi = contract.find_matching_fn_abi(function_name, args, kwargs)
+    function_abi = contract._find_matching_fn_abi(function_name, args, kwargs)
 
     output_types = get_abi_output_types(function_abi)
     output_data = decode_abi(output_types, return_data)
