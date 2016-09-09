@@ -23,7 +23,7 @@ from web3.utils.filters import (
 from web3.utils.blocks import (
     is_predefined_block_number,
 )
-from web3.contract import construct_contract_class
+from web3.contract import construct_contract_factory
 
 
 class Eth(object):
@@ -279,7 +279,7 @@ class Eth(object):
         return self.request_manager.request_blocking("eth_uninstallFilter", [filter_id])
 
     def contract(self, abi, address=None, **kwargs):
-        contract_class = construct_contract_class(self.web3, abi, **kwargs)
+        contract_class = construct_contract_factory(self.web3, abi, **kwargs)
 
         if address is None:
             return contract_class

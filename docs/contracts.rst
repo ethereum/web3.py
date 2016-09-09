@@ -214,12 +214,7 @@ Events
     Creates a new :py:class:`web3.utils.filters.PastLogFilter` instance which
     will match historical event logs.
 
-    All parameters behave the same as the :py:method::`Contract.on` method with
-    the exception that:
-
-    * ``filter_params`` parameter may not contain the keys ``toBlock`` or
-      ``fromBlock``.
-
+    All parameters behave the same as the :py:method::`Contract.on` method.
 
     .. code-block:: python
 
