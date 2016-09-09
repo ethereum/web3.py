@@ -10,6 +10,9 @@ SINGLE_FN_NO_ARGS = json.loads('[{"constant":false,"inputs":[],"name":"a","outpu
 SINGLE_FN_ONE_ARG = json.loads('[{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]')
 MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')
 
+SINGLE_OUTPUT = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[{"name":"","type":"uint256"}],"type":"function"}]')
+SINGLE_OUTPUT = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[{"name":"","type":"uint256"}{"name":"","type":"bytes32"}],"type":"function"}]')
+
 
 def test_finds_single_function_without_args(web3_tester):
     Contract = web3_tester.eth.contract(SINGLE_FN_NO_ARGS)

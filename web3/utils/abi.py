@@ -1,7 +1,13 @@
 import itertools
 
+from eth_abi import (
+    decode_abi,
+)
 from eth_abi.abi import (
     process_type,
+)
+from eth_abi.exceptions import (
+    DecodingError,
 )
 
 from .crypto import sha3
@@ -146,6 +152,26 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
         is_encodable(_type, arg)
         for _type, arg in zip(types, arguments)
     )
+
+
+def filter_by_decodability(data, contract_abi):
+    return [
+        function_abi
+        for function_abi
+        in contract_abi
+        if check_if_data_can_be_decoded(function_abi, data)
+    ]
+
+
+def check_if_data_can_be_decoded(function_abi, data):
+    types = get_abi_output_types(function_abi)
+
+    try:
+        decode_abi(types, data)
+    except DecodingError:
+        return False
+    else:
+        return True
 
 
 @coerce_args_to_text

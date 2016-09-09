@@ -32,6 +32,7 @@ from web3.utils.abi import (
     filter_by_argument_count,
     filter_by_argument_name,
     filter_by_encodability,
+    filter_by_decodability,
     get_abi_input_types,
     get_abi_output_types,
     get_constructor_abi,
@@ -208,6 +209,11 @@ class Contract(object):
             fn_name, args, kwargs,
         )
         return cls._encode_abi(fn_abi, fn_arguments, data)
+
+    @classmethod
+    def decodeABI(cls, fn_name, data):
+        fn_abi = cls._find_matching_fn_abi(fn_name, data=data)
+        return cls._decode_abi(fn_abi, data)
 
     @combomethod
     def on(self, event_name, filter_params=None, *callbacks):
@@ -464,7 +470,7 @@ class Contract(object):
     # Private Helpers
     #
     @classmethod
-    def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
+    def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None, data=None):
         filters = []
 
         if fn_name:
@@ -481,6 +487,11 @@ class Contract(object):
                 functools.partial(filter_by_argument_count, num_arguments),
                 functools.partial(filter_by_encodability, args, kwargs),
             ])
+
+        if data is not None:
+            filters.append(
+                functools.partial(filter_by_decodability, data)
+            )
 
         function_candidates = filter_by_type('function', cls.abi)
 
@@ -593,6 +604,18 @@ class Contract(object):
             )
         else:
             return encode_hex(encoded_arguments)
+
+    @classmethod
+    def _decode_abi(cls, fn_abi, data):
+        output_types = get_abi_output_types(fn_abi)
+        decoded_data = decode_abi(output_types, data)
+
+        normalized_data = [
+            normalize_return_type(data_type, data_value)
+            for data_type, data_value
+            in zip(output_types, decoded_data)
+        ]
+        return normalized_data
 
     @classmethod
     @coerce_return_to_text
