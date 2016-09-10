@@ -1,3 +1,23 @@
+2.8.0
+--------
+
+* Changes to the `Contract` API:
+    * `Contract.deploy()` parameter arguments renamed to args
+    * `Contract.deploy()` now takes args and kwargs parameters to allow
+      constructing with keyword arguments or positional arguments.
+    * `Contract.pastEvents` now allows you to specify a `fromBlock or
+      `toBlock.` Previously these were forced to be `'earliest'` and
+      `web3.eth.blockNumber` respectively.
+    * `Contract.call`, `Contract.transact` and `Contract.estimateGas` are now
+      callable as class methods as well as instance methods. When called this
+      way, an address must be provided with the transaction parameter.
+    * `Contract.call`, `Contract.transact` and `Contract.estimateGas` now allow
+      specifying an alternate address for the transaction.
+* `RPCProvider` now supports the following constructor arguments.
+    * `ssl` for enabling SSL
+    * `connection_timeout` and `network_timeout` for controlling the timeouts
+      for requests.
+
 2.7.1
 --------
 
