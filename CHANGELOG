@@ -1,3 +1,8 @@
+2.8.1
+--------
+
+* Bugfix for `geth.ipc` path on linux systems.
+
 2.8.0
 --------
 
