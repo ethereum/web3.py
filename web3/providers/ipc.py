@@ -49,7 +49,7 @@ def get_default_ipc_path(testnet=False):
     elif sys.platform.startswith('linux'):
         return os.path.expanduser(os.path.join(
             "~",
-            "ethereum",
+            ".ethereum",
             testnet,
             "geth.ipc",
         ))
