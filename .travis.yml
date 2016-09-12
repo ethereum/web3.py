@@ -30,6 +30,6 @@ install:
 before_script:
   - geth version
 script:
-  - tox -e $TOX_ENV -- tests/ -n 2
+  - tox -e $TOX_ENV -- tests/ -n 3
 after_script:
   - cat .tox/$TOX_ENV/log/*.log
