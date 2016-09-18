@@ -1,4 +1,5 @@
 import itertools
+import re
 
 from eth_abi.abi import (
     process_type,
@@ -205,11 +206,76 @@ def get_constructor_abi(contract_abi):
         raise ValueError("Found multiple constructors.")
 
 
-def abi_to_signature(function_abi):
+DYNAMIC_TYPES = ['bytes', 'string']
+
+STATIC_TYPES = list(itertools.chain(
+    ['address', 'bool'],
+    ['uint{0}'.format(i) for i in range(8, 257, 8)],
+    ['int{0}'.format(i) for i in range(8, 257, 8)],
+    ['bytes{0}'.format(i) for i in range(1, 33)],
+))
+
+BASE_TYPE_REGEX = '|'.join((
+    _type + '(?![a-z0-9])'
+    for _type
+    in itertools.chain(STATIC_TYPES, DYNAMIC_TYPES)
+))
+
+SUB_TYPE_REGEX = (
+    '\['
+    '[0-9]*'
+    '\]'
+)
+
+TYPE_REGEX = (
+    '^'
+    '(?:{base_type})'
+    '(?:(?:{sub_type})*)?'
+    '$'
+).format(
+    base_type=BASE_TYPE_REGEX,
+    sub_type=SUB_TYPE_REGEX,
+)
+
+
+def is_recognized_type(abi_type):
+    return bool(re.match(TYPE_REGEX, abi_type))
+
+
+NAME_REGEX = (
+    '[a-zA-Z_]'
+    '[a-zA-Z0-9_]*'
+)
+
+
+ENUM_REGEX = (
+    '^'
+    '{lib_name}'
+    '\.'
+    '{enum_name}'
+    '$'
+).format(lib_name=NAME_REGEX, enum_name=NAME_REGEX)
+
+
+def is_probably_enum(abi_type):
+    return bool(re.match(ENUM_REGEX, abi_type))
+
+
+def normalize_types_for_signature(abi_args):
+    for arg in abi_args:
+        if is_recognized_type(arg['type']):
+            yield arg
+        elif is_probably_enum(arg['type']):
+            yield {k: 'uint8' if k == 'type' else v for k, v in arg.items()}
+        else:
+            yield arg
+
+
+def abi_to_signature(abi):
     function_signature = "{fn_name}({fn_input_types})".format(
-        fn_name=function_abi['name'],
+        fn_name=abi['name'],
         fn_input_types=','.join([
-            arg['type'] for arg in function_abi.get('inputs', [])
+            arg['type'] for arg in normalize_types_for_signature(abi.get('inputs', []))
         ]),
     )
     return function_signature
