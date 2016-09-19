@@ -5,6 +5,9 @@ class Shh(object):
     def __init__(self, request_manager):
         self.request_manager = request_manager
 
+    def version(self):
+        return self.request_manager.request_blocking("shh_version", [])
+
     def post(self, *args, **kwargs):
         raise NotImplementedError("Not Implemented")
 
