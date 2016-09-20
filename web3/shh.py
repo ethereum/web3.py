@@ -24,14 +24,14 @@ class Shh(object):
         else:
             raise ValueError("params cannot be None or doesnot contain fields 'topic' or 'payload'")
 
-    def newIdentity(self, *args, **kwargs):
-        raise NotImplementedError("Not Implemented")
+    def newIdentity(self):
+        return self.request_manager.request_blocking("shh_newIdentity", [])
 
-    def hasIdentity(self, *args, **kwargs):
-        raise NotImplementedError("Not Implemented")
+    def hasIdentity(self, identity):
+        return self.request_manager.request_blocking("shh_hasIdentity", [identity])
 
-    def newGroup(self, *args, **kwargs):
-        raise NotImplementedError("Not Implemented")
+    def newGroup(self):
+        return self.request_manager.request_blocking("shh_newGroup", [])
 
-    def addToGroup(self, *args, **kwargs):
-        raise NotImplementedError("Not Implemented")
+    def addToGroup(self, params):
+        return self.request_manager.request_blocking("shh_addToGroup", params)
