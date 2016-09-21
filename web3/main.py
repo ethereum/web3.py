@@ -70,7 +70,7 @@ class Web3(object):
 
         self.eth = Eth(self)
         self.db = Db(self._requestManager)
-        self.shh = Shh(self._requestManager)
+        self.shh = Shh(self)
         self.net = Net(self._requestManager)
         self.personal = Personal(self._requestManager)
         self.version = Version(self._requestManager)

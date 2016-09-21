@@ -200,3 +200,25 @@ class PastLogFilter(LogFilter):
                         callback_fn(self.format_entry(entry))
 
         self.running = False
+
+
+class ShhFilter(Filter):
+    def _run(self):
+        if self.stopped:
+            raise ValueError("Cannot restart a filter")
+        self.running = True
+
+        while self.running:
+            changes = self.web3.shh.getFilterChanges(self.filter_id)
+            if changes:
+                for entry in changes:
+                    for callback_fn in self.callbacks:
+                        if self.is_valid_entry(entry):
+                            callback_fn(self.format_entry(entry))
+            gevent.sleep(random.random())
+
+    def format_entry(self, entry):
+        return "formatted"+entry
+
+    def is_valid_entry(self, entry):
+        return True

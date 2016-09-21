@@ -1,8 +1,12 @@
+from web3 import formatters
 from web3.utils.encoding import (
     to_decimal,
 )
 from web3.utils.functional import (
     apply_formatters_to_return,
+)
+from web3.utils.filters import (
+    ShhFilter,
 )
 
 
@@ -10,8 +14,9 @@ class Shh(object):
     """
     TODO: flesh this out.
     """
-    def __init__(self, request_manager):
-        self.request_manager = request_manager
+    def __init__(self, web3):
+        self.web3 = web3
+        self.request_manager = web3._requestManager
 
     @property
     @apply_formatters_to_return(to_decimal)
@@ -35,3 +40,14 @@ class Shh(object):
 
     def addToGroup(self, params):
         return self.request_manager.request_blocking("shh_addToGroup", params)
+
+    def filter(self, filter_params):
+        if "topics" in filter_params:
+            filter_id = self.request_manager.request_blocking("shh_newFilter", [filter_params])
+            return ShhFilter(self.web3, filter_id)
+        else:
+            raise ValueError("filter params doesnot contain 'topics' to subsrcibe")
+
+    @apply_formatters_to_return(formatters.log_array_formatter)
+    def getFilterChanges(self, filter_id):
+        return self.request_manager.request_blocking("shh_getFilterChanges", [filter_id])
