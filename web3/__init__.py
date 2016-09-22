@@ -18,5 +18,6 @@ __all__ = [
     "Web3",
     "RPCProvider",
     "TestRPCProvider",
+    "KeepAliveRPCProvider",
     "IPCProvider",
 ]
