@@ -77,15 +77,7 @@ class RPCProvider(BaseProvider):
 class KeepAliveRPCProvider(BaseProvider):
     """RPC-provider that handles HTTP keep-alive connection correctly.
 
-<<<<<<< HEAD
-    HTTP client and underlying TCP/IP network connection is recycled across requests.
-    :class:`HTTPClient` connection pooling is used for connections.
-
-    Preferably create only one instance of KeepAliveProvider per process,
-    though the class has internal in-process cache for clients.
-=======
     HTTP client is recycled across requests. Create only one instance of KeepAliveProvider per process.
->>>>>>> Add KeepAlive RPC provider.
     """
 
     #: In-process client cache keyed by host:port -> HTTPClient
@@ -171,7 +163,7 @@ class KeepAliveRPCProvider(BaseProvider):
             },
         )
 
-        self.clients[key] = client
+        KeepAliveRPCProvider.clients[key] = client
         return client
 
     def __str__(self):
@@ -182,10 +174,8 @@ class KeepAliveRPCProvider(BaseProvider):
 
     def make_request(self, method, params):
         request_data = self.encode_rpc_request(method, params)
-
         response = self.client.post(self.path, body=request_data)
         response_body = response.read()
-
         return response_body
 
 
