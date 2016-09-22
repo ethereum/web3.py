@@ -162,7 +162,7 @@ class LogFilter(Filter):
         else:
             log_entries = self.web3.eth.getFilterLogs(self.filter_id)
 
-        if not log_entries:
+        if log_entries is None:
             log_entries = []
 
         formatted_log_entries = [

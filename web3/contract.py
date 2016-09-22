@@ -268,6 +268,7 @@ class Contract(object):
             log_entry_formatter=log_filter.log_entry_formatter,
             data_filter_set=log_filter.data_filter_set,
         )
+        past_log_filter.filter_params = log_filter.filter_params
 
         if callbacks:
             past_log_filter.watch(*callbacks)
