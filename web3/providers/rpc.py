@@ -8,9 +8,17 @@ from .base import BaseProvider  # noqa: E402
 
 
 class RPCProvider(BaseProvider):
+    """Create a RPC client.
+
+    .. note ::
+
+        You should preferably create only one client per process,
+        or otherwise underlying HTTP network connections may leak.
+
+    """
     def __init__(self,
                  host="127.0.0.1",
-                 port="8545",
+                 port=8545,
                  path="/",
                  ssl=False,
                  connection_timeout=10,
@@ -66,7 +74,11 @@ class RPCProvider(BaseProvider):
 class KeepAliveRPCProvider(BaseProvider):
     """RPC-provider that handles HTTP keep-alive connection correctly.
 
-    HTTP client is recycled across requests. Create only one instance of KeepAliveProvider per process.
+    HTTP client and underlying TCP/IP network connection is recycled across requests.
+    :class:`HTTPClient` connection pooling is used for connections.
+
+    Preferably create only one instance of KeepAliveProvider per process,
+    though the class has internal in-process cache for clients.
     """
 
     #: In-process client cache keyed by host:port -> HTTPClient
@@ -74,7 +86,7 @@ class KeepAliveRPCProvider(BaseProvider):
 
     def __init__(self,
                  host="127.0.0.1",
-                 port="8545",
+                 port=8545,
                  path="/",
                  ssl=False,
                  connection_timeout=10,
@@ -82,7 +94,7 @@ class KeepAliveRPCProvider(BaseProvider):
                  concurrency=10,
                  *args,
                  **kwargs):
-        """Create a new RPC client.
+        """Create a new RPC client with keep-alive connection pool.
 
         :param concurrency: See :class:`geventhttpclient.HTTPClient`
 
@@ -96,7 +108,7 @@ class KeepAliveRPCProvider(BaseProvider):
         self.ssl = ssl
         self.connection_timeout = connection_timeout
         self.network_timeout = network_timeout
-        self.concurrency = self.concurrency
+        self.concurrency = concurrency
 
         super(KeepAliveRPCProvider, self).__init__(*args, **kwargs)
 
@@ -129,7 +141,7 @@ class KeepAliveRPCProvider(BaseProvider):
             },
         )
 
-        self.clients[key] = client
+        KeepAliveRPCProvider.clients[key] = client
         return client
 
     def __str__(self):
@@ -139,12 +151,9 @@ class KeepAliveRPCProvider(BaseProvider):
         return self.__str__()
 
     def make_request(self, method, params):
-
         request_data = self.encode_rpc_request(method, params)
-
         response = self.client.post(self.path, body=request_data)
         response_body = response.read()
-
         return response_body
 
 
