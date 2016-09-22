@@ -30,9 +30,9 @@ def disconnected_provider(request):
         provider.thread.kill()
         return provider
     elif request.param == 'rpc':
-        return RPCProvider(port=9999)
+        return RPCProvider(port=get_open_port())
     elif request.param == 'keep-alive-rpc':
-        return KeepAliveRPCProvider(port=9998)
+        return KeepAliveRPCProvider(port=get_open_port())
     elif request.param == 'ipc':
         return IPCProvider(ipc_path='nonexistent')
     else:
