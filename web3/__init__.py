@@ -6,6 +6,7 @@ import pkg_resources
 from web3.main import Web3
 from web3.providers.rpc import (
     RPCProvider,
+    KeepAliveRPCProvider,
     TestRPCProvider,
 )
 from web3.providers.ipc import IPCProvider
