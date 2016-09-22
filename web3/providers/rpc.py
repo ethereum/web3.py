@@ -7,6 +7,9 @@ import logging
 from .base import BaseProvider  # noqa: E402
 
 
+logger = logging.getLogger(__name__)
+
+
 class RPCProvider(BaseProvider):
     """Create a RPC client.
 
@@ -121,6 +124,7 @@ class KeepAliveRPCProvider(BaseProvider):
         client = KeepAliveRPCProvider.clients.get(key)
         if client:
             # Get in-process client instance for this host
+            logger.debug("Re-using HTTP client for RPC connection to %s", key)
             return client
 
         request_user_agent = 'Web3.py/{version}/{class_name}'.format(
@@ -141,6 +145,7 @@ class KeepAliveRPCProvider(BaseProvider):
             },
         )
 
+        logger.debug("Created new keep-alive HTTP client for RPC connection to %s", key)
         KeepAliveRPCProvider.clients[key] = client
         return client
 
