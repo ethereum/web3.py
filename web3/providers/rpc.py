@@ -77,11 +77,15 @@ class RPCProvider(BaseProvider):
 class KeepAliveRPCProvider(BaseProvider):
     """RPC-provider that handles HTTP keep-alive connection correctly.
 
+<<<<<<< HEAD
     HTTP client and underlying TCP/IP network connection is recycled across requests.
     :class:`HTTPClient` connection pooling is used for connections.
 
     Preferably create only one instance of KeepAliveProvider per process,
     though the class has internal in-process cache for clients.
+=======
+    HTTP client is recycled across requests. Create only one instance of KeepAliveProvider per process.
+>>>>>>> Add KeepAlive RPC provider.
     """
 
     #: In-process client cache keyed by host:port -> HTTPClient
@@ -149,6 +153,27 @@ class KeepAliveRPCProvider(BaseProvider):
             KeepAliveRPCProvider.clients[key] = client
             return client
 
+        request_user_agent = 'Web3.py/{version}/{class_name}'.format(
+            version=web3_version,
+            class_name=type(self),
+        )
+
+        client = HTTPClient(
+            host=self.host,
+            port=self.port,
+            ssl=self.ssl,
+            connection_timeout=self.connection_timeout,
+            network_timeout=self.network_timeout,
+            concurrency=self.concurrency,
+            headers={
+                'Content-Type': 'application/json',
+                'User-Agent': request_user_agent,
+            },
+        )
+
+        self.clients[key] = client
+        return client
+
     def __str__(self):
         return "Keep-alive RPC connection {}:{}".format(self.host, self.port)
 
@@ -157,8 +182,10 @@ class KeepAliveRPCProvider(BaseProvider):
 
     def make_request(self, method, params):
         request_data = self.encode_rpc_request(method, params)
+
         response = self.client.post(self.path, body=request_data)
         response_body = response.read()
+
         return response_body
 
 
@@ -195,4 +222,3 @@ class TestRPCProvider(RPCProvider):
         self.thread = gevent.spawn(self.server.serve_forever)
 
         super(TestRPCProvider, self).__init__(host, str(port), *args, **kwargs)
-
