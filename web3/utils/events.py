@@ -20,6 +20,7 @@ from .abi import (
     exclude_indexed_event_inputs,
     event_abi_to_log_topic,
     normalize_return_type,
+    normalize_event_input_types,
 )
 
 
@@ -131,7 +132,9 @@ def get_event_data(event_abi, log_entry):
         log_topics = log_entry['topics'][1:]
 
     log_topics_abi = get_indexed_event_inputs(event_abi)
-    log_topic_raw_types = get_abi_input_types({'inputs': log_topics_abi})
+    log_topic_raw_types = get_abi_input_types({
+        'inputs': normalize_event_input_types(log_topics_abi),
+    })
     log_topic_types = coerce_event_abi_types_for_decoding(log_topic_raw_types)
     log_topic_names = get_abi_input_names({'inputs': log_topics_abi})
 
@@ -143,7 +146,9 @@ def get_event_data(event_abi, log_entry):
 
     log_data = log_entry['data']
     log_data_abi = exclude_indexed_event_inputs(event_abi)
-    log_data_raw_types = get_abi_input_types({'inputs': log_data_abi})
+    log_data_raw_types = get_abi_input_types({
+        'inputs': normalize_event_input_types(log_data_abi),
+    })
     log_data_types = coerce_event_abi_types_for_decoding(log_data_raw_types)
     log_data_names = get_abi_input_names({'inputs': log_data_abi})
 
