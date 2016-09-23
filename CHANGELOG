@@ -1,3 +1,8 @@
+Unreleased
+-----------
+
+* Introduced `KeepAliveRPCProvider` to correctly recycle HTTP connections and use HTTP keep alive
+
 2.8.1
 --------
 
