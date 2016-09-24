@@ -1,3 +1,9 @@
+2.9.0
+--------
+
+* Bugfix generation of event topics.
+* Web3.Iban now allows access to Iban address tools.
+
 2.8.1
 --------
 
