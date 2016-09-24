@@ -10,6 +10,8 @@ from web3.shh import Shh
 from web3.txpool import TxPool
 from web3.version import Version
 
+from web3.iban import Iban
+
 from web3.providers.rpc import (
     RPCProvider,
     TestRPCProvider,
@@ -45,6 +47,9 @@ class Web3(object):
     RPCProvider = RPCProvider
     IPCProvider = IPCProvider
     TestRPCProvider = TestRPCProvider
+
+    # Iban
+    Iban = Iban
 
     # Encoding and Decoding
     toHex = staticmethod(to_hex)

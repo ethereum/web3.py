@@ -132,7 +132,7 @@ def test_isValid(value, expected, web3_tester):
     (
         (
             'XE7338O073KYGTWWZN0F2WZ0R8PX5ZPPZS',
-            '00c5496aee77c1ba1f0854206a26dda82a81d6d8',
+            '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
         ),
     )
 )
