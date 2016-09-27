@@ -122,28 +122,28 @@ class KeepAliveRPCProvider(BaseProvider):
             # Get in-process client instance for this host
             logger.debug("Re-using HTTP client for RPC connection to %s", key)
             return client
+        else:
+            logger.debug("Created new keep-alive HTTP client for RPC connection to %s", key)
+            request_user_agent = 'Web3.py/{version}/{class_name}'.format(
+                version=web3_version,
+                class_name=type(self),
+            )
 
-        request_user_agent = 'Web3.py/{version}/{class_name}'.format(
-            version=web3_version,
-            class_name=type(self),
-        )
+            client = HTTPClient(
+                host=self.host,
+                port=self.port,
+                ssl=self.ssl,
+                connection_timeout=self.connection_timeout,
+                network_timeout=self.network_timeout,
+                concurrency=self.concurrency,
+                headers={
+                    'Content-Type': 'application/json',
+                    'User-Agent': request_user_agent,
+                },
+            )
 
-        client = HTTPClient(
-            host=self.host,
-            port=self.port,
-            ssl=self.ssl,
-            connection_timeout=self.connection_timeout,
-            network_timeout=self.network_timeout,
-            concurrency=self.concurrency,
-            headers={
-                'Content-Type': 'application/json',
-                'User-Agent': request_user_agent,
-            },
-        )
-
-        logger.debug("Created new keep-alive HTTP client for RPC connection to %s", key)
-        KeepAliveRPCProvider.clients[key] = client
-        return client
+            KeepAliveRPCProvider.clients[key] = client
+            return client
 
     def __str__(self):
         return "Keep-alive RPC connection {}:{}".format(self.host, self.port)
