@@ -195,4 +195,3 @@ class TestRPCProvider(RPCProvider):
         self.thread = gevent.spawn(self.server.serve_forever)
 
         super(TestRPCProvider, self).__init__(host, str(port), *args, **kwargs)
-
