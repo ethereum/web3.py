@@ -31,8 +31,8 @@ def disconnected_provider(request):
         return provider
     elif request.param == 'rpc':
         return RPCProvider(port=9999)
-    elif request.param == 'rpc':
-        return KeepAliveRPCProvider(port=9999)
+    elif request.param == 'keep-alive-rpc':
+        return KeepAliveRPCProvider(port=9998)
     elif request.param == 'ipc':
         return IPCProvider(ipc_path='nonexistent')
     else:
