@@ -60,6 +60,7 @@ class Filter(gevent.Greenlet):
     callbacks = None
     running = None
     stopped = False
+    poll_interval = None
 
     def __init__(self, web3, filter_id):
         self.web3 = web3
@@ -82,7 +83,10 @@ class Filter(gevent.Greenlet):
                     for callback_fn in self.callbacks:
                         if self.is_valid_entry(entry):
                             callback_fn(self.format_entry(entry))
-            gevent.sleep(random.random())
+            if self.poll_interval is None:
+                gevent.sleep(random.random())
+            else:
+                gevent.sleep(self.poll_interval)
 
     def format_entry(self, entry):
         """
