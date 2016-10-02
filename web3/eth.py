@@ -234,7 +234,7 @@ class Eth(object):
         return self.request_manager.request_blocking("eth_sign", [account, data_hash])
 
     def call(self, transaction, block_identifier=None):
-        formatted_transaction = formatters.input_call_formatter(self, transaction)
+        formatted_transaction = formatters.input_transaction_formatter(self, transaction)
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
@@ -244,7 +244,11 @@ class Eth(object):
 
     @apply_formatters_to_return(to_decimal)
     def estimateGas(self, transaction):
-        return self.request_manager.request_blocking("eth_estimateGas", [transaction])
+        formatted_transaction = formatters.input_transaction_formatter(self, transaction)
+        return self.request_manager.request_blocking(
+            "eth_estimateGas",
+            [formatted_transaction],
+        )
 
     def filter(self, filter_params):
         if is_string(filter_params):

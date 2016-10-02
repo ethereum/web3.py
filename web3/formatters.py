@@ -66,22 +66,6 @@ def apply_to_array(formatter_fn):
 
 @coerce_args_to_text
 @coerce_return_to_text
-def input_call_formatter(eth, txn):
-    defaults = {
-        'from': eth.defaultAccount,
-    }
-    formatters = {
-        'from': input_address_formatter,
-        'to': input_address_formatter,
-    }
-    return {
-        key: formatters.get(key, identity)(txn.get(key, defaults.get(key)))
-        for key in set(tuple(txn.keys()) + tuple(defaults.keys()))
-    }
-
-
-@coerce_args_to_text
-@coerce_return_to_text
 def input_transaction_formatter(eth, txn):
     defaults = {
         'from': eth.defaultAccount,
@@ -89,6 +73,10 @@ def input_transaction_formatter(eth, txn):
     formatters = {
         'from': input_address_formatter,
         'to': input_address_formatter,
+        'value': from_decimal,
+        'gas': from_decimal,
+        'gasPrice': from_decimal,
+        'nonce': from_decimal,
     }
     return {
         key: formatters.get(key, identity)(txn.get(key, defaults.get(key)))
