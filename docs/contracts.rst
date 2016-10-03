@@ -175,7 +175,7 @@ Events
     The event topic for the event specified by ``event_name`` will be added to
     the ``filter_params['topics']`` list.
 
-    If the :py:attribute::`Contract.address` attribute for this contract is
+    If the :py:attribute:`Contract.address` attribute for this contract is
     non-null, the contract address will be added to the ``filter_params``.
 
     If provided, the ``*callbacks`` parameter should be callables which accept
