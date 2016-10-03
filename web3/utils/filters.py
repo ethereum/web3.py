@@ -222,10 +222,15 @@ class ShhFilter(Filter):
                     for callback_fn in self.callbacks:
                         if self.is_valid_entry(entry):
                             callback_fn(self.format_entry(entry))
-            gevent.sleep(random.random())
+            if self.poll_interval is None:
+                gevent.sleep(random.random())
+            else:
+                gevent.sleep(self.poll_interval)
 
-    def format_entry(self, entry):
-        return "formatted"+entry
+    def stop_watching(self, timeout=0):
+        self.running = False
+        self.stopped = True
+        self.web3.shh.uninstallFilter(self.filter_id)
+        self.join(timeout)
 
-    def is_valid_entry(self, entry):
-        return True
+    stopWatching = stop_watching

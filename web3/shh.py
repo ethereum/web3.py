@@ -48,6 +48,13 @@ class Shh(object):
         else:
             raise ValueError("filter params doesnot contain 'topics' to subsrcibe")
 
+    def uninstallFilter(self, filter_id):
+        return self.request_manager.request_blocking("shh_uninstallFilter", [filter_id])
+
+    @apply_formatters_to_return(formatters.log_array_formatter)
+    def getMessages(self, filter_id):
+        return self.request_manager.request_blocking("shh_getMessages", [filter_id])
+
     @apply_formatters_to_return(formatters.log_array_formatter)
     def getFilterChanges(self, filter_id):
         return self.request_manager.request_blocking("shh_getFilterChanges", [filter_id])
