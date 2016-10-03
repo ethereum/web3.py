@@ -54,7 +54,7 @@ web3.eth.defaultBlock = "latest"
 
 ```python
 >>> abi = json.joads("<abi-json-string>")
->>> ContractFactory = web3.eth.contracT(abi, code="0x...")
+>>> ContractFactory = web3.eth.contract(abi, code="0x...")
 >>> ContractFactory.deploy()
 ... '0x461e829a731d96539ec1f147232f1d52b475225ed343e5853ff6bf3b237c6e79'
 >>> contract = web3.eth.contract(abi, address="0x...")

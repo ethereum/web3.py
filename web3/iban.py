@@ -7,6 +7,7 @@ from web3.utils.types import (
 )
 from web3.utils.formatting import (
     pad_left,
+    add_0x_prefix,
 )
 
 
@@ -212,7 +213,7 @@ class Iban(object):
         if self.isDirect():
             base36 = self._iban[4:]
             asInt = int(base36, 36)
-            return pad_left_hex(baseN(asInt, 16), 20)
+            return add_0x_prefix(pad_left_hex(baseN(asInt, 16), 20))
 
         return ""
 

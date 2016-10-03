@@ -60,6 +60,7 @@ class Filter(gevent.Greenlet):
     callbacks = None
     running = None
     stopped = False
+    poll_interval = None
 
     def __init__(self, web3, filter_id):
         self.web3 = web3
@@ -82,7 +83,10 @@ class Filter(gevent.Greenlet):
                     for callback_fn in self.callbacks:
                         if self.is_valid_entry(entry):
                             callback_fn(self.format_entry(entry))
-            gevent.sleep(random.random())
+            if self.poll_interval is None:
+                gevent.sleep(random.random())
+            else:
+                gevent.sleep(self.poll_interval)
 
     def format_entry(self, entry):
         """
@@ -161,6 +165,9 @@ class LogFilter(Filter):
             log_entries = self.web3.eth.getFilterChanges(self.filter_id)
         else:
             log_entries = self.web3.eth.getFilterLogs(self.filter_id)
+
+        if log_entries is None:
+            log_entries = []
 
         formatted_log_entries = [
             self.format_entry(log_entry) for log_entry in log_entries

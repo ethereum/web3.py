@@ -16,7 +16,7 @@ readme = open(os.path.join(DIR, 'README.md')).read()
 
 setup(
     name='web3',
-    version='2.8.1',
+    version='3.0.1',
     description="""Web3.py""",
     long_description=readme,
     author='Piper Merriam',

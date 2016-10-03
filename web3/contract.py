@@ -268,6 +268,7 @@ class Contract(object):
             log_entry_formatter=log_filter.log_entry_formatter,
             data_filter_set=log_filter.data_filter_set,
         )
+        past_log_filter.filter_params = log_filter.filter_params
 
         if callbacks:
             past_log_filter.watch(*callbacks)
@@ -706,7 +707,8 @@ def construct_contract_factory(web3,
                                code=None,
                                code_runtime=None,
                                source=None,
-                               contract_name='Contract'):
+                               contract_name='Contract',
+                               base_contract_factory_class=Contract):
     """Creates a new Contract class.
 
     Contract lass is a Python proxy class to interact with smart contracts.
@@ -764,4 +766,4 @@ def construct_contract_factory(web3,
         'code_runtime': code_runtime,
         'source': source,
     }
-    return type(contract_name, (Contract,), _dict)
+    return type(contract_name, (base_contract_factory_class,), _dict)

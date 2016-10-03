@@ -1,10 +1,27 @@
+3.0.1
+-----
+
+* Better RPC compliance to be compatable with the Parity JSON-RPC server.
+
+3.0.0
+-----
+
+* `Filter` objects now support controlling the interval through which they poll
+  using the `poll_interval` property
+
+2.9.0
+-----
+
+* Bugfix generation of event topics.
+* Web3.Iban now allows access to Iban address tools.
+
 2.8.1
---------
+-----
 
 * Bugfix for `geth.ipc` path on linux systems.
 
 2.8.0
---------
+-----
 
 * Changes to the `Contract` API:
     * `Contract.deploy()` parameter arguments renamed to args
@@ -24,12 +41,12 @@
       for requests.
 
 2.7.1
---------
+-----
 
 * Bugfix: Fix KeyError in merge_args_and_kwargs helper fn.
 
 2.7.0
---------
+-----
 
 * Bugfix for usage of block identifiers 'latest', 'earliest', 'pending'
 * Sphinx documentation
@@ -40,48 +57,48 @@
   to go to paths other than `/`.
 
 2.6.0
---------
+-----
 
 * TestRPCProvider no longer dumps logging output to stdout and stderr.
 * Bugfix for return types of `address[]`
 * Bugfix for event data types of `address`
 
 2.5.0
---------
+-----
 
 * All transactions which contain a `data` element will now have their gas
   automatically estimated with 100k additional buffer.  This was previously
   only true with transactions initiated from a `Contract` object.
 
 2.4.0
---------
+-----
 
 * Contract functions can now be called using keyword arguments.
 
 2.3.0
---------
+-----
 
 * Upstream fixes for filters
 * Filter APIs `on` and `pastEvents` now callable as both instance and class methods.
 
 2.2.0
---------
+-----
 
 * The filters that come back from the contract `on` and `pastEvents` methods
   now call their callbacks with the same data format as `web3.js`.
 
 2.1.1
---------
+-----
 
 * Cast RPCProvider port to an integer.
 
 2.1.0
---------
+-----
 
 * Remove all monkeypatching
 
 2.0.0
---------
+-----
 
 * Pull in downstream updates to proper gevent usage.
 * Fix `eth_sign`
@@ -89,36 +106,36 @@
 * More explicit linting ignore statements.
 
 1.9.0
---------
+-----
 
 * BugFix: fix for python3 only `json.JSONDecodeError` handling.
 
 1.8.0
---------
+-----
 
 * BugFix: `RPCProvider` not sending a content-type header
 * Bugfix: `web3.toWei` now returns an integer instead of a decimal.Decimal
 
 1.7.1
---------
+-----
 
 * `TestRPCProvider` can now be imported directly from `web3`
 
 1.7.0
---------
+-----
 
 * Add `eth.admin` interface.
 * Bugfix: Format the return value of `web3.eth.syncing`
 * Bugfix: IPCProvider socket interactions are now more robust.
 
 1.6.0
---------
+-----
 
 * Downstream package upgrades for `eth-testrpc` and `ethereum-tester-client` to
   handle configuration of the Homestead and DAO fork block numbers.
 
 1.5.0
---------
+-----
 
 * Rename `web3.contract._Contract` to `web3.contract.Contract`
   to expose it for static analysis and auto completion tools
