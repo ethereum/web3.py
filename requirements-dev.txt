@@ -9,3 +9,4 @@ secp256k1>=0.13.1
 rlp>=0.4.6
 hypothesis>=3.4.2
 flaky>=3.3.0
+flake8==3.0.4
