@@ -116,7 +116,10 @@ class Eth(object):
             block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getBalance",
-            [account, block_identifier],
+            [
+                account,
+                formatters.input_block_identifier_formatter(block_identifier),
+            ],
         )
 
     def getStorageAt(self, account, position, block_identifier=None):
@@ -124,7 +127,11 @@ class Eth(object):
             block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getStorageAt",
-            [account, self.web3.toHex(position), block_identifier],
+            [
+                account,
+                self.web3.toHex(position),
+                formatters.input_block_identifier_formatter(block_identifier),
+            ],
         )
 
     def getCode(self, account, block_identifier=None):
@@ -132,7 +139,10 @@ class Eth(object):
             block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getCode",
-            [account, block_identifier],
+            [
+                account,
+                formatters.input_block_identifier_formatter(block_identifier),
+            ],
         )
 
     @apply_formatters_to_return(formatters.output_block_formatter)
@@ -148,7 +158,10 @@ class Eth(object):
 
         return self.request_manager.request_blocking(
             method,
-            [block_identifier, full_transactions],
+            [
+                formatters.input_block_identifier_formatter(block_identifier),
+                full_transactions,
+            ],
         )
 
     @apply_formatters_to_return(to_decimal)
@@ -161,7 +174,10 @@ class Eth(object):
             method = 'eth_getBlockTransactionCountByNumber'
         else:
             method = 'eth_getBlockTransactionCountByHash'
-        return self.request_manager.request_blocking(method, [block_identifier])
+        return self.request_manager.request_blocking(
+            method,
+            [formatters.input_block_identifier_formatter(block_identifier)],
+        )
 
     def getUncle(self, block_identifier):
         """
@@ -189,7 +205,10 @@ class Eth(object):
             method = 'eth_getTransactionByBlockHashAndIndex'
         return self.request_manager.request_blocking(
             method,
-            [block_identifier, transaction_index],
+            [
+                formatters.input_block_identifier_formatter(block_identifier),
+                transaction_index,
+            ],
         )
 
     @apply_formatters_to_return(formatters.output_transaction_receipt_formatter)
@@ -205,7 +224,10 @@ class Eth(object):
             block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_getTransactionCount",
-            [account, block_identifier],
+            [
+                account,
+                formatters.input_block_identifier_formatter(block_identifier),
+            ],
         )
 
     def sendTransaction(self, transaction):
@@ -220,7 +242,7 @@ class Eth(object):
 
         return self.request_manager.request_blocking(
             "eth_sendTransaction",
-            [formatted_transaction],
+            [formatters.input_transaction_formatter(self, formatted_transaction)],
         )
 
     def sendRawTransaction(self, raw_transaction):
@@ -234,17 +256,24 @@ class Eth(object):
         return self.request_manager.request_blocking("eth_sign", [account, data_hash])
 
     def call(self, transaction, block_identifier=None):
-        formatted_transaction = formatters.input_call_formatter(self, transaction)
+        formatted_transaction = formatters.input_transaction_formatter(self, transaction)
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.request_manager.request_blocking(
             "eth_call",
-            [formatted_transaction, block_identifier],
+            [
+                formatted_transaction,
+                formatters.input_block_identifier_formatter(block_identifier),
+            ],
         )
 
     @apply_formatters_to_return(to_decimal)
     def estimateGas(self, transaction):
-        return self.request_manager.request_blocking("eth_estimateGas", [transaction])
+        formatted_transaction = formatters.input_transaction_formatter(self, transaction)
+        return self.request_manager.request_blocking(
+            "eth_estimateGas",
+            [formatted_transaction],
+        )
 
     def filter(self, filter_params):
         if is_string(filter_params):
@@ -262,7 +291,11 @@ class Eth(object):
                     "`latest` for string based filters"
                 )
         elif isinstance(filter_params, dict):
-            filter_id = self.request_manager.request_blocking("eth_newFilter", [filter_params])
+            formatted_filter_params = formatters.input_filter_params_formatter(filter_params)
+            filter_id = self.request_manager.request_blocking(
+                "eth_newFilter",
+                [formatted_filter_params],
+            )
             return LogFilter(self.web3, filter_id)
         else:
             raise ValueError("Must provide either a string or a valid filter object")
