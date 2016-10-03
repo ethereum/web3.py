@@ -1,3 +1,8 @@
+3.0.1
+-----
+
+* Better RPC compliance to be compatable with the Parity JSON-RPC server.
+
 3.0.0
 -----
 
