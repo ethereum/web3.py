@@ -17,6 +17,7 @@ from web3.utils.address import (
 from web3.utils.types import (
     is_array,
     is_string,
+    is_integer,
     is_null,
     is_object,
 )
@@ -33,6 +34,9 @@ from web3.utils.encoding import (
 from web3.utils.functional import (
     identity,
     compose,
+)
+from web3.utils.blocks import (
+    is_predefined_block_number,
 )
 
 
@@ -55,6 +59,7 @@ apply_if_not_null = apply_if_passes_test(compose(is_null, operator.not_))
 apply_if_string = apply_if_passes_test(is_string)
 apply_if_array = apply_if_passes_test(is_array)
 apply_if_object = apply_if_passes_test(is_object)
+apply_if_integer = apply_if_passes_test(is_integer)
 
 
 def apply_to_array(formatter_fn):
@@ -62,6 +67,31 @@ def apply_to_array(formatter_fn):
         functools.partial(map, formatter_fn),
         list,
     )
+
+
+@coerce_args_to_text
+@coerce_return_to_text
+def input_block_identifier_formatter(block_identifier):
+    if is_predefined_block_number(block_identifier):
+        return block_identifier
+    elif is_integer(block_identifier):
+        return hex(block_identifier)
+    else:
+        return block_identifier
+
+
+@coerce_args_to_text
+@coerce_return_to_text
+def input_filter_params_formatter(filter_params):
+    formatters = {
+        'fromBlock': apply_if_integer(from_decimal),
+        'toBlock': apply_if_integer(from_decimal),
+    }
+
+    return {
+        key: formatters.get(key, identity)(value)
+        for key, value in filter_params.items()
+    }
 
 
 @coerce_args_to_text
@@ -133,7 +163,7 @@ def output_transaction_receipt_formatter(receipt):
     Formats the output of a transaction receipt to its proper values
     """
     formatters = {
-        'blockNumber': to_decimal,
+        'blockNumber': apply_if_not_null(to_decimal),
         'transactionIndex': to_decimal,
         'cumulativeGasUsed': to_decimal,
         'gasUsed': to_decimal,

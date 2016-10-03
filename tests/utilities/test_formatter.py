@@ -70,12 +70,12 @@ def test_inputPostFormatter(value, expected):
         },
         {
             "data": '0x34234bf23bf4234',
-            "value": 100,
+            "value": hex(100),
             "from": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
             "to": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
-            "nonce": 1000,
-            "gas": 1000,
-            "gasPrice": 1000
+            "nonce": hex(1000),
+            "gas": hex(1000),
+            "gasPrice": hex(1000),
         }
     ),({
             "data": '0x34234bf23bf4234',
@@ -85,7 +85,7 @@ def test_inputPostFormatter(value, expected):
         },
         {
             "data": '0x34234bf23bf4234',
-            "value": 100,
+            "value": hex(100),
             "from": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
             "to": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
         }
@@ -99,11 +99,11 @@ def test_inputPostFormatter(value, expected):
         },
         {
             "data": '0x34234bf23bf4234',
-            "value": 100,
+            "value": hex(100),
             "from": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
             "to": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
-            "gas": 1000,
-            "gasPrice": 1000
+            "gas": hex(1000),
+            "gasPrice": hex(1000),
         },
     ), ({
             "data": '0x34234bf23bf4234',
@@ -115,11 +115,11 @@ def test_inputPostFormatter(value, expected):
         },
         {
             "data": '0x34234bf23bf4234',
-            "value": 100,
+            "value": hex(100),
             "from": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
             "to": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
-            "gas": 1000,
-            "gasPrice": 1000
+            "gas": hex(1000),
+            "gasPrice": hex(1000),
         },
     ), ({
             "data": '0x34234bf23bf4234',
@@ -130,10 +130,10 @@ def test_inputPostFormatter(value, expected):
         },
         {
             "data": '0x34234bf23bf4234',
-            "value": 100,
+            "value": hex(100),
             "from": '0x00c5496aee77c1ba1f0854206a26dda82a81d6d8',
-            "gas": 1000,
-            "gasPrice": 1000
+            "gas": hex(1000),
+            "gasPrice": hex(1000),
         }
     )]
 )
