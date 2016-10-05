@@ -87,30 +87,24 @@ class IPCProvider(BaseProvider):
                 sock.sendall(request)
                 response_raw = b""
 
-                num_timeouts = 0
-
-                while True:
-                    try:
-                        response_raw += sock.recv(4096)
-                    except socket.timeout:
-                        if num_timeouts >= 3:
-                            raise
-                        else:
-                            num_timeouts += 1
-
-                    if response_raw == b"":
-                        gevent.sleep(0)
-                    else:
+                with gevent.Timeout(10):
+                    while True:
                         try:
-                            json.loads(force_text(response_raw))
-                        except JSONDecodeError:
+                            response_raw += sock.recv(4096)
+                        except socket.timeout:
                             gevent.sleep(0)
                             continue
-                        else:
-                            break
 
-                else:
-                    raise ValueError("No JSON returned by socket")
+                        if response_raw == b"":
+                            gevent.sleep(0)
+                        else:
+                            try:
+                                json.loads(force_text(response_raw))
+                            except JSONDecodeError:
+                                gevent.sleep(0)
+                                continue
+                            else:
+                                break
         finally:
             self._lock.release()
 
