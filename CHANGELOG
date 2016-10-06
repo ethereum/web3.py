@@ -1,3 +1,8 @@
+3.0.2
+-----
+
+* Bugfix or IPCProvider not handling large JSON responses well.
+
 3.0.1
 -----
 
