@@ -7,6 +7,7 @@ import gevent
 import rlp
 
 from web3.utils.string import force_text
+from web3.utils.address import to_address
 from web3.utils.encoding import (
     to_decimal,
     encode_hex,
@@ -101,23 +102,35 @@ class ManagerWrapper(object):
 
 class BaseSendRawTransactionMixin(ManagerWrapper):
     _known_transactions = None
+    _known_nonces = None
 
     def __init__(self, *args, **kwargs):
         self._known_transactions = collections.defaultdict(set)
+        self._known_nonces = collections.defaultdict(set)
         super(BaseSendRawTransactionMixin, self).__init__(*args, **kwargs)
 
     def _get_nonces_and_cleanup(self, addr, chain_nonce):
-        # get a copy of all the currenly known txns
-        all_known_txn_hashes = tuple(self._known_transactions[addr])
-        for txn_hash in all_known_txn_hashes:
-            txn_nonce = to_decimal(self.request_blocking(
+        all_txns = {
+            txn_hash: self.request_blocking(
                 'eth_getTransactionByHash',
                 [txn_hash],
-            )['nonce'])
-            if txn_nonce <= chain_nonce:
+            ) for txn_hash in self._known_transactions[addr]
+        }
+        for txn_hash, txn in all_txns.items():
+            if txn is None:
+                continue
+            txn_nonce = to_decimal(txn['nonce'])
+            if txn_nonce < chain_nonce:
                 self._known_transactions[addr].discard(txn_hash)
             else:
                 yield txn_nonce
+
+        all_known_nonces = tuple(self._known_nonces[addr])
+        for nonce in all_known_nonces:
+            if nonce < chain_nonce:
+                self._known_nonces[addr].discard(nonce)
+            else:
+                yield nonce
 
     def get_chain_nonce(self, addr):
         chain_nonce = to_decimal(self.request_blocking(
@@ -128,8 +141,12 @@ class BaseSendRawTransactionMixin(ManagerWrapper):
 
     def get_nonce(self, addr):
         chain_nonce = self.get_chain_nonce(addr)
-        tracked_txn_nonces = self._get_nonces_and_cleanup(addr, chain_nonce)
-        return max(0, chain_nonce, *tracked_txn_nonces)
+        tracked_txn_nonces = tuple(self._get_nonces_and_cleanup(addr, chain_nonce))
+        nonce = max(0, chain_nonce, *tracked_txn_nonces)
+        if nonce == 0 and not tracked_txn_nonces:
+            return -1
+        else:
+            return nonce
 
     def get_transaction_signature(self, serialized_txn):
         raise NotImplementedError("Must be implemented by subclasses")
@@ -147,7 +164,7 @@ class BaseSendRawTransactionMixin(ManagerWrapper):
     def construct_full_transaction(self, base_transaction):
         txn_from = base_transaction['from']
         full_txn = dict(**base_transaction)
-        full_txn.setdefault('nonce', self.get_nonce(txn_from))
+        full_txn.setdefault('nonce', self.get_nonce(txn_from) + 1)
         full_txn.setdefault('gasPrice', self.request_blocking(
             'eth_gasPrice', []
         ))
@@ -182,12 +199,17 @@ class BaseSendRawTransactionMixin(ManagerWrapper):
             method, params,
         )
         if method in self.TXN_SENDING_METHODS:
-            txn = self.request_blocking(
-                'eth_getTransactionByHash',
-                [result],
-            )
-            txn_from = txn['from']
-            self._known_transactions[txn_from].add(result)
+            if method == 'eth_sendRawTransaction':
+                txn = rlp.decode(decode_hex(params[0]), Transaction)
+                self._known_transactions[to_address(txn.sender)].add(result)
+                self._known_nonces[to_address(txn.sender)].add(txn.nonce)
+            else:
+                txn = params[0]
+                self._known_transactions[to_address(txn['from'])].add(result)
+                if 'nonce' in txn:
+                    self._known_nonces[to_address(txn['from'])].add(
+                        to_decimal(txn['nonce'])
+                    )
         return result
 
 
