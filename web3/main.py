@@ -74,14 +74,14 @@ class Web3(object):
         self.currentProvider = provider
 
         self.eth = Eth(self)
-        self.db = Db(self._requestManager)
-        self.shh = Shh(self._requestManager)
-        self.net = Net(self._requestManager)
-        self.personal = Personal(self._requestManager)
-        self.version = Version(self._requestManager)
-        self.txpool = TxPool(self._requestManager)
-        self.miner = Miner(self._requestManager)
-        self.admin = Admin(self._requestManager)
+        self.db = Db(self)
+        self.shh = Shh(self)
+        self.net = Net(self)
+        self.personal = Personal(self)
+        self.version = Version(self)
+        self.txpool = TxPool(self)
+        self.miner = Miner(self)
+        self.admin = Admin(self)
 
     def setProvider(self, provider):
         self._requestManager.setProvider(provider)

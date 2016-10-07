@@ -1,6 +1,6 @@
 class Db(object):
-    def __init__(self, request_manager):
-        self.request_manager = request_manager
+    def __init__(self, web3):
+        self.web3 = web3
 
     def putString(self, *args, **kwargs):
         raise DeprecationWarning("This function has been deprecated")

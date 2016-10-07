@@ -2,6 +2,8 @@
 import json
 import codecs
 
+from rlp.sedes import big_endian_int
+
 from .types import (
     is_string,
     is_boolean,
@@ -94,3 +96,8 @@ def from_decimal(value):
     # representation.
     result = hex(value).rstrip('L')
     return result
+
+
+@coerce_args_to_bytes
+def decode_big_endian_int(value):
+    return big_endian_int.deserialize(value.lstrip(b'\x00'))
