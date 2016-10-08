@@ -9,6 +9,7 @@ from web3.utils.currency import denoms
 @pytest.fixture()
 def web3_signer(web3_rpc_empty, wait_for_block):
     wait_for_block(web3_rpc_empty)
+    web3_rpc_empty.miner.stop()
     return web3_rpc_empty
 
 
