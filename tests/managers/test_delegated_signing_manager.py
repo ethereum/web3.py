@@ -5,6 +5,8 @@ from web3.providers.manager import (
 )
 from web3.utils.currency import denoms
 
+from flaky import flaky
+
 
 @pytest.fixture()
 def web3_signer(web3_rpc_empty, wait_for_block):
@@ -45,6 +47,7 @@ def web3_sender(web3_signer, web3_ipc_empty, wait_for_transaction, wait_for_bloc
     return web3_ipc_empty
 
 
+@flaky(max_runs=3)
 def test_delegated_signing_manager(web3_sender,
                                    web3_signer,
                                    wait_for_transaction):
@@ -67,6 +70,7 @@ def test_delegated_signing_manager(web3_sender,
     assert txn['value'] == 12345
 
 
+@flaky(max_runs=3)
 def test_delegated_signing_manager_tracks_nonces_correctly(web3_sender,
                                                            web3_signer,
                                                            wait_for_transaction):

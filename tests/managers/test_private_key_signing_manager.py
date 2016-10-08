@@ -49,6 +49,7 @@ def web3_pk_signer(web3_ipc_persistent,
     web3_ipc_persistent._requestManager = pk_signing_manager
     return web3_ipc_persistent
 
+
 def test_private_key_signing_manager(web3_pk_signer, account_public_key, wait_for_transaction):
     assert account_public_key not in web3_pk_signer.eth.accounts
     txn_hash = web3_pk_signer.eth.sendTransaction({
