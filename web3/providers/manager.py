@@ -6,6 +6,7 @@ import gevent
 
 import rlp
 
+from web3.utils.crypto import sha3
 from web3.utils.string import force_text
 from web3.utils.address import to_address
 from web3.utils.encoding import (
@@ -14,6 +15,7 @@ from web3.utils.encoding import (
     decode_hex,
 )
 from web3.utils.transactions import (
+    is_bitcoin_available,
     Transaction,
     serialize_transaction,
     add_signature_to_transaction,
@@ -72,9 +74,8 @@ class RequestManager(object):
 
 
 class ManagerWrapper(object):
-    def __init__(self, *args, **kwargs):
-        self.wrapped_manager = kwargs.pop('wrapped_manager')
-        super(ManagerWrapper, self).__init__(*args, **kwargs)
+    def __init__(self, wrapped_manager):
+        self.wrapped_manager = wrapped_manager
 
     @property
     def provider(self):
@@ -215,11 +216,11 @@ class BaseSendRawTransactionMixin(ManagerWrapper):
 
 class DelegatedSigningManager(BaseSendRawTransactionMixin):
     def __init__(self, *args, **kwargs):
-        self.signature_manager = kwargs.pop('signature_manager')
+        self.signing_manager = kwargs.pop('signing_manager')
         super(DelegatedSigningManager, self).__init__(*args, **kwargs)
 
     def get_chain_nonce(self, addr):
-        signer_nonce = to_decimal(self.signature_manager.request_blocking(
+        signer_nonce = to_decimal(self.signing_manager.request_blocking(
             'eth_getTransactionCount',
             [addr, 'pending']
         ))
@@ -231,10 +232,10 @@ class DelegatedSigningManager(BaseSendRawTransactionMixin):
 
     def get_transaction_signature(self, transaction):
         serialized_txn = serialize_transaction(transaction)
-        hash_to_sign = self.signature_manager.request_blocking(
+        hash_to_sign = self.signing_manager.request_blocking(
             'web3_sha3', [encode_hex(serialized_txn)],
         )
-        signature_hex = self.signature_manager.request_blocking(
+        signature_hex = self.signing_manager.request_blocking(
             'eth_sign',
             [
                 transaction['from'],
@@ -243,3 +244,35 @@ class DelegatedSigningManager(BaseSendRawTransactionMixin):
         )
         signature = decode_hex(signature_hex)
         return signature
+
+
+class PrivateKeySigningManager(BaseSendRawTransactionMixin):
+    def __init__(self, *args, **kwargs):
+        if not is_bitcoin_available():
+            raise ImportError(
+                "In order to use the `PrivateKeySigningManager` the "
+                "`bitcoin` and `secp256k1` packages must be installed."
+            )
+        self.keys = kwargs.pop('keys', {})
+        super(PrivateKeySigningManager, self).__init__(*args, **kwargs)
+
+    def register_private_key(self, key):
+        from bitcoin import privtopub
+        address = to_address(sha3(privtopub(key)[1:])[-40:])
+        self.keys[address] = key
+
+    def sign_and_serialize_transaction(self, transaction):
+        txn_from = to_address(transaction['from'])
+        if txn_from not in self.keys:
+            raise KeyError("No signing key registered for from address: {0}".format(txn_from))
+        transaction = Transaction(
+            nonce=to_decimal(transaction['nonce']),
+            gasprice=to_decimal(transaction['gasPrice']),
+            startgas=to_decimal(transaction['gas']),
+            to=transaction['to'],
+            value=to_decimal(transaction['value']),
+            data=decode_hex(transaction['data']),
+        )
+        transaction.sign(self.keys[txn_from])
+        assert to_address(transaction.sender) == txn_from
+        return rlp.encode(transaction, Transaction)

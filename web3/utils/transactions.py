@@ -11,6 +11,10 @@ from .encoding import (
     decode_hex,
     decode_big_endian_int,
 )
+from .string import (
+    force_bytes,
+    coerce_args_to_bytes,
+)
 from .types import (
     is_string,
 )
@@ -139,7 +143,7 @@ class Transaction(rlp.Serializable):
                     "In order to derive the sender for transactions the "
                     "`bitcoin` and `secp256k1` packages must be installed."
                 )
-            from bitcoin import encode_pubkey, N
+            from bitcoin import N
             from secp256k1 import PublicKey, ALL_FLAGS
 
             # Determine sender
@@ -179,9 +183,9 @@ class Transaction(rlp.Serializable):
                 except Exception:
                     raise ValueError("Invalid signature values (x^3+7 is non-residue)")
 
-                if pub[1:] == b"\x00" * 32:
+                if pub[1:] == b"\x00" * (len(pub) - 1):
                     raise ValueError("Invalid signature (zero privkey cannot sign)")
-                pub = encode_pubkey(pub, 'bin')
+
                 self._sender = to_address(sha3(pub[1:])[-40:])
                 assert self.sender == self._sender
             else:
@@ -192,51 +196,43 @@ class Transaction(rlp.Serializable):
     def sender(self, value):
         self._sender = value
 
+    @coerce_args_to_bytes
     def sign(self, key):
         """Sign this transaction with a private key.
 
         A potentially already existing signature would be overridden.
         """
-        raise NotImplementedError("Not yet implemented")
-        # if not is_bitcoin_available() or not is_secp256k1_available():
-        #     raise ImportError(
-        #         "In order to derive the sender for transactions the "
-        #         "`bitcoin` and `secp256k1` packages must be installed."
-        #     )
-        # from bitcoin import encode_privkey
-        # from secp256k1 import PublicKey, ALL_FLAGS, PrivateKey
+        if not is_bitcoin_available() or not is_secp256k1_available():
+            raise ImportError(
+                "In order to sign transactions the "
+                "`bitcoin` and `secp256k1` packages must be installed."
+            )
+        from bitcoin import privtopub
+        from secp256k1 import PrivateKey
 
-        # if key in (0, '', b'\x00' * 32, '0' * 64):
-        #     raise ValueError("Zero privkey cannot sign")
+        if key in (0, b'', b'\x00' * 32, b'0' * 64):
+            raise ValueError("Zero privkey cannot sign")
 
-        # rawhash = decode_hex(sha3(rlp.encode(self, UnsignedTransaction)))
+        rawhash = decode_hex(sha3(rlp.encode(self, UnsignedTransaction)))
 
-        # if len(key) == 64:
-        #     # we need a binary key
-        #     key = encode_privkey(key, 'bin')
+        if len(key) in {64, 66}:
+            # we need a binary key
+            key = decode_hex(key)
 
-        # pk = PrivateKey(key, raw=True)
-        # signature = pk.ecdsa_recoverable_serialize(
-        #     pk.ecdsa_sign_recoverable(rawhash, raw=True)
-        # )
-        # signature = signature[0] + utils.bytearray_to_bytestr([signature[1]])
-        # self.v = utils.safe_ord(signature[64]) + 27
-        # self.r = decode_big_endian_int(signature[0:32])
-        # self.s = decode_big_endian_int(signature[32:64])
+        pk = PrivateKey(key, raw=True)
+        sig_bytes, rec_id = pk.ecdsa_recoverable_serialize(
+            pk.ecdsa_sign_recoverable(rawhash, raw=True)
+        )
+        signature = sig_bytes + force_bytes(chr(rec_id))
+        self.v = (ord(signature[64]) if is_string(signature[64]) else signature[64]) + 27
+        self.r = decode_big_endian_int(signature[0:32])
+        self.s = decode_big_endian_int(signature[32:64])
 
-        # self.sender = utils.privtoaddr(key)
-        # return self
+        self.sender = to_address(sha3(privtopub(key)[1:])[-40:])
+        return self
 
 
 UnsignedTransaction = Transaction.exclude(['v', 'r', 's'])
-"""
-        ('nonce', big_endian_int),
-        ('gasprice', big_endian_int),
-        ('startgas', big_endian_int),
-        ('to', Binary.fixed_length(20, allow_empty=True)),
-        ('value', big_endian_int),
-        ('data', binary),
-"""
 
 
 def serialize_transaction(transaction):
