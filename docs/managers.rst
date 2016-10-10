@@ -46,6 +46,25 @@ Delegated Signing Manager
     that does not need to be connected or synced with the network.
 
 
+.. code-block:: python
+
+    # setup RPC provider connected to infura.
+    >>> web3 = Web3(Web3.RPCProvider(host='mainnet.infura.io', path='your-infura-access-key'))
+    # create second manager connected to local node (which must be unlocked)
+    >>> signature_manager = web3.RequestManager(IPCProvider())
+    # Setup the signing manager.
+    >>> delegated_manager = Web3.DelegatedSigningManager(web3._requestManager, signature_manager)
+    >>> web3.setManager(delegated_manager)
+    >>> web3.eth.sendTransaction({
+    ...     'from': '0x...'
+    ...     ...
+    ... }) 
+    
+In this example the transaction will be signed using the locally unlocked IPC
+node and then the public Infura RPC node is used relay the pre-signed
+transaction to the network using the ``eth_sendRawTransaction`` method.
+
+
 Private Key Signing Manager
 ---------------------------
 
@@ -62,3 +81,19 @@ Private Key Signing Manager
 
     This method registers a private key with the manager which will allow
     sending from the derived address.
+
+
+.. code-block:: python
+
+    >>> web3 = Web3(Web3.RPCProvider(host='mainnet.infura.io', path='your-infura-access-key'))
+    >>> pk_manager = Web3.PrivateKeySigningManager(web3._requestManager)
+    >>> pk_manager.register_private_key(b'the-private-key-as-bytes')
+    >>> web3.setManager(pk_manager)
+    >>> web3.eth.sendTransaction({
+    ...     'from': '0x...'  # the public address for the registered private key.
+    ...     ...
+    ... }) 
+
+In this example, the transaction will be signed using the private key it was
+given, after which it will be sent using the ``eth_sendRawTransaction`` through
+the connected Infura RPC node.
