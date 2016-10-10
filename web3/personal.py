@@ -11,8 +11,8 @@ class Personal(object):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal
     """
-    def __init__(self, request_manager):
-        self.request_manager = request_manager
+    def __init__(self, web3):
+        self.web3 = web3
 
     def importRawKey(self, private_key, passphrase):
         if len(private_key) == 66:
@@ -23,7 +23,7 @@ class Personal(object):
             pass
         else:
             raise ValueError("Unknown private key format")
-        return self.request_manager.request_blocking(
+        return self.web3._requestManager.request_blocking(
             "personal_importRawKey",
             [private_key, passphrase],
         )
@@ -40,30 +40,34 @@ class Personal(object):
         if not password:
             raise ValueError("Cannot have an empty password")
 
-        return self.request_manager.request_blocking("personal_newAccount", [password])
+        return self.web3._requestManager.request_blocking(
+            "personal_newAccount", [password],
+        )
 
     @property
     def listAccounts(self):
-        return self.request_manager.request_blocking("personal_listAccounts", [])
+        return self.web3._requestManager.request_blocking(
+            "personal_listAccounts", [],
+        )
 
     def getListAccounts(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
 
     def signAndSendTransaction(self, transaction, passphrase):
-        return self.request_manager.request_blocking(
+        return self.web3._requestManager.request_blocking(
             # "personal_sendTransaction",
             "personal_signAndSendTransaction",
             [transaction, passphrase],
         )
 
     def lockAccount(self, account):
-        return self.request_manager.request_blocking(
+        return self.web3._requestManager.request_blocking(
             "personal_lockAccount",
             [account],
         )
 
     def unlockAccount(self, account, passphrase, duration=None):
-        return self.request_manager.request_blocking(
+        return self.web3._requestManager.request_blocking(
             "personal_unlockAccount",
             [account, passphrase, duration],
         )

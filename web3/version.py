@@ -9,8 +9,8 @@ from web3.utils.functional import (
 
 
 class Version(object):
-    def __init__(self, request_manager):
-        self.request_manager = request_manager
+    def __init__(self, web3):
+        self.web3 = web3
 
     @property
     def api(self):
@@ -19,7 +19,7 @@ class Version(object):
 
     @property
     def node(self):
-        return self.request_manager.request_blocking("web3_clientVersion", [])
+        return self.web3._requestManager.request_blocking("web3_clientVersion", [])
 
     def getNode(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
@@ -27,7 +27,7 @@ class Version(object):
     @property
     @apply_formatters_to_return(to_decimal)
     def network(self):
-        return self.request_manager.request_blocking("net_version", [])
+        return self.web3._requestManager.request_blocking("net_version", [])
 
     def getNetwork(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
@@ -35,7 +35,7 @@ class Version(object):
     @property
     @apply_formatters_to_return(to_decimal)
     def ethereum(self):
-        return self.request_manager.request_blocking("eth_protocolVersion", [])
+        return self.web3._requestManager.request_blocking("eth_protocolVersion", [])
 
     def getEthereum(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")

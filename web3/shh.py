@@ -2,8 +2,8 @@ class Shh(object):
     """
     TODO: flesh this out.
     """
-    def __init__(self, request_manager):
-        self.request_manager = request_manager
+    def __init__(self, web3):
+        self.web3 = web3
 
     def post(self, *args, **kwargs):
         raise NotImplementedError("Not Implemented")

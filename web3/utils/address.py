@@ -97,16 +97,14 @@ def to_address(address):
     """
 
     if is_string(address):
-        address = address.lower()
-
         if len(address) == 42:
-            return address
+            return address.lower()
         elif len(address) == 40:
-            return add_0x_prefix(address)
+            return add_0x_prefix(address.lower())
         elif len(address) == 20:
             return encode_hex(address)
         elif len(address) in {66, 64}:
-            long_address = remove_0x_prefix(address)
+            long_address = remove_0x_prefix(address.lower())
             if is_prefixed(long_address, '000000000000000000000000'):
                 return add_0x_prefix(address[-40:])
 

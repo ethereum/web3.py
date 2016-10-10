@@ -69,6 +69,10 @@ def test_is_strict_address(value, expected):
     "value,expected",
     (
         (
+            b'\xd3\xcd\xa9\x13\xde\xb6\xf6yg\xb9\x9dg\xac\xdf\xa1q,)6\x01',
+            '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+        ),
+        (
             b'0xc6d9d2cd449a754c494264e1809c50e34d64562b',
             '0xc6d9d2cd449a754c494264e1809c50e34d64562b',
         ),
