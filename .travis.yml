@@ -12,7 +12,6 @@ before_install:
   - mkdir -p ~/.ethash
   - geth makedag 0 ~/.ethash
 env:
-    py{27,34,35}-{admin,eth,mining,providers,version,contracts,filtering,net,txpool,db,managers,personal,utilities}
   matrix:
     # admin
     - TOX_ENV=py27-admin
