@@ -69,8 +69,8 @@ env:
 cache:
   pip: true
   directories:
-    - ~/.ethash
-    - .tox/
+    - $HOME/.ethash
+    - $TRAVIS_BUILD_DIR/.tox/
 install:
   - "travis_retry pip install setuptools --upgrade"
   - "travis_retry pip install tox"
