@@ -434,7 +434,7 @@ class Contract(object):
 
         if self.address is not None:
             transact_transaction.setdefault('to', self.address)
-        transact_transaction.setdefault('from', self.web3.eth.coinbase)
+        transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
         if 'to' not in transact_transaction:
             if isinstance(self, type):
