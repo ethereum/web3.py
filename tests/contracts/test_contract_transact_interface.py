@@ -99,19 +99,6 @@ def test_transacting_with_contract_with_string_argument(web3_tester, string_cont
     assert force_bytes(final_value) == force_bytes("ÄLÄMÖLÖ")
 
 
-def test_transacting_with_contract_with_string_argument(web3_tester, string_contract):
-
-    # eth_abi will pass as raw bytes, no encoding
-    # unless we encode ourselves
-    txn_hash = string_contract.transact().setValue(force_bytes("ÄLÄMÖLÖ"))
-    txn_receipt = web3_tester.eth.getTransactionReceipt(txn_hash)
-    assert txn_receipt is not None
-
-    final_value = string_contract.call().getValue()
-
-    assert force_bytes(final_value) == force_bytes("ÄLÄMÖLÖ")
-
-
 def test_transacting_with_contract_respects_explicit_gas(web3,
                                                          STRING_CONTRACT,
                                                          skip_if_testrpc,
