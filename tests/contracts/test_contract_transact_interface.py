@@ -63,20 +63,33 @@ def test_transacting_with_contract_with_arguments(web3_tester,
     assert final_value - initial_value == 5
 
 
+def test_deploy_when_default_account_is_different_than_coinbase(web3_tester,
+                                                                wait_for_transaction,
+                                                                STRING_CONTRACT):
+    web3_tester.eth.defaultAccount = web3_tester.eth.accounts[1]
+    assert web3_tester.eth.defaultAccount != web3_tester.eth.coinbase
+
+    StringContract = web3_tester.eth.contract(**STRING_CONTRACT)
+
+    deploy_txn = StringContract.deploy(args=["Caqalai"])
+    wait_for_transaction(web3_tester, deploy_txn)
+    txn_after = web3_tester.eth.getTransaction(deploy_txn)
+    assert txn_after['from'] == web3_tester.eth.defaultAccount
+
+
+def test_transact_when_default_account_is_different_than_coinbase(web3_tester,
+                                                                  wait_for_transaction,
+                                                                  math_contract):
+    web3_tester.eth.defaultAccount = web3_tester.eth.accounts[1]
+    assert web3_tester.eth.defaultAccount != web3_tester.eth.coinbase
+
+    txn_hash = math_contract.transact().increment()
+    wait_for_transaction(web3_tester, txn_hash)
+    txn_after = web3_tester.eth.getTransaction(txn_hash)
+    assert txn_after['from'] == web3_tester.eth.defaultAccount
+
+
 def test_transacting_with_contract_with_string_argument(web3_tester, string_contract):
-    # eth_abi will pass as raw bytes, no encoding
-    # unless we encode ourselves
-    txn_hash = string_contract.transact().setValue(force_bytes("ÄLÄMÖLÖ"))
-    txn_receipt = web3_tester.eth.getTransactionReceipt(txn_hash)
-    assert txn_receipt is not None
-
-    final_value = string_contract.call().getValue()
-
-    assert force_bytes(final_value) == force_bytes("ÄLÄMÖLÖ")
-
-
-def test_transacting_with_contract_with_string_argument(web3_tester, string_contract):
-
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
     txn_hash = string_contract.transact().setValue(force_bytes("ÄLÄMÖLÖ"))
