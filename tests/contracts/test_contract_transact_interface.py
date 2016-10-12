@@ -63,6 +63,30 @@ def test_transacting_with_contract_with_arguments(web3_tester,
     assert final_value - initial_value == 5
 
 
+def test_deploy_when_default_account_is_different_than_coinbase(web3_tester,
+                                                                STRING_CONTRACT):
+    web3_tester.eth.defaultAccount = web3_tester.eth.accounts[1]
+    assert web3_tester.eth.defaultAccount != web3_tester.eth.coinbase
+
+    StringContract = web3_tester.eth.contract(**STRING_CONTRACT)
+
+    deploy_txn = StringContract.deploy(args=["Caqalai"])
+    deploy_receipt = wait_for_transaction_receipt(web3_tester, deploy_txn, 30)
+    assert deploy_receipt['from'] == web3_tester.eth.defaultAccount
+
+
+def test_transact_when_default_account_is_different_than_coinbase(web3_tester,
+                                                                  math_contract,
+                                                                  transact_args,
+                                                                  transact_kwargs):
+    web3_tester.eth.defaultAccount = web3_tester.eth.accounts[1]
+    assert web3_tester.eth.defaultAccount != web3_tester.eth.coinbase
+
+    txn_hash = math_contract.transact().increment(*transact_args, **transact_kwargs)
+    txn_receipt = web3_tester.eth.getTransactionReceipt(txn_hash)
+    assert txn_receipt['from'] == web3_tester.eth.defaultAccount
+
+
 def test_transacting_with_contract_with_string_argument(web3_tester, string_contract):
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
