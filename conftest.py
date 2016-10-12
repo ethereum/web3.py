@@ -156,7 +156,7 @@ def setup_testing_geth():
         geth_process = GethProcess(
             'testing',
             base_dir=base_dir,
-            overrides={'verbosity': '3'},
+            overrides={'verbosity': '3','shh': True},
         )
         with geth_process as running_geth_process:
             running_geth_process.wait_for_ipc(60)
