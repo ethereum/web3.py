@@ -17,7 +17,11 @@ from web3.providers.rpc import (
     TestRPCProvider,
 )
 from web3.providers.ipc import IPCProvider
-from web3.providers.manager import RequestManager
+from web3.providers.manager import (
+    RequestManager,
+    DelegatedSigningManager,
+    PrivateKeySigningManager,
+)
 
 from web3.utils.functional import (
     compose,
@@ -44,9 +48,15 @@ from web3.utils.address import (
 
 
 class Web3(object):
+    # Providers
     RPCProvider = RPCProvider
     IPCProvider = IPCProvider
     TestRPCProvider = TestRPCProvider
+
+    # Managers
+    RequestManager = RequestManager
+    DelegatedSigningManager = DelegatedSigningManager
+    PrivateKeySigningManager = PrivateKeySigningManager
 
     # Iban
     Iban = Iban
@@ -71,24 +81,26 @@ class Web3(object):
 
     def __init__(self, provider):
         self._requestManager = RequestManager(provider)
-        self.currentProvider = provider
 
         self.eth = Eth(self)
-        self.db = Db(self._requestManager)
+        self.db = Db(self)
         self.shh = Shh(self)
-        self.net = Net(self._requestManager)
-        self.personal = Personal(self._requestManager)
-        self.version = Version(self._requestManager)
-        self.txpool = TxPool(self._requestManager)
-        self.miner = Miner(self._requestManager)
-        self.admin = Admin(self._requestManager)
+        self.net = Net(self)
+        self.personal = Personal(self)
+        self.version = Version(self)
+        self.txpool = TxPool(self)
+        self.miner = Miner(self)
+        self.admin = Admin(self)
 
     def setProvider(self, provider):
         self._requestManager.setProvider(provider)
-        self.currentProvider = provider
 
-    def reset(self, keepIsSyncing):
-        self._requestManager.reset(keepIsSyncing)
+    def setManager(self, manager):
+        self._requestManager = manager
+
+    @property
+    def currentProvider(self):
+        return self._requestManager.provider
 
     def sha3(self, value, encoding="hex"):
         if encoding == 'hex':

@@ -445,20 +445,6 @@ The following methods are available on the ``web3.eth`` namespace.
         21000
 
 
-.. py:method:: Eth.estimateGas(transaction)
-
-    * Delegates to ``eth_estimateGas`` RPC Method
-
-    Executes the given transaction locally without creating a new transaction
-    on the blockchain.  Returns amount of gas consumed by execution which can
-    be used as a gas estimate.
-
-    .. code-block:: python
-
-        >>> web3.eth.estimateGas({'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601', 'from': web3.eth.coinbase, 'value': 12345})
-        21000
-
-
 Filters
 -------
 

@@ -8,19 +8,19 @@ from web3.formatters import (
 
 
 class TxPool(object):
-    def __init__(self, request_manager):
-        self.request_manager = request_manager
+    def __init__(self, web3):
+        self.web3 = web3
 
     @property
     @apply_formatters_to_return(transaction_pool_content_formatter)
     def content(self):
-        return self.request_manager.request_blocking("txpool_content", [])
+        return self.web3._requestManager.request_blocking("txpool_content", [])
 
     @property
     @apply_formatters_to_return(transaction_pool_inspect_formatter)
     def inspect(self):
-        return self.request_manager.request_blocking("txpool_inspect", [])
+        return self.web3._requestManager.request_blocking("txpool_inspect", [])
 
     @property
     def status(self):
-        return self.request_manager.request_blocking("txpool_status", [])
+        return self.web3._requestManager.request_blocking("txpool_status", [])

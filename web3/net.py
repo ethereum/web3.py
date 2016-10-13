@@ -8,12 +8,12 @@ from web3.utils.functional import (
 
 class Net(object):
 
-    def __init__(self, request_manager):
-        self.request_manager = request_manager
+    def __init__(self, web3):
+        self.web3 = web3
 
     @property
     def listening(self):
-        return self.request_manager.request_blocking("net_listening", [])
+        return self.web3._requestManager.request_blocking("net_listening", [])
 
     def getListening(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
@@ -21,7 +21,7 @@ class Net(object):
     @property
     @apply_formatters_to_return(to_decimal)
     def peerCount(self):
-        return self.request_manager.request_blocking("net_peerCount", [])
+        return self.web3._requestManager.request_blocking("net_peerCount", [])
 
     def getPeerCount(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")

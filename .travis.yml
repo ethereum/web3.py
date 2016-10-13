@@ -13,17 +13,64 @@ before_install:
   - geth makedag 0 ~/.ethash
 env:
   matrix:
-    - TOX_ENV=py27
-    - TOX_ENV=py34
-    - TOX_ENV=py35
+    # admin
+    - TOX_ENV=py27-admin
+    - TOX_ENV=py34-admin
+    - TOX_ENV=py35-admin
+    # eth
+    - TOX_ENV=py27-eth
+    - TOX_ENV=py34-eth
+    - TOX_ENV=py35-eth
+    # mining
+    - TOX_ENV=py27-mining
+    - TOX_ENV=py34-mining
+    - TOX_ENV=py35-mining
+    # providers
+    - TOX_ENV=py27-providers
+    - TOX_ENV=py34-providers
+    - TOX_ENV=py35-providers
+    # version
+    - TOX_ENV=py27-version
+    - TOX_ENV=py34-version
+    - TOX_ENV=py35-version
+    # contracts
+    - TOX_ENV=py27-contracts
+    - TOX_ENV=py34-contracts
+    - TOX_ENV=py35-contracts
+    # filtering
+    - TOX_ENV=py27-filtering
+    - TOX_ENV=py34-filtering
+    - TOX_ENV=py35-filtering
+    # net
+    - TOX_ENV=py27-net
+    - TOX_ENV=py34-net
+    - TOX_ENV=py35-net
+    # txpool
+    - TOX_ENV=py27-txpool
+    - TOX_ENV=py34-txpool
+    - TOX_ENV=py35-txpool
+    # db
+    - TOX_ENV=py27-db
+    - TOX_ENV=py34-db
+    - TOX_ENV=py35-db
+    # managers
+    - TOX_ENV=py27-managers
+    - TOX_ENV=py34-managers
+    - TOX_ENV=py35-managers
+    # personal
+    - TOX_ENV=py27-personal
+    - TOX_ENV=py34-personal
+    - TOX_ENV=py35-personal
+    # utilities
+    - TOX_ENV=py27-utilities
+    - TOX_ENV=py34-utilities
+    - TOX_ENV=py35-utilities
     - TOX_ENV=flake8
 cache:
   pip: true
   directories:
-    - ~/.ethash
-    - .tox/py27/.hypothesis
-    - .tox/py34/.hypothesis
-    - .tox/py35/.hypothesis
+    - $HOME/.ethash
+    - $TRAVIS_BUILD_DIR/.tox/
 install:
   - "travis_retry pip install setuptools --upgrade"
   - "travis_retry pip install tox"

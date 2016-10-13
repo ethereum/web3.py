@@ -7,31 +7,35 @@ from web3.utils.encoding import (
 
 
 class Miner(object):
-    def __init__(self, request_manager):
-        self.request_manager = request_manager
+    def __init__(self, web3):
+        self.web3 = web3
 
     @property
     @apply_formatters_to_return(to_decimal)
     def hashrate(self):
-        return self.request_manager.request_blocking("eth_hashrate", [])
+        return self.web3._requestManager.request_blocking("eth_hashrate", [])
 
     def makeDAG(self, number):
-        return self.request_manager.request_blocking("miner_makeDag", [number])
+        return self.web3._requestManager.request_blocking("miner_makeDag", [number])
 
     def setExtra(self, extra):
-        return self.request_manager.request_blocking("miner_setExtra", [extra])
+        return self.web3._requestManager.request_blocking("miner_setExtra", [extra])
 
     def setGasPrice(self, gas_price):
-        return self.request_manager.request_blocking("miner_setGasPrice", [gas_price])
+        return self.web3._requestManager.request_blocking(
+            "miner_setGasPrice", [gas_price],
+        )
 
     def start(self, num_threads):
-        return self.request_manager.request_blocking("miner_start", [num_threads])
+        return self.web3._requestManager.request_blocking(
+            "miner_start", [num_threads],
+        )
 
     def stop(self):
-        return self.request_manager.request_blocking("miner_stop", [])
+        return self.web3._requestManager.request_blocking("miner_stop", [])
 
     def startAutoDAG(self):
-        return self.request_manager.request_blocking("miner_startAutoDag", [])
+        return self.web3._requestManager.request_blocking("miner_startAutoDag", [])
 
     def stopAutoDAG(self):
-        return self.request_manager.request_blocking("miner_stopAutoDag", [])
+        return self.web3._requestManager.request_blocking("miner_stopAutoDag", [])

@@ -31,7 +31,9 @@ units = {
 }
 
 
-denoms = type('denoms', (object,), units)
+denoms = type('denoms', (object,), {
+    key: int(value) for key, value in units.items()
+})
 
 
 MIN_WEI = 0

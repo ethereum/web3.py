@@ -1,3 +1,19 @@
+3.1.1
+-----
+
+* Bugfix for contract transaction sending not respecting the
+  `web3.eth.defaultAccount` configuration.
+
+3.1.0
+-----
+
+* New DelegatedSigningManager and PrivateKeySigningManager classes.
+
+3.0.2
+-----
+
+* Bugfix or IPCProvider not handling large JSON responses well.
+
 3.0.1
 -----
 

@@ -12,9 +12,10 @@ def pad_left(string, chars, filler="0"):
     Should be called to pad string to expected length
     """
     numchars = chars - len(string)
-    head = ""
+    head = b"" if is_bytes(string) else ""
+    filler_value = force_bytes(filler) if is_bytes(string) else force_text(filler)
     if numchars > 0:
-        head = filler * numchars
+        head = filler_value * numchars
     return head + string
 
 
@@ -23,9 +24,10 @@ def pad_right(string, chars, filler="0"):
     Should be called to pad string to expected length
     """
     numchars = chars - len(string)
-    tail = ""
+    tail = b"" if is_bytes(string) else ""
+    filler_value = force_bytes(filler) if is_bytes(string) else force_text(filler)
     if numchars > 0:
-        tail = filler * numchars
+        tail = filler_value * numchars
     return string + tail
 
 
