@@ -16,7 +16,10 @@ class Shh(object):
     """
     def __init__(self, web3):
         self.web3 = web3
-        self.request_manager = web3._requestManager
+
+    @property
+    def request_manager(self):
+        return self.web3._requestManager
 
     @property
     @apply_formatters_to_return(to_decimal)
