@@ -102,7 +102,7 @@ will return a new :py:class::`BlockFilter` object.
         ...     sys.stdout.write("New Block: {0}".format(transaction_hash))
         ...
         >>> new_transaction_filter = web3.eth.filter('pending')
-        >>> new_transaction_filter.watch(new_transaction_filter)
+        >>> new_transaction_filter.watch(new_transaction_callback)
         # each time the client receieves a unmined transaction the
         # `new_transaction_filter` function will be called with the transaction
         # hash.
@@ -143,3 +143,23 @@ event data from the event logs.
 The :py:class::`PastLogFilter` is a subclass of :py:class::`LogFilter` that is
 configured specially to return historical event logs.  It conforms to the same
 API as the ``LogFilter`` class.
+
+
+Shh Filter
+----------
+
+.. py:class:: ShhFilter(web3, filter_id)
+
+The :py:class:: `ShhFilter` class is used for filtering Shh messages.
+You can setup a callback function for Whipser messages matching the topics subscribed using ``web3.shh.filter(filter_params)``,which
+will return a :py:class::`ShhFilter` object
+
+    .. code-block:: python
+   
+        >>>def filter_callback(new_message):
+        ...     sys.stdout.write("New Shh Message: {0}".format(new_message))
+        ...
+        >>>shh_filter = web3.shh.filter({"topics":[web3.fromAscii("topic_to_subscribe")]})
+        >>>shh_filter.watch(filter_callback)
+        #each time client recieves a Shh messages matching the topics subscibed,
+        #filter_callback is called
