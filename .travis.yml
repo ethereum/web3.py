@@ -45,6 +45,10 @@ env:
     - TOX_ENV=py27-net
     - TOX_ENV=py34-net
     - TOX_ENV=py35-net
+    # shh
+    - TOX_ENV=py27-shh
+    - TOX_ENV=py34-shh
+    - TOX_ENV=py35-shh
     # txpool
     - TOX_ENV=py27-txpool
     - TOX_ENV=py34-txpool
