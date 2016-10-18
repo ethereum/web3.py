@@ -8,11 +8,11 @@ def test_shh_filter(web3, skip_if_testrpc):
     gevent.sleep(1)
     
     payloads = []
-    payloads.append("payload1")
+    payloads.append(str.encode("payload1"))
     web3.shh.post({"topics":[web3.fromAscii("test")], "payload":web3.fromAscii(payloads[len(payloads)-1])})
     gevent.sleep(1)
     
-    payloads.append( "payload2") 
+    payloads.append(str.encode("payload2"))
     web3.shh.post({"topics":[web3.fromAscii("test")], "payload":web3.fromAscii(payloads[len(payloads)-1])})
     gevent.sleep(1)
     
