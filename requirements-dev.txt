@@ -3,9 +3,10 @@ pytest-pythonpath>=0.3
 tox>=1.8.0
 eth-testrpc>=0.8.6
 ethereum-tester-client>=1.2.3
-py-geth>=1.2.0
+py-geth>=1.4.0
 ethereum>=1.5.2
 secp256k1>=0.13.1
 rlp>=0.4.6
 hypothesis>=3.4.2
 flaky>=3.3.0
+flake8==3.0.4

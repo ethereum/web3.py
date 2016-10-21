@@ -23,7 +23,7 @@ def test_on_filter_using_get_interface(web3_empty,
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
-    with gevent.Timeout(10):
+    with gevent.Timeout(30):
         while not filter.get(False):
             gevent.sleep(random.random())
 
@@ -54,11 +54,11 @@ def test_on_filter_with_only_event_name(web3_empty,
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
-    with gevent.Timeout(5):
+    with gevent.Timeout(30):
         while not seen_logs:
             gevent.sleep(random.random())
 
-    filter.stop_watching(10)
+    filter.stop_watching(30)
 
     assert len(seen_logs) == 1
     assert seen_logs[0]['transactionHash'] == txn_hash
@@ -99,11 +99,11 @@ def test_on_filter_with_event_name_and_single_argument(web3_empty,
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
 
-    with gevent.Timeout(5):
+    with gevent.Timeout(30):
         while len(seen_logs) < 2:
             gevent.sleep(random.random())
 
-    filter.stop_watching(10)
+    filter.stop_watching(30)
 
     assert len(seen_logs) == 2
     assert {l['transactionHash'] for l in seen_logs} == set(txn_hashes[1:])
@@ -144,11 +144,11 @@ def test_on_filter_with_event_name_and_non_indexed_argument(web3_empty,
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
 
-    with gevent.Timeout(5):
+    with gevent.Timeout(30):
         while not seen_logs:
             gevent.sleep(random.random())
 
-    filter.stop_watching(10)
+    filter.stop_watching(30)
 
     assert len(seen_logs) == 1
     assert seen_logs[0]['transactionHash'] == txn_hashes[1]

@@ -26,11 +26,11 @@ def test_past_events_filter_with_callback(web3_empty,
     else:
         filter = Emitter.pastEvents('LogNoArguments', {}, seen_logs.append)
 
-    with gevent.Timeout(5):
+    with gevent.Timeout(30):
         while not seen_logs:
             gevent.sleep(random.random())
 
-    filter.stop_watching(10)
+    filter.stop_watching(30)
 
     assert len(seen_logs) == 1
     event_data = seen_logs[0]
@@ -62,7 +62,7 @@ def test_past_events_filter_using_get_api(web3_empty,
     else:
         filter = Emitter.pastEvents('LogNoArguments')
 
-    with gevent.Timeout(10):
+    with gevent.Timeout(30):
         while not filter.get(False):
             gevent.sleep(random.random())
 
