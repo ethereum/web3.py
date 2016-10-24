@@ -18,6 +18,10 @@ Providers
 
     Convenience API to access :py:class:`web3.providers.rpc.RPCProvider`
 
+.. py:attribute:: Web3.KeepAliveRPCProvider
+
+    Convenience API to access :py:class:`web3.providers.rpc.KeepAliveRPCProvider`
+
 .. py:attribute:: Web3.IPCProvider
 
     Convenience API to access :py:class:`web3.providers.rpc.IPCProvider`
