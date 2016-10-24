@@ -31,6 +31,7 @@ setup(
         "geventhttpclient>=1.3.1",
         "ethereum-abi-utils>=0.2.1",
         "pysha3>=0.3",
+        "pylru>=1.0.9",
     ],
     py_modules=['web3'],
     license="MIT",
