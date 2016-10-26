@@ -108,6 +108,7 @@ class Filter(gevent.Greenlet):
 
         if not self.running:
             self.start()
+        gevent.sleep(0)
 
     def stop_watching(self, timeout=0):
         self.running = False
