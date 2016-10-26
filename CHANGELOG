@@ -1,3 +1,9 @@
+3.2.0
+-----
+
+* `web3.shh` is now implemented.
+* Introduced `KeepAliveRPCProvider` to correctly recycle HTTP connections and use HTTP keep alive
+
 3.1.1
 -----
 

@@ -14,6 +14,7 @@ from web3.iban import Iban
 
 from web3.providers.rpc import (
     RPCProvider,
+    KeepAliveRPCProvider,
     TestRPCProvider,
 )
 from web3.providers.ipc import IPCProvider
@@ -50,6 +51,7 @@ from web3.utils.address import (
 class Web3(object):
     # Providers
     RPCProvider = RPCProvider
+    KeepAliveRPCProvider = KeepAliveRPCProvider
     IPCProvider = IPCProvider
     TestRPCProvider = TestRPCProvider
 

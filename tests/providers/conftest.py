@@ -3,7 +3,7 @@ import pytest
 from gevent import socket
 
 from web3.providers.ipc import IPCProvider
-from web3.providers.rpc import TestRPCProvider, RPCProvider
+from web3.providers.rpc import TestRPCProvider, RPCProvider, KeepAliveRPCProvider
 
 
 def get_open_port():
@@ -15,7 +15,7 @@ def get_open_port():
     return port
 
 
-@pytest.fixture(params=['tester', 'rpc', 'ipc'])
+@pytest.fixture(params=['tester', 'rpc', 'ipc', 'keep-alive-rpc'])
 def disconnected_provider(request):
     """
     Supply a Provider that's not connected to a node.
@@ -30,7 +30,9 @@ def disconnected_provider(request):
         provider.thread.kill()
         return provider
     elif request.param == 'rpc':
-        return RPCProvider(port=9999)
+        return RPCProvider(port=get_open_port())
+    elif request.param == 'keep-alive-rpc':
+        return KeepAliveRPCProvider(port=get_open_port())
     elif request.param == 'ipc':
         return IPCProvider(ipc_path='nonexistent')
     else:
