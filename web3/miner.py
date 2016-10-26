@@ -21,6 +21,9 @@ class Miner(object):
     def setExtra(self, extra):
         return self.web3._requestManager.request_blocking("miner_setExtra", [extra])
 
+    def setEtherBase(self, etherbase):
+        return self.web3._requestManager.request_blocking("miner_setEtherbase", [etherbase])
+
     def setGasPrice(self, gas_price):
         return self.web3._requestManager.request_blocking(
             "miner_setGasPrice", [gas_price],
