@@ -109,3 +109,13 @@ def to_address(address):
                 return add_0x_prefix(address[-40:])
 
     raise ValueError("Unknown address format")
+
+@coerce_args_to_text
+def is_same_address(address1, address2):
+    """
+    Checks if both addresses are same or not
+    """
+    if is_address(address1) & is_address(address2):
+        return to_checksum_address(address1) == to_checksum_address(address2)
+    else:
+        return to_checksum_address(to_address(address1)) == to_checksum_address(to_address(address2))

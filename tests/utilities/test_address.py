@@ -8,6 +8,7 @@ from web3.utils.address import (
     is_checksum_address,
     to_checksum_address,
     to_address,
+    is_same_address,
 )
 
 
@@ -129,3 +130,57 @@ def test_to_address(value, expected):
 )
 def test_to_checksum_address(value, expected):
     assert to_checksum_address(value) == expected, (to_checksum_address(value), expected)
+
+@pytest.mark.parametrize(
+    "address1,address2,expected",
+    (
+        (
+            '0xc6d9d2cd449a754c494264e1809c50e34d64562b',
+            '0xc6d9d2cD449A754c494264e1809c50e34D64562b',
+            True,
+        ),
+        (
+            'c6d9d2cd449a754c494264e1809c50e34d64562b',
+            '0xc6d9d2cD449A754c494264e1809c50e34D64562b',
+            True,
+        ),
+        (
+            b'\xd3\xcd\xa9\x13\xde\xb6\xf6yg\xb9\x9dg\xac\xdf\xa1q,)6\x01',
+            '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+            True,
+        ),
+        (
+            b'0xc6d9d2cd449a754c494264e1809c50e34d64562b',
+            '0xc6d9d2cd449a754c494264e1809c50e34d64562b',
+            True,
+        ),
+        (
+            b'0xc6d9d2cd449a754c494264e1809c50e34d64562b',
+            '0xc305c901078781c232a2a521c2af7980f8385ee9',
+            False,
+        ),
+        (
+            'c6d9d2cd449a754c494264e1809c50e34d64562b',
+            '0xc6d9d2cd449a754c494264e1809c50e34d64562b',
+            True,
+        ),
+        (
+            'C6D9D2CD449A754C494264E1809C50E34D64562B',
+            '0xc6d9d2cd449a754c494264e1809c50e34d64562b',
+            True,
+        ),
+        (
+            '0x000000000000000000000000c305c901078781c232a2a521c2af7980f8385ee9',
+            '0xc305c901078781c232a2a521c2af7980f8385ee9',
+            True,
+        ),
+        (
+            b'0x000000000000000000000000c305c901078781c232a2a521c2af7980f8385ee9',
+            '0xc6d9d2cd449a754c494264e1809c50e34d64562b',
+            False,
+        ),
+    )
+)
+
+def test_is_same_address(address1, address2, expected):
+    assert is_same_address(address1, address2) == expected
