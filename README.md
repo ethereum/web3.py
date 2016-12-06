@@ -10,7 +10,6 @@
 A python implementation of [web3.js](https://github.com/ethereum/web3.js)
 
 * Python 2.7, 3.4, 3.5 support
-* Largely feature-for-feature python implementation of Web3.js
 
 
 ## Installation
@@ -23,8 +22,14 @@ pip install web3
 ### Testing
 
 For testing you can use the `TestRPCProvider`.  This depends on
-`eth-testrpc>=0.8.4` which must be installed independently (It is not included
-as a hard dependency for this package.)
+`eth-testrpc>=0.9.0` which must be eithe installed independently or with the
+following installation command.
+
+```sh
+pip install web3[TestRPCProvider]
+```
+
+Then in your code:
 
 
 ```python

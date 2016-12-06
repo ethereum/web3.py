@@ -176,15 +176,14 @@ class TestRPCProvider(RPCProvider):
         if not is_testrpc_available():
             raise Exception("`TestRPCProvider` requires the `eth-testrpc` package to be installed")
         from gevent.pywsgi import WSGIServer
-        from testrpc.server import application
-        from testrpc.testrpc import evm_reset
+        from testrpc.server import get_application
 
         try:
             logger = kwargs.pop('logger')
         except KeyError:
             logger = logging.getLogger('testrpc')
 
-        evm_reset()
+        application = get_application()
 
         self.server = WSGIServer(
             (host, port),

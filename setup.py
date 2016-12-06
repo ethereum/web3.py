@@ -33,6 +33,9 @@ setup(
         "pysha3>=0.3",
         "pylru>=1.0.9",
     ],
+    extras_require={
+        'TestRPCProvider': ["eth-testrpc>=0.9.0"],
+    },
     py_modules=['web3'],
     license="MIT",
     zip_safe=False,
