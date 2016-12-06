@@ -158,6 +158,10 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
                 len(args) + len(kwargs),
             )
         )
+
+    if not kwargs:
+        return args
+
     args_as_kwargs = {
         arg_abi['name']: arg
         for arg_abi, arg in zip(function_abi['inputs'], args)
