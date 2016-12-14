@@ -255,7 +255,7 @@ class Contract(object):
         event_filter_params = {}
         event_filter_params.update(filter_params)
         event_filter_params.setdefault('fromBlock', 'earliest')
-        event_filter_params.setdefault('toBlock', self.web3.eth.blockNumber)
+        event_filter_params.setdefault('toBlock', self.web3.eth.defaultAccount)
 
         log_filter = self.on(
             event_name,
@@ -292,7 +292,7 @@ class Contract(object):
 
         if self.address:
             estimate_transaction.setdefault('to', self.address)
-        estimate_transaction.setdefault('from', self.web3.eth.coinbase)
+        estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
         if 'to' not in estimate_transaction:
             if isinstance(self, type):
@@ -356,7 +356,7 @@ class Contract(object):
 
         if self.address:
             call_transaction.setdefault('to', self.address)
-        call_transaction.setdefault('from', self.web3.eth.coinbase)
+        call_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
         if 'to' not in call_transaction:
             if isinstance(self, type):
