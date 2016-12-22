@@ -33,7 +33,7 @@ This connection can be either over JSON-RPC using HTTP (TCP/IP)
 
 .. code-block:: python
 
-    >>> from web3 import Web, KeepAliveRPCProvider, IPCProvider
+    >>> from web3 import Web3, KeepAliveRPCProvider, IPCProvider
 
     # Note that you should create only one RPCProvider per
     # process, as it recycles underlying TCP/IP network connections between
