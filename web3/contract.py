@@ -9,10 +9,18 @@ from eth_abi import (
 )
 from eth_abi.exceptions import (
     EncodingError,
+    DecodingError,
+)
+
+from web3.exceptions import (
+    BadFunctionCallOutput,
 )
 
 from web3.utils.encoding import (
     encode_hex,
+)
+from web3.utils.exception import (
+    raise_from,
 )
 from web3.utils.formatting import (
     add_0x_prefix,
@@ -647,7 +655,17 @@ def call_contract_function(contract,
     function_abi = contract._find_matching_fn_abi(function_name, args, kwargs)
 
     output_types = get_abi_output_types(function_abi)
-    output_data = decode_abi(output_types, return_data)
+
+    try:
+        output_data = decode_abi(output_types, return_data)
+    except DecodingError as e:
+        # Turn error message more friendly
+        msg = "Could not decode contract function call {} return data {} for output_types {}".format(
+            function_name,
+            return_data,
+            output_types
+        )
+        raise_from(BadFunctionCallOutput(msg), e)
 
     normalized_data = [
         normalize_return_type(data_type, data_value)
