@@ -6,7 +6,6 @@ from bitcoin import encode_pubkey
 
 from ethereum.utils import privtoaddr
 
-from web3.providers.rpc import TestRPCProvider
 from web3.utils.crypto import (
     sha3 as _sha3,
 )

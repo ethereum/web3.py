@@ -2,7 +2,7 @@ import pytest
 from gevent import socket
 
 from web3.providers.manager import RequestManager
-from web3.providers.rpc import (
+from web3.providers.tester import (
     TestRPCProvider,
     is_testrpc_available,
 )

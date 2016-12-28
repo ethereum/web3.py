@@ -3,7 +3,14 @@ import pytest
 from gevent import socket
 
 from web3.providers.ipc import IPCProvider
-from web3.providers.rpc import TestRPCProvider, RPCProvider, KeepAliveRPCProvider
+
+from web3.providers.rpc import (
+    RPCProvider,
+    KeepAliveRPCProvider,
+)
+from web3.providers.tester import (
+    TestRPCProvider,
+)
 
 
 def get_open_port():

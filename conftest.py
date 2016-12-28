@@ -2,8 +2,10 @@ import pytest
 
 import gevent
 
-from web3.providers.tester import EthereumTesterProvider
-from web3.providers.rpc import TestRPCProvider
+from web3.providers.tester import (
+    EthereumTesterProvider,
+    TestRPCProvider,
+)
 from web3.main import Web3
 
 

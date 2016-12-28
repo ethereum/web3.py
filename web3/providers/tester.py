@@ -1,8 +1,11 @@
 import logging
 
+import gevent
+
 from testrpc.rpc import RPCMethods
 
 from .base import BaseProvider  # noqa: E402
+from .rpc import RPCProvider  # noqa: E402
 
 
 logger = logging.getLogger(__name__)
@@ -47,3 +50,29 @@ class EthereumTesterProvider(BaseProvider):
 
     def isConnected(self):
         return True
+
+
+class TestRPCProvider(RPCProvider):
+    def __init__(self, host="127.0.0.1", port=8545, *args, **kwargs):
+        if not is_testrpc_available():
+            raise Exception("`TestRPCProvider` requires the `eth-testrpc` package to be installed")
+        from gevent.pywsgi import WSGIServer
+        from testrpc.server import get_application
+
+        try:
+            logger = kwargs.pop('logger')
+        except KeyError:
+            logger = logging.getLogger('testrpc')
+
+        application = get_application()
+
+        self.server = WSGIServer(
+            (host, port),
+            application,
+            log=logger,
+            error_log=logger,
+        )
+
+        self.thread = gevent.spawn(self.server.serve_forever)
+
+        super(TestRPCProvider, self).__init__(host, str(port), *args, **kwargs)
