@@ -660,7 +660,7 @@ def call_contract_function(contract,
         output_data = decode_abi(output_types, return_data)
     except DecodingError as e:
         # Turn error message more friendly
-        msg = "Could not decode contract function call {} return data {} for output_types {}".format(
+        msg = "Could not decode contract function call {} return data {} for output_types {}".format(
             function_name,
             return_data,
             output_types
