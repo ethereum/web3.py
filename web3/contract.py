@@ -203,16 +203,16 @@ class Contract(object):
         """
         encodes the arguments using the Ethereum ABI for the contract function
         that matches the given name and arguments..
-        
+
         :param data: defaults to function selector
         """
         fn_abi, fn_selector, fn_arguments = cls._get_function_info(
             fn_name, args, kwargs,
         )
-        
+
         if data is None:
             data = fn_selector
-        
+
         return cls._encode_abi(fn_abi, fn_arguments, data)
 
     @combomethod
