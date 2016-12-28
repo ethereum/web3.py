@@ -659,11 +659,15 @@ def call_contract_function(contract,
     try:
         output_data = decode_abi(output_types, return_data)
     except DecodingError as e:
-        # Turn error message more friendly
-        msg = "Could not decode contract function call {} return data {} for output_types {}".format(
-            function_name,
-            return_data,
-            output_types
+        # Provide a more helpful error message than the one provided by
+        # eth-abi-utils
+        msg = (
+            "Could not decode contract function call {} return data {} for "
+            "output_types {}".format(
+                function_name,
+                return_data,
+                output_types
+            )
         )
         raise_from(BadFunctionCallOutput(msg), e)
 
