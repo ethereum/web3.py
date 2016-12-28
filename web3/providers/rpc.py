@@ -1,5 +1,4 @@
 import contextlib
-import gevent
 from geventhttpclient import HTTPClient
 import logging
 
@@ -161,6 +160,7 @@ class KeepAliveRPCProvider(JSONBaseProvider):
         response = self.client.post(self.path, body=request_data)
         response_body = response.read()
         return response_body
+<<<<<<< Updated upstream
 
 
 def is_testrpc_available():
@@ -195,3 +195,5 @@ class TestRPCProvider(RPCProvider):
         self.thread = gevent.spawn(self.server.serve_forever)
 
         super(TestRPCProvider, self).__init__(host, str(port), *args, **kwargs)
+=======
+>>>>>>> Stashed changes

@@ -15,9 +15,14 @@ from web3.iban import Iban
 from web3.providers.rpc import (
     RPCProvider,
     KeepAliveRPCProvider,
-    TestRPCProvider,
 )
-from web3.providers.ipc import IPCProvider
+from web3.providers.tester import (
+    TestRPCProvider,
+    EthereumTesterProvider,
+)
+from web3.providers.ipc import (
+    IPCProvider,
+)
 from web3.providers.manager import (
     RequestManager,
     DelegatedSigningManager,
@@ -55,6 +60,7 @@ class Web3(object):
     KeepAliveRPCProvider = KeepAliveRPCProvider
     IPCProvider = IPCProvider
     TestRPCProvider = TestRPCProvider
+    EthereumTesterProvider = EthereumTesterProvider
 
     # Managers
     RequestManager = RequestManager
