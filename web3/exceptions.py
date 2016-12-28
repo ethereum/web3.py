@@ -23,3 +23,10 @@ class InvalidResponseException(Exception):
         else:
             message = "Invalid JSON RPC response: " + json.dumps(result)
         Exception.__init__(self, message)
+
+
+class BadFunctionCallOutput(Exception):
+    """We failed to decode ABI output.
+
+    Most likely ABI mismatch.
+    """
