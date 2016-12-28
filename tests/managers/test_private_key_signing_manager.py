@@ -7,17 +7,20 @@ from web3.utils.address import to_address
 from web3.utils.currency import denoms
 from web3.utils.encoding import decode_hex
 
+from testrpc.client.utils import (
+    mk_random_privkey,
+    encode_address,
+)
+
 
 @pytest.fixture()
 def account_private_key():
-    from eth_tester_client.utils import mk_random_privkey
     return mk_random_privkey()
 
 
 @pytest.fixture()
 def account_public_key(account_private_key):
     from ethereum.utils import privtoaddr
-    from eth_tester_client.utils import encode_address
     return to_address(encode_address(privtoaddr(account_private_key)))
 
 

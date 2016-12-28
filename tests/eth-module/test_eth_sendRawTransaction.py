@@ -3,7 +3,7 @@ import rlp
 from ethereum.transactions import Transaction
 from ethereum.utils import privtoaddr
 
-from eth_tester_client.utils import (
+from testrpc.client.utils import (
     mk_random_privkey,
     encode_address,
     encode_data,
