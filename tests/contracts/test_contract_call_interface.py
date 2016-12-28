@@ -9,29 +9,29 @@ from web3.utils.string import (
 
 
 @pytest.fixture()
-def math_contract(web3_tester, MathContract):
+def math_contract(web3, MathContract):
     deploy_txn = MathContract.deploy()
-    deploy_receipt = web3_tester.eth.getTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     _math_contract = MathContract(address=deploy_receipt['contractAddress'])
     return _math_contract
 
 
 @pytest.fixture()
-def string_contract(web3_tester, StringContract):
+def string_contract(web3, StringContract):
     deploy_txn = StringContract.deploy(args=["Caqalai"])
-    deploy_receipt = web3_tester.eth.getTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     _string_contract = StringContract(address=deploy_receipt['contractAddress'])
     return _string_contract
 
 
 @pytest.fixture()
-def address_contract(web3_tester, WithConstructorAddressArgumentsContract):
+def address_contract(web3, WithConstructorAddressArgumentsContract):
     deploy_txn = WithConstructorAddressArgumentsContract.deploy(args=[
         "0xd3cda913deb6f67967b99d67acdfa1712c293601",
     ])
-    deploy_receipt = web3_tester.eth.getTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     _address_contract = WithConstructorAddressArgumentsContract(address=deploy_receipt['contractAddress'])
     return _address_contract

@@ -9,6 +9,9 @@ from web3.utils.types import (
     is_integer,
     is_string,
 )
+from web3.utils.string import (
+    coerce_return_to_text,
+)
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
@@ -35,6 +38,7 @@ class Eth(object):
     _defaultAccount = None
 
     @property
+    @coerce_return_to_text
     def defaultAccount(self):
         if self._defaultAccount is not None:
             return self._defaultAccount
@@ -64,9 +68,11 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
+    @coerce_return_to_text
     def coinbase(self):
         return self.web3._requestManager.request_blocking("eth_coinbase", [])
 
+    @coerce_return_to_text
     def getCoinbase(self):
         raise NotImplementedError("Async calling has not been implemented")
 
@@ -94,6 +100,7 @@ class Eth(object):
         raise NotImplementedError("Async calling has not been implemented")
 
     @property
+    @coerce_return_to_text
     def accounts(self):
         return self.web3._requestManager.request_blocking("eth_accounts", [])
 
@@ -132,6 +139,7 @@ class Eth(object):
             ],
         )
 
+    @coerce_return_to_text
     def getCode(self, account, block_identifier=None):
         if block_identifier is None:
             block_identifier = self.defaultBlock
@@ -228,6 +236,7 @@ class Eth(object):
             ],
         )
 
+    @coerce_return_to_text
     def sendTransaction(self, transaction):
         formatted_transaction = formatters.input_transaction_formatter(self, transaction)
         if 'gas' not in formatted_transaction and 'data' in formatted_transaction:
@@ -243,12 +252,14 @@ class Eth(object):
             [formatters.input_transaction_formatter(self, formatted_transaction)],
         )
 
+    @coerce_return_to_text
     def sendRawTransaction(self, raw_transaction):
         return self.web3._requestManager.request_blocking(
             "eth_sendRawTransaction",
             [raw_transaction],
         )
 
+    @coerce_return_to_text
     def sign(self, account, data):
         data_hash = self.web3._requestManager.request_blocking(
             "web3_sha3", [encode_hex(data)],

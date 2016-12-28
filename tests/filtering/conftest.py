@@ -1,14 +1,15 @@
 import pytest
 import json
 import textwrap
-from sha3 import sha3_256
 
-assert sha3_256(b'').hexdigest() == 'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
+from web3.utils.abi import (
+    event_signature_to_log_topic,
+)
 
 
 @pytest.fixture(autouse=True)
-def wait_for_mining_start(web3_empty, wait_for_block):
-    wait_for_block(web3_empty)
+def wait_for_mining_start(web3, wait_for_block):
+    wait_for_block(web3)
 
 
 CONTRACT_EMITTER_SOURCE = textwrap.dedent(("""
@@ -130,15 +131,12 @@ def EMITTER(EMITTER_CODE,
 
 
 @pytest.fixture()
-def Emitter(web3_empty, EMITTER):
-    web3 = web3_empty
+def Emitter(web3, EMITTER):
     return web3.eth.contract(**EMITTER)
 
 
 @pytest.fixture()
-def emitter(web3_empty, Emitter, wait_for_transaction, wait_for_block):
-    web3 = web3_empty
-
+def emitter(web3, Emitter, wait_for_transaction, wait_for_block):
     wait_for_block(web3)
     deploy_txn_hash = Emitter.deploy({'from': web3.eth.coinbase, 'gas': 1000000})
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
@@ -169,26 +167,21 @@ def emitter_event_ids():
     return LogFunctions
 
 
-def event_topic(event_signature):
-    from web3.utils.string import force_bytes
-    return force_bytes("0x" + sha3_256(force_bytes(event_signature)).hexdigest())
-
-
 class LogTopics(object):
-    LogAnonymous = event_topic("LogAnonymous()")
-    LogNoArguments = event_topic("LogNoArguments()")
-    LogSingleArg = event_topic("LogSingleArg(uint256)")
-    LogSingleAnonymous = event_topic("LogSingleAnonymous(uint256)")
-    LogSingleWithIndex = event_topic("LogSingleWithIndex(uint256)")
-    LogDoubleArg = event_topic("LogDoubleArg(uint256,uint256)")
-    LogDoubleAnonymous = event_topic("LogDoubleAnonymous(uint256,uint256)")
-    LogDoubleWithIndex = event_topic("LogDoubleWithIndex(uint256,uint256)")
-    LogTripleArg = event_topic("LogTripleArg(uint256,uint256,uint256)")
-    LogTripleWithIndex = event_topic("LogTripleWithIndex(uint256,uint256,uint256)")
-    LogQuadrupleArg = event_topic("LogQuadrupleArg(uint256,uint256,uint256,uint256)")
-    LogQuadrupleWithIndex = event_topic("LogQuadrupleWithIndex(uint256,uint256,uint256,uint256)")
-    LogBytes = event_topic("LogBytes(bytes)")
-    LogString = event_topic("LogString(string)")
+    LogAnonymous = event_signature_to_log_topic("LogAnonymous()")
+    LogNoArguments = event_signature_to_log_topic("LogNoArguments()")
+    LogSingleArg = event_signature_to_log_topic("LogSingleArg(uint256)")
+    LogSingleAnonymous = event_signature_to_log_topic("LogSingleAnonymous(uint256)")
+    LogSingleWithIndex = event_signature_to_log_topic("LogSingleWithIndex(uint256)")
+    LogDoubleArg = event_signature_to_log_topic("LogDoubleArg(uint256,uint256)")
+    LogDoubleAnonymous = event_signature_to_log_topic("LogDoubleAnonymous(uint256,uint256)")
+    LogDoubleWithIndex = event_signature_to_log_topic("LogDoubleWithIndex(uint256,uint256)")
+    LogTripleArg = event_signature_to_log_topic("LogTripleArg(uint256,uint256,uint256)")
+    LogTripleWithIndex = event_signature_to_log_topic("LogTripleWithIndex(uint256,uint256,uint256)")
+    LogQuadrupleArg = event_signature_to_log_topic("LogQuadrupleArg(uint256,uint256,uint256,uint256)")
+    LogQuadrupleWithIndex = event_signature_to_log_topic("LogQuadrupleWithIndex(uint256,uint256,uint256,uint256)")
+    LogBytes = event_signature_to_log_topic("LogBytes(bytes)")
+    LogString = event_signature_to_log_topic("LogString(string)")
 
 
 @pytest.fixture()

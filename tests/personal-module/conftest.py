@@ -20,14 +20,12 @@ def account_public_key(account_private_key):
 
 
 @pytest.fixture()
-def password_account(web3_empty,
+def password_account(web3,
                      account_password,
                      account_private_key,
                      account_public_key,
                      wait_for_transaction):
     from eth_tester_client.utils import normalize_address
-
-    web3 = web3_empty
 
     address = web3.personal.importRawKey(account_private_key, account_password)
 
@@ -48,9 +46,7 @@ def password_account(web3_empty,
 
 
 @pytest.fixture()
-def empty_account(web3_empty):
-    web3 = web3_empty
-
+def empty_account(web3):
     from eth_tester_client.utils import mk_random_privkey
     address = web3.personal.importRawKey(mk_random_privkey(), "a-password")
 

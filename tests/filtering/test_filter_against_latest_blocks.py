@@ -4,8 +4,7 @@ from flaky import flaky
 
 
 @flaky(max_runs=3)
-def test_filter_against_latest_blocks(web3_empty, wait_for_block, skip_if_testrpc):
-    web3 = web3_empty
+def test_filter_against_latest_blocks(web3, sleep_interval, wait_for_block, skip_if_testrpc):
     skip_if_testrpc(web3)
 
     seen_blocks = []
@@ -18,7 +17,7 @@ def test_filter_against_latest_blocks(web3_empty, wait_for_block, skip_if_testrp
 
     with gevent.Timeout(5):
         while len(seen_blocks) < 2:
-            gevent.sleep(random.random())
+            gevent.sleep(sleep_interval())
 
     txn_filter.stop_watching(3)
 

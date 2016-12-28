@@ -5,13 +5,13 @@ import logging
 
 import pylru
 
-from .base import BaseProvider  # noqa: E402
+from .base import JSONBaseProvider  # noqa: E402
 
 
 logger = logging.getLogger(__name__)
 
 
-class RPCProvider(BaseProvider):
+class RPCProvider(JSONBaseProvider):
     """Create a RPC client.
 
     .. note ::
@@ -78,7 +78,7 @@ class RPCProvider(BaseProvider):
 _client_cache = pylru.lrucache(128)
 
 
-class KeepAliveRPCProvider(BaseProvider):
+class KeepAliveRPCProvider(JSONBaseProvider):
     """RPC-provider that handles HTTP keep-alive connection correctly.
 
     HTTP client is recycled across requests. Create only one instance of

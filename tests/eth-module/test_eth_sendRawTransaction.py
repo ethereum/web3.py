@@ -9,8 +9,6 @@ from eth_tester_client.utils import (
     encode_data,
 )
 
-from web3.providers.rpc import TestRPCProvider
-
 
 def test_eth_sendRawTransaction(web3, wait_for_transaction, extra_accounts):
     private_key = mk_random_privkey()
@@ -23,12 +21,11 @@ def test_eth_sendRawTransaction(web3, wait_for_transaction, extra_accounts):
     })
     wait_for_transaction(web3, funding_txn_hash)
 
-    if isinstance(web3.currentProvider, TestRPCProvider):
-        # ethereum-tester-client doesn't quite implement the
-        # `sendRawTransaction` correctly because of how the underlying tester
-        # evm works.  It needs to know about the address for this to work.
-        web3.personal.importRawKey(private_key, "password")
-        web3.personal.unlockAccount(address, "password")
+    # ethereum-tester-client doesn't quite implement the
+    # `sendRawTransaction` correctly because of how the underlying tester
+    # evm works.  It needs to know about the address for this to work.
+    web3.personal.importRawKey(private_key, "password")
+    web3.personal.unlockAccount(address, "password")
 
     initial_balance = web3.eth.getBalance(extra_accounts[1])
 

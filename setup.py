@@ -34,7 +34,7 @@ setup(
         "pylru>=1.0.9",
     ],
     extras_require={
-        'TestRPCProvider': ["eth-testrpc>=0.9.0"],
+        'Tester': ["eth-testrpc>=0.9.0"],
     },
     py_modules=['web3'],
     license="MIT",

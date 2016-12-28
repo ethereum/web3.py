@@ -1,9 +1,10 @@
 import pytest
 import json
 import textwrap
-from sha3 import sha3_256
 
-assert sha3_256(b'').hexdigest() == 'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
+from web3.utils.abi import (
+    event_signature_to_log_topic,
+)
 
 
 CONTRACT_CODE = "0x606060405261022e806100126000396000f360606040523615610074576000357c01000000000000000000000000000000000000000000000000000000009004806316216f391461007657806361bc221a146100995780637cf5dab0146100bc578063a5f3c23b146100e8578063d09de08a1461011d578063dcf537b11461014057610074565b005b610083600480505061016c565b6040518082815260200191505060405180910390f35b6100a6600480505061017f565b6040518082815260200191505060405180910390f35b6100d26004808035906020019091905050610188565b6040518082815260200191505060405180910390f35b61010760048080359060200190919080359060200190919050506101ea565b6040518082815260200191505060405180910390f35b61012a6004805050610201565b6040518082815260200191505060405180910390f35b6101566004808035906020019091905050610217565b6040518082815260200191505060405180910390f35b6000600d9050805080905061017c565b90565b60006000505481565b6000816000600082828250540192505081905550600060005054905080507f3496c3ede4ec3ab3686712aa1c238593ea6a42df83f98a5ec7df9834cfa577c5816040518082815260200191505060405180910390a18090506101e5565b919050565b6000818301905080508090506101fb565b92915050565b600061020d6001610188565b9050610214565b90565b60006007820290508050809050610229565b91905056"
@@ -70,8 +71,8 @@ def MATH_ABI():
 
 
 @pytest.fixture()
-def MathContract(web3_tester, MATH_ABI, MATH_CODE, MATH_RUNTIME, MATH_SOURCE):
-    return web3_tester.eth.contract(
+def MathContract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, MATH_SOURCE):
+    return web3.eth.contract(
         abi=MATH_ABI,
         code=MATH_CODE,
         code_runtime=MATH_RUNTIME,
@@ -106,12 +107,12 @@ def SIMPLE_CONSTRUCTOR_ABI():
 
 
 @pytest.fixture()
-def SimpleConstructorContract(web3_tester,
+def SimpleConstructorContract(web3,
                               SIMPLE_CONSTRUCTOR_SOURCE,
                               SIMPLE_CONSTRUCTOR_CODE,
                               SIMPLE_CONSTRUCTOR_RUNTIME,
                               SIMPLE_CONSTRUCTOR_ABI):
-    return web3_tester.eth.contract(
+    return web3.eth.contract(
         abi=SIMPLE_CONSTRUCTOR_ABI,
         code=SIMPLE_CONSTRUCTOR_CODE,
         code_runtime=SIMPLE_CONSTRUCTOR_RUNTIME,
@@ -147,12 +148,12 @@ def WITH_CONSTRUCTOR_ARGUMENTS_ABI():
 
 
 @pytest.fixture()
-def WithConstructorArgumentsContract(web3_tester,
+def WithConstructorArgumentsContract(web3,
                                      WITH_CONSTRUCTOR_ARGUMENTS_SOURCE,
                                      WITH_CONSTRUCTOR_ARGUMENTS_CODE,
                                      WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
                                      WITH_CONSTRUCTOR_ARGUMENTS_ABI):
-    return web3_tester.eth.contract(
+    return web3.eth.contract(
         abi=WITH_CONSTRUCTOR_ARGUMENTS_ABI,
         code=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
         code_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
@@ -187,12 +188,12 @@ def WITH_CONSTRUCTOR_ADDRESS_ABI():
 
 
 @pytest.fixture()
-def WithConstructorAddressArgumentsContract(web3_tester,
-                                     WITH_CONSTRUCTOR_ADDRESS_SOURCE,
-                                     WITH_CONSTRUCTOR_ADDRESS_CODE,
-                                     WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
-                                     WITH_CONSTRUCTOR_ADDRESS_ABI):
-    return web3_tester.eth.contract(
+def WithConstructorAddressArgumentsContract(web3,
+                                            WITH_CONSTRUCTOR_ADDRESS_SOURCE,
+                                            WITH_CONSTRUCTOR_ADDRESS_CODE,
+                                            WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
+                                            WITH_CONSTRUCTOR_ADDRESS_ABI):
+    return web3.eth.contract(
         abi=WITH_CONSTRUCTOR_ADDRESS_ABI,
         code=WITH_CONSTRUCTOR_ADDRESS_CODE,
         code_runtime=WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
@@ -261,8 +262,8 @@ def STRING_CONTRACT(STRING_SOURCE, STRING_CODE, STRING_RUNTIME, STRING_ABI):
     }
 
 @pytest.fixture()
-def StringContract(web3_tester, STRING_CONTRACT):
-    return web3_tester.eth.contract(**STRING_CONTRACT)
+def StringContract(web3, STRING_CONTRACT):
+    return web3.eth.contract(**STRING_CONTRACT)
 
 
 CONTRACT_EMITTER_SOURCE = textwrap.dedent(("""
@@ -423,26 +424,21 @@ def emitter_event_ids():
     return LogFunctions
 
 
-def event_topic(event_signature):
-    from web3.utils.string import force_bytes
-    return "0x" + sha3_256(force_bytes(event_signature)).hexdigest()
-
-
 class LogTopics(object):
-    LogAnonymous = event_topic("LogAnonymous()")
-    LogNoArguments = event_topic("LogNoArguments()")
-    LogSingleArg = event_topic("LogSingleArg(uint256)")
-    LogSingleAnonymous = event_topic("LogSingleAnonymous(uint256)")
-    LogSingleWithIndex = event_topic("LogSingleWithIndex(uint256)")
-    LogDoubleArg = event_topic("LogDoubleArg(uint256,uint256)")
-    LogDoubleAnonymous = event_topic("LogDoubleAnonymous(uint256,uint256)")
-    LogDoubleWithIndex = event_topic("LogDoubleWithIndex(uint256,uint256)")
-    LogTripleArg = event_topic("LogTripleArg(uint256,uint256,uint256)")
-    LogTripleWithIndex = event_topic("LogTripleWithIndex(uint256,uint256,uint256)")
-    LogQuadrupleArg = event_topic("LogQuadrupleArg(uint256,uint256,uint256,uint256)")
-    LogQuadrupleWithIndex = event_topic("LogQuadrupleWithIndex(uint256,uint256,uint256,uint256)")
-    LogBytes = event_topic("LogBytes(bytes)")
-    LogString = event_topic("LogString(string)")
+    LogAnonymous = event_signature_to_log_topic("LogAnonymous()")
+    LogNoArguments = event_signature_to_log_topic("LogNoArguments()")
+    LogSingleArg = event_signature_to_log_topic("LogSingleArg(uint256)")
+    LogSingleAnonymous = event_signature_to_log_topic("LogSingleAnonymous(uint256)")
+    LogSingleWithIndex = event_signature_to_log_topic("LogSingleWithIndex(uint256)")
+    LogDoubleArg = event_signature_to_log_topic("LogDoubleArg(uint256,uint256)")
+    LogDoubleAnonymous = event_signature_to_log_topic("LogDoubleAnonymous(uint256,uint256)")
+    LogDoubleWithIndex = event_signature_to_log_topic("LogDoubleWithIndex(uint256,uint256)")
+    LogTripleArg = event_signature_to_log_topic("LogTripleArg(uint256,uint256,uint256)")
+    LogTripleWithIndex = event_signature_to_log_topic("LogTripleWithIndex(uint256,uint256,uint256)")
+    LogQuadrupleArg = event_signature_to_log_topic("LogQuadrupleArg(uint256,uint256,uint256,uint256)")
+    LogQuadrupleWithIndex = event_signature_to_log_topic("LogQuadrupleWithIndex(uint256,uint256,uint256,uint256)")
+    LogBytes = event_signature_to_log_topic("LogBytes(bytes)")
+    LogString = event_signature_to_log_topic("LogString(string)")
 
 
 @pytest.fixture()

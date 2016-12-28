@@ -26,7 +26,7 @@ For testing you can use the `TestRPCProvider`.  This depends on
 following installation command.
 
 ```sh
-pip install web3[TestRPCProvider]
+pip install web3[Tester]
 ```
 
 Then in your code:
