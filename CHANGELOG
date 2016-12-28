@@ -1,3 +1,9 @@
+3.3.0
+-----
+
+* New `EthereumTesterProvider` now available.  Faster test runs than `TestRPCProvider`
+* Updated underlying eth-testrpc requirement.
+
 3.2.0
 -----
 
