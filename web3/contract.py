@@ -255,7 +255,7 @@ class Contract(object):
         event_filter_params = {}
         event_filter_params.update(filter_params)
         event_filter_params.setdefault('fromBlock', 'earliest')
-        event_filter_params.setdefault('toBlock', self.web3.eth.defaultAccount)
+        event_filter_params.setdefault('toBlock', self.web3.eth.blockNumber)
 
         log_filter = self.on(
             event_name,
