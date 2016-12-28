@@ -7,10 +7,6 @@ sudo: required
 before_install:
   - travis_retry sudo add-apt-repository -y ppa:ethereum/ethereum
   - travis_retry sudo apt-get update
-  - travis_retry sudo apt-get install -y ethereum
-  - travis_retry sudo apt-get install -y solc
-  - mkdir -p ~/.ethash
-  - geth makedag 0 ~/.ethash
 env:
   matrix:
     # admin
@@ -72,13 +68,9 @@ env:
     - TOX_ENV=flake8
 cache:
   pip: true
-  directories:
-    - $HOME/.ethash
 install:
   - "travis_retry pip install pip setuptools --upgrade"
   - "travis_retry pip install tox"
-before_script:
-  - geth version
 script:
   - tox -e $TOX_ENV
 after_script:
