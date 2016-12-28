@@ -9,62 +9,9 @@ before_install:
   - travis_retry sudo apt-get update
 env:
   matrix:
-    # admin
-    - TOX_ENV=py27-admin
-    - TOX_ENV=py34-admin
-    - TOX_ENV=py35-admin
-    # eth
-    - TOX_ENV=py27-eth
-    - TOX_ENV=py34-eth
-    - TOX_ENV=py35-eth
-    # mining
-    - TOX_ENV=py27-mining
-    - TOX_ENV=py34-mining
-    - TOX_ENV=py35-mining
-    # providers
-    - TOX_ENV=py27-providers
-    - TOX_ENV=py34-providers
-    - TOX_ENV=py35-providers
-    # version
-    - TOX_ENV=py27-version
-    - TOX_ENV=py34-version
-    - TOX_ENV=py35-version
-    # contracts
-    - TOX_ENV=py27-contracts
-    - TOX_ENV=py34-contracts
-    - TOX_ENV=py35-contracts
-    # filtering
-    - TOX_ENV=py27-filtering
-    - TOX_ENV=py34-filtering
-    - TOX_ENV=py35-filtering
-    # net
-    - TOX_ENV=py27-net
-    - TOX_ENV=py34-net
-    - TOX_ENV=py35-net
-    # shh
-    - TOX_ENV=py27-shh
-    - TOX_ENV=py34-shh
-    - TOX_ENV=py35-shh
-    # txpool
-    - TOX_ENV=py27-txpool
-    - TOX_ENV=py34-txpool
-    - TOX_ENV=py35-txpool
-    # db
-    - TOX_ENV=py27-db
-    - TOX_ENV=py34-db
-    - TOX_ENV=py35-db
-    # managers
-    - TOX_ENV=py27-managers
-    - TOX_ENV=py34-managers
-    - TOX_ENV=py35-managers
-    # personal
-    - TOX_ENV=py27-personal
-    - TOX_ENV=py34-personal
-    - TOX_ENV=py35-personal
-    # utilities
-    - TOX_ENV=py27-utilities
-    - TOX_ENV=py34-utilities
-    - TOX_ENV=py35-utilities
+    - TOX_ENV=py27-all
+    - TOX_ENV=py34-all
+    - TOX_ENV=py35-all
     - TOX_ENV=flake8
 cache:
   pip: true
