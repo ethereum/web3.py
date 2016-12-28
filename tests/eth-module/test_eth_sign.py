@@ -1,6 +1,5 @@
 import pytest
 
-from sha3 import sha3_256
 from secp256k1 import PrivateKey, PublicKey, ALL_FLAGS
 
 from bitcoin import encode_pubkey
@@ -8,6 +7,9 @@ from bitcoin import encode_pubkey
 from ethereum.utils import privtoaddr
 
 from web3.providers.rpc import TestRPCProvider
+from web3.utils.crypto import (
+    sha3 as _sha3,
+)
 from web3.utils.string import (
     force_bytes,
     force_text,
@@ -29,7 +31,7 @@ from web3.utils.encoding import (
 
 @coerce_return_to_bytes
 def sha3(s):
-    return add_0x_prefix(sha3_256(s).hexdigest())
+    return add_0x_prefix(_sha3(s))
 
 
 assert sha3(b'') == b'0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
@@ -57,9 +59,7 @@ def extract_ecdsa_signer(msg_hash, signature):
     return address
 
 
-def test_eth_sign(web3_empty, skip_if_testrpc):
-    web3 = web3_empty
-
+def test_eth_sign(web3, skip_if_testrpc):
     skip_if_testrpc(web3)
 
     private_key_hex = '0x5e95384d8050109aab08c1922d3c230739bc16976553c317e5d0b87b59371f2a'

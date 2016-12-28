@@ -18,7 +18,7 @@ from web3.utils.string import (
     force_text,
 )
 
-from .base import BaseProvider
+from .base import JSONBaseProvider
 
 
 @contextlib.contextmanager
@@ -67,7 +67,7 @@ def get_default_ipc_path(testnet=False):
         )
 
 
-class IPCProvider(BaseProvider):
+class IPCProvider(JSONBaseProvider):
     def __init__(self, ipc_path=None, testnet=False, *args, **kwargs):
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path(testnet)

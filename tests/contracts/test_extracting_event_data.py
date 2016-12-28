@@ -6,15 +6,12 @@ from web3.utils.events import (
 
 
 @pytest.fixture()
-def Emitter(web3_tester_persistent, EMITTER):
-    web3 = web3_tester_persistent
+def Emitter(web3, EMITTER):
     return web3.eth.contract(**EMITTER)
 
 
 @pytest.fixture()
-def emitter(web3_tester_persistent, Emitter, wait_for_transaction, wait_for_block):
-    web3 = web3_tester_persistent
-
+def emitter(web3, Emitter, wait_for_transaction, wait_for_block):
     wait_for_block(web3)
     deploy_txn_hash = Emitter.deploy({'from': web3.eth.coinbase, 'gas': 1000000})
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
@@ -42,7 +39,7 @@ def emitter(web3_tester_persistent, Emitter, wait_for_transaction, wait_for_bloc
         ('logQuadruple', 'LogQuadrupleWithIndex', [12345, 54321, 98765, 56789], {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789}),
     )
 )
-def test_event_data_extraction(web3_tester_persistent,
+def test_event_data_extraction(web3,
                                emitter,
                                wait_for_transaction,
                                emitter_log_topics,
@@ -51,8 +48,6 @@ def test_event_data_extraction(web3_tester_persistent,
                                event_name,
                                call_args,
                                expected_args):
-    web3 = web3_tester_persistent
-
     transact_fn = getattr(emitter.transact(), contract_fn)
     event_id = getattr(emitter_event_ids, event_name)
     txn_hash = transact_fn(event_id, *call_args)

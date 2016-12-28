@@ -5,6 +5,9 @@ import functools
 from web3.utils.types import (
     is_string,
 )
+from web3.utils.string import (
+    coerce_args_to_text,
+)
 from web3.utils.formatting import (
     pad_left,
     add_0x_prefix,
@@ -86,6 +89,7 @@ class IsValid(object):
         return functools.partial(self.validate, instance._iban)
 
     @staticmethod
+    @coerce_args_to_text
     def validate(iban_address):
         if not is_string(iban_address):
             return False

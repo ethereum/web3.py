@@ -9,6 +9,10 @@ import rlp
 from web3.utils.crypto import sha3
 from web3.utils.string import force_text
 from web3.utils.address import to_address
+from web3.utils.types import (
+    is_string,
+    is_object,
+)
 from web3.utils.encoding import (
     to_decimal,
     encode_hex,
@@ -36,7 +40,10 @@ class RequestManager(object):
         """
         response_raw = self.provider.make_request(method, params)
 
-        response = json.loads(force_text(response_raw))
+        if is_string(response_raw):
+            response = json.loads(force_text(response_raw))
+        elif is_object(response_raw):
+            response = response_raw
 
         if "error" in response:
             raise ValueError(response["error"])

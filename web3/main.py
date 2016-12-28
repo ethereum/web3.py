@@ -29,6 +29,7 @@ from web3.utils.functional import (
 )
 from web3.utils.string import (
     force_text,
+    coerce_return_to_text,
 )
 from web3.utils.encoding import (
     to_hex,
@@ -104,6 +105,7 @@ class Web3(object):
     def currentProvider(self):
         return self._requestManager.provider
 
+    @coerce_return_to_text
     def sha3(self, value, encoding="hex"):
         if encoding == 'hex':
             hex_string = value

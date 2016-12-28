@@ -1,6 +1,9 @@
 from __future__ import absolute_import
 import getpass
 
+from web3.utils.string import (
+    coerce_return_to_text,
+)
 from web3.utils.encoding import (
     remove_0x_prefix,
     encode_hex,
@@ -14,6 +17,7 @@ class Personal(object):
     def __init__(self, web3):
         self.web3 = web3
 
+    @coerce_return_to_text
     def importRawKey(self, private_key, passphrase):
         if len(private_key) == 66:
             private_key = remove_0x_prefix(private_key)
@@ -28,6 +32,7 @@ class Personal(object):
             [private_key, passphrase],
         )
 
+    @coerce_return_to_text
     def newAccount(self, password=None):
         if password is None:
             password1 = getpass.getpass("Passphrase:")
@@ -45,14 +50,17 @@ class Personal(object):
         )
 
     @property
+    @coerce_return_to_text
     def listAccounts(self):
         return self.web3._requestManager.request_blocking(
             "personal_listAccounts", [],
         )
 
+    @coerce_return_to_text
     def getListAccounts(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
 
+    @coerce_return_to_text
     def signAndSendTransaction(self, transaction, passphrase):
         return self.web3._requestManager.request_blocking(
             # "personal_sendTransaction",

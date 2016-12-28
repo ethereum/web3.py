@@ -1,10 +1,8 @@
 import pytest
 
 
-def test_personal_lockAccount(web3_empty, password_account, account_password,
+def test_personal_lockAccount(web3, password_account, account_password,
                               wait_for_transaction, empty_account):
-    web3 = web3_empty
-
     initial_balancee = web3.eth.getBalance(empty_account)
 
     assert web3.personal.unlockAccount(password_account, account_password) is True

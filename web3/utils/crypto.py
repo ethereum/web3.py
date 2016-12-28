@@ -2,7 +2,10 @@ from __future__ import absolute_import
 
 import codecs
 
-from sha3 import sha3_256
+try:
+    from sha3 import keccak_256
+except ImportError:
+    from sha3 import sha3_256 as keccak_256
 
 
 def sha3(value, encoding=None):
@@ -16,7 +19,7 @@ def sha3(value, encoding=None):
     if encoding:
         value = codecs.decode(remove_0x_prefix(value), encoding)
 
-    return sha3_256(force_bytes(value)).hexdigest()
+    return keccak_256(force_bytes(value)).hexdigest()
 
 
 # ensure we have the *right* sha3 installed

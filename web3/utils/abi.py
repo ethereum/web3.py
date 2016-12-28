@@ -158,6 +158,10 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
                 len(args) + len(kwargs),
             )
         )
+
+    if not kwargs:
+        return args
+
     args_as_kwargs = {
         arg_abi['name']: arg
         for arg_abi, arg in zip(function_abi['inputs'], args)
@@ -281,14 +285,22 @@ def abi_to_signature(abi):
     return function_signature
 
 
+def function_signature_to_4byte_selector(event_signature):
+    return add_0x_prefix(sha3(event_signature)[:8])
+
+
 def function_abi_to_4byte_selector(function_abi):
     function_signature = abi_to_signature(function_abi)
-    return add_0x_prefix(sha3(function_signature)[:8])
+    return function_signature_to_4byte_selector(function_signature)
+
+
+def event_signature_to_log_topic(event_signature):
+    return add_0x_prefix(sha3(event_signature))
 
 
 def event_abi_to_log_topic(event_abi):
     event_signature = abi_to_signature(event_abi)
-    return add_0x_prefix(sha3(event_signature))
+    return event_signature_to_log_topic(event_signature)
 
 
 @coerce_return_to_text

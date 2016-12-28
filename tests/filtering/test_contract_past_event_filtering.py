@@ -6,7 +6,8 @@ from flaky import flaky
 
 @flaky(max_runs=3)
 @pytest.mark.parametrize('call_as_instance', (True, False))
-def test_past_events_filter_with_callback(web3_empty,
+def test_past_events_filter_with_callback(web3,
+                                          sleep_interval,
                                           emitter,
                                           Emitter,
                                           wait_for_transaction,
@@ -14,8 +15,6 @@ def test_past_events_filter_with_callback(web3_empty,
                                           emitter_event_ids,
                                           LogTopics,
                                           call_as_instance):
-    web3 = web3_empty
-
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
@@ -28,7 +27,7 @@ def test_past_events_filter_with_callback(web3_empty,
 
     with gevent.Timeout(30):
         while not seen_logs:
-            gevent.sleep(random.random())
+            gevent.sleep(sleep_interval())
 
     filter.stop_watching(30)
 
@@ -44,7 +43,8 @@ def test_past_events_filter_with_callback(web3_empty,
 
 @flaky(max_runs=3)
 @pytest.mark.parametrize('call_as_instance', (True, False))
-def test_past_events_filter_using_get_api(web3_empty,
+def test_past_events_filter_using_get_api(web3,
+                                          sleep_interval,
                                           emitter,
                                           Emitter,
                                           wait_for_transaction,
@@ -52,8 +52,6 @@ def test_past_events_filter_using_get_api(web3_empty,
                                           emitter_event_ids,
                                           LogTopics,
                                           call_as_instance):
-    web3 = web3_empty
-
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
@@ -64,7 +62,7 @@ def test_past_events_filter_using_get_api(web3_empty,
 
     with gevent.Timeout(30):
         while not filter.get(False):
-            gevent.sleep(random.random())
+            gevent.sleep(sleep_interval())
 
     log_entries = filter.get(False)
 

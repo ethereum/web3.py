@@ -11,11 +11,16 @@ from web3.utils.string import (
 
 
 class BaseProvider(object):
-    def __init__(self):
-        self.request_counter = itertools.count()
-
     def make_request(self, method, params):
         raise NotImplementedError("Providers must implement this method")
+
+    def isConnected(self):
+        raise NotImplementedError("Providers must implement this method")
+
+
+class JSONBaseProvider(BaseProvider):
+    def __init__(self):
+        self.request_counter = itertools.count()
 
     def encode_rpc_request(self, method, params):
         return force_bytes(json.dumps(force_obj_to_text({
