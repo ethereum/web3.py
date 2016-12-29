@@ -16,7 +16,7 @@ readme = open(os.path.join(DIR, 'README.md')).read()
 
 setup(
     name='web3',
-    version='3.4.0',
+    version='3.4.1',
     description="""Web3.py""",
     long_description=readme,
     author='Piper Merriam',
@@ -26,7 +26,7 @@ setup(
     install_requires=[
         "pysha3>=0.3",
         "rlp>=0.4.6,<0.4.7",
-        "gevent>=1.1.1",
+        "gevent>=1.1.1,<1.2.0",
         "geventhttpclient>=1.3.1",
         "ethereum-abi-utils>=0.2.1",
         "pysha3>=0.3",

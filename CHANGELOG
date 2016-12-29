@@ -1,3 +1,8 @@
+3.4.1
+-----
+
+* Force gevent<1.2.0 until this issue is fixed: https://github.com/gevent/gevent/issues/916
+
 3.4.0
 -----
 
