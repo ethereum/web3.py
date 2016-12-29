@@ -1,3 +1,9 @@
+3.4.0
+-----
+
+* Bugfix for contract instances to respect `web3.eth.defaultAccount`
+* Better error reporting when ABI decoding fails for contract method response.
+
 3.3.0
 -----
 

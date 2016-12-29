@@ -16,13 +16,12 @@ readme = open(os.path.join(DIR, 'README.md')).read()
 
 setup(
     name='web3',
-    version='3.3.0',
+    version='3.4.0',
     description="""Web3.py""",
     long_description=readme,
     author='Piper Merriam',
     author_email='pipermerriam@gmail.com',
     url='https://github.com/pipermerriam/web3.py',
-    download_url="https://github.com/pipermerriam/web3.py/tarball/0.1.9",
     include_package_data=True,
     install_requires=[
         "pysha3>=0.3",
