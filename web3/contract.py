@@ -306,7 +306,7 @@ class Contract(object):
 
         if self.address:
             estimate_transaction.setdefault('to', self.address)
-        estimate_transaction.setdefault('from', self.web3.eth.coinbase)
+        estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
         if 'to' not in estimate_transaction:
             if isinstance(self, type):
@@ -370,7 +370,7 @@ class Contract(object):
 
         if self.address:
             call_transaction.setdefault('to', self.address)
-        call_transaction.setdefault('from', self.web3.eth.coinbase)
+        call_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
         if 'to' not in call_transaction:
             if isinstance(self, type):
