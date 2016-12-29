@@ -1,4 +1,5 @@
 pytest>=2.8.2
+pytest-xdist>=1.14
 pytest-pythonpath>=0.3
 tox>=1.8.0
 eth-testrpc>=0.9.0

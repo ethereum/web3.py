@@ -19,6 +19,6 @@ install:
   - "travis_retry pip install pip setuptools --upgrade"
   - "travis_retry pip install tox"
 script:
-  - tox -e $TOX_ENV
+  - tox -e $TOX_ENV -- tests/ -n 3
 after_script:
   - cat .tox/$TOX_ENV/log/*.log
