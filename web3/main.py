@@ -9,6 +9,7 @@ from web3.personal import Personal
 from web3.shh import Shh
 from web3.txpool import TxPool
 from web3.version import Version
+from web3.testing import Testing
 
 from web3.iban import Iban
 
@@ -100,6 +101,7 @@ class Web3(object):
         self.txpool = TxPool(self)
         self.miner = Miner(self)
         self.admin = Admin(self)
+        self.testing = Testing(self)
 
     def setProvider(self, provider):
         self._requestManager.setProvider(provider)
