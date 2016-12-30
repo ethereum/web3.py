@@ -1,3 +1,8 @@
+3.4.2
+-----
+
+* Fix package so that `eth-testrpc` is not required.
+
 3.4.1
 -----
 
