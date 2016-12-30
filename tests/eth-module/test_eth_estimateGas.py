@@ -40,7 +40,7 @@ def test_eth_estimateGas(web3, math_contract):
     })
 
     try:
-        assert abs(gas_estimate - 21272) < 200  # Geth
+        assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 42820) < 200  # TestRPC
+        assert abs(gas_estimate - 43020) < 200  # TestRPC
         pass
