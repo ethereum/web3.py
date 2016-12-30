@@ -5,8 +5,14 @@ from eth_abi import (
     decode_single,
     encode_single,
 )
+from eth_abi.abi import (
+    process_type,
+)
 
 from .encoding import encode_hex
+from .functional import (
+    cast_return_to_tuple,
+)
 from .types import (
     is_array,
 )
@@ -14,7 +20,6 @@ from .string import (
     coerce_return_to_text,
 )
 from .abi import (
-    get_abi_input_types,
     get_abi_input_names,
     get_indexed_event_inputs,
     exclude_indexed_event_inputs,
@@ -109,16 +114,29 @@ def construct_event_data_set(event_abi, arguments=None):
     return topics
 
 
-def coerce_event_abi_types_for_decoding(input_types):
+def is_dynamic_sized_type(_type):
+    base_type, type_size, arrlist = process_type(_type)
+    if arrlist:
+        return True
+    elif base_type == 'string':
+        return True
+    elif base_type == 'bytes' and type_size == '':
+        return True
+    return False
+
+
+@cast_return_to_tuple
+def get_event_abi_types_for_decoding(event_inputs):
     """
-    Event logs use the `sha3(value)` for inputs of type `bytes` or `string`.
-    Because of this we need to modify the types so that we can decode the log
-    entries using the correct types.
+    Event logs use the `sha3(value)` for indexed inputs of type `bytes` or
+    `string`.  Because of this we need to modify the types so that we can
+    decode the log entries using the correct types.
     """
-    return [
-        'bytes32' if arg_type in {'bytes', 'string'} else arg_type
-        for arg_type in input_types
-    ]
+    for input_abi in event_inputs:
+        if input_abi['indexed'] and is_dynamic_sized_type(input_abi['type']):
+            yield 'bytes32'
+        else:
+            yield input_abi['type']
 
 
 @coerce_return_to_text
@@ -132,10 +150,8 @@ def get_event_data(event_abi, log_entry):
         log_topics = log_entry['topics'][1:]
 
     log_topics_abi = get_indexed_event_inputs(event_abi)
-    log_topic_raw_types = get_abi_input_types({
-        'inputs': normalize_event_input_types(log_topics_abi),
-    })
-    log_topic_types = coerce_event_abi_types_for_decoding(log_topic_raw_types)
+    log_topic_normalized_inputs = normalize_event_input_types(log_topics_abi)
+    log_topic_types = get_event_abi_types_for_decoding(log_topic_normalized_inputs)
     log_topic_names = get_abi_input_names({'inputs': log_topics_abi})
 
     if len(log_topics) != len(log_topic_types):
@@ -146,10 +162,8 @@ def get_event_data(event_abi, log_entry):
 
     log_data = log_entry['data']
     log_data_abi = exclude_indexed_event_inputs(event_abi)
-    log_data_raw_types = get_abi_input_types({
-        'inputs': normalize_event_input_types(log_data_abi),
-    })
-    log_data_types = coerce_event_abi_types_for_decoding(log_data_raw_types)
+    log_data_normalized_inputs = normalize_event_input_types(log_data_abi)
+    log_data_types = get_event_abi_types_for_decoding(log_data_normalized_inputs)
     log_data_names = get_abi_input_names({'inputs': log_data_abi})
 
     # sanity check that there are not name intersections between the topic

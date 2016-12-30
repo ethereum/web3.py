@@ -11,6 +11,9 @@ from .string import (
     coerce_args_to_text,
     coerce_return_to_text,
 )
+from .functional import (
+    cast_return_to_tuple,
+)
 from .formatting import (
     add_0x_prefix,
 )
@@ -265,6 +268,7 @@ def is_probably_enum(abi_type):
     return bool(re.match(ENUM_REGEX, abi_type))
 
 
+@cast_return_to_tuple
 def normalize_event_input_types(abi_args):
     for arg in abi_args:
         if is_recognized_type(arg['type']):
