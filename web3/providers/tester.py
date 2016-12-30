@@ -2,8 +2,6 @@ import logging
 
 import gevent
 
-from testrpc.rpc import RPCMethods
-
 from .base import BaseProvider  # noqa: E402
 from .rpc import RPCProvider  # noqa: E402
 
@@ -23,7 +21,8 @@ class EthereumTesterProvider(BaseProvider):
     def __init__(self,
                  *args,
                  **kwargs):
-        """Create a new RPC client.
+        """
+        Create a new RPC client.
 
         :param connection_timeout: See :class:`geventhttpclient.HTTPClient`
 
@@ -31,6 +30,8 @@ class EthereumTesterProvider(BaseProvider):
         """
         if not is_testrpc_available():
             raise Exception("`TestRPCProvider` requires the `eth-testrpc` package to be installed")
+        from testrpc.rpc import RPCMethods
+
         self.rpc_methods = RPCMethods()
         super(BaseProvider, self).__init__(*args, **kwargs)
 
