@@ -1,3 +1,9 @@
+3.4.3
+-----
+
+* Bugfix for event log data decoding to properly handle dynamic sized values.
+* New `web3.tester` module to access extra RPC functionality from `eth-testrpc`
+
 3.4.2
 -----
 
