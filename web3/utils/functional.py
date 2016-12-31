@@ -23,3 +23,16 @@ def apply_formatters_to_return(*formatters):
             return formatter(value)
         return inner
     return outer
+
+
+def cast_return(_type):
+    def outer(fn):
+        @functools.wraps(fn)
+        def inner(*args, **kwargs):
+            return _type(fn(*args, **kwargs))
+
+        return inner
+    return outer
+
+
+cast_return_to_tuple = cast_return(tuple)

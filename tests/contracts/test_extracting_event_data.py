@@ -3,6 +3,12 @@ import pytest
 from web3.utils.events import (
     get_event_data,
 )
+from web3.utils.string import (
+    force_text,
+)
+from web3.utils.encoding import (
+    decode_hex,
+)
 
 
 @pytest.fixture()
@@ -74,3 +80,39 @@ def test_event_data_extraction(web3,
     assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
     assert event_data['address'] == emitter.address
     assert event_data['event'] == event_name
+
+
+def test_dynamic_length_argument_extraction(web3,
+                                            emitter,
+                                            wait_for_transaction,
+                                            emitter_log_topics,
+                                            emitter_event_ids):
+    string_0 = "this-is-the-first-string-which-exceeds-32-bytes-in-length"
+    string_1 = "this-is-the-second-string-which-exceeds-32-bytes-in-length"
+    txn_hash = emitter.transact().logDynamicArgs(string_0, string_1)
+    txn_receipt = wait_for_transaction(web3, txn_hash)
+
+    assert len(txn_receipt['logs']) == 1
+    log_entry = txn_receipt['logs'][0]
+
+    event_abi = emitter._find_matching_event_abi('LogDynamicArgs')
+
+    event_topic = emitter_log_topics.LogDynamicArgs
+    assert event_topic in log_entry['topics']
+
+    string_0_topic = web3.sha3(string_0, encoding='utf8')
+    assert string_0_topic in log_entry['topics']
+
+    event_data = get_event_data(event_abi, log_entry)
+
+    expected_args = {
+        "arg0": force_text(decode_hex(string_0_topic)),
+        "arg1": string_1,
+    }
+
+    assert event_data['args'] == expected_args
+    assert event_data['blockHash'] == txn_receipt['blockHash']
+    assert event_data['blockNumber'] == txn_receipt['blockNumber']
+    assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
+    assert event_data['address'] == emitter.address
+    assert event_data['event'] == 'LogDynamicArgs'
