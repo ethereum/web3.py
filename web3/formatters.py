@@ -116,6 +116,7 @@ def input_transaction_formatter(eth, txn):
 
 @coerce_args_to_text
 @coerce_return_to_text
+@apply_if_not_null
 def output_transaction_formatter(txn):
     formatters = {
         'blockNumber': apply_if_not_null(to_decimal),
