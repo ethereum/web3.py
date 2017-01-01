@@ -1,3 +1,8 @@
+3.4.4
+-----
+
+* Bugfix for `web3.eth.getTransaction` when the hash is unknown.
+
 3.4.3
 -----
 
