@@ -27,6 +27,14 @@ from .address import (
     is_address,
 )
 
+from .exception import (
+    raise_from
+)
+
+from ..exceptions import (
+    ArgumentEncodeError
+)
+
 
 def filter_by_type(_type, contract_abi):
     return [abi for abi in contract_abi if abi['type'] == _type]
@@ -150,6 +158,36 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
         is_encodable(_type, arg)
         for _type, arg in zip(types, arguments)
     )
+
+
+@coerce_args_to_bytes
+def check_if_arguments_can_be_encoded_verbose(function_abi, args, kwargs):
+    """Check if function ABI can be encoded.
+
+    :param function_abi: Function signature as a dictionary.
+    :param args: Incoming arguments as list
+    :param kwargs: Incoming named arguments as dict
+    :raise ArgumentEncodeError: Verbose explanation why we cannot call this function
+        with these arguments
+    """
+    try:
+        arguments = merge_args_and_kwargs(function_abi, args, kwargs)
+    except TypeError as e:
+        msg = "Could not merge args and kwargs: {} {} {}".format(function_abi, args ,kwargs)
+        raise_from(ArgumentEncodeError(msg, e))
+
+    expected = len(function_abi['inputs'])
+    actual = len(arguments)
+    if expected != actual:
+        msg = "Wrong number of arguments. Expected {}, got {} for {}".format(expected, actual, function_abi)
+        raise ArgumentEncodeError(msg)
+
+    types = get_abi_input_types(function_abi)
+    for idx, arg in enumerate(arguments):
+        _type = types[idx]
+        if not is_encodable(_type, arg):
+            msg = "Cannot encode {}. argument of the function, expected type: {}, inbound value {}, full signature is ".format(idx, _type, arg, function_abi)
+            raise ArgumentEncodeError(msg)
 
 
 @coerce_args_to_text

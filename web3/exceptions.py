@@ -25,6 +25,10 @@ class InvalidResponseException(Exception):
         Exception.__init__(self, message)
 
 
+class ArgumentEncodeError(TypeError):
+    """ABI could not encode arguments going into smart contract function signature."""
+
+
 class BadFunctionCallOutput(Exception):
     """We failed to decode ABI output.
 

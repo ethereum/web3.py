@@ -47,6 +47,7 @@ from web3.utils.abi import (
     merge_args_and_kwargs,
     normalize_return_type,
     check_if_arguments_can_be_encoded,
+    check_if_arguments_can_be_encoded_verbose
 )
 from web3.utils.decorators import (
     combomethod,
@@ -582,13 +583,7 @@ class Contract(object):
     def _encode_abi(cls, abi, arguments, data=None):
         argument_types = get_abi_input_types(abi)
 
-        if not check_if_arguments_can_be_encoded(abi, arguments, {}):
-            raise TypeError(
-                "One or more arguments could not be encoded to the necessary "
-                "ABI type.  Expected types are: {0}".format(
-                    ', '.join(argument_types),
-                )
-            )
+        check_if_arguments_can_be_encoded_verbose(abi, arguments, {})
 
         try:
             encoded_arguments = encode_abi(
