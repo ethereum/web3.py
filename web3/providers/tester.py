@@ -1,5 +1,3 @@
-import logging
-
 from web3.utils.compat import (
     make_server,
     spawn,
@@ -7,9 +5,6 @@ from web3.utils.compat import (
 
 from .base import BaseProvider  # noqa: E402
 from .rpc import HTTPProvider  # noqa: E402
-
-
-logger = logging.getLogger(__name__)
 
 
 def is_testrpc_available():
@@ -55,20 +50,12 @@ class TestRPCProvider(HTTPProvider):
             raise Exception("`TestRPCProvider` requires the `eth-testrpc` package to be installed")
         from testrpc.server import get_application
 
-        try:
-            logger = kwargs.pop('logger')
-        except KeyError:
-            logger = logging.getLogger('testrpc')
-
         application = get_application()
 
         self.server = make_server(
             host,
             port,
             application,
-            # TODO: what to do about the loggers
-            #log=logger,
-            #error_log=logger,
         )
 
         self.thread = spawn(self.server.serve_forever)
