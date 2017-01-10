@@ -80,7 +80,11 @@ class empty(object):
 
 class ThreadWithReturn(threading.Thread):
     def __init__(self, target=None, args=None, kwargs=None):
-        super(ThreadWithReturn, self).__init__(target=target, args=args, kwargs=kwargs)
+        super(ThreadWithReturn, self).__init__(
+            target=target,
+            args=args or tuple(),
+            kwargs=kwargs or {},
+        )
         self.target = target
         self.args = args
         self.kwargs = kwargs
@@ -111,7 +115,11 @@ class GreenletThread(threading.Thread):
     def __init__(self, target=None, args=None, kwargs=None):
         if target is None:
             target = self._run
-        super(GreenletThread, self).__init__(target=target, args=args, kwargs=kwargs)
+        super(GreenletThread, self).__init__(
+            target=target,
+            args=args or tuple(),
+            kwargs=kwargs or {},
+        )
         self.daemon = True
 
     def _run(self):
