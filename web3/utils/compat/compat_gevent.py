@@ -67,6 +67,9 @@ def make_post_request(endpoint_uri, data, **kwargs):
             raise ValueError("Unsupported scheme: '{0}'".format(url_parts.scheme))
 
     kwargs.setdefault('ssl', url_parts.scheme == 'https')
+    kwargs.setdefault('connection_timeout', 10)
+    kwargs.setdefault('network_timeout', 10)
+    kwargs.setdefault('concurrency', 10)
 
     client = _get_client(host, port, **kwargs)
     response = client.post(url_parts.path, body=data)

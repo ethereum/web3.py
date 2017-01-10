@@ -58,8 +58,6 @@ class RPCProvider(HTTPProvider):
                  port=8545,
                  path="/",
                  ssl=False,
-                 connection_timeout=10,
-                 network_timeout=10,
                  **kwargs):
         netloc = "{0}:{1}".format(host, port)
         endpoint_uri = urlunparse((
@@ -70,13 +68,8 @@ class RPCProvider(HTTPProvider):
             '',
             ''
         ))
-        request_kwargs = {
-            'connection_timeout': connection_timeout,
-            'network_timeout': network_timeout,
-        }
-        request_kwargs.update(kwargs)
 
-        super(RPCProvider, self).__init__(endpoint_uri, request_kwargs)
+        super(RPCProvider, self).__init__(endpoint_uri, kwargs)
 
 
 class KeepAliveRPCProvider(RPCProvider):
@@ -87,18 +80,10 @@ class KeepAliveRPCProvider(RPCProvider):
                  host="127.0.0.1",
                  port=8545,
                  path="/",
-                 ssl=False,
-                 connection_timeout=10,
-                 network_timeout=10,
-                 concurrency=10,
                  **kwargs):
         super(KeepAliveRPCProvider, self).__init__(
             host,
             port,
             path,
-            ssl,
-            connection_timeout,
-            network_timeout,
-            concurrency=10,
             **kwargs
         )
