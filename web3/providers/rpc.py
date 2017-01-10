@@ -21,6 +21,7 @@ class HTTPProvider(JSONBaseProvider):
     def __init__(self, endpoint_uri, request_kwargs=None):
         self.endpoint_uri = endpoint_uri
         self._request_kwargs = request_kwargs or {}
+        super(HTTPProvider, self).__init__()
 
     def __str__(self):
         return "RPC connection {0}".format(self.endpoint_uri)

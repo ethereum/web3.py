@@ -33,9 +33,14 @@ def disconnected_provider(request):
     if request.param == 'tester':
         port = get_open_port()
         provider = TestRPCProvider(port=port)
-        provider.server.stop()
-        provider.server.close()
-        provider.thread.kill()
+        try:
+            provider.server.stop()
+            provider.server.close()
+            provider.thread.kill()
+        except AttributeError:
+            provider.server.shutdown()
+        finally:
+            provider.thread.join()
         return provider
     elif request.param == 'rpc':
         return RPCProvider(port=get_open_port())
