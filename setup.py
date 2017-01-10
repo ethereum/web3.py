@@ -24,11 +24,12 @@ setup(
     url='https://github.com/pipermerriam/web3.py',
     include_package_data=True,
     install_requires=[
-        "pysha3>=0.3",
-        "rlp>=0.4.6,<0.4.7",
         "ethereum-abi-utils>=0.2.1",
-        "pysha3>=0.3",
         "pylru>=1.0.9",
+        "pysha3>=0.3",
+        "pysha3>=0.3",
+        "requests>=2.12.4",
+        "rlp>=0.4.6,<0.4.7",
     ],
     extras_require={
         'Tester': ["eth-testrpc>=1.1.0"],
