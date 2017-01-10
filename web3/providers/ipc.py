@@ -10,8 +10,8 @@ try:
 except ImportError:
     JSONDecodeError = ValueError
 
-from web3.utils import async
-from web3.utils.async import (
+from web3.utils.compat import (
+    Timeout,
     threading,
     socket,
 )
@@ -86,24 +86,24 @@ class IPCProvider(JSONBaseProvider):
         try:
             with get_ipc_socket(self.ipc_path) as sock:
                 sock.sendall(request)
+                # TODO: use a BytesIO object here
                 response_raw = b""
 
-                with async.Timeout(10) as timeout:
+                with Timeout(10) as timeout:
                     while True:
-                        timeout.check()
                         try:
                             response_raw += sock.recv(4096)
                         except socket.timeout:
-                            async.sleep(0)
+                            timeout.sleep(0)
                             continue
 
                         if response_raw == b"":
-                            async.sleep(0)
+                            timeout.sleep(0)
                         else:
                             try:
                                 json.loads(force_text(response_raw))
                             except JSONDecodeError:
-                                async.sleep(0)
+                                timeout.sleep(0)
                                 continue
                             else:
                                 break

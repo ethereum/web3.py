@@ -25,17 +25,18 @@ from .address import (
 from .formatting import (
     pad_left,
 )
-from . import async
+from .compat import (
+    Timeout,
+)
 
 
 def wait_for_transaction_receipt(web3, txn_hash, timeout=120):
-    with async.Timeout(timeout) as _timeout:
+    with Timeout(timeout) as _timeout:
         while True:
             txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
             if txn_receipt is not None:
                 break
-            async.sleep(random.random())
-            _timeout.check()
+            _timeout.sleep(random.random())
     return txn_receipt
 
 

@@ -1,6 +1,8 @@
 import random
 
-from web3.utils import async
+from web3.utils.compat import (
+    Timeout,
+)
 
 
 def test_txpool_inspect(web3_empty):
@@ -8,10 +10,9 @@ def test_txpool_inspect(web3_empty):
 
     web3.miner.stop()
 
-    with async.Timeout(60) as timeout:
+    with Timeout(60) as timeout:
         while web3.miner.hashrate or web3.eth.mining:
-            async.sleep(random.random())
-            timeout.check()
+            timeout.sleep(random.random())
 
     txn_1_hash = web3.eth.sendTransaction({
         'from': web3.eth.coinbase,

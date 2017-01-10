@@ -3,7 +3,9 @@ import random
 from flaky import flaky
 
 from web3.utils.encoding import decode_hex
-from web3.utils import async
+from web3.utils.compat import (
+    Timeout,
+)
 
 
 @flaky(max_runs=3)
@@ -19,13 +21,12 @@ def test_miner_setExtra(web3_empty, wait_for_block):
 
     web3.miner.setExtra(new_extra_data)
 
-    with async.Timeout(60) as timeout:
+    with Timeout(60) as timeout:
         while True:
             extra_data = decode_hex(web3.eth.getBlock(web3.eth.blockNumber)['extraData'])
             if extra_data == new_extra_data:
                 break
-            async.sleep(random.random())
-            timeout.check()
+            timeout.sleep(random.random())
 
     after_extra = decode_hex(web3.eth.getBlock(web3.eth.blockNumber)['extraData'])
 

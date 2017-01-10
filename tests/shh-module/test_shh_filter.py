@@ -1,4 +1,4 @@
-from web3.utils.async import sleep
+from web3.utils.compat import sleep
 
 
 def test_shh_filter(web3, skip_if_testrpc):

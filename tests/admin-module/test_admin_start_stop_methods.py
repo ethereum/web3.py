@@ -2,7 +2,7 @@ import pytest
 
 from flaky import flaky
 
-from web3.utils.async import socket
+from web3.utils.compat import socket
 
 
 def get_open_port():

@@ -1,5 +1,15 @@
 import collections
 
+import gevent
+from gevent.pywsgi import (  # noqa: F401
+    WSGIServer,
+)
+from gevent import (  # noqa: F401
+    subprocess,
+    socket,
+    threading,
+)
+
 import pylru
 
 from geventhttpclient import HTTPClient
@@ -8,6 +18,24 @@ from web3.utils.compat import urlparse
 
 
 _client_cache = pylru.lrucache(8)
+
+
+sleep = gevent.sleep
+spawn = gevent.spawn
+GreenletThread = gevent.Greenlet
+
+
+class Timeout(gevent.Timeout):
+    def check(self):
+        pass
+
+    def sleep(self, seconds):
+        gevent.sleep(seconds)
+
+
+def make_server(host, port, application, *args, **kwargs):
+    server = WSGIServer((host, port), application, *args, **kwargs)
+    return server
 
 
 def _get_client(host, port, **kwargs):

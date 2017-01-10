@@ -22,7 +22,9 @@ from web3.utils.transactions import (
     serialize_transaction,
     add_signature_to_transaction,
 )
-from web3.utils import async
+from web3.utils.compat import (
+    spawn,
+)
 
 
 class RequestManager(object):
@@ -51,7 +53,7 @@ class RequestManager(object):
 
     def request_async(self, method, params):
         request_id = uuid.uuid4()
-        self.pending_requests[request_id] = async.spawn(
+        self.pending_requests[request_id] = spawn(
             self.request_blocking,
             method,
             params,

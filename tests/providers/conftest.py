@@ -9,11 +9,13 @@ from web3.providers.rpc import (
 from web3.providers.tester import (
     TestRPCProvider,
 )
-from web3.utils import async
+from web3.utils.compat import (
+    socket,
+)
 
 
 def get_open_port():
-    s = async.socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(("", 0))
     s.listen(1)
     port = s.getsockname()[1]

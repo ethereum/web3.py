@@ -2,7 +2,7 @@ import pytest
 
 import time
 
-from web3.utils.async.stdlib_async import (
+from web3.utils.compat.compat_stdlib import (
     Timeout,
 )
 

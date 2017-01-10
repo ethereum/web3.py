@@ -9,7 +9,7 @@ from .events import (
     construct_event_topic_set,
     construct_event_data_set,
 )
-from .async import (
+from .compat import (
     sleep,
     GreenletThread,
 )

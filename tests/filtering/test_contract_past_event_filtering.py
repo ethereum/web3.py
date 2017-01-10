@@ -2,7 +2,9 @@ import pytest
 import random
 from flaky import flaky
 
-from web3.utils import async
+from web3.utils.compat import (
+    Timeout,
+)
 
 
 @flaky(max_runs=3)
@@ -26,10 +28,9 @@ def test_past_events_filter_with_callback(web3,
     else:
         filter = Emitter.pastEvents('LogNoArguments', {}, seen_logs.append)
 
-    with async.Timeout(30) as timeout:
+    with Timeout(30) as timeout:
         while not seen_logs:
-            async.sleep(sleep_interval())
-            timeout.check()
+            timeout.sleep(sleep_interval())
 
     filter.stop_watching(30)
 
@@ -62,10 +63,9 @@ def test_past_events_filter_using_get_api(web3,
     else:
         filter = Emitter.pastEvents('LogNoArguments')
 
-    with async.Timeout(30) as timeout:
+    with Timeout(30) as timeout:
         while not filter.get(False):
-            async.sleep(sleep_interval())
-            timeout.check()
+            timeout.sleep(sleep_interval())
 
     log_entries = filter.get(False)
 

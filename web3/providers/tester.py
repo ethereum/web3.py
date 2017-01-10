@@ -1,6 +1,6 @@
 import logging
 
-from web3.utils.async import (
+from web3.utils.compat import (
     make_server,
     spawn,
 )

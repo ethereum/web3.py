@@ -69,6 +69,10 @@ class Timeout(Exception):
     def cancel(self):
         self.is_running = False
 
+    def sleep(self, seconds):
+        time.sleep(seconds)
+        self.check()
+
 
 class empty(object):
     pass
@@ -92,8 +96,8 @@ class ThreadWithReturn(threading.Thread):
             raise RuntimeError("Something went wrong.  No `_return` property was set")
 
 
-def spawn(target, *args, **kwargs):
-    thread = ThreadWithReturn(
+def spawn(target, thread_class=ThreadWithReturn, *args, **kwargs):
+    thread = thread_class(
         target=target,
         args=args,
         kwargs=kwargs,
