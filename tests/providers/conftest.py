@@ -23,14 +23,14 @@ def get_open_port():
     return port
 
 
-@pytest.fixture(params=['tester', 'rpc', 'ipc', 'keep-alive-rpc'])
+@pytest.fixture(params=['testrpc', 'rpc', 'ipc', 'keep-alive-rpc'])
 def disconnected_provider(request):
     """
     Supply a Provider that's not connected to a node.
 
     (See also the web3 fixture.)
     """
-    if request.param == 'tester':
+    if request.param == 'testrpc':
         port = get_open_port()
         provider = TestRPCProvider(port=port)
         try:

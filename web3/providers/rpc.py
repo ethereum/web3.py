@@ -42,7 +42,7 @@ class HTTPProvider(JSONBaseProvider):
     def make_request(self, method, params):
         request_data = self.encode_rpc_request(method, params)
         response = make_post_request(
-            self.endpoint,
+            self.endpoint_uri,
             request_data,
             **self.get_request_kwargs()
         )
