@@ -1,8 +1,8 @@
 import pytest
 
-from gevent import socket
-
 from flaky import flaky
+
+from web3.utils.async import socket
 
 
 def get_open_port():

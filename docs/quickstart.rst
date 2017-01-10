@@ -18,7 +18,7 @@ Or to install with support for the ``TestRPCProvider`` and
 
 .. code-block:: shell
 
-   $ pip install web3[Tester]
+   $ pip install web3[tester]
 
 Installation from source can be done from the root of the project with the
 following command.

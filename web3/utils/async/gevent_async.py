@@ -11,6 +11,7 @@ from gevent import (  # noqa: F401
 
 sleep = gevent.sleep
 spawn = gevent.spawn
+GreenletThread = gevent.Greenlet
 
 
 class Timeout(gevent.Timeout):

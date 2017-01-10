@@ -1,5 +1,6 @@
 import random
-import gevent
+
+from web3.utils import async
 
 
 def test_txpool_content(web3_empty):
@@ -7,9 +8,10 @@ def test_txpool_content(web3_empty):
 
     web3.miner.stop()
 
-    with gevent.Timeout(60):
+    with async.Timeout(60) as timeout:
         while web3.miner.hashrate or web3.eth.mining:
-            gevent.sleep(random.random())
+            async.sleep(random.random())
+            timeout.check()
 
     txn_1_hash = web3.eth.sendTransaction({
         'from': web3.eth.coinbase,

@@ -1,6 +1,5 @@
 import re
 import random
-import gevent
 
 from .types import (
     is_string,
@@ -9,6 +8,10 @@ from .types import (
 from .events import (
     construct_event_topic_set,
     construct_event_data_set,
+)
+from .async import (
+    sleep,
+    GreenletThread,
 )
 
 
@@ -56,7 +59,7 @@ def construct_event_filter_params(event_abi,
     return data_filters_set, filter_params
 
 
-class Filter(gevent.Greenlet):
+class Filter(GreenletThread):
     callbacks = None
     running = None
     stopped = False
@@ -66,7 +69,7 @@ class Filter(gevent.Greenlet):
         self.web3 = web3
         self.filter_id = filter_id
         self.callbacks = []
-        gevent.Greenlet.__init__(self)
+        super(Filter, self).__init__()
 
     def __str__(self):
         return "Filter for {0}".format(self.filter_id)
@@ -84,9 +87,9 @@ class Filter(gevent.Greenlet):
                         if self.is_valid_entry(entry):
                             callback_fn(self.format_entry(entry))
             if self.poll_interval is None:
-                gevent.sleep(random.random())
+                sleep(random.random())
             else:
-                gevent.sleep(self.poll_interval)
+                sleep(self.poll_interval)
 
     def format_entry(self, entry):
         """
@@ -108,7 +111,7 @@ class Filter(gevent.Greenlet):
 
         if not self.running:
             self.start()
-        gevent.sleep(0)
+        sleep(0)
 
     def stop_watching(self, timeout=0):
         self.running = False
@@ -224,9 +227,9 @@ class ShhFilter(Filter):
                         if self.is_valid_entry(entry):
                             callback_fn(self.format_entry(entry))
             if self.poll_interval is None:
-                gevent.sleep(random.random())
+                sleep(random.random())
             else:
-                gevent.sleep(self.poll_interval)
+                sleep(self.poll_interval)
 
     def stop_watching(self, timeout=0):
         self.running = False
