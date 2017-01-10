@@ -31,8 +31,8 @@ setup(
         "pylru>=1.0.9",
     ],
     extras_require={
-        'Tester': ["eth-testrpc>=0.9.3"],
-        'tester': ["eth-testrpc>=0.9.3"],
+        'Tester': ["eth-testrpc>=1.1.0"],
+        'tester': ["eth-testrpc>=1.1.0"],
         'gevent': [
             "gevent>=1.1.1,<1.2.0",
             "geventhttpclient>=1.3.1",
