@@ -26,14 +26,17 @@ setup(
     install_requires=[
         "pysha3>=0.3",
         "rlp>=0.4.6,<0.4.7",
-        "gevent>=1.1.1,<1.2.0",
-        "geventhttpclient>=1.3.1",
         "ethereum-abi-utils>=0.2.1",
         "pysha3>=0.3",
         "pylru>=1.0.9",
     ],
     extras_require={
         'Tester': ["eth-testrpc>=0.9.3"],
+        'tester': ["eth-testrpc>=0.9.3"],
+        'gevent': [
+            "gevent>=1.1.1,<1.2.0",
+            "geventhttpclient>=1.3.1",
+        ],
     },
     py_modules=['web3'],
     license="MIT",

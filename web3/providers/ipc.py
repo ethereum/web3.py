@@ -10,10 +10,11 @@ try:
 except ImportError:
     JSONDecodeError = ValueError
 
-import gevent
-from gevent import socket
-from gevent.threading import Lock
-
+from web3.utils import async
+from web3.utils.async import (
+    threading,
+    socket,
+)
 from web3.utils.string import (
     force_text,
 )
@@ -74,7 +75,7 @@ class IPCProvider(JSONBaseProvider):
         else:
             self.ipc_path = ipc_path
 
-        self._lock = Lock()
+        self._lock = threading.Lock()
         super(IPCProvider, self).__init__(*args, **kwargs)
 
     def make_request(self, method, params):
@@ -87,21 +88,22 @@ class IPCProvider(JSONBaseProvider):
                 sock.sendall(request)
                 response_raw = b""
 
-                with gevent.Timeout(10):
+                with async.Timeout(10) as timeout:
                     while True:
+                        timeout.check()
                         try:
                             response_raw += sock.recv(4096)
                         except socket.timeout:
-                            gevent.sleep(0)
+                            async.sleep(0)
                             continue
 
                         if response_raw == b"":
-                            gevent.sleep(0)
+                            async.sleep(0)
                         else:
                             try:
                                 json.loads(force_text(response_raw))
                             except JSONDecodeError:
-                                gevent.sleep(0)
+                                async.sleep(0)
                                 continue
                             else:
                                 break

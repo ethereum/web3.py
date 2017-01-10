@@ -1,9 +1,12 @@
 import logging
 
-import gevent
+from web3.utils.async import (
+    make_server,
+    spawn,
+)
 
 from .base import BaseProvider  # noqa: E402
-from .rpc import RPCProvider  # noqa: E402
+from .rpc import HTTPProvider  # noqa: E402
 
 
 logger = logging.getLogger(__name__)
@@ -21,13 +24,6 @@ class EthereumTesterProvider(BaseProvider):
     def __init__(self,
                  *args,
                  **kwargs):
-        """
-        Create a new RPC client.
-
-        :param connection_timeout: See :class:`geventhttpclient.HTTPClient`
-
-        :param network_timeout: See :class:`geventhttpclient.HTTPClient`
-        """
         if not is_testrpc_available():
             raise Exception("`TestRPCProvider` requires the `eth-testrpc` package to be installed")
         from testrpc.rpc import RPCMethods
@@ -53,11 +49,10 @@ class EthereumTesterProvider(BaseProvider):
         return True
 
 
-class TestRPCProvider(RPCProvider):
+class TestRPCProvider(HTTPProvider):
     def __init__(self, host="127.0.0.1", port=8545, *args, **kwargs):
         if not is_testrpc_available():
             raise Exception("`TestRPCProvider` requires the `eth-testrpc` package to be installed")
-        from gevent.pywsgi import WSGIServer
         from testrpc.server import get_application
 
         try:
@@ -67,13 +62,16 @@ class TestRPCProvider(RPCProvider):
 
         application = get_application()
 
-        self.server = WSGIServer(
-            (host, port),
+        self.server = make_server(
+            host,
+            port,
             application,
-            log=logger,
-            error_log=logger,
+            # TODO: what to do about the loggers
+            #log=logger,
+            #error_log=logger,
         )
 
-        self.thread = gevent.spawn(self.server.serve_forever)
+        self.thread = spawn(self.server.serve_forever)
+        endpoint_uri = 'http://{0}:{1}'.format(host, port)
 
-        super(TestRPCProvider, self).__init__(host, str(port), *args, **kwargs)
+        super(TestRPCProvider, self).__init__(endpoint_uri, *args, **kwargs)

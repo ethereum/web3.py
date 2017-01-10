@@ -1,6 +1,7 @@
 import pytest
-import gevent
 from flaky import flaky
+
+from web3.utils import async
 
 
 @flaky(max_runs=3)
@@ -21,9 +22,10 @@ def test_on_filter_using_get_interface(web3,
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
-    with gevent.Timeout(30):
+    with async.Timeout(30) as timeout:
         while not filter.get(False):
-            gevent.sleep(sleep_interval())
+            async.sleep(sleep_interval())
+            timeout.check()
 
     log_entries = filter.get()
 
@@ -51,9 +53,10 @@ def test_on_filter_with_only_event_name(web3,
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
-    with gevent.Timeout(30):
+    with async.Timeout(30) as timeout:
         while not seen_logs:
-            gevent.sleep(sleep_interval())
+            async.sleep(sleep_interval())
+            timeout.check()
 
     filter.stop_watching(30)
 
@@ -95,9 +98,10 @@ def test_on_filter_with_event_name_and_single_argument(web3,
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
 
-    with gevent.Timeout(30):
+    with async.Timeout(30) as timeout:
         while len(seen_logs) < 2:
-            gevent.sleep(sleep_interval())
+            async.sleep(sleep_interval())
+            timeout.check()
 
     filter.stop_watching(30)
 
@@ -139,9 +143,10 @@ def test_on_filter_with_event_name_and_non_indexed_argument(web3,
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
 
-    with gevent.Timeout(30):
+    with async.Timeout(30) as timeout:
         while not seen_logs:
-            gevent.sleep(sleep_interval())
+            async.sleep(sleep_interval())
+            timeout.check()
 
     filter.stop_watching(30)
 

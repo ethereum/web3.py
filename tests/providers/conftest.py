@@ -1,7 +1,5 @@
 import pytest
 
-from gevent import socket
-
 from web3.providers.ipc import IPCProvider
 
 from web3.providers.rpc import (
@@ -11,10 +9,11 @@ from web3.providers.rpc import (
 from web3.providers.tester import (
     TestRPCProvider,
 )
+from web3.utils import async
 
 
 def get_open_port():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s = async.socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(("", 0))
     s.listen(1)
     port = s.getsockname()[1]

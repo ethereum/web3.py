@@ -1,15 +1,10 @@
 import pytest
 
-import gevent
-
 from web3.providers.tester import (
     EthereumTesterProvider,
     TestRPCProvider,
 )
-from web3.utils.async import (
-    Timeout,
-    sleep,
-)
+from web3.utils import async
 from web3.main import Web3
 
 
@@ -53,9 +48,10 @@ def skip_if_testrpc():
 def wait_for_miner_start():
     def _wait_for_miner_start(web3, timeout=60):
         poll_delay_counter = PollDelayCounter()
-        with Timeout(timeout):
+        with async.Timeout(timeout) as timeout:
             while not web3.eth.mining or not web3.eth.hashrate:
-                sleep(poll_delay_counter())
+                async.sleep(poll_delay_counter())
+                timeout.check()
     return _wait_for_miner_start
 
 
@@ -63,13 +59,14 @@ def wait_for_miner_start():
 def wait_for_block():
     def _wait_for_block(web3, block_number=1, timeout=60 * 10):
         poll_delay_counter = PollDelayCounter()
-        with Timeout(timeout):
+        with async.Timeout(timeout) as timeout:
             while True:
                 if web3.eth.blockNumber >= block_number:
                     break
                 if isinstance(web3.currentProvider, (TestRPCProvider, EthereumTesterProvider)):
                     web3._requestManager.request_blocking("evm_mine", [])
-                sleep(poll_delay_counter())
+                async.async.sleep(poll_delay_counter())
+                timeout.check()
     return _wait_for_block
 
 
@@ -77,12 +74,13 @@ def wait_for_block():
 def wait_for_transaction():
     def _wait_for_transaction(web3, txn_hash, timeout=120):
         poll_delay_counter = PollDelayCounter()
-        with Timeout(timeout):
+        with async.Timeout(timeout) as timeout:
             while True:
                 txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
                 if txn_receipt is not None:
                     break
-                sleep(poll_delay_counter())
+                async.sleep(poll_delay_counter())
+                timeout.check()
 
         return txn_receipt
     return _wait_for_transaction

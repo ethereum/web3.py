@@ -1,6 +1,6 @@
 import pytest
 
-from gevent import subprocess
+from web3.utils.async import subprocess
 
 from web3.utils.string import force_text
 

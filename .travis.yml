@@ -9,9 +9,12 @@ before_install:
   - travis_retry sudo apt-get update
 env:
   matrix:
-    - TOX_ENV=py27-all
-    - TOX_ENV=py34-all
-    - TOX_ENV=py35-all
+    - TOX_ENV=py27-all-stdlib
+    - TOX_ENV=py34-all-stdlib
+    - TOX_ENV=py35-all-stdlib
+    - TOX_ENV=py27-all-gevent
+    - TOX_ENV=py34-all-gevent
+    - TOX_ENV=py35-all-gevent
     - TOX_ENV=flake8
 cache:
   pip: true
