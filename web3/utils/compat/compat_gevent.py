@@ -45,7 +45,7 @@ def _get_client(host, port, **kwargs):
         port,
         ':'.join((
             "{0}={1}".format(str(key), str(value))
-            for key, value in ordered_kwargs
+            for key, value in ordered_kwargs.items()
         ))
     )
     if cache_key not in _client_cache:
