@@ -1,3 +1,11 @@
+3.5.0
+-----
+
+* Deprecate `web3.providers.rpc.RPCProvider`
+* Deprecate `web3.providers.rpc.KeepAliveRPCProvider`
+* Add new `web3.providers.rpc.HTTPProvider`
+* Remove hard dependency on gevent.
+
 3.4.4
 -----
 
