@@ -10,16 +10,19 @@ Providers are in control of the actual interactions with the blockchain.
 .. py:currentmodule:: web3.providers.rpc
 
 
-RPCProvider
------------
+HTTPProvider
+------------
 
-.. py:class:: RPCProvider(host="127.0.0.1", port=8545, path="/", ssl=False, connection_timeout=10, network_timeout=10)
+.. py:class:: RPCProvider(endpoint_uri[, request_kwargs])
 
-    This provider handles interaction with an HTTP or HTTPS based JSON-RPC
-    server.
+    This provider handles interactions with an HTTP or HTTPS based JSON-RPC server.
 
-
-.. py:currentmodule:: web3.providers.ipc
+    * ``endpoint_uri`` should be the full URI to the RPC endpoint such as
+      ``'https://localhost:8545'``.  For RPC servers behind HTTP connections
+      running on port 80 and HTTPS connections running on port 443 the port can
+      be omitted from the URI.
+    * ``request_kwargs`` this should be a dictionary of keyword arguments which
+      will be passed onto the http/https request.
 
 
 IPCProvider
