@@ -4,6 +4,7 @@ import pkg_resources
 
 from web3.main import Web3
 from web3.providers.rpc import (
+    HTTPProvider,
     RPCProvider,
     KeepAliveRPCProvider,
 )
@@ -20,6 +21,7 @@ __version__ = pkg_resources.get_distribution("web3").version
 __all__ = [
     "__version__",
     "Web3",
+    "HTTPProvider",
     "RPCProvider",
     "KeepAliveRPCProvider",
     "IPCProvider",
