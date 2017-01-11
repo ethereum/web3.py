@@ -1,7 +1,5 @@
 import random
 
-import gevent
-
 import rlp
 from rlp.sedes import big_endian_int, binary, Binary
 from rlp.utils import int_to_big_endian
@@ -27,15 +25,18 @@ from .address import (
 from .formatting import (
     pad_left,
 )
+from .compat import (
+    Timeout,
+)
 
 
 def wait_for_transaction_receipt(web3, txn_hash, timeout=120):
-    with gevent.Timeout(timeout):
+    with Timeout(timeout) as _timeout:
         while True:
             txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
             if txn_receipt is not None:
                 break
-            gevent.sleep(random.random())
+            _timeout.sleep(random.random())
     return txn_receipt
 
 

@@ -36,3 +36,4 @@ def cast_return(_type):
 
 
 cast_return_to_tuple = cast_return(tuple)
+cast_return_to_dict = cast_return(dict)

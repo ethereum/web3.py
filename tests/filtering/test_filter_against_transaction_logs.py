@@ -1,6 +1,9 @@
 import random
-import gevent
 from flaky import flaky
+
+from web3.utils.compat import (
+    Timeout,
+)
 
 
 @flaky(max_runs=3)
@@ -22,9 +25,9 @@ def test_filter_against_log_events(web3_empty,
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
 
-    with gevent.Timeout(5):
+    with Timeout(5) as timeout:
         while not seen_logs:
-            gevent.sleep(random.random())
+            timeout.sleep(random.random())
 
     txn_filter.stop_watching(30)
 

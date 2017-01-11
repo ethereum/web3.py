@@ -1,11 +1,11 @@
 import pytest
-from gevent import socket
 
 from web3.providers.manager import RequestManager
 from web3.providers.tester import (
     TestRPCProvider,
     is_testrpc_available,
 )
+from web3.utils.compat import socket
 
 
 def get_open_port():

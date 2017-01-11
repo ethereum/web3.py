@@ -1,6 +1,9 @@
 import random
-import gevent
 from flaky import flaky
+
+from web3.utils.compat import (
+    Timeout,
+)
 
 
 @flaky(max_runs=3)
@@ -15,9 +18,9 @@ def test_filter_against_latest_blocks(web3, sleep_interval, wait_for_block, skip
 
     wait_for_block(web3, current_block + 3)
 
-    with gevent.Timeout(5):
+    with Timeout(5) as timeout:
         while len(seen_blocks) < 2:
-            gevent.sleep(sleep_interval())
+            timeout.sleep(sleep_interval())
 
     txn_filter.stop_watching(3)
 

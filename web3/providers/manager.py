@@ -2,8 +2,6 @@ import uuid
 import json
 import collections
 
-import gevent
-
 import rlp
 
 from web3.utils.crypto import sha3
@@ -23,6 +21,9 @@ from web3.utils.transactions import (
     Transaction,
     serialize_transaction,
     add_signature_to_transaction,
+)
+from web3.utils.compat import (
+    spawn,
 )
 
 
@@ -52,7 +53,7 @@ class RequestManager(object):
 
     def request_async(self, method, params):
         request_id = uuid.uuid4()
-        self.pending_requests[request_id] = gevent.spawn(
+        self.pending_requests[request_id] = spawn(
             self.request_blocking,
             method,
             params,
@@ -65,8 +66,6 @@ class RequestManager(object):
         except KeyError:
             raise KeyError("Request for id:{0} not found".format(request_id))
         else:
-            if timeout is not None:
-                timeout = gevent.Timeout(timeout).start()
             response_raw = request.get(timeout=timeout)
 
         response = json.loads(response_raw)

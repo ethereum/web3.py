@@ -1,7 +1,10 @@
 import pytest
 import random
-import gevent
 from flaky import flaky
+
+from web3.utils.compat import (
+    Timeout,
+)
 
 
 @flaky(max_runs=3)
@@ -25,9 +28,9 @@ def test_past_events_filter_with_callback(web3,
     else:
         filter = Emitter.pastEvents('LogNoArguments', {}, seen_logs.append)
 
-    with gevent.Timeout(30):
+    with Timeout(30) as timeout:
         while not seen_logs:
-            gevent.sleep(sleep_interval())
+            timeout.sleep(sleep_interval())
 
     filter.stop_watching(30)
 
@@ -60,9 +63,9 @@ def test_past_events_filter_using_get_api(web3,
     else:
         filter = Emitter.pastEvents('LogNoArguments')
 
-    with gevent.Timeout(30):
+    with Timeout(30) as timeout:
         while not filter.get(False):
-            gevent.sleep(sleep_interval())
+            timeout.sleep(sleep_interval())
 
     log_entries = filter.get(False)
 
