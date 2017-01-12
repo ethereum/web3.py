@@ -173,20 +173,23 @@ def check_if_arguments_can_be_encoded_verbose(function_abi, args, kwargs):
     try:
         arguments = merge_args_and_kwargs(function_abi, args, kwargs)
     except TypeError as e:
-        msg = "Could not merge args and kwargs: {} {} {}".format(function_abi, args ,kwargs)
+        msg = "Could not merge args and kwargs: {} {} {}".format(function_abi, args, kwargs)
         raise_from(ArgumentEncodeError(msg, e))
 
     expected = len(function_abi['inputs'])
     actual = len(arguments)
     if expected != actual:
-        msg = "Wrong number of arguments. Expected {}, got {} for {}".format(expected, actual, function_abi)
+        msg = "Wrong number of arguments. Expected {}, got {} for {}" \
+            .format(expected, actual, function_abi)
         raise ArgumentEncodeError(msg)
 
     types = get_abi_input_types(function_abi)
     for idx, arg in enumerate(arguments):
         _type = types[idx]
         if not is_encodable(_type, arg):
-            msg = "Cannot encode {}. argument of the function, expected type: {}, inbound value {}, full signature is {}".format(idx+1, _type, arg, function_abi)
+            msg = "Cannot encode {}. argument of the function " + \
+                "expected type: {}, inbound value {}, full signature is {}" \
+                .format(idx+1, _type, arg, function_abi)
             raise ArgumentEncodeError(msg)
 
 

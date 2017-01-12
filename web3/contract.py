@@ -46,7 +46,6 @@ from web3.utils.abi import (
     function_abi_to_4byte_selector,
     merge_args_and_kwargs,
     normalize_return_type,
-    check_if_arguments_can_be_encoded,
     check_if_arguments_can_be_encoded_verbose
 )
 from web3.utils.decorators import (
