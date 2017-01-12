@@ -186,7 +186,7 @@ def check_if_arguments_can_be_encoded_verbose(function_abi, args, kwargs):
     for idx, arg in enumerate(arguments):
         _type = types[idx]
         if not is_encodable(_type, arg):
-            msg = "Cannot encode {}. argument of the function, expected type: {}, inbound value {}, full signature is ".format(idx, _type, arg, function_abi)
+            msg = "Cannot encode {}. argument of the function, expected type: {}, inbound value {}, full signature is {}".format(idx+1, _type, arg, function_abi)
             raise ArgumentEncodeError(msg)
 
 
