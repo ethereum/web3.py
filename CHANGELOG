@@ -1,3 +1,8 @@
+3.5.2
+-----
+
+* Bugfix for construction of `request_kwargs` within HTTPProvider
+
 3.5.1
 -----
 
