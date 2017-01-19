@@ -30,7 +30,7 @@ class HTTPProvider(JSONBaseProvider):
     def get_request_kwargs(self):
         if 'headers' not in self._request_kwargs:
             yield 'headers', self.get_request_headers()
-        for key, value in self._request_kwargs:
+        for key, value in self._request_kwargs.items():
             yield key, value
 
     def get_request_headers(self):
