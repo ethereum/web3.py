@@ -12,7 +12,10 @@ def force_bytes(value):
     if is_bytes(value):
         return bytes(value)
     elif is_text(value):
-        return codecs.encode(value, "iso-8859-1")
+        try:
+            return codecs.encode(value, "iso-8859-1")
+        except UnicodeEncodeError:
+            return codecs.encode(value, "utf8")
     else:
         raise TypeError("Unsupported type: {0}".format(type(value)))
 

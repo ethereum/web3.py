@@ -1,4 +1,6 @@
 import sys
+import numbers
+import collections
 
 
 if sys.version_info.major == 2:
@@ -34,12 +36,16 @@ def is_boolean(value):
 
 
 def is_object(obj):
-    return isinstance(obj, dict)
+    return isinstance(obj, collections.Mapping)
 
 
 def is_array(obj):
-    return isinstance(obj, list)
+    return not is_string(obj) and isinstance(obj, collections.Sequence)
 
 
 def is_null(obj):
     return obj is None
+
+
+def is_number(obj):
+    return isinstance(obj, numbers.Number)
