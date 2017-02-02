@@ -1,5 +1,4 @@
 import hashlib
-import collections
 
 from .types import (
     is_boolean,
@@ -12,6 +11,9 @@ from .types import (
 )
 from .string import (
     force_bytes,
+)
+from .compat import (
+    Generator,
 )
 
 
@@ -31,7 +33,7 @@ def generate_cache_key(value):
             for key
             in sorted(value.keys())
         ))
-    elif is_array(value) or isinstance(value, collections.Generator):
+    elif is_array(value) or isinstance(value, Generator):
         return generate_cache_key("".join((
             generate_cache_key(item)
             for item
