@@ -5,4 +5,8 @@ from urllib.parse import (  # noqa: F401
     urlunparse,
 )
 
-Generator = collections.Generator
+try:
+    Generator = collections.Generator
+except AttributeError:
+    # py34
+    Generator = type(_ for _ in tuple())
