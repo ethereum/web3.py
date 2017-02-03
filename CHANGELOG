@@ -1,3 +1,8 @@
+3.5.3
+-----
+
+* Bugfix for how `requests` library is used.  Now reuses session.
+
 3.5.2
 -----
 
