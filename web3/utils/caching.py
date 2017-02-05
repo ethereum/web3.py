@@ -12,7 +12,7 @@ from .types import (
 from .string import (
     force_bytes,
 )
-from .compat import (
+from .six import (
     Generator,
 )
 
