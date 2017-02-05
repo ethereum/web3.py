@@ -14,7 +14,7 @@ import pylru
 
 from geventhttpclient import HTTPClient
 
-from web3.utils.compat import urlparse
+from web3.utils.six import urlparse
 
 
 _client_cache = pylru.lrucache(8)

@@ -2,8 +2,10 @@ import logging
 
 from .base import JSONBaseProvider  # noqa: E402
 
-from web3.utils.compat import (
+from web3.utils.six import (
     urlunparse,
+)
+from web3.utils.compat import (
     make_post_request,
 )
 from web3.utils.http import construct_user_agent
