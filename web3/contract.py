@@ -16,24 +16,6 @@ from web3.exceptions import (
     BadFunctionCallOutput,
 )
 
-from web3.utils.encoding import (
-    encode_hex,
-)
-from web3.utils.exception import (
-    raise_from,
-)
-from web3.utils.formatting import (
-    add_0x_prefix,
-    remove_0x_prefix,
-)
-from web3.utils.string import (
-    force_bytes,
-    coerce_return_to_text,
-    force_obj_to_bytes,
-)
-from web3.utils.functional import (
-    compose,
-)
 from web3.utils.abi import (
     filter_by_type,
     filter_by_name,
@@ -51,12 +33,33 @@ from web3.utils.abi import (
 from web3.utils.decorators import (
     combomethod,
 )
+from web3.utils.empty import (
+    empty,
+)
+from web3.utils.encoding import (
+    encode_hex,
+)
 from web3.utils.events import (
     get_event_data,
+)
+from web3.utils.exception import (
+    raise_from,
 )
 from web3.utils.filters import (
     construct_event_filter_params,
     PastLogFilter,
+)
+from web3.utils.formatting import (
+    add_0x_prefix,
+    remove_0x_prefix,
+)
+from web3.utils.functional import (
+    compose,
+)
+from web3.utils.string import (
+    force_bytes,
+    coerce_return_to_text,
+    force_obj_to_bytes,
 )
 
 
@@ -90,11 +93,13 @@ class Contract(object):
     address = None
 
     def __init__(self,
-                 abi=None,
-                 address=None,
-                 code=None,
-                 code_runtime=None,
-                 source=None):
+                 abi=empty,
+                 address=empty,
+                 code=empty,
+                 bytecode=empty,
+                 runtime=empty,
+                 code_runtime=empty,
+                 source=empty):
         """Create a new smart contract proxy object.
 
         :param address: Contract address as 0x hex string
@@ -103,18 +108,18 @@ class Contract(object):
         :param code_runtime: Override class level definition
         :param source: Override class level definition
         """
-        if self.web3 is None:
+        if self.web3 is empty:
             raise AttributeError(
                 'The `Contract` class has not been initialized.  Please use the '
                 '`web3.contract` interface to create your contract class.'
             )
-        if abi is not None:
+        if abi is not empty:
             self._abi = abi
-        if code is not None:
+        if code is not empty:
             self._code = code
-        if code_runtime is not None:
+        if code_runtime is not empty:
             self._code_runtime = code_runtime
-        if source is not None:
+        if source is not empty:
             self._source = source
 
         self.address = address

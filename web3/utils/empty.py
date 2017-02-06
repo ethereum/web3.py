@@ -1,0 +1,2 @@
+class empty(object):
+    pass
