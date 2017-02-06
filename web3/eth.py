@@ -1,10 +1,15 @@
 from web3 import formatters
 from web3.iban import Iban
 
-from web3.contract import construct_contract_factory
+from web3.contract import (
+    Contract,
+)
 
 from web3.utils.blocks import (
     is_predefined_block_number,
+)
+from web3.utils.address import (
+    is_address,
 )
 from web3.utils.encoding import (
     to_decimal,
@@ -334,13 +339,33 @@ class Eth(object):
             "eth_uninstallFilter", [filter_id],
         )
 
-    def contract(self, abi, address=None, **kwargs):
-        contract_class = construct_contract_factory(self.web3, abi, **kwargs)
+    def contract(self,
+                 *args,
+                 contract_name=None,
+                 ContractFactoryClass=Contract,
+                 **kwargs):
+        has_address = any((
+            'address' in kwargs,
+            len(args) >= 1 and is_address(args[0]),
+            len(args) >= 2 and is_address(args[1]),
+        ))
 
-        if address is None:
-            return contract_class
+        if has_address:
+            if 'address' in kwargs:
+                address = kwargs.pop('address')
+            elif is_address(args[0]):
+                address = args[0]
+            elif is_address(args[1]):
+                address = args[1]
+                kwargs['abi'] = args[0]
+
+            return Contract.factory(self.web3, contract_name, **kwargs)(address)
         else:
-            return contract_class(address=address)
+            try:
+                kwargs['abi'] = args[0]
+            except IndexError:
+                pass
+            return Contract.factory(self.web3, contract_name, **kwargs)
 
     def getCompilers(self):
         return self.web3._requestManager.request_blocking("eth_getCompilers", [])

@@ -2,6 +2,8 @@
 
 """
 import functools
+import warnings
+import itertools
 
 from eth_abi import (
     encode_abi,
@@ -16,6 +18,9 @@ from web3.exceptions import (
     BadFunctionCallOutput,
 )
 
+from web3.utils.address import (
+    is_address,
+)
 from web3.utils.abi import (
     filter_by_type,
     filter_by_name,
@@ -61,6 +66,17 @@ from web3.utils.string import (
     coerce_return_to_text,
     force_obj_to_bytes,
 )
+from web3.utils.types import (
+    is_array,
+)
+
+
+DEPRECATED_SIGNATURE_MESSAGE = (
+    "The constructor signature for the `Contract` object has changed. "
+    "Please update your code to reflect the updated function signature: "
+    "'Contract(address)'.  To construct contract classes use the "
+    "'Contract.factory(...)' class methog."
+)
 
 
 class Contract(object):
@@ -83,23 +99,33 @@ class Contract(object):
     # set during class construction
     web3 = None
 
-    # class properties (overridable at instance level)
-    _abi = None
-    _code = None
-    _code_runtime = None
-    _source = None
-
     # instance level properties
     address = None
 
+    # class properties (overridable at instance level)
+    abi = None
+    asm = None
+    ast = None
+
+    binary = None
+    binary_runtime = None
+    clone_bin = None
+
+    dev_doc = None
+    interface = None
+    metadata = None
+    opcodes = None
+    src_map = None
+    src_map_runtime = None
+    user_doc = None
+
     def __init__(self,
-                 abi=empty,
-                 address=empty,
+                 *args,
                  code=empty,
-                 bytecode=empty,
-                 runtime=empty,
                  code_runtime=empty,
-                 source=empty):
+                 source=empty,
+                 abi=empty,
+                 address=empty):
         """Create a new smart contract proxy object.
 
         :param address: Contract address as 0x hex string
@@ -108,51 +134,127 @@ class Contract(object):
         :param code_runtime: Override class level definition
         :param source: Override class level definition
         """
-        if self.web3 is empty:
+        if self.web3 is None:
             raise AttributeError(
                 'The `Contract` class has not been initialized.  Please use the '
                 '`web3.contract` interface to create your contract class.'
             )
+
+        arg_0, arg_1, arg_2, arg_3, arg_4 = tuple(itertools.chain(
+            args,
+            itertools.repeat(empty, 5),
+        ))[:5]
+
+        if is_array(arg_0):
+            if abi:
+                raise TypeError("The 'abi' argument was found twice")
+            abi = arg_0
+        elif is_address(arg_0):
+            if address:
+                raise TypeError("The 'address' argument was found twice")
+            address = arg_0
+
+        if is_address(arg_1):
+            if address:
+                raise TypeError("The 'address' argument was found twice")
+            address = arg_1
+
+        if arg_2:
+            if code:
+                raise TypeError("The 'code' argument was found twice")
+            code = arg_2
+
+        if arg_3:
+            if code_runtime:
+                raise TypeError("The 'code_runtime' argument was found twice")
+            code_runtime = arg_3
+
+        if arg_4:
+            if source:
+                raise TypeError("The 'source' argument was found twice")
+            source = arg_4
+
+        if any((abi, code, code_runtime, source)):
+            warnings.warn(DeprecationWarning(
+                "The arguments abi, code, code_runtime, and source have been "
+                "deprecated and will be removed from the Contract class "
+                "constructor in future releases.  Update your code to use the "
+                "Contract.factory method."
+            ))
+
         if abi is not empty:
-            self._abi = abi
+            self.abi = abi
         if code is not empty:
-            self._code = code
+            self.binary = code
         if code_runtime is not empty:
-            self._code_runtime = code_runtime
+            self.binary_runtime = code_runtime
         if source is not empty:
             self._source = source
 
-        self.address = address
+        if address is not empty:
+            self.address = address
+        else:
+            warnings.warn(DeprecationWarning(
+                "The address argument is now required for contract class "
+                "instantiation.  Please update your code to reflect this change"
+            ))
 
-    @property
-    def abi(self):
-        if self._abi is not None:
-            return self._abi
-        # TODO: abi can be derived from the contract source.
-        raise AttributeError("No contract abi was specified for thes contract")
+    @classmethod
+    def factory(cls, web3, contract_name=None, **kwargs):
+        if contract_name is None:
+            contract_name = cls.__name__
+
+        kwargs['web3'] = web3
+
+        for key in kwargs:
+            if not hasattr(cls, key):
+                raise AttributeError(
+                    "Property {0} not found on contract class. "
+                    "`Contract.factory` only accepts keyword arguments which are "
+                    "present on the contract class"
+                )
+        return type(contract_name, (cls,), kwargs)
+
+    #
+    # deprecated properties
+    #
+    _source = None
 
     @property
     def code(self):
-        if self._code is not None:
-            return self._code
-        # TODO: code can be derived from the contract source.
+        warnings.warn(DeprecationWarning(
+            "The `code` property has been deprecated.  You should update your "
+            "code to access this value through `contract.binary`.  The `code` "
+            "property will be removed in future releases"
+        ))
+        if self.binary is not None:
+            return self.binary
         raise AttributeError("No contract code was specified for thes contract")
 
     @property
     def code_runtime(self):
-        if self._code_runtime is not None:
-            return self._code_runtime
-        # TODO: runtime can be derived from the contract source.
-        raise AttributeError(
-            "No contract code_runtime was specified for thes contract"
-        )
+        warnings.warn(DeprecationWarning(
+            "The `code_runtime` property has been deprecated.  You should update your "
+            "code to access this value through `contract.binary_runtime`.  The `code_runtime` "
+            "property will be removed in future releases"
+        ))
+        if self.binary_runtime is not None:
+            return self.binary_runtime
+        raise AttributeError("No contract code_runtime was specified for thes contract")
 
     @property
     def source(self):
+        warnings.warn(DeprecationWarning(
+            "The `source` property has been deprecated and will be removed in "
+            "future releases"
+        ))
         if self._source is not None:
             return self._source
         raise AttributeError("No contract source was specified for thes contract")
 
+    #
+    # Contract Methods
+    #
     @classmethod
     def deploy(cls, transaction=None, args=None, kwargs=None):
         """
@@ -794,6 +896,11 @@ def construct_contract_factory(web3,
     :param source: As given by solc compiler
     :return: Contract class (not instance)
     """
+    warnings.warn(DeprecationWarning(
+        "This function has been deprecated.  Please use the `Contract.factory` "
+        "method as this function will be removed in future releases"
+    ))
+
     _dict = {
         'web3': web3,
         'abi': abi,
