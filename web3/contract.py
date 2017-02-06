@@ -121,15 +121,17 @@ class Contract(object):
 
     def __init__(self,
                  *args,
-                 code=empty,
-                 code_runtime=empty,
-                 source=empty,
-                 abi=empty,
-                 address=empty):
+                 **kwargs):
         """Create a new smart contract proxy object.
 
         :param address: Contract address as 0x hex string
         """
+        code = kwargs.pop('code', empty)
+        code_runtime = kwargs.pop('code_runtime', empty)
+        source = kwargs.pop('source', empty)
+        abi = kwargs.pop('abi', empty)
+        address = kwargs.pop('address', empty)
+
         if self.web3 is None:
             raise AttributeError(
                 'The `Contract` class has not been initialized.  Please use the '
@@ -155,17 +157,17 @@ class Contract(object):
                 raise TypeError("The 'address' argument was found twice")
             address = arg_1
 
-        if arg_2:
+        if arg_2 is not empty:
             if code:
                 raise TypeError("The 'code' argument was found twice")
             code = arg_2
 
-        if arg_3:
+        if arg_3 is not empty:
             if code_runtime:
                 raise TypeError("The 'code_runtime' argument was found twice")
             code_runtime = arg_3
 
-        if arg_4:
+        if arg_4 is not empty:
             if source:
                 raise TypeError("The 'source' argument was found twice")
             source = arg_4

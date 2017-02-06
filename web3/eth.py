@@ -341,9 +341,10 @@ class Eth(object):
 
     def contract(self,
                  *args,
-                 contract_name=None,
-                 ContractFactoryClass=Contract,
                  **kwargs):
+        ContractFactoryClass = kwargs.pop('ContractFactoryClass', Contract)
+        contract_name = kwargs.pop('contract_name', None)
+
         has_address = any((
             'address' in kwargs,
             len(args) >= 1 and is_address(args[0]),
@@ -359,13 +360,13 @@ class Eth(object):
                 address = args[1]
                 kwargs['abi'] = args[0]
 
-            return Contract.factory(self.web3, contract_name, **kwargs)(address)
+            return ContractFactoryClass.factory(self.web3, contract_name, **kwargs)(address)
         else:
             try:
                 kwargs['abi'] = args[0]
             except IndexError:
                 pass
-            return Contract.factory(self.web3, contract_name, **kwargs)
+            return ContractFactoryClass.factory(self.web3, contract_name, **kwargs)
 
     def getCompilers(self):
         return self.web3._requestManager.request_blocking("eth_getCompilers", [])

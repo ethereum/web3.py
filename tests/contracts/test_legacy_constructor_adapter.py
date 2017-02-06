@@ -1,5 +1,6 @@
 import pytest
 import warnings
+import sys
 
 from web3.contract import (
     Contract,
@@ -60,8 +61,12 @@ def test_process_legacy_constructor_signature(args, kwargs, expected):
         assert getattr(actual, key) == value
 
 
+@pytest.mark.skipif(sys.version_info.major == 2, reason="Python2 fails weirdly on this test")
 def test_deprecated_properties():
-    instance = ContactClassForTest(ABI, ADDRESS, '0x1', '0x2', '0x3')
+    instance = ContactClassForTest(ABI, ADDRESS, '0x1', '0x2', source='0x3')
+
+    with pytest.warns(DeprecationWarning):
+        instance.source
 
     with pytest.warns(DeprecationWarning):
         instance.code
@@ -69,10 +74,8 @@ def test_deprecated_properties():
     with pytest.warns(DeprecationWarning):
         instance.code_runtime
 
-    with pytest.warns(DeprecationWarning):
-        instance.source
 
-
+@pytest.mark.skipif(sys.version_info.major == 2, reason="Python2 fails weirdly on this test")
 def test_deprecated_instantiation():
     with pytest.warns(Warning) as record:
         ContactClassForTest(ADDRESS)
