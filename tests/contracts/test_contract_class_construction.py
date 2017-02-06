@@ -7,14 +7,14 @@ def test_class_construction_sets_class_vars(web3, MATH_ABI, MATH_CODE,
                                             MATH_RUNTIME, MATH_SOURCE):
     MathContract = web3.eth.contract(
         abi=MATH_ABI,
-        code=MATH_CODE,
-        code_runtime=MATH_RUNTIME,
+        bytecode=MATH_CODE,
+        bytecode_runtime=MATH_RUNTIME,
         source=MATH_SOURCE,
     )
 
     assert MathContract.web3 == web3
-    assert MathContract.code == MATH_CODE
-    assert MathContract.code_runtime == MATH_RUNTIME
+    assert MathContract.bytecode == MATH_CODE
+    assert MathContract.bytecode_runtime == MATH_RUNTIME
     assert MathContract.source == MATH_SOURCE
 
 

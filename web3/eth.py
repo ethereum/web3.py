@@ -1,32 +1,38 @@
 from web3 import formatters
 from web3.iban import Iban
 
+from web3.contract import (
+    Contract,
+)
+
+from web3.utils.blocks import (
+    is_predefined_block_number,
+)
+from web3.utils.address import (
+    is_address,
+)
 from web3.utils.encoding import (
     to_decimal,
     encode_hex,
-)
-from web3.utils.types import (
-    is_integer,
-    is_string,
-)
-from web3.utils.string import (
-    coerce_return_to_text,
-)
-from web3.utils.functional import (
-    apply_formatters_to_return,
-)
-from web3.utils.transactions import (
-    get_buffered_gas_estimate,
 )
 from web3.utils.filters import (
     BlockFilter,
     TransactionFilter,
     LogFilter,
 )
-from web3.utils.blocks import (
-    is_predefined_block_number,
+from web3.utils.functional import (
+    apply_formatters_to_return,
 )
-from web3.contract import construct_contract_factory
+from web3.utils.string import (
+    coerce_return_to_text,
+)
+from web3.utils.transactions import (
+    get_buffered_gas_estimate,
+)
+from web3.utils.types import (
+    is_integer,
+    is_string,
+)
 
 
 class Eth(object):
@@ -42,6 +48,7 @@ class Eth(object):
     def defaultAccount(self):
         if self._defaultAccount is not None:
             return self._defaultAccount
+        # TODO: deprecate defaulting to the coinbase for the from address.
         return self.coinbase
 
     @defaultAccount.setter
@@ -332,13 +339,34 @@ class Eth(object):
             "eth_uninstallFilter", [filter_id],
         )
 
-    def contract(self, abi, address=None, **kwargs):
-        contract_class = construct_contract_factory(self.web3, abi, **kwargs)
+    def contract(self,
+                 *args,
+                 **kwargs):
+        ContractFactoryClass = kwargs.pop('ContractFactoryClass', Contract)
+        contract_name = kwargs.pop('contract_name', None)
 
-        if address is None:
-            return contract_class
+        has_address = any((
+            'address' in kwargs,
+            len(args) >= 1 and is_address(args[0]),
+            len(args) >= 2 and is_address(args[1]),
+        ))
+
+        if has_address:
+            if 'address' in kwargs:
+                address = kwargs.pop('address')
+            elif is_address(args[0]):
+                address = args[0]
+            elif is_address(args[1]):
+                address = args[1]
+                kwargs['abi'] = args[0]
+
+            return ContractFactoryClass.factory(self.web3, contract_name, **kwargs)(address)
         else:
-            return contract_class(address=address)
+            try:
+                kwargs['abi'] = args[0]
+            except IndexError:
+                pass
+            return ContractFactoryClass.factory(self.web3, contract_name, **kwargs)
 
     def getCompilers(self):
         return self.web3._requestManager.request_blocking("eth_getCompilers", [])

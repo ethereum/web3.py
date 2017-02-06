@@ -15,8 +15,8 @@ def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, MATH_SOURCE,
                   wait_for_transaction):
     MathContract = web3.eth.contract(
         abi=MATH_ABI,
-        code=MATH_CODE,
-        code_runtime=MATH_RUNTIME,
+        bytecode=MATH_CODE,
+        bytecode_runtime=MATH_RUNTIME,
         source=MATH_SOURCE,
     )
     deploy_txn = MathContract.deploy({'from': web3.eth.coinbase})
