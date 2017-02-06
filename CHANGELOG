@@ -1,3 +1,13 @@
+3.6.0
+-----
+
+* Deprecate `Contract.code`: replaced by `Contract.bytecode`
+* Deprecate `Contract.code_runtime`: replaced by `Contract.bytecode_runtime`
+* Deprecate `abi`, `code`, `code_runtime` and `source` as arguments for the `Contract` object.
+* Deprecate `source` as a property of the `Contract` object
+* Add `Contract.factory()` API.
+* Deprecate the `construct_contract_factory` helper function.
+
 3.5.3
 -----
 
