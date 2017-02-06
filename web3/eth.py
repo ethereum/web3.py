@@ -1,32 +1,33 @@
 from web3 import formatters
 from web3.iban import Iban
 
+from web3.contract import construct_contract_factory
+
+from web3.utils.blocks import (
+    is_predefined_block_number,
+)
 from web3.utils.encoding import (
     to_decimal,
     encode_hex,
-)
-from web3.utils.types import (
-    is_integer,
-    is_string,
-)
-from web3.utils.string import (
-    coerce_return_to_text,
-)
-from web3.utils.functional import (
-    apply_formatters_to_return,
-)
-from web3.utils.transactions import (
-    get_buffered_gas_estimate,
 )
 from web3.utils.filters import (
     BlockFilter,
     TransactionFilter,
     LogFilter,
 )
-from web3.utils.blocks import (
-    is_predefined_block_number,
+from web3.utils.functional import (
+    apply_formatters_to_return,
 )
-from web3.contract import construct_contract_factory
+from web3.utils.string import (
+    coerce_return_to_text,
+)
+from web3.utils.transactions import (
+    get_buffered_gas_estimate,
+)
+from web3.utils.types import (
+    is_integer,
+    is_string,
+)
 
 
 class Eth(object):
@@ -42,6 +43,7 @@ class Eth(object):
     def defaultAccount(self):
         if self._defaultAccount is not None:
             return self._defaultAccount
+        # TODO: deprecate defaulting to the coinbase for the from address.
         return self.coinbase
 
     @defaultAccount.setter

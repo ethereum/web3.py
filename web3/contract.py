@@ -564,6 +564,8 @@ class Contract(object):
                              transaction=None):
         """
         Returns a dictionary of the transaction that could be used to call this
+        TODO: make this a public API
+        TODO: add new prepare_deploy_transaction API
         """
         if transaction is None:
             prepared_transaction = {}
