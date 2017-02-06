@@ -30,14 +30,18 @@ class ContactClassForTest(Contract):
         ((ABI,), {'abi': ABI}, TypeError),
         ((ABI, ADDRESS), {}, {'abi': ABI, 'address': ADDRESS}),
         (
+            (ABI, ADDRESS),
+            {'code': '0x1', 'code_runtime': '0x2'},
+            {'abi': ABI, 'address': ADDRESS, 'bytecode': '0x1', 'bytecode_runtime': '0x2'}),
+        (
             (ABI, ADDRESS, '0x1', '0x2', '0x3'),
             {},
-            {'abi': ABI, 'address': ADDRESS, 'binary': '0x1', 'binary_runtime': '0x2', 'source': '0x3'},
+            {'abi': ABI, 'address': ADDRESS, 'bytecode': '0x1', 'bytecode_runtime': '0x2', 'source': '0x3'},
         ),
         (
             tuple(),
             {'abi': ABI, 'address': ADDRESS, 'code': '0x1', 'code_runtime': '0x2', 'source': '0x3'},
-            {'abi': ABI, 'address': ADDRESS, 'binary': '0x1', 'binary_runtime': '0x2', 'source': '0x3'},
+            {'abi': ABI, 'address': ADDRESS, 'bytecode': '0x1', 'bytecode_runtime': '0x2', 'source': '0x3'},
         ),
         ((ABI, ADDRESS), {'abi': ABI}, TypeError),
         ((ABI, ADDRESS), {'address': ADDRESS}, TypeError),

@@ -579,22 +579,31 @@ with the filtering API.
 Contracts
 ---------
 
-.. py:method:: Eth.contract(abi, address=None, code=None, code_runtime=None, source=None)
+.. py:method:: Eth.contract(address=None, contract_name=None, ContractFactoryClass=Contract, **contract_factory_kwargs)
 
     If ``address`` is provided then this method will return an instance of the
-    contract defined by ``abi``.
+    contract defined by ``abi``.  Otherwise the newly created contract class
+    will be returned.
 
-    If ``address`` is ``None`` then this method will return a Contract Factory,
-    which can be though of as the python class that represents your contract.
+    ``contract_name`` will be used as the name of the contract class.  If
+    ``None`` then the name of the ``ContractFactoryClass`` will be used.
 
-    The ``abi`` parameter should be an array containing the ABI definition of
-    the contract functions and events.
+    ``ContractFactoryClass`` will be used as the base Contract class.
 
-    The ``code`` parameter should be the full contract bytecode.
+    The following arguments are accepted for contract class creation.
 
-    The ``code_runtime`` parameter should be the runtime part of the contract bytecode.
-
-    The ``source`` parameter should be a string containing the full source code
-    of the contract.
+    - ``abi``
+    - ``asm``
+    - ``ast``
+    - ``bytecode``
+    - ``bytecode_runtime``
+    - ``clone_bin``
+    - ``dev_doc``
+    - ``interface``
+    - ``metadata``
+    - ``opcodes``
+    - ``src_map``
+    - ``src_map_runtime``
+    - ``user_doc``
 
     See :doc:`./contracts` for more information about how to use contracts.

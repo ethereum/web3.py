@@ -8,7 +8,7 @@ Contracts
 Contract Factories
 ------------------
 
-.. py:class:: Contract(abi, address=None, code=None, code_runtime=None, source=None)
+.. py:class:: Contract(address)
 
     The ``Contract`` class is not intended to be used or instantiated directly.
     Instead you should use the ``web3.eth.contract(...)`` method to generate
@@ -35,19 +35,19 @@ Each Contract Factory exposes the following properties.
     The contract ABI array.
 
 
-.. py:attribute:: Contract.code
+.. py:attribute:: Contract.bytecode
 
     The contract bytecode string.  May be ``None`` if not provided during
     factory creation.
 
 
-.. py:attribute:: Contract.code_runtime
+.. py:attribute:: Contract.bytecode_runtime
 
     The runtime part of the contract bytecode string.  May be ``None`` if not
     provided during factory creation.
 
 
-.. py:attribute:: Contract.code_runtime
+.. py:attribute:: Contract.bytecode_runtime
 
     The runtime part of the contract bytecode string.  May be ``None`` if not
     provided during factory creation.

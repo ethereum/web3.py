@@ -23,8 +23,8 @@ def emitter(web3, Emitter, wait_for_transaction, wait_for_block):
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = deploy_receipt['contractAddress']
 
-    code = web3.eth.getCode(contract_address)
-    assert code == Emitter.code_runtime
+    bytecode = web3.eth.getCode(contract_address)
+    assert bytecode == Emitter.bytecode_runtime
     return Emitter(address=contract_address)
 
 

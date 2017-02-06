@@ -74,8 +74,8 @@ def MATH_ABI():
 def MathContract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, MATH_SOURCE):
     return web3.eth.contract(
         abi=MATH_ABI,
-        code=MATH_CODE,
-        code_runtime=MATH_RUNTIME,
+        bytecode=MATH_CODE,
+        bytecode_runtime=MATH_RUNTIME,
         source=MATH_SOURCE,
     )
 
@@ -114,8 +114,8 @@ def SimpleConstructorContract(web3,
                               SIMPLE_CONSTRUCTOR_ABI):
     return web3.eth.contract(
         abi=SIMPLE_CONSTRUCTOR_ABI,
-        code=SIMPLE_CONSTRUCTOR_CODE,
-        code_runtime=SIMPLE_CONSTRUCTOR_RUNTIME,
+        bytecode=SIMPLE_CONSTRUCTOR_CODE,
+        bytecode_runtime=SIMPLE_CONSTRUCTOR_RUNTIME,
         source=SIMPLE_CONSTRUCTOR_SOURCE,
     )
 
@@ -155,8 +155,8 @@ def WithConstructorArgumentsContract(web3,
                                      WITH_CONSTRUCTOR_ARGUMENTS_ABI):
     return web3.eth.contract(
         abi=WITH_CONSTRUCTOR_ARGUMENTS_ABI,
-        code=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
-        code_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+        bytecode=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
+        bytecode_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
         source=WITH_CONSTRUCTOR_ARGUMENTS_SOURCE,
     )
 
@@ -195,8 +195,8 @@ def WithConstructorAddressArgumentsContract(web3,
                                             WITH_CONSTRUCTOR_ADDRESS_ABI):
     return web3.eth.contract(
         abi=WITH_CONSTRUCTOR_ADDRESS_ABI,
-        code=WITH_CONSTRUCTOR_ADDRESS_CODE,
-        code_runtime=WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
+        bytecode=WITH_CONSTRUCTOR_ADDRESS_CODE,
+        bytecode_runtime=WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
         source=WITH_CONSTRUCTOR_ADDRESS_SOURCE,
     )
 
@@ -255,8 +255,8 @@ def STRING_ABI():
 @pytest.fixture()
 def STRING_CONTRACT(STRING_SOURCE, STRING_CODE, STRING_RUNTIME, STRING_ABI):
     return {
-        'code': STRING_CODE,
-        'code_runtime': STRING_RUNTIME,
+        'bytecode': STRING_CODE,
+        'bytecode_runtime': STRING_RUNTIME,
         'abi': STRING_ABI,
         'source': STRING_SOURCE,
     }
@@ -382,8 +382,8 @@ def EMITTER(EMITTER_CODE,
             EMITTER_ABI,
             EMITTER_SOURCE):
     return {
-        'code': EMITTER_CODE,
-        'code_runtime': EMITTER_RUNTIME,
+        'bytecode': EMITTER_CODE,
+        'bytecode_runtime': EMITTER_RUNTIME,
         'source': EMITTER_SOURCE,
         'abi': EMITTER_ABI,
     }
@@ -404,8 +404,8 @@ def emitter(web3_empty, Emitter, wait_for_transaction, wait_for_block):
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = deploy_receipt['contractAddress']
 
-    code = web3.eth.getCode(contract_address)
-    assert code == Emitter.code_runtime
+    bytecode = web3.eth.getCode(contract_address)
+    assert bytecode == Emitter.bytecode_runtime
     return Emitter(address=contract_address)
 
 

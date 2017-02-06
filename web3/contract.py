@@ -107,8 +107,8 @@ class Contract(object):
     asm = None
     ast = None
 
-    binary = None
-    binary_runtime = None
+    bytecode = None
+    bytecode_runtime = None
     clone_bin = None
 
     dev_doc = None
@@ -129,10 +129,6 @@ class Contract(object):
         """Create a new smart contract proxy object.
 
         :param address: Contract address as 0x hex string
-        :param abi: Override class level definition
-        :param code: Override class level definition
-        :param code_runtime: Override class level definition
-        :param source: Override class level definition
         """
         if self.web3 is None:
             raise AttributeError(
@@ -185,9 +181,9 @@ class Contract(object):
         if abi is not empty:
             self.abi = abi
         if code is not empty:
-            self.binary = code
+            self.bytecode = code
         if code_runtime is not empty:
-            self.binary_runtime = code_runtime
+            self.bytecode_runtime = code_runtime
         if source is not empty:
             self._source = source
 
@@ -224,22 +220,22 @@ class Contract(object):
     def code(self):
         warnings.warn(DeprecationWarning(
             "The `code` property has been deprecated.  You should update your "
-            "code to access this value through `contract.binary`.  The `code` "
+            "code to access this value through `contract.bytecode`.  The `code` "
             "property will be removed in future releases"
         ))
-        if self.binary is not None:
-            return self.binary
+        if self.bytecode is not None:
+            return self.bytecode
         raise AttributeError("No contract code was specified for thes contract")
 
     @property
     def code_runtime(self):
         warnings.warn(DeprecationWarning(
             "The `code_runtime` property has been deprecated.  You should update your "
-            "code to access this value through `contract.binary_runtime`.  The `code_runtime` "
+            "code to access this value through `contract.bytecode_runtime`.  The `code_runtime` "
             "property will be removed in future releases"
         ))
-        if self.binary_runtime is not None:
-            return self.binary_runtime
+        if self.bytecode_runtime is not None:
+            return self.bytecode_runtime
         raise AttributeError("No contract code_runtime was specified for thes contract")
 
     @property
@@ -287,9 +283,9 @@ class Contract(object):
         else:
             deploy_transaction = dict(**transaction)
 
-        if not cls.code:
+        if not cls.bytecode:
             raise ValueError(
-                "Cannot deploy a contract that does not have 'code' associated "
+                "Cannot deploy a contract that does not have 'bytecode' associated "
                 "with it"
             )
 
@@ -740,10 +736,10 @@ class Contract(object):
             arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
 
             deploy_data = add_0x_prefix(
-                cls._encode_abi(constructor_abi, arguments, data=cls.code)
+                cls._encode_abi(constructor_abi, arguments, data=cls.bytecode)
             )
         else:
-            deploy_data = add_0x_prefix(cls.code)
+            deploy_data = add_0x_prefix(cls.bytecode)
 
         return deploy_data
 
