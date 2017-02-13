@@ -9,18 +9,20 @@ before_install:
   - travis_retry sudo apt-get update
 env:
   matrix:
-    - TOX_ENV=py27-all-stdlib
-    - TOX_ENV=py34-all-stdlib
-    - TOX_ENV=py35-all-stdlib
-    - TOX_ENV=py27-all-gevent
-    - TOX_ENV=py34-all-gevent
-    - TOX_ENV=py35-all-gevent
+    - TOX_ENV=py27-stdlib
+    - TOX_ENV=py34-stdlib
+    - TOX_ENV=py35-stdlib
+    - TOX_ENV=py27-gevent
+    - TOX_ENV=py34-gevent
+    - TOX_ENV=py35-gevent
     - TOX_ENV=flake8
 cache:
   pip: true
 install:
   - "travis_retry pip install pip setuptools --upgrade"
   - "travis_retry pip install tox"
+before_script:
+  - pip freeze
 script:
   - tox -e $TOX_ENV --recreate
 after_script:
