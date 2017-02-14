@@ -1,3 +1,8 @@
+3.6.1
+-----
+
+* Upgrade `ethereum-abi-utils` dependency for upstream bugfix.
+
 3.6.0
 -----
 
