@@ -10,7 +10,7 @@ from eth_utils import (
     is_string,
     is_integer,
     is_null,
-    is_object,
+    is_dict,
     is_0x_prefixed,
     add_0x_prefix,
     encode_hex,
@@ -53,7 +53,7 @@ def apply_if_passes_test(test_fn):
 apply_if_not_null = apply_if_passes_test(compose(is_null, operator.not_))
 apply_if_string = apply_if_passes_test(is_string)
 apply_if_array = apply_if_passes_test(is_list_like)
-apply_if_object = apply_if_passes_test(is_object)
+apply_if_dict = apply_if_passes_test(is_dict)
 apply_if_integer = apply_if_passes_test(is_integer)
 
 
@@ -146,7 +146,7 @@ def output_log_formatter(log):
     }
 
 
-log_array_formatter = apply_if_not_null(apply_to_array(apply_if_object(
+log_array_formatter = apply_if_not_null(apply_to_array(apply_if_dict(
     output_log_formatter
 )))
 
@@ -185,7 +185,7 @@ def output_block_formatter(block):
         'number': apply_if_not_null(to_decimal),
         'difficulty': to_decimal,
         'totalDifficulty': to_decimal,
-        'transactions': apply_if_array(apply_to_array(apply_if_object(
+        'transactions': apply_if_array(apply_to_array(apply_if_dict(
             output_transaction_formatter,
         ))),
     }
