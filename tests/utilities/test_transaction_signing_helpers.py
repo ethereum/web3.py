@@ -2,13 +2,12 @@ import pytest
 
 import rlp
 
-from web3.utils.address import (
-    to_address,
-)
-from web3.utils.encoding import (
+from eth_utils import (
     encode_hex,
     decode_hex,
+    is_same_address,
 )
+
 from web3.utils.transactions import (
     Transaction,
     UnsignedTransaction,
@@ -35,7 +34,7 @@ def test_transaction_serialization():
     serialized_txn = serialize_transaction(transaction)
     unserialized_txn = rlp.decode(serialized_txn, UnsignedTransaction)
 
-    assert to_address(unserialized_txn.to) == transaction['to']
+    assert is_same_address(unserialized_txn.to, transaction['to'])
     assert unserialized_txn.startgas == int(transaction['gas'], 16)
     assert unserialized_txn.gasprice == int(transaction['gasPrice'], 16)
     assert unserialized_txn.nonce == int(transaction['nonce'], 16)
@@ -65,7 +64,7 @@ def test_adding_signature_to_transaction(wait_for_first_block,
         decode_hex(signature_hex),
     )
 
-    assert to_address(signed_transaction.to) == transaction['to']
+    assert is_same_address(signed_transaction.to, transaction['to'])
     assert signed_transaction.startgas == int(transaction['gas'], 16)
     assert signed_transaction.gasprice == int(transaction['gasPrice'], 16)
     assert signed_transaction.nonce == int(transaction['nonce'], 16)

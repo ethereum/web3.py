@@ -4,17 +4,18 @@ import collections
 
 import rlp
 
-from web3.utils.crypto import sha3
-from web3.utils.string import force_text
-from web3.utils.address import to_address
-from web3.utils.types import (
+from eth_utils import (
+    force_text,
+    to_normalized_address,
     is_string,
-    is_object,
-)
-from web3.utils.encoding import (
-    to_decimal,
+    is_dict,
     encode_hex,
     decode_hex,
+    keccak,
+)
+
+from web3.utils.encoding import (
+    to_decimal,
 )
 from web3.utils.transactions import (
     is_bitcoin_available,
@@ -43,7 +44,7 @@ class RequestManager(object):
 
         if is_string(response_raw):
             response = json.loads(force_text(response_raw))
-        elif is_object(response_raw):
+        elif is_dict(response_raw):
             response = response_raw
 
         if "error" in response:
@@ -208,13 +209,13 @@ class BaseSendRawTransactionMixin(ManagerWrapper):
         if method in self.TXN_SENDING_METHODS:
             if method == 'eth_sendRawTransaction':
                 txn = rlp.decode(decode_hex(params[0]), Transaction)
-                self._known_transactions[to_address(txn.sender)].add(result)
-                self._known_nonces[to_address(txn.sender)].add(txn.nonce)
+                self._known_transactions[to_normalized_address(txn.sender)].add(result)
+                self._known_nonces[to_normalized_address(txn.sender)].add(txn.nonce)
             else:
                 txn = params[0]
-                self._known_transactions[to_address(txn['from'])].add(result)
+                self._known_transactions[to_normalized_address(txn['from'])].add(result)
                 if 'nonce' in txn:
-                    self._known_nonces[to_address(txn['from'])].add(
+                    self._known_nonces[to_normalized_address(txn['from'])].add(
                         to_decimal(txn['nonce'])
                     )
         return result
@@ -264,11 +265,11 @@ class PrivateKeySigningManager(BaseSendRawTransactionMixin):
 
     def register_private_key(self, key):
         from bitcoin import privtopub
-        address = to_address(sha3(privtopub(key)[1:])[-40:])
+        address = to_normalized_address(keccak(privtopub(key)[1:])[-20:])
         self.keys[address] = key
 
     def sign_and_serialize_transaction(self, transaction):
-        txn_from = to_address(transaction['from'])
+        txn_from = to_normalized_address(transaction['from'])
         if txn_from not in self.keys:
             raise KeyError("No signing key registered for from address: {0}".format(txn_from))
         transaction = Transaction(
@@ -280,5 +281,5 @@ class PrivateKeySigningManager(BaseSendRawTransactionMixin):
             data=decode_hex(transaction['data']),
         )
         transaction.sign(self.keys[txn_from])
-        assert to_address(transaction.sender) == txn_from
+        assert to_normalized_address(transaction.sender) == txn_from
         return rlp.encode(transaction, Transaction)

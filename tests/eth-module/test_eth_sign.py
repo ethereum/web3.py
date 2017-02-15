@@ -6,23 +6,15 @@ from bitcoin import encode_pubkey
 
 from ethereum.utils import privtoaddr
 
-from web3.utils.crypto import (
-    sha3 as _sha3,
-)
-from web3.utils.string import (
+from eth_utils import (
     force_bytes,
     force_text,
     coerce_return_to_bytes,
     coerce_return_to_text,
     coerce_args_to_bytes,
-)
-from web3.utils.types import (
+    keccak,
     is_string,
-)
-from web3.utils.formatting import (
     add_0x_prefix,
-)
-from web3.utils.encoding import (
     encode_hex,
     decode_hex,
 )
@@ -30,7 +22,7 @@ from web3.utils.encoding import (
 
 @coerce_return_to_bytes
 def sha3(s):
-    return add_0x_prefix(_sha3(s))
+    return encode_hex(keccak(s))
 
 
 assert sha3(b'') == b'0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'

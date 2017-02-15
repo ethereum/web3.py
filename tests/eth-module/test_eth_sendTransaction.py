@@ -1,6 +1,6 @@
 import pytest
 
-from web3.utils.string import force_bytes
+from eth_utils import force_bytes
 
 
 @pytest.fixture(autouse=True)

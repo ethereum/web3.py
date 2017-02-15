@@ -2,7 +2,10 @@ import random
 
 from flaky import flaky
 
-from web3.utils.encoding import decode_hex
+from eth_utils import (
+    decode_hex,
+)
+
 from web3.utils.compat import (
     Timeout,
 )

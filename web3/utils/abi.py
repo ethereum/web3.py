@@ -14,7 +14,7 @@ from eth_utils import (
     is_address,
 )
 
-from eth_abi.utils.parsing import (
+from eth_abi.abi import (
     process_type,
 )
 

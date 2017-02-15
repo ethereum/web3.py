@@ -2,7 +2,7 @@ import pytest
 import json
 import textwrap
 
-from web3.utils.abi import (
+from eth_utils import (
     event_signature_to_log_topic,
 )
 

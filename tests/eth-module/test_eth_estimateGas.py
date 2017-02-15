@@ -1,6 +1,6 @@
 import pytest
 
-from web3.utils.abi import (
+from eth_utils import (
     function_abi_to_4byte_selector,
 )
 
