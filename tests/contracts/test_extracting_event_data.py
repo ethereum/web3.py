@@ -1,13 +1,12 @@
 import pytest
 
+from eth_utils import (
+    force_text,
+    decode_hex,
+)
+
 from web3.utils.events import (
     get_event_data,
-)
-from web3.utils.string import (
-    force_text,
-)
-from web3.utils.encoding import (
-    decode_hex,
 )
 
 

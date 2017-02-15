@@ -1,4 +1,6 @@
-from web3.utils.string import force_bytes
+from eth_utils import (
+    force_bytes,
+)
 
 
 def test_contract_deployment_no_constructor(web3, MathContract,

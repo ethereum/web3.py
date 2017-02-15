@@ -1,4 +1,4 @@
-from web3.utils.types import (
+from eth_utils import (
     is_integer,
 )
 

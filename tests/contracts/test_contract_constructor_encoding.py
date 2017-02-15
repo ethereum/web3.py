@@ -1,11 +1,13 @@
 import pytest
 
+from eth_utils import (
+    encode_hex,
+    remove_0x_prefix,
+)
+
 from eth_abi import (
     encode_abi,
 )
-
-from web3.utils.encoding import encode_hex
-from web3.utils.formatting import remove_0x_prefix
 
 
 def test_contract_constructor_abi_encoding_with_no_constructor_fn(MathContract, MATH_CODE):

@@ -6,15 +6,16 @@ from hypothesis import (
 
 import random
 
-from web3.utils.functional import (
-    cast_return_to_dict,
+from eth_utils import (
+    to_dict,
 )
+
 from web3.utils.caching import (
     generate_cache_key,
 )
 
 
-@cast_return_to_dict
+@to_dict
 def shuffle_dict(_dict):
     keys = list(_dict.keys())
     random.shuffle(keys)
