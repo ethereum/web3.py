@@ -5,6 +5,19 @@ import functools
 import warnings
 import itertools
 
+from eth_utils import (
+    is_address,
+    function_abi_to_4byte_selector,
+    encode_hex,
+    add_0x_prefix,
+    remove_0x_prefix,
+    compose,
+    force_bytes,
+    coerce_return_to_text,
+    force_obj_to_bytes,
+    is_list_like,
+)
+
 from eth_abi import (
     encode_abi,
     decode_abi,
@@ -18,9 +31,6 @@ from web3.exceptions import (
     BadFunctionCallOutput,
 )
 
-from web3.utils.address import (
-    is_address,
-)
 from web3.utils.abi import (
     filter_by_type,
     filter_by_name,
@@ -30,7 +40,6 @@ from web3.utils.abi import (
     get_abi_input_types,
     get_abi_output_types,
     get_constructor_abi,
-    function_abi_to_4byte_selector,
     merge_args_and_kwargs,
     normalize_return_type,
     check_if_arguments_can_be_encoded,
@@ -41,9 +50,6 @@ from web3.utils.decorators import (
 from web3.utils.empty import (
     empty,
 )
-from web3.utils.encoding import (
-    encode_hex,
-)
 from web3.utils.events import (
     get_event_data,
 )
@@ -53,21 +59,6 @@ from web3.utils.exception import (
 from web3.utils.filters import (
     construct_event_filter_params,
     PastLogFilter,
-)
-from web3.utils.formatting import (
-    add_0x_prefix,
-    remove_0x_prefix,
-)
-from web3.utils.functional import (
-    compose,
-)
-from web3.utils.string import (
-    force_bytes,
-    coerce_return_to_text,
-    force_obj_to_bytes,
-)
-from web3.utils.types import (
-    is_array,
 )
 
 
@@ -143,7 +134,7 @@ class Contract(object):
             itertools.repeat(empty, 5),
         ))[:5]
 
-        if is_array(arg_0):
+        if is_list_like(arg_0):
             if abi:
                 raise TypeError("The 'abi' argument was found twice")
             abi = arg_0

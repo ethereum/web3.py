@@ -1,3 +1,11 @@
+from eth_utils import (
+    is_address,
+    is_integer,
+    is_string,
+    encode_hex,
+    coerce_return_to_text,
+)
+
 from web3 import formatters
 from web3.iban import Iban
 
@@ -8,12 +16,8 @@ from web3.contract import (
 from web3.utils.blocks import (
     is_predefined_block_number,
 )
-from web3.utils.address import (
-    is_address,
-)
 from web3.utils.encoding import (
     to_decimal,
-    encode_hex,
 )
 from web3.utils.filters import (
     BlockFilter,
@@ -23,15 +27,8 @@ from web3.utils.filters import (
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
-from web3.utils.string import (
-    coerce_return_to_text,
-)
 from web3.utils.transactions import (
     get_buffered_gas_estimate,
-)
-from web3.utils.types import (
-    is_integer,
-    is_string,
 )
 
 

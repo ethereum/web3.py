@@ -3,41 +3,36 @@ from __future__ import absolute_import
 import functools
 import operator
 
-from web3.iban import Iban
-
-from web3.utils.string import (
+from eth_utils import (
     coerce_args_to_text,
     coerce_return_to_text,
-)
-from web3.utils.address import (
     is_address,
-    is_strict_address,
-    to_address,
-)
-from web3.utils.types import (
-    is_array,
     is_string,
     is_integer,
     is_null,
     is_object,
-)
-from web3.utils.formatting import (
     is_0x_prefixed,
     add_0x_prefix,
-)
-from web3.utils.encoding import (
     encode_hex,
     decode_hex,
+    compose,
+    is_list_like,
+    to_normalized_address,
+)
+
+from web3.iban import Iban
+
+from web3.utils.encoding import (
     from_decimal,
     to_decimal,
-)
-from web3.utils.functional import (
-    identity,
-    compose,
 )
 from web3.utils.blocks import (
     is_predefined_block_number,
 )
+
+
+def noop(value):
+    return value
 
 
 def apply_if_passes_test(test_fn):
@@ -57,7 +52,7 @@ def apply_if_passes_test(test_fn):
 
 apply_if_not_null = apply_if_passes_test(compose(is_null, operator.not_))
 apply_if_string = apply_if_passes_test(is_string)
-apply_if_array = apply_if_passes_test(is_array)
+apply_if_array = apply_if_passes_test(is_list_like)
 apply_if_object = apply_if_passes_test(is_object)
 apply_if_integer = apply_if_passes_test(is_integer)
 
@@ -89,7 +84,7 @@ def input_filter_params_formatter(filter_params):
     }
 
     return {
-        key: formatters.get(key, identity)(value)
+        key: formatters.get(key, noop)(value)
         for key, value in filter_params.items()
     }
 
@@ -109,7 +104,7 @@ def input_transaction_formatter(eth, txn):
         'nonce': from_decimal,
     }
     return {
-        key: formatters.get(key, identity)(txn.get(key, defaults.get(key)))
+        key: formatters.get(key, noop)(txn.get(key, defaults.get(key)))
         for key in set(tuple(txn.keys()) + tuple(defaults.keys()))
     }
 
@@ -128,7 +123,7 @@ def output_transaction_formatter(txn):
     }
 
     return {
-        key: formatters.get(key, identity)(value)
+        key: formatters.get(key, noop)(value)
         for key, value in txn.items()
     }
 
@@ -142,11 +137,11 @@ def output_log_formatter(log):
         'blockNumber': apply_if_not_null(to_decimal),
         'transactionIndex': apply_if_not_null(to_decimal),
         'logIndex': apply_if_not_null(to_decimal),
-        'address': to_address,
+        'address': to_normalized_address,
     }
 
     return {
-        key: formatters.get(key, identity)(value)
+        key: formatters.get(key, noop)(value)
         for key, value in log.items()
     }
 
@@ -172,7 +167,7 @@ def output_transaction_receipt_formatter(receipt):
     }
 
     return {
-        key: formatters.get(key, identity)(value)
+        key: formatters.get(key, noop)(value)
         for key, value in receipt.items()
     }
 
@@ -196,7 +191,7 @@ def output_block_formatter(block):
     }
 
     return {
-        key: formatters.get(key, identity)(value)
+        key: formatters.get(key, noop)(value)
         for key, value in block.items()
     }
 
@@ -211,7 +206,7 @@ def inputPostFormatter(post):
     post["workToProve"] = from_decimal(post.get("workToProve", 0))
     post["priority"] = from_decimal(post["priority"])
 
-    if not is_array(post.get("topics")):
+    if not is_list_like(post.get("topics")):
         post["topics"] = [post["topics"]] if post.get("topics") else []
 
     post["topics"] = [topic if is_0x_prefixed(topic) else encode_hex(topic)
@@ -243,10 +238,8 @@ def input_address_formatter(addr):
     iban = Iban(addr)
     if iban.isValid() and iban.isDirect():
         return add_0x_prefix(iban.address())
-    elif is_strict_address(addr):
-        return addr
     elif is_address(addr):
-        return add_0x_prefix(addr)
+        return to_normalized_address(addr)
 
     raise ValueError("invalid address")
 
@@ -273,7 +266,7 @@ def transaction_pool_content_formatter(value):
 
 
 def transaction_pool_inspect_formatter(value):
-    return transaction_pool_formatter(value, identity)
+    return transaction_pool_formatter(value, noop)
 
 
 @apply_if_not_null
@@ -290,6 +283,6 @@ def syncing_formatter(value):
     }
 
     return {
-        key: formatters.get(key, identity)(value)
+        key: formatters.get(key, noop)(value)
         for key, value in value.items()
     }

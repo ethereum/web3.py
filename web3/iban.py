@@ -1,14 +1,11 @@
 from __future__ import unicode_literals
+
 import re
 import functools
 
-from web3.utils.types import (
+from eth_utils import (
     is_string,
-)
-from web3.utils.string import (
     coerce_args_to_text,
-)
-from web3.utils.formatting import (
     pad_left,
     add_0x_prefix,
 )
