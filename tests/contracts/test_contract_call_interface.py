@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
-import codecs
 
-from web3.utils.string import (
+from eth_utils import (
     force_bytes,
     force_text,
 )

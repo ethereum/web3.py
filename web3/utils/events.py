@@ -1,5 +1,13 @@
 import itertools
 
+from eth_utils import (
+    encode_hex,
+    to_tuple,
+    is_list_like,
+    coerce_return_to_text,
+    event_abi_to_log_topic,
+)
+
 from eth_abi import (
     decode_abi,
     decode_single,
@@ -9,21 +17,10 @@ from eth_abi.abi import (
     process_type,
 )
 
-from .encoding import encode_hex
-from .functional import (
-    cast_return_to_tuple,
-)
-from .types import (
-    is_array,
-)
-from .string import (
-    coerce_return_to_text,
-)
 from .abi import (
     get_abi_input_names,
     get_indexed_event_inputs,
     exclude_indexed_event_inputs,
-    event_abi_to_log_topic,
     normalize_return_type,
     normalize_event_input_types,
 )
@@ -46,7 +43,7 @@ def construct_event_topic_set(event_abi, arguments=None):
         }
 
     normalized_args = {
-        key: value if is_array(value) else [value]
+        key: value if is_list_like(value) else [value]
         for key, value in arguments.items()
     }
 
@@ -89,7 +86,7 @@ def construct_event_data_set(event_abi, arguments=None):
         }
 
     normalized_args = {
-        key: value if is_array(value) else [value]
+        key: value if is_list_like(value) else [value]
         for key, value in arguments.items()
     }
 
@@ -125,7 +122,7 @@ def is_dynamic_sized_type(_type):
     return False
 
 
-@cast_return_to_tuple
+@to_tuple
 def get_event_abi_types_for_decoding(event_inputs):
     """
     Event logs use the `sha3(value)` for indexed inputs of type `bytes` or

@@ -1,42 +1,22 @@
 # String encodings and numeric representations
 import json
-import codecs
 
 from rlp.sedes import big_endian_int
 
-from .types import (
+from eth_utils import (
     is_string,
     is_boolean,
-    is_object,
+    is_dict,
     is_integer,
-)
-from .string import (
     coerce_args_to_text,
     coerce_args_to_bytes,
-    coerce_return_to_text,
-    coerce_return_to_bytes,
-)
-from .formatting import (
-    remove_0x_prefix,
-    add_0x_prefix,
-    is_prefixed,
     is_0x_prefixed,
+    encode_hex,
 )
 
-
-@coerce_return_to_bytes
-def decode_hex(value):
-    if not is_string(value):
-        raise TypeError('Value must be an instance of str or unicode')
-    return codecs.decode(remove_0x_prefix(value), 'hex')
-
-
-@coerce_args_to_bytes
-@coerce_return_to_text
-def encode_hex(value):
-    if not is_string(value):
-        raise TypeError('Value must be an instance of str or unicode')
-    return add_0x_prefix(codecs.encode(value, 'hex'))
+from .formatting import (
+    is_prefixed,
+)
 
 
 @coerce_args_to_text
@@ -47,7 +27,7 @@ def to_hex(value):
     if is_boolean(value):
         return "0x1" if value else "0x0"
 
-    if is_object(value):
+    if is_dict(value):
         return encode_hex(json.dumps(value, sort_keys=True))
 
     if is_string(value):

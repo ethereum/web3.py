@@ -1,5 +1,7 @@
-from .types import is_string
-from .string import force_text
+from eth_utils import (
+    is_string,
+    force_text,
+)
 
 
 def is_predefined_block_number(block_number):

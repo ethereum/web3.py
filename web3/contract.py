@@ -641,7 +641,7 @@ class Contract(object):
             kwargs = {}
 
         fn_abi = cls._find_matching_fn_abi(fn_name, args, kwargs)
-        fn_selector = function_abi_to_4byte_selector(fn_abi)
+        fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
 
         fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
 

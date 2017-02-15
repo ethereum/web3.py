@@ -1,10 +1,11 @@
 import re
 import random
 
-from .types import (
+from eth_utils import (
     is_string,
-    is_array,
+    is_list_like,
 )
+
 from .events import (
     construct_event_topic_set,
     construct_event_data_set,
@@ -29,13 +30,13 @@ def construct_event_filter_params(event_abi,
     else:
         topic_set = [topics] + construct_event_topic_set(event_abi, argument_filters)
 
-    if len(topic_set) == 1 and is_array(topic_set[0]):
+    if len(topic_set) == 1 and is_list_like(topic_set[0]):
         filter_params['topics'] = topic_set[0]
     else:
         filter_params['topics'] = topic_set
 
     if address and contract_address:
-        if is_array(address):
+        if is_list_like(address):
             filter_params['address'] = address + [contract_address]
         elif is_string(address):
             filter_params['address'] = [address, contract_address]
