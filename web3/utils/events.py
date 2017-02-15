@@ -47,7 +47,7 @@ def construct_event_topic_set(event_abi, arguments=None):
         for key, value in arguments.items()
     }
 
-    event_topic = event_abi_to_log_topic(event_abi)
+    event_topic = encode_hex(event_abi_to_log_topic(event_abi))
     indexed_args = get_indexed_event_inputs(event_abi)
     zipped_abi_and_args = [
         (arg, normalized_args.get(arg['name'], [None]))
