@@ -200,7 +200,7 @@ class Contract(object):
                 raise AttributeError(
                     "Property {0} not found on contract class. "
                     "`Contract.factory` only accepts keyword arguments which are "
-                    "present on the contract class"
+                    "present on the contract class".format(key)
                 )
         return type(contract_name, (cls,), kwargs)
 
