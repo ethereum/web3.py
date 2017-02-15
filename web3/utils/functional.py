@@ -1,16 +1,8 @@
 import functools
 
-
-def identity(value):
-    return value
-
-
-def combine(f, g):
-    return lambda x: f(g(x))
-
-
-def compose(*functions):
-    return functools.reduce(combine, reversed(functions), identity)
+from eth_utils import (
+    compose,
+)
 
 
 def apply_formatters_to_return(*formatters):
@@ -23,17 +15,3 @@ def apply_formatters_to_return(*formatters):
             return formatter(value)
         return inner
     return outer
-
-
-def cast_return(_type):
-    def outer(fn):
-        @functools.wraps(fn)
-        def inner(*args, **kwargs):
-            return _type(fn(*args, **kwargs))
-
-        return inner
-    return outer
-
-
-cast_return_to_tuple = cast_return(tuple)
-cast_return_to_dict = cast_return(dict)

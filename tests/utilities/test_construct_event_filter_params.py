@@ -1,8 +1,9 @@
 import pytest
 
-from web3.utils.abi import (
+from eth_utils import (
     event_abi_to_log_topic,
 )
+
 from web3.utils.filters import (
     construct_event_filter_params,
 )

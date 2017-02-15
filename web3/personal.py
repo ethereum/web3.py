@@ -1,10 +1,9 @@
 from __future__ import absolute_import
+
 import getpass
 
-from web3.utils.string import (
+from eth_utils import (
     coerce_return_to_text,
-)
-from web3.utils.encoding import (
     remove_0x_prefix,
     encode_hex,
 )

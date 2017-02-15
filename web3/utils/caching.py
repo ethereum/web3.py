@@ -1,17 +1,16 @@
 import hashlib
 
-from .types import (
+from eth_utils import (
     is_boolean,
     is_null,
-    is_object,
-    is_array,
+    is_dict,
+    is_list_like,
     is_number,
     is_text,
     is_bytes,
-)
-from .string import (
     force_bytes,
 )
+
 from .six import (
     Generator,
 )
@@ -27,13 +26,13 @@ def generate_cache_key(value):
         return generate_cache_key(force_bytes(value))
     elif is_boolean(value) or is_null(value) or is_number(value):
         return generate_cache_key(repr(value))
-    elif is_object(value):
+    elif is_dict(value):
         return generate_cache_key((
             (key, value[key])
             for key
             in sorted(value.keys())
         ))
-    elif is_array(value) or isinstance(value, Generator):
+    elif is_list_like(value) or isinstance(value, Generator):
         return generate_cache_key("".join((
             generate_cache_key(item)
             for item

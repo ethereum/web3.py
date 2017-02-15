@@ -6,15 +6,18 @@ from hypothesis import (
 
 import random
 
-from web3.utils.functional import (
-    cast_return_to_dict,
+from eth_utils import (
+    force_bytes,
+    force_text,
+    to_dict,
 )
+
 from web3.utils.caching import (
     generate_cache_key,
 )
 
 
-@cast_return_to_dict
+@to_dict
 def shuffle_dict(_dict):
     keys = list(_dict.keys())
     random.shuffle(keys)
@@ -22,14 +25,17 @@ def shuffle_dict(_dict):
         yield key, _dict[key]
 
 
+encodable_text = st.text().map(lambda v: force_text(force_bytes(v, 'utf8')))
+
+
 def extend_fn(children):
     lists_st = st.lists(children)
-    dicts_st = st.dictionaries(st.text(), children)
+    dicts_st = st.dictionaries(encodable_text, children)
     return lists_st | dicts_st
 
 
 all_st = st.recursive(
-    st.none() | st.integers() | st.booleans() | st.floats() | st.text() | st.binary(),
+    st.none() | st.integers() | st.booleans() | st.floats() | encodable_text | st.binary(),
     extend_fn,
 )
 

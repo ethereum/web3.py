@@ -1,4 +1,4 @@
-from web3.utils.address import (
+from eth_utils import (
     is_address,
 )
 

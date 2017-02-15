@@ -1,12 +1,10 @@
-from testrpc.client.utils import (
-    encode_32bytes,
+from eth_utils import (
+    is_same_address,
+    remove_0x_prefix,
 )
 
-from web3.utils.address import (
-    is_same_address,
-)
-from web3.utils.formatting import (
-    remove_0x_prefix,
+from testrpc.client.utils import (
+    encode_32bytes,
 )
 
 

@@ -1,5 +1,18 @@
 from __future__ import absolute_import
 
+from eth_utils import (
+    to_wei,
+    from_wei,
+    is_address,
+    is_checksum_address,
+    to_checksum_address,
+    decode_hex,
+    encode_hex,
+    force_text,
+    coerce_return_to_text,
+    compose,
+)
+
 from web3.admin import Admin
 from web3.db import Db
 from web3.eth import Eth
@@ -31,28 +44,10 @@ from web3.providers.manager import (
     PrivateKeySigningManager,
 )
 
-from web3.utils.address import (
-    is_address,
-    is_checksum_address,
-    to_checksum_address,
-)
-from web3.utils.currency import (
-    to_wei,
-    from_wei,
-)
 from web3.utils.encoding import (
     to_hex,
-    decode_hex,
-    encode_hex,
     to_decimal,
     from_decimal,
-)
-from web3.utils.functional import (
-    compose,
-)
-from web3.utils.string import (
-    force_text,
-    coerce_return_to_text,
 )
 
 

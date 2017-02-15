@@ -2,6 +2,10 @@ import logging
 
 from .base import JSONBaseProvider  # noqa: E402
 
+from eth_utils import (
+    to_dict,
+)
+
 from web3.utils.six import (
     urlunparse,
 )
@@ -9,7 +13,6 @@ from web3.utils.compat import (
     make_post_request,
 )
 from web3.utils.http import construct_user_agent
-from web3.utils.functional import cast_return_to_dict
 
 
 logger = logging.getLogger(__name__)
@@ -28,7 +31,7 @@ class HTTPProvider(JSONBaseProvider):
     def __str__(self):
         return "RPC connection {0}".format(self.endpoint_uri)
 
-    @cast_return_to_dict
+    @to_dict
     def get_request_kwargs(self):
         if 'headers' not in self._request_kwargs:
             yield 'headers', self.get_request_headers()

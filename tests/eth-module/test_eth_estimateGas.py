@@ -1,6 +1,7 @@
 import pytest
 
-from web3.utils.abi import (
+from eth_utils import (
+    encode_hex,
     function_abi_to_4byte_selector,
 )
 
@@ -32,7 +33,7 @@ def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, MATH_SOURCE,
 
 def test_eth_estimateGas(web3, math_contract):
     increment_abi = math_contract._find_matching_fn_abi('increment', [])
-    call_data = function_abi_to_4byte_selector(increment_abi)
+    call_data = encode_hex(function_abi_to_4byte_selector(increment_abi))
     gas_estimate = web3.eth.estimateGas({
         'to': math_contract.address,
         'from': web3.eth.coinbase,

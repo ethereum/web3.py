@@ -2,12 +2,13 @@
 
 import pytest
 
-from web3.utils.transactions import (
-    wait_for_transaction_receipt,
-)
-from web3.utils.string import (
+from eth_utils import (
     force_text,
     force_bytes,
+)
+
+from web3.utils.transactions import (
+    wait_for_transaction_receipt,
 )
 
 

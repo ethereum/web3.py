@@ -4,12 +4,10 @@ from testrpc.client.utils import (
     mk_random_privkey,
 )
 
-from web3.utils.string import (
+from eth_utils import (
     force_bytes,
-)
-from web3.utils.address import (
-    to_address,
     is_same_address,
+    to_normalized_address,
 )
 
 
@@ -26,7 +24,7 @@ def account_private_key():
 @pytest.fixture()
 def account_public_key(account_private_key):
     from ethereum.utils import privtoaddr
-    return to_address(privtoaddr(account_private_key))
+    return to_normalized_address(privtoaddr(account_private_key))
 
 
 @pytest.fixture()

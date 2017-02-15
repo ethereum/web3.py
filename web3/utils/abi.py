@@ -1,30 +1,21 @@
 import itertools
 import re
 
-from eth_abi.abi import (
-    process_type,
-)
-
-from .crypto import sha3
-from .string import (
+from eth_utils import (
     coerce_args_to_bytes,
     coerce_args_to_text,
     coerce_return_to_text,
-)
-from .functional import (
-    cast_return_to_tuple,
-)
-from .formatting import (
+    to_tuple,
     add_0x_prefix,
-)
-from .types import (
-    is_array,
+    is_list_like,
     is_string,
     is_integer,
     is_boolean,
-)
-from .address import (
     is_address,
+)
+
+from eth_abi.abi import (
+    process_type,
 )
 
 
@@ -82,7 +73,7 @@ def is_encodable(_type, value):
         base, sub, arrlist = process_type(_type)
 
     if arrlist:
-        if not is_array(value):
+        if not is_list_like(value):
             return False
         if arrlist[-1] and len(value) != arrlist[-1][0]:
             return False
@@ -268,7 +259,7 @@ def is_probably_enum(abi_type):
     return bool(re.match(ENUM_REGEX, abi_type))
 
 
-@cast_return_to_tuple
+@to_tuple
 def normalize_event_input_types(abi_args):
     for arg in abi_args:
         if is_recognized_type(arg['type']):
@@ -287,24 +278,6 @@ def abi_to_signature(abi):
         ]),
     )
     return function_signature
-
-
-def function_signature_to_4byte_selector(event_signature):
-    return add_0x_prefix(sha3(event_signature)[:8])
-
-
-def function_abi_to_4byte_selector(function_abi):
-    function_signature = abi_to_signature(function_abi)
-    return function_signature_to_4byte_selector(function_signature)
-
-
-def event_signature_to_log_topic(event_signature):
-    return add_0x_prefix(sha3(event_signature))
-
-
-def event_abi_to_log_topic(event_abi):
-    event_signature = abi_to_signature(event_abi)
-    return event_signature_to_log_topic(event_signature)
 
 
 @coerce_return_to_text

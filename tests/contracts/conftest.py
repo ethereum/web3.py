@@ -2,7 +2,8 @@ import pytest
 import json
 import textwrap
 
-from web3.utils.abi import (
+from eth_utils import (
+    encode_hex,
     event_signature_to_log_topic,
 )
 
@@ -430,21 +431,21 @@ def emitter_event_ids():
 
 
 class LogTopics(object):
-    LogAnonymous = event_signature_to_log_topic("LogAnonymous()")
-    LogNoArguments = event_signature_to_log_topic("LogNoArguments()")
-    LogSingleArg = event_signature_to_log_topic("LogSingleArg(uint256)")
-    LogSingleAnonymous = event_signature_to_log_topic("LogSingleAnonymous(uint256)")
-    LogSingleWithIndex = event_signature_to_log_topic("LogSingleWithIndex(uint256)")
-    LogDoubleArg = event_signature_to_log_topic("LogDoubleArg(uint256,uint256)")
-    LogDoubleAnonymous = event_signature_to_log_topic("LogDoubleAnonymous(uint256,uint256)")
-    LogDoubleWithIndex = event_signature_to_log_topic("LogDoubleWithIndex(uint256,uint256)")
-    LogTripleArg = event_signature_to_log_topic("LogTripleArg(uint256,uint256,uint256)")
-    LogTripleWithIndex = event_signature_to_log_topic("LogTripleWithIndex(uint256,uint256,uint256)")
-    LogQuadrupleArg = event_signature_to_log_topic("LogQuadrupleArg(uint256,uint256,uint256,uint256)")
-    LogQuadrupleWithIndex = event_signature_to_log_topic("LogQuadrupleWithIndex(uint256,uint256,uint256,uint256)")
-    LogBytes = event_signature_to_log_topic("LogBytes(bytes)")
-    LogString = event_signature_to_log_topic("LogString(string)")
-    LogDynamicArgs = event_signature_to_log_topic("LogDynamicArgs(string,string)")
+    LogAnonymous = encode_hex(event_signature_to_log_topic("LogAnonymous()"))
+    LogNoArguments = encode_hex(event_signature_to_log_topic("LogNoArguments()"))
+    LogSingleArg = encode_hex(event_signature_to_log_topic("LogSingleArg(uint256)"))
+    LogSingleAnonymous = encode_hex(event_signature_to_log_topic("LogSingleAnonymous(uint256)"))
+    LogSingleWithIndex = encode_hex(event_signature_to_log_topic("LogSingleWithIndex(uint256)"))
+    LogDoubleArg = encode_hex(event_signature_to_log_topic("LogDoubleArg(uint256,uint256)"))
+    LogDoubleAnonymous = encode_hex(event_signature_to_log_topic("LogDoubleAnonymous(uint256,uint256)"))
+    LogDoubleWithIndex = encode_hex(event_signature_to_log_topic("LogDoubleWithIndex(uint256,uint256)"))
+    LogTripleArg = encode_hex(event_signature_to_log_topic("LogTripleArg(uint256,uint256,uint256)"))
+    LogTripleWithIndex = encode_hex(event_signature_to_log_topic("LogTripleWithIndex(uint256,uint256,uint256)"))
+    LogQuadrupleArg = encode_hex(event_signature_to_log_topic("LogQuadrupleArg(uint256,uint256,uint256,uint256)"))
+    LogQuadrupleWithIndex = encode_hex(event_signature_to_log_topic("LogQuadrupleWithIndex(uint256,uint256,uint256,uint256)"))
+    LogBytes = encode_hex(event_signature_to_log_topic("LogBytes(bytes)"))
+    LogString = encode_hex(event_signature_to_log_topic("LogString(string)"))
+    LogDynamicArgs = encode_hex(event_signature_to_log_topic("LogDynamicArgs(string,string)"))
 
 
 @pytest.fixture()

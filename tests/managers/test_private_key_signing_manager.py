@@ -1,11 +1,14 @@
 import pytest
 
+from eth_utils import (
+    denoms,
+    to_normalized_address,
+    decode_hex,
+)
+
 from web3.providers.manager import (
     PrivateKeySigningManager,
 )
-from web3.utils.address import to_address
-from web3.utils.currency import denoms
-from web3.utils.encoding import decode_hex
 
 from testrpc.client.utils import (
     mk_random_privkey,
@@ -21,7 +24,7 @@ def account_private_key():
 @pytest.fixture()
 def account_public_key(account_private_key):
     from ethereum.utils import privtoaddr
-    return to_address(encode_address(privtoaddr(account_private_key)))
+    return to_normalized_address(encode_address(privtoaddr(account_private_key)))
 
 
 @pytest.fixture()

@@ -10,13 +10,14 @@ try:
 except ImportError:
     JSONDecodeError = ValueError
 
+from eth_utils import (
+    force_text,
+)
+
 from web3.utils.compat import (
     Timeout,
     threading,
     socket,
-)
-from web3.utils.string import (
-    force_text,
 )
 
 from .base import JSONBaseProvider

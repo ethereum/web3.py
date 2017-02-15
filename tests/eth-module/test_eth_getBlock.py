@@ -1,6 +1,6 @@
 import pytest
 
-from web3.utils.encoding import is_string
+from eth_utils import is_string
 
 
 @pytest.fixture(autouse=True)

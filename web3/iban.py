@@ -1,21 +1,18 @@
 from __future__ import unicode_literals
+
 import re
 import functools
 
-from web3.utils.types import (
+from eth_utils import (
     is_string,
-)
-from web3.utils.string import (
     coerce_args_to_text,
-)
-from web3.utils.formatting import (
     pad_left,
     add_0x_prefix,
 )
 
 
 def pad_left_hex(value, num_bytes):
-    return pad_left(value, num_bytes * 2)
+    return pad_left(value, num_bytes * 2, '0')
 
 
 def iso13616Prepare(iban):
@@ -115,9 +112,9 @@ class Iban(object):
         @param {String} address
         @return {Iban} the IBAN object
         """
-        asInt = int(address, 16)
-        base36 = baseN(asInt, 36)
-        padded = pad_left_hex(base36, 15)
+        address_as_integer = int(address, 16)
+        address_as_base36 = baseN(address_as_integer, 36)
+        padded = pad_left_hex(address_as_base36, 15)
         return Iban.fromBban(padded.upper())
 
     @staticmethod

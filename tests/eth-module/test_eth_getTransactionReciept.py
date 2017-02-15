@@ -1,7 +1,5 @@
 import pytest
 
-from web3.utils.string import force_bytes
-
 
 @pytest.fixture(autouse=True)
 def wait_for_first_block(web3, wait_for_block):

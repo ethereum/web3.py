@@ -4,26 +4,20 @@ import rlp
 from rlp.sedes import big_endian_int, binary, Binary
 from rlp.utils import int_to_big_endian
 
-from .encoding import (
-    to_decimal,
+from eth_utils import (
     decode_hex,
-    decode_big_endian_int,
-)
-from .string import (
     force_bytes,
     coerce_args_to_bytes,
-)
-from .types import (
     is_string,
-)
-from .crypto import (
-    sha3,
-)
-from .address import (
-    to_address,
-)
-from .formatting import (
+    to_canonical_address,
+    to_normalized_address,
     pad_left,
+    keccak,
+)
+
+from .encoding import (
+    to_decimal,
+    decode_big_endian_int,
 )
 from .compat import (
     Timeout,
@@ -128,7 +122,7 @@ class Transaction(rlp.Serializable):
     def __init__(self, nonce, gasprice, startgas, to, value, data, v=0, r=0, s=0):
         self.data = None
 
-        to = decode_hex(to_address(to))
+        to = to_canonical_address(to)
         assert len(to) == 20 or len(to) == 0
         super(Transaction, self).__init__(nonce, gasprice, startgas, to, value, data, v, r, s)
 
@@ -160,7 +154,7 @@ class Transaction(rlp.Serializable):
                 if has_invalid_signature_values:
                     raise ValueError("Invalid signature values!")
                 rlpdata = rlp.encode(self, UnsignedTransaction)
-                rawhash = decode_hex(sha3(rlpdata))
+                rawhash = keccak(rlpdata)
 
                 pk = PublicKey(flags=ALL_FLAGS)
                 try:
@@ -187,7 +181,7 @@ class Transaction(rlp.Serializable):
                 if pub[1:] == b"\x00" * (len(pub) - 1):
                     raise ValueError("Invalid signature (zero privkey cannot sign)")
 
-                self._sender = to_address(sha3(pub[1:])[-40:])
+                self._sender = to_normalized_address(keccak(pub[1:])[-20:])
                 assert self.sender == self._sender
             else:
                 self._sender = 0
@@ -214,7 +208,7 @@ class Transaction(rlp.Serializable):
         if key in (0, b'', b'\x00' * 32, b'0' * 64):
             raise ValueError("Zero privkey cannot sign")
 
-        rawhash = decode_hex(sha3(rlp.encode(self, UnsignedTransaction)))
+        rawhash = keccak(rlp.encode(self, UnsignedTransaction))
 
         if len(key) in {64, 66}:
             # we need a binary key
@@ -229,7 +223,7 @@ class Transaction(rlp.Serializable):
         self.r = decode_big_endian_int(signature[0:32])
         self.s = decode_big_endian_int(signature[32:64])
 
-        self.sender = to_address(sha3(privtopub(key)[1:])[-40:])
+        self.sender = to_normalized_address(keccak(privtopub(key)[1:])[-20:])
         return self
 
 
