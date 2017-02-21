@@ -49,7 +49,7 @@ uses `web3.py`.
 
 ### Setting defaults
 ```python
-web3.eth.defaultAccount = <your (unlocked) account>
+web3.eth.defaultAccount = <default from address>
 web3.eth.defaultBlock = "latest"
 # Can also be an integer or one of "latest", "pending", "earliest"
 ```

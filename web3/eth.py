@@ -16,6 +16,9 @@ from web3.contract import (
 from web3.utils.blocks import (
     is_predefined_block_number,
 )
+from web3.utils.empty import (
+    empty,
+)
 from web3.utils.encoding import (
     to_decimal,
 )
@@ -38,20 +41,7 @@ class Eth(object):
         self.iban = Iban
         # self.sendIBANTransaction = lambda: raise NotImplementedError()
 
-    _defaultAccount = None
-
-    @property
-    @coerce_return_to_text
-    def defaultAccount(self):
-        if self._defaultAccount is not None:
-            return self._defaultAccount
-        # TODO: deprecate defaulting to the coinbase for the from address.
-        return self.coinbase
-
-    @defaultAccount.setter
-    def defaultAccount(self, value):
-        self._defaultAccount = value
-
+    defaultAccount = empty
     defaultBlock = "latest"
 
     def namereg(self):

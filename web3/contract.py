@@ -402,7 +402,8 @@ class Contract(object):
 
         if self.address:
             estimate_transaction.setdefault('to', self.address)
-        estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
+        if self.web3.eth.defaultAccount is not empty:
+            estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
         if 'to' not in estimate_transaction:
             if isinstance(self, type):
@@ -466,7 +467,8 @@ class Contract(object):
 
         if self.address:
             call_transaction.setdefault('to', self.address)
-        call_transaction.setdefault('from', self.web3.eth.defaultAccount)
+        if self.web3.eth.defaultAccount is not empty:
+            call_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
         if 'to' not in call_transaction:
             if isinstance(self, type):
@@ -544,7 +546,8 @@ class Contract(object):
 
         if self.address is not None:
             transact_transaction.setdefault('to', self.address)
-        transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
+        if self.web3.eth.defaultAccount is not empty:
+            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
         if 'to' not in transact_transaction:
             if isinstance(self, type):

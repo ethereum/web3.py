@@ -7,6 +7,9 @@ from eth_utils import (
     force_bytes,
 )
 
+from web3.utils.empty import (
+    empty,
+)
 from web3.utils.transactions import (
     wait_for_transaction_receipt,
 )
@@ -64,11 +67,11 @@ def test_transacting_with_contract_with_arguments(web3,
     assert final_value - initial_value == 5
 
 
-def test_deploy_when_default_account_is_different_than_coinbase(web3,
-                                                                wait_for_transaction,
-                                                                STRING_CONTRACT):
+def test_deploy_when_default_account_is_set(web3,
+                                            wait_for_transaction,
+                                            STRING_CONTRACT):
     web3.eth.defaultAccount = web3.eth.accounts[1]
-    assert web3.eth.defaultAccount != web3.eth.coinbase
+    assert web3.eth.defaultAccount is not empty
 
     StringContract = web3.eth.contract(**STRING_CONTRACT)
 
@@ -78,11 +81,11 @@ def test_deploy_when_default_account_is_different_than_coinbase(web3,
     assert txn_after['from'] == web3.eth.defaultAccount
 
 
-def test_transact_when_default_account_is_different_than_coinbase(web3,
-                                                                  wait_for_transaction,
-                                                                  math_contract):
+def test_transact_when_default_account_is_set(web3,
+                                              wait_for_transaction,
+                                              math_contract):
     web3.eth.defaultAccount = web3.eth.accounts[1]
-    assert web3.eth.defaultAccount != web3.eth.coinbase
+    assert web3.eth.defaultAccount is not empty
 
     txn_hash = math_contract.transact().increment()
     wait_for_transaction(web3, txn_hash)
