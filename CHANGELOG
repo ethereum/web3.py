@@ -1,3 +1,8 @@
+3.7.0  (unreleased)
+-----
+
+* deprecate `eth.defaultAccount` defaulting to the coinbase account.
+
 3.6.2
 -----
 

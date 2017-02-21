@@ -19,7 +19,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.defaultAccount
 
     The ethereum address that will be used as the default ``from`` address for
-    all transactions.  This defaults to ``web3.eth.coinbase``.
+    all transactions.
 
 
 .. py:attribute:: Eth.defaultBlock
