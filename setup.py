@@ -24,7 +24,7 @@ setup(
     url='https://github.com/pipermerriam/web3.py',
     include_package_data=True,
     install_requires=[
-        "ethereum-abi-utils>=0.3.1",
+        "ethereum-abi-utils>=0.4.0",
         "ethereum-utils>=0.2.0",
         "pylru>=1.0.9",
         "pysha3>=0.3",
