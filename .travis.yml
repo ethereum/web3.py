@@ -3,10 +3,6 @@ language: python
 python:
   - "3.5"
 dist: trusty
-sudo: required
-before_install:
-  - travis_retry sudo add-apt-repository -y ppa:ethereum/ethereum
-  - travis_retry sudo apt-get update
 env:
   matrix:
     - TOX_ENV=py27-stdlib

@@ -25,13 +25,19 @@ from .base import JSONBaseProvider
 
 @contextlib.contextmanager
 def get_ipc_socket(ipc_path, timeout=0.1):
-    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    sock.connect(ipc_path)
-    sock.settimeout(timeout)
+    if sys.platform == 'win32':
+        # On Windows named pipe is used. Simulate socket with it.
+        from web3.utils.windows import NamedPipe
 
-    yield sock
-
-    sock.close()
+        pipe = NamedPipe(ipc_path)
+        with contextlib.closing(pipe):
+            yield pipe
+    else:
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        sock.connect(ipc_path)
+        sock.settimeout(timeout)
+        with contextlib.closing(sock):
+            yield sock
 
 
 def get_default_ipc_path(testnet=False):
@@ -56,12 +62,7 @@ def get_default_ipc_path(testnet=False):
             "geth.ipc",
         ))
     elif sys.platform == 'win32':
-        return os.path.expanduser(os.path.join(
-            "~",
-            "AppData",
-            "Roaming",
-            "Ethereum",
-        ))
+        return "\\\\.\\pipe\\geth.ipc"
     else:
         raise ValueError(
             "Unsupported platform '{0}'.  Only darwin/linux2/win32 are "
