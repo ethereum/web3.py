@@ -25,14 +25,32 @@ from .base import JSONBaseProvider
 
 @contextlib.contextmanager
 def get_ipc_socket(ipc_path, timeout=0.1):
-    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    sock.connect(ipc_path)
-    sock.settimeout(timeout)
-
-    yield sock
-
-    sock.close()
-
+    # is_linux = sys.platform.startswith('linux')
+    # is_darwin = sys.platform == 'darwin'
+    is_win32 = sys.platform == 'win32'
+    if is_win32:
+        import win32file
+        sock = win32file.CreateFile(ipc_path,
+                                    win32file.win32file.GENERIC_READ | win32file.GENERIC_WRITE,
+                                    0, None,
+                                    win32file.OPEN_EXISTING, 0, None)
+        def recv(self, max_length):
+            data = win32file.ReadFile(self, max_length)
+            if data[0] == 0:
+                return data[1]
+            return ""
+        sock.recv = recv
+        def sendall(data):
+            return win32file.WriteFile(self, data)
+        sock.sendall = sendall
+        yield sock
+        sock
+    else:
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        sock.connect(ipc_path)
+        sock.settimeout(timeout)
+        yield sock
+        sock.close()
 
 def get_default_ipc_path(testnet=False):
     if testnet:
@@ -56,12 +74,7 @@ def get_default_ipc_path(testnet=False):
             "geth.ipc",
         ))
     elif sys.platform == 'win32':
-        return os.path.expanduser(os.path.join(
-            "~",
-            "AppData",
-            "Roaming",
-            "Ethereum",
-        ))
+        return "\\\\.\\pipe\\geth.ipc",
     else:
         raise ValueError(
             "Unsupported platform '{0}'.  Only darwin/linux2/win32 are "
