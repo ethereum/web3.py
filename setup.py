@@ -13,6 +13,17 @@ DIR = os.path.dirname(os.path.abspath(__file__))
 
 readme = open(os.path.join(DIR, 'README.md')).read()
 
+install_requires=[
+    "ethereum-abi-utils>=0.4.0",
+    "ethereum-utils>=0.2.0",
+    "pylru>=1.0.9",
+    "pysha3>=0.3",
+    "requests>=2.12.4",
+    "rlp>=0.4.6,<0.4.7",
+],
+import sys
+if sys.platform == 'win32':
+    install_requires.append('pypiwin32')
 
 setup(
     name='web3',
@@ -23,14 +34,7 @@ setup(
     author_email='pipermerriam@gmail.com',
     url='https://github.com/pipermerriam/web3.py',
     include_package_data=True,
-    install_requires=[
-        "ethereum-abi-utils>=0.4.0",
-        "ethereum-utils>=0.2.0",
-        "pylru>=1.0.9",
-        "pysha3>=0.3",
-        "requests>=2.12.4",
-        "rlp>=0.4.6,<0.4.7",
-    ],
+    install_requires=install_requires,
     extras_require={
         'Tester': ["eth-testrpc>=1.1.0"],
         'tester': ["eth-testrpc>=1.1.0"],
