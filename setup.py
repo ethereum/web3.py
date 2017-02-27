@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+import sys
 
 from setuptools import (
     setup,
@@ -20,8 +21,8 @@ install_requires=[
     "pysha3>=0.3",
     "requests>=2.12.4",
     "rlp>=0.4.6,<0.4.7",
-],
-import sys
+]
+
 if sys.platform == 'win32':
     install_requires.append('pypiwin32')
 
