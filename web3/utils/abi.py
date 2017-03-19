@@ -112,6 +112,12 @@ def is_encodable(_type, value):
         if not is_address(value):
             return False
         return True
+    elif base == 'function':
+        if not is_string(value):
+            return False
+        if not len(value) == 24:
+            return False
+        return True
     else:
         raise ValueError("Unsupported type")
 
