@@ -1,7 +1,10 @@
-3.7.2
+3.8.0
 -----
 
-* support for windows named pipes.
+* Update pyrlp dependency to `>=0.4.7`
+* Update eth-testrpc dependency to `>=1.2.0`
+* Deprecate `DelegatedSigningManager`
+* Deprecate `PrivateKeySigningManager`
 
 3.7.1
 -----
