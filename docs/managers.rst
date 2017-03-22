@@ -21,6 +21,7 @@ RequestManager
 Delegated Signing Manager
 -------------------------
 
+.. warning:: The ``DelegatedSigningManager`` has been deprecated and will be removed in subsequent releases.
 
 .. py:class:: DelegatedSigningManager(wrapped_manager, signing_manager)
 
@@ -67,6 +68,8 @@ transaction to the network using the ``eth_sendRawTransaction`` method.
 
 Private Key Signing Manager
 ---------------------------
+
+.. warning:: The ``PrivateKeySigningManager`` has been deprecated and will be removed in subsequent releases.
 
 .. py:class:: PrivateKeySigningManager(wrapped_manager, keys={})
 
