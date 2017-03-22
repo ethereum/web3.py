@@ -20,7 +20,7 @@ install_requires=[
     "pylru>=1.0.9",
     "pysha3>=0.3",
     "requests>=2.12.4",
-    "rlp>=0.4.6,<0.4.7",
+    "rlp>=0.4.6",
 ]
 
 if sys.platform == 'win32':
