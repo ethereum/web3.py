@@ -1,17 +1,18 @@
-import uuid
-import json
 import collections
+import json
+import uuid
+import warnings
 
 import rlp
 
 from eth_utils import (
-    force_text,
-    to_normalized_address,
-    is_string,
-    is_dict,
-    encode_hex,
     decode_hex,
+    encode_hex,
+    force_text,
+    is_dict,
+    is_string,
     keccak,
+    to_normalized_address,
 )
 
 from web3.utils.encoding import (
@@ -82,6 +83,10 @@ class RequestManager(object):
 
 class ManagerWrapper(object):
     def __init__(self, wrapped_manager):
+        warnings.warn(DeprecationWarning(
+            "ManagerWrapper has been deprecated and will be removed from"
+            "web3.py in subsequen releases."
+        ))
         self.wrapped_manager = wrapped_manager
 
     @property
@@ -223,6 +228,10 @@ class BaseSendRawTransactionMixin(ManagerWrapper):
 
 class DelegatedSigningManager(BaseSendRawTransactionMixin):
     def __init__(self, *args, **kwargs):
+        warnings.warn(DeprecationWarning(
+            "DelegatedSigningManager has been deprecated and will be removed from"
+            "web3.py in subsequen releases."
+        ))
         self.signing_manager = kwargs.pop('signing_manager')
         super(DelegatedSigningManager, self).__init__(*args, **kwargs)
 
@@ -255,6 +264,10 @@ class DelegatedSigningManager(BaseSendRawTransactionMixin):
 
 class PrivateKeySigningManager(BaseSendRawTransactionMixin):
     def __init__(self, *args, **kwargs):
+        warnings.warn(DeprecationWarning(
+            "PrivateKeySigningManager has been deprecated and will be removed from"
+            "web3.py in subsequen releases."
+        ))
         if not is_bitcoin_available():
             raise ImportError(
                 "In order to use the `PrivateKeySigningManager` the "
