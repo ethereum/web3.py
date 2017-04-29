@@ -4,6 +4,8 @@ from secp256k1 import PrivateKey, PublicKey, ALL_FLAGS
 
 from bitcoin import encode_pubkey
 
+import hashlib
+
 from ethereum.utils import privtoaddr
 
 from eth_utils import (
@@ -38,6 +40,8 @@ def extract_ecdsa_signer(msg_hash, signature):
     rec_id = signature_bytes[64]
     if is_string(rec_id):
         rec_id = ord(rec_id)
+    if (27 <= rec_id and rec_id <= 28):
+        rec_id -= 27
     pk.public_key = pk.ecdsa_recover(
         msg_hash_bytes,
         pk.ecdsa_recoverable_deserialize(
@@ -49,6 +53,8 @@ def extract_ecdsa_signer(msg_hash, signature):
     address = add_0x_prefix(sha3(encode_pubkey(pk_serialized, 'bin')[1:])[-40:])
     return address
 
+def eth_message_prefix_hash(web3, msg):
+    return web3.sha3('\x19Ethereum Signed Message:\n' + str(len(msg)) + msg, encoding="utf8")
 
 def test_eth_sign(web3, skip_if_testrpc):
     skip_if_testrpc(web3)
@@ -58,7 +64,7 @@ def test_eth_sign(web3, skip_if_testrpc):
 
     # This imports the private key into the running geth instance and unlocks
     # the account so that it can sign things.
-    # `0xa5df35f30ba0ce878b1061ae086289adff3ba1e0`
+    # address = '0xa5df35f30ba0ce878b1061ae086289adff3ba1e0'
     address = web3.personal.importRawKey(private_key, "password")
     web3.personal.unlockAccount(address, "password")
 
@@ -77,7 +83,7 @@ def test_eth_sign(web3, skip_if_testrpc):
     priv_key.set_raw_privkey(private_key)
 
     # sanit check the extract_ecdsa_signer function works as expected.
-    vector_sig = priv_key.ecdsa_sign_recoverable(data_hash_bytes, raw=True, digest=sha3_256)
+    vector_sig = priv_key.ecdsa_sign_recoverable(data_hash_bytes, raw=True, digest=hashlib.sha3_256)
     vector_sig_bytes, rec_id = priv_key.ecdsa_recoverable_serialize(vector_sig)
     vector_sig_bytes_full = vector_sig_bytes + force_bytes(chr(rec_id))
     vector_address = force_text(extract_ecdsa_signer(data_hash_bytes, vector_sig_bytes_full))
@@ -88,7 +94,10 @@ def test_eth_sign(web3, skip_if_testrpc):
     signature_hex = web3.eth.sign(address, data)
     signature_bytes = decode_hex(signature_hex)
 
-    actual_signer = extract_ecdsa_signer(data_hash_bytes, signature_bytes)
+    # geth prefix message before signing
+    geth_prefix_data = eth_message_prefix_hash(web3, data.decode())
+
+    actual_signer = extract_ecdsa_signer(force_bytes(geth_prefix_data), signature_bytes)
 
     assert actual_signer == address
 
@@ -105,7 +114,7 @@ def test_eth_sign(web3, skip_if_testrpc):
     is_valid = priv_key.pubkey.ecdsa_verify(
         msg=data,
         raw_sig=signature,
-        digest=sha3_256,
+        digest=hashlib.sha3_256,
     )
 
     assert is_valid
