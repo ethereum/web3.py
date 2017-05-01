@@ -255,11 +255,8 @@ class Eth(object):
 
     @coerce_return_to_text
     def sign(self, account, data):
-        data_hash = self.web3._requestManager.request_blocking(
-            "web3_sha3", [encode_hex(data)],
-        )
         return self.web3._requestManager.request_blocking(
-            "eth_sign", [account, data_hash],
+            "eth_sign", [account, encode_hex(data)],
         )
 
     def call(self, transaction, block_identifier=None):
