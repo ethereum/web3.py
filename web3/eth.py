@@ -2,9 +2,17 @@ from eth_utils import (
     is_address,
     is_integer,
     is_string,
+    add_0x_prefix,
     encode_hex,
+    decode_hex,
     coerce_return_to_text,
+    force_bytes,
+    keccak,
 )
+
+from secp256k1 import PrivateKey, PublicKey, ALL_FLAGS
+from bitcoin import encode_pubkey
+
 
 from web3 import formatters
 from web3.iban import Iban
@@ -259,6 +267,14 @@ class Eth(object):
             "eth_sign", [account, encode_hex(data)],
         )
 
+    def verify(self, account, data, signature):
+        eth_data_hash = self.getEthSignHash(data)
+        signer = self._extract_ecdsa_signer(force_bytes(eth_data_hash), force_bytes(signature))
+        return signer == account
+
+    def getEthSignHash(self, msg):
+        return self.web3.sha3('\x19Ethereum Signed Message:\n' + str(len(msg)) + msg, encoding="utf8")
+
     def call(self, transaction, block_identifier=None):
         formatted_transaction = formatters.input_transaction_formatter(self, transaction)
         if block_identifier is None:
@@ -354,3 +370,26 @@ class Eth(object):
 
     def getCompilers(self):
         return self.web3._requestManager.request_blocking("eth_getCompilers", [])
+
+    def _extract_ecdsa_signer(self, msg_hash, signature):
+        msg_hash_bytes = decode_hex(msg_hash) if msg_hash.startswith(b'0x') else msg_hash
+        signature_bytes = decode_hex(signature) if signature.startswith(b'0x') else signature
+
+        pk = PublicKey(flags=ALL_FLAGS)
+
+        rec_id = signature_bytes[64]
+        if is_string(rec_id):
+            rec_id = ord(rec_id)
+        if (27 <= rec_id and rec_id <= 28):
+            rec_id -= 27
+
+        pk.public_key = pk.ecdsa_recover(
+            msg_hash_bytes,
+            pk.ecdsa_recoverable_deserialize(
+                signature_bytes[:64], rec_id,
+            ),
+            raw=True,
+        )
+        pk_serialized = pk.serialize(compressed=False)
+        address = add_0x_prefix(encode_hex(keccak((encode_pubkey(pk_serialized, 'bin')[1:])[-40:])))
+        return address
