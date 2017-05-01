@@ -1,3 +1,10 @@
+3.8.1
+-----
+
+* Bugfix for `eth_sign` double hashing input.
+* Removed deprecated `DelegatedSigningManager`
+* Removed deprecate `PrivateKeySigningManager`
+
 3.8.0
 -----
 

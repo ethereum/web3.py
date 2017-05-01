@@ -40,8 +40,6 @@ from web3.providers.ipc import (
 )
 from web3.providers.manager import (
     RequestManager,
-    DelegatedSigningManager,
-    PrivateKeySigningManager,
 )
 
 from web3.utils.encoding import (
@@ -62,8 +60,6 @@ class Web3(object):
 
     # Managers
     RequestManager = RequestManager
-    DelegatedSigningManager = DelegatedSigningManager
-    PrivateKeySigningManager = PrivateKeySigningManager
 
     # Iban
     Iban = Iban
