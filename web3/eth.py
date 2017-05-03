@@ -268,12 +268,13 @@ class Eth(object):
         )
 
     def verify(self, account, data, signature):
-        eth_data_hash = self.getEthSignHash(data)
-        signer = self._extract_ecdsa_signer(force_bytes(eth_data_hash), force_bytes(signature))
+        eth_data = self.addEthMessagePrefix(data)
+        eth_data_hash = self.web3.sha3(eth_data, encoding="utf8")
+        signer = self._extractEcdsaSigner(eth_data_hash, signature)
         return signer == account
 
-    def getEthSignHash(self, msg):
-        return self.web3.sha3('\x19Ethereum Signed Message:\n' + str(len(msg)) + msg, encoding="utf8")
+    def addEthMessagePrefix(self, msg):
+        return '\x19Ethereum Signed Message:\n' + str(len(msg)) + msg
 
     def call(self, transaction, block_identifier=None):
         formatted_transaction = formatters.input_transaction_formatter(self, transaction)
@@ -371,9 +372,9 @@ class Eth(object):
     def getCompilers(self):
         return self.web3._requestManager.request_blocking("eth_getCompilers", [])
 
-    def _extract_ecdsa_signer(self, msg_hash, signature):
-        msg_hash_bytes = decode_hex(msg_hash) if msg_hash.startswith(b'0x') else msg_hash
-        signature_bytes = decode_hex(signature) if signature.startswith(b'0x') else signature
+    def _extractEcdsaSigner(self, msg_hash, signature):
+        msg_hash_bytes = decode_hex(msg_hash)
+        signature_bytes = decode_hex(signature)
 
         pk = PublicKey(flags=ALL_FLAGS)
 
