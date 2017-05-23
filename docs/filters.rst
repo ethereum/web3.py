@@ -86,7 +86,7 @@ Block and Transaction Filters
         ...     sys.stdout.write("New Block: {0}".format(block_hash))
         ...
         >>> new_block_filter = web3.eth.filter('latest')
-        >>> new_block_filter.watch(new_block_filter)
+        >>> new_block_filter.watch(new_block_callback)
         # each time the client receieves a new block the `new_block_callback`
         # function will be called with the block hash.
 
