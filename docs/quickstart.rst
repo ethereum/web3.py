@@ -46,8 +46,8 @@ The common entrypoint for interacting with the Web3 library is the ``Web3``
 class.  You will need to instantiate a web3 instance.
 
 Web3 takes a connection to existing Ethereum node (*Geth* or *Parity*).
-This connection can be either over JSON-RPC using HTTP (TCP/IP)
- or UNIX sockets (IPC).
+This connection can be either over JSON-RPC using HTTP (TCP/IP) or UNIX
+sockets (IPC).
 
 .. code-block:: python
 
