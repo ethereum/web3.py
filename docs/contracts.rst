@@ -26,7 +26,7 @@ Each Contract Factory exposes the following properties.
 
 .. py:attribute:: Contract.address
 
-    The hexidecimal encoded 20 byte address of the contract.  May be ``None``
+    The hexadecimal encoded 20-byte address of the contract.  May be ``None``
     if not provided during factory creation.
 
 
