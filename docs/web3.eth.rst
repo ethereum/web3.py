@@ -359,7 +359,7 @@ The following methods are available on the ``web3.eth`` namespace.
       transaction
     * ``data``: ``bytes or text`` - The compiled code of a contract OR the hash
       of the invoked method signature and encoded parameters. For details see
-      Ethereum Contract ABI
+      `Ethereum Contract ABI <https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI>`_.
     * ``nonce``: ``integer`` - (optional) Integer of a nonce. This allows to
       overwrite your own pending transactions that use the same nonce.
 
