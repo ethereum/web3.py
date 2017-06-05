@@ -113,7 +113,7 @@ Event Log Filters
 
 .. py:class:: LogFilter(web3, filter_id, log_entry_formatter=None, data_filter_set=None)
 
-The :py:class::`LogFilter` class is used for all filters pertaining to even
+The :py:class::`LogFilter` class is used for all filters pertaining to event
 logs.  It exposes the following additional methods.
 
 
