@@ -17,7 +17,7 @@ part of the development process.
 
 In general, pull requests are welcome.  Please try to adhere to the following.
 
-- code should conform to PEP8 and as well as the linting done by flake8
+- code should conform to PEP8 and as well as the linting done by `flake8 web3/ tests/`
 - include tests.
 - include any relevant documentation updates.
 
