@@ -24,5 +24,5 @@ cd web3.py
 virtualenv venv
 . venv/bin/activate
 pip install -r requirements-dev.txt
-python setup.py install
+pip install -e .
 ```
