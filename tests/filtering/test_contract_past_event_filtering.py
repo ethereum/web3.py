@@ -16,7 +16,6 @@ def test_past_events_filter_with_callback(web3,
                                           wait_for_transaction,
                                           emitter_log_topics,
                                           emitter_event_ids,
-                                          LogTopics,
                                           call_as_instance):
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
@@ -53,7 +52,6 @@ def test_past_events_filter_using_get_api(web3,
                                           wait_for_transaction,
                                           emitter_log_topics,
                                           emitter_event_ids,
-                                          LogTopics,
                                           call_as_instance):
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
