@@ -26,7 +26,7 @@ Each Contract Factory exposes the following properties.
 
 .. py:attribute:: Contract.address
 
-    The hexidecimal encoded 20 byte address of the contract.  May be ``None``
+    The hexadecimal encoded 20-byte address of the contract.  May be ``None``
     if not provided during factory creation.
 
 
@@ -153,7 +153,7 @@ Events
     If provided,  ``filter_params`` should be a dictionary specifying
     additional filters for log entries.  The following keys are supported.
 
-    * ``filters``: ``dictionary`` - (optional) Dictionary keys should be
+    * ``filter``: ``dictionary`` - (optional) Dictionary keys should be
       argument names for the Event arguments.  Dictionary values should be the
       value you want to filter on, or a list of values to be filtered on.
       Lists of values will match log entries who's argument matches any value
@@ -200,7 +200,7 @@ Events
 
     .. code-block:: python
 
-        >>> transfer_filter = my_token_contract.on('Transfer', {'filters': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
+        >>> transfer_filter = my_token_contract.on('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
         >>> transfer_filter.get()
         [...]  # array of Event Log Objects that match the filter.
         >>> transfer_filter.watch(my_callback)
@@ -218,6 +218,6 @@ Events
 
     .. code-block:: python
 
-        >>> transfer_filter = my_token_contract.pastEvents('Transfer', {'filters': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
+        >>> transfer_filter = my_token_contract.pastEvents('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
         >>> transfer_filter.get()
         [...]  # array of Event Log Objects that match the filter for all historical events.

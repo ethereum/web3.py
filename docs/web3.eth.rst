@@ -359,7 +359,7 @@ The following methods are available on the ``web3.eth`` namespace.
       transaction
     * ``data``: ``bytes or text`` - The compiled code of a contract OR the hash
       of the invoked method signature and encoded parameters. For details see
-      Ethereum Contract ABI
+      `Ethereum Contract ABI <https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI>`_.
     * ``nonce``: ``integer`` - (optional) Integer of a nonce. This allows to
       overwrite your own pending transactions that use the same nonce.
 
@@ -514,8 +514,8 @@ with the filtering API.
 
     .. code-block:: python
 
-        >>> filter = web3.eth.filter()
-        >>> web3.eth.getFilterChanges(filter.filter_id)
+        >>> filt = web3.eth.filter()
+        >>> web3.eth.getFilterChanges(filt.filter_id)
         [
             {
                 'address': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24',
@@ -541,8 +541,8 @@ with the filtering API.
 
     .. code-block:: python
 
-        >>> filter = web3.eth.filter()
-        >>> web3.eth.getFilterLogs(filter.filter_id)
+        >>> filt = web3.eth.filter()
+        >>> web3.eth.getFilterLogs(filt.filter_id)
         [
             {
                 'address': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24',
@@ -569,10 +569,10 @@ with the filtering API.
 
     .. code-block:: python
 
-        >>> filter = web3.eth.filter()
-        >>> web3.eth.uninstallFilter(filter.filter_id)
+        >>> filt = web3.eth.filter()
+        >>> web3.eth.uninstallFilter(filt.filter_id)
         True
-        >>> web3.eth.uninstallFilter(filter.filter_id)
+        >>> web3.eth.uninstallFilter(filt.filter_id)
         False  # already uninstalled.
 
 
