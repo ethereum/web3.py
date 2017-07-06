@@ -171,7 +171,6 @@ class Contract(object):
                 if not is_dict(e):
                     raise TypeError("The elements of 'abi' argument are not all dictionaries")
 
-
         if any((abi, code, code_runtime, source)):
             warnings.warn(DeprecationWarning(
                 "The arguments abi, code, code_runtime, and source have been "
