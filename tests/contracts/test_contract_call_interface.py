@@ -35,12 +35,22 @@ def address_contract(web3, WithConstructorAddressArgumentsContract):
     _address_contract = WithConstructorAddressArgumentsContract(address=deploy_receipt['contractAddress'])
     return _address_contract
 
+
 @pytest.fixture()
 def bytes_contract(web3, BytesContract):
     deploy_txn = BytesContract.deploy(args=['\x04\x06'])
     deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     _bytes_contract = BytesContract(address=deploy_receipt['contractAddress'])
+    return _bytes_contract
+
+
+@pytest.fixture()
+def bytes32_contract(web3, Bytes32Contract):
+    deploy_txn = Bytes32Contract.deploy(args=['\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06'])
+    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    _bytes_contract = Bytes32Contract(address=deploy_receipt['contractAddress'])
     return _bytes_contract
 
 
@@ -92,9 +102,16 @@ def test_call_read_bytes_variable(bytes_contract):
     assert result == "\x01\x23"
 
 
-def test_call_get_string_value(bytes_contract):
+def test_call_get_bytes_value(bytes_contract):
     result = bytes_contract.call().getValue()
-    # eth_abi.decode_api() does not assume implicit utf-8
-    # encoding of string return values. Thus, we need to decode
-    # ourselves for fair comparison.
     assert result == '\x04\x06'
+
+
+def test_call_read_bytes32_variable(bytes32_contract):
+    result = bytes32_contract.call().constValue()
+    assert result == "\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23"
+
+
+def test_call_get_bytes32_value(bytes32_contract):
+    result = bytes32_contract.call().getValue()
+    assert result == '\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06'
