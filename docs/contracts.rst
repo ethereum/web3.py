@@ -68,7 +68,7 @@ Each Contract Factory exposes the following methods.
     contain the keys ``data`` or ``to``.
 
     If the contract takes constructor arguments they should be provided as a
-    list via the ``arguments`` parameter.
+    list via the ``args`` parameter.
 
     If a ``gas`` value is not provided, then the ``gas`` value for the
     deployment transaction will be created using the ``web3.eth.estimateGas()``
