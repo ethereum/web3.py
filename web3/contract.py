@@ -748,7 +748,6 @@ class Contract(object):
         return deploy_data
 
 
-@coerce_return_to_text
 def call_contract_function(contract,
                            function_name,
                            transaction,
