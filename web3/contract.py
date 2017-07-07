@@ -16,6 +16,7 @@ from eth_utils import (
     coerce_return_to_text,
     force_obj_to_bytes,
     is_list_like,
+    is_dict,
 )
 
 from eth_abi import (
@@ -162,6 +163,13 @@ class Contract(object):
             if source:
                 raise TypeError("The 'source' argument was found twice")
             source = arg_4
+
+        if abi is not empty:
+            if not is_list_like(abi):
+                raise TypeError("The 'abi' argument is not a list")
+            for e in abi:
+                if not is_dict(e):
+                    raise TypeError("The elements of 'abi' argument are not all dictionaries")
 
         if any((abi, code, code_runtime, source)):
             warnings.warn(DeprecationWarning(

@@ -19,6 +19,9 @@ ABI = [
 
 ADDRESS = '0x0000000000000000000000000000000000000000'
 
+MALFORMED_ABI_1 = "NON-LIST ABI"
+MALFORMED_ABI_2 = [5, {"test": "value"}, True]
+
 
 class ContactClassForTest(Contract):
     web3 = True
@@ -47,6 +50,8 @@ class ContactClassForTest(Contract):
         ((ABI, ADDRESS), {'abi': ABI}, TypeError),
         ((ABI, ADDRESS), {'address': ADDRESS}, TypeError),
         ((ADDRESS,), {}, {'address': ADDRESS}),
+        ((), {'abi': MALFORMED_ABI_1, 'address': ADDRESS}, TypeError),
+        ((), {'abi': MALFORMED_ABI_2, 'address': ADDRESS}, TypeError),
     )
 )
 def test_process_legacy_constructor_signature(args, kwargs, expected):
