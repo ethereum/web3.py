@@ -354,3 +354,6 @@ class Eth(object):
 
     def getCompilers(self):
         return self.web3._requestManager.request_blocking("eth_getCompilers", [])
+
+    def getWork(self):
+        return self.web3._requestManager.request_blocking("eth_getWork", [])
