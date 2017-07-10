@@ -174,8 +174,8 @@ class Contract(object):
             ))
 
         if abi is not empty:
+            validate_abi(abi)
             self.abi = abi
-            self._validate_abi()
         if code is not empty:
             self.bytecode = code
         if code_runtime is not empty:
@@ -184,9 +184,8 @@ class Contract(object):
             self._source = source
 
         if address is not empty:
-            self.address = address
-            self._validate_address()
-            self._normalize_address()
+            validate_address(address)
+            self.address = to_normalized_address(address)
         else:
             warnings.warn(DeprecationWarning(
                 "The address argument is now required for contract class "
@@ -582,20 +581,6 @@ class Contract(object):
     #
     # Private Helpers
     #
-    def _validate_abi(self):
-        if not is_list_like(self.abi):
-            raise TypeError("The 'abi' argument is not a list")
-        for e in self.abi:
-            if not is_dict(e):
-                raise TypeError("The elements of 'abi' argument are not all dictionaries")
-
-    def _validate_address(self):
-        if not is_address(self.address):
-            raise TypeError("The 'address' argument is not an address")
-
-    def _normalize_address(self):
-        self.address = to_normalized_address(self.address)
-
     @classmethod
     def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
         filters = []
@@ -919,3 +904,22 @@ def construct_contract_factory(web3,
         'source': source,
     }
     return type(contract_name, (base_contract_factory_class,), _dict)
+
+
+def validate_abi(abi):
+    """
+    Helper function for validating an ABI
+    """
+    if not is_list_like(abi):
+        raise TypeError("'abi' is not a list")
+    for e in abi:
+        if not is_dict(e):
+            raise TypeError("The elements of 'abi' are not all dictionaries")
+
+
+def validate_address(address):
+    """
+    Helper function for validating an address
+    """
+    if not is_address(address):
+        raise TypeError("The 'address' argument is not an address")
