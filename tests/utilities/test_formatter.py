@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
-from web3 import formatters
+from web3 import formatters, transaction
 
 
 @pytest.mark.parametrize(
@@ -299,6 +299,7 @@ def test_outputPostFormatter(value, expected):
     "value,expected",
     [
         ({
+                "hash": '0x02f9c9b9cdc2092a9d6589d96662b1fd6949611163fb3910cf8a173cd060f177',
                 "input": '0x3454645634534',
                 "from": '0x00000',
                 "to": '0x00000',
@@ -310,6 +311,7 @@ def test_outputPostFormatter(value, expected):
                 "blockNumber": '0x3e8',
                 "blockHash": '0xc9b9cdc2092a9d6589d96662b1fd6949611163fb3910cf8a173cd060f17702f9'
             }, {
+                "hash": '0x02f9c9b9cdc2092a9d6589d96662b1fd6949611163fb3910cf8a173cd060f177',
                 "input": '0x3454645634534',
                 "from": '0x00000',
                 "to": '0x00000',
@@ -324,4 +326,5 @@ def test_outputPostFormatter(value, expected):
     ]
 )
 def test_output_transaction_formatter(value, expected):
-    assert formatters.output_transaction_formatter(value) == expected
+    assert formatters.output_transaction_formatter(value) == transaction.Transaction(expected)
+    assert formatters.output_transaction_formatter(value).todict() == expected
