@@ -12,6 +12,7 @@ class Transaction:
             self._unique_txid()
         except AttributeError as e:
             assert False, "Transaction must be uniquely defined. Failed because: %s" % e
+        self._locked = True
 
     def _unique_txid(self):
         'currently the hash works as a unique identifier, but someday maybe not'
@@ -39,7 +40,9 @@ class Transaction:
         return self.__dict__.iteritems()
 
     def __setattr__(self, key, val):
-        raise NotImplementedError(Transaction.IMMUTABILITY_WARNING)
+        if hasattr(self, '_locked'):
+            raise NotImplementedError(Transaction.IMMUTABILITY_WARNING)
+        super().__setattr__(key, val)
 
     def __delattr__(self, key):
         raise NotImplementedError(Transaction.IMMUTABILITY_WARNING)
