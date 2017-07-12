@@ -1,6 +1,6 @@
 
 
-class Transaction:
+class Transaction(object):
     IMMUTABILITY_WARNING = "Transactions are immutable, create a new one instead of modifying this"
 
     def __init__(self, values):
@@ -42,7 +42,7 @@ class Transaction:
     def __setattr__(self, key, val):
         if hasattr(self, '_locked'):
             raise NotImplementedError(Transaction.IMMUTABILITY_WARNING)
-        super().__setattr__(key, val)
+        super(type(self), self).__setattr__(key, val)
 
     def __delattr__(self, key):
         raise NotImplementedError(Transaction.IMMUTABILITY_WARNING)
