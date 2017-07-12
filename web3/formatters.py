@@ -22,6 +22,7 @@ from eth_utils import (
 )
 
 from web3.iban import Iban
+from web3.transaction import Transaction
 
 from web3.utils.empty import (
     empty,
@@ -140,10 +141,10 @@ def output_transaction_formatter(txn):
         'value': to_decimal,
     }
 
-    return {
+    return Transaction({
         key: formatters.get(key, noop)(value)
         for key, value in txn.items()
-    }
+    })
 
 
 @coerce_return_to_text
