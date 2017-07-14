@@ -1,9 +1,9 @@
 
 from collections import (
-        Mapping,
-        MutableMapping,
-        Hashable,
-        )
+    Mapping,
+    MutableMapping,
+    Hashable,
+)
 
 # Hashable must be immutable:
 # "the implementation of hashable collections requires that a key's hash value is immutable"
@@ -11,7 +11,9 @@ from collections import (
 
 
 class ReadableAttributeDict(Mapping):
-    'the read attributes for the AttributeDict types'
+    """
+    The read attributes for the AttributeDict types
+    """
 
     def __init__(self, dictionary, *args, **kwargs):
         self.__dict__ = dict(dictionary)
@@ -44,7 +46,9 @@ class MutableAttributeDict(MutableMapping, ReadableAttributeDict):
 
 
 class AttributeDict(ReadableAttributeDict, Hashable):
-    'This provides superficial immutability, someone could hack around it'
+    """
+    This provides superficial immutability, someone could hack around it
+    """
 
     def __setattr__(self, attr, val):
         if attr == '__dict__':
