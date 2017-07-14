@@ -59,16 +59,11 @@ class AttributeDict(ReadableAttributeDict, Hashable):
     def __delattr__(self, key):
         raise TypeError('This data is immutable -- create a copy instead of modifying')
 
-    def _sorteditems(self):
-        return tuple(sorted(self.items()))
-
     def __hash__(self):
-        return hash(self._sorteditems())
+        return hash(tuple(sorted(self.items())))
 
     def __eq__(self, other):
-        if hasattr(other, '__dict__'):
-            return self.__dict__ == other.__dict__
-        elif isinstance(other, Mapping):
-            return other == self.__dict__
+        if isinstance(other, Mapping):
+            return self.__dict__ == dict(other)
         else:
             return False
