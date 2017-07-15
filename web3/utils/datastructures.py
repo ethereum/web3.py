@@ -28,12 +28,19 @@ class ReadableAttributeDict(Mapping):
     def __len__(self):
         return len(self.__dict__)
 
-    def __str__(self):
-        return repr(self)
-
     def __repr__(self):
-        dict_lines = ['\n\t' + repr(k) + ': ' + repr(self[k]) + ',' for k in sorted(self.__dict__)]
-        return self.__class__.__name__ + '({' + ''.join(dict_lines) + '\n})'
+        return self.__class__.__name__ + "(%r)" % self.__dict__
+
+    def _repr_pretty_(self, builder, cycle):
+        """
+        Custom pretty output for the IPython console
+        """
+        builder.text(self.__class__.__name__ + "(")
+        if cycle:
+            builder.text("<cycle>")
+        else:
+            builder.pretty(self.__dict__)
+        builder.text(")")
 
 
 class MutableAttributeDict(MutableMapping, ReadableAttributeDict):
