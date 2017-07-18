@@ -7,6 +7,8 @@ import itertools
 
 from eth_utils import (
     is_address,
+    is_list_like,
+    is_dict,
     function_abi_to_4byte_selector,
     encode_hex,
     add_0x_prefix,
@@ -15,8 +17,7 @@ from eth_utils import (
     force_bytes,
     coerce_return_to_text,
     force_obj_to_bytes,
-    is_list_like,
-    is_dict,
+    to_normalized_address,
 )
 
 from eth_abi import (
@@ -144,7 +145,7 @@ class Contract(object):
                 raise TypeError("The 'address' argument was found twice")
             address = arg_0
 
-        if is_address(arg_1):
+        if arg_1 is not empty:
             if address:
                 raise TypeError("The 'address' argument was found twice")
             address = arg_1
@@ -164,13 +165,6 @@ class Contract(object):
                 raise TypeError("The 'source' argument was found twice")
             source = arg_4
 
-        if abi is not empty:
-            if not is_list_like(abi):
-                raise TypeError("The 'abi' argument is not a list")
-            for e in abi:
-                if not is_dict(e):
-                    raise TypeError("The elements of 'abi' argument are not all dictionaries")
-
         if any((abi, code, code_runtime, source)):
             warnings.warn(DeprecationWarning(
                 "The arguments abi, code, code_runtime, and source have been "
@@ -180,6 +174,7 @@ class Contract(object):
             ))
 
         if abi is not empty:
+            validate_abi(abi)
             self.abi = abi
         if code is not empty:
             self.bytecode = code
@@ -189,7 +184,8 @@ class Contract(object):
             self._source = source
 
         if address is not empty:
-            self.address = address
+            validate_address(address)
+            self.address = to_normalized_address(address)
         else:
             warnings.warn(DeprecationWarning(
                 "The address argument is now required for contract class "
@@ -908,3 +904,22 @@ def construct_contract_factory(web3,
         'source': source,
     }
     return type(contract_name, (base_contract_factory_class,), _dict)
+
+
+def validate_abi(abi):
+    """
+    Helper function for validating an ABI
+    """
+    if not is_list_like(abi):
+        raise TypeError("'abi' is not a list")
+    for e in abi:
+        if not is_dict(e):
+            raise TypeError("The elements of 'abi' are not all dictionaries")
+
+
+def validate_address(address):
+    """
+    Helper function for validating an address
+    """
+    if not is_address(address):
+        raise TypeError("The 'address' argument is not an address")
