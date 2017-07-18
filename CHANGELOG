@@ -1,3 +1,10 @@
+3.10.0
+-----
+
+* Web3 now returns `web3.utils.datastructures.AttributeDict` in places where it previously returned a normal `dict`.
+* `web3.eth.contract` now performs validation on the `address` parameter.
+* Added `web3.eth.getWork` API
+
 3.9.0
 -----
 
