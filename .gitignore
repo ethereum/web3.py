@@ -17,6 +17,7 @@ develop-eggs
 .installed.cfg
 lib
 lib64
+venv
 
 # Installer logs
 pip-log.txt
@@ -81,6 +82,9 @@ logs
 
 # Mongo Explorer plugin:
 .idea/mongoSettings.xml
+
+# VIM temp files
+*.swp
 
 ## File-based project format:
 *.iws

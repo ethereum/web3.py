@@ -23,6 +23,9 @@ from eth_utils import (
 
 from web3.iban import Iban
 
+from web3.utils.datastructures import (
+    AttributeDict,
+)
 from web3.utils.empty import (
     empty,
 )
@@ -66,6 +69,15 @@ def apply_to_array(formatter_fn):
         functools.partial(map, formatter_fn),
         list,
     )
+
+
+def wrap_with(wrapper):
+    def wrap_return(fn):
+        @functools.wraps(fn)
+        def wrapped(*args, **kwargs):
+            return wrapper(fn(*args, **kwargs))
+        return wrapped
+    return wrap_return
 
 
 @coerce_args_to_text
@@ -127,9 +139,10 @@ def input_transaction_formatter(eth, txn):
     }
 
 
+@apply_if_not_null
+@wrap_with(AttributeDict)
 @coerce_args_to_text
 @coerce_return_to_text
-@apply_if_not_null
 def output_transaction_formatter(txn):
     formatters = {
         'blockNumber': apply_if_not_null(to_decimal),
@@ -146,6 +159,7 @@ def output_transaction_formatter(txn):
     }
 
 
+@wrap_with(AttributeDict)
 @coerce_return_to_text
 def output_log_formatter(log):
     """
@@ -169,9 +183,10 @@ log_array_formatter = apply_if_not_null(apply_to_array(apply_if_dict(
 )))
 
 
+@apply_if_not_null
+@wrap_with(AttributeDict)
 @coerce_args_to_text
 @coerce_return_to_text
-@apply_if_not_null
 def output_transaction_receipt_formatter(receipt):
     """
     Formats the output of a transaction receipt to its proper values
@@ -190,6 +205,7 @@ def output_transaction_receipt_formatter(receipt):
     }
 
 
+@wrap_with(AttributeDict)
 @coerce_return_to_text
 def output_block_formatter(block):
     """
@@ -288,6 +304,7 @@ def transaction_pool_inspect_formatter(value):
 
 
 @apply_if_not_null
+@wrap_with(AttributeDict)
 def syncing_formatter(value):
     if not value:
         return value

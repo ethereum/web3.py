@@ -215,7 +215,9 @@ def test_input_transaction_formatter(web3, value, expected):
     ]
 )
 def test_output_block_formatter(value, expected):
-    assert formatters.output_block_formatter(value) == expected
+    block = formatters.output_block_formatter(value)
+    assert block == expected
+    assert block.size == block['size']
 
 
 @pytest.mark.parametrize(
@@ -324,4 +326,30 @@ def test_outputPostFormatter(value, expected):
     ]
 )
 def test_output_transaction_formatter(value, expected):
-    assert formatters.output_transaction_formatter(value) == expected
+    transaction = formatters.output_transaction_formatter(value)
+    assert transaction == expected
+    assert transaction.gas == transaction['gas']
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ({
+                "currentBlock": '0x3d0900',
+                "highestBlock": '0x3d6113',
+                "knownStates": '0xF',
+                "pulledStates": '0x10',
+                "startingBlock": '0x30fa2',
+            }, {
+                "currentBlock": 4000000,
+                "highestBlock": 4022547,
+                "knownStates": 15,
+                "pulledStates": 16,
+                "startingBlock": 200610,
+        })
+    ]
+)
+def test_syncing_formatter(value, expected):
+    syncing = formatters.syncing_formatter(value)
+    assert syncing == expected
+    assert syncing.startingBlock == syncing['startingBlock']
