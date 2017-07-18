@@ -23,6 +23,7 @@ from web3.shh import Shh
 from web3.txpool import TxPool
 from web3.version import Version
 from web3.testing import Testing
+from web3.trace import Trace
 
 from web3.iban import Iban
 
@@ -95,6 +96,7 @@ class Web3(object):
         self.miner = Miner(self)
         self.admin = Admin(self)
         self.testing = Testing(self)
+        self.trace = Trace(self)
 
     def setProvider(self, provider):
         self._requestManager.setProvider(provider)
