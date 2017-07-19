@@ -33,6 +33,9 @@ from web3.utils.functional import (
 from web3.utils.transactions import (
     get_buffered_gas_estimate,
 )
+from web3.utils.validations import (
+    validate_address_checksum,
+)
 
 
 class Eth(object):
@@ -343,6 +346,7 @@ class Eth(object):
             elif is_address(args[1]):
                 address = args[1]
                 kwargs['abi'] = args[0]
+            validate_address_checksum(address)
 
             return ContractFactoryClass.factory(self.web3, contract_name, **kwargs)(address)
         else:

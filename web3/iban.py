@@ -10,6 +10,10 @@ from eth_utils import (
     add_0x_prefix,
 )
 
+from web3.utils.validations import (
+    validate_address,
+)
+
 
 def pad_left_hex(value, num_bytes):
     return pad_left(value, num_bytes * 2, '0')
@@ -112,6 +116,7 @@ class Iban(object):
         @param {String} address
         @return {Iban} the IBAN object
         """
+        validate_address(address)
         address_as_integer = int(address, 16)
         address_as_base36 = baseN(address_as_integer, 36)
         padded = pad_left_hex(address_as_base36, 15)

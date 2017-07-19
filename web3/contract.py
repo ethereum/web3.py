@@ -7,9 +7,6 @@ import itertools
 
 from eth_utils import (
     is_address,
-    is_checksum_address,
-    is_checksum_formatted_address,
-    is_dict,
     is_list_like,
     function_abi_to_4byte_selector,
     encode_hex,
@@ -63,6 +60,10 @@ from web3.utils.exception import (
 from web3.utils.filters import (
     construct_event_filter_params,
     PastLogFilter,
+)
+from web3.utils.validations import (
+    validate_abi,
+    validate_address,
 )
 
 
@@ -906,25 +907,3 @@ def construct_contract_factory(web3,
         'source': source,
     }
     return type(contract_name, (base_contract_factory_class,), _dict)
-
-
-def validate_abi(abi):
-    """
-    Helper function for validating an ABI
-    """
-    if not is_list_like(abi):
-        raise TypeError("'abi' is not a list")
-    for e in abi:
-        if not is_dict(e):
-            raise TypeError("The elements of 'abi' are not all dictionaries")
-
-
-def validate_address(address):
-    """
-    Helper function for validating an address
-    """
-    if not is_address(address):
-        raise TypeError("'address' is not an address")
-    if is_checksum_formatted_address(address):
-        if not is_checksum_address(address):
-            raise ValueError("'address' has an invalid EIP55 checksum")

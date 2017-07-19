@@ -22,6 +22,7 @@ def test_input_address_formatter(value, expected):
     ('0x0c5496aee77c1ba1f0854206a26dda82a81d6d8'),
     ('0x0c5496aee77c1ba1f0854206a26dda82a81d6d8'),
     ('00c5496aee77c1ba1f0854206a26dda82a81d6d'),
+    ('0xd3CDA913deB6f67967B99D67aCDFa1712C293601'),
     ('XE7338O073KYGTWWZN0F2WZ0R8PX5ZPPZE'),
     ('0x'),
     ]

@@ -36,6 +36,9 @@ from web3.utils.encoding import (
 from web3.utils.blocks import (
     is_predefined_block_number,
 )
+from web3.utils.validations import (
+    validate_address_checksum,
+)
 
 
 def noop(value):
@@ -273,6 +276,7 @@ def input_address_formatter(addr):
     if iban.isValid() and iban.isDirect():
         return add_0x_prefix(iban.address())
     elif is_address(addr):
+        validate_address_checksum(addr)
         return to_normalized_address(addr)
 
     raise ValueError("invalid address")
