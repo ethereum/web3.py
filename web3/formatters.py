@@ -16,9 +16,12 @@ from eth_utils import (
     add_0x_prefix,
     encode_hex,
     decode_hex,
-    compose,
     is_list_like,
     to_normalized_address,
+)
+
+from toolz.functoolz import (
+    compose,
 )
 
 from web3.iban import Iban
@@ -60,7 +63,7 @@ def apply_if_passes_test(test_fn):
     return outer_fn
 
 
-apply_if_not_null = apply_if_passes_test(compose(is_null, operator.not_))
+apply_if_not_null = apply_if_passes_test(compose(operator.not_, is_null))
 apply_if_string = apply_if_passes_test(is_string)
 apply_if_array = apply_if_passes_test(is_list_like)
 apply_if_dict = apply_if_passes_test(is_dict)
@@ -69,8 +72,8 @@ apply_if_integer = apply_if_passes_test(is_integer)
 
 def apply_to_array(formatter_fn):
     return compose(
-        functools.partial(map, formatter_fn),
         list,
+        functools.partial(map, formatter_fn),
     )
 
 

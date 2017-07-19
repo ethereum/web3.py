@@ -10,6 +10,9 @@ from eth_utils import (
     encode_hex,
     force_text,
     coerce_return_to_text,
+)
+
+from toolz.functoolz import (
     compose,
 )
 
@@ -67,7 +70,7 @@ class Web3(object):
     # Encoding and Decoding
     toHex = staticmethod(to_hex)
     toAscii = staticmethod(decode_hex)
-    toUtf8 = staticmethod(compose(decode_hex, force_text))
+    toUtf8 = staticmethod(compose(force_text, decode_hex))
     fromAscii = staticmethod(encode_hex)
     fromUtf8 = staticmethod(encode_hex)
     toDecimal = staticmethod(to_decimal)
