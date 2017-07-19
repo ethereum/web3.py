@@ -10,7 +10,7 @@ from eth_utils import (
     add_0x_prefix,
 )
 
-from web3.utils.validations import (
+from web3.utils.validation import (
     validate_address,
 )
 

@@ -36,7 +36,7 @@ from web3.utils.encoding import (
 from web3.utils.blocks import (
     is_predefined_block_number,
 )
-from web3.utils.validations import (
+from web3.utils.validation import (
     validate_address_checksum,
 )
 

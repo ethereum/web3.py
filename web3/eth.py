@@ -33,7 +33,7 @@ from web3.utils.functional import (
 from web3.utils.transactions import (
     get_buffered_gas_estimate,
 )
-from web3.utils.validations import (
+from web3.utils.validation import (
     validate_address_checksum,
 )
 

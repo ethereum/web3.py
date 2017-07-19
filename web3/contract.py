@@ -61,7 +61,7 @@ from web3.utils.filters import (
     construct_event_filter_params,
     PastLogFilter,
 )
-from web3.utils.validations import (
+from web3.utils.validation import (
     validate_abi,
     validate_address,
 )
