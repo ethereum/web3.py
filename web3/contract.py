@@ -13,7 +13,6 @@ from eth_utils import (
     encode_hex,
     add_0x_prefix,
     remove_0x_prefix,
-    compose,
     force_bytes,
     coerce_return_to_text,
     force_obj_to_bytes,
@@ -27,6 +26,10 @@ from eth_abi import (
 from eth_abi.exceptions import (
     EncodingError,
     DecodingError,
+)
+
+from toolz.functoolz import (
+    compose,
 )
 
 from web3.exceptions import (
@@ -581,6 +584,7 @@ class Contract(object):
     #
     # Private Helpers
     #
+
     @classmethod
     def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
         filters = []

@@ -21,6 +21,7 @@ install_requires = [
     "pysha3>=0.3",
     "requests>=2.12.4",
     "rlp>=0.4.7",
+    "toolz>=0.8.2",
 ]
 
 if sys.platform == 'win32':
