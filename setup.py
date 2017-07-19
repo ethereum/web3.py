@@ -16,7 +16,7 @@ readme = open(os.path.join(DIR, 'README.md')).read()
 
 install_requires = [
     "ethereum-abi-utils>=0.4.0",
-    "ethereum-utils>=0.2.0",
+    "ethereum-utils>=0.3.0",
     "pylru>=1.0.9",
     "pysha3>=0.3",
     "requests>=2.12.4",
