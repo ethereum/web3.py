@@ -8,7 +8,6 @@ import itertools
 from eth_utils import (
     is_address,
     is_list_like,
-    is_dict,
     function_abi_to_4byte_selector,
     encode_hex,
     add_0x_prefix,
@@ -61,6 +60,10 @@ from web3.utils.exception import (
 from web3.utils.filters import (
     construct_event_filter_params,
     PastLogFilter,
+)
+from web3.utils.validation import (
+    validate_abi,
+    validate_address,
 )
 
 
@@ -904,22 +907,3 @@ def construct_contract_factory(web3,
         'source': source,
     }
     return type(contract_name, (base_contract_factory_class,), _dict)
-
-
-def validate_abi(abi):
-    """
-    Helper function for validating an ABI
-    """
-    if not is_list_like(abi):
-        raise TypeError("'abi' is not a list")
-    for e in abi:
-        if not is_dict(e):
-            raise TypeError("The elements of 'abi' are not all dictionaries")
-
-
-def validate_address(address):
-    """
-    Helper function for validating an address
-    """
-    if not is_address(address):
-        raise TypeError("The 'address' argument is not an address")
