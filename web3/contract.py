@@ -77,6 +77,8 @@ DEPRECATED_SIGNATURE_MESSAGE = (
     "'Contract.factory(...)' class methog."
 )
 
+ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", ""]
+
 
 class Contract(object):
     """Base class for Contract proxy classes.
@@ -778,9 +780,11 @@ def call_contract_function(contract,
     except DecodingError as e:
         # Provide a more helpful error message than the one provided by
         # eth-abi-utils
-        empty_strings = ["0x", b"0x", ""]
-        if (return_data in empty_strings
-                and contract.web3.eth.getCode(contract.address) in empty_strings):
+        is_missing_code_error = (
+            return_data in ACCEPTABLE_EMPTY_STRINGS and
+            contract.web3.eth.getCode(contract.address) in ACCEPTABLE_EMPTY_STRINGS
+        )
+        if is_missing_code_error:
             msg = (
                 "Could not transact with/call contract function, is contract "
                 "deployed correctly and chain synced?"
