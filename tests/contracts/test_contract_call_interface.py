@@ -6,6 +6,10 @@ from eth_utils import (
     force_text,
 )
 
+from web3.exceptions import (
+    BadFunctionCallOutput,
+)
+
 
 @pytest.fixture()
 def math_contract(web3, MathContract):
@@ -54,6 +58,21 @@ def bytes32_contract(web3, Bytes32Contract):
     return _bytes_contract
 
 
+@pytest.fixture()
+def undeployed_math_contract(web3, MathContract):
+    empty_address = "0x000000000000000000000000000000000000dEaD"
+    _undeployed_math_contract = MathContract(address=empty_address)
+    return _undeployed_math_contract
+
+
+@pytest.fixture()
+def mismatched_math_contract(web3, StringContract, MathContract):
+    deploy_txn = StringContract.deploy(args=["Caqalai"])
+    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+
+    _mismatched_math_contract = MathContract(address=deploy_receipt['contractAddress'])
+    return _mismatched_math_contract
 
 
 def test_call_with_no_arguments(math_contract):
@@ -115,3 +134,18 @@ def test_call_read_bytes32_variable(bytes32_contract):
 def test_call_get_bytes32_value(bytes32_contract):
     result = bytes32_contract.call().getValue()
     assert result == '\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06'
+
+
+def test_call_missing_function(mismatched_math_contract):
+    expected_missing_function_error_message = "Could not decode contract function call"
+    with pytest.raises(BadFunctionCallOutput) as exception_info:
+        mismatched_math_contract.call().return13()
+    assert expected_missing_function_error_message in str(exception_info.value)
+
+
+def test_call_undeployed_contract(undeployed_math_contract):
+    expected_undeployed_call_error_message = "Could not transact with/call contract function"
+    with pytest.raises(BadFunctionCallOutput) as exception_info:
+        undeployed_math_contract.call().return13()
+    assert expected_undeployed_call_error_message in str(exception_info.value)
+

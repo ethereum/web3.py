@@ -778,14 +778,20 @@ def call_contract_function(contract,
     except DecodingError as e:
         # Provide a more helpful error message than the one provided by
         # eth-abi-utils
-        msg = (
-            "Could not decode contract function call {} return data {} for "
-            "output_types {}".format(
-                function_name,
-                return_data,
-                output_types
+        if return_data == "0x" and contract.web3.eth.getCode(contract.address) == "0x":
+            msg = (
+                "Could not transact with/call contract function, is contract "
+                "deployed correctly and chain synced?"
             )
-        )
+        else:
+            msg = (
+                "Could not decode contract function call {} return data {} for "
+                "output_types {}".format(
+                    function_name,
+                    return_data,
+                    output_types
+                )
+            )
         raise_from(BadFunctionCallOutput(msg), e)
 
     normalized_data = [
