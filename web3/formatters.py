@@ -310,7 +310,7 @@ def transaction_pool_inspect_formatter(value):
     return transaction_pool_formatter(value, noop)
 
 
-@apply_if_not_null
+@apply_if_dict
 @wrap_with(AttributeDict)
 def syncing_formatter(value):
     if not value:
