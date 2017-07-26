@@ -1,3 +1,10 @@
+3.11.0
+-----
+
+* All web3 apis which accept `address` parameters now enforce checksums if the address *looks* like it is checksummed.
+* Improvements to error messaging with when calling a contract on a node that may not be fully synced
+* Bugfix for `web3.eth.syncing` to correctly handle `False`
+
 3.10.0
 -----
 
