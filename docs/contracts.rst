@@ -92,6 +92,10 @@ Each Contract Factory exposes the following methods.
     argument.  Arguments can be provided as positional arguments, keyword
     arguments, or a mix of the two.
 
+    If a ``gas`` value is not provided, then the ``gas`` value for the
+    method transaction will be created using the ``web3.eth.estimateGas()``
+    method.
+
     Returns the transaction hash.
 
     .. code-block:: python
