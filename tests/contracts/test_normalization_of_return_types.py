@@ -28,7 +28,9 @@ from web3.utils.abi import normalize_return_type
                 '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
             ],
         ),
-    )
+    ),
+    ids=['nullbyte', 'soloaddr', 'addrlist']
+
 )
 def test_normalizing_return_values(data_type, data_value, expected_value):
     actual_value = normalize_return_type(data_type, data_value)
