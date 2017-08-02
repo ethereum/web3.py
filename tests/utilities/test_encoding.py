@@ -8,6 +8,7 @@ from hypothesis import (
 from web3.utils.encoding import (
     from_decimal,
     to_decimal,
+    to_hex,
 )
 
 
@@ -40,3 +41,7 @@ def test_conversion_rount_trip(value):
     intermediate_value = from_decimal(value)
     result_value = to_decimal(intermediate_value)
     assert result_value == value, "Expected: {0!r}, Result: {1!r}, Intermediate: {2!r}".format(value, result_value, intermediate_value)
+
+def test_bytes_that_start_with_0x():
+    sneaky_bytes = b'0x\xde\xad'
+    assert to_hex(sneaky_bytes) == '0x3078dead'

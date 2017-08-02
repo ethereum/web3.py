@@ -31,12 +31,7 @@ def to_hex(value):
         return encode_hex(json.dumps(value, sort_keys=True))
 
     if is_string(value):
-        if is_prefixed(value, '-0x'):
-            return from_decimal(value)
-        elif is_0x_prefixed(value):
-            return value
-        else:
-            return encode_hex(value)
+        return encode_hex(value)
 
     if is_integer(value):
         return from_decimal(value)
