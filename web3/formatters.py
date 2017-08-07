@@ -20,10 +20,15 @@ from eth_utils import (
     to_normalized_address,
 )
 
+'''
+from cytoolz.functoolz import (
+    compose,
+)
+'''
+
 from toolz.functoolz import (
     compose,
 )
-
 from web3.iban import Iban
 
 from web3.utils.datastructures import (

@@ -12,7 +12,7 @@ from eth_utils import (
     coerce_return_to_text,
 )
 
-from toolz.functoolz import (
+from cytoolz.functoolz import (
     compose,
 )
 

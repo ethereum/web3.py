@@ -27,7 +27,7 @@ from eth_abi.exceptions import (
     DecodingError,
 )
 
-from toolz.functoolz import (
+from cytoolz.functoolz import (
     compose,
 )
 
