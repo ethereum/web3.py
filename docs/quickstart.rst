@@ -43,20 +43,20 @@ The ``Web3`` object
 -------------------
 
 The common entrypoint for interacting with the Web3 library is the ``Web3``
-class.  You will need to instantiate a web3 instance.
+class. You will need to instantiate a web3 instance.
 
-Web3 takes a connection to existing Ethereum node (*Geth* or *Parity*).
+Web3 takes a connection to existing Ethereum node (*Geth*, *Parity*, or an Ethereum client provider like *INFURA*).
 This connection can be either over JSON-RPC using HTTP (TCP/IP) or UNIX
 sockets (IPC).
 
 .. code-block:: python
 
-    >>> from web3 import Web3, KeepAliveRPCProvider, IPCProvider
+    >>> from web3 import Web3, HTTPProvider, IPCProvider
 
     # Note that you should create only one RPCProvider per
     # process, as it recycles underlying TCP/IP network connections between
     # your process and Ethereum node
-    >>> web3 = Web3(KeepAliveRPCProvider(host='localhost', port='8545'))
+    >>> web3 = Web3(HTTPProvider('http://localhost:8545'))
 
     # or for an IPC based connection
     >>> web3 = Web3(IPCProvider())
