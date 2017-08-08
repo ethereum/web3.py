@@ -28,7 +28,7 @@ def filter_by_name(name, contract_abi):
 
 
 def get_abi_input_types(abi):
-    return [arg['type'] for arg in abi['inputs']]
+    return [arg['type'] for arg in abi.get('inputs', ())]
 
 
 def get_abi_output_types(abi):
@@ -36,7 +36,7 @@ def get_abi_output_types(abi):
 
 
 def get_abi_input_names(abi):
-    return [arg['name'] for arg in abi['inputs']]
+    return [arg['name'] for arg in abi.get('inputs', ())]
 
 
 def get_indexed_event_inputs(event_abi):
