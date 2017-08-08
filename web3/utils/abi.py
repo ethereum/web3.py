@@ -24,7 +24,7 @@ def filter_by_type(_type, contract_abi):
 
 
 def filter_by_name(name, contract_abi):
-    return [abi for abi in contract_abi if abi['name'] == name]
+    return [abi for abi in contract_abi if abi.get('name') == name]
 
 
 def get_abi_input_types(abi):
