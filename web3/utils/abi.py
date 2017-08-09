@@ -24,11 +24,22 @@ def filter_by_type(_type, contract_abi):
 
 
 def filter_by_name(name, contract_abi):
-    return [abi for abi in contract_abi if abi['name'] == name]
+    return [
+        abi
+        for abi
+        in contract_abi
+        if (
+            abi['type'] not in ('fallback', 'constructor') and
+            abi['name'] == name
+        )
+    ]
 
 
 def get_abi_input_types(abi):
-    return [arg['type'] for arg in abi['inputs']]
+    if 'inputs' not in abi and abi['type'] == 'fallback':
+        return []
+    else:
+        return [arg['type'] for arg in abi['inputs']]
 
 
 def get_abi_output_types(abi):
@@ -36,7 +47,10 @@ def get_abi_output_types(abi):
 
 
 def get_abi_input_names(abi):
-    return [arg['name'] for arg in abi['inputs']]
+    if 'inputs' not in abi and abi['type'] == 'fallback':
+        return []
+    else:
+        return [arg['name'] for arg in abi['inputs']]
 
 
 def get_indexed_event_inputs(event_abi):
