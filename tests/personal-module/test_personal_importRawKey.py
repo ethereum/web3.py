@@ -33,7 +33,10 @@ def test_personal_importRawKey_as_hex_without_0x(web3,
                                                  account_private_key,
                                                  account_password,
                                                  account_public_key):
-    address = web3.personal.importRawKey(remove_0x_prefix(encode_32bytes(account_private_key)), account_password)
+    address = web3.personal.importRawKey(
+        remove_0x_prefix(encode_32bytes(account_private_key)),
+        account_password,
+    )
 
     # sanity check
     assert is_same_address(address, account_public_key)

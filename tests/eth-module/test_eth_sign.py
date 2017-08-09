@@ -1,5 +1,3 @@
-import pytest
-
 from secp256k1 import PrivateKey, PublicKey, ALL_FLAGS
 
 from bitcoin import encode_pubkey
@@ -53,8 +51,10 @@ def extract_ecdsa_signer(msg_hash, signature):
     address = add_0x_prefix(sha3(encode_pubkey(pk_serialized, 'bin')[1:])[-40:])
     return address
 
+
 def eth_message_prefix_hash(web3, msg):
     return web3.sha3('\x19Ethereum Signed Message:\n' + str(len(msg)) + msg, encoding="utf8")
+
 
 def test_eth_sign(web3, skip_if_testrpc):
     skip_if_testrpc(web3)

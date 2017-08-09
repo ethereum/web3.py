@@ -1,4 +1,3 @@
-import random
 from flaky import flaky
 
 from web3.utils.compat import (

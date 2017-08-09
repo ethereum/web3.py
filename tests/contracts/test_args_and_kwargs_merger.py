@@ -6,16 +6,16 @@ from web3.utils.abi import (
 
 
 FUNCTION_ABI = {
-    "constant": False
-    ,"inputs": [
-        {"name":"a", "type":"int256"},
-        {"name":"b", "type":"int256"},
-        {"name":"c", "type":"int256"},
-        {"name":"d", "type":"int256"},
+    "constant": False,
+    "inputs": [
+        {"name": "a", "type": "int256"},
+        {"name": "b", "type": "int256"},
+        {"name": "c", "type": "int256"},
+        {"name": "d", "type": "int256"},
     ],
     "name": "testFn",
     "outputs": [],
-    "type":"function",
+    "type": "function",
 }
 
 
@@ -40,11 +40,11 @@ def test_merging_of_args_and_kwargs(args, kwargs, expected_args):
 
 
 NO_INPUTS_FUNCTION_ABI = {
-    "constant": False
-    ,"inputs": [],
+    "constant": False,
+    "inputs": [],
     "name": "testFn",
     "outputs": [],
-    "type":"function",
+    "type": "function",
 }
 
 
@@ -54,14 +54,14 @@ def test_merging_of_args_and_kwargs_with_no_inputs():
 
 
 GENERATED_FUNCTION_ABI = {
-    "constant": False
-    ,"inputs": [
-        {"name":"", "type":"int256"},
-        {"name":"", "type":"int256"},
+    "constant": False,
+    "inputs": [
+        {"name": "", "type": "int256"},
+        {"name": "", "type": "int256"},
     ],
     "name": "testFn",
     "outputs": [],
-    "type":"function",
+    "type": "function",
 }
 
 
@@ -76,15 +76,15 @@ def test_args_works_when_merging_with_unnamed_inputs():
 
 
 DUPLICATE_NAMES_FUNCTION_ABI = {
-    "constant": False
-    ,"inputs": [
-        {"name":"b", "type":"int256"},
-        {"name":"b", "type":"int256"},
-        {"name":"a", "type":"int256"},
+    "constant": False,
+    "inputs": [
+        {"name": "b", "type": "int256"},
+        {"name": "b", "type": "int256"},
+        {"name": "a", "type": "int256"},
     ],
     "name": "testFn",
     "outputs": [],
-    "type":"function",
+    "type": "function",
 }
 
 

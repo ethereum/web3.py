@@ -1,4 +1,4 @@
-def test_personal_signAndSendTransaction(web3, password_account,
+def test_personal_signAndSendTransaction(web3, password_account,  # noqa: E302
                                          account_password,
                                          wait_for_transaction,
                                          empty_account):

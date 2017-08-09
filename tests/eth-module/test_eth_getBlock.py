@@ -53,8 +53,6 @@ def test_eth_getBlock_using_latest(web3):
 
 
 def test_eth_getBlock_using_earliest(web3):
-    current_block_number = web3.eth.blockNumber
-
     block = web3.eth.getBlock('earliest')
 
     assert block['number'] == 0

@@ -1,5 +1,4 @@
 import web3 as web3_module
-import testrpc
 
 
 def test_api_property(web3):

@@ -6,9 +6,9 @@ from web3.utils.abi import (
 )
 
 
-SINGLE_FN_NO_ARGS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"}]')
-SINGLE_FN_ONE_ARG = json.loads('[{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]')
-MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')
+SINGLE_FN_NO_ARGS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
+SINGLE_FN_ONE_ARG = json.loads('[{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
+MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
 
 
 def test_finds_single_function_without_args(web3):
@@ -38,11 +38,11 @@ def test_error_when_no_function_name_match(web3):
 @pytest.mark.parametrize(
     'arguments,expected_types',
     (
-        #([], []),
+        # ([], []),  # TODO: enable
         (['arst'], ['bytes32']),
-        #([1234567890], ['uint256']),
-        #([255], ['uint8']),
-        #([-1], ['int8']),
+        # ([1234567890], ['uint256']),  # TODO: enable
+        # ([255], ['uint8']),  # TODO: enable
+        # ([-1], ['int8']),  # TODO: enable
     )
 )
 def test_finds_function_with_matching_args(web3, arguments, expected_types):
@@ -58,4 +58,4 @@ def test_error_when_duplicate_match(web3):
     Contract = web3.eth.contract(MULTIPLE_FUNCTIONS)
 
     with pytest.raises(ValueError):
-        abi = Contract._find_matching_fn_abi('a', [100])
+        Contract._find_matching_fn_abi('a', [100])

@@ -22,7 +22,7 @@ def test_on_filter_using_get_interface(web3,
         filter = Emitter.on('LogNoArguments', {})
 
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
-    txn_receipt = wait_for_transaction(web3, txn_hash)
+    wait_for_transaction(web3, txn_hash)
 
     with Timeout(30) as timeout:
         while not filter.get(False):
@@ -52,7 +52,7 @@ def test_on_filter_with_only_event_name(web3,
         filter = Emitter.on('LogNoArguments', {}, seen_logs.append)
 
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
-    txn_receipt = wait_for_transaction(web3, txn_hash)
+    wait_for_transaction(web3, txn_hash)
 
     with Timeout(30) as timeout:
         while not seen_logs:
