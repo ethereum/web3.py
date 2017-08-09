@@ -24,7 +24,7 @@ def filter_by_type(_type, contract_abi):
 
 
 def filter_by_name(name, contract_abi):
-    return [abi for abi in contract_abi if abi['type'] != 'fallback' and abi['name'] == name]
+    return [abi for abi in contract_abi if abi['type'] not in ('fallback', 'constructor') and abi['name'] == name]
 
 
 def get_abi_input_types(abi):
