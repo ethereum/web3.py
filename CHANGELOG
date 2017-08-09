@@ -1,3 +1,8 @@
+3.12.0
+-----
+
+* Bugfix for abi filtering to correctly handle `constructor` and `fallback` type abi entries.
+
 3.11.0
 -----
 
