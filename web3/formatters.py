@@ -5,22 +5,23 @@ import functools
 import operator
 
 from eth_utils import (
+    add_0x_prefix,
     coerce_args_to_text,
     coerce_return_to_text,
-    is_address,
-    is_string,
-    is_integer,
-    is_null,
-    is_dict,
-    is_0x_prefixed,
-    add_0x_prefix,
-    encode_hex,
+    compose as _compose,
     decode_hex,
+    encode_hex,
+    is_0x_prefixed,
+    is_address,
+    is_dict,
+    is_integer,
     is_list_like,
+    is_null,
+    is_string,
     to_normalized_address,
 )
 
-from toolz.functoolz import (
+from cytoolz.functoolz import (
     compose,
 )
 
@@ -71,9 +72,11 @@ apply_if_integer = apply_if_passes_test(is_integer)
 
 
 def apply_to_array(formatter_fn):
-    return compose(
-        list,
+    # workaround for https://github.com/pytoolz/cytoolz/issues/103
+    # NOTE: must reverse arguments when migrating from _compose to cytoolz.compose
+    return _compose(
         functools.partial(map, formatter_fn),
+        list,
     )
 
 
