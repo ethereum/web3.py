@@ -27,6 +27,15 @@ from eth_abi.exceptions import (
     DecodingError,
 )
 
+from ethereum.transactions import (
+    Transaction
+)
+from ethereum.utils import (
+    privtoaddr
+)
+
+import rlp
+
 from cytoolz.functoolz import (
     compose,
 )
@@ -53,6 +62,9 @@ from web3.utils.decorators import (
 )
 from web3.utils.empty import (
     empty,
+)
+from web3.utils.encoding import (
+    to_hex
 )
 from web3.utils.events import (
     get_event_data,
@@ -511,11 +523,12 @@ class Contract(object):
     def transact(self, transaction=None):
         """
         Execute a contract function call using the `eth_sendTransaction`
-        interface.
+        or `eth_sendRawTransaction` interface.
 
         You should specify the account that pays the gas for this transaction
-        in `transaction`. If no account is specified the coinbase account of
-        web3 interface is used.
+        in `transaction`. Alternatively, you can pass a private key to sign
+        the transaction locally. If neither is specified the coinbase account of
+        web3 interface is used
 
         Example:
 
@@ -541,7 +554,8 @@ class Contract(object):
         be available once the transaction has been mined.
 
         :param transaction: Dictionary of transaction info for web3 interface.
-        Variables include ``from``, ``gas``, ``value``, ``gasPrice``.
+        Variables include ``from``, ``gas``, ``value``, ``gasPrice``,
+        ``private_key``.
 
         :return: ``Transactor`` object that has contract
             public functions exposed as Python methods.
@@ -558,7 +572,17 @@ class Contract(object):
 
         if self.address is not None:
             transact_transaction.setdefault('to', self.address)
-        if self.web3.eth.defaultAccount is not empty:
+        if 'private_key' in transact_transaction:
+            if 'from' in transact_transaction:
+                raise ValueError('Cannot set both `from` and `private_key`')
+            if 'gas' not in transact_transaction:
+                raise ValueError('If `private_key` is specified, `gas` must be as well')
+            if 'gasPrice' not in transact_transaction:
+                raise ValueError('If `private_key` is specified, `gasPrice` must be as well')
+            sender = privtoaddr(transact_transaction['private_key'])
+            transact_transaction['from'] = sender
+            transact_transaction.setdefault('value', 0)
+        elif self.web3.eth.defaultAccount is not empty:
             transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
         if 'to' not in transact_transaction:
@@ -828,7 +852,27 @@ def transact_with_contract_function(contract=None,
         transaction=transaction,
     )
 
-    txn_hash = contract.web3.eth.sendTransaction(transact_transaction)
+    if 'private_key' not in transaction:
+        # send via eth_sendTransaction
+        txn_hash = contract.web3.eth.sendTransaction(transact_transaction)
+    else:
+        # send via eth_sendRawTransaction
+        if 'nonce' not in transact_transaction:
+            sender = transact_transaction['from']
+            nonce = contract.web3.eth.getTransactionCount(sender)
+            transact_transaction['nonce'] = nonce
+        tx = Transaction(
+            transact_transaction['nonce'],
+            transact_transaction['gasPrice'],
+            transact_transaction['gas'],
+            transact_transaction['to'],
+            transact_transaction['value'],
+            transact_transaction['data']
+        )
+        tx.sign(transact_transaction['private_key'])
+        raw_tx = to_hex(rlp.encode(tx))
+        txn_hash = contract.web3.eth.sendRawTransaction(raw_tx)
+
     return txn_hash
 
 
