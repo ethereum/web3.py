@@ -5,6 +5,14 @@ import pytest
 from eth_utils import (
     force_text,
     force_bytes,
+    is_same_address,
+)
+
+from ethereum.utils import privtoaddr
+
+from testrpc.client.utils import (
+    encode_address,
+    mk_random_privkey,
 )
 
 from web3.utils.empty import (
@@ -161,3 +169,68 @@ def test_auto_gas_computation_when_transacting(web3,
 
     txn = web3.eth.getTransaction(txn_hash)
     assert txn['gas'] == gas_estimate + 100000
+
+
+def test_transacting_with_private_key(web3, math_contract, wait_for_transaction):
+    private_key = mk_random_privkey()
+    sender = encode_address(privtoaddr(private_key))
+
+    funding_txn_hash = web3.eth.sendTransaction({
+        'from': web3.eth.coinbase,
+        'to': sender,
+        'value': 10000000000000000,
+    })
+    wait_for_transaction(web3, funding_txn_hash)
+
+    # ethereum-tester-client doesn't quite implement the
+    # `sendRawTransaction` correctly because of how the underlying tester
+    # evm works.  It needs to know about the address for this to work.
+    web3.personal.importRawKey(private_key, 'password')
+    web3.personal.unlockAccount(sender, 'password')
+
+    txn_hash = math_contract.transact({
+        'private_key': private_key,
+        'gas': 100000,
+        'gasPrice': 123
+    }).increment()
+    txn_info = web3.eth.getTransaction(txn_hash)
+    assert txn_info is not None
+    assert is_same_address(txn_info['from'], sender)
+    assert txn_info.value == 0
+    assert txn_info.gas == 100000
+    assert txn_info.gasPrice == 123
+    assert txn_info.nonce == 0
+
+    txn_hash = math_contract.transact({
+        'private_key': private_key,
+        'gas': 100000,
+        'gasPrice': 123,
+        'value': 321,
+        'nonce': 1
+    }).increment()
+    txn_info = web3.eth.getTransaction(txn_hash)
+    assert txn_info is not None
+    assert txn_info.value == 321
+    assert txn_info.nonce == 1
+
+    # raise because of both `private_key` and `from`
+    with pytest.raises(ValueError):
+        other_sender = privtoaddr(mk_random_privkey())
+        math_contract.transact({
+            'private_key': private_key,
+            'from': other_sender,
+            'gas': 20000,
+            'gasPrice': 0
+        })
+    # raise because of no `gas`
+    with pytest.raises(ValueError):
+        math_contract.transact({
+            'private_key': private_key,
+            'gasPrice': 0
+        })
+    # raise because of no `gasPrice`
+    with pytest.raises(ValueError):
+        math_contract.transact({
+            'private_key': private_key,
+            'gas': 20000
+        })
