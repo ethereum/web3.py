@@ -218,13 +218,20 @@ def get_constructor_abi(contract_abi):
         raise ValueError("Found multiple constructors.")
 
 
+def compile_exact_match(pattern):
+    return re.compile("^{}$".format(pattern))
+
+
 DYNAMIC_TYPES = ['bytes', 'string']
+
+INT_SIZES = range(8, 257, 8)
+BYTES_SIZES = range(1, 33)
 
 STATIC_TYPES = list(itertools.chain(
     ['address', 'bool'],
-    ['uint{0}'.format(i) for i in range(8, 257, 8)],
-    ['int{0}'.format(i) for i in range(8, 257, 8)],
-    ['bytes{0}'.format(i) for i in range(1, 33)],
+    ['uint{0}'.format(i) for i in INT_SIZES],
+    ['int{0}'.format(i) for i in INT_SIZES],
+    ['bytes{0}'.format(i) for i in BYTES_SIZES] + ['bytes32\.byte'],
 ))
 
 BASE_TYPE_REGEX = '|'.join((
@@ -252,6 +259,68 @@ TYPE_REGEX = (
 
 def is_recognized_type(abi_type):
     return bool(re.match(TYPE_REGEX, abi_type))
+
+
+BOOL_PATTERN = 'bool'
+BOOL_REGEX = compile_exact_match(BOOL_PATTERN)
+
+
+def is_bool_type(abi_type):
+    return bool(re.match(BOOL_REGEX, abi_type))
+
+
+INT_OR_PATTERN = "|".join(map(lambda x: str(x), INT_SIZES))
+UINT_PATTERN = "uint({})?".format(INT_OR_PATTERN)
+UINT_REGEX = compile_exact_match(UINT_PATTERN)
+
+
+def is_uint_type(abi_type):
+    return bool(re.match(UINT_REGEX, abi_type))
+
+
+INT_PATTERN = UINT_PATTERN[1::]
+INT_REGEX = compile_exact_match(INT_PATTERN)
+
+
+def is_int_type(abi_type):
+    return bool(re.match(INT_REGEX, abi_type))
+
+
+ADDRESS_PATTERN = 'address'
+ADDRESS_REGEX = compile_exact_match(ADDRESS_PATTERN)
+
+
+def is_address_type(abi_type):
+    return bool(re.match(ADDRESS_REGEX, abi_type))
+
+
+BYTES_RANGE_SUFFIXES = map(lambda x: str(x), BYTES_SIZES)
+BYTES_SUFFIXES = BYTES_RANGE_SUFFIXES + ['32\.byte']
+BYTES_SUFFIX_PATTERN = "|".join(BYTES_SUFFIXES)
+BYTES_PATTERN = "bytes({})?".format(BYTES_SUFFIX_PATTERN)
+BYTES_REGEX = compile_exact_match(BYTES_PATTERN)
+
+
+def is_bytes_type(abi_type):
+    return bool(re.match(BYTES_REGEX, abi_type))
+
+
+STRING_PATTERN = 'string'
+STRING_REGEX = compile_exact_match(STRING_PATTERN)
+
+
+def is_string_type(abi_type):
+    return bool(re.match(STRING_REGEX, abi_type))
+
+
+TYPE_PATTERNS = [BOOL_PATTERN, UINT_PATTERN, INT_PATTERN, ADDRESS_PATTERN, BYTES_PATTERN, STRING_PATTERN]
+TYPE_OR_PATTERN = "|".join(TYPE_PATTERNS)
+ARRAY_PATTERN = "({})({})+".format(TYPE_OR_PATTERN, SUB_TYPE_REGEX)
+ARRAY_REGEX = compile_exact_match(ARRAY_PATTERN)
+
+
+def is_array_type(abi_type):
+    return bool(re.match(ARRAY_REGEX, abi_type))
 
 
 NAME_REGEX = (
