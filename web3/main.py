@@ -1,8 +1,11 @@
 from __future__ import absolute_import
+import re
+import codecs
 
 from eth_utils import (
     to_wei,
     from_wei,
+    is_0x_prefixed,
     is_address,
     is_checksum_address,
     to_checksum_address,
@@ -10,6 +13,9 @@ from eth_utils import (
     encode_hex,
     force_text,
     coerce_return_to_text,
+    add_0x_prefix,
+    remove_0x_prefix,
+    keccak,
 )
 
 from toolz.functoolz import (
@@ -44,7 +50,6 @@ from web3.providers.ipc import (
 from web3.providers.manager import (
     RequestManager,
 )
-
 from web3.utils.abi import (
     is_address_type,
     is_array_type,
@@ -55,7 +60,6 @@ from web3.utils.abi import (
     is_uint_type,
     is_string_type,
 )
-
 from web3.utils.encoding import (
     to_hex,
     to_decimal,
@@ -129,10 +133,31 @@ class Web3(object):
         return self._requestManager.request_blocking('web3_sha3', [hex_string])
 
     def soliditySha3(self, types, values):
-        pass
-        # for abi_type, value in zip(types, values):
+        hex_string = ''
+        for abi_type, value in zip(types, values):
+            if is_bool_type(abi_type):
+                hex_string += remove_0x_prefix(hex(value)).zfill(2)
+            elif is_uint_type(abi_type):
+                hex_string += positive_int_to_hex(value, size_of_type(abi_type))
+            elif is_int_type(abi_type):
+                bit_size = size_of_type(abi_type)
+                if value < 0:
+                    hex_value = twos_compliment_of_negative(value, bit_size)
+                else:
+                    hex_value = positive_int_to_hex(value, bit_size)
+                hex_string += hex_value
+            elif is_address_type(abi_type):
+                hex_string += remove_0x_prefix(value)
+            elif is_bytes_type(abi_type):
+                if is_0x_prefixed(value):
+                    hex_string += remove_0x_prefix(value)
+                else:
+                    hex_string += string_to_hex(value)
+            elif is_string_type(abi_type):
+                hex_string += string_to_hex(value)
 
-
+        hex_string = add_0x_prefix(hex_string)
+        return self.sha3(hex_string)
 
     def isConnected(self):
         return self.currentProvider is not None and self.currentProvider.isConnected()
@@ -142,3 +167,28 @@ class Web3(object):
 
     def receive(self, requestid, timeout=0, keep=False):
         return self._requestManager.receive(requestid, timeout, keep)
+
+
+def size_of_type(abi_type):
+    return int(re.sub("\D", "", abi_type))
+
+
+def positive_int_to_hex(value, bit_size=None):
+    hex_value = remove_0x_prefix(hex(value))
+    if bit_size:
+        return hex_value.zfill(bit_size / 4)
+    return ('0' * (len(hex_value) % 2)) + hex_value
+
+
+def twos_compliment_of_negative(value, bit_size):
+    value = (1 << bit_size) + value
+    hex_value = hex(value)
+    hex_value = hex_value[:-1] if hex_value[-1] == "L" else hex_value
+    return remove_0x_prefix(hex_value)
+
+
+def string_to_hex(string):
+    return codecs.getencoder('hex')(string)[0]
+
+
+
