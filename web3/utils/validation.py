@@ -23,8 +23,8 @@ def validate_address(address):
     Helper function for validating an address
     """
     if not is_address(address):
+        validate_address_checksum(address)
         raise TypeError("'address' is not an address")
-    validate_address_checksum(address)
 
 
 def validate_address_checksum(address):

@@ -338,15 +338,18 @@ class Eth(object):
             len(args) >= 2 and is_address(args[1]),
         ))
 
+        for potential_address in args:
+            validate_address_checksum(potential_address)
+
         if has_address:
             if 'address' in kwargs:
                 address = kwargs.pop('address')
+                validate_address_checksum(address)
             elif is_address(args[0]):
                 address = args[0]
             elif is_address(args[1]):
                 address = args[1]
                 kwargs['abi'] = args[0]
-            validate_address_checksum(address)
 
             return ContractFactoryClass.factory(self.web3, contract_name, **kwargs)(address)
         else:
