@@ -149,9 +149,9 @@ class Web3(object):
                 if is_0x_prefixed(value):
                     hex_string += remove_0x_prefix(value)
                 else:
-                    hex_string += string_to_hex(value)
+                    hex_string += bytes_to_hex(value)
             elif is_string_type(abi_type):
-                hex_string += string_to_hex(value)
+                hex_string += bytes_to_hex(value)
 
         hex_string = add_0x_prefix(hex_string)
         return self.sha3(hex_string)
@@ -180,5 +180,7 @@ def twos_compliment_of_negative(value, bit_size):
     return remove_0x_prefix(hex_value)
 
 
-def string_to_hex(string):
-    return codecs.getencoder('hex')(string)[0]
+def bytes_to_hex(byte_string):
+    if type(byte_string) == str:
+        byte_string = str.encode(byte_string)
+    return codecs.getencoder('hex')(byte_string)[0].decode("utf-8")
