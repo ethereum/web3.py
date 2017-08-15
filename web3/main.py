@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import codecs
+import re
 
 from eth_utils import (
     to_wei,
@@ -50,6 +51,7 @@ from web3.providers.manager import (
 )
 from web3.utils.abi import (
     is_address_type,
+    is_array_type,
     is_bool_type,
     is_bytes_type,
     is_int_type,
@@ -132,26 +134,7 @@ class Web3(object):
     def soliditySha3(self, types, values):
         hex_string = ''
         for abi_type, value in zip(types, values):
-            if is_bool_type(abi_type):
-                hex_string += remove_0x_prefix(hex(value)).zfill(2)
-            elif is_uint_type(abi_type):
-                hex_string += positive_int_to_hex(value, size_of_type(abi_type))
-            elif is_int_type(abi_type):
-                bit_size = size_of_type(abi_type)
-                if value < 0:
-                    hex_value = twos_compliment_of_negative(value, bit_size)
-                else:
-                    hex_value = positive_int_to_hex(value, bit_size)
-                hex_string += hex_value
-            elif is_address_type(abi_type):
-                hex_string += remove_0x_prefix(value)
-            elif is_bytes_type(abi_type):
-                if is_0x_prefixed(value):
-                    hex_string += remove_0x_prefix(value)
-                else:
-                    hex_string += bytes_to_hex(value)
-            elif is_string_type(abi_type):
-                hex_string += bytes_to_hex(value)
+            hex_string += hex_encode_abi_type(abi_type, value)
 
         hex_string = add_0x_prefix(hex_string)
         return self.sha3(hex_string)
@@ -164,6 +147,31 @@ class Web3(object):
 
     def receive(self, requestid, timeout=0, keep=False):
         return self._requestManager.receive(requestid, timeout, keep)
+
+
+def hex_encode_abi_type(abi_type, value):
+    if is_array_type(abi_type):
+        sub_type = re.sub(r"\[[^]]*\]$", "", abi_type, 1)
+        return "".join([hex_encode_abi_type(sub_type, v) for v in value])
+    elif is_bool_type(abi_type):
+        return remove_0x_prefix(hex(value)).zfill(2)
+    elif is_uint_type(abi_type):
+        return positive_int_to_hex(value, size_of_type(abi_type))
+    elif is_int_type(abi_type):
+        bit_size = size_of_type(abi_type)
+        if value < 0:
+            return twos_compliment_of_negative(value, bit_size)
+        else:
+            return positive_int_to_hex(value, bit_size)
+    elif is_address_type(abi_type):
+        return remove_0x_prefix(value)
+    elif is_bytes_type(abi_type):
+        if is_0x_prefixed(value):
+            return remove_0x_prefix(value)
+        else:
+            return bytes_to_hex(value)
+    elif is_string_type(abi_type):
+        return bytes_to_hex(value)
 
 
 def positive_int_to_hex(value, bit_size=None):
