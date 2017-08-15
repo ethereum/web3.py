@@ -218,20 +218,19 @@ def get_constructor_abi(contract_abi):
         raise ValueError("Found multiple constructors.")
 
 
-def compile_exact_match(pattern):
-    return re.compile("^{}$".format(pattern))
-
-
 DYNAMIC_TYPES = ['bytes', 'string']
 
 INT_SIZES = range(8, 257, 8)
 BYTES_SIZES = range(1, 33)
+UINT_TYPES = ['uint{0}'.format(i) for i in INT_SIZES]
+INT_TYPES = ['int{0}'.format(i) for i in INT_SIZES]
+BYTES_TYPES = ['bytes{0}'.format(i) for i in BYTES_SIZES] + ['bytes32.byte']
 
 STATIC_TYPES = list(itertools.chain(
     ['address', 'bool'],
-    ['uint{0}'.format(i) for i in INT_SIZES],
-    ['int{0}'.format(i) for i in INT_SIZES],
-    ['bytes{0}'.format(i) for i in BYTES_SIZES] + ['bytes32\.byte'],
+    UINT_TYPES,
+    INT_TYPES,
+    BYTES_TYPES,
 ))
 
 BASE_TYPE_REGEX = '|'.join((
@@ -261,62 +260,36 @@ def is_recognized_type(abi_type):
     return bool(re.match(TYPE_REGEX, abi_type))
 
 
-BOOL_PATTERN = 'bool'
-BOOL_REGEX = compile_exact_match(BOOL_PATTERN)
-
-
 def is_bool_type(abi_type):
-    return bool(re.match(BOOL_REGEX, abi_type))
-
-
-INT_OR_PATTERN = "|".join(map(lambda x: str(x), INT_SIZES))
-UINT_PATTERN = "uint({})?".format(INT_OR_PATTERN)
-UINT_REGEX = compile_exact_match(UINT_PATTERN)
+    return abi_type == 'bool'
 
 
 def is_uint_type(abi_type):
-    return bool(re.match(UINT_REGEX, abi_type))
-
-
-INT_PATTERN = UINT_PATTERN[1::]
-INT_REGEX = compile_exact_match(INT_PATTERN)
+    return abi_type in UINT_TYPES
 
 
 def is_int_type(abi_type):
-    return bool(re.match(INT_REGEX, abi_type))
-
-
-ADDRESS_PATTERN = 'address'
-ADDRESS_REGEX = compile_exact_match(ADDRESS_PATTERN)
+    return abi_type in INT_TYPES
 
 
 def is_address_type(abi_type):
-    return bool(re.match(ADDRESS_REGEX, abi_type))
-
-
-BYTES_RANGE_SUFFIXES = map(lambda x: str(x), BYTES_SIZES)
-BYTES_SUFFIXES = BYTES_RANGE_SUFFIXES + ['32\.byte']
-BYTES_SUFFIX_PATTERN = "|".join(BYTES_SUFFIXES)
-BYTES_PATTERN = "bytes({})?".format(BYTES_SUFFIX_PATTERN)
-BYTES_REGEX = compile_exact_match(BYTES_PATTERN)
+    return abi_type == 'address'
 
 
 def is_bytes_type(abi_type):
-    return bool(re.match(BYTES_REGEX, abi_type))
-
-
-STRING_PATTERN = 'string'
-STRING_REGEX = compile_exact_match(STRING_PATTERN)
+    return abi_type in BYTES_TYPES + ['bytes']
 
 
 def is_string_type(abi_type):
-    return bool(re.match(STRING_REGEX, abi_type))
+    return abi_type == 'string'
 
 
-TYPE_PATTERNS = [BOOL_PATTERN, UINT_PATTERN, INT_PATTERN, ADDRESS_PATTERN, BYTES_PATTERN, STRING_PATTERN]
-TYPE_OR_PATTERN = "|".join(TYPE_PATTERNS)
-ARRAY_PATTERN = "({})({})+".format(TYPE_OR_PATTERN, SUB_TYPE_REGEX)
-ARRAY_REGEX = compile_exact_match(ARRAY_PATTERN)
+ARRAY_REGEX = (
+    "^"
+    "[a-zA-Z0-9_]+"
+    "({sub_type})+"
+    "$"
+).format(sub_type=SUB_TYPE_REGEX)
 
 
 def is_array_type(abi_type):

@@ -75,7 +75,7 @@ def test_is_bool_type(abi_type, should_match):
 @pytest.mark.parametrize(
     'abi_type,should_match',
     (
-        ('uint', True),
+        ('uint', False),
         ('uint32', True),
         ('uint255', False),
         ('uint256', True),
@@ -94,7 +94,7 @@ def test_is_uint_type(abi_type, should_match):
 @pytest.mark.parametrize(
     'abi_type,should_match',
     (
-        ('int', True),
+        ('int', False),
         ('int32', True),
         ('int255', False),
         ('int256', True),
@@ -137,6 +137,8 @@ def test_is_address_type(abi_type, should_match):
         ('bytes33', False),
         ('bytes32..byte', False),
         ('bytes32mbyte', False),
+        ('bytes32byte', False),
+
     ),
 )
 def test_is_bytes_type(abi_type, should_match):

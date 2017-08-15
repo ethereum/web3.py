@@ -45,6 +45,17 @@ from web3.providers.manager import (
     RequestManager,
 )
 
+from web3.utils.abi import (
+    is_address_type,
+    is_array_type,
+    is_bool_type,
+    is_bytes_type,
+    is_int_type,
+    is_recognized_type,
+    is_uint_type,
+    is_string_type,
+)
+
 from web3.utils.encoding import (
     to_hex,
     to_decimal,
@@ -116,6 +127,12 @@ class Web3(object):
         else:
             hex_string = encode_hex(value)
         return self._requestManager.request_blocking('web3_sha3', [hex_string])
+
+    def soliditySha3(self, types, values):
+        pass
+        # for abi_type, value in zip(types, values):
+
+
 
     def isConnected(self):
         return self.currentProvider is not None and self.currentProvider.isConnected()
