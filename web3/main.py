@@ -169,7 +169,7 @@ class Web3(object):
 def positive_int_to_hex(value, bit_size=None):
     hex_value = remove_0x_prefix(hex(value))
     if bit_size:
-        return hex_value.zfill(bit_size / 4)
+        return hex_value.zfill(int(bit_size / 4))
     return ('0' * (len(hex_value) % 2)) + hex_value
 
 
