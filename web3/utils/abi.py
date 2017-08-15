@@ -284,6 +284,10 @@ def is_string_type(abi_type):
     return abi_type == 'string'
 
 
+def size_of_type(abi_type):
+    return int(re.sub("\D", "", abi_type))
+
+
 ARRAY_REGEX = (
     "^"
     "[a-zA-Z0-9_]+"

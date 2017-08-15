@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-import re
 import codecs
 
 from eth_utils import (
@@ -15,7 +14,6 @@ from eth_utils import (
     coerce_return_to_text,
     add_0x_prefix,
     remove_0x_prefix,
-    keccak,
 )
 
 from toolz.functoolz import (
@@ -59,6 +57,7 @@ from web3.utils.abi import (
     is_recognized_type,
     is_uint_type,
     is_string_type,
+    size_of_type,
 )
 from web3.utils.encoding import (
     to_hex,
@@ -169,10 +168,6 @@ class Web3(object):
         return self._requestManager.receive(requestid, timeout, keep)
 
 
-def size_of_type(abi_type):
-    return int(re.sub("\D", "", abi_type))
-
-
 def positive_int_to_hex(value, bit_size=None):
     hex_value = remove_0x_prefix(hex(value))
     if bit_size:
@@ -189,6 +184,3 @@ def twos_compliment_of_negative(value, bit_size):
 
 def string_to_hex(string):
     return codecs.getencoder('hex')(string)[0]
-
-
-
