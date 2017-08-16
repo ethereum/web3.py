@@ -57,7 +57,7 @@ def hex_encode_abi_type(abi_type, value):
 
 def bytes_to_hex(byte_string):
     if type(byte_string) == str:
-        byte_string = str.encode(byte_string)
+        byte_string = byte_string.encode('utf-8')
     return add_0x_prefix(codecs.getencoder('hex')(byte_string)[0].decode("utf-8"))
 
 
