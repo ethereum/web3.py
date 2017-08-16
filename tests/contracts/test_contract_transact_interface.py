@@ -213,6 +213,12 @@ def test_transacting_with_private_key(web3, math_contract, wait_for_transaction)
     assert txn_info.value == 321
     assert txn_info.nonce == 1
 
+    # works without gas specified
+    math_contract.transact({
+        'private_key': private_key,
+        'gasPrice': 0
+    }).increment()
+
     # raise because of both `private_key` and `from`
     with pytest.raises(ValueError):
         other_sender = privtoaddr(mk_random_privkey())
@@ -220,12 +226,6 @@ def test_transacting_with_private_key(web3, math_contract, wait_for_transaction)
             'private_key': private_key,
             'from': other_sender,
             'gas': 20000,
-            'gasPrice': 0
-        })
-    # raise because of no `gas`
-    with pytest.raises(ValueError):
-        math_contract.transact({
-            'private_key': private_key,
             'gasPrice': 0
         })
     # raise because of no `gasPrice`

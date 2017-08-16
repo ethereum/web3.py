@@ -575,8 +575,6 @@ class Contract(object):
         if 'private_key' in transact_transaction:
             if 'from' in transact_transaction:
                 raise ValueError('Cannot set both `from` and `private_key`')
-            if 'gas' not in transact_transaction:
-                raise ValueError('If `private_key` is specified, `gas` must be as well')
             if 'gasPrice' not in transact_transaction:
                 raise ValueError('If `private_key` is specified, `gasPrice` must be as well')
             sender = privtoaddr(transact_transaction['private_key'])
@@ -861,6 +859,11 @@ def transact_with_contract_function(contract=None,
             sender = transact_transaction['from']
             nonce = contract.web3.eth.getTransactionCount(sender)
             transact_transaction['nonce'] = nonce
+        if 'gas' not in transact_transaction:
+            gas_estimation_transaction = {k: v for k, v in transact_transaction.items()
+                                          if k not in ('private_key', 'nonce')}
+            gas = contract.web3.eth.estimateGas(gas_estimation_transaction)
+            transact_transaction['gas'] = gas
         tx = Transaction(
             transact_transaction['nonce'],
             transact_transaction['gasPrice'],
