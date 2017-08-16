@@ -1,22 +1,79 @@
 # String encodings and numeric representations
 import json
+import re
+import codecs
 
 from rlp.sedes import big_endian_int
 
 from eth_utils import (
+    is_bytes,
     is_string,
     is_boolean,
     is_dict,
     is_integer,
     coerce_args_to_text,
     coerce_args_to_bytes,
+    add_0x_prefix,
     is_0x_prefixed,
     encode_hex,
+    remove_0x_prefix,
 )
 
 from .formatting import (
     is_prefixed,
 )
+
+from web3.utils.abi import (
+    is_address_type,
+    is_array_type,
+    is_bool_type,
+    is_bytes_type,
+    is_int_type,
+    is_uint_type,
+    is_string_type,
+    size_of_type,
+)
+
+
+def hex_encode_abi_type(abi_type, value):
+    if is_array_type(abi_type):
+        sub_type = re.sub(r"\[[^]]*\]$", "", abi_type, 1)
+        return "".join([remove_0x_prefix(hex_encode_abi_type(sub_type, v)) for v in value])
+    elif is_bool_type(abi_type):
+        return to_hex_with_size(value, size_of_type(abi_type))
+    elif is_uint_type(abi_type):
+        return to_hex_with_size(value, size_of_type(abi_type))
+    elif is_int_type(abi_type):
+        return to_hex_twos_compliment(value, size_of_type(abi_type))
+    elif is_address_type(abi_type):
+        return value
+    elif is_bytes_type(abi_type):
+        if is_bytes(value):
+            return to_hex(value)
+        return value
+    elif is_string_type(abi_type):
+        return bytes_to_hex(value)
+
+
+def bytes_to_hex(byte_string):
+    if type(byte_string) == str:
+        byte_string = str.encode(byte_string)
+    return add_0x_prefix(codecs.getencoder('hex')(byte_string)[0].decode("utf-8"))
+
+
+def to_hex_twos_compliment(value, bit_size):
+    if value >= 0:
+        return to_hex_with_size(value, bit_size)
+
+    value = (1 << bit_size) + value
+    hex_value = hex(value)
+    hex_value = hex_value.rstrip("L")
+    return hex_value
+
+
+def to_hex_with_size(value, bit_size):
+    hex_string = remove_0x_prefix(to_hex(value))
+    return "0x{hex_string}".format(hex_string=hex_string.zfill(int(bit_size / 4)))
 
 
 @coerce_args_to_text

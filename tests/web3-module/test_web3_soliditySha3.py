@@ -80,21 +80,21 @@ import pytest
             ],
             "0x8cc6eabb25b842715e8ca39e2524ed946759aa37bfb7d4b81829cf5a7e266103",
         ),
-        (
-            ['bool[2][]'],
-            [[[True, False], [False, True]]],
-            "0x1eef261f2eb51a8c736d52be3f91ff79e78a9ec5df2b7f50d0c6f98ed1e2bc06"
-        ),
-        (
-            ['bool[]'],
-            [[True, False, True]],
-            "0x5c6090c0461491a2941743bda5c3658bf1ea53bbd3edcde54e16205e18b45792"
-        ),
-        (
-            ['uint8[2]'],
-            [[8, 9]],
-            "0xc7694af312c4f286114180fd0ba6a52461fcee8a381636770b19a343af92538a"
-        ),
+        # (
+            # ['bool[2][]'],
+            # [[[True, False], [False, True]]],
+            # "0x1eef261f2eb51a8c736d52be3f91ff79e78a9ec5df2b7f50d0c6f98ed1e2bc06"
+        # ),
+        # (
+            # ['bool[]'],
+            # [[True, False, True]],
+            # "0x5c6090c0461491a2941743bda5c3658bf1ea53bbd3edcde54e16205e18b45792"
+        # ),
+        # (
+            # ['uint8[2]'],
+            # [[8, 9]],
+            # "0xc7694af312c4f286114180fd0ba6a52461fcee8a381636770b19a343af92538a"
+        # ),
 
 
 

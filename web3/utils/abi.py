@@ -285,6 +285,8 @@ def is_string_type(abi_type):
 
 
 def size_of_type(abi_type):
+    if abi_type == 'bool':
+        return 8
     return int(re.sub("\D", "", abi_type))
 
 
