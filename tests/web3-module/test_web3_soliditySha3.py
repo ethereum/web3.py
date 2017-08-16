@@ -91,7 +91,7 @@ import pytest
             "0x5c6090c0461491a2941743bda5c3658bf1ea53bbd3edcde54e16205e18b45792"
         ),
         (
-            ['uint8[]'],
+            ['uint8[2]'],
             [[8, 9]],
             "0xc7694af312c4f286114180fd0ba6a52461fcee8a381636770b19a343af92538a"
         ),
