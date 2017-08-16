@@ -285,8 +285,16 @@ def is_string_type(abi_type):
 
 
 def size_of_type(abi_type):
+    if 'string' in abi_type:
+        return None
+    if 'byte' in abi_type:
+        return None
+    if '[' in abi_type:
+        return None
     if abi_type == 'bool':
         return 8
+    if abi_type == 'address':
+        return 160
     return int(re.sub("\D", "", abi_type))
 
 

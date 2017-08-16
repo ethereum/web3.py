@@ -1,6 +1,9 @@
 import pytest
+import sys
 
 
+# Contract that calculated test values can be found at
+# https://kovan.etherscan.io/address/0xb9be06f5b99372cf9afbccadbbb9954ccaf7f4bb#code
 @pytest.mark.parametrize(
     'types,values,expected',
     (
@@ -51,12 +54,12 @@ import pytest
         ),
         (
             ['bytes2'],
-            ['0x5402'],
+            ['0x5402' if sys.version_info[0] >= 3 else b'T\x02'],
             "0x4ed9171bda52fca71ab28e7f452bd6eacc3e5a568a47e0fa53b503159a9b8910"
         ),
         (
             ['bytes3'],
-            ['0x5402'],
+            [b'T\x02'],
             "0x4ed9171bda52fca71ab28e7f452bd6eacc3e5a568a47e0fa53b503159a9b8910"
         ),
         (
@@ -80,24 +83,44 @@ import pytest
             ],
             "0x8cc6eabb25b842715e8ca39e2524ed946759aa37bfb7d4b81829cf5a7e266103",
         ),
-        # (
-            # ['bool[2][]'],
-            # [[[True, False], [False, True]]],
-            # "0x1eef261f2eb51a8c736d52be3f91ff79e78a9ec5df2b7f50d0c6f98ed1e2bc06"
-        # ),
-        # (
-            # ['bool[]'],
-            # [[True, False, True]],
-            # "0x5c6090c0461491a2941743bda5c3658bf1ea53bbd3edcde54e16205e18b45792"
-        # ),
-        # (
-            # ['uint8[2]'],
-            # [[8, 9]],
-            # "0xc7694af312c4f286114180fd0ba6a52461fcee8a381636770b19a343af92538a"
-        # ),
-
-
-
+        (
+            ['bool[2][]'],
+            [[[True, False], [False, True]]],
+            "0x1eef261f2eb51a8c736d52be3f91ff79e78a9ec5df2b7f50d0c6f98ed1e2bc06"
+        ),
+        (
+            ['bool[]'],
+            [[True, False, True]],
+            "0x5c6090c0461491a2941743bda5c3658bf1ea53bbd3edcde54e16205e18b45792"
+        ),
+        (
+            ['uint24[]'],
+            [[1, 0, 1]],
+            "0x5c6090c0461491a2941743bda5c3658bf1ea53bbd3edcde54e16205e18b45792"
+        ),
+        (
+            ['uint8[2]'],
+            [[8, 9]],
+            "0xc7694af312c4f286114180fd0ba6a52461fcee8a381636770b19a343af92538a"
+        ),
+        (
+            ['uint256[2]'],
+            [[8, 9]],
+            "0xc7694af312c4f286114180fd0ba6a52461fcee8a381636770b19a343af92538a"
+        ),
+        (
+            ['uint8[]'],
+            [[8]],
+            "0xf3f7a9fe364faab93b216da50a3214154f22a0a2b415b23a84c8169e8b636ee3",
+        ),
+        (
+            ['address[]'],
+            [[
+                "0x49EdDD3769c0712032808D86597B84ac5c2F5614",
+                "0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5",
+            ]],
+            "0xb98565c0c26a962fd54d93b0ed6fb9296e03e9da29d2281ed3e3473109ef7dde",
+        ),
     ),
 )
 def test_soliditySha3(web3, types, values, expected):

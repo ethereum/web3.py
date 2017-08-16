@@ -1,4 +1,5 @@
 # String encodings and numeric representations
+import sys
 import json
 import re
 import codecs
@@ -35,22 +36,26 @@ from web3.utils.abi import (
 )
 
 
-def hex_encode_abi_type(abi_type, value):
+def hex_encode_abi_type(abi_type, value, force_size=None):
+    data_size = force_size or size_of_type(abi_type)
     if is_array_type(abi_type):
         sub_type = re.sub(r"\[[^]]*\]$", "", abi_type, 1)
-        return "".join([remove_0x_prefix(hex_encode_abi_type(sub_type, v)) for v in value])
+        return "".join([remove_0x_prefix(hex_encode_abi_type(sub_type, v, 256)) for v in value])
     elif is_bool_type(abi_type):
-        return to_hex_with_size(value, size_of_type(abi_type))
+        return to_hex_with_size(value, data_size)
     elif is_uint_type(abi_type):
-        return to_hex_with_size(value, size_of_type(abi_type))
+        return to_hex_with_size(value, data_size)
     elif is_int_type(abi_type):
-        return to_hex_twos_compliment(value, size_of_type(abi_type))
+        return to_hex_twos_compliment(value, data_size)
     elif is_address_type(abi_type):
-        return value
+        return pad_hex(value, data_size)
     elif is_bytes_type(abi_type):
-        if is_bytes(value):
+        if sys.version_info[0] >= 3:
+            if is_bytes(value):
+                return to_hex(value)
+            return value
+        else:
             return to_hex(value)
-        return value
     elif is_string_type(abi_type):
         return bytes_to_hex(value)
 
@@ -72,8 +77,12 @@ def to_hex_twos_compliment(value, bit_size):
 
 
 def to_hex_with_size(value, bit_size):
-    hex_string = remove_0x_prefix(to_hex(value))
-    return "0x{hex_string}".format(hex_string=hex_string.zfill(int(bit_size / 4)))
+    return pad_hex(to_hex(value), bit_size)
+
+
+def pad_hex(value, bit_size):
+    value = remove_0x_prefix(value)
+    return "0x{hex_string}".format(hex_string=value.zfill(int(bit_size / 4)))
 
 
 @coerce_args_to_text
