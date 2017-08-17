@@ -35,6 +35,10 @@ class Personal(Module):
     @coerce_return_to_text
     def newAccount(self, password=None):
         if password is None:
+            warnings.warn(DeprecationWarning(
+                "Prompting for a password has been deprecated.  Please update "
+                "your code to provide a password"
+            ))
             password1 = getpass.getpass("Passphrase:")
             password2 = getpass.getpass("Repeat passphrase:")
             if password1 != password2:
