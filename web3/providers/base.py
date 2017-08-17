@@ -9,16 +9,30 @@ from eth_utils import (
     force_text,
 )
 
+from web3.middleware import (
+    GethFormattingMiddleware,
+)
+
 
 class BaseProvider(object):
+    middleware_classes = None
+
     def make_request(self, method, params):
         raise NotImplementedError("Providers must implement this method")
 
     def isConnected(self):
         raise NotImplementedError("Providers must implement this method")
 
+    def get_middleware_classes(self):
+        if self.middleware_classes is None:
+            return []
+        else:
+            return self.middleware_classes
+
 
 class JSONBaseProvider(BaseProvider):
+    middleware_classes = [GethFormattingMiddleware]
+
     def __init__(self):
         self.request_counter = itertools.count()
 
