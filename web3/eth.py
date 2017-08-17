@@ -56,58 +56,36 @@ class Eth(Module):
     @property
     @apply_formatters_to_return(formatters.syncing_formatter)
     def syncing(self):
-        return self.web3._requestManager.request_blocking("eth_syncing", [])
-
-    def getSyncing(self, *args, **kwargs):
-        raise NotImplementedError("Async calling has not been implemented")
-
-    def isSyncing(self, *args, **kwargs):
-        raise NotImplementedError("Async calling has not been implemented")
+        return self.web3.manager.request_blocking("eth_syncing", [])
 
     @property
     @coerce_return_to_text
     def coinbase(self):
-        return self.web3._requestManager.request_blocking("eth_coinbase", [])
-
-    @coerce_return_to_text
-    def getCoinbase(self):
-        raise NotImplementedError("Async calling has not been implemented")
+        return self.web3.manager.request_blocking("eth_coinbase", [])
 
     @property
     def mining(self):
-        return self.web3._requestManager.request_blocking("eth_mining", [])
-
-    def getMining(self, *args, **kwargs):
-        raise NotImplementedError("Async calling has not been implemented")
+        return self.web3.manager.request_blocking("eth_mining", [])
 
     @property
     @apply_formatters_to_return(to_decimal)
     def hashrate(self):
-        return self.web3._requestManager.request_blocking("eth_hashrate", [])
-
-    def getHashrate(self, *args, **kwargs):
-        raise NotImplementedError("Async calling has not been implemented")
+        return self.web3.manager.request_blocking("eth_hashrate", [])
 
     @property
     @apply_formatters_to_return(to_decimal)
     def gasPrice(self):
-        return self.web3._requestManager.request_blocking("eth_gasPrice", [])
-
-    def getGasPrice(self, *args, **kwargs):
-        raise NotImplementedError("Async calling has not been implemented")
+        return self.web3.manager.request_blocking("eth_gasPrice", [])
 
     @property
     @coerce_return_to_text
     def accounts(self):
-        return self.web3._requestManager.request_blocking("eth_accounts", [])
-
-    def getAccounts(self, *args, **kwargs):
-        raise NotImplementedError("Async calling has not been implemented")
+        return self.web3.manager.request_blocking("eth_accounts", [])
 
     @property
     @apply_formatters_to_return(to_decimal)
     def blockNumber(self):
-        return self.web3._requestManager.request_blocking("eth_blockNumber", [])
+        return self.web3.manager.request_blocking("eth_blockNumber", [])
 
     def getBlockNumber(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
@@ -116,7 +94,7 @@ class Eth(Module):
     def getBalance(self, account, block_identifier=None):
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_getBalance",
             [
                 account,
@@ -127,7 +105,7 @@ class Eth(Module):
     def getStorageAt(self, account, position, block_identifier=None):
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_getStorageAt",
             [
                 account,
@@ -140,7 +118,7 @@ class Eth(Module):
     def getCode(self, account, block_identifier=None):
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_getCode",
             [
                 account,
@@ -159,7 +137,7 @@ class Eth(Module):
         else:
             method = 'eth_getBlockByHash'
 
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             method,
             [
                 formatters.input_block_identifier_formatter(block_identifier),
@@ -177,7 +155,7 @@ class Eth(Module):
             method = 'eth_getBlockTransactionCountByNumber'
         else:
             method = 'eth_getBlockTransactionCountByHash'
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             method,
             [formatters.input_block_identifier_formatter(block_identifier)],
         )
@@ -191,7 +169,7 @@ class Eth(Module):
 
     @apply_formatters_to_return(formatters.output_transaction_formatter)
     def getTransaction(self, transaction_hash):
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_getTransactionByHash",
             [transaction_hash],
         )
@@ -206,7 +184,7 @@ class Eth(Module):
             method = 'eth_getTransactionByBlockNumberAndIndex'
         else:
             method = 'eth_getTransactionByBlockHashAndIndex'
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             method,
             [
                 formatters.input_block_identifier_formatter(block_identifier),
@@ -216,7 +194,7 @@ class Eth(Module):
 
     @apply_formatters_to_return(formatters.output_transaction_receipt_formatter)
     def getTransactionReceipt(self, transaction_hash):
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_getTransactionReceipt",
             [transaction_hash],
         )
@@ -225,7 +203,7 @@ class Eth(Module):
     def getTransactionCount(self, account, block_identifier=None):
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_getTransactionCount",
             [
                 account,
@@ -244,21 +222,21 @@ class Eth(Module):
         elif 'gas' not in formatted_transaction:
             formatted_transaction['gas'] = 90000
 
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_sendTransaction",
             [formatters.input_transaction_formatter(self, formatted_transaction)],
         )
 
     @coerce_return_to_text
     def sendRawTransaction(self, raw_transaction):
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_sendRawTransaction",
             [raw_transaction],
         )
 
     @coerce_return_to_text
     def sign(self, account, data):
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_sign", [account, encode_hex(data)],
         )
 
@@ -266,7 +244,8 @@ class Eth(Module):
         formatted_transaction = formatters.input_transaction_formatter(self, transaction)
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return self.web3._requestManager.request_blocking(
+
+        return self.web3.manager.request_blocking(
             "eth_call",
             [
                 formatted_transaction,
@@ -285,12 +264,12 @@ class Eth(Module):
     def filter(self, filter_params):
         if is_string(filter_params):
             if filter_params == "latest":
-                filter_id = self.web3._requestManager.request_blocking(
+                filter_id = self.web3.manager.request_blocking(
                     "eth_newBlockFilter", [],
                 )
                 return BlockFilter(self.web3, filter_id)
             elif filter_params == "pending":
-                filter_id = self.web3._requestManager.request_blocking(
+                filter_id = self.web3.manager.request_blocking(
                     "eth_newPendingTransactionFilter", [],
                 )
                 return TransactionFilter(self.web3, filter_id)
@@ -311,18 +290,18 @@ class Eth(Module):
 
     @apply_formatters_to_return(formatters.log_array_formatter)
     def getFilterChanges(self, filter_id):
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_getFilterChanges", [filter_id],
         )
 
     @apply_formatters_to_return(formatters.log_array_formatter)
     def getFilterLogs(self, filter_id):
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_getFilterLogs", [filter_id],
         )
 
     def uninstallFilter(self, filter_id):
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_uninstallFilter", [filter_id],
         )
 
@@ -360,7 +339,7 @@ class Eth(Module):
             return ContractFactoryClass.factory(self.web3, contract_name, **kwargs)
 
     def getCompilers(self):
-        return self.web3._requestManager.request_blocking("eth_getCompilers", [])
+        return self.web3.manager.request_blocking("eth_getCompilers", [])
 
     def getWork(self):
-        return self.web3._requestManager.request_blocking("eth_getWork", [])
+        return self.web3.manager.request_blocking("eth_getWork", [])
