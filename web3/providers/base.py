@@ -33,6 +33,9 @@ class JSONBaseProvider(BaseProvider):
             "id": next(self.request_counter),
         })))
 
+    def decode_rpc_response(self, raw_response):
+        return json.loads(force_text(raw_response))
+
     def isConnected(self):
         try:
             response_raw = self.make_request('web3_clientVersion', [])
