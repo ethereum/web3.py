@@ -41,7 +41,7 @@ from web3.providers.tester import (
 from web3.providers.ipc import (
     IPCProvider,
 )
-from web3.providers.manager import (
+from web3.manager import (
     RequestManager,
 )
 
