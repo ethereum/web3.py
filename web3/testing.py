@@ -6,10 +6,8 @@ from web3.utils.functional import (
 )
 
 
-class Testing(object):
-    def __init__(self, web3):
-        self.web3 = web3
 
+class Testing(Module):
     def timeTravel(self, timestamp):
         return self.web3._requestManager.request_blocking("testing_timeTravel", [timestamp])
 

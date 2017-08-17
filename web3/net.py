@@ -8,9 +8,8 @@ from web3.utils.functional import (
 
 class Net(object):
 
-    def __init__(self, web3):
-        self.web3 = web3
 
+class Net(Module):
     @property
     def listening(self):
         return self.web3._requestManager.request_blocking("net_listening", [])

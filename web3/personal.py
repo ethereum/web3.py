@@ -1,6 +1,11 @@
 from __future__ import absolute_import
 
 import getpass
+import warnings
+
+from web3.utils.module import (
+    Module,
+)
 
 from eth_utils import (
     coerce_return_to_text,
@@ -9,13 +14,10 @@ from eth_utils import (
 )
 
 
-class Personal(object):
+class Personal(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal
     """
-    def __init__(self, web3):
-        self.web3 = web3
-
     @coerce_return_to_text
     def importRawKey(self, private_key, passphrase):
         if len(private_key) == 66:

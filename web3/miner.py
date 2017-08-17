@@ -6,10 +6,8 @@ from web3.utils.encoding import (
 )
 
 
-class Miner(object):
-    def __init__(self, web3):
-        self.web3 = web3
 
+class Miner(Module):
     @property
     @apply_formatters_to_return(to_decimal)
     def hashrate(self):

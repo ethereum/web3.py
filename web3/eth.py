@@ -19,19 +19,13 @@ from web3.utils.blocks import (
 from web3.utils.empty import (
     empty,
 )
-from web3.utils.encoding import (
-    to_decimal,
-)
 from web3.utils.filters import (
     BlockFilter,
     TransactionFilter,
     LogFilter,
 )
-from web3.utils.functional import (
-    apply_formatters_to_return,
-)
-from web3.utils.transactions import (
-    get_buffered_gas_estimate,
+from web3.utils.module import (
+    Module,
 )
 from web3.utils.validation import (
     validate_address,
@@ -39,12 +33,8 @@ from web3.utils.validation import (
 )
 
 
-class Eth(object):
-    def __init__(self, web3):
-        self.web3 = web3
-        self.iban = Iban
-        # self.sendIBANTransaction = lambda: raise NotImplementedError()
-
+class Eth(Module):
+    iban = Iban
     defaultAccount = empty
     defaultBlock = "latest"
 

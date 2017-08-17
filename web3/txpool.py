@@ -7,10 +7,8 @@ from web3.formatters import (
 )
 
 
-class TxPool(object):
-    def __init__(self, web3):
-        self.web3 = web3
 
+class TxPool(Module):
     @property
     @apply_formatters_to_return(transaction_pool_content_formatter)
     def content(self):

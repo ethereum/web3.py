@@ -1,7 +1,9 @@
-class Admin(object):
-    def __init__(self, web3):
-        self.web3 = web3
+from web3.utils.module import (
+    Module,
+)
 
+
+class Admin(Module):
     def addPeer(self, node_url):
         return self.web3._requestManager.request_blocking(
             "admin_addPeer", [node_url],

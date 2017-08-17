@@ -8,10 +8,8 @@ from web3.utils.functional import (
 )
 
 
-class Version(object):
-    def __init__(self, web3):
-        self.web3 = web3
 
+class Version(Module):
     @property
     def api(self):
         from web3 import __version__
