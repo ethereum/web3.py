@@ -1,42 +1,31 @@
 from web3 import Web3
+from web3.providers import (
+    BaseProvider,
+)
 
 
-def test_setProvider(disconnected_provider):
-    """
-    Web3.setProvider() sets the current provider.
-    """
-    web3 = Web3(None)
-    assert web3.currentProvider is None
-    assert web3.manager.provider is None
-
-    web3.setProvider(disconnected_provider)
-    assert web3.currentProvider is disconnected_provider
-    assert web3.manager.provider is disconnected_provider
-
-    web3.setProvider(None)
-    assert web3.currentProvider is None
-    assert web3.manager.provider is None
+class ConnectedProvider(BaseProvider):
+    def isConnected(self):
+        return True
 
 
-def test_isConnected(web3):
+class DisconnectedProvider(BaseProvider):
+    def isConnected(self):
+        return False
+
+
+def test_isConnected_connected():
     """
     Web3.isConnected() returns True when connected to a node.
     """
+    web3 = Web3(ConnectedProvider())
     assert web3.isConnected() is True
 
 
-def test_isConnected_no_provider():
-    """
-    Web3.isConnected() returns False when not configured with a provider.
-    """
-    web3 = Web3(None)
-    assert web3.isConnected() is False
-
-
-def test_isConnected_disconnected(disconnected_provider):
+def test_isConnected_disconnected():
     """
     Web3.isConnected() returns False when configured with a provider
     that's not connected to a node.
     """
-    web3 = Web3(disconnected_provider)
+    web3 = Web3(DisconnectedProvider())
     assert web3.isConnected() is False
