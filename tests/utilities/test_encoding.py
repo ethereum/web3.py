@@ -67,8 +67,18 @@ def test_bytes_that_start_with_0x():
         ("bytes3", b"T\x02", "0x5402"),
         ("bytes", '0x5402' if sys.version_info[0] >= 3 else b'T\x02', "0x5402"),
         ("string", "testing a string!", "0x74657374696e67206120737472696e6721"),
+        ("strings", "bad abi!", ValueError),
+        ("bool[", True, ValueError),
+        ("bool", "string", TypeError),
+        ("uint24", -20, TypeError),
     ]
 )
 def test_hex_encode_abi_type(abi_type, value, expected):
+
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            hex_encode_abi_type(abi_type, value)
+        return
+
     actual = hex_encode_abi_type(abi_type, value)
     assert actual == expected

@@ -1,7 +1,6 @@
 # String encodings and numeric representations
 import sys
 import json
-import re
 import codecs
 
 from rlp.sedes import big_endian_int
@@ -33,13 +32,25 @@ from web3.utils.abi import (
     is_uint_type,
     is_string_type,
     size_of_type,
+    sub_type_of_array_type,
+)
+
+from web3.utils.validation import (
+    validate_abi_type,
+    validate_abi_value,
 )
 
 
 def hex_encode_abi_type(abi_type, value, force_size=None):
+    """
+    Encodes value into a hex string in format of abi_type
+    """
+    validate_abi_type(abi_type)
+    validate_abi_value(abi_type, value)
+
     data_size = force_size or size_of_type(abi_type)
     if is_array_type(abi_type):
-        sub_type = re.sub(r"\[[^]]*\]$", "", abi_type, 1)
+        sub_type = sub_type_of_array_type(abi_type)
         return "".join([remove_0x_prefix(hex_encode_abi_type(sub_type, v, 256)) for v in value])
     elif is_bool_type(abi_type):
         return to_hex_with_size(value, data_size)
@@ -61,12 +72,18 @@ def hex_encode_abi_type(abi_type, value, force_size=None):
 
 
 def bytes_to_hex(byte_string):
+    """
+    Converts byte_string to hex representation
+    """
     if type(byte_string) == str:
         byte_string = byte_string.encode('utf-8')
     return add_0x_prefix(codecs.getencoder('hex')(byte_string)[0].decode("utf-8"))
 
 
 def to_hex_twos_compliment(value, bit_size):
+    """
+    Converts integer value to twos compliment hex representation with given bit_size
+    """
     if value >= 0:
         return to_hex_with_size(value, bit_size)
 
@@ -77,10 +94,16 @@ def to_hex_twos_compliment(value, bit_size):
 
 
 def to_hex_with_size(value, bit_size):
+    """
+    Converts a value to hex with given bit_size:
+    """
     return pad_hex(to_hex(value), bit_size)
 
 
 def pad_hex(value, bit_size):
+    """
+    Pads a hex string up to the given bit_size
+    """
     value = remove_0x_prefix(value)
     return "0x{hex_string}".format(hex_string=value.zfill(int(bit_size / 4)))
 

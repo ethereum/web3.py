@@ -1,5 +1,5 @@
-import itertools
 import re
+import itertools
 
 from eth_utils import (
     coerce_args_to_bytes,
@@ -285,6 +285,9 @@ def is_string_type(abi_type):
 
 
 def size_of_type(abi_type):
+    """
+    Returns size in bits of abi_type
+    """
     if 'string' in abi_type:
         return None
     if 'byte' in abi_type:
@@ -296,6 +299,10 @@ def size_of_type(abi_type):
     if abi_type == 'address':
         return 160
     return int(re.sub("\D", "", abi_type))
+
+
+def sub_type_of_array_type(abi_type):
+    return re.sub(r"\[[^]]*\]$", "", abi_type, 1)
 
 
 ARRAY_REGEX = (

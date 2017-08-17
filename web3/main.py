@@ -120,9 +120,14 @@ class Web3(object):
             hex_string = encode_hex(value)
         return self._requestManager.request_blocking('web3_sha3', [hex_string])
 
-    def soliditySha3(self, types, values):
+    def soliditySha3(self, abi_types, values):
+        """
+        Executes sha3 (keccak256) exactly as Solidity does.
+        Takes list of abi_types as inputs -- `[uint24, int8[], bool]`
+        and list of corresponding values  -- `[20, [-1, 5, 0], True]`
+        """
         hex_string = ''
-        for abi_type, value in zip(types, values):
+        for abi_type, value in zip(abi_types, values):
             hex_string += remove_0x_prefix(hex_encode_abi_type(abi_type, value))
 
         hex_string = add_0x_prefix(hex_string)
