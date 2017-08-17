@@ -14,7 +14,7 @@ from eth_utils import (
     coerce_return_to_text,
 )
 
-from cytoolz.functoolz import (
+from toolz.functoolz import (
     compose,
 )
 
