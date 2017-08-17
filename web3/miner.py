@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from web3.utils.encoding import (
     to_decimal,
 )
@@ -8,10 +9,14 @@ from web3.utils.module import (
     Module,
 )
 
+=======
+from web3.utils.module import (
+    Module,
+)
+>>>>>>> 2aa43e0... remove formatters.py
 
 class Miner(Module):
     @property
-    @apply_formatters_to_return(to_decimal)
     def hashrate(self):
         return self.web3.manager.request_blocking("eth_hashrate", [])
 

@@ -1,12 +1,15 @@
-from web3.utils.encoding import (
-    to_decimal,
+from web3.utils.module import (
+    Module,
 )
+<<<<<<< HEAD
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
 from web3.utils.module import (
     Module,
 )
+=======
+>>>>>>> 2aa43e0... remove formatters.py
 
 
 class Testing(Module):
@@ -16,7 +19,6 @@ class Testing(Module):
     def mine(self, num_blocks=1):
         return self.web3.manager.request_blocking("evm_mine", [num_blocks])
 
-    @apply_formatters_to_return(to_decimal)
     def snapshot(self):
         return self.web3.manager.request_blocking("evm_snapshot", [])
 
