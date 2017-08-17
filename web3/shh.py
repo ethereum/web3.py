@@ -30,7 +30,10 @@ class Shh(object):
         if params and ("topics" in params) and ("payload" in params):
             return self.request_manager.request_blocking("shh_post", [params])
         else:
-            raise ValueError("params cannot be None or doesnot contain fields 'topic' or 'payload'")
+            raise ValueError(
+                "params cannot be None or does not contain fields 'topic' or "
+                "'payload'"
+            )
 
     def newIdentity(self):
         return self.request_manager.request_blocking("shh_newIdentity", [])
