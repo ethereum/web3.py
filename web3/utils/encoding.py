@@ -12,6 +12,9 @@ from eth_utils import (
     is_dict,
     is_integer,
     is_string,
+    is_bytes,
+    force_text,
+    force_bytes,
 )
 
 

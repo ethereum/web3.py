@@ -1,6 +1,10 @@
 import uuid
 import warnings
 
+from web3.middleware import (
+    wrap_provider_request,
+)
+
 from web3.utils.compat import (
     spawn,
 )
@@ -11,6 +15,7 @@ class RequestManager(object):
         self.pending_requests = {}
         self.provider = provider
 
+    middlewares = None
     _provider = None
 
     @property
@@ -20,6 +25,11 @@ class RequestManager(object):
     @provider.setter
     def provider(self, value):
         self._provider = value
+        self.middlewares = tuple(
+            middleware_class(value)
+            for middleware_class
+            in self.provider.get_middleware_classes()
+        )
 
     def setProvider(self, provider):
         warnings.warn(DeprecationWarning(
@@ -36,7 +46,11 @@ class RequestManager(object):
         return request_id
 
     def _make_request(self, method, params, request_id):
-        return self.provider.make_request(method, params)
+        return wrap_provider_request(
+            middlewares=self.middlewares,
+            request_fn=self.provider.make_request,
+            request_id=request_id,
+        )((method, params))
 
     def request_blocking(self, method, params, request_id=None):
         """

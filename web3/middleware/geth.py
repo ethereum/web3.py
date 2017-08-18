@@ -18,6 +18,7 @@ from eth_utils import (
     is_dict,
     is_string,
     is_bytes,
+    decode_hex,
 )
 
 from web3.utils.formatters import (
@@ -57,6 +58,13 @@ TRANSACTION_PARAMS_FORMATTERS = {
 transaction_params_formatter = apply_formatters_to_dict(TRANSACTION_PARAMS_FORMATTERS)
 
 
+def is_create_address(value):
+    return decode_hex(value) == b""
+
+
+is_not_create_address = complement(is_create_address)
+
+
 TRANSACTION_FORMATTERS = {
     'blockNumber': apply_formatter_if(to_integer_if_hex, is_not_null),
     'transactionIndex': apply_formatter_if(to_integer_if_hex, is_not_null),
@@ -65,7 +73,7 @@ TRANSACTION_FORMATTERS = {
     'gasPrice': to_integer_if_hex,
     'value': to_integer_if_hex,
     'from': to_normalized_address,
-    'to': to_normalized_address,
+    'to': apply_formatter_if(to_normalized_address, is_not_create_address),
     'hash': to_ascii_if_bytes,
 }
 
