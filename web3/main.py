@@ -101,7 +101,7 @@ class Web3(object):
     toChecksumAddress = staticmethod(to_checksum_address)
 
     def __init__(self, provider, modules=None):
-        self.manager = RequestManager(provider)
+        self._requestManager = RequestManager(provider)
 
         if modules is None:
             modules = get_default_modules()
@@ -113,14 +113,6 @@ class Web3(object):
                     "already has an attribute with that name".format(module_name)
                 )
             setattr(self, module_name, module_class(self))
-
-    @property
-    def provider(self):
-        return self.manager.provider
-
-    @provider.setter
-    def provider(self, value):
-        self.manager.provider = value
 
     def setProvider(self, provider):
         self._requestManager.setProvider(provider)
