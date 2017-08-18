@@ -6,14 +6,8 @@ from cytoolz.functoolz import (
     curry,
 )
 
-from .base import (  # noqa: F401
-    BaseMiddleware,
-)
 from .formatting import (  # noqa: F401
-    BaseFormatterMiddleware,
-)
-from .geth import (  # noqa: F401
-    GethFormattingMiddleware,
+    construct_formatting_middleware,
 )
 from .pythonic import (  # noqa: F401
     pythonic_middleware,
