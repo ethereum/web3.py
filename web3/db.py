@@ -1,7 +1,9 @@
-class Db(object):
-    def __init__(self, web3):
-        self.web3 = web3
+from web3.utils.module import (
+    Module,
+)
 
+
+class Db(Module):
     def putString(self, *args, **kwargs):
         raise DeprecationWarning("This function has been deprecated")
 

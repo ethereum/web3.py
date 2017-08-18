@@ -1,16 +1,17 @@
-from web3.utils.functional import (
-    apply_formatters_to_return,
-)
 from web3.formatters import (
     transaction_pool_content_formatter,
     transaction_pool_inspect_formatter,
 )
 
+from web3.utils.functional import (
+    apply_formatters_to_return,
+)
+from web3.utils.module import (
+    Module,
+)
 
-class TxPool(object):
-    def __init__(self, web3):
-        self.web3 = web3
 
+class TxPool(Module):
     @property
     @apply_formatters_to_return(transaction_pool_content_formatter)
     def content(self):

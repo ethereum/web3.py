@@ -8,19 +8,12 @@ from web3.utils.functional import (
 from web3.utils.filters import (
     ShhFilter,
 )
+from web3.utils.module import (
+    Module,
+)
 
 
-class Shh(object):
-    """
-    TODO: flesh this out.
-    """
-    def __init__(self, web3):
-        self.web3 = web3
-
-    @property
-    def request_manager(self):
-        return self.web3._requestManager
-
+class Shh(Module):
     @property
     @apply_formatters_to_return(to_decimal)
     def version(self):
