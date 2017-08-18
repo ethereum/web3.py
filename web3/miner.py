@@ -1,10 +1,12 @@
-from web3.utils.functional import (
-    apply_formatters_to_return,
-)
 from web3.utils.encoding import (
     to_decimal,
 )
-
+from web3.utils.functional import (
+    apply_formatters_to_return,
+)
+from web3.utils.module import (
+    Module,
+)
 
 
 class Miner(Module):

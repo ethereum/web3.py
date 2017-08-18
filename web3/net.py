@@ -4,9 +4,9 @@ from web3.utils.encoding import (
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
-
-
-class Net(object):
+from web3.utils.module import (
+    Module,
+)
 
 
 class Net(Module):

@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 import getpass
-import warnings
 
 from web3.utils.module import (
     Module,
