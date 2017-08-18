@@ -30,3 +30,4 @@ class BadFunctionCallOutput(Exception):
 
     Most likely ABI mismatch.
     """
+    pass

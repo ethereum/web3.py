@@ -8,19 +8,12 @@ from web3.utils.functional import (
 from web3.utils.filters import (
     ShhFilter,
 )
+from web3.utils.module import (
+    Module,
+)
 
 
-class Shh(object):
-    """
-    TODO: flesh this out.
-    """
-    def __init__(self, web3):
-        self.web3 = web3
-
-    @property
-    def request_manager(self):
-        return self.web3._requestManager
-
+class Shh(Module):
     @property
     @apply_formatters_to_return(to_decimal)
     def version(self):
@@ -30,7 +23,10 @@ class Shh(object):
         if params and ("topics" in params) and ("payload" in params):
             return self.request_manager.request_blocking("shh_post", [params])
         else:
-            raise ValueError("params cannot be None or doesnot contain fields 'topic' or 'payload'")
+            raise ValueError(
+                "params cannot be None or does not contain fields 'topic' or "
+                "'payload'"
+            )
 
     def newIdentity(self):
         return self.request_manager.request_blocking("shh_newIdentity", [])

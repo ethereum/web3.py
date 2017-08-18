@@ -14,7 +14,7 @@ from eth_utils import (
     remove_0x_prefix,
 )
 
-from toolz.functoolz import (
+from cytoolz.functoolz import (
     compose,
 )
 
@@ -55,6 +55,21 @@ from web3.utils.encoding import (
 )
 
 
+def get_default_modules():
+    return {
+        "eth": Eth,
+        "db": Db,
+        "shh": Shh,
+        "net": Net,
+        "personal": Personal,
+        "version": Version,
+        "txpool": TxPool,
+        "miner": Miner,
+        "admin": Admin,
+        "testing": Testing,
+    }
+
+
 class Web3(object):
     # Providers
     HTTPProvider = HTTPProvider
@@ -88,19 +103,19 @@ class Web3(object):
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
-    def __init__(self, provider):
+    def __init__(self, provider, modules=None):
         self._requestManager = RequestManager(provider)
 
-        self.eth = Eth(self)
-        self.db = Db(self)
-        self.shh = Shh(self)
-        self.net = Net(self)
-        self.personal = Personal(self)
-        self.version = Version(self)
-        self.txpool = TxPool(self)
-        self.miner = Miner(self)
-        self.admin = Admin(self)
-        self.testing = Testing(self)
+        if modules is None:
+            modules = get_default_modules()
+
+        for module_name, module_class in modules.items():
+            if hasattr(self, module_name):
+                raise AttributeError(
+                    "Cannot set web3 module named '{0}'.  The web3 object "
+                    "already has an attribute with that name".format(module_name)
+                )
+            setattr(self, module_name, module_class(self))
 
     def setProvider(self, provider):
         self._requestManager.setProvider(provider)

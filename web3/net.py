@@ -4,13 +4,12 @@ from web3.utils.encoding import (
 from web3.utils.functional import (
     apply_formatters_to_return,
 )
+from web3.utils.module import (
+    Module,
+)
 
 
-class Net(object):
-
-    def __init__(self, web3):
-        self.web3 = web3
-
+class Net(Module):
     @property
     def listening(self):
         return self.web3._requestManager.request_blocking("net_listening", [])

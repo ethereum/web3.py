@@ -28,6 +28,11 @@ Contents
     web3.miner
     web3.admin
     conventions
+    
+Release notes
+-------------
+
+`View release notes on Github <https://github.com/pipermerriam/web3.py/blob/master/CHANGELOG>`_.
 
 
 Indices and tables
