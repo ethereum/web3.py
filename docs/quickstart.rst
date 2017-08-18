@@ -39,15 +39,11 @@ following command.
    $ python setup.py install
 
 
-The ``Web3`` object
--------------------
+Using Web3
+----------
 
-The common entrypoint for interacting with the Web3 library is the ``Web3``
-class. You will need to instantiate a web3 instance.
-
-Web3 takes a connection to existing Ethereum node (*Geth*, *Parity*, or an Ethereum client provider like *INFURA*).
-This connection can be either over JSON-RPC using HTTP (TCP/IP) or UNIX
-sockets (IPC).
+To use the web3 library you will need to instantiate an instance of the
+``Web3`` object.
 
 .. code-block:: python
 
@@ -60,6 +56,9 @@ sockets (IPC).
 
     # or for an IPC based connection
     >>> web3 = Web3(IPCProvider())
+    >>> web3.blockNumber
+    4000000
+
 
 This ``web3`` instance will now allow you to interact with the Ethereum
 blockchain.

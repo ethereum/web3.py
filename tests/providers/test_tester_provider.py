@@ -13,7 +13,7 @@ from web3.providers.tester import (
 def test_making_provider_request():
     from testrpc.rpc import RPCMethods
     provider = EthereumTesterProvider()
-    rm = RequestManager(provider)
+    rm = RequestManager(None, provider)
 
     response = rm.request_blocking(method="web3_clientVersion", params=[])
 

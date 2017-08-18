@@ -23,7 +23,7 @@ def get_open_port():
 def test_making_provider_request():
     from testrpc.rpc import RPCMethods
     provider = TestRPCProvider(port=get_open_port())
-    rm = RequestManager(provider)
+    rm = RequestManager(None, provider)
 
     response = rm.request_blocking(method="web3_clientVersion", params=[])
 

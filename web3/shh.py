@@ -1,10 +1,3 @@
-from web3 import formatters
-from web3.utils.encoding import (
-    to_decimal,
-)
-from web3.utils.functional import (
-    apply_formatters_to_return,
-)
 from web3.utils.filters import (
     ShhFilter,
 )
@@ -15,7 +8,6 @@ from web3.utils.module import (
 
 class Shh(Module):
     @property
-    @apply_formatters_to_return(to_decimal)
     def version(self):
         return self.web3.manager.request_blocking("shh_version", [])
 
@@ -50,10 +42,8 @@ class Shh(Module):
     def uninstallFilter(self, filter_id):
         return self.web3.manager.request_blocking("shh_uninstallFilter", [filter_id])
 
-    @apply_formatters_to_return(formatters.log_array_formatter)
     def getMessages(self, filter_id):
         return self.web3.manager.request_blocking("shh_getMessages", [filter_id])
 
-    @apply_formatters_to_return(formatters.log_array_formatter)
     def getFilterChanges(self, filter_id):
         return self.web3.manager.request_blocking("shh_getFilterChanges", [filter_id])

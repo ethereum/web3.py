@@ -1,19 +1,14 @@
 Providers
-========
+=========
 
-.. py:module:: web3.providers
-
-
-Providers are in control of the actual interactions with the blockchain.
-
-
-.. py:currentmodule:: web3.providers.rpc
+Web3 ships with the following providers which are appropriate for connecting to
+local and remote JSON-RPC servers.
 
 
 HTTPProvider
 ------------
 
-.. py:class:: RPCProvider(endpoint_uri[, request_kwargs])
+.. py:class:: web3.providers.rpc.HTTPProvider(endpoint_uri[, request_kwargs])
 
     This provider handles interactions with an HTTP or HTTPS based JSON-RPC server.
 
@@ -24,6 +19,22 @@ HTTPProvider
     * ``request_kwargs`` this should be a dictionary of keyword arguments which
       will be passed onto the http/https request.
 
+    .. code-block:: python
+
+        >>> from web3 import Web3
+        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545")
+
+    Under the hood, the ``HTTPProvider`` uses the python requests library for
+    making requests.  If you would like to modify how requests are made, you can
+    use the ``request_kwargs`` to do so.  A common use case for this is increasing
+    the timeout for each request.
+
+
+    .. code-block:: python
+
+        >>> from web3 import Web3
+        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 60})
+
 
 IPCProvider
 -----------
@@ -33,12 +44,21 @@ IPCProvider
     This provider handles interaction with an IPC Socket based JSON-RPC
     server.
 
+    *  ``ipc_path`` is the filesystem path to the IPC socket.:56
+
+    .. code-block:: python
+
+        >>> from web3 import Web3
+        >>> web3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc")
+
 
 .. py:currentmodule:: web3.providers.tester
 
 
 EthereumTesterProvider
 ----------------------
+
+.. warning:: Pending Deprecation:  This provider is being deprecated soon in favor of the newly created ethereum-tester library.
 
 .. py:class:: EthereumTesterProvider():
 
@@ -48,6 +68,8 @@ EthereumTesterProvider
 
 TestRPCProvider
 ---------------
+
+.. warning:: Pending Deprecation:  This provider is being deprecated soon in favor of the newly created ethereum-tester library.
 
 .. py:class:: TestRPCProvider():
 

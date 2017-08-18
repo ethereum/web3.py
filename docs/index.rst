@@ -16,8 +16,8 @@ Contents
     overview
     filters
     contracts
-    managers
     providers
+    internals
     web3.main
     web3.eth
     web3.db
