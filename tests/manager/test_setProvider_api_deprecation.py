@@ -9,7 +9,7 @@ from web3.manager import (
 
 
 def test_setProvider_api_deprecation():
-    manager = RequestManager(BaseProvider())
+    manager = RequestManager(None, BaseProvider())
 
     with pytest.warns(DeprecationWarning):
         manager.setProvider(BaseProvider())

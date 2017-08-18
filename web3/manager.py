@@ -20,7 +20,8 @@ from web3.utils.compat import (
 
 
 class RequestManager(object):
-    def __init__(self, providers, middlewares=None):
+    def __init__(self, web3, providers, middlewares=None):
+        self.web3 = web3
         self.pending_requests = {}
         self.providers = providers
 
@@ -29,6 +30,7 @@ class RequestManager(object):
 
         self.middlewares = middlewares
 
+    web3 = None
     middlewares = None
     _provider = None
 
@@ -63,7 +65,8 @@ class RequestManager(object):
             try:
                 return wrap_provider_request(
                     middlewares=self.middlewares,
-                    provider=provider,
+                    web3=self.web3,
+                    make_request_fn=provider.make_request,
                     request_id=request_id,
                 )(method, params)
             except CannotHandleRequest:

@@ -15,23 +15,23 @@ from .pythonic import (  # noqa: F401
 
 
 @curry
-def _reduce_middleware_fn(request_fn, middleware, provider, request_id):
+def _reduce_middleware_fn(request_fn, middleware, web3, request_id):
     """
     The reduce function for wrapping the provider request in the middlewares.
     """
     return partial(
-        middleware(provider, request_fn),
+        middleware(request_fn, web3),
         request_id=request_id,
     )
 
 
-def wrap_provider_request(middlewares, provider, request_id):
+def wrap_provider_request(middlewares, web3, make_request_fn, request_id):
     """
     Returns a callable function which will call the provider.make_request
     function wrapped with all of the middlewares.
     """
     return functools.reduce(
-        _reduce_middleware_fn(provider=provider, request_id=request_id),
+        _reduce_middleware_fn(web3=web3, request_id=request_id),
         reversed(middlewares),
-        provider.make_request,
+        make_request_fn,
     )

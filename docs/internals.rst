@@ -140,7 +140,7 @@ business logic for web3 requests.  Writing middleware is simple.
 
 .. code-block:: python
 
-    def simple_middleware(provider, make_request):
+    def simple_middleware(make_request, web3):
         # do one-time setup operations here
 
         def middleware(method, params, request_id):
@@ -162,8 +162,8 @@ It is also possible to implement middlewares as a class.
 .. code-block:: python
 
     class SimpleMiddleware(object):
-        def __init__(self, provider, make_request):
-            self.provider = provider
+        def __init__(self, make_request, web3):
+            self.web3 = web3
             self.make_request = make_request
 
         def __call__(self, method, params, request_id):
@@ -177,9 +177,6 @@ It is also possible to implement middlewares as a class.
             # finally return the response
             return response
 
-
-The ``provider`` parameter is the provider that this request will ultimately be
-delegated to.  
 
 The ``make_request`` parameter is a callable which takes two
 positional arguments, ``method`` and ``params`` which correspond to the RPC

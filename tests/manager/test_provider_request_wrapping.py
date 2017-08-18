@@ -7,7 +7,7 @@ from web3.providers import (
 
 
 def middleware_factory(key):
-    def middleware_wrapper(provider, make_request):
+    def middleware_wrapper(make_request, web3):
         def middleware_fn(method, params, request_id):
             params.append(key)
             method = "|".join((method, key))
@@ -36,7 +36,7 @@ class DummyProvider(BaseProvider):
 def test_provider_property_setter_and_getter():
     provider = DummyProvider()
 
-    manager = RequestManager(provider, middlewares=[middleware_a, middleware_b])
+    manager = RequestManager(None, provider, middlewares=[middleware_a, middleware_b])
     response = manager.request_blocking('init', ['init'], 'id-12345')
 
     assert response['method'] == 'init|middleware-A|middleware-B'

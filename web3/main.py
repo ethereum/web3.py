@@ -103,7 +103,7 @@ class Web3(object):
     toChecksumAddress = staticmethod(to_checksum_address)
 
     def __init__(self, providers, middlewares=None, modules=None):
-        self.manager = RequestManager(providers, middlewares)
+        self.manager = RequestManager(self, providers, middlewares)
 
         if modules is None:
             modules = get_default_modules()
