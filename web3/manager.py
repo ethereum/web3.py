@@ -1,8 +1,17 @@
 import uuid
 import warnings
 
+from eth_utils import (
+    is_list_like,
+)
+
+from web3.exceptions import (
+    CannotHandleRequest,
+    UnhandledRequest,
+)
 from web3.middleware import (
     wrap_provider_request,
+    pythonic_middleware,
 )
 
 from web3.utils.compat import (
@@ -11,32 +20,36 @@ from web3.utils.compat import (
 
 
 class RequestManager(object):
-    def __init__(self, provider):
+    def __init__(self, providers, middlewares=None):
         self.pending_requests = {}
-        self.provider = provider
+        self.providers = providers
+
+        if middlewares is None:
+            middlewares = [pythonic_middleware]
+
+        self.middlewares = middlewares
 
     middlewares = None
     _provider = None
 
     @property
-    def provider(self):
+    def providers(self):
         return self._provider
 
-    @provider.setter
-    def provider(self, value):
-        self._provider = value
-        self.middlewares = tuple(
-            middleware_class(value)
-            for middleware_class
-            in self.provider.get_middleware_classes()
-        )
+    @providers.setter
+    def providers(self, value):
+        if not is_list_like(value):
+            providers = [value]
+        else:
+            providers = value
+        self._provider = providers
 
-    def setProvider(self, provider):
+    def setProvider(self, providers):
         warnings.warn(DeprecationWarning(
             "The `setProvider` API has been deprecated.  You should update your "
             "code to directly set the `manager.provider` property."
         ))
-        self.provider = provider
+        self.providers = providers
 
     #
     # Provider requests and response
@@ -46,11 +59,26 @@ class RequestManager(object):
         return request_id
 
     def _make_request(self, method, params, request_id):
-        return wrap_provider_request(
-            middlewares=self.middlewares,
-            request_fn=self.provider.make_request,
-            request_id=request_id,
-        )((method, params))
+        for provider in self.providers:
+            try:
+                return wrap_provider_request(
+                    middlewares=self.middlewares,
+                    provider=provider,
+                    request_id=request_id,
+                )(method, params)
+            except CannotHandleRequest:
+                continue
+        else:
+            raise UnhandledRequest(
+                "No providers responded to the RPC request:\n"
+                "method:{0}\n"
+                "params:{1}\n"
+                "request_id: {2}".format(
+                    method,
+                    params,
+                    request_id
+                )
+            )
 
     def request_blocking(self, method, params, request_id=None):
         """

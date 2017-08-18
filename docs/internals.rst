@@ -70,6 +70,10 @@ center.  The Provider then handles the request, producing a response which will
 then pass back out from the center of the onion, through each layer until it is
 finally returned by the Manager.
 
+In the situation where web3 is operating with multiple providers the same
+lifecycle applies.  The manager will iterate over each provider, returning the
+response from the first provider that returns a response.
+
 
 Providers
 ---------
@@ -80,82 +84,15 @@ HTTP or an IPC socket.  There is however nothing which requires providers to be
 RPC based, allowing for providers designed for testing purposes which use an
 in-memory EVM to fulfil requests.
 
-Web3 ships with the following providers which are appropriate for connecting to
-local and remote JSON-RPC servers.
+In most simple cases you will be using a single provider.  However, if you
+would like to use Web3 with multiple providers, you can simply pass them in as
+a list when instantiating your ``Web3`` object.
 
 
-HTTPProvider
-~~~~~~~~~~~~
+.. code-block:: python
 
-.. py:class:: web3.providers.rpc.HTTPProvider(endpoint_uri[, request_kwargs])
+    >>> web3 = Web3([provider_a, provider_b])
 
-    This provider handles interactions with an HTTP or HTTPS based JSON-RPC server.
-
-    * ``endpoint_uri`` should be the full URI to the RPC endpoint such as
-      ``'https://localhost:8545'``.  For RPC servers behind HTTP connections
-      running on port 80 and HTTPS connections running on port 443 the port can
-      be omitted from the URI.
-    * ``request_kwargs`` this should be a dictionary of keyword arguments which
-      will be passed onto the http/https request.
-
-    .. code-block:: python
-
-        >>> from web3 import Web3
-        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545")
-
-    Under the hood, the ``HTTPProvider`` uses the python requests library for
-    making requests.  If you would like to modify how requests are made, you can
-    use the ``request_kwargs`` to do so.  A common use case for this is increasing
-    the timeout for each request.
-
-
-    .. code-block:: python
-
-        >>> from web3 import Web3
-        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 60})
-
-
-IPCProvider
-~~~~~~~~~~~
-
-.. py:class:: IPCProvider(ipc_path=None, testnet=False):
-
-    This provider handles interaction with an IPC Socket based JSON-RPC
-    server.
-
-    *  ``ipc_path`` is the filesystem path to the IPC socket.:56
-
-    .. code-block:: python
-
-        >>> from web3 import Web3
-        >>> web3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc")
-
-
-.. py:currentmodule:: web3.providers.tester
-
-
-EthereumTesterProvider
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning:: Pending Deprecation:  This provider is being deprecated soon in favor of the newly created ethereum-tester library.
-
-.. py:class:: EthereumTesterProvider():
-
-    This provider can be used for testing.  It uses an ephemeral blockchain
-    backed by the ``ethereum.tester`` module.
-
-
-TestRPCProvider
-~~~~~~~~~~~~~~~
-
-.. warning:: Pending Deprecation:  This provider is being deprecated soon in favor of the newly created ethereum-tester library.
-
-.. py:class:: TestRPCProvider():
-
-    This provider can be used for testing.  It uses an ephemeral blockchain
-    backed by the ``ethereum.tester`` module.  This provider will be slower
-    than the ``EthereumTesterProvider`` since it uses an HTTP server for RPC
-    interactions with.
 
 
 Writing your own Provider
@@ -186,53 +123,77 @@ setting the middlewares the provider should use.
     if the socket is closed.
 
 
-Setting middlewares is done one of two ways.
-
-* Set the ``middleware_classes`` property to an iterable of classes that
-  implement the middleware API.
-* Implement a ``get_middleware_classes()`` method which returns an iterable of
-  classes that implement the middleware API.
-
+If a provider is unable to responde to certain RPC calls it should raise the
+``web3.exceptions.CannotHandleRequest`` exception.  When this happens, the
+request is issued to the next configured provider.  If no providers are able to
+handle the request then a ``web3.exceptions.UnhandledRequest`` error will be
+raised.
 
 
 Middlewares
 -----------
 
+.. note:: The Middleware API in web3 borrows heavily from the Django middleware API introduced in version 1.10.0
+
 Middlewares provide a simple yet powerful api for implementing layers of
-business logic for web3 requests.  Each middleware class **may** implement
-any of the following APIs.
+business logic for web3 requests.  Writing middleware is simple.
 
-.. py:class:: BaseMiddleware.process_request(method, params, request_id)
+.. code-block:: python
 
-    This will be called prior to issuing the request to the provider.  This
-    method **must** return a 2-tuple of ``(method, params)``.  Each middleware
-    is free to modify these parameters in any way.
+    def simple_middleware(provider, make_request):
+        # do one-time setup operations here
 
-    The ``request_id`` argument is a unique identifier for this request which
-    can be used by any middleware which needs to maintain state between the
-    request and response.
+        def middleware(method, params, request_id):
+            # do pre-processing here
 
+            # perform the RPC request, getting the response
+            response = make_request(method, params)
 
-.. py:class:: BaseMiddleware.process_result(result, request_id)
+            # do post-processing here
 
-    In the case that the Provider request is successful, this will be called
-    with the value from the ``'result'`` key from the Provider response.
-
-    The ``request_id`` argument is the same as from the ``process_request`` API.
+            # finally return the response
+            return response
+        return middleware
 
 
-.. py:class:: BaseMiddleware.process_error(error, request_id)
-
-    In the case that the Provider request fails, this will be called
-    with the value from the ``'error'`` key from the Provider response.
-
-    The ``request_id`` argument is the same as from the ``process_request`` API.
+It is also possible to implement middlewares as a class.
 
 
-.. py:property:: BaseMiddleware.provider
+.. code-block:: python
 
-    Each middleware has access to the Provider that will ultimately handle the
-    request.
+    class SimpleMiddleware(object):
+        def __init__(self, provider, make_request):
+            self.provider = provider
+            self.make_request = make_request
+
+        def __call__(self, method, params, request_id):
+            # do pre-processing here
+
+            # perform the RPC request, getting the response
+            response = self.make_request(method, params)
+
+            # do post-processing here
+
+            # finally return the response
+            return response
+
+
+The ``provider`` parameter is the provider that this request will ultimately be
+delegated to.  
+
+The ``make_request`` parameter is a callable which takes two
+positional arguments, ``method`` and ``params`` which correspond to the RPC
+method that is being called.  There is no requirement that the ``make_request``
+function be called.  For example, if you were writing a middleware which cached
+responses for certain methods your middleware would likely not call the
+``make_request`` method, but instead get the response from some local cache.
+
+By default, Web3 will use the ``web3.middleware.pythonic_middleware``.  This
+middleware performs the following translations for requests and responses.
+
+* Numeric request parameters will be converted to their hexidecimal representation
+* Numeric responses will be converted from their hexidecimal representations to
+  their integer representations.
 
 
 Managers

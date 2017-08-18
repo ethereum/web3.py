@@ -3,15 +3,15 @@ from __future__ import absolute_import
 import warnings
 
 from eth_utils import (
-    to_wei,
+    coerce_return_to_text,
+    decode_hex,
+    encode_hex,
+    force_text,
     from_wei,
     is_address,
     is_checksum_address,
     to_checksum_address,
-    decode_hex,
-    encode_hex,
-    force_text,
-    coerce_return_to_text,
+    to_wei,
 )
 
 from toolz.functoolz import (
@@ -102,8 +102,8 @@ class Web3(object):
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
-    def __init__(self, provider, modules=None):
-        self.manager = RequestManager(provider)
+    def __init__(self, providers, middlewares=None, modules=None):
+        self.manager = RequestManager(providers, middlewares)
 
         if modules is None:
             modules = get_default_modules()
@@ -117,11 +117,11 @@ class Web3(object):
             setattr(self, module_name, module_class(self))
 
     @property
-    def provider(self):
-        return self.manager.provider
+    def providers(self):
+        return self.manager.providers
 
-    def setProvider(self, provider):
-        self.manager.setProvider(provider)
+    def setProviders(self, providers):
+        self.manager.setProvider(providers)
 
     def setManager(self, manager):
         warnings.warn(DeprecationWarning(
@@ -133,9 +133,9 @@ class Web3(object):
     @property
     def currentProvider(self):
         warnings.warn(DeprecationWarning(
-            "The `currentProvider` property has been renamed to `provider`."
+            "The `currentProvider` property has been renamed to `providers` and is now a list."
         ))
-        return self.manager.provider
+        return self.manager.providers[0]
 
     @coerce_return_to_text
     def sha3(self, value, encoding="hex"):
@@ -146,4 +146,8 @@ class Web3(object):
         return self.manager.request_blocking('web3_sha3', [hex_string])
 
     def isConnected(self):
-        return self.provider is not None and self.provider.isConnected()
+        for provider in self.providers:
+            if provider.isConnected():
+                return True
+        else:
+            return False

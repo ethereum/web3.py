@@ -10,21 +10,20 @@ class BaseMiddleware(object):
     """
     provider = None
 
-    def __init__(self, provider):
+    def __init__(self, provider, make_request):
         self.provider = provider
+        self.make_request = make_request
 
-    def _process_request(self, request, request_id):
-        """
-        Proxy so that the actual API method can take two parameters rather than
-        the single combined `request` parameter.
-        """
-        method, params = request
-        return self.process_request(method, params, request_id)
+    def __call__(self, method, params, request_id):
+        return self.process_response(
+            self.process_request(method, params, request_id),
+            request_id,
+        )
 
     def process_request(self, method, params, request_id):
         return method, params
 
-    def _process_response(self, response, request_id):
+    def process_response(self, response, request_id):
         if 'result' in response:
             return assoc(
                 response,

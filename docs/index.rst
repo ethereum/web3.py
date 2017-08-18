@@ -16,6 +16,7 @@ Contents
     overview
     filters
     contracts
+    providers
     internals
     web3.main
     web3.eth

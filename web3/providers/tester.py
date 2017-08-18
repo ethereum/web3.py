@@ -3,11 +3,6 @@ from web3.utils.compat import (
     spawn,
 )
 
-from web3.middleware import (
-    GethFormattingMiddleware,
-    EVMSnapshotFormattingMiddleware,
-)
-
 from .base import BaseProvider  # noqa: E402
 from .rpc import HTTPProvider  # noqa: E402
 
@@ -21,8 +16,6 @@ def is_testrpc_available():
 
 
 class EthereumTesterProvider(BaseProvider):
-    middleware_classes = [GethFormattingMiddleware, EVMSnapshotFormattingMiddleware]
-
     def __init__(self,
                  *args,
                  **kwargs):
@@ -52,8 +45,6 @@ class EthereumTesterProvider(BaseProvider):
 
 
 class TestRPCProvider(HTTPProvider):
-    middleware_classes = [GethFormattingMiddleware, EVMSnapshotFormattingMiddleware]
-
     def __init__(self, host="127.0.0.1", port=8545, *args, **kwargs):
         if not is_testrpc_available():
             raise Exception("`TestRPCProvider` requires the `eth-testrpc` package to be installed")

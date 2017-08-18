@@ -22,32 +22,37 @@ class BaseDummyMiddleware(BaseMiddleware):
         return result
 
 
-class MiddlwareA(BaseDummyMiddleware):
-    key = 'middleware-A'
+def middleware_factory(key):
+    def middleware_wrapper(provider, make_request):
+        def middleware_fn(method, params, request_id):
+            params.append(key)
+            method = "|".join((method, key))
+            response = make_request(method, params)
+            response['result']['middlewares'].append(key)
+            return response
+        return middleware_fn
+    return middleware_wrapper
 
 
-class MiddlwareB(BaseDummyMiddleware):
-    key = 'middleware-B'
+middleware_a = middleware_factory('middleware-A')
+middleware_b = middleware_factory('middleware-B')
 
 
 class DummyProvider(BaseProvider):
-    middleware_classes = [MiddlwareA, MiddlwareB]
-
     def make_request(self, method, params):
-        return {'result': {
-            'method': method,
-            'params': params,
-            'middlewares': [],
-        }}
+        return {
+            'result': {
+                'method': method,
+                'params': params,
+                'middlewares': [],
+            },
+        }
 
 
 def test_provider_property_setter_and_getter():
     provider = DummyProvider()
 
-    manager = RequestManager(provider)
-    middleware_a, middleware_b = manager.middlewares
-    assert isinstance(middleware_a, MiddlwareA)
-    assert isinstance(middleware_b, MiddlwareB)
+    manager = RequestManager(provider, middlewares=[middleware_a, middleware_b])
     response = manager.request_blocking('init', ['init'], 'id-12345')
 
     assert response['method'] == 'init|middleware-A|middleware-B'
