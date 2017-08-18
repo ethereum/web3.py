@@ -1,15 +1,6 @@
 from web3.utils.module import (
     Module,
 )
-<<<<<<< HEAD
-from web3.utils.functional import (
-    apply_formatters_to_return,
-)
-from web3.utils.module import (
-    Module,
-)
-=======
->>>>>>> 2aa43e0... remove formatters.py
 
 
 class Net(Module):
