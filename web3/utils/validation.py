@@ -18,19 +18,19 @@ def validate_abi(abi):
             raise TypeError("The elements of 'abi' are not all dictionaries")
 
 
-def validate_address(address):
+def validate_address(value):
     """
     Helper function for validating an address
     """
-    if not is_address(address):
-        validate_address_checksum(address)
-        raise TypeError("'address' is not an address")
+    if not is_address(value):
+        raise TypeError("'{0}' is not an address".format(value))
+    validate_address_checksum(value)
 
 
-def validate_address_checksum(address):
+def validate_address_checksum(value):
     """
     Helper function for validating an address EIP55 checksum
     """
-    if is_checksum_formatted_address(address):
-        if not is_checksum_address(address):
-            raise ValueError("'address' has an invalid EIP55 checksum")
+    if is_checksum_formatted_address(value):
+        if not is_checksum_address(value):
+            raise ValueError("'{0}' has an invalid EIP55 checksum".format(value))
