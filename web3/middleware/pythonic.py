@@ -203,6 +203,7 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
+        # Snapshot and Revert
         'evm_revert': apply_formatter_if(
             apply_formatter_at_index(to_integer_if_hex, 0),
             bool,
@@ -245,5 +246,7 @@ pythonic_middleware = construct_formatting_middleware(
         # Transaction Pool
         'txpool_content': transaction_pool_content_formatter,
         'txpool_inspect': transaction_pool_inspect_formatter,
+        # Snapshot and Revert
+        'evm_snapshot': hex_to_integer,
     },
 )

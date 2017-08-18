@@ -12,9 +12,6 @@ from .formatting import (  # noqa: F401
 from .pythonic import (  # noqa: F401
     pythonic_middleware,
 )
-from .snapshot import (  # noqa: F401
-    EVMSnapshotFormattingMiddleware,
-)
 
 
 @curry

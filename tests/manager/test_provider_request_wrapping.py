@@ -4,22 +4,6 @@ from web3.manager import (
 from web3.providers import (
     BaseProvider,
 )
-from web3.middleware import (
-    BaseMiddleware,
-)
-
-
-class BaseDummyMiddleware(BaseMiddleware):
-    key = None
-
-    def process_request(self, method, params, request_id):
-        params.append(self.key)
-        method = "|".join((method, self.key))
-        return method, params
-
-    def process_result(self, result, request_id):
-        result['middlewares'].append(self.key)
-        return result
 
 
 def middleware_factory(key):
