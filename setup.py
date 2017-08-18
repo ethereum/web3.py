@@ -15,6 +15,7 @@ DIR = os.path.dirname(os.path.abspath(__file__))
 readme = open(os.path.join(DIR, 'README.md')).read()
 
 install_requires = [
+    "ethereum",
     "ethereum-abi-utils>=0.4.0",
     "ethereum-utils>=0.3.0",
     "pylru>=1.0.9",

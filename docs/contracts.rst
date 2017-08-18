@@ -78,14 +78,16 @@ Each Contract Factory exposes the following methods.
 
 .. py:method:: Contract.transact(transaction).myMethod(*args, **kwargs)
 
-    Execute the specified function by sending a new public transaction.  
+    Execute the specified function by sending a new public transaction.
 
     This is executed in two steps.
-    
+
     The first portion of this function call ``transact(transaction)`` takes a
     single parameter which should be a python dictionary conforming to
     the same format as the ``web3.eth.sendTransaction(transaction)`` method.
-    This dictionary may not contain the keys ``data`` or ``to``.
+    This dictionary may not contain the keys ``data`` or ``to``. In addition,
+    the `private_key` entry is allowed. If specified, the transaction will be
+    be signed locally instead of on the connected node.
 
     The second portion of the function call ``myMethod(*args, **kwargs)``
     selects the appropriate contract function based on the name and provided
