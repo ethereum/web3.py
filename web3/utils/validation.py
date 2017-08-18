@@ -22,9 +22,9 @@ def validate_address(value):
     """
     Helper function for validating an address
     """
+    validate_address_checksum(value)
     if not is_address(value):
         raise ValueError("'{0}' is not an address".format(value))
-    validate_address_checksum(value)
 
 
 def validate_address_checksum(value):
