@@ -5,11 +5,11 @@
 [![Build Status](https://travis-ci.org/pipermerriam/web3.py.png)](https://travis-ci.org/pipermerriam/web3.py)
    
 
-A python implementation of [web3.js](https://github.com/ethereum/web3.js)
+A Python implementation of [web3.js](https://github.com/ethereum/web3.js)
 
 * Python 2.7, 3.4, 3.5 support
 
-Read more in the [documentation on ReadTheDocs](http://web3py.readthedocs.io/)
+Read more in the [documentation on ReadTheDocs](http://web3py.readthedocs.io/). [View the change log on Github](https://github.com/pipermerriam/web3.py/blob/master/CHANGELOG).
 
 ## Developer setup
 
