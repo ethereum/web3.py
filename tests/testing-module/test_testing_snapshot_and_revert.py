@@ -3,7 +3,7 @@ def test_snapshot_revert_to_latest_snapshot(web3):
 
     block_before_snapshot = web3.eth.getBlock("latest")
 
-    snapshot_idx = web3.testing.snapshot()
+    web3.testing.snapshot()
 
     block_after_snapshot = web3.eth.getBlock("latest")
 

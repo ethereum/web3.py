@@ -5,7 +5,6 @@ from testrpc.client.utils import (
 )
 
 from eth_utils import (
-    force_bytes,
     is_same_address,
     to_normalized_address,
 )

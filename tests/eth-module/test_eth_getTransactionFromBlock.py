@@ -1,4 +1,3 @@
-import collections
 import itertools
 import pytest
 
@@ -10,8 +9,6 @@ def wait_for_first_block(web3, wait_for_block, skip_if_testrpc):
 
 
 def test_eth_getTransactionFromBlock(web3, extra_accounts, wait_for_transaction):
-    current_block_number = web3.eth.blockNumber
-
     transaction_hashes = []
 
     for _ in range(5):

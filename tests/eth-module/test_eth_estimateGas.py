@@ -12,13 +12,15 @@ def wait_for_first_block(web3, wait_for_block):
 
 
 @pytest.fixture()
-def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, MATH_SOURCE,
+def math_contract(web3,
+                  MATH_ABI,
+                  MATH_CODE,
+                  MATH_RUNTIME,
                   wait_for_transaction):
     MathContract = web3.eth.contract(
         abi=MATH_ABI,
         bytecode=MATH_CODE,
         bytecode_runtime=MATH_RUNTIME,
-        source=MATH_SOURCE,
     )
     deploy_txn = MathContract.deploy({'from': web3.eth.coinbase})
     deploy_receipt = wait_for_transaction(web3, deploy_txn)
