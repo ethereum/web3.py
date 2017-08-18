@@ -12,10 +12,10 @@ def validate_abi(abi):
     Helper function for validating an ABI
     """
     if not is_list_like(abi):
-        raise TypeError("'abi' is not a list")
+        raise ValueError("'abi' is not a list")
     for e in abi:
         if not is_dict(e):
-            raise TypeError("The elements of 'abi' are not all dictionaries")
+            raise ValueError("The elements of 'abi' are not all dictionaries")
 
 
 def validate_address(value):
@@ -23,7 +23,7 @@ def validate_address(value):
     Helper function for validating an address
     """
     if not is_address(value):
-        raise TypeError("'{0}' is not an address".format(value))
+        raise ValueError("'{0}' is not an address".format(value))
     validate_address_checksum(value)
 
 
