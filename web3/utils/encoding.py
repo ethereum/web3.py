@@ -4,14 +4,14 @@ import json
 from rlp.sedes import big_endian_int
 
 from eth_utils import (
-    is_string,
+    coerce_args_to_bytes,
+    coerce_args_to_text,
+    encode_hex,
+    is_0x_prefixed,
     is_boolean,
     is_dict,
     is_integer,
-    coerce_args_to_text,
-    coerce_args_to_bytes,
-    is_0x_prefixed,
-    encode_hex,
+    is_string,
 )
 
 from .formatting import (
