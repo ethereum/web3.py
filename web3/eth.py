@@ -256,7 +256,7 @@ class Eth(Module):
     @apply_formatters_to_return(to_decimal)
     def estimateGas(self, transaction):
         formatted_transaction = formatters.input_transaction_formatter(self, transaction)
-        return self.web3._requestManager.request_blocking(
+        return self.web3.manager.request_blocking(
             "eth_estimateGas",
             [formatted_transaction],
         )
@@ -280,7 +280,7 @@ class Eth(Module):
                 )
         elif isinstance(filter_params, dict):
             formatted_filter_params = formatters.input_filter_params_formatter(filter_params)
-            filter_id = self.web3._requestManager.request_blocking(
+            filter_id = self.web3.manager.request_blocking(
                 "eth_newFilter",
                 [formatted_filter_params],
             )

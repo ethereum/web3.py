@@ -4,17 +4,10 @@ from web3.manager import (
 from web3.providers import (
     BaseProvider,
 )
-from web3.middleware import (
-    BaseMiddleware,
-)
-
-
-class DummyMiddleware(BaseMiddleware):
-    pass
 
 
 class DummyProvider(BaseProvider):
-    middleware_classes = [DummyMiddleware]
+    pass
 
 
 def test_provider_property_setter_and_getter():
@@ -25,9 +18,7 @@ def test_provider_property_setter_and_getter():
 
     manager = RequestManager(provider_a)
     assert manager.provider is provider_a
-    assert manager.middlewares[0].provider is provider_a
 
     manager.provider = provider_b
 
     assert manager.provider is provider_b
-    assert manager.middlewares[0].provider is provider_b
