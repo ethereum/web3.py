@@ -1,6 +1,8 @@
 import pytest
 
-from web3.providers.manager import RequestManager
+from web3.manager import (
+    RequestManager,
+)
 from web3.providers.tester import (
     TestRPCProvider,
     is_testrpc_available,

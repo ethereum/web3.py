@@ -15,13 +15,13 @@ class TxPool(Module):
     @property
     @apply_formatters_to_return(transaction_pool_content_formatter)
     def content(self):
-        return self.web3._requestManager.request_blocking("txpool_content", [])
+        return self.web3.manager.request_blocking("txpool_content", [])
 
     @property
     @apply_formatters_to_return(transaction_pool_inspect_formatter)
     def inspect(self):
-        return self.web3._requestManager.request_blocking("txpool_inspect", [])
+        return self.web3.manager.request_blocking("txpool_inspect", [])
 
     @property
     def status(self):
-        return self.web3._requestManager.request_blocking("txpool_status", [])
+        return self.web3.manager.request_blocking("txpool_status", [])

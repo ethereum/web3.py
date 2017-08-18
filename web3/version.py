@@ -19,30 +19,14 @@ class Version(Module):
 
     @property
     def node(self):
-        return self.web3._requestManager.request_blocking("web3_clientVersion", [])
-
-    def getNode(self, *args, **kwargs):
-        raise NotImplementedError("Async calling has not been implemented")
+        return self.web3.manager.request_blocking("web3_clientVersion", [])
 
     @property
     @apply_formatters_to_return(to_decimal)
     def network(self):
-        return self.web3._requestManager.request_blocking("net_version", [])
-
-    def getNetwork(self, *args, **kwargs):
-        raise NotImplementedError("Async calling has not been implemented")
+        return self.web3.manager.request_blocking("net_version", [])
 
     @property
     @apply_formatters_to_return(to_decimal)
     def ethereum(self):
-        return self.web3._requestManager.request_blocking("eth_protocolVersion", [])
-
-    def getEthereum(self, *args, **kwargs):
-        raise NotImplementedError("Async calling has not been implemented")
-
-    @property
-    def whisper(self):
-        raise NotImplementedError("Async calling has not been implemented")
-
-    def getWhisper(self, *args, **kwargs):
-        raise NotImplementedError("Async calling has not been implemented")
+        return self.web3.manager.request_blocking("eth_protocolVersion", [])

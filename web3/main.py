@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import warnings
+
 from eth_utils import (
     to_wei,
     from_wei,
@@ -41,7 +43,7 @@ from web3.providers.tester import (
 from web3.providers.ipc import (
     IPCProvider,
 )
-from web3.providers.manager import (
+from web3.manager import (
     RequestManager,
 )
 
@@ -101,7 +103,7 @@ class Web3(object):
     toChecksumAddress = staticmethod(to_checksum_address)
 
     def __init__(self, provider, modules=None):
-        self._requestManager = RequestManager(provider)
+        self.manager = RequestManager(provider)
 
         if modules is None:
             modules = get_default_modules()
@@ -114,15 +116,26 @@ class Web3(object):
                 )
             setattr(self, module_name, module_class(self))
 
+    @property
+    def provider(self):
+        return self.manager.provider
+
     def setProvider(self, provider):
-        self._requestManager.setProvider(provider)
+        self.manager.setProvider(provider)
 
     def setManager(self, manager):
-        self._requestManager = manager
+        warnings.warn(DeprecationWarning(
+            "The `setManager` method has been deprecated.  Please update your "
+            "code to directly set the `manager` property."
+        ))
+        self.manager = manager
 
     @property
     def currentProvider(self):
-        return self._requestManager.provider
+        warnings.warn(DeprecationWarning(
+            "The `currentProvider` property has been renamed to `provider`."
+        ))
+        return self.manager.provider
 
     @coerce_return_to_text
     def sha3(self, value, encoding="hex"):
@@ -130,13 +143,7 @@ class Web3(object):
             hex_string = value
         else:
             hex_string = encode_hex(value)
-        return self._requestManager.request_blocking('web3_sha3', [hex_string])
+        return self.manager.request_blocking('web3_sha3', [hex_string])
 
     def isConnected(self):
-        return self.currentProvider is not None and self.currentProvider.isConnected()
-
-    def createBatch(self):
-        raise NotImplementedError("Not Implemented")
-
-    def receive(self, requestid, timeout=0, keep=False):
-        return self._requestManager.receive(requestid, timeout, keep)
+        return self.provider is not None and self.provider.isConnected()

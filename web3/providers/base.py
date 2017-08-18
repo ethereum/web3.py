@@ -22,6 +22,9 @@ class JSONBaseProvider(BaseProvider):
     def __init__(self):
         self.request_counter = itertools.count()
 
+    def decode_rpc_response(self, response):
+        return json.loads(force_text(response))
+
     def encode_rpc_request(self, method, params):
         return force_bytes(json.dumps(force_obj_to_text({
             "jsonrpc": "2.0",
