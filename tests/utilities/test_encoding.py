@@ -70,9 +70,10 @@ def test_bytes_that_start_with_0x():
             "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd",
             "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd"
         ),
-        ("bytes2", b"T\x02", "0x5402"),
-        ("bytes3", b"T\x02", "0x5402"),
-        ("bytes", '0x5402' if sys.version_info[0] >= 3 else b'T\x02', "0x5402"),
+        ("bytes2", b"T\x02", "0x5402" if sys.version_info[0] >= 3 else TypeError),
+        ("bytes3", b"T\x02", "0x5402" if sys.version_info[0] >= 3 else TypeError),
+        ("bytes", '0x5402', "0x5402"),
+        ("bytes", '5402', TypeError),
         ("string", "testing a string!", "0x74657374696e67206120737472696e6721"),
         ("strings", "bad abi!", ValueError),
         ("bool[", True, ValueError),

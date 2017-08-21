@@ -70,7 +70,7 @@ def hex_encode_abi_type(abi_type, value, force_size=None):
                 return to_hex(value)
             return value
         else:
-            return to_hex(value)
+            return value
     elif is_string_type(abi_type):
         return bytes_to_hex(value)
 

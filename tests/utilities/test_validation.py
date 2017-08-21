@@ -1,4 +1,5 @@
 import pytest
+import sys
 
 from web3.utils.validation import (
     validate_abi,
@@ -67,7 +68,9 @@ def test_validation(param, validation, expected):
         ('address[][]', [[4, 5], [True]], TypeError),
         ('address[][]', [[ADDRESS]], None),
         ('bytes', True, TypeError),
-
+        ('bytes', "0x5402", None),
+        ('bytes', "5402", TypeError),
+        ('bytes', b'T\x02', None if sys.version_info[0] >= 3 else TypeError),
     )
 )
 def test_validate_abi_value(abi_type, value, expected):

@@ -1,4 +1,5 @@
 from functools import reduce
+import sys
 
 from eth_utils import (
     is_0x_prefixed,
@@ -48,6 +49,8 @@ def validate_abi_type(abi_type):
 def validate_abi_value(abi_type, value):
     """
     Helper function for validating a value against the expected abi_type
+    Note: abi_type 'bytes' must either be python3 'bytes' object or '0x'
+    prefixed string
     """
     correct = True
     if is_array_type(abi_type):
@@ -64,7 +67,18 @@ def validate_abi_value(abi_type, value):
     elif is_address_type(abi_type):
         correct = is_address(value)
     elif is_bytes_type(abi_type):
-        correct = is_bytes(value) or (is_string(value) and is_0x_prefixed(value))
+        if sys.version_info[0] >= 3 and is_bytes(value):
+            correct = True
+        elif is_string(value):
+            if is_0x_prefixed(value):
+                correct = True
+            else:
+                raise TypeError(
+                    "ABI values of abi-type 'bytes' must be either"
+                    "a python3 'bytes' object or an '0x' prefixed string."
+                )
+        else:
+            correct = False
     elif is_string_type(abi_type):
         correct = is_string(value)
 

@@ -1,5 +1,4 @@
 import pytest
-import sys
 
 
 # Contract that calculated test values can be found at
@@ -49,24 +48,23 @@ import sys
         ),
         (
             ['bytes2'],
-            [b'T\x02'],
-            "0x4ed9171bda52fca71ab28e7f452bd6eacc3e5a568a47e0fa53b503159a9b8910",
-        ),
-        (
-            ['bytes2'],
-            ['0x5402' if sys.version_info[0] >= 3 else b'T\x02'],
+            ['0x5402'],
             "0x4ed9171bda52fca71ab28e7f452bd6eacc3e5a568a47e0fa53b503159a9b8910",
         ),
         (
             ['bytes3'],
-            [b'T\x02'],
+            ['0x5402'],
             "0x4ed9171bda52fca71ab28e7f452bd6eacc3e5a568a47e0fa53b503159a9b8910",
         ),
         (
             ['bytes'],
-            [b'checklongbytestringagainstsoliditysha3hashfunction'],
+            [
+                '0x636865636b6c6f6e6762797465737472696e676167'
+                '61696e7374736f6c6964697479736861336861736866756e6374696f6e'
+            ],
             "0xd78a84d65721b67e4011b10c99dafdedcdcd7cb30153064f773e210b4762e22f",
         ),
+
         (
             ['string'],
             ['testing a string!'],
@@ -78,7 +76,7 @@ import sys
                 'testing a string!',
                 False,
                 299,
-                b'T\x02',
+                '0x5402',
                 "0x49eddd3769c0712032808d86597b84ac5c2f5614",
             ],
             "0x8cc6eabb25b842715e8ca39e2524ed946759aa37bfb7d4b81829cf5a7e266103",
@@ -124,5 +122,11 @@ import sys
     ),
 )
 def test_soliditySha3(web3, types, values, expected):
+
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            web3.soliditySha3(types, values)
+        return
+
     actual = web3.soliditySha3(types, values)
     assert actual == expected
