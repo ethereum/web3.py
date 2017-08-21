@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import pytest
 import sys
 
@@ -42,7 +44,13 @@ def test_from_decimal(value, expected):
 def test_conversion_rount_trip(value):
     intermediate_value = from_decimal(value)
     result_value = to_decimal(intermediate_value)
-    assert result_value == value, "Expected: {0!r}, Result: {1!r}, Intermediate: {2!r}".format(value, result_value, intermediate_value)
+    error_msg = "Expected: {0!r}, Result: {1!r}, Intermediate: {2!r}".format(
+        value,
+        result_value,
+        intermediate_value,
+    )
+    assert result_value == value, error_msg
+
 
 
 def test_bytes_that_start_with_0x():

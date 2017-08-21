@@ -9,15 +9,15 @@ from web3.utils.events import (
 EVENT_1_ABI = {
     "anonymous": False,
     "inputs": [
-        {"indexed": False,"name":"arg0","type":"uint256"},
-        {"indexed": True,"name":"arg1","type":"uint256"},
-        {"indexed": True,"name":"arg2","type":"uint256"},
-        {"indexed": False,"name":"arg3","type":"uint256"},
-        {"indexed": True,"name":"arg4","type":"uint256"},
-        {"indexed": False,"name":"arg5","type":"uint256"},
+        {"indexed": False, "name": "arg0", "type": "uint256"},
+        {"indexed": True, "name": "arg1", "type": "uint256"},
+        {"indexed": True, "name": "arg2", "type": "uint256"},
+        {"indexed": False, "name": "arg3", "type": "uint256"},
+        {"indexed": True, "name": "arg4", "type": "uint256"},
+        {"indexed": False, "name": "arg5", "type": "uint256"},
     ],
     "name": "Event_1",
-    "type":"event",
+    "type": "event",
 }
 EVENT_1_TOPIC = '0xa7144ed450ecab4a6283d3b1e290ff6c889232d922b84d88203eb7619222fb32'
 
@@ -73,4 +73,3 @@ def hex_and_pad(i):
 def test_construct_event_data_set(event_abi, arguments, expected):
     actual = construct_event_data_set(event_abi, arguments)
     assert actual == expected
-

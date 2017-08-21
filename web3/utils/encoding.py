@@ -17,10 +17,8 @@ from eth_utils import (
     is_0x_prefixed,
     encode_hex,
     remove_0x_prefix,
-)
-
-from .formatting import (
-    is_prefixed,
+    force_text,
+    force_bytes,
 )
 
 from web3.utils.abi import (
@@ -39,6 +37,12 @@ from web3.utils.validation import (
     validate_abi_type,
     validate_abi_value,
 )
+
+
+def _is_prefixed(value, prefix):
+    return value.startswith(
+        force_bytes(prefix) if is_bytes(value) else force_text(prefix)
+    )
 
 
 def hex_encode_abi_type(abi_type, value, force_size=None):
@@ -136,7 +140,7 @@ def to_decimal(value):
     Converts value to it's decimal representation in string
     """
     if is_string(value):
-        if is_0x_prefixed(value) or is_prefixed(value, '-0x'):
+        if is_0x_prefixed(value) or _is_prefixed(value, '-0x'):
             value = int(value, 16)
         else:
             value = int(value)
@@ -151,7 +155,7 @@ def from_decimal(value):
     Converts numeric value to it's hex representation
     """
     if is_string(value):
-        if is_0x_prefixed(value) or is_prefixed(value, '-0x'):
+        if is_0x_prefixed(value) or _is_prefixed(value, '-0x'):
             value = int(value, 16)
         else:
             value = int(value)

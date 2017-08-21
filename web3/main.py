@@ -1,20 +1,22 @@
 from __future__ import absolute_import
 
+import warnings
+
 from eth_utils import (
-    to_wei,
+    coerce_return_to_text,
+    decode_hex,
+    encode_hex,
+    force_text,
     from_wei,
     is_address,
     is_checksum_address,
     to_checksum_address,
-    decode_hex,
-    encode_hex,
-    force_text,
-    coerce_return_to_text,
     add_0x_prefix,
     remove_0x_prefix,
+    to_wei,
 )
 
-from cytoolz.functoolz import (
+from toolz.functoolz import (
     compose,
 )
 
@@ -43,7 +45,7 @@ from web3.providers.tester import (
 from web3.providers.ipc import (
     IPCProvider,
 )
-from web3.providers.manager import (
+from web3.manager import (
     RequestManager,
 )
 
@@ -103,8 +105,8 @@ class Web3(object):
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
-    def __init__(self, provider, modules=None):
-        self._requestManager = RequestManager(provider)
+    def __init__(self, providers, middlewares=None, modules=None):
+        self.manager = RequestManager(self, providers, middlewares)
 
         if modules is None:
             modules = get_default_modules()
@@ -117,15 +119,26 @@ class Web3(object):
                 )
             setattr(self, module_name, module_class(self))
 
-    def setProvider(self, provider):
-        self._requestManager.setProvider(provider)
+    @property
+    def providers(self):
+        return self.manager.providers
+
+    def setProviders(self, providers):
+        self.manager.setProvider(providers)
 
     def setManager(self, manager):
-        self._requestManager = manager
+        warnings.warn(DeprecationWarning(
+            "The `setManager` method has been deprecated.  Please update your "
+            "code to directly set the `manager` property."
+        ))
+        self.manager = manager
 
     @property
     def currentProvider(self):
-        return self._requestManager.provider
+        warnings.warn(DeprecationWarning(
+            "The `currentProvider` property has been renamed to `providers` and is now a list."
+        ))
+        return self.manager.providers[0]
 
     @coerce_return_to_text
     def sha3(self, value, encoding="hex"):
@@ -133,7 +146,7 @@ class Web3(object):
             hex_string = value
         else:
             hex_string = encode_hex(value)
-        return self._requestManager.request_blocking('web3_sha3', [hex_string])
+        return self.manager.request_blocking('web3_sha3', [hex_string])
 
     def soliditySha3(self, abi_types, values):
         """
@@ -149,10 +162,8 @@ class Web3(object):
         return self.sha3(hex_string)
 
     def isConnected(self):
-        return self.currentProvider is not None and self.currentProvider.isConnected()
-
-    def createBatch(self):
-        raise NotImplementedError("Not Implemented")
-
-    def receive(self, requestid, timeout=0, keep=False):
-        return self._requestManager.receive(requestid, timeout, keep)
+        for provider in self.providers:
+            if provider.isConnected():
+                return True
+        else:
+            return False

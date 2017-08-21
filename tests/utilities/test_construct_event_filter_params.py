@@ -1,9 +1,5 @@
 import pytest
 
-from eth_utils import (
-    event_abi_to_log_topic,
-)
-
 from web3.utils.filters import (
     construct_event_filter_params,
 )
@@ -11,11 +7,11 @@ from web3.utils.filters import (
 EVENT_1_ABI = {
     "anonymous": False,
     "inputs": [
-        {"indexed": False,"name":"arg0","type":"uint256"},
-        {"indexed": True,"name":"arg1","type":"uint256"},
+        {"indexed": False, "name": "arg0", "type": "uint256"},
+        {"indexed": True, "name": "arg1", "type": "uint256"},
     ],
     "name": "Event_1",
-    "type":"event",
+    "type": "event",
 }
 
 

@@ -48,9 +48,11 @@ def test_contract_deployment_with_constructor_with_arguments(web3,
 
 
 def test_contract_deployment_with_constructor_with_address_argument(web3,
-                                                                    WithConstructorAddressArgumentsContract,
-                                                                    WITH_CONSTRUCTOR_ADDRESS_RUNTIME):
-    deploy_txn = WithConstructorAddressArgumentsContract.deploy(args=["0x16d9983245de15e7a9a73bc586e01ff6e08de737"])
+                                                                    WithConstructorAddressArgumentsContract,  # noqa: E501
+                                                                    WITH_CONSTRUCTOR_ADDRESS_RUNTIME):  # noqa: E501
+    deploy_txn = WithConstructorAddressArgumentsContract.deploy(
+        args=["0x16d9983245de15e7a9a73bc586e01ff6e08de737"],
+    )
 
     txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert txn_receipt is not None

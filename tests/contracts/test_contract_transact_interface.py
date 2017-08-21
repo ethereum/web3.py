@@ -3,7 +3,6 @@
 import pytest
 
 from eth_utils import (
-    force_text,
     force_bytes,
 )
 

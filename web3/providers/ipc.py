@@ -3,16 +3,11 @@ from __future__ import absolute_import
 import sys
 import os
 import contextlib
-import json
 
 try:
     from json import JSONDecodeError
 except ImportError:
     JSONDecodeError = ValueError
-
-from eth_utils import (
-    force_text,
-)
 
 from web3.utils.compat import (
     Timeout,
@@ -89,27 +84,25 @@ class IPCProvider(JSONBaseProvider):
             with get_ipc_socket(self.ipc_path) as sock:
                 sock.sendall(request)
                 # TODO: use a BytesIO object here
-                response_raw = b""
+                raw_response = b""
 
                 with Timeout(10) as timeout:
                     while True:
                         try:
-                            response_raw += sock.recv(4096)
+                            raw_response += sock.recv(4096)
                         except socket.timeout:
                             timeout.sleep(0)
                             continue
 
-                        if response_raw == b"":
+                        if raw_response == b"":
                             timeout.sleep(0)
                         else:
                             try:
-                                json.loads(force_text(response_raw))
+                                response = self.decode_rpc_response(raw_response)
                             except JSONDecodeError:
                                 timeout.sleep(0)
                                 continue
                             else:
-                                break
+                                return response
         finally:
             self._lock.release()
-
-        return response_raw

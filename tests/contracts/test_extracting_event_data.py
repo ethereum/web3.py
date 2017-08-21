@@ -38,10 +38,30 @@ def emitter(web3, Emitter, wait_for_transaction, wait_for_block):
         ('logDouble', 'LogDoubleArg', [12345, 54321], {'arg0': 12345, 'arg1': 54321}),
         ('logDouble', 'LogDoubleAnonymous', [12345, 54321], {'arg0': 12345, 'arg1': 54321}),
         ('logDouble', 'LogDoubleWithIndex', [12345, 54321], {'arg0': 12345, 'arg1': 54321}),
-        ('logTriple', 'LogTripleArg', [12345, 54321, 98765], {'arg0': 12345, 'arg1': 54321, 'arg2': 98765}),
-        ('logTriple', 'LogTripleWithIndex', [12345, 54321, 98765], {'arg0': 12345, 'arg1': 54321, 'arg2': 98765}),
-        ('logQuadruple', 'LogQuadrupleArg', [12345, 54321, 98765, 56789], {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789}),
-        ('logQuadruple', 'LogQuadrupleWithIndex', [12345, 54321, 98765, 56789], {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789}),
+        (
+            'logTriple',
+            'LogTripleArg',
+            [12345, 54321, 98765],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765},
+        ),
+        (
+            'logTriple',
+            'LogTripleWithIndex',
+            [12345, 54321, 98765],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765},
+        ),
+        (
+            'logQuadruple',
+            'LogQuadrupleArg',
+            [12345, 54321, 98765, 56789],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789},
+        ),
+        (
+            'logQuadruple',
+            'LogQuadrupleWithIndex',
+            [12345, 54321, 98765, 56789],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789},
+        ),
     )
 )
 def test_event_data_extraction(web3,
