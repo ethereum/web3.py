@@ -52,7 +52,6 @@ def test_conversion_rount_trip(value):
     assert result_value == value, error_msg
 
 
-
 def test_bytes_that_start_with_0x():
     sneaky_bytes = b'0x\xde\xad'
     assert to_hex(sneaky_bytes) == '0x3078dead'
