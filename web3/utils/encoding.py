@@ -67,21 +67,16 @@ def hex_encode_abi_type(abi_type, value, force_size=None):
     elif is_bytes_type(abi_type):
         if sys.version_info[0] >= 3:
             if is_bytes(value):
-                return to_hex(value)
+                return encode_hex(value)
             return value
         else:
             return value
     elif is_string_type(abi_type):
-        return bytes_to_hex(value)
-
-
-def bytes_to_hex(byte_string):
-    """
-    Converts byte_string to hex representation
-    """
-    if type(byte_string) == str:
-        byte_string = byte_string.encode('utf-8')
-    return add_0x_prefix(codecs.getencoder('hex')(byte_string)[0].decode("utf-8"))
+        return encode_hex(value)
+    else:
+        raise ValueError(
+            "Unsupported ABI type: {0}".format(abi_type)
+        )
 
 
 def to_hex_twos_compliment(value, bit_size):
@@ -109,7 +104,7 @@ def pad_hex(value, bit_size):
     Pads a hex string up to the given bit_size
     """
     value = remove_0x_prefix(value)
-    return "0x{hex_string}".format(hex_string=value.zfill(int(bit_size / 4)))
+    return add_0x_prefix(value.zfill(int(bit_size / 4)))
 
 
 @coerce_args_to_text
