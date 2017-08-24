@@ -46,7 +46,7 @@ class RequestManager(object):
         self._generate_request_functions()
 
     def _generate_request_functions(self):
-        self._combined_middlewares = {
+        self._wrapped_provider_request_functions = {
             index: combine_middlewares(
                 middlewares=self._middlewares,
                 web3=self.web3,
@@ -90,7 +90,7 @@ class RequestManager(object):
     #
     def _make_request(self, method, params):
         for index in range(len(self.providers)):
-            make_request_fn = self._combined_middlewares[index]
+            make_request_fn = self._wrapped_provider_request_functions[index]
             try:
                 return make_request_fn(method, params)
             except CannotHandleRequest:

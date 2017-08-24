@@ -45,3 +45,23 @@ def test_provider_property_setter_and_getter():
         middleware_a,
         middleware_b,
     )
+
+
+def test_modifying_middleware_regenerates_request_functions():
+    provider = BaseProvider()
+
+    manager = RequestManager(None, provider, middlewares=[])
+
+    id_a = id(manager._wrapped_provider_request_functions)
+
+    manager.add_middleware(middleware_factory())
+
+    id_b = id(manager._wrapped_provider_request_functions)
+
+    assert id_b != id_a
+
+    manager.clear_middlewares()
+
+    id_c = id(manager._wrapped_provider_request_functions)
+
+    assert id_b != id_c
