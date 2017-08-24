@@ -14,6 +14,7 @@ from eth_utils import (
 )
 
 from web3.utils.abi import (
+    length_of_array_type,
     is_address_type,
     is_array_type,
     is_bool_type,
@@ -51,6 +52,16 @@ def validate_abi_value(abi_type, value):
     Note: abi_type 'bytes' must either be python3 'bytes' object or ''
     """
     if is_array_type(abi_type) and is_list_like(value):
+        # validate length
+        specified_length = length_of_array_type(abi_type)
+        if specified_length and (specified_length != len(value)):
+            raise TypeError(
+                "The following array length does not the length specified"
+                "by the abi-type, {abi_type}: {value}"
+                .format(abi_type=abi_type, value=value)
+            )
+
+        # validate sub_types
         sub_type = sub_type_of_array_type(abi_type)
         for v in value:
             validate_abi_value(sub_type, v)
