@@ -65,10 +65,8 @@ def hex_encode_abi_type(abi_type, value, force_size=None):
     elif is_address_type(abi_type):
         return pad_hex(value, data_size)
     elif is_bytes_type(abi_type):
-        if sys.version_info[0] >= 3:
-            if is_bytes(value):
-                return encode_hex(value)
-            return value
+        if sys.version_info[0] >= 3 and is_bytes(value):
+            return encode_hex(value)
         else:
             return value
     elif is_string_type(abi_type):

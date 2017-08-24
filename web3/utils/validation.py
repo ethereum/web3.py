@@ -58,9 +58,8 @@ def validate_abi_value(abi_type, value):
         return
     elif is_bool_type(abi_type) and is_boolean(value):
         return
-    elif is_uint_type(abi_type):
-        if is_integer(value) and value >= 0:
-            return
+    elif is_uint_type(abi_type) and is_integer(value) and value >= 0:
+        return
     elif is_int_type(abi_type) and is_integer(value):
         return
     elif is_address_type(abi_type) and is_address(value):
