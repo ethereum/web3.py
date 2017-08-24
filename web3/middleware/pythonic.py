@@ -18,6 +18,7 @@ from eth_utils import (
     is_dict,
     is_string,
     is_bytes,
+    is_list_like,
     decode_hex,
 )
 
@@ -27,6 +28,7 @@ from web3.utils.formatters import (
     apply_formatters_to_dict,
     apply_formatter_to_array,
     apply_formatter_at_index,
+    apply_one_of_formatters,
 )
 
 from .formatting import (
@@ -176,6 +178,23 @@ FILTER_PARAMS_FORMATTERS = {
 filter_params_formatter = apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
 
 
+def is_array_of_dicts(value):
+    if not is_list_like(value):
+        return False
+    return all((is_dict(item) for item in value))
+
+
+def is_array_of_strings(value):
+    if not is_list_like(value):
+        return False
+    return all((is_string(item) for item in value))
+
+
+filter_result_formatter = apply_one_of_formatters((
+    (apply_formatter_to_array(log_entry_formatter), is_array_of_dicts),
+    (apply_formatter_to_array(to_ascii_if_bytes), is_array_of_strings),
+))
+
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
         # Eth
@@ -221,8 +240,8 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getBlockTransactionCountByHash': to_integer_if_hex,
         'eth_getBlockTransactionCountByNumber': to_integer_if_hex,
         'eth_getCode': to_ascii_if_bytes,
-        'eth_getFilterChanges': apply_formatter_to_array(log_entry_formatter),
-        'eth_getFilterLogs': apply_formatter_to_array(log_entry_formatter),
+        'eth_getFilterChanges': filter_result_formatter,
+        'eth_getFilterLogs': filter_result_formatter,
         'eth_getTransactionByBlockHashAndIndex': apply_formatter_if(
             transaction_formatter,
             is_not_null,
