@@ -29,6 +29,7 @@ Contents
     web3.admin
     internals
     conventions
+    releases
     
 Release notes
 -------------
