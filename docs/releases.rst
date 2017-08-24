@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+3.13.2
+------
+
+* Bugfix for retrieving filter changes for both new block filters and pending
+  transaction filters.
+
+
 3.13.1
 ------
 
