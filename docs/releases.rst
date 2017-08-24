@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+3.13.1
+------
+
+* Fix mispelled ``attrdict_middleware`` (was spelled ``attrdict_middlware``).
+
 
 3.13.0
 ------
