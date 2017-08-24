@@ -5,6 +5,8 @@ from collections import (
     Hashable,
 )
 
+from web3.utils.formatters import recursive_map
+
 # Hashable must be immutable:
 # "the implementation of hashable collections requires that a key's hash value is immutable"
 # https://docs.python.org/3/reference/datamodel.html#object.__hash__
@@ -41,6 +43,17 @@ class ReadableAttributeDict(Mapping):
         else:
             builder.pretty(self.__dict__)
         builder.text(")")
+
+    @classmethod
+    def _apply_if_mapping(cls, value):
+        if isinstance(value, Mapping):
+            return cls(value)
+        else:
+            return value
+
+    @classmethod
+    def recursive(cls, value):
+        return recursive_map(cls._apply_if_mapping, value)
 
 
 class MutableAttributeDict(MutableMapping, ReadableAttributeDict):

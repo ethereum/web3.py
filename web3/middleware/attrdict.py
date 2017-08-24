@@ -22,7 +22,7 @@ def attrdict_middleware(make_request, web3):
         if 'result' in response:
             result = response['result']
             if is_dict(result) and not isinstance(result, AttributeDict):
-                return assoc(response, 'result', AttributeDict(result))
+                return assoc(response, 'result', AttributeDict.recursive(result))
             else:
                 return response
         else:

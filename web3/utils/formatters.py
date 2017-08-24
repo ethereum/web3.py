@@ -1,12 +1,22 @@
 from __future__ import absolute_import
 
+from collections import (
+    Iterable,
+    Mapping,
+)
+
 from cytoolz.functoolz import (
     curry,
 )
 
 from eth_utils import (
+    is_string,
     to_list,
     to_dict,
+)
+
+from web3.utils.decorators import (
+    reject_recursive_repeats,
 )
 
 
@@ -61,3 +71,31 @@ def apply_one_of_formatters(formatter_condition_pairs, value):
             return formatter(value)
     else:
         raise ValueError("The provided value did not satisfy any of the formatter conditions")
+
+
+def map_collection(func, collection):
+    '''
+    Apply func to each element of a collection, or value of a dictionary.
+    If the value is not a collection, return it unmodified
+    '''
+    datatype = type(collection)
+    if isinstance(collection, Mapping):
+        return datatype((key, func(val)) for key, val in collection.items())
+    if is_string(collection):
+        return collection
+    elif isinstance(collection, Iterable):
+        return datatype(map(func, collection))
+    else:
+        return collection
+
+
+@reject_recursive_repeats
+def recursive_map(func, data):
+    '''
+    Apply func to data, and any collection items inside data (using map_collection).
+    Define func so that it only applies to the type of value that you want it to apply to.
+    '''
+    def recurse(item):
+        return recursive_map(func, item)
+    items_mapped = map_collection(recurse, data)
+    return func(items_mapped)
