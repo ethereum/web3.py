@@ -1,3 +1,4 @@
+import itertools
 import uuid
 import warnings
 
@@ -10,8 +11,9 @@ from web3.exceptions import (
     UnhandledRequest,
 )
 from web3.middleware import (
-    wrap_provider_request,
+    combine_middlewares,
     pythonic_middleware,
+    attrdict_middlware,
 )
 
 from web3.utils.compat import (
@@ -23,20 +25,49 @@ class RequestManager(object):
     def __init__(self, web3, providers, middlewares=None):
         self.web3 = web3
         self.pending_requests = {}
-        self.providers = providers
 
         if middlewares is None:
-            middlewares = [pythonic_middleware]
+            middlewares = [attrdict_middlware, pythonic_middleware]
 
         self.middlewares = middlewares
+        self.providers = providers
 
     web3 = None
-    middlewares = None
-    _provider = None
+    _middlewares = None
+    _providers = None
+
+    @property
+    def middlewares(self):
+        return self._middlewares or tuple()
+
+    @middlewares.setter
+    def middlewares(self, value):
+        self._middlewares = tuple(value)
+        self._generate_request_functions()
+
+    def _generate_request_functions(self):
+        self._wrapped_provider_request_functions = {
+            index: combine_middlewares(
+                middlewares=self._middlewares,
+                web3=self.web3,
+                provider_request_fn=provider.make_request,
+            )
+            for index, provider
+            in enumerate(self.providers)
+        }
+
+    def add_middleware(self, middleware):
+        self.middlewares = tuple(itertools.chain(
+            [middleware],
+            self.middlewares,
+        ))
+
+    def clear_middlewares(self):
+        self.middlewares = tuple()
 
     @property
     def providers(self):
-        return self._provider
+        return self._providers or tuple()
 
     @providers.setter
     def providers(self, value):
@@ -44,7 +75,8 @@ class RequestManager(object):
             providers = [value]
         else:
             providers = value
-        self._provider = providers
+        self._providers = providers
+        self._generate_request_functions()
 
     def setProvider(self, providers):
         warnings.warn(DeprecationWarning(
@@ -56,41 +88,28 @@ class RequestManager(object):
     #
     # Provider requests and response
     #
-    def _get_request_id(self):
-        request_id = uuid.uuid4()
-        return request_id
-
-    def _make_request(self, method, params, request_id):
-        for provider in self.providers:
+    def _make_request(self, method, params):
+        for index in range(len(self.providers)):
+            make_request_fn = self._wrapped_provider_request_functions[index]
             try:
-                return wrap_provider_request(
-                    middlewares=self.middlewares,
-                    web3=self.web3,
-                    make_request_fn=provider.make_request,
-                    request_id=request_id,
-                )(method, params)
+                return make_request_fn(method, params)
             except CannotHandleRequest:
                 continue
         else:
             raise UnhandledRequest(
                 "No providers responded to the RPC request:\n"
                 "method:{0}\n"
-                "params:{1}\n"
-                "request_id: {2}".format(
+                "params:{1}\n".format(
                     method,
                     params,
-                    request_id
                 )
             )
 
-    def request_blocking(self, method, params, request_id=None):
+    def request_blocking(self, method, params):
         """
         Make a synchronous request using the provider
         """
-        if request_id is None:
-            request_id = self._get_request_id()
-
-        response = self._make_request(method, params, request_id)
+        response = self._make_request(method, params)
 
         if "error" in response:
             raise ValueError(response["error"])
@@ -98,12 +117,11 @@ class RequestManager(object):
         return response['result']
 
     def request_async(self, raw_method, raw_params):
-        request_id = self._get_request_id()
+        request_id = uuid.uuid4()
         self.pending_requests[request_id] = spawn(
             self.request_blocking,
             raw_method=raw_method,
             raw_params=raw_params,
-            request_id=request_id,
         )
         return request_id
 

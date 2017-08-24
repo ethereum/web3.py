@@ -18,3 +18,17 @@ def test_provider_property_setter_and_getter():
     manager.providers = provider_b
 
     assert manager.providers[0] is provider_b
+
+
+def test_provider_property_triggers_regeneration_of_wrapped_middleware():
+    provider = BaseProvider()
+
+    manager = RequestManager(None, provider)
+
+    prev_id = id(manager._wrapped_provider_request_functions)
+
+    manager.providers = provider
+
+    after_id = id(manager._wrapped_provider_request_functions)
+
+    assert prev_id != after_id

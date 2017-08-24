@@ -116,6 +116,18 @@ class Web3(object):
                 )
             setattr(self, module_name, module_class(self))
 
+    def add_middleware(self, middleware):
+        """
+        Convenience API for RequestManager.add_middleware
+        """
+        self.manager.add_middleware(middleware)
+
+    def clear_middlewares(self):
+        """
+        Convenience API for RequestManager.clear_middlewares
+        """
+        self.manager.clear_middlewares()
+
     @property
     def providers(self):
         return self.manager.providers
