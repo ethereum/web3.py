@@ -1,0 +1,48 @@
+
+import sys
+
+import pytest
+
+from web3.contract import (
+    ConciseContract,
+    ConciseMethod,
+)
+
+if sys.version_info >= (3, 3):
+    from unittest.mock import Mock
+
+
+@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
+def test_concisecontract_call_default():
+    contract = Mock()
+    sweet_method = ConciseMethod(contract, 'grail')
+    sweet_method(1, 2)
+    contract.call.assert_called_once_with({})
+    contract.call().grail.assert_called_once_with(1, 2)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
+def test_concisecontract_custom_transact():
+    contract = Mock()
+    sweet_method = ConciseMethod(contract, 'grail')
+    sweet_method(1, 2, transact={'holy': 3})
+    contract.transact.assert_called_once_with({'holy': 3})
+    contract.transact().grail.assert_called_once_with(1, 2)
+
+
+def test_class_construction_sets_class_vars(web3,
+                                            MATH_ABI,
+                                            MATH_CODE,
+                                            MATH_RUNTIME):
+    MathContract = web3.eth.contract(
+        abi=MATH_ABI,
+        bytecode=MATH_CODE,
+        bytecode_runtime=MATH_RUNTIME,
+        ContractFactoryClass=ConciseContract,
+    )
+
+    math = MathContract()
+    classic = math._classic_contract
+    assert classic.web3 == web3
+    assert classic.bytecode == MATH_CODE
+    assert classic.bytecode_runtime == MATH_RUNTIME

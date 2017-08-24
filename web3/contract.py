@@ -753,6 +753,53 @@ class Contract(object):
         return deploy_data
 
 
+class ConciseContract:
+    '''
+    An alternative Contract Factory which invokes all methods as `call()`,
+    unless you add a keyword argument. The keyword argument assigns the prep method.
+
+    This call
+
+    > contract.withdraw(amount, transact={'from': eth.accounts[1], 'gas': 100000, ...})
+
+    is equivalent to this call in the classic contract:
+
+    > contract.transact({'from': eth.accounts[1], 'gas': 100000, ...}).withdraw(amount)
+
+    '''
+
+    def __init__(self, classic_contract):
+        self._classic_contract = classic_contract
+
+    @classmethod
+    def factory(cls, *args, **kwargs):
+        Prepped = Contract.factory(*args, **kwargs)
+        return compose(cls, Prepped)
+
+    def __getattr__(self, attr):
+        return ConciseMethod(self._classic_contract, attr)
+
+
+class ConciseMethod:
+
+    def __init__(self, contract, function):
+        self.__contract = contract
+        self.__function = function
+
+    def __call__(self, *args, **kwargs):
+        return self.__prepared_function(**kwargs)(*args)
+
+    def __prepared_function(self, **kwargs):
+        if not kwargs:
+            modifier, modifier_dict = 'call', {}
+        elif len(kwargs) == 1:
+            modifier, modifier_dict = kwargs.popitem()
+        else:
+            raise ValueError("Only use one keyword argument at a time, eg~ transact or call")
+        contract_modifier_func = getattr(self.__contract, modifier)
+        return getattr(contract_modifier_func(modifier_dict), self.__function)
+
+
 def call_contract_function(contract,
                            function_name,
                            transaction,
