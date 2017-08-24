@@ -49,46 +49,40 @@ def validate_abi_type(abi_type):
 def validate_abi_value(abi_type, value):
     """
     Helper function for validating a value against the expected abi_type
-    Note: abi_type 'bytes' must either be python3 'bytes' object or '0x'
-    prefixed string
+    Note: abi_type 'bytes' must either be python3 'bytes' object or ''
     """
-    correct = True
-    if is_array_type(abi_type):
-        correct = is_list_like(value)
+    if is_array_type(abi_type) and is_list_like(value):
         sub_type = sub_type_of_array_type(abi_type)
-        sub_validations = [validate_abi_value(sub_type, v) for v in value]
-        correct = correct and reduce((lambda x, y: x and y), sub_validations)
-    elif is_bool_type(abi_type):
-        correct = is_boolean(value)
+        for v in value:
+            validate_abi_value(sub_type, v)
+        return
+    elif is_bool_type(abi_type) and is_boolean(value):
+        return
     elif is_uint_type(abi_type):
-        correct = is_integer(value) and value >= 0
-    elif is_int_type(abi_type):
-        correct = is_integer(value)
-    elif is_address_type(abi_type):
-        correct = is_address(value)
+        if is_integer(value) and value >= 0:
+            return
+    elif is_int_type(abi_type) and is_integer(value):
+        return
+    elif is_address_type(abi_type) and is_address(value):
+        return
     elif is_bytes_type(abi_type):
         if sys.version_info[0] >= 3 and is_bytes(value):
-            correct = True
+            return
         elif is_string(value):
             if is_0x_prefixed(value):
-                correct = True
+                return
             else:
                 raise TypeError(
                     "ABI values of abi-type 'bytes' must be either"
                     "a python3 'bytes' object or an '0x' prefixed string."
                 )
-        else:
-            correct = False
-    elif is_string_type(abi_type):
-        correct = is_string(value)
+    elif is_string_type(abi_type) and is_string(value):
+        return
 
-    if correct:
-        return True
-    else:
-        raise TypeError(
-            "The following abi value is not a '{abi_type}'': {value}"
-            .format(abi_type=abi_type, value=value)
-        )
+    raise TypeError(
+        "The following abi value is not a '{abi_type}'': {value}"
+        .format(abi_type=abi_type, value=value)
+    )
 
 
 def validate_address(value):
