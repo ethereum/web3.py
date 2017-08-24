@@ -12,7 +12,7 @@ from web3.utils.datastructures import (
 )
 
 
-def attrdict_middlware(make_request, web3):
+def attrdict_middleware(make_request, web3):
     """
     Converts any result which is a dictionary into an a
     """
