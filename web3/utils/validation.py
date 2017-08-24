@@ -54,12 +54,19 @@ def validate_abi_value(abi_type, value):
     if is_array_type(abi_type) and is_list_like(value):
         # validate length
         specified_length = length_of_array_type(abi_type)
-        if specified_length and (specified_length != len(value)):
-            raise TypeError(
-                "The following array length does not the length specified"
-                "by the abi-type, {abi_type}: {value}"
-                .format(abi_type=abi_type, value=value)
-            )
+        if specified_length is not None:
+            if specified_length < 1:
+                raise TypeError(
+                    "Invalid abi-type: {abi_type}. Length of fixed sized arrays"
+                    "must be greater than 0."
+                    .format(abi_type=abi_type)
+                )
+            if specified_length != len(value):
+                raise TypeError(
+                    "The following array length does not the length specified"
+                    "by the abi-type, {abi_type}: {value}"
+                    .format(abi_type=abi_type, value=value)
+                )
 
         # validate sub_types
         sub_type = sub_type_of_array_type(abi_type)

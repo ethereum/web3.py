@@ -66,6 +66,8 @@ def test_validation(param, validation, expected):
         ('bool[][2]', [[True, False], [True], [False]], TypeError),
         ('bool[3][]', [[True, False, False]], None),
         ('bool[3][]', [[True, False]], TypeError),
+        ('bool[0]', [], TypeError),
+        ('bool[0][1]', [[]], TypeError),
         ('uint8', -5, TypeError),
         ('int8', -5, None),
         ('address', "just a string", TypeError),
