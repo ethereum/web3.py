@@ -8,7 +8,7 @@ from .pythonic import (  # noqa: F401
     pythonic_middleware,
 )
 from .attrdict import (  # noqa: F401
-    attrdict_middlware,
+    attrdict_middleware,
 )
 
 

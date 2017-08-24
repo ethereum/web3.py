@@ -13,7 +13,7 @@ from web3.exceptions import (
 from web3.middleware import (
     combine_middlewares,
     pythonic_middleware,
-    attrdict_middlware,
+    attrdict_middleware,
 )
 
 from web3.utils.compat import (
@@ -27,7 +27,7 @@ class RequestManager(object):
         self.pending_requests = {}
 
         if middlewares is None:
-            middlewares = [attrdict_middlware, pythonic_middleware]
+            middlewares = [attrdict_middleware, pythonic_middleware]
 
         self.middlewares = middlewares
         self.providers = providers
