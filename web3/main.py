@@ -166,12 +166,18 @@ class Web3(object):
         Takes list of abi_types as inputs -- `[uint24, int8[], bool]`
         and list of corresponding values  -- `[20, [-1, 5, 0], True]`
         """
-        hex_string = ''
-        for abi_type, value in zip(abi_types, values):
-            hex_string += remove_0x_prefix(hex_encode_abi_type(abi_type, value))
+        if len(abi_types) != len(values):
+            raise ValueError(
+                "Length mismatch between provided abi types and values.  Got "
+                "{0} types and {1} values.".format(len(abi_types), len(values))
+            )
 
-        hex_string = add_0x_prefix(hex_string)
-        return self.sha3(hex_string)
+        hex_string = add_0x_prefix(''.join(
+            remove_0x_prefix(hex_encode_abi_type(abi_type, value))
+            for abi_type, value
+            in zip(abi_types, values)
+        ))
+        return self.sha3(hex_string, encoding="hex")
 
     def isConnected(self):
         for provider in self.providers:

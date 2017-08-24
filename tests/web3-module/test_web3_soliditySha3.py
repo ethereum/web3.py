@@ -130,3 +130,16 @@ def test_soliditySha3(web3, types, values, expected):
 
     actual = web3.soliditySha3(types, values)
     assert actual == expected
+
+
+@pytest.mark.parametrize(
+    'types,values',
+    (
+        (['address'], ['0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5', True]),
+        (['address', 'bool'], ['0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5']),
+        ([], ['0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5']),
+    )
+)
+def test_soliditySha3_fails_on_mismatched_length_between_types_and_values(web3, types, values):
+    with pytest.raises(ValueError):
+        web3.soliditySha3(types, values)
