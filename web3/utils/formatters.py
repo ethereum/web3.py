@@ -52,3 +52,12 @@ def apply_formatters_to_dict(formatters, value):
 def apply_formatter_to_array(formatter, value):
     for item in value:
         yield formatter(item)
+
+
+@curry
+def apply_one_of_formatters(formatter_condition_pairs, value):
+    for formatter, condition in formatter_condition_pairs:
+        if condition(value):
+            return formatter(value)
+    else:
+        raise ValueError("The provided value did not satisfy any of the formatter conditions")
