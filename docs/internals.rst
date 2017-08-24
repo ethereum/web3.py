@@ -192,6 +192,20 @@ middleware performs the following translations for requests and responses.
 * Numeric responses will be converted from their hexidecimal representations to
   their integer representations.
 
+The ``RequestManager`` object exposes two apis for managing middlewares.  Both
+of these methods are also exposed on the ``Web3`` object for convenience.
+
+
+.. method:: RequestManager.add_middleware(middleware)
+
+    This method adds the given middleware to the beginning or outside of the
+    middleware stack.
+
+
+.. method:: RequestManager.clear_middlewares()
+
+    This method clears all middlewares.
+
 
 Managers
 --------
