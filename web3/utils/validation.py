@@ -65,7 +65,7 @@ def validate_abi_value(abi_type, value):
     elif is_address_type(abi_type) and is_address(value):
         return
     elif is_bytes_type(abi_type):
-        if sys.version_info[0] >= 3 and is_bytes(value):
+        if sys.version_info.major >= 3 and is_bytes(value):
             return
         elif is_string(value):
             if is_0x_prefixed(value):
