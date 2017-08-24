@@ -1,4 +1,3 @@
-from functools import reduce
 import sys
 
 from eth_utils import (
