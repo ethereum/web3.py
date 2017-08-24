@@ -21,10 +21,11 @@ def reject_recursive_repeats(to_wrap):
     '''
     to_wrap.__already_called = {}
 
+    @functools.wraps(to_wrap)
     def wrapped(*args):
         instances = tuple(map(id, args))
         if instances in to_wrap.__already_called:
-            return None
+            raise ValueError('Recursively called %s with %r' % (to_wrap, args))
         to_wrap.__already_called[instances] = True
         wrapped_val = to_wrap(*args)
         del to_wrap.__already_called[instances]

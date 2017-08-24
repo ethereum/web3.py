@@ -37,6 +37,5 @@ def test_recursive_collection_apply():
 def test_recursive_collection_cycle():
     data = [3]
     data.append(data)
-    # for now, we just return None in place, because when would cycles be necessary?
-    assert recursive_map(square_int, data) == [9, None]
-    # TODO? insert a cycle link to the new mapped value, to get [9, [9, [9, ...]]]
+    with pytest.raises(ValueError):
+        recursive_map(square_int, data)
