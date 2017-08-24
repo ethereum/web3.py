@@ -143,7 +143,7 @@ business logic for web3 requests.  Writing middleware is simple.
     def simple_middleware(make_request, web3):
         # do one-time setup operations here
 
-        def middleware(method, params, request_id):
+        def middleware(method, params):
             # do pre-processing here
 
             # perform the RPC request, getting the response
@@ -166,7 +166,7 @@ It is also possible to implement middlewares as a class.
             self.web3 = web3
             self.make_request = make_request
 
-        def __call__(self, method, params, request_id):
+        def __call__(self, method, params):
             # do pre-processing here
 
             # perform the RPC request, getting the response
