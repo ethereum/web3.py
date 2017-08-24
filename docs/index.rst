@@ -17,7 +17,7 @@ Contents
     filters
     contracts
     providers
-    internals
+    examples
     web3.main
     web3.eth
     web3.db
@@ -27,6 +27,7 @@ Contents
     web3.txpool
     web3.miner
     web3.admin
+    internals
     conventions
     
 Release notes
