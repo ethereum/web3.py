@@ -52,11 +52,11 @@ Takes a string or numeric value and returns it in its hexidecimal representation
 
 .. code-block:: python
 
-    >>> x.toHex(0)
+    >>> web3.toHex(0)
     '0x0'
-    >>> x.toHex(1)
+    >>> web3.toHex(1)
     '0x1'
-    >>> x.toHex('abcd')
+    >>> web3.toHex('abcd')
     '0x61626364'
 
 
@@ -67,7 +67,7 @@ Takes a hexidecimal encoded string and returns its ascii equivalent.
 
 .. code-block:: python
 
-    >>> x.toAscii('0x61626364)
+    >>> web3.toAscii('0x61626364)
     b'abcd'
 
 
@@ -78,7 +78,7 @@ Takes a hexidecimal encoded string and returns the UTF8 encoded equivalent.
 
 .. code-block:: python
 
-    >>> x.toUtf8('0x61626364)
+    >>> web3.toUtf8('0x61626364)
     'abcd'
 
 
@@ -89,7 +89,7 @@ Takes an ascii string and returns it in its hexidecimal representation
 
 .. code-block:: python
 
-    >>> x.fromAscii(b'abcd')
+    >>> web3.fromAscii(b'abcd')
     '0x61626364'
 
 
@@ -100,7 +100,7 @@ Takes a utf8 encoded string and returns it in its hexidecimal representation
 
 .. code-block:: python
 
-    >>> x.fromUtf8('abcd')
+    >>> web3.fromUtf8('abcd')
     '0x61626364'
 
 
@@ -111,9 +111,9 @@ Takes a hexidecimal encoded value and returns its numeric representation.
 
 .. code-block:: python
 
-    >>> x.toDecimal('0x1')
+    >>> web3.toDecimal('0x1')
     1
-    >>> x.toDecimal('0xf')
+    >>> web3.toDecimal('0xf')
     15
 
 
@@ -124,9 +124,9 @@ Takes a numeric value and returns its hexidecimal equivalent.
 
 .. code-block:: python
 
-    >>> x.fromDecimal(1)
+    >>> web3.fromDecimal(1)
     '0x1'
-    >>> x.fromDecimal(15)
+    >>> web3.fromDecimal(15)
     '0xf'
 
 
@@ -138,7 +138,7 @@ converted to wei.
 
 .. code-block:: python
 
-    >>> x.toWei(1, 'ether')
+    >>> web3.toWei(1, 'ether')
     1000000000000000000
 
 
@@ -149,7 +149,7 @@ Returns the value in wei converted to the given currency.
 
 .. code-block:: python
 
-    >>> x.fromWei(1000000000000000000, 'ether')
+    >>> web3.fromWei(1000000000000000000, 'ether')
     1
 
 
@@ -160,7 +160,7 @@ Returns ``True`` if the value is one of the recognized address formats.
 
 .. code-block:: python
 
-    >>> x.isAddress('0xd3CDA913deB6f67967B99D67aCDFa1712C293601')
+    >>> web3.isAddress('0xd3CDA913deB6f67967B99D67aCDFa1712C293601')
     True
 
 
@@ -171,9 +171,9 @@ Returns ``True`` if the value is a valid ERC55 checksummed address
 
 .. code-block:: python
 
-    >>> x.isChecksumAddress('0xd3CDA913deB6f67967B99D67aCDFa1712C293601')
+    >>> web3.isChecksumAddress('0xd3CDA913deB6f67967B99D67aCDFa1712C293601')
     True
-    >>> x.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+    >>> web3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
     False
 
 
@@ -184,8 +184,23 @@ Returns the given address with an ERC55 checksum.
 
 .. code-block:: python
 
-    >>> x.toChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+    >>> web3.toChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
     '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
+
+
+.. method:: Web3.soliditySha3(abi_types, value)
+
+Returns the sha3 as it would be computed by the solidity ``sha3`` function on the provided ``value`` and ``abi_types``.  The ``abi_types`` value should be a list of solidity type strings which correspond to each of the provided values.
+
+
+.. code-block:: python
+
+    >>> web3.soliditySha3(['bool'], True)
+    "0x5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2"
+    >>> web3.soliditySha3(['uint8', 'uint8', 'uint8'], [97, 98, 99])
+    "0x4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45"
+    >>> web3.soliditySha3(['address'], ["0x49eddd3769c0712032808d86597b84ac5c2f5614"])
+    "0x2ff37b5607484cd4eecf6d13292e22bd6e5401eaffcc07e279583bc742c68882"
 
 
 Modules
