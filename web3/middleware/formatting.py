@@ -16,7 +16,7 @@ def construct_formatting_middleware(request_formatters=None,
         error_formatters = {}
 
     def formatter_middleware(make_request, web3):
-        def middleware(method, params, request_id):
+        def middleware(method, params):
             if method in request_formatters:
                 formatter = request_formatters[method]
                 formatted_params = formatter(params)
