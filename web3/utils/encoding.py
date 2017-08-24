@@ -1,20 +1,40 @@
 # String encodings and numeric representations
+import sys
 import json
 
 from rlp.sedes import big_endian_int
 
 from eth_utils import (
-    coerce_args_to_bytes,
-    coerce_args_to_text,
-    encode_hex,
-    is_0x_prefixed,
+    is_bytes,
+    is_string,
     is_boolean,
     is_dict,
     is_integer,
-    is_string,
-    is_bytes,
+    coerce_args_to_text,
+    coerce_args_to_bytes,
+    add_0x_prefix,
+    is_0x_prefixed,
+    encode_hex,
+    remove_0x_prefix,
     force_text,
     force_bytes,
+)
+
+from web3.utils.abi import (
+    is_address_type,
+    is_array_type,
+    is_bool_type,
+    is_bytes_type,
+    is_int_type,
+    is_uint_type,
+    is_string_type,
+    size_of_type,
+    sub_type_of_array_type,
+)
+
+from web3.utils.validation import (
+    validate_abi_type,
+    validate_abi_value,
 )
 
 
@@ -22,6 +42,66 @@ def _is_prefixed(value, prefix):
     return value.startswith(
         force_bytes(prefix) if is_bytes(value) else force_text(prefix)
     )
+
+
+def hex_encode_abi_type(abi_type, value, force_size=None):
+    """
+    Encodes value into a hex string in format of abi_type
+    """
+    validate_abi_type(abi_type)
+    validate_abi_value(abi_type, value)
+
+    data_size = force_size or size_of_type(abi_type)
+    if is_array_type(abi_type):
+        sub_type = sub_type_of_array_type(abi_type)
+        return "".join([remove_0x_prefix(hex_encode_abi_type(sub_type, v, 256)) for v in value])
+    elif is_bool_type(abi_type):
+        return to_hex_with_size(value, data_size)
+    elif is_uint_type(abi_type):
+        return to_hex_with_size(value, data_size)
+    elif is_int_type(abi_type):
+        return to_hex_twos_compliment(value, data_size)
+    elif is_address_type(abi_type):
+        return pad_hex(value, data_size)
+    elif is_bytes_type(abi_type):
+        if sys.version_info.major >= 3 and is_bytes(value):
+            return encode_hex(value)
+        else:
+            return value
+    elif is_string_type(abi_type):
+        return encode_hex(value)
+    else:
+        raise ValueError(
+            "Unsupported ABI type: {0}".format(abi_type)
+        )
+
+
+def to_hex_twos_compliment(value, bit_size):
+    """
+    Converts integer value to twos compliment hex representation with given bit_size
+    """
+    if value >= 0:
+        return to_hex_with_size(value, bit_size)
+
+    value = (1 << bit_size) + value
+    hex_value = hex(value)
+    hex_value = hex_value.rstrip("L")
+    return hex_value
+
+
+def to_hex_with_size(value, bit_size):
+    """
+    Converts a value to hex with given bit_size:
+    """
+    return pad_hex(to_hex(value), bit_size)
+
+
+def pad_hex(value, bit_size):
+    """
+    Pads a hex string up to the given bit_size
+    """
+    value = remove_0x_prefix(value)
+    return add_0x_prefix(value.zfill(int(bit_size / 4)))
 
 
 @coerce_args_to_text

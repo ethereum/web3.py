@@ -1,7 +1,10 @@
 import pytest
+import sys
 
 from web3.utils.validation import (
     validate_abi,
+    validate_abi_type,
+    validate_abi_value,
     validate_address,
     validate_address_checksum,
 )
@@ -36,6 +39,11 @@ INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
         (ADDRESS, validate_address_checksum, None),
         (PADDED_ADDRESS, validate_address_checksum, None),
         (INVALID_CHECKSUM_ADDRESS, validate_address_checksum, ValueError),
+        ('bool', validate_abi_type, None),
+        ('bool[', validate_abi_type, ValueError),
+        ('sbool', validate_abi_type, ValueError),
+        ('stringx', validate_abi_type, ValueError),
+        ('address', validate_abi_type, None),
     )
 )
 def test_validation(param, validation, expected):
@@ -46,3 +54,30 @@ def test_validation(param, validation, expected):
         return
 
     validation(param)
+
+
+@pytest.mark.parametrize(
+    'abi_type,value,expected',
+    (
+        ('string', True, TypeError),
+        ('bool[]', [1, 3], TypeError),
+        ('bool[]', [True, False], None),
+        ('uint8', -5, TypeError),
+        ('int8', -5, None),
+        ('address', "just a string", TypeError),
+        ('address[][]', [[4, 5], [True]], TypeError),
+        ('address[][]', [[ADDRESS]], None),
+        ('bytes', True, TypeError),
+        ('bytes', "0x5402", None),
+        ('bytes', "5402", TypeError),
+        ('bytes', b'T\x02', None if sys.version_info[0] >= 3 else TypeError),
+    )
+)
+def test_validate_abi_value(abi_type, value, expected):
+
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            validate_abi_value(abi_type, value)
+        return
+
+    validate_abi_value(abi_type, value)

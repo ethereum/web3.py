@@ -11,6 +11,8 @@ from eth_utils import (
     is_address,
     is_checksum_address,
     to_checksum_address,
+    add_0x_prefix,
+    remove_0x_prefix,
     to_wei,
 )
 
@@ -48,6 +50,7 @@ from web3.manager import (
 )
 
 from web3.utils.encoding import (
+    hex_encode_abi_type,
     to_hex,
     to_decimal,
     from_decimal,
@@ -156,6 +159,19 @@ class Web3(object):
         else:
             hex_string = encode_hex(value)
         return self.manager.request_blocking('web3_sha3', [hex_string])
+
+    def soliditySha3(self, abi_types, values):
+        """
+        Executes sha3 (keccak256) exactly as Solidity does.
+        Takes list of abi_types as inputs -- `[uint24, int8[], bool]`
+        and list of corresponding values  -- `[20, [-1, 5, 0], True]`
+        """
+        hex_string = ''
+        for abi_type, value in zip(abi_types, values):
+            hex_string += remove_0x_prefix(hex_encode_abi_type(abi_type, value))
+
+        hex_string = add_0x_prefix(hex_string)
+        return self.sha3(hex_string)
 
     def isConnected(self):
         for provider in self.providers:

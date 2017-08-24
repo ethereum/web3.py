@@ -1,5 +1,5 @@
-import itertools
 import re
+import itertools
 
 from eth_utils import (
     coerce_args_to_bytes,
@@ -220,11 +220,17 @@ def get_constructor_abi(contract_abi):
 
 DYNAMIC_TYPES = ['bytes', 'string']
 
+INT_SIZES = range(8, 257, 8)
+BYTES_SIZES = range(1, 33)
+UINT_TYPES = ['uint{0}'.format(i) for i in INT_SIZES]
+INT_TYPES = ['int{0}'.format(i) for i in INT_SIZES]
+BYTES_TYPES = ['bytes{0}'.format(i) for i in BYTES_SIZES] + ['bytes32.byte']
+
 STATIC_TYPES = list(itertools.chain(
     ['address', 'bool'],
-    ['uint{0}'.format(i) for i in range(8, 257, 8)],
-    ['int{0}'.format(i) for i in range(8, 257, 8)],
-    ['bytes{0}'.format(i) for i in range(1, 33)],
+    UINT_TYPES,
+    INT_TYPES,
+    BYTES_TYPES,
 ))
 
 BASE_TYPE_REGEX = '|'.join((
@@ -252,6 +258,63 @@ TYPE_REGEX = (
 
 def is_recognized_type(abi_type):
     return bool(re.match(TYPE_REGEX, abi_type))
+
+
+def is_bool_type(abi_type):
+    return abi_type == 'bool'
+
+
+def is_uint_type(abi_type):
+    return abi_type in UINT_TYPES
+
+
+def is_int_type(abi_type):
+    return abi_type in INT_TYPES
+
+
+def is_address_type(abi_type):
+    return abi_type == 'address'
+
+
+def is_bytes_type(abi_type):
+    return abi_type in BYTES_TYPES + ['bytes']
+
+
+def is_string_type(abi_type):
+    return abi_type == 'string'
+
+
+def size_of_type(abi_type):
+    """
+    Returns size in bits of abi_type
+    """
+    if 'string' in abi_type:
+        return None
+    if 'byte' in abi_type:
+        return None
+    if '[' in abi_type:
+        return None
+    if abi_type == 'bool':
+        return 8
+    if abi_type == 'address':
+        return 160
+    return int(re.sub("\D", "", abi_type))
+
+
+def sub_type_of_array_type(abi_type):
+    return re.sub(r"\[[^]]*\]$", "", abi_type, 1)
+
+
+ARRAY_REGEX = (
+    "^"
+    "[a-zA-Z0-9_]+"
+    "({sub_type})+"
+    "$"
+).format(sub_type=SUB_TYPE_REGEX)
+
+
+def is_array_type(abi_type):
+    return bool(re.match(ARRAY_REGEX, abi_type))
 
 
 NAME_REGEX = (
