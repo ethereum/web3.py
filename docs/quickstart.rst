@@ -56,7 +56,7 @@ To use the web3 library you will need to instantiate an instance of the
 
     # or for an IPC based connection
     >>> web3 = Web3(IPCProvider())
-    >>> web3.blockNumber
+    >>> web3.eth.blockNumber
     4000000
 
 
