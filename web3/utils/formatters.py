@@ -10,6 +10,7 @@ from cytoolz.functoolz import (
 )
 
 from eth_utils import (
+    is_string,
     to_list,
     to_dict,
 )
@@ -80,7 +81,7 @@ def map_collection(func, collection):
     datatype = type(collection)
     if isinstance(collection, Mapping):
         return datatype((key, func(val)) for key, val in collection.items())
-    if isinstance(collection, str):
+    if is_string(collection):
         return collection
     elif isinstance(collection, Iterable):
         return datatype(map(func, collection))
