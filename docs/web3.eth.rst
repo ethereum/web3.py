@@ -417,7 +417,7 @@ The following methods are available on the ``web3.eth`` namespace.
             startgas=100000,
             to='0xd3cda913deb6f67967b99d67acdfa1712c293601',
             value=12345,
-            data='',
+            data=b'',
         )
         >>> tx.sign(the_private_key_for_the_from_account)
         >>> raw_tx = rlp.encode(tx)
