@@ -4,12 +4,12 @@ Web3 Internals
 
 .. warning:: This section of the documentation is for advanced users.  You should probably stay away from these APIs if you don't know what you are doing.
 
-The Web3 library has multiple layers of abstraction betwwen the public api
+The Web3 library has multiple layers of abstraction between the public api
 exposed by the web3 object and the backend or node that web3 is connecting to.
 
 * **Providers** are responsible for the actual communication with the
   blockchain such as sending JSON-RPC requests over HTTP or an IPC socket.
-* **Middlewares** provide a hooks for monitoring and modifying requests and
+* **Middlewares** provide hooks for monitoring and modifying requests and
   responses to and from the provider.
 * **Managers** provide thread safety and primatives to allow for asyncronous usage of web3.
 
@@ -82,7 +82,7 @@ A provider is responsible for all direct blockchain interactions.  In most
 cases this means interacting with the JSON-RPC server for an ethereum node over
 HTTP or an IPC socket.  There is however nothing which requires providers to be
 RPC based, allowing for providers designed for testing purposes which use an
-in-memory EVM to fulfil requests.
+in-memory EVM to fulfill requests.
 
 In most simple cases you will be using a single provider.  However, if you
 would like to use Web3 with multiple providers, you can simply pass them in as
@@ -98,7 +98,7 @@ a list when instantiating your ``Web3`` object.
 Writing your own Provider
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Writing your own provider requires implemented two required methods as well as
+Writing your own provider requires implementing two required methods as well as
 setting the middlewares the provider should use.
 
 
@@ -123,7 +123,7 @@ setting the middlewares the provider should use.
     if the socket is closed.
 
 
-If a provider is unable to responde to certain RPC calls it should raise the
+If a provider is unable to respond to certain RPC calls it should raise the
 ``web3.exceptions.CannotHandleRequest`` exception.  When this happens, the
 request is issued to the next configured provider.  If no providers are able to
 handle the request then a ``web3.exceptions.UnhandledRequest`` error will be
