@@ -67,6 +67,18 @@ def is_create_address(value):
 is_not_create_address = complement(is_create_address)
 
 
+def is_array_of_strings(value):
+    if not is_list_like(value):
+        return False
+    return all((is_string(item) for item in value))
+
+
+def is_array_of_dicts(value):
+    if not is_list_like(value):
+        return False
+    return all((is_dict(item) for item in value))
+
+
 TRANSACTION_FORMATTERS = {
     'blockNumber': apply_formatter_if(to_integer_if_hex, is_not_null),
     'transactionIndex': apply_formatter_if(to_integer_if_hex, is_not_null),
@@ -120,9 +132,10 @@ BLOCK_FORMATTERS = {
     'number': apply_formatter_if(to_integer_if_hex, is_not_null),
     'difficulty': to_integer_if_hex,
     'totalDifficulty': to_integer_if_hex,
-    'transactions': apply_formatter_to_array(
-        apply_formatter_if(transaction_formatter, is_dict)
-    ),
+    'transactions': apply_one_of_formatters((
+        (apply_formatter_to_array(transaction_formatter), is_array_of_dicts),
+        (apply_formatter_to_array(to_ascii_if_bytes), is_array_of_strings),
+    )),
 }
 
 
@@ -203,11 +216,11 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getBlockByNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_getBlockTransactionCountByNumber': apply_formatter_at_index(
             block_number_formatter,
-            1,
+            0,
         ),
         'eth_getBlockTransactionCountByHash': apply_formatter_at_index(
             block_number_formatter,
-            1,
+            0,
         ),
         'eth_getCode': apply_formatter_at_index(block_number_formatter, 1),
         'eth_getStorageAt': compose(
@@ -220,8 +233,10 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'eth_getTransactionByBlockHashAndIndex': apply_formatter_at_index(hex, 1),
         'eth_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
+        'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
+        'eth_estimateGas': apply_formatter_at_index(transaction_params_formatter, 0),
         # Snapshot and Revert
         'evm_revert': apply_formatter_if(
             apply_formatter_at_index(to_integer_if_hex, 0),
@@ -235,6 +250,7 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_coinbase': to_normalized_address,
         'eth_estimateGas': to_integer_if_hex,
         'eth_gasPrice': to_integer_if_hex,
+        'eth_getBalance': to_integer_if_hex,
         'eth_getBlockByHash': block_formatter,
         'eth_getBlockByNumber': block_formatter,
         'eth_getBlockTransactionCountByHash': to_integer_if_hex,
@@ -256,7 +272,13 @@ pythonic_middleware = construct_formatting_middleware(
             receipt_formatter,
             is_not_null,
         ),
+        'eth_getUncleCountByBlockHash': to_integer_if_hex,
+        'eth_getUncleCountByBlockNumber': to_integer_if_hex,
         'eth_hashrate': to_integer_if_hex,
+        'eth_protocolVersion': compose(
+            apply_formatter_if(str, is_integer),
+            to_integer_if_hex,
+        ),
         'eth_sendRawTransaction': to_ascii_if_bytes,
         'eth_sendTransaction': to_ascii_if_bytes,
         'eth_syncing': apply_formatter_if(syncing_formatter, is_dict),
@@ -267,5 +289,7 @@ pythonic_middleware = construct_formatting_middleware(
         'txpool_inspect': transaction_pool_inspect_formatter,
         # Snapshot and Revert
         'evm_snapshot': hex_to_integer,
+        # Net
+        'net_peerCount': to_integer_if_hex,
     },
 )
