@@ -11,6 +11,25 @@ from eth_utils import (
 
 
 class BaseProvider(object):
+    _middlewares = None
+
+    @property
+    def middlewares(self):
+        return self._middlewares or tuple()
+
+    @middlewares.setter
+    def middlewares(self, value):
+        self._middlewares = tuple(value)
+
+    def add_middleware(self, middleware):
+        self.middlewares = tuple(itertools.chain(
+            [middleware],
+            self.middlewares,
+        ))
+
+    def clear_middlewares(self):
+        self.middlewares = tuple()
+
     def make_request(self, method, params):
         raise NotImplementedError("Providers must implement this method")
 
