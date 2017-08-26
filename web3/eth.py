@@ -51,6 +51,10 @@ class Eth(Module):
         raise NotImplementedError()
 
     @property
+    def protocolVersion(self):
+        return self.web3.manager.request_blocking("eth_protocolVersion", [])
+
+    @property
     def syncing(self):
         return self.web3.manager.request_blocking("eth_syncing", [])
 
