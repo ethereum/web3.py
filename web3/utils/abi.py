@@ -301,8 +301,29 @@ def size_of_type(abi_type):
     return int(re.sub("\D", "", abi_type))
 
 
+END_BRACKETS_OF_ARRAY_TYPE_REGEX = r"\[[^]]*\]$"
+
+
 def sub_type_of_array_type(abi_type):
-    return re.sub(r"\[[^]]*\]$", "", abi_type, 1)
+    if not is_array_type(abi_type):
+        raise ValueError(
+            "Cannot parse subtype of nonarray abi-type: {0}".format(abi_type)
+        )
+
+    return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, '', abi_type, 1)
+
+
+def length_of_array_type(abi_type):
+    if not is_array_type(abi_type):
+        raise ValueError(
+            "Cannot parse length of nonarray abi-type: {0}".format(abi_type)
+        )
+
+    inner_brackets = re.search(END_BRACKETS_OF_ARRAY_TYPE_REGEX, abi_type).group(0).strip("[]")
+    if not inner_brackets:
+        return None
+    else:
+        return int(inner_brackets)
 
 
 ARRAY_REGEX = (
