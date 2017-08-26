@@ -4,7 +4,6 @@ from cytoolz.dicttoolz import (
 
 from eth_utils import (
     is_address,
-    is_integer,
     is_string,
     encode_hex,
     coerce_return_to_text,
@@ -20,7 +19,7 @@ from web3.module import (
 )
 
 from web3.utils.blocks import (
-    is_predefined_block_number,
+    select_method_for_block_identifier,
 )
 from web3.utils.empty import (
     empty,
@@ -111,10 +110,12 @@ class Eth(Module):
         `eth_getBlockByHash`
         `eth_getBlockByNumber`
         """
-        if is_predefined_block_number(block_identifier) or is_integer(block_identifier):
-            method = 'eth_getBlockByNumber'
-        else:
-            method = 'eth_getBlockByHash'
+        method = select_method_for_block_identifier(
+            block_identifier,
+            if_predefined='eth_getBlockByNumber',
+            if_hash='eth_getBlockByHash',
+            if_number='eth_getBlockByNumber',
+        )
 
         return self.web3.manager.request_blocking(
             method,
@@ -126,21 +127,32 @@ class Eth(Module):
         `eth_getBlockTransactionCountByHash`
         `eth_getBlockTransactionCountByNumber`
         """
-        if is_predefined_block_number(block_identifier) or is_integer(block_identifier):
-            method = 'eth_getBlockTransactionCountByNumber'
-        else:
-            method = 'eth_getBlockTransactionCountByHash'
+        method = select_method_for_block_identifier(
+            block_identifier,
+            if_predefined='eth_getBlockTransactionCountByNumber',
+            if_hash='eth_getBlockTransactionCountByHash',
+            if_number='eth_getBlockTransactionCountByNumber',
+        )
         return self.web3.manager.request_blocking(
             method,
             [block_identifier],
         )
 
-    def getUncle(self, block_identifier):
+    def getUncleCount(self, block_identifier):
         """
         `eth_getUncleCountByBlockHash`
         `eth_getUncleCountByBlockNumber`
         """
-        raise NotImplementedError("TODO")
+        method = select_method_for_block_identifier(
+            block_identifier,
+            if_predefined='eth_getUncleCountByBlockNumber',
+            if_hash='eth_getUncleCountByBlockHash',
+            if_number='eth_getUncleCountByBlockNumber',
+        )
+        return self.web3.manager.request_blocking(
+            method,
+            [block_identifier],
+        )
 
     def getTransaction(self, transaction_hash):
         return self.web3.manager.request_blocking(
@@ -153,10 +165,12 @@ class Eth(Module):
         `eth_getTransactionByBlockHashAndIndex`
         `eth_getTransactionByBlockNumberAndIndex`
         """
-        if is_predefined_block_number(block_identifier) or is_integer(block_identifier):
-            method = 'eth_getTransactionByBlockNumberAndIndex'
-        else:
-            method = 'eth_getTransactionByBlockHashAndIndex'
+        method = select_method_for_block_identifier(
+            block_identifier,
+            if_predefined='eth_getTransactionByBlockNumberAndIndex',
+            if_hash='eth_getTransactionByBlockHashAndIndex',
+            if_number='eth_getTransactionByBlockNumberAndIndex',
+        )
         return self.web3.manager.request_blocking(
             method,
             [block_identifier, transaction_index],
