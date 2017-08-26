@@ -265,6 +265,9 @@ class Eth(Module):
             "eth_getFilterLogs", [filter_id],
         )
 
+    def getLogs(self, filter_params):
+        raise NotImplementedError("Not yet implemented")
+
     def uninstallFilter(self, filter_id):
         return self.web3.manager.request_blocking(
             "eth_uninstallFilter", [filter_id],
