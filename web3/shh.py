@@ -1,7 +1,7 @@
 from web3.utils.filters import (
     ShhFilter,
 )
-from web3.utils.module import (
+from web3.module import (
     Module,
 )
 

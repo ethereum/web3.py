@@ -15,6 +15,9 @@ from web3.iban import Iban
 from web3.contract import (
     Contract,
 )
+from web3.module import (
+    Module,
+)
 
 from web3.utils.blocks import (
     is_predefined_block_number,
@@ -26,9 +29,6 @@ from web3.utils.filters import (
     BlockFilter,
     TransactionFilter,
     LogFilter,
-)
-from web3.utils.module import (
-    Module,
 )
 from web3.utils.transactions import (
     get_buffered_gas_estimate,
