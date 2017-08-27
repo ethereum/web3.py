@@ -36,7 +36,9 @@ def select_method_for_block_identifier(value, if_hash, if_number, if_predefined)
         return if_predefined
     elif is_hex_encoded_block_hash(value):
         return if_hash
-    elif is_integer(value) or is_hex_encoded_block_number(value):
+    elif is_integer(value) and (0 <= value < 2**256):
+        return if_number
+    elif is_hex_encoded_block_number(value):
         return if_number
     else:
         raise ValueError(
