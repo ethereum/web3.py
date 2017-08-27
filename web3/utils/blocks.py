@@ -28,7 +28,7 @@ def is_hex_encoded_block_number(value):
         value_as_int = int(value, 16)
     except ValueError:
         return False
-    return 0 <= value_as_int < 2**256 - 1
+    return 0 <= value_as_int < 2**256
 
 
 def select_method_for_block_identifier(value, if_hash, if_number, if_predefined):
