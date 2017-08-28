@@ -22,7 +22,9 @@ env:
     - TOX_ENV=py35-integration-goethereum GETH_VERSION=v1.6.7
     - TOX_ENV=flake8
 cache:
-  pip: true
+  - pip: true
+  - directories:
+    - $HOME/.ethash/
 before_install:
   - if [ -n "$GETH_VERSION" ]; then travis_retry sudo add-apt-repository -y ppa:gophers/archive; fi
   - if [ -n "$GETH_VERSION" ]; then travis_retry sudo apt-get update; fi
