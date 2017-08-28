@@ -18,6 +18,36 @@ Contract Factories
     Ethereum smart contracts.
 
 
+.. py:class:: ConciseContract(Contract())
+
+    This variation of ``Contract`` is designed for succinct read access, with
+    no impact on write access. This comes at a cost of less convenient
+    access to features like ``deploy()`` and properties like ``address``. It is
+    recommended to use the classic ``Contract`` for those use cases.
+
+    Create this type of contract with:
+
+
+    .. code-block:: python
+
+        >>> concise = web3.eth.contract(..., ContractFactoryClass=ConciseContract)
+
+
+    This variation invokes all methods as a call, so if the classic contract had a method like
+    ``contract.call().owner()``, you could call it with ``concise.owner()`` instead.
+
+    For access to send a transaction or estimate gas, you can add a keyword argument like so:
+
+
+    .. code-block:: python
+
+        >>> concise.withdraw(amount, transact={'from': eth.accounts[1], 'gas': 100000, ...})
+
+        >>>  # which is equivalent to this transaction in the classic contract:
+
+        >>> contract.transact({'from': eth.accounts[1], 'gas': 100000, ...}).withdraw(amount)
+
+
 Properties
 ----------
 
