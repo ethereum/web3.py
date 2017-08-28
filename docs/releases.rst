@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+3.13.3
+------
+
+* Improved testing infrastructure.
+
+
 3.13.2
 ------
 

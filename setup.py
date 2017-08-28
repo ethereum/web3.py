@@ -30,7 +30,7 @@ if sys.platform == 'win32':
 
 setup(
     name='web3',
-    version='3.13.2',
+    version='3.13.3',
     description="""Web3.py""",
     long_description=readme,
     author='Piper Merriam',
