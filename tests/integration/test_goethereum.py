@@ -205,6 +205,16 @@ def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, get
 
     kill_proc_gracefully(proc)
 
+    output, errors = proc.communicate(timeout=1)
+    print(
+        "Geth Process Exited:\n"
+        "stdout:{0}\n\n"
+        "stderr:{1}\n\n".format(
+            output.decode('utf8'),
+            errors.decode('utf8'),
+        )
+    )
+
 
 def wait_for_socket(ipc_path, timeout=30):
     start = time.time()
