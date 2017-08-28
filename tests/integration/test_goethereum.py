@@ -325,7 +325,7 @@ def block_with_txn(web3):
         'gas_price': web3.eth.gasPrice,
     })
     start_time = time.time()
-    while time.time() < start_time + 20:
+    while time.time() < start_time + 60:
         txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
         if txn_receipt is not None:
             web3.miner.stop()
