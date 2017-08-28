@@ -207,7 +207,7 @@ def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, get
         kill_proc_gracefully(proc)
         raise
     finally:
-        output, errors = proc.communicate(timeout=1)
+        output, errors = proc.communicate(timeout=10)
         print(
             "Geth Process Exited:\n"
             "stdout:{0}\n\n"
