@@ -196,8 +196,7 @@ def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, get
         '--datadir', str(datadir),
         '--ipcpath', geth_ipc_path,
         '--nodiscover',
-        '--mine',
-        '--minerthreads', '1',
+        '--fakepow',
         '--port', geth_port,
     )
     proc = subprocess.Popen(
