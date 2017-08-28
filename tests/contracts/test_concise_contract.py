@@ -30,6 +30,22 @@ def test_concisecontract_custom_transact():
     contract.transact().grail.assert_called_once_with(1, 2)
 
 
+@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
+def test_concisecontract_two_keywords_fail():
+    contract = Mock()
+    sweet_method = ConciseMethod(contract, 'grail')
+    with pytest.raises(TypeError):
+        sweet_method(1, 2, transact={'holy': 3}, call={'count_to': 4})
+
+
+@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
+def test_concisecontract_unknown_keyword_fails():
+    contract = Mock()
+    sweet_method = ConciseMethod(contract, 'grail')
+    with pytest.raises(TypeError):
+        sweet_method(1, 2, count={'to': 5})
+
+
 def test_class_construction_sets_class_vars(web3,
                                             MATH_ABI,
                                             MATH_CODE,
