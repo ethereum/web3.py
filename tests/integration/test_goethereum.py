@@ -201,19 +201,20 @@ def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, get
         stderr=subprocess.PIPE,
         bufsize=1,
     )
-    yield proc
-
-    kill_proc_gracefully(proc)
-
-    output, errors = proc.communicate(timeout=1)
-    print(
-        "Geth Process Exited:\n"
-        "stdout:{0}\n\n"
-        "stderr:{1}\n\n".format(
-            output.decode('utf8'),
-            errors.decode('utf8'),
+    try:
+        yield proc
+    except:
+        kill_proc_gracefully(proc)
+        output, errors = proc.communicate(timeout=1)
+        print(
+            "Geth Process Exited:\n"
+            "stdout:{0}\n\n"
+            "stderr:{1}\n\n".format(
+                output.decode('utf8'),
+                errors.decode('utf8'),
+            )
         )
-    )
+        raise
 
 
 def wait_for_socket(ipc_path, timeout=30):
