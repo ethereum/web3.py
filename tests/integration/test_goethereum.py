@@ -65,6 +65,9 @@ def keyfile(keystore):
     return _keyfile
 
 
+RAW_TXN_ACCOUNT = '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6'
+
+
 @pytest.fixture(scope='session')
 def genesis_data(coinbase):
     return {
@@ -79,6 +82,9 @@ def genesis_data(coinbase):
         "alloc": {
             remove_0x_prefix(coinbase): {
                 'balance': str(to_wei(1000000000, 'ether')),
+            },
+            remove_0x_prefix(RAW_TXN_ACCOUNT): {
+                'balance': str(to_wei(10, 'ether')),
             },
         },
         "config": {
@@ -282,29 +288,7 @@ def unlocked_account(web3):
 
 @pytest.fixture(scope="session")
 def funded_account_for_raw_txn(web3):
-    account = '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6'
-    coinbase = web3.eth.coinbase
-    web3.personal.unlockAccount(coinbase, KEYFILE_PW)
-    fund_txn_hash = web3.eth.sendTransaction({
-        'from': coinbase,
-        'to': account,
-        'value': web3.toWei(10, 'ether'),
-        'gas': 21000,
-        'gas_price': web3.eth.gasPrice,
-    })
-    web3.personal.lockAccount(coinbase)
-    web3.miner.start(1)
-    start_time = time.time()
-    while time.time() < start_time + 60:
-        fund_receipt = web3.eth.getTransactionReceipt(fund_txn_hash)
-        if fund_receipt is not None:
-            web3.miner.stop()
-            break
-        else:
-            time.sleep(0.1)
-    else:
-        raise Timeout("No block mined during wait period")
-    return account
+    return RAW_TXN_ACCOUNT
 
 
 @pytest.fixture(scope="session")
