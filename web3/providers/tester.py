@@ -77,19 +77,13 @@ ethtestrpc_middleware = construct_formatting_middleware(
 )
 
 
-def static_return(value):
-    def inner(*args, **kwargs):
-        return {'result': value}
-    return inner
-
-
-return_none = static_return(None)
+return_none_result = static_return(None)
 
 
 ethtestrpc_exception_middleware = construct_exception_handler_middleware(
     method_handlers={
-        'eth_getBlockByHash': (ValueError, return_none),
-        'eth_getBlockByNumber': (ValueError, return_none),
+        'eth_getBlockByHash': (ValueError, return_none_result),
+        'eth_getBlockByNumber': (ValueError, return_none_result),
     },
 )
 
