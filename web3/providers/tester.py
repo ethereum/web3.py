@@ -11,6 +11,7 @@ from eth_utils import (
 
 from web3.middleware import (
     construct_formatting_middleware,
+    construct_exception_handler_middleware,
 )
 
 from web3.utils.compat import (
@@ -76,8 +77,25 @@ ethtestrpc_middleware = construct_formatting_middleware(
 )
 
 
+def static_return(value):
+    def inner(*args, **kwargs):
+        return {'result': value}
+    return inner
+
+
+return_none = static_return(None)
+
+
+ethtestrpc_exception_middleware = construct_exception_handler_middleware(
+    method_handlers={
+        'eth_getBlockByHash': (ValueError, return_none),
+        'eth_getBlockByNumber': (ValueError, return_none),
+    },
+)
+
+
 class EthereumTesterProvider(BaseProvider):
-    middlewares = [ethtestrpc_middleware]
+    middlewares = [ethtestrpc_middleware, ethtestrpc_exception_middleware]
 
     def __init__(self,
                  *args,
@@ -108,7 +126,7 @@ class EthereumTesterProvider(BaseProvider):
 
 
 class TestRPCProvider(HTTPProvider):
-    middlewares = [ethtestrpc_middleware]
+    middlewares = [ethtestrpc_middleware, ethtestrpc_exception_middleware]
 
     def __init__(self, host="127.0.0.1", port=8545, *args, **kwargs):
         if not is_testrpc_available():
