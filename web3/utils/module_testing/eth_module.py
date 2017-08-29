@@ -214,6 +214,12 @@ class EthModuleTest(object):
         transaction = web3.eth.getTransaction(mined_txn_hash)
         assert transaction['hash'] == mined_txn_hash
 
+    def test_eth_getTransactionByHash_contract_creation(self,
+                                                        web3,
+                                                        math_contract_deploy_txn_hash):
+        transaction = web3.eth.getTransaction(math_contract_deploy_txn_hash)
+        assert transaction['to'] is None
+
     def test_eth_getTransactionByBlockHashAndIndex(self, web3, block_with_txn, mined_txn_hash):
         transaction = web3.eth.getTransactionFromBlock(block_with_txn['hash'], 0)
         assert transaction['hash'] == mined_txn_hash
