@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+3.13.4
+------
+
+* Bugfix for formatter handling of contract creation transaction.
+
+
+
 3.13.3
 ------
 
