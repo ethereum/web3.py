@@ -631,3 +631,10 @@ Contracts
     - ``user_doc``
 
     See :doc:`./contracts` for more information about how to use contracts.
+
+.. py:method:: Eth.setContractFactory(contractFactoryClass)
+
+    Modify the default contract factory from ``Contract`` to ``contractFactoryClass``.
+    Future calls to ``Eth.contract()`` will then default to ``contractFactoryClass``.
+
+    An example of an alternative Contract Factory is ``ConciseContract``.

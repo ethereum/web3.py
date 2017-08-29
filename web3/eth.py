@@ -39,9 +39,10 @@ from web3.utils.validation import (
 
 
 class Eth(Module):
-    iban = Iban
     defaultAccount = empty
     defaultBlock = "latest"
+    defaultContractFactory = Contract
+    iban = Iban
 
     def namereg(self):
         raise NotImplementedError()
@@ -294,7 +295,7 @@ class Eth(Module):
     def contract(self,
                  *args,
                  **kwargs):
-        ContractFactoryClass = kwargs.pop('ContractFactoryClass', Contract)
+        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
         contract_name = kwargs.pop('contract_name', None)
 
         has_address = any((
@@ -323,6 +324,9 @@ class Eth(Module):
             except IndexError:
                 pass
             return ContractFactoryClass.factory(self.web3, contract_name, **kwargs)
+
+    def setContractFactory(self, contractFactory):
+        self.defaultContractFactory = contractFactory
 
     def getCompilers(self):
         return self.web3.manager.request_blocking("eth_getCompilers", [])

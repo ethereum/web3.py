@@ -16,3 +16,6 @@ py-solc>=0.4.0
 pytest>=2.7.2
 toposort>=1.4
 web3>=2.1.0
+wheel
+sphinx
+urllib3

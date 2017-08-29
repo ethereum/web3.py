@@ -1,4 +1,9 @@
+import sys
+
 import pytest
+
+if sys.version_info >= (3, 3):
+    from unittest.mock import Mock
 
 
 ABI = [{}]
@@ -24,3 +29,11 @@ def test_contract_address_validation(web3, args, kwargs, expected):
 
     # run without errors
     web3.eth.contract(*args, **kwargs)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
+def test_set_contract_factory(web3):
+    factoryClass = Mock()
+    web3.eth.setContractFactory(factoryClass)
+    web3.eth.contract(contract_name='myname')
+    factoryClass.factory.assert_called_once_with(web3, 'myname')
