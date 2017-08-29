@@ -781,6 +781,7 @@ class ConciseContract:
 
 
 class ConciseMethod:
+    ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact'])
 
     def __init__(self, contract, function):
         self.__contract = contract
@@ -790,15 +791,15 @@ class ConciseMethod:
         return self.__prepared_function(**kwargs)(*args)
 
     def __prepared_function(self, **kwargs):
-        allowed_modifiers = ('call', 'estimateGas', 'transact')
         if not kwargs:
             modifier, modifier_dict = 'call', {}
         elif len(kwargs) == 1:
             modifier, modifier_dict = kwargs.popitem()
-            if modifier not in allowed_modifiers:
-                raise TypeError("The only allowed keyword arguments are: %s" % allowed_modifiers)
+            if modifier not in self.ALLOWED_MODIFIERS:
+                raise TypeError(
+                    "The only allowed keyword arguments are: %s" % self.ALLOWED_MODIFIERS)
         else:
-            raise TypeError("Use up to one keyword argument, one of: %s" % allowed_modifiers)
+            raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
         contract_modifier_func = getattr(self.__contract, modifier)
         return getattr(contract_modifier_func(modifier_dict), self.__function)
 
