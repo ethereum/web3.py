@@ -1,6 +1,12 @@
+from cytoolz.functoolz import (
+    compose,
+    complement,
+)
+
 from eth_utils import (
     is_integer,
     is_string,
+    decode_hex,
 )
 
 from web3.middleware import (
@@ -15,6 +21,7 @@ from web3.utils.formatters import (
     hex_to_integer,
     apply_formatter_if,
     apply_formatter_at_index,
+    apply_formatters_to_dict,
 )
 
 from .base import BaseProvider  # noqa: E402
@@ -29,7 +36,27 @@ def is_testrpc_available():
         return False
 
 
+def static_return(value):
+    def inner(*args, **kwargs):
+        return value
+    return inner
+
+
+def static_result(value):
+    def inner(*args, **kwargs):
+        return {'result': value}
+    return inner
+
+
 to_integer_if_hex = apply_formatter_if(hex_to_integer, is_string)
+
+
+TRANSACTION_FORMATTERS = {
+    'to': apply_formatter_if(
+        static_return(None),
+        compose(complement(bool), decode_hex),
+    ),
+}
 
 
 ethtestrpc_middleware = construct_formatting_middleware(
@@ -42,6 +69,7 @@ ethtestrpc_middleware = construct_formatting_middleware(
         # Eth
         'eth_newFilter': apply_formatter_if(hex, is_integer),
         'eth_protocolVersion': apply_formatter_if(str, is_integer),
+        'eth_getTransactionByHash': apply_formatters_to_dict(TRANSACTION_FORMATTERS),
         # Net
         'net_version': apply_formatter_if(str, is_integer),
     },

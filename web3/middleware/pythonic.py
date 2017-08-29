@@ -12,6 +12,7 @@ from cytoolz.functoolz import (
 )
 
 from eth_utils import (
+    is_address,
     to_normalized_address,
     is_integer,
     is_null,
@@ -19,7 +20,6 @@ from eth_utils import (
     is_string,
     is_bytes,
     is_list_like,
-    decode_hex,
 )
 
 from web3.utils.formatters import (
@@ -60,13 +60,6 @@ TRANSACTION_PARAMS_FORMATTERS = {
 transaction_params_formatter = apply_formatters_to_dict(TRANSACTION_PARAMS_FORMATTERS)
 
 
-def is_create_address(value):
-    return decode_hex(value) == b""
-
-
-is_not_create_address = complement(is_create_address)
-
-
 def is_array_of_strings(value):
     if not is_list_like(value):
         return False
@@ -87,7 +80,7 @@ TRANSACTION_FORMATTERS = {
     'gasPrice': to_integer_if_hex,
     'value': to_integer_if_hex,
     'from': to_normalized_address,
-    'to': apply_formatter_if(to_normalized_address, is_not_create_address),
+    'to': apply_formatter_if(to_normalized_address, is_address),
     'hash': to_ascii_if_bytes,
 }
 
@@ -207,6 +200,7 @@ filter_result_formatter = apply_one_of_formatters((
     (apply_formatter_to_array(log_entry_formatter), is_array_of_dicts),
     (apply_formatter_to_array(to_ascii_if_bytes), is_array_of_strings),
 ))
+
 
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
