@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import codecs
+import operator
 
 from cytoolz.curried import (
     keymap,
@@ -9,6 +10,7 @@ from cytoolz.curried import (
 from cytoolz.functoolz import (
     compose,
     complement,
+    partial,
 )
 
 from eth_utils import (
@@ -45,6 +47,9 @@ to_integer_if_hex = apply_formatter_if(hex_to_integer, is_string)
 block_number_formatter = apply_formatter_if(hex, is_integer)
 
 
+is_false = partial(operator.is_, False)
+
+is_not_false = complement(is_false)
 is_not_null = complement(is_null)
 
 
@@ -245,8 +250,8 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_estimateGas': to_integer_if_hex,
         'eth_gasPrice': to_integer_if_hex,
         'eth_getBalance': to_integer_if_hex,
-        'eth_getBlockByHash': apply_formatter_if(block_formatter, is_dict),
-        'eth_getBlockByNumber': apply_formatter_if(block_formatter, is_dict),
+        'eth_getBlockByHash': apply_formatter_if(block_formatter, is_not_null),
+        'eth_getBlockByNumber': apply_formatter_if(block_formatter, is_not_null),
         'eth_getBlockTransactionCountByHash': to_integer_if_hex,
         'eth_getBlockTransactionCountByNumber': to_integer_if_hex,
         'eth_getCode': to_ascii_if_bytes,
@@ -275,7 +280,7 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'eth_sendRawTransaction': to_ascii_if_bytes,
         'eth_sendTransaction': to_ascii_if_bytes,
-        'eth_syncing': apply_formatter_if(syncing_formatter, is_dict),
+        'eth_syncing': apply_formatter_if(syncing_formatter, is_not_false),
         # SHH
         'shh_version': to_integer_if_hex,
         # Transaction Pool
