@@ -15,6 +15,9 @@ from eth_utils import (
 )
 
 
+UNKOWN_HASH = '0xdeadbeef00000000000000000000000000000000000000000000000000000000'
+
+
 class EthModuleTest(object):
     def test_eth_protocolVersion(self, web3):
         protocol_version = web3.version.ethereum
@@ -185,6 +188,10 @@ class EthModuleTest(object):
         block = web3.eth.getBlock(empty_block['hash'])
         assert block['hash'] == empty_block['hash']
 
+    def test_eth_getBlockByHash_not_found(self, web3, empty_block):
+        block = web3.eth.getBlock(UNKOWN_HASH)
+        assert block is None
+
     def test_eth_getBlockByNumber_with_integer(self, web3, empty_block):
         block = web3.eth.getBlock(empty_block['number'])
         assert block['number'] == empty_block['number']
@@ -193,6 +200,10 @@ class EthModuleTest(object):
         current_block_number = web3.eth.blockNumber
         block = web3.eth.getBlock('latest')
         assert block['number'] == current_block_number
+
+    def test_eth_getBlockByNumber_not_found(self, web3, empty_block):
+        block = web3.eth.getBlock(12345)
+        assert block is None
 
     def test_eth_getBlockByNumber_pending(self, web3, empty_block):
         current_block_number = web3.eth.blockNumber
