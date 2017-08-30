@@ -188,7 +188,6 @@ def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, get
         init_datadir_command,
         stdin=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        timeout=10,
     )
 
     run_geth_command = (
@@ -210,7 +209,7 @@ def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, get
         yield proc
     finally:
         kill_proc_gracefully(proc)
-        output, errors = proc.communicate(timeout=60)
+        output, errors = proc.communicate()
         print(
             "Geth Process Exited:\n"
             "stdout:{0}\n\n"
