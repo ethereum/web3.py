@@ -7,20 +7,20 @@ env:
   global:
     - GETH_BASE_INSTALL_PATH=$TRAVIS_BUILD_DIR
   matrix:
-    - TOX_ENV=py27-core-stdlib
-    - TOX_ENV=py34-core-stdlib
-    - TOX_ENV=py35-core-stdlib
-    - TOX_ENV=py27-core-gevent
-    - TOX_ENV=py34-core-gevent
-    - TOX_ENV=py35-core-gevent
-    - TOX_ENV=py35-integration-ethtestrpc
-    - TOX_ENV=py35-integration-goethereum GETH_VERSION=v1.6.0
-    - TOX_ENV=py35-integration-goethereum GETH_VERSION=v1.6.1
-    - TOX_ENV=py35-integration-goethereum GETH_VERSION=v1.6.4
-    - TOX_ENV=py35-integration-goethereum GETH_VERSION=v1.6.5
-    - TOX_ENV=py35-integration-goethereum GETH_VERSION=v1.6.6
-    - TOX_ENV=py35-integration-goethereum GETH_VERSION=v1.6.7
-    - TOX_ENV=flake8
+    - TOX_POSARGS="-e py27-core-stdlib"
+    - TOX_POSARGS="-e py34-core-stdlib"
+    - TOX_POSARGS="-e py35-core-stdlib"
+    - TOX_POSARGS="-e py27-core-gevent"
+    - TOX_POSARGS="-e py34-core-gevent"
+    - TOX_POSARGS="-e py35-core-gevent"
+    - TOX_POSARGS="-e py35-integration-ethtestrpc py34-integration-ethtestrpc py35-integration-ethtestrpc"
+    - TOX_POSARGS="-e py27-integration-goethereum py34-integration-goethereum py35-integration-goethereum" GETH_VERSION=v1.6.0
+    - TOX_POSARGS="-e py27-integration-goethereum py34-integration-goethereum py35-integration-goethereum" GETH_VERSION=v1.6.1
+    - TOX_POSARGS="-e py27-integration-goethereum py34-integration-goethereum py35-integration-goethereum" GETH_VERSION=v1.6.4
+    - TOX_POSARGS="-e py27-integration-goethereum py34-integration-goethereum py35-integration-goethereum" GETH_VERSION=v1.6.5
+    - TOX_POSARGS="-e py27-integration-goethereum py34-integration-goethereum py35-integration-goethereum" GETH_VERSION=v1.6.6
+    - TOX_POSARGS="-e py27-integration-goethereum py34-integration-goethereum py35-integration-goethereum" GETH_VERSION=v1.6.7
+    - TOX_POSARGS="-e flake8"
 cache:
   - pip: true
   - directories:
@@ -42,6 +42,6 @@ before_script:
   - if [ -n "$GETH_VERSION" ]; then $GETH_BINARY makedag 0 $HOME/.ethash; fi
   - pip freeze
 script:
-  - tox -e $TOX_ENV --recreate
+  - tox $TOX_POSARGS
 after_script:
-  - cat .tox/$TOX_ENV/log/*.log
+  - cat .tox/$TOX_POSARGS/log/*.log
