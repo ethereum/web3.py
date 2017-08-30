@@ -23,6 +23,8 @@ from web3.utils.formatters import (
     apply_formatter_if,
     apply_formatter_at_index,
     apply_formatters_to_dict,
+    static_return,
+    static_result,
 )
 
 from .base import BaseProvider  # noqa: E402
@@ -35,18 +37,6 @@ def is_testrpc_available():
         return True
     except ImportError:
         return False
-
-
-def static_return(value):
-    def inner(*args, **kwargs):
-        return value
-    return inner
-
-
-def static_result(value):
-    def inner(*args, **kwargs):
-        return {'result': value}
-    return inner
 
 
 to_integer_if_hex = apply_formatter_if(hex_to_integer, is_string)
@@ -82,8 +72,8 @@ return_none_result = static_result(None)
 
 ethtestrpc_exception_middleware = construct_exception_handler_middleware(
     method_handlers={
-        'eth_getBlockByHash': (ValueError, return_none_result),
-        'eth_getBlockByNumber': (ValueError, return_none_result),
+        'eth_getBlockByHash': (ValueError, static_result(None)),
+        'eth_getBlockByNumber': (ValueError, static_result(None)),
     },
 )
 
