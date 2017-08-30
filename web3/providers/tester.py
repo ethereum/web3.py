@@ -77,7 +77,7 @@ ethtestrpc_middleware = construct_formatting_middleware(
 )
 
 
-return_none_result = static_return(None)
+return_none_result = static_result(None)
 
 
 ethtestrpc_exception_middleware = construct_exception_handler_middleware(
