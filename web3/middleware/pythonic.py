@@ -26,13 +26,13 @@ from eth_utils import (
 )
 
 from web3.utils.formatters import (
-    hex_to_integer,
-    integer_to_hex,
     apply_formatter_if,
     apply_formatters_to_dict,
     apply_formatter_to_array,
     apply_formatter_at_index,
     apply_one_of_formatters,
+    hex_to_integer,
+    integer_to_hex,
 )
 
 from .formatting import (

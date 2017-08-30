@@ -2,16 +2,16 @@ import re
 import itertools
 
 from eth_utils import (
+    add_0x_prefix,
     coerce_args_to_bytes,
     coerce_args_to_text,
     coerce_return_to_text,
-    to_tuple,
-    add_0x_prefix,
+    is_address,
+    is_boolean,
+    is_integer,
     is_list_like,
     is_string,
-    is_integer,
-    is_boolean,
-    is_address,
+    to_tuple,
 )
 
 from eth_abi.abi import (
@@ -379,7 +379,7 @@ def abi_to_signature(abi):
 
 
 @coerce_return_to_text
-def normalize_return_type(data_type, data_value):
+def normalize_return_type(data_type, data_value, custom_normalizer=None):
     try:
         base, sub, arrlist = data_type
     except ValueError:
@@ -387,8 +387,16 @@ def normalize_return_type(data_type, data_value):
 
     if arrlist:
         sub_type = (base, sub, arrlist[:-1])
-        return [normalize_return_type(sub_type, sub_value) for sub_value in data_value]
+        normal = [
+            normalize_return_type(sub_type, sub_value, custom_normalizer)
+            for sub_value in data_value
+        ]
     elif base == 'address':
-        return add_0x_prefix(data_value)
+        normal = add_0x_prefix(data_value)
     else:
-        return data_value
+        normal = data_value
+
+    if custom_normalizer:
+        return custom_normalizer(normal, base, sub, arrlist)
+    else:
+        return normal

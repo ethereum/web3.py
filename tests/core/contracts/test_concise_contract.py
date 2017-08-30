@@ -7,6 +7,9 @@ from web3.contract import (
     ConciseContract,
     ConciseMethod,
 )
+from web3.utils.abi import (
+    normalize_return_type,
+)
 
 if sys.version_info >= (3, 3):
     from unittest.mock import Mock
@@ -44,6 +47,14 @@ def test_concisecontract_unknown_keyword_fails():
     sweet_method = ConciseMethod(contract, 'grail')
     with pytest.raises(TypeError):
         sweet_method(1, 2, count={'to': 5})
+
+
+def test_concisecontract_returns_none_for_0addr():
+    empty_addr = '0x' + '00' * 20
+    val = normalize_return_type('address', empty_addr, ConciseContract._custom_normalizer)
+    assert val is None
+    val = normalize_return_type('address[]', [empty_addr] * 3, ConciseContract._custom_normalizer)
+    assert val == [None] * 3
 
 
 def test_class_construction_sets_class_vars(web3,
