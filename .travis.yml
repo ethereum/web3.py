@@ -43,5 +43,3 @@ before_script:
   - pip freeze
 script:
   - tox $TOX_POSARGS
-after_script:
-  - cat .tox/$TOX_POSARGS/log/*.log
