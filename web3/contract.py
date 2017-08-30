@@ -778,6 +778,13 @@ class ConciseContract:
     def __getattr__(self, attr):
         return ConciseMethod(self._classic_contract, attr)
 
+    @staticmethod
+    def _custom_normalizer(value, base, sub, arraylist):
+        if base == 'address' and not arraylist and int(value, base=16) == 0:
+            return None
+        else:
+            return value
+
 
 class ConciseMethod:
     ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact'])
@@ -850,8 +857,13 @@ def call_contract_function(contract,
             )
         raise_from(BadFunctionCallOutput(msg), e)
 
+    if hasattr(contract, '_custom_normalizer'):
+        normalizer = contract._custom_normalizer
+    else:
+        normalizer = None
+
     normalized_data = [
-        normalize_return_type(data_type, data_value)
+        normalize_return_type(data_type, data_value, custom_normalizer=normalizer)
         for data_type, data_value
         in zip(output_types, output_data)
     ]
