@@ -4,6 +4,9 @@ import functools
 from .formatting import (  # noqa: F401
     construct_formatting_middleware,
 )
+from .exception_handling import (  # noqa: F401
+    construct_exception_handler_middleware,
+)
 from .pythonic import (  # noqa: F401
     pythonic_middleware,
 )

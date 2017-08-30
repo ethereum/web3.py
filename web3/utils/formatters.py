@@ -99,3 +99,15 @@ def recursive_map(func, data):
         return recursive_map(func, item)
     items_mapped = map_collection(recurse, data)
     return func(items_mapped)
+
+
+def static_return(value):
+    def inner(*args, **kwargs):
+        return value
+    return inner
+
+
+def static_result(value):
+    def inner(*args, **kwargs):
+        return {'result': value}
+    return inner
