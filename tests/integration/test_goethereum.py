@@ -219,8 +219,8 @@ def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, get
             "Geth Process Exited:\n"
             "stdout:{0}\n\n"
             "stderr:{1}\n\n".format(
-                output.decode('utf8'),
-                errors.decode('utf8'),
+                output.decode('latin1'),
+                errors.decode('latin1'),
             )
         )
 
