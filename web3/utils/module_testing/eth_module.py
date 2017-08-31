@@ -22,7 +22,7 @@ class EthModuleTest(object):
     def test_eth_protocolVersion(self, web3):
         protocol_version = web3.version.ethereum
 
-        assert is_text(protocol_version)
+        assert is_string(protocol_version)
         assert protocol_version.isdigit()
 
     def test_eth_syncing(self, web3):

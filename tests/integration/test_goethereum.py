@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import json
 import os
 import signal
@@ -14,6 +16,7 @@ from eth_utils import (
     remove_0x_prefix,
     is_dict,
     is_address,
+    force_text,
 )
 
 from web3 import Web3
@@ -219,8 +222,8 @@ def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, get
             "Geth Process Exited:\n"
             "stdout:{0}\n\n"
             "stderr:{1}\n\n".format(
-                output.decode('latin1'),
-                errors.decode('latin1'),
+                force_text(output),
+                force_text(errors),
             )
         )
 
