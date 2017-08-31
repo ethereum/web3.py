@@ -33,16 +33,49 @@ class PersonalModuleTest(object):
         # TODO: how do we test this better?
         web3.personal.lockAccount(unlocked_account)
 
-    def test_personal_unlockAccount(self, web3):
-        account = web3.personal.importRawKey(PRIVATE_KEY_FOR_UNLOCK, PASSWORD)
-        assert is_same_address(account)
-        # TODO: how do we test this better?
-        web3.personal.unlockAccount(account, PASSWORD)
+    def test_personal_unlockAccount_success(self,
+                                            web3,
+                                            unlockable_account,
+                                            unlockable_account_pw):
+        result = web3.personal.unlockAccount(unlockable_account, unlockable_account_pw)
+        assert result is True
+
+    def test_personal_unlockAccount_failure(self,
+                                            web3,
+                                            unlockable_account):
+        result = web3.personal.unlockAccount(unlockable_account, 'bad-password')
+        assert result is False
 
     def test_personal_newAccount(self, web3):
         new_account = web3.personal.newAccount(PASSWORD)
         assert is_address(new_account)
 
-    def test_personal_sendAndSignTransaction(seelf, web3):
-        # TODO: how to do this without overhead?
-        pass
+    def test_personal_sendTransaction(self,
+                                      web3,
+                                      unlockable_account,
+                                      unlockable_account_pw):
+        assert web3.eth.getBalance(unlockable_account) > web3.toWei(1, 'ether')
+        txn_params = {
+            'from': unlockable_account,
+            'to': unlockable_account,
+            'gas': 21000,
+            'value': 1,
+            'gasPrice': web3.toWei(1, 'gwei'),
+        }
+        txn_hash = web3.personal.sendTransaction(txn_params, unlockable_account_pw)
+        assert txn_hash
+        transaction = web3.eth.getTransaction(txn_hash)
+        assert is_same_address(transaction['from'], txn_params['from'])
+        assert is_same_address(transaction['to'], txn_params['to'])
+        assert transaction['gas'] == txn_params['gas']
+        assert transaction['value'] == txn_params['value']
+        assert transaction['gasPrice'] == txn_params['gasPrice']
+
+    def test_personal_sign_and_ecrecover(self,
+                                         web3,
+                                         unlockable_account,
+                                         unlockable_account_pw):
+        message = 'test-web3-personal-sign'
+        signature = web3.personal.sign(message, unlockable_account, unlockable_account_pw)
+        signer = web3.personal.ecRecover(message, signature)
+        assert is_same_address(signer, unlockable_account)

@@ -81,6 +81,26 @@ def unlocked_account(web3):
     return web3.eth.coinbase
 
 
+UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
+
+
+@pytest.fixture(scope='session')
+def unlockable_account_pw(web3):
+    return 'web3-testing'
+
+
+@pytest.fixture(scope='session')
+def unlockable_account(web3, unlockable_account_pw):
+    account = web3.personal.importRawKey(UNLOCKABLE_PRIVATE_KEY, unlockable_account_pw)
+    web3.eth.sendTransaction({
+        'from': web3.eth.coinbase,
+        'to': account,
+        'value': web3.toWei(10, 'ether'),
+    })
+    yield account
+    web3.personal.lockAccount(account)
+
+
 @pytest.fixture(scope="session")
 def funded_account_for_raw_txn(web3):
     account = '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6'
@@ -171,4 +191,6 @@ class TestEthereumTesterNetModule(NetModuleTest):
 
 
 class TestEthereumTesterPersonalModule(PersonalModuleTest):
-    pass
+    test_personal_sign_and_ecrecover = not_implemented(
+        PersonalModuleTest.test_personal_sign_and_ecrecover,
+    )

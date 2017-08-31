@@ -95,6 +95,9 @@ def genesis_data(coinbase):
             remove_0x_prefix(RAW_TXN_ACCOUNT): {
                 'balance': str(to_wei(10, 'ether')),
             },
+            remove_0x_prefix(UNLOCKABLE_ACCOUNT): {
+                'balance': str(to_wei(10, 'ether')),
+            },
         },
         "config": {
             "chainId": 131277322940537,  # the string 'web3py' as an integer
@@ -289,6 +292,22 @@ def unlocked_account(web3):
     web3.personal.unlockAccount(coinbase, KEYFILE_PW)
     yield coinbase
     web3.personal.lockAccount(coinbase)
+
+
+UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
+UNLOCKABLE_ACCOUNT = '0x12efdc31b1a8fa1a1e756dfd8a1601055c971e13'
+
+
+@pytest.fixture(scope='session')
+def unlockable_account_pw(web3):
+    return KEYFILE_PW
+
+
+@pytest.fixture(scope="session")
+def unlockable_account(web3, unlockable_account_pw):
+    account = web3.personal.importRawKey(UNLOCKABLE_PRIVATE_KEY, unlockable_account_pw)
+    yield account
+    web3.personal.lockAccount(account)
 
 
 @pytest.fixture(scope="session")

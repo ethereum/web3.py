@@ -22,6 +22,7 @@ from eth_utils import (
     is_string,
     is_bytes,
     is_list_like,
+    encode_hex,
 )
 
 from web3.utils.formatters import (
@@ -236,6 +237,10 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
         'eth_estimateGas': apply_formatter_at_index(transaction_params_formatter, 0),
+        # personal
+        'personal_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
+        'personal_sign': apply_formatter_at_index(encode_hex, 0),
+        'personal_ecRecover': apply_formatter_at_index(encode_hex, 0),
         # Snapshot and Revert
         'evm_revert': apply_formatter_if(
             apply_formatter_at_index(to_integer_if_hex, 0),

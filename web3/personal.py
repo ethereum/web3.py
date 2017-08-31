@@ -66,12 +66,19 @@ class Personal(Module):
         raise NotImplementedError("Async calling has not been implemented")
 
     @coerce_return_to_text
-    def signAndSendTransaction(self, transaction, passphrase):
+    def sendTransaction(self, transaction, passphrase):
         return self.web3.manager.request_blocking(
-            # "personal_sendTransaction",
-            "personal_signAndSendTransaction",
+            "personal_sendTransaction",
             [transaction, passphrase],
         )
+
+    def signAndSendTransaction(self, *args, **kwargs):
+        warnings.warn(DeprecationWarning(
+            "The `web3.personal.signAndSendTransaction` has been renamed to "
+            "`web3.personal.sendTransaction`.  Please update your code to use "
+            "the new method as this one will be removed in a subsequent release"
+        ))
+        return self.sendTransaction(*args, **kwargs)
 
     def lockAccount(self, account):
         return self.web3.manager.request_blocking(
@@ -80,7 +87,26 @@ class Personal(Module):
         )
 
     def unlockAccount(self, account, passphrase, duration=None):
+        try:
+            return self.web3.manager.request_blocking(
+                "personal_unlockAccount",
+                [account, passphrase, duration],
+            )
+        except ValueError as err:
+            if "could not decrypt" in str(err):
+                # Hack to handle go-ethereum error response.
+                return False
+            else:
+                raise
+
+    def sign(self, message, signer, passphrase):
         return self.web3.manager.request_blocking(
-            "personal_unlockAccount",
-            [account, passphrase, duration],
+            'personal_sign',
+            [message, signer, passphrase],
+        )
+
+    def ecRecover(self, message, signature):
+        return self.web3.manager.request_blocking(
+            'personal_ecRecover',
+            [message, signature],
         )
