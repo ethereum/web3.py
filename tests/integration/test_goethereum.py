@@ -314,6 +314,7 @@ def empty_block_hash():
 @pytest.fixture(scope="session")
 def empty_block(web3, empty_block_hash):
     block = web3.eth.getBlock(empty_block_hash)
+    assert is_dict(block)
     return block
 
 
@@ -325,6 +326,7 @@ def block_with_txn_hash():
 @pytest.fixture(scope="session")
 def block_with_txn(web3, block_with_txn_hash):
     block = web3.eth.getBlock(block_with_txn_hash)
+    assert is_dict(block)
     return block
 
 
