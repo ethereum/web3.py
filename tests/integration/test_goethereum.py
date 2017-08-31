@@ -25,6 +25,7 @@ from web3.utils.module_testing import (
     EthModuleTest,
     NetModuleTest,
     VersionModuleTest,
+    PersonalModuleTest,
     Web3ModuleTest,
 )
 from web3.utils.module_testing.math_contract import (
@@ -358,4 +359,8 @@ class TestGoEthereumVersionModule(VersionModuleTest):
 
 
 class TestGoEthereumNetModule(NetModuleTest):
+    pass
+
+
+class TestGoEthereumPersonalModule(PersonalModuleTest):
     pass
