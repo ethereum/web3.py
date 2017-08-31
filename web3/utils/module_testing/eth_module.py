@@ -4,7 +4,6 @@ from eth_abi import (
 
 from eth_utils import (
     is_address,
-    is_text,
     is_string,
     is_boolean,
     is_dict,
