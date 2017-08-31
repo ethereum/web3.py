@@ -2,6 +2,7 @@ import json
 import os
 import signal
 import socket
+import sys
 import subprocess
 import time
 import tempfile
@@ -27,6 +28,10 @@ from web3.utils.module_testing.math_contract import (
     MATH_BYTECODE,
     MATH_ABI,
 )
+
+
+if sys.version_info.major == 2:
+    FileNotFoundError = OSError
 
 
 @pytest.fixture(scope='session')
