@@ -1,7 +1,10 @@
+from __future__ import unicode_literals
+
 import json
 import os
 import signal
 import socket
+import sys
 import subprocess
 import time
 import tempfile
@@ -13,6 +16,7 @@ from eth_utils import (
     remove_0x_prefix,
     is_dict,
     is_address,
+    force_text,
 )
 
 from web3 import Web3
@@ -27,6 +31,10 @@ from web3.utils.module_testing.math_contract import (
     MATH_BYTECODE,
     MATH_ABI,
 )
+
+
+if sys.version_info.major == 2:
+    FileNotFoundError = OSError
 
 
 @pytest.fixture(scope='session')
@@ -188,7 +196,6 @@ def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, get
         init_datadir_command,
         stdin=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        timeout=10,
     )
 
     run_geth_command = (
@@ -210,13 +217,13 @@ def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, get
         yield proc
     finally:
         kill_proc_gracefully(proc)
-        output, errors = proc.communicate(timeout=60)
+        output, errors = proc.communicate()
         print(
             "Geth Process Exited:\n"
             "stdout:{0}\n\n"
             "stderr:{1}\n\n".format(
-                output.decode('utf8'),
-                errors.decode('utf8'),
+                force_text(output),
+                force_text(errors),
             )
         )
 
