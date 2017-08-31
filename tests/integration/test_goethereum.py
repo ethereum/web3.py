@@ -55,23 +55,32 @@ KEYFILE_PW = 'web3py-test'
 
 @pytest.fixture(scope='session')
 def datadir(tmpdir_factory):
-    _datadir = tmpdir_factory.mktemp('geth-datadir')
-    return _datadir
+    return '/Users/piper/sites/web3.py/tmp/geth-data'
+    #_datadir = tmpdir_factory.mktemp('geth-datadir')
+    #return _datadir
 
 
 @pytest.fixture(scope='session')
 def keystore(datadir):
-    _keystore = datadir.mkdir('keystore')
-    return _keystore
+    return os.path.join(datadir, 'keystore')
+    #_keystore = datadir.mkdir('keystore')
+    #return _keystore
 
 
 @pytest.fixture(scope='session')
 def keyfile(keystore):
-    _keyfile = keystore.join(
+    keyfile_path = os.path.join(
+        keystore,
         'UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
     )
-    _keyfile.write(KEYFILE_DATA)
-    return _keyfile
+    with open(keyfile_path, 'w') as _keyfile:
+        _keyfile.write(KEYFILE_DATA)
+    return keyfile_path
+    #_keyfile = keystore.join(
+    #    'UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
+    #)
+    #_keyfile.write(KEYFILE_DATA)
+    #return _keyfile
 
 
 RAW_TXN_ACCOUNT = '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6'
@@ -110,9 +119,13 @@ def genesis_data(coinbase):
 
 @pytest.fixture(scope='session')
 def genesis_file(datadir, genesis_data):
-    _genesis_file = datadir.join('genesis.json')
-    _genesis_file.write(json.dumps(genesis_data))
-    return _genesis_file
+    genesis_file_path = os.path.join(datadir, 'genesis.json')
+    with open(genesis_file_path, 'w') as genesis_file:
+        genesis_file.write(json.dumps(genesis_data))
+    return genesis_file_path
+    #_genesis_file = datadir.join('genesis.json')
+    #_genesis_file.write(json.dumps(genesis_data))
+    #return _genesis_file
 
 
 @pytest.fixture(scope='session')
@@ -264,6 +277,7 @@ def math_contract_deploy_txn_hash(web3, math_contract_factory):
     web3.personal.unlockAccount(coinbase, KEYFILE_PW)
     deploy_txn_hash = math_contract_factory.deploy({'from': coinbase})
     web3.personal.lockAccount(coinbase)
+    print('MATH_CONTRACT_DEPLOY_HASH: ', deploy_txn_hash)
     return deploy_txn_hash
 
 
@@ -329,6 +343,7 @@ def empty_block(web3):
     else:
         raise Timeout("No block mined during wait period")
     block = web3.eth.getBlock(current_block_number + 1)
+    print('EMPTY_BLOCK_HASH: ', block['hash'])
     return block
 
 
@@ -356,6 +371,7 @@ def block_with_txn(web3):
         raise Timeout("Math contract deploy transaction not mined during wait period")
     web3.personal.lockAccount(coinbase)
     block = web3.eth.getBlock(txn_receipt['blockNumber'])
+    print('BLOCK_WITH_TRANSACTION: ', block['hash'])
     return block
 
 
