@@ -1,11 +1,11 @@
 from __future__ import unicode_literals
 
-import json
 import os
 import signal
+import shutil
 import socket
-import sys
 import subprocess
+import sys
 import time
 import tempfile
 
@@ -25,6 +25,7 @@ from web3.utils.module_testing import (
     EthModuleTest,
     NetModuleTest,
     VersionModuleTest,
+    PersonalModuleTest,
     Web3ModuleTest,
 )
 from web3.utils.module_testing.math_contract import (
@@ -52,25 +53,32 @@ KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{
 KEYFILE_PW = 'web3py-test'
 
 
+DATADIR = os.path.abspath(os.path.join(
+    os.path.dirname(__file__),
+    'geth-datadir-fixture',
+))
+
+
 @pytest.fixture(scope='session')
 def datadir(tmpdir_factory):
-    _datadir = tmpdir_factory.mktemp('geth-datadir')
-    return _datadir
+    base_dir = tmpdir_factory.mktemp('goethereum')
+    datadir = os.path.join(str(base_dir), 'datadir')
+    shutil.copytree(DATADIR, datadir)
+    return datadir
 
 
 @pytest.fixture(scope='session')
 def keystore(datadir):
-    _keystore = datadir.mkdir('keystore')
-    return _keystore
+    return os.path.join(datadir, 'keystore')
 
 
 @pytest.fixture(scope='session')
 def keyfile(keystore):
-    _keyfile = keystore.join(
+    keyfile_path = os.path.join(
+        keystore,
         'UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
     )
-    _keyfile.write(KEYFILE_DATA)
-    return _keyfile
+    return keyfile_path
 
 
 RAW_TXN_ACCOUNT = '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6'
@@ -94,6 +102,9 @@ def genesis_data(coinbase):
             remove_0x_prefix(RAW_TXN_ACCOUNT): {
                 'balance': str(to_wei(10, 'ether')),
             },
+            remove_0x_prefix(UNLOCKABLE_ACCOUNT): {
+                'balance': str(to_wei(10, 'ether')),
+            },
         },
         "config": {
             "chainId": 131277322940537,  # the string 'web3py' as an integer
@@ -106,9 +117,8 @@ def genesis_data(coinbase):
 
 @pytest.fixture(scope='session')
 def genesis_file(datadir, genesis_data):
-    _genesis_file = datadir.join('genesis.json')
-    _genesis_file.write(json.dumps(genesis_data))
-    return _genesis_file
+    genesis_file_path = os.path.join(datadir, 'genesis.json')
+    return genesis_file_path
 
 
 @pytest.fixture(scope='session')
@@ -256,26 +266,12 @@ def math_contract_factory(web3):
 
 @pytest.fixture(scope="session")
 def math_contract_deploy_txn_hash(web3, math_contract_factory):
-    coinbase = web3.eth.coinbase
-    web3.personal.unlockAccount(coinbase, KEYFILE_PW)
-    deploy_txn_hash = math_contract_factory.deploy({'from': coinbase})
-    web3.personal.lockAccount(coinbase)
-    return deploy_txn_hash
+    return '0xceff41630d37e3ef7561e1200eae9dc65da7bbb554ebe46cdc9a20ad77947b1d'
 
 
 @pytest.fixture(scope="session")
 def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
-    start_time = time.time()
-    web3.miner.start(1)
-    while time.time() < start_time + 60:
-        deploy_receipt = web3.eth.getTransactionReceipt(math_contract_deploy_txn_hash)
-        if deploy_receipt is not None:
-            web3.miner.stop()
-            break
-        else:
-            time.sleep(0.1)
-    else:
-        raise Timeout("Math contract deploy transaction not mined during wait period")
+    deploy_receipt = web3.eth.getTransactionReceipt(math_contract_deploy_txn_hash)
     assert is_dict(deploy_receipt)
     contract_address = deploy_receipt['contractAddress']
     assert is_address(contract_address)
@@ -290,52 +286,47 @@ def unlocked_account(web3):
     web3.personal.lockAccount(coinbase)
 
 
+UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
+UNLOCKABLE_ACCOUNT = '0x12efdc31b1a8fa1a1e756dfd8a1601055c971e13'
+
+
+@pytest.fixture(scope='session')
+def unlockable_account_pw(web3):
+    return KEYFILE_PW
+
+
+@pytest.fixture(scope="session")
+def unlockable_account(web3, unlockable_account_pw):
+    yield UNLOCKABLE_ACCOUNT
+    web3.personal.lockAccount(UNLOCKABLE_ACCOUNT)
+
+
 @pytest.fixture(scope="session")
 def funded_account_for_raw_txn(web3):
     return RAW_TXN_ACCOUNT
 
 
 @pytest.fixture(scope="session")
-def empty_block(web3):
-    current_block_number = web3.eth.blockNumber
-    web3.miner.start(1)
-    start_time = time.time()
-    while time.time() < start_time + 60:
-        if web3.eth.blockNumber > current_block_number:
-            web3.miner.stop()
-            break
-        else:
-            time.sleep(0.1)
-    else:
-        raise Timeout("No block mined during wait period")
-    block = web3.eth.getBlock(current_block_number + 1)
+def empty_block_hash():
+    return "0xf847e8f4bf2047490797ac2cd0c86d5fede279f7704a62c3bae548898638af1e"
+
+
+@pytest.fixture(scope="session")
+def empty_block(web3, empty_block_hash):
+    block = web3.eth.getBlock(empty_block_hash)
+    assert is_dict(block)
     return block
 
 
 @pytest.fixture(scope="session")
-def block_with_txn(web3):
-    coinbase = web3.eth.coinbase
-    web3.personal.unlockAccount(coinbase, KEYFILE_PW)
-    web3.miner.start(1)
-    txn_hash = web3.eth.sendTransaction({
-        'from': coinbase,
-        'to': coinbase,
-        'value': 1,
-        'gas': 21000,
-        'gas_price': web3.eth.gasPrice,
-    })
-    start_time = time.time()
-    while time.time() < start_time + 60:
-        txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
-        if txn_receipt is not None:
-            web3.miner.stop()
-            break
-        else:
-            time.sleep(0.1)
-    else:
-        raise Timeout("Math contract deploy transaction not mined during wait period")
-    web3.personal.lockAccount(coinbase)
-    block = web3.eth.getBlock(txn_receipt['blockNumber'])
+def block_with_txn_hash():
+    return '0x9d6b58c1e9790b79a4130db250dcc5c39afc5c8748c5d03d3c2b649bd47ceb48'
+
+
+@pytest.fixture(scope="session")
+def block_with_txn(web3, block_with_txn_hash):
+    block = web3.eth.getBlock(block_with_txn_hash)
+    assert is_dict(block)
     return block
 
 
@@ -358,4 +349,8 @@ class TestGoEthereumVersionModule(VersionModuleTest):
 
 
 class TestGoEthereumNetModule(NetModuleTest):
+    pass
+
+
+class TestGoEthereumPersonalModule(PersonalModuleTest):
     pass

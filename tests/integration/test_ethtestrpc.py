@@ -1,4 +1,5 @@
 import functools
+import sys
 
 import pytest
 
@@ -12,6 +13,7 @@ from web3 import Web3
 from web3.utils.module_testing import (
     EthModuleTest,
     NetModuleTest,
+    PersonalModuleTest,
     VersionModuleTest,
     Web3ModuleTest,
 )
@@ -80,6 +82,26 @@ def unlocked_account(web3):
     return web3.eth.coinbase
 
 
+UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
+
+
+@pytest.fixture(scope='session')
+def unlockable_account_pw(web3):
+    return 'web3-testing'
+
+
+@pytest.fixture(scope='session')
+def unlockable_account(web3, unlockable_account_pw):
+    account = web3.personal.importRawKey(UNLOCKABLE_PRIVATE_KEY, unlockable_account_pw)
+    web3.eth.sendTransaction({
+        'from': web3.eth.coinbase,
+        'to': account,
+        'value': web3.toWei(10, 'ether'),
+    })
+    yield account
+    web3.personal.lockAccount(account)
+
+
 @pytest.fixture(scope="session")
 def funded_account_for_raw_txn(web3):
     account = '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6'
@@ -101,6 +123,10 @@ class TestEthereumTesterWeb3Module(Web3ModuleTest):
 def not_implemented(method, exc_type=AttributeError):
     @functools.wraps(method)
     def inner(*args, **kwargs):
+        if sys.version_info.major == 2:
+            # pytest doesn't do the right thing with the fixture arguments in
+            # python2 so just don't run it.
+            return
         with pytest.raises(exc_type):
             method(*args, **kwargs)
     return inner
@@ -167,3 +193,9 @@ class TestEthereumTesterVersionModule(VersionModuleTest):
 
 class TestEthereumTesterNetModule(NetModuleTest):
     pass
+
+
+class TestEthereumTesterPersonalModule(PersonalModuleTest):
+    test_personal_sign_and_ecrecover = not_implemented(
+        PersonalModuleTest.test_personal_sign_and_ecrecover,
+    )

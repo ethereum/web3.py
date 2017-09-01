@@ -78,8 +78,21 @@ ethtestrpc_exception_middleware = construct_exception_handler_middleware(
 )
 
 
+def ethereum_tester_personal_remapper_middleware(make_request, web3):
+    def middleware(method, params):
+        if method == 'personal_sendTransaction':
+            return make_request('personal_signAndSendTransaction', params)
+        else:
+            return make_request(method, params)
+    return middleware
+
+
 class EthereumTesterProvider(BaseProvider):
-    middlewares = [ethtestrpc_middleware, ethtestrpc_exception_middleware]
+    middlewares = [
+        ethtestrpc_middleware,
+        ethtestrpc_exception_middleware,
+        ethereum_tester_personal_remapper_middleware,
+    ]
 
     def __init__(self,
                  *args,
