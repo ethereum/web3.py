@@ -31,7 +31,7 @@ def get_buffered_gas_estimate(web3, transaction, gas_buffer=100000):
 
     if gas_estimate > gas_limit:
         raise ValueError(
-            "Contract does not appear to be delpoyable within the "
+            "Contract does not appear to be deployable within the "
             "current network gas limits.  Estimated: {0}. Current gas "
             "limit: {1}".format(gas_estimate, gas_limit)
         )
