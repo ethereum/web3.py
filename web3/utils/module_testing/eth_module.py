@@ -222,20 +222,24 @@ class EthModuleTest(object):
 
     def test_eth_getTransactionByHash(self, web3, mined_txn_hash):
         transaction = web3.eth.getTransaction(mined_txn_hash)
+        assert is_dict(transaction)
         assert transaction['hash'] == mined_txn_hash
 
     def test_eth_getTransactionByHash_contract_creation(self,
                                                         web3,
                                                         math_contract_deploy_txn_hash):
         transaction = web3.eth.getTransaction(math_contract_deploy_txn_hash)
+        assert is_dict(transaction)
         assert transaction['to'] is None
 
     def test_eth_getTransactionByBlockHashAndIndex(self, web3, block_with_txn, mined_txn_hash):
         transaction = web3.eth.getTransactionFromBlock(block_with_txn['hash'], 0)
+        assert is_dict(transaction)
         assert transaction['hash'] == mined_txn_hash
 
     def test_eth_getTransactionByBlockNumberAndIndex(self, web3, block_with_txn, mined_txn_hash):
         transaction = web3.eth.getTransactionFromBlock(block_with_txn['number'], 0)
+        assert is_dict(transaction)
         assert transaction['hash'] == mined_txn_hash
 
     def test_eth_getTransactionReceipt_mined(self, web3, block_with_txn, mined_txn_hash):
