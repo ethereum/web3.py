@@ -1,5 +1,5 @@
 from eth_utils import (
-    is_text,
+    is_string,
     is_boolean,
     is_integer,
 )
@@ -9,7 +9,7 @@ class NetModuleTest(object):
     def test_net_version(self, web3):
         version = web3.net.version
 
-        assert is_text(version)
+        assert is_string(version)
         assert version.isdigit()
 
     def test_net_listening(self, web3):

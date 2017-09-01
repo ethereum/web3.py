@@ -27,6 +27,7 @@ from eth_utils import (
 
 from web3.utils.formatters import (
     hex_to_integer,
+    integer_to_hex,
     apply_formatter_if,
     apply_formatters_to_dict,
     apply_formatter_to_array,
@@ -45,7 +46,7 @@ def bytes_to_ascii(value):
 
 to_ascii_if_bytes = apply_formatter_if(bytes_to_ascii, is_bytes)
 to_integer_if_hex = apply_formatter_if(hex_to_integer, is_string)
-block_number_formatter = apply_formatter_if(hex, is_integer)
+block_number_formatter = apply_formatter_if(integer_to_hex, is_integer)
 
 
 is_false = partial(operator.is_, False)
@@ -56,10 +57,10 @@ is_not_null = complement(is_null)
 
 # TODO: decide what inputs this allows.
 TRANSACTION_PARAMS_FORMATTERS = {
-    'value': hex,
-    'gas': hex,
-    'gasPrice': hex,
-    'nonce': hex,
+    'value': integer_to_hex,
+    'gas': integer_to_hex,
+    'gasPrice': integer_to_hex,
+    'nonce': integer_to_hex,
 }
 
 
@@ -182,8 +183,8 @@ transaction_pool_inspect_formatter = apply_formatters_to_dict(
 
 
 FILTER_PARAMS_FORMATTERS = {
-    'fromBlock': apply_formatter_if(hex, is_integer),
-    'toBlock': apply_formatter_if(hex, is_integer),
+    'fromBlock': apply_formatter_if(integer_to_hex, is_integer),
+    'toBlock': apply_formatter_if(integer_to_hex, is_integer),
 }
 
 
@@ -224,14 +225,14 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'eth_getCode': apply_formatter_at_index(block_number_formatter, 1),
         'eth_getStorageAt': compose(
-            apply_formatter_at_index(hex, 1),
+            apply_formatter_at_index(integer_to_hex, 1),
             apply_formatter_at_index(block_number_formatter, 2),
         ),
         'eth_getTransactionByBlockNumberAndIndex': compose(
             apply_formatter_at_index(block_number_formatter, 0),
-            apply_formatter_at_index(hex, 1),
+            apply_formatter_at_index(integer_to_hex, 1),
         ),
-        'eth_getTransactionByBlockHashAndIndex': apply_formatter_at_index(hex, 1),
+        'eth_getTransactionByBlockHashAndIndex': apply_formatter_at_index(integer_to_hex, 1),
         'eth_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
         'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
