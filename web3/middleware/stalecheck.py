@@ -5,14 +5,7 @@ import time
 from web3.exceptions import StaleBlockchain
 
 SKIP_STALECHECK_FOR_METHODS = set([
-    'eth_getBlockByHash',
     'eth_getBlockByNumber',
-    'eth_getBlockTransactionCountByHash',
-    'eth_getBlockTransactionCountByNumber',
-    'eth_getTransactionByBlockHashAndIndex',
-    'eth_getTransactionByBlockNumberAndIndex',
-    'eth_getUncleCountByBlockHash',
-    'eth_getUncleCountByBlockNumber',
 ])
 
 
