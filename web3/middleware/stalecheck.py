@@ -2,6 +2,7 @@ from collections import defaultdict
 import datetime
 import time
 
+from web3.exceptions import StaleBlockchain
 
 SKIP_STALECHECK_FOR_METHODS = set([
     'eth_getBlockByHash',
@@ -56,14 +57,3 @@ def make_stalecheck_middleware(**kwargs):
             return make_request(method, params)
         return middleware
     return stalecheck_middleware
-
-
-class StaleBlockchain(Exception):
-    def __init__(self, block, allowable_delay):
-        last_block_date = datetime.datetime.fromtimestamp(block.timestamp).strftime('%c')
-        message = (
-            "The latest block, #%d, is %d seconds old, but is only allowed to be %d s old. "
-            "The date of the most recent block is %s. Continue syncing and try again..." %
-            (block.number, time.time() - block.timestamp, allowable_delay, last_block_date)
-        )
-        super().__init__(message, block, allowable_delay)
