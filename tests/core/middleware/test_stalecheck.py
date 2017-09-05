@@ -22,13 +22,13 @@ def now():
 
 
 @pytest.fixture
-def days_fresh():
-    return 3
+def allowable_delay():
+    return 3 * 24 * 60 * 60
 
 
 @pytest.fixture
-def request_middleware(days_fresh):
-    middleware = make_stalecheck_middleware(days=days_fresh)
+def request_middleware(allowable_delay):
+    middleware = make_stalecheck_middleware(allowable_delay)
     make_request, web3 = Mock(), Mock()
     initialized = middleware(make_request, web3)
     # for easier mocking, later:
@@ -98,11 +98,11 @@ def test_stalecheck_ignores_get_by_block_methods(request_middleware, rpc_method)
         assert not request_middleware.web3.eth.getBlock.called
 
 
-def test_stalecheck_calls_isfresh_with_empty_cache(request_middleware, days_fresh):
+def test_stalecheck_calls_isfresh_with_empty_cache(request_middleware, allowable_delay):
     with patch('web3.middleware.stalecheck._isfresh', side_effect=[False, True]) as freshspy:
         method, params, block = Mock(), Mock(), Mock()
         request_middleware.web3.eth.getBlock.return_value = block
         request_middleware(method, params)
         cache_call, live_call = freshspy.call_args_list
-        assert cache_call[0] == (None, 86400 * days_fresh)
-        assert live_call[0] == (block, 86400 * days_fresh)
+        assert cache_call[0] == (None, allowable_delay)
+        assert live_call[0] == (block, allowable_delay)
