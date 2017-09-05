@@ -23,6 +23,10 @@ from web3.utils.module_testing.math_contract import (
 )
 
 
+# Ignore warning in pyethereum 1.6 - will go away with the upgrade
+pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
+
+
 @pytest.fixture(scope="session")
 def web3():
     _web3 = Web3(Web3.EthereumTesterProvider())

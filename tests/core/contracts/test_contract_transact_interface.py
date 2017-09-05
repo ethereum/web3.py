@@ -13,6 +13,9 @@ from web3.utils.transactions import (
     wait_for_transaction_receipt,
 )
 
+# Ignore warning in pyethereum 1.6 - will go away with the upgrade
+pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
+
 
 @pytest.fixture()
 def math_contract(web3, MathContract):

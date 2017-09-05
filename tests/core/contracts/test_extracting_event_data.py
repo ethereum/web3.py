@@ -9,6 +9,9 @@ from web3.utils.events import (
     get_event_data,
 )
 
+# Ignore warning in pyethereum 1.6 - will go away with the upgrade
+pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
+
 
 @pytest.fixture()
 def Emitter(web3, EMITTER):

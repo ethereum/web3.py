@@ -5,6 +5,9 @@ from web3.utils.compat import (
     Timeout,
 )
 
+# Ignore warning in pyethereum 1.6 - will go away with the upgrade
+pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
+
 
 @flaky(max_runs=3)
 @pytest.mark.parametrize('call_as_instance', (True, False))

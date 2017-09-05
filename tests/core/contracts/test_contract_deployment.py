@@ -1,6 +1,12 @@
+
+import pytest
+
 from eth_utils import (
     force_bytes,
 )
+
+# Ignore warning in pyethereum 1.6 - will go away with the upgrade
+pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
 def test_contract_deployment_no_constructor(web3, MathContract,
