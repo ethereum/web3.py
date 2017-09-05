@@ -97,3 +97,21 @@ def test_stalecheck_calls_isfresh_with_empty_cache(request_middleware, allowable
         cache_call, live_call = freshspy.call_args_list
         assert cache_call[0] == (None, allowable_delay)
         assert live_call[0] == (block, allowable_delay)
+
+
+def test_stalecheck_adds_block_to_cache(request_middleware, allowable_delay):
+    with patch('web3.middleware.stalecheck._isfresh', side_effect=[False, True, True]) as freshspy:
+        block = object()
+        request_middleware.web3.eth.getBlock.return_value = block
+
+        # cache miss
+        request_middleware('', [])
+        cache_call, live_call = freshspy.call_args_list
+        assert freshspy.call_count == 2
+        assert cache_call == ((None, allowable_delay), )
+        assert live_call == ((block, allowable_delay), )
+
+        # cache hit
+        request_middleware('', [])
+        assert freshspy.call_count == 3
+        assert freshspy.call_args == ((block, allowable_delay), )
