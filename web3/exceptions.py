@@ -38,3 +38,6 @@ class StaleBlockchain(Exception):
             (block.number, time.time() - block.timestamp, allowable_delay, last_block_date)
         )
         super().__init__(message, block, allowable_delay)
+
+    def __str__(self):
+        return self.args[0]
