@@ -13,6 +13,9 @@ from .pythonic import (  # noqa: F401
 from .attrdict import (  # noqa: F401
     attrdict_middleware,
 )
+from .fixture import (  # noqa: F401
+    construct_fixture_middleware,
+)
 
 
 def combine_middlewares(middlewares, web3, provider_request_fn):
