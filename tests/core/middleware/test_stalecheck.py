@@ -64,45 +64,36 @@ def test_is_fresh(now):
 
 def test_stalecheck_pass(request_middleware):
     with patch('web3.middleware.stalecheck._isfresh', return_value=True):
-        method, params = Mock(), Mock()
+        method, params = object(), object()
         request_middleware(method, params)
         request_middleware.make_request.assert_called_once_with(method, params)
 
 
 def test_stalecheck_fail(request_middleware, now):
     with patch('web3.middleware.stalecheck._isfresh', return_value=False):
-        method, params = Mock(), Mock()
         request_middleware.web3.eth.getBlock.return_value = stub_block(now)
         with pytest.raises(StaleBlockchain):
-            request_middleware(method, params)
+            request_middleware('', [])
 
 
 @pytest.mark.parametrize(
     'rpc_method',
     [
-        'eth_getBlockByHash',
         'eth_getBlockByNumber',
-        'eth_getBlockTransactionCountByHash',
-        'eth_getBlockTransactionCountByNumber',
-        'eth_getTransactionByBlockHashAndIndex',
-        'eth_getTransactionByBlockNumberAndIndex',
-        'eth_getUncleCountByBlockHash',
-        'eth_getUncleCountByBlockNumber',
     ]
 )
 def test_stalecheck_ignores_get_by_block_methods(request_middleware, rpc_method):
     # This is especially critical for getBlock('latest') which would cause infinite recursion
-    with patch('web3.middleware.stalecheck._isfresh', return_value=True):
-        params = Mock()
-        request_middleware(rpc_method, params)
+    with patch('web3.middleware.stalecheck._isfresh', side_effect=[False, True]):
+        request_middleware(rpc_method, [])
         assert not request_middleware.web3.eth.getBlock.called
 
 
 def test_stalecheck_calls_isfresh_with_empty_cache(request_middleware, allowable_delay):
     with patch('web3.middleware.stalecheck._isfresh', side_effect=[False, True]) as freshspy:
-        method, params, block = Mock(), Mock(), Mock()
+        block = object()
         request_middleware.web3.eth.getBlock.return_value = block
-        request_middleware(method, params)
+        request_middleware('', [])
         cache_call, live_call = freshspy.call_args_list
         assert cache_call[0] == (None, allowable_delay)
         assert live_call[0] == (block, allowable_delay)
