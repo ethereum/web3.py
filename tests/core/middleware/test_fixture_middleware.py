@@ -7,7 +7,6 @@ from web3.middleware import (
 
 FIXTURES = {
     'eth_protocolVersion': 'test-protocol',
-    'eth_coinbase': lambda params: params * 2,
 }
 
 
@@ -20,7 +19,6 @@ def _make_request(method, params):
     (
         ('eth_mining', [], 'default'),
         ('eth_protocolVersion', [], 'test-protocol'),
-        ('eth_coinbase', 7, 14),
     )
 )
 def test_fixture_middleware(method, params, expected):
