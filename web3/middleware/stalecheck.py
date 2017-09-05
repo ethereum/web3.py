@@ -11,25 +11,27 @@ def _isfresh(block, allowable_delay):
     return block and time.time() - block['timestamp'] <= allowable_delay
 
 
-def make_stalecheck_middleware(allowable_delay=0):
+def make_stalecheck_middleware(
+        allowable_delay,
+        skip_stalecheck_for_methods=SKIP_STALECHECK_FOR_METHODS):
     '''
     Use to require that a function will run only of the blockchain is recently updated.
 
     This middleware takes an argument, so unlike other middleware, you must make the middleware
     with a method call.
-    For example: `make_stalecheck_middleware(allowable_delay=60*5)`
+    For example: `make_stalecheck_middleware(60*5)`
 
     If the latest block in the chain is older than 5 minutes in this example, then the
     middleware will raise a StaleBlockchain exception.
     '''
-    if not allowable_delay:
-        raise ValueError("You must set a non-zero allowable delay for this middleware")
+    if allowable_delay <= 0:
+        raise ValueError("You must set a positive allowable_delay in seconds for this middleware")
 
     def stalecheck_middleware(make_request, web3):
         cache = {'latest': None}
 
         def middleware(method, params):
-            if method not in SKIP_STALECHECK_FOR_METHODS:
+            if method not in skip_stalecheck_for_methods:
                 if _isfresh(cache['latest'], allowable_delay):
                     pass
                 else:
