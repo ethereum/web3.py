@@ -33,20 +33,19 @@ def assert_fresh(web3, cached_blocks, allowable_delay):
             raise StaleBlockchain(last_block, allowable_delay)
 
 
-def make_stalecheck_middleware(**kwargs):
+def make_stalecheck_middleware(seconds=0, minutes=0, hours=0, days=0):
     '''
     Use to require that a function will run only of the blockchain is recently updated.
 
     This middleware takes an argument, so unlike other middleware, you must make the middleware
     with a method call.
-    For example: `make_stalecheck_middleware(hours=12)`
+    For example: `make_stalecheck_middleware(hours=6, days=1)`
 
-    If the latest block in the chain is older than 12 hours ago in this example, then the
+    If the latest block in the chain is older than 30 hours ago in this example, then the
     middleware will raise a StaleBlockchain exception.
-
-    `make_stalecheck_middleware(...)` takes the same keyword arguments as datetime.timedelta()
     '''
-    allowable_delay = datetime.timedelta(**kwargs).total_seconds()
+    allowable_delta = datetime.timedelta(seconds=seconds, minutes=minutes, hours=hours, days=days)
+    allowable_delay = allowable_delta.total_seconds()
     cached_blocks = defaultdict(lambda: None)
 
     def stalecheck_middleware(make_request, web3):
