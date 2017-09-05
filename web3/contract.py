@@ -541,7 +541,7 @@ class Contract(object):
         be available once the transaction has been mined.
 
         :param transaction: Dictionary of transaction info for web3 interface.
-        Variables include ``from``, ``gas``, ``value``, ``gasPrice``.
+        Variables include ``from``, ``gas``, ``value``, ``gasPrice``, ``nonce``.
 
         :return: ``Transactor`` object that has contract
             public functions exposed as Python methods.
