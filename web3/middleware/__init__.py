@@ -10,6 +10,9 @@ from .exception_handling import (  # noqa: F401
 from .pythonic import (  # noqa: F401
     pythonic_middleware,
 )
+from .stalecheck import (  # noqa: F401
+    make_stalecheck_middleware,
+)
 from .attrdict import (  # noqa: F401
     attrdict_middleware,
 )

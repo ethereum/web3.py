@@ -17,6 +17,7 @@ Contents
     filters
     contracts
     providers
+    middleware
     examples
     web3.main
     web3.eth
