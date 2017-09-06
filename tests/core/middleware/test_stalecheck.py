@@ -2,9 +2,9 @@
 import pytest
 import sys
 
+from web3.middleware import make_stalecheck_middleware
 from web3.middleware.stalecheck import (
     _isfresh,
-    make_stalecheck_middleware,
     StaleBlockchain,
 )
 from web3.utils.datastructures import AttributeDict
