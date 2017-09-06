@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+3.13.5
+------
+
+* Add experimental ``fixture_middleware``
+* Various bugfixes introduced in middleware API introduction and migration to
+  formatter middleware.
+
+
 3.13.4
 ------
 
