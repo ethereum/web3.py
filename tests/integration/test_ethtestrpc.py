@@ -119,7 +119,7 @@ def funded_account_for_raw_txn(web3):
     return account
 
 
-class TestEthereumTesterWeb3Module(Web3ModuleTest):
+class TestEthTestRPCWeb3Module(Web3ModuleTest):
     def _check_web3_clientVersion(self, client_version):
         assert client_version.startswith('TestRPC/')
 
@@ -136,7 +136,7 @@ def not_implemented(method, exc_type=AttributeError):
     return inner
 
 
-class TestEthereumTesterEthModule(EthModuleTest):
+class TestEthTestRPCEthModule(EthModuleTest):
     #
     # Eth-Testrpc doesn't comply with RPC spec in many ways.
     #
@@ -191,15 +191,15 @@ class TestEthereumTesterEthModule(EthModuleTest):
     )
 
 
-class TestEthereumTesterVersionModule(VersionModuleTest):
+class TestEthTestRPCVersionModule(VersionModuleTest):
     pass
 
 
-class TestEthereumTesterNetModule(NetModuleTest):
+class TestEthTestRPCNetModule(NetModuleTest):
     pass
 
 
-class TestEthereumTesterPersonalModule(PersonalModuleTest):
+class TestEthTestRPCPersonalModule(PersonalModuleTest):
     test_personal_sign_and_ecrecover = not_implemented(
         PersonalModuleTest.test_personal_sign_and_ecrecover,
     )
