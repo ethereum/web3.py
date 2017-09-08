@@ -6,7 +6,9 @@ def construct_fixture_middleware(fixtures):
     def fixture_middleware(make_request, web3):
         def middleware(method, params):
             if method in fixtures:
-                return fixtures[method]
+                return {
+                    'result': fixtures[method],
+                }
             else:
                 return make_request(method, params)
         return middleware
