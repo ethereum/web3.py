@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import warnings
 
 from eth_utils import (
+    add_0x_prefix,
     coerce_return_to_text,
     decode_hex,
     encode_hex,
@@ -10,9 +11,8 @@ from eth_utils import (
     from_wei,
     is_address,
     is_checksum_address,
-    to_checksum_address,
-    add_0x_prefix,
     remove_0x_prefix,
+    to_checksum_address,
     to_wei,
 )
 
@@ -23,16 +23,18 @@ from toolz.functoolz import (
 from web3.admin import Admin
 from web3.db import Db
 from web3.eth import Eth
+from web3.iban import Iban
 from web3.miner import Miner
 from web3.net import Net
 from web3.personal import Personal
 from web3.shh import Shh
+from web3.testing import Testing
 from web3.txpool import TxPool
 from web3.version import Version
-from web3.testing import Testing
 
-from web3.iban import Iban
-
+from web3.providers.ipc import (
+    IPCProvider,
+)
 from web3.providers.rpc import (
     HTTPProvider,
     RPCProvider,
@@ -42,9 +44,7 @@ from web3.providers.tester import (
     TestRPCProvider,
     EthereumTesterProvider,
 )
-from web3.providers.ipc import (
-    IPCProvider,
-)
+
 from web3.manager import (
     RequestManager,
 )
