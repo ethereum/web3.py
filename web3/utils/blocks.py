@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from eth_utils import (
     is_hex,
     is_string,
