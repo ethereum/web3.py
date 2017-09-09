@@ -90,9 +90,11 @@ class Web3(object):
 
     # Encoding and Decoding
     toHex = staticmethod(to_hex)
-    toAscii = staticmethod(decode_hex)
+    toBytes = staticmethod(decode_hex)
+    toAscii = toBytes
     toUtf8 = staticmethod(compose(force_text, decode_hex))
-    fromAscii = staticmethod(encode_hex)
+    fromBytes = staticmethod(encode_hex)
+    fromAscii = fromBytes
     fromUtf8 = staticmethod(encode_hex)
     toDecimal = staticmethod(to_decimal)
     fromDecimal = staticmethod(from_decimal)
