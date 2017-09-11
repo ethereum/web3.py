@@ -162,13 +162,12 @@ class Web3(object):
                 "code to use sha3(text='txt'), sha3(hexstr='0x747874'), "
                 "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)."
             ))
-        else:
-            if not isinstance(primitive, (bytes, int, type(None))):
-                warnings.warn(DeprecationWarning(
-                    "The first argument as a string has been deprecated. Please update your "
-                    "code to use sha3(text='txt'), sha3(hexstr='0x747874'), "
-                    "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)."
-                ))
+        elif not isinstance(primitive, (bytes, int, type(None))):
+            warnings.warn(DeprecationWarning(
+                "The first argument as a string has been deprecated. Please update your "
+                "code to use sha3(text='txt'), sha3(hexstr='0x747874'), "
+                "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)."
+            ))
 
         if isinstance(primitive, bytes):
             if bytes == str:
