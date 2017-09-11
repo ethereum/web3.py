@@ -169,6 +169,13 @@ class Web3(object):
                 "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)."
             ))
 
+        args = (arg for arg in (primitive, text, hexstr) if arg is not None)
+        if len(list(args)) != 1:
+            raise TypeError(
+                "Only supply one positional arg, or the text, or hexstr keyword args. "
+                "You supplied %r and %r" % (primitive, {'text': text, 'hexstr': hexstr})
+            )
+
         if isinstance(primitive, bytes):
             if bytes == str:
                 # *shakes fist at python 2*
@@ -191,7 +198,7 @@ class Web3(object):
         elif encoding == 'utf8':
             return keccak(primitive.encode('utf8'))
 
-        raise ValueError(
+        raise TypeError(
             "You called sha3 with first arg %r and keywords %r. You must call it with one of "
             "these approaches: sha3(text='txt'), sha3(hexstr='0x747874'), "
             "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)." % (
