@@ -178,11 +178,11 @@ class Web3(object):
             else:
                 return keccak(primitive)
         elif isinstance(primitive, int):
-            return keccak(to_hex(primitive))
+            return keccak(decode_hex(hex(primitive)))
         elif text is not None:
             return keccak(text.encode('utf-8'))
         elif hexstr is not None:
-            return keccak(to_hex(hexstr))
+            return keccak(decode_hex(hexstr))
 
         # handle deprecated cases
         if encoding in ('hex', None):

@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import pytest
+import sys
 
 from web3 import Web3
 
@@ -37,4 +38,9 @@ def test_sha3_hexstr(hexstr, digest):
     ]
 )
 def test_sha3_primitive(primitive, digest):
-    assert Web3.sha3(primitive) == digest
+    if primitive and sys.version_info[0] < 3:
+        # py2 doesn't recognize bytes, tries to decode as hexstr.
+        # Old implementation would have failed, too
+        pytest.raises(TypeError)
+    else:
+        assert Web3.sha3(primitive) == digest
