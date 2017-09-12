@@ -10,7 +10,6 @@ from eth_utils import (
     is_boolean,
     is_dict,
     is_integer,
-    coerce_args_to_text,
     coerce_args_to_bytes,
     add_0x_prefix,
     is_0x_prefixed,
@@ -104,7 +103,6 @@ def pad_hex(value, bit_size):
     return add_0x_prefix(value.zfill(int(bit_size / 4)))
 
 
-@coerce_args_to_text
 def to_hex(value):
     """
     Auto converts any supported value into it's hex representation.
@@ -115,8 +113,10 @@ def to_hex(value):
     if is_dict(value):
         return encode_hex(json.dumps(value, sort_keys=True))
 
-    if is_string(value):
+    if isinstance(value, bytes):
         return encode_hex(value)
+    elif isinstance(value, str):
+        return encode_hex(value.encode('utf-8'))
 
     if is_integer(value):
         return from_decimal(value)

@@ -17,10 +17,6 @@ from eth_utils import (
     to_wei,
 )
 
-from toolz.functoolz import (
-    compose,
-)
-
 from web3.admin import Admin
 from web3.db import Db
 from web3.eth import Eth
@@ -93,10 +89,6 @@ class Web3(object):
 
     # Encoding and Decoding
     toHex = staticmethod(to_hex)
-    toBytes = staticmethod(decode_hex)
-    toUtf8 = staticmethod(compose(force_text, decode_hex))
-    fromBytes = staticmethod(encode_hex)
-    fromUtf8 = staticmethod(encode_hex)
     toDecimal = staticmethod(to_decimal)
     fromDecimal = staticmethod(from_decimal)
 
@@ -231,6 +223,43 @@ class Web3(object):
         else:
             return False
 
+    @classmethod
+    def toBytes(cls, primitive=None, hexstr=None, text=None):
+        if bytes is str:
+            raise NotImplementedError("This method only works in Python 3+.")
+
+        args = (arg for arg in (primitive, text, hexstr) if arg is not None)
+        if len(list(args)) != 1:
+            raise TypeError(
+                "Only supply one positional arg, or the text, or hexstr keyword args. "
+                "You supplied %r and %r" % (primitive, {'text': text, 'hexstr': hexstr})
+            )
+
+        if isinstance(primitive, bytes):
+            return primitive
+        elif isinstance(primitive, int):
+            return cls.toBytes(hexstr=hex(primitive))
+        elif hexstr is not None:
+            if len(hexstr) % 2:
+                hexstr = '0x0' + hexstr[2:]
+            return decode_hex(hexstr)
+        elif text is not None:
+            return text.encode('utf-8')
+        raise TypeError("expected an int in first arg, or keyword of hexstr or text")
+
+    @classmethod
+    def toText(cls, val):
+        if bytes is str:
+            raise NotImplementedError("This method only works in Python 3+.")
+
+        if isinstance(val, str):
+            return decode_hex(val).decode('utf-8')
+        elif isinstance(val, bytes):
+            return val.decode('utf-8')
+        elif isinstance(val, int):
+            return cls.toText(hex(val))
+        raise TypeError("Expected an int, bytes or hexstr.")
+
     @staticmethod
     @deprecated_for("toBytes()")
     def toAscii(val):
@@ -240,3 +269,13 @@ class Web3(object):
     @deprecated_for("toHex()")
     def fromAscii(val):
         return encode_hex(val)
+
+    @staticmethod
+    @deprecated_for("toText()")
+    def toUtf8(val):
+        return force_text(decode_hex(val))
+
+    @staticmethod
+    @deprecated_for("toHex()")
+    def fromUtf8(string):
+        return encode_hex(string)
