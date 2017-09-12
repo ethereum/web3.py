@@ -34,10 +34,6 @@ Providers
 
     Updates the current web3 instance with the new provider.
 
-.. py:method:: Web3.sha3(value, encoding='hex')
-
-    Returns the Keccak Sha3 of the given value.
-
 
 Encoding and Decoding Helpers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

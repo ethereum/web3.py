@@ -3,16 +3,17 @@ from __future__ import absolute_import
 import warnings
 
 from eth_utils import (
-    coerce_return_to_text,
+    apply_to_return_value,
+    add_0x_prefix,
     decode_hex,
     encode_hex,
     force_text,
     from_wei,
     is_address,
     is_checksum_address,
-    to_checksum_address,
-    add_0x_prefix,
+    keccak,
     remove_0x_prefix,
+    to_checksum_address,
     to_wei,
 )
 
@@ -23,16 +24,18 @@ from toolz.functoolz import (
 from web3.admin import Admin
 from web3.db import Db
 from web3.eth import Eth
+from web3.iban import Iban
 from web3.miner import Miner
 from web3.net import Net
 from web3.personal import Personal
 from web3.shh import Shh
+from web3.testing import Testing
 from web3.txpool import TxPool
 from web3.version import Version
-from web3.testing import Testing
 
-from web3.iban import Iban
-
+from web3.providers.ipc import (
+    IPCProvider,
+)
 from web3.providers.rpc import (
     HTTPProvider,
     RPCProvider,
@@ -42,9 +45,7 @@ from web3.providers.tester import (
     TestRPCProvider,
     EthereumTesterProvider,
 )
-from web3.providers.ipc import (
-    IPCProvider,
-)
+
 from web3.manager import (
     RequestManager,
 )
@@ -152,13 +153,59 @@ class Web3(object):
         ))
         return self.manager.providers[0]
 
-    @coerce_return_to_text
-    def sha3(self, value, encoding="hex"):
-        if encoding == 'hex':
-            hex_string = value
-        else:
-            hex_string = encode_hex(value)
-        return self.manager.request_blocking('web3_sha3', [hex_string])
+    @staticmethod
+    @apply_to_return_value(encode_hex)
+    def sha3(primitive=None, text=None, hexstr=None, encoding=None):
+        if encoding is not None:
+            warnings.warn(DeprecationWarning(
+                "The encoding keyword has been deprecated.  Please update your "
+                "code to use sha3(text='txt'), sha3(hexstr='0x747874'), "
+                "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)."
+            ))
+        elif not isinstance(primitive, (bytes, int, type(None))):
+            warnings.warn(DeprecationWarning(
+                "The first argument as a string has been deprecated. Please update your "
+                "code to use sha3(text='txt'), sha3(hexstr='0x747874'), "
+                "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)."
+            ))
+
+        args = (arg for arg in (primitive, text, hexstr) if arg is not None)
+        if len(list(args)) != 1:
+            raise TypeError(
+                "Only supply one positional arg, or the text, or hexstr keyword args. "
+                "You supplied %r and %r" % (primitive, {'text': text, 'hexstr': hexstr})
+            )
+
+        if isinstance(primitive, bytes):
+            if bytes == str:
+                # *shakes fist at python 2*
+                # fall back to deprecated functionality
+                pass
+            else:
+                return keccak(primitive)
+        elif isinstance(primitive, int):
+            return keccak(decode_hex(hex(primitive)))
+        elif text is not None:
+            return keccak(text.encode('utf-8'))
+        elif hexstr is not None:
+            return keccak(decode_hex(hexstr))
+
+        # handle deprecated cases
+        if encoding in ('hex', None):
+            return keccak(decode_hex(primitive))
+        elif encoding == 'bytes':
+            return keccak(primitive)
+        elif encoding == 'utf8':
+            return keccak(primitive.encode('utf8'))
+
+        raise TypeError(
+            "You called sha3 with first arg %r and keywords %r. You must call it with one of "
+            "these approaches: sha3(text='txt'), sha3(hexstr='0x747874'), "
+            "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)." % (
+                primitive,
+                {'encoding': encoding, 'text': text, 'hexstr': hexstr}
+            )
+        )
 
     def soliditySha3(self, abi_types, values):
         """
@@ -177,7 +224,7 @@ class Web3(object):
             for abi_type, value
             in zip(abi_types, values)
         ))
-        return self.sha3(hex_string, encoding="hex")
+        return self.sha3(hexstr=hex_string)
 
     def isConnected(self):
         for provider in self.providers:
