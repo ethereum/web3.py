@@ -1,6 +1,7 @@
 # String encodings and numeric representations
-import sys
 import json
+import sys
+import warnings
 
 from rlp.sedes import big_endian_int
 
@@ -128,19 +129,31 @@ def to_hex(value):
     )
 
 
-def to_decimal(value):
+def to_decimal(value=None, hexstr=None):
     """
     Converts value to it's decimal representation in string
     """
-    if is_string(value):
-        if is_0x_prefixed(value) or _is_prefixed(value, '-0x'):
-            value = int(value, 16)
-        else:
-            value = int(value)
-    else:
-        value = int(value)
+    if (value is None) == (hexstr is None):
+        raise TypeError(
+            "Only supply one positional argument, or the hexstr keyword, like: "
+            "toDecimal('255') or toDecimal(hexstr='FF')"
+        )
 
-    return value
+    if hexstr is not None:
+        return int(hexstr, 16)
+    elif is_string(value):
+        if bytes != str and isinstance(value, bytes):
+            return to_decimal(hexstr=to_hex(value))
+        elif is_0x_prefixed(value) or _is_prefixed(value, '-0x'):
+            warnings.warn(DeprecationWarning(
+                "Sending a hex string in the first position has been deprecated. Please use "
+                "toDecimal(hexstr='%s') instead." % value
+            ))
+            return to_decimal(hexstr=value)
+        else:
+            return int(value)
+    else:
+        return int(value)
 
 
 def from_decimal(value):

@@ -67,3 +67,43 @@ def test_to_text(val, expected):
             Web3.toText(val)
     else:
         assert Web3.toText(val) == expected
+
+
+@pytest.mark.parametrize(
+    'val, expected',
+    (
+        (b'\x00', 0),
+        (b'\x01', 1),
+        (b'\x00\x01', 1),
+        (b'\x01\x00', 256),
+        ('255', 255),
+        (True, 1),
+        (False, 0),
+        # Deprecated:
+        ('0x0', 0),
+        ('0x1', 1),
+        ('0x01', 1),
+        ('0x10', 16),
+    )
+)
+def test_to_decimal(val, expected):
+    if isinstance(val, bytes) and bytes == str:
+        pytest.skip("Python 3 is required to pass in bytes")
+    assert Web3.toDecimal(val) == expected
+
+
+@pytest.mark.parametrize(
+    'val, expected',
+    (
+        ('0x0', 0),
+        ('0x1', 1),
+        ('0x01', 1),
+        ('0x10', 16),
+        ('0', 0),
+        ('1', 1),
+        ('01', 1),
+        ('10', 16),
+    )
+)
+def test_to_decimal_hexstr(val, expected):
+    assert Web3.toDecimal(hexstr=val) == expected
