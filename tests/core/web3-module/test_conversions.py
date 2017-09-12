@@ -31,6 +31,8 @@ def test_to_bytes_primitive(val, expected):
         ('0x', b''),
         ('0x0', b'\x00'),
         ('0x1', b'\x01'),
+        ('0', b'\x00'),
+        ('1', b'\x01'),
         ('0xFF', b'\xff'),
         ('0x100', b'\x01\x00'),
         ('0x0000', b'\x00\x00'),

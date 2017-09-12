@@ -50,10 +50,12 @@ from web3.utils.decorators import (
     deprecated_for,
 )
 from web3.utils.encoding import (
-    hex_encode_abi_type,
-    to_hex,
-    to_decimal,
     from_decimal,
+    hex_encode_abi_type,
+    to_bytes,
+    to_decimal,
+    to_hex,
+    to_text,
 )
 
 
@@ -88,8 +90,10 @@ class Web3(object):
     Iban = Iban
 
     # Encoding and Decoding
-    toHex = staticmethod(to_hex)
+    toBytes = staticmethod(to_bytes)
     toDecimal = staticmethod(to_decimal)
+    toHex = staticmethod(to_hex)
+    toText = staticmethod(to_text)
     fromDecimal = staticmethod(from_decimal)
 
     # Currency Utility
@@ -222,43 +226,6 @@ class Web3(object):
                 return True
         else:
             return False
-
-    @classmethod
-    def toBytes(cls, primitive=None, hexstr=None, text=None):
-        if bytes is str:
-            raise NotImplementedError("This method only works in Python 3+.")
-
-        args = (arg for arg in (primitive, text, hexstr) if arg is not None)
-        if len(list(args)) != 1:
-            raise TypeError(
-                "Only supply one positional arg, or the text, or hexstr keyword args. "
-                "You supplied %r and %r" % (primitive, {'text': text, 'hexstr': hexstr})
-            )
-
-        if isinstance(primitive, bytes):
-            return primitive
-        elif isinstance(primitive, int):
-            return cls.toBytes(hexstr=hex(primitive))
-        elif hexstr is not None:
-            if len(hexstr) % 2:
-                hexstr = '0x0' + hexstr[2:]
-            return decode_hex(hexstr)
-        elif text is not None:
-            return text.encode('utf-8')
-        raise TypeError("expected an int in first arg, or keyword of hexstr or text")
-
-    @classmethod
-    def toText(cls, val):
-        if bytes is str:
-            raise NotImplementedError("This method only works in Python 3+.")
-
-        if isinstance(val, str):
-            return decode_hex(val).decode('utf-8')
-        elif isinstance(val, bytes):
-            return val.decode('utf-8')
-        elif isinstance(val, int):
-            return cls.toText(hex(val))
-        raise TypeError("Expected an int, bytes or hexstr.")
 
     @staticmethod
     @deprecated_for("toBytes()")

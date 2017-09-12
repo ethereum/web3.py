@@ -5,18 +5,19 @@ import json
 from rlp.sedes import big_endian_int
 
 from eth_utils import (
-    is_bytes,
-    is_string,
+    add_0x_prefix,
+    coerce_args_to_bytes,
+    force_bytes,
+    force_text,
+    is_0x_prefixed,
     is_boolean,
+    is_bytes,
     is_dict,
     is_integer,
-    coerce_args_to_bytes,
-    add_0x_prefix,
-    is_0x_prefixed,
+    is_string,
+    decode_hex,
     encode_hex,
     remove_0x_prefix,
-    force_text,
-    force_bytes,
 )
 
 from web3.utils.abi import (
@@ -156,6 +157,43 @@ def from_decimal(value):
     # representation.
     result = hex(value).rstrip('L')
     return result
+
+
+def to_bytes(primitive=None, hexstr=None, text=None):
+    if bytes is str:
+        raise NotImplementedError("This method only works in Python 3+.")
+
+    args = (arg for arg in (primitive, text, hexstr) if arg is not None)
+    if len(list(args)) != 1:
+        raise TypeError(
+            "Only supply one positional arg, or the text, or hexstr keyword args. "
+            "You supplied %r and %r" % (primitive, {'text': text, 'hexstr': hexstr})
+        )
+
+    if isinstance(primitive, bytes):
+        return primitive
+    elif isinstance(primitive, int):
+        return to_bytes(hexstr=hex(primitive))
+    elif hexstr is not None:
+        if len(hexstr) % 2:
+            hexstr = '0x0' + remove_0x_prefix(hexstr)
+        return decode_hex(hexstr)
+    elif text is not None:
+        return text.encode('utf-8')
+    raise TypeError("expected an int in first arg, or keyword of hexstr or text")
+
+
+def to_text(val):
+    if bytes is str:
+        raise NotImplementedError("This method only works in Python 3+.")
+
+    if isinstance(val, str):
+        return decode_hex(val).decode('utf-8')
+    elif isinstance(val, bytes):
+        return val.decode('utf-8')
+    elif isinstance(val, int):
+        return to_text(hex(val))
+    raise TypeError("Expected an int, bytes or hexstr.")
 
 
 @coerce_args_to_bytes
