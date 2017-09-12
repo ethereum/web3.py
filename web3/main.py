@@ -224,7 +224,7 @@ class Web3(object):
             for abi_type, value
             in zip(abi_types, values)
         ))
-        return self.sha3(hex_string, encoding="hex")
+        return self.sha3(hexstr=hex_string)
 
     def isConnected(self):
         for provider in self.providers:
