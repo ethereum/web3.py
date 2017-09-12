@@ -32,7 +32,9 @@ from web3.utils.abi import (
     size_of_type,
     sub_type_of_array_type,
 )
-
+from web3.utils.decorators import (
+    deprecated_for,
+)
 from web3.utils.validation import (
     validate_abi_type,
     validate_abi_value,
@@ -117,11 +119,13 @@ def to_hex(value):
 
     if isinstance(value, bytes):
         return encode_hex(value)
-    elif isinstance(value, str):
+    elif is_string(value):
         return encode_hex(value.encode('utf-8'))
 
     if is_integer(value):
-        return from_decimal(value)
+        # python2 longs end up with an `L` hanging off the end of their hexidecimal
+        # representation.
+        return hex(value).rstrip('L')
 
     raise TypeError(
         "Unsupported type: '{0}'.  Must be one of Boolean, Dictionary, String, "
@@ -156,9 +160,10 @@ def to_decimal(value=None, hexstr=None):
         return int(value)
 
 
+@deprecated_for("to_hex")
 def from_decimal(value):
     """
-    Converts numeric value to it's hex representation
+    Converts numeric value to its hex representation
     """
     if is_string(value):
         if is_0x_prefixed(value) or _is_prefixed(value, '-0x'):
@@ -166,10 +171,7 @@ def from_decimal(value):
         else:
             value = int(value)
 
-    # python2 longs end up with an `L` hanging off the end of their hexidecimal
-    # representation.
-    result = hex(value).rstrip('L')
-    return result
+    return to_hex(value)
 
 
 def to_bytes(primitive=None, hexstr=None, text=None):

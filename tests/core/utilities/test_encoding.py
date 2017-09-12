@@ -9,7 +9,6 @@ from hypothesis import (
 )
 
 from web3.utils.encoding import (
-    from_decimal,
     hex_encode_abi_type,
     to_decimal,
     to_hex,
@@ -20,30 +19,21 @@ from web3.utils.encoding import (
     "value,expected",
     [
         (1, '0x1'),
-        ('1', '0x1'),
         (15, '0xf'),
-        ('15', '0xf'),
         (-1, '-0x1'),
-        ('-1', '-0x1'),
         (-15, '-0xf'),
-        ('-15', '-0xf'),
         (0, '0x0'),
-        ('0', '0x0'),
         (-0, '0x0'),
-        ('-0', '0x0'),
-        ("0x0", "0x0"),
-        ("-0x0", "0x0"),
-        ("0x5", "0x5"),
     ]
 )
-def test_from_decimal(value, expected):
-    assert from_decimal(value) == expected
+def test_to_hex(value, expected):
+    assert to_hex(value) == expected
 
 
 @given(value=st.integers(min_value=-1 * 2**255 + 1, max_value=2**256 - 1))
-def test_conversion_rount_trip(value):
-    intermediate_value = from_decimal(value)
-    result_value = to_decimal(intermediate_value)
+def test_conversion_round_trip(value):
+    intermediate_value = to_hex(value)
+    result_value = to_decimal(hexstr=intermediate_value)
     error_msg = "Expected: {0!r}, Result: {1!r}, Intermediate: {2!r}".format(
         value,
         result_value,
