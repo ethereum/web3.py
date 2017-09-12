@@ -160,9 +160,6 @@ def from_decimal(value):
 
 
 def to_bytes(primitive=None, hexstr=None, text=None):
-    if bytes is str:
-        raise NotImplementedError("This method only works in Python 3+.")
-
     args = (arg for arg in (primitive, text, hexstr) if arg is not None)
     if len(list(args)) != 1:
         raise TypeError(
@@ -170,7 +167,9 @@ def to_bytes(primitive=None, hexstr=None, text=None):
             "You supplied %r and %r" % (primitive, {'text': text, 'hexstr': hexstr})
         )
 
-    if isinstance(primitive, bytes):
+    if is_boolean(primitive):
+        return b'\x01' if primitive else b'\x00'
+    elif isinstance(primitive, bytes):
         return primitive
     elif isinstance(primitive, int):
         return to_bytes(hexstr=hex(primitive))
@@ -185,6 +184,7 @@ def to_bytes(primitive=None, hexstr=None, text=None):
 
 def to_text(val):
     if bytes is str:
+        # must be able to tell the difference between bytes and a hexstr
         raise NotImplementedError("This method only works in Python 3+.")
 
     if isinstance(val, str):

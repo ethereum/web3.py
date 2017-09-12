@@ -15,14 +15,12 @@ from web3 import Web3
         (0xFF, b'\xff'),
         (0, b'\x00'),
         (256, b'\x01\x00'),
+        (True, b'\x01'),
+        (False, b'\x00'),
     )
 )
 def test_to_bytes_primitive(val, expected):
-    if sys.version_info.major < 3:
-        with pytest.raises(NotImplementedError):
-            Web3.toBytes(val)
-    else:
-        assert Web3.toBytes(val) == expected
+    assert Web3.toBytes(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -39,11 +37,7 @@ def test_to_bytes_primitive(val, expected):
     )
 )
 def test_to_bytes_hexstr(val, expected):
-    if sys.version_info.major < 3:
-        with pytest.raises(NotImplementedError):
-            Web3.toBytes(hexstr=val)
-    else:
-        assert Web3.toBytes(hexstr=val) == expected
+    assert Web3.toBytes(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -54,11 +48,7 @@ def test_to_bytes_hexstr(val, expected):
     )
 )
 def test_to_bytes_text(val, expected):
-    if sys.version_info.major < 3:
-        with pytest.raises(NotImplementedError):
-            Web3.toBytes(text=val)
-    else:
-        assert Web3.toBytes(text=val) == expected
+    assert Web3.toBytes(text=val) == expected
 
 
 @pytest.mark.parametrize(

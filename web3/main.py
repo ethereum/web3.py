@@ -94,7 +94,6 @@ class Web3(object):
     toDecimal = staticmethod(to_decimal)
     toHex = staticmethod(to_hex)
     toText = staticmethod(to_text)
-    fromDecimal = staticmethod(from_decimal)
 
     # Currency Utility
     toWei = staticmethod(to_wei)
@@ -170,19 +169,13 @@ class Web3(object):
                 "You supplied %r and %r" % (primitive, {'text': text, 'hexstr': hexstr})
             )
 
-        if isinstance(primitive, bytes):
-            if bytes == str:
-                # *shakes fist at python 2*
-                # fall back to deprecated functionality
-                pass
-            else:
-                return keccak(primitive)
-        elif isinstance(primitive, int):
-            return keccak(decode_hex(hex(primitive)))
-        elif text is not None:
-            return keccak(text.encode('utf-8'))
-        elif hexstr is not None:
-            return keccak(decode_hex(hexstr))
+        if isinstance(primitive, bytes) and bytes == str:
+            # *shakes fist at python 2*
+            # fall back to deprecated functionality
+            pass
+        elif isinstance(primitive, (bytes, int)) or text is not None or hexstr is not None:
+            input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
+            return keccak(input_bytes)
 
         # handle deprecated cases
         if encoding in ('hex', None):
@@ -246,3 +239,8 @@ class Web3(object):
     @deprecated_for("toHex()")
     def fromUtf8(string):
         return encode_hex(string)
+
+    @staticmethod
+    @deprecated_for("toHex()")
+    def fromDecimal(decimal):
+        return from_decimal(decimal)
