@@ -54,8 +54,7 @@ class JSONBaseProvider(BaseProvider):
 
     def isConnected(self):
         try:
-            response_raw = self.make_request('web3_clientVersion', [])
-            response = json.loads(force_text(response_raw))
+            response = self.make_request('web3_clientVersion', [])
         except IOError:
             return False
         else:
