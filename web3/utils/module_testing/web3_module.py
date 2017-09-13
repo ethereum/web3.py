@@ -162,3 +162,6 @@ class Web3ModuleTest(object):
     def test_soliditySha3_same_number_of_types_and_values(self, web3, types, values):
         with pytest.raises(ValueError):
             web3.soliditySha3(types, values)
+
+    def test_is_connected(self, web3):
+        assert web3.isConnected()
