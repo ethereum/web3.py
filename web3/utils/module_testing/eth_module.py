@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals
 
 from eth_abi import (
@@ -136,9 +138,28 @@ class EthModuleTest(object):
         assert len(code) > 2
 
     def test_eth_sign(self, web3, unlocked_account):
-        signature = web3.eth.sign(unlocked_account, 'message-to-be-signed')
+        signature = web3.eth.sign(unlocked_account, text='Message tö sign. Longer than hash!')
         assert is_string(signature)
         assert len(remove_0x_prefix(signature)) == 130
+
+        # test other formats
+        hexsign = web3.eth.sign(
+            unlocked_account,
+            hexstr='0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821'
+        )
+        assert hexsign == signature
+
+        intsign = web3.eth.sign(
+            unlocked_account,
+            0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821
+        )
+        assert intsign == signature
+
+        bytessign = web3.eth.sign(unlocked_account, b'Message t\xc3\xb6 sign. Longer than hash!')
+        assert bytessign == signature
+
+        new_signature = web3.eth.sign(unlocked_account, text='different message is different')
+        assert new_signature != signature
 
     def test_eth_sendTransaction(self, web3, unlocked_account):
         txn_params = {

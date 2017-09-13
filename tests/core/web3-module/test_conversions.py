@@ -70,6 +70,7 @@ def test_to_text_identity():
         (b'cowm\xc3\xb6', 'cowmö'),
         ('0x636f776dc3b6', 'cowmö'),
         (0x636f776dc3b6, 'cowmö'),
+        ('0xa', '\n'),
     )
 )
 def test_to_text(val, expected):
