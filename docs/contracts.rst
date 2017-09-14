@@ -83,7 +83,7 @@ Methods
 Each Contract Factory exposes the following methods.
 
 
-.. py:classmethod:: Contract.deploy(transaction=None, arguments=None)
+.. py:classmethod:: Contract.deploy(transaction=None, args=None)
 
     Construct and send a transaction to deploy the contract.
 
