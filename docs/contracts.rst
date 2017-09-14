@@ -77,12 +77,6 @@ Each Contract Factory exposes the following properties.
     provided during factory creation.
 
 
-.. py:attribute:: Contract.bytecode_runtime
-
-    The runtime part of the contract bytecode string.  May be ``None`` if not
-    provided during factory creation.
-
-
 Methods
 -------
 
