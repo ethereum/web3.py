@@ -1,8 +1,10 @@
 
 from collections import (
+    Hashable,
     Mapping,
     MutableMapping,
-    Hashable,
+    OrderedDict,
+    Sequence,
 )
 
 from web3.utils.formatters import recursive_map
@@ -87,3 +89,81 @@ class AttributeDict(ReadableAttributeDict, Hashable):
             return self.__dict__ == dict(other)
         else:
             return False
+
+
+class NamedElementStack:
+    def __init__(self, init_elements, valid_element=callable):
+        self._queue = OrderedDict()
+        self._callbacks = []
+        for element in reversed(init_elements):
+            if valid_element(element):
+                self.add(element)
+            else:
+                self.add(*element)
+
+    def add(self, element, name=None):
+        if name is None:
+            name = element
+
+        if name in self._queue:
+            if name is element:
+                raise ValueError("You can't add the same un-named instance twice")
+            else:
+                raise ValueError("You can't add the same name again, use replace instead")
+
+        self._queue[name] = element
+        self._changed()
+
+    def clear(self):
+        self._queue.clear()
+        self._changed()
+
+    def on_change(self, callback):
+        if not callable(callback):
+            raise TypeError("Only give callable arguments to 'on_change'")
+        self._callbacks.append(callback)
+
+    def replace(self, old, new):
+        if old not in self._queue:
+            raise ValueError("You can't replace unless one already exists, use add instead")
+        if self._queue[old] is old:
+            # re-insert with new name in old slot
+            self._replace_with_new_name(old, new)
+        else:
+            self._queue[old] = new
+        self._changed()
+
+    def remove(self, old):
+        if old not in self._queue:
+            raise ValueError("You can only remove something that has been added")
+        del self._queue[old]
+        self._changed()
+
+    def _changed(self):
+        for callback in self._callbacks:
+            callback()
+
+    def _replace_with_new_name(self, old, new):
+        self._queue[new] = new
+        found_old = False
+        for key in list(self._queue.keys()):
+            if not found_old:
+                if key == old:
+                    found_old = True
+                continue
+            elif key != new:
+                self._queue.move_to_end(key)
+        del self._queue[old]
+
+    def __iter__(self):
+        elements = self._queue.values()
+        if not isinstance(elements, Sequence):
+            elements = list(elements)
+        return iter(reversed(elements))
+
+    def __add__(self, other):
+        if not isinstance(other, NamedElementStack):
+            raise NotImplementedError("You can only combine with another Stack")
+        combined = self._queue.copy()
+        combined.update(other._queue)
+        return NamedElementStack(combined.items())

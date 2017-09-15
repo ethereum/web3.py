@@ -118,17 +118,17 @@ class Web3(object):
                 )
             setattr(self, module_name, module_class(self))
 
-    def add_middleware(self, middleware):
-        """
-        Convenience API for RequestManager.add_middleware
-        """
-        self.manager.add_middleware(middleware)
+    @property
+    def middleware_stack(self):
+        return self.manager.middleware_stack
 
+    @deprecated_for("Web3.middleware_stack.add(middleware [, name])")
+    def add_middleware(self, middleware, name=None):
+        return self.middleware_stack.add(middleware, name=name)
+
+    @deprecated_for("Web3.middleware_stack.clear()")
     def clear_middlewares(self):
-        """
-        Convenience API for RequestManager.clear_middlewares
-        """
-        self.manager.clear_middlewares()
+        return self.middleware_stack.clear()
 
     @property
     def providers(self):

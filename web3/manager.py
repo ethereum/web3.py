@@ -1,4 +1,3 @@
-import itertools
 import uuid
 import warnings
 
@@ -19,6 +18,12 @@ from web3.middleware import (
 from web3.utils.compat import (
     spawn,
 )
+from web3.utils.datastructures import (
+    NamedElementStack,
+)
+from web3.utils.decorators import (
+    deprecated_for,
+)
 
 
 class RequestManager(object):
@@ -33,22 +38,22 @@ class RequestManager(object):
         self.providers = providers
 
     web3 = None
-    _middlewares = None
     _providers = None
 
     @property
     def middlewares(self):
-        return self._middlewares or tuple()
+        return tuple(self.middleware_stack)
 
     @middlewares.setter
-    def middlewares(self, value):
-        self._middlewares = tuple(value)
+    def middlewares(self, new_middlewares):
+        self.middleware_stack = NamedElementStack(new_middlewares)
         self._generate_request_functions()
+        self.middleware_stack.on_change(self._generate_request_functions)
 
     def _generate_request_functions(self):
         self._wrapped_provider_request_functions = {
             index: combine_middlewares(
-                middlewares=tuple(self.middlewares) + tuple(provider.middlewares),
+                middlewares=self.middlewares + tuple(provider.middlewares),
                 web3=self.web3,
                 provider_request_fn=provider.make_request,
             )
@@ -56,14 +61,13 @@ class RequestManager(object):
             in enumerate(self.providers)
         }
 
+    @deprecated_for("manager.middleware_stack.add(middleware [, name])")
     def add_middleware(self, middleware):
-        self.middlewares = tuple(itertools.chain(
-            [middleware],
-            self.middlewares,
-        ))
+        return self.middleware_stack.add(middleware)
 
+    @deprecated_for("manager.middleware_stack.clear()")
     def clear_middlewares(self):
-        self.middlewares = tuple()
+        return self.middleware_stack.clear()
 
     @property
     def providers(self):

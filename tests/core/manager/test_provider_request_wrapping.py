@@ -6,22 +6,6 @@ from web3.providers import (
 )
 
 
-def middleware_factory(key):
-    def middleware_wrapper(make_request, web3):
-        def middleware_fn(method, params):
-            params.append(key)
-            method = "|".join((method, key))
-            response = make_request(method, params)
-            response['result']['middlewares'].append(key)
-            return response
-        return middleware_fn
-    return middleware_wrapper
-
-
-middleware_a = middleware_factory('middleware-A')
-middleware_b = middleware_factory('middleware-B')
-
-
 class DummyProvider(BaseProvider):
     def make_request(self, method, params):
         return {
@@ -33,7 +17,10 @@ class DummyProvider(BaseProvider):
         }
 
 
-def test_provider_property_setter_and_getter():
+def test_provider_property_setter_and_getter(middleware_factory):
+    middleware_a = middleware_factory('middleware-A')
+    middleware_b = middleware_factory('middleware-B')
+
     provider = DummyProvider()
 
     manager = RequestManager(None, provider, middlewares=[middleware_a, middleware_b])

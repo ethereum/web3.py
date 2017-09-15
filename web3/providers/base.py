@@ -11,24 +11,23 @@ from eth_utils import (
 
 
 class BaseProvider(object):
-    _middlewares = None
+    _middlewares = []
+    _middleware_locked = False
 
     @property
     def middlewares(self):
-        return self._middlewares or tuple()
+        if not self._middleware_locked:
+            self._middleware_locked = True
+        return tuple(self._middlewares)
 
     @middlewares.setter
-    def middlewares(self, value):
-        self._middlewares = tuple(value)
-
-    def add_middleware(self, middleware):
-        self.middlewares = tuple(itertools.chain(
-            [middleware],
-            self.middlewares,
-        ))
-
-    def clear_middlewares(self):
-        self.middlewares = tuple()
+    def middlewares(self, values):
+        if self._middleware_locked:
+            raise RuntimeError(
+                "The request manager will not notice changes in provider middleware, "
+                "so you cannot modify middleware after it has been read."
+            )
+        self._middlewares = tuple(values)
 
     def make_request(self, method, params):
         raise NotImplementedError("Providers must implement this method")

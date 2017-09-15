@@ -40,18 +40,78 @@ Pythonic
     where appropriate. For example, it converts the raw hex string returned by the RPC call
     ``eth_blockNumber`` into an ``int``.
 
+.. _Modifying_Middleware:
+
+Modifying Middleware
+------------------
+
+Middleware can be added, removed, replaced, and cleared at runtime. To make that easier, you
+can name the middleware for later reference. Alternatively, you can use a reference to the
+middleware itself.
+
+.. py:method:: Web3.middleware_stack.add(middleware, name=None)
+
+    Middleware will be added to the top of the stack. That means the new middleware will modify the
+    request first, and the response last. You can optionally name it with any hashable object,
+    typically a string.
+
+    .. code-block:: python
+
+        >>> w3 = Web3(...)
+        >>> w3.middleware_stack.add(web3.middleware.pythonic_middleware)
+        # or
+        >>> w3.middleware_stack.add(web3.middleware.pythonic_middleware, 'pythonic')
+
+.. py:method:: Web3.middleware_stack.remove(middleware)
+
+    Middleware will be removed from wherever it sat in the stack. If you added the middleware with
+    a name, use the name to remove it. If you added the middleware as an object, use the object to
+    remove it.
+
+    .. code-block:: python
+
+        >>> w3 = Web3(...)
+        >>> w3.middleware_stack.remove(web3.middleware.pythonic_middleware)
+        # or
+        >>> w3.middleware_stack.remove('pythonic')
+
+.. py:method:: Web3.middleware_stack.replace(old_middleware, new_middleware)
+
+    Middleware will be replaced wherever it sat in the stack. If the middleware was named, it will
+    continue to have the same name. If it was un-named, then you will now reference it with the new
+    middleware object.
+
+    .. code-block:: python
+
+        >>> from web3.middleware import pythonic_middleware, attrdict_middleware
+        >>> w3 = Web3(...)
+
+        >>> w3.middleware_stack.replace(pythonic_middleware, attrdict_middleware)
+        # this is now referenced by the new middleware object, so to remove it:
+        >>> w3.middleware_stack.remove(attrdict_middleware)
+
+        # or, if it was named
+
+        >>> w3.middleware_stack.replace('pythonic', attrdict_middleware)
+        # this is still referenced by the original name, so to remove it:
+        >>> w3.middleware_stack.remove('pythonic')
+
+.. py:method:: Web3.middleware_stack.clear()
+
+    Empty all the middlewares, including the default ones.
+
+    .. code-block:: python
+
+        >>> w3 = Web3(...)
+        >>> w3.middleware_stack.clear()
+        >>> assert len(w3.middlewares) == 0
+
+
 Built-in Middleware
 ------------------
 
-Web3 ships with middleware for custom use, as desired. Middleware can be added after creating
-your Web3 object, like:
-
-.. code-block:: python
-
-    w3 = Web3(...)
-    w3.add_middleware(my_middleware)
-
-Alternatively, you can pass in middlewares to the Web3 constructor.
+Web3 ships with non-default middleware, for your custom use. In addition to the other ways of
+:ref:`Modifying_Middleware`, you can specify a list of middleware when initializing Web3, with:
 
 .. code-block:: python
 
@@ -60,8 +120,10 @@ Alternatively, you can pass in middlewares to the Web3 constructor.
 .. warning::
   This will
   *replace* the default middlewares. To keep the default functionality,
-  either use ``add_middleware()`` from above, or add the default middlewares to your list of
+  either use ``middleware_stack.add()`` from above, or add the default middlewares to your list of
   new middlewares.
+
+Below is a (maybe partial) list of built-in middleware.
 
 Stalecheck
 ~~~~~~~~~~~~
@@ -80,7 +142,7 @@ Stalecheck
     .. code-block:: python
 
         two_day_stalecheck = make_stalecheck_middleware(60 * 60 * 24 * 2)
-        web3.add_middleware(two_day_stalecheck)
+        web3.middleware_stack.add(two_day_stalecheck)
 
     If the latest block in the blockchain is older than 2 days in this example, then the
     middleware will raise a ``StaleBlockchain`` exception on every call except
