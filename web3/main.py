@@ -17,10 +17,6 @@ from eth_utils import (
     to_wei,
 )
 
-from toolz.functoolz import (
-    compose,
-)
-
 from web3.admin import Admin
 from web3.db import Db
 from web3.eth import Eth
@@ -50,11 +46,16 @@ from web3.manager import (
     RequestManager,
 )
 
+from web3.utils.decorators import (
+    deprecated_for,
+)
 from web3.utils.encoding import (
-    hex_encode_abi_type,
-    to_hex,
-    to_decimal,
     from_decimal,
+    hex_encode_abi_type,
+    to_bytes,
+    to_decimal,
+    to_hex,
+    to_text,
 )
 
 
@@ -89,13 +90,10 @@ class Web3(object):
     Iban = Iban
 
     # Encoding and Decoding
-    toHex = staticmethod(to_hex)
-    toAscii = staticmethod(decode_hex)
-    toUtf8 = staticmethod(compose(force_text, decode_hex))
-    fromAscii = staticmethod(encode_hex)
-    fromUtf8 = staticmethod(encode_hex)
+    toBytes = staticmethod(to_bytes)
     toDecimal = staticmethod(to_decimal)
-    fromDecimal = staticmethod(from_decimal)
+    toHex = staticmethod(to_hex)
+    toText = staticmethod(to_text)
 
     # Currency Utility
     toWei = staticmethod(to_wei)
@@ -139,18 +137,13 @@ class Web3(object):
     def setProviders(self, providers):
         self.manager.setProvider(providers)
 
+    @deprecated_for("the `manager` attribute")
     def setManager(self, manager):
-        warnings.warn(DeprecationWarning(
-            "The `setManager` method has been deprecated.  Please update your "
-            "code to directly set the `manager` property."
-        ))
         self.manager = manager
 
     @property
+    @deprecated_for("`providers`, which is now a list")
     def currentProvider(self):
-        warnings.warn(DeprecationWarning(
-            "The `currentProvider` property has been renamed to `providers` and is now a list."
-        ))
         return self.manager.providers[0]
 
     @staticmethod
@@ -176,19 +169,13 @@ class Web3(object):
                 "You supplied %r and %r" % (primitive, {'text': text, 'hexstr': hexstr})
             )
 
-        if isinstance(primitive, bytes):
-            if bytes == str:
-                # *shakes fist at python 2*
-                # fall back to deprecated functionality
-                pass
-            else:
-                return keccak(primitive)
-        elif isinstance(primitive, int):
-            return keccak(decode_hex(hex(primitive)))
-        elif text is not None:
-            return keccak(text.encode('utf-8'))
-        elif hexstr is not None:
-            return keccak(decode_hex(hexstr))
+        if isinstance(primitive, bytes) and bytes == str:
+            # *shakes fist at python 2*
+            # fall back to deprecated functionality
+            pass
+        elif isinstance(primitive, (bytes, int)) or text is not None or hexstr is not None:
+            input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
+            return keccak(input_bytes)
 
         # handle deprecated cases
         if encoding in ('hex', None):
@@ -232,3 +219,28 @@ class Web3(object):
                 return True
         else:
             return False
+
+    @staticmethod
+    @deprecated_for("toBytes()")
+    def toAscii(val):
+        return decode_hex(val)
+
+    @staticmethod
+    @deprecated_for("toHex()")
+    def fromAscii(val):
+        return encode_hex(val)
+
+    @staticmethod
+    @deprecated_for("toText()")
+    def toUtf8(val):
+        return force_text(decode_hex(val))
+
+    @staticmethod
+    @deprecated_for("toHex()")
+    def fromUtf8(string):
+        return encode_hex(string)
+
+    @staticmethod
+    @deprecated_for("toHex()")
+    def fromDecimal(decimal):
+        return from_decimal(decimal)

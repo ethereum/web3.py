@@ -1,23 +1,26 @@
 # String encodings and numeric representations
-import sys
 import json
+import re
+import sys
+import warnings
 
 from rlp.sedes import big_endian_int
 
 from eth_utils import (
-    is_bytes,
-    is_string,
+    add_0x_prefix,
+    coerce_args_to_bytes,
+    force_bytes,
+    force_text,
+    int_to_big_endian,
+    is_0x_prefixed,
     is_boolean,
+    is_bytes,
     is_dict,
     is_integer,
-    coerce_args_to_text,
-    coerce_args_to_bytes,
-    add_0x_prefix,
-    is_0x_prefixed,
+    is_string,
+    decode_hex,
     encode_hex,
     remove_0x_prefix,
-    force_text,
-    force_bytes,
 )
 
 from web3.utils.abi import (
@@ -31,8 +34,11 @@ from web3.utils.abi import (
     size_of_type,
     sub_type_of_array_type,
 )
-
+from web3.utils.decorators import (
+    deprecated_for,
+)
 from web3.utils.validation import (
+    assert_one_val,
     validate_abi_type,
     validate_abi_value,
 )
@@ -104,22 +110,45 @@ def pad_hex(value, bit_size):
     return add_0x_prefix(value.zfill(int(bit_size / 4)))
 
 
-@coerce_args_to_text
-def to_hex(value):
+def trim_hex(hexstr):
+    if hexstr.startswith('0x0'):
+        hexstr = re.sub('^0x0+', '0x', hexstr)
+        if hexstr == '0x':
+            hexstr = '0x0'
+    return hexstr
+
+
+def to_hex(value=None, hexstr=None, text=None):
     """
     Auto converts any supported value into it's hex representation.
+
+    Trims leading zeros, as defined in:
+    https://github.com/ethereum/wiki/wiki/JSON-RPC#hex-value-encoding
     """
+    assert_one_val(value, hexstr=hexstr, text=text)
+
+    if hexstr is not None:
+        return trim_hex(hexstr)
+
+    if text is not None:
+        return encode_hex(text.encode('utf-8'))
+
     if is_boolean(value):
         return "0x1" if value else "0x0"
 
     if is_dict(value):
         return encode_hex(json.dumps(value, sort_keys=True))
 
-    if is_string(value):
-        return encode_hex(value)
+    if isinstance(value, bytes):
+        padded = encode_hex(value)
+        return trim_hex(padded)
+    elif is_string(value):
+        return to_hex(text=value)
 
     if is_integer(value):
-        return from_decimal(value)
+        # python2 longs end up with an `L` hanging off the end of their hexidecimal
+        # representation.
+        return hex(value).rstrip('L')
 
     raise TypeError(
         "Unsupported type: '{0}'.  Must be one of Boolean, Dictionary, String, "
@@ -127,24 +156,35 @@ def to_hex(value):
     )
 
 
-def to_decimal(value):
+def to_decimal(value=None, hexstr=None, text=None):
     """
     Converts value to it's decimal representation in string
     """
-    if is_string(value):
-        if is_0x_prefixed(value) or _is_prefixed(value, '-0x'):
-            value = int(value, 16)
+    assert_one_val(value, hexstr=hexstr, text=text)
+
+    if hexstr is not None:
+        return int(hexstr, 16)
+    elif text is not None:
+        return int(text)
+    elif is_string(value):
+        if bytes != str and isinstance(value, bytes):
+            return to_decimal(hexstr=to_hex(value))
+        elif is_0x_prefixed(value) or _is_prefixed(value, '-0x'):
+            warnings.warn(DeprecationWarning(
+                "Sending a hex string in the first position has been deprecated. Please use "
+                "toDecimal(hexstr='%s') instead." % value
+            ))
+            return to_decimal(hexstr=value)
         else:
-            value = int(value)
+            return int(value)
     else:
-        value = int(value)
-
-    return value
+        return int(value)
 
 
+@deprecated_for("to_hex")
 def from_decimal(value):
     """
-    Converts numeric value to it's hex representation
+    Converts numeric value to its hex representation
     """
     if is_string(value):
         if is_0x_prefixed(value) or _is_prefixed(value, '-0x'):
@@ -152,10 +192,46 @@ def from_decimal(value):
         else:
             value = int(value)
 
-    # python2 longs end up with an `L` hanging off the end of their hexidecimal
-    # representation.
-    result = hex(value).rstrip('L')
-    return result
+    return to_hex(value)
+
+
+def to_bytes(primitive=None, hexstr=None, text=None):
+    assert_one_val(primitive, hexstr=hexstr, text=text)
+
+    if is_boolean(primitive):
+        return b'\x01' if primitive else b'\x00'
+    elif isinstance(primitive, bytes):
+        return primitive
+    elif isinstance(primitive, int):
+        return to_bytes(hexstr=hex(primitive))
+    elif hexstr is not None:
+        if len(hexstr) % 2:
+            hexstr = '0x0' + remove_0x_prefix(hexstr)
+        return decode_hex(hexstr)
+    elif text is not None:
+        return text.encode('utf-8')
+    raise TypeError("expected an int in first arg, or keyword of hexstr or text")
+
+
+def to_text(primitive=None, hexstr=None, text=None):
+    if bytes is str:
+        # must be able to tell the difference between bytes and a hexstr
+        raise NotImplementedError("This method only works in Python 3+.")
+
+    assert_one_val(primitive, hexstr=hexstr, text=text)
+
+    if hexstr is not None:
+        return to_bytes(hexstr=hexstr).decode('utf-8')
+    elif text is not None:
+        return text
+    elif isinstance(primitive, str):
+        return to_text(hexstr=primitive)
+    elif isinstance(primitive, bytes):
+        return primitive.decode('utf-8')
+    elif isinstance(primitive, int):
+        byte_encoding = int_to_big_endian(primitive)
+        return to_text(byte_encoding)
+    raise TypeError("Expected an int, bytes or hexstr.")
 
 
 @coerce_args_to_bytes

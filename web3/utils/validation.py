@@ -1,3 +1,4 @@
+import itertools
 import sys
 
 from eth_utils import (
@@ -117,3 +118,17 @@ def validate_address_checksum(value):
     if is_checksum_formatted_address(value):
         if not is_checksum_address(value):
             raise ValueError("'{0}' has an invalid EIP55 checksum".format(value))
+
+
+def has_one_val(*args, **kwargs):
+    vals = itertools.chain(args, kwargs.values())
+    not_nones = list(filter(lambda val: val is not None, vals))
+    return len(not_nones) == 1
+
+
+def assert_one_val(*args, **kwargs):
+    if not has_one_val(*args, **kwargs):
+        raise TypeError(
+            "Exactly one of the passed values can be specified. "
+            "Instead, values were: %r, %r" % (args, kwargs)
+        )

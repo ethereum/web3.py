@@ -1,4 +1,5 @@
 import functools
+import warnings
 
 
 class combomethod(object):
@@ -31,3 +32,24 @@ def reject_recursive_repeats(to_wrap):
         del to_wrap.__already_called[instances]
         return wrapped_val
     return wrapped
+
+
+def deprecated_for(replace_message):
+    '''
+    Decorate a deprecated function, with info about what to use instead, like:
+    @deprecated("toBytes()")
+    def toAscii(arg):
+        ...
+    '''
+    def decorator(to_wrap):
+        @functools.wraps(to_wrap)
+        def wrapper(*args, **kwargs):
+            warnings.simplefilter('always', DeprecationWarning)
+            warnings.warn(
+                "%s is deprecated in favor of %s" % (to_wrap.__name__, replace_message),
+                category=DeprecationWarning,
+                stacklevel=2)
+            warnings.simplefilter('default', DeprecationWarning)
+            return to_wrap(*args, **kwargs)
+        return wrapper
+    return decorator
