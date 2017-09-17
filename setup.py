@@ -32,12 +32,13 @@ setup(
     name='web3',
     version='3.13.5',
     description="""Web3.py""",
-    long_description=readme,
+    long_description_markdown_filename='README.md',
     author='Piper Merriam',
     author_email='pipermerriam@gmail.com',
     url='https://github.com/pipermerriam/web3.py',
     include_package_data=True,
     install_requires=install_requires,
+    setup_requires=['setuptools-markdown'],
     extras_require={
         'tester': ["eth-testrpc>=1.2.0"],
         'gevent': [
