@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+3.14.0
+------
+
+* New ``stalecheck_middleware``
+* Improvements to ``Web3.toHex`` and ``Web3.toText``.
+* Improvements to ``Web3.sha3`` signature.
+* Bugfixes for ``Web3.eth.sign`` api
+
+
 3.13.5
 ------
 
