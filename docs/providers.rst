@@ -68,11 +68,36 @@ IPCProvider
         >>> web3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc")
 
 
-.. py:currentmodule:: web3.providers.tester
-
+.. py:currentmodule:: web3.providers.eth_tester
 
 EthereumTesterProvider
 ~~~~~~~~~~~~~~~~~~~~~~
+
+.. warning:: Experimental:  This provider is experimental and should be used with caution.
+
+.. py:class:: EthereumTesterProvider(eth_tester)
+
+    This provider integrates with the ``ethereum-tester`` library.  The
+    ``eth_tester`` constructor argument should be an instance of the
+    ``eth_tester.EthereumTester`` class provided by the ``ethereum-tester``
+    library.  See the ``ethereum-tester`` library documentation for
+    instructions on how to use the library.
+
+    .. code-block:: python
+
+        >>> from web3 import Web3
+        >>> from web3.providers.eth_tester import EthereumTesterProvider
+        >>> from eth_tester import EthereumTester
+        >>> eth_tester = EthereumTester()
+        >>> web3 = Web3(EthereumTesterProvider(eth_tester))
+
+
+
+.. py:currentmodule:: web3.providers.tester
+
+
+EthereumTesterProvider (legacy)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. warning:: Pending Deprecation:  This provider is being deprecated soon in favor of the newly created ethereum-tester library.
 
