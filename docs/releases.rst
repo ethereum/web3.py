@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+3.14.2
+------
+
+* Fix PyPi readme text.
+
+
 3.14.1
 ------
 
