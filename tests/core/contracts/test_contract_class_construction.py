@@ -1,3 +1,4 @@
+import json
 import pytest
 
 from web3.contract import Contract
@@ -21,3 +22,13 @@ def test_class_construction_sets_class_vars(web3,
 def test_error_to_instantiate_base_class():
     with pytest.raises(AttributeError):
         Contract()
+
+
+def test_abi_as_json_string(web3, MATH_ABI, some_address):
+    abi_str = json.dumps(MATH_ABI)
+
+    MathContract = web3.eth.contract(abi=abi_str)
+    assert MathContract.abi == MATH_ABI
+
+    math = MathContract(some_address)
+    assert math.abi == MATH_ABI

@@ -2,6 +2,7 @@
 
 """
 import functools
+import json
 import warnings
 
 from eth_utils import (
@@ -139,6 +140,8 @@ class Contract(object):
     @classmethod
     def normalize_property(cls, key, val):
         if key == 'abi':
+            if isinstance(val, str):
+                val = json.loads(val)
             validate_abi(val)
             return val
         elif key == 'address':
