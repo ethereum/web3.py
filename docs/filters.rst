@@ -159,7 +159,7 @@ will return a :py:class::`ShhFilter` object
         >>>def filter_callback(new_message):
         ...     sys.stdout.write("New Shh Message: {0}".format(new_message))
         ...
-        >>>shh_filter = web3.shh.filter({"topics":[web3.fromAscii("topic_to_subscribe")]})
+        >>>shh_filter = web3.shh.filter({"topics":[web3.toHex(text="topic_to_subscribe")]})
         >>>shh_filter.watch(filter_callback)
         #each time client recieves a Shh messages matching the topics subscibed,
         #filter_callback is called

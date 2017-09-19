@@ -42,93 +42,125 @@ operating system.
 Base API
 --------
 
-The ``web3`` object itself exposes the following convenience APIs.
+The ``Web3`` class exposes the following convenience APIs.
 
 
-.. py:method:: Web3.toHex(value)
+.. _overview_type_conversions:
 
-    Takes a string or numeric value and returns it in its hexidecimal representation.
+Type Conversions
+~~~~~~~~~~~~~~~~
 
+.. py:method:: Web3.toHex(primitive=None, hexstr=None, text=None)
+
+    Takes a variety of inputs and returns it in its hexidecimal representation.
+    It follows the rules for converting to hex in the
+    `JSON-RPC spec`_
 
     .. code-block:: python
 
-        >>> web3.toHex(0)
+        >>> Web3.toHex(0)
         '0x0'
-        >>> web3.toHex(1)
+        >>> Web3.toHex(1)
         '0x1'
-        >>> web3.toHex('abcd')
-        '0x61626364'
+        >>> Web3.toHex(0x0)
+        '0x0'
+        >>> Web3.toHex(0x000F)
+        '0xf'
+        >>> Web3.toHex(b'')
+        '0x'
+        >>> Web3.toHex(b'\x00\x0F')
+        '0x000f'
+        >>> Web3.toHex(False)
+        '0x0'
+        >>> Web3.toHex(True)
+        '0x1'
+        >>> Web3.toHex(hexstr='0x000F')
+        '0x000f'
+        >>> Web3.toHex(hexstr='000F')
+        '0x000f'
+        >>> Web3.toHex(text='')
+        '0x'
+        >>> Web3.toHex(text='cowmö')
+        '0x636f776dc3b6'
 
+.. _JSON-RPC spec: https://github.com/ethereum/wiki/wiki/JSON-RPC#hex-value-encoding
 
-.. py:method:: Web3.toAscii(value)
+.. py:method:: Web3.toText(primitive=None, hexstr=None, text=None)
 
-    Takes a hexidecimal encoded string and returns its ascii equivalent.
-
-
-    .. code-block:: python
-
-        >>> web3.toAscii('0x61626364')
-        b'abcd'
-
-
-.. py:method:: Web3.toUtf8(value)
-
-    Takes a hexidecimal encoded string and returns the UTF8 encoded equivalent.
-
-
-    .. code-block:: python
-
-        >>> web3.toUtf8('0x61626364')
-        'abcd'
-
-
-.. py:method:: Web3.fromAscii(value)
-
-    Takes an ascii string and returns it in its hexidecimal representation
-
-
-    .. code-block:: python
-
-        >>> web3.fromAscii(b'abcd')
-        '0x61626364'
-
-
-.. py:method:: Web3.fromUtf8(value)
-
-    Takes a utf8 encoded string and returns it in its hexidecimal representation
+    Takes a variety of inputs and returns its string equivalent.
+    Text gets decoded as UTF-8.
 
 
     .. code-block:: python
 
-        >>> web3.fromUtf8('abcd')
-        '0x61626364'
+        >>> Web3.toText(0x636f776dc3b6)
+        'cowmö'
+        >>> Web3.toText(b'cowm\xc3\xb6')
+        'cowmö'
+        >>> Web3.toText(hexstr='0x636f776dc3b6')
+        'cowmö'
+        >>> Web3.toText(hexstr='636f776dc3b6')
+        'cowmö'
+        >>> Web3.toText(text='cowmö')
+        'cowmö'
 
 
-.. py:method:: Web3.toDecimal(value)
+.. py:method:: Web3.toBytes(primitive=None, hexstr=None, text=None)
 
-    Takes a hexidecimal encoded value and returns its numeric representation.
+    Takes a variety of inputs and returns its bytes equivalent.
+    Text gets encoded as UTF-8.
 
 
     .. code-block:: python
 
-        >>> web3.toDecimal('0x1')
+        >>> Web3.toBytes(0)
+        b'\x00'
+        >>> Web3.toBytes(0x000F)
+        b'\x0f'
+        >>> Web3.toBytes(b'')
+        b''
+        >>> Web3.toBytes(b'\x00\x0F')
+        b'\x00\x0f'
+        >>> Web3.toBytes(False)
+        b'\x00'
+        >>> Web3.toBytes(True)
+        b'\x01'
+        >>> Web3.toBytes(hexstr='0x000F')
+        b'\x00\x0f'
+        >>> Web3.toBytes(hexstr='000F')
+        b'\x00\x0f'
+        >>> Web3.toBytes(text='')
+        b''
+        >>> Web3.toBytes(text='cowmö')
+        b'cowm\xc3\xb6'
+
+
+.. py:method:: Web3.toDecimal(primitive=None, hexstr=None, text=None)
+
+    Takes a variety of inputs and returns its int equivalent.
+
+
+    .. code-block:: python
+
+        >>> Web3.toDecimal(0)
+        0
+        >>> Web3.toDecimal(0x000F)
+        15
+        >>> Web3.toDecimal(b'\x00\x0F')
+        15
+        >>> Web3.toDecimal(False)
+        0
+        >>> Web3.toDecimal(True)
         1
-        >>> web3.toDecimal('0xf')
+        >>> Web3.toDecimal(hexstr='0x000F')
+        15
+        >>> Web3.toDecimal(hexstr='000F')
         15
 
+.. _overview_currency_conversions:
 
-.. py:method:: Web3.fromDecimal(value)
-
-    Takes a numeric value and returns its hexidecimal equivalent.
-
-
-    .. code-block:: python
-
-        >>> web3.fromDecimal(1)
-        '0x1'
-        >>> web3.fromDecimal(15)
-        '0xf'
-
+Currency Conversions
+~~~~~~~~~~~~~~~~
 
 .. py:method:: Web3.toWei(value, currency)
 
@@ -138,25 +170,34 @@ The ``web3`` object itself exposes the following convenience APIs.
 
     .. code-block:: python
 
-        >>> web3.toWei(1, 'ether')
+        >>> Web3.toWei(1, 'ether')
         1000000000000000000
 
 
 .. py:method:: Web3.fromWei(value, currency)
 
-    Returns the value in wei converted to the given currency.
+    Returns the value in wei converted to the given currency. The value is returned
+    as a ``Decimal`` to ensure precision down to the wei.
 
 
     .. code-block:: python
 
         >>> web3.fromWei(1000000000000000000, 'ether')
-        1
+        Decimal('1')
 
+
+.. _overview_addresses:
+
+Addresses
+~~~~~~~~~~~~~~~~
 
 .. py:method:: Web3.isAddress(value)
 
     Returns ``True`` if the value is one of the recognized address formats.
 
+    * Allows for both ``0x`` prefixed and non-prefixed values.
+    * If the address contains mixed upper and lower cased characters this function also
+      checks if the the address checksum is valid according to `EIP55`_
 
     .. code-block:: python
 
@@ -166,7 +207,7 @@ The ``web3`` object itself exposes the following convenience APIs.
 
 .. py:method:: Web3.isChecksumAddress(value)
 
-    Returns ``True`` if the value is a valid ERC55 checksummed address
+    Returns ``True`` if the value is a valid `EIP55`_ checksummed address
 
 
     .. code-block:: python
@@ -179,14 +220,21 @@ The ``web3`` object itself exposes the following convenience APIs.
 
 .. py:method:: Web3.toChecksumAddress(value)
 
-    Returns the given address with an ERC55 checksum.
+    Returns the given address with an `EIP55`_ checksum.
 
 
     .. code-block:: python
 
-        >>> web3.toChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> Web3.toChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
         '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
 
+.. _EIP55: https://github.com/ethereum/EIPs/issues/55
+
+
+.. _overview_hashing:
+
+Cryptographic Hashing
+~~~~~~~~~~~~~~~~
 
 .. py:method:: Web3.sha3(primitive=None, hexstr=None, text=None)
 
