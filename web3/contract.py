@@ -157,7 +157,7 @@ class Contract(object):
 
         kwargs['web3'] = web3
 
-        for key in dict(kwargs):
+        for key in kwargs:
             if not hasattr(cls, key):
                 raise AttributeError(
                     "Property {0} not found on contract class. "
