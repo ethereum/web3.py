@@ -38,7 +38,6 @@ from web3.utils.transactions import (
 )
 from web3.utils.validation import (
     validate_address,
-    validate_address_checksum,
 )
 
 
@@ -298,37 +297,18 @@ class Eth(Module):
         )
 
     def contract(self,
-                 *args,
+                 address=None,
                  **kwargs):
         ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
-        contract_name = kwargs.pop('contract_name', None)
 
-        has_address = any((
-            'address' in kwargs,
-            len(args) >= 1 and is_address(args[0]),
-            len(args) >= 2 and is_address(args[1]),
-        ))
+        NewContract = ContractFactoryClass.factory(self.web3, **kwargs)
 
-        for potential_address in args:
-            validate_address_checksum(potential_address)
-
-        if has_address:
-            if 'address' in kwargs:
-                address = kwargs.pop('address')
-            elif is_address(args[0]):
-                address = args[0]
-            elif is_address(args[1]):
-                address = args[1]
-                kwargs['abi'] = args[0]
+        if address:
             validate_address(address)
 
-            return ContractFactoryClass.factory(self.web3, contract_name, **kwargs)(address)
+            return NewContract(address)
         else:
-            try:
-                kwargs['abi'] = args[0]
-            except IndexError:
-                pass
-            return ContractFactoryClass.factory(self.web3, contract_name, **kwargs)
+            return NewContract
 
     def setContractFactory(self, contractFactory):
         self.defaultContractFactory = contractFactory

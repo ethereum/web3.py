@@ -15,10 +15,9 @@ INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
     'args,kwargs,expected',
     (
         ((ADDRESS,), {}, None),
-        ((ADDRESS, ABI), {}, None),
         ((INVALID_CHECKSUM_ADDRESS,), {}, ValueError),
         ((), {'address': INVALID_CHECKSUM_ADDRESS}, ValueError),
-        ((ABI), {'address': INVALID_CHECKSUM_ADDRESS}, ValueError),
+        ((), {'address': INVALID_CHECKSUM_ADDRESS}, ValueError),
     )
 )
 def test_contract_address_validation(web3, args, kwargs, expected):
@@ -36,4 +35,4 @@ def test_set_contract_factory(web3):
     factoryClass = Mock()
     web3.eth.setContractFactory(factoryClass)
     web3.eth.contract(contract_name='myname')
-    factoryClass.factory.assert_called_once_with(web3, 'myname')
+    factoryClass.factory.assert_called_once_with(web3, contract_name='myname')
