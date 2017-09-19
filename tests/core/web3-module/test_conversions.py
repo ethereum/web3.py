@@ -14,7 +14,8 @@ from web3 import Web3
         (b'\x01', b'\x01'),
         (b'\xff', b'\xff'),
         (b'\x00', b'\x00'),
-        (0x01, b'\x01'),
+        (0x1, b'\x01'),
+        (0x0001, b'\x01'),
         (0xFF, b'\xff'),
         (0, b'\x00'),
         (256, b'\x01\x00'),
@@ -37,6 +38,7 @@ def test_to_bytes_primitive(val, expected):
         ('0xFF', b'\xff'),
         ('0x100', b'\x01\x00'),
         ('0x0000', b'\x00\x00'),
+        ('0000', b'\x00\x00'),
     )
 )
 def test_to_bytes_hexstr(val, expected):
@@ -87,6 +89,7 @@ def test_to_text(val, expected):
         ('0x', ''),
         ('0xa', '\n'),
         ('0x636f776dc3b6', 'cowmö'),
+        ('636f776dc3b6', 'cowmö'),
     )
 )
 def test_to_text_hexstr(val, expected):
@@ -155,15 +158,18 @@ def test_to_decimal_hexstr(val, expected):
 @pytest.mark.parametrize(
     'val, expected',
     (
-        (b'\x00', '0x0'),
-        (b'\x01', '0x1'),
+        (b'\x00', '0x00'),
+        (b'\x01', '0x01'),
         (b'\x10', '0x10'),
-        (b'\x01\x00', '0x100'),
+        (b'\x01\x00', '0x0100'),
+        (b'\x00\x0F', '0x000f'),
         (b'', '0x'),
         (0, '0x0'),
         (1, '0x1'),
         (16, '0x10'),
         (256, '0x100'),
+        (0x0, '0x0'),
+        (0x0F, '0xf'),
         (False, '0x0'),
         (True, '0x1'),
     )
@@ -188,8 +194,10 @@ def test_to_hex_text(val, expected):
     (
         ('0x0', '0x0'),
         ('0x1', '0x1'),
-        ('0x01', '0x1'),
+        ('0x0001', '0x0001'),
         ('0x10', '0x10'),
+        ('0xF', '0xf'),
+        ('F', '0xf'),
     )
 )
 def test_to_hex_cleanup_only(val, expected):
