@@ -316,7 +316,7 @@ class Contract(object):
     @coerce_return_to_text
     def encodeABI(cls, fn_name, args=None, kwargs=None, data=None):
         """
-        encodes the arguments using the Ethereum ABI for the contract function
+        Encodes the arguments using the Ethereum ABI for the contract function
         that matches the given name and arguments..
 
         :param data: defaults to function selector
@@ -333,7 +333,7 @@ class Contract(object):
     @combomethod
     def on(self, event_name, filter_params=None, *callbacks):
         """
-        register a callback to be triggered on the appropriate events.
+        Register a callback to be triggered on the appropriate events.
         """
         if filter_params is None:
             filter_params = {}
@@ -368,7 +368,7 @@ class Contract(object):
     @combomethod
     def pastEvents(self, event_name, filter_params=None, *callbacks):
         """
-        register a callback to be triggered on all past events.
+        Register a callback to be triggered on all past events.
         """
         if filter_params is None:
             filter_params = {}
@@ -447,7 +447,7 @@ class Contract(object):
         Execute a contract function call using the `eth_call` interface.
 
         This method prepares a ``Caller`` object that exposes the contract
-        functions and publib variables as callable Python functions.
+        functions and public variables as callable Python functions.
 
         Reading a public ``owner`` address variable example:
 
@@ -918,7 +918,7 @@ def construct_contract_factory(web3,
     ``solc`` compiler or ``build/contracts.json`` in the
     case of Populus framework.
 
-    After contract has been instiated you can interact with it
+    After contract has been instantiated you can interact with it
     using :meth:`transact_with_contract_function` and
      :meth:`call_contract_function`.
 
