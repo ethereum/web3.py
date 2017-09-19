@@ -280,8 +280,7 @@ class Contract(object):
         :param args: The contract constructor arguments as positional arguments
         :param kwargs: The contract constructor arguments as keyword arguments
 
-        :return: hexidecimal transaction hash of the deployment
-                 transaction
+        :return: hexadecimal transaction hash of the deployment transaction
         """
         if transaction is None:
             deploy_transaction = {}
