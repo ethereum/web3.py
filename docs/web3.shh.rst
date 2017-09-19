@@ -37,7 +37,7 @@ The following methods are available on the ``web3.shh`` namespace.
 
     .. code-block:: python
     
-        >>>web3.shh.post({"topics":[web3.fromAscii("test_topic")],"payload":web3.fromAscii("test_payload")})
+        >>>web3.shh.post({"topics":[web3.toHex(text="test_topic")],"payload":web3.toHex(text="test_payload")})
         True
 
 .. py:method:: Shh.newIdentity(self)
@@ -88,7 +88,7 @@ The following methods are available on the ``web3.shh`` namespace.
 
     .. code-block:: python
 
-        >>>shh_filter = shh.filter({"topics":[web.fromAscii("topic_to_subscribe")]})
+        >>>shh_filter = shh.filter({"topics":[web.toHex(text="topic_to_subscribe")]})
         >>>shh_filter.filter_id
         u'0x0'
 

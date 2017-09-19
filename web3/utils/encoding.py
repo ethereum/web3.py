@@ -128,7 +128,7 @@ def to_hex(value=None, hexstr=None, text=None):
     assert_one_val(value, hexstr=hexstr, text=text)
 
     if hexstr is not None:
-        return trim_hex(hexstr)
+        return add_0x_prefix(hexstr.lower())
 
     if text is not None:
         return encode_hex(text.encode('utf-8'))
@@ -140,8 +140,7 @@ def to_hex(value=None, hexstr=None, text=None):
         return encode_hex(json.dumps(value, sort_keys=True))
 
     if isinstance(value, bytes):
-        padded = encode_hex(value)
-        return trim_hex(padded)
+        return encode_hex(value)
     elif is_string(value):
         return to_hex(text=value)
 
