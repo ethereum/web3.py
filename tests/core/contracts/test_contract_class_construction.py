@@ -21,11 +21,3 @@ def test_class_construction_sets_class_vars(web3,
 def test_error_to_instantiate_base_class():
     with pytest.raises(AttributeError):
         Contract()
-
-
-def test_can_instantiate_without_address(web3, MATH_ABI):
-    MathContract = web3.eth.contract(MATH_ABI)
-    assert MathContract.abi == MATH_ABI
-
-    math = MathContract()
-    assert math.abi == MATH_ABI

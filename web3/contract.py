@@ -3,11 +3,8 @@
 """
 import functools
 import warnings
-import itertools
 
 from eth_utils import (
-    is_address,
-    is_list_like,
     function_abi_to_4byte_selector,
     encode_hex,
     add_0x_prefix,
@@ -121,18 +118,11 @@ class Contract(object):
     src_map_runtime = None
     user_doc = None
 
-    def __init__(self,
-                 *args,
-                 **kwargs):
+    def __init__(self, address=None):
         """Create a new smart contract proxy object.
 
         :param address: Contract address as 0x hex string
         """
-        code = kwargs.pop('code', empty)
-        code_runtime = kwargs.pop('code_runtime', empty)
-        source = kwargs.pop('source', empty)
-        abi = kwargs.pop('abi', empty)
-        address = kwargs.pop('address', empty)
 
         if self.web3 is None:
             raise AttributeError(
@@ -140,66 +130,22 @@ class Contract(object):
                 '`web3.contract` interface to create your contract class.'
             )
 
-        arg_0, arg_1, arg_2, arg_3, arg_4 = tuple(itertools.chain(
-            args,
-            itertools.repeat(empty, 5),
-        ))[:5]
+        if address:
+            self.address = self.normalize_property('address', address)
 
-        if is_list_like(arg_0):
-            if abi:
-                raise TypeError("The 'abi' argument was found twice")
-            abi = arg_0
-        elif is_address(arg_0):
-            if address:
-                raise TypeError("The 'address' argument was found twice")
-            address = arg_0
+        if not self.address:
+            raise TypeError("The address argument is required to instantiate a contract.")
 
-        if arg_1 is not empty:
-            if address:
-                raise TypeError("The 'address' argument was found twice")
-            address = arg_1
-
-        if arg_2 is not empty:
-            if code:
-                raise TypeError("The 'code' argument was found twice")
-            code = arg_2
-
-        if arg_3 is not empty:
-            if code_runtime:
-                raise TypeError("The 'code_runtime' argument was found twice")
-            code_runtime = arg_3
-
-        if arg_4 is not empty:
-            if source:
-                raise TypeError("The 'source' argument was found twice")
-            source = arg_4
-
-        if any((abi, code, code_runtime, source)):
-            warnings.warn(DeprecationWarning(
-                "The arguments abi, code, code_runtime, and source have been "
-                "deprecated and will be removed from the Contract class "
-                "constructor in future releases.  Update your code to use the "
-                "Contract.factory method."
-            ))
-
-        if abi is not empty:
-            validate_abi(abi)
-            self.abi = abi
-        if code is not empty:
-            self.bytecode = code
-        if code_runtime is not empty:
-            self.bytecode_runtime = code_runtime
-        if source is not empty:
-            self._source = source
-
-        if address is not empty:
-            validate_address(address)
-            self.address = to_normalized_address(address)
+    @classmethod
+    def normalize_property(cls, key, val):
+        if key == 'abi':
+            validate_abi(val)
+            return val
+        elif key == 'address':
+            validate_address(val)
+            return to_normalized_address(val)
         else:
-            warnings.warn(DeprecationWarning(
-                "The address argument is now required for contract class "
-                "instantiation.  Please update your code to reflect this change"
-            ))
+            return val
 
     @classmethod
     def factory(cls, web3, contract_name=None, **kwargs):
@@ -208,13 +154,16 @@ class Contract(object):
 
         kwargs['web3'] = web3
 
-        for key in kwargs:
+        for key in dict(kwargs):
             if not hasattr(cls, key):
                 raise AttributeError(
                     "Property {0} not found on contract class. "
                     "`Contract.factory` only accepts keyword arguments which are "
                     "present on the contract class".format(key)
                 )
+            else:
+                kwargs[key] = cls.normalize_property(key, kwargs[key])
+
         return type(contract_name, (cls,), kwargs)
 
     #
