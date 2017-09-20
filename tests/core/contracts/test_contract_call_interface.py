@@ -120,7 +120,7 @@ def test_call_read_string_variable(string_contract):
 
 def test_call_read_address_variable(address_contract):
     result = address_contract.call().testAddr()
-    assert result == "0xd3cda913deb6f67967b99d67acdfa1712c293601"
+    assert result == "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"
 
 
 def test_call_read_bytes_variable(bytes_contract):
