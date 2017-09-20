@@ -7,7 +7,7 @@ help:
 	@echo "test - run tests quickly with the default Python"
 	@echo "testall - run tests on every Python version with tox"
 	@echo "release - package and upload a release"
-	@echo "sdist - package"
+	@echo "dist - package"
 
 clean: clean-build clean-pyc
 
@@ -46,6 +46,6 @@ linux-docs: build-docs
 release: clean
 	python setup.py sdist bdist_wheel upload
 
-sdist: clean
+dist: clean
 	python setup.py sdist bdist_wheel
 	ls -l dist
