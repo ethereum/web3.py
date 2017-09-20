@@ -255,7 +255,7 @@ class Eth(Module):
 
     def estimateGas(self, transaction):
         # TODO: move to middleware
-        if is_address(self.defaultAccount):
+        if 'from' not in transaction and is_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
         return self.web3.manager.request_blocking(
