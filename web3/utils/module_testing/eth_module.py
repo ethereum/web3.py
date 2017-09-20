@@ -196,6 +196,18 @@ class EthModuleTest(object):
         result = decode_single('uint256', call_result)
         assert result == 18
 
+    def test_eth_call_with_0_result(self, web3, math_contract):
+        coinbase = web3.eth.coinbase
+        txn_params = math_contract._prepare_transaction(
+            fn_name='add',
+            fn_args=(0, 0),
+            transaction={'from': coinbase, 'to': math_contract.address},
+        )
+        call_result = web3.eth.call(txn_params)
+        assert is_string(call_result)
+        result = decode_single('uint256', call_result)
+        assert result == 0
+
     def test_eth_estimateGas(self, web3):
         coinbase = web3.eth.coinbase
         gas_estimate = web3.eth.estimateGas({

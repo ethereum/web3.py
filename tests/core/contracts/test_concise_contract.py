@@ -46,6 +46,22 @@ def test_concisecontract_unknown_keyword_fails():
         sweet_method(1, 2, count={'to': 5})
 
 
+def test_concisecontract_returns_none_for_0addr(web3, MATH_ABI):
+    MathContract = web3.eth.contract(
+        abi=MATH_ABI,
+        ContractFactoryClass=ConciseContract,
+    )
+
+    math = MathContract()
+    empty_addr = '0x' + '00' * 20
+
+    normalize = math._classic_contract._normalize_return_data
+    val = normalize(['address'], [empty_addr])
+    assert val is None
+    val = normalize(['address[]'], [[empty_addr] * 3])
+    assert val == [None] * 3
+
+
 def test_class_construction_sets_class_vars(web3,
                                             MATH_ABI,
                                             MATH_CODE,

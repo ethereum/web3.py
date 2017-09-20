@@ -1,22 +1,35 @@
-import re
 import itertools
+import re
 
 from eth_utils import (
+    add_0x_prefix,
     coerce_args_to_bytes,
     coerce_args_to_text,
     coerce_return_to_text,
-    to_tuple,
-    add_0x_prefix,
+    is_address,
+    is_boolean,
+    is_integer,
     is_list_like,
     is_string,
-    is_integer,
-    is_boolean,
-    is_address,
+    to_checksum_address,
+    to_tuple,
 )
 
 from eth_abi.abi import (
     process_type,
 )
+
+from web3.utils.compat.compat_codecs import (
+    codecs
+)
+from web3.utils.formatters import (
+    recursive_map
+)
+
+DEFAULT_RETURN_NORMALIZERS = [
+    lambda typ, data: to_checksum_address(data) if typ == 'address' else data,
+    lambda typ, data: codecs.decode(data, 'utf8', 'backslashreplace') if typ == 'string' else data,
+]
 
 
 def filter_by_type(_type, contract_abi):
@@ -378,8 +391,66 @@ def abi_to_signature(abi):
     return function_signature
 
 
+def abi_data_tree(output_types, output_data):
+    tree = [
+        abi_sub_tree(data_type, data_value)
+        for data_type, data_value
+        in zip(output_types, output_data)
+    ]
+    for normalizer in DEFAULT_RETURN_NORMALIZERS:
+        tree = data_tree_map(normalizer, tree)
+    return tree
+
+
+def abi_sub_tree(data_type, data_value):
+    try:
+        base, sub, arrlist = data_type
+    except ValueError:
+        base, sub, arrlist = process_type(data_type)
+
+    collapsed = collapse_type(base, sub, arrlist)
+
+    if arrlist:
+        sub_type = (base, sub, arrlist[:-1])
+        return (
+            collapsed,
+            [
+                abi_sub_tree(sub_type, sub_value)
+                for sub_value in data_value
+            ],
+        )
+    else:
+        return (collapsed, data_value)
+
+
+def _is_two_tuple(elements):
+    return isinstance(elements, tuple) and len(elements) == 2
+
+
+def data_tree_map(func, data_tree):
+    '''
+    @param func will get (data_type, vals) and return only the replacement vals
+    '''
+    def return_val_and_type(elements):
+        if _is_two_tuple(elements):
+            return (elements[0], func(*elements))
+        else:
+            return elements
+    return recursive_map(return_val_and_type, data_tree)
+
+
+def data_tree_vals(data_tree):
+    return recursive_map(lambda els: els[1] if _is_two_tuple(els) else els, data_tree)
+
+
+def collapse_type(base, sub, arrlist):
+    # TODO fix joke implementation
+    return str(base + sub + ''.join(map(repr, arrlist)))
+
+
 @coerce_return_to_text
 def normalize_return_type(data_type, data_value):
+    # TODO replace with data_tree implementation
     try:
         base, sub, arrlist = data_type
     except ValueError:
