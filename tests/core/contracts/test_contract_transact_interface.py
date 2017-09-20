@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 import pytest
 
 from eth_utils import (
@@ -98,13 +100,13 @@ def test_transact_when_default_account_is_set(web3,
 def test_transacting_with_contract_with_string_argument(web3, string_contract):
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
-    txn_hash = string_contract.transact().setValue(force_bytes("ÄLÄMÖLÖ"))
+    txn_hash = string_contract.transact().setValue("ÄLÄMÖLÖ".encode('utf8'))
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt is not None
 
     final_value = string_contract.call().getValue()
 
-    assert force_bytes(final_value) == force_bytes("ÄLÄMÖLÖ")
+    assert final_value == "ÄLÄMÖLÖ"
 
 
 def test_transacting_with_contract_respects_explicit_gas(web3,
