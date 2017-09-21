@@ -36,9 +36,6 @@ from web3.exceptions import (
 )
 
 from web3.utils.abi import (
-    abi_data_tree,
-    data_tree_map,
-    data_tree_vals,
     filter_by_type,
     filter_by_name,
     filter_by_argument_count,
@@ -47,6 +44,7 @@ from web3.utils.abi import (
     get_abi_input_types,
     get_abi_output_types,
     get_constructor_abi,
+    map_abi_data,
     merge_args_and_kwargs,
     check_if_arguments_can_be_encoded,
 )
@@ -591,21 +589,7 @@ class Contract(object):
     #
     # Private Helpers
     #
-    _return_data_normalizers = []
-
-    @classmethod
-    def _normalize_return_data(cls, output_types, output_data):
-        data_tree = abi_data_tree(output_types, output_data)
-
-        for normalizer in cls._return_data_normalizers:
-            data_tree = data_tree_map(normalizer, data_tree)
-
-        normalized_data = data_tree_vals(data_tree)
-
-        if len(normalized_data) == 1:
-            return normalized_data[0]
-        else:
-            return normalized_data
+    _return_data_normalizers = tuple()
 
     @classmethod
     def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
@@ -786,13 +770,14 @@ class ConciseContract:
     '''
 
     def __init__(self, classic_contract):
+        classic_contract._return_data_normalizers = Contract._return_data_normalizers + (
+            self._none_addr,
+        )
         self._classic_contract = classic_contract
 
     @classmethod
     def factory(cls, *args, **kwargs):
-        Prepped = Contract.factory(*args, **kwargs)
-        Prepped._return_data_normalizers = Contract._return_data_normalizers + [cls._none_addr]
-        return compose(cls, Prepped)
+        return compose(cls, Contract.factory(*args, **kwargs))
 
     def __getattr__(self, attr):
         return ConciseMethod(self._classic_contract, attr)
@@ -876,7 +861,7 @@ def call_contract_function(contract,
             )
         raise_from(BadFunctionCallOutput(msg), e)
 
-    return contract._normalize_return_data(output_types, output_data)
+    return map_abi_data(contract._return_data_normalizers, output_types, output_data)
 
 
 def transact_with_contract_function(contract=None,

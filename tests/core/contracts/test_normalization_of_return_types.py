@@ -2,8 +2,6 @@ import pytest
 
 from web3.utils.abi import normalize_return_type
 
-EMPTY_ADDR = '00' * 20
-
 
 def empty_to_none(val, base, sub, arr):
     if base == 'address' and not arr and int(val, base=16) == 0:

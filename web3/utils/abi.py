@@ -1,6 +1,11 @@
 import re
 import itertools
 
+from cytoolz import (
+    curry,
+    pipe,
+)
+
 from eth_utils import (
     add_0x_prefix,
     coerce_args_to_bytes,
@@ -388,15 +393,13 @@ def abi_to_signature(abi):
     return function_signature
 
 
+@curry
 def abi_data_tree(output_types, output_data):
-    tree = [
+    return [
         abi_sub_tree(data_type, data_value)
         for data_type, data_value
         in zip(output_types, output_data)
     ]
-    for normalizer in DEFAULT_RETURN_NORMALIZERS:
-        tree = data_tree_map(normalizer, tree)
-    return tree
 
 
 def abi_sub_tree(data_type, data_value):
@@ -424,6 +427,7 @@ def _is_two_tuple(elements):
     return isinstance(elements, tuple) and len(elements) == 2
 
 
+@curry
 def data_tree_map(func, data_tree):
     '''
     @param func will get (data_type, vals) and return only the replacement vals
@@ -438,11 +442,15 @@ def data_tree_map(func, data_tree):
 
 @coerce_return_to_text
 def data_tree_vals(data_tree):
-    return recursive_map(lambda els: els[1] if _is_two_tuple(els) else els, data_tree)
+    values = recursive_map(lambda els: els[1] if _is_two_tuple(els) else els, data_tree)
+    if len(values) == 1:
+        return values[0]
+    else:
+        return values
 
 
+# TODO if this makes any sense at all, it probably belongs in eth_abi
 def collapse_type(base, sub, arrlist):
-    # TODO fix joke implementation
     return str(base + sub + ''.join(map(repr, arrlist)))
 
 
@@ -461,3 +469,18 @@ def normalize_return_type(data_type, data_value):
         return add_0x_prefix(data_value)
     else:
         return data_value
+
+
+def map_abi_data(normalizers, types, data):
+    all_normalizers = itertools.chain(
+        DEFAULT_RETURN_NORMALIZERS,
+        normalizers,
+    )
+
+    pipeline = itertools.chain(
+        [abi_data_tree(types)],
+        map(data_tree_map, all_normalizers),
+        [data_tree_vals],
+    )
+
+    return pipe(data, *pipeline)
