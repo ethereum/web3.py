@@ -12,6 +12,24 @@ if sys.version_info >= (3, 3):
     from unittest.mock import Mock
 
 
+@pytest.fixture()
+def EMPTY_ADDR():
+    return '0x' + '00' * 20
+
+
+@pytest.fixture()
+def zero_address_contract(web3, WithConstructorAddressArgumentsContract, EMPTY_ADDR):
+    deploy_txn = WithConstructorAddressArgumentsContract.deploy(args=[
+        EMPTY_ADDR,
+    ])
+    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    _address_contract = WithConstructorAddressArgumentsContract(
+        address=deploy_receipt['contractAddress'],
+    )
+    return ConciseContract(_address_contract)
+
+
 @pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
 def test_concisecontract_call_default():
     contract = Mock()
@@ -46,20 +64,9 @@ def test_concisecontract_unknown_keyword_fails():
         sweet_method(1, 2, count={'to': 5})
 
 
-def test_concisecontract_returns_none_for_0addr(web3, MATH_ABI):
-    MathContract = web3.eth.contract(
-        abi=MATH_ABI,
-        ContractFactoryClass=ConciseContract,
-    )
-
-    math = MathContract()
-    empty_addr = '0x' + '00' * 20
-
-    normalize = math._classic_contract._normalize_return_data
-    val = normalize(['address'], [empty_addr])
-    assert val is None
-    val = normalize(['address[]'], [[empty_addr] * 3])
-    assert val == [None] * 3
+def test_concisecontract_returns_none_for_0addr(zero_address_contract):
+    result = zero_address_contract.testAddr()
+    assert result is None
 
 
 def test_class_construction_sets_class_vars(web3,
