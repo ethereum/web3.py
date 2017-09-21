@@ -36,6 +36,7 @@ from web3.exceptions import (
 )
 
 from web3.utils.abi import (
+    BASE_RETURN_NORMALIZERS,
     filter_by_type,
     filter_by_name,
     filter_by_argument_count,
@@ -785,9 +786,9 @@ class ConciseContract:
     @staticmethod
     def _none_addr(datatype, data):
         if datatype == 'address' and int(data, base=16) == 0:
-            return None
+            return (datatype, None)
         else:
-            return data
+            return (datatype, data)
 
 
 class ConciseMethod:
@@ -861,7 +862,11 @@ def call_contract_function(contract,
             )
         raise_from(BadFunctionCallOutput(msg), e)
 
-    return map_abi_data(contract._return_data_normalizers, output_types, output_data)
+    normalizers = itertools.chain(
+        BASE_RETURN_NORMALIZERS,
+        contract._return_data_normalizers,
+    )
+    return map_abi_data(normalizers, output_types, output_data)
 
 
 def transact_with_contract_function(contract=None,
