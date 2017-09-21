@@ -1,3 +1,7 @@
+from collections import (
+    namedtuple,
+)
+
 import re
 import itertools
 
@@ -393,6 +397,11 @@ def abi_to_signature(abi):
     return function_signature
 
 
+class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
+    def __new__(cls, iterable):
+        return super(ABITypedData, cls).__new__(cls, *iterable)
+
+
 @curry
 def abi_data_tree(output_types, output_data):
     return [
@@ -412,19 +421,22 @@ def abi_sub_tree(data_type, data_value):
 
     if arrlist:
         sub_type = (base, sub, arrlist[:-1])
-        return (
+        return ABITypedData([
             collapsed,
             [
                 abi_sub_tree(sub_type, sub_value)
                 for sub_value in data_value
             ],
-        )
+        ])
     else:
-        return (collapsed, data_value)
+        return ABITypedData([collapsed, data_value])
 
 
-def _is_two_tuple(elements):
-    return isinstance(elements, tuple) and len(elements) == 2
+def strip_abi_types(elements):
+    if isinstance(elements, ABITypedData):
+        return elements.data
+    else:
+        return elements
 
 
 @curry
@@ -433,8 +445,8 @@ def data_tree_map(func, data_tree):
     @param func will get (data_type, vals) and return only the replacement vals
     '''
     def return_val_and_type(elements):
-        if _is_two_tuple(elements):
-            return (elements[0], func(*elements))
+        if isinstance(elements, ABITypedData):
+            return ABITypedData([elements.abi_type, func(*elements)])
         else:
             return elements
     return recursive_map(return_val_and_type, data_tree)
@@ -442,7 +454,7 @@ def data_tree_map(func, data_tree):
 
 @coerce_return_to_text
 def data_tree_vals(data_tree):
-    values = recursive_map(lambda els: els[1] if _is_two_tuple(els) else els, data_tree)
+    values = recursive_map(strip_abi_types, data_tree)
     if len(values) == 1:
         return values[0]
     else:
