@@ -1,3 +1,4 @@
+import itertools
 import pytest
 import sys
 
@@ -7,6 +8,9 @@ from web3.manager import (
 from web3.providers import (
     BaseProvider,
 )
+
+if sys.version_info.major >= 3:
+    from unittest.mock import Mock
 
 
 def test_provider_property_setter_and_getter(middleware_factory):
@@ -43,40 +47,49 @@ def test_provider_property_setter_and_getter(middleware_factory):
     )
 
 
+@pytest.mark.skipif(sys.version_info.major < 3, reason="Mock requires Py 3")
 def test_modifying_middleware_regenerates_request_functions(middleware_factory):
+    # setup
     provider = BaseProvider()
+    manager = RequestManager(None, provider)
+    manager._generate_request_functions = Mock(wraps=manager._generate_request_functions)
 
-    manager = RequestManager(None, provider, middlewares=[])
+    # count number of middleware rebuilds
+    counter = itertools.count()
 
-    id_start = id(manager._wrapped_provider_request_functions)
+    def assert_one_more_rebuild():
+        assert manager._generate_request_functions.call_count == next(counter)
+    assert_one_more_rebuild()  # assert zero rebuilds, to start
+
+    # manual call
+    manager._generate_request_functions()
+
+    assert_one_more_rebuild()
+
+    # reset
+    manager.middlewares = []
+
+    assert_one_more_rebuild()
 
     # add
     manager.middleware_stack.add(middleware_factory(), 'a')
 
-    id_add = id(manager._wrapped_provider_request_functions)
-
-    assert id_add != id_start
+    assert_one_more_rebuild()
 
     # replace
     manager.middleware_stack.replace('a', middleware_factory())
 
-    id_replace = id(manager._wrapped_provider_request_functions)
-
-    assert id_replace != id_add
+    assert_one_more_rebuild()
 
     # remove
     manager.middleware_stack.remove('a')
 
-    id_remove = id(manager._wrapped_provider_request_functions)
-
-    assert id_remove != id_replace
+    assert_one_more_rebuild()
 
     # clear
     manager.middleware_stack.clear()
 
-    id_clear = id(manager._wrapped_provider_request_functions)
-
-    assert id_clear != id_remove
+    assert_one_more_rebuild()
 
 
 def test_add_named_middleware(middleware_factory):
