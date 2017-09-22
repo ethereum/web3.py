@@ -91,7 +91,7 @@ class AttributeDict(ReadableAttributeDict, Hashable):
             return False
 
 
-class NamedElementStack:
+class NamedElementStack(Mapping):
     def __init__(self, init_elements, valid_element=callable):
         self._queue = OrderedDict()
         self._callbacks = []
@@ -167,3 +167,18 @@ class NamedElementStack:
         combined = self._queue.copy()
         combined.update(other._queue)
         return NamedElementStack(combined.items())
+
+    def __contains__(self, element):
+        return element in self._queue
+
+    def __getitem__(self, element):
+        return self._queue[element]
+
+    def __len__(self):
+        return len(self._queue)
+
+    def __reversed__(self):
+        elements = self._queue.values()
+        if not isinstance(elements, Sequence):
+            elements = list(elements)
+        return iter(elements)
