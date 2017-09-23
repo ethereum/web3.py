@@ -13,6 +13,7 @@ from eth_utils import (
 
 from web3.iban import Iban
 
+from web3.account import Account
 from web3.contract import (
     Contract,
 )
@@ -52,6 +53,10 @@ class Eth(Module):
     defaultBlock = "latest"
     defaultContractFactory = Contract
     iban = Iban
+
+    def __init__(self, web3):
+        super(Eth, self).__init__(web3)
+        Account.attach(self)
 
     def namereg(self):
         raise NotImplementedError()

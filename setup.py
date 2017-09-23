@@ -17,6 +17,7 @@ readme = open(os.path.join(DIR, 'README.md')).read()
 install_requires = [
     "cytoolz>=0.8.2",
     "ethereum-abi-utils>=0.4.3",
+    "ethereum-keys>=0.1.0a5",
     "ethereum-utils>=0.5.0",
     "pylru>=1.0.9",
     "pysha3>=0.3",
