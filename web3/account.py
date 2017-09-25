@@ -7,14 +7,18 @@ from cytoolz import (
 )
 
 from eth_keys import KeyAPI
+
 from eth_utils import (
     keccak,
 )
+
+import rlp
 
 from web3.module import Module
 
 from web3.utils.encoding import (
     to_bytes,
+    to_decimal,
 )
 from web3.utils.signing import (
     signature_wrapper,
@@ -51,6 +55,21 @@ class Account(Module):
                 "%d bytes." % len(key_bytes)
             )
         return self._keys.PrivateKey(key_bytes)
+
+    def recoverTransaction(self, primitive=None, hexstr=None):
+        raw_tx = to_bytes(primitive, hexstr=hexstr)
+        tx_parts = rlp.decode(raw_tx)
+        unsigned_parts = tx_parts[:-3]
+        raw_v, r, s = map(to_decimal, tx_parts[-3:])
+        if raw_v < 2:
+            v = raw_v
+        else:
+            v = to_decimal(raw_v % 2 == 0)  # dark magic from https://github.com/MaiaVictor/eth-lib/blob/862bf8c504bd001d482564bea3921486a04798eb/src/account.js#L58
+            if raw_v >= 35:
+                # dark magic from https://github.com/MaiaVictor/eth-lib/blob/862bf8c504bd001d482564bea3921486a04798eb/src/account.js#L88
+                unsigned_parts += [to_bytes((raw_v - 35) >> 1), b'', b'']
+        pubkey = self._keys.Signature(vrs=(v, r, s)).recover_msg(rlp.encode(unsigned_parts))
+        return pubkey.to_checksum_address()
 
     def setKeyBackend(self, backend):
         self._keys = KeyAPI(backend)

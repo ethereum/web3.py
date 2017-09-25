@@ -180,7 +180,10 @@ def to_decimal(value=None, hexstr=None, text=None):
             ))
             return to_decimal(hexstr=value)
         else:
-            return int(value)
+            try:
+                return int(value)
+            except ValueError:
+                return to_decimal(hexstr=to_hex(value))
     else:
         return int(value)
 
@@ -207,7 +210,7 @@ def to_bytes(primitive=None, hexstr=None, text=None):
     elif isinstance(primitive, bytes):
         return primitive
     elif is_integer(primitive):
-        return to_bytes(hexstr=hex(primitive))
+        return to_bytes(hexstr=to_hex(primitive))
     elif hexstr is not None:
         hexstr = hexstr.rstrip('L')  # handle longs in Python 2
         if len(hexstr) % 2:
