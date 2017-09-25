@@ -4,6 +4,7 @@ from web3.utils.encoding import (
 )
 
 CHAIN_ID_OFFSET = 35
+V_OFFSET = 27
 
 
 # watch here for updates to signature format: https://github.com/ethereum/EIPs/issues/191
@@ -40,4 +41,5 @@ def extract_chain_id(raw_v):
     if above_id_offset < 0:
         return (None, raw_v)
     else:
-        return divmod(above_id_offset, 2)
+        (chain_id, v_bit) = divmod(above_id_offset, 2)
+        return (chain_id, v_bit + V_OFFSET)
