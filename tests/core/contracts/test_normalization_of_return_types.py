@@ -3,13 +3,6 @@ import pytest
 from web3.utils.abi import normalize_return_type
 
 
-def empty_to_none(val, base, sub, arr):
-    if base == 'address' and not arr and int(val, base=16) == 0:
-        return None
-    else:
-        return val
-
-
 @pytest.mark.parametrize(
     'data_type,data_value,expected_value',
     (
