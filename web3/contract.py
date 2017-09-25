@@ -755,7 +755,7 @@ class Contract(object):
         return deploy_data
 
 
-class ConciseContract:
+class ConciseContract(object):
     '''
     An alternative Contract Factory which invokes all methods as `call()`,
     unless you add a keyword argument. The keyword argument assigns the prep method.
@@ -769,11 +769,8 @@ class ConciseContract:
     > contract.transact({'from': eth.accounts[1], 'gas': 100000, ...}).withdraw(amount)
 
     '''
-
     def __init__(self, classic_contract):
-        classic_contract._return_data_normalizers = Contract._return_data_normalizers + (
-            self._none_addr,
-        )
+        classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
         self._classic_contract = classic_contract
 
     @classmethod
@@ -789,6 +786,11 @@ class ConciseContract:
             return (datatype, None)
         else:
             return (datatype, data)
+
+
+CONCISE_NORMALIZERS = (
+    ConciseContract._none_addr,
+)
 
 
 class ConciseMethod:

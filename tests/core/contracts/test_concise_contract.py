@@ -4,6 +4,7 @@ import sys
 import pytest
 
 from web3.contract import (
+    CONCISE_NORMALIZERS,
     ConciseContract,
     ConciseMethod,
 )
@@ -85,3 +86,18 @@ def test_class_construction_sets_class_vars(web3,
     assert classic.web3 == web3
     assert classic.bytecode == MATH_CODE
     assert classic.bytecode_runtime == MATH_RUNTIME
+
+
+def test_conciscecontract_keeps_custom_normalizers_on_base(web3):
+    base_contract = web3.eth.contract()
+    # give different normalizers to this base instance
+    base_contract._return_data_normalizers = base_contract._return_data_normalizers + tuple([None])
+
+    # create concisce contract with custom contract
+    new_normalizers_size = len(base_contract._return_data_normalizers)
+    concise = ConciseContract(base_contract)
+
+    # check that concise contract includes the new normalizers
+    concise_normalizers_size = len(concise._classic_contract._return_data_normalizers)
+    assert concise_normalizers_size == new_normalizers_size + len(CONCISE_NORMALIZERS)
+    assert concise._classic_contract._return_data_normalizers[0] is None

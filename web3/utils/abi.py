@@ -418,8 +418,9 @@ def map_abi_data(normalizers, types, data):
     In case of an array, like "bool[2]", normalizer will receive `data`
     as an iterable of typed data, like `[("bool", True), ("bool", False)]`.
 
-    Single element results are returned with only that element, rather
-    than a list of one.
+    When returning the mapped data, `map_abi_data()` inspects the result.
+    If the result would be a list of length one, then it pops that element
+    and returns it alone, instead of a list of one element.
 
     Internals
     ---
