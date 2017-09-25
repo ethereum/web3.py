@@ -6,7 +6,10 @@ from cytoolz import (
     compose,
 )
 
-from eth_keys import KeyAPI
+from eth_keys import (
+    KeyAPI,
+    keys,
+)
 
 from eth_utils import (
     keccak,
@@ -30,7 +33,7 @@ def return_key_api(to_wrap):
     @functools.wraps(to_wrap)
     def wrapper(*args, **kwargs):
         key = to_wrap(*args, **kwargs)
-        sign = key.sign
+        sign = key.sign_msg
         key.address = key.public_key.to_checksum_address()
         key.privateKey = key
         key.sign = compose(sign, signature_wrapper, to_bytes)
@@ -40,7 +43,7 @@ def return_key_api(to_wrap):
 
 
 class Account(Module):
-    _keys = KeyAPI()
+    _keys = keys
 
     def create(self, extra_entropy=''):
         extra_key_bytes = to_bytes(text=extra_entropy)
@@ -64,7 +67,7 @@ class Account(Module):
         raw_v, r, s = map(to_decimal, tx_parts[-3:])
         (chain_aware_tx, _chain_id, v) = annotate_transaction_with_chain_id(unsigned_parts, raw_v)
         signature = self._keys.Signature(vrs=(v, r, s))
-        pubkey = signature.recover_msg(rlp.encode(chain_aware_tx))
+        pubkey = signature.recover_public_key_from_msg(rlp.encode(chain_aware_tx))
         return pubkey.to_checksum_address()
 
     def setKeyBackend(self, backend):
