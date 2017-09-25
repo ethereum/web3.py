@@ -21,6 +21,7 @@ from web3.utils.encoding import (
     to_decimal,
 )
 from web3.utils.signing import (
+    annotate_transaction_with_chain_id,
     signature_wrapper,
 )
 
@@ -61,14 +62,9 @@ class Account(Module):
         tx_parts = rlp.decode(raw_tx)
         unsigned_parts = tx_parts[:-3]
         raw_v, r, s = map(to_decimal, tx_parts[-3:])
-        if raw_v < 2:
-            v = raw_v
-        else:
-            v = to_decimal(raw_v % 2 == 0)  # dark magic from https://github.com/MaiaVictor/eth-lib/blob/862bf8c504bd001d482564bea3921486a04798eb/src/account.js#L58
-            if raw_v >= 35:
-                # dark magic from https://github.com/MaiaVictor/eth-lib/blob/862bf8c504bd001d482564bea3921486a04798eb/src/account.js#L88
-                unsigned_parts += [to_bytes((raw_v - 35) >> 1), b'', b'']
-        pubkey = self._keys.Signature(vrs=(v, r, s)).recover_msg(rlp.encode(unsigned_parts))
+        (chain_aware_tx, _chain_id, v) = annotate_transaction_with_chain_id(unsigned_parts, raw_v)
+        signature = self._keys.Signature(vrs=(v, r, s))
+        pubkey = signature.recover_msg(rlp.encode(chain_aware_tx))
         return pubkey.to_checksum_address()
 
     def setKeyBackend(self, backend):
