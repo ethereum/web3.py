@@ -10,6 +10,9 @@ from eth_keys import (
     KeyAPI,
     keys,
 )
+from eth_keys.exceptions import (
+    ValidationError,
+)
 
 from eth_utils import (
     keccak,
@@ -22,6 +25,9 @@ from web3.module import Module
 from web3.utils.encoding import (
     to_bytes,
     to_decimal,
+)
+from web3.utils.exception import (
+    raise_from,
 )
 from web3.utils.signing import (
     annotate_transaction_with_chain_id,
@@ -53,12 +59,16 @@ class Account(Module):
     @return_key_api
     def privateKeyToAccount(self, primitive=None, hexstr=None):
         key_bytes = to_bytes(primitive, hexstr=hexstr)
-        if len(key_bytes) != 32:
-            raise ValueError(
-                "The private key must be exactly 32 bytes long, instead of "
-                "%d bytes." % len(key_bytes)
+        try:
+            return self._keys.PrivateKey(key_bytes)
+        except ValidationError as original_exception:
+            raise_from(
+                ValueError(
+                    "The private key must be exactly 32 bytes long, instead of "
+                    "%d bytes." % len(key_bytes)
+                ),
+                original_exception
             )
-        return self._keys.PrivateKey(key_bytes)
 
     def recoverTransaction(self, primitive=None, hexstr=None):
         raw_tx = to_bytes(primitive, hexstr=hexstr)
