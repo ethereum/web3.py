@@ -25,6 +25,7 @@ from web3.module import Module
 from web3.utils.encoding import (
     to_bytes,
     to_decimal,
+    to_hex,
 )
 from web3.utils.exception import (
     raise_from,
@@ -55,6 +56,12 @@ class Account(Module):
         extra_key_bytes = to_bytes(text=extra_entropy)
         key_bytes = keccak(os.urandom(32) + extra_key_bytes)
         return self.privateKeyToAccount(key_bytes)
+
+    @staticmethod
+    def hashMessage(data=None, hexstr=None, text=None):
+        message_bytes = to_bytes(data, hexstr=hexstr, text=text)
+        recovery_hasher = compose(to_hex, keccak, signature_wrapper)
+        return recovery_hasher(message_bytes)
 
     @return_key_api
     def privateKeyToAccount(self, primitive=None, hexstr=None):
