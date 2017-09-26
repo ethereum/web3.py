@@ -868,7 +868,12 @@ def call_contract_function(contract,
         BASE_RETURN_NORMALIZERS,
         contract._return_data_normalizers,
     )
-    return map_abi_data(normalizers, output_types, output_data)
+    normalized_data = map_abi_data(normalizers, output_types, output_data)
+
+    if len(normalized_data) == 1:
+        return normalized_data[0]
+    else:
+        return normalized_data
 
 
 def transact_with_contract_function(contract=None,

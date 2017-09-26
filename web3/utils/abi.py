@@ -7,11 +7,11 @@ import itertools
 
 from cytoolz import (
     curry,
+    partial,
     pipe,
 )
 
 from eth_utils import (
-    add_0x_prefix,
     coerce_args_to_text,
     coerce_return_to_text,
     is_address,
@@ -28,12 +28,11 @@ from eth_abi.abi import (
 )
 
 from web3.utils.formatters import (
-    recursive_map
+    recursive_map,
 )
 
 BASE_RETURN_NORMALIZERS = [
     lambda typ, data: (typ, to_checksum_address(data)) if typ == 'address' else (typ, data),
-    # lambda typ, data: data.decode(errors='ignore') if typ == 'string' else data,
 ]
 
 
@@ -402,6 +401,7 @@ def abi_to_signature(abi):
 ########################################################
 
 
+@coerce_return_to_text
 def map_abi_data(normalizers, types, data):
     '''
     This function will apply normalizers to your data, in the
@@ -416,10 +416,6 @@ def map_abi_data(normalizers, types, data):
     In case of an array, like "bool[2]", normalizer will receive `data`
     as an iterable of typed data, like `[("bool", True), ("bool", False)]`.
 
-    When returning the mapped data, `map_abi_data()` inspects the result.
-    If the result would be a list of length one, then it pops that element
-    and returns it alone, instead of a list of one element.
-
     Internals
     ---
 
@@ -432,7 +428,7 @@ def map_abi_data(normalizers, types, data):
     pipeline = itertools.chain(
         [abi_data_tree(types)],
         map(data_tree_map, normalizers),
-        [data_tree_vals],
+        [partial(recursive_map, strip_abi_type)],
     )
 
     return pipe(data, *pipeline)
@@ -468,18 +464,6 @@ def data_tree_map(func, data_tree):
         else:
             return elements
     return recursive_map(map_to_typed_data, data_tree)
-
-
-@coerce_return_to_text
-def data_tree_vals(typed_data_tree):
-    '''
-    Strip all types out of the data tree
-    '''
-    data_tree = recursive_map(strip_abi_type, typed_data_tree)
-    if len(data_tree) == 1:
-        return data_tree[0]
-    else:
-        return data_tree
 
 
 class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
@@ -525,7 +509,7 @@ def abi_sub_tree(data_type, data_value):
         return ABITypedData([collapsed, data_value])
 
 
-# TODO if this makes any sense at all, it probably belongs in eth_abi
+# This will be implemented in eth_abi soon
 def collapse_type(base, sub, arrlist):
     return str(base + sub + ''.join(map(repr, arrlist)))
 
@@ -535,20 +519,3 @@ def strip_abi_type(elements):
         return elements.data
     else:
         return elements
-
-
-@coerce_return_to_text
-def normalize_return_type(data_type, data_value):
-    # TODO replace all uses with map_abi_data
-    try:
-        base, sub, arrlist = data_type
-    except ValueError:
-        base, sub, arrlist = process_type(data_type)
-
-    if arrlist:
-        sub_type = (base, sub, arrlist[:-1])
-        return [normalize_return_type(sub_type, sub_value) for sub_value in data_value]
-    elif base == 'address':
-        return add_0x_prefix(data_value)
-    else:
-        return data_value

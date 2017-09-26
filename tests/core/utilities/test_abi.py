@@ -65,13 +65,13 @@ def test_abi_data_tree(types, data, expected):
             ["address"],
             ['0x5b2063246f2191f18f2675cedb8b28102e957458'],
             BASE_RETURN_NORMALIZERS,
-            '0x5B2063246F2191f18F2675ceDB8b28102e957458',
+            ['0x5B2063246F2191f18F2675ceDB8b28102e957458'],
         ),
         (
             ["address[]"],
             [['0x5b2063246f2191f18f2675cedb8b28102e957458'] * 2],
             BASE_RETURN_NORMALIZERS,
-            ['0x5B2063246F2191f18F2675ceDB8b28102e957458'] * 2,
+            [['0x5B2063246F2191f18F2675ceDB8b28102e957458'] * 2],
         ),
     ],
 )
