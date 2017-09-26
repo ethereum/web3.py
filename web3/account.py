@@ -1,6 +1,7 @@
 
 import functools
 import os
+import sys
 
 from cytoolz import (
     compose,
@@ -22,6 +23,9 @@ import rlp
 
 from web3.module import Module
 
+from web3.utils.datastructures import (
+    AttributeDict,
+)
 from web3.utils.encoding import (
     to_bytes,
     to_decimal,
@@ -97,3 +101,31 @@ class Account(Module):
 
     def setKeyBackend(self, backend):
         self._keys = KeyAPI(backend)
+
+    def sign(self, message=None, private_key=None, message_hexstr=None, message_text=None):
+        '''
+        @param private_key in bytes, str, or int.
+            In Python 2, a bytes, unicode or str object will be interpreted as hexstr
+            In Python 3, only a str object will be interpreted as hexstr
+        '''
+        msg_bytes = to_bytes(message, hexstr=message_hexstr, text=message_text)
+        msg_hash = self.hashMessage(msg_bytes)
+        if isinstance(private_key, str) or (
+                sys.version_info.major < 3 and isinstance(private_key, unicode)  # noqa: F821
+            ):
+            key_bytes = to_bytes(hexstr=private_key)
+        else:
+            key_bytes = to_bytes(private_key)
+        key = self._keys.PrivateKey(key_bytes)
+        signature = key.sign_msg_hash(to_bytes(hexstr=msg_hash))
+        (r, s, v) = (getattr(signature, part) for part in 'rsv')
+        eth_signature_bytes = b''.join(map(to_bytes, (r, s, v)))
+        (r_hex, s_hex, v_hex, eth_signature_hex) = map(to_hex, (r, s, v, eth_signature_bytes))
+        return AttributeDict({
+            'message': msg_bytes,
+            'messageHash': msg_hash,
+            'r': r_hex,
+            's': s_hex,
+            'v': v_hex,
+            'signature': eth_signature_hex,
+        })

@@ -131,3 +131,28 @@ def test_eth_account_hash_message_text(web3, message, expected):
 )
 def test_eth_account_hash_message_hexstr(web3, message, expected):
     assert web3.eth.account.hashMessage(hexstr=message) == expected
+
+
+@pytest.mark.parametrize(
+    'message, key, expected_bytes, expected_hash, v, r, s, signature',
+    (
+        (
+            'Some data',
+            '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
+            b'Some data',
+            '0x1da44b586eb0729ff70a73c326926f6ed5a25f5b056e7f47fbc6e58d86871655',
+            '0x1c',
+            '0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd',
+            '0x6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a029',
+            '0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a0291c',  # noqa: E501
+        ),
+    ),
+)
+def test_eth_account_sign(web3, message, key, expected_bytes, expected_hash, v, r, s, signature):
+    signed = web3.eth.account.sign(message_text=message, private_key=key)
+    assert signed.message == expected_bytes
+    assert signed.messageHash == expected_hash
+    assert signed.v == v
+    assert signed.r == r
+    assert signed.s == s
+    assert signed.signature == signature
