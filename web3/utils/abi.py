@@ -12,7 +12,6 @@ from cytoolz import (
 
 from eth_utils import (
     add_0x_prefix,
-    coerce_args_to_bytes,
     coerce_args_to_text,
     coerce_return_to_text,
     is_address,
@@ -158,7 +157,6 @@ def filter_by_encodability(args, kwargs, contract_abi):
     ]
 
 
-@coerce_args_to_bytes
 def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     try:
         arguments = merge_args_and_kwargs(function_abi, args, kwargs)

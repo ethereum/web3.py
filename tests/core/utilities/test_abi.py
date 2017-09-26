@@ -17,7 +17,7 @@ from web3.utils.abi import (
     'original, expected',
     [
         ('address', 'address'),
-        # ('uint[2][]', 'uint256[2][]'),  # pending an eth_abi pull request
+        ('uint[2][]', 'uint256[2][]'),
         ('uint256[2][]', 'uint256[2][]'),
         ('function', 'bytes24'),
         ('bool', 'bool'),
