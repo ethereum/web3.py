@@ -19,7 +19,6 @@ from eth_utils import (
     is_integer,
     is_list_like,
     is_string,
-    to_checksum_address,
     to_tuple,
 )
 
@@ -30,9 +29,12 @@ from eth_abi.abi import (
 from web3.utils.formatters import (
     recursive_map,
 )
+from web3.utils.normalizers import (
+    addresses_checksummed,
+)
 
 BASE_RETURN_NORMALIZERS = [
-    lambda typ, data: (typ, to_checksum_address(data)) if typ == 'address' else (typ, data),
+    addresses_checksummed,
 ]
 
 
