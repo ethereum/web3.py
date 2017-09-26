@@ -24,6 +24,7 @@ def annotate_transaction_with_chain_id(transaction_parts, raw_v):
     See details at https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
     @return (transaction_parts, chain_id, v)
     '''
+    assert len(transaction_parts) == 6
     (chain_id, v) = extract_chain_id(raw_v)
     if chain_id is None:
         chain_id_extension = []

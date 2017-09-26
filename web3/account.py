@@ -70,15 +70,23 @@ class Account(Module):
                 original_exception
             )
 
+    def recover(self, msghash=None, msghash_hexstr=None, vrs=None, signature_bytes=None):
+        hash_bytes = to_bytes(msghash, hexstr=msghash_hexstr)
+        if vrs:
+            signature = self._keys.Signature(vrs=vrs)
+        else:
+            signature = self._keys.Signature(signature_bytes=signature_bytes)
+        pubkey = signature.recover_public_key_from_msg_hash(hash_bytes)
+        return pubkey.to_checksum_address()
+
     def recoverTransaction(self, primitive=None, hexstr=None):
         raw_tx = to_bytes(primitive, hexstr=hexstr)
         tx_parts = rlp.decode(raw_tx)
         unsigned_parts = tx_parts[:-3]
         raw_v, r, s = map(to_decimal, tx_parts[-3:])
         (chain_aware_tx, _chain_id, v) = annotate_transaction_with_chain_id(unsigned_parts, raw_v)
-        signature = self._keys.Signature(vrs=(v, r, s))
-        pubkey = signature.recover_public_key_from_msg(rlp.encode(chain_aware_tx))
-        return pubkey.to_checksum_address()
+        message_hash = keccak(rlp.encode(chain_aware_tx))
+        return self.recover(message_hash, vrs=(v, r, s))
 
     def setKeyBackend(self, backend):
         self._keys = KeyAPI(backend)
