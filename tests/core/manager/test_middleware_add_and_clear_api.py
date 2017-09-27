@@ -20,14 +20,14 @@ def test_provider_property_setter_and_getter(middleware_factory):
 
     manager = RequestManager(None, provider, middlewares=[])
 
-    assert manager.middlewares == tuple()
+    assert tuple(manager.middleware_stack) == tuple()
 
     manager.middleware_stack.add(middleware_a)
     manager.middleware_stack.add(middleware_b)
 
     manager.middleware_stack.clear()
 
-    assert manager.middlewares == tuple()
+    assert tuple(manager.middleware_stack) == tuple()
 
     manager.middleware_stack.add(middleware_c)
     manager.middleware_stack.add(middleware_b)
@@ -36,7 +36,7 @@ def test_provider_property_setter_and_getter(middleware_factory):
     with pytest.raises(ValueError):
         manager.middleware_stack.add(middleware_b)
 
-    assert manager.middlewares == (
+    assert tuple(manager.middleware_stack) == (
         middleware_a,
         middleware_b,
         middleware_c,
@@ -46,22 +46,22 @@ def test_provider_property_setter_and_getter(middleware_factory):
 def test_add_named_middleware(middleware_factory):
     mw = middleware_factory()
     manager = RequestManager(None, BaseProvider(), middlewares=[(mw, 'the-name')])
-    assert len(manager.middlewares) == 1
+    assert len(manager.middleware_stack) == 1
 
-    assert manager.middlewares == (mw, )
+    assert tuple(manager.middleware_stack) == (mw, )
 
 
 def test_add_named_duplicate_middleware(middleware_factory):
     mw = middleware_factory()
     manager = RequestManager(None, BaseProvider(), middlewares=[(mw, 'the-name'), (mw, 'name2')])
-    assert manager.middlewares == (mw, mw)
+    assert tuple(manager.middleware_stack) == (mw, mw)
 
     manager.middleware_stack.clear()
-    assert len(manager.middlewares) == 0
+    assert len(manager.middleware_stack) == 0
 
     manager.middleware_stack.add(mw, 'name1')
     manager.middleware_stack.add(mw, 'name2')
-    assert manager.middlewares == (mw, mw)
+    assert tuple(manager.middleware_stack) == (mw, mw)
 
 
 def test_add_duplicate_middleware(middleware_factory):
@@ -74,7 +74,7 @@ def test_add_duplicate_middleware(middleware_factory):
 
     with pytest.raises(ValueError):
         manager.middleware_stack.add(mw)
-    assert manager.middlewares == (mw, )
+    assert tuple(manager.middleware_stack) == (mw, )
 
 
 def test_replace_middleware(middleware_factory):
@@ -84,16 +84,16 @@ def test_replace_middleware(middleware_factory):
 
     manager = RequestManager(None, BaseProvider(), middlewares=[mw1, (mw2, '2nd'), mw3])
 
-    assert manager.middlewares == (mw1, mw2, mw3)
+    assert tuple(manager.middleware_stack) == (mw1, mw2, mw3)
 
     mw_replacement = middleware_factory()
     manager.middleware_stack.replace('2nd', mw_replacement)
 
-    assert manager.middlewares == (mw1, mw_replacement, mw3)
+    assert tuple(manager.middleware_stack) == (mw1, mw_replacement, mw3)
 
     manager.middleware_stack.remove('2nd')
 
-    assert manager.middlewares == (mw1, mw3)
+    assert tuple(manager.middleware_stack) == (mw1, mw3)
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="replace requires Py 3")
@@ -104,16 +104,16 @@ def test_replace_middleware_without_name(middleware_factory):
 
     manager = RequestManager(None, BaseProvider(), middlewares=[mw1, mw2, mw3])
 
-    assert manager.middlewares == (mw1, mw2, mw3)
+    assert tuple(manager.middleware_stack) == (mw1, mw2, mw3)
 
     mw_replacement = middleware_factory()
     manager.middleware_stack.replace(mw2, mw_replacement)
 
-    assert manager.middlewares == (mw1, mw_replacement, mw3)
+    assert tuple(manager.middleware_stack) == (mw1, mw_replacement, mw3)
 
     manager.middleware_stack.remove(mw_replacement)
 
-    assert manager.middlewares == (mw1, mw3)
+    assert tuple(manager.middleware_stack) == (mw1, mw3)
 
 
 def test_remove_middleware(middleware_factory):
@@ -123,8 +123,8 @@ def test_remove_middleware(middleware_factory):
 
     manager = RequestManager(None, BaseProvider(), middlewares=[mw1, mw2, mw3])
 
-    assert manager.middlewares == (mw1, mw2, mw3)
+    assert tuple(manager.middleware_stack) == (mw1, mw2, mw3)
 
     manager.middleware_stack.remove(mw2)
 
-    assert manager.middlewares == (mw1, mw3)
+    assert tuple(manager.middleware_stack) == (mw1, mw3)

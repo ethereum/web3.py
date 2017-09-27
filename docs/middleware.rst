@@ -104,7 +104,7 @@ middleware itself.
 
         >>> w3 = Web3(...)
         >>> w3.middleware_stack.clear()
-        >>> assert len(w3.middlewares) == 0
+        >>> assert len(w3.middleware_stack) == 0
 
 
 Built-in Middleware

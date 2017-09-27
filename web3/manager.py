@@ -33,32 +33,11 @@ class RequestManager(object):
         if middlewares is None:
             middlewares = [attrdict_middleware, pythonic_middleware]
 
-        self.middlewares = middlewares
+        self.middleware_stack = NamedElementStack(middlewares)
         self.providers = providers
 
     web3 = None
     _providers = None
-
-    @property
-    def middlewares(self):
-        return tuple(self.middleware_stack)
-
-    @middlewares.setter
-    def middlewares(self, new_middlewares):
-        self.middleware_stack = NamedElementStack(new_middlewares)
-        self._generate_request_functions()
-        self.middleware_stack.on_change(self._generate_request_functions)
-
-    def _generate_request_functions(self):
-        self._wrapped_provider_request_functions = {
-            index: combine_middlewares(
-                middlewares=self.middlewares + tuple(provider.middlewares),
-                web3=self.web3,
-                provider_request_fn=provider.make_request,
-            )
-            for index, provider
-            in enumerate(self.providers)
-        }
 
     @deprecated_for("manager.middleware_stack.add(middleware [, name])")
     def add_middleware(self, middleware):
