@@ -1,6 +1,26 @@
 Release Notes
 =============
 
+3.15.0
+------
+
+* Change docs to use RTD theme
+* Experimental new ``EthereumTesterProvider`` for the ``ethereum-tester`` library.
+* Bugfix for ``function`` type abi encoding via ``ethereum-abi-utils`` upgrade to ``v0.4.1``
+* Bugfix for ``Web3.toHex`` to conform to RPC spec.
+
+
+3.14.2
+------
+
+* Fix PyPi readme text.
+
+
+3.14.1
+------
+
+* Fix PyPi readme text.
+
 3.14.0
 ------
 

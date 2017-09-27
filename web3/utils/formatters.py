@@ -8,6 +8,7 @@ import sys
 
 from cytoolz.functoolz import (
     curry,
+    compose,
 )
 
 from eth_utils import (
@@ -45,6 +46,14 @@ def apply_formatter_at_index(formatter, at_index, value):
             yield formatter(item)
         else:
             yield item
+
+
+def apply_formatters_to_args(*formatters):
+    return compose(*(
+        apply_formatter_at_index(formatter, index)
+        for index, formatter
+        in enumerate(formatters)
+    ))
 
 
 @curry
@@ -119,3 +128,13 @@ def static_result(value):
     def inner(*args, **kwargs):
         return {'result': value}
     return inner
+
+
+@curry
+@to_dict
+def apply_key_map(key_mappings, value):
+    for key, item in value.items():
+        if key in key_mappings:
+            yield key_mappings[key], item
+        else:
+            yield key, item

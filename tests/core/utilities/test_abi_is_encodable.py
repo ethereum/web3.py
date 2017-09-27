@@ -30,6 +30,12 @@ from web3.utils.abi import (
         (2**256, 'uint256', False),
         ('abc', 'uint256', False),
         (True, 'uint256', False),
+        # function
+        (0, 'function', False),
+        (b'\0' * 24, 'function', True),
+        (b'\0' * 25, 'function', False),
+        (True, 'function', False),
+        (False, 'function', False),
     ),
 )
 def test_is_encodable(value, _type, expected):
