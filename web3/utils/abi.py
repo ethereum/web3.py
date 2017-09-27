@@ -1,22 +1,41 @@
+from collections import (
+    namedtuple,
+)
+
 import re
 import itertools
 
+from cytoolz import (
+    curry,
+    partial,
+    pipe,
+)
+
 from eth_utils import (
-    coerce_args_to_bytes,
     coerce_args_to_text,
     coerce_return_to_text,
-    to_tuple,
-    add_0x_prefix,
+    is_address,
+    is_boolean,
+    is_integer,
     is_list_like,
     is_string,
-    is_integer,
-    is_boolean,
-    is_address,
+    to_tuple,
 )
 
 from eth_abi.abi import (
     process_type,
 )
+
+from web3.utils.formatters import (
+    recursive_map,
+)
+from web3.utils.normalizers import (
+    addresses_checksummed,
+)
+
+BASE_RETURN_NORMALIZERS = [
+    addresses_checksummed,
+]
 
 
 def filter_by_type(_type, contract_abi):
@@ -139,7 +158,6 @@ def filter_by_encodability(args, kwargs, contract_abi):
     ]
 
 
-@coerce_args_to_bytes
 def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     try:
         arguments = merge_args_and_kwargs(function_abi, args, kwargs)
@@ -378,17 +396,128 @@ def abi_to_signature(abi):
     return function_signature
 
 
+########################################################
+#
+#  Conditionally modifying data, tagged with ABI Types
+#
+########################################################
+
+
 @coerce_return_to_text
-def normalize_return_type(data_type, data_value):
+def map_abi_data(normalizers, types, data):
+    '''
+    This function will apply normalizers to your data, in the
+    context of the relevant types. Each normalizer is in the format:
+
+    def normalizer(datatype, data):
+        # Conditionally modify data
+        return (datatype, data)
+
+    Where datatype is a valid ABI type string, like "uint".
+
+    In case of an array, like "bool[2]", normalizer will receive `data`
+    as an iterable of typed data, like `[("bool", True), ("bool", False)]`.
+
+    Internals
+    ---
+
+    This is accomplished by:
+
+    1. Decorating the data tree with types
+    2. Recursively mapping each of the normalizers to the data
+    3. Stripping the types back out of the tree
+    '''
+    pipeline = itertools.chain(
+        [abi_data_tree(types)],
+        map(data_tree_map, normalizers),
+        [partial(recursive_map, strip_abi_type)],
+    )
+
+    return pipe(data, *pipeline)
+
+
+@curry
+def abi_data_tree(types, data):
+    '''
+    Decorate the data tree with pairs of (type, data). The pair tuple is actually an
+    ABITypedData, but can be accessed as a tuple.
+
+    As an example:
+
+    >>> abi_data_tree(types=["bool[2]", "uint"], data=[[True, False], 0])
+    [("bool[2]", [("bool", True), ("bool", False)]), ("uint256", 0)]
+    '''
+    return [
+        abi_sub_tree(data_type, data_value)
+        for data_type, data_value
+        in zip(types, data)
+    ]
+
+
+@curry
+def data_tree_map(func, data_tree):
+    '''
+    Map func to every ABITypedData element in the tree. func will
+    receive two args: abi_type, and data
+    '''
+    def map_to_typed_data(elements):
+        if isinstance(elements, ABITypedData):
+            return ABITypedData(func(*elements))
+        else:
+            return elements
+    return recursive_map(map_to_typed_data, data_tree)
+
+
+class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
+    '''
+    This class marks data as having a certain ABI-type.
+
+    >>> a1 = ABITypedData(['address', addr1])
+    >>> a2 = ABITypedData(['address', addr2])
+    >>> addrs = ABITypedData(['address[]', [a1, a2])
+
+    You can access the fields using tuple() interface, or with
+    attributes:
+
+    >>> assert a1.abi_type == a1[0]
+    >>> assert a1.data == a1[1]
+
+    Unlike a typical `namedtuple`, you initialize with a single
+    positional argument that is iterable, to match the init
+    interface of all other relevant collections.
+    '''
+    def __new__(cls, iterable):
+        return super(ABITypedData, cls).__new__(cls, *iterable)
+
+
+def abi_sub_tree(data_type, data_value):
     try:
         base, sub, arrlist = data_type
     except ValueError:
         base, sub, arrlist = process_type(data_type)
 
+    collapsed = collapse_type(base, sub, arrlist)
+
     if arrlist:
         sub_type = (base, sub, arrlist[:-1])
-        return [normalize_return_type(sub_type, sub_value) for sub_value in data_value]
-    elif base == 'address':
-        return add_0x_prefix(data_value)
+        return ABITypedData([
+            collapsed,
+            [
+                abi_sub_tree(sub_type, sub_value)
+                for sub_value in data_value
+            ],
+        ])
     else:
-        return data_value
+        return ABITypedData([collapsed, data_value])
+
+
+# This will be implemented in eth_abi soon
+def collapse_type(base, sub, arrlist):
+    return str(base + sub + ''.join(map(repr, arrlist)))
+
+
+def strip_abi_type(elements):
+    if isinstance(elements, ABITypedData):
+        return elements.data
+    else:
+        return elements

@@ -36,6 +36,7 @@ from web3.exceptions import (
 )
 
 from web3.utils.abi import (
+    BASE_RETURN_NORMALIZERS,
     filter_by_type,
     filter_by_name,
     filter_by_argument_count,
@@ -44,8 +45,8 @@ from web3.utils.abi import (
     get_abi_input_types,
     get_abi_output_types,
     get_constructor_abi,
+    map_abi_data,
     merge_args_and_kwargs,
-    normalize_return_type,
     check_if_arguments_can_be_encoded,
 )
 from web3.utils.decorators import (
@@ -588,6 +589,7 @@ class Contract(object):
     #
     # Private Helpers
     #
+    _return_data_normalizers = tuple()
 
     @classmethod
     def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
@@ -752,7 +754,7 @@ class Contract(object):
         return deploy_data
 
 
-class ConciseContract:
+class ConciseContract(object):
     '''
     An alternative Contract Factory which invokes all methods as `call()`,
     unless you add a keyword argument. The keyword argument assigns the prep method.
@@ -766,17 +768,28 @@ class ConciseContract:
     > contract.transact({'from': eth.accounts[1], 'gas': 100000, ...}).withdraw(amount)
 
     '''
-
     def __init__(self, classic_contract):
+        classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
         self._classic_contract = classic_contract
 
     @classmethod
     def factory(cls, *args, **kwargs):
-        Prepped = Contract.factory(*args, **kwargs)
-        return compose(cls, Prepped)
+        return compose(cls, Contract.factory(*args, **kwargs))
 
     def __getattr__(self, attr):
         return ConciseMethod(self._classic_contract, attr)
+
+    @staticmethod
+    def _none_addr(datatype, data):
+        if datatype == 'address' and int(data, base=16) == 0:
+            return (datatype, None)
+        else:
+            return (datatype, data)
+
+
+CONCISE_NORMALIZERS = (
+    ConciseContract._none_addr,
+)
 
 
 class ConciseMethod:
@@ -850,11 +863,11 @@ def call_contract_function(contract,
             )
         raise_from(BadFunctionCallOutput(msg), e)
 
-    normalized_data = [
-        normalize_return_type(data_type, data_value)
-        for data_type, data_value
-        in zip(output_types, output_data)
-    ]
+    normalizers = itertools.chain(
+        BASE_RETURN_NORMALIZERS,
+        contract._return_data_normalizers,
+    )
+    normalized_data = map_abi_data(normalizers, output_types, output_data)
 
     if len(normalized_data) == 1:
         return normalized_data[0]
