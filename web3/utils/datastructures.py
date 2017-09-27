@@ -94,7 +94,6 @@ class AttributeDict(ReadableAttributeDict, Hashable):
 class NamedElementStack(Mapping):
     def __init__(self, init_elements, valid_element=callable):
         self._queue = OrderedDict()
-        self._callbacks = []
         for element in reversed(init_elements):
             if valid_element(element):
                 self.add(element)
@@ -112,16 +111,9 @@ class NamedElementStack(Mapping):
                 raise ValueError("You can't add the same name again, use replace instead")
 
         self._queue[name] = element
-        self._changed()
 
     def clear(self):
         self._queue.clear()
-        self._changed()
-
-    def on_change(self, callback):
-        if not callable(callback):
-            raise TypeError("Only give callable arguments to 'on_change'")
-        self._callbacks.append(callback)
 
     def replace(self, old, new):
         if old not in self._queue:
@@ -131,17 +123,11 @@ class NamedElementStack(Mapping):
             self._replace_with_new_name(old, new)
         else:
             self._queue[old] = new
-        self._changed()
 
     def remove(self, old):
         if old not in self._queue:
             raise ValueError("You can only remove something that has been added")
         del self._queue[old]
-        self._changed()
-
-    def _changed(self):
-        for callback in self._callbacks:
-            callback()
 
     def _replace_with_new_name(self, old, new):
         self._queue[new] = new
