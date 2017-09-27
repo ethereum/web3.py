@@ -132,10 +132,6 @@ raised.
 You can set a new list of middlewares by assigning to ``provider.middlewares``,
 with the first middleware that processes the request at the beginning of the list.
 
-Once a provider is supplied to a request manager, you cannot change the middleware
-anymore. To change provider middleware at runtime: reinitialize the provider,
-set the middlewares you want, and call manager.setProvider() with your new provider.
-
 
 .. _internals__middlewares:
 

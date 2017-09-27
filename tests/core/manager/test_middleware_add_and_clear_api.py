@@ -1,4 +1,3 @@
-import itertools
 import pytest
 import sys
 
@@ -42,53 +41,6 @@ def test_provider_property_setter_and_getter(middleware_factory):
         middleware_b,
         middleware_c,
     )
-
-
-@pytest.mark.skipif(sys.version_info.major < 3, reason="Mock requires Py 3")
-def test_modifying_middleware_regenerates_request_functions(middleware_factory):
-    from unittest.mock import Mock
-
-    # setup
-    provider = BaseProvider()
-    manager = RequestManager(None, provider)
-    manager._generate_request_functions = Mock(wraps=manager._generate_request_functions)
-
-    # count number of middleware rebuilds
-    counter = itertools.count()
-
-    def assert_one_more_rebuild():
-        assert manager._generate_request_functions.call_count == next(counter)
-    assert_one_more_rebuild()  # assert zero rebuilds, to start
-
-    # manual call
-    manager._generate_request_functions()
-
-    assert_one_more_rebuild()
-
-    # reset
-    manager.middlewares = []
-
-    assert_one_more_rebuild()
-
-    # add
-    manager.middleware_stack.add(middleware_factory(), 'a')
-
-    assert_one_more_rebuild()
-
-    # replace
-    manager.middleware_stack.replace('a', middleware_factory())
-
-    assert_one_more_rebuild()
-
-    # remove
-    manager.middleware_stack.remove('a')
-
-    assert_one_more_rebuild()
-
-    # clear
-    manager.middleware_stack.clear()
-
-    assert_one_more_rebuild()
 
 
 def test_add_named_middleware(middleware_factory):

@@ -9,25 +9,44 @@ from eth_utils import (
     force_text,
 )
 
+from web3.middleware import (
+    combine_middlewares,
+)
+
 
 class BaseProvider(object):
     _middlewares = ()
-    _middleware_locked = False
+    _request_func_cache = (None, None)  # a tuple of (all_middlewares, request_func)
 
     @property
     def middlewares(self):
-        if not self._middleware_locked:
-            self._middleware_locked = True
-        return tuple(self._middlewares)
+        return self._middlewares
 
     @middlewares.setter
     def middlewares(self, values):
-        if self._middleware_locked:
-            raise RuntimeError(
-                "The request manager will not notice changes in provider middleware, "
-                "so you cannot modify middleware after it has been read."
-            )
         self._middlewares = tuple(values)
+
+    def request_func(self, web3, outer_middlewares):
+        '''
+        @param outer_middlewares is an iterable of middlewares, ordered by first to execute
+        @returns a function that calls all the middleware and eventually self.make_request()
+        '''
+        all_middlewares = tuple(outer_middlewares) + tuple(self.middlewares)
+
+        cache_key = self._request_func_cache[0]
+        if cache_key is None or cache_key != all_middlewares:
+            self._request_func_cache = (
+                all_middlewares,
+                self._generate_request_func(web3, all_middlewares)
+            )
+        return self._request_func_cache[-1]
+
+    def _generate_request_func(self, web3, middlewares):
+        return combine_middlewares(
+            middlewares=middlewares,
+            web3=web3,
+            provider_request_fn=self.make_request,
+        )
 
     def make_request(self, method, params):
         raise NotImplementedError("Providers must implement this method")

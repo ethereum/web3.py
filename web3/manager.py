@@ -10,7 +10,6 @@ from web3.exceptions import (
     UnhandledRequest,
 )
 from web3.middleware import (
-    combine_middlewares,
     pythonic_middleware,
     attrdict_middleware,
 )
@@ -80,7 +79,6 @@ class RequestManager(object):
         else:
             providers = value
         self._providers = providers
-        self._generate_request_functions()
 
     def setProvider(self, providers):
         warnings.warn(DeprecationWarning(
@@ -93,10 +91,10 @@ class RequestManager(object):
     # Provider requests and response
     #
     def _make_request(self, method, params):
-        for index in range(len(self.providers)):
-            make_request_fn = self._wrapped_provider_request_functions[index]
+        for provider in self.providers:
+            request_func = provider.request_func(self.web3, tuple(self.middleware_stack))
             try:
-                return make_request_fn(method, params)
+                return request_func(method, params)
             except CannotHandleRequest:
                 continue
         else:
