@@ -23,6 +23,7 @@ from eth_utils import (
 )
 
 from eth_abi.abi import (
+    collapse_type,
     process_type,
 )
 
@@ -509,11 +510,6 @@ def abi_sub_tree(data_type, data_value):
         ])
     else:
         return ABITypedData([collapsed, data_value])
-
-
-# This will be implemented in eth_abi soon
-def collapse_type(base, sub, arrlist):
-    return str(base + sub + ''.join(map(repr, arrlist)))
 
 
 def strip_abi_type(elements):
