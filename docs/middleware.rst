@@ -123,7 +123,7 @@ Web3 ships with non-default middleware, for your custom use. In addition to the 
   either use ``middleware_stack.add()`` from above, or add the default middlewares to your list of
   new middlewares.
 
-Below is a (maybe partial) list of built-in middleware.
+Below is a list of built-in middleware.
 
 Stalecheck
 ~~~~~~~~~~~~

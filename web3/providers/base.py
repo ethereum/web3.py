@@ -11,7 +11,7 @@ from eth_utils import (
 
 
 class BaseProvider(object):
-    _middlewares = []
+    _middlewares = ()
     _middleware_locked = False
 
     @property

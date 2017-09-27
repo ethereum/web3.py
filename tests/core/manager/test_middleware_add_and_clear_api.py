@@ -9,9 +9,6 @@ from web3.providers import (
     BaseProvider,
 )
 
-if sys.version_info.major >= 3:
-    from unittest.mock import Mock
-
 
 def test_provider_property_setter_and_getter(middleware_factory):
     provider = BaseProvider()
@@ -49,6 +46,8 @@ def test_provider_property_setter_and_getter(middleware_factory):
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="Mock requires Py 3")
 def test_modifying_middleware_regenerates_request_functions(middleware_factory):
+    from unittest.mock import Mock
+
     # setup
     provider = BaseProvider()
     manager = RequestManager(None, provider)
