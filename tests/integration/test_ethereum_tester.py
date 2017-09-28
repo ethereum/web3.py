@@ -23,6 +23,11 @@ from web3.utils.module_testing.math_contract import (
     MATH_BYTECODE,
     MATH_ABI,
 )
+from web3.utils.module_testing.emitter_contract import (
+    EMITTER_BYTECODE,
+    EMITTER_ABI,
+    EMITTER_ENUM,
+)
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
@@ -51,6 +56,9 @@ def web3(eth_tester_provider):
     return _web3
 
 
+#
+# Math Contract Setup
+#
 @pytest.fixture(scope="session")
 def math_contract_factory(web3):
     contract_factory = web3.eth.contract(abi=MATH_ABI, bytecode=MATH_BYTECODE)
@@ -70,6 +78,30 @@ def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
     contract_address = deploy_receipt['contractAddress']
     assert is_address(contract_address)
     return math_contract_factory(contract_address)
+
+
+#
+# Emitter Contract Setup
+#
+@pytest.fixture(scope="session")
+def emitter_contract_factory(web3):
+    contract_factory = web3.eth.contract(abi=EMITTER_ABI, bytecode=EMITTER_BYTECODE)
+    return contract_factory
+
+
+@pytest.fixture(scope="session")
+def emitter_contract_deploy_txn_hash(web3, emitter_contract_factory):
+    deploy_txn_hash = emitter_contract_factory.deploy({'from': web3.eth.coinbase})
+    return deploy_txn_hash
+
+
+@pytest.fixture(scope="session")
+def emitter_contract(web3, emitter_contract_factory, emitter_contract_deploy_txn_hash):
+    deploy_receipt = web3.eth.getTransactionReceipt(emitter_contract_deploy_txn_hash)
+    assert is_dict(deploy_receipt)
+    contract_address = deploy_receipt['contractAddress']
+    assert is_address(contract_address)
+    return emitter_contract_factory(contract_address)
 
 
 @pytest.fixture(scope="session")
@@ -97,6 +129,21 @@ def block_with_txn(web3):
 @pytest.fixture(scope="session")
 def mined_txn_hash(block_with_txn):
     return block_with_txn['transactions'][0]
+
+
+@pytest.fixture(scope="session")
+def block_with_txn_with_log(web3, emitter_contract):
+    txn_hash = emitter_contract.transact({
+        'from': web3.eth.coinbase,
+    }).logDouble(which=EMITTER_ENUM['LogDoubleWithIndex'], arg0=12345, arg1=54321)
+    txn = web3.eth.getTransaction(txn_hash)
+    block = web3.eth.getBlock(txn['blockNumber'])
+    return block
+
+
+@pytest.fixture(scope="session")
+def txn_hash_with_log(block_with_txn_with_log):
+    return block_with_txn_with_log['transactions'][0]
 
 
 UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
