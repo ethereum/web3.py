@@ -46,7 +46,7 @@ def return_key_api(to_wrap):
         key = to_wrap(*args, **kwargs)
         sign = key.sign_msg
         key.address = key.public_key.to_checksum_address()
-        key.privateKey = key
+        key.privateKey = key.to_bytes()
         key.sign = compose(sign, signature_wrapper, to_bytes)
         key.signTransaction = compose(sign, to_bytes)
         return key
@@ -84,7 +84,8 @@ class Account(Module):
     def recover(self, msghash=None, msghash_hexstr=None, vrs=None, signature_bytes=None):
         hash_bytes = to_bytes(msghash, hexstr=msghash_hexstr)
         if vrs:
-            signature = self._keys.Signature(vrs=vrs)
+            vrs_raw = (vrs[0] - 27, ) + vrs[1:]
+            signature = self._keys.Signature(vrs=vrs_raw)
         else:
             signature = self._keys.Signature(signature_bytes=signature_bytes)
         pubkey = signature.recover_public_key_from_msg_hash(hash_bytes)
@@ -118,14 +119,15 @@ class Account(Module):
             key_bytes = to_bytes(private_key)
         key = self._keys.PrivateKey(key_bytes)
         signature = key.sign_msg_hash(to_bytes(hexstr=msg_hash))
-        (r, s, v) = (getattr(signature, part) for part in 'rsv')
+        (r, s, v_raw) = (getattr(signature, part) for part in 'rsv')
+        v = v_raw + 27
         eth_signature_bytes = b''.join(map(to_bytes, (r, s, v)))
-        (r_hex, s_hex, v_hex, eth_signature_hex) = map(to_hex, (r, s, v, eth_signature_bytes))
+        (r_hex, s_hex, eth_signature_hex) = map(to_hex, (r, s, eth_signature_bytes))
         return AttributeDict({
             'message': msg_bytes,
             'messageHash': msg_hash,
             'r': r_hex,
             's': s_hex,
-            'v': v_hex,
+            'v': v,
             'signature': eth_signature_hex,
         })

@@ -53,7 +53,7 @@ def test_eth_account_privateKeyToAccount_properties(web3, PRIVATE_BYTES):
     assert callable(account.sign)
     assert callable(account.signTransaction)
     assert is_address(account.address)
-    assert bytes(account.privateKey) == bytes(account)
+    assert account.privateKey == account.to_bytes()
 
 
 def test_eth_account_create_properties(web3):
@@ -61,7 +61,7 @@ def test_eth_account_create_properties(web3):
     assert callable(account.sign)
     assert callable(account.signTransaction)
     assert is_address(account.address)
-    assert bytes(account.privateKey) == bytes(account)
+    assert account.privateKey == account.to_bytes()
 
 
 def test_eth_account_recover_transaction_example(web3):
@@ -141,7 +141,7 @@ def test_eth_account_hash_message_hexstr(web3, message, expected):
             '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
             b'Some data',
             '0x1da44b586eb0729ff70a73c326926f6ed5a25f5b056e7f47fbc6e58d86871655',
-            '0x1c',
+            28,
             '0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd',
             '0x6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a029',
             '0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a0291c',  # noqa: E501
