@@ -44,3 +44,10 @@ def extract_chain_id(raw_v):
     else:
         (chain_id, v_bit) = divmod(above_id_offset, 2)
         return (chain_id, v_bit + V_OFFSET)
+
+
+def sign_transaction_hash(account, transaction_hash, chain_id):
+    signature = account.sign_msg_hash(transaction_hash)
+    (v_raw, r, s) = (getattr(signature, part) for part in 'vrs')
+    v = 2 * chain_id + CHAIN_ID_OFFSET + v_raw
+    return (v, r, s)
