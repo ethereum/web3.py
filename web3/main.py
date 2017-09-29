@@ -111,12 +111,7 @@ class Web3(object):
             modules = get_default_modules()
 
         for module_name, module_class in modules.items():
-            if hasattr(self, module_name):
-                raise AttributeError(
-                    "Cannot set web3 module named '{0}'.  The web3 object "
-                    "already has an attribute with that name".format(module_name)
-                )
-            setattr(self, module_name, module_class(self))
+            module_class.attach(self, module_name)
 
     def add_middleware(self, middleware):
         """
