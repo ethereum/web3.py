@@ -2,20 +2,16 @@ from __future__ import unicode_literals
 
 import os
 import signal
-import shutil
 import socket
 import subprocess
 import sys
+import shutil
 import time
 import tempfile
 
 import pytest
 
 from eth_utils import (
-    to_wei,
-    remove_0x_prefix,
-    is_dict,
-    is_address,
     force_text,
 )
 
@@ -28,145 +24,41 @@ from web3.utils.module_testing import (
     PersonalModuleTest,
     Web3ModuleTest,
 )
-from web3.utils.module_testing.math_contract import (
-    MATH_BYTECODE,
-    MATH_ABI,
-)
 
 
 if sys.version_info.major == 2:
     FileNotFoundError = OSError
 
 
-@pytest.fixture(scope='session')
-def coinbase():
-    return '0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'
-
-
-@pytest.fixture(scope='session')
-def private_key():
-    return '0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d'
-
-
-KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{"cipher":"aes-128-ctr","ciphertext":"52e06bc9397ea9fa2f0dae8de2b3e8116e92a2ecca9ad5ff0061d1c449704e98","cipherparams":{"iv":"aa5d0a5370ef65395c1a6607af857124"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"9fdf0764eb3645ffc184e166537f6fe70516bf0e34dc7311dea21f100f0c9263"},"mac":"4e0b51f42b865c15c485f4faefdd1f01a38637e5247f8c75ffe6a8c0eba856f6"},"id":"5a6124e0-10f1-4c1c-ae3e-d903eacb740a","version":3}'  # noqa: E501
-
 KEYFILE_PW = 'web3py-test'
 
 
-DATADIR = os.path.abspath(os.path.join(
-    os.path.dirname(__file__),
-    'geth-datadir-fixture',
-))
-
-
-@pytest.fixture(scope='session')
-def datadir(tmpdir_factory):
-    base_dir = tmpdir_factory.mktemp('goethereum')
-    datadir = os.path.join(str(base_dir), 'datadir')
-    shutil.copytree(DATADIR, datadir)
-    return datadir
-
-
-@pytest.fixture(scope='session')
-def keystore(datadir):
-    return os.path.join(datadir, 'keystore')
-
-
-@pytest.fixture(scope='session')
-def keyfile(keystore):
-    keyfile_path = os.path.join(
-        keystore,
-        'UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
-    )
-    return keyfile_path
-
-
-RAW_TXN_ACCOUNT = '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6'
-
-
-@pytest.fixture(scope='session')
-def genesis_data(coinbase):
-    return {
-        "nonce": "0xdeadbeefdeadbeef",
-        "timestamp": "0x0",
-        "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",  # noqa: E501
-        "extraData": "0x7765623370792d746573742d636861696e",
-        "gasLimit": "0x47d5cc",
-        "difficulty": "0x01",
-        "mixhash": "0x0000000000000000000000000000000000000000000000000000000000000000",  # noqa: E501
-        "coinbase": "0x3333333333333333333333333333333333333333",
-        "alloc": {
-            remove_0x_prefix(coinbase): {
-                'balance': str(to_wei(1000000000, 'ether')),
-            },
-            remove_0x_prefix(RAW_TXN_ACCOUNT): {
-                'balance': str(to_wei(10, 'ether')),
-            },
-            remove_0x_prefix(UNLOCKABLE_ACCOUNT): {
-                'balance': str(to_wei(10, 'ether')),
-            },
-        },
-        "config": {
-            "chainId": 131277322940537,  # the string 'web3py' as an integer
-            "homesteadBlock": 0,
-            "eip155Block": 0,
-            "eip158Block": 0
-        },
-    }
-
-
-@pytest.fixture(scope='session')
-def genesis_file(datadir, genesis_data):
-    genesis_file_path = os.path.join(datadir, 'genesis.json')
-    return genesis_file_path
-
-
-@pytest.fixture(scope='session')
-def geth_ipc_path(datadir):
-    geth_ipc_dir_path = tempfile.mkdtemp()
-    _geth_ipc_path = os.path.join(geth_ipc_dir_path, 'geth.ipc')
-    yield _geth_ipc_path
-
-    if os.path.exists(_geth_ipc_path):
-        os.remove(_geth_ipc_path)
-
-
-class Timeout(Exception):
-    pass
-
-
-def wait_for_popen(proc, timeout):
-    start = time.time()
-    try:
-        while time.time() < start + timeout:
-            if proc.poll() is None:
-                time.sleep(0.01)
-            else:
-                break
-    except Timeout:
-        pass
-
-
-def kill_proc_gracefully(proc):
-    if proc.poll() is None:
-        proc.send_signal(signal.SIGINT)
-        wait_for_popen(proc, 13)
-
-    if proc.poll() is None:
-        proc.terminate()
-        wait_for_popen(proc, 5)
-
-    if proc.poll() is None:
-        proc.kill()
-        wait_for_popen(proc, 2)
-
-
-def get_open_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return str(port)
+GETH_16_FIXTURE = {
+    'block_hash_with_log': '0x5d84bd72195aacbbf6f3ed66be7a16495ed470cbc3e4764c69e4be75ab084148',
+    'block_with_txn_hash': '0x4000549a8a573ed2e436de3a9014fdf71922f59aa11753870baa2ad03a32ebfc',
+    'emitter_address': '0x4aa591a07989b4f810e2f5ce97e769d60710f168',
+    'emitter_deploy_txn_hash': '0x1f676a3d88a8eb3210df677f3dca96edd78b646f8dcecab82d186d7394c8ab6c',
+    'empty_block_hash': '0xd09336bcc6164d8d958914f7800356a3bb0cf05f98e20aefc00ce23d9ca62d2d',
+    'keyfile_pw': 'web3py-test',
+    'math_address': '0xd794c821fccff5d96f5db44af7e29977630a9dc2',
+    'math_deploy_txn_hash': '0xbefcf394f431fd983901d16c155da2d009da720b7b88cb9c7dce66f5d3ac44e7',
+    'mined_txn_hash': '0x95110dd5943f513a1fd29767b48fe2178b973e99f5d73693d889081d7bdcd0c2',
+    'raw_txn_account': '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6',
+    'txn_hash_with_log': '0x2fd8dcd6ab1318245f8423df8e31f66f5d0fac2db34d7ab4a2a21a71037beae1',
+}
+GETH_17_FIXTURE = {
+    'block_hash_with_log': '0x78a60c6b31c7af5e5ce87bad73b595dfe5b8715b161f4d3ded468ddcb14b5aeb',
+    'block_with_txn_hash': '0x034faac7d0932774d9d837a97d55061a2dca9724c9779427a075f0a475aa3f43',
+    'emitter_address': '0x4aa591a07989b4f810e2f5ce97e769d60710f168',
+    'emitter_deploy_txn_hash': '0x1f676a3d88a8eb3210df677f3dca96edd78b646f8dcecab82d186d7394c8ab6c',
+    'empty_block_hash': '0xc7a1b4c19f6c1d830a743f7a93a58bab129f4671f1eb1a82ae77e6643d733b9b',
+    'keyfile_pw': 'web3py-test',
+    'math_address': '0xd794c821fccff5d96f5db44af7e29977630a9dc2',
+    'math_deploy_txn_hash': '0xbefcf394f431fd983901d16c155da2d009da720b7b88cb9c7dce66f5d3ac44e7',
+    'mined_txn_hash': '0x95110dd5943f513a1fd29767b48fe2178b973e99f5d73693d889081d7bdcd0c2',
+    'raw_txn_account': '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6',
+    'txn_hash_with_log': '0x2fd8dcd6ab1318245f8423df8e31f66f5d0fac2db34d7ab4a2a21a71037beae1',
+}
 
 
 @pytest.fixture(scope='session')
@@ -189,13 +81,62 @@ def geth_binary():
         return 'geth'
 
 
-@pytest.fixture(scope='session')
-def geth_port():
-    return get_open_port()
+@pytest.fixture(scope="session")
+def geth_fixture_data(geth_binary):
+    from geth import get_geth_version
+    version = get_geth_version(geth_executable=os.path.abspath(os.path.expanduser(geth_binary)))
+    if version.major == 1:
+        if version.minor == 6:
+            return GETH_16_FIXTURE
+        elif version.minor == 7:
+            return GETH_17_FIXTURE
+    assert False, "Unsupported geth version"
 
 
 @pytest.fixture(scope='session')
-def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, geth_port):
+def datadir(tmpdir_factory):
+    fixture_datadir = os.path.abspath(os.path.join(
+        os.path.dirname(__file__),
+        geth_fixture_data['datadir'],
+    ))
+    base_dir = tmpdir_factory.mktemp('goethereum')
+    tmp_datadir = os.path.join(str(base_dir), 'datadir')
+    shutil.copytree(fixture_datadir, tmp_datadir)
+    return tmp_datadir
+
+
+@pytest.fixture(scope='session')
+def genesis_file(datadir):
+    genesis_file_path = os.path.join(datadir, 'genesis.json')
+    return genesis_file_path
+
+
+@pytest.fixture(scope='session')
+def geth_ipc_path(datadir):
+    geth_ipc_dir_path = tempfile.mkdtemp()
+    _geth_ipc_path = os.path.join(geth_ipc_dir_path, 'geth.ipc')
+    yield _geth_ipc_path
+
+    if os.path.exists(_geth_ipc_path):
+        os.remove(_geth_ipc_path)
+
+
+def wait_for_socket(ipc_path, timeout=30):
+    start = time.time()
+    while time.time() < start + timeout:
+        try:
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            sock.connect(ipc_path)
+            sock.settimeout(timeout)
+        except (FileNotFoundError, socket.error):
+            time.sleep(0.01)
+        else:
+            break
+
+
+@pytest.fixture(scope='session')
+def geth_process(geth_binary, datadir, genesis_file, geth_ipc_path):
+    geth_port = get_open_port()
     init_datadir_command = (
         geth_binary,
         '--datadir', str(datadir),
@@ -238,19 +179,6 @@ def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, get
         )
 
 
-def wait_for_socket(ipc_path, timeout=30):
-    start = time.time()
-    while time.time() < start + timeout:
-        try:
-            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sock.connect(ipc_path)
-            sock.settimeout(timeout)
-        except (FileNotFoundError, socket.error):
-            time.sleep(0.01)
-        else:
-            break
-
-
 @pytest.fixture(scope="session")
 def web3(geth_process, geth_ipc_path):
     wait_for_socket(geth_ipc_path)
@@ -258,81 +186,71 @@ def web3(geth_process, geth_ipc_path):
     return _web3
 
 
-@pytest.fixture(scope="session")
-def math_contract_factory(web3):
-    contract_factory = web3.eth.contract(abi=MATH_ABI, bytecode=MATH_BYTECODE)
-    return contract_factory
+@pytest.fixture(scope='session')
+def coinbase(web3):
+    return web3.eth.coinbase
 
 
 @pytest.fixture(scope="session")
-def math_contract_deploy_txn_hash(web3, math_contract_factory):
-    return '0xceff41630d37e3ef7561e1200eae9dc65da7bbb554ebe46cdc9a20ad77947b1d'
+def math_contract_deploy_txn_hash(geth_fixture_data):
+    return geth_fixture_data['math_deploy_txn_hash']
 
 
 @pytest.fixture(scope="session")
-def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
-    deploy_receipt = web3.eth.getTransactionReceipt(math_contract_deploy_txn_hash)
-    assert is_dict(deploy_receipt)
-    contract_address = deploy_receipt['contractAddress']
-    assert is_address(contract_address)
-    return math_contract_factory(contract_address)
+def math_contract(web3, math_contract_factory, geth_fixture_data):
+    return math_contract_factory(address=geth_fixture_data['math_address'])
+
+
+@pytest.fixture(scope="session")
+def emitter_contract(web3, emitter_contract_factory, geth_fixture_data):
+    return emitter_contract_factory(address=geth_fixture_data['emitter_address'])
 
 
 @pytest.fixture
-def unlocked_account(web3):
-    coinbase = web3.eth.coinbase
-    web3.personal.unlockAccount(coinbase, KEYFILE_PW)
-    yield coinbase
-    web3.personal.lockAccount(coinbase)
-
-
-UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
-UNLOCKABLE_ACCOUNT = '0x12efdc31b1a8fa1a1e756dfd8a1601055c971e13'
+def unlocked_account(web3, unlockable_account, unlockable_account_pw):
+    web3.personal.unlockAccount(unlockable_account, unlockable_account_pw)
+    yield unlockable_account
+    web3.personal.lockAccount(unlockable_account)
 
 
 @pytest.fixture(scope='session')
-def unlockable_account_pw(web3):
-    return KEYFILE_PW
+def unlockable_account_pw(geth_fixture_data):
+    return geth_fixture_data['keyfile_pw']
 
 
 @pytest.fixture(scope="session")
-def unlockable_account(web3, unlockable_account_pw):
-    yield UNLOCKABLE_ACCOUNT
-    web3.personal.lockAccount(UNLOCKABLE_ACCOUNT)
+def unlockable_account(web3, coinbase):
+    yield coinbase
 
 
 @pytest.fixture(scope="session")
-def funded_account_for_raw_txn(web3):
-    return RAW_TXN_ACCOUNT
+def funded_account_for_raw_txn(geth_fixture_data):
+    return geth_fixture_data['raw_txn_account']
 
 
 @pytest.fixture(scope="session")
-def empty_block_hash():
-    return "0xf847e8f4bf2047490797ac2cd0c86d5fede279f7704a62c3bae548898638af1e"
+def empty_block(web3, geth_fixture_data):
+    return web3.eth.getBlock(geth_fixture_data['empty_block_hash'])
 
 
 @pytest.fixture(scope="session")
-def empty_block(web3, empty_block_hash):
-    block = web3.eth.getBlock(empty_block_hash)
-    assert is_dict(block)
-    return block
+def block_with_txn(web3, geth_fixture_data):
+    return web3.eth.getBlock(geth_fixture_data['block_with_txn_hash'])
 
 
 @pytest.fixture(scope="session")
-def block_with_txn_hash():
-    return '0x9d6b58c1e9790b79a4130db250dcc5c39afc5c8748c5d03d3c2b649bd47ceb48'
+def mined_txn_hash(geth_fixture_data):
+    return geth_fixture_data['mined_txn_hash']
 
 
 @pytest.fixture(scope="session")
-def block_with_txn(web3, block_with_txn_hash):
-    block = web3.eth.getBlock(block_with_txn_hash)
-    assert is_dict(block)
-    return block
+def block_with_txn_with_log(web3, geth_fixture_data):
+    return web3.eth.getBlock(geth_fixture_data['block_hash_with_log'])
 
 
 @pytest.fixture(scope="session")
-def mined_txn_hash(block_with_txn):
-    return block_with_txn['transactions'][0]
+def txn_hash_with_log(geth_fixture_data):
+    return geth_fixture_data['txn_hash_with_log']
 
 
 class TestGoEthereum(Web3ModuleTest):
@@ -354,3 +272,37 @@ class TestGoEthereumNetModule(NetModuleTest):
 
 class TestGoEthereumPersonalModule(PersonalModuleTest):
     pass
+
+
+#
+# Geth Process Utils
+#
+def wait_for_popen(proc, timeout):
+    start = time.time()
+    while time.time() < start + timeout:
+        if proc.poll() is None:
+            time.sleep(0.01)
+        else:
+            break
+
+
+def kill_proc_gracefully(proc):
+    if proc.poll() is None:
+        proc.send_signal(signal.SIGINT)
+        wait_for_popen(proc, 13)
+
+    if proc.poll() is None:
+        proc.terminate()
+        wait_for_popen(proc, 5)
+
+    if proc.poll() is None:
+        proc.kill()
+        wait_for_popen(proc, 2)
+
+
+def get_open_port():
+    sock = socket.socket()
+    sock.bind(('127.0.0.1', 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return str(port)

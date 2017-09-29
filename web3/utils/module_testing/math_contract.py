@@ -1,10 +1,5 @@
 from __future__ import unicode_literals
 
-from eth_utils import (
-    encode_hex,
-    function_abi_to_4byte_selector,
-)
-
 
 MATH_BYTECODE = (
     "606060405261022e806100126000396000f360606040523615610074576000357c01000000000000"
@@ -96,50 +91,3 @@ MATH_ABI = [
         "type": "event",
     },
 ]
-
-
-def _deploy_math(eth_tester):
-    deploy_hash = eth_tester.send_transaction({
-        "from": eth_tester.get_accounts()[0],
-        "gas": 500000,
-        "data": MATH_BYTECODE,
-    })
-    deploy_receipt = eth_tester.get_transaction_receipt(deploy_hash)
-    math_address = deploy_receipt['contract_address']
-    assert math_address
-    return math_address
-
-
-def _make_call_math_transaction(eth_tester, contract_address, fn_name, fn_args=None):
-    from eth_abi import encode_abi
-
-    if fn_args is None:
-        fn_args = tuple()
-
-    fn_abi = MATH_ABI[fn_name]
-    arg_types = [
-        arg_abi['type']
-        for arg_abi
-        in fn_abi['inputs']
-    ]
-    fn_selector = function_abi_to_4byte_selector(fn_abi)
-    transaction = {
-        "from": eth_tester.get_accounts()[0],
-        "to": contract_address,
-        "gas": 500000,
-        "data": encode_hex(fn_selector + encode_abi(arg_types, fn_args)),
-    }
-    return transaction
-
-
-def _decode_math_result(fn_name, result):
-    from eth_abi import decode_abi
-
-    fn_abi = MATH_ABI[fn_name]
-    output_types = [
-        output_abi['type']
-        for output_abi
-        in fn_abi['outputs']
-    ]
-
-    return decode_abi(output_types, result)
