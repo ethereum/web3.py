@@ -60,12 +60,6 @@ def web3(eth_tester_provider):
 # Math Contract Setup
 #
 @pytest.fixture(scope="session")
-def math_contract_factory(web3):
-    contract_factory = web3.eth.contract(abi=MATH_ABI, bytecode=MATH_BYTECODE)
-    return contract_factory
-
-
-@pytest.fixture(scope="session")
 def math_contract_deploy_txn_hash(web3, math_contract_factory):
     deploy_txn_hash = math_contract_factory.deploy({'from': web3.eth.coinbase})
     return deploy_txn_hash
@@ -83,12 +77,6 @@ def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
 #
 # Emitter Contract Setup
 #
-@pytest.fixture(scope="session")
-def emitter_contract_factory(web3):
-    contract_factory = web3.eth.contract(abi=EMITTER_ABI, bytecode=EMITTER_BYTECODE)
-    return contract_factory
-
-
 @pytest.fixture(scope="session")
 def emitter_contract_deploy_txn_hash(web3, emitter_contract_factory):
     deploy_txn_hash = emitter_contract_factory.deploy({'from': web3.eth.coinbase})
