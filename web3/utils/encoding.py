@@ -16,6 +16,7 @@ from eth_utils import (
     is_boolean,
     is_bytes,
     is_dict,
+    is_hex,
     is_integer,
     is_string,
     decode_hex,
@@ -231,6 +232,48 @@ def to_text(primitive=None, hexstr=None, text=None):
         byte_encoding = int_to_big_endian(primitive)
         return to_text(byte_encoding)
     raise TypeError("Expected an int, bytes or hexstr.")
+
+
+def non_hexstr(to_type, text_or_primitive):
+    '''
+    Convert to a type, assuming that strings can be only unicode text (not a hexstr)
+
+    @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
+        eg~ to_bytes, to_text, to_hex, to_decimal, etc
+    @param hexstr_or_primitive in bytes, str, or int. (or unicode in py2)
+        In Python 2, a bytes, unicode or str object will be interpreted as unicode text
+        In Python 3, only a str object will be interpreted as interpreted as unicode text
+    '''
+    if isinstance(text_or_primitive, str) or (
+            sys.version_info.major < 3 and isinstance(text_or_primitive, unicode)  # noqa: F821
+        ):
+        (primitive, text) = (None, text_or_primitive)
+    else:
+        (primitive, text) = (text_or_primitive, None)
+    return to_type(primitive, text=text)
+
+
+def non_text(to_type, hexstr_or_primitive):
+    '''
+    Convert to a type, assuming that strings can be only hexstr (not unicode text)
+
+    @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
+        eg~ to_bytes, to_text, to_hex, to_decimal, etc
+    @param text_or_primitive in bytes, str, or int. (or unicode in py2)
+        In Python 2, a bytes, unicode or str object will be interpreted as hexstr
+        In Python 3, only a str object will be interpreted as hexstr
+    '''
+    if isinstance(hexstr_or_primitive, str) or (
+            sys.version_info.major < 3 and isinstance(hexstr_or_primitive, unicode)  # noqa: F821
+        ):
+        (primitive, hexstr) = (None, hexstr_or_primitive)
+        if not is_hex(hexstr):
+            raise TypeError(
+                "when sending this str, it must be a hex string. Got: %r" % hexstr_or_primitive
+            )
+    else:
+        (primitive, hexstr) = (hexstr_or_primitive, None)
+    return to_type(primitive, hexstr=hexstr)
 
 
 @coerce_args_to_bytes

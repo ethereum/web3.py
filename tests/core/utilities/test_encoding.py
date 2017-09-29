@@ -1,6 +1,9 @@
+# encoding: utf-8
+
 from __future__ import unicode_literals
 
 import pytest
+import string
 import sys
 
 from hypothesis import (
@@ -10,6 +13,8 @@ from hypothesis import (
 
 from web3.utils.encoding import (
     hex_encode_abi_type,
+    non_hexstr,
+    non_text,
     to_decimal,
     to_hex,
 )
@@ -80,3 +85,102 @@ def test_hex_encode_abi_type(abi_type, value, expected):
 
     actual = hex_encode_abi_type(abi_type, value)
     assert actual == expected
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="different py2 rules")
+@pytest.mark.parametrize(
+    "val, expected",
+    (
+        (
+            0,
+            ((0, ), {'hexstr': None})
+        ),
+        ('g', TypeError),
+        (
+            string.hexdigits,
+            ((None, ), {'hexstr': string.hexdigits})
+        ),
+        (
+            '0x' + string.hexdigits,
+            ((None, ), {'hexstr': '0x' + string.hexdigits})
+        ),
+        (
+            b'',
+            ((b'', ), {'hexstr': None})
+        ),
+        (
+            'mö'.encode('utf8'),
+            (('mö'.encode('utf8'), ), {'hexstr': None})
+        ),
+        (
+            0x123,
+            ((0x123, ), {'hexstr': None})
+        ),
+        (
+            True,
+            ((True, ), {'hexstr': None})
+        ),
+        (
+            False,
+            ((False, ), {'hexstr': None})
+        ),
+    ),
+)
+def test_non_text_conversion(val, expected):
+    from unittest.mock import Mock
+    to_type = Mock(return_value='zoot')
+    if type(expected) == type and issubclass(expected, BaseException):
+        with pytest.raises(expected):
+            non_text(to_type, val)
+    else:
+        assert non_text(to_type, val) == 'zoot'
+        assert to_type.call_args == expected
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="different py2 rules")
+@pytest.mark.parametrize(
+    "val, expected",
+    (
+        (
+            0,
+            ((0, ), {'text': None})
+        ),
+        (
+            string.hexdigits,
+            ((None, ), {'text': string.hexdigits})
+        ),
+        (
+            '0x' + string.hexdigits,
+            ((None, ), {'text': '0x' + string.hexdigits})
+        ),
+        (
+            b'',
+            ((b'', ), {'text': None})
+        ),
+        (
+            'mö',
+            ((None, ), {'text': 'mö'})
+        ),
+        (
+            'mö'.encode('utf8'),
+            (('mö'.encode('utf8'), ), {'text': None})
+        ),
+        (
+            0x123,
+            ((0x123, ), {'text': None})
+        ),
+        (
+            True,
+            ((True, ), {'text': None})
+        ),
+        (
+            False,
+            ((False, ), {'text': None})
+        ),
+    ),
+)
+def test_non_hexstr_conversion(val, expected):
+    from unittest.mock import Mock
+    to_type = Mock(return_value='zoot')
+    assert non_hexstr(to_type, val) == 'zoot'
+    assert to_type.call_args == expected
