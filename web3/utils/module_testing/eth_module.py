@@ -283,7 +283,7 @@ class EthModuleTest(object):
         assert receipt['blockNumber'] == block_with_txn['number']
         assert receipt['blockHash'] == block_with_txn['hash']
         assert receipt['transactionIndex'] == 0
-        assert receipt['transactionIndex'] == mined_txn_hash
+        assert receipt['transactionHash'] == mined_txn_hash
 
     def test_eth_getTransactionReceipt_unmined(self, web3, unlocked_account):
         txn_hash = web3.eth.sendTransaction({
