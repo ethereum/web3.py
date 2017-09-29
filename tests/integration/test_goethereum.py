@@ -5,6 +5,7 @@ import signal
 import socket
 import subprocess
 import sys
+import shutil
 import time
 import tempfile
 
@@ -33,53 +34,31 @@ KEYFILE_PW = 'web3py-test'
 
 
 GETH_16_FIXTURE = {
-    'datadir': 'geth-16-datadir-fixture',
-    'math_deploy_txn_hash': '0xbefcf394f431fd983901d16c155da2d009da720b7b88cb9c7dce66f5d3ac44e7',
-    'math_address': '0xd794c821fccff5d96f5db44af7e29977630a9dc2',
-    'emitter_deploy_txn_hash': '0x1f676a3d88a8eb3210df677f3dca96edd78b646f8dcecab82d186d7394c8ab6c',
+    'block_hash_with_log': '0x5d84bd72195aacbbf6f3ed66be7a16495ed470cbc3e4764c69e4be75ab084148',
+    'block_with_txn_hash': '0x4000549a8a573ed2e436de3a9014fdf71922f59aa11753870baa2ad03a32ebfc',
     'emitter_address': '0x4aa591a07989b4f810e2f5ce97e769d60710f168',
-    'txn_hash_with_log': '0x2fd8dcd6ab1318245f8423df8e31f66f5d0fac2db34d7ab4a2a21a71037beae1',
-    'block_hash_with_log': '0x63ddcfa754dbca39c0220d87cca2ef400a8eaf26bbd46ae57e86cbf88551ad7a',
-    'empty_block_hash': '0xa0a1269aaf8ef23247d81ea78000a2480ee4bdc25baaa0931aa0baf5b5cde990',
-    'mined_txn_hash': '0x95110dd5943f513a1fd29767b48fe2178b973e99f5d73693d889081d7bdcd0c2',
-    'block_with_txn_hash': '0xe157b56ae9556634f71b9884bea0d336b78d307887f0dbea1e8c152c11f99717',
-    'raw_txn_account': '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6',
+    'emitter_deploy_txn_hash': '0x1f676a3d88a8eb3210df677f3dca96edd78b646f8dcecab82d186d7394c8ab6c',
+    'empty_block_hash': '0xd09336bcc6164d8d958914f7800356a3bb0cf05f98e20aefc00ce23d9ca62d2d',
     'keyfile_pw': 'web3py-test',
+    'math_address': '0xd794c821fccff5d96f5db44af7e29977630a9dc2',
+    'math_deploy_txn_hash': '0xbefcf394f431fd983901d16c155da2d009da720b7b88cb9c7dce66f5d3ac44e7',
+    'mined_txn_hash': '0x95110dd5943f513a1fd29767b48fe2178b973e99f5d73693d889081d7bdcd0c2',
+    'raw_txn_account': '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6',
+    'txn_hash_with_log': '0x2fd8dcd6ab1318245f8423df8e31f66f5d0fac2db34d7ab4a2a21a71037beae1',
 }
-
-
-GETH_FIXTURES = {
-    'geth-16': GETH_16_FIXTURE,
+GETH_17_FIXTURE = {
+    'block_hash_with_log': '0x78a60c6b31c7af5e5ce87bad73b595dfe5b8715b161f4d3ded468ddcb14b5aeb',
+    'block_with_txn_hash': '0x034faac7d0932774d9d837a97d55061a2dca9724c9779427a075f0a475aa3f43',
+    'emitter_address': '0x4aa591a07989b4f810e2f5ce97e769d60710f168',
+    'emitter_deploy_txn_hash': '0x1f676a3d88a8eb3210df677f3dca96edd78b646f8dcecab82d186d7394c8ab6c',
+    'empty_block_hash': '0xc7a1b4c19f6c1d830a743f7a93a58bab129f4671f1eb1a82ae77e6643d733b9b',
+    'keyfile_pw': 'web3py-test',
+    'math_address': '0xd794c821fccff5d96f5db44af7e29977630a9dc2',
+    'math_deploy_txn_hash': '0xbefcf394f431fd983901d16c155da2d009da720b7b88cb9c7dce66f5d3ac44e7',
+    'mined_txn_hash': '0x95110dd5943f513a1fd29767b48fe2178b973e99f5d73693d889081d7bdcd0c2',
+    'raw_txn_account': '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6',
+    'txn_hash_with_log': '0x2fd8dcd6ab1318245f8423df8e31f66f5d0fac2db34d7ab4a2a21a71037beae1',
 }
-
-
-@pytest.fixture(scope="session", params=tuple(GETH_FIXTURES.keys()))
-def geth_fixture_data(request):
-    return GETH_FIXTURES[request.param]
-
-
-@pytest.fixture(scope='session')
-def datadir(geth_fixture_data):
-    return os.path.abspath(os.path.join(
-        os.path.dirname(__file__),
-        geth_fixture_data['datadir'],
-    ))
-
-
-@pytest.fixture(scope='session')
-def genesis_file(datadir):
-    genesis_file_path = os.path.join(datadir, 'genesis.json')
-    return genesis_file_path
-
-
-@pytest.fixture(scope='session')
-def geth_ipc_path(datadir):
-    geth_ipc_dir_path = tempfile.mkdtemp()
-    _geth_ipc_path = os.path.join(geth_ipc_dir_path, 'geth.ipc')
-    yield _geth_ipc_path
-
-    if os.path.exists(_geth_ipc_path):
-        os.remove(_geth_ipc_path)
 
 
 @pytest.fixture(scope='session')
@@ -100,6 +79,46 @@ def geth_binary():
         return _geth_binary
     else:
         return 'geth'
+
+
+@pytest.fixture(scope="session")
+def geth_fixture_data(geth_binary):
+    from geth import get_geth_version
+    version = get_geth_version(geth_executable=os.path.abspath(os.path.expanduser(geth_binary)))
+    if version.major == 1:
+        if version.minor == 6:
+            return GETH_16_FIXTURE
+        elif version.minor == 7:
+            return GETH_17_FIXTURE
+    assert False, "Unsupported geth version"
+
+
+@pytest.fixture(scope='session')
+def datadir(tmpdir_factory):
+    fixture_datadir = os.path.abspath(os.path.join(
+        os.path.dirname(__file__),
+        geth_fixture_data['datadir'],
+    ))
+    base_dir = tmpdir_factory.mktemp('goethereum')
+    tmp_datadir = os.path.join(str(base_dir), 'datadir')
+    shutil.copytree(fixture_datadir, tmp_datadir)
+    return tmp_datadir
+
+
+@pytest.fixture(scope='session')
+def genesis_file(datadir):
+    genesis_file_path = os.path.join(datadir, 'genesis.json')
+    return genesis_file_path
+
+
+@pytest.fixture(scope='session')
+def geth_ipc_path(datadir):
+    geth_ipc_dir_path = tempfile.mkdtemp()
+    _geth_ipc_path = os.path.join(geth_ipc_dir_path, 'geth.ipc')
+    yield _geth_ipc_path
+
+    if os.path.exists(_geth_ipc_path):
+        os.remove(_geth_ipc_path)
 
 
 def wait_for_socket(ipc_path, timeout=30):
