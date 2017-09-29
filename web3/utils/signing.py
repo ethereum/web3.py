@@ -48,6 +48,6 @@ def extract_chain_id(raw_v):
 
 def sign_transaction_hash(account, transaction_hash, chain_id):
     signature = account.sign_msg_hash(transaction_hash)
-    (v_raw, r, s) = (getattr(signature, part) for part in 'vrs')
+    (v_raw, r, s) = signature.vrs
     v = 2 * chain_id + CHAIN_ID_OFFSET + v_raw
     return (v, r, s)
