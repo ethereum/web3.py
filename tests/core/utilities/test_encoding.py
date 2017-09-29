@@ -15,6 +15,7 @@ from web3.utils.encoding import (
     hex_encode_abi_type,
     non_hexstr,
     non_text,
+    to_bytes,
     to_decimal,
     to_hex,
 )
@@ -87,42 +88,45 @@ def test_hex_encode_abi_type(abi_type, value, expected):
     assert actual == expected
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="different py2 rules")
+@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
 @pytest.mark.parametrize(
     "val, expected",
     (
         (
             0,
-            ((0, ), {'hexstr': None})
+            ((0, ), {'hexstr': None}),
         ),
-        ('g', TypeError),
+        (
+            'g',
+            TypeError,
+        ),
         (
             string.hexdigits,
-            ((None, ), {'hexstr': string.hexdigits})
+            ((None, ), {'hexstr': string.hexdigits}),
         ),
         (
             '0x' + string.hexdigits,
-            ((None, ), {'hexstr': '0x' + string.hexdigits})
+            ((None, ), {'hexstr': '0x' + string.hexdigits}),
         ),
         (
             b'',
-            ((b'', ), {'hexstr': None})
+            ((b'', ), {'hexstr': None}),
         ),
         (
             'mö'.encode('utf8'),
-            (('mö'.encode('utf8'), ), {'hexstr': None})
+            (('mö'.encode('utf8'), ), {'hexstr': None}),
         ),
         (
             0x123,
-            ((0x123, ), {'hexstr': None})
+            ((0x123, ), {'hexstr': None}),
         ),
         (
             True,
-            ((True, ), {'hexstr': None})
+            ((True, ), {'hexstr': None}),
         ),
         (
             False,
-            ((False, ), {'hexstr': None})
+            ((False, ), {'hexstr': None}),
         ),
     ),
 )
@@ -137,45 +141,106 @@ def test_non_text_conversion(val, expected):
         assert to_type.call_args == expected
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="different py2 rules")
+@pytest.mark.skipif(sys.version_info.major >= 3, reason="these test values only valid for py2")
 @pytest.mark.parametrize(
     "val, expected",
     (
         (
             0,
-            ((0, ), {'text': None})
+            b'\x00',
+        ),
+        (
+            'g',
+            TypeError,
         ),
         (
             string.hexdigits,
-            ((None, ), {'text': string.hexdigits})
+            b'\x01#Eg\x89\xab\xcd\xef\xab\xcd\xef',
         ),
         (
-            '0x' + string.hexdigits,
-            ((None, ), {'text': '0x' + string.hexdigits})
+            # unicode
+            '0x0123456789abcdefABCDEF',
+            b'\x01#Eg\x89\xab\xcd\xef\xab\xcd\xef',
+        ),
+        (
+            # bytes, aka str
+            b'0x0123456789abcdefABCDEF',
+            b'\x01#Eg\x89\xab\xcd\xef\xab\xcd\xef',
+        ),
+        (
+            # bytes with invalid hex characters
+            b'\x01#Eg\x89\xab\xcd\xef\xab\xcd\xef',
+            TypeError,
         ),
         (
             b'',
-            ((b'', ), {'text': None})
-        ),
-        (
-            'mö',
-            ((None, ), {'text': 'mö'})
+            b'',
         ),
         (
             'mö'.encode('utf8'),
-            (('mö'.encode('utf8'), ), {'text': None})
+            TypeError,
         ),
         (
             0x123,
-            ((0x123, ), {'text': None})
+            b'\x01\x23',
         ),
         (
             True,
-            ((True, ), {'text': None})
+            b'\x01',
         ),
         (
             False,
-            ((False, ), {'text': None})
+            b'\x00',
+        ),
+    ),
+)
+def test_non_text_conversion_py2(val, expected):
+    if type(expected) == type and issubclass(expected, BaseException):
+        with pytest.raises(expected):
+            non_text(to_bytes, val)
+    else:
+        assert non_text(to_bytes, val) == expected
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
+@pytest.mark.parametrize(
+    "val, expected",
+    (
+        (
+            0,
+            ((0, ), {'text': None}),
+        ),
+        (
+            string.hexdigits,
+            ((None, ), {'text': string.hexdigits}),
+        ),
+        (
+            '0x' + string.hexdigits,
+            ((None, ), {'text': '0x' + string.hexdigits}),
+        ),
+        (
+            b'',
+            ((b'', ), {'text': None}),
+        ),
+        (
+            'mö',
+            ((None, ), {'text': 'mö'}),
+        ),
+        (
+            'mö'.encode('utf8'),
+            (('mö'.encode('utf8'), ), {'text': None}),
+        ),
+        (
+            0x123,
+            ((0x123, ), {'text': None}),
+        ),
+        (
+            True,
+            ((True, ), {'text': None}),
+        ),
+        (
+            False,
+            ((False, ), {'text': None}),
         ),
     ),
 )
@@ -184,3 +249,51 @@ def test_non_hexstr_conversion(val, expected):
     to_type = Mock(return_value='zoot')
     assert non_hexstr(to_type, val) == 'zoot'
     assert to_type.call_args == expected
+
+
+@pytest.mark.skipif(sys.version_info.major >= 3, reason="these test values only valid for py2")
+@pytest.mark.parametrize(
+    "val, expected",
+    (
+        (
+            0,
+            b'\x00',
+        ),
+        (
+            string.hexdigits,
+            string.hexdigits,
+        ),
+        (
+            b'0x0123456789abcdefABCDEF',
+            b'0x0123456789abcdefABCDEF',
+        ),
+        (
+            b'',
+            b'',
+        ),
+        (
+            # unicode
+            'mö',
+            b'm\xc3\xb6',
+        ),
+        (
+            # bytes
+            'mö'.encode('utf8'),
+            b'm\xc3\xb6',
+        ),
+        (
+            0x123,
+            b'\x01\x23',
+        ),
+        (
+            True,
+            b'\x01',
+        ),
+        (
+            False,
+            b'\x00',
+        ),
+    ),
+)
+def test_non_hexstr_conversion_py2(val, expected):
+    assert non_hexstr(to_bytes, val) == expected
