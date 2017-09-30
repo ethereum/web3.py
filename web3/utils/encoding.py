@@ -234,7 +234,7 @@ def to_text(primitive=None, hexstr=None, text=None):
     raise TypeError("Expected an int, bytes or hexstr.")
 
 
-def non_hexstr(to_type, text_or_primitive):
+def text_if_str(to_type, text_or_primitive):
     '''
     Convert to a type, assuming that strings can be only unicode text (not a hexstr)
 
@@ -256,7 +256,7 @@ def non_hexstr(to_type, text_or_primitive):
     return to_type(primitive, text=text)
 
 
-def non_text(to_type, hexstr_or_primitive):
+def hexstr_if_str(to_type, hexstr_or_primitive):
     '''
     Convert to a type, assuming that strings can be only hexstr (not unicode text)
 

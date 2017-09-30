@@ -13,8 +13,8 @@ from hypothesis import (
 
 from web3.utils.encoding import (
     hex_encode_abi_type,
-    non_hexstr,
-    non_text,
+    text_if_str,
+    hexstr_if_str,
     to_bytes,
     to_decimal,
     to_hex,
@@ -130,14 +130,14 @@ def test_hex_encode_abi_type(abi_type, value, expected):
         ),
     ),
 )
-def test_non_text_conversion(val, expected):
+def test_hexstr_if_str_conversion(val, expected):
     from unittest.mock import Mock
     to_type = Mock(return_value='zoot')
     if type(expected) == type and issubclass(expected, BaseException):
         with pytest.raises(expected):
-            non_text(to_type, val)
+            hexstr_if_str(to_type, val)
     else:
-        assert non_text(to_type, val) == 'zoot'
+        assert hexstr_if_str(to_type, val) == 'zoot'
         assert to_type.call_args == expected
 
 
@@ -194,12 +194,12 @@ def test_non_text_conversion(val, expected):
         ),
     ),
 )
-def test_non_text_conversion_py2(val, expected):
+def test_hexstr_if_str_conversion_py2(val, expected):
     if type(expected) == type and issubclass(expected, BaseException):
         with pytest.raises(expected):
-            non_text(to_bytes, val)
+            hexstr_if_str(to_bytes, val)
     else:
-        assert non_text(to_bytes, val) == expected
+        assert hexstr_if_str(to_bytes, val) == expected
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
@@ -244,10 +244,10 @@ def test_non_text_conversion_py2(val, expected):
         ),
     ),
 )
-def test_non_hexstr_conversion(val, expected):
+def test_text_if_str_conversion(val, expected):
     from unittest.mock import Mock
     to_type = Mock(return_value='zoot')
-    assert non_hexstr(to_type, val) == 'zoot'
+    assert text_if_str(to_type, val) == 'zoot'
     assert to_type.call_args == expected
 
 
@@ -270,6 +270,13 @@ def test_non_hexstr_conversion(val, expected):
         (
             b'',
             b'',
+        ),
+        (
+            # unicode point of ascii \xff char
+            # just... don't. But in case you do, here's what happens:
+            u'\xff',
+            # utf-8 encoding of char decoded by ascii \xff
+            b'\xc3\xbf',
         ),
         (
             # unicode
@@ -295,5 +302,5 @@ def test_non_hexstr_conversion(val, expected):
         ),
     ),
 )
-def test_non_hexstr_conversion_py2(val, expected):
-    assert non_hexstr(to_bytes, val) == expected
+def test_text_if_str_conversion_py2(val, expected):
+    assert text_if_str(to_bytes, val) == expected
