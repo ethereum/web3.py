@@ -129,17 +129,8 @@ raised.
 
     This should be an iterable of middlewares.
 
-
-.. py:method:: BaseProvider.add_middleware(middleware)
-
-    This method adds the given middleware to the beginning or outside of the
-    provider's middleware stack.
-
-
-.. py:method:: BaseProvider.clear_middlewares()
-
-    This method clears all provider middlewares.
-
+You can set a new list of middlewares by assigning to ``provider.middlewares``,
+with the first middleware that processes the request at the beginning of the list.
 
 
 .. _internals__middlewares:
@@ -206,19 +197,9 @@ middleware performs the following translations for requests and responses.
 * Numeric responses will be converted from their hexidecimal representations to
   their integer representations.
 
-The ``RequestManager`` object exposes two apis for managing middlewares.  Both
-of these methods are also exposed on the ``Web3`` object for convenience.
-
-
-.. py:method:: RequestManager.add_middleware(middleware)
-
-    This method adds the given middleware to the beginning or outside of the
-    middleware stack.
-
-
-.. py:method:: RequestManager.clear_middlewares()
-
-    This method clears all middlewares.
+The ``RequestManager`` object exposes the ``middleware_stack`` object to manage middlewares. It
+is also exposed on the ``Web3`` object for convenience. That API is detailed in
+:ref:`Modifying_Middleware`.
 
 
 Managers

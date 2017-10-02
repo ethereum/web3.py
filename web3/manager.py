@@ -1,4 +1,3 @@
-import itertools
 import uuid
 import warnings
 
@@ -11,13 +10,18 @@ from web3.exceptions import (
     UnhandledRequest,
 )
 from web3.middleware import (
-    combine_middlewares,
     pythonic_middleware,
     attrdict_middleware,
 )
 
 from web3.utils.compat import (
     spawn,
+)
+from web3.utils.datastructures import (
+    NamedElementStack,
+)
+from web3.utils.decorators import (
+    deprecated_for,
 )
 
 
@@ -29,41 +33,19 @@ class RequestManager(object):
         if middlewares is None:
             middlewares = [attrdict_middleware, pythonic_middleware]
 
-        self.middlewares = middlewares
+        self.middleware_stack = NamedElementStack(middlewares)
         self.providers = providers
 
     web3 = None
-    _middlewares = None
     _providers = None
 
-    @property
-    def middlewares(self):
-        return self._middlewares or tuple()
-
-    @middlewares.setter
-    def middlewares(self, value):
-        self._middlewares = tuple(value)
-        self._generate_request_functions()
-
-    def _generate_request_functions(self):
-        self._wrapped_provider_request_functions = {
-            index: combine_middlewares(
-                middlewares=tuple(self.middlewares) + tuple(provider.middlewares),
-                web3=self.web3,
-                provider_request_fn=provider.make_request,
-            )
-            for index, provider
-            in enumerate(self.providers)
-        }
-
+    @deprecated_for("manager.middleware_stack.add(middleware [, name])")
     def add_middleware(self, middleware):
-        self.middlewares = tuple(itertools.chain(
-            [middleware],
-            self.middlewares,
-        ))
+        return self.middleware_stack.add(middleware)
 
+    @deprecated_for("manager.middleware_stack.clear()")
     def clear_middlewares(self):
-        self.middlewares = tuple()
+        return self.middleware_stack.clear()
 
     @property
     def providers(self):
@@ -76,7 +58,6 @@ class RequestManager(object):
         else:
             providers = value
         self._providers = providers
-        self._generate_request_functions()
 
     def setProvider(self, providers):
         warnings.warn(DeprecationWarning(
@@ -89,10 +70,10 @@ class RequestManager(object):
     # Provider requests and response
     #
     def _make_request(self, method, params):
-        for index in range(len(self.providers)):
-            make_request_fn = self._wrapped_provider_request_functions[index]
+        for provider in self.providers:
+            request_func = provider.request_func(self.web3, tuple(self.middleware_stack))
             try:
-                return make_request_fn(method, params)
+                return request_func(method, params)
             except CannotHandleRequest:
                 continue
         else:
