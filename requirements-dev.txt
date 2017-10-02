@@ -1,6 +1,5 @@
 eth-testrpc>=1.2.0
 ethereum>=1.6.1,<2.0
-ethereum-tester>=0.1.0-alpha.6
 flaky>=3.3.0
 flake8==3.4.1
 hypothesis>=3.4.2
