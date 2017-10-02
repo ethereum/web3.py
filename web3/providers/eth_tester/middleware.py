@@ -22,6 +22,7 @@ from web3.middleware import (
 from web3.utils.formatters import (
     apply_formatter_if,
     apply_formatters_to_args,
+    apply_formatter_to_array,
     apply_formatters_to_dict,
     apply_key_map,
     hex_to_integer,
@@ -51,11 +52,24 @@ TRANSACTION_KEY_MAPPINGS = {
 transaction_key_remapper = apply_key_map(TRANSACTION_KEY_MAPPINGS)
 
 
+LOG_KEY_MAPPINGS = {
+    'log_index': 'logIndex',
+    'transaction_index': 'transactionIndex',
+    'transaction_hash': 'transactionHash',
+    'block_hash': 'blockHash',
+    'block_number': 'blockNumber',
+}
+
+
+log_key_remapper = apply_key_map(LOG_KEY_MAPPINGS)
+
+
 RECEIPT_KEY_MAPPINGS = {
     'block_hash': 'blockHash',
     'block_number': 'blockNumber',
     'contract_address': 'contractAddress',
-    'gas_price': 'gasPrice',
+    'gas_used': 'gasUsed',
+    'cumulative_gas_used': 'cumulativeGasUsed',
     'transaction_hash': 'transactionHash',
     'transaction_index': 'transactionIndex',
 }
@@ -68,6 +82,13 @@ BLOCK_KEY_MAPPINGS = {
     'gas_limit': 'gasLimit',
     'sha3_uncles': 'sha3Uncles',
     'transactions_root': 'transactionsRoot',
+    'parent_hash': 'parentHash',
+    'bloom': 'logsBloom',
+    'state_root': 'stateRoot',
+    'receipt_root': 'receiptsRoot',
+    'total_difficulty': 'totalDifficulty',
+    'extra_data': 'extraData',
+    'gas_used': 'gasUsed',
 }
 
 
@@ -98,6 +119,14 @@ TRANSACTION_FORMATTERS = {
 
 
 transaction_formatter = apply_formatters_to_dict(TRANSACTION_FORMATTERS)
+
+
+RECEIPT_FORMATTERS = {
+    'logs': apply_formatter_to_array(log_key_remapper),
+}
+
+
+receipt_formatter = apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
 
 ethereum_tester_middleware = construct_formatting_middleware(
@@ -163,7 +192,10 @@ ethereum_tester_middleware = construct_formatting_middleware(
             compose(transaction_key_remapper, transaction_formatter),
             is_dict,
         ),
-        'eth_getTransactionReceipt': apply_formatter_if(receipt_key_remapper, is_dict),
+        'eth_getTransactionReceipt': apply_formatter_if(
+            compose(receipt_key_remapper, receipt_formatter),
+            is_dict,
+        ),
         'eth_newFilter': integer_to_hex,
         'eth_newBlockFilter': integer_to_hex,
         'eth_newPendingTransactionFilter': integer_to_hex,
