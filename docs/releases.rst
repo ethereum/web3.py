@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+3.16.1
+------
+
+* Addition of ``ethereum-tester`` as a dependency
+
+
 3.16.0
 ------
 
