@@ -13,6 +13,8 @@ import pytest
 
 from eth_utils import (
     force_text,
+    is_dict,
+    is_address,
 )
 
 from web3 import Web3
@@ -227,17 +229,23 @@ def unlockable_account(web3, coinbase):
 
 @pytest.fixture(scope="session")
 def funded_account_for_raw_txn(geth_fixture_data):
-    return geth_fixture_data['raw_txn_account']
+    account = geth_fixture_data['raw_txn_account']
+    assert is_address(account)
+    return account
 
 
 @pytest.fixture(scope="session")
 def empty_block(web3, geth_fixture_data):
-    return web3.eth.getBlock(geth_fixture_data['empty_block_hash'])
+    block = web3.eth.getBlock(geth_fixture_data['empty_block_hash'])
+    assert is_dict(block)
+    return block
 
 
 @pytest.fixture(scope="session")
 def block_with_txn(web3, geth_fixture_data):
-    return web3.eth.getBlock(geth_fixture_data['block_with_txn_hash'])
+    block = web3.eth.getBlock(geth_fixture_data['block_with_txn_hash'])
+    assert is_dict(block)
+    return block
 
 
 @pytest.fixture(scope="session")
@@ -247,7 +255,9 @@ def mined_txn_hash(geth_fixture_data):
 
 @pytest.fixture(scope="session")
 def block_with_txn_with_log(web3, geth_fixture_data):
-    return web3.eth.getBlock(geth_fixture_data['block_hash_with_log'])
+    block = web3.eth.getBlock(geth_fixture_data['block_hash_with_log'])
+    assert is_dict(block)
+    return block
 
 
 @pytest.fixture(scope="session")
