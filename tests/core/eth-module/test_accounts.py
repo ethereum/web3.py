@@ -8,6 +8,10 @@ from eth_utils import (
     is_address,
 )
 
+from web3.utils.encoding import (
+    to_bytes,
+)
+
 
 @pytest.fixture
 def PRIVATE_BYTES():
@@ -186,3 +190,16 @@ def test_eth_account_sign_transaction(web3, txn, private_key, expected_raw_tx, t
     assert signed.s == s
     assert signed.v == v
     assert signed.rawTransaction == expected_raw_tx
+
+
+def test_eth_account_encrypt(web3):
+    private_key_hex = '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
+    private_key = to_bytes(hexstr=private_key_hex)
+    encrypted = web3.eth.account.encrypt(private_key, 'test!')
+
+    assert encrypted['address'] == '2c7536e3605d9c16a7a3d7b1898e529396a65c23'
+    assert encrypted['version'] == 3
+
+    decrypted_key = web3.eth.account.decrypt(encrypted, 'test!')
+
+    assert decrypted_key == private_key

@@ -3,12 +3,18 @@ from collections import (
     Mapping,
 )
 import functools
+import json
 import os
 import sys
 
 from cytoolz import (
     compose,
     pipe,
+)
+
+from eth_keyfile import (
+    create_keyfile_json,
+    decode_keyfile_json,
 )
 
 from eth_keys import (
@@ -21,6 +27,8 @@ from eth_keys.exceptions import (
 
 from eth_utils import (
     keccak,
+    is_dict,
+    is_string,
 )
 
 import rlp
@@ -70,6 +78,20 @@ class Account(Module):
         extra_key_bytes = to_bytes(text=extra_entropy)
         key_bytes = keccak(os.urandom(32) + extra_key_bytes)
         return self.privateKeyToAccount(key_bytes)
+
+    def decrypt(self, keyfile_json, password):
+        if is_string(keyfile_json):
+            keyfile = json.loads(keyfile_json)
+        elif is_dict(keyfile_json):
+            keyfile = keyfile_json
+        else:
+            raise TypeError("The keyfile should be supplied as a JSON string, or a dictionary.")
+        return decode_keyfile_json(keyfile, password.encode('utf8'))
+
+    def encrypt(self, private_key, password):
+        key_bytes = bytes(private_key)
+        assert len(key_bytes) == 32
+        return create_keyfile_json(key_bytes, password.encode('utf8'))
 
     @staticmethod
     def hashMessage(data=None, hexstr=None, text=None):
