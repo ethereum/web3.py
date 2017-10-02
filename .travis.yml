@@ -73,7 +73,7 @@ install:
 before_script:
   - python --version
   - pip --version
-  - if [ -n "$GETH_VERSION" ]; then travis_retry pip install py-geth==1.10.0; fi
+  - if [ -n "$GETH_VERSION" ]; then travis_retry pip install py-geth>=1.10.1; fi
   - if [ -n "$GETH_VERSION" ]; then python -m geth.install $GETH_VERSION; fi
   - if [ -n "$GETH_VERSION" ]; then export GOROOT=/usr/lib/go-1.7; fi
   - if [ -n "$GETH_VERSION" ]; then export GETH_BINARY="$GETH_BASE_INSTALL_PATH/geth-$GETH_VERSION/bin/geth"; fi
