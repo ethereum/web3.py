@@ -283,6 +283,7 @@ class EthModuleTest(object):
         assert receipt['blockNumber'] == block_with_txn['number']
         assert receipt['blockHash'] == block_with_txn['hash']
         assert receipt['transactionIndex'] == 0
+        assert receipt['transactionHash'] == mined_txn_hash
 
     def test_eth_getTransactionReceipt_unmined(self, web3, unlocked_account):
         txn_hash = web3.eth.sendTransaction({
@@ -294,6 +295,28 @@ class EthModuleTest(object):
         })
         receipt = web3.eth.getTransactionReceipt(txn_hash)
         assert receipt is None
+
+    def test_eth_getTransactionReceipt_with_log_entry(self,
+                                                      web3,
+                                                      block_with_txn_with_log,
+                                                      emitter_contract,
+                                                      txn_hash_with_log):
+        receipt = web3.eth.getTransactionReceipt(txn_hash_with_log)
+        assert is_dict(receipt)
+        assert receipt['blockNumber'] == block_with_txn_with_log['number']
+        assert receipt['blockHash'] == block_with_txn_with_log['hash']
+        assert receipt['transactionIndex'] == 0
+        assert receipt['transactionHash'] == txn_hash_with_log
+
+        assert len(receipt['logs']) == 1
+        log_entry = receipt['logs'][0]
+
+        assert log_entry['blockNumber'] == block_with_txn_with_log['number']
+        assert log_entry['blockHash'] == block_with_txn_with_log['hash']
+        assert log_entry['logIndex'] == 0
+        assert log_entry['address'] == emitter_contract.address
+        assert log_entry['transactionIndex'] == 0
+        assert log_entry['transactionHash'] == txn_hash_with_log
 
     def test_eth_getUncleByBlockHashAndIndex(self, web3):
         # TODO: how do we make uncles....
