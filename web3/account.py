@@ -8,7 +8,6 @@ import sys
 
 from cytoolz import (
     compose,
-    pipe,
 )
 
 from eth_keyfile import (
@@ -30,8 +29,6 @@ from eth_utils import (
     is_string,
 )
 
-import rlp
-
 from web3.module import Module
 
 from web3.utils.datastructures import (
@@ -39,7 +36,6 @@ from web3.utils.datastructures import (
 )
 from web3.utils.encoding import (
     to_bytes,
-    to_decimal,
     to_hex,
     to_hex_with_size,
 )
@@ -49,12 +45,14 @@ from web3.utils.exception import (
 from web3.utils.signing import (
     LocalAccount,
     annotate_transaction_with_chain_id,
+    sign_message_hash,
+    sign_transaction_dict,
     signature_wrapper,
-    sign_transaction_hash,
+    to_standard_v,
 )
 from web3.utils.transactions import (
-    encode_transaction,
-    serializable_unsigned_transaction,
+    Transaction,
+    vrs_from,
 )
 
 
@@ -103,8 +101,9 @@ class Account(Module):
     def recover(self, msghash=None, msghash_hexstr=None, vrs=None, signature_bytes=None):
         hash_bytes = to_bytes(msghash, hexstr=msghash_hexstr)
         if vrs:
-            vrs_raw = (vrs[0] - 27, ) + vrs[1:]
-            signature = self._keys.Signature(vrs=vrs_raw)
+            v, r, s = vrs
+            v_standard = to_standard_v(v)
+            signature = self._keys.Signature(vrs=(v_standard, r, s))
         else:
             signature = self._keys.Signature(signature_bytes=signature_bytes)
         pubkey = signature.recover_public_key_from_msg_hash(hash_bytes)
@@ -112,13 +111,9 @@ class Account(Module):
 
     def recoverTransaction(self, primitive=None, hexstr=None):
         raw_tx = to_bytes(primitive, hexstr=hexstr)
-        # TODO move to a new transaction handler
-        tx_parts = rlp.decode(raw_tx)
-        unsigned_parts = tx_parts[:-3]
-        raw_v, r, s = map(to_decimal, tx_parts[-3:])
-        (chain_aware_tx, _chain_id, v) = annotate_transaction_with_chain_id(unsigned_parts, raw_v)
-        message_hash = keccak(rlp.encode(chain_aware_tx))
-        return self.recover(message_hash, vrs=(v, r, s))
+        txn = Transaction.from_bytes(raw_tx)
+        chain_aware_txn = annotate_transaction_with_chain_id(txn)
+        return self.recover(chain_aware_txn.hash(), vrs=vrs_from(txn))
 
     def setKeyBackend(self, backend):
         self._keys = KeyAPI(backend)
@@ -138,11 +133,7 @@ class Account(Module):
         else:
             key_bytes = to_bytes(private_key)
         key = self._keys.PrivateKey(key_bytes)
-        # TODO move to a new signature handler
-        signature = key.sign_msg_hash(to_bytes(hexstr=msg_hash))
-        (r, s, v_raw) = (getattr(signature, part) for part in 'rsv')
-        v = v_raw + 27
-        eth_signature_bytes = b''.join(map(to_bytes, (r, s, v)))
+        (v, r, s, eth_signature_bytes) = sign_message_hash(key, msg_hash)
         (r_hex, s_hex, eth_signature_hex) = map(to_hex, (r, s, eth_signature_bytes))
         return AttributeDict({
             'message': msg_bytes,
@@ -174,21 +165,21 @@ class Account(Module):
         if 'nonce' not in transaction_dict:
             transaction_dict['nonce'] = self.web3.eth.getTransactionCount(account.address)
 
-        unsigned_transaction = serializable_unsigned_transaction(self.web3, transaction_dict)
-
-        transaction_hash = pipe(unsigned_transaction, rlp.encode, keccak)
-
-        chain_id = unsigned_transaction.v
-        (v, r, s) = sign_transaction_hash(account._key_obj, transaction_hash, chain_id)
-
-        encoded_transaction = encode_transaction(unsigned_transaction, vrs=(v, r, s))
+        # sign transaction
+        (
+            v,
+            r,
+            s,
+            transaction_hash,
+            rlp_encoded,
+        ) = sign_transaction_dict(self.web3, account._key_obj, transaction_dict)
 
         # format most returned elements as hex
         signature_info = {
-            key: to_hex_with_size(val, 256)
+            key: to_hex_with_size(val, 256)  # minimum size is 32 bytes
             for key, val
             in (
-                ('rawTransaction', encoded_transaction),
+                ('rawTransaction', rlp_encoded),
                 ('hash', transaction_hash),
                 ('r', r),
                 ('s', s),

@@ -6,8 +6,32 @@ from web3.utils.encoding import (
     to_hex,
 )
 
+from web3.utils.transactions import (
+    ChainAwareTransaction,
+    UnsignedTransaction,
+    encode_transaction,
+    serializable_unsigned_transaction,
+    strip_signature,
+)
+
 CHAIN_ID_OFFSET = 35
 V_OFFSET = 27
+
+
+def sign_transaction_dict(web3, eth_key, transaction_dict):
+    # generate RLP-serializable transaction, with defaults filled
+    unsigned_transaction = serializable_unsigned_transaction(web3, transaction_dict)
+
+    transaction_hash = unsigned_transaction.hash()
+
+    # sign with private key
+    chain_id = unsigned_transaction.v
+    (v, r, s) = sign_transaction_hash(eth_key, transaction_hash, chain_id)
+
+    # serialize transaction with rlp
+    encoded_transaction = encode_transaction(unsigned_transaction, vrs=(v, r, s))
+
+    return (v, r, s, transaction_hash, encoded_transaction)
 
 
 # watch here for updates to signature format: https://github.com/ethereum/EIPs/issues/191
@@ -21,19 +45,19 @@ def signature_wrapper(message, version=b'E'):
         raise NotImplementedError("Only the 'Ethereum Signed Message' preamble is supported")
 
 
-def annotate_transaction_with_chain_id(transaction_parts, raw_v):
+def annotate_transaction_with_chain_id(txn_obj):
     '''
     Extends transaction with chain ID, according to EIP-155
     See details at https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
     @return (transaction_parts, chain_id, v)
     '''
-    assert len(transaction_parts) == 6
-    (chain_id, v) = extract_chain_id(raw_v)
+    unsigned_parts = strip_signature(txn_obj)
+    (chain_id, v) = extract_chain_id(txn_obj.v)
     if chain_id is None:
-        chain_id_extension = []
+        return UnsignedTransaction(*unsigned_parts)
     else:
-        chain_id_extension = [to_bytes(chain_id), b'', b'']
-    return (transaction_parts + chain_id_extension, chain_id, v)
+        extended_transaction = unsigned_parts + [chain_id, b'', b'']
+        return ChainAwareTransaction(*extended_transaction)
 
 
 def extract_chain_id(raw_v):
@@ -43,10 +67,22 @@ def extract_chain_id(raw_v):
     '''
     above_id_offset = raw_v - CHAIN_ID_OFFSET
     if above_id_offset < 0:
-        return (None, raw_v)
+        if raw_v in {0, 1}:
+            return (None, raw_v + V_OFFSET)
+        elif raw_v in {27, 28}:
+            return (None, raw_v)
+        else:
+            raise ValueError("v %r is invalid, must be one of: 0, 1, 27, 28, 35+")
     else:
         (chain_id, v_bit) = divmod(above_id_offset, 2)
         return (chain_id, v_bit + V_OFFSET)
+
+
+def to_standard_v(enhanced_v):
+    (_chain, chain_naive_v) = extract_chain_id(enhanced_v)
+    v_standard = chain_naive_v - V_OFFSET
+    assert v_standard in {0, 1}
+    return v_standard
 
 
 def sign_transaction_hash(account, transaction_hash, chain_id):
@@ -54,6 +90,14 @@ def sign_transaction_hash(account, transaction_hash, chain_id):
     (v_raw, r, s) = signature.vrs
     v = 2 * chain_id + CHAIN_ID_OFFSET + v_raw
     return (v, r, s)
+
+
+def sign_message_hash(key, msg_hash_hex):
+    signature = key.sign_msg_hash(to_bytes(hexstr=msg_hash_hex))
+    (v_standard, r, s) = signature.vrs
+    v = v_standard + V_OFFSET
+    eth_signature_bytes = b''.join(map(to_bytes, (r, s, v)))
+    return (v, r, s, eth_signature_bytes)
 
 
 class LocalAccount(object):

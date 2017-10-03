@@ -4,6 +4,7 @@ import re
 import sys
 import warnings
 
+import rlp
 from rlp.sedes import big_endian_int
 
 from cytoolz import (
@@ -23,6 +24,7 @@ from eth_utils import (
     is_hex,
     is_integer,
     is_string,
+    keccak,
     decode_hex,
     encode_hex,
     remove_0x_prefix,
@@ -292,3 +294,22 @@ def hexstr_if_str(to_type, hexstr_or_primitive):
 @coerce_args_to_bytes
 def decode_big_endian_int(value):
     return big_endian_int.deserialize(value.lstrip(b'\x00'))
+
+
+class ExtendedRLP(rlp.Serializable):
+    '''
+    Convenience methods for an rlp Serializable object
+    '''
+    @classmethod
+    def from_dict(cls, field_dict):
+        return cls(**field_dict)
+
+    @classmethod
+    def from_bytes(cls, serialized_bytes):
+        return rlp.decode(serialized_bytes, cls)
+
+    def hash(self):
+        return keccak(rlp.encode(self))
+
+    def __iter__(self):
+        return iter(getattr(self, field) for field, _ in self.fields)

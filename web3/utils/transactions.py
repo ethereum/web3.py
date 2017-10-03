@@ -1,3 +1,4 @@
+import itertools
 import random
 
 from eth_utils import (
@@ -22,6 +23,7 @@ from web3.utils.compat import (
     Timeout,
 )
 from web3.utils.encoding import (
+    ExtendedRLP,
     to_decimal,
 )
 from web3.utils.formatters import (
@@ -35,6 +37,7 @@ def serializable_unsigned_transaction(web3, transaction_dict):
         dict,
         format_transaction_values,
         fill_transaction_defaults(web3),
+        Transaction.from_dict,
     )
 
 
@@ -90,11 +93,10 @@ def fill_transaction_defaults(web3, transaction):
     for key, default_func in TRANSACTION_DEFAULTS.items():
         if key not in transaction:
             defaults[key] = default_func(web3)
-    full_txn = merge(defaults, transaction)
-    return Transaction(**full_txn)
+    return merge(defaults, transaction)
 
 
-class Transaction(rlp.Serializable):
+class Transaction(ExtendedRLP):
     fields = (
         ('nonce', big_endian_int),
         ('gasPrice', big_endian_int),
@@ -106,6 +108,26 @@ class Transaction(rlp.Serializable):
         ('r', big_endian_int),
         ('s', big_endian_int),
     )
+
+
+UnsignedTransaction = Transaction.exclude(['v', 'r', 's'])
+
+
+class ChainAwareTransaction(ExtendedRLP):
+    fields = tuple(UnsignedTransaction.fields) + (
+        ('v', big_endian_int),
+        ('r', Binary(max_length=0, allow_empty=True)),
+        ('s', Binary(max_length=0, allow_empty=True)),
+    )
+
+
+def strip_signature(txn):
+    unsigned_parts = itertools.islice(txn, len(UnsignedTransaction.fields))
+    return list(unsigned_parts)
+
+
+def vrs_from(transaction):
+    return (getattr(transaction, part) for part in 'vrs')
 
 
 def wait_for_transaction_receipt(web3, txn_hash, timeout=120):
