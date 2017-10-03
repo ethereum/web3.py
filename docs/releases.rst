@@ -1,6 +1,20 @@
 Release Notes
 =============
 
+3.16.1
+------
+
+* Addition of ``ethereum-tester`` as a dependency
+
+
+3.16.0
+------
+
+* Addition of *named* middlewares for easier manipulation of middleware stack.
+* Provider middlewares can no longer be modified during runtime.
+* Experimental custom ABI normalization API for Contract objects.
+
+
 3.15.0
 ------
 

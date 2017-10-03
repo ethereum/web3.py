@@ -23,6 +23,7 @@ install_requires = [
     "requests>=2.12.4",
     "rlp>=0.4.7",
     "toolz>=0.8.2",
+    "ethereum-tester==0.1.0-beta.1",
 ]
 
 if sys.platform == 'win32':
@@ -30,7 +31,7 @@ if sys.platform == 'win32':
 
 setup(
     name='web3',
-    version='3.15.0',
+    version='3.16.1',
     description="""Web3.py""",
     long_description_markdown_filename='README.md',
     author='Piper Merriam',
