@@ -202,9 +202,10 @@ def to_bytes(primitive=None, hexstr=None, text=None):
         return b'\x01' if primitive else b'\x00'
     elif isinstance(primitive, bytes):
         return primitive
-    elif isinstance(primitive, int):
+    elif is_integer(primitive):
         return to_bytes(hexstr=hex(primitive))
     elif hexstr is not None:
+        hexstr = hexstr.rstrip('L')  # handle longs in Python 2
         if len(hexstr) % 2:
             hexstr = '0x0' + remove_0x_prefix(hexstr)
         return decode_hex(hexstr)
@@ -228,7 +229,7 @@ def to_text(primitive=None, hexstr=None, text=None):
         return to_text(hexstr=primitive)
     elif isinstance(primitive, bytes):
         return primitive.decode('utf-8')
-    elif isinstance(primitive, int):
+    elif is_integer(primitive):
         byte_encoding = int_to_big_endian(primitive)
         return to_text(byte_encoding)
     raise TypeError("Expected an int, bytes or hexstr.")
@@ -270,8 +271,8 @@ def hexstr_if_str(to_type, hexstr_or_primitive):
             sys.version_info.major < 3 and isinstance(hexstr_or_primitive, unicode)  # noqa: F821
         ):
         (primitive, hexstr) = (None, hexstr_or_primitive)
-        if hexstr and not is_hex(hexstr):
-            raise TypeError(
+        if remove_0x_prefix(hexstr) and not is_hex(hexstr):
+            raise ValueError(
                 "when sending this str, it must be a hex string. Got: %r" % hexstr_or_primitive
             )
     else:

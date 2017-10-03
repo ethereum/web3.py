@@ -3,10 +3,15 @@
 from __future__ import unicode_literals
 
 import pytest
-import string
+import re
 import sys
 
+from eth_utils import (
+    is_hex,
+)
+
 from hypothesis import (
+    example,
     given,
     strategies as st,
 )
@@ -19,6 +24,12 @@ from web3.utils.encoding import (
     to_decimal,
     to_hex,
 )
+
+# Several tests are split into py2 & py3 tests below, with py3 tests using Mock
+if sys.version_info.major > 2:
+    from unittest.mock import Mock
+
+HEX_REGEX = re.compile('\A(0[xX])?[0-9a-fA-F]*\Z')
 
 
 @pytest.mark.parametrize(
@@ -88,219 +99,120 @@ def test_hex_encode_abi_type(abi_type, value, expected):
     assert actual == expected
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
-@pytest.mark.parametrize(
-    "val, expected",
-    (
-        (
-            0,
-            ((0, ), {'hexstr': None}),
-        ),
-        (
-            'g',
-            TypeError,
-        ),
-        (
-            string.hexdigits,
-            ((None, ), {'hexstr': string.hexdigits}),
-        ),
-        (
-            '0x' + string.hexdigits,
-            ((None, ), {'hexstr': '0x' + string.hexdigits}),
-        ),
-        (
-            b'',
-            ((b'', ), {'hexstr': None}),
-        ),
-        (
-            'mö'.encode('utf8'),
-            (('mö'.encode('utf8'), ), {'hexstr': None}),
-        ),
-        (
-            0x123,
-            ((0x123, ), {'hexstr': None}),
-        ),
-        (
-            True,
-            ((True, ), {'hexstr': None}),
-        ),
-        (
-            False,
-            ((False, ), {'hexstr': None}),
-        ),
-    ),
+@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@given(
+    st.one_of(st.integers(min_value=0), st.booleans()),
+    st.sampled_from((to_bytes, to_hex, to_decimal)),
 )
-def test_hexstr_if_str_conversion(val, expected):
-    from unittest.mock import Mock
+def test_hexstr_if_str_passthrough_py2(val, converter):
+    assert hexstr_if_str(converter, val) == converter(val)
+
+
+@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@given(
+    st.from_regex(HEX_REGEX),
+    st.sampled_from((to_bytes, to_hex, to_decimal)),
+)
+def test_hexstr_if_str_valid_hex_py2(val, converter):
+    if converter is to_decimal and to_bytes(hexstr=val) == b'':
+        with pytest.raises(ValueError):
+            hexstr_if_str(converter, val)
+    else:
+        assert hexstr_if_str(converter, val) == converter(hexstr=val)
+
+
+@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@given(
+    st.one_of(st.text(), st.binary()),
+    st.sampled_from((to_bytes, to_hex, to_decimal)),
+)
+def test_hexstr_if_str_invalid_hex_py2(val, converter):
+    try:
+        is_hexstr = (is_hex(val) or val == '')
+    except ValueError:
+        is_hexstr = False
+
+    if not is_hexstr:
+        with pytest.raises(ValueError):
+            hexstr_if_str(converter, val)
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
+@given(st.one_of(st.integers(), st.booleans(), st.binary()))
+@example(b'')
+def test_hexstr_if_str_passthrough(val):
     to_type = Mock(return_value='zoot')
-    if type(expected) == type and issubclass(expected, BaseException):
-        with pytest.raises(expected):
-            hexstr_if_str(to_type, val)
-    else:
-        assert hexstr_if_str(to_type, val) == 'zoot'
-        assert to_type.call_args == expected
-
-
-@pytest.mark.skipif(sys.version_info.major >= 3, reason="these test values only valid for py2")
-@pytest.mark.parametrize(
-    "val, expected",
-    (
-        (
-            0,
-            b'\x00',
-        ),
-        (
-            'g',
-            TypeError,
-        ),
-        (
-            string.hexdigits,
-            b'\x01#Eg\x89\xab\xcd\xef\xab\xcd\xef',
-        ),
-        (
-            # unicode
-            '0x0123456789abcdefABCDEF',
-            b'\x01#Eg\x89\xab\xcd\xef\xab\xcd\xef',
-        ),
-        (
-            # bytes, aka str
-            b'0x0123456789abcdefABCDEF',
-            b'\x01#Eg\x89\xab\xcd\xef\xab\xcd\xef',
-        ),
-        (
-            # bytes with invalid hex characters
-            b'\x01#Eg\x89\xab\xcd\xef\xab\xcd\xef',
-            TypeError,
-        ),
-        (
-            b'',
-            b'',
-        ),
-        (
-            'mö'.encode('utf8'),
-            TypeError,
-        ),
-        (
-            0x123,
-            b'\x01\x23',
-        ),
-        (
-            True,
-            b'\x01',
-        ),
-        (
-            False,
-            b'\x00',
-        ),
-    ),
-)
-def test_hexstr_if_str_conversion_py2(val, expected):
-    if type(expected) == type and issubclass(expected, BaseException):
-        with pytest.raises(expected):
-            hexstr_if_str(to_bytes, val)
-    else:
-        assert hexstr_if_str(to_bytes, val) == expected
+    assert hexstr_if_str(to_type, val) == 'zoot'
+    assert to_type.call_args == ((val, ), {'hexstr': None})
 
 
 @pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
-@pytest.mark.parametrize(
-    "val, expected",
-    (
-        (
-            0,
-            ((0, ), {'text': None}),
-        ),
-        (
-            string.hexdigits,
-            ((None, ), {'text': string.hexdigits}),
-        ),
-        (
-            '0x' + string.hexdigits,
-            ((None, ), {'text': '0x' + string.hexdigits}),
-        ),
-        (
-            b'',
-            ((b'', ), {'text': None}),
-        ),
-        (
-            'mö',
-            ((None, ), {'text': 'mö'}),
-        ),
-        (
-            'mö'.encode('utf8'),
-            (('mö'.encode('utf8'), ), {'text': None}),
-        ),
-        (
-            0x123,
-            ((0x123, ), {'text': None}),
-        ),
-        (
-            True,
-            ((True, ), {'text': None}),
-        ),
-        (
-            False,
-            ((False, ), {'text': None}),
-        ),
-    ),
-)
-def test_text_if_str_conversion(val, expected):
-    from unittest.mock import Mock
+@given(st.from_regex(HEX_REGEX))
+@example('0x')
+@example('0')
+def test_hexstr_if_str_on_valid_hex(val):
+    to_type = Mock(return_value='zoot')
+    assert hexstr_if_str(to_type, val) == 'zoot'
+    assert to_type.call_args == ((None, ), {'hexstr': val})
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
+@given(st.text())
+def test_hexstr_if_str_on_invalid_hex(val):
+    try:
+        is_hexstr = (is_hex(val) or val == '')
+    except ValueError:
+        is_hexstr = False
+
+    if not is_hexstr:
+        with pytest.raises(ValueError):
+            hexstr_if_str(Mock(), val)
+
+
+@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
+@given(st.one_of(st.integers(), st.booleans(), st.binary()))
+@example(b'')
+def test_text_if_str_passthrough(val):
     to_type = Mock(return_value='zoot')
     assert text_if_str(to_type, val) == 'zoot'
-    assert to_type.call_args == expected
+    assert to_type.call_args == ((val, ), {'text': None})
 
 
-@pytest.mark.skipif(sys.version_info.major >= 3, reason="these test values only valid for py2")
-@pytest.mark.parametrize(
-    "val, expected",
-    (
-        (
-            0,
-            b'\x00',
-        ),
-        (
-            string.hexdigits,
-            string.hexdigits,
-        ),
-        (
-            b'0x0123456789abcdefABCDEF',
-            b'0x0123456789abcdefABCDEF',
-        ),
-        (
-            b'',
-            b'',
-        ),
-        (
-            # unicode point of ascii \xff char
-            # just... don't. But in case you do, here's what happens:
-            u'\xff',
-            # utf-8 encoding of char decoded by ascii \xff
-            b'\xc3\xbf',
-        ),
-        (
-            # unicode
-            'mö',
-            b'm\xc3\xb6',
-        ),
-        (
-            # bytes
-            'mö'.encode('utf8'),
-            b'm\xc3\xb6',
-        ),
-        (
-            0x123,
-            b'\x01\x23',
-        ),
-        (
-            True,
-            b'\x01',
-        ),
-        (
-            False,
-            b'\x00',
-        ),
-    ),
+@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
+@given(st.text())
+@example('0xa1')  # valid hexadecimal is still interpreted as unicode characters
+def test_text_if_str_on_text(val):
+    to_type = Mock(return_value='zoot')
+    assert text_if_str(to_type, val) == 'zoot'
+    assert to_type.call_args == ((None, ), {'text': val})
+
+
+@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@given(
+    st.one_of(st.integers(min_value=0), st.booleans(), st.binary()),
+    st.sampled_from((to_bytes, to_hex)),
 )
-def test_text_if_str_conversion_py2(val, expected):
-    assert text_if_str(to_bytes, val) == expected
+@example(b'', to_hex)
+@example(b'\xff', to_bytes)  # bytes are passed through, no matter the text
+def test_text_if_str_passthrough_py2(val, converter):
+    if converter is to_decimal and to_bytes(val) == b'':
+        with pytest.raises(ValueError):
+            text_if_str(converter, val)
+    else:
+        assert text_if_str(converter, val) == converter(val)
+
+
+@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@given(
+    st.text(),
+    st.sampled_from((to_bytes, to_hex)),
+)
+@example('0xa1', to_bytes)  # valid hexadecimal is still interpreted as unicode characters
+def test_text_if_str_on_text_py2(val, converter):
+    assert text_if_str(converter, val) == converter(text=val)
+
+
+@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@given(st.from_regex('\A[0-9]+\Z'))
+def test_text_if_str_on_text_to_decimal_py2(val):
+    assert text_if_str(to_decimal, val) == to_decimal(text=val)
