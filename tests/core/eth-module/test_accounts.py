@@ -22,7 +22,7 @@ def PRIVATE_BYTES():
 
 
 @pytest.fixture
-def PRIVATE_BYTES_INVERT(PRIVATE_BYTES):
+def PRIVATE_BYTES_ALT(PRIVATE_BYTES):
     return b'rainbows' * 4
 
 
@@ -42,13 +42,13 @@ def test_eth_account_privateKeyToAccount_reproducible(web3, PRIVATE_BYTES):
     assert bytes(account1) == bytes(account2)
 
 
-def test_eth_account_privateKeyToAccount_diverge(web3, PRIVATE_BYTES, PRIVATE_BYTES_INVERT):
+def test_eth_account_privateKeyToAccount_diverge(web3, PRIVATE_BYTES, PRIVATE_BYTES_ALT):
     account1 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES)
-    account2 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES_INVERT)
+    account2 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES_ALT)
     if sys.version_info.major < 3:
-        assert bytes(account2) == to_hex(PRIVATE_BYTES_INVERT)
+        assert bytes(account2) == to_hex(PRIVATE_BYTES_ALT)
     else:
-        assert bytes(account2) == PRIVATE_BYTES_INVERT
+        assert bytes(account2) == PRIVATE_BYTES_ALT
     assert bytes(account1) != bytes(account2)
 
 
@@ -66,6 +66,7 @@ def test_eth_account_privateKeyToAccount_properties(web3, PRIVATE_BYTES):
     assert callable(account.sign)
     assert callable(account.signTransaction)
     assert is_address(account.address)
+    assert account.address == '0xa79F6f349C853F9Ea0B29636779ae3Cb4E3BA729'
     if sys.version_info.major < 3:
         assert account.privateKey == to_hex(PRIVATE_BYTES)
     else:
