@@ -59,7 +59,7 @@ TRANSACTION_DEFAULTS = {
     'gasPrice': lambda web3: web3.eth.gasPrice,
     'value': lambda web3: 0,
     'data': lambda web3: b'',
-    'chainId': lambda web3: 1,  # TODO implement default web3.eth.net.getId()
+    'chainId': lambda web3: int(web3.net.version),
 }
 
 TRANSACTION_FORMATTERS = {
