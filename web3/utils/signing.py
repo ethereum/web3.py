@@ -1,6 +1,9 @@
 
+import sys
+
 from web3.utils.encoding import (
     to_bytes,
+    to_hex,
 )
 
 CHAIN_ID_OFFSET = 35
@@ -51,3 +54,43 @@ def sign_transaction_hash(account, transaction_hash, chain_id):
     (v_raw, r, s) = signature.vrs
     v = 2 * chain_id + CHAIN_ID_OFFSET + v_raw
     return (v, r, s)
+
+
+class LocalAccount(object):
+    '''
+    Collection of convenience methods on private key, roughly using the
+    same API as web3.js: https://web3js.readthedocs.io/en/1.0/web3-eth-accounts.html#create
+    '''
+    def __init__(self, key, web3):
+        '''
+        @param key instance of eth_keys.PrivateKey
+        '''
+        self._publicapi = web3.eth.account
+
+        self.address = key.public_key.to_checksum_address()
+
+        key_raw = key.to_bytes()
+        if sys.version_info.major < 3:
+            key_raw = to_hex(key_raw)
+        self.privateKey = key_raw
+
+        self._key_obj = key
+
+    def sign(self, *args, **kwargs):
+        if len(args) > 1 or 'private_key' in kwargs:
+            raise TypeError(
+                "This account object already has a private key,"
+                "you cannot specify a different one."
+            )
+        kwargs['private_key'] = self.privateKey
+        return self._publicapi.sign(*args, **kwargs)
+
+    def signTransaction(self, transaction_dict):
+        return self._publicapi.signTransaction(transaction_dict, self.privateKey)
+
+    def __bytes__(self):
+        return self.privateKey
+
+    # Python 2 support
+    def __str__(self):
+        return self.privateKey

@@ -3,13 +3,16 @@
 from __future__ import unicode_literals
 
 import pytest
+import sys
 
 from eth_utils import (
     is_address,
+    is_hex,
 )
 
 from web3.utils.encoding import (
     to_bytes,
+    to_hex,
 )
 
 
@@ -32,15 +35,21 @@ def test_eth_account_create_variation(web3):
 def test_eth_account_privateKeyToAccount_reproducible(web3, PRIVATE_BYTES):
     account1 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES)
     account2 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES)
-    assert account1 == PRIVATE_BYTES
-    assert account1 == account2
+    if sys.version_info.major < 3:
+        assert bytes(account1) == to_hex(PRIVATE_BYTES)
+    else:
+        assert bytes(account1) == PRIVATE_BYTES
+    assert bytes(account1) == bytes(account2)
 
 
 def test_eth_account_privateKeyToAccount_diverge(web3, PRIVATE_BYTES, PRIVATE_BYTES_INVERT):
     account1 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES)
     account2 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES_INVERT)
-    assert account2 == PRIVATE_BYTES_INVERT
-    assert account1 != account2
+    if sys.version_info.major < 3:
+        assert bytes(account2) == to_hex(PRIVATE_BYTES_INVERT)
+    else:
+        assert bytes(account2) == PRIVATE_BYTES_INVERT
+    assert bytes(account1) != bytes(account2)
 
 
 def test_eth_account_privateKeyToAccount_seed_restrictions(web3):
@@ -57,7 +66,10 @@ def test_eth_account_privateKeyToAccount_properties(web3, PRIVATE_BYTES):
     assert callable(account.sign)
     assert callable(account.signTransaction)
     assert is_address(account.address)
-    assert account.privateKey == account.to_bytes()
+    if sys.version_info.major < 3:
+        assert account.privateKey == to_hex(PRIVATE_BYTES)
+    else:
+        assert account.privateKey == PRIVATE_BYTES
 
 
 def test_eth_account_create_properties(web3):
@@ -65,7 +77,10 @@ def test_eth_account_create_properties(web3):
     assert callable(account.sign)
     assert callable(account.signTransaction)
     assert is_address(account.address)
-    assert account.privateKey == account.to_bytes()
+    if sys.version_info.major < 3:
+        assert is_hex(account.privateKey) and len(account.privateKey) == 66
+    else:
+        assert isinstance(account.privateKey, bytes) and len(account.privateKey) == 32
 
 
 def test_eth_account_recover_transaction_example(web3):
@@ -161,6 +176,9 @@ def test_eth_account_sign(web3, message, key, expected_bytes, expected_hash, v, 
     assert signed.s == s
     assert signed.signature == signature
 
+    account = web3.eth.account.privateKeyToAccount(to_bytes(hexstr=key))
+    assert account.sign(message_text=message) == signed
+
 
 @pytest.mark.parametrize(
     'txn, private_key, expected_raw_tx, tx_hash, r, s, v',
@@ -190,6 +208,9 @@ def test_eth_account_sign_transaction(web3, txn, private_key, expected_raw_tx, t
     assert signed.s == s
     assert signed.v == v
     assert signed.rawTransaction == expected_raw_tx
+
+    account = web3.eth.account.privateKeyToAccount(to_bytes(hexstr=private_key))
+    assert account.signTransaction(txn) == signed
 
 
 def test_eth_account_encrypt(web3):

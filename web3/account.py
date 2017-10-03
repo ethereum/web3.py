@@ -2,7 +2,6 @@
 from collections import (
     Mapping,
 )
-import functools
 import json
 import os
 import sys
@@ -48,6 +47,7 @@ from web3.utils.exception import (
     raise_from,
 )
 from web3.utils.signing import (
+    LocalAccount,
     annotate_transaction_with_chain_id,
     signature_wrapper,
     sign_transaction_hash,
@@ -56,19 +56,6 @@ from web3.utils.transactions import (
     encode_transaction,
     serializable_unsigned_transaction,
 )
-
-
-def return_key_api(to_wrap):
-    @functools.wraps(to_wrap)
-    def wrapper(*args, **kwargs):
-        key = to_wrap(*args, **kwargs)
-        sign = key.sign_msg
-        key.address = key.public_key.to_checksum_address()
-        key.privateKey = key.to_bytes()
-        key.sign = compose(sign, signature_wrapper, to_bytes)
-        key.signTransaction = compose(sign, to_bytes)
-        return key
-    return wrapper
 
 
 class Account(Module):
@@ -99,11 +86,11 @@ class Account(Module):
         recovery_hasher = compose(to_hex, keccak, signature_wrapper)
         return recovery_hasher(message_bytes)
 
-    @return_key_api
     def privateKeyToAccount(self, primitive=None, hexstr=None):
         key_bytes = to_bytes(primitive, hexstr=hexstr)
         try:
-            return self._keys.PrivateKey(key_bytes)
+            key_obj = self._keys.PrivateKey(key_bytes)
+            return LocalAccount(key_obj, self.web3)
         except ValidationError as original_exception:
             raise_from(
                 ValueError(
@@ -192,7 +179,7 @@ class Account(Module):
         transaction_hash = pipe(unsigned_transaction, rlp.encode, keccak)
 
         chain_id = unsigned_transaction.v
-        (v, r, s) = sign_transaction_hash(account, transaction_hash, chain_id)
+        (v, r, s) = sign_transaction_hash(account._key_obj, transaction_hash, chain_id)
 
         encoded_transaction = encode_transaction(unsigned_transaction, vrs=(v, r, s))
 
