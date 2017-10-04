@@ -16,6 +16,7 @@ from eth_utils import (
     is_boolean,
     is_bytes,
     is_dict,
+    is_hex,
     is_integer,
     is_string,
     decode_hex,
@@ -201,9 +202,10 @@ def to_bytes(primitive=None, hexstr=None, text=None):
         return b'\x01' if primitive else b'\x00'
     elif isinstance(primitive, bytes):
         return primitive
-    elif isinstance(primitive, int):
+    elif is_integer(primitive):
         return to_bytes(hexstr=hex(primitive))
     elif hexstr is not None:
+        hexstr = hexstr.rstrip('L')  # handle longs in Python 2
         if len(hexstr) % 2:
             hexstr = '0x0' + remove_0x_prefix(hexstr)
         return decode_hex(hexstr)
@@ -227,10 +229,55 @@ def to_text(primitive=None, hexstr=None, text=None):
         return to_text(hexstr=primitive)
     elif isinstance(primitive, bytes):
         return primitive.decode('utf-8')
-    elif isinstance(primitive, int):
+    elif is_integer(primitive):
         byte_encoding = int_to_big_endian(primitive)
         return to_text(byte_encoding)
     raise TypeError("Expected an int, bytes or hexstr.")
+
+
+def text_if_str(to_type, text_or_primitive):
+    '''
+    Convert to a type, assuming that strings can be only unicode text (not a hexstr)
+
+    @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
+        eg~ to_bytes, to_text, to_hex, to_decimal, etc
+    @param hexstr_or_primitive in bytes, str, or int. (or unicode in py2)
+        In Python 2, only a unicode object will be interpreted as unicode text
+        In Python 3, only a str object will be interpreted as interpreted as unicode text
+    '''
+    if sys.version_info.major < 3:
+        if isinstance(text_or_primitive, unicode):  # noqa: F821
+            (primitive, text) = (None, text_or_primitive)
+        else:
+            (primitive, text) = (text_or_primitive, None)
+    elif isinstance(text_or_primitive, str):
+        (primitive, text) = (None, text_or_primitive)
+    else:
+        (primitive, text) = (text_or_primitive, None)
+    return to_type(primitive, text=text)
+
+
+def hexstr_if_str(to_type, hexstr_or_primitive):
+    '''
+    Convert to a type, assuming that strings can be only hexstr (not unicode text)
+
+    @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
+        eg~ to_bytes, to_text, to_hex, to_decimal, etc
+    @param text_or_primitive in bytes, str, or int. (or unicode in py2)
+        In Python 2, a bytes, unicode or str object will be interpreted as hexstr
+        In Python 3, only a str object will be interpreted as hexstr
+    '''
+    if isinstance(hexstr_or_primitive, str) or (
+            sys.version_info.major < 3 and isinstance(hexstr_or_primitive, unicode)  # noqa: F821
+        ):
+        (primitive, hexstr) = (None, hexstr_or_primitive)
+        if remove_0x_prefix(hexstr) and not is_hex(hexstr):
+            raise ValueError(
+                "when sending this str, it must be a hex string. Got: %r" % hexstr_or_primitive
+            )
+    else:
+        (primitive, hexstr) = (hexstr_or_primitive, None)
+    return to_type(primitive, hexstr=hexstr)
 
 
 @coerce_args_to_bytes
