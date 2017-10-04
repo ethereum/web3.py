@@ -79,8 +79,9 @@ class Account(Module):
 
     def encrypt(self, private_key, password):
         key_bytes = hexstr_if_str(to_bytes, private_key)
+        password_bytes = text_if_str(to_bytes, password)
         assert len(key_bytes) == 32
-        return create_keyfile_json(key_bytes, password.encode('utf8'))
+        return create_keyfile_json(key_bytes, password_bytes)
 
     @staticmethod
     def hashMessage(data=None, hexstr=None, text=None):

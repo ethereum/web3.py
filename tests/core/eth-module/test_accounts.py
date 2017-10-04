@@ -11,6 +11,7 @@ from eth_utils import (
 )
 
 from web3.utils.encoding import (
+    to_bytes,
     to_hex,
 )
 
@@ -32,6 +33,16 @@ def PRIVATE_BYTES():
 def PRIVATE_BYTES_ALT(PRIVATE_BYTES):
     key = b'rainbows' * 4
     return to_hex_if_py2(key)
+
+
+@pytest.fixture
+def web3js_key():
+    return '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
+
+
+@pytest.fixture
+def web3js_password():
+    return 'test!'
 
 
 def test_eth_account_create_variation(web3):
@@ -225,13 +236,24 @@ def test_eth_account_sign_transaction(web3, txn, private_key, expected_raw_tx, t
     assert account.signTransaction(txn) == signed
 
 
-def test_eth_account_encrypt(web3):
-    private_key = '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
-    encrypted = web3.eth.account.encrypt(private_key, 'test!')
+def test_eth_account_encrypt(web3, web3js_key, web3js_password):
+    encrypted = web3.eth.account.encrypt(web3js_key, web3js_password)
 
     assert encrypted['address'] == '2c7536e3605d9c16a7a3d7b1898e529396a65c23'
     assert encrypted['version'] == 3
 
-    decrypted_key = web3.eth.account.decrypt(encrypted, 'test!')
+    decrypted_key = web3.eth.account.decrypt(encrypted, web3js_password)
 
-    assert to_hex(decrypted_key) == private_key
+    assert decrypted_key == to_bytes(hexstr=web3js_key)
+
+
+def test_eth_account_prepared_encrypt(web3, web3js_key, web3js_password):
+    account = web3.eth.account.privateKeyToAccount(web3js_key)
+    encrypted = account.encrypt(web3js_password)
+
+    assert encrypted['address'] == '2c7536e3605d9c16a7a3d7b1898e529396a65c23'
+    assert encrypted['version'] == 3
+
+    decrypted_key = web3.eth.account.decrypt(encrypted, web3js_password)
+
+    assert decrypted_key == to_bytes(hexstr=web3js_key)

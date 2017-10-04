@@ -120,6 +120,9 @@ class LocalAccount(object):
 
         self._key_obj = key
 
+    def encrypt(self, password):
+        return self._publicapi.encrypt(self.privateKey, password)
+
     def sign(self, *args, **kwargs):
         if len(args) > 1 or 'private_key' in kwargs:
             raise TypeError(
