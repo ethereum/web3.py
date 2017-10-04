@@ -29,6 +29,15 @@ from web3.utils.encoding import (
 if sys.version_info.major > 2:
     from unittest.mock import Mock
 
+only_python2 = pytest.mark.skipif(
+    sys.version_info.major > 2,
+    reason="these test values only valid for py2"
+)
+only_python3 = pytest.mark.skipif(
+    sys.version_info.major < 3,
+    reason="these test values only valid for py3"
+)
+
 HEX_REGEX = re.compile('\A(0[xX])?[0-9a-fA-F]*\Z')
 
 
@@ -99,7 +108,7 @@ def test_hex_encode_abi_type(abi_type, value, expected):
     assert actual == expected
 
 
-@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@only_python2
 @given(
     st.one_of(st.integers(min_value=0), st.booleans()),
     st.sampled_from((to_bytes, to_hex, to_decimal)),
@@ -108,7 +117,7 @@ def test_hexstr_if_str_passthrough_py2(val, converter):
     assert hexstr_if_str(converter, val) == converter(val)
 
 
-@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@only_python2
 @given(
     st.from_regex(HEX_REGEX),
     st.sampled_from((to_bytes, to_hex, to_decimal)),
@@ -121,7 +130,7 @@ def test_hexstr_if_str_valid_hex_py2(val, converter):
         assert hexstr_if_str(converter, val) == converter(hexstr=val)
 
 
-@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@only_python2
 @given(
     st.one_of(st.text(), st.binary()),
     st.sampled_from((to_bytes, to_hex, to_decimal)),
@@ -137,7 +146,7 @@ def test_hexstr_if_str_invalid_hex_py2(val, converter):
             hexstr_if_str(converter, val)
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
+@only_python3
 @given(st.one_of(st.integers(), st.booleans(), st.binary()))
 @example(b'')
 def test_hexstr_if_str_passthrough(val):
@@ -146,7 +155,7 @@ def test_hexstr_if_str_passthrough(val):
     assert to_type.call_args == ((val, ), {'hexstr': None})
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
+@only_python3
 @given(st.from_regex(HEX_REGEX))
 @example('0x')
 @example('0')
@@ -156,7 +165,7 @@ def test_hexstr_if_str_on_valid_hex(val):
     assert to_type.call_args == ((None, ), {'hexstr': val})
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
+@only_python3
 @given(st.text())
 def test_hexstr_if_str_on_invalid_hex(val):
     try:
@@ -169,7 +178,7 @@ def test_hexstr_if_str_on_invalid_hex(val):
             hexstr_if_str(Mock(), val)
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
+@only_python3
 @given(st.one_of(st.integers(), st.booleans(), st.binary()))
 @example(b'')
 def test_text_if_str_passthrough(val):
@@ -178,7 +187,7 @@ def test_text_if_str_passthrough(val):
     assert to_type.call_args == ((val, ), {'text': None})
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="these test values only valid for py3")
+@only_python3
 @given(st.text())
 @example('0xa1')  # valid hexadecimal is still interpreted as unicode characters
 def test_text_if_str_on_text(val):
@@ -187,7 +196,7 @@ def test_text_if_str_on_text(val):
     assert to_type.call_args == ((None, ), {'text': val})
 
 
-@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@only_python2
 @given(
     st.one_of(st.integers(min_value=0), st.booleans(), st.binary()),
     st.sampled_from((to_bytes, to_hex)),
@@ -202,7 +211,7 @@ def test_text_if_str_passthrough_py2(val, converter):
         assert text_if_str(converter, val) == converter(val)
 
 
-@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@only_python2
 @given(
     st.text(),
     st.sampled_from((to_bytes, to_hex)),
@@ -212,7 +221,7 @@ def test_text_if_str_on_text_py2(val, converter):
     assert text_if_str(converter, val) == converter(text=val)
 
 
-@pytest.mark.skipif(sys.version_info.major > 2, reason="these test values only valid for py2")
+@only_python2
 @given(st.from_regex('\A[0-9]+\Z'))
 def test_text_if_str_on_text_to_decimal_py2(val):
     assert text_if_str(to_decimal, val) == to_decimal(text=val)
