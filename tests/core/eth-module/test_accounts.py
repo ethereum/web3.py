@@ -11,19 +11,27 @@ from eth_utils import (
 )
 
 from web3.utils.encoding import (
-    to_bytes,
     to_hex,
 )
 
 
+def to_hex_if_py2(val):
+    if sys.version_info.major < 3:
+        return to_hex(val)
+    else:
+        return val
+
+
 @pytest.fixture
 def PRIVATE_BYTES():
-    return b'unicorns' * 4
+    key = b'unicorns' * 4
+    return to_hex_if_py2(key)
 
 
 @pytest.fixture
 def PRIVATE_BYTES_ALT(PRIVATE_BYTES):
-    return b'rainbows' * 4
+    key = b'rainbows' * 4
+    return to_hex_if_py2(key)
 
 
 def test_eth_account_create_variation(web3):
@@ -35,20 +43,14 @@ def test_eth_account_create_variation(web3):
 def test_eth_account_privateKeyToAccount_reproducible(web3, PRIVATE_BYTES):
     account1 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES)
     account2 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES)
-    if sys.version_info.major < 3:
-        assert bytes(account1) == to_hex(PRIVATE_BYTES)
-    else:
-        assert bytes(account1) == PRIVATE_BYTES
+    assert bytes(account1) == PRIVATE_BYTES
     assert bytes(account1) == bytes(account2)
 
 
 def test_eth_account_privateKeyToAccount_diverge(web3, PRIVATE_BYTES, PRIVATE_BYTES_ALT):
     account1 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES)
     account2 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES_ALT)
-    if sys.version_info.major < 3:
-        assert bytes(account2) == to_hex(PRIVATE_BYTES_ALT)
-    else:
-        assert bytes(account2) == PRIVATE_BYTES_ALT
+    assert bytes(account2) == PRIVATE_BYTES_ALT
     assert bytes(account1) != bytes(account2)
 
 
@@ -67,10 +69,7 @@ def test_eth_account_privateKeyToAccount_properties(web3, PRIVATE_BYTES):
     assert callable(account.signTransaction)
     assert is_address(account.address)
     assert account.address == '0xa79F6f349C853F9Ea0B29636779ae3Cb4E3BA729'
-    if sys.version_info.major < 3:
-        assert account.privateKey == to_hex(PRIVATE_BYTES)
-    else:
-        assert account.privateKey == PRIVATE_BYTES
+    assert account.privateKey == PRIVATE_BYTES
 
 
 def test_eth_account_create_properties(web3):
@@ -86,7 +85,7 @@ def test_eth_account_create_properties(web3):
 
 def test_eth_account_recover_transaction_example(web3):
     raw_tx_hex = '0xf8640d843b9aca00830e57e0945b2063246f2191f18f2675cedb8b28102e957458018025a00c753084e5a8290219324c1a3a86d4064ded2d15979b1ea790734aaa2ceaafc1a0229ca4538106819fd3a5509dd383e8fe4b731c6870339556a5c06feb9cf330bb'  # noqa: E501
-    from_account = web3.eth.account.recoverTransaction(hexstr=raw_tx_hex)
+    from_account = web3.eth.account.recoverTransaction(raw_tx_hex)
     assert from_account == '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4'
 
 
@@ -99,7 +98,8 @@ def test_eth_account_recover_transaction_with_literal(web3):
 def test_eth_account_recover_signature_bytes(web3):
     signature_bytes = b'\x0cu0\x84\xe5\xa8)\x02\x192L\x1a:\x86\xd4\x06M\xed-\x15\x97\x9b\x1e\xa7\x90sJ\xaa,\xea\xaf\xc1"\x9c\xa4S\x81\x06\x81\x9f\xd3\xa5P\x9d\xd3\x83\xe8\xfeKs\x1chp3\x95V\xa5\xc0o\xeb\x9c\xf30\xbb\x00'  # noqa: E501
     msg_hash = b'\xbb\r\x8a\xba\x9f\xf7\xa1<N,s{i\x81\x86r\x83{\xba\x9f\xe2\x1d\xaa\xdd\xb3\xd6\x01\xda\x00\xb7)\xa1'  # noqa: E501
-    from_account = web3.eth.account.recover(msg_hash, signature_bytes=signature_bytes)
+    signature = to_hex_if_py2(signature_bytes)
+    from_account = web3.eth.account.recover(msg_hash, signature=signature)
     assert from_account == '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4'
 
 
@@ -188,7 +188,7 @@ def test_eth_account_sign(web3, message, key, expected_bytes, expected_hash, v, 
     assert signed.s == s
     assert signed.signature == signature
 
-    account = web3.eth.account.privateKeyToAccount(to_bytes(hexstr=key))
+    account = web3.eth.account.privateKeyToAccount(key)
     assert account.sign(message_text=message) == signed
 
 
@@ -221,13 +221,12 @@ def test_eth_account_sign_transaction(web3, txn, private_key, expected_raw_tx, t
     assert signed.v == v
     assert signed.rawTransaction == expected_raw_tx
 
-    account = web3.eth.account.privateKeyToAccount(to_bytes(hexstr=private_key))
+    account = web3.eth.account.privateKeyToAccount(private_key)
     assert account.signTransaction(txn) == signed
 
 
 def test_eth_account_encrypt(web3):
-    private_key_hex = '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
-    private_key = to_bytes(hexstr=private_key_hex)
+    private_key = '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
     encrypted = web3.eth.account.encrypt(private_key, 'test!')
 
     assert encrypted['address'] == '2c7536e3605d9c16a7a3d7b1898e529396a65c23'
@@ -235,4 +234,4 @@ def test_eth_account_encrypt(web3):
 
     decrypted_key = web3.eth.account.decrypt(encrypted, 'test!')
 
-    assert decrypted_key == private_key
+    assert to_hex(decrypted_key) == private_key

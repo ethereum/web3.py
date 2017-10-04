@@ -35,6 +35,8 @@ from web3.utils.datastructures import (
     AttributeDict,
 )
 from web3.utils.encoding import (
+    hexstr_if_str,
+    text_if_str,
     to_bytes,
     to_hex,
     to_hex_with_size,
@@ -60,8 +62,10 @@ class Account(Module):
     _keys = keys
 
     def create(self, extra_entropy=''):
-        extra_key_bytes = to_bytes(text=extra_entropy)
+        extra_key_bytes = text_if_str(to_bytes, extra_entropy)
         key_bytes = keccak(os.urandom(32) + extra_key_bytes)
+        if sys.version_info.major < 3:
+            key_bytes = to_hex(key_bytes)
         return self.privateKeyToAccount(key_bytes)
 
     def decrypt(self, keyfile_json, password):
@@ -74,7 +78,7 @@ class Account(Module):
         return decode_keyfile_json(keyfile, password.encode('utf8'))
 
     def encrypt(self, private_key, password):
-        key_bytes = bytes(private_key)
+        key_bytes = hexstr_if_str(to_bytes, private_key)
         assert len(key_bytes) == 32
         return create_keyfile_json(key_bytes, password.encode('utf8'))
 
@@ -84,8 +88,8 @@ class Account(Module):
         recovery_hasher = compose(to_hex, keccak, signature_wrapper)
         return recovery_hasher(message_bytes)
 
-    def privateKeyToAccount(self, primitive=None, hexstr=None):
-        key_bytes = to_bytes(primitive, hexstr=hexstr)
+    def privateKeyToAccount(self, private_key):
+        key_bytes = hexstr_if_str(to_bytes, private_key)
         try:
             key_obj = self._keys.PrivateKey(key_bytes)
             return LocalAccount(key_obj, self.web3)
@@ -98,20 +102,23 @@ class Account(Module):
                 original_exception
             )
 
-    def recover(self, msghash=None, msghash_hexstr=None, vrs=None, signature_bytes=None):
+    def recover(self, msghash=None, msghash_hexstr=None, vrs=None, signature=None):
         hash_bytes = to_bytes(msghash, hexstr=msghash_hexstr)
-        if vrs:
+        if vrs is not None:
             v, r, s = vrs
             v_standard = to_standard_v(v)
-            signature = self._keys.Signature(vrs=(v_standard, r, s))
+            signature_obj = self._keys.Signature(vrs=(v_standard, r, s))
+        elif signature is not None:
+            signature_bytes = hexstr_if_str(to_bytes, signature)
+            signature_obj = self._keys.Signature(signature_bytes=signature_bytes)
         else:
-            signature = self._keys.Signature(signature_bytes=signature_bytes)
-        pubkey = signature.recover_public_key_from_msg_hash(hash_bytes)
+            raise TypeError("You must supply the vrs tuple or the signature bytes")
+        pubkey = signature_obj.recover_public_key_from_msg_hash(hash_bytes)
         return pubkey.to_checksum_address()
 
-    def recoverTransaction(self, primitive=None, hexstr=None):
-        raw_tx = to_bytes(primitive, hexstr=hexstr)
-        txn = Transaction.from_bytes(raw_tx)
+    def recoverTransaction(self, serialized_transaction):
+        txn_bytes = hexstr_if_str(to_bytes, serialized_transaction)
+        txn = Transaction.from_bytes(txn_bytes)
         chain_aware_txn = annotate_transaction_with_chain_id(txn)
         return self.recover(chain_aware_txn.hash(), vrs=vrs_from(txn))
 
@@ -126,12 +133,7 @@ class Account(Module):
         '''
         msg_bytes = to_bytes(message, hexstr=message_hexstr, text=message_text)
         msg_hash = self.hashMessage(msg_bytes)
-        if isinstance(private_key, str) or (
-                sys.version_info.major < 3 and isinstance(private_key, unicode)  # noqa: F821
-            ):
-            key_bytes = to_bytes(hexstr=private_key)
-        else:
-            key_bytes = to_bytes(private_key)
+        key_bytes = hexstr_if_str(to_bytes, private_key)
         key = self._keys.PrivateKey(key_bytes)
         (v, r, s, eth_signature_bytes) = sign_message_hash(key, msg_hash)
         (r_hex, s_hex, eth_signature_hex) = map(to_hex, (r, s, eth_signature_bytes))
@@ -152,14 +154,7 @@ class Account(Module):
         '''
         assert isinstance(transaction_dict, Mapping)
 
-        # build private key
-        if isinstance(private_key, str) or (
-                sys.version_info.major < 3 and isinstance(private_key, unicode)  # noqa: F821
-            ):
-            key_bytes = to_bytes(hexstr=private_key)
-        else:
-            key_bytes = to_bytes(private_key)
-        account = self.privateKeyToAccount(key_bytes)
+        account = self.privateKeyToAccount(private_key)
 
         # detect nonce for this account
         if 'nonce' not in transaction_dict:
