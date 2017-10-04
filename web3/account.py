@@ -2,6 +2,7 @@
 from collections import (
     Mapping,
 )
+import functools
 import json
 import os
 import sys
@@ -38,6 +39,7 @@ from web3.utils.encoding import (
     hexstr_if_str,
     text_if_str,
     to_bytes,
+    to_decimal,
     to_hex,
     to_hex_with_size,
 )
@@ -103,10 +105,10 @@ class Account(Module):
                 original_exception
             )
 
-    def recover(self, msghash=None, msghash_hexstr=None, vrs=None, signature=None):
-        hash_bytes = to_bytes(msghash, hexstr=msghash_hexstr)
+    def recover(self, msghash, vrs=None, signature=None):
+        hash_bytes = hexstr_if_str(to_bytes, msghash)
         if vrs is not None:
-            v, r, s = vrs
+            v, r, s = map(functools.partial(hexstr_if_str, to_decimal), vrs)
             v_standard = to_standard_v(v)
             signature_obj = self._keys.Signature(vrs=(v_standard, r, s))
         elif signature is not None:
@@ -121,7 +123,10 @@ class Account(Module):
         txn_bytes = hexstr_if_str(to_bytes, serialized_transaction)
         txn = Transaction.from_bytes(txn_bytes)
         chain_aware_txn = annotate_transaction_with_chain_id(txn)
-        return self.recover(chain_aware_txn.hash(), vrs=vrs_from(txn))
+        msg_hash = chain_aware_txn.hash()
+        if sys.version_info.major < 3:
+            msg_hash = to_hex(msg_hash)
+        return self.recover(msg_hash, vrs=vrs_from(txn))
 
     def setKeyBackend(self, backend):
         self._keys = KeyAPI(backend)

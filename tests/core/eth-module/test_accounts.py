@@ -109,6 +109,7 @@ def test_eth_account_recover_transaction_with_literal(web3):
 def test_eth_account_recover_signature_bytes(web3):
     signature_bytes = b'\x0cu0\x84\xe5\xa8)\x02\x192L\x1a:\x86\xd4\x06M\xed-\x15\x97\x9b\x1e\xa7\x90sJ\xaa,\xea\xaf\xc1"\x9c\xa4S\x81\x06\x81\x9f\xd3\xa5P\x9d\xd3\x83\xe8\xfeKs\x1chp3\x95V\xa5\xc0o\xeb\x9c\xf30\xbb\x00'  # noqa: E501
     msg_hash = b'\xbb\r\x8a\xba\x9f\xf7\xa1<N,s{i\x81\x86r\x83{\xba\x9f\xe2\x1d\xaa\xdd\xb3\xd6\x01\xda\x00\xb7)\xa1'  # noqa: E501
+    msg_hash = to_hex_if_py2(msg_hash)
     signature = to_hex_if_py2(signature_bytes)
     from_account = web3.eth.account.recover(msg_hash, signature=signature)
     assert from_account == '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4'
@@ -121,7 +122,11 @@ def test_eth_account_recover_vrs(web3):
         15655399131600894366408541311673616702363115109327707006109616887384920764603,
     )
     msg_hash = b'\xbb\r\x8a\xba\x9f\xf7\xa1<N,s{i\x81\x86r\x83{\xba\x9f\xe2\x1d\xaa\xdd\xb3\xd6\x01\xda\x00\xb7)\xa1'  # noqa: E501
+    msg_hash = to_hex_if_py2(msg_hash)
     from_account = web3.eth.account.recover(msg_hash, vrs=(v, r, s))
+    assert from_account == '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4'
+
+    from_account = web3.eth.account.recover(msg_hash, vrs=map(to_hex, (v, r, s)))
     assert from_account == '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4'
 
 
@@ -132,6 +137,7 @@ def test_eth_account_recover_vrs_standard_v(web3):
         15655399131600894366408541311673616702363115109327707006109616887384920764603,
     )
     msg_hash = b'\xbb\r\x8a\xba\x9f\xf7\xa1<N,s{i\x81\x86r\x83{\xba\x9f\xe2\x1d\xaa\xdd\xb3\xd6\x01\xda\x00\xb7)\xa1'  # noqa: E501
+    msg_hash = to_hex_if_py2(msg_hash)
     from_account = web3.eth.account.recover(msg_hash, vrs=(v, r, s))
     assert from_account == '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4'
 
