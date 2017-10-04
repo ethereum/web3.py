@@ -119,6 +119,10 @@ class Account(Module):
         pubkey = signature_obj.recover_public_key_from_msg_hash(hash_bytes)
         return pubkey.to_checksum_address()
 
+    def recoverMessage(self, data=None, hexstr=None, text=None, vrs=None, signature=None):
+        msg_hash = self.hashMessage(data, hexstr=hexstr, text=text)
+        return self.recover(msg_hash, vrs=vrs, signature=signature)
+
     def recoverTransaction(self, serialized_transaction):
         txn_bytes = hexstr_if_str(to_bytes, serialized_transaction)
         txn = Transaction.from_bytes(txn_bytes)
