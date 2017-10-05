@@ -107,7 +107,7 @@ The following methods are available on the ``Web3.eth.account`` namespace.
 
 .. py:method:: Account.decrypt(keyfile_json, password)
 
-    Decrypts the private key encrypted using an Ethereum client or :meth:`Account.encrypt`.
+    Decrypts the private key encrypted using an Ethereum client or :meth:`~Account.encrypt`.
 
     :param keyfile_json: The encrypted key
     :type keyfile_json: dict or str
@@ -136,7 +136,7 @@ The following methods are available on the ``Web3.eth.account`` namespace.
 
 .. py:method:: Account.sign(message=None, private_key=None, message_hexstr=None, message_text=None)
 
-    Sign the message provided. This is equivalent to :meth:`web3.eth.Eth.sign` but with
+    Sign the message provided. This is equivalent to :meth:`eth.sign() <web3.eth.Eth.sign>` but with
     a local private key instead of an account in a connected client.
     
     Caller must supply exactly one of the message types:
@@ -177,9 +177,10 @@ The following methods are available on the ``Web3.eth.account`` namespace.
 
 .. py:method:: Account.recoverMessage(data=None, hexstr=None, text=None, vrs=None, signature=None)
 
-    Get the address of the account that signed the message with the given hash.
-    You must specify exactly one of: data, hexstr, or text
-    You must specify exactly one of: vrs or signature
+    Get the address of the account that signed the given message.
+
+    * You must specify exactly one of: data, hexstr, or text
+    * You must specify exactly one of: vrs or signature
 
     :param data: the raw message, before it was hashed or signed
     :type data: bytes or int 
@@ -276,7 +277,7 @@ The following methods are available on the ``Web3.eth.account`` namespace.
 
 .. py:method:: Account.hashMessage(data=None, hexstr=None, text=None)
 
-    Generate the message hash, including the prefix. See :meth:`Account.sign`
+    Generate the message hash, including the prefix. See :meth:`~Account.sign`
     for more about the prefix. Supply exactly one of the three arguments.
 
     :param data: the message to sign, in primitive form
@@ -295,7 +296,8 @@ The following methods are available on the ``Web3.eth.account`` namespace.
 .. py:method:: Account.signTransaction(transaction_dict, private_key)
 
     Sign a transaction using a local private key. Produces signature details
-    and a rawTransaction that you can broadcast.
+    and the hex-encoded transaction suitable for broadcast using
+    :meth:`~web3.eth.Eth.sendRawTransaction`.
 
     :param dict transaction_dict: the transaction with keys:
       nonce, chainId, to, data, value, gas, and gasPrice.
@@ -345,8 +347,8 @@ Private Key Convenience Methods
 ---------
 
 The following are a set of methods that mirror :class:`Account` methods, but
-with a prefilled private key. They are accessible as a result of the :meth:`Account.create` and
-:meth:`Account.privateKeyToAccount` calls.
+with a prefilled private key. They are accessible as a result of the :meth:`~Account.create` and
+:meth:`~Account.privateKeyToAccount` calls.
 
 
 .. py:method:: web3.utils.signing.LocalAccount.encrypt(password)
