@@ -56,6 +56,7 @@ def test_eth_account_privateKeyToAccount_reproducible(web3, PRIVATE_BYTES):
     account2 = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES)
     assert bytes(account1) == PRIVATE_BYTES
     assert bytes(account1) == bytes(account2)
+    assert isinstance(str(account1), str)
 
 
 def test_eth_account_privateKeyToAccount_diverge(web3, PRIVATE_BYTES, PRIVATE_BYTES_ALT):

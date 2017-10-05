@@ -7,10 +7,10 @@ from web3.utils.encoding import (
 )
 
 from web3.utils.transactions import (
-    ChainAwareTransaction,
+    ChainAwareUnsignedTransaction,
     UnsignedTransaction,
     encode_transaction,
-    serializable_unsigned_transaction,
+    serializable_unsigned_transaction_from_dict,
     strip_signature,
 )
 
@@ -20,7 +20,7 @@ V_OFFSET = 27
 
 def sign_transaction_dict(web3, eth_key, transaction_dict):
     # generate RLP-serializable transaction, with defaults filled
-    unsigned_transaction = serializable_unsigned_transaction(web3, transaction_dict)
+    unsigned_transaction = serializable_unsigned_transaction_from_dict(web3, transaction_dict)
 
     transaction_hash = unsigned_transaction.hash()
 
@@ -45,19 +45,29 @@ def signature_wrapper(message, version=b'E'):
         raise NotImplementedError("Only the 'Ethereum Signed Message' preamble is supported")
 
 
-def annotate_transaction_with_chain_id(txn_obj):
+def hash_of_signed_transaction(txn_obj):
     '''
-    Extends transaction with chain ID, according to EIP-155
+    Regenerate the hash of the signed transaction object.
+
+    1. Infer the chain ID from the signature
+    2. Strip out signature from transaction
+    3. Annotate the transaction with that ID, if available
+    4. Take the hash of the serialized, unsigned, chain-aware transaction
+
+    Chain ID inference and annotation is according to EIP-155
     See details at https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
-    @return (transaction_parts, chain_id, v)
+
+    :return: chain-aware transaction, ready for hashing/signing
+    :rtype: `~web3.utils.encoding.ExtendedRLP`
     '''
+    (chain_id, _v) = extract_chain_id(txn_obj.v)
     unsigned_parts = strip_signature(txn_obj)
-    (chain_id, v) = extract_chain_id(txn_obj.v)
     if chain_id is None:
-        return UnsignedTransaction(*unsigned_parts)
+        signable_transaction = UnsignedTransaction(*unsigned_parts)
     else:
-        extended_transaction = unsigned_parts + [chain_id, b'', b'']
-        return ChainAwareTransaction(*extended_transaction)
+        extended_transaction = unsigned_parts + [chain_id, 0, 0]
+        signable_transaction = ChainAwareUnsignedTransaction(*extended_transaction)
+    return signable_transaction.hash()
 
 
 def extract_chain_id(raw_v):
@@ -140,4 +150,7 @@ class LocalAccount(object):
 
     # Python 2 support
     def __str__(self):
-        return self.privateKey
+        if sys.version_info.major < 3:
+            return self.privateKey
+        else:
+            return super().__str__()

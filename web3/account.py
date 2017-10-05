@@ -27,7 +27,6 @@ from eth_keys.exceptions import (
 from eth_utils import (
     keccak,
     is_dict,
-    is_string,
 )
 
 from web3.module import Module
@@ -48,7 +47,7 @@ from web3.utils.exception import (
 )
 from web3.utils.signing import (
     LocalAccount,
-    annotate_transaction_with_chain_id,
+    hash_of_signed_transaction,
     sign_message_hash,
     sign_transaction_dict,
     signature_wrapper,
@@ -70,16 +69,20 @@ class Account(Module):
             key_bytes = to_hex(key_bytes)
         return self.privateKeyToAccount(key_bytes)
 
-    def decrypt(self, keyfile_json, password):
-        if is_string(keyfile_json):
+    @staticmethod
+    def decrypt(keyfile_json, password):
+        if isinstance(keyfile_json, str) or (
+                sys.version_info.major < 3 and isinstance(keyfile_json, unicode)):  # noqa: 821
             keyfile = json.loads(keyfile_json)
         elif is_dict(keyfile_json):
             keyfile = keyfile_json
         else:
             raise TypeError("The keyfile should be supplied as a JSON string, or a dictionary.")
-        return decode_keyfile_json(keyfile, password.encode('utf8'))
+        password_bytes = text_if_str(to_bytes, password)
+        return decode_keyfile_json(keyfile, password_bytes)
 
-    def encrypt(self, private_key, password):
+    @staticmethod
+    def encrypt(private_key, password):
         key_bytes = hexstr_if_str(to_bytes, private_key)
         password_bytes = text_if_str(to_bytes, password)
         assert len(key_bytes) == 32
@@ -126,8 +129,7 @@ class Account(Module):
     def recoverTransaction(self, serialized_transaction):
         txn_bytes = hexstr_if_str(to_bytes, serialized_transaction)
         txn = Transaction.from_bytes(txn_bytes)
-        chain_aware_txn = annotate_transaction_with_chain_id(txn)
-        msg_hash = chain_aware_txn.hash()
+        msg_hash = hash_of_signed_transaction(txn)
         if sys.version_info.major < 3:
             msg_hash = to_hex(msg_hash)
         return self.recover(msg_hash, vrs=vrs_from(txn))

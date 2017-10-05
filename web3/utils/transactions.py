@@ -31,7 +31,7 @@ from web3.utils.formatters import (
 )
 
 
-def serializable_unsigned_transaction(web3, transaction_dict):
+def serializable_unsigned_transaction_from_dict(web3, transaction_dict):
     return pipe(
         transaction_dict,
         dict,
@@ -113,12 +113,7 @@ class Transaction(ExtendedRLP):
 UnsignedTransaction = Transaction.exclude(['v', 'r', 's'])
 
 
-class ChainAwareTransaction(ExtendedRLP):
-    fields = tuple(UnsignedTransaction.fields) + (
-        ('v', big_endian_int),
-        ('r', Binary(max_length=0, allow_empty=True)),
-        ('s', Binary(max_length=0, allow_empty=True)),
-    )
+ChainAwareUnsignedTransaction = Transaction
 
 
 def strip_signature(txn):
