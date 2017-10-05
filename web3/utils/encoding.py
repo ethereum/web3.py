@@ -6,6 +6,10 @@ import warnings
 
 from rlp.sedes import big_endian_int
 
+from cytoolz import (
+    curry,
+)
+
 from eth_utils import (
     add_0x_prefix,
     coerce_args_to_bytes,
@@ -235,6 +239,7 @@ def to_text(primitive=None, hexstr=None, text=None):
     raise TypeError("Expected an int, bytes or hexstr.")
 
 
+@curry
 def text_if_str(to_type, text_or_primitive):
     '''
     Convert to a type, assuming that strings can be only unicode text (not a hexstr)
@@ -257,6 +262,7 @@ def text_if_str(to_type, text_or_primitive):
     return to_type(primitive, text=text)
 
 
+@curry
 def hexstr_if_str(to_type, hexstr_or_primitive):
     '''
     Convert to a type, assuming that strings can be only hexstr (not unicode text)
