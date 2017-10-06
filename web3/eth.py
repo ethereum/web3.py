@@ -43,14 +43,11 @@ from web3.utils.validation import (
 
 
 class Eth(Module):
+    account = Account()
     defaultAccount = empty
     defaultBlock = "latest"
     defaultContractFactory = Contract
     iban = Iban
-
-    def __init__(self, web3):
-        super(Eth, self).__init__(web3)
-        Account.attach(self)
 
     def namereg(self):
         raise NotImplementedError()

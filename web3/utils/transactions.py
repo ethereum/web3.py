@@ -32,11 +32,14 @@ from web3.utils.formatters import (
 
 
 def serializable_unsigned_transaction_from_dict(web3, transaction_dict):
+    '''
+    if web3 is None, fill out transaction as much as possible without calling client
+    '''
     return pipe(
         transaction_dict,
         dict,
-        format_transaction_values,
         fill_transaction_defaults(web3),
+        format_transaction_values,
         Transaction.from_dict,
     )
 
@@ -57,8 +60,8 @@ def coerce_to_decimal_excluding_unicode(val):
 
 TRANSACTION_DEFAULTS = {
     'gasPrice': lambda web3: web3.eth.gasPrice,
-    'value': lambda web3: 0,
-    'data': lambda web3: b'',
+    'value': 0,
+    'data': b'',
     'chainId': lambda web3: int(web3.net.version),
 }
 
@@ -68,7 +71,7 @@ TRANSACTION_FORMATTERS = {
     'gas': coerce_to_decimal_excluding_unicode,
     'to': apply_formatter_if(decode_hex, is_string),
     'value': coerce_to_decimal_excluding_unicode,
-    'data': apply_formatter_if(is_string, decode_hex),
+    'data': apply_formatter_if(decode_hex, is_string),
     'v': coerce_to_decimal_excluding_unicode,
     'r': coerce_to_decimal_excluding_unicode,
     's': coerce_to_decimal_excluding_unicode,
@@ -89,10 +92,20 @@ def format_transaction_values(transaction_dict):
 
 @curry
 def fill_transaction_defaults(web3, transaction):
+    '''
+    if web3 is None, fill as much as possible while offline
+    '''
     defaults = {}
-    for key, default_func in TRANSACTION_DEFAULTS.items():
+    for key, default_getter in TRANSACTION_DEFAULTS.items():
         if key not in transaction:
-            defaults[key] = default_func(web3)
+            if callable(default_getter):
+                if web3 is not None:
+                    default_val = default_getter(web3)
+                else:
+                    raise ValueError("You must specify %s in the transaction" % key)
+            else:
+                default_val = default_getter
+            defaults[key] = default_val
     return merge(defaults, transaction)
 
 

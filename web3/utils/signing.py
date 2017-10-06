@@ -18,7 +18,10 @@ CHAIN_ID_OFFSET = 35
 V_OFFSET = 27
 
 
-def sign_transaction_dict(web3, eth_key, transaction_dict):
+def sign_transaction_dict(eth_key, transaction_dict):
+    # indicate that no functions should try to make calls to the client
+    web3 = None
+
     # generate RLP-serializable transaction, with defaults filled
     unsigned_transaction = serializable_unsigned_transaction_from_dict(web3, transaction_dict)
 
@@ -115,11 +118,12 @@ class LocalAccount(object):
     Collection of convenience methods on private key, roughly using the
     same API as web3.js: https://web3js.readthedocs.io/en/1.0/web3-eth-accounts.html#create
     '''
-    def __init__(self, key, web3):
+    def __init__(self, key, account):
         '''
-        @param key instance of eth_keys.PrivateKey
+        :param eth_keys.PrivateKey key: to prefill in private key execution
+        :param web3.account.Account account: the key-unaware management API
         '''
-        self._publicapi = web3.eth.account
+        self._publicapi = account
 
         self.address = key.public_key.to_checksum_address()
 

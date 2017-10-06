@@ -29,8 +29,6 @@ from eth_utils import (
     is_dict,
 )
 
-from web3.module import Module
-
 from web3.utils.datastructures import (
     AttributeDict,
 )
@@ -59,7 +57,7 @@ from web3.utils.transactions import (
 )
 
 
-class Account(Module):
+class Account(object):
     _keys = keys
 
     def create(self, extra_entropy=''):
@@ -98,7 +96,7 @@ class Account(Module):
         key_bytes = hexstr_if_str(to_bytes, private_key)
         try:
             key_obj = self._keys.PrivateKey(key_bytes)
-            return LocalAccount(key_obj, self.web3)
+            return LocalAccount(key_obj, self)
         except ValidationError as original_exception:
             raise_from(
                 ValueError(
@@ -168,10 +166,6 @@ class Account(Module):
 
         account = self.privateKeyToAccount(private_key)
 
-        # detect nonce for this account
-        if 'nonce' not in transaction_dict:
-            transaction_dict['nonce'] = self.web3.eth.getTransactionCount(account.address)
-
         # sign transaction
         (
             v,
@@ -179,7 +173,7 @@ class Account(Module):
             s,
             transaction_hash,
             rlp_encoded,
-        ) = sign_transaction_dict(self.web3, account._key_obj, transaction_dict)
+        ) = sign_transaction_dict(account._key_obj, transaction_dict)
 
         # format most returned elements as hex
         signature_info = {
