@@ -155,6 +155,11 @@ def test_hexstr_if_str_passthrough(val):
     assert to_type.call_args == ((val, ), {'hexstr': None})
 
 
+def test_hexstr_if_str_curried():
+    converter = hexstr_if_str(to_hex)
+    assert converter(255) == '0xff'
+
+
 @only_python3
 @given(st.from_regex(HEX_REGEX))
 @example('0x')
