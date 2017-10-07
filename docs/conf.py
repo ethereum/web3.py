@@ -17,6 +17,15 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
+import os
+
+DIR = os.path.dirname('__file__')
+with open (os.path.join(DIR, '../setup.py'), 'r') as f:
+    for line in f:
+        if 'version=' in line:
+            setup_version = line.split('\'')[1]
+            break
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -41,9 +50,9 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Web3.py'
-copyright = u'2016, Piper Merriam'
+copyright = u'2017, Piper Merriam'
 
-__version__ = '2.4.0'
+__version__ = setup_version
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
