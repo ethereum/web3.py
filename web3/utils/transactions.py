@@ -37,14 +37,18 @@ def serializable_unsigned_transaction_from_dict(web3, transaction_dict):
     '''
     if web3 is None, fill out transaction as much as possible without calling client
     '''
-    return pipe(
+    filled_transaction = pipe(
         transaction_dict,
         dict,
         fill_transaction_defaults(web3),
         chain_id_to_v,
         apply_formatters_to_dict(TRANSACTION_FORMATTERS),
-        Transaction.from_dict,
     )
+    if 'v' in filled_transaction:
+        serializer = Transaction
+    else:
+        serializer = UnsignedTransaction
+    return serializer.from_dict(filled_transaction)
 
 
 def encode_transaction(unsigned_transaction, vrs):
@@ -77,7 +81,10 @@ TRANSACTION_FORMATTERS = {
 def chain_id_to_v(transaction_dict):
     # See EIP 155
     chain_id = transaction_dict.pop('chainId')
-    return dict(transaction_dict, v=chain_id, r=0, s=0)
+    if chain_id is None:
+        return transaction_dict
+    else:
+        return dict(transaction_dict, v=chain_id, r=0, s=0)
 
 
 @curry

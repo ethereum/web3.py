@@ -27,8 +27,13 @@ def sign_transaction_dict(eth_key, transaction_dict):
 
     transaction_hash = unsigned_transaction.hash()
 
+    # detect chain
+    if isinstance(unsigned_transaction, UnsignedTransaction):
+        chain_id = None
+    else:
+        chain_id = unsigned_transaction.v
+
     # sign with private key
-    chain_id = unsigned_transaction.v
     (v, r, s) = sign_transaction_hash(eth_key, transaction_hash, chain_id)
 
     # serialize transaction with rlp
@@ -101,7 +106,10 @@ def to_standard_v(enhanced_v):
 def sign_transaction_hash(account, transaction_hash, chain_id):
     signature = account.sign_msg_hash(transaction_hash)
     (v_raw, r, s) = signature.vrs
-    v = 2 * chain_id + CHAIN_ID_OFFSET + v_raw
+    if chain_id is None:
+        v = v_raw + V_OFFSET
+    else:
+        v = v_raw + CHAIN_ID_OFFSET + 2 * chain_id
     return (v, r, s)
 
 
