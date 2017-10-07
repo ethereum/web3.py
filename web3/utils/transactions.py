@@ -24,10 +24,12 @@ from web3.utils.compat import (
 )
 from web3.utils.encoding import (
     ExtendedRLP,
+    hexstr_if_str,
     to_decimal,
 )
 from web3.utils.formatters import (
     apply_formatter_if,
+    apply_formatters_to_dict,
 )
 
 
@@ -39,7 +41,8 @@ def serializable_unsigned_transaction_from_dict(web3, transaction_dict):
         transaction_dict,
         dict,
         fill_transaction_defaults(web3),
-        format_transaction_values,
+        chain_id_to_v,
+        apply_formatters_to_dict(TRANSACTION_FORMATTERS),
         Transaction.from_dict,
     )
 
@@ -51,13 +54,6 @@ def encode_transaction(unsigned_transaction, vrs):
     return rlp.encode(signed_transaction)
 
 
-def coerce_to_decimal_excluding_unicode(val):
-    if is_string(val):
-        return to_decimal(hexstr=val)
-    else:
-        return to_decimal(val)
-
-
 TRANSACTION_DEFAULTS = {
     'gasPrice': lambda web3: web3.eth.gasPrice,
     'value': 0,
@@ -66,28 +62,22 @@ TRANSACTION_DEFAULTS = {
 }
 
 TRANSACTION_FORMATTERS = {
-    'nonce': coerce_to_decimal_excluding_unicode,
-    'gasPrice': coerce_to_decimal_excluding_unicode,
-    'gas': coerce_to_decimal_excluding_unicode,
+    'nonce': hexstr_if_str(to_decimal),
+    'gasPrice': hexstr_if_str(to_decimal),
+    'gas': hexstr_if_str(to_decimal),
     'to': apply_formatter_if(decode_hex, is_string),
-    'value': coerce_to_decimal_excluding_unicode,
+    'value': hexstr_if_str(to_decimal),
     'data': apply_formatter_if(decode_hex, is_string),
-    'v': coerce_to_decimal_excluding_unicode,
-    'r': coerce_to_decimal_excluding_unicode,
-    's': coerce_to_decimal_excluding_unicode,
+    'v': hexstr_if_str(to_decimal),
+    'r': hexstr_if_str(to_decimal),
+    's': hexstr_if_str(to_decimal),
 }
 
 
-def format_transaction_values(transaction_dict):
+def chain_id_to_v(transaction_dict):
     # See EIP 155
     chain_id = transaction_dict.pop('chainId')
-    chain_aware_txn = dict(transaction_dict, v=chain_id, r=0, s=0)
-
-    return {
-        key: TRANSACTION_FORMATTERS[key](val)
-        for key, val
-        in chain_aware_txn.items()
-    }
+    return dict(transaction_dict, v=chain_id, r=0, s=0)
 
 
 @curry

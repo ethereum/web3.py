@@ -2,7 +2,6 @@
 from collections import (
     Mapping,
 )
-import functools
 import json
 import os
 import sys
@@ -109,7 +108,7 @@ class Account(object):
     def recover(self, msghash, vrs=None, signature=None):
         hash_bytes = hexstr_if_str(to_bytes, msghash)
         if vrs is not None:
-            v, r, s = map(functools.partial(hexstr_if_str, to_decimal), vrs)
+            v, r, s = map(hexstr_if_str(to_decimal), vrs)
             v_standard = to_standard_v(v)
             signature_obj = self._keys.Signature(vrs=(v_standard, r, s))
         elif signature is not None:
