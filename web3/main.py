@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import sys
 import warnings
 
 from eth_utils import (
@@ -105,6 +106,8 @@ class Web3(object):
     toChecksumAddress = staticmethod(to_checksum_address)
 
     def __init__(self, providers, middlewares=None, modules=None):
+        self._deprecation_warn()
+
         self.manager = RequestManager(self, providers, middlewares)
 
         if modules is None:
@@ -112,6 +115,16 @@ class Web3(object):
 
         for module_name, module_class in modules.items():
             module_class.attach(self, module_name)
+
+    def _deprecation_warn(self):
+        if sys.version_info.major < 3:
+            warnings.simplefilter('always', DeprecationWarning)
+            warnings.warn(
+                "Python 2 support is ending! Please upgrade to Python 3 promptly."
+                " Support will end at the beginning of 2018.",
+                category=DeprecationWarning,
+            )
+            warnings.simplefilter('default', DeprecationWarning)
 
     @property
     def middleware_stack(self):
