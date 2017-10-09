@@ -2,6 +2,7 @@
 
 """
 import functools
+import itertools
 import json
 import warnings
 

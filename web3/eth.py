@@ -301,14 +301,14 @@ class Eth(Module):
                  **kwargs):
         ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
 
-        NewContract = ContractFactoryClass.factory(self.web3, **kwargs)
+        ContractFactory = ContractFactoryClass.factory(self.web3, **kwargs)
 
         if address:
             validate_address(address)
 
-            return NewContract(address)
+            return ContractFactory(address)
         else:
-            return NewContract
+            return ContractFactory
 
     def setContractFactory(self, contractFactory):
         self.defaultContractFactory = contractFactory
