@@ -4,6 +4,22 @@ Quickstart
 .. contents:: :local:
 
 
+Environment
+------------
+
+Web3.py prefers Python 3, and will soon require it. Often, the
+best way to guarantee a clean Python 3 environment is with ``virtualenv``, like:
+
+.. code-block:: shell
+
+    # once:
+    $ virtualenv -p python3 ~/.venv-py3
+
+    # each session:
+    $ source ~/.venv-py3/bin/activate
+
+    # with virtualenv active, install...
+
 Installation
 ------------
 
