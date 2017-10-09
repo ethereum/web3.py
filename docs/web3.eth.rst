@@ -426,16 +426,30 @@ The following methods are available on the ``web3.eth`` namespace.
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
 
 
-.. py:method:: Eth.sign(account, data)
+.. py:method:: Eth.sign(account, data=None, hexstr=None, text=None)
 
     * Delegates to ``eth_sign`` RPC Method
 
-    Signs the given ``data`` with the private key of the given ``account``.
+    Caller must specify exactly one of: ``data``, ``hexstr``, or ``text``.
+
+    Signs the given data with the private key of the given ``account``.
     The account must be unlocked.
 
     .. code-block:: python
 
-        >>> web3.eth.sign('0xd3cda913deb6f67967b99d67acdfa1712c293601', 'some-text-to-sign')
+        >>> web3.eth.sign(
+              '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+              text='some-text-tö-sign')
+        '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
+
+        >>> web3.eth.sign(
+              '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+              data=b'some-text-t\xc3\xb6-sign')
+        '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
+
+        >>> web3.eth.sign(
+              '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+              hexstr='0x736f6d652d746578742d74c3b62d7369676e')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
 

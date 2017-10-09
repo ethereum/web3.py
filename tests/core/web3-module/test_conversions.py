@@ -27,6 +27,14 @@ def test_to_bytes_primitive(val, expected):
     assert Web3.toBytes(val) == expected
 
 
+@pytest.mark.skipif(sys.version_info.major > 2, reason="Python 3 doesn't have long type")
+def test_to_bytes_long():
+    minlong = sys.maxint + 1
+    assert minlong > sys.maxint  # are there any python interpreters that overflow?
+    valbytes = Web3.toBytes(minlong)
+    assert Web3.toDecimal(valbytes) == minlong
+
+
 @pytest.mark.parametrize(
     'val, expected',
     (
@@ -119,8 +127,6 @@ def test_to_text_hexstr(val, expected):
     )
 )
 def test_to_decimal(val, expected):
-    if isinstance(val, bytes) and bytes == str:
-        pytest.skip("Python 3 is required to pass in bytes")
     assert Web3.toDecimal(val) == expected
 
 

@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-from cytoolz import compose
 from cytoolz.dicttoolz import (
     assoc,
 )
@@ -8,11 +7,11 @@ from cytoolz.dicttoolz import (
 from eth_utils import (
     is_address,
     is_string,
-    keccak,
 )
 
 from web3.iban import Iban
 
+from web3.account import Account
 from web3.contract import (
     Contract,
 )
@@ -23,14 +22,10 @@ from web3.module import (
 from web3.utils.blocks import (
     select_method_for_block_identifier,
 )
-from web3.utils.signing import (
-    signature_wrapper,
-)
 from web3.utils.empty import (
     empty,
 )
 from web3.utils.encoding import (
-    to_bytes,
     to_hex,
 )
 from web3.utils.filters import (
@@ -48,6 +43,7 @@ from web3.utils.validation import (
 
 
 class Eth(Module):
+    account = Account()
     defaultAccount = empty
     defaultBlock = "latest"
     defaultContractFactory = Contract
@@ -232,12 +228,6 @@ class Eth(Module):
         return self.web3.manager.request_blocking(
             "eth_sign", [account, message_hex],
         )
-
-    @staticmethod
-    def _recoveryMessageHash(data=None, hexstr=None, text=None):
-        message_bytes = to_bytes(data, hexstr=hexstr, text=text)
-        recovery_hasher = compose(to_hex, keccak, signature_wrapper)
-        return recovery_hasher(message_bytes)
 
     def call(self, transaction, block_identifier=None):
         # TODO: move to middleware
