@@ -189,7 +189,8 @@ class Web3(object):
             )
         )
 
-    def soliditySha3(self, abi_types, values):
+    @classmethod
+    def soliditySha3(cls, abi_types, values):
         """
         Executes sha3 (keccak256) exactly as Solidity does.
         Takes list of abi_types as inputs -- `[uint24, int8[], bool]`
@@ -206,7 +207,7 @@ class Web3(object):
             for abi_type, value
             in zip(abi_types, values)
         ))
-        return self.sha3(hexstr=hex_string)
+        return cls.sha3(hexstr=hex_string)
 
     def isConnected(self):
         for provider in self.providers:

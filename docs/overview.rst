@@ -236,7 +236,7 @@ Addresses
 Cryptographic Hashing
 ~~~~~~~~~~~~~~~~
 
-.. py:method:: Web3.sha3(primitive=None, hexstr=None, text=None)
+.. py:classmethod:: Web3.sha3(primitive=None, hexstr=None, text=None)
 
     Returns the Keccak SHA256 of the given value. Text is encoded to UTF-8 before
     computing the hash, just like Solidity. Any of the following are
@@ -244,13 +244,13 @@ Cryptographic Hashing
 
     .. code-block:: python
 
-        web3.sha3(0x747874)
-        web3.sha3(b'\x74\x78\x74')
-        web3.sha3(hexstr='0x747874')
-        web3.sha3(hexstr='747874')
-        web3.sha3(text='txt')
+        Web3.sha3(0x747874)
+        Web3.sha3(b'\x74\x78\x74')
+        Web3.sha3(hexstr='0x747874')
+        Web3.sha3(hexstr='747874')
+        Web3.sha3(text='txt')
 
-.. py:method:: Web3.soliditySha3(abi_types, value)
+.. py:classmethod:: Web3.soliditySha3(abi_types, value)
 
     Returns the sha3 as it would be computed by the solidity ``sha3`` function
     on the provided ``value`` and ``abi_types``.  The ``abi_types`` value
@@ -260,11 +260,13 @@ Cryptographic Hashing
 
     .. code-block:: python
 
-        >>> web3.soliditySha3(['bool'], True)
+        >>> Web3.soliditySha3(['bool'], True)
         "0x5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2"
-        >>> web3.soliditySha3(['uint8', 'uint8', 'uint8'], [97, 98, 99])
+        >>> Web3.soliditySha3(['uint8', 'uint8', 'uint8'], [97, 98, 99])
         "0x4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45"
-        >>> web3.soliditySha3(['address'], ["0x49eddd3769c0712032808d86597b84ac5c2f5614"])
+        >>> Web3.soliditySha3(['uint8[]'], [[97, 98, 99]])
+        "0x233002c671295529bcc50b76a2ef2b0de2dac2d93945fca745255de1a9e4017e"
+        >>> Web3.soliditySha3(['address'], ["0x49eddd3769c0712032808d86597b84ac5c2f5614"])
         "0x2ff37b5607484cd4eecf6d13292e22bd6e5401eaffcc07e279583bc742c68882"
 
 
