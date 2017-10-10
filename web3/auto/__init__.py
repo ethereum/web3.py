@@ -5,4 +5,3 @@ web3 = ipc.ipc()
 
 if not web3:
     web3 = http.http()
-
