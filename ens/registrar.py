@@ -14,7 +14,7 @@ GAS_DEFAULT = {
     'bid': 500000,
     'reveal': 150000,
     'finalize': 120000,
-    }
+}
 
 START_GAS_CONSTANT = 25000
 START_GAS_MARGINAL = 39000
@@ -146,7 +146,7 @@ class Registrar:
             datetime.fromtimestamp(entries[2], pytz.utc) if entries[2] else None,
             entries[3],
             entries[4],
-            )
+        )
 
     @property
     def core(self):
@@ -201,8 +201,9 @@ class Registrar:
             pieces = name.split('.')
             if len(pieces) != 2:
                 raise ValueError(
-                        "You must specify a label, like 'tickets' "
-                        "or a fully-qualified name, like 'tickets.eth'")
+                    "You must specify a label, like 'tickets' "
+                    "or a fully-qualified name, like 'tickets.eth'"
+                )
             if pieces[-1] != REGISTRAR_NAME:
                 raise ValueError("This interface only manages names under .%s " % REGISTRAR_NAME)
             label = pieces[-2]

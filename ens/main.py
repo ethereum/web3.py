@@ -75,7 +75,8 @@ class ENS:
             address = resolved
         elif resolved and address != resolved:
             raise AddressMismatch(
-                    "To change the name for an existing address, call setup_address() first")
+                "To change the name for an existing address, call setup_address() first"
+            )
         if not address:
             address = self.owner(name)
         if not address:
@@ -152,8 +153,10 @@ class ENS:
     def _assert_control(self, account, name, parent_owned=None):
         if account not in self.web3.eth.accounts:
             raise UnauthorizedError(
-                    "in order to modify %r, you must control account %r, which owns %r" % (
-                        name, account, parent_owned or name))
+                "in order to modify %r, you must control account %r, which owns %r" % (
+                    name, account, parent_owned or name
+                )
+            )
 
     def _first_owner(self, name):
         '@returns (owner or None, list(unowned_subdomain_labels), first_owned_domain)'
@@ -173,11 +176,11 @@ class ENS:
         transact['gas'] = GAS_DEFAULT['setSubnodeOwner']
         for label in reversed(unowned):
             self.ens.setSubnodeOwner(
-                    self.namehash(owned),
-                    self.labelhash(label),
-                    owner,
-                    transact=transact
-                    )
+                self.namehash(owned),
+                self.labelhash(label),
+                owner,
+                transact=transact
+            )
             owned = "%s.%s" % (label, owned)
 
     @dict_copy
