@@ -7,6 +7,9 @@ from .formatting import (  # noqa: F401
 from .exception_handling import (  # noqa: F401
     construct_exception_handler_middleware,
 )
+from .names import (  # noqa: F401
+    name_to_address_middleware,
+)
 from .pythonic import (  # noqa: F401
     pythonic_middleware,
 )
