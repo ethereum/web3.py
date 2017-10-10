@@ -1,5 +1,6 @@
 import re
 import random
+import warnings
 
 from eth_utils import (
     is_string,
@@ -93,6 +94,15 @@ class Filter(GreenletThread):
             else:
                 sleep(self.poll_interval)
 
+    def _warn_async_deprecated(self, method_name):
+        warnings.warn(DeprecationWarning(
+            "Asyncronous filters have been deprecated "
+            "and {0} will be removed from the Filter class "
+            "in future releases.  Update your code to use work "
+            "syncronously or handle asyncrony explicitly with a "
+            "third party library.".format(method_name)
+        ))
+
     def format_entry(self, entry):
         """
         Hook for subclasses to change the format of the value that is passed
@@ -107,6 +117,8 @@ class Filter(GreenletThread):
         return True
 
     def watch(self, *callbacks):
+        self._warn_async_deprecated("watch")
+
         if self.stopped:
             raise ValueError("Cannot watch on a filter that has been stopped")
         self.callbacks.extend(callbacks)
@@ -116,6 +128,8 @@ class Filter(GreenletThread):
         sleep(0)
 
     def stop_watching(self, timeout=0):
+        self._warn_async_deprecated("stop_watching")
+
         self.running = False
         self.stopped = True
         self.web3.eth.uninstallFilter(self.filter_id)
@@ -234,6 +248,8 @@ class ShhFilter(Filter):
                 sleep(self.poll_interval)
 
     def stop_watching(self, timeout=0):
+        self._warn_async_deprecated("stop_watching")
+
         self.running = False
         self.stopped = True
         self.web3.shh.uninstallFilter(self.filter_id)
