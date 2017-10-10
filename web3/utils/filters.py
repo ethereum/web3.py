@@ -177,6 +177,13 @@ class LogFilter(Filter):
         super(LogFilter, self).__init__(*args, **kwargs)
 
     def get(self, only_changes=True):
+        warnings.warn(DeprecationWarning(
+            "LogFilter.get has been deprecated and "
+            "will be removed from the LogFilter class in future releases. "
+            "Update your code to use the new methods: "
+            "LogFilter.get_new_entries and LogFilter.get_all_entries."
+        ))
+
         if self.running:
             raise ValueError(
                 "Cannot call `get` on a filter object which is actively watching"
