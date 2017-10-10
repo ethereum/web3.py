@@ -1,6 +1,7 @@
 Filtering
 =========
 
+
 .. py:module:: web3.utils.filters
 .. py:currentmodule:: web3.utils.filters
 
@@ -57,6 +58,11 @@ and methods.
     Hook for subclasses to add additional programatic filtering.  The default
     implementation always returns ``True``.
 
+
+Asynchronous Filter API
+-----------------------
+
+.. warning:: Asynchrony Deprecation: Native asynchronous filtering is being deprecated soon in favor a simpler synchronous implementation. See **Async Examples** for sample asynchronous usage using 3rd party libraries.
 
 .. py:method:: Filter.watch(*callbacks)
 
@@ -116,6 +122,26 @@ Event Log Filters
 The :py:class::`LogFilter` class is used for all filters pertaining to event
 logs.  It exposes the following additional methods.
 
+
+.. py:method:: LogFilter.get_new_entries()
+
+    Retrieve new event logs for this filter.
+
+    Logs will be retrieved using the
+    ``web3.eth.getFilterChanges`` which returns only new entries since the last
+    poll.
+
+
+.. py:method:: LogFilter.get_all_entries()
+
+    Retrieve all event logs for this filter.
+
+    Logs will be retrieved using the
+    ``web3.eth.getFilterLogs`` which returns all logs that match the given
+    filter.
+
+
+.. warning:: Pending Deprecation:  ``LogFilter.get`` is being deprecated soon in favor of ``LogFilter.get_new_entries`` and ``LogFilter.get_all_entries``.
 
 .. py:method:: LogFilter.get(only_changes=True)
 
