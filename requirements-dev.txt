@@ -5,6 +5,7 @@ flake8==3.4.1
 hypothesis>=3.31.2
 py-geth==1.10.1
 pytest>=3.2.1
+pytest-mock==1.*
 pytest-pythonpath>=0.3
 pytest-watch==4.*
 tox>=1.8.0
