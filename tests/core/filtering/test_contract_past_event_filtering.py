@@ -64,6 +64,40 @@ def test_past_events_filter_using_get_api(web3,
         filter = Emitter.pastEvents('LogNoArguments')
 
     with Timeout(30) as timeout:
+        while not filter.get_all_entries():
+            timeout.sleep(sleep_interval())
+
+    log_entries = filter.get_all_entries()
+
+    assert len(log_entries) == 1
+    event_data = log_entries[0]
+    assert event_data['args'] == {}
+    assert event_data['blockHash'] == txn_receipt['blockHash']
+    assert event_data['blockNumber'] == txn_receipt['blockNumber']
+    assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
+    assert event_data['address'] == emitter.address
+    assert event_data['event'] == 'LogNoArguments'
+
+
+@flaky(max_runs=3)
+@pytest.mark.parametrize('call_as_instance', (True, False))
+def test_past_events_filter_using_get_entries_api(web3,
+                                                  sleep_interval,
+                                                  emitter,
+                                                  Emitter,
+                                                  wait_for_transaction,
+                                                  emitter_log_topics,
+                                                  emitter_event_ids,
+                                                  call_as_instance):
+    txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
+    txn_receipt = wait_for_transaction(web3, txn_hash)
+
+    if call_as_instance:
+        filter = emitter.pastEvents('LogNoArguments')
+    else:
+        filter = Emitter.pastEvents('LogNoArguments')
+
+    with Timeout(30) as timeout:
         while not filter.get(False):
             timeout.sleep(sleep_interval())
 

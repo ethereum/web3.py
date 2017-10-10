@@ -97,7 +97,7 @@ class Filter(GreenletThread):
     def _warn_async_deprecated(self, method_name):
         warnings.warn(DeprecationWarning(
             "Asynchronous filters have been deprecated "
-            "and {0} will be removed from the Filter class "
+            "and `{0}` will be removed from the Filter class "
             "in future releases.  Update your code to work "
             "syncronously or handle asynchrony explicitly with a "
             "third party library.".format(method_name)
@@ -176,6 +176,34 @@ class LogFilter(Filter):
             self.set_data_filters(kwargs.pop('data_filter_set'))
         super(LogFilter, self).__init__(*args, **kwargs)
 
+    def _ensure_not_running(self, method_name):
+        if self.running:
+            raise ValueError(
+                "Cannot call `{0}` on a filter object which is actively watching"
+                .format(method_name)
+            )
+
+    def _format_log_entries(self, log_entries=None):
+        if log_entries is None:
+            log_entries = []
+
+        formatted_log_entries = [
+            self.format_entry(log_entry) for log_entry in log_entries
+        ]
+        return formatted_log_entries
+
+    def get_new_entries(self):
+        self._ensure_not_running("get_new_entries")
+
+        log_entries = self.web3.eth.getFilterChanges(self.filter_id)
+        return self._format_log_entries(log_entries)
+
+    def get_all_entries(self):
+        self._ensure_not_running("get_all_entries")
+
+        log_entries = self.web3.eth.getFilterLogs(self.filter_id)
+        return self._format_log_entries(log_entries)
+
     def get(self, only_changes=True):
         warnings.warn(DeprecationWarning(
             "LogFilter.get has been deprecated and "
@@ -184,22 +212,14 @@ class LogFilter(Filter):
             "LogFilter.get_new_entries and LogFilter.get_all_entries."
         ))
 
-        if self.running:
-            raise ValueError(
-                "Cannot call `get` on a filter object which is actively watching"
-            )
+        self._ensure_not_running("get")
+
         if only_changes:
             log_entries = self.web3.eth.getFilterChanges(self.filter_id)
         else:
             log_entries = self.web3.eth.getFilterLogs(self.filter_id)
 
-        if log_entries is None:
-            log_entries = []
-
-        formatted_log_entries = [
-            self.format_entry(log_entry) for log_entry in log_entries
-        ]
-        return formatted_log_entries
+        return self._format_log_entries(log_entries)
 
     def format_entry(self, entry):
         if self.log_entry_formatter:
