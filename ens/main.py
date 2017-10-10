@@ -1,8 +1,6 @@
 
 import idna
 
-from web3 import Web3
-
 from ens import abis
 from ens.constants import EMPTY_SHA3_BYTES
 from ens.registrar import Registrar
@@ -19,7 +17,12 @@ GAS_DEFAULT = {
     'setAddr': 60001,
     'setResolver': 60002,
     'setSubnodeOwner': 60003,
-    }
+}
+
+
+def Web3():
+    from web3 import Web3
+    return Web3
 
 
 class ENS:
@@ -63,9 +66,9 @@ class ENS:
         resolver = self._set_resolver(name, transact=transact)
         transact['gas'] = GAS_DEFAULT['setAddr']
         if isinstance(address, str):
-            address = Web3.toBytes(hexstr=address)
+            address = Web3().toBytes(hexstr=address)
         else:
-            address = Web3.toBytes(address)
+            address = Web3().toBytes(address)
         return resolver.setAddr(self.namehash(name), address, transact=transact)
 
     @dict_copy
@@ -106,8 +109,8 @@ class ENS:
                 labelhash = self.labelhash(label)
                 assert isinstance(labelhash, bytes)
                 assert isinstance(node, bytes)
-                sha_hex = Web3.sha3(node + labelhash)
-                node = Web3.toBytes(hexstr=sha_hex)
+                sha_hex = Web3().sha3(node + labelhash)
+                node = Web3().toBytes(hexstr=sha_hex)
         return node
 
     def resolver(self, name):
@@ -127,8 +130,8 @@ class ENS:
     def labelhash(self, label):
         prepped = self.nameprep(label)
         label_bytes = prepped.encode()
-        sha_hex = Web3.sha3(label_bytes)
-        return Web3.toBytes(hexstr=sha_hex)
+        sha_hex = Web3().sha3(label_bytes)
+        return Web3().toBytes(hexstr=sha_hex)
 
     def reverse_domain(self, address):
         address = ensure_hex(address)
@@ -191,10 +194,10 @@ class ENS:
         if self.ens.resolver(namehash) != resolver_addr:
             transact['gas'] = GAS_DEFAULT['setResolver']
             self.ens.setResolver(
-                    namehash,
-                    Web3.toBytes(hexstr=resolver_addr),
-                    transact=transact
-                    )
+                namehash,
+                Web3().toBytes(hexstr=resolver_addr),
+                transact=transact
+            )
         return self._resolverContract(address=resolver_addr)
 
     @dict_copy
@@ -210,7 +213,7 @@ class ENS:
     @classmethod
     def _full_name(cls, name):
         if isinstance(name, (bytes, bytearray)):
-            name = Web3.toText(name)
+            name = Web3().toText(name)
         name = cls.nameprep(name)
         pieces = name.split('.')
         if pieces[-1] not in RECOGNIZED_TLDS:

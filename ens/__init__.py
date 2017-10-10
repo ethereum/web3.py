@@ -4,5 +4,3 @@ from .main import (
     ENS,
     InvalidName,
 )
-
-names = ENS()

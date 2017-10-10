@@ -4,9 +4,14 @@ from datetime import datetime
 from enum import IntEnum
 
 import pytz
-from web3 import Web3
 
 from ens import abis
+
+
+def Web3():
+    from web3 import Web3
+    return Web3
+
 
 REGISTRAR_NAME = 'eth'
 
@@ -19,7 +24,7 @@ GAS_DEFAULT = {
 START_GAS_CONSTANT = 25000
 START_GAS_MARGINAL = 39000
 
-MIN_BID = Web3.toWei('0.01', 'ether')
+MIN_BID = 10000000000000000  # 0.01 ether
 MIN_NAME_LENGTH = 7
 
 AuctionEntries = namedtuple('AuctionEntries', 'status, deed, close_at, deposit, top_bid')
@@ -96,12 +101,12 @@ class Registrar:
                 transact['value'] = amount
             elif transact['value'] < amount:
                 raise UnderfundedBid("Bid of %s ETH was only funded with %s ETH" % (
-                                     Web3.fromWei(amount, 'ether'),
-                                     Web3.fromWei(transact['value'], 'ether')))
+                                     Web3().fromWei(amount, 'ether'),
+                                     Web3().fromWei(transact['value'], 'ether')))
         label = self._to_label(label)
         sender = self.__require_sender(modifier_dict)
         if amount < MIN_BID:
-            raise BidTooLow("You must bid at least %s ether" % Web3.fromWei(MIN_BID, 'ether'))
+            raise BidTooLow("You must bid at least %s ether" % Web3().fromWei(MIN_BID, 'ether'))
         bid_hash = self._bid_hash(label, sender, amount, secret)
         return self.core.newBid(bid_hash, **modifier_dict)
 
@@ -184,8 +189,8 @@ class Registrar:
     def _secret_hash(secret):
         if isinstance(secret, str):
             secret = secret.encode()
-        secret_hash = Web3.sha3(secret)
-        return Web3.toBytes(hexstr=secret_hash)
+        secret_hash = Web3().sha3(secret)
+        return Web3().toBytes(hexstr=secret_hash)
 
     def _to_label(self, name):
         '''
