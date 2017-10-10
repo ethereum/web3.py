@@ -1,7 +1,7 @@
 from web3.auto import ipc
 from web3.auto import http
 
-web3 = ipc.ipc()
+w3 = ipc.ipc()
 
-if not web3:
-    web3 = http.http()
+if not w3:
+    w3 = http.http()

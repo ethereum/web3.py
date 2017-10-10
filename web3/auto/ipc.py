@@ -9,19 +9,20 @@ from web3 import (
 def ipc():
 
     home = path.expanduser('~')
+
     # The following 2 lines are default paths
     parity_path = home + '/.local/share/io.parity.ethereum/jsonrpc.ipc'
     geth_path = home + '/.ethereum/geth.ipc'
 
-    web3 = Web3(IPCProvider(parity_path))
-    if web3.isConnected():
-        return web3
+    w3 = Web3(IPCProvider(parity_path))
+    if w3.isConnected():
+        return w3
 
-    web3 = Web3(IPCProvider(geth_path))
-    if web3.isConnected():
-        return web3
+    w3 = Web3(IPCProvider(geth_path))
+    if w3.isConnected():
+        return w3
 
     return False
 
 
-web3 = ipc()
+w3 = ipc()

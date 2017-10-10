@@ -6,11 +6,11 @@ from web3 import (
 
 def http():
 
-    web3 = Web3(HTTPProvider('http://localhost:8545'))
-    if web3.isConnected():
-        return web3
+    w3 = Web3(HTTPProvider('http://localhost:8545'))
+    if w3.isConnected():
+        return w3
     else:
         return False
 
 
-web3 = http()
+w3 = http()
