@@ -96,10 +96,10 @@ class Filter(GreenletThread):
 
     def _warn_async_deprecated(self, method_name):
         warnings.warn(DeprecationWarning(
-            "Asyncronous filters have been deprecated "
+            "Asynchronous filters have been deprecated "
             "and {0} will be removed from the Filter class "
-            "in future releases.  Update your code to use work "
-            "syncronously or handle asyncrony explicitly with a "
+            "in future releases.  Update your code to work "
+            "syncronously or handle asynchrony explicitly with a "
             "third party library.".format(method_name)
         ))
 
