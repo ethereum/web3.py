@@ -73,6 +73,10 @@ class ENS:
         '''
         return cls(web3.manager.providers, addr=addr)
 
+    @classmethod
+    def fromWeb3(cls, web3):
+        return cls(web3.manager.providers)
+
     def address(self, name):
         '''
         Look up the Ethereum address that `name` currently points to.

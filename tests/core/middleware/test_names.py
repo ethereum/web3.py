@@ -14,11 +14,10 @@ def fake_addr(val):
 @pytest.fixture
 def request_middleware():
     make_request, web3 = Mock(), Mock()
-    with patch('web3.middleware.names.ENS') as MockENS:
+    with patch('web3.middleware.names.ENS.fromWeb3') as MockENS:
         initialized = name_to_address_middleware(make_request, web3)
         initialized.ens = MockENS.return_value
     # for easier mocking, later:
-    initialized.web3 = web3
     initialized.make_request = make_request
     return initialized
 

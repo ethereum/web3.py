@@ -1,8 +1,8 @@
-
 from ens import ENS
 
 from web3.utils.ens import (
     is_ens_name,
+    validate_name_has_address,
 )
 
 from web3.utils.formatters import (
@@ -41,13 +41,11 @@ def address_getter(web3):
                 return val
         return reject_name
     else:
-        ens = ENS(web3.manager.providers)
+        ens = ENS.fromWeb3(web3)
 
         def to_address(name):
             if is_ens_name(name):
-                address = ens.address(name)
-                if not address:
-                    raise ValueError("Could not find address for name %r" % name)
+                address = validate_name_has_address(ens, name)
             else:
                 address = name
             return address
