@@ -344,3 +344,8 @@ class LogTopics(object):
 @pytest.fixture()
 def emitter_log_topics():
     return LogTopics
+
+
+@pytest.fixture()
+def some_address():
+    return '0x5B2063246F2191f18F2675ceDB8b28102e957458'
