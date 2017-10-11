@@ -11,6 +11,7 @@ from web3.exceptions import (
 from web3.middleware import (
     pythonic_middleware,
     attrdict_middleware,
+    name_to_address_middleware,
 )
 
 from web3.utils.datastructures import (
@@ -27,7 +28,7 @@ class RequestManager(object):
         self.pending_requests = {}
 
         if middlewares is None:
-            middlewares = [attrdict_middleware, pythonic_middleware]
+            middlewares = [name_to_address_middleware, attrdict_middleware, pythonic_middleware]
 
         self.middleware_stack = NamedElementStack(middlewares)
         self.providers = providers
