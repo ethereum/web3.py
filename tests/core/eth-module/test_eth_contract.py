@@ -16,7 +16,7 @@ INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
     (
         ((ADDRESS,), {}, None),
         ((INVALID_CHECKSUM_ADDRESS,), {}, ValueError),
-        ((), {'address': INVALID_CHECKSUM_ADDRESS}, ValueError),
+        ((), {'address': ADDRESS}, None),
         ((), {'address': INVALID_CHECKSUM_ADDRESS}, ValueError),
     )
 )
