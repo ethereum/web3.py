@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+3.16.2
+------
+
+* Bump ``ethereum-tester`` dependency to ``~0.1.0b2`` to unpin ``rlp`` version.
+
+
 3.16.1
 ------
 
