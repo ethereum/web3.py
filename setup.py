@@ -23,7 +23,7 @@ install_requires = [
     "requests>=2.12.4",
     "rlp>=0.4.7",
     "toolz>=0.8.2",
-    "ethereum-tester~=0.1.0b1",
+    "ethereum-tester~=0.1.0b2",
 ]
 
 if sys.platform == 'win32':
