@@ -44,6 +44,12 @@ from web3.utils.abi import (
         (b'\0' * 25, 'function', False),
         (True, 'function', False),
         (False, 'function', False),
+        # address
+        ('0x' + '00' * 20, 'address', True),
+        ('0x' + '00' * 32, 'address', False),
+        (None, 'address', False),
+        ('dennisthepeasant.eth', 'address', True),  # passes because eth_utils converts to bytes :/
+        ('autonomouscollective.eth', 'address', True),
     ),
 )
 def test_is_encodable(value, _type, expected):

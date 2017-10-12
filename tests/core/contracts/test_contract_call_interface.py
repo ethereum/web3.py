@@ -1,4 +1,6 @@
+import itertools
 import pytest
+from unittest.mock import patch
 
 from web3.exceptions import (
     BadFunctionCallOutput,
@@ -13,44 +15,39 @@ from web3.utils.datastructures import (
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
-@pytest.fixture()
-def math_contract(web3, MathContract):
-    deploy_txn = MathContract.deploy()
+def deploy(web3, Contract, args=None):
+    deploy_txn = Contract.deploy(args=args)
     deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    _math_contract = MathContract(address=deploy_receipt['contractAddress'])
-    return _math_contract
+    contract = Contract(address=deploy_receipt['contractAddress'])
+    return contract
+
+
+@pytest.fixture()
+def address_reflector_contract(web3, AddressReflectorContract):
+    return deploy(web3, AddressReflectorContract)
+
+
+@pytest.fixture()
+def math_contract(web3, MathContract):
+    return deploy(web3, MathContract)
 
 
 @pytest.fixture()
 def string_contract(web3, StringContract):
-    deploy_txn = StringContract.deploy(args=["Caqalai"])
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    _string_contract = StringContract(address=deploy_receipt['contractAddress'])
-    return _string_contract
+    return deploy(web3, StringContract, args=["Caqalai"])
 
 
 @pytest.fixture()
 def address_contract(web3, WithConstructorAddressArgumentsContract):
-    deploy_txn = WithConstructorAddressArgumentsContract.deploy(args=[
+    return deploy(web3, WithConstructorAddressArgumentsContract, args=[
         "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
     ])
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    _address_contract = WithConstructorAddressArgumentsContract(
-        address=deploy_receipt['contractAddress'],
-    )
-    return _address_contract
 
 
 @pytest.fixture(params=[b'\x04\x06', '0x0406', '0406'])
 def bytes_contract(web3, BytesContract, request):
-    deploy_txn = BytesContract.deploy(args=[request.param])
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    _bytes_contract = BytesContract(address=deploy_receipt['contractAddress'])
-    return _bytes_contract
+    return deploy(web3, BytesContract, args=[request.param])
 
 
 @pytest.fixture(params=[
@@ -59,11 +56,7 @@ def bytes_contract(web3, BytesContract, request):
     HexBytes('0406040604060406040604060406040604060406040604060406040604060406'),
 ])
 def bytes32_contract(web3, Bytes32Contract, request):
-    deploy_txn = Bytes32Contract.deploy(args=[request.param])
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    _bytes_contract = Bytes32Contract(address=deploy_receipt['contractAddress'])
-    return _bytes_contract
+    return deploy(web3, Bytes32Contract, args=[request.param])
 
 
 @pytest.fixture()
@@ -131,6 +124,17 @@ def test_call_read_address_variable(address_contract):
     assert result == "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"
 
 
+def test_init_with_ens_name_arg(web3, WithConstructorAddressArgumentsContract):
+    with patch('web3.contract.ENS.fromWeb3') as MockENS:
+        ens = MockENS.return_value
+        ens.address.return_value = "0xbb9bc244d798123fde783fcc1c72d3bb8c189413"
+        address_contract = deploy(web3, WithConstructorAddressArgumentsContract, args=[
+            "executiveofficerfortheweek.eth",
+        ])
+
+    assert address_contract.call().testAddr() == "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413"
+
+
 def test_call_read_bytes_variable(bytes_contract):
     result = bytes_contract.call().constValue()
     assert result == b"\x01\x23"
@@ -149,6 +153,54 @@ def test_call_read_bytes32_variable(bytes32_contract):
 def test_call_get_bytes32_value(bytes32_contract):
     result = bytes32_contract.call().getValue()
     assert result == b'\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06'  # noqa
+
+
+@pytest.mark.parametrize(
+    'value',
+    [
+        '0x' + '11' * 20,
+        ['0x' + '11' * 20, '0x' + '22' * 20],
+    ]
+)
+def test_call_address_reflector_raw(address_reflector_contract, value):
+    assert address_reflector_contract.call().reflect(value) == value
+
+
+def test_call_address_reflector_single_name(address_reflector_contract):
+    with patch('web3.contract.ENS.fromWeb3') as MockENS:
+        ens = MockENS.return_value
+        ens.address.return_value = '0xbb9bc244d798123fde783fcc1c72d3bb8c189413'
+
+        result = address_reflector_contract.call().reflect('dennisthepeasant.eth')
+        assert result == '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413'
+
+
+def test_call_reject_invalid_ens_name(address_reflector_contract):
+    with patch('web3.contract.ENS.fromWeb3') as MockENS:
+        ens = MockENS.return_value
+        ens.address.return_value = None
+
+        with pytest.raises(ValueError):
+            address_reflector_contract.call().reflect('typ0.eth')
+
+
+def test_call_address_reflector_name_array(address_reflector_contract):
+    names = ['autonomouscollective.eth', 'wedonthavealord.eth']
+
+    def address_series():
+        for nibble in itertools.count():
+            assert nibble < 10
+            yield '0x' + str(nibble) * 40
+
+    resolve_addrs = address_series()
+    with patch('web3.contract.ENS.fromWeb3') as MockENS:
+        ens = MockENS.return_value
+        ens.address.side_effect = lambda name: next(resolve_addrs)
+        result = address_reflector_contract.call().reflect(names)
+
+    expected_addrs = address_series()
+    for addr in result:
+        assert addr == next(expected_addrs)
 
 
 def test_call_missing_function(mismatched_math_contract):

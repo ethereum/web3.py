@@ -58,6 +58,7 @@ from web3.utils.encoding import (
     to_hex,
 )
 from web3.utils.ens import (
+    abi_ens_resolver,
     is_ens_name,
     validate_name_has_address,
 )
@@ -252,7 +253,7 @@ class Contract(object):
     #
     #  Public API
     #
-    @classmethod
+    @combomethod
     def encodeABI(cls, fn_name, args=None, kwargs=None, data=None):
         """
         Encodes the arguments using the Ethereum ABI for the contract function
@@ -597,7 +598,7 @@ class Contract(object):
         )
         return prepared_transaction
 
-    @classmethod
+    @combomethod
     def _encode_abi(cls, abi, arguments, data=None):
         argument_types = get_abi_input_types(abi)
 
@@ -608,6 +609,11 @@ class Contract(object):
                     ', '.join(argument_types),
                 )
             )
+
+        ens = ENS.fromWeb3(cls.web3)
+        abi_normalizers = [abi_ens_resolver(ens)]
+
+        arguments = map_abi_data(abi_normalizers, argument_types, arguments)
 
         try:
             normalizers = [
@@ -636,14 +642,14 @@ class Contract(object):
         else:
             return encode_hex(encoded_arguments)
 
-    @classmethod
+    @combomethod
     def _encode_transaction_data(cls, fn_name, args=None, kwargs=None):
         fn_abi, fn_selector, fn_arguments = cls._get_function_info(
             fn_name, args, kwargs,
         )
         return add_0x_prefix(cls._encode_abi(fn_abi, fn_arguments, fn_selector))
 
-    @classmethod
+    @combomethod
     @coerce_return_to_text
     def _encode_constructor_data(cls, args=None, kwargs=None):
         constructor_abi = get_constructor_abi(cls.abi)
