@@ -47,14 +47,22 @@ def ensure_hex(data):
     return data
 
 
-def init_web3(providers=None):
-    from web3 import HTTPProvider, IPCProvider, Web3
+def init_web3(providers=tuple()):
+    from web3 import Web3
+
+    if not providers:
+        from web3.auto import w3
+        if w3:
+            return customize_web3(w3)
+
+    w3 = Web3(providers, ens=None)
+    return customize_web3(w3)
+
+
+def customize_web3(w3):
     from web3.contract import ConciseContract
     from web3.middleware import make_stalecheck_middleware
 
-    if not providers:
-        providers = [IPCProvider(), HTTPProvider('http://localhost:8545')]
-    w3 = Web3(providers, ens=None)
     w3.middleware_stack.remove('name_to_address')
     w3.middleware_stack.add(
         make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600),
