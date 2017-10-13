@@ -111,7 +111,7 @@ Release Notes
 3.9.0
 -----
 
-* Add validation for the ``abi`` parameter of ``eth
+* Add validation for the ``abi`` parameter of ``eth``
 * Contract return values of ``bytes``, ``bytesXX`` and ``string`` are no longer converted to text types and will be returned in their raw byte-string format.
 
 3.8.1

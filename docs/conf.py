@@ -34,7 +34,7 @@ with open (os.path.join(DIR, '../setup.py'), 'r') as f:
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -50,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Web3.py'
-copyright = u'2017, Piper Merriam'
+copyright = u'2017, Piper Merriam, Jason Carver'
 
 __version__ = setup_version
 # The version info for the project you're documenting, acts as replacement for
@@ -74,7 +74,15 @@ release = __version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = [
+    '_build',
+    'web3.rst',
+    'modules.rst',
+    'web3.middleware.rst',
+    'web3.providers.rst',
+    'web3.providers.eth_tester.rst',
+    'web3.testing.rst',
+]
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -262,3 +270,9 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+# -- Intersphinx configuration ------------------------------------------------
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3.5', None),
+}

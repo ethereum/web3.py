@@ -22,7 +22,6 @@ Contents
     web3.main
     web3.eth
     web3.eth.account
-    web3.db
     web3.shh
     web3.personal
     web3.version
