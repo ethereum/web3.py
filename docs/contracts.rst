@@ -9,13 +9,14 @@ Contract Factories
 
 .. py:class:: Contract(address)
 
-    The ``Contract`` class is not intended to be used or instantiated directly.
+    This class is not intended to be used or instantiated directly.
     Instead you should use the :meth:`web3.eth.Eth.contract` method to generate
     the contract factory classes for your contracts.
 
     Contract Factories provide an interface for deploying and interacting with
     Ethereum smart contracts.
 
+    You can use a hex address or an ENS name, like ``mycontract.eth``.
 
 .. py:class:: ConciseContract(Contract())
 
@@ -55,8 +56,8 @@ Each Contract Factory exposes the following properties.
 
 .. py:attribute:: Contract.address
 
-    The hexadecimal encoded 20-byte address of the contract.  May be ``None``
-    if not provided during factory creation.
+    The hexadecimal encoded 20-byte address of the contract, or a production ENS name
+    ending in '.eth`.  May be ``None`` if not provided during factory creation.
 
 
 .. py:attribute:: Contract.abi
@@ -93,6 +94,9 @@ Each Contract Factory exposes the following methods.
     If the contract takes constructor arguments they should be provided as a
     list via the ``args`` parameter.
 
+    If any of the ``args`` specified in the ABI are an ``address`` type, they
+    will accept production ENS names, ending in ``'.eth'``.
+
     If a ``gas`` value is not provided, then the ``gas`` value for the
     deployment transaction will be created using the ``web3.eth.estimateGas()``
     method.
@@ -114,6 +118,9 @@ Each Contract Factory exposes the following methods.
     selects the appropriate contract function based on the name and provided
     argument.  Arguments can be provided as positional arguments, keyword
     arguments, or a mix of the two.
+
+    If any of the ``args`` or ``kwargs`` specified in the ABI are an ``address`` type, they
+    will accept production ENS names, ending in ``'.eth'``.
 
     If a ``gas`` value is not provided, then the ``gas`` value for the
     method transaction will be created using the ``web3.eth.estimateGas()``
