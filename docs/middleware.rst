@@ -23,7 +23,7 @@ are likely to change regularly, so this list may not include the latest version'
 You can find the latest defaults in the constructor in `web3/manager.py`
 
 AttributeDict
-~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.attrdict_middleware
 
@@ -43,7 +43,7 @@ Pythonic
 .. _Modifying_Middleware:
 
 Modifying Middleware
-------------------
+-----------------------
 
 Middleware can be added, removed, replaced, and cleared at runtime. To make that easier, you
 can name the middleware for later reference. Alternatively, you can use a reference to the
@@ -108,7 +108,7 @@ middleware itself.
 
 
 Built-in Middleware
-------------------
+-----------------------
 
 Web3 ships with non-default middleware, for your custom use. In addition to the other ways of
 :ref:`Modifying_Middleware`, you can specify a list of middleware when initializing Web3, with:
