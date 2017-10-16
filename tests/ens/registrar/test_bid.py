@@ -58,7 +58,7 @@ def test_new_bid(reg_bid, mocker, hashbytes1, label1, value1, addr1):
     reg_bid.bid(label1, value1, '', transact={'from': addr1})
     reg_bid.core.newBid.assert_called_once_with(
         hashbytes1,
-        transact={'from': addr1, 'gas': 500000, 'value': value1})
+        transact={'from': addr1, 'value': value1})
 
 # shaBid ruturned this string
 # I'm hoping this is a bug in web3 that will be fixed at some point
@@ -73,7 +73,7 @@ def test_new_bid_web3_returning_string(reg_bid, mocker, label1, value1, addr1):
     reg_bid.bid(label1, value1, '', transact={'from': addr1})
     reg_bid.core.newBid.assert_called_once_with(
         b'+jZuW\xf5t/\xe86*\xe1\rGqK\x9b\x88C*\x14B\xb8\xdcn\x18\x14\t\xb4\x11\xdd\xe5',
-        transact={'from': addr1, 'gas': 500000, 'value': value1})
+        transact={'from': addr1, 'value': value1})
 
 
 def test_bid_name_length(reg_bid, mocker, value1, addr1):

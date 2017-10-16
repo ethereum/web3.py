@@ -19,12 +19,6 @@ ENS_MAINNET_ADDR = '0x314159265dd8dbb310642f98f50c066173c1259b'
 
 REVERSE_REGISTRAR_DOMAIN = 'addr.reverse'
 
-GAS_DEFAULT = {
-    'setAddr': 60001,
-    'setResolver': 60002,
-    'setSubnodeOwner': 60003,
-}
-
 
 def Web3():
     from web3 import Web3
@@ -113,7 +107,6 @@ class ENS:
             self._claim_ownership(owner, unowned, owned, transact=transact)
         transact['from'] = owner
         resolver = self._set_resolver(name, transact=transact)
-        transact['gas'] = GAS_DEFAULT['setAddr']
         if isinstance(address, str):
             address = Web3().toBytes(hexstr=address)
         else:
@@ -272,7 +265,6 @@ class ENS:
     @dict_copy
     def _claim_ownership(self, owner, unowned, owned, transact={}):
         transact['from'] = owner
-        transact['gas'] = GAS_DEFAULT['setSubnodeOwner']
         for label in reversed(unowned):
             self.ens.setSubnodeOwner(
                 self.namehash(owned),
@@ -288,7 +280,6 @@ class ENS:
             resolver_addr = self.address('resolver.eth')
         namehash = self.namehash(name)
         if self.ens.resolver(namehash) != resolver_addr:
-            transact['gas'] = GAS_DEFAULT['setResolver']
             self.ens.setResolver(
                 namehash,
                 Web3().toBytes(hexstr=resolver_addr),

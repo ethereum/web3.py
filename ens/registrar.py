@@ -21,14 +21,8 @@ def Web3():
 
 REGISTRAR_NAME = 'eth'
 
-GAS_DEFAULT = {
-    'bid': 500000,
-    'reveal': 150000,
-    'finalize': 120000,
-}
-
-START_GAS_CONSTANT = 25000
-START_GAS_MARGINAL = 39000
+AUCTION_START_GAS_CONSTANT = 25000
+AUCTION_START_GAS_MARGINAL = 39000
 
 MIN_BID = 10000000000000000  # 0.01 ether
 MIN_NAME_LENGTH = 7
@@ -122,7 +116,6 @@ class Registrar:
             modifier_dict = {'transact': {}}
         if 'transact' in modifier_dict:
             transact = modifier_dict['transact']
-            self.__default_gas(transact, 'bid')
             if 'value' not in transact:
                 transact['value'] = amount
             elif transact['value'] < amount:
@@ -139,8 +132,6 @@ class Registrar:
     def reveal(self, label, amount, secret, **modifier_dict):
         if not modifier_dict:
             modifier_dict = {'transact': {}}
-        if 'transact' in modifier_dict:
-            self.__default_gas(modifier_dict['transact'], 'reveal')
         sender = self.__require_sender(modifier_dict)
         label = self._to_label(label)
         bid_hash = self._bid_hash(label, sender, amount, secret)
@@ -154,8 +145,6 @@ class Registrar:
     def finalize(self, label, **modifier_dict):
         if not modifier_dict:
             modifier_dict = {'transact': {}}
-        if 'transact' in modifier_dict:
-            self.__default_gas(modifier_dict['transact'], 'finalize')
         label = self._to_label(label)
         label_hash = self.ens.labelhash(label)
         return self.core.finalizeAuction(label_hash, **modifier_dict)
@@ -177,12 +166,8 @@ class Registrar:
             self._core = self._coreContract(address=self.ens.owner(REGISTRAR_NAME))
         return self._core
 
-    def __default_gas(self, transact_dict, action):
-        if 'gas' not in transact_dict:
-            transact_dict['gas'] = GAS_DEFAULT[action]
-
     def _estimate_start_gas(self, labels):
-        return START_GAS_CONSTANT + START_GAS_MARGINAL * len(labels)
+        return AUCTION_START_GAS_CONSTANT + AUCTION_START_GAS_MARGINAL * len(labels)
 
     def __require_sender(self, modifier_dict):
         modifier_vals = modifier_dict[list(modifier_dict).pop()]

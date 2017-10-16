@@ -55,4 +55,4 @@ def test_unseal_bid(
         fake_hash(label1.encode()),
         value1,
         fake_hash(secret1.encode()),
-        transact={'from': addr1, 'gas': 150000})
+        transact={'from': addr1})
