@@ -22,7 +22,6 @@ install_requires = [
     "ethereum-utils>=0.5.0",
     "pylru>=1.0.9",
     "pysha3>=0.3",
-    "pytz",
     "requests>=2.12.4",
     "rlp>=0.4.7",
     "toolz>=0.8.2",

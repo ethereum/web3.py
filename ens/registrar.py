@@ -1,16 +1,18 @@
 
 from collections import namedtuple
-from datetime import datetime
 from enum import IntEnum
 
-import pytz
-
 from ens import abis
+
 from ens.exceptions import (
     BidTooLow,
     InvalidBidHash,
     InvalidLabel,
     UnderfundedBid,
+)
+
+from ens.utils import (
+    to_utc_datetime,
 )
 
 
@@ -155,7 +157,7 @@ class Registrar:
         return AuctionEntry(
             Status(entries[0]),
             self._deedContract(entries[1]) if entries[1] else None,
-            datetime.fromtimestamp(entries[2], pytz.utc) if entries[2] else None,
+            to_utc_datetime(entries[2]),
             entries[3],
             entries[4],
         )

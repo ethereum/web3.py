@@ -1,4 +1,5 @@
 
+import datetime
 import idna
 
 from ens.exceptions import InvalidName
@@ -55,3 +56,10 @@ def prepare_name(name):
         return idna.decode(name, uts46=True, std3_rules=True)
     except idna.IDNAError as exc:
         raise InvalidName("%s is an invalid name, because %s" % (name, exc)) from exc
+
+
+def to_utc_datetime(timestamp):
+    if timestamp:
+        return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)
+    else:
+        return None
