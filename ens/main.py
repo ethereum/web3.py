@@ -1,16 +1,22 @@
 
-import idna
-
 from ens import abis
+
 from ens.constants import EMPTY_SHA3_BYTES
+
 from ens.exceptions import (
     AddressMismatch,
-    InvalidName,
     UnauthorizedError,
     UnownedName,
 )
+
 from ens.registrar import Registrar
-from ens.utils import dict_copy, ensure_hex, init_web3
+
+from ens.utils import (
+    dict_copy,
+    ensure_hex,
+    init_web3,
+    prepare_name,
+)
 
 DEFAULT_TLD = 'eth'
 RECOGNIZED_TLDS = [DEFAULT_TLD, 'reverse', 'test']
@@ -34,6 +40,8 @@ class ENS:
     `checksum format <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_,
     like: ``"0x314159265dD8dbb310642f98f50C066173C1259b"``
     '''
+
+    nameprep = staticmethod(prepare_name)
 
     def __init__(self, providers=None, addr=None):
         '''
@@ -221,22 +229,6 @@ class ENS:
             address = address[2:]
         address = address.lower()
         return address + '.' + REVERSE_REGISTRAR_DOMAIN
-
-    @staticmethod
-    def nameprep(name):
-        '''
-        Clean the fully qualified name, as defined in ENS `EIP-137
-        <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
-
-        :param str name: the dot-separated ENS name
-        :raises InvalidName: if ``name`` has invalid syntax
-        '''
-        if not name:
-            return name
-        try:
-            return idna.decode(name, uts46=True, std3_rules=True)
-        except idna.IDNAError as exc:
-            raise InvalidName("%s is an invalid name, because %s" % (name, exc)) from exc
 
     def _reverse_node(self, address):
         domain = self.reverse_domain(address)

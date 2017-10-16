@@ -1,4 +1,7 @@
 
+import idna
+
+from ens.exceptions import InvalidName
 from ens.constants import ACCEPTABLE_STALE_HOURS
 
 
@@ -36,3 +39,19 @@ def init_web3(providers=None):
     )
     w3.eth.setContractFactory(ConciseContract)
     return w3
+
+
+def prepare_name(name):
+    '''
+    Clean the fully qualified name, as defined in ENS `EIP-137
+    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
+
+    :param str name: the dot-separated ENS name
+    :raises InvalidName: if ``name`` has invalid syntax
+    '''
+    if not name:
+        return name
+    try:
+        return idna.decode(name, uts46=True, std3_rules=True)
+    except idna.IDNAError as exc:
+        raise InvalidName("%s is an invalid name, because %s" % (name, exc)) from exc
