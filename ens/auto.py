@@ -1,3 +1,3 @@
 from ens import ENS
 
-names = ENS()
+ns = ENS()

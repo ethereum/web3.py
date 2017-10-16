@@ -6,6 +6,12 @@ from enum import IntEnum
 import pytz
 
 from ens import abis
+from ens.exceptions import (
+    BidTooLow,
+    InvalidBidHash,
+    InvalidLabel,
+    UnderfundedBid,
+)
 
 
 def Web3():
@@ -47,11 +53,14 @@ class Status(IntEnum):
 
 class Registrar:
     """
-    Terminology:
-        Name: a fully qualified ENS name, for example: 'tickets.eth'
-        Label: a label that the registrar auctions, for example: 'tickets'
+    Provides access to the production ``'.eth'`` registrar, to buy names at auction.
+
+    Terminology
+        * Name: a fully qualified ENS name. For example: 'tickets.eth'
+        * Label: a single word available under the .eth domain, via auction. For example: 'tickets'
 
     The registrar does not directly manage subdomains multiple layers down, like: 'fotc.tickets.eth'
+    Each domain owner is individually responsible for that.
     """
 
     def __init__(self, ens):
@@ -64,6 +73,23 @@ class Registrar:
         self._short_invalid = True
 
     def entries(self, label):
+        '''
+        Returns a tuple of data about the status of the auction for ``label``.
+
+        Alternatively, you can request individual parts of the tuple. For example,
+        get the :attr:`~ens.registrar.AuctionEntries.top_bid` value
+        with a call like ``ns.registrar.top_bid(label)``.
+
+        See these attributes on the returned value:
+
+         * ``status`` the auction state, one of :class:`Status`
+         * ``deed`` the contract storing the deposit, type :class:`web3.contract.ConciseContract`
+         * ``close_at`` the time that the auction reveals end, type :class:`datetime.datetime`
+         * ``deposit`` amount in wei that is held on deposit for the auction winner
+         * ``top_bid`` amount in wei that the highest bidder placed as the top bid
+
+        :rtype: AuctionEntries
+        '''
         label = self._to_label(label)
         label_hash = self.ens.labelhash(label)
         return self.entries_by_hash(label_hash)
@@ -87,10 +113,10 @@ class Registrar:
 
     def bid(self, label, amount, secret, **modifier_dict):
         """
-        @param label to bid on
-        @param amount (in wei) to bid
-        @param secret - as bytes, str, or int. You MUST keep a copy
-            of this to avoid burning your entire deposit!
+        :param str label: to bid on
+        :param int amount: wei to bid
+        :param secret: You **MUST keep a copy of this** to avoid burning your entire deposit!
+        :type secret: bytes, str or int
         """
         if not modifier_dict:
             modifier_dict = {'transact': {}}
@@ -135,14 +161,6 @@ class Registrar:
         return self.core.finalizeAuction(label_hash, **modifier_dict)
 
     def entries_by_hash(self, label_hash):
-        '''
-        @returns a 5-item collection in this order:
-            # Status
-            # deed contract
-            # registration datetime (in UTC)
-            # value held on deposit
-            # value of largest bid
-        '''
         assert isinstance(label_hash, (bytes, bytearray))
         entries = self.core.entries(label_hash)
         return AuctionEntries(
@@ -225,19 +243,3 @@ class Registrar:
             return lambda label: self.__entry_lookup(label, attr)
         else:
             raise AttributeError
-
-
-class BidTooLow(ValueError):
-    pass
-
-
-class InvalidBidHash(ValueError):
-    pass
-
-
-class InvalidLabel(ValueError):
-    pass
-
-
-class UnderfundedBid(ValueError):
-    pass
