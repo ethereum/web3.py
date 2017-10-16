@@ -160,7 +160,7 @@ Type Conversions
 .. _overview_currency_conversions:
 
 Currency Conversions
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 .. py:method:: Web3.toWei(value, currency)
 
@@ -234,7 +234,7 @@ Addresses
 .. _overview_hashing:
 
 Cryptographic Hashing
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 .. py:classmethod:: Web3.sha3(primitive=None, hexstr=None, text=None)
 
