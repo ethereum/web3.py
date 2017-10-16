@@ -719,7 +719,6 @@ class ConciseContract(object):
     is equivalent to this call in the classic contract:
 
     > contract.transact({'from': eth.accounts[1], 'gas': 100000, ...}).withdraw(amount)
-
     '''
     def __init__(self, classic_contract):
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS

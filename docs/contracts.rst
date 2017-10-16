@@ -170,7 +170,6 @@ Each Contract Factory exposes the following methods.
 Events
 ------
 
-.. py:method::
 .. py:classmethod:: Contract.on(event_name, filter_params=None, *callbacks)
 
     Creates a new :py:class:`web3.utils.filters.LogFilter` instance.
@@ -203,7 +202,7 @@ Events
     The event topic for the event specified by ``event_name`` will be added to
     the ``filter_params['topics']`` list.
 
-    If the :py:attribute:`Contract.address` attribute for this contract is
+    If the :py:attr:`Contract.address` attribute for this contract is
     non-null, the contract address will be added to the ``filter_params``.
 
     If provided, the ``*callbacks`` parameter should be callables which accept
@@ -236,7 +235,6 @@ Events
         # is encountered.
 
 
-.. py:method::
 .. py:classmethod:: Contract.pastEvents(event_name, filter_params=None, *callbacks)
 
     Creates a new :py:class:`web3.utils.filters.PastLogFilter` instance which

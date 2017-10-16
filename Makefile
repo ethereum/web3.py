@@ -31,9 +31,7 @@ test-all:
 	tox
 
 build-docs:
-	rm -f docs/web3.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ web3
+	sphinx-apidoc -o docs/ . setup.py "web3/utils/*" "*conftest*"
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 
