@@ -44,6 +44,10 @@ class ENS:
         self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
         self.registrar = Registrar(self)
 
+    @classmethod
+    def fromWeb3(cls, web3):
+        return cls(web3.manager.providers)
+
     def address(self, name):
         return self.resolve(name, 'addr')
 
