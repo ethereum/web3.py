@@ -2,8 +2,15 @@
 import datetime
 import idna
 
-from ens.exceptions import InvalidName
-from ens.constants import ACCEPTABLE_STALE_HOURS
+from ens.exceptions import (
+    InvalidLabel,
+    InvalidName,
+)
+
+from ens.constants import (
+    ACCEPTABLE_STALE_HOURS,
+    MIN_ETH_LABEL_LENGTH,
+)
 
 
 def dict_copy(func):
@@ -52,10 +59,43 @@ def prepare_name(name):
     '''
     if not name:
         return name
+    elif isinstance(name, (bytes, bytearray)):
+        name = name.decode('utf-8')
     try:
         return idna.decode(name, uts46=True, std3_rules=True)
     except idna.IDNAError as exc:
         raise InvalidName("%s is an invalid name, because %s" % (name, exc)) from exc
+
+
+def label_of(name, registrar):
+    name = prepare_name(name)
+    if '.' not in name:
+        label = name
+    else:
+        name_pieces = name.split('.')
+        registrar_pieces = registrar.split('.')
+        if len(name_pieces) != len(registrar_pieces) + 1:
+            raise ValueError(
+                "You must specify a label, like 'tickets' "
+                "or a fully-qualified name, like 'tickets.%s'" % registrar
+            )
+        label, *label_registrar = name_pieces
+        if label_registrar != registrar_pieces:
+            raise ValueError("This interface only manages names under .%s " % registrar)
+    return label
+
+
+def dot_eth_label(name):
+    '''
+    Convert from a name, like 'ethfinex.eth', to a label, like 'ethfinex'
+    If name is already a label, this should be a noop, except for converting to a string
+    and validating the name syntax.
+    '''
+    label = label_of(name, registrar='eth')
+    if len(label) < MIN_ETH_LABEL_LENGTH:
+        raise InvalidLabel('name %r is too short' % label)
+    else:
+        return label
 
 
 def to_utc_datetime(timestamp):

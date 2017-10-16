@@ -12,6 +12,7 @@ from ens.exceptions import (
 )
 
 from ens.utils import (
+    dot_eth_label,
     to_utc_datetime,
 )
 
@@ -85,8 +86,10 @@ class Registrar:
          * ``top_bid`` amount in wei that the highest bidder placed as the top bid
 
         :rtype: AuctionEntry
+        :raise InvalidName: if ``label`` is not a valid ENS label
+        :raise ValueError: if ``label`` is shorter than 7 characters
         '''
-        label = self._to_label(label)
+        label = dot_eth_label(label)
         label_hash = self.ens.labelhash(label)
         return self.entries_by_hash(label_hash)
 
@@ -103,7 +106,7 @@ class Registrar:
                 transact_dict['gas'] = self._estimate_start_gas(labels)
             if transact_dict['gas'] > self._last_gaslimit():
                 raise ValueError('There are too many auctions to fit in a block -- start fewer.')
-        labels = [self._to_label(label) for label in labels]
+        labels = [dot_eth_label(label) for label in labels]
         label_hashes = [self.ens.labelhash(label) for label in labels]
         return self.core.startAuctions(label_hashes, **modifier_dict)
 
@@ -124,7 +127,7 @@ class Registrar:
                 raise UnderfundedBid("Bid of %s ETH was only funded with %s ETH" % (
                                      Web3().fromWei(amount, 'ether'),
                                      Web3().fromWei(transact['value'], 'ether')))
-        label = self._to_label(label)
+        label = dot_eth_label(label)
         sender = self.__require_sender(modifier_dict)
         if amount < MIN_BID:
             raise BidTooLow("You must bid at least %s ether" % Web3().fromWei(MIN_BID, 'ether'))
@@ -135,7 +138,7 @@ class Registrar:
         if not modifier_dict:
             modifier_dict = {'transact': {}}
         sender = self.__require_sender(modifier_dict)
-        label = self._to_label(label)
+        label = dot_eth_label(label)
         bid_hash = self._bid_hash(label, sender, amount, secret)
         if not self.core.sealedBids(sender, bid_hash):
             raise InvalidBidHash
@@ -147,7 +150,7 @@ class Registrar:
     def finalize(self, label, **modifier_dict):
         if not modifier_dict:
             modifier_dict = {'transact': {}}
-        label = self._to_label(label)
+        label = dot_eth_label(label)
         label_hash = self.ens.labelhash(label)
         return self.core.finalizeAuction(label_hash, **modifier_dict)
 
@@ -196,30 +199,6 @@ class Registrar:
             secret = secret.encode()
         secret_hash = Web3().sha3(secret)
         return Web3().toBytes(hexstr=secret_hash)
-
-    def _to_label(self, name):
-        '''
-        Convert from a name, like 'ethfinex.eth', to a label, like 'ethfinex'
-        If name is already a label, this should be a noop, except for converting to a string
-        '''
-        if isinstance(name, (bytes, bytearray)):
-            name = name.decode()
-        name = self.ens.nameprep(name)
-        if '.' not in name:
-            label = name
-        else:
-            pieces = name.split('.')
-            if len(pieces) != 2:
-                raise ValueError(
-                    "You must specify a label, like 'tickets' "
-                    "or a fully-qualified name, like 'tickets.eth'"
-                )
-            if pieces[-1] != REGISTRAR_NAME:
-                raise ValueError("This interface only manages names under .%s " % REGISTRAR_NAME)
-            label = pieces[-2]
-        if self._short_invalid and len(label) < MIN_NAME_LENGTH:
-            raise InvalidLabel('name %r is too shart' % label)
-        return label
 
     def __entry_lookup(self, label, entry_attr):
         entries = self.entries(label)
