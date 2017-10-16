@@ -27,7 +27,7 @@ AUCTION_START_GAS_MARGINAL = 39000
 MIN_BID = 10000000000000000  # 0.01 ether
 MIN_NAME_LENGTH = 7
 
-AuctionEntries = namedtuple('AuctionEntries', 'status, deed, close_at, deposit, top_bid')
+AuctionEntry = namedtuple('AuctionEntry', 'status, deed, close_at, deposit, top_bid')
 
 
 class Status(IntEnum):
@@ -71,7 +71,7 @@ class Registrar:
         Returns a tuple of data about the status of the auction for ``label``.
 
         Alternatively, you can request individual parts of the tuple. For example,
-        get the :attr:`~ens.registrar.AuctionEntries.top_bid` value
+        get the :attr:`~ens.registrar.AuctionEntry.top_bid` value
         with a call like ``ns.registrar.top_bid(label)``.
 
         See these attributes on the returned value:
@@ -82,7 +82,7 @@ class Registrar:
          * ``deposit`` amount in wei that is held on deposit for the auction winner
          * ``top_bid`` amount in wei that the highest bidder placed as the top bid
 
-        :rtype: AuctionEntries
+        :rtype: AuctionEntry
         '''
         label = self._to_label(label)
         label_hash = self.ens.labelhash(label)
@@ -152,7 +152,7 @@ class Registrar:
     def entries_by_hash(self, label_hash):
         assert isinstance(label_hash, (bytes, bytearray))
         entries = self.core.entries(label_hash)
-        return AuctionEntries(
+        return AuctionEntry(
             Status(entries[0]),
             self._deedContract(entries[1]) if entries[1] else None,
             datetime.fromtimestamp(entries[2], pytz.utc) if entries[2] else None,
@@ -224,7 +224,7 @@ class Registrar:
         return getattr(entries, entry_attr)
 
     def __getattr__(self, attr):
-        if attr in AuctionEntries._fields:
+        if attr in AuctionEntry._fields:
             return lambda label: self.__entry_lookup(label, attr)
         else:
             raise AttributeError
