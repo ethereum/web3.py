@@ -1,7 +1,10 @@
 
 from ens import abis
 
-from ens.constants import EMPTY_SHA3_BYTES
+from ens.constants import (
+    EMPTY_SHA3_BYTES,
+    REVERSE_REGISTRAR_DOMAIN,
+)
 
 from ens.exceptions import (
     AddressMismatch,
@@ -12,6 +15,7 @@ from ens.exceptions import (
 from ens.registrar import Registrar
 
 from ens.utils import (
+    address_to_reverse_domain,
     dict_copy,
     ensure_hex,
     init_web3,
@@ -22,8 +26,6 @@ DEFAULT_TLD = 'eth'
 RECOGNIZED_TLDS = [DEFAULT_TLD, 'reverse', 'test']
 
 ENS_MAINNET_ADDR = '0x314159265dd8dbb310642f98f50c066173c1259b'
-
-REVERSE_REGISTRAR_DOMAIN = 'addr.reverse'
 
 
 def Web3():
@@ -42,6 +44,7 @@ class ENS:
     '''
 
     nameprep = staticmethod(prepare_name)
+    reverse_domain = staticmethod(address_to_reverse_domain)
 
     def __init__(self, providers=None, addr=None):
         '''
@@ -222,13 +225,6 @@ class ENS:
         label_bytes = prepped.encode()
         sha_hex = Web3().sha3(label_bytes)
         return Web3().toBytes(hexstr=sha_hex)
-
-    def reverse_domain(self, address):
-        address = ensure_hex(address)
-        if address.startswith('0x'):
-            address = address[2:]
-        address = address.lower()
-        return address + '.' + REVERSE_REGISTRAR_DOMAIN
 
     def _reverse_node(self, address):
         domain = self.reverse_domain(address)

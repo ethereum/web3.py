@@ -10,6 +10,7 @@ from ens.exceptions import (
 from ens.constants import (
     ACCEPTABLE_STALE_HOURS,
     MIN_ETH_LABEL_LENGTH,
+    REVERSE_REGISTRAR_DOMAIN,
 )
 
 
@@ -110,3 +111,11 @@ def sha3_text(val):
     if isinstance(val, str):
         val = val.encode('utf-8')
     return Web3.sha3(val)
+
+
+def address_to_reverse_domain(address):
+    address = ensure_hex(address)
+    if address.startswith('0x'):
+        address = address[2:]
+    address = address.lower()
+    return address + '.' + REVERSE_REGISTRAR_DOMAIN

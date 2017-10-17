@@ -5,62 +5,29 @@ import pytest
 from web3 import Web3
 from web3.exceptions import StaleBlockchain
 
-from ens.constants import EMPTY_SHA3_BYTES
+from ens import ENS
 
 
-def test_namehash_three_labels(ens, mocker, fake_hash, fake_hash_hexout):
-    mocker.patch('web3.Web3.sha3', side_effect=fake_hash_hexout)
-    namehash = ens.namehash('grail.seeker.eth')
-    assert namehash == fake_hash(
-        fake_hash(
-            fake_hash(
-                EMPTY_SHA3_BYTES +
-                fake_hash(b'eth')
-            ) +
-            fake_hash(b'seeker')
-        ) +
-        fake_hash(b'grail')
-    )
-
-
-def test_namehash_nameprep(ens, mocker, fake_hash, fake_hash_hexout):
-    mocker.patch('web3.Web3.sha3', side_effect=fake_hash_hexout)
-    uhash = ens.namehash('Öbb.eth')
-    assert uhash == fake_hash(
-        fake_hash(
-            EMPTY_SHA3_BYTES +
-            fake_hash(b'eth')
-        ) +
-        fake_hash("öbb".encode('utf8'))
-    )
-
-
-def test_namehash_expand(ens, mocker, fake_hash, fake_hash_hexout):
-    mocker.patch('web3.Web3.sha3', side_effect=fake_hash_hexout)
-    uhash = ens.namehash('circus')
-    assert uhash == fake_hash(
-        fake_hash(
-            EMPTY_SHA3_BYTES +
-            fake_hash(b'eth')
-        ) +
-        fake_hash(b'circus')
-    )
-
-
-def test_namehash_expand_equivalence(ens):
-    assert ens.namehash('spamalot.eth') == ens.namehash('spamalot')
-
-
-def test_namehash_result(ens):
-    namehash = ens.namehash('flying.circus.eth')
-    assert type(namehash) == bytes
-    hash_hex = Web3.toHex(namehash)
-    assert hash_hex == '0xf55bac2e53e0b47ee3a29324e114fc0996e651542abff256fa1daab5a68f1ff6'
-
-
-@pytest.mark.parametrize("alternate_dot", ['．', '。', '｡'])
-def test_namehash_alternate_dots(ens, alternate_dot):
-    assert ens.namehash('gallahad' + alternate_dot + 'eth') == ens.namehash('gallahad.eth')
+@pytest.mark.parametrize(
+    'name, expected',
+    [
+        ('öbb.eth', '2774094517aaa884fc7183cf681150529b9acc7c9e7b71cf3a470200135a20b4'),
+        # handles alternative dot separators
+        ('öbb．eth', '2774094517aaa884fc7183cf681150529b9acc7c9e7b71cf3a470200135a20b4'),
+        ('öbb。eth', '2774094517aaa884fc7183cf681150529b9acc7c9e7b71cf3a470200135a20b4'),
+        ('öbb｡eth', '2774094517aaa884fc7183cf681150529b9acc7c9e7b71cf3a470200135a20b4'),
+        # presumes a .eth ending if tld is not recognized
+        ('öbb', '2774094517aaa884fc7183cf681150529b9acc7c9e7b71cf3a470200135a20b4'),
+        # namehash prepares name (to lower case, etc)
+        ('Öbb', '2774094517aaa884fc7183cf681150529b9acc7c9e7b71cf3a470200135a20b4'),
+        # handles subdomains correctly
+        ('flying.circus.eth', 'f55bac2e53e0b47ee3a29324e114fc0996e651542abff256fa1daab5a68f1ff6'),
+    ],
+)
+def test_namehash_result(name, expected):
+    namehash = ENS.namehash(name)
+    assert isinstance(namehash, bytes)
+    assert namehash.hex() == expected
 
 
 def test_resolver(ens, mocker, hash1, addr1):
@@ -90,12 +57,33 @@ def test_address(ens, mocker, hash1, address_content, hash_maker):
     resolver.addr.assert_called_once_with(hash1)
 
 
-def test_reverse_domain(ens, addr1):
-    assert ens.reverse_domain(addr1) == addr1[2:] + '.addr.reverse'
-
-
-def test_reverse_domain_from_bytes(ens, addr1, addrbytes1):
-    assert ens.reverse_domain(addrbytes1) == addr1[2:] + '.addr.reverse'
+@pytest.mark.parametrize(
+    'address, expected_reverse',
+    [
+        (
+            '0x1111111111111111111111111111111111111111',
+            '1111111111111111111111111111111111111111.addr.reverse',
+        ),
+        (
+            '1111111111111111111111111111111111111111',
+            '1111111111111111111111111111111111111111.addr.reverse',
+        ),
+        (
+            0x1111111111111111111111111111111111111111,
+            '1111111111111111111111111111111111111111.addr.reverse',
+        ),
+        (
+            b'\x11' * 20,
+            '1111111111111111111111111111111111111111.addr.reverse',
+        ),
+        (
+            '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+            'bb9bc244d798123fde783fcc1c72d3bb8c189413.addr.reverse',
+        ),
+    ],
+)
+def test_reverse_domain(address, expected_reverse):
+    assert ENS.reverse_domain(address) == expected_reverse
 
 
 def test_reverser_lookup(ens, addr1, hash1):
