@@ -17,13 +17,11 @@ from ens.registrar import Registrar
 from ens.utils import (
     address_to_reverse_domain,
     dict_copy,
+    dot_eth_name,
     ensure_hex,
     init_web3,
-    prepare_name,
+    normalize_name,
 )
-
-DEFAULT_TLD = 'eth'
-RECOGNIZED_TLDS = [DEFAULT_TLD, 'reverse', 'test']
 
 ENS_MAINNET_ADDR = '0x314159265dd8dbb310642f98f50c066173c1259b'
 
@@ -43,7 +41,7 @@ class ENS:
     like: ``"0x314159265dD8dbb310642f98f50C066173C1259b"``
     '''
 
-    nameprep = staticmethod(prepare_name)
+    nameprep = staticmethod(normalize_name)
     reverse_domain = staticmethod(address_to_reverse_domain)
 
     def __init__(self, providers=None, addr=None):
@@ -86,7 +84,7 @@ class ENS:
         :param address:
         :type address: hex string
         '''
-        reversed_domain = self.reverse_domain(address)
+        reversed_domain = address_to_reverse_domain(address)
         return self.resolve(reversed_domain, get='name')
     reverse = name
 
@@ -182,7 +180,7 @@ class ENS:
         :rtype: bytes
         :raises InvalidName: if ``name`` has invalid syntax
         '''
-        name = cls._full_name(name)
+        name = dot_eth_name(name)
         node = EMPTY_SHA3_BYTES
         if name:
             labels = name.split(".")
@@ -221,7 +219,7 @@ class ENS:
 
     @classmethod
     def labelhash(cls, label):
-        prepped = cls.nameprep(label)
+        prepped = normalize_name(label)
         label_bytes = prepped.encode()
         sha_hex = Web3().sha3(label_bytes)
         return Web3().toBytes(hexstr=sha_hex)
@@ -242,7 +240,7 @@ class ENS:
         '@returns (owner or None, list(unowned_subdomain_labels), first_owned_domain)'
         owner = None
         unowned = []
-        pieces = self._full_name(name).split('.')
+        pieces = dot_eth_name(name).split('.')
         while not owner and pieces:
             name = '.'.join(pieces)
             owner = self.owner(name)
@@ -277,20 +275,10 @@ class ENS:
 
     @dict_copy
     def _setup_reverse(self, name, address, transact={}):
-        name = self._full_name(name)
+        name = dot_eth_name(name)
         transact['from'] = address
         return self._reverse_registrar().setName(name, transact=transact)
 
     def _reverse_registrar(self):
         addr = self.ens.owner(self.namehash(REVERSE_REGISTRAR_DOMAIN))
         return self.web3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
-
-    @classmethod
-    def _full_name(cls, name):
-        if isinstance(name, (bytes, bytearray)):
-            name = Web3().toText(name)
-        name = cls.nameprep(name)
-        pieces = name.split('.')
-        if pieces[-1] not in RECOGNIZED_TLDS:
-            pieces.append(DEFAULT_TLD)
-        return '.'.join(pieces)

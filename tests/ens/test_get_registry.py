@@ -93,11 +93,8 @@ def test_reverser_lookup(ens, addr1, hash1):
 
 
 def test_reverse(ens, mocker, name1, name2):
-    mocker.patch.object(ens, 'reverse_domain', return_value=name1)
-    mocker.patch.object(ens, 'resolve', return_value=name2)
-    assert ens.name('') == name2
-    assert ens.reverse == ens.name
-    ens.resolve.assert_called_once_with(name1, get='name')
+    # TODO test set and get reverse resolution
+    pass
 
 
 def test_owner_expand_name_with_namehash(ens, mocker):

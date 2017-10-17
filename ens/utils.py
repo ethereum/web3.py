@@ -10,8 +10,14 @@ from ens.exceptions import (
 from ens.constants import (
     ACCEPTABLE_STALE_HOURS,
     MIN_ETH_LABEL_LENGTH,
+    RECOGNIZED_TLDS,
     REVERSE_REGISTRAR_DOMAIN,
 )
+
+
+def Web3():
+    from web3 import Web3
+    return Web3
 
 
 def dict_copy(func):
@@ -28,9 +34,8 @@ def dict_copy(func):
 
 
 def ensure_hex(data):
-    from web3 import Web3
     if not isinstance(data, str):
-        return Web3.toHex(data)
+        return Web3().toHex(data)
     return data
 
 
@@ -50,7 +55,7 @@ def init_web3(providers=None):
     return w3
 
 
-def prepare_name(name):
+def normalize_name(name):
     '''
     Clean the fully qualified name, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
@@ -68,8 +73,20 @@ def prepare_name(name):
         raise InvalidName("%s is an invalid name, because %s" % (name, exc)) from exc
 
 
-def label_of(name, registrar):
-    name = prepare_name(name)
+def label_to_name(label, default_tld, recognized_tlds):
+    label = normalize_name(label)
+    pieces = label.split('.')
+    if pieces[-1] not in recognized_tlds:
+        pieces.append(default_tld)
+    return '.'.join(pieces)
+
+
+def dot_eth_name(label):
+    return label_to_name(label, 'eth', RECOGNIZED_TLDS)
+
+
+def name_to_label(name, registrar):
+    name = normalize_name(name)
     if '.' not in name:
         label = name
     else:
@@ -92,7 +109,7 @@ def dot_eth_label(name):
     If name is already a label, this should be a noop, except for converting to a string
     and validating the name syntax.
     '''
-    label = label_of(name, registrar='eth')
+    label = name_to_label(name, registrar='eth')
     if len(label) < MIN_ETH_LABEL_LENGTH:
         raise InvalidLabel('name %r is too short' % label)
     else:
@@ -107,10 +124,9 @@ def to_utc_datetime(timestamp):
 
 
 def sha3_text(val):
-    from web3 import Web3
     if isinstance(val, str):
         val = val.encode('utf-8')
-    return Web3.sha3(val)
+    return Web3().sha3(val)
 
 
 def address_to_reverse_domain(address):
