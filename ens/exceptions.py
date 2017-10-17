@@ -61,6 +61,16 @@ class InvalidLabel(ValueError):
     pass
 
 
+class OversizeTransaction(ValueError):
+    '''
+    Raised if a transaction you are trying to create would cost so
+    much gas that it could not fit in a block.
+
+    For example: when you try to start too many auctions at once.
+    '''
+    pass
+
+
 class UnderfundedBid(ValueError):
     '''
     Raised if you send less wei with your bid than you declared

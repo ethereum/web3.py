@@ -1,69 +1,95 @@
 
 import pytest
+from unittest.mock import Mock
+
+from web3 import Web3
+
+from ens.exceptions import OversizeTransaction
 
 
-def test_start_skips_empty(registrar, mocker):
-    mocker.patch.object(registrar.core, 'startAuctions', side_effect=Exception('started with []'))
-    registrar.start([])
+def assert_equal_start_auction_hashes(startAuctions, expected_hashes):
+    if expected_hashes:
+        assert startAuctions.call_count == 1
+        start_hashes = startAuctions.call_args_list[0][0][0]
+        assert list(map(Web3.toHex, start_hashes)) == expected_hashes
+    else:
+        # do not waste any gas on a transaction with 0 labels
+        assert startAuctions.call_count == 0
 
 
-def test_start_converts_names_to_labels(registrar, mocker):
-    mocker.patch.object(registrar.core, 'startAuctions')
-    mocker.patch.object(registrar, '_estimate_start_gas', return_value=0)
-    mocker.patch.object(registrar.ens, 'labelhash', side_effect=lambda x: x)
-    registrar.start(['anarcho.eth', 'syndicalist.eth', 'commune.eth'])
-    registrar.core.startAuctions.assert_called_once_with(
-        ['anarcho', 'syndicalist', 'commune'],
-        transact={'gas': 0}
-    )
+@pytest.mark.parametrize(
+    'labels, expected_hashes',
+    [
+        (
+            ['anarcho.eth', 'syndicalist.eth', 'commune.eth'],
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+            ],
+        ),
+        (
+            ['anarcho', 'syndicalist', 'commune'],
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+            ],
+        ),
+        (
+            ['ANARCHO', 'SYNDICALIST', 'COMMUNE'],
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+            ],
+        ),
+        (
+            [b'anarcho', b'syndicalist', b'commune'],
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+            ],
+        ),
+        (
+            'anarcho',
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+            ],
+        ),
+        (
+            'ANARCHO',
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+            ],
+        ),
+        (
+            b'ANARCHO',
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+            ],
+        ),
+        (
+            [],
+            [],
+        ),
+    ],
+)
+def test_start_auctions(registrar, mocker, labels, expected_hashes):
+    startAuctions = mocker.patch.object(registrar.core, 'startAuctions')
+    registrar.start(labels)
+    assert_equal_start_auction_hashes(startAuctions, expected_hashes)
 
 
 def test_start_calculates_gas_needed(registrar, mocker, label1, label2):
-    mocker.patch.object(registrar.core, 'startAuctions')
-    mocker.patch.object(registrar.ens, 'labelhash', side_effect=lambda x: x)
+    startAuctions = mocker.patch.object(registrar.core, 'startAuctions')
     registrar.start([label1, label2])
-    registrar.core.startAuctions.assert_called_once_with(
-        [label1, label2],
-        transact={'gas': 103000}
-    )
-
-
-def test_start_hashes_labels(registrar, mocker, fake_hash_utf8):
-    mocker.patch.object(registrar.core, 'startAuctions')
-    mocker.patch.object(registrar, '_estimate_start_gas', return_value=0)
-    mocker.patch.object(registrar.ens, 'labelhash', side_effect=fake_hash_utf8)
-    registrar.start(['racketing', 'roadsides'])
-    registrar.core.startAuctions.assert_called_once_with(
-        [b'HASH(bracketing)', b'HASH(broadsides)'],
-        transact={'gas': 0}
-    )
-
-
-def test_start_accepts_one_label(registrar, mocker, label1):
-    mocker.patch.object(registrar.core, 'startAuctions')
-    mocker.patch.object(registrar, '_estimate_start_gas', return_value=0)
-    mocker.patch.object(registrar.ens, 'labelhash', side_effect=lambda x: x)
-    registrar.start(label1)
-    registrar.core.startAuctions.assert_called_once_with(
-        [label1],
-        transact={'gas': 0}
-    )
-
-
-def test_start_accepts_one_label_as_bytes(registrar, mocker, label1):
-    mocker.patch.object(registrar.core, 'startAuctions')
-    mocker.patch.object(registrar, '_estimate_start_gas', return_value=0)
-    mocker.patch.object(registrar.ens, 'labelhash', side_effect=lambda x: x)
-    registrar.start(bytes(label1, encoding='utf-8'))
-    registrar.core.startAuctions.assert_called_once_with(
-        [label1],
-        transact={'gas': 0}
-    )
+    startAuctions.call_args_list[0][1] == {'transact': {'gas': 103000}}
 
 
 def test_start_maximum_gas(registrar, mocker, label1):
-    mocker.patch.object(registrar.core, 'startAuctions')
-    mocker.patch.object(registrar, '_estimate_start_gas', return_value=4)
-    mocker.patch.object(registrar, '_last_gaslimit', return_value=3)
-    with pytest.raises(ValueError):
+    tinyblock = Mock(gasLimit=0)
+    mocker.patch.object(registrar.web3.eth, 'getBlock', return_value=tinyblock)
+    with pytest.raises(OversizeTransaction):
         registrar.start([label1])

@@ -7,11 +7,13 @@ from ens import abis
 from ens.exceptions import (
     BidTooLow,
     InvalidBidHash,
+    OversizeTransaction,
     UnderfundedBid,
 )
 
 from ens.utils import (
     dot_eth_label,
+    estimate_auction_start_gas,
     sha3_text,
     to_utc_datetime,
 )
@@ -23,9 +25,6 @@ def Web3():
 
 
 REGISTRAR_NAME = 'eth'
-
-AUCTION_START_GAS_CONSTANT = 25000
-AUCTION_START_GAS_MARGINAL = 39000
 
 MIN_BID = 10000000000000000  # 0.01 ether
 
@@ -135,9 +134,9 @@ class Registrar:
         if 'transact' in modifier_dict:
             transact_dict = modifier_dict['transact']
             if 'gas' not in transact_dict:
-                transact_dict['gas'] = self._estimate_start_gas(labels)
+                transact_dict['gas'] = estimate_auction_start_gas(labels)
             if transact_dict['gas'] > self._last_gaslimit():
-                raise ValueError('There are too many auctions to fit in a block -- start fewer.')
+                raise OversizeTransaction('This call includes too many auctions to fit in a block.')
         labels = [dot_eth_label(label) for label in labels]
         label_hashes = [self.ens.labelhash(label) for label in labels]
         return self.core.startAuctions(label_hashes, **modifier_dict)
@@ -202,9 +201,6 @@ class Registrar:
         if not self._core:
             self._core = self._coreContract(address=self.ens.owner(REGISTRAR_NAME))
         return self._core
-
-    def _estimate_start_gas(self, labels):
-        return AUCTION_START_GAS_CONSTANT + AUCTION_START_GAS_MARGINAL * len(labels)
 
     def __require_sender(self, modifier_dict):
         modifier_vals = modifier_dict[list(modifier_dict).pop()]

@@ -9,6 +9,8 @@ from ens.exceptions import (
 
 from ens.constants import (
     ACCEPTABLE_STALE_HOURS,
+    AUCTION_START_GAS_CONSTANT,
+    AUCTION_START_GAS_MARGINAL,
     EMPTY_SHA3_BYTES,
     MIN_ETH_LABEL_LENGTH,
     RECOGNIZED_TLDS,
@@ -178,3 +180,7 @@ def address_to_reverse_domain(address):
         address = address[2:]
     address = address.lower()
     return address + '.' + REVERSE_REGISTRAR_DOMAIN
+
+
+def estimate_auction_start_gas(labels):
+    return AUCTION_START_GAS_CONSTANT + AUCTION_START_GAS_MARGINAL * len(labels)
