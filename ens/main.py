@@ -20,6 +20,7 @@ from ens.utils import (
     dot_eth_name,
     ensure_hex,
     init_web3,
+    label_to_hash,
     normalize_name,
 )
 
@@ -41,6 +42,7 @@ class ENS:
     like: ``"0x314159265dD8dbb310642f98f50C066173C1259b"``
     '''
 
+    labelhash = staticmethod(label_to_hash)
     nameprep = staticmethod(normalize_name)
     reverse_domain = staticmethod(address_to_reverse_domain)
 
@@ -199,7 +201,7 @@ class ENS:
         return self._resolverContract(address=resolver_addr)
 
     def reverser(self, target_address):
-        reversed_domain = self.reverse_domain(target_address)
+        reversed_domain = address_to_reverse_domain(target_address)
         return self.resolver(reversed_domain)
 
     def owner(self, name):
@@ -217,15 +219,8 @@ class ENS:
         node = self.namehash(name)
         return self.ens.owner(node)
 
-    @classmethod
-    def labelhash(cls, label):
-        prepped = normalize_name(label)
-        label_bytes = prepped.encode()
-        sha_hex = Web3().sha3(label_bytes)
-        return Web3().toBytes(hexstr=sha_hex)
-
     def _reverse_node(self, address):
-        domain = self.reverse_domain(address)
+        domain = address_to_reverse_domain(address)
         return self.namehash(domain)
 
     def _assert_control(self, account, name, parent_owned=None):
@@ -237,11 +232,15 @@ class ENS:
             )
 
     def _first_owner(self, name):
-        '@returns (owner or None, list(unowned_subdomain_labels), first_owned_domain)'
+        '''
+        Takes a name, and returns the owner of the deepest subdomain that has an owner
+
+        :returns: (owner or None, list(unowned_subdomain_labels), first_owned_domain)
+        '''
         owner = None
         unowned = []
         pieces = dot_eth_name(name).split('.')
-        while not owner and pieces:
+        while pieces and not owner:
             name = '.'.join(pieces)
             owner = self.owner(name)
             if not owner:

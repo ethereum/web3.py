@@ -60,6 +60,8 @@ def normalize_name(name):
     Clean the fully qualified name, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
 
+    This does *not* enforce whether ``name`` is a label or fully qualified domain.
+
     :param str name: the dot-separated ENS name
     :raises InvalidName: if ``name`` has invalid syntax
     '''
@@ -127,6 +129,12 @@ def sha3_text(val):
     if isinstance(val, str):
         val = val.encode('utf-8')
     return Web3().sha3(val)
+
+
+def label_to_hash(label):
+    label = normalize_name(label)
+    sha_hex = Web3().sha3(text=label)
+    return Web3().toBytes(hexstr=sha_hex)
 
 
 def address_to_reverse_domain(address):
