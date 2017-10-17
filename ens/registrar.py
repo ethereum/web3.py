@@ -34,17 +34,50 @@ AuctionEntry = namedtuple('AuctionEntry', 'status, deed, close_at, deposit, top_
 
 class Status(IntEnum):
     '''
-    Current status of the auction for a label. For more info:
-    http://docs.ens.domains/en/latest/userguide.html#starting-an-auction
+    Current status of the auction for a label. For more info,
+    see the `ENS documentation
+    <http://docs.ens.domains/en/latest/userguide.html#starting-an-auction>`_
 
-    Names taken from Solidity contract, but modified so they are gramatically parallel
+    The status names mirror those in the `Solidity contract
+    <https://github.com/ethereum/ens/blob/master/contracts/HashRegistrarSimplified.sol#L110>`_.
+    A couple are modified to be gramatically consistent with each other.
     '''
+
     Open = 0
-    Auctioning = 1        # original name was 'Auction' in HashRegistrarSimplified contract
+    '''The associated name is available for anyone to start an auction.'''
+
+    Auctioning = 1
+    '''
+    An auction on the name has begun. The .eth Registrar is accepting bids.
+
+    In the `registrar contract
+    <https://github.com/ethereum/ens/blob/master/contracts/HashRegistrarSimplified.sol#L110>`_
+    this is called ``Auction``
+    '''
+
     Owned = 2
+    '''The name has been auctioned, and the top bidder was determined'''
+
     Forbidden = 3
-    Revealing = 4         # original name was 'Reveal' in HashRegistrarSimplified contract
+    '''Reserved for later use'''
+
+    Revealing = 4
+    '''
+    The .eth Registrar is no longer accepting bids. All bidders must reveal during this period.
+
+    In the `registrar contract
+    <https://github.com/ethereum/ens/blob/master/contracts/HashRegistrarSimplified.sol#L110>`_
+    this is called ``Reveal``
+    '''
+
     NotYetAvailable = 5
+    '''
+    When ENS first launched, there was a slow rollout of names. This status was
+    used for names that had not yet been released.
+
+    It should no longer apply to any names, until the next major release of sub-7 character
+    names.
+    '''
 
 
 class Registrar:
