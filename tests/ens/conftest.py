@@ -103,7 +103,9 @@ def registrar(ens, monkeypatch, addr9):
 
 @pytest.fixture
 def fake_hash_hexout():
-    def _fake_hash(tohash):
+    def _fake_hash(tohash, text=None):
+        if text:
+            tohash = text.encode('utf-8')
         assert isinstance(tohash, bytes)
         tohash = b'b' + tohash
         hash_bytes = b'HASH(%s)' % tohash

@@ -2,7 +2,7 @@
 import pytest
 from web3 import Web3
 
-from ens.registrar import BidTooLow, InvalidLabel, UnderfundedBid
+from ens.exceptions import BidTooLow, InvalidLabel, UnderfundedBid
 
 
 @pytest.fixture
@@ -17,40 +17,37 @@ def test_bid_requires_from(reg_bid, label1, secret1):
         reg_bid.bid(label1, 1, secret1)
 
 
-def test_bid_nameprep(reg_bid, mocker, fake_hash_hexout, fake_hash_utf8, value1, secret1, addr1):
-    mocker.patch('web3.Web3.sha3', side_effect=fake_hash_hexout)
-    reg_bid.bid("ÖÖÖÖÖÖÖ.eth", value1, secret1, transact={'from': addr1})
-    reg_bid.core.shaBid.assert_called_once_with(
-        fake_hash_utf8("ööööööö"),
-        addr1,
-        value1,
-        fake_hash_utf8(secret1),
-    )
-
-
-def test_bid_hash(
-        reg_bid, mocker, fake_hash_hexout, fake_hash_utf8, label1, value1, secret1, addr1):
-    mocker.patch('web3.Web3.sha3', side_effect=fake_hash_hexout)
-    mocker.patch.object(reg_bid.ens, 'labelhash', side_effect=fake_hash_utf8)
-    reg_bid.bid(label1, value1, secret1, transact={'from': addr1})
-    reg_bid.core.shaBid.assert_called_once_with(
-        fake_hash_utf8(label1),
-        addr1,
-        value1,
-        fake_hash_utf8(secret1),
-    )
-
-
-def test_bid_convert_to_label(
-        reg_bid, mocker, fake_hash_hexout, fake_hash_utf8, value1, secret1, addr1):
-    mocker.patch('web3.Web3.sha3', side_effect=fake_hash_hexout)
-    reg_bid.bid('fullname.eth', value1, secret1, transact={'from': addr1})
-    reg_bid.core.shaBid.assert_called_once_with(
-        b"HASH(bfullname)",
-        addr1,
-        value1,
-        fake_hash_utf8(secret1),
-    )
+@pytest.mark.parametrize(
+    'label, expected_labelhash',
+    [
+        (
+            'peasant',
+            '0xd36dfa290c53bbaeca00bddd830089c4dd18108122b34218c68dfe08c3ad1807',
+        ),
+        (
+            # bid should switch to label
+            'peasant.eth',
+            '0xd36dfa290c53bbaeca00bddd830089c4dd18108122b34218c68dfe08c3ad1807',
+        ),
+        (
+            'ööööööö',
+            '0x03691b4346cc320858bcc2e5f93a089a2b657e623800507801721a12ffab2e33',
+        ),
+        (
+            # bid should use nameprep, pushing to lower-case
+            'ÖÖÖÖÖÖÖ',
+            '0x03691b4346cc320858bcc2e5f93a089a2b657e623800507801721a12ffab2e33',
+        ),
+    ]
+)
+def test_bid_hash(reg_bid, value1, secret1, addr1, label, expected_labelhash):
+    reg_bid.bid(label, value1, secret1, transact={'from': addr1})
+    assert reg_bid.core.shaBid.call_count == 1
+    actual_label_hash, addr, value, secret = reg_bid.core.shaBid.call_args_list[0][0]
+    assert Web3.toHex(actual_label_hash) == expected_labelhash
+    assert addr == addr1
+    assert value == value1
+    assert secret == '0xb40cb7b9d4e4b922db0c6f19ba9752ce39b87a4471ac97e553071ed4db9f1924'
 
 
 def test_new_bid(reg_bid, mocker, hashbytes1, label1, value1, addr1):

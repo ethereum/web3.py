@@ -7,12 +7,12 @@ from ens import abis
 from ens.exceptions import (
     BidTooLow,
     InvalidBidHash,
-    InvalidLabel,
     UnderfundedBid,
 )
 
 from ens.utils import (
     dot_eth_label,
+    sha3_text,
     to_utc_datetime,
 )
 
@@ -28,7 +28,6 @@ AUCTION_START_GAS_CONSTANT = 25000
 AUCTION_START_GAS_MARGINAL = 39000
 
 MIN_BID = 10000000000000000  # 0.01 ether
-MIN_NAME_LENGTH = 7
 
 AuctionEntry = namedtuple('AuctionEntry', 'status, deed, close_at, deposit, top_bid')
 
@@ -143,7 +142,7 @@ class Registrar:
         if not self.core.sealedBids(sender, bid_hash):
             raise InvalidBidHash
         label_hash = self.ens.labelhash(label)
-        secret_hash = self._secret_hash(secret)
+        secret_hash = sha3_text(secret)
         return self.core.unsealBid(label_hash, amount, secret_hash, **modifier_dict)
     unseal = reveal
 
@@ -186,19 +185,12 @@ class Registrar:
 
     def _bid_hash(self, label, bidder, bid_amount, secret):
         label_hash = self.ens.labelhash(label)
-        secret_hash = self._secret_hash(secret)
+        secret_hash = sha3_text(secret)
         bid_hash = self.core.shaBid(label_hash, bidder, bid_amount, secret_hash)
         # deal with web3.py returning a string instead of bytes:
         if isinstance(bid_hash, str):
             bid_hash = bytes(bid_hash, encoding='latin-1')
         return bid_hash
-
-    @staticmethod
-    def _secret_hash(secret):
-        if isinstance(secret, str):
-            secret = secret.encode()
-        secret_hash = Web3().sha3(secret)
-        return Web3().toBytes(hexstr=secret_hash)
 
     def __entry_lookup(self, label, entry_attr):
         entries = self.entries(label)

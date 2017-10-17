@@ -103,3 +103,10 @@ def to_utc_datetime(timestamp):
         return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)
     else:
         return None
+
+
+def sha3_text(val):
+    from web3 import Web3
+    if isinstance(val, str):
+        val = val.encode('utf-8')
+    return Web3.sha3(val)
