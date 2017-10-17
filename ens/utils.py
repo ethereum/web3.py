@@ -9,6 +9,7 @@ from ens.exceptions import (
 
 from ens.constants import (
     ACCEPTABLE_STALE_HOURS,
+    EMPTY_SHA3_BYTES,
     MIN_ETH_LABEL_LENGTH,
     RECOGNIZED_TLDS,
     REVERSE_REGISTRAR_DOMAIN,
@@ -135,6 +136,40 @@ def label_to_hash(label):
     label = normalize_name(label)
     sha_hex = Web3().sha3(text=label)
     return Web3().toBytes(hexstr=sha_hex)
+
+
+def name_to_hash(name):
+    node = EMPTY_SHA3_BYTES
+    if name:
+        labels = name.split(".")
+        for label in reversed(labels):
+            labelhash = label_to_hash(label)
+            assert isinstance(labelhash, bytes)
+            assert isinstance(node, bytes)
+            sha_hex = Web3().sha3(node + labelhash)
+            node = Web3().toBytes(hexstr=sha_hex)
+    return node
+
+
+def dot_eth_namehash(name):
+    '''
+    Generate the namehash. This is also known as the ``node`` in ENS contracts.
+
+    In normal operation, generating the namehash is handled
+    behind the scenes. For advanced usage, it is a helpful utility.
+
+    This will add '.eth' to name if no TLD given. Also, it normalizes the name with
+    `nameprep
+    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
+    before hashing.
+
+    :param str name: ENS name to hash
+    :return: the namehash
+    :rtype: bytes
+    :raises InvalidName: if ``name`` has invalid syntax
+    '''
+    expanded_name = dot_eth_name(name)
+    return name_to_hash(expanded_name)
 
 
 def address_to_reverse_domain(address):

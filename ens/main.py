@@ -2,7 +2,6 @@
 from ens import abis
 
 from ens.constants import (
-    EMPTY_SHA3_BYTES,
     REVERSE_REGISTRAR_DOMAIN,
 )
 
@@ -18,6 +17,7 @@ from ens.utils import (
     address_to_reverse_domain,
     dict_copy,
     dot_eth_name,
+    dot_eth_namehash,
     ensure_hex,
     init_web3,
     label_to_hash,
@@ -43,6 +43,7 @@ class ENS:
     '''
 
     labelhash = staticmethod(label_to_hash)
+    namehash = staticmethod(dot_eth_namehash)
     nameprep = staticmethod(normalize_name)
     reverse_domain = staticmethod(address_to_reverse_domain)
 
@@ -166,34 +167,6 @@ class ENS:
         else:
             return None
 
-    @classmethod
-    def namehash(cls, name):
-        '''
-        Generate the namehash. In normal operation, this is handled
-        behind the scenes. For advanced usage, it is a helpful utility.
-
-        Will add '.eth' to name if no TLD given. Also, normalizes the name with
-        `nameprep
-        <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
-        before hashing.
-
-        :param str name: ENS name to hash
-        :return: the namehash
-        :rtype: bytes
-        :raises InvalidName: if ``name`` has invalid syntax
-        '''
-        name = dot_eth_name(name)
-        node = EMPTY_SHA3_BYTES
-        if name:
-            labels = name.split(".")
-            for label in reversed(labels):
-                labelhash = cls.labelhash(label)
-                assert isinstance(labelhash, bytes)
-                assert isinstance(node, bytes)
-                sha_hex = Web3().sha3(node + labelhash)
-                node = Web3().toBytes(hexstr=sha_hex)
-        return node
-
     def resolver(self, name):
         resolver_addr = self.ens.resolver(self.namehash(name))
         if not resolver_addr:
@@ -253,7 +226,7 @@ class ENS:
         for label in reversed(unowned):
             self.ens.setSubnodeOwner(
                 self.namehash(owned),
-                self.labelhash(label),
+                label_to_hash(label),
                 owner,
                 transact=transact
             )
