@@ -123,7 +123,7 @@ class ENS:
             address = Web3().toBytes(hexstr=address)
         else:
             address = Web3().toBytes(address)
-        return resolver.setAddr(self.namehash(name), address, transact=transact)
+        return resolver.setAddr(dot_eth_namehash(name), address, transact=transact)
 
     @dict_copy
     def setup_name(self, name, address=None, transact={}):
@@ -160,7 +160,7 @@ class ENS:
         resolver = self.resolver(name)
         if resolver:
             lookup_function = getattr(resolver, get)
-            resolved = lookup_function(self.namehash(name))
+            resolved = lookup_function(dot_eth_namehash(name))
             if self.web3.isAddress(resolved):
                 resolved = self.web3.toChecksumAddress(resolved)
             return resolved
@@ -168,7 +168,7 @@ class ENS:
             return None
 
     def resolver(self, name):
-        resolver_addr = self.ens.resolver(self.namehash(name))
+        resolver_addr = self.ens.resolver(dot_eth_namehash(name))
         if not resolver_addr:
             return None
         return self._resolverContract(address=resolver_addr)
@@ -189,12 +189,8 @@ class ENS:
         :return: owner address
         :rtype: str
         '''
-        node = self.namehash(name)
+        node = dot_eth_namehash(name)
         return self.ens.owner(node)
-
-    def _reverse_node(self, address):
-        domain = address_to_reverse_domain(address)
-        return self.namehash(domain)
 
     def _assert_control(self, account, name, parent_owned=None):
         if account not in self.web3.eth.accounts:
@@ -225,7 +221,7 @@ class ENS:
         transact['from'] = owner
         for label in reversed(unowned):
             self.ens.setSubnodeOwner(
-                self.namehash(owned),
+                dot_eth_namehash(owned),
                 label_to_hash(label),
                 owner,
                 transact=transact
@@ -236,7 +232,7 @@ class ENS:
     def _set_resolver(self, name, resolver_addr=None, transact={}):
         if not resolver_addr:
             resolver_addr = self.address('resolver.eth')
-        namehash = self.namehash(name)
+        namehash = dot_eth_namehash(name)
         if self.ens.resolver(namehash) != resolver_addr:
             self.ens.setResolver(
                 namehash,
@@ -252,5 +248,5 @@ class ENS:
         return self._reverse_registrar().setName(name, transact=transact)
 
     def _reverse_registrar(self):
-        addr = self.ens.owner(self.namehash(REVERSE_REGISTRAR_DOMAIN))
+        addr = self.ens.owner(dot_eth_namehash(REVERSE_REGISTRAR_DOMAIN))
         return self.web3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
