@@ -14,6 +14,8 @@ from ens.exceptions import (
 from ens.utils import (
     dot_eth_label,
     estimate_auction_start_gas,
+    assert_signer_in_modifier_kwargs,
+    label_to_hash,
     sha3_text,
     to_utc_datetime,
 )
@@ -159,7 +161,7 @@ class Registrar:
                                      Web3().fromWei(amount, 'ether'),
                                      Web3().fromWei(transact['value'], 'ether')))
         label = dot_eth_label(label)
-        sender = self.__require_sender(modifier_dict)
+        sender = assert_signer_in_modifier_kwargs(modifier_dict)
         if amount < MIN_BID:
             raise BidTooLow("You must bid at least %s ether" % Web3().fromWei(MIN_BID, 'ether'))
         bid_hash = self._bid_hash(label, sender, amount, secret)
@@ -168,7 +170,7 @@ class Registrar:
     def reveal(self, label, amount, secret, **modifier_dict):
         if not modifier_dict:
             modifier_dict = {'transact': {}}
-        sender = self.__require_sender(modifier_dict)
+        sender = assert_signer_in_modifier_kwargs(modifier_dict)
         label = dot_eth_label(label)
         bid_hash = self._bid_hash(label, sender, amount, secret)
         if not self.core.sealedBids(sender, bid_hash):
@@ -202,18 +204,12 @@ class Registrar:
             self._core = self._coreContract(address=self.ens.owner(REGISTRAR_NAME))
         return self._core
 
-    def __require_sender(self, modifier_dict):
-        modifier_vals = modifier_dict[list(modifier_dict).pop()]
-        if 'from' not in modifier_vals:
-            raise TypeError("You must specify the sending account")
-        return modifier_vals['from']
-
     def _last_gaslimit(self):
         last_block = self.web3.eth.getBlock('latest')
         return last_block.gasLimit
 
     def _bid_hash(self, label, bidder, bid_amount, secret):
-        label_hash = self.ens.labelhash(label)
+        label_hash = label_to_hash(label)
         secret_hash = sha3_text(secret)
         bid_hash = self.core.shaBid(label_hash, bidder, bid_amount, secret_hash)
         # deal with web3.py returning a string instead of bytes:

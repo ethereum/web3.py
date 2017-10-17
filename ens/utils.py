@@ -184,3 +184,14 @@ def address_to_reverse_domain(address):
 
 def estimate_auction_start_gas(labels):
     return AUCTION_START_GAS_CONSTANT + AUCTION_START_GAS_MARGINAL * len(labels)
+
+
+def assert_signer_in_modifier_kwargs(modifier_kwargs):
+    ERR_MSG = "You must specify the sending account"
+    assert len(modifier_kwargs) == 1, ERR_MSG
+
+    _modifier_type, modifier_dict = dict(modifier_kwargs).popitem()
+    if 'from' not in modifier_dict:
+        raise TypeError(ERR_MSG)
+
+    return modifier_dict['from']
