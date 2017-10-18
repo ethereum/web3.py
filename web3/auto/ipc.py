@@ -1,12 +1,12 @@
-from os import path
-
+from web3.providers.ipc import get_default_ipc_path
 from web3 import (
     IPCProvider,
     Web3
 )
 
+from os import path
 
-def ipc():
+def connect():
 
     home = path.expanduser('~')
 
@@ -24,5 +24,4 @@ def ipc():
 
     return False
 
-
-w3 = ipc()
+w3 = connect()
