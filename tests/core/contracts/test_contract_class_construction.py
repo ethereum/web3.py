@@ -1,3 +1,4 @@
+import json
 import pytest
 
 from web3.contract import Contract
@@ -23,9 +24,11 @@ def test_error_to_instantiate_base_class():
         Contract()
 
 
-def test_can_instantiate_without_address(web3, MATH_ABI):
-    MathContract = web3.eth.contract(MATH_ABI)
+def test_abi_as_json_string(web3, MATH_ABI, some_address):
+    abi_str = json.dumps(MATH_ABI)
+
+    MathContract = web3.eth.contract(abi=abi_str)
     assert MathContract.abi == MATH_ABI
 
-    math = MathContract()
+    math = MathContract(some_address)
     assert math.abi == MATH_ABI

@@ -43,6 +43,6 @@ ABI_C = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type
     ),
 )
 def test_contract_abi_encoding(web3, abi, method, arguments, data, expected):
-    contract = web3.eth.contract(abi)
+    contract = web3.eth.contract(abi=abi)
     actual = contract.encodeABI(method, arguments, data=data)
     assert actual == expected

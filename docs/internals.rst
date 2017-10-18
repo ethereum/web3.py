@@ -32,7 +32,7 @@ Request Lifecycle
 
 Each web3 RPC call passes through these layers in the following manner.
 
-.. code-block::
+.. code-block:: none
 
                    ***********    ************
                    | Request |    | Response |
@@ -125,7 +125,7 @@ request is issued to the next configured provider.  If no providers are able to
 handle the request then a ``web3.exceptions.UnhandledRequest`` error will be
 raised.
 
-.. py:property:: BaseProvider.middlewares
+.. py:attribute:: BaseProvider.middlewares
 
     This should be an iterable of middlewares.
 

@@ -1,5 +1,5 @@
 Eth.Account API
-=======
+===============
 
 .. py:module:: web3.eth.account
     :synopsis: Validate signatures, and work with local private keys
@@ -344,7 +344,7 @@ The following methods are available on the ``Web3.eth.account`` namespace.
 .. _eth-account-key-convenience:
 
 Private Key Convenience Methods
----------
+---------------------------------
 
 The following are a set of methods that mirror :class:`Account` methods, but
 with a prefilled private key. They are accessible as a result of the :meth:`~Account.create` and

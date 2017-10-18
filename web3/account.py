@@ -48,6 +48,7 @@ from web3.utils.signing import (
     sign_message_hash,
     sign_transaction_dict,
     signature_wrapper,
+    to_standard_signature_bytes,
     to_standard_v,
 )
 from web3.utils.transactions import (
@@ -113,7 +114,8 @@ class Account(object):
             signature_obj = self._keys.Signature(vrs=(v_standard, r, s))
         elif signature is not None:
             signature_bytes = hexstr_if_str(to_bytes, signature)
-            signature_obj = self._keys.Signature(signature_bytes=signature_bytes)
+            signature_bytes_standard = to_standard_signature_bytes(signature_bytes)
+            signature_obj = self._keys.Signature(signature_bytes=signature_bytes_standard)
         else:
             raise TypeError("You must supply the vrs tuple or the signature bytes")
         pubkey = signature_obj.recover_public_key_from_msg_hash(hash_bytes)

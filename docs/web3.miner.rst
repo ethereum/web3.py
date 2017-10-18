@@ -2,7 +2,6 @@ Miner API
 =========
 
 .. py:module:: web3.miner
-.. py:currentmodule:: web3.miner
 
 .. py:class:: Miner
 

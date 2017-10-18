@@ -16,7 +16,7 @@ from web3.utils.encoding import (
 )
 
 
-# from https://github.com/ethereum/tests/blob/develop/BasicTests/txtest.json
+# from https://github.com/ethereum/tests/blob/3930ca3a9a377107d5792b3e7202f79c688f1a67/BasicTests/txtest.json # noqa: 501
 ETH_TEST_TRANSACTIONS = [
     {
         "chainId": None,
@@ -147,8 +147,16 @@ def test_eth_account_recover_message(web3):
     assert from_account == '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
 
 
-def test_eth_account_recover_signature_bytes(web3):
-    signature_bytes = b'\x0cu0\x84\xe5\xa8)\x02\x192L\x1a:\x86\xd4\x06M\xed-\x15\x97\x9b\x1e\xa7\x90sJ\xaa,\xea\xaf\xc1"\x9c\xa4S\x81\x06\x81\x9f\xd3\xa5P\x9d\xd3\x83\xe8\xfeKs\x1chp3\x95V\xa5\xc0o\xeb\x9c\xf30\xbb\x00'  # noqa: E501
+@pytest.mark.parametrize(
+    'signature_bytes',
+    [
+        # test signature bytes with standard v (0 in this case)
+        b'\x0cu0\x84\xe5\xa8)\x02\x192L\x1a:\x86\xd4\x06M\xed-\x15\x97\x9b\x1e\xa7\x90sJ\xaa,\xea\xaf\xc1"\x9c\xa4S\x81\x06\x81\x9f\xd3\xa5P\x9d\xd3\x83\xe8\xfeKs\x1chp3\x95V\xa5\xc0o\xeb\x9c\xf30\xbb\x00',  # noqa: E501
+        # test signature bytes with chain-naive v (27 in this case)
+        b'\x0cu0\x84\xe5\xa8)\x02\x192L\x1a:\x86\xd4\x06M\xed-\x15\x97\x9b\x1e\xa7\x90sJ\xaa,\xea\xaf\xc1"\x9c\xa4S\x81\x06\x81\x9f\xd3\xa5P\x9d\xd3\x83\xe8\xfeKs\x1chp3\x95V\xa5\xc0o\xeb\x9c\xf30\xbb\x1b',  # noqa: E501
+    ]
+)
+def test_eth_account_recover_signature_bytes(web3, signature_bytes):
     msg_hash = b'\xbb\r\x8a\xba\x9f\xf7\xa1<N,s{i\x81\x86r\x83{\xba\x9f\xe2\x1d\xaa\xdd\xb3\xd6\x01\xda\x00\xb7)\xa1'  # noqa: E501
     msg_hash = to_hex_if_py2(msg_hash)
     signature = to_hex_if_py2(signature_bytes)
