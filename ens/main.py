@@ -1,7 +1,12 @@
 
+from eth_utils import (
+    to_checksum_address,
+)
+
 from ens import abis
 
 from ens.constants import (
+    EMPTY_ADDR_HEX,
     REVERSE_REGISTRAR_DOMAIN,
 )
 
@@ -14,11 +19,12 @@ from ens.exceptions import (
 from ens.registrar import Registrar
 
 from ens.utils import (
+    Web3,
+    address_in,
     address_to_reverse_domain,
     dict_copy,
     dot_eth_name,
     dot_eth_namehash,
-    ensure_hex,
     init_web3,
     label_to_hash,
     normalize_name,
@@ -26,10 +32,7 @@ from ens.utils import (
 
 ENS_MAINNET_ADDR = '0x314159265dd8dbb310642f98f50c066173c1259b'
 
-
-def Web3():
-    from web3 import Web3
-    return Web3
+default = object()
 
 
 class ENS:
@@ -62,13 +65,15 @@ class ENS:
         self.registrar = Registrar(self)
 
     @classmethod
-    def fromWeb3(cls, web3):
+    def fromWeb3(cls, web3, addr=None):
         '''
         Generate an ENS instance with web3
 
         :param `web3.Web3` web3: to infer connection information
+        :param hex-string addr: the address of the ENS registry on-chain. If not provided,
+            ENS.py will default to the mainnet ENS registry address.
         '''
-        return cls(web3.manager.providers)
+        return cls(web3.manager.providers, addr=addr)
 
     def address(self, name):
         '''
@@ -92,7 +97,7 @@ class ENS:
     reverse = name
 
     @dict_copy
-    def setup_address(self, name, address=None, transact={}):
+    def setup_address(self, name, address=default, transact={}):
         '''
         Set up the name to point to the supplied address.
         The sender if the transaction must own the name, or
@@ -103,16 +108,19 @@ class ENS:
         then ``sub`` will be created as part of this call.
 
         :param str name: ENS name to set up
-        :param address: name will point to this
+        :param address: name will point to this address. If ``None``, set resolver to empty addr.
+            If not specified, name will point to the owner's address.
         :param dict transact: the transaction configuration, like in
             `web3.eth.sendTransaction`
         :raises InvalidName: if ``name`` has invalid syntax
         :raises UnauthorizedError: if ``from`` in ``transact`` does not own ``name``
         '''
         (owner, unowned, owned) = self._first_owner(name)
-        if not address:
+        if address is default:
             address = owner
-        if self.address(name) == ensure_hex(address):
+        elif not address:
+            address = EMPTY_ADDR_HEX
+        if self.address(name) == to_checksum_address(address):
             return None
         self._assert_control(owner, name, owned)
         if unowned:
@@ -193,7 +201,7 @@ class ENS:
         return self.ens.owner(node)
 
     def _assert_control(self, account, name, parent_owned=None):
-        if account not in self.web3.eth.accounts:
+        if not address_in(account, self.web3.eth.accounts):
             raise UnauthorizedError(
                 "in order to modify %r, you must control account %r, which owns %r" % (
                     name, account, parent_owned or name

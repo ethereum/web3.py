@@ -1,5 +1,11 @@
 
 import datetime
+import functools
+
+from eth_utils import (
+    to_checksum_address,
+)
+
 import idna
 
 from ens.exceptions import (
@@ -25,7 +31,8 @@ def Web3():
 
 def dict_copy(func):
     "copy dict keyword args, to avoid modifying caller's copy"
-    def proxy(*args, **kwargs):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
         new_kwargs = {}
         for var in kwargs:
             if isinstance(kwargs[var], dict):
@@ -33,7 +40,7 @@ def dict_copy(func):
             else:
                 new_kwargs[var] = kwargs[var]
         return func(*args, **new_kwargs)
-    return proxy
+    return wrapper
 
 
 def ensure_hex(data):
@@ -172,6 +179,10 @@ def dot_eth_namehash(name):
     '''
     expanded_name = dot_eth_name(name)
     return name_to_hash(expanded_name)
+
+
+def address_in(address, addresses):
+    return to_checksum_address(address) in map(to_checksum_address, addresses)
 
 
 def address_to_reverse_domain(address):

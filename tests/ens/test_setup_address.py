@@ -10,6 +10,8 @@ from ens.main import UnauthorizedError
 API at: https://github.com/carver/ens.py/issues/2
 '''
 
+TEST_ADDRESS = "0x000000000000000000000000000000000000dEaD"
+
 
 @pytest.fixture
 def enssetter(ens, mocker, addr1, addr2, hash9):
@@ -27,32 +29,64 @@ def enssetter(ens, mocker, addr1, addr2, hash9):
     return ens
 
 
-def test_set_address_noop(enssetter, mocker, name1, addr1):
-    # show the name as already set up correctly
-    mocker.patch.object(enssetter, 'address', return_value=addr1)
-    # in case of bug where ens.py tries to set the address up, show resolver as not set
-    assert enssetter.setup_address(name1, addr1) is None
-    enssetter.address.assert_called_once_with(name1)
-    assert not enssetter._claim_ownership.called
-    assert not enssetter._set_resolver.called
+@pytest.mark.parametrize(
+    'name',
+    [
+        'tester',
+        'tester.eth',
+        'lots.of.subdomains.tester',
+        'lots.of.subdomains.tester.eth',
+    ],
+)
+def test_set_address(ens, name):
+    assert ens.address(name) is None
+
+    ens.setup_address(name, TEST_ADDRESS)
+    assert ens.address(name) == TEST_ADDRESS
+
+    ens.setup_address(name, None)
+    assert ens.address(name) is None
 
 
-def test_set_address_noop_with_bytes(enssetter, mocker, name1, addr1, addrbytes1):
-    # show the name as already set up correctly
-    mocker.patch.object(enssetter, 'address', return_value=addr1)
-    # in case of bug where ens.py tries to set the address up, show resolver as not set
-    assert enssetter.setup_address(name1, addrbytes1) is None
-    enssetter.address.assert_called_once_with(name1)
-    assert not enssetter._claim_ownership.called
-    assert not enssetter._set_resolver.called
+@pytest.mark.parametrize(
+    'name, equivalent',
+    [
+        ('TESTER', 'tester.eth'),
+        ('unicÖde.tester.eth', 'unicöde.tester.eth'),
+    ],
+)
+def test_set_address_equivalence(ens, name, equivalent):
+    assert ens.address(name) is None
+
+    ens.setup_address(name, TEST_ADDRESS)
+    assert ens.address(name) == TEST_ADDRESS
+    assert ens.address(equivalent) == TEST_ADDRESS
+
+    ens.setup_address(name, None)
+    assert ens.address(name) is None
 
 
-def test_set_address_unauthorized(enssetter, mocker, name1, addr1):
-    # show the name as not set up
-    # pretend there are no available accounts to send from
-    mocker.patch.object(enssetter.web3, 'eth', wraps=enssetter.web3.eth, accounts=[])
+@pytest.mark.parametrize(
+    'set_address, re_set_address',
+    [
+        (TEST_ADDRESS, TEST_ADDRESS),
+        (TEST_ADDRESS, Web3.toBytes(hexstr=TEST_ADDRESS)),
+    ],
+)
+def test_set_address_noop(ens, set_address, re_set_address):
+    eth = ens.web3.eth
+    owner = ens.owner('tester.eth')
+    ens.setup_address('noop.tester.eth', set_address)
+    starting_transactions = eth.getTransactionCount(owner)
+
+    # do not issue transaction if address is already set
+    ens.setup_address('noop.tester.eth', re_set_address)
+    assert eth.getTransactionCount(owner) == starting_transactions
+
+
+def test_set_address_unauthorized(ens):
     with pytest.raises(UnauthorizedError):
-        enssetter.setup_address(name1, addr1)
+        ens.setup_address('eth', TEST_ADDRESS)
 
 
 def test_setup_address_default_address_to_owner(enssetter, mocker, name1, addr1, addrbytes1):
