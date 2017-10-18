@@ -100,7 +100,6 @@ class Registrar:
         # delay generating this contract so that this class can be created before web3 is online
         self._core = None
         self._deedContract = self.web3.eth.contract(abi=abis.DEED)
-        self._short_invalid = True
 
     def entries(self, label):
         '''
