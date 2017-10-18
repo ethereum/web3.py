@@ -143,6 +143,8 @@ def sha3_text(val):
 
 def label_to_hash(label):
     label = normalize_name(label)
+    if '.' in label:
+        raise ValueError("Cannot generate hash for label %r with a '.'" % label)
     sha_hex = Web3().sha3(text=label)
     return Web3().toBytes(hexstr=sha_hex)
 

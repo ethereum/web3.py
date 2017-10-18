@@ -14,19 +14,35 @@ TEST_ADDRESS = "0x000000000000000000000000000000000000dEaD"
 
 
 @pytest.mark.parametrize(
-    'name',
+    'name, namehash_hex',
     [
-        'tester.eth',
-        'tester',  # auto-detect .eth
-        'lots.of.subdomains.tester.eth',  # confirm that set-owner works
-        'lots.of.subdomains.tester',  # many subdomans can still autodetect .eth
+        ('tester.eth', '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe'),
+        ('tester', '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe'),
+        ('TESTER', '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe'),
+        # handles alternative dot separators
+        ('tester．eth', '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe'),
+        ('tester。eth', '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe'),
+        ('tester｡eth', '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe'),
+        # confirm that set-owner works
+        (
+            'lots.of.subdomains.tester.eth',
+            '0x0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
+        ),
+        (
+            'lots.of.subdomains.tester',
+            '0x0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
+        ),
     ],
 )
-def test_set_address(ens, name):
+def test_set_address(ens, name, namehash_hex):
     assert ens.address(name) is None
+    owner = ens.owner('tester')
 
     ens.setup_address(name, TEST_ADDRESS)
     assert ens.address(name) == TEST_ADDRESS
+    namehash = Web3.toBytes(hexstr=namehash_hex)
+    assert ens.resolver(name).addr(namehash) == TEST_ADDRESS
+    assert ens.owner(name) == owner
 
     ens.setup_address(name, None)
     assert ens.address(name) is None
