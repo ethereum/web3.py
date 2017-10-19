@@ -12,6 +12,8 @@ from ens.exceptions import (
 )
 
 from ens.utils import (
+    Web3,
+    dict_copy,
     dot_eth_label,
     estimate_auction_start_gas,
     assert_signer_in_modifier_kwargs,
@@ -19,12 +21,6 @@ from ens.utils import (
     sha3_text,
     to_utc_datetime,
 )
-
-
-def Web3():
-    from web3 import Web3
-    return Web3
-
 
 REGISTRAR_NAME = 'eth'
 
@@ -125,6 +121,7 @@ class Registrar:
         label_hash = self.ens.labelhash(label)
         return self.entries_by_hash(label_hash)
 
+    @dict_copy
     def start(self, labels, **modifier_dict):
         if not labels:
             return
@@ -142,6 +139,7 @@ class Registrar:
         label_hashes = [self.ens.labelhash(label) for label in labels]
         return self.core.startAuctions(label_hashes, **modifier_dict)
 
+    @dict_copy
     def bid(self, label, amount, secret, **modifier_dict):
         """
         :param str label: to bid on
@@ -166,6 +164,7 @@ class Registrar:
         bid_hash = self._bid_hash(label, sender, amount, secret)
         return self.core.newBid(bid_hash, **modifier_dict)
 
+    @dict_copy
     def reveal(self, label, amount, secret, **modifier_dict):
         if not modifier_dict:
             modifier_dict = {'transact': {}}
@@ -179,6 +178,7 @@ class Registrar:
         return self.core.unsealBid(label_hash, amount, secret_hash, **modifier_dict)
     unseal = reveal
 
+    @dict_copy
     def finalize(self, label, **modifier_dict):
         if not modifier_dict:
             modifier_dict = {'transact': {}}

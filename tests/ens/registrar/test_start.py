@@ -82,6 +82,21 @@ def test_start_auctions(registrar, mocker, labels, expected_hashes):
     assert_equal_start_auction_hashes(startAuctions, expected_hashes)
 
 
+# To leave alpha, investigate why this is failing:
+'''
+def test_start_auctions_integrated(ens, labels, expected_hashes):
+    def assert_label_state(_labels, _expected_hashes, state):
+        byte_hashes = [Web3.toBytes(hexstr=hexhash) for hexhash in _expected_hashes]
+        for label, expected_hash in zip(_labels, byte_hashes):
+            assert ens.registrar.status(label) == state
+            assert ens.registrar.entries_by_hash(expected_hash).status == state
+
+    assert_label_state(labels, expected_hashes, Status.Open)
+    ens.registrar.start(labels)
+    assert_label_state(labels, expected_hashes, Status.Auctioning)
+'''
+
+
 def test_start_calculates_gas_needed(registrar, mocker, label1, label2):
     startAuctions = mocker.patch.object(registrar.core, 'startAuctions')
     registrar.start([label1, label2])

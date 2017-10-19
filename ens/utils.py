@@ -1,4 +1,5 @@
 
+import copy
 import datetime
 import functools
 
@@ -33,13 +34,8 @@ def dict_copy(func):
     "copy dict keyword args, to avoid modifying caller's copy"
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        new_kwargs = {}
-        for var in kwargs:
-            if isinstance(kwargs[var], dict):
-                new_kwargs[var] = dict(kwargs[var])
-            else:
-                new_kwargs[var] = kwargs[var]
-        return func(*args, **new_kwargs)
+        copied_kwargs = copy.deepcopy(kwargs)
+        return func(*args, **copied_kwargs)
     return wrapper
 
 

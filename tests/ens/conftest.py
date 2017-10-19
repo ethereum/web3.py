@@ -208,7 +208,7 @@ def ens_setup():
         w3,
         ETHRegistrarFactory,
         ens_key,
-        args=[ens_contract.address, eth_namehash, 0],
+        args=[ens_contract.address, eth_namehash, 1],
     )
 
     # create reverse resolver
