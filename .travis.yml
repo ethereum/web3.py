@@ -82,3 +82,10 @@ before_script:
   - pip freeze
 script:
   - tox $TOX_POSARGS
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/8210e0e2df3ad138a505
+    on_success: change
+    on_failure: never
+    on_cancel: never
