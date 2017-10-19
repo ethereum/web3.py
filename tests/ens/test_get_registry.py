@@ -3,7 +3,6 @@ from unittest.mock import patch
 import pytest
 
 from web3 import Web3
-from web3.exceptions import StaleBlockchain
 
 from ens import ENS
 
@@ -40,17 +39,6 @@ def test_resolver_empty(ens):
 )
 def test_reverse_domain(address, expected_reverse):
     assert ENS.reverse_domain(address) == expected_reverse
-
-
-def test_reverser_lookup(ens, addr1, hash1):
-    with patch.object(ens, 'resolver', return_value=hash1):
-        assert ens.reverser(addr1) == hash1
-        ens.resolver.assert_called_once_with(ens.reverse_domain(addr1))
-
-
-def test_reverse(ens, mocker, name1, name2):
-    # TODO test set and get reverse resolution
-    pass
 
 
 @pytest.mark.parametrize(

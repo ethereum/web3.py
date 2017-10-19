@@ -1,6 +1,11 @@
 
 import pytest
-from unittest.mock import Mock
+
+from eth_utils import (
+    remove_0x_prefix,
+)
+
+from web3 import Web3
 
 from ens.main import UnauthorizedError, AddressMismatch, UnownedName
 
@@ -8,83 +13,140 @@ from ens.main import UnauthorizedError, AddressMismatch, UnownedName
 API at: https://github.com/carver/ens.py/issues/2
 '''
 
-
-@pytest.fixture
-def ens2(ens, mocker, addr1, addr9, hash9):
-    mocker.patch.object(ens, '_setup_reverse')
-    mocker.patch.object(ens, 'address', return_value=None)
-    mocker.patch.object(ens, 'owner', return_value=None)
-    mocker.patch.object(ens.web3, 'eth', wraps=ens.web3.eth, accounts=[addr1, addr9])
-    mocker.patch.object(ens, 'setup_address')
-    '''
-    mocker.patch.object(ens, '_resolverContract', return_value=Mock())
-    mocker.patch.object(ens, '_first_owner', wraps=ens._first_owner)
-    mocker.patch.object(ens, '_claim_ownership', wraps=ens._claim_ownership)
-    mocker.patch.object(ens, '_set_resolver', wraps=ens._set_resolver)
-    mocker.patch.object(ens.ens, 'resolver', return_value=None)
-    mocker.patch.object(ens.ens, 'setAddr', return_value=hash9)
-    mocker.patch.object(ens.ens, 'setResolver')
-    mocker.patch.object(ens.ens, 'setSubnodeOwner')
-    '''
-    return ens
+TEST_ADDRESS = "0x000000000000000000000000000000000000dEaD"
 
 
-def test_cannot_set_name_on_mismatch_address(ens2, mocker, name1, addr1, addr2):
-    mocker.patch.object(ens2, 'address', return_value=addr2)
+@pytest.mark.parametrize(
+    'name, normalized_name, namehash_hex',
+    [
+        (
+            'tester.eth',
+            'tester.eth',
+            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+        ),
+        (
+            'tester',
+            'tester.eth',
+            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+        ),
+        (
+            'TESTER',
+            'tester.eth',
+            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+        ),
+        (
+            'tester．eth',
+            'tester.eth',
+            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+        ),
+        (
+            'tester。eth',
+            'tester.eth',
+            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+        ),
+        (
+            'tester｡eth',
+            'tester.eth',
+            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+        ),
+        # confirm that set-owner works
+        (
+            'lots.of.subdomains.tester.eth',
+            'lots.of.subdomains.tester.eth',
+            '0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
+        ),
+        (
+            'lots.of.subdomains.tester',
+            'lots.of.subdomains.tester.eth',
+            '0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
+        ),
+    ],
+)
+def test_setup_name(ens, name, normalized_name, namehash_hex):
+    address = ens.web3.eth.accounts[3]
+    assert not ens.name(address)
+    owner = ens.owner('tester')
+
+    ens.setup_name(name, address)
+    assert ens.name(address) == normalized_name
+    node = Web3.toBytes(hexstr=namehash_hex)
+    assert ens.resolver(name).addr(node) == address
+    assert ens.owner(name) == owner
+
+    ens.setup_name(None, address)
+    ens.setup_address(name, None)
+    assert not ens.name(address)
+    assert not ens.address(name)
+
+
+@pytest.mark.parametrize(
+    'address_modifier',
+    [
+        remove_0x_prefix,
+        lambda hexstr: Web3.toBytes(hexstr=hexstr),
+    ]
+)
+def test_setup_name_different_addr_types(ens, address_modifier):
+    address = ens.web3.eth.accounts[4]
+    assert not ens.name(address)
+
+    name = 'alt-address-types.tester.eth'
+    modified_addr = address_modifier(address)
+    ens.setup_name(name, modified_addr)
+    assert ens.name(address) == name
+
+    ens.setup_name(None, address)
+    ens.setup_address(name, None)
+
+
+def test_cannot_set_name_on_mismatch_address(ens):
+    ens.setup_address('mismatch-reverse.tester.eth', TEST_ADDRESS)
     with pytest.raises(AddressMismatch):
-        ens2.setup_name(name1, addr1)
+        ens.setup_name('mismatch-reverse.tester.eth', '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413')
 
 
-def test_setup_name_default_address(ens2, mocker, name1, addr1):
-    mocker.patch.object(ens2, 'address', return_value=addr1)
-    ens2.setup_name(name1)
-    ens2._setup_reverse.assert_called_once_with(name1, addr1, transact={})
+def test_setup_name_default_address(ens):
+    name = 'reverse-defaults-to-forward.tester.eth'
+    new_owner = ens.web3.eth.accounts[-1]
+    ens.setup_address(name, new_owner)
+    assert not ens.name(new_owner)
+    ens.setup_name(name)
+    assert ens.name(new_owner) == name
 
 
-def test_setup_name_default_to_owner(ens2, mocker, name1, addr1):
-    mocker.patch.object(ens2, 'owner', return_value=addr1)
-    ens2.setup_name(name1)
-    ens2._setup_reverse.assert_called_once_with(name1, addr1, transact={})
+def test_setup_name_default_to_owner(ens):
+    name = 'reverse-defaults-to-owner.tester.eth'
+    new_owner = ens.web3.eth.accounts[-1]
+    ens.setup_owner(name, new_owner)
+    assert ens.owner(name) == new_owner
+    assert not ens.address(name)
+    ens.setup_name(name)
+    assert ens.name(new_owner) == name
 
 
-def test_setup_name_unowned_exception(ens2, name1):
+def test_setup_name_unowned_exception(ens):
     with pytest.raises(UnownedName):
-        ens2.setup_name(name1)
+        ens.setup_name('unowned-name.tester.eth')
 
 
-def test_setup_name_unauthorized(ens2, mocker, name1, addr1):
-    mocker.patch.object(ens2, 'address', return_value=addr1)
-    mocker.patch.object(ens2.web3, 'eth', wraps=ens2.web3.eth, accounts=[])
+def test_setup_name_unauthorized(ens):
     with pytest.raises(UnauthorizedError):
-        ens2.setup_name(name1, addr1)
+        ens.setup_name('eth', TEST_ADDRESS)
 
 
-def test_setup_name_no_resolution(ens2, name1, addr1):
-    ens2.setup_name(name1, addr1)
-    ens2._setup_reverse.assert_called_once_with(name1, addr1, transact={})
+def test_setup_reverse_dict_unmodified(ens):
+    # setup
+    owner = ens.owner('tester.eth')
+    eth = ens.web3.eth
+    start_count = eth.getTransactionCount(owner)
 
-
-def test_setup_name_transact_passthrough(ens2, name1, addr1):
-    transact = {'gasPrice': 1}
-    ens2.setup_name(name1, addr1, transact=transact)
-    ens2._setup_reverse.assert_called_once_with(name1, addr1, transact=transact)
-
-
-def test_setup_name_resolver_setup(ens2, name1, addr1):
-    # if the name doesn't currently resolve to anything, set it up
-    transact = {'gasPrice': 1}
-    ens2.setup_name(name1, addr1, transact=transact)
-    ens2.setup_address.assert_called_once_with(name1, addr1, transact=transact)
-
-
-def test_setup_reverse_label_to_fullname(ens, mocker, addr1):
-    registrar = mocker.patch.object(ens, '_reverse_registrar', return_value=Mock())
-    ens._setup_reverse('castleanthrax', addr1)
-    registrar().setName.assert_called_once_with('castleanthrax.eth', transact={'from': addr1})
-
-
-def test_setup_reverse_dict_unmodified(ens, mocker, addr1):
-    mocker.patch.object(ens, '_reverse_registrar', return_value=Mock())
+    address = ens.web3.eth.accounts[3]
     transact = {}
-    ens._setup_reverse('castleanthrax', addr1, transact=transact)
+    ens.setup_name('tester.eth', address, transact=transact)
+
+    # even though a transaction was issued, the dict argument was not modified
+    assert eth.getTransactionCount(owner) > start_count
     assert transact == {}
+
+    # teardown
+    ens.setup_name(None, address, transact=transact)

@@ -1,7 +1,6 @@
 
 import json
 import pytest
-from unittest.mock import Mock
 
 from web3 import Web3
 from web3.contract import Contract
@@ -16,7 +15,24 @@ from ens.contract_data import (
     resolver_abi,
     resolver_bytecode,
     resolver_bytecode_runtime,
+    reverse_registrar_abi,
+    reverse_registrar_bytecode,
+    reverse_registrar_bytecode_runtime,
+    reverse_resolver_abi,
+    reverse_resolver_bytecode,
+    reverse_resolver_bytecode_runtime,
 )
+
+
+def bytes32(val):
+    if isinstance(val, int):
+        result = Web3.toBytes(val)
+    else:
+        raise TypeError('val %r could not be converted to bytes')
+    if len(result) < 32:
+        return result.rjust(32, b'\0')
+    else:
+        return result
 
 
 def mkhash(num, digits=40):
@@ -98,11 +114,30 @@ def secret1():
     return 'SUCH_SAFE_MUCH_SECRET'
 
 
-def deploy(w3, factory, from_address, args=None):
+def deploy(w3, Factory, from_address, args=None):
+    factory = Factory(w3)
     deploy_txn = factory.deploy(transaction={'from': from_address}, args=args)
     deploy_receipt = w3.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     return factory(address=deploy_receipt['contractAddress'])
+
+
+def DefaultReverseResolver(w3):
+    return w3.eth.contract(
+        bytecode=reverse_resolver_bytecode,
+        bytecode_runtime=reverse_resolver_bytecode_runtime,
+        abi=reverse_resolver_abi,
+        ContractFactoryClass=Contract,
+    )
+
+
+def ReverseRegistrar(w3):
+    return w3.eth.contract(
+        bytecode=reverse_registrar_bytecode,
+        bytecode_runtime=reverse_registrar_bytecode_runtime,
+        abi=reverse_registrar_abi,
+        ContractFactoryClass=Contract,
+    )
 
 
 def PublicResolverFactory(w3):
@@ -145,12 +180,14 @@ def ens_setup():
 
     # create ENS contract
     eth_labelhash = w3.toBytes(hexstr=w3.sha3(text='eth'))
-    eth_namehash = w3.toBytes(hexstr='0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae')  # noqa: 501
-    resolver_namehash = w3.toBytes(hexstr='0xfdd5d5de6dd63db72bbc2d487944ba13bf775b50a80805fe6fcaba9b0fba88f5')  # noqa: 501
-    ens_contract = deploy(w3, ENSFactory(w3), ens_key)
+    eth_namehash = bytes32(0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae)
+    resolver_namehash = bytes32(0xfdd5d5de6dd63db72bbc2d487944ba13bf775b50a80805fe6fcaba9b0fba88f5)
+    reverse_tld_namehash = bytes32(0xa097f6721ce401e757d1223a763fef49b8b5f90bb18567ddb86fd205dff71d34)  # noqa: 501
+    reverser_namehash = bytes32(0x91d1777781884d03a6757a803996e38de2a42967fb37eeaca72729271025a9e2)
+    ens_contract = deploy(w3, ENSFactory, ens_key)
 
     # create public resolver
-    public_resolver = deploy(w3, PublicResolverFactory(w3), ens_key, args=[ens_contract.address])
+    public_resolver = deploy(w3, PublicResolverFactory, ens_key, args=[ens_contract.address])
 
     # set 'resolver.eth' to resolve to public resolver
     ens_contract.transact({'from': ens_key}).setSubnodeOwner(
@@ -169,12 +206,40 @@ def ens_setup():
     # create .eth auction registrar
     eth_registrar = deploy(
         w3,
-        ETHRegistrarFactory(w3),
+        ETHRegistrarFactory,
         ens_key,
         args=[ens_contract.address, eth_namehash, 0],
     )
 
-    # set owner of tester.eth as the default account
+    # create reverse resolver
+    reverse_resolver = deploy(w3, DefaultReverseResolver, ens_key, args=[ens_contract.address])
+
+    # create reverse registrar
+    reverse_registrar = deploy(
+        w3,
+        ReverseRegistrar,
+        ens_key,
+        args=[ens_contract.address, reverse_resolver.address]
+    )
+
+    # set 'addr.reverse' to resolve to reverse registrar
+    ens_contract.transact({'from': ens_key}).setSubnodeOwner(
+        b'\0' * 32,
+        w3.toBytes(hexstr=w3.sha3(text='reverse')),
+        ens_key
+    )
+    ens_contract.transact({'from': ens_key}).setSubnodeOwner(
+        reverse_tld_namehash,
+        w3.toBytes(hexstr=w3.sha3(text='addr')),
+        ens_key
+    )
+    ens_contract.transact({'from': ens_key}).setResolver(reverser_namehash, public_resolver.address)
+    public_resolver.transact({'from': ens_key}).setAddr(
+        reverser_namehash,
+        reverse_registrar.address
+    )
+
+    # set owner of tester.eth to an account controlled by tests
     ens_contract.transact({'from': ens_key}).setSubnodeOwner(
         eth_namehash,
         w3.toBytes(hexstr=w3.sha3(text='tester')),
@@ -186,13 +251,14 @@ def ens_setup():
         eth_labelhash,
         eth_registrar.address
     )
+    # make the reverse registrar the owner of the 'addr.reverse' name
+    ens_contract.transact({'from': ens_key}).setSubnodeOwner(
+        reverse_tld_namehash,
+        w3.toBytes(hexstr=w3.sha3(text='addr')),
+        reverse_registrar.address
+    )
 
-    # wrap w3 in mock layer, with a couple touchups for attribute access
-    ens = ENS.fromWeb3(w3, ens_contract.address)
-    mockw3 = Mock(wraps=w3)
-    mockw3.eth.accounts = accounts
-    ens.web3 = mockw3
-    return ens
+    return ENS.fromWeb3(w3, ens_contract.address)
 
 
 @pytest.fixture
