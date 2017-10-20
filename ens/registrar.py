@@ -27,6 +27,11 @@ REGISTRAR_NAME = 'eth'
 MIN_BID = 10000000000000000  # 0.01 ether
 
 AuctionEntry = namedtuple('AuctionEntry', 'status, deed, close_at, deposit, top_bid')
+'''
+A namedtuple with various attributes about an auction for a .eth name.
+
+    See :meth:`Registrar.entries`
+'''
 
 
 class Status(IntEnum):
@@ -79,6 +84,8 @@ class Status(IntEnum):
 
 class Registrar:
     """
+    .. WARNING:: The registrar functionality is Alpha-quality. Use at your own risk!
+
     Provides access to the production ``'.eth'`` registrar, to buy names at auction.
 
     Terminology
@@ -99,19 +106,24 @@ class Registrar:
 
     def entries(self, label):
         '''
-        Returns a tuple of data about the status of the auction for ``label``.
-
-        Alternatively, you can request individual parts of the tuple. For example,
-        get the :attr:`~ens.registrar.AuctionEntry.top_bid` value
-        with a call like ``ns.registrar.top_bid(label)``.
+        Returns a :class:`~collections.namedtuple` with information about the auction for `label`.
 
         See these attributes on the returned value:
 
-         * ``status`` the auction state, one of :class:`Status`
-         * ``deed`` the contract storing the deposit, type :class:`web3.contract.ConciseContract`
-         * ``close_at`` the time that the auction reveals end, type :class:`datetime.datetime`
-         * ``deposit`` amount in wei that is held on deposit for the auction winner
-         * ``top_bid`` amount in wei that the highest bidder placed as the top bid
+         * `status` the auction state, one of :class:`Status`
+         * `deed` the contract storing the deposit, a :class:`~web3.contract.ConciseContract`
+         * `close_at` the time that the auction reveals end, a :class:`datetime.datetime`
+         * `deposit` amount in wei that is held on deposit for the auction winner
+         * `top_bid` amount in wei that the highest bidder placed as the top bid
+
+        You can also retrieve these attributes one at a time with these method calls on
+        ENS.registrar:
+
+         * :meth:`status`
+         * :meth:`deed`
+         * :meth:`close_at`
+         * :meth:`deposit`
+         * :meth:`top_bid`
 
         :rtype: AuctionEntry
         :raise InvalidName: if ``label`` is not a valid ENS label
@@ -216,12 +228,57 @@ class Registrar:
             bid_hash = bytes(bid_hash, encoding='latin-1')
         return bid_hash
 
-    def __entry_lookup(self, label, entry_attr):
-        entries = self.entries(label)
-        return getattr(entries, entry_attr)
+    def status(self, label):
+        '''
+        Get the current status of the auction for `label`
 
-    def __getattr__(self, attr):
-        if attr in AuctionEntry._fields:
-            return lambda label: self.__entry_lookup(label, attr)
-        else:
-            raise AttributeError
+        :param str label: the .eth name you want to look up
+        :rtype: Status
+        '''
+        return self.entries(label).status
+
+    def deed(self, label):
+        '''
+        Get the contract holding the deposit for the current
+        winner of the auction for `label`
+
+        :param str label: the .eth name you want to look up
+        :rtype: ~web3.contract.ConciseContract
+        :returns: `Deed contract
+            <https://github.com/ethereum/ens/blob/master/contracts/HashRegistrarSimplified.sol>`_
+        '''
+        return self.entries(label).deed
+
+    def close_at(self, label):
+        '''
+        Get the time that reveals must be submitted by for the auction for `label`
+
+        :param str label: the .eth name you want to look up
+        :rtype: datetime.datetime
+        :return: timezone-aware end time (may be in past or future)
+        '''
+        return self.entries(label).close_at
+
+    def deposit(self, label):
+        '''
+        Get the amount of wei deposited by the current winner of the auction for `label`
+
+        This number may not be final if :meth:`close_at` is in the future.
+
+        :param str label: the .eth name you want to look up
+        :rtype: int
+        :returns: wei deposited
+        '''
+        return self.entries(label).deposit
+
+    def top_bid(self, label):
+        '''
+        Get the amount of wei bid by the current winner of the auction for `label`
+
+        This number may not be final if :meth:`close_at` is in the future.
+
+        :param str label: the .eth name you want to look up
+        :rtype: int
+        :returns: wei bid
+        '''
+        return self.entries(label).top_bid

@@ -41,7 +41,7 @@ class ENS:
     Quick access to common Ethereum Name Service functions,
     like getting the address for a name.
 
-    Unless otherwise specified, all addresses are assumed to be a ``str`` in
+    Unless otherwise specified, all addresses are assumed to be a `str` in
     `checksum format <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_,
     like: ``"0x314159265dD8dbb310642f98f50C066173C1259b"``
     '''
@@ -78,10 +78,10 @@ class ENS:
 
     def address(self, name):
         '''
-        Look up the Ethereum address that name currently points to.
+        Look up the Ethereum address that `name` currently points to.
 
         :param str name: an ENS name to look up
-        :raises InvalidName: if ``name`` has invalid syntax
+        :raises InvalidName: if `name` has invalid syntax
         '''
         return self.resolve(name, 'addr')
 
@@ -91,7 +91,7 @@ class ENS:
         reverse lookup. Reverse lookup is opt-in for name owners.
 
         :param address:
-        :type address: hex string
+        :type address: hex-string
         '''
         reversed_domain = address_to_reverse_domain(address)
         return self.resolve(reversed_domain, get='name')
@@ -112,9 +112,9 @@ class ENS:
         :param address: name will point to this address. If ``None``, set resolver to empty addr.
             If not specified, name will point to the owner's address.
         :param dict transact: the transaction configuration, like in
-            `web3.eth.sendTransaction`
+            :meth:`~web3.eth.Eth.sendTransaction`
         :raises InvalidName: if ``name`` has invalid syntax
-        :raises UnauthorizedError: if ``from`` in ``transact`` does not own ``name``
+        :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         '''
         owner = self.setup_owner(name, transact=transact)
         self._assert_control(owner, name)
@@ -136,15 +136,15 @@ class ENS:
     def setup_name(self, name, address=None, transact={}):
         '''
         Set up the address for reverse lookup, aka "caller ID".
-        After successful setup, the method `~ens.main.ENS.name` will return
-        ``name`` when supplied with ``address``.
+        After successful setup, the method :meth:`~ens.main.ENS.name` will return
+        `name` when supplied with `address`.
 
         :param str name: ENS name that address will point to
         :param address: to set up
         :param dict transact: the transaction configuration, like in
-            `web3.eth.sendTransaction`
+            :meth:`~web3.eth.sendTransaction`
         :raises AddressMismatch: if the name does not already point to the address
-        :raises InvalidName: if ``name`` has invalid syntax
+        :raises InvalidName: if `name` has invalid syntax
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         :raises UnownedName: if no one owns `name`
         '''
@@ -210,13 +210,13 @@ class ENS:
     @dict_copy
     def setup_owner(self, name, new_owner=default, transact={}):
         '''
-        Set the owner of the supplied name to ``new_owner``.
+        Set the owner of the supplied name to `new_owner`.
 
         For typical scenarios, you'll never need to call this method directly,
         simply call :meth:`setup_name` or :meth:`setup_address`. This method does *not*
         set up the name to point to an address.
 
-        If ``new_owner`` is not supplied, then this will assume you
+        If `new_owner` is not supplied, then this will assume you
         want the same owner as the parent domain.
 
         If the caller owns ``parentname.eth`` with no subdomains
@@ -224,12 +224,12 @@ class ENS:
         then ``sub`` will be created as part of this call.
 
         :param str name: ENS name to set up
-        :param new_owner: account that will own ``name``. If ``None``, set owner to empty addr.
+        :param new_owner: account that will own `name`. If ``None``, set owner to empty addr.
             If not specified, name will point to the parent domain owner's address.
         :param dict transact: the transaction configuration, like in
-            :meth:`web3.eth.Eth.sendTransaction`
-        :raises InvalidName: if ``name`` has invalid syntax
-        :raises UnauthorizedError: if ``from`` in ``transact`` does not own ``name``
+            :meth:`~web3.eth.Eth.sendTransaction`
+        :raises InvalidName: if `name` has invalid syntax
+        :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         :returns: the new owner's address
         '''
         (super_owner, unowned, owned) = self._first_owner(name)

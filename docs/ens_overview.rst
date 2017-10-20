@@ -2,24 +2,16 @@ Ethereum Name Service
 ================================
 
 The Ethereum Name Service is analogous to the Domain Name Service. It
-enables users and developers to refer to names in place of addresses, content hashes, and more.
+enables users and developers to use human-friendly names in place of error-prone
+hexadecimal addresses, content hashes, and more.
 
-The ``ens`` module is included with web3.py. It provides an interface to look up
-an address from a name, buy a name from the '.eth' Registrar auction,
-set up your own address, and more.
-
-.. warning::
-  Your funds are your responsibility.  
-
-  If you are registering a name, a small misunderstanding can cause you to lose
-  **all** of your deposit. You must `understand ENS auctions
-  <http://docs.ens.domains/en/latest/userguide.html#registering-a-name-with-the-auction-registrar>`_
-  independent of this library. 
+The :mod:`ens` module is included with web3.py. It provides an interface to look up
+an address from a name, set up your own address, and more.
 
 Setup
 -----
 
-Create an :class:`ens.ENS` object (named ``ns`` below) in one of three ways:
+Create an :class:`~ens.main.ENS` object (named ``ns`` below) in one of three ways:
 
 1. Automatic detection
 2. Specify an instance or list of :ref:`providers`
@@ -104,7 +96,7 @@ Set up your name
 Point your name to your address
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Do you want to set up your name so that ``ens.address()`` will show the
+Do you want to set up your name so that :meth:`~ens.main.ENS.address` will show the
 address it points to?
 
 ::
@@ -137,7 +129,7 @@ Wait for the transaction to be mined, then:
 Point your address to your name
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Do you want to set up your address so that ``ens.name()`` will show the
+Do you want to set up your address so that :meth:`~ens.main.ENS.name` will show the
 name that points to it?
 
 This is like Caller ID. It enables you and others to take an account and
@@ -148,15 +140,20 @@ determine what name points to it. Sometimes this is referred to as
 
     ns.setup_name('jasoncarver.eth', '0x5B2063246F2191f18F2675ceDB8b28102e957458')
 
-If you don't supply the address, ``setup_name`` will assume you want the
-address returned by ``ens.address(name)``.
+.. note:: Do not rely on reverse resolution for security.
+
+  Anyone can claim any "caller ID". Only forward resolution implies that
+  the owner of the name gave their stamp of approval.
+
+If you don't supply the address, :meth:`~ens.main.ENS.setup_name` will assume you want the
+address returned by :meth:`~ens.main.ENS.address`.
 
 ::
 
     ns.setup_name('jasoncarver.eth')
 
-If the name doesn't already point to an address, ``ens.setup_name`` will
-call ``ens.setup_address`` for you.
+If the name doesn't already point to an address, :meth:`~ens.main.ENS.setup_name` will
+call :meth:`~ens.main.ENS.setup_address` for you.
 
 Wait for the transaction to be mined, then:
 
@@ -166,6 +163,17 @@ Wait for the transaction to be mined, then:
 
 Auctions for names ending in .eth
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. WARNING::
+  Currently, the registrar functionality is Alpha-quality. Use at your own risk!
+
+  Your funds are your responsibility.
+
+  If you are registering a name, a small misunderstanding can cause you to lose
+  **all** of your deposit. You must `understand ENS auctions
+  <http://docs.ens.domains/en/latest/userguide.html#registering-a-name-with-the-auction-registrar>`_
+  independent of this library.
+
 
 Get auction status
 ^^^^^^^^^^^^^^^^^^

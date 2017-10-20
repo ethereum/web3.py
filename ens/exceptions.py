@@ -3,7 +3,7 @@ import idna
 
 class AddressMismatch(ValueError):
     '''
-    In order to set up reverse resolution, the ENS name must first
+    In order to set up reverse resolution correctly, the ENS name should first
     point to the address. This exception is raised if the name does
     not currently point to the address.
     '''
