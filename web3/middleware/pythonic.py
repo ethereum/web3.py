@@ -15,7 +15,7 @@ from cytoolz.functoolz import (
 
 from eth_utils import (
     is_address,
-    to_normalized_address,
+    to_checksum_address,
     is_integer,
     is_null,
     is_dict,
@@ -86,8 +86,8 @@ TRANSACTION_FORMATTERS = {
     'gas': to_integer_if_hex,
     'gasPrice': to_integer_if_hex,
     'value': to_integer_if_hex,
-    'from': to_normalized_address,
-    'to': apply_formatter_if(to_normalized_address, is_address),
+    'from': to_checksum_address,
+    'to': apply_formatter_if(to_checksum_address, is_address),
     'hash': to_ascii_if_bytes,
 }
 
@@ -100,7 +100,7 @@ LOG_ENTRY_FORMATTERS = {
     'blockNumber': apply_formatter_if(to_integer_if_hex, is_not_null),
     'transactionIndex': apply_formatter_if(to_integer_if_hex, is_not_null),
     'logIndex': to_integer_if_hex,
-    'address': to_normalized_address,
+    'address': to_checksum_address,
     'topics': apply_formatter_to_array(to_ascii_if_bytes),
     'data': to_ascii_if_bytes,
 }
@@ -116,7 +116,7 @@ RECEIPT_FORMATTERS = {
     'transactionHash': to_ascii_if_bytes,
     'cumulativeGasUsed': to_integer_if_hex,
     'gasUsed': to_integer_if_hex,
-    'contractAddress': apply_formatter_if(to_normalized_address, is_not_null),
+    'contractAddress': apply_formatter_if(to_checksum_address, is_not_null),
     'logs': apply_formatter_to_array(log_entry_formatter),
 }
 
@@ -250,9 +250,9 @@ pythonic_middleware = construct_formatting_middleware(
     },
     result_formatters={
         # Eth
-        'eth_accounts': apply_formatter_to_array(to_normalized_address),
+        'eth_accounts': apply_formatter_to_array(to_checksum_address),
         'eth_blockNumber': to_integer_if_hex,
-        'eth_coinbase': to_normalized_address,
+        'eth_coinbase': to_checksum_address,
         'eth_estimateGas': to_integer_if_hex,
         'eth_gasPrice': to_integer_if_hex,
         'eth_getBalance': to_integer_if_hex,

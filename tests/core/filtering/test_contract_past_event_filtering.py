@@ -1,6 +1,10 @@
 import pytest
 from flaky import flaky
 
+from eth_utils import (
+    is_same_address,
+)
+
 from web3.utils.compat import (
     Timeout,
 )
@@ -41,7 +45,7 @@ def test_past_events_filter_with_callback(web3,
     assert event_data['blockHash'] == txn_receipt['blockHash']
     assert event_data['blockNumber'] == txn_receipt['blockNumber']
     assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
-    assert event_data['address'] == emitter.address
+    assert is_same_address(event_data['address'], emitter.address)
     assert event_data['event'] == 'LogNoArguments'
 
 
@@ -75,5 +79,5 @@ def test_past_events_filter_using_get_api(web3,
     assert event_data['blockHash'] == txn_receipt['blockHash']
     assert event_data['blockNumber'] == txn_receipt['blockNumber']
     assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
-    assert event_data['address'] == emitter.address
+    assert is_same_address(event_data['address'], emitter.address)
     assert event_data['event'] == 'LogNoArguments'
