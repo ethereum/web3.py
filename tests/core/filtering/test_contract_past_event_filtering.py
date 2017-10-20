@@ -12,13 +12,14 @@ pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 @flaky(max_runs=3)
 @pytest.mark.parametrize('call_as_instance', (True, False))
 def test_past_events_async_filter_with_callback(web3,
-                                          sleep_interval,
-                                          emitter,
-                                          Emitter,
-                                          wait_for_transaction,
-                                          emitter_log_topics,
-                                          emitter_event_ids,
-                                          call_as_instance):
+                                                sleep_interval,
+                                                emitter,
+                                                Emitter,
+                                                wait_for_transaction,
+                                                emitter_log_topics,
+                                                emitter_event_ids,
+                                                call_as_instance
+                                                ):
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
