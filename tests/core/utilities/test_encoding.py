@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 import pytest
-import re
 import sys
 
 from eth_utils import (
@@ -25,6 +24,10 @@ from web3.utils.encoding import (
     to_hex,
 )
 
+from web3.utils.hypothesis import (
+    hexstr_strategy,
+)
+
 # Several tests are split into py2 & py3 tests below, with py3 tests using Mock
 if sys.version_info.major > 2:
     from unittest.mock import Mock
@@ -37,8 +40,6 @@ only_python3 = pytest.mark.skipif(
     sys.version_info.major < 3,
     reason="these test values only valid for py3"
 )
-
-HEX_REGEX = re.compile('\A(0[xX])?[0-9a-fA-F]*\Z')
 
 
 @pytest.mark.parametrize(
@@ -119,7 +120,7 @@ def test_hexstr_if_str_passthrough_py2(val, converter):
 
 @only_python2
 @given(
-    st.from_regex(HEX_REGEX),
+    hexstr_strategy(),
     st.sampled_from((to_bytes, to_hex, to_decimal)),
 )
 def test_hexstr_if_str_valid_hex_py2(val, converter):
@@ -161,7 +162,7 @@ def test_hexstr_if_str_curried():
 
 
 @only_python3
-@given(st.from_regex(HEX_REGEX))
+@given(hexstr_strategy())
 @example('0x')
 @example('0')
 def test_hexstr_if_str_on_valid_hex(val):
