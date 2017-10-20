@@ -3,7 +3,10 @@ import pytest
 from eth_tester import EthereumTester
 
 from web3 import Web3
-from web3.exceptions import BadFunctionCallOutput
+from web3.exceptions import (
+    BadFunctionCallOutput,
+    NameNotFound,
+)
 from web3.providers.eth_tester import EthereumTesterProvider
 
 
@@ -32,7 +35,7 @@ def math_addr(MathContract_MockedENS):
 
 def test_contract_with_unset_address(MathContract, mock_ens):
     mock_ens.address.return_value = None
-    with pytest.raises(ValueError):
+    with pytest.raises(NameNotFound):
         MathContract(address='unsetname.eth')
 
 
@@ -55,7 +58,7 @@ def test_contract_with_name_address_changing(MathContract_MockedENS, math_addr, 
     # set up name to return no address at all
     mock_ens.address.return_value = None
 
-    with pytest.raises(ValueError):
+    with pytest.raises(NameNotFound):
         mc.call({'from': caller}).return13()
 
     # set up name to return address with no contract

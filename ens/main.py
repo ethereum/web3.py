@@ -73,15 +73,6 @@ class ENS:
         '''
         return cls(web3.manager.providers, addr=addr)
 
-    @classmethod
-    def fromWeb3(cls, web3):
-        '''
-        Generate an ENS instance with web3
-
-        :param `web3.Web3` web3: to infer connection information
-        '''
-        return cls(web3.manager.providers)
-
     def address(self, name):
         '''
         Look up the Ethereum address that `name` currently points to.

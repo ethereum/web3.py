@@ -198,9 +198,8 @@ def test_call_address_reflector_name_array(address_reflector_contract):
         ens.address.side_effect = lambda name: next(resolve_addrs)
         result = address_reflector_contract.call().reflect(names)
 
-    expected_addrs = address_series()
-    for addr in result:
-        assert addr == next(expected_addrs)
+    for addr, expected in zip(result, address_series()):
+        assert addr == expected
 
 
 def test_call_missing_function(mismatched_math_contract):

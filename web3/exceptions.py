@@ -26,6 +26,14 @@ class InvalidAddress(ValueError):
     pass
 
 
+class NameNotFound(ValueError):
+    """
+    Raised when a caller provides an Ethereum Name Service name that
+    does not resolve to an address.
+    """
+    pass
+
+
 class StaleBlockchain(Exception):
     """
     Raised by the stalecheck_middleware when the latest block is too old.
