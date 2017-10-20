@@ -314,7 +314,7 @@ class EthModuleTest(object):
         assert log_entry['blockNumber'] == block_with_txn_with_log['number']
         assert log_entry['blockHash'] == block_with_txn_with_log['hash']
         assert log_entry['logIndex'] == 0
-        assert log_entry['address'] == emitter_contract.address
+        assert is_same_address(log_entry['address'], emitter_contract.address)
         assert log_entry['transactionIndex'] == 0
         assert log_entry['transactionHash'] == txn_hash_with_log
 
