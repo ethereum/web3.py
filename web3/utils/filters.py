@@ -116,6 +116,24 @@ class Filter(GreenletThread):
         """
         return True
 
+    def _filter_valid_entries(self, entries):
+        return filter(
+            lambda entry: self.is_valid_entry(entry),
+            entries
+        )
+
+    def get_new_entries(self):
+        self._ensure_not_running("get_new_entries")
+
+        log_entries = self._filter_valid_entries(self.web3.eth.getFilterChanges(self.filter_id))
+        return self._format_log_entries(log_entries)
+
+    def get_all_entries(self):
+        self._ensure_not_running("get_all_entries")
+
+        log_entries = self._filter_valid_entries(self.web3.eth.getFilterLogs(self.filter_id))
+        return self._format_log_entries(log_entries)
+
     def watch(self, *callbacks):
         self._warn_async_deprecated("watch")
 
@@ -191,18 +209,6 @@ class LogFilter(Filter):
             self.format_entry(log_entry) for log_entry in log_entries
         ]
         return formatted_log_entries
-
-    def get_new_entries(self):
-        self._ensure_not_running("get_new_entries")
-
-        log_entries = self.web3.eth.getFilterChanges(self.filter_id)
-        return self._format_log_entries(log_entries)
-
-    def get_all_entries(self):
-        self._ensure_not_running("get_all_entries")
-
-        log_entries = self.web3.eth.getFilterLogs(self.filter_id)
-        return self._format_log_entries(log_entries)
 
     def get(self, only_changes=True):
         warnings.warn(DeprecationWarning(

@@ -11,7 +11,7 @@ pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 @flaky(max_runs=3)
 @pytest.mark.parametrize('call_as_instance', (True, False))
-def test_past_events_filter_with_callback(web3,
+def test_past_events_async_filter_with_callback(web3,
                                           sleep_interval,
                                           emitter,
                                           Emitter,
