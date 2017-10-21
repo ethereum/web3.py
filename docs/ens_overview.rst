@@ -15,7 +15,7 @@ Create an :class:`~ens.main.ENS` object (named ``ns`` below) in one of three way
 
 1. Automatic detection
 2. Specify an instance or list of :ref:`providers`
-3. Reuse an existing :class:`web3.Web3` object
+3. From an existing :class:`web3.Web3` object
 
 ::
 
@@ -126,8 +126,8 @@ Wait for the transaction to be mined, then:
     assert ns.address('supreme.executive.power.derives.from.a.mandate.from.the.masses.jasoncarver.eth') == \
         '0x5B2063246F2191f18F2675ceDB8b28102e957458'
 
-Point your address to your name
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Allow people to find your name using your address
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Do you want to set up your address so that :meth:`~ens.main.ENS.name` will show the
 name that points to it?
@@ -234,9 +234,9 @@ forget my secret":
     from web3utils import web3
 
     ns.registrar.bid(
-          'trading',
-          web3.toWei('5211', 'ether'),
-          "I promise I will not forget my secret",
+          label='trading',
+          amount=web3.toWei('5211', 'ether'),
+          secret="I promise I will not forget my secret",
           transact={'from': web3.eth.accounts[0]}
           )
 

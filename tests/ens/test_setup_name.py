@@ -1,10 +1,6 @@
 
 import pytest
 
-from eth_utils import (
-    remove_0x_prefix,
-)
-
 from web3 import Web3
 
 from ens.main import UnauthorizedError, AddressMismatch, UnownedName
@@ -77,26 +73,6 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
     ens.setup_address(name, None)
     assert not ens.name(address)
     assert not ens.address(name)
-
-
-@pytest.mark.parametrize(
-    'address_modifier',
-    [
-        remove_0x_prefix,
-        lambda hexstr: Web3.toBytes(hexstr=hexstr),
-    ]
-)
-def test_setup_name_different_addr_types(ens, address_modifier):
-    address = ens.web3.eth.accounts[4]
-    assert not ens.name(address)
-
-    name = 'alt-address-types.tester.eth'
-    modified_addr = address_modifier(address)
-    ens.setup_name(name, modified_addr)
-    assert ens.name(address) == name
-
-    ens.setup_name(None, address)
-    ens.setup_address(name, None)
 
 
 def test_cannot_set_name_on_mismatch_address(ens):

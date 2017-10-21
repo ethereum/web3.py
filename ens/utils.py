@@ -4,7 +4,9 @@ import datetime
 import functools
 
 from eth_utils import (
-    to_checksum_address,
+    is_same_address,
+    remove_0x_prefix,
+    to_normalized_address,
 )
 
 import idna
@@ -180,15 +182,12 @@ def dot_eth_namehash(name):
 
 
 def address_in(address, addresses):
-    return to_checksum_address(address) in map(to_checksum_address, addresses)
+    return any(is_same_address(address, item) for item in addresses)
 
 
 def address_to_reverse_domain(address):
-    address = ensure_hex(address)
-    if address.startswith('0x'):
-        address = address[2:]
-    address = address.lower()
-    return address + '.' + REVERSE_REGISTRAR_DOMAIN
+    lower_unprefixed_address = remove_0x_prefix(to_normalized_address(address))
+    return lower_unprefixed_address + '.' + REVERSE_REGISTRAR_DOMAIN
 
 
 def estimate_auction_start_gas(labels):

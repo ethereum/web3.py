@@ -5,6 +5,7 @@ from unittest.mock import Mock
 from web3 import Web3
 
 from ens.exceptions import OversizeTransaction
+from ens.registrar import Status
 
 
 def assert_equal_start_auction_hashes(startAuctions, expected_hashes):
@@ -82,8 +83,65 @@ def test_start_auctions(registrar, mocker, labels, expected_hashes):
     assert_equal_start_auction_hashes(startAuctions, expected_hashes)
 
 
-# To leave alpha, investigate why this is failing:
-'''
+@pytest.mark.parametrize(
+    'labels, expected_hashes',
+    [
+        (
+            ['anarcho.eth', 'syndicalist.eth', 'commune.eth'],
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+            ],
+        ),
+        (
+            ['anarcho', 'syndicalist', 'commune'],
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+            ],
+        ),
+        (
+            ['ANARCHO', 'SYNDICALIST', 'COMMUNE'],
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+            ],
+        ),
+        (
+            [b'anarcho', b'syndicalist', b'commune'],
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+            ],
+        ),
+        (
+            'anarcho',
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+            ],
+        ),
+        (
+            'ANARCHO',
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+            ],
+        ),
+        (
+            b'ANARCHO',
+            [
+                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+            ],
+        ),
+        (
+            [],
+            [],
+        ),
+    ],
+)
 def test_start_auctions_integrated(ens, labels, expected_hashes):
     def assert_label_state(_labels, _expected_hashes, state):
         byte_hashes = [Web3.toBytes(hexstr=hexhash) for hexhash in _expected_hashes]
@@ -94,7 +152,6 @@ def test_start_auctions_integrated(ens, labels, expected_hashes):
     assert_label_state(labels, expected_hashes, Status.Open)
     ens.registrar.start(labels)
     assert_label_state(labels, expected_hashes, Status.Auctioning)
-'''
 
 
 def test_start_calculates_gas_needed(registrar, mocker, label1, label2):

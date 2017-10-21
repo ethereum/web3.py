@@ -1,6 +1,7 @@
 
 from eth_utils import (
     is_address,
+    is_checksum_address,
     to_checksum_address,
 )
 
@@ -108,8 +109,8 @@ class ENS:
         and calls this method with ``sub.parentname.eth``,
         then ``sub`` will be created as part of this call.
 
-        :param str name: ENS name to set up
-        :param address: name will point to this address. If ``None``, set resolver to empty addr.
+        :param str name: ENS name to set up, in checksum format
+        :param str address: name will point to this address. If ``None``, erase the record.
             If not specified, name will point to the owner's address.
         :param dict transact: the transaction configuration, like in
             :meth:`~web3.eth.Eth.sendTransaction`
@@ -118,12 +119,16 @@ class ENS:
         '''
         owner = self.setup_owner(name, transact=transact)
         self._assert_control(owner, name)
-        if address is default:
+        if not address or address == EMPTY_ADDR_HEX:
+            address = None
+        elif address is default:
             address = owner
-        elif not address:
-            address = EMPTY_ADDR_HEX
-        if self.address(name) == to_checksum_address(address):
+        elif not is_checksum_address(address):
+            raise ValueError("You must supply the address in checksum format")
+        if self.address(name) == address:
             return None
+        if address is None:
+            address = EMPTY_ADDR_HEX
         transact['from'] = owner
         resolver = self._set_resolver(name, transact=transact)
         if isinstance(address, str):
@@ -140,7 +145,7 @@ class ENS:
         `name` when supplied with `address`.
 
         :param str name: ENS name that address will point to
-        :param address: to set up
+        :param str address: to set up, in checksum format
         :param dict transact: the transaction configuration, like in
             :meth:`~web3.eth.sendTransaction`
         :raises AddressMismatch: if the name does not already point to the address
@@ -166,6 +171,8 @@ class ENS:
                 address = self.owner(name)
             if not address:
                 raise UnownedName("claim subdomain using setup_address() first")
+            if not is_checksum_address(address):
+                raise ValueError("You must supply the address in checksum format")
             self._assert_control(address, name)
             if not resolved:
                 self.setup_address(name, address, transact=transact)

@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from web3 import Web3
 
+from ens.constants import EMPTY_ADDR_HEX
 from ens.main import UnauthorizedError
 
 '''
@@ -67,20 +68,22 @@ def test_set_address_equivalence(ens, name, equivalent):
 
 
 @pytest.mark.parametrize(
-    'set_address, re_set_address',
+    'set_address',
     [
-        (TEST_ADDRESS, TEST_ADDRESS),
-        (TEST_ADDRESS, Web3.toBytes(hexstr=TEST_ADDRESS)),
+        TEST_ADDRESS,
+        EMPTY_ADDR_HEX,
+        None,
+        '',
     ],
 )
-def test_set_address_noop(ens, set_address, re_set_address):
+def test_set_address_noop(ens, set_address):
     eth = ens.web3.eth
     owner = ens.owner('tester.eth')
     ens.setup_address('noop.tester.eth', set_address)
     starting_transactions = eth.getTransactionCount(owner)
 
     # do not issue transaction if address is already set
-    ens.setup_address('noop.tester.eth', re_set_address)
+    ens.setup_address('noop.tester.eth', set_address)
     assert eth.getTransactionCount(owner) == starting_transactions
 
 
