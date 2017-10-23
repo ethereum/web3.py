@@ -107,7 +107,7 @@ def test_setup_name_unowned_exception(ens):
 
 def test_setup_name_unauthorized(ens):
     with pytest.raises(UnauthorizedError):
-        ens.setup_name('eth', TEST_ADDRESS)
+        ens.setup_name('root-owned-tld', TEST_ADDRESS)
 
 
 def test_setup_reverse_dict_unmodified(ens):

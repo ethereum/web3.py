@@ -13,12 +13,6 @@ ens\.main module
 .. automodule:: ens.main
     :members:
 
-ens\.registrar module
----------------------
-
-.. automodule:: ens.registrar
-    :members:
-
 ens\.exceptions module
 ----------------------
 

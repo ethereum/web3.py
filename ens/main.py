@@ -18,8 +18,6 @@ from ens.exceptions import (
     UnownedName,
 )
 
-from ens.registrar import Registrar
-
 from ens.utils import (
     Web3,
     address_in,
@@ -64,7 +62,6 @@ class ENS:
         ens_addr = addr if addr else ENS_MAINNET_ADDR
         self.ens = self.web3.eth.contract(abi=abis.ENS, address=ens_addr)
         self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
-        self.registrar = Registrar(self)
 
     @classmethod
     def fromWeb3(cls, web3, addr=None):
@@ -202,8 +199,7 @@ class ENS:
     def owner(self, name):
         '''
         Get the owner of a name. Note that this may be different from the
-        deed holder in the '.eth' registrar. To find out the deed owner,
-        see :meth:`ens.registrar.Registrar.entries`. Learn more about the difference
+        deed holder in the '.eth' registrar. Learn more about the difference
         between deed and name ownership in the ENS `Managing Ownership docs
         <http://docs.ens.domains/en/latest/userguide.html#managing-ownership>`_
 
