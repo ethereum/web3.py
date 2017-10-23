@@ -7,7 +7,6 @@ from eth_utils import (
     add_0x_prefix,
     decode_hex,
     encode_hex,
-    force_text,
     from_wei,
     is_address,
     is_checksum_address,
@@ -49,10 +48,9 @@ from web3.utils.decorators import (
     deprecated_for,
 )
 from web3.utils.encoding import (
-    from_decimal,
     hex_encode_abi_type,
     to_bytes,
-    to_decimal,
+    to_int,
     to_hex,
     to_text,
 )
@@ -89,7 +87,7 @@ class Web3(object):
 
     # Encoding and Decoding
     toBytes = staticmethod(to_bytes)
-    toDecimal = staticmethod(to_decimal)
+    toInt = staticmethod(to_int)
     toHex = staticmethod(to_hex)
     toText = staticmethod(to_text)
 
@@ -173,28 +171,3 @@ class Web3(object):
                 return True
         else:
             return False
-
-    @staticmethod
-    @deprecated_for("toBytes()")
-    def toAscii(val):
-        return decode_hex(val)
-
-    @staticmethod
-    @deprecated_for("toHex()")
-    def fromAscii(val):
-        return encode_hex(val)
-
-    @staticmethod
-    @deprecated_for("toText()")
-    def toUtf8(val):
-        return force_text(decode_hex(val))
-
-    @staticmethod
-    @deprecated_for("toHex()")
-    def fromUtf8(string):
-        return encode_hex(string)
-
-    @staticmethod
-    @deprecated_for("toHex()")
-    def fromDecimal(decimal):
-        return from_decimal(decimal)

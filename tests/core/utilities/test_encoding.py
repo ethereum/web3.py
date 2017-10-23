@@ -20,7 +20,7 @@ from web3.utils.encoding import (
     text_if_str,
     hexstr_if_str,
     to_bytes,
-    to_decimal,
+    to_int,
     to_hex,
 )
 
@@ -60,7 +60,7 @@ def test_to_hex(value, expected):
 @given(value=st.integers(min_value=-1 * 2**255 + 1, max_value=2**256 - 1))
 def test_conversion_round_trip(value):
     intermediate_value = to_hex(value)
-    result_value = to_decimal(hexstr=intermediate_value)
+    result_value = to_int(hexstr=intermediate_value)
     error_msg = "Expected: {0!r}, Result: {1!r}, Intermediate: {2!r}".format(
         value,
         result_value,
@@ -112,7 +112,7 @@ def test_hex_encode_abi_type(abi_type, value, expected):
 @only_python2
 @given(
     st.one_of(st.integers(min_value=0), st.booleans()),
-    st.sampled_from((to_bytes, to_hex, to_decimal)),
+    st.sampled_from((to_bytes, to_hex, to_int)),
 )
 def test_hexstr_if_str_passthrough_py2(val, converter):
     assert hexstr_if_str(converter, val) == converter(val)
@@ -121,10 +121,10 @@ def test_hexstr_if_str_passthrough_py2(val, converter):
 @only_python2
 @given(
     hexstr_strategy(),
-    st.sampled_from((to_bytes, to_hex, to_decimal)),
+    st.sampled_from((to_bytes, to_hex, to_int)),
 )
 def test_hexstr_if_str_valid_hex_py2(val, converter):
-    if converter is to_decimal and to_bytes(hexstr=val) == b'':
+    if converter is to_int and to_bytes(hexstr=val) == b'':
         with pytest.raises(ValueError):
             hexstr_if_str(converter, val)
     else:
@@ -134,7 +134,7 @@ def test_hexstr_if_str_valid_hex_py2(val, converter):
 @only_python2
 @given(
     st.one_of(st.text(), st.binary()),
-    st.sampled_from((to_bytes, to_hex, to_decimal)),
+    st.sampled_from((to_bytes, to_hex, to_int)),
 )
 def test_hexstr_if_str_invalid_hex_py2(val, converter):
     try:
@@ -210,7 +210,7 @@ def test_text_if_str_on_text(val):
 @example(b'', to_hex)
 @example(b'\xff', to_bytes)  # bytes are passed through, no matter the text
 def test_text_if_str_passthrough_py2(val, converter):
-    if converter is to_decimal and to_bytes(val) == b'':
+    if converter is to_int and to_bytes(val) == b'':
         with pytest.raises(ValueError):
             text_if_str(converter, val)
     else:
@@ -229,5 +229,5 @@ def test_text_if_str_on_text_py2(val, converter):
 
 @only_python2
 @given(st.from_regex('\A[0-9]+\Z'))
-def test_text_if_str_on_text_to_decimal_py2(val):
-    assert text_if_str(to_decimal, val) == to_decimal(text=val)
+def test_text_if_str_on_text_to_int_py2(val):
+    assert text_if_str(to_int, val) == to_int(text=val)

@@ -2,7 +2,6 @@
 import json
 import re
 import sys
-import warnings
 
 import rlp
 from rlp.sedes import big_endian_int
@@ -13,11 +12,11 @@ from cytoolz import (
 
 from eth_utils import (
     add_0x_prefix,
+    big_endian_to_int,
     coerce_args_to_bytes,
     force_bytes,
     force_text,
     int_to_big_endian,
-    is_0x_prefixed,
     is_boolean,
     is_bytes,
     is_dict,
@@ -40,9 +39,6 @@ from web3.utils.abi import (
     is_string_type,
     size_of_type,
     sub_type_of_array_type,
-)
-from web3.utils.decorators import (
-    deprecated_for,
 )
 from web3.utils.validation import (
     assert_one_val,
@@ -162,9 +158,17 @@ def to_hex(value=None, hexstr=None, text=None):
     )
 
 
-def to_decimal(value=None, hexstr=None, text=None):
+def to_int(value=None, hexstr=None, text=None):
     """
-    Converts value to it's decimal representation in string
+    Converts value to it's integer representation.
+
+    Values are converted this way:
+
+     * value:
+       * bytes: big-endian integer
+       * bool: True => 1, False => 0
+     * hexstr: interpret hex as integer
+     * text: interpret as string of digits, like '12' => 12
     """
     assert_one_val(value, hexstr=hexstr, text=text)
 
@@ -172,36 +176,12 @@ def to_decimal(value=None, hexstr=None, text=None):
         return int(hexstr, 16)
     elif text is not None:
         return int(text)
-    elif is_string(value):
-        if bytes != str and isinstance(value, bytes):
-            return to_decimal(hexstr=to_hex(value))
-        elif is_0x_prefixed(value) or _is_prefixed(value, '-0x'):
-            warnings.warn(DeprecationWarning(
-                "Sending a hex string in the first position has been deprecated. Please use "
-                "toDecimal(hexstr='%s') instead." % value
-            ))
-            return to_decimal(hexstr=value)
-        else:
-            try:
-                return int(value)
-            except ValueError:
-                return to_decimal(hexstr=to_hex(value))
+    elif isinstance(value, bytes):
+        return big_endian_to_int(value)
+    elif isinstance(value, str):
+        raise TypeError("Pass in strings with keyword hexstr or text")
     else:
         return int(value)
-
-
-@deprecated_for("to_hex")
-def from_decimal(value):
-    """
-    Converts numeric value to its hex representation
-    """
-    if is_string(value):
-        if is_0x_prefixed(value) or _is_prefixed(value, '-0x'):
-            value = int(value, 16)
-        else:
-            value = int(value)
-
-    return to_hex(value)
 
 
 def to_bytes(primitive=None, hexstr=None, text=None):
@@ -250,7 +230,7 @@ def text_if_str(to_type, text_or_primitive):
     Convert to a type, assuming that strings can be only unicode text (not a hexstr)
 
     @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
-        eg~ to_bytes, to_text, to_hex, to_decimal, etc
+        eg~ to_bytes, to_text, to_hex, to_int, etc
     @param hexstr_or_primitive in bytes, str, or int. (or unicode in py2)
         In Python 2, only a unicode object will be interpreted as unicode text
         In Python 3, only a str object will be interpreted as interpreted as unicode text
@@ -273,7 +253,7 @@ def hexstr_if_str(to_type, hexstr_or_primitive):
     Convert to a type, assuming that strings can be only hexstr (not unicode text)
 
     @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
-        eg~ to_bytes, to_text, to_hex, to_decimal, etc
+        eg~ to_bytes, to_text, to_hex, to_int, etc
     @param text_or_primitive in bytes, str, or int. (or unicode in py2)
         In Python 2, a bytes, unicode or str object will be interpreted as hexstr
         In Python 3, only a str object will be interpreted as hexstr

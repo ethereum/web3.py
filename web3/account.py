@@ -36,7 +36,7 @@ from web3.utils.encoding import (
     hexstr_if_str,
     text_if_str,
     to_bytes,
-    to_decimal,
+    to_int,
     to_hex,
 )
 from web3.utils.exception import (
@@ -109,7 +109,7 @@ class Account(object):
     def recover(self, msghash, vrs=None, signature=None):
         hash_bytes = HexBytes(msghash)
         if vrs is not None:
-            v, r, s = map(hexstr_if_str(to_decimal), vrs)
+            v, r, s = map(hexstr_if_str(to_int), vrs)
             v_standard = to_standard_v(v)
             signature_obj = self._keys.Signature(vrs=(v_standard, r, s))
         elif signature is not None:
