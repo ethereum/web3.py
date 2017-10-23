@@ -20,9 +20,6 @@ from web3.utils.compat import (
 from web3.utils.datastructures import (
     NamedElementStack,
 )
-from web3.utils.decorators import (
-    deprecated_for,
-)
 
 
 class RequestManager(object):
@@ -38,14 +35,6 @@ class RequestManager(object):
 
     web3 = None
     _providers = None
-
-    @deprecated_for("manager.middleware_stack.add(middleware [, name])")
-    def add_middleware(self, middleware):
-        return self.middleware_stack.add(middleware)
-
-    @deprecated_for("manager.middleware_stack.clear()")
-    def clear_middlewares(self):
-        return self.middleware_stack.clear()
 
     @property
     def providers(self):

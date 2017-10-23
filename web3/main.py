@@ -130,14 +130,6 @@ class Web3(object):
     def middleware_stack(self):
         return self.manager.middleware_stack
 
-    @deprecated_for("Web3.middleware_stack.add(middleware [, name])")
-    def add_middleware(self, middleware, name=None):
-        return self.middleware_stack.add(middleware, name=name)
-
-    @deprecated_for("Web3.middleware_stack.clear()")
-    def clear_middlewares(self):
-        return self.middleware_stack.clear()
-
     @property
     def providers(self):
         return self.manager.providers
