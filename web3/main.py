@@ -1,11 +1,8 @@
 from __future__ import absolute_import
 
-import warnings
-
 from eth_utils import (
     apply_to_return_value,
     add_0x_prefix,
-    decode_hex,
     encode_hex,
     from_wei,
     is_address,
