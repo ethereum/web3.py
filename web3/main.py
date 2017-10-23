@@ -19,7 +19,6 @@ from eth_utils import (
 )
 
 from web3.admin import Admin
-from web3.db import Db
 from web3.eth import Eth
 from web3.iban import Iban
 from web3.miner import Miner
@@ -63,7 +62,6 @@ from web3.utils.encoding import (
 def get_default_modules():
     return {
         "eth": Eth,
-        "db": Db,
         "shh": Shh,
         "net": Net,
         "personal": Personal,
