@@ -4,7 +4,6 @@
 import functools
 import itertools
 import json
-import warnings
 
 from eth_utils import (
     function_abi_to_4byte_selector,
@@ -84,7 +83,7 @@ class Contract(object):
     """Base class for Contract proxy classes.
 
     First you need to create your Contract classes using
-    :func:`construct_contract_factory` that takes compiled Solidity contract
+    :meth:`web3.eth.Eth.contract` that takes compiled Solidity contract
     ABI definitions as input.  The created class object will be a subclass of
     this base class.
 
@@ -169,43 +168,6 @@ class Contract(object):
                 kwargs[key] = cls.normalize_property(key, kwargs[key])
 
         return type(contract_name, (cls,), kwargs)
-
-    #
-    # deprecated properties
-    #
-    _source = None
-
-    @property
-    def code(self):
-        warnings.warn(DeprecationWarning(
-            "The `code` property has been deprecated.  You should update your "
-            "code to access this value through `contract.bytecode`.  The `code` "
-            "property will be removed in future releases"
-        ))
-        if self.bytecode is not None:
-            return self.bytecode
-        raise AttributeError("No contract code was specified for thes contract")
-
-    @property
-    def code_runtime(self):
-        warnings.warn(DeprecationWarning(
-            "The `code_runtime` property has been deprecated.  You should update your "
-            "code to access this value through `contract.bytecode_runtime`.  The `code_runtime` "
-            "property will be removed in future releases"
-        ))
-        if self.bytecode_runtime is not None:
-            return self.bytecode_runtime
-        raise AttributeError("No contract code_runtime was specified for thes contract")
-
-    @property
-    def source(self):
-        warnings.warn(DeprecationWarning(
-            "The `source` property has been deprecated and will be removed in "
-            "future releases"
-        ))
-        if self._source is not None:
-            return self._source
-        raise AttributeError("No contract source was specified for thes contract")
 
     #
     # Contract Methods
@@ -407,13 +369,12 @@ class Contract(object):
 
         .. code-block:: python
 
-            ContractFactory = construct_contract_factory(
-                web3=web3,
+            ContractFactory = w3.eth.contract(
                 abi=wallet_contract_definition["abi"]
             )
 
             # Not a real contract address
-            contract = contract_class("0x2f70d3d26829e412a602e83fe8eebf80255aeea5")
+            contract = ContractFactory("0x2f70d3d26829e412a602e83fe8eebf80255aeea5")
 
             # Read "owner" public variable
             addr = contract.call().owner()
@@ -866,75 +827,3 @@ def estimate_gas_for_function(contract=None,
 
     gas_estimate = contract.web3.eth.estimateGas(estimate_transaction)
     return gas_estimate
-
-
-def construct_contract_factory(web3,
-                               abi,
-                               code=None,
-                               code_runtime=None,
-                               source=None,
-                               contract_name='Contract',
-                               base_contract_factory_class=Contract):
-    """Creates a new Contract class.
-
-    Contract lass is a Python proxy class to interact with smart contracts.
-
-    ``abi`` and other contract definition fields are coming from
-    ``solc`` compiler or ``build/contracts.json`` in the
-    case of Populus framework.
-
-    After contract has been instantiated you can interact with it
-    using :meth:`transact_with_contract_function` and
-     :meth:`call_contract_function`.
-
-    Example:
-
-    .. code-block:: python
-
-        # Assume we have a Token contract
-        token_contract_data = {
-            'abi': [...],
-            'code': '0x...',
-            'code_runtime': '0x...',
-            'source': 'contract Token {.....}',
-        }
-
-        # contract_factory is a python class that can be used to interact with
-        # or deploy the "Token" contract.
-        token_contract_factory = construct_contract_factory(
-            web3=web3,
-            abi=token_contract_data["abi"],
-            code=token_contract_data["code"],
-            code_runtime=token_contract_data["code_runtime"],
-            source=token_contract_data["source"],
-                )
-
-        # Create Contract instance to interact with a deployed smart contract.
-        token_contract = token_contract_factory(
-            address=address,
-            abi=token_contract_data["abi"],
-            code=token_contract_data["code"],
-            code_runtime=token_contract_data["code_runtime"],
-            source=token_contract_data["source"])
-
-
-    :param web3: Web3 connection
-    :param abi: As given by solc compiler
-    :param code: As given by solc compiler
-    :param code_runtime: As given by solc compiler
-    :param source: As given by solc compiler
-    :return: Contract class (not instance)
-    """
-    warnings.warn(DeprecationWarning(
-        "This function has been deprecated.  Please use the `Contract.factory` "
-        "method as this function will be removed in future releases"
-    ))
-
-    _dict = {
-        'web3': web3,
-        'abi': abi,
-        'code': code,
-        'code_runtime': code_runtime,
-        'source': source,
-    }
-    return type(contract_name, (base_contract_factory_class,), _dict)
