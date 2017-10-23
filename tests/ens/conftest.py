@@ -214,6 +214,13 @@ def ens_setup():
         args=[ens_contract.address, eth_namehash, 1],
     )
 
+    # set '.eth' to resolve to the registrar
+    ens_contract.transact({'from': ens_key}).setResolver(eth_namehash, public_resolver.address)
+    public_resolver.transact({'from': ens_key}).setAddr(
+        eth_namehash,
+        eth_registrar.address
+    )
+
     # create reverse resolver
     reverse_resolver = deploy(w3, DefaultReverseResolver, ens_key, args=[ens_contract.address])
 
