@@ -119,12 +119,6 @@ def funded_account_for_raw_txn(web3):
     return account
 
 
-@pytest.fixture(scope="session")
-def block_with_txn_with_log():
-    # skip any tests that need this for now since it's deprecated.
-    pytest.skip()
-
-
 class TestEthTestRPCWeb3Module(Web3ModuleTest):
     def _check_web3_clientVersion(self, client_version):
         assert client_version.startswith('TestRPC/')
