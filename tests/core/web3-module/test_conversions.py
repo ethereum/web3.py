@@ -119,15 +119,16 @@ def test_to_text_hexstr(val, expected):
         ('-1', -1),
         (True, 1),
         (False, 0),
-        # Deprecated:
-        ('0x0', 0),
-        ('0x1', 1),
-        ('0x01', 1),
-        ('0x10', 16),
+        ('0x0', ValueError),
+        ('0x1', ValueError),
     )
 )
 def test_to_decimal(val, expected):
-    assert Web3.toDecimal(val) == expected
+    if isinstance(expected, type):
+        with pytest.raises(expected):
+            Web3.toDecimal(val)
+    else:
+        assert Web3.toDecimal(val) == expected
 
 
 @pytest.mark.parametrize(

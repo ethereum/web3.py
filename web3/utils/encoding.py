@@ -2,7 +2,6 @@
 import json
 import re
 import sys
-import warnings
 
 import rlp
 from rlp.sedes import big_endian_int
@@ -173,19 +172,10 @@ def to_decimal(value=None, hexstr=None, text=None):
     elif text is not None:
         return int(text)
     elif is_string(value):
-        if bytes != str and isinstance(value, bytes):
+        if isinstance(value, bytes):
             return to_decimal(hexstr=to_hex(value))
-        elif is_0x_prefixed(value) or _is_prefixed(value, '-0x'):
-            warnings.warn(DeprecationWarning(
-                "Sending a hex string in the first position has been deprecated. Please use "
-                "toDecimal(hexstr='%s') instead." % value
-            ))
-            return to_decimal(hexstr=value)
         else:
-            try:
-                return int(value)
-            except ValueError:
-                return to_decimal(hexstr=to_hex(value))
+            return int(value)
     else:
         return int(value)
 
