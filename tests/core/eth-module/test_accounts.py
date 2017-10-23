@@ -10,6 +10,7 @@ from eth_utils import (
     is_hex,
 )
 
+from web3.utils.datastructures import HexBytes
 from web3.utils.encoding import (
     to_bytes,
     to_hex,
@@ -196,16 +197,16 @@ def test_eth_account_recover_vrs_standard_v(web3):
     [
         (
             'Message tö sign. Longer than hash!',
-            '0x10c7cb57942998ab214c062e7a57220a174aacd80418cead9f90ec410eacada1',
+            HexBytes('0x10c7cb57942998ab214c062e7a57220a174aacd80418cead9f90ec410eacada1'),
         ),
         (
             # Intentionally sneaky: message is a hexstr interpreted as text
             '0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821',
-            '0x6192785e9ad00100e7332ff585824b65eafa30bc8f1265cf86b5368aa3ab5d56',
+            HexBytes('0x6192785e9ad00100e7332ff585824b65eafa30bc8f1265cf86b5368aa3ab5d56'),
         ),
         (
             'Hello World',
-            '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2',
+            HexBytes('0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2'),
         ),
     ]
 )
@@ -218,11 +219,11 @@ def test_eth_account_hash_message_text(web3, message, expected):
     [
         (
             '0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821',
-            '0x10c7cb57942998ab214c062e7a57220a174aacd80418cead9f90ec410eacada1',
+            HexBytes('0x10c7cb57942998ab214c062e7a57220a174aacd80418cead9f90ec410eacada1'),
         ),
         (
             '0x29d9f7d6a1d1e62152f314f04e6bd4300ad56fd72102b6b83702869a089f470c',
-            '0xe709159ef0e6323c705786fc50e47a8143812e9f82f429e585034777c7bf530b',
+            HexBytes('0xe709159ef0e6323c705786fc50e47a8143812e9f82f429e585034777c7bf530b'),
         ),
     ]
 )
@@ -237,11 +238,11 @@ def test_eth_account_hash_message_hexstr(web3, message, expected):
             'Some data',
             '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
             b'Some data',
-            '0x1da44b586eb0729ff70a73c326926f6ed5a25f5b056e7f47fbc6e58d86871655',
+            HexBytes('0x1da44b586eb0729ff70a73c326926f6ed5a25f5b056e7f47fbc6e58d86871655'),
             28,
-            '0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd',
-            '0x6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a029',
-            '0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a0291c',  # noqa: E501
+            HexBytes('0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd'),
+            HexBytes('0x6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a029'),
+            HexBytes('0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a0291c'),  # noqa: E501
         ),
     ),
 )
@@ -271,10 +272,10 @@ def test_eth_account_sign(web3, message, key, expected_bytes, expected_hash, v, 
                 'chainId': 1
             },
             '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
-            '0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428',  # noqa: E501
-            '0x6893a6ee8df79b0f5d64a180cd1ef35d030f3e296a5361cf04d02ce720d32ec5',
-            '0x09ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9c',
-            '0x440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428',
+            HexBytes('0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428'),  # noqa: E501
+            HexBytes('0x6893a6ee8df79b0f5d64a180cd1ef35d030f3e296a5361cf04d02ce720d32ec5'),
+            HexBytes('0x09ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9c'),
+            HexBytes('0x440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428'),
             37,
         ),
     ),
@@ -305,7 +306,7 @@ def test_eth_account_sign_transaction_from_eth_test(web3, transaction):
     # author's ignorance. The example test fixtures and implementations seem to agree, so far.
     # See ecdsa_raw_sign() in /eth_keys/backends/native/ecdsa.py
     signed = web3.eth.account.signTransaction(transaction, key)
-    assert signed.r == '0x' + expected_raw_txn[-130:-66]
+    assert signed.r == HexBytes(expected_raw_txn[-130:-66])
 
     # confirm that signed transaction can be recovered to the sender
     expected_sender = web3.eth.account.privateKeyToAccount(key).address

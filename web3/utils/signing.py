@@ -121,8 +121,8 @@ def sign_transaction_hash(account, transaction_hash, chain_id):
     return (v, r, s)
 
 
-def sign_message_hash(key, msg_hash_hex):
-    signature = key.sign_msg_hash(to_bytes(hexstr=msg_hash_hex))
+def sign_message_hash(key, msg_hash):
+    signature = key.sign_msg_hash(msg_hash)
     (v_standard, r, s) = signature.vrs
     v = v_standard + V_OFFSET
     eth_signature_bytes = b''.join(map(to_bytes, (r, s, v)))
