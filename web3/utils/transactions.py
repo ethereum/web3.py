@@ -25,7 +25,7 @@ from web3.utils.compat import (
 from web3.utils.encoding import (
     ExtendedRLP,
     hexstr_if_str,
-    to_decimal,
+    to_int,
 )
 from web3.utils.formatters import (
     apply_formatter_if,
@@ -66,15 +66,15 @@ TRANSACTION_DEFAULTS = {
 }
 
 TRANSACTION_FORMATTERS = {
-    'nonce': hexstr_if_str(to_decimal),
-    'gasPrice': hexstr_if_str(to_decimal),
-    'gas': hexstr_if_str(to_decimal),
+    'nonce': hexstr_if_str(to_int),
+    'gasPrice': hexstr_if_str(to_int),
+    'gas': hexstr_if_str(to_int),
     'to': apply_formatter_if(decode_hex, is_string),
-    'value': hexstr_if_str(to_decimal),
+    'value': hexstr_if_str(to_int),
     'data': apply_formatter_if(decode_hex, is_string),
-    'v': hexstr_if_str(to_decimal),
-    'r': hexstr_if_str(to_decimal),
-    's': hexstr_if_str(to_decimal),
+    'v': hexstr_if_str(to_int),
+    'r': hexstr_if_str(to_int),
+    's': hexstr_if_str(to_int),
 }
 
 

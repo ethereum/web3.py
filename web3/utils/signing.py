@@ -3,7 +3,7 @@ import sys
 
 from web3.utils.encoding import (
     to_bytes,
-    to_decimal,
+    to_int,
     to_hex,
 )
 
@@ -99,7 +99,7 @@ def extract_chain_id(raw_v):
 
 def to_standard_signature_bytes(ethereum_signature_bytes):
     rs = ethereum_signature_bytes[:-1]
-    v = to_decimal(ethereum_signature_bytes[-1])
+    v = to_int(ethereum_signature_bytes[-1])
     standard_v = to_standard_v(v)
     return rs + to_bytes(standard_v)
 
