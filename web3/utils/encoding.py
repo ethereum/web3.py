@@ -160,10 +160,15 @@ def to_hex(value=None, hexstr=None, text=None):
     )
 
 
+@deprecated_for("to_int")
 def to_decimal(value=None, hexstr=None, text=None):
     """
     Converts value to it's decimal representation in string
     """
+    return to_int(value, hexstr=hexstr, text=text)
+
+
+def to_int(value=None, hexstr=None, text=None):
     assert_one_val(value, hexstr=hexstr, text=text)
 
     if hexstr is not None:

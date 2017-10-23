@@ -137,24 +137,29 @@ Type Conversions
 
 .. py:method:: Web3.toDecimal(primitive=None, hexstr=None, text=None)
 
-    Takes a variety of inputs and returns its int equivalent.
+    .. attention::
+        Deprecated for Web3.toInt(), with the same functionality.
+
+.. py:method:: Web3.toInt(primitive=None, hexstr=None, text=None)
+
+    Takes a variety of inputs and returns its integer equivalent.
 
 
     .. code-block:: python
 
-        >>> Web3.toDecimal(0)
+        >>> Web3.toInt(0)
         0
-        >>> Web3.toDecimal(0x000F)
+        >>> Web3.toInt(0x000F)
         15
-        >>> Web3.toDecimal(b'\x00\x0F')
+        >>> Web3.toInt(b'\x00\x0F')
         15
-        >>> Web3.toDecimal(False)
+        >>> Web3.toInt(False)
         0
-        >>> Web3.toDecimal(True)
+        >>> Web3.toInt(True)
         1
-        >>> Web3.toDecimal(hexstr='0x000F')
+        >>> Web3.toInt(hexstr='0x000F')
         15
-        >>> Web3.toDecimal(hexstr='000F')
+        >>> Web3.toInt(hexstr='000F')
         15
 
 .. _overview_currency_conversions:

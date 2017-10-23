@@ -46,7 +46,7 @@ class PersistantSocket(object):
         if exc_value is not None:
             try:
                 self.sock.close()
-            except:
+            except Exception:
                 pass
             self.sock = None
 
