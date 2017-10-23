@@ -1,5 +1,4 @@
 import uuid
-import warnings
 
 from eth_utils import (
     is_list_like,
@@ -47,13 +46,6 @@ class RequestManager(object):
         else:
             providers = value
         self._providers = providers
-
-    def setProvider(self, providers):
-        warnings.warn(DeprecationWarning(
-            "The `setProvider` API has been deprecated.  You should update your "
-            "code to directly set the `manager.provider` property."
-        ))
-        self.providers = providers
 
     #
     # Provider requests and response

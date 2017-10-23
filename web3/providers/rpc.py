@@ -6,9 +6,6 @@ from eth_utils import (
     to_dict,
 )
 
-from web3.utils.six import (
-    urlunparse,
-)
 from web3.utils.compat import (
     make_post_request,
 )
@@ -53,43 +50,3 @@ class HTTPProvider(JSONBaseProvider):
         )
         response = self.decode_rpc_response(raw_response)
         return response
-
-
-class RPCProvider(HTTPProvider):
-    """
-    Deprecated:  Use HTTPProvider instead.
-    """
-    def __init__(self,
-                 host="127.0.0.1",
-                 port=8545,
-                 path="/",
-                 ssl=False,
-                 **kwargs):
-        netloc = "{0}:{1}".format(host, port)
-        endpoint_uri = urlunparse((
-            'https' if ssl else 'http',
-            netloc,
-            path,
-            '',
-            '',
-            ''
-        ))
-
-        super(RPCProvider, self).__init__(endpoint_uri, kwargs)
-
-
-class KeepAliveRPCProvider(RPCProvider):
-    """
-    Deprecated:  Use HTTPProvider instead.
-    """
-    def __init__(self,
-                 host="127.0.0.1",
-                 port=8545,
-                 path="/",
-                 **kwargs):
-        super(KeepAliveRPCProvider, self).__init__(
-            host,
-            port,
-            path,
-            **kwargs
-        )
