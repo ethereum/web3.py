@@ -7,7 +7,7 @@ help:
 	@echo "test - run tests quickly with the default Python"
 	@echo "testall - run tests on every Python version with tox"
 	@echo "release - package and upload a release"
-	@echo "sdist - package"
+	@echo "dist - package"
 
 clean: clean-build clean-pyc
 
@@ -30,17 +30,20 @@ test:
 test-all:
 	tox
 
-docs:
-	rm -f docs/web3.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ web3
+build-docs:
+	sphinx-apidoc -o docs/ . setup.py "web3/utils/*" "*conftest*"
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
+
+docs: build-docs
 	open docs/_build/html/index.html
+
+linux-docs: build-docs
+	xdg-open docs/_build/html/index.html
 
 release: clean
 	python setup.py sdist bdist_wheel upload
 
-sdist: clean
+dist: clean
 	python setup.py sdist bdist_wheel
 	ls -l dist

@@ -9,6 +9,30 @@ Eth API
 The ``web3.eth`` object exposes the following properties and methods to
 interact with the RPC APIs under the ``eth_`` namespace.
 
+Often, when a property or method returns a mapping of keys to values, it
+will return an ``AttributeDict`` which acts like a ``dict`` but you can
+access the keys as attributes and cannot modify its fields. For example,
+you can find the latest block number in these two ways:
+
+    .. code-block:: python
+
+        >>> block = web3.eth.getBlock('latest')
+        AttributeDict({
+          'hash': '0xe8ad537a261e6fff80d551d8d087ee0f2202da9b09b64d172a5f45e818eb472a',
+          'number': 4022281,
+          # ... etc ...
+        })
+        >>> block['number']
+        4022281
+        >>> block.number
+        4022281
+        >>> block.number = 4022282
+        Traceback # ... etc ...
+        TypeError: This data is immutable -- create a copy instead of modifying
+        >>> next_block = web3.utils.datastructures.AttributeDict(block, number=4022282)
+        >>> next_block.number
+        4022282
+
 
 Properties
 ----------
@@ -38,13 +62,13 @@ The following properties are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.syncing
-        {
+        AttributeDict({
             'currentBlock': 2177557,
             'highestBlock': 2211611,
-            'knownStates': '0x0',
-            'pulledStates': '0x0',
+            'knownStates': 0,
+            'pulledStates': 0,
             'startingBlock': 2177365,
-        }
+        })
 
 
 .. py:attribute:: Eth.coinbase
@@ -184,7 +208,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.getBlock(2000000)
-        {
+        AttributeDict({
             'difficulty': 49824742724615,
             'extraData': '0xe4b883e5bda9e7a59ee4bb99e9b1bc',
             'gasLimit': 4712388,
@@ -204,7 +228,7 @@ The following methods are available on the ``web3.eth`` namespace.
             'transactions': ['0xc55e2b90168af6972193c1f86fa4d7d7b31a29c156665d15b9cd48618b5177ef'],
             'transactionsRoot': '0xb31f174d27b99cdae8e746bd138a01ce60d8dd7b224f7c60845914def05ecc58',
             'uncles': [],
-        }
+        })
 
 
 .. py:method:: Eth.getBlockTransactionCount(block_identifier)
@@ -240,7 +264,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.getTransaction('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
-        {
+        AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
             'from': '0xa1e4380a3b1f749673e270229993ee55f35663b4',
@@ -252,7 +276,7 @@ The following methods are available on the ``web3.eth`` namespace.
             'to': '0x5df9b87991262f6ba471f09758cde1c0fc1de734',
             'transactionIndex': 0,
             'value': 31337,
-        }
+        })
 
 
 .. py:method:: Eth.getTransactionFromBlock(block_identifier, transaction_index)
@@ -270,7 +294,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.getTransactionFromBlock(46147, 0)
-        {
+        AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
             'from': '0xa1e4380a3b1f749673e270229993ee55f35663b4',
@@ -282,9 +306,9 @@ The following methods are available on the ``web3.eth`` namespace.
             'to': '0x5df9b87991262f6ba471f09758cde1c0fc1de734',
             'transactionIndex': 0,
             'value': 31337,
-        }
+        })
         >>> web3.eth.getTransactionFromBlock('0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd', 0)
-        {
+        AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
             'from': '0xa1e4380a3b1f749673e270229993ee55f35663b4',
@@ -296,7 +320,7 @@ The following methods are available on the ``web3.eth`` namespace.
             'to': '0x5df9b87991262f6ba471f09758cde1c0fc1de734',
             'transactionIndex': 0,
             'value': 31337,
-        }
+        })
 
 
 .. py:method:: Eth.getTransactionReceipt(transaction_hash)
@@ -311,7 +335,7 @@ The following methods are available on the ``web3.eth`` namespace.
         None
         # wait for it to be mined....
         >>> web3.eth.getTransactionReceipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
-        {
+        AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
             'contractAddress': None,
@@ -323,7 +347,7 @@ The following methods are available on the ``web3.eth`` namespace.
             'to': '0x5df9b87991262f6ba471f09758cde1c0fc1de734',
             'transactionHash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'transactionIndex': 0,
-        }
+        })
 
 
 .. py:method:: Eth.getTransactionCount(account, block_identifier=web3.eth.defaultBlock)
@@ -393,7 +417,7 @@ The following methods are available on the ``web3.eth`` namespace.
             startgas=100000,
             to='0xd3cda913deb6f67967b99d67acdfa1712c293601',
             value=12345,
-            data='',
+            data=b'',
         )
         >>> tx.sign(the_private_key_for_the_from_account)
         >>> raw_tx = rlp.encode(tx)
@@ -402,16 +426,30 @@ The following methods are available on the ``web3.eth`` namespace.
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
 
 
-.. py:method:: Eth.sign(account, data)
+.. py:method:: Eth.sign(account, data=None, hexstr=None, text=None)
 
     * Delegates to ``eth_sign`` RPC Method
 
-    Signs the given ``data`` with the private key of the given ``account``.
+    Caller must specify exactly one of: ``data``, ``hexstr``, or ``text``.
+
+    Signs the given data with the private key of the given ``account``.
     The account must be unlocked.
 
     .. code-block:: python
 
-        >>> web3.eth.sign('0xd3cda913deb6f67967b99d67acdfa1712c293601', 'some-text-to-sign')
+        >>> web3.eth.sign(
+              '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+              text='some-text-tö-sign')
+        '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
+
+        >>> web3.eth.sign(
+              '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+              data=b'some-text-t\xc3\xb6-sign')
+        '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
+
+        >>> web3.eth.sign(
+              '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+              hexstr='0x736f6d652d746578742d74c3b62d7369676e')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
 
@@ -607,3 +645,10 @@ Contracts
     - ``user_doc``
 
     See :doc:`./contracts` for more information about how to use contracts.
+
+.. py:method:: Eth.setContractFactory(contractFactoryClass)
+
+    Modify the default contract factory from ``Contract`` to ``contractFactoryClass``.
+    Future calls to ``Eth.contract()`` will then default to ``contractFactoryClass``.
+
+    An example of an alternative Contract Factory is ``ConciseContract``.

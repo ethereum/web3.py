@@ -1,25 +1,75 @@
-sudo: false
+sudo: required
 language: python
 python:
   - "3.5"
 dist: trusty
 env:
-  matrix:
-    - TOX_ENV=py27-stdlib
-    - TOX_ENV=py34-stdlib
-    - TOX_ENV=py35-stdlib
-    - TOX_ENV=py27-gevent
-    - TOX_ENV=py34-gevent
-    - TOX_ENV=py35-gevent
-    - TOX_ENV=flake8
+  global:
+    - GETH_BASE_INSTALL_PATH=$TRAVIS_BUILD_DIR
+matrix:
+  include:
+    # go-ethereum
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.0
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.1
+    # 1.6.2 and 1.6.3 are failing due to go-ethereum internal errors.
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.4
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.5
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.6
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.7
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.7.0
+    # lint
+    - python: "3.5"
+      env: TOX_POSARGS="-e flake8"
+    # core-stdlib
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-core-stdlib"
+    # core-gevent
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-core-gevent"
+    # eth-testrpc
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-ethtestrpc"
+    # eth-tester-pyethereum16
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-ethtester" ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEthereum16Backend
+    # eth-tester-pyevm
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-ethtester" ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEVMBackend
 cache:
-  pip: true
+  - pip: true
+  - directories:
+    - $HOME/.ethash/
+before_install:
+  - if [ -n "$GETH_VERSION" ]; then travis_retry sudo add-apt-repository -y ppa:gophers/archive; fi
+  - if [ -n "$GETH_VERSION" ]; then travis_retry sudo apt-get update; fi
+  - if [ -n "$GETH_VERSION" ]; then mkdir -p $HOME/.ethash; fi
 install:
-  - "travis_retry pip install pip setuptools --upgrade"
-  - "travis_retry pip install tox"
+  - if [ -n "$GETH_VERSION" ]; then travis_retry sudo apt-get install -y golang-1.7 build-essential; fi
+  - travis_retry pip install pip setuptools --upgrade
+  - travis_retry pip install tox
 before_script:
+  - python --version
+  - pip --version
+  - if [ -n "$GETH_VERSION" ]; then travis_retry pip install py-geth>=1.10.1; fi
+  - if [ -n "$GETH_VERSION" ]; then python -m geth.install $GETH_VERSION; fi
+  - if [ -n "$GETH_VERSION" ]; then export GOROOT=/usr/lib/go-1.7; fi
+  - if [ -n "$GETH_VERSION" ]; then export GETH_BINARY="$GETH_BASE_INSTALL_PATH/geth-$GETH_VERSION/bin/geth"; fi
+  - if [ -n "$GETH_VERSION" ]; then $GETH_BINARY version; fi
+  - if [ -n "$GETH_VERSION" ]; then $GETH_BINARY makedag 0 $HOME/.ethash; fi
   - pip freeze
 script:
-  - tox -e $TOX_ENV --recreate
-after_script:
-  - cat .tox/$TOX_ENV/log/*.log
+  - tox $TOX_POSARGS
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/8210e0e2df3ad138a505
+    on_success: change
+    on_failure: never
+    on_cancel: never

@@ -2,21 +2,19 @@
 
 """
 import functools
-import warnings
 import itertools
+import json
+import warnings
 
 from eth_utils import (
-    is_address,
     function_abi_to_4byte_selector,
     encode_hex,
     add_0x_prefix,
     remove_0x_prefix,
-    compose,
     force_bytes,
     coerce_return_to_text,
     force_obj_to_bytes,
-    is_list_like,
-    is_dict,
+    to_normalized_address,
 )
 
 from eth_abi import (
@@ -28,11 +26,16 @@ from eth_abi.exceptions import (
     DecodingError,
 )
 
+from toolz.functoolz import (
+    compose,
+)
+
 from web3.exceptions import (
     BadFunctionCallOutput,
 )
 
 from web3.utils.abi import (
+    BASE_RETURN_NORMALIZERS,
     filter_by_type,
     filter_by_name,
     filter_by_argument_count,
@@ -41,8 +44,8 @@ from web3.utils.abi import (
     get_abi_input_types,
     get_abi_output_types,
     get_constructor_abi,
+    map_abi_data,
     merge_args_and_kwargs,
-    normalize_return_type,
     check_if_arguments_can_be_encoded,
 )
 from web3.utils.decorators import (
@@ -61,6 +64,10 @@ from web3.utils.filters import (
     construct_event_filter_params,
     PastLogFilter,
 )
+from web3.utils.validation import (
+    validate_abi,
+    validate_address,
+)
 
 
 DEPRECATED_SIGNATURE_MESSAGE = (
@@ -69,6 +76,8 @@ DEPRECATED_SIGNATURE_MESSAGE = (
     "'Contract(address)'.  To construct contract classes use the "
     "'Contract.factory(...)' class methog."
 )
+
+ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", ""]
 
 
 class Contract(object):
@@ -111,18 +120,11 @@ class Contract(object):
     src_map_runtime = None
     user_doc = None
 
-    def __init__(self,
-                 *args,
-                 **kwargs):
+    def __init__(self, address=None):
         """Create a new smart contract proxy object.
 
         :param address: Contract address as 0x hex string
         """
-        code = kwargs.pop('code', empty)
-        code_runtime = kwargs.pop('code_runtime', empty)
-        source = kwargs.pop('source', empty)
-        abi = kwargs.pop('abi', empty)
-        address = kwargs.pop('address', empty)
 
         if self.web3 is None:
             raise AttributeError(
@@ -130,71 +132,24 @@ class Contract(object):
                 '`web3.contract` interface to create your contract class.'
             )
 
-        arg_0, arg_1, arg_2, arg_3, arg_4 = tuple(itertools.chain(
-            args,
-            itertools.repeat(empty, 5),
-        ))[:5]
+        if address:
+            self.address = self.normalize_property('address', address)
 
-        if is_list_like(arg_0):
-            if abi:
-                raise TypeError("The 'abi' argument was found twice")
-            abi = arg_0
-        elif is_address(arg_0):
-            if address:
-                raise TypeError("The 'address' argument was found twice")
-            address = arg_0
+        if not self.address:
+            raise TypeError("The address argument is required to instantiate a contract.")
 
-        if is_address(arg_1):
-            if address:
-                raise TypeError("The 'address' argument was found twice")
-            address = arg_1
-
-        if arg_2 is not empty:
-            if code:
-                raise TypeError("The 'code' argument was found twice")
-            code = arg_2
-
-        if arg_3 is not empty:
-            if code_runtime:
-                raise TypeError("The 'code_runtime' argument was found twice")
-            code_runtime = arg_3
-
-        if arg_4 is not empty:
-            if source:
-                raise TypeError("The 'source' argument was found twice")
-            source = arg_4
-
-        if abi is not empty:
-            if not is_list_like(abi):
-                raise TypeError("The 'abi' argument is not a list")
-            for e in abi:
-                if not is_dict(e):
-                    raise TypeError("The elements of 'abi' argument are not all dictionaries")
-
-        if any((abi, code, code_runtime, source)):
-            warnings.warn(DeprecationWarning(
-                "The arguments abi, code, code_runtime, and source have been "
-                "deprecated and will be removed from the Contract class "
-                "constructor in future releases.  Update your code to use the "
-                "Contract.factory method."
-            ))
-
-        if abi is not empty:
-            self.abi = abi
-        if code is not empty:
-            self.bytecode = code
-        if code_runtime is not empty:
-            self.bytecode_runtime = code_runtime
-        if source is not empty:
-            self._source = source
-
-        if address is not empty:
-            self.address = address
+    @classmethod
+    def normalize_property(cls, key, val):
+        if key == 'abi':
+            if isinstance(val, str):
+                val = json.loads(val)
+            validate_abi(val)
+            return val
+        elif key == 'address':
+            validate_address(val)
+            return to_normalized_address(val)
         else:
-            warnings.warn(DeprecationWarning(
-                "The address argument is now required for contract class "
-                "instantiation.  Please update your code to reflect this change"
-            ))
+            return val
 
     @classmethod
     def factory(cls, web3, contract_name=None, **kwargs):
@@ -210,6 +165,9 @@ class Contract(object):
                     "`Contract.factory` only accepts keyword arguments which are "
                     "present on the contract class".format(key)
                 )
+            else:
+                kwargs[key] = cls.normalize_property(key, kwargs[key])
+
         return type(contract_name, (cls,), kwargs)
 
     #
@@ -276,8 +234,7 @@ class Contract(object):
         :param args: The contract constructor arguments as positional arguments
         :param kwargs: The contract constructor arguments as keyword arguments
 
-        :return: hexidecimal transaction hash of the deployment
-                 transaction
+        :return: hexadecimal transaction hash of the deployment transaction
         """
         if transaction is None:
             deploy_transaction = {}
@@ -313,7 +270,7 @@ class Contract(object):
     @coerce_return_to_text
     def encodeABI(cls, fn_name, args=None, kwargs=None, data=None):
         """
-        encodes the arguments using the Ethereum ABI for the contract function
+        Encodes the arguments using the Ethereum ABI for the contract function
         that matches the given name and arguments..
 
         :param data: defaults to function selector
@@ -330,7 +287,7 @@ class Contract(object):
     @combomethod
     def on(self, event_name, filter_params=None, *callbacks):
         """
-        register a callback to be triggered on the appropriate events.
+        Register a callback to be triggered on the appropriate events.
         """
         if filter_params is None:
             filter_params = {}
@@ -365,7 +322,7 @@ class Contract(object):
     @combomethod
     def pastEvents(self, event_name, filter_params=None, *callbacks):
         """
-        register a callback to be triggered on all past events.
+        Register a callback to be triggered on all past events.
         """
         if filter_params is None:
             filter_params = {}
@@ -444,7 +401,7 @@ class Contract(object):
         Execute a contract function call using the `eth_call` interface.
 
         This method prepares a ``Caller`` object that exposes the contract
-        functions and publib variables as callable Python functions.
+        functions and public variables as callable Python functions.
 
         Reading a public ``owner`` address variable example:
 
@@ -537,7 +494,7 @@ class Contract(object):
         be available once the transaction has been mined.
 
         :param transaction: Dictionary of transaction info for web3 interface.
-        Variables include ``from``, ``gas``, ``value``, ``gasPrice``.
+        Variables include ``from``, ``gas``, ``value``, ``gasPrice``, ``nonce``.
 
         :return: ``Transactor`` object that has contract
             public functions exposed as Python methods.
@@ -585,6 +542,8 @@ class Contract(object):
     #
     # Private Helpers
     #
+    _return_data_normalizers = tuple()
+
     @classmethod
     def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
         filters = []
@@ -748,6 +707,67 @@ class Contract(object):
         return deploy_data
 
 
+class ConciseContract(object):
+    '''
+    An alternative Contract Factory which invokes all methods as `call()`,
+    unless you add a keyword argument. The keyword argument assigns the prep method.
+
+    This call
+
+    > contract.withdraw(amount, transact={'from': eth.accounts[1], 'gas': 100000, ...})
+
+    is equivalent to this call in the classic contract:
+
+    > contract.transact({'from': eth.accounts[1], 'gas': 100000, ...}).withdraw(amount)
+    '''
+    def __init__(self, classic_contract):
+        classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
+        self._classic_contract = classic_contract
+
+    @classmethod
+    def factory(cls, *args, **kwargs):
+        return compose(cls, Contract.factory(*args, **kwargs))
+
+    def __getattr__(self, attr):
+        return ConciseMethod(self._classic_contract, attr)
+
+    @staticmethod
+    def _none_addr(datatype, data):
+        if datatype == 'address' and int(data, base=16) == 0:
+            return (datatype, None)
+        else:
+            return (datatype, data)
+
+
+CONCISE_NORMALIZERS = (
+    ConciseContract._none_addr,
+)
+
+
+class ConciseMethod:
+    ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact'])
+
+    def __init__(self, contract, function):
+        self.__contract = contract
+        self.__function = function
+
+    def __call__(self, *args, **kwargs):
+        return self.__prepared_function(**kwargs)(*args)
+
+    def __prepared_function(self, **kwargs):
+        if not kwargs:
+            modifier, modifier_dict = 'call', {}
+        elif len(kwargs) == 1:
+            modifier, modifier_dict = kwargs.popitem()
+            if modifier not in self.ALLOWED_MODIFIERS:
+                raise TypeError(
+                    "The only allowed keyword arguments are: %s" % self.ALLOWED_MODIFIERS)
+        else:
+            raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
+        contract_modifier_func = getattr(self.__contract, modifier)
+        return getattr(contract_modifier_func(modifier_dict), self.__function)
+
+
 def call_contract_function(contract,
                            function_name,
                            transaction,
@@ -775,21 +795,31 @@ def call_contract_function(contract,
     except DecodingError as e:
         # Provide a more helpful error message than the one provided by
         # eth-abi-utils
-        msg = (
-            "Could not decode contract function call {} return data {} for "
-            "output_types {}".format(
-                function_name,
-                return_data,
-                output_types
-            )
+        is_missing_code_error = (
+            return_data in ACCEPTABLE_EMPTY_STRINGS and
+            contract.web3.eth.getCode(contract.address) in ACCEPTABLE_EMPTY_STRINGS
         )
+        if is_missing_code_error:
+            msg = (
+                "Could not transact with/call contract function, is contract "
+                "deployed correctly and chain synced?"
+            )
+        else:
+            msg = (
+                "Could not decode contract function call {} return data {} for "
+                "output_types {}".format(
+                    function_name,
+                    return_data,
+                    output_types
+                )
+            )
         raise_from(BadFunctionCallOutput(msg), e)
 
-    normalized_data = [
-        normalize_return_type(data_type, data_value)
-        for data_type, data_value
-        in zip(output_types, output_data)
-    ]
+    normalizers = itertools.chain(
+        BASE_RETURN_NORMALIZERS,
+        contract._return_data_normalizers,
+    )
+    normalized_data = map_abi_data(normalizers, output_types, output_data)
 
     if len(normalized_data) == 1:
         return normalized_data[0]
@@ -853,7 +883,7 @@ def construct_contract_factory(web3,
     ``solc`` compiler or ``build/contracts.json`` in the
     case of Populus framework.
 
-    After contract has been instiated you can interact with it
+    After contract has been instantiated you can interact with it
     using :meth:`transact_with_contract_function` and
      :meth:`call_contract_function`.
 

@@ -18,10 +18,11 @@ from eth_abi.abi import (
 )
 
 from .abi import (
+    BASE_RETURN_NORMALIZERS,
+    exclude_indexed_event_inputs,
     get_abi_input_names,
     get_indexed_event_inputs,
-    exclude_indexed_event_inputs,
-    normalize_return_type,
+    map_abi_data,
     normalize_event_input_types,
 )
 
@@ -173,22 +174,22 @@ def get_event_data(event_abi, log_entry):
         )
 
     decoded_log_data = decode_abi(log_data_types, log_data)
-    normalized_log_data = [
-        normalize_return_type(data_type, data_value)
-        for data_type, data_value
-        in zip(log_data_types, decoded_log_data)
-    ]
+    normalized_log_data = map_abi_data(
+        BASE_RETURN_NORMALIZERS,
+        log_data_types,
+        decoded_log_data
+    )
 
     decoded_topic_data = [
         decode_single(topic_type, topic_data)
         for topic_type, topic_data
         in zip(log_topic_types, log_topics)
     ]
-    normalized_topic_data = [
-        normalize_return_type(data_type, data_value)
-        for data_type, data_value
-        in zip(log_topic_types, decoded_topic_data)
-    ]
+    normalized_topic_data = map_abi_data(
+        BASE_RETURN_NORMALIZERS,
+        log_topic_types,
+        decoded_topic_data
+    )
 
     event_args = dict(itertools.chain(
         zip(log_topic_names, normalized_topic_data),

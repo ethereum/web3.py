@@ -16,18 +16,26 @@ Contents
     overview
     filters
     contracts
-    managers
     providers
+    middleware
+    examples
     web3.main
     web3.eth
-    web3.db
+    web3.eth.account
     web3.shh
     web3.personal
     web3.version
     web3.txpool
     web3.miner
     web3.admin
+    internals
     conventions
+    releases
+    
+Release notes
+-------------
+
+`View release notes on Github <https://github.com/pipermerriam/web3.py/blob/master/CHANGELOG>`_.
 
 
 Indices and tables

@@ -65,6 +65,7 @@ class Filter(GreenletThread):
     running = None
     stopped = False
     poll_interval = None
+    filter_id = None
 
     def __init__(self, web3, filter_id):
         self.web3 = web3

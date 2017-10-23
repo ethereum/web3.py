@@ -15,12 +15,17 @@ DIR = os.path.dirname(os.path.abspath(__file__))
 readme = open(os.path.join(DIR, 'README.md')).read()
 
 install_requires = [
-    "ethereum-abi-utils>=0.4.0",
-    "ethereum-utils>=0.2.0",
+    "cytoolz>=0.8.2",
+    "ethereum-abi-utils>=0.4.3",
+    "ethereum-keyfile>=0.3.0",
+    "ethereum-keys>=0.1.0-alpha.7",
+    "ethereum-utils>=0.5.0",
     "pylru>=1.0.9",
     "pysha3>=0.3",
     "requests>=2.12.4",
     "rlp>=0.4.7",
+    "toolz>=0.8.2",
+    "ethereum-tester~=0.1.0b1",
 ]
 
 if sys.platform == 'win32':
@@ -28,14 +33,15 @@ if sys.platform == 'win32':
 
 setup(
     name='web3',
-    version='3.9.0',
+    version='3.16.1',
     description="""Web3.py""",
-    long_description=readme,
+    long_description_markdown_filename='README.md',
     author='Piper Merriam',
     author_email='pipermerriam@gmail.com',
     url='https://github.com/pipermerriam/web3.py',
     include_package_data=True,
     install_requires=install_requires,
+    setup_requires=['setuptools-markdown'],
     extras_require={
         'tester': ["eth-testrpc>=1.2.0"],
         'gevent': [

@@ -18,6 +18,36 @@ Contract Factories
     Ethereum smart contracts.
 
 
+.. py:class:: ConciseContract(Contract())
+
+    This variation of ``Contract`` is designed for succinct read access, with
+    no impact on write access. This comes at a cost of less convenient
+    access to features like ``deploy()`` and properties like ``address``. It is
+    recommended to use the classic ``Contract`` for those use cases.
+
+    Create this type of contract with:
+
+
+    .. code-block:: python
+
+        >>> concise = web3.eth.contract(..., ContractFactoryClass=ConciseContract)
+
+
+    This variation invokes all methods as a call, so if the classic contract had a method like
+    ``contract.call().owner()``, you could call it with ``concise.owner()`` instead.
+
+    For access to send a transaction or estimate gas, you can add a keyword argument like so:
+
+
+    .. code-block:: python
+
+        >>> concise.withdraw(amount, transact={'from': eth.accounts[1], 'gas': 100000, ...})
+
+        >>>  # which is equivalent to this transaction in the classic contract:
+
+        >>> contract.transact({'from': eth.accounts[1], 'gas': 100000, ...}).withdraw(amount)
+
+
 Properties
 ----------
 
@@ -47,19 +77,13 @@ Each Contract Factory exposes the following properties.
     provided during factory creation.
 
 
-.. py:attribute:: Contract.bytecode_runtime
-
-    The runtime part of the contract bytecode string.  May be ``None`` if not
-    provided during factory creation.
-
-
 Methods
 -------
 
 Each Contract Factory exposes the following methods.
 
 
-.. py:classmethod:: Contract.deploy(transaction=None, arguments=None)
+.. py:classmethod:: Contract.deploy(transaction=None, args=None)
 
     Construct and send a transaction to deploy the contract.
 
@@ -91,6 +115,10 @@ Each Contract Factory exposes the following methods.
     selects the appropriate contract function based on the name and provided
     argument.  Arguments can be provided as positional arguments, keyword
     arguments, or a mix of the two.
+
+    If a ``gas`` value is not provided, then the ``gas`` value for the
+    method transaction will be created using the ``web3.eth.estimateGas()``
+    method.
 
     Returns the transaction hash.
 
@@ -142,7 +170,6 @@ Each Contract Factory exposes the following methods.
 Events
 ------
 
-.. py:method::
 .. py:classmethod:: Contract.on(event_name, filter_params=None, *callbacks)
 
     Creates a new :py:class:`web3.utils.filters.LogFilter` instance.
@@ -175,7 +202,7 @@ Events
     The event topic for the event specified by ``event_name`` will be added to
     the ``filter_params['topics']`` list.
 
-    If the :py:attribute:`Contract.address` attribute for this contract is
+    If the :py:attr:`Contract.address` attribute for this contract is
     non-null, the contract address will be added to the ``filter_params``.
 
     If provided, the ``*callbacks`` parameter should be callables which accept
@@ -208,7 +235,6 @@ Events
         # is encountered.
 
 
-.. py:method::
 .. py:classmethod:: Contract.pastEvents(event_name, filter_params=None, *callbacks)
 
     Creates a new :py:class:`web3.utils.filters.PastLogFilter` instance which
