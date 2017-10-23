@@ -180,9 +180,6 @@ class HexBytes(bytes):
         bytesval = hexstr_if_str(to_bytes, val)
         return super().__new__(cls, bytesval)
 
-    def __init__(self, val):
-        super().__init__()
-
     def hex(self):
         return '0x' + super().hex()
 
