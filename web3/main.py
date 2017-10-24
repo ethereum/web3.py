@@ -56,6 +56,7 @@ from web3.utils.encoding import (
     to_bytes,
     to_decimal,
     to_hex,
+    to_int,
     to_text,
 )
 
@@ -92,9 +93,13 @@ class Web3(object):
 
     # Encoding and Decoding
     toBytes = staticmethod(to_bytes)
-    toDecimal = staticmethod(to_decimal)
     toHex = staticmethod(to_hex)
+    toInt = staticmethod(to_int)
     toText = staticmethod(to_text)
+
+    toDecimal = staticmethod(
+        deprecated_for("toInt()")(to_decimal)
+    )
 
     # Currency Utility
     toWei = staticmethod(to_wei)
