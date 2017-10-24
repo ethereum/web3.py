@@ -44,7 +44,7 @@ The following methods are available on the ``web3.personal`` namespace.
         ['0xd3cda913deb6f67967b99d67acdfa1712c293601']
 
 
-.. py:method:: newAccount(self, password=None)
+.. py:method:: newAccount(self, password)
 
     * Delegates to ``personal_newAccount`` RPC Method
 
@@ -55,23 +55,6 @@ The following methods are available on the ``web3.personal`` namespace.
 
         >>> web3.personal.newAccount('the-passphrase')
         ['0xd3cda913deb6f67967b99d67acdfa1712c293601']
-
-
-.. py:method:: signAndSendTransaction(self, tx, passphrase)
-
-    * Delegates to ``personal_signAndSendTransaction`` RPC Method
-
-    Signs and sends the given ``transaction`` without requiring the ``from``
-    account to be unlocked.  ``passphrase`` must be the passphrase for the
-    ``from`` account for the provided ``transaction``.
-
-    Behaves in the same manner as
-    :py:method::`web3.eth.Eth.sendTransaction(transaction)`.
-
-    .. code-block:: python
-
-        >>> web3.personal.signAndSendTransaction({'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601', 'from': web3.eth.coinbase, 'value': 12345}, 'the-passphrase')
-        '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
 
 
 .. py:method:: lockAccount(self, account)

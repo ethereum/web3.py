@@ -1,8 +1,5 @@
 from __future__ import absolute_import
 
-import getpass
-import warnings
-
 from web3.module import (
     Module,
 )
@@ -34,22 +31,7 @@ class Personal(Module):
         )
 
     @coerce_return_to_text
-    def newAccount(self, password=None):
-        if password is None:
-            warnings.warn(DeprecationWarning(
-                "Prompting for a password has been deprecated.  Please update "
-                "your code to provide a password"
-            ))
-            password1 = getpass.getpass("Passphrase:")
-            password2 = getpass.getpass("Repeat passphrase:")
-            if password1 != password2:
-                raise ValueError("Passwords do not match")
-
-            password = password1
-
-        if not password:
-            raise ValueError("Cannot have an empty password")
-
+    def newAccount(self, password):
         return self.web3.manager.request_blocking(
             "personal_newAccount", [password],
         )
@@ -71,14 +53,6 @@ class Personal(Module):
             "personal_sendTransaction",
             [transaction, passphrase],
         )
-
-    def signAndSendTransaction(self, *args, **kwargs):
-        warnings.warn(DeprecationWarning(
-            "The `web3.personal.signAndSendTransaction` has been renamed to "
-            "`web3.personal.sendTransaction`.  Please update your code to use "
-            "the new method as this one will be removed in a subsequent release"
-        ))
-        return self.sendTransaction(*args, **kwargs)
 
     def lockAccount(self, account):
         return self.web3.manager.request_blocking(
