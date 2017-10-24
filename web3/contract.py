@@ -34,7 +34,6 @@ from web3.exceptions import (
 )
 
 from web3.utils.abi import (
-    BASE_RETURN_NORMALIZERS,
     filter_by_type,
     filter_by_name,
     filter_by_argument_count,
@@ -62,6 +61,9 @@ from web3.utils.exception import (
 from web3.utils.filters import (
     construct_event_filter_params,
     PastLogFilter,
+)
+from web3.utils.normalizers import (
+    BASE_RETURN_NORMALIZERS,
 )
 from web3.utils.validation import (
     validate_abi,

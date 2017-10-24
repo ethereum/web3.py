@@ -36,6 +36,8 @@ def is_hex_encoded_block_number(value):
 def select_method_for_block_identifier(value, if_hash, if_number, if_predefined):
     if is_predefined_block_number(value):
         return if_predefined
+    elif isinstance(value, bytes):
+        return if_hash
     elif is_hex_encoded_block_hash(value):
         return if_hash
     elif is_integer(value) and (0 <= value < 2**256):

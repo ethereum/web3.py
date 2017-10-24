@@ -29,15 +29,6 @@ from eth_abi.abi import (
 from web3.utils.formatters import (
     recursive_map,
 )
-from web3.utils.normalizers import (
-    addresses_checksummed,
-    decode_abi_strings,
-)
-
-BASE_RETURN_NORMALIZERS = [
-    addresses_checksummed,
-    decode_abi_strings,
-]
 
 
 def filter_by_type(_type, contract_abi):
@@ -405,6 +396,7 @@ def abi_to_signature(abi):
 ########################################################
 
 
+@curry
 def map_abi_data(normalizers, types, data):
     '''
     This function will apply normalizers to your data, in the

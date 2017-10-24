@@ -18,12 +18,15 @@ from eth_abi.abi import (
 )
 
 from .abi import (
-    BASE_RETURN_NORMALIZERS,
     exclude_indexed_event_inputs,
     get_abi_input_names,
     get_indexed_event_inputs,
     map_abi_data,
     normalize_event_input_types,
+)
+
+from web3.utils.normalizers import (
+    BASE_RETURN_NORMALIZERS,
 )
 
 

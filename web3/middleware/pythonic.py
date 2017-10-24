@@ -3,6 +3,9 @@ from __future__ import absolute_import
 import codecs
 import operator
 
+from cytoolz import (
+    curry,
+)
 from cytoolz.curried import (
     keymap,
     valmap,
@@ -25,6 +28,12 @@ from eth_utils import (
     encode_hex,
 )
 
+from web3.utils.abi import (
+    map_abi_data,
+)
+from web3.utils.datastructures import (
+    HexBytes,
+)
 from web3.utils.formatters import (
     apply_formatter_if,
     apply_formatters_to_dict,
@@ -33,6 +42,10 @@ from web3.utils.formatters import (
     apply_one_of_formatters,
     hex_to_integer,
     integer_to_hex,
+)
+from web3.utils.normalizers import (
+    abi_int_to_hex,
+    abi_bytes_to_hex,
 )
 
 from .formatting import (
@@ -77,6 +90,20 @@ def is_array_of_dicts(value):
     if not is_list_like(value):
         return False
     return all((is_dict(item) for item in value))
+
+
+@curry
+def to_hexbytes(num_bytes, val):
+    if isinstance(val, str):
+        return HexBytes(val)
+    elif isinstance(val, bytes):
+        if len(val) == num_bytes:
+            return HexBytes(val)
+        else:
+            # some providers return values with hex as bytes, like b'0xEFFF' :(
+            return HexBytes(val.decode('utf-8'))
+    else:
+        raise TypeError("Cannot convert %r to HexBytes" % val)
 
 
 TRANSACTION_FORMATTERS = {
@@ -128,7 +155,7 @@ BLOCK_FORMATTERS = {
     'gasUsed': to_integer_if_hex,
     'size': to_integer_if_hex,
     'timestamp': to_integer_if_hex,
-    'hash': to_ascii_if_bytes,
+    'hash': apply_formatter_if(to_hexbytes(32), is_not_null),
     'number': apply_formatter_if(to_integer_if_hex, is_not_null),
     'difficulty': to_integer_if_hex,
     'totalDifficulty': to_integer_if_hex,
@@ -209,20 +236,24 @@ filter_result_formatter = apply_one_of_formatters((
 ))
 
 
+format_abi_parameters = map_abi_data([
+    abi_bytes_to_hex,
+    abi_int_to_hex,
+])
+
+
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
         # Eth
         'eth_call': apply_formatter_at_index(transaction_params_formatter, 0),
         'eth_getBalance': apply_formatter_at_index(block_number_formatter, 1),
+        'eth_getBlockByHash': format_abi_parameters(['bytes32', 'bool']),
         'eth_getBlockByNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_getBlockTransactionCountByNumber': apply_formatter_at_index(
             block_number_formatter,
             0,
         ),
-        'eth_getBlockTransactionCountByHash': apply_formatter_at_index(
-            block_number_formatter,
-            0,
-        ),
+        'eth_getBlockTransactionCountByHash': format_abi_parameters(['bytes32']),
         'eth_getCode': apply_formatter_at_index(block_number_formatter, 1),
         'eth_getStorageAt': compose(
             apply_formatter_at_index(integer_to_hex, 1),
@@ -232,8 +263,9 @@ pythonic_middleware = construct_formatting_middleware(
             apply_formatter_at_index(block_number_formatter, 0),
             apply_formatter_at_index(integer_to_hex, 1),
         ),
-        'eth_getTransactionByBlockHashAndIndex': apply_formatter_at_index(integer_to_hex, 1),
+        'eth_getTransactionByBlockHashAndIndex': format_abi_parameters(['bytes32', 'uint']),
         'eth_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
+        'eth_getUncleCountByBlockHash': format_abi_parameters(['bytes32']),
         'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
