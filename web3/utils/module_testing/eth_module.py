@@ -7,7 +7,6 @@ from eth_abi import (
 )
 
 from eth_utils import (
-    encode_hex,
     is_address,
     is_string,
     is_boolean,
@@ -282,7 +281,7 @@ class EthModuleTest(object):
         receipt = web3.eth.getTransactionReceipt(mined_txn_hash)
         assert is_dict(receipt)
         assert receipt['blockNumber'] == block_with_txn['number']
-        assert receipt['blockHash'] == encode_hex(block_with_txn['hash'])
+        assert receipt['blockHash'] == block_with_txn['hash']
         assert receipt['transactionIndex'] == 0
         assert receipt['transactionHash'] == mined_txn_hash
 
@@ -305,7 +304,7 @@ class EthModuleTest(object):
         receipt = web3.eth.getTransactionReceipt(txn_hash_with_log)
         assert is_dict(receipt)
         assert receipt['blockNumber'] == block_with_txn_with_log['number']
-        assert receipt['blockHash'] == encode_hex(block_with_txn_with_log['hash'])
+        assert receipt['blockHash'] == block_with_txn_with_log['hash']
         assert receipt['transactionIndex'] == 0
         assert receipt['transactionHash'] == txn_hash_with_log
 
@@ -313,7 +312,7 @@ class EthModuleTest(object):
         log_entry = receipt['logs'][0]
 
         assert log_entry['blockNumber'] == block_with_txn_with_log['number']
-        assert log_entry['blockHash'] == encode_hex(block_with_txn_with_log['hash'])
+        assert log_entry['blockHash'] == block_with_txn_with_log['hash']
         assert log_entry['logIndex'] == 0
         assert is_same_address(log_entry['address'], emitter_contract.address)
         assert log_entry['transactionIndex'] == 0

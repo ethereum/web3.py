@@ -119,6 +119,7 @@ def to_hexbytes(num_bytes, val):
 
 
 TRANSACTION_FORMATTERS = {
+    'blockHash': apply_formatter_if(to_hexbytes(32), is_not_null),
     'blockNumber': apply_formatter_if(to_integer_if_hex, is_not_null),
     'transactionIndex': apply_formatter_if(to_integer_if_hex, is_not_null),
     'nonce': to_integer_if_hex,
@@ -135,7 +136,7 @@ transaction_formatter = apply_formatters_to_dict(TRANSACTION_FORMATTERS)
 
 
 LOG_ENTRY_FORMATTERS = {
-    'blockHash': apply_formatter_if(to_ascii_if_bytes, is_not_null),
+    'blockHash': apply_formatter_if(to_hexbytes(32), is_not_null),
     'blockNumber': apply_formatter_if(to_integer_if_hex, is_not_null),
     'transactionIndex': apply_formatter_if(to_integer_if_hex, is_not_null),
     'logIndex': to_integer_if_hex,
@@ -149,7 +150,7 @@ log_entry_formatter = apply_formatters_to_dict(LOG_ENTRY_FORMATTERS)
 
 
 RECEIPT_FORMATTERS = {
-    'blockHash': apply_formatter_if(to_ascii_if_bytes, is_not_null),
+    'blockHash': apply_formatter_if(to_hexbytes(32), is_not_null),
     'blockNumber': apply_formatter_if(to_integer_if_hex, is_not_null),
     'transactionIndex': apply_formatter_if(to_integer_if_hex, is_not_null),
     'transactionHash': to_ascii_if_bytes,
@@ -169,6 +170,9 @@ BLOCK_FORMATTERS = {
     'timestamp': to_integer_if_hex,
     'hash': apply_formatter_if(to_hexbytes(32), is_not_null),
     'number': apply_formatter_if(to_integer_if_hex, is_not_null),
+    'parentHash': apply_formatter_if(to_hexbytes(32), is_not_null),
+    'sha3Uncles': apply_formatter_if(to_hexbytes(32), is_not_null),
+    'uncles': apply_formatter_to_array(to_hexbytes(32)),
     'difficulty': to_integer_if_hex,
     'totalDifficulty': to_integer_if_hex,
     'transactions': apply_one_of_formatters((
