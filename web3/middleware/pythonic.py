@@ -19,6 +19,7 @@ from cytoolz.functoolz import (
 from eth_utils import (
     is_address,
     to_checksum_address,
+    is_hex,
     is_integer,
     is_null,
     is_dict,
@@ -95,15 +96,26 @@ def is_array_of_dicts(value):
 @curry
 def to_hexbytes(num_bytes, val):
     if isinstance(val, str):
-        return HexBytes(val)
+        result = HexBytes(val)
     elif isinstance(val, bytes):
         if len(val) == num_bytes:
-            return HexBytes(val)
+            result = HexBytes(val)
         else:
             # some providers return values with hex as bytes, like b'0xEFFF' :(
-            return HexBytes(val.decode('utf-8'))
+            hexstr = val.decode('utf-8')
+            if not is_hex(hexstr):
+                raise ValueError("Cannot convert %r into a %d byte argument" % (hexstr, num_bytes))
+            result = HexBytes(hexstr)
     else:
         raise TypeError("Cannot convert %r to HexBytes" % val)
+
+    if len(result) != num_bytes:
+        raise ValueError(
+            "The value %r is %d bytes, but should be %d" % (
+                result, len(result), num_bytes
+            )
+        )
+    return result
 
 
 TRANSACTION_FORMATTERS = {
