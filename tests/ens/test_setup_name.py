@@ -83,17 +83,22 @@ def test_cannot_set_name_on_mismatch_address(ens):
 
 def test_setup_name_default_address(ens):
     name = 'reverse-defaults-to-forward.tester.eth'
-    new_owner = ens.web3.eth.accounts[-1]
-    ens.setup_address(name, new_owner)
-    assert not ens.name(new_owner)
+    owner = ens.owner('tester.eth')
+    new_resolution = ens.web3.eth.accounts[-1]
+    ens.setup_address(name, new_resolution)
+    assert not ens.name(new_resolution)
+    assert ens.owner(name) == owner
+    assert ens.address(name) == new_resolution
     ens.setup_name(name)
-    assert ens.name(new_owner) == name
+    assert ens.name(new_resolution) == name
+    ens.setup_name(None, new_resolution)
 
 
 def test_setup_name_default_to_owner(ens):
     name = 'reverse-defaults-to-owner.tester.eth'
     new_owner = ens.web3.eth.accounts[-1]
     ens.setup_owner(name, new_owner)
+    assert not ens.name(new_owner)
     assert ens.owner(name) == new_owner
     assert not ens.address(name)
     ens.setup_name(name)

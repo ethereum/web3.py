@@ -3,7 +3,7 @@ import pytest
 
 from ens import InvalidName
 
-# test content inspired by https://github.com/jcranmer/idna-uts46/blob/master/test/test-uts46.js
+# test content inspired by https://github.com/jcranmer/idna-uts46/blob/9e2ff191a8887c872ad172f2d72f8d4bf353aef8/test/test-uts46.js  # noqa: E501
 
 
 def test_nameprep_basic_unicode(ens):

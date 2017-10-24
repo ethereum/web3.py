@@ -100,16 +100,18 @@ def test_setup_address_default_address_to_owner(ens):
     assert ens.address('default.tester.eth') == owner
 
 
-def test_first_owner_upchain_identify(ens, addr2):
+def test_first_owner_upchain_identify(ens):
     # _first_owner should auto-select the name owner to send the transaction from
+    addr = '0x5B2063246F2191f18F2675ceDB8b28102e957458'
+
     def getowner(name):
         if name == "cdefghi.eth":
-            return addr2
+            return addr
         else:
             return None
     with patch.object(ens, 'owner', side_effect=getowner):
         assert ens._first_owner('abcdefg.bcdefgh.cdefghi.eth') == \
-            (addr2, ['abcdefg', 'bcdefgh'], 'cdefghi.eth')
+            (addr, ['abcdefg', 'bcdefgh'], 'cdefghi.eth')
 
 
 def test_set_resolver_leave_default(ens):
