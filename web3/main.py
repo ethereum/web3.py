@@ -29,8 +29,6 @@ from web3.providers.ipc import (
 )
 from web3.providers.rpc import (
     HTTPProvider,
-    RPCProvider,
-    KeepAliveRPCProvider,
 )
 from web3.providers.tester import (
     TestRPCProvider,
@@ -41,9 +39,6 @@ from web3.manager import (
     RequestManager,
 )
 
-from web3.utils.decorators import (
-    deprecated_for,
-)
 from web3.utils.encoding import (
     hex_encode_abi_type,
     to_bytes,
@@ -70,8 +65,6 @@ def get_default_modules():
 class Web3(object):
     # Providers
     HTTPProvider = HTTPProvider
-    RPCProvider = RPCProvider
-    KeepAliveRPCProvider = KeepAliveRPCProvider
     IPCProvider = IPCProvider
     TestRPCProvider = TestRPCProvider
     EthereumTesterProvider = EthereumTesterProvider
@@ -116,15 +109,6 @@ class Web3(object):
 
     def setProviders(self, providers):
         self.manager.setProvider(providers)
-
-    @deprecated_for("the `manager` attribute")
-    def setManager(self, manager):
-        self.manager = manager
-
-    @property
-    @deprecated_for("`providers`, which is now a list")
-    def currentProvider(self):
-        return self.manager.providers[0]
 
     @staticmethod
     @apply_to_return_value(encode_hex)
