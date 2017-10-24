@@ -34,7 +34,7 @@ def test_on_filter_using_get_interface(web3,
     log_entries = filter.get()
 
     assert len(log_entries) == 1
-    assert log_entries[0]['transactionHash'] == txn_hash.encode()
+    assert log_entries[0]['transactionHash'] == txn_hash
 
 
 @flaky(max_runs=3)
@@ -64,7 +64,7 @@ def test_on_filter_with_only_event_name(web3,
     filter.stop_watching(30)
 
     assert len(seen_logs) == 1
-    assert seen_logs[0]['transactionHash'] == txn_hash.encode()
+    assert seen_logs[0]['transactionHash'] == txn_hash
 
 
 @flaky(max_runs=3)
@@ -108,7 +108,7 @@ def test_on_filter_with_event_name_and_single_argument(web3,
     filter.stop_watching(30)
 
     assert len(seen_logs) == 2
-    assert {l['transactionHash'].decode() for l in seen_logs} == set(txn_hashes[1:])
+    assert {l['transactionHash'] for l in seen_logs} == set(txn_hashes[1:])
 
 
 @flaky(max_runs=3)
@@ -152,4 +152,4 @@ def test_on_filter_with_event_name_and_non_indexed_argument(web3,
     filter.stop_watching(30)
 
     assert len(seen_logs) == 1
-    assert seen_logs[0]['transactionHash'] == txn_hashes[1].encode()
+    assert seen_logs[0]['transactionHash'] == txn_hashes[1]
