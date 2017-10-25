@@ -140,7 +140,6 @@ def get_event_abi_types_for_decoding(event_inputs):
             yield input_abi['type']
 
 
-@coerce_return_to_text
 def get_event_data(event_abi, log_entry):
     """
     Given an event ABI and a log entry for that event, return the decoded

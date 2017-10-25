@@ -2,7 +2,6 @@ import pytest
 
 from eth_utils import (
     decode_hex,
-    force_text,
     is_same_address,
 )
 
@@ -129,7 +128,7 @@ def test_dynamic_length_argument_extraction(web3,
     event_data = get_event_data(event_abi, log_entry)
 
     expected_args = {
-        "arg0": force_text(decode_hex(string_0_topic)),
+        "arg0": decode_hex(string_0_topic),
         "arg1": string_1,
     }
 
