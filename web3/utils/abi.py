@@ -168,6 +168,7 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     )
 
 
+
 @coerce_args_to_text
 def merge_args_and_kwargs(function_abi, args, kwargs):
     if len(args) + len(kwargs) != len(function_abi['inputs']):
@@ -182,25 +183,25 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
         return args
 
     args_as_kwargs = {
-        arg_abi['name']: arg
+        arg_abi.get('name', ''): arg
         for arg_abi, arg in zip(function_abi['inputs'], args)
     }
     duplicate_keys = set(args_as_kwargs).intersection(kwargs.keys())
     if duplicate_keys:
         raise TypeError(
             "{fn_name}() got multiple values for argument(s) '{dups}'".format(
-                fn_name=function_abi['name'],
+                fn_name=function_abi.get('name', ''),
                 dups=', '.join(duplicate_keys),
             )
         )
 
-    sorted_arg_names = [arg_abi['name'] for arg_abi in function_abi['inputs']]
+    sorted_arg_names = [arg_abi.get('name', '') for arg_abi in function_abi['inputs']]
 
     unknown_kwargs = {key for key in kwargs.keys() if key not in sorted_arg_names}
     if unknown_kwargs:
         raise TypeError(
             "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
-                fn_name=function_abi['name'],
+                fn_name=function_abi.get('name', ''),
                 dups=', '.join(unknown_kwargs),
             )
         )
