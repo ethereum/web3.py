@@ -19,7 +19,6 @@ from cytoolz.functoolz import (
 from eth_utils import (
     is_address,
     to_checksum_address,
-    is_hex,
     is_integer,
     is_null,
     is_dict,
@@ -95,25 +94,16 @@ def is_array_of_dicts(value):
 
 @curry
 def to_hexbytes(num_bytes, val, variable_length=False):
-    if isinstance(val, (str, int)):
+    if isinstance(val, (str, int, bytes)):
         result = HexBytes(val)
-    elif isinstance(val, bytes):
-        if len(val) <= num_bytes:
-            result = HexBytes(val)
-        else:
-            # some providers return values with hex as bytes, like b'0xEFFF' :(
-            hexstr = val.decode('utf-8')
-            if not is_hex(hexstr):
-                raise ValueError("Cannot convert %r into a %d byte argument" % (hexstr, num_bytes))
-            result = HexBytes(hexstr)
     else:
         raise TypeError("Cannot convert %r to HexBytes" % val)
 
-    oversize = len(result) - num_bytes
-    if oversize == 0 or (variable_length and oversize < 0):
+    extra_bytes = len(result) - num_bytes
+    if extra_bytes == 0 or (variable_length and extra_bytes < 0):
         return result
-    elif all(byte == 0 for byte in result[:oversize]):
-        return HexBytes(result[oversize:])
+    elif all(byte == 0 for byte in result[:extra_bytes]):
+        return HexBytes(result[extra_bytes:])
     else:
         raise ValueError(
             "The value %r is %d bytes, but should be %d" % (
