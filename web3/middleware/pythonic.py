@@ -131,8 +131,14 @@ TRANSACTION_FORMATTERS = {
     'gasPrice': to_integer_if_hex,
     'value': to_integer_if_hex,
     'from': to_checksum_address,
+    'publicKey': to_hexbytes(64),
+    'r': to_hexbytes(32),
+    'raw': HexBytes,
+    's': to_hexbytes(32),
     'to': apply_formatter_if(to_checksum_address, is_address),
     'hash': to_hexbytes(32),
+    'v': apply_formatter_if(to_integer_if_hex, is_not_null),
+    'standardV': apply_formatter_if(to_integer_if_hex, is_not_null),
 }
 
 
