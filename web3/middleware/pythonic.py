@@ -58,9 +58,9 @@ def bytes_to_ascii(value):
     return codecs.decode(value, 'ascii')
 
 
-to_ascii_if_bytes = apply_formatter_if(bytes_to_ascii, is_bytes)
-to_integer_if_hex = apply_formatter_if(hex_to_integer, is_string)
-block_number_formatter = apply_formatter_if(integer_to_hex, is_integer)
+to_ascii_if_bytes = apply_formatter_if(is_bytes, bytes_to_ascii)
+to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
+block_number_formatter = apply_formatter_if(is_integer, integer_to_hex)
 
 
 is_false = partial(operator.is_, False)
@@ -119,14 +119,14 @@ def to_hexbytes(num_bytes, val):
 
 
 TRANSACTION_FORMATTERS = {
-    'blockNumber': apply_formatter_if(to_integer_if_hex, is_not_null),
-    'transactionIndex': apply_formatter_if(to_integer_if_hex, is_not_null),
+    'blockNumber': apply_formatter_if(is_not_null, to_integer_if_hex),
+    'transactionIndex': apply_formatter_if(is_not_null, to_integer_if_hex),
     'nonce': to_integer_if_hex,
     'gas': to_integer_if_hex,
     'gasPrice': to_integer_if_hex,
     'value': to_integer_if_hex,
     'from': to_checksum_address,
-    'to': apply_formatter_if(to_checksum_address, is_address),
+    'to': apply_formatter_if(is_address, to_checksum_address),
     'hash': to_ascii_if_bytes,
 }
 
@@ -135,9 +135,9 @@ transaction_formatter = apply_formatters_to_dict(TRANSACTION_FORMATTERS)
 
 
 LOG_ENTRY_FORMATTERS = {
-    'blockHash': apply_formatter_if(to_ascii_if_bytes, is_not_null),
-    'blockNumber': apply_formatter_if(to_integer_if_hex, is_not_null),
-    'transactionIndex': apply_formatter_if(to_integer_if_hex, is_not_null),
+    'blockHash': apply_formatter_if(is_not_null, to_ascii_if_bytes),
+    'blockNumber': apply_formatter_if(is_not_null, to_integer_if_hex),
+    'transactionIndex': apply_formatter_if(is_not_null, to_integer_if_hex),
     'logIndex': to_integer_if_hex,
     'address': to_checksum_address,
     'topics': apply_formatter_to_array(to_ascii_if_bytes),
@@ -149,13 +149,13 @@ log_entry_formatter = apply_formatters_to_dict(LOG_ENTRY_FORMATTERS)
 
 
 RECEIPT_FORMATTERS = {
-    'blockHash': apply_formatter_if(to_ascii_if_bytes, is_not_null),
-    'blockNumber': apply_formatter_if(to_integer_if_hex, is_not_null),
-    'transactionIndex': apply_formatter_if(to_integer_if_hex, is_not_null),
+    'blockHash': apply_formatter_if(is_not_null, to_ascii_if_bytes),
+    'blockNumber': apply_formatter_if(is_not_null, to_integer_if_hex),
+    'transactionIndex': apply_formatter_if(is_not_null, to_integer_if_hex),
     'transactionHash': to_ascii_if_bytes,
     'cumulativeGasUsed': to_integer_if_hex,
     'gasUsed': to_integer_if_hex,
-    'contractAddress': apply_formatter_if(to_checksum_address, is_not_null),
+    'contractAddress': apply_formatter_if(is_not_null, to_checksum_address),
     'logs': apply_formatter_to_array(log_entry_formatter),
 }
 
@@ -167,8 +167,8 @@ BLOCK_FORMATTERS = {
     'gasUsed': to_integer_if_hex,
     'size': to_integer_if_hex,
     'timestamp': to_integer_if_hex,
-    'hash': apply_formatter_if(to_hexbytes(32), is_not_null),
-    'number': apply_formatter_if(to_integer_if_hex, is_not_null),
+    'hash': apply_formatter_if(is_not_null, to_hexbytes(32)),
+    'number': apply_formatter_if(is_not_null, to_integer_if_hex),
     'difficulty': to_integer_if_hex,
     'totalDifficulty': to_integer_if_hex,
     'transactions': apply_one_of_formatters((
@@ -222,8 +222,8 @@ transaction_pool_inspect_formatter = apply_formatters_to_dict(
 
 
 FILTER_PARAMS_FORMATTERS = {
-    'fromBlock': apply_formatter_if(integer_to_hex, is_integer),
-    'toBlock': apply_formatter_if(integer_to_hex, is_integer),
+    'fromBlock': apply_formatter_if(is_integer, integer_to_hex),
+    'toBlock': apply_formatter_if(is_integer, integer_to_hex),
 }
 
 
@@ -288,8 +288,8 @@ pythonic_middleware = construct_formatting_middleware(
         'personal_ecRecover': apply_formatter_at_index(encode_hex, 0),
         # Snapshot and Revert
         'evm_revert': apply_formatter_if(
-            apply_formatter_at_index(to_integer_if_hex, 0),
             bool,
+            apply_formatter_at_index(to_integer_if_hex, 0),
         )
     },
     result_formatters={
@@ -300,37 +300,37 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_estimateGas': to_integer_if_hex,
         'eth_gasPrice': to_integer_if_hex,
         'eth_getBalance': to_integer_if_hex,
-        'eth_getBlockByHash': apply_formatter_if(block_formatter, is_not_null),
-        'eth_getBlockByNumber': apply_formatter_if(block_formatter, is_not_null),
+        'eth_getBlockByHash': apply_formatter_if(is_not_null, block_formatter),
+        'eth_getBlockByNumber': apply_formatter_if(is_not_null, block_formatter),
         'eth_getBlockTransactionCountByHash': to_integer_if_hex,
         'eth_getBlockTransactionCountByNumber': to_integer_if_hex,
         'eth_getCode': to_ascii_if_bytes,
         'eth_getFilterChanges': filter_result_formatter,
         'eth_getFilterLogs': filter_result_formatter,
         'eth_getTransactionByBlockHashAndIndex': apply_formatter_if(
-            transaction_formatter,
             is_not_null,
+            transaction_formatter,
         ),
         'eth_getTransactionByBlockNumberAndIndex': apply_formatter_if(
-            transaction_formatter,
             is_not_null,
+            transaction_formatter,
         ),
-        'eth_getTransactionByHash': apply_formatter_if(transaction_formatter, is_not_null),
+        'eth_getTransactionByHash': apply_formatter_if(is_not_null, transaction_formatter),
         'eth_getTransactionCount': to_integer_if_hex,
         'eth_getTransactionReceipt': apply_formatter_if(
-            receipt_formatter,
             is_not_null,
+            receipt_formatter,
         ),
         'eth_getUncleCountByBlockHash': to_integer_if_hex,
         'eth_getUncleCountByBlockNumber': to_integer_if_hex,
         'eth_hashrate': to_integer_if_hex,
         'eth_protocolVersion': compose(
-            apply_formatter_if(str, is_integer),
+            apply_formatter_if(is_integer, str),
             to_integer_if_hex,
         ),
         'eth_sendRawTransaction': to_ascii_if_bytes,
         'eth_sendTransaction': to_ascii_if_bytes,
-        'eth_syncing': apply_formatter_if(syncing_formatter, is_not_false),
+        'eth_syncing': apply_formatter_if(is_not_false, syncing_formatter),
         # SHH
         'shh_version': to_integer_if_hex,
         # Transaction Pool
