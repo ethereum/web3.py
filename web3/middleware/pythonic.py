@@ -154,7 +154,7 @@ LOG_ENTRY_FORMATTERS = {
     'transactionHash': apply_formatter_if(to_hexbytes(32), is_not_null),
     'logIndex': to_integer_if_hex,
     'address': to_checksum_address,
-    'topics': apply_formatter_to_array(to_ascii_if_bytes),
+    'topics': apply_formatter_to_array(to_hexbytes(32)),
     'data': to_ascii_if_bytes,
 }
 
