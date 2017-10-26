@@ -19,7 +19,6 @@ from cytoolz.functoolz import (
 from eth_utils import (
     is_address,
     to_checksum_address,
-    is_hex,
     is_integer,
     is_null,
     is_dict,
@@ -94,28 +93,23 @@ def is_array_of_dicts(value):
 
 
 @curry
-def to_hexbytes(num_bytes, val):
-    if isinstance(val, str):
+def to_hexbytes(num_bytes, val, variable_length=False):
+    if isinstance(val, (str, int, bytes)):
         result = HexBytes(val)
-    elif isinstance(val, bytes):
-        if len(val) == num_bytes:
-            result = HexBytes(val)
-        else:
-            # some providers return values with hex as bytes, like b'0xEFFF' :(
-            hexstr = val.decode('utf-8')
-            if not is_hex(hexstr):
-                raise ValueError("Cannot convert %r into a %d byte argument" % (hexstr, num_bytes))
-            result = HexBytes(hexstr)
     else:
         raise TypeError("Cannot convert %r to HexBytes" % val)
 
-    if len(result) != num_bytes:
+    extra_bytes = len(result) - num_bytes
+    if extra_bytes == 0 or (variable_length and extra_bytes < 0):
+        return result
+    elif all(byte == 0 for byte in result[:extra_bytes]):
+        return HexBytes(result[extra_bytes:])
+    else:
         raise ValueError(
             "The value %r is %d bytes, but should be %d" % (
                 result, len(result), num_bytes
             )
         )
-    return result
 
 
 TRANSACTION_FORMATTERS = {
@@ -127,8 +121,14 @@ TRANSACTION_FORMATTERS = {
     'gasPrice': to_integer_if_hex,
     'value': to_integer_if_hex,
     'from': to_checksum_address,
+    'publicKey': to_hexbytes(64),
+    'r': to_hexbytes(32),
+    'raw': HexBytes,
+    's': to_hexbytes(32),
     'to': apply_formatter_if(to_checksum_address, is_address),
     'hash': to_hexbytes(32),
+    'v': apply_formatter_if(to_integer_if_hex, is_not_null),
+    'standardV': apply_formatter_if(to_integer_if_hex, is_not_null),
 }
 
 
@@ -159,27 +159,36 @@ RECEIPT_FORMATTERS = {
     'gasUsed': to_integer_if_hex,
     'contractAddress': apply_formatter_if(to_checksum_address, is_not_null),
     'logs': apply_formatter_to_array(log_entry_formatter),
+    'logsBloom': to_hexbytes(256),
 }
 
 
 receipt_formatter = apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
 BLOCK_FORMATTERS = {
+    'extraData': to_hexbytes(32, variable_length=True),
     'gasLimit': to_integer_if_hex,
     'gasUsed': to_integer_if_hex,
     'size': to_integer_if_hex,
     'timestamp': to_integer_if_hex,
     'hash': apply_formatter_if(to_hexbytes(32), is_not_null),
+    'logsBloom': to_hexbytes(256),
+    'miner': apply_formatter_if(to_checksum_address, is_not_null),
+    'mixHash': to_hexbytes(32),
+    'nonce': apply_formatter_if(to_hexbytes(8, variable_length=True), is_not_null),
     'number': apply_formatter_if(to_integer_if_hex, is_not_null),
     'parentHash': apply_formatter_if(to_hexbytes(32), is_not_null),
     'sha3Uncles': apply_formatter_if(to_hexbytes(32), is_not_null),
     'uncles': apply_formatter_to_array(to_hexbytes(32)),
     'difficulty': to_integer_if_hex,
+    'receiptsRoot': to_hexbytes(32),
+    'stateRoot': to_hexbytes(32),
     'totalDifficulty': to_integer_if_hex,
     'transactions': apply_one_of_formatters((
         (apply_formatter_to_array(transaction_formatter), is_array_of_dicts),
         (apply_formatter_to_array(to_hexbytes(32)), is_array_of_strings),
     )),
+    'transactionsRoot': to_hexbytes(32),
 }
 
 
