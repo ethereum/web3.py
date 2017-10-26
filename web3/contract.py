@@ -2,12 +2,10 @@
 
 """
 import functools
-import warnings
 import itertools
+import json
 
 from eth_utils import (
-    is_address,
-    is_list_like,
     function_abi_to_4byte_selector,
     encode_hex,
     add_0x_prefix,
@@ -36,7 +34,6 @@ from web3.exceptions import (
 )
 
 from web3.utils.abi import (
-    BASE_RETURN_NORMALIZERS,
     filter_by_type,
     filter_by_name,
     filter_by_argument_count,
@@ -65,6 +62,9 @@ from web3.utils.filters import (
     construct_event_filter_params,
     PastLogFilter,
 )
+from web3.utils.normalizers import (
+    BASE_RETURN_NORMALIZERS,
+)
 from web3.utils.validation import (
     validate_abi,
     validate_address,
@@ -85,7 +85,7 @@ class Contract(object):
     """Base class for Contract proxy classes.
 
     First you need to create your Contract classes using
-    :func:`construct_contract_factory` that takes compiled Solidity contract
+    :meth:`web3.eth.Eth.contract` that takes compiled Solidity contract
     ABI definitions as input.  The created class object will be a subclass of
     this base class.
 
@@ -121,18 +121,11 @@ class Contract(object):
     src_map_runtime = None
     user_doc = None
 
-    def __init__(self,
-                 *args,
-                 **kwargs):
+    def __init__(self, address=None):
         """Create a new smart contract proxy object.
 
         :param address: Contract address as 0x hex string
         """
-        code = kwargs.pop('code', empty)
-        code_runtime = kwargs.pop('code_runtime', empty)
-        source = kwargs.pop('source', empty)
-        abi = kwargs.pop('abi', empty)
-        address = kwargs.pop('address', empty)
 
         if self.web3 is None:
             raise AttributeError(
@@ -140,66 +133,24 @@ class Contract(object):
                 '`web3.contract` interface to create your contract class.'
             )
 
-        arg_0, arg_1, arg_2, arg_3, arg_4 = tuple(itertools.chain(
-            args,
-            itertools.repeat(empty, 5),
-        ))[:5]
+        if address:
+            self.address = self.normalize_property('address', address)
 
-        if is_list_like(arg_0):
-            if abi:
-                raise TypeError("The 'abi' argument was found twice")
-            abi = arg_0
-        elif is_address(arg_0):
-            if address:
-                raise TypeError("The 'address' argument was found twice")
-            address = arg_0
+        if not self.address:
+            raise TypeError("The address argument is required to instantiate a contract.")
 
-        if arg_1 is not empty:
-            if address:
-                raise TypeError("The 'address' argument was found twice")
-            address = arg_1
-
-        if arg_2 is not empty:
-            if code:
-                raise TypeError("The 'code' argument was found twice")
-            code = arg_2
-
-        if arg_3 is not empty:
-            if code_runtime:
-                raise TypeError("The 'code_runtime' argument was found twice")
-            code_runtime = arg_3
-
-        if arg_4 is not empty:
-            if source:
-                raise TypeError("The 'source' argument was found twice")
-            source = arg_4
-
-        if any((abi, code, code_runtime, source)):
-            warnings.warn(DeprecationWarning(
-                "The arguments abi, code, code_runtime, and source have been "
-                "deprecated and will be removed from the Contract class "
-                "constructor in future releases.  Update your code to use the "
-                "Contract.factory method."
-            ))
-
-        if abi is not empty:
-            validate_abi(abi)
-            self.abi = abi
-        if code is not empty:
-            self.bytecode = code
-        if code_runtime is not empty:
-            self.bytecode_runtime = code_runtime
-        if source is not empty:
-            self._source = source
-
-        if address is not empty:
-            validate_address(address)
-            self.address = to_normalized_address(address)
+    @classmethod
+    def normalize_property(cls, key, val):
+        if key == 'abi':
+            if isinstance(val, str):
+                val = json.loads(val)
+            validate_abi(val)
+            return val
+        elif key == 'address':
+            validate_address(val)
+            return to_normalized_address(val)
         else:
-            warnings.warn(DeprecationWarning(
-                "The address argument is now required for contract class "
-                "instantiation.  Please update your code to reflect this change"
-            ))
+            return val
 
     @classmethod
     def factory(cls, web3, contract_name=None, **kwargs):
@@ -215,44 +166,10 @@ class Contract(object):
                     "`Contract.factory` only accepts keyword arguments which are "
                     "present on the contract class".format(key)
                 )
+            else:
+                kwargs[key] = cls.normalize_property(key, kwargs[key])
+
         return type(contract_name, (cls,), kwargs)
-
-    #
-    # deprecated properties
-    #
-    _source = None
-
-    @property
-    def code(self):
-        warnings.warn(DeprecationWarning(
-            "The `code` property has been deprecated.  You should update your "
-            "code to access this value through `contract.bytecode`.  The `code` "
-            "property will be removed in future releases"
-        ))
-        if self.bytecode is not None:
-            return self.bytecode
-        raise AttributeError("No contract code was specified for thes contract")
-
-    @property
-    def code_runtime(self):
-        warnings.warn(DeprecationWarning(
-            "The `code_runtime` property has been deprecated.  You should update your "
-            "code to access this value through `contract.bytecode_runtime`.  The `code_runtime` "
-            "property will be removed in future releases"
-        ))
-        if self.bytecode_runtime is not None:
-            return self.bytecode_runtime
-        raise AttributeError("No contract code_runtime was specified for thes contract")
-
-    @property
-    def source(self):
-        warnings.warn(DeprecationWarning(
-            "The `source` property has been deprecated and will be removed in "
-            "future releases"
-        ))
-        if self._source is not None:
-            return self._source
-        raise AttributeError("No contract source was specified for thes contract")
 
     #
     # Contract Methods
@@ -454,13 +371,12 @@ class Contract(object):
 
         .. code-block:: python
 
-            ContractFactory = construct_contract_factory(
-                web3=web3,
+            ContractFactory = w3.eth.contract(
                 abi=wallet_contract_definition["abi"]
             )
 
             # Not a real contract address
-            contract = contract_class("0x2f70d3d26829e412a602e83fe8eebf80255aeea5")
+            contract = ContractFactory("0x2f70d3d26829e412a602e83fe8eebf80255aeea5")
 
             # Read "owner" public variable
             addr = contract.call().owner()
@@ -766,7 +682,6 @@ class ConciseContract(object):
     is equivalent to this call in the classic contract:
 
     > contract.transact({'from': eth.accounts[1], 'gas': 100000, ...}).withdraw(amount)
-
     '''
     def __init__(self, classic_contract):
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
@@ -914,75 +829,3 @@ def estimate_gas_for_function(contract=None,
 
     gas_estimate = contract.web3.eth.estimateGas(estimate_transaction)
     return gas_estimate
-
-
-def construct_contract_factory(web3,
-                               abi,
-                               code=None,
-                               code_runtime=None,
-                               source=None,
-                               contract_name='Contract',
-                               base_contract_factory_class=Contract):
-    """Creates a new Contract class.
-
-    Contract lass is a Python proxy class to interact with smart contracts.
-
-    ``abi`` and other contract definition fields are coming from
-    ``solc`` compiler or ``build/contracts.json`` in the
-    case of Populus framework.
-
-    After contract has been instantiated you can interact with it
-    using :meth:`transact_with_contract_function` and
-     :meth:`call_contract_function`.
-
-    Example:
-
-    .. code-block:: python
-
-        # Assume we have a Token contract
-        token_contract_data = {
-            'abi': [...],
-            'code': '0x...',
-            'code_runtime': '0x...',
-            'source': 'contract Token {.....}',
-        }
-
-        # contract_factory is a python class that can be used to interact with
-        # or deploy the "Token" contract.
-        token_contract_factory = construct_contract_factory(
-            web3=web3,
-            abi=token_contract_data["abi"],
-            code=token_contract_data["code"],
-            code_runtime=token_contract_data["code_runtime"],
-            source=token_contract_data["source"],
-                )
-
-        # Create Contract instance to interact with a deployed smart contract.
-        token_contract = token_contract_factory(
-            address=address,
-            abi=token_contract_data["abi"],
-            code=token_contract_data["code"],
-            code_runtime=token_contract_data["code_runtime"],
-            source=token_contract_data["source"])
-
-
-    :param web3: Web3 connection
-    :param abi: As given by solc compiler
-    :param code: As given by solc compiler
-    :param code_runtime: As given by solc compiler
-    :param source: As given by solc compiler
-    :return: Contract class (not instance)
-    """
-    warnings.warn(DeprecationWarning(
-        "This function has been deprecated.  Please use the `Contract.factory` "
-        "method as this function will be removed in future releases"
-    ))
-
-    _dict = {
-        'web3': web3,
-        'abi': abi,
-        'code': code,
-        'code_runtime': code_runtime,
-        'source': source,
-    }
-    return type(contract_name, (base_contract_factory_class,), _dict)

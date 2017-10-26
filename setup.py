@@ -25,7 +25,7 @@ install_requires = [
     "requests>=2.12.4",
     "rlp>=0.4.7",
     "toolz>=0.8.2",
-    "ethereum-tester==0.1.0-beta.1",
+    "ethereum-tester~=0.1.0b1",
 ]
 
 if sys.platform == 'win32':
@@ -43,7 +43,7 @@ setup(
     install_requires=install_requires,
     setup_requires=['setuptools-markdown'],
     extras_require={
-        'tester': ["eth-testrpc>=1.2.0"],
+        'tester': ["eth-testrpc>=1.3.3"],
         'gevent': [
             "gevent>=1.1.1,<1.2.0",
             "geventhttpclient>=1.3.1",

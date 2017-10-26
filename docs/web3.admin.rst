@@ -1,5 +1,5 @@
 Admin API
-======
+==========
 
 .. py:module:: web3.admin
 .. py:currentmodule:: web3.admin

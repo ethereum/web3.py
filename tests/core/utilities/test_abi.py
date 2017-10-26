@@ -2,9 +2,11 @@
 import pytest
 
 from web3.utils.abi import (
-    BASE_RETURN_NORMALIZERS,
     abi_data_tree,
     map_abi_data,
+)
+from web3.utils.normalizers import (
+    BASE_RETURN_NORMALIZERS,
 )
 
 

@@ -2,8 +2,8 @@ from collections import (
     namedtuple,
 )
 
-import re
 import itertools
+import re
 
 from cytoolz import (
     curry,
@@ -13,7 +13,6 @@ from cytoolz import (
 
 from eth_utils import (
     coerce_args_to_text,
-    coerce_return_to_text,
     is_address,
     is_boolean,
     is_integer,
@@ -30,13 +29,6 @@ from eth_abi.abi import (
 from web3.utils.formatters import (
     recursive_map,
 )
-from web3.utils.normalizers import (
-    addresses_checksummed,
-)
-
-BASE_RETURN_NORMALIZERS = [
-    addresses_checksummed,
-]
 
 
 def filter_by_type(_type, contract_abi):
@@ -404,7 +396,7 @@ def abi_to_signature(abi):
 ########################################################
 
 
-@coerce_return_to_text
+@curry
 def map_abi_data(normalizers, types, data):
     '''
     This function will apply normalizers to your data, in the

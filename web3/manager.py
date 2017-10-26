@@ -1,5 +1,4 @@
 import uuid
-import warnings
 
 from eth_utils import (
     is_list_like,
@@ -20,9 +19,6 @@ from web3.utils.compat import (
 from web3.utils.datastructures import (
     NamedElementStack,
 )
-from web3.utils.decorators import (
-    deprecated_for,
-)
 
 
 class RequestManager(object):
@@ -39,14 +35,6 @@ class RequestManager(object):
     web3 = None
     _providers = None
 
-    @deprecated_for("manager.middleware_stack.add(middleware [, name])")
-    def add_middleware(self, middleware):
-        return self.middleware_stack.add(middleware)
-
-    @deprecated_for("manager.middleware_stack.clear()")
-    def clear_middlewares(self):
-        return self.middleware_stack.clear()
-
     @property
     def providers(self):
         return self._providers or tuple()
@@ -58,13 +46,6 @@ class RequestManager(object):
         else:
             providers = value
         self._providers = providers
-
-    def setProvider(self, providers):
-        warnings.warn(DeprecationWarning(
-            "The `setProvider` API has been deprecated.  You should update your "
-            "code to directly set the `manager.provider` property."
-        ))
-        self.providers = providers
 
     #
     # Provider requests and response

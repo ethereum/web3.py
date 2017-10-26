@@ -1,8 +1,8 @@
 import pytest
 
 from eth_utils import (
-    force_text,
-    decode_hex,
+    encode_hex,
+    is_same_address,
 )
 
 from web3.utils.events import (
@@ -100,7 +100,7 @@ def test_event_data_extraction(web3,
     assert event_data['blockHash'] == txn_receipt['blockHash']
     assert event_data['blockNumber'] == txn_receipt['blockNumber']
     assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
-    assert event_data['address'] == emitter.address
+    assert is_same_address(event_data['address'], emitter.address)
     assert event_data['event'] == event_name
 
 
@@ -122,13 +122,13 @@ def test_dynamic_length_argument_extraction(web3,
     event_topic = emitter_log_topics.LogDynamicArgs
     assert event_topic in log_entry['topics']
 
-    string_0_topic = web3.sha3(string_0, encoding='utf8')
-    assert string_0_topic in log_entry['topics']
+    string_0_topic = web3.sha3(text=string_0)
+    assert encode_hex(string_0_topic) in log_entry['topics']
 
     event_data = get_event_data(event_abi, log_entry)
 
     expected_args = {
-        "arg0": force_text(decode_hex(string_0_topic)),
+        "arg0": string_0_topic,
         "arg1": string_1,
     }
 
@@ -136,5 +136,5 @@ def test_dynamic_length_argument_extraction(web3,
     assert event_data['blockHash'] == txn_receipt['blockHash']
     assert event_data['blockNumber'] == txn_receipt['blockNumber']
     assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
-    assert event_data['address'] == emitter.address
+    assert is_same_address(event_data['address'], emitter.address)
     assert event_data['event'] == 'LogDynamicArgs'

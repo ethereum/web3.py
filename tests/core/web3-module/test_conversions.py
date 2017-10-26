@@ -32,7 +32,7 @@ def test_to_bytes_long():
     minlong = sys.maxint + 1
     assert minlong > sys.maxint  # are there any python interpreters that overflow?
     valbytes = Web3.toBytes(minlong)
-    assert Web3.toDecimal(valbytes) == minlong
+    assert Web3.toInt(valbytes) == minlong
 
 
 @pytest.mark.parametrize(
@@ -115,19 +115,20 @@ def test_to_text_hexstr(val, expected):
         (b'\x01', 1),
         (b'\x00\x01', 1),
         (b'\x01\x00', 256),
-        ('255', 255),
-        ('-1', -1),
         (True, 1),
         (False, 0),
-        # Deprecated:
-        ('0x0', 0),
-        ('0x1', 1),
-        ('0x01', 1),
-        ('0x10', 16),
+        ('255', TypeError),
+        ('-1', TypeError),
+        ('0x0', TypeError),
+        ('0x1', TypeError),
     )
 )
-def test_to_decimal(val, expected):
-    assert Web3.toDecimal(val) == expected
+def test_to_int(val, expected):
+    if isinstance(expected, type):
+        with pytest.raises(expected):
+            Web3.toInt(val)
+    else:
+        assert Web3.toInt(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -136,12 +137,18 @@ def test_to_decimal(val, expected):
         ('0', 0),
         ('-1', -1),
         ('255', 255),
+        ('0x0', ValueError),
+        ('0x1', ValueError),
+        ('1.1', ValueError),
+        ('a', ValueError),
     )
 )
-def test_to_decimal_text(val, expected):
-    if isinstance(val, bytes) and bytes == str:
-        pytest.skip("Python 3 is required to pass in bytes")
-    assert Web3.toDecimal(text=val) == expected
+def test_to_int_text(val, expected):
+    if isinstance(expected, type):
+        with pytest.raises(expected):
+            Web3.toInt(text=val)
+    else:
+        assert Web3.toInt(text=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -157,8 +164,8 @@ def test_to_decimal_text(val, expected):
         ('10', 16),
     )
 )
-def test_to_decimal_hexstr(val, expected):
-    assert Web3.toDecimal(hexstr=val) == expected
+def test_to_int_hexstr(val, expected):
+    assert Web3.toInt(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(

@@ -30,14 +30,14 @@ from eth_utils import (
 
 from web3.utils.datastructures import (
     AttributeDict,
+    HexBytes,
 )
 from web3.utils.encoding import (
     hexstr_if_str,
     text_if_str,
     to_bytes,
-    to_decimal,
+    to_int,
     to_hex,
-    to_hex_with_size,
 )
 from web3.utils.exception import (
     raise_from,
@@ -48,6 +48,7 @@ from web3.utils.signing import (
     sign_message_hash,
     sign_transaction_dict,
     signature_wrapper,
+    to_standard_signature_bytes,
     to_standard_v,
 )
 from web3.utils.transactions import (
@@ -80,7 +81,7 @@ class Account(object):
 
     @staticmethod
     def encrypt(private_key, password):
-        key_bytes = hexstr_if_str(to_bytes, private_key)
+        key_bytes = HexBytes(private_key)
         password_bytes = text_if_str(to_bytes, password)
         assert len(key_bytes) == 32
         return create_keyfile_json(key_bytes, password_bytes)
@@ -88,11 +89,11 @@ class Account(object):
     @staticmethod
     def hashMessage(data=None, hexstr=None, text=None):
         message_bytes = to_bytes(data, hexstr=hexstr, text=text)
-        recovery_hasher = compose(to_hex, keccak, signature_wrapper)
+        recovery_hasher = compose(HexBytes, keccak, signature_wrapper)
         return recovery_hasher(message_bytes)
 
     def privateKeyToAccount(self, private_key):
-        key_bytes = hexstr_if_str(to_bytes, private_key)
+        key_bytes = HexBytes(private_key)
         try:
             key_obj = self._keys.PrivateKey(key_bytes)
             return LocalAccount(key_obj, self)
@@ -106,14 +107,15 @@ class Account(object):
             )
 
     def recover(self, msghash, vrs=None, signature=None):
-        hash_bytes = hexstr_if_str(to_bytes, msghash)
+        hash_bytes = HexBytes(msghash)
         if vrs is not None:
-            v, r, s = map(hexstr_if_str(to_decimal), vrs)
+            v, r, s = map(hexstr_if_str(to_int), vrs)
             v_standard = to_standard_v(v)
             signature_obj = self._keys.Signature(vrs=(v_standard, r, s))
         elif signature is not None:
-            signature_bytes = hexstr_if_str(to_bytes, signature)
-            signature_obj = self._keys.Signature(signature_bytes=signature_bytes)
+            signature_bytes = HexBytes(signature)
+            signature_bytes_standard = to_standard_signature_bytes(signature_bytes)
+            signature_obj = self._keys.Signature(signature_bytes=signature_bytes_standard)
         else:
             raise TypeError("You must supply the vrs tuple or the signature bytes")
         pubkey = signature_obj.recover_public_key_from_msg_hash(hash_bytes)
@@ -124,7 +126,7 @@ class Account(object):
         return self.recover(msg_hash, vrs=vrs, signature=signature)
 
     def recoverTransaction(self, serialized_transaction):
-        txn_bytes = hexstr_if_str(to_bytes, serialized_transaction)
+        txn_bytes = HexBytes(serialized_transaction)
         txn = Transaction.from_bytes(txn_bytes)
         msg_hash = hash_of_signed_transaction(txn)
         if sys.version_info.major < 3:
@@ -142,17 +144,16 @@ class Account(object):
         '''
         msg_bytes = to_bytes(message, hexstr=message_hexstr, text=message_text)
         msg_hash = self.hashMessage(msg_bytes)
-        key_bytes = hexstr_if_str(to_bytes, private_key)
+        key_bytes = HexBytes(private_key)
         key = self._keys.PrivateKey(key_bytes)
         (v, r, s, eth_signature_bytes) = sign_message_hash(key, msg_hash)
-        (r_hex, s_hex, eth_signature_hex) = map(to_hex, (r, s, eth_signature_bytes))
         return AttributeDict({
-            'message': msg_bytes,
+            'message': HexBytes(msg_bytes),
             'messageHash': msg_hash,
-            'r': r_hex,
-            's': s_hex,
+            'r': HexBytes(r),
+            's': HexBytes(s),
             'v': v,
-            'signature': eth_signature_hex,
+            'signature': HexBytes(eth_signature_bytes),
         })
 
     def signTransaction(self, transaction_dict, private_key):
@@ -174,16 +175,10 @@ class Account(object):
             rlp_encoded,
         ) = sign_transaction_dict(account._key_obj, transaction_dict)
 
-        # format most returned elements as hex
-        signature_info = {
-            key: to_hex_with_size(val, 256)  # minimum size is 32 bytes
-            for key, val
-            in (
-                ('rawTransaction', rlp_encoded),
-                ('hash', transaction_hash),
-                ('r', r),
-                ('s', s),
-            )
-        }
-        signature_info['v'] = v
-        return AttributeDict(signature_info)
+        return AttributeDict({
+            'rawTransaction': HexBytes(rlp_encoded),
+            'hash': HexBytes(transaction_hash),
+            'r': HexBytes(r),
+            's': HexBytes(s),
+            'v': v,
+        })

@@ -1,5 +1,5 @@
 Eth.Account API
-=======
+===============
 
 .. py:module:: web3.eth.account
     :synopsis: Validate signatures, and work with local private keys
@@ -159,10 +159,10 @@ The following methods are available on the ``Web3.eth.account`` namespace.
         >>> key = "\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
         >>> w3.eth.account.sign(message_text=msg, private_key=key)
         {'message': b'I\xe2\x99\xa5SF',
-         'messageHash': '0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750',
-         'r': '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3',
-         's': '0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce',
-         'signature': '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c',
+         'messageHash': HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
+         'r': HexBytes('0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3'),
+         's': HexBytes('0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce'),
+         'signature': HexBytes('0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'),
          'v': 28}
 
         # these are all equivalent:
@@ -290,7 +290,7 @@ The following methods are available on the ``Web3.eth.account`` namespace.
 
         >>> msg = "I♥SF"
         >>> w3.eth.account.hashMessage(text=msg)
-        '0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'
+        HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750')
 
 
 .. py:method:: Account.signTransaction(transaction_dict, private_key)
@@ -318,10 +318,10 @@ The following methods are available on the ``Web3.eth.account`` namespace.
             }
         >>> key = '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
         >>> signed = w3.eth.account.signTransaction(transaction, key)
-        {'hash': '0x6893a6ee8df79b0f5d64a180cd1ef35d030f3e296a5361cf04d02ce720d32ec5',
-         'r': '0x09ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9c',
-         'rawTransaction': '0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428',
-         's': '0x440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428',
+        {'hash': HexBytes('0x6893a6ee8df79b0f5d64a180cd1ef35d030f3e296a5361cf04d02ce720d32ec5'),
+         'r': HexBytes('0x09ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9c'),
+         'rawTransaction': HexBytes('0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428'),
+         's': HexBytes('0x440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428'),
          'v': 37}
         >>> w3.eth.sendRawTransaction(signed.rawTransaction)
 
@@ -344,7 +344,7 @@ The following methods are available on the ``Web3.eth.account`` namespace.
 .. _eth-account-key-convenience:
 
 Private Key Convenience Methods
----------
+---------------------------------
 
 The following are a set of methods that mirror :class:`Account` methods, but
 with a prefilled private key. They are accessible as a result of the :meth:`~Account.create` and

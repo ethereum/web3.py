@@ -4,9 +4,10 @@ from cytoolz.functoolz import (
 )
 
 from eth_utils import (
+    decode_hex,
+    force_obj_to_text,
     is_integer,
     is_string,
-    decode_hex,
 )
 
 from web3.middleware import (
@@ -50,6 +51,12 @@ TRANSACTION_FORMATTERS = {
 }
 
 
+def ethtestrpc_string_middleware(make_request, web3):
+    def middleware(method, params):
+        return force_obj_to_text(make_request(method, params))
+    return middleware
+
+
 ethtestrpc_middleware = construct_formatting_middleware(
     request_formatters={
         'eth_uninstallFilter': apply_formatter_at_index(to_integer_if_hex, 0),
@@ -90,6 +97,7 @@ def ethereum_tester_personal_remapper_middleware(make_request, web3):
 class EthereumTesterProvider(BaseProvider):
     middlewares = [
         ethtestrpc_middleware,
+        ethtestrpc_string_middleware,
         ethtestrpc_exception_middleware,
         ethereum_tester_personal_remapper_middleware,
     ]

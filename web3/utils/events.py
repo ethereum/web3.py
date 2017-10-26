@@ -18,12 +18,15 @@ from eth_abi.abi import (
 )
 
 from .abi import (
-    BASE_RETURN_NORMALIZERS,
     exclude_indexed_event_inputs,
     get_abi_input_names,
     get_indexed_event_inputs,
     map_abi_data,
     normalize_event_input_types,
+)
+
+from web3.utils.normalizers import (
+    BASE_RETURN_NORMALIZERS,
 )
 
 
@@ -137,7 +140,6 @@ def get_event_abi_types_for_decoding(event_inputs):
             yield input_abi['type']
 
 
-@coerce_return_to_text
 def get_event_data(event_abi, log_entry):
     """
     Given an event ABI and a log entry for that event, return the decoded

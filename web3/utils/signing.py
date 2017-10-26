@@ -3,6 +3,7 @@ import sys
 
 from web3.utils.encoding import (
     to_bytes,
+    to_int,
     to_hex,
 )
 
@@ -96,6 +97,13 @@ def extract_chain_id(raw_v):
         return (chain_id, v_bit + V_OFFSET)
 
 
+def to_standard_signature_bytes(ethereum_signature_bytes):
+    rs = ethereum_signature_bytes[:-1]
+    v = to_int(ethereum_signature_bytes[-1])
+    standard_v = to_standard_v(v)
+    return rs + to_bytes(standard_v)
+
+
 def to_standard_v(enhanced_v):
     (_chain, chain_naive_v) = extract_chain_id(enhanced_v)
     v_standard = chain_naive_v - V_OFFSET
@@ -113,8 +121,8 @@ def sign_transaction_hash(account, transaction_hash, chain_id):
     return (v, r, s)
 
 
-def sign_message_hash(key, msg_hash_hex):
-    signature = key.sign_msg_hash(to_bytes(hexstr=msg_hash_hex))
+def sign_message_hash(key, msg_hash):
+    signature = key.sign_msg_hash(msg_hash)
     (v_standard, r, s) = signature.vrs
     v = v_standard + V_OFFSET
     eth_signature_bytes = b''.join(map(to_bytes, (r, s, v)))

@@ -30,9 +30,10 @@ Providers
 
     Convenience API to access :py:class:`web3.providers.rpc.TestRPCProvider`
 
-.. py:method:: Web3.setProvider(provider)
+.. py:method:: Web3.setProviders(provider)
 
-    Updates the current web3 instance with the new provider.
+    Updates the current web3 instance with the new list of providers. It
+    also accepts a single provider.
 
 
 Encoding and Decoding Helpers
