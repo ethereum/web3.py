@@ -80,7 +80,7 @@ def test_past_events_filter_using_get_api(web3,
     assert event_data['blockHash'] == txn_receipt['blockHash']
     assert event_data['blockNumber'] == txn_receipt['blockNumber']
     assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
-    assert event_data['address'] == emitter.address
+    assert is_same_address(event_data['address'], emitter.address)
     assert event_data['event'] == 'LogNoArguments'
 
 
