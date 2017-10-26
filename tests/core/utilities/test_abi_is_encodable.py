@@ -9,9 +9,17 @@ from web3.utils.abi import (
     'value,_type,expected',
     (
         # bytes
-        (0, 'bytes32', False),
-        ('123', 'bytes2', False),
-        (True, 'bytes32', False),
+        ('12', 'bytes2', True),  # undersize OK
+        ('0x12', 'bytes2', True),  # with or without 0x OK
+        ('0123', 'bytes2', True),  # exact size OK
+        (b'\x12', 'bytes2', True),  # as bytes value undersize OK
+        (b'\x01\x23', 'bytes2', True),  # as bytes value exact size OK
+        (b'\x01\x23', 'bytes1', False),  # no oversize bytes
+        ('0123', 'bytes1', False),  # no oversize hex strings
+        ('1', 'bytes2', False),  # no odd length
+        ('0x1', 'bytes2', False),  # no odd length
+        (True, 'bytes32', False),  # no wrong types
+        (0, 'bytes32', False),  # no wrong types
         # int
         (-1 * 2**255, 'int256', False),
         (-1 * 2**255 + 1, 'int256', True),
