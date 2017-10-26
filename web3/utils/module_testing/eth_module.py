@@ -7,7 +7,6 @@ from eth_abi import (
 )
 
 from eth_utils import (
-    encode_hex,
     is_address,
     is_string,
     is_boolean,
@@ -18,6 +17,9 @@ from eth_utils import (
     remove_0x_prefix,
 )
 
+from web3.utils.datastructures import (
+    HexBytes,
+)
 
 UNKOWN_HASH = '0xdeadbeef00000000000000000000000000000000000000000000000000000000'
 
@@ -183,7 +185,8 @@ class EthModuleTest(object):
         txn_hash = web3.eth.sendRawTransaction(
             '0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a'  # noqa: E501
         )
-        assert txn_hash == '0x1f80f8ab5f12a45be218f76404bda64d37270a6f4f86ededd0eb599f80548c13'
+        expected = HexBytes('0x1f80f8ab5f12a45be218f76404bda64d37270a6f4f86ededd0eb599f80548c13')
+        assert txn_hash == expected
 
     def test_eth_call(self, web3, math_contract):
         coinbase = web3.eth.coinbase
@@ -259,7 +262,7 @@ class EthModuleTest(object):
     def test_eth_getTransactionByHash(self, web3, mined_txn_hash):
         transaction = web3.eth.getTransaction(mined_txn_hash)
         assert is_dict(transaction)
-        assert transaction['hash'] == mined_txn_hash
+        assert transaction['hash'] == HexBytes(mined_txn_hash)
 
     def test_eth_getTransactionByHash_contract_creation(self,
                                                         web3,
@@ -271,20 +274,20 @@ class EthModuleTest(object):
     def test_eth_getTransactionByBlockHashAndIndex(self, web3, block_with_txn, mined_txn_hash):
         transaction = web3.eth.getTransactionFromBlock(block_with_txn['hash'], 0)
         assert is_dict(transaction)
-        assert transaction['hash'] == mined_txn_hash
+        assert transaction['hash'] == HexBytes(mined_txn_hash)
 
     def test_eth_getTransactionByBlockNumberAndIndex(self, web3, block_with_txn, mined_txn_hash):
         transaction = web3.eth.getTransactionFromBlock(block_with_txn['number'], 0)
         assert is_dict(transaction)
-        assert transaction['hash'] == mined_txn_hash
+        assert transaction['hash'] == HexBytes(mined_txn_hash)
 
     def test_eth_getTransactionReceipt_mined(self, web3, block_with_txn, mined_txn_hash):
         receipt = web3.eth.getTransactionReceipt(mined_txn_hash)
         assert is_dict(receipt)
         assert receipt['blockNumber'] == block_with_txn['number']
-        assert receipt['blockHash'] == encode_hex(block_with_txn['hash'])
+        assert receipt['blockHash'] == block_with_txn['hash']
         assert receipt['transactionIndex'] == 0
-        assert receipt['transactionHash'] == mined_txn_hash
+        assert receipt['transactionHash'] == HexBytes(mined_txn_hash)
 
     def test_eth_getTransactionReceipt_unmined(self, web3, unlocked_account):
         txn_hash = web3.eth.sendTransaction({
@@ -305,19 +308,19 @@ class EthModuleTest(object):
         receipt = web3.eth.getTransactionReceipt(txn_hash_with_log)
         assert is_dict(receipt)
         assert receipt['blockNumber'] == block_with_txn_with_log['number']
-        assert receipt['blockHash'] == encode_hex(block_with_txn_with_log['hash'])
+        assert receipt['blockHash'] == block_with_txn_with_log['hash']
         assert receipt['transactionIndex'] == 0
-        assert receipt['transactionHash'] == txn_hash_with_log
+        assert receipt['transactionHash'] == HexBytes(txn_hash_with_log)
 
         assert len(receipt['logs']) == 1
         log_entry = receipt['logs'][0]
 
         assert log_entry['blockNumber'] == block_with_txn_with_log['number']
-        assert log_entry['blockHash'] == encode_hex(block_with_txn_with_log['hash'])
+        assert log_entry['blockHash'] == block_with_txn_with_log['hash']
         assert log_entry['logIndex'] == 0
         assert is_same_address(log_entry['address'], emitter_contract.address)
         assert log_entry['transactionIndex'] == 0
-        assert log_entry['transactionHash'] == txn_hash_with_log
+        assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
 
     def test_eth_getUncleByBlockHashAndIndex(self, web3):
         # TODO: how do we make uncles....

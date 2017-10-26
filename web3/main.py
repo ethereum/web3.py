@@ -3,7 +3,6 @@ from __future__ import absolute_import
 from eth_utils import (
     apply_to_return_value,
     add_0x_prefix,
-    encode_hex,
     from_wei,
     is_address,
     is_checksum_address,
@@ -39,6 +38,9 @@ from web3.manager import (
     RequestManager,
 )
 
+from web3.utils.datastructures import (
+    HexBytes,
+)
 from web3.utils.encoding import (
     hex_encode_abi_type,
     to_bytes,
@@ -111,7 +113,7 @@ class Web3(object):
         self.manager.setProvider(providers)
 
     @staticmethod
-    @apply_to_return_value(encode_hex)
+    @apply_to_return_value(HexBytes)
     def sha3(primitive=None, text=None, hexstr=None):
         if isinstance(primitive, (bytes, int, type(None))):
             input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
