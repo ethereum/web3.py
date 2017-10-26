@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from eth_utils import (
-    is_address,
+    is_checksum_address,
     is_list_like,
     is_same_address,
 )
@@ -26,7 +26,7 @@ class PersonalModuleTest(object):
         assert is_list_like(accounts)
         assert len(accounts) > 0
         assert all((
-            is_address(item)
+            is_checksum_address(item)
             for item
             in accounts
         ))
@@ -50,7 +50,7 @@ class PersonalModuleTest(object):
 
     def test_personal_newAccount(self, web3):
         new_account = web3.personal.newAccount(PASSWORD)
-        assert is_address(new_account)
+        assert is_checksum_address(new_account)
 
     def test_personal_sendTransaction(self,
                                       web3,
@@ -67,8 +67,8 @@ class PersonalModuleTest(object):
         txn_hash = web3.personal.sendTransaction(txn_params, unlockable_account_pw)
         assert txn_hash
         transaction = web3.eth.getTransaction(txn_hash)
-        assert is_same_address(transaction['from'], txn_params['from'])
-        assert is_same_address(transaction['to'], txn_params['to'])
+        assert transaction['from'] == txn_params['from']
+        assert transaction['to'] == txn_params['to']
         assert transaction['gas'] == txn_params['gas']
         assert transaction['value'] == txn_params['value']
         assert transaction['gasPrice'] == txn_params['gasPrice']

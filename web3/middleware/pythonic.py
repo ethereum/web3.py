@@ -26,6 +26,7 @@ from eth_utils import (
     is_bytes,
     is_list_like,
     encode_hex,
+    remove_0x_prefix,
 )
 
 from web3.utils.abi import (
@@ -33,6 +34,10 @@ from web3.utils.abi import (
 )
 from web3.utils.datastructures import (
     HexBytes,
+)
+from web3.utils.encoding import (
+    hexstr_if_str,
+    to_hex,
 )
 from web3.utils.formatters import (
     apply_formatter_if,
@@ -345,6 +350,10 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
         'eth_estimateGas': apply_formatter_at_index(transaction_params_formatter, 0),
         # personal
+        'personal_importRawKey': apply_formatter_at_index(
+            compose(remove_0x_prefix, hexstr_if_str(to_hex)),
+            0,
+        ),
         'personal_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
         'personal_sign': apply_formatter_at_index(encode_hex, 0),
         'personal_ecRecover': apply_formatter_at_index(encode_hex, 0),
@@ -397,6 +406,9 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_syncing': apply_formatter_if(is_not_false, syncing_formatter),
         # personal
         'personal_importRawKey': to_checksum_address,
+        'personal_listAccounts': apply_formatter_to_array(to_checksum_address),
+        'personal_newAccount': to_checksum_address,
+        'personal_sendTransaction': to_hexbytes(32),
         # SHH
         'shh_getFilterChanges': apply_formatter_to_array(whisper_log_formatter),
         'shh_getMessages': apply_formatter_to_array(whisper_log_formatter),
