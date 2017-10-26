@@ -8,13 +8,13 @@ from eth_abi import (
 
 from eth_utils import (
     is_address,
+    is_bytes,
     is_string,
     is_boolean,
     is_dict,
     is_integer,
     is_list_like,
     is_same_address,
-    remove_0x_prefix,
 )
 
 from web3.utils.datastructures import (
@@ -142,8 +142,8 @@ class EthModuleTest(object):
 
     def test_eth_sign(self, web3, unlocked_account):
         signature = web3.eth.sign(unlocked_account, text='Message tö sign. Longer than hash!')
-        assert is_string(signature)
-        assert len(remove_0x_prefix(signature)) == 130
+        assert is_bytes(signature)
+        assert len(signature) == 32 + 32 + 1
 
         # test other formats
         hexsign = web3.eth.sign(

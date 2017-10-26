@@ -45,7 +45,7 @@ def abi_bytes_to_hex(abi_type, data):
     base, sub, arrlist = process_type(abi_type)
     if base == 'bytes' and not arrlist:
         bytes_data = hexstr_if_str(to_bytes, data)
-        if len(bytes_data) != int(sub):
+        if sub and len(bytes_data) != int(sub):
             raise ValueError(
                 "This value was expected to be %d bytes, but instead was %d: %r" % (
                     (sub, len(bytes_data), data)
