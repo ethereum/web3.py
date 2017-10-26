@@ -39,13 +39,13 @@ def is_testrpc_available():
         return False
 
 
-to_integer_if_hex = apply_formatter_if(hex_to_integer, is_string)
+to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
 
 
 TRANSACTION_FORMATTERS = {
     'to': apply_formatter_if(
-        static_return(None),
         compose(complement(bool), decode_hex),
+        static_return(None),
     ),
 }
 
@@ -58,11 +58,11 @@ ethtestrpc_middleware = construct_formatting_middleware(
     },
     result_formatters={
         # Eth
-        'eth_newFilter': apply_formatter_if(hex, is_integer),
-        'eth_protocolVersion': apply_formatter_if(str, is_integer),
+        'eth_newFilter': apply_formatter_if(is_integer, hex),
+        'eth_protocolVersion': apply_formatter_if(is_integer, str),
         'eth_getTransactionByHash': apply_formatters_to_dict(TRANSACTION_FORMATTERS),
         # Net
-        'net_version': apply_formatter_if(str, is_integer),
+        'net_version': apply_formatter_if(is_integer, str),
     },
 )
 
