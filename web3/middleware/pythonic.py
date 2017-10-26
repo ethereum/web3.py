@@ -320,7 +320,7 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getBlockByNumber': apply_formatter_if(block_formatter, is_not_null),
         'eth_getBlockTransactionCountByHash': to_integer_if_hex,
         'eth_getBlockTransactionCountByNumber': to_integer_if_hex,
-        'eth_getCode': to_ascii_if_bytes,
+        'eth_getCode': HexBytes,
         'eth_getFilterChanges': filter_result_formatter,
         'eth_getFilterLogs': filter_result_formatter,
         'eth_getTransactionByBlockHashAndIndex': apply_formatter_if(

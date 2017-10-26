@@ -9,8 +9,6 @@ from eth_utils import (
     function_abi_to_4byte_selector,
     encode_hex,
     add_0x_prefix,
-    remove_0x_prefix,
-    force_bytes,
     coerce_return_to_text,
     force_obj_to_bytes,
     to_normalized_address,
@@ -46,11 +44,17 @@ from web3.utils.abi import (
     merge_args_and_kwargs,
     check_if_arguments_can_be_encoded,
 )
+from web3.utils.datastructures import (
+    HexBytes,
+)
 from web3.utils.decorators import (
     combomethod,
 )
 from web3.utils.empty import (
     empty,
+)
+from web3.utils.encoding import (
+    to_hex,
 )
 from web3.utils.events import (
     get_event_data,
@@ -78,7 +82,7 @@ DEPRECATED_SIGNATURE_MESSAGE = (
     "'Contract.factory(...)' class methog."
 )
 
-ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", ""]
+ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 
 class Contract(object):
@@ -149,6 +153,11 @@ class Contract(object):
         elif key == 'address':
             validate_address(val)
             return to_normalized_address(val)
+        elif key in {
+            'bytecode_runtime',
+            'bytecode',
+        }:
+            return HexBytes(val)
         else:
             return val
 
@@ -633,10 +642,7 @@ class Contract(object):
             )
 
         if data:
-            return add_0x_prefix(
-                force_bytes(remove_0x_prefix(data)) +
-                force_bytes(remove_0x_prefix(encode_hex(encoded_arguments)))
-            )
+            return to_hex(HexBytes(data) + encoded_arguments)
         else:
             return encode_hex(encoded_arguments)
 
@@ -665,7 +671,7 @@ class Contract(object):
                 cls._encode_abi(constructor_abi, arguments, data=cls.bytecode)
             )
         else:
-            deploy_data = add_0x_prefix(cls.bytecode)
+            deploy_data = to_hex(cls.bytecode)
 
         return deploy_data
 

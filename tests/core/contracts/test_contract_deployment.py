@@ -2,7 +2,7 @@
 import pytest
 
 from eth_utils import (
-    force_bytes,
+    decode_hex,
 )
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
@@ -20,7 +20,7 @@ def test_contract_deployment_no_constructor(web3, MathContract,
     contract_address = txn_receipt['contractAddress']
 
     blockchain_code = web3.eth.getCode(contract_address)
-    assert force_bytes(blockchain_code) == force_bytes(MATH_RUNTIME)
+    assert blockchain_code == decode_hex(MATH_RUNTIME)
 
 
 def test_contract_deployment_with_constructor_without_args(web3,
@@ -35,7 +35,7 @@ def test_contract_deployment_with_constructor_without_args(web3,
     contract_address = txn_receipt['contractAddress']
 
     blockchain_code = web3.eth.getCode(contract_address)
-    assert force_bytes(blockchain_code) == force_bytes(SIMPLE_CONSTRUCTOR_RUNTIME)
+    assert blockchain_code == decode_hex(SIMPLE_CONSTRUCTOR_RUNTIME)
 
 
 def test_contract_deployment_with_constructor_with_arguments(web3,
@@ -50,7 +50,7 @@ def test_contract_deployment_with_constructor_with_arguments(web3,
     contract_address = txn_receipt['contractAddress']
 
     blockchain_code = web3.eth.getCode(contract_address)
-    assert force_bytes(blockchain_code) == force_bytes(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
+    assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
 
 
 def test_contract_deployment_with_constructor_with_address_argument(web3,
@@ -67,4 +67,4 @@ def test_contract_deployment_with_constructor_with_address_argument(web3,
     contract_address = txn_receipt['contractAddress']
 
     blockchain_code = web3.eth.getCode(contract_address)
-    assert force_bytes(blockchain_code) == force_bytes(WITH_CONSTRUCTOR_ADDRESS_RUNTIME)
+    assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ADDRESS_RUNTIME)
