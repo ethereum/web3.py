@@ -38,11 +38,12 @@ def test_error_when_no_function_name_match(web3):
 @pytest.mark.parametrize(
     'arguments,expected_types',
     (
-        # ([], []),  # TODO: enable
-        (['arst'], ['bytes32']),
-        # ([1234567890], ['uint256']),  # TODO: enable
+        ([], []),
+        ([b'arst'], ['bytes32']),
+        (['0xf00b47'], ['bytes32']),
+        ([1234567890], ['uint256']),
         # ([255], ['uint8']),  # TODO: enable
-        # ([-1], ['int8']),  # TODO: enable
+        ([-1], ['int8']),
     )
 )
 def test_finds_function_with_matching_args(web3, arguments, expected_types):

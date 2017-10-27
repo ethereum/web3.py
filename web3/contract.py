@@ -9,10 +9,7 @@ from eth_utils import (
     function_abi_to_4byte_selector,
     encode_hex,
     add_0x_prefix,
-    remove_0x_prefix,
-    force_bytes,
     coerce_return_to_text,
-    force_obj_to_bytes,
     to_normalized_address,
 )
 
@@ -46,11 +43,17 @@ from web3.utils.abi import (
     merge_args_and_kwargs,
     check_if_arguments_can_be_encoded,
 )
+from web3.utils.datastructures import (
+    HexBytes,
+)
 from web3.utils.decorators import (
     combomethod,
 )
 from web3.utils.empty import (
     empty,
+)
+from web3.utils.encoding import (
+    to_hex,
 )
 from web3.utils.events import (
     get_event_data,
@@ -64,6 +67,9 @@ from web3.utils.filters import (
 )
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
+    abi_bytes_to_hex,
+    abi_string_to_hex,
+    hexstrs_to_bytes,
 )
 from web3.utils.validation import (
     validate_abi,
@@ -78,7 +84,7 @@ DEPRECATED_SIGNATURE_MESSAGE = (
     "'Contract.factory(...)' class methog."
 )
 
-ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", ""]
+ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 
 class Contract(object):
@@ -149,6 +155,11 @@ class Contract(object):
         elif key == 'address':
             validate_address(val)
             return to_normalized_address(val)
+        elif key in {
+            'bytecode_runtime',
+            'bytecode',
+        }:
+            return HexBytes(val)
         else:
             return val
 
@@ -231,7 +242,6 @@ class Contract(object):
     #  Public API
     #
     @classmethod
-    @coerce_return_to_text
     def encodeABI(cls, fn_name, args=None, kwargs=None, data=None):
         """
         Encodes the arguments using the Ethereum ABI for the contract function
@@ -622,9 +632,15 @@ class Contract(object):
             )
 
         try:
+            normalizers = [abi_bytes_to_hex, abi_string_to_hex, hexstrs_to_bytes]
+            normalized_arguments = map_abi_data(
+                normalizers,
+                argument_types,
+                arguments,
+            )
             encoded_arguments = encode_abi(
                 argument_types,
-                force_obj_to_bytes(arguments),
+                normalized_arguments,
             )
         except EncodingError as e:
             raise TypeError(
@@ -633,15 +649,11 @@ class Contract(object):
             )
 
         if data:
-            return add_0x_prefix(
-                force_bytes(remove_0x_prefix(data)) +
-                force_bytes(remove_0x_prefix(encode_hex(encoded_arguments)))
-            )
+            return to_hex(HexBytes(data) + encoded_arguments)
         else:
             return encode_hex(encoded_arguments)
 
     @classmethod
-    @coerce_return_to_text
     def _encode_transaction_data(cls, fn_name, args=None, kwargs=None):
         fn_abi, fn_selector, fn_arguments = cls._get_function_info(
             fn_name, args, kwargs,
@@ -665,7 +677,7 @@ class Contract(object):
                 cls._encode_abi(constructor_abi, arguments, data=cls.bytecode)
             )
         else:
-            deploy_data = add_0x_prefix(cls.bytecode)
+            deploy_data = to_hex(cls.bytecode)
 
         return deploy_data
 

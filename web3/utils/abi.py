@@ -12,9 +12,10 @@ from cytoolz import (
 )
 
 from eth_utils import (
-    coerce_args_to_text,
+    decode_hex,
     is_address,
     is_boolean,
+    is_hex,
     is_integer,
     is_list_like,
     is_string,
@@ -133,7 +134,13 @@ def is_encodable(_type, value):
             return True
 
         max_length = int(sub)
-        return len(value) <= max_length
+        if isinstance(value, str):
+            decodable = is_hex(value) and len(value) % 2 == 0
+            return decodable and len(decode_hex(value)) <= max_length
+        elif isinstance(value, bytes):
+            return len(value) <= max_length
+        else:
+            False
     elif base == 'address':
         if not is_address(value):
             return False
@@ -168,7 +175,6 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     )
 
 
-@coerce_args_to_text
 def merge_args_and_kwargs(function_abi, args, kwargs):
     if len(args) + len(kwargs) != len(function_abi['inputs']):
         raise TypeError(

@@ -4,6 +4,10 @@ from web3.exceptions import (
     BadFunctionCallOutput,
 )
 
+from web3.utils.datastructures import (
+    HexBytes,
+)
+
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
@@ -39,20 +43,22 @@ def address_contract(web3, WithConstructorAddressArgumentsContract):
     return _address_contract
 
 
-@pytest.fixture()
-def bytes_contract(web3, BytesContract):
-    deploy_txn = BytesContract.deploy(args=['\x04\x06'])
+@pytest.fixture(params=[b'\x04\x06', '0x0406', '0406'])
+def bytes_contract(web3, BytesContract, request):
+    deploy_txn = BytesContract.deploy(args=[request.param])
     deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     _bytes_contract = BytesContract(address=deploy_receipt['contractAddress'])
     return _bytes_contract
 
 
-@pytest.fixture()
-def bytes32_contract(web3, Bytes32Contract):
-    deploy_txn = Bytes32Contract.deploy(
-        args=['\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06']  # noqa: E501
-    )
+@pytest.fixture(params=[
+    '0x0406040604060406040604060406040604060406040604060406040604060406',
+    '0406040604060406040604060406040604060406040604060406040604060406',
+    HexBytes('0406040604060406040604060406040604060406040604060406040604060406'),
+])
+def bytes32_contract(web3, Bytes32Contract, request):
+    deploy_txn = Bytes32Contract.deploy(args=[request.param])
     deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     _bytes_contract = Bytes32Contract(address=deploy_receipt['contractAddress'])

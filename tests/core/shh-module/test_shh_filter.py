@@ -23,8 +23,8 @@ def test_shh_sync_filter(web3, skip_if_testrpc):
     received_messages = shh_filter.get_new_entries()
     assert len(received_messages) > 1
 
-    for message in received_messages:
-        assert web3.toBytes(message["payload"]) in payloads
+    for message in recieved_messages:
+        assert message["payload"] in payloads
 
 
 def test_shh_async_filter(web3, skip_if_testrpc):
@@ -51,4 +51,4 @@ def test_shh_async_filter(web3, skip_if_testrpc):
     assert len(received_messages) > 1
 
     for message in received_messages:
-        assert web3.toBytes(message["payload"]) in payloads
+        assert message["payload"] in payloads
