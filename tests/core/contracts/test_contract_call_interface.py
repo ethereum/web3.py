@@ -1,6 +1,4 @@
-import itertools
 import pytest
-from unittest.mock import patch
 
 from web3.exceptions import (
     BadFunctionCallOutput,
@@ -9,6 +7,9 @@ from web3.exceptions import (
 
 from web3.utils.datastructures import (
     HexBytes,
+)
+from web3.utils.ens import (
+    ens_addresses,
 )
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
@@ -125,11 +126,9 @@ def test_call_read_address_variable(address_contract):
 
 
 def test_init_with_ens_name_arg(web3, WithConstructorAddressArgumentsContract):
-    with patch('web3.contract.ENS.fromWeb3') as MockENS:
-        ens = MockENS.return_value
-        ens.address.return_value = "0xbb9bc244d798123fde783fcc1c72d3bb8c189413"
+    with ens_addresses([("arg-name.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")]):
         address_contract = deploy(web3, WithConstructorAddressArgumentsContract, args=[
-            "executiveofficerfortheweek.eth",
+            "arg-name.eth",
         ])
 
     assert address_contract.call().testAddr() == "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413"
@@ -156,50 +155,87 @@ def test_call_get_bytes32_value(bytes32_contract):
 
 
 @pytest.mark.parametrize(
-    'value',
+    'value, expected',
     [
-        '0x' + '11' * 20,
-        ['0x' + '11' * 20, '0x' + '22' * 20],
+        (
+            '0x' + '11' * 20,
+            '0x' + '11' * 20,
+        ),
+        (
+            '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
+            InvalidAddress,
+        ),
+        (
+            '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+            '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+        ),
     ]
 )
-def test_call_address_reflector_raw(address_reflector_contract, value):
-    assert address_reflector_contract.call().reflect(value) == value
+def test_call_address_reflector_with_address(address_reflector_contract, value, expected):
+    if not isinstance(expected, str):
+        with pytest.raises(expected):
+            address_reflector_contract.call().reflect(value)
+    else:
+        assert address_reflector_contract.call().reflect(value) == expected
+
+
+@pytest.mark.parametrize(
+    'value, expected',
+    [
+        (
+            ['0x' + '11' * 20, '0x' + '22' * 20],
+            ['0x' + '11' * 20, '0x' + '22' * 20],
+        ),
+        (
+            ['0x' + '11' * 20, '0x' + 'aa' * 20],
+            InvalidAddress
+        ),
+        (
+            [
+                '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4',
+                '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+            ],
+            [
+                '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4',
+                '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+            ],
+        ),
+    ]
+)
+def test_call_address_list_reflector_with_address(address_reflector_contract, value, expected):
+    if not isinstance(expected, list):
+        with pytest.raises(expected):
+            address_reflector_contract.call().reflect(value)
+    else:
+        assert address_reflector_contract.call().reflect(value) == expected
 
 
 def test_call_address_reflector_single_name(address_reflector_contract):
-    with patch('web3.contract.ENS.fromWeb3') as MockENS:
-        ens = MockENS.return_value
-        ens.address.return_value = '0xbb9bc244d798123fde783fcc1c72d3bb8c189413'
-
+    with ens_addresses([("dennisthepeasant.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")]):
         result = address_reflector_contract.call().reflect('dennisthepeasant.eth')
         assert result == '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413'
 
 
-def test_call_reject_invalid_ens_name(address_reflector_contract):
-    with patch('web3.contract.ENS.fromWeb3') as MockENS:
-        ens = MockENS.return_value
-        ens.address.return_value = None
-
-        with pytest.raises(ValueError):
-            address_reflector_contract.call().reflect('typ0.eth')
-
-
 def test_call_address_reflector_name_array(address_reflector_contract):
-    names = ['autonomouscollective.eth', 'wedonthavealord.eth']
+    names = [
+        'autonomouscollective.eth',
+        'wedonthavealord.eth',
+    ]
+    addresses = [
+        '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+        '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4',
+    ]
 
-    def address_series():
-        for nibble in itertools.count():
-            assert nibble < 10
-            yield '0x' + str(nibble) * 40
-
-    resolve_addrs = address_series()
-    with patch('web3.contract.ENS.fromWeb3') as MockENS:
-        ens = MockENS.return_value
-        ens.address.side_effect = lambda name: next(resolve_addrs)
+    with ens_addresses(zip(names, addresses)):
         result = address_reflector_contract.call().reflect(names)
 
-    for addr, expected in zip(result, address_series()):
-        assert addr == expected
+    assert addresses == result
+
+
+def test_call_reject_invalid_ens_name(address_reflector_contract):
+    with ens_addresses([]):
+        with pytest.raises(ValueError):
+            address_reflector_contract.call().reflect('typ0.eth')
 
 
 def test_call_missing_function(mismatched_math_contract):

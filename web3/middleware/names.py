@@ -41,10 +41,9 @@ def address_getter(web3):
                 return val
         return reject_name
     else:
-        ens = ENS.fromWeb3(web3)
-
         def to_address(name):
             if is_ens_name(name):
+                ens = ENS.fromWeb3(web3)
                 address = validate_name_has_address(ens, name)
             else:
                 address = name
