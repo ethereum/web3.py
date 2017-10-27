@@ -43,6 +43,6 @@ def test_labelhash(ens, label, expected_hash):
             ens.labelhash(label)
     else:
         labelhash = ens.labelhash(label)
-        assert type(labelhash) == bytes
+        assert isinstance(labelhash, bytes)
         hash_hex = Web3.toHex(labelhash)
         assert hash_hex == expected_hash

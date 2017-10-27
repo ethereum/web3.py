@@ -102,7 +102,7 @@ def ens_setup():
     ens_key = accounts.pop()
 
     # create ENS contract
-    eth_labelhash = w3.toBytes(hexstr=w3.sha3(text='eth'))
+    eth_labelhash = w3.sha3(text='eth')
     eth_namehash = bytes32(0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae)
     resolver_namehash = bytes32(0xfdd5d5de6dd63db72bbc2d487944ba13bf775b50a80805fe6fcaba9b0fba88f5)
     reverse_tld_namehash = bytes32(0xa097f6721ce401e757d1223a763fef49b8b5f90bb18567ddb86fd205dff71d34)  # noqa: E501
@@ -120,7 +120,7 @@ def ens_setup():
     )
     ens_contract.transact({'from': ens_key}).setSubnodeOwner(
         eth_namehash,
-        w3.toBytes(hexstr=w3.sha3(text='resolver')),
+        w3.sha3(text='resolver'),
         ens_key
     )
     ens_contract.transact({'from': ens_key}).setResolver(resolver_namehash, public_resolver.address)
@@ -155,12 +155,12 @@ def ens_setup():
     # set 'addr.reverse' to resolve to reverse registrar
     ens_contract.transact({'from': ens_key}).setSubnodeOwner(
         b'\0' * 32,
-        w3.toBytes(hexstr=w3.sha3(text='reverse')),
+        w3.sha3(text='reverse'),
         ens_key
     )
     ens_contract.transact({'from': ens_key}).setSubnodeOwner(
         reverse_tld_namehash,
-        w3.toBytes(hexstr=w3.sha3(text='addr')),
+        w3.sha3(text='addr'),
         ens_key
     )
     ens_contract.transact({'from': ens_key}).setResolver(reverser_namehash, public_resolver.address)
@@ -172,7 +172,7 @@ def ens_setup():
     # set owner of tester.eth to an account controlled by tests
     ens_contract.transact({'from': ens_key}).setSubnodeOwner(
         eth_namehash,
-        w3.toBytes(hexstr=w3.sha3(text='tester')),
+        w3.sha3(text='tester'),
         w3.eth.accounts[2]  # note that this does not have to be the default, only in the list
     )
     # make the registrar the owner of the 'eth' name
@@ -184,7 +184,7 @@ def ens_setup():
     # make the reverse registrar the owner of the 'addr.reverse' name
     ens_contract.transact({'from': ens_key}).setSubnodeOwner(
         reverse_tld_namehash,
-        w3.toBytes(hexstr=w3.sha3(text='addr')),
+        w3.sha3(text='addr'),
         reverse_registrar.address
     )
 

@@ -143,8 +143,7 @@ def label_to_hash(label):
     label = normalize_name(label)
     if '.' in label:
         raise ValueError("Cannot generate hash for label %r with a '.'" % label)
-    sha_hex = Web3().sha3(text=label)
-    return Web3().toBytes(hexstr=sha_hex)
+    return Web3().sha3(text=label)
 
 
 def name_to_hash(name):
@@ -155,8 +154,7 @@ def name_to_hash(name):
             labelhash = label_to_hash(label)
             assert isinstance(labelhash, bytes)
             assert isinstance(node, bytes)
-            sha_hex = Web3().sha3(node + labelhash)
-            node = Web3().toBytes(hexstr=sha_hex)
+            node = Web3().sha3(node + labelhash)
     return node
 
 
