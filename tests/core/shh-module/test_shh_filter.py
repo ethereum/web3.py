@@ -25,4 +25,4 @@ def test_shh_filter(web3, skip_if_testrpc):
     assert len(recieved_messages) > 1
 
     for message in recieved_messages:
-        assert web3.toBytes(message["payload"]) in payloads
+        assert message["payload"] in payloads

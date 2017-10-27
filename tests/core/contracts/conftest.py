@@ -2,7 +2,6 @@ import pytest
 import json
 
 from eth_utils import (
-    encode_hex,
     event_signature_to_log_topic,
 )
 
@@ -318,7 +317,7 @@ def emitter_event_ids():
 
 
 def _encode_to_topic(event_signature):
-    return encode_hex(event_signature_to_log_topic(event_signature))
+    return event_signature_to_log_topic(event_signature)
 
 
 class LogTopics(object):

@@ -135,6 +135,18 @@ TRANSACTION_FORMATTERS = {
 transaction_formatter = apply_formatters_to_dict(TRANSACTION_FORMATTERS)
 
 
+WHISPER_LOG_FORMATTERS = {
+    'from': to_hexbytes(60),
+    'hash': to_hexbytes(32),
+    'payload': HexBytes,
+    'to': to_hexbytes(60),
+    'topics': apply_formatter_to_array(HexBytes),
+}
+
+
+whisper_log_formatter = apply_formatters_to_dict(WHISPER_LOG_FORMATTERS)
+
+
 LOG_ENTRY_FORMATTERS = {
     'blockHash': apply_formatter_if(to_hexbytes(32), is_not_null),
     'blockNumber': apply_formatter_if(to_integer_if_hex, is_not_null),
@@ -142,7 +154,7 @@ LOG_ENTRY_FORMATTERS = {
     'transactionHash': apply_formatter_if(to_hexbytes(32), is_not_null),
     'logIndex': to_integer_if_hex,
     'address': to_checksum_address,
-    'topics': apply_formatter_to_array(to_ascii_if_bytes),
+    'topics': apply_formatter_to_array(to_hexbytes(32)),
     'data': to_ascii_if_bytes,
 }
 
@@ -351,6 +363,10 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_sign': HexBytes,
         'eth_syncing': apply_formatter_if(syncing_formatter, is_not_false),
         # SHH
+        'shh_getFilterChanges': apply_formatter_to_array(whisper_log_formatter),
+        'shh_getMessages': apply_formatter_to_array(whisper_log_formatter),
+        'shh_newIdentity': to_hexbytes(60),
+        'shh_newGroup': to_hexbytes(60),
         'shh_version': to_integer_if_hex,
         # Transaction Pool
         'txpool_content': transaction_pool_content_formatter,
