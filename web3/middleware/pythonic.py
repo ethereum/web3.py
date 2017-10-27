@@ -44,8 +44,9 @@ from web3.utils.formatters import (
     integer_to_hex,
 )
 from web3.utils.normalizers import (
-    abi_int_to_hex,
     abi_bytes_to_hex,
+    abi_int_to_hex,
+    abi_string_to_hex,
 )
 
 from .formatting import (
@@ -265,6 +266,7 @@ filter_result_formatter = apply_one_of_formatters((
 format_abi_parameters = map_abi_data([
     abi_bytes_to_hex,
     abi_int_to_hex,
+    abi_string_to_hex,
 ])
 
 
