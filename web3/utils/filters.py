@@ -1,5 +1,6 @@
 import re
 import random
+import warnings
 
 from eth_utils import (
     is_string,
@@ -93,6 +94,15 @@ class Filter(GreenletThread):
             else:
                 sleep(self.poll_interval)
 
+    def _warn_async_deprecated(self, method_name):
+        warnings.warn(DeprecationWarning(
+            "Asynchronous filters have been deprecated "
+            "and `{0}` will be removed from the Filter class "
+            "in future releases.  Update your code to work "
+            "syncronously or handle asynchrony explicitly with a "
+            "third party library.".format(method_name)
+        ))
+
     def format_entry(self, entry):
         """
         Hook for subclasses to change the format of the value that is passed
@@ -106,7 +116,24 @@ class Filter(GreenletThread):
         """
         return True
 
+    def _filter_valid_entries(self, entries):
+        return filter(self.is_valid_entry, entries)
+
+    def get_new_entries(self):
+        self._ensure_not_running("get_new_entries")
+
+        log_entries = self._filter_valid_entries(self.web3.eth.getFilterChanges(self.filter_id))
+        return self._format_log_entries(log_entries)
+
+    def get_all_entries(self):
+        self._ensure_not_running("get_all_entries")
+
+        log_entries = self._filter_valid_entries(self.web3.eth.getFilterLogs(self.filter_id))
+        return self._format_log_entries(log_entries)
+
     def watch(self, *callbacks):
+        self._warn_async_deprecated("watch")
+
         if self.stopped:
             raise ValueError("Cannot watch on a filter that has been stopped")
         self.callbacks.extend(callbacks)
@@ -116,6 +143,8 @@ class Filter(GreenletThread):
         sleep(0)
 
     def stop_watching(self, timeout=0):
+        self._warn_async_deprecated("stop_watching")
+
         self.running = False
         self.stopped = True
         self.web3.eth.uninstallFilter(self.filter_id)
@@ -162,16 +191,14 @@ class LogFilter(Filter):
             self.set_data_filters(kwargs.pop('data_filter_set'))
         super(LogFilter, self).__init__(*args, **kwargs)
 
-    def get(self, only_changes=True):
+    def _ensure_not_running(self, method_name):
         if self.running:
             raise ValueError(
-                "Cannot call `get` on a filter object which is actively watching"
+                "Cannot call `{0}` on a filter object which is actively watching"
+                .format(method_name)
             )
-        if only_changes:
-            log_entries = self.web3.eth.getFilterChanges(self.filter_id)
-        else:
-            log_entries = self.web3.eth.getFilterLogs(self.filter_id)
 
+    def _format_log_entries(self, log_entries=None):
         if log_entries is None:
             log_entries = []
 
@@ -179,6 +206,21 @@ class LogFilter(Filter):
             self.format_entry(log_entry) for log_entry in log_entries
         ]
         return formatted_log_entries
+
+    def get(self, only_changes=True):
+        warnings.warn(DeprecationWarning(
+            "LogFilter.get has been deprecated and "
+            "will be removed from the LogFilter class in future releases. "
+            "Update your code to use the new methods: "
+            "LogFilter.get_new_entries and LogFilter.get_all_entries."
+        ))
+
+        self._ensure_not_running("get")
+
+        if only_changes:
+            return self.get_new_entries()
+
+        return self.get_all_entries()
 
     def format_entry(self, entry):
         if self.log_entry_formatter:
@@ -234,6 +276,8 @@ class ShhFilter(Filter):
                 sleep(self.poll_interval)
 
     def stop_watching(self, timeout=0):
+        self._warn_async_deprecated("stop_watching")
+
         self.running = False
         self.stopped = True
         self.web3.shh.uninstallFilter(self.filter_id)
