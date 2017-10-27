@@ -296,6 +296,7 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getUncleCountByBlockHash': format_abi_parameters(['bytes32']),
         'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
+        'eth_sign': format_abi_parameters(['address', 'bytes']),
         'eth_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
         'eth_estimateGas': apply_formatter_at_index(transaction_params_formatter, 0),
         # personal
@@ -323,6 +324,7 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getCode': HexBytes,
         'eth_getFilterChanges': filter_result_formatter,
         'eth_getFilterLogs': filter_result_formatter,
+        'eth_getStorageAt': HexBytes,
         'eth_getTransactionByBlockHashAndIndex': apply_formatter_if(
             transaction_formatter,
             is_not_null,
@@ -346,6 +348,7 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'eth_sendRawTransaction': to_hexbytes(32),
         'eth_sendTransaction': to_hexbytes(32),
+        'eth_sign': HexBytes,
         'eth_syncing': apply_formatter_if(syncing_formatter, is_not_false),
         # SHH
         'shh_version': to_integer_if_hex,
