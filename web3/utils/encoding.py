@@ -264,7 +264,9 @@ def hexstr_if_str(to_type, hexstr_or_primitive):
         (primitive, hexstr) = (None, hexstr_or_primitive)
         if remove_0x_prefix(hexstr) and not is_hex(hexstr):
             raise ValueError(
-                "when sending a str, it must be a hex string. Got: %r" % hexstr_or_primitive
+                "when sending a str, it must be a hex string. Got: {0!r}".format(
+                    hexstr_or_primitive,
+                )
             )
     else:
         (primitive, hexstr) = (hexstr_or_primitive, None)
