@@ -3,6 +3,10 @@ import sys
 
 import pytest
 
+from eth_utils import (
+    decode_hex,
+)
+
 from web3.contract import (
     CONCISE_NORMALIZERS,
     ConciseContract,
@@ -86,8 +90,8 @@ def test_class_construction_sets_class_vars(web3,
     math = MathContract(some_address)
     classic = math._classic_contract
     assert classic.web3 == web3
-    assert classic.bytecode == MATH_CODE
-    assert classic.bytecode_runtime == MATH_RUNTIME
+    assert classic.bytecode == decode_hex(MATH_CODE)
+    assert classic.bytecode_runtime == decode_hex(MATH_RUNTIME)
 
 
 def test_conciscecontract_keeps_custom_normalizers_on_base(web3):

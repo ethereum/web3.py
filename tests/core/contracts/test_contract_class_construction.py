@@ -1,6 +1,10 @@
 import json
 import pytest
 
+from eth_utils import (
+    decode_hex,
+)
+
 from web3.contract import Contract
 
 
@@ -15,8 +19,8 @@ def test_class_construction_sets_class_vars(web3,
     )
 
     assert MathContract.web3 == web3
-    assert MathContract.bytecode == MATH_CODE
-    assert MathContract.bytecode_runtime == MATH_RUNTIME
+    assert MathContract.bytecode == decode_hex(MATH_CODE)
+    assert MathContract.bytecode_runtime == decode_hex(MATH_RUNTIME)
 
 
 def test_error_to_instantiate_base_class():
