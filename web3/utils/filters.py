@@ -117,10 +117,7 @@ class Filter(GreenletThread):
         return True
 
     def _filter_valid_entries(self, entries):
-        return filter(
-            lambda entry: self.is_valid_entry(entry),
-            entries
-        )
+        return filter(self.is_valid_entry, entries)
 
     def get_new_entries(self):
         self._ensure_not_running("get_new_entries")
@@ -221,11 +218,9 @@ class LogFilter(Filter):
         self._ensure_not_running("get")
 
         if only_changes:
-            log_entries = self.web3.eth.getFilterChanges(self.filter_id)
-        else:
-            log_entries = self.web3.eth.getFilterLogs(self.filter_id)
+            return self.get_new_entries()
 
-        return self._format_log_entries(log_entries)
+        return self.get_all_entries()
 
     def format_entry(self, entry):
         if self.log_entry_formatter:
