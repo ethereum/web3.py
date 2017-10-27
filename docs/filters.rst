@@ -29,6 +29,26 @@ and methods.
     method when this filter was created.
 
 
+.. py:method:: Filter.get_new_entries()
+
+    Retrieve new entries for this filter.
+
+    Logs will be retrieved using the
+    ``web3.eth.getFilterChanges`` which returns only new entries since the last
+    poll.
+
+
+.. py:method:: Filter.get_all_entries()
+
+    Retrieve all entries for this filter.
+
+    Logs will be retrieved using the
+    ``web3.eth.getFilterLogs`` which returns all entries that match the given
+    filter.
+
+
+.. warning:: Asynchrony Deprecation: Native asynchronous filtering is being deprecated soon in favor a simpler synchronous implementation. This includes the following attributes: `callbacks`, `running`, and `stopped`.
+
 .. py:attribute:: Filter.callbacks
 
     A list of callbacks that this filter will call with new entries.
@@ -141,7 +161,7 @@ logs.  It exposes the following additional methods.
     filter.
 
 
-.. warning:: Pending Deprecation:  ``LogFilter.get`` is being deprecated soon in favor of ``LogFilter.get_new_entries`` and ``LogFilter.get_all_entries``.
+.. warning:: Pending Deprecation:  ``LogFilter.get`` is being deprecated soon in favor of ``Filter.get_new_entries`` and ``Filter.get_all_entries``.
 
 .. py:method:: LogFilter.get(only_changes=True)
 
