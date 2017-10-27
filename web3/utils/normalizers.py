@@ -12,6 +12,7 @@ from eth_utils import (
 
 from web3.utils.encoding import (
     hexstr_if_str,
+    text_if_str,
     to_bytes,
     to_hex,
 )
@@ -45,13 +46,19 @@ def abi_bytes_to_hex(abi_type, data):
     base, sub, arrlist = process_type(abi_type)
     if base == 'bytes' and not arrlist:
         bytes_data = hexstr_if_str(to_bytes, data)
-        if sub and len(bytes_data) != int(sub):
-            raise ValueError(
-                "This value was expected to be %d bytes, but instead was %d: %r" % (
-                    (sub, len(bytes_data), data)
+        if not sub:
+            return abi_type, to_hex(bytes_data)
+        else:
+            num_bytes = int(sub)
+            if len(bytes_data) <= num_bytes:
+                padded = bytes_data.ljust(num_bytes, b'\0')
+                return abi_type, to_hex(padded)
+            else:
+                raise ValueError(
+                    "This value was expected to be at most %d bytes, but instead was %d: %r" % (
+                        (num_bytes, len(bytes_data), data)
+                    )
                 )
-            )
-        return abi_type, to_hex(bytes_data)
 
 
 @implicitly_identity
@@ -59,6 +66,19 @@ def abi_int_to_hex(abi_type, data):
     base, _sub, arrlist = process_type(abi_type)
     if base == 'uint' and not arrlist:
         return abi_type, hexstr_if_str(to_hex, data)
+
+
+@implicitly_identity
+def abi_string_to_hex(abi_type, data):
+    if abi_type == 'string':
+        return abi_type, text_if_str(to_hex, data)
+
+
+@implicitly_identity
+def hexstrs_to_bytes(abi_type, data):
+    base, sub, arrlist = process_type(abi_type)
+    if base in {'string', 'bytes'}:
+        return abi_type, hexstr_if_str(to_bytes, data)
 
 
 BASE_RETURN_NORMALIZERS = [

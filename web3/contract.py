@@ -10,7 +10,6 @@ from eth_utils import (
     encode_hex,
     add_0x_prefix,
     coerce_return_to_text,
-    force_obj_to_bytes,
     to_normalized_address,
 )
 
@@ -68,6 +67,9 @@ from web3.utils.filters import (
 )
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
+    abi_bytes_to_hex,
+    abi_string_to_hex,
+    hexstrs_to_bytes,
 )
 from web3.utils.validation import (
     validate_abi,
@@ -240,7 +242,6 @@ class Contract(object):
     #  Public API
     #
     @classmethod
-    @coerce_return_to_text
     def encodeABI(cls, fn_name, args=None, kwargs=None, data=None):
         """
         Encodes the arguments using the Ethereum ABI for the contract function
@@ -631,9 +632,15 @@ class Contract(object):
             )
 
         try:
+            normalizers = [abi_bytes_to_hex, abi_string_to_hex, hexstrs_to_bytes]
+            normalized_arguments = map_abi_data(
+                normalizers,
+                argument_types,
+                arguments,
+            )
             encoded_arguments = encode_abi(
                 argument_types,
-                force_obj_to_bytes(arguments),
+                normalized_arguments,
             )
         except EncodingError as e:
             raise TypeError(
@@ -647,7 +654,6 @@ class Contract(object):
             return encode_hex(encoded_arguments)
 
     @classmethod
-    @coerce_return_to_text
     def _encode_transaction_data(cls, fn_name, args=None, kwargs=None):
         fn_abi, fn_selector, fn_arguments = cls._get_function_info(
             fn_name, args, kwargs,
