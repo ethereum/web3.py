@@ -49,7 +49,7 @@ setup(
             "geventhttpclient>=1.3.1",
         ],
     },
-    py_modules=['web3'],
+    py_modules=['web3', 'ens'],
     license="MIT",
     zip_safe=False,
     keywords='ethereum',

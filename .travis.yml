@@ -24,6 +24,9 @@ matrix:
       env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.7
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.7.0
+    # ENS
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-ens"
     # lint
     - python: "3.5"
       env: TOX_POSARGS="-e flake8"
