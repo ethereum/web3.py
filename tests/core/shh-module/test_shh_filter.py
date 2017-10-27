@@ -23,7 +23,7 @@ def test_shh_sync_filter(web3, skip_if_testrpc):
     received_messages = shh_filter.get_new_entries()
     assert len(received_messages) > 1
 
-    for message in recieved_messages:
+    for message in received_messages:
         assert message["payload"] in payloads
 
 
