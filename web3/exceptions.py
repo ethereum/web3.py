@@ -19,9 +19,9 @@ class CannotHandleRequest(Exception):
     pass
 
 
-class UnhandledRequest(Exception):
+class InvalidAddress(ValueError):
     """
-    Raised by the manager when none of it's providers responds to a request.
+    The supplied address does not have a valid checksum, as defined in EIP-55
     """
     pass
 
@@ -41,3 +41,10 @@ class StaleBlockchain(Exception):
 
     def __str__(self):
         return self.args[0]
+
+
+class UnhandledRequest(Exception):
+    """
+    Raised by the manager when none of it's providers responds to a request.
+    """
+    pass

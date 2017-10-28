@@ -19,7 +19,6 @@ from ens.exceptions import (
 )
 
 from ens.utils import (
-    Web3,
     address_in,
     address_to_reverse_domain,
     dict_copy,
@@ -128,10 +127,6 @@ class ENS:
             address = EMPTY_ADDR_HEX
         transact['from'] = owner
         resolver = self._set_resolver(name, transact=transact)
-        if isinstance(address, str):
-            address = Web3().toBytes(hexstr=address)
-        else:
-            address = Web3().toBytes(address)
         return resolver.setAddr(dot_eth_namehash(name), address, transact=transact)
 
     @dict_copy
@@ -296,7 +291,7 @@ class ENS:
         if self.ens.resolver(namehash) != resolver_addr:
             self.ens.setResolver(
                 namehash,
-                Web3().toBytes(hexstr=resolver_addr),
+                resolver_addr,
                 transact=transact
             )
         return self._resolverContract(address=resolver_addr)

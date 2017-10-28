@@ -16,6 +16,9 @@ from web3.utils.encoding import (
     to_bytes,
     to_hex,
 )
+from web3.utils.validation import (
+    validate_address,
+)
 
 
 def implicitly_identity(to_wrap):
@@ -29,6 +32,9 @@ def implicitly_identity(to_wrap):
     return wrapper
 
 
+# ----- Return Normalizers -----
+
+
 @implicitly_identity
 def addresses_checksummed(abi_type, data):
     if abi_type == 'address':
@@ -39,6 +45,9 @@ def addresses_checksummed(abi_type, data):
 def decode_abi_strings(abi_type, data):
     if abi_type == 'string':
         return abi_type, codecs.decode(data, 'utf8', 'backslashreplace')
+
+
+# ----- Argument Normalizers -----
 
 
 @implicitly_identity
@@ -79,6 +88,13 @@ def hexstrs_to_bytes(abi_type, data):
     base, sub, arrlist = process_type(abi_type)
     if base in {'string', 'bytes'}:
         return abi_type, hexstr_if_str(to_bytes, data)
+
+
+@implicitly_identity
+def require_checksummed_addresses(abi_type, data):
+    if abi_type == 'address':
+        validate_address(data)
+        return abi_type, data
 
 
 BASE_RETURN_NORMALIZERS = [

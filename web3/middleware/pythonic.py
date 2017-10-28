@@ -47,6 +47,7 @@ from web3.utils.normalizers import (
     abi_bytes_to_hex,
     abi_int_to_hex,
     abi_string_to_hex,
+    require_checksummed_addresses,
 )
 
 from .formatting import (
@@ -279,6 +280,7 @@ format_abi_parameters = map_abi_data([
     abi_bytes_to_hex,
     abi_int_to_hex,
     abi_string_to_hex,
+    require_checksummed_addresses,
 ])
 
 

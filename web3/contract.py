@@ -10,7 +10,7 @@ from eth_utils import (
     encode_hex,
     add_0x_prefix,
     coerce_return_to_text,
-    to_normalized_address,
+    to_checksum_address,
 )
 
 from eth_abi import (
@@ -70,6 +70,7 @@ from web3.utils.normalizers import (
     abi_bytes_to_hex,
     abi_string_to_hex,
     hexstrs_to_bytes,
+    require_checksummed_addresses,
 )
 from web3.utils.validation import (
     validate_abi,
@@ -154,7 +155,7 @@ class Contract(object):
             return val
         elif key == 'address':
             validate_address(val)
-            return to_normalized_address(val)
+            return to_checksum_address(val)
         elif key in {
             'bytecode_runtime',
             'bytecode',
@@ -632,7 +633,12 @@ class Contract(object):
             )
 
         try:
-            normalizers = [abi_bytes_to_hex, abi_string_to_hex, hexstrs_to_bytes]
+            normalizers = [
+                abi_bytes_to_hex,
+                abi_string_to_hex,
+                require_checksummed_addresses,
+                hexstrs_to_bytes,
+            ]
             normalized_arguments = map_abi_data(
                 normalizers,
                 argument_types,

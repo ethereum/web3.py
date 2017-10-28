@@ -7,7 +7,8 @@ if sys.version_info >= (3, 3):
 
 
 ABI = [{}]
-ADDRESS = '0xd3cda913deb6f67967b99d67acdfa1712c293601'
+ADDRESS = '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+NON_CHECKSUM_ADDRESS = '0xd3cda913deb6f67967b99d67acdfa1712c293601'
 INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
 
 
@@ -16,8 +17,10 @@ INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
     (
         ((ADDRESS,), {}, None),
         ((INVALID_CHECKSUM_ADDRESS,), {}, ValueError),
+        ((NON_CHECKSUM_ADDRESS,), {}, ValueError),
         ((), {'address': ADDRESS}, None),
         ((), {'address': INVALID_CHECKSUM_ADDRESS}, ValueError),
+        ((), {'address': NON_CHECKSUM_ADDRESS}, ValueError),
     )
 )
 def test_contract_address_validation(web3, args, kwargs, expected):
