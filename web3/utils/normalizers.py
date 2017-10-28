@@ -91,10 +91,9 @@ def hexstrs_to_bytes(abi_type, data):
 
 
 @implicitly_identity
-def require_checksummed_addresses(abi_type, data):
+def abi_address_to_hex(abi_type, data):
     if abi_type == 'address':
         validate_address(data)
-        return abi_type, data
 
 
 BASE_RETURN_NORMALIZERS = [

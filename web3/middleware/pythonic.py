@@ -47,12 +47,30 @@ from web3.utils.normalizers import (
     abi_bytes_to_hex,
     abi_int_to_hex,
     abi_string_to_hex,
-    require_checksummed_addresses,
+    abi_address_to_hex,
 )
 
 from .formatting import (
     construct_formatting_middleware,
 )
+
+
+@curry
+def apply_abi_formatters_to_dict(abi_dict, data):
+    formatters = [
+        abi_bytes_to_hex,
+        abi_int_to_hex,
+        abi_string_to_hex,
+        abi_address_to_hex,
+    ]
+    fields = list(set(abi_dict.keys()) & set(data.keys()))
+    formatted_values = map_abi_data(
+        formatters,
+        [abi_dict[field] for field in fields],
+        [data[field] for field in fields],
+    )
+    formatted_dict = dict(zip(fields, formatted_values))
+    return dict(data, **formatted_dict)
 
 
 def bytes_to_ascii(value):
@@ -70,16 +88,17 @@ is_not_false = complement(is_false)
 is_not_null = complement(is_null)
 
 
-# TODO: decide what inputs this allows.
-TRANSACTION_PARAMS_FORMATTERS = {
-    'value': integer_to_hex,
-    'gas': integer_to_hex,
-    'gasPrice': integer_to_hex,
-    'nonce': integer_to_hex,
+TRANSACTION_PARAMS_ABIS = {
+    'data': 'bytes',
+    'from': 'address',
+    'gas': 'uint',
+    'gasPrice': 'uint',
+    'nonce': 'uint',
+    'to': 'address',
+    'value': 'uint',
 }
 
-
-transaction_params_formatter = apply_formatters_to_dict(TRANSACTION_PARAMS_FORMATTERS)
+transaction_params_formatter = apply_abi_formatters_to_dict(TRANSACTION_PARAMS_ABIS)
 
 
 def is_array_of_strings(value):
@@ -280,7 +299,7 @@ format_abi_parameters = map_abi_data([
     abi_bytes_to_hex,
     abi_int_to_hex,
     abi_string_to_hex,
-    require_checksummed_addresses,
+    abi_address_to_hex,
 ])
 
 
@@ -366,6 +385,8 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_sendTransaction': to_hexbytes(32),
         'eth_sign': HexBytes,
         'eth_syncing': apply_formatter_if(is_not_false, syncing_formatter),
+        # personal
+        'personal_importRawKey': to_checksum_address,
         # SHH
         'shh_getFilterChanges': apply_formatter_to_array(whisper_log_formatter),
         'shh_getMessages': apply_formatter_to_array(whisper_log_formatter),

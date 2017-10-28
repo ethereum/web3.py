@@ -67,10 +67,10 @@ from web3.utils.filters import (
 )
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
+    abi_address_to_hex,
     abi_bytes_to_hex,
     abi_string_to_hex,
     hexstrs_to_bytes,
-    require_checksummed_addresses,
 )
 from web3.utils.validation import (
     validate_abi,
@@ -634,9 +634,9 @@ class Contract(object):
 
         try:
             normalizers = [
+                abi_address_to_hex,
                 abi_bytes_to_hex,
                 abi_string_to_hex,
-                require_checksummed_addresses,
                 hexstrs_to_bytes,
             ]
             normalized_arguments = map_abi_data(

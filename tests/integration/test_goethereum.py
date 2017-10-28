@@ -46,7 +46,7 @@ GETH_16_FIXTURE = {
     'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
     'math_deploy_txn_hash': '0xbefcf394f431fd983901d16c155da2d009da720b7b88cb9c7dce66f5d3ac44e7',
     'mined_txn_hash': '0x95110dd5943f513a1fd29767b48fe2178b973e99f5d73693d889081d7bdcd0c2',
-    'raw_txn_account': '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6',
+    'raw_txn_account': '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6',
     'txn_hash_with_log': '0x2fd8dcd6ab1318245f8423df8e31f66f5d0fac2db34d7ab4a2a21a71037beae1',
 }
 GETH_17_FIXTURE = {
@@ -60,7 +60,7 @@ GETH_17_FIXTURE = {
     'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
     'math_deploy_txn_hash': '0xbefcf394f431fd983901d16c155da2d009da720b7b88cb9c7dce66f5d3ac44e7',
     'mined_txn_hash': '0x95110dd5943f513a1fd29767b48fe2178b973e99f5d73693d889081d7bdcd0c2',
-    'raw_txn_account': '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6',
+    'raw_txn_account': '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6',
     'txn_hash_with_log': '0x2fd8dcd6ab1318245f8423df8e31f66f5d0fac2db34d7ab4a2a21a71037beae1',
 }
 

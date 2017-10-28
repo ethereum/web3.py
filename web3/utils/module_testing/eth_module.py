@@ -2,6 +2,8 @@
 
 from __future__ import unicode_literals
 
+import pytest
+
 from eth_abi import (
     decode_single,
 )
@@ -15,6 +17,10 @@ from eth_utils import (
     is_integer,
     is_list_like,
     is_same_address,
+)
+
+from web3.exceptions import (
+    InvalidAddress,
 )
 
 from web3.utils.datastructures import (
@@ -164,6 +170,24 @@ class EthModuleTest(object):
         new_signature = web3.eth.sign(unlocked_account, text='different message is different')
         assert new_signature != signature
 
+    def test_eth_sendTransaction_addr_checksum_required(self, web3, unlocked_account):
+        non_checksum_addr = unlocked_account.lower()
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gas_price': web3.eth.gasPrice,
+        }
+
+        with pytest.raises(InvalidAddress):
+            invalid_params = dict(txn_params, **{'from': non_checksum_addr})
+            web3.eth.sendTransaction(invalid_params)
+
+        with pytest.raises(InvalidAddress):
+            invalid_params = dict(txn_params, **{'to': non_checksum_addr})
+            web3.eth.sendTransaction(invalid_params)
+
     def test_eth_sendTransaction(self, web3, unlocked_account):
         txn_params = {
             'from': unlocked_account,
@@ -181,7 +205,7 @@ class EthModuleTest(object):
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gas_price']
 
-    def test_eth_sendRawTransaction(self, web3, funded_account_for_raw_txn):
+    def test_eth_sendRawTransaction(self, web3):
         txn_hash = web3.eth.sendRawTransaction(
             '0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a'  # noqa: E501
         )
