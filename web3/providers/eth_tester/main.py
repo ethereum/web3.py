@@ -24,15 +24,15 @@ from web3.providers import (
     BaseProvider,
 )
 
+from web3.utils.formatters import (
+    apply_formatter_if,
+)
+
 from eth_tester.exceptions import (
     BlockNotFound,
     FilterNotFound,
     TransactionNotFound,
     ValidationError,
-)
-
-from eth_tester.utils.formatting import (
-    apply_formatter_if,
 )
 
 from .middleware import (
