@@ -35,7 +35,7 @@ def is_named_block(value):
     return value in {"latest", "earliest", "pending"}
 
 
-to_integer_if_hex = apply_formatter_if(hex_to_integer, is_string)
+to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
 
 
 is_not_named_block = complement(is_named_block)
@@ -114,7 +114,7 @@ transaction_params_formatter = apply_formatters_to_dict(TRANSACTION_PARAMS_FORMA
 
 
 TRANSACTION_FORMATTERS = {
-    'to': apply_formatter_if(static_return(None), partial(operator.eq, b'')),
+    'to': apply_formatter_if(partial(operator.eq, b''), static_return(None)),
 }
 
 
@@ -133,26 +133,26 @@ ethereum_tester_middleware = construct_formatting_middleware(
     request_formatters={
         # Eth
         'eth_getBlockByNumber': apply_formatters_to_args(
-            apply_formatter_if(to_integer_if_hex, is_not_named_block),
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
         'eth_getFilterChanges': apply_formatters_to_args(hex_to_integer),
         'eth_getFilterLogs': apply_formatters_to_args(hex_to_integer),
         'eth_getBlockTransactionCountByNumber': apply_formatters_to_args(
-            apply_formatter_if(to_integer_if_hex, is_not_named_block),
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
         'eth_getUncleCountByBlockNumber': apply_formatters_to_args(
-            apply_formatter_if(to_integer_if_hex, is_not_named_block),
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
         'eth_getTransactionByBlockHashAndIndex': apply_formatters_to_args(
             identity,
             to_integer_if_hex,
         ),
         'eth_getTransactionByBlockNumberAndIndex': apply_formatters_to_args(
-            apply_formatter_if(to_integer_if_hex, is_not_named_block),
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
             to_integer_if_hex,
         ),
         'eth_getUncleByBlockNumberAndIndex': apply_formatters_to_args(
-            apply_formatter_if(to_integer_if_hex, is_not_named_block),
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
             to_integer_if_hex,
         ),
         'eth_sendTransaction': apply_formatters_to_args(
@@ -173,28 +173,28 @@ ethereum_tester_middleware = construct_formatting_middleware(
     },
     result_formatters={
         'eth_getBlockByHash': apply_formatter_if(
-            block_key_remapper,
             is_dict,
+            block_key_remapper,
         ),
         'eth_getBlockByNumber': apply_formatter_if(
-            block_key_remapper,
             is_dict,
+            block_key_remapper,
         ),
         'eth_getBlockTransactionCountByHash': apply_formatter_if(
-            transaction_key_remapper,
             is_dict,
+            transaction_key_remapper,
         ),
         'eth_getBlockTransactionCountByNumber': apply_formatter_if(
-            transaction_key_remapper,
             is_dict,
+            transaction_key_remapper,
         ),
         'eth_getTransactionByHash': apply_formatter_if(
-            compose(transaction_key_remapper, transaction_formatter),
             is_dict,
+            compose(transaction_key_remapper, transaction_formatter),
         ),
         'eth_getTransactionReceipt': apply_formatter_if(
-            compose(receipt_key_remapper, receipt_formatter),
             is_dict,
+            compose(receipt_key_remapper, receipt_formatter),
         ),
         'eth_newFilter': integer_to_hex,
         'eth_newBlockFilter': integer_to_hex,
