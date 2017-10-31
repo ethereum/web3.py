@@ -387,7 +387,7 @@ class Contract(object):
             )
 
             # Not a real contract address
-            contract = ContractFactory("0x2f70d3d26829e412a602e83fe8eebf80255aeea5")
+            contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
 
             # Read "owner" public variable
             addr = contract.call().owner()
@@ -454,7 +454,7 @@ class Contract(object):
             #   by the `to` parameter.
             # * Wallet.withdraw(address amount)
 
-            >>> wallet = Wallet(address='0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24')
+            >>> wallet = Wallet(address='0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24')
             # Deposit to the `web3.eth.coinbase` account.
             >>> wallet.transact({'value': 12345}).deposit()
             '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
