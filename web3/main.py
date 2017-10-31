@@ -18,7 +18,6 @@ from web3.iban import Iban
 from web3.miner import Miner
 from web3.net import Net
 from web3.personal import Personal
-from web3.shh import Shh
 from web3.testing import Testing
 from web3.txpool import TxPool
 from web3.version import Version
@@ -53,7 +52,6 @@ from web3.utils.encoding import (
 def get_default_modules():
     return {
         "eth": Eth,
-        "shh": Shh,
         "net": Net,
         "personal": Personal,
         "version": Version,
