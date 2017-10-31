@@ -307,7 +307,10 @@ pythonic_middleware = construct_formatting_middleware(
     request_formatters={
         # Eth
         'eth_call': apply_formatter_at_index(transaction_params_formatter, 0),
-        'eth_getBalance': apply_formatter_at_index(block_number_formatter, 1),
+        'eth_getBalance': compose(
+            format_abi_parameters(['address', None]),
+            apply_formatter_at_index(block_number_formatter, 1),
+        ),
         'eth_getBlockByHash': format_abi_parameters(['bytes32', 'bool']),
         'eth_getBlockByNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_getBlockTransactionCountByNumber': apply_formatter_at_index(
@@ -315,9 +318,12 @@ pythonic_middleware = construct_formatting_middleware(
             0,
         ),
         'eth_getBlockTransactionCountByHash': format_abi_parameters(['bytes32']),
-        'eth_getCode': apply_formatter_at_index(block_number_formatter, 1),
+        'eth_getCode': compose(
+            format_abi_parameters(['address', None]),
+            apply_formatter_at_index(block_number_formatter, 1),
+        ),
         'eth_getStorageAt': compose(
-            apply_formatter_at_index(integer_to_hex, 1),
+            format_abi_parameters(['address', 'uint', None]),
             apply_formatter_at_index(block_number_formatter, 2),
         ),
         'eth_getTransactionByBlockNumberAndIndex': compose(
@@ -326,7 +332,10 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'eth_getTransactionByBlockHashAndIndex': format_abi_parameters(['bytes32', 'uint']),
         'eth_getTransactionByHash': format_abi_parameters(['bytes32']),
-        'eth_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
+        'eth_getTransactionCount': compose(
+            format_abi_parameters(['address', None]),
+            apply_formatter_at_index(block_number_formatter, 1),
+        ),
         'eth_getTransactionReceipt': format_abi_parameters(['bytes32']),
         'eth_getUncleCountByBlockHash': format_abi_parameters(['bytes32']),
         'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),

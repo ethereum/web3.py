@@ -89,18 +89,26 @@ class EthModuleTest(object):
 
     def test_eth_getBalance(self, web3):
         coinbase = web3.eth.coinbase
+
+        with pytest.raises(InvalidAddress):
+            web3.eth.getBalance(coinbase.lower())
+
         balance = web3.eth.getBalance(coinbase)
 
         assert is_integer(balance)
         assert balance >= 0
 
     def test_eth_getStorageAt(self, web3):
-        # TODO: implement deployed contracts
-        pass
+        coinbase = web3.eth.coinbase
+
+        with pytest.raises(InvalidAddress):
+            web3.eth.getStorageAt(coinbase.lower(), 0)
 
     def test_eth_getTransactionCount(self, web3):
         coinbase = web3.eth.coinbase
         transaction_count = web3.eth.getTransactionCount(coinbase)
+        with pytest.raises(InvalidAddress):
+            web3.eth.getTransactionCount(coinbase.lower())
 
         assert is_integer(transaction_count)
         assert transaction_count >= 0
@@ -143,6 +151,8 @@ class EthModuleTest(object):
 
     def test_eth_getCode(self, web3, math_contract):
         code = web3.eth.getCode(math_contract.address)
+        with pytest.raises(InvalidAddress):
+            code = web3.eth.getCode(math_contract.address.lower())
         assert is_string(code)
         assert len(code) > 2
 
