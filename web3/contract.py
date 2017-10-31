@@ -51,6 +51,7 @@ from web3.utils.abi import (
 )
 from web3.utils.decorators import (
     combomethod,
+    deprecated_for,
 )
 from web3.utils.empty import (
     empty,
@@ -332,6 +333,7 @@ class Contract(object):
         return cls._encode_abi(fn_abi, fn_arguments, data)
 
     @combomethod
+    @deprecated_for("an upcoming v4 method: eventFilter()")
     def on(self, event_name, filter_params=None, *callbacks):
         """
         Register a callback to be triggered on the appropriate events.
@@ -367,6 +369,7 @@ class Contract(object):
         return log_filter
 
     @combomethod
+    @deprecated_for("an upcoming v4 method: eventFilter()")
     def pastEvents(self, event_name, filter_params=None, *callbacks):
         """
         Register a callback to be triggered on all past events.
