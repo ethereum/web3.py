@@ -16,6 +16,10 @@ from .compat import (
     GreenletThread,
 )
 
+from web3.utils.validation import (
+    validate_address,
+)
+
 
 def construct_event_filter_params(event_abi,
                                   contract_address=None,
@@ -49,6 +53,14 @@ def construct_event_filter_params(event_abi,
         filter_params['address'] = address
     elif contract_address:
         filter_params['address'] = contract_address
+
+    if 'address' not in filter_params:
+        pass
+    elif is_list_like(filter_params['address']):
+        for addr in filter_params['address']:
+            validate_address(addr)
+    else:
+        validate_address(filter_params['address'])
 
     if fromBlock is not None:
         filter_params['fromBlock'] = fromBlock
