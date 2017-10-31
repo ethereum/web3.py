@@ -28,6 +28,11 @@ and methods.
     method when this filter was created.
 
 
+.. warning:: Asynchrony Deprecation: Native asynchronous filtering is deprecated
+    in favor a simpler synchronous implementation. This deprecation includes the
+    following attributes: `callbacks`, `running`, and `stopped`. It will be removed
+    in version 4.
+
 .. py:attribute:: Filter.callbacks
 
     A list of callbacks that this filter will call with new entries.
@@ -57,6 +62,11 @@ and methods.
     Hook for subclasses to add additional programatic filtering.  The default
     implementation always returns ``True``.
 
+
+.. warning:: Asynchrony Deprecation: Native asynchronous filtering is deprecated
+    in favor a simpler synchronous implementation. This deprecation includes the
+    following attributes: `callbacks`, `running`, and `stopped`. It will be removed
+    in version 4.
 
 .. py:method:: Filter.watch(*callbacks)
 
@@ -116,6 +126,10 @@ Event Log Filters
 The :py:class::`LogFilter` class is used for all filters pertaining to event
 logs.  It exposes the following additional methods.
 
+
+.. warning:: Removal in next version:  ``LogFilter.get`` is deprecated in favor of
+    ``Filter.get_new_entries`` and ``Filter.get_all_entries``, which will replace
+    all ``LogFilter.get`` usages in version 4.
 
 .. py:method:: LogFilter.get(only_changes=True)
 
