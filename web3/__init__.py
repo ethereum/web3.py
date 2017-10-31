@@ -1,17 +1,19 @@
-from __future__ import absolute_import
-
 import pkg_resources
+import sys
 
-from web3.account import Account
-from web3.main import Web3
-from web3.providers.rpc import (
+if sys.version_info.major < 3:
+    raise EnvironmentError("Python 3 is required")
+
+from web3.account import Account  # noqa: E402
+from web3.main import Web3  # noqa: E402
+from web3.providers.rpc import (  # noqa: E402
     HTTPProvider,
 )
-from web3.providers.tester import (
+from web3.providers.tester import (  # noqa: E402
     TestRPCProvider,
     EthereumTesterProvider,
 )
-from web3.providers.ipc import (
+from web3.providers.ipc import (  # noqa: E402
     IPCProvider,
 )
 
