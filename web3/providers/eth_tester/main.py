@@ -24,15 +24,15 @@ from web3.providers import (
     BaseProvider,
 )
 
+from web3.utils.formatters import (
+    apply_formatter_if,
+)
+
 from eth_tester.exceptions import (
     BlockNotFound,
     FilterNotFound,
     TransactionNotFound,
     ValidationError,
-)
-
-from eth_tester.utils.formatting import (
-    apply_formatter_if,
 )
 
 from .middleware import (
@@ -224,8 +224,8 @@ API_ENDPOINTS = {
         'getTransactionByBlockNumberAndIndex': get_transaction_by_block_number_and_index,
         'getTransactionReceipt': null_if_transaction_not_found(compose(
             apply_formatter_if(
-                static_return(None),
                 compose(is_null, operator.itemgetter('block_number')),
+                static_return(None),
             ),
             call_eth_tester('get_transaction_receipt'),
         )),
