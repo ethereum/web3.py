@@ -123,11 +123,13 @@ class NamedElementStack(Mapping):
     def replace(self, old, new):
         if old not in self._queue:
             raise ValueError("You can't replace unless one already exists, use add instead")
-        if self._queue[old] is old:
+        to_be_replaced = self._queue[old]
+        if to_be_replaced is old:
             # re-insert with new name in old slot
             self._replace_with_new_name(old, new)
         else:
             self._queue[old] = new
+        return to_be_replaced
 
     def remove(self, old):
         if old not in self._queue:

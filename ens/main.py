@@ -59,8 +59,8 @@ class ENS:
         self.web3 = init_web3(providers)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
-        self.ens = self.web3.eth.contract(abi=abis.ENS, address=ens_addr)
-        self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
+        self.ens = self.web3.eth.contract(abi=abis.ENS, address=ens_addr, ens=self)
+        self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER, ens=self)
 
     @classmethod
     def fromWeb3(cls, web3, addr=None):

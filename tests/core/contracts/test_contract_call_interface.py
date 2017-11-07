@@ -8,8 +8,8 @@ from web3.exceptions import (
 from web3.utils.datastructures import (
     HexBytes,
 )
-from web3.utils.ens import (
-    ens_addresses,
+from web3.middleware.names import (
+    contract_ens_addresses,
 )
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
@@ -126,7 +126,10 @@ def test_call_read_address_variable(address_contract):
 
 
 def test_init_with_ens_name_arg(web3, WithConstructorAddressArgumentsContract):
-    with ens_addresses([("arg-name.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")]):
+    with contract_ens_addresses(
+        WithConstructorAddressArgumentsContract,
+        [("arg-name.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
+    ):
         address_contract = deploy(web3, WithConstructorAddressArgumentsContract, args=[
             "arg-name.eth",
         ])
@@ -211,7 +214,10 @@ def test_call_address_list_reflector_with_address(address_reflector_contract, va
 
 
 def test_call_address_reflector_single_name(address_reflector_contract):
-    with ens_addresses([("dennisthepeasant.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")]):
+    with contract_ens_addresses(
+        address_reflector_contract,
+        [("dennisthepeasant.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
+    ):
         result = address_reflector_contract.call().reflect('dennisthepeasant.eth')
         assert result == '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413'
 
@@ -226,14 +232,14 @@ def test_call_address_reflector_name_array(address_reflector_contract):
         '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4',
     ]
 
-    with ens_addresses(zip(names, addresses)):
+    with contract_ens_addresses(address_reflector_contract, zip(names, addresses)):
         result = address_reflector_contract.call().reflect(names)
 
     assert addresses == result
 
 
 def test_call_reject_invalid_ens_name(address_reflector_contract):
-    with ens_addresses([]):
+    with contract_ens_addresses(address_reflector_contract, []):
         with pytest.raises(ValueError):
             address_reflector_contract.call().reflect('typ0.eth')
 

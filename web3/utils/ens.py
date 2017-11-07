@@ -1,10 +1,6 @@
-from contextlib import contextmanager
-
 from cytoolz import (
     curry,
 )
-
-from unittest.mock import patch
 
 from web3.exceptions import (
     NameNotFound,
@@ -33,22 +29,9 @@ def abi_ens_resolver(ens, abi_type, val):
         return (abi_type, val)
 
 
-@contextmanager
-def ens_addresses(name_addr_pairs):
-    '''
-    Use this context manager to temporarily resolve name/address pairs
-    supplied as the argument. For example:
+class StaticENS:
+    def __init__(self, name_addr_pairs):
+        self.registry = dict(name_addr_pairs)
 
-    with ens_addresses([('resolve-as-0s.eth', '0x000...000')]):
-        # any contract call in here would only resolve the above ENS pair
-    '''
-    registry = dict(name_addr_pairs)
-
-    def resolver(name):
-        return registry.get(name, None)
-    with patch('web3.contract.ENS.fromWeb3') as MockENS_contract, \
-            patch('web3.middleware.names.ENS.fromWeb3') as MockENS_middleware:
-        for mocked in (MockENS_contract, MockENS_middleware):
-            ens = mocked.return_value
-            ens.address.side_effect = resolver
-        yield
+    def address(self, name):
+        return self.registry.get(name, None)
