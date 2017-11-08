@@ -310,6 +310,7 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getUncleCountByBlockHash': format_abi_parameters(['bytes32']),
         'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
+        'eth_getLogs': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_sign': format_abi_parameters(['address', 'bytes']),
         'eth_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
         'eth_estimateGas': apply_formatter_at_index(transaction_params_formatter, 0),
