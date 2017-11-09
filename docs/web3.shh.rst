@@ -7,6 +7,11 @@ SHH API
 The ``web3.shh`` object exposes methods to interact with the RPC APIs under the
 ``shh_`` namespace.
 
+.. warning:: The Whisper protocol is in flux, with incompatible versions supported
+    by different major clients. So it is not currently included by default in the web3
+    instance.
+
+
 Properties
 ----------
 
