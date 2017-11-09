@@ -3,15 +3,18 @@ import sys
 
 from eth_utils import (
     is_0x_prefixed,
-    is_address,
     is_boolean,
     is_bytes,
     is_checksum_address,
-    is_checksum_formatted_address,
     is_dict,
+    is_hex_address,
     is_integer,
     is_list_like,
     is_string,
+)
+
+from web3.exceptions import (
+    InvalidAddress,
 )
 
 from web3.utils.abi import (
@@ -80,7 +83,8 @@ def validate_abi_value(abi_type, value):
         return
     elif is_int_type(abi_type) and is_integer(value):
         return
-    elif is_address_type(abi_type) and is_address(value):
+    elif is_address_type(abi_type):
+        validate_address(value)
         return
     elif is_bytes_type(abi_type):
         if sys.version_info.major >= 3 and is_bytes(value):
@@ -97,7 +101,7 @@ def validate_abi_value(abi_type, value):
         return
 
     raise TypeError(
-        "The following abi value is not a '{abi_type}'': {value}"
+        "The following abi value is not a '{abi_type}': {value}"
         .format(abi_type=abi_type, value=value)
     )
 
@@ -106,18 +110,12 @@ def validate_address(value):
     """
     Helper function for validating an address
     """
-    validate_address_checksum(value)
-    if not is_address(value):
-        raise ValueError("'{0}' is not an address".format(value))
-
-
-def validate_address_checksum(value):
-    """
-    Helper function for validating an address EIP55 checksum
-    """
-    if is_checksum_formatted_address(value):
-        if not is_checksum_address(value):
-            raise ValueError("'{0}' has an invalid EIP55 checksum".format(value))
+    if not isinstance(value, str):
+        raise TypeError('Address {} must be provided as a string'.format(value))
+    if not is_hex_address(value):
+        raise InvalidAddress("Address must be 20 bytes, as a hex string with a 0x prefix", value)
+    if not is_checksum_address(value):
+        raise InvalidAddress("Address has an invalid EIP checksum", value)
 
 
 def has_one_val(*args, **kwargs):

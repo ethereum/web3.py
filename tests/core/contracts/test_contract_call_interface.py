@@ -2,6 +2,7 @@ import pytest
 
 from web3.exceptions import (
     BadFunctionCallOutput,
+    InvalidAddress,
 )
 
 from web3.utils.datastructures import (
@@ -33,7 +34,7 @@ def string_contract(web3, StringContract):
 @pytest.fixture()
 def address_contract(web3, WithConstructorAddressArgumentsContract):
     deploy_txn = WithConstructorAddressArgumentsContract.deploy(args=[
-        "0xd3cda913deb6f67967b99d67acdfa1712c293601",
+        "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
     ])
     deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
@@ -80,6 +81,13 @@ def mismatched_math_contract(web3, StringContract, MathContract):
 
     _mismatched_math_contract = MathContract(address=deploy_receipt['contractAddress'])
     return _mismatched_math_contract
+
+
+def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):
+    with pytest.raises(InvalidAddress):
+        WithConstructorAddressArgumentsContract.deploy(args=[
+            "0xd3cda913deb6f67967b99d67acdfa1712c293601",
+        ])
 
 
 def test_call_with_no_arguments(math_contract):

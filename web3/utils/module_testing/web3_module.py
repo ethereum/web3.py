@@ -1,5 +1,9 @@
 import pytest
 
+from web3.exceptions import (
+    InvalidAddress,
+)
+
 from web3.utils.datastructures import HexBytes
 
 
@@ -54,6 +58,11 @@ class Web3ModuleTest(object):
             (
                 ['address'],
                 ["0x49eddd3769c0712032808d86597b84ac5c2f5614"],
+                InvalidAddress,
+            ),
+            (
+                ['address'],
+                ["0x49EdDD3769c0712032808D86597B84ac5c2F5614"],
                 HexBytes("0x2ff37b5607484cd4eecf6d13292e22bd6e5401eaffcc07e279583bc742c68882"),
             ),
             (
@@ -88,6 +97,17 @@ class Web3ModuleTest(object):
                     299,
                     '0x5402',
                     "0x49eddd3769c0712032808d86597b84ac5c2f5614",
+                ],
+                InvalidAddress,
+            ),
+            (
+                ['string', 'bool', 'uint16', 'bytes2', 'address'],
+                [
+                    'testing a string!',
+                    False,
+                    299,
+                    '0x5402',
+                    "0x49EdDD3769c0712032808D86597B84ac5c2F5614",
                 ],
                 HexBytes("0x8cc6eabb25b842715e8ca39e2524ed946759aa37bfb7d4b81829cf5a7e266103"),
             ),
@@ -128,6 +148,14 @@ class Web3ModuleTest(object):
                     "0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5",
                 ]],
                 HexBytes("0xb98565c0c26a962fd54d93b0ed6fb9296e03e9da29d2281ed3e3473109ef7dde"),
+            ),
+            (
+                ['address[]'],
+                [[
+                    "0x49EdDD3769c0712032808D86597B84ac5c2F5614",
+                    "0xa6b759bbbf4b59d24acf7e06e79f3a5d104fdce5",
+                ]],
+                InvalidAddress,
             ),
         ),
     )

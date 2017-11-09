@@ -460,7 +460,7 @@ def data_tree_map(func, data_tree):
     receive two args: abi_type, and data
     '''
     def map_to_typed_data(elements):
-        if isinstance(elements, ABITypedData):
+        if isinstance(elements, ABITypedData) and elements.abi_type is not None:
             return ABITypedData(func(*elements))
         else:
             return elements
@@ -490,6 +490,9 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
 
 
 def abi_sub_tree(data_type, data_value):
+    if data_type is None:
+        return ABITypedData([None, data_value])
+
     try:
         base, sub, arrlist = data_type
     except ValueError:

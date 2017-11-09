@@ -10,7 +10,7 @@ from eth_utils import (
     encode_hex,
     add_0x_prefix,
     coerce_return_to_text,
-    to_normalized_address,
+    to_checksum_address,
 )
 
 from eth_abi import (
@@ -67,6 +67,7 @@ from web3.utils.filters import (
 )
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
+    abi_address_to_hex,
     abi_bytes_to_hex,
     abi_string_to_hex,
     hexstrs_to_bytes,
@@ -154,7 +155,7 @@ class Contract(object):
             return val
         elif key == 'address':
             validate_address(val)
-            return to_normalized_address(val)
+            return to_checksum_address(val)
         elif key in {
             'bytecode_runtime',
             'bytecode',
@@ -386,7 +387,7 @@ class Contract(object):
             )
 
             # Not a real contract address
-            contract = ContractFactory("0x2f70d3d26829e412a602e83fe8eebf80255aeea5")
+            contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
 
             # Read "owner" public variable
             addr = contract.call().owner()
@@ -453,7 +454,7 @@ class Contract(object):
             #   by the `to` parameter.
             # * Wallet.withdraw(address amount)
 
-            >>> wallet = Wallet(address='0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24')
+            >>> wallet = Wallet(address='0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24')
             # Deposit to the `web3.eth.coinbase` account.
             >>> wallet.transact({'value': 12345}).deposit()
             '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
@@ -632,7 +633,12 @@ class Contract(object):
             )
 
         try:
-            normalizers = [abi_bytes_to_hex, abi_string_to_hex, hexstrs_to_bytes]
+            normalizers = [
+                abi_address_to_hex,
+                abi_bytes_to_hex,
+                abi_string_to_hex,
+                hexstrs_to_bytes,
+            ]
             normalized_arguments = map_abi_data(
                 normalizers,
                 argument_types,

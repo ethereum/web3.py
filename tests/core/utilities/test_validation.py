@@ -1,12 +1,15 @@
 import pytest
 import sys
 
+from web3.exceptions import (
+    InvalidAddress,
+)
+
 from web3.utils.validation import (
     validate_abi,
     validate_abi_type,
     validate_abi_value,
     validate_address,
-    validate_address_checksum,
 )
 ABI = [
     {
@@ -21,9 +24,10 @@ ABI = [
 MALFORMED_ABI_1 = "NON-LIST ABI"
 MALFORMED_ABI_2 = [5, {"test": "value"}, True]
 
-ADDRESS = '0xd3cda913deb6f67967b99d67acdfa1712c293601'
+ADDRESS = '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 PADDED_ADDRESS = '0x000000000000000000000000d3cda913deb6f67967b99d67acdfa1712c293601'
 INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
+NON_CHECKSUM_ADDRESS = '0xd3cda913deb6f67967b99d67acdfa1712c293601'
 
 
 @pytest.mark.parametrize(
@@ -33,12 +37,11 @@ INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
         (MALFORMED_ABI_1, validate_abi, ValueError),
         (MALFORMED_ABI_2, validate_abi, ValueError),
         (ADDRESS, validate_address, None),
-        (PADDED_ADDRESS, validate_address, None),
-        (INVALID_CHECKSUM_ADDRESS, validate_address, ValueError),
-        ("NotAddress", validate_address, ValueError),
-        (ADDRESS, validate_address_checksum, None),
-        (PADDED_ADDRESS, validate_address_checksum, None),
-        (INVALID_CHECKSUM_ADDRESS, validate_address_checksum, ValueError),
+        (PADDED_ADDRESS, validate_address, InvalidAddress),
+        (INVALID_CHECKSUM_ADDRESS, validate_address, InvalidAddress),
+        (NON_CHECKSUM_ADDRESS, validate_address, InvalidAddress),
+        ("NotAddress", validate_address, InvalidAddress),
+        (b'not string', validate_address, TypeError),
         ('bool', validate_abi_type, None),
         ('bool[', validate_abi_type, ValueError),
         ('sbool', validate_abi_type, ValueError),
@@ -70,7 +73,8 @@ def test_validation(param, validation, expected):
         ('bool[0][1]', [[]], TypeError),
         ('uint8', -5, TypeError),
         ('int8', -5, None),
-        ('address', "just a string", TypeError),
+        ('address', "just a string", InvalidAddress),
+        ('address', b'not even a string', TypeError),
         ('address[][]', [[4, 5], [True]], TypeError),
         ('address[][]', [[ADDRESS]], None),
         ('address[2][]', [[ADDRESS], [ADDRESS, ADDRESS]], TypeError),
