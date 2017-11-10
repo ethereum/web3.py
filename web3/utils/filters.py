@@ -182,3 +182,7 @@ class LogFilter(Filter):
         if not self.data_filter_set_regex:
             return True
         return bool(self.data_filter_set_regex.match(entry['data']))
+
+
+class ShhFilter(Filter):
+    pass
