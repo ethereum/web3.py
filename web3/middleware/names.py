@@ -29,6 +29,7 @@ ZERO_INDEX_ADDRESSES = {
 
 ADDRESS_KEY_AT_0 = {
     'eth_newFilter',
+    'eth_getLogs',
 }
 
 
