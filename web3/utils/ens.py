@@ -1,7 +1,3 @@
-from cytoolz import (
-    curry,
-)
-
 from web3.exceptions import (
     NameNotFound,
 )
@@ -19,14 +15,6 @@ def validate_name_has_address(ens, name):
         return addr
     else:
         raise NameNotFound("Could not find address for name %r" % name)
-
-
-@curry
-def abi_ens_resolver(ens, abi_type, val):
-    if abi_type == 'address' and is_ens_name(val):
-        return (abi_type, validate_name_has_address(ens, val))
-    else:
-        return (abi_type, val)
 
 
 class StaticENS:

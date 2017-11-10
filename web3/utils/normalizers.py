@@ -2,6 +2,10 @@
 import codecs
 import functools
 
+from cytoolz import (
+    curry,
+)
+
 from eth_abi.abi import (
     process_type,
 )
@@ -15,6 +19,10 @@ from web3.utils.encoding import (
     text_if_str,
     to_bytes,
     to_hex,
+)
+from web3.utils.ens import (
+    is_ens_name,
+    validate_name_has_address,
 )
 from web3.utils.validation import (
     validate_address,
@@ -94,6 +102,17 @@ def hexstrs_to_bytes(abi_type, data):
 def abi_address_to_hex(abi_type, data):
     if abi_type == 'address':
         validate_address(data)
+
+
+@curry
+def abi_ens_resolver(ens, abi_type, val):
+    if abi_type == 'address' and is_ens_name(val):
+        if ens is None:
+            raise ValueError("Could not look up name, because no web3 connection available")
+        else:
+            return (abi_type, validate_name_has_address(ens, val))
+    else:
+        return (abi_type, val)
 
 
 BASE_RETURN_NORMALIZERS = [

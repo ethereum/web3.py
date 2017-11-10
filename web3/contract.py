@@ -58,7 +58,6 @@ from web3.utils.encoding import (
     to_hex,
 )
 from web3.utils.ens import (
-    abi_ens_resolver,
     is_ens_name,
     validate_name_has_address,
 )
@@ -75,6 +74,7 @@ from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
     abi_address_to_hex,
     abi_bytes_to_hex,
+    abi_ens_resolver,
     abi_string_to_hex,
     hexstrs_to_bytes,
 )

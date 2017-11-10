@@ -11,6 +11,7 @@ from web3.exceptions import (
     UnhandledRequest,
 )
 from web3.middleware import (
+    abi_middleware,
     pythonic_middleware,
     attrdict_middleware,
     name_to_address_middleware,
@@ -61,6 +62,7 @@ class RequestManager(object):
             (name_to_address_middleware(ens), 'name_to_address'),
             (attrdict_middleware, 'attrdict'),
             (pythonic_middleware, 'pythonic'),
+            (abi_middleware, 'abi'),
         ]
 
     #
