@@ -14,30 +14,17 @@ THREADING_BACKEND = get_threading_backend()
 
 
 if THREADING_BACKEND == 'stdlib':
-    from .compat_stdlib import (
+    from .compat_stdlib import (  # noqa: F401
         Timeout,
         sleep,
         socket,
         threading,
         make_server,
-        GreenletThread,
         spawn,
         subprocess,
     )
-    from .compat_requests import (
-        make_post_request,
-    )
-elif THREADING_BACKEND == 'gevent':
-    from .compat_gevent import (  # noqa: F401
-        Timeout,
-        sleep,
-        socket,
-        threading,
-        make_server,
-        GreenletThread,
-        spawn,
-        subprocess,
+    from .compat_requests import (  # noqa: F401
         make_post_request,
     )
 else:
-    raise ValueError("Unsupported threading backend.  Must be one of 'gevent' or 'stdlib'")
+    raise ValueError("Unsupported threading backend.  Must be 'stdlib'")

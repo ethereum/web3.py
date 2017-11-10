@@ -109,18 +109,3 @@ def spawn(target, thread_class=ThreadWithReturn, *args, **kwargs):
     thread.daemon = True
     thread.start()
     return thread
-
-
-class GreenletThread(threading.Thread):
-    def __init__(self, target=None, args=None, kwargs=None):
-        if target is None:
-            target = self._run
-        super(GreenletThread, self).__init__(
-            target=target,
-            args=args or tuple(),
-            kwargs=kwargs or {},
-        )
-        self.daemon = True
-
-    def _run(self):
-        pass

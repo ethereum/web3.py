@@ -18,11 +18,6 @@ Filter API
 
 .. py:class:: Filter(web3, filter_id)
 
-The :py:class::`Filter` object is a subclass of the
-:py:class::`gevent.Greenlet` object.  It exposes these additional properties
-and methods.
-
-
 .. py:attribute:: Filter.filter_id
 
     The ``filter_id`` for this filter as returned by the ``eth_newFilter`` RPC

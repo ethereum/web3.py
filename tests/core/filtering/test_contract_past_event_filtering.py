@@ -24,6 +24,11 @@ def test_past_events_async_filter_with_callback(web3,
                                                 emitter_event_ids,
                                                 call_as_instance
                                                 ):
+    if True:
+        assert not hasattr(Emitter, 'eventFilter')
+        # once this fails, reimplement the test with the new API
+        return
+
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
@@ -60,6 +65,11 @@ def test_past_events_filter_using_get_api(web3,
                                           emitter_log_topics,
                                           emitter_event_ids,
                                           call_as_instance):
+    if True:
+        assert not hasattr(Emitter, 'eventFilter')
+        # once this fails, reimplement the test with the new API
+        return
+
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
@@ -94,6 +104,11 @@ def test_past_events_filter_using_get_entries_api(web3,
                                                   emitter_log_topics,
                                                   emitter_event_ids,
                                                   call_as_instance):
+    if True:
+        assert not hasattr(Emitter, 'eventFilter')
+        # once this fails, reimplement the test with the new API
+        return
+
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 

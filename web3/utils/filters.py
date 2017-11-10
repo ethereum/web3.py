@@ -1,6 +1,4 @@
 import re
-import random
-import warnings
 
 from eth_utils import (
     is_string,
@@ -10,10 +8,6 @@ from eth_utils import (
 from .events import (
     construct_event_topic_set,
     construct_event_data_set,
-)
-from .compat import (
-    sleep,
-    GreenletThread,
 )
 
 from web3.utils.validation import (
@@ -73,7 +67,7 @@ def construct_event_filter_params(event_abi,
     return data_filters_set, filter_params
 
 
-class Filter(GreenletThread):
+class Filter:
     callbacks = None
     running = None
     stopped = False
@@ -88,32 +82,6 @@ class Filter(GreenletThread):
 
     def __str__(self):
         return "Filter for {0}".format(self.filter_id)
-
-    def _run(self):
-        if self.stopped:
-            raise ValueError("Cannot restart a Filter")
-        self.running = True
-
-        while self.running:
-            changes = self.web3.eth.getFilterChanges(self.filter_id)
-            if changes:
-                for entry in changes:
-                    for callback_fn in self.callbacks:
-                        if self.is_valid_entry(entry):
-                            callback_fn(self.format_entry(entry))
-            if self.poll_interval is None:
-                sleep(random.random())
-            else:
-                sleep(self.poll_interval)
-
-    def _warn_async_deprecated(self, method_name):
-        warnings.warn(DeprecationWarning(
-            "Asynchronous filters have been deprecated "
-            "and `{0}` will be removed from the Filter class "
-            "in future releases.  Update your code to work "
-            "syncronously or handle asynchrony explicitly with a "
-            "third party library.".format(method_name)
-        ))
 
     def format_entry(self, entry):
         """
@@ -142,27 +110,6 @@ class Filter(GreenletThread):
 
         log_entries = self._filter_valid_entries(self.web3.eth.getFilterLogs(self.filter_id))
         return self._format_log_entries(log_entries)
-
-    def watch(self, *callbacks):
-        self._warn_async_deprecated("watch")
-
-        if self.stopped:
-            raise ValueError("Cannot watch on a filter that has been stopped")
-        self.callbacks.extend(callbacks)
-
-        if not self.running:
-            self.start()
-        sleep(0)
-
-    def stop_watching(self, timeout=0):
-        self._warn_async_deprecated("stop_watching")
-
-        self.running = False
-        self.stopped = True
-        self.web3.eth.uninstallFilter(self.filter_id)
-        self.join(timeout)
-
-    stopWatching = stop_watching
 
 
 class BlockFilter(Filter):
@@ -219,21 +166,6 @@ class LogFilter(Filter):
         ]
         return formatted_log_entries
 
-    def get(self, only_changes=True):
-        warnings.warn(DeprecationWarning(
-            "LogFilter.get has been deprecated and "
-            "will be removed from the LogFilter class in future releases. "
-            "Update your code to use the new methods: "
-            "LogFilter.get_new_entries and LogFilter.get_all_entries."
-        ))
-
-        self._ensure_not_running("get")
-
-        if only_changes:
-            return self.get_new_entries()
-
-        return self.get_all_entries()
-
     def format_entry(self, entry):
         if self.log_entry_formatter:
             return self.log_entry_formatter(entry)
@@ -250,49 +182,3 @@ class LogFilter(Filter):
         if not self.data_filter_set_regex:
             return True
         return bool(self.data_filter_set_regex.match(entry['data']))
-
-
-class PastLogFilter(LogFilter):
-    def _run(self):
-        if self.stopped:
-            raise ValueError("Cannot restart a Filter")
-        self.running = True
-
-        previous_logs = self.web3.eth.getFilterLogs(self.filter_id)
-
-        if previous_logs:
-            for entry in previous_logs:
-                for callback_fn in self.callbacks:
-                    if self.is_valid_entry(entry):
-                        callback_fn(self.format_entry(entry))
-
-        self.running = False
-
-
-class ShhFilter(Filter):
-    def _run(self):
-        if self.stopped:
-            raise ValueError("Cannot restart a filter")
-        self.running = True
-
-        while self.running:
-            changes = self.web3.shh.getFilterChanges(self.filter_id)
-            if changes:
-                for entry in changes:
-                    for callback_fn in self.callbacks:
-                        if self.is_valid_entry(entry):
-                            callback_fn(self.format_entry(entry))
-            if self.poll_interval is None:
-                sleep(random.random())
-            else:
-                sleep(self.poll_interval)
-
-    def stop_watching(self, timeout=0):
-        self._warn_async_deprecated("stop_watching")
-
-        self.running = False
-        self.stopped = True
-        self.web3.shh.uninstallFilter(self.filter_id)
-        self.join(timeout)
-
-    stopWatching = stop_watching

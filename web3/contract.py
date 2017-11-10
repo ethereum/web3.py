@@ -55,15 +55,8 @@ from web3.utils.empty import (
 from web3.utils.encoding import (
     to_hex,
 )
-from web3.utils.events import (
-    get_event_data,
-)
 from web3.utils.exception import (
     raise_from,
-)
-from web3.utils.filters import (
-    construct_event_filter_params,
-    PastLogFilter,
 )
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
@@ -258,72 +251,6 @@ class Contract(object):
             data = fn_selector
 
         return cls._encode_abi(fn_abi, fn_arguments, data)
-
-    @combomethod
-    def on(self, event_name, filter_params=None, *callbacks):
-        """
-        Register a callback to be triggered on the appropriate events.
-        """
-        if filter_params is None:
-            filter_params = {}
-
-        argument_filters = filter_params.pop('filter', {})
-        argument_filter_names = list(argument_filters.keys())
-        event_abi = self._find_matching_event_abi(
-            event_name,
-            argument_filter_names,
-        )
-
-        data_filter_set, event_filter_params = construct_event_filter_params(
-            event_abi,
-            contract_address=self.address,
-            argument_filters=argument_filters,
-            **filter_params
-        )
-
-        log_data_extract_fn = functools.partial(get_event_data, event_abi)
-
-        log_filter = self.web3.eth.filter(event_filter_params)
-
-        log_filter.set_data_filters(data_filter_set)
-        log_filter.log_entry_formatter = log_data_extract_fn
-        log_filter.filter_params = event_filter_params
-
-        if callbacks:
-            log_filter.watch(*callbacks)
-
-        return log_filter
-
-    @combomethod
-    def pastEvents(self, event_name, filter_params=None, *callbacks):
-        """
-        Register a callback to be triggered on all past events.
-        """
-        if filter_params is None:
-            filter_params = {}
-
-        event_filter_params = {}
-        event_filter_params.update(filter_params)
-        event_filter_params.setdefault('fromBlock', 'earliest')
-        event_filter_params.setdefault('toBlock', self.web3.eth.blockNumber)
-
-        log_filter = self.on(
-            event_name,
-            filter_params=event_filter_params,
-        )
-
-        past_log_filter = PastLogFilter(
-            web3=log_filter.web3,
-            filter_id=log_filter.filter_id,
-            log_entry_formatter=log_filter.log_entry_formatter,
-            data_filter_set=log_filter.data_filter_set,
-        )
-        past_log_filter.filter_params = log_filter.filter_params
-
-        if callbacks:
-            past_log_filter.watch(*callbacks)
-
-        return past_log_filter
 
     @combomethod
     def estimateGas(self, transaction=None):
