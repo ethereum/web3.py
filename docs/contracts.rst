@@ -2,7 +2,6 @@ Contracts
 =========
 
 .. py:module:: web3.contract
-.. py:currentmodule:: web3.contract
 
 
 Contract Factories
@@ -11,7 +10,7 @@ Contract Factories
 .. py:class:: Contract(address)
 
     The ``Contract`` class is not intended to be used or instantiated directly.
-    Instead you should use the ``web3.eth.contract(...)`` method to generate
+    Instead you should use the :meth:`web3.eth.Eth.contract` method to generate
     the contract factory classes for your contracts.
 
     Contract Factories provide an interface for deploying and interacting with
@@ -30,7 +29,7 @@ Contract Factories
 
     .. code-block:: python
 
-        >>> concise = web3.eth.contract(..., ContractFactoryClass=ConciseContract)
+        >>> concise = w3.eth.contract(..., ContractFactoryClass=ConciseContract)
 
 
     This variation invokes all methods as a call, so if the classic contract had a method like
@@ -170,7 +169,7 @@ Each Contract Factory exposes the following methods.
 Events
 ------
 
-.. py:classmethod:: Contract.on(event_name, filter_params=None, *callbacks)
+.. py:classmethod:: Contract.eventFilter(event_name, filter_params=None)
 
     Creates a new :py:class:`web3.utils.filters.LogFilter` instance.
 
@@ -205,10 +204,6 @@ Events
     If the :py:attr:`Contract.address` attribute for this contract is
     non-null, the contract address will be added to the ``filter_params``.
 
-    If provided, the ``*callbacks`` parameter should be callables which accept
-    a single Event Log object.  When callbacks are provided, the filter will be
-    *started*.  Otherwise the filter will be returned without starting it.
-
     The Event Log Object is a python dictionary with the following keys:
 
     * ``args``: Dictionary - The arguments coming from the event.
@@ -227,23 +222,14 @@ Events
 
     .. code-block:: python
 
-        >>> transfer_filter = my_token_contract.on('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
-        >>> transfer_filter.get()
+        >>> transfer_filter = my_token_contract.eventFilter('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
+        >>> transfer_filter.get_new_entries()
         [...]  # array of Event Log Objects that match the filter.
-        >>> transfer_filter.watch(my_callback)
-        # now `my_callback` will be called each time a new matching event log
-        # is encountered.
 
+        # wait a while...
 
-.. py:classmethod:: Contract.pastEvents(event_name, filter_params=None, *callbacks)
+        >>> transfer_filter.get_new_entries()
+        [...]  # new events since the last call
 
-    Creates a new :py:class:`web3.utils.filters.PastLogFilter` instance which
-    will match historical event logs.
-
-    All parameters behave the same as the :py:method::`Contract.on` method.
-
-    .. code-block:: python
-
-        >>> transfer_filter = my_token_contract.pastEvents('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
-        >>> transfer_filter.get()
-        [...]  # array of Event Log Objects that match the filter for all historical events.
+        >>> transfer_filter.get_all_entries()
+        [...]  # all events that match the filter.

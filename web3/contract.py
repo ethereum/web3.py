@@ -55,8 +55,14 @@ from web3.utils.empty import (
 from web3.utils.encoding import (
     to_hex,
 )
+from web3.utils.events import (
+    get_event_data,
+)
 from web3.utils.exception import (
     raise_from,
+)
+from web3.utils.filters import (
+    construct_event_filter_params,
 )
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
@@ -251,6 +257,39 @@ class Contract(object):
             data = fn_selector
 
         return cls._encode_abi(fn_abi, fn_arguments, data)
+
+    @combomethod
+    def eventFilter(self, event_name, filter_params={}):
+        """
+        Create filter object that tracks events emitted by this contract.
+        :param event_name: the name of the event to track
+        :param filter_params: other parameters to limit the events
+        """
+        filter_meta_params = dict(filter_params)
+        argument_filters = filter_meta_params.pop('filter', {})
+
+        argument_filter_names = list(argument_filters.keys())
+        event_abi = self._find_matching_event_abi(
+            event_name,
+            argument_filter_names,
+        )
+
+        data_filter_set, event_filter_params = construct_event_filter_params(
+            event_abi,
+            contract_address=self.address,
+            argument_filters=argument_filters,
+            **filter_meta_params
+        )
+
+        log_data_extract_fn = functools.partial(get_event_data, event_abi)
+
+        log_filter = self.web3.eth.filter(event_filter_params)
+
+        log_filter.set_data_filters(data_filter_set)
+        log_filter.log_entry_formatter = log_data_extract_fn
+        log_filter.filter_params = event_filter_params
+
+        return log_filter
 
     @combomethod
     def estimateGas(self, transaction=None):

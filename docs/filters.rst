@@ -3,10 +3,9 @@ Filtering
 
 
 .. py:module:: web3.utils.filters
-.. py:currentmodule:: web3.utils.filters
 
 
-The ``web3.eth.filter`` method can be used to setup filter for:
+The :meth:`web3.eth.Eth.filter` method can be used to setup filter for:
 
 * Pending Transactions
 * New Blocks
@@ -29,7 +28,7 @@ Filter API
     Retrieve new entries for this filter.
 
     Logs will be retrieved using the
-    ``web3.eth.getFilterChanges`` which returns only new entries since the last
+    :func:`web3.eth.Eth.getFilterChanges` which returns only new entries since the last
     poll.
 
 
@@ -38,26 +37,8 @@ Filter API
     Retrieve all entries for this filter.
 
     Logs will be retrieved using the
-    ``web3.eth.getFilterLogs`` which returns all entries that match the given
+    :func:`web3.eth.Eth.getFilterLogs` which returns all entries that match the given
     filter.
-
-
-.. warning:: Asynchrony Deprecation: Native asynchronous filtering is being deprecated soon in favor a simpler synchronous implementation. This includes the following attributes: `callbacks`, `running`, and `stopped`.
-
-.. py:attribute:: Filter.callbacks
-
-    A list of callbacks that this filter will call with new entries.
-
-
-.. py:attribute:: Filter.running
-
-    Boolean as to whether this filter is currently polling.
-
-
-.. py:attribute:: Filter.stopped
-
-    Boolean as to whether this filter has been stopped.  Will be set to
-    ``None`` if the filter has not yet been started.
 
 
 .. py:method:: Filter.format_entry(entry)
@@ -74,32 +55,13 @@ Filter API
     implementation always returns ``True``.
 
 
-Asynchronous Filter API
------------------------
-
-.. warning:: Asynchrony Deprecation: Native asynchronous filtering is being deprecated soon in favor a simpler synchronous implementation. See **Async Examples** for sample asynchronous usage using 3rd party libraries.
-
-.. py:method:: Filter.watch(*callbacks)
-
-    Registers the provided ``callbacks`` to be called with each new entry this
-    filter encounters and starts the filter polling for changes.
-
-    Can only be called once on each filter.  Cannot be called on a filter that
-    has already been started.
-
-.. py:method:: Filter.stop_watching(self, timeout=0)
-
-    Stops the filter from polling and uninstalls the filter.  Blocks until all
-    events that are currently being processed have been processed.
-
-
 Block and Transaction Filters
 -----------------------------
 
 .. py:class:: BlockFilter(...)
 
     You can setup a filter for new blocks using ``web3.eth.filter('latest')`` which
-    will return a new :py:class::`BlockFilter` object.
+    will return a new :py:class:`BlockFilter` object.
 
     .. code-block:: python
 
@@ -115,7 +77,7 @@ Block and Transaction Filters
 .. py:class:: TransactionFilter(...)
 
 You can setup a filter for new blocks using ``web3.eth.filter('pending')`` which
-will return a new :py:class::`BlockFilter` object.
+will return a new :py:class:`BlockFilter` object.
 
     .. code-block:: python
 
@@ -134,7 +96,7 @@ Event Log Filters
 
 .. py:class:: LogFilter(web3, filter_id, log_entry_formatter=None, data_filter_set=None)
 
-The :py:class::`LogFilter` class is used for all filters pertaining to event
+The :py:class:`LogFilter` class is used for all filters pertaining to event
 logs.  It exposes the following additional methods.
 
 
@@ -143,7 +105,7 @@ logs.  It exposes the following additional methods.
     Retrieve new event logs for this filter.
 
     Logs will be retrieved using the
-    ``web3.eth.getFilterChanges`` which returns only new entries since the last
+    :func:`web3.eth.Eth.getFilterChanges` which returns only new entries since the last
     poll.
 
 
@@ -152,55 +114,10 @@ logs.  It exposes the following additional methods.
     Retrieve all event logs for this filter.
 
     Logs will be retrieved using the
-    ``web3.eth.getFilterLogs`` which returns all logs that match the given
+    :func:`web3.eth.Eth.getFilterLogs` which returns all logs that match the given
     filter.
 
 
-.. warning:: Pending Deprecation:  ``LogFilter.get`` is being deprecated soon in favor of ``Filter.get_new_entries`` and ``Filter.get_all_entries``.
-
-.. py:method:: LogFilter.get(only_changes=True)
-
-    Synchronously retrieve the event logs for this filter.
-
-    If ``only_changes`` is ``True`` then logs will be retrieved using the
-    ``web3.eth.getFilterChanges`` which returns only new entries since the last
-    poll.
-
-    If ``only_changes`` is ``False`` then the logs will be retrieved using the
-    ``web3.eth.getFilterLogs`` which returns all logs that match the given
-    filter.
-
-    This method will raise a ``ValueError`` if called on a filter that is
-    currently polling.
-
-
-The :py:class::`LogFilter` class is returned from the
-:py:method::`web3.contract.Contract.on` and will be configured to extract the
+The :class:`LogFilter` class is returned from the
+:func:`web3.contract.Contract.eventFilter` and will be configured to extract the
 event data from the event logs.
-
-
-.. py:class:: PastLogFilter(...)
-
-The :py:class::`PastLogFilter` is a subclass of :py:class::`LogFilter` that is
-configured specially to return historical event logs.  It conforms to the same
-API as the ``LogFilter`` class.
-
-
-Shh Filter
-----------
-
-.. py:class:: ShhFilter(web3, filter_id)
-
-The :py:class:: `ShhFilter` class is used for filtering Shh messages.
-You can setup a callback function for Whipser messages matching the topics subscribed using ``web3.shh.filter(filter_params)``,which
-will return a :py:class::`ShhFilter` object
-
-    .. code-block:: python
-   
-        >>>def filter_callback(new_message):
-        ...     sys.stdout.write("New Shh Message: {0}".format(new_message))
-        ...
-        >>>shh_filter = web3.shh.filter({"topics":[web3.toHex(text="topic_to_subscribe")]})
-        >>>shh_filter.watch(filter_callback)
-        #each time client recieves a Shh messages matching the topics subscibed,
-        #filter_callback is called

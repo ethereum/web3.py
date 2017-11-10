@@ -1,86 +1,54 @@
 import pytest
-from flaky import flaky
-
-from eth_utils import (
-    is_same_address,
-)
-
-from web3.utils.compat import (
-    Timeout,
-)
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
-@flaky(max_runs=3)
 @pytest.mark.parametrize('call_as_instance', (True, False))
-def test_past_events_async_filter_with_callback(web3,
-                                                sleep_interval,
-                                                emitter,
-                                                Emitter,
-                                                wait_for_transaction,
-                                                emitter_log_topics,
-                                                emitter_event_ids,
-                                                call_as_instance
-                                                ):
-    if True:
-        assert not hasattr(Emitter, 'eventFilter')
-        # once this fails, reimplement the test with the new API
-        return
+def test_on_filter_using_get_all_entries_interface(
+    web3,
+    emitter,
+    Emitter,
+    wait_for_transaction,
+    emitter_event_ids,
+    call_as_instance,
+):
+    if call_as_instance:
+        event_filter = emitter.eventFilter('LogNoArguments', {})
+    else:
+        event_filter = Emitter.eventFilter('LogNoArguments', {})
 
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
-    txn_receipt = wait_for_transaction(web3, txn_hash)
+    wait_for_transaction(web3, txn_hash)
 
-    seen_logs = []
+    log_entries = event_filter.get_all_entries()
 
-    if call_as_instance:
-        filter = emitter.pastEvents('LogNoArguments', {}, seen_logs.append)
-    else:
-        filter = Emitter.pastEvents('LogNoArguments', {}, seen_logs.append)
+    assert len(log_entries) == 1
+    assert log_entries[0]['transactionHash'] == txn_hash
 
-    with Timeout(30) as timeout:
-        while not seen_logs:
-            timeout.sleep(sleep_interval())
+    # a second call still retrieves all results
+    log_entries_2 = event_filter.get_all_entries()
 
-    filter.stop_watching(30)
-
-    assert len(seen_logs) == 1
-    event_data = seen_logs[0]
-    assert event_data['args'] == {}
-    assert event_data['blockHash'] == txn_receipt['blockHash']
-    assert event_data['blockNumber'] == txn_receipt['blockNumber']
-    assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
-    assert is_same_address(event_data['address'], emitter.address)
-    assert event_data['event'] == 'LogNoArguments'
+    assert len(log_entries_2) == 1
+    assert log_entries_2[0]['transactionHash'] == txn_hash
 
 
-@flaky(max_runs=3)
 @pytest.mark.parametrize('call_as_instance', (True, False))
-def test_past_events_filter_using_get_api(web3,
-                                          sleep_interval,
-                                          emitter,
-                                          Emitter,
-                                          wait_for_transaction,
-                                          emitter_log_topics,
-                                          emitter_event_ids,
-                                          call_as_instance):
-    if True:
-        assert not hasattr(Emitter, 'eventFilter')
-        # once this fails, reimplement the test with the new API
-        return
-
+def test_get_all_entries_returned_block_data(
+    web3,
+    emitter,
+    Emitter,
+    wait_for_transaction,
+    emitter_event_ids,
+    call_as_instance,
+):
     txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
     if call_as_instance:
-        filter = emitter.pastEvents('LogNoArguments')
+        filter = emitter.eventFilter('LogNoArguments')
     else:
-        filter = Emitter.pastEvents('LogNoArguments')
-
-    with Timeout(30) as timeout:
-        while not filter.get_all_entries():
-            timeout.sleep(sleep_interval())
+        filter = Emitter.eventFilter('LogNoArguments')
 
     log_entries = filter.get_all_entries()
 
@@ -90,44 +58,5 @@ def test_past_events_filter_using_get_api(web3,
     assert event_data['blockHash'] == txn_receipt['blockHash']
     assert event_data['blockNumber'] == txn_receipt['blockNumber']
     assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
-    assert is_same_address(event_data['address'], emitter.address)
-    assert event_data['event'] == 'LogNoArguments'
-
-
-@flaky(max_runs=3)
-@pytest.mark.parametrize('call_as_instance', (True, False))
-def test_past_events_filter_using_get_entries_api(web3,
-                                                  sleep_interval,
-                                                  emitter,
-                                                  Emitter,
-                                                  wait_for_transaction,
-                                                  emitter_log_topics,
-                                                  emitter_event_ids,
-                                                  call_as_instance):
-    if True:
-        assert not hasattr(Emitter, 'eventFilter')
-        # once this fails, reimplement the test with the new API
-        return
-
-    txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
-    txn_receipt = wait_for_transaction(web3, txn_hash)
-
-    if call_as_instance:
-        filter = emitter.pastEvents('LogNoArguments')
-    else:
-        filter = Emitter.pastEvents('LogNoArguments')
-
-    with Timeout(30) as timeout:
-        while not filter.get(False):
-            timeout.sleep(sleep_interval())
-
-    log_entries = filter.get(False)
-
-    assert len(log_entries) == 1
-    event_data = log_entries[0]
-    assert event_data['args'] == {}
-    assert event_data['blockHash'] == txn_receipt['blockHash']
-    assert event_data['blockNumber'] == txn_receipt['blockNumber']
-    assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
-    assert is_same_address(event_data['address'], emitter.address)
+    assert event_data['address'] == emitter.address
     assert event_data['event'] == 'LogNoArguments'
