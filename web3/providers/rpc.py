@@ -6,7 +6,7 @@ from eth_utils import (
     to_dict,
 )
 
-from web3.utils.compat import (
+from web3.utils.request import (
     make_post_request,
 )
 from web3.utils.http import construct_user_agent
