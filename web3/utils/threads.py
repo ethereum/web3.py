@@ -68,10 +68,6 @@ class Timeout(Exception):
         self.check()
 
 
-class empty(object):
-    pass
-
-
 class ThreadWithReturn(threading.Thread):
     def __init__(self, target=None, args=None, kwargs=None):
         super(ThreadWithReturn, self).__init__(

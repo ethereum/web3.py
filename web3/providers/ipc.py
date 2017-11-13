@@ -8,7 +8,7 @@ try:
 except ImportError:
     JSONDecodeError = ValueError
 
-from web3.utils.compat import (
+from web3.utils.threads import (
     Timeout,
 )
 

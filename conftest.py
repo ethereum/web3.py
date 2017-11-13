@@ -5,7 +5,7 @@ from web3.providers.tester import (
     EthereumTesterProvider,
     TestRPCProvider,
 )
-from web3.utils.compat import (
+from web3.utils.threads import (
     Timeout,
 )
 from web3.main import Web3
