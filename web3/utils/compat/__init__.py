@@ -16,12 +16,7 @@ THREADING_BACKEND = get_threading_backend()
 if THREADING_BACKEND == 'stdlib':
     from .compat_stdlib import (  # noqa: F401
         Timeout,
-        sleep,
-        socket,
-        threading,
-        make_server,
         spawn,
-        subprocess,
     )
     from .compat_requests import (  # noqa: F401
         make_post_request,

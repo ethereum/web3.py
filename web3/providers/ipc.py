@@ -1,7 +1,7 @@
-from __future__ import absolute_import
-
-import sys
 import os
+import socket
+import sys
+import threading
 
 try:
     from json import JSONDecodeError
@@ -10,8 +10,6 @@ except ImportError:
 
 from web3.utils.compat import (
     Timeout,
-    threading,
-    socket,
 )
 
 from .base import JSONBaseProvider

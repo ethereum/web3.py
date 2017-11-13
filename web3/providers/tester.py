@@ -1,3 +1,5 @@
+from wsgiref.simple_server import make_server
+
 from cytoolz.functoolz import (
     compose,
     complement,
@@ -16,7 +18,6 @@ from web3.middleware import (
 )
 
 from web3.utils.compat import (
-    make_server,
     spawn,
 )
 from web3.utils.formatters import (
