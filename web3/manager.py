@@ -4,8 +4,6 @@ from eth_utils import (
     is_list_like,
 )
 
-from ens import ENS
-
 from web3.exceptions import (
     CannotHandleRequest,
     UnhandledRequest,
@@ -31,8 +29,7 @@ class RequestManager(object):
         self.pending_requests = {}
 
         if middlewares is None:
-            ens = ENS(providers)
-            middlewares = self.default_middlewares(ens)
+            middlewares = self.default_middlewares(web3)
 
         self.middleware_stack = NamedElementStack(middlewares)
         self.providers = providers
@@ -53,13 +50,13 @@ class RequestManager(object):
         self._providers = providers
 
     @staticmethod
-    def default_middlewares(ens=None):
+    def default_middlewares(web3):
         '''
         List the default middlewares for the request manager.
         Leaving ens unspecified will prevent the middleware from resolving names.
         '''
         return [
-            (name_to_address_middleware(ens), 'name_to_address'),
+            (name_to_address_middleware(web3), 'name_to_address'),
             (attrdict_middleware, 'attrdict'),
             (pythonic_middleware, 'pythonic'),
             (abi_middleware, 'abi'),

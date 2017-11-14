@@ -26,8 +26,6 @@ from toolz.functoolz import (
     compose,
 )
 
-from ens import ENS
-
 from web3.exceptions import (
     BadFunctionCallOutput,
 )
@@ -127,7 +125,6 @@ class Contract(object):
     clone_bin = None
 
     dev_doc = None
-    ens = None
     interface = None
     metadata = None
     opcodes = None
@@ -162,7 +159,7 @@ class Contract(object):
             return val
         elif key == 'address':
             if is_ens_name(val):
-                validate_name_has_address(cls.ens, val)
+                validate_name_has_address(cls.web3.ens, val)
                 return val
             else:
                 validate_address(val)
@@ -181,9 +178,6 @@ class Contract(object):
             contract_name = cls.__name__
 
         kwargs['web3'] = web3
-
-        if 'ens' not in kwargs:
-            kwargs['ens'] = ENS.fromWeb3(web3)
 
         for key in kwargs:
             if not hasattr(cls, key):
@@ -615,7 +609,7 @@ class Contract(object):
 
         try:
             normalizers = [
-                abi_ens_resolver(cls.ens),
+                abi_ens_resolver(cls.web3),
                 abi_address_to_hex,
                 abi_bytes_to_hex,
                 abi_string_to_hex,

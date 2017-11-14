@@ -105,12 +105,14 @@ def abi_address_to_hex(abi_type, data):
 
 
 @curry
-def abi_ens_resolver(ens, abi_type, val):
+def abi_ens_resolver(w3, abi_type, val):
     if abi_type == 'address' and is_ens_name(val):
-        if ens is None:
+        if w3 is None:
             raise ValueError("Could not look up name, because no web3 connection available")
+        elif w3.ens is None:
+            raise ValueError("Could not look up name, because ENS is set to None")
         else:
-            return (abi_type, validate_name_has_address(ens, val))
+            return (abi_type, validate_name_has_address(w3.ens, val))
     else:
         return (abi_type, val)
 

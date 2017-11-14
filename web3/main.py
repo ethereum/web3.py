@@ -12,6 +12,8 @@ from eth_utils import (
     to_wei,
 )
 
+from ens import ENS
+
 from web3.admin import Admin
 from web3.eth import Eth
 from web3.iban import Iban
@@ -47,6 +49,8 @@ from web3.utils.encoding import (
     to_hex,
     to_text,
 )
+
+default = object()
 
 
 def get_default_modules():
@@ -90,7 +94,7 @@ class Web3(object):
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
-    def __init__(self, providers, middlewares=None, modules=None):
+    def __init__(self, providers, middlewares=None, modules=None, ens=default):
         self.manager = RequestManager(self, providers, middlewares)
 
         if modules is None:
@@ -98,6 +102,8 @@ class Web3(object):
 
         for module_name, module_class in modules.items():
             module_class.attach(self, module_name)
+
+        self.ens = ens
 
     @property
     def middleware_stack(self):
@@ -152,3 +158,14 @@ class Web3(object):
                 return True
         else:
             return False
+
+    @property
+    def ens(self):
+        if self._ens is default:
+            return ENS.fromWeb3(self)
+        else:
+            return self._ens
+
+    @ens.setter
+    def ens(self, new_ens):
+        self._ens = new_ens

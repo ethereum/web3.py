@@ -50,16 +50,16 @@ def ensure_hex(data):
 def init_web3(providers=None):
     from web3 import HTTPProvider, IPCProvider, Web3
     from web3.contract import ConciseContract
-    from web3.manager import RequestManager
     from web3.middleware import make_stalecheck_middleware
 
     if not providers:
         providers = [IPCProvider(), HTTPProvider('http://localhost:8545')]
-    middlewares = [
-        (make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600), 'stalecheck')
-    ] + RequestManager.default_middlewares()
-
-    w3 = Web3(providers, middlewares=middlewares)
+    w3 = Web3(providers, ens=None)
+    w3.middleware_stack.remove('name_to_address')
+    w3.middleware_stack.add(
+        make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600),
+        name='stalecheck',
+    )
     w3.eth.setContractFactory(ConciseContract)
     return w3
 
