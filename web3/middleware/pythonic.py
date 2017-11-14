@@ -116,7 +116,7 @@ def is_array_of_dicts(value):
 @curry
 def to_hexbytes(num_bytes, val, variable_length=False):
     if isinstance(val, (str, int, bytes)):
-        result = HexBytes('0x' + '0'*(num_bytes*2-len(val)+2) + val[2:])
+        result = HexBytes(val)
     else:
         raise TypeError("Cannot convert %r to HexBytes" % val)
 
@@ -143,9 +143,9 @@ TRANSACTION_FORMATTERS = {
     'value': to_integer_if_hex,
     'from': to_checksum_address,
     'publicKey': to_hexbytes(64),
-    'r': to_hexbytes(32),
+    'r': to_hexbytes(32, variable_length=True),
     'raw': HexBytes,
-    's': to_hexbytes(32),
+    's': to_hexbytes(32, variable_length=True),
     'to': apply_formatter_if(is_address, to_checksum_address),
     'hash': to_hexbytes(32),
     'v': apply_formatter_if(is_not_null, to_integer_if_hex),
