@@ -1,6 +1,5 @@
 
 from eth_utils import (
-    is_address,
     is_checksum_address,
     to_checksum_address,
 )
@@ -184,10 +183,7 @@ class ENS:
         if resolver:
             lookup_function = getattr(resolver, get)
             namehash = name_to_hash(normal_name)
-            resolved = lookup_function(namehash)
-            if is_address(resolved):
-                resolved = to_checksum_address(resolved)
-            return resolved
+            return lookup_function(namehash)
         else:
             return None
 

@@ -5,7 +5,7 @@ from cytoolz.dicttoolz import (
 )
 
 from eth_utils import (
-    is_address,
+    is_checksum_address,
     is_string,
 )
 
@@ -200,7 +200,7 @@ class Eth(Module):
 
     def sendTransaction(self, transaction):
         # TODO: move to middleware
-        if 'from' not in transaction and is_address(self.defaultAccount):
+        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
         # TODO: move gas estimation in middleware
@@ -230,7 +230,7 @@ class Eth(Module):
 
     def call(self, transaction, block_identifier=None):
         # TODO: move to middleware
-        if 'from' not in transaction and is_address(self.defaultAccount):
+        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
         # TODO: move to middleware
@@ -244,7 +244,7 @@ class Eth(Module):
 
     def estimateGas(self, transaction):
         # TODO: move to middleware
-        if 'from' not in transaction and is_address(self.defaultAccount):
+        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
         return self.web3.manager.request_blocking(
