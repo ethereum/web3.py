@@ -10,20 +10,7 @@ matrix:
   include:
     # go-ethereum
     - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.0
-    - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.1
-    # 1.6.2 and 1.6.3 are failing due to go-ethereum internal errors.
-    - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.4
-    - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.5
-    - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.6
-    - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.6.7
-    - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.7.0
+      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.7.2
     # ENS
     - python: "3.5"
       env: TOX_POSARGS="-e py35-ens"
