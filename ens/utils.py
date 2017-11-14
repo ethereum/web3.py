@@ -84,6 +84,23 @@ def normalize_name(name):
         raise InvalidName("%s is an invalid name, because %s" % (name, exc)) from exc
 
 
+def is_valid_name(name):
+    '''
+    Validate whether the fully qualified name is valid, as defined in ENS `EIP-137
+    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
+
+    :param str name: the dot-separated ENS name
+    :returns: True if ``name`` is set, and :meth:`~ens.main.ENS.nameprep` will not raise InvalidName
+    '''
+    if not name:
+        return False
+    try:
+        normalize_name(name)
+        return True
+    except InvalidName:
+        return False
+
+
 def label_to_name(label, default_tld, recognized_tlds):
     label = normalize_name(label)
     pieces = label.split('.')

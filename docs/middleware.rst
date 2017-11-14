@@ -36,7 +36,7 @@ AttributeDict
 
 .. py:method:: web3.middleware.name_to_address_middleware
 
-    This middleware converts Ethereum Name Service (ENS) names that end in .eth into the
+    This middleware converts Ethereum Name Service (ENS) names into the
     address that the name points to. For example :meth:`~web3.Eth.sendTransaction` will
     accept .eth names in the 'from' and 'to' fields.
 

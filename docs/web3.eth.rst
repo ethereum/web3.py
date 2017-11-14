@@ -155,7 +155,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the balance of the given ``account`` at the block specified by
     ``block_identifier``.
 
-    ``account`` may be a hex address or an ENS name ending in '.eth'
+    ``account`` may be a hex address or an ENS name
 
     .. code-block:: python
 
@@ -170,7 +170,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the value from a storage position for the given ``account`` at the
     block specified by ``block_identifier``.
 
-    ``account`` may be a hex address or an ENS name ending in '.eth'
+    ``account`` may be a hex address or an ENS name
 
     .. code-block:: python
 
@@ -185,7 +185,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the bytecode for the given ``account`` at the block specified by
     ``block_identifier``.
 
-    ``account`` may be a hex address or an ENS name ending in '.eth'
+    ``account`` may be a hex address or an ENS name
 
     .. code-block:: python
 
@@ -362,7 +362,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the number of transactions that have been sent from ``account`` as
     of the block specified by ``block_identifier``.
 
-    ``account`` may be a hex address or an ENS name ending in '.eth'
+    ``account`` may be a hex address or an ENS name
 
     .. code-block:: python
 
@@ -442,7 +442,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Signs the given data with the private key of the given ``account``.
     The account must be unlocked.
 
-    ``account`` may be a hex address or an ENS name ending in '.eth'
+    ``account`` may be a hex address or an ENS name
 
     .. code-block:: python
 

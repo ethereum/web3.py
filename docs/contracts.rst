@@ -56,8 +56,8 @@ Each Contract Factory exposes the following properties.
 
 .. py:attribute:: Contract.address
 
-    The hexadecimal encoded 20-byte address of the contract, or a production ENS name
-    ending in '.eth`.  May be ``None`` if not provided during factory creation.
+    The hexadecimal encoded 20-byte address of the contract, or an ENS name.
+    May be ``None`` if not provided during factory creation.
 
 
 .. py:attribute:: Contract.abi
@@ -95,7 +95,7 @@ Each Contract Factory exposes the following methods.
     list via the ``args`` parameter.
 
     If any of the ``args`` specified in the ABI are an ``address`` type, they
-    will accept production ENS names, ending in ``'.eth'``.
+    will accept ENS names.
 
     If a ``gas`` value is not provided, then the ``gas`` value for the
     deployment transaction will be created using the ``web3.eth.estimateGas()``
@@ -120,7 +120,7 @@ Each Contract Factory exposes the following methods.
     arguments, or a mix of the two.
 
     If any of the ``args`` or ``kwargs`` specified in the ABI are an ``address`` type, they
-    will accept production ENS names, ending in ``'.eth'``.
+    will accept ENS names.
 
     If a ``gas`` value is not provided, then the ``gas`` value for the
     method transaction will be created using the ``web3.eth.estimateGas()``
