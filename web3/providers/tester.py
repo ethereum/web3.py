@@ -1,3 +1,5 @@
+from wsgiref.simple_server import make_server
+
 from cytoolz.functoolz import (
     compose,
     complement,
@@ -15,10 +17,6 @@ from web3.middleware import (
     construct_exception_handler_middleware,
 )
 
-from web3.utils.compat import (
-    make_server,
-    spawn,
-)
 from web3.utils.formatters import (
     hex_to_integer,
     apply_formatter_if,
@@ -26,6 +24,9 @@ from web3.utils.formatters import (
     apply_formatters_to_dict,
     static_return,
     static_result,
+)
+from web3.utils.threads import (
+    spawn,
 )
 
 from .base import BaseProvider  # noqa: E402

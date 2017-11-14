@@ -1,10 +1,62 @@
 import pytest
-
 import time
 
-from web3.utils.compat.compat_stdlib import (
+from web3.utils.threads import (
+    ThreadWithReturn,
     Timeout,
+    spawn,
 )
+
+
+class CustomThreadClass(ThreadWithReturn):
+    pass
+
+
+def test_spawning_simple_thread():
+    container = {
+        'success': None,
+    }
+
+    def target_fn():
+        container['success'] = True
+
+    thread = spawn(target_fn)
+    thread.join()
+
+    assert container['success'] is True
+
+
+def test_spawning_specific_thread_class():
+    container = {
+        'success': None,
+    }
+
+    def target_fn():
+        container['success'] = True
+
+    thread = spawn(target_fn, thread_class=CustomThreadClass)
+    thread.join()
+
+    assert isinstance(thread, CustomThreadClass)
+
+    assert container['success'] is True
+
+
+def test_thread_with_return_value():
+    container = {
+        'success': None,
+    }
+
+    def target_fn():
+        container['success'] = True
+        return 12345
+
+    thread = spawn(target_fn)
+    thread.join()
+
+    assert container['success'] is True
+
+    assert thread.get() == 12345
 
 
 def test_inline_completion_before_timeout():

@@ -1,4 +1,5 @@
 import pytest
+import socket
 
 from web3.manager import (
     RequestManager,
@@ -7,7 +8,6 @@ from web3.providers.tester import (
     TestRPCProvider as TheTestRPCProvider,
     is_testrpc_available,
 )
-from web3.utils.compat import socket
 
 
 def get_open_port():

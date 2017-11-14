@@ -1,6 +1,6 @@
 from flaky import flaky
 
-from web3.utils.compat import (
+from web3.utils.threads import (
     Timeout,
 )
 

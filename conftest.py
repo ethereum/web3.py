@@ -1,12 +1,12 @@
 import pytest
+import time
 
 from web3.providers.tester import (
     EthereumTesterProvider,
     TestRPCProvider,
 )
-from web3.utils.compat import (
+from web3.utils.threads import (
     Timeout,
-    sleep,
 )
 from web3.main import Web3
 
@@ -61,7 +61,7 @@ def wait_for_miner_start():
         poll_delay_counter = PollDelayCounter()
         with Timeout(timeout) as timeout:
             while not web3.eth.mining or not web3.eth.hashrate:
-                sleep(poll_delay_counter())
+                time.sleep(poll_delay_counter())
                 timeout.check()
     return _wait_for_miner_start
 
@@ -76,7 +76,7 @@ def wait_for_block():
                     break
                 if is_all_testrpc_providers(web3.providers):
                     web3.manager.request_blocking("evm_mine", [])
-                sleep(poll_delay_counter())
+                time.sleep(poll_delay_counter())
                 timeout.check()
     return _wait_for_block
 
@@ -90,7 +90,7 @@ def wait_for_transaction():
                 txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
                 if txn_receipt is not None:
                     break
-                sleep(poll_delay_counter())
+                time.sleep(poll_delay_counter())
                 timeout.check()
 
         return txn_receipt

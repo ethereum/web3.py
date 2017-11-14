@@ -3,12 +3,6 @@ A minimal implementation of the various gevent APIs used within this codebase.
 """
 import time
 import threading
-import subprocess  # noqa: F401
-import socket  # noqa: F401
-from wsgiref.simple_server import make_server  # noqa: F401
-
-
-sleep = time.sleep
 
 
 class Timeout(Exception):
@@ -74,10 +68,6 @@ class Timeout(Exception):
         self.check()
 
 
-class empty(object):
-    pass
-
-
 class ThreadWithReturn(threading.Thread):
     def __init__(self, target=None, args=None, kwargs=None):
         super(ThreadWithReturn, self).__init__(
@@ -109,18 +99,3 @@ def spawn(target, thread_class=ThreadWithReturn, *args, **kwargs):
     thread.daemon = True
     thread.start()
     return thread
-
-
-class GreenletThread(threading.Thread):
-    def __init__(self, target=None, args=None, kwargs=None):
-        if target is None:
-            target = self._run
-        super(GreenletThread, self).__init__(
-            target=target,
-            args=args or tuple(),
-            kwargs=kwargs or {},
-        )
-        self.daemon = True
-
-    def _run(self):
-        pass

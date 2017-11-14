@@ -33,9 +33,6 @@ matrix:
     # core-stdlib
     - python: "3.5"
       env: TOX_POSARGS="-e py35-core-stdlib"
-    # core-gevent
-    - python: "3.5"
-      env: TOX_POSARGS="-e py35-core-gevent"
     # eth-testrpc
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-ethtestrpc"

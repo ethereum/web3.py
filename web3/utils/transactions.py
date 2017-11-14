@@ -19,7 +19,7 @@ from rlp.sedes import (
     binary,
 )
 
-from web3.utils.compat import (
+from web3.utils.threads import (
     Timeout,
 )
 from web3.utils.encoding import (

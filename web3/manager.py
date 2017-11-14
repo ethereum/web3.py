@@ -13,11 +13,11 @@ from web3.middleware import (
     attrdict_middleware,
 )
 
-from web3.utils.compat import (
-    spawn,
-)
 from web3.utils.datastructures import (
     NamedElementStack,
+)
+from web3.utils.threads import (
+    spawn,
 )
 
 
