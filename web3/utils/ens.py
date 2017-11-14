@@ -23,7 +23,7 @@ def is_ens_name(value):
 
 
 def validate_name_has_address(ens, name):
-    addr = ens.address(name)
+    addr = ens.address(name, guess_tld=False)
     if addr:
         return addr
     else:
@@ -34,5 +34,7 @@ class StaticENS:
     def __init__(self, name_addr_pairs):
         self.registry = dict(name_addr_pairs)
 
-    def address(self, name):
+    def address(self, name, guess_tld=True):
+        # no automated web3 usages should be guessing the TLD
+        assert not guess_tld
         return self.registry.get(name, None)
