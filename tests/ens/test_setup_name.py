@@ -65,8 +65,16 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
 
     ens.setup_name(name, address)
     assert ens.name(address) == normalized_name
+
+    # check that .eth is only appended if guess_tld is True
+    if ens.nameprep(name) != normalized_name:
+        assert ens.address(name, guess_tld=False) is None
+
+    # check that the correct namehash is set:
     node = Web3.toBytes(hexstr=namehash_hex)
-    assert ens.resolver(name).addr(node) == address
+    assert ens.resolver(normalized_name).addr(node) == address
+
+    # check that the correct owner is set:
     assert ens.owner(name) == owner
 
     ens.setup_name(None, address)

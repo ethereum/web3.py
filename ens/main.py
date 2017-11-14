@@ -27,6 +27,7 @@ from ens.utils import (
     init_web3,
     is_valid_name,
     label_to_hash,
+    name_to_hash,
     normalize_name,
 )
 
@@ -75,14 +76,19 @@ class ENS:
         '''
         return cls(web3.manager.providers, addr=addr)
 
-    def address(self, name):
+    def address(self, name, guess_tld=True):
         '''
         Look up the Ethereum address that `name` currently points to.
 
         :param str name: an ENS name to look up
+        :param bool guess_tld: should `name` be appended with '.eth' if no common TLD found?
         :raises InvalidName: if `name` has invalid syntax
         '''
-        return self.resolve(name, 'addr')
+        if guess_tld:
+            expanded = dot_eth_name(name)
+        else:
+            expanded = name
+        return self.resolve(expanded, 'addr')
 
     def name(self, address):
         '''
@@ -173,18 +179,20 @@ class ENS:
             return self._setup_reverse(name, address, transact=transact)
 
     def resolve(self, name, get='addr'):
-        resolver = self.resolver(name)
+        normal_name = normalize_name(name)
+        resolver = self.resolver(normal_name)
         if resolver:
             lookup_function = getattr(resolver, get)
-            resolved = lookup_function(dot_eth_namehash(name))
+            namehash = name_to_hash(normal_name)
+            resolved = lookup_function(namehash)
             if is_address(resolved):
                 resolved = to_checksum_address(resolved)
             return resolved
         else:
             return None
 
-    def resolver(self, name):
-        resolver_addr = self.ens.resolver(dot_eth_namehash(name))
+    def resolver(self, normal_name):
+        resolver_addr = self.ens.resolver(name_to_hash(normal_name))
         if not resolver_addr:
             return None
         return self._resolverContract(address=resolver_addr)
@@ -308,5 +316,5 @@ class ENS:
         return self._reverse_registrar().setName(name, transact=transact)
 
     def _reverse_registrar(self):
-        addr = self.ens.owner(dot_eth_namehash(REVERSE_REGISTRAR_DOMAIN))
+        addr = self.ens.owner(name_to_hash(REVERSE_REGISTRAR_DOMAIN))
         return self.web3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
