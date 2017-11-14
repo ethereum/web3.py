@@ -25,6 +25,7 @@ from ens.utils import (
     dot_eth_name,
     dot_eth_namehash,
     init_web3,
+    is_valid_name,
     label_to_hash,
     normalize_name,
 )
@@ -47,6 +48,7 @@ class ENS:
     labelhash = staticmethod(label_to_hash)
     namehash = staticmethod(dot_eth_namehash)
     nameprep = staticmethod(normalize_name)
+    is_valid_name = staticmethod(is_valid_name)
     reverse_domain = staticmethod(address_to_reverse_domain)
 
     def __init__(self, providers=None, addr=None):

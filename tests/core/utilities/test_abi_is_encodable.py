@@ -44,6 +44,17 @@ from web3.utils.abi import (
         (b'\0' * 25, 'function', False),
         (True, 'function', False),
         (False, 'function', False),
+        # address
+        ('0x' + '00' * 20, 'address', True),
+        ('0x' + '00' * 32, 'address', False),
+        (None, 'address', False),
+        ('dennisthepeasant.eth', 'address', True),  # passes because eth_utils converts to bytes :/
+        ('autonomouscollective.eth', 'address', True),
+        ('all-TLDs-valid-now.test', 'address', True),
+        ('-rejects-invalid-names.test', 'address', False),
+        ('ff', 'address', True),  # this could theoretically be a top-level domain (TLD)
+        ('0xname.eth', 'address', True),  # 0x in name is fine, if it is not a TLD
+        ('0xff', 'address', False),  # but any valid hex starting with 0x should be rejected
     ),
 )
 def test_is_encodable(value, _type, expected):

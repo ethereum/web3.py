@@ -54,10 +54,11 @@ def init_web3(providers=None):
 
     if not providers:
         providers = [IPCProvider(), HTTPProvider('http://localhost:8545')]
-    w3 = Web3(providers)
+    w3 = Web3(providers, ens=None)
+    w3.middleware_stack.remove('name_to_address')
     w3.middleware_stack.add(
         make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600),
-        name='stalecheck'
+        name='stalecheck',
     )
     w3.eth.setContractFactory(ConciseContract)
     return w3
@@ -81,6 +82,23 @@ def normalize_name(name):
         return idna.decode(name, uts46=True, std3_rules=True)
     except idna.IDNAError as exc:
         raise InvalidName("%s is an invalid name, because %s" % (name, exc)) from exc
+
+
+def is_valid_name(name):
+    '''
+    Validate whether the fully qualified name is valid, as defined in ENS `EIP-137
+    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
+
+    :param str name: the dot-separated ENS name
+    :returns: True if ``name`` is set, and :meth:`~ens.main.ENS.nameprep` will not raise InvalidName
+    '''
+    if not name:
+        return False
+    try:
+        normalize_name(name)
+        return True
+    except InvalidName:
+        return False
 
 
 def label_to_name(label, default_tld, recognized_tlds):

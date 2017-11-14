@@ -9,8 +9,10 @@ from web3.exceptions import (
     UnhandledRequest,
 )
 from web3.middleware import (
+    abi_middleware,
     pythonic_middleware,
     attrdict_middleware,
+    name_to_address_middleware,
 )
 
 from web3.utils.datastructures import (
@@ -27,7 +29,7 @@ class RequestManager(object):
         self.pending_requests = {}
 
         if middlewares is None:
-            middlewares = [attrdict_middleware, pythonic_middleware]
+            middlewares = self.default_middlewares(web3)
 
         self.middleware_stack = NamedElementStack(middlewares)
         self.providers = providers
@@ -46,6 +48,19 @@ class RequestManager(object):
         else:
             providers = value
         self._providers = providers
+
+    @staticmethod
+    def default_middlewares(web3):
+        '''
+        List the default middlewares for the request manager.
+        Leaving ens unspecified will prevent the middleware from resolving names.
+        '''
+        return [
+            (name_to_address_middleware(web3), 'name_to_address'),
+            (attrdict_middleware, 'attrdict'),
+            (pythonic_middleware, 'pythonic'),
+            (abi_middleware, 'abi'),
+        ]
 
     #
     # Provider requests and response

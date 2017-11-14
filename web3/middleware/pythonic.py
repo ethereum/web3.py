@@ -29,9 +29,6 @@ from eth_utils import (
     remove_0x_prefix,
 )
 
-from web3.utils.abi import (
-    map_abi_data,
-)
 from web3.utils.datastructures import (
     HexBytes,
 )
@@ -48,34 +45,10 @@ from web3.utils.formatters import (
     hex_to_integer,
     integer_to_hex,
 )
-from web3.utils.normalizers import (
-    abi_bytes_to_hex,
-    abi_int_to_hex,
-    abi_string_to_hex,
-    abi_address_to_hex,
-)
 
 from .formatting import (
     construct_formatting_middleware,
 )
-
-
-@curry
-def apply_abi_formatters_to_dict(abi_dict, data):
-    formatters = [
-        abi_bytes_to_hex,
-        abi_int_to_hex,
-        abi_string_to_hex,
-        abi_address_to_hex,
-    ]
-    fields = list(set(abi_dict.keys()) & set(data.keys()))
-    formatted_values = map_abi_data(
-        formatters,
-        [abi_dict[field] for field in fields],
-        [data[field] for field in fields],
-    )
-    formatted_dict = dict(zip(fields, formatted_values))
-    return dict(data, **formatted_dict)
 
 
 def bytes_to_ascii(value):
@@ -91,19 +64,6 @@ is_false = partial(operator.is_, False)
 
 is_not_false = complement(is_false)
 is_not_null = complement(is_null)
-
-
-TRANSACTION_PARAMS_ABIS = {
-    'data': 'bytes',
-    'from': 'address',
-    'gas': 'uint',
-    'gasPrice': 'uint',
-    'nonce': 'uint',
-    'to': 'address',
-    'value': 'uint',
-}
-
-transaction_params_formatter = apply_abi_formatters_to_dict(TRANSACTION_PARAMS_ABIS)
 
 
 def is_array_of_strings(value):
@@ -282,79 +242,36 @@ FILTER_PARAMS_FORMATTERS = {
 filter_params_formatter = apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
 
 
-def is_array_of_dicts(value):
-    if not is_list_like(value):
-        return False
-    return all((is_dict(item) for item in value))
-
-
-def is_array_of_strings(value):
-    if not is_list_like(value):
-        return False
-    return all((is_string(item) for item in value))
-
-
 filter_result_formatter = apply_one_of_formatters((
     (apply_formatter_to_array(log_entry_formatter), is_array_of_dicts),
     (apply_formatter_to_array(to_ascii_if_bytes), is_array_of_strings),
 ))
 
 
-format_abi_parameters = map_abi_data([
-    abi_bytes_to_hex,
-    abi_int_to_hex,
-    abi_string_to_hex,
-    abi_address_to_hex,
-])
-
-
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
         # Eth
-        'eth_call': apply_formatter_at_index(transaction_params_formatter, 0),
-        'eth_getBalance': compose(
-            format_abi_parameters(['address', None]),
-            apply_formatter_at_index(block_number_formatter, 1),
-        ),
-        'eth_getBlockByHash': format_abi_parameters(['bytes32', 'bool']),
+        'eth_getBalance': apply_formatter_at_index(block_number_formatter, 1),
         'eth_getBlockByNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_getBlockTransactionCountByNumber': apply_formatter_at_index(
             block_number_formatter,
             0,
         ),
-        'eth_getBlockTransactionCountByHash': format_abi_parameters(['bytes32']),
-        'eth_getCode': compose(
-            format_abi_parameters(['address', None]),
-            apply_formatter_at_index(block_number_formatter, 1),
-        ),
-        'eth_getStorageAt': compose(
-            format_abi_parameters(['address', 'uint', None]),
-            apply_formatter_at_index(block_number_formatter, 2),
-        ),
+        'eth_getCode': apply_formatter_at_index(block_number_formatter, 1),
+        'eth_getStorageAt': apply_formatter_at_index(block_number_formatter, 2),
         'eth_getTransactionByBlockNumberAndIndex': compose(
             apply_formatter_at_index(block_number_formatter, 0),
             apply_formatter_at_index(integer_to_hex, 1),
         ),
-        'eth_getTransactionByBlockHashAndIndex': format_abi_parameters(['bytes32', 'uint']),
-        'eth_getTransactionByHash': format_abi_parameters(['bytes32']),
-        'eth_getTransactionCount': compose(
-            format_abi_parameters(['address', None]),
-            apply_formatter_at_index(block_number_formatter, 1),
-        ),
-        'eth_getTransactionReceipt': format_abi_parameters(['bytes32']),
-        'eth_getUncleCountByBlockHash': format_abi_parameters(['bytes32']),
+        'eth_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
         'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_getLogs': apply_formatter_at_index(filter_params_formatter, 0),
-        'eth_sign': format_abi_parameters(['address', 'bytes']),
-        'eth_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
-        'eth_estimateGas': apply_formatter_at_index(transaction_params_formatter, 0),
         # personal
         'personal_importRawKey': apply_formatter_at_index(
             compose(remove_0x_prefix, hexstr_if_str(to_hex)),
             0,
         ),
-        'personal_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
         'personal_sign': apply_formatter_at_index(encode_hex, 0),
         'personal_ecRecover': apply_formatter_at_index(encode_hex, 0),
         # Snapshot and Revert

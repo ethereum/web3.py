@@ -1,5 +1,5 @@
-Eth.Account API
-===============
+web3.eth.account API
+=====================
 
 .. py:module:: web3.eth.account
     :synopsis: Validate signatures, and work with local private keys
