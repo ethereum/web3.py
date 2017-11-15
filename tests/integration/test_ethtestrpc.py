@@ -4,7 +4,7 @@ import sys
 import pytest
 
 from eth_utils import (
-    is_address,
+    is_checksum_address,
     is_dict,
 )
 
@@ -50,7 +50,7 @@ def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
     deploy_receipt = web3.eth.getTransactionReceipt(math_contract_deploy_txn_hash)
     assert is_dict(deploy_receipt)
     contract_address = deploy_receipt['contractAddress']
-    assert is_address(contract_address)
+    assert is_checksum_address(contract_address)
     return math_contract_factory(contract_address)
 
 

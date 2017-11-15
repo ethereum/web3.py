@@ -14,7 +14,7 @@ import pytest
 from eth_utils import (
     force_text,
     is_dict,
-    is_address,
+    is_checksum_address,
 )
 
 from web3 import Web3
@@ -230,7 +230,7 @@ def unlockable_account(web3, coinbase):
 @pytest.fixture(scope="session")
 def funded_account_for_raw_txn(geth_fixture_data):
     account = geth_fixture_data['raw_txn_account']
-    assert is_address(account)
+    assert is_checksum_address(account)
     return account
 
 

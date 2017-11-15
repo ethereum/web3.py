@@ -9,7 +9,7 @@ from eth_abi import (
 )
 
 from eth_utils import (
-    is_address,
+    is_checksum_address,
     is_bytes,
     is_string,
     is_boolean,
@@ -55,7 +55,7 @@ class EthModuleTest(object):
 
     def test_eth_coinbase(self, web3):
         coinbase = web3.eth.coinbase
-        assert is_address(coinbase)
+        assert is_checksum_address(coinbase)
 
     def test_eth_mining(self, web3):
         mining = web3.eth.mining
@@ -76,7 +76,7 @@ class EthModuleTest(object):
         assert is_list_like(accounts)
         assert len(accounts) != 0
         assert all((
-            is_address(account)
+            is_checksum_address(account)
             for account
             in accounts
         ))

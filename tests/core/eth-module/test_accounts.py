@@ -6,7 +6,7 @@ import pytest
 import sys
 
 from eth_utils import (
-    is_address,
+    is_checksum_address,
     is_hex,
 )
 
@@ -109,7 +109,7 @@ def test_eth_account_privateKeyToAccount_properties(web3, PRIVATE_BYTES):
     account = web3.eth.account.privateKeyToAccount(PRIVATE_BYTES)
     assert callable(account.sign)
     assert callable(account.signTransaction)
-    assert is_address(account.address)
+    assert is_checksum_address(account.address)
     assert account.address == '0xa79F6f349C853F9Ea0B29636779ae3Cb4E3BA729'
     assert account.privateKey == PRIVATE_BYTES
 
@@ -118,7 +118,7 @@ def test_eth_account_create_properties(web3):
     account = web3.eth.account.create()
     assert callable(account.sign)
     assert callable(account.signTransaction)
-    assert is_address(account.address)
+    assert is_checksum_address(account.address)
     if sys.version_info.major < 3:
         assert is_hex(account.privateKey) and len(account.privateKey) == 66
     else:
