@@ -56,22 +56,65 @@ def get_default_ipc_path(testnet=False):
         testnet = ""
 
     if sys.platform == 'darwin':
-        return os.path.expanduser(os.path.join(
+        ipc_path = os.path.expanduser(os.path.join(
             "~",
             "Library",
             "Ethereum",
             testnet,
-            "geth.ipc",
+            "geth.ipc"
         ))
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+        ipc_path = os.path.expanduser(os.path.join(
+            "~",
+            "Library",
+            "Application Support",
+            "io.parity.ethereum",
+            "jsonrpc.ipc"
+        ))
+        if os.path.exists(ipc_path):
+            return ipc_path
+
     elif sys.platform.startswith('linux'):
-        return os.path.expanduser(os.path.join(
+        ipc_path = os.path.expanduser(os.path.join(
             "~",
             ".ethereum",
             testnet,
-            "geth.ipc",
+            "geth.ipc"
         ))
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+        ipc_path = os.path.expanduser(os.path.join(
+            "~",
+            ".local",
+            "share",
+            "io.parity.ethereum",
+            "jsonrpc.ipc"
+        ))
+        if os.path.exists(ipc_path):
+            return ipc_path
+
     elif sys.platform == 'win32':
-        return "\\\\.\\pipe\\geth.ipc"
+        ipc_path = os.path.join(
+            "\\\\",
+            ".",
+            "pipe",
+            "geth.ipc"
+        )
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+        ipc_path = os.path.join(
+            "\\\\",
+            ".",
+            "pipe",
+            "jsonrpc.ipc"
+        )
+        if os.path.exists(ipc_path):
+            return ipc_path
+
     else:
         raise ValueError(
             "Unsupported platform '{0}'.  Only darwin/linux2/win32 are "
