@@ -83,10 +83,23 @@ def get_default_ipc_path(testnet=False):
             return ipc_path
 
     elif sys.platform == 'win32':
-        if os.path.exists("\\\\.\\pipe\\geth.ipc"):
-            return "\\\\.\\pipe\\geth.ipc"
-        elif os.path.exists("\\\\.\\pipe\\jsonrpc.ipc"):
-            return "\\\\.\\pipe\\jsonrpc.ipc"
+        ipc_path = os.path.join(
+            "\\\\",
+            ".",
+            "pipe",
+            "geth.ipc"
+        )
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+        ipc_path = os.path.join(
+            "\\\\",
+            ".",
+            "pipe",
+            "jsonrpc.ipc"
+        )
+        if os.path.exists(ipc_path):
+            return ipc_path
 
     else:
         raise ValueError(
