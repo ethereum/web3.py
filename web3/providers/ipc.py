@@ -46,6 +46,7 @@ def get_default_ipc_path(testnet=False):
             "~",
             "Library",
             "Ethereum",
+            testnet,
             "geth.ipc"
         ))
         if os.path.exists(ipc_path):
@@ -65,6 +66,7 @@ def get_default_ipc_path(testnet=False):
         ipc_path = os.path.expanduser(os.path.join(
             "~",
             ".ethereum",
+            testnet,
             "geth.ipc"
         ))
         if os.path.exists(ipc_path):
