@@ -96,9 +96,9 @@ class Account(object):
             return LocalAccount(key_obj, self)
         except ValidationError as original_exception:
             raise ValueError(
-                    "The private key must be exactly 32 bytes long, instead of "
-                    "%d bytes." % len(key_bytes)
-                ) from original_exception
+                "The private key must be exactly 32 bytes long, instead of "
+                "%d bytes." % len(key_bytes)
+            ) from original_exception
 
     def recover(self, msghash, vrs=None, signature=None):
         hash_bytes = HexBytes(msghash)
