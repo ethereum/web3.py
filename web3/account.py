@@ -39,9 +39,6 @@ from web3.utils.encoding import (
     to_int,
     to_hex,
 )
-from web3.utils.exception import (
-    raise_from,
-)
 from web3.utils.signing import (
     LocalAccount,
     hash_of_signed_transaction,
@@ -98,13 +95,10 @@ class Account(object):
             key_obj = self._keys.PrivateKey(key_bytes)
             return LocalAccount(key_obj, self)
         except ValidationError as original_exception:
-            raise_from(
-                ValueError(
-                    "The private key must be exactly 32 bytes long, instead of "
-                    "%d bytes." % len(key_bytes)
-                ),
-                original_exception
-            )
+            raise ValueError(
+                "The private key must be exactly 32 bytes long, instead of "
+                "%d bytes." % len(key_bytes)
+            ) from original_exception
 
     def recover(self, msghash, vrs=None, signature=None):
         hash_bytes = HexBytes(msghash)

@@ -62,9 +62,6 @@ from web3.utils.ens import (
 from web3.utils.events import (
     get_event_data,
 )
-from web3.utils.exception import (
-    raise_from,
-)
 from web3.utils.filters import (
     construct_event_filter_params,
 )
@@ -770,7 +767,7 @@ def call_contract_function(contract,
                     output_types
                 )
             )
-        raise_from(BadFunctionCallOutput(msg), e)
+        raise BadFunctionCallOutput(msg) from e
 
     normalizers = itertools.chain(
         BASE_RETURN_NORMALIZERS,
