@@ -8,7 +8,7 @@ from web3.exceptions import (
 from web3.utils.datastructures import (
     HexBytes,
 )
-from web3.middleware.names import (
+from web3.utils.ens import (
     contract_ens_addresses,
 )
 
