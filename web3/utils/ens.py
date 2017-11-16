@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from eth_utils import (
     is_0x_prefixed,
     is_hex,
@@ -38,3 +40,24 @@ class StaticENS:
         # no automated web3 usages should be guessing the TLD
         assert not guess_tld
         return self.registry.get(name, None)
+
+
+@contextmanager
+def ens_addresses(w3, name_addr_pairs):
+    original_ens = w3.ens
+    w3.ens = StaticENS(name_addr_pairs)
+    yield
+    w3.ens = original_ens
+
+
+@contextmanager
+def contract_ens_addresses(contract, name_addr_pairs):
+    '''
+    Use this context manager to temporarily resolve name/address pairs
+    supplied as the argument. For example:
+
+    with contract_ens_addresses(mycontract, [('resolve-as-1s.eth', '0x111...111')]):
+        # any contract call or transaction in here would only resolve the above ENS pair
+    '''
+    with ens_addresses(contract.web3, name_addr_pairs):
+        yield
