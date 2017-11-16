@@ -14,6 +14,9 @@ from eth_utils import (
     to_checksum_address,
 )
 
+from web3.exceptions import (
+    InvalidAddress,
+)
 from web3.utils.encoding import (
     hexstr_if_str,
     text_if_str,
@@ -108,9 +111,9 @@ def abi_address_to_hex(abi_type, data):
 def abi_ens_resolver(w3, abi_type, val):
     if abi_type == 'address' and is_ens_name(val):
         if w3 is None:
-            raise ValueError("Could not look up name, because no web3 connection available")
+            raise InvalidAddress("Could not look up name, because no web3 connection available")
         elif w3.ens is None:
-            raise ValueError("Could not look up name, because ENS is set to None")
+            raise InvalidAddress("Could not look up name, because ENS is set to None")
         else:
             return (abi_type, validate_name_has_address(w3.ens, val))
     else:
