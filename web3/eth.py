@@ -306,8 +306,6 @@ class Eth(Module):
         ContractFactory = ContractFactoryClass.factory(self.web3, **kwargs)
 
         if address:
-            validate_address(address)
-
             return ContractFactory(address)
         else:
             return ContractFactory
