@@ -156,7 +156,7 @@ The following methods are available on the ``Web3.eth.account`` namespace.
     .. code-block:: python
 
         >>> msg = "I♥SF"
-        >>> key = "\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
+        >>> key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
         >>> w3.eth.account.sign(message_text=msg, private_key=key)
         {'message': b'I\xe2\x99\xa5SF',
          'messageHash': HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
