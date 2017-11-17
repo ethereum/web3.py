@@ -39,8 +39,14 @@ from web3.manager import (
     RequestManager,
 )
 
+from web3.utils.abi import (
+    map_abi_data,
+)
 from web3.utils.datastructures import (
     HexBytes,
+)
+from web3.utils.decorators import (
+    combomethod,
 )
 from web3.utils.encoding import (
     hex_encode_abi_type,
@@ -48,6 +54,9 @@ from web3.utils.encoding import (
     to_int,
     to_hex,
     to_text,
+)
+from web3.utils.normalizers import (
+    abi_ens_resolver,
 )
 
 default = object()
@@ -132,7 +141,7 @@ class Web3(object):
             )
         )
 
-    @classmethod
+    @combomethod
     def soliditySha3(cls, abi_types, values):
         """
         Executes sha3 (keccak256) exactly as Solidity does.
@@ -145,10 +154,16 @@ class Web3(object):
                 "{0} types and {1} values.".format(len(abi_types), len(values))
             )
 
+        if isinstance(cls, type):
+            w3 = None
+        else:
+            w3 = cls
+        normalized_values = map_abi_data([abi_ens_resolver(w3)], abi_types, values)
+
         hex_string = add_0x_prefix(''.join(
             remove_0x_prefix(hex_encode_abi_type(abi_type, value))
             for abi_type, value
-            in zip(abi_types, values)
+            in zip(abi_types, normalized_values)
         ))
         return cls.sha3(hexstr=hex_string)
 
