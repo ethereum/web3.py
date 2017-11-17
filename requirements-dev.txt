@@ -8,5 +8,6 @@ pytest>=3.2.1
 pytest-mock==1.*
 pytest-pythonpath>=0.3
 pytest-watch==4.*
+pytest-xdist==1.*
 tox>=1.8.0
 when-changed
