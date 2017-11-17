@@ -4,8 +4,22 @@ Release Notes
 4.0.0 (beta)
 ------------
 
-* TODO
-
+* Python 3 is now required
+* ENS names can be used anywhere that a hex address can
+* Sign transactions and messages with local private keys
+* New filter mechanism: :meth:`~web3.utils.filters.Filter.get_all_entries` and :meth:`~web3.utils.filters.Filter.get_new_entries`
+* Quick automatic initialization with ``from web3.auto import w3``
+* All addresses must be supplied with an EIP-55 checksum
+* All addresses are returned with a checksum
+* Renamed ``Web3.toDecimal()`` to ``toInt()``, see: :ref:`overview_type_conversions`
+* All filter calls are synchronous, gevent integration dropped
+* Contract :meth:`~web3.contract.Contract.eventFilter` has replaced both ``Contract.on()`` and ``Contract.pastEvents()``
+* Contract arguments of ``bytes`` ABI type now accept hex strings.
+* Contract arguments of ``string`` ABI type now accept python ``str``.
+* Contract return values of ``string`` ABI type now return python ``str``.
+* Many methods now return a ``bytes``-like object where they used to return a hex string, like in ``Web3.sha3()``. See: :ref:`overview_hashing`
+* IPC connection left open and reused, rather than opened and closed on each call
+* A number of deprecated methods from v3 were removed
 
 3.16.1
 ------
