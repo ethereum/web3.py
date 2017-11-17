@@ -36,9 +36,6 @@ from web3.utils.filters import (
 from web3.utils.transactions import (
     get_buffered_gas_estimate,
 )
-from web3.utils.validation import (
-    validate_address,
-)
 
 
 class Eth(Module):
