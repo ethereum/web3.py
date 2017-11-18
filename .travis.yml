@@ -28,9 +28,9 @@ matrix:
     # lint
     - python: "3.5"
       env: TOX_POSARGS="-e flake8"
-    # core-stdlib
+    # core
     - python: "3.5"
-      env: TOX_POSARGS="-e py35-core-stdlib"
+      env: TOX_POSARGS="-e py35-core"
     # eth-testrpc
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-ethtestrpc"
@@ -50,9 +50,9 @@ matrix:
     # lint
     - python: "3.6"
       env: TOX_POSARGS="-e flake8"
-    # core-stdlib
+    # core
     - python: "3.6"
-      env: TOX_POSARGS="-e py36-core-stdlib"
+      env: TOX_POSARGS="-e py36-core"
     # eth-testrpc
     - python: "3.6"
       env: TOX_POSARGS="-e py36-integration-ethtestrpc"
