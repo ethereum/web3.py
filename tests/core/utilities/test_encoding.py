@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-# from __future__ import unicode_literals
 
 from unittest.mock import Mock
 import pytest
