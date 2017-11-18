@@ -1,9 +1,8 @@
 # encoding: utf-8
 
-
-from unittest.mock import Mock
 import pytest
 import sys
+from unittest.mock import Mock
 
 from eth_utils import (
     is_hex,
