@@ -20,7 +20,6 @@ from web3.utils.encoding import (
     hex_encode_abi_type,
     text_if_str,
     hexstr_if_str,
-    to_bytes,
     to_int,
     to_hex,
 )
