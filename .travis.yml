@@ -2,6 +2,7 @@ sudo: required
 language: python
 python:
   - "3.5"
+  - "3.6"
 dist: trusty
 env:
   global:
@@ -42,6 +43,41 @@ matrix:
     # eth-tester-pyevm
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-ethtester" ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEVMBackend
+    # Python 3.6 testing
+    # go-ethereum
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.6.0
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.6.1
+    # 1.6.2 and 1.6.3 are failing due to go-ethereum internal errors.
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.6.4
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.6.5
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.6.6
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.6.7
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.7.0
+    # ENS
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-ens"
+    # lint
+    - python: "3.6"
+      env: TOX_POSARGS="-e flake8"
+    # core-stdlib
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-core-stdlib"
+    # eth-testrpc
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-ethtestrpc"
+    # eth-tester-pyethereum16
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-ethtester" ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEthereum16Backend
+    # eth-tester-pyevm
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-ethtester" ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEVMBackend
 cache:
   - pip: true
   - directories:
