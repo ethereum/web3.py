@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from web3.module import (
     Module,
 )
