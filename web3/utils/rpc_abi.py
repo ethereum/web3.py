@@ -30,10 +30,12 @@ FILTER_PARAMS_ABIS = {
 RPC_ABIS = {
     # eth
     'eth_call': TRANSACTION_PARAMS_ABIS,
+    'eth_estimateGas': TRANSACTION_PARAMS_ABIS,
     'eth_getBalance': ['address', None],
     'eth_getBlockByHash': ['bytes32', 'bool'],
     'eth_getBlockTransactionCountByHash': ['bytes32'],
     'eth_getCode': ['address', None],
+    'eth_getLogs': FILTER_PARAMS_ABIS,
     'eth_getStorageAt': ['address', 'uint', None],
     'eth_getTransactionByBlockHashAndIndex': ['bytes32', 'uint'],
     'eth_getTransactionByHash': ['bytes32'],
@@ -41,10 +43,9 @@ RPC_ABIS = {
     'eth_getTransactionReceipt': ['bytes32'],
     'eth_getUncleCountByBlockHash': ['bytes32'],
     'eth_newFilter': FILTER_PARAMS_ABIS,
-    'eth_getLogs': FILTER_PARAMS_ABIS,
-    'eth_sign': ['address', 'bytes'],
+    'eth_sendRawTransaction': ['bytes'],
     'eth_sendTransaction': TRANSACTION_PARAMS_ABIS,
-    'eth_estimateGas': TRANSACTION_PARAMS_ABIS,
+    'eth_sign': ['address', 'bytes'],
     # personal
     'personal_sendTransaction': TRANSACTION_PARAMS_ABIS,
 }

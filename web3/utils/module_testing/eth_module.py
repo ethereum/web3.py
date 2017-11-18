@@ -215,12 +215,22 @@ class EthModuleTest(object):
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gas_price']
 
-    def test_eth_sendRawTransaction(self, web3):
-        txn_hash = web3.eth.sendRawTransaction(
-            '0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a'  # noqa: E501
-        )
-        expected = HexBytes('0x1f80f8ab5f12a45be218f76404bda64d37270a6f4f86ededd0eb599f80548c13')
-        assert txn_hash == expected
+    @pytest.mark.parametrize(
+        'raw_transaction, expected_hash',
+        [
+            (
+                '0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a',  # noqa: E501
+                '0x1f80f8ab5f12a45be218f76404bda64d37270a6f4f86ededd0eb599f80548c13',
+            ),
+            (
+                HexBytes('0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a'),  # noqa: E501
+                '0x1f80f8ab5f12a45be218f76404bda64d37270a6f4f86ededd0eb599f80548c13',
+            ),
+        ]
+    )
+    def test_eth_sendRawTransaction(self, web3, raw_transaction, expected_hash):
+        txn_hash = web3.eth.sendRawTransaction(raw_transaction)
+        assert txn_hash == web3.toBytes(hexstr=expected_hash)
 
     def test_eth_call(self, web3, math_contract):
         coinbase = web3.eth.coinbase
