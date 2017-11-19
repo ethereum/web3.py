@@ -77,6 +77,9 @@ from web3.utils.validation import (
     validate_abi,
     validate_address,
 )
+from web3.utils.transactions import (
+    fill_transaction_defaults,
+)
 
 
 DEPRECATED_SIGNATURE_MESSAGE = (
@@ -488,27 +491,27 @@ class Contract(object):
     @combomethod
     def prepareTransaction(self, transaction=None):
         """
-        Estimate the gas for a call
+        Prepare a dict for a transaction without sending
         """
         if transaction is None:
-            estimate_transaction = {}
+            prepared_transaction = {}
         else:
-            estimate_transaction = dict(**transaction)
+            prepared_transaction = dict(**transaction)
 
-        if 'data' in estimate_transaction:
-            raise ValueError("Cannot set data in call transaction")
-        if 'to' in estimate_transaction:
-            raise ValueError("Cannot set to in call transaction")
+        if 'data' in prepared_transaction:
+            raise ValueError("Cannot set data in call prepareTransaction")
+        if 'to' in prepared_transaction:
+            raise ValueError("Cannot set to in call prepareTransaction")
+        if 'from' not in prepared_transaction and 'nonce' not in prepared_transaction:
+            raise ValueError("Either 'from' or 'nonce' must be set in call prepareTransaction")
 
         if self.address:
-            estimate_transaction.setdefault('to', self.address)
-        if self.web3.eth.defaultAccount is not empty:
-            estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
+            prepared_transaction.setdefault('to', self.address)
 
-        if 'to' not in estimate_transaction:
+        if 'to' not in prepared_transaction:
             if isinstance(self, type):
                 raise ValueError(
-                    "When using `Contract.estimateGas` from a contract factory "
+                    "When using `Contract.prepareTransaction` from a contract factory "
                     "you must provide a `to` address with the transaction"
                 )
             else:
@@ -524,7 +527,7 @@ class Contract(object):
                     prepare_transaction_for_function,
                     contract,
                     function_name,
-                    estimate_transaction,
+                    prepared_transaction,
                 )
                 return callable_fn
 
@@ -883,5 +886,8 @@ def prepare_transaction_for_function(contract=None,
         fn_kwargs=kwargs,
         transaction=transaction,
     )
+
+    prepared_transaction = fill_transaction_defaults(contract.web3, prepared_transaction)
+    prepared_transaction.pop('from')  # from is not a valid transaction part
 
     return prepared_transaction

@@ -59,10 +59,12 @@ def encode_transaction(unsigned_transaction, vrs):
 
 
 TRANSACTION_DEFAULTS = {
-    'gasPrice': lambda web3: web3.eth.gasPrice,
     'value': 0,
     'data': b'',
-    'chainId': lambda web3: int(web3.net.version),
+    'gas': lambda web3, tx: web3.eth.estimateGas(tx),
+    'gasPrice': lambda web3, tx: web3.eth.gasPrice,
+    'nonce': lambda web3, tx: web3.eth.getTransactionCount(tx['from']),
+    'chainId': lambda web3, tx: int(web3.net.version),
 }
 
 TRANSACTION_FORMATTERS = {
@@ -97,7 +99,7 @@ def fill_transaction_defaults(web3, transaction):
         if key not in transaction:
             if callable(default_getter):
                 if web3 is not None:
-                    default_val = default_getter(web3)
+                    default_val = default_getter(web3, transaction)
                 else:
                     raise ValueError("You must specify %s in the transaction" % key)
             else:

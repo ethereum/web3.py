@@ -16,7 +16,7 @@ def math_contract(web3, MathContract):
 
 
 def test_prepare_transacting_with_contract_no_arguments(web3, math_contract):
-    txn = math_contract.prepareTransaction().increment()
+    txn = math_contract.prepareTransaction({'from': web3.eth.coinbase}).increment()
     assert txn is not None
     assert txn['to'] == math_contract.address
     assert txn['data'] == '0xd09de08a'
@@ -25,14 +25,24 @@ def test_prepare_transacting_with_contract_no_arguments(web3, math_contract):
 @pytest.mark.parametrize(
     'transaction_args,method_args,method_kwargs,expected',
     (
-        ({},
-         (5,),
-         {},
-         {'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005'}),
+        (
+            {},
+            (5,),
+            {},
+            {
+                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa
+                'value': 0,
+                'gas': 43242,
+                'gasPrice': 1,
+                'nonce': 1,
+                'chainId': 1
+            }
+        ),
     ),
 )
 def test_prepare_transacting_with_contract_with_arguments(web3, math_contract, transaction_args,
                                                           method_args, method_kwargs, expected):
+    transaction_args['from'] = web3.eth.coinbase
     txn = math_contract.prepareTransaction(transaction_args).increment(
         *method_args, **method_kwargs
     )
