@@ -485,6 +485,51 @@ class Contract(object):
 
         return Transactor()
 
+    @combomethod
+    def prepareTransaction(self, transaction=None):
+        """
+        Estimate the gas for a call
+        """
+        if transaction is None:
+            estimate_transaction = {}
+        else:
+            estimate_transaction = dict(**transaction)
+
+        if 'data' in estimate_transaction:
+            raise ValueError("Cannot set data in call transaction")
+        if 'to' in estimate_transaction:
+            raise ValueError("Cannot set to in call transaction")
+
+        if self.address:
+            estimate_transaction.setdefault('to', self.address)
+        if self.web3.eth.defaultAccount is not empty:
+            estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        if 'to' not in estimate_transaction:
+            if isinstance(self, type):
+                raise ValueError(
+                    "When using `Contract.estimateGas` from a contract factory "
+                    "you must provide a `to` address with the transaction"
+                )
+            else:
+                raise ValueError(
+                    "Please ensure that this contract instance has an address."
+                )
+
+        contract = self
+
+        class Caller(object):
+            def __getattr__(self, function_name):
+                callable_fn = functools.partial(
+                    prepare_transaction_for_function,
+                    contract,
+                    function_name,
+                    estimate_transaction,
+                )
+                return callable_fn
+
+        return Caller()
+
     #
     # Private Helpers
     #
@@ -699,7 +744,7 @@ CONCISE_NORMALIZERS = (
 
 
 class ConciseMethod:
-    ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact'])
+    ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'prepareTransaction'])
 
     def __init__(self, contract, function):
         self.__contract = contract
@@ -820,3 +865,23 @@ def estimate_gas_for_function(contract=None,
 
     gas_estimate = contract.web3.eth.estimateGas(estimate_transaction)
     return gas_estimate
+
+
+def prepare_transaction_for_function(contract=None,
+                                     function_name=None,
+                                     transaction=None,
+                                     *args,
+                                     **kwargs):
+    """Prepares a dictionary with the fields required to make the given transaction
+
+    Don't call this directly, instead use :meth:`Contract.prepareTransaction`
+    on your contract instance.
+    """
+    prepared_transaction = contract._prepare_transaction(
+        fn_name=function_name,
+        fn_args=args,
+        fn_kwargs=kwargs,
+        transaction=transaction,
+    )
+
+    return prepared_transaction
