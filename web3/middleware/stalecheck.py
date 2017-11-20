@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import time
 
 from web3.exceptions import StaleBlockchain

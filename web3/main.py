@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from eth_utils import (
     apply_to_return_value,
     add_0x_prefix,

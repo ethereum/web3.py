@@ -7,7 +7,7 @@
 
 A Python implementation of [web3.js](https://github.com/ethereum/web3.js)
 
-* Python 2.7, 3.4, 3.5 support
+* Python 3.5+ support
 
 Read more in the [documentation on ReadTheDocs](http://web3py.readthedocs.io/). [View the change log on Github](docs/releases.rst).
 
@@ -86,11 +86,11 @@ pip install -e .
 
 For different environments, you can set up multiple virtualenvs, like:
 
-**Python 2**
+**Python 3**
 
 ```sh
-virtualenv -p python2 venvpy2
-. venvpy2/bin/activate
+virtualenv -p python3 venvpy3
+. venvpy3/bin/activate
 pip install -r requirements-dev.txt
 pip install -e .
 ```
