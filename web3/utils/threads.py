@@ -90,7 +90,7 @@ class ThreadWithReturn(threading.Thread):
             raise RuntimeError("Something went wrong.  No `_return` property was set")
 
 
-def spawn(target, thread_class=ThreadWithReturn, *args, **kwargs):
+def spawn(target, *args, thread_class=ThreadWithReturn, **kwargs):
     thread = thread_class(
         target=target,
         args=args,
