@@ -104,6 +104,38 @@ pip install -r requirements-dev.txt
 pip install -e .
 ```
 
+## Using Docker
+
+If you would like to develop and test inside a docker environment, use the *sandbox* container provided in the **docker-compose.yml** file.
+
+To start up the test environment, run:
+
+```
+docker-compose up -d
+```
+
+This will build a docker container set up with an environment to run the Python test code.  
+
+**Note: This container does not have `go-ethereum` installed, so you cannot run the go-ethereum test suite.**
+
+To run the Python tests from your local machine:
+
+```
+docker-compose exec sandbox bash -c 'pytest -n 4 -f -k "not goethereum"'
+```
+
+You can run arbitrary commands inside the docker container by using the `bash -c` prefix.
+
+```
+docker-compose exec sandbox bash -c ''
+```
+
+Or, if you would like to just open a session to the container, run:
+
+```
+docker-compose exec sandbox bash
+```
+
 ### Testing Setup
 
 During development, you might like to have tests run on every file save.
