@@ -115,6 +115,7 @@ RECEIPT_FORMATTERS = {
     'transactionIndex': apply_formatter_if(to_integer_if_hex, is_not_null),
     'transactionHash': to_ascii_if_bytes,
     'cumulativeGasUsed': to_integer_if_hex,
+    'status': to_integer_if_hex,
     'gasUsed': to_integer_if_hex,
     'contractAddress': apply_formatter_if(to_checksum_address, is_not_null),
     'logs': apply_formatter_to_array(log_entry_formatter),
