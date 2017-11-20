@@ -29,7 +29,7 @@ def reject_recursive_repeats(to_wrap):
     @functools.wraps(to_wrap)
     def wrapped(*args):
         arg_instances = tuple(map(id, args))
-        unique_call = (threading.get_ident(),) + arg_instances
+        unique_call = (threading.current_thread().ident,) + arg_instances
         if unique_call in to_wrap.__already_called:
             raise ValueError('Recursively called %s with %r' % (to_wrap, args))
         to_wrap.__already_called[unique_call] = True
