@@ -5,6 +5,7 @@ from gevent.pywsgi import (  # noqa: F401
     WSGIServer,
 )
 from gevent import (  # noqa: F401
+    getcurrent,
     subprocess,
     socket,
     threading,
@@ -23,6 +24,19 @@ _client_cache = pylru.lrucache(8)
 sleep = gevent.sleep
 spawn = gevent.spawn
 GreenletThread = gevent.Greenlet
+
+
+class ClassicThread(object):
+    def __init__(self, threadid):
+        self.ident = threadid
+
+
+def get_current_thread():
+    threadid = id(getcurrent())
+    return ClassicThread(threadid)
+
+
+threading.current_thread = get_current_thread
 
 
 class Timeout(gevent.Timeout):
