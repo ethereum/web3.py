@@ -165,9 +165,10 @@ class Account(object):
             v,
             r,
             s,
-            transaction_hash,
             rlp_encoded,
         ) = sign_transaction_dict(account._key_obj, transaction_dict)
+
+        transaction_hash = keccak(rlp_encoded)
 
         return AttributeDict({
             'rawTransaction': HexBytes(rlp_encoded),
