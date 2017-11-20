@@ -1,6 +1,10 @@
 import functools
 import warnings
 
+from web3.utils.compat import (
+    threading,
+)
+
 
 class combomethod(object):
     def __init__(self, method):
@@ -24,12 +28,13 @@ def reject_recursive_repeats(to_wrap):
 
     @functools.wraps(to_wrap)
     def wrapped(*args):
-        instances = tuple(map(id, args))
-        if instances in to_wrap.__already_called:
+        arg_instances = tuple(map(id, args))
+        unique_call = (threading.get_ident(),) + arg_instances
+        if unique_call in to_wrap.__already_called:
             raise ValueError('Recursively called %s with %r' % (to_wrap, args))
-        to_wrap.__already_called[instances] = True
+        to_wrap.__already_called[unique_call] = True
         wrapped_val = to_wrap(*args)
-        del to_wrap.__already_called[instances]
+        del to_wrap.__already_called[unique_call]
         return wrapped_val
     return wrapped
 
