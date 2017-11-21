@@ -891,6 +891,7 @@ def prepare_transaction_for_function(contract=None,
     )
 
     prepared_transaction = fill_transaction_defaults(contract.web3, prepared_transaction)
-    prepared_transaction.pop('from')  # from is not a valid transaction part and used only for retreiving nonce
+    # from is not a valid transaction part and used only for retreiving nonce
+    prepared_transaction.pop('from')
 
     return prepared_transaction

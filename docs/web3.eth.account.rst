@@ -299,6 +299,9 @@ The following methods are available on the ``Web3.eth.account`` namespace.
     and the hex-encoded transaction suitable for broadcast using
     :meth:`~web3.eth.Eth.sendRawTransaction`.
 
+    The transaction dict for executing contract methods may be created using 
+    :meth:`~web3.contract.Contract.prepareTransaction`.
+
     :param dict transaction_dict: the transaction with keys:
       nonce, chainId, to, data, value, gas, and gasPrice.
     :param private_key: the private key to sign the data with

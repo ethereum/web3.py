@@ -172,6 +172,34 @@ Each Contract Factory exposes the following methods.
         >>> my_contract.estimateGas().multiply7(3)
         42650
 
+.. py:method:: Contract.prepareTransaction(transaction).myMethod(*args, **kwargs)
+
+    Prepare a transaction dictionary based on the contract function call specified. 
+
+    This method behaves the same as the :py:method::`Contract.transact` method,
+    with transaction details being passed into the first portion of the
+    function call, and function arguments being passed into the second portion.
+
+    .. note::
+        If ``web3.eth.defaultAccount`` is not set, this method will need another way
+        of finding the nonce. Therefore one of ``from`` or ``nonce`` has 
+        to be provided in the second portion of the function call 
+        ``myMethod(*args, **kwargs)``.
+
+    Returns a transaction dictionary. This dictionary may be used for offline 
+    transaction signing using :meth:`~web3.eth.account.Account.signTransaction`.
+
+    .. code-block:: python
+
+        >>> math_contract.prepareTransaction({'gasPrice': 21000000000}).increment(5)
+        {
+            'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',
+            'value': 0, 
+            'gas': 43242, 
+            'gasPrice': 21000000000, 
+            'nonce': 1, 
+            'chainId': 1
+        }
 
 Events
 ------
