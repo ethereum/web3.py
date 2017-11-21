@@ -15,32 +15,96 @@ def math_contract(web3, MathContract):
     return _math_contract
 
 
-def test_prepare_transacting_with_contract_no_arguments(web3, math_contract):
+def test_prepare_transaction_with_contract_no_arguments(web3, math_contract):
     txn = math_contract.prepareTransaction({'from': web3.eth.coinbase}).increment()
-    assert txn is not None
-    assert txn['to'] == math_contract.address
-    assert txn['data'] == '0xd09de08a'
+    assert txn == {
+        'to': math_contract.address,
+        'data': '0xd09de08a',
+        'value': 0,
+        'gas': 43120,
+        'gasPrice': 1,
+        'nonce': 1,
+        'chainId': 1
+    }
+
+
+def test_prepare_transaction_with_contract_default_account_is_set(web3, math_contract):
+    web3.eth.defaultAccount = web3.eth.coinbase
+    txn = math_contract.prepareTransaction().increment()
+    assert txn == {
+        'to': math_contract.address,
+        'data': '0xd09de08a',
+        'value': 0,
+        'gas': 43120,
+        'gasPrice': 1,
+        'nonce': 1,
+        'chainId': 1
+    }
+
+
+def test_prepare_transaction_with_contract_no_default_account_no_nonce_errors(web3, math_contract):
+    with pytest.raises(ValueError):
+        math_contract.prepareTransaction().increment()
+
+
+def test_prepare_transaction_with_contract_data_supplied_errors(web3, math_contract):
+    with pytest.raises(ValueError):
+        math_contract.prepareTransaction({
+            'data': '0x000'
+        }).increment()
+
+
+def test_prepare_transaction_with_contract_to_address_supplied_errors(web3, math_contract):
+    with pytest.raises(ValueError):
+        math_contract.prepareTransaction({
+            'to': '0xb2930B35844a230f00E51431aCAe96Fe543a0347'
+        }).increment()
 
 
 @pytest.mark.parametrize(
     'transaction_args,method_args,method_kwargs,expected',
     (
         (
-            {},
-            (5,),
-            {},
-            {
+            {}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa
-                'value': 0,
-                'gas': 43242,
-                'gasPrice': 1,
-                'nonce': 1,
-                'chainId': 1
+                'value': 0, 'gas': 43242, 'gasPrice': 1, 'nonce': 1, 'chainId': 1
+            }
+        ),
+        (
+            {'gas': 800000}, (5,), {}, {
+                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa
+                'value': 0, 'gas': 800000, 'gasPrice': 1, 'nonce': 1, 'chainId': 1
+            }
+        ),
+        (
+            {'gasPrice': 21000000000}, (5,), {}, {
+                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa
+                'value': 0, 'gas': 43242, 'gasPrice': 21000000000, 'nonce': 1, 'chainId': 1
+            }
+        ),
+        # (
+        #     {'nonce': 7}, (5,), {}, {
+        #         'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa
+        #         'value': 0, 'gas': 43242, 'gasPrice': 1, 'nonce': 7, 'chainId': 1
+        #     }
+        # ),
+        (
+            {'value': 20000}, (5,), {}, {
+                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa
+                'value': 20000, 'gas': 43242, 'gasPrice': 1, 'nonce': 1, 'chainId': 1
             }
         ),
     ),
+    ids=[
+        'Standard',
+        'Explicit Gas',
+        'Explicit Gas Price',
+        # 'Explicit Nonce',  # eth-testrpc sendTransaction breaks when nonce is set
+        #  https://github.com/pipermerriam/eth-testrpc/issues/98
+        'With Value',
+    ]
 )
-def test_prepare_transacting_with_contract_with_arguments(web3, math_contract, transaction_args,
+def test_prepare_transaction_with_contract_with_arguments(web3, math_contract, transaction_args,
                                                           method_args, method_kwargs, expected):
     transaction_args['from'] = web3.eth.coinbase
     txn = math_contract.prepareTransaction(transaction_args).increment(
