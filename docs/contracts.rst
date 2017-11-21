@@ -193,6 +193,7 @@ Each Contract Factory exposes the following methods.
 
         >>> math_contract.prepareTransaction({'gasPrice': 21000000000}).increment(5)
         {
+            'to': '0x6Bc272FCFcf89C14cebFC57B8f1543F5137F97dE',
             'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',
             'value': 0, 
             'gas': 43242, 
