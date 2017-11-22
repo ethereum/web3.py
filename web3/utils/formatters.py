@@ -20,6 +20,9 @@ from eth_utils import (
 from web3.utils.decorators import (
     reject_recursive_repeats,
 )
+from web3.utils.exception import (
+    raise_from,
+)
 
 
 def hex_to_integer(value):
@@ -69,7 +72,10 @@ def apply_formatter_if(formatter, condition, value):
 def apply_formatters_to_dict(formatters, value):
     for key, item in value.items():
         if key in formatters:
-            yield key, formatters[key](item)
+            try:
+                yield key, formatters[key](item)
+            except (TypeError, ValueError) as exc:
+                raise_from(type(exc)("Could not format value %r as field %r" % (item, key)), exc)
         else:
             yield key, item
 
