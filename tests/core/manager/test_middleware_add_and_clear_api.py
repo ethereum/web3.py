@@ -1,5 +1,4 @@
 import pytest
-import sys
 
 from web3.manager import (
     RequestManager,
@@ -96,7 +95,6 @@ def test_replace_middleware(middleware_factory):
     assert tuple(manager.middleware_stack) == (mw1, mw3)
 
 
-@pytest.mark.skipif(sys.version_info.major < 3, reason="replace requires Py 3")
 def test_replace_middleware_without_name(middleware_factory):
     mw1 = middleware_factory()
     mw2 = middleware_factory()

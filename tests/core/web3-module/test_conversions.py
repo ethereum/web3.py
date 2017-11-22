@@ -1,7 +1,6 @@
 # coding=utf-8
 
 import pytest
-import sys
 
 from web3 import Web3
 
@@ -23,14 +22,6 @@ from web3 import Web3
 )
 def test_to_bytes_primitive(val, expected):
     assert Web3.toBytes(val) == expected
-
-
-@pytest.mark.skipif(sys.version_info.major > 2, reason="Python 3 doesn't have long type")
-def test_to_bytes_long():
-    minlong = sys.maxint + 1
-    assert minlong > sys.maxint  # are there any python interpreters that overflow?
-    valbytes = Web3.toBytes(minlong)
-    assert Web3.toInt(valbytes) == minlong
 
 
 @pytest.mark.parametrize(
@@ -63,11 +54,7 @@ def test_to_bytes_text(val, expected):
 
 
 def test_to_text_identity():
-    if sys.version_info.major < 3:
-        with pytest.raises(NotImplementedError):
-            Web3.toText(text='')
-    else:
-        assert Web3.toText(text='pass-through') == 'pass-through'
+    assert Web3.toText(text='pass-through') == 'pass-through'
 
 
 @pytest.mark.parametrize(
@@ -82,11 +69,7 @@ def test_to_text_identity():
     )
 )
 def test_to_text(val, expected):
-    if sys.version_info.major < 3:
-        with pytest.raises(NotImplementedError):
-            Web3.toText(val)
-    else:
-        assert Web3.toText(val) == expected
+    assert Web3.toText(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -99,11 +82,7 @@ def test_to_text(val, expected):
     )
 )
 def test_to_text_hexstr(val, expected):
-    if sys.version_info.major < 3:
-        with pytest.raises(NotImplementedError):
-            Web3.toText(hexstr=val)
-    else:
-        assert Web3.toText(hexstr=val) == expected
+    assert Web3.toText(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(

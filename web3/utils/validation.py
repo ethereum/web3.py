@@ -1,5 +1,4 @@
 import itertools
-import sys
 
 from eth_utils import (
     is_0x_prefixed,
@@ -87,7 +86,7 @@ def validate_abi_value(abi_type, value):
         validate_address(value)
         return
     elif is_bytes_type(abi_type):
-        if sys.version_info.major >= 3 and is_bytes(value):
+        if is_bytes(value):
             return
         elif is_string(value):
             if is_0x_prefixed(value):

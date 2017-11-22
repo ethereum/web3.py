@@ -34,6 +34,9 @@ from web3.utils.filters import (
 from web3.utils.transactions import (
     get_buffered_gas_estimate,
 )
+from web3.utils.validation import (
+    validate_address,
+)
 
 
 class Eth(Module):
@@ -301,6 +304,8 @@ class Eth(Module):
         ContractFactory = ContractFactoryClass.factory(self.web3, **kwargs)
 
         if address:
+            validate_address(address)
+
             return ContractFactory(address)
         else:
             return ContractFactory

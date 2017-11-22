@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import sys
 from unittest.mock import Mock
 
 from eth_utils import (
@@ -24,11 +23,6 @@ from web3.utils.encoding import (
 
 from web3.utils.hypothesis import (
     hexstr_strategy,
-)
-
-only_python3 = pytest.mark.skipif(
-    sys.version_info.major < 3,
-    reason="these test values only valid for py3"
 )
 
 
@@ -77,8 +71,8 @@ def test_bytes_that_start_with_0x():
             "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd",
             "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd"
         ),
-        ("bytes2", b"T\x02", "0x5402" if sys.version_info[0] >= 3 else TypeError),
-        ("bytes3", b"T\x02", "0x5402" if sys.version_info[0] >= 3 else TypeError),
+        ("bytes2", b"T\x02", "0x5402"),
+        ("bytes3", b"T\x02", "0x5402"),
         ("bytes", '0x5402', "0x5402"),
         ("bytes", '5402', TypeError),
         ("string", "testing a string!", "0x74657374696e67206120737472696e6721"),
@@ -99,7 +93,6 @@ def test_hex_encode_abi_type(abi_type, value, expected):
     assert actual == expected
 
 
-@only_python3
 @given(st.one_of(st.integers(), st.booleans(), st.binary()))
 @example(b'')
 def test_hexstr_if_str_passthrough(val):
@@ -113,7 +106,6 @@ def test_hexstr_if_str_curried():
     assert converter(255) == '0xff'
 
 
-@only_python3
 @given(hexstr_strategy())
 @example('0x')
 @example('0')
@@ -123,7 +115,6 @@ def test_hexstr_if_str_on_valid_hex(val):
     assert to_type.call_args == ((None, ), {'hexstr': val})
 
 
-@only_python3
 @given(st.text())
 def test_hexstr_if_str_on_invalid_hex(val):
     try:
@@ -136,7 +127,6 @@ def test_hexstr_if_str_on_invalid_hex(val):
             hexstr_if_str(Mock(), val)
 
 
-@only_python3
 @given(st.one_of(st.integers(), st.booleans(), st.binary()))
 @example(b'')
 def test_text_if_str_passthrough(val):
@@ -145,7 +135,6 @@ def test_text_if_str_passthrough(val):
     assert to_type.call_args == ((val, ), {'text': None})
 
 
-@only_python3
 @given(st.text())
 @example('0xa1')  # valid hexadecimal is still interpreted as unicode characters
 def test_text_if_str_on_text(val):
