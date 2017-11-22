@@ -1,6 +1,17 @@
 Release Notes
 =============
 
+v3.16.3
+------
+
+* Return checksummed addresses from all json rpc calls
+* :meth:`~web3.eth.Eth.getTransactionReceipt` returns the ``status`` field as an ``int``
+* If running multiple threads with the same w3 instance, ``ValueError: Recursively called ...`` is no longer raised
+* Reuses IPC connection, for performance and memory improvements (especially with parity)
+* Web3.toDecimal deprecated for Web3.toInt
+* Asynchronous filter deprecations for synchronous
+
+
 3.16.2
 ------
 
