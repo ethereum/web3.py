@@ -1,11 +1,9 @@
 # coding=utf-8
 
 import pytest
-import sys
 
 from eth_utils import (
     is_checksum_address,
-    is_hex,
 )
 
 from web3 import (
@@ -56,7 +54,6 @@ def PRIVATE_BYTES():
 @pytest.fixture
 def PRIVATE_BYTES_ALT(PRIVATE_BYTES):
     return b'rainbows' * 4
-
 
 
 @pytest.fixture
