@@ -224,6 +224,8 @@ class EthModuleTest(object):
             ),
             (
                 # private key 0x3c2ab4e8f17a7dea191b8c991522660126d681039509dc3bb31af7c9bdb63518
+                # This is an unfunded account, but the transaction has a 0 gas price, so is valid.
+                # It never needs to be mined, we just want the transaction hash back to confirm.
                 HexBytes('0xf85f808082c35094d898d5e829717c72e7438bad593076686d7d164a80801ba005c2e99ecee98a12fbf28ab9577423f42e9e88f2291b3acc8228de743884c874a077d6bc77a47ad41ec85c96aac2ad27f05a039c4787fca8a1e5ee2d8c7ec1bb6a'),  # noqa: E501
                 '0x98eeadb99454427f6aad7b558bac13e9d225512a6f5e5c11cf48e8d4067e51b5',
             ),
