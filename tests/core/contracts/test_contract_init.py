@@ -6,6 +6,7 @@ from web3.exceptions import (
 )
 from web3.utils.ens import (
     contract_ens_addresses,
+    ens_addresses,
 )
 
 
@@ -27,6 +28,26 @@ def test_contract_with_unset_address(MathContract):
 def test_contract_with_name_address(MathContract, math_addr):
     with contract_ens_addresses(MathContract, [('thedao.eth', math_addr)]):
         mc = MathContract(address='thedao.eth')
+        caller = mc.web3.eth.coinbase
+        assert mc.address == 'thedao.eth'
+        assert mc.call({'from': caller}).return13() == 13
+
+
+def test_contract_with_name_address_from_eth_contract(
+    web3,
+    MATH_ABI,
+    MATH_CODE,
+    MATH_RUNTIME,
+    math_addr,
+):
+    with ens_addresses(web3, [('thedao.eth', math_addr)]):
+        mc = web3.eth.contract(
+            address='thedao.eth',
+            abi=MATH_ABI,
+            bytecode=MATH_CODE,
+            bytecode_runtime=MATH_RUNTIME,
+        )
+
         caller = mc.web3.eth.coinbase
         assert mc.address == 'thedao.eth'
         assert mc.call({'from': caller}).return13() == 13
