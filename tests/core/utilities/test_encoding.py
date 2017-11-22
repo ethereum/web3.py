@@ -94,7 +94,6 @@ def test_hex_encode_abi_type(abi_type, value, expected):
     assert actual == expected
 
 
-@only_python3
 @given(st.one_of(st.integers(), st.booleans(), st.binary()))
 @example(b'')
 def test_hexstr_if_str_passthrough(val):
@@ -118,7 +117,6 @@ def test_hexstr_if_str_on_valid_hex(val):
     assert to_type.call_args == ((None, ), {'hexstr': val})
 
 
-@only_python3
 @given(st.text())
 def test_hexstr_if_str_on_invalid_hex(val):
     try:
@@ -131,7 +129,6 @@ def test_hexstr_if_str_on_invalid_hex(val):
             hexstr_if_str(Mock(), val)
 
 
-@only_python3
 @given(st.one_of(st.integers(), st.booleans(), st.binary()))
 @example(b'')
 def test_text_if_str_passthrough(val):
@@ -140,7 +137,6 @@ def test_text_if_str_passthrough(val):
     assert to_type.call_args == ((val, ), {'text': None})
 
 
-@only_python3
 @given(st.text())
 @example('0xa1')  # valid hexadecimal is still interpreted as unicode characters
 def test_text_if_str_on_text(val):
