@@ -40,7 +40,7 @@ def sign_transaction_dict(eth_key, transaction_dict):
     # serialize transaction with rlp
     encoded_transaction = encode_transaction(unsigned_transaction, vrs=(v, r, s))
 
-    return (v, r, s, transaction_hash, encoded_transaction)
+    return (v, r, s, encoded_transaction)
 
 
 # watch here for updates to signature format: https://github.com/ethereum/EIPs/issues/191
