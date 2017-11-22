@@ -144,8 +144,6 @@ class LocalAccount(object):
         self.address = key.public_key.to_checksum_address()
 
         key_raw = key.to_bytes()
-        if sys.version_info.major < 3:
-            key_raw = to_hex(key_raw)
         self.privateKey = key_raw
 
         self._key_obj = key
@@ -167,10 +165,3 @@ class LocalAccount(object):
 
     def __bytes__(self):
         return self.privateKey
-
-    # Python 2 support
-    def __str__(self):
-        if sys.version_info.major < 3:
-            return self.privateKey
-        else:
-            return super().__str__()

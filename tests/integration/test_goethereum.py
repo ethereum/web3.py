@@ -26,9 +26,6 @@ from web3.utils.module_testing import (
 )
 
 
-if sys.version_info.major == 2:
-    FileNotFoundError = OSError
-
 
 KEYFILE_PW = 'web3py-test'
 

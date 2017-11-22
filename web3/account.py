@@ -60,14 +60,11 @@ class Account(object):
     def create(self, extra_entropy=''):
         extra_key_bytes = text_if_str(to_bytes, extra_entropy)
         key_bytes = keccak(os.urandom(32) + extra_key_bytes)
-        if sys.version_info.major < 3:
-            key_bytes = to_hex(key_bytes)
         return self.privateKeyToAccount(key_bytes)
 
     @staticmethod
     def decrypt(keyfile_json, password):
-        if isinstance(keyfile_json, str) or (
-                sys.version_info.major < 3 and isinstance(keyfile_json, unicode)):  # noqa: 821
+        if isinstance(keyfile_json, str):  # noqa: 821
             keyfile = json.loads(keyfile_json)
         elif is_dict(keyfile_json):
             keyfile = keyfile_json
@@ -123,8 +120,6 @@ class Account(object):
         txn_bytes = HexBytes(serialized_transaction)
         txn = Transaction.from_bytes(txn_bytes)
         msg_hash = hash_of_signed_transaction(txn)
-        if sys.version_info.major < 3:
-            msg_hash = to_hex(msg_hash)
         return self.recover(msg_hash, vrs=vrs_from(txn))
 
     def setKeyBackend(self, backend):

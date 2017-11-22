@@ -24,11 +24,7 @@ def hex_to_integer(value):
     return int(value, 16)
 
 
-if sys.version_info.major == 2:
-    def integer_to_hex(value):
-        return hex(value).rstrip('L')
-else:
-    integer_to_hex = hex
+integer_to_hex = hex
 
 
 @curry
