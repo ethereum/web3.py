@@ -2,7 +2,6 @@ import os
 import signal
 import socket
 import subprocess
-import sys
 import shutil
 import time
 import tempfile
@@ -24,7 +23,6 @@ from web3.utils.module_testing import (
     PersonalModuleTest,
     Web3ModuleTest,
 )
-
 
 
 KEYFILE_PW = 'web3py-test'

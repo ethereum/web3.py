@@ -1,7 +1,6 @@
 # String encodings and numeric representations
 import json
 import re
-import sys
 
 import rlp
 from rlp.sedes import big_endian_int

@@ -1,10 +1,7 @@
 
-import sys
-
 from web3.utils.encoding import (
     to_bytes,
     to_int,
-    to_hex,
 )
 
 from web3.utils.transactions import (

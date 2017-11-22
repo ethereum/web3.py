@@ -4,7 +4,6 @@ from collections import (
 )
 import json
 import os
-import sys
 
 from cytoolz import (
     compose,
@@ -37,7 +36,6 @@ from web3.utils.encoding import (
     text_if_str,
     to_bytes,
     to_int,
-    to_hex,
 )
 from web3.utils.signing import (
     LocalAccount,

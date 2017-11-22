@@ -1,5 +1,4 @@
 import functools
-import sys
 
 import pytest
 

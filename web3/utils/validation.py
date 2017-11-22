@@ -1,5 +1,4 @@
 import itertools
-import sys
 
 from eth_utils import (
     is_0x_prefixed,

@@ -1,11 +1,9 @@
 # coding=utf-8
 
 import pytest
-import sys
 
 from eth_utils import (
     is_checksum_address,
-    is_hex,
 )
 
 from web3.utils.datastructures import HexBytes
@@ -145,7 +143,7 @@ def test_eth_account_recover_message(web3):
 )
 def test_eth_account_recover_signature_bytes(web3, signature_bytes):
     msg_hash = b'\xbb\r\x8a\xba\x9f\xf7\xa1<N,s{i\x81\x86r\x83{\xba\x9f\xe2\x1d\xaa\xdd\xb3\xd6\x01\xda\x00\xb7)\xa1'  # noqa: E501
-    from_account = web3.eth.account.recover(msg_hash, signature=signature)
+    from_account = web3.eth.account.recover(msg_hash, signature=signature_bytes)
     assert from_account == '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4'
 
 

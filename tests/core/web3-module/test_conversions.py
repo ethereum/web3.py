@@ -1,7 +1,6 @@
 # coding=utf-8
 
 import pytest
-import sys
 
 from web3 import Web3
 

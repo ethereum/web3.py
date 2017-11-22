@@ -1,5 +1,4 @@
 import pytest
-import sys
 
 from web3.manager import (
     RequestManager,

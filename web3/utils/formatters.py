@@ -2,7 +2,6 @@ from collections import (
     Iterable,
     Mapping,
 )
-import sys
 
 from cytoolz.functoolz import (
     curry,

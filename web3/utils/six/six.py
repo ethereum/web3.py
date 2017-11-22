@@ -6,4 +6,3 @@ from urllib.parse import (  # noqa: F401
 )
 
 Generator = collections.Generator
-

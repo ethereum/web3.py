@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import sys
 from unittest.mock import Mock
 
 from eth_utils import (
@@ -107,7 +106,6 @@ def test_hexstr_if_str_curried():
     assert converter(255) == '0xff'
 
 
-@only_python3
 @given(hexstr_strategy())
 @example('0x')
 @example('0')
