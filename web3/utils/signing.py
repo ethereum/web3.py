@@ -1,10 +1,7 @@
 
-import sys
-
 from web3.utils.encoding import (
     to_bytes,
     to_int,
-    to_hex,
 )
 
 from web3.utils.transactions import (
@@ -40,7 +37,7 @@ def sign_transaction_dict(eth_key, transaction_dict):
     # serialize transaction with rlp
     encoded_transaction = encode_transaction(unsigned_transaction, vrs=(v, r, s))
 
-    return (v, r, s, encoded_transaction)
+    return (v, r, s, transaction_hash, encoded_transaction)
 
 
 # watch here for updates to signature format: https://github.com/ethereum/EIPs/issues/191
@@ -144,8 +141,6 @@ class LocalAccount(object):
         self.address = key.public_key.to_checksum_address()
 
         key_raw = key.to_bytes()
-        if sys.version_info.major < 3:
-            key_raw = to_hex(key_raw)
         self.privateKey = key_raw
 
         self._key_obj = key
@@ -167,10 +162,3 @@ class LocalAccount(object):
 
     def __bytes__(self):
         return self.privateKey
-
-    # Python 2 support
-    def __str__(self):
-        if sys.version_info.major < 3:
-            return self.privateKey
-        else:
-            return super().__str__()

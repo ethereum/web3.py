@@ -9,11 +9,11 @@ from web3.middleware.stalecheck import (
 )
 from web3.utils.datastructures import AttributeDict
 
-if sys.version_info >= (3, 3):
+if sys.version_info >= (3, 5):
     from unittest.mock import Mock, patch
 
 
-pytestmark = pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
+pytestmark = pytest.mark.skipif(sys.version_info < (3, 5), reason="needs Mock library from 3.5")
 
 
 @pytest.fixture
