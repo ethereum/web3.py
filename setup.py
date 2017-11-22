@@ -31,6 +31,7 @@ if sys.platform == 'win32':
 
 setup(
     name='web3',
+    # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
     version='3.16.2',
     description="""Web3.py""",
     long_description_markdown_filename='README.md',
