@@ -3,7 +3,7 @@ language: python
 dist: trusty
 env:
   global:
-    - GETH_BASE_INSTALL_PATH=$TRAVIS_BUILD_DIR
+    - GETH_BASE_INSTALL_PATH=$TRAVIS_BUILD_DIR/gethbin
 matrix:
   include:
     # go-ethereum
@@ -53,21 +53,22 @@ cache:
   - pip: true
   - directories:
     - $HOME/.ethash/
+    - $GETH_BASE_INSTALL_PATH/
 before_install:
-  - if [ -n "$GETH_VERSION" ]; then travis_retry sudo add-apt-repository -y ppa:gophers/archive; fi
-  - if [ -n "$GETH_VERSION" ]; then travis_retry sudo apt-get update; fi
   - if [ -n "$GETH_VERSION" ]; then mkdir -p $HOME/.ethash; fi
 install:
-  - if [ -n "$GETH_VERSION" ]; then travis_retry sudo apt-get install -y golang-1.7 build-essential; fi
   - travis_retry pip install pip setuptools --upgrade
   - travis_retry pip install tox
 before_script:
   - python --version
   - pip --version
   - if [ -n "$GETH_VERSION" ]; then travis_retry pip install py-geth>=1.10.1; fi
-  - if [ -n "$GETH_VERSION" ]; then python -m geth.install $GETH_VERSION; fi
   - if [ -n "$GETH_VERSION" ]; then export GOROOT=/usr/lib/go-1.7; fi
   - if [ -n "$GETH_VERSION" ]; then export GETH_BINARY="$GETH_BASE_INSTALL_PATH/geth-$GETH_VERSION/bin/geth"; fi
+  - if [ -n "$GETH_VERSION" ] && [ ! -e "$GETH_BINARY" ]; then travis_retry sudo add-apt-repository -y ppa:gophers/archive; fi
+  - if [ -n "$GETH_VERSION" ] && [ ! -e "$GETH_BINARY" ]; then travis_retry sudo apt-get update; fi
+  - if [ -n "$GETH_VERSION" ] && [ ! -e "$GETH_BINARY" ]; then travis_retry sudo apt-get install -y golang-1.7 build-essential; fi
+  - if [ -n "$GETH_VERSION" ] && [ ! -e "$GETH_BINARY" ]; then python -m geth.install $GETH_VERSION; fi
   - if [ -n "$GETH_VERSION" ]; then $GETH_BINARY version; fi
   - if [ -n "$GETH_VERSION" ]; then $GETH_BINARY makedag 0 $HOME/.ethash; fi
   - pip freeze
