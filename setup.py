@@ -28,9 +28,6 @@ install_requires = [
     "ethereum-tester~=0.1.0b1",
 ]
 
-if sys.platform == 'win32':
-    install_requires.append('pypiwin32')
-
 setup(
     name='web3',
     version='3.16.1',
@@ -47,6 +44,9 @@ setup(
         'gevent': [
             "gevent>=1.1.1,<1.2.0",
             "geventhttpclient>=1.3.1",
+        ],
+        ':sys_platform == "win32"': [
+            'pypiwin32'
         ],
     },
     py_modules=['web3'],
