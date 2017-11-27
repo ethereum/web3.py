@@ -1,5 +1,6 @@
 
 import sys
+from unittest.mock import Mock
 
 import pytest
 
@@ -12,9 +13,6 @@ from web3.contract import (
     ConciseContract,
     ConciseMethod,
 )
-
-if sys.version_info >= (3, 3):
-    from unittest.mock import Mock
 
 
 @pytest.fixture()
@@ -35,7 +33,6 @@ def zero_address_contract(web3, WithConstructorAddressArgumentsContract, EMPTY_A
     return ConciseContract(_address_contract)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
 def test_concisecontract_call_default():
     contract = Mock()
     sweet_method = ConciseMethod(contract, 'grail')
@@ -44,7 +41,6 @@ def test_concisecontract_call_default():
     contract.call().grail.assert_called_once_with(1, 2)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
 def test_concisecontract_custom_transact():
     contract = Mock()
     sweet_method = ConciseMethod(contract, 'grail')
@@ -53,7 +49,6 @@ def test_concisecontract_custom_transact():
     contract.transact().grail.assert_called_once_with(1, 2)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
 def test_concisecontract_two_keywords_fail():
     contract = Mock()
     sweet_method = ConciseMethod(contract, 'grail')
@@ -61,7 +56,6 @@ def test_concisecontract_two_keywords_fail():
         sweet_method(1, 2, transact={'holy': 3}, call={'count_to': 4})
 
 
-@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
 def test_concisecontract_unknown_keyword_fails():
     contract = Mock()
     sweet_method = ConciseMethod(contract, 'grail')

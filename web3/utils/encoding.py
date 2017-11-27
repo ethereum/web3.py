@@ -1,7 +1,6 @@
 # String encodings and numeric representations
 import json
 import re
-import sys
 
 import rlp
 from rlp.sedes import big_endian_int
@@ -73,7 +72,7 @@ def hex_encode_abi_type(abi_type, value, force_size=None):
     elif is_address_type(abi_type):
         return pad_hex(value, data_size)
     elif is_bytes_type(abi_type):
-        if sys.version_info.major >= 3 and is_bytes(value):
+        if is_bytes(value):
             return encode_hex(value)
         else:
             return value
@@ -231,16 +230,10 @@ def text_if_str(to_type, text_or_primitive):
 
     @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
         eg~ to_bytes, to_text, to_hex, to_int, etc
-    @param hexstr_or_primitive in bytes, str, or int. (or unicode in py2)
-        In Python 2, only a unicode object will be interpreted as unicode text
-        In Python 3, only a str object will be interpreted as interpreted as unicode text
+    @param hexstr_or_primitive in bytes, str, or int.
+        In Python 3, only a str object will be interpreted as unicode text
     '''
-    if sys.version_info.major < 3:
-        if isinstance(text_or_primitive, unicode):  # noqa: F821
-            (primitive, text) = (None, text_or_primitive)
-        else:
-            (primitive, text) = (text_or_primitive, None)
-    elif isinstance(text_or_primitive, str):
+    if isinstance(text_or_primitive, str):
         (primitive, text) = (None, text_or_primitive)
     else:
         (primitive, text) = (text_or_primitive, None)
@@ -254,13 +247,10 @@ def hexstr_if_str(to_type, hexstr_or_primitive):
 
     @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
         eg~ to_bytes, to_text, to_hex, to_int, etc
-    @param text_or_primitive in bytes, str, or int. (or unicode in py2)
-        In Python 2, a bytes, unicode or str object will be interpreted as hexstr
+    @param text_or_primitive in bytes, str, or int.
         In Python 3, only a str object will be interpreted as hexstr
     '''
-    if isinstance(hexstr_or_primitive, str) or (
-            sys.version_info.major < 3 and isinstance(hexstr_or_primitive, unicode)  # noqa: F821
-        ):
+    if isinstance(hexstr_or_primitive, str):  # noqa: F821
         (primitive, hexstr) = (None, hexstr_or_primitive)
         if remove_0x_prefix(hexstr) and not is_hex(hexstr):
             raise ValueError(

@@ -4,7 +4,6 @@ import sys
 from web3.utils.encoding import (
     to_bytes,
     to_int,
-    to_hex,
 )
 
 from web3.utils.transactions import (
@@ -144,8 +143,6 @@ class LocalAccount(object):
         self.address = key.public_key.to_checksum_address()
 
         key_raw = key.to_bytes()
-        if sys.version_info.major < 3:
-            key_raw = to_hex(key_raw)
         self.privateKey = key_raw
 
         self._key_obj = key
