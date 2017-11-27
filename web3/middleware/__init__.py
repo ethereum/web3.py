@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import functools
 
 from .abi import (  # noqa: F401
