@@ -193,7 +193,6 @@ def to_bytes(primitive=None, hexstr=None, text=None):
     elif is_integer(primitive):
         return to_bytes(hexstr=to_hex(primitive))
     elif hexstr is not None:
-        hexstr = hexstr.rstrip('L')  # handle longs in Python 2
         if len(hexstr) % 2:
             hexstr = '0x0' + remove_0x_prefix(hexstr)
         return decode_hex(hexstr)

@@ -164,10 +164,3 @@ class LocalAccount(object):
 
     def __bytes__(self):
         return self.privateKey
-
-    # Python 2 support
-    def __str__(self):
-        if sys.version_info.major < 3:
-            return self.privateKey
-        else:
-            return super().__str__()

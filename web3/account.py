@@ -126,7 +126,6 @@ class Account(object):
     def sign(self, message=None, private_key=None, message_hexstr=None, message_text=None):
         '''
         @param private_key in bytes, str, or int.
-            In Python 2, a bytes, unicode or str object will be interpreted as hexstr
             In Python 3, only a str object will be interpreted as hexstr
         '''
         msg_bytes = to_bytes(message, hexstr=message_hexstr, text=message_text)
@@ -146,7 +145,6 @@ class Account(object):
     def signTransaction(self, transaction_dict, private_key):
         '''
         @param private_key in bytes, str, or int.
-            In Python 2, a bytes, unicode or str object will be interpreted as hexstr
             In Python 3, only a str object will be interpreted as hexstr
         '''
         assert isinstance(transaction_dict, Mapping)
