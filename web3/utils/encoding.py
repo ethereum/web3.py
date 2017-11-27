@@ -147,9 +147,7 @@ def to_hex(value=None, hexstr=None, text=None):
         return to_hex(text=value)
 
     if is_integer(value):
-        # python2 longs end up with an `L` hanging off the end of their hexidecimal
-        # representation.
-        return hex(value).rstrip('L')
+        return hex(value)
 
     raise TypeError(
         "Unsupported type: '{0}'.  Must be one of Boolean, Dictionary, String, "
