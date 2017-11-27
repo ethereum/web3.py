@@ -22,6 +22,7 @@ from web3.utils.decorators import (
 def hex_to_integer(value):
     return int(value, 16)
 
+
 integer_to_hex = hex
 
 
