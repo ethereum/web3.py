@@ -153,7 +153,8 @@ def test_eth_account_recover_message(web3):
         b'\x0cu0\x84\xe5\xa8)\x02\x192L\x1a:\x86\xd4\x06M\xed-\x15\x97\x9b\x1e\xa7\x90sJ\xaa,\xea\xaf\xc1"\x9c\xa4S\x81\x06\x81\x9f\xd3\xa5P\x9d\xd3\x83\xe8\xfeKs\x1chp3\x95V\xa5\xc0o\xeb\x9c\xf30\xbb\x00',  # noqa: E501
         # test signature bytes with chain-naive v (27 in this case)
         b'\x0cu0\x84\xe5\xa8)\x02\x192L\x1a:\x86\xd4\x06M\xed-\x15\x97\x9b\x1e\xa7\x90sJ\xaa,\xea\xaf\xc1"\x9c\xa4S\x81\x06\x81\x9f\xd3\xa5P\x9d\xd3\x83\xe8\xfeKs\x1chp3\x95V\xa5\xc0o\xeb\x9c\xf30\xbb\x1b',  # noqa: E501
-    ]
+    ],
+    ids=['test_sig_bytes_standard_v', 'test_sig_bytes_chain_naive_v']
 )
 def test_eth_account_recover_signature_bytes(web3, signature_bytes):
     msg_hash = b'\xbb\r\x8a\xba\x9f\xf7\xa1<N,s{i\x81\x86r\x83{\xba\x9f\xe2\x1d\xaa\xdd\xb3\xd6\x01\xda\x00\xb7)\xa1'  # noqa: E501
@@ -206,7 +207,8 @@ def test_eth_account_recover_vrs_standard_v(web3):
             'Hello World',
             HexBytes('0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2'),
         ),
-    ]
+    ],
+    ids=['message_to_sign', 'hexstr_as_text', 'hello_world']
 )
 def test_eth_account_hash_message_text(web3, message, expected):
     assert web3.eth.account.hashMessage(text=message) == expected
@@ -223,7 +225,8 @@ def test_eth_account_hash_message_text(web3, message, expected):
             '0x29d9f7d6a1d1e62152f314f04e6bd4300ad56fd72102b6b83702869a089f470c',
             HexBytes('0xe709159ef0e6323c705786fc50e47a8143812e9f82f429e585034777c7bf530b'),
         ),
-    ]
+    ],
+    ids=['hexbytes_1', 'hexbytes_2']
 )
 def test_eth_account_hash_message_hexstr(web3, message, expected):
     assert web3.eth.account.hashMessage(hexstr=message) == expected
@@ -243,6 +246,7 @@ def test_eth_account_hash_message_hexstr(web3, message, expected):
             HexBytes('0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a0291c'),  # noqa: E501
         ),
     ),
+    ids=['account_1']
 )
 def test_eth_account_sign(web3, message, key, expected_bytes, expected_hash, v, r, s, signature):
     signed = web3.eth.account.sign(message_text=message, private_key=key)
@@ -277,6 +281,7 @@ def test_eth_account_sign(web3, message, key, expected_bytes, expected_hash, v, 
             37,
         ),
     ),
+    ids=['account_1']
 )
 def test_eth_account_sign_transaction(web3, txn, private_key, expected_raw_tx, tx_hash, r, s, v):
     signed = web3.eth.account.signTransaction(txn, private_key)
