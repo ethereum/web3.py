@@ -138,6 +138,9 @@ class IPCProvider(JSONBaseProvider):
     def make_request(self, method, params):
         request = self.encode_rpc_request(method, params)
 
+        if not self.ipc_path:
+            raise FileNotFoundError("cannot connect to IPC socket at path: %r" % self.ipc_path)
+
         with self._lock, self._socket as sock:
             sock.sendall(request)
             raw_response = b""
