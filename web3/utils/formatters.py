@@ -62,7 +62,10 @@ def apply_formatter_if(condition, formatter, value):
 def apply_formatters_to_dict(formatters, value):
     for key, item in value.items():
         if key in formatters:
-            yield key, formatters[key](item)
+            try:
+                yield key, formatters[key](item)
+            except (TypeError, ValueError) as exc:
+                raise type(exc)("Could not format value %r as field %r" % (item, key)) from exc
         else:
             yield key, item
 

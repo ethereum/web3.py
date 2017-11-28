@@ -1,4 +1,4 @@
-from .six_py3 import (  # noqa: #401
+from .six import (  # noqa: #401
     urlparse,
     urlunparse,
     Generator,

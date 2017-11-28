@@ -1,8 +1,8 @@
 # Web3.py
 
-[![Join the chat at https://gitter.im/pipermerriam/web3.py](https://badges.gitter.im/pipermerriam/web3.py.svg)](https://gitter.im/pipermerriam/web3.py?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/ethereum/web3.py](https://badges.gitter.im/ethereum/web3.py.svg)](https://gitter.im/ethereum/web3.py?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Build Status](https://travis-ci.org/pipermerriam/web3.py.png)](https://travis-ci.org/pipermerriam/web3.py)
+[![Build Status](https://travis-ci.org/ethereum/web3.py.png)](https://travis-ci.org/ethereum/web3.py)
    
 
 A Python implementation of [web3.js](https://github.com/ethereum/web3.js)
@@ -76,7 +76,7 @@ If you would like to hack on web3.py, set up your dev environment with:
 sudo apt-get install libssl-dev
 # ^ This is for Debian-like systems. TODO: Add more platforms
 
-git clone git@github.com:pipermerriam/web3.py.git
+git clone git@github.com:ethereum/web3.py.git
 cd web3.py
 virtualenv venv
 . venv/bin/activate
@@ -176,4 +176,23 @@ For Debian-like systems:
 apt install pandoc
 ```
 
-*TODO* other release instructions
+To release a new version:
+
+```sh
+bumpversion $$VERSION_PART_TO_BUMP$$
+git push && git push --tags
+make release
+```
+
+#### How to bumpversion
+
+The version format for this repo is `{major}.{minor}.{patch}` for stable, and
+`{major}.{minor}.{patch}-{stage}.{devnum}` for unstable (`stage` can be alpha or beta).
+
+To issue the next version in line, use bumpversion and specify which part to bump,
+like `bumpversion minor` or `bumpversion devnum`.
+
+If you are in a beta version, `bumpversion stage` will switch to a stable.
+
+To issue an unstable version when the current version is stable, specify the
+new version explicitly, like `bumpversion --new-version 4.0.0-alpha.1 devnum`

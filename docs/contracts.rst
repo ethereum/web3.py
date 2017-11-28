@@ -7,21 +7,22 @@ Contracts
 Contract Factories
 ------------------
 
+These factories are not intended to be initialized directly.
+Instead, create contract objects using the :meth:`web3.eth.Eth.contract`
+method. By default, the contract factory is :class:`Contract`. See the
+example in :class:`ConciseContract` for specifying an alternate factory.
+
 .. py:class:: Contract(address)
 
-    This class is not intended to be used or instantiated directly.
-    Instead you should use the :meth:`web3.eth.Eth.contract` method to generate
-    the contract factory classes for your contracts.
-
-    Contract Factories provide an interface for deploying and interacting with
+    Contract provides a default interface for deploying and interacting with
     Ethereum smart contracts.
 
-    You can use a hex address or an ENS name, like ``mycontract.eth``.
+    The address parameter can be a hex address or an ENS name, like ``mycontract.eth``.
 
 .. py:class:: ConciseContract(Contract())
 
-    This variation of ``Contract`` is designed for succinct read access, with
-    no impact on write access. This comes at a cost of less convenient
+    This variation of :class:`Contract` is designed for more succinct read access,
+    without making write access more wordy. This comes at a cost of losing
     access to features like ``deploy()`` and properties like ``address``. It is
     recommended to use the classic ``Contract`` for those use cases.
 

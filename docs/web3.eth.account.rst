@@ -1,16 +1,16 @@
+.. py:module:: web3.account
+    :synopsis: Validate signatures, and work with local private keys
+
 web3.eth.account API
 =====================
 
-.. py:module:: web3.eth.account
-    :synopsis: Validate signatures, and work with local private keys
-
 .. py:class:: Account
 
-The ``Web3.eth.account`` object exposes the following methods to
+The ``w3.eth.account`` object exposes the following methods to
 interact with locally managed keys. It can be used for signing without connecting
 to an Ethereum client.
 
-``Web3.eth.account`` roughly follows the API of the web3js v1.0
+``w3.eth.account`` roughly follows the API of the web3js v1.0
 `eth.accounts module <https://web3js.readthedocs.io/en/1.0/web3-eth-accounts.html>`_ .
 
 .. NOTE::
@@ -22,7 +22,8 @@ to an Ethereum client.
 Methods
 -------
 
-The following methods are available on the ``Web3.eth.account`` namespace.
+The following methods are available on the ``w3.eth.account`` namespace. They can all
+be called statically, like ``Account.create()``.
 
 
 .. py:method:: Account.create(extra_entropy="")
@@ -35,8 +36,7 @@ The following methods are available on the ``Web3.eth.account`` namespace.
 
     .. code-block:: python
 
-        >>> from web3 import Web3
-        >>> w3 = Web3(YOUR_PROVIDER)
+        >>> from web3.auto import w3
         >>> acct = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
         >>> acct.address
         '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'

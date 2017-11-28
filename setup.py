@@ -33,7 +33,8 @@ if sys.platform == 'win32':
 
 setup(
     name='web3',
-    version='4.0.0-beta.1',
+    # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
+    version='4.0.0-beta.2',
     description="""Web3.py""",
     long_description_markdown_filename='README.md',
     author='Piper Merriam',

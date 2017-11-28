@@ -241,7 +241,7 @@ def hexstr_if_str(to_type, hexstr_or_primitive):
         eg~ to_bytes, to_text, to_hex, to_int, etc
     @param text_or_primitive in bytes, str, or int.
     '''
-    if isinstance(hexstr_or_primitive, str):  # noqa: F821
+    if isinstance(hexstr_or_primitive, str):
         (primitive, hexstr) = (None, hexstr_or_primitive)
         if remove_0x_prefix(hexstr) and not is_hex(hexstr):
             raise ValueError(
