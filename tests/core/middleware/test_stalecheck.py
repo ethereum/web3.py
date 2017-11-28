@@ -1,6 +1,5 @@
 
 import pytest
-import sys
 
 from web3.middleware import make_stalecheck_middleware
 from web3.middleware.stalecheck import (
@@ -9,11 +8,7 @@ from web3.middleware.stalecheck import (
 )
 from web3.utils.datastructures import AttributeDict
 
-if sys.version_info >= (3, 3):
-    from unittest.mock import Mock, patch
-
-
-pytestmark = pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
+from unittest.mock import Mock, patch
 
 
 @pytest.fixture

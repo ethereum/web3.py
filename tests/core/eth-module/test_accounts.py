@@ -1,11 +1,9 @@
 # coding=utf-8
 
 import pytest
-import sys
 
 from eth_utils import (
     is_checksum_address,
-    is_hex,
 )
 
 from web3 import (
@@ -48,23 +46,14 @@ ETH_TEST_TRANSACTIONS = [
 ]
 
 
-def to_hex_if_py2(val):
-    if sys.version_info.major < 3:
-        return to_hex(val)
-    else:
-        return val
-
-
 @pytest.fixture
 def PRIVATE_BYTES():
-    key = b'unicorns' * 4
-    return to_hex_if_py2(key)
+    return b'unicorns' * 4
 
 
 @pytest.fixture
 def PRIVATE_BYTES_ALT(PRIVATE_BYTES):
-    key = b'rainbows' * 4
-    return to_hex_if_py2(key)
+    return b'rainbows' * 4
 
 
 @pytest.fixture
@@ -130,10 +119,7 @@ def test_eth_account_create_properties(acct):
     assert callable(account.sign)
     assert callable(account.signTransaction)
     assert is_checksum_address(account.address)
-    if sys.version_info.major < 3:
-        assert is_hex(account.privateKey) and len(account.privateKey) == 66
-    else:
-        assert isinstance(account.privateKey, bytes) and len(account.privateKey) == 32
+    assert isinstance(account.privateKey, bytes) and len(account.privateKey) == 32
 
 
 def test_eth_account_recover_transaction_example(acct):
@@ -170,9 +156,7 @@ def test_eth_account_recover_message(acct):
 )
 def test_eth_account_recover_signature_bytes(acct, signature_bytes):
     msg_hash = b'\xbb\r\x8a\xba\x9f\xf7\xa1<N,s{i\x81\x86r\x83{\xba\x9f\xe2\x1d\xaa\xdd\xb3\xd6\x01\xda\x00\xb7)\xa1'  # noqa: E501
-    msg_hash = to_hex_if_py2(msg_hash)
-    signature = to_hex_if_py2(signature_bytes)
-    from_account = acct.recover(msg_hash, signature=signature)
+    from_account = acct.recover(msg_hash, signature=signature_bytes)
     assert from_account == '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4'
 
 
@@ -183,7 +167,6 @@ def test_eth_account_recover_vrs(acct):
         15655399131600894366408541311673616702363115109327707006109616887384920764603,
     )
     msg_hash = b'\xbb\r\x8a\xba\x9f\xf7\xa1<N,s{i\x81\x86r\x83{\xba\x9f\xe2\x1d\xaa\xdd\xb3\xd6\x01\xda\x00\xb7)\xa1'  # noqa: E501
-    msg_hash = to_hex_if_py2(msg_hash)
     from_account = acct.recover(msg_hash, vrs=(v, r, s))
     assert from_account == '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4'
 
@@ -198,7 +181,6 @@ def test_eth_account_recover_vrs_standard_v(acct):
         15655399131600894366408541311673616702363115109327707006109616887384920764603,
     )
     msg_hash = b'\xbb\r\x8a\xba\x9f\xf7\xa1<N,s{i\x81\x86r\x83{\xba\x9f\xe2\x1d\xaa\xdd\xb3\xd6\x01\xda\x00\xb7)\xa1'  # noqa: E501
-    msg_hash = to_hex_if_py2(msg_hash)
     from_account = acct.recover(msg_hash, vrs=(v, r, s))
     assert from_account == '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4'
 
