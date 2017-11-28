@@ -56,6 +56,7 @@ from web3.utils.abi import (
         ('0xname.eth', 'address', True),  # 0x in name is fine, if it is not a TLD
         ('0xff', 'address', False),  # but any valid hex starting with 0x should be rejected
     ),
+    ids=['test_' + str(x) for x in range(42)]
 )
 def test_is_encodable(value, _type, expected):
     actual = is_encodable(_type, value)
