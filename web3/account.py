@@ -32,15 +32,15 @@ from web3.utils.datastructures import (
     AttributeDict,
     HexBytes,
 )
+from web3.utils.decorators import (
+    combomethod,
+)
 from web3.utils.encoding import (
     hexstr_if_str,
     text_if_str,
     to_bytes,
     to_int,
     to_hex,
-)
-from web3.utils.exception import (
-    raise_from,
 )
 from web3.utils.signing import (
     LocalAccount,
@@ -60,6 +60,7 @@ from web3.utils.transactions import (
 class Account(object):
     _keys = keys
 
+    @combomethod
     def create(self, extra_entropy=''):
         extra_key_bytes = text_if_str(to_bytes, extra_entropy)
         key_bytes = keccak(os.urandom(32) + extra_key_bytes)
@@ -92,20 +93,19 @@ class Account(object):
         recovery_hasher = compose(HexBytes, keccak, signature_wrapper)
         return recovery_hasher(message_bytes)
 
+    @combomethod
     def privateKeyToAccount(self, private_key):
         key_bytes = HexBytes(private_key)
         try:
             key_obj = self._keys.PrivateKey(key_bytes)
             return LocalAccount(key_obj, self)
         except ValidationError as original_exception:
-            raise_from(
-                ValueError(
-                    "The private key must be exactly 32 bytes long, instead of "
-                    "%d bytes." % len(key_bytes)
-                ),
-                original_exception
-            )
+            raise ValueError(
+                "The private key must be exactly 32 bytes long, instead of "
+                "%d bytes." % len(key_bytes)
+            ) from original_exception
 
+    @combomethod
     def recover(self, msghash, vrs=None, signature=None):
         hash_bytes = HexBytes(msghash)
         if vrs is not None:
@@ -121,10 +121,12 @@ class Account(object):
         pubkey = signature_obj.recover_public_key_from_msg_hash(hash_bytes)
         return pubkey.to_checksum_address()
 
+    @combomethod
     def recoverMessage(self, data=None, hexstr=None, text=None, vrs=None, signature=None):
         msg_hash = self.hashMessage(data, hexstr=hexstr, text=text)
         return self.recover(msg_hash, vrs=vrs, signature=signature)
 
+    @combomethod
     def recoverTransaction(self, serialized_transaction):
         txn_bytes = HexBytes(serialized_transaction)
         txn = Transaction.from_bytes(txn_bytes)
@@ -136,6 +138,7 @@ class Account(object):
     def setKeyBackend(self, backend):
         self._keys = KeyAPI(backend)
 
+    @combomethod
     def sign(self, message=None, private_key=None, message_hexstr=None, message_text=None):
         '''
         @param private_key in bytes, str, or int.
@@ -156,6 +159,7 @@ class Account(object):
             'signature': HexBytes(eth_signature_bytes),
         })
 
+    @combomethod
     def signTransaction(self, transaction_dict, private_key):
         '''
         @param private_key in bytes, str, or int.
@@ -171,9 +175,10 @@ class Account(object):
             v,
             r,
             s,
-            transaction_hash,
             rlp_encoded,
         ) = sign_transaction_dict(account._key_obj, transaction_dict)
+
+        transaction_hash = keccak(rlp_encoded)
 
         return AttributeDict({
             'rawTransaction': HexBytes(rlp_encoded),

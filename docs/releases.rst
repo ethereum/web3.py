@@ -1,6 +1,41 @@
 Release Notes
 =============
 
+v4.0.0-beta.2
+-------------
+
+Bug Fixes:
+
+* :meth:`~web3.eth.Eth.sendRawTransaction` accepts raw bytes
+* :meth:`~web3.eth.Eth.contract` accepts an ENS name as contract address
+* :meth:`~web3.account.Account.signTransaction` returns the expected hash (*after* signing the transaction)
+* :class:`~web3.account.Account` methods can all be called statically, like: ``Account.sign(...)``
+* :meth:`~web3.eth.Eth.getTransactionReceipt` returns the ``status`` field as an ``int``
+* :meth:`Web3.soliditySha3` looks up ENS names if they are supplied with an "address" ABI
+* If running multiple threads with the same w3 instance, ``ValueError: Recursively called ...`` is no longer raised
+
+Plus, various python modernization code cleanups, and testing against geth 1.7.2.
+
+v4.0.0-beta.1
+-------------
+
+* Python 3 is now required
+* ENS names can be used anywhere that a hex address can
+* Sign transactions and messages with local private keys
+* New filter mechanism: :meth:`~web3.utils.filters.Filter.get_all_entries` and :meth:`~web3.utils.filters.Filter.get_new_entries`
+* Quick automatic initialization with ``from web3.auto import w3``
+* All addresses must be supplied with an EIP-55 checksum
+* All addresses are returned with a checksum
+* Renamed ``Web3.toDecimal()`` to ``toInt()``, see: :ref:`overview_type_conversions`
+* All filter calls are synchronous, gevent integration dropped
+* Contract :meth:`~web3.contract.Contract.eventFilter` has replaced both ``Contract.on()`` and ``Contract.pastEvents()``
+* Contract arguments of ``bytes`` ABI type now accept hex strings.
+* Contract arguments of ``string`` ABI type now accept python ``str``.
+* Contract return values of ``string`` ABI type now return python ``str``.
+* Many methods now return a ``bytes``-like object where they used to return a hex string, like in :meth:`Web3.sha3()`
+* IPC connection left open and reused, rather than opened and closed on each call
+* A number of deprecated methods from v3 were removed
+
 3.16.1
 ------
 

@@ -1,11 +1,9 @@
-from __future__ import unicode_literals
-
 from cytoolz.dicttoolz import (
     assoc,
 )
 
 from eth_utils import (
-    is_address,
+    is_checksum_address,
     is_string,
 )
 
@@ -35,9 +33,6 @@ from web3.utils.filters import (
 )
 from web3.utils.transactions import (
     get_buffered_gas_estimate,
-)
-from web3.utils.validation import (
-    validate_address,
 )
 
 
@@ -200,7 +195,7 @@ class Eth(Module):
 
     def sendTransaction(self, transaction):
         # TODO: move to middleware
-        if 'from' not in transaction and is_address(self.defaultAccount):
+        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
         # TODO: move gas estimation in middleware
@@ -230,7 +225,7 @@ class Eth(Module):
 
     def call(self, transaction, block_identifier=None):
         # TODO: move to middleware
-        if 'from' not in transaction and is_address(self.defaultAccount):
+        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
         # TODO: move to middleware
@@ -244,7 +239,7 @@ class Eth(Module):
 
     def estimateGas(self, transaction):
         # TODO: move to middleware
-        if 'from' not in transaction and is_address(self.defaultAccount):
+        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
         return self.web3.manager.request_blocking(
@@ -289,7 +284,9 @@ class Eth(Module):
         )
 
     def getLogs(self, filter_params):
-        raise NotImplementedError("Not yet implemented")
+        return self.web3.manager.request_blocking(
+            "eth_getLogs", [filter_params],
+        )
 
     def uninstallFilter(self, filter_id):
         return self.web3.manager.request_blocking(
@@ -304,8 +301,6 @@ class Eth(Module):
         ContractFactory = ContractFactoryClass.factory(self.web3, **kwargs)
 
         if address:
-            validate_address(address)
-
             return ContractFactory(address)
         else:
             return ContractFactory

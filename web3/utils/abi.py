@@ -12,9 +12,10 @@ from cytoolz import (
 )
 
 from eth_utils import (
-    coerce_args_to_text,
+    decode_hex,
     is_address,
     is_boolean,
+    is_hex,
     is_integer,
     is_list_like,
     is_string,
@@ -25,6 +26,8 @@ from eth_abi.abi import (
     collapse_type,
     process_type,
 )
+
+from web3.utils.ens import is_ens_name
 
 from web3.utils.formatters import (
     recursive_map,
@@ -133,11 +136,20 @@ def is_encodable(_type, value):
             return True
 
         max_length = int(sub)
-        return len(value) <= max_length
+        if isinstance(value, str):
+            decodable = is_hex(value) and len(value) % 2 == 0
+            return decodable and len(decode_hex(value)) <= max_length
+        elif isinstance(value, bytes):
+            return len(value) <= max_length
+        else:
+            False
     elif base == 'address':
-        if not is_address(value):
+        if is_ens_name(value):
+            return True
+        elif is_address(value):
+            return True
+        else:
             return False
-        return True
     else:
         raise ValueError("Unsupported type")
 
@@ -168,7 +180,6 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     )
 
 
-@coerce_args_to_text
 def merge_args_and_kwargs(function_abi, args, kwargs):
     if len(args) + len(kwargs) != len(function_abi['inputs']):
         raise TypeError(
@@ -454,7 +465,7 @@ def data_tree_map(func, data_tree):
     receive two args: abi_type, and data
     '''
     def map_to_typed_data(elements):
-        if isinstance(elements, ABITypedData):
+        if isinstance(elements, ABITypedData) and elements.abi_type is not None:
             return ABITypedData(func(*elements))
         else:
             return elements
@@ -484,6 +495,9 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
 
 
 def abi_sub_tree(data_type, data_value):
+    if data_type is None:
+        return ABITypedData([None, data_value])
+
     try:
         base, sub, arrlist = data_type
     except ValueError:

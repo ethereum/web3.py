@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from collections import (
     Iterable,
     Mapping,
@@ -57,7 +55,7 @@ def apply_formatters_to_args(*formatters):
 
 
 @curry
-def apply_formatter_if(formatter, condition, value):
+def apply_formatter_if(condition, formatter, value):
     if condition(value):
         return formatter(value)
     else:

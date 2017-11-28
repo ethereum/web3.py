@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import re
 import functools
 
@@ -7,7 +5,7 @@ from eth_utils import (
     is_string,
     coerce_args_to_text,
     pad_left,
-    add_0x_prefix,
+    to_checksum_address,
 )
 
 from web3.utils.validation import (
@@ -219,7 +217,7 @@ class Iban(object):
         if self.isDirect():
             base36 = self._iban[4:]
             asInt = int(base36, 36)
-            return add_0x_prefix(pad_left_hex(baseN(asInt, 16), 20))
+            return to_checksum_address(pad_left_hex(baseN(asInt, 16), 20))
 
         return ""
 

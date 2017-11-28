@@ -9,7 +9,6 @@ configparser==3.5.0
 contextlib2>=0.5.4
 #eth-testrpc>=0.8.0
 #ethereum-tester-client>=1.1.0
-gevent>=1.1.2
 py-geth>=1.4.0
 py-solc>=0.4.0
 #pysha3>=0.3

@@ -1,6 +1,13 @@
 import pytest
 
+from web3 import Web3
+
+from web3.exceptions import (
+    InvalidAddress,
+)
+
 from web3.utils.datastructures import HexBytes
+from web3.utils.ens import ens_addresses
 
 
 class Web3ModuleTest(object):
@@ -54,6 +61,11 @@ class Web3ModuleTest(object):
             (
                 ['address'],
                 ["0x49eddd3769c0712032808d86597b84ac5c2f5614"],
+                InvalidAddress,
+            ),
+            (
+                ['address'],
+                ["0x49EdDD3769c0712032808D86597B84ac5c2F5614"],
                 HexBytes("0x2ff37b5607484cd4eecf6d13292e22bd6e5401eaffcc07e279583bc742c68882"),
             ),
             (
@@ -74,7 +86,6 @@ class Web3ModuleTest(object):
                 ],
                 HexBytes("0xd78a84d65721b67e4011b10c99dafdedcdcd7cb30153064f773e210b4762e22f"),
             ),
-
             (
                 ['string'],
                 ['testing a string!'],
@@ -88,6 +99,17 @@ class Web3ModuleTest(object):
                     299,
                     '0x5402',
                     "0x49eddd3769c0712032808d86597b84ac5c2f5614",
+                ],
+                InvalidAddress,
+            ),
+            (
+                ['string', 'bool', 'uint16', 'bytes2', 'address'],
+                [
+                    'testing a string!',
+                    False,
+                    299,
+                    '0x5402',
+                    "0x49EdDD3769c0712032808D86597B84ac5c2F5614",
                 ],
                 HexBytes("0x8cc6eabb25b842715e8ca39e2524ed946759aa37bfb7d4b81829cf5a7e266103"),
             ),
@@ -129,6 +151,14 @@ class Web3ModuleTest(object):
                 ]],
                 HexBytes("0xb98565c0c26a962fd54d93b0ed6fb9296e03e9da29d2281ed3e3473109ef7dde"),
             ),
+            (
+                ['address[]'],
+                [[
+                    "0x49EdDD3769c0712032808D86597B84ac5c2F5614",
+                    "0xa6b759bbbf4b59d24acf7e06e79f3a5d104fdce5",
+                ]],
+                InvalidAddress,
+            ),
         ),
     )
     def test_soliditySha3(self, web3, types, values, expected):
@@ -139,6 +169,34 @@ class Web3ModuleTest(object):
 
         actual = web3.soliditySha3(types, values)
         assert actual == expected
+
+    @pytest.mark.parametrize(
+        'types, values, expected',
+        (
+            (
+                ['address'],
+                ['one.eth'],
+                HexBytes("0x2ff37b5607484cd4eecf6d13292e22bd6e5401eaffcc07e279583bc742c68882"),
+            ),
+            (
+                ['address[]'],
+                [['one.eth', 'two.eth']],
+                HexBytes("0xb98565c0c26a962fd54d93b0ed6fb9296e03e9da29d2281ed3e3473109ef7dde"),
+            ),
+        ),
+    )
+    def test_soliditySha3_ens(self, web3, types, values, expected):
+        with ens_addresses(web3, {
+            'one.eth': "0x49EdDD3769c0712032808D86597B84ac5c2F5614",
+            'two.eth': "0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5",
+        }):
+            # when called as class method, any name lookup attempt will fail
+            with pytest.raises(InvalidAddress):
+                Web3.soliditySha3(types, values)
+
+            # when called as instance method method, ens lookups can succeed
+            actual = web3.soliditySha3(types, values)
+            assert actual == expected
 
     @pytest.mark.parametrize(
         'types,values',

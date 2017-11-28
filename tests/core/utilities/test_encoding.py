@@ -1,9 +1,8 @@
 # encoding: utf-8
 
-from __future__ import unicode_literals
-
 import pytest
 import sys
+from unittest.mock import Mock
 
 from eth_utils import (
     is_hex,
@@ -19,7 +18,6 @@ from web3.utils.encoding import (
     hex_encode_abi_type,
     text_if_str,
     hexstr_if_str,
-    to_bytes,
     to_int,
     to_hex,
 )
@@ -28,14 +26,6 @@ from web3.utils.hypothesis import (
     hexstr_strategy,
 )
 
-# Several tests are split into py2 & py3 tests below, with py3 tests using Mock
-if sys.version_info.major > 2:
-    from unittest.mock import Mock
-
-only_python2 = pytest.mark.skipif(
-    sys.version_info.major > 2,
-    reason="these test values only valid for py2"
-)
 only_python3 = pytest.mark.skipif(
     sys.version_info.major < 3,
     reason="these test values only valid for py3"
@@ -109,44 +99,6 @@ def test_hex_encode_abi_type(abi_type, value, expected):
     assert actual == expected
 
 
-@only_python2
-@given(
-    st.one_of(st.integers(min_value=0), st.booleans()),
-    st.sampled_from((to_bytes, to_hex, to_int)),
-)
-def test_hexstr_if_str_passthrough_py2(val, converter):
-    assert hexstr_if_str(converter, val) == converter(val)
-
-
-@only_python2
-@given(
-    hexstr_strategy(),
-    st.sampled_from((to_bytes, to_hex, to_int)),
-)
-def test_hexstr_if_str_valid_hex_py2(val, converter):
-    if converter is to_int and to_bytes(hexstr=val) == b'':
-        with pytest.raises(ValueError):
-            hexstr_if_str(converter, val)
-    else:
-        assert hexstr_if_str(converter, val) == converter(hexstr=val)
-
-
-@only_python2
-@given(
-    st.one_of(st.text(), st.binary()),
-    st.sampled_from((to_bytes, to_hex, to_int)),
-)
-def test_hexstr_if_str_invalid_hex_py2(val, converter):
-    try:
-        is_hexstr = (is_hex(val) or val == '')
-    except ValueError:
-        is_hexstr = False
-
-    if not is_hexstr:
-        with pytest.raises(ValueError):
-            hexstr_if_str(converter, val)
-
-
 @only_python3
 @given(st.one_of(st.integers(), st.booleans(), st.binary()))
 @example(b'')
@@ -200,34 +152,3 @@ def test_text_if_str_on_text(val):
     to_type = Mock(return_value='zoot')
     assert text_if_str(to_type, val) == 'zoot'
     assert to_type.call_args == ((None, ), {'text': val})
-
-
-@only_python2
-@given(
-    st.one_of(st.integers(min_value=0), st.booleans(), st.binary()),
-    st.sampled_from((to_bytes, to_hex)),
-)
-@example(b'', to_hex)
-@example(b'\xff', to_bytes)  # bytes are passed through, no matter the text
-def test_text_if_str_passthrough_py2(val, converter):
-    if converter is to_int and to_bytes(val) == b'':
-        with pytest.raises(ValueError):
-            text_if_str(converter, val)
-    else:
-        assert text_if_str(converter, val) == converter(val)
-
-
-@only_python2
-@given(
-    st.text(),
-    st.sampled_from((to_bytes, to_hex)),
-)
-@example('0xa1', to_bytes)  # valid hexadecimal is still interpreted as unicode characters
-def test_text_if_str_on_text_py2(val, converter):
-    assert text_if_str(converter, val) == converter(text=val)
-
-
-@only_python2
-@given(st.from_regex('\A[0-9]+\Z'))
-def test_text_if_str_on_text_to_int_py2(val):
-    assert text_if_str(to_int, val) == to_int(text=val)

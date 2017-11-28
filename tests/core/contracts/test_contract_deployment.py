@@ -57,7 +57,7 @@ def test_contract_deployment_with_constructor_with_address_argument(web3,
                                                                     WithConstructorAddressArgumentsContract,  # noqa: E501
                                                                     WITH_CONSTRUCTOR_ADDRESS_RUNTIME):  # noqa: E501
     deploy_txn = WithConstructorAddressArgumentsContract.deploy(
-        args=["0x16d9983245de15e7a9a73bc586e01ff6e08de737"],
+        args=["0x16D9983245De15E7A9A73bC586E01FF6E08dE737"],
     )
 
     txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)

@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
+import pytest
 
 from eth_abi import (
     decode_single,
 )
 
 from eth_utils import (
-    is_address,
+    is_checksum_address,
     is_bytes,
     is_string,
     is_boolean,
@@ -15,6 +15,10 @@ from eth_utils import (
     is_integer,
     is_list_like,
     is_same_address,
+)
+
+from web3.exceptions import (
+    InvalidAddress,
 )
 
 from web3.utils.datastructures import (
@@ -49,7 +53,7 @@ class EthModuleTest(object):
 
     def test_eth_coinbase(self, web3):
         coinbase = web3.eth.coinbase
-        assert is_address(coinbase)
+        assert is_checksum_address(coinbase)
 
     def test_eth_mining(self, web3):
         mining = web3.eth.mining
@@ -70,7 +74,7 @@ class EthModuleTest(object):
         assert is_list_like(accounts)
         assert len(accounts) != 0
         assert all((
-            is_address(account)
+            is_checksum_address(account)
             for account
             in accounts
         ))
@@ -83,18 +87,26 @@ class EthModuleTest(object):
 
     def test_eth_getBalance(self, web3):
         coinbase = web3.eth.coinbase
+
+        with pytest.raises(InvalidAddress):
+            web3.eth.getBalance(coinbase.lower())
+
         balance = web3.eth.getBalance(coinbase)
 
         assert is_integer(balance)
         assert balance >= 0
 
     def test_eth_getStorageAt(self, web3):
-        # TODO: implement deployed contracts
-        pass
+        coinbase = web3.eth.coinbase
+
+        with pytest.raises(InvalidAddress):
+            web3.eth.getStorageAt(coinbase.lower(), 0)
 
     def test_eth_getTransactionCount(self, web3):
         coinbase = web3.eth.coinbase
         transaction_count = web3.eth.getTransactionCount(coinbase)
+        with pytest.raises(InvalidAddress):
+            web3.eth.getTransactionCount(coinbase.lower())
 
         assert is_integer(transaction_count)
         assert transaction_count >= 0
@@ -137,6 +149,8 @@ class EthModuleTest(object):
 
     def test_eth_getCode(self, web3, math_contract):
         code = web3.eth.getCode(math_contract.address)
+        with pytest.raises(InvalidAddress):
+            code = web3.eth.getCode(math_contract.address.lower())
         assert is_string(code)
         assert len(code) > 2
 
@@ -164,6 +178,24 @@ class EthModuleTest(object):
         new_signature = web3.eth.sign(unlocked_account, text='different message is different')
         assert new_signature != signature
 
+    def test_eth_sendTransaction_addr_checksum_required(self, web3, unlocked_account):
+        non_checksum_addr = unlocked_account.lower()
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gas_price': web3.eth.gasPrice,
+        }
+
+        with pytest.raises(InvalidAddress):
+            invalid_params = dict(txn_params, **{'from': non_checksum_addr})
+            web3.eth.sendTransaction(invalid_params)
+
+        with pytest.raises(InvalidAddress):
+            invalid_params = dict(txn_params, **{'to': non_checksum_addr})
+            web3.eth.sendTransaction(invalid_params)
+
     def test_eth_sendTransaction(self, web3, unlocked_account):
         txn_params = {
             'from': unlocked_account,
@@ -181,12 +213,25 @@ class EthModuleTest(object):
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gas_price']
 
-    def test_eth_sendRawTransaction(self, web3, funded_account_for_raw_txn):
-        txn_hash = web3.eth.sendRawTransaction(
-            '0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a'  # noqa: E501
-        )
-        expected = HexBytes('0x1f80f8ab5f12a45be218f76404bda64d37270a6f4f86ededd0eb599f80548c13')
-        assert txn_hash == expected
+    @pytest.mark.parametrize(
+        'raw_transaction, expected_hash',
+        [
+            (
+                '0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a',  # noqa: E501
+                '0x1f80f8ab5f12a45be218f76404bda64d37270a6f4f86ededd0eb599f80548c13',
+            ),
+            (
+                # private key 0x3c2ab4e8f17a7dea191b8c991522660126d681039509dc3bb31af7c9bdb63518
+                # This is an unfunded account, but the transaction has a 0 gas price, so is valid.
+                # It never needs to be mined, we just want the transaction hash back to confirm.
+                HexBytes('0xf85f808082c35094d898d5e829717c72e7438bad593076686d7d164a80801ba005c2e99ecee98a12fbf28ab9577423f42e9e88f2291b3acc8228de743884c874a077d6bc77a47ad41ec85c96aac2ad27f05a039c4787fca8a1e5ee2d8c7ec1bb6a'),  # noqa: E501
+                '0x98eeadb99454427f6aad7b558bac13e9d225512a6f5e5c11cf48e8d4067e51b5',
+            ),
+        ]
+    )
+    def test_eth_sendRawTransaction(self, web3, raw_transaction, expected_hash):
+        txn_hash = web3.eth.sendRawTransaction(raw_transaction)
+        assert txn_hash == web3.toBytes(hexstr=expected_hash)
 
     def test_eth_call(self, web3, math_contract):
         coinbase = web3.eth.coinbase

@@ -10,8 +10,7 @@ from eth_utils import (
     encode_hex,
     add_0x_prefix,
     coerce_return_to_text,
-    force_obj_to_bytes,
-    to_normalized_address,
+    to_checksum_address,
 )
 
 from eth_abi import (
@@ -56,18 +55,23 @@ from web3.utils.empty import (
 from web3.utils.encoding import (
     to_hex,
 )
+from web3.utils.ens import (
+    is_ens_name,
+    validate_name_has_address,
+)
 from web3.utils.events import (
     get_event_data,
 )
-from web3.utils.exception import (
-    raise_from,
-)
 from web3.utils.filters import (
     construct_event_filter_params,
-    PastLogFilter,
 )
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
+    abi_address_to_hex,
+    abi_bytes_to_hex,
+    abi_ens_resolver,
+    abi_string_to_hex,
+    hexstrs_to_bytes,
 )
 from web3.utils.validation import (
     validate_abi,
@@ -151,8 +155,12 @@ class Contract(object):
             validate_abi(val)
             return val
         elif key == 'address':
-            validate_address(val)
-            return to_normalized_address(val)
+            if is_ens_name(val):
+                validate_name_has_address(cls.web3.ens, val)
+                return val
+            else:
+                validate_address(val)
+                return to_checksum_address(val)
         elif key in {
             'bytecode_runtime',
             'bytecode',
@@ -239,8 +247,7 @@ class Contract(object):
     #
     #  Public API
     #
-    @classmethod
-    @coerce_return_to_text
+    @combomethod
     def encodeABI(cls, fn_name, args=None, kwargs=None, data=None):
         """
         Encodes the arguments using the Ethereum ABI for the contract function
@@ -258,14 +265,15 @@ class Contract(object):
         return cls._encode_abi(fn_abi, fn_arguments, data)
 
     @combomethod
-    def on(self, event_name, filter_params=None, *callbacks):
+    def eventFilter(self, event_name, filter_params={}):
         """
-        Register a callback to be triggered on the appropriate events.
+        Create filter object that tracks events emitted by this contract.
+        :param event_name: the name of the event to track
+        :param filter_params: other parameters to limit the events
         """
-        if filter_params is None:
-            filter_params = {}
+        filter_meta_params = dict(filter_params)
+        argument_filters = filter_meta_params.pop('filter', {})
 
-        argument_filters = filter_params.pop('filter', {})
         argument_filter_names = list(argument_filters.keys())
         event_abi = self._find_matching_event_abi(
             event_name,
@@ -276,7 +284,7 @@ class Contract(object):
             event_abi,
             contract_address=self.address,
             argument_filters=argument_filters,
-            **filter_params
+            **filter_meta_params
         )
 
         log_data_extract_fn = functools.partial(get_event_data, event_abi)
@@ -287,41 +295,7 @@ class Contract(object):
         log_filter.log_entry_formatter = log_data_extract_fn
         log_filter.filter_params = event_filter_params
 
-        if callbacks:
-            log_filter.watch(*callbacks)
-
         return log_filter
-
-    @combomethod
-    def pastEvents(self, event_name, filter_params=None, *callbacks):
-        """
-        Register a callback to be triggered on all past events.
-        """
-        if filter_params is None:
-            filter_params = {}
-
-        event_filter_params = {}
-        event_filter_params.update(filter_params)
-        event_filter_params.setdefault('fromBlock', 'earliest')
-        event_filter_params.setdefault('toBlock', self.web3.eth.blockNumber)
-
-        log_filter = self.on(
-            event_name,
-            filter_params=event_filter_params,
-        )
-
-        past_log_filter = PastLogFilter(
-            web3=log_filter.web3,
-            filter_id=log_filter.filter_id,
-            log_entry_formatter=log_filter.log_entry_formatter,
-            data_filter_set=log_filter.data_filter_set,
-        )
-        past_log_filter.filter_params = log_filter.filter_params
-
-        if callbacks:
-            past_log_filter.watch(*callbacks)
-
-        return past_log_filter
 
     @combomethod
     def estimateGas(self, transaction=None):
@@ -385,7 +359,7 @@ class Contract(object):
             )
 
             # Not a real contract address
-            contract = ContractFactory("0x2f70d3d26829e412a602e83fe8eebf80255aeea5")
+            contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
 
             # Read "owner" public variable
             addr = contract.call().owner()
@@ -452,7 +426,7 @@ class Contract(object):
             #   by the `to` parameter.
             # * Wallet.withdraw(address amount)
 
-            >>> wallet = Wallet(address='0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24')
+            >>> wallet = Wallet(address='0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24')
             # Deposit to the `web3.eth.coinbase` account.
             >>> wallet.transact({'value': 12345}).deposit()
             '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
@@ -618,7 +592,7 @@ class Contract(object):
         )
         return prepared_transaction
 
-    @classmethod
+    @combomethod
     def _encode_abi(cls, abi, arguments, data=None):
         argument_types = get_abi_input_types(abi)
 
@@ -631,9 +605,21 @@ class Contract(object):
             )
 
         try:
+            normalizers = [
+                abi_ens_resolver(cls.web3),
+                abi_address_to_hex,
+                abi_bytes_to_hex,
+                abi_string_to_hex,
+                hexstrs_to_bytes,
+            ]
+            normalized_arguments = map_abi_data(
+                normalizers,
+                argument_types,
+                arguments,
+            )
             encoded_arguments = encode_abi(
                 argument_types,
-                force_obj_to_bytes(arguments),
+                normalized_arguments,
             )
         except EncodingError as e:
             raise TypeError(
@@ -646,15 +632,14 @@ class Contract(object):
         else:
             return encode_hex(encoded_arguments)
 
-    @classmethod
-    @coerce_return_to_text
+    @combomethod
     def _encode_transaction_data(cls, fn_name, args=None, kwargs=None):
         fn_abi, fn_selector, fn_arguments = cls._get_function_info(
             fn_name, args, kwargs,
         )
         return add_0x_prefix(cls._encode_abi(fn_abi, fn_arguments, fn_selector))
 
-    @classmethod
+    @combomethod
     @coerce_return_to_text
     def _encode_constructor_data(cls, args=None, kwargs=None):
         constructor_abi = get_constructor_abi(cls.abi)
@@ -782,7 +767,7 @@ def call_contract_function(contract,
                     output_types
                 )
             )
-        raise_from(BadFunctionCallOutput(msg), e)
+        raise BadFunctionCallOutput(msg) from e
 
     normalizers = itertools.chain(
         BASE_RETURN_NORMALIZERS,

@@ -2,61 +2,62 @@ import pytest
 
 from web3.exceptions import (
     BadFunctionCallOutput,
+    InvalidAddress,
+)
+
+from web3.utils.datastructures import (
+    HexBytes,
+)
+from web3.utils.ens import (
+    contract_ens_addresses,
 )
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
-@pytest.fixture()
-def math_contract(web3, MathContract):
-    deploy_txn = MathContract.deploy()
+def deploy(web3, Contract, args=None):
+    deploy_txn = Contract.deploy(args=args)
     deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    _math_contract = MathContract(address=deploy_receipt['contractAddress'])
-    return _math_contract
+    contract = Contract(address=deploy_receipt['contractAddress'])
+    return contract
+
+
+@pytest.fixture()
+def address_reflector_contract(web3, AddressReflectorContract):
+    return deploy(web3, AddressReflectorContract)
+
+
+@pytest.fixture()
+def math_contract(web3, MathContract):
+    return deploy(web3, MathContract)
 
 
 @pytest.fixture()
 def string_contract(web3, StringContract):
-    deploy_txn = StringContract.deploy(args=["Caqalai"])
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    _string_contract = StringContract(address=deploy_receipt['contractAddress'])
-    return _string_contract
+    return deploy(web3, StringContract, args=["Caqalai"])
 
 
 @pytest.fixture()
 def address_contract(web3, WithConstructorAddressArgumentsContract):
-    deploy_txn = WithConstructorAddressArgumentsContract.deploy(args=[
-        "0xd3cda913deb6f67967b99d67acdfa1712c293601",
+    return deploy(web3, WithConstructorAddressArgumentsContract, args=[
+        "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
     ])
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    _address_contract = WithConstructorAddressArgumentsContract(
-        address=deploy_receipt['contractAddress'],
-    )
-    return _address_contract
 
 
-@pytest.fixture()
-def bytes_contract(web3, BytesContract):
-    deploy_txn = BytesContract.deploy(args=['\x04\x06'])
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    _bytes_contract = BytesContract(address=deploy_receipt['contractAddress'])
-    return _bytes_contract
+@pytest.fixture(params=[b'\x04\x06', '0x0406', '0406'])
+def bytes_contract(web3, BytesContract, request):
+    return deploy(web3, BytesContract, args=[request.param])
 
 
-@pytest.fixture()
-def bytes32_contract(web3, Bytes32Contract):
-    deploy_txn = Bytes32Contract.deploy(
-        args=['\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06']  # noqa: E501
-    )
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    _bytes_contract = Bytes32Contract(address=deploy_receipt['contractAddress'])
-    return _bytes_contract
+@pytest.fixture(params=[
+    '0x0406040604060406040604060406040604060406040604060406040604060406',
+    '0406040604060406040604060406040604060406040604060406040604060406',
+    HexBytes('0406040604060406040604060406040604060406040604060406040604060406'),
+])
+def bytes32_contract(web3, Bytes32Contract, request):
+    return deploy(web3, Bytes32Contract, args=[request.param])
 
 
 @pytest.fixture()
@@ -74,6 +75,13 @@ def mismatched_math_contract(web3, StringContract, MathContract):
 
     _mismatched_math_contract = MathContract(address=deploy_receipt['contractAddress'])
     return _mismatched_math_contract
+
+
+def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):
+    with pytest.raises(InvalidAddress):
+        WithConstructorAddressArgumentsContract.deploy(args=[
+            "0xd3cda913deb6f67967b99d67acdfa1712c293601",
+        ])
 
 
 def test_call_with_no_arguments(math_contract):
@@ -117,6 +125,18 @@ def test_call_read_address_variable(address_contract):
     assert result == "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"
 
 
+def test_init_with_ens_name_arg(web3, WithConstructorAddressArgumentsContract):
+    with contract_ens_addresses(
+        WithConstructorAddressArgumentsContract,
+        [("arg-name.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
+    ):
+        address_contract = deploy(web3, WithConstructorAddressArgumentsContract, args=[
+            "arg-name.eth",
+        ])
+
+    assert address_contract.call().testAddr() == "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413"
+
+
 def test_call_read_bytes_variable(bytes_contract):
     result = bytes_contract.call().constValue()
     assert result == b"\x01\x23"
@@ -135,6 +155,93 @@ def test_call_read_bytes32_variable(bytes32_contract):
 def test_call_get_bytes32_value(bytes32_contract):
     result = bytes32_contract.call().getValue()
     assert result == b'\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06'  # noqa
+
+
+@pytest.mark.parametrize(
+    'value, expected',
+    [
+        (
+            '0x' + '11' * 20,
+            '0x' + '11' * 20,
+        ),
+        (
+            '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
+            InvalidAddress,
+        ),
+        (
+            '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+            '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+        ),
+    ]
+)
+def test_call_address_reflector_with_address(address_reflector_contract, value, expected):
+    if not isinstance(expected, str):
+        with pytest.raises(expected):
+            address_reflector_contract.call().reflect(value)
+    else:
+        assert address_reflector_contract.call().reflect(value) == expected
+
+
+@pytest.mark.parametrize(
+    'value, expected',
+    [
+        (
+            ['0x' + '11' * 20, '0x' + '22' * 20],
+            ['0x' + '11' * 20, '0x' + '22' * 20],
+        ),
+        (
+            ['0x' + '11' * 20, '0x' + 'aa' * 20],
+            InvalidAddress
+        ),
+        (
+            [
+                '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4',
+                '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+            ],
+            [
+                '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4',
+                '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+            ],
+        ),
+    ]
+)
+def test_call_address_list_reflector_with_address(address_reflector_contract, value, expected):
+    if not isinstance(expected, list):
+        with pytest.raises(expected):
+            address_reflector_contract.call().reflect(value)
+    else:
+        assert address_reflector_contract.call().reflect(value) == expected
+
+
+def test_call_address_reflector_single_name(address_reflector_contract):
+    with contract_ens_addresses(
+        address_reflector_contract,
+        [("dennisthepeasant.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
+    ):
+        result = address_reflector_contract.call().reflect('dennisthepeasant.eth')
+        assert result == '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413'
+
+
+def test_call_address_reflector_name_array(address_reflector_contract):
+    names = [
+        'autonomouscollective.eth',
+        'wedonthavealord.eth',
+    ]
+    addresses = [
+        '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+        '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4',
+    ]
+
+    with contract_ens_addresses(address_reflector_contract, zip(names, addresses)):
+        result = address_reflector_contract.call().reflect(names)
+
+    assert addresses == result
+
+
+def test_call_reject_invalid_ens_name(address_reflector_contract):
+    with contract_ens_addresses(address_reflector_contract, []):
+        with pytest.raises(ValueError):
+            address_reflector_contract.call().reflect('typ0.eth')
 
 
 def test_call_missing_function(mismatched_math_contract):

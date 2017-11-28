@@ -1,4 +1,5 @@
 import functools
+import threading
 import warnings
 
 
@@ -24,12 +25,16 @@ def reject_recursive_repeats(to_wrap):
 
     @functools.wraps(to_wrap)
     def wrapped(*args):
-        instances = tuple(map(id, args))
-        if instances in to_wrap.__already_called:
+        arg_instances = tuple(map(id, args))
+        thread_id = threading.get_ident()
+        thread_local_args = (thread_id,) + arg_instances
+        if thread_local_args in to_wrap.__already_called:
             raise ValueError('Recursively called %s with %r' % (to_wrap, args))
-        to_wrap.__already_called[instances] = True
-        wrapped_val = to_wrap(*args)
-        del to_wrap.__already_called[instances]
+        to_wrap.__already_called[thread_local_args] = True
+        try:
+            wrapped_val = to_wrap(*args)
+        finally:
+            del to_wrap.__already_called[thread_local_args]
         return wrapped_val
     return wrapped
 

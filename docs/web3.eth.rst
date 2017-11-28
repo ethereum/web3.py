@@ -1,8 +1,7 @@
-Eth API
-=======
+web3.eth API
+=============
 
 .. py:module:: web3.eth
-.. py:currentmodule:: web3.eth
 
 .. py:class:: Eth
 
@@ -156,6 +155,8 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the balance of the given ``account`` at the block specified by
     ``block_identifier``.
 
+    ``account`` may be a hex address or an ENS name
+
     .. code-block:: python
 
         >>> web3.eth.getBalance('0xd3cda913deb6f67967b99d67acdfa1712c293601')
@@ -169,6 +170,8 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the value from a storage position for the given ``account`` at the
     block specified by ``block_identifier``.
 
+    ``account`` may be a hex address or an ENS name
+
     .. code-block:: python
 
         >>> web3.eth.getStorageAt('0x6c8f2a135f6ed072de4503bd7c4999a1a17f824b', 0)
@@ -181,6 +184,8 @@ The following methods are available on the ``web3.eth`` namespace.
 
     Returns the bytecode for the given ``account`` at the block specified by
     ``block_identifier``.
+
+    ``account`` may be a hex address or an ENS name
 
     .. code-block:: python
 
@@ -357,6 +362,8 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the number of transactions that have been sent from ``account`` as
     of the block specified by ``block_identifier``.
 
+    ``account`` may be a hex address or an ENS name
+
     .. code-block:: python
 
         >>> web3.eth.getTransactionCount('0xd3cda913deb6f67967b99d67acdfa1712c293601')
@@ -371,9 +378,9 @@ The following methods are available on the ``web3.eth`` namespace.
 
     The ``transaction`` parameter should be a dictionary with the following fields.
 
-    * ``from``: ``bytes or text``, 20 Bytes - (optional, default:
+    * ``from``: ``bytes or text``, hex address or ENS name - (optional, default:
       ``web3.eth.defaultAccount``) The address the transaction is send from.
-    * ``to``: ``bytes or text``, 20 Bytes - (optional when creating new
+    * ``to``: ``bytes or text``, hex address or ENS name - (optional when creating new
       contract) The address the transaction is directed to.
     * ``gas``: ``integer`` - (optional, default: 90000) Integer of the gas
       provided for the transaction execution. It will return unused gas.
@@ -389,9 +396,9 @@ The following methods are available on the ``web3.eth`` namespace.
 
     If the ``transaction`` specifies a ``data`` value but does not specify
     ``gas`` then the ``gas`` value will be populated using the
-    ``web3.eth.estimateGas()`` function with an additional buffer of ``100000``
+    :meth:`~web3.eth.Eth.estimateGas()` function with an additional buffer of ``100000``
     gas up to the ``gasLimit`` of the latest block.  In the event that the
-    value returned by ``web3.eth.estimateGas()`` method is greater than the
+    value returned by :meth:`~web3.eth.Eth.estimateGas()` method is greater than the
     ``gasLimit`` a ``ValueError`` will be raised.
 
 
@@ -435,6 +442,8 @@ The following methods are available on the ``web3.eth`` namespace.
     Signs the given data with the private key of the given ``account``.
     The account must be unlocked.
 
+    ``account`` may be a hex address or an ENS name
+
     .. code-block:: python
 
         >>> web3.eth.sign(
@@ -461,7 +470,7 @@ The following methods are available on the ``web3.eth`` namespace.
     on the blockchain.  Returns the return value of the executed contract.
 
     The ``transaction`` parameter is handled in the same manner as the
-    ``web3.eth.sendTransaction()`` method.
+    :meth:`~web3.eth.Eth.sendTransaction()` method.
 
     .. code-block:: python
 
@@ -476,6 +485,9 @@ The following methods are available on the ``web3.eth`` namespace.
     Executes the given transaction locally without creating a new transaction
     on the blockchain.  Returns amount of gas consumed by execution which can
     be used as a gas estimate.
+
+    The ``transaction`` parameter is handled in the same manner as the
+    :meth:`~web3.eth.Eth.sendTransaction()` method.
 
     .. code-block:: python
 
@@ -619,11 +631,44 @@ Contracts
 
 .. py:method:: Eth.contract(address=None, contract_name=None, ContractFactoryClass=Contract, **contract_factory_kwargs)
 
-    If ``address`` is provided then this method will return an instance of the
-    contract defined by ``abi``.  Otherwise the newly created contract class
-    will be returned.
+    If ``address`` is provided, then this method will return an instance of the
+    contract defined by ``abi``. The address may be a hex string,
+    or an ENS name like ``'mycontract.eth'``.
 
-    ``contract_name`` will be used as the name of the contract class.  If
+    .. code-block:: python
+
+        from web3 import Web3
+
+        w3 = Web3(...)
+
+        contract = w3.eth.contract(address='0x000000000000000000000000000000000000dead', abi=...)
+
+        # alternatively:
+        contract = w3.eth.contract(address='mycontract.eth', abi=...)
+
+    .. note::
+
+        If you use an ENS name to initialize a contract, the contract will be looked up by
+        name on each use. If the name could ever change maliciously, first
+        :ref:`ens_get_address`, and then create the contract with the hex address.
+
+
+    If ``address`` is *not* provided, the newly created contract class will be returned. That
+    class will then be initialized by supplying the address.
+
+    .. code-block:: python
+
+        from web3 import Web3
+
+        w3 = Web3(...)
+
+        Contract = w3.eth.contract(abi=...)
+
+        # later, initialize contracts with the same metadata at different addresses:
+        contract1 = Contract(address='0x000000000000000000000000000000000000dead')
+        contract2 = Contract(address='mycontract.eth')
+
+    ``contract_name`` will be used as the name of the contract class.  If it is
     ``None`` then the name of the ``ContractFactoryClass`` will be used.
 
     ``ContractFactoryClass`` will be used as the base Contract class.

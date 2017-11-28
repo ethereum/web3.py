@@ -4,7 +4,7 @@ import sys
 import pytest
 
 from eth_utils import (
-    is_address,
+    is_checksum_address,
     is_dict,
 )
 
@@ -50,7 +50,7 @@ def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
     deploy_receipt = web3.eth.getTransactionReceipt(math_contract_deploy_txn_hash)
     assert is_dict(deploy_receipt)
     contract_address = deploy_receipt['contractAddress']
-    assert is_address(contract_address)
+    assert is_checksum_address(contract_address)
     return math_contract_factory(contract_address)
 
 
@@ -108,7 +108,7 @@ def unlockable_account(web3, unlockable_account_pw):
 
 @pytest.fixture(scope="session")
 def funded_account_for_raw_txn(web3):
-    account = '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6'
+    account = '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6'
     web3.eth.sendTransaction({
         'from': web3.eth.coinbase,
         'to': account,

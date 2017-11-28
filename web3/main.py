@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from eth_utils import (
     apply_to_return_value,
     add_0x_prefix,
@@ -12,13 +10,14 @@ from eth_utils import (
     to_wei,
 )
 
+from ens import ENS
+
 from web3.admin import Admin
 from web3.eth import Eth
 from web3.iban import Iban
 from web3.miner import Miner
 from web3.net import Net
 from web3.personal import Personal
-from web3.shh import Shh
 from web3.testing import Testing
 from web3.txpool import TxPool
 from web3.version import Version
@@ -38,8 +37,14 @@ from web3.manager import (
     RequestManager,
 )
 
+from web3.utils.abi import (
+    map_abi_data,
+)
 from web3.utils.datastructures import (
     HexBytes,
+)
+from web3.utils.decorators import (
+    combomethod,
 )
 from web3.utils.encoding import (
     hex_encode_abi_type,
@@ -48,12 +53,16 @@ from web3.utils.encoding import (
     to_hex,
     to_text,
 )
+from web3.utils.normalizers import (
+    abi_ens_resolver,
+)
+
+default = object()
 
 
 def get_default_modules():
     return {
         "eth": Eth,
-        "shh": Shh,
         "net": Net,
         "personal": Personal,
         "version": Version,
@@ -92,7 +101,7 @@ class Web3(object):
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
-    def __init__(self, providers, middlewares=None, modules=None):
+    def __init__(self, providers, middlewares=None, modules=None, ens=default):
         self.manager = RequestManager(self, providers, middlewares)
 
         if modules is None:
@@ -100,6 +109,8 @@ class Web3(object):
 
         for module_name, module_class in modules.items():
             module_class.attach(self, module_name)
+
+        self.ens = ens
 
     @property
     def middleware_stack(self):
@@ -128,7 +139,7 @@ class Web3(object):
             )
         )
 
-    @classmethod
+    @combomethod
     def soliditySha3(cls, abi_types, values):
         """
         Executes sha3 (keccak256) exactly as Solidity does.
@@ -141,10 +152,16 @@ class Web3(object):
                 "{0} types and {1} values.".format(len(abi_types), len(values))
             )
 
+        if isinstance(cls, type):
+            w3 = None
+        else:
+            w3 = cls
+        normalized_values = map_abi_data([abi_ens_resolver(w3)], abi_types, values)
+
         hex_string = add_0x_prefix(''.join(
             remove_0x_prefix(hex_encode_abi_type(abi_type, value))
             for abi_type, value
-            in zip(abi_types, values)
+            in zip(abi_types, normalized_values)
         ))
         return cls.sha3(hexstr=hex_string)
 
@@ -154,3 +171,14 @@ class Web3(object):
                 return True
         else:
             return False
+
+    @property
+    def ens(self):
+        if self._ens is default:
+            return ENS.fromWeb3(self)
+        else:
+            return self._ens
+
+    @ens.setter
+    def ens(self, new_ens):
+        self._ens = new_ens

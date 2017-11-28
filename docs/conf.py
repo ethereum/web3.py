@@ -78,6 +78,7 @@ exclude_patterns = [
     '_build',
     'web3.rst',
     'modules.rst',
+    'web3.auto.rst',
     'web3.middleware.rst',
     'web3.providers.rst',
     'web3.providers.eth_tester.rst',

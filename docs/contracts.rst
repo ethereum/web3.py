@@ -2,26 +2,27 @@ Contracts
 =========
 
 .. py:module:: web3.contract
-.. py:currentmodule:: web3.contract
 
 
 Contract Factories
 ------------------
 
+These factories are not intended to be initialized directly.
+Instead, create contract objects using the :meth:`web3.eth.Eth.contract`
+method. By default, the contract factory is :class:`Contract`. See the
+example in :class:`ConciseContract` for specifying an alternate factory.
+
 .. py:class:: Contract(address)
 
-    The ``Contract`` class is not intended to be used or instantiated directly.
-    Instead you should use the ``web3.eth.contract(...)`` method to generate
-    the contract factory classes for your contracts.
-
-    Contract Factories provide an interface for deploying and interacting with
+    Contract provides a default interface for deploying and interacting with
     Ethereum smart contracts.
 
+    The address parameter can be a hex address or an ENS name, like ``mycontract.eth``.
 
 .. py:class:: ConciseContract(Contract())
 
-    This variation of ``Contract`` is designed for succinct read access, with
-    no impact on write access. This comes at a cost of less convenient
+    This variation of :class:`Contract` is designed for more succinct read access,
+    without making write access more wordy. This comes at a cost of losing
     access to features like ``deploy()`` and properties like ``address``. It is
     recommended to use the classic ``Contract`` for those use cases.
 
@@ -30,7 +31,7 @@ Contract Factories
 
     .. code-block:: python
 
-        >>> concise = web3.eth.contract(..., ContractFactoryClass=ConciseContract)
+        >>> concise = w3.eth.contract(..., ContractFactoryClass=ConciseContract)
 
 
     This variation invokes all methods as a call, so if the classic contract had a method like
@@ -56,8 +57,8 @@ Each Contract Factory exposes the following properties.
 
 .. py:attribute:: Contract.address
 
-    The hexadecimal encoded 20-byte address of the contract.  May be ``None``
-    if not provided during factory creation.
+    The hexadecimal encoded 20-byte address of the contract, or an ENS name.
+    May be ``None`` if not provided during factory creation.
 
 
 .. py:attribute:: Contract.abi
@@ -94,6 +95,9 @@ Each Contract Factory exposes the following methods.
     If the contract takes constructor arguments they should be provided as a
     list via the ``args`` parameter.
 
+    If any of the ``args`` specified in the ABI are an ``address`` type, they
+    will accept ENS names.
+
     If a ``gas`` value is not provided, then the ``gas`` value for the
     deployment transaction will be created using the ``web3.eth.estimateGas()``
     method.
@@ -115,6 +119,9 @@ Each Contract Factory exposes the following methods.
     selects the appropriate contract function based on the name and provided
     argument.  Arguments can be provided as positional arguments, keyword
     arguments, or a mix of the two.
+
+    If any of the ``args`` or ``kwargs`` specified in the ABI are an ``address`` type, they
+    will accept ENS names.
 
     If a ``gas`` value is not provided, then the ``gas`` value for the
     method transaction will be created using the ``web3.eth.estimateGas()``
@@ -170,7 +177,7 @@ Each Contract Factory exposes the following methods.
 Events
 ------
 
-.. py:classmethod:: Contract.on(event_name, filter_params=None, *callbacks)
+.. py:classmethod:: Contract.eventFilter(event_name, filter_params=None)
 
     Creates a new :py:class:`web3.utils.filters.LogFilter` instance.
 
@@ -205,10 +212,6 @@ Events
     If the :py:attr:`Contract.address` attribute for this contract is
     non-null, the contract address will be added to the ``filter_params``.
 
-    If provided, the ``*callbacks`` parameter should be callables which accept
-    a single Event Log object.  When callbacks are provided, the filter will be
-    *started*.  Otherwise the filter will be returned without starting it.
-
     The Event Log Object is a python dictionary with the following keys:
 
     * ``args``: Dictionary - The arguments coming from the event.
@@ -227,23 +230,14 @@ Events
 
     .. code-block:: python
 
-        >>> transfer_filter = my_token_contract.on('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
-        >>> transfer_filter.get()
+        >>> transfer_filter = my_token_contract.eventFilter('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
+        >>> transfer_filter.get_new_entries()
         [...]  # array of Event Log Objects that match the filter.
-        >>> transfer_filter.watch(my_callback)
-        # now `my_callback` will be called each time a new matching event log
-        # is encountered.
 
+        # wait a while...
 
-.. py:classmethod:: Contract.pastEvents(event_name, filter_params=None, *callbacks)
+        >>> transfer_filter.get_new_entries()
+        [...]  # new events since the last call
 
-    Creates a new :py:class:`web3.utils.filters.PastLogFilter` instance which
-    will match historical event logs.
-
-    All parameters behave the same as the :py:method::`Contract.on` method.
-
-    .. code-block:: python
-
-        >>> transfer_filter = my_token_contract.pastEvents('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
-        >>> transfer_filter.get()
-        [...]  # array of Event Log Objects that match the filter for all historical events.
+        >>> transfer_filter.get_all_entries()
+        [...]  # all events that match the filter.

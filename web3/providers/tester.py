@@ -1,3 +1,5 @@
+from wsgiref.simple_server import make_server
+
 from cytoolz.functoolz import (
     compose,
     complement,
@@ -15,10 +17,6 @@ from web3.middleware import (
     construct_exception_handler_middleware,
 )
 
-from web3.utils.compat import (
-    make_server,
-    spawn,
-)
 from web3.utils.formatters import (
     hex_to_integer,
     apply_formatter_if,
@@ -26,6 +24,9 @@ from web3.utils.formatters import (
     apply_formatters_to_dict,
     static_return,
     static_result,
+)
+from web3.utils.threads import (
+    spawn,
 )
 
 from .base import BaseProvider  # noqa: E402
@@ -40,13 +41,13 @@ def is_testrpc_available():
         return False
 
 
-to_integer_if_hex = apply_formatter_if(hex_to_integer, is_string)
+to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
 
 
 TRANSACTION_FORMATTERS = {
     'to': apply_formatter_if(
-        static_return(None),
         compose(complement(bool), decode_hex),
+        static_return(None),
     ),
 }
 
@@ -65,11 +66,11 @@ ethtestrpc_middleware = construct_formatting_middleware(
     },
     result_formatters={
         # Eth
-        'eth_newFilter': apply_formatter_if(hex, is_integer),
-        'eth_protocolVersion': apply_formatter_if(str, is_integer),
+        'eth_newFilter': apply_formatter_if(is_integer, hex),
+        'eth_protocolVersion': apply_formatter_if(is_integer, str),
         'eth_getTransactionByHash': apply_formatters_to_dict(TRANSACTION_FORMATTERS),
         # Net
-        'net_version': apply_formatter_if(str, is_integer),
+        'net_version': apply_formatter_if(is_integer, str),
     },
 )
 

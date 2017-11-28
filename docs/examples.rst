@@ -191,7 +191,7 @@ Transaction receipts can be retrieved using the ``web3.eth.getTransactionReceipt
     }
 
 
-If the transactin has not yet been mined then this method will return ``None``.
+If the transaction has not yet been mined then this method will return ``None``.
 
 
 .. TODO: create a contract factory

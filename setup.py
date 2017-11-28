@@ -30,7 +30,8 @@ install_requires = [
 
 setup(
     name='web3',
-    version='3.16.1',
+    # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
+    version='4.0.0-beta.2',
     description="""Web3.py""",
     long_description_markdown_filename='README.md',
     author='Piper Merriam',
@@ -41,28 +42,22 @@ setup(
     setup_requires=['setuptools-markdown'],
     extras_require={
         'tester': ["eth-testrpc>=1.3.3"],
-        'gevent': [
-            "gevent>=1.1.1,<1.2.0",
-            "geventhttpclient>=1.3.1",
-        ],
-        ':sys_platform == "win32"': [
+        'platform_system=="Windows"': [
             'pypiwin32'
         ],
     },
-    py_modules=['web3'],
+    py_modules=['web3', 'ens'],
     license="MIT",
     zip_safe=False,
     keywords='ethereum',
     packages=find_packages(exclude=["tests", "tests.*"]),
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 )

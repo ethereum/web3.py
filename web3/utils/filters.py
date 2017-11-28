@@ -1,5 +1,4 @@
 import re
-import random
 
 from eth_utils import (
     is_string,
@@ -10,9 +9,9 @@ from .events import (
     construct_event_topic_set,
     construct_event_data_set,
 )
-from .compat import (
-    sleep,
-    GreenletThread,
+
+from web3.utils.validation import (
+    validate_address,
 )
 
 
@@ -49,6 +48,14 @@ def construct_event_filter_params(event_abi,
     elif contract_address:
         filter_params['address'] = contract_address
 
+    if 'address' not in filter_params:
+        pass
+    elif is_list_like(filter_params['address']):
+        for addr in filter_params['address']:
+            validate_address(addr)
+    else:
+        validate_address(filter_params['address'])
+
     if fromBlock is not None:
         filter_params['fromBlock'] = fromBlock
 
@@ -60,7 +67,7 @@ def construct_event_filter_params(event_abi,
     return data_filters_set, filter_params
 
 
-class Filter(GreenletThread):
+class Filter:
     callbacks = None
     running = None
     stopped = False
@@ -76,23 +83,6 @@ class Filter(GreenletThread):
     def __str__(self):
         return "Filter for {0}".format(self.filter_id)
 
-    def _run(self):
-        if self.stopped:
-            raise ValueError("Cannot restart a Filter")
-        self.running = True
-
-        while self.running:
-            changes = self.web3.eth.getFilterChanges(self.filter_id)
-            if changes:
-                for entry in changes:
-                    for callback_fn in self.callbacks:
-                        if self.is_valid_entry(entry):
-                            callback_fn(self.format_entry(entry))
-            if self.poll_interval is None:
-                sleep(random.random())
-            else:
-                sleep(self.poll_interval)
-
     def format_entry(self, entry):
         """
         Hook for subclasses to change the format of the value that is passed
@@ -106,22 +96,20 @@ class Filter(GreenletThread):
         """
         return True
 
-    def watch(self, *callbacks):
-        if self.stopped:
-            raise ValueError("Cannot watch on a filter that has been stopped")
-        self.callbacks.extend(callbacks)
+    def _filter_valid_entries(self, entries):
+        return filter(self.is_valid_entry, entries)
 
-        if not self.running:
-            self.start()
-        sleep(0)
+    def get_new_entries(self):
+        self._ensure_not_running("get_new_entries")
 
-    def stop_watching(self, timeout=0):
-        self.running = False
-        self.stopped = True
-        self.web3.eth.uninstallFilter(self.filter_id)
-        self.join(timeout)
+        log_entries = self._filter_valid_entries(self.web3.eth.getFilterChanges(self.filter_id))
+        return self._format_log_entries(log_entries)
 
-    stopWatching = stop_watching
+    def get_all_entries(self):
+        self._ensure_not_running("get_all_entries")
+
+        log_entries = self._filter_valid_entries(self.web3.eth.getFilterLogs(self.filter_id))
+        return self._format_log_entries(log_entries)
 
 
 class BlockFilter(Filter):
@@ -162,16 +150,14 @@ class LogFilter(Filter):
             self.set_data_filters(kwargs.pop('data_filter_set'))
         super(LogFilter, self).__init__(*args, **kwargs)
 
-    def get(self, only_changes=True):
+    def _ensure_not_running(self, method_name):
         if self.running:
             raise ValueError(
-                "Cannot call `get` on a filter object which is actively watching"
+                "Cannot call `{0}` on a filter object which is actively watching"
+                .format(method_name)
             )
-        if only_changes:
-            log_entries = self.web3.eth.getFilterChanges(self.filter_id)
-        else:
-            log_entries = self.web3.eth.getFilterLogs(self.filter_id)
 
+    def _format_log_entries(self, log_entries=None):
         if log_entries is None:
             log_entries = []
 
@@ -198,45 +184,5 @@ class LogFilter(Filter):
         return bool(self.data_filter_set_regex.match(entry['data']))
 
 
-class PastLogFilter(LogFilter):
-    def _run(self):
-        if self.stopped:
-            raise ValueError("Cannot restart a Filter")
-        self.running = True
-
-        previous_logs = self.web3.eth.getFilterLogs(self.filter_id)
-
-        if previous_logs:
-            for entry in previous_logs:
-                for callback_fn in self.callbacks:
-                    if self.is_valid_entry(entry):
-                        callback_fn(self.format_entry(entry))
-
-        self.running = False
-
-
 class ShhFilter(Filter):
-    def _run(self):
-        if self.stopped:
-            raise ValueError("Cannot restart a filter")
-        self.running = True
-
-        while self.running:
-            changes = self.web3.shh.getFilterChanges(self.filter_id)
-            if changes:
-                for entry in changes:
-                    for callback_fn in self.callbacks:
-                        if self.is_valid_entry(entry):
-                            callback_fn(self.format_entry(entry))
-            if self.poll_interval is None:
-                sleep(random.random())
-            else:
-                sleep(self.poll_interval)
-
-    def stop_watching(self, timeout=0):
-        self.running = False
-        self.stopped = True
-        self.web3.shh.uninstallFilter(self.filter_id)
-        self.join(timeout)
-
-    stopWatching = stop_watching
+    pass

@@ -1,10 +1,9 @@
 import pytest
+import subprocess
 
 from eth_utils import (
     force_text,
 )
-
-from web3.utils.compat import subprocess
 
 
 def test_admin_setSolc(web3, skip_if_testrpc):

@@ -16,7 +16,7 @@ from eth_utils import (
     to_wei,
     remove_0x_prefix,
     is_dict,
-    is_address,
+    is_checksum_address,
     is_same_address,
     force_text,
 )
@@ -284,7 +284,7 @@ def deploy_contract(web3, name, factory):
     deploy_receipt = mine_transaction_hash(web3, deploy_txn_hash)
     print('{0}_CONTRACT_DEPLOY_TRANSACTION_MINED'.format(name.upper()))
     contract_address = deploy_receipt['contractAddress']
-    assert is_address(contract_address)
+    assert is_checksum_address(contract_address)
     print('{0}_CONTRACT_ADDRESS:'.format(name.upper()), contract_address)
     return deploy_receipt
 

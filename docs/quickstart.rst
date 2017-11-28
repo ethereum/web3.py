@@ -37,16 +37,6 @@ Or to install with support for the ``TestRPCProvider`` and
    $ pip install web3[tester]
 
 
-Or to install with support for gevent based threading:
-
-.. code-block:: shell
-
-   $ pip install web3[gevent]
-
-
-To enable gevent based threading set the environment variable ``THREADING_BACKEND=gevent``
-
-
 Installation from source can be done from the root of the project with the
 following command.
 
@@ -78,3 +68,61 @@ To use the web3 library you will need to instantiate an instance of the
 
 This ``web3`` instance will now allow you to interact with the Ethereum
 blockchain.
+
+Simple Example
+--------------
+
+.. code-block:: python
+
+    import json
+    import web3
+
+    from web3 import Web3, HTTPProvider, TestRPCProvider
+    from solc import compile_source
+    from web3.contract import ConciseContract
+
+    # Solidity source code
+    contract_source_code = '''
+    pragma solidity ^0.4.0;
+
+    contract Greeter {
+        string public greeting;
+
+        function Greeter() {
+            greeting = 'Hello';
+        }
+
+        function setGreeting(string _greeting) public {
+            greeting = _greeting;
+        }
+
+        function greet() constant returns (string) {
+            return greeting;
+        }
+    }
+    '''
+
+    compiled_sol = compile_source(contract_source_code) # Compiled source code
+    contract_interface = compiled_sol['<stdin>:Greeter']
+
+    # web3.py instance
+    w3 = Web3(TestRPCProvider())
+
+    # Instantiate and deploy contract
+    contract = w3.eth.contract(contract_interface['abi'], bytecode=contract_interface['bin'])
+
+    # Get transaction hash from deployed contract
+    tx_hash = contract.deploy(transaction={'from': w3.eth.accounts[0], 'gas': 410000})
+
+    # Get tx receipt to get contract address
+    tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+    contract_address = tx_receipt['contractAddress']
+
+    # Contract instance in concise mode
+    contract_instance = w3.eth.contract(contract_interface['abi'], contract_address, ContractFactoryClass=ConciseContract)
+
+    # Getters + Setters for web3.eth.contract object
+    print('Contract value: {}'.format(contract_instance.greet()))
+    contract_instance.setGreeting('Nihao', transact={'from': w3.eth.accounts[0]})
+    print('Setting value to: Nihao')
+    print('Contract value: {}'.format(contract_instance.greet()))

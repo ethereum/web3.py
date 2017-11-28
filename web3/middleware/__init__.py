@@ -1,11 +1,17 @@
 from __future__ import absolute_import
 import functools
 
+from .abi import (  # noqa: F401
+    abi_middleware,
+)
 from .formatting import (  # noqa: F401
     construct_formatting_middleware,
 )
 from .exception_handling import (  # noqa: F401
     construct_exception_handler_middleware,
+)
+from .names import (  # noqa: F401
+    name_to_address_middleware,
 )
 from .pythonic import (  # noqa: F401
     pythonic_middleware,
