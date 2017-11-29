@@ -62,50 +62,56 @@ def test_prepare_transaction_with_contract_to_address_supplied_errors(web3, math
 
 
 @pytest.mark.parametrize(
-    'transaction_args,method_args,method_kwargs,expected',
+    'transaction_args,method_args,method_kwargs,expected,skip_testrpc',
     (
         (
             {}, (5,), {}, {
-                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa
+                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 0, 'gas': 43242, 'gasPrice': 1, 'nonce': 1, 'chainId': 1
-            }
+            }, False
         ),
         (
             {'gas': 800000}, (5,), {}, {
-                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa
+                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 0, 'gas': 800000, 'gasPrice': 1, 'nonce': 1, 'chainId': 1
-            }
+            }, False
         ),
         (
             {'gasPrice': 21000000000}, (5,), {}, {
-                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa
+                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 0, 'gas': 43242, 'gasPrice': 21000000000, 'nonce': 1, 'chainId': 1
-            }
+            }, False
         ),
-        # (
-        #     {'nonce': 7}, (5,), {}, {
-        #         'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa
-        #         'value': 0, 'gas': 43242, 'gasPrice': 1, 'nonce': 7, 'chainId': 1
-        #     }
-        # ),
+        (
+            {'nonce': 7}, (5,), {}, {
+                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
+                'value': 0, 'gas': 43242, 'gasPrice': 1, 'nonce': 7, 'chainId': 1
+            }, True
+        ),
         (
             {'value': 20000}, (5,), {}, {
-                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa
+                'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 20000, 'gas': 43242, 'gasPrice': 1, 'nonce': 1, 'chainId': 1
-            }
+            }, False
         ),
     ),
     ids=[
         'Standard',
         'Explicit Gas',
         'Explicit Gas Price',
-        # 'Explicit Nonce',  # eth-testrpc sendTransaction breaks when nonce is set
-        #  https://github.com/pipermerriam/eth-testrpc/issues/98
+        'Explicit Nonce',
         'With Value',
     ]
 )
-def test_prepare_transaction_with_contract_with_arguments(web3, math_contract, transaction_args,
-                                                          method_args, method_kwargs, expected):
+def test_prepare_transaction_with_contract_with_arguments(web3, skip_if_testrpc, math_contract,
+                                                          transaction_args,
+                                                          method_args,
+                                                          method_kwargs,
+                                                          expected,
+                                                          skip_testrpc):
+    if skip_testrpc:
+        skip_if_testrpc(web3)
+
     transaction_args['from'] = web3.eth.coinbase
     txn = math_contract.prepareTransaction(transaction_args).increment(
         *method_args, **method_kwargs
