@@ -1,4 +1,3 @@
-
 from web3.utils.encoding import (
     to_bytes,
     to_int,

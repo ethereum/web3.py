@@ -147,9 +147,7 @@ def to_hex(value=None, hexstr=None, text=None):
         return to_hex(text=value)
 
     if is_integer(value):
-        # python2 longs end up with an `L` hanging off the end of their hexidecimal
-        # representation.
-        return hex(value).rstrip('L')
+        return hex(value)
 
     raise TypeError(
         "Unsupported type: '{0}'.  Must be one of Boolean, Dictionary, String, "
@@ -193,7 +191,6 @@ def to_bytes(primitive=None, hexstr=None, text=None):
     elif is_integer(primitive):
         return to_bytes(hexstr=to_hex(primitive))
     elif hexstr is not None:
-        hexstr = hexstr.rstrip('L')  # handle longs in Python 2
         if len(hexstr) % 2:
             hexstr = '0x0' + remove_0x_prefix(hexstr)
         return decode_hex(hexstr)
@@ -203,10 +200,6 @@ def to_bytes(primitive=None, hexstr=None, text=None):
 
 
 def to_text(primitive=None, hexstr=None, text=None):
-    if bytes is str:
-        # must be able to tell the difference between bytes and a hexstr
-        raise NotImplementedError("This method only works in Python 3+.")
-
     assert_one_val(primitive, hexstr=hexstr, text=text)
 
     if hexstr is not None:
@@ -230,9 +223,7 @@ def text_if_str(to_type, text_or_primitive):
 
     @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
         eg~ to_bytes, to_text, to_hex, to_int, etc
-    @param hexstr_or_primitive in bytes, str, or int. (or unicode in py2)
-        In Python 2, only a unicode object will be interpreted as unicode text
-        In Python 3, only a str object will be interpreted as interpreted as unicode text
+    @param hexstr_or_primitive in bytes, str, or int.
     '''
     if isinstance(text_or_primitive, str):
         (primitive, text) = (None, text_or_primitive)
@@ -248,9 +239,7 @@ def hexstr_if_str(to_type, hexstr_or_primitive):
 
     @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
         eg~ to_bytes, to_text, to_hex, to_int, etc
-    @param text_or_primitive in bytes, str, or int. (or unicode in py2)
-        In Python 2, a bytes, unicode or str object will be interpreted as hexstr
-        In Python 3, only a str object will be interpreted as hexstr
+    @param text_or_primitive in bytes, str, or int.
     '''
     if isinstance(hexstr_or_primitive, str):
         (primitive, hexstr) = (None, hexstr_or_primitive)

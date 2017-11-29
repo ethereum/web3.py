@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import Mock
 
 from eth_utils import (
     decode_hex,
@@ -9,8 +10,6 @@ from web3.contract import (
     ConciseContract,
     ConciseMethod,
 )
-
-from unittest.mock import Mock
 
 
 @pytest.fixture()

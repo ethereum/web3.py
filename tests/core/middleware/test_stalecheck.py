@@ -1,5 +1,6 @@
 
 import pytest
+from unittest.mock import Mock, patch
 
 from web3.middleware import make_stalecheck_middleware
 from web3.middleware.stalecheck import (
@@ -7,8 +8,6 @@ from web3.middleware.stalecheck import (
     StaleBlockchain,
 )
 from web3.utils.datastructures import AttributeDict
-
-from unittest.mock import Mock, patch
 
 
 @pytest.fixture
