@@ -12,7 +12,6 @@ from web3.utils.datastructures import HexBytes
         ('cowmö', HexBytes('0x0f355f04c0a06eebac1d219b34c598f85a1169badee164be8a30345944885fe8')),
         ('', HexBytes('0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470')),
     ],
-    ids=['test_' + str(x) for x in range(2)]
 )
 def test_sha3_text(message, digest):
     assert Web3.sha3(text=message) == digest
@@ -38,7 +37,6 @@ def test_sha3_text(message, digest):
             HexBytes('0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470')
         ),
     ],
-    ids=['test_' + str(x) for x in range(4)]
 )
 def test_sha3_hexstr(hexstr, digest):
     assert Web3.sha3(hexstr=hexstr) == digest
@@ -51,7 +49,6 @@ def test_sha3_hexstr(hexstr, digest):
         ('', TypeError),
         (-1, ValueError),
     ],
-    ids=['test_' + str(x) for x in range(3)]
 )
 def test_sha3_primitive_invalid(primitive, exception):
     with pytest.raises(exception):
@@ -70,7 +67,6 @@ def test_sha3_primitive_invalid(primitive, exception):
             HexBytes('0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470')
         ),
     ],
-    ids=['test_' + str(x) for x in range(2)]
 )
 def test_sha3_primitive(primitive, digest):
     assert Web3.sha3(primitive) == digest
@@ -83,7 +79,6 @@ def test_sha3_primitive(primitive, digest):
         {'hexstr': '0x'},
         {'text': '', 'hexstr': '0x'},
     ],
-    ids=['test_' + str(x) for x in range(3)]
 )
 def test_sha3_raise_if_primitive_and(kwargs):
     # must not set more than one input
