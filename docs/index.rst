@@ -37,7 +37,7 @@ Contents
 Release notes
 -------------
 
-`View release notes on Github <https://github.com/pipermerriam/web3.py/blob/master/CHANGELOG>`_.
+`View release notes on Github <https://github.com/ethereum/web3.py/blob/master/CHANGELOG>`_.
 
 
 Indices and tables
