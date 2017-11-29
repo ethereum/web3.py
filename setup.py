@@ -28,9 +28,6 @@ install_requires = [
     "ethereum-tester~=0.1.0b1",
 ]
 
-if sys.platform == 'win32':
-    install_requires.append('pypiwin32')
-
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
@@ -45,6 +42,9 @@ setup(
     setup_requires=['setuptools-markdown'],
     extras_require={
         'tester': ["eth-testrpc>=1.3.3"],
+        'platform_system=="Windows"': [
+            'pypiwin32'
+        ],
     },
     py_modules=['web3', 'ens'],
     license="MIT",
