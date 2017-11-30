@@ -3,7 +3,7 @@
 To start development you should begin by cloning the repo.
 
 ```bash
-$ git clone git@github.com/pipermerriam/web3.py.git
+$ git clone git@github.com/ethereum/web3.py.git
 ```
 
 
