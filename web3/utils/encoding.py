@@ -181,6 +181,14 @@ def to_int(value=None, hexstr=None, text=None):
         return int(value)
 
 
+@curry
+def pad_bytes(fill_with, num_bytes, unpadded):
+    return unpadded.rjust(num_bytes, fill_with)
+
+
+zpad_bytes = pad_bytes(b'\0')
+
+
 def to_bytes(primitive=None, hexstr=None, text=None):
     assert_one_val(primitive, hexstr=hexstr, text=text)
 

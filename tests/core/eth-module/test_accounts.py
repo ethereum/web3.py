@@ -8,6 +8,7 @@ from eth_utils import (
 
 from web3 import (
     Account,
+    Web3,
 )
 
 from web3.utils.datastructures import HexBytes
@@ -236,12 +237,23 @@ def test_eth_account_hash_message_hexstr(acct, message, expected):
             b'Some data',
             HexBytes('0x1da44b586eb0729ff70a73c326926f6ed5a25f5b056e7f47fbc6e58d86871655'),
             28,
-            HexBytes('0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd'),
-            HexBytes('0x6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a029'),
+            83713930994764734002432606962255364472443135907807238282514898577139886061053,
+            43435997768575461196683613590576722655951133545204789519877940758262837256233,
             HexBytes('0xb91467e570a6466aa9e9876cbcd013baba02900b8979d43fe208a4a4f339f5fd6007e74cd82e037b800186422fc2da167c747ef045e5d18a5f5d4300f8e1a0291c'),  # noqa: E501
         ),
+        (
+            '10284',
+            '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
+            b'10284',
+            HexBytes('0x0a162a5efbba02f38db3114531c8acba39fe676f09f7e471d93e8a06c471821c'),
+            27,
+            143748089818580655331728101695676826715814583506606354117109114714663470502,
+            227853308212209543997879651656855994238138056366857653269155208245074180053,
+            HexBytes('0x00515bc8fd32264e21ec0820e8c5123ed58c1195c9ea17cb018b1ad4073cc5a60080f5dcec397a5a8c523082bfa41771568903aa554ec06ba8475ca9050fb7d51b'),  # noqa: E501
+        ),
+
     ),
-    ids=['account_1']
+    ids=['web3js_example', '31byte_r_and_s'],
 )
 def test_eth_account_sign(acct, message, key, expected_bytes, expected_hash, v, r, s, signature):
     signed = acct.sign(message_text=message, private_key=key)
@@ -271,20 +283,36 @@ def test_eth_account_sign(acct, message, key, expected_bytes, expected_hash, v, 
             '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
             HexBytes('0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428'),  # noqa: E501
             HexBytes('0xd8f64a42b57be0d565f385378db2f6bf324ce14a594afc05de90436e9ce01f60'),
-            HexBytes('0x09ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9c'),
-            HexBytes('0x440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428'),
+            4487286261793418179817841024889747115779324305375823110249149479905075174044,
+            30785525769477805655994251009256770582792548537338581640010273753578382951464,
             37,
         ),
+        (
+            {
+                'to': '0xF0109fC8DF283027b6285cc889F5aA624EaC1F55',
+                'value': 0,
+                'gas': 31853,
+                'gasPrice': 0,
+                'nonce': 0,
+                'chainId': 1
+            },
+            '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
+            HexBytes('0xf85d8080827c6d94f0109fc8df283027b6285cc889f5aa624eac1f558080269f22f17b38af35286ffbb0c6376c86ec91c20ecbad93f84913a0cc15e7580cd99f83d6e12e82e3544cb4439964d5087da78f74cefeec9a450b16ae179fd8fe20'),  # noqa: E501
+            HexBytes('0xb0c5e2c6b29eeb0b9c1d63eaa8b0f93c02ead18ae01cb7fc795b0612d3e9d55a'),
+            61739443115046231975538240097110168545680205678104352478922255527799426265,
+            232940010090391255679819602567388136081614408698362277324138554019997613600,
+            38,
+        ),
     ),
-    ids=['account_1']
+    ids=['web3js_example', '31byte_r_and_s'],
 )
 def test_eth_account_sign_transaction(acct, txn, private_key, expected_raw_tx, tx_hash, r, s, v):
     signed = acct.signTransaction(txn, private_key)
-    assert signed.hash == tx_hash
     assert signed.r == r
     assert signed.s == s
     assert signed.v == v
     assert signed.rawTransaction == expected_raw_tx
+    assert signed.hash == tx_hash
 
     account = acct.privateKeyToAccount(private_key)
     assert account.signTransaction(txn) == signed
@@ -304,7 +332,7 @@ def test_eth_account_sign_transaction_from_eth_test(acct, transaction):
     # author's ignorance. The example test fixtures and implementations seem to agree, so far.
     # See ecdsa_raw_sign() in /eth_keys/backends/native/ecdsa.py
     signed = acct.signTransaction(transaction, key)
-    assert signed.r == HexBytes(expected_raw_txn[-130:-66])
+    assert signed.r == Web3.toInt(hexstr=expected_raw_txn[-130:-66])
 
     # confirm that signed transaction can be recovered to the sender
     expected_sender = acct.privateKeyToAccount(key).address

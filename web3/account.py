@@ -143,8 +143,8 @@ class Account(object):
         return AttributeDict({
             'message': HexBytes(msg_bytes),
             'messageHash': msg_hash,
-            'r': HexBytes(r),
-            's': HexBytes(s),
+            'r': r,
+            's': s,
             'v': v,
             'signature': HexBytes(eth_signature_bytes),
         })
@@ -171,7 +171,7 @@ class Account(object):
         return AttributeDict({
             'rawTransaction': HexBytes(rlp_encoded),
             'hash': HexBytes(transaction_hash),
-            'r': HexBytes(r),
-            's': HexBytes(s),
+            'r': r,
+            's': s,
             'v': v,
         })
