@@ -120,9 +120,6 @@ def to_eth_v(v_raw, chain_id=None):
     return v
 
 
-to_bytes32 = compose(zpad_bytes(32), to_bytes)
-
-
 def sign_transaction_hash(account, transaction_hash, chain_id):
     signature = account.sign_msg_hash(transaction_hash)
     (v_raw, r, s) = signature.vrs
@@ -130,12 +127,14 @@ def sign_transaction_hash(account, transaction_hash, chain_id):
     return (v, r, s)
 
 
+to_bytes32 = compose(zpad_bytes(32), to_bytes)
+
+
 def sign_message_hash(key, msg_hash):
     signature = key.sign_msg_hash(msg_hash)
     (v_raw, r, s) = signature.vrs
     v = to_eth_v(v_raw)
-    (r_bytes, s_bytes) = map(to_bytes32, (r, s))
-    eth_signature_bytes = r_bytes + s_bytes + to_bytes(v)
+    eth_signature_bytes = to_bytes32(r) + to_bytes32(s) + to_bytes(v)
     return (v, r, s, eth_signature_bytes)
 
 
