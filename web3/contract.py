@@ -498,9 +498,6 @@ class Contract(object):
         else:
             prepared_transaction = dict(**transaction)
 
-        if self.web3.eth.defaultAccount is not empty:
-            prepared_transaction.setdefault('from', self.web3.eth.defaultAccount)
-
         if 'data' in prepared_transaction:
             raise ValueError("Cannot set data in call prepareTransaction")
 
@@ -511,9 +508,6 @@ class Contract(object):
             )
         if not isinstance(self, type) and 'to' in prepared_transaction:
             raise ValueError("Cannot set to in call prepareTransaction")
-
-        if 'from' not in prepared_transaction and 'nonce' not in prepared_transaction:
-            raise ValueError("Either 'from' or 'nonce' must be set in call prepareTransaction")
 
         if self.address:
             prepared_transaction.setdefault('to', self.address)
@@ -892,7 +886,5 @@ def prepare_transaction_for_function(contract=None,
     )
 
     prepared_transaction = fill_transaction_defaults(contract.web3, prepared_transaction)
-    # from is not a valid transaction part and used only for retreiving nonce
-    prepared_transaction.pop('from')
 
     return prepared_transaction

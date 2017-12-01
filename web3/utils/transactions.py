@@ -63,7 +63,6 @@ TRANSACTION_DEFAULTS = {
     'data': b'',
     'gas': lambda web3, tx: web3.eth.estimateGas(tx),
     'gasPrice': lambda web3, tx: web3.eth.gasPrice,
-    'nonce': lambda web3, tx: web3.eth.getTransactionCount(tx['from']),
     'chainId': lambda web3, tx: int(web3.net.version),
 }
 
