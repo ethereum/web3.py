@@ -35,6 +35,9 @@ class PersistantSocket(object):
         self.ipc_path = ipc_path
 
     def __enter__(self):
+        if not self.ipc_path:
+            raise FileNotFoundError("cannot connect to IPC socket at path: %r" % self.ipc_path)
+
         if not self.sock:
             self.sock = get_ipc_socket(self.ipc_path)
         return self.sock
