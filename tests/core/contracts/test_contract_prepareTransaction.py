@@ -28,6 +28,21 @@ def test_prepare_transaction_with_contract_no_arguments(web3, math_contract):
     }
 
 
+def test_prepare_transaction_with_contract_class_method(web3, MathContract, math_contract):
+    txn = MathContract.prepareTransaction({
+        'from': web3.eth.coinbase, 'to': math_contract.address
+    }).increment()
+    assert txn == {
+        'to': math_contract.address,
+        'data': '0xd09de08a',
+        'value': 0,
+        'gas': 43120,
+        'gasPrice': 1,
+        'nonce': 1,
+        'chainId': 1
+    }
+
+
 def test_prepare_transaction_with_contract_default_account_is_set(web3, math_contract):
     web3.eth.defaultAccount = web3.eth.coinbase
     txn = math_contract.prepareTransaction().increment()

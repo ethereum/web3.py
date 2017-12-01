@@ -503,8 +503,15 @@ class Contract(object):
 
         if 'data' in prepared_transaction:
             raise ValueError("Cannot set data in call prepareTransaction")
-        if 'to' in prepared_transaction:
+
+        if isinstance(self, type) and 'to' not in prepared_transaction:
+            raise ValueError(
+                "When using `Contract.prepareTransaction` from a contract factory "
+                "you must provide a `to` address with the transaction"
+            )
+        if not isinstance(self, type) and 'to' in prepared_transaction:
             raise ValueError("Cannot set to in call prepareTransaction")
+
         if 'from' not in prepared_transaction and 'nonce' not in prepared_transaction:
             raise ValueError("Either 'from' or 'nonce' must be set in call prepareTransaction")
 
@@ -512,15 +519,9 @@ class Contract(object):
             prepared_transaction.setdefault('to', self.address)
 
         if 'to' not in prepared_transaction:
-            if isinstance(self, type):
-                raise ValueError(
-                    "When using `Contract.prepareTransaction` from a contract factory "
-                    "you must provide a `to` address with the transaction"
-                )
-            else:
-                raise ValueError(
-                    "Please ensure that this contract instance has an address."
-                )
+            raise ValueError(
+                "Please ensure that this contract instance has an address."
+            )
 
         contract = self
 
