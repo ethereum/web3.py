@@ -108,11 +108,11 @@ def test_build_transaction_with_contract_to_address_supplied_errors(web3, math_c
     ]
 )
 def test_build_transaction_with_contract_with_arguments(web3, skip_if_testrpc, math_contract,
-                                                          transaction_args,
-                                                          method_args,
-                                                          method_kwargs,
-                                                          expected,
-                                                          skip_testrpc):
+                                                        transaction_args,
+                                                        method_args,
+                                                        method_kwargs,
+                                                        expected,
+                                                        skip_testrpc):
     if skip_testrpc:
         skip_if_testrpc(web3)
 
