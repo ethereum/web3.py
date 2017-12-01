@@ -1,8 +1,26 @@
 Release Notes
 =============
 
+
+v3.16.4
+-------
+
+Released Dec 1, 2017
+
+* Windows connection error bugfix
+* Clearer errors on formatting failure (includes field name that failed)
+* Update dependencies with changed names, now
+  * ``eth-abi``
+  * ``eth-keyfile``
+  * ``eth-keys``
+  * ``eth-tester``
+  * ``eth-utils``
+
+
 v3.16.3
-------
+-------
+
+Released Nov 22, 2017
 
 * Return checksummed addresses from all json rpc calls
 * :meth:`~web3.eth.Eth.getTransactionReceipt` returns the ``status`` field as an ``int``
