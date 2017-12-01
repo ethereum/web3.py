@@ -172,7 +172,7 @@ Each Contract Factory exposes the following methods.
         >>> my_contract.estimateGas().multiply7(3)
         42650
 
-.. py:method:: Contract.prepareTransaction(transaction).myMethod(*args, **kwargs)
+.. py:method:: Contract.buildTransaction(transaction).myMethod(*args, **kwargs)
 
     Prepare a transaction dictionary based on the contract function call specified. 
 
@@ -191,7 +191,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >>> math_contract.prepareTransaction({'gasPrice': 21000000000}).increment(5)
+        >>> math_contract.buildTransaction({'gasPrice': 21000000000}).increment(5)
         {
             'to': '0x6Bc272FCFcf89C14cebFC57B8f1543F5137F97dE',
             'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',

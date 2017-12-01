@@ -300,7 +300,7 @@ The following methods are available on the ``Web3.eth.account`` namespace.
     :meth:`~web3.eth.Eth.sendRawTransaction`.
 
     The transaction dict for executing contract methods may be created using 
-    :meth:`~web3.contract.Contract.prepareTransaction`.
+    :meth:`~web3.contract.Contract.buildTransaction`.
 
     :param dict transaction_dict: the transaction with keys:
       nonce, chainId, to, data, value, gas, and gasPrice.

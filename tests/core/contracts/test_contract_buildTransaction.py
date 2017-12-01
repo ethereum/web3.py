@@ -15,8 +15,8 @@ def math_contract(web3, MathContract):
     return _math_contract
 
 
-def test_prepare_transaction_with_contract_no_arguments(web3, math_contract):
-    txn = math_contract.prepareTransaction().increment()
+def test_build_transaction_with_contract_no_arguments(web3, math_contract):
+    txn = math_contract.buildTransaction().increment()
     assert txn == {
         'to': math_contract.address,
         'data': '0xd09de08a',
@@ -27,8 +27,8 @@ def test_prepare_transaction_with_contract_no_arguments(web3, math_contract):
     }
 
 
-def test_prepare_transaction_with_contract_class_method(web3, MathContract, math_contract):
-    txn = MathContract.prepareTransaction({'to': math_contract.address}).increment()
+def test_build_transaction_with_contract_class_method(web3, MathContract, math_contract):
+    txn = MathContract.buildTransaction({'to': math_contract.address}).increment()
     assert txn == {
         'to': math_contract.address,
         'data': '0xd09de08a',
@@ -39,8 +39,8 @@ def test_prepare_transaction_with_contract_class_method(web3, MathContract, math
     }
 
 
-def test_prepare_transaction_with_contract_default_account_is_set(web3, math_contract):
-    txn = math_contract.prepareTransaction().increment()
+def test_build_transaction_with_contract_default_account_is_set(web3, math_contract):
+    txn = math_contract.buildTransaction().increment()
     assert txn == {
         'to': math_contract.address,
         'data': '0xd09de08a',
@@ -51,16 +51,16 @@ def test_prepare_transaction_with_contract_default_account_is_set(web3, math_con
     }
 
 
-def test_prepare_transaction_with_contract_data_supplied_errors(web3, math_contract):
+def test_build_transaction_with_contract_data_supplied_errors(web3, math_contract):
     with pytest.raises(ValueError):
-        math_contract.prepareTransaction({
+        math_contract.buildTransaction({
             'data': '0x000'
         }).increment()
 
 
-def test_prepare_transaction_with_contract_to_address_supplied_errors(web3, math_contract):
+def test_build_transaction_with_contract_to_address_supplied_errors(web3, math_contract):
     with pytest.raises(ValueError):
-        math_contract.prepareTransaction({
+        math_contract.buildTransaction({
             'to': '0xb2930B35844a230f00E51431aCAe96Fe543a0347'
         }).increment()
 
@@ -107,7 +107,7 @@ def test_prepare_transaction_with_contract_to_address_supplied_errors(web3, math
         'With Value',
     ]
 )
-def test_prepare_transaction_with_contract_with_arguments(web3, skip_if_testrpc, math_contract,
+def test_build_transaction_with_contract_with_arguments(web3, skip_if_testrpc, math_contract,
                                                           transaction_args,
                                                           method_args,
                                                           method_kwargs,
@@ -116,7 +116,7 @@ def test_prepare_transaction_with_contract_with_arguments(web3, skip_if_testrpc,
     if skip_testrpc:
         skip_if_testrpc(web3)
 
-    txn = math_contract.prepareTransaction(transaction_args).increment(
+    txn = math_contract.buildTransaction(transaction_args).increment(
         *method_args, **method_kwargs
     )
     expected['to'] = math_contract.address

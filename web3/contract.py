@@ -489,30 +489,30 @@ class Contract(object):
         return Transactor()
 
     @combomethod
-    def prepareTransaction(self, transaction=None):
+    def buildTransaction(self, transaction=None):
         """
-        Prepare a dict for a transaction without sending
+        Build the transaction dictionary without sending
         """
         if transaction is None:
-            prepared_transaction = {}
+            built_transaction = {}
         else:
-            prepared_transaction = dict(**transaction)
+            built_transaction = dict(**transaction)
 
-        if 'data' in prepared_transaction:
-            raise ValueError("Cannot set data in call prepareTransaction")
+        if 'data' in built_transaction:
+            raise ValueError("Cannot set data in call buildTransaction")
 
-        if isinstance(self, type) and 'to' not in prepared_transaction:
+        if isinstance(self, type) and 'to' not in built_transaction:
             raise ValueError(
-                "When using `Contract.prepareTransaction` from a contract factory "
+                "When using `Contract.buildTransaction` from a contract factory "
                 "you must provide a `to` address with the transaction"
             )
-        if not isinstance(self, type) and 'to' in prepared_transaction:
-            raise ValueError("Cannot set to in call prepareTransaction")
+        if not isinstance(self, type) and 'to' in built_transaction:
+            raise ValueError("Cannot set to in call buildTransaction")
 
         if self.address:
-            prepared_transaction.setdefault('to', self.address)
+            built_transaction.setdefault('to', self.address)
 
-        if 'to' not in prepared_transaction:
+        if 'to' not in built_transaction:
             raise ValueError(
                 "Please ensure that this contract instance has an address."
             )
@@ -522,10 +522,10 @@ class Contract(object):
         class Caller(object):
             def __getattr__(self, function_name):
                 callable_fn = functools.partial(
-                    prepare_transaction_for_function,
+                    build_transaction_for_function,
                     contract,
                     function_name,
-                    prepared_transaction,
+                    built_transaction,
                 )
                 return callable_fn
 
@@ -745,7 +745,7 @@ CONCISE_NORMALIZERS = (
 
 
 class ConciseMethod:
-    ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'prepareTransaction'])
+    ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'buildTransaction'])
 
     def __init__(self, contract, function):
         self.__contract = contract
@@ -868,14 +868,14 @@ def estimate_gas_for_function(contract=None,
     return gas_estimate
 
 
-def prepare_transaction_for_function(contract=None,
-                                     function_name=None,
-                                     transaction=None,
-                                     *args,
-                                     **kwargs):
-    """Prepares a dictionary with the fields required to make the given transaction
+def build_transaction_for_function(contract=None,
+                                   function_name=None,
+                                   transaction=None,
+                                   *args,
+                                   **kwargs):
+    """Builds a dictionary with the fields required to make the given transaction
 
-    Don't call this directly, instead use :meth:`Contract.prepareTransaction`
+    Don't call this directly, instead use :meth:`Contract.buildTransaction`
     on your contract instance.
     """
     prepared_transaction = contract._prepare_transaction(
