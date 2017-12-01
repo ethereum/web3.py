@@ -1,6 +1,11 @@
+from cytoolz import (
+    compose,
+)
+
 from web3.utils.encoding import (
     to_bytes,
     to_int,
+    zpad_bytes,
 )
 
 from web3.utils.transactions import (
@@ -107,21 +112,29 @@ def to_standard_v(enhanced_v):
     return v_standard
 
 
-def sign_transaction_hash(account, transaction_hash, chain_id):
-    signature = account.sign_msg_hash(transaction_hash)
-    (v_raw, r, s) = signature.vrs
+def to_eth_v(v_raw, chain_id=None):
     if chain_id is None:
         v = v_raw + V_OFFSET
     else:
         v = v_raw + CHAIN_ID_OFFSET + 2 * chain_id
+    return v
+
+
+def sign_transaction_hash(account, transaction_hash, chain_id):
+    signature = account.sign_msg_hash(transaction_hash)
+    (v_raw, r, s) = signature.vrs
+    v = to_eth_v(v_raw, chain_id)
     return (v, r, s)
+
+
+to_bytes32 = compose(zpad_bytes(32), to_bytes)
 
 
 def sign_message_hash(key, msg_hash):
     signature = key.sign_msg_hash(msg_hash)
-    (v_standard, r, s) = signature.vrs
-    v = v_standard + V_OFFSET
-    eth_signature_bytes = b''.join(map(to_bytes, (r, s, v)))
+    (v_raw, r, s) = signature.vrs
+    v = to_eth_v(v_raw)
+    eth_signature_bytes = to_bytes32(r) + to_bytes32(s) + to_bytes(v)
     return (v, r, s, eth_signature_bytes)
 
 
