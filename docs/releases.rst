@@ -1,8 +1,29 @@
 Release Notes
 =============
 
+v4.0.0-beta.3
+-------------
+
+Released Dec 1, 2017
+
+* Fix encoding of ABI types: ``bytes[]`` and ``string[]``
+* Windows connection error bugfix
+* Bugfix message signatures that were broken ~1% of the time (zero-pad ``r`` and ``s``)
+* Autoinit web3 now produces None instead of raising an exception on ``from web3.auto import w3``
+* Clearer errors on formatting failure (includes field name that failed)
+* Python modernization, removing Py2 compatibility cruft
+* Update dependencies with changed names, now:
+   * ``eth-abi``
+   * ``eth-keyfile``
+   * ``eth-keys``
+   * ``eth-tester``
+   * ``eth-utils``
+* Faster Travis CI builds, with cached geth binary
+
 v4.0.0-beta.2
 -------------
+
+Released Nov 22, 2017
 
 Bug Fixes:
 
