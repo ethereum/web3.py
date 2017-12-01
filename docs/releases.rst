@@ -9,7 +9,8 @@ Released Dec 1, 2017
 
 * Windows connection error bugfix
 * Clearer errors on formatting failure (includes field name that failed)
-* Update dependencies with changed names, now
+* Update dependencies with changed names, now named:
+
   * ``eth-abi``
   * ``eth-keyfile``
   * ``eth-keys``
