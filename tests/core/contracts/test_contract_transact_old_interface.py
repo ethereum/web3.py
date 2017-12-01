@@ -38,7 +38,7 @@ def string_contract(web3, StringContract):
 def test_transacting_with_contract_no_arguments(web3, math_contract):
     initial_value = math_contract.call().counter()
 
-    txn_hash = math_contract.function.increment().transact()
+    txn_hash = math_contract.transact().increment()
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt is not None
 
@@ -58,13 +58,13 @@ def test_transacting_with_contract_with_arguments(web3,
                                                   math_contract,
                                                   transact_args,
                                                   transact_kwargs):
-    initial_value = math_contract.function.counter().call()
+    initial_value = math_contract.call().counter()
 
-    txn_hash = math_contract.function.increment(*transact_args, **transact_kwargs).transact()
+    txn_hash = math_contract.transact().increment(*transact_args, **transact_kwargs)
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt is not None
 
-    final_value = math_contract.function.counter().call()
+    final_value = math_contract.call().counter()
 
     assert final_value - initial_value == 5
 
@@ -89,7 +89,7 @@ def test_transact_when_default_account_is_set(web3,
     web3.eth.defaultAccount = web3.eth.accounts[1]
     assert web3.eth.defaultAccount is not empty
 
-    txn_hash = math_contract.function.increment().transact()
+    txn_hash = math_contract.transact().increment()
     wait_for_transaction(web3, txn_hash)
     txn_after = web3.eth.getTransaction(txn_hash)
     assert txn_after['from'] == web3.eth.defaultAccount
@@ -98,11 +98,11 @@ def test_transact_when_default_account_is_set(web3,
 def test_transacting_with_contract_with_string_argument(web3, string_contract):
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
-    txn_hash = string_contract.function.setValue("ÄLÄMÖLÖ".encode('utf8')).transact()
+    txn_hash = string_contract.transact().setValue("ÄLÄMÖLÖ".encode('utf8'))
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt is not None
 
-    final_value = string_contract.function.getValue().call()
+    final_value = string_contract.call().getValue()
 
     assert final_value == "ÄLÄMÖLÖ"
 
@@ -124,11 +124,11 @@ def test_transacting_with_contract_respects_explicit_gas(web3,
 
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
-    txn_hash = string_contract.function.setValue(force_bytes("ÄLÄMÖLÖ")).transact({'gas': 200000})
+    txn_hash = string_contract.transact({'gas': 200000}).setValue(force_bytes("ÄLÄMÖLÖ"))
     txn_receipt = wait_for_transaction_receipt(web3, txn_hash, 30)
     assert txn_receipt is not None
 
-    final_value = string_contract.function.getValue().call()
+    final_value = string_contract.call().getValue()
     assert force_bytes(final_value) == force_bytes("ÄLÄMÖLÖ")
 
     txn = web3.eth.getTransaction(txn_hash)
@@ -150,15 +150,15 @@ def test_auto_gas_computation_when_transacting(web3,
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt['contractAddress'])
 
-    gas_estimate = string_contract.function.setValue(force_bytes("ÄLÄMÖLÖ")).estimateGas()
+    gas_estimate = string_contract.estimateGas().setValue(force_bytes("ÄLÄMÖLÖ"))
 
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
-    txn_hash = string_contract.function.setValue(force_bytes("ÄLÄMÖLÖ")).transact()
+    txn_hash = string_contract.transact().setValue(force_bytes("ÄLÄMÖLÖ"))
     txn_receipt = wait_for_transaction_receipt(web3, txn_hash, 30)
     assert txn_receipt is not None
 
-    final_value = string_contract.function.getValue().call()
+    final_value = string_contract.call().getValue()
     assert force_bytes(final_value) == force_bytes("ÄLÄMÖLÖ")
 
     txn = web3.eth.getTransaction(txn_hash)

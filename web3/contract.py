@@ -92,6 +92,30 @@ DEPRECATED_SIGNATURE_MESSAGE = (
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 
+class ContractMethodTypeFactory(object):
+    """Returns a class containing contract method filtered by type
+
+    :param methodType: Can be 'function' or 'event'
+    """
+    def __init__(self, methodType):
+        # TODO: parameter checking
+        self.methodType = methodType
+
+    def __get__(self, obj, objType):
+        self.function_methods = filter_by_type(self.methodType, objType.abi)
+        contractMethodDict = {
+            # methodName:ContractMethod,..,..
+            method['name']: ContractMethod.factory(contract=obj,
+                                                   web3=obj.web3,
+                                                   method_name=method['name'])
+            for method in self.function_methods
+        }
+        contractMethodDict['__call__'] = lambda: None
+        contractMethodDict['__getitem__'] = lambda method_obj, item: getattr(method_obj, item)
+
+        return type(self.methodType, (object,), contractMethodDict)
+
+
 class Contract(object):
     """Base class for Contract proxy classes.
 
@@ -125,6 +149,8 @@ class Contract(object):
     clone_bin = None
 
     dev_doc = None
+    function = None
+    event = None
     interface = None
     metadata = None
     opcodes = None
@@ -178,6 +204,8 @@ class Contract(object):
             contract_name = cls.__name__
 
         kwargs['web3'] = web3
+        kwargs['function'] = ContractMethodTypeFactory('function')
+        kwargs['event'] = ContractMethodTypeFactory('event')
 
         for key in kwargs:
             if not hasattr(cls, key):
@@ -766,6 +794,161 @@ class ConciseMethod:
             raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
         contract_modifier_func = getattr(self.__contract, modifier)
         return getattr(contract_modifier_func(modifier_dict), self.__function)
+
+
+class ContractMethod(object):
+    """
+    """
+    contract = None
+    method_name = None
+    web3 = None
+    transaction = None
+
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+    def __call__(self, *args, **kwargs):
+        if args:
+            self.args = args
+        if kwargs:
+            self.kwargs = kwargs
+        return self.call()
+
+    def call(self, transaction=None):
+        """
+        Execute a contract function call using the `eth_call` interface.
+
+        This method prepares a ``Caller`` object that exposes the contract
+        functions and public variables as callable Python functions.
+
+        Reading a public ``owner`` address variable example:
+
+        .. code-block:: python
+
+            ContractFactory = w3.eth.contract(
+                abi=wallet_contract_definition["abi"]
+            )
+
+            # Not a real contract address
+            contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
+
+            # Read "owner" public variable
+            addr = contract.call().owner()
+
+        :param transaction: Dictionary of transaction info for web3 interface
+        :return: ``Caller`` object that has contract public functions
+            and variables exposed as Python methods
+        """
+        if transaction is None:
+            call_transaction = {}
+        else:
+            call_transaction = dict(**transaction)
+
+        if 'data' in call_transaction:
+            raise ValueError("Cannot set data in call transaction")
+
+        if self.contract.address:
+            call_transaction.setdefault('to', self.contract.address)
+        if self.web3.eth.defaultAccount is not empty:
+            call_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        if 'to' not in call_transaction:
+            if isinstance(self, type):
+                raise ValueError(
+                    "When using `Contract.[methodtype].[method].call()` from"
+                    " a contract factory you "
+                    "must provide a `to` address with the transaction"
+                )
+            else:
+                raise ValueError(
+                    "Please ensure that this contract instance has an address."
+                )
+
+        return call_contract_function(self.contract,
+                                      self.method_name,
+                                      call_transaction,
+                                      *self.args,
+                                      **self.kwargs)
+
+    def transact(self, transaction=None):
+        if transaction is None:
+            transact_transaction = {}
+        else:
+            transact_transaction = dict(**transaction)
+
+        if 'data' in transact_transaction:
+            raise ValueError("Cannot set data in call transaction")
+
+        if self.contract.address is not None:
+            transact_transaction.setdefault('to', self.contract.address)
+        if self.web3.eth.defaultAccount is not empty:
+            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        if 'to' not in transact_transaction:
+            if isinstance(self, type):
+                raise ValueError(
+                    "When using `Contract.transact` from a contract factory you "
+                    "must provide a `to` address with the transaction"
+                )
+            else:
+                raise ValueError(
+                    "Please ensure that this contract instance has an address."
+                )
+
+        return transact_with_contract_function(self.contract,
+                                               self.method_name,
+                                               transact_transaction,
+                                               *self.args,
+                                               **self.kwargs)
+
+    def estimateGas(self, transaction=None):
+        if transaction is None:
+            estimate_transaction = {}
+        else:
+            estimate_transaction = dict(**transaction)
+
+        if 'data' in estimate_transaction:
+            raise ValueError("Cannot set data in call transaction")
+        if 'to' in estimate_transaction:
+            raise ValueError("Cannot set to in call transaction")
+
+        if self.contract.address:
+            estimate_transaction.setdefault('to', self.contract.address)
+        if self.web3.eth.defaultAccount is not empty:
+            estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        if 'to' not in estimate_transaction:
+            if isinstance(self, type):
+                raise ValueError(
+                    "When using `Contract.estimateGas` from a contract factory "
+                    "you must provide a `to` address with the transaction"
+                )
+            else:
+                raise ValueError(
+                    "Please ensure that this contract instance has an address."
+                )
+
+        return estimate_gas_for_function(contract=self.contract,
+                                         function_name=self.method_name,
+                                         transaction=estimate_transaction,
+                                         *self.args,
+                                         **self.kwargs)
+
+    @classmethod
+    def factory(cls, **kwargs):
+        if "method_name" not in kwargs:
+            kwargs["method_name"] = cls.__name__
+
+        for key in kwargs:
+            if not hasattr(cls, key):
+                raise AttributeError(
+                    "Property {0} not found on ContractMethod class. "
+                    "`ContractMethod.factory` only accepts keyword arguments which are "
+                    "present on the contract class".format(key)
+                )
+
+        return type(kwargs["method_name"], (cls,), kwargs)
 
 
 def call_contract_function(contract,

@@ -85,12 +85,12 @@ def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsCont
 
 
 def test_call_with_no_arguments(math_contract):
-    result = math_contract.function.return13().call()
+    result = math_contract.call().return13()
     assert result == 13
 
 
 def test_call_with_one_argument(math_contract):
-    result = math_contract.function.multiply7(3).call()
+    result = math_contract.call().multiply7(3)
     assert result == 21
 
 
@@ -103,45 +103,12 @@ def test_call_with_one_argument(math_contract):
     ),
 )
 def test_call_with_multiple_arguments(math_contract, call_args, call_kwargs):
-    result = math_contract.function.add(*call_args, **call_kwargs).call()
+    result = math_contract.call().add(*call_args, **call_kwargs)
     assert result == 16
-
-
-@pytest.mark.parametrize(
-    'call_args,call_kwargs',
-    (
-        ((9, 7), {}),
-        ((9,), {'b': 7}),
-        (tuple(), {'a': 9, 'b': 7}),
-    ),
-)
-def test_default_action_call_with_multiple_arguments(math_contract, call_args, call_kwargs):
-    math_contract_add = math_contract.function.add(*call_args, **call_kwargs)
-    result = math_contract_add()
-    assert result == 16
-
-
-def test_action_call_with_arguments_callable_function_syntax(math_contract):
-    math_contract_add = math_contract.function().add(9, 7)
-    result = math_contract_add(8, 9)
-    assert result == 17
-
-
-def test_action_call_with_arguments_function_dict_lookup_syntax(math_contract):
-    math_contract_fns = math_contract.function
-    math_contract_add = math_contract_fns()['add'](9, 7)
-    result = math_contract_add(8, 9)
-    assert result == 17
-
-
-def test_default_action_call_with_argument_change(math_contract):
-    math_contract_add = math_contract.function.add(9, 7)
-    result = math_contract_add(8, 9)
-    assert result == 17
 
 
 def test_call_get_string_value(string_contract):
-    result = string_contract.function.getValue().call()
+    result = string_contract.call().getValue()
     # eth_abi.decode_api() does not assume implicit utf-8
     # encoding of string return values. Thus, we need to decode
     # ourselves for fair comparison.
@@ -154,7 +121,7 @@ def test_call_read_string_variable(string_contract):
 
 
 def test_call_read_address_variable(address_contract):
-    result = address_contract.function.testAddr().call()
+    result = address_contract.call().testAddr()
     assert result == "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"
 
 
@@ -167,27 +134,26 @@ def test_init_with_ens_name_arg(web3, WithConstructorAddressArgumentsContract):
             "arg-name.eth",
         ])
 
-    assert address_contract.function.testAddr().call() == \
-        "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413"
+    assert address_contract.call().testAddr() == "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413"
 
 
 def test_call_read_bytes_variable(bytes_contract):
-    result = bytes_contract.function.constValue().call()
+    result = bytes_contract.call().constValue()
     assert result == b"\x01\x23"
 
 
 def test_call_get_bytes_value(bytes_contract):
-    result = bytes_contract.function.getValue().call()
+    result = bytes_contract.call().getValue()
     assert result == b'\x04\x06'
 
 
 def test_call_read_bytes32_variable(bytes32_contract):
-    result = bytes32_contract.function.constValue().call()
+    result = bytes32_contract.call().constValue()
     assert result == b"\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23"  # noqa
 
 
 def test_call_get_bytes32_value(bytes32_contract):
-    result = bytes32_contract.function.getValue().call()
+    result = bytes32_contract.call().getValue()
     assert result == b'\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06'  # noqa
 
 
@@ -211,7 +177,7 @@ def test_call_get_bytes32_value(bytes32_contract):
 def test_call_address_reflector_with_address(address_reflector_contract, value, expected):
     if not isinstance(expected, str):
         with pytest.raises(expected):
-            address_reflector_contract.function.reflect(value).call()
+            address_reflector_contract.call().reflect(value)
     else:
         assert address_reflector_contract.function.reflect(value).call() == expected
 
@@ -242,9 +208,9 @@ def test_call_address_reflector_with_address(address_reflector_contract, value, 
 def test_call_address_list_reflector_with_address(address_reflector_contract, value, expected):
     if not isinstance(expected, list):
         with pytest.raises(expected):
-            address_reflector_contract.function.reflect(value).call()
+            address_reflector_contract.call().reflect(value)
     else:
-        assert address_reflector_contract.function.reflect(value).call() == expected
+        assert address_reflector_contract.call().reflect(value) == expected
 
 
 def test_call_address_reflector_single_name(address_reflector_contract):
@@ -252,7 +218,7 @@ def test_call_address_reflector_single_name(address_reflector_contract):
         address_reflector_contract,
         [("dennisthepeasant.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
     ):
-        result = address_reflector_contract.function.reflect('dennisthepeasant.eth').call()
+        result = address_reflector_contract.call().reflect('dennisthepeasant.eth')
         assert result == '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413'
 
 
@@ -267,7 +233,7 @@ def test_call_address_reflector_name_array(address_reflector_contract):
     ]
 
     with contract_ens_addresses(address_reflector_contract, zip(names, addresses)):
-        result = address_reflector_contract.function.reflect(names).call()
+        result = address_reflector_contract.call().reflect(names)
 
     assert addresses == result
 
@@ -275,18 +241,18 @@ def test_call_address_reflector_name_array(address_reflector_contract):
 def test_call_reject_invalid_ens_name(address_reflector_contract):
     with contract_ens_addresses(address_reflector_contract, []):
         with pytest.raises(ValueError):
-            address_reflector_contract.function.reflect('typ0.eth').call()
+            address_reflector_contract.call().reflect('typ0.eth')
 
 
 def test_call_missing_function(mismatched_math_contract):
     expected_missing_function_error_message = "Could not decode contract function call"
     with pytest.raises(BadFunctionCallOutput) as exception_info:
-        mismatched_math_contract.function.return13().call()
+        mismatched_math_contract.call().return13()
     assert expected_missing_function_error_message in str(exception_info.value)
 
 
 def test_call_undeployed_contract(undeployed_math_contract):
     expected_undeployed_call_error_message = "Could not transact with/call contract function"
     with pytest.raises(BadFunctionCallOutput) as exception_info:
-        undeployed_math_contract.function.return13().call()
+        undeployed_math_contract.call().return13()
     assert expected_undeployed_call_error_message in str(exception_info.value)
