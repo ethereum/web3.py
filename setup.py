@@ -42,7 +42,7 @@ setup(
     setup_requires=['setuptools-markdown'],
     extras_require={
         'tester': ["eth-testrpc>=1.3.3"],
-        'win': ['pypiwin32'],
+        'win': ["pypiwin32"],
     },
     py_modules=['web3', 'ens'],
     license="MIT",
