@@ -92,28 +92,54 @@ DEPRECATED_SIGNATURE_MESSAGE = (
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 
-class ContractMethodTypeFactory(object):
-    """Returns a class containing contract method filtered by type
-
-    :param methodType: Can be 'function' or 'event'
+class ContractFunctions(object):
+    """Class containing contract function objects
     """
-    def __init__(self, methodType):
-        # TODO: parameter checking
-        self.methodType = methodType
 
-    def __get__(self, obj, objType):
-        self.function_methods = filter_by_type(self.methodType, objType.abi)
-        contractMethodDict = {
-            # methodName:ContractMethod,..,..
-            method['name']: ContractMethod.factory(contract=obj,
-                                                   web3=obj.web3,
-                                                   method_name=method['name'])
-            for method in self.function_methods
-        }
-        contractMethodDict['__call__'] = lambda: None
-        contractMethodDict['__getitem__'] = lambda method_obj, item: getattr(method_obj, item)
+    _method_names = []
 
-        return type(self.methodType, (object,), contractMethodDict)
+    def __init__(self, contract):
+        self.contract = contract
+        self.function_methods = filter_by_type('function', self.contract.abi)
+        for method in self.function_methods:
+            self._method_names.append(method['name'])
+            setattr(self,
+                    method['name'],
+                    ContractMethod.factory(contract=self.contract,
+                                           web3=self.contract.web3,
+                                           method_name=method['name']))
+
+    def __getitem__(self, item):
+        if item in self._method_names:
+            return getattr(self, item)
+
+    def __call__(self):
+        return self
+
+
+class ContractEvents(object):
+    """Class containing contract event objects
+    """
+
+    _method_names = []
+
+    def __init__(self, contract):
+        self.contract = contract
+        self.function_methods = filter_by_type('events', self.contract.abi)
+        for method in self.function_methods:
+            self._method_names.append(method['name'])
+            setattr(self,
+                    method['name'],
+                    ContractMethod.factory(contract=self.contract,
+                                           web3=self.contract.web3,
+                                           method_name=method['name']))
+
+    def __getitem__(self, item):
+        if item in self._method_names:
+            return self[item]
+
+    def __call__(self):
+        return None
 
 
 class Contract(object):
@@ -175,6 +201,8 @@ class Contract(object):
 
         if not self.address:
             raise TypeError("The address argument is required to instantiate a contract.")
+        setattr(self, 'function', ContractFunctions(self))
+        setattr(self, 'event', ContractEvents(self))
 
     @classmethod
     def normalize_property(cls, key, val):
@@ -204,8 +232,6 @@ class Contract(object):
             contract_name = cls.__name__
 
         kwargs['web3'] = web3
-        kwargs['function'] = ContractMethodTypeFactory('function')
-        kwargs['event'] = ContractMethodTypeFactory('event')
 
         for key in kwargs:
             if not hasattr(cls, key):
