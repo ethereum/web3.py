@@ -39,7 +39,7 @@ Or to install with support for the ``TestRPCProvider`` and
 Installing Web3.py on Windows using ``pip`` can be done as follows.
 .. code-block:: shell
    
-   $ pip install['win']
+   $ pip install web3['win']
    
 Installation from source can be done from the root of the project with the
 following command.
