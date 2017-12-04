@@ -1,3 +1,6 @@
+import os
+from urllib.parse import urlparse
+
 from web3.exceptions import CannotHandleRequest
 
 from web3.providers.base import BaseProvider
@@ -26,10 +29,25 @@ class AutoProvider(BaseProvider):
         if use_cache and self._active_provider is not None:
             return self._active_provider
 
-        for Provider in (IPCProvider, HTTPProvider):
+        for Provider in (
+            load_provider_from_environment,
+            IPCProvider,
+            HTTPProvider,
+        ):
             provider = Provider()
-            if provider.isConnected():
+            if provider is not None and provider.isConnected():
                 self._active_provider = provider
                 return provider
 
+        return None
+
+
+def load_provider_from_environment():
+    uri_string = os.environ.get('WEB3_PROVIDER_URI', '')
+    uri = urlparse(uri_string)
+    if uri.scheme == 'file':
+        return IPCProvider(uri.path)
+    elif uri.scheme == 'http':
+        return HTTPProvider(uri_string)
+    else:
         return None
