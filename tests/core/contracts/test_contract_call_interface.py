@@ -85,12 +85,12 @@ def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsCont
 
 
 def test_call_with_no_arguments(math_contract):
-    result = math_contract.function.return13().call()
+    result = math_contract.functions.return13().call()
     assert result == 13
 
 
 def test_call_with_one_argument(math_contract):
-    result = math_contract.function.multiply7(3).call()
+    result = math_contract.functions.multiply7(3).call()
     assert result == 21
 
 
@@ -103,7 +103,7 @@ def test_call_with_one_argument(math_contract):
     ),
 )
 def test_call_with_multiple_arguments(math_contract, call_args, call_kwargs):
-    result = math_contract.function.add(*call_args, **call_kwargs).call()
+    result = math_contract.functions.add(*call_args, **call_kwargs).call()
     assert result == 16
 
 
@@ -115,33 +115,14 @@ def test_call_with_multiple_arguments(math_contract, call_args, call_kwargs):
         (tuple(), {'a': 9, 'b': 7}),
     ),
 )
-def test_default_action_call_with_multiple_arguments(math_contract, call_args, call_kwargs):
-    math_contract_add = math_contract.function.add(*call_args, **call_kwargs)
-    result = math_contract_add()
+def test_saved_method_call_with_multiple_arguments(math_contract, call_args, call_kwargs):
+    math_contract_add = math_contract.functions.add(*call_args, **call_kwargs)
+    result = math_contract_add.call()
     assert result == 16
 
 
-def test_action_call_with_arguments_callable_function_syntax(math_contract):
-    math_contract_add = math_contract.function().add(9, 7)
-    result = math_contract_add(8, 9)
-    assert result == 17
-
-
-def test_action_call_with_arguments_function_dict_lookup_syntax(math_contract):
-    math_contract_fns = math_contract.function
-    math_contract_add = math_contract_fns()['add'](9, 7)
-    result = math_contract_add(8, 9)
-    assert result == 17
-
-
-def test_default_action_call_with_argument_change(math_contract):
-    math_contract_add = math_contract.function.add(9, 7)
-    result = math_contract_add(8, 9)
-    assert result == 17
-
-
 def test_call_get_string_value(string_contract):
-    result = string_contract.function.getValue().call()
+    result = string_contract.functions.getValue().call()
     # eth_abi.decode_api() does not assume implicit utf-8
     # encoding of string return values. Thus, we need to decode
     # ourselves for fair comparison.
@@ -149,12 +130,12 @@ def test_call_get_string_value(string_contract):
 
 
 def test_call_read_string_variable(string_contract):
-    result = string_contract.function.constValue().call()
+    result = string_contract.functions.constValue().call()
     assert result == b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2a\x2b\x2c\x2d\x2e\x2f\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x3a\x3b\x3c\x3d\x3e\x3f\x40\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4a\x4b\x4c\x4d\x4e\x4f\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5a\x5b\x5c\x5d\x5e\x5f\x60\x61\x62\x63\x64\x65\x66\x67\x68\x69\x6a\x6b\x6c\x6d\x6e\x6f\x70\x71\x72\x73\x74\x75\x76\x77\x78\x79\x7a\x7b\x7c\x7d\x7e\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff".decode(errors='backslashreplace')  # noqa: E501
 
 
 def test_call_read_address_variable(address_contract):
-    result = address_contract.function.testAddr().call()
+    result = address_contract.functions.testAddr().call()
     assert result == "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"
 
 
@@ -167,27 +148,27 @@ def test_init_with_ens_name_arg(web3, WithConstructorAddressArgumentsContract):
             "arg-name.eth",
         ])
 
-    assert address_contract.function.testAddr().call() == \
+    assert address_contract.functions.testAddr().call() == \
         "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413"
 
 
 def test_call_read_bytes_variable(bytes_contract):
-    result = bytes_contract.function.constValue().call()
+    result = bytes_contract.functions.constValue().call()
     assert result == b"\x01\x23"
 
 
 def test_call_get_bytes_value(bytes_contract):
-    result = bytes_contract.function.getValue().call()
+    result = bytes_contract.functions.getValue().call()
     assert result == b'\x04\x06'
 
 
 def test_call_read_bytes32_variable(bytes32_contract):
-    result = bytes32_contract.function.constValue().call()
+    result = bytes32_contract.functions.constValue().call()
     assert result == b"\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23"  # noqa
 
 
 def test_call_get_bytes32_value(bytes32_contract):
-    result = bytes32_contract.function.getValue().call()
+    result = bytes32_contract.functions.getValue().call()
     assert result == b'\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06'  # noqa
 
 
@@ -211,9 +192,9 @@ def test_call_get_bytes32_value(bytes32_contract):
 def test_call_address_reflector_with_address(address_reflector_contract, value, expected):
     if not isinstance(expected, str):
         with pytest.raises(expected):
-            address_reflector_contract.function.reflect(value).call()
+            address_reflector_contract.functions.reflect(value).call()
     else:
-        assert address_reflector_contract.function.reflect(value).call() == expected
+        assert address_reflector_contract.functions.reflect(value).call() == expected
 
 
 @pytest.mark.parametrize(
@@ -242,9 +223,9 @@ def test_call_address_reflector_with_address(address_reflector_contract, value, 
 def test_call_address_list_reflector_with_address(address_reflector_contract, value, expected):
     if not isinstance(expected, list):
         with pytest.raises(expected):
-            address_reflector_contract.function.reflect(value).call()
+            address_reflector_contract.functions.reflect(value).call()
     else:
-        assert address_reflector_contract.function.reflect(value).call() == expected
+        assert address_reflector_contract.functions.reflect(value).call() == expected
 
 
 def test_call_address_reflector_single_name(address_reflector_contract):
@@ -252,7 +233,7 @@ def test_call_address_reflector_single_name(address_reflector_contract):
         address_reflector_contract,
         [("dennisthepeasant.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
     ):
-        result = address_reflector_contract.function.reflect('dennisthepeasant.eth').call()
+        result = address_reflector_contract.functions.reflect('dennisthepeasant.eth').call()
         assert result == '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413'
 
 
@@ -267,7 +248,7 @@ def test_call_address_reflector_name_array(address_reflector_contract):
     ]
 
     with contract_ens_addresses(address_reflector_contract, zip(names, addresses)):
-        result = address_reflector_contract.function.reflect(names).call()
+        result = address_reflector_contract.functions.reflect(names).call()
 
     assert addresses == result
 
@@ -275,18 +256,18 @@ def test_call_address_reflector_name_array(address_reflector_contract):
 def test_call_reject_invalid_ens_name(address_reflector_contract):
     with contract_ens_addresses(address_reflector_contract, []):
         with pytest.raises(ValueError):
-            address_reflector_contract.function.reflect('typ0.eth').call()
+            address_reflector_contract.functions.reflect('typ0.eth').call()
 
 
 def test_call_missing_function(mismatched_math_contract):
     expected_missing_function_error_message = "Could not decode contract function call"
     with pytest.raises(BadFunctionCallOutput) as exception_info:
-        mismatched_math_contract.function.return13().call()
+        mismatched_math_contract.functions.return13().call()
     assert expected_missing_function_error_message in str(exception_info.value)
 
 
 def test_call_undeployed_contract(undeployed_math_contract):
     expected_undeployed_call_error_message = "Could not transact with/call contract function"
     with pytest.raises(BadFunctionCallOutput) as exception_info:
-        undeployed_math_contract.function.return13().call()
+        undeployed_math_contract.functions.return13().call()
     assert expected_undeployed_call_error_message in str(exception_info.value)

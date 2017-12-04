@@ -106,15 +106,9 @@ class ContractFunctions(object):
             setattr(self,
                     method['name'],
                     ContractMethod.factory(contract=self.contract,
+                                           address=self.contract.address,
                                            web3=self.contract.web3,
                                            method_name=method['name']))
-
-    def __getitem__(self, item):
-        if item in self._method_names:
-            return getattr(self, item)
-
-    def __call__(self):
-        return self
 
 
 class ContractEvents(object):
@@ -131,15 +125,9 @@ class ContractEvents(object):
             setattr(self,
                     method['name'],
                     ContractMethod.factory(contract=self.contract,
+                                           address=self.contract.address,
                                            web3=self.contract.web3,
                                            method_name=method['name']))
-
-    def __getitem__(self, item):
-        if item in self._method_names:
-            return self[item]
-
-    def __call__(self):
-        return None
 
 
 class Contract(object):
@@ -175,8 +163,6 @@ class Contract(object):
     clone_bin = None
 
     dev_doc = None
-    function = None
-    event = None
     interface = None
     metadata = None
     opcodes = None
@@ -201,8 +187,9 @@ class Contract(object):
 
         if not self.address:
             raise TypeError("The address argument is required to instantiate a contract.")
-        setattr(self, 'function', ContractFunctions(self))
-        setattr(self, 'event', ContractEvents(self))
+
+        self.functions = ContractFunctions(self)
+        self.events = ContractEvents(self)
 
     @classmethod
     def normalize_property(cls, key, val):
@@ -826,6 +813,7 @@ class ContractMethod(object):
     """
     """
     contract = None
+    address = None
     method_name = None
     web3 = None
     transaction = None
@@ -833,13 +821,6 @@ class ContractMethod(object):
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
-
-    def __call__(self, *args, **kwargs):
-        if args:
-            self.args = args
-        if kwargs:
-            self.kwargs = kwargs
-        return self.call()
 
     def call(self, transaction=None):
         """
@@ -874,8 +855,8 @@ class ContractMethod(object):
         if 'data' in call_transaction:
             raise ValueError("Cannot set data in call transaction")
 
-        if self.contract.address:
-            call_transaction.setdefault('to', self.contract.address)
+        if self.address:
+            call_transaction.setdefault('to', self.address)
         if self.web3.eth.defaultAccount is not empty:
             call_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
@@ -906,8 +887,8 @@ class ContractMethod(object):
         if 'data' in transact_transaction:
             raise ValueError("Cannot set data in call transaction")
 
-        if self.contract.address is not None:
-            transact_transaction.setdefault('to', self.contract.address)
+        if self.address is not None:
+            transact_transaction.setdefault('to', self.address)
         if self.web3.eth.defaultAccount is not empty:
             transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
@@ -939,8 +920,8 @@ class ContractMethod(object):
         if 'to' in estimate_transaction:
             raise ValueError("Cannot set to in call transaction")
 
-        if self.contract.address:
-            estimate_transaction.setdefault('to', self.contract.address)
+        if self.address:
+            estimate_transaction.setdefault('to', self.address)
         if self.web3.eth.defaultAccount is not empty:
             estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
@@ -961,6 +942,40 @@ class ContractMethod(object):
                                          *self.args,
                                          **self.kwargs)
 
+    def buildTransaction(self, transaction=None):
+        """
+        Build the transaction dictionary without sending
+        """
+        if transaction is None:
+            built_transaction = {}
+        else:
+            built_transaction = dict(**transaction)
+
+        if 'data' in built_transaction:
+            raise ValueError("Cannot set data in call buildTransaction")
+
+        if isinstance(self.contract, type) and 'to' not in built_transaction:
+            raise ValueError(
+                "When using `Contract.buildTransaction` from a contract factory "
+                "you must provide a `to` address with the transaction"
+            )
+        if not isinstance(self.contract, type) and 'to' in built_transaction:
+            raise ValueError("Cannot set to in call buildTransaction")
+
+        if self.address:
+            built_transaction.setdefault('to', self.address)
+
+        if 'to' not in built_transaction:
+            raise ValueError(
+                "Please ensure that this contract instance has an address."
+            )
+
+        return build_transaction_for_function(self.contract,
+                                              self.method_name,
+                                              built_transaction,
+                                              *self.args,
+                                              **self.kwargs)
+
     @classmethod
     def factory(cls, **kwargs):
         if "method_name" not in kwargs:
@@ -971,7 +986,7 @@ class ContractMethod(object):
                 raise AttributeError(
                     "Property {0} not found on ContractMethod class. "
                     "`ContractMethod.factory` only accepts keyword arguments which are "
-                    "present on the contract class".format(key)
+                    "present on the ContractMethod class".format(key)
                 )
 
         return type(kwargs["method_name"], (cls,), kwargs)
