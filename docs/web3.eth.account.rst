@@ -299,6 +299,9 @@ be called statically, like ``Account.create()``.
     and the hex-encoded transaction suitable for broadcast using
     :meth:`~web3.eth.Eth.sendRawTransaction`.
 
+    The transaction dict for executing contract methods may be created using 
+    :meth:`~web3.contract.Contract.buildTransaction`.
+
     :param dict transaction_dict: the transaction with keys:
       nonce, chainId, to, data, value, gas, and gasPrice.
     :param private_key: the private key to sign the data with

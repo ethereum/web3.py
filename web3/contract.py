@@ -77,6 +77,9 @@ from web3.utils.validation import (
     validate_abi,
     validate_address,
 )
+from web3.utils.transactions import (
+    fill_transaction_defaults,
+)
 
 
 DEPRECATED_SIGNATURE_MESSAGE = (
@@ -485,6 +488,49 @@ class Contract(object):
 
         return Transactor()
 
+    @combomethod
+    def buildTransaction(self, transaction=None):
+        """
+        Build the transaction dictionary without sending
+        """
+        if transaction is None:
+            built_transaction = {}
+        else:
+            built_transaction = dict(**transaction)
+
+        if 'data' in built_transaction:
+            raise ValueError("Cannot set data in call buildTransaction")
+
+        if isinstance(self, type) and 'to' not in built_transaction:
+            raise ValueError(
+                "When using `Contract.buildTransaction` from a contract factory "
+                "you must provide a `to` address with the transaction"
+            )
+        if not isinstance(self, type) and 'to' in built_transaction:
+            raise ValueError("Cannot set to in call buildTransaction")
+
+        if self.address:
+            built_transaction.setdefault('to', self.address)
+
+        if 'to' not in built_transaction:
+            raise ValueError(
+                "Please ensure that this contract instance has an address."
+            )
+
+        contract = self
+
+        class Caller(object):
+            def __getattr__(self, function_name):
+                callable_fn = functools.partial(
+                    build_transaction_for_function,
+                    contract,
+                    function_name,
+                    built_transaction,
+                )
+                return callable_fn
+
+        return Caller()
+
     #
     # Private Helpers
     #
@@ -699,7 +745,7 @@ CONCISE_NORMALIZERS = (
 
 
 class ConciseMethod:
-    ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact'])
+    ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'buildTransaction'])
 
     def __init__(self, contract, function):
         self.__contract = contract
@@ -820,3 +866,25 @@ def estimate_gas_for_function(contract=None,
 
     gas_estimate = contract.web3.eth.estimateGas(estimate_transaction)
     return gas_estimate
+
+
+def build_transaction_for_function(contract=None,
+                                   function_name=None,
+                                   transaction=None,
+                                   *args,
+                                   **kwargs):
+    """Builds a dictionary with the fields required to make the given transaction
+
+    Don't call this directly, instead use :meth:`Contract.buildTransaction`
+    on your contract instance.
+    """
+    prepared_transaction = contract._prepare_transaction(
+        fn_name=function_name,
+        fn_args=args,
+        fn_kwargs=kwargs,
+        transaction=transaction,
+    )
+
+    prepared_transaction = fill_transaction_defaults(contract.web3, prepared_transaction)
+
+    return prepared_transaction

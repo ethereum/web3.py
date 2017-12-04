@@ -173,6 +173,47 @@ Each Contract Factory exposes the following methods.
         >>> my_contract.estimateGas().multiply7(3)
         42650
 
+.. py:method:: Contract.buildTransaction(transaction).myMethod(*args, **kwargs)
+
+    Builds a transaction dictionary based on the contract function call specified. 
+
+    This method behaves the same as the :py:method::`Contract.transact` method,
+    with transaction details being passed into the first portion of the
+    function call, and function arguments being passed into the second portion.
+
+    .. note::
+        `nonce` is not returned as part of the transaction dictionary unless it is 
+        specified in the first portion of the function call:
+
+        .. code-block:: python
+
+            >>> math_contract.buildTransaction({'nonce': 10}).increment(5)
+
+        You may use :meth:`~web3.eth.Eth.getTransactionCount` to get the current nonce
+        for an account. Therefore a shortcut for producing a transaction dictionary with 
+        nonce included looks like:
+
+        .. code-block:: python
+
+            >>> math_contract.buildTransaction({'nonce': web3.eth.getTransactionCount('0xF5...')}).increment(5)
+
+    Returns a transaction dictionary. This transaction dictionary can then be sent using 
+    :meth:`~web3.eth.Eth.sendTransaction`. 
+    
+    Additionally, the dictionary may be used for offline transaction signing using 
+    :meth:`~web3.eth.account.Account.signTransaction`.
+
+    .. code-block:: python
+
+        >>> math_contract.buildTransaction({'gasPrice': 21000000000}).increment(5)
+        {
+            'to': '0x6Bc272FCFcf89C14cebFC57B8f1543F5137F97dE',
+            'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',
+            'value': 0, 
+            'gas': 43242, 
+            'gasPrice': 21000000000, 
+            'chainId': 1
+        }
 
 Events
 ------
