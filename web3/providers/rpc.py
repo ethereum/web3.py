@@ -1,4 +1,5 @@
 import logging
+import os
 
 from .base import JSONBaseProvider  # noqa: E402
 
@@ -15,13 +16,20 @@ from web3.utils.http import construct_user_agent
 logger = logging.getLogger(__name__)
 
 
+def get_default_endpoint():
+    return os.environ.get('WEB3_HTTP_PROVIDER_URI', 'http://localhost:8545')
+
+
 class HTTPProvider(JSONBaseProvider):
     endpoint_uri = None
     _request_args = None
     _request_kwargs = None
 
-    def __init__(self, endpoint_uri, request_kwargs=None):
-        self.endpoint_uri = endpoint_uri
+    def __init__(self, endpoint_uri=None, request_kwargs=None):
+        if endpoint_uri is None:
+            self.endpoint_uri = get_default_endpoint()
+        else:
+            self.endpoint_uri = endpoint_uri
         self._request_kwargs = request_kwargs or {}
         super(HTTPProvider, self).__init__()
 
