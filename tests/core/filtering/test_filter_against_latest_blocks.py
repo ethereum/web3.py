@@ -4,7 +4,7 @@ from web3.utils.threads import (
 )
 
 
-def test_sync_filter_against_latest_blocks(web3, sleep_interval, wait_for_block, skip_if_testrpc):
+def test_sync_filter_against_latest_blocks(web3, sleep_interval, wait_for_block):
     if EthereumTesterProvider not in map(type, web3.providers):
         web3.providers = EthereumTesterProvider()
 

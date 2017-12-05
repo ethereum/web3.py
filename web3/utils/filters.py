@@ -108,7 +108,7 @@ class Filter:
 
     def _format_log_entries(self, log_entries=None):
         if log_entries is None:
-            log_entries = []
+            return []
 
         formatted_log_entries = [
             self.format_entry(log_entry) for log_entry in log_entries
