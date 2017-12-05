@@ -120,7 +120,8 @@ class Web3(object):
     def providers(self):
         return self.manager.providers
 
-    def setProviders(self, providers):
+    @providers.setter
+    def providers(self, providers):
         self.manager.providers = providers
 
     @staticmethod
