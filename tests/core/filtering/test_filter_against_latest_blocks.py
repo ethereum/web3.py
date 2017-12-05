@@ -1,54 +1,28 @@
-from flaky import flaky
-
+from web3.providers.eth_tester import EthereumTesterProvider
 from web3.utils.threads import (
     Timeout,
 )
 
 
-@flaky(max_runs=3)
-def test_sync_filter_against_latest_blocks(web3, sleep_interval, wait_for_block, skip_if_testrpc):
-    skip_if_testrpc(web3)
+def test_sync_filter_against_latest_blocks(web3, sleep_interval, wait_for_block):
+    if EthereumTesterProvider not in map(type, web3.providers):
+        web3.providers = EthereumTesterProvider()
 
-    seen_blocks = []
     txn_filter = web3.eth.filter("latest")
 
     current_block = web3.eth.blockNumber
 
     wait_for_block(web3, current_block + 3)
 
+    found_block_hashes = []
     with Timeout(5) as timeout:
-        while len(txn_filter.get_new_entries()) < 2:
+        while len(found_block_hashes) < 3:
+            found_block_hashes.extend(txn_filter.get_new_entries())
             timeout.sleep(sleep_interval())
 
-    expected_block_hashes = [
-        web3.eth.getBlock(n)['hash'] for n in range(current_block + 1, current_block + 3)
-    ]
-    assert len(txn_filter.get_new_entries()) >= 2
-
-    assert set(expected_block_hashes).issubset(seen_blocks)
-
-
-@flaky(max_runs=3)
-def test_async_filter_against_latest_blocks(web3, sleep_interval, wait_for_block, skip_if_testrpc):
-    skip_if_testrpc(web3)
-
-    seen_blocks = []
-    txn_filter = web3.eth.filter("latest")
-    txn_filter.watch(seen_blocks.append)
-
-    current_block = web3.eth.blockNumber
-
-    wait_for_block(web3, current_block + 3)
-
-    with Timeout(5) as timeout:
-        while len(seen_blocks) < 2:
-            timeout.sleep(sleep_interval())
-
-    txn_filter.stop_watching(3)
+    assert len(found_block_hashes) == 3
 
     expected_block_hashes = [
-        web3.eth.getBlock(n)['hash'] for n in range(current_block + 1, current_block + 3)
+        web3.eth.getBlock(n + 1).hash for n in range(current_block, current_block + 3)
     ]
-    assert len(seen_blocks) >= 2
-
-    assert set(expected_block_hashes).issubset(seen_blocks)
+    assert found_block_hashes == expected_block_hashes

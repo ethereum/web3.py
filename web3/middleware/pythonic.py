@@ -243,7 +243,7 @@ filter_params_formatter = apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
 
 filter_result_formatter = apply_one_of_formatters((
     (apply_formatter_to_array(log_entry_formatter), is_array_of_dicts),
-    (apply_formatter_to_array(to_ascii_if_bytes), is_array_of_strings),
+    (apply_formatter_to_array(to_hexbytes(32)), is_array_of_strings),
 ))
 
 
