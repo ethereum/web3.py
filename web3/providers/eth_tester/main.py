@@ -23,6 +23,7 @@ from web3.utils.formatters import (
     apply_formatter_if,
 )
 
+from eth_tester import EthereumTester
 from eth_tester.exceptions import (
     BlockNotFound,
     FilterNotFound,
@@ -350,8 +351,11 @@ class EthereumTesterProvider(BaseProvider):
     ethereum_tester = None
     api_endpoints = None
 
-    def __init__(self, ethereum_tester, api_endpoints=API_ENDPOINTS):
-        self.ethereum_tester = ethereum_tester
+    def __init__(self, ethereum_tester=None, api_endpoints=API_ENDPOINTS):
+        if ethereum_tester is None:
+            self.ethereum_tester = EthereumTester()
+        else:
+            self.ethereum_tester = ethereum_tester
         self.api_endpoints = api_endpoints
 
     def make_request(self, method, params):

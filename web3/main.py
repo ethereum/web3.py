@@ -121,7 +121,7 @@ class Web3(object):
         return self.manager.providers
 
     def setProviders(self, providers):
-        self.manager.setProvider(providers)
+        self.manager.providers = providers
 
     @staticmethod
     @apply_to_return_value(HexBytes)
