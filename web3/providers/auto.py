@@ -44,10 +44,18 @@ class AutoProvider(BaseProvider):
 
 def load_provider_from_environment():
     uri_string = os.environ.get('WEB3_PROVIDER_URI', '')
+    if not uri_string:
+        return None
+
     uri = urlparse(uri_string)
     if uri.scheme == 'file':
         return IPCProvider(uri.path)
     elif uri.scheme == 'http':
         return HTTPProvider(uri_string)
     else:
-        return None
+        raise NotImplementedError(
+            'Web3 does not know how to connect to scheme %r in %r' % (
+                uri.scheme,
+                uri_string,
+            )
+        )
