@@ -837,6 +837,7 @@ class ContractMethod(object):
 
         self.fn_name = type(self).__name__
         self._set_function_info()
+        self._transaction_data = self._encode_transaction_data()
 
     def _set_function_info(self):
         self.abi = self._find_matching_fn_abi(self.fn_name, self.args, self.kwargs)
@@ -1019,15 +1020,11 @@ class ContractMethod(object):
         if cls.address:
             prepared_transaction.setdefault('to', cls.address)
 
-        prepared_transaction['data'] = cls._encode_transaction_data(
-            fn_name,
-            fn_args,
-            fn_kwargs,
-        )
+        prepared_transaction['data'] = cls._transaction_data
         return prepared_transaction
 
     @combomethod
-    def _encode_transaction_data(cls, fn_name, args=None, kwargs=None):
+    def _encode_transaction_data(cls):
         return add_0x_prefix(cls._encode_abi(cls.abi, cls.arguments, cls.selector))
 
     @classmethod
