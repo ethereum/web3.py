@@ -98,17 +98,17 @@ class ContractFunctions(object):
 
     _method_names = []
 
-    def __init__(self, contract):
-        self.contract = contract
-        self.function_methods = filter_by_type('function', self.contract.abi)
-        for method in self.function_methods:
-            self._method_names.append(method['name'])
-            setattr(self,
-                    method['name'],
-                    ContractMethod.factory(contract=self.contract,
-                                           address=self.contract.address,
-                                           web3=self.contract.web3,
-                                           method_name=method['name']))
+    def __init__(self, abi, web3, address=None):
+        if abi:
+            self.function_methods = filter_by_type('function', abi)
+            for method in self.function_methods:
+                self._method_names.append(method['name'])
+                setattr(self,
+                        method['name'],
+                        ContractMethod.factory(web3=web3,
+                                               abi=abi,
+                                               address=address,
+                                               method_name=method['name']))
 
 
 class ContractEvents(object):
@@ -117,17 +117,17 @@ class ContractEvents(object):
 
     _method_names = []
 
-    def __init__(self, contract):
-        self.contract = contract
-        self.function_methods = filter_by_type('events', self.contract.abi)
-        for method in self.function_methods:
-            self._method_names.append(method['name'])
-            setattr(self,
-                    method['name'],
-                    ContractMethod.factory(contract=self.contract,
-                                           address=self.contract.address,
-                                           web3=self.contract.web3,
-                                           method_name=method['name']))
+    def __init__(self, abi, web3, address=None):
+        if abi:
+            self.event_methods = filter_by_type('event', abi)
+            for method in self.event_methods:
+                self._method_names.append(method['name'])
+                setattr(self,
+                        method['name'],
+                        ContractMethod.factory(web3=web3,
+                                               abi=abi,
+                                               address=address,
+                                               method_name=method['name']))
 
 
 class Contract(object):
@@ -162,6 +162,9 @@ class Contract(object):
     bytecode_runtime = None
     clone_bin = None
 
+    functions = None
+    events = None
+
     dev_doc = None
     interface = None
     metadata = None
@@ -188,8 +191,8 @@ class Contract(object):
         if not self.address:
             raise TypeError("The address argument is required to instantiate a contract.")
 
-        self.functions = ContractFunctions(self)
-        self.events = ContractEvents(self)
+        self.functions = ContractFunctions(self.abi, self.web3, self.address)
+        self.events = ContractEvents(self.abi, self.web3, self.address)
 
     @classmethod
     def normalize_property(cls, key, val):
@@ -229,6 +232,9 @@ class Contract(object):
                 )
             else:
                 kwargs[key] = cls.normalize_property(key, kwargs[key])
+
+        kwargs['functions'] = ContractFunctions(kwargs.get('abi'), kwargs['web3'])
+        kwargs['events'] = ContractEvents(kwargs.get('abi'), kwargs['web3'])
 
         return type(contract_name, (cls,), kwargs)
 
@@ -812,10 +818,10 @@ class ConciseMethod:
 class ContractMethod(object):
     """
     """
-    contract = None
     address = None
     method_name = None
     web3 = None
+    abi = None
     transaction = None
 
     def __init__(self, *args, **kwargs):
@@ -872,7 +878,7 @@ class ContractMethod(object):
                     "Please ensure that this contract instance has an address."
                 )
 
-        return call_contract_function(self.contract,
+        return call_contract_function(self,
                                       self.method_name,
                                       call_transaction,
                                       *self.args,
@@ -903,7 +909,7 @@ class ContractMethod(object):
                     "Please ensure that this contract instance has an address."
                 )
 
-        return transact_with_contract_function(self.contract,
+        return transact_with_contract_function(self,
                                                self.method_name,
                                                transact_transaction,
                                                *self.args,
@@ -936,7 +942,7 @@ class ContractMethod(object):
                     "Please ensure that this contract instance has an address."
                 )
 
-        return estimate_gas_for_function(contract=self.contract,
+        return estimate_gas_for_function(contract=self,
                                          function_name=self.method_name,
                                          transaction=estimate_transaction,
                                          *self.args,
@@ -954,13 +960,13 @@ class ContractMethod(object):
         if 'data' in built_transaction:
             raise ValueError("Cannot set data in call buildTransaction")
 
-        if isinstance(self.contract, type) and 'to' not in built_transaction:
+        if not self.address and 'to' not in built_transaction:
             raise ValueError(
-                "When using `Contract.buildTransaction` from a contract factory "
+                "When using `ContractMethod.buildTransaction` from a Contract factory"
                 "you must provide a `to` address with the transaction"
             )
-        if not isinstance(self.contract, type) and 'to' in built_transaction:
-            raise ValueError("Cannot set to in call buildTransaction")
+        if self.address and 'to' in built_transaction:
+            raise ValueError("Cannot set to in contract call buildTransaction")
 
         if self.address:
             built_transaction.setdefault('to', self.address)
@@ -970,11 +976,137 @@ class ContractMethod(object):
                 "Please ensure that this contract instance has an address."
             )
 
-        return build_transaction_for_function(self.contract,
+        return build_transaction_for_function(self,
                                               self.method_name,
                                               built_transaction,
                                               *self.args,
                                               **self.kwargs)
+
+    @combomethod
+    def _prepare_transaction(cls,
+                             fn_name,
+                             fn_args=None,
+                             fn_kwargs=None,
+                             transaction=None):
+        """
+        Returns a dictionary of the transaction that could be used to call this
+        TODO: make this a public API
+        TODO: add new prepare_deploy_transaction API
+        """
+        if transaction is None:
+            prepared_transaction = {}
+        else:
+            prepared_transaction = dict(**transaction)
+
+        if 'data' in prepared_transaction:
+            raise ValueError("Transaction parameter may not contain a 'data' key")
+
+        if cls.address:
+            prepared_transaction.setdefault('to', cls.address)
+
+        prepared_transaction['data'] = cls._encode_transaction_data(
+            fn_name,
+            fn_args,
+            fn_kwargs,
+        )
+        return prepared_transaction
+
+    @combomethod
+    def _encode_transaction_data(cls, fn_name, args=None, kwargs=None):
+        fn_abi, fn_selector, fn_arguments = cls._get_function_info(
+            fn_name, args, kwargs,
+        )
+        return add_0x_prefix(cls._encode_abi(fn_abi, fn_arguments, fn_selector))
+
+    @classmethod
+    def _get_function_info(cls, fn_name, args=None, kwargs=None):
+        if args is None:
+            args = tuple()
+        if kwargs is None:
+            kwargs = {}
+
+        fn_abi = cls._find_matching_fn_abi(fn_name, args, kwargs)
+        fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
+
+        fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
+
+        return fn_abi, fn_selector, fn_arguments
+
+    @classmethod
+    def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
+        filters = []
+
+        if fn_name:
+            filters.append(functools.partial(filter_by_name, fn_name))
+
+        if args is not None or kwargs is not None:
+            if args is None:
+                args = tuple()
+            if kwargs is None:
+                kwargs = {}
+
+            num_arguments = len(args) + len(kwargs)
+            filters.extend([
+                functools.partial(filter_by_argument_count, num_arguments),
+                functools.partial(filter_by_encodability, args, kwargs),
+            ])
+
+        function_candidates = filter_by_type('function', cls.abi)
+
+        for filter_fn in filters:
+            function_candidates = filter_fn(function_candidates)
+
+            if len(function_candidates) == 1:
+                return function_candidates[0]
+            elif not function_candidates:
+                break
+
+        if not function_candidates:
+            raise ValueError("No matching functions found")
+        else:
+            raise ValueError("Multiple functions found")
+
+    @combomethod
+    def _encode_abi(cls, abi, arguments, data=None):
+        argument_types = get_abi_input_types(abi)
+
+        if not check_if_arguments_can_be_encoded(abi, arguments, {}):
+            raise TypeError(
+                "One or more arguments could not be encoded to the necessary "
+                "ABI type.  Expected types are: {0}".format(
+                    ', '.join(argument_types),
+                )
+            )
+
+        try:
+            normalizers = [
+                abi_ens_resolver(cls.web3),
+                abi_address_to_hex,
+                abi_bytes_to_hex,
+                abi_string_to_hex,
+                hexstrs_to_bytes,
+            ]
+            normalized_arguments = map_abi_data(
+                normalizers,
+                argument_types,
+                arguments,
+            )
+            encoded_arguments = encode_abi(
+                argument_types,
+                normalized_arguments,
+            )
+        except EncodingError as e:
+            raise TypeError(
+                "One or more arguments could not be encoded to the necessary "
+                "ABI type: {0}".format(str(e))
+            )
+
+        if data:
+            return to_hex(HexBytes(data) + encoded_arguments)
+        else:
+            return encode_hex(encoded_arguments)
+
+    _return_data_normalizers = tuple()
 
     @classmethod
     def factory(cls, **kwargs):
