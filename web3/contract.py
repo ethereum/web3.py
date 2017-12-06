@@ -106,7 +106,7 @@ class ContractFunctions(object):
                 setattr(self,
                         method['name'],
                         ContractMethod.factory(web3=web3,
-                                               abi=abi,
+                                               contract_abi=abi,
                                                address=address,
                                                method_name=method['name']))
 
@@ -125,7 +125,7 @@ class ContractEvents(object):
                 setattr(self,
                         method['name'],
                         ContractMethod.factory(web3=web3,
-                                               abi=abi,
+                                               contract_abi=abi,
                                                address=address,
                                                method_name=method['name']))
 
@@ -821,12 +821,27 @@ class ContractMethod(object):
     address = None
     method_name = None
     web3 = None
+    contract_abi = None
     abi = None
     transaction = None
 
     def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
+
+        if args is None:
+            self.args = tuple()
+        else: self.args = args
+
+        if kwargs is None:
+            self.kwargs = {}
+        else: self.kwargs = kwargs
+
+        self.fn_name = type(self).__name__
+        self._set_function_info()
+
+    def _set_function_info(self):
+        self.abi = self._find_matching_fn_abi(self.fn_name, self.args, self.kwargs)
+        self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
+        self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
 
     def call(self, transaction=None):
         """
@@ -1013,24 +1028,7 @@ class ContractMethod(object):
 
     @combomethod
     def _encode_transaction_data(cls, fn_name, args=None, kwargs=None):
-        fn_abi, fn_selector, fn_arguments = cls._get_function_info(
-            fn_name, args, kwargs,
-        )
-        return add_0x_prefix(cls._encode_abi(fn_abi, fn_arguments, fn_selector))
-
-    @classmethod
-    def _get_function_info(cls, fn_name, args=None, kwargs=None):
-        if args is None:
-            args = tuple()
-        if kwargs is None:
-            kwargs = {}
-
-        fn_abi = cls._find_matching_fn_abi(fn_name, args, kwargs)
-        fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
-
-        fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
-
-        return fn_abi, fn_selector, fn_arguments
+        return add_0x_prefix(cls._encode_abi(cls.abi, cls.arguments, cls.selector))
 
     @classmethod
     def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
@@ -1051,7 +1049,7 @@ class ContractMethod(object):
                 functools.partial(filter_by_encodability, args, kwargs),
             ])
 
-        function_candidates = filter_by_type('function', cls.abi)
+        function_candidates = filter_by_type('function', cls.contract_abi)
 
         for filter_fn in filters:
             function_candidates = filter_fn(function_candidates)
