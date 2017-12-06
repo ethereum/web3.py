@@ -22,7 +22,7 @@ setup(
         "eth-keyfile>=0.4.0",
         "eth-keys>=0.1.0-beta.3",
         "eth-utils>=0.7.1",
-        "lru-dict=1.1.6",
+        "lru-dict>=1.1.6",
         "pysha3>=0.3",
         "requests>=2.12.4",
         "rlp>=0.4.7",
