@@ -11,14 +11,14 @@ from gevent import (  # noqa: F401
     threading,
 )
 
-import pylru
+import lru
 
 from geventhttpclient import HTTPClient
 
 from web3.utils.six import urlparse
 
 
-_client_cache = pylru.lrucache(8)
+_client_cache = lru.LRU(8)
 
 
 sleep = gevent.sleep
