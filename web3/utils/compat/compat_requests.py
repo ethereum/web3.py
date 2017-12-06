@@ -1,11 +1,11 @@
 import requests
 
-import pylru
+import lru
 
 from web3.utils.caching import generate_cache_key
 
 
-_session_cache = pylru.lrucache(8)
+_session_cache = lru.LRU(8)
 
 
 def _get_session(*args, **kwargs):
