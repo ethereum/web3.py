@@ -46,7 +46,10 @@ class AutoProvider(BaseProvider):
         in an attempt to find an active node. The list will default to
         :attribute:`default_providers`.
         '''
-        self._potential_providers = potential_providers
+        if potential_providers:
+            self._potential_providers = potential_providers
+        else:
+            self._potential_providers = self.default_providers
 
     def make_request(self, method, params):
         try:
