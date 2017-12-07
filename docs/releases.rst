@@ -1,6 +1,19 @@
 Release Notes
 =============
 
+v4.0.0-beta.4
+-------------
+
+Released Dec 7, 2017
+
+* New :meth:`~web3.contract.Contract.buildTransaction` method to prepare contract transactions, offline
+* New automatic provider detection, for ``w3 = Web3()`` initialization
+* Set environment variable `WEB3_PROVIDER_URI` to suggest a provider for automatic detection
+* New API to set providers like: ``w3.providers = [IPCProvider()]``
+* Crashfix: :meth:`web3.eth.Eth.filter` when retrieving logs with the argument 'latest'
+* Bump eth-tester to v0.1.0-beta.5, with bugfix for filtering by topic
+* Removed GPL lib ``pylru``, now believed to be in full MIT license compliance.
+
 v4.0.0-beta.3
 -------------
 
