@@ -347,6 +347,7 @@ class Contract(object):
 
         return log_filter
 
+    @deprecated_for("contract.<functions/events>.<method name>.estimateGas")
     @combomethod
     def estimateGas(self, transaction=None):
         """
@@ -392,6 +393,7 @@ class Contract(object):
 
         return Caller()
 
+    @deprecated_for("contract.<functions/events>.<method name>.call")
     @combomethod
     def call(self, transaction=None):
         """
@@ -456,6 +458,7 @@ class Contract(object):
 
         return Caller()
 
+    @deprecated_for("contract.<functions/events>.<method name>.transact")
     @combomethod
     def transact(self, transaction=None):
         """
@@ -535,6 +538,7 @@ class Contract(object):
 
         return Transactor()
 
+    @deprecated_for("contract.<functions/events>.<method name>.buildTransaction")
     @combomethod
     def buildTransaction(self, transaction=None):
         """
@@ -899,7 +903,6 @@ class ContractMethod(object):
                                       call_transaction,
                                       *self.args,
                                       **self.kwargs)
-
     def transact(self, transaction=None):
         if transaction is None:
             transact_transaction = {}
