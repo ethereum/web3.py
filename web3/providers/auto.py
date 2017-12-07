@@ -3,9 +3,11 @@ from urllib.parse import urlparse
 
 from web3.exceptions import CannotHandleRequest
 
-from web3.providers.base import BaseProvider
-from web3.providers.ipc import IPCProvider
-from web3.providers.rpc import HTTPProvider
+from web3.providers import (
+    BaseProvider,
+    HTTPProvider,
+    IPCProvider,
+)
 
 
 class AutoProvider(BaseProvider):
