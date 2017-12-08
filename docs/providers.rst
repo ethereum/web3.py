@@ -7,14 +7,52 @@ The provider is how web3 talks to the blockchain.  Providers take JSON-RPC
 requests and return the response.  This is normally done by submitting the
 request to an HTTP or IPC socket based server.
 
-The ``Web3`` object requires at least one provider to be able to function.
+If you are already happily connected to your Ethereum node, then you
+can skip the rest of the Providers section.
+
+Automatic vs Manual Providers
+-----------------------------
+
+The ``Web3`` object will look for the Ethereum node in a few
+standard locations if no providers are specified. Auto-detection happens
+when you initialize like so:
 
 .. code-block:: python
 
-    >>> from web3 import Web3, HTTPProvider
-    >>> provider = HTTPProvider('http://localhost:8545')
-    >>> web3 = Web3(provider)
+    from web3.auto import w3
 
+    # which is equivalent to:
+
+    from web3 import Web3
+    w3 = Web3()
+
+You can manually create a connection by specifying a provider like so:
+
+.. code-block:: python
+
+    from web3 import Web3, HTTPProvider
+    provider = HTTPProvider('http://localhost:8545')
+    web3 = Web3(provider)
+
+.. _automatic_provider_detection:
+
+How Automated Detection Works
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Web3 attempts to connect to nodes in the following order, using the first
+succesful connection it can make:
+
+1. The connection specified by an environment variable, see :ref:`provider_uri`
+2. :class:`~web3.providers.ipc.IPCProvider`, which looks for several IPC file locations
+3. :class:`~web3.providers.rpc.HTTPProvider`, which attempts to connect to "http://localhost:8545"
+4. None - if no providers are successful, you can still use Web3 APIs
+   that do not require a connection, like:
+
+   - :ref:`overview_type_conversions`
+   - :ref:`overview_currency_conversions`
+   - :ref:`overview_addresses`
+   - :class:`~web3.account.Account`
+   - etc.
 
 Built In Providers
 ------------------
@@ -51,13 +89,13 @@ HTTPProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 60})
+        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 60}))
 
 
 IPCProvider
 ~~~~~~~~~~~
 
-.. py:class:: IPCProvider(ipc_path=None, testnet=False):
+.. py:class:: web3.providers.ipc.IPCProvider(ipc_path=None, testnet=False)
 
     This provider handles interaction with an IPC Socket based JSON-RPC
     server.
@@ -67,7 +105,23 @@ IPCProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc")
+        >>> web3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc"))
+
+    If no ``ipc_path`` is specified, it will use the first IPC file
+    it can find from this list:
+
+    - On Linux:
+
+      - ``~/.ethereum/geth.ipc``
+      - ``~/.local/share/io.parity.ethereum/jsonrpc.ipc``
+    - On Mac OS:
+
+      - ``~/Library/Ethereum/geth.ipc``
+      - ``~/Library/Application Support/io.parity.ethereum/jsonrpc.ipc``
+    - On Windows:
+
+      - ``\\\.\pipe\geth.ipc``
+      - ``\\\.\pipe\jsonrpc.ipc``
 
 
 .. py:currentmodule:: web3.providers.eth_tester
@@ -120,6 +174,14 @@ TestRPCProvider
     backed by the ``ethereum.tester`` module.  This provider will be slower
     than the ``EthereumTesterProvider`` since it uses an HTTP server for RPC
     interactions with.
+
+
+AutoProvider
+~~~~~~~~~~~~
+
+:class:`~web3.providers.auto.AutoProvider` is the default used when initializing
+:class:`web3.Web3` without any providers. There's rarely a reason to use it
+explicitly.
 
 
 Using Multiple Providers
