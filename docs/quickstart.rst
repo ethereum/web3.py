@@ -7,7 +7,7 @@ Quickstart
 Environment
 ------------
 
-Web3.py prefers Python 3, and will soon require it. Often, the
+Web3.py requires Python 3. Often, the
 best way to guarantee a clean Python 3 environment is with ``virtualenv``, like:
 
 .. code-block:: shell
@@ -42,42 +42,87 @@ following command.
 
 .. code-block:: shell
 
-   $ python setup.py install
+   $ pip install -e .
 
 
 Using Web3
 ----------
 
-To use the web3 library you will need to instantiate an instance of the
-``Web3`` object.
+To use the web3 library you will need to initialize the
+:class:`~web3.Web3` class.
+
+Use the ``auto`` module to guess at common node connection options.
 
 .. code-block:: python
 
-    >>> from web3 import Web3, HTTPProvider, IPCProvider
+    >>> from web3.auto import w3
+    >>> w3.eth.blockNumber
+    4000000
 
-    # Note that you should create only one RPCProvider per
-    # process, as it recycles underlying TCP/IP network connections between
-    # your process and Ethereum node
-    >>> web3 = Web3(HTTPProvider('http://localhost:8545'))
+This ``w3`` instance will now allow you to interact with the Ethereum
+blockchain.
 
-    # or for an IPC based connection
-    >>> web3 = Web3(IPCProvider())
-    >>> web3.eth.blockNumber
+
+Connecting to your Node
+-----------------------
+
+Sometimes, web3 cannot automatically detect where your node is.
+
+You can connect to your Ethereum node (for example: geth or parity) using one of
+the available :ref:`providers`, typically IPC or HTTP.
+
+If your node is running locally, IPC will be faster and safer to expose.
+If sharing the node across machines on a network, use HTTP instead.
+
+IPC Provider
+~~~~~~~~~~~~
+
+.. code-block:: python
+
+    >>> from web3 import Web3, IPCProvider
+
+    # for an IPC based connection
+    >>> w3 = Web3(IPCProvider('/path/to/node/rpc-json/file.ipc'))
+
+    >>> w3.eth.blockNumber
     4000000
 
 
-This ``web3`` instance will now allow you to interact with the Ethereum
-blockchain.
+HTTP Provider
+~~~~~~~~~~~~~
 
-Simple Example
---------------
+.. code-block:: python
+
+    >>> from web3 import Web3, HTTPProvider
+
+    # Note that you should create only one HTTPProvider per
+    # process, as it recycles underlying TCP/IP network connections between
+    # your process and Ethereum node
+    >>> w3 = Web3(HTTPProvider('http://192.168.1.2:8545'))
+
+    >>> w3.eth.blockNumber
+    4000000
+
+Provider via Environment Variable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Alternatively, you can set the environment variable ``WEB3_PROVIDER_URI``
+before starting your script, and web3 will look for that provider first.
+
+Valid formats for the this environment variable are:
+
+- ``file:///path/to/node/rpc-json/file.ipc``
+- ``http://192.168.1.2:8545``
+
+Simple Contract Example
+-----------------------
 
 .. code-block:: python
 
     import json
     import web3
 
-    from web3 import Web3, HTTPProvider, TestRPCProvider
+    from web3 import Web3, TestRPCProvider
     from solc import compile_source
     from web3.contract import ConciseContract
 

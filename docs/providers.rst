@@ -7,13 +7,32 @@ The provider is how web3 talks to the blockchain.  Providers take JSON-RPC
 requests and return the response.  This is normally done by submitting the
 request to an HTTP or IPC socket based server.
 
-The ``Web3`` object requires at least one provider to be able to function.
+If you are already happily connected to your Ethereum node, then you
+can skip the rest of the Providers section.
+
+Automatic vs Manual Providers
+-----------------------------
+
+The ``Web3`` object will look for the Ethereum node in a few
+standard locations if no providers are specified. Auto-detection happens
+when you initialize like so:
 
 .. code-block:: python
 
-    >>> from web3 import Web3, HTTPProvider
-    >>> provider = HTTPProvider('http://localhost:8545')
-    >>> web3 = Web3(provider)
+    from web3.auto import w3
+
+    # which is equivalent to:
+
+    from web3 import Web3
+    w3 = Web3()
+
+You can manually create a connection by specifying a provider like so:
+
+.. code-block:: python
+
+    from web3 import Web3, HTTPProvider
+    provider = HTTPProvider('http://localhost:8545')
+    web3 = Web3(provider)
 
 
 Built In Providers
@@ -120,6 +139,14 @@ TestRPCProvider
     backed by the ``ethereum.tester`` module.  This provider will be slower
     than the ``EthereumTesterProvider`` since it uses an HTTP server for RPC
     interactions with.
+
+
+AutoProvider
+~~~~~~~~~~~~
+
+:class:`~web3.providers.auto.AutoProvider` is the default used when initializing
+:class:`web3.Web3` without any providers. There's rarely a reason to use it
+explicitly.
 
 
 Using Multiple Providers
