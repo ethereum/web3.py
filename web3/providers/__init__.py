@@ -1,3 +1,6 @@
 from .base import (  # noqa: F401
     BaseProvider,
 )
+from .rpc import HTTPProvider  # noqa: F401
+from .ipc import IPCProvider  # noqa: F401
+from .auto import AutoProvider  # noqa: F401

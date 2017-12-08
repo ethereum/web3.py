@@ -46,6 +46,7 @@ from web3.utils.datastructures import (
 from web3.utils.decorators import (
     combomethod,
 )
+from web3.utils.empty import empty
 from web3.utils.encoding import (
     hex_encode_abi_type,
     to_bytes,
@@ -56,8 +57,6 @@ from web3.utils.encoding import (
 from web3.utils.normalizers import (
     abi_ens_resolver,
 )
-
-default = object()
 
 
 def get_default_modules():
@@ -101,7 +100,7 @@ class Web3(object):
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
-    def __init__(self, providers, middlewares=None, modules=None, ens=default):
+    def __init__(self, providers=empty, middlewares=None, modules=None, ens=empty):
         self.manager = RequestManager(self, providers, middlewares)
 
         if modules is None:
@@ -175,7 +174,7 @@ class Web3(object):
 
     @property
     def ens(self):
-        if self._ens is default:
+        if self._ens is empty:
             return ENS.fromWeb3(self)
         else:
             return self._ens

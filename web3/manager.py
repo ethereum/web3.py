@@ -14,10 +14,14 @@ from web3.middleware import (
     attrdict_middleware,
     name_to_address_middleware,
 )
+from web3.providers import (
+    AutoProvider,
+)
 
 from web3.utils.datastructures import (
     NamedElementStack,
 )
+from web3.utils.empty import empty
 from web3.utils.threads import (
     spawn,
 )
@@ -32,7 +36,10 @@ class RequestManager(object):
             middlewares = self.default_middlewares(web3)
 
         self.middleware_stack = NamedElementStack(middlewares)
-        self.providers = providers
+        if providers is empty:
+            self.providers = AutoProvider()
+        else:
+            self.providers = providers
 
     web3 = None
     _providers = None
