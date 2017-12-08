@@ -31,31 +31,33 @@ def zero_address_contract(web3, WithConstructorAddressArgumentsContract, EMPTY_A
 
 
 def test_concisecontract_call_default():
-    contract = Mock()
-    sweet_method = ConciseMethod(contract, 'grail')
+    mock = Mock()
+    sweet_method = ConciseMethod(mock.functions.grail)
     sweet_method(1, 2)
-    contract.call.assert_called_once_with({})
-    contract.call().grail.assert_called_once_with(1, 2)
+    mock.functions.grail.assert_called_once_with(1, 2)
+    #Checking in return_value, ie the function instance
+    mock.functions.grail.return_value.call.assert_called_once_with({})
 
 
 def test_concisecontract_custom_transact():
-    contract = Mock()
-    sweet_method = ConciseMethod(contract, 'grail')
+    mock = Mock()
+    sweet_method = ConciseMethod(mock.functions.grail)
     sweet_method(1, 2, transact={'holy': 3})
-    contract.transact.assert_called_once_with({'holy': 3})
-    contract.transact().grail.assert_called_once_with(1, 2)
+    mock.functions.grail.assert_called_once_with(1, 2)
+    #Checking in return_value, ie the function instance
+    mock.functions.grail.return_value.transact.assert_called_once_with({'holy': 3})
 
 
 def test_concisecontract_two_keywords_fail():
-    contract = Mock()
-    sweet_method = ConciseMethod(contract, 'grail')
+    mock = Mock()
+    sweet_method = ConciseMethod(mock)
     with pytest.raises(TypeError):
         sweet_method(1, 2, transact={'holy': 3}, call={'count_to': 4})
 
 
 def test_concisecontract_unknown_keyword_fails():
     contract = Mock()
-    sweet_method = ConciseMethod(contract, 'grail')
+    sweet_method = ConciseMethod(contract.functions.grail)
     with pytest.raises(TypeError):
         sweet_method(1, 2, count={'to': 5})
 

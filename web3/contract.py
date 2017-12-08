@@ -48,6 +48,7 @@ from web3.utils.datastructures import (
 )
 from web3.utils.decorators import (
     combomethod,
+    deprecated_for,
 )
 from web3.utils.empty import (
     empty,
@@ -347,8 +348,8 @@ class Contract(object):
 
         return log_filter
 
-    @deprecated_for("contract.<functions/events>.<method name>.estimateGas")
     @combomethod
+    @deprecated_for("contract.<functions/events>.<method name>.estimateGas")
     def estimateGas(self, transaction=None):
         """
         Estimate the gas for a call
@@ -393,8 +394,8 @@ class Contract(object):
 
         return Caller()
 
-    @deprecated_for("contract.<functions/events>.<method name>.call")
     @combomethod
+    @deprecated_for("contract.<functions/events>.<method name>.call")
     def call(self, transaction=None):
         """
         Execute a contract function call using the `eth_call` interface.
@@ -458,8 +459,8 @@ class Contract(object):
 
         return Caller()
 
-    @deprecated_for("contract.<functions/events>.<method name>.transact")
     @combomethod
+    @deprecated_for("contract.<functions/events>.<method name>.transact")
     def transact(self, transaction=None):
         """
         Execute a contract function call using the `eth_sendTransaction`
@@ -538,8 +539,8 @@ class Contract(object):
 
         return Transactor()
 
-    @deprecated_for("contract.<functions/events>.<method name>.buildTransaction")
     @combomethod
+    @deprecated_for("contract.<functions/events>.<method name>.buildTransaction")
     def buildTransaction(self, transaction=None):
         """
         Build the transaction dictionary without sending
@@ -780,7 +781,9 @@ class ConciseContract(object):
         return compose(cls, Contract.factory(*args, **kwargs))
 
     def __getattr__(self, attr):
-        return ConciseMethod(self._classic_contract, attr)
+        contract_function = getattr(self._classic_contract.functions, attr)
+        contract_function._return_data_normalizers += CONCISE_NORMALIZERS
+        return ConciseMethod(contract_function)
 
     @staticmethod
     def _none_addr(datatype, data):
@@ -798,14 +801,13 @@ CONCISE_NORMALIZERS = (
 class ConciseMethod:
     ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'buildTransaction'])
 
-    def __init__(self, contract, function):
-        self.__contract = contract
+    def __init__(self, function):
         self.__function = function
 
     def __call__(self, *args, **kwargs):
-        return self.__prepared_function(**kwargs)(*args)
+        return self.__prepared_function(*args, **kwargs)
 
-    def __prepared_function(self, **kwargs):
+    def __prepared_function(self, *args, **kwargs):
         if not kwargs:
             modifier, modifier_dict = 'call', {}
         elif len(kwargs) == 1:
@@ -815,19 +817,19 @@ class ConciseMethod:
                     "The only allowed keyword arguments are: %s" % self.ALLOWED_MODIFIERS)
         else:
             raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
-        contract_modifier_func = getattr(self.__contract, modifier)
-        return getattr(contract_modifier_func(modifier_dict), self.__function)
+
+        return getattr(self.__function(*args), modifier)(modifier_dict)
 
 
 class ContractMethod(object):
     """
     """
-    address = None
-    method_name = None
-    web3 = None
+    address      = None
+    method_name  = None
+    web3         = None
     contract_abi = None
-    abi = None
-    transaction = None
+    abi          = None
+    transaction  = None
 
     def __init__(self, *args, **kwargs):
 
