@@ -42,7 +42,7 @@ following command.
 
 .. code-block:: shell
 
-   $ pip install -e .
+   $ pip install .
 
 
 Using Web3
@@ -58,6 +58,8 @@ Use the ``auto`` module to guess at common node connection options.
     >>> from web3.auto import w3
     >>> w3.eth.blockNumber
     4000000
+
+To peek under the hood, see: :ref:`automatic_provider_detection`
 
 This ``w3`` instance will now allow you to interact with the Ethereum
 blockchain.
@@ -102,6 +104,8 @@ HTTP Provider
 
     >>> w3.eth.blockNumber
     4000000
+
+.. _provider_uri:
 
 Provider via Environment Variable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

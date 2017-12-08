@@ -14,21 +14,13 @@ Each ``web3`` instance exposes the following APIs.
 Providers
 ~~~~~~~~~
 
-.. py:attribute:: Web3.RPCProvider
+.. py:attribute:: Web3.HTTPProvider
 
-    Convenience API to access :py:class:`web3.providers.rpc.RPCProvider`
-
-.. py:attribute:: Web3.KeepAliveRPCProvider
-
-    Convenience API to access :py:class:`web3.providers.rpc.KeepAliveRPCProvider`
+    Convenience API to access :py:class:`web3.providers.rpc.HTTPProvider`
 
 .. py:attribute:: Web3.IPCProvider
 
-    Convenience API to access :py:class:`web3.providers.rpc.IPCProvider`
-
-.. py:attribute:: Web3.TestRPCProvider
-
-    Convenience API to access :py:class:`web3.providers.rpc.TestRPCProvider`
+    Convenience API to access :py:class:`web3.providers.ipc.IPCProvider`
 
 .. py:method:: Web3.setProviders(provider)
 
