@@ -26,6 +26,8 @@ from ens.constants import (
     REVERSE_REGISTRAR_DOMAIN,
 )
 
+default = object()
+
 
 def Web3():
     from web3 import Web3
@@ -47,15 +49,14 @@ def ensure_hex(data):
     return data
 
 
-def init_web3(providers=tuple()):
+def init_web3(providers=default):
     from web3 import Web3
 
-    if not providers:
-        from web3.auto import w3
-        if w3:
-            return customize_web3(w3)
+    if providers is default:
+        w3 = Web3(ens=None)
+    else:
+        w3 = Web3(providers, ens=None)
 
-    w3 = Web3(providers, ens=None)
     return customize_web3(w3)
 
 
