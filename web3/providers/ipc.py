@@ -38,7 +38,7 @@ class PersistantSocket(object):
 
     def __enter__(self):
         if not self.sock:
-            self.sock = get_ipc_socket(self.ipc_path)
+            self.sock = self._open()
         return self.sock
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -49,6 +49,14 @@ class PersistantSocket(object):
             except Exception:
                 pass
             self.sock = None
+
+    def _open(self):
+        return get_ipc_socket(self.ipc_path)
+
+    def reset(self):
+        self.sock.close()
+        self.sock = self._open()
+        return self.sock
 
 
 def get_default_ipc_path(testnet=False):
@@ -98,7 +106,13 @@ class IPCProvider(JSONBaseProvider):
         request = self.encode_rpc_request(method, params)
 
         with self._lock, self._socket as sock:
-            sock.sendall(request)
+            try:
+                sock.sendall(request)
+            except BrokenPipeError:
+                # one extra attempt, then give up
+                sock = self._socket.reset()
+                sock.sendall(request)
+
             raw_response = b""
             with Timeout(10) as timeout:
                 while True:
