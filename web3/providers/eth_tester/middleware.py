@@ -197,9 +197,15 @@ ethereum_tester_middleware = construct_formatting_middleware(
         'eth_newFilter': integer_to_hex,
         'eth_newBlockFilter': integer_to_hex,
         'eth_newPendingTransactionFilter': integer_to_hex,
-        'eth_getLogs': apply_formatter_to_array(log_key_remapper),
-        'eth_getFilterChanges': apply_formatter_to_array(log_key_remapper),
-        'eth_getFilterLogs': apply_formatter_to_array(log_key_remapper)
+        'eth_getLogs': apply_formatter_if(is_dict, apply_formatter_to_array(log_key_remapper)),
+        'eth_getFilterChanges': apply_formatter_if(
+            is_dict,
+            apply_formatter_to_array(log_key_remapper),
+        ),
+        'eth_getFilterLogs': apply_formatter_if(
+            is_dict,
+            apply_formatter_to_array(log_key_remapper),
+        ),
     },
 )
 
