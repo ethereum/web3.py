@@ -55,14 +55,14 @@ def test_build_transaction_with_contract_data_supplied_errors(web3, math_contrac
     with pytest.raises(ValueError):
         math_contract.buildTransaction({
             'data': '0x000'
-        }).increment()
+        })
 
 
 def test_build_transaction_with_contract_to_address_supplied_errors(web3, math_contract):
     with pytest.raises(ValueError):
         math_contract.buildTransaction({
             'to': '0xb2930B35844a230f00E51431aCAe96Fe543a0347'
-        }).increment()
+        })
 
 
 @pytest.mark.parametrize(
