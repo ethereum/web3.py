@@ -824,22 +824,24 @@ class ConciseMethod:
 class ContractMethod(object):
     """
     """
-    address      = None
-    method_name  = None
-    web3         = None
+    address = None
+    method_name = None
+    web3 = None
     contract_abi = None
-    abi          = None
-    transaction  = None
+    abi = None
+    transaction = None
 
     def __init__(self, *args, **kwargs):
 
         if args is None:
             self.args = tuple()
-        else: self.args = args
+        else:
+            self.args = args
 
         if kwargs is None:
             self.kwargs = {}
-        else: self.kwargs = kwargs
+        else:
+            self.kwargs = kwargs
 
         self.fn_name = type(self).__name__
         self._set_function_info()
@@ -905,6 +907,7 @@ class ContractMethod(object):
                                       call_transaction,
                                       *self.args,
                                       **self.kwargs)
+
     def transact(self, transaction=None):
         if transaction is None:
             transact_transaction = {}
