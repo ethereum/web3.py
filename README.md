@@ -49,7 +49,7 @@ contract_interface = compiled_sol['<stdin>:Greeter']
 w3 = Web3(TestRPCProvider())
 
 # Instantiate and deploy contract
-contract = w3.eth.contract(contract_interface['abi'], bytecode=contract_interface['bin'])
+contract = w3.eth.contract(abi=contract_interface['abi'], bytecode=contract_interface['bin'])
 
 # Get transaction hash from deployed contract
 tx_hash = contract.deploy(transaction={'from': w3.eth.accounts[0], 'gas': 410000})

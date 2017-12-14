@@ -26,11 +26,12 @@ Released Dec 1, 2017
 * Clearer errors on formatting failure (includes field name that failed)
 * Python modernization, removing Py2 compatibility cruft
 * Update dependencies with changed names, now:
-   * ``eth-abi``
-   * ``eth-keyfile``
-   * ``eth-keys``
-   * ``eth-tester``
-   * ``eth-utils``
+
+  * ``eth-abi``
+  * ``eth-keyfile``
+  * ``eth-keys``
+  * ``eth-tester``
+  * ``eth-utils``
 * Faster Travis CI builds, with cached geth binary
 
 v4.0.0-beta.2
