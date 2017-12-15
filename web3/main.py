@@ -57,8 +57,8 @@ from web3.utils.encoding import (
 from web3.utils.normalizers import (
     abi_ens_resolver,
 )
-from web3.utils.gas_price_engines import (
-    default_gas_price_engine,
+from web3.gas_strategies.rpc import (
+    rpc_gas_pricing_strategy,
 )
 
 
@@ -113,7 +113,7 @@ class Web3(object):
             module_class.attach(self, module_name)
 
         self.ens = ens
-        self.gasPriceEngine = default_gas_price_engine
+        self.gas_pricing_strategy = rpc_gas_pricing_strategy
 
     @property
     def middleware_stack(self):
@@ -187,14 +187,6 @@ class Web3(object):
     def ens(self, new_ens):
         self._ens = new_ens
 
-    @property
-    def gasPriceEngine(self):
-        return self._gas_price_engine
-
-    @gasPriceEngine.setter
-    def gasPriceEngine(self, new_gas_price_engine):
-        self._gas_price_engine = new_gas_price_engine
-
-    def getGasPrice(self, transaction_params={}):
+    def getGasPrice(self, transaction_params=None):
         # TODO: sanity checks?
-        return self._gas_price_engine(self, transaction_params)
+        return self.gas_pricing_strategy(self, transaction_params)
