@@ -29,6 +29,7 @@ Contents
     web3.txpool
     web3.miner
     web3.admin
+    gas_pricing
     ens
     internals
     conventions

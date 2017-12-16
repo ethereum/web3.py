@@ -276,6 +276,30 @@ Cryptographic Hashing
         >>> Web3.soliditySha3(['address'], ["ethereumfoundation.eth"])
         HexBytes("0x913c99ea930c78868f1535d34cd705ab85929b2eaaf70fcd09677ecd6e5d75e9")
 
+Gas Prices
+~~~~~~~~~~~~~~~~~~~~~
+
+For information about how this works and how it can be customized see 
+:ref:`Gas_Pricing`.
+
+.. py:method:: Web3.get_gas_price(transaction_params=None)
+
+    Uses the selected gas pricing strategy to calculate a gas price. This method 
+    returns the gas price denominated in wei.
+
+    The `transaction_params` argument is optional however some gas pricing strategies 
+    may require it to be able to produce a gas price. 
+
+    .. code-block:: python
+
+        >>> Web3.get_gas_price()
+        20000000000
+
+.. py:attribute:: Web3.gas_pricing_strategy
+
+    The selected gas pricing strategy. It must be a method of the signature 
+    ``(web3, transaction_params)`` and return a gas price denominated in wei.
+
 Modules
 -------
 
