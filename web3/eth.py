@@ -71,7 +71,7 @@ class Eth(Module):
 
     @property
     def gasPrice(self):
-        return self.web3.manager.request_blocking("eth_gasPrice", [])
+        return self.web3.get_gas_price()
 
     @property
     def accounts(self):

@@ -6,4 +6,4 @@ def test_default_gas_pricing_strategy(web3):
 
 
 def test_default_gas_priceing_strategy_returns_(web3):
-    assert web3.getGasPrice() == 1
+    assert web3.get_gas_price() == 1

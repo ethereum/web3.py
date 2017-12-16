@@ -187,6 +187,5 @@ class Web3(object):
     def ens(self, new_ens):
         self._ens = new_ens
 
-    def getGasPrice(self, transaction_params=None):
-        # TODO: sanity checks?
+    def get_gas_price(self, transaction_params=None):
         return self.gas_pricing_strategy(self, transaction_params)
