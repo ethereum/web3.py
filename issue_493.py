@@ -40,7 +40,7 @@ print(f'New Local account balance: {w3.eth.getBalance(acct.address)}')
 try:
     w3.eth.sendTransaction({'from': acct.address, 'to': w3.eth.accounts[0], 'value': 1})
 except ValueError as e:
-    pass
+    print(f'Issue 493: {e}')
 
 # To solve this, need to sign the raw transaction using local account, and send a rawTransaction
 transaction = {
