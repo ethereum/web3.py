@@ -6,3 +6,7 @@ services:
     volumes:
       - .:/code
     command: tail -f /dev/null
+  testrpc:
+    image: trufflesuite/ganache-cli
+    ports:
+      - "8545:8545"
