@@ -1,5 +1,4 @@
 from eth_keys.datatypes import PrivateKey
-from eth_keys.exceptions import ValidationError
 
 from web3.utils.datastructures import HexBytes
 
