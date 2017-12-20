@@ -57,9 +57,6 @@ from web3.utils.encoding import (
 from web3.utils.normalizers import (
     abi_ens_resolver,
 )
-from web3.gas_strategies.rpc import (
-    rpc_gas_pricing_strategy,
-)
 
 
 def get_default_modules():
@@ -113,7 +110,6 @@ class Web3(object):
             module_class.attach(self, module_name)
 
         self.ens = ens
-        self.gas_pricing_strategy = rpc_gas_pricing_strategy
 
     @property
     def middleware_stack(self):
@@ -186,6 +182,3 @@ class Web3(object):
     @ens.setter
     def ens(self, new_ens):
         self._ens = new_ens
-
-    def get_gas_price(self, transaction_params=None):
-        return self.gas_pricing_strategy(self, transaction_params)

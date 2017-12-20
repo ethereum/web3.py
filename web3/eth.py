@@ -42,6 +42,7 @@ class Eth(Module):
     defaultBlock = "latest"
     defaultContractFactory = Contract
     iban = Iban
+    gasPriceStrategy = None
 
     def namereg(self):
         raise NotImplementedError()
@@ -71,7 +72,7 @@ class Eth(Module):
 
     @property
     def gasPrice(self):
-        return self.web3.get_gas_price()
+        return self.web3.manager.request_blocking("eth_gasPrice", [])
 
     @property
     def accounts(self):
@@ -313,3 +314,11 @@ class Eth(Module):
 
     def getWork(self):
         return self.web3.manager.request_blocking("eth_getWork", [])
+
+    def getGasPrice(self, transaction_params=None):
+        if self.gasPriceStrategy:
+            return self.gasPriceStrategy(self, transaction_params)
+
+    def setGasPriceStrategy(self, gas_price_strategy):
+        # TODO: check passed method has 2 parameters and show handy error
+        self.gasPriceStrategy = gas_price_strategy

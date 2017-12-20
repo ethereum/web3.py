@@ -1,11 +1,5 @@
-"""
-TODO: Provide explanation of gas price engines
-"""
-
-
-def rpc_gas_pricing_strategy(web3, transaction_params=None):  # TODO: call eth.gasPrice
+def rpc_gas_price_strategy(web3, transaction_params=None):
     """
-    This is the default gas pricing strategy. It derives it's value from the eth_gasPrice
-    JSON-RPC call.
+    A simple gas price strategy deriving it's value from the eth_gasPrice JSON-RPC call.
     """
     return web3.manager.request_blocking("eth_gasPrice", [])
