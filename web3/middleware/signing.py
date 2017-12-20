@@ -44,7 +44,7 @@ def construct_transaction_signing_middleware(private_key):
             # Only operate on the `eth.sendTransaction` method
             # Only operate on if the private key matches the public key in the transaction
             # Note: params == transaction in this case.
-            if method is not 'eth_sendTransaction':
+            if method != 'eth_sendTransaction':
                 return make_request(method, params)
             if params.get('from') != web3.eth.account.privateKeyToAccount(_private_key):
                 return make_request(method, params)
