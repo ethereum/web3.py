@@ -1,6 +1,7 @@
 from eth_keys.datatypes import PrivateKey
 
 from web3.utils.datastructures import HexBytes
+# from web3.utils.signing import LocalAccount
 
 import logging
 
@@ -14,19 +15,21 @@ def construct_transaction_signing_middleware(private_key):
     Args:
         private_key (TYPE): Private key used to sign the transaction.
                             Accepts the following formats:
-                            - raw bytes
-                            - hex encoded string
                             - `PrivateKey` object from `eth-keys`
                             - `LocalAccount` object from `web3.eth.account`
+                            - raw bytes
+                            - TODO: hex encoded string
+
 
     Returns:
         TYPE: Description
     """
 
     # Check if the private_key is either
-    # - eth_key.keys.PrivateKey
-    # - web3.eth.account.create().privateKey
+    # - eth_keys.keys.PrivateKey
+    # - web3.eth.account.create().privateKey -- can just check that its HexBytes
     # - bytes
+    # TODO: - hexbytes
     valid_key_types = (PrivateKey, HexBytes, bytes)
     _private_key = None
 
@@ -42,9 +45,9 @@ def construct_transaction_signing_middleware(private_key):
             # Only operate on if the private key matches the public key in the transaction
             # Note: params == transaction in this case.
             if method is not 'eth_sendTransaction':
-                return None
+                return make_request(method, params)
             if params.get('from') != web3.eth.account.privateKeyToAccount(_private_key):
-                return None
+                return make_request(method, params)
 
             transaction = params
 
@@ -54,7 +57,7 @@ def construct_transaction_signing_middleware(private_key):
             if 'gas' not in raw_transaction:
                 raw_transaction['gas'] = web3.eth.estimateGas(transaction)
             if 'gas_price' not in raw_transaction:
-                raw_transaction['gas_price'] = web3.eth.gasPrice
+                raw_transaction['gasPrice'] = web3.eth.gasPrice
 
             return make_request(method='eth_sendRawTransaction', params=[raw_transaction])
         return middleware
