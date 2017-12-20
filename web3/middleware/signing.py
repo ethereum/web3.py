@@ -49,7 +49,12 @@ def construct_transaction_signing_middleware(private_key):
             if params.get('from') != web3.eth.account.privateKeyToAccount(_private_key):
                 return make_request(method, params)
 
-            transaction = params
+            transaction = params[0]
+            transaction_from_address = transaction.get('from')
+            private_key_address = web3.eth.account.privateKeyToAccount(_private_key).address
+
+            if transaction_from_address != private_key_address:
+                return make_request(method, params)
 
             signed = web3.eth.account.signTransaction(transaction, _private_key)
             raw_transaction = signed.rawTransaction
