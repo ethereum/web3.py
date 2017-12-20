@@ -1,12 +1,12 @@
 version: '3'
 services:
+
   sandbox:
     build:
       context: .
     volumes:
       - .:/code
     command: tail -f /dev/null
+
   testrpc:
     image: trufflesuite/ganache-cli
-    ports:
-      - "8545:8545"
