@@ -133,7 +133,7 @@ Each Contract Factory exposes the following methods.
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
 
-    This method behaves the same as the :py:method::`Contract.transact` method,
+    This method behaves the same as the :py:meth:`Contract.transact` method,
     with transaction details being passed into the first portion of the
     function call, and function arguments being passed into the second portion.
 
@@ -154,7 +154,7 @@ Each Contract Factory exposes the following methods.
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
 
-    This method behaves the same as the :py:method::`Contract.transact` method,
+    This method behaves the same as the :py:meth:`Contract.transact` method,
     with transaction details being passed into the first portion of the
     function call, and function arguments being passed into the second portion.
 
