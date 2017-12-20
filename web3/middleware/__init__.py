@@ -3,11 +3,17 @@ import functools
 from .abi import (  # noqa: F401
     abi_middleware,
 )
-from .formatting import (  # noqa: F401
-    construct_formatting_middleware,
+from .attrdict import (  # noqa: F401
+    attrdict_middleware,
 )
 from .exception_handling import (  # noqa: F401
     construct_exception_handler_middleware,
+)
+from .formatting import (  # noqa: F401
+    construct_formatting_middleware,
+)
+from .fixture import (  # noqa: F401
+    construct_fixture_middleware,
 )
 from .names import (  # noqa: F401
     name_to_address_middleware,
@@ -15,14 +21,11 @@ from .names import (  # noqa: F401
 from .pythonic import (  # noqa: F401
     pythonic_middleware,
 )
+from .signing import (  # noqa: F401
+    construct_transaction_signing_middleware,
+    )
 from .stalecheck import (  # noqa: F401
     make_stalecheck_middleware,
-)
-from .attrdict import (  # noqa: F401
-    attrdict_middleware,
-)
-from .fixture import (  # noqa: F401
-    construct_fixture_middleware,
 )
 
 
