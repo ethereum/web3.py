@@ -57,6 +57,8 @@ def construct_transaction_signing_middleware(private_key):
             signed = web3.eth.account.signTransaction(transaction, _private_key)
             raw_transaction = signed.rawTransaction
 
+            if 'nonce' not in raw_transaction:
+                raw_transaction['nonce'] = web3.eth.getTransactionCount(transaction_from_address)
             if 'gas' not in raw_transaction:
                 raw_transaction['gas'] = web3.eth.estimateGas(transaction)
             if 'gas_price' not in raw_transaction:
