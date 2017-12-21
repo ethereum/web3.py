@@ -3,7 +3,7 @@ from cytoolz.dicttoolz import (
 )
 
 
-def gas_price_middleware(make_request, web3):
+def gas_price_strategy_middleware(make_request, web3):
     """
     Includes a gas price using the gas price strategy
     """
