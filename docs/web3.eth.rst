@@ -494,7 +494,7 @@ The following methods are available on the ``web3.eth`` namespace.
         >>> web3.eth.estimateGas({'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601', 'from': web3.eth.coinbase, 'value': 12345})
         21000
 
-.. py:method:: Eth.getGasPrice(transaction_params=None)
+.. py:method:: Eth.generateGasPrice(transaction_params=None)
 
     Uses the selected gas price strategy to calculate a gas price. This method 
     returns the gas price denominated in wei.
@@ -504,7 +504,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> Web3.eth.getGasPrice()
+        >>> Web3.eth.generateGasPrice()
         20000000000
 
     .. note::

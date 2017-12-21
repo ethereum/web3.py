@@ -315,7 +315,7 @@ class Eth(Module):
     def getWork(self):
         return self.web3.manager.request_blocking("eth_getWork", [])
 
-    def getGasPrice(self, transaction_params=None):
+    def generateGasPrice(self, transaction_params=None):
         if self.gasPriceStrategy:
             return self.gasPriceStrategy(self, transaction_params)
 
