@@ -1,10 +1,10 @@
 import pytest
 from eth_keys import keys
-
-from eth_utils import (
-    is_dict,
+from web3 import (
+    Web3,
+    EthereumTesterProvider,
+    # TestRPCProvider
 )
-from web3 import Web3, EthereumTesterProvider, TestRPCProvider
 # from web3.utils.encoding import to_bytes, to_hex
 from web3.middleware import (
     construct_transaction_signing_middleware,
