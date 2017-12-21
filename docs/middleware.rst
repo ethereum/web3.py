@@ -49,6 +49,14 @@ Pythonic
     where appropriate. For example, it converts the raw hex string returned by the RPC call
     ``eth_blockNumber`` into an ``int``.
 
+Gas Price
+~~~~~~~~~~~~
+
+.. py:method:: web3.middleware.gas_price_middleware
+
+    This adds a gasPrice to transactions if applicable and when a gas price strategy has
+    been set. See :ref:`Gas_Price` for information about how gas price is derived. 
+
 .. _Modifying_Middleware:
 
 Modifying Middleware

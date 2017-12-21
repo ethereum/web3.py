@@ -320,5 +320,4 @@ class Eth(Module):
             return self.gasPriceStrategy(self, transaction_params)
 
     def setGasPriceStrategy(self, gas_price_strategy):
-        # TODO: check passed method has 2 parameters and show handy error
         self.gasPriceStrategy = gas_price_strategy
