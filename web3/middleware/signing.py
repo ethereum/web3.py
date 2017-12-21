@@ -34,12 +34,9 @@ def construct_transaction_signing_middleware(private_key):
     # TODO: - hexbytes
     valid_key_types = (PrivateKey, HexBytes, bytes)
 
-    _private_key = private_key if valid_key_types else None
-
-    if isinstance(private_key, valid_key_types):
-        # Might also want to check that bytes length == 32
-        # eth_utils.is_32byte_address
-        _private_key = private_key
+    _private_key = private_key if isinstance(private_key, valid_key_types) else None
+    if not _private_key:
+        raise ValueError('Private Key is invalid.')
 
     def transaction_signing_middleware(make_request, web3):
         def middleware(method, params):

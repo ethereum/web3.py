@@ -97,7 +97,8 @@ def _make_request(method, params):
 def test_web3_local(method, params, expected, w3, testrpc_account, web3_local_account):
     tx = {'from': web3_local_account['address'], 'to': testrpc_account['address'], 'value': 123}
 
-    middleware = construct_transaction_signing_middleware(web3_local_account['private_key'])(_make_request, w3)
+    middleware = construct_transaction_signing_middleware(
+        web3_local_account['private_key'])(_make_request, w3)
     actual = middleware(method=method, params=tx)
 
     assert actual['method'] == 'eth_sendRawTransaction'
@@ -113,7 +114,8 @@ def test_web3_local(method, params, expected, w3, testrpc_account, web3_local_ac
 def test_eth_key_local(method, params, expected, w3, testrpc_account, eth_key_local_account):
     tx = {'from': eth_key_local_account['address'], 'to': testrpc_account['address'], 'value': 123}
 
-    middleware = construct_transaction_signing_middleware(eth_key_local_account['private_key'])(_make_request, w3)
+    middleware = construct_transaction_signing_middleware(
+        eth_key_local_account['private_key'])(_make_request, w3)
     actual = middleware(method=method, params=tx)
 
     assert actual['method'] == 'eth_sendRawTransaction'
