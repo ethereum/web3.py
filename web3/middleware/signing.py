@@ -2,6 +2,7 @@ from eth_keys.datatypes import PrivateKey
 from eth_utils import is_same_address
 
 from web3.utils.datastructures import HexBytes
+from web3.exceptions import InvalidAddress
 # from web3.utils.signing import LocalAccount
 
 import logging
@@ -52,16 +53,25 @@ def construct_transaction_signing_middleware(private_key):
             transaction_from_address = transaction.get('from')
             private_key_address = web3.eth.account.privateKeyToAccount(_private_key).address
 
-            if is_same_address(transaction_from_address, private_key_address):
+            if not is_same_address(transaction_from_address, private_key_address):
                 return make_request(method, params)
 
             if 'gas' not in transaction:
-                # import pdb; pdb.set_trace()
-                transaction['gas'] = web3.eth.estimateGas(transaction)
+                try:
+                    transaction['gas'] = web3.eth.estimateGas(transaction)
+                except ValueError:
+                    # Raise Error?
+                    transaction['gas'] = 21000
             if 'gas_price' not in transaction:
                 transaction['gasPrice'] = web3.eth.gasPrice
+            if 'chainId' not in transaction:
+                transaction['chainId'] = 1
             if 'nonce' not in transaction:
-                transaction['nonce'] = web3.eth.getTransactionCount(transaction_from_address)
+                try:
+                    transaction['nonce'] = web3.eth.getTransactionCount(transaction_from_address)
+                except InvalidAddress:
+                    # Raise error?
+                    transaction['nonce'] = 1
 
             signed = web3.eth.account.signTransaction(transaction, _private_key)
             raw_transaction = signed.rawTransaction
