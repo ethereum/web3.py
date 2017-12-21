@@ -317,7 +317,7 @@ class Eth(Module):
 
     def generateGasPrice(self, transaction_params=None):
         if self.gasPriceStrategy:
-            return self.gasPriceStrategy(self, transaction_params)
+            return self.gasPriceStrategy(self.web3, transaction_params)
 
     def setGasPriceStrategy(self, gas_price_strategy):
         self.gasPriceStrategy = gas_price_strategy
