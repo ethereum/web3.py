@@ -232,17 +232,9 @@ class EthModuleTest(object):
     )
     def test_eth_sendRawTransaction(self,
                                     web3,
-                                    unlocked_account,
                                     raw_transaction,
+                                    funded_account_for_raw_txn,
                                     expected_hash):
-        txn_params = {
-            'from': unlocked_account,
-            'to': "0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6",
-            'value': (21000 * 100000000000 + 1),  # tx.gas * tx.gasprice + tx.value
-            'gas': 21000,
-            'gas_price': web3.eth.gasPrice,
-        }
-        txn_hash = web3.eth.sendTransaction(txn_params)
         txn_hash = web3.eth.sendRawTransaction(raw_transaction)
         assert txn_hash == web3.toBytes(hexstr=expected_hash)
 
