@@ -6,6 +6,9 @@ env:
     - GETH_BASE_INSTALL_PATH=$TRAVIS_BUILD_DIR/gethbin
 matrix:
   include:
+    #
+    # Python 3.5 testing
+    #
     # go-ethereum
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.7.2
@@ -27,7 +30,9 @@ matrix:
     # eth-tester-pyevm
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-ethtester" ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEVMBackend
+    #
     # Python 3.6 testing
+    #
     # go-ethereum
     - python: "3.6"
       env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.7.2
