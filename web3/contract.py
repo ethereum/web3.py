@@ -782,8 +782,7 @@ class ConciseContract(object):
 
     def __getattr__(self, attr):
         contract_function = getattr(self._classic_contract.functions, attr)
-        contract_function._return_data_normalizers += CONCISE_NORMALIZERS
-        return ConciseMethod(contract_function)
+        return ConciseMethod(contract_function, self._classic_contract._return_data_normalizers)
 
     @staticmethod
     def _none_addr(datatype, data):
@@ -801,8 +800,9 @@ CONCISE_NORMALIZERS = (
 class ConciseMethod:
     ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'buildTransaction'])
 
-    def __init__(self, function):
+    def __init__(self, function, normalizers=None):
         self.__function = function
+        self.__function._return_data_normalizers = normalizers
 
     def __call__(self, *args, **kwargs):
         return self.__prepared_function(*args, **kwargs)

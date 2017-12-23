@@ -35,7 +35,7 @@ def test_concisecontract_call_default():
     sweet_method = ConciseMethod(mock.functions.grail)
     sweet_method(1, 2)
     mock.functions.grail.assert_called_once_with(1, 2)
-    #Checking in return_value, ie the function instance
+    # Checking in return_value, ie the function instance
     mock.functions.grail.return_value.call.assert_called_once_with({})
 
 
@@ -44,7 +44,7 @@ def test_concisecontract_custom_transact():
     sweet_method = ConciseMethod(mock.functions.grail)
     sweet_method(1, 2, transact={'holy': 3})
     mock.functions.grail.assert_called_once_with(1, 2)
-    #Checking in return_value, ie the function instance
+    # Checking in return_value, ie the function instance
     mock.functions.grail.return_value.transact.assert_called_once_with({'holy': 3})
 
 
