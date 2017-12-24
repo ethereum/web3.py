@@ -208,7 +208,7 @@ API_ENDPOINTS = {
         'getCode': call_eth_tester('get_code'),
         'sign': not_implemented,
         'sendTransaction': call_eth_tester('send_transaction'),
-        'sendRawTransaction': not_implemented,
+        'sendRawTransaction': call_eth_tester('send_raw_transaction'),
         'call': call_eth_tester('call'),  # TODO: untested
         'estimateGas': call_eth_tester('estimate_gas'),  # TODO: untested
         'getBlockByHash': null_if_block_not_found(call_eth_tester('get_block_by_hash')),

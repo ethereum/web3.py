@@ -179,10 +179,6 @@ def not_implemented(method, exc_type=NotImplementedError):
 
 class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, ValueError)
-    test_eth_sendRawTransaction = not_implemented(
-        EthModuleTest.test_eth_sendRawTransaction,
-        ValueError,
-    )
 
     def test_eth_getTransactionReceipt_unmined(self, eth_tester, web3, unlocked_account):
         eth_tester.disable_auto_mine_transactions()
