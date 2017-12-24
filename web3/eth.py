@@ -42,6 +42,7 @@ class Eth(Module):
     defaultBlock = "latest"
     defaultContractFactory = Contract
     iban = Iban
+    gasPriceStrategy = None
 
     def namereg(self):
         raise NotImplementedError()
@@ -313,3 +314,10 @@ class Eth(Module):
 
     def getWork(self):
         return self.web3.manager.request_blocking("eth_getWork", [])
+
+    def generateGasPrice(self, transaction_params=None):
+        if self.gasPriceStrategy:
+            return self.gasPriceStrategy(self.web3, transaction_params)
+
+    def setGasPriceStrategy(self, gas_price_strategy):
+        self.gasPriceStrategy = gas_price_strategy

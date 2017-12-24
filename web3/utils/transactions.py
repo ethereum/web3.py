@@ -62,7 +62,7 @@ TRANSACTION_DEFAULTS = {
     'value': 0,
     'data': b'',
     'gas': lambda web3, tx: web3.eth.estimateGas(tx),
-    'gasPrice': lambda web3, tx: web3.eth.gasPrice,
+    'gasPrice': lambda web3, tx: web3.eth.generateGasPrice(tx) or web3.eth.gasPrice,
     'chainId': lambda web3, tx: int(web3.net.version),
 }
 
