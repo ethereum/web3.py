@@ -50,7 +50,7 @@ Pythonic
     ``eth_blockNumber`` into an ``int``.
 
 Gas Price Strategy
-~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.gas_price_strategy_middleware
 
