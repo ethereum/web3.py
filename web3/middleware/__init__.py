@@ -21,6 +21,9 @@ from .stalecheck import (  # noqa: F401
 from .attrdict import (  # noqa: F401
     attrdict_middleware,
 )
+from .gas_price_strategy import (  # noqa: F401
+    gas_price_strategy_middleware,
+)
 from .fixture import (  # noqa: F401
     construct_fixture_middleware,
 )

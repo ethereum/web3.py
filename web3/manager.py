@@ -13,6 +13,7 @@ from web3.middleware import (
     pythonic_middleware,
     attrdict_middleware,
     name_to_address_middleware,
+    gas_price_strategy_middleware,
 )
 from web3.providers import (
     AutoProvider,
@@ -63,6 +64,7 @@ class RequestManager(object):
         Leaving ens unspecified will prevent the middleware from resolving names.
         '''
         return [
+            (gas_price_strategy_middleware, 'gas_price_strategy'),
             (name_to_address_middleware(web3), 'name_to_address'),
             (attrdict_middleware, 'attrdict'),
             (pythonic_middleware, 'pythonic'),
