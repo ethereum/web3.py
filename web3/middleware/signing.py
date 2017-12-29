@@ -1,14 +1,14 @@
-from eth_keys.datatypes import PrivateKey
-from eth_utils import is_same_address
+from eth_keys import (
+    datatypes,
+)
+import eth_utils
 
-from web3.utils.datastructures import HexBytes
-from web3.exceptions import InvalidAddress
-# from web3.utils.signing import LocalAccount
-
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from web3.exceptions import (
+    InvalidAddress,
+)
+from web3.utils import (
+    datastructures,
+)
 
 
 def construct_transaction_signing_middleware(private_key):
@@ -27,7 +27,7 @@ def construct_transaction_signing_middleware(private_key):
         TYPE: Description
     """
 
-    valid_key_types = (PrivateKey, HexBytes, bytes)
+    valid_key_types = (datatypes.PrivateKey, datastructures.HexBytes, bytes)
 
     if not isinstance(private_key, valid_key_types):
         raise ValueError('Private Key is invalid.')
@@ -36,7 +36,7 @@ def construct_transaction_signing_middleware(private_key):
         def middleware(method, params):
             # Only operate on the `eth.sendTransaction` method
             # Only operate on if the private key matches the public key in the transaction
-            # Note: params == transaction in this case.
+            # Note: params[0] == transaction in this case.
             if method != 'eth_sendTransaction':
                 return make_request(method, params)
             if not isinstance(params, list):
@@ -50,7 +50,7 @@ def construct_transaction_signing_middleware(private_key):
             transaction_from_address = transaction.get('from')
             private_key_address = web3.eth.account.privateKeyToAccount(private_key).address
 
-            if not is_same_address(transaction_from_address, private_key_address):
+            if not eth_utils.is_same_address(transaction_from_address, private_key_address):
                 return make_request(method, params)
 
             if 'gas' not in transaction:
