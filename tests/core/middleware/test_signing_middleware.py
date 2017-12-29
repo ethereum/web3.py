@@ -86,6 +86,7 @@ def _make_request(method, params):
 
 # I wish fixtures could be passed as params :(
 # https://github.com/pytest-dev/pytest/issues/349
+@pytest.mark.web3
 @pytest.mark.parametrize(
     'method,params,expected',
     (
@@ -98,11 +99,12 @@ def test_web3_local(method, params, expected, w3, testrpc_account, web3_local_ac
 
     middleware = construct_transaction_signing_middleware(
         web3_local_account['private_key'])(_make_request, w3)
-    actual = middleware(method=method, params=tx)
+    actual = middleware(method=method, params=[tx])
 
     assert actual['method'] == 'eth_sendRawTransaction'
 
 
+@pytest.mark.ethkey
 @pytest.mark.parametrize(
     'method,params,expected',
     (
@@ -115,7 +117,7 @@ def test_eth_key_local(method, params, expected, w3, testrpc_account, eth_key_lo
 
     middleware = construct_transaction_signing_middleware(
         eth_key_local_account['private_key'])(_make_request, w3)
-    actual = middleware(method=method, params=tx)
+    actual = middleware(method=method, params=[tx])
 
     assert actual['method'] == 'eth_sendRawTransaction'
 

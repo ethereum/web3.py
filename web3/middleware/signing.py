@@ -39,8 +39,14 @@ def construct_transaction_signing_middleware(private_key):
             # Note: params == transaction in this case.
             if method != 'eth_sendTransaction':
                 return make_request(method, params)
+            if not isinstance(params, list):
+                raise TypeError('Params should be of type `list`')
+            if not len(params) == 1:
+                raise ValueError('Params list should be of length 1')
+            if not isinstance(params[0], dict):
+                raise TypeError('Transaction should be of type `dict`')
 
-            transaction = params
+            transaction = params[0]
             transaction_from_address = transaction.get('from')
             private_key_address = web3.eth.account.privateKeyToAccount(private_key).address
 
