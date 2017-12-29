@@ -27,11 +27,6 @@ def construct_transaction_signing_middleware(private_key):
         TYPE: Description
     """
 
-    # Check if the private_key is either
-    # - eth_keys.keys.PrivateKey
-    # - web3.eth.account.create().privateKey -- can just check that its HexBytes
-    # - bytes
-    # TODO: - hexbytes
     valid_key_types = (PrivateKey, HexBytes, bytes)
 
     _private_key = private_key if isinstance(private_key, valid_key_types) else None

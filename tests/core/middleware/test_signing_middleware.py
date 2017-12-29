@@ -19,7 +19,6 @@ hex_str_private_key = '0xd65215905d39210e8c1aba8449d0ed3a95f2bd4b8d5f1f253135986
                                         EthereumTesterProvider,
                                         ])
 def w3(request):
-    # Might want to use EthereumTesterProvider instead
     instance = Web3(request.param())
     return instance
 
