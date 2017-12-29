@@ -70,7 +70,7 @@ def construct_transaction_signing_middleware(private_key):
                     raise
 
             signed = web3.eth.account.signTransaction(transaction, private_key)
-            raw_transaction = signed.rawTransaction
+            raw_transaction = signed.get('rawTransaction')
 
             return make_request(method='eth_sendRawTransaction', params=[raw_transaction])
         return middleware
