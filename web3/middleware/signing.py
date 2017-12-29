@@ -42,7 +42,7 @@ def construct_transaction_signing_middleware(private_key):
 
             transaction = params
             transaction_from_address = transaction.get('from')
-            private_key_address = web3.eth.account.privateKeyToAccount(_private_key).address
+            private_key_address = web3.eth.account.privateKeyToAccount(private_key).address
 
             if not is_same_address(transaction_from_address, private_key_address):
                 return make_request(method, params)
@@ -64,7 +64,7 @@ def construct_transaction_signing_middleware(private_key):
                     # Raise error?
                     transaction['nonce'] = 1
 
-            signed = web3.eth.account.signTransaction(transaction, _private_key)
+            signed = web3.eth.account.signTransaction(transaction, private_key)
             raw_transaction = signed.rawTransaction
 
             return make_request(method='eth_sendRawTransaction', params=[raw_transaction])
