@@ -1,6 +1,18 @@
 Release Notes
 =============
 
+v4.0.0-beta.5
+-------------
+
+Released Dec 28, 2017
+
+* Improvements to working with eth-tester, using :class:`~web3.providers.eth_tester.EthereumTesterProvider`:
+
+  * Bugfix the key names in event logging
+  * Add support for :meth:`~web3.eth.Eth.sendRawTransaction`
+* :class:`~web3.providers.ipc.IPCProvider` now automatically retries on a broken connection, like when you restart your node
+* New gas price engine API, laying groundwork for more advanced gas pricing strategies
+
 v4.0.0-beta.4
 -------------
 

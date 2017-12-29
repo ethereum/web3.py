@@ -27,6 +27,15 @@ from .signing import (  # noqa: F401
 from .stalecheck import (  # noqa: F401
     make_stalecheck_middleware,
 )
+from .attrdict import (  # noqa: F401
+    attrdict_middleware,
+)
+from .gas_price_strategy import (  # noqa: F401
+    gas_price_strategy_middleware,
+)
+from .fixture import (  # noqa: F401
+    construct_fixture_middleware,
+)
 
 
 def combine_middlewares(middlewares, web3, provider_request_fn):

@@ -106,7 +106,7 @@ pip install -e .
 
 ## Using Docker
 
-If you would like to develop and test inside a docker environment, use the *sandbox* container provided in the **docker-compose.yml** file.
+If you would like to develop and test inside a Docker environment, use the *sandbox* container provided in the **docker-compose.yml** file.
 
 To start up the test environment, run:
 
@@ -114,7 +114,7 @@ To start up the test environment, run:
 docker-compose up -d
 ```
 
-This will build a docker container set up with an environment to run the Python test code.  
+This will build a Docker container set up with an environment to run the Python test code.  
 
 **Note: This container does not have `go-ethereum` installed, so you cannot run the go-ethereum test suite.**
 
@@ -124,7 +124,7 @@ To run the Python tests from your local machine:
 docker-compose exec sandbox bash -c 'pytest -n 4 -f -k "not goethereum"'
 ```
 
-You can run arbitrary commands inside the docker container by using the `bash -c` prefix.
+You can run arbitrary commands inside the Docker container by using the `bash -c` prefix.
 
 ```
 docker-compose exec sandbox bash -c ''
@@ -147,7 +147,7 @@ Show flake8 errors on file change:
 when-changed -r web3/ tests/ -c "clear; git diff HEAD^ | flake8 --diff"
 ```
 
-You can use pytest-watch, running one for every python environment:
+You can use pytest-watch, running one for every Python environment:
 
 ```sh
 pip install pytest-watch

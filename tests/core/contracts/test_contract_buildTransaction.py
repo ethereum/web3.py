@@ -51,6 +51,21 @@ def test_build_transaction_with_contract_default_account_is_set(web3, math_contr
     }
 
 
+def test_build_transaction_with_gas_price_strategy_set(web3, math_contract):
+    def my_gas_price_strategy(web3, transaction_params):
+        return 5
+    web3.eth.setGasPriceStrategy(my_gas_price_strategy)
+    txn = math_contract.buildTransaction().increment()
+    assert txn == {
+        'to': math_contract.address,
+        'data': '0xd09de08a',
+        'value': 0,
+        'gas': 43120,
+        'gasPrice': 5,
+        'chainId': 1
+    }
+
+
 def test_build_transaction_with_contract_data_supplied_errors(web3, math_contract):
     with pytest.raises(ValueError):
         math_contract.buildTransaction({
