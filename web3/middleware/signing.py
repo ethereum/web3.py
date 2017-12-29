@@ -57,18 +57,17 @@ def construct_transaction_signing_middleware(private_key):
                 try:
                     transaction['gas'] = web3.eth.estimateGas(transaction)
                 except ValueError:
-                    # Raise Error?
+                    # raise
                     transaction['gas'] = 21000
             if 'gas_price' not in transaction:
                 transaction['gasPrice'] = web3.eth.gasPrice
             if 'chainId' not in transaction:
-                transaction['chainId'] = 1
+                transaction['chainId'] = int(web3.net.version)
             if 'nonce' not in transaction:
                 try:
                     transaction['nonce'] = web3.eth.getTransactionCount(transaction_from_address)
                 except InvalidAddress:
-                    # Raise error?
-                    transaction['nonce'] = 1
+                    raise
 
             signed = web3.eth.account.signTransaction(transaction, private_key)
             raw_transaction = signed.rawTransaction
