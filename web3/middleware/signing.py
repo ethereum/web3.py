@@ -29,8 +29,7 @@ def construct_transaction_signing_middleware(private_key):
 
     valid_key_types = (PrivateKey, HexBytes, bytes)
 
-    _private_key = private_key if isinstance(private_key, valid_key_types) else None
-    if not _private_key:
+    if not isinstance(private_key, valid_key_types):
         raise ValueError('Private Key is invalid.')
 
     def transaction_signing_middleware(make_request, web3):
