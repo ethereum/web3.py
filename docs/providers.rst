@@ -130,34 +130,32 @@ EthereumTesterProvider
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. warning:: Experimental:  This provider is experimental and should be used with caution.
+    However, it is the presumed replacement to :class:`~web3.providers.tester.EthereumTesterProvider`
+    and is being actively developed and supported.
 
-.. py:class:: EthereumTesterProvider(eth_tester)
+.. py:class:: EthereumTesterProvider(eth_tester=None)
 
-    This provider integrates with the ``ethereum-tester`` library.  The
+    This provider integrates with the ``eth-tester`` library.  The
     ``eth_tester`` constructor argument should be an instance of the
-    ``eth_tester.EthereumTester`` class provided by the ``ethereum-tester``
-    library.  See the ``ethereum-tester`` library documentation for
+    :class:`~eth_tester.EthereumTester` class provided by the ``eth-tester``
+    library.  See the ``eth-tester`` library documentation for
     instructions on how to use the library.
 
     .. code-block:: python
 
         >>> from web3 import Web3
         >>> from web3.providers.eth_tester import EthereumTesterProvider
-        >>> from eth_tester import EthereumTester
-        >>> eth_tester = EthereumTester()
-        >>> web3 = Web3(EthereumTesterProvider(eth_tester))
+        >>> w3 = Web3(EthereumTesterProvider())
 
-
-
-.. py:currentmodule:: web3.providers.tester
 
 
 EthereumTesterProvider (legacy)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. warning:: Pending Deprecation:  This provider is being deprecated soon in favor of the newly created ethereum-tester library.
+.. warning:: Deprecated:  This provider is deprecated in favor of
+    :class:`~web3.providers.eth_tester.EthereumTesterProvider` and the newly created eth-tester.
 
-.. py:class:: EthereumTesterProvider():
+.. py:class:: web3.providers.tester.EthereumTesterProvider()
 
     This provider can be used for testing.  It uses an ephemeral blockchain
     backed by the ``ethereum.tester`` module.
@@ -166,9 +164,10 @@ EthereumTesterProvider (legacy)
 TestRPCProvider
 ~~~~~~~~~~~~~~~
 
-.. warning:: Pending Deprecation:  This provider is being deprecated soon in favor of the newly created ethereum-tester library.
+.. warning:: Deprecated:  This provider is deprecated in favor of
+    :class:`~web3.providers.eth_tester.EthereumTesterProvider` and the newly created eth-tester.
 
-.. py:class:: TestRPCProvider():
+.. py:class:: TestRPCProvider()
 
     This provider can be used for testing.  It uses an ephemeral blockchain
     backed by the ``ethereum.tester`` module.  This provider will be slower
