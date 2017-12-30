@@ -29,13 +29,6 @@ Web3.py can be installed using ``pip`` as follows.
 
    $ pip install web3
 
-Or to install with support for the ``TestRPCProvider`` and
-``EthereumTesterProvider`` you can use this install command.
-
-.. code-block:: shell
-
-   $ pip install web3[tester]
-
 
 Or to install with support for gevent based threading:
 
