@@ -25,6 +25,7 @@ from web3.utils.formatters import (
     apply_key_map,
     hex_to_integer,
     integer_to_hex,
+    is_array_of_dicts,
     static_return,
 )
 
@@ -199,7 +200,7 @@ ethereum_tester_middleware = construct_formatting_middleware(
         'eth_newPendingTransactionFilter': integer_to_hex,
         'eth_getLogs': apply_formatter_if(is_dict, apply_formatter_to_array(log_key_remapper)),
         'eth_getFilterChanges': apply_formatter_if(
-            is_dict,
+            is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),
         'eth_getFilterLogs': apply_formatter_if(

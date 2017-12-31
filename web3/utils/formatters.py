@@ -9,6 +9,8 @@ from cytoolz.functoolz import (
 )
 
 from eth_utils import (
+    is_dict,
+    is_list_like,
     is_string,
     to_list,
     to_dict,
@@ -134,3 +136,15 @@ def apply_key_map(key_mappings, value):
             yield key_mappings[key], item
         else:
             yield key, item
+
+
+def is_array_of_strings(value):
+    if not is_list_like(value):
+        return False
+    return all((is_string(item) for item in value))
+
+
+def is_array_of_dicts(value):
+    if not is_list_like(value):
+        return False
+    return all((is_dict(item) for item in value))

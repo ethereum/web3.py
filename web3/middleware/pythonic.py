@@ -19,10 +19,8 @@ from eth_utils import (
     to_checksum_address,
     is_integer,
     is_null,
-    is_dict,
     is_string,
     is_bytes,
-    is_list_like,
     encode_hex,
     remove_0x_prefix,
 )
@@ -42,6 +40,8 @@ from web3.utils.formatters import (
     apply_one_of_formatters,
     hex_to_integer,
     integer_to_hex,
+    is_array_of_dicts,
+    is_array_of_strings,
 )
 
 from .formatting import (
@@ -62,18 +62,6 @@ is_false = partial(operator.is_, False)
 
 is_not_false = complement(is_false)
 is_not_null = complement(is_null)
-
-
-def is_array_of_strings(value):
-    if not is_list_like(value):
-        return False
-    return all((is_string(item) for item in value))
-
-
-def is_array_of_dicts(value):
-    if not is_list_like(value):
-        return False
-    return all((is_dict(item) for item in value))
 
 
 @curry
