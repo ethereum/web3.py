@@ -1,9 +1,8 @@
 import pytest
 import time
 
-from web3.providers.tester import (
+from web3.providers.eth_tester import (
     EthereumTesterProvider,
-    TestRPCProvider,
 )
 from web3.utils.threads import (
     Timeout,
@@ -40,7 +39,7 @@ def sleep_interval():
 
 def is_all_testrpc_providers(providers):
     return all(
-        isinstance(provider, (TestRPCProvider, EthereumTesterProvider))
+        isinstance(provider, EthereumTesterProvider)
         for provider
         in providers
     )
