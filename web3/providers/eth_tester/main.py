@@ -32,6 +32,7 @@ from eth_tester.exceptions import (
 )
 
 from .middleware import (
+    default_transaction_fields_middleware,
     ethereum_tester_middleware,
     ethereum_tester_fixture_middleware,
 )
@@ -345,6 +346,7 @@ API_ENDPOINTS = {
 
 class EthereumTesterProvider(BaseProvider):
     middlewares = [
+        default_transaction_fields_middleware,
         ethereum_tester_fixture_middleware,
         ethereum_tester_middleware,
     ]

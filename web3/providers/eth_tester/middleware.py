@@ -222,3 +222,26 @@ ethereum_tester_fixture_middleware = construct_fixture_middleware({
     'net_listening': False,
     'net_peerCount': 0,
 })
+
+
+def default_transaction_fields_middleware(make_request, web3):
+    def middleware(method, params):
+        if method in (
+            'eth_call',
+            'eth_estimateGas',
+            'eth_sendTransaction',
+        ):
+            # import pdb; pdb.set_trace()
+            transaction = params[0]
+            if 'from' not in transaction:
+                if web3.eth.coinbase:
+                    default_from = web3.eth.coinbase
+                elif web3.eth.accounts:
+                    default_from = web3.eth.accounts[0]
+                else:
+                    default_from = None
+                if default_from:
+                    transaction['from'] = web3.eth.coinbase or web3.eth.accounts
+                    return make_request(method, [transaction])
+        return make_request(method, params)
+    return middleware
