@@ -127,6 +127,7 @@ RECEIPT_FORMATTERS = {
 
 receipt_formatter = apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
+transaction_params_transformer = compose(transaction_params_remapper, transaction_params_formatter)
 
 ethereum_tester_middleware = construct_formatting_middleware(
     request_formatters={
@@ -155,18 +156,18 @@ ethereum_tester_middleware = construct_formatting_middleware(
             to_integer_if_hex,
         ),
         'eth_sendTransaction': apply_formatters_to_args(
-            transaction_params_formatter,
+            transaction_params_transformer,
         ),
         'eth_estimateGas': apply_formatters_to_args(
-            transaction_params_formatter,
+            transaction_params_transformer,
         ),
         'eth_call': apply_formatters_to_args(
-            transaction_params_formatter,
+            transaction_params_transformer,
         ),
         'eth_uninstallFilter': apply_formatters_to_args(hex_to_integer),
         # Personal
         'personal_sendTransaction': apply_formatters_to_args(
-            compose(transaction_params_remapper, transaction_params_formatter),
+            transaction_params_transformer,
             identity,
         ),
     },
