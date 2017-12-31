@@ -220,7 +220,7 @@ ethereum_tester_fixture_middleware = construct_fixture_middleware({
     'eth_syncing': False,
     'eth_mining': False,
     # Net
-    'net_version': '12345',
+    'net_version': '1',
     'net_listening': False,
     'net_peerCount': 0,
 })
