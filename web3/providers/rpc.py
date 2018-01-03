@@ -12,6 +12,7 @@ from web3.utils.request import (
 )
 from web3.utils.http import construct_user_agent
 
+from web3.middlewares import http_retry_request_middleware
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,8 @@ class HTTPProvider(JSONBaseProvider):
             self.endpoint_uri = endpoint_uri
         self._request_kwargs = request_kwargs or {}
         super(HTTPProvider, self).__init__()
+
+        self.middlewares((http_retry_request_middleware, 'http_retry_request'))
 
     def __str__(self):
         return "RPC connection {0}".format(self.endpoint_uri)
