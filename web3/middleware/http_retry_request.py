@@ -5,7 +5,7 @@ Creates middleware that retries failed HTTP requests. Is a default
 middleware for HTTPProvider.
 '''
 
-def http_retry_request(make_request, web3):
+def http_retry_request_middleware(make_request, web3):
 
 ###blacklist: eth_sendTransaction, eth_sendRawTransaction, personal_signAndSendTransaction (not sure if in use)
 ###personal_sendTransaction

@@ -28,6 +28,9 @@ from .fixture import (  # noqa: F401
     construct_fixture_middleware,
 )
 
+from .http_retry_request import (
+    http_retry_request_middleware
+)
 
 def combine_middlewares(middlewares, web3, provider_request_fn):
     """
