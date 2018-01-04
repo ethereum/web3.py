@@ -32,3 +32,12 @@ def test_check_send_transaction_called_once(http_retry_request_setup):
 
     http_retry_request_setup(method, params)
     http_retry_request_setup.make_request.assert_called_once_with(method, params)
+
+
+def test_valid_mathod_retried(http_retry_request_setup):
+    method = 'eth_getBalance'
+    params = []
+    http_retry_request_setup.make_request.return_value = ConnectionError
+
+    http_retry_request_setup(method, params)
+    assert http_retry_request_setup.make_request.call_count == 5
