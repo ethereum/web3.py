@@ -1,15 +1,16 @@
-import time
 from requests.exceptions import HTTPError, ConnectionError, Timeout, TooManyRedirects
+
 '''
 Creates middleware that retries failed HTTP requests. Is a default
 middleware for HTTPProvider.
 '''
 
+
 def http_retry_request_middleware(make_request, web3):
 
-###blacklist: eth_sendTransaction, eth_sendRawTransaction, personal_signAndSendTransaction (not sure if in use)
-###personal_sendTransaction
-###Questionable: personal_newAccount, eth_sign, personal_sign
+#blacklist: eth_sendTransaction, eth_sendRawTransaction, personal_signAndSendTransaction
+#personal_sendTransaction
+#Questionable: personal_newAccount, eth_sign, personal_sign
     whitelist = [
         'admin',
         'shh',
@@ -82,5 +83,5 @@ def http_retry_request_middleware(make_request, web3):
                     else:
                         raise
         else:
-            make_request(method, request)
+            make_request(method, params)
     return middleware
