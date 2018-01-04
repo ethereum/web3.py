@@ -8,7 +8,7 @@ middleware for HTTPProvider.
 
 def http_retry_request_middleware(make_request, web3):
 
-  whitelist = [
+    whitelist = [
         'admin',
         'shh',
         'miner',
