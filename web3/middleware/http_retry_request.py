@@ -6,6 +6,16 @@ middleware for HTTPProvider.
 '''
 
 
+def check_method(method):
+    root = method.split('_')[0]
+    if root in whitelist:
+        return True
+    elif method in whitelist:
+        return True
+    else:
+        return False
+
+
 def http_retry_request_middleware(make_request, web3):
 
     whitelist = [
@@ -59,14 +69,6 @@ def http_retry_request_middleware(make_request, web3):
         'personal_sign'
     ]
 
-    def check_method(method):
-        root = method.split('_')[0]
-        if root in whitelist:
-            return True
-        elif method in whitelist:
-            return True
-        else:
-            return False
 
     def middleware(method, params):
         if check_method(method):
