@@ -17,10 +17,9 @@ def http_retry_request_setup():
 
 def test_check_method_false(http_retry_request_setup):
     methods = ['eth_sendTransaction', 'eth_sendRawTransaction',
-    'personal_signAndSendTransaction', 'personal_sendTRansaction']
+                'personal_signAndSendTransaction', 'personal_sendTRansaction']
 
     for method in methods:
-        check_method.assert_called_once_with(method)
         assert check_method(method) == False
 
 
