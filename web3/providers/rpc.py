@@ -25,6 +25,7 @@ class HTTPProvider(JSONBaseProvider):
     endpoint_uri = None
     _request_args = None
     _request_kwargs = None
+    _middlewares = (http_retry_request_middleware, 'http_retry_request')
 
     def __init__(self, endpoint_uri=None, request_kwargs=None):
         if endpoint_uri is None:
@@ -33,8 +34,6 @@ class HTTPProvider(JSONBaseProvider):
             self.endpoint_uri = endpoint_uri
         self._request_kwargs = request_kwargs or {}
         super(HTTPProvider, self).__init__()
-
-        self.middlewares((http_retry_request_middleware, 'http_retry_request'))
 
     def __str__(self):
         return "RPC connection {0}".format(self.endpoint_uri)
