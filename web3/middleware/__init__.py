@@ -28,7 +28,7 @@ from .fixture import (  # noqa: F401
     construct_fixture_middleware,
 )
 
-from .http_retry_request import ( # noqa: F401
+from .http_retry_request import (  # noqa: F401
     http_retry_request_middleware
 )
 
