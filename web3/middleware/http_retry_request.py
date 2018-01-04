@@ -8,10 +8,7 @@ middleware for HTTPProvider.
 
 def http_retry_request_middleware(make_request, web3):
 
-#blacklist: eth_sendTransaction, eth_sendRawTransaction, personal_signAndSendTransaction
-#personal_sendTransaction
-#Questionable: personal_newAccount, eth_sign, personal_sign
-    whitelist = [
+  whitelist = [
         'admin',
         'shh',
         'miner',
