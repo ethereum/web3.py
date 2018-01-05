@@ -3,11 +3,28 @@ import functools
 from .abi import (  # noqa: F401
     abi_middleware,
 )
-from .formatting import (  # noqa: F401
-    construct_formatting_middleware,
+from .attrdict import (  # noqa: F401
+    attrdict_middleware,
+)
+from .cache import (  # noqa: F401
+    construct_simple_cache_middleware,
+    construct_time_based_cache_middleware,
+    construct_block_number_based_cache_middleware,
+    simple_cache_middleware,
+    time_based_cache_middleware,
+    block_number_cache_middleware,
 )
 from .exception_handling import (  # noqa: F401
     construct_exception_handler_middleware,
+)
+from .fixture import (  # noqa: F401
+    construct_fixture_middleware,
+)
+from .formatting import (  # noqa: F401
+    construct_formatting_middleware,
+)
+from .gas_price_strategy import (  # noqa: F401
+    gas_price_strategy_middleware,
 )
 from .names import (  # noqa: F401
     name_to_address_middleware,
@@ -17,15 +34,6 @@ from .pythonic import (  # noqa: F401
 )
 from .stalecheck import (  # noqa: F401
     make_stalecheck_middleware,
-)
-from .attrdict import (  # noqa: F401
-    attrdict_middleware,
-)
-from .gas_price_strategy import (  # noqa: F401
-    gas_price_strategy_middleware,
-)
-from .fixture import (  # noqa: F401
-    construct_fixture_middleware,
 )
 
 
