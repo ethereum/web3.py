@@ -206,7 +206,7 @@ ethereum_tester_middleware = construct_formatting_middleware(
             apply_formatter_to_array(log_key_remapper),
         ),
         'eth_getFilterLogs': apply_formatter_if(
-            is_dict,
+            is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),
     },
