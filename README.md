@@ -144,7 +144,7 @@ Show flake8 errors on file change:
 
 ```sh
 # Test flake8
-when-changed -r web3/ tests/ -c "clear; git diff HEAD^ | flake8 --diff"
+when-changed -v -s -r -1 web3/ tests/ ens/ -c "clear; flake8 web3 tests ens && echo 'flake8 success' || echo 'error'"
 ```
 
 You can use pytest-watch, running one for every Python environment:
