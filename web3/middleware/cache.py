@@ -73,6 +73,14 @@ def should_cache(method, params, response):
 def construct_simple_cache_middleware(cache,
                                       rpc_whitelist=SIMPLE_CACHE_RPC_WHITELIST,
                                       should_cache_fn=should_cache):
+    """
+    Constructs a middleware which caches responses based on the request
+    ``method`` and ``params``
+
+    :param cache: Any dictionary-like object
+    :param rpc_whitelist: A set of RPC methods which may have their responses cached.
+    :param should_cache_fn: A callable which accepts ``method`` ``params`` and ``response`` and returns a boolean as to whether the response should be cached.
+    """
     def simple_cache_middleware(make_request, web3):
         def middleware(method, params):
             if method in rpc_whitelist:
@@ -148,6 +156,15 @@ def construct_time_based_cache_middleware(cache,
                                           cache_expire_seconds=15,
                                           rpc_whitelist=TIME_BASED_CACHE_RPC_WHITELIST,
                                           should_cache_fn=should_cache):
+    """
+    Constructs a middleware which caches responses based on the request
+    ``method`` and ``params`` for a maximum amount of time as specified
+
+    :param cache: Any dictionary-like object
+    :param cache_expire_seconds: The number of seconds an item may be cached before it should expire.
+    :param rpc_whitelist: A set of RPC methods which may have their responses cached.
+    :param should_cache_fn: A callable which accepts ``method`` ``params`` and ``response`` and returns a boolean as to whether the response should be cached.
+    """
     def simple_cache_middleware(make_request, web3):
         def middleware(method, params):
             if method in rpc_whitelist:
@@ -257,7 +274,21 @@ def construct_block_number_based_cache_middleware(cache,
                                                   average_block_time_sample_size=240,
                                                   default_average_block_time=15,
                                                   should_cache_fn=should_cache_by_block_number):
+    """
+    Constructs a middleware which caches responses based on the request
+    ``method``, ``params``, and the current latest block hash.
 
+    :param cache: Any dictionary-like object
+    :param cache_expire_seconds: The number of seconds an item may be cached before it should expire.
+    :param rpc_whitelist: A set of RPC methods which may have their responses cached.
+    :param should_cache_fn: A callable which accepts ``method`` ``params`` and ``response`` and returns a boolean as to whether the response should be cached.
+
+    .. note::
+        This middleware avoids re-fetching the current latest block for each
+        request by tracking the current average block time and only requesting
+        a new block when the last seen latest block is older than the average
+        block time.
+    """
     def block_number_based_cache_middleware(make_request, web3):
         block_info = {}
 
