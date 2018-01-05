@@ -182,7 +182,7 @@ def construct_time_based_cache_middleware(cache,
                 # cache either missed or expired so make the request.
                 response = make_request(method, params)
 
-                if should_cache_fn(response):
+                if should_cache_fn(method, params, response):
                     cache[cache_key] = (time.time(), response)
 
                 return response
@@ -254,7 +254,7 @@ AVG_BLOCK_SAMPLE_SIZE_KEY = 'avg_block_sample_size'
 AVG_BLOCK_TIME_UPDATED_AT_KEY = 'avg_block_time_updated_at'
 
 
-def should_cache_by_block_number(method, params, response):
+def should_cache_by_latest_block(method, params, response):
     if method == 'eth_getBlockByNumber':
         if params == ['latest'] or params == ['pending']:
             return False
@@ -269,11 +269,11 @@ def should_cache_by_block_number(method, params, response):
     return True
 
 
-def construct_block_number_based_cache_middleware(cache,
+def construct_latest_block_based_cache_middleware(cache,
                                                   rpc_whitelist=BLOCK_NUMBER_RPC_WHITELIST,
                                                   average_block_time_sample_size=240,
                                                   default_average_block_time=15,
-                                                  should_cache_fn=should_cache_by_block_number):
+                                                  should_cache_fn=should_cache_by_latest_block):
     """
     Constructs a middleware which caches responses based on the request
     ``method``, ``params``, and the current latest block hash.
@@ -289,10 +289,10 @@ def construct_block_number_based_cache_middleware(cache,
         a new block when the last seen latest block is older than the average
         block time.
     """
-    def block_number_based_cache_middleware(make_request, web3):
+    def latest_block_based_cache_middleware(make_request, web3):
         block_info = {}
 
-        def _update_block_info_cache(web3):
+        def _update_block_info_cache():
             avg_block_time = block_info.get(AVG_BLOCK_TIME_KEY, default_average_block_time)
             avg_block_sample_size = block_info.get(AVG_BLOCK_SAMPLE_SIZE_KEY, 0)
             avg_block_time_updated_at = block_info.get(AVG_BLOCK_TIME_UPDATED_AT_KEY, 0)
@@ -319,9 +319,12 @@ def construct_block_number_based_cache_middleware(cache,
                 sample_size = latest_block['number'] - ancestor_block_number
 
                 block_info[AVG_BLOCK_SAMPLE_SIZE_KEY] = sample_size
-                block_info[AVG_BLOCK_TIME_KEY] = (
-                    (latest_block['timestamp'] - ancestor_block['timestamp']) / sample_size
-                )
+                if sample_size != 0:
+                    block_info[AVG_BLOCK_TIME_KEY] = (
+                        (latest_block['timestamp'] - ancestor_block['timestamp']) / sample_size
+                    )
+                else:
+                    block_info[AVG_BLOCK_TIME_KEY] = avg_block_time
                 block_info[AVG_BLOCK_TIME_UPDATED_AT_KEY] = time.time()
 
             if 'latest_block' in block_info:
@@ -350,10 +353,10 @@ def construct_block_number_based_cache_middleware(cache,
             else:
                 return make_request(method, params)
         return middleware
-    return block_number_based_cache_middleware
+    return latest_block_based_cache_middleware
 
 
-block_number_cache_middleware = construct_block_number_based_cache_middleware(
+latest_block_cache_middleware = construct_latest_block_based_cache_middleware(
     cache=lru.LRU(256),
     rpc_whitelist=BLOCK_NUMBER_RPC_WHITELIST,
 )

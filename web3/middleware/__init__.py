@@ -9,10 +9,10 @@ from .attrdict import (  # noqa: F401
 from .cache import (  # noqa: F401
     construct_simple_cache_middleware,
     construct_time_based_cache_middleware,
-    construct_block_number_based_cache_middleware,
+    construct_latest_block_based_cache_middleware,
     simple_cache_middleware,
     time_based_cache_middleware,
-    block_number_cache_middleware,
+    latest_block_cache_middleware,
 )
 from .exception_handling import (  # noqa: F401
     construct_exception_handler_middleware,
