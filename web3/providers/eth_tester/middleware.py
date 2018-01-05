@@ -113,6 +113,23 @@ TRANSACTION_PARAMS_FORMATTERS = {
 transaction_params_formatter = apply_formatters_to_dict(TRANSACTION_PARAMS_FORMATTERS)
 
 
+FILTER_PARAMS_MAPPINGS = {
+    'fromBlock': 'from_block',
+    'toBlock': 'to_block',
+}
+
+filter_params_remapper = apply_key_map(FILTER_PARAMS_MAPPINGS)
+
+FILTER_PARAMS_FORMATTERS = {
+    'fromBlock': to_integer_if_hex,
+    'toBlock': to_integer_if_hex,
+}
+
+filter_params_formatter = apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
+
+filter_params_transformer = compose(filter_params_remapper, filter_params_formatter)
+
+
 TRANSACTION_FORMATTERS = {
     'to': apply_formatter_if(partial(operator.eq, b''), static_return(None)),
 }
@@ -155,6 +172,9 @@ ethereum_tester_middleware = construct_formatting_middleware(
         'eth_getUncleByBlockNumberAndIndex': apply_formatters_to_args(
             apply_formatter_if(is_not_named_block, to_integer_if_hex),
             to_integer_if_hex,
+        ),
+        'eth_newFilter': apply_formatters_to_args(
+            filter_params_transformer,
         ),
         'eth_sendTransaction': apply_formatters_to_args(
             transaction_params_transformer,
