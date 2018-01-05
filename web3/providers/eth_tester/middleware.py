@@ -209,6 +209,7 @@ ethereum_tester_middleware = construct_formatting_middleware(
             is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),
+        'evm_snapshot': integer_to_hex,
     },
 )
 
@@ -234,7 +235,6 @@ def default_transaction_fields_middleware(make_request, web3):
             'eth_estimateGas',
             'eth_sendTransaction',
         ):
-            # import pdb; pdb.set_trace()
             transaction = params[0]
             if 'from' not in transaction:
                 if web3.eth.coinbase:

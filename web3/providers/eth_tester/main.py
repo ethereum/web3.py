@@ -340,6 +340,7 @@ API_ENDPOINTS = {
     },
     'evm': {
         'mine': call_eth_tester('mine_blocks'),
+        'snapshot': call_eth_tester('take_snapshot'),
     },
 }
 
