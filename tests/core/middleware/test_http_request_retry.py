@@ -21,12 +21,12 @@ def test_check_method_false(http_retry_request_setup):
     methods = ['eth_sendTransaction', 'personal_signAndSendTransaction', 'personal_sendTRansaction']
 
     for method in methods:
-        assert check_method(method) == False
+        assert not check_method(method)
 
 
 def test_check_method_true(http_retry_request_setup):
     method = 'eth_getBalance'
-    assert check_method(method) == True
+    assert check_method(method)
 
 
 def test_check_send_transaction_called_once(http_retry_request_setup):
