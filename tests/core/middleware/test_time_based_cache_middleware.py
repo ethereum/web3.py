@@ -14,15 +14,16 @@ from web3.utils.caching import (
 
 
 def test_time_based_cache_middleware_pulls_from_cache():
-    cache = {
-        generate_cache_key(('fake_endpoint', [1])): (
-            time.time(),
-            'value-a',
-        ),
-    }
+    def cache_class():
+        return {
+            generate_cache_key(('fake_endpoint', [1])): (
+                time.time(),
+                'value-a',
+            ),
+        }
 
     middleware = construct_time_based_cache_middleware(
-        cache=cache,
+        cache_class=cache_class,
         cache_expire_seconds=10,
         rpc_whitelist={'fake_endpoint'},
     )(None, None)
@@ -37,7 +38,7 @@ def test_time_based_cache_middleware_populates_cache():
         }
 
     middleware = construct_time_based_cache_middleware(
-        cache={},
+        cache_class=dict,
         cache_expire_seconds=10,
         rpc_whitelist={'fake_endpoint'},
     )(make_request, None)
@@ -55,15 +56,16 @@ def test_time_based_cache_middleware_expires_old_values():
             'result': str(uuid.uuid4())
         }
 
-    cache = {
-        generate_cache_key(('fake_endpoint', [1])): (
-            time.time() - 10,
-            'value-a',
-        ),
-    }
+    def cache_class():
+        return {
+            generate_cache_key(('fake_endpoint', [1])): (
+                time.time() - 10,
+                'value-a',
+            ),
+        }
 
     middleware = construct_time_based_cache_middleware(
-        cache=cache,
+        cache_class=cache_class,
         cache_expire_seconds=10,
         rpc_whitelist={'fake_endpoint'},
     )(make_request, None)
@@ -88,7 +90,7 @@ def test_time_based_cache_middleware_does_not_cache_bad_responses(response):
         return assoc(response, 'id', str(uuid.uuid4()))
 
     middleware = construct_time_based_cache_middleware(
-        cache={},
+        cache_class=dict,
         cache_expire_seconds=10,
         rpc_whitelist={'fake_endpoint'},
     )(make_request, None)
@@ -109,7 +111,7 @@ def test_time_based_cache_middleware_does_not_endpoints_not_in_whitelist():
         }
 
     middleware = construct_time_based_cache_middleware(
-        cache={},
+        cache_class=dict,
         cache_expire_seconds=10,
         rpc_whitelist={'fake_endpoint'},
     )(make_request, None)

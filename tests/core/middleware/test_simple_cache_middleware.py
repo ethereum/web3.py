@@ -13,12 +13,13 @@ from web3.utils.caching import (
 
 
 def test_simple_cache_middleware_pulls_from_cache():
-    cache = {
-        generate_cache_key(('fake_endpoint', [1])): 'value-a',
-    }
+    def cache_class():
+        return {
+            generate_cache_key(('fake_endpoint', [1])): 'value-a',
+        }
 
     middleware = construct_simple_cache_middleware(
-        cache=cache,
+        cache_class=cache_class,
         rpc_whitelist={'fake_endpoint'},
     )(None, None)
 
@@ -32,7 +33,7 @@ def test_simple_cache_middleware_populates_cache():
         }
 
     middleware = construct_simple_cache_middleware(
-        cache={},
+        cache_class=dict,
         rpc_whitelist={'fake_endpoint'},
     )(make_request, None)
 
@@ -56,7 +57,7 @@ def test_simple_cache_middleware_does_not_cache_bad_responses(response):
         return assoc(response, 'id', str(uuid.uuid4()))
 
     middleware = construct_simple_cache_middleware(
-        cache={},
+        cache_class=dict,
         rpc_whitelist={'fake_endpoint'},
     )(make_request, None)
 
@@ -76,7 +77,7 @@ def test_simple_cache_middleware_does_not_endpoints_not_in_whitelist():
         }
 
     middleware = construct_simple_cache_middleware(
-        cache={},
+        cache_class=dict,
         rpc_whitelist={'fake_endpoint'},
     )(make_request, None)
 

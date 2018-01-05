@@ -21,12 +21,13 @@ def _time_travel_to_now(web3):
 def test_latest_block_based_cache_middleware_pulls_from_cache(web3):
     current_block_hash = web3.eth.getBlock('latest')['hash']
 
-    cache = {
-        generate_cache_key((current_block_hash, 'fake_endpoint', [1])): 'value-a',
-    }
+    def cache_class():
+        return {
+            generate_cache_key((current_block_hash, 'fake_endpoint', [1])): 'value-a',
+        }
 
     middleware = construct_latest_block_based_cache_middleware(
-        cache=cache,
+        cache_class=cache_class,
         rpc_whitelist={'fake_endpoint'},
     )(None, web3)
 
@@ -39,14 +40,8 @@ def test_latest_block_based_cache_middleware_populates_cache(web3):
             'result': str(uuid.uuid4()),
         }
 
-    current_block_hash = web3.eth.getBlock('latest')['hash']
-
-    cache = {
-        generate_cache_key((current_block_hash, 'fake_endpoint', [1])): 'value-a',
-    }
-
     middleware = construct_latest_block_based_cache_middleware(
-        cache=cache,
+        cache_class=dict,
         rpc_whitelist={'fake_endpoint'},
     )(make_request, web3)
 
@@ -70,7 +65,7 @@ def test_latest_block_cache_middleware_does_not_cache_bad_responses(web3, respon
         return assoc(response, 'id', str(uuid.uuid4()))
 
     middleware = construct_latest_block_based_cache_middleware(
-        cache={},
+        cache_class=dict,
         rpc_whitelist={'fake_endpoint'},
     )(make_request, web3)
 
@@ -93,7 +88,7 @@ def test_latest_block_based_cache_middleware_caches_latest_block(web3):
         }
 
     middleware = construct_latest_block_based_cache_middleware(
-        cache={},
+        cache_class=dict,
         average_block_time_sample_size=10,
         default_average_block_time=10,
         rpc_whitelist={'fake_endpoint'},
