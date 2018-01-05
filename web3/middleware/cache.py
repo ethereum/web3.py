@@ -365,7 +365,7 @@ def construct_latest_block_based_cache_middleware(cache_class,
     return latest_block_based_cache_middleware
 
 
-latest_block_cache_middleware = construct_latest_block_based_cache_middleware(
+latest_block_based_cache_middleware = construct_latest_block_based_cache_middleware(
     cache_class=functools.partial(lru.LRU, 256),
     rpc_whitelist=BLOCK_NUMBER_RPC_WHITELIST,
 )

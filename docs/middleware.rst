@@ -164,3 +164,51 @@ Stalecheck
     If the latest block in the blockchain is older than 2 days in this example, then the
     middleware will raise a ``StaleBlockchain`` exception on every call except
     ``web3.eth.getBlock()``.
+
+
+Cache
+~~~~~~~~~~~
+
+All of the caching middlewares accept these common arguments.
+
+* ``cache_class`` must be a callable which returns an object which implements the dictionary API.
+* ``rpc_whitelist`` must be an iterable, preferably a set, of the RPC methods that may be cached.
+* ``should_cache_fn`` must be a callable with the signature ``fn(method, params, response)`` which returns whether the response should be cached.
+
+
+.. py:method:: web3.middleware.construct_simple_cache_middleware(cache_class, rpc_whitelist, should_cache_fn)
+
+    Constructs a middleware which will cache the return values for any RPC
+    method in the ``rpc_whitelist``.
+
+    A ready to use version of this middleware can be found at
+    ``web3.middlewares.simple_cache_middleware``.
+
+
+.. py:method:: web3.middleware.construct_time_based_cache_middleware(cache_class, cache_expire_seconds, rpc_whitelist, should_cache_fn)
+
+    Constructs a middleware which will cache the return values for any RPC
+    method in the ``rpc_whitelist`` for an amount of time defined by
+    ``cache_expire_seconds``.
+
+    * ``cache_expire_seconds`` should be the number of seconds a value may
+      remain in the cache before being evicted.
+
+    A ready to use version of this middleware can be found at
+    ``web3.middlewares.time_based_cache_middleware``.
+
+
+.. py:method:: web3.middleware.construct_latest_block_based_cache_middleware(cache_class, average_block_time_sample_size, default_average_block_time, rpc_whitelist, should_cache_fn)
+
+    Constructs a middleware which will cache the return values for any RPC
+    method in the ``rpc_whitelist`` for an amount of time defined by
+    ``cache_expire_seconds``.
+
+    * ``average_block_time_sample_size`` The number of blocks which should be
+      sampled to determine the average block time.
+    * ``default_average_block_time`` The initial average block time value to
+      use for cases where there is not enough chain history to determine the
+      average block time.
+
+    A ready to use version of this middleware can be found at
+    ``web3.middlewares.latest_block_based_cache_middleware``.
