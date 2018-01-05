@@ -166,6 +166,8 @@ ethereum_tester_middleware = construct_formatting_middleware(
             transaction_params_transformer,
         ),
         'eth_uninstallFilter': apply_formatters_to_args(hex_to_integer),
+        # EVM
+        'evm_revert': apply_formatters_to_args(hex_to_integer),
         # Personal
         'personal_sendTransaction': apply_formatters_to_args(
             transaction_params_transformer,
@@ -209,6 +211,7 @@ ethereum_tester_middleware = construct_formatting_middleware(
             is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),
+        # EVM
         'evm_snapshot': integer_to_hex,
     },
 )

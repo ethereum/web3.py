@@ -34,7 +34,7 @@ def apply_formatter_at_index(formatter, at_index, value):
     if at_index + 1 > len(value):
         raise IndexError(
             "Not enough values in iterable to apply formatter.  Got: {0}. "
-            "Need: {1}".format(len(value), at_index)
+            "Need: {1}".format(len(value), at_index + 1)
         )
     for index, item in enumerate(value):
         if index == at_index:
