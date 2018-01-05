@@ -1,6 +1,7 @@
 import operator
 
-from cytoolz.functoolz import (
+from cytoolz import (
+    assoc,
     complement,
     compose,
     partial,
@@ -243,7 +244,7 @@ def default_transaction_fields_middleware(make_request, web3):
                 else:
                     default_from = None
                 if default_from:
-                    transaction['from'] = web3.eth.coinbase or web3.eth.accounts
-                    return make_request(method, [transaction])
+                    default_txn = assoc(transaction, 'from', default_from)
+                    return make_request(method, [default_txn])
         return make_request(method, params)
     return middleware
