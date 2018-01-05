@@ -333,6 +333,9 @@ API_ENDPOINTS = {
         'sendTransaction': personal_send_transaction,
         'sign': not_implemented,
     },
+    'testing': {
+        'timeTravel': call_eth_tester('time_travel'),
+    },
     'txpool': {
         'content': not_implemented,
         'inspect': not_implemented,
