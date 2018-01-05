@@ -1,6 +1,7 @@
 import operator
 
-from cytoolz.functoolz import (
+from cytoolz import (
+    assoc,
     complement,
     compose,
     partial,
@@ -25,6 +26,7 @@ from web3.utils.formatters import (
     apply_key_map,
     hex_to_integer,
     integer_to_hex,
+    is_array_of_dicts,
     static_return,
 )
 
@@ -111,6 +113,23 @@ TRANSACTION_PARAMS_FORMATTERS = {
 transaction_params_formatter = apply_formatters_to_dict(TRANSACTION_PARAMS_FORMATTERS)
 
 
+FILTER_PARAMS_MAPPINGS = {
+    'fromBlock': 'from_block',
+    'toBlock': 'to_block',
+}
+
+filter_params_remapper = apply_key_map(FILTER_PARAMS_MAPPINGS)
+
+FILTER_PARAMS_FORMATTERS = {
+    'fromBlock': to_integer_if_hex,
+    'toBlock': to_integer_if_hex,
+}
+
+filter_params_formatter = apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
+
+filter_params_transformer = compose(filter_params_remapper, filter_params_formatter)
+
+
 TRANSACTION_FORMATTERS = {
     'to': apply_formatter_if(partial(operator.eq, b''), static_return(None)),
 }
@@ -126,6 +145,7 @@ RECEIPT_FORMATTERS = {
 
 receipt_formatter = apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
+transaction_params_transformer = compose(transaction_params_remapper, transaction_params_formatter)
 
 ethereum_tester_middleware = construct_formatting_middleware(
     request_formatters={
@@ -153,19 +173,24 @@ ethereum_tester_middleware = construct_formatting_middleware(
             apply_formatter_if(is_not_named_block, to_integer_if_hex),
             to_integer_if_hex,
         ),
+        'eth_newFilter': apply_formatters_to_args(
+            filter_params_transformer,
+        ),
         'eth_sendTransaction': apply_formatters_to_args(
-            transaction_params_formatter,
+            transaction_params_transformer,
         ),
         'eth_estimateGas': apply_formatters_to_args(
-            transaction_params_formatter,
+            transaction_params_transformer,
         ),
         'eth_call': apply_formatters_to_args(
-            transaction_params_formatter,
+            transaction_params_transformer,
         ),
         'eth_uninstallFilter': apply_formatters_to_args(hex_to_integer),
+        # EVM
+        'evm_revert': apply_formatters_to_args(hex_to_integer),
         # Personal
         'personal_sendTransaction': apply_formatters_to_args(
-            compose(transaction_params_remapper, transaction_params_formatter),
+            transaction_params_transformer,
             identity,
         ),
     },
@@ -199,13 +224,15 @@ ethereum_tester_middleware = construct_formatting_middleware(
         'eth_newPendingTransactionFilter': integer_to_hex,
         'eth_getLogs': apply_formatter_if(is_dict, apply_formatter_to_array(log_key_remapper)),
         'eth_getFilterChanges': apply_formatter_if(
-            is_dict,
+            is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),
         'eth_getFilterLogs': apply_formatter_if(
-            is_dict,
+            is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),
+        # EVM
+        'evm_snapshot': integer_to_hex,
     },
 )
 
@@ -218,7 +245,29 @@ ethereum_tester_fixture_middleware = construct_fixture_middleware({
     'eth_syncing': False,
     'eth_mining': False,
     # Net
-    'net_version': '12345',
+    'net_version': '1',
     'net_listening': False,
     'net_peerCount': 0,
 })
+
+
+def default_transaction_fields_middleware(make_request, web3):
+    def middleware(method, params):
+        if method in (
+            'eth_call',
+            'eth_estimateGas',
+            'eth_sendTransaction',
+        ):
+            transaction = params[0]
+            if 'from' not in transaction:
+                if web3.eth.coinbase:
+                    default_from = web3.eth.coinbase
+                elif web3.eth.accounts:
+                    default_from = web3.eth.accounts[0]
+                else:
+                    default_from = None
+                if default_from:
+                    default_txn = assoc(transaction, 'from', default_from)
+                    return make_request(method, [default_txn])
+        return make_request(method, params)
+    return middleware

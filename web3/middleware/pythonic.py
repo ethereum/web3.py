@@ -19,10 +19,8 @@ from eth_utils import (
     to_checksum_address,
     is_integer,
     is_null,
-    is_dict,
     is_string,
     is_bytes,
-    is_list_like,
     encode_hex,
     remove_0x_prefix,
 )
@@ -42,6 +40,8 @@ from web3.utils.formatters import (
     apply_one_of_formatters,
     hex_to_integer,
     integer_to_hex,
+    is_array_of_dicts,
+    is_array_of_strings,
 )
 
 from .formatting import (
@@ -62,18 +62,6 @@ is_false = partial(operator.is_, False)
 
 is_not_false = complement(is_false)
 is_not_null = complement(is_null)
-
-
-def is_array_of_strings(value):
-    if not is_list_like(value):
-        return False
-    return all((is_string(item) for item in value))
-
-
-def is_array_of_dicts(value):
-    if not is_list_like(value):
-        return False
-    return all((is_dict(item) for item in value))
 
 
 @curry
@@ -274,10 +262,7 @@ pythonic_middleware = construct_formatting_middleware(
         'personal_sign': apply_formatter_at_index(encode_hex, 0),
         'personal_ecRecover': apply_formatter_at_index(encode_hex, 0),
         # Snapshot and Revert
-        'evm_revert': apply_formatter_if(
-            bool,
-            apply_formatter_at_index(to_integer_if_hex, 0),
-        )
+        'evm_revert': apply_formatter_at_index(integer_to_hex, 0),
     },
     result_formatters={
         # Eth

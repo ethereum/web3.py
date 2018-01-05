@@ -21,9 +21,6 @@ matrix:
     # core
     - python: "3.5"
       env: TOX_POSARGS="-e py35-core"
-    # eth-testrpc
-    - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-ethtestrpc"
     # eth-tester-pyethereum16
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-ethtester" ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEthereum16Backend
@@ -45,9 +42,6 @@ matrix:
     # core
     - python: "3.6"
       env: TOX_POSARGS="-e py36-core"
-    # eth-testrpc
-    - python: "3.6"
-      env: TOX_POSARGS="-e py36-integration-ethtestrpc"
     # eth-tester-pyethereum16
     - python: "3.6"
       env: TOX_POSARGS="-e py36-integration-ethtester" ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEthereum16Backend

@@ -32,6 +32,7 @@ from eth_tester.exceptions import (
 )
 
 from .middleware import (
+    default_transaction_fields_middleware,
     ethereum_tester_middleware,
     ethereum_tester_fixture_middleware,
 )
@@ -332,6 +333,9 @@ API_ENDPOINTS = {
         'sendTransaction': personal_send_transaction,
         'sign': not_implemented,
     },
+    'testing': {
+        'timeTravel': call_eth_tester('time_travel'),
+    },
     'txpool': {
         'content': not_implemented,
         'inspect': not_implemented,
@@ -339,12 +343,15 @@ API_ENDPOINTS = {
     },
     'evm': {
         'mine': call_eth_tester('mine_blocks'),
+        'revert': call_eth_tester('revert_to_snapshot'),
+        'snapshot': call_eth_tester('take_snapshot'),
     },
 }
 
 
 class EthereumTesterProvider(BaseProvider):
     middlewares = [
+        default_transaction_fields_middleware,
         ethereum_tester_fixture_middleware,
         ethereum_tester_middleware,
     ]

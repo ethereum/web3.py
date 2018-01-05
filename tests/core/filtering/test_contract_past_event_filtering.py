@@ -46,11 +46,13 @@ def test_get_all_entries_returned_block_data(
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
     if call_as_instance:
-        filter = emitter.eventFilter('LogNoArguments')
+        contract = emitter
     else:
-        filter = Emitter.eventFilter('LogNoArguments')
+        contract = Emitter
 
-    log_entries = filter.get_all_entries()
+    events = contract.eventFilter('LogNoArguments', {'fromBlock': txn_receipt['blockNumber'] - 1})
+
+    log_entries = events.get_all_entries()
 
     assert len(log_entries) == 1
     event_data = log_entries[0]
