@@ -192,6 +192,8 @@ zpad_bytes = pad_bytes(b'\0')
 def to_bytes(primitive=None, hexstr=None, text=None):
     assert_one_val(primitive, hexstr=hexstr, text=text)
 
+    if isinstance(primitive, list):
+        return primitive
     if is_boolean(primitive):
         return b'\x01' if primitive else b'\x00'
     elif isinstance(primitive, bytes):

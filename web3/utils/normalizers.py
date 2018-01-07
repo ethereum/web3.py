@@ -97,6 +97,8 @@ def abi_string_to_hex(abi_type, data):
 @implicitly_identity
 def hexstrs_to_bytes(abi_type, data):
     base, sub, arrlist = process_type(abi_type)
+    if arrlist:
+        data = [d.data for d in data]
     if base in {'string', 'bytes'} and not arrlist:
         return abi_type, hexstr_if_str(to_bytes, data)
 
