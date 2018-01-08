@@ -1,41 +1,87 @@
 import pytest
 
-from eth_utils import (
-    is_dict,
-)
-
+from web3 import Web3
+from web3.providers.base import BaseProvider
 from web3.middleware import (
     construct_fixture_middleware,
+    construct_result_middleware,
+    construct_error_middleware,
 )
 
 
-def _fixture_callback(method, params):
-    return {'result': bool(params)}
+class DummyProvider(BaseProvider):
+    def make_request(self, method, params):
+        raise NotImplementedError("Cannot make request for {0}:{1}".format(
+            method,
+            params,
+        ))
 
 
-FIXTURES = {
-    'eth_protocolVersion': {'result': 'test-protocol'},
-    'test_endpoint': _fixture_callback,
-}
-
-
-def _make_request(method, params):
-    return {'result': 'default'}
+@pytest.fixture
+def w3():
+    return Web3(providers=[DummyProvider()], middlewares=[])
 
 
 @pytest.mark.parametrize(
-    'method,params,expected',
+    'method,expected',
     (
-        ('eth_mining', [], 'default'),
-        ('eth_protocolVersion', [], 'test-protocol'),
-        ('test_endpoint', [], False),
-        ('test_endpoint', [1], True),
+        ('test_endpoint', 'value-a'),
+        ('not_implemented', NotImplementedError),
     )
 )
-def test_fixture_middleware(method, params, expected):
-    middleware = construct_fixture_middleware(FIXTURES)(_make_request, None)
+def test_fixture_middleware(w3, method, expected):
+    w3.middleware_stack.add(construct_fixture_middleware({'test_endpoint': 'value-a'}))
 
-    actual = middleware(method, params)
-    assert is_dict(actual)
-    assert 'result' in actual
-    assert actual['result'] == expected
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            w3.manager.request_blocking(method, [])
+    else:
+        actual = w3.manager.request_blocking(method, [])
+        assert actual == expected
+
+
+@pytest.mark.parametrize(
+    'method,expected',
+    (
+        ('test_endpoint', 'value-a'),
+        ('not_implemented', NotImplementedError),
+    )
+)
+def test_result_middleware(w3, method, expected):
+    def _callback(method, params):
+        return params[0]
+
+    w3.middleware_stack.add(construct_result_middleware({
+        'test_endpoint': _callback,
+    }))
+
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            w3.manager.request_blocking(method, [expected])
+    else:
+        actual = w3.manager.request_blocking(method, [expected])
+        assert actual == expected
+
+
+@pytest.mark.parametrize(
+    'method,expected',
+    (
+        ('test_endpoint', 'value-a'),
+        ('not_implemented', NotImplementedError),
+    )
+)
+def test_error_middleware(w3, method, expected):
+    def _callback(method, params):
+        return params[0]
+
+    w3.middleware_stack.add(construct_error_middleware({
+        'test_endpoint': _callback,
+    }))
+
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            w3.manager.request_blocking(method, [expected])
+    else:
+        with pytest.raises(ValueError) as err:
+            w3.manager.request_blocking(method, [expected])
+        assert expected in str(err)
