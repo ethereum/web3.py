@@ -18,6 +18,9 @@ from web3.utils.compat import (
     make_server,
     spawn,
 )
+from web3.utils.decorators import (
+    deprecated_for,
+)
 from web3.utils.formatters import (
     hex_to_integer,
     apply_formatter_if,
@@ -94,6 +97,7 @@ class EthereumTesterProvider(BaseProvider):
         ethereum_tester_personal_remapper_middleware,
     ]
 
+    @deprecated_for("web3.providers.eth_tester.EthereumTesterProvider")
     def __init__(self,
                  *args,
                  **kwargs):
@@ -125,6 +129,7 @@ class EthereumTesterProvider(BaseProvider):
 class TestRPCProvider(HTTPProvider):
     middlewares = [ethtestrpc_middleware, ethtestrpc_exception_middleware]
 
+    @deprecated_for("web3.providers.eth_tester.EthereumTesterProvider")
     def __init__(self, host="127.0.0.1", port=8545, *args, **kwargs):
         if not is_testrpc_available():
             raise Exception("`TestRPCProvider` requires the `eth-testrpc` package to be installed")
