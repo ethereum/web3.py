@@ -605,7 +605,6 @@ class Contract(object):
                                    fn_args=fn_args,
                                    fn_kwargs=fn_kwargs,
                                    transaction=transaction)
-                                   
 
     @classmethod
     def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
