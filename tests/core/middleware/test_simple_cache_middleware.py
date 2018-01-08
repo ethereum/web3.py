@@ -1,10 +1,13 @@
+import itertools
 import uuid
-
-from cytoolz import assoc
 
 import pytest
 
-from web3.middleware.cache import (  # noqa: F401
+from web3 import Web3
+from web3.providers.base import BaseProvider
+from web3.middleware import (
+    construct_result_generator_middleware,
+    construct_error_generator_middleware,
     construct_simple_cache_middleware,
 )
 from web3.utils.caching import (
@@ -12,79 +15,100 @@ from web3.utils.caching import (
 )
 
 
-def test_simple_cache_middleware_pulls_from_cache():
+@pytest.fixture
+def w3_base():
+    return Web3(providers=[BaseProvider()], middlewares=[])
+
+
+@pytest.fixture
+def result_generator_middleware():
+    return construct_result_generator_middleware({
+        'fake_endpoint': lambda *_: str(uuid.uuid4()),
+        'not_whitelisted': lambda *_: str(uuid.uuid4()),
+    })
+
+
+@pytest.fixture
+def w3(w3_base, result_generator_middleware):
+    w3_base.middleware_stack.add(result_generator_middleware)
+    return w3_base
+
+
+def test_simple_cache_middleware_pulls_from_cache(w3):
     def cache_class():
         return {
-            generate_cache_key(('fake_endpoint', [1])): 'value-a',
+            generate_cache_key(('fake_endpoint', [1])): {'result': 'value-a'},
         }
 
-    middleware = construct_simple_cache_middleware(
+    w3.middleware_stack.add(construct_simple_cache_middleware(
         cache_class=cache_class,
         rpc_whitelist={'fake_endpoint'},
-    )(None, None)
+    ))
 
-    assert middleware('fake_endpoint', [1]) == 'value-a'
+    assert w3.manager.request_blocking('fake_endpoint', [1]) == 'value-a'
 
 
-def test_simple_cache_middleware_populates_cache():
-    def make_request(method, params):
-        return {
-            'result': str(uuid.uuid4()),
-        }
-
-    middleware = construct_simple_cache_middleware(
+def test_simple_cache_middleware_populates_cache(w3):
+    w3.middleware_stack.add(construct_simple_cache_middleware(
         cache_class=dict,
         rpc_whitelist={'fake_endpoint'},
-    )(make_request, None)
+    ))
 
-    response = middleware('fake_endpoint', [])
-    assert 'result' in response
+    result = w3.manager.request_blocking('fake_endpoint', [])
 
-    assert middleware('fake_endpoint', []) == response
-    assert not middleware('fake_endpoint', [1]) == response
+    assert w3.manager.request_blocking('fake_endpoint', []) == result
+    assert not w3.manager.request_blocking('fake_endpoint', [1]) == result
 
 
-@pytest.mark.parametrize(
-    'response',
-    (
-        {},
-        {'result': None},
-        {'error': 'some error message'},
-    )
-)
-def test_simple_cache_middleware_does_not_cache_bad_responses(response):
-    def make_request(method, params):
-        return assoc(response, 'id', str(uuid.uuid4()))
+def test_simple_cache_middleware_does_not_cache_none_responses(w3_base):
+    counter = itertools.count()
+    w3 = w3_base
 
-    middleware = construct_simple_cache_middleware(
+    def result_cb(method, params):
+        next(counter)
+        return None
+
+    w3.middleware_stack.add(construct_result_generator_middleware({
+        'fake_endpoint': result_cb,
+    }))
+
+    w3.middleware_stack.add(construct_simple_cache_middleware(
         cache_class=dict,
         rpc_whitelist={'fake_endpoint'},
-    )(make_request, None)
+    ))
 
-    response_a = middleware('fake_endpoint', [])
-    assert 'id' in response_a
+    w3.manager.request_blocking('fake_endpoint', [])
+    w3.manager.request_blocking('fake_endpoint', [])
 
-    response_b = middleware('fake_endpoint', [])
-    assert 'id' in response_b
-
-    assert not response_a['id'] == response_b['id']
+    assert next(counter) == 2
 
 
-def test_simple_cache_middleware_does_not_endpoints_not_in_whitelist():
-    def make_request(method, params):
-        return {
-            'result': str(uuid.uuid4())
-        }
+def test_simple_cache_middleware_does_not_cache_error_responses(w3_base):
+    w3 = w3_base
+    w3.middleware_stack.add(construct_error_generator_middleware({
+        'fake_endpoint': lambda *_: 'msg-{0}'.format(str(uuid.uuid4())),
+    }))
 
-    middleware = construct_simple_cache_middleware(
+    w3.middleware_stack.add(construct_simple_cache_middleware(
         cache_class=dict,
         rpc_whitelist={'fake_endpoint'},
-    )(make_request, None)
+    ))
 
-    response_a = middleware('not_whitelisted', [])
-    assert 'result' in response_a
+    with pytest.raises(ValueError) as err_a:
+        w3.manager.request_blocking('fake_endpoint', [])
+    with pytest.raises(ValueError) as err_b:
+        w3.manager.request_blocking('fake_endpoint', [])
 
-    response_b = middleware('not_whitelisted', [])
-    assert 'result' in response_b
+    assert str(err_a) != str(err_b)
 
-    assert not response_a['result'] == response_b['result']
+
+def test_simple_cache_middleware_does_not_endpoints_not_in_whitelist(w3):
+    w3.middleware_stack.add(construct_simple_cache_middleware(
+        cache_class=dict,
+        rpc_whitelist={'fake_endpoint'},
+    ))
+
+    result_a = w3.manager.request_blocking('not_whitelisted', [])
+    result_b = w3.manager.request_blocking('not_whitelisted', [])
+
+    assert not result_a == result_b

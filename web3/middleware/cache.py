@@ -60,20 +60,21 @@ SIMPLE_CACHE_RPC_WHITELIST = {
 }
 
 
-def should_cache(method, params, response):
-    if 'error' in response:
-        return False
-    elif 'result' not in response:
-        return False
+def _should_cache(method, params, response=None):
+    if response is not None:
+        if 'error' in response:
+            return False
+        elif 'result' not in response:
+            return False
 
-    if response['result'] is None:
-        return False
+        if response['result'] is None:
+            return False
     return True
 
 
 def construct_simple_cache_middleware(cache_class,
                                       rpc_whitelist=SIMPLE_CACHE_RPC_WHITELIST,
-                                      should_cache_fn=should_cache):
+                                      should_cache_fn=_should_cache):
     """
     Constructs a middleware which caches responses based on the request
     ``method`` and ``params``
@@ -88,7 +89,7 @@ def construct_simple_cache_middleware(cache_class,
         cache = cache_class()
 
         def middleware(method, params):
-            if method in rpc_whitelist:
+            if method in rpc_whitelist and should_cache_fn(method, params):
                 cache_key = generate_cache_key((method, params))
                 if cache_key not in cache:
                     response = make_request(method, params)
@@ -162,7 +163,7 @@ TIME_BASED_CACHE_RPC_WHITELIST = {
 def construct_time_based_cache_middleware(cache_class,
                                           cache_expire_seconds=15,
                                           rpc_whitelist=TIME_BASED_CACHE_RPC_WHITELIST,
-                                          should_cache_fn=should_cache):
+                                          should_cache_fn=_should_cache):
     """
     Constructs a middleware which caches responses based on the request
     ``method`` and ``params`` for a maximum amount of time as specified
@@ -179,7 +180,7 @@ def construct_time_based_cache_middleware(cache_class,
         cache = cache_class()
 
         def middleware(method, params):
-            if method in rpc_whitelist:
+            if method in rpc_whitelist and should_cache_fn(method, params):
                 cache_key = generate_cache_key((method, params))
                 if cache_key in cache:
                     # check that the cached response is not expired.
@@ -266,19 +267,19 @@ AVG_BLOCK_SAMPLE_SIZE_KEY = 'avg_block_sample_size'
 AVG_BLOCK_TIME_UPDATED_AT_KEY = 'avg_block_time_updated_at'
 
 
-def should_cache_by_latest_block(method, params, response):
+def _should_cache_by_latest_block(method, params, response=None):
     if method == 'eth_getBlockByNumber':
         if params == ['latest'] or params == ['pending']:
             return False
 
-    return should_cache(method, params, response)
+    return _should_cache(method, params, response)
 
 
 def construct_latest_block_based_cache_middleware(cache_class,
                                                   rpc_whitelist=BLOCK_NUMBER_RPC_WHITELIST,
                                                   average_block_time_sample_size=240,
                                                   default_average_block_time=15,
-                                                  should_cache_fn=should_cache_by_latest_block):
+                                                  should_cache_fn=_should_cache_by_latest_block):
     """
     Constructs a middleware which caches responses based on the request
     ``method``, ``params``, and the current latest block hash.
@@ -348,7 +349,7 @@ def construct_latest_block_based_cache_middleware(cache_class,
                 block_info['latest_block'] = web3.eth.getBlock('latest')
 
         def middleware(method, params):
-            if method in rpc_whitelist:
+            if method in rpc_whitelist and should_cache_fn(method, params):
                 _update_block_info_cache()
                 latest_block_hash = block_info['latest_block']['hash']
                 cache_key = generate_cache_key((latest_block_hash, method, params))
