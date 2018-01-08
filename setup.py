@@ -26,7 +26,7 @@ setup(
         "pysha3>=1.0.0,<2.0.0",
         "requests>=2.12.4,<3.0.0",
         "rlp>=0.4.7,<1.0.0",
-        "eth-tester>=0.1.0b10,<0.2.0",
+        "eth-tester>=0.1.0b11,<0.2.0",
     ],
     setup_requires=['setuptools-markdown'],
     extras_require={
