@@ -1,55 +1,58 @@
 import pytest
-from unittest.mock import Mock
+import web3
+from unittest.mock import Mock, patch
 
-from web3.middleware import http_retry_request_middleware
-from web3.middleware.http_retry_request import check_method
-from requests.exceptions import ConnectionError
+from web3.middleware.exception_retry_request import (
+    check_if_retry_on_failure,
+    exception_retry_middleware
+)
+from requests.exceptions import HTTPError, ConnectionError, Timeout, TooManyRedirects
 from web3.providers import HTTPProvider, IPCProvider
 
 
 @pytest.fixture
-def http_retry_request_setup():
-    make_request, web3 = Mock(), Mock()
-    setup = http_retry_request_middleware(make_request, web3)
+def exception_retry_request_setup():
+    web3 = Mock()
+    provider = HTTPProvider()
+    errors = (ConnectionError, HTTPError, Timeout, TooManyRedirects)
+    setup = exception_retry_middleware(provider.make_request, web3, errors, 5)
     setup.web3 = web3
-    setup.make_request = make_request
-    setup.check_method = check_method
     return setup
 
 
-def test_check_method_false(http_retry_request_setup):
+def test_check_if_retry_on_failure_false():
     methods = ['eth_sendTransaction', 'personal_signAndSendTransaction', 'personal_sendTRansaction']
 
     for method in methods:
-        assert not check_method(method)
+        assert not check_if_retry_on_failure(method)
 
 
-def test_check_method_true(http_retry_request_setup):
+def test_check_if_retry_on_failure_true():
     method = 'eth_getBalance'
-    assert check_method(method)
+    assert check_if_retry_on_failure(method)
 
 
-def test_check_send_transaction_called_once(http_retry_request_setup):
+@patch('web3.providers.rpc.make_post_request', side_effect=ConnectionError)
+def test_check_send_transaction_called_once(make_post_request_mock, exception_retry_request_setup):
     method = 'eth_sendTransaction'
     params = [{
         'to': '0x0',
         'value': 1,
     }]
 
-    http_retry_request_setup.make_request.side_effect = ConnectionError
     with pytest.raises(ConnectionError):
-        http_retry_request_setup(method, params)
-    assert http_retry_request_setup.make_request.call_count == 1
+        exception_retry_request_setup(method, params)
+    assert make_post_request_mock.call_count == 1
 
 
-def test_valid_method_retried(http_retry_request_setup):
+@patch('web3.providers.rpc.make_post_request', side_effect=ConnectionError)
+def test_valid_method_retried(make_post_request_mock, exception_retry_request_setup):
     method = 'eth_getBalance'
     params = []
-    http_retry_request_setup.make_request.side_effect = ConnectionError
 
     with pytest.raises(ConnectionError):
-        http_retry_request_setup(method, params)
-    assert http_retry_request_setup.make_request.call_count == 5
+        exception_retry_request_setup(method, params)
+    assert make_post_request_mock.call_count == 5
 
 
 def test_is_strictly_default_http_middleware():
@@ -58,3 +61,12 @@ def test_is_strictly_default_http_middleware():
 
     web3 = IPCProvider()
     assert 'http_retry_request' not in web3.middlewares
+
+
+@patch('web3.providers.rpc.make_post_request', side_effect=ConnectionError)
+def test_check_with_all_middlewares(make_post_request_mock):
+    provider = HTTPProvider()
+    w3 = web3.Web3(provider)
+    with pytest.raises(ConnectionError):
+        w3.eth.blockNumber()
+    assert make_post_request_mock.call_count == 5
