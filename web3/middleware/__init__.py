@@ -36,6 +36,10 @@ from .stalecheck import (  # noqa: F401
     make_stalecheck_middleware,
 )
 
+from .exception_retry_request import (  # noqa: F401
+    http_retry_request_middleware
+)
+
 
 def combine_middlewares(middlewares, web3, provider_request_fn):
     """
