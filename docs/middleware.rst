@@ -55,7 +55,18 @@ Gas Price Strategy
 .. py:method:: web3.middleware.gas_price_strategy_middleware
 
     This adds a gasPrice to transactions if applicable and when a gas price strategy has
-    been set. See :ref:`Gas_Price` for information about how gas price is derived. 
+    been set. See :ref:`Gas_Price` for information about how gas price is derived.
+
+HTTPRequestRetry
+~~~~~~~~~~~~~~~~~~
+
+.. py:method:: web3.middleware.http_retry_request_middleware
+
+    This middleware is a default specifically for HTTPProvider that retries failed
+    requests that return the following errors: `ConnectionError`, `HTTPError`, `Timeout`,
+    `TooManyRedirects`. Additionally there is a whitelist that only allows certain
+    methods to be retried in order to not resend transactions, excluded methods are:
+    `eth_sendTransaction`, `personal_signAndSendTransaction`, `personal_sendTransaction`. 
 
 .. _Modifying_Middleware:
 
