@@ -43,8 +43,8 @@ def string_contract(web3, StringContract):
 def arrays_contract(web3, ArraysContract):
     # bytes_32 = [keccak('0'), keccak('1')]
     bytes32_array = [
-        b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',
-        b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6'
+        b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',  # noqa: E501
+        b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6',  # noqa: E501
     ]
     byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
     return deploy(web3, ArraysContract, args=[bytes32_array, byte_arr])
@@ -135,8 +135,8 @@ def test_call_get_bytes32_array(arrays_contract):
     result = arrays_contract.call().getBytes32Value()
     # expected_bytes32_array = [keccak('0'), keccak('1')]
     expected_bytes32_array = [
-        b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',
-        b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6'
+        b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',  # noqa: E501
+        b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6',  # noqa: E501
     ]
     assert result == expected_bytes32_array
 
@@ -155,7 +155,7 @@ def test_call_get_byte_array(arrays_contract):
     result = arrays_contract.call().getByteValue()
     expected_byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
     assert result == expected_byte_arr
-    
+
 
 def test_call_get_byte_const_array(arrays_contract):
     result = arrays_contract.call().getByteConstValue()

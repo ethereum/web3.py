@@ -329,8 +329,8 @@ def ARRAYS_ABI():
 
 @pytest.fixture()
 def ARRAYS_CONTRACT(ARRAYS_CODE,
-        ARRAYS_RUNTIME,
-        ARRAYS_ABI):
+                    ARRAYS_RUNTIME,
+                    ARRAYS_ABI):
     return {
         'bytecode': ARRAYS_CODE,
         'bytecode_runtime': ARRAYS_RUNTIME,
