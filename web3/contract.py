@@ -676,6 +676,7 @@ class ConciseContract(object):
     def __init__(self, classic_contract):
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
         self._classic_contract = classic_contract
+        self.address = self._classic_contract.address
 
     @classmethod
     def factory(cls, *args, **kwargs):
