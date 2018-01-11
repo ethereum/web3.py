@@ -19,8 +19,8 @@ from .exception_handling import (  # noqa: F401
 )
 from .fixture import (  # noqa: F401
     construct_fixture_middleware,
-    construct_result_middleware,
-    construct_error_middleware,
+    construct_result_generator_middleware,
+    construct_error_generator_middleware,
 )
 from .formatting import (  # noqa: F401
     construct_formatting_middleware,

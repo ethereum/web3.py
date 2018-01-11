@@ -14,37 +14,37 @@ def construct_fixture_middleware(fixtures):
     return fixture_middleware
 
 
-def construct_result_middleware(result_callbacks):
+def construct_result_generator_middleware(result_generators):
     """
     Constructs a middleware which intercepts requests for any method found in
-    the provided mapping of endpoints to callbacks, returning whatever response
-    the callback generates.  Callbacks must be functions with the signature
-    `fn(method, params)`.
+    the provided mapping of endpoints to generator functions, returning
+    whatever response the generator function returns.  Callbacks must be
+    functions with the signature `fn(method, params)`.
     """
-    def result_callback_middleware(make_request, web3):
+    def result_generator_middleware(make_request, web3):
         def middleware(method, params):
-            if method in result_callbacks:
-                result = result_callbacks[method](method, params)
+            if method in result_generators:
+                result = result_generators[method](method, params)
                 return {'result': result}
             else:
                 return make_request(method, params)
         return middleware
-    return result_callback_middleware
+    return result_generator_middleware
 
 
-def construct_error_middleware(error_callbacks):
+def construct_error_generator_middleware(error_generators):
     """
     Constructs a middleware which intercepts requests for any method found in
-    the provided mapping of endpoints to callbacks, returning whatever response
-    the callback generates.  Callbacks must be functions with the signature
-    `fn(method, params)`.
+    the provided mapping of endpoints to generator functions, returning
+    whatever error message the generator function returns.  Callbacks must be
+    functions with the signature `fn(method, params)`.
     """
-    def error_callback_middleware(make_request, web3):
+    def error_generator_middleware(make_request, web3):
         def middleware(method, params):
-            if method in error_callbacks:
-                error_msg = error_callbacks[method](method, params)
+            if method in error_generators:
+                error_msg = error_generators[method](method, params)
                 return {'error': error_msg}
             else:
                 return make_request(method, params)
         return middleware
-    return error_callback_middleware
+    return error_generator_middleware

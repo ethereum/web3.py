@@ -4,8 +4,8 @@ from web3 import Web3
 from web3.providers.base import BaseProvider
 from web3.middleware import (
     construct_fixture_middleware,
-    construct_result_middleware,
-    construct_error_middleware,
+    construct_result_generator_middleware,
+    construct_error_generator_middleware,
 )
 
 
@@ -51,7 +51,7 @@ def test_result_middleware(w3, method, expected):
     def _callback(method, params):
         return params[0]
 
-    w3.middleware_stack.add(construct_result_middleware({
+    w3.middleware_stack.add(construct_result_generator_middleware({
         'test_endpoint': _callback,
     }))
 
@@ -74,7 +74,7 @@ def test_error_middleware(w3, method, expected):
     def _callback(method, params):
         return params[0]
 
-    w3.middleware_stack.add(construct_error_middleware({
+    w3.middleware_stack.add(construct_error_generator_middleware({
         'test_endpoint': _callback,
     }))
 
