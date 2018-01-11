@@ -239,15 +239,15 @@ ethereum_tester_middleware = construct_formatting_middleware(
 
 ethereum_tester_fixture_middleware = construct_fixture_middleware({
     # Eth
-    'eth_protocolVersion': {'result': '63'},
-    'eth_hashrate': {'result': 0},
-    'eth_gasPrice': {'result': 1},
-    'eth_syncing': {'result': False},
-    'eth_mining': {'result': False},
+    'eth_protocolVersion': '63',
+    'eth_hashrate': 0,
+    'eth_gasPrice': 1,
+    'eth_syncing': False,
+    'eth_mining': False,
     # Net
-    'net_version': {'result': '1'},
-    'net_listening': {'result': False},
-    'net_peerCount': {'result': 0},
+    'net_version': '1',
+    'net_listening': False,
+    'net_peerCount': 0,
 })
 
 
