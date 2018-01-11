@@ -4,8 +4,10 @@ from cytoolz import (
     assoc,
     complement,
     compose,
-    partial,
+    curry,
     identity,
+    partial,
+    pipe,
 )
 
 from eth_utils import (
@@ -251,23 +253,50 @@ ethereum_tester_fixture_middleware = construct_fixture_middleware({
 })
 
 
+def guess_from(web3, transaction):
+    if web3.eth.coinbase:
+        return web3.eth.coinbase
+    elif web3.eth.accounts:
+        return web3.eth.accounts[0]
+    else:
+        return None
+
+
+def guess_gas(web3, transaction):
+    return web3.eth.estimateGas(transaction)
+
+
+@curry
+def fill_default(field, guess_func, web3, transaction):
+    if field in transaction and transaction[field] is not None:
+        return transaction
+    else:
+        guess_val = guess_func(web3, transaction)
+        return assoc(transaction, field, guess_val)
+
+
+fill_default_from = fill_default('from', guess_from)
+fill_default_gas = fill_default('gas', guess_gas)
+
+
 def default_transaction_fields_middleware(make_request, web3):
     def middleware(method, params):
-        if method in (
-            'eth_call',
+        if method == 'eth_call':
+            filled_transaction = pipe(
+                params[0],
+                fill_default_from(web3),
+                fill_default_gas(web3),
+            )
+            return make_request(method, [filled_transaction] + params[1:])
+        elif method in (
             'eth_estimateGas',
             'eth_sendTransaction',
         ):
-            transaction = params[0]
-            if 'from' not in transaction:
-                if web3.eth.coinbase:
-                    default_from = web3.eth.coinbase
-                elif web3.eth.accounts:
-                    default_from = web3.eth.accounts[0]
-                else:
-                    default_from = None
-                if default_from:
-                    default_txn = assoc(transaction, 'from', default_from)
-                    return make_request(method, [default_txn])
-        return make_request(method, params)
+            filled_transaction = pipe(
+                params[0],
+                fill_default_from(web3),
+            )
+            return make_request(method, [filled_transaction] + params[1:])
+        else:
+            return make_request(method, params)
     return middleware
