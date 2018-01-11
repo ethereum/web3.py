@@ -100,7 +100,7 @@ pip install -e .
 ```sh
 virtualenv venvdocs
 . venvdocs/bin/activate
-pip install -r requirements-dev.txt
+pip install -r requirements-docs.txt
 pip install -e .
 ```
 
