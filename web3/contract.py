@@ -698,7 +698,7 @@ CONCISE_NORMALIZERS = (
 )
 
 
-class ConciseMethod:
+class ConciseMethod(object):
     ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'buildTransaction'])
 
     def __init__(self, function, normalizers=None):
@@ -706,9 +706,9 @@ class ConciseMethod:
         self.__function._return_data_normalizers = normalizers
 
     def __call__(self, *args, **kwargs):
-        return self.__prepared_function(*args, **kwargs)
+        return self._prepared_function(*args, **kwargs)
 
-    def __prepared_function(self, *args, **kwargs):
+    def _prepared_function(self, *args, **kwargs):
         if not kwargs:
             modifier, modifier_dict = 'call', {}
         elif len(kwargs) == 1:
@@ -720,6 +720,47 @@ class ConciseMethod:
             raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
 
         return getattr(self.__function(*args), modifier)(modifier_dict)
+
+
+class ImplicitContract(ConciseContract):
+    '''
+    ImplicitContract class is similar to the ConciseContract class
+    however it performs a transaction instead of a call if no modifier
+    is given and the method is not marked 'constant' in the ABI.
+
+    The transaction will use the default account to send the transaction.
+
+    This call
+
+    > contract.withdraw(amount)
+
+    is equivalent to this call in the classic contract:
+
+    > contract.transact({}).withdraw(amount)
+    '''
+    def __is_constant(self, fn_name):
+        # If function is constant in ABI, then call by default, else transact
+        function_abi = self._classic_contract._find_matching_fn_abi(fn_name=fn_name)
+        return function_abi['constant'] if 'constant' in function_abi.keys() else False
+
+    def __getattr__(self, attr):
+        call_by_default = self.__is_constant(attr)
+        contract_function = getattr(self._classic_contract.functions, attr)
+        return ImplicitMethod(contract_function, self._classic_contract._return_data_normalizers,
+                              call_by_default)
+
+
+class ImplicitMethod(ConciseMethod):
+    def __init__(self, function, normalizers=None, call_by_default=True):
+        self.call_by_default = call_by_default
+        super().__init__(function, normalizers)
+
+    def _prepared_function(self, *args, **kwargs):
+        # Modifier is not provided and method is not constant/pure do a transaction instead
+        if not kwargs and not self.call_by_default:
+            return super()._prepared_function(*args, transact={})
+        else:
+            return super()._prepared_function(*args, **kwargs)
 
 
 class ContractMethod(object):
