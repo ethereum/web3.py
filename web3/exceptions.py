@@ -11,6 +11,13 @@ class BadFunctionCallOutput(Exception):
     pass
 
 
+class BlockNumberOutofRange(Exception):
+    '''
+    block_identifier passed does not match known block.
+    '''
+    pass
+
+
 class CannotHandleRequest(Exception):
     """
     Raised by a provider to signal that it cannot handle an RPC request and

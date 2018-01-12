@@ -238,7 +238,6 @@ class Eth(Module):
         # TODO: move to middleware
         if block_identifier is None:
             block_identifier = self.defaultBlock
-
         return self.web3.manager.request_blocking(
             "eth_call",
             [transaction, block_identifier],
