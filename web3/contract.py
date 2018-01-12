@@ -698,7 +698,7 @@ CONCISE_NORMALIZERS = (
 )
 
 
-class ConciseMethod(object):
+class ConciseMethod:
     ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'buildTransaction'])
 
     def __init__(self, function, normalizers=None):
