@@ -61,7 +61,7 @@ def test_implicitcontract_call_default(math_contract, get_transaction_count):
 def test_implicitcontract_transact_default(math_contract, get_transaction_count):
     # Use to verify correct operation later on
     start_count = math_contract.counter()
-    assert is_integer(start_count) # Verify correct type
+    assert is_integer(start_count)  # Verify correct type
     # When a function is called that defaults to transact
     blocknum, starting_txns = get_transaction_count("pending")
     math_contract.increment()
@@ -87,7 +87,7 @@ def test_implicitcontract_call_override(math_contract, get_transaction_count):
 def test_implicitcontract_transact_override(math_contract, get_transaction_count):
     # Use to verify correct operation later on
     start_count = math_contract.counter()
-    assert is_integer(start_count) # Verify correct type
+    assert is_integer(start_count)  # Verify correct type
     # When a function is called with call override that defaults to transact
     blocknum, starting_txns = get_transaction_count("pending")
     math_contract.increment(call={})
