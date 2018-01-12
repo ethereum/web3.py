@@ -1,13 +1,9 @@
 import pytest
 
-<<<<<<< HEAD
 from hexbytes import (
     HexBytes,
 )
 
-=======
-from unittest.mock import patch
->>>>>>> Added ability to query a specific block when using the contract.functions.methodName.call() method. Blocks can be queried by 'latest', 'earliest', block number (indexed from back and front of chain) and block hash.
 from web3.exceptions import (
     BadFunctionCallOutput,
     InvalidAddress,
@@ -366,48 +362,6 @@ def test_call_undeployed_contract(undeployed_math_contract, call):
     assert expected_undeployed_call_error_message in str(exception_info.value)
 
 
-<<<<<<< HEAD
 def test_call_fallback_function(fallback_function_contract):
     result = fallback_function_contract.fallback.call()
     assert result == []
-=======
-def test_throws_error_if_block_out_of_range(web3, math_contract):
-    web3.providers[0].make_request(method='evm_mine', params=[20])
-    with pytest.raises(BlockNumberOutofRange):
-        math_contract.functions.counter().call(block_identifier=50)
-
-    with pytest.raises(BlockNumberOutofRange):
-        math_contract.functions.counter().call(block_identifier=-50)
-
-
-@patch('web3.eth.Eth.call', return_value='0x' + '0' * 64)
-def test_accepts_earliest_and_latest_block_id(eth_call_mock, web3, math_contract, call_transaction):
-    web3.providers[0].make_request(method='evm_mine', params=[20])
-    math_contract.functions.counter().call(block_identifier='earliest')
-    eth_call_mock.assert_called_with(call_transaction, block_identifier='earliest')
-
-    math_contract.functions.counter().call(block_identifier='latest')
-    eth_call_mock.assert_called_with(call_transaction, block_identifier='latest')
-
-
-@patch('web3.eth.Eth.call', return_value='0xeth_call_mock, ' + '0' * 64)
-def test_accepts_block_hash_as_identifier(eth_call_mock, web3, math_contract, call_transaction):
-    blocks = web3.providers[0].make_request(method='evm_mine', params=[15])
-    print(blocks)
-    math_contract.functions.counter().call(block_identifier=blocks['result'][5])
-    eth_call_mock.assert_called_with(call_transaction, block_identifier=7)
-
-
-@patch('web3.eth.Eth.call', return_value='0x' + '0' * 64)
-def test_neg_block_number_indexes_from_end(eth_call_mock, web3, math_contract, call_transaction):
-    web3.providers[0].make_request(method='evm_mine', params=[15])
-    math_contract.functions.counter().call(block_identifier=-6)
-    eth_call_mock.assert_called_with(call_transaction, block_identifier=11)
-
-
-@patch('web3.eth.Eth.call', return_value='0x' + '0' * 64)
-def test_returns_data_from_specified_block(eth_call_mock, web3, math_contract, call_transaction):
-    web3.providers[0].make_request(method='evm_mine', params=[20])
-    math_contract.functions.counter().call(block_identifier=14)
-    eth_call_mock.assert_called_with(call_transaction, block_identifier=14)
->>>>>>> Added ability to query a specific block when using the contract.functions.methodName.call() method. Blocks can be queried by 'latest', 'earliest', block number (indexed from back and front of chain) and block hash.
