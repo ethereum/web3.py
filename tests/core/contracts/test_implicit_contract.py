@@ -4,6 +4,10 @@ from web3.contract import (
     ImplicitContract,
 )
 
+from eth_utils import (
+    is_integer,
+)
+
 
 @pytest.fixture()
 def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
@@ -42,48 +46,54 @@ def get_transaction_count(web3):
     return get_transaction_count
 
 
-def test_implicitcontract_internals(math_contract):
-    # counter() is constant, so it calls by default
-    assert math_contract.counter.call_by_default
-    # return13() does not since it is not constant
-    assert not math_contract.return13.call_by_default
-
-
 def test_implicitcontract_call_default(math_contract, get_transaction_count):
-    blocknum, starting_txns = get_transaction_count("pending")
     # When a function is called that defaults to call
-    # (Verify something was returned)
-    assert math_contract.counter() is not None
+    blocknum, starting_txns = get_transaction_count("pending")
+    start_count = math_contract.counter()
+    assert is_integer(start_count)
     # Check that a call was made and not a transact
     # (Auto-mining is enabled, so query by block number)
     assert get_transaction_count(blocknum) == starting_txns
+    # Check that no blocks were mined
+    assert get_transaction_count("pending") == (blocknum, 0)
 
 
 def test_implicitcontract_transact_default(math_contract, get_transaction_count):
-    blocknum, starting_txns = get_transaction_count("pending")
+    # Use to verify correct operation later on
+    start_count = math_contract.counter()
+    assert is_integer(start_count) # Verify correct type
     # When a function is called that defaults to transact
-    # (Verify something was returned)
-    assert math_contract.return13() is not None
+    blocknum, starting_txns = get_transaction_count("pending")
+    math_contract.increment()
     # Check that a transaction was made and not a call
+    assert math_contract.counter() - start_count == 1
     # (Auto-mining is enabled, so query by block number)
     assert get_transaction_count(blocknum) == starting_txns + 1
+    # Check that only one block was mined
+    assert get_transaction_count("pending") == (blocknum + 1, 0)
 
 
 def test_implicitcontract_call_override(math_contract, get_transaction_count):
-    blocknum, starting_txns = get_transaction_count("pending")
     # When a function is called with transact override that defaults to call
-    # (Verify something was returned)
-    assert math_contract.counter(transact={}) is not None
+    blocknum, starting_txns = get_transaction_count("pending")
+    math_contract.counter(transact={})
     # Check that a transaction was made and not a call
     # (Auto-mining is enabled, so query by block number)
     assert get_transaction_count(blocknum) == starting_txns + 1
+    # Check that only one block was mined
+    assert get_transaction_count("pending") == (blocknum + 1, 0)
 
 
 def test_implicitcontract_transact_override(math_contract, get_transaction_count):
-    blocknum, starting_txns = get_transaction_count("pending")
+    # Use to verify correct operation later on
+    start_count = math_contract.counter()
+    assert is_integer(start_count) # Verify correct type
     # When a function is called with call override that defaults to transact
-    # (Verify something was returned)
-    assert math_contract.return13(call={}) is not None
+    blocknum, starting_txns = get_transaction_count("pending")
+    math_contract.increment(call={})
     # Check that a call was made and not a transact
+    assert math_contract.counter() - start_count == 0
     # (Auto-mining is enabled, so query by block number)
     assert get_transaction_count(blocknum) == starting_txns
+    # Check that no blocks were mined
+    assert get_transaction_count("pending") == (blocknum, 0)
