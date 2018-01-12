@@ -746,8 +746,8 @@ class ImplicitContract(ConciseContract):
 class ImplicitMethod(ConciseMethod):
     def __call_by_default(self, args):
         # If function is constant in ABI, then call by default, else transact
-        function_abi = find_matching_fn_abi(self._function.contract_abi, 
-                                            fn_name=self._function.method_name, 
+        function_abi = find_matching_fn_abi(self._function.contract_abi,
+                                            fn_name=self._function.method_name,
                                             args=args)
         return function_abi['constant'] if 'constant' in function_abi.keys() else False
 
