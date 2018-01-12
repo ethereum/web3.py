@@ -105,12 +105,22 @@ def _get_block_by_something(method, params):
 @pytest.mark.parametrize(
     'strategy_params,expected',
     (
-        (dict(max_wait_seconds=60, sample_size=5, probability=98), 58),
-        (dict(max_wait_seconds=60, sample_size=5, probability=90), 46),
+        # 120 second wait times
+        (dict(max_wait_seconds=80, sample_size=5, probability=98), 35),
+        (dict(max_wait_seconds=80, sample_size=5, probability=90), 27),
+        (dict(max_wait_seconds=80, sample_size=5, probability=50), 10),
+        # 60 second wait times
+        (dict(max_wait_seconds=60, sample_size=5, probability=98), 44),
+        (dict(max_wait_seconds=60, sample_size=5, probability=90), 29),
         (dict(max_wait_seconds=60, sample_size=5, probability=50), 11),
-        (dict(max_wait_seconds=40, sample_size=5, probability=90), 56),
-        (dict(max_wait_seconds=20, sample_size=5, probability=90), 60),
-        (dict(max_wait_seconds=80, sample_size=5, probability=90), 36),
+        # 40 second wait times
+        (dict(max_wait_seconds=40, sample_size=5, probability=98), 48),
+        (dict(max_wait_seconds=40, sample_size=5, probability=90), 38),
+        (dict(max_wait_seconds=40, sample_size=5, probability=50), 16),
+        # 20 second wait times
+        (dict(max_wait_seconds=20, sample_size=5, probability=98), 49),
+        (dict(max_wait_seconds=20, sample_size=5, probability=90), 45),
+        (dict(max_wait_seconds=20, sample_size=5, probability=50), 25),
     ),
 )
 def test_time_based_gas_price_strategy(strategy_params, expected):

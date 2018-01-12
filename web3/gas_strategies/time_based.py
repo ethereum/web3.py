@@ -20,13 +20,18 @@ MinerData = collections.namedtuple('MinerData', ['miner', 'num_blocks', 'min_gas
 Probability = collections.namedtuple('Probability', ['gas_price', 'prob'])
 
 
-def get_avg_block_time(w3, sample_size):
+def _get_avg_block_time(w3, sample_size):
     latest = w3.eth.getBlock('latest')
-    oldest = w3.eth.getBlock(max(0, latest['number'] - sample_size))
-    return (latest['timestamp'] - oldest['timestamp']) / sample_size
+
+    if latest['number'] == 0 or sample_size == 0:
+        return 0
+
+    constrained_sample_size = min(sample_size, latest['number'])
+    oldest = w3.eth.getBlock(latest['number'] - constrained_sample_size)
+    return (latest['timestamp'] - oldest['timestamp']) / constrained_sample_size
 
 
-def get_raw_miner_data(w3, sample_size):
+def _get_raw_miner_data(w3, sample_size):
     latest = w3.eth.getBlock('latest', full_transactions=True)
 
     for transaction in latest['transactions']:
@@ -44,8 +49,8 @@ def get_raw_miner_data(w3, sample_size):
             yield (block['miner'], block['hash'], transaction['gasPrice'])
 
 
-def aggregate_miner_data(raw_data):
-    data_by_miner = groupby(1, raw_data)
+def _aggregate_miner_data(raw_data):
+    data_by_miner = groupby(0, raw_data)
 
     for miner, miner_data in data_by_miner.items():
         _, block_hashes, gas_prices = map(set, zip(*miner_data))
@@ -53,7 +58,7 @@ def aggregate_miner_data(raw_data):
 
 
 @to_tuple
-def compute_probabilities(miner_data, wait_blocks, sample_size):
+def _compute_probabilities(miner_data, wait_blocks, sample_size):
     """
     Computes the probabilities that a txn will be accepted at each of the gas
     prices accepted by the miners.
@@ -71,7 +76,16 @@ def compute_probabilities(miner_data, wait_blocks, sample_size):
         yield Probability(min_gas_price, probability_accepted)
 
 
-def compute_gas_price(probabilities, desired_probability):
+def _compute_gas_price(probabilities, desired_probability):
+    """
+    Given a sorted range of ``Probability`` named-tuples returns a gas price
+    computed based on where the ``desired_probability`` would fall within the
+    range.
+
+    :param probabilities: An iterable of `Probability` named-tuples sorted in reverse order.
+    :param desired_probability: An floating point representation of the desired
+        probability. (e.g. ``85% -> 0.85``)
+    """
     first = probabilities[0]
     last = probabilities[-1]
 
@@ -84,6 +98,9 @@ def compute_gas_price(probabilities, desired_probability):
         if desired_probability < right.prob:
             continue
         elif desired_probability > left.prob:
+            # This code block should never be reachable as it would indicate
+            # that we already passed by the probability window in which our
+            # `desired_probability` is located.
             raise Exception('Invariant')
 
         adj_prob = desired_probability - right.prob
@@ -93,6 +110,14 @@ def compute_gas_price(probabilities, desired_probability):
         gas_price = int(math.ceil(right.gas_price + gas_window_size * position))
         return gas_price
     else:
+        # The initial `if/else` clause in this function handles the case where
+        # the `desired_probability` is either above or below the min/max
+        # probability found in the `probabilities`.
+        #
+        # With these two cases handled, the only way this code block should be
+        # reachable would be if the `probabilities` were not sorted correctly.
+        # Otherwise, the `desired_probability` **must** fall between two of the
+        # values in the `probabilities``.
         raise Exception('Invariant')
 
 
@@ -113,19 +138,19 @@ def construct_time_based_gas_price_strategy(max_wait_seconds,
         and 100 means 100%.
     """
     def time_based_gas_price_strategy(web3, transaction_params):
-        avg_block_time = get_avg_block_time(web3, sample_size=sample_size)
+        avg_block_time = _get_avg_block_time(web3, sample_size=sample_size)
         wait_blocks = int(math.ceil(max_wait_seconds / avg_block_time))
 
-        raw_miner_data = get_raw_miner_data(web3, sample_size=sample_size)
-        miner_data = aggregate_miner_data(raw_miner_data)
+        raw_miner_data = _get_raw_miner_data(web3, sample_size=sample_size)
+        miner_data = _aggregate_miner_data(raw_miner_data)
 
-        probabilities = compute_probabilities(
+        probabilities = _compute_probabilities(
             miner_data,
             wait_blocks=wait_blocks,
             sample_size=sample_size,
         )
 
-        gas_price = compute_gas_price(probabilities, probability / 100)
+        gas_price = _compute_gas_price(probabilities, probability / 100)
         return gas_price
     return time_based_gas_price_strategy
 
