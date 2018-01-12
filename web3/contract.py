@@ -702,13 +702,13 @@ class ConciseMethod:
     ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'buildTransaction'])
 
     def __init__(self, function, normalizers=None):
-        self.__function = function
-        self.__function._return_data_normalizers = normalizers
+        self._function = function
+        self._function._return_data_normalizers = normalizers
 
     def __call__(self, *args, **kwargs):
-        return self._prepared_function(*args, **kwargs)
+        return self.__prepared_function(*args, **kwargs)
 
-    def _prepared_function(self, *args, **kwargs):
+    def __prepared_function(self, *args, **kwargs):
         if not kwargs:
             modifier, modifier_dict = 'call', {}
         elif len(kwargs) == 1:
@@ -719,7 +719,7 @@ class ConciseMethod:
         else:
             raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
 
-        return getattr(self.__function(*args), modifier)(modifier_dict)
+        return getattr(self._function(*args), modifier)(modifier_dict)
 
 
 class ImplicitContract(ConciseContract):
@@ -738,29 +738,25 @@ class ImplicitContract(ConciseContract):
 
     > contract.transact({}).withdraw(amount)
     '''
-    def __is_constant(self, fn_name):
-        # If function is constant in ABI, then call by default, else transact
-        function_abi = self._classic_contract._find_matching_fn_abi(fn_name=fn_name)
-        return function_abi['constant'] if 'constant' in function_abi.keys() else False
-
     def __getattr__(self, attr):
-        call_by_default = self.__is_constant(attr)
         contract_function = getattr(self._classic_contract.functions, attr)
-        return ImplicitMethod(contract_function, self._classic_contract._return_data_normalizers,
-                              call_by_default)
+        return ImplicitMethod(contract_function, self._classic_contract._return_data_normalizers)
 
 
 class ImplicitMethod(ConciseMethod):
-    def __init__(self, function, normalizers=None, call_by_default=True):
-        self.call_by_default = call_by_default
-        super().__init__(function, normalizers)
+    def __call_by_default(self, args):
+        # If function is constant in ABI, then call by default, else transact
+        function_abi = find_matching_fn_abi(self._function.contract_abi, 
+                                            fn_name=self._function.method_name, 
+                                            args=args)
+        return function_abi['constant'] if 'constant' in function_abi.keys() else False
 
-    def _prepared_function(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs):
         # Modifier is not provided and method is not constant/pure do a transaction instead
-        if not kwargs and not self.call_by_default:
-            return super()._prepared_function(*args, transact={})
+        if not kwargs and not self.__call_by_default(args):
+            return super().__call__(*args, transact={})
         else:
-            return super()._prepared_function(*args, **kwargs)
+            return super().__call__(*args, **kwargs)
 
 
 class ContractMethod(object):
