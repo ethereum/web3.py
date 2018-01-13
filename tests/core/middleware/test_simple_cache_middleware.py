@@ -57,7 +57,7 @@ def test_simple_cache_middleware_populates_cache(w3):
     result = w3.manager.request_blocking('fake_endpoint', [])
 
     assert w3.manager.request_blocking('fake_endpoint', []) == result
-    assert not w3.manager.request_blocking('fake_endpoint', [1]) == result
+    assert w3.manager.request_blocking('fake_endpoint', [1]) != result
 
 
 def test_simple_cache_middleware_does_not_cache_none_responses(w3_base):
@@ -102,7 +102,7 @@ def test_simple_cache_middleware_does_not_cache_error_responses(w3_base):
     assert str(err_a) != str(err_b)
 
 
-def test_simple_cache_middleware_does_not_endpoints_not_in_whitelist(w3):
+def test_simple_cache_middleware_does_not_cache_endpoints_not_in_whitelist(w3):
     w3.middleware_stack.add(construct_simple_cache_middleware(
         cache_class=dict,
         rpc_whitelist={'fake_endpoint'},
@@ -111,4 +111,4 @@ def test_simple_cache_middleware_does_not_endpoints_not_in_whitelist(w3):
     result_a = w3.manager.request_blocking('not_whitelisted', [])
     result_b = w3.manager.request_blocking('not_whitelisted', [])
 
-    assert not result_a == result_b
+    assert result_a != result_b

@@ -145,9 +145,10 @@ def w3(w3_base,
     return w3_base
 
 
-def test_latest_block_based_cache_middleware_pulls_from_cache(w3_base,
-                                                              block_data_middleware,
-                                                              result_generator_middleware):
+def test_latest_block_based_cache_middleware_pulls_from_cache(
+        w3_base,
+        block_data_middleware,
+        result_generator_middleware):
     w3 = w3_base
     w3.middleware_stack.add(block_data_middleware)
     w3.middleware_stack.add(result_generator_middleware)
@@ -173,7 +174,7 @@ def test_latest_block_based_cache_middleware_populates_cache(w3):
     result = w3.manager.request_blocking('fake_endpoint', [])
 
     assert w3.manager.request_blocking('fake_endpoint', []) == result
-    assert not w3.manager.request_blocking('fake_endpoint', [1]) == result
+    assert w3.manager.request_blocking('fake_endpoint', [1]) != result
 
 
 def test_latest_block_based_cache_middleware_busts_cache(w3, mocker):
@@ -188,12 +189,13 @@ def test_latest_block_based_cache_middleware_busts_cache(w3, mocker):
 
     mocker.patch('time.time', return_value=time.time() + 5)
 
-    assert not w3.manager.request_blocking('fake_endpoint', []) == result
+    assert w3.manager.request_blocking('fake_endpoint', []) != result
 
 
-def test_latest_block_cache_middleware_does_not_cache_bad_responses(w3_base,
-                                                                    block_data_middleware,
-                                                                    latest_block_based_cache_middleware):
+def test_latest_block_cache_middleware_does_not_cache_bad_responses(
+        w3_base,
+        block_data_middleware,
+        latest_block_based_cache_middleware):
     counter = itertools.count()
     w3 = w3_base
 
@@ -214,9 +216,10 @@ def test_latest_block_cache_middleware_does_not_cache_bad_responses(w3_base,
     assert next(counter) == 2
 
 
-def test_latest_block_cache_middleware_does_not_cache_error_response(w3_base,
-                                                                     block_data_middleware,
-                                                                     latest_block_based_cache_middleware):
+def test_latest_block_cache_middleware_does_not_cache_error_response(
+        w3_base,
+        block_data_middleware,
+        latest_block_based_cache_middleware):
     counter = itertools.count()
     w3 = w3_base
 
@@ -224,7 +227,6 @@ def test_latest_block_cache_middleware_does_not_cache_error_response(w3_base,
         next(counter)
         return "the error message"
 
-    w3 = w3_base
     w3.middleware_stack.add(block_data_middleware)
     w3.middleware_stack.add(construct_error_generator_middleware({
         'fake_endpoint': error_cb,
