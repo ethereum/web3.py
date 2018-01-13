@@ -271,7 +271,7 @@ AVG_BLOCK_TIME_UPDATED_AT_KEY = 'avg_block_time_updated_at'
 def _is_latest_or_pending_block_request(method, params):
     if method != 'eth_getBlockByNumber':
         return False
-    elif params == ['latest'] or params == ['pending']:
+    elif params == ['latest']:
         return True
     return False
 
