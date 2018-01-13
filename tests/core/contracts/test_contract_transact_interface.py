@@ -35,6 +35,21 @@ def string_contract(web3, StringContract):
     return _math_contract
 
 
+@pytest.fixture()
+def arrays_contract(web3, ArraysContract):
+    # bytes_32 = [keccak('0'), keccak('1')]
+    bytes32_array = [
+        b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',  # noqa: E501
+        b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6',  # noqa: E501
+    ]
+    byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
+    deploy_txn = ArraysContract.deploy(args=[bytes32_array, byte_arr])
+    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    _arrays_contract = ArraysContract(address=deploy_receipt['contractAddress'])
+    return _arrays_contract
+
+
 def test_transacting_with_contract_no_arguments(web3, math_contract):
     initial_value = math_contract.call().counter()
 
@@ -105,6 +120,31 @@ def test_transacting_with_contract_with_string_argument(web3, string_contract):
     final_value = string_contract.functions.getValue().call()
 
     assert final_value == "ÄLÄMÖLÖ"
+
+
+def test_transacting_with_contract_with_bytes32_array_argument(web3, arrays_contract):
+    # new_bytes32_array = [keccak('1'), keccak('2'), keccak('3')]
+    new_bytes32_array = [
+        b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6',  # noqa: E501
+        b'\xad|[\xef\x02x\x16\xa8\x00\xda\x176DO\xb5\x8a\x80~\xf4\xc9`;xHg?~:h\xeb\x14\xa5',
+        b"*\x80\xe1\xef\x1dxB\xf2\x7f.k\xe0\x97+\xb7\x08\xb9\xa15\xc3\x88`\xdb\xe7<'\xc3Hl4\xf4\xde",  # noqa: E501
+    ]
+    txn_hash = arrays_contract.transact().setBytes32Value(new_bytes32_array)
+    txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
+    assert txn_receipt is not None
+
+    final_value = arrays_contract.call().getBytes32Value()
+    assert final_value == new_bytes32_array
+
+
+def test_transacting_with_contract_with_byte_array_argument(web3, arrays_contract):
+    new_byte_array = [b'\x03', b'\x03', b'\x03', b'\x03', b'\x03', b'\x03']
+    txn_hash = arrays_contract.transact().setByteValue(new_byte_array)
+    txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
+    assert txn_receipt is not None
+
+    final_value = arrays_contract.call().getByteValue()
+    assert final_value == new_byte_array
 
 
 def test_transacting_with_contract_respects_explicit_gas(web3,
