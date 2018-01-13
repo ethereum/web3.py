@@ -703,8 +703,8 @@ class ConciseMethod:
     ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'buildTransaction'])
 
     def __init__(self, function, normalizers=None):
-        self.__function = function
-        self.__function._return_data_normalizers = normalizers
+        self._function = function
+        self._function._return_data_normalizers = normalizers
 
     def __call__(self, *args, **kwargs):
         return self.__prepared_function(*args, **kwargs)
@@ -720,7 +720,44 @@ class ConciseMethod:
         else:
             raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
 
-        return getattr(self.__function(*args), modifier)(modifier_dict)
+        return getattr(self._function(*args), modifier)(modifier_dict)
+
+
+class ImplicitContract(ConciseContract):
+    '''
+    ImplicitContract class is similar to the ConciseContract class
+    however it performs a transaction instead of a call if no modifier
+    is given and the method is not marked 'constant' in the ABI.
+
+    The transaction will use the default account to send the transaction.
+
+    This call
+
+    > contract.withdraw(amount)
+
+    is equivalent to this call in the classic contract:
+
+    > contract.transact({}).withdraw(amount)
+    '''
+    def __getattr__(self, attr):
+        contract_function = getattr(self._classic_contract.functions, attr)
+        return ImplicitMethod(contract_function, self._classic_contract._return_data_normalizers)
+
+
+class ImplicitMethod(ConciseMethod):
+    def __call_by_default(self, args):
+        # If function is constant in ABI, then call by default, else transact
+        function_abi = find_matching_fn_abi(self._function.contract_abi,
+                                            fn_name=self._function.method_name,
+                                            args=args)
+        return function_abi['constant'] if 'constant' in function_abi.keys() else False
+
+    def __call__(self, *args, **kwargs):
+        # Modifier is not provided and method is not constant/pure do a transaction instead
+        if not kwargs and not self.__call_by_default(args):
+            return super().__call__(*args, transact={})
+        else:
+            return super().__call__(*args, **kwargs)
 
 
 class ContractMethod(object):
