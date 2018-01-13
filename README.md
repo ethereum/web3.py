@@ -73,7 +73,7 @@ print('Contract value: {}'.format(contract_instance.greet()))
 If you would like to hack on web3.py, set up your dev environment with:
 
 ```sh
-sudo apt-get install libssl-dev
+sudo apt-get install libssl-dev libffi-dev autoconf automake libtool
 # ^ This is for Debian-like systems. TODO: Add more platforms
 
 git clone git@github.com:ethereum/web3.py.git
