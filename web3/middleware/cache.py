@@ -1,5 +1,6 @@
 import functools
 import time
+import threading
 
 import lru
 
@@ -271,7 +272,7 @@ AVG_BLOCK_TIME_UPDATED_AT_KEY = 'avg_block_time_updated_at'
 def _is_latest_block_number_request(method, params):
     if method != 'eth_getBlockByNumber':
         return False
-    elif params == ['latest']:
+    elif params[:1] == ['latest']:
         return True
     return False
 
@@ -350,24 +351,33 @@ def construct_latest_block_based_cache_middleware(
                 # latest block has not been fetched so we fetch it.
                 block_info['latest_block'] = web3.eth.getBlock('latest')
 
-        def middleware(method, params):
-            should_try_cache = (
-                method in rpc_whitelist and
-                not _is_latest_block_number_request(method, params)
-            )
-            if should_try_cache:
-                _update_block_info_cache()
-                latest_block_hash = block_info['latest_block']['hash']
-                cache_key = generate_cache_key((latest_block_hash, method, params))
-                if cache_key in cache:
-                    return cache[cache_key]
+        lock = threading.Lock()
 
-                response = make_request(method, params)
-                if should_cache_fn(method, params, response):
-                    cache[cache_key] = response
-                return response
-            else:
-                return make_request(method, params)
+        def middleware(method, params):
+            lock_aquired = lock.acquire(blocking=False)
+
+            try:
+                should_try_cache = (
+                    lock_aquired and
+                    method in rpc_whitelist and
+                    not _is_latest_block_number_request(method, params)
+                )
+                if should_try_cache:
+                    _update_block_info_cache()
+                    latest_block_hash = block_info['latest_block']['hash']
+                    cache_key = generate_cache_key((latest_block_hash, method, params))
+                    if cache_key in cache:
+                        return cache[cache_key]
+
+                    response = make_request(method, params)
+                    if should_cache_fn(method, params, response):
+                        cache[cache_key] = response
+                    return response
+                else:
+                    return make_request(method, params)
+            finally:
+                if lock_aquired:
+                    lock.release()
         return middleware
     return latest_block_based_cache_middleware
 

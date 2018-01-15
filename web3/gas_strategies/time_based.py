@@ -1,6 +1,6 @@
-import operator
 import collections
 import math
+import operator
 
 from cytoolz import (
     curry,
@@ -42,6 +42,7 @@ def _get_raw_miner_data(w3, sample_size):
     for _ in range(sample_size - 1):
         if block['number'] == 0:
             break
+
         # we intentionally trace backwards using parent hashes rather than
         # block numbers to make caching the data easier to implement.
         block = w3.eth.getBlock(block['parentHash'], full_transactions=True)
