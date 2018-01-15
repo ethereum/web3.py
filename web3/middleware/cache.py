@@ -268,7 +268,7 @@ AVG_BLOCK_SAMPLE_SIZE_KEY = 'avg_block_sample_size'
 AVG_BLOCK_TIME_UPDATED_AT_KEY = 'avg_block_time_updated_at'
 
 
-def _is_latest_or_pending_block_request(method, params):
+def _is_latest_block_number_request(method, params):
     if method != 'eth_getBlockByNumber':
         return False
     elif params == ['latest']:
@@ -353,7 +353,7 @@ def construct_latest_block_based_cache_middleware(
         def middleware(method, params):
             should_try_cache = (
                 method in rpc_whitelist and
-                not _is_latest_or_pending_block_request(method, params)
+                not _is_latest_block_number_request(method, params)
             )
             if should_try_cache:
                 _update_block_info_cache()
