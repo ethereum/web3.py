@@ -88,18 +88,25 @@ def construct_simple_cache_middleware(
     """
     def simple_cache_middleware(make_request, web3):
         cache = cache_class()
+        lock = threading.Lock()
 
         def middleware(method, params):
-            if method in rpc_whitelist:
-                cache_key = generate_cache_key((method, params))
-                if cache_key not in cache:
-                    response = make_request(method, params)
-                    if should_cache_fn(method, params, response):
-                        cache[cache_key] = response
-                    return response
-                return cache[cache_key]
-            else:
-                return make_request(method, params)
+            lock_acquired = lock.acquire(blocking=False)
+
+            try:
+                if lock_acquired and method in rpc_whitelist:
+                    cache_key = generate_cache_key((method, params))
+                    if cache_key not in cache:
+                        response = make_request(method, params)
+                        if should_cache_fn(method, params, response):
+                            cache[cache_key] = response
+                        return response
+                    return cache[cache_key]
+                else:
+                    return make_request(method, params)
+            finally:
+                if lock_acquired:
+                    lock.release()
         return middleware
     return simple_cache_middleware
 
@@ -180,29 +187,36 @@ def construct_time_based_cache_middleware(
     """
     def time_based_cache_middleware(make_request, web3):
         cache = cache_class()
+        lock = threading.Lock()
 
         def middleware(method, params):
-            if method in rpc_whitelist:
-                cache_key = generate_cache_key((method, params))
-                if cache_key in cache:
-                    # check that the cached response is not expired.
-                    cached_at, cached_response = cache[cache_key]
-                    cached_for = time.time() - cached_at
+            lock_acquired = lock.acquire(blocking=False)
 
-                    if cached_for <= cache_expire_seconds:
-                        return cached_response
-                    else:
-                        del cache[cache_key]
+            try:
+                if lock_acquired and method in rpc_whitelist:
+                    cache_key = generate_cache_key((method, params))
+                    if cache_key in cache:
+                        # check that the cached response is not expired.
+                        cached_at, cached_response = cache[cache_key]
+                        cached_for = time.time() - cached_at
 
-                # cache either missed or expired so make the request.
-                response = make_request(method, params)
+                        if cached_for <= cache_expire_seconds:
+                            return cached_response
+                        else:
+                            del cache[cache_key]
 
-                if should_cache_fn(method, params, response):
-                    cache[cache_key] = (time.time(), response)
+                    # cache either missed or expired so make the request.
+                    response = make_request(method, params)
 
-                return response
-            else:
-                return make_request(method, params)
+                    if should_cache_fn(method, params, response):
+                        cache[cache_key] = (time.time(), response)
+
+                    return response
+                else:
+                    return make_request(method, params)
+            finally:
+                if lock_acquired:
+                    lock.release()
         return middleware
     return time_based_cache_middleware
 
@@ -354,11 +368,11 @@ def construct_latest_block_based_cache_middleware(
         lock = threading.Lock()
 
         def middleware(method, params):
-            lock_aquired = lock.acquire(blocking=False)
+            lock_acquired = lock.acquire(blocking=False)
 
             try:
                 should_try_cache = (
-                    lock_aquired and
+                    lock_acquired and
                     method in rpc_whitelist and
                     not _is_latest_block_number_request(method, params)
                 )
@@ -376,7 +390,7 @@ def construct_latest_block_based_cache_middleware(
                 else:
                     return make_request(method, params)
             finally:
-                if lock_aquired:
+                if lock_acquired:
                     lock.release()
         return middleware
     return latest_block_based_cache_middleware
