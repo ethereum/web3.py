@@ -10,9 +10,9 @@ from .cache import (  # noqa: F401
     construct_simple_cache_middleware,
     construct_time_based_cache_middleware,
     construct_latest_block_based_cache_middleware,
-    simple_cache_middleware,
-    time_based_cache_middleware,
-    latest_block_based_cache_middleware,
+    _simple_cache_middleware as simple_cache_middleware,
+    _time_based_cache_middleware as time_based_cache_middleware,
+    _latest_block_based_cache_middleware as latest_block_based_cache_middleware,
 )
 from .exception_handling import (  # noqa: F401
     construct_exception_handler_middleware,
