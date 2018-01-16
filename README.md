@@ -76,6 +76,9 @@ If you would like to hack on web3.py, set up your dev environment with:
 sudo apt-get install libssl-dev
 # ^ This is for Debian-like systems. TODO: Add more platforms
 
+sudo pacman -Sy libsecp256k1
+# ^ This is for ArchLinux system
+
 git clone git@github.com:ethereum/web3.py.git
 cd web3.py
 virtualenv venv
