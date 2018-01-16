@@ -21,7 +21,10 @@ def wrap_result(fn):
 @wrap_result
 def _get_block_by_something(method, params):
     block_identifier = params[0]
-    if block_identifier == 'latest' or block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000005':
+    if (
+        block_identifier == 'latest' or 
+        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000005'
+    ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000005',
             'number': 5,
@@ -85,7 +88,10 @@ def _get_block_by_something(method, params):
             'miner': '0xA',
             'timestamp': 20,
         }
-    elif block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000000' or block_identifier == 0:
+    elif (
+        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000000' or 
+        block_identifier == 0
+    ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000000',
             'number': 0,
