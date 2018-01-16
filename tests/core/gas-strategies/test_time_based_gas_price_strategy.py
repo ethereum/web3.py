@@ -6,7 +6,7 @@ from web3.gas_strategies.time_based import (
     construct_time_based_gas_price_strategy,
 )
 from web3.middleware import (
-    construct_fixture_middleware,
+    construct_result_generator_middleware,
 )
 
 
@@ -124,7 +124,7 @@ def _get_block_by_something(method, params):
     ),
 )
 def test_time_based_gas_price_strategy(strategy_params, expected):
-    fixture_middleware = construct_fixture_middleware({
+    fixture_middleware = construct_result_generator_middleware({
         'eth_getBlockByHash': _get_block_by_something,
         'eth_getBlockByNumber': _get_block_by_something,
     })
