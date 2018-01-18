@@ -20,7 +20,7 @@ def test_sync_filter_against_log_events(web3_empty,
     txn_filter = web3.eth.filter({})
 
     txn_hashes = []
-    txn_hashes.append(emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments))
+    txn_hashes.append(emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact())
 
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
@@ -50,7 +50,7 @@ def test_async_filter_against_log_events(web3_empty,
 
     txn_hashes = []
 
-    txn_hashes.append(emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments))
+    txn_hashes.append(emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact())
 
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)

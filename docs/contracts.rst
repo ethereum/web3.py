@@ -46,7 +46,7 @@ example in :class:`ConciseContract` for specifying an alternate factory.
 
         >>>  # which is equivalent to this transaction in the classic contract:
 
-        >>> contract.transact({'from': eth.accounts[1], 'gas': 100000, ...}).withdraw(amount)
+        >>> contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
 
 
 Properties
@@ -104,7 +104,7 @@ Each Contract Factory exposes the following methods.
 
     Returns the transaction hash for the deploy transaction.
 
-.. py:method:: Contract.transact(transaction).myMethod(*args, **kwargs)
+.. py:method:: Contract.functions.myMethod(*args, **kwargs).transact(transaction)
 
     Execute the specified function by sending a new public transaction.  
 
@@ -131,7 +131,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >>> token_contract.transact().transfer(web3.eth.accounts[1], 12345)
+        >>> token_contract.functions.transfer(web3.eth.accounts[1], 12345).transact()
         "0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd"
 
 

@@ -129,7 +129,7 @@ def test_transacting_with_contract_with_bytes32_array_argument(web3, arrays_cont
         b'\xad|[\xef\x02x\x16\xa8\x00\xda\x176DO\xb5\x8a\x80~\xf4\xc9`;xHg?~:h\xeb\x14\xa5',
         b"*\x80\xe1\xef\x1dxB\xf2\x7f.k\xe0\x97+\xb7\x08\xb9\xa15\xc3\x88`\xdb\xe7<'\xc3Hl4\xf4\xde",  # noqa: E501
     ]
-    txn_hash = arrays_contract.transact().setBytes32Value(new_bytes32_array)
+    txn_hash = arrays_contract.functions.setBytes32Value(new_bytes32_array).transact()
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt is not None
 
@@ -139,7 +139,7 @@ def test_transacting_with_contract_with_bytes32_array_argument(web3, arrays_cont
 
 def test_transacting_with_contract_with_byte_array_argument(web3, arrays_contract):
     new_byte_array = [b'\x03', b'\x03', b'\x03', b'\x03', b'\x03', b'\x03']
-    txn_hash = arrays_contract.transact().setByteValue(new_byte_array)
+    txn_hash = arrays_contract.functions.setByteValue(new_byte_array).transact()
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt is not None
 
