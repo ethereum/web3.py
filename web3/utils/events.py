@@ -25,6 +25,10 @@ from .abi import (
     normalize_event_input_types,
 )
 
+from web3.utils.encoding import (
+    hexstr_if_str,
+    to_bytes,
+)
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
 )
@@ -160,7 +164,7 @@ def get_event_data(event_abi, log_entry):
             len(log_topics),
         ))
 
-    log_data = log_entry['data']
+    log_data = hexstr_if_str(to_bytes, log_entry['data'])
     log_data_abi = exclude_indexed_event_inputs(event_abi)
     log_data_normalized_inputs = normalize_event_input_types(log_data_abi)
     log_data_types = get_event_abi_types_for_decoding(log_data_normalized_inputs)
