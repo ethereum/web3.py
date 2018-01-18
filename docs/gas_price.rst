@@ -75,3 +75,39 @@ Available gas price strategies
     Makes a call to the `JSON-RPC eth_gasPrice 
     method <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_gasprice>`_ which returns
     the gas price configured by the connected Ethereum node. 
+
+.. py:module:: web3.gas_strategies.time_based
+
+.. py:method:: construct_time_based_gas_price_strategy(max_wait_seconds, sample_size, probability)
+
+    Constructs a strategy which will compute a gas price such that the
+    transaction will be mined within a number of seconds defined by
+    ``max_wait_seconds`` with a probability defined by ``probability``.  The
+    gas price is computed by sampling ``sample_size`` of the most recently
+    mined blocks.
+
+    * ``max_wait_seconds`` The desired maxiumum number of seconds the
+      transaction should take to mine.
+    * ``sample_size`` The number of recent blocks to sample
+    * ``probability`` An integer representation of the desired probability that
+      the transaction will be mined within ``max_wait_seconds``.  0 means 0%
+      and 100 means 100%.
+
+    The following ready to use versions of this strategy are available.
+
+    * ``web3.gas_strategies.time_based.fast_gas_price_strategy``: Transaction mined within 60 seconds.
+    * ``web3.gas_strategies.time_based.medium_gas_price_strategy``: Transaction mined within 5 minutes.
+    * ``web3.gas_strategies.time_based.slow_gas_price_strategy``: Transaction mined within 1 hour.
+    * ``web3.gas_strategies.time_based.glacial_gas_price_strategy``: Transaction mined within 24 hours.
+
+    .. warning:: Due to the overhead of sampling the recent blocks it is
+    recommended that a caching solution be used to reduce the amount of chain
+    data that needs to be re-fetched for each request.
+
+.. code-block:: python
+
+    from web3 import Web3
+    from web3.gas_strategies.time_based import medium_gas_price_strategy
+    
+    w3 = Web3(...)
+    w3.eth.setGasPriceStrategy(medium_gas_price_strategy)
