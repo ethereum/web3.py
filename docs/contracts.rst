@@ -173,7 +173,7 @@ Each Contract Factory exposes the following methods.
         >>> my_contract.estimateGas().multiply7(3)
         42650
 
-.. py:method:: Contract.buildTransaction(transaction).myMethod(*args, **kwargs)
+.. py:method:: Contract.functions.myMethod(*args, **kwargs).buildTransaction(transaction)
 
     Builds a transaction dictionary based on the contract function call specified. 
 
@@ -187,7 +187,7 @@ Each Contract Factory exposes the following methods.
 
         .. code-block:: python
 
-            >>> math_contract.buildTransaction({'nonce': 10}).increment(5)
+            >>> math_contract.functions.increment(5).buildTransaction({'nonce': 10})
 
         You may use :meth:`~web3.eth.Eth.getTransactionCount` to get the current nonce
         for an account. Therefore a shortcut for producing a transaction dictionary with 
@@ -195,7 +195,7 @@ Each Contract Factory exposes the following methods.
 
         .. code-block:: python
 
-            >>> math_contract.buildTransaction({'nonce': web3.eth.getTransactionCount('0xF5...')}).increment(5)
+            >>> math_contract.functions.increment(5).buildTransaction({'nonce': web3.eth.getTransactionCount('0xF5...')})
 
     Returns a transaction dictionary. This transaction dictionary can then be sent using 
     :meth:`~web3.eth.Eth.sendTransaction`. 
@@ -205,7 +205,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >>> math_contract.buildTransaction({'gasPrice': 21000000000}).increment(5)
+        >>> math_contract.functions.increment(5).buildTransaction({'gasPrice': 21000000000})
         {
             'to': '0x6Bc272FCFcf89C14cebFC57B8f1543F5137F97dE',
             'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',

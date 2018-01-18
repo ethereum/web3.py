@@ -55,7 +55,7 @@ def test_build_transaction_with_gas_price_strategy_set(web3, math_contract):
     def my_gas_price_strategy(web3, transaction_params):
         return 5
     web3.eth.setGasPriceStrategy(my_gas_price_strategy)
-    txn = math_contract.buildTransaction().increment()
+    txn = math_contract.functions.increment().buildTransaction()
     assert txn == {
         'to': math_contract.address,
         'data': '0xd09de08a',
