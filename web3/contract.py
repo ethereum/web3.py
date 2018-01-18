@@ -411,7 +411,7 @@ class Contract(object):
             contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
 
             # Read "owner" public variable
-            addr = contract.call().owner()
+            addr = contract.functions.owner().call()
 
         :param transaction: Dictionary of transaction info for web3 interface
         :return: ``Caller`` object that has contract public functions
@@ -810,7 +810,7 @@ class ContractMethod(object):
             contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
 
             # Read "owner" public variable
-            addr = contract.call().owner()
+            addr = contract.functions.owner().call()
 
         :param transaction: Dictionary of transaction info for web3 interface
         :return: ``Caller`` object that has contract public functions

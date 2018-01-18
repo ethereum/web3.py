@@ -35,7 +35,7 @@ example in :class:`ConciseContract` for specifying an alternate factory.
 
 
     This variation invokes all methods as a call, so if the classic contract had a method like
-    ``contract.call().owner()``, you could call it with ``concise.owner()`` instead.
+    ``contract.functions.owner().call()``, you could call it with ``concise.owner()`` instead.
 
     For access to send a transaction or estimate gas, you can add a keyword argument like so:
 
@@ -135,7 +135,7 @@ Each Contract Factory exposes the following methods.
         "0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd"
 
 
-.. py:method:: Contract.call(transaction).myMethod(*args, **kwargs)
+.. py:method:: Contract.functions.myMethod(*args, **kwargs).call(transaction)
 
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
@@ -148,11 +148,11 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >>> my_contract.call().multiply7(3)
+        >>> my_contract.functions.multiply7(3).call()
         21
-        >>> token_contract.call({'from': web3.eth.coinbase}).myBalance()
+        >>> token_contract.functions.myBalance().call({'from': web3.eth.coinbase})
         12345  # the token balance for `web3.eth.coinbase`
-        >>> token_contract.call({'from': web3.eth.accounts[1]}).myBalance()
+        >>> token_contract.functions.myBalance().call({'from': web3.eth.accounts[1]})
         54321  # the token balance for the account `web3.eth.accounts[1]`
 
 

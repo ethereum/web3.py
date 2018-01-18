@@ -51,13 +51,13 @@ def arrays_contract(web3, ArraysContract):
 
 
 def test_transacting_with_contract_no_arguments(web3, math_contract):
-    initial_value = math_contract.call().counter()
+    initial_value = math_contract.functions.counter().call()
 
     txn_hash = math_contract.functions.increment().transact()
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt is not None
 
-    final_value = math_contract.call().counter()
+    final_value = math_contract.functions.counter().call()
 
     assert final_value - initial_value == 1
 
@@ -133,7 +133,7 @@ def test_transacting_with_contract_with_bytes32_array_argument(web3, arrays_cont
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt is not None
 
-    final_value = arrays_contract.call().getBytes32Value()
+    final_value = arrays_contract.functions.getBytes32Value().call()
     assert final_value == new_bytes32_array
 
 
@@ -143,7 +143,7 @@ def test_transacting_with_contract_with_byte_array_argument(web3, arrays_contrac
     txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
     assert txn_receipt is not None
 
-    final_value = arrays_contract.call().getByteValue()
+    final_value = arrays_contract.functions.getByteValue().call()
     assert final_value == new_byte_array
 
 
