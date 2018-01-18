@@ -1,6 +1,26 @@
 Release Notes
 =============
 
+v4.0.0-beta.6
+-------------
+
+Released Jan 18, 2017
+
+- New contract function call API: `my_contract.functions.my_func().call()` is preferred over the now
+  deprecated `my_contract.call().my_func()` API.
+- A new, sophisticated gas estimation algorithm, based on the https://ethgasstation.info approach.
+  You must opt-in to the new approach, because it's quite slow. We recommend using the new caching middleware.
+  See :meth:`web3.gas_strategies.time_based.construct_time_based_gas_price_strategy`
+- New caching middleware that can cache based on time, block, or indefinitely.
+- Automatically retry JSON-RPC requests over HTTP, a few times.
+- ConciseContract now has the address directly
+- Many eth-tester fixes. :class:`web3.providers.eth_tester.main.EthereumTesterProvider` is now a
+  legitimate alternative to :class:`web3.providers.tester.EthereumTesterProvider`.
+- ethtest-rpc removed from testing. Tests use eth-tester only, on pyethereum. Soon it will be
+  eth-tester with py-evm.
+- Bumped several dependencies, like eth-tester
+- Documentation updates
+
 v4.0.0-beta.5
 -------------
 
