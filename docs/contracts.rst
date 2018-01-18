@@ -35,7 +35,7 @@ example in :class:`ConciseContract` for specifying an alternate factory.
 
 
     This variation invokes all methods as a call, so if the classic contract had a method like
-    ``contract.call().owner()``, you could call it with ``concise.owner()`` instead.
+    ``contract.functions.owner().call()``, you could call it with ``concise.owner()`` instead.
 
     For access to send a transaction or estimate gas, you can add a keyword argument like so:
 
@@ -46,7 +46,7 @@ example in :class:`ConciseContract` for specifying an alternate factory.
 
         >>>  # which is equivalent to this transaction in the classic contract:
 
-        >>> contract.transact({'from': eth.accounts[1], 'gas': 100000, ...}).withdraw(amount)
+        >>> contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
 
 
 Properties
@@ -104,7 +104,7 @@ Each Contract Factory exposes the following methods.
 
     Returns the transaction hash for the deploy transaction.
 
-.. py:method:: Contract.transact(transaction).myMethod(*args, **kwargs)
+.. py:method:: Contract.functions.myMethod(*args, **kwargs).transact(transaction)
 
     Execute the specified function by sending a new public transaction.  
 
@@ -131,11 +131,11 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >>> token_contract.transact().transfer(web3.eth.accounts[1], 12345)
+        >>> token_contract.functions.transfer(web3.eth.accounts[1], 12345).transact()
         "0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd"
 
 
-.. py:method:: Contract.call(transaction).myMethod(*args, **kwargs)
+.. py:method:: Contract.functions.myMethod(*args, **kwargs).call(transaction)
 
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
@@ -148,11 +148,11 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >>> my_contract.call().multiply7(3)
+        >>> my_contract.functions.multiply7(3).call()
         21
-        >>> token_contract.call({'from': web3.eth.coinbase}).myBalance()
+        >>> token_contract.functions.myBalance().call({'from': web3.eth.coinbase})
         12345  # the token balance for `web3.eth.coinbase`
-        >>> token_contract.call({'from': web3.eth.accounts[1]}).myBalance()
+        >>> token_contract.functions.myBalance().call({'from': web3.eth.accounts[1]})
         54321  # the token balance for the account `web3.eth.accounts[1]`
 
 
@@ -173,7 +173,7 @@ Each Contract Factory exposes the following methods.
         >>> my_contract.estimateGas().multiply7(3)
         42650
 
-.. py:method:: Contract.buildTransaction(transaction).myMethod(*args, **kwargs)
+.. py:method:: Contract.functions.myMethod(*args, **kwargs).buildTransaction(transaction)
 
     Builds a transaction dictionary based on the contract function call specified. 
 
@@ -187,7 +187,7 @@ Each Contract Factory exposes the following methods.
 
         .. code-block:: python
 
-            >>> math_contract.buildTransaction({'nonce': 10}).increment(5)
+            >>> math_contract.functions.increment(5).buildTransaction({'nonce': 10})
 
         You may use :meth:`~web3.eth.Eth.getTransactionCount` to get the current nonce
         for an account. Therefore a shortcut for producing a transaction dictionary with 
@@ -195,7 +195,7 @@ Each Contract Factory exposes the following methods.
 
         .. code-block:: python
 
-            >>> math_contract.buildTransaction({'nonce': web3.eth.getTransactionCount('0xF5...')}).increment(5)
+            >>> math_contract.functions.increment(5).buildTransaction({'nonce': web3.eth.getTransactionCount('0xF5...')})
 
     Returns a transaction dictionary. This transaction dictionary can then be sent using 
     :meth:`~web3.eth.Eth.sendTransaction`. 
@@ -205,7 +205,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >>> math_contract.buildTransaction({'gasPrice': 21000000000}).increment(5)
+        >>> math_contract.functions.increment(5).buildTransaction({'gasPrice': 21000000000})
         {
             'to': '0x6Bc272FCFcf89C14cebFC57B8f1543F5137F97dE',
             'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',

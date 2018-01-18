@@ -30,7 +30,7 @@ def test_contract_with_name_address(MathContract, math_addr):
         mc = MathContract(address='thedao.eth')
         caller = mc.web3.eth.coinbase
         assert mc.address == 'thedao.eth'
-        assert mc.call({'from': caller}).return13() == 13
+        assert mc.functions.return13().call({'from': caller}) == 13
 
 
 def test_contract_with_name_address_from_eth_contract(
@@ -50,7 +50,7 @@ def test_contract_with_name_address_from_eth_contract(
 
         caller = mc.web3.eth.coinbase
         assert mc.address == 'thedao.eth'
-        assert mc.call({'from': caller}).return13() == 13
+        assert mc.functions.return13().call({'from': caller}) == 13
 
 
 def test_contract_with_name_address_changing(MathContract, math_addr):
@@ -64,13 +64,13 @@ def test_contract_with_name_address_changing(MathContract, math_addr):
     # what happen when name returns no address at all
     with contract_ens_addresses(mc, []):
         with pytest.raises(NameNotFound):
-            mc.call({'from': caller}).return13()
+            mc.functions.return13().call({'from': caller})
 
     # what happen when name returns address to different contract
     with contract_ens_addresses(mc, [('thedao.eth', '0x' + '11' * 20)]):
         with pytest.raises(BadFunctionCallOutput):
-            mc.call({'from': caller}).return13()
+            mc.functions.return13().call({'from': caller})
 
     # contract works again when name resolves correctly
     with contract_ens_addresses(mc, [('thedao.eth', math_addr)]):
-        assert mc.call({'from': caller}).return13() == 13
+        assert mc.functions.return13().call({'from': caller}) == 13

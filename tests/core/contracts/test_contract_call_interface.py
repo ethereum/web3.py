@@ -146,7 +146,7 @@ def test_call_read_string_variable(string_contract):
 
 
 def test_call_get_bytes32_array(arrays_contract):
-    result = arrays_contract.call().getBytes32Value()
+    result = arrays_contract.functions.getBytes32Value().call()
     # expected_bytes32_array = [keccak('0'), keccak('1')]
     expected_bytes32_array = [
         b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',  # noqa: E501
@@ -156,7 +156,7 @@ def test_call_get_bytes32_array(arrays_contract):
 
 
 def test_call_get_bytes32_const_array(arrays_contract):
-    result = arrays_contract.call().getBytes32ConstValue()
+    result = arrays_contract.functions.getBytes32ConstValue().call()
     # expected_bytes32_array = [keccak('A'), keccak('B')]
     expected_bytes32_array = [
         b'\x03x?\xac.\xfe\xd8\xfb\xc9\xadD>Y.\xe3\x0ea\xd6_G\x11@\xc1\x0c\xa1U\xe97\xb45\xb7`',
@@ -166,13 +166,13 @@ def test_call_get_bytes32_const_array(arrays_contract):
 
 
 def test_call_get_byte_array(arrays_contract):
-    result = arrays_contract.call().getByteValue()
+    result = arrays_contract.functions.getByteValue().call()
     expected_byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
     assert result == expected_byte_arr
 
 
 def test_call_get_byte_const_array(arrays_contract):
-    result = arrays_contract.call().getByteConstValue()
+    result = arrays_contract.functions.getByteConstValue().call()
     expected_byte_arr = [b'\x00', b'\x01']
     assert result == expected_byte_arr
 

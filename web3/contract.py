@@ -411,7 +411,7 @@ class Contract(object):
             contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
 
             # Read "owner" public variable
-            addr = contract.call().owner()
+            addr = contract.functions.owner().call()
 
         :param transaction: Dictionary of transaction info for web3 interface
         :return: ``Caller`` object that has contract public functions
@@ -481,13 +481,13 @@ class Contract(object):
 
             >>> wallet = Wallet(address='0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24')
             # Deposit to the `web3.eth.coinbase` account.
-            >>> wallet.transact({'value': 12345}).deposit()
+            >>> wallet.functions.deposit().transact({'value': 12345})
             '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
             # Deposit to some other account using funds from `web3.eth.coinbase`.
-            >>> wallet.transact({'value': 54321}).deposit(web3.eth.accounts[1])
+            >>> wallet.functions.deposit(web3.eth.accounts[1]).transact({'value': 54321})
             '0xe122ba26d25a93911e241232d3ba7c76f5a6bfe9f8038b66b198977115fb1ddf'
             # Withdraw 12345 wei.
-            >>> wallet.transact().withdraw(12345)
+            >>> wallet.functions.withdraw(12345).transact()
 
         The new public transaction will be created.  Transaction receipt will
         be available once the transaction has been mined.
@@ -667,11 +667,11 @@ class ConciseContract(object):
 
     This call
 
-    > contract.withdraw(amount, transact={'from': eth.accounts[1], 'gas': 100000, ...})
+    > contract.functions.withdraw(amount, transact={'from': eth.accounts[1], 'gas': 100000, ...})
 
     is equivalent to this call in the classic contract:
 
-    > contract.transact({'from': eth.accounts[1], 'gas': 100000, ...}).withdraw(amount)
+    > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
     '''
     def __init__(self, classic_contract):
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
@@ -737,7 +737,7 @@ class ImplicitContract(ConciseContract):
 
     is equivalent to this call in the classic contract:
 
-    > contract.transact({}).withdraw(amount)
+    > contract.functions.withdraw(amount).transact({})
     '''
     def __getattr__(self, attr):
         contract_function = getattr(self._classic_contract.functions, attr)
@@ -810,7 +810,7 @@ class ContractMethod(object):
             contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
 
             # Read "owner" public variable
-            addr = contract.call().owner()
+            addr = contract.functions.owner().call()
 
         :param transaction: Dictionary of transaction info for web3 interface
         :return: ``Caller`` object that has contract public functions

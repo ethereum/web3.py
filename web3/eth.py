@@ -3,6 +3,7 @@ from cytoolz.dicttoolz import (
 )
 
 from eth_utils import (
+    apply_to_return_value,
     is_checksum_address,
     is_string,
 )
@@ -19,6 +20,9 @@ from web3.module import (
 
 from web3.utils.blocks import (
     select_method_for_block_identifier,
+)
+from web3.utils.datastructures import (
+    HexBytes,
 )
 from web3.utils.empty import (
     empty,
@@ -224,6 +228,7 @@ class Eth(Module):
             "eth_sign", [account, message_hex],
         )
 
+    @apply_to_return_value(HexBytes)
     def call(self, transaction, block_identifier=None):
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):

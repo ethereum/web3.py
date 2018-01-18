@@ -18,7 +18,7 @@ def test_on_filter_using_get_entries_interface(
     else:
         event_filter = Emitter.eventFilter('LogNoArguments', {})
 
-    txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
+    txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
     wait_for_transaction(web3, txn_hash)
 
     log_entries = event_filter.get_new_entries()
@@ -48,14 +48,15 @@ def test_on_sync_filter_with_event_name_and_single_argument(web3,
         }})
 
     txn_hashes = []
+    event_id = emitter_event_ids.LogTripleWithIndex
     txn_hashes.append(
-        emitter.transact().logTriple(emitter_event_ids.LogTripleWithIndex, 2, 1, 3)
+        emitter.functions.logTriple(event_id, 2, 1, 3).transact()
     )
     txn_hashes.append(
-        emitter.transact().logTriple(emitter_event_ids.LogTripleWithIndex, 1, 2, 3)
+        emitter.functions.logTriple(event_id, 1, 2, 3).transact()
     )
     txn_hashes.append(
-        emitter.transact().logTriple(emitter_event_ids.LogTripleWithIndex, 12345, 2, 54321)
+        emitter.functions.logTriple(event_id, 12345, 2, 54321).transact()
     )
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
@@ -83,14 +84,15 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(web3,
         }})
 
     txn_hashes = []
+    event_id = emitter_event_ids.LogTripleWithIndex
     txn_hashes.append(
-        emitter.transact().logTriple(emitter_event_ids.LogTripleWithIndex, 2, 1, 3)
+        emitter.functions.logTriple(event_id, 2, 1, 3).transact()
     )
     txn_hashes.append(
-        emitter.transact().logTriple(emitter_event_ids.LogTripleWithIndex, 1, 2, 3)
+        emitter.functions.logTriple(event_id, 1, 2, 3).transact()
     )
     txn_hashes.append(
-        emitter.transact().logTriple(emitter_event_ids.LogTripleWithIndex, 12345, 2, 54321)
+        emitter.functions.logTriple(event_id, 12345, 2, 54321).transact()
     )
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)

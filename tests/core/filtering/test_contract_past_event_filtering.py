@@ -18,7 +18,7 @@ def test_on_filter_using_get_all_entries_interface(
     else:
         event_filter = Emitter.eventFilter('LogNoArguments', {})
 
-    txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
+    txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
     wait_for_transaction(web3, txn_hash)
 
     log_entries = event_filter.get_all_entries()
@@ -42,7 +42,7 @@ def test_get_all_entries_returned_block_data(
     emitter_event_ids,
     call_as_instance,
 ):
-    txn_hash = emitter.transact().logNoArgs(emitter_event_ids.LogNoArguments)
+    txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
     if call_as_instance:
