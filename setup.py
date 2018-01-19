@@ -26,11 +26,15 @@ setup(
         "pysha3>=1.0.0,<2.0.0",
         "requests>=2.12.4,<3.0.0",
         "rlp>=0.4.7,<1.0.0",
-        "eth-tester>=0.1.0b11,<0.2.0",
     ],
     setup_requires=['setuptools-markdown'],
     extras_require={
-        'tester': ["py-evm>=0.2.0a8,<1.0"],
+        'tester': [
+            "eth-tester[py-evm]>=0.1.0b12,<0.2.0",
+            # eth-tester only works with evm alpha 8 in beta 12. Starting with eth-tester beta 13,
+            # which freezes py-evm, this comment and the following py-evm requirement can be deleted:
+            "py-evm==0.2.0a8",
+        ],
         'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
         'platform_system=="Windows"': [
             'pypiwin32'  # TODO: specify a version number, move under install_requires
