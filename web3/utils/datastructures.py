@@ -12,10 +12,6 @@ from web3.utils.encoding import (
     to_bytes,
 )
 
-from toolz.dicttoolz import (
-    valmap,
-)
-
 from toolz.functoolz import (
     compose,
 )
@@ -110,7 +106,7 @@ class AttributeDict(ReadableAttributeDict, Hashable):
     @property
     def serialized(self):
         serializers = compose(AttributeDict.serializeHexBytes)
-        return valmap(serializers, self.__dict__)
+        return recursive_map(serializers, self.__dict__)
 
 
 class NamedElementStack(Mapping):

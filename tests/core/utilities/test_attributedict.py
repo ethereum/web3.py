@@ -110,15 +110,32 @@ def test_attributedict_set_in_recursive_dict():
 
 
 def test_serialize_hex_bytes():
-    _input = HexBytes(b'\x11')
-    expected_output = _input.hex()
-    output = AttributeDict.serializeHexBytes(_input)
+    data = HexBytes(b'\x11')
+    expected_output = data.hex()
+    output = AttributeDict.serializeHexBytes(data)
     assert output == expected_output
     assert isinstance(output, str)
 
 
 def test_serialized():
-    _input = AttributeDict({'h': HexBytes(b'\x11')}).serialized
-    expected_output = '{"h": "0x11"}'
-    output = json.dumps(_input)
+    data = {'b': HexBytes(b'\x11')}
+    data = AttributeDict(data).serialized
+    expected_output = '{"b": "0x11"}'
+    output = json.dumps(data)
+    assert output == expected_output
+
+
+def test_recursive_serialized():
+    data = {'a': {'b': HexBytes(b'\x11')}}
+    data = AttributeDict(data).serialized
+    expected_output = '{"a": {"b": "0x11"}}'
+    output = json.dumps(data)
+    assert output == expected_output
+
+
+def test_recursive_serialized_array():
+    data = {'a': [{'b': HexBytes(b'\x11')}]}
+    data = AttributeDict(data).serialized
+    expected_output = '{"a": [{"b": "0x11"}]}'
+    output = json.dumps(data)
     assert output == expected_output
