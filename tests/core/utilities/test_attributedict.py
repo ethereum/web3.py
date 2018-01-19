@@ -2,7 +2,9 @@ import pytest
 
 from web3.utils.datastructures import (
     AttributeDict,
+    HexBytes,
 )
+import json
 
 
 @pytest.mark.parametrize(
@@ -105,3 +107,18 @@ def test_attributedict_set_in_recursive_dict():
     data = {'mydict': {'myset': {'found'}}}
     attrdict = AttributeDict.recursive(data)
     assert 'found' in attrdict.mydict.myset
+
+
+def test_serialize_hex_bytes():
+    _input = HexBytes(b'\x11')
+    expected_output = _input.hex()
+    output = AttributeDict.serializeHexBytes(_input)
+    assert output == expected_output
+    assert isinstance(output, str)
+
+
+def test_serialized():
+    _input = AttributeDict({'h': HexBytes(b'\x11')}).serialized
+    expected_output = '{"h": "0x11"}'
+    output = json.dumps(_input)
+    assert output == expected_output

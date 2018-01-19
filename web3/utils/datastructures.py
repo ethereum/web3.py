@@ -12,6 +12,14 @@ from web3.utils.encoding import (
     to_bytes,
 )
 
+from toolz.dicttoolz import (
+    valmap,
+)
+
+from toolz.functoolz import (
+    compose,
+)
+
 from web3.utils.formatters import recursive_map
 
 # Hashable must be immutable:
@@ -94,6 +102,15 @@ class AttributeDict(ReadableAttributeDict, Hashable):
             return self.__dict__ == dict(other)
         else:
             return False
+
+    @staticmethod
+    def serializeHexBytes(value):
+        return value.hex() if isinstance(value, HexBytes) else value
+
+    @property
+    def serialized(self):
+        serializers = compose(AttributeDict.serializeHexBytes)
+        return valmap(serializers, self.__dict__)
 
 
 class NamedElementStack(Mapping):
