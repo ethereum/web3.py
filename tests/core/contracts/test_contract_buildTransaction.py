@@ -15,8 +15,8 @@ def math_contract(web3, MathContract):
     return _math_contract
 
 
-def test_build_transaction_with_contract_no_arguments(web3, math_contract):
-    txn = math_contract.functions.increment().buildTransaction()
+def test_build_transaction_with_contract_no_arguments(web3, math_contract, buildTransaction):
+    txn = buildTransaction(contract=math_contract, contract_function='increment')
     assert txn == {
         'to': math_contract.address,
         'data': '0xd09de08a',
@@ -27,8 +27,13 @@ def test_build_transaction_with_contract_no_arguments(web3, math_contract):
     }
 
 
-def test_build_transaction_with_contract_class_method(web3, MathContract, math_contract):
-    txn = MathContract.functions.increment().buildTransaction({'to': math_contract.address})
+def test_build_transaction_with_contract_class_method(web3,
+                                                      MathContract,
+                                                      math_contract,
+                                                      buildTransaction):
+    txn = buildTransaction(contract=MathContract,
+                           contract_function='increment',
+                           tx_params={'to': math_contract.address})
     assert txn == {
         'to': math_contract.address,
         'data': '0xd09de08a',
@@ -39,8 +44,10 @@ def test_build_transaction_with_contract_class_method(web3, MathContract, math_c
     }
 
 
-def test_build_transaction_with_contract_default_account_is_set(web3, math_contract):
-    txn = math_contract.functions.increment().buildTransaction()
+def test_build_transaction_with_contract_default_account_is_set(web3,
+                                                                math_contract,
+                                                                buildTransaction):
+    txn = buildTransaction(contract=math_contract, contract_function='increment')
     assert txn == {
         'to': math_contract.address,
         'data': '0xd09de08a',
@@ -51,11 +58,11 @@ def test_build_transaction_with_contract_default_account_is_set(web3, math_contr
     }
 
 
-def test_build_transaction_with_gas_price_strategy_set(web3, math_contract):
+def test_build_transaction_with_gas_price_strategy_set(web3, math_contract, buildTransaction):
     def my_gas_price_strategy(web3, transaction_params):
         return 5
     web3.eth.setGasPriceStrategy(my_gas_price_strategy)
-    txn = math_contract.functions.increment().buildTransaction()
+    txn = buildTransaction(contract=math_contract, contract_function='increment')
     assert txn == {
         'to': math_contract.address,
         'data': '0xd09de08a',
@@ -66,18 +73,22 @@ def test_build_transaction_with_gas_price_strategy_set(web3, math_contract):
     }
 
 
-def test_build_transaction_with_contract_data_supplied_errors(web3, math_contract):
+def test_build_transaction_with_contract_data_supplied_errors(web3,
+                                                              math_contract,
+                                                              buildTransaction):
     with pytest.raises(ValueError):
-        math_contract.functions.increment().buildTransaction({
-            'data': '0x000'
-        })
+        buildTransaction(contract=math_contract,
+                         contract_function='increment',
+                         tx_params={'data': '0x000'})
 
 
-def test_build_transaction_with_contract_to_address_supplied_errors(web3, math_contract):
+def test_build_transaction_with_contract_to_address_supplied_errors(web3,
+                                                                    math_contract,
+                                                                    buildTransaction):
     with pytest.raises(ValueError):
-        math_contract.functions.increment().buildTransaction({
-            'to': '0xb2930B35844a230f00E51431aCAe96Fe543a0347'
-        })
+        buildTransaction(contract=math_contract,
+                         contract_function='increment',
+                         tx_params={'to': '0xb2930B35844a230f00E51431aCAe96Fe543a0347'})
 
 
 @pytest.mark.parametrize(
@@ -127,13 +138,16 @@ def test_build_transaction_with_contract_with_arguments(web3, skip_if_testrpc, m
                                                         method_args,
                                                         method_kwargs,
                                                         expected,
-                                                        skip_testrpc):
+                                                        skip_testrpc,
+                                                        buildTransaction):
     if skip_testrpc:
         skip_if_testrpc(web3)
 
-    txn = math_contract.functions.increment(
-        *method_args, **method_kwargs
-    ).buildTransaction(transaction_args)
+    txn = buildTransaction(contract=math_contract,
+                           contract_function='increment',
+                           func_args=method_args,
+                           func_kwargs=method_kwargs,
+                           tx_params=transaction_args)
     expected['to'] = math_contract.address
     assert txn is not None
     assert txn == expected

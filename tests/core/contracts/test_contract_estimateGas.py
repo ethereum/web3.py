@@ -28,9 +28,9 @@ def math_contract(web3,
     return _math_contract
 
 
-def test_contract_estimateGas(web3, math_contract):
-    gas_estimate = math_contract.functions.increment().estimateGas()
-
+def test_contract_estimateGas(web3, math_contract, estimateGas):
+    gas_estimate = estimateGas(contract=math_contract,
+                               contract_function='increment')
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:

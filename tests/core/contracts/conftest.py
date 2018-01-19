@@ -1,4 +1,5 @@
 import pytest
+import functools
 import json
 
 from eth_utils import (
@@ -437,3 +438,46 @@ def emitter_log_topics():
 @pytest.fixture()
 def some_address():
     return '0x5B2063246F2191f18F2675ceDB8b28102e957458'
+
+
+def invoke_contract(api_style=None,
+                    api_call_desig='call',
+                    contract=None,
+                    contract_function=None,
+                    func_args=[],
+                    func_kwargs={},
+                    tx_params={}):
+    allowable_call_desig = ['call', 'transact', 'estimateGas', 'buildTransaction']
+    if api_call_desig not in allowable_call_desig:
+        raise ValueError("allowable_invoke_method must be one of: %s" % allowable_call_desig)
+
+    if api_style == 'func_first':
+        function = getattr(contract.functions, contract_function)
+        result = getattr(function(*func_args, **func_kwargs), api_call_desig)(tx_params)
+    elif api_style == 'func_last':
+        api_call_cls = getattr(contract, api_call_desig)
+        result = getattr(api_call_cls(tx_params), contract_function)(*func_args, **func_kwargs)
+    else:
+        raise ValueError("api_style must be 'func_first or func_last'")
+
+    return result
+
+
+@pytest.fixture(params=['func_first', 'func_last'])
+def transact(request):
+    return functools.partial(invoke_contract, request.param, api_call_desig='transact')
+
+
+@pytest.fixture(params=['func_first', 'func_last'])
+def call(request):
+    return functools.partial(invoke_contract, request.param, api_call_desig='call')
+
+
+@pytest.fixture(params=['func_first', 'func_last'])
+def estimateGas(request):
+    return functools.partial(invoke_contract, request.param, api_call_desig='estimateGas')
+
+
+@pytest.fixture(params=['func_first', 'func_last'])
+def buildTransaction(request):
+    return functools.partial(invoke_contract, request.param, api_call_desig='buildTransaction')
