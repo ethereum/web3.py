@@ -32,7 +32,7 @@ setup(
         'tester': [
             "eth-tester[py-evm]>=0.1.0b12,<0.2.0",
             # eth-tester only works with evm alpha 8 in beta 12. Starting with eth-tester beta 13,
-            # which freezes py-evm, this comment and the following py-evm requirement can be deleted:
+            # which freezes py-evm, this comment and the following py-evm requirement can be deleted
             "py-evm==0.2.0a8",
         ],
         'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],

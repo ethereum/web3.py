@@ -2,7 +2,6 @@ bumpversion
 flaky>=3.3.0
 flake8==3.4.1
 hypothesis>=3.31.2
-py-evm>=0.2.0a8,<1.0
 py-geth==1.10.2
 pytest==3.2.5
 pytest-mock==1.*
