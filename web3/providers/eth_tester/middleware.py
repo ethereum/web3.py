@@ -263,7 +263,7 @@ def guess_from(web3, transaction):
 
 
 def guess_gas(web3, transaction):
-    return web3.eth.estimateGas(transaction)
+    return web3.eth.estimateGas(transaction) * 2
 
 
 @curry
@@ -281,6 +281,7 @@ fill_default_gas = fill_default('gas', guess_gas)
 
 def default_transaction_fields_middleware(make_request, web3):
     def middleware(method, params):
+        # TODO send call to eth-tester without gas, and remove guess_gas entirely
         if method == 'eth_call':
             filled_transaction = pipe(
                 params[0],
