@@ -2,9 +2,7 @@ import pytest
 
 from web3.utils.datastructures import (
     AttributeDict,
-    HexBytes,
 )
-import json
 
 
 @pytest.mark.parametrize(

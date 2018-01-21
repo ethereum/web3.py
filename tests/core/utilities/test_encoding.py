@@ -36,6 +36,7 @@ from web3.utils.datastructures import (
     AttributeDict,
 )
 
+
 @pytest.mark.parametrize(
     "value,expected",
     [
