@@ -4,6 +4,11 @@ import pytest
 
 from web3 import Web3
 
+from web3.utils.datastructures import (
+    AttributeDict,
+    HexBytes,
+)
+
 
 @pytest.mark.parametrize(
     'val, expected',
@@ -192,3 +197,27 @@ def test_to_hex_text(val, expected):
 )
 def test_to_hex_cleanup_only(val, expected):
     assert Web3.toHex(hexstr=val) == expected
+
+
+@pytest.mark.parametrize(
+    'val, expected',
+    (
+        (AttributeDict({'b': HexBytes(b'\x11')}), {"b": "0x11"}),
+        (AttributeDict({'a': {'b': HexBytes(b'\x11')}}), {"a": {"b": "0x11"}}),
+        (AttributeDict({'a': [{'b': HexBytes(b'\x11')}]}), {"a": [{"b": "0x11"}]}),
+    ),
+)
+def test_to_serial(val, expected):
+    assert Web3.toSerial(val) == expected
+
+
+@pytest.mark.parametrize(
+    'val, expected',
+    (
+        (AttributeDict({'b': HexBytes(b'\x11')}), '{"b": "0x11"}'),
+        (AttributeDict({'a': {'b': HexBytes(b'\x11')}}), '{"a": {"b": "0x11"}}'),
+        (AttributeDict({'a': [{'b': HexBytes(b'\x11')}]}), '{"a": [{"b": "0x11"}]}'),
+    ),
+)
+def test_to_json(val, expected):
+    assert Web3.toJSON(val) == expected

@@ -27,7 +27,7 @@ from web3.utils.hypothesis import (
 
 from web3.utils.encoding import (
     _encode_for_json,
-    to_serialized,
+    to_serial,
     to_json,
 )
 
@@ -163,21 +163,21 @@ def test_encode_for_json():
 def test_to_serialized():
     data = AttributeDict({'b': HexBytes(b'\x11')})
     expected_output = {"b": "0x11"}
-    output = to_serialized(data)
+    output = to_serial(data)
     assert output == expected_output
 
 
 def test_recursive_serialized():
     data = AttributeDict({'a': {'b': HexBytes(b'\x11')}})
     expected_output = {"a": {"b": "0x11"}}
-    output = to_serialized(data)
+    output = to_serial(data)
     assert output == expected_output
 
 
 def test_recursive_serialized_array():
     data = AttributeDict({'a': [{'b': HexBytes(b'\x11')}]})
     expected_output = {"a": [{"b": "0x11"}]}
-    output = to_serialized(data)
+    output = to_serial(data)
     assert output == expected_output
 
 

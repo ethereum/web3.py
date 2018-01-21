@@ -235,13 +235,13 @@ def to_text(primitive=None, hexstr=None, text=None):
     raise TypeError("Expected an int, bytes or hexstr.")
 
 
-def to_serialized(obj):
+def to_serial(obj):
     serialized = recursive_map(_encode_for_json, obj.__dict__)
     return serialized
 
 
 def to_json(obj):
-    serialized = to_serialized(obj)
+    serialized = to_serial(obj)
     return json.dumps(serialized)
 
 

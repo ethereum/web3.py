@@ -53,6 +53,8 @@ from web3.utils.encoding import (
     to_int,
     to_hex,
     to_text,
+    to_json,
+    to_serial,
 )
 from web3.utils.normalizers import (
     abi_ens_resolver,
@@ -90,6 +92,8 @@ class Web3(object):
     toInt = staticmethod(to_int)
     toHex = staticmethod(to_hex)
     toText = staticmethod(to_text)
+    toJSON = staticmethod(to_json)
+    toSerial = staticmethod(to_serial)
 
     # Currency Utility
     toWei = staticmethod(to_wei)
