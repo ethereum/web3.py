@@ -242,7 +242,6 @@ def to_serialized(obj):
 
 def to_json(obj):
     serialized = to_serialized(obj)
-    print(serialized)
     return json.dumps(serialized)
 
 
