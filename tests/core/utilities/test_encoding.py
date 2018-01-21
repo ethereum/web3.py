@@ -181,13 +181,6 @@ def test_recursive_serialized_array():
     assert output == expected_output
 
 
-def test_serialized_AttributeDict():
-    data = AttributeDict({'a': [{'b': HexBytes(b'\x11')}]})
-    expected_output = {"a": [{"b": "0x11"}]}
-    output = to_serialized(data)
-    assert output == expected_output
-
-
 def test_to_json():
     data = AttributeDict({'b': HexBytes(b'\x11')})
     expected_output = '{"b": "0x11"}'
