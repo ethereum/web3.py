@@ -8,6 +8,10 @@ from rlp.sedes import big_endian_int
 from cytoolz import (
     curry,
 )
+from web3.utils.formatters import (
+    recursive_map,
+)
+
 
 from eth_utils import (
     add_0x_prefix,
@@ -50,6 +54,13 @@ def _is_prefixed(value, prefix):
     return value.startswith(
         force_bytes(prefix) if is_bytes(value) else force_text(prefix)
     )
+
+
+def _encode_for_json(val):
+    if isinstance(val, bytes):
+        return val.hex()
+    else:
+        return val
 
 
 def hex_encode_abi_type(abi_type, value, force_size=None):
@@ -222,6 +233,17 @@ def to_text(primitive=None, hexstr=None, text=None):
         byte_encoding = int_to_big_endian(primitive)
         return to_text(byte_encoding)
     raise TypeError("Expected an int, bytes or hexstr.")
+
+
+def to_serialized(obj):
+    serialized = recursive_map(_encode_for_json, obj.__dict__)
+    return serialized
+
+
+def to_json(obj):
+    serialized = to_serialized(obj)
+    print(serialized)
+    return json.dumps(serialized)
 
 
 @curry

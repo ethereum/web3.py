@@ -107,35 +107,3 @@ def test_attributedict_set_in_recursive_dict():
     data = {'mydict': {'myset': {'found'}}}
     attrdict = AttributeDict.recursive(data)
     assert 'found' in attrdict.mydict.myset
-
-
-def test_serialize_hex_bytes():
-    data = HexBytes(b'\x11')
-    expected_output = data.hex()
-    output = AttributeDict.serializeHexBytes(data)
-    assert output == expected_output
-    assert isinstance(output, str)
-
-
-def test_serialized():
-    data = {'b': HexBytes(b'\x11')}
-    data = AttributeDict(data).serialized
-    expected_output = '{"b": "0x11"}'
-    output = json.dumps(data)
-    assert output == expected_output
-
-
-def test_recursive_serialized():
-    data = {'a': {'b': HexBytes(b'\x11')}}
-    data = AttributeDict(data).serialized
-    expected_output = '{"a": {"b": "0x11"}}'
-    output = json.dumps(data)
-    assert output == expected_output
-
-
-def test_recursive_serialized_array():
-    data = {'a': [{'b': HexBytes(b'\x11')}]}
-    data = AttributeDict(data).serialized
-    expected_output = '{"a": [{"b": "0x11"}]}'
-    output = json.dumps(data)
-    assert output == expected_output

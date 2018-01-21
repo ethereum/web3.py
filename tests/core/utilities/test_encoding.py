@@ -25,6 +25,16 @@ from web3.utils.hypothesis import (
     hexstr_strategy,
 )
 
+from web3.utils.encoding import (
+    _encode_for_json,
+    to_serialized,
+    to_json,
+)
+
+from web3.utils.datastructures import (
+    HexBytes,
+    AttributeDict,
+)
 
 @pytest.mark.parametrize(
     "value,expected",
@@ -141,3 +151,59 @@ def test_text_if_str_on_text(val):
     to_type = Mock(return_value='zoot')
     assert text_if_str(to_type, val) == 'zoot'
     assert to_type.call_args == ((None, ), {'text': val})
+
+
+def test_encode_for_json():
+    value = HexBytes(b'\x11')
+    expected_output = value.hex()
+    output = _encode_for_json(value)
+    assert output == expected_output
+
+
+def test_to_serialized():
+    data = AttributeDict({'b': HexBytes(b'\x11')})
+    expected_output = {"b": "0x11"}
+    output = to_serialized(data)
+    assert output == expected_output
+
+
+def test_recursive_serialized():
+    data = AttributeDict({'a': {'b': HexBytes(b'\x11')}})
+    expected_output = {"a": {"b": "0x11"}}
+    output = to_serialized(data)
+    assert output == expected_output
+
+
+def test_recursive_serialized_array():
+    data = AttributeDict({'a': [{'b': HexBytes(b'\x11')}]})
+    expected_output = {"a": [{"b": "0x11"}]}
+    output = to_serialized(data)
+    assert output == expected_output
+
+
+def test_serialized_AttributeDict():
+    data = AttributeDict({'a': [{'b': HexBytes(b'\x11')}]})
+    expected_output = {"a": [{"b": "0x11"}]}
+    output = to_serialized(data)
+    assert output == expected_output
+
+
+def test_to_json():
+    data = AttributeDict({'b': HexBytes(b'\x11')})
+    expected_output = '{"b": "0x11"}'
+    output = to_json(data)
+    assert output == expected_output
+
+
+def test_recursive_json():
+    data = AttributeDict({'a': {'b': HexBytes(b'\x11')}})
+    expected_output = '{"a": {"b": "0x11"}}'
+    output = to_json(data)
+    assert output == expected_output
+
+
+def test_recursive_json_array():
+    data = AttributeDict({'a': [{'b': HexBytes(b'\x11')}]})
+    expected_output = '{"a": [{"b": "0x11"}]}'
+    output = to_json(data)
+    assert output == expected_output
