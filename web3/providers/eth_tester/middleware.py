@@ -254,12 +254,17 @@ ethereum_tester_fixture_middleware = construct_fixture_middleware({
 
 
 def guess_from(web3, transaction):
-    if web3.eth.coinbase:
-        return web3.eth.coinbase
-    elif web3.eth.accounts:
+    coinbase = web3.eth.coinbase
+    if coinbase is not None:
+        return coinbase
+
+    try:
         return web3.eth.accounts[0]
-    else:
-        return None
+    except KeyError as e:
+        # no accounts available to pre-fill, carry on
+        pass
+
+    return None
 
 
 def guess_gas(web3, transaction):
@@ -275,18 +280,17 @@ def fill_default(field, guess_func, web3, transaction):
         return assoc(transaction, field, guess_val)
 
 
-fill_default_from = fill_default('from', guess_from)
-fill_default_gas = fill_default('gas', guess_gas)
-
-
 def default_transaction_fields_middleware(make_request, web3):
+    fill_default_from = fill_default('from', guess_from, web3)
+    fill_default_gas = fill_default('gas', guess_gas, web3)
+
     def middleware(method, params):
         # TODO send call to eth-tester without gas, and remove guess_gas entirely
         if method == 'eth_call':
             filled_transaction = pipe(
                 params[0],
-                fill_default_from(web3),
-                fill_default_gas(web3),
+                fill_default_from,
+                fill_default_gas,
             )
             return make_request(method, [filled_transaction] + params[1:])
         elif method in (
@@ -295,7 +299,7 @@ def default_transaction_fields_middleware(make_request, web3):
         ):
             filled_transaction = pipe(
                 params[0],
-                fill_default_from(web3),
+                fill_default_from,
             )
             return make_request(method, [filled_transaction] + params[1:])
         else:
