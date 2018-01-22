@@ -125,6 +125,12 @@ def create_log_filter(eth_tester, params):
     return filter_id
 
 
+def get_logs(eth_tester, params):
+    filter_params = params[0]
+    logs = eth_tester.get_logs(**filter_params)
+    return logs
+
+
 def _generate_random_private_key():
     """
     WARNING: This is not a secure way to generate private keys and should only
@@ -245,7 +251,7 @@ API_ENDPOINTS = {
         ),
         'getFilterChanges': null_if_filter_not_found(call_eth_tester('get_only_filter_changes')),
         'getFilterLogs': null_if_filter_not_found(call_eth_tester('get_all_filter_logs')),
-        'getLogs': not_implemented,
+        'getLogs': get_logs,
         'getWork': not_implemented,
         'submitWork': not_implemented,
         'submitHashrate': not_implemented,

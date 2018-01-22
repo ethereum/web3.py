@@ -176,6 +176,9 @@ ethereum_tester_middleware = construct_formatting_middleware(
         'eth_newFilter': apply_formatters_to_args(
             filter_params_transformer,
         ),
+        'eth_getLogs': apply_formatters_to_args(
+            filter_params_transformer,
+        ),
         'eth_sendTransaction': apply_formatters_to_args(
             transaction_params_transformer,
         ),
