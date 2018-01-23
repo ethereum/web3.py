@@ -1,0 +1,77 @@
+version: 2.0
+
+# heavily inspired by https://raw.githubusercontent.com/pinax/pinax-wiki/6bd2a99ab6f702e300d708532a6d1d9aa638b9f8/.circleci/config.yml
+
+common: &common
+  working_directory: ~/repo
+  docker:
+    - image: circleci/python:3.5
+  steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - v2-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+    - run:
+        name: install dependencies
+        command: pip install --user tox
+    - run:
+        name: run tox
+        command: ~/.local/bin/tox
+    - save_cache:
+        paths:
+          - .tox
+          - ~/.cache/pip
+          - ~/.local
+          - ./eggs
+        key: v2-deps-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+
+jobs:
+  lint:
+    <<: *common
+    docker:
+      - image: circleci/python:3.5
+        environment:
+          TOXENV: flake8
+  py35-core:
+    <<: *common
+    docker:
+      - image: circleci/python:3.5
+        environment:
+          TOXENV: py35-core
+  py35-ens:
+    <<: *common
+    docker:
+      - image: circleci/python:3.5
+        environment:
+          TOXENV: py35-ens
+  py35-integration-goethereum:
+    <<: *common
+    docker:
+      - image: circleci/python:3.5
+        environment:
+          TOXENV: py35-integration-goethereum
+  py35-integration-ethtester-pyethereum:
+    <<: *common
+    docker:
+      - image: circleci/python:3.5
+        environment:
+          TOXENV: py35-integration-ethtester
+          ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEthereum16Backend
+  py35-integration-ethtester-pyevm:
+    <<: *common
+    docker:
+      - image: circleci/python:3.5
+        environment:
+          TOXENV: py35-integration-ethtester
+          ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - lint
+      - py35-core
+      - py35-ens
+      - py35-integration-goethereum
+      - py35-integration-ethtester-pyethereum
+      - py35-integration-ethtester-pyevm
