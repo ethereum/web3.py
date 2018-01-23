@@ -26,11 +26,13 @@ setup(
         "pysha3>=1.0.0,<2.0.0",
         "requests>=2.16.0,<3.0.0",
         "rlp>=0.4.7,<1.0.0",
-        "eth-tester>=0.1.0b11,<0.2.0",
     ],
     setup_requires=['setuptools-markdown'],
     extras_require={
-        'tester': ["eth-testrpc>=1.3.3,<2.0.0"],
+        'tester': [
+            "eth-tester[py-evm]==0.1.0b13",
+        ],
+        'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
         'platform_system=="Windows"': [
             'pypiwin32'  # TODO: specify a version number, move under install_requires
         ],
