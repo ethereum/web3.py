@@ -28,6 +28,9 @@ jobs:
     steps:
       - checkout
 
+      - run:
+          name: run tests
+
       - store_artifacts:
           path: test-reports
           destination: test-reports
