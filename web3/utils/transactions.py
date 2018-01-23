@@ -1,17 +1,16 @@
 import itertools
 import random
 
-from eth_utils import (
-    decode_hex,
-    is_string,
-)
 from cytoolz import (
     curry,
     dissoc,
     merge,
     pipe,
 )
-
+from eth_utils import (
+    decode_hex,
+    is_string,
+)
 import rlp
 from rlp.sedes import (
     Binary,
@@ -19,9 +18,6 @@ from rlp.sedes import (
     binary,
 )
 
-from web3.utils.threads import (
-    Timeout,
-)
 from web3.utils.encoding import (
     ExtendedRLP,
     hexstr_if_str,
@@ -30,6 +26,9 @@ from web3.utils.encoding import (
 from web3.utils.formatters import (
     apply_formatter_if,
     apply_formatters_to_dict,
+)
+from web3.utils.threads import (
+    Timeout,
 )
 
 

@@ -3,38 +3,37 @@ import random
 import sys
 
 from cytoolz.functoolz import (
-    excepts,
     compose,
     curry,
+    excepts,
 )
-
-from eth_utils import (
-    is_null,
-    keccak,
-    decode_hex,
-    encode_hex,
+from eth_tester import (
+    EthereumTester,
 )
-
-from web3.providers import (
-    BaseProvider,
-)
-
-from web3.utils.formatters import (
-    apply_formatter_if,
-)
-
-from eth_tester import EthereumTester
 from eth_tester.exceptions import (
     BlockNotFound,
     FilterNotFound,
     TransactionNotFound,
     ValidationError,
 )
+from eth_utils import (
+    decode_hex,
+    encode_hex,
+    is_null,
+    keccak,
+)
+
+from web3.providers import (
+    BaseProvider,
+)
+from web3.utils.formatters import (
+    apply_formatter_if,
+)
 
 from .middleware import (
     default_transaction_fields_middleware,
-    ethereum_tester_middleware,
     ethereum_tester_fixture_middleware,
+    ethereum_tester_middleware,
 )
 
 

@@ -1,10 +1,11 @@
-from wsgiref.simple_server import make_server
-
-from cytoolz.functoolz import (
-    compose,
-    complement,
+from wsgiref.simple_server import (
+    make_server,
 )
 
+from cytoolz.functoolz import (
+    complement,
+    compose,
+)
 from eth_utils import (
     decode_hex,
     force_obj_to_text,
@@ -13,27 +14,30 @@ from eth_utils import (
 )
 
 from web3.middleware import (
-    construct_formatting_middleware,
     construct_exception_handler_middleware,
+    construct_formatting_middleware,
 )
-
 from web3.utils.decorators import (
     deprecated_for,
 )
 from web3.utils.formatters import (
-    hex_to_integer,
-    apply_formatter_if,
     apply_formatter_at_index,
+    apply_formatter_if,
     apply_formatters_to_dict,
-    static_return,
+    hex_to_integer,
     static_result,
+    static_return,
 )
 from web3.utils.threads import (
     spawn,
 )
 
-from .base import BaseProvider  # noqa: E402
-from .rpc import HTTPProvider  # noqa: E402
+from .base import (
+    BaseProvider,
+)
+from .rpc import (
+    HTTPProvider,
+)
 
 
 def is_testrpc_available():

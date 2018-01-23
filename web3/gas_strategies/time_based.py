@@ -4,17 +4,12 @@ import operator
 
 from cytoolz import (
     curry,
-)
-
-from cytoolz import (
     groupby,
     sliding_window,
 )
-
 from eth_utils import (
     to_tuple,
 )
-
 
 MinerData = collections.namedtuple('MinerData', ['miner', 'num_blocks', 'min_gas_price'])
 Probability = collections.namedtuple('Probability', ['gas_price', 'prob'])

@@ -1,7 +1,6 @@
 from cytoolz import (
     curry,
 )
-
 from eth_utils import (
     to_dict,
 )

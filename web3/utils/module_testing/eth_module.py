@@ -5,22 +5,20 @@ import pytest
 from eth_abi import (
     decode_single,
 )
-
 from eth_utils import (
-    is_checksum_address,
-    is_bytes,
-    is_string,
     is_boolean,
+    is_bytes,
+    is_checksum_address,
     is_dict,
     is_integer,
     is_list_like,
     is_same_address,
+    is_string,
 )
 
 from web3.exceptions import (
     InvalidAddress,
 )
-
 from web3.utils.datastructures import (
     HexBytes,
 )

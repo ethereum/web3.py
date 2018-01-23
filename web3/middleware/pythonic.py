@@ -9,20 +9,19 @@ from cytoolz.curried import (
     valmap,
 )
 from cytoolz.functoolz import (
-    compose,
     complement,
+    compose,
     partial,
 )
-
 from eth_utils import (
+    encode_hex,
     is_address,
-    to_checksum_address,
+    is_bytes,
     is_integer,
     is_null,
     is_string,
-    is_bytes,
-    encode_hex,
     remove_0x_prefix,
+    to_checksum_address,
 )
 
 from web3.utils.datastructures import (
@@ -33,10 +32,10 @@ from web3.utils.encoding import (
     to_hex,
 )
 from web3.utils.formatters import (
-    apply_formatter_if,
-    apply_formatters_to_dict,
-    apply_formatter_to_array,
     apply_formatter_at_index,
+    apply_formatter_if,
+    apply_formatter_to_array,
+    apply_formatters_to_dict,
     apply_one_of_formatters,
     hex_to_integer,
     integer_to_hex,

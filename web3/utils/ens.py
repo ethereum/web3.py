@@ -1,4 +1,6 @@
-from contextlib import contextmanager
+from contextlib import (
+    contextmanager,
+)
 
 from eth_utils import (
     is_0x_prefixed,
@@ -7,7 +9,6 @@ from eth_utils import (
 )
 
 from ens import ENS
-
 from web3.exceptions import (
     NameNotFound,
 )

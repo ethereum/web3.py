@@ -1,23 +1,24 @@
 from cytoolz.dicttoolz import (
     assoc,
 )
-
 from eth_utils import (
     apply_to_return_value,
     is_checksum_address,
     is_string,
 )
 
-from web3.iban import Iban
-
-from web3.account import Account
+from web3.account import (
+    Account,
+)
 from web3.contract import (
     Contract,
+)
+from web3.iban import (
+    Iban,
 )
 from web3.module import (
     Module,
 )
-
 from web3.utils.blocks import (
     select_method_for_block_identifier,
 )
@@ -32,8 +33,8 @@ from web3.utils.encoding import (
 )
 from web3.utils.filters import (
     BlockFilter,
-    TransactionFilter,
     LogFilter,
+    TransactionFilter,
 )
 from web3.utils.transactions import (
     get_buffered_gas_estimate,

@@ -4,16 +4,15 @@ from collections import (
 )
 
 from cytoolz.functoolz import (
-    curry,
     compose,
+    curry,
 )
-
 from eth_utils import (
     is_dict,
     is_list_like,
     is_string,
-    to_list,
     to_dict,
+    to_list,
 )
 
 from web3.utils.decorators import (

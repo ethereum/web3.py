@@ -1,11 +1,9 @@
 from cytoolz.dicttoolz import (
     assoc,
 )
-
 from eth_utils import (
     is_dict,
 )
-
 
 from web3.utils.datastructures import (
     AttributeDict,

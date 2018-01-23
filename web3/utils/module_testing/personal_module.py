@@ -4,7 +4,6 @@ from eth_utils import (
     is_same_address,
 )
 
-
 PRIVATE_KEY_HEX = '0x56ebb41875ceedd42e395f730e03b5c44989393c9f0484ee6bc05f933673458f'
 PASSWORD = 'web3-testing'
 ADDRESS = '0x844B417c0C58B02c2224306047B9fb0D3264fE8c'

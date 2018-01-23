@@ -7,12 +7,10 @@ import os
 from cytoolz import (
     compose,
 )
-
 from eth_keyfile import (
     create_keyfile_json,
     decode_keyfile_json,
 )
-
 from eth_keys import (
     KeyAPI,
     keys,
@@ -20,10 +18,9 @@ from eth_keys import (
 from eth_keys.exceptions import (
     ValidationError,
 )
-
 from eth_utils import (
-    keccak,
     is_dict,
+    keccak,
 )
 
 from web3.utils.datastructures import (

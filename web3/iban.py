@@ -1,9 +1,9 @@
-import re
 import functools
+import re
 
 from eth_utils import (
-    is_string,
     coerce_args_to_text,
+    is_string,
     pad_left,
     to_checksum_address,
 )
