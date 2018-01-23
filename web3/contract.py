@@ -615,28 +615,10 @@ class Contract(object):
 
     @classmethod
     def _find_matching_event_abi(cls, event_name=None, argument_names=None):
-        filters = [
-            functools.partial(filter_by_type, 'event'),
-        ]
-
-        if event_name is not None:
-            filters.append(functools.partial(filter_by_name, event_name))
-
-        if argument_names is not None:
-            filters.append(
-                functools.partial(filter_by_argument_name, argument_names)
-            )
-
-        filter_fn = compose(*filters)
-
-        event_abi_candidates = filter_fn(cls.abi)
-
-        if len(event_abi_candidates) == 1:
-            return event_abi_candidates[0]
-        elif not event_abi_candidates:
-            raise ValueError("No matching functions found")
-        else:
-            raise ValueError("Multiple functions found")
+        return find_matching_fn_abi(
+            contract_abi=cls.abi,
+            event_name=event_name,
+            argument_names=argument_names)
 
     @combomethod
     @coerce_return_to_text

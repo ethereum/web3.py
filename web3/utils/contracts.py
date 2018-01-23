@@ -1,4 +1,5 @@
 import functools
+
 from eth_abi import (
     encode_abi as eth_abi_encode_abi
 )
@@ -7,9 +8,15 @@ from eth_utils import (
     encode_hex,
     add_0x_prefix,
 )
+
+from toolz.functoolz import (
+    compose,
+)
+
 from web3.utils.abi import (
     filter_by_type,
     filter_by_name,
+    filter_by_argument_name,
     filter_by_argument_count,
     filter_by_encodability,
     get_abi_input_types,
@@ -34,6 +41,31 @@ from eth_abi.exceptions import (
     EncodingError,
 )
 
+
+def find_matching_event_abi(abi, event_name=None, argument_names=None):
+
+    filters = [
+        functools.partial(filter_by_type, 'event'),
+    ]
+
+    if event_name is not None:
+        filters.append(functools.partial(filter_by_name, event_name))
+
+    if argument_names is not None:
+        filters.append(
+            functools.partial(filter_by_argument_name, argument_names)
+        )
+
+    filter_fn = compose(*filters)
+
+    event_abi_candidates = filter_fn(abi)
+
+    if len(event_abi_candidates) == 1:
+        return event_abi_candidates[0]
+    elif not event_abi_candidates:
+        raise ValueError("No matching functions found")
+    else:
+        raise ValueError("Multiple functions found")
 
 def find_matching_fn_abi(abi, fn_name=None, args=None, kwargs=None):
     filters = []
