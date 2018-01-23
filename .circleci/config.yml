@@ -31,39 +31,39 @@ jobs:
     docker:
       - image: circleci/python:3.5
         environment:
-          TOXENV=lint
+          TOXENV: flake8
   py35-core:
     <<: *common
     docker:
       - image: circleci/python:3.5
         environment:
-          TOXENV=py35-core
+          TOXENV: py35-core
   py35-ens:
     <<: *common
     docker:
       - image: circleci/python:3.5
         environment:
-          TOXENV=py35-ens
+          TOXENV: py35-ens
   py35-integration-goethereum:
     <<: *common
     docker:
       - image: circleci/python:3.5
         environment:
-          TOXENV=py35-integration-goethereum
+          TOXENV: py35-integration-goethereum
   py35-integration-ethtester-pyethereum:
     <<: *common
     docker:
       - image: circleci/python:3.5
         environment:
-          TOXENV=py35-integration-ethtester
-          ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEthereum16Backend
+          TOXENV: py35-integration-ethtester
+          ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEthereum16Backend
   py35-integration-ethtester-pyevm:
     <<: *common
     docker:
       - image: circleci/python:3.5
         environment:
-          TOXENV=py35-integration-ethtester
-          ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEVMBackend
+          TOXENV: py35-integration-ethtester
+          ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
 workflows:
   version: 2
