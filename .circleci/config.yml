@@ -25,15 +25,16 @@ jobs:
           keys:
           - v1-dependencies-{{ checksum "requirements-dev.txt" }}-{{ checksum "setup.py" }}
           # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+          # DISABLE ^ until I understand it better: - v1-dependencies-
 
       - run:
           name: install dependencies
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install -e .
-            pip install -r requirements-dev.txt
+            pip install tox
+            # pip install -e .
+            # pip install -r requirements-dev.txt
 
       - save_cache:
           paths:
