@@ -29,8 +29,8 @@ jobs:
   lint:
     <<: *common
     docker:
-        environment:
-          - TOXENV=lint
+      - environment:
+          TOXENV=lint
   py35-core:
     <<: *common
     docker:
