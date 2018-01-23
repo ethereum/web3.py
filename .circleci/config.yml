@@ -29,33 +29,39 @@ jobs:
   lint:
     <<: *common
     docker:
-      - environment:
+      - image: circleci/python:3.5
+        environment:
           TOXENV=lint
   py35-core:
     <<: *common
     docker:
-      - environment:
+      - image: circleci/python:3.5
+        environment:
           TOXENV=py35-core
   py35-ens:
     <<: *common
     docker:
-      - environment:
+      - image: circleci/python:3.5
+        environment:
           TOXENV=py35-ens
   py35-integration-goethereum:
     <<: *common
     docker:
-      - environment:
+      - image: circleci/python:3.5
+        environment:
           TOXENV=py35-integration-goethereum
   py35-integration-ethtester-pyethereum:
     <<: *common
     docker:
-      - environment:
+      - image: circleci/python:3.5
+        environment:
           TOXENV=py35-integration-ethtester
           ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEthereum16Backend
   py35-integration-ethtester-pyevm:
     <<: *common
     docker:
-      - environment:
+      - image: circleci/python:3.5
+        environment:
           TOXENV=py35-integration-ethtester
           ETHEREUM_TESTER_CHAIN_BACKEND=eth_tester.backends.PyEVMBackend
 
