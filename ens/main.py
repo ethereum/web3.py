@@ -5,18 +5,15 @@ from eth_utils import (
 )
 
 from ens import abis
-
 from ens.constants import (
     EMPTY_ADDR_HEX,
     REVERSE_REGISTRAR_DOMAIN,
 )
-
 from ens.exceptions import (
     AddressMismatch,
     UnauthorizedError,
     UnownedName,
 )
-
 from ens.utils import (
     address_in,
     address_to_reverse_domain,
