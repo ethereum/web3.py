@@ -136,8 +136,7 @@ def get_default_ipc_path(testnet=False):
 class IPCProvider(JSONBaseProvider):
     _socket = None
 
-    def __init__(self, ipc_path=None, testnet=False, timeout=10,
-                 *args, **kwargs):
+    def __init__(self, ipc_path=None, testnet=False, timeout=10, *args, **kwargs):
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path(testnet)
         else:
