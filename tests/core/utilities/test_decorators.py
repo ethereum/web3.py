@@ -1,10 +1,10 @@
 import time
 
-from web3.utils.threads import (
-    spawn,
-)
 from web3.utils.decorators import (
     reject_recursive_repeats,
+)
+from web3.utils.threads import (
+    spawn,
 )
 
 

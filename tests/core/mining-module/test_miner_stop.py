@@ -1,6 +1,8 @@
 import random
 
-from flaky import flaky
+from flaky import (
+    flaky,
+)
 
 from web3.utils.threads import (
     Timeout,

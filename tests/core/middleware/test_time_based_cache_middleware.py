@@ -1,15 +1,16 @@
 import itertools
+import pytest
 import time
 import uuid
 
-import pytest
-
 from web3 import Web3
-from web3.providers.base import BaseProvider
 from web3.middleware import (  # noqa: F401
-    construct_time_based_cache_middleware,
-    construct_result_generator_middleware,
     construct_error_generator_middleware,
+    construct_result_generator_middleware,
+    construct_time_based_cache_middleware,
+)
+from web3.providers.base import (
+    BaseProvider,
 )
 from web3.utils.caching import (
     generate_cache_key,

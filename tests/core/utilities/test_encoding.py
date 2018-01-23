@@ -1,12 +1,13 @@
 # encoding: utf-8
 
 import pytest
-from unittest.mock import Mock
+from unittest.mock import (
+    Mock,
+)
 
 from eth_utils import (
     is_hex,
 )
-
 from hypothesis import (
     example,
     given,
@@ -15,12 +16,11 @@ from hypothesis import (
 
 from web3.utils.encoding import (
     hex_encode_abi_type,
-    text_if_str,
     hexstr_if_str,
-    to_int,
+    text_if_str,
     to_hex,
+    to_int,
 )
-
 from web3.utils.hypothesis import (
     hexstr_strategy,
 )

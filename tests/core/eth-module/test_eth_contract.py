@@ -1,6 +1,7 @@
 import pytest
-from unittest.mock import Mock
-
+from unittest.mock import (
+    Mock,
+)
 
 ABI = [{}]
 ADDRESS = '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'

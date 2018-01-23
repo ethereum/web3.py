@@ -1,10 +1,11 @@
 
-from unittest.mock import patch
 import pytest
-
-from web3 import Web3
+from unittest.mock import (
+    patch,
+)
 
 from ens import ENS
+from web3 import Web3
 
 
 def test_resolver_empty(ens):

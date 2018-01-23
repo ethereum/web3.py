@@ -3,13 +3,15 @@ from hypothesis import (
     strategies as st,
 )
 
-from web3.utils.datastructures import HexBytes
-
+from web3.utils.datastructures import (
+    HexBytes,
+)
 from web3.utils.encoding import (
     to_bytes,
 )
-
-from web3.utils.hypothesis import hexstr_strategy
+from web3.utils.hypothesis import (
+    hexstr_strategy,
+)
 
 
 @given(st.binary())

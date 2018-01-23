@@ -1,4 +1,6 @@
-from flaky import flaky
+from flaky import (
+    flaky,
+)
 
 
 @flaky(max_runs=3)

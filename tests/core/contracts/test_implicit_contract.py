@@ -1,11 +1,11 @@
 import pytest
 
-from web3.contract import (
-    ImplicitContract,
-)
-
 from eth_utils import (
     is_integer,
+)
+
+from web3.contract import (
+    ImplicitContract,
 )
 
 
