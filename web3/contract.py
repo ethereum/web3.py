@@ -29,8 +29,6 @@ from web3.exceptions import (
 
 from web3.utils.abi import (
     filter_by_type,
-    filter_by_name,
-    filter_by_argument_name,
     get_abi_output_types,
     get_constructor_abi,
     map_abi_data,
@@ -38,6 +36,7 @@ from web3.utils.abi import (
 )
 from web3.utils.contracts import (
     find_matching_fn_abi,
+    find_matching_event_abi,
     encode_abi,
     get_function_info,
     prepare_transaction,
@@ -91,38 +90,42 @@ class ContractFunctions(object):
     """Class containing contract function objects
     """
 
-    _method_names = []
+    _function_names = []
 
     def __init__(self, abi, web3, address=None):
         if abi:
-            self.function_methods = filter_by_type('function', abi)
-            for method in self.function_methods:
-                self._method_names.append(method['name'])
-                setattr(self,
-                        method['name'],
-                        ContractMethod.factory(web3=web3,
-                                               contract_abi=abi,
-                                               address=address,
-                                               method_name=method['name']))
+            self._functions = filter_by_type('function', abi)
+            for function in self._functions:
+                self._function_names.append(function['name'])
+                setattr(
+                    self,
+                    function['name'],
+                    ContractFunction.factory(
+                        web3=web3,
+                        contract_abi=abi,
+                        address=address,
+                        method_name=function['name']))
 
 
 class ContractEvents(object):
     """Class containing contract event objects
     """
 
-    _method_names = []
+    _event_names = []
 
     def __init__(self, abi, web3, address=None):
         if abi:
-            self.event_methods = filter_by_type('event', abi)
-            for method in self.event_methods:
-                self._method_names.append(method['name'])
-                setattr(self,
-                        method['name'],
-                        ContractMethod.factory(web3=web3,
-                                               contract_abi=abi,
-                                               address=address,
-                                               method_name=method['name']))
+            self._events = filter_by_type('event', abi)
+            for event in self._events:
+                self._event_names.append(event['name'])
+                setattr(
+                    self,
+                    event['name'],
+                    ContractEvent.factory(
+                        web3=web3,
+                        contract_abi=abi,
+                        address=address,
+                        event_name=event['name']))
 
 
 class Contract(object):
@@ -615,8 +618,8 @@ class Contract(object):
 
     @classmethod
     def _find_matching_event_abi(cls, event_name=None, argument_names=None):
-        return find_matching_fn_abi(
-            contract_abi=cls.abi,
+        return find_matching_event_abi(
+            abi=cls.abi,
             event_name=event_name,
             argument_names=argument_names)
 
@@ -742,7 +745,7 @@ class ImplicitMethod(ConciseMethod):
             return super().__call__(*args, **kwargs)
 
 
-class ContractMethod(object):
+class ContractFunction(object):
     """
     """
     address = None
@@ -914,7 +917,7 @@ class ContractMethod(object):
 
         if not self.address and 'to' not in built_transaction:
             raise ValueError(
-                "When using `ContractMethod.buildTransaction` from a Contract factory"
+                "When using `ContractFunction.buildTransaction` from a Contract factory"
                 "you must provide a `to` address with the transaction"
             )
         if self.address and 'to' in built_transaction:
@@ -950,12 +953,64 @@ class ContractMethod(object):
         for key in kwargs:
             if not hasattr(cls, key):
                 raise AttributeError(
-                    "Property {0} not found on ContractMethod class. "
-                    "`ContractMethod.factory` only accepts keyword arguments which are "
-                    "present on the ContractMethod class".format(key)
+                    "Property {0} not found on ContractFunction class. "
+                    "`ContractFunction.factory` only accepts keyword arguments which are "
+                    "present on the ContractFunction class".format(key)
                 )
 
         return type(kwargs["method_name"], (cls,), kwargs)
+
+
+class ContractEvent(object):
+    """
+    """
+    address = None
+    event_name = None
+    web3 = None
+    contract_abi = None
+    abi = None
+
+    def __init__(self, *argument_names):
+
+        if argument_names is None:
+            self.argument_names = tuple()
+        else:
+            self.argument_names = argument_names
+
+        self.abi = self._get_event_abi()
+
+    @classmethod
+    def _get_event_abi(cls):
+        return find_matching_event_abi(
+            cls.contract_abi,
+            event_name=cls.event_name)
+
+    def processReceipt(self, txn_receipt):
+        return self._parse_logs(txn_receipt)
+
+    def _parse_logs(self, txn_receipt):
+        parsed_logs = []
+        for log in txn_receipt['logs']:
+            parsed_logs.append(self._decode_log(log))
+        return parsed_logs
+
+    def _decode_log(self, log):
+        return get_event_data(self.abi, log)
+
+    @classmethod
+    def factory(cls, **kwargs):
+        if "event_name" not in kwargs:
+            kwargs["event_name"] = cls.__name__
+
+        for key in kwargs:
+            if not hasattr(cls, key):
+                raise AttributeError(
+                    "Property {0} not found on ContractEvent class. "
+                    "`ContractEvent.factory` only accepts keyword arguments which are "
+                    "present on the ContractEvent class".format(key)
+                )
+
+        return type(kwargs["event_name"], (cls,), kwargs)
 
 
 def call_contract_function(abi,

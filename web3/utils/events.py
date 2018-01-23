@@ -98,10 +98,10 @@ def construct_event_data_set(event_abi, arguments=None):
         for key, value in arguments.items()
     }
 
-    indexed_args = exclude_indexed_event_inputs(event_abi)
+    non_indexed_args = exclude_indexed_event_inputs(event_abi)
     zipped_abi_and_args = [
         (arg, normalized_args.get(arg['name'], [None]))
-        for arg in indexed_args
+        for arg in non_indexed_args
     ]
     encoded_args = [
         [

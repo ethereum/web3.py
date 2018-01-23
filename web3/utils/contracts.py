@@ -67,6 +67,7 @@ def find_matching_event_abi(abi, event_name=None, argument_names=None):
     else:
         raise ValueError("Multiple functions found")
 
+
 def find_matching_fn_abi(abi, fn_name=None, args=None, kwargs=None):
     filters = []
 
