@@ -5,7 +5,11 @@
 version: 2
 jobs:
   build:
-    docker:
+    machine:
+       post:
+          - pyenv global 3.5.3 3.6.2
+
+    # docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
       # - image: circleci/python:3.5.4
@@ -17,24 +21,12 @@ jobs:
 
     working_directory: ~/repo
 
+    dependencies:
+      pre:
+        - pip install tox
+
     steps:
       - checkout
-
-      - run:
-          name: install dependencies
-          command: |
-            # python3 -m venv venv
-            # . venv/bin/activate
-            pip install tox
-            # pip install -e .
-            # pip install -r requirements-dev.txt
-
-      # run tests!
-      - run:
-          name: run tests
-          command: |
-            . venv/bin/activate
-            tox
 
       - store_artifacts:
           path: test-reports
