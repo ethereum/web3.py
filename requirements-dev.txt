@@ -1,5 +1,4 @@
 bumpversion
-ethereum>=1.6.1,<2.0
 flaky>=3.3.0
 flake8==3.4.1
 hypothesis>=3.31.2
