@@ -10,7 +10,7 @@ from eth_utils import (
 )
 
 from toolz.functoolz import (
-    compose,
+    pipe,
 )
 
 from web3.utils.abi import (
@@ -56,16 +56,14 @@ def find_matching_event_abi(abi, event_name=None, argument_names=None):
             functools.partial(filter_by_argument_name, argument_names)
         )
 
-    filter_fn = compose(*filters)
-
-    event_abi_candidates = filter_fn(abi)
+    event_abi_candidates = pipe(abi, *filters)
 
     if len(event_abi_candidates) == 1:
         return event_abi_candidates[0]
     elif not event_abi_candidates:
-        raise ValueError("No matching functions found")
+        raise ValueError("No matching events found")
     else:
-        raise ValueError("Multiple functions found")
+        raise ValueError("Multiple events found")
 
 
 def find_matching_fn_abi(abi, fn_name=None, args=None, kwargs=None):
@@ -88,14 +86,10 @@ def find_matching_fn_abi(abi, fn_name=None, args=None, kwargs=None):
 
     function_candidates = filter_by_type('function', abi)
 
-    for filter_fn in filters:
-        function_candidates = filter_fn(function_candidates)
+    function_candidates = pipe(abi, *filters)
 
-        if len(function_candidates) == 1:
-            return function_candidates[0]
-        elif not function_candidates:
-            break
-
+    if len(function_candidates) == 1:
+        return function_candidates[0]
     if not function_candidates:
         raise ValueError("No matching functions found")
     else:

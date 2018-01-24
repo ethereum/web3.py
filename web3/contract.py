@@ -3,14 +3,12 @@
 """
 import functools
 import itertools
-import json
-
 from eth_utils import (
     function_abi_to_4byte_selector,
     encode_hex,
     add_0x_prefix,
     coerce_return_to_text,
-    to_checksum_address,
+    to_tuple,
 )
 from eth_abi import (
     decode_abi
@@ -41,8 +39,8 @@ from web3.utils.contracts import (
     get_function_info,
     prepare_transaction,
 )
-from web3.utils.datastructures import (
-    HexBytes,
+from web3.utils.datatypes import (
+    PropertyCheckingFactory,
 )
 from web3.utils.decorators import (
     combomethod,
@@ -54,10 +52,6 @@ from web3.utils.empty import (
 from web3.utils.encoding import (
     to_hex,
 )
-from web3.utils.ens import (
-    is_ens_name,
-    validate_name_has_address,
-)
 from web3.utils.events import (
     get_event_data,
 )
@@ -66,10 +60,7 @@ from web3.utils.filters import (
 )
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
-)
-from web3.utils.validation import (
-    validate_abi,
-    validate_address,
+    normalize_address,
 )
 from web3.utils.transactions import (
     fill_transaction_defaults,
@@ -80,7 +71,7 @@ DEPRECATED_SIGNATURE_MESSAGE = (
     "The constructor signature for the `Contract` object has changed. "
     "Please update your code to reflect the updated function signature: "
     "'Contract(address)'.  To construct contract classes use the "
-    "'Contract.factory(...)' class methog."
+    "'Contract.factory(...)' class method."
 )
 
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
@@ -94,7 +85,8 @@ class ContractFunctions(object):
 
     def __init__(self, abi, web3, address=None):
         if abi:
-            self._functions = filter_by_type('function', abi)
+            self.abi = abi
+            self._functions = filter_by_type('function', self.abi)
             for function in self._functions:
                 self._function_names.append(function['name'])
                 setattr(
@@ -102,7 +94,7 @@ class ContractFunctions(object):
                     function['name'],
                     ContractFunction.factory(
                         web3=web3,
-                        contract_abi=abi,
+                        contract_abi=self.abi,
                         address=address,
                         method_name=function['name']))
 
@@ -115,7 +107,8 @@ class ContractEvents(object):
 
     def __init__(self, abi, web3, address=None):
         if abi:
-            self._events = filter_by_type('event', abi)
+            self.abi = abi
+            self._events = filter_by_type('event', self.abi)
             for event in self._events:
                 self._event_names.append(event['name'])
                 setattr(
@@ -123,7 +116,7 @@ class ContractEvents(object):
                     event['name'],
                     ContractEvent.factory(
                         web3=web3,
-                        contract_abi=abi,
+                        contract_abi=self.abi,
                         address=address,
                         event_name=event['name']))
 
@@ -153,6 +146,7 @@ class Contract(object):
 
     # class properties (overridable at instance level)
     abi = None
+
     asm = None
     ast = None
 
@@ -184,7 +178,7 @@ class Contract(object):
             )
 
         if address:
-            self.address = self.normalize_property('address', address)
+            self.address = normalize_address(self.web3.ens, address)
 
         if not self.address:
             raise TypeError("The address argument is required to instantiate a contract.")
@@ -193,48 +187,17 @@ class Contract(object):
         self.events = ContractEvents(self.abi, self.web3, self.address)
 
     @classmethod
-    def normalize_property(cls, key, val):
-        if key == 'abi':
-            if isinstance(val, str):
-                val = json.loads(val)
-            validate_abi(val)
-            return val
-        elif key == 'address':
-            if is_ens_name(val):
-                validate_name_has_address(cls.web3.ens, val)
-                return val
-            else:
-                validate_address(val)
-                return to_checksum_address(val)
-        elif key in {
-            'bytecode_runtime',
-            'bytecode',
-        }:
-            return HexBytes(val)
-        else:
-            return val
-
-    @classmethod
     def factory(cls, web3, contract_name=None, **kwargs):
         if contract_name is None:
             contract_name = cls.__name__
 
         kwargs['web3'] = web3
 
-        for key in kwargs:
-            if not hasattr(cls, key):
-                raise AttributeError(
-                    "Property {0} not found on contract class. "
-                    "`Contract.factory` only accepts keyword arguments which are "
-                    "present on the contract class".format(key)
-                )
-            else:
-                kwargs[key] = cls.normalize_property(key, kwargs[key])
+        contract = PropertyCheckingFactory(contract_name, (cls,), kwargs)
+        setattr(contract, 'functions', ContractFunctions(contract.abi, contract.web3))
+        setattr(contract, 'events', ContractEvents(contract.abi, contract.web3))
 
-        kwargs['functions'] = ContractFunctions(kwargs.get('abi'), kwargs['web3'])
-        kwargs['events'] = ContractEvents(kwargs.get('abi'), kwargs['web3'])
-
-        return type(contract_name, (cls,), kwargs)
+        return contract
 
     #
     # Contract Methods
@@ -652,7 +615,7 @@ class ConciseContract(object):
 
     This call
 
-    > contract.functions.withdraw(amount, transact={'from': eth.accounts[1], 'gas': 100000, ...})
+    > contract.withdraw(amount, transact={'from': eth.accounts[1], 'gas': 100000, ...})
 
     is equivalent to this call in the classic contract:
 
@@ -746,7 +709,10 @@ class ImplicitMethod(ConciseMethod):
 
 
 class ContractFunction(object):
-    """
+    """Base class for contract functions
+
+    A function accessed via the api contract.functions.myMethod(*args, **kwargs)
+    is a subclass of this class.
     """
     address = None
     method_name = None
@@ -950,19 +916,14 @@ class ContractFunction(object):
         if "method_name" not in kwargs:
             kwargs["method_name"] = cls.__name__
 
-        for key in kwargs:
-            if not hasattr(cls, key):
-                raise AttributeError(
-                    "Property {0} not found on ContractFunction class. "
-                    "`ContractFunction.factory` only accepts keyword arguments which are "
-                    "present on the ContractFunction class".format(key)
-                )
-
-        return type(kwargs["method_name"], (cls,), kwargs)
+        return PropertyCheckingFactory(kwargs["method_name"], (cls,), kwargs)
 
 
 class ContractEvent(object):
-    """
+    """Base class for contract events
+
+    An event accessed via the api contract.events.myEvents(*args, **kwargs)
+    is a subclass of this class.
     """
     address = None
     event_name = None
@@ -988,11 +949,11 @@ class ContractEvent(object):
     def processReceipt(self, txn_receipt):
         return self._parse_logs(txn_receipt)
 
+    @to_tuple
     def _parse_logs(self, txn_receipt):
-        parsed_logs = []
         for log in txn_receipt['logs']:
-            parsed_logs.append(self._decode_log(log))
-        return parsed_logs
+            decoded_log = get_event_data(self.abi, log)
+            yield decoded_log
 
     def _decode_log(self, log):
         return get_event_data(self.abi, log)
@@ -1001,16 +962,7 @@ class ContractEvent(object):
     def factory(cls, **kwargs):
         if "event_name" not in kwargs:
             kwargs["event_name"] = cls.__name__
-
-        for key in kwargs:
-            if not hasattr(cls, key):
-                raise AttributeError(
-                    "Property {0} not found on ContractEvent class. "
-                    "`ContractEvent.factory` only accepts keyword arguments which are "
-                    "present on the ContractEvent class".format(key)
-                )
-
-        return type(kwargs["event_name"], (cls,), kwargs)
+        return PropertyCheckingFactory(kwargs["event_name"], (cls,), kwargs)
 
 
 def call_contract_function(abi,
