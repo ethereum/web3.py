@@ -17,7 +17,7 @@ matrix:
       env: TOX_POSARGS="-e py35-ens"
     # lint
     - python: "3.5"
-      env: TOX_POSARGS="-e flake8"
+      env: TOX_POSARGS="-e lint"
     # core
     - python: "3.5"
       env: TOX_POSARGS="-e py35-core"
@@ -38,7 +38,7 @@ matrix:
       env: TOX_POSARGS="-e py36-ens"
     # lint
     - python: "3.6"
-      env: TOX_POSARGS="-e flake8"
+      env: TOX_POSARGS="-e lint"
     # core
     - python: "3.6"
       env: TOX_POSARGS="-e py36-core"
