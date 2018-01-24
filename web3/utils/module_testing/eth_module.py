@@ -444,9 +444,29 @@ class EthModuleTest(object):
         assert result is True
 
     def test_eth_getLogs_block_range_no_logs(self, web3, block_with_txn_with_log):
+        # Test with block range
+
         filter_params = {
             "fromBlock": 0,
             "toBlock": block_with_txn_with_log['number'] - 1,
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
+
+        # the range is wrong
+        filter_params = {
+            "fromBlock": block_with_txn_with_log['number'],
+            "toBlock": block_with_txn_with_log['number'] - 1,
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
+
+        # Test with `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": UNKNOWN_ADDRESS,
         }
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 0
@@ -476,22 +496,6 @@ class EthModuleTest(object):
         log_entry = result[0]
         assert_is_emitted_log(log_entry)
 
-        # the range is wrong
-        filter_params = {
-            "fromBlock": block_with_txn_with_log['number'],
-            "toBlock": block_with_txn_with_log['number'] - 1,
-        }
-        result = web3.eth.getLogs(filter_params)
-        assert len(result) == 0
-
-        # the range excludes the block where the log resides in
-        filter_params = {
-            "fromBlock": block_with_txn_with_log['number'] + 1,
-            "toBlock": web3.eth.blockNumber,
-        }
-        result = web3.eth.getLogs(filter_params)
-        assert len(result) == 0
-
         # specify only `from_block`. by default `to_block` should be 'latest'
         filter_params = {
             "fromBlock": 0,
@@ -512,14 +516,6 @@ class EthModuleTest(object):
         assert len(result) == 1
         log_entry = result[0]
         assert_is_emitted_log(log_entry)
-
-        # filter with other address
-        filter_params = {
-            "fromBlock": 0,
-            "address": UNKNOWN_ADDRESS,
-        }
-        result = web3.eth.getLogs(filter_params)
-        assert len(result) == 0
 
     def test_eth_uninstallFilter(self, web3):
         filter = web3.eth.filter({})
