@@ -279,6 +279,7 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getCode': HexBytes,
         'eth_getFilterChanges': filter_result_formatter,
         'eth_getFilterLogs': filter_result_formatter,
+        'eth_getLogs': filter_result_formatter,
         'eth_getStorageAt': HexBytes,
         'eth_getTransactionByBlockHashAndIndex': apply_formatter_if(
             is_not_null,

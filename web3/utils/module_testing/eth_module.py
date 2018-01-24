@@ -445,8 +445,8 @@ class EthModuleTest(object):
 
     def test_eth_getLogs_block_range_no_logs(self, web3, block_with_txn_with_log):
         filter_params = {
-            "from_block": 0,
-            "to_block": block_with_txn_with_log['number'] - 1,
+            "fromBlock": 0,
+            "toBlock": block_with_txn_with_log['number'] - 1,
         }
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 0
@@ -457,19 +457,19 @@ class EthModuleTest(object):
                                                emitter_contract,
                                                txn_hash_with_log):
         def assert_is_emitted_log(log_entry):
-            assert log_entry['block_number'] == block_with_txn_with_log['number']
-            assert HexBytes(log_entry['block_hash']) == block_with_txn_with_log['hash']
-            assert log_entry['log_index'] == 0
+            assert log_entry['blockNumber'] == block_with_txn_with_log['number']
+            assert log_entry['blockHash'] == block_with_txn_with_log['hash']
+            assert log_entry['logIndex'] == 0
             assert is_same_address(log_entry['address'], emitter_contract.address)
-            assert log_entry['transaction_index'] == 0
-            assert HexBytes(log_entry['transaction_hash']) == txn_hash_with_log
+            assert log_entry['transactionIndex'] == 0
+            assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
 
         # Test with block range
 
         # the range includes the block where the log resides in
         filter_params = {
-            "from_block": block_with_txn_with_log['number'],
-            "to_block": block_with_txn_with_log['number'],
+            "fromBlock": block_with_txn_with_log['number'],
+            "toBlock": block_with_txn_with_log['number'],
         }
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 1
@@ -478,23 +478,23 @@ class EthModuleTest(object):
 
         # the range is wrong
         filter_params = {
-            "from_block": block_with_txn_with_log['number'],
-            "to_block": block_with_txn_with_log['number'] - 1,
+            "fromBlock": block_with_txn_with_log['number'],
+            "toBlock": block_with_txn_with_log['number'] - 1,
         }
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 0
 
         # the range excludes the block where the log resides in
         filter_params = {
-            "from_block": block_with_txn_with_log['number'] + 1,
-            "to_block": web3.eth.blockNumber,
+            "fromBlock": block_with_txn_with_log['number'] + 1,
+            "toBlock": web3.eth.blockNumber,
         }
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 0
 
         # specify only `from_block`. by default `to_block` should be 'latest'
         filter_params = {
-            "from_block": 0,
+            "fromBlock": 0,
         }
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 1
@@ -505,7 +505,7 @@ class EthModuleTest(object):
 
         # filter with emitter_contract.address
         filter_params = {
-            "from_block": 0,
+            "fromBlock": 0,
             "address": emitter_contract.address,
         }
         result = web3.eth.getLogs(filter_params)
@@ -515,7 +515,7 @@ class EthModuleTest(object):
 
         # filter with other address
         filter_params = {
-            "from_block": 0,
+            "fromBlock": 0,
             "address": UNKNOWN_ADDRESS,
         }
         result = web3.eth.getLogs(filter_params)
