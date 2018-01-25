@@ -14,7 +14,7 @@ extras_require={
         "flake8==3.4.1",
         "isort>=4.2.15,<5",
     ],
-    'document': [
+    'doc': [
         "Sphinx>=1.6.5,<2",
         "sphinx_rtd_theme>=0.1.9",
     ],
@@ -29,7 +29,7 @@ extras_require['dev'] = (
     extras_require['dev']
     + extras_require['test']
     + extras_require['lint']
-    + extras_require['document']
+    + extras_require['doc']
 )
 
 setup(
