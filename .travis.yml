@@ -1,0 +1,31 @@
+sudo: false
+language: python
+dist: trusty
+matrix:
+  include:
+    #
+    # Python 3.5 testing
+    #
+    # lint
+    - python: "3.5"
+      env: TOX_POSARGS="-e lint"
+    # core
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-core"
+    #
+    # Python 3.6 testing
+    #
+    # core
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-core"
+cache:
+  - pip: true
+install:
+  - travis_retry pip install pip setuptools --upgrade
+  - travis_retry pip install tox
+before_script:
+  - python --version
+  - pip --version
+  - pip freeze
+script:
+  - tox $TOX_POSARGS
