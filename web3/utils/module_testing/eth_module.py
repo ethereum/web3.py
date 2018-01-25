@@ -443,7 +443,7 @@ class EthModuleTest(object):
         result = web3.eth.uninstallFilter(filter.filter_id)
         assert result is True
 
-    def test_eth_getLogs_block_range_no_logs(self, web3, block_with_txn_with_log):
+    def test_eth_getLogs_without_logs(self, web3, block_with_txn_with_log):
         # Test with block range
 
         filter_params = {
@@ -471,12 +471,14 @@ class EthModuleTest(object):
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 0
 
-    def test_eth_getLogs_block_range_with_logs(self,
-                                               web3,
-                                               block_with_txn_with_log,
-                                               emitter_contract,
-                                               txn_hash_with_log):
-        def assert_is_emitted_log(log_entry):
+    def test_eth_getLogs_with_logs(self,
+                                   web3,
+                                   block_with_txn_with_log,
+                                   emitter_contract,
+                                   txn_hash_with_log):
+        def assert_contains_log(result):
+            assert len(result) == 1
+            log_entry = result[0]
             assert log_entry['blockNumber'] == block_with_txn_with_log['number']
             assert log_entry['blockHash'] == block_with_txn_with_log['hash']
             assert log_entry['logIndex'] == 0
@@ -492,18 +494,15 @@ class EthModuleTest(object):
             "toBlock": block_with_txn_with_log['number'],
         }
         result = web3.eth.getLogs(filter_params)
-        assert len(result) == 1
-        log_entry = result[0]
-        assert_is_emitted_log(log_entry)
+        assert_contains_log(result)
 
         # specify only `from_block`. by default `to_block` should be 'latest'
         filter_params = {
             "fromBlock": 0,
         }
         result = web3.eth.getLogs(filter_params)
-        assert len(result) == 1
-        log_entry = result[0]
-        assert_is_emitted_log(log_entry)
+        result = web3.eth.getLogs(filter_params)
+        assert_contains_log(result)
 
         # Test with `address`
 
@@ -513,9 +512,8 @@ class EthModuleTest(object):
             "address": emitter_contract.address,
         }
         result = web3.eth.getLogs(filter_params)
-        assert len(result) == 1
-        log_entry = result[0]
-        assert_is_emitted_log(log_entry)
+        result = web3.eth.getLogs(filter_params)
+        assert_contains_log(result)
 
     def test_eth_uninstallFilter(self, web3):
         filter = web3.eth.filter({})
