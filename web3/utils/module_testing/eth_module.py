@@ -477,7 +477,7 @@ class EthModuleTest(object):
             block_with_txn_with_log,
             emitter_contract,
             txn_hash_with_log):
-        
+
         def assert_contains_log(result):
             assert len(result) == 1
             log_entry = result[0]
