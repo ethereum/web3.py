@@ -5,7 +5,7 @@ set -o nounset
 set -o pipefail
 
 # List of all non-executable files
-TEMPLATE_FILES=$(find . ! -perm -u=x -type f)
+TEMPLATE_FILES=$(find . ! -perm -u=x -type f | grep -v "\.git")
 
 echo "What is your python module name?"
 read MODULE_NAME
