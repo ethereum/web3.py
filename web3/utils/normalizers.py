@@ -48,7 +48,9 @@ def implicitly_identity(to_wrap):
     return wrapper
 
 
-# ----- Return Normalizers -----
+#
+# Return Normalizers
+#
 
 
 @implicitly_identity
@@ -63,7 +65,9 @@ def decode_abi_strings(abi_type, data):
         return abi_type, codecs.decode(data, 'utf8', 'backslashreplace')
 
 
-# ----- Argument Normalizers -----
+#
+# Argument Normalizers
+#
 
 
 @implicitly_identity
@@ -131,7 +135,9 @@ BASE_RETURN_NORMALIZERS = [
 ]
 
 
-# ----- Property Normalizers -----
+#
+# Property Normalizers
+#
 
 
 def normalize_abi(abi):

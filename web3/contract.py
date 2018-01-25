@@ -19,6 +19,7 @@ from eth_abi.exceptions import (
 
 from toolz.functoolz import (
     compose,
+    partial,
 )
 
 from web3.exceptions import (
@@ -61,6 +62,8 @@ from web3.utils.filters import (
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
     normalize_address,
+    normalize_abi,
+    normalize_bytecode,
 )
 from web3.utils.transactions import (
     fill_transaction_defaults,
@@ -93,10 +96,11 @@ class ContractFunctions(object):
                     self,
                     function['name'],
                     ContractFunction.factory(
+                        function['name'],
                         web3=web3,
                         contract_abi=self.abi,
                         address=address,
-                        method_name=function['name']))
+                        function_name=function['name']))
 
 
 class ContractEvents(object):
@@ -115,6 +119,7 @@ class ContractEvents(object):
                     self,
                     event['name'],
                     ContractEvent.factory(
+                        event['name'],
                         web3=web3,
                         contract_abi=self.abi,
                         address=address,
@@ -187,13 +192,22 @@ class Contract(object):
         self.events = ContractEvents(self.abi, self.web3, self.address)
 
     @classmethod
-    def factory(cls, web3, contract_name=None, **kwargs):
-        if contract_name is None:
-            contract_name = cls.__name__
+    def factory(cls, web3, class_name=None, **kwargs):
 
         kwargs['web3'] = web3
 
-        contract = PropertyCheckingFactory(contract_name, (cls,), kwargs)
+        normalizers = {
+            'abi': normalize_abi,
+            'address': partial(normalize_address, kwargs['web3'].ens),
+            'bytecode': normalize_bytecode,
+            'bytecode_runtime': normalize_bytecode,
+        }
+
+        contract = PropertyCheckingFactory(
+            class_name or cls.__name__,
+            (cls,),
+            kwargs,
+            normalizers=normalizers)
         setattr(contract, 'functions', ContractFunctions(contract.abi, contract.web3))
         setattr(contract, 'events', ContractEvents(contract.abi, contract.web3))
 
@@ -696,7 +710,7 @@ class ImplicitMethod(ConciseMethod):
     def __call_by_default(self, args):
         # If function is constant in ABI, then call by default, else transact
         function_abi = find_matching_fn_abi(self._function.contract_abi,
-                                            fn_name=self._function.method_name,
+                                            fn_name=self._function.function_name,
                                             args=args)
         return function_abi['constant'] if 'constant' in function_abi.keys() else False
 
@@ -715,7 +729,7 @@ class ContractFunction(object):
     is a subclass of this class.
     """
     address = None
-    method_name = None
+    function_name = None
     web3 = None
     contract_abi = None
     abi = None
@@ -796,7 +810,7 @@ class ContractFunction(object):
                                       self.web3,
                                       self.address,
                                       self._return_data_normalizers,
-                                      self.method_name,
+                                      self.function_name,
                                       call_transaction,
                                       *self.args,
                                       **self.kwargs)
@@ -829,7 +843,7 @@ class ContractFunction(object):
         return transact_with_contract_function(self.contract_abi,
                                                self.address,
                                                self.web3,
-                                               self.method_name,
+                                               self.function_name,
                                                transact_transaction,
                                                *self.args,
                                                **self.kwargs)
@@ -864,7 +878,7 @@ class ContractFunction(object):
         return estimate_gas_for_function(self.contract_abi,
                                          self.address,
                                          self.web3,
-                                         function_name=self.method_name,
+                                         function_name=self.function_name,
                                          transaction=estimate_transaction,
                                          *self.args,
                                          **self.kwargs)
@@ -900,7 +914,7 @@ class ContractFunction(object):
         return build_transaction_for_function(self.contract_abi,
                                               self.address,
                                               self.web3,
-                                              self.method_name,
+                                              self.function_name,
                                               built_transaction,
                                               *self.args,
                                               **self.kwargs)
@@ -912,11 +926,8 @@ class ContractFunction(object):
     _return_data_normalizers = tuple()
 
     @classmethod
-    def factory(cls, **kwargs):
-        if "method_name" not in kwargs:
-            kwargs["method_name"] = cls.__name__
-
-        return PropertyCheckingFactory(kwargs["method_name"], (cls,), kwargs)
+    def factory(cls, class_name, **kwargs):
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)
 
 
 class ContractEvent(object):
@@ -959,10 +970,8 @@ class ContractEvent(object):
         return get_event_data(self.abi, log)
 
     @classmethod
-    def factory(cls, **kwargs):
-        if "event_name" not in kwargs:
-            kwargs["event_name"] = cls.__name__
-        return PropertyCheckingFactory(kwargs["event_name"], (cls,), kwargs)
+    def factory(cls, class_name, **kwargs):
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)
 
 
 def call_contract_function(abi,
