@@ -28,6 +28,11 @@ class PropertyCheckingFactory(type):
             else:
                 yield attribute, value
 
+    def __init__(cls, name, bases, namespace, **kargs):
+        # see PEP487.  To accept kwargs in __new__, they need to be
+        # filtered out here.
+        super().__init__(name, bases, namespace)
+
     def __new__(mcs, name, bases, namespace, normalizers={}):
         for key in namespace:
             verify_key_attr = partial(verify_attr, name, key)

@@ -966,9 +966,6 @@ class ContractEvent(object):
             decoded_log = get_event_data(self.abi, log)
             yield decoded_log
 
-    def _decode_log(self, log):
-        return get_event_data(self.abi, log)
-
     @classmethod
     def factory(cls, class_name, **kwargs):
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
