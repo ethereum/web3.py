@@ -471,11 +471,13 @@ class EthModuleTest(object):
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 0
 
-    def test_eth_getLogs_with_logs(self,
-                                   web3,
-                                   block_with_txn_with_log,
-                                   emitter_contract,
-                                   txn_hash_with_log):
+    def test_eth_getLogs_with_logs(
+            self,
+            web3,
+            block_with_txn_with_log,
+            emitter_contract,
+            txn_hash_with_log):
+        
         def assert_contains_log(result):
             assert len(result) == 1
             log_entry = result[0]
@@ -501,7 +503,6 @@ class EthModuleTest(object):
             "fromBlock": 0,
         }
         result = web3.eth.getLogs(filter_params)
-        result = web3.eth.getLogs(filter_params)
         assert_contains_log(result)
 
         # Test with `address`
@@ -511,7 +512,6 @@ class EthModuleTest(object):
             "fromBlock": 0,
             "address": emitter_contract.address,
         }
-        result = web3.eth.getLogs(filter_params)
         result = web3.eth.getLogs(filter_params)
         assert_contains_log(result)
 
