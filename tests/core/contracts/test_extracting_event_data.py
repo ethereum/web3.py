@@ -205,3 +205,7 @@ def test_event_rich_log(
     assert rich_log['transactionIndex'] == txn_receipt['transactionIndex']
     assert is_same_address(rich_log['address'], emitter.address)
     assert rich_log['event'] == event_name
+
+    quiet_event = getattr(emitter.events, 'LogBytes')
+    empty_rich_log = quiet_event().processReceipt(txn_receipt)
+    assert empty_rich_log == tuple()

@@ -25,6 +25,10 @@ from .abi import (
     normalize_event_input_types,
 )
 
+from web3.exceptions import (
+    MismatchedABI,
+)
+
 from web3.utils.encoding import (
     hexstr_if_str,
     to_bytes,
@@ -147,11 +151,15 @@ def get_event_abi_types_for_decoding(event_inputs):
 def get_event_data(event_abi, log_entry):
     """
     Given an event ABI and a log entry for that event, return the decoded
+    event data
     """
     if event_abi['anonymous']:
         log_topics = log_entry['topics']
     else:
         log_topics = log_entry['topics'][1:]
+        raw_signature = next(iter(log_entry['topics']), None)
+        if event_abi_to_log_topic(event_abi) != raw_signature:
+            raise MismatchedABI()
 
     log_topics_abi = get_indexed_event_inputs(event_abi)
     log_topic_normalized_inputs = normalize_event_input_types(log_topics_abi)

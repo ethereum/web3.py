@@ -24,6 +24,7 @@ from toolz.functoolz import (
 
 from web3.exceptions import (
     BadFunctionCallOutput,
+    MismatchedABI,
 )
 
 from web3.utils.abi import (
@@ -957,13 +958,17 @@ class ContractEvent(object):
             cls.contract_abi,
             event_name=cls.event_name)
 
+    @combomethod
     def processReceipt(self, txn_receipt):
         return self._parse_logs(txn_receipt)
 
     @to_tuple
     def _parse_logs(self, txn_receipt):
         for log in txn_receipt['logs']:
-            decoded_log = get_event_data(self.abi, log)
+            try:
+                decoded_log = get_event_data(self.abi, log)
+            except MismatchedABI:
+                continue
             yield decoded_log
 
     @classmethod
