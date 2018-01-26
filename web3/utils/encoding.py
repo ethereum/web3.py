@@ -1,5 +1,4 @@
 # String encodings and numeric representations
-import json
 import re
 
 import rlp
