@@ -18,7 +18,6 @@ from eth_utils import (
     int_to_big_endian,
     is_boolean,
     is_bytes,
-    is_dict,
     is_hex,
     is_integer,
     is_string,
@@ -138,9 +137,6 @@ def to_hex(value=None, hexstr=None, text=None):
     if is_boolean(value):
         return "0x1" if value else "0x0"
 
-    if is_dict(value):
-        return encode_hex(json.dumps(value, sort_keys=True))
-
     if isinstance(value, bytes):
         return encode_hex(value)
     elif is_string(value):
@@ -150,8 +146,8 @@ def to_hex(value=None, hexstr=None, text=None):
         return hex(value)
 
     raise TypeError(
-        "Unsupported type: '{0}'.  Must be one of Boolean, Dictionary, String, "
-        "or Integer.".format(repr(type(value)))
+        "Unsupported type: '{0}'.  Must be one of: bool, str, bytes"
+        "or int.".format(repr(type(value)))
     )
 
 
