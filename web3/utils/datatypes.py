@@ -1,14 +1,13 @@
-from functools import (
-    partial,
-)
-from eth_utils import (
-    to_dict,
+from cytoolz.functoolz import (
+    curry,
 )
 from toolz.itertoolz import (
     concat
 )
+import web3.utils.formatters
 
 
+@curry
 def verify_attr(class_name, key, base):
     if not hasattr(base, key):
         raise AttributeError(
@@ -19,31 +18,20 @@ def verify_attr(class_name, key, base):
 
 
 class PropertyCheckingFactory(type):
-    @to_dict
-    def normalize_properties(attributes, values, normalizers):
-        for attribute, value in zip(attributes, values):
-            if attribute in normalizers:
-                normalizer = normalizers[attribute]
-                yield attribute, normalizer(value)
-            else:
-                yield attribute, value
-
     def __init__(cls, name, bases, namespace, **kargs):
         # see PEP487.  To accept kwargs in __new__, they need to be
         # filtered out here.
         super().__init__(name, bases, namespace)
 
-    def __new__(mcs, name, bases, namespace, normalizers={}):
+    def __new__(mcs, name, bases, namespace, normalizers=None):
         for key in namespace:
-            verify_key_attr = partial(verify_attr, name, key)
+            verify_key_attr = verify_attr(name, key)
             map(verify_key_attr, set(concat(base.__mro__ for base in bases)))
 
-        attributes, values = zip(*namespace.items())
         if normalizers:
-            processed_namespace = mcs.normalize_properties(
-                tuple(attributes),
-                tuple(values),
-                normalizers)
+            processed_namespace = web3.utils.formatters.apply_formatters_to_dict(
+                normalizers,
+                namespace)
         else:
             processed_namespace = namespace
 
