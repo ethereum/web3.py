@@ -19,7 +19,6 @@ from eth_utils import (
 from web3.exceptions import (
     MismatchedABI,
 )
-
 from web3.utils.encoding import (
     hexstr_if_str,
     to_bytes,

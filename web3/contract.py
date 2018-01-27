@@ -4,13 +4,6 @@
 import functools
 import itertools
 
-from eth_utils import (
-    function_abi_to_4byte_selector,
-    encode_hex,
-    add_0x_prefix,
-    coerce_return_to_text,
-    to_tuple,
-)
 from eth_abi import (
     decode_abi,
 )
@@ -22,6 +15,7 @@ from eth_utils import (
     coerce_return_to_text,
     encode_hex,
     function_abi_to_4byte_selector,
+    to_tuple,
 )
 from toolz.functoolz import (
     compose,
@@ -73,10 +67,6 @@ from web3.utils.normalizers import (
 )
 from web3.utils.transactions import (
     fill_transaction_defaults,
-)
-from web3.utils.validation import (
-    validate_abi,
-    validate_address,
 )
 
 DEPRECATED_SIGNATURE_MESSAGE = (

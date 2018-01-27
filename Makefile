@@ -22,7 +22,8 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 web3
+	flake8 web3 ens tests
+	isort --recursive web3/ ens/ tests/
 
 test:
 	py.test tests

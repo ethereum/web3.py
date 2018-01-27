@@ -1,6 +1,6 @@
 import functools
 
-from cytools import (
+from cytoolz import (
     pipe,
 )
 from eth_abi import (
