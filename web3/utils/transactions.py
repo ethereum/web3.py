@@ -1,5 +1,6 @@
 import itertools
 import random
+import math
 
 from eth_utils import (
     decode_hex,
@@ -7,6 +8,7 @@ from eth_utils import (
 )
 from cytoolz import (
     curry,
+    assoc,
     dissoc,
     merge,
     pipe,
@@ -168,3 +170,28 @@ def get_buffered_gas_estimate(web3, transaction, gas_buffer=100000):
         )
 
     return min(gas_limit, gas_estimate + gas_buffer)
+
+
+def prepare_replacement_transaction(web3, current_transaction, new_transaction):
+    if not current_transaction:
+        raise ValueError('Supplied transaction with hash {} does not exist'
+                         .format(current_transaction['hash']))
+    if current_transaction['blockHash'] is not None:
+        raise ValueError('Supplied transaction with hash {} has already been mined'
+                         .format(current_transaction['hash']))
+    if 'nonce' in new_transaction and new_transaction['nonce'] != current_transaction['nonce']:
+        raise ValueError('Supplied nonce in new_transaction must match the pending transaction')
+
+    if 'nonce' not in new_transaction:
+        new_transaction = assoc(new_transaction, 'nonce', current_transaction['nonce'])
+
+    # TODO: Possibly in a middlware somehow?
+    if 'gasPrice' not in new_transaction:
+            generated_gas_price = web3.eth.generateGasPrice(new_transaction)
+            minimum_gas_price = int(math.ceil(current_transaction['gasPrice'] * 1.1))
+            if generated_gas_price and generated_gas_price > minimum_gas_price:
+                new_transaction = assoc(new_transaction, 'gasPrice', generated_gas_price)
+            else:
+                new_transaction = assoc(new_transaction, 'gasPrice', minimum_gas_price)
+
+    return new_transaction

@@ -1,5 +1,6 @@
 from cytoolz.dicttoolz import (
     assoc,
+    merge,
 )
 
 from eth_utils import (
@@ -37,6 +38,7 @@ from web3.utils.filters import (
 )
 from web3.utils.transactions import (
     get_buffered_gas_estimate,
+    prepare_replacement_transaction
 )
 
 
@@ -197,6 +199,25 @@ class Eth(Module):
                 block_identifier,
             ],
         )
+
+    def replaceTransaction(self, transaction_hash, new_transaction):
+        current_transaction = self.getTransaction(transaction_hash)
+        new_transaction = prepare_replacement_transaction(
+            self.web3, current_transaction, new_transaction
+        )
+
+        # TODO: Does the gas and from defaulting in `sendTransaction` make sense for this?
+        return self.sendTransaction(new_transaction)
+
+    def modifyTransaction(self, transaction_hash, **params):
+        current_transaction = self.getTransaction(transaction_hash)
+        new_transaction = merge(current_transaction, params)
+        new_transaction = prepare_replacement_transaction(
+            self.web3, current_transaction, new_transaction
+        )
+
+        # TODO: Does the gas and from defaulting in `sendTransaction` make sense for this?
+        return self.sendTransaction(new_transaction)
 
     def sendTransaction(self, transaction):
         # TODO: move to middleware
