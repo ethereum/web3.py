@@ -214,7 +214,7 @@ class EthModuleTest(object):
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gas_price']
 
-    def test_eth_sendTransaction_with_nonce(self, web3, eth_tester, unlocked_account):
+    def test_eth_sendTransaction_with_nonce(self, web3, unlocked_account):
         txn_params = {
             'from': unlocked_account,
             'to': unlocked_account,
