@@ -156,7 +156,7 @@ Each Contract Factory exposes the following methods.
         54321  # the token balance for the account `web3.eth.accounts[1]`
 
 
-.. py:method:: Contract.estimateGas(transaction).myMethod(*args, **kwargs)
+.. py:method:: Contract.functions.myMethod(*args, **kwargs).estimateGas(transaction)
 
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
@@ -253,6 +253,8 @@ Events
     If the :py:attr:`Contract.address` attribute for this contract is
     non-null, the contract address will be added to the ``filter_params``.
 
+.. _event-log-object:
+
     The Event Log Object is a python dictionary with the following keys:
 
     * ``args``: Dictionary - The arguments coming from the event.
@@ -282,3 +284,16 @@ Events
 
         >>> transfer_filter.get_all_entries()
         [...]  # all events that match the filter.
+
+.. py:method:: Contract.events.myEvent(*args, **kwargs).processReceipt(transaction_receipt)
+
+   Returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``), 
+   with decoded ouput.
+
+   .. code-block:: python
+
+       >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
+       >>> tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+       >>> rich_logs = contract.events.myEvent().processReceipt(tx_receipt)
+       >>> rich_logs[0]['args']
+       {'myArg': 12345}

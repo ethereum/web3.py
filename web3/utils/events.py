@@ -25,6 +25,10 @@ from .abi import (
     normalize_event_input_types,
 )
 
+from web3.exceptions import (
+    MismatchedABI,
+)
+
 from web3.utils.encoding import (
     hexstr_if_str,
     to_bytes,
@@ -98,10 +102,10 @@ def construct_event_data_set(event_abi, arguments=None):
         for key, value in arguments.items()
     }
 
-    indexed_args = exclude_indexed_event_inputs(event_abi)
+    non_indexed_args = exclude_indexed_event_inputs(event_abi)
     zipped_abi_and_args = [
         (arg, normalized_args.get(arg['name'], [None]))
-        for arg in indexed_args
+        for arg in non_indexed_args
     ]
     encoded_args = [
         [
@@ -147,9 +151,14 @@ def get_event_abi_types_for_decoding(event_inputs):
 def get_event_data(event_abi, log_entry):
     """
     Given an event ABI and a log entry for that event, return the decoded
+    event data
     """
     if event_abi['anonymous']:
         log_topics = log_entry['topics']
+    elif not log_entry['topics']:
+        raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
+    elif event_abi_to_log_topic(event_abi) != log_entry['topics'][0]:
+        raise MismatchedABI("The event signature did not match the provided ABI")
     else:
         log_topics = log_entry['topics'][1:]
 

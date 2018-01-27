@@ -137,3 +137,75 @@ def test_dynamic_length_argument_extraction(web3,
     assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
     assert is_same_address(event_data['address'], emitter.address)
     assert event_data['event'] == 'LogDynamicArgs'
+
+
+@pytest.mark.parametrize(
+    'contract_fn,event_name,call_args,expected_args',
+    (
+        ('logNoArgs', 'LogAnonymous', [], {}),
+        ('logNoArgs', 'LogNoArguments', [], {}),
+        ('logSingle', 'LogSingleArg', [12345], {'arg0': 12345}),
+        ('logSingle', 'LogSingleWithIndex', [12345], {'arg0': 12345}),
+        ('logSingle', 'LogSingleAnonymous', [12345], {'arg0': 12345}),
+        ('logDouble', 'LogDoubleArg', [12345, 54321], {'arg0': 12345, 'arg1': 54321}),
+        ('logDouble', 'LogDoubleAnonymous', [12345, 54321], {'arg0': 12345, 'arg1': 54321}),
+        ('logDouble', 'LogDoubleWithIndex', [12345, 54321], {'arg0': 12345, 'arg1': 54321}),
+        (
+            'logTriple',
+            'LogTripleArg',
+            [12345, 54321, 98765],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765},
+        ),
+        (
+            'logTriple',
+            'LogTripleWithIndex',
+            [12345, 54321, 98765],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765},
+        ),
+        (
+            'logQuadruple',
+            'LogQuadrupleArg',
+            [12345, 54321, 98765, 56789],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789},
+        ),
+        (
+            'logQuadruple',
+            'LogQuadrupleWithIndex',
+            [12345, 54321, 98765, 56789],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789},
+        ),
+    )
+)
+def test_event_rich_log(
+        web3,
+        emitter,
+        emitter_event_ids,
+        wait_for_transaction,
+        contract_fn,
+        event_name,
+        call_args,
+        expected_args):
+
+    emitter_fn = getattr(emitter.functions, contract_fn)
+    event_id = getattr(emitter_event_ids, event_name)
+    txn_hash = emitter_fn(event_id, *call_args).transact()
+    txn_receipt = wait_for_transaction(web3, txn_hash)
+
+    event_instance = getattr(emitter.events, event_name)()
+
+    rich_logs = event_instance.processReceipt(txn_receipt)
+
+    assert len(rich_logs) == 1
+
+    rich_log = rich_logs[0]
+
+    assert rich_log['args'] == expected_args
+    assert rich_log['blockHash'] == txn_receipt['blockHash']
+    assert rich_log['blockNumber'] == txn_receipt['blockNumber']
+    assert rich_log['transactionIndex'] == txn_receipt['transactionIndex']
+    assert is_same_address(rich_log['address'], emitter.address)
+    assert rich_log['event'] == event_name
+
+    quiet_event = getattr(emitter.events, 'LogBytes')
+    empty_rich_log = quiet_event().processReceipt(txn_receipt)
+    assert empty_rich_log == tuple()

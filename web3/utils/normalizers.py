@@ -1,6 +1,7 @@
 
 import codecs
 import functools
+import json
 
 from cytoolz import (
     curry,
@@ -17,6 +18,9 @@ from eth_utils import (
 from web3.exceptions import (
     InvalidAddress,
 )
+from web3.utils.datastructures import (
+    HexBytes,
+)
 from web3.utils.encoding import (
     hexstr_if_str,
     text_if_str,
@@ -28,6 +32,7 @@ from web3.utils.ens import (
     validate_name_has_address,
 )
 from web3.utils.validation import (
+    validate_abi,
     validate_address,
 )
 
@@ -43,7 +48,9 @@ def implicitly_identity(to_wrap):
     return wrapper
 
 
-# ----- Return Normalizers -----
+#
+# Return Normalizers
+#
 
 
 @implicitly_identity
@@ -58,7 +65,9 @@ def decode_abi_strings(abi_type, data):
         return abi_type, codecs.decode(data, 'utf8', 'backslashreplace')
 
 
-# ----- Argument Normalizers -----
+#
+# Argument Normalizers
+#
 
 
 @implicitly_identity
@@ -124,3 +133,30 @@ BASE_RETURN_NORMALIZERS = [
     addresses_checksummed,
     decode_abi_strings,
 ]
+
+
+#
+# Property Normalizers
+#
+
+
+def normalize_abi(abi):
+    if isinstance(abi, str):
+        abi = json.loads(abi)
+    validate_abi(abi)
+    return abi
+
+
+def normalize_address(ens, address):
+    if address:
+        if is_ens_name(address):
+            validate_name_has_address(ens, address)
+        else:
+            validate_address(address)
+    return address
+
+
+def normalize_bytecode(bytecode):
+    if bytecode:
+        bytecode = HexBytes(bytecode)
+    return bytecode
