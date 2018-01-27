@@ -1,12 +1,14 @@
 import pytest
 
 from web3 import Web3
-from web3.providers.base import BaseProvider
 from web3.gas_strategies.time_based import (
     construct_time_based_gas_price_strategy,
 )
 from web3.middleware import (
     construct_result_generator_middleware,
+)
+from web3.providers.base import (
+    BaseProvider,
 )
 
 

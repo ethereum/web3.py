@@ -1,5 +1,7 @@
 import pytest
-from unittest.mock import Mock
+from unittest.mock import (
+    Mock,
+)
 
 from eth_utils import (
     decode_hex,

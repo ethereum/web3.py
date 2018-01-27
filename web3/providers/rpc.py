@@ -1,22 +1,26 @@
 import logging
 import os
 
-from .base import JSONBaseProvider  # noqa: E402
-
 from eth_utils import (
     to_dict,
 )
 
-from web3.utils.request import (
-    make_post_request,
+from web3.middleware import (
+    http_retry_request_middleware,
 )
-from web3.utils.http import construct_user_agent
-
 from web3.utils.datastructures import (
     NamedElementStack,
 )
+from web3.utils.http import (
+    construct_user_agent,
+)
+from web3.utils.request import (
+    make_post_request,
+)
 
-from web3.middleware import http_retry_request_middleware
+from .base import (
+    JSONBaseProvider,
+)
 
 logger = logging.getLogger(__name__)
 

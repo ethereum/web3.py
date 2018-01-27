@@ -1,7 +1,6 @@
 from collections import (
     namedtuple,
 )
-
 import itertools
 import re
 
@@ -10,7 +9,10 @@ from cytoolz import (
     partial,
     pipe,
 )
-
+from eth_abi.abi import (
+    collapse_type,
+    process_type,
+)
 from eth_utils import (
     decode_hex,
     is_address,
@@ -22,13 +24,9 @@ from eth_utils import (
     to_tuple,
 )
 
-from eth_abi.abi import (
-    collapse_type,
-    process_type,
+from web3.utils.ens import (
+    is_ens_name,
 )
-
-from web3.utils.ens import is_ens_name
-
 from web3.utils.formatters import (
     recursive_map,
 )

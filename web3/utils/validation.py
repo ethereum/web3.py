@@ -15,17 +15,16 @@ from eth_utils import (
 from web3.exceptions import (
     InvalidAddress,
 )
-
 from web3.utils.abi import (
-    length_of_array_type,
     is_address_type,
     is_array_type,
     is_bool_type,
     is_bytes_type,
     is_int_type,
-    is_uint_type,
     is_recognized_type,
     is_string_type,
+    is_uint_type,
+    length_of_array_type,
     sub_type_of_array_type,
 )
 

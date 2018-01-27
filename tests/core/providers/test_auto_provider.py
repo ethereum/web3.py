@@ -1,11 +1,11 @@
 import pytest
 
+from web3.providers import (
+    HTTPProvider,
+    IPCProvider,
+)
 from web3.providers.auto import (
     load_provider_from_environment,
-)
-from web3.providers import (
-    IPCProvider,
-    HTTPProvider,
 )
 
 

@@ -1,14 +1,13 @@
-from hypothesis import (
-    given,
-    strategies as st,
-)
-
 import random
 
 from eth_utils import (
     force_bytes,
     force_text,
     to_dict,
+)
+from hypothesis import (
+    given,
+    strategies as st,
 )
 
 from web3.utils.caching import (

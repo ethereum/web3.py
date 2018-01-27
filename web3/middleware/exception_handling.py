@@ -1,5 +1,5 @@
 from cytoolz.functoolz import (
-    excepts
+    excepts,
 )
 
 

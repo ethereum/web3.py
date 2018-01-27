@@ -7,7 +7,6 @@ from web3.utils.encoding import (
     to_int,
     zpad_bytes,
 )
-
 from web3.utils.transactions import (
     ChainAwareUnsignedTransaction,
     UnsignedTransaction,

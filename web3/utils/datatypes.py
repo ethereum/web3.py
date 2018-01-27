@@ -2,8 +2,9 @@ from cytoolz.functoolz import (
     curry,
 )
 from toolz.itertoolz import (
-    concat
+    concat,
 )
+
 import web3.utils.formatters
 
 

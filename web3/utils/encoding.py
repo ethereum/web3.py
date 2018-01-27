@@ -2,17 +2,15 @@
 import json
 import re
 
-import rlp
-from rlp.sedes import big_endian_int
-
 from cytoolz import (
     curry,
 )
-
 from eth_utils import (
     add_0x_prefix,
     big_endian_to_int,
     coerce_args_to_bytes,
+    decode_hex,
+    encode_hex,
     force_bytes,
     force_text,
     int_to_big_endian,
@@ -23,9 +21,11 @@ from eth_utils import (
     is_integer,
     is_string,
     keccak,
-    decode_hex,
-    encode_hex,
     remove_0x_prefix,
+)
+import rlp
+from rlp.sedes import (
+    big_endian_int,
 )
 
 from web3.utils.abi import (
@@ -34,8 +34,8 @@ from web3.utils.abi import (
     is_bool_type,
     is_bytes_type,
     is_int_type,
-    is_uint_type,
     is_string_type,
+    is_uint_type,
     size_of_type,
     sub_type_of_array_type,
 )

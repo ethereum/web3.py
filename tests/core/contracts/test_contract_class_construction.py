@@ -5,7 +5,9 @@ from eth_utils import (
     decode_hex,
 )
 
-from web3.contract import Contract
+from web3.contract import (
+    Contract,
+)
 
 
 def test_class_construction_sets_class_vars(web3,

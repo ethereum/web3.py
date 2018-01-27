@@ -1,13 +1,15 @@
 import pytest
 
 from web3 import Web3
-
 from web3.exceptions import (
     InvalidAddress,
 )
-
-from web3.utils.datastructures import HexBytes
-from web3.utils.ens import ens_addresses
+from web3.utils.datastructures import (
+    HexBytes,
+)
+from web3.utils.ens import (
+    ens_addresses,
+)
 
 
 class Web3ModuleTest(object):

@@ -4,7 +4,6 @@ from web3.utils.abi import (
     merge_args_and_kwargs,
 )
 
-
 FUNCTION_ABI = {
     "constant": False,
     "inputs": [

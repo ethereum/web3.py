@@ -9,21 +9,19 @@ from cytoolz import (
     partial,
     pipe,
 )
-
 from eth_utils import (
     is_dict,
     is_string,
 )
 
 from web3.middleware import (
-    construct_formatting_middleware,
     construct_fixture_middleware,
+    construct_formatting_middleware,
 )
-
 from web3.utils.formatters import (
     apply_formatter_if,
-    apply_formatters_to_args,
     apply_formatter_to_array,
+    apply_formatters_to_args,
     apply_formatters_to_dict,
     apply_key_map,
     hex_to_integer,

@@ -1,9 +1,10 @@
 import random
 
-from flaky import flaky
-
 from eth_utils import (
     decode_hex,
+)
+from flaky import (
+    flaky,
 )
 
 from web3.utils.threads import (

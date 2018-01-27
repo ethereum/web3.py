@@ -1,6 +1,8 @@
 import time
 
-from web3.exceptions import StaleBlockchain
+from web3.exceptions import (
+    StaleBlockchain,
+)
 
 SKIP_STALECHECK_FOR_METHODS = set([
     'eth_getBlockByNumber',

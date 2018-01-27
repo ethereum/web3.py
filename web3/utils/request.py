@@ -1,8 +1,9 @@
 import lru
 import requests
 
-from web3.utils.caching import generate_cache_key
-
+from web3.utils.caching import (
+    generate_cache_key,
+)
 
 _session_cache = lru.LRU(8)
 

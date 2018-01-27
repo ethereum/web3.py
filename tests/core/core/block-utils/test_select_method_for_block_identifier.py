@@ -8,7 +8,6 @@ from web3.utils.blocks import (
     select_method_for_block_identifier,
 )
 
-
 selector_fn = partial(
     select_method_for_block_identifier,
     if_hash='test_hash',

@@ -1,8 +1,8 @@
 """
 A minimal implementation of the various gevent APIs used within this codebase.
 """
-import time
 import threading
+import time
 
 
 class Timeout(Exception):

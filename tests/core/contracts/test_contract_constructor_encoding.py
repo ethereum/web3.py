@@ -1,12 +1,11 @@
 import pytest
 
+from eth_abi import (
+    encode_abi,
+)
 from eth_utils import (
     encode_hex,
     remove_0x_prefix,
-)
-
-from eth_abi import (
-    encode_abi,
 )
 
 

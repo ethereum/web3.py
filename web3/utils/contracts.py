@@ -1,31 +1,36 @@
 import functools
 
+from cytoolz import (
+    pipe,
+)
 from eth_abi import (
-    encode_abi as eth_abi_encode_abi
+    encode_abi as eth_abi_encode_abi,
+)
+from eth_abi.exceptions import (
+    EncodingError,
 )
 from eth_utils import (
-    function_abi_to_4byte_selector,
-    encode_hex,
     add_0x_prefix,
-)
-
-from toolz.functoolz import (
-    pipe,
+    encode_hex,
+    function_abi_to_4byte_selector,
 )
 
 from web3.utils.abi import (
-    filter_by_type,
-    filter_by_name,
-    filter_by_argument_name,
+    check_if_arguments_can_be_encoded,
     filter_by_argument_count,
+    filter_by_argument_name,
     filter_by_encodability,
+    filter_by_name,
+    filter_by_type,
     get_abi_input_types,
     map_abi_data,
     merge_args_and_kwargs,
-    check_if_arguments_can_be_encoded,
 )
 from web3.utils.datastructures import (
     HexBytes,
+)
+from web3.utils.encoding import (
+    to_hex,
 )
 from web3.utils.normalizers import (
     abi_address_to_hex,
@@ -33,12 +38,6 @@ from web3.utils.normalizers import (
     abi_ens_resolver,
     abi_string_to_hex,
     hexstrs_to_bytes,
-)
-from web3.utils.encoding import (
-    to_hex,
-)
-from eth_abi.exceptions import (
-    EncodingError,
 )
 
 

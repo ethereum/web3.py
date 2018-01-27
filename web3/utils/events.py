@@ -1,13 +1,5 @@
 import itertools
 
-from eth_utils import (
-    encode_hex,
-    to_tuple,
-    is_list_like,
-    coerce_return_to_text,
-    event_abi_to_log_topic,
-)
-
 from eth_abi import (
     decode_abi,
     decode_single,
@@ -16,6 +8,24 @@ from eth_abi import (
 from eth_abi.abi import (
     process_type,
 )
+from eth_utils import (
+    coerce_return_to_text,
+    encode_hex,
+    event_abi_to_log_topic,
+    is_list_like,
+    to_tuple,
+)
+
+from web3.exceptions import (
+    MismatchedABI,
+)
+from web3.utils.encoding import (
+    hexstr_if_str,
+    to_bytes,
+)
+from web3.utils.normalizers import (
+    BASE_RETURN_NORMALIZERS,
+)
 
 from .abi import (
     exclude_indexed_event_inputs,
@@ -23,18 +33,6 @@ from .abi import (
     get_indexed_event_inputs,
     map_abi_data,
     normalize_event_input_types,
-)
-
-from web3.exceptions import (
-    MismatchedABI,
-)
-
-from web3.utils.encoding import (
-    hexstr_if_str,
-    to_bytes,
-)
-from web3.utils.normalizers import (
-    BASE_RETURN_NORMALIZERS,
 )
 
 

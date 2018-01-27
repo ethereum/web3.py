@@ -6,11 +6,9 @@ import json
 from cytoolz import (
     curry,
 )
-
 from eth_abi.abi import (
     process_type,
 )
-
 from eth_utils import (
     to_checksum_address,
 )

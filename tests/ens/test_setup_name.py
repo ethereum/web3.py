@@ -1,9 +1,12 @@
 
 import pytest
 
+from ens.main import (
+    AddressMismatch,
+    UnauthorizedError,
+    UnownedName,
+)
 from web3 import Web3
-
-from ens.main import UnauthorizedError, AddressMismatch, UnownedName
 
 '''
 API at: https://github.com/carver/ens.py/issues/2

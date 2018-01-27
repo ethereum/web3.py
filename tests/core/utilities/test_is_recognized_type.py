@@ -7,8 +7,8 @@ from web3.utils.abi import (
     is_bytes_type,
     is_int_type,
     is_recognized_type,
-    is_uint_type,
     is_string_type,
+    is_uint_type,
 )
 
 

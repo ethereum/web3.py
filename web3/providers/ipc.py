@@ -3,16 +3,18 @@ import socket
 import sys
 import threading
 
-try:
-    from json import JSONDecodeError
-except ImportError:
-    JSONDecodeError = ValueError
-
 from web3.utils.threads import (
     Timeout,
 )
 
-from .base import JSONBaseProvider
+from .base import (
+    JSONBaseProvider,
+)
+
+try:
+    from json import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
 
 
 def get_ipc_socket(ipc_path, timeout=0.1):

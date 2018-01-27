@@ -1,13 +1,25 @@
 import pytest
-import web3
-from unittest.mock import Mock, patch
+from unittest.mock import (
+    Mock,
+    patch,
+)
 
+from requests.exceptions import (
+    ConnectionError,
+    HTTPError,
+    Timeout,
+    TooManyRedirects,
+)
+
+import web3
 from web3.middleware.exception_retry_request import (
     check_if_retry_on_failure,
-    exception_retry_middleware
+    exception_retry_middleware,
 )
-from requests.exceptions import HTTPError, ConnectionError, Timeout, TooManyRedirects
-from web3.providers import HTTPProvider, IPCProvider
+from web3.providers import (
+    HTTPProvider,
+    IPCProvider,
+)
 
 
 @pytest.fixture

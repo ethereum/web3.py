@@ -7,32 +7,31 @@ import signal
 import socket
 import subprocess
 import sys
-import time
 import tempfile
+import time
 
-from cytoolz import merge
-
+from cytoolz import (
+    merge,
+)
 from eth_utils import (
-    to_wei,
-    remove_0x_prefix,
-    is_dict,
-    is_checksum_address,
-    is_same_address,
     force_text,
+    is_checksum_address,
+    is_dict,
+    is_same_address,
+    remove_0x_prefix,
+    to_wei,
 )
 
 from web3 import Web3
-
-from web3.utils.module_testing.math_contract import (
-    MATH_BYTECODE,
-    MATH_ABI,
-)
 from web3.utils.module_testing.emitter_contract import (
-    EMITTER_BYTECODE,
     EMITTER_ABI,
+    EMITTER_BYTECODE,
     EMITTER_ENUM,
 )
-
+from web3.utils.module_testing.math_contract import (
+    MATH_ABI,
+    MATH_BYTECODE,
+)
 
 COINBASE = '0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'
 COINBASE_PK = '0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d'
