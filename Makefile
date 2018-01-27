@@ -24,6 +24,9 @@ clean-pyc:
 lint:
 	tox -elint
 
+lint-roll: lint
+	isort --recursive <MODULE_NAME> tests
+
 test:
 	py.test tests
 
