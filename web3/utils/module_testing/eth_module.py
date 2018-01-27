@@ -214,6 +214,25 @@ class EthModuleTest(object):
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gas_price']
 
+    def test_eth_sendTransaction_with_nonce(self, web3, eth_tester, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gas_price': web3.eth.gasPrice,
+            'nonce': web3.eth.getTransactionCount(unlocked_account),
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn = web3.eth.getTransaction(txn_hash)
+
+        assert is_same_address(txn['from'], txn_params['from'])
+        assert is_same_address(txn['to'], txn_params['to'])
+        assert txn['value'] == 1
+        assert txn['gas'] == 21000
+        assert txn['gasPrice'] == txn_params['gas_price']
+        assert txn['nonce'] == txn_params['nonce']
+
     @pytest.mark.parametrize(
         'raw_transaction, expected_hash',
         [
