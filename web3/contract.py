@@ -30,8 +30,9 @@ from web3.utils.abi import (
     filter_by_type,
     get_abi_output_types,
     get_constructor_abi,
+    get_fallback_abi,
     map_abi_data,
-    merge_args_and_kwargs,
+    merge_args_and_kwargs
 )
 from web3.utils.contracts import (
     encode_abi,
@@ -100,6 +101,19 @@ class ContractFunctions:
                         contract_abi=self.abi,
                         address=address,
                         function_name=function['name']))
+
+            if get_fallback_abi(self.abi):
+                self._function_names.append('fallback')
+                setattr(
+                    self,
+                    'fallback',
+                    ContractFunction.factory(
+                        'fallback',
+                        web3=web3,
+                        contract_abi=self.abi,
+                        address=address,
+                        method_name='fallback'))
+
 
 
 class ContractEvents:
@@ -733,6 +747,7 @@ class ContractFunction:
     contract_abi = None
     abi = None
     transaction = None
+    is_fallback_function = False
 
     def __init__(self, *args, **kwargs):
 
@@ -745,13 +760,16 @@ class ContractFunction:
             self.kwargs = {}
         else:
             self.kwargs = kwargs
-
         self.fn_name = type(self).__name__
+        self._is_fallback_function = self.fn_name is 'fallback'
         self._set_function_info()
         self._transaction_data = self._encode_transaction_data()
 
     def _set_function_info(self):
-        self.abi = find_matching_fn_abi(self.contract_abi, self.fn_name, self.args, self.kwargs)
+        if self.is_fallback_function:
+            self.abi = get_fallback_abi(self.contract_abi)
+        else:
+            self.abi = find_matching_fn_abi(self.contract_abi, self.fn_name, self.args, self.kwargs)
         self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
         self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
 

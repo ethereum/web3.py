@@ -65,6 +65,7 @@ def get_abi_input_names(abi):
     else:
         return [arg['name'] for arg in abi['inputs']]
 
+
 def get_fallback_abi(contract_abi):
     fallback_abis = filter_by_type('fallback', contract_abi)
     return fallback_abis[0] if fallback_abis else None
