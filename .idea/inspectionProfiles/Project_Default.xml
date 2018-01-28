@@ -1,0 +1,22 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="9">
+            <item index="0" class="java.lang.String" itemvalue="lru-dict" />
+            <item index="1" class="java.lang.String" itemvalue="eth-abi" />
+            <item index="2" class="java.lang.String" itemvalue="eth-keys" />
+            <item index="3" class="java.lang.String" itemvalue="cytoolz" />
+            <item index="4" class="java.lang.String" itemvalue="eth-keyfile" />
+            <item index="5" class="java.lang.String" itemvalue="setuptools-markdown" />
+            <item index="6" class="java.lang.String" itemvalue="rlp" />
+            <item index="7" class="java.lang.String" itemvalue="eth-utils" />
+            <item index="8" class="java.lang.String" itemvalue="pysha3" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
