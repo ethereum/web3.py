@@ -13,7 +13,7 @@ from eth_utils import (
     add_0x_prefix,
     encode_hex,
     function_abi_to_4byte_selector,
-)
+    is_text)
 from hexbytes import (
     HexBytes,
 )
@@ -32,6 +32,7 @@ from web3.utils.abi import (
 from web3.utils.encoding import (
     to_hex,
 )
+from web3.utils.function_identifiers import FallbackFn
 from web3.utils.normalizers import (
     abi_address_to_hex,
     abi_bytes_to_hex,
@@ -90,8 +91,6 @@ def find_matching_fn_abi(abi, fn_name=None, args=None, kwargs=None):
             functools.partial(filter_by_encodability, args, kwargs),
         ])
 
-    function_candidates = filter_by_type('function', abi)
-
     function_candidates = pipe(abi, *filters)
 
     if len(function_candidates) == 1:
@@ -145,10 +144,9 @@ def encode_abi(web3, abi, arguments, data=None):
 def prepare_transaction(abi,
                         address,
                         web3,
-                        fn_name,
+                        fn_identifier,
                         fn_args=None,
                         fn_kwargs=None,
-                        fn_is_fallback=False,
                         transaction=None):
     """
     Returns a dictionary of the transaction that could be used to call this
@@ -169,35 +167,43 @@ def prepare_transaction(abi,
     prepared_transaction['data'] = encode_transaction_data(
         abi,
         web3,
-        fn_name,
+        fn_identifier,
         fn_args,
         fn_kwargs,
-        fn_is_fallback
     )
     return prepared_transaction
 
 
-def encode_transaction_data(abi, web3, fn_name, args=None, kwargs=None, is_fallback_fn=False):
-    fn_abi, fn_selector, fn_arguments = get_function_info(
-        abi, fn_name, args, kwargs, is_fallback_fn
-    )
+def encode_transaction_data(abi, web3, fn_identifier, args=None, kwargs=None):
+    if fn_identifier is FallbackFn:
+        fn_abi, fn_selector, fn_arguments = get_fallback_function_info(abi)
+        # TODO do a check on whether the first four data bytes matches any known function selectors from the ABI and throw an error.
+        # TODO Add an extra parameter to the function to explicitly allow the call to go through anyways (this one is my preference)
+        # Use decode_hex?
+
+    elif is_text(fn_identifier):
+        fn_abi, fn_selector, fn_arguments = get_function_info(
+            abi, fn_identifier, args, kwargs
+        )
+    else:
+        raise TypeError("Unsupported function identifier")
+
     return add_0x_prefix(encode_abi(web3, fn_abi, fn_arguments, fn_selector))
 
+def get_fallback_function_info(abi):
+    fn_abi = get_fallback_func_abi(abi)
+    fn_selector = encode_hex(b'')
+    fn_arguments = tuple()
+    return fn_abi, fn_selector, fn_arguments
 
-def get_function_info(abi, fn_name, args=None, kwargs=None, is_fallback_fn=False):
-    if is_fallback_fn and fn_name is None:
-        raise FunctionNotSpecified("Have to specify either function name or use a fallback function.")
 
+def get_function_info(abi, fn_name, args=None, kwargs=None):
     if args is None:
         args = tuple()
     if kwargs is None:
         kwargs = {}
 
-    if is_fallback_fn:
-        fn_abi = get_fallback_func_abi(abi)
-    else:
-        fn_abi = find_matching_fn_abi(abi, fn_name, args, kwargs)
-
+    fn_abi = find_matching_fn_abi(abi, fn_name, args, kwargs)
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
 
     fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)

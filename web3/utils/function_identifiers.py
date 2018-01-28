@@ -1,0 +1,2 @@
+class FallbackFn:
+    pass

@@ -24,6 +24,7 @@ from eth_utils import (
     to_tuple,
 )
 
+from web3.exceptions import FallbackNotFound
 from web3.utils.ens import (
     is_ens_name,
 )
@@ -68,7 +69,14 @@ def get_abi_input_names(abi):
 
 def get_fallback_func_abi(contract_abi):
     fallback_abis = filter_by_type('fallback', contract_abi)
-    return fallback_abis[0] if fallback_abis else None
+    if fallback_abis:
+        return fallback_abis[0]
+    else:
+        raise FallbackNotFound("No fallback function was found in the contract ABI.")
+
+
+def fallback_func_abi_exists(contract_abi):
+    return filter_by_type('fallback', contract_abi)
 
 
 def get_indexed_event_inputs(event_abi):
@@ -172,7 +180,7 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     except TypeError:
         return False
 
-    if len(function_abi['inputs']) != len(arguments):
+    if len(function_abi.get('inputs', [])) != len(arguments):
         return False
 
     types = get_abi_input_types(function_abi)
@@ -184,7 +192,7 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
 
 
 def merge_args_and_kwargs(function_abi, args, kwargs):
-    if len(args) + len(kwargs) != len(function_abi['inputs']):
+    if len(args) + len(kwargs) != len(function_abi.get('inputs', [])):
         raise TypeError(
             "Incorrect argument count.  Expected '{0}'.  Got '{1}'".format(
                 len(function_abi['inputs']),

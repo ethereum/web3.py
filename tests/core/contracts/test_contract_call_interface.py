@@ -16,6 +16,7 @@ from web3.utils.ens import (
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
+# TODO use transact to deploy
 def deploy(web3, Contract, args=None):
     deploy_txn = Contract.deploy(args=args)
     deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
@@ -87,6 +88,11 @@ def mismatched_math_contract(web3, StringContract, MathContract):
 
     _mismatched_math_contract = MathContract(address=deploy_receipt['contractAddress'])
     return _mismatched_math_contract
+
+
+@pytest.fixture()
+def fallback_function_contract(web3, FallballFunctionContract):
+    return deploy(web3, FallballFunctionContract)
 
 
 def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):
