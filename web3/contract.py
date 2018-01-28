@@ -268,6 +268,51 @@ class Contract(object):
         txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
         return txn_hash
 
+    @classmethod
+    def deploy_data(cls, transaction=None, args=None, kwargs=None):
+        """
+        Returns the Deploy contract data.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> MyContract.deploy_data(
+                args=('DGD', 18),
+            )
+            '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
+
+        :param args: The contract constructor arguments as positional arguments
+        :param kwargs: The contract constructor arguments as keyword arguments
+
+        :return: bytecode data for signing transactions
+        """
+
+        if transaction is None:
+            deploy_transaction = {}
+        else:
+            deploy_transaction = dict(**transaction)
+
+        if not cls.bytecode:
+            raise ValueError(
+                "Cannot deploy a contract that does not have 'bytecode' associated "
+                "with it"
+            )
+
+        if 'data' in deploy_transaction:
+            raise ValueError(
+                "Cannot specify `data` for contract deployment"
+            )
+
+        if 'to' in deploy_transaction:
+            raise ValueError(
+                "Cannot specify `to` for contract deployment"
+            )
+
+        deploy_transaction['data'] = cls._encode_constructor_data(args, kwargs)
+
+        return deploy_transaction['data']
+
     #
     #  Public API
     #
