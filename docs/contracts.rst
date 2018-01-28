@@ -116,12 +116,12 @@ Each Contract Factory exposes the following methods.
 
     Returns the bytecode data to deploy the contract using the signTransaction method.
 
-        >>> token_contract.deploy_data(web3.eth.accounts[1], 12345)
-        0x6060604052341561000f57600080fd5b604080519081016040528.....
+        >>> contract_data = token_contract.deploy_data(web3.eth.accounts[1], 12345)
         >>> transaction = {
         'to': '',
         'value': 0,
         'gas': 2000000,
+        'data': contract_data,
         'gasPrice': w3.eth.gasPrice,
         'nonce': w3.eth.getTransactionCount(w3.eth.coinbase),
         'chainId': None
