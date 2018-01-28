@@ -24,13 +24,14 @@ from toolz.functoolz import (
 
 from web3.exceptions import (
     BadFunctionCallOutput,
-    MismatchedABI,
+    FallbackNotFound,
+    MismatchedABI
 )
 from web3.utils.abi import (
     filter_by_type,
     get_abi_output_types,
     get_constructor_abi,
-    get_fallback_abi,
+    get_fallback_func_abi,
     map_abi_data,
     merge_args_and_kwargs
 )
@@ -101,18 +102,6 @@ class ContractFunctions:
                         contract_abi=self.abi,
                         address=address,
                         function_name=func['name']))
-
-            if get_fallback_abi(self.abi):
-                self._function_names.append('fallback')
-                setattr(
-                    self,
-                    'fallback',
-                    ContractFunction.factory(
-                        'fallback',
-                        web3=web3,
-                        contract_abi=self.abi,
-                        address=address,
-                        method_name='fallback'))
 
 
 
@@ -188,7 +177,6 @@ class Contract:
 
         :param address: Contract address as 0x hex string
         """
-
         if self.web3 is None:
             raise AttributeError(
                 'The `Contract` class has not been initialized.  Please use the '
@@ -203,6 +191,7 @@ class Contract:
 
         self.functions = ContractFunctions(self.abi, self.web3, self.address)
         self.events = ContractEvents(self.abi, self.web3, self.address)
+        self._fallback = Contract.get_fallback_function(self.abi, self.web3, self.address)
 
     @classmethod
     def factory(cls, web3, class_name=None, **kwargs):
@@ -281,6 +270,12 @@ class Contract:
         # TODO: handle asynchronous contract creation
         txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
         return txn_hash
+
+    def fallback(self):
+        if self._fallback:
+            return self._fallback
+        else:
+            raise FallbackNotFound("Fallback function does not exist.")
 
     #
     #  Public API
@@ -371,6 +366,7 @@ class Contract:
 
         class Caller:
             def __getattr__(self, function_name):
+                is_fallback_func = function_name is 'fallback'
                 callable_fn = functools.partial(
                     estimate_gas_for_function,
                     contract.abi,
@@ -378,6 +374,7 @@ class Contract:
                     contract.web3,
                     function_name,
                     estimate_transaction,
+                    is_fallback_func
                 )
                 return callable_fn
 
@@ -612,6 +609,20 @@ class Contract:
             abi=cls.abi,
             event_name=event_name,
             argument_names=argument_names)
+
+    @staticmethod
+    def get_fallback_function(abi, web3, address):
+        if get_fallback_func_abi(abi):
+            # TODO pass in is_fallback_function boolean instead of pass in 'fallback' as function name as user may want
+            # to use it
+            return ContractFunction.factory(
+                'fallback',
+                web3=web3,
+                contract_abi=abi,
+                address=address,
+                function_name='fallback')
+        else:
+            return None
 
     @combomethod
     @coerce_return_to_text
@@ -1004,11 +1015,14 @@ def call_contract_function(abi,
     Helper function for interacting with a contract function using the
     `eth_call` API.
     """
+    is_fallback_func = function_name is "fallback"
+
+    fn_name = None if is_fallback_func else function_name
     call_transaction = prepare_transaction(
         abi,
         address,
         web3,
-        fn_name=function_name,
+        fn_name=fn_name,
         fn_args=args,
         fn_kwargs=kwargs,
         transaction=transaction,
@@ -1087,6 +1101,7 @@ def estimate_gas_for_function(abi,
                               web3,
                               function_name=None,
                               transaction=None,
+                              is_fallback_function=False,
                               *args,
                               **kwargs):
     """Estimates gas cost a function call would take.
@@ -1101,6 +1116,7 @@ def estimate_gas_for_function(abi,
         fn_name=function_name,
         fn_args=args,
         fn_kwargs=kwargs,
+        fn_is_fallback=is_fallback_function,
         transaction=transaction,
     )
 

@@ -41,6 +41,13 @@ from web3.utils.normalizers import (
 )
 
 
+class FunctionNotSpecified(Exception):
+    """
+    Raised when try to get a non fallback function info without a specified function name
+    """
+    pass
+
+
 def find_matching_event_abi(abi, event_name=None, argument_names=None):
 
     filters = [
@@ -141,6 +148,7 @@ def prepare_transaction(abi,
                         fn_name,
                         fn_args=None,
                         fn_kwargs=None,
+                        fn_is_fallback=False,
                         transaction=None):
     """
     Returns a dictionary of the transaction that could be used to call this
@@ -164,24 +172,32 @@ def prepare_transaction(abi,
         fn_name,
         fn_args,
         fn_kwargs,
+        fn_is_fallback
     )
     return prepared_transaction
 
 
-def encode_transaction_data(abi, web3, fn_name, args=None, kwargs=None):
+def encode_transaction_data(abi, web3, fn_name, args=None, kwargs=None, is_fallback_fn=False):
     fn_abi, fn_selector, fn_arguments = get_function_info(
-        abi, fn_name, args, kwargs,
+        abi, fn_name, args, kwargs, is_fallback_fn
     )
     return add_0x_prefix(encode_abi(web3, fn_abi, fn_arguments, fn_selector))
 
 
-def get_function_info(abi, fn_name, args=None, kwargs=None):
+def get_function_info(abi, fn_name, args=None, kwargs=None, is_fallback_fn=False):
+    if is_fallback_fn and fn_name is None:
+        raise FunctionNotSpecified("Have to specify either function name or use a fallback function.")
+
     if args is None:
         args = tuple()
     if kwargs is None:
         kwargs = {}
 
-    fn_abi = find_matching_fn_abi(abi, fn_name, args, kwargs)
+    if is_fallback_fn:
+        fn_abi = get_fallback_func_abi(abi)
+    else:
+        fn_abi = find_matching_fn_abi(abi, fn_name, args, kwargs)
+
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
 
     fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
