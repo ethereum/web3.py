@@ -90,17 +90,17 @@ class ContractFunctions:
         if abi:
             self.abi = abi
             self._functions = filter_by_type('function', self.abi)
-            for function in self._functions:
-                self._function_names.append(function['name'])
+            for func in self._functions:
+                self._function_names.append(func['name'])
                 setattr(
                     self,
-                    function['name'],
+                    func['name'],
                     ContractFunction.factory(
-                        function['name'],
+                        func['name'],
                         web3=web3,
                         contract_abi=self.abi,
                         address=address,
-                        function_name=function['name']))
+                        function_name=func['name']))
 
             if get_fallback_abi(self.abi):
                 self._function_names.append('fallback')
