@@ -145,7 +145,7 @@ def is_encodable(_type, value):
         elif isinstance(value, bytes):
             return len(value) <= max_length
         else:
-            False
+            return False
     elif base == 'address':
         if is_ens_name(value):
             return True
