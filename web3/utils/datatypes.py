@@ -28,7 +28,7 @@ class PropertyCheckingFactory(type):
         all_bases = set(concat(base.__mro__ for base in bases))
         for key in namespace:
             verify_key_attr = verify_attr(name, key)
-            verify_key_attr(concat(base.__dict__ for base in all_bases))
+            verify_key_attr(concat(base.__dict__.keys() for base in all_bases))
 
         if normalizers:
             processed_namespace = web3.utils.formatters.apply_formatters_to_dict(
