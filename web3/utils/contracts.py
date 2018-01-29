@@ -153,8 +153,21 @@ def prepare_constructor(abi,
     else:
         prepared_transaction = dict(**transaction)
 
+    if not bytecode:
+        raise ValueError(
+            "Cannot deploy a contract that does not have 'bytecode' associated "
+            "with it"
+        )
+
     if 'data' in prepared_transaction:
-        raise ValueError("Transaction parameter may not contain a 'data' key")
+        raise ValueError(
+            "Cannot specify `data` for contract deployment"
+        )
+
+    if 'to' in prepared_transaction:
+        raise ValueError(
+            "Cannot specify `to` for contract deployment"
+        )
 
     prepared_transaction['data'] = encode_constructor_data(
         abi,

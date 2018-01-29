@@ -229,10 +229,12 @@ class Contract(object):
 
         return ContractConstructor(cls.abi, cls.bytecode, cls.web3, args=args, kwargs=kwargs)
 
+
     #
     # Contract Methods
     #
     @classmethod
+    @deprecated_for("contract.<constructor>.transact")
     def deploy(cls, transaction=None, args=None, kwargs=None):
         """
         Deploys the contract on a blockchain.
@@ -286,6 +288,7 @@ class Contract(object):
         return txn_hash
 
     @classmethod
+    @deprecated_for("contract.<constructor>.buildTransaction")
     def deploy_data(cls, transaction=None, args=None, kwargs=None):
         """
         Returns the Deploy contract data.
@@ -784,7 +787,9 @@ class ImplicitMethod(ConciseMethod):
         else:
             return super().__call__(*args, **kwargs)
 
-
+# Contract Constructor Object
+# TODO
+# [START Contract Constructor Object]
 class ContractConstructor(object):
     """Base class for contract functions
 
@@ -815,7 +820,7 @@ class ContractConstructor(object):
             transact_transaction = dict(**transaction)
 
         if 'data' in transact_transaction:
-            raise ValueError("Cannot set data in call transaction")
+            raise ValueError("Cannot set data in constructor transaction")
 
         if self.web3.eth.defaultAccount is not empty:
             transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
@@ -850,7 +855,7 @@ class ContractConstructor(object):
                                             *self.args,
                                             **self.kwargs)
 
-    '''def buildTransaction(self, transaction=None):
+    def buildTransaction(self, transaction=None):
         """
         Build the transaction dictionary without sending
         """
@@ -859,38 +864,15 @@ class ContractConstructor(object):
         else:
             built_transaction = dict(**transaction)
 
-        if 'data' in built_transaction:
-            raise ValueError("Cannot set data in call buildTransaction")
-
-        if not self.address and 'to' not in built_transaction:
-            raise ValueError(
-                "When using `ContractFunction.buildTransaction` from a Contract factory"
-                "you must provide a `to` address with the transaction"
-            )
-        if self.address and 'to' in built_transaction:
-            raise ValueError("Cannot set to in contract call buildTransaction")
-
-        if self.address:
-            built_transaction.setdefault('to', self.address)
-
-        if 'to' not in built_transaction:
-            raise ValueError(
-                "Please ensure that this contract instance has an address."
-            )
-
-        return build_transaction_for_function(self.contract_abi,
-                                              self.address,
+        return build_transaction_for_constructor(self.contract_abi,
+                                              self.contract_bytecode,
                                               self.web3,
-                                              self.function_name,
                                               built_transaction,
                                               *self.args,
                                               **self.kwargs)
 
-    @combomethod
-    def _encode_transaction_data(cls):
-        return add_0x_prefix(encode_abi(cls.web3, cls.abi, cls.arguments, cls.selector))
 
-    _return_data_normalizers = tuple()'''
+# [END Contract Constructor Object]
 
 
 class ContractFunction(object):
