@@ -39,6 +39,7 @@ from web3.utils.contracts import (
     find_matching_fn_abi,
     get_function_info,
     prepare_transaction,
+    prepare_constructor,
 )
 from web3.utils.datatypes import (
     PropertyCheckingFactory,
@@ -207,10 +208,26 @@ class Contract(object):
             (cls,),
             kwargs,
             normalizers=normalizers)
+
         setattr(contract, 'functions', ContractFunctions(contract.abi, contract.web3))
         setattr(contract, 'events', ContractEvents(contract.abi, contract.web3))
 
         return contract
+
+    @classmethod
+    def constructor(cls, args=None, kwargs=None):
+
+        if args is None:
+            args = tuple()
+        else:
+            args = args
+
+        if kwargs is None:
+            kwargs = {}
+        else:
+            kwargs = kwargs
+
+        return ContractConstructor(cls.abi, cls.bytecode, cls.web3, args=args, kwargs=kwargs)
 
     #
     # Contract Methods
@@ -679,6 +696,7 @@ class ConciseContract(object):
 
     > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
     '''
+
     def __init__(self, classic_contract):
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
         self._classic_contract = classic_contract
@@ -745,6 +763,7 @@ class ImplicitContract(ConciseContract):
 
     > contract.functions.withdraw(amount).transact({})
     '''
+
     def __getattr__(self, attr):
         contract_function = getattr(self._classic_contract.functions, attr)
         return ImplicitMethod(contract_function, self._classic_contract._return_data_normalizers)
@@ -764,6 +783,127 @@ class ImplicitMethod(ConciseMethod):
             return super().__call__(*args, transact={})
         else:
             return super().__call__(*args, **kwargs)
+
+
+class ContractConstructor(object):
+    """Base class for contract functions
+
+    A function accessed via the api contract.functions.myMethod(*args, **kwargs)
+    is a subclass of this class.
+    """
+
+    web3 = None
+    contract_abi = None
+    contract_bytecode = None
+    transaction = None
+    args = None
+    kwargs = None
+
+    def __init__(self, abi, bytecode, web3, args=None, kwargs=None):
+
+        self.contract_abi = abi
+        self.contract_bytecode = bytecode
+        self.web3 = web3
+        self.args = args
+        self.kwargs = kwargs
+
+    '''def transact(self, transaction=None):
+        if transaction is None:
+            transact_transaction = {}
+        else:
+            transact_transaction = dict(**transaction)
+
+        if 'data' in transact_transaction:
+            raise ValueError("Cannot set data in call transaction")
+
+        if self.address is not None:
+            transact_transaction.setdefault('to', self.address)
+        if self.web3.eth.defaultAccount is not empty:
+            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        if 'to' not in transact_transaction:
+            if isinstance(self, type):
+                raise ValueError(
+                    "When using `Contract.transact` from a contract factory you "
+                    "must provide a `to` address with the transaction"
+                )
+            else:
+                raise ValueError(
+                    "Please ensure that this contract instance has an address."
+                )
+
+        return transact_with_contract_function(self.contract_abi,
+                                               self.address,
+                                               self.web3,
+                                               self.function_name,
+                                               transact_transaction,
+                                               *self.args,
+                                               **self.kwargs)'''
+
+    def estimateGas(self, transaction=None):
+
+        if transaction is None:
+            estimate_transaction = {}
+        else:
+            estimate_transaction = dict(**transaction)
+
+        if 'data' in estimate_transaction:
+            raise ValueError("Cannot set data in constructor transaction")
+
+        if 'to' in estimate_transaction:
+            raise ValueError("Cannot set to in constructor transaction")
+
+        if self.web3.eth.defaultAccount is not empty:
+            estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        return estimate_gas_for_constructor(self.contract_abi,
+                                            self.contract_bytecode,
+                                            self.web3,
+                                            estimate_transaction,
+                                            *self.args,
+                                            **self.kwargs)
+
+    '''def buildTransaction(self, transaction=None):
+        """
+        Build the transaction dictionary without sending
+        """
+        if transaction is None:
+            built_transaction = {}
+        else:
+            built_transaction = dict(**transaction)
+
+        if 'data' in built_transaction:
+            raise ValueError("Cannot set data in call buildTransaction")
+
+        if not self.address and 'to' not in built_transaction:
+            raise ValueError(
+                "When using `ContractFunction.buildTransaction` from a Contract factory"
+                "you must provide a `to` address with the transaction"
+            )
+        if self.address and 'to' in built_transaction:
+            raise ValueError("Cannot set to in contract call buildTransaction")
+
+        if self.address:
+            built_transaction.setdefault('to', self.address)
+
+        if 'to' not in built_transaction:
+            raise ValueError(
+                "Please ensure that this contract instance has an address."
+            )
+
+        return build_transaction_for_function(self.contract_abi,
+                                              self.address,
+                                              self.web3,
+                                              self.function_name,
+                                              built_transaction,
+                                              *self.args,
+                                              **self.kwargs)
+
+    @combomethod
+    def _encode_transaction_data(cls):
+        return add_0x_prefix(encode_abi(cls.web3, cls.abi, cls.arguments, cls.selector))
+
+    _return_data_normalizers = tuple()'''
 
 
 class ContractFunction(object):
@@ -835,6 +975,7 @@ class ContractFunction(object):
 
         if self.address:
             call_transaction.setdefault('to', self.address)
+
         if self.web3.eth.defaultAccount is not empty:
             call_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
@@ -905,6 +1046,7 @@ class ContractFunction(object):
 
         if self.address:
             estimate_transaction.setdefault('to', self.address)
+
         if self.web3.eth.defaultAccount is not empty:
             estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
@@ -1107,6 +1249,30 @@ def transact_with_contract_function(abi,
 
     txn_hash = web3.eth.sendTransaction(transact_transaction)
     return txn_hash
+
+
+def estimate_gas_for_constructor(abi,
+                                 bytecode,
+                                 web3,
+                                 transaction,
+                                 *args,
+                                 **kwargs):
+    """Estimates gas cost a function call would take.
+
+    Don't call this directly, instead use :meth:`Contract.estimateGas`
+    on your contract instance.
+    """
+    estimate_transaction = prepare_constructor(
+        abi,
+        bytecode,
+        web3,
+        args=args,
+        kwargs=kwargs,
+        transaction=transaction,
+    )
+
+    gas_estimate = web3.eth.estimateGas(estimate_transaction)
+    return gas_estimate
 
 
 def estimate_gas_for_function(abi,

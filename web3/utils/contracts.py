@@ -25,6 +25,7 @@ from web3.utils.abi import (
     get_abi_input_types,
     map_abi_data,
     merge_args_and_kwargs,
+    get_constructor_abi,
 )
 from web3.utils.datastructures import (
     HexBytes,
@@ -42,7 +43,6 @@ from web3.utils.normalizers import (
 
 
 def find_matching_event_abi(abi, event_name=None, argument_names=None):
-
     filters = [
         functools.partial(filter_by_type, 'event'),
     ]
@@ -133,6 +133,56 @@ def encode_abi(web3, abi, arguments, data=None):
         return to_hex(HexBytes(data) + encoded_arguments)
     else:
         return encode_hex(encoded_arguments)
+
+
+def prepare_constructor(abi,
+                        bytecode,
+                        web3,
+                        args=None,
+                        kwargs=None,
+                        transaction=None):
+    """
+    Returns a dictionary of the transaction that could be used to call this
+    TODO: make this a public API
+    TODO: add new prepare_deploy_transaction API
+    """
+    if transaction is None:
+        prepared_transaction = {}
+    else:
+        prepared_transaction = dict(**transaction)
+
+    if 'data' in prepared_transaction:
+        raise ValueError("Transaction parameter may not contain a 'data' key")
+
+    prepared_transaction['data'] = encode_constructor_data(
+        abi,
+        bytecode,
+        web3,
+        args,
+        kwargs,
+    )
+    return prepared_transaction
+
+
+def encode_constructor_data(abi, bytecode, web3, args=None, kwargs=None):
+
+    constructor_abi = get_constructor_abi(abi)
+
+    if constructor_abi:
+        if args is None:
+            args = tuple()
+        if kwargs is None:
+            kwargs = {}
+
+        arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
+
+        deploy_data = add_0x_prefix(
+            encode_abi(web3, constructor_abi, arguments, data=bytecode)
+        )
+    else:
+        deploy_data = to_hex(bytecode)
+
+    return deploy_data
 
 
 def prepare_transaction(abi,
