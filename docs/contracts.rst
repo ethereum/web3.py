@@ -123,8 +123,6 @@ Each Contract Factory exposes the following methods.
 
         >>> transaction = {
         'to': '',
-        'value': 0,
-        'gas': 2000000,
         'gasPrice': w3.eth.gasPrice,
         'nonce': w3.eth.getTransactionCount(w3.eth.coinbase),
         'chainId': None

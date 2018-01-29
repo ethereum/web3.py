@@ -214,6 +214,9 @@ class Contract(object):
 
         return contract
 
+    # Constructor Class Method
+    # Done
+    # [START Constructor Class Method]
     @classmethod
     def constructor(cls, args=None, kwargs=None):
 
@@ -229,6 +232,7 @@ class Contract(object):
 
         return ContractConstructor(cls.abi, cls.bytecode, cls.web3, args=args, kwargs=kwargs)
 
+    # [END Constructor Class Method]
 
     #
     # Contract Methods
@@ -286,52 +290,6 @@ class Contract(object):
         # TODO: handle asynchronous contract creation
         txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
         return txn_hash
-
-    @classmethod
-    @deprecated_for("contract.<constructor>.buildTransaction")
-    def deploy_data(cls, transaction=None, args=None, kwargs=None):
-        """
-        Returns the Deploy contract data.
-
-        Example:
-
-        .. code-block:: python
-
-            >>> MyContract.deploy_data(
-                args=('DGD', 18),
-            )
-            '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
-
-        :param args: The contract constructor arguments as positional arguments
-        :param kwargs: The contract constructor arguments as keyword arguments
-
-        :return: bytecode data for signing transactions
-        """
-
-        if transaction is None:
-            deploy_transaction = {}
-        else:
-            deploy_transaction = dict(**transaction)
-
-        if not cls.bytecode:
-            raise ValueError(
-                "Cannot deploy a contract that does not have 'bytecode' associated "
-                "with it"
-            )
-
-        if 'data' in deploy_transaction:
-            raise ValueError(
-                "Cannot specify `data` for contract deployment"
-            )
-
-        if 'to' in deploy_transaction:
-            raise ValueError(
-                "Cannot specify `to` for contract deployment"
-            )
-
-        deploy_transaction['data'] = cls._encode_constructor_data(args, kwargs)
-
-        return deploy_transaction['data']
 
     #
     #  Public API
@@ -787,8 +745,9 @@ class ImplicitMethod(ConciseMethod):
         else:
             return super().__call__(*args, **kwargs)
 
+
 # Contract Constructor Object
-# TODO
+# Done
 # [START Contract Constructor Object]
 class ContractConstructor(object):
     """Base class for contract functions
@@ -864,12 +823,17 @@ class ContractConstructor(object):
         else:
             built_transaction = dict(**transaction)
 
-        return build_transaction_for_constructor(self.contract_abi,
-                                              self.contract_bytecode,
-                                              self.web3,
-                                              built_transaction,
-                                              *self.args,
-                                              **self.kwargs)
+        built_transaction = build_transaction_for_constructor(self.contract_abi,
+                                                 self.contract_bytecode,
+                                                 self.web3,
+                                                 built_transaction,
+                                                 *self.args,
+                                                 **self.kwargs)
+
+        built_transaction['to'] = ''
+        #built_transaction['nonce'] = 0
+
+        return built_transaction
 
 
 # [END Contract Constructor Object]
@@ -1196,7 +1160,7 @@ def call_contract_function(abi,
 
 
 # Transact Constructor
-# TODO
+# Done
 # [START Transact Constructor]
 def transact_with_contract_constructor(abi,
                                        bytecode,
@@ -1224,7 +1188,7 @@ def transact_with_contract_constructor(abi,
 # [END Transact Constructor]
 
 # Estimate Gas for Constructor
-# TODO
+# Done
 # [START Estimate Gas for Constructor]
 def estimate_gas_for_constructor(abi,
                                  bytecode,
@@ -1253,7 +1217,7 @@ def estimate_gas_for_constructor(abi,
 # [END Estimate Gas for Constructor]
 
 # Build Constructor
-# TODO
+# Done
 # [START Build Constructor]
 def build_transaction_for_constructor(abi,
                                       bytecode,

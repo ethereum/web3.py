@@ -135,7 +135,7 @@ def encode_abi(web3, abi, arguments, data=None):
         return encode_hex(encoded_arguments)
 
 # Prepare Constructor
-# TODO
+# Done
 # [START Prepare Constructor]
 def prepare_constructor(abi,
                         bytecode,
@@ -161,12 +161,12 @@ def prepare_constructor(abi,
 
     if 'data' in prepared_transaction:
         raise ValueError(
-            "Cannot specify `data` for contract deployment"
+            "Cannot specify `data` for contract constructor"
         )
 
     if 'to' in prepared_transaction:
         raise ValueError(
-            "Cannot specify `to` for contract deployment"
+            "Cannot set to in constructor transaction"
         )
 
     prepared_transaction['data'] = encode_constructor_data(
@@ -176,12 +176,13 @@ def prepare_constructor(abi,
         args,
         kwargs,
     )
+
     return prepared_transaction
 
 # [END Prepare Constructor]
 
 # Encode Constructor Data
-# TODO
+# Done
 # [START Encode Constructor Data]
 def encode_constructor_data(abi, bytecode, web3, args=None, kwargs=None):
 
