@@ -134,7 +134,9 @@ def encode_abi(web3, abi, arguments, data=None):
     else:
         return encode_hex(encoded_arguments)
 
-
+# Prepare Constructor
+# TODO
+# [START Prepare Constructor]
 def prepare_constructor(abi,
                         bytecode,
                         web3,
@@ -163,7 +165,11 @@ def prepare_constructor(abi,
     )
     return prepared_transaction
 
+# [END Prepare Constructor]
 
+# Encode Constructor Data
+# TODO
+# [START Encode Constructor Data]
 def encode_constructor_data(abi, bytecode, web3, args=None, kwargs=None):
 
     constructor_abi = get_constructor_abi(abi)
@@ -184,6 +190,7 @@ def encode_constructor_data(abi, bytecode, web3, args=None, kwargs=None):
 
     return deploy_data
 
+# [END Encode Constructor Data]
 
 def prepare_transaction(abi,
                         address,

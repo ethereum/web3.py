@@ -807,7 +807,8 @@ class ContractConstructor(object):
         self.args = args
         self.kwargs = kwargs
 
-    '''def transact(self, transaction=None):
+    def transact(self, transaction=None):
+
         if transaction is None:
             transact_transaction = {}
         else:
@@ -816,29 +817,15 @@ class ContractConstructor(object):
         if 'data' in transact_transaction:
             raise ValueError("Cannot set data in call transaction")
 
-        if self.address is not None:
-            transact_transaction.setdefault('to', self.address)
         if self.web3.eth.defaultAccount is not empty:
             transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
-        if 'to' not in transact_transaction:
-            if isinstance(self, type):
-                raise ValueError(
-                    "When using `Contract.transact` from a contract factory you "
-                    "must provide a `to` address with the transaction"
-                )
-            else:
-                raise ValueError(
-                    "Please ensure that this contract instance has an address."
-                )
-
-        return transact_with_contract_function(self.contract_abi,
-                                               self.address,
-                                               self.web3,
-                                               self.function_name,
-                                               transact_transaction,
-                                               *self.args,
-                                               **self.kwargs)'''
+        return transact_with_contract_constructor(self.contract_abi,
+                                                  self.contract_bytecode,
+                                                  self.web3,
+                                                  transact_transaction,
+                                                  *self.args,
+                                                  **self.kwargs)
 
     def estimateGas(self, transaction=None):
 
@@ -1226,6 +1213,93 @@ def call_contract_function(abi,
         return normalized_data
 
 
+# Transact Constructor
+# TODO
+# [START Transact Constructor]
+def transact_with_contract_constructor(abi,
+                                       bytecode,
+                                       web3,
+                                       transaction=None,
+                                       *args,
+                                       **kwargs):
+    """
+    Helper function for interacting with a contract function by sending a
+    transaction.
+    """
+    transact_transaction = prepare_constructor(
+        abi,
+        bytecode,
+        web3,
+        args=args,
+        kwargs=kwargs,
+        transaction=transaction,
+    )
+
+    txn_hash = web3.eth.sendTransaction(transact_transaction)
+    return txn_hash
+
+
+# [END Transact Constructor]
+
+# Estimate Gas for Constructor
+# TODO
+# [START Estimate Gas for Constructor]
+def estimate_gas_for_constructor(abi,
+                                 bytecode,
+                                 web3,
+                                 transaction,
+                                 *args,
+                                 **kwargs):
+    """Estimates gas cost a function call would take.
+
+    Don't call this directly, instead use :meth:`Contract.estimateGas`
+    on your contract instance.
+    """
+    estimate_transaction = prepare_constructor(
+        abi,
+        bytecode,
+        web3,
+        args=args,
+        kwargs=kwargs,
+        transaction=transaction,
+    )
+
+    gas_estimate = web3.eth.estimateGas(estimate_transaction)
+    return gas_estimate
+
+
+# [END Estimate Gas for Constructor]
+
+# Build Constructor
+# TODO
+# [START Build Constructor]
+def build_transaction_for_constructor(abi,
+                                      bytecode,
+                                      web3,
+                                      transaction=None,
+                                      *args,
+                                      **kwargs):
+    """Builds a dictionary with the fields required to make the given transaction
+
+    Don't call this directly, instead use :meth:`Contract.buildTransaction`
+    on your contract instance.
+    """
+    prepared_transaction = prepare_constructor(
+        abi,
+        bytecode,
+        web3,
+        args=args,
+        kwargs=kwargs,
+        transaction=transaction,
+    )
+
+    prepared_transaction = fill_transaction_defaults(web3, prepared_transaction)
+
+    return prepared_transaction
+
+
+# [END Build Constructor]
+
 def transact_with_contract_function(abi,
                                     address,
                                     web3,
@@ -1249,30 +1323,6 @@ def transact_with_contract_function(abi,
 
     txn_hash = web3.eth.sendTransaction(transact_transaction)
     return txn_hash
-
-
-def estimate_gas_for_constructor(abi,
-                                 bytecode,
-                                 web3,
-                                 transaction,
-                                 *args,
-                                 **kwargs):
-    """Estimates gas cost a function call would take.
-
-    Don't call this directly, instead use :meth:`Contract.estimateGas`
-    on your contract instance.
-    """
-    estimate_transaction = prepare_constructor(
-        abi,
-        bytecode,
-        web3,
-        args=args,
-        kwargs=kwargs,
-        transaction=transaction,
-    )
-
-    gas_estimate = web3.eth.estimateGas(estimate_transaction)
-    return gas_estimate
 
 
 def estimate_gas_for_function(abi,
