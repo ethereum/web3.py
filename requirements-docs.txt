@@ -1,0 +1,1 @@
+<PYPI_NAME>[doc]
