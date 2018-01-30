@@ -186,7 +186,7 @@ class EthModuleTest(object):
             'to': unlocked_account,
             'value': 1,
             'gas': 21000,
-            'gas_price': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gasPrice,
         }
 
         with pytest.raises(InvalidAddress):
@@ -203,7 +203,7 @@ class EthModuleTest(object):
             'to': unlocked_account,
             'value': 1,
             'gas': 21000,
-            'gas_price': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gasPrice,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
         txn = web3.eth.getTransaction(txn_hash)
@@ -212,16 +212,16 @@ class EthModuleTest(object):
         assert is_same_address(txn['to'], txn_params['to'])
         assert txn['value'] == 1
         assert txn['gas'] == 21000
-        assert txn['gasPrice'] == txn_params['gas_price']
+        assert txn['gasPrice'] == txn_params['gasPrice']
 
     def test_eth_sendTransaction_with_nonce(self, web3, unlocked_account):
         txn_params = {
             'from': unlocked_account,
             'to': unlocked_account,
-            'value': 3214,  # Random value to ensure transaction hash different from other tests
+            'value': 1,
             'gas': 21000,
             # Increased gas price to ensure transaction hash different from other tests
-            'gas_price': web3.eth.gasPrice * 2,
+            'gasPrice': web3.eth.gasPrice * 2,
             'nonce': web3.eth.getTransactionCount(unlocked_account),
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
@@ -229,9 +229,9 @@ class EthModuleTest(object):
 
         assert is_same_address(txn['from'], txn_params['from'])
         assert is_same_address(txn['to'], txn_params['to'])
-        assert txn['value'] == 3214
+        assert txn['value'] == 1
         assert txn['gas'] == 21000
-        assert txn['gasPrice'] == txn_params['gas_price']
+        assert txn['gasPrice'] == txn_params['gasPrice']
         assert txn['nonce'] == txn_params['nonce']
 
     @pytest.mark.parametrize(
@@ -366,7 +366,7 @@ class EthModuleTest(object):
             'to': unlocked_account,
             'value': 1,
             'gas': 21000,
-            'gas_price': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gasPrice,
         })
         receipt = web3.eth.getTransactionReceipt(txn_hash)
         assert receipt is None
