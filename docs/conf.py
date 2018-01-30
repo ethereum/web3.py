@@ -76,7 +76,6 @@ release = __version__
 # directories to ignore when looking for source files.
 exclude_patterns = [
     '_build',
-    '<MODULE_NAME>.rst',
     'modules.rst',
 ]
 
