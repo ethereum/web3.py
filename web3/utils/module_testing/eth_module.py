@@ -218,7 +218,7 @@ class EthModuleTest(object):
         txn_params = {
             'from': unlocked_account,
             'to': unlocked_account,
-            'value': 1,
+            'value': 3214,  # Random value to ensure transaction hash different from other tests
             'gas': 21000,
             # Increased gas price to ensure transaction hash different from other tests
             'gas_price': web3.eth.gasPrice * 2,
@@ -229,7 +229,7 @@ class EthModuleTest(object):
 
         assert is_same_address(txn['from'], txn_params['from'])
         assert is_same_address(txn['to'], txn_params['to'])
-        assert txn['value'] == 1
+        assert txn['value'] == 3214
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gas_price']
         assert txn['nonce'] == txn_params['nonce']
