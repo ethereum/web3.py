@@ -24,8 +24,9 @@ clean-pyc:
 lint:
 	tox -elint
 
-lint-roll: lint
+lint-roll:
 	isort --recursive <MODULE_NAME> tests
+	$(make) lint
 
 test:
 	py.test tests
