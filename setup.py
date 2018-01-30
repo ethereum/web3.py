@@ -21,6 +21,7 @@ extras_require={
     'dev': [
         "bumpversion>=0.5.3,<1",
         "pytest-xdist",
+        "pytest-watch>=4.1.0,<5",
         "wheel",
         "ipython",
     ],
