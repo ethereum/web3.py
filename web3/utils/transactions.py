@@ -185,13 +185,15 @@ def prepare_replacement_transaction(web3, current_transaction, new_transaction):
     if 'nonce' not in new_transaction:
         new_transaction = assoc(new_transaction, 'nonce', current_transaction['nonce'])
 
-    # TODO: Possibly in a middlware somehow?
-    if 'gasPrice' not in new_transaction:
-            generated_gas_price = web3.eth.generateGasPrice(new_transaction)
-            minimum_gas_price = int(math.ceil(current_transaction['gasPrice'] * 1.1))
-            if generated_gas_price and generated_gas_price > minimum_gas_price:
-                new_transaction = assoc(new_transaction, 'gasPrice', generated_gas_price)
-            else:
-                new_transaction = assoc(new_transaction, 'gasPrice', minimum_gas_price)
+    if 'gasPrice' in new_transaction:
+        if new_transaction['gasPrice'] < current_transaction['gasPrice']:
+            raise ValueError('Supplied gas price must exceed existing transaction gas price')
+    else:
+        generated_gas_price = web3.eth.generateGasPrice(new_transaction)
+        minimum_gas_price = int(math.ceil(current_transaction['gasPrice'] * 1.1))
+        if generated_gas_price and generated_gas_price > minimum_gas_price:
+            new_transaction = assoc(new_transaction, 'gasPrice', generated_gas_price)
+        else:
+            new_transaction = assoc(new_transaction, 'gasPrice', minimum_gas_price)
 
     return new_transaction
