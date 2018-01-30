@@ -1,6 +1,22 @@
 Release Notes
 =============
 
+v4.0.0-beta.7
+-------------
+
+Released Jan 29, 2017
+
+- Support for :meth:`web3.eth.Eth.getLogs` in eth-tester with py-evm
+- Process transaction receipts with Event ABI, using
+  `Contract.events.myEvent(*args, **kwargs).processReceipt(transaction_receipt)`
+  see :ref:`event-log-object` for the new type.
+- Add timeout parameter to :class:`web3.providers.ipc.IPCProvider`
+- bugfix: make sure `idna` package is always installed
+- Replace ethtestrpc with py-evm, in all tests
+- Dockerfile fixup
+- Test refactoring & cleanup
+- Reduced warnings during tests
+
 v4.0.0-beta.6
 -------------
 
