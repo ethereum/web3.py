@@ -213,6 +213,27 @@ class EthModuleTest(object):
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gas_price']
 
+    def test_eth_replaceTransaction(self, web3, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': web3.eth.gasPrice,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+        web3.eth.getTransaction(txn_hash)
+
+        txn_params['gasPrice'] = web3.eth.gasPrice * 2
+        replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
+        replace_txn = web3.eth.getTransaction(replace_txn_hash)
+
+        assert is_same_address(replace_txn['from'], txn_params['from'])
+        assert is_same_address(replace_txn['to'], txn_params['to'])
+        assert replace_txn['value'] == 1
+        assert replace_txn['gas'] == 21000
+        assert replace_txn['gasPrice'] == txn_params['gasPrice']
+
     @pytest.mark.parametrize(
         'raw_transaction, expected_hash',
         [

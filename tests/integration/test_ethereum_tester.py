@@ -190,6 +190,16 @@ class TestEthereumTesterEthModule(EthModuleTest):
             eth_tester.enable_auto_mine_transactions()
             eth_tester.mine_block()
 
+    def test_eth_replaceTransaction(self, eth_tester, web3, unlocked_account):
+        eth_tester.disable_auto_mine_transactions()
+        try:
+            super(TestEthereumTesterEthModule, self).test_eth_replaceTransaction(
+                web3, unlocked_account,
+            )
+        finally:
+            eth_tester.enable_auto_mine_transactions()
+            eth_tester.mine_block()
+
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
     pass
