@@ -40,6 +40,9 @@ from web3.utils.contracts import (
     get_function_info,
     prepare_transaction,
 )
+from web3.utils.datastructures import (
+    AttributeDict,
+)
 from web3.utils.datatypes import (
     PropertyCheckingFactory,
 )
@@ -967,7 +970,7 @@ class ContractEvent(object):
                 decoded_log = get_event_data(self.abi, log)
             except MismatchedABI:
                 continue
-            yield decoded_log
+            yield AttributeDict(decoded_log)
 
     @classmethod
     def factory(cls, class_name, **kwargs):

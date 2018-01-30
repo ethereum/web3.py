@@ -19,6 +19,9 @@ from eth_utils import (
 from web3.exceptions import (
     MismatchedABI,
 )
+from web3.utils.datastructures import (
+    AttributeDict,
+)
 from web3.utils.encoding import (
     hexstr_if_str,
     to_bytes,
@@ -210,7 +213,7 @@ def get_event_data(event_abi, log_entry):
     ))
 
     event_data = {
-        'args': event_args,
+        'args': AttributeDict(event_args),
         'event': event_abi['name'],
         'logIndex': log_entry['logIndex'],
         'transactionIndex': log_entry['transactionIndex'],
