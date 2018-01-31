@@ -59,6 +59,16 @@ def encode_transaction(unsigned_transaction, vrs):
     signed_transaction = Transaction(v=v, r=r, s=s, **chain_naive_transaction)
     return rlp.encode(signed_transaction)
 
+VALID_TRANSACTION_PARAMS = [
+    'from',
+    'to',
+    'gas',
+    'gasPrice',
+    'value',
+    'data',
+    'nonce',
+    'chainId',
+]
 
 TRANSACTION_DEFAULTS = {
     'value': 0,
@@ -170,6 +180,16 @@ def get_buffered_gas_estimate(web3, transaction, gas_buffer=100000):
         )
 
     return min(gas_limit, gas_estimate + gas_buffer)
+
+
+def extract_valid_transaction_params(transaction_params):
+    return { key: transaction_params[key] for key in VALID_TRANSACTION_PARAMS if key in transaction_params }
+
+
+def assert_valid_transaction_params(transaction_params):
+    for param in transaction_params:
+        if param not in VALID_TRANSACTION_PARAMS:
+            raise ValueError('{} is not a valid transaction parameter'.format(param))
 
 
 def prepare_replacement_transaction(web3, current_transaction, new_transaction):

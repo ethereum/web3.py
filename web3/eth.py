@@ -38,7 +38,9 @@ from web3.utils.filters import (
 )
 from web3.utils.transactions import (
     get_buffered_gas_estimate,
-    prepare_replacement_transaction
+    prepare_replacement_transaction,
+    extract_valid_transaction_params,
+    assert_valid_transaction_params,
 )
 
 
@@ -212,15 +214,16 @@ class Eth(Module):
         return self.sendTransaction(new_transaction)
 
     def modifyTransaction(self, transaction_hash, **params):
+        assert_valid_transaction_params(params)
         current_transaction = self.getTransaction(transaction_hash)
         if not current_transaction:
             raise ValueError('Supplied transaction with hash {} does not exist'
                              .format(transaction_hash))
-        new_transaction = merge(current_transaction, params)
+        current_transaction_params = extract_valid_transaction_params(current_transaction)
+        new_transaction = merge(current_transaction_params, params)
         new_transaction = prepare_replacement_transaction(
             self.web3, current_transaction, new_transaction
         )
-
         return self.sendTransaction(new_transaction)
 
     def sendTransaction(self, transaction):
