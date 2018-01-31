@@ -331,6 +331,27 @@ class EthModuleTest(object):
 
         web3.eth.setGasPriceStrategy(None)
 
+    def test_eth_modifyTransaction(self, web3, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': web3.eth.gasPrice,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+
+        modified_txn_hash = web3.eth.modifyTransaction(
+            txn_hash, gasPrice=(txn_params['gasPrice'] * 2), value=2
+        )
+        modified_txn = web3.eth.getTransaction(modified_txn_hash)
+
+        assert is_same_address(modified_txn['from'], txn_params['from'])
+        assert is_same_address(modified_txn['to'], txn_params['to'])
+        assert modified_txn['value'] == 2
+        assert modified_txn['gas'] == 21000
+        assert modified_txn['gasPrice'] == txn_params['gasPrice'] * 2
+
     @pytest.mark.parametrize(
         'raw_transaction, expected_hash',
         [
