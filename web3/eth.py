@@ -202,21 +202,25 @@ class Eth(Module):
 
     def replaceTransaction(self, transaction_hash, new_transaction):
         current_transaction = self.getTransaction(transaction_hash)
+        if not current_transaction:
+            raise ValueError('Supplied transaction with hash {} does not exist'
+                             .format(transaction_hash))
         new_transaction = prepare_replacement_transaction(
             self.web3, current_transaction, new_transaction
         )
 
-        # TODO: Does the gas and from defaulting in `sendTransaction` make sense for this?
         return self.sendTransaction(new_transaction)
 
     def modifyTransaction(self, transaction_hash, **params):
         current_transaction = self.getTransaction(transaction_hash)
+        if not current_transaction:
+            raise ValueError('Supplied transaction with hash {} does not exist'
+                             .format(transaction_hash))
         new_transaction = merge(current_transaction, params)
         new_transaction = prepare_replacement_transaction(
             self.web3, current_transaction, new_transaction
         )
 
-        # TODO: Does the gas and from defaulting in `sendTransaction` make sense for this?
         return self.sendTransaction(new_transaction)
 
     def sendTransaction(self, transaction):

@@ -173,9 +173,6 @@ def get_buffered_gas_estimate(web3, transaction, gas_buffer=100000):
 
 
 def prepare_replacement_transaction(web3, current_transaction, new_transaction):
-    if not current_transaction:
-        raise ValueError('Supplied transaction with hash {} does not exist'
-                         .format(current_transaction['hash']))
     if current_transaction['blockHash'] is not None:
         raise ValueError('Supplied transaction with hash {} has already been mined'
                          .format(current_transaction['hash']))
