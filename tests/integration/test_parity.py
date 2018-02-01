@@ -1,33 +1,30 @@
 import json
 import os
+import pytest
+import shutil
 import signal
 import socket
 import subprocess
-import shutil
-import time
 import tempfile
-
-import pytest
+import time
 
 from eth_utils import (
     force_text,
-    is_dict,
     is_checksum_address,
-)
-
-from web3 import Web3
-
-from web3.utils.module_testing import (
-    EthModuleTest,
-    NetModuleTest,
-    VersionModuleTest,
-    PersonalModuleTest,
-    Web3ModuleTest,
+    is_dict,
 )
 
 from install_parity import (
-    install_parity,
     get_executable_path,
+    install_parity,
+)
+from web3 import Web3
+from web3.utils.module_testing import (
+    EthModuleTest,
+    NetModuleTest,
+    PersonalModuleTest,
+    VersionModuleTest,
+    Web3ModuleTest,
 )
 
 KEYFILE_PW = 'web3py-test'

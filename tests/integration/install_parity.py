@@ -1,12 +1,11 @@
 import hashlib
-import requests
-import toolz
 import os
 
 from eth_utils import (
     to_tuple,
 )
-
+import requests
+import toolz
 
 URI_QUERY_URL = "https://vanity-service.parity.io/parity-binaries"
 BASE_BIN_PATH = "~/.parity-bin"

@@ -6,17 +6,16 @@ import shutil
 import sys
 import time
 
-from cytoolz import merge
-
+from cytoolz import (
+    merge,
+)
 from eth_utils import (
     force_text,
 )
 
-from web3 import Web3
-
 import common
 import go_ethereum
-
+from web3 import Web3
 
 CHAIN_CONFIG = {
     "name": "CrossClient",

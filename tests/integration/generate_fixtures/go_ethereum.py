@@ -5,25 +5,25 @@ import pprint
 import shutil
 import sys
 
-from cytoolz import merge
-
+from cytoolz import (
+    merge,
+)
 from eth_utils import (
     is_dict,
     is_same_address,
 )
 
+import common
 from web3 import Web3
-
-from web3.utils.module_testing.math_contract import (
-    MATH_BYTECODE,
-    MATH_ABI,
-)
 from web3.utils.module_testing.emitter_contract import (
-    EMITTER_BYTECODE,
     EMITTER_ABI,
+    EMITTER_BYTECODE,
     EMITTER_ENUM,
 )
-import common
+from web3.utils.module_testing.math_contract import (
+    MATH_ABI,
+    MATH_BYTECODE,
+)
 
 
 def generate_go_ethereum_fixture(destination_dir):

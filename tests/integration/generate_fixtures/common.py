@@ -1,11 +1,11 @@
-import os
 import contextlib
-import tempfile
+import os
 import shutil
 import signal
 import socket
-import time
 import subprocess
+import tempfile
+import time
 
 from eth_utils import (
     force_text,
