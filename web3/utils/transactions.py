@@ -203,7 +203,7 @@ def prepare_replacement_transaction(web3, current_transaction, new_transaction):
         new_transaction = assoc(new_transaction, 'nonce', current_transaction['nonce'])
 
     if 'gasPrice' in new_transaction:
-        if new_transaction['gasPrice'] < current_transaction['gasPrice']:
+        if new_transaction['gasPrice'] <= current_transaction['gasPrice']:
             raise ValueError('Supplied gas price must exceed existing transaction gas price')
     else:
         generated_gas_price = web3.eth.generateGasPrice(new_transaction)
