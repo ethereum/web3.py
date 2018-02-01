@@ -1,8 +1,11 @@
 import os
-from urllib.parse import urlparse
+from urllib.parse import (
+    urlparse,
+)
 
-from web3.exceptions import CannotHandleRequest
-
+from web3.exceptions import (
+    CannotHandleRequest,
+)
 from web3.providers import (
     BaseProvider,
     HTTPProvider,

@@ -1,4 +1,9 @@
-from requests.exceptions import HTTPError, ConnectionError, Timeout, TooManyRedirects
+from requests.exceptions import (
+    ConnectionError,
+    HTTPError,
+    Timeout,
+    TooManyRedirects,
+)
 
 whitelist = [
     'admin',

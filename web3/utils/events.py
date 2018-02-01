@@ -1,13 +1,5 @@
 import itertools
 
-from eth_utils import (
-    encode_hex,
-    to_tuple,
-    is_list_like,
-    coerce_return_to_text,
-    event_abi_to_log_topic,
-)
-
 from eth_abi import (
     decode_abi,
     decode_single,
@@ -16,6 +8,27 @@ from eth_abi import (
 from eth_abi.abi import (
     process_type,
 )
+from eth_utils import (
+    coerce_return_to_text,
+    encode_hex,
+    event_abi_to_log_topic,
+    is_list_like,
+    to_tuple,
+)
+
+from web3.exceptions import (
+    MismatchedABI,
+)
+from web3.utils.datastructures import (
+    AttributeDict,
+)
+from web3.utils.encoding import (
+    hexstr_if_str,
+    to_bytes,
+)
+from web3.utils.normalizers import (
+    BASE_RETURN_NORMALIZERS,
+)
 
 from .abi import (
     exclude_indexed_event_inputs,
@@ -23,14 +36,6 @@ from .abi import (
     get_indexed_event_inputs,
     map_abi_data,
     normalize_event_input_types,
-)
-
-from web3.utils.encoding import (
-    hexstr_if_str,
-    to_bytes,
-)
-from web3.utils.normalizers import (
-    BASE_RETURN_NORMALIZERS,
 )
 
 
@@ -98,10 +103,10 @@ def construct_event_data_set(event_abi, arguments=None):
         for key, value in arguments.items()
     }
 
-    indexed_args = exclude_indexed_event_inputs(event_abi)
+    non_indexed_args = exclude_indexed_event_inputs(event_abi)
     zipped_abi_and_args = [
         (arg, normalized_args.get(arg['name'], [None]))
-        for arg in indexed_args
+        for arg in non_indexed_args
     ]
     encoded_args = [
         [
@@ -147,9 +152,14 @@ def get_event_abi_types_for_decoding(event_inputs):
 def get_event_data(event_abi, log_entry):
     """
     Given an event ABI and a log entry for that event, return the decoded
+    event data
     """
     if event_abi['anonymous']:
         log_topics = log_entry['topics']
+    elif not log_entry['topics']:
+        raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
+    elif event_abi_to_log_topic(event_abi) != log_entry['topics'][0]:
+        raise MismatchedABI("The event signature did not match the provided ABI")
     else:
         log_topics = log_entry['topics'][1:]
 
@@ -213,4 +223,4 @@ def get_event_data(event_abi, log_entry):
         'blockNumber': log_entry['blockNumber'],
     }
 
-    return event_data
+    return AttributeDict.recursive(event_data)

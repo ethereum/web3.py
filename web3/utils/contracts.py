@@ -1,24 +1,36 @@
 import functools
+
+from cytoolz import (
+    pipe,
+)
 from eth_abi import (
-    encode_abi as eth_abi_encode_abi
+    encode_abi as eth_abi_encode_abi,
+)
+from eth_abi.exceptions import (
+    EncodingError,
 )
 from eth_utils import (
-    function_abi_to_4byte_selector,
-    encode_hex,
     add_0x_prefix,
+    encode_hex,
+    function_abi_to_4byte_selector,
 )
+
 from web3.utils.abi import (
-    filter_by_type,
-    filter_by_name,
+    check_if_arguments_can_be_encoded,
     filter_by_argument_count,
+    filter_by_argument_name,
     filter_by_encodability,
+    filter_by_name,
+    filter_by_type,
     get_abi_input_types,
     map_abi_data,
     merge_args_and_kwargs,
-    check_if_arguments_can_be_encoded,
 )
 from web3.utils.datastructures import (
     HexBytes,
+)
+from web3.utils.encoding import (
+    to_hex,
 )
 from web3.utils.normalizers import (
     abi_address_to_hex,
@@ -27,12 +39,30 @@ from web3.utils.normalizers import (
     abi_string_to_hex,
     hexstrs_to_bytes,
 )
-from web3.utils.encoding import (
-    to_hex,
-)
-from eth_abi.exceptions import (
-    EncodingError,
-)
+
+
+def find_matching_event_abi(abi, event_name=None, argument_names=None):
+
+    filters = [
+        functools.partial(filter_by_type, 'event'),
+    ]
+
+    if event_name is not None:
+        filters.append(functools.partial(filter_by_name, event_name))
+
+    if argument_names is not None:
+        filters.append(
+            functools.partial(filter_by_argument_name, argument_names)
+        )
+
+    event_abi_candidates = pipe(abi, *filters)
+
+    if len(event_abi_candidates) == 1:
+        return event_abi_candidates[0]
+    elif not event_abi_candidates:
+        raise ValueError("No matching events found")
+    else:
+        raise ValueError("Multiple events found")
 
 
 def find_matching_fn_abi(abi, fn_name=None, args=None, kwargs=None):
@@ -55,14 +85,10 @@ def find_matching_fn_abi(abi, fn_name=None, args=None, kwargs=None):
 
     function_candidates = filter_by_type('function', abi)
 
-    for filter_fn in filters:
-        function_candidates = filter_fn(function_candidates)
+    function_candidates = pipe(abi, *filters)
 
-        if len(function_candidates) == 1:
-            return function_candidates[0]
-        elif not function_candidates:
-            break
-
+    if len(function_candidates) == 1:
+        return function_candidates[0]
     if not function_candidates:
         raise ValueError("No matching functions found")
     else:

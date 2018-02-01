@@ -1,6 +1,8 @@
 import pytest
 
-from web3.utils.abi import is_probably_enum
+from web3.utils.abi import (
+    is_probably_enum,
+)
 
 
 @pytest.mark.parametrize(

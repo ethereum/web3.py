@@ -1,14 +1,15 @@
 import itertools
+import pytest
 import uuid
 
-import pytest
-
 from web3 import Web3
-from web3.providers.base import BaseProvider
 from web3.middleware import (
-    construct_result_generator_middleware,
     construct_error_generator_middleware,
+    construct_result_generator_middleware,
     construct_simple_cache_middleware,
+)
+from web3.providers.base import (
+    BaseProvider,
 )
 from web3.utils.caching import (
     generate_cache_key,

@@ -1,4 +1,6 @@
-from unittest.mock import Mock
+from unittest.mock import (
+    Mock,
+)
 
 
 def test_no_gas_price_strategy_returns_none(web3):

@@ -1,6 +1,10 @@
 from web3 import Web3
-from web3.providers.auto import AutoProvider
-from web3.providers.eth_tester import EthereumTesterProvider
+from web3.providers.auto import (
+    AutoProvider,
+)
+from web3.providers.eth_tester import (
+    EthereumTesterProvider,
+)
 
 
 def test_set_providers(web3):

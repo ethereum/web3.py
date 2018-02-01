@@ -95,7 +95,7 @@ For different environments, you can set up multiple virtualenvs, like:
 virtualenv -p python3 venvpy3
 . venvpy3/bin/activate
 pip install -r requirements-dev.txt
-pip install -e .
+pip install -e .[tester]
 ```
 
 **Docs**

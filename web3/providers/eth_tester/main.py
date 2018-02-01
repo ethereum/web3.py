@@ -3,38 +3,37 @@ import random
 import sys
 
 from cytoolz.functoolz import (
-    excepts,
     compose,
     curry,
+    excepts,
 )
-
-from eth_utils import (
-    is_null,
-    keccak,
-    decode_hex,
-    encode_hex,
+from eth_tester import (
+    EthereumTester,
 )
-
-from web3.providers import (
-    BaseProvider,
-)
-
-from web3.utils.formatters import (
-    apply_formatter_if,
-)
-
-from eth_tester import EthereumTester
 from eth_tester.exceptions import (
     BlockNotFound,
     FilterNotFound,
     TransactionNotFound,
     ValidationError,
 )
+from eth_utils import (
+    decode_hex,
+    encode_hex,
+    is_null,
+    keccak,
+)
+
+from web3.providers import (
+    BaseProvider,
+)
+from web3.utils.formatters import (
+    apply_formatter_if,
+)
 
 from .middleware import (
     default_transaction_fields_middleware,
-    ethereum_tester_middleware,
     ethereum_tester_fixture_middleware,
+    ethereum_tester_middleware,
 )
 
 
@@ -123,6 +122,12 @@ def create_log_filter(eth_tester, params):
     filter_params = params[0]
     filter_id = eth_tester.create_log_filter(**filter_params)
     return filter_id
+
+
+def get_logs(eth_tester, params):
+    filter_params = params[0]
+    logs = eth_tester.get_logs(**filter_params)
+    return logs
 
 
 def _generate_random_private_key():
@@ -245,7 +250,7 @@ API_ENDPOINTS = {
         ),
         'getFilterChanges': null_if_filter_not_found(call_eth_tester('get_only_filter_changes')),
         'getFilterLogs': null_if_filter_not_found(call_eth_tester('get_all_filter_logs')),
-        'getLogs': not_implemented,
+        'getLogs': get_logs,
         'getWork': not_implemented,
         'submitWork': not_implemented,
         'submitHashrate': not_implemented,

@@ -3,13 +3,13 @@ import pytest
 from web3.exceptions import (
     InvalidAddress,
 )
-
 from web3.utils.validation import (
     validate_abi,
     validate_abi_type,
     validate_abi_value,
     validate_address,
 )
+
 ABI = [
     {
         "constant": False,

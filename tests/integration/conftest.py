@@ -1,12 +1,12 @@
 import pytest
 
-from web3.utils.module_testing.math_contract import (
-    MATH_BYTECODE,
-    MATH_ABI,
-)
 from web3.utils.module_testing.emitter_contract import (
-    EMITTER_BYTECODE,
     EMITTER_ABI,
+    EMITTER_BYTECODE,
+)
+from web3.utils.module_testing.math_contract import (
+    MATH_ABI,
+    MATH_BYTECODE,
 )
 
 

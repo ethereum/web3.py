@@ -1,14 +1,14 @@
 import hashlib
 
 from eth_utils import (
+    force_bytes,
     is_boolean,
-    is_null,
+    is_bytes,
     is_dict,
     is_list_like,
+    is_null,
     is_number,
     is_text,
-    is_bytes,
-    force_bytes,
 )
 
 from .six import (

@@ -1,7 +1,11 @@
 import pytest
-from unittest.mock import Mock
+from unittest.mock import (
+    Mock,
+)
 
-from web3.middleware import gas_price_strategy_middleware
+from web3.middleware import (
+    gas_price_strategy_middleware,
+)
 
 
 @pytest.fixture

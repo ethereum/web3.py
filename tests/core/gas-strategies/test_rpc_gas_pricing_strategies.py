@@ -1,4 +1,6 @@
-from web3.gas_strategies.rpc import rpc_gas_price_strategy
+from web3.gas_strategies.rpc import (
+    rpc_gas_price_strategy,
+)
 
 
 def test_default_rpc_gas_price_strategy(web3):

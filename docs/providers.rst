@@ -95,7 +95,7 @@ HTTPProvider
 IPCProvider
 ~~~~~~~~~~~
 
-.. py:class:: web3.providers.ipc.IPCProvider(ipc_path=None, testnet=False)
+.. py:class:: web3.providers.ipc.IPCProvider(ipc_path=None, testnet=False, timeout=10)
 
     This provider handles interaction with an IPC Socket based JSON-RPC
     server.

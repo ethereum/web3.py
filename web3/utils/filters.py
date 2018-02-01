@@ -1,17 +1,17 @@
 import re
 
 from eth_utils import (
-    is_string,
     is_list_like,
-)
-
-from .events import (
-    construct_event_topic_set,
-    construct_event_data_set,
+    is_string,
 )
 
 from web3.utils.validation import (
     validate_address,
+)
+
+from .events import (
+    construct_event_data_set,
+    construct_event_topic_set,
 )
 
 

@@ -3,16 +3,18 @@ import socket
 import sys
 import threading
 
-try:
-    from json import JSONDecodeError
-except ImportError:
-    JSONDecodeError = ValueError
-
 from web3.utils.threads import (
     Timeout,
 )
 
-from .base import JSONBaseProvider
+from .base import (
+    JSONBaseProvider,
+)
+
+try:
+    from json import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
 
 
 def get_ipc_socket(ipc_path, timeout=0.1):
@@ -136,12 +138,13 @@ def get_default_ipc_path(testnet=False):
 class IPCProvider(JSONBaseProvider):
     _socket = None
 
-    def __init__(self, ipc_path=None, testnet=False, *args, **kwargs):
+    def __init__(self, ipc_path=None, testnet=False, timeout=10, *args, **kwargs):
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path(testnet)
         else:
             self.ipc_path = ipc_path
 
+        self.timeout = timeout
         self._lock = threading.Lock()
         self._socket = PersistantSocket(self.ipc_path)
         super(IPCProvider, self).__init__(*args, **kwargs)
@@ -158,7 +161,7 @@ class IPCProvider(JSONBaseProvider):
                 sock.sendall(request)
 
             raw_response = b""
-            with Timeout(10) as timeout:
+            with Timeout(self.timeout) as timeout:
                 while True:
                     try:
                         raw_response += sock.recv(4096)

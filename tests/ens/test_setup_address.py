@@ -1,11 +1,16 @@
 
 import pytest
-from unittest.mock import patch
+from unittest.mock import (
+    patch,
+)
 
+from ens.constants import (
+    EMPTY_ADDR_HEX,
+)
+from ens.main import (
+    UnauthorizedError,
+)
 from web3 import Web3
-
-from ens.constants import EMPTY_ADDR_HEX
-from ens.main import UnauthorizedError
 
 '''
 API at: https://github.com/carver/ens.py/issues/2

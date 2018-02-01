@@ -9,7 +9,7 @@ from setuptools import (
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='4.0.0-beta.6',
+    version='4.0.0-beta.7',
     description="""Web3.py""",
     long_description_markdown_filename='README.md',
     author='Piper Merriam',
@@ -26,11 +26,17 @@ setup(
         "pysha3>=1.0.0,<2.0.0",
         "requests>=2.16.0,<3.0.0",
         "rlp>=0.4.7,<1.0.0",
-        "eth-tester>=0.1.0b11,<0.2.0",
     ],
     setup_requires=['setuptools-markdown'],
     extras_require={
-        'tester': ["eth-testrpc>=1.3.3,<2.0.0"],
+        'tester': [
+            "eth-tester[py-evm]==0.1.0b15",
+        ],
+        'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
+        'linter': [
+            "flake8==3.4.1",
+            "isort>=4.2.15,<5",
+        ],
         'platform_system=="Windows"': [
             'pypiwin32'  # TODO: specify a version number, move under install_requires
         ],

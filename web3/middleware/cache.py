@@ -1,13 +1,12 @@
 import functools
-import time
 import threading
+import time
 
 import lru
 
 from web3.utils.caching import (
     generate_cache_key,
 )
-
 
 SIMPLE_CACHE_RPC_WHITELIST = {
     'web3_clientVersion',

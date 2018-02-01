@@ -2,14 +2,11 @@
 import json
 import pytest
 
-from eth_tester import EthereumTester
-
-from web3 import Web3
-from web3.contract import Contract
-from web3.providers.eth_tester import EthereumTesterProvider
+from eth_tester import (
+    EthereumTester,
+)
 
 from ens import ENS
-
 from ens.contract_data import (
     registrar_abi,
     registrar_bytecode,
@@ -23,6 +20,13 @@ from ens.contract_data import (
     reverse_resolver_abi,
     reverse_resolver_bytecode,
     reverse_resolver_bytecode_runtime,
+)
+from web3 import Web3
+from web3.contract import (
+    Contract,
+)
+from web3.providers.eth_tester import (
+    EthereumTesterProvider,
 )
 
 

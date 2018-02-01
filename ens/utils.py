@@ -8,13 +8,7 @@ from eth_utils import (
     remove_0x_prefix,
     to_normalized_address,
 )
-
 import idna
-
-from ens.exceptions import (
-    InvalidLabel,
-    InvalidName,
-)
 
 from ens.constants import (
     ACCEPTABLE_STALE_HOURS,
@@ -24,6 +18,10 @@ from ens.constants import (
     MIN_ETH_LABEL_LENGTH,
     RECOGNIZED_TLDS,
     REVERSE_REGISTRAR_DOMAIN,
+)
+from ens.exceptions import (
+    InvalidLabel,
+    InvalidName,
 )
 
 default = object()

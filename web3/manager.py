@@ -10,19 +10,20 @@ from web3.exceptions import (
 )
 from web3.middleware import (
     abi_middleware,
-    pythonic_middleware,
     attrdict_middleware,
-    name_to_address_middleware,
     gas_price_strategy_middleware,
+    name_to_address_middleware,
+    pythonic_middleware,
 )
 from web3.providers import (
     AutoProvider,
 )
-
 from web3.utils.datastructures import (
     NamedElementStack,
 )
-from web3.utils.empty import empty
+from web3.utils.empty import (
+    empty,
+)
 from web3.utils.threads import (
     spawn,
 )

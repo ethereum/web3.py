@@ -5,27 +5,26 @@ import pytest
 from eth_abi import (
     decode_single,
 )
-
 from eth_utils import (
-    is_checksum_address,
-    is_bytes,
-    is_string,
     is_boolean,
+    is_bytes,
+    is_checksum_address,
     is_dict,
     is_integer,
     is_list_like,
     is_same_address,
+    is_string,
 )
 
 from web3.exceptions import (
     InvalidAddress,
 )
-
 from web3.utils.datastructures import (
     HexBytes,
 )
 
-UNKOWN_HASH = '0xdeadbeef00000000000000000000000000000000000000000000000000000000'
+UNKNOWN_ADDRESS = '0xdeadbeef00000000000000000000000000000000'
+UNKNOWN_HASH = '0xdeadbeef00000000000000000000000000000000000000000000000000000000'
 
 
 class EthModuleTest(object):
@@ -185,7 +184,7 @@ class EthModuleTest(object):
             'to': unlocked_account,
             'value': 1,
             'gas': 21000,
-            'gas_price': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gasPrice,
         }
 
         with pytest.raises(InvalidAddress):
@@ -202,7 +201,7 @@ class EthModuleTest(object):
             'to': unlocked_account,
             'value': 1,
             'gas': 21000,
-            'gas_price': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gasPrice,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
         txn = web3.eth.getTransaction(txn_hash)
@@ -211,7 +210,27 @@ class EthModuleTest(object):
         assert is_same_address(txn['to'], txn_params['to'])
         assert txn['value'] == 1
         assert txn['gas'] == 21000
-        assert txn['gasPrice'] == txn_params['gas_price']
+        assert txn['gasPrice'] == txn_params['gasPrice']
+
+    def test_eth_sendTransaction_with_nonce(self, web3, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            # Increased gas price to ensure transaction hash different from other tests
+            'gasPrice': web3.eth.gasPrice * 2,
+            'nonce': web3.eth.getTransactionCount(unlocked_account),
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn = web3.eth.getTransaction(txn_hash)
+
+        assert is_same_address(txn['from'], txn_params['from'])
+        assert is_same_address(txn['to'], txn_params['to'])
+        assert txn['value'] == 1
+        assert txn['gas'] == 21000
+        assert txn['gasPrice'] == txn_params['gasPrice']
+        assert txn['nonce'] == txn_params['nonce']
 
     def test_eth_replaceTransaction(self, web3, unlocked_account):
         txn_params = {
@@ -416,7 +435,7 @@ class EthModuleTest(object):
         assert block['hash'] == empty_block['hash']
 
     def test_eth_getBlockByHash_not_found(self, web3, empty_block):
-        block = web3.eth.getBlock(UNKOWN_HASH)
+        block = web3.eth.getBlock(UNKNOWN_HASH)
         assert block is None
 
     def test_eth_getBlockByNumber_with_integer(self, web3, empty_block):
@@ -484,7 +503,7 @@ class EthModuleTest(object):
             'to': unlocked_account,
             'value': 1,
             'gas': 21000,
-            'gas_price': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gasPrice,
         })
         receipt = web3.eth.getTransactionReceipt(txn_hash)
         assert receipt is None
@@ -580,6 +599,78 @@ class EthModuleTest(object):
 
         result = web3.eth.uninstallFilter(filter.filter_id)
         assert result is True
+
+    def test_eth_getLogs_without_logs(self, web3, block_with_txn_with_log):
+        # Test with block range
+
+        filter_params = {
+            "fromBlock": 0,
+            "toBlock": block_with_txn_with_log['number'] - 1,
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
+
+        # the range is wrong
+        filter_params = {
+            "fromBlock": block_with_txn_with_log['number'],
+            "toBlock": block_with_txn_with_log['number'] - 1,
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
+
+        # Test with `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": UNKNOWN_ADDRESS,
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
+
+    def test_eth_getLogs_with_logs(
+            self,
+            web3,
+            block_with_txn_with_log,
+            emitter_contract,
+            txn_hash_with_log):
+
+        def assert_contains_log(result):
+            assert len(result) == 1
+            log_entry = result[0]
+            assert log_entry['blockNumber'] == block_with_txn_with_log['number']
+            assert log_entry['blockHash'] == block_with_txn_with_log['hash']
+            assert log_entry['logIndex'] == 0
+            assert is_same_address(log_entry['address'], emitter_contract.address)
+            assert log_entry['transactionIndex'] == 0
+            assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
+
+        # Test with block range
+
+        # the range includes the block where the log resides in
+        filter_params = {
+            "fromBlock": block_with_txn_with_log['number'],
+            "toBlock": block_with_txn_with_log['number'],
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert_contains_log(result)
+
+        # specify only `from_block`. by default `to_block` should be 'latest'
+        filter_params = {
+            "fromBlock": 0,
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert_contains_log(result)
+
+        # Test with `address`
+
+        # filter with emitter_contract.address
+        filter_params = {
+            "fromBlock": 0,
+            "address": emitter_contract.address,
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert_contains_log(result)
 
     def test_eth_uninstallFilter(self, web3):
         filter = web3.eth.filter({})

@@ -4,7 +4,6 @@ from web3.exceptions import (
     BadFunctionCallOutput,
     InvalidAddress,
 )
-
 from web3.utils.datastructures import (
     HexBytes,
 )
@@ -21,6 +20,7 @@ def deploy(web3, Contract, args=None):
     deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     contract = Contract(address=deploy_receipt['contractAddress'])
+    assert len(web3.eth.getCode(contract.address)) > 0
     return contract
 
 

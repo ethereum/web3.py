@@ -647,6 +647,13 @@ with the filtering API.
         False  # already uninstalled.
 
 
+.. py:method:: Eth.getLogs(filter_params)
+
+    This is the equivalent of: creating a new
+    filter, running :meth:`~Eth.getFilterLogs`, and then uninstalling the filter. See
+    :meth:`~Eth.filter` for details on allowed filter parameters.
+
+
 Contracts
 ---------
 

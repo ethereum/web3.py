@@ -1,5 +1,5 @@
-import pytest
 import json
+import pytest
 
 from eth_utils import (
     encode_hex,

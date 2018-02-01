@@ -1,10 +1,8 @@
 import pytest
 
-
 from web3.utils.events import (
     construct_event_data_set,
 )
-
 
 EVENT_1_ABI = {
     "anonymous": False,

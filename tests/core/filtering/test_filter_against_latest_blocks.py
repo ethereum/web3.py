@@ -1,4 +1,6 @@
-from web3.providers.eth_tester import EthereumTesterProvider
+from web3.providers.eth_tester import (
+    EthereumTesterProvider,
+)
 from web3.utils.threads import (
     Timeout,
 )

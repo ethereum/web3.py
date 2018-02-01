@@ -1,5 +1,5 @@
-import json
 import itertools
+import json
 
 from eth_utils import (
     force_bytes,

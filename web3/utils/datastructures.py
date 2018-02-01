@@ -11,8 +11,9 @@ from web3.utils.encoding import (
     hexstr_if_str,
     to_bytes,
 )
-
-from web3.utils.formatters import recursive_map
+from web3.utils.formatters import (
+    recursive_map,
+)
 
 # Hashable must be immutable:
 # "the implementation of hashable collections requires that a key's hash value is immutable"

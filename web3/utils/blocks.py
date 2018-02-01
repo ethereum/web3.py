@@ -1,9 +1,9 @@
 from eth_utils import (
-    is_hex,
-    is_string,
-    is_integer,
-    remove_0x_prefix,
     force_text,
+    is_hex,
+    is_integer,
+    is_string,
+    remove_0x_prefix,
 )
 
 
