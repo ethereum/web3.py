@@ -38,3 +38,6 @@ sed -i "s/<SHORT_DESCRIPTION>/$SHORT_DESCRIPTION/g" $TEMPLATE_FILES
 
 mkdir $MODULE_NAME
 touch $MODULE_NAME/__init__.py
+
+# template filler is no longer needed, delete it
+rm "$0"

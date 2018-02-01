@@ -26,7 +26,7 @@ lint:
 
 lint-roll:
 	isort --recursive <MODULE_NAME> tests
-	$(make) lint
+	$(MAKE) lint
 
 test:
 	py.test tests
