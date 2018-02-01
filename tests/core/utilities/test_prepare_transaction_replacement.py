@@ -72,8 +72,7 @@ def test_prepare_transaction_replacement_not_higher_gas_price_raises(web3):
     # Also raises when equal to the current transaction
     new_transaction['gasPrice'] = 10
     with pytest.raises(ValueError):
-        replacement_transaction = prepare_replacement_transaction(
-            web3, current_transaction, new_transaction)
+        prepare_replacement_transaction(web3, current_transaction, new_transaction)
 
 
 def test_prepare_transaction_replacement_gas_price_defaulting(web3):

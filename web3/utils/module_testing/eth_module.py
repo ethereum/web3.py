@@ -280,7 +280,7 @@ class EthModuleTest(object):
         txn_params['gasPrice'] = web3.eth.gasPrice * 2
         with pytest.raises(ValueError):
             web3.eth.replaceTransaction(txn_hash, txn_params)
-    
+
     def test_eth_replaceTransaction_incorrect_nonce(self, web3, unlocked_account):
         txn_params = {
             'from': unlocked_account,
@@ -306,7 +306,6 @@ class EthModuleTest(object):
             'gasPrice': 10,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
-        txn = web3.eth.getTransaction(txn_hash)
 
         txn_params['gasPrice'] = 9
         with pytest.raises(ValueError):
@@ -321,7 +320,6 @@ class EthModuleTest(object):
             'gasPrice': 10,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
-        txn = web3.eth.getTransaction(txn_hash)
 
         txn_params.pop('gasPrice')
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)

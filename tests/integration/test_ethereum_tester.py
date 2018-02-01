@@ -174,6 +174,7 @@ def not_implemented(method, exc_type=NotImplementedError):
             method(*args, **kwargs)
     return inner
 
+
 def disable_auto_mine(func):
     @functools.wraps(func)
     def func_wrapper(self, eth_tester, web3, unlocked_account):
@@ -184,6 +185,7 @@ def disable_auto_mine(func):
             eth_tester.enable_auto_mine_transactions()
             eth_tester.mine_block()
     return func_wrapper
+
 
 class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, ValueError)
@@ -223,6 +225,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
         super(TestEthereumTesterEthModule, self).test_eth_modifyTransaction(
             web3, unlocked_account,
         )
+
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
     pass
