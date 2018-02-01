@@ -19,6 +19,9 @@ from eth_utils import (
 from web3.exceptions import (
     MismatchedABI,
 )
+from web3.utils.datastructures import (
+    AttributeDict,
+)
 from web3.utils.encoding import (
     hexstr_if_str,
     to_bytes,
@@ -220,4 +223,4 @@ def get_event_data(event_abi, log_entry):
         'blockNumber': log_entry['blockNumber'],
     }
 
-    return event_data
+    return AttributeDict.recursive(event_data)

@@ -200,6 +200,9 @@ def test_event_rich_log(
     rich_log = rich_logs[0]
 
     assert rich_log['args'] == expected_args
+    assert rich_log.args == expected_args
+    for arg in expected_args:
+        assert getattr(rich_log.args, arg) == expected_args[arg]
     assert rich_log['blockHash'] == txn_receipt['blockHash']
     assert rich_log['blockNumber'] == txn_receipt['blockNumber']
     assert rich_log['transactionIndex'] == txn_receipt['transactionIndex']
