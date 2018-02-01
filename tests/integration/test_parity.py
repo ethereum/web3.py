@@ -247,7 +247,13 @@ class TestParity(Web3ModuleTest):
 
 
 class TestParityEthModule(EthModuleTest):
-    pass
+    def test_eth_uninstallFilter(self, web3):
+        pytest.xfail('eth_uninstallFilter calls to parity always return true')
+        super().test_eth_uninstallFilter(web3)
+
+    def test_eth_newBlockFilter(self, web3):
+        pytest.xfail('Parity returns latest block on first polling for new blocks')
+        super().test_eth_newBlockFilter(web3)
 
 
 class TestParityVersionModule(VersionModuleTest):
@@ -259,7 +265,51 @@ class TestParityNetModule(NetModuleTest):
 
 
 class TestParityPersonalModule(PersonalModuleTest):
-    pass
+    def test_personal_importRawKey(self, web3):
+        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
+        super().test_personal_importRawKey(web3)
+
+    def test_personal_listAccounts(self, web3):
+        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
+        super().test_personal_listAccounts(web3)
+
+    def test_personal_lockAccount(self, web3, unlocked_account):
+        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
+        super().test_personal_lockAccount(web3, unlocked_account)
+
+    def test_personal_unlockAccount_success(self, web3):
+        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
+        super().test_personal_unlockAccount_success(web3)
+
+    def test_personal_unlockAccount_failure(self, web3, unlockable_account):
+        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
+        super().test_personal_unlockAccount_failure(web3, unlockable_account)
+
+    def test_personal_newAccount(self, web3):
+        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
+        super().test_personal_newAccount(web3)
+
+    def test_personal_sendTransaction(
+            self,
+            web3,
+            unlockable_account,
+            unlockable_account_pw):
+        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
+        super().test_personal_sendTransaction(
+            web3,
+            unlockable_account,
+            unlockable_account_pw)
+
+    def test_personal_sign_and_ecrecover(
+            self,
+            web3,
+            unlockable_account,
+            unlockable_account_pw):
+        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
+        super().test_personal_sign_and_ecrecover(
+            web3,
+            unlockable_account,
+            unlockable_account_pw)
 
 
 #

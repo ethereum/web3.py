@@ -1,5 +1,6 @@
 import hashlib
 import os
+import stat
 
 from eth_utils import (
     to_tuple,
@@ -9,7 +10,11 @@ import toolz
 
 URI_QUERY_URL = "https://vanity-service.parity.io/parity-binaries"
 BASE_BIN_PATH = "~/.parity-bin"
-VERSION_STRINGS = {"1_8_7": "v1.8.7"}
+VERSION_STRINGS = {
+    "v1.8.7": "1_8_7",
+    "v1.8.8": "1_8_8",
+    "v1.9.1": "1_9_1"
+}
 ARCHITECTURE = 'x86_64'
 OS = 'linux'
 
@@ -36,16 +41,17 @@ def get_binary_uri(releases_json):
         yield next(binary_uri)
 
 
-def get_executable_path(identifier):
-    return os.path.join(BASE_BIN_PATH, 'parity-{0}'.format(identifier))
+def get_executable_path(version_string):
+    identifier = VERSION_STRINGS[version_string]
+    path = os.path.join(BASE_BIN_PATH, 'parity-{0}'.format(identifier))
+    return os.path.expanduser(path)
 
 
-def install_parity(identifier):
-    if identifier not in VERSION_STRINGS:
+def install_parity(version_string):
+    if version_string not in VERSION_STRINGS.keys():
         raise ValueError("{0} is not an accepted version identifier.")
 
-    version_string = VERSION_STRINGS[identifier]
-    path = os.path.expanduser(get_executable_path(identifier))
+    path = get_executable_path(version_string)
 
     get_uri = toolz.functoolz.compose(
         get_binary_uri,
@@ -60,7 +66,6 @@ def install_parity(identifier):
 
 
 def download_binary(path, uri, checksum):
-    path = os.path.expanduser(path)
     bin_stream = get_binary_stream(uri)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     digest = hashlib.md5()
@@ -69,6 +74,12 @@ def download_binary(path, uri, checksum):
             f.write(chunk)
             digest.update(chunk)
     assert digest.hexdigest() == checksum
+    chmod_plus_x(path)
+
+
+def chmod_plus_x(executable_path):
+    current_st = os.stat(executable_path)
+    os.chmod(executable_path, current_st.st_mode | stat.S_IEXEC)
 
 
 def get_binary_stream(uri):
