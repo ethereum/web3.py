@@ -1,0 +1,51 @@
+version: 2.0
+
+# heavily inspired by https://raw.githubusercontent.com/pinax/pinax-wiki/6bd2a99ab6f702e300d708532a6d1d9aa638b9f8/.circleci/config.yml
+
+common: &common
+  working_directory: ~/repo
+  steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+    - run:
+        name: install dependencies
+        command: pip install --user tox
+    - run:
+        name: run tox
+        command: ~/.local/bin/tox
+    - save_cache:
+        paths:
+          - .tox
+          - ~/.cache/pip
+          - ~/.local
+          - ./eggs
+        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+
+jobs:
+  lint:
+    <<: *common
+    docker:
+      - image: circleci/python:3.5
+        environment:
+          TOXENV: lint
+  py35-core:
+    <<: *common
+    docker:
+      - image: circleci/python:3.5
+        environment:
+          TOXENV: py35-core
+  py36-core:
+    <<: *common
+    docker:
+      - image: circleci/python:3.6
+        environment:
+          TOXENV: py36-core
+workflows:
+  version: 2
+  test:
+    jobs:
+      - lint
+      - py35-core
+      - py36-core
