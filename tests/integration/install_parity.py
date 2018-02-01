@@ -10,14 +10,14 @@ from eth_utils import (
 
 URI_QUERY_URL = "https://vanity-service.parity.io/parity-binaries"
 BASE_BIN_PATH = "~/.parity-bin"
-VERSION_STRINGS = { "1_8_7": "v1.8.7" }
-ARCHITECTURE='x86_64'
-OS='linux'
+VERSION_STRINGS = {"1_8_7": "v1.8.7"}
+ARCHITECTURE = 'x86_64'
+OS = 'linux'
 
 
 @toolz.curry
-def fill_default_request_params(version, os=OS,architecture=ARCHITECTURE):
-    params =  {'version': version, 'os':os, 'architecture':architecture}
+def fill_default_request_params(version, os=OS, architecture=ARCHITECTURE):
+    params = {'version': version, 'os': os, 'architecture': architecture}
     return params
 
 
@@ -31,12 +31,10 @@ def get_parity_release_json(**kwargs):
 @to_tuple
 def get_binary_uri(releases_json):
     for release in releases_json:
-        binary_uri =  ((uri.get('downloadUrl', None), uri.get('checksum', None))
-            for uri in release.get('files', tuple())
-            if uri.get('name') == 'parity')
+        binary_uri = ((uri.get('downloadUrl', None), uri.get('checksum', None))
+                      for uri in release.get('files', tuple())
+                      if uri.get('name') == 'parity')
         yield next(binary_uri)
-
-
 
 
 def get_executable_path(identifier):
@@ -45,7 +43,7 @@ def get_executable_path(identifier):
 
 def install_parity(identifier):
     if identifier not in VERSION_STRINGS:
-      raise ValueError("{0} is not an accepted version identifier.")
+        raise ValueError("{0} is not an accepted version identifier.")
 
     version_string = VERSION_STRINGS[identifier]
     path = os.path.expanduser(get_executable_path(identifier))
@@ -79,4 +77,4 @@ def get_binary_stream(uri):
     if resp.status_code == 200:
         return resp.raw
     else:
-        bin_stream.raise_for_status()
+        resp.raise_for_status()

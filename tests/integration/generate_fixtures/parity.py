@@ -5,29 +5,15 @@ import pprint
 import shutil
 import sys
 import time
-import distutils.dir_util
 
 from cytoolz import merge
 
 from eth_utils import (
     force_text,
-    is_dict,
-    is_same_address,
-    remove_0x_prefix,
-    to_wei,
 )
 
 from web3 import Web3
 
-from web3.utils.module_testing.math_contract import (
-    MATH_BYTECODE,
-    MATH_ABI,
-)
-from web3.utils.module_testing.emitter_contract import (
-    EMITTER_BYTECODE,
-    EMITTER_ABI,
-    EMITTER_ENUM,
-)
 import common
 import go_ethereum
 
@@ -57,7 +43,7 @@ CHAIN_CONFIG = {
         "accountStartNonce": "0x0",
         "maximumExtraDataSize": "0x20",
         "minGasLimit": "0x1388",
-        "networkID" : "0x539",
+        "networkID": "0x539",
         "eip98Transition": "0x7fffffffffffffff"
     },
     "genesis": {
@@ -75,12 +61,30 @@ CHAIN_CONFIG = {
         "gasLimit": "0x1000000"
     },
     "accounts": {
-        common.COINBASE: { "balance": "1000000000000000000000000000", "nonce": "0", "builtin": { "name": "ecrecover", "pricing": { "linear": { "base": 3000, "word": 0 } } } },
-        common.UNLOCKABLE_ACCOUNT: { "balance": "1000000000000000000000000000", "nonce": "0", "builtin": { "name": "sha256", "pricing": { "linear": { "base": 60, "word": 12 } } } },
-        common.RAW_TXN_ACCOUNT: { "balance": "1000000000000000000000000000", "nonce": "0", "builtin": { "name": "ripemd160", "pricing": { "linear": { "base": 600, "word": 120 } } } }
+        common.COINBASE: {
+            "balance": "1000000000000000000000000000",
+            "nonce": "0",
+            "builtin": {
+                "name": "ecrecover", "pricing": {"linear": {"base": 3000, "word": 0}}
+            }
+        },
+        common.UNLOCKABLE_ACCOUNT: {
+            "balance": "1000000000000000000000000000",
+            "nonce": "0",
+            "builtin": {
+                "name": "sha256", "pricing": {"linear": {"base": 60, "word": 12}}
+            }
+        },
+        common.RAW_TXN_ACCOUNT: {
+            "balance": "1000000000000000000000000000",
+            "nonce": "0",
+            "builtin": {
+                "name": "ripemd160",
+                "pricing": {"linear": {"base": 600, "word": 120}}
+            }
+        }
     }
 }
-
 
 
 def get_parity_binary():
@@ -140,7 +144,6 @@ def generate_parity_fixture(destination_dir):
 
         geth_ipc_path_dir = stack.enter_context(common.tempdir())
         geth_ipc_path = os.path.join(geth_ipc_path_dir, 'geth.ipc')
-        geth_binary = common.get_geth_binary()
 
         geth_keystore_dir = os.path.join(geth_datadir, 'keystore')
         common.ensure_path_exists(geth_keystore_dir)
@@ -148,19 +151,18 @@ def generate_parity_fixture(destination_dir):
         with open(geth_keyfile_path, 'w') as keyfile:
             keyfile.write(common.KEYFILE_DATA)
 
-
         genesis_file_path = os.path.join(geth_datadir, 'genesis.json')
         with open(genesis_file_path, 'w') as genesis_file:
             genesis_file.write(json.dumps(common.GENESIS_DATA))
 
-        geth_proc = stack.enter_context(
+        stack.enter_context(
             common.get_geth_process(
-                    common.get_geth_binary(),
-                    geth_datadir,
-                    genesis_file_path,
-                    geth_ipc_path,
-                    geth_port,
-                    str(CHAIN_CONFIG['params']['networkID']))
+                common.get_geth_binary(),
+                geth_datadir,
+                genesis_file_path,
+                geth_ipc_path,
+                geth_port,
+                str(CHAIN_CONFIG['params']['networkID']))
         )
         # set up fixtures
         common.wait_for_socket(geth_ipc_path)
@@ -229,7 +231,6 @@ def wait_for_chain_sync(web3, target):
             time.sleep(0.1)
     else:
         raise ValueError("Not synced after wait period")
-
 
 
 if __name__ == '__main__':

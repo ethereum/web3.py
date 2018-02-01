@@ -25,9 +25,12 @@ from web3.utils.module_testing import (
     Web3ModuleTest,
 )
 
+from install_parity import (
+    install_parity,
+    get_executable_path,
+)
 
 KEYFILE_PW = 'web3py-test'
-
 
 PARITY_FIXTURE = {
     'datadir': 'parity-187-fixture',
@@ -45,7 +48,6 @@ PARITY_FIXTURE = {
 }
 
 
-
 @pytest.fixture(scope='session')
 def parity_binary():
     if 'PARITY_BINARY' in os.environ:
@@ -54,16 +56,19 @@ def parity_binary():
         parity_version = os.environ['PARITY_VERSION']
         _parity_binary = get_executable_path(parity_version)
         if not os.path.exists(_parity_binary):
-            install_geth(geth_version)
+            install_parity(parity_version)
         assert os.path.exists(_parity_binary)
         return _parity_binary
     else:
         return 'parity'
 
 
+def get_parity_version(parity_binary):
+    pass
+
+
 @pytest.fixture(scope="session")
 def parity_fixture_data(parity_binary):
-    version = "v1.8.7-stable"
     return PARITY_FIXTURE
 
 
@@ -83,7 +88,7 @@ def datadir(tmpdir_factory, parity_fixture_data):
 def accounts(datadir):
     # need the address to unlock before web3 session has been opened
     chain_config_path = os.path.join(datadir, "chain_config.json")
-    with open (chain_config_path, 'r') as f:
+    with open(chain_config_path, 'r') as f:
         chain_config = json.load(f)
     accounts = chain_config['accounts'].keys()
     return accounts
@@ -110,6 +115,7 @@ def wait_for_socket(ipc_path, timeout=30):
             time.sleep(0.01)
         else:
             break
+
 
 @pytest.fixture(scope="session")
 def passwordfile():

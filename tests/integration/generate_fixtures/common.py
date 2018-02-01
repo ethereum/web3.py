@@ -10,8 +10,6 @@ import subprocess
 from eth_utils import (
     force_text,
     is_checksum_address,
-    remove_0x_prefix,
-    to_wei,
 )
 
 COINBASE = '0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'
@@ -31,11 +29,11 @@ UNLOCKABLE_ACCOUNT_PW = KEYFILE_PW
 GENESIS_DATA = {
     "config": {
         "chainId": 1337,
-        "homesteadBlock":0,
-        "eip150Block":0,
-        "eip155Block":10,
-        "eip158Block":10,
-        "eip160Block":10
+        "homesteadBlock": 0,
+        "eip150Block": 0,
+        "eip155Block": 10,
+        "eip158Block": 10,
+        "eip160Block": 10
     },
     "nonce": "0x0000000000000042",
     "alloc": {
@@ -57,7 +55,6 @@ GENESIS_DATA = {
     "mixhash": "0x0000000000000000000000000000000000000000000000000000000000000000",
     "coinbase": COINBASE
 }
-
 
 
 def ensure_path_exists(dir_path):
@@ -188,6 +185,7 @@ def get_geth_process(geth_binary,
                 force_text(errors),
             )
         )
+
 
 def get_process(run_command):
     proc = subprocess.Popen(
