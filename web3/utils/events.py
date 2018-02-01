@@ -213,7 +213,7 @@ def get_event_data(event_abi, log_entry):
     ))
 
     event_data = {
-        'args': AttributeDict(event_args),
+        'args': event_args,
         'event': event_abi['name'],
         'logIndex': log_entry['logIndex'],
         'transactionIndex': log_entry['transactionIndex'],
@@ -223,4 +223,4 @@ def get_event_data(event_abi, log_entry):
         'blockNumber': log_entry['blockNumber'],
     }
 
-    return event_data
+    return AttributeDict.recursive(event_data)
