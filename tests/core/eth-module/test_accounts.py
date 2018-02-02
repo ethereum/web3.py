@@ -10,7 +10,7 @@ from web3 import (
     Account,
     Web3,
 )
-from web3.utils.datastructures import (
+from hexbytes import (
     HexBytes,
 )
 from web3.utils.encoding import (

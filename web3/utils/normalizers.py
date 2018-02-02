@@ -16,7 +16,7 @@ from eth_utils import (
 from web3.exceptions import (
     InvalidAddress,
 )
-from web3.utils.datastructures import (
+from hexbytes import (
     HexBytes,
 )
 from web3.utils.encoding import (

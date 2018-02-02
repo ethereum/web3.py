@@ -22,7 +22,7 @@ from web3.module import (
 from web3.utils.blocks import (
     select_method_for_block_identifier,
 )
-from web3.utils.datastructures import (
+from hexbytes import (
     HexBytes,
 )
 from web3.utils.empty import (

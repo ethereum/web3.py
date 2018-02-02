@@ -24,7 +24,7 @@ from eth_utils import (
     to_checksum_address,
 )
 
-from web3.utils.datastructures import (
+from hexbytes import (
     HexBytes,
 )
 from web3.utils.encoding import (

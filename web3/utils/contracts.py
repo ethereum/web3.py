@@ -26,7 +26,7 @@ from web3.utils.abi import (
     map_abi_data,
     merge_args_and_kwargs,
 )
-from web3.utils.datastructures import (
+from hexbytes import (
     HexBytes,
 )
 from web3.utils.encoding import (
