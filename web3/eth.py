@@ -7,7 +7,7 @@ from eth_utils import (
     is_string,
 )
 
-from web3.account import (
+from eth_account import (
     Account,
 )
 from web3.contract import (
