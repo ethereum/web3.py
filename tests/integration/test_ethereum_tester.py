@@ -177,10 +177,10 @@ def not_implemented(method, exc_type=NotImplementedError):
 
 def disable_auto_mine(func):
     @functools.wraps(func)
-    def func_wrapper(self, eth_tester, web3, unlocked_account):
+    def func_wrapper(self, eth_tester, *args, **kwargs):
         eth_tester.disable_auto_mine_transactions()
         try:
-            func(self, eth_tester, web3, unlocked_account)
+            func(self, eth_tester, *args, **kwargs)
         finally:
             eth_tester.enable_auto_mine_transactions()
             eth_tester.mine_block()
@@ -192,39 +192,27 @@ class TestEthereumTesterEthModule(EthModuleTest):
 
     @disable_auto_mine
     def test_eth_getTransactionReceipt_unmined(self, eth_tester, web3, unlocked_account):
-        super(TestEthereumTesterEthModule, self).test_eth_getTransactionReceipt_unmined(
-            web3, unlocked_account,
-        )
+        super().test_eth_getTransactionReceipt_unmined(web3, unlocked_account)
 
     @disable_auto_mine
     def test_eth_replaceTransaction(self, eth_tester, web3, unlocked_account):
-        super(TestEthereumTesterEthModule, self).test_eth_replaceTransaction(
-            web3, unlocked_account,
-        )
+        super().test_eth_replaceTransaction(web3, unlocked_account)
 
     @disable_auto_mine
     def test_eth_replaceTransaction_incorrect_nonce(self, eth_tester, web3, unlocked_account):
-        super(TestEthereumTesterEthModule, self).test_eth_replaceTransaction_incorrect_nonce(
-            web3, unlocked_account,
-        )
+        super().test_eth_replaceTransaction_incorrect_nonce(web3, unlocked_account)
 
     @disable_auto_mine
     def test_eth_replaceTransaction_gas_price_too_low(self, eth_tester, web3, unlocked_account):
-        super(TestEthereumTesterEthModule, self).test_eth_replaceTransaction_gas_price_too_low(
-            web3, unlocked_account,
-        )
+        super().test_eth_replaceTransaction_gas_price_too_low(web3, unlocked_account)
 
     @disable_auto_mine
     def test_eth_replaceTransaction_gas_price_defaulting(self, eth_tester, web3, unlocked_account):
-        super(TestEthereumTesterEthModule, self).test_eth_replaceTransaction_gas_price_defaulting(
-            web3, unlocked_account,
-        )
+        super().test_eth_replaceTransaction_gas_price_defaulting(web3, unlocked_account)
 
     @disable_auto_mine
     def test_eth_modifyTransaction(self, eth_tester, web3, unlocked_account):
-        super(TestEthereumTesterEthModule, self).test_eth_modifyTransaction(
-            web3, unlocked_account,
-        )
+        super().test_eth_modifyTransaction(web3, unlocked_account)
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):

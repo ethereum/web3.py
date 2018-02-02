@@ -261,19 +261,23 @@ class TestGoEthereum(Web3ModuleTest):
 
 
 class TestGoEthereumEthModule(EthModuleTest):
-    # Replacement transaction tests need ability to control mining of geth
+    @pytest.mark.xfail(reason='Needs ability to efficiently control mining of geth')
     def test_eth_replaceTransaction(self, web3, unlocked_account):
         pass
 
+    @pytest.mark.xfail(reason='Needs ability to efficiently control mining of geth')
     def test_eth_replaceTransaction_incorrect_nonce(self, web3, unlocked_account):
         pass
 
+    @pytest.mark.xfail(reason='Needs ability to efficiently control mining of geth')
     def test_eth_replaceTransaction_gas_price_too_low(self, web3, unlocked_account):
         pass
 
+    @pytest.mark.xfail(reason='Needs ability to efficiently control mining of geth')
     def test_eth_replaceTransaction_gas_price_defaulting(self, web3, unlocked_account):
         pass
 
+    @pytest.mark.xfail(reason='Needs ability to efficiently control mining of geth')
     def test_eth_modifyTransaction(self, web3, unlocked_account):
         pass
 
