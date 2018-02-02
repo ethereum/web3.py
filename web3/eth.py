@@ -38,10 +38,10 @@ from web3.utils.filters import (
     TransactionFilter,
 )
 from web3.utils.transactions import (
+    assert_valid_transaction_params,
+    extract_valid_transaction_params,
     get_buffered_gas_estimate,
     prepare_replacement_transaction,
-    extract_valid_transaction_params,
-    assert_valid_transaction_params,
 )
 
 

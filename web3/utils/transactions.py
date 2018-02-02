@@ -1,10 +1,10 @@
 import itertools
-import random
 import math
+import random
 
 from cytoolz import (
-    curry,
     assoc,
+    curry,
     dissoc,
     merge,
     pipe,
