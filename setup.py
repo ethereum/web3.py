@@ -25,7 +25,7 @@ setup(
         "requests>=2.12.4",
         "rlp>=0.4.7",
         "toolz>=0.8.2",
-        "eth-tester~=0.1.0b5",
+        "eth-tester==0.1.0b11",
     ],
     setup_requires=['setuptools-markdown'],
     extras_require={
