@@ -1,6 +1,17 @@
 Release Notes
 =============
 
+v3.16.5
+-------
+
+Released Feb 2, 2018
+
+- Bugfix: pin eth-utils below v1, drop unneeded dependencies.
+  See `this issue <https://github.com/ethereum/eth-abi/issues/25>`_
+- decode event logs when using eth-tester
+- automatically reattempt on a broken IPC pipe (for example, when the node is restarted)
+- update docs to show eth-testrpc as deprecated
+- dropped pylru in favor of lru-dict (for license compatibility)
 
 v3.16.4
 -------
