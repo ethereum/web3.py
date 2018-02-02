@@ -18,10 +18,8 @@ setup(
     include_package_data=True,
     install_requires=[
         "cytoolz>=0.8.2",
-        "eth-abi>=0.5.0",
-        "eth-keyfile>=0.4.0",
-        "eth-keys>=0.1.0-beta.3",
-        "eth-utils>=0.7.1",
+        "eth-abi>=0.5.0,<0.6.0",
+        "eth-utils>=0.7.1,<1.0.0",
         "lru-dict>=1.1.6",
         "pysha3>=0.3",
         "requests>=2.12.4",
