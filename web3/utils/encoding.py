@@ -8,7 +8,6 @@ from cytoolz import (
 from eth_utils import (
     add_0x_prefix,
     big_endian_to_int,
-    coerce_args_to_bytes,
     decode_hex,
     encode_hex,
     force_bytes,
@@ -20,7 +19,6 @@ from eth_utils import (
     is_hex,
     is_integer,
     is_string,
-    keccak,
     remove_0x_prefix,
 )
 

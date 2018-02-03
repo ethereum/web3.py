@@ -23,10 +23,10 @@ from eth_utils import (
     remove_0x_prefix,
     to_checksum_address,
 )
-
 from hexbytes import (
     HexBytes,
 )
+
 from web3.utils.encoding import (
     hexstr_if_str,
     to_hex,

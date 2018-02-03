@@ -15,12 +15,12 @@ from eth_utils import (
     is_same_address,
     is_string,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3.exceptions import (
     InvalidAddress,
-)
-from hexbytes import (
-    HexBytes,
 )
 
 UNKNOWN_ADDRESS = '0xdeadbeef00000000000000000000000000000000'

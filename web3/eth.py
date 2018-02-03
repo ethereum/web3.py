@@ -1,15 +1,18 @@
 from cytoolz.dicttoolz import (
     assoc,
 )
+from eth_account import (
+    Account,
+)
 from eth_utils import (
     apply_to_return_value,
     is_checksum_address,
     is_string,
 )
-
-from eth_account import (
-    Account,
+from hexbytes import (
+    HexBytes,
 )
+
 from web3.contract import (
     Contract,
 )
@@ -21,9 +24,6 @@ from web3.module import (
 )
 from web3.utils.blocks import (
     select_method_for_block_identifier,
-)
-from hexbytes import (
-    HexBytes,
 )
 from web3.utils.empty import (
     empty,

@@ -1,25 +1,10 @@
-import itertools
 import random
 
 from cytoolz import (
     curry,
-    dissoc,
     merge,
-    pipe,
-)
-from eth_utils import (
-    decode_hex,
-    is_string,
 )
 
-from web3.utils.encoding import (
-    hexstr_if_str,
-    to_int,
-)
-from web3.utils.formatters import (
-    apply_formatter_if,
-    apply_formatters_to_dict,
-)
 from web3.utils.threads import (
     Timeout,
 )

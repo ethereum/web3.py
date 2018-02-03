@@ -7,10 +7,6 @@ from collections import (
     Sequence,
 )
 
-from web3.utils.encoding import (
-    hexstr_if_str,
-    to_bytes,
-)
 from web3.utils.formatters import (
     recursive_map,
 )
