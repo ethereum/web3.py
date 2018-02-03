@@ -276,4 +276,7 @@ texinfo_documents = [
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.5', None),
+    'eth-account': ('http://eth-account.readthedocs.io/en/latest/', None),
 }
+
+autodoc_member_order = "bysource"

@@ -1,313 +1,146 @@
-.. py:module:: web3.account
-    :synopsis: Validate signatures, and work with local private keys
+Working with Local Private Keys
+==========================================
 
-web3.eth.account API
-=====================
+Local Private Key
+  A key is 32 :class:`bytes` of data that you can use to sign transactions and messages,
+  before sending them to your node. That node can be local (like Geth or Parity),
+  or remote (like Infura). You must use :meth:`~web3.eth.Eth.sendRawTransaction`
+  when working with local keys, instead of
+  :meth:`~web3.eth.Eth.sendTransaction` .
 
-.. py:class:: Account
+Managed Private Key
+  A managed key is like a `Local Private Key`, but managed by your local node.
+  This allows you to use
+  :meth:`~web3.eth.Eth.sendTransaction`.
+  Each account returned by :attr:`w3.eth.accounts <web3.eth.Eth.accounts>`
+  has a key associated
+  with it, which is managed by your node.
 
-The ``w3.eth.account`` object exposes the following methods to
-interact with locally managed keys. It can be used for signing without connecting
-to an Ethereum client.
+.. WARNING::
+  It is unnacceptable for a remote
+  node to manage your private keys, because of the likelihood of theft.
+  Any reputable 3rd-party node (like Infura) will not offer a `Managed Private Key`.
 
-``w3.eth.account`` roughly follows the API of the web3js v1.0
-`eth.accounts module <https://web3js.readthedocs.io/en/1.0/web3-eth-accounts.html>`_ .
+Some Common Uses for Local Private Keys
+-------------------------------------------
+
+Some common things you might want to do with Local Private Keys are:
+
+- `Sign a Transaction`_
+- `Sign a Contract Transaction`_
+- `Sign a Message`_
+- `Verify a Message`_
+
+Using private keys usually involves ``w3.eth.account`` in one way or another. Read on for more,
+or see a full list of things you can do in the docs for
+:class:`eth_account.Account <eth_account.account.Account>`.
+
+Extract private key from geth keyfile
+---------------------------------------------
+
+.. code-block:: python
+
+    with open('~/.ethereum/keystore/UTC--...--5ce9454909639D2D17A3F753ce7d93fa0b9aB12E') as keyfile:
+        encrypted_key = keyfile.read()
+        private_key = w3.eth.account.decrypt(encrypted_key, 'correcthorsebatterystaple')
+        # tip: do not save the key or password anywhere, especially into a shared source file
+
+Sign a Message
+---------------
+
+.. code-block:: python
+
+    >>> msg = "I♥SF"
+    >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
+    >>> signed_message = w3.eth.account.sign(message_text=msg, private_key=private_key)
+    {'message': b'I\xe2\x99\xa5SF',
+     'messageHash': HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
+     'r': 104389933075820307925104709181714897380569894203213074526835978196648170704563,
+     's': 28205917190874851400050446352651915501321657673772411533993420917949420456142,
+     'signature': HexBytes('0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'),
+     'v': 28}
+
+Verify a Message
+------------------------------------------------
+
+With the original message text and a signature:
+
+.. code-block:: python
+
+    >>> w3.eth.account.recoverMessage(text="I♥SF", signature=signed_message.signature)
+    '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
+
+Verify a message from message hash
+-----------------------------------------------------------
+
+Sometimes you don't have the original message, all you have is the
+prefixed & hashed message. To verify it, use:
+
+.. code-block:: python
+
+    >>> message_hash = '0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'
+    >>> signature = '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'
+    >>> w3.eth.account.recover(message_hash, signature=signature)
+    '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
 
 .. NOTE::
-   There is a subtle difference in the naming here:
-   web3.py uses ``account`` where web3.js uses ``accounts``. web3.py continues to
-   return the list of available accounts in your client when calling ``web3.eth.accounts``
 
+    Note the usage of :meth:`~eth_account.account.Account.recover`, **not**
+    :meth:`~eth_account.account.Account.recoverMessage`.
+    If you try to use a prefixed & hashed message instead of the original message,
+    then :meth:`~eth_account.account.Account.recoverMessage`
+    will give you the wrong result.
 
-Methods
--------
+Prepare message for ecrecover in Solidity
+--------------------------------------------
 
-The following methods are available on the ``w3.eth.account`` namespace. They can all
-be called statically, like ``Account.create()``.
+Produce a signed_message as in `Sign a Message`_, then...
 
+.. code-block:: python
 
-.. py:method:: Account.create(extra_entropy="")
+    >>> from eth_utils import to_bytes, to_hex
 
-    Creates a new private key, and returns it with some :ref:`eth-account-key-convenience`.
+    >>> def to_32byte_hex(val):
+        return to_hex(to_bytes(val).rjust(32, b'\0'))
 
-    :param extra_entropy: Add extra randomness to whatever randomness your OS can provide
-    :type extra_entropy: str or bytes or int
-    :return: an object with private key and convenience methods
+    >>> ec_recover_args = (msghash, v, r, s) = (
+      signed_message.messageHash,
+      signed_message.v,
+      to_32byte_hex(signed_message.r),
+      to_32byte_hex(signed_message.s),
+    )
+    (HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
+     28,
+     '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3',
+     '0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce')
 
-    .. code-block:: python
+Verify a message with ecrecover in Solidity
+---------------------------------------------
 
-        >>> from web3.auto import w3
-        >>> acct = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
-        >>> acct.address
-        '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
-        >>> acct.privateKey
-        b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
+Create a simple ecrecover contract in `Remix <https://remix.ethereum.org/>`_:
 
-        # These methods are also available: sign(), signTransaction(), encrypt()
-        # They correspond to the same-named methods in w3.eth.account.*
-        # but without the private key argument
+.. code-block:: none
 
+    pragma solidity ^0.4.19;
 
-.. py:method:: Account.privateKeyToAccount(private_key)
+    contract Recover {
+      function ecr (bytes32 msgh, uint8 v, bytes32 r, bytes32 s) public pure
+      returns (address sender) {
+        return ecrecover(msgh, v, r, s);
+      }
+    }
 
-    Returns some :ref:`eth-account-key-convenience`.
+Then call ecr with these arguments from `Prepare message for ecrecover in Solidity`_ in Remix,
+``"0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750", 28, "0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3", "0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce"``
 
-    :param private_key: The raw private key
-    :type private_key: hex str or bytes or int
-    :return: an object with private key and convenience methods
+The message is verified, because we get the correct sender of
+the message back in response: ``0x5ce9454909639d2d17a3f753ce7d93fa0b9ab12e``.
 
-    .. code-block:: python
+Sign a Transaction
+------------------------
 
-        >>> acct = w3.eth.account.privateKeyToAccount(
-          b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d")
-        >>> acct.address
-        '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
-        >>> acct.privateKey
-        b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
-
-        # These methods are also available: sign(), signTransaction(), encrypt()
-        # They correspond to the same-named methods in w3.eth.account.*
-        # but without the private key argument
-
-
-.. py:method:: Account.encrypt(private_key, password)
-
-    Creates a dictionary containing your private key, encrypted by the supplied password.
-    If you want to create a keyfile recognized by Ethereum clients like geth and parity:
-    encode this dictionary with :func:`json.dumps` and save it to disk where your
-    client keeps key files.
-
-    :param private_key: The raw private key
-    :type private_key: hex str or bytes or int
-    :param str password: The password which you will need to unlock the account in your client
-    :returns dict: The data to use in your encrypted file
-
-    .. code-block:: python
-
-        >>> encrypted = w3.eth.account.encrypt(
-                b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d",
-                'correcthorsebatterystaple' )
-
-        {'address': '5ce9454909639d2d17a3f753ce7d93fa0b9ab12e',
-         'crypto': {'cipher': 'aes-128-ctr',
-          'cipherparams': {'iv': '78f214584844e0b241b433d7c3bb8d5f'},
-          'ciphertext': 'd6dbb56e4f54ba6db2e8dc14df17cb7352fdce03681dd3f90ce4b6c1d5af2c4f',
-          'kdf': 'pbkdf2',
-          'kdfparams': {'c': 1000000,
-           'dklen': 32,
-           'prf': 'hmac-sha256',
-           'salt': '45cf943b4de2c05c2c440ef96af914a2'},
-          'mac': 'f5e1af09df5ded25c96fcf075ada313fb6f79735a914adc8cb02e8ddee7813c3'},
-         'id': 'b812f3f9-78cc-462a-9e89-74418aa27cb0',
-         'version': 3}
-
-         >>> with open('my-keyfile', 'w') as f:
-                 f.write(json.dumps(encrypted))
-
-
-.. py:method:: Account.decrypt(keyfile_json, password)
-
-    Decrypts the private key encrypted using an Ethereum client or :meth:`~Account.encrypt`.
-
-    :param keyfile_json: The encrypted key
-    :type keyfile_json: dict or str
-    :param str password: The password that was used to encrypt the key
-    :returns bytes: the raw private key
-
-    .. code-block:: python
-
-        >>> encrypted = {
-         'address': '5ce9454909639d2d17a3f753ce7d93fa0b9ab12e',
-         'crypto': {'cipher': 'aes-128-ctr',
-          'cipherparams': {'iv': '78f214584844e0b241b433d7c3bb8d5f'},
-          'ciphertext': 'd6dbb56e4f54ba6db2e8dc14df17cb7352fdce03681dd3f90ce4b6c1d5af2c4f',
-          'kdf': 'pbkdf2',
-          'kdfparams': {'c': 1000000,
-           'dklen': 32,
-           'prf': 'hmac-sha256',
-           'salt': '45cf943b4de2c05c2c440ef96af914a2'},
-          'mac': 'f5e1af09df5ded25c96fcf075ada313fb6f79735a914adc8cb02e8ddee7813c3'},
-         'id': 'b812f3f9-78cc-462a-9e89-74418aa27cb0',
-         'version': 3}
-
-        >>> w3.eth.account.decrypt(encrypted, 'correcthorsebatterystaple')
-        b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
-
-
-.. py:method:: Account.sign(message=None, private_key=None, message_hexstr=None, message_text=None)
-
-    Sign the message provided. This is equivalent to :meth:`eth.sign() <web3.eth.Eth.sign>` but with
-    a local private key instead of an account in a connected client.
-    
-    Caller must supply exactly one of the message types:
-    in bytes, a hex string, or a unicode string. The message will automatically
-    be prepended with the text indicating that it is a message (preventing it
-    from being used to sign a transaction). The prefix is: ``b'\x19Ethereum Signed Message:\n'``
-
-    :param message: the message message to be signed
-    :type message: bytes or int
-    :param private_key: the key to sign the message with
-    :type private_key: hex str, bytes or int
-    :param str message_hexstr: the message encoded as hex
-    :param str message_text: the message as a series of unicode characters (a normal Py3 str)
-    :returns AttributeDict: Various details about the signature - most
-      importantly the fields: v, r, and s
-
-    .. code-block:: python
-
-        >>> msg = "I♥SF"
-        >>> key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
-        >>> w3.eth.account.sign(message_text=msg, private_key=key)
-        {'message': b'I\xe2\x99\xa5SF',
-         'messageHash': HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
-         'r': HexBytes('0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3'),
-         's': HexBytes('0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce'),
-         'signature': HexBytes('0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'),
-         'v': 28}
-
-        # these are all equivalent:
-        >>> w3.eth.account.sign(w3.toBytes(text=msg), key)
-        >>> w3.eth.account.sign(bytes(msg, encoding='utf-8'), key)
-
-        >>> Web3.toHex(text=msg)
-        '0x49e299a55346'
-        >>> w3.eth.account.sign(message_hexstr='0x49e299a55346', private_key=key)
-        >>> w3.eth.account.sign(0x49e299a55346, key)
-
-
-.. py:method:: Account.recoverMessage(data=None, hexstr=None, text=None, vrs=None, signature=None)
-
-    Get the address of the account that signed the given message.
-
-    * You must specify exactly one of: data, hexstr, or text
-    * You must specify exactly one of: vrs or signature
-
-    :param data: the raw message, before it was hashed or signed
-    :type data: bytes or int 
-    :param str hexstr: the raw message, before it was hashed or signed, as a hex string
-    :param str text: the raw message, before it was hashed or signed, as unicode text
-    :param vrs: the three pieces generated by an elliptic curve signature
-    :type vrs: tuple(v, r, s), each element is hex str, bytes or int
-    :param signature: signature bytes concatenated as r+s+v
-    :type signature: hex str or bytes or int 
-    :returns str: address of signer, hex-encoded & checksummed
-
-    .. code-block:: python
-
-        >>> msg = "I♥SF"
-        >>> vrs = (
-              28,
-              '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3',
-              '0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce')
-        >>> w3.eth.account.recoverMessage(text=msg, vrs=vrs)
-        '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
-
-        # All of these recover calls are equivalent:
-
-        # variations on msg
-        >>> msg_raw = b'I\xe2\x99\xa5SF'
-        >>> w3.eth.account.recoverMessage(msg_raw, vrs=vrs)
-        >>> w3.eth.account.recoverMessage(data=msg_raw, vrs=vrs)
-
-        >>> msg_hex = '0x49e299a55346'
-        >>> w3.eth.account.recover(hexstr=msg_hex, vrs=vrs)
-
-        >>> msg_int = 0x49e299a55346
-        >>> w3.eth.account.recoverMessage(msg_int, vrs=vrs)
-        >>> w3.eth.account.recoverMessage(data=msg_int, vrs=vrs)
-
-
-.. py:method:: Account.recover(msghash, vrs=None, signature=None)
-
-    Get the address of the account that signed the message with the given hash.
-    You must specify exactly one of: vrs or signature
-
-    :param msghash: the hash of the message that you want to verify
-    :type msghash: hex str or bytes or int 
-    :param vrs: the three pieces generated by an elliptic curve signature
-    :type vrs: tuple(v, r, s), each element is hex str, bytes or int
-    :param signature: signature bytes concatenated as r+s+v
-    :type signature: hex str or bytes or int 
-    :returns str: address of signer, hex-encoded & checksummed
-
-    .. code-block:: python
-
-        >>> msg = "I♥SF"
-        >>> msghash = '0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'
-        >>> vrs = (
-              28,
-              '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3',
-              '0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce')
-        >>> w3.eth.account.recover(msghash, vrs=vrs)
-        '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
-
-        # All of these recover calls are equivalent:
-        
-        # variations on msghash
-        >>> msghash = b"\x14v\xab\xb7E\xd4#\xbf\t'?\x1a\xfd\x88}\x95\x11\x81\xd2Z\xdcf\xc4\x83JpI\x19\x11\xb7\xf7P"
-        >>> w3.eth.account.recover(msghash, vrs=vrs)
-        >>> msghash = 0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750
-        >>> w3.eth.account.recover(msghash, vrs=vrs)
-
-        # variations on vrs
-        >>> vrs = (
-              '0x1c',
-              '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3',
-              '0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce')
-        >>> w3.eth.account.recover(msghash, vrs=vrs)
-        >>> vrs = (
-              b'\x1c',
-              b'\xe6\xca\x9b\xbaX\xc8\x86\x11\xfa\xd6jl\xe8\xf9\x96\x90\x81\x95Y8\x07\xc4\xb3\x8b\xd5(\xd2\xcf\xf0\x9dN\xb3',
-              b'>[\xfb\xbfM>9\xb1\xa2\xfd\x81jv\x80\xc1\x9e\xbe\xba\xf3\xa1A\xb29\x93J\xd4<\xb3?\xce\xc8\xce')
-        >>> w3.eth.account.recover(msghash, vrs=vrs)
-        >>> vrs = (
-              0x1c,
-              0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3,
-              0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce)
-        >>> w3.eth.account.recover(msghash, vrs=vrs)
-
-        # variations on signature
-        >>> signature = '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'
-        >>> w3.eth.account.recover(msghash, signature=signature)
-        >>> signature = b'\xe6\xca\x9b\xbaX\xc8\x86\x11\xfa\xd6jl\xe8\xf9\x96\x90\x81\x95Y8\x07\xc4\xb3\x8b\xd5(\xd2\xcf\xf0\x9dN\xb3>[\xfb\xbfM>9\xb1\xa2\xfd\x81jv\x80\xc1\x9e\xbe\xba\xf3\xa1A\xb29\x93J\xd4<\xb3?\xce\xc8\xce\x1c'
-        >>> w3.eth.account.recover(msghash, signature=signature)
-        >>> signature = 0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c
-        >>> w3.eth.account.recover(msghash, signature=signature)
-
-
-.. py:method:: Account.hashMessage(data=None, hexstr=None, text=None)
-
-    Generate the message hash, including the prefix. See :meth:`~Account.sign`
-    for more about the prefix. Supply exactly one of the three arguments.
-
-    :param data: the message to sign, in primitive form
-    :type data: bytes or int
-    :param str hexstr: the message to sign, as a hex-encoded string
-    :param str data: the message to sign, as a series of unicode points
-    :returns str: the hex-encoded hash of the message
-
-    .. code-block:: python
-
-        >>> msg = "I♥SF"
-        >>> w3.eth.account.hashMessage(text=msg)
-        HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750')
-
-
-.. py:method:: Account.signTransaction(transaction_dict, private_key)
-
-    Sign a transaction using a local private key. Produces signature details
-    and the hex-encoded transaction suitable for broadcast using
-    :meth:`~web3.eth.Eth.sendRawTransaction`.
-
-    The transaction dict for executing contract methods may be created using 
-    :meth:`~web3.contract.Contract.buildTransaction`.
-
-    :param dict transaction_dict: the transaction with keys:
-      nonce, chainId, to, data, value, gas, and gasPrice.
-    :param private_key: the private key to sign the data with
-    :type private_key: hex str, bytes or int
-    :returns AttributeDict: Various details about the signature - most
-      importantly the fields: v, r, and s
+Create a transaction, sign it locally, and then send it to your node for broadcasting,
+with :meth:`~web3.eth.Eth.sendRawTransaction`.
 
     .. code-block:: python
 
@@ -326,42 +159,51 @@ be called statically, like ``Account.create()``.
          'rawTransaction': HexBytes('0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428'),
          's': HexBytes('0x440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428'),
          'v': 37}
+
         >>> w3.eth.sendRawTransaction(signed.rawTransaction)
 
+Sign a Contract Transaction
+-----------------------------------
 
-.. py:method:: Account.recoverTransaction(serialized_transaction)
+To sign a transaction locally that will invoke a smart contract:
 
-    Get the address of the account that signed this transaction.
+#. Initialize your :meth:`Contract <web3.eth.Eth.contract>` object
+#. Build the transaction
+#. Sign the transaction, with :meth:`w3.eth.account.signTransaction()
+   <eth_account.account.Account.signTransaction>`
+#. Broadcast the transaction with :meth:`~web3.eth.Eth.sendRawTransaction`
 
-    :param serialized_transaction: the complete signed transaction
-    :type serialized_transaction: hex str, bytes or int
-    :returns str: address of signer, hex-encoded & checksummed
+.. code-block:: python
 
-    .. code-block:: python
+    >>> from ethtoken.abi import EIP20_ABI
+    >>> from web3.auto import w3
 
-        >>> raw_transaction = '0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428',
-        >>> w3.eth.account.recoverTransaction(raw_transaction)
-        '0x2c7536E3605D9C16a7a3D7b1898e529396a65c23'
+    >>> unicorns = w3.eth.contract(address="0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359", abi=EIP20_ABI)
 
+    >>> send_unicorn_txn = unicorns.functions.transfer(
+        '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
+        1,
+    ).buildTransaction({
+        'chainId': 1,
+        'gas': 70000,
+        'gasPrice': w3.toWei('1', 'gwei'),
+        'nonce': w3.eth.getTransactionCount('0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'),
+    })
+    {'chainId': 1,
+     'data': '0xa9059cbb000000000000000000000000fb6916095ca1df60bb79ce92ce3ea74c37c5d3590000000000000000000000000000000000000000000000000000000000000001',
+     'gas': 70000,
+     'gasPrice': 1000000000,
+     'nonce': 0,
+     'to': '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
+     'value': 0}
 
-.. _eth-account-key-convenience:
+    >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
+    >>> signed_txn = w3.eth.account.signTransaction(send_unicorn_txn, private_key=private_key)
+    {'hash': HexBytes('0x4795adc6a719fa64fa21822630c0218c04996e2689ded114b6553cef1ae36618'),
+     'r': 7104843568152743554992057394334744036860247658813231830421570918634460546288,
+     'rawTransaction': HexBytes('0xf8a980843b9aca008301117094fb6916095ca1df60bb79ce92ce3ea74c37c5d35980b844a9059cbb000000000000000000000000fb6916095ca1df60bb79ce92ce3ea74c37c5d359000000000000000000000000000000000000000000000000000000000000000125a00fb532eea06b8f17d858d82ad61986efd0647124406be65d359e96cac3e004f0a02e5d7ffcfb7a6073a723be38e6733f353cf9367743ae94e2ccd6f1eba37116f4'),
+     's': 20971591154030974221209741174186570949918731455961098911091818811306894497524,
+     'v': 37}
 
-Private Key Convenience Methods
----------------------------------
-
-The following are a set of methods that mirror :class:`Account` methods, but
-with a prefilled private key. They are accessible as a result of the :meth:`~Account.create` and
-:meth:`~Account.privateKeyToAccount` calls.
-
-
-.. py:method:: web3.utils.signing.LocalAccount.encrypt(password)
-
-    Just like :meth:`Account.encrypt`, but prefilling the private key parameter.
-
-.. py:method:: web3.utils.signing.LocalAccount.sign(message=None, message_hexstr=None, message_text=None)
-
-    Just like :meth:`Account.sign`, but prefilling the private key parameter.
-
-.. py:method:: web3.utils.signing.LocalAccount.signTransaction(transaction_dict)
-
-    Just like :meth:`Account.signTransaction`, but prefilling the private key parameter.
+    >>> w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+    HexBytes('0x4795adc6a719fa64fa21822630c0218c04996e2689ded114b6553cef1ae36618')
