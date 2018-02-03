@@ -38,10 +38,11 @@ from web3.utils.filters import (
     TransactionFilter,
 )
 from web3.utils.transactions import (
+    get_required_transaction,
     assert_valid_transaction_params,
     extract_valid_transaction_params,
     get_buffered_gas_estimate,
-    prepare_replacement_transaction,
+    replace_transaction,
 )
 
 
@@ -204,28 +205,15 @@ class Eth(Module):
         )
 
     def replaceTransaction(self, transaction_hash, new_transaction):
-        current_transaction = self.getTransaction(transaction_hash)
-        if not current_transaction:
-            raise ValueError('Supplied transaction with hash {} does not exist'
-                             .format(transaction_hash))
-        new_transaction = prepare_replacement_transaction(
-            self.web3, current_transaction, new_transaction
-        )
-
-        return self.sendTransaction(new_transaction)
+        current_transaction = get_required_transaction(self.web3, transaction_hash)
+        return replace_transaction(self.web3, current_transaction, new_transaction)
 
     def modifyTransaction(self, transaction_hash, **params):
         assert_valid_transaction_params(params)
-        current_transaction = self.getTransaction(transaction_hash)
-        if not current_transaction:
-            raise ValueError('Supplied transaction with hash {} does not exist'
-                             .format(transaction_hash))
+        current_transaction = get_required_transaction(self.web3, transaction_hash)
         current_transaction_params = extract_valid_transaction_params(current_transaction)
         new_transaction = merge(current_transaction_params, params)
-        new_transaction = prepare_replacement_transaction(
-            self.web3, current_transaction, new_transaction
-        )
-        return self.sendTransaction(new_transaction)
+        return replace_transaction(self.web3, current_transaction, new_transaction)
 
     def sendTransaction(self, transaction):
         # TODO: move to middleware

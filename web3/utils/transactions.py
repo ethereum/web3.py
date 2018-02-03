@@ -182,6 +182,14 @@ def get_buffered_gas_estimate(web3, transaction, gas_buffer=100000):
     return min(gas_limit, gas_estimate + gas_buffer)
 
 
+def get_required_transaction(web3, transaction_hash):
+    current_transaction = web3.eth.getTransaction(transaction_hash)
+    if not current_transaction:
+        raise ValueError('Supplied transaction with hash {} does not exist'
+                         .format(transaction_hash))
+    return current_transaction
+
+
 def extract_valid_transaction_params(transaction_params):
     return {key: transaction_params[key]
             for key in VALID_TRANSACTION_PARAMS if key in transaction_params}
@@ -215,3 +223,10 @@ def prepare_replacement_transaction(web3, current_transaction, new_transaction):
             new_transaction = assoc(new_transaction, 'gasPrice', minimum_gas_price)
 
     return new_transaction
+
+
+def replace_transaction(web3, current_transaction, new_transaction):
+    new_transaction = prepare_replacement_transaction(
+        web3, current_transaction, new_transaction
+    )
+    return web3.eth.sendTransaction(new_transaction)
