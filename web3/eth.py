@@ -208,11 +208,11 @@ class Eth(Module):
         current_transaction = get_required_transaction(self.web3, transaction_hash)
         return replace_transaction(self.web3, current_transaction, new_transaction)
 
-    def modifyTransaction(self, transaction_hash, **params):
-        assert_valid_transaction_params(params)
+    def modifyTransaction(self, transaction_hash, **transaction_params):
+        assert_valid_transaction_params(transaction_params)
         current_transaction = get_required_transaction(self.web3, transaction_hash)
         current_transaction_params = extract_valid_transaction_params(current_transaction)
-        new_transaction = merge(current_transaction_params, params)
+        new_transaction = merge(current_transaction_params, transaction_params)
         return replace_transaction(self.web3, current_transaction, new_transaction)
 
     def sendTransaction(self, transaction):
