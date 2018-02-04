@@ -433,6 +433,71 @@ The following methods are available on the ``web3.eth`` namespace.
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
 
 
+.. py:method:: Eth.replaceTransaction(transaction_hash, new_transaction)
+
+    * Delegates to ``eth_sendTransaction`` RPC Method
+
+    Sends a transaction that replaces the transaction with ``transaction_hash``.
+
+    The ``transaction_hash`` must be the hash of a pending transaction.
+
+    The ``new_transaction`` parameter should be a dictionary with transaction fields
+    as required by :meth:`~web3.eth.Eth.sendTransaction`. It will be used to entirely
+    replace the transaction of ``transaction_hash`` without using any of the pending
+    transaction's values.
+
+    If the ``new_transaction`` specifies a ``nonce`` value, it must match the pending
+    transaction's nonce.
+
+    If the ``new_transaction`` specifies a ``gasPrice`` value, it must be greater than
+    the pending transaction's ``gasPrice``.
+
+    If the ``new_transaction`` does not specify a ``gasPrice`` value, the highest of the
+    following 2 values will be used:
+
+    * The pending transaction's ``gasPrice`` * 1.1 - This is typically the minimum
+    ``gasPrice`` increase a node requires before it accepts a replacement transaction.
+    * The ``gasPrice`` as calculated by the current gas price strategy(See :ref:`Gas_Price`).
+
+    .. code-block:: python
+
+        >>> tx = web3.eth.sendTransaction({
+                'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+                'from': web3.eth.coinbase,
+                'value': 1000
+            })
+        '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
+        >>> web3.eth.replaceTransaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', {
+                'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+                'from': web3.eth.coinbase,
+                'value': 2000
+            })
+
+
+.. py:method:: Eth.modifyTransaction(transaction_hash, **transaction_params)
+
+    * Delegates to ``eth_sendTransaction`` RPC Method
+
+    Sends a transaction that modifies the transaction with ``transaction_hash``.
+
+    ``transaction_params`` are keyword arguments that correspond to valid transaction
+    parameters as required by :meth:`~web3.eth.Eth.sendTransaction`. The parameter values
+    will override the pending transaction's values to create the replacement transaction
+    to send.
+
+    The same validation and defaulting rules of :meth:`~web3.eth.Eth.replaceTransaction` apply.
+
+    .. code-block:: python
+
+        >>> tx = web3.eth.sendTransaction({
+                'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+                'from': web3.eth.coinbase,
+                'value': 1000
+            })
+        '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
+        >>> web3.eth.modifyTransaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', value=2000)
+
+
 .. py:method:: Eth.sign(account, data=None, hexstr=None, text=None)
 
     * Delegates to ``eth_sign`` RPC Method
