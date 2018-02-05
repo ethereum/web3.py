@@ -4,7 +4,7 @@ import sys
 if sys.version_info < (3, 5):
     raise EnvironmentError("Python 3.5 or above is required")
 
-from web3.account import Account  # noqa: E402
+from eth_account import Account  # noqa: E402
 from web3.main import Web3  # noqa: E402
 from web3.providers.rpc import (  # noqa: E402
     HTTPProvider,

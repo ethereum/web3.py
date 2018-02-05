@@ -40,7 +40,7 @@ from web3.manager import (
 from web3.utils.abi import (
     map_abi_data,
 )
-from web3.utils.datastructures import (
+from hexbytes import (
     HexBytes,
 )
 from web3.utils.decorators import (

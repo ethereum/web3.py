@@ -14,6 +14,9 @@ from eth_utils import (
     encode_hex,
     function_abi_to_4byte_selector,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
@@ -25,9 +28,6 @@ from web3.utils.abi import (
     get_abi_input_types,
     map_abi_data,
     merge_args_and_kwargs,
-)
-from web3.utils.datastructures import (
-    HexBytes,
 )
 from web3.utils.encoding import (
     to_hex,

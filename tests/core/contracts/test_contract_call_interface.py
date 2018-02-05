@@ -1,11 +1,12 @@
 import pytest
 
+from hexbytes import (
+    HexBytes,
+)
+
 from web3.exceptions import (
     BadFunctionCallOutput,
     InvalidAddress,
-)
-from web3.utils.datastructures import (
-    HexBytes,
 )
 from web3.utils.ens import (
     contract_ens_addresses,
