@@ -1,6 +1,8 @@
 import hashlib
 import os
+import sys
 import stat
+from tqdm import tqdm
 
 from eth_utils import (
     to_tuple,
@@ -66,13 +68,19 @@ def install_parity(version_string):
 
 
 def download_binary(path, uri, checksum):
-    bin_stream = get_binary_stream(uri)
+    r = get_binary_stream(uri)
+    total_size = int(r.headers.get('content-length', 0));
     os.makedirs(os.path.dirname(path), exist_ok=True)
     digest = hashlib.md5()
     with open(path, 'wb') as f:
-        for chunk in bin_stream:
-            f.write(chunk)
-            digest.update(chunk)
+        with tqdm(total=total_size,
+                unit='B',
+                unit_scale=True,
+                unit_divisor=1024) as pbar:
+            for data in r.iter_content(32*1024):
+                f.write(data);
+                pbar.update(len(data))
+                digest.update(data)
     assert digest.hexdigest() == checksum
     chmod_plus_x(path)
 
@@ -85,6 +93,10 @@ def chmod_plus_x(executable_path):
 def get_binary_stream(uri):
     resp = requests.get(uri, stream=True)
     if resp.status_code == 200:
-        return resp.raw
+        return resp
     else:
         resp.raise_for_status()
+
+
+if __name__ == '__main__':
+    install_parity(sys.argv[1])
