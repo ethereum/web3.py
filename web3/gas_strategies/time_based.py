@@ -68,7 +68,7 @@ def _compute_probabilities(miner_data, wait_blocks, sample_size):
         min_gas_price = miner_data_by_price[idx].min_gas_price
         num_blocks_accepting_price = sum(m.num_blocks for m in miner_data_by_price[idx:])
         inv_prob_per_block = (sample_size - num_blocks_accepting_price) / sample_size
-        probability_accepted = 1 - inv_prob_per_block ** wait_blocks
+        probability_accepted = (1 - inv_prob_per_block) ** wait_blocks
         yield Probability(min_gas_price, probability_accepted)
 
 
