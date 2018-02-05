@@ -101,7 +101,7 @@ def ipc_path(datadir):
         os.remove(_ipc_path)
 
 
-def wait_for_socket(ipc_path, timeout=30):
+def wait_for_socket(ipc_path, timeout=60):
     start = time.time()
     while time.time() < start + timeout:
         try:
