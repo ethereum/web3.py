@@ -1,14 +1,14 @@
 import hashlib
 import os
-import sys
 import stat
-from tqdm import tqdm
+import sys
 
 from eth_utils import (
     to_tuple,
 )
 import requests
 import toolz
+from tqdm import tqdm
 
 URI_QUERY_URL = "https://vanity-service.parity.io/parity-binaries"
 BASE_BIN_PATH = "~/.parity-bin"
@@ -69,16 +69,16 @@ def install_parity(version_string):
 
 def download_binary(path, uri, checksum):
     r = get_binary_stream(uri)
-    total_size = int(r.headers.get('content-length', 0));
+    total_size = int(r.headers.get('content-length', 0))
     os.makedirs(os.path.dirname(path), exist_ok=True)
     digest = hashlib.md5()
     with open(path, 'wb') as f:
         with tqdm(total=total_size,
-                unit='B',
-                unit_scale=True,
-                unit_divisor=1024) as pbar:
-            for data in r.iter_content(32*1024):
-                f.write(data);
+                  unit='B',
+                  unit_scale=True,
+                  unit_divisor=1024) as pbar:
+            for data in r.iter_content(32 * 1024):
+                f.write(data)
                 pbar.update(len(data))
                 digest.update(data)
     assert digest.hexdigest() == checksum
