@@ -76,6 +76,7 @@ before_script:
   - if [ -n "$GETH_VERSION" ] && [ ! -e "$GETH_BINARY" ]; then python -m geth.install $GETH_VERSION; fi
   - if [ -n "$GETH_VERSION" ]; then $GETH_BINARY version; fi
   - if [ -n "$GETH_VERSION" ]; then $GETH_BINARY makedag 0 $HOME/.ethash; fi
+  - if [ -n "$PARITY_VERSION" ]; then python tests/integration/install_parity.py $PARITY_VERSION; fi
   - pip freeze
 script:
   - tox $TOX_POSARGS
