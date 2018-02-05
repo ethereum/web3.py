@@ -31,11 +31,11 @@ KEYFILE_PW = 'web3py-test'
 
 PARITY_FIXTURE = {
     'datadir': 'parity-187-fixture',
-    'block_hash_with_log': '0x8affff915693d238d6399186d4c8e14c9dad97a8ddd214cb6ca0c8cc92f48bf5',
-    'block_with_txn_hash': '0xa449e487af78da9478c2e8e3a435a4d4a08fa5d8891d79c80abc3f1c3f6c1b93',
+    'block_hash_with_log': '0x342e12ab6d24d7fb1d774a6b47cd2cc04430a3295bee5662d5a1a0b766480031',
+    'block_with_txn_hash': '0xa866266a5a348948c38855cc6e990093b35a3d2c43fdddfe3b1259c9c3fc7404',
     'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
     'emitter_deploy_txn_hash': '0xa81e903e9953758c8da5aaae66451ff909edd7bd6aefc3ebeab1e709e3229bcc',
-    'empty_block_hash': '0x8a859f86ae82fd87410d693691b157258093c11285e51441cea127dee32060cc',
+    'empty_block_hash': '0xbcb2826e4376c23e66750607af72965f177f93b39e5024be259e6b0ff4f95e9d',
     'keyfile_pw': 'web3py-test',
     'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
     'math_deploy_txn_hash': '0x03cc47c8f58608576187825aed01c4fc64786f1172d182d432336881a75a0fa3',
@@ -128,11 +128,51 @@ def passwordfile():
 
 
 @pytest.fixture(scope="session")
-def parity_process(parity_binary, ipc_path, datadir, passwordfile, accounts):
+def parity_process(
+        parity_import_blocks_process,
+        parity_binary,
+        ipc_path, datadir,
+        passwordfile,
+        accounts):
     coinbase = list(accounts)[0]
 
     run_parity_command = (
         parity_binary,
+        '--chain', os.path.join(datadir, 'chain_config.json'),
+        '--ipc-path', ipc_path,
+        '--base-path', str(datadir),
+        '--unlock', coinbase,
+        '--password', str(passwordfile),
+    )
+    proc = subprocess.Popen(
+        run_parity_command,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        bufsize=1,
+    )
+    try:
+        yield proc
+    finally:
+        kill_proc_gracefully(proc)
+        output, errors = proc.communicate()
+        print(
+            "Parity Process Exited:\n"
+            "stdout:{0}\n\n"
+            "stderr:{1}\n\n".format(
+                force_text(output),
+                force_text(errors),
+            )
+        )
+
+
+@pytest.fixture(scope="session")
+def parity_import_blocks_process(parity_binary, ipc_path, datadir, passwordfile, accounts):
+    coinbase = list(accounts)[0]
+
+    run_parity_command = (
+        parity_binary,
+        'import', os.path.join(datadir, 'blocks_export.rlp'),
         '--chain', os.path.join(datadir, 'chain_config.json'),
         '--ipc-path', ipc_path,
         '--base-path', str(datadir),
