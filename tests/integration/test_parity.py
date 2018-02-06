@@ -1,4 +1,3 @@
-import json
 import os
 import pytest
 import shutil
@@ -29,8 +28,25 @@ from web3.utils.module_testing import (
 
 KEYFILE_PW = 'web3py-test'
 
-PARITY_FIXTURE = {
+PARITY_1_8_8_FIXTURE = {
+    'datadir': 'parity-188-fixture',
+    'coinbase': 'dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
+    'block_hash_with_log': '0x342e12ab6d24d7fb1d774a6b47cd2cc04430a3295bee5662d5a1a0b766480031',
+    'block_with_txn_hash': '0xa866266a5a348948c38855cc6e990093b35a3d2c43fdddfe3b1259c9c3fc7404',
+    'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
+    'emitter_deploy_txn_hash': '0xa81e903e9953758c8da5aaae66451ff909edd7bd6aefc3ebeab1e709e3229bcc',
+    'empty_block_hash': '0xbcb2826e4376c23e66750607af72965f177f93b39e5024be259e6b0ff4f95e9d',
+    'keyfile_pw': 'web3py-test',
+    'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
+    'math_deploy_txn_hash': '0x03cc47c8f58608576187825aed01c4fc64786f1172d182d432336881a75a0fa3',
+    'mined_txn_hash': '0x9839fde5fce7f0ed29b49a687d4f7630076069e65c2e1df87ffab9b2844d3899',
+    'raw_txn_account': '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6',
+    'txn_hash_with_log': '0x26bad3318b3466833f96d04ac9ba46fbbce11c15be2f83c9fe0b5dc15b2646cd'
+}
+
+PARITY_1_8_7_FIXTURE = {
     'datadir': 'parity-187-fixture',
+    'coinbase': 'dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
     'block_hash_with_log': '0x342e12ab6d24d7fb1d774a6b47cd2cc04430a3295bee5662d5a1a0b766480031',
     'block_with_txn_hash': '0xa866266a5a348948c38855cc6e990093b35a3d2c43fdddfe3b1259c9c3fc7404',
     'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
@@ -66,7 +82,12 @@ def get_parity_version(parity_binary):
 
 @pytest.fixture(scope="session")
 def parity_fixture_data(parity_binary):
-    return PARITY_FIXTURE
+    if os.path.basename(parity_binary) == 'parity-1_8_7':
+        return PARITY_1_8_7_FIXTURE
+    elif os.path.basename(parity_binary) == 'parity-1_8_8':
+        return PARITY_1_8_7_FIXTURE
+    else:
+        return PARITY_1_8_7_FIXTURE
 
 
 @pytest.fixture(scope='session')
@@ -82,13 +103,10 @@ def datadir(tmpdir_factory, parity_fixture_data):
 
 
 @pytest.fixture(scope="session")
-def accounts(datadir):
+def author(parity_fixture_data):
     # need the address to unlock before web3 session has been opened
-    chain_config_path = os.path.join(datadir, "chain_config.json")
-    with open(chain_config_path, 'r') as f:
-        chain_config = json.load(f)
-    accounts = chain_config['accounts'].keys()
-    return accounts
+    author = parity_fixture_data['coinbase']
+    return author
 
 
 @pytest.fixture(scope='session')
@@ -133,15 +151,14 @@ def parity_process(
         parity_binary,
         ipc_path, datadir,
         passwordfile,
-        accounts):
-    coinbase = list(accounts)[0]
+        author):
 
     run_parity_command = (
         parity_binary,
         '--chain', os.path.join(datadir, 'chain_config.json'),
         '--ipc-path', ipc_path,
         '--base-path', str(datadir),
-        '--unlock', coinbase,
+        '--unlock', str(author),
         '--password', str(passwordfile),
     )
     proc = subprocess.Popen(
@@ -167,16 +184,14 @@ def parity_process(
 
 
 @pytest.fixture(scope="session")
-def parity_import_blocks_process(parity_binary, ipc_path, datadir, passwordfile, accounts):
-    coinbase = list(accounts)[0]
-
+def parity_import_blocks_process(parity_binary, ipc_path, datadir, passwordfile):
     run_parity_command = (
         parity_binary,
         'import', os.path.join(datadir, 'blocks_export.rlp'),
         '--chain', os.path.join(datadir, 'chain_config.json'),
         '--ipc-path', ipc_path,
         '--base-path', str(datadir),
-        '--unlock', coinbase,
+        '--unlock', str(author),
         '--password', str(passwordfile),
     )
     proc = subprocess.Popen(
