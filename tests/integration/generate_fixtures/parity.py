@@ -129,6 +129,43 @@ def get_parity_process(
         )
 
 
+@contextlib.contextmanager
+def parity_export_blocks_process(
+        parity_binary,
+        datadir,
+        chain_config_file_path,
+        parity_port):
+
+    run_command = (
+        parity_binary,
+        'export',
+        'blocks', os.path.join(datadir, 'blocks_export.rlp'),
+        '--base-path', datadir,
+        '--no-ws',
+        '--no-ui',
+        '--no-warp',
+        '--chain', chain_config_file_path,
+        '--rpcapi', 'all',
+        '--rpcport', parity_port,
+        # '--author', common.COINBASE[2:],
+    )
+    print(' '.join(run_command))
+    try:
+        proc = common.get_process(run_command)
+        yield proc
+    finally:
+        common.kill_proc_gracefully(proc)
+        output, errors = proc.communicate()
+        print(
+            "Parity Process Exited:\n"
+            "stdout:{0}\n\n"
+            "stderr:{1}\n\n".format(
+                force_text(output),
+                force_text(errors),
+            )
+        )
+
+
 def generate_parity_fixture(destination_dir):
     """
     The parity fixture generation strategy is to start a geth client with
@@ -210,6 +247,13 @@ def generate_parity_fixture(destination_dir):
         pprint.pprint(merge(chain_data, static_data))
 
         shutil.copytree(datadir, destination_dir)
+
+        parity_proc = stack.enter_context(parity_export_blocks_process(  # noqa: F841
+            parity_binary=parity_binary,
+            datadir=destination_dir,
+            chain_config_file_path=os.path.join(destination_dir, 'chain_config.json'),
+            parity_port=parity_port,
+        ))
 
 
 def connect_nodes(w3_parity, w3_secondary):
