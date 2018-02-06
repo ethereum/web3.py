@@ -214,7 +214,7 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
                     dups=', '.join(unknown_kwargs),
                 )
             )
-        #show type instead of name in the error message incase key 'name' is missing.
+        # show type instead of name in the error message incase key 'name' is missing.
         raise TypeError(
             "Type: '{_type}' got unexpected keyword argument(s) '{dups}'".format(
                 _type=function_abi.get('type'),
