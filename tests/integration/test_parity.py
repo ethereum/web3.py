@@ -31,11 +31,11 @@ KEYFILE_PW = 'web3py-test'
 PARITY_1_8_8_FIXTURE = {
     'datadir': 'parity-188-fixture',
     'coinbase': 'dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
-    'block_hash_with_log': '0x342e12ab6d24d7fb1d774a6b47cd2cc04430a3295bee5662d5a1a0b766480031',
-    'block_with_txn_hash': '0xa866266a5a348948c38855cc6e990093b35a3d2c43fdddfe3b1259c9c3fc7404',
+    'block_hash_with_log': '0xf9aea1029be4b93e30313814d297a2da0c5b204856c4de16c21b87ebaf8f20c5',
+    'block_with_txn_hash': '0xf460bffb4ea46c5ec26e2062911f24af3349cd1c895fdb009b4d544569d22a49',
     'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
     'emitter_deploy_txn_hash': '0xa81e903e9953758c8da5aaae66451ff909edd7bd6aefc3ebeab1e709e3229bcc',
-    'empty_block_hash': '0xbcb2826e4376c23e66750607af72965f177f93b39e5024be259e6b0ff4f95e9d',
+    'empty_block_hash': '0x3b32b087d4fc72091be4fa6b44fc2a78289a15c53fba3454755dd9eaf39f0481',
     'keyfile_pw': 'web3py-test',
     'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
     'math_deploy_txn_hash': '0x03cc47c8f58608576187825aed01c4fc64786f1172d182d432336881a75a0fa3',
@@ -85,7 +85,7 @@ def parity_fixture_data(parity_binary):
     if os.path.basename(parity_binary) == 'parity-1_8_7':
         return PARITY_1_8_7_FIXTURE
     elif os.path.basename(parity_binary) == 'parity-1_8_8':
-        return PARITY_1_8_7_FIXTURE
+        return PARITY_1_8_8_FIXTURE
     else:
         return PARITY_1_8_7_FIXTURE
 
