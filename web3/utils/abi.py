@@ -207,9 +207,17 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
 
     unknown_kwargs = {key for key in kwargs.keys() if key not in sorted_arg_names}
     if unknown_kwargs:
+        if function_abi.get('name'):
+            raise TypeError(
+                "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
+                    fn_name=function_abi.get('name'),
+                    dups=', '.join(unknown_kwargs),
+                )
+            )
+        #show type instead of name in the error message incase key 'name' is missing.
         raise TypeError(
-            "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
-                fn_name=function_abi.get('name'),
+            "Type: '{_type}' got unexpected keyword argument(s) '{dups}'".format(
+                _type=function_abi.get('type'),
                 dups=', '.join(unknown_kwargs),
             )
         )
