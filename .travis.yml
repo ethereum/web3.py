@@ -64,7 +64,7 @@ before_install:
 install:
   - travis_retry pip install pip setuptools --upgrade
   - travis_retry pip install tox
-  - travis_retry pip install eth_utils tqdm requests
+  - [ -n "$PARITY_VERSION" ]; travis_retry pip install eth_utils tqdm requests
 before_script:
   - python --version
   - pip --version
