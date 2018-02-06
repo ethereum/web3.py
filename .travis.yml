@@ -4,6 +4,7 @@ dist: trusty
 env:
   global:
     - GETH_BASE_INSTALL_PATH=$TRAVIS_BUILD_DIR/gethbin
+    - PARITY_BASE_INSTALL_PATH=$TRAVIS_BUILD_DIR/paritybin
 matrix:
   include:
     #
@@ -59,12 +60,13 @@ cache:
   - directories:
     - $HOME/.ethash/
     - $GETH_BASE_INSTALL_PATH/
+    - $PARITY_BASE_INSTALL_PATH/
 before_install:
   - if [ -n "$GETH_VERSION" ]; then mkdir -p $HOME/.ethash; fi
 install:
   - travis_retry pip install pip setuptools --upgrade
   - travis_retry pip install tox
-  - [ -n "$PARITY_VERSION" ]; travis_retry pip install eth_utils tqdm requests
+  - if [ -n "$PARITY_VERSION" ]; then travis_retry pip install eth_utils tqdm requests; fi
 before_script:
   - python --version
   - pip --version
