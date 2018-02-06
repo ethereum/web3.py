@@ -209,7 +209,7 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
     if unknown_kwargs:
         raise TypeError(
             "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
-                fn_name=function_abi['name'],
+                fn_name=function_abi.get('name'),
                 dups=', '.join(unknown_kwargs),
             )
         )
