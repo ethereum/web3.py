@@ -18,6 +18,12 @@ matrix:
     # core
     - python: "3.6"
       env: TOX_POSARGS="-e py36-core"
+    #
+    # pypy3 testing
+    #
+    # core
+    - python: "pypy3"
+      env: TOX_POSARGS="-e pypy3-core"
 cache:
   - pip: true
 install:
