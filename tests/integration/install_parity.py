@@ -45,7 +45,8 @@ def get_binary_uri(releases_json):
 
 def get_executable_path(version_string):
     identifier = VERSION_STRINGS[version_string]
-    path = os.path.join(BASE_BIN_PATH, 'parity-{0}'.format(identifier))
+    base_path = os.environ.get('PARITY_BASE_INSTALL_PATH', BASE_BIN_PATH)
+    path = os.path.join(base_path, 'parity-{0}'.format(identifier))
     return os.path.expanduser(path)
 
 
