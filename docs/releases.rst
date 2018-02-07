@@ -4,7 +4,7 @@ Release Notes
 v4.0.0-beta.7
 -------------
 
-Released Jan 29, 2017
+Released Jan 29, 2018
 
 - Support for :meth:`web3.eth.Eth.getLogs` in eth-tester with py-evm
 - Process transaction receipts with Event ABI, using
@@ -20,7 +20,7 @@ Released Jan 29, 2017
 v4.0.0-beta.6
 -------------
 
-Released Jan 18, 2017
+Released Jan 18, 2018
 
 - New contract function call API: `my_contract.functions.my_func().call()` is preferred over the now
   deprecated `my_contract.call().my_func()` API.
