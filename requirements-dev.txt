@@ -8,4 +8,5 @@ pytest-pythonpath>=0.3
 pytest-watch==4.*
 pytest-xdist==1.*
 tox>=1.8.0
+tqdm
 when-changed

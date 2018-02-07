@@ -17,6 +17,7 @@ from web3.eth import Eth
 from web3.iban import Iban
 from web3.miner import Miner
 from web3.net import Net
+from web3.parity import Parity
 from web3.personal import Personal
 from web3.testing import Testing
 from web3.txpool import TxPool
@@ -68,6 +69,7 @@ def get_default_modules():
         "txpool": TxPool,
         "miner": Miner,
         "admin": Admin,
+        "parity": Parity,
         "testing": Testing,
     }
 
