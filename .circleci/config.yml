@@ -2,90 +2,218 @@ version: 2.0
 
 # heavily inspired by https://raw.githubusercontent.com/pinax/pinax-wiki/6bd2a99ab6f702e300d708532a6d1d9aa638b9f8/.circleci/config.yml
 
-common: &common
+common_parameters: &common_parameters
   working_directory: ~/repo
-  steps:
-    - checkout
-    - restore_cache:
-        keys:
-          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
-    - run:
-        name: install dependencies
-        command: pip install --user tox
-    - run:
-        name: build geth if missing
-        command: |
-          mkdir -p $HOME/.ethash
-          pip install --user py-geth>=1.10.1
-          export GOROOT=/usr/local/go
-          export GETH_VERSION=v1.7.2
-          export GETH_BINARY="$HOME/.py-geth/geth-$GETH_VERSION/bin/geth"
-          if [ ! -e "$GETH_BINARY" ]; then
-            curl -O https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz
-            tar xvf go1.7.4.linux-amd64.tar.gz
-            sudo chown -R root:root ./go
-            sudo mv go /usr/local
-            sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
-            sudo apt-get update;
-            sudo apt-get install -y build-essential;
-            python -m geth.install $GETH_VERSION;
-            sudo ln -s /home/circleci/.py-geth/geth-v1.7.2/bin/geth /usr/local/bin/geth
-          fi
+common_steps_first: &common_steps_first
+  - checkout
+  - restore_cache:
+      keys:
+        - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  - run:
+      name: install dependencies
+      command: pip install --user tox
 
-          $GETH_BINARY version
-          $GETH_BINARY makedag 0 $HOME/.ethash
-    - run:
-        name: run tox
-        command: ~/.local/bin/tox
-    - save_cache:
-        paths:
-          - .tox
-          - ~/.cache/pip
-          - ~/.local
-          - ./eggs
-          - ~/.ethash
-          - ~/.py-geth
-        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+common_steps_last: &common_steps_last
+  - run:
+      name: run tox
+      command: ~/.local/bin/tox
+  - save_cache:
+      paths:
+        - .tox
+        - ~/.cache/pip
+        - ~/.local
+        - ./eggs
+        - ~/.ethash
+        - ~/.py-geth
+      key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+
+parity_setup: &parity_setup
+  - run:
+      name: install parity if needed
+      command: |
+        pip install requests eth_utils tqdm
+        tests/integration/install_parity.py $PARITY_VERSION
+
+geth_setup: &geth_setup
+  - run:
+      name: build geth if missing
+      command: |
+        mkdir -p $HOME/.ethash
+        pip install --user py-geth>=1.10.1
+        export GOROOT=/usr/local/go
+        export GETH_VERSION=v1.7.2
+        export GETH_BINARY="$HOME/.py-geth/geth-$GETH_VERSION/bin/geth"
+        if [ ! -e "$GETH_BINARY" ]; then
+          curl -O https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz
+          tar xvf go1.7.4.linux-amd64.tar.gz
+          sudo chown -R root:root ./go
+          sudo mv go /usr/local
+          sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
+          sudo apt-get update;
+          sudo apt-get install -y build-essential;
+          python -m geth.install $GETH_VERSION;
+          sudo ln -s /home/circleci/.py-geth/geth-v1.7.2/bin/geth /usr/local/bin/geth
+        fi
+        $GETH_BINARY version
+        $GETH_BINARY makedag 0 $HOME/.ethash
+
 
 jobs:
+  #
+  # Python 3.5
+  #
   lint:
-    <<: *common
+    <<: *common_parameters
     docker:
       - image: circleci/python:3.5
-        environment:
-          TOXENV: flake8
+    environment:
+      TOXENV: flake8
+    steps:
+      - *common_steps_first
+      - *common_steps_last
+
   py35-core:
-    <<: *common
+    <<: *common_parameters
     docker:
       - image: circleci/python:3.5
-        environment:
-          TOXENV: py35-core
+    environment:
+      TOXENV: py35-core
+    steps:
+      - *common_steps_first
+      - *common_steps_last
+
   py35-ens:
-    <<: *common
+    <<: *common_parameters
     docker:
       - image: circleci/python:3.5
-        environment:
-          TOXENV: py35-ens
+    environment:
+      TOXENV: py35-ens
+    steps:
+      - *common_steps_first
+      - *common_steps_last
+
   py35-integration-goethereum:
-    <<: *common
+    <<: *common_parameters
     docker:
       - image: circleci/python:3.5
-        environment:
-          TOXENV: py35-integration-goethereum
+    environment:
+      TOXENV: py35-integration-goethereum
+      GETH_VERSION: v1.7.2
+    steps:
+      - *common_steps_first
+      - *geth_setup
+      - *common_steps_last
+
+  py35-integration-parity:
+    <<: *common_parameters
+    docker:
+      - image: circleci/python:3.5
+    environment:
+      TOXENV: py35-integration-parity
+      PARITY_VERSION: v1.8.8
+    steps:
+      - *common_steps_first
+      - *parity_setup
+      - *common_steps_last
+
   py35-integration-ethtester-pyethereum:
-    <<: *common
+    <<: *common_parameters
     docker:
       - image: circleci/python:3.5
-        environment:
-          TOXENV: py35-integration-ethtester
-          ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEthereum16Backend
+    environment:
+      TOXENV: py35-integration-ethtester
+      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEthereum16Backend
+    steps:
+      - *common_steps_first
+      - *common_steps_last
+
   py35-integration-ethtester-pyevm:
-    <<: *common
+    <<: *common_parameters
     docker:
       - image: circleci/python:3.5
-        environment:
-          TOXENV: py35-integration-ethtester
-          ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+    environment:
+      TOXENV: py35-integration-ethtester
+      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+    steps:
+      - *common_steps_first
+      - *common_steps_last
+  #
+  # Python 3.6
+  #
+  lint:
+    <<: *common_parameters
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: flake8
+    steps:
+      - *common_steps_first
+      - *common_steps_last
+
+  py36-core:
+    <<: *common_parameters
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: py36-core
+    steps:
+      - *common_steps_first
+      - *common_steps_last
+
+  py36-ens:
+    <<: *common_parameters
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: py36-ens
+    steps:
+      - *common_steps_first
+      - *common_steps_last
+        
+  py36-integration-goethereum:
+    <<: *common_parameters
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: py36-integration-goethereum
+      GETH_VERSION: v1.7.2
+    steps:
+      - *common_steps_first
+      - *geth_setup
+      - *common_steps_last
+  py36-integration-parity:
+    <<: *common_parameters
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: py36-integration-parity
+      PARITY_VERSION: v1.8.8
+    steps:
+      - *common_steps_first
+      - *parity_setup
+      - *common_steps_last
+
+  py36-integration-ethtester-pyethereum:
+    <<: *common_parameters
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: py36-integration-ethtester
+      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEthereum16Backend
+    steps:
+      - *common_steps_first
+      - *common_steps_last
+
+  py36-integration-ethtester-pyevm:
+    <<: *common_parameters
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: py36-integration-ethtester
+      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+    steps:
+      - *common_steps_first
+      - *common_steps_last
 
 workflows:
   version: 2
@@ -95,5 +223,12 @@ workflows:
       - py35-core
       - py35-ens
       - py35-integration-goethereum
+      - py35-integration-parity
       - py35-integration-ethtester-pyethereum
       - py35-integration-ethtester-pyevm
+      - py36-core
+      - py36-ens
+      - py36-integration-goethereum
+      - py36-integration-parity
+      - py36-integration-ethtester-pyethereum
+      - py36-integration-ethtester-pyevm
