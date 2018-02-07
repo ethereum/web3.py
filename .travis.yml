@@ -9,6 +9,9 @@ matrix:
     # lint
     - python: "3.5"
       env: TOX_POSARGS="-e lint"
+    # doctest
+    - python: "3.5"
+      env: TOX_POSARGS="-e doctest"
     # core
     - python: "3.5"
       env: TOX_POSARGS="-e py35-core"
