@@ -34,7 +34,11 @@ with open (os.path.join(DIR, '../setup.py'), 'r') as f:
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -271,3 +275,14 @@ texinfo_documents = [
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.5', None),
 }
+
+# -- Doctest configuration ----------------------------------------
+
+import doctest
+
+doctest_default_flags = (0
+    | doctest.DONT_ACCEPT_TRUE_FOR_1
+    | doctest.ELLIPSIS
+    | doctest.IGNORE_EXCEPTION_DETAIL
+    | doctest.NORMALIZE_WHITESPACE
+)
