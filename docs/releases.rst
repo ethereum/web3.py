@@ -1,10 +1,32 @@
 Release Notes
 =============
 
+v4.0.0-beta.9
+-------------
+
+Released Feb 8, 2018
+
+- Access event log parameters as attributes
+- Support for specifying nonce in eth-tester
+- `Bugfix <https://github.com/ethereum/web3.py/pull/616>`_
+  dependency conflicts between eth-utils, eth-abi, and eth-tester
+- Clearer error message when invalid keywords provided to contract constructor function
+- New docs for working with private keys + set up doctests
+- First parity integration tests
+- replace internal implementation of w3.eth.account with
+  :class:`eth_account.account.Account`
+
+v4.0.0-beta.8
+-------------
+
+Released Feb 7, 2018, then recalled. It added 32MB of test data to git history,
+so the tag was deleted, as well as the corresponding release.
+(Although the release would not have contained that test data)
+
 v4.0.0-beta.7
 -------------
 
-Released Jan 29, 2017
+Released Jan 29, 2018
 
 - Support for :meth:`web3.eth.Eth.getLogs` in eth-tester with py-evm
 - Process transaction receipts with Event ABI, using
@@ -20,7 +42,7 @@ Released Jan 29, 2017
 v4.0.0-beta.6
 -------------
 
-Released Jan 18, 2017
+Released Jan 18, 2018
 
 - New contract function call API: `my_contract.functions.my_func().call()` is preferred over the now
   deprecated `my_contract.call().my_func()` API.

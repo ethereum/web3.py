@@ -22,8 +22,11 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 web3 ens tests
-	isort --recursive web3/ ens/ tests/
+	tox -elint
+
+lint-roll:
+	isort --recursive web3 ens tests
+	$(MAKE) lint
 
 test:
 	py.test tests
@@ -35,6 +38,7 @@ build-docs:
 	sphinx-apidoc -o docs/ . setup.py "web3/utils/*" "*conftest*"
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
+	$(MAKE) -C docs doctest
 
 docs: build-docs
 	open docs/_build/html/index.html

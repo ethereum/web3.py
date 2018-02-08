@@ -1,63 +1,15 @@
-import itertools
 import math
 import random
 
 from cytoolz import (
     assoc,
     curry,
-    dissoc,
     merge,
-    pipe,
-)
-from eth_utils import (
-    decode_hex,
-    is_string,
-)
-import rlp
-from rlp.sedes import (
-    Binary,
-    big_endian_int,
-    binary,
 )
 
-from web3.utils.encoding import (
-    ExtendedRLP,
-    hexstr_if_str,
-    to_int,
-)
-from web3.utils.formatters import (
-    apply_formatter_if,
-    apply_formatters_to_dict,
-)
 from web3.utils.threads import (
     Timeout,
 )
-
-
-def serializable_unsigned_transaction_from_dict(web3, transaction_dict):
-    '''
-    if web3 is None, fill out transaction as much as possible without calling client
-    '''
-    filled_transaction = pipe(
-        transaction_dict,
-        dict,
-        fill_transaction_defaults(web3),
-        chain_id_to_v,
-        apply_formatters_to_dict(TRANSACTION_FORMATTERS),
-    )
-    if 'v' in filled_transaction:
-        serializer = Transaction
-    else:
-        serializer = UnsignedTransaction
-    return serializer.from_dict(filled_transaction)
-
-
-def encode_transaction(unsigned_transaction, vrs):
-    (v, r, s) = vrs
-    chain_naive_transaction = dissoc(vars(unsigned_transaction), 'v', 'r', 's')
-    signed_transaction = Transaction(v=v, r=r, s=s, **chain_naive_transaction)
-    return rlp.encode(signed_transaction)
-
 
 VALID_TRANSACTION_PARAMS = [
     'from',
@@ -78,27 +30,6 @@ TRANSACTION_DEFAULTS = {
     'chainId': lambda web3, tx: int(web3.net.version),
 }
 
-TRANSACTION_FORMATTERS = {
-    'nonce': hexstr_if_str(to_int),
-    'gasPrice': hexstr_if_str(to_int),
-    'gas': hexstr_if_str(to_int),
-    'to': apply_formatter_if(is_string, decode_hex),
-    'value': hexstr_if_str(to_int),
-    'data': apply_formatter_if(is_string, decode_hex),
-    'v': hexstr_if_str(to_int),
-    'r': hexstr_if_str(to_int),
-    's': hexstr_if_str(to_int),
-}
-
-
-def chain_id_to_v(transaction_dict):
-    # See EIP 155
-    chain_id = transaction_dict.pop('chainId')
-    if chain_id is None:
-        return transaction_dict
-    else:
-        return dict(transaction_dict, v=chain_id, r=0, s=0)
-
 
 @curry
 def fill_transaction_defaults(web3, transaction):
@@ -117,35 +48,6 @@ def fill_transaction_defaults(web3, transaction):
                 default_val = default_getter
             defaults[key] = default_val
     return merge(defaults, transaction)
-
-
-class Transaction(ExtendedRLP):
-    fields = (
-        ('nonce', big_endian_int),
-        ('gasPrice', big_endian_int),
-        ('gas', big_endian_int),
-        ('to', Binary.fixed_length(20, allow_empty=True)),
-        ('value', big_endian_int),
-        ('data', binary),
-        ('v', big_endian_int),
-        ('r', big_endian_int),
-        ('s', big_endian_int),
-    )
-
-
-UnsignedTransaction = Transaction.exclude(['v', 'r', 's'])
-
-
-ChainAwareUnsignedTransaction = Transaction
-
-
-def strip_signature(txn):
-    unsigned_parts = itertools.islice(txn, len(UnsignedTransaction.fields))
-    return list(unsigned_parts)
-
-
-def vrs_from(transaction):
-    return (getattr(transaction, part) for part in 'vrs')
 
 
 def wait_for_transaction_receipt(web3, txn_hash, timeout=120):
