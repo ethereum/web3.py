@@ -161,11 +161,10 @@ def parity_process(
         '--unlock', author,
         '--password', passwordfile,
     )
-    time.sleep(1)
     yield from get_process(command_arguments)
 
 
-def get_process(command_list):
+def get_process(command_list, terminates=False):
 
     proc = subprocess.Popen(
         command_list,
@@ -174,6 +173,8 @@ def get_process(command_list):
         stderr=subprocess.PIPE,
         bufsize=1,
     )
+    if terminates:
+        wait_for_popen(proc, 30)
     try:
         yield proc
     finally:
@@ -199,7 +200,7 @@ def parity_import_blocks_process(parity_binary, ipc_path, datadir, passwordfile)
         '--base-path', datadir,
         '--password', passwordfile,
     )
-    yield from get_process(command_arguments)
+    yield from get_process(command_arguments, terminates=True)
 
 
 @pytest.fixture(scope="session")
