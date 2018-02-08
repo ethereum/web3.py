@@ -8,7 +8,7 @@ Released Feb 8, 2018
 
 - Access event log parameters as attributes
 - Support for specifying nonce in eth-tester
-- [Bugfix](https://github.com/ethereum/web3.py/pull/616)
+- `Bugfix <https://github.com/ethereum/web3.py/pull/616>`_
   dependency conflicts between eth-utils, eth-abi, and eth-tester
 - Clearer error message when invalid keywords provided to contract constructor function
 - New docs for working with private keys + set up doctests
