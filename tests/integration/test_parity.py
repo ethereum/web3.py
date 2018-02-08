@@ -149,20 +149,26 @@ def passwordfile():
 def parity_process(
         parity_import_blocks_process,
         parity_binary,
-        ipc_path, datadir,
+        ipc_path,
+        datadir,
         passwordfile,
         author):
-
-    run_parity_command = (
+    command_arguments = (
         parity_binary,
         '--chain', os.path.join(datadir, 'chain_config.json'),
         '--ipc-path', ipc_path,
-        '--base-path', str(datadir),
-        '--unlock', str(author),
-        '--password', str(passwordfile),
+        '--base-path', datadir,
+        '--unlock', author,
+        '--password', passwordfile,
     )
+    time.sleep(1)
+    yield from get_process(command_arguments)
+
+
+def get_process(command_list):
+
     proc = subprocess.Popen(
-        run_parity_command,
+        command_list,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -185,35 +191,15 @@ def parity_process(
 
 @pytest.fixture(scope="session")
 def parity_import_blocks_process(parity_binary, ipc_path, datadir, passwordfile):
-    run_parity_command = (
+    command_arguments = (
         parity_binary,
         'import', os.path.join(datadir, 'blocks_export.rlp'),
         '--chain', os.path.join(datadir, 'chain_config.json'),
         '--ipc-path', ipc_path,
-        '--base-path', str(datadir),
-        '--unlock', str(author),
-        '--password', str(passwordfile),
+        '--base-path', datadir,
+        '--password', passwordfile,
     )
-    proc = subprocess.Popen(
-        run_parity_command,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        bufsize=1,
-    )
-    try:
-        yield proc
-    finally:
-        kill_proc_gracefully(proc)
-        output, errors = proc.communicate()
-        print(
-            "Parity Process Exited:\n"
-            "stdout:{0}\n\n"
-            "stderr:{1}\n\n".format(
-                force_text(output),
-                force_text(errors),
-            )
-        )
+    yield from get_process(command_arguments)
 
 
 @pytest.fixture(scope="session")
