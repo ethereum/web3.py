@@ -97,26 +97,63 @@ prefixed & hashed message. To verify it, use:
 Prepare message for ecrecover in Solidity
 --------------------------------------------
 
-Produce a signed_message as in `Sign a Message`_, then...
+Let's say you want a contract to validate a signed message,
+like if you're making payment channels, and you want to
+validate the value in Remix or web3.js.
+
+You might have produced the signed_message locally, as in
+`Sign a Message`_. If so, this will prepare it for Solidity:
 
 .. doctest::
 
     >>> from web3 import Web3
 
+    # ecrecover in Solidity expects v as a native uint8, but r and s as left-padded bytes32
+    # Remix / web3.js expect r and s to be encoded to hex
+    # This convenience method will do the pad & hex for us:
     >>> def to_32byte_hex(val):
     ...   return Web3.toHex(Web3.toBytes(val).rjust(32, b'\0'))
 
     >>> ec_recover_args = (msghash, v, r, s) = (
-    ...   signed_message.messageHash,
+    ...   Web3.toHex(signed_message.messageHash),
     ...   signed_message.v,
     ...   to_32byte_hex(signed_message.r),
     ...   to_32byte_hex(signed_message.s),
     ... )
     >>> ec_recover_args
-    (HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
+    ('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750',
      28,
      '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3',
      '0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce')
+
+Instead, you might have received a message and a signature encoded to hex. Then
+this will prepare it for Solidity:
+
+.. doctest::
+
+    >>> from web3 import Web3
+
+    >>> hex_message = '0x49e299a55346'
+    >>> hex_signature = '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'
+
+    # ecrecover in Solidity expects a prefixed & hashed version of the message
+    # Remix / web3.js expect the message hash to be encoded to a hex string
+    >>> hex_message_hash = Web3.toHex(w3.eth.account.hashMessage(hexstr=hex_message))
+
+    # ecrecover in Solidity expects the signature to be split into v as a uint8,
+    #   and r, s as a bytes32
+    # Remix / web3.js expect r and s to be encoded to hex
+    >>> sig = Web3.toBytes(hexstr=hex_signature)
+    >>> v, hex_r, hex_s = Web3.toInt(sig[-1]), Web3.toHex(sig[:32]), Web3.toHex(sig[32:64])
+
+    # ecrecover in Solidity takes the arguments in order = (msghash, v, r, s)
+    >>> ec_recover_args = (hex_message_hash, v, hex_r, hex_s)
+    >>> ec_recover_args
+    ('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750',
+     28,
+     '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3',
+     '0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce')
+
 
 Verify a message with ecrecover in Solidity
 ---------------------------------------------
