@@ -89,6 +89,31 @@ def mismatched_math_contract(web3, StringContract, MathContract):
     return _mismatched_math_contract
 
 
+def test_function_does_not_exist(arrays_contract, call):
+    with pytest.raises(AttributeError):
+        arrays_contract.functions.iDoNotExist().call()
+
+
+def test_argument_count(arrays_contract, call):
+    with pytest.raises(ValueError) as e:
+        arrays_contract.functions.setBytes32Value().call()
+    message, = e.value.args
+    assert message == (
+        "Incorrect number of arguments supplied or "
+        "one or more arguments could not be encoded to the necessary ABI type"
+    )
+
+
+def test_argument_encoding(arrays_contract):
+    with pytest.raises(ValueError) as e:
+        arrays_contract.functions.setBytes32Value(7).call()
+    message, = e.value.args
+    assert message == (
+        "Incorrect number of arguments supplied or "
+        "one or more arguments could not be encoded to the necessary ABI type"
+    )
+
+
 def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):
     with pytest.raises(InvalidAddress):
         WithConstructorAddressArgumentsContract.deploy(args=[

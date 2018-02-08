@@ -84,13 +84,15 @@ def find_matching_fn_abi(abi, fn_name=None, args=None, kwargs=None):
         ])
 
     function_candidates = filter_by_type('function', abi)
-
-    function_candidates = pipe(abi, *filters)
+    function_candidates = pipe(function_candidates, *filters)
 
     if len(function_candidates) == 1:
         return function_candidates[0]
     if not function_candidates:
-        raise ValueError("No matching functions found")
+        raise ValueError(
+            "Incorrect number of arguments supplied or "
+            "one or more arguments could not be encoded to the necessary ABI type"
+        )
     else:
         raise ValueError("Multiple functions found")
 
