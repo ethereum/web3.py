@@ -1,10 +1,10 @@
 Release Notes
 =============
 
-v4.0.0-beta.8
+v4.0.0-beta.9
 -------------
 
-Released Feb 7, 2018
+Released Feb 8, 2018
 
 - Access event log parameters as attributes
 - Support for specifying nonce in eth-tester
@@ -15,6 +15,13 @@ Released Feb 7, 2018
 - First parity integration tests
 - replace internal implementation of w3.eth.account with
   :class:`eth_account.account.Account`
+
+v4.0.0-beta.8
+-------------
+
+Released Feb 7, 2018, then recalled. It added 32MB of test data to git history,
+so the tag was deleted, as well as the corresponding release.
+(Although the release would not have contained that test data)
 
 v4.0.0-beta.7
 -------------
