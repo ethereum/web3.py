@@ -1,6 +1,9 @@
 import json
 import pytest
 
+from web3.exceptions import (
+    ValidationError,
+)
 from web3.utils.abi import (
     get_abi_input_types,
 )
@@ -41,7 +44,7 @@ def test_finds_fallback_function(web3):
 def test_error_when_no_function_name_match(web3):
     Contract = web3.eth.contract(abi=SINGLE_FN_NO_ARGS)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Contract._find_matching_fn_abi('no_function_name', [1234])
 
 
@@ -68,5 +71,5 @@ def test_finds_function_with_matching_args(web3, arguments, expected_types):
 def test_error_when_duplicate_match(web3):
     Contract = web3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Contract._find_matching_fn_abi('a', [100])
