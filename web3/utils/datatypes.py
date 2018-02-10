@@ -9,8 +9,8 @@ import web3.utils.formatters
 
 
 @curry
-def verify_attr(class_name, key, base):
-    if not hasattr(base, key):
+def verify_attr(class_name, key, namespace):
+    if key not in namespace:
         raise AttributeError(
             "Property {0} not found on {1} class. "
             "`{1}.factory` only accepts keyword arguments which are "
@@ -25,9 +25,10 @@ class PropertyCheckingFactory(type):
         super().__init__(name, bases, namespace)
 
     def __new__(mcs, name, bases, namespace, normalizers=None):
+        all_bases = set(concat(base.__mro__ for base in bases))
         for key in namespace:
             verify_key_attr = verify_attr(name, key)
-            map(verify_key_attr, set(concat(base.__mro__ for base in bases)))
+            verify_key_attr(concat(base.__dict__.keys() for base in all_bases))
 
         if normalizers:
             processed_namespace = web3.utils.formatters.apply_formatters_to_dict(

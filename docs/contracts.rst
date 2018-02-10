@@ -255,6 +255,9 @@ Events
 
 .. _event-log-object:
 
+Event Log Object
+~~~~~~~~~~~~~~~~
+
     The Event Log Object is a python dictionary with the following keys:
 
     * ``args``: Dictionary - The arguments coming from the event.

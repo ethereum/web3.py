@@ -12,12 +12,12 @@ from eth_abi.abi import (
 from eth_utils import (
     to_checksum_address,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3.exceptions import (
     InvalidAddress,
-)
-from web3.utils.datastructures import (
-    HexBytes,
 )
 from web3.utils.encoding import (
     hexstr_if_str,

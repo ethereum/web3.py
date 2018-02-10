@@ -107,6 +107,7 @@ TRANSACTION_PARAMS_FORMATTERS = {
     'gas': to_integer_if_hex,
     'gasPrice': to_integer_if_hex,
     'value': to_integer_if_hex,
+    'nonce': to_integer_if_hex,
 }
 
 

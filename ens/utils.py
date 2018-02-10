@@ -24,7 +24,6 @@ from ens.exceptions import (
     InvalidName,
 )
 
-
 default = object()
 
 
