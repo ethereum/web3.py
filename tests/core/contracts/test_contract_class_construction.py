@@ -8,6 +8,9 @@ from eth_utils import (
 from web3.contract import (
     Contract,
 )
+from web3.exceptions import (
+    FallbackNotFound,
+)
 
 
 def test_class_construction_sets_class_vars(web3,
@@ -38,3 +41,16 @@ def test_abi_as_json_string(web3, MATH_ABI, some_address):
 
     math = MathContract(some_address)
     assert math.abi == MATH_ABI
+
+
+def test_error_to_call_non_existent_fallback(web3,
+                                             MATH_ABI,
+                                             MATH_CODE,
+                                             MATH_RUNTIME):
+    math_contract = web3.eth.contract(
+        abi=MATH_ABI,
+        bytecode=MATH_CODE,
+        bytecode_runtime=MATH_RUNTIME,
+    )
+    with pytest.raises(FallbackNotFound):
+        math_contract.fallback.estimateGas()

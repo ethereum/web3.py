@@ -13,7 +13,8 @@ from eth_utils import (
     add_0x_prefix,
     encode_hex,
     function_abi_to_4byte_selector,
-    is_text)
+    is_text,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -26,13 +27,16 @@ from web3.utils.abi import (
     filter_by_name,
     filter_by_type,
     get_abi_input_types,
+    get_fallback_func_abi,
     map_abi_data,
     merge_args_and_kwargs,
 )
 from web3.utils.encoding import (
     to_hex,
 )
-from web3.utils.function_identifiers import FallbackFn
+from web3.utils.function_identifiers import (
+    FallbackFn,
+)
 from web3.utils.normalizers import (
     abi_address_to_hex,
     abi_bytes_to_hex,
@@ -40,13 +44,6 @@ from web3.utils.normalizers import (
     abi_string_to_hex,
     hexstrs_to_bytes,
 )
-
-
-class FunctionNotSpecified(Exception):
-    """
-    Raised when try to get a non fallback function info without a specified function name
-    """
-    pass
 
 
 def find_matching_event_abi(abi, event_name=None, argument_names=None):
@@ -73,11 +70,16 @@ def find_matching_event_abi(abi, event_name=None, argument_names=None):
         raise ValueError("Multiple events found")
 
 
-def find_matching_fn_abi(abi, fn_name=None, args=None, kwargs=None):
+def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
     filters = []
 
-    if fn_name:
-        filters.append(functools.partial(filter_by_name, fn_name))
+    if fn_identifier:
+        if fn_identifier is FallbackFn:
+            return get_fallback_func_abi(abi)
+        elif is_text(fn_identifier):
+            filters.append(functools.partial(filter_by_name, fn_identifier))
+        else:
+            raise TypeError("Unsupported function identifier")
 
     if args is not None or kwargs is not None:
         if args is None:
@@ -177,10 +179,6 @@ def prepare_transaction(abi,
 def encode_transaction_data(abi, web3, fn_identifier, args=None, kwargs=None):
     if fn_identifier is FallbackFn:
         fn_abi, fn_selector, fn_arguments = get_fallback_function_info(abi)
-        # TODO do a check on whether the first four data bytes matches any known function selectors from the ABI and throw an error.
-        # TODO Add an extra parameter to the function to explicitly allow the call to go through anyways (this one is my preference)
-        # Use decode_hex?
-
     elif is_text(fn_identifier):
         fn_abi, fn_selector, fn_arguments = get_function_info(
             abi, fn_identifier, args, kwargs
@@ -189,6 +187,7 @@ def encode_transaction_data(abi, web3, fn_identifier, args=None, kwargs=None):
         raise TypeError("Unsupported function identifier")
 
     return add_0x_prefix(encode_abi(web3, fn_abi, fn_arguments, fn_selector))
+
 
 def get_fallback_function_info(abi):
     fn_abi = get_fallback_func_abi(abi)

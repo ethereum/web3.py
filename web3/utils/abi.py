@@ -24,7 +24,9 @@ from eth_utils import (
     to_tuple,
 )
 
-from web3.exceptions import FallbackNotFound
+from web3.exceptions import (
+    FallbackNotFound,
+)
 from web3.utils.ens import (
     is_ens_name,
 )
@@ -57,7 +59,10 @@ def get_abi_input_types(abi):
 
 
 def get_abi_output_types(abi):
-    return [arg['type'] for arg in abi['outputs']]
+    if abi['type'] == 'fallback':
+        return []
+    else:
+        return [arg['type'] for arg in abi['outputs']]
 
 
 def get_abi_input_names(abi):

@@ -16,7 +16,6 @@ from web3.utils.ens import (
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
-# TODO use transact to deploy
 def deploy(web3, Contract, args=None):
     deploy_txn = Contract.deploy(args=args)
     deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
@@ -352,3 +351,8 @@ def test_call_undeployed_contract(undeployed_math_contract, call):
     with pytest.raises(BadFunctionCallOutput) as exception_info:
         call(contract=undeployed_math_contract, contract_function='return13')
     assert expected_undeployed_call_error_message in str(exception_info.value)
+
+
+def test_call_fallback_function(fallback_function_contract):
+    result = fallback_function_contract.fallback.call()
+    assert result == []

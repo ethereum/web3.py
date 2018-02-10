@@ -15,8 +15,9 @@ from eth_utils import (
     coerce_return_to_text,
     encode_hex,
     function_abi_to_4byte_selector,
+    is_text,
     to_tuple,
-    is_text)
+)
 from toolz.functoolz import (
     compose,
     partial,
@@ -25,16 +26,16 @@ from toolz.functoolz import (
 from web3.exceptions import (
     BadFunctionCallOutput,
     FallbackNotFound,
-    MismatchedABI
+    MismatchedABI,
 )
 from web3.utils.abi import (
+    fallback_func_abi_exists,
     filter_by_type,
     get_abi_output_types,
     get_constructor_abi,
-    get_fallback_func_abi,
     map_abi_data,
     merge_args_and_kwargs,
-    fallback_func_abi_exists)
+)
 from web3.utils.contracts import (
     encode_abi,
     find_matching_event_abi,
@@ -61,7 +62,9 @@ from web3.utils.events import (
 from web3.utils.filters import (
     construct_event_filter_params,
 )
-from web3.utils.function_identifiers import FallbackFn
+from web3.utils.function_identifiers import (
+    FallbackFn,
+)
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
     normalize_abi,
@@ -103,7 +106,6 @@ class ContractFunctions:
                         contract_abi=self.abi,
                         address=address,
                         function_identifier=func['name']))
-
 
 
 class ContractEvents:
@@ -194,7 +196,6 @@ class Contract:
         self.events = ContractEvents(self.abi, self.web3, self.address)
         self.fallback = Contract.get_fallback_function(self.abi, self.web3, self.address)
 
-
     @classmethod
     def factory(cls, web3, class_name=None, **kwargs):
 
@@ -275,13 +276,6 @@ class Contract:
         txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
         return txn_hash
 
-    def fallback(self):
-        if self._fallback:
-            return self._fallback
-        else:
-            raise FallbackNotFound("No fallback function was found in the contract ABI.")
-
-    #
     #  Public API
     #
     @combomethod
@@ -599,9 +593,9 @@ class Contract:
                                    transaction=transaction)
 
     @classmethod
-    def _find_matching_fn_abi(cls, fn_name=None, args=None, kwargs=None):
+    def _find_matching_fn_abi(cls, fn_identifier=None, args=None, kwargs=None):
         return find_matching_fn_abi(cls.abi,
-                                    fn_name=fn_name,
+                                    fn_identifier=fn_identifier,
                                     args=args,
                                     kwargs=kwargs)
 
@@ -614,16 +608,15 @@ class Contract:
 
     @staticmethod
     def get_fallback_function(abi, web3, address=None):
-        if fallback_func_abi_exists(abi):
+        if abi and fallback_func_abi_exists(abi):
             return ContractFunction.factory(
                 'fallback',
                 web3=web3,
                 contract_abi=abi,
                 address=address,
                 function_identifier=FallbackFn)()
-        else:
-            # raise exception instead
-            return None
+
+        return NonExistentFallbackFunction()
 
     @combomethod
     @coerce_return_to_text
@@ -733,10 +726,10 @@ class ImplicitContract(ConciseContract):
 
 class ImplicitMethod(ConciseMethod):
     def __call_by_default(self, args):
-        # If function is constant in ABI, then call by default, else transact
         function_abi = find_matching_fn_abi(self._function.contract_abi,
-                                            fn_name=self._function.function_name,
+                                            fn_identifier=self._function.function_identifier,
                                             args=args)
+
         return function_abi['constant'] if 'constant' in function_abi.keys() else False
 
     def __call__(self, *args, **kwargs):
@@ -745,6 +738,15 @@ class ImplicitMethod(ConciseMethod):
             return super().__call__(*args, transact={})
         else:
             return super().__call__(*args, **kwargs)
+
+
+class NonExistentFallbackFunction:
+    @staticmethod
+    def _raise_exception():
+        raise FallbackNotFound("No fallback function was found in the contract ABI.")
+
+    def __getattr__(self, attr):
+        return NonExistentFallbackFunction._raise_exception
 
 
 class ContractFunction:
@@ -774,14 +776,16 @@ class ContractFunction:
             self.kwargs = kwargs
         self.fn_name = type(self).__name__
         self._set_function_info()
-        self._transaction_data = self._encode_transaction_data()
 
     def _set_function_info(self):
+        self.abi = find_matching_fn_abi(self.contract_abi,
+                                        self.function_identifier,
+                                        self.args,
+                                        self.kwargs)
+
         if self.function_identifier is FallbackFn:
-            self.abi = get_fallback_func_abi(self.contract_abi)
             self.selector = encode_hex(b'')
         elif is_text(self.function_identifier):
-            self.abi = find_matching_fn_abi(self.contract_abi, self.fn_name, self.args, self.kwargs)
             self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
         else:
             raise TypeError("Unsupported function identifier")
@@ -1011,7 +1015,7 @@ def call_contract_function(abi,
                            web3,
                            address,
                            normalizers,
-                           function_name,
+                           function_identifier,
                            transaction,
                            *args,
                            **kwargs):
@@ -1019,14 +1023,11 @@ def call_contract_function(abi,
     Helper function for interacting with a contract function using the
     `eth_call` API.
     """
-    is_fallback_func = function_name == "fallback"
-
-    fn_name = None if is_fallback_func else function_name
     call_transaction = prepare_transaction(
         abi,
         address,
         web3,
-        fn_identifier=fn_name,
+        fn_identifier=function_identifier,
         fn_args=args,
         fn_kwargs=kwargs,
         transaction=transaction,
@@ -1034,7 +1035,7 @@ def call_contract_function(abi,
 
     return_data = web3.eth.call(call_transaction)
 
-    function_abi = find_matching_fn_abi(abi, function_name, args, kwargs)
+    function_abi = find_matching_fn_abi(abi, function_identifier, args, kwargs)
 
     output_types = get_abi_output_types(function_abi)
 
@@ -1056,7 +1057,7 @@ def call_contract_function(abi,
             msg = (
                 "Could not decode contract function call {} return data {} for "
                 "output_types {}".format(
-                    function_name,
+                    function_identifier,
                     return_data,
                     output_types
                 )
