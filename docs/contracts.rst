@@ -84,7 +84,7 @@ Methods
 Each Contract Factory exposes the following methods.
 
 
-.. py:classmethod:: Contract.deploy(transaction=None, args=None)
+.. py:classmethod:: Contract.constructor(*args, **kwargs).transact(transaction)
 
     Construct and send a transaction to deploy the contract.
 
@@ -103,6 +103,57 @@ Each Contract Factory exposes the following methods.
     method.
 
     Returns the transaction hash for the deploy transaction.
+
+        >>> deploy_txn = token_contract.constructor(web3.eth.accounts[1], 12345).transact()
+        >>> txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+        >>> txn_receipt['contractAddress']
+        '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
+
+.. py:classmethod:: Contract.constructor(*args, **kwargs).buildTransaction(transaction)
+
+    Construct and return the contract bytecode data.
+
+    If the contract takes constructor arguments they should be provided as a
+    list via the ``args`` parameter.
+
+    If any of the ``args`` specified in the ABI are an ``address`` type, they
+    will accept ENS names.
+
+    Returns the bytecode data to deploy the contract using the signTransaction method.
+
+        >>> transaction = {
+        'to': '',
+        'gasPrice': w3.eth.gasPrice,
+        'nonce': w3.eth.getTransactionCount(w3.eth.coinbase),
+        'chainId': None
+        }
+        >>> contract_data = token_contract.constructor(web3.eth.accounts[1], 12345).buildTransaction(transaction)
+        >>> key = '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
+        >>> signed = w3.eth.account.signTransaction(transaction, key)
+        {'hash': HexBytes('0x6893a6ee8df79b0f5d64a180cd1ef35d030f3e296a5361cf04d02ce720d32ec5'),
+         'r': HexBytes('0x09ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9c'),
+         'rawTransaction': HexBytes('0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428'),
+         's': HexBytes('0x440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428'),
+         'v': 37}
+        >>> raw_tx_hex = Web3.toHex(signed.rawTransaction)
+        >>> w3.eth.sendRawTransaction(raw_tx_hex)
+
+.. py:classmethod:: Contract.constructor(*args, **kwargs).estimateGas(transaction)
+
+    Construct and return the estimated gas to deploy contract.
+
+    If the contract takes constructor arguments they should be provided as a
+    list via the ``args`` parameter.
+
+    If any of the ``args`` specified in the ABI are an ``address`` type, they
+    will accept ENS names.
+
+    Returns the gas needed to deploy the contract.
+
+        >>> token_contract.constructor(web3.eth.accounts[1], 12345).estimateGas()
+        12563
+
+
 
 .. py:method:: Contract.functions.myMethod(*args, **kwargs).transact(transaction)
 

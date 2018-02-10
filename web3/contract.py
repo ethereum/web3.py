@@ -39,6 +39,7 @@ from web3.utils.contracts import (
     find_matching_fn_abi,
     get_function_info,
     prepare_transaction,
+    prepare_constructor,
 )
 from web3.utils.datatypes import (
     PropertyCheckingFactory,
@@ -207,15 +208,37 @@ class Contract(object):
             (cls,),
             kwargs,
             normalizers=normalizers)
+
         setattr(contract, 'functions', ContractFunctions(contract.abi, contract.web3))
         setattr(contract, 'events', ContractEvents(contract.abi, contract.web3))
 
         return contract
 
+    # Constructor Class Method
+    # Done
+    # [START Constructor Class Method]
+    @classmethod
+    def constructor(cls, args=None, kwargs=None):
+
+        if args is None:
+            args = tuple()
+        else:
+            args = args
+
+        if kwargs is None:
+            kwargs = {}
+        else:
+            kwargs = kwargs
+
+        return ContractConstructor(cls.abi, cls.bytecode, cls.web3, args=args, kwargs=kwargs)
+
+    # [END Constructor Class Method]
+
     #
     # Contract Methods
     #
     @classmethod
+    @deprecated_for("contract.<constructor>.transact")
     def deploy(cls, transaction=None, args=None, kwargs=None):
         """
         Deploys the contract on a blockchain.
@@ -634,6 +657,7 @@ class ConciseContract(object):
 
     > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
     '''
+
     def __init__(self, classic_contract):
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
         self._classic_contract = classic_contract
@@ -700,6 +724,7 @@ class ImplicitContract(ConciseContract):
 
     > contract.functions.withdraw(amount).transact({})
     '''
+
     def __getattr__(self, attr):
         contract_function = getattr(self._classic_contract.functions, attr)
         return ImplicitMethod(contract_function, self._classic_contract._return_data_normalizers)
@@ -719,6 +744,99 @@ class ImplicitMethod(ConciseMethod):
             return super().__call__(*args, transact={})
         else:
             return super().__call__(*args, **kwargs)
+
+
+# Contract Constructor Object
+# Done
+# [START Contract Constructor Object]
+class ContractConstructor(object):
+    """Base class for contract functions
+
+    A function accessed via the api contract.functions.myMethod(*args, **kwargs)
+    is a subclass of this class.
+    """
+
+    web3 = None
+    contract_abi = None
+    contract_bytecode = None
+    transaction = None
+    args = None
+    kwargs = None
+
+    def __init__(self, abi, bytecode, web3, args=None, kwargs=None):
+
+        self.contract_abi = abi
+        self.contract_bytecode = bytecode
+        self.web3 = web3
+        self.args = args
+        self.kwargs = kwargs
+
+    def transact(self, transaction=None):
+
+        if transaction is None:
+            transact_transaction = {}
+        else:
+            transact_transaction = dict(**transaction)
+
+        if 'data' in transact_transaction:
+            raise ValueError("Cannot set data in constructor transaction")
+
+        if self.web3.eth.defaultAccount is not empty:
+            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        return transact_with_contract_constructor(self.contract_abi,
+                                                  self.contract_bytecode,
+                                                  self.web3,
+                                                  transact_transaction,
+                                                  *self.args,
+                                                  **self.kwargs)
+
+    def estimateGas(self, transaction=None):
+
+        if transaction is None:
+            estimate_transaction = {}
+        else:
+            estimate_transaction = dict(**transaction)
+
+        if 'data' in estimate_transaction:
+            raise ValueError("Cannot set data in constructor transaction")
+
+        if 'to' in estimate_transaction:
+            raise ValueError("Cannot set to in constructor transaction")
+
+        if self.web3.eth.defaultAccount is not empty:
+            estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        return estimate_gas_for_constructor(self.contract_abi,
+                                            self.contract_bytecode,
+                                            self.web3,
+                                            estimate_transaction,
+                                            *self.args,
+                                            **self.kwargs)
+
+    def buildTransaction(self, transaction=None):
+        """
+        Build the transaction dictionary without sending
+        """
+        if transaction is None:
+            built_transaction = {}
+        else:
+            built_transaction = dict(**transaction)
+
+        built_transaction = build_transaction_for_constructor(self.contract_abi,
+                                                 self.contract_bytecode,
+                                                 self.web3,
+                                                 built_transaction,
+                                                 *self.args,
+                                                 **self.kwargs)
+
+        built_transaction['to'] = ''
+        #built_transaction['nonce'] = 0
+
+        return built_transaction
+
+
+# [END Contract Constructor Object]
 
 
 class ContractFunction(object):
@@ -790,6 +908,7 @@ class ContractFunction(object):
 
         if self.address:
             call_transaction.setdefault('to', self.address)
+
         if self.web3.eth.defaultAccount is not empty:
             call_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
@@ -860,6 +979,7 @@ class ContractFunction(object):
 
         if self.address:
             estimate_transaction.setdefault('to', self.address)
+
         if self.web3.eth.defaultAccount is not empty:
             estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
@@ -1038,6 +1158,93 @@ def call_contract_function(abi,
     else:
         return normalized_data
 
+
+# Transact Constructor
+# Done
+# [START Transact Constructor]
+def transact_with_contract_constructor(abi,
+                                       bytecode,
+                                       web3,
+                                       transaction=None,
+                                       *args,
+                                       **kwargs):
+    """
+    Helper function for interacting with a contract function by sending a
+    transaction.
+    """
+    transact_transaction = prepare_constructor(
+        abi,
+        bytecode,
+        web3,
+        args=args,
+        kwargs=kwargs,
+        transaction=transaction,
+    )
+
+    txn_hash = web3.eth.sendTransaction(transact_transaction)
+    return txn_hash
+
+
+# [END Transact Constructor]
+
+# Estimate Gas for Constructor
+# Done
+# [START Estimate Gas for Constructor]
+def estimate_gas_for_constructor(abi,
+                                 bytecode,
+                                 web3,
+                                 transaction,
+                                 *args,
+                                 **kwargs):
+    """Estimates gas cost a function call would take.
+
+    Don't call this directly, instead use :meth:`Contract.estimateGas`
+    on your contract instance.
+    """
+    estimate_transaction = prepare_constructor(
+        abi,
+        bytecode,
+        web3,
+        args=args,
+        kwargs=kwargs,
+        transaction=transaction,
+    )
+
+    gas_estimate = web3.eth.estimateGas(estimate_transaction)
+    return gas_estimate
+
+
+# [END Estimate Gas for Constructor]
+
+# Build Constructor
+# Done
+# [START Build Constructor]
+def build_transaction_for_constructor(abi,
+                                      bytecode,
+                                      web3,
+                                      transaction=None,
+                                      *args,
+                                      **kwargs):
+    """Builds a dictionary with the fields required to make the given transaction
+
+    Don't call this directly, instead use :meth:`Contract.buildTransaction`
+    on your contract instance.
+    """
+    prepared_transaction = prepare_constructor(
+        abi,
+        bytecode,
+        web3,
+        args=args,
+        kwargs=kwargs,
+        transaction=transaction,
+    )
+
+    prepared_transaction = fill_transaction_defaults(web3, prepared_transaction)
+
+    return prepared_transaction
+
+
+# [END Build Constructor]
 
 def transact_with_contract_function(abi,
                                     address,
