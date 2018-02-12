@@ -166,7 +166,7 @@ It is also possible to implement middlewares as a class.
 
 .. code-block:: python
 
-    class SimpleMiddleware(object):
+    class SimpleMiddleware:
         def __init__(self, make_request, web3):
             self.web3 = web3
             self.make_request = make_request

@@ -70,7 +70,7 @@ class Timeout(Exception):
 
 class ThreadWithReturn(threading.Thread):
     def __init__(self, target=None, args=None, kwargs=None):
-        super(ThreadWithReturn, self).__init__(
+        super().__init__(
             target=target,
             args=args or tuple(),
             kwargs=kwargs or {},

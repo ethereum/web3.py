@@ -9,7 +9,7 @@ import win32file  # noqa: E402
 import pywintypes  # noqa: E402
 
 
-class NamedPipe(object):
+class NamedPipe:
     def __init__(self, ipc_path):
         try:
             self.handle = win32file.CreateFile(

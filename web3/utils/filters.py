@@ -77,7 +77,7 @@ class Filter:
         self.web3 = web3
         self.filter_id = filter_id
         self.callbacks = []
-        super(Filter, self).__init__()
+        super().__init__()
 
     def __str__(self):
         return "Filter for {0}".format(self.filter_id)
@@ -152,7 +152,7 @@ class LogFilter(Filter):
         )
         if 'data_filter_set' in kwargs:
             self.set_data_filters(kwargs.pop('data_filter_set'))
-        super(LogFilter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def format_entry(self, entry):
         if self.log_entry_formatter:

@@ -62,7 +62,7 @@ def emitter(web3, Emitter, wait_for_transaction, wait_for_block):
     return Emitter(address=contract_address)
 
 
-class LogFunctions(object):
+class LogFunctions:
     LogAnonymous = 0
     LogNoArguments = 1
     LogSingleArg = 2
@@ -82,7 +82,7 @@ def emitter_event_ids():
     return LogFunctions
 
 
-class LogTopics(object):
+class LogTopics:
     LogAnonymous = encode_hex(event_signature_to_log_topic("LogAnonymous()"))
     LogNoArguments = encode_hex(event_signature_to_log_topic("LogNoArguments()"))
     LogSingleArg = encode_hex(event_signature_to_log_topic("LogSingleArg(uint256)"))
