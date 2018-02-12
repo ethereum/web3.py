@@ -561,11 +561,11 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.generateGasPrice(transaction_params=None)
 
-    Uses the selected gas price strategy to calculate a gas price. This method 
+    Uses the selected gas price strategy to calculate a gas price. This method
     returns the gas price denominated in wei.
 
-    The `transaction_params` argument is optional however some gas price strategies 
-    may require it to be able to produce a gas price. 
+    The `transaction_params` argument is optional however some gas price strategies
+    may require it to be able to produce a gas price.
 
     .. code-block:: python
 
@@ -573,12 +573,12 @@ The following methods are available on the ``web3.eth`` namespace.
         20000000000
 
     .. note::
-        For information about how gas price can be customized in web3 see 
+        For information about how gas price can be customized in web3 see
         :ref:`Gas_Price`.
 
 .. py:method:: Eth.setGasPriceStrategy(gas_price_strategy)
 
-    Set the selected gas price strategy. It must be a method of the signature 
+    Set the selected gas price strategy. It must be a method of the signature
     ``(web3, transaction_params)`` and return a gas price denominated in wei.
 
 Filters

@@ -35,7 +35,7 @@ Contents
     internals
     conventions
     releases
-    
+
 Release notes
 -------------
 

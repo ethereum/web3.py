@@ -92,7 +92,7 @@ The following properties are available on the ``web3.txpool`` namespace.
             pending: 10,
             queued: 7,
         }
-    
+
 
 .. py:attribute:: TxPool.content
 

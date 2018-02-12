@@ -10,7 +10,7 @@ Looking up blocks
 
 Blocks can be looked up by either their number or hash using the
 ``web3.eth.getBlock`` API.  Block hashes should be in their hexidecimal
-representation.  Block numbers 
+representation.  Block numbers
 
 .. code-block:: python
 
