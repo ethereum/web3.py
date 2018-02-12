@@ -76,7 +76,7 @@ class AttributeDict(ReadableAttributeDict, Hashable):
 
     def __setattr__(self, attr, val):
         if attr == '__dict__':
-            super(AttributeDict, self).__setattr__(attr, val)
+            super().__setattr__(attr, val)
         else:
             raise TypeError('This data is immutable -- create a copy instead of modifying')
 

@@ -497,7 +497,7 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
     interface of all other relevant collections.
     '''
     def __new__(cls, iterable):
-        return super(ABITypedData, cls).__new__(cls, *iterable)
+        return super().__new__(cls, *iterable)
 
 
 def abi_sub_tree(data_type, data_value):

@@ -181,7 +181,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_getTransactionReceipt_unmined(self, eth_tester, web3, unlocked_account):
         eth_tester.disable_auto_mine_transactions()
         try:
-            super(TestEthereumTesterEthModule, self).test_eth_getTransactionReceipt_unmined(
+            super().test_eth_getTransactionReceipt_unmined(
                 web3, unlocked_account,
             )
         finally:

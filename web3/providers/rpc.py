@@ -41,7 +41,7 @@ class HTTPProvider(JSONBaseProvider):
         else:
             self.endpoint_uri = endpoint_uri
         self._request_kwargs = request_kwargs or {}
-        super(HTTPProvider, self).__init__()
+        super().__init__()
 
     def __str__(self):
         return "RPC connection {0}".format(self.endpoint_uri)
