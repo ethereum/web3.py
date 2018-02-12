@@ -29,7 +29,7 @@ from web3.utils.threads import (
 )
 
 
-class RequestManager(object):
+class RequestManager:
     def __init__(self, web3, providers, middlewares=None):
         self.web3 = web3
         self.pending_requests = {}

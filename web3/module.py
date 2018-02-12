@@ -1,4 +1,4 @@
-class Module(object):
+class Module:
     web3 = None
 
     def __init__(self, web3):

@@ -72,7 +72,7 @@ def baseN(num, b, numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
         (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
 
 
-class IsValid(object):
+class IsValid:
     """
     Should be called to check if iban is correct
 
@@ -100,7 +100,7 @@ class IsValid(object):
         return False
 
 
-class Iban(object):
+class Iban:
     def __init__(self, iban):
         self._iban = iban
 

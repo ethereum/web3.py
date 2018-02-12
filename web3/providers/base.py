@@ -12,7 +12,7 @@ from web3.middleware import (
 )
 
 
-class BaseProvider(object):
+class BaseProvider:
     _middlewares = ()
     _request_func_cache = (None, None)  # a tuple of (all_middlewares, request_func)
 

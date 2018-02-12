@@ -5,7 +5,7 @@ from eth_utils import (
 )
 
 
-class NetModuleTest(object):
+class NetModuleTest:
     def test_net_version(self, web3):
         version = web3.net.version
 

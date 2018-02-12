@@ -1,4 +1,4 @@
-class Empty(object):
+class Empty:
     def __bool__(self):
         return False
 

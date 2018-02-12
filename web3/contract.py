@@ -79,7 +79,7 @@ DEPRECATED_SIGNATURE_MESSAGE = (
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 
-class ContractFunctions(object):
+class ContractFunctions:
     """Class containing contract function objects
     """
 
@@ -102,7 +102,7 @@ class ContractFunctions(object):
                         function_name=function['name']))
 
 
-class ContractEvents(object):
+class ContractEvents:
     """Class containing contract event objects
     """
 
@@ -125,7 +125,7 @@ class ContractEvents(object):
                         event_name=event['name']))
 
 
-class Contract(object):
+class Contract:
     """Base class for Contract proxy classes.
 
     First you need to create your Contract classes using
@@ -355,7 +355,7 @@ class Contract(object):
 
         contract = self
 
-        class Caller(object):
+        class Caller:
             def __getattr__(self, function_name):
                 callable_fn = functools.partial(
                     estimate_gas_for_function,
@@ -422,7 +422,7 @@ class Contract(object):
 
         contract = self
 
-        class Caller(object):
+        class Caller:
             def __getattr__(self, function_name):
                 callable_fn = functools.partial(
                     call_contract_function,
@@ -505,7 +505,7 @@ class Contract(object):
 
         contract = self
 
-        class Transactor(object):
+        class Transactor:
             def __getattr__(self, function_name):
                 callable_fn = functools.partial(
                     transact_with_contract_function,
@@ -551,7 +551,7 @@ class Contract(object):
 
         contract = self
 
-        class Caller(object):
+        class Caller:
             def __getattr__(self, function_name):
                 callable_fn = functools.partial(
                     build_transaction_for_function,
@@ -621,7 +621,7 @@ class Contract(object):
         return deploy_data
 
 
-class ConciseContract(object):
+class ConciseContract:
     '''
     An alternative Contract Factory which invokes all methods as `call()`,
     unless you add a keyword argument. The keyword argument assigns the prep method.
@@ -721,7 +721,7 @@ class ImplicitMethod(ConciseMethod):
             return super().__call__(*args, **kwargs)
 
 
-class ContractFunction(object):
+class ContractFunction:
     """Base class for contract functions
 
     A function accessed via the api contract.functions.myMethod(*args, **kwargs)
@@ -929,7 +929,7 @@ class ContractFunction(object):
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
 
 
-class ContractEvent(object):
+class ContractEvent:
     """Base class for contract events
 
     An event accessed via the api contract.events.myEvents(*args, **kwargs)

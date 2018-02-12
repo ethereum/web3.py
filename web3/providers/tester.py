@@ -159,4 +159,4 @@ class TestRPCProvider(HTTPProvider):
         self.thread = spawn(self.server.serve_forever)
         endpoint_uri = 'http://{0}:{1}'.format(host, port)
 
-        super(TestRPCProvider, self).__init__(endpoint_uri, *args, **kwargs)
+        super().__init__(endpoint_uri, *args, **kwargs)
