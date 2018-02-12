@@ -5,11 +5,32 @@ Filtering
 .. py:module:: web3.utils.filters
 
 
-The :meth:`web3.eth.Eth.filter` method can be used to setup filter for:
+The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 
-* Pending Transactions
-* New Blocks
+* Pending Transactions: ``web3.eth.filter('pending')``
+
+* New Blocks ``web3.eth.filter('latest')``
+
 * Event Logs
+
+    Through the contract instance api:
+
+    .. code-block:: python
+
+        event_filter = myContract.eventFilter('eventName', {'filter': {'arg1':10}})
+
+    Or built manually by supplying `valid filter params <http://https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter/>`_ params:
+
+    .. code-block:: python
+
+        event_filter = web3.eth.filter({"address": contract_address})
+
+* Attaching to an existing filter
+
+    .. code-block:: python
+
+        from web3.auto import w3
+        existing_filter = web3.utils.filters.Filter(w3, "0x0")
 
 
 Filter API
@@ -65,14 +86,8 @@ Block and Transaction Filters
 
     .. code-block:: python
 
-        >>> def new_block_callback(block_hash):
-        ...     sys.stdout.write("New Block: {0}".format(block_hash))
-        ...
-        >>> new_block_filter = web3.eth.filter('latest')
-        >>> new_block_filter.watch(new_block_callback)
-        # each time the client receieves a new block the `new_block_callback`
-        # function will be called with the block hash.
-
+        >>> new_block_filter = web.eth.filter('latest')
+        >>> new_block_filter.get_new_entries()
 
 .. py:class:: TransactionFilter(...)
 
@@ -81,14 +96,8 @@ will return a new :py:class:`BlockFilter` object.
 
     .. code-block:: python
 
-        >>> def new_transaction_callback(transaction_hash):
-        ...     sys.stdout.write("New Block: {0}".format(transaction_hash))
-        ...
-        >>> new_transaction_filter = web3.eth.filter('pending')
-        >>> new_transaction_filter.watch(new_transaction_callback)
-        # each time the client receieves a unmined transaction the
-        # `new_transaction_filter` function will be called with the transaction
-        # hash.
+        >>> new_transaction_filter = web.eth.filter('pending')
+        >>> new_transaction_filter.get_new_entries()
 
 
 Event Log Filters
@@ -121,3 +130,104 @@ logs.  It exposes the following additional methods.
 The :class:`LogFilter` class is returned from the
 :func:`web3.contract.Contract.eventFilter` and will be configured to extract the
 event data from the event logs.
+
+    .. code-block:: python
+
+        event_filter = myContract.eventFilter('eventName', {'filter': {'arg1':10}})
+        event_filter.get_new_entries()
+
+Asynchrony and Filters
+----------------------
+
+Starting with web3 version 4, the ``watch`` method was taken out of the web3 filter objects.
+There are many decisions to be made when designing a system regarding threading and concurrency.
+Rather than force a decision, web3 leaves these choices up to the user. Below are some example implementations of asynchronous filter event handling that can serve as starting points.
+
+Single threaded concurrency with ``async`` and ``await``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    Beginning in python 3.5, the ``async`` and ``await`` built-in keywords were added.  These provide a shared api for coroutines that can be utilized by modules such as the built-in asyncio_.  Below is an example event loop using asyncio_, that polls a web3 filter object, and passes new entries to a handler.
+
+        .. code-block:: python
+
+            from web3.auto import w3
+            import asyncio
+
+
+            def handle_event(event):
+                print(event)
+                # and whatever
+
+            async def log_loop(event_filter, poll_interval):
+                while True:
+                    for event in event_filter.get_new_entries():
+                        handle_event(event)
+                    await asyncio.sleep(poll_interval)
+
+            def main():
+                block_filter = w3.eth.filter('latest')
+                loop = asyncio.get_event_loop()
+                try:
+                    task = loop.create_task(log_loop(block_filter, 2))
+                    loop.run_until_complete(task)
+                finally:
+                    loop.close()
+
+            if __name__ == '__main__':
+                main()
+
+    Read the asyncio_ documentation for more information.
+
+Running the event loop in a separate thread
+"""""""""""""""""""""""""""""""""""""""""""
+
+    Here is an extended version of above example, where the event loop is run in a separate thread, releasing the ``main`` function for other tasks.
+
+        .. code-block:: python
+
+            from web3.auto import w3
+            import asyncio
+            from threading import Thread
+
+
+            def handle_event(event):
+                print(event)
+                # and whatever
+
+
+            async def log_loop(event_filter, poll_interval):
+                while True:
+                    for event in event_filter.get_new_entries():
+                        handle_event(event)
+                    await asyncio.sleep(poll_interval)
+
+
+            async def start_log_loop(loop):
+                block_filter = w3.eth.filter('latest')
+                asyncio.set_event_loop(loop)
+                task = loop.create_task(log_loop(block_filter, 5))
+                try:
+                    loop.run_until_complete(task)
+                finally:
+                    loop.close()
+
+
+            def main():
+                loop = asyncio.new_event_loop()
+                worker = Thread(target=start_log_loop, args=(loop,))
+                worker.start()
+                    # .. do some other stuff
+
+            if __name__ == '__main__':
+                main()
+
+Here are some other libraries that provide frameworks for writing asynchronous python:
+
+    * gevent_
+    * twisted_
+    * celery_
+
+.. _asyncio: https://docs.python.org/3/library/asyncio.html
+.. _gevent: https://www.gevent.org/
+.. _twisted: https://twistedmatrix.com/
+.. _celery: https://www.celeryproject.org/
