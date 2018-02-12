@@ -3,7 +3,7 @@ import threading
 import warnings
 
 
-class combomethod(object):
+class combomethod:
     def __init__(self, method):
         self.method = method
 

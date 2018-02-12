@@ -30,7 +30,7 @@ def get_ipc_socket(ipc_path, timeout=0.1):
         return sock
 
 
-class PersistantSocket(object):
+class PersistantSocket:
     sock = None
 
     def __init__(self, ipc_path):

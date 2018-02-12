@@ -13,7 +13,7 @@ from web3.utils.ens import (
 )
 
 
-class Web3ModuleTest(object):
+class Web3ModuleTest:
     def test_web3_clientVersion(self, web3):
         client_version = web3.version.node
         self._check_web3_clientVersion(client_version)

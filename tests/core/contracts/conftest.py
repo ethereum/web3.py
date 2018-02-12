@@ -385,7 +385,7 @@ def ArraysContract(web3, ARRAYS_CONTRACT):
     return web3.eth.contract(**ARRAYS_CONTRACT)
 
 
-class LogFunctions(object):
+class LogFunctions:
     LogAnonymous = 0
     LogNoArguments = 1
     LogSingleArg = 2
@@ -409,7 +409,7 @@ def _encode_to_topic(event_signature):
     return event_signature_to_log_topic(event_signature)
 
 
-class LogTopics(object):
+class LogTopics:
     LogAnonymous = _encode_to_topic("LogAnonymous()")
     LogNoArguments = _encode_to_topic("LogNoArguments()")
     LogSingleArg = _encode_to_topic("LogSingleArg(uint256)")

@@ -74,7 +74,7 @@ def get_default_modules():
     }
 
 
-class Web3(object):
+class Web3:
     # Providers
     HTTPProvider = HTTPProvider
     IPCProvider = IPCProvider

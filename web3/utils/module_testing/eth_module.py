@@ -27,7 +27,7 @@ UNKNOWN_ADDRESS = '0xdeadbeef00000000000000000000000000000000'
 UNKNOWN_HASH = '0xdeadbeef00000000000000000000000000000000000000000000000000000000'
 
 
-class EthModuleTest(object):
+class EthModuleTest:
     def test_eth_protocolVersion(self, web3):
         protocol_version = web3.version.ethereum
 
