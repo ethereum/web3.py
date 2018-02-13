@@ -19,7 +19,7 @@ The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 
         event_filter = myContract.eventFilter('eventName', {'filter': {'arg1':10}})
 
-    Or built manually by supplying `valid filter params <http://https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter/>`_ params:
+    Or built manually by supplying `valid filter params <http://https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter/>`_:
 
     .. code-block:: python
 
@@ -136,17 +136,45 @@ event data from the event logs.
         event_filter = myContract.eventFilter('eventName', {'filter': {'arg1':10}})
         event_filter.get_new_entries()
 
-Asynchrony and Filters
-----------------------
+Listening For Events
+--------------------
+
+Synchronous
+^^^^^^^^^^^
+
+    .. code-block:: python
+
+        from web3.auto import w3
+        import time
+
+        def handle_event(event):
+            print(event)
+
+        def log_loop(event_filter, poll_interval):
+            while True:
+                for event in event_filter.get_new_entries():
+                    handle_event(event)
+                time.sleep(poll_interval)
+
+        def main():
+            block_filter = w3.eth.filter('latest')
+            log_loop(block_filter, 2)
+
+        if __name__ == '__main__':
+            main()
+
+
+Asynchronous
+^^^^^^^^^^^^
 
 Starting with web3 version 4, the ``watch`` method was taken out of the web3 filter objects.
 There are many decisions to be made when designing a system regarding threading and concurrency.
-Rather than force a decision, web3 leaves these choices up to the user. Below are some example implementations of asynchronous filter event handling that can serve as starting points.
+Rather than force a decision, web3 leaves these choices up to the user. Below are some example implementations of asynchronous filter-event handling that can serve as starting points.
 
 Single threaded concurrency with ``async`` and ``await``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-    Beginning in python 3.5, the ``async`` and ``await`` built-in keywords were added.  These provide a shared api for coroutines that can be utilized by modules such as the built-in asyncio_.  Below is an example event loop using asyncio_, that polls a web3 filter object, and passes new entries to a handler.
+    Beginning in python 3.5, the ``async`` and ``await`` built-in keywords were added.  These provide a shared api for coroutines that can be utilized by modules such as the built-in asyncio_.  Below is an example event loop using asyncio_, that polls multiple web3 filter object, and passes new entries to a handler.
 
         .. code-block:: python
 
@@ -166,10 +194,13 @@ Single threaded concurrency with ``async`` and ``await``
 
             def main():
                 block_filter = w3.eth.filter('latest')
+                tx_filter = w3.eth.filter('pending')
                 loop = asyncio.get_event_loop()
                 try:
-                    task = loop.create_task(log_loop(block_filter, 2))
-                    loop.run_until_complete(task)
+                    loop.run_until_complete(
+                        asyncio.gather(
+                            log_loop(block_filter, 2),
+                            log_loop(tx_filter, 2))
                 finally:
                     loop.close()
 
