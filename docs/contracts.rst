@@ -388,7 +388,9 @@ For example:
     .. code-block:: python
 
         myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
-        myContract.events.myEvent().processReceipt()
+        tx_hash = myContract.functions.myFunction().transact()
+        receipt = web3.eth.getTransactionReceipt(tx_hash)
+        myContract.events.myEvent().processReceipt(receipt)
 
 :py:class:`ContractEvent` provides methods to interact with contract events. Positional and keyword arguments supplied to the contract event subclass will be used to find the contract event by signature.
 
