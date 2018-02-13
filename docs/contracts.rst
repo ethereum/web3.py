@@ -26,12 +26,13 @@ example in :class:`ConciseContract` for specifying an alternate factory.
     access to features like ``deploy()`` and properties like ``address``. It is
     recommended to use the classic ``Contract`` for those use cases.
 
-    Create this type of contract with:
+    Create this type of contract by passing a :py:class:`Contract` instance to 
+    :class:`ConciseContract`:
 
 
     .. code-block:: python
 
-        >>> concise = w3.eth.contract(..., ContractFactoryClass=ConciseContract)
+        >>> concise = ConciseContract(myContract)
 
 
     This variation invokes all methods as a call, so if the classic contract had a method like
@@ -47,6 +48,20 @@ example in :class:`ConciseContract` for specifying an alternate factory.
         >>>  # which is equivalent to this transaction in the classic contract:
 
         >>> contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
+
+.. py:class:: ImplicitContract(Contract())
+
+   This variation mirrors :py:class:`ConciseContract`, but it invokes all methods as a
+   transaction rather than a call, so if the classic contract had a method like 
+   ``contract.functions.owner.transact()``, you could call it with ``implicit.owner()`` instead. 
+
+    Create this type of contract by passing a :py:class:`Contract` instance to 
+    :class:`ImplicitContract`:
+
+
+    .. code-block:: python
+
+        >>> concise = ImplicitContract(myContract)
 
 
 Properties
