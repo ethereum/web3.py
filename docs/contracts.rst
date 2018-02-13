@@ -26,7 +26,7 @@ example in :class:`ConciseContract` for specifying an alternate factory.
     access to features like ``deploy()`` and properties like ``address``. It is
     recommended to use the classic ``Contract`` for those use cases.
 
-    Create this type of contract by passing a :py:class:`Contract` instance to 
+    Create this type of contract by passing a :py:class:`Contract` instance to
     :class:`ConciseContract`:
 
 
@@ -52,10 +52,10 @@ example in :class:`ConciseContract` for specifying an alternate factory.
 .. py:class:: ImplicitContract(Contract())
 
    This variation mirrors :py:class:`ConciseContract`, but it invokes all methods as a
-   transaction rather than a call, so if the classic contract had a method like 
-   ``contract.functions.owner.transact()``, you could call it with ``implicit.owner()`` instead. 
+   transaction rather than a call, so if the classic contract had a method like
+   ``contract.functions.owner.transact()``, you could call it with ``implicit.owner()`` instead.
 
-    Create this type of contract by passing a :py:class:`Contract` instance to 
+    Create this type of contract by passing a :py:class:`Contract` instance to
     :class:`ImplicitContract`:
 
 

@@ -194,8 +194,115 @@ Transaction receipts can be retrieved using the ``web3.eth.getTransactionReceipt
 If the transaction has not yet been mined then this method will return ``None``.
 
 
-.. TODO: create a contract factory
-.. TODO: create an instance of a contract
-.. TODO: deploy a contract
-.. TODO: estimate the gas for a transaction
-.. TODO: send a transaction
+Working with Contracts
+----------------------
+
+Given the following solidity source file stored at ``contract.sol``.
+
+.. code-block:: solidity
+
+    contract StoreVar {
+    
+        uint8 public _myVar;
+        event MyEvent(uint indexed _var);
+    
+        function setVar(uint8 _var) public {
+            _myVar = _var;
+            MyEvent(_var);
+        }
+    
+        function getVar() public view returns (uint8) {
+            return _myVar;
+        }
+    
+    }
+
+The following example demonstrates a few things:
+
+* Compiling a contract from a sol file.
+* Estimating gas costs of a transaction.
+* Transacting with a contract function.
+* Waiting for a transaction receipt to be mined.
+
+.. code-block:: python
+
+    import sys
+    import time
+    import pprint
+    
+    from web3.providers.eth_tester import EthereumTesterProvider
+    from web3 import Web3
+    from solc import compile_source
+    
+
+    def compile_source_file(file_path):
+       with open(file_path, 'r') as f:
+          source = f.read()
+    
+       return compile_source(source)
+    
+    
+    def deploy_contract(w3, contract_interface):
+        tx_hash = w3.eth.contract(
+            abi=contract_interface['abi'],
+            bytecode=contract_interface['bin']).deploy()
+    
+        address = w3.eth.getTransactionReceipt(tx_hash)['contractAddress']
+        return address
+    
+    
+    def wait_for_receipt(w3, tx_hash, poll_interval):
+       while True:
+           tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+           if tx_receipt:
+             return tx_receipt
+           time.sleep(poll_interval)
+    
+    
+    w3 = Web3(EthereumTesterProvider())
+    
+    contract_source_path = 'contract.sol'
+    compiled_sol = compile_source_file('contract.sol')
+    
+    contract_id, contract_interface = compiled_sol.popitem()
+    
+    address = deploy_contract(w3, contract_interface)
+    print("Deployed {0} to: {1}\n".format(contract_id, address))
+    
+    store_var_contract = w3.eth.contract(
+       address=address,
+       abi=contract_interface['abi'])
+    
+    gas_estimate = store_var_contract.functions.setVar(255).estimateGas()
+    print("Gas estimate to transact with setVar: {0}\n".format(gas_estimate))
+    
+    if gas_estimate < 100000:
+      print("Sending transaction to setVar(255)\n")
+      tx_hash = store_var_contract.functions.setVar(255).transact()
+      receipt = wait_for_receipt(w3, tx_hash, 1)
+      print("Transaction receipt mined: \n")
+      pprint.pprint(dict(receipt))
+    else:
+      print("Gas cost exceeds 100000")
+
+
+Output:
+
+.. code-block:: none
+
+    Deployed <stdin>:StoreVar to: 0xF2E246BB76DF876Cef8b38ae84130F4F55De395b
+    
+    Gas estimate to transact with setVar: 32463
+    
+    Sending transaction to setVar(255)
+    
+    Transaction receipt mined: 
+    
+    {'blockHash': HexBytes('0x94e07b0b88667da284e914fa44b87d4e7fec39761be51245ef94632a3b5ab9f0'),
+     'blockNumber': 2,
+     'contractAddress': None,
+     'cumulativeGasUsed': 43106,
+     'gasUsed': 43106,
+     'logs': [AttributeDict({'type': 'mined', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x3ac3518cc59d1698aa03a0bab7fb8191a4ef017aeda7429b11e8c6462b20a62a'), 'blockHash': HexBytes('0x94e07b0b88667da284e914fa44b87d4e7fec39761be51245ef94632a3b5ab9f0'), 'blockNumber': 2, 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', 'data': '0x', 'topics': [HexBytes('0x6c2b4666ba8da5a95717621d879a77de725f3d816709b9cbe9f059b8f875e284'), HexBytes('0x00000000000000000000000000000000000000000000000000000000000000ff')]})],
+     'transactionHash': HexBytes('0x3ac3518cc59d1698aa03a0bab7fb8191a4ef017aeda7429b11e8c6462b20a62a'),
+     'transactionIndex': 0}
