@@ -186,7 +186,7 @@ Running the event loop in a separate thread
         .. code-block:: python
 
             from web3.auto import w3
-            import asyncio
+            import sleep
             from threading import Thread
 
 
@@ -199,22 +199,12 @@ Running the event loop in a separate thread
                 while True:
                     for event in event_filter.get_new_entries():
                         handle_event(event)
-                    await asyncio.sleep(poll_interval)
-
-
-            async def start_log_loop(loop):
-                block_filter = w3.eth.filter('latest')
-                asyncio.set_event_loop(loop)
-                task = loop.create_task(log_loop(block_filter, 5))
-                try:
-                    loop.run_until_complete(task)
-                finally:
-                    loop.close()
+                    time.sleep(poll_interval)
 
 
             def main():
                 loop = asyncio.new_event_loop()
-                worker = Thread(target=start_log_loop, args=(loop,))
+                worker = Thread(target=log_loop, args=(block_filter, 5), daemon=True)
                 worker.start()
                     # .. do some other stuff
 
