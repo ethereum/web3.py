@@ -539,8 +539,15 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.sign('0xd3cda913deb6f67967b99d67acdfa1712c293601', 'some-text-to-sign')
-        '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
+        >>> myContract.functions.setVar(1).transact()
+        HexBytes('0x79af0c7688afba7588c32a61565fd488c422da7b5773f95b242ea66d3d20afda')
+        >>> myContract.functions.getVar().call()
+        1
+        # The above call equivalent to the raw call:
+        >>> we3.eth.call({'value': 0, 'gas': 21736, 'gasPrice': 1, 'to': '0xc305c901078781C232A2a521C2aF7980f8385ee9', 'data': '0x477a5c98'})
+        HexBytes('0x0000000000000000000000000000000000000000000000000000000000000001')
+
+    In most cases it is better to make contract function call through the :py:class:`web3.contract.Contract` interface.
 
 
 .. py:method:: Eth.estimateGas(transaction)
