@@ -77,12 +77,16 @@ Each Contract Factory exposes the following properties.
     The runtime part of the contract bytecode string.  May be ``None`` if not
     provided during factory creation.
 
+.. py:attribute:: Contract.functions
+
+    This provides access to contract functions using attribute syntax.  For example:
+    ``myContract.functions.MyMethod()``.  The exposed contract functions are classes of the
+    type :py:class:`ContractFunction`.
 
 Methods
 -------
 
 Each Contract Factory exposes the following methods.
-
 
 .. py:classmethod:: Contract.deploy(transaction=None, args=None)
 
@@ -103,145 +107,6 @@ Each Contract Factory exposes the following methods.
     method.
 
     Returns the transaction hash for the deploy transaction.
-
-.. py:method:: Contract.functions.myMethod(*args, **kwargs).transact(transaction)
-
-    Execute the specified function by sending a new public transaction.
-
-    This is executed in two steps.
-
-    The first portion of this function call ``transact(transaction)`` takes a
-    single parameter which should be a python dictionary conforming to
-    the same format as the ``web3.eth.sendTransaction(transaction)`` method.
-    This dictionary may not contain the keys ``data`` or ``to``.
-
-    The second portion of the function call ``myMethod(*args, **kwargs)``
-    selects the appropriate contract function based on the name and provided
-    argument.  Arguments can be provided as positional arguments, keyword
-    arguments, or a mix of the two.
-
-    If any of the ``args`` or ``kwargs`` specified in the ABI are an ``address`` type, they
-    will accept ENS names.
-
-    If a ``gas`` value is not provided, then the ``gas`` value for the
-    method transaction will be created using the ``web3.eth.estimateGas()``
-    method.
-
-    Returns the transaction hash.
-
-    .. code-block:: python
-
-        >>> token_contract.functions.transfer(web3.eth.accounts[1], 12345).transact()
-        "0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd"
-
-
-.. py:method:: Contract.functions.myMethod(*args, **kwargs).call(transaction)
-
-    Call a contract function, executing the transaction locally using the
-    ``eth_call`` API.  This will not create a new public transaction.
-
-    This method behaves the same as the :py:meth:`Contract.transact` method,
-    with transaction details being passed into the first portion of the
-    function call, and function arguments being passed into the second portion.
-
-    Returns the return value of the executed function.
-
-    .. code-block:: python
-
-        >>> my_contract.functions.multiply7(3).call()
-        21
-        >>> token_contract.functions.myBalance().call({'from': web3.eth.coinbase})
-        12345  # the token balance for `web3.eth.coinbase`
-        >>> token_contract.functions.myBalance().call({'from': web3.eth.accounts[1]})
-        54321  # the token balance for the account `web3.eth.accounts[1]`
-
-
-.. py:method:: Contract.functions.myMethod(*args, **kwargs).estimateGas(transaction)
-
-    Call a contract function, executing the transaction locally using the
-    ``eth_call`` API.  This will not create a new public transaction.
-
-    This method behaves the same as the :py:meth:`Contract.transact` method,
-    with transaction details being passed into the first portion of the
-    function call, and function arguments being passed into the second portion.
-
-    Returns the amount of gas consumed which can be used as a gas estimate for
-    executing this transaction publicly.
-
-    .. code-block:: python
-
-        >>> my_contract.estimateGas().multiply7(3)
-        42650
-
-.. py:method:: Contract.functions.myMethod(*args, **kwargs).buildTransaction(transaction)
-
-    Builds a transaction dictionary based on the contract function call specified.
-
-    This method behaves the same as the :py:meth:`Contract.transact` method,
-    with transaction details being passed into the first portion of the
-    function call, and function arguments being passed into the second portion.
-
-    .. note::
-        `nonce` is not returned as part of the transaction dictionary unless it is
-        specified in the first portion of the function call:
-
-        .. code-block:: python
-
-            >>> math_contract.functions.increment(5).buildTransaction({'nonce': 10})
-
-        You may use :meth:`~web3.eth.Eth.getTransactionCount` to get the current nonce
-        for an account. Therefore a shortcut for producing a transaction dictionary with
-        nonce included looks like:
-
-        .. code-block:: python
-
-            >>> math_contract.functions.increment(5).buildTransaction({'nonce': web3.eth.getTransactionCount('0xF5...')})
-
-    Returns a transaction dictionary. This transaction dictionary can then be sent using
-    :meth:`~web3.eth.Eth.sendTransaction`.
-
-    Additionally, the dictionary may be used for offline transaction signing using
-    :meth:`~web3.eth.account.Account.signTransaction`.
-
-    .. code-block:: python
-
-        >>> math_contract.functions.increment(5).buildTransaction({'gasPrice': 21000000000})
-        {
-            'to': '0x6Bc272FCFcf89C14cebFC57B8f1543F5137F97dE',
-            'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',
-            'value': 0,
-            'gas': 43242,
-            'gasPrice': 21000000000,
-            'chainId': 1
-        }
-
-.. _fallback-function:
-
-Fallback Function
-~~~~~~~~~~~~~~~~~
-
-    The Contract Factory also offers an API to interact with the fallback function, which supports four methods like
-    normal functions:
-
-.. py:method:: Contract.fallback.call(transaction)
-
-    Call fallback function, executing the transaction locally using the
-    ``eth_call`` API.  This will not create a new public transaction.
-
-.. py:method:: Contract.fallback.estimateGas(transaction)
-
-    Call fallback function and return the gas estimation.
-
-.. py:method:: Contract.fallback.transact(transaction)
-
-    Execute fallback function by sending a new public transaction.
-
-.. py:method:: Contract.fallback.buildTransaction(transaction)
-
-    Builds a transaction dictionary based on the contract fallback function call.
-
-Events
-------
 
 .. py:classmethod:: Contract.eventFilter(event_name, filter_params=None)
 
@@ -313,10 +178,204 @@ Event Log Object
         >>> transfer_filter.get_all_entries()
         [...]  # all events that match the filter.
 
-.. py:method:: Contract.events.myEvent(*args, **kwargs).processReceipt(transaction_receipt)
+Contract Functions
+------------------
 
-   Returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
-   with decoded ouput.
+.. py:class:: ContractFunction
+
+The named functions exposed through the :py:attr:`Contract.functions` property are of the ContractFunction type. This class it not to be used directly, but instead through :py:attr:`Contract.functions`.
+
+For example:
+
+    .. code-block:: python
+
+        myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
+        myContract.functions.multiply7(3).call()
+
+:py:class:`ContractFunction` provides methods to interact with contract functions. Positional and keyword arguments supplied to the contract function subclass will be used to find the contract function by signature, and forwarded to the contract function when applicable.
+
+Methods
+"""""""
+
+.. py:method:: ContractFunction.transact(transaction)
+
+    Execute the specified function by sending a new public transaction.
+
+    Refer to the following invocation:
+
+    .. code-block:: python
+
+        myContract.functions.myMethod(*args, **kwargs).transact(transaction)
+
+    The first portion of the function call ``myMethod(*args, **kwargs)``
+    selects the appropriate contract function based on the name and provided
+    argument.  Arguments can be provided as positional arguments, keyword
+    arguments, or a mix of the two.
+
+    The end portion of this function call ``transact(transaction)`` takes a
+    single parameter which should be a python dictionary conforming to
+    the same format as the ``web3.eth.sendTransaction(transaction)`` method.
+    This dictionary may not contain the keys ``data`` or ``to``.
+
+    If any of the ``args`` or ``kwargs`` specified in the ABI are an ``address`` type, they
+    will accept ENS names.
+
+    If a ``gas`` value is not provided, then the ``gas`` value for the
+    method transaction will be created using the ``web3.eth.estimateGas()``
+    method.
+
+    Returns the transaction hash.
+
+    .. code-block:: python
+
+        >>> token_contract.functions.transfer(web3.eth.accounts[1], 12345).transact()
+        "0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd"
+
+
+.. py:method:: ContractFunction.call(transaction)
+
+    Call a contract function, executing the transaction locally using the
+    ``eth_call`` API.  This will not create a new public transaction.
+
+    Refer to the following invocation:
+
+    .. code-block:: python
+
+        myContract.functions.myMethod(*args, **kwargs).call(transaction)
+
+    This method behaves the same as the :py:meth:`ContractFunction.transact` method,
+    with transaction details being passed into the end portion of the
+    function call, and function arguments being passed into the first portion.
+
+    Returns the return value of the executed function.
+
+    .. code-block:: python
+
+        >>> my_contract.functions.multiply7(3).call()
+        21
+        >>> token_contract.functions.myBalance().call({'from': web3.eth.coinbase})
+        12345  # the token balance for `web3.eth.coinbase`
+        >>> token_contract.functions.myBalance().call({'from': web3.eth.accounts[1]})
+        54321  # the token balance for the account `web3.eth.accounts[1]`
+
+
+.. py:method:: ContractFunction.estimateGas(transaction)
+
+    Call a contract function, executing the transaction locally using the
+    ``eth_call`` API.  This will not create a new public transaction.
+
+    Refer to the following invocation:
+
+    .. code-block:: python
+
+        myContract.functions.myMethod(*args, **kwargs).estimateGas(transaction)
+
+    This method behaves the same as the :py:meth:`ContractFunction.transact` method,
+    with transaction details being passed into the end portion of the
+    function call, and function arguments being passed into the first portion.
+
+    Returns the amount of gas consumed which can be used as a gas estimate for
+    executing this transaction publicly.
+
+    .. code-block:: python
+
+        >>> my_contract.functions.multiply7(3).estimateGas()
+        42650
+
+.. py:method:: ContractFunction.buildTransaction(transaction)
+
+    Builds a transaction dictionary based on the contract function call specified.
+
+    Refer to the following invocation:
+
+    .. code-block:: python
+
+        myContract.functions.myMethod(*args, **kwargs).buildTransaction(transaction)
+
+    This method behaves the same as the :py:meth:`Contract.transact` method,
+    with transaction details being passed into the end portion of the
+    function call, and function arguments being passed into the first portion.
+
+    .. note::
+        `nonce` is not returned as part of the transaction dictionary unless it is
+        specified in the first portion of the function call:
+
+        .. code-block:: python
+
+            >>> math_contract.functions.increment(5).buildTransaction({'nonce': 10})
+
+        You may use :meth:`~web3.eth.Eth.getTransactionCount` to get the current nonce
+        for an account. Therefore a shortcut for producing a transaction dictionary with
+        nonce included looks like:
+
+        .. code-block:: python
+
+            >>> math_contract.functions.increment(5).buildTransaction({'nonce': web3.eth.getTransactionCount('0xF5...')})
+
+    Returns a transaction dictionary. This transaction dictionary can then be sent using
+    :meth:`~web3.eth.Eth.sendTransaction`.
+
+    Additionally, the dictionary may be used for offline transaction signing using
+    :meth:`~web3.eth.account.Account.signTransaction`.
+
+    .. code-block:: python
+
+        >>> math_contract.functions.increment(5).buildTransaction({'gasPrice': 21000000000})
+        {
+            'to': '0x6Bc272FCFcf89C14cebFC57B8f1543F5137F97dE',
+            'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',
+            'value': 0,
+            'gas': 43242,
+            'gasPrice': 21000000000,
+            'chainId': 1
+        }
+
+.. _fallback-function:
+
+Fallback Function
+~~~~~~~~~~~~~~~~~
+
+    The Contract Factory also offers an API to interact with the fallback function, which supports four methods like
+    normal functions:
+
+.. py:method:: Contract.fallback.call(transaction)
+
+    Call fallback function, executing the transaction locally using the
+    ``eth_call`` API.  This will not create a new public transaction.
+
+.. py:method:: Contract.fallback.estimateGas(transaction)
+
+    Call fallback function and return the gas estimation.
+
+.. py:method:: Contract.fallback.transact(transaction)
+
+    Execute fallback function by sending a new public transaction.
+
+.. py:method:: Contract.fallback.buildTransaction(transaction)
+
+    Builds a transaction dictionary based on the contract fallback function call.
+
+Events
+------
+
+.. py:class:: ContractEvents
+
+The named events exposed through the :py:attr:`Contract.events` property are of the ContractEvents type. This class it not to be used directly, but instead through :py:attr:`Contract.events`.
+
+For example:
+
+    .. code-block:: python
+
+        myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
+        myContract.events.myEvent().processReceipt()
+
+:py:class:`ContractEvent` provides methods to interact with contract events. Positional and keyword arguments supplied to the contract event subclass will be used to find the contract event by signature.
+
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).processReceipt(transaction_receipt)
+
+   Extracts the pertinent logs from a transaction receipt.
+
+   Returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``), with decoded ouput.
 
    .. code-block:: python
 
