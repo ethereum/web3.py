@@ -79,9 +79,15 @@ Each Contract Factory exposes the following properties.
 
 .. py:attribute:: Contract.functions
 
-    This provides access to contract functions using attribute syntax.  For example:
+    This provides access to contract functions as attributes.  For example:
     ``myContract.functions.MyMethod()``.  The exposed contract functions are classes of the
     type :py:class:`ContractFunction`.
+
+.. py:attribute:: Contract.events
+
+    This provides access to contract events as attributes.  For example:
+    ``myContract.events.MyEvent()``.  The exposed contract events are classes of the
+    type :py:class:`ContractEvent`.
 
 Methods
 -------
