@@ -877,8 +877,8 @@ class ContractFunction:
         return estimate_gas_for_function(self.contract_abi,
                                          self.address,
                                          self.web3,
-                                         function_name=self.function_name,
-                                         transaction=estimate_transaction,
+                                         self.function_name,
+                                         estimate_transaction,
                                          *self.args,
                                          **self.kwargs)
 
