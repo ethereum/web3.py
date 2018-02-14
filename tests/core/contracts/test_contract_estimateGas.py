@@ -36,3 +36,14 @@ def test_contract_estimateGas(web3, math_contract, estimateGas):
     except AssertionError:
         assert abs(gas_estimate - 32772) < 200  # eth-tester with py-evm
         pass
+
+
+def test_contract_estimateGas_with_arguments(web3, math_contract, estimateGas):
+    gas_estimate = estimateGas(contract=math_contract,
+                               contract_function='add',
+                               func_args=[5, 6])
+    try:
+        assert abs(gas_estimate - 21984) < 200  # Geth
+    except AssertionError:
+        assert abs(gas_estimate - 30000) < 200  # eth-tester with py-evm
+        pass
