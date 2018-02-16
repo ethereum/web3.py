@@ -77,6 +77,28 @@ Middleware can be added, removed, replaced, and cleared at runtime. To make that
 can name the middleware for later reference. Alternatively, you can use a reference to the
 middleware itself.
 
+Middleware Order
+~~~~~~~~~~~~~~~~~~
+
+The "stack" of middlewares used for requests is maintained in ``Web3.middleware_stack``. See
+below for the API.
+
+That stack is ordered, so you can think of the stack as a list. Below you can find
+how the order of that list maps to the middleware execution during a request.
+
+When you send a request to your node, the last middleware in the list has the first opportunity
+to modify the request, and then the second to last, and so on to the first. Then, when the
+node returns the result, the first element in the list has the first opportunity to modify
+the response, then the second, and so on to the last. In other words, the first element is
+"closest" to the node, and the last element is "closest" to your Web3.py request.
+
+See "Internals: :ref:`internals__middlewares`" for a deeper dive to how middlewares work.
+
+Middleware Stack API
+~~~~~~~~~~~~~~~~~~~~~
+
+To add or remove items in different parts of the stack, use the following API:
+
 .. py:method:: Web3.middleware_stack.add(middleware, name=None)
 
     Middleware will be added to the top of the stack. That means the new middleware will modify the
@@ -89,6 +111,22 @@ middleware itself.
         >>> w3.middleware_stack.add(web3.middleware.pythonic_middleware)
         # or
         >>> w3.middleware_stack.add(web3.middleware.pythonic_middleware, 'pythonic')
+
+.. py:method:: Web3.middleware_stack.insert(index, middleware, name=None)
+
+    Insert a named middleware to an arbitrary location in the stack.
+
+    The current implementation only supports insertion at the beginning,
+    or at the end. Note that inserting to the end is equivalent to calling
+    :meth:`Web3.middleware_stack.add` .
+
+    .. code-block:: python
+
+        # Either of these will put the pythonic middleware at the bottom of the middleware stack.
+        >>> w3 = Web3(...)
+        >>> w3.middleware_stack.insert(0, web3.middleware.pythonic_middleware)
+        # or
+        >>> w3.middleware_stack.insert(0, web3.middleware.pythonic_middleware, 'pythonic')
 
 .. py:method:: Web3.middleware_stack.remove(middleware)
 
