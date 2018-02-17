@@ -102,7 +102,7 @@ class NamedElementStack(Mapping):
             else:
                 self.add(*element)
 
-    def add(self, element, name=None):
+    def add(self, element, name=None, bottom=False):
         if name is None:
             name = element
 
@@ -113,6 +113,16 @@ class NamedElementStack(Mapping):
                 raise ValueError("You can't add the same name again, use replace instead")
 
         self._queue[name] = element
+
+        if bottom:
+            # entry 'name' becomes first entry of queue, which  (bottom of stack)
+            self._queue.move_to_end(name, last=False)
+
+    #
+    # Adds a named element at the bottom of the stack
+    #
+    def add_bottom(self, element, name=None):
+        self.add(element, name, bottom=True)
 
     def clear(self):
         self._queue.clear()
