@@ -385,6 +385,53 @@ def ArraysContract(web3, ARRAYS_CONTRACT):
     return web3.eth.contract(**ARRAYS_CONTRACT)
 
 
+CONTRACT_FALLBACK_FUNCTION_SOURCE = """
+contract A {
+    uint data;
+    function A() public payable { data = 0; }
+    function getData() returns (uint r) { return data; }
+    function() { data = 1; }
+}
+"""
+
+CONTRACT_FALLBACK_FUNCTION_CODE = "60606040526000808190555060ae806100196000396000f300606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633bc5de30146053575b3415604957600080fd5b6001600081905550005b3415605d57600080fd5b60636079565b6040518082815260200191505060405180910390f35b600080549050905600a165627a7a72305820045439389e4742569ec078687e6a0c81997709778a0097adbe07ccfd9f7b1a330029"  # noqa: E501
+
+CONTRACT_FALLBACK_FUNCTION_RUNTIME = "606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633bc5de30146053575b3415604957600080fd5b6001600081905550005b3415605d57600080fd5b60636079565b6040518082815260200191505060405180910390f35b600080549050905600a165627a7a72305820045439389e4742569ec078687e6a0c81997709778a0097adbe07ccfd9f7b1a330029"  # noqa: E501
+
+CONTRACT_FALLBACK_FUNCTION_ABI = json.loads('[{"constant": false, "inputs": [], "name": "getData", "outputs": [{"name": "r", "type": "uint256"}], "payable": false, "stateMutability": "nonpayable", "type": "function"}, {"inputs": [], "payable": true, "stateMutability": "payable", "type": "constructor"}, {"payable": false, "stateMutability": "nonpayable", "type": "fallback"}]')  # noqa: E501
+
+
+@pytest.fixture()
+def FALLBACK_FUNCTION_CODE():
+    return CONTRACT_FALLBACK_FUNCTION_CODE
+
+
+@pytest.fixture()
+def FALLBACK_FUNCTION_RUNTIME():
+    return CONTRACT_FALLBACK_FUNCTION_RUNTIME
+
+
+@pytest.fixture()
+def FALLBACK_FUNCTION_ABI():
+    return CONTRACT_FALLBACK_FUNCTION_ABI
+
+
+@pytest.fixture()
+def FALLBACK_FUNCTION_CONTRACT(FALLBACK_FUNCTION_CODE,
+                               FALLBACK_FUNCTION_RUNTIME,
+                               FALLBACK_FUNCTION_ABI):
+    return {
+        'bytecode': FALLBACK_FUNCTION_CODE,
+        'bytecode_runtime': FALLBACK_FUNCTION_RUNTIME,
+        'abi': FALLBACK_FUNCTION_ABI,
+    }
+
+
+@pytest.fixture()
+def FallballFunctionContract(web3, FALLBACK_FUNCTION_CONTRACT):
+    return web3.eth.contract(**FALLBACK_FUNCTION_CONTRACT)
+
+
 class LogFunctions:
     LogAnonymous = 0
     LogNoArguments = 1

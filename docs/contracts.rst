@@ -215,6 +215,31 @@ Each Contract Factory exposes the following methods.
             'chainId': 1
         }
 
+.. _fallback-function:
+
+Fallback Function
+~~~~~~~~~~~~~~~~~
+
+    The Contract Factory also offers an API to interact with the fallback function, which supports four methods like
+    normal functions:
+
+.. py:method:: Contract.fallback.call(transaction)
+
+    Call fallback function, executing the transaction locally using the
+    ``eth_call`` API.  This will not create a new public transaction.
+
+.. py:method:: Contract.fallback.estimateGas(transaction)
+
+    Call fallback function and return the gas estimation.
+
+.. py:method:: Contract.fallback.transact(transaction)
+
+    Execute fallback function by sending a new public transaction.
+
+.. py:method:: Contract.fallback.buildTransaction(transaction)
+
+    Builds a transaction dictionary based on the contract fallback function call.
+
 Events
 ------
 

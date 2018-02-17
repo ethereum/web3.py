@@ -89,6 +89,11 @@ def mismatched_math_contract(web3, StringContract, MathContract):
     return _mismatched_math_contract
 
 
+@pytest.fixture()
+def fallback_function_contract(web3, FallballFunctionContract):
+    return deploy(web3, FallballFunctionContract)
+
+
 def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):
     with pytest.raises(InvalidAddress):
         WithConstructorAddressArgumentsContract.deploy(args=[
@@ -346,3 +351,8 @@ def test_call_undeployed_contract(undeployed_math_contract, call):
     with pytest.raises(BadFunctionCallOutput) as exception_info:
         call(contract=undeployed_math_contract, contract_function='return13')
     assert expected_undeployed_call_error_message in str(exception_info.value)
+
+
+def test_call_fallback_function(fallback_function_contract):
+    result = fallback_function_contract.fallback.call()
+    assert result == []

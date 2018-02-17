@@ -19,11 +19,31 @@ def math_contract(web3, MathContract):
     return _math_contract
 
 
+@pytest.fixture()
+def fallback_function_contract(web3, FallballFunctionContract):
+    deploy_txn = FallballFunctionContract.deploy()
+    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    _fallback_contract = FallballFunctionContract(address=deploy_receipt['contractAddress'])
+    return _fallback_contract
+
+
 def test_build_transaction_with_contract_no_arguments(web3, math_contract, buildTransaction):
     txn = buildTransaction(contract=math_contract, contract_function='increment')
     assert dissoc(txn, 'gas') == {
         'to': math_contract.address,
         'data': '0xd09de08a',
+        'value': 0,
+        'gasPrice': 1,
+        'chainId': 1
+    }
+
+
+def test_build_transaction_with_contract_fallback_function(web3, fallback_function_contract):
+    txn = fallback_function_contract.fallback.buildTransaction()
+    assert dissoc(txn, 'gas') == {
+        'to': fallback_function_contract.address,
+        'data': '0x',
         'value': 0,
         'gasPrice': 1,
         'chainId': 1

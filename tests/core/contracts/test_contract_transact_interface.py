@@ -36,6 +36,15 @@ def string_contract(web3, StringContract):
 
 
 @pytest.fixture()
+def fallback_function_contract(web3, FallballFunctionContract):
+    deploy_txn = FallballFunctionContract.deploy()
+    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    _fallback_contract = FallballFunctionContract(address=deploy_receipt['contractAddress'])
+    return _fallback_contract
+
+
+@pytest.fixture()
 def arrays_contract(web3, ArraysContract):
     # bytes_32 = [keccak('0'), keccak('1')]
     bytes32_array = [
@@ -239,3 +248,16 @@ def test_auto_gas_computation_when_transacting(web3,
 
     txn = web3.eth.getTransaction(txn_hash)
     assert txn['gas'] == gas_estimate + 100000
+
+
+def test_fallback_transacting_with_contract(web3, fallback_function_contract, call):
+    initial_value = call(contract=fallback_function_contract,
+                         contract_function='getData')
+    txn_hash = fallback_function_contract.fallback.transact()
+    txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
+    assert txn_receipt is not None
+
+    final_value = call(contract=fallback_function_contract,
+                       contract_function='getData')
+
+    assert final_value - initial_value == 1
