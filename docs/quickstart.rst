@@ -161,7 +161,9 @@ Simple Contract Example
     contract_address = tx_receipt['contractAddress']
 
     # Contract instance in concise mode
-    contract_instance = w3.eth.contract(contract_interface['abi'], contract_address, ContractFactoryClass=ConciseContract)
+    contract_instance = w3.eth.contract(
+        contract_address, abi=contract_interface['abi'], ContractFactoryClass=ConciseContract)
+    )
 
     # Getters + Setters for web3.eth.contract object
     print('Contract value: {}'.format(contract_instance.greet()))
