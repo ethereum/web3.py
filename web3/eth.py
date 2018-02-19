@@ -272,9 +272,10 @@ class Eth(Module):
 
     def filter(self, filter_params=None, filter_id=None):
         if filter_id and filter_params:
-            raise ValueError("Ambiguous invocation: provide either a \
-                    `filter_params` or a `filter_id` argument. \
-                    Both were supplied.")
+            raise TypeError(
+                "Ambiguous invocation: provide either a `filter_params` or a `filter_id` argument. "
+                "Both were supplied."
+            )
         if is_string(filter_params):
             if filter_params == "latest":
                 filter_id = self.web3.manager.request_blocking(
