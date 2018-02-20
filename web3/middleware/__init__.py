@@ -42,6 +42,10 @@ from .exception_retry_request import (  # noqa: F401
     http_retry_request_middleware
 )
 
+from .geth_poa import (  # noqa: F401
+    geth_poa_compatibility,
+)
+
 from .validation import (  # noqa: F401
     validation_middleware,
 )
