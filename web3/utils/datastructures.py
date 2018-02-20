@@ -142,7 +142,7 @@ class NamedElementStack(Mapping):
         if index == 0:
             if name is None:
                 name = element
-            self._queue.move_to_end(name)
+            self._queue.move_to_end(name, last=False)
         elif index == len(self._queue):
             return
         else:
