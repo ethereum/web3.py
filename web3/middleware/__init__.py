@@ -42,6 +42,10 @@ from .exception_retry_request import (  # noqa: F401
     http_retry_request_middleware
 )
 
+from .validation import (  # noqa: F401
+    validation_middleware,
+)
+
 
 def combine_middlewares(middlewares, web3, provider_request_fn):
     """

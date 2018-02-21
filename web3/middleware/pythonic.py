@@ -233,6 +233,11 @@ filter_result_formatter = apply_one_of_formatters((
     (apply_formatter_to_array(to_hexbytes(32)), is_array_of_strings),
 ))
 
+TRANSACTION_PARAM_FORMATTERS = {
+    'chainId': apply_formatter_if(is_integer, str),
+}
+
+transaction_param_formatter = apply_formatters_to_dict(TRANSACTION_PARAM_FORMATTERS)
 
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
@@ -253,6 +258,9 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_getLogs': apply_formatter_at_index(filter_params_formatter, 0),
+        'eth_call': apply_formatter_at_index(transaction_param_formatter, 0),
+        'eth_estimateGas': apply_formatter_at_index(transaction_param_formatter, 0),
+        'eth_sendTransaction': apply_formatter_at_index(transaction_param_formatter, 0),
         # personal
         'personal_importRawKey': apply_formatter_at_index(
             compose(remove_0x_prefix, hexstr_if_str(to_hex)),
