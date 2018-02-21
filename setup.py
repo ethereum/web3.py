@@ -18,7 +18,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "cytoolz>=0.9.0,<1.0.0",
-        "eth-abi>=1.0.0-beta.0,<2",
+        "eth-abi>=1.0.0-beta.1,<2",
         "eth-account>=0.1.0a2,<1.0.0",
         "eth-utils>=1.0.0b1,<2.0.0",
         "hexbytes>=0.1.0b0,<1.0.0",
