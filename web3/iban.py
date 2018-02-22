@@ -2,9 +2,7 @@ import functools
 import re
 
 from eth_utils import (
-    coerce_args_to_text,
     is_string,
-    pad_left,
     to_checksum_address,
 )
 
@@ -14,7 +12,7 @@ from web3.utils.validation import (
 
 
 def pad_left_hex(value, num_bytes):
-    return pad_left(value, num_bytes * 2, '0')
+    return value.rjust(num_bytes * 2, '0')
 
 
 def iso13616Prepare(iban):
@@ -88,7 +86,6 @@ class IsValid:
         return functools.partial(self.validate, instance._iban)
 
     @staticmethod
-    @coerce_args_to_text
     def validate(iban_address):
         if not is_string(iban_address):
             return False

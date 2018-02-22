@@ -24,6 +24,7 @@ from web3.utils.encoding import (
     text_if_str,
     to_bytes,
     to_hex,
+    to_text,
 )
 from web3.utils.ens import (
     is_ens_name,
@@ -102,9 +103,15 @@ def abi_string_to_hex(abi_type, data):
 
 
 @implicitly_identity
-def hexstrs_to_bytes(abi_type, data):
+def abi_string_to_text(abi_type, data):
+    if abi_type == 'string':
+        return abi_type, text_if_str(to_text, data)
+
+
+@implicitly_identity
+def abi_bytes_to_bytes(abi_type, data):
     base, sub, arrlist = process_type(abi_type)
-    if base in {'string', 'bytes'} and not arrlist:
+    if base == 'bytes' and not arrlist:
         return abi_type, hexstr_if_str(to_bytes, data)
 
 

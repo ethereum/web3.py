@@ -39,10 +39,9 @@ from web3.utils.function_identifiers import (
 )
 from web3.utils.normalizers import (
     abi_address_to_hex,
-    abi_bytes_to_hex,
+    abi_bytes_to_bytes,
     abi_ens_resolver,
-    abi_string_to_hex,
-    hexstrs_to_bytes,
+    abi_string_to_text,
 )
 
 
@@ -118,9 +117,8 @@ def encode_abi(web3, abi, arguments, data=None):
         normalizers = [
             abi_ens_resolver(web3),
             abi_address_to_hex,
-            abi_bytes_to_hex,
-            abi_string_to_hex,
-            hexstrs_to_bytes,
+            abi_bytes_to_bytes,
+            abi_string_to_text,
         ]
         normalized_arguments = map_abi_data(
             normalizers,
