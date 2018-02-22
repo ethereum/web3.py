@@ -9,7 +9,7 @@ from setuptools import (
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='4.0.0-beta.9',
+    version='4.0.0-beta.10',
     description="""Web3.py""",
     long_description_markdown_filename='README.md',
     author='Piper Merriam',
