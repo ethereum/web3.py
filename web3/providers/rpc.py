@@ -9,7 +9,7 @@ from web3.middleware import (
     http_retry_request_middleware,
 )
 from web3.utils.datastructures import (
-    NamedElementStack,
+    NamedElementOnion,
 )
 from web3.utils.http import (
     construct_user_agent,
@@ -33,7 +33,7 @@ class HTTPProvider(JSONBaseProvider):
     endpoint_uri = None
     _request_args = None
     _request_kwargs = None
-    _middlewares = NamedElementStack([(http_retry_request_middleware, 'http_retry_request')])
+    _middlewares = NamedElementOnion([(http_retry_request_middleware, 'http_retry_request')])
 
     def __init__(self, endpoint_uri=None, request_kwargs=None):
         if endpoint_uri is None:
