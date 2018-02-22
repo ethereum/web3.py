@@ -1,6 +1,21 @@
 Release Notes
 =============
 
+v4.0.0-beta.10
+-----------------
+
+Released Feb 21, 2018
+
+- bugfix: Compatibility with eth-utils v1-beta2
+  (the incompatibility was causing fresh web3.py installs to fail)
+- bugfix: crash when sending the output of ``contract.functions.myFunction().buildTransaction()``
+  to :meth:`~web3.eth.Eth.sendTransaction`. Now, having a chainID key does not crash
+  sendTransaction.
+- bugfix: a TypeError when estimating gas like:
+  ``contract.functions.myFunction().estimateGas()`` is fixed
+- Added parity integration tests to the continuous integration suite!
+- Some py3 and docs cleanup
+
 v4.0.0-beta.9
 -------------
 
