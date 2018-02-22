@@ -29,7 +29,7 @@ setup(
     setup_requires=['setuptools-markdown'],
     extras_require={
         'tester': [
-            "eth-tester[py-evm]==0.1.0b16",
+            "eth-tester[py-evm]==0.1.0b19",
         ],
         'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
         'linter': [
