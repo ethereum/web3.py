@@ -301,6 +301,10 @@ class TestParityEthModule(EthModuleTest):
         pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction(web3, unlocked_account)
 
+    def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account):
+        pytest.xfail('Parity is not setup to auto mine')
+        super().test_eth_replaceTransaction_already_mined(web3, unlocked_account)
+
     def test_eth_replaceTransaction_incorrect_nonce(self, web3, unlocked_account):
         pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction_incorrect_nonce(web3, unlocked_account)
