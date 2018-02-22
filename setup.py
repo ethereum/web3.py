@@ -21,7 +21,7 @@ setup(
         "eth-abi>=1.0.0-beta.1,<2",
         "eth-account>=0.1.0a2,<1.0.0",
         "eth-utils>=1.0.0b1,<2.0.0",
-        "hexbytes>=0.1.0b0,<1.0.0",
+        "hexbytes>=0.1.0b1,<1.0.0",
         "lru-dict>=1.1.6,<2.0.0",
         "pysha3>=1.0.0,<2.0.0",
         "requests>=2.16.0,<3.0.0",
