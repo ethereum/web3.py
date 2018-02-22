@@ -311,7 +311,7 @@ class EthModuleTest:
         with pytest.raises(ValueError):
             web3.eth.replaceTransaction(txn_hash, txn_params)
 
-    def test_eth_replaceTransaction_gas_price_defaulting(self, web3, unlocked_account):
+    def test_eth_replaceTransaction_gas_price_defaulting_minimum(self, web3, unlocked_account):
         txn_params = {
             'from': unlocked_account,
             'to': unlocked_account,
@@ -327,26 +327,50 @@ class EthModuleTest:
 
         assert replace_txn['gasPrice'] == 11  # minimum gas price
 
+    def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(self,
+                                                                         web3,
+                                                                         unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': 10,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+
         def higher_gas_price_strategy(web3, txn):
             return 20
 
         web3.eth.setGasPriceStrategy(higher_gas_price_strategy)
 
+        txn_params.pop('gasPrice')
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
         replace_txn = web3.eth.getTransaction(replace_txn_hash)
         assert replace_txn['gasPrice'] == 20  # Strategy provides higher gas price
+
+    def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(self,
+                                                                        web3,
+                                                                        unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': 10,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
 
         def lower_gas_price_strategy(web3, txn):
             return 5
 
         web3.eth.setGasPriceStrategy(lower_gas_price_strategy)
 
+        txn_params.pop('gasPrice')
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
         replace_txn = web3.eth.getTransaction(replace_txn_hash)
         # Strategy provices lower gas price - minimum preferred
         assert replace_txn['gasPrice'] == 11
-
-        web3.eth.setGasPriceStrategy(None)
 
     def test_eth_modifyTransaction(self, web3, unlocked_account):
         txn_params = {

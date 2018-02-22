@@ -207,8 +207,29 @@ class TestEthereumTesterEthModule(EthModuleTest):
         super().test_eth_replaceTransaction_gas_price_too_low(web3, unlocked_account)
 
     @disable_auto_mine
-    def test_eth_replaceTransaction_gas_price_defaulting(self, eth_tester, web3, unlocked_account):
-        super().test_eth_replaceTransaction_gas_price_defaulting(web3, unlocked_account)
+    def test_eth_replaceTransaction_gas_price_defaulting_minimum(self,
+                                                                 eth_tester,
+                                                                 web3,
+                                                                 unlocked_account):
+        super().test_eth_replaceTransaction_gas_price_defaulting_minimum(web3, unlocked_account)
+
+    @disable_auto_mine
+    def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(self,
+                                                                         eth_tester,
+                                                                         web3,
+                                                                         unlocked_account):
+        super().test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(
+            web3, unlocked_account
+        )
+
+    @disable_auto_mine
+    def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(self,
+                                                                        eth_tester,
+                                                                        web3,
+                                                                        unlocked_account):
+        super().test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(
+            web3, unlocked_account
+        )
 
     @disable_auto_mine
     def test_eth_modifyTransaction(self, eth_tester, web3, unlocked_account):
