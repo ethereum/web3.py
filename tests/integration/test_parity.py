@@ -297,6 +297,42 @@ class TestParityEthModule(EthModuleTest):
         pytest.xfail('Parity returns latest block on first polling for new blocks')
         super().test_eth_newBlockFilter(web3)
 
+    def test_eth_replaceTransaction(self, web3, unlocked_account):
+        pytest.xfail('Needs ability to efficiently control mining')
+        super().test_eth_replaceTransaction(web3, unlocked_account)
+
+    def test_eth_replaceTransaction_incorrect_nonce(self, web3, unlocked_account):
+        pytest.xfail('Needs ability to efficiently control mining')
+        super().test_eth_replaceTransaction_incorrect_nonce(web3, unlocked_account)
+
+    def test_eth_replaceTransaction_gas_price_too_low(self, web3, unlocked_account):
+        pytest.xfail('Needs ability to efficiently control mining')
+        super().test_eth_replaceTransaction_gas_price_too_low(web3, unlocked_account)
+
+    def test_eth_replaceTransaction_gas_price_defaulting_minimum(self, web3, unlocked_account):
+        pytest.xfail('Needs ability to efficiently control mining')
+        super().test_eth_replaceTransaction_gas_price_defaulting_minimum(web3, unlocked_account)
+
+    def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(self,
+                                                                         web3,
+                                                                         unlocked_account):
+        pytest.xfail('Needs ability to efficiently control mining')
+        super().test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(
+            web3, unlocked_account
+        )
+
+    def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(self,
+                                                                        web3,
+                                                                        unlocked_account):
+        pytest.xfail('Needs ability to efficiently control mining')
+        super().test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(
+            web3, unlocked_account
+        )
+
+    def test_eth_modifyTransaction(self, web3, unlocked_account):
+        pytest.xfail('Needs ability to efficiently control mining')
+        super().test_eth_modifyTransaction(web3, unlocked_account)
+
 
 class TestParityVersionModule(VersionModuleTest):
     pass
