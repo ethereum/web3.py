@@ -24,6 +24,9 @@ from eth_utils import (
     to_tuple,
 )
 
+from web3.exceptions import (
+    FallbackNotFound,
+)
 from web3.utils.ens import (
     is_ens_name,
 )
@@ -56,7 +59,10 @@ def get_abi_input_types(abi):
 
 
 def get_abi_output_types(abi):
-    return [arg['type'] for arg in abi['outputs']]
+    if abi['type'] == 'fallback':
+        return []
+    else:
+        return [arg['type'] for arg in abi['outputs']]
 
 
 def get_abi_input_names(abi):
@@ -64,6 +70,18 @@ def get_abi_input_names(abi):
         return []
     else:
         return [arg['name'] for arg in abi['inputs']]
+
+
+def get_fallback_func_abi(contract_abi):
+    fallback_abis = filter_by_type('fallback', contract_abi)
+    if fallback_abis:
+        return fallback_abis[0]
+    else:
+        raise FallbackNotFound("No fallback function was found in the contract ABI.")
+
+
+def fallback_func_abi_exists(contract_abi):
+    return filter_by_type('fallback', contract_abi)
 
 
 def get_indexed_event_inputs(event_abi):
@@ -140,7 +158,7 @@ def is_encodable(_type, value):
         elif isinstance(value, bytes):
             return len(value) <= max_length
         else:
-            False
+            return False
     elif base == 'address':
         if is_ens_name(value):
             return True
@@ -167,7 +185,7 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     except TypeError:
         return False
 
-    if len(function_abi['inputs']) != len(arguments):
+    if len(function_abi.get('inputs', [])) != len(arguments):
         return False
 
     types = get_abi_input_types(function_abi)
@@ -179,7 +197,7 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
 
 
 def merge_args_and_kwargs(function_abi, args, kwargs):
-    if len(args) + len(kwargs) != len(function_abi['inputs']):
+    if len(args) + len(kwargs) != len(function_abi.get('inputs', [])):
         raise TypeError(
             "Incorrect argument count.  Expected '{0}'.  Got '{1}'".format(
                 len(function_abi['inputs']),
@@ -207,9 +225,17 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
 
     unknown_kwargs = {key for key in kwargs.keys() if key not in sorted_arg_names}
     if unknown_kwargs:
+        if function_abi.get('name'):
+            raise TypeError(
+                "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
+                    fn_name=function_abi.get('name'),
+                    dups=', '.join(unknown_kwargs),
+                )
+            )
+        # show type instead of name in the error message incase key 'name' is missing.
         raise TypeError(
-            "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
-                fn_name=function_abi['name'],
+            "Type: '{_type}' got unexpected keyword argument(s) '{dups}'".format(
+                _type=function_abi.get('type'),
                 dups=', '.join(unknown_kwargs),
             )
         )
@@ -489,7 +515,7 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
     interface of all other relevant collections.
     '''
     def __new__(cls, iterable):
-        return super(ABITypedData, cls).__new__(cls, *iterable)
+        return super().__new__(cls, *iterable)
 
 
 def abi_sub_tree(data_type, data_value):

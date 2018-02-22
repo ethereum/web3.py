@@ -63,3 +63,17 @@ class MismatchedABI(Exception):
     Raised when an ABI does not match with supplied parameters.
     """
     pass
+
+
+class FallbackNotFound(Exception):
+    """
+    Raised when fallback function doesn't exist in contract.
+    """
+    pass
+
+
+class ValidationError(Exception):
+    """
+    Raised when a supplied value is invalid.
+    """
+    pass

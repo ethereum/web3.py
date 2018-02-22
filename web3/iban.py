@@ -2,9 +2,7 @@ import functools
 import re
 
 from eth_utils import (
-    coerce_args_to_text,
     is_string,
-    pad_left,
     to_checksum_address,
 )
 
@@ -14,7 +12,7 @@ from web3.utils.validation import (
 
 
 def pad_left_hex(value, num_bytes):
-    return pad_left(value, num_bytes * 2, '0')
+    return value.rjust(num_bytes * 2, '0')
 
 
 def iso13616Prepare(iban):
@@ -72,7 +70,7 @@ def baseN(num, b, numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
         (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
 
 
-class IsValid(object):
+class IsValid:
     """
     Should be called to check if iban is correct
 
@@ -88,7 +86,6 @@ class IsValid(object):
         return functools.partial(self.validate, instance._iban)
 
     @staticmethod
-    @coerce_args_to_text
     def validate(iban_address):
         if not is_string(iban_address):
             return False
@@ -100,7 +97,7 @@ class IsValid(object):
         return False
 
 
-class Iban(object):
+class Iban:
     def __init__(self, iban):
         self._iban = iban
 

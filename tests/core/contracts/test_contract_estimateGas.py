@@ -28,11 +28,51 @@ def math_contract(web3,
     return _math_contract
 
 
-def test_contract_estimateGas(web3, math_contract, estimateGas):
+@pytest.fixture()
+def fallback_function_contract(web3,
+                               FALLBACK_FUNCTION_ABI,
+                               FALLBACK_FUNCTION_CODE,
+                               FALLBACK_FUNCTION_RUNTIME,
+                               wait_for_transaction):
+    fallback_contract = web3.eth.contract(
+        abi=FALLBACK_FUNCTION_ABI,
+        bytecode=FALLBACK_FUNCTION_CODE,
+        bytecode_runtime=FALLBACK_FUNCTION_RUNTIME
+    )
+    deploy_txn = fallback_contract.deploy({'from': web3.eth.coinbase})
+    deploy_receipt = wait_for_transaction(web3, deploy_txn)
+
+    assert deploy_receipt is not None
+    contract_address = deploy_receipt['contractAddress']
+    web3.isAddress(contract_address)
+
+    _fallback_function_contract = fallback_contract(address=contract_address)
+    return _fallback_function_contract
+
+
+def test_contract_estimateGas(math_contract, estimateGas):
     gas_estimate = estimateGas(contract=math_contract,
                                contract_function='increment')
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
         assert abs(gas_estimate - 32772) < 200  # eth-tester with py-evm
+
+
+def test_contract_fallback_estimateGas(fallback_function_contract):
+    gas_estimate = fallback_function_contract.fallback.estimateGas()
+    try:
+        assert abs(gas_estimate - 21472) < 200  # Geth
+    except AssertionError:
+        assert abs(gas_estimate - 29910) < 200  # eth-tester with py-evm
+
+
+def test_contract_estimateGas_with_arguments(web3, math_contract, estimateGas):
+    gas_estimate = estimateGas(contract=math_contract,
+                               contract_function='add',
+                               func_args=[5, 6])
+    try:
+        assert abs(gas_estimate - 21984) < 200  # Geth
+    except AssertionError:
+        assert abs(gas_estimate - 30000) < 200  # eth-tester with py-evm
         pass

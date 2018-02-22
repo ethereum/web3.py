@@ -14,6 +14,7 @@ from web3.middleware import (
     gas_price_strategy_middleware,
     name_to_address_middleware,
     pythonic_middleware,
+    validation_middleware,
 )
 from web3.providers import (
     AutoProvider,
@@ -29,7 +30,7 @@ from web3.utils.threads import (
 )
 
 
-class RequestManager(object):
+class RequestManager:
     def __init__(self, web3, providers, middlewares=None):
         self.web3 = web3
         self.pending_requests = {}
@@ -69,6 +70,7 @@ class RequestManager(object):
             (name_to_address_middleware(web3), 'name_to_address'),
             (attrdict_middleware, 'attrdict'),
             (pythonic_middleware, 'pythonic'),
+            (validation_middleware, 'validation'),
             (abi_middleware, 'abi'),
         ]
 

@@ -1,18 +1,19 @@
 import pytest
 
+from hexbytes import (
+    HexBytes,
+)
+
 from web3 import Web3
 from web3.exceptions import (
     InvalidAddress,
-)
-from web3.utils.datastructures import (
-    HexBytes,
 )
 from web3.utils.ens import (
     ens_addresses,
 )
 
 
-class Web3ModuleTest(object):
+class Web3ModuleTest:
     def test_web3_clientVersion(self, web3):
         client_version = web3.version.node
         self._check_web3_clientVersion(client_version)

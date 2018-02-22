@@ -15,19 +15,19 @@ from eth_utils import (
     is_same_address,
     is_string,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3.exceptions import (
     InvalidAddress,
-)
-from web3.utils.datastructures import (
-    HexBytes,
 )
 
 UNKNOWN_ADDRESS = '0xdeadbeef00000000000000000000000000000000'
 UNKNOWN_HASH = '0xdeadbeef00000000000000000000000000000000000000000000000000000000'
 
 
-class EthModuleTest(object):
+class EthModuleTest:
     def test_eth_protocolVersion(self, web3):
         protocol_version = web3.version.ethereum
 

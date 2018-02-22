@@ -13,6 +13,10 @@ from eth_utils import (
     add_0x_prefix,
     encode_hex,
     function_abi_to_4byte_selector,
+    is_text,
+)
+from hexbytes import (
+    HexBytes,
 )
 
 from web3.utils.abi import (
@@ -23,21 +27,21 @@ from web3.utils.abi import (
     filter_by_name,
     filter_by_type,
     get_abi_input_types,
+    get_fallback_func_abi,
     map_abi_data,
     merge_args_and_kwargs,
-)
-from web3.utils.datastructures import (
-    HexBytes,
 )
 from web3.utils.encoding import (
     to_hex,
 )
+from web3.utils.function_identifiers import (
+    FallbackFn,
+)
 from web3.utils.normalizers import (
     abi_address_to_hex,
-    abi_bytes_to_hex,
+    abi_bytes_to_bytes,
     abi_ens_resolver,
-    abi_string_to_hex,
-    hexstrs_to_bytes,
+    abi_string_to_text,
 )
 
 
@@ -65,11 +69,16 @@ def find_matching_event_abi(abi, event_name=None, argument_names=None):
         raise ValueError("Multiple events found")
 
 
-def find_matching_fn_abi(abi, fn_name=None, args=None, kwargs=None):
+def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
     filters = []
 
-    if fn_name:
-        filters.append(functools.partial(filter_by_name, fn_name))
+    if fn_identifier:
+        if fn_identifier is FallbackFn:
+            return get_fallback_func_abi(abi)
+        elif is_text(fn_identifier):
+            filters.append(functools.partial(filter_by_name, fn_identifier))
+        else:
+            raise TypeError("Unsupported function identifier")
 
     if args is not None or kwargs is not None:
         if args is None:
@@ -82,8 +91,6 @@ def find_matching_fn_abi(abi, fn_name=None, args=None, kwargs=None):
             functools.partial(filter_by_argument_count, num_arguments),
             functools.partial(filter_by_encodability, args, kwargs),
         ])
-
-    function_candidates = filter_by_type('function', abi)
 
     function_candidates = pipe(abi, *filters)
 
@@ -110,9 +117,8 @@ def encode_abi(web3, abi, arguments, data=None):
         normalizers = [
             abi_ens_resolver(web3),
             abi_address_to_hex,
-            abi_bytes_to_hex,
-            abi_string_to_hex,
-            hexstrs_to_bytes,
+            abi_bytes_to_bytes,
+            abi_string_to_text,
         ]
         normalized_arguments = map_abi_data(
             normalizers,
@@ -138,7 +144,7 @@ def encode_abi(web3, abi, arguments, data=None):
 def prepare_transaction(abi,
                         address,
                         web3,
-                        fn_name,
+                        fn_identifier,
                         fn_args=None,
                         fn_kwargs=None,
                         transaction=None):
@@ -161,18 +167,31 @@ def prepare_transaction(abi,
     prepared_transaction['data'] = encode_transaction_data(
         abi,
         web3,
-        fn_name,
+        fn_identifier,
         fn_args,
         fn_kwargs,
     )
     return prepared_transaction
 
 
-def encode_transaction_data(abi, web3, fn_name, args=None, kwargs=None):
-    fn_abi, fn_selector, fn_arguments = get_function_info(
-        abi, fn_name, args, kwargs,
-    )
+def encode_transaction_data(abi, web3, fn_identifier, args=None, kwargs=None):
+    if fn_identifier is FallbackFn:
+        fn_abi, fn_selector, fn_arguments = get_fallback_function_info(abi)
+    elif is_text(fn_identifier):
+        fn_abi, fn_selector, fn_arguments = get_function_info(
+            abi, fn_identifier, args, kwargs
+        )
+    else:
+        raise TypeError("Unsupported function identifier")
+
     return add_0x_prefix(encode_abi(web3, fn_abi, fn_arguments, fn_selector))
+
+
+def get_fallback_function_info(abi):
+    fn_abi = get_fallback_func_abi(abi)
+    fn_selector = encode_hex(b'')
+    fn_arguments = tuple()
+    return fn_abi, fn_selector, fn_arguments
 
 
 def get_function_info(abi, fn_name, args=None, kwargs=None):

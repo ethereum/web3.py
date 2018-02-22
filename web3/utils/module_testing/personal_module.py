@@ -13,7 +13,7 @@ PRIVATE_KEY_FOR_UNLOCK = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f155
 ACCOUNT_FOR_UNLOCK = '0x12efDc31B1a8FA1A1e756DFD8A1601055C971E13'
 
 
-class PersonalModuleTest(object):
+class PersonalModuleTest:
     def test_personal_importRawKey(self, web3):
         actual = web3.personal.importRawKey(PRIVATE_KEY_HEX, PASSWORD)
         assert actual == ADDRESS

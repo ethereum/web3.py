@@ -5,13 +5,13 @@ import pytest
 from eth_utils import (
     is_checksum_address,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3 import (
     Account,
     Web3,
-)
-from web3.utils.datastructures import (
-    HexBytes,
 )
 from web3.utils.encoding import (
     to_bytes,

@@ -5,7 +5,7 @@ from web3.utils.datatypes import (
 )
 
 
-class InheritedBaseClass(object):
+class InheritedBaseClass:
     arg0 = None
     arg1 = None
 

@@ -30,7 +30,7 @@ def get_ipc_socket(ipc_path, timeout=0.1):
         return sock
 
 
-class PersistantSocket(object):
+class PersistantSocket:
     sock = None
 
     def __init__(self, ipc_path):
@@ -147,7 +147,7 @@ class IPCProvider(JSONBaseProvider):
         self.timeout = timeout
         self._lock = threading.Lock()
         self._socket = PersistantSocket(self.ipc_path)
-        super(IPCProvider, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def make_request(self, method, params):
         request = self.encode_rpc_request(method, params)

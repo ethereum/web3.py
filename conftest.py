@@ -10,7 +10,7 @@ from web3.utils.threads import (
 from web3.main import Web3
 
 
-class PollDelayCounter(object):
+class PollDelayCounter:
     def __init__(self, initial_delay=0, max_delay=1, initial_step=0.01):
         self.initial_delay = initial_delay
         self.initial_step = initial_step

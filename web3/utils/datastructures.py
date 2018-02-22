@@ -7,10 +7,10 @@ from collections import (
     Sequence,
 )
 
-from web3.utils.encoding import (
-    hexstr_if_str,
-    to_bytes,
+from eth_utils import (
+    is_integer,
 )
+
 from web3.utils.formatters import (
     recursive_map,
 )
@@ -80,7 +80,7 @@ class AttributeDict(ReadableAttributeDict, Hashable):
 
     def __setattr__(self, attr, val):
         if attr == '__dict__':
-            super(AttributeDict, self).__setattr__(attr, val)
+            super().__setattr__(attr, val)
         else:
             raise TypeError('This data is immutable -- create a copy instead of modifying')
 
@@ -117,6 +117,36 @@ class NamedElementStack(Mapping):
                 raise ValueError("You can't add the same name again, use replace instead")
 
         self._queue[name] = element
+
+    def insert(self, index, element, name=None):
+        '''
+        Insert a named element to an arbitrary location in the stack.
+
+        The current implementation only supports insertion at the beginning,
+        or at the end. Note that inserting to the end is equivalent to calling :meth:`add` .
+        '''
+        if not is_integer(index):
+            raise TypeError("The index for insertion must be an int.")
+        elif index != 0 and index != len(self._queue):
+            raise NotImplementedError(
+                "You can only insert to the beginning or end of a %s, currently. "
+                "You tried to insert to %d, but only 0 and %d are permitted. " % (
+                    type(self),
+                    index,
+                    len(self._queue),
+                )
+            )
+
+        self.add(element, name=name)
+
+        if index == 0:
+            if name is None:
+                name = element
+            self._queue.move_to_end(name)
+        elif index == len(self._queue):
+            return
+        else:
+            raise AssertionError("Impossible to reach: earlier validation raises an error")
 
     def clear(self):
         self._queue.clear()
@@ -176,15 +206,3 @@ class NamedElementStack(Mapping):
         if not isinstance(elements, Sequence):
             elements = list(elements)
         return iter(elements)
-
-
-class HexBytes(bytes):
-    def __new__(cls, val):
-        bytesval = hexstr_if_str(to_bytes, val)
-        return super().__new__(cls, bytesval)
-
-    def hex(self):
-        return '0x' + super().hex()
-
-    def __repr__(self):
-        return 'HexBytes(%r)' % self.hex()
