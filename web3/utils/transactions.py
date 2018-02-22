@@ -11,7 +11,6 @@ from web3.utils.threads import (
     Timeout,
 )
 
-
 VALID_TRANSACTION_PARAMS = [
     'from',
     'to',
@@ -22,7 +21,6 @@ VALID_TRANSACTION_PARAMS = [
     'nonce',
     'chainId',
 ]
-
 
 TRANSACTION_DEFAULTS = {
     'value': 0,
