@@ -123,13 +123,21 @@ jobs:
     environment:
       TOXENV: py35-ens
 
-  py35-integration-goethereum:
+  py35-integration-goethereum-1.7.2:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.5
     environment:
       TOXENV: py35-integration-goethereum
       GETH_VERSION: v1.7.2
+
+  py35-integration-goethereum-1.8.1:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.5
+    environment:
+      TOXENV: py35-integration-goethereum
+      GETH_VERSION: v1.8.1
 
   py35-integration-parity:
     <<: *parity_steps
@@ -170,14 +178,22 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-ens
-        
-  py36-integration-goethereum:
+
+  py36-integration-goethereum-1.7.2:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-goethereum
       GETH_VERSION: v1.7.2
+
+  py36-integration-goethereum-1.8.1:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: py36-integration-goethereum
+      GETH_VERSION: v1.8.1
 
   py36-integration-parity:
     <<: *parity_steps
@@ -210,13 +226,15 @@ workflows:
       - lint
       - py35-core
       - py35-ens
-      - py35-integration-goethereum
+      - py35-integration-goethereum-1.7.2
+      - py35-integration-goethereum-1.8.1
       - py35-integration-parity
       - py35-integration-ethtester-pyethereum
       - py35-integration-ethtester-pyevm
       - py36-core
       - py36-ens
-      - py36-integration-goethereum
+      - py36-integration-goethereum-1.7.2
+      - py36-integration-goethereum-1.8.1
       - py36-integration-parity
       - py36-integration-ethtester-pyethereum
       - py36-integration-ethtester-pyevm
