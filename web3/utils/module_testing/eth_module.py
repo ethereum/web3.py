@@ -232,6 +232,167 @@ class EthModuleTest:
         assert txn['gasPrice'] == txn_params['gasPrice']
         assert txn['nonce'] == txn_params['nonce']
 
+    def test_eth_replaceTransaction(self, web3, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': web3.eth.gasPrice,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+
+        txn_params['gasPrice'] = web3.eth.gasPrice * 2
+        replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
+        replace_txn = web3.eth.getTransaction(replace_txn_hash)
+
+        assert is_same_address(replace_txn['from'], txn_params['from'])
+        assert is_same_address(replace_txn['to'], txn_params['to'])
+        assert replace_txn['value'] == 1
+        assert replace_txn['gas'] == 21000
+        assert replace_txn['gasPrice'] == txn_params['gasPrice']
+
+    def test_eth_replaceTransaction_non_existing_transaction(self, web3, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': web3.eth.gasPrice,
+        }
+        with pytest.raises(ValueError):
+            web3.eth.replaceTransaction(
+                '0x98e8cc09b311583c5079fa600f6c2a3bea8611af168c52e4b60b5b243a441997',
+                txn_params
+            )
+
+    # auto mine is enabled for this test
+    def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': web3.eth.gasPrice,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+
+        txn_params['gasPrice'] = web3.eth.gasPrice * 2
+        with pytest.raises(ValueError):
+            web3.eth.replaceTransaction(txn_hash, txn_params)
+
+    def test_eth_replaceTransaction_incorrect_nonce(self, web3, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': web3.eth.gasPrice,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn = web3.eth.getTransaction(txn_hash)
+
+        txn_params['gasPrice'] = web3.eth.gasPrice * 2
+        txn_params['nonce'] = txn['nonce'] + 1
+        with pytest.raises(ValueError):
+            web3.eth.replaceTransaction(txn_hash, txn_params)
+
+    def test_eth_replaceTransaction_gas_price_too_low(self, web3, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': 10,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+
+        txn_params['gasPrice'] = 9
+        with pytest.raises(ValueError):
+            web3.eth.replaceTransaction(txn_hash, txn_params)
+
+    def test_eth_replaceTransaction_gas_price_defaulting_minimum(self, web3, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': 10,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+
+        txn_params.pop('gasPrice')
+        replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
+        replace_txn = web3.eth.getTransaction(replace_txn_hash)
+
+        assert replace_txn['gasPrice'] == 11  # minimum gas price
+
+    def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(self,
+                                                                         web3,
+                                                                         unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': 10,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+
+        def higher_gas_price_strategy(web3, txn):
+            return 20
+
+        web3.eth.setGasPriceStrategy(higher_gas_price_strategy)
+
+        txn_params.pop('gasPrice')
+        replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
+        replace_txn = web3.eth.getTransaction(replace_txn_hash)
+        assert replace_txn['gasPrice'] == 20  # Strategy provides higher gas price
+
+    def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(self,
+                                                                        web3,
+                                                                        unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': 10,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+
+        def lower_gas_price_strategy(web3, txn):
+            return 5
+
+        web3.eth.setGasPriceStrategy(lower_gas_price_strategy)
+
+        txn_params.pop('gasPrice')
+        replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
+        replace_txn = web3.eth.getTransaction(replace_txn_hash)
+        # Strategy provices lower gas price - minimum preferred
+        assert replace_txn['gasPrice'] == 11
+
+    def test_eth_modifyTransaction(self, web3, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': web3.eth.gasPrice,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+
+        modified_txn_hash = web3.eth.modifyTransaction(
+            txn_hash, gasPrice=(txn_params['gasPrice'] * 2), value=2
+        )
+        modified_txn = web3.eth.getTransaction(modified_txn_hash)
+
+        assert is_same_address(modified_txn['from'], txn_params['from'])
+        assert is_same_address(modified_txn['to'], txn_params['to'])
+        assert modified_txn['value'] == 2
+        assert modified_txn['gas'] == 21000
+        assert modified_txn['gasPrice'] == txn_params['gasPrice'] * 2
+
     @pytest.mark.parametrize(
         'raw_transaction, expected_hash',
         [

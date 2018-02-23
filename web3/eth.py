@@ -1,5 +1,6 @@
 from cytoolz.dicttoolz import (
     assoc,
+    merge,
 )
 from eth_account import (
     Account,
@@ -37,7 +38,11 @@ from web3.utils.filters import (
     TransactionFilter,
 )
 from web3.utils.transactions import (
+    assert_valid_transaction_params,
+    extract_valid_transaction_params,
     get_buffered_gas_estimate,
+    get_required_transaction,
+    replace_transaction,
 )
 
 
@@ -198,6 +203,17 @@ class Eth(Module):
                 block_identifier,
             ],
         )
+
+    def replaceTransaction(self, transaction_hash, new_transaction):
+        current_transaction = get_required_transaction(self.web3, transaction_hash)
+        return replace_transaction(self.web3, current_transaction, new_transaction)
+
+    def modifyTransaction(self, transaction_hash, **transaction_params):
+        assert_valid_transaction_params(transaction_params)
+        current_transaction = get_required_transaction(self.web3, transaction_hash)
+        current_transaction_params = extract_valid_transaction_params(current_transaction)
+        new_transaction = merge(current_transaction_params, transaction_params)
+        return replace_transaction(self.web3, current_transaction, new_transaction)
 
     def sendTransaction(self, transaction):
         # TODO: move to middleware

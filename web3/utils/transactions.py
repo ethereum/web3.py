@@ -1,6 +1,8 @@
+import math
 import random
 
 from cytoolz import (
+    assoc,
     curry,
     merge,
 )
@@ -8,6 +10,17 @@ from cytoolz import (
 from web3.utils.threads import (
     Timeout,
 )
+
+VALID_TRANSACTION_PARAMS = [
+    'from',
+    'to',
+    'gas',
+    'gasPrice',
+    'value',
+    'data',
+    'nonce',
+    'chainId',
+]
 
 TRANSACTION_DEFAULTS = {
     'value': 0,
@@ -69,3 +82,53 @@ def get_buffered_gas_estimate(web3, transaction, gas_buffer=100000):
         )
 
     return min(gas_limit, gas_estimate + gas_buffer)
+
+
+def get_required_transaction(web3, transaction_hash):
+    current_transaction = web3.eth.getTransaction(transaction_hash)
+    if not current_transaction:
+        raise ValueError('Supplied transaction with hash {} does not exist'
+                         .format(transaction_hash))
+    return current_transaction
+
+
+def extract_valid_transaction_params(transaction_params):
+    return {key: transaction_params[key]
+            for key in VALID_TRANSACTION_PARAMS if key in transaction_params}
+
+
+def assert_valid_transaction_params(transaction_params):
+    for param in transaction_params:
+        if param not in VALID_TRANSACTION_PARAMS:
+            raise ValueError('{} is not a valid transaction parameter'.format(param))
+
+
+def prepare_replacement_transaction(web3, current_transaction, new_transaction):
+    if current_transaction['blockHash'] is not None:
+        raise ValueError('Supplied transaction with hash {} has already been mined'
+                         .format(current_transaction['hash']))
+    if 'nonce' in new_transaction and new_transaction['nonce'] != current_transaction['nonce']:
+        raise ValueError('Supplied nonce in new_transaction must match the pending transaction')
+
+    if 'nonce' not in new_transaction:
+        new_transaction = assoc(new_transaction, 'nonce', current_transaction['nonce'])
+
+    if 'gasPrice' in new_transaction:
+        if new_transaction['gasPrice'] <= current_transaction['gasPrice']:
+            raise ValueError('Supplied gas price must exceed existing transaction gas price')
+    else:
+        generated_gas_price = web3.eth.generateGasPrice(new_transaction)
+        minimum_gas_price = int(math.ceil(current_transaction['gasPrice'] * 1.1))
+        if generated_gas_price and generated_gas_price > minimum_gas_price:
+            new_transaction = assoc(new_transaction, 'gasPrice', generated_gas_price)
+        else:
+            new_transaction = assoc(new_transaction, 'gasPrice', minimum_gas_price)
+
+    return new_transaction
+
+
+def replace_transaction(web3, current_transaction, new_transaction):
+    new_transaction = prepare_replacement_transaction(
+        web3, current_transaction, new_transaction
+    )
+    return web3.eth.sendTransaction(new_transaction)
