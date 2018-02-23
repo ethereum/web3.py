@@ -1041,10 +1041,7 @@ def call_contract_function(abi,
     else:
         return_data = web3.eth.call(call_transaction, block_identifier=block_id)
 
-<<<<<<< HEAD
     function_abi = find_matching_fn_abi(abi, function_identifier, args, kwargs)
-    function_abi = find_matching_fn_abi(abi, function_name, args, kwargs)
->>>>>>> Added ability to query a specific block when using the contract.functions.methodName.call() method. Blocks can be queried by 'latest', 'earliest', block number (indexed from back and front of chain) and block hash.
 
     output_types = get_abi_output_types(function_abi)
 
