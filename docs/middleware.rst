@@ -1,16 +1,16 @@
 Middleware
 ==========
 
-There is a stack of middlewares managed by Web3. They sit between the public Web3 methods and the
+Web3 manages layers of middlewares by default. They sit between the public Web3 methods and the
 :doc:`providers`, which handle native communication with the Ethereum client. Each layer
 can modify the request and/or response. Some middlewares are enabled by default, and
 others are available for optional use.
 
-Each middleware in the stack gets invoked before the request reaches the provider, and then
+Each middleware layer gets invoked before the request reaches the provider, and then
 processes the result after the provider returns, in reverse order. However, it is
 possible for a middleware to return early from a
-call without the request ever getting to the provider (or even reaching the middlewares further down
-the stack).
+call without the request ever getting to the provider (or even reaching the middlewares
+that are in deeper layers).
 
 More information is available in the "Internals: :ref:`internals__middlewares`" section.
 
@@ -66,11 +66,11 @@ HTTPRequestRetry
     requests that return the following errors: `ConnectionError`, `HTTPError`, `Timeout`,
     `TooManyRedirects`. Additionally there is a whitelist that only allows certain
     methods to be retried in order to not resend transactions, excluded methods are:
-    `eth_sendTransaction`, `personal_signAndSendTransaction`, `personal_sendTransaction`. 
+    `eth_sendTransaction`, `personal_signAndSendTransaction`, `personal_sendTransaction`.
 
 .. _Modifying_Middleware:
 
-Modifying Middleware
+Configuring Middleware
 -----------------------
 
 Middleware can be added, removed, replaced, and cleared at runtime. To make that easier, you
@@ -80,28 +80,81 @@ middleware itself.
 Middleware Order
 ~~~~~~~~~~~~~~~~~~
 
-The "stack" of middlewares used for requests is maintained in ``Web3.middleware_stack``. See
+Think of the middleware as being layered in an onion, where you initiate a web3.py request at
+the outermost layer of the onion, and the Ethereum node (like geth or parity) receives and responds
+to the request inside the innermost layer of the onion. Here is a (simplified) diagram:
+
+.. code-block:: none
+
+                                         New request from web3.py
+
+                                                     |
+                                                     |
+                                                     v
+
+                                             `````Layer 2``````
+                                      ```````                  ```````
+                                 `````               |                ````
+                              ````                   v                    ````
+                           ```                                                ```
+                         `.               ````````Layer 1```````                `.`
+                       ``             ````                      `````              .`
+                     `.            ```               |               ```            `.`
+                    .`          ```                  v                  ```           `.
+                  `.          `.`                                         ```           .`
+                 ``          .`                  `Layer 0`                  ``           .`
+                ``         `.               `````        ``````               .           .`
+               `.         ``             ```         |        ```              .`          .
+               .         ``            `.`           |           ``             .           .
+              .         `.            ``       JSON-RPC call       .`            .          .`
+              .         .            ``              |              .            ``          .
+             ``         .            .               v               .            .          .
+             .         .`           .                                .            .          ``
+             .         .            .          Ethereum node         .`           .           .
+             .         .            .                                .            .           .
+             .         ``           `.               |               .            .           .
+             .          .            .`              |              .`            .          .
+             `.         .`            .`          Response         .`            .`          .
+              .          .             `.`           |           `.`            `.           .
+              `.          .              ```         |        ````             `.           .
+               .          `.               `````     v     ````               `.           ``
+                .           .`                 ```Layer 0``                  ``           `.
+                 .           `.                                            `.`           `.
+                  .            `.                    |                   `.`            `.
+                   .`            ```                 |                 ```             .`
+                    `.              ```              v             ````              `.`
+                      ``               ``````                 `````                 .`
+                        ``                   `````Layer 1`````                   `.`
+                          ```                                                  ```
+                            ````                     |                      ```
+                               `````                 v                  ````
+                                   ``````                          `````
+                                         `````````Layer 2``````````
+
+                                                     |
+                                                     v
+
+                                          Returned value in Web3.py
+
+
+The middlewares are maintained in ``Web3.middleware_stack``. See
 below for the API.
 
-That stack is ordered, so you can think of the stack as a list. Below you can find
-how the order of that list maps to the middleware execution during a request.
-
-When you send a request to your node, the last middleware in the list has the first opportunity
-to modify the request, and then the second to last, and so on to the first. Then, when the
-node returns the result, the first element in the list has the first opportunity to modify
-the response, then the second, and so on to the last. In other words, the first element is
-"closest" to the node, and the last element is "closest" to your Web3.py request.
+When specifying middlewares in a list, or retrieving the list of middlewares, they will
+be returned in the order of outermost layer first and innermost layer last. In the above
+example, that means that ``list(w3.middleware_stack)`` would return the middlewares in
+the order of: ``[2, 1, 0]``.
 
 See "Internals: :ref:`internals__middlewares`" for a deeper dive to how middlewares work.
 
 Middleware Stack API
 ~~~~~~~~~~~~~~~~~~~~~
 
-To add or remove items in different parts of the stack, use the following API:
+To add or remove items in different layers, use the following API:
 
 .. py:method:: Web3.middleware_stack.add(middleware, name=None)
 
-    Middleware will be added to the top of the stack. That means the new middleware will modify the
+    Middleware will be added to the outermost layer. That means the new middleware will modify the
     request first, and the response last. You can optionally name it with any hashable object,
     typically a string.
 
@@ -112,27 +165,27 @@ To add or remove items in different parts of the stack, use the following API:
         # or
         >>> w3.middleware_stack.add(web3.middleware.pythonic_middleware, 'pythonic')
 
-.. py:method:: Web3.middleware_stack.insert(index, middleware, name=None)
+.. py:method:: Web3.middleware_stack.inject(middleware, name=None, layer=None)
 
-    Insert a named middleware to an arbitrary location in the stack.
+    Inject a named middleware to an arbitrary layer.
 
-    The current implementation only supports insertion at the beginning,
-    or at the end. Note that inserting to the end is equivalent to calling
+    The current implementation only supports injection at the innermost or
+    outermost layers. Note that injecting to the outermost layer is equivalent to calling
     :meth:`Web3.middleware_stack.add` .
 
     .. code-block:: python
 
-        # Either of these will put the pythonic middleware at the bottom of the middleware stack.
+        # Either of these will put the pythonic middleware at the innermost layer
         >>> w3 = Web3(...)
-        >>> w3.middleware_stack.insert(0, web3.middleware.pythonic_middleware)
+        >>> w3.middleware_stack.inject(web3.middleware.pythonic_middleware, layer=0)
         # or
-        >>> w3.middleware_stack.insert(0, web3.middleware.pythonic_middleware, 'pythonic')
+        >>> w3.middleware_stack.inject(web3.middleware.pythonic_middleware, 'pythonic', layer=0)
 
 .. py:method:: Web3.middleware_stack.remove(middleware)
 
-    Middleware will be removed from wherever it sat in the stack. If you added the middleware with
-    a name, use the name to remove it. If you added the middleware as an object, use the object to
-    remove it.
+    Middleware will be removed from whatever layer it was in. If you added the middleware with
+    a name, use the name to remove it. If you added the middleware as an object, use the object
+    again later to remove it:
 
     .. code-block:: python
 
@@ -143,7 +196,7 @@ To add or remove items in different parts of the stack, use the following API:
 
 .. py:method:: Web3.middleware_stack.replace(old_middleware, new_middleware)
 
-    Middleware will be replaced wherever it sat in the stack. If the middleware was named, it will
+    Middleware will be replaced from whatever layer it was in. If the middleware was named, it will
     continue to have the same name. If it was un-named, then you will now reference it with the new
     middleware object.
 
@@ -173,7 +226,7 @@ To add or remove items in different parts of the stack, use the following API:
         >>> assert len(w3.middleware_stack) == 0
 
 
-Built-in Middleware
+Optional Middleware
 -----------------------
 
 Web3 ships with non-default middleware, for your custom use. In addition to the other ways of
@@ -189,7 +242,7 @@ Web3 ships with non-default middleware, for your custom use. In addition to the 
   either use ``middleware_stack.add()`` from above, or add the default middlewares to your list of
   new middlewares.
 
-Below is a list of built-in middleware.
+Below is a list of built-in middleware, which is not enabled by default.
 
 Stalecheck
 ~~~~~~~~~~~~

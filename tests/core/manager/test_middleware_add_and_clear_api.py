@@ -114,6 +114,18 @@ def test_replace_middleware_without_name(middleware_factory):
     assert tuple(manager.middleware_stack) == (mw1, mw3)
 
 
+def test_add_middleware(middleware_factory):
+    mw1 = middleware_factory()
+    mw2 = middleware_factory()
+    mw3 = middleware_factory()
+
+    manager = RequestManager(None, BaseProvider(), middlewares=[mw1, mw2])
+
+    manager.middleware_stack.add(mw3)
+
+    assert tuple(manager.middleware_stack) == (mw3, mw1, mw2)
+
+
 def test_bury_middleware(middleware_factory):
     mw1 = middleware_factory()
     mw2 = middleware_factory()
@@ -121,9 +133,9 @@ def test_bury_middleware(middleware_factory):
 
     manager = RequestManager(None, BaseProvider(), middlewares=[mw1, mw2])
 
-    manager.middleware_stack.insert(0, mw3)
+    manager.middleware_stack.inject(mw3, layer=0)
 
-    assert tuple(manager.middleware_stack) == (mw3, mw1, mw2)
+    assert tuple(manager.middleware_stack) == (mw1, mw2, mw3)
 
 
 def test_bury_named_middleware(middleware_factory):
@@ -133,11 +145,11 @@ def test_bury_named_middleware(middleware_factory):
 
     manager = RequestManager(None, BaseProvider(), middlewares=[mw1, mw2])
 
-    manager.middleware_stack.insert(0, mw3, name='middleware3')
+    manager.middleware_stack.inject(mw3, name='middleware3', layer=0)
 
-    assert tuple(manager.middleware_stack) == (mw3, mw1, mw2)
+    assert tuple(manager.middleware_stack) == (mw1, mw2, mw3)
 
-    # make sure middleware was inserted with correct name, by trying to remove
+    # make sure middleware was injected with correct name, by trying to remove
     # it by name.
     manager.middleware_stack.remove('middleware3')
 

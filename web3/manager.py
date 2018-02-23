@@ -20,7 +20,7 @@ from web3.providers import (
     AutoProvider,
 )
 from web3.utils.datastructures import (
-    NamedElementStack,
+    NamedElementOnion,
 )
 from web3.utils.empty import (
     empty,
@@ -38,7 +38,7 @@ class RequestManager:
         if middlewares is None:
             middlewares = self.default_middlewares(web3)
 
-        self.middleware_stack = NamedElementStack(middlewares)
+        self.middleware_stack = NamedElementOnion(middlewares)
         if providers is empty:
             self.providers = AutoProvider()
         else:

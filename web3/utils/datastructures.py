@@ -97,7 +97,12 @@ class AttributeDict(ReadableAttributeDict, Hashable):
             return False
 
 
-class NamedElementStack(Mapping):
+class NamedElementOnion(Mapping):
+    '''
+    Add layers to an onion-shaped structure. Optionally, inject to a specific layer.
+    This structure is iterable, where the outermost layer is first, and innermost is last.
+    '''
+
     def __init__(self, init_elements, valid_element=callable):
         self._queue = OrderedDict()
         for element in reversed(init_elements):
@@ -118,32 +123,33 @@ class NamedElementStack(Mapping):
 
         self._queue[name] = element
 
-    def insert(self, index, element, name=None):
+    def inject(self, element, name=None, layer=None):
         '''
-        Insert a named element to an arbitrary location in the stack.
+        Inject a named element to an arbitrary layer in the onion.
 
-        The current implementation only supports insertion at the beginning,
-        or at the end. Note that inserting to the end is equivalent to calling :meth:`add` .
+        The current implementation only supports insertion at the innermost layer,
+        or at the outermost layer. Note that inserting to the outermost is equivalent
+        to calling :meth:`add` .
         '''
-        if not is_integer(index):
-            raise TypeError("The index for insertion must be an int.")
-        elif index != 0 and index != len(self._queue):
+        if not is_integer(layer):
+            raise TypeError("The layer for insertion must be an int.")
+        elif layer != 0 and layer != len(self._queue):
             raise NotImplementedError(
                 "You can only insert to the beginning or end of a %s, currently. "
                 "You tried to insert to %d, but only 0 and %d are permitted. " % (
                     type(self),
-                    index,
+                    layer,
                     len(self._queue),
                 )
             )
 
         self.add(element, name=name)
 
-        if index == 0:
+        if layer == 0:
             if name is None:
                 name = element
-            self._queue.move_to_end(name)
-        elif index == len(self._queue):
+            self._queue.move_to_end(name, last=False)
+        elif layer == len(self._queue):
             return
         else:
             raise AssertionError("Impossible to reach: earlier validation raises an error")
@@ -186,11 +192,11 @@ class NamedElementStack(Mapping):
         return iter(reversed(elements))
 
     def __add__(self, other):
-        if not isinstance(other, NamedElementStack):
-            raise NotImplementedError("You can only combine with another Stack")
+        if not isinstance(other, NamedElementOnion):
+            raise NotImplementedError("You can only combine with another NamedElementOnion")
         combined = self._queue.copy()
         combined.update(other._queue)
-        return NamedElementStack(combined.items())
+        return NamedElementOnion(combined.items())
 
     def __contains__(self, element):
         return element in self._queue
