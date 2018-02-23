@@ -13,13 +13,13 @@ the ``net_`` namespace.
 Properties
 ----------
 
-The following properties are available on the ``web3.eth`` namespace.
+The following properties are available on the ``web3.net`` namespace.
 
 .. py:method:: Net.chainId(self)
 
     * Delegates to ``net_version`` RPC Method
 
-    Returns the current network chainId/version.
+    Returns the current network chainId/version and is an alias of ``web3.net.version``.
 
     .. code-block:: python
 
@@ -31,7 +31,7 @@ The following properties are available on the ``web3.eth`` namespace.
 
     * Delegates to ``net_version`` RPC Method
 
-    Returns the current network chainId/version and is an alias of ``web3.net.chainId``.
+    Returns the current network chainId/version.
 
     .. code-block:: python
 
