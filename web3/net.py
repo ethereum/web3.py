@@ -13,5 +13,9 @@ class Net(Module):
         return self.web3.manager.request_blocking("net_peerCount", [])
 
     @property
+    def chainId(self):
+        return self.version
+
+    @property
     def version(self):
         return self.web3.manager.request_blocking("net_version", [])
