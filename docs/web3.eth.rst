@@ -328,6 +328,31 @@ The following methods are available on the ``web3.eth`` namespace.
         })
 
 
+.. py:method:: Eth.waitForTransactionReceipt(transaction_hash)
+
+    * Delegates to ``wait_for_transaction_receipt`` Method from ``web3.utils.transactions``
+
+    Returns the transaction receipt specified by ``transaction_hash``.  It waits for transaction to mine before returning the receipt.
+
+    .. code-block:: python
+
+        >>> web3.eth.waitForTransactionReceipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')  # not yet mined
+        # waits for transaction to mine before returning transaction data
+        AttributeDict({
+            'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
+            'blockNumber': 46147,
+            'contractAddress': None,
+            'cumulativeGasUsed': 21000,
+            'from': '0xa1e4380a3b1f749673e270229993ee55f35663b4',
+            'gasUsed': 21000,
+            'logs': [],
+            'root': '96a8e009d2b88b1483e6941e6812e32263b05683fac202abc622a3e31aed1957',
+            'to': '0x5df9b87991262f6ba471f09758cde1c0fc1de734',
+            'transactionHash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
+            'transactionIndex': 0,
+        })
+
+
 .. py:method:: Eth.getTransactionReceipt(transaction_hash)
 
     * Delegates to ``eth_getTransactionReceipt`` RPC Method
