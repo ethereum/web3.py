@@ -37,3 +37,4 @@ The following properties are available on the ``web3.eth`` namespace.
 
         >>> web3.net.version
         1
+
