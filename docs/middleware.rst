@@ -331,16 +331,16 @@ For example, to connect to a local ``geth --dev`` instance on Linux:
     # connect to the default geth --dev IPC location
     >>> w3 = Web3(IPCProvider('/tmp/geth.ipc'))
 
-    >>> from web3.middleware import geth_poa_compatibility
+    >>> from web3.middleware import geth_poa_middleware
 
     # inject the poa compatibility middleware to the innermost layer
-    >>> w3.middleware_stack.inject(geth_poa_compatibility, layer=0)
+    >>> w3.middleware_stack.inject(geth_poa_middleware, layer=0)
 
     # confirm that the connection succeeded
     >>> w3.version.node
     'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
 
-Why is ``geth_poa_compatibility`` necessary?
+Why is ``geth_poa_middleware`` necessary?
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 There is no strong community consensus on a single Proof-of-Authority (PoA) standard yet.

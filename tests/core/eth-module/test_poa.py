@@ -2,7 +2,7 @@ import pytest
 
 from web3.middleware import (
     construct_fixture_middleware,
-    geth_poa_compatibility,
+    geth_poa_middleware,
 )
 
 
@@ -29,7 +29,7 @@ def test_geth_proof_of_authority(web3):
     return_block_with_long_extra_data = construct_fixture_middleware({
         'eth_getBlockByNumber': {'extraData': '0x' + 'ff' * 33},
     })
-    web3.middleware_stack.inject(geth_poa_compatibility, layer=0)
+    web3.middleware_stack.inject(geth_poa_middleware, layer=0)
     web3.middleware_stack.inject(return_block_with_long_extra_data, layer=0)
     block = web3.eth.getBlock('latest')
     assert 'extraData' not in block
