@@ -14,7 +14,7 @@ class Net(Module):
 
     @property
     def chainId(self):
-        return self.web3.manager.request_blocking("net_version", [])
+        return self.version
 
     @property
     def version(self):
