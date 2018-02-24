@@ -31,6 +31,9 @@ from .gas_price_strategy import (  # noqa: F401
 from .names import (  # noqa: F401
     name_to_address_middleware,
 )
+from .normalize_errors import (  # noqa: F401
+    normalize_errors_middleware,
+)
 from .pythonic import (  # noqa: F401
     pythonic_middleware,
 )
