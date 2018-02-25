@@ -1,4 +1,5 @@
 import eth_account
+import eth_keys
 from eth_utils import (
     is_same_address,
 )
@@ -13,11 +14,10 @@ def key_to_account(web3, key):
         return key
     if isinstance(key, (str, bytes)):
         return web3.eth.account.privateKeyToAccount(key)
-    try:
+    if isinstance(key, (eth_keys.datatypes.PrivateKey)):
         sk_hex = key.to_hex()
         return web3.eth.account.privateKeyToAccount(sk_hex)
-    except AttributeError:
-        raise TypeError("key must be one of the types (...). Was of type {0}".format(type(key)))
+    raise TypeError("key must be one of the types (...). Was of type {0}".format(type(key)))
 
 
 def construct_sign_and_send_raw_middleware(private_key):
