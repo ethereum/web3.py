@@ -13,6 +13,9 @@ from web3 import (
     Account,
     Web3,
 )
+from web3.providers.eth_tester import (
+    EthereumTesterProvider,
+)
 from web3.utils.encoding import (
     to_bytes,
     to_hex,
@@ -74,6 +77,11 @@ def acct(request, web3):
     elif request.param == 'class':
         return Account
     raise Exception('Unreachable!')
+
+
+@pytest.fixture()
+def w3():
+    return Web3(EthereumTesterProvider())
 
 
 def test_eth_account_create_variation(acct):
@@ -371,3 +379,52 @@ def test_eth_account_prepared_encrypt(acct, web3js_key, web3js_password):
     decrypted_key = acct.decrypt(encrypted, web3js_password)
 
     assert decrypted_key == to_bytes(hexstr=web3js_key)
+
+
+@pytest.mark.xfail
+@pytest.mark.parametrize(
+    'txn, private_key, expected_raw_tx, tx_hash, r, s, v',
+    (
+        (
+            {
+                'to': '0xF0109fC8DF283027b6285cc889F5aA624EaC1F55',
+                'value': 1000000000,
+                'gas': 2000000,
+                'gasPrice': 234567897654321,
+                'nonce': 0,
+                'chainId': 1
+            },
+            '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
+            HexBytes('0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428'),  # noqa: E501
+            HexBytes('0xd8f64a42b57be0d565f385378db2f6bf324ce14a594afc05de90436e9ce01f60'),
+            4487286261793418179817841024889747115779324305375823110249149479905075174044,
+            30785525769477805655994251009256770582792548537338581640010273753578382951464,
+            37,
+        ),
+        (
+            {
+                'to': '0xF0109fC8DF283027b6285cc889F5aA624EaC1F55',
+                'value': 0,
+                'gas': 31853,
+                'gasPrice': 0,
+                'nonce': 0,
+                'chainId': 1
+            },
+            '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
+            HexBytes('0xf85d8080827c6d94f0109fc8df283027b6285cc889f5aa624eac1f558080269f22f17b38af35286ffbb0c6376c86ec91c20ecbad93f84913a0cc15e7580cd99f83d6e12e82e3544cb4439964d5087da78f74cefeec9a450b16ae179fd8fe20'),  # noqa: E501
+            HexBytes('0xb0c5e2c6b29eeb0b9c1d63eaa8b0f93c02ead18ae01cb7fc795b0612d3e9d55a'),
+            61739443115046231975538240097110168545680205678104352478922255527799426265,
+            232940010090391255679819602567388136081614408698362277324138554019997613600,
+            38,
+        ),
+    ),
+    ids=['web3js_example', '31byte_r_and_s'],
+)
+def test_eth_account_sign_and_send_EIP155_transaction_to_eth_tester(
+        w3,
+        txn,
+        private_key,
+        expected_raw_tx,
+        tx_hash,
+        r, s, v):
+    w3.eth.sendRawTransaction(expected_raw_tx)
