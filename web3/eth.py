@@ -270,7 +270,12 @@ class Eth(Module):
             [transaction],
         )
 
-    def filter(self, filter_params):
+    def filter(self, filter_params=None, filter_id=None):
+        if filter_id and filter_params:
+            raise TypeError(
+                "Ambiguous invocation: provide either a `filter_params` or a `filter_id` argument. "
+                "Both were supplied."
+            )
         if is_string(filter_params):
             if filter_params == "latest":
                 filter_id = self.web3.manager.request_blocking(
@@ -288,13 +293,17 @@ class Eth(Module):
                     "`latest` for string based filters"
                 )
         elif isinstance(filter_params, dict):
-            filter_id = self.web3.manager.request_blocking(
+            _filter_id = self.web3.manager.request_blocking(
                 "eth_newFilter",
                 [filter_params],
             )
+            return LogFilter(self.web3, _filter_id)
+        elif filter_id and not filter_params:
             return LogFilter(self.web3, filter_id)
         else:
-            raise ValueError("Must provide either a string or a valid filter object")
+            raise TypeError("Must provide either filter_params as a string or "
+                            "a valid filter object, or a filter_id as a string "
+                            "or hex.")
 
     def getFilterChanges(self, filter_id):
         return self.web3.manager.request_blocking(
