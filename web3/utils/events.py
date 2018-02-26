@@ -112,13 +112,13 @@ def construct_event_data_set(event_abi, arguments=None):
         for arg, arg_options in zipped_abi_and_args
     ]
 
-    topics = [
+    data = [
         list(permutation)
         if any(value is not None for value in permutation)
         else []
         for permutation in itertools.product(*encoded_args)
     ]
-    return topics
+    return data
 
 
 def is_dynamic_sized_type(_type):
