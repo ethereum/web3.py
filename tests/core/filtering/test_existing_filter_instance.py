@@ -18,11 +18,11 @@ def filter_id(web3):
 
 
 def test_instatiate_existing_filter(web3, sleep_interval, wait_for_block, filter_id):
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         web3.eth.filter('latest', filter_id)
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         web3.eth.filter('latest', filter_id=filter_id)
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         web3.eth.filter(filter_params='latest', filter_id=filter_id)
 
     block_filter = web3.eth.filter(filter_id=filter_id)

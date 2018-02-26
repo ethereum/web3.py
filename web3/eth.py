@@ -301,9 +301,9 @@ class Eth(Module):
         elif filter_id and not filter_params:
             return LogFilter(self.web3, filter_id)
         else:
-            raise ValueError("Must provide either filter_params as a \
-                    string or a valid filter object, or a filter_id as a \
-                    string or hex")
+            raise TypeError("Must provide either filter_params as a string or "
+                            "a valid filter object, or a filter_id as a string "
+                            "or hex.")
 
     def getFilterChanges(self, filter_id):
         return self.web3.manager.request_blocking(
