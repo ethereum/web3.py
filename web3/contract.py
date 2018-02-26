@@ -878,7 +878,7 @@ class ContractFunction:
             transact_transaction = dict(**transaction)
 
         if 'data' in transact_transaction:
-            raise ValueError("Cannot set data in call transaction")
+            raise ValueError("Cannot set data in transact transaction")
 
         if self.address is not None:
             transact_transaction.setdefault('to', self.address)
@@ -906,21 +906,21 @@ class ContractFunction:
 
     def estimateGas(self, transaction=None):
         if transaction is None:
-            estimate_transaction = {}
+            estimate_gas_transaction = {}
         else:
-            estimate_transaction = dict(**transaction)
+            estimate_gas_transaction = dict(**transaction)
 
-        if 'data' in estimate_transaction:
-            raise ValueError("Cannot set data in call transaction")
-        if 'to' in estimate_transaction:
-            raise ValueError("Cannot set to in call transaction")
+        if 'data' in estimate_gas_transaction:
+            raise ValueError("Cannot set data in estimateGas transaction")
+        if 'to' in estimate_gas_transaction:
+            raise ValueError("Cannot set to in estimateGas transaction")
 
         if self.address:
-            estimate_transaction.setdefault('to', self.address)
+            estimate_gas_transaction.setdefault('to', self.address)
         if self.web3.eth.defaultAccount is not empty:
-            estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
+            estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
-        if 'to' not in estimate_transaction:
+        if 'to' not in estimate_gas_transaction:
             if isinstance(self, type):
                 raise ValueError(
                     "When using `Contract.estimateGas` from a contract factory "
@@ -935,7 +935,7 @@ class ContractFunction:
                                          self.address,
                                          self.web3,
                                          self.function_identifier,
-                                         estimate_transaction,
+                                         estimate_gas_transaction,
                                          *self.args,
                                          **self.kwargs)
 
@@ -944,25 +944,25 @@ class ContractFunction:
         Build the transaction dictionary without sending
         """
         if transaction is None:
-            built_transaction = {}
+            build_transaction = {}
         else:
-            built_transaction = dict(**transaction)
+            build_transaction = dict(**transaction)
 
-        if 'data' in built_transaction:
-            raise ValueError("Cannot set data in call buildTransaction")
+        if 'data' in build_transaction:
+            raise ValueError("Cannot set data in build transaction")
 
-        if not self.address and 'to' not in built_transaction:
+        if not self.address and 'to' not in build_transaction:
             raise ValueError(
                 "When using `ContractFunction.buildTransaction` from a Contract factory"
                 "you must provide a `to` address with the transaction"
             )
-        if self.address and 'to' in built_transaction:
-            raise ValueError("Cannot set to in contract call buildTransaction")
+        if self.address and 'to' in build_transaction:
+            raise ValueError("Cannot set to in contract call build transaction")
 
         if self.address:
-            built_transaction.setdefault('to', self.address)
+            build_transaction.setdefault('to', self.address)
 
-        if 'to' not in built_transaction:
+        if 'to' not in build_transaction:
             raise ValueError(
                 "Please ensure that this contract instance has an address."
             )
@@ -971,7 +971,7 @@ class ContractFunction:
                                               self.address,
                                               self.web3,
                                               self.function_identifier,
-                                              built_transaction,
+                                              build_transaction,
                                               *self.args,
                                               **self.kwargs)
 
