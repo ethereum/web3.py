@@ -30,7 +30,7 @@ The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
     .. code-block:: python
 
         from web3.auto import w3
-        existing_filter = web3.utils.filters.Filter(w3, "0x0")
+        existing_filter = web3.eth.filter(filter_id="0x0")
 
 
 Filter API
