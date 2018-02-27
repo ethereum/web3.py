@@ -25,7 +25,9 @@ from toolz.functoolz import (
 
 from web3.exceptions import (
     BadFunctionCallOutput,
-    BlockNumberOutofRange
+    FallbackNotFound,
+    MismatchedABI,
+    BlockNumberOutofRange,
 )
 from web3.utils.abi import (
     fallback_func_abi_exists,
@@ -72,6 +74,10 @@ from web3.utils.normalizers import (
 )
 from web3.utils.transactions import (
     fill_transaction_defaults,
+)
+
+from web3.utils.blocks import (
+    is_hex_encoded_block_hash,
 )
 
 DEPRECATED_SIGNATURE_MESSAGE = (
@@ -1089,7 +1095,7 @@ def parse_block_identifier(web3, block_identifier):
             return block_identifier
         else:
             return last_block + block_identifier + 1
-    elif block_identifier in ['latest', 'earliest']:
+    elif block_identifier in ['latest', 'earliest', 'pending']:
         return block_identifier
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
         return web3.eth.getBlock(block_identifier).number

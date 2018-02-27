@@ -533,6 +533,15 @@ class EthModuleTest:
         result = web3.eth.getLogs(filter_params)
         assert_contains_log(result)
 
+    def test_eth_call_old_contract_state(self, web3, math_contract, unlocked_account):
+        math_contract.functions.increment().transact()
+
+        call_result_old = math_contract.functions.counter().call(block_identifier=6)
+        call_result = math_contract.functions.counter().call(block_identifier='latest')
+
+        assert call_result_old == 0
+        assert call_result == 1
+
     def test_eth_uninstallFilter(self, web3):
         filter = web3.eth.filter({})
         assert is_string(filter.filter_id)
