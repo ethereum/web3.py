@@ -10,8 +10,6 @@ from eth_utils import (
     big_endian_to_int,
     decode_hex,
     encode_hex,
-    force_bytes,
-    force_text,
     int_to_big_endian,
     is_boolean,
     is_bytes,
@@ -38,12 +36,6 @@ from web3.utils.validation import (
     validate_abi_type,
     validate_abi_value,
 )
-
-
-def _is_prefixed(value, prefix):
-    return value.startswith(
-        force_bytes(prefix) if is_bytes(value) else force_text(prefix)
-    )
 
 
 def hex_encode_abi_type(abi_type, value, force_size=None):

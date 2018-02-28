@@ -10,7 +10,7 @@ from cytoolz import (
     merge,
 )
 from eth_utils import (
-    force_text,
+    to_text,
 )
 
 import common
@@ -123,8 +123,8 @@ def get_parity_process(
             "Parity Process Exited:\n"
             "stdout:{0}\n\n"
             "stderr:{1}\n\n".format(
-                force_text(output),
-                force_text(errors),
+                to_text(output),
+                to_text(errors),
             )
         )
 
@@ -160,8 +160,8 @@ def parity_export_blocks_process(
             "Parity Process Exited:\n"
             "stdout:{0}\n\n"
             "stderr:{1}\n\n".format(
-                force_text(output),
-                force_text(errors),
+                to_text(output),
+                to_text(errors),
             )
         )
 

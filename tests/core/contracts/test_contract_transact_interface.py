@@ -3,7 +3,7 @@
 import pytest
 
 from eth_utils import (
-    force_bytes,
+    to_bytes,
 )
 
 from web3.utils.empty import (
@@ -202,14 +202,14 @@ def test_transacting_with_contract_respects_explicit_gas(web3,
     # unless we encode ourselves
     txn_hash = transact(contract=string_contract,
                         contract_function='setValue',
-                        func_args=[force_bytes("ÄLÄMÖLÖ")],
+                        func_args=[to_bytes(text="ÄLÄMÖLÖ")],
                         tx_kwargs={'gas': 200000})
     txn_receipt = wait_for_transaction_receipt(web3, txn_hash, 30)
     assert txn_receipt is not None
 
     final_value = call(contract=string_contract,
                        contract_function='getValue')
-    assert force_bytes(final_value) == force_bytes("ÄLÄMÖLÖ")
+    assert to_bytes(text=final_value) == to_bytes(text="ÄLÄMÖLÖ")
 
     txn = web3.eth.getTransaction(txn_hash)
     assert txn['gas'] == 200000
@@ -232,19 +232,19 @@ def test_auto_gas_computation_when_transacting(web3,
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt['contractAddress'])
 
-    gas_estimate = string_contract.functions.setValue(force_bytes("ÄLÄMÖLÖ")).estimateGas()
+    gas_estimate = string_contract.functions.setValue(to_bytes(text="ÄLÄMÖLÖ")).estimateGas()
 
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
     txn_hash = transact(contract=string_contract,
                         contract_function="setValue",
-                        func_args=[force_bytes("ÄLÄMÖLÖ")])
+                        func_args=[to_bytes(text="ÄLÄMÖLÖ")])
     txn_receipt = wait_for_transaction_receipt(web3, txn_hash, 30)
     assert txn_receipt is not None
 
     final_value = call(contract=string_contract,
                        contract_function='getValue')
-    assert force_bytes(final_value) == force_bytes("ÄLÄMÖLÖ")
+    assert to_bytes(text=final_value) == to_bytes(text="ÄLÄMÖLÖ")
 
     txn = web3.eth.getTransaction(txn_hash)
     assert txn['gas'] == gas_estimate + 100000

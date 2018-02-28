@@ -14,11 +14,11 @@ from cytoolz import (
     merge,
 )
 from eth_utils import (
-    force_text,
     is_checksum_address,
     is_dict,
     is_same_address,
     remove_0x_prefix,
+    to_text,
     to_wei,
 )
 
@@ -201,8 +201,8 @@ def get_geth_process(geth_binary,
             "Geth Process Exited:\n"
             "stdout:{0}\n\n"
             "stderr:{1}\n\n".format(
-                force_text(output),
-                force_text(errors),
+                to_text(output),
+                to_text(errors),
             )
         )
 

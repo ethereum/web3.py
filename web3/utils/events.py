@@ -80,7 +80,6 @@ def construct_event_topic_set(event_abi, arguments=None):
     return topics
 
 
-@coerce_return_to_text
 def construct_event_data_set(event_abi, arguments=None):
     if arguments is None:
         arguments = {}

@@ -8,9 +8,9 @@ import tempfile
 import time
 
 from eth_utils import (
-    force_text,
     is_checksum_address,
     is_dict,
+    to_text,
 )
 
 from web3 import Web3
@@ -167,8 +167,8 @@ def geth_process(geth_binary, datadir, genesis_file, geth_ipc_path):
             "Geth Process Exited:\n"
             "stdout:{0}\n\n"
             "stderr:{1}\n\n".format(
-                force_text(output),
-                force_text(errors),
+                to_text(output),
+                to_text(errors),
             )
         )
 

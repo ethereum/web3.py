@@ -1,16 +1,17 @@
 from eth_utils import (
-    force_text,
     is_hex,
     is_integer,
     is_string,
     remove_0x_prefix,
+    text_if_str,
+    to_text,
 )
 
 
 def is_predefined_block_number(value):
     if not is_string(value):
         return False
-    return force_text(value) in {"latest", "pending", "earliest"}
+    return text_if_str(to_text, value) in {"latest", "pending", "earliest"}
 
 
 def is_hex_encoded_block_hash(value):
