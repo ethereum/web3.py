@@ -14,7 +14,7 @@ common: &common
         command: pip install --user tox
     - run:
         name: run tox
-        command: ~/.local/bin/tox
+        command: ~/.local/bin/tox -r
     - save_cache:
         paths:
           - .tox
