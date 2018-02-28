@@ -314,3 +314,39 @@ All of the caching middlewares accept these common arguments.
 
     A ready to use version of this middleware can be found at
     ``web3.middlewares.latest_block_based_cache_middleware``.
+
+
+Geth-style Proof of Authority
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This middleware is required to connect to ``geth --dev`` or the Rinkeby public network.
+
+For example, to connect to a local ``geth --dev`` instance on Linux:
+
+
+.. code-block:: python
+
+    >>> from web3 import Web3, IPCProvider
+
+    # connect to the default geth --dev IPC location
+    >>> w3 = Web3(IPCProvider('/tmp/geth.ipc'))
+
+    >>> from web3.middleware import geth_poa_middleware
+
+    # inject the poa compatibility middleware to the innermost layer
+    >>> w3.middleware_stack.inject(geth_poa_middleware, layer=0)
+
+    # confirm that the connection succeeded
+    >>> w3.version.node
+    'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
+
+Why is ``geth_poa_middleware`` necessary?
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+There is no strong community consensus on a single Proof-of-Authority (PoA) standard yet.
+Some nodes have successful experiments running, though. One is go-ethereum (geth),
+which uses a prototype PoA for it's development mode and the Rinkeby test network.
+
+Unfortunately, it does deviate from the yellow paper specification, which constrains the
+``extraData`` field in each block to a maximum of 32-bytes. Geth's PoA uses more than
+32 bytes, so this middleware modifies the block data a bit before returning it.
