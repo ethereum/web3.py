@@ -9,7 +9,6 @@ from eth_abi.abi import (
     process_type,
 )
 from eth_utils import (
-    coerce_return_to_text,
     encode_hex,
     event_abi_to_log_topic,
     is_list_like,
@@ -39,7 +38,6 @@ from .abi import (
 )
 
 
-@coerce_return_to_text
 def construct_event_topic_set(event_abi, arguments=None):
     if arguments is None:
         arguments = {}

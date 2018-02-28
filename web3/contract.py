@@ -12,7 +12,6 @@ from eth_abi.exceptions import (
 )
 from eth_utils import (
     add_0x_prefix,
-    coerce_return_to_text,
     encode_hex,
     function_abi_to_4byte_selector,
     is_text,
@@ -619,7 +618,6 @@ class Contract:
         return NonExistentFallbackFunction()
 
     @combomethod
-    @coerce_return_to_text
     def _encode_constructor_data(cls, args=None, kwargs=None):
         constructor_abi = get_constructor_abi(cls.abi)
 
