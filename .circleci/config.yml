@@ -14,7 +14,7 @@ common: &common
         command: pip install --user tox
     - run:
         name: run tox
-        command: ~/.local/bin/tox
+        command: ~/.local/bin/tox -r
     - save_cache:
         paths:
           - .tox
@@ -43,7 +43,7 @@ parity_steps: &parity_steps
           python tests/integration/install_parity.py $PARITY_VERSION
     - run:
         name: run tox
-        command: ~/.local/bin/tox
+        command: ~/.local/bin/tox -r
     - save_cache:
         paths:
           - .tox
@@ -86,7 +86,7 @@ geth_steps: &geth_steps
           geth makedag 0 $HOME/.ethash
     - run:
         name: run tox
-        command: ~/.local/bin/tox
+        command: ~/.local/bin/tox -r
     - save_cache:
         paths:
           - .tox
