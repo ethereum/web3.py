@@ -13,14 +13,14 @@ from cytoolz.functoolz import (
     compose,
     partial,
 )
-from eth_utils import (
-    encode_hex,
+from eth_utils.curried import (
     is_address,
     is_bytes,
     is_integer,
     is_null,
     is_string,
     remove_0x_prefix,
+    text_if_str,
     to_checksum_address,
 )
 from hexbytes import (
@@ -266,8 +266,8 @@ pythonic_middleware = construct_formatting_middleware(
             compose(remove_0x_prefix, hexstr_if_str(to_hex)),
             0,
         ),
-        'personal_sign': apply_formatter_at_index(encode_hex, 0),
-        'personal_ecRecover': apply_formatter_at_index(encode_hex, 0),
+        'personal_sign': apply_formatter_at_index(text_if_str(to_hex), 0),
+        'personal_ecRecover': apply_formatter_at_index(text_if_str(to_hex), 0),
         # Snapshot and Revert
         'evm_revert': apply_formatter_at_index(integer_to_hex, 0),
     },
