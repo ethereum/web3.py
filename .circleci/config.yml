@@ -38,7 +38,8 @@ parity_steps: &parity_steps
     - run:
         name: install parity if needed
         command: |
-          pip install --user requests eth_utils tqdm
+          pip install --user requests eth_utils tqdm eth-hash[pycryptodome]
+          echo $PARITY_VERSION
           python tests/integration/install_parity.py $PARITY_VERSION
     - run:
         name: run tox
