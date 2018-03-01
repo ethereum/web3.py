@@ -12,7 +12,6 @@ contextlib2>=0.5.4
 ethtoken
 py-geth>=1.4.0
 py-solc>=0.4.0
-#pysha3>=0.3
 pytest>=2.7.2
 sphinx
 sphinx_rtd_theme>=0.1.9
