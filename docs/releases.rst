@@ -1,6 +1,18 @@
 Release Notes
 =============
 
+v4.0.0-beta.11
+-----------------
+
+Released Feb 28, 2018
+
+- New methods to modify or replace pending transactions
+- A compatibility option for connecting to ``geth --dev`` -- see :ref:`geth-poa`
+- A new :attr:`web3.net.chainId`
+- Create a filter object from an existing filter ID.
+- eth-utils v1.0.1 (stable) compatibility
+
+
 v4.0.0-beta.10
 -----------------
 

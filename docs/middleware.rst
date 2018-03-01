@@ -315,6 +315,7 @@ All of the caching middlewares accept these common arguments.
     A ready to use version of this middleware can be found at
     ``web3.middlewares.latest_block_based_cache_middleware``.
 
+.. _geth-poa:
 
 Geth-style Proof of Authority
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
