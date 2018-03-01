@@ -27,6 +27,7 @@ from web3.exceptions import (
     BadFunctionCallOutput,
     FallbackNotFound,
     MismatchedABI,
+    BlockNumberOutofRange,
 )
 from web3.utils.abi import (
     fallback_func_abi_exists,
@@ -73,6 +74,10 @@ from web3.utils.normalizers import (
 )
 from web3.utils.transactions import (
     fill_transaction_defaults,
+)
+
+from web3.utils.blocks import (
+    is_hex_encoded_block_hash,
 )
 
 DEPRECATED_SIGNATURE_MESSAGE = (
@@ -439,6 +444,7 @@ class Contract:
                     contract._return_data_normalizers,
                     function_name,
                     call_transaction,
+                    'latest',
                 )
                 return callable_fn
 
@@ -792,7 +798,7 @@ class ContractFunction:
 
         self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
 
-    def call(self, transaction=None):
+    def call(self, transaction=None, block_identifier='latest'):
         """
         Execute a contract function call using the `eth_call` interface.
 
@@ -841,6 +847,7 @@ class ContractFunction:
                 raise ValueError(
                     "Please ensure that this contract instance has an address."
                 )
+        block_id = parse_block_identifier(self.web3, block_identifier)
 
         return call_contract_function(self.contract_abi,
                                       self.web3,
@@ -848,6 +855,7 @@ class ContractFunction:
                                       self._return_data_normalizers,
                                       self.function_identifier,
                                       call_transaction,
+                                      block_id,
                                       *self.args,
                                       **self.kwargs)
 
@@ -1017,6 +1025,7 @@ def call_contract_function(abi,
                            normalizers,
                            function_identifier,
                            transaction,
+                           block_id=None,
                            *args,
                            **kwargs):
     """
@@ -1033,7 +1042,10 @@ def call_contract_function(abi,
         transaction=transaction,
     )
 
-    return_data = web3.eth.call(call_transaction)
+    if block_id is None:
+        return_data = web3.eth.call(call_transaction)
+    else:
+        return_data = web3.eth.call(call_transaction, block_identifier=block_id)
 
     function_abi = find_matching_fn_abi(abi, function_identifier, args, kwargs)
 
@@ -1074,6 +1086,21 @@ def call_contract_function(abi,
         return normalized_data[0]
     else:
         return normalized_data
+
+
+def parse_block_identifier(web3, block_identifier):
+    last_block = web3.eth.getBlock('latest').number
+    if isinstance(block_identifier, int) and abs(block_identifier) <= last_block:
+        if block_identifier >= 0:
+            return block_identifier
+        else:
+            return last_block + block_identifier + 1
+    elif block_identifier in ['latest', 'earliest', 'pending']:
+        return block_identifier
+    elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
+        return web3.eth.getBlock(block_identifier).number
+    else:
+        raise BlockNumberOutofRange
 
 
 def transact_with_contract_function(abi,
