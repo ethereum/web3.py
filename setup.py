@@ -30,6 +30,7 @@ setup(
     extras_require={
         'tester': [
             "eth-tester[py-evm]==0.1.0b19",
+            "py-geth>=2.0.1,<3.0.0",
         ],
         'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
         'linter': [

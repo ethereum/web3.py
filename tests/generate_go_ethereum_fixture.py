@@ -12,12 +12,16 @@ import time
 
 from cytoolz import (
     merge,
+    valmap,
 )
-from eth_utils import (
+from eth_utils.curried import (
+    apply_formatter_if,
+    is_bytes,
     is_checksum_address,
     is_dict,
     is_same_address,
     remove_0x_prefix,
+    to_hex,
     to_text,
     to_wei,
 )
@@ -41,7 +45,7 @@ KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{
 KEYFILE_PW = 'web3py-test'
 KEYFILE_FILENAME = 'UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'  # noqa: E501
 
-RAW_TXN_ACCOUNT = '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6'
+RAW_TXN_ACCOUNT = '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6'
 
 UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
 UNLOCKABLE_ACCOUNT = '0x12efdc31b1a8fa1a1e756dfd8a1601055c971e13'
@@ -160,6 +164,14 @@ def wait_for_socket(ipc_path, timeout=30):
 
 
 @contextlib.contextmanager
+def graceful_kill_on_exit(proc):
+    try:
+        yield proc
+    finally:
+        kill_proc_gracefully(proc)
+
+
+@contextlib.contextmanager
 def get_geth_process(geth_binary,
                      datadir,
                      genesis_file_path,
@@ -181,30 +193,44 @@ def get_geth_process(geth_binary,
         geth_binary,
         '--datadir', datadir,
         '--ipcpath', geth_ipc_path,
+        '--ethash.dagsondisk', '1',
+        '--gcmode', 'archive',
         '--nodiscover',
         '--port', geth_port,
         '--etherbase', COINBASE[2:],
     )
-    proc = subprocess.Popen(
+
+    popen_proc = subprocess.Popen(
         run_geth_command,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         bufsize=1,
     )
-    try:
-        yield proc
-    finally:
-        kill_proc_gracefully(proc)
+    with popen_proc as proc:
+        with graceful_kill_on_exit(proc) as graceful_proc:
+            yield graceful_proc
+
         output, errors = proc.communicate()
-        print(
-            "Geth Process Exited:\n"
-            "stdout:{0}\n\n"
-            "stderr:{1}\n\n".format(
-                to_text(output),
-                to_text(errors),
-            )
+
+    print(
+        "Geth Process Exited:\n"
+        "stdout:{0}\n\n"
+        "stderr:{1}\n\n".format(
+            to_text(output),
+            to_text(errors),
         )
+    )
+
+
+def write_config_json(config, datadir):
+    bytes_to_hex = apply_formatter_if(is_bytes, to_hex)
+    config_json_dict = valmap(bytes_to_hex, config)
+
+    config_path = os.path.join(datadir, 'config.json')
+    with open(config_path, 'w') as config_file:
+        config_file.write(json.dumps(config_json_dict))
+        config_file.write('\n')
 
 
 def generate_go_ethereum_fixture(destination_dir):
@@ -226,24 +252,48 @@ def generate_go_ethereum_fixture(destination_dir):
         geth_port = get_open_port()
         geth_binary = get_geth_binary()
 
-        geth_proc = stack.enter_context(get_geth_process(  # noqa: F841
-            geth_binary=geth_binary,
-            datadir=datadir,
-            genesis_file_path=genesis_file_path,
-            geth_ipc_path=geth_ipc_path,
-            geth_port=geth_port,
-        ))
+        with get_geth_process(
+                geth_binary=geth_binary,
+                datadir=datadir,
+                genesis_file_path=genesis_file_path,
+                geth_ipc_path=geth_ipc_path,
+                geth_port=geth_port):
 
-        wait_for_socket(geth_ipc_path)
-        web3 = Web3(Web3.IPCProvider(geth_ipc_path))
-        chain_data = setup_chain_state(web3)
+            wait_for_socket(geth_ipc_path)
+            web3 = Web3(Web3.IPCProvider(geth_ipc_path))
+            chain_data = setup_chain_state(web3)
+            # close geth by exiting context
+            # must be closed before copying data dir
+            verify_chain_state(web3, chain_data)
+
+        # verify that chain state is still valid after closing
+        # and re-opening geth
+        with get_geth_process(
+                geth_binary=geth_binary,
+                datadir=datadir,
+                genesis_file_path=genesis_file_path,
+                geth_ipc_path=geth_ipc_path,
+                geth_port=geth_port):
+
+            wait_for_socket(geth_ipc_path)
+            web3 = Web3(Web3.IPCProvider(geth_ipc_path))
+            verify_chain_state(web3, chain_data)
+
         static_data = {
             'raw_txn_account': RAW_TXN_ACCOUNT,
             'keyfile_pw': KEYFILE_PW,
         }
-        pprint.pprint(merge(chain_data, static_data))
+        config = merge(chain_data, static_data)
+        pprint.pprint(config)
+        write_config_json(config, datadir)
 
         shutil.copytree(datadir, destination_dir)
+
+
+def verify_chain_state(web3, chain_data):
+    receipt = web3.eth.getTransactionReceipt(chain_data['mined_txn_hash'])
+    latest = web3.eth.getBlock('latest')
+    assert receipt.blockNumber <= latest.number
 
 
 def mine_transaction_hash(web3, txn_hash):

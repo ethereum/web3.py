@@ -1,0 +1,40 @@
+=============== Feb 27, 2018 (PST) ===============
+14:29:23.926762 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+14:29:23.934465 db@open opening
+14:29:23.935231 version@stat F·[] S·0B[] Sc·[]
+14:29:23.939332 db@janitor F·2 G·0
+14:29:23.939361 db@open done T·4.87201ms
+=============== Feb 27, 2018 (PST) ===============
+14:29:23.991406 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+14:29:23.991523 version@stat F·[] S·0B[] Sc·[]
+14:29:23.991529 db@open opening
+14:29:23.991585 journal@recovery F·1
+14:29:23.994112 journal@recovery recovering @1
+14:29:23.998877 memdb@flush created L0@2 N·17 S·1KiB "\x19\x9e\x9a..\xf3c4,v7":"䣱..\xcdԹ,v4"
+14:29:24.001366 version@stat F·[1] S·1KiB[1KiB] Sc·[0.25]
+14:29:24.009653 db@janitor F·3 G·0
+14:29:24.009691 db@open done T·18.139656ms
+14:29:37.187966 db@close closing
+14:29:37.188037 db@close done T·69.496µs
+=============== Feb 27, 2018 (PST) ===============
+14:29:37.496107 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+14:29:37.496195 version@stat F·[1] S·1KiB[1KiB] Sc·[0.25]
+14:29:37.496202 db@open opening
+14:29:37.496233 journal@recovery F·1
+14:29:37.496414 journal@recovery recovering @3
+14:29:38.178524 memdb@flush created L0@5 N·104 S·9KiB "\r\xdbH..d}2,v29":"\xfa?\t..;\x0e5,v46"
+14:29:38.179587 version@stat F·[2] S·10KiB[10KiB] Sc·[0.50]
+14:29:40.141421 db@janitor F·4 G·0
+14:29:40.141529 db@open done T·2.645264036s
+=============== Feb 27, 2018 (PST) ===============
+14:29:40.886465 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+14:29:40.886534 version@stat F·[2] S·10KiB[10KiB] Sc·[0.50]
+14:29:40.886540 db@open opening
+14:29:40.886571 journal@recovery F·1
+14:29:40.888694 journal@recovery recovering @6
+14:29:40.893072 memdb@flush created L0@8 N·1 S·313B "eth..\al\xf9,v124":"eth..\al\xf9,v124"
+14:29:40.895309 version@stat F·[3] S·10KiB[10KiB] Sc·[0.75]
+14:29:40.904756 db@janitor F·5 G·0
+14:29:40.904838 db@open done T·18.282746ms
+14:29:40.939869 db@close closing
+14:29:40.940011 db@close done T·122.465µs

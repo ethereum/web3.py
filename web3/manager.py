@@ -13,6 +13,7 @@ from web3.middleware import (
     attrdict_middleware,
     gas_price_strategy_middleware,
     name_to_address_middleware,
+    normalize_errors_middleware,
     pythonic_middleware,
     validation_middleware,
 )
@@ -70,6 +71,7 @@ class RequestManager:
             (name_to_address_middleware(web3), 'name_to_address'),
             (attrdict_middleware, 'attrdict'),
             (pythonic_middleware, 'pythonic'),
+            (normalize_errors_middleware, 'normalize_errors'),
             (validation_middleware, 'validation'),
             (abi_middleware, 'abi'),
         ]

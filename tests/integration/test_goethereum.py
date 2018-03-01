@@ -1,3 +1,4 @@
+import json
 import os
 import pytest
 import shutil
@@ -7,6 +8,9 @@ import subprocess
 import tempfile
 import time
 
+from cytoolz import (
+    assoc,
+)
 from eth_utils import (
     is_checksum_address,
     is_dict,
@@ -53,6 +57,7 @@ GETH_17_FIXTURE = {
     'raw_txn_account': '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6',
     'txn_hash_with_log': '0x2fd8dcd6ab1318245f8423df8e31f66f5d0fac2db34d7ab4a2a21a71037beae1',
 }
+GETH_181_DIRECTORY_NAME = 'geth-1.8.1-datadir-fixture'
 
 
 @pytest.fixture(scope='session')
@@ -75,6 +80,21 @@ def geth_binary():
         return 'geth'
 
 
+def absolute_datadir(directory_name):
+    return os.path.abspath(os.path.join(
+        os.path.dirname(__file__),
+        directory_name,
+    ))
+
+
+def load_fixture_data(fixture_path):
+    fixture_path = absolute_datadir(fixture_path)
+    config_path = os.path.join(fixture_path, 'config.json')
+    with open(config_path) as config_file:
+        loaded_data = json.loads(config_file.read())
+        return assoc(loaded_data, 'datadir', fixture_path)
+
+
 @pytest.fixture(scope="session")
 def geth_fixture_data(geth_binary):
     from geth import get_geth_version
@@ -84,15 +104,14 @@ def geth_fixture_data(geth_binary):
             return GETH_16_FIXTURE
         elif version.minor == 7:
             return GETH_17_FIXTURE
+        elif version.minor == 8:
+            return load_fixture_data(GETH_181_DIRECTORY_NAME)
     assert False, "Unsupported geth version"
 
 
 @pytest.fixture(scope='session')
 def datadir(tmpdir_factory, geth_fixture_data):
-    fixture_datadir = os.path.abspath(os.path.join(
-        os.path.dirname(__file__),
-        geth_fixture_data['datadir'],
-    ))
+    fixture_datadir = absolute_datadir(geth_fixture_data['datadir'])
     base_dir = tmpdir_factory.mktemp('goethereum')
     tmp_datadir = os.path.join(str(base_dir), 'datadir')
     shutil.copytree(fixture_datadir, tmp_datadir)
