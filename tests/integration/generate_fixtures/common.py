@@ -8,8 +8,8 @@ import tempfile
 import time
 
 from eth_utils import (
-    force_text,
     is_checksum_address,
+    to_text,
 )
 
 COINBASE = '0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'
@@ -181,8 +181,8 @@ def get_geth_process(geth_binary,
             "Geth Process Exited:\n"
             "stdout:{0}\n\n"
             "stderr:{1}\n\n".format(
-                force_text(output),
-                force_text(errors),
+                to_text(output),
+                to_text(errors),
             )
         )
 

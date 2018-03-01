@@ -1,7 +1,6 @@
 import hashlib
 
 from eth_utils import (
-    force_bytes,
     is_boolean,
     is_bytes,
     is_dict,
@@ -9,6 +8,7 @@ from eth_utils import (
     is_null,
     is_number,
     is_text,
+    to_bytes,
 )
 
 from .six import (
@@ -23,7 +23,7 @@ def generate_cache_key(value):
     if is_bytes(value):
         return hashlib.md5(value).hexdigest()
     elif is_text(value):
-        return generate_cache_key(force_bytes(value))
+        return generate_cache_key(to_bytes(text=value))
     elif is_boolean(value) or is_null(value) or is_number(value):
         return generate_cache_key(repr(value))
     elif is_dict(value):

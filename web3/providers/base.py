@@ -2,9 +2,8 @@ import itertools
 import json
 
 from eth_utils import (
-    force_bytes,
-    force_obj_to_text,
-    force_text,
+    to_bytes,
+    to_text,
 )
 
 from web3.middleware import (
@@ -58,15 +57,15 @@ class JSONBaseProvider(BaseProvider):
         self.request_counter = itertools.count()
 
     def decode_rpc_response(self, response):
-        return json.loads(force_text(response))
+        return json.loads(to_text(response))
 
     def encode_rpc_request(self, method, params):
-        return force_bytes(json.dumps(force_obj_to_text({
+        return to_bytes(text=json.dumps({
             "jsonrpc": "2.0",
             "method": method,
             "params": params or [],
             "id": next(self.request_counter),
-        })))
+        }))
 
     def isConnected(self):
         try:

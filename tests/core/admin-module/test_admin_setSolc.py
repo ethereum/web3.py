@@ -2,7 +2,7 @@ import pytest
 import subprocess
 
 from eth_utils import (
-    force_text,
+    to_text,
 )
 
 
@@ -16,5 +16,5 @@ def test_admin_setSolc(web3, skip_if_testrpc):
     solc_version = subprocess.check_output(['solc', '--version']).strip()
 
     actual = web3.admin.setSolc(solc_path)
-    assert force_text(solc_version) in actual
-    assert force_text(solc_path) in actual
+    assert to_text(solc_version) in actual
+    assert to_text(solc_path) in actual

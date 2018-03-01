@@ -1,16 +1,28 @@
 from eth_utils import (
-    force_text,
+    is_bytes,
     is_hex,
     is_integer,
     is_string,
+    is_text,
     remove_0x_prefix,
 )
 
 
 def is_predefined_block_number(value):
-    if not is_string(value):
+    if is_text(value):
+        value_text = value
+    elif is_bytes(value):
+        # `value` could either be random bytes or the utf-8 encoding of
+        # one of the words in: {"latest", "pending", "earliest"}
+        # We cannot decode the bytes as utf8, because random bytes likely won't be valid.
+        # So we speculatively decode as 'latin-1', which cannot fail.
+        value_text = value.decode('latin-1')
+    elif is_integer(value):
         return False
-    return force_text(value) in {"latest", "pending", "earliest"}
+    else:
+        raise TypeError("unrecognized block reference: %r" % value)
+
+    return value_text in {"latest", "pending", "earliest"}
 
 
 def is_hex_encoded_block_hash(value):

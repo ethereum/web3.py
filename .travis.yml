@@ -66,7 +66,7 @@ before_install:
 install:
   - travis_retry pip install pip setuptools --upgrade
   - travis_retry pip install tox
-  - if [ -n "$PARITY_VERSION" ]; then travis_retry pip install eth_utils tqdm requests; fi
+  - if [ -n "$PARITY_VERSION" ]; then travis_retry pip install eth_utils tqdm requests eth-hash[pycryptodome]; fi
 before_script:
   - python --version
   - pip --version

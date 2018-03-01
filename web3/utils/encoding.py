@@ -1,5 +1,4 @@
 # String encodings and numeric representations
-import json
 import re
 
 from cytoolz import (
@@ -10,16 +9,13 @@ from eth_utils import (
     big_endian_to_int,
     decode_hex,
     encode_hex,
-    force_bytes,
-    force_text,
     int_to_big_endian,
     is_boolean,
     is_bytes,
-    is_dict,
     is_hex,
     is_integer,
-    is_string,
     remove_0x_prefix,
+    to_hex,
 )
 
 from web3.utils.abi import (
@@ -38,12 +34,6 @@ from web3.utils.validation import (
     validate_abi_type,
     validate_abi_value,
 )
-
-
-def _is_prefixed(value, prefix):
-    return value.startswith(
-        force_bytes(prefix) if is_bytes(value) else force_text(prefix)
-    )
 
 
 def hex_encode_abi_type(abi_type, value, force_size=None):
@@ -71,7 +61,7 @@ def hex_encode_abi_type(abi_type, value, force_size=None):
         else:
             return value
     elif is_string_type(abi_type):
-        return encode_hex(value)
+        return to_hex(text=value)
     else:
         raise ValueError(
             "Unsupported ABI type: {0}".format(abi_type)
@@ -112,41 +102,6 @@ def trim_hex(hexstr):
         if hexstr == '0x':
             hexstr = '0x0'
     return hexstr
-
-
-def to_hex(value=None, hexstr=None, text=None):
-    """
-    Auto converts any supported value into it's hex representation.
-
-    Trims leading zeros, as defined in:
-    https://github.com/ethereum/wiki/wiki/JSON-RPC#hex-value-encoding
-    """
-    assert_one_val(value, hexstr=hexstr, text=text)
-
-    if hexstr is not None:
-        return add_0x_prefix(hexstr.lower())
-
-    if text is not None:
-        return encode_hex(text.encode('utf-8'))
-
-    if is_boolean(value):
-        return "0x1" if value else "0x0"
-
-    if is_dict(value):
-        return encode_hex(json.dumps(value, sort_keys=True))
-
-    if isinstance(value, bytes):
-        return encode_hex(value)
-    elif is_string(value):
-        return to_hex(text=value)
-
-    if is_integer(value):
-        return hex(value)
-
-    raise TypeError(
-        "Unsupported type: '{0}'.  Must be one of Boolean, Dictionary, String, "
-        "or Integer.".format(repr(type(value)))
-    )
 
 
 def to_int(value=None, hexstr=None, text=None):

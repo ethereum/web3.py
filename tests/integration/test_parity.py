@@ -8,9 +8,9 @@ import tempfile
 import time
 
 from eth_utils import (
-    force_text,
     is_checksum_address,
     is_dict,
+    to_text,
 )
 
 from install_parity import (
@@ -184,8 +184,8 @@ def get_process(command_list, terminates=False):
             "Parity Process Exited:\n"
             "stdout:{0}\n\n"
             "stderr:{1}\n\n".format(
-                force_text(output),
-                force_text(errors),
+                to_text(output),
+                to_text(errors),
             )
         )
 

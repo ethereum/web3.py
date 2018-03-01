@@ -2,15 +2,18 @@ from wsgiref.simple_server import (
     make_server,
 )
 
+from cytoolz import (
+    valmap,
+)
 from cytoolz.functoolz import (
     complement,
     compose,
 )
 from eth_utils import (
     decode_hex,
-    force_obj_to_text,
     is_integer,
     is_string,
+    to_text,
 )
 
 from web3.middleware import (
@@ -61,7 +64,7 @@ TRANSACTION_FORMATTERS = {
 
 def ethtestrpc_string_middleware(make_request, web3):
     def middleware(method, params):
-        return force_obj_to_text(make_request(method, params))
+        return valmap(to_text, make_request(method, params))
     return middleware
 
 
