@@ -1,4 +1,7 @@
 import hashlib
+from json.decoder import (
+    JSONDecodeError,
+)
 import os
 import stat
 import sys
@@ -29,9 +32,15 @@ def fill_default_request_params(version, os=OS, architecture=ARCHITECTURE):
 
 @toolz.functoolz.memoize
 def get_parity_release_json(**kwargs):
-    return requests.get(
-        URI_QUERY_URL,
-        params=kwargs).json()
+    try:
+        return requests.get(
+            URI_QUERY_URL,
+            params=kwargs).json()
+    except JSONDecodeError as json_err:
+        raise EnvironmentError("Could not find parity release for %s with %r" % (
+            URI_QUERY_URL,
+            kwargs,
+        )) from json_err
 
 
 @to_tuple
