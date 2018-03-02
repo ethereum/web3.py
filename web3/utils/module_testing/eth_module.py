@@ -499,7 +499,7 @@ class EthModuleTest:
                                                         math_contract_deploy_txn_hash):
         transaction = web3.eth.getTransaction(math_contract_deploy_txn_hash)
         assert is_dict(transaction)
-        assert transaction['to'] is None
+        assert transaction['to'] is None, "to field is %r" % transaction['to']
 
     def test_eth_getTransactionByBlockHashAndIndex(self, web3, block_with_txn, mined_txn_hash):
         transaction = web3.eth.getTransactionFromBlock(block_with_txn['hash'], 0)

@@ -102,13 +102,6 @@ jobs:
   #
   # Python 3.5
   #
-  lint:
-    <<: *common
-    docker:
-      - image: circleci/python:3.5
-    environment:
-      TOXENV: lint
-
   py35-core:
     <<: *common
     docker:
@@ -165,6 +158,20 @@ jobs:
   #
   # Python 3.6
   #
+  lint:
+    <<: *common
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: lint
+
+  doctest:
+    <<: *common
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: doctest
+
   py36-core:
     <<: *common
     docker:
@@ -224,6 +231,7 @@ workflows:
   test:
     jobs:
       - lint
+      - doctest
       - py35-core
       - py35-ens
       - py35-integration-goethereum-1.7.2
