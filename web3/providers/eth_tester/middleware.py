@@ -132,7 +132,7 @@ filter_params_transformer = compose(filter_params_remapper, filter_params_format
 
 
 TRANSACTION_FORMATTERS = {
-    'to': apply_formatter_if(partial(operator.eq, b''), static_return(None)),
+    'to': apply_formatter_if(partial(operator.eq, ''), static_return(None)),
 }
 
 
