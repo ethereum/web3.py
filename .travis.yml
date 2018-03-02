@@ -21,9 +21,6 @@ matrix:
     # ENS
     - python: "3.5"
       env: TOX_POSARGS="-e py35-ens"
-    # lint
-    - python: "3.5"
-      env: TOX_POSARGS="-e lint"
     # core
     - python: "3.5"
       env: TOX_POSARGS="-e py35-core"
@@ -39,8 +36,8 @@ matrix:
     # go-ethereum
     - python: "3.6"
       env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.7.2
-    - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.8.1
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.8.1
     # parity
     - python: "3.6"
       env: TOX_POSARGS="-e py36-integration-parity" PARITY_VERSION=v1.8.8
@@ -50,6 +47,9 @@ matrix:
     # lint
     - python: "3.6"
       env: TOX_POSARGS="-e lint"
+    # doctest
+    - python: "3.6"
+      env: TOX_POSARGS="-e doctest"
     # core
     - python: "3.6"
       env: TOX_POSARGS="-e py36-core"
