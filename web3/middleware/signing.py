@@ -1,33 +1,69 @@
-import eth_account
-import eth_keys
+from eth_account.local import (
+    LocalAccount,
+)
+from eth_keys.datatypes import (
+    PrivateKey,
+)
 from eth_utils import (
     is_same_address,
 )
+from toolz import (
+    compose,
+)
 
+from web3.utils.formatters import (
+    apply_formatter_if,
+)
 from web3.utils.transactions import (
+    fill_nonce,
     fill_transaction_defaults,
 )
 
+to_hexstr_from_eth_key = lambda x: x.to_hex()  # noqa: E731
 
-def key_to_account(web3, key):
-    if isinstance(key, eth_account.local.LocalAccount):
-        return key
-    if isinstance(key, (str, bytes)):
-        return web3.eth.account.privateKeyToAccount(key)
-    if isinstance(key, (eth_keys.datatypes.PrivateKey)):
-        sk_hex = key.to_hex()
-        return web3.eth.account.privateKeyToAccount(sk_hex)
-    raise TypeError("key must be one of the types (...). Was of type {0}".format(type(key)))
+
+def is_eth_key(value):
+    if isinstance(value, PrivateKey):
+        return True
+    return False
+
+
+def raw_key_formatter(private_key):
+    formatter = compose(
+        apply_formatter_if(is_eth_key, to_hexstr_from_eth_key),
+    )
+    return formatter(private_key)
+
+
+def to_account(web3, private_key):
+
+    if isinstance(private_key, LocalAccount):
+        return private_key
+
+    elif isinstance(private_key, (PrivateKey, str, bytes,)):
+        normalized_key = raw_key_formatter(private_key)
+        return web3.eth.account.privateKeyToAccount(normalized_key)
+
+    raise TypeError(
+        "key must be one of the types: "
+        "eth_keys.datatype.PrivateKey, eth_account.local.LocalAccount, "
+        "or raw private key as a string or bytestring. "
+        "Was of type {0}".format(type(private_key)))
 
 
 def construct_sign_and_send_raw_middleware(private_key):
 
     def sign_and_send_raw_middleware(make_request, web3):
-        account = key_to_account(web3, private_key)
+        account = to_account(web3, private_key)
 
         def middleware(method, params):
             if method == "eth_sendTransaction":
-                transaction = fill_transaction_defaults(web3, params[0])
+
+                fill_tx = compose(
+                    fill_transaction_defaults(web3),
+                    fill_nonce(web3))
+
+                transaction = fill_tx(params[0])
 
                 if 'from' in transaction:
                     try:
@@ -42,14 +78,11 @@ def construct_sign_and_send_raw_middleware(private_key):
                         requirement not met: 'from' address was not included in\
                         transaction parameters.")
 
-                # TODO: Can this be added to fill_transaction_defaults()?
-                transaction['nonce'] = web3.eth.getTransactionCount(account.address)
-
-                signed_transaction = account.signTransaction(transaction)
+                raw_tx = account.signTransaction(transaction).rawTransaction
 
                 return make_request(
                     "eth_sendRawTransaction",
-                    [signed_transaction.rawTransaction])
+                    [raw_tx])
 
             else:
                 return make_request(method, params)
