@@ -717,7 +717,9 @@ class EthModuleTest:
         assert block_num_call_result == 0
         assert latest_call_result == 0
         assert default_call_result == 0
-        assert pending_call_result == 1
+
+        if pending_call_result != 1:
+            raise AssertionError("pending call result was %d instead of 1" % pending_call_result)
 
     def test_eth_uninstallFilter(self, web3):
         filter = web3.eth.filter({})
