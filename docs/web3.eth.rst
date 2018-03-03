@@ -456,7 +456,7 @@ The following methods are available on the ``web3.eth`` namespace.
     following 2 values will be used:
 
     * The pending transaction's ``gasPrice`` * 1.1 - This is typically the minimum
-    ``gasPrice`` increase a node requires before it accepts a replacement transaction.
+      ``gasPrice`` increase a node requires before it accepts a replacement transaction.
     * The ``gasPrice`` as calculated by the current gas price strategy(See :ref:`Gas_Price`).
 
     .. code-block:: python
