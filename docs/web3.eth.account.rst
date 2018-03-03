@@ -1,30 +1,87 @@
 Working with Local Private Keys
 ==========================================
 
+Not Acceptable for Production
+---------------------------------
+
+.. WARNING::
+  **Do not use** this module in production. It is still in beta. A security audit is pending.
+
+Now is a great time to get familiar with the API, and test out writing
+code that uses some of the great upcoming features.
+
+By default, access to this module has been turned off in the stable version of Web3.py:
+
+.. code-block:: python
+
+    >>> from web3.auto import w3
+    >>> w3.eth.account
+    ...
+    AttributeError: This feature is disabled, pending security audit. ...
+
+In order to access these features, you can either:
+
+1. Turn it on inside web3 with:
+
+   .. code-block:: python
+
+       >>> from web3.auto import w3
+       >>> w3.eth.enable_unaudited_features()
+       >>> w3.eth.account
+
+2. Load the beta version of :class:`eth_account.Account <eth_account.account.Account>`
+   directly, with:
+
+   .. code-block:: python
+
+       >>> from eth_account import Account
+       >>> account = Account()
+
+.. testsetup::
+
+    from web3.auto import w3
+    w3.eth.enable_unaudited_features()
+
+Local vs Hosted Nodes
+---------------------------------
+
+Local Node
+  A local node is started and controlled by you. It is as safe as you keep it.
+  When you run ``geth`` or ``parity`` on your machine, you are running a local node.
+
+Hosted Node
+  A hosted node is controlled by someone else. When you connect to Infura, you are
+  connected to a hosted node.
+
+Local vs Hosted Keys
+---------------------------------
+
 Local Private Key
   A key is 32 :class:`bytes` of data that you can use to sign transactions and messages,
-  before sending them to your node. That node can be local (like Geth or Parity),
-  or remote (like Infura). You must use :meth:`~web3.eth.Eth.sendRawTransaction`
+  before sending them to your node.
+  You must use :meth:`~web3.eth.Eth.sendRawTransaction`
   when working with local keys, instead of
   :meth:`~web3.eth.Eth.sendTransaction` .
 
-Managed Private Key
-  A managed key is like a `Local Private Key`, but managed by your local node.
-  This allows you to use
-  :meth:`~web3.eth.Eth.sendTransaction`.
+Hosted Private Key
+  This is a common way to use accounts with local nodes.
   Each account returned by :attr:`w3.eth.accounts <web3.eth.Eth.accounts>`
-  has a key associated
-  with it, which is managed by your node.
+  has a hosted private key stored in your node.
+  This allows you to use :meth:`~web3.eth.Eth.sendTransaction`.
+
 
 .. WARNING::
-  It is unnacceptable for a remote
-  node to manage your private keys, because of the likelihood of theft.
-  Any reputable 3rd-party node (like Infura) will not offer a `Managed Private Key`.
+  It is unnacceptable for a hosted node to offer hosted private keys. It
+  gives other people complete control over your account. "Not your keys,
+  not your Ether" in the wise words of Andreas Antonopoulos.
 
 Some Common Uses for Local Private Keys
 -------------------------------------------
 
-Some common things you might want to do with Local Private Keys are:
+A very common reason to work with local private keys is to interact
+with a hosted node.
+
+Some common things you might want to do with a `Local Private Key` are:
 
 - `Sign a Transaction`_
 - `Sign a Contract Transaction`_
