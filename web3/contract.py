@@ -24,9 +24,9 @@ from toolz.functoolz import (
 
 from web3.exceptions import (
     BadFunctionCallOutput,
+    BlockNumberOutofRange,
     FallbackNotFound,
     MismatchedABI,
-    BlockNumberOutofRange,
 )
 from web3.utils.abi import (
     fallback_func_abi_exists,
@@ -35,6 +35,9 @@ from web3.utils.abi import (
     get_constructor_abi,
     map_abi_data,
     merge_args_and_kwargs,
+)
+from web3.utils.blocks import (
+    is_hex_encoded_block_hash,
 )
 from web3.utils.contracts import (
     encode_abi,
@@ -73,10 +76,6 @@ from web3.utils.normalizers import (
 )
 from web3.utils.transactions import (
     fill_transaction_defaults,
-)
-
-from web3.utils.blocks import (
-    is_hex_encoded_block_hash,
 )
 
 DEPRECATED_SIGNATURE_MESSAGE = (

@@ -6,8 +6,8 @@ from hexbytes import (
 
 from web3.exceptions import (
     BadFunctionCallOutput,
+    BlockNumberOutofRange,
     InvalidAddress,
-    BlockNumberOutofRange
 )
 from web3.utils.ens import (
     contract_ens_addresses,
