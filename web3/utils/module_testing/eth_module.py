@@ -695,13 +695,29 @@ class EthModuleTest:
         assert_contains_log(result)
 
     def test_eth_call_old_contract_state(self, web3, math_contract, unlocked_account):
-        math_contract.functions.increment().transact()
+        start_block = web3.eth.getBlock('latest')
+        block_num = start_block.number
+        block_hash = start_block.hash
 
-        call_result_old = math_contract.functions.counter().call(block_identifier=6)
-        call_result = math_contract.functions.counter().call(block_identifier='latest')
+        math_contract.functions.increment().transact({'from': unlocked_account})
 
-        assert call_result_old == 0
-        assert call_result == 1
+        # This isn't an incredibly convincing test since we can't mine, and
+        # the default resolved block is latest, So if block_identifier was ignored
+        # we would get the same result. For now, we mostly depend on core tests.
+        # Ideas to improve this test:
+        #  - Enable on-demand mining in more clients
+        #  - Increment the math contract in all of the fixtures, and check the value in an old block
+        block_hash_call_result = math_contract.functions.counter().call(block_identifier=block_hash)
+        block_num_call_result = math_contract.functions.counter().call(block_identifier=block_num)
+        latest_call_result = math_contract.functions.counter().call(block_identifier='latest')
+        default_call_result = math_contract.functions.counter().call()
+        pending_call_result = math_contract.functions.counter().call(block_identifier='pending')
+
+        assert block_hash_call_result == 0
+        assert block_num_call_result == 0
+        assert latest_call_result == 0
+        assert default_call_result == 0
+        assert pending_call_result == 1
 
     def test_eth_uninstallFilter(self, web3):
         filter = web3.eth.filter({})

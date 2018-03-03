@@ -413,13 +413,13 @@ def test_neg_block_indexes_from_the_end(web3, math_contract):
 
 
 def test_returns_data_from_specified_block(web3, math_contract):
+    start_num = web3.eth.getBlock('latest').number
     web3.providers[0].make_request(method='evm_mine', params=[5])
     math_contract.functions.increment().transact()
     math_contract.functions.increment().transact()
-    web3.providers[0].make_request(method='evm_mine', params=[5])
 
-    output1 = math_contract.functions.counter().call(block_identifier=7)
-    output2 = math_contract.functions.counter().call(block_identifier=8)
+    output1 = math_contract.functions.counter().call(block_identifier=start_num + 6)
+    output2 = math_contract.functions.counter().call(block_identifier=start_num + 7)
 
     assert output1 == 1
     assert output2 == 2
