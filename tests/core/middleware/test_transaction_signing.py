@@ -24,7 +24,7 @@ from web3.providers.eth_tester import (
 KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{"cipher":"aes-128-ctr","ciphertext":"52e06bc9397ea9fa2f0dae8de2b3e8116e92a2ecca9ad5ff0061d1c449704e98","cipherparams":{"iv":"aa5d0a5370ef65395c1a6607af857124"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"9fdf0764eb3645ffc184e166537f6fe70516bf0e34dc7311dea21f100f0c9263"},"mac":"4e0b51f42b865c15c485f4faefdd1f01a38637e5247f8c75ffe6a8c0eba856f6"},"id":"5a6124e0-10f1-4c1c-ae3e-d903eacb740a","version":3}'  # noqa: E501
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def private_key():
     return eth_account.Account.decrypt(KEYFILE_DATA, 'web3py-test')
 
@@ -37,7 +37,7 @@ class DummyProvider(BaseProvider):
         ))
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def result_generator_middleware():
     return construct_result_generator_middleware({
         'eth_sendRawTransaction': lambda *args: args,
@@ -45,12 +45,12 @@ def result_generator_middleware():
     })
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def w3_base():
     return Web3(providers=[DummyProvider()], middlewares=[])
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def w3_dummy(w3_base, result_generator_middleware):
     w3_base.middleware_stack.add(result_generator_middleware)
     return w3_base
@@ -96,12 +96,13 @@ def test_sign_and_send_raw_middleware(w3_dummy, w3, method, expected, key_object
         assert isinstance(raw_txn, bytes)
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def w3():
     return Web3(EthereumTesterProvider())
 
 
 @pytest.fixture(
+    scope='session',
     params=[
         eth_keys.keys.PrivateKey,
         eth_account.Account.privateKeyToAccount,
@@ -125,15 +126,13 @@ def test_to_account_type_error(w3):
 def fund_account(w3, private_key):
     # fund local account
     account = to_account(w3, private_key)
-    start_balance = w3.eth.getBalance(account.address) == 10
     w3.eth.sendTransaction({
         'to': account.address,
         'from': w3.eth.accounts[0],
-        'value': 1})
-    assert w3.eth.getBalance(account.address) <= start_balance - 1
+        'value': 10})
+    assert w3.eth.getBalance(account.address) == 10
 
 
-@pytest.mark.xfail
 def test_signed_transaction_with_set_gas(w3, key_object, fund_account):
     account = to_account(w3, key_object)
     w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
@@ -141,13 +140,12 @@ def test_signed_transaction_with_set_gas(w3, key_object, fund_account):
     w3.eth.sendTransaction({
         'to': w3.eth.accounts[0],
         'from': account.address,
-        'gas': 2100,
+        'gas': 21000,
         'gasPrice': 0,
         'value': 1})
     assert w3.eth.getBalance(account.address) <= start_balance - 1
 
 
-@pytest.mark.xfail
 def test_signed_transaction_unset_gas(w3, key_object, fund_account):
     account = to_account(w3, key_object)
     w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
