@@ -104,14 +104,14 @@ Available gas price strategies
       recommended that a caching solution be used to reduce the amount of chain
       data that needs to be re-fetched for each request.
 
-.. code-block:: python
+    .. code-block:: python
 
-    from web3 import Web3, middleware
-    from web3.gas_strategies.time_based import medium_gas_price_strategy
+        from web3 import Web3, middleware
+        from web3.gas_strategies.time_based import medium_gas_price_strategy
 
-    w3 = Web3()
-    w3.eth.setGasPriceStrategy(medium_gas_price_strategy)
+        w3 = Web3()
+        w3.eth.setGasPriceStrategy(medium_gas_price_strategy)
 
-    w3.middleware_stack.add(middleware.time_based_cache_middleware)
-    w3.middleware_stack.add(middleware.latest_block_based_cache_middleware)
-    w3.middleware_stack.add(middleware.simple_cache_middleware)
+        w3.middleware_stack.add(middleware.time_based_cache_middleware)
+        w3.middleware_stack.add(middleware.latest_block_based_cache_middleware)
+        w3.middleware_stack.add(middleware.simple_cache_middleware)

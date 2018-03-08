@@ -25,6 +25,7 @@ Contents
     web3.eth.account
     web3.shh
     web3.personal
+    web3.net
     web3.version
     web3.txpool
     web3.miner

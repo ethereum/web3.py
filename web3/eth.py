@@ -47,12 +47,27 @@ from web3.utils.transactions import (
 
 
 class Eth(Module):
-    account = Account()
+    _account = None
     defaultAccount = empty
     defaultBlock = "latest"
     defaultContractFactory = Contract
     iban = Iban
     gasPriceStrategy = None
+
+    @property
+    def account(self):
+        if self._account is not None:
+            return self._account
+        else:
+            raise AttributeError(
+                "This feature is disabled, pending security audit. "
+                "If you want to use unaudited code dealing with private keys, "
+                "despite the risks, you can run `w3.eth.enable_unaudited_features()` "
+                "and try again."
+            )
+
+    def enable_unaudited_features(self):
+        self._account = Account()
 
     def namereg(self):
         raise NotImplementedError()
