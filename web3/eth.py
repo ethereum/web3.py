@@ -202,6 +202,10 @@ class Eth(Module):
             [block_identifier, transaction_index],
         )
 
+    def waitForTransactionReceipt(self, transaction_hash, timeout=120):
+        txn_receipt = wait_for_transaction_receipt(self.web3, transaction_hash, timeout)
+        return txn_receipt
+
     def getTransactionReceipt(self, transaction_hash):
         return self.web3.manager.request_blocking(
             "eth_getTransactionReceipt",
