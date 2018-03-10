@@ -714,21 +714,11 @@ class ContractConstructor:
         if self.web3.eth.defaultAccount is not empty:
             estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
-        if 'to' not in estimate_gas_transaction:
-            if isinstance(self, type):
-                raise ValueError(
-                    "When using `Contract.estimateGas` from a contract factory "
-                    "you must provide a `to` address with the transaction"
-                )
-            else:
-                raise ValueError(
-                    "Please ensure that this contract instance has an address."
-                )
-
         estimate_gas_transaction['data'] = self.data_in_transaction
 
         return self.web3.eth.estimateGas(estimate_gas_transaction)
 
+    @combomethod
     def transact(self, transaction=None):
         if transaction is None:
             transact_transaction = {}
@@ -738,53 +728,15 @@ class ContractConstructor:
         if 'data' in transact_transaction:
             raise ValueError("Cannot set data in transact transaction")
 
-        if self.address:
-            transact_transaction.setdefault('to', self.address)
+        if 'to' in transact_transaction:
+            raise ValueError("Cannot specify `to` for transact transaction")
+
         if self.web3.eth.defaultAccount is not empty:
             transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
-        if 'to' not in transact_transaction:
-            if isinstance(self, type):
-                raise ValueError(
-                    "When using `Contract.transact` from a contract factory you "
-                    "must provide a `to` address with the transaction"
-                )
-            else:
-                raise ValueError(
-                    "Please ensure that this contract instance has an address."
-                )
+        transact_transaction['data'] = self.data_in_transaction
 
-        contract = self
-
-        class Transactor:
-            def __getattr__(self, function_name):
-                callable_fn = functools.partial(
-                    transact_with_contract_function,
-                    contract.abi,
-                    contract.address,
-                    contract.web3,
-                    function_name,
-                    transact_transaction,
-                )
-                return callable_fn
-
-        return Transactor()
-        # if transaction is None:
-        #     estimate_gas_transaction = {}
-        # else:
-        #     estimate_gas_transaction = dict(**transaction)
-        #
-        # if 'data' in estimate_gas_transaction:
-        #     raise ValueError("Cannot set data in estimateGas transaction")
-        # if 'to' in estimate_gas_transaction:
-        #     raise ValueError("Cannot set to in estimateGas transaction")
-        #
-        # if self.web3.eth.defaultAccount is not empty:
-        #     estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)
-        #
-        # estimate_gas_transaction['data'] = self.data_in_transaction
-        #
-        # return self.web3.eth.estimateGas(estimate_gas_transaction)
+        return self.web3.eth.sendTransaction(transact_transaction)
 
 
 class ConciseContract:
