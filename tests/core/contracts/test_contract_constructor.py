@@ -1,4 +1,8 @@
-from eth_utils import decode_hex
+import pytest
+
+from eth_utils import (
+    decode_hex,
+)
 
 
 def test_contract_constructor_abi_encoding_with_no_constructor_fn(MathContract, MATH_CODE):
@@ -8,43 +12,39 @@ def test_contract_constructor_abi_encoding_with_no_constructor_fn(MathContract, 
 
 def test_contract_constructor_gas_estimate_no_constructor(MathContract):
     gas_estimate = MathContract.constructor().estimateGas()
-    # How are the expected value calculated?
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
-        # assert abs(gas_estimate - 29910) < 200  # eth-tester with py-evm
-        assert abs(gas_estimate - 200361) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 167412) < 200  # eth-tester with py-evm
 
 
-def test_contract_constructor_gas_estimate_with_constructor_without_arguments(SimpleConstructorContract):
+def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
+        SimpleConstructorContract):
     gas_estimate = SimpleConstructorContract.constructor().estimateGas()
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
-        # assert abs(gas_estimate - 29910) < 200  # eth-tester with py-evm
-        assert abs(gas_estimate - 85734) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 43082) < 200  # eth-tester with py-evm
 
 
-def test_contract_constructor_gas_estimate_with_constructor_with_arguments(WithConstructorArgumentsContract):
+def test_contract_constructor_gas_estimate_with_constructor_with_arguments(
+        WithConstructorArgumentsContract):
     gas_estimate = WithConstructorArgumentsContract.constructor(args=[1234, 'abcd']).estimateGas()
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
-        # assert abs(gas_estimate - 29910) < 200  # eth-tester with py-evm
-        assert abs(gas_estimate - 112486) < 200
+        assert abs(gas_estimate - 78572) < 200  # eth-tester with py-evm
 
 
 def test_contract_constructor_gas_estimate_with_constructor_with_address_argument(
-        WithConstructorAddressArgumentsContract # noqa: E501
-    ):
+        WithConstructorAddressArgumentsContract):
     gas_estimate = WithConstructorAddressArgumentsContract.constructor(
         args=["0x16D9983245De15E7A9A73bC586E01FF6E08dE737"],
     ).estimateGas()
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
-        # assert abs(gas_estimate - 29910) < 200  # eth-tester with py-evm
-        assert abs(gas_estimate - 95439) < 200
+        assert abs(gas_estimate - 50181) < 200  # eth-tester with py-evm
 
 
 def test_contract_constructor_transact_no_constructor(web3, MathContract, MATH_RUNTIME):
@@ -60,9 +60,8 @@ def test_contract_constructor_transact_no_constructor(web3, MathContract, MATH_R
     assert blockchain_code == decode_hex(MATH_RUNTIME)
 
 
-def test_contract_constructor_transact_with_constructor_without_arguments(web3,
-                                                                          SimpleConstructorContract,
-                                                                          SIMPLE_CONSTRUCTOR_RUNTIME):
+def test_contract_constructor_transact_with_constructor_without_arguments(
+        web3, SimpleConstructorContract, SIMPLE_CONSTRUCTOR_RUNTIME):
     deploy_txn = SimpleConstructorContract.constructor().transact()
 
     txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
@@ -75,9 +74,8 @@ def test_contract_constructor_transact_with_constructor_without_arguments(web3,
     assert blockchain_code == decode_hex(SIMPLE_CONSTRUCTOR_RUNTIME)
 
 
-def test_contract_constructor_transact_with_constructor_with_arguments(web3,
-                                                                       WithConstructorArgumentsContract,
-                                                                       WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME):
+def test_contract_constructor_transact_with_constructor_with_arguments(
+        web3, WithConstructorArgumentsContract, WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME):
     deploy_txn = WithConstructorArgumentsContract.constructor(args=[1234, 'abcd']).transact()
 
     txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
@@ -90,9 +88,8 @@ def test_contract_constructor_transact_with_constructor_with_arguments(web3,
     assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
 
 
-def test_contract_constructor_transact_with_constructor_with_address_arguments(web3,
-                                                                               WithConstructorAddressArgumentsContract,
-                                                                               WITH_CONSTRUCTOR_ADDRESS_RUNTIME):
+def test_contract_constructor_transact_with_constructor_with_address_arguments(
+        web3, WithConstructorAddressArgumentsContract, WITH_CONSTRUCTOR_ADDRESS_RUNTIME):
     deploy_txn = WithConstructorAddressArgumentsContract.constructor(
         args=['0x16D9983245De15E7A9A73bC586E01FF6E08dE737']
     ).transact()
@@ -102,3 +99,36 @@ def test_contract_constructor_transact_with_constructor_with_address_arguments(w
     contract_address = txn_receipt['contractAddress']
     blockchain_code = web3.eth.getCode(contract_address)
     assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ADDRESS_RUNTIME)
+
+
+def test_contract_constructor_build_transaction_to_field_error(MathContract):
+    with pytest.raises(ValueError):
+        MathContract.constructor().buildTransaction({'to': '123'})
+
+
+def test_contract_constructor_build_transaction_nonce_field_error(MathContract):
+    with pytest.raises(ValueError):
+        MathContract.constructor().buildTransaction({'nonce': '123'})
+
+
+def test_contract_constructor_build_transaction_no_constructor(web3, MathContract):
+    txn_hash = MathContract.constructor().transact({'from': web3.eth.accounts[0]})
+    txn = web3.eth.getTransaction(txn_hash)
+    unsent_txn = MathContract.constructor().buildTransaction()
+    assert txn['data'] == unsent_txn['data']
+
+    new_txn_hash = web3.eth.sendTransaction(unsent_txn)
+    new_txn = web3.eth.getTransaction(new_txn_hash)
+    assert new_txn['data'] == unsent_txn['data']
+
+
+def test_contract_constructor_build_transaction_with_constructor_without_argumentr(web3,
+                                                                                   MathContract):
+    txn_hash = MathContract.constructor().transact({'from': web3.eth.accounts[0]})
+    txn = web3.eth.getTransaction(txn_hash)
+    unsent_txn = MathContract.constructor().buildTransaction()
+    assert txn['data'] == unsent_txn['data']
+
+    new_txn_hash = web3.eth.sendTransaction(unsent_txn)
+    new_txn = web3.eth.getTransaction(new_txn_hash)
+    assert new_txn['data'] == unsent_txn['data']

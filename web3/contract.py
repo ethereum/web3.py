@@ -298,10 +298,13 @@ class Contract:
                 "Cannot call constructor on a contract that does not have 'bytecode' associated "
                 "with it"
             )
-        # is bytecode not None required by estimateGas and other methods?
-        # Pass in is_instance(self, type)?
-        # if 'to' not in estimate_gas_transaction:
-        return ContractConstructor(cls.web3, cls.address, cls.abi, cls.bytecode, args=args, kwargs=kwargs)
+
+        return ContractConstructor(cls.web3,
+                                   cls.address,
+                                   cls.abi,
+                                   cls.bytecode,
+                                   args=args,
+                                   kwargs=kwargs)
 
     #  Public API
     #
@@ -703,11 +706,8 @@ class ContractConstructor:
             estimate_gas_transaction = {}
         else:
             estimate_gas_transaction = dict(**transaction)
-
-        if 'data' in estimate_gas_transaction:
-            raise ValueError("Cannot set data in estimateGas transaction")
-        if 'to' in estimate_gas_transaction:
-            raise ValueError("Cannot set to in estimateGas transaction")
+            self.check_forbidden_keys_in_transaction(estimate_gas_transaction,
+                                                     ["data", "to"])
 
         if self.address:
             estimate_gas_transaction.setdefault('to', self.address)
@@ -724,6 +724,8 @@ class ContractConstructor:
             transact_transaction = {}
         else:
             transact_transaction = dict(**transaction)
+            self.check_forbidden_keys_in_transaction(transact_transaction,
+                                                     ["data", "to"])
 
         if 'data' in transact_transaction:
             raise ValueError("Cannot set data in transact transaction")
@@ -737,6 +739,32 @@ class ContractConstructor:
         transact_transaction['data'] = self.data_in_transaction
 
         return self.web3.eth.sendTransaction(transact_transaction)
+
+    @combomethod
+    def buildTransaction(self, transaction=None):
+        """
+        Build the transaction dictionary without sending
+        """
+
+        if transaction is None:
+            build_transaction = {}
+        else:
+            build_transaction = dict(**transaction)
+            self.check_forbidden_keys_in_transaction(build_transaction,
+                                                     ["data", "to", "nonce"])
+
+        if self.web3.eth.defaultAccount is not empty:
+            build_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        build_transaction['data'] = self.data_in_transaction
+
+        return fill_transaction_defaults(self.web3, build_transaction)
+
+    @staticmethod
+    def check_forbidden_keys_in_transaction(transaction, forbidden_keys=None):
+        keys_found = set(transaction.keys()) & set(forbidden_keys)
+        if keys_found:
+            raise ValueError("Cannot set {} in transaction".format(', '.join(keys_found)))
 
 
 class ConciseContract:
