@@ -59,7 +59,8 @@ tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
 contract_address = tx_receipt['contractAddress']
 
 # Contract instance in concise mode
-contract_instance = w3.eth.contract(contract_interface['abi'], contract_address, ContractFactoryClass=ConciseContract)
+abi = contract_interface['abi']
+contract_instance = w3.eth.contract(address=contract_address, abi=abi,ContractFactoryClass=ConciseContract)
 
 # Getters + Setters for web3.eth.contract object
 print('Contract value: {}'.format(contract_instance.greet()))
