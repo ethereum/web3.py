@@ -17,7 +17,7 @@ The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 
     .. code-block:: python
 
-        event_filter = myContract.eventFilter('eventName', {'filter': {'arg1':10}})
+        event_filter = mycontract.eventfilter('eventname', {'filter': {'arg1':10}})
 
     Or built manually by supplying `valid filter params <http://https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter/>`_:
 
@@ -33,8 +33,8 @@ The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
         existing_filter = web3.eth.filter(filter_id="0x0")
 
 
-Filter API
-----------
+Filter Class
+------------
 
 .. py:class:: Filter(web3, filter_id)
 
@@ -76,13 +76,15 @@ Filter API
     implementation always returns ``True``.
 
 
-Block and Transaction Filters
------------------------------
+Block and Transaction Filter Classes
+------------------------------------
 
 .. py:class:: BlockFilter(...)
+    
+BlockFilter is a subclass of :class:``Filter``.
 
-    You can setup a filter for new blocks using ``web3.eth.filter('latest')`` which
-    will return a new :py:class:`BlockFilter` object.
+You can setup a filter for new blocks using ``web3.eth.filter('latest')`` which
+will return a new :py:class:`BlockFilter` object.
 
     .. code-block:: python
 
@@ -90,6 +92,8 @@ Block and Transaction Filters
         >>> new_block_filter.get_new_entries()
 
 .. py:class:: TransactionFilter(...)
+
+TransactionFilter is a subclass of :class:``Filter``.
 
 You can setup a filter for new blocks using ``web3.eth.filter('pending')`` which
 will return a new :py:class:`BlockFilter` object.
@@ -103,38 +107,59 @@ will return a new :py:class:`BlockFilter` object.
 Event Log Filters
 -----------------
 
-.. py:class:: LogFilter(web3, filter_id, log_entry_formatter=None, data_filter_set=None)
-
-The :py:class:`LogFilter` class is used for all filters pertaining to event
-logs.  It exposes the following additional methods.
-
-
-.. py:method:: LogFilter.get_new_entries()
-
-    Retrieve new event logs for this filter.
-
-    Logs will be retrieved using the
-    :func:`web3.eth.Eth.getFilterChanges` which returns only new entries since the last
-    poll.
-
-
-.. py:method:: LogFilter.get_all_entries()
-
-    Retrieve all event logs for this filter.
-
-    Logs will be retrieved using the
-    :func:`web3.eth.Eth.getFilterLogs` which returns all logs that match the given
-    filter.
-
-
-The :class:`LogFilter` class is returned from the
-:func:`web3.contract.Contract.eventFilter` and will be configured to extract the
-event data from the event logs.
+You can set up a filter for event logs using the web3.py contract api: 
+:func:`web3.contract.Contract.eventFilter`. :meth:`eventFilter` provides some conveniances for
+creating event log filters. Refer to the following example:
 
     .. code-block:: python
 
-        event_filter = myContract.eventFilter('eventName', {'filter': {'arg1':10}})
-        event_filter.get_new_entries()
+    >>> event_filter = myContract.eventFilter('eventName', {'filter': {'arg1':10}})
+    >>> event_filter.get_new_entries()
+
+See :meth:`web3.contract.Contract.eventFilter` documentation for more information.
+
+You can set up an event log filter like the one above with `web3.eth.filter` by supplying a
+dictionary containing the standard filter parameters. Assuming that `arg1` is indexed, the
+equivalent filter creation would look like:
+
+    .. code-block:: python
+
+    >>> event_signature_hash = web3.sha3("eventName(uint32)")
+    >>> event_filter = web3.eth.filter({
+            "address": myContract_address,
+            "topics": [event_signature_hash,
+                       "0x000000000000000000000000000000000000000000000000000000000000000a"],
+            })
+
+The topic list argument is order-dependent. For non-anonymous events, the first item in the topic list is always the keccack hash of the event signature. Subsequent topic items are the hex encoded values for indexed event arguments. In the above example, the second item is the ``arg1`` value ``10`` encoded to its hex string representation.
+
+In addition to being order-dependent, there are a few more points to recognize when specifying topic filters:
+
+    Given a transaction log with topics [A, B], the following topic filters will yield a match:
+
+    - [] "anything"
+    - [A] "A in first position (and anything after)"
+    - [None, B] "anything in first position AND B in second position (and anything after)"
+    - [A, B] "A in first position AND B in second position (and anything after)"
+    - [[A, B], [A, B]] "(A OR B) in first position AND (A OR B) in second position (and anything after)"
+
+See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>` more information on the standard filter parameters.
+
+Creating a log filter by either of the above methods will return a :class:`LogFilter` instance.
+
+.. py:class:: LogFilter(web3, filter_id, log_entry_formatter=None, data_filter_set=None)
+
+The :py:class:`LogFilter` class is a subclass of :class:`Filter`.  See the :class:`Filter`
+documentation for inherited methods.
+
+:class:`LogFilter` provides the following additional
+methods:
+
+.. py:method:: LogFilter.set_data_filters(data_filter_set)
+
+Provides a means to filter on the log data, in other words the ability to filter on values from
+un-indexed event arguments. The parameter `data_filter_set` should be a list or set of 32-byte hex encoded values.
+
 
 Listening For Events
 --------------------
@@ -169,12 +194,16 @@ Asynchronous
 
 Starting with web3 version 4, the ``watch`` method was taken out of the web3 filter objects.
 There are many decisions to be made when designing a system regarding threading and concurrency.
-Rather than force a decision, web3 leaves these choices up to the user. Below are some example implementations of asynchronous filter-event handling that can serve as starting points.
+Rather than force a decision, web3 leaves these choices up to the user. Below are some example 
+implementations of asynchronous filter-event handling that can serve as starting points.
 
 Single threaded concurrency with ``async`` and ``await``
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-    Beginning in python 3.5, the ``async`` and ``await`` built-in keywords were added.  These provide a shared api for coroutines that can be utilized by modules such as the built-in asyncio_.  Below is an example event loop using asyncio_, that polls multiple web3 filter object, and passes new entries to a handler.
+Beginning in python 3.5, the ``async`` and ``await`` built-in keywords were added.  These provide a
+shared api for coroutines that can be utilized by modules such as the built-in asyncio_.  Below is 
+an example event loop using asyncio_, that polls multiple web3 filter object, and passes new 
+entries to a handler.
 
         .. code-block:: python
 
@@ -212,7 +241,8 @@ Single threaded concurrency with ``async`` and ``await``
 Running the event loop in a separate thread
 """""""""""""""""""""""""""""""""""""""""""
 
-    Here is an extended version of above example, where the event loop is run in a separate thread, releasing the ``main`` function for other tasks.
+Here is an extended version of above example, where the event loop is run in a separate thread, 
+releasing the ``main`` function for other tasks.
 
         .. code-block:: python
 
