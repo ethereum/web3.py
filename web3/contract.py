@@ -106,6 +106,13 @@ class ContractFunctions:
                         address=address,
                         function_identifier=func['name']))
 
+    def __iter__(self):
+        if not hasattr(self, '_functions') or not self._functions:
+            return
+
+        for func in self._functions:
+            yield func['name']
+
 
 class ContractEvents:
     """Class containing contract event objects
@@ -656,13 +663,21 @@ class ConciseContract:
         self._classic_contract = classic_contract
         self.address = self._classic_contract.address
 
+        for func_name in self._classic_contract.functions:
+            func = getattr(self._classic_contract.functions, func_name)
+
+            setattr(
+                self,
+                func_name,
+                ConciseMethod(
+                    func,
+                    self._classic_contract._return_data_normalizers
+                )
+            )
+
     @classmethod
     def factory(cls, *args, **kwargs):
         return compose(cls, Contract.factory(*args, **kwargs))
-
-    def __getattr__(self, attr):
-        contract_function = getattr(self._classic_contract.functions, attr)
-        return ConciseMethod(contract_function, self._classic_contract._return_data_normalizers)
 
     @staticmethod
     def _none_addr(datatype, data):
