@@ -80,6 +80,9 @@ sudo apt-get install libssl-dev libffi-dev autoconf automake libtool
 sudo pacman -Sy libsecp256k1
 # ^ This is for ArchLinux system
 
+sudo dnf install openssl-devel libffi-devel autoconf automake libtool
+# ^ This is for Fedora.
+
 git clone git@github.com:ethereum/web3.py.git
 cd web3.py
 virtualenv venv

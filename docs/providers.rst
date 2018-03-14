@@ -54,6 +54,34 @@ succesful connection it can make:
    - :class:`~web3.account.Account`
    - etc.
 
+.. _automatic_provider_detection_examples:
+
+Examples Using Automated Detection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    There are client specific APIs.  If you are writing client agnostic code, in some situations
+    you may want to know what ethereum implementation is connected, and proceed
+    accordingly.
+
+    The following retrieves the client enode endpoint verifying there is a connected provider:
+
+.. code-block:: python
+
+    from web3.auto import w3
+
+    connected = any(provider.isConnected for provider in w3.providers)
+
+    if connected and w3.version.node.startswith('Parity'):
+        enode = w3.parity.enode
+
+    elif connected and w3.version.node.startswith('Geth'):
+        enode = w3.admin.nodeInfo['enode']
+
+    else:
+        enode = None
+
+
 Built In Providers
 ------------------
 
@@ -205,5 +233,5 @@ RPC request and returning the first response it receives.  Any provider which
 *cannot* respond to a request **must** throw a
 ``web3.exceptions.CannotHandleRequest`` exception.
 
-If none of the configured providers are able to hand the request, then a
+If none of the configured providers are able to handle the request, then a
 ``web3.exceptions.UnhandledRequest`` exception will be thrown.

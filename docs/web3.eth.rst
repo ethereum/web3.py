@@ -539,8 +539,15 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.sign('0xd3cda913deb6f67967b99d67acdfa1712c293601', 'some-text-to-sign')
-        '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
+        >>> myContract.functions.setVar(1).transact()
+        HexBytes('0x79af0c7688afba7588c32a61565fd488c422da7b5773f95b242ea66d3d20afda')
+        >>> myContract.functions.getVar().call()
+        1
+        # The above call equivalent to the raw call:
+        >>> we3.eth.call({'value': 0, 'gas': 21736, 'gasPrice': 1, 'to': '0xc305c901078781C232A2a521C2aF7980f8385ee9', 'data': '0x477a5c98'})
+        HexBytes('0x0000000000000000000000000000000000000000000000000000000000000001')
+
+    In most cases it is better to make contract function call through the :py:class:`web3.contract.Contract` interface.
 
 
 .. py:method:: Eth.estimateGas(transaction)
@@ -561,11 +568,11 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.generateGasPrice(transaction_params=None)
 
-    Uses the selected gas price strategy to calculate a gas price. This method 
+    Uses the selected gas price strategy to calculate a gas price. This method
     returns the gas price denominated in wei.
 
-    The `transaction_params` argument is optional however some gas price strategies 
-    may require it to be able to produce a gas price. 
+    The `transaction_params` argument is optional however some gas price strategies
+    may require it to be able to produce a gas price.
 
     .. code-block:: python
 
@@ -573,12 +580,12 @@ The following methods are available on the ``web3.eth`` namespace.
         20000000000
 
     .. note::
-        For information about how gas price can be customized in web3 see 
+        For information about how gas price can be customized in web3 see
         :ref:`Gas_Price`.
 
 .. py:method:: Eth.setGasPriceStrategy(gas_price_strategy)
 
-    Set the selected gas price strategy. It must be a method of the signature 
+    Set the selected gas price strategy. It must be a method of the signature
     ``(web3, transaction_params)`` and return a gas price denominated in wei.
 
 Filters
