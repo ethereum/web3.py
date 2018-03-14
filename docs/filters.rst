@@ -108,13 +108,13 @@ Event Log Filters
 -----------------
 
 You can set up a filter for event logs using the web3.py contract api: 
-:func:`web3.contract.Contract.eventFilter`. :meth:`eventFilter` provides some conveniances for
+:func:`web3.contract.Contract.eventFilter`, which provides some conveniances for
 creating event log filters. Refer to the following example:
 
     .. code-block:: python
 
-    >>> event_filter = myContract.eventFilter('eventName', {'filter': {'arg1':10}})
-    >>> event_filter.get_new_entries()
+        event_filter = myContract.eventFilter('eventName', {'filter': {'arg1':10}})
+        event_filter.get_new_entries()
 
 See :meth:`web3.contract.Contract.eventFilter` documentation for more information.
 
@@ -124,14 +124,14 @@ equivalent filter creation would look like:
 
     .. code-block:: python
 
-    >>> event_signature_hash = web3.sha3("eventName(uint32)")
-    >>> event_filter = web3.eth.filter({
+        event_signature_hash = web3.sha3("eventName(uint32)")
+        event_filter = web3.eth.filter({
             "address": myContract_address,
             "topics": [event_signature_hash,
                        "0x000000000000000000000000000000000000000000000000000000000000000a"],
             })
 
-The topic list argument is order-dependent. For non-anonymous events, the first item in the topic list is always the keccack hash of the event signature. Subsequent topic items are the hex encoded values for indexed event arguments. In the above example, the second item is the ``arg1`` value ``10`` encoded to its hex string representation.
+The ``topics`` argument is order-dependent. For non-anonymous events, the first item in the topic list is always the keccack hash of the event signature. Subsequent topic items are the hex encoded values for indexed event arguments. In the above example, the second item is the ``arg1`` value ``10`` encoded to its hex string representation.
 
 In addition to being order-dependent, there are a few more points to recognize when specifying topic filters:
 
@@ -143,7 +143,7 @@ In addition to being order-dependent, there are a few more points to recognize w
     - [A, B] "A in first position AND B in second position (and anything after)"
     - [[A, B], [A, B]] "(A OR B) in first position AND (A OR B) in second position (and anything after)"
 
-See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>` more information on the standard filter parameters.
+See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the standard filter parameters.
 
 Creating a log filter by either of the above methods will return a :class:`LogFilter` instance.
 
@@ -158,11 +158,11 @@ methods:
 .. py:method:: LogFilter.set_data_filters(data_filter_set)
 
 Provides a means to filter on the log data, in other words the ability to filter on values from
-un-indexed event arguments. The parameter `data_filter_set` should be a list or set of 32-byte hex encoded values.
+un-indexed event arguments. The parameter ``data_filter_set`` should be a list or set of 32-byte hex encoded values.
 
 
-Listening For Events
---------------------
+Examples: Listening For Events
+------------------------------
 
 Synchronous
 ^^^^^^^^^^^
