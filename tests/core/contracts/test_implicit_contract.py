@@ -58,13 +58,13 @@ def test_implicitcontract_call_default(math_contract, get_transaction_count):
     assert get_transaction_count("pending") == (blocknum, 0)
 
 
-def test_implicitcontract_transact_default(math_contract, get_transaction_count):
+def test_implicitcontract_transact_default(web3, math_contract, get_transaction_count):
     # Use to verify correct operation later on
     start_count = math_contract.counter()
     assert is_integer(start_count)  # Verify correct type
     # When a function is called that defaults to transact
     blocknum, starting_txns = get_transaction_count("pending")
-    math_contract.increment()
+    math_contract.increment(transact={})
     # Check that a transaction was made and not a call
     assert math_contract.counter() - start_count == 1
     # (Auto-mining is enabled, so query by block number)
