@@ -1,3 +1,4 @@
+import functools
 import json
 import pytest
 
@@ -102,3 +103,20 @@ class LogTopics:
 @pytest.fixture()
 def emitter_log_topics():
     return LogTopics
+
+
+def return_filter_by_api(
+        api_style=None,
+        contract=None,
+        args=[]):
+    if api_style == 'v3':
+        return contract.eventFilter(*args)
+    elif api_style == 'v4':
+        return getattr(contract.events, args[0]).createFilter(*args[1:])
+    else:
+        raise ValueError("api_style must be 'v3 or v4'")
+
+
+@pytest.fixture(params=['v3', 'v4'])
+def create_filter(request):
+    return functools.partial(return_filter_by_api, request.param)

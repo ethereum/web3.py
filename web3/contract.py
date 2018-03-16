@@ -302,6 +302,7 @@ class Contract:
         return encode_abi(cls.web3, fn_abi, fn_arguments, data)
 
     @combomethod
+    @deprecated_for("contract.events.<event name>.createFilter")
     def eventFilter(self, event_name, filter_params={}):
         """
         Create filter object that tracks events emitted by this contract.
@@ -335,7 +336,7 @@ class Contract:
         return log_filter
 
     @combomethod
-    @deprecated_for("contract.<functions/events>.<method name>.estimateGas")
+    @deprecated_for("contract.functions.<method name>.estimateGas")
     def estimateGas(self, transaction=None):
         """
         Estimate the gas for a call
@@ -1018,6 +1019,32 @@ class ContractEvent:
             except MismatchedABI:
                 continue
             yield decoded_log
+
+    @combomethod
+    def createFilter(self, filter_params={}):
+        """
+        Create filter object that tracks logs emitted by this contract event.
+        :param filter_params: other parameters to limit the events
+        """
+        filter_meta_params = dict(filter_params)
+        argument_filters = filter_meta_params.pop('filter', {})
+
+        data_filter_set, event_filter_params = construct_event_filter_params(
+            self._get_event_abi(),
+            contract_address=self.address,
+            argument_filters=argument_filters,
+            **filter_meta_params
+        )
+
+        log_data_extract_fn = functools.partial(get_event_data, self._get_event_abi())
+
+        log_filter = self.web3.eth.filter(event_filter_params)
+
+        log_filter.set_data_filters(data_filter_set)
+        log_filter.log_entry_formatter = log_data_extract_fn
+        log_filter.filter_params = event_filter_params
+
+        return log_filter
 
     @classmethod
     def factory(cls, class_name, **kwargs):

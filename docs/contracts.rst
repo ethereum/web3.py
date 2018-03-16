@@ -129,7 +129,7 @@ Each Contract Factory exposes the following methods.
 
     Returns the transaction hash for the deploy transaction.
 
-.. py:classmethod:: Contract.eventFilter(event_name, filter_params=None)
+.. py:classmethod:: Contract.events.<event name>.createFilter(filter_params=None)
 
     Creates a new :py:class:`web3.utils.filters.LogFilter` instance.
 
@@ -196,7 +196,7 @@ Event Log Object
 
     .. code-block:: python
 
-        >>> transfer_filter = my_token_contract.eventFilter('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
+        >>> transfer_filter = my_token_contract.events.Transfer.createFilter({'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
         >>> transfer_filter.get_new_entries()
         [...]  # array of Event Log Objects that match the filter.
 
