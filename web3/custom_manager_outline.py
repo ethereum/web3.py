@@ -6,7 +6,7 @@ import threading
 
 from web3 import Web3, HTTPProvider
 """
-    dummy feature/functionaloty implementation to kick off custom provider ranking
+    dummy feature/functionality implementation to kick off custom provider ranking
     and method routing features for manager.
 
     03/16/2018
@@ -30,7 +30,7 @@ interface may also work:
 """
 
 
-# this might be a candiate for the "base" manager also
+# this might be a candidate for the "base" manager also
 def check_unique_providers(providers):
     ''' make sure we only have unique providers
         but at this point, we'll miss localhost and possible 127.*,192.*, etc. dupes
@@ -38,7 +38,7 @@ def check_unique_providers(providers):
         in-place list update, returns None
     '''
     # we don't want dupes and should check right at the top of the manager init
-    # not a big fan of decorator polution but this might be a candidate.
+    # not a big fan of decorator pollution but this might be a candidate.
     s = set()
     providers[:] = [p for p in providers if p.endpoint_uri not in s and
                     (s.add(p.endpoint_uri) or True)]
@@ -214,7 +214,7 @@ class DummyCls:
         ''' reduce list of dicts in place by key name '''
         some_list[:] = [d for d in some_list if d.get(key) is not None]
 
-    def _validdata_provider_strategy(self, rule_name):
+    def _validate_provider_strategy(self, rule_name):
         if rule_name not in self._provider_rank_strategies:
             msg = '{} is not a valid rule.'.format(rule_name)
             raise ValueError(msg)
