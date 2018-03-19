@@ -159,6 +159,10 @@ WebsocketProvider
 
     This provider handles interactions with an WS or WSS based JSON-RPC server.
 
+    WebsocketProvider provider is built o top of the ``websockets`` library.
+    To install websockets run
+    - ``pip install "web3.py[websocket]"``
+
     .. code-block:: python
 
         >>> from web3 import Web3
