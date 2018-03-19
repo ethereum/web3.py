@@ -40,6 +40,9 @@ setup(
         'platform_system=="Windows"': [
             'pypiwin32'  # TODO: specify a version number, move under install_requires
         ],
+        'websocket': [
+            "websockets==4.0.1"
+        ]
     },
     py_modules=['web3', 'ens'],
     license="MIT",

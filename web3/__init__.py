@@ -18,6 +18,9 @@ from web3.providers.tester import (  # noqa: E402
 from web3.providers.ipc import (  # noqa: E402
     IPCProvider,
 )
+from web3.providers.websocket import (  # noqa: E402
+    WebsocketProvider,
+)
 
 __version__ = pkg_resources.get_distribution("web3").version
 
