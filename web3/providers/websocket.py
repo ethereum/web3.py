@@ -31,7 +31,7 @@ def get_default_endpoint():
     return os.environ.get('WEB3_WS_PROVIDER_URI', 'ws://127.0.0.1:8546')
 
 
-class c(JSONBaseProvider):
+class WebsocketProvider(JSONBaseProvider):
 
     _loop = None
 
