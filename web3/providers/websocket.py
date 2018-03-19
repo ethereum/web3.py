@@ -5,11 +5,17 @@ from threading import (
     Thread,
 )
 
-import websockets
-
+from web3.exceptions import (
+    NotConfigured,
+)
 from web3.providers.base import (
     JSONBaseProvider,
 )
+
+try:
+    import websockets
+except ImportError:
+    websockets = None
 
 
 def _start_event_loop(loop):
@@ -36,6 +42,9 @@ class WebsocketProvider(JSONBaseProvider):
     _loop = None
 
     def __init__(self, endpoint_uri=None):
+        if websockets is None:
+            raise NotConfigured('missing `websockets` library')
+
         self.endpoint_uri = endpoint_uri
         if self.endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()

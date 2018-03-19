@@ -84,3 +84,10 @@ class ValidationError(Exception):
     Raised when a supplied value is invalid.
     """
     pass
+
+
+class NotConfigured(Exception):
+    """
+    Indicates a missing configuration situation
+    """
+    pass
