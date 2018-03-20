@@ -112,7 +112,18 @@ def return_filter_by_api(
     if api_style == 'v3':
         return contract.eventFilter(*args)
     elif api_style == 'v4':
-        return getattr(contract.events, args[0]).createFilter(*args[1:])
+        event_name = args[0]
+        argument_filters = args[1].get('filter', {})
+        topics = args[1].get('topics')
+        fromBlock = args[1].get('fromBlock', 'latest')
+        toBlock = args[1].get('toBlock')
+        address = args[1].get('address')
+        return getattr(contract.events, event_name).createFilter(
+            argument_filters=argument_filters,
+            topics=topics,
+            fromBlock=fromBlock,
+            toBlock=toBlock,
+            address=address)
     else:
         raise ValueError("api_style must be 'v3 or v4'")
 

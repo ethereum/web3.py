@@ -12,6 +12,7 @@ from cytoolz import (
 from eth_utils import (
     is_dict,
     is_string,
+    is_hex,
 )
 
 from web3.middleware import (
@@ -35,7 +36,11 @@ def is_named_block(value):
     return value in {"latest", "earliest", "pending"}
 
 
-to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
+def is_str_is_hex(value):
+    return is_string(value) and is_hex(value)
+
+
+to_integer_if_hex = apply_formatter_if(is_str_is_hex, hex_to_integer)
 
 
 is_not_named_block = complement(is_named_block)
