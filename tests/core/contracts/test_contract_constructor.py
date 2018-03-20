@@ -15,7 +15,7 @@ def test_contract_constructor_gas_estimate_no_constructor(MathContract):
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 167412) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 200321) < 200  # eth-tester with py-evm
 
 
 def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
@@ -24,16 +24,28 @@ def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 43082) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 85694) < 200  # eth-tester with py-evm
 
 
+@pytest.mark.parametrize(
+    'constructor_args,constructor_kwargs',
+    (
+        ([1234, b'abcd'], {}),
+        ([1234], {'b': b'abcd'}),
+        ([], {'a': 1234, 'b': b'abcd'}),
+        ([], {'b': b'abcd', 'a': 1234}),
+    ),
+)
 def test_contract_constructor_gas_estimate_with_constructor_with_arguments(
-        WithConstructorArgumentsContract):
-    gas_estimate = WithConstructorArgumentsContract.constructor(args=[1234, 'abcd']).estimateGas()
+        WithConstructorArgumentsContract,
+        constructor_args,
+        constructor_kwargs):
+    gas_estimate = WithConstructorArgumentsContract.constructor(
+        constructor_args, constructor_kwargs).estimateGas()
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 78572) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 112574) < 200  # eth-tester with py-evm
 
 
 def test_contract_constructor_gas_estimate_with_constructor_with_address_argument(
@@ -44,7 +56,7 @@ def test_contract_constructor_gas_estimate_with_constructor_with_address_argumen
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 50181) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 95399) < 200  # eth-tester with py-evm
 
 
 def test_contract_constructor_transact_no_constructor(web3, MathContract, MATH_RUNTIME):
@@ -74,9 +86,23 @@ def test_contract_constructor_transact_with_constructor_without_arguments(
     assert blockchain_code == decode_hex(SIMPLE_CONSTRUCTOR_RUNTIME)
 
 
+@pytest.mark.parametrize(
+    'constructor_args,constructor_kwargs',
+    (
+        ([1234, b'abcd'], {}),
+        ([1234], {'b': b'abcd'}),
+        ([], {'a': 1234, 'b': b'abcd'}),
+        ([], {'b': b'abcd', 'a': 1234}),
+    ),
+)
 def test_contract_constructor_transact_with_constructor_with_arguments(
-        web3, WithConstructorArgumentsContract, WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME):
-    deploy_txn = WithConstructorArgumentsContract.constructor(args=[1234, 'abcd']).transact()
+        web3,
+        WithConstructorArgumentsContract,
+        WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+        constructor_args,
+        constructor_kwargs):
+    deploy_txn = WithConstructorArgumentsContract.constructor(
+        constructor_args, constructor_kwargs).transact()
 
     txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert txn_receipt is not None
@@ -122,11 +148,37 @@ def test_contract_constructor_build_transaction_no_constructor(web3, MathContrac
     assert new_txn['data'] == unsent_txn['data']
 
 
-def test_contract_constructor_build_transaction_with_constructor_without_argumentr(web3,
-                                                                                   MathContract):
+def test_contract_constructor_build_transaction_with_constructor_without_argument(web3,
+                                                                                  MathContract):
     txn_hash = MathContract.constructor().transact({'from': web3.eth.accounts[0]})
     txn = web3.eth.getTransaction(txn_hash)
     unsent_txn = MathContract.constructor().buildTransaction()
+    assert txn['data'] == unsent_txn['data']
+
+    new_txn_hash = web3.eth.sendTransaction(unsent_txn)
+    new_txn = web3.eth.getTransaction(new_txn_hash)
+    assert new_txn['data'] == unsent_txn['data']
+
+
+@pytest.mark.parametrize(
+    'constructor_args,constructor_kwargs',
+    (
+        ([1234, b'abcd'], {}),
+        ([1234], {'b': b'abcd'}),
+        ([], {'a': 1234, 'b': b'abcd'}),
+        ([], {'b': b'abcd', 'a': 1234}),
+    ),
+)
+def test_contract_constructor_build_transaction_with_constructor_with_argument(
+        web3,
+        WithConstructorArgumentsContract,
+        constructor_args,
+        constructor_kwargs):
+    txn_hash = WithConstructorArgumentsContract.constructor(
+        constructor_args, constructor_kwargs).transact({'from': web3.eth.accounts[0]})
+    txn = web3.eth.getTransaction(txn_hash)
+    unsent_txn = WithConstructorArgumentsContract.constructor(
+        constructor_args, constructor_kwargs).buildTransaction()
     assert txn['data'] == unsent_txn['data']
 
     new_txn_hash = web3.eth.sendTransaction(unsent_txn)

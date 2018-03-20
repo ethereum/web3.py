@@ -282,7 +282,6 @@ class Contract:
 
         deploy_transaction['data'] = cls._encode_constructor_data(args, kwargs)
 
-        # TODO: handle asynchronous contract creation
         txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
         return txn_hash
 
@@ -709,6 +708,7 @@ class ContractConstructor:
             self.check_forbidden_keys_in_transaction(estimate_gas_transaction,
                                                      ["data", "to"])
 
+        # remove self.address
         if self.address:
             estimate_gas_transaction.setdefault('to', self.address)
         if self.web3.eth.defaultAccount is not empty:
@@ -738,6 +738,7 @@ class ContractConstructor:
 
         transact_transaction['data'] = self.data_in_transaction
 
+        # TODO: handle asynchronous contract creation
         return self.web3.eth.sendTransaction(transact_transaction)
 
     @combomethod
@@ -747,18 +748,18 @@ class ContractConstructor:
         """
 
         if transaction is None:
-            build_transaction = {}
+            built_transaction = {}
         else:
-            build_transaction = dict(**transaction)
-            self.check_forbidden_keys_in_transaction(build_transaction,
+            built_transaction = dict(**transaction)
+            self.check_forbidden_keys_in_transaction(built_transaction,
                                                      ["data", "to", "nonce"])
 
         if self.web3.eth.defaultAccount is not empty:
-            build_transaction.setdefault('from', self.web3.eth.defaultAccount)
+            built_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
-        build_transaction['data'] = self.data_in_transaction
+        built_transaction['data'] = self.data_in_transaction
 
-        return fill_transaction_defaults(self.web3, build_transaction)
+        return fill_transaction_defaults(self.web3, built_transaction)
 
     @staticmethod
     def check_forbidden_keys_in_transaction(transaction, forbidden_keys=None):
@@ -896,7 +897,6 @@ class ContractFunction:
     contract_abi = None
     abi = None
     transaction = None
-    is_fallback_function = False
 
     def __init__(self, *args, **kwargs):
 
