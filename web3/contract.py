@@ -1021,19 +1021,29 @@ class ContractEvent:
             yield decoded_log
 
     @combomethod
-    def createFilter(self, filter_params={}):
+    def createFilter(self, *, # PEP 3102
+            argument_filters=None,
+            fromBlock=None,
+            toBlock="latest",
+            address=None,
+            topics=None):
         """
         Create filter object that tracks logs emitted by this contract event.
         :param filter_params: other parameters to limit the events
         """
-        filter_meta_params = dict(filter_params)
-        argument_filters = filter_meta_params.pop('filter', {})
+        if not fromBlock:
+            raise ValueError("Missing mandatory keyword argument to createFilter: fromBlock")
+
+        argument_filters = dict(**argument_filters)
 
         data_filter_set, event_filter_params = construct_event_filter_params(
             self._get_event_abi(),
             contract_address=self.address,
             argument_filters=argument_filters,
-            **filter_meta_params
+            fromBlock=fromBlock,
+            toBlock=toBlock,
+            address=adress,
+            topics=topics,
         )
 
         log_data_extract_fn = functools.partial(get_event_data, self._get_event_abi())
