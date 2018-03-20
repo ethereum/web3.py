@@ -178,12 +178,14 @@ def not_implemented(method, exc_type=NotImplementedError):
 def disable_auto_mine(func):
     @functools.wraps(func)
     def func_wrapper(self, eth_tester, *args, **kwargs):
+        snapshot = eth_tester.take_snapshot()
         eth_tester.disable_auto_mine_transactions()
         try:
             func(self, eth_tester, *args, **kwargs)
         finally:
             eth_tester.enable_auto_mine_transactions()
             eth_tester.mine_block()
+            eth_tester.revert_to_snapshot(snapshot)
     return func_wrapper
 
 
@@ -234,6 +236,20 @@ class TestEthereumTesterEthModule(EthModuleTest):
     @disable_auto_mine
     def test_eth_modifyTransaction(self, eth_tester, web3, unlocked_account):
         super().test_eth_modifyTransaction(web3, unlocked_account)
+
+    @disable_auto_mine
+    def test_eth_call_old_contract_state(self, eth_tester, web3, math_contract, unlocked_account):
+        # For now, ethereum tester cannot give call results in the pending block.
+        # Once that feature is added, then delete the except/else blocks.
+        try:
+            super().test_eth_call_old_contract_state(web3, math_contract, unlocked_account)
+        except AssertionError as err:
+            if str(err) == "pending call result was 0 instead of 1":
+                pass
+            else:
+                raise err
+        else:
+            raise AssertionError("eth-tester was unexpectedly able to give the pending call result")
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):

@@ -14,6 +14,7 @@ from cytoolz.functoolz import (
     partial,
 )
 from eth_utils.curried import (
+    combine_argument_formatters,
     is_address,
     is_bytes,
     is_integer,
@@ -258,7 +259,10 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_getLogs': apply_formatter_at_index(filter_params_formatter, 0),
-        'eth_call': apply_formatter_at_index(transaction_param_formatter, 0),
+        'eth_call': combine_argument_formatters(
+            transaction_param_formatter,
+            block_number_formatter,
+        ),
         'eth_estimateGas': apply_formatter_at_index(transaction_param_formatter, 0),
         'eth_sendTransaction': apply_formatter_at_index(transaction_param_formatter, 0),
         # personal
