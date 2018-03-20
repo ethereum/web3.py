@@ -9,9 +9,11 @@ from web3.main import Web3  # noqa: E402
 from web3.providers.rpc import (  # noqa: E402
     HTTPProvider,
 )
+from web3.providers.eth_tester import (  # noqa: E402
+    EthereumTesterProvider,
+)
 from web3.providers.tester import (  # noqa: E402
     TestRPCProvider,
-    EthereumTesterProvider,
 )
 from web3.providers.ipc import (  # noqa: E402
     IPCProvider,
