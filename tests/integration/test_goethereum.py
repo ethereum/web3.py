@@ -60,7 +60,7 @@ GETH_17_FIXTURE = {
 GETH_181_DIRECTORY_NAME = 'geth-1.8.1-datadir-fixture'
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def geth_binary():
     from geth.install import (
         get_executable_path,
@@ -95,7 +95,7 @@ def load_fixture_data(fixture_path):
         return assoc(loaded_data, 'datadir', fixture_path)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def geth_fixture_data(geth_binary):
     from geth import get_geth_version
     version = get_geth_version(geth_executable=os.path.expanduser(geth_binary))
@@ -109,7 +109,7 @@ def geth_fixture_data(geth_binary):
     assert False, "Unsupported geth version"
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def datadir(tmpdir_factory, geth_fixture_data):
     fixture_datadir = absolute_datadir(geth_fixture_data['datadir'])
     base_dir = tmpdir_factory.mktemp('goethereum')
@@ -118,13 +118,13 @@ def datadir(tmpdir_factory, geth_fixture_data):
     return tmp_datadir
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def genesis_file(datadir):
     genesis_file_path = os.path.join(datadir, 'genesis.json')
     return genesis_file_path
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def geth_ipc_path(datadir):
     geth_ipc_dir_path = tempfile.mkdtemp()
     _geth_ipc_path = os.path.join(geth_ipc_dir_path, 'geth.ipc')
@@ -147,7 +147,7 @@ def wait_for_socket(ipc_path, timeout=30):
             break
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def geth_process(geth_binary, datadir, genesis_file, geth_ipc_path):
     geth_port = get_open_port()
     init_datadir_command = (
@@ -192,29 +192,29 @@ def geth_process(geth_binary, datadir, genesis_file, geth_ipc_path):
         )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def web3(geth_process, geth_ipc_path):
     wait_for_socket(geth_ipc_path)
     _web3 = Web3(Web3.IPCProvider(geth_ipc_path))
     return _web3
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def coinbase(web3):
     return web3.eth.coinbase
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def math_contract_deploy_txn_hash(geth_fixture_data):
     return geth_fixture_data['math_deploy_txn_hash']
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def math_contract(web3, math_contract_factory, geth_fixture_data):
     return math_contract_factory(address=geth_fixture_data['math_address'])
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def emitter_contract(web3, emitter_contract_factory, geth_fixture_data):
     return emitter_contract_factory(address=geth_fixture_data['emitter_address'])
 
@@ -226,50 +226,50 @@ def unlocked_account(web3, unlockable_account, unlockable_account_pw):
     web3.personal.lockAccount(unlockable_account)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def unlockable_account_pw(geth_fixture_data):
     return geth_fixture_data['keyfile_pw']
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def unlockable_account(web3, coinbase):
     yield coinbase
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def funded_account_for_raw_txn(geth_fixture_data):
     account = geth_fixture_data['raw_txn_account']
     assert is_checksum_address(account)
     return account
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def empty_block(web3, geth_fixture_data):
     block = web3.eth.getBlock(geth_fixture_data['empty_block_hash'])
     assert is_dict(block)
     return block
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def block_with_txn(web3, geth_fixture_data):
     block = web3.eth.getBlock(geth_fixture_data['block_with_txn_hash'])
     assert is_dict(block)
     return block
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def mined_txn_hash(geth_fixture_data):
     return geth_fixture_data['mined_txn_hash']
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def block_with_txn_with_log(web3, geth_fixture_data):
     block = web3.eth.getBlock(geth_fixture_data['block_hash_with_log'])
     assert is_dict(block)
     return block
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def txn_hash_with_log(geth_fixture_data):
     return geth_fixture_data['txn_hash_with_log']
 

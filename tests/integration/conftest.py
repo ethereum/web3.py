@@ -10,13 +10,13 @@ from web3.utils.module_testing.math_contract import (
 )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def math_contract_factory(web3):
     contract_factory = web3.eth.contract(abi=MATH_ABI, bytecode=MATH_BYTECODE)
     return contract_factory
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def emitter_contract_factory(web3):
     contract_factory = web3.eth.contract(abi=EMITTER_ABI, bytecode=EMITTER_BYTECODE)
     return contract_factory
