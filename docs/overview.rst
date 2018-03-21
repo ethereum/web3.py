@@ -197,11 +197,11 @@ Addresses
 
     * Allows for both ``0x`` prefixed and non-prefixed values.
     * If the address contains mixed upper and lower cased characters this function also
-      checks if the the address checksum is valid according to `EIP55`_
+      checks if the address checksum is valid according to `EIP55`_
 
     .. code-block:: python
 
-        >>> web3.isAddress('0xd3CDA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.isAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
 
 
@@ -212,7 +212,7 @@ Addresses
 
     .. code-block:: python
 
-        >>> web3.isChecksumAddress('0xd3CDA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.isChecksumAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
         >>> web3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
         False
@@ -226,7 +226,7 @@ Addresses
     .. code-block:: python
 
         >>> Web3.toChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
-        '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
+        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
 .. _EIP55: https://github.com/ethereum/EIPs/issues/55
 
