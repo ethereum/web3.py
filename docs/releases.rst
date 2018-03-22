@@ -1,6 +1,36 @@
 Release Notes
 =============
 
+v4.0.0-beta.12
+-----------------
+
+Released Mar 27, 2018
+
+*This is intended to be the final release before the stable v4 release.*
+
+- Add support for geth 1.8 (fixed error on :meth:`~web3.eth.Eth.getTransactionReceipt`)
+- You can now call a contract method at a specific block
+  with the ``block_identifier`` keyword argument, see:
+  :meth:`~web3.contract.ContractFunction.call`
+- In preparation for stable release, disable ``w3.eth.account`` by default,
+  until a third-party audit is complete & resolved.
+- New API for contract deployment, which enables gas estimation, local signing, etc.
+  See :meth:`~web3.contract.Contract.constructor`.
+- Find contract events with :ref:`contract.events.$my_event.createFilter() <contract_createFilter>`
+- Support auto-complete for contract methods.
+- Upgrade most dependencies to stable
+
+  - eth-abi
+  - eth-utils
+  - hexbytes
+  - *not included: eth-tester and eth-account*
+- Switch the default EthereumTesterProvider backend from eth-testrpc to eth-tester:
+  :class:`web3.providers.eth_tester.EthereumTesterProvider`
+- A lot of documentation improvements
+- Test node integrations over a variety of providers
+- geth 1.8 test suite
+
+
 v4.0.0-beta.11
 -----------------
 

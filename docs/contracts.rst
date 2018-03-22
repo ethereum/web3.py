@@ -176,6 +176,8 @@ Each Contract Factory exposes the following methods.
         >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).buildTransaction(transaction)
         >>> web3.eth.sendTransaction(contract_data)
 
+.. _contract_createFilter:
+
 .. py:classmethod:: Contract.events.<event name>.createFilter(fromBlock=block, [toBlock=block, argument_filters={"arg1": "value"}, topics=[]])
 
     Creates a new event filter, an instance of :py:class:`web3.utils.filters.LogFilter`.
