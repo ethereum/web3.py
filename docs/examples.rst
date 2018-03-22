@@ -199,7 +199,7 @@ Working with Contracts
 
 Given the following solidity source file stored at ``contract.sol``.
 
-.. code-block:: solidity
+.. code-block:: javascript
 
     contract StoreVar {
     

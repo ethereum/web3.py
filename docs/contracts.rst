@@ -8,7 +8,7 @@ Contract Factories
 ------------------
 
 These factories are not intended to be initialized directly.
-Instead, create contract objects using the :meth:`web3.eth.Eth.contract`
+Instead, create contract objects using the :meth:`w3.eth.contract() <web3.eth.Eth.contract>`
 method. By default, the contract factory is :class:`Contract`. See the
 example in :class:`ConciseContract` for specifying an alternate factory.
 
@@ -307,7 +307,7 @@ For example:
 :py:class:`ContractFunction` provides methods to interact with contract functions. Positional and keyword arguments supplied to the contract function subclass will be used to find the contract function by signature, and forwarded to the contract function when applicable.
 
 Methods
-"""""""
+~~~~~~~~~~
 
 .. py:method:: ContractFunction.transact(transaction)
 
@@ -370,6 +370,26 @@ Methods
         >>> token_contract.functions.myBalance().call({'from': web3.eth.accounts[1]})
         54321  # the token balance for the account `web3.eth.accounts[1]`
 
+    You can call the method at a historical block using ``block_identifier``. Some examples:
+
+    .. code-block:: python
+
+        # You can call your contract method at a block number:
+        >>> token_contract.functions.myBalance().call(block_identifier=10)
+
+        # or a number of blocks back from pending,
+        # in this case, the block just before the latest block:
+        >>> token_contract.functions.myBalance().call(block_identifier=-2)
+
+        # or a block hash:
+        >>> token_contract.functions.myBalance().call(block_identifier='0x4ff4a38b278ab49f7739d3a4ed4e12714386a9fdf72192f2e8f7da7822f10b4d')
+        >>> token_contract.functions.myBalance().call(block_identifier=b'O\xf4\xa3\x8b\'\x8a\xb4\x9fw9\xd3\xa4\xedN\x12qC\x86\xa9\xfd\xf7!\x92\xf2\xe8\xf7\xdax"\xf1\x0bM')
+
+        # Latest is the default, so this is redundant:
+        >>> token_contract.functions.myBalance().call(block_identifier='latest')
+
+        # You can check the state after your pending transactions (if supported by your node):
+        >>> token_contract.functions.myBalance().call(block_identifier='pending')
 
 .. py:method:: ContractFunction.estimateGas(transaction)
 
