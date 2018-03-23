@@ -1021,7 +1021,8 @@ class ContractEvent:
             yield decoded_log
 
     @combomethod
-    def createFilter(self, *, # PEP 3102
+    def createFilter(
+            self, *,  # PEP 3102
             argument_filters=dict(),
             fromBlock=None,
             toBlock="latest",

@@ -11,8 +11,8 @@ from cytoolz import (
 )
 from eth_utils import (
     is_dict,
-    is_string,
     is_hex,
+    is_string,
 )
 
 from web3.middleware import (
