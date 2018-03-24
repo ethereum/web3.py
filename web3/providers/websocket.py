@@ -3,33 +3,38 @@ import json
 import os
 from threading import (
     Thread,
+    current_thread,
 )
 
-from web3.exceptions import (
-    NotConfigured,
-)
+import websockets
+
 from web3.providers.base import (
     JSONBaseProvider,
 )
 
-try:
-    import websockets
-except ImportError:
-    websockets = None
+THREAD_POLLING_INTERVAL = 2  # secs
 
 
-def _start_event_loop(loop):
+async def _stop_loop(loop, parent_thread):
+    while parent_thread.is_alive():
+        await asyncio.sleep(THREAD_POLLING_INTERVAL)
+    else:
+        print('stopping loop')
+        loop.stop()
+
+
+def _start_event_loop(loop, parent_thread):
     asyncio.set_event_loop(loop)
+    asyncio.run_coroutine_threadsafe(_stop_loop(loop, parent_thread), loop)
     loop.run_forever()
+    print('closing loop')
+    loop.close()
 
 
-# TODO: Think of a better name
 def _get_threaded_loop():
     new_loop = asyncio.new_event_loop()
-    t = Thread(target=_start_event_loop, args=(new_loop,))
-    # TODO: figure out if daemon is the way to go
-    t.daemon = True
-    t.start()
+    thread_loop = Thread(target=_start_event_loop, args=(new_loop, current_thread()))
+    thread_loop.start()
     return new_loop
 
 
@@ -42,9 +47,6 @@ class WebsocketProvider(JSONBaseProvider):
     _loop = None
 
     def __init__(self, endpoint_uri=None):
-        if websockets is None:
-            raise NotConfigured('missing `websockets` library')
-
         self.endpoint_uri = endpoint_uri
         if self.endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()
