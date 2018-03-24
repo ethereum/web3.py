@@ -10,11 +10,18 @@ matrix:
     #
     # Python 3.5 testing
     #
-    # go-ethereum
+    # go-ethereum-ipc v1.7.2
     - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.7.2
+      env: TOX_POSARGS="-e py35-integration-goethereum-ipc" GETH_VERSION=v1.7.2
+    # go-ethereum-http v1.7.2
     - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-goethereum" GETH_VERSION=v1.8.1
+      env: TOX_POSARGS="-e py35-integration-goethereum-http" GETH_VERSION=v1.7.2
+    # go-ethereum-ipc v1.8.1
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-goethereum-ipc" GETH_VERSION=v1.8.1
+    # go-ethereum-http v1.8.1
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-goethereum-http" GETH_VERSION=v1.8.1
     # parity-ipc
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-parity-ipc" PARITY_VERSION=v1.8.8
@@ -36,11 +43,18 @@ matrix:
     #
     # Python 3.6 testing
     #
-    # go-ethereum
+    # go-ethereum-ipc v1.7.2
     - python: "3.6"
-      env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.7.2
+      env: TOX_POSARGS="-e py36-integration-goethereum-ipc" GETH_VERSION=v1.7.2
+    # go-ethereum-http v1.7.2
     - python: "3.6"
-      env: TOX_POSARGS="-e py36-integration-goethereum" GETH_VERSION=v1.8.1
+      env: TOX_POSARGS="-e py36-integration-goethereum-http" GETH_VERSION=v1.7.2
+    # go-ethereum-ipc v1.8.1
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum-ipc" GETH_VERSION=v1.8.1
+    # go-ethereum-http v1.8.1
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum-http" GETH_VERSION=v1.8.1
     # parity-ipc
     - python: "3.6"
       env: TOX_POSARGS="-e py36-integration-parity-ipc" PARITY_VERSION=v1.8.8

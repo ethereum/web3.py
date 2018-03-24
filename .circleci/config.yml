@@ -116,20 +116,36 @@ jobs:
     environment:
       TOXENV: py35-ens
 
-  py35-integration-goethereum-1.7.2:
+  py35-integration-goethereum-ipc-1.7.2:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.5
     environment:
-      TOXENV: py35-integration-goethereum
+      TOXENV: py35-integration-goethereum-ipc
       GETH_VERSION: v1.7.2
 
-  py35-integration-goethereum-1.8.1:
+  py35-integration-goethereum-http-1.7.2:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.5
     environment:
-      TOXENV: py35-integration-goethereum
+      TOXENV: py35-integration-goethereum-http
+      GETH_VERSION: v1.7.2
+
+  py35-integration-goethereum-ipc-1.8.1:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.5
+    environment:
+      TOXENV: py35-integration-goethereum-ipc
+      GETH_VERSION: v1.8.1
+
+  py35-integration-goethereum-http-1.8.1:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.5
+    environment:
+      TOXENV: py35-integration-goethereum-http
       GETH_VERSION: v1.8.1
 
   py35-integration-parity-ipc:
@@ -194,20 +210,36 @@ jobs:
     environment:
       TOXENV: py36-ens
 
-  py36-integration-goethereum-1.7.2:
+  py36-integration-goethereum-ipc-1.7.2:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.6
     environment:
-      TOXENV: py36-integration-goethereum
+      TOXENV: py36-integration-goethereum-ipc
       GETH_VERSION: v1.7.2
 
-  py36-integration-goethereum-1.8.1:
+  py36-integration-goethereum-http-1.7.2:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.6
     environment:
-      TOXENV: py36-integration-goethereum
+      TOXENV: py36-integration-goethereum-http
+      GETH_VERSION: v1.7.2
+
+  py36-integration-goethereum-ipc-1.8.1:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: py36-integration-goethereum-ipc
+      GETH_VERSION: v1.8.1
+
+  py36-integration-goethereum-http-1.8.1:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: py36-integration-goethereum-http
       GETH_VERSION: v1.8.1
 
   py36-integration-parity-ipc:
@@ -250,16 +282,20 @@ workflows:
       - doctest
       - py35-core
       - py35-ens
-      - py35-integration-goethereum-1.7.2
-      - py35-integration-goethereum-1.8.1
+      - py35-integration-goethereum-ipc-1.7.2
+      - py35-integration-goethereum-http-1.7.2
+      - py35-integration-goethereum-ipc-1.8.1
+      - py35-integration-goethereum-http-1.8.1
       - py35-integration-parity-ipc
       - py35-integration-parity-http
       - py35-integration-ethtester-pyethereum
       - py35-integration-ethtester-pyevm
       - py36-core
       - py36-ens
-      - py36-integration-goethereum-1.7.2
-      - py36-integration-goethereum-1.8.1
+      - py36-integration-goethereum-ipc-1.7.2
+      - py36-integration-goethereum-http-1.7.2
+      - py36-integration-goethereum-ipc-1.8.1
+      - py36-integration-goethereum-http-1.8.1
       - py36-integration-parity-ipc
       - py36-integration-parity-http
       - py36-integration-ethtester-pyethereum
