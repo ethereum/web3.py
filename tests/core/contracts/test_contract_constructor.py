@@ -27,7 +27,7 @@ def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
         SimpleConstructorContract):
     gas_estimate = SimpleConstructorContract.constructor().estimateGas()
     try:
-        assert abs(gas_estimate - 21472) < 200  # Geth
+        assert abs(gas_estimate - 43082) < 200  # Geth
     except AssertionError:
         assert abs(gas_estimate - 85694) < 200  # eth-tester with py-evm
 
@@ -48,7 +48,7 @@ def test_contract_constructor_gas_estimate_with_constructor_with_arguments(
     gas_estimate = WithConstructorArgumentsContract.constructor(
         *constructor_args, **constructor_kwargs).estimateGas()
     try:
-        assert abs(gas_estimate - 21472) < 200  # Geth
+        assert abs(gas_estimate - 78572) < 200  # Geth
     except AssertionError:
         assert abs(gas_estimate - 112574) < 200  # eth-tester with py-evm
 
@@ -58,7 +58,7 @@ def test_contract_constructor_gas_estimate_with_constructor_with_address_argumen
     gas_estimate = WithConstructorAddressArgumentsContract.constructor(
         "0x16D9983245De15E7A9A73bC586E01FF6E08dE737").estimateGas()
     try:
-        assert abs(gas_estimate - 21472) < 200  # Geth
+        assert abs(gas_estimate - 50181) < 200  # Geth
     except AssertionError:
         assert abs(gas_estimate - 95399) < 200  # eth-tester with py-evm
 
