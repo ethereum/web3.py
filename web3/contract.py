@@ -1061,25 +1061,25 @@ class ContractFunction:
         Build the transaction dictionary without sending
         """
         if transaction is None:
-            build_transaction = {}
+            built_transaction = {}
         else:
-            build_transaction = dict(**transaction)
+            built_transaction = dict(**transaction)
 
-        if 'data' in build_transaction:
+        if 'data' in built_transaction:
             raise ValueError("Cannot set data in build transaction")
 
-        if not self.address and 'to' not in build_transaction:
+        if not self.address and 'to' not in built_transaction:
             raise ValueError(
                 "When using `ContractFunction.buildTransaction` from a Contract factory"
                 "you must provide a `to` address with the transaction"
             )
-        if self.address and 'to' in build_transaction:
+        if self.address and 'to' in built_transaction:
             raise ValueError("Cannot set to in contract call build transaction")
 
         if self.address:
-            build_transaction.setdefault('to', self.address)
+            built_transaction.setdefault('to', self.address)
 
-        if 'to' not in build_transaction:
+        if 'to' not in built_transaction:
             raise ValueError(
                 "Please ensure that this contract instance has an address."
             )
@@ -1088,7 +1088,7 @@ class ContractFunction:
                                               self.address,
                                               self.web3,
                                               self.function_identifier,
-                                              build_transaction,
+                                              built_transaction,
                                               *self.args,
                                               **self.kwargs)
 

@@ -18,7 +18,8 @@ def test_contract_constructor_gas_estimate_no_constructor(MathContract):
         assert abs(gas_estimate - 200321) < 200  # eth-tester with py-evm
 
 
-def test_contract_constructor_gas_estimate_with_constructor_without_arguments(SimpleConstructorContract):
+def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
+        SimpleConstructorContract):
     gas_estimate = SimpleConstructorContract.constructor().estimateGas()
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
