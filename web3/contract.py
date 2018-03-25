@@ -286,7 +286,7 @@ class Contract:
         return txn_hash
 
     @classmethod
-    def constructor(cls, args=None, kwargs=None):
+    def constructor(cls, *args, **kwargs):
         """
         :param args: The contract constructor arguments as positional arguments
         :param kwargs: The contract constructor arguments as keyword arguments
@@ -302,8 +302,8 @@ class Contract:
                                    cls.address,
                                    cls.abi,
                                    cls.bytecode,
-                                   args=args,
-                                   kwargs=kwargs)
+                                   *args,
+                                   **kwargs)
 
     #  Public API
     #
@@ -649,7 +649,7 @@ class Contract:
         return NonExistentFallbackFunction()
 
     @combomethod
-    def _encode_constructor_data(cls, args=None, kwargs=None):
+    def _encode_constructor_data(cls, *args, **kwargs):
         constructor_abi = get_constructor_abi(cls.abi)
 
         if constructor_abi:
@@ -673,21 +673,21 @@ class ContractConstructor:
     """
     Class for contract constructor API.
     """
-    def __init__(self, web3, address, abi, bytecode, args, kwargs):
+    def __init__(self, web3, address, abi, bytecode, *args, **kwargs):
         self.web3 = web3
         self.address = address
         self.abi = abi
         self.bytecode = bytecode
-        self.data_in_transaction = self._encode_data_in_transaction(args, kwargs)
+        self.data_in_transaction = self._encode_data_in_transaction(*args, **kwargs)
 
     @combomethod
-    def _encode_data_in_transaction(self, args=None, kwargs=None):
+    def _encode_data_in_transaction(self, *args, **kwargs):
         constructor_abi = get_constructor_abi(self.abi)
 
         if constructor_abi:
-            if args is None:
+            if not args:
                 args = tuple()
-            if kwargs is None:
+            if not kwargs:
                 kwargs = {}
 
             arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
