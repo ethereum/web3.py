@@ -4,6 +4,11 @@ from eth_utils import (
     decode_hex,
 )
 
+TEST_ADDRESS = '0x16D9983245De15E7A9A73bC586E01FF6E08dE737'
+EXPECTED_DATA_A = 1234
+EXPECTED_DATA_B = (b'abcd\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+
 
 def test_contract_constructor_abi_encoding_with_no_constructor_fn(MathContract, MATH_CODE):
     deploy_data = MathContract.constructor()._encode_data_in_transaction()
@@ -111,18 +116,23 @@ def test_contract_constructor_transact_with_constructor_with_arguments(
 
     blockchain_code = web3.eth.getCode(contract_address)
     assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
+    assert EXPECTED_DATA_A == WithConstructorArgumentsContract(
+        address=contract_address).functions.data_a().call()
+    assert EXPECTED_DATA_B == WithConstructorArgumentsContract(
+        address=contract_address).functions.data_b().call()
 
 
 def test_contract_constructor_transact_with_constructor_with_address_arguments(
         web3, WithConstructorAddressArgumentsContract, WITH_CONSTRUCTOR_ADDRESS_RUNTIME):
-    deploy_txn = WithConstructorAddressArgumentsContract.constructor(
-        '0x16D9983245De15E7A9A73bC586E01FF6E08dE737').transact()
+    deploy_txn = WithConstructorAddressArgumentsContract.constructor(TEST_ADDRESS).transact()
     txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
     assert txn_receipt is not None
     assert txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']
     blockchain_code = web3.eth.getCode(contract_address)
     assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ADDRESS_RUNTIME)
+    assert TEST_ADDRESS == WithConstructorAddressArgumentsContract(
+        address=contract_address).functions.testAddr().call()
 
 
 def test_contract_constructor_build_transaction_to_field_error(MathContract):

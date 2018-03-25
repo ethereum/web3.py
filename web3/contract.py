@@ -727,12 +727,6 @@ class ContractConstructor:
             self.check_forbidden_keys_in_transaction(transact_transaction,
                                                      ["data", "to"])
 
-        if 'data' in transact_transaction:
-            raise ValueError("Cannot set data in transact transaction")
-
-        if 'to' in transact_transaction:
-            raise ValueError("Cannot specify `to` for transact transaction")
-
         if self.web3.eth.defaultAccount is not empty:
             transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
