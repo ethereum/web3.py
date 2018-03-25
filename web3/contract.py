@@ -649,7 +649,7 @@ class Contract:
         return NonExistentFallbackFunction()
 
     @combomethod
-    def _encode_constructor_data(cls, *args, **kwargs):
+    def _encode_constructor_data(cls, args=None, kwargs=None):
         constructor_abi = get_constructor_abi(cls.abi)
 
         if constructor_abi:
