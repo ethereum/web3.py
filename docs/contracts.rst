@@ -109,18 +109,18 @@ Methods
 
 Each Contract Factory exposes the following methods.
 
-.. py:classmethod:: Contract.deploy(transaction=None, args=None)
+.. py:classmethod:: Contract.constructor(*args, **kwargs).transact(transaction=None)
 
-    Construct and send a transaction to deploy the contract.
+    Construct and deploy a contract by sending a new public transaction.
 
     If provided ``transaction`` should be a dictionary conforming to the
     ``web3.eth.sendTransaction(transaction)`` method.  This value may not
     contain the keys ``data`` or ``to``.
 
-    If the contract takes constructor arguments they should be provided as a
-    list via the ``args`` parameter.
+    If the contract takes constructor parameters they should be provided as
+    positional arguments or keyword arguments.
 
-    If any of the ``args`` specified in the ABI are an ``address`` type, they
+    If any of the arguments specified in the ABI are an ``address`` type, they
     will accept ENS names.
 
     If a ``gas`` value is not provided, then the ``gas`` value for the
@@ -128,6 +128,50 @@ Each Contract Factory exposes the following methods.
     method.
 
     Returns the transaction hash for the deploy transaction.
+
+    .. code-block:: python
+        >>> deploy_txn = token_contract.constructor(web3.eth.coinbase, 12345).transact()
+        >>> txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+        >>> txn_receipt['contractAddress']
+        '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
+
+.. py:classmethod:: Contract.constructor(*args, **kwargs).estimateGas(transaction=None)
+
+    Estimate gas for constructing and deploying the contract.
+
+    This method behaves the same as the
+    :py:meth:`Contract.constructor(*args, **kwargs).transact` method,
+    with transaction details being passed into the end portion of the
+    function call, and function arguments being passed into the first portion.
+
+    Returns the amount of gas consumed which can be used as a gas estimate for
+    executing this transaction publicly.
+
+    Returns the gas needed to deploy the contract.
+
+    .. code-block:: python
+        >>> token_contract.constructor(web3.eth.coinbase, 12345).estimateGas()
+        12563
+
+.. py:classmethod:: Contract.constructor(*args, **kwargs).buildTransaction(transaction=None)
+
+    Construct the contract deploy transaction bytecode data.
+
+    If the contract takes constructor parameters they should be provided as
+    positional arguments or keyword arguments.
+
+    If any of the ``args`` specified in the ABI are an ``address`` type, they
+    will accept ENS names.
+
+    Returns the transaction dictionary that you can pass to sendTransaction method.
+
+    .. code-block:: python
+        >>> transaction = {
+        'gasPrice': w3.eth.gasPrice,
+        'chainId': None
+        }
+        >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).buildTransaction(transaction)
+        >>> web3.eth.sendTransaction(contract_data)
 
 .. py:classmethod:: Contract.eventFilter(event_name, filter_params=None)
 
