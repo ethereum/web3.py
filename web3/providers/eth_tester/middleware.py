@@ -193,6 +193,7 @@ ethereum_tester_middleware = construct_formatting_middleware(
         ),
         'eth_call': apply_formatters_to_args(
             transaction_params_transformer,
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
         'eth_uninstallFilter': apply_formatters_to_args(hex_to_integer),
         # EVM

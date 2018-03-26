@@ -157,8 +157,9 @@ IPCProvider
 EthereumTesterProvider
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. warning:: Experimental:  This provider is experimental and should be used with caution.
-    However, it is the presumed replacement to :class:`~web3.providers.tester.EthereumTesterProvider`
+.. warning:: Experimental:  This provider is experimental. There are still significant gaps in
+    functionality. However, it is the default replacement for
+    :class:`web3.providers.tester.EthereumTesterProvider`
     and is being actively developed and supported.
 
 .. py:class:: EthereumTesterProvider(eth_tester=None)
@@ -166,13 +167,12 @@ EthereumTesterProvider
     This provider integrates with the ``eth-tester`` library.  The
     ``eth_tester`` constructor argument should be an instance of the
     :class:`~eth_tester.EthereumTester` class provided by the ``eth-tester``
-    library.  See the ``eth-tester`` library documentation for
-    instructions on how to use the library.
+    library.  If you would like a custom eth-tester instance to test with,
+    see the ``eth-tester`` library documentation for details.
 
     .. code-block:: python
 
-        >>> from web3 import Web3
-        >>> from web3.providers.eth_tester import EthereumTesterProvider
+        >>> from web3 import Web3, EthereumTesterProvider
         >>> w3 = Web3(EthereumTesterProvider())
 
 
@@ -188,6 +188,11 @@ EthereumTesterProvider (legacy)
     This provider can be used for testing.  It uses an ephemeral blockchain
     backed by the ``ethereum.tester`` module.
 
+    .. code-block:: python
+
+        >>> from web3 import Web3
+        >>> from web3.providers.tester import EthereumTesterProvider
+        >>> w3 = Web3(EthereumTesterProvider())
 
 TestRPCProvider
 ~~~~~~~~~~~~~~~

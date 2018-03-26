@@ -27,19 +27,19 @@ from web3.utils.module_testing.emitter_contract import (
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def eth_tester():
     _eth_tester = EthereumTester()
     return _eth_tester
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def eth_tester_provider(eth_tester):
     provider = EthereumTesterProvider(eth_tester)
     return provider
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def web3(eth_tester_provider):
     _web3 = Web3(eth_tester_provider)
     return _web3
@@ -48,13 +48,13 @@ def web3(eth_tester_provider):
 #
 # Math Contract Setup
 #
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def math_contract_deploy_txn_hash(web3, math_contract_factory):
     deploy_txn_hash = math_contract_factory.deploy({'from': web3.eth.coinbase})
     return deploy_txn_hash
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
     deploy_receipt = web3.eth.getTransactionReceipt(math_contract_deploy_txn_hash)
     assert is_dict(deploy_receipt)
@@ -66,13 +66,13 @@ def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
 #
 # Emitter Contract Setup
 #
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def emitter_contract_deploy_txn_hash(web3, emitter_contract_factory):
     deploy_txn_hash = emitter_contract_factory.deploy({'from': web3.eth.coinbase})
     return deploy_txn_hash
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def emitter_contract(web3, emitter_contract_factory, emitter_contract_deploy_txn_hash):
     deploy_receipt = web3.eth.getTransactionReceipt(emitter_contract_deploy_txn_hash)
     assert is_dict(deploy_receipt)
@@ -81,7 +81,7 @@ def emitter_contract(web3, emitter_contract_factory, emitter_contract_deploy_txn
     return emitter_contract_factory(contract_address)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def empty_block(web3):
     web3.testing.mine()
     block = web3.eth.getBlock("latest")
@@ -89,7 +89,7 @@ def empty_block(web3):
     return block
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def block_with_txn(web3):
     txn_hash = web3.eth.sendTransaction({
         'from': web3.eth.coinbase,
@@ -103,12 +103,12 @@ def block_with_txn(web3):
     return block
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def mined_txn_hash(block_with_txn):
     return block_with_txn['transactions'][0]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def block_with_txn_with_log(web3, emitter_contract):
     txn_hash = emitter_contract.transact({
         'from': web3.eth.coinbase,
@@ -118,7 +118,7 @@ def block_with_txn_with_log(web3, emitter_contract):
     return block
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def txn_hash_with_log(block_with_txn_with_log):
     return block_with_txn_with_log['transactions'][0]
 
@@ -126,12 +126,12 @@ def txn_hash_with_log(block_with_txn_with_log):
 UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def unlockable_account_pw(web3):
     return 'web3-testing'
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def unlockable_account(web3, unlockable_account_pw):
     account = web3.personal.importRawKey(UNLOCKABLE_PRIVATE_KEY, unlockable_account_pw)
     web3.eth.sendTransaction({
@@ -149,7 +149,7 @@ def unlocked_account(web3, unlockable_account, unlockable_account_pw):
     web3.personal.lockAccount(unlockable_account)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def funded_account_for_raw_txn(web3):
     account = '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6'
     web3.eth.sendTransaction({
@@ -178,12 +178,14 @@ def not_implemented(method, exc_type=NotImplementedError):
 def disable_auto_mine(func):
     @functools.wraps(func)
     def func_wrapper(self, eth_tester, *args, **kwargs):
+        snapshot = eth_tester.take_snapshot()
         eth_tester.disable_auto_mine_transactions()
         try:
             func(self, eth_tester, *args, **kwargs)
         finally:
             eth_tester.enable_auto_mine_transactions()
             eth_tester.mine_block()
+            eth_tester.revert_to_snapshot(snapshot)
     return func_wrapper
 
 
@@ -234,6 +236,20 @@ class TestEthereumTesterEthModule(EthModuleTest):
     @disable_auto_mine
     def test_eth_modifyTransaction(self, eth_tester, web3, unlocked_account):
         super().test_eth_modifyTransaction(web3, unlocked_account)
+
+    @disable_auto_mine
+    def test_eth_call_old_contract_state(self, eth_tester, web3, math_contract, unlocked_account):
+        # For now, ethereum tester cannot give call results in the pending block.
+        # Once that feature is added, then delete the except/else blocks.
+        try:
+            super().test_eth_call_old_contract_state(web3, math_contract, unlocked_account)
+        except AssertionError as err:
+            if str(err) == "pending call result was 0 instead of 1":
+                pass
+            else:
+                raise err
+        else:
+            raise AssertionError("eth-tester was unexpectedly able to give the pending call result")
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
