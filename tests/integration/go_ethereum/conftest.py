@@ -2,11 +2,7 @@ import json
 import os
 import pytest
 import shutil
-import signal
-import socket
 import subprocess
-import tempfile
-import time
 
 from cytoolz import (
     assoc,
@@ -17,13 +13,8 @@ from eth_utils import (
     to_text,
 )
 
-from web3 import Web3
-from web3.utils.module_testing import (
-    EthModuleTest,
-    NetModuleTest,
-    PersonalModuleTest,
-    VersionModuleTest,
-    Web3ModuleTest,
+from .utils import (
+    kill_proc_gracefully,
 )
 
 KEYFILE_PW = 'web3py-test'
@@ -60,7 +51,7 @@ GETH_17_FIXTURE = {
 GETH_181_DIRECTORY_NAME = 'geth-1.8.1-datadir-fixture'
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def geth_binary():
     from geth.install import (
         get_executable_path,
@@ -83,6 +74,7 @@ def geth_binary():
 def absolute_datadir(directory_name):
     return os.path.abspath(os.path.join(
         os.path.dirname(__file__),
+        '..',
         directory_name,
     ))
 
@@ -95,7 +87,7 @@ def load_fixture_data(fixture_path):
         return assoc(loaded_data, 'datadir', fixture_path)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def geth_fixture_data(geth_binary):
     from geth import get_geth_version
     version = get_geth_version(geth_executable=os.path.expanduser(geth_binary))
@@ -109,7 +101,7 @@ def geth_fixture_data(geth_binary):
     assert False, "Unsupported geth version"
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def datadir(tmpdir_factory, geth_fixture_data):
     fixture_datadir = absolute_datadir(geth_fixture_data['datadir'])
     base_dir = tmpdir_factory.mktemp('goethereum')
@@ -118,38 +110,14 @@ def datadir(tmpdir_factory, geth_fixture_data):
     return tmp_datadir
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def genesis_file(datadir):
     genesis_file_path = os.path.join(datadir, 'genesis.json')
     return genesis_file_path
 
 
-@pytest.fixture(scope='session')
-def geth_ipc_path(datadir):
-    geth_ipc_dir_path = tempfile.mkdtemp()
-    _geth_ipc_path = os.path.join(geth_ipc_dir_path, 'geth.ipc')
-    yield _geth_ipc_path
-
-    if os.path.exists(_geth_ipc_path):
-        os.remove(_geth_ipc_path)
-
-
-def wait_for_socket(ipc_path, timeout=30):
-    start = time.time()
-    while time.time() < start + timeout:
-        try:
-            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sock.connect(ipc_path)
-            sock.settimeout(timeout)
-        except (FileNotFoundError, socket.error):
-            time.sleep(0.01)
-        else:
-            break
-
-
-@pytest.fixture(scope='session')
-def geth_process(geth_binary, datadir, genesis_file, geth_ipc_path):
-    geth_port = get_open_port()
+@pytest.fixture(scope='module')
+def geth_process(geth_binary, datadir, genesis_file, geth_command_arguments):
     init_datadir_command = (
         geth_binary,
         '--datadir', str(datadir),
@@ -161,17 +129,8 @@ def geth_process(geth_binary, datadir, genesis_file, geth_ipc_path):
         stdin=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
-
-    run_geth_command = (
-        geth_binary,
-        '--datadir', str(datadir),
-        '--ipcpath', geth_ipc_path,
-        '--nodiscover',
-        '--fakepow',
-        '--port', geth_port,
-    )
     proc = subprocess.Popen(
-        run_geth_command,
+        geth_command_arguments,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -192,29 +151,22 @@ def geth_process(geth_binary, datadir, genesis_file, geth_ipc_path):
         )
 
 
-@pytest.fixture(scope="session")
-def web3(geth_process, geth_ipc_path):
-    wait_for_socket(geth_ipc_path)
-    _web3 = Web3(Web3.IPCProvider(geth_ipc_path))
-    return _web3
-
-
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def coinbase(web3):
     return web3.eth.coinbase
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def math_contract_deploy_txn_hash(geth_fixture_data):
     return geth_fixture_data['math_deploy_txn_hash']
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def math_contract(web3, math_contract_factory, geth_fixture_data):
     return math_contract_factory(address=geth_fixture_data['math_address'])
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def emitter_contract(web3, emitter_contract_factory, geth_fixture_data):
     return emitter_contract_factory(address=geth_fixture_data['emitter_address'])
 
@@ -226,138 +178,49 @@ def unlocked_account(web3, unlockable_account, unlockable_account_pw):
     web3.personal.lockAccount(unlockable_account)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def unlockable_account_pw(geth_fixture_data):
     return geth_fixture_data['keyfile_pw']
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def unlockable_account(web3, coinbase):
     yield coinbase
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def funded_account_for_raw_txn(geth_fixture_data):
     account = geth_fixture_data['raw_txn_account']
     assert is_checksum_address(account)
     return account
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def empty_block(web3, geth_fixture_data):
     block = web3.eth.getBlock(geth_fixture_data['empty_block_hash'])
     assert is_dict(block)
     return block
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def block_with_txn(web3, geth_fixture_data):
     block = web3.eth.getBlock(geth_fixture_data['block_with_txn_hash'])
     assert is_dict(block)
     return block
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def mined_txn_hash(geth_fixture_data):
     return geth_fixture_data['mined_txn_hash']
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def block_with_txn_with_log(web3, geth_fixture_data):
     block = web3.eth.getBlock(geth_fixture_data['block_hash_with_log'])
     assert is_dict(block)
     return block
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def txn_hash_with_log(geth_fixture_data):
     return geth_fixture_data['txn_hash_with_log']
-
-
-class TestGoEthereum(Web3ModuleTest):
-    def _check_web3_clientVersion(self, client_version):
-        assert client_version.startswith('Geth/')
-
-
-class TestGoEthereumEthModule(EthModuleTest):
-    def test_eth_replaceTransaction(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
-        super().test_eth_replaceTransaction(web3, unlocked_account)
-
-    def test_eth_replaceTransaction_incorrect_nonce(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
-        super().test_eth_replaceTransaction_incorrect_nonce(web3, unlocked_account)
-
-    def test_eth_replaceTransaction_gas_price_too_low(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
-        super().test_eth_replaceTransaction_gas_price_too_low(web3, unlocked_account)
-
-    def test_eth_replaceTransaction_gas_price_defaulting_minimum(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
-        super().test_eth_replaceTransaction_gas_price_defaulting_minimum(web3, unlocked_account)
-
-    def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(self,
-                                                                         web3,
-                                                                         unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
-        super().test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(
-            web3, unlocked_account
-        )
-
-    def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(self,
-                                                                        web3,
-                                                                        unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
-        super().test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(
-            web3, unlocked_account
-        )
-
-    def test_eth_modifyTransaction(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
-        super().test_eth_modifyTransaction(web3, unlocked_account)
-
-
-class TestGoEthereumVersionModule(VersionModuleTest):
-    pass
-
-
-class TestGoEthereumNetModule(NetModuleTest):
-    pass
-
-
-class TestGoEthereumPersonalModule(PersonalModuleTest):
-    pass
-
-
-#
-# Geth Process Utils
-#
-def wait_for_popen(proc, timeout):
-    start = time.time()
-    while time.time() < start + timeout:
-        if proc.poll() is None:
-            time.sleep(0.01)
-        else:
-            break
-
-
-def kill_proc_gracefully(proc):
-    if proc.poll() is None:
-        proc.send_signal(signal.SIGINT)
-        wait_for_popen(proc, 13)
-
-    if proc.poll() is None:
-        proc.terminate()
-        wait_for_popen(proc, 5)
-
-    if proc.poll() is None:
-        proc.kill()
-        wait_for_popen(proc, 2)
-
-
-def get_open_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return str(port)
