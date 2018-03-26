@@ -299,7 +299,6 @@ class Contract:
             )
 
         return ContractConstructor(cls.web3,
-                                   cls.address,
                                    cls.abi,
                                    cls.bytecode,
                                    *args,
@@ -673,9 +672,8 @@ class ContractConstructor:
     """
     Class for contract constructor API.
     """
-    def __init__(self, web3, address, abi, bytecode, *args, **kwargs):
+    def __init__(self, web3, abi, bytecode, *args, **kwargs):
         self.web3 = web3
-        self.address = address
         self.abi = abi
         self.bytecode = bytecode
         self.data_in_transaction = self._encode_data_in_transaction(*args, **kwargs)
@@ -708,9 +706,6 @@ class ContractConstructor:
             self.check_forbidden_keys_in_transaction(estimate_gas_transaction,
                                                      ["data", "to"])
 
-        # remove self.address
-        if self.address:
-            estimate_gas_transaction.setdefault('to', self.address)
         if self.web3.eth.defaultAccount is not empty:
             estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
