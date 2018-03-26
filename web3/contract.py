@@ -1027,13 +1027,16 @@ class ContractEvent:
             fromBlock=None,
             toBlock="latest",
             address=None,
-            topics=dict()):
+            topics=list()):
         """
         Create filter object that tracks logs emitted by this contract event.
         :param filter_params: other parameters to limit the events
         """
         if not fromBlock:
             raise ValueError("Missing mandatory keyword argument to createFilter: fromBlock")
+
+        if not address:
+            address = self.address
 
         _filters = dict(**argument_filters)
 
