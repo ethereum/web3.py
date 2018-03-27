@@ -324,6 +324,7 @@ class Contract:
         return encode_abi(cls.web3, fn_abi, fn_arguments, data)
 
     @combomethod
+    @deprecated_for("contract.events.<event name>.createFilter")
     def eventFilter(self, event_name, filter_params={}):
         """
         Create filter object that tracks events emitted by this contract.
@@ -357,7 +358,7 @@ class Contract:
         return log_filter
 
     @combomethod
-    @deprecated_for("contract.<functions/events>.<method name>.estimateGas")
+    @deprecated_for("contract.functions.<method name>.estimateGas")
     def estimateGas(self, transaction=None):
         """
         Estimate the gas for a call
@@ -1131,6 +1132,46 @@ class ContractEvent:
             except MismatchedABI:
                 continue
             yield decoded_log
+
+    @combomethod
+    def createFilter(
+            self, *,  # PEP 3102
+            argument_filters=dict(),
+            fromBlock=None,
+            toBlock="latest",
+            address=None,
+            topics=list()):
+        """
+        Create filter object that tracks logs emitted by this contract event.
+        :param filter_params: other parameters to limit the events
+        """
+        if not fromBlock:
+            raise ValueError("Missing mandatory keyword argument to createFilter: fromBlock")
+
+        if not address:
+            address = self.address
+
+        _filters = dict(**argument_filters)
+
+        data_filter_set, event_filter_params = construct_event_filter_params(
+            self._get_event_abi(),
+            contract_address=self.address,
+            argument_filters=_filters,
+            fromBlock=fromBlock,
+            toBlock=toBlock,
+            address=address,
+            topics=topics,
+        )
+
+        log_data_extract_fn = functools.partial(get_event_data, self._get_event_abi())
+
+        log_filter = self.web3.eth.filter(event_filter_params)
+
+        log_filter.set_data_filters(data_filter_set)
+        log_filter.log_entry_formatter = log_data_extract_fn
+        log_filter.filter_params = event_filter_params
+
+        return log_filter
 
     @classmethod
     def factory(cls, class_name, **kwargs):

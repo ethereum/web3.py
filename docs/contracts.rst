@@ -176,7 +176,19 @@ Each Contract Factory exposes the following methods.
         >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).buildTransaction(transaction)
         >>> web3.eth.sendTransaction(contract_data)
 
+.. py:classmethod:: Contract.events.<event name>.createFilter(fromBlock=block, [toBlock=block, argument_filters={"arg1": "value"}, topics=[]])
+
+    Creates a new event filter, an instance of :py:class:`web3.utils.filters.LogFilter`.
+
+    ``fromBlock`` is a mandatory field. Defines the starting block (exclusive) filter block range. It can be either the starting block number, or 'latest' for the last mined block, or 'pending' for unmined transactions. In the case of ``fromBlock``, 'latest' and 'pending' set the 'latest' or 'pending' block as a static value for the starting filter block.
+    ``toBlock`` optional. Defaults to 'latest'. Defines the ending block (inclusive) in the filter block range.  Special values 'latest' and 'pending' set a dynamic range that always includes the 'latest' or 'pending' blocks for the filter's upper block range.
+    ``address`` optional. Defaults the the contract address. The filter matches the event logs emanating from ``address``.
+    ``argument_filters``, optional. Expects a dictionary of argument names and values. When provided event logs are filtered for the event argument values. Event arguments can be both indexed or unindexed. Indexed values with be translated to their corresponding topic arguments. Unindexed arguments will be filtered using a regular expression.
+    ``topics`` optional, accepts the standard JSON-RPC topics argument.  See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the ``topics`` parameters.
+
 .. py:classmethod:: Contract.eventFilter(event_name, filter_params=None)
+
+        .. warning:: Contract.eventFilter() has been deprecated for :meth:`Contract.events.<event name>.createFilter()`
 
     Creates a new :py:class:`web3.utils.filters.LogFilter` instance.
 
