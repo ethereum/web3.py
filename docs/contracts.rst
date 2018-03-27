@@ -130,6 +130,7 @@ Each Contract Factory exposes the following methods.
     Returns the transaction hash for the deploy transaction.
 
     .. code-block:: python
+
         >>> deploy_txn = token_contract.constructor(web3.eth.coinbase, 12345).transact()
         >>> txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
         >>> txn_receipt['contractAddress']
@@ -150,6 +151,7 @@ Each Contract Factory exposes the following methods.
     Returns the gas needed to deploy the contract.
 
     .. code-block:: python
+
         >>> token_contract.constructor(web3.eth.coinbase, 12345).estimateGas()
         12563
 
@@ -166,6 +168,7 @@ Each Contract Factory exposes the following methods.
     Returns the transaction dictionary that you can pass to sendTransaction method.
 
     .. code-block:: python
+
         >>> transaction = {
         'gasPrice': w3.eth.gasPrice,
         'chainId': None
@@ -215,6 +218,29 @@ Each Contract Factory exposes the following methods.
     If the :py:attr:`Contract.address` attribute for this contract is
     non-null, the contract address will be added to the ``filter_params``.
 
+
+.. py:classmethod:: Contract.deploy(transaction=None, args=None)
+
+    .. warning:: Deprecated: this method is deprecated in favor of
+      :meth:`~Contract.constructor`, which provides more flexibility.
+
+    Construct and send a transaction to deploy the contract.
+
+    If provided ``transaction`` should be a dictionary conforming to the
+    ``web3.eth.sendTransaction(transaction)`` method.  This value may not
+    contain the keys ``data`` or ``to``.
+
+    If the contract takes constructor arguments they should be provided as a
+    list via the ``args`` parameter.
+
+    If any of the ``args`` specified in the ABI are an ``address`` type, they
+    will accept ENS names.
+
+    If a ``gas`` value is not provided, then the ``gas`` value for the
+    deployment transaction will be created using the ``web3.eth.estimateGas()``
+    method.
+
+    Returns the transaction hash for the deploy transaction.
 
 
 .. _event-log-object:
