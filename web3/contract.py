@@ -282,9 +282,27 @@ class Contract:
 
         deploy_transaction['data'] = cls._encode_constructor_data(args, kwargs)
 
-        # TODO: handle asynchronous contract creation
         txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
         return txn_hash
+
+    @classmethod
+    def constructor(cls, *args, **kwargs):
+        """
+        :param args: The contract constructor arguments as positional arguments
+        :param kwargs: The contract constructor arguments as keyword arguments
+        :return: a contract constructor object
+        """
+        if cls.bytecode is None:
+            raise ValueError(
+                "Cannot call constructor on a contract that does not have 'bytecode' associated "
+                "with it"
+            )
+
+        return ContractConstructor(cls.web3,
+                                   cls.abi,
+                                   cls.bytecode,
+                                   *args,
+                                   **kwargs)
 
     #  Public API
     #
@@ -651,6 +669,95 @@ class Contract:
         return deploy_data
 
 
+class ContractConstructor:
+    """
+    Class for contract constructor API.
+    """
+    def __init__(self, web3, abi, bytecode, *args, **kwargs):
+        self.web3 = web3
+        self.abi = abi
+        self.bytecode = bytecode
+        self.data_in_transaction = self._encode_data_in_transaction(*args, **kwargs)
+
+    @combomethod
+    def _encode_data_in_transaction(self, *args, **kwargs):
+        constructor_abi = get_constructor_abi(self.abi)
+
+        if constructor_abi:
+            if not args:
+                args = tuple()
+            if not kwargs:
+                kwargs = {}
+
+            arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
+            data = add_0x_prefix(
+                encode_abi(self.web3, constructor_abi, arguments, data=self.bytecode)
+            )
+        else:
+            data = to_hex(self.bytecode)
+
+        return data
+
+    @combomethod
+    def estimateGas(self, transaction=None):
+        if transaction is None:
+            estimate_gas_transaction = {}
+        else:
+            estimate_gas_transaction = dict(**transaction)
+            self.check_forbidden_keys_in_transaction(estimate_gas_transaction,
+                                                     ["data", "to"])
+
+        if self.web3.eth.defaultAccount is not empty:
+            estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        estimate_gas_transaction['data'] = self.data_in_transaction
+
+        return self.web3.eth.estimateGas(estimate_gas_transaction)
+
+    @combomethod
+    def transact(self, transaction=None):
+        if transaction is None:
+            transact_transaction = {}
+        else:
+            transact_transaction = dict(**transaction)
+            self.check_forbidden_keys_in_transaction(transact_transaction,
+                                                     ["data", "to"])
+
+        if self.web3.eth.defaultAccount is not empty:
+            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        transact_transaction['data'] = self.data_in_transaction
+
+        # TODO: handle asynchronous contract creation
+        return self.web3.eth.sendTransaction(transact_transaction)
+
+    @combomethod
+    def buildTransaction(self, transaction=None):
+        """
+        Build the transaction dictionary without sending
+        """
+
+        if transaction is None:
+            built_transaction = {}
+        else:
+            built_transaction = dict(**transaction)
+            self.check_forbidden_keys_in_transaction(built_transaction,
+                                                     ["data", "to", "nonce"])
+
+        if self.web3.eth.defaultAccount is not empty:
+            built_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        built_transaction['data'] = self.data_in_transaction
+
+        return fill_transaction_defaults(self.web3, built_transaction)
+
+    @staticmethod
+    def check_forbidden_keys_in_transaction(transaction, forbidden_keys=None):
+        keys_found = set(transaction.keys()) & set(forbidden_keys)
+        if keys_found:
+            raise ValueError("Cannot set {} in transaction".format(', '.join(keys_found)))
+
+
 class ConciseContract:
     '''
     An alternative Contract Factory which invokes all methods as `call()`,
@@ -780,7 +887,6 @@ class ContractFunction:
     contract_abi = None
     abi = None
     transaction = None
-    is_fallback_function = False
 
     def __init__(self, *args, **kwargs):
 
@@ -879,7 +985,7 @@ class ContractFunction:
             transact_transaction = dict(**transaction)
 
         if 'data' in transact_transaction:
-            raise ValueError("Cannot set data in call transaction")
+            raise ValueError("Cannot set data in transact transaction")
 
         if self.address is not None:
             transact_transaction.setdefault('to', self.address)
@@ -907,21 +1013,21 @@ class ContractFunction:
 
     def estimateGas(self, transaction=None):
         if transaction is None:
-            estimate_transaction = {}
+            estimate_gas_transaction = {}
         else:
-            estimate_transaction = dict(**transaction)
+            estimate_gas_transaction = dict(**transaction)
 
-        if 'data' in estimate_transaction:
-            raise ValueError("Cannot set data in call transaction")
-        if 'to' in estimate_transaction:
-            raise ValueError("Cannot set to in call transaction")
+        if 'data' in estimate_gas_transaction:
+            raise ValueError("Cannot set data in estimateGas transaction")
+        if 'to' in estimate_gas_transaction:
+            raise ValueError("Cannot set to in estimateGas transaction")
 
         if self.address:
-            estimate_transaction.setdefault('to', self.address)
+            estimate_gas_transaction.setdefault('to', self.address)
         if self.web3.eth.defaultAccount is not empty:
-            estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
+            estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
-        if 'to' not in estimate_transaction:
+        if 'to' not in estimate_gas_transaction:
             if isinstance(self, type):
                 raise ValueError(
                     "When using `Contract.estimateGas` from a contract factory "
@@ -936,7 +1042,7 @@ class ContractFunction:
                                          self.address,
                                          self.web3,
                                          self.function_identifier,
-                                         estimate_transaction,
+                                         estimate_gas_transaction,
                                          *self.args,
                                          **self.kwargs)
 
@@ -950,7 +1056,7 @@ class ContractFunction:
             built_transaction = dict(**transaction)
 
         if 'data' in built_transaction:
-            raise ValueError("Cannot set data in call buildTransaction")
+            raise ValueError("Cannot set data in build transaction")
 
         if not self.address and 'to' not in built_transaction:
             raise ValueError(
@@ -958,7 +1064,7 @@ class ContractFunction:
                 "you must provide a `to` address with the transaction"
             )
         if self.address and 'to' in built_transaction:
-            raise ValueError("Cannot set to in contract call buildTransaction")
+            raise ValueError("Cannot set to in contract call build transaction")
 
         if self.address:
             built_transaction.setdefault('to', self.address)
