@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-v4.0.0-beta.12
+v4.0.0-beta.13
 -----------------
 
 Released Mar 27, 2018
@@ -30,6 +30,11 @@ Released Mar 27, 2018
 - Test node integrations over a variety of providers
 - geth 1.8 test suite
 
+
+v4.0.0-beta.12
+-----------------
+
+A little hiccup on release. Skipped.
 
 v4.0.0-beta.11
 -----------------
