@@ -91,12 +91,12 @@ def test_contract_constructor_transact_with_constructor_without_arguments(
 
 
 @pytest.mark.parametrize(
-    'constructor_args,constructor_kwargs',
+    'constructor_args,constructor_kwargs, expected_a, expected_b',
     (
-        ([1234, b'abcd'], {}),
-        ([1234], {'b': b'abcd'}),
-        ([], {'a': 1234, 'b': b'abcd'}),
-        ([], {'b': b'abcd', 'a': 1234}),
+        ([1234, b'abcd'], {}, EXPECTED_DATA_A, EXPECTED_DATA_B),
+        ([1234], {'b': b'abcd'}, EXPECTED_DATA_A, EXPECTED_DATA_B),
+        ([], {'a': 1234, 'b': b'abcd'}, EXPECTED_DATA_A, EXPECTED_DATA_B),
+        ([], {'b': b'abcd', 'a': 1234}, EXPECTED_DATA_A, EXPECTED_DATA_B),
     ),
 )
 def test_contract_constructor_transact_with_constructor_with_arguments(
@@ -104,7 +104,9 @@ def test_contract_constructor_transact_with_constructor_with_arguments(
         WithConstructorArgumentsContract,
         WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
         constructor_args,
-        constructor_kwargs):
+        constructor_kwargs,
+        expected_a,
+        expected_b):
     deploy_txn = WithConstructorArgumentsContract.constructor(
         *constructor_args, **constructor_kwargs).transact()
 
@@ -116,9 +118,9 @@ def test_contract_constructor_transact_with_constructor_with_arguments(
 
     blockchain_code = web3.eth.getCode(contract_address)
     assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
-    assert EXPECTED_DATA_A == WithConstructorArgumentsContract(
+    assert expected_a == WithConstructorArgumentsContract(
         address=contract_address).functions.data_a().call()
-    assert EXPECTED_DATA_B == WithConstructorArgumentsContract(
+    assert expected_b == WithConstructorArgumentsContract(
         address=contract_address).functions.data_b().call()
 
 
