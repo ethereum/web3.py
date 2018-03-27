@@ -7,9 +7,6 @@ from cytoolz.functoolz import (
     curry,
     excepts,
 )
-from eth_tester import (
-    EthereumTester,
-)
 from eth_tester.exceptions import (
     BlockNotFound,
     FilterNotFound,
@@ -365,6 +362,7 @@ class EthereumTesterProvider(BaseProvider):
 
     def __init__(self, ethereum_tester=None, api_endpoints=API_ENDPOINTS):
         if ethereum_tester is None:
+            from eth_tester import EthereumTester
             self.ethereum_tester = EthereumTester()
         else:
             self.ethereum_tester = ethereum_tester
