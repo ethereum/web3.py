@@ -6,17 +6,18 @@ pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
 def test_on_filter_using_get_entries_interface(
-    web3,
-    emitter,
-    Emitter,
-    wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
-):
+        web3,
+        emitter,
+        Emitter,
+        wait_for_transaction,
+        emitter_event_ids,
+        call_as_instance,
+        create_filter):
+
     if call_as_instance:
-        event_filter = emitter.eventFilter('LogNoArguments', {})
+        event_filter = create_filter(emitter, ['LogNoArguments', {}])
     else:
-        event_filter = Emitter.eventFilter('LogNoArguments', {})
+        event_filter = create_filter(Emitter, ['LogNoArguments', {}])
 
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
     wait_for_transaction(web3, txn_hash)
@@ -31,21 +32,23 @@ def test_on_filter_using_get_entries_interface(
 
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
-def test_on_sync_filter_with_event_name_and_single_argument(web3,
-                                                            emitter,
-                                                            Emitter,
-                                                            wait_for_transaction,
-                                                            emitter_event_ids,
-                                                            call_as_instance
-                                                            ):
+def test_on_sync_filter_with_event_name_and_single_argument(
+        web3,
+        emitter,
+        Emitter,
+        wait_for_transaction,
+        emitter_event_ids,
+        call_as_instance,
+        create_filter):
+
     if call_as_instance:
-        event_filter = emitter.eventFilter('LogTripleWithIndex', {'filter': {
+        event_filter = create_filter(emitter, ['LogTripleWithIndex', {'filter': {
             'arg1': 2,
-        }})
+        }}])
     else:
-        event_filter = Emitter.eventFilter('LogTripleWithIndex', {'filter': {
+        event_filter = create_filter(Emitter, ['LogTripleWithIndex', {'filter': {
             'arg1': 2,
-        }})
+        }}])
 
     txn_hashes = []
     event_id = emitter_event_ids.LogTripleWithIndex
@@ -67,21 +70,23 @@ def test_on_sync_filter_with_event_name_and_single_argument(web3,
 
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
-def test_on_sync_filter_with_event_name_and_non_indexed_argument(web3,
-                                                                 emitter,
-                                                                 Emitter,
-                                                                 wait_for_transaction,
-                                                                 emitter_event_ids,
-                                                                 call_as_instance
-                                                                 ):
+def test_on_sync_filter_with_event_name_and_non_indexed_argument(
+        web3,
+        emitter,
+        Emitter,
+        wait_for_transaction,
+        emitter_event_ids,
+        call_as_instance,
+        create_filter):
+
     if call_as_instance:
-        event_filter = emitter.eventFilter('LogTripleWithIndex', {'filter': {
+        event_filter = create_filter(emitter, ['LogTripleWithIndex', {'filter': {
             'arg0': 1, 'arg1': 2,
-        }})
+        }}])
     else:
-        event_filter = Emitter.eventFilter('LogTripleWithIndex', {'filter': {
+        event_filter = create_filter(Emitter, ['LogTripleWithIndex', {'filter': {
             'arg0': 1, 'arg1': 2,
-        }})
+        }}])
 
     txn_hashes = []
     event_id = emitter_event_ids.LogTripleWithIndex

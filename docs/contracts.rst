@@ -8,7 +8,7 @@ Contract Factories
 ------------------
 
 These factories are not intended to be initialized directly.
-Instead, create contract objects using the :meth:`web3.eth.Eth.contract`
+Instead, create contract objects using the :meth:`w3.eth.contract() <web3.eth.Eth.contract>`
 method. By default, the contract factory is :class:`Contract`. See the
 example in :class:`ConciseContract` for specifying an alternate factory.
 
@@ -113,18 +113,18 @@ Methods
 
 Each Contract Factory exposes the following methods.
 
-.. py:classmethod:: Contract.deploy(transaction=None, args=None)
+.. py:classmethod:: Contract.constructor(*args, **kwargs).transact(transaction=None)
 
-    Construct and send a transaction to deploy the contract.
+    Construct and deploy a contract by sending a new public transaction.
 
     If provided ``transaction`` should be a dictionary conforming to the
     ``web3.eth.sendTransaction(transaction)`` method.  This value may not
     contain the keys ``data`` or ``to``.
 
-    If the contract takes constructor arguments they should be provided as a
-    list via the ``args`` parameter.
+    If the contract takes constructor parameters they should be provided as
+    positional arguments or keyword arguments.
 
-    If any of the ``args`` specified in the ABI are an ``address`` type, they
+    If any of the arguments specified in the ABI are an ``address`` type, they
     will accept ENS names.
 
     If a ``gas`` value is not provided, then the ``gas`` value for the
@@ -133,7 +133,68 @@ Each Contract Factory exposes the following methods.
 
     Returns the transaction hash for the deploy transaction.
 
+    .. code-block:: python
+
+        >>> deploy_txn = token_contract.constructor(web3.eth.coinbase, 12345).transact()
+        >>> txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+        >>> txn_receipt['contractAddress']
+        '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
+
+.. py:classmethod:: Contract.constructor(*args, **kwargs).estimateGas(transaction=None)
+
+    Estimate gas for constructing and deploying the contract.
+
+    This method behaves the same as the
+    :py:meth:`Contract.constructor(*args, **kwargs).transact` method,
+    with transaction details being passed into the end portion of the
+    function call, and function arguments being passed into the first portion.
+
+    Returns the amount of gas consumed which can be used as a gas estimate for
+    executing this transaction publicly.
+
+    Returns the gas needed to deploy the contract.
+
+    .. code-block:: python
+
+        >>> token_contract.constructor(web3.eth.coinbase, 12345).estimateGas()
+        12563
+
+.. py:classmethod:: Contract.constructor(*args, **kwargs).buildTransaction(transaction=None)
+
+    Construct the contract deploy transaction bytecode data.
+
+    If the contract takes constructor parameters they should be provided as
+    positional arguments or keyword arguments.
+
+    If any of the ``args`` specified in the ABI are an ``address`` type, they
+    will accept ENS names.
+
+    Returns the transaction dictionary that you can pass to sendTransaction method.
+
+    .. code-block:: python
+
+        >>> transaction = {
+        'gasPrice': w3.eth.gasPrice,
+        'chainId': None
+        }
+        >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).buildTransaction(transaction)
+        >>> web3.eth.sendTransaction(contract_data)
+
+.. _contract_createFilter:
+
+.. py:classmethod:: Contract.events.<event name>.createFilter(fromBlock=block, [toBlock=block, argument_filters={"arg1": "value"}, topics=[]])
+
+    Creates a new event filter, an instance of :py:class:`web3.utils.filters.LogFilter`.
+
+    ``fromBlock`` is a mandatory field. Defines the starting block (exclusive) filter block range. It can be either the starting block number, or 'latest' for the last mined block, or 'pending' for unmined transactions. In the case of ``fromBlock``, 'latest' and 'pending' set the 'latest' or 'pending' block as a static value for the starting filter block.
+    ``toBlock`` optional. Defaults to 'latest'. Defines the ending block (inclusive) in the filter block range.  Special values 'latest' and 'pending' set a dynamic range that always includes the 'latest' or 'pending' blocks for the filter's upper block range.
+    ``address`` optional. Defaults the the contract address. The filter matches the event logs emanating from ``address``.
+    ``argument_filters``, optional. Expects a dictionary of argument names and values. When provided event logs are filtered for the event argument values. Event arguments can be both indexed or unindexed. Indexed values with be translated to their corresponding topic arguments. Unindexed arguments will be filtered using a regular expression.
+    ``topics`` optional, accepts the standard JSON-RPC topics argument.  See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the ``topics`` parameters.
+
 .. py:classmethod:: Contract.eventFilter(event_name, filter_params=None)
+
+        .. warning:: Contract.eventFilter() has been deprecated for :meth:`Contract.events.<event name>.createFilter()`
 
     Creates a new :py:class:`web3.utils.filters.LogFilter` instance.
 
@@ -175,6 +236,29 @@ Each Contract Factory exposes the following methods.
     If the :py:attr:`Contract.address` attribute for this contract is
     non-null, the contract address will be added to the ``filter_params``.
 
+
+.. py:classmethod:: Contract.deploy(transaction=None, args=None)
+
+    .. warning:: Deprecated: this method is deprecated in favor of
+      :meth:`~Contract.constructor`, which provides more flexibility.
+
+    Construct and send a transaction to deploy the contract.
+
+    If provided ``transaction`` should be a dictionary conforming to the
+    ``web3.eth.sendTransaction(transaction)`` method.  This value may not
+    contain the keys ``data`` or ``to``.
+
+    If the contract takes constructor arguments they should be provided as a
+    list via the ``args`` parameter.
+
+    If any of the ``args`` specified in the ABI are an ``address`` type, they
+    will accept ENS names.
+
+    If a ``gas`` value is not provided, then the ``gas`` value for the
+    deployment transaction will be created using the ``web3.eth.estimateGas()``
+    method.
+
+    Returns the transaction hash for the deploy transaction.
 
 
 .. _event-log-object:
@@ -229,7 +313,7 @@ For example:
 :py:class:`ContractFunction` provides methods to interact with contract functions. Positional and keyword arguments supplied to the contract function subclass will be used to find the contract function by signature, and forwarded to the contract function when applicable.
 
 Methods
-"""""""
+~~~~~~~~~~
 
 .. py:method:: ContractFunction.transact(transaction)
 
@@ -292,6 +376,26 @@ Methods
         >>> token_contract.functions.myBalance().call({'from': web3.eth.accounts[1]})
         54321  # the token balance for the account `web3.eth.accounts[1]`
 
+    You can call the method at a historical block using ``block_identifier``. Some examples:
+
+    .. code-block:: python
+
+        # You can call your contract method at a block number:
+        >>> token_contract.functions.myBalance().call(block_identifier=10)
+
+        # or a number of blocks back from pending,
+        # in this case, the block just before the latest block:
+        >>> token_contract.functions.myBalance().call(block_identifier=-2)
+
+        # or a block hash:
+        >>> token_contract.functions.myBalance().call(block_identifier='0x4ff4a38b278ab49f7739d3a4ed4e12714386a9fdf72192f2e8f7da7822f10b4d')
+        >>> token_contract.functions.myBalance().call(block_identifier=b'O\xf4\xa3\x8b\'\x8a\xb4\x9fw9\xd3\xa4\xedN\x12qC\x86\xa9\xfd\xf7!\x92\xf2\xe8\xf7\xdax"\xf1\x0bM')
+
+        # Latest is the default, so this is redundant:
+        >>> token_contract.functions.myBalance().call(block_identifier='latest')
+
+        # You can check the state after your pending transactions (if supported by your node):
+        >>> token_contract.functions.myBalance().call(block_identifier='pending')
 
 .. py:method:: ContractFunction.estimateGas(transaction)
 
