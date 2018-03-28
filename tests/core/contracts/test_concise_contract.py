@@ -22,6 +22,7 @@ def deploy(web3, Contract, args=None):
     assert len(web3.eth.getCode(contract.address)) > 0
     return contract
 
+
 @pytest.fixture()
 def EMPTY_ADDR():
     return '0x' + '00' * 20
