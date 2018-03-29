@@ -1,5 +1,4 @@
 import pytest
-import random
 
 from tests.integration.utils import (
     wait_for_ws,

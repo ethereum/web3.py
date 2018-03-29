@@ -1,6 +1,5 @@
 import os
 import pytest
-import random
 
 from tests.integration.utils import (
     wait_for_ws,
@@ -12,6 +11,7 @@ from web3.utils.module_testing import (
 )
 
 from .common import (
+    get_open_port,
     ParityEthModuleTest,
     ParityPersonalModuleTest,
     ParityWeb3ModuleTest,
@@ -20,12 +20,12 @@ from .common import (
 
 @pytest.fixture(scope="module")
 def ws_port():
-    return random.choice(range(8000, 9000))
+    return get_open_port()
 
 
 @pytest.fixture(scope="module")
 def endpoint_uri(ws_port):
-    return 'ws://localhost:{}'.format(ws_port)
+    return 'ws://localhost:{0}'.format(ws_port)
 
 
 @pytest.fixture(scope="module")
@@ -43,7 +43,7 @@ def parity_command_arguments(
         '--base-path', datadir,
         '--unlock', author,
         '--password', passwordfile,
-        '--ws-port', str(ws_port),
+        '--ws-port', ws_port,
         '--ws-origins', '*',
         '--no-ipc',
         '--no-jsonrpc',

@@ -1,6 +1,5 @@
 import os
 import pytest
-import random
 
 from tests.integration.parity.utils import (
     wait_for_http,
@@ -12,6 +11,7 @@ from web3.utils.module_testing import (
 )
 
 from .common import (
+    get_open_port,
     ParityEthModuleTest,
     ParityPersonalModuleTest,
     ParityWeb3ModuleTest,
@@ -20,12 +20,12 @@ from .common import (
 
 @pytest.fixture(scope="module")
 def rpc_port():
-    return random.choice(range(8000, 9000))
+    return get_open_port()
 
 
 @pytest.fixture(scope="module")
 def endpoint_uri(rpc_port):
-    return 'http://localhost:{}'.format(rpc_port)
+    return 'http://localhost:{0}'.format(rpc_port)
 
 
 @pytest.fixture(scope="module")
@@ -43,7 +43,7 @@ def parity_command_arguments(
         '--base-path', datadir,
         '--unlock', author,
         '--password', passwordfile,
-        '--jsonrpc-port', str(rpc_port),
+        '--jsonrpc-port', rpc_port,
         '--no-ipc',
         '--no-ws',
     )

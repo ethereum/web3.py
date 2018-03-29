@@ -1,9 +1,9 @@
 import pytest
-import random
 
 from web3 import Web3
 
 from .common import (
+    get_open_port,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
@@ -17,12 +17,12 @@ from .utils import (
 
 @pytest.fixture(scope="module")
 def rpc_port():
-    return random.choice(range(8000, 9000))
+    return get_open_port()
 
 
 @pytest.fixture(scope="module")
 def endpoint_uri(rpc_port):
-    return 'http://localhost:{}'.format(rpc_port)
+    return 'http://localhost:{0}'.format(rpc_port)
 
 
 @pytest.fixture(scope='module')
@@ -33,7 +33,7 @@ def geth_command_arguments(geth_binary, datadir, rpc_port):
         '--nodiscover',
         '--fakepow',
         '--rpc',
-        '--rpcport', str(rpc_port),
+        '--rpcport', rpc_port,
         '--rpcapi', 'db,eth,net,web3,personal,web3',
         '--ipcdisable',
     )

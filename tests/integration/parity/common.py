@@ -1,3 +1,4 @@
+import socket
 import pytest
 
 from web3.utils.module_testing import (
@@ -5,6 +6,14 @@ from web3.utils.module_testing import (
     PersonalModuleTest,
     Web3ModuleTest,
 )
+
+
+def get_open_port():
+    sock = socket.socket()
+    sock.bind(('127.0.0.1', 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return str(port)
 
 
 class ParityWeb3ModuleTest(Web3ModuleTest):
