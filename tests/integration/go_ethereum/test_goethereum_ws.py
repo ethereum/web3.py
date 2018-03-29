@@ -7,6 +7,7 @@ from tests.integration.utils import (
 from web3 import Web3
 
 from .common import (
+    get_open_port,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
@@ -17,12 +18,12 @@ from .common import (
 
 @pytest.fixture(scope="module")
 def ws_port():
-    return random.choice(range(8000, 9000))
+    return get_open_port()
 
 
 @pytest.fixture(scope="module")
 def endpoint_uri(ws_port):
-    return 'ws://localhost:{}'.format(ws_port)
+    return 'ws://localhost:{0}'.format(ws_port)
 
 
 @pytest.fixture(scope='module')
@@ -33,7 +34,7 @@ def geth_command_arguments(geth_binary, datadir, ws_port):
         '--nodiscover',
         '--fakepow',
         '--ws',
-        '--wsport', str(ws_port),
+        '--wsport', ws_port,
         '--wsapi', 'db,eth,net,web3,personal,web3',
         '--wsorigins', '*',
         '--ipcdisable',
