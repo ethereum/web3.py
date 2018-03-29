@@ -1,7 +1,5 @@
-import os
 import pytest
 import random
-import tempfile
 
 from web3 import Web3
 

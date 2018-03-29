@@ -3,15 +3,15 @@ import random
 
 from web3 import Web3
 
+from ..utils import (
+    wait_for_ws,
+)
 from .common import (
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
     GoEthereumTest,
     GoEthereumVersionModuleTest,
-)
-from ..utils import (
-    wait_for_ws,
 )
 
 
