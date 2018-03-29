@@ -69,7 +69,7 @@ class WebsocketProvider(JSONBaseProvider):
     async def coro_make_request(self, request_data):
         async with self.conn as conn:
             await conn.send(request_data)
-            return await conn.recv()
+            return json.loads(await conn.recv())
 
     def make_request(self, method, params):
         request_data = self.encode_rpc_request(method, params)
@@ -77,4 +77,4 @@ class WebsocketProvider(JSONBaseProvider):
             self.coro_make_request(request_data),
             WebsocketProvider._loop
         )
-        return json.loads(future.result())
+        return future.result()
