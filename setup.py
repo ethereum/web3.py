@@ -25,6 +25,7 @@ setup(
         "lru-dict>=1.1.6,<2.0.0",
         "eth-hash[pycryptodome]",
         "requests>=2.16.0,<3.0.0",
+        "websockets>=4.0.1",
     ],
     setup_requires=['setuptools-markdown'],
     extras_require={
@@ -40,9 +41,6 @@ setup(
         'platform_system=="Windows"': [
             'pypiwin32'  # TODO: specify a version number, move under install_requires
         ],
-        'websocket': [
-            "websockets==4.0.1"
-        ]
     },
     py_modules=['web3', 'ens'],
     license="MIT",

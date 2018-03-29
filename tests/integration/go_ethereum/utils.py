@@ -1,8 +1,10 @@
+import asyncio
 import signal
 import socket
 import time
 
 import requests
+import websockets
 
 
 def wait_for_socket(ipc_path, timeout=30):
