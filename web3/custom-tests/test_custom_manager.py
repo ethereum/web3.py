@@ -118,21 +118,34 @@ def test_threaded_provider_ranking():
         assert p.endpoint_uri == uris[expected_ranking[i]]
 
 
-# ManagerMixin tests
+def test_ManagerMixin():
+    valid_strategies = ['default', 'by_highest_block']
 
-# __init__
+    # test init, strategy validation
+    with pytest.raises(ValueError):
+        ManagerMixin(provider_strategy="boo yah")
 
-# _setup
+    for vs in valid_strategies:
+        mM = ManagerMixin(provider_strategy=vs)
+        assert mM
+        assert mM.provider_strategy[0] == vs
 
-# _validate_provider_strategy
+    # test toggle and ehich_strategy
+    for vs in valid_strategies:
+        mM = ManagerMixin(provider_strategy=vs)
+        assert mM.provider_strategy[0] == vs
+        assert mM.provider_strategy[1] == [s for s in valid_strategies if s != vs][0]
+        assert mM.which_provider_strategy == vs
+        mM.toggle_provider_strategy
+        assert mM.provider_strategy[0] == [s for s in valid_strategies if s != vs][0]
+        assert mM.provider_strategy[1] == vs
+        assert mM.which_provider_strategy == [s for s in valid_strategies if s != vs][0]
 
-# _validate_polling_request
+    # _validate_polling_request
+    # TODO:
+    # _update_last_provider_polling
+    # TODO:
 
-# _update_last_provider_polling
-
-# toggle_provider_strategy
-
-# which_provider_strategy
 
 # RankingRequestManager
 # __init__
