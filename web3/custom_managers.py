@@ -61,31 +61,47 @@ def verify_provider_network(providers):
     '''
         make sure all providers are on the same network
     '''
-    assert len(providers) > 0
-    method = 'net_version'
-    params = []
-    results = threaded_provider_ranking(providers, method, params)
+    def req_worker(p, method, params, results):
+        try:
+            res = p.make_request(method, params)
+            results.append((res, True, ''))
+        except Exception as e:
+            results.append(('', False, '{}'.format(e)))
 
-    res = len(set([r[2] for r in results if r[1]]))
+    assert len(providers) > 0
+
+    method, params = 'net_version', []
+    threads, results = [], []
+    for p in providers:
+        t = threading.Thread(target=req_worker, args=(p, method, params, results))
+        t.start()
+        threads.append(t)
+    print('threads: ', len(threads))
+    [t.join() for t in threads]
+
+
+    res = len(set([r[0]['result'] for r in results if r[1]]))
+    print(res)
+    print(results)
     if res == 0:
         vals = ([(str(r[0]), r[2]) for r in results])
         msg = 'Failed to connect for any of the given providers: {}'.format(*vals)
         raise Exception(msg)
 
     if res > 1:
-        vals = ([(str(r[0]), r[2]) for r in results if r[1]])
+        vals = ([(str(r[0]['result']), r[2]) for r in results if r[1]])
         msg = 'There seems to be a provider network mismatch: {}'.format(*vals)
         raise ValueError(msg)
 
-    return True  # could make that provider or network id
+    return True
 
 
-def threaded_provider_ranking(providers):
+def threaded_provider_ranking(providers, method, params, rpc_id=1001):
     ''' sort provider list by individual provider block height '''
-    def t_get_block_height(p, results: list) -> None:
+    def t_get_block_height(p, results):
         ''' append block height as int to results list '''
         try:
-            block_height = int(p.make_request('eth_blockNumber', [])['result'], 16)
+            block_height = int(p.make_request(method, params)['result'], 16)
             results.append((p, True, block_height))
         except Exception as e:
             results.append((p, False, e))
@@ -95,8 +111,8 @@ def threaded_provider_ranking(providers):
 
     threads = []
     results = []
-    for i in range(len(providers)):
-        t = threading.Thread(target=t_get_block_height, args=(results,))
+    for p in providers:
+        t = threading.Thread(target=t_get_block_height, args=(p, results))
         t.start()
         threads.append(t)
 
