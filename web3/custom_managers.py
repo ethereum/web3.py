@@ -149,15 +149,10 @@ class ManagerMixin:
 
     def __init__(self, provider_strategy='default'):
         self.provider_strategy = ['default', 'default']
-        self._setup(provider_strategy)
-
-    def _setup(self, provider_strategy):
-        if provider_strategy != 'default':
-            if self._validate_provider_strategy(provider_strategy):
-                self.provider_strategy[0] = provider_strategy
+        self._validate_provider_strategy(provider_strategy)
 
     def _validate_provider_strategy(self, provider_strategy):
-        if provider_strategy not in self._provider_rank_strategies:
+        if provider_strategy not in self._provider_ranking_strategies:
             vals = (provider_strategy, ManagerMixin._provider_ranking_strategies)
             msg = '{} is not a valid provider strategy. Only {} are valid choices.'
             raise ValueError(msg.format(*vals))
