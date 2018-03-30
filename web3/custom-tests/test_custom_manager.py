@@ -76,7 +76,46 @@ def test_verify_provider_network():
 
 
 def test_threaded_provider_ranking():
-    pass
+    '''  '''
+    from copy import deepcopy
+    # save to assume that block heit ethereum ? ropsten > kovan
+    uris = ['https://ropsten.infura.io',
+            'https://kovan.infura.io',
+            'https://rinkeby.infura.io',
+            'https://mainnet.infura.io',
+            ]
+
+    # test empty and len one provoiders cases
+    providers = []
+    threaded_provider_ranking([])
+    assert providers == []
+
+    providers = [HTTPProvider(uris[0])]
+    reference_providers = deepcopy(providers)
+    threaded_provider_ranking(providers)
+    assert len(providers) == len(reference_providers)
+    assert providers[0].endpoint_uri == reference_providers[0].endpoint_uri
+
+    # going for the marbles
+    # expected ranking based on uris order: kovan > mainnet > ropsten > rinkeby
+    # QUESTION: this ranking may not hold forever. maybe pull from ethercan?
+
+    providers = [HTTPProvider(uri) for uri in uris]
+    expected_ranking = [1, 3, 0, 2]
+    threaded_provider_ranking(providers)
+    assert len(providers) == len(uris)
+    for i, p in enumerate(providers):
+        assert p.endpoint_uri == uris[expected_ranking[i]]
+
+    # let's mess up one of the uris which should put that at then end of the
+    # providers list. let's kill kovan:
+    uris[1] = 'https://eth.infura.io'
+    providers = [HTTPProvider(uri) for uri in uris]
+    expected_ranking = [3, 0, 2, 1]
+    threaded_provider_ranking(providers)
+    assert len(providers) == len(uris)
+    for i, p in enumerate(providers):
+        assert p.endpoint_uri == uris[expected_ranking[i]]
 
 
 # ManagerMixin tests

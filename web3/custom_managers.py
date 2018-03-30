@@ -120,7 +120,6 @@ def threaded_provider_ranking(providers):
     # QUESTION: bubble up "bad" providers ?
     good_providers = sorted([r for r in results if r[1]], key=lambda x: x[2], reverse=True)
     bad_providers = [r for r in results if not r[1]]
-
     good_providers.extend(bad_providers)
     providers[:] = list(zip(*good_providers))[0]
     return True
