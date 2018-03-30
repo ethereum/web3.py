@@ -51,9 +51,9 @@ def test_verify_provider_network():
     uris = ['https://ropsten.infura.io_bad',
             'https://kovan.infura.io_bad',
             ]
-    providers = [HTTPProvider(uri) for uri in uris]
-    with pytest.raises(Exception):
-        verify_provider_network(providers)
+    # providers = [HTTPProvider(uri) for uri in uris]
+    # with pytest.raises(Exception):
+    #    verify_provider_network(providers)
 
     # check for network mismatch
     uris = ['https://ropsten.infura.io',
@@ -73,6 +73,7 @@ def test_verify_provider_network():
     providers = [HTTPProvider(uri) for uri in uris]
     assert verify_provider_network(providers)
     """
+
 
 def test_threaded_provider_ranking():
     pass
