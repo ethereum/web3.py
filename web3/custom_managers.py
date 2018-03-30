@@ -148,8 +148,12 @@ class ManagerMixin:
     _polling_timeout = 5.0
 
     def __init__(self, provider_strategy='default'):
-        self.provider_strategy = ['default', 'default']
+        self.provider_strategy = []
         self._validate_provider_strategy(provider_strategy)
+        self.provider_strategy.append(provider_strategy)
+        self.provider_strategy.append(
+            [s for s in ManagerMixin._provider_ranking_strategies if s != provider_strategy][0]
+        )
 
     def _validate_provider_strategy(self, provider_strategy):
         if provider_strategy not in self._provider_ranking_strategies:
