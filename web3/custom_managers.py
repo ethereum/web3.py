@@ -2,7 +2,9 @@ import datetime
 import threading
 
 from web3.manager import (
-    RequestManager,
+
+    RequestManager
+
 )
 
 '''
@@ -173,3 +175,25 @@ class ManagerMixin:
         # msg = 'the active provider strategy is {}'.format(self.provider_strategy[0])
         # return msg
         return self.provider_strategy[0]
+
+
+class RankingRequestManager(RequestManager, ManagerMixin):
+    '''  '''
+    def __init__(self, web3, providers, middleware=None, provider_strategy=None):
+        # QUESTION: should we ? user might append some providers later.
+        if len(providers < 2):
+            msg = 'RankingRequestManager is only available for multiple providers.'
+            raise ValueError(msg)
+
+        self.provider_strategy = provider_strategy
+
+        super().__init__(web3, providers, middleware)
+        super(RequestManager, self).__init__(provider_strategy)
+
+    def _make_request(self, method, params):
+        if self.provider_strategy[0] != 'default':
+            if self._validate_polling_request:
+                print('rank providers')
+                threaded_provider_ranking(self.providers)
+                self._update_last_provider_polling()
+        super._make_request(method, params)
