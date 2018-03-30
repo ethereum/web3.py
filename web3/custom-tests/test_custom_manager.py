@@ -39,8 +39,40 @@ def test_check_unique_providers():
 
 
 def test_verify_provider_network():
-    pass
+    uris = ['https://ropsten.infura.io',
+            'https://kovan.infura.io',
+            ]
 
+    # check for the AssertionError if empty providers list
+    with pytest.raises(AssertionError):
+        verify_provider_network([])
+
+    # check for no connection
+    uris = ['https://ropsten.infura.io_bad',
+            'https://kovan.infura.io_bad',
+            ]
+    providers = [HTTPProvider(uri) for uri in uris]
+    with pytest.raises(Exception):
+        verify_provider_network(providers)
+
+    # check for network mismatch
+    uris = ['https://ropsten.infura.io',
+            'https://kovan.infura.io',
+            ]
+    providers = [HTTPProvider(uri) for uri in uris]
+    with pytest.raises(ValueError):
+        verify_provider_network(providers)
+
+    # QUESTION: an other reliable public node matching one of the
+    # infura connections?
+    # check for network mismatch
+    """
+    uris = ['https://ropsten.infura.io',
+            'https://kovan.infura.io',
+            ]
+    providers = [HTTPProvider(uri) for uri in uris]
+    assert verify_provider_network(providers)
+    """
 
 def test_threaded_provider_ranking():
     pass
