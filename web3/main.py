@@ -39,7 +39,7 @@ from web3.manager import (
 )
 
 # custom case 1
-from web3.custom.manager import (
+from web3.custom_managers import (
     RankingRequestManager
 )
 
