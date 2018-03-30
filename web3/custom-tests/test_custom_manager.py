@@ -98,7 +98,9 @@ def test_threaded_provider_ranking():
 
     # going for the marbles
     # expected ranking based on uris order: kovan > mainnet > ropsten > rinkeby
-    # QUESTION: this ranking may not hold forever. maybe pull from ethercan?
+
+    # QUESTION: this ranking may not hold forever. pull reference block heights
+    # from ethercan?
 
     providers = [HTTPProvider(uri) for uri in uris]
     expected_ranking = [1, 3, 0, 2]
@@ -107,8 +109,8 @@ def test_threaded_provider_ranking():
     for i, p in enumerate(providers):
         assert p.endpoint_uri == uris[expected_ranking[i]]
 
-    # let's mess up one of the uris which should put that at then end of the
-    # providers list. let's kill kovan:
+    # let's mess up one of the uri's which should push it to the end of the
+    # providers list and so we kill ... paper, scissor, kovan:
     uris[1] = 'https://eth.infura.io'
     providers = [HTTPProvider(uri) for uri in uris]
     expected_ranking = [3, 0, 2, 1]
@@ -147,8 +149,34 @@ def test_ManagerMixin():
     # TODO:
 
 
-# RankingRequestManager
-# __init__
-# Mixin quick test
-# Manager quick tests
-# _make_requesst
+def test_RankingRequestManager():
+    '''  '''
+    uris = ['https://ropsten.infura.io',
+            'https://kovan.infura.io',
+            'https://rinkeby.infura.io',
+            'https://mainnet.infura.io',
+            ]
+
+    valid_strategies = ['default', 'by_highest_block']
+
+    # test __init__
+    providers = [HTTPProvider(uri) for uri in uris[:1]]
+    web3 = Web3(providers)
+    with pytest.raises(ValueError):
+        RankingRequestManager(web3, providers)
+
+    providers = [HTTPProvider(uri) for uri in uris]
+    web3 = Web3(providers)
+    assert RankingRequestManager(web3, providers)
+
+    for vs in valid_strategies:
+        assert RankingRequestManager(web3, providers, provider_strategy=vs)
+
+
+def test_main():
+    '''  '''
+    uris = ['https://ropsten.infura.io',
+            'https://kovan.infura.io',
+            'https://rinkeby.infura.io',
+            'https://mainnet.infura.io',
+            ]
