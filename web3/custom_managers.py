@@ -61,7 +61,7 @@ def verify_provider_network(providers):
     '''
         make sure all providers are on the same network
     '''
-    def req_worker(p, method, params, results):
+    def _req_worker(p, method, params, results):
         try:
             res = p.make_request(method, params)
             results.append((res, True, ''))
@@ -73,12 +73,11 @@ def verify_provider_network(providers):
     method, params = 'net_version', []
     threads, results = [], []
     for p in providers:
-        t = threading.Thread(target=req_worker, args=(p, method, params, results))
+        t = threading.Thread(target=_req_worker, args=(p, method, params, results))
         t.start()
         threads.append(t)
     print('threads: ', len(threads))
     [t.join() for t in threads]
-
 
     res = len(set([r[0]['result'] for r in results if r[1]]))
     print(res)
@@ -96,33 +95,34 @@ def verify_provider_network(providers):
     return True
 
 
-def threaded_provider_ranking(providers, method, params, rpc_id=1001):
-    ''' sort provider list by individual provider block height '''
-    def t_get_block_height(p, results):
-        ''' append block height as int to results list '''
+def threaded_provider_ranking(providers):
+    ''' sort client providers in-place by respective block height '''
+    def _get_block_height(p, results):
+        ''' fetch block height if possible and append result to results '''
         try:
             block_height = int(p.make_request(method, params)['result'], 16)
-            results.append((p, True, block_height))
+            results.append([p, True, block_height])
         except Exception as e:
             results.append((p, False, e))
 
     if len(providers) < 2:
-        return providers
+        return True
 
-    threads = []
-    results = []
+    method, params = 'eth_blockNumber', []
+    threads, results = [], []
     for p in providers:
-        t = threading.Thread(target=t_get_block_height, args=(p, results))
+        t = threading.Thread(target=_get_block_height, args=(p, results))
         t.start()
         threads.append(t)
 
     [t.join() for t in threads]
 
     # QUESTION: bubble up "bad" providers ?
-    good_providers = sorted([(t[0], t[2]) for t in results if t[1]], key=lambda t: t[1])
-    bad_providers = [(t[0], t[2]) for t in results if t[1]]
+    good_providers = sorted([r for r in results if r[1]], key=lambda x: x[2], reverse=True)
+    bad_providers = [r for r in results if not r[1]]
 
-    providers = good_providers.extend(bad_providers)
+    good_providers.extend(bad_providers)
+    providers[:] = list(zip(*good_providers))[0]
     return True
 
 
