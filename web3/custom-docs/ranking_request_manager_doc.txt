@@ -1,0 +1,72 @@
+
+
+Custom Manager -- Providers Ranked By Block Height
+
+
+Rationale:
+
+Users employing multiple providers may not only expect but rely on the best provider, i.e., most current by block height, provider to be chosen at request time. The RankingRequestManager accomodates this need. This functionality, as well as a few convenience properties, are readily available to users by simply specifying two addiotional (and optional) parameters for the Web3 init signature.
+
+
+Implementation/API outline:
+
+The RankingRequestManager implementation utilizes the existing web3py code base by inheriting from ReqeuetManager and a new MixinManager class. Of course, minor modifcations to the Web3 signature and the main.py entry point had to be made. 
+
+
+	MixinManager:
+		...
+
+
+Testing:
+
+Testing function are partially written and can be found in the custom-tests dir.
+
+
+
+User Documentation
+
+In case of pmultipel providers being specified, Users have the choice to invoke a real-time, per-request ranking of the provicers by block height. That is, requests are executed with the most current provider. A few notes and possible gottachas need be addressed:
+1) The "best" provider is based on the ranking, by block height, of all available providers. This does not guarantee that the selected provider is absolute ...
+2) the ranking comes at a computational cost as each time a request is issued, providers are ranled first.
+
+
+web3 init: provider .. and 
+
+defualt values for .. are .. and ; while we ..
+
+uris = ['https://...', ..., 'https://...']
+providers = [HTTPPrvider(uri) for uri in uris]
+web3 = Web3(providers, pr...='',???='')
+
+In a nod to performance, provider rankings are NOT re-establlished for requests within five (5) seconds of the last provider ranking. Currenlty, this value cannot be changed. Moreover, two properties are exposed for users to manage their choices:
+
+web3.manager.toggle_...
+
+which toggles between ...
+
+
+and
+
+web3.manager.which_..._strategy
+
+allowing
+
+example:
+
+if 
+web3.manager.which_....
+
+then 
+web3.mamanger.toggle ...
+....
+
+and vice versa.
+
+
+
+
+
+
+
+
+
