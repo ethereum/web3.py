@@ -106,3 +106,70 @@ def threaded_provider_ranking(providers):
 
     providers = good_providers.extend(bad_providers)
     return True
+
+
+class ManagerMixin:
+    '''
+        support class for custom request managers exposing control functionality
+        to the user.
+
+        property toogle_provider_strategy
+            allows for the activation/suspension of the per-request provider ranking
+        strategy.
+
+        property which_provider_strategy
+            allows for the querying of which strategy is active
+
+        currrently, we allow for only one rankign strategy: provider ranking by
+        block height which equates to 'active' per-request provider ranking, whereas
+        the defautl strategy does not engage in per-request provider ranking, which
+        equetes to inactive/suspended.
+
+    '''
+    _provider_ranking_strategies = ['by_highest_block', 'default']
+    _last_provider_polling = None
+    _polling_timeout = 5.0
+
+    def __init__(self, provider_strategy='default'):
+        self.provider_strategy = ['default', 'default']
+        self._setup(provider_strategy)
+
+    def _setup(self, provider_strategy):
+        if provider_strategy != 'default':
+            if self._validate_provider_strategy(provider_strategy):
+                self.provider_strategy[0] = provider_strategy
+
+    def _validate_provider_strategy(self, provider_strategy):
+        if provider_strategy not in self._provider_rank_strategies:
+            vals = (provider_strategy, ManagerMixin._provider_ranking_strategies)
+            msg = '{} is not a valid provider strategy. Only {} are valid choices.'
+            raise ValueError(msg.format(*vals))
+        return True
+
+    @property
+    def _validate_polling_request(self):
+        '''  '''
+        if ManagerMixin._last_provider_polling is None:
+            return True
+        dt = datetime.datetime.utcnow()
+        td = dt - ManagerMixin._last_provider_polling
+        if td.total_seconds() <= ManagerMixin._polling_timeout:
+            return True
+        return False
+
+    @property
+    def _update_last_provider_polling(self):
+        ManagerMixin._last_provider_polling = datetime.datetime.utcnow()
+
+    @property
+    def toggle_provider_strategy(self):
+        ''' property toggles the list items '''
+        self.provider_strategy.reverse()
+        return self.provider_strategy[0]
+
+    @property
+    def which_provider_strategy(self):
+        ''' convenience property returns dicts as str '''
+        # msg = 'the active provider strategy is {}'.format(self.provider_strategy[0])
+        # return msg
+        return self.provider_strategy[0]
