@@ -31,8 +31,8 @@ User Invocation/API:
 # NOTE: Right now, i have made no provisions to check providers a user might add
 # after Web3 initialization. For the most part, that's not a problem but the network
 # uniformity. I don't really want to check that everytime, so a frozenset-like lock on
-# the prvides might make sense and then check only if a change occurs.
-# typing out aloud ... a class attribute in Manager shoudl work. e.g.,
+# the providers might make sense and then we only need to check for change in the list.
+# typing out aloud ... a class attribute in Manager should work. e.g.,
 # _frozen_providers = set()
 # in __init__:
 # if not frozen_provider: [frozen_providers.add(p) for p in providers]
@@ -193,9 +193,9 @@ class ManagerMixin:
 
 class RankingRequestManager(RequestManager, ManagerMixin):
     '''  '''
-    def __init__(self, web3, providers, middleware=None, provider_strategy=None):
-        # QUESTION: should we ? user might append some providers later.
-        if len(providers < 2):
+    def __init__(self, web3, providers, middleware=None, provider_strategy='default'):
+        # QUESTION: should we raise ? user might append some providers later.
+        if len(providers) < 2:
             msg = 'RankingRequestManager is only available for multiple providers.'
             raise ValueError(msg)
 
