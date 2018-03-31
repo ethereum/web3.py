@@ -17,6 +17,7 @@ from ens.exceptions import (
 from ens.utils import (
     address_in,
     address_to_reverse_domain,
+    default,
     dict_copy,
     dot_eth_name,
     dot_eth_namehash,
@@ -28,8 +29,6 @@ from ens.utils import (
 )
 
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
-
-default = object()
 
 
 class ENS:
@@ -48,7 +47,7 @@ class ENS:
     is_valid_name = staticmethod(is_valid_name)
     reverse_domain = staticmethod(address_to_reverse_domain)
 
-    def __init__(self, providers=None, addr=None):
+    def __init__(self, providers=default, addr=None):
         '''
         :param providers: a list or single provider used to connect to Ethereum
         :type providers: instance of `web3.providers.base.BaseProvider`
