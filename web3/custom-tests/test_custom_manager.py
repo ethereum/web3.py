@@ -9,6 +9,10 @@ from web3 import (
     Web3, HTTPProvider
 )
 
+from web3.manager import (
+    RequestManager
+)
+
 from web3.custom_managers import (
     check_unique_providers,
     verify_provider_network,
@@ -159,11 +163,6 @@ def test_RankingRequestManager():
     valid_strategies = ['default', 'by_highest_block']
 
     # test __init__
-    providers = [HTTPProvider(uri) for uri in uris[:1]]
-    web3 = Web3(providers)
-    with pytest.raises(ValueError):
-        RankingRequestManager(web3, providers)
-
     providers = [HTTPProvider(uri) for uri in uris]
     web3 = Web3(providers)
     assert RankingRequestManager(web3, providers)
@@ -171,20 +170,9 @@ def test_RankingRequestManager():
     for vs in valid_strategies:
         assert RankingRequestManager(web3, providers, provider_strategy=vs)
 
-    # TODO: maybe add a few more tests for the inheritence/mixin
-
-    # TODO: test which, toggle
-
-
-def test_main():
-    '''  '''
-    uris = ['https://ropsten.infura.io',
-            'https://kovan.infura.io',
-            'https://rinkeby.infura.io',
-            'https://mainnet.infura.io',
-            ]
-
-    # test original code
-
-
-    # test new code
+    # test exposed mixin RankingRequestManager properties
+    for vs in valid_strategies:
+        reqManager = RankingRequestManager(web3, providers, provider_strategy=vs)
+        assert reqManager.which_provider_strategy == vs
+        reqManager.toggle_provider_strategy
+        assert reqManager.which_provider_strategy == [s for s in valid_strategies if s != vs][0]

@@ -2,30 +2,40 @@ import datetime
 import threading
 
 from web3.manager import (
-
     RequestManager
-
 )
 
 '''
-both code and documentation text -- to be split and moved
+Introduce a custom manager, RankingRequestManager, allowing for provider ranking
+by block height so that the freshest/most recent provider is selected for the rpc method
+call.
 
-Functionality:
-    ...
+RankingRequestManager is inititated via the regular Web3 entry point by adding two
+parameters, provider_type and provider_strategy, to the Web3 signature.
+    provider_type currenlty enumerates to 'default' and  'ranking_provider' and
+    provider_strategy enumerates to 'default' and ''
 
-Opinionated Implementation Aspects:
-    ...
+The provider rankign is obtained by means of a threaded function call and ranking results are
+cached up to five seconds.  RankingRequestManager exposes two properties via the ManagerMixin
+class: toggle_provider_strategy and which_provider_strategy callable via the web3.manager handle.
+The toggle_provider_strategy allows users to tun off/on the ranking functionality IF Web3 was
+initiated accordingly, i.e., the RankingRequestManager needds to be the Web3 manager class object;
+which_provider_strategy is a conveniece property to verify whether the manager is actively
+ranking providers.
 
-User Invocation/API:
-    Users invoke the custom manager functionality by providing TWO extra parameters to
-    the Web3 initialiation:
+Use Example:
     providers = [HTTPProvider('http://...'), ..., HTTPProvider('http://...')]
-    Web3(providers, provider_strategy)
-    where the default, i.e., not per-reqeust provider ranking, and the ...is "by_block_height"
-    providers = [HTTPProvider('http://...'), ..., HTTPProvider('http://...')]
-    Web3(providers, provider_ranking_strategy='by_block_height')
+    web3 = Web3(providers, provider_type="", provider_straegy="")
 
+    results in a web3.manager of type RankingRequestManager and
 
+    web3.manager.toggle_provider_strategy  swtiches between active ranking or suspended ranking and
+    web3.manager.which_provider_strategy   returns the active ranking strategy
+
+Notes and Gottachas:
+    providers need to be on the same netowrk
+    the manager needs to be initiated as a RankingRequestManager for the toggle
+    and which properties to work
 '''
 
 # NOTE: Right now, i have made no provisions to check providers a user might add
