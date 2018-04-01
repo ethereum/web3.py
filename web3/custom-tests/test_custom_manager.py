@@ -143,10 +143,9 @@ def test_ManagerMixin():
         assert mM.provider_strategy[1] == vs
         assert mM.which_provider_strategy == [s for s in valid_strategies if s != vs][0]
 
-    # _validate_polling_request
-    # TODO:
-    # _update_last_provider_polling
-    # TODO:
+    # TODO: _validate_polling_request
+
+    # TODO: _update_last_provider_polling
 
 
 def test_RankingRequestManager():
@@ -172,6 +171,10 @@ def test_RankingRequestManager():
     for vs in valid_strategies:
         assert RankingRequestManager(web3, providers, provider_strategy=vs)
 
+    # TODO: maybe add a few more tests for the inheritence/mixin
+
+    # TODO: test which, toggle
+
 
 def test_main():
     '''  '''
@@ -180,3 +183,8 @@ def test_main():
             'https://rinkeby.infura.io',
             'https://mainnet.infura.io',
             ]
+
+    # test original code
+
+
+    # test new code
