@@ -6,9 +6,7 @@
 import pytest
 
 from web3 import (
-
     Web3, HTTPProvider
-
 )
 
 from web3.manager import (
@@ -44,29 +42,25 @@ def test_web3_entry():
     with pytest.raises(ValueError):
         web3 = Web3(providers, provider_type=provider_strategy, provider_strategy=ranking_strategy)
 
-    # custom manager raise ValueError
+    # custom manager invalid ranking strategy ignored
     provider_strategy = 'default'
     ranking_strategy = 'boo yah'
-    # with pytest.raises(ValueError):
-    #    web3 = Web3(providers, provider_type=provider_strategy, provider_strategy=ranking_strategy)
+    web3 = Web3(providers, provider_type=provider_strategy, provider_strategy=ranking_strategy)
+    assert web3
+    assert isinstance(web3.manager, RequestManager)
 
     # ranked-provider Web3 entry calling on new manager with default ranking_strategy
-    # """
-    # provider_strategy = 'ranking_provider'
-    # ranking_strategy = 'default'
-    # web3 = Web3(providers, provider_type=provider_strategy, provider_strategy=ranking_strategy)
-    # del web3
-    # assert web3
-    # """
+    provider_strategy = 'ranking_provider'
+    ranking_strategy = 'default'
+    web3 = Web3(providers, provider_type=provider_strategy, provider_strategy=ranking_strategy)
+    assert web3
 
     # finally, call on the custom manager
-    providers = [HTTPProvider('https://ropsten.infura.io'), HTTPProvider('https://ropsten.infura.io')]
+    providers = [HTTPProvider('https://ropsten.infura.io')] * 5
     provider_strategy = 'ranking_provider'
     ranking_strategy = 'by_highest_block'
     web3 = Web3(providers, provider_type=provider_strategy, provider_strategy=ranking_strategy)
     assert web3
     assert isinstance(web3.manager, RankingRequestManager)
     assert web3.isConnected()
-    assert hasattr(web3.manager, 'toggle_provider_strategy')
-    assert hasattr(web3.manager, 'which_provider_strategy')
-    # assert web3.manager.which_provider_strategy == ranking_strategy
+    assert web3.manager.which_provider_strategy == ranking_strategy
