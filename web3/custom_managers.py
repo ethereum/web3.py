@@ -10,17 +10,17 @@ Introduce a custom manager, RankingRequestManager, allowing for provider ranking
 by block height so that the freshest/most recent provider is selected for the rpc method
 call.
 
-RankingRequestManager is inititated via the regular Web3 entry point by adding two
+RankingRequestManager is initiated via the regular Web3 entry point by adding two
 parameters, provider_type and provider_strategy, to the Web3 signature.
-    provider_type currenlty enumerates to 'default' and  'ranking_provider' and
+    provider_type currently enumerates to 'default' and  'ranking_provider' and
     provider_strategy enumerates to 'default' and ''
 
-The provider rankign is obtained by means of a threaded function call and ranking results are
+The provider ranking is obtained by means of a threaded function call and ranking results are
 cached up to five seconds.  RankingRequestManager exposes two properties via the ManagerMixin
 class: toggle_provider_strategy and which_provider_strategy callable via the web3.manager handle.
 The toggle_provider_strategy allows users to tun off/on the ranking functionality IF Web3 was
-initiated accordingly, i.e., the RankingRequestManager needds to be the Web3 manager class object;
-which_provider_strategy is a conveniece property to verify whether the manager is actively
+initiated accordingly, i.e., the RankingRequestManager needs to be the Web3 manager class object;
+which_provider_strategy is a convenience property to verify whether the manager is actively
 ranking providers.
 
 Use Example:
@@ -29,11 +29,11 @@ Use Example:
 
     results in a web3.manager of type RankingRequestManager and
 
-    web3.manager.toggle_provider_strategy  swtiches between active ranking or suspended ranking and
+    web3.manager.toggle_provider_strategy  switches between active ranking or suspended ranking and
     web3.manager.which_provider_strategy   returns the active ranking strategy
 
 Notes and Gottachas:
-    providers need to be on the same netowrk
+    providers need to be on the same network
     the manager needs to be initiated as a RankingRequestManager for the toggle
     and which properties to work
 '''
