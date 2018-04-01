@@ -194,10 +194,6 @@ class ManagerMixin:
 class RankingRequestManager(RequestManager, ManagerMixin):
     '''  '''
     def __init__(self, web3, providers, middleware=None, provider_strategy='default'):
-        # QUESTION: should we raise ? user might append some providers later.
-        if len(providers) < 2:
-            msg = 'RankingRequestManager is only available for multiple providers.'
-            raise ValueError(msg)
 
         self.provider_strategy = provider_strategy
 
@@ -207,7 +203,6 @@ class RankingRequestManager(RequestManager, ManagerMixin):
     def _make_request(self, method, params):
         if self.provider_strategy[0] != 'default':
             if self._validate_polling_request:
-                print('rank providers')
                 threaded_provider_ranking(self.providers)
                 self._update_last_provider_polling()
         super._make_request(method, params)

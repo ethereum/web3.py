@@ -100,7 +100,7 @@ def test_threaded_provider_ranking():
     # expected ranking based on uris order: kovan > mainnet > ropsten > rinkeby
 
     # QUESTION: this ranking may not hold forever. pull reference block heights
-    # from ethercan?
+    # from etherscan?
 
     providers = [HTTPProvider(uri) for uri in uris]
     expected_ranking = [1, 3, 0, 2]
