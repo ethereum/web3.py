@@ -14,6 +14,7 @@ Contents
 
     quickstart
     overview
+    v4_migration
     filters
     contracts
     providers
