@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+v4.0.0 (stable)
+-----------------
+
+Released Apr 2, 2018
+
+- Marked beta.13 as stable
+- Documentation tweaks
+
 v4.0.0-beta.13
 -----------------
 
