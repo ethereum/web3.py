@@ -38,11 +38,6 @@ from web3.manager import (
     RequestManager,
 )
 
-# custom case 1
-from web3.custom_managers import (
-    RankingRequestManager
-)
-
 from web3.utils.abi import (
     map_abi_data,
 )
@@ -88,7 +83,6 @@ class Web3:
 
     # Managers
     RequestManager = RequestManager
-    RankingRequestManager = RankingRequestManager
 
     # Iban
     Iban = Iban
@@ -108,18 +102,8 @@ class Web3:
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
-    # NOTE:  might be ok to just work off the provider_strategy param if we're sure
-    # we don't add more. seems easier to introduce two new optional params than
-    # having to have people change their code down the timeline. pita, imo. big pita.
-    def __init__(self, providers=empty, middlewares=None, modules=None, ens=empty,
-                 provider_type='default', provider_strategy='default'):
-        if provider_type == 'default':
-            self.manager = RequestManager(self, providers, middlewares)
-        elif provider_type == 'ranking_provider':
-            self.manager = RankingRequestManager(self, providers, middlewares, provider_strategy)
-        else:
-            msg = 'The provider_type {} you specified is invalid.'.format(provider_type)
-            raise ValueError(msg)
+    def __init__(self, providers=empty, middlewares=None, modules=None, ens=empty):
+        self.manager = RequestManager(self, providers, middlewares)
 
         if modules is None:
             modules = get_default_modules()
