@@ -1,5 +1,5 @@
-import socket
 import pytest
+import socket
 
 from web3.utils.module_testing import (
     EthModuleTest,

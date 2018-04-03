@@ -3,12 +3,12 @@ import pytest
 from web3 import Web3
 
 from .common import (
-    get_open_port,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
     GoEthereumTest,
     GoEthereumVersionModuleTest,
+    get_open_port,
 )
 from .utils import (
     wait_for_http,

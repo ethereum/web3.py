@@ -11,10 +11,10 @@ from web3.utils.module_testing import (
 )
 
 from .common import (
-    get_open_port,
     ParityEthModuleTest,
     ParityPersonalModuleTest,
     ParityWeb3ModuleTest,
+    get_open_port,
 )
 
 
