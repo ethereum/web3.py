@@ -14,6 +14,15 @@ from web3.contract import (
 )
 
 
+def deploy(web3, Contract, args=None):
+    deploy_txn = Contract.deploy(args=args)
+    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    contract = Contract(address=deploy_receipt['contractAddress'])
+    assert len(web3.eth.getCode(contract.address)) > 0
+    return contract
+
+
 @pytest.fixture()
 def EMPTY_ADDR():
     return '0x' + '00' * 20
@@ -79,11 +88,9 @@ def test_class_construction_sets_class_vars(web3,
         abi=MATH_ABI,
         bytecode=MATH_CODE,
         bytecode_runtime=MATH_RUNTIME,
-        ContractFactoryClass=ConciseContract,
     )
 
-    math = MathContract(some_address)
-    classic = math._classic_contract
+    classic = MathContract(some_address)
     assert classic.web3 == web3
     assert classic.bytecode == decode_hex(MATH_CODE)
     assert classic.bytecode_runtime == decode_hex(MATH_RUNTIME)
@@ -102,3 +109,25 @@ def test_conciscecontract_keeps_custom_normalizers_on_base(web3):
     concise_normalizers_size = len(concise._classic_contract._return_data_normalizers)
     assert concise_normalizers_size == new_normalizers_size + len(CONCISE_NORMALIZERS)
     assert concise._classic_contract._return_data_normalizers[0] is None
+
+
+def test_conciscecontract_function_collision(
+        web3,
+        StringContract):
+
+    contract = deploy(web3, StringContract, args=["blarg"])
+
+    def getValue():
+        assert 'getValue' in [
+            item['name'] for item
+            in StringContract.abi
+            if 'name' in item]
+
+    setattr(ConciseContract, 'getValue', getValue)
+
+    concise_contract = ConciseContract(contract)
+
+    assert isinstance(concise_contract, ConciseContract)
+
+    with pytest.raises(AttributeError, match=r'Namespace collision .* with ConciseContract API.'):
+        concise_contract.getValue()

@@ -669,6 +669,14 @@ class Contract:
         return deploy_data
 
 
+def mk_collision_prop(fn_name):
+    def collision_fn():
+        msg = "Namespace collision for function name {0} with ConciseContract API.".format(fn_name)
+        raise AttributeError(msg)
+    collision_fn.__name__ = fn_name
+    return collision_fn
+
+
 class ContractConstructor:
     """
     Class for contract constructor API.
@@ -772,36 +780,45 @@ class ConciseContract:
     > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
     '''
     def __init__(self, classic_contract):
+
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
         self._classic_contract = classic_contract
         self.address = self._classic_contract.address
 
-        for func_name in self._classic_contract.functions:
-            func = getattr(self._classic_contract.functions, func_name)
+        protected_fn_names = [fn for fn in dir(self) if not fn.endswith('__')]
 
-            setattr(
-                self,
-                func_name,
-                ConciseMethod(
-                    func,
+        for fn_name in self._classic_contract.functions:
+
+            # Override namespace collisions
+            if fn_name in protected_fn_names:
+                _concise_method = mk_collision_prop(fn_name)
+
+            else:
+                _classic_method = getattr(
+                    self._classic_contract.functions,
+                    fn_name)
+
+                _concise_method = ConciseMethod(
+                    _classic_method,
                     self._classic_contract._return_data_normalizers
                 )
-            )
+
+            setattr(self, fn_name, _concise_method)
 
     @classmethod
     def factory(cls, *args, **kwargs):
         return compose(cls, Contract.factory(*args, **kwargs))
 
-    @staticmethod
-    def _none_addr(datatype, data):
-        if datatype == 'address' and int(data, base=16) == 0:
-            return (datatype, None)
-        else:
-            return (datatype, data)
+
+def _none_addr(datatype, data):
+    if datatype == 'address' and int(data, base=16) == 0:
+        return (datatype, None)
+    else:
+        return (datatype, data)
 
 
 CONCISE_NORMALIZERS = (
-    ConciseContract._none_addr,
+    _none_addr,
 )
 
 

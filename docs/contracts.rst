@@ -25,6 +25,10 @@ example in :class:`ConciseContract` for specifying an alternate factory.
     without making write access more wordy. This comes at a cost of losing
     access to features like ``deploy()`` and properties like ``address``. It is
     recommended to use the classic ``Contract`` for those use cases.
+    Just to be be clear, `ConciseContract` only exposes contract functions and all
+    other `Contract` class methods and properties are not available with the `ConciseContract`
+    API. This includes but is not limited to ``contract.address``,``contract.abi``, and
+    ``contract.deploy()``.
 
     Create this type of contract by passing a :py:class:`Contract` instance to
     :class:`ConciseContract`:
@@ -511,7 +515,8 @@ For example:
 
    Extracts the pertinent logs from a transaction receipt.
 
-   Returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``), with decoded ouput.
+   Returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
+   with decoded ouput.
 
    .. code-block:: python
 
