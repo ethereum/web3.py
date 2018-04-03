@@ -1,5 +1,8 @@
 import pytest
 
+from tests.integration.utils import (
+    wait_for_ws,
+)
 from web3 import Web3
 
 from .common import (
@@ -10,39 +13,37 @@ from .common import (
     GoEthereumVersionModuleTest,
     get_open_port,
 )
-from .utils import (
-    wait_for_http,
-)
 
 
 @pytest.fixture(scope="module")
-def rpc_port():
+def ws_port():
     return get_open_port()
 
 
 @pytest.fixture(scope="module")
-def endpoint_uri(rpc_port):
-    return 'http://localhost:{0}'.format(rpc_port)
+def endpoint_uri(ws_port):
+    return 'ws://localhost:{0}'.format(ws_port)
 
 
 @pytest.fixture(scope='module')
-def geth_command_arguments(geth_binary, datadir, rpc_port):
+def geth_command_arguments(geth_binary, datadir, ws_port):
     return (
         geth_binary,
         '--datadir', str(datadir),
         '--nodiscover',
         '--fakepow',
-        '--rpc',
-        '--rpcport', rpc_port,
-        '--rpcapi', 'db,eth,net,web3,personal,web3',
+        '--ws',
+        '--wsport', ws_port,
+        '--wsapi', 'db,eth,net,web3,personal,web3',
+        '--wsorigins', '*',
         '--ipcdisable',
     )
 
 
 @pytest.fixture(scope="module")
-def web3(geth_process, endpoint_uri):
-    wait_for_http(endpoint_uri)
-    _web3 = Web3(Web3.HTTPProvider(endpoint_uri))
+def web3(geth_process, endpoint_uri, event_loop):
+    event_loop.run_until_complete(wait_for_ws(endpoint_uri, event_loop))
+    _web3 = Web3(Web3.WebsocketProvider(endpoint_uri))
     return _web3
 
 

@@ -16,18 +16,27 @@ matrix:
     # go-ethereum-http v1.7.2
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-goethereum-http" GETH_VERSION=v1.7.2
+    # go-ethereum-ws v1.7.2
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-goethereum-ws" GETH_VERSION=v1.7.2
     # go-ethereum-ipc v1.8.1
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-goethereum-ipc" GETH_VERSION=v1.8.1
     # go-ethereum-http v1.8.1
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-goethereum-http" GETH_VERSION=v1.8.1
+    # go-ethereum-ws v1.8.1
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-goethereum-ws" GETH_VERSION=v1.8.1
     # parity-ipc
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-parity-ipc" PARITY_VERSION=v1.8.8
     # parity-http
     - python: "3.5"
       env: TOX_POSARGS="-e py35-integration-parity-http" PARITY_VERSION=v1.8.8
+    # parity-ws
+    - python: "3.5"
+      env: TOX_POSARGS="-e py35-integration-parity-ws" PARITY_VERSION=v1.8.8
     # ENS
     - python: "3.5"
       env: TOX_POSARGS="-e py35-ens"
@@ -49,18 +58,27 @@ matrix:
     # go-ethereum-http v1.7.2
     - python: "3.6"
       env: TOX_POSARGS="-e py36-integration-goethereum-http" GETH_VERSION=v1.7.2
+    # go-ethereum-ws v1.7.2
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum-ws" GETH_VERSION=v1.7.2
     # go-ethereum-ipc v1.8.1
     - python: "3.6"
       env: TOX_POSARGS="-e py36-integration-goethereum-ipc" GETH_VERSION=v1.8.1
     # go-ethereum-http v1.8.1
     - python: "3.6"
       env: TOX_POSARGS="-e py36-integration-goethereum-http" GETH_VERSION=v1.8.1
+    # go-ethereum-ws v1.8.1
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-goethereum-ws" GETH_VERSION=v1.8.1
     # parity-ipc
     - python: "3.6"
       env: TOX_POSARGS="-e py36-integration-parity-ipc" PARITY_VERSION=v1.8.8
     # parity-http
     - python: "3.6"
       env: TOX_POSARGS="-e py36-integration-parity-http" PARITY_VERSION=v1.8.8
+    # parity-ws
+    - python: "3.6"
+      env: TOX_POSARGS="-e py36-integration-parity-ws" PARITY_VERSION=v1.8.8
     # ENS
     - python: "3.6"
       env: TOX_POSARGS="-e py36-ens"

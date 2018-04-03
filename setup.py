@@ -25,11 +25,12 @@ setup(
         "lru-dict>=1.1.6,<2.0.0",
         "eth-hash[pycryptodome]",
         "requests>=2.16.0,<3.0.0",
+        "websockets>=4.0.1",
     ],
     setup_requires=['setuptools-markdown'],
     extras_require={
         'tester': [
-            "eth-tester[py-evm]==0.1.0-beta.21",
+            "eth-tester[py-evm]==0.1.0-beta.22",
             "py-geth>=2.0.1,<3.0.0",
         ],
         'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],

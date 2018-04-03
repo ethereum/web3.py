@@ -10,6 +10,7 @@ from web3.providers import (
     BaseProvider,
     HTTPProvider,
     IPCProvider,
+    WebsocketProvider,
 )
 
 
@@ -23,6 +24,8 @@ def load_provider_from_environment():
         return IPCProvider(uri.path)
     elif uri.scheme == 'http':
         return HTTPProvider(uri_string)
+    elif uri.scheme == 'ws':
+        return WebsocketProvider(uri_string)
     else:
         raise NotImplementedError(
             'Web3 does not know how to connect to scheme %r in %r' % (
@@ -38,6 +41,7 @@ class AutoProvider(BaseProvider):
         load_provider_from_environment,
         IPCProvider,
         HTTPProvider,
+        WebsocketProvider,
     )
     _active_provider = None
 

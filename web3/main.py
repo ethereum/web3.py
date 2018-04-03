@@ -33,6 +33,9 @@ from web3.providers.tester import (
     TestRPCProvider,
     EthereumTesterProvider,
 )
+from web3.providers.websocket import (
+    WebsocketProvider
+)
 
 from web3.manager import (
     RequestManager,
@@ -80,6 +83,7 @@ class Web3:
     IPCProvider = IPCProvider
     TestRPCProvider = TestRPCProvider
     EthereumTesterProvider = EthereumTesterProvider
+    WebsocketProvider = WebsocketProvider
 
     # Managers
     RequestManager = RequestManager

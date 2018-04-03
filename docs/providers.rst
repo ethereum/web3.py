@@ -152,6 +152,19 @@ IPCProvider
       - ``\\\.\pipe\jsonrpc.ipc``
 
 
+WebsocketProvider
+~~~~~~~~~~~~~~~~~
+
+.. py:class:: web3.providers.rpc.WebsocketProvider(endpoint_uri)
+
+    This provider handles interactions with an WS or WSS based JSON-RPC server.
+
+    .. code-block:: python
+
+        >>> from web3 import Web3
+        >>> web3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546")
+
+
 .. py:currentmodule:: web3.providers.eth_tester
 
 EthereumTesterProvider

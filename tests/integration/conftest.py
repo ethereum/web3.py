@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 
 from web3.utils.module_testing.emitter_contract import (
@@ -20,3 +21,10 @@ def math_contract_factory(web3):
 def emitter_contract_factory(web3):
     contract_factory = web3.eth.contract(abi=EMITTER_ABI, bytecode=EMITTER_BYTECODE)
     return contract_factory
+
+
+@pytest.yield_fixture(scope="module")
+def event_loop(request):
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()

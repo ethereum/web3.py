@@ -1,4 +1,5 @@
 import pytest
+import socket
 
 from web3.utils.module_testing import (
     EthModuleTest,
@@ -7,6 +8,14 @@ from web3.utils.module_testing import (
     VersionModuleTest,
     Web3ModuleTest,
 )
+
+
+def get_open_port():
+    sock = socket.socket()
+    sock.bind(('127.0.0.1', 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return str(port)
 
 
 class GoEthereumTest(Web3ModuleTest):
