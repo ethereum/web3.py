@@ -3,7 +3,8 @@ import operator
 
 from cytoolz import (
     curry,
-    dissoc)
+    dissoc,
+)
 from cytoolz.curried import (
     keymap,
     valmap,
