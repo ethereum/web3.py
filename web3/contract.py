@@ -779,6 +779,8 @@ class ConciseContract:
 
     > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
     '''
+    method_class = ConciseMethod
+
     def __init__(self, classic_contract):
 
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
@@ -798,7 +800,7 @@ class ConciseContract:
                     self._classic_contract.functions,
                     fn_name)
 
-                _concise_method = ConciseMethod(
+                _concise_method = self.method_class(
                     _classic_method,
                     self._classic_contract._return_data_normalizers
                 )
@@ -862,9 +864,7 @@ class ImplicitContract(ConciseContract):
 
     > contract.functions.withdraw(amount).transact({})
     '''
-    def __getattr__(self, attr):
-        contract_function = getattr(self._classic_contract.functions, attr)
-        return ImplicitMethod(contract_function, self._classic_contract._return_data_normalizers)
+    method_class = ImplicitMethod
 
 
 class ImplicitMethod(ConciseMethod):
