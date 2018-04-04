@@ -766,6 +766,30 @@ class ContractConstructor:
             raise ValueError("Cannot set {} in transaction".format(', '.join(keys_found)))
 
 
+class ConciseMethod:
+    ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'buildTransaction'])
+
+    def __init__(self, function, normalizers=None):
+        self._function = function
+        self._function._return_data_normalizers = normalizers
+
+    def __call__(self, *args, **kwargs):
+        return self.__prepared_function(*args, **kwargs)
+
+    def __prepared_function(self, *args, **kwargs):
+        if not kwargs:
+            modifier, modifier_dict = 'call', {}
+        elif len(kwargs) == 1:
+            modifier, modifier_dict = kwargs.popitem()
+            if modifier not in self.ALLOWED_MODIFIERS:
+                raise TypeError(
+                    "The only allowed keyword arguments are: %s" % self.ALLOWED_MODIFIERS)
+        else:
+            raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
+
+        return getattr(self._function(*args), modifier)(modifier_dict)
+
+
 class ConciseContract:
     '''
     An alternative Contract Factory which invokes all methods as `call()`,
@@ -824,28 +848,20 @@ CONCISE_NORMALIZERS = (
 )
 
 
-class ConciseMethod:
-    ALLOWED_MODIFIERS = set(['call', 'estimateGas', 'transact', 'buildTransaction'])
+class ImplicitMethod(ConciseMethod):
+    def __call_by_default(self, args):
+        function_abi = find_matching_fn_abi(self._function.contract_abi,
+                                            fn_identifier=self._function.function_identifier,
+                                            args=args)
 
-    def __init__(self, function, normalizers=None):
-        self._function = function
-        self._function._return_data_normalizers = normalizers
+        return function_abi['constant'] if 'constant' in function_abi.keys() else False
 
     def __call__(self, *args, **kwargs):
-        return self.__prepared_function(*args, **kwargs)
-
-    def __prepared_function(self, *args, **kwargs):
-        if not kwargs:
-            modifier, modifier_dict = 'call', {}
-        elif len(kwargs) == 1:
-            modifier, modifier_dict = kwargs.popitem()
-            if modifier not in self.ALLOWED_MODIFIERS:
-                raise TypeError(
-                    "The only allowed keyword arguments are: %s" % self.ALLOWED_MODIFIERS)
+        # Modifier is not provided and method is not constant/pure do a transaction instead
+        if not kwargs and not self.__call_by_default(args):
+            return super().__call__(*args, transact={})
         else:
-            raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
-
-        return getattr(self._function(*args), modifier)(modifier_dict)
+            return super().__call__(*args, **kwargs)
 
 
 class ImplicitContract(ConciseContract):
@@ -865,22 +881,6 @@ class ImplicitContract(ConciseContract):
     > contract.functions.withdraw(amount).transact({})
     '''
     method_class = ImplicitMethod
-
-
-class ImplicitMethod(ConciseMethod):
-    def __call_by_default(self, args):
-        function_abi = find_matching_fn_abi(self._function.contract_abi,
-                                            fn_identifier=self._function.function_identifier,
-                                            args=args)
-
-        return function_abi['constant'] if 'constant' in function_abi.keys() else False
-
-    def __call__(self, *args, **kwargs):
-        # Modifier is not provided and method is not constant/pure do a transaction instead
-        if not kwargs and not self.__call_by_default(args):
-            return super().__call__(*args, transact={})
-        else:
-            return super().__call__(*args, **kwargs)
 
 
 class NonExistentFallbackFunction:
