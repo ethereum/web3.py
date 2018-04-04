@@ -756,6 +756,7 @@ class ContractConstructor:
             built_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
         built_transaction['data'] = self.data_in_transaction
+        built_transaction['to'] = b''
 
         return fill_transaction_defaults(self.web3, built_transaction)
 
