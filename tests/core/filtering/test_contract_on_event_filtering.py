@@ -80,13 +80,14 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
         create_filter):
 
     if call_as_instance:
-        event_filter = create_filter(emitter, ['LogTripleWithIndex', {'filter': {
-            'arg0': 1, 'arg1': 2,
-        }}])
+        contract = emitter
     else:
-        event_filter = create_filter(Emitter, ['LogTripleWithIndex', {'filter': {
-            'arg0': 1, 'arg1': 2,
-        }}])
+        contract = Emitter
+
+    event_filter = create_filter(contract, ['LogTripleWithIndex', {'filter': {
+        'arg0': 1,
+        'arg1': 2,
+    }}])
 
     txn_hashes = []
     event_id = emitter_event_ids.LogTripleWithIndex
@@ -105,3 +106,12 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
     seen_logs = event_filter.get_new_entries()
     assert len(seen_logs) == 1
     assert seen_logs[0]['transactionHash'] == txn_hashes[1]
+
+    post_event_filter = contract.events.LogTripleWithIndex.createFilter(
+        argument_filters={'arg0': 1, 'arg1': 2},
+        fromBlock=0,
+    )
+
+    old_logs = post_event_filter.get_all_entries()
+    assert len(old_logs) == 1
+    assert old_logs[0]['transactionHash'] == txn_hashes[1]

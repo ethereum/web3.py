@@ -1161,8 +1161,8 @@ class ContractEvent:
         Create filter object that tracks logs emitted by this contract event.
         :param filter_params: other parameters to limit the events
         """
-        if not fromBlock:
-            raise ValueError("Missing mandatory keyword argument to createFilter: fromBlock")
+        if fromBlock is None:
+            raise TypeError("Missing mandatory keyword argument to createFilter: fromBlock")
 
         if not address:
             address = self.address
