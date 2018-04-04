@@ -3,7 +3,7 @@ import operator
 
 from cytoolz import (
     curry,
-)
+    dissoc)
 from cytoolz.curried import (
     keymap,
     valmap,
@@ -238,7 +238,20 @@ TRANSACTION_PARAM_FORMATTERS = {
     'chainId': apply_formatter_if(is_integer, str),
 }
 
-transaction_param_formatter = apply_formatters_to_dict(TRANSACTION_PARAM_FORMATTERS)
+
+@curry
+def remove_key_if(key, remove_if, input_dict):
+    if key in input_dict and remove_if(input_dict):
+        return dissoc(input_dict, key)
+    else:
+        return input_dict
+
+
+transaction_param_formatter = compose(
+    remove_key_if('to', lambda txn: txn['to'] in {'', b'', None}),
+    apply_formatters_to_dict(TRANSACTION_PARAM_FORMATTERS),
+)
+
 
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={

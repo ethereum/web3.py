@@ -142,11 +142,6 @@ def test_contract_constructor_build_transaction_to_field_error(MathContract):
         MathContract.constructor().buildTransaction({'to': '123'})
 
 
-def test_contract_constructor_build_transaction_nonce_field_error(MathContract):
-    with pytest.raises(ValueError):
-        MathContract.constructor().buildTransaction({'nonce': '123'})
-
-
 def test_contract_constructor_build_transaction_no_constructor(web3, MathContract):
     txn_hash = MathContract.constructor().transact({'from': web3.eth.accounts[0]})
     txn = web3.eth.getTransaction(txn_hash)
