@@ -81,8 +81,8 @@ In v4, that same logic:
     >>> for block_hash in new_block_filter.get_new_entries():
     ...     print("New Block: {}".format(block_hash))
 
-The caller is responsible for polling the results from ``get_new_entries()`` repeatedly.
-See :ref:`asynchronous_filters` for more.
+The caller is responsible for polling the results from ``get_new_entries()``.
+See :ref:`asynchronous_filters` for examples of filter-event handling with web3 v4.
 
 TestRPCProvider and EthereumTesterProvider
 ------------------------------------------------
@@ -90,26 +90,39 @@ TestRPCProvider and EthereumTesterProvider
 These providers are fairly uncommon. If you don't recognize the names,
 you can probably skip the section.
 
-However, if you were using Web3.py for testing contracts,
-you might have been using TestRPCProvider or EthereumTesterProvider. The
-old v3 versions are removed, and there is a new :class:`EthereumTesterProvider`.
-It uses :class:`eth_tester.main.EthereumTester` under the hood, instead
+However, if you were using web3.py for testing contracts,
+you might have been using TestRPCProvider or EthereumTesterProvider. 
+
+In v4 there is a new :class:`EthereumTesterProvider`, and the old v3 implementation has been 
+removed. Web3.py v4 uses :class:`eth_tester.main.EthereumTester` under the hood, instead
 of eth-testrpc. While ``eth-tester`` is still in beta, many parts are
-already in better shape than testrpc, so we decided to replace it now.
+already in better shape than testrpc, so we decided to replace it in v4.
 
 If you were using TestRPC, or were explicitly importing EthereumTesterProvider, like:
 ``from web3.providers.tester import EthereumTesterProvider``, then you will need to update.
 
-You can import with ``from web3 import EthereumTesterProvider``. As before, you'll need to
-install Web3.py with the ``tester`` extra to get these features, like:
+With v4 you should import with ``from web3 import EthereumTesterProvider``. As before, you'll 
+need to install Web3.py with the ``tester`` extra to get these features, like:
 
 .. code-block:: bash
 
     $ pip install web3[tester]
 
 
-Web3.toDecimal()
---------------------
+Changes to base api convenience methods
+---------------------------------------
 
-This method was poorly named. You do not get a :class:`decimal.Decimal` as a result, you get
-an :class:`int`. So the method was renamed to: :meth:`~web3.main.Web3.toInt`.
+Web3.toDecimal()
+~~~~~~~~~~~~~~~~~
+
+In v4 ``Web3.toDecimal()`` is renamed: :meth:`~web3.main.Web3.toInt` for improved clarity. It does not return a :class:`decimal.Decimal`, it returns an :class:`int`. 
+
+
+Deprecated Methods
+~~~~~~~~~~~~~~~~~~
+
+- ``Web3.toUtf8`` was deprecated for :meth:`~web3.main.Web3.toText()``.
+- ``Web3.fromUtf8`` was deprecated for :meth:`~web3.main.Web3.toHex()``.
+- ``Web3.toAscii`` was deprecated for :meth:`~web3.main.Web3.toBytes()``.
+- ``Web3.fromAscii`` was deprecated for :meth:`~web3.main.Web3.toHex()``.
+- ``Web3.fromDecimal`` was deprecated for :meth:`~web3.main.Web3.toHex()``.
