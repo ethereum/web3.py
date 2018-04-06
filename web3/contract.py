@@ -1152,17 +1152,20 @@ class ContractEvent:
     @combomethod
     def createFilter(
             self, *,  # PEP 3102
-            argument_filters=dict(),
+            argument_filters=None,
             fromBlock=None,
             toBlock="latest",
             address=None,
-            topics=list()):
+            topics=None):
         """
         Create filter object that tracks logs emitted by this contract event.
         :param filter_params: other parameters to limit the events
         """
         if fromBlock is None:
             raise TypeError("Missing mandatory keyword argument to createFilter: fromBlock")
+
+        if argument_filters is None:
+            argument_filters = dict()
 
         if not address:
             address = self.address
