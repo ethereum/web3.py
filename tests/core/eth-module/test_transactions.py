@@ -3,7 +3,7 @@ import pytest
 from web3.exceptions import (
     ValidationError,
 )
-from web3.middleware.stimulate_unmined_transaction import (
+from web3.middleware.simulate_unmined_transaction import (
     unmined_receipt_simulator_middleware,
 )
 
@@ -52,8 +52,7 @@ def test_unmined_transaction_wait_for_receipt(web3, extra_accounts):
         'value': 123457
     })
     assert web3.eth.getTransactionReceipt(txn_hash) is None
-    assert web3.eth.getTransactionReceipt(txn_hash) is None
-    txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
-    print(txn_receipt)
+
+    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
     assert txn_receipt['transactionHash'] == txn_hash
-    assert txn_receipt['blockHash']
+    assert txn_receipt['blockHash'] is not None

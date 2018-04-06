@@ -43,6 +43,7 @@ from web3.utils.transactions import (
     get_buffered_gas_estimate,
     get_required_transaction,
     replace_transaction,
+    wait_for_transaction_receipt,
 )
 
 
@@ -203,8 +204,7 @@ class Eth(Module):
         )
 
     def waitForTransactionReceipt(self, transaction_hash, timeout=120):
-        txn_receipt = wait_for_transaction_receipt(self.web3, transaction_hash, timeout)
-        return txn_receipt
+        return wait_for_transaction_receipt(self.web3, transaction_hash, timeout)
 
     def getTransactionReceipt(self, transaction_hash):
         return self.web3.manager.request_blocking(

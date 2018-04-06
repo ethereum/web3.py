@@ -328,16 +328,20 @@ The following methods are available on the ``web3.eth`` namespace.
         })
 
 
-.. py:method:: Eth.waitForTransactionReceipt(transaction_hash)
+.. py:method:: Eth.waitForTransactionReceipt(transaction_hash, timeout=120)
 
-    * Delegates to ``wait_for_transaction_receipt`` Method from ``web3.utils.transactions``
+    Waits for the transaction specified by ``transaction_hash`` to be included in a block, then
+    returns its transaction receipt.
 
-    Returns the transaction receipt specified by ``transaction_hash``.  It waits for transaction to mine before returning the receipt.
+    Optionally, specify a ``timeout`` in seconds. If timeout elapses before the transaction
+    is added to a block, then :meth:`~Eth.waitForTransactionReceipt` returns None.
 
     .. code-block:: python
 
-        >>> web3.eth.waitForTransactionReceipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')  # not yet mined
-        # waits for transaction to mine before returning transaction data
+        >>> web3.eth.waitForTransactionReceipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
+        # If transaction is not yet in a block, time passes, while the thread sleeps...
+        # ...
+        # Then when the transaction is added to a block, its receipt is returned:
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,

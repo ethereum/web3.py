@@ -1,5 +1,4 @@
 import math
-import random
 
 from cytoolz import (
     assoc,
@@ -50,13 +49,13 @@ def fill_transaction_defaults(web3, transaction):
     return merge(defaults, transaction)
 
 
-def wait_for_transaction_receipt(web3, txn_hash, timeout=120):
+def wait_for_transaction_receipt(web3, txn_hash, timeout=120, poll_latency=0.1):
     with Timeout(timeout) as _timeout:
         while True:
             txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
             if txn_receipt is not None:
                 break
-            _timeout.sleep(random.random())
+            _timeout.sleep(poll_latency)
     return txn_receipt
 
 
