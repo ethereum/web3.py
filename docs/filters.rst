@@ -188,9 +188,10 @@ Synchronous
         if __name__ == '__main__':
             main()
 
+.. _asynchronous_filters:
 
-Asynchronous
-^^^^^^^^^^^^
+Asynchronous Filter Polling
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Starting with web3 version 4, the ``watch`` method was taken out of the web3 filter objects.
 There are many decisions to be made when designing a system regarding threading and concurrency.
