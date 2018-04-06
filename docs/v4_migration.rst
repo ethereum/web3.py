@@ -20,7 +20,7 @@ that is not guaranteed to be text.
 
 Many different methods in Web3.py accept text or binary data, like contract methods,
 transaction details, and cryptographic functions. The following example
-uses :meth:`~web3.main.Web3.sha3`, but the same pattern applies elsewhere.
+uses :meth:`~Web3.sha3`, but the same pattern applies elsewhere.
 
 In v3 & Python 2, you might have calculated the hash of binary data this way:
 
@@ -109,20 +109,50 @@ need to install Web3.py with the ``tester`` extra to get these features, like:
     $ pip install web3[tester]
 
 
-Changes to base api convenience methods
+Changes to base API convenience methods
 ---------------------------------------
 
 Web3.toDecimal()
 ~~~~~~~~~~~~~~~~~
 
-In v4 ``Web3.toDecimal()`` is renamed: :meth:`~web3.main.Web3.toInt` for improved clarity. It does not return a :class:`decimal.Decimal`, it returns an :class:`int`. 
+In v4 ``Web3.toDecimal()`` is renamed: :meth:`~Web3.toInt` for improved clarity. It does not return a :class:`decimal.Decimal`, it returns an :class:`int`.
 
 
-Deprecated Methods
+Removed Methods
 ~~~~~~~~~~~~~~~~~~
 
-- ``Web3.toUtf8`` was deprecated for :meth:`~web3.main.Web3.toText()``.
-- ``Web3.fromUtf8`` was deprecated for :meth:`~web3.main.Web3.toHex()``.
-- ``Web3.toAscii`` was deprecated for :meth:`~web3.main.Web3.toBytes()``.
-- ``Web3.fromAscii`` was deprecated for :meth:`~web3.main.Web3.toHex()``.
-- ``Web3.fromDecimal`` was deprecated for :meth:`~web3.main.Web3.toHex()``.
+- ``Web3.toUtf8`` was removed for :meth:`~Web3.toText`.
+- ``Web3.fromUtf8`` was removed for :meth:`~Web3.toHex`.
+- ``Web3.toAscii`` was removed for :meth:`~Web3.toBytes`.
+- ``Web3.fromAscii`` was removed for :meth:`~Web3.toHex`.
+- ``Web3.fromDecimal`` was removed for :meth:`~Web3.toHex`.
+
+Provider Access
+~~~~~~~~~~~~~~~~~
+
+In v4, ``w3.currentProvider`` was removed, in favor of ``w3.providers``.
+
+Disambiguating String Inputs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are a number of places where an arbitrary string input might be either
+a byte-string that has been hex-encoded, or unicode characters in text.
+These are named ``hexstr`` and ``text`` in Web3.py.
+You specify which kind of :class:`str` you have by using the appropriate
+keyword argument. See examples in :ref:`overview_type_conversions`.
+
+In v3, some methods accepted a :class:`str` as the first positional argument.
+In v4, you must pass strings as one of ``hexstr`` or ``text`` keyword arguments.
+
+Notable methods that no longer accept ambiguous strings:
+
+- :meth:`~Web3.sha3`
+- :meth:`~Web3.toBytes`
+
+Contracts
+-----------
+
+- When a contract returns the ABI type ``string``, Web3.py v4 now returns a :class:`str`
+  value by decoding the underlying bytes using UTF-8.
+- When a contract returns the ABI type ``bytes`` (of any length),
+  Web3.py v4 now returns a :class:`bytes` value
