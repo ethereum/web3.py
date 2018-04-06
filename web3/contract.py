@@ -1167,9 +1167,6 @@ class ContractEvent:
         if argument_filters is None:
             argument_filters = dict()
 
-        if topics is None:
-            topics = dict()
-
         if not address:
             address = self.address
 
