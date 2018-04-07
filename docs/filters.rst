@@ -19,7 +19,7 @@ The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 
         event_filter = mycontract.events.myEvent.createEvent(fromBlock='latest', {'filter': {'arg1':10}})
 
-    Or built manually by supplying `valid filter params <http://https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter/>`_:
+    Or built manually by supplying `valid filter params <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter/>`_:
 
     .. code-block:: python
 
