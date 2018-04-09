@@ -124,7 +124,7 @@ equivalent filter creation would look like:
 
     .. code-block:: python
 
-        event_signature_hash = web3.sha3("eventName(uint32)")
+        event_signature_hash = web3.sha3(text="eventName(uint32)").hex()
         event_filter = web3.eth.filter({
             "address": myContract_address,
             "topics": [event_signature_hash,
