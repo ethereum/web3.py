@@ -155,7 +155,7 @@ IPCProvider
 WebsocketProvider
 ~~~~~~~~~~~~~~~~~
 
-.. py:class:: web3.providers.rpc.WebsocketProvider(endpoint_uri)
+.. py:class:: web3.providers.websocket.WebsocketProvider(endpoint_uri)
 
     This provider handles interactions with an WS or WSS based JSON-RPC server.
 

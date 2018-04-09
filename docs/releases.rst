@@ -1,6 +1,23 @@
 Release Notes
 =============
 
+v4.1.0
+--------
+
+Released Apr 9, 2018
+
+- New :class:`~web3.providers.websocket.WebsocketProvider`.
+  If you're looking for better performance than HTTP, check out websockets.
+- New :meth:`w3.eth.waitForTransactionReceipt() <web3.eth.Eth.waitForTransactionReceipt>`
+- Added name collision detection to ConciseContract and ImplicitContract
+- Bugfix to allow fromBlock set to 0 in createFilter, like
+  ``contract.events.MyEvent.createFilter(fromBlock=0, ...)``
+- Bugfix of ENS automatic connection
+- eth-tester support for Byzantium
+- New migration guide for v3 -> v4 upgrade
+- Various documentation updates
+- Pinned eth-account to older version
+
 v4.0.0 (stable)
 -----------------
 

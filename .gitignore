@@ -53,6 +53,7 @@ chains
 
 # tox/pytest cache
 .cache
+.pytest_cache
 
 # Test output logs
 logs
