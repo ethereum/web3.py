@@ -3,6 +3,9 @@ from collections import (
     Mapping,
 )
 
+from cytoolz import (
+    dissoc,
+)
 from cytoolz.functoolz import (
     compose,
     curry,
@@ -147,3 +150,11 @@ def is_array_of_dicts(value):
     if not is_list_like(value):
         return False
     return all((is_dict(item) for item in value))
+
+
+@curry
+def remove_key_if(key, remove_if, input_dict):
+    if key in input_dict and remove_if(input_dict):
+        return dissoc(input_dict, key)
+    else:
+        return input_dict

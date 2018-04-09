@@ -143,9 +143,9 @@ def test_contract_constructor_build_transaction_to_field_error(MathContract):
 
 
 def test_contract_constructor_build_transaction_no_constructor(web3, MathContract):
-    nonce = web3.eth.getTransactionCount(web3.eth.coinbase)
     txn_hash = MathContract.constructor().transact({'from': web3.eth.accounts[0]})
     txn = web3.eth.getTransaction(txn_hash)
+    nonce = web3.eth.getTransactionCount(web3.eth.coinbase)
     unsent_txn = MathContract.constructor().buildTransaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']
 
@@ -157,9 +157,9 @@ def test_contract_constructor_build_transaction_no_constructor(web3, MathContrac
 
 def test_contract_constructor_build_transaction_with_constructor_without_argument(web3,
                                                                                   MathContract):
-    nonce = web3.eth.getTransactionCount(web3.eth.coinbase)
     txn_hash = MathContract.constructor().transact({'from': web3.eth.accounts[0]})
     txn = web3.eth.getTransaction(txn_hash)
+    nonce = web3.eth.getTransactionCount(web3.eth.coinbase)
     unsent_txn = MathContract.constructor().buildTransaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']
 
@@ -183,10 +183,10 @@ def test_contract_constructor_build_transaction_with_constructor_with_argument(
         WithConstructorArgumentsContract,
         constructor_args,
         constructor_kwargs):
-    nonce = web3.eth.getTransactionCount(web3.eth.coinbase)
     txn_hash = WithConstructorArgumentsContract.constructor(
         *constructor_args, **constructor_kwargs).transact({'from': web3.eth.accounts[0]})
     txn = web3.eth.getTransaction(txn_hash)
+    nonce = web3.eth.getTransactionCount(web3.eth.coinbase)
     unsent_txn = WithConstructorArgumentsContract.constructor(
         *constructor_args, **constructor_kwargs).buildTransaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']

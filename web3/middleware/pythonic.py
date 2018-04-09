@@ -3,7 +3,6 @@ import operator
 
 from cytoolz import (
     curry,
-    dissoc,
 )
 from cytoolz.curried import (
     keymap,
@@ -43,6 +42,7 @@ from web3.utils.formatters import (
     integer_to_hex,
     is_array_of_dicts,
     is_array_of_strings,
+    remove_key_if,
 )
 
 from .formatting import (
@@ -238,14 +238,6 @@ filter_result_formatter = apply_one_of_formatters((
 TRANSACTION_PARAM_FORMATTERS = {
     'chainId': apply_formatter_if(is_integer, str),
 }
-
-
-@curry
-def remove_key_if(key, remove_if, input_dict):
-    if key in input_dict and remove_if(input_dict):
-        return dissoc(input_dict, key)
-    else:
-        return input_dict
 
 
 transaction_param_formatter = compose(

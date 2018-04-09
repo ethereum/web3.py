@@ -28,6 +28,7 @@ from web3.utils.formatters import (
     hex_to_integer,
     integer_to_hex,
     is_array_of_dicts,
+    remove_key_if,
     static_return,
 )
 
@@ -116,7 +117,11 @@ TRANSACTION_PARAMS_FORMATTERS = {
 }
 
 
-transaction_params_formatter = apply_formatters_to_dict(TRANSACTION_PARAMS_FORMATTERS)
+transaction_params_formatter = compose(
+    # remove nonce for now due to issue https://github.com/ethereum/eth-tester/issues/80
+    remove_key_if('nonce', lambda _: True),
+    apply_formatters_to_dict(TRANSACTION_PARAMS_FORMATTERS),
+)
 
 
 FILTER_PARAMS_MAPPINGS = {
