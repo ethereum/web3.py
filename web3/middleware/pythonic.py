@@ -42,6 +42,7 @@ from web3.utils.formatters import (
     integer_to_hex,
     is_array_of_dicts,
     is_array_of_strings,
+    remove_key_if,
 )
 
 from .formatting import (
@@ -238,7 +239,12 @@ TRANSACTION_PARAM_FORMATTERS = {
     'chainId': apply_formatter_if(is_integer, str),
 }
 
-transaction_param_formatter = apply_formatters_to_dict(TRANSACTION_PARAM_FORMATTERS)
+
+transaction_param_formatter = compose(
+    remove_key_if('to', lambda txn: txn['to'] in {'', b'', None}),
+    apply_formatters_to_dict(TRANSACTION_PARAM_FORMATTERS),
+)
+
 
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={

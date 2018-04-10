@@ -750,13 +750,13 @@ class ContractConstructor:
         else:
             built_transaction = dict(**transaction)
             self.check_forbidden_keys_in_transaction(built_transaction,
-                                                     ["data", "to", "nonce"])
+                                                     ["data", "to"])
 
         if self.web3.eth.defaultAccount is not empty:
             built_transaction.setdefault('from', self.web3.eth.defaultAccount)
 
         built_transaction['data'] = self.data_in_transaction
-
+        built_transaction['to'] = b''
         return fill_transaction_defaults(self.web3, built_transaction)
 
     @staticmethod
