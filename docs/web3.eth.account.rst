@@ -105,16 +105,27 @@ Extract private key from geth keyfile
 Sign a Message
 ---------------
 
+.. WARNING:: There is no single message format that is broadly adopted
+    with commutity consensus. Keep an eye on several options,
+    like `EIP-683 <https://github.com/ethereum/EIPs/pull/683>`_,
+    `EIP-712 <https://github.com/ethereum/EIPs/pull/712>`_, and
+    `EIP-719 <https://github.com/ethereum/EIPs/pull/719>`_. Consider
+    the :meth:`w3.eth.Eth.sign` approach be deprecated.
+
+For this example, we will use the same message hashing mechanism that
+is provided by :meth:`w3.eth.Eth.sign`.
+
 .. doctest::
 
     >>> from web3.auto import w3
+    >>> from eth_account.messages import defunct_hash_message
 
     >>> msg = "I♥SF"
     >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
-    >>> signed_message = w3.eth.account.sign(message_text=msg, private_key=private_key)
+    >>> message_hash = defunct_hash_message(text=msg)
+    >>> signed_message = w3.eth.account.signHash(message_hash, private_key=private_key)
     >>> signed_message
-    AttrDict({'message': HexBytes('0x49e299a55346'),
-     'messageHash': HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
+    AttrDict({'messageHash': HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
      'r': 104389933075820307925104709181714897380569894203213074526835978196648170704563,
      's': 28205917190874851400050446352651915501321657673772411533993420917949420456142,
      'v': 28,
@@ -127,10 +138,11 @@ With the original message text and a signature:
 
 .. doctest::
 
-    >>> w3.eth.account.recoverMessage(text="I♥SF", signature=signed_message.signature)
+    >>> message_hash = defunct_hash_message(text="I♥SF")
+    >>> w3.eth.account.recoverHash(message_hash, signature=signed_message.signature)
     '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
 
-Verify a message from message hash
+Verify a Message from message hash
 -----------------------------------------------------------
 
 Sometimes you don't have the original message, all you have is the
@@ -140,16 +152,8 @@ prefixed & hashed message. To verify it, use:
 
     >>> message_hash = '0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'
     >>> signature = '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'
-    >>> w3.eth.account.recover(message_hash, signature=signature)
+    >>> w3.eth.account.recoverHash(message_hash, signature=signature)
     '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
-
-.. NOTE::
-
-    Note the usage of :meth:`~eth_account.account.Account.recover`, **not**
-    :meth:`~eth_account.account.Account.recoverMessage`.
-    If you try to use a prefixed & hashed message instead of the original message,
-    then :meth:`~eth_account.account.Account.recoverMessage`
-    will give you the wrong result.
 
 Prepare message for ecrecover in Solidity
 --------------------------------------------
@@ -189,13 +193,16 @@ this will prepare it for Solidity:
 .. doctest::
 
     >>> from web3 import Web3
+    >>> from eth_account.messages import defunct_hash_message
 
     >>> hex_message = '0x49e299a55346'
     >>> hex_signature = '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'
 
     # ecrecover in Solidity expects a prefixed & hashed version of the message
+    >>> message_hash = defunct_hash_message(hexstr=hex_message)
+
     # Remix / web3.js expect the message hash to be encoded to a hex string
-    >>> hex_message_hash = Web3.toHex(w3.eth.account.hashMessage(hexstr=hex_message))
+    >>> hex_message_hash = Web3.toHex(message_hash)
 
     # ecrecover in Solidity expects the signature to be split into v as a uint8,
     #   and r, s as a bytes32
