@@ -143,6 +143,9 @@ class ContractEvents:
                         address=address,
                         event_name=event['name']))
 
+    def __getitem__(self, event_name):
+        return getattr(self, event_name)
+
 
 class Contract:
     """Base class for Contract proxy classes.
