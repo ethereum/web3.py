@@ -117,6 +117,9 @@ class ContractFunctions:
         for func in self._functions:
             yield func['name']
 
+    def __getitem__(self, function_name):
+        return getattr(self, function_name)
+
 
 class ContractEvents:
     """Class containing contract event objects
