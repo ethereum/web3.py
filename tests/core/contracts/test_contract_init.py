@@ -13,8 +13,8 @@ from web3.utils.ens import (
 @pytest.fixture
 def math_addr(MathContract):
     web3 = MathContract.web3
-    deploy_txn = MathContract.deploy({'from': web3.eth.coinbase})
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    deploy_txn = MathContract.constructor().transact({'from': web3.eth.coinbase})
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     return deploy_receipt['contractAddress']
 

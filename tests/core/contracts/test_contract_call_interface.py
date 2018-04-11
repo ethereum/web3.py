@@ -18,8 +18,9 @@ pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
 def deploy(web3, Contract, args=None):
-    deploy_txn = Contract.deploy(args=args)
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    args = args or []
+    deploy_txn = Contract.constructor(*args).transact()
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     contract = Contract(address=deploy_receipt['contractAddress'])
     assert len(web3.eth.getCode(contract.address)) > 0
@@ -90,8 +91,8 @@ def undeployed_math_contract(web3, MathContract):
 
 @pytest.fixture()
 def mismatched_math_contract(web3, StringContract, MathContract):
-    deploy_txn = StringContract.deploy(args=["Caqalai"])
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    deploy_txn = StringContract.constructor("Caqalai").transact()
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
 
     _mismatched_math_contract = MathContract(address=deploy_receipt['contractAddress'])
@@ -105,9 +106,9 @@ def fallback_function_contract(web3, FallballFunctionContract):
 
 def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):
     with pytest.raises(InvalidAddress):
-        WithConstructorAddressArgumentsContract.deploy(args=[
+        WithConstructorAddressArgumentsContract.constructor(
             "0xd3cda913deb6f67967b99d67acdfa1712c293601",
-        ])
+        ).transact()
 
 
 def test_call_with_no_arguments(math_contract, call):

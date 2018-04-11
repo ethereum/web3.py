@@ -50,13 +50,13 @@ def web3(eth_tester_provider):
 #
 @pytest.fixture(scope="module")
 def math_contract_deploy_txn_hash(web3, math_contract_factory):
-    deploy_txn_hash = math_contract_factory.deploy({'from': web3.eth.coinbase})
+    deploy_txn_hash = math_contract_factory.constructor().transact({'from': web3.eth.coinbase})
     return deploy_txn_hash
 
 
 @pytest.fixture(scope="module")
 def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
-    deploy_receipt = web3.eth.getTransactionReceipt(math_contract_deploy_txn_hash)
+    deploy_receipt = web3.eth.waitForTransactionReceipt(math_contract_deploy_txn_hash)
     assert is_dict(deploy_receipt)
     contract_address = deploy_receipt['contractAddress']
     assert is_checksum_address(contract_address)
@@ -68,13 +68,13 @@ def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
 #
 @pytest.fixture(scope="module")
 def emitter_contract_deploy_txn_hash(web3, emitter_contract_factory):
-    deploy_txn_hash = emitter_contract_factory.deploy({'from': web3.eth.coinbase})
+    deploy_txn_hash = emitter_contract_factory.constructor().transact({'from': web3.eth.coinbase})
     return deploy_txn_hash
 
 
 @pytest.fixture(scope="module")
 def emitter_contract(web3, emitter_contract_factory, emitter_contract_deploy_txn_hash):
-    deploy_receipt = web3.eth.getTransactionReceipt(emitter_contract_deploy_txn_hash)
+    deploy_receipt = web3.eth.waitForTransactionReceipt(emitter_contract_deploy_txn_hash)
     assert is_dict(deploy_receipt)
     contract_address = deploy_receipt['contractAddress']
     assert is_checksum_address(contract_address)

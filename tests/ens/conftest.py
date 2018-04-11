@@ -42,9 +42,10 @@ def bytes32(val):
 
 
 def deploy(w3, Factory, from_address, args=None):
+    args = args or []
     factory = Factory(w3)
-    deploy_txn = factory.deploy(transaction={'from': from_address}, args=args)
-    deploy_receipt = w3.eth.getTransactionReceipt(deploy_txn)
+    deploy_txn = factory.constructor(*args).transact({'from': from_address})
+    deploy_receipt = w3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     return factory(address=deploy_receipt['contractAddress'])
 
