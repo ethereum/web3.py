@@ -14,9 +14,9 @@ def test_on_filter_using_get_all_entries_interface(
     call_as_instance,
 ):
     if call_as_instance:
-        event_filter = emitter.eventFilter('LogNoArguments', {})
+        event_filter = emitter.events.LogNoArguments.createFilter(fromBlock='latest')
     else:
-        event_filter = Emitter.eventFilter('LogNoArguments', {})
+        event_filter = Emitter.events.LogNoArguments.createFilter(fromBlock='latest')
 
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
     wait_for_transaction(web3, txn_hash)
@@ -50,7 +50,7 @@ def test_get_all_entries_returned_block_data(
     else:
         contract = Emitter
 
-    events = contract.eventFilter('LogNoArguments', {'fromBlock': txn_receipt['blockNumber'] - 1})
+    events = contract.events.LogNoArguments.createFilter(fromBlock=txn_receipt['blockNumber'])
 
     log_entries = events.get_all_entries()
 

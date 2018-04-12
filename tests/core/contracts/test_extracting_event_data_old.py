@@ -75,9 +75,9 @@ def test_event_data_extraction(web3,
                                event_name,
                                call_args,
                                expected_args):
-    transact_fn = getattr(emitter.transact(), contract_fn)
+    function = getattr(emitter.functions, contract_fn)
     event_id = getattr(emitter_event_ids, event_name)
-    txn_hash = transact_fn(event_id, *call_args)
+    txn_hash = function(event_id, *call_args).transact()
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
     assert len(txn_receipt['logs']) == 1
@@ -110,7 +110,7 @@ def test_dynamic_length_argument_extraction(web3,
                                             emitter_event_ids):
     string_0 = "this-is-the-first-string-which-exceeds-32-bytes-in-length"
     string_1 = "this-is-the-second-string-which-exceeds-32-bytes-in-length"
-    txn_hash = emitter.transact().logDynamicArgs(string_0, string_1)
+    txn_hash = emitter.functions.logDynamicArgs(string_0, string_1).transact()
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
     assert len(txn_receipt['logs']) == 1

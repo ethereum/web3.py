@@ -502,7 +502,8 @@ def invoke_contract(api_style=None,
         result = getattr(function(*func_args, **func_kwargs), api_call_desig)(tx_params)
     elif api_style == 'func_last':
         api_call_cls = getattr(contract, api_call_desig)
-        result = getattr(api_call_cls(tx_params), contract_function)(*func_args, **func_kwargs)
+        with pytest.deprecated_call():
+            result = getattr(api_call_cls(tx_params), contract_function)(*func_args, **func_kwargs)
     else:
         raise ValueError("api_style must be 'func_first or func_last'")
 

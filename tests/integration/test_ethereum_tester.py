@@ -110,9 +110,11 @@ def mined_txn_hash(block_with_txn):
 
 @pytest.fixture(scope="module")
 def block_with_txn_with_log(web3, emitter_contract):
-    txn_hash = emitter_contract.transact({
+    txn_hash = emitter_contract.functions.logDouble(
+        which=EMITTER_ENUM['LogDoubleWithIndex'], arg0=12345, arg1=54321,
+    ).transact({
         'from': web3.eth.coinbase,
-    }).logDouble(which=EMITTER_ENUM['LogDoubleWithIndex'], arg0=12345, arg1=54321)
+    })
     txn = web3.eth.getTransaction(txn_hash)
     block = web3.eth.getBlock(txn['blockNumber'])
     return block
