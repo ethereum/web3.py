@@ -111,7 +111,8 @@ def return_filter_by_api(
         contract=None,
         args=[]):
     if api_style == 'v3':
-        return contract.eventFilter(*args)
+        with pytest.deprecated_call():
+            return contract.eventFilter(*args)
     elif api_style == 'v4':
         event_name = args[0]
         kwargs = apply_key_map({'filter': 'argument_filters'}, args[1])

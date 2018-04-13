@@ -1,5 +1,6 @@
 import pytest
 import time
+import warnings
 
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
@@ -111,3 +112,8 @@ def web3():
     w3.eth.enable_unaudited_features()
 
     return w3
+
+
+@pytest.fixture(autouse=True)
+def print_warnings():
+    warnings.simplefilter('always')

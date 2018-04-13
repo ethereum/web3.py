@@ -363,9 +363,11 @@ def setup_chain_state(web3):
     emitter_deploy_receipt = deploy_contract(web3, 'emitter', emitter_contract_factory)
     emitter_contract = emitter_contract_factory(emitter_deploy_receipt['contractAddress'])
 
-    txn_hash_with_log = emitter_contract.transact({
+    txn_hash_with_log = emitter_contract.functions.logDouble(
+        which=EMITTER_ENUM['LogDoubleWithIndex'], arg0=12345, arg1=54321,
+    ).transact({
         'from': web3.eth.coinbase,
-    }).logDouble(which=EMITTER_ENUM['LogDoubleWithIndex'], arg0=12345, arg1=54321)
+    })
     print('TXN_HASH_WITH_LOG:', txn_hash_with_log)
     txn_receipt_with_log = mine_transaction_hash(web3, txn_hash_with_log)
     block_with_log = web3.eth.getBlock(txn_receipt_with_log['blockHash'])
