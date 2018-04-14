@@ -439,6 +439,10 @@ diagnosis_arg_regex = (
 diagnosis_encoding_regex = (
     r"\nFunction invocation failed due to improper argument encoding."
 )
+diagnosis_ambiguous_encoding = (
+    r"\nAmbiguous argument encoding. "
+    r"Provided arguments can be encoded to multiple functions matching this call."
+)
 
 
 def test_no_functions_match_identifier(arrays_contract):
@@ -472,3 +476,11 @@ def test_function_multiple_match_identifiers_no_correct_encoding_of_args(web3):
     regex = message_regex + diagnosis_encoding_regex
     with pytest.raises(ValidationError, match=regex):
         Contract.functions.a('dog').call()
+
+
+def test_function_multiple_possible_encodings(web3):
+    MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
+    Contract = web3.eth.contract(abi=MULTIPLE_FUNCTIONS)
+    regex = message_regex + diagnosis_ambiguous_encoding
+    with pytest.raises(ValidationError, match=regex):
+        Contract.functions.a(100).call()
