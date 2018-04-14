@@ -1,3 +1,4 @@
+import json
 import pytest
 
 from hexbytes import (
@@ -8,6 +9,7 @@ from web3.exceptions import (
     BadFunctionCallOutput,
     BlockNumberOutofRange,
     InvalidAddress,
+    ValidationError,
 )
 from web3.utils.ens import (
     contract_ens_addresses,
@@ -423,3 +425,50 @@ def test_returns_data_from_specified_block(web3, math_contract):
 
     assert output1 == 1
     assert output2 == 2
+
+
+message_regex = (
+    r"\nCould not identify the intended function with name `.*`, "
+    r"positional argument\(s\) of type `.*` and "
+    r"keyword argument\(s\) of type `.*`."
+    r"\nFound .* function\(s\) with the name `.*`: .*"
+)
+diagnosis_arg_regex = (
+    r"\nFunction invocation failed due to improper number of arguments."
+)
+diagnosis_encoding_regex = (
+    r"\nFunction invocation failed due to improper argument encoding."
+)
+
+
+def test_no_functions_match_identifier(arrays_contract):
+    with pytest.raises(AttributeError):
+        arrays_contract.functions.thisFunctionDoesNotExist().call()
+
+
+def test_function_1_match_identifier_wrong_number_of_args(arrays_contract):
+    regex = message_regex + diagnosis_arg_regex
+    with pytest.raises(ValidationError, match=regex):
+        arrays_contract.functions.setBytes32Value().call()
+
+
+def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
+    regex = message_regex + diagnosis_encoding_regex
+    with pytest.raises(ValidationError, match=regex):
+        arrays_contract.functions.setBytes32Value('dog').call()
+
+
+def test_function_multiple_match_identifiers_no_correct_number_of_args(web3):
+    MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
+    Contract = web3.eth.contract(abi=MULTIPLE_FUNCTIONS)
+    regex = message_regex + diagnosis_arg_regex
+    with pytest.raises(ValidationError, match=regex):
+        Contract.functions.a(100, 'dog').call()
+
+
+def test_function_multiple_match_identifiers_no_correct_encoding_of_args(web3):
+    MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
+    Contract = web3.eth.contract(abi=MULTIPLE_FUNCTIONS)
+    regex = message_regex + diagnosis_encoding_regex
+    with pytest.raises(ValidationError, match=regex):
+        Contract.functions.a('dog').call()

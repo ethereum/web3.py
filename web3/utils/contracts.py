@@ -18,8 +18,15 @@ from eth_utils import (
 from hexbytes import (
     HexBytes,
 )
+from toolz.dicttoolz import (
+    valmap,
+)
 
+from web3.exceptions import (
+    ValidationError,
+)
 from web3.utils.abi import (
+    abi_to_signature,
     check_if_arguments_can_be_encoded,
     filter_by_argument_count,
     filter_by_argument_name,
@@ -70,36 +77,54 @@ def find_matching_event_abi(abi, event_name=None, argument_names=None):
 
 
 def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
+    args = args or tuple()
+    kwargs = kwargs or dict()
     filters = []
+    num_arguments = len(args) + len(kwargs)
 
-    if fn_identifier:
-        if fn_identifier is FallbackFn:
-            return get_fallback_func_abi(abi)
-        elif is_text(fn_identifier):
-            filters.append(functools.partial(filter_by_name, fn_identifier))
-        else:
-            raise TypeError("Unsupported function identifier")
+    if fn_identifier is FallbackFn:
+        return get_fallback_func_abi(abi)
 
-    if args is not None or kwargs is not None:
-        if args is None:
-            args = tuple()
-        if kwargs is None:
-            kwargs = {}
+    if not is_text(fn_identifier):
+        raise TypeError("Unsupported function identifier")
 
-        num_arguments = len(args) + len(kwargs)
-        filters.extend([
-            functools.partial(filter_by_argument_count, num_arguments),
-            functools.partial(filter_by_encodability, args, kwargs),
-        ])
-
+    # Exact match
+    name_filter = functools.partial(filter_by_name, fn_identifier)
+    arg_count_filter = functools.partial(filter_by_argument_count, num_arguments)
+    encoding_filter = functools.partial(filter_by_encodability, args, kwargs)
+    filters.extend([
+        name_filter,
+        arg_count_filter,
+        encoding_filter,
+    ])
     function_candidates = pipe(abi, *filters)
-
     if len(function_candidates) == 1:
         return function_candidates[0]
-    if not function_candidates:
-        raise ValueError("No matching functions found")
+    # No exact match
     else:
-        raise ValueError("Multiple functions found")
+        matching_identifiers = name_filter(abi)
+        matching_function_signatures = [abi_to_signature(func) for func in matching_identifiers]
+        arg_count_matches = len(arg_count_filter(matching_identifiers))
+        encoding_matches = len(encoding_filter(matching_identifiers))
+        if arg_count_matches == 0:
+            diagnosis = "\nFunction invocation failed due to improper number of arguments."
+        elif encoding_matches == 0 or encoding_matches > 1:
+            diagnosis = "\nFunction invocation failed due to improper argument encoding."
+        message = (
+            "\nCould not identify the intended function with name `{name}`, "
+            "positional argument(s) of type `{arg_types}` and "
+            "keyword argument(s) of type `{kwarg_types}`."
+            "\nFound {num_candidates} function(s) with the name `{name}`: {candidates}"
+            "{diagnosis}"
+        ).format(
+            name=fn_identifier,
+            arg_types=tuple(map(type, args)),
+            kwarg_types=valmap(type, kwargs),
+            num_candidates=len(matching_identifiers),
+            candidates=matching_function_signatures,
+            diagnosis=diagnosis,
+        )
+        raise ValidationError(message)
 
 
 def encode_abi(web3, abi, arguments, data=None):
