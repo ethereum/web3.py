@@ -88,7 +88,6 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
     if not is_text(fn_identifier):
         raise TypeError("Unsupported function identifier")
 
-    # Exact match
     name_filter = functools.partial(filter_by_name, fn_identifier)
     arg_count_filter = functools.partial(filter_by_argument_count, num_arguments)
     encoding_filter = functools.partial(filter_by_encodability, args, kwargs)
@@ -100,7 +99,6 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
     function_candidates = pipe(abi, *filters)
     if len(function_candidates) == 1:
         return function_candidates[0]
-    # No exact match
     else:
         matching_identifiers = name_filter(abi)
         matching_function_signatures = [abi_to_signature(func) for func in matching_identifiers]
@@ -108,8 +106,13 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
         encoding_matches = len(encoding_filter(matching_identifiers))
         if arg_count_matches == 0:
             diagnosis = "\nFunction invocation failed due to improper number of arguments."
-        elif encoding_matches == 0 or encoding_matches > 1:
+        elif encoding_matches == 0:
             diagnosis = "\nFunction invocation failed due to improper argument encoding."
+        elif encoding_matches > 1:
+            diagnosis = (
+                "\nAmbiguous argument encoding. "
+                "Provided arguments can be encoded to multiple functions matching this call."
+            )
         message = (
             "\nCould not identify the intended function with name `{name}`, "
             "positional argument(s) of type `{arg_types}` and "
