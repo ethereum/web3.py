@@ -75,7 +75,7 @@ def test_event_data_extraction(web3,
                                event_name,
                                call_args,
                                expected_args):
-    emitter_fn = getattr(emitter.functions, contract_fn)
+    emitter_fn = emitter.functions[contract_fn]
     event_id = getattr(emitter_event_ids, event_name)
     txn_hash = emitter_fn(event_id, *call_args).transact()
     txn_receipt = wait_for_transaction(web3, txn_hash)
@@ -186,12 +186,12 @@ def test_event_rich_log(
         call_args,
         expected_args):
 
-    emitter_fn = getattr(emitter.functions, contract_fn)
+    emitter_fn = emitter.functions[contract_fn]
     event_id = getattr(emitter_event_ids, event_name)
     txn_hash = emitter_fn(event_id, *call_args).transact()
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
-    event_instance = getattr(emitter.events, event_name)()
+    event_instance = emitter.events[event_name]()
 
     rich_logs = event_instance.processReceipt(txn_receipt)
 
@@ -209,6 +209,6 @@ def test_event_rich_log(
     assert is_same_address(rich_log['address'], emitter.address)
     assert rich_log['event'] == event_name
 
-    quiet_event = getattr(emitter.events, 'LogBytes')
+    quiet_event = emitter.events['LogBytes']
     empty_rich_log = quiet_event().processReceipt(txn_receipt)
     assert empty_rich_log == tuple()

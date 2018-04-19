@@ -118,7 +118,7 @@ def return_filter_by_api(
         kwargs = apply_key_map({'filter': 'argument_filters'}, args[1])
         if 'fromBlock' not in kwargs:
             kwargs['fromBlock'] = 'latest'
-        return getattr(contract.events, event_name).createFilter(**kwargs)
+        return contract.events[event_name].createFilter(**kwargs)
     else:
         raise ValueError("api_style must be 'v3 or v4'")
 

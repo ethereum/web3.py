@@ -498,7 +498,7 @@ def invoke_contract(api_style=None,
         raise ValueError("allowable_invoke_method must be one of: %s" % allowable_call_desig)
 
     if api_style == 'func_first':
-        function = getattr(contract.functions, contract_function)
+        function = contract.functions[contract_function]
         result = getattr(function(*func_args, **func_kwargs), api_call_desig)(tx_params)
     elif api_style == 'func_last':
         api_call_cls = getattr(contract, api_call_desig)
