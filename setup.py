@@ -28,6 +28,7 @@ setup(
         "websockets>=4.0.1",
     ],
     setup_requires=['setuptools-markdown'],
+    python_requires='>=3.5, <4',
     extras_require={
         'tester': [
             "eth-tester[py-evm]==0.1.0-beta.23",
@@ -48,7 +49,7 @@ setup(
     keywords='ethereum',
     packages=find_packages(exclude=["tests", "tests.*"]),
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',

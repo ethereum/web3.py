@@ -41,7 +41,7 @@ The following methods are available on the ``web3.personal`` namespace.
     .. code-block:: python
 
         >>> web3.personal.importRawKey(some_private_key, 'the-passphrase')
-        ['0xd3cda913deb6f67967b99d67acdfa1712c293601']
+        '0xd3cda913deb6f67967b99d67acdfa1712c293601'
 
 
 .. py:method:: newAccount(self, password)
@@ -54,7 +54,7 @@ The following methods are available on the ``web3.personal`` namespace.
     .. code-block:: python
 
         >>> web3.personal.newAccount('the-passphrase')
-        ['0xd3cda913deb6f67967b99d67acdfa1712c293601']
+        '0xd3cda913deb6f67967b99d67acdfa1712c293601'
 
 
 .. py:method:: lockAccount(self, account)
