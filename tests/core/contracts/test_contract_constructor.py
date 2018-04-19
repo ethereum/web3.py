@@ -66,7 +66,7 @@ def test_contract_constructor_gas_estimate_with_constructor_with_address_argumen
 def test_contract_constructor_transact_no_constructor(web3, MathContract, MATH_RUNTIME):
     deploy_txn = MathContract.constructor().transact()
 
-    txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert txn_receipt is not None
 
     assert txn_receipt['contractAddress']
@@ -80,7 +80,7 @@ def test_contract_constructor_transact_with_constructor_without_arguments(
         web3, SimpleConstructorContract, SIMPLE_CONSTRUCTOR_RUNTIME):
     deploy_txn = SimpleConstructorContract.constructor().transact()
 
-    txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert txn_receipt is not None
 
     assert txn_receipt['contractAddress']
@@ -110,7 +110,7 @@ def test_contract_constructor_transact_with_constructor_with_arguments(
     deploy_txn = WithConstructorArgumentsContract.constructor(
         *constructor_args, **constructor_kwargs).transact()
 
-    txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert txn_receipt is not None
 
     assert txn_receipt['contractAddress']
@@ -127,7 +127,7 @@ def test_contract_constructor_transact_with_constructor_with_arguments(
 def test_contract_constructor_transact_with_constructor_with_address_arguments(
         web3, WithConstructorAddressArgumentsContract, WITH_CONSTRUCTOR_ADDRESS_RUNTIME):
     deploy_txn = WithConstructorAddressArgumentsContract.constructor(TEST_ADDRESS).transact()
-    txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert txn_receipt is not None
     assert txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']

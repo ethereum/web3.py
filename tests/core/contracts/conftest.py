@@ -296,7 +296,7 @@ def emitter(web3_empty, Emitter, wait_for_transaction, wait_for_block):
     web3 = web3_empty
 
     wait_for_block(web3)
-    deploy_txn_hash = Emitter.deploy({'from': web3.eth.coinbase, 'gas': 1000000})
+    deploy_txn_hash = Emitter.constructor().transact({'from': web3.eth.coinbase, 'gas': 1000000})
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = deploy_receipt['contractAddress']
 

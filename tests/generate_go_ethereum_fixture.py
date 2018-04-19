@@ -291,7 +291,7 @@ def generate_go_ethereum_fixture(destination_dir):
 
 
 def verify_chain_state(web3, chain_data):
-    receipt = web3.eth.getTransactionReceipt(chain_data['mined_txn_hash'])
+    receipt = web3.eth.waitForTransactionReceipt(chain_data['mined_txn_hash'])
     latest = web3.eth.getBlock('latest')
     assert receipt.blockNumber <= latest.number
 
@@ -300,7 +300,7 @@ def mine_transaction_hash(web3, txn_hash):
     start_time = time.time()
     web3.miner.start(1)
     while time.time() < start_time + 60:
-        receipt = web3.eth.getTransactionReceipt(txn_hash)
+        receipt = web3.eth.waitForTransactionReceipt(txn_hash)
         if receipt is not None:
             web3.miner.stop()
             return receipt
@@ -328,7 +328,7 @@ def mine_block(web3):
 
 def deploy_contract(web3, name, factory):
     web3.personal.unlockAccount(web3.eth.coinbase, KEYFILE_PW)
-    deploy_txn_hash = factory.deploy({'from': web3.eth.coinbase})
+    deploy_txn_hash = factory.constructor().transact({'from': web3.eth.coinbase})
     print('{0}_CONTRACT_DEPLOY_HASH: '.format(name.upper()), deploy_txn_hash)
     deploy_receipt = mine_transaction_hash(web3, deploy_txn_hash)
     print('{0}_CONTRACT_DEPLOY_TRANSACTION_MINED'.format(name.upper()))

@@ -15,8 +15,9 @@ from web3.contract import (
 
 
 def deploy(web3, Contract, args=None):
-    deploy_txn = Contract.deploy(args=args)
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    args = args or []
+    deploy_txn = Contract.constructor(*args).transact()
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     contract = Contract(address=deploy_receipt['contractAddress'])
     assert len(web3.eth.getCode(contract.address)) > 0
@@ -30,10 +31,10 @@ def EMPTY_ADDR():
 
 @pytest.fixture()
 def zero_address_contract(web3, WithConstructorAddressArgumentsContract, EMPTY_ADDR):
-    deploy_txn = WithConstructorAddressArgumentsContract.deploy(args=[
+    deploy_txn = WithConstructorAddressArgumentsContract.constructor(
         EMPTY_ADDR,
-    ])
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    ).transact()
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     _address_contract = WithConstructorAddressArgumentsContract(
         address=deploy_receipt['contractAddress'],

@@ -17,8 +17,8 @@ def math_contract(web3,
         bytecode=MATH_CODE,
         bytecode_runtime=MATH_RUNTIME,
     )
-    deploy_txn = MathContract.deploy({'from': web3.eth.coinbase})
-    deploy_receipt = wait_for_transaction(web3, deploy_txn)
+    deploy_txn = MathContract.constructor().transact({'from': web3.eth.coinbase})
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
 
     assert deploy_receipt is not None
     contract_address = deploy_receipt['contractAddress']
@@ -39,8 +39,8 @@ def fallback_function_contract(web3,
         bytecode=FALLBACK_FUNCTION_CODE,
         bytecode_runtime=FALLBACK_FUNCTION_RUNTIME
     )
-    deploy_txn = fallback_contract.deploy({'from': web3.eth.coinbase})
-    deploy_receipt = wait_for_transaction(web3, deploy_txn)
+    deploy_txn = fallback_contract.constructor().transact({'from': web3.eth.coinbase})
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
 
     assert deploy_receipt is not None
     contract_address = deploy_receipt['contractAddress']
