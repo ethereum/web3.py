@@ -488,6 +488,8 @@ The following methods are available on the ``web3.eth`` namespace.
       ``gasPrice`` increase a node requires before it accepts a replacement transaction.
     * The ``gasPrice`` as calculated by the current gas price strategy(See :ref:`Gas_Price`).
 
+    This method returns the transaction hash of the replacement transaction.
+
     .. code-block:: python
 
         >>> tx = web3.eth.sendTransaction({
@@ -515,6 +517,8 @@ The following methods are available on the ``web3.eth`` namespace.
     to send.
 
     The same validation and defaulting rules of :meth:`~web3.eth.Eth.replaceTransaction` apply.
+
+    This method returns the transaction hash of the newly modified transaction.
 
     .. code-block:: python
 

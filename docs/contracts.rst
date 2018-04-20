@@ -301,16 +301,29 @@ Contract Functions
 
 .. py:class:: ContractFunction
 
-The named functions exposed through the :py:attr:`Contract.functions` property are of the ContractFunction type. This class it not to be used directly, but instead through :py:attr:`Contract.functions`.
+The named functions exposed through the :py:attr:`Contract.functions` property are
+of the ContractFunction type. This class it not to be used directly,
+but instead through :py:attr:`Contract.functions`.
 
 For example:
 
     .. code-block:: python
 
         myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
-        myContract.functions.multiply7(3).call()
+        twentyone = myContract.functions.multiply7(3).call()
 
-:py:class:`ContractFunction` provides methods to interact with contract functions. Positional and keyword arguments supplied to the contract function subclass will be used to find the contract function by signature, and forwarded to the contract function when applicable.
+If you have the function name in a variable, you might prefer this alternative:
+
+    .. code-block:: python
+
+        func_to_call = 'multiply7'
+        contract_func = myContract.functions[func_to_call]
+        twentyone = contract_func(3).call()
+
+:py:class:`ContractFunction` provides methods to interact with contract functions.
+Positional and keyword arguments supplied to the contract function subclass
+will be used to find the contract function by signature,
+and forwarded to the contract function when applicable.
 
 Methods
 ~~~~~~~~~~
