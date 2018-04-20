@@ -15,8 +15,8 @@ from web3.exceptions import (
 
 @curry
 def validate_chain_id(web3, chain_id):
-    if chain_id is None:
-        return None
+    if chain_id == web3.net.chainId:
+        return chain_id
     else:
         raise ValidationError(
             "The transaction declared chain ID %r, "
