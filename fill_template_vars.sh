@@ -4,9 +4,6 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-# List of all non-executable files
-TEMPLATE_FILES=$(find . ! -perm -u=x -type f | grep -v "\.git")
-
 echo "What is your python module name?"
 read MODULE_NAME
 
@@ -29,12 +26,20 @@ PROJECT_NAME=${PROJECT_INPUT:-$REPO_NAME}
 echo "What is a one-liner describing the project?"
 read SHORT_DESCRIPTION
 
-sed -i "s/<MODULE_NAME>/$MODULE_NAME/g" $TEMPLATE_FILES
-sed -i "s/<PYPI_NAME>/$PYPI_NAME/g" $TEMPLATE_FILES
-sed -i "s/<REPO_NAME>/$REPO_NAME/g" $TEMPLATE_FILES
-sed -i "s/<RTD_NAME>/$RTD_NAME/g" $TEMPLATE_FILES
-sed -i "s/<PROJECT_NAME>/$PROJECT_NAME/g" $TEMPLATE_FILES
-sed -i "s/<SHORT_DESCRIPTION>/$SHORT_DESCRIPTION/g" $TEMPLATE_FILES
+_replace() {
+  local find_cmd=(find . ! -perm -u=x ! -path '*/.git/*' -type f)
+
+  if [[ $(uname) == Darwin ]]; then
+    "${find_cmd[@]}" -exec sed -i '' "$1" {} +
+  else
+    "${find_cmd[@]}" -exec sed -i "$1" {} +
+  fi
+}
+_replace "s/<PYPI_NAME>/$PYPI_NAME/g"
+_replace "s/<REPO_NAME>/$REPO_NAME/g"
+_replace "s/<RTD_NAME>/$RTD_NAME/g"
+_replace "s/<PROJECT_NAME>/$PROJECT_NAME/g"
+_replace "s/<SHORT_DESCRIPTION>/$SHORT_DESCRIPTION/g"
 
 mkdir $MODULE_NAME
 touch $MODULE_NAME/__init__.py
