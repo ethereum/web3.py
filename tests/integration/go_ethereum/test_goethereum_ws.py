@@ -3,6 +3,7 @@ import pytest
 from tests.integration.utils import (
     wait_for_ws,
 )
+
 from web3 import Web3
 
 from .common import (
