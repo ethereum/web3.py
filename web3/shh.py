@@ -68,7 +68,7 @@ class Shh(Module):
                 "message cannot be None or does not contain field 'payload'"
             )
 
-    def filter(self, criteria, poll_interval=None):
+    def newMessageFilter(self, criteria, poll_interval=None):
         filter_id = self.web3.manager.request_blocking("shh_newMessageFilter", [criteria])
         return ShhFilter(self.web3, filter_id, poll_interval=poll_interval)
 
