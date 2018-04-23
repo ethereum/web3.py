@@ -63,3 +63,27 @@ def test_shh_async_filter(web3, skip_if_testrpc):
     assert message["topic"] == HexBytes(topic)
 
     watcher.stop()
+
+
+def test_shh_remove_filter(web3, skip_if_testrpc):
+    skip_if_testrpc(web3)
+
+    receiver = web3.shh.newKeyPair()
+    receiver_pub = web3.shh.getPublicKey(receiver)
+
+    payload = web3.toHex(text="test message :)")
+    shh_filter = web3.shh.filter({'privateKeyID': receiver})
+
+    web3.shh.post({'powTarget': 2.5, 'powTime': 2, 'payload': payload, 'pubKey': receiver_pub})
+    time.sleep(1)
+
+    message = shh_filter.get_new_entries()[0]
+    assert message["payload"] == HexBytes(payload)
+
+    assert web3.shh.deleteMessageFilter(shh_filter.filter_id)
+
+    try:
+        web3.shh.getMessages(shh_filter.filter_id)
+        assert False
+    except:
+        assert True

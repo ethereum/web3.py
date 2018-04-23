@@ -8,7 +8,7 @@ from web3.providers.eth_tester import (
 from web3.utils.threads import (
     Timeout,
 )
-from web3.main import Web3
+from web3.main import Web3, HTTPProvider
 
 
 class PollDelayCounter:
@@ -99,7 +99,7 @@ def wait_for_transaction():
 
 @pytest.fixture()
 def web3():
-    provider = EthereumTesterProvider()
+    provider = HTTPProvider('http://localhost:8545')
     w3 = Web3(provider)
 
     # Delete this whole block after eth-account has passed security audit
