@@ -100,18 +100,7 @@ def wait_for_transaction():
 @pytest.fixture()
 def web3():
     provider = EthereumTesterProvider()
-    w3 = Web3(provider)
-
-    # Delete this whole block after eth-account has passed security audit
-    try:
-        w3.eth.account
-    except AttributeError:
-        pass
-    else:
-        raise AssertionError("Unaudited features must be disabled by default")
-    w3.eth.enable_unaudited_features()
-
-    return w3
+    return Web3(provider)
 
 
 @pytest.fixture(autouse=True)

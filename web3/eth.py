@@ -26,6 +26,9 @@ from web3.module import (
 from web3.utils.blocks import (
     select_method_for_block_identifier,
 )
+from web3.utils.decorators import (
+    deprecated_for,
+)
 from web3.utils.empty import (
     empty,
 )
@@ -48,27 +51,16 @@ from web3.utils.transactions import (
 
 
 class Eth(Module):
-    _account = None
+    account = Account()
     defaultAccount = empty
     defaultBlock = "latest"
     defaultContractFactory = Contract
     iban = Iban
     gasPriceStrategy = None
 
-    @property
-    def account(self):
-        if self._account is not None:
-            return self._account
-        else:
-            raise AttributeError(
-                "This feature is disabled, pending security audit. "
-                "If you want to use unaudited code dealing with private keys, "
-                "despite the risks, you can run `w3.eth.enable_unaudited_features()` "
-                "and try again."
-            )
-
+    @deprecated_for("doing nothing at all")
     def enable_unaudited_features(self):
-        self._account = Account()
+        pass
 
     def namereg(self):
         raise NotImplementedError()
