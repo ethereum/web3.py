@@ -70,7 +70,7 @@ class Shh(Module):
 
     def filter(self, criteria, poll_interval=None):
         filter_id = self.web3.manager.request_blocking("shh_newMessageFilter", [criteria])
-        return ShhFilter(self.web3, filter_id, poll_interval)
+        return ShhFilter(self.web3, filter_id, poll_interval=poll_interval)
 
     def deleteMessageFilter(self, filter_id):
         return self.web3.manager.request_blocking("shh_deleteMessageFilter", [filter_id])
