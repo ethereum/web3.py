@@ -14,7 +14,7 @@ class Net(Module):
 
     @property
     def chainId(self):
-        return self.version
+        return None
 
     @property
     def version(self):

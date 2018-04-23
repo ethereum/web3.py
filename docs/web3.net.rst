@@ -17,15 +17,15 @@ The following properties are available on the ``web3.net`` namespace.
 
 .. py:method:: Net.chainId(self)
 
-    * Delegates to ``net_version`` RPC Method
+    This method is not implemented. You must manually determine your chain ID for now.
 
-    Returns the current network chainId/version and is an alias of ``web3.net.version``.
+    It will always return `None`, which is a valid chainId to specify in the transaction.
+    It means the transaction (may be) replayable on other forks of the network.
 
     .. code-block:: python
 
         >>> web3.net.chainId
-        1
-
+        None
 
 .. py:method:: Net.version(self)
 

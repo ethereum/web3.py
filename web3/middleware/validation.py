@@ -15,14 +15,14 @@ from web3.exceptions import (
 
 @curry
 def validate_chain_id(web3, chain_id):
-    if chain_id == web3.version.network:
-        return None
+    if chain_id == web3.net.chainId:
+        return chain_id
     else:
         raise ValidationError(
             "The transaction declared chain ID %r, "
             "but the connected node is on %r" % (
                 chain_id,
-                web3.version.network,
+                "UNKNOWN",
             )
         )
 
@@ -33,7 +33,6 @@ def transaction_normalizer(transaction):
 
 def validation_middleware(make_request, web3):
     transaction_validator = apply_formatters_to_dict({
-        'chainId': validate_chain_id(web3),
     })
 
     transaction_sanitizer = compose(transaction_normalizer, transaction_validator)

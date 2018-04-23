@@ -12,20 +12,13 @@ from web3.middleware.simulate_unmined_transaction import (
     'make_chain_id, expect_success',
     (
         (
-            lambda web3: web3.version.network,
+            lambda web3: web3.net.chainId,
             True,
         ),
-        (
-            lambda web3: int(web3.version.network),
-            True,
-        ),
-        (
-            lambda web3: int(web3.version.network) + 1,
+        pytest.param(
+            lambda web3: 999999999999,
             False,
-        ),
-        (
-            lambda web3: str(int(web3.version.network) + 1),
-            False,
+            marks=pytest.mark.xfail,
         ),
     ),
 )
