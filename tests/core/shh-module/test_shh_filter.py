@@ -1,4 +1,5 @@
 import time
+
 from hexbytes import (
     HexBytes,
 )
@@ -16,12 +17,29 @@ def test_shh_sync_filter(web3, skip_if_testrpc):
     topic = '0x13370000'
     payloads = [web3.toHex(text="test message :)"), web3.toHex(text="2nd test message")]
 
-    shh_filter = web3.shh.filter({'privateKeyID': receiver, 'sig': sender_pub, 'topics': [topic]})
+    shh_filter = web3.shh.newMessageFilter({
+        'privateKeyID': receiver,
+        'sig': sender_pub,
+        'topics': [topic]
+    })
 
-    web3.shh.post({'sig': sender, 'powTarget': 2.5, 'powTime': 2, 'payload': payloads[0], 'pubKey': receiver_pub})
+    web3.shh.post({
+        'sig': sender,
+        'powTarget': 2.5,
+        'powTime': 2,
+        'payload': payloads[0],
+        'pubKey': receiver_pub
+    })
     time.sleep(1)
 
-    web3.shh.post({'sig': sender, 'powTarget': 2.5, 'powTime': 2, 'payload': payloads[1], 'topic': topic, 'pubKey': receiver_pub})
+    web3.shh.post({
+        'sig': sender,
+        'powTarget': 2.5,
+        'powTime': 2,
+        'payload': payloads[1],
+        'topic': topic,
+        'pubKey': receiver_pub
+    })
     time.sleep(1)
 
     received_messages = shh_filter.get_new_entries()
@@ -46,13 +64,30 @@ def test_shh_async_filter(web3, skip_if_testrpc):
     topic = '0x13370000'
     payloads = [web3.toHex(text="test message :)"), web3.toHex(text="2nd test message")]
 
-    shh_filter = web3.shh.filter({'privateKeyID': receiver, 'sig': sender_pub, 'topics': [topic]}, poll_interval=0.5)
+    shh_filter = web3.shh.newMessageFilter({
+        'privateKeyID': receiver,
+        'sig': sender_pub,
+        'topics': [topic]
+    }, poll_interval=0.5)
     watcher = shh_filter.watch(received_messages.extend)
 
-    web3.shh.post({'sig': sender, 'powTarget': 2.5, 'powTime': 2, 'payload': payloads[0], 'topic': topic, 'pubKey': receiver_pub})
+    web3.shh.post({
+        'sig': sender,
+        'powTarget': 2.5,
+        'powTime': 2,
+        'payload': payloads[0],
+        'topic': topic,
+        'pubKey': receiver_pub
+    })
     time.sleep(1)
 
-    web3.shh.post({'sig': sender, 'powTarget': 2.5, 'powTime': 2, 'payload': payloads[1], 'pubKey': receiver_pub})
+    web3.shh.post({
+        'sig': sender,
+        'powTarget': 2.5,
+        'powTime': 2,
+        'payload': payloads[1],
+        'pubKey': receiver_pub
+    })
     time.sleep(1)
 
     assert len(received_messages) == 1
@@ -72,9 +107,14 @@ def test_shh_remove_filter(web3, skip_if_testrpc):
     receiver_pub = web3.shh.getPublicKey(receiver)
 
     payload = web3.toHex(text="test message :)")
-    shh_filter = web3.shh.filter({'privateKeyID': receiver})
+    shh_filter = web3.shh.newMessageFilter({'privateKeyID': receiver})
 
-    web3.shh.post({'powTarget': 2.5, 'powTime': 2, 'payload': payload, 'pubKey': receiver_pub})
+    web3.shh.post({
+        'powTarget': 2.5,
+        'powTime': 2,
+        'payload': payload,
+        'pubKey': receiver_pub
+    })
     time.sleep(1)
 
     message = shh_filter.get_new_entries()[0]

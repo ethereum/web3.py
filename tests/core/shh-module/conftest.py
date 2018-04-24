@@ -1,6 +1,8 @@
 import pytest
 
-from web3.shh import Shh
+from web3.shh import (
+    Shh,
+)
 
 
 @pytest.fixture(autouse=True)

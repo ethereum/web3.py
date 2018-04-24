@@ -16,6 +16,7 @@ def test_shh_asymmetric_key_pair(web3, skip_if_testrpc):
     assert web3.shh.hasKeyPair(key_id)
     assert web3.shh.deleteKeyPair(key_id)
 
+
 def test_shh_symmetric_key_pair(web3, skip_if_testrpc):
     skip_if_testrpc(web3)
 
@@ -32,6 +33,7 @@ def test_shh_symmetric_key_pair(web3, skip_if_testrpc):
     key_id = web3.shh.addSymKey(key)
     assert web3.shh.hasSymKey(key_id)
     assert web3.shh.deleteSymKey(key_id)
+
 
 def test_shh_symmetric_key_pair_from_password(web3, skip_if_testrpc):
     skip_if_testrpc(web3)

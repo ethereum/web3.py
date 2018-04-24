@@ -5,6 +5,9 @@ from eth_utils import (
     is_string,
 )
 
+from web3.utils.threads import (
+    TimerClass,
+)
 from web3.utils.validation import (
     validate_address,
 )
@@ -12,10 +15,6 @@ from web3.utils.validation import (
 from .events import (
     construct_event_data_set,
     construct_event_topic_set,
-)
-
-from web3.utils.threads import (
-    TimerClass,
 )
 
 
