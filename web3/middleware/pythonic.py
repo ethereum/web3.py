@@ -109,11 +109,12 @@ transaction_formatter = apply_formatters_to_dict(TRANSACTION_FORMATTERS)
 
 
 WHISPER_LOG_FORMATTERS = {
-    'from': to_hexbytes(60),
-    'hash': to_hexbytes(32),
+    'sig': to_hexbytes(130),
+    'topic': to_hexbytes(8),
     'payload': HexBytes,
-    'to': to_hexbytes(60),
-    'topics': apply_formatter_to_array(HexBytes),
+    'padding': apply_formatter_if(is_not_null, HexBytes),
+    'hash': to_hexbytes(64),
+    'recipientPublicKey': apply_formatter_if(is_not_null, to_hexbytes(130)),
 }
 
 
@@ -329,11 +330,7 @@ pythonic_middleware = construct_formatting_middleware(
         'personal_newAccount': to_checksum_address,
         'personal_sendTransaction': to_hexbytes(32),
         # SHH
-        'shh_getFilterChanges': apply_formatter_to_array(whisper_log_formatter),
-        'shh_getMessages': apply_formatter_to_array(whisper_log_formatter),
-        'shh_newIdentity': to_hexbytes(60),
-        'shh_newGroup': to_hexbytes(60),
-        'shh_version': to_integer_if_hex,
+        'shh_getFilterMessages': apply_formatter_to_array(whisper_log_formatter),
         # Transaction Pool
         'txpool_content': transaction_pool_content_formatter,
         'txpool_inspect': transaction_pool_inspect_formatter,

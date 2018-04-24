@@ -11,39 +11,69 @@ class Shh(Module):
     def version(self):
         return self.web3.manager.request_blocking("shh_version", [])
 
-    def post(self, params):
-        if params and ("topics" in params) and ("payload" in params):
-            return self.web3.manager.request_blocking("shh_post", [params])
+    @property
+    def info(self):
+        return self.web3.manager.request_blocking("shh_info", [])
+
+    def setMaxMessageSize(self, size):
+        return self.web3.manager.request_blocking("shh_setMaxMessageSize", [size])
+
+    def setMinPoW(self, min_pow):
+        return self.web3.manager.request_blocking("shh_setMinPoW", [min_pow])
+
+    def markTrustedPeer(self, enode):
+        return self.web3.manager.request_blocking("shh_markTrustedPeer", [enode])
+
+    def newKeyPair(self):
+        return self.web3.manager.request_blocking("shh_newKeyPair", [])
+
+    def addPrivateKey(self, key):
+        return self.web3.manager.request_blocking("shh_addPrivateKey", [key])
+
+    def deleteKeyPair(self, id):
+        return self.web3.manager.request_blocking("shh_deleteKeyPair", [id])
+
+    def hasKeyPair(self, id):
+        return self.web3.manager.request_blocking("shh_hasKeyPair", [id])
+
+    def getPublicKey(self, id):
+        return self.web3.manager.request_blocking("shh_getPublicKey", [id])
+
+    def getPrivateKey(self, id):
+        return self.web3.manager.request_blocking("shh_getPrivateKey", [id])
+
+    def newSymKey(self):
+        return self.web3.manager.request_blocking("shh_newSymKey", [])
+
+    def addSymKey(self, key):
+        return self.web3.manager.request_blocking("shh_addSymKey", [key])
+
+    def generateSymKeyFromPassword(self, password):
+        return self.web3.manager.request_blocking("shh_generateSymKeyFromPassword", [password])
+
+    def hasSymKey(self, id):
+        return self.web3.manager.request_blocking("shh_hasSymKey", [id])
+
+    def getSymKey(self, id):
+        return self.web3.manager.request_blocking("shh_getSymKey", [id])
+
+    def deleteSymKey(self, id):
+        return self.web3.manager.request_blocking("shh_deleteSymKey", [id])
+
+    def post(self, message):
+        if message and ("payload" in message):
+            return self.web3.manager.request_blocking("shh_post", [message])
         else:
             raise ValueError(
-                "params cannot be None or does not contain fields 'topic' or "
-                "'payload'"
+                "message cannot be None or does not contain field 'payload'"
             )
 
-    def newIdentity(self):
-        return self.web3.manager.request_blocking("shh_newIdentity", [])
+    def newMessageFilter(self, criteria, poll_interval=None):
+        filter_id = self.web3.manager.request_blocking("shh_newMessageFilter", [criteria])
+        return ShhFilter(self.web3, filter_id, poll_interval=poll_interval)
 
-    def hasIdentity(self, identity):
-        return self.web3.manager.request_blocking("shh_hasIdentity", [identity])
-
-    def newGroup(self):
-        return self.web3.manager.request_blocking("shh_newGroup", [])
-
-    def addToGroup(self, params):
-        return self.web3.manager.request_blocking("shh_addToGroup", params)
-
-    def filter(self, filter_params):
-        if "topics" in filter_params:
-            filter_id = self.web3.manager.request_blocking("shh_newFilter", [filter_params])
-            return ShhFilter(self.web3, filter_id)
-        else:
-            raise ValueError("filter params doesnot contain 'topics' to subsrcibe")
-
-    def uninstallFilter(self, filter_id):
-        return self.web3.manager.request_blocking("shh_uninstallFilter", [filter_id])
+    def deleteMessageFilter(self, filter_id):
+        return self.web3.manager.request_blocking("shh_deleteMessageFilter", [filter_id])
 
     def getMessages(self, filter_id):
-        return self.web3.manager.request_blocking("shh_getMessages", [filter_id])
-
-    def getFilterChanges(self, filter_id):
-        return self.web3.manager.request_blocking("shh_getFilterChanges", [filter_id])
+        return self.web3.manager.request_blocking("shh_getFilterMessages", [filter_id])

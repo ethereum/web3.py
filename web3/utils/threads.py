@@ -90,6 +90,23 @@ class ThreadWithReturn(threading.Thread):
             raise RuntimeError("Something went wrong.  No `_return` property was set")
 
 
+class TimerClass(threading.Thread):
+    def __init__(self, interval, callback, *args):
+        threading.Thread.__init__(self)
+        self.callback = callback
+        self.terminate_event = threading.Event()
+        self.interval = interval
+        self.args = args
+
+    def run(self):
+        while not self.terminate_event.is_set():
+            self.callback(*self.args)
+            self.terminate_event.wait(self.interval)
+
+    def stop(self):
+        self.terminate_event.set()
+
+
 def spawn(target, *args, thread_class=ThreadWithReturn, **kwargs):
     thread = thread_class(
         target=target,

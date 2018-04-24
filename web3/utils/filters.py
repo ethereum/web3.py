@@ -5,6 +5,9 @@ from eth_utils import (
     is_string,
 )
 
+from web3.utils.threads import (
+    TimerClass,
+)
 from web3.utils.validation import (
     validate_address,
 )
@@ -173,4 +176,28 @@ class LogFilter(Filter):
 
 
 class ShhFilter(Filter):
-    pass
+    def __init__(self, *args, **kwargs):
+        self.poll_interval = kwargs.pop(
+            'poll_interval',
+            self.poll_interval,
+        )
+        super().__init__(*args, **kwargs)
+
+    def get_new_entries(self):
+        log_entries = self._filter_valid_entries(self.web3.shh.getMessages(self.filter_id))
+        return self._format_log_entries(log_entries)
+
+    def get_all_entries(self):
+        raise NotImplementedError()
+
+    def watch(self, callback):
+        def callback_wrapper():
+            entries = self.get_new_entries()
+
+            if entries:
+                callback(entries)
+
+        timer = TimerClass(self.poll_interval, callback_wrapper)
+        timer.daemon = True
+        timer.start()
+        return timer

@@ -54,7 +54,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Web3.py'
-copyright = u'2017, Piper Merriam, Jason Carver'
+copyright = u'2018, Piper Merriam, Jason Carver'
 
 __version__ = setup_version
 # The version info for the project you're documenting, acts as replacement for
