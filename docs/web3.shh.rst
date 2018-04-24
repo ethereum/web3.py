@@ -19,7 +19,7 @@ The following properties are available on the ``web.shh`` namespace.
 
 .. py:attribute:: Shh.version
 
-    The version of Whisper protocol used by client
+    Returns the Whisper version this node offers.
 
     .. code-block:: python
 
@@ -28,7 +28,7 @@ The following properties are available on the ``web.shh`` namespace.
 
 .. py:attribute:: Shh.info
 
-    The information and properties currently set for the Whisper protocol
+    Returns the Whisper statistics for diagnostics.
 
     .. code-block:: python
 
@@ -43,9 +43,19 @@ The following methods are available on the ``web3.shh`` namespace.
 
 .. py:method:: Shh.post(self, message)
 
-    * Delegates to ``shh_post`` RPC method
+    * Creates a whisper message and injects it into the network for distribution.
 
-    * ``message`` cannot be ``None`` and should contain a ``payload``
+    * Parameters:
+        * ``symKeyID``: When using symmetric key encryption, holds the symmetric key ID.
+        * ``pubKey``: When using asymmetric key encryption, holds the public key.
+        * ``ttl``: Time-to-live in seconds.
+        * ``sig (optional)``: ID of the signing key.
+        * ``topic``: Message topic (four bytes of arbitrary data).
+        * ``payload``: Payload to be encrypted.
+        * ``padding (optional)``: Padding (byte array of arbitrary length).
+        * ``powTime``: Maximal time in seconds to be spent on prrof of work.
+        * ``powTarget``: Minimal PoW target required for this message.
+        * ``targetPeer (optional)``: Peer ID (for peer-to-peer message only).
 
     * Returns ``True`` if the message was succesfully sent, otherwise ``False``
 
@@ -56,9 +66,17 @@ The following methods are available on the ``web3.shh`` namespace.
 
 .. py:method:: Shh.newMessageFilter(self, criteria, poll_interval=None)
 
-    * Delegates to ``shh_newMessageFilter`` RPC method
+    * Create a new filter within the node. This filter can be used to poll for new messages that match the set of criteria. 
 
-    * If a ``poll_interval`` is specified, the client will asynchronously poll for new messages
+    * If a ``poll_interval`` is specified, the client will asynchronously poll for new messages.
+
+    * Parameters:
+        * ``symKeyID``: When using symmetric key encryption, holds the symmetric key ID.
+        * ``privateKeyID``: When using asymmetric key encryption, holds the private key ID.
+        * ``sig``: Public key of the signature.
+        * ``minPoW``: Minimal PoW requirement for incoming messages.
+        * ``topics``: Array of possible topics (or partial topics).
+        * ``allowP2P``: Indicates if this filter allows processing of direct peer-to-peer messages.
 
     * Returns ``ShhFilter`` which you can either ``watch(callback)`` or request ``get_new_entries()``
 
@@ -69,7 +87,7 @@ The following methods are available on the ``web3.shh`` namespace.
 
 .. py:method:: Shh.deleteMessageFilter(self, filter_id)
 
-    * Delegates to ``shh_deleteMessageFilter`` RPC Method
+    * Deletes a message filter in the node.
 
     * Returns ``True`` if the filter was sucesfully uninstalled, otherwise ``False``
 
@@ -80,7 +98,7 @@ The following methods are available on the ``web3.shh`` namespace.
 
 .. py:method:: Shh.getMessages(self, filter_id)
 
-    * Delegates to ``shh_getMessages`` RPC Method
+    * Retrieve messages that match the filter criteria and are received between the last time this function was called and now.
 
     * Returns all new messages since the last invocation
 
@@ -98,13 +116,46 @@ The following methods are available on the ``web3.shh`` namespace.
             'recipientPublicKey': HexBytes('0x047d36c9e45fa82fcd27d35bc7d2fd41a2e41e512feec9e4b90ee4293ab12dc2cfc98250a6f5689b07650f8a5ca3a6e0fa8808cd0ce1a1962f2551354487a8fc79')
         }]
 
+.. py:method:: Shh.setMaxMessageSize(self, size)
+
+    * Sets the maximal message size allowed by this node. Incoming and outgoing messages with a larger size will be rejected. Whisper message size can never exceed the limit imposed by the underlying P2P protocol (10 Mb).
+
+    * Returns ``True`` if the filter was sucesfully uninstalled, otherwise ``False``
+
+    .. code-block:: python
+
+        >>>web3.shh.setMaxMessageSize(1024)
+        True
+
+.. py:method:: Shh.setMinPoW(self, min_pow)
+
+    * Sets the minimal PoW required by this node.
+
+    * Returns ``True`` if the filter was sucesfully uninstalled, otherwise ``False``
+
+    .. code-block:: python
+
+        >>>web3.shh.setMinPoW(0.4)
+        True
+
+.. py:method:: Shh.markTrustedPeer(self, enode)
+
+    * Marks specific peer trusted, which will allow it to send historic (expired) messages.
+
+    * Returns ``True`` if the filter was sucesfully uninstalled, otherwise ``False``
+
+    .. code-block:: python
+
+        >>>web3.shh.markTrustedPeer('enode://d25474361659861e9e651bc728a17e807a3359ca0d344afd544ed0f11a31faecaf4d74b55db53c6670fd624f08d5c79adfc8da5dd4a11b9213db49a3b750845e@52.178.209.125:30379')
+        True
+
 ---------------
 Asymmetric Keys
 ---------------
 
 .. py:method:: Shh.newKeyPair(self)
 
-    * Delegates to ``shh_newKeyPair`` RPC method. Generates a new cryptographic identity for the client, and injects it into the known identities for message decryption
+    * Generates a new cryptographic identity for the client, and injects it into the known identities for message decryption
 
     * Returns the new key pair's identity
 
@@ -115,18 +166,18 @@ Asymmetric Keys
 
 .. py:method:: Shh.addPrivateKey(self, key)
 
-    * Delegates to ``shh_addPrivateKey`` RPC method
+    * Stores a key pair derived from a private key, and returns its ID.
 
-    * Returns ``True`` if the key pair was added, otherwise ``False``
+    * Returns the added key pair's ID
 
     .. code-block:: python
 
         >>>web3.shh.addPrivateKey('0x7b8190d96cd061a102e551ee36d08d4f3ca1f56fb0008ef5d70c56271d8c46d0')
-        True
+        '86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb'
 
 .. py:method:: Shh.deleteKeyPair(self, id)
 
-    * Delegates to ``shh_deleteKeyPair`` RPC method
+    * Deletes the specifies key if it exists.
 
     * Returns ``True`` if the key pair was deleted, otherwise ``False``
 
@@ -137,7 +188,7 @@ Asymmetric Keys
 
 .. py:method:: Shh.hasKeyPair(self, id)
 
-    * Delegates to ``shh_hasKeyPair`` RPC method
+    * Checks if the whisper node has a private key of a key pair matching the given ID.
 
     * Returns ``True`` if the key pair exists, otherwise ``False``
 
@@ -148,9 +199,7 @@ Asymmetric Keys
 
 .. py:method:: Shh.getPublicKey(self, id)
 
-    * Delegates to ``shh_getPublicKey`` RPC method
-
-    * Returns the public key associated with the key pair
+    * Returns the public key associated with the key pair.
 
     .. code-block:: python
 
@@ -159,9 +208,7 @@ Asymmetric Keys
 
 .. py:method:: Shh.getPrivateKey(self, id)
 
-    * Delegates to ``shh_getPrivateKey`` RPC method
-
-    * Returns the private key associated with the key pair
+    * Returns the private key associated with the key pair.
 
     .. code-block:: python
 
@@ -174,7 +221,7 @@ Symmetric Keys
 
 .. py:method:: Shh.newSymKey(self)
 
-    * Delegates to ``shh_newSymKey`` RPC method. Generates a random symmetric key and stores it under id, which is then returned. Will be used in the future for session key exchange
+    * Generates a random symmetric key and stores it under id, which is then returned. Will be used in the future for session key exchange
 
     * Returns the new key pair's identity
 
@@ -185,18 +232,18 @@ Symmetric Keys
 
 .. py:method:: Shh.addSymKey(self, key)
 
-    * Delegates to ``shh_addSymKey`` RPC method
+    * Stores the key, and returns its ID.
 
-    * Returns ``True`` if the key was added, otherwise ``False``
+    * Returns the new key pair's identity
 
     .. code-block:: python
 
         >>>web3.shh.addSymKey('0x58f6556e56a0d41b464a083161377c8a9c2e95156921f954f99ef97d41cebaa2')
-        True
+        '6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c'
 
 .. py:method:: Shh.generateSymKeyFromPassword(self)
 
-    * Delegates to ``shh_generateSymKeyFromPassword`` RPC method
+    * Generates the key from password, stores it, and returns its ID.
 
     * Returns the new key pair's identity
 
@@ -205,20 +252,9 @@ Symmetric Keys
         >>>web3.shh.generateSymKeyFromPassword('shh secret pwd')
         '6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c'
 
-.. py:method:: Shh.deleteSymKey(self, id)
-
-    * Delegates to ``shh_deleteSymKey`` RPC method
-
-    * Returns ``True`` if the key pair was deleted, otherwise ``False``
-
-    .. code-block:: python
-
-        >>>web3.shh.deleteSymKey('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
-        True
-
 .. py:method:: Shh.hasSymKey(self, id)
 
-    * Delegates to ``shh_hasSymKey`` RPC method
+    * Checks if there is a symmetric key stored with the given ID.
 
     * Returns ``True`` if the key exists, otherwise ``False``
 
@@ -229,7 +265,7 @@ Symmetric Keys
 
 .. py:method:: Shh.getSymKey(self, id)
 
-    * Delegates to ``shh_getSymKey`` RPC method
+    * Returns the symmetric key associated with the given ID.
 
     * Returns the public key associated with the key pair
 
@@ -237,3 +273,14 @@ Symmetric Keys
 
         >>>web3.shh.getSymKey('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
         '0x58f6556e56a0d41b464a083161377c8a9c2e95156921f954f99ef97d41cebaa2'
+
+.. py:method:: Shh.deleteSymKey(self, id)
+
+    * Deletes the symmetric key associated with the given ID.
+
+    * Returns ``True`` if the key pair was deleted, otherwise ``False``
+
+    .. code-block:: python
+
+        >>>web3.shh.deleteSymKey('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
+        True
