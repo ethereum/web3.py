@@ -9,8 +9,6 @@
 
 <SHORT_DESCRIPTION>
 
-* Python 3.5+ support
-
 Read more in the [documentation on ReadTheDocs](http://<RTD_NAME>.readthedocs.io/). [View the change log](http://<RTD_NAME>.readthedocs.io/en/latest/releases.html).
 
 ## Quickstart
