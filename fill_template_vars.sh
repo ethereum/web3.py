@@ -41,7 +41,7 @@ _replace "s/<RTD_NAME>/$RTD_NAME/g"
 _replace "s/<PROJECT_NAME>/$PROJECT_NAME/g"
 _replace "s/<SHORT_DESCRIPTION>/$SHORT_DESCRIPTION/g"
 
-mkdir $MODULE_NAME
+mkdir -p $MODULE_NAME
 touch $MODULE_NAME/__init__.py
 
 # template filler is no longer needed, delete it
