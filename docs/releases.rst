@@ -1,6 +1,29 @@
 Release Notes
 =============
 
+v4.2.0
+--------
+
+Released Apr 25, 2018
+
+- Removed audit warning and opt-in requirement for ``w3.eth.account``. See more in:
+  :ref:`eth-account`
+- Added an API to look up contract functions: ``fn = contract.functions['function_name_here']``
+- Upgrade Whisper (shh) module to use v6 API
+- Bugfix: set 'to' field of transaction to empty when using
+  ``transaction = contract.constructor().buildTransaction()``
+- You can now specify `nonce` in ``buildTransaction()``
+- Distinguish between chain id and network id -- currently always return `None` for
+  :attr:`~web3.net.Net.chainId`
+- Better error message when trying to use a contract function that has 0 or >1 matches
+- Better error message when trying to install on a python version <3.5
+- Installs pypiwin32 during pip install, for a better Windows experience
+- Cleaned up a lot of test warnings by upgrading from deprecated APIs, especially
+  from the deprecated ``contract.deploy(txn_dict, args=contract_args)``
+  to the new ``contract.constructor(*contract_args).transact(txn_dict)``
+- Documentation typo fixes
+- Better template for Pull Requests
+
 v4.1.0
 --------
 

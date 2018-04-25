@@ -1,3 +1,5 @@
+.. _eth-account:
+
 Working with Local Private Keys
 ==========================================
 

@@ -17,10 +17,13 @@ The following properties are available on the ``web3.net`` namespace.
 
 .. py:method:: Net.chainId(self)
 
-    This method is not implemented. You must manually determine your chain ID for now.
-
+    This method is trivially implemented.
     It will always return `None`, which is a valid chainId to specify in the transaction.
-    It means the transaction (may be) replayable on other forks of the network.
+
+    If you want the real chainId of your node, you must manually determine it for now.
+
+    Note that your transactions (may be) replayable on forks of the network you intend, if
+    :ref:`eth-account` and using a chainId of `None`.
 
     .. code-block:: python
 
