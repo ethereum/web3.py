@@ -1,47 +1,6 @@
 Working with Local Private Keys
 ==========================================
 
-Not Acceptable for Production
----------------------------------
-
-.. WARNING::
-  **Do not use** this module in production. It is still in beta. A security audit is pending.
-
-Now is a great time to get familiar with the API, and test out writing
-code that uses some of the great upcoming features.
-
-By default, access to this module has been turned off in the stable version of Web3.py:
-
-.. code-block:: python
-
-    >>> from web3.auto import w3
-    >>> w3.eth.account
-    ...
-    AttributeError: This feature is disabled, pending security audit. ...
-
-In order to access these features, you can either:
-
-1. Turn it on inside web3 with:
-
-   .. code-block:: python
-
-       >>> from web3.auto import w3
-       >>> w3.eth.enable_unaudited_features()
-       >>> w3.eth.account
-
-2. Load the beta version of :class:`eth_account.Account <eth_account.account.Account>`
-   directly, with:
-
-   .. code-block:: python
-
-       >>> from eth_account import Account
-       >>> account = Account()
-
-.. testsetup::
-
-    from web3.auto import w3
-    w3.eth.enable_unaudited_features()
-
 Local vs Hosted Nodes
 ---------------------------------
 

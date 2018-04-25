@@ -19,7 +19,7 @@ setup(
     install_requires=[
         "cytoolz>=0.9.0,<1.0.0",
         "eth-abi>=1.0.0,<2",
-        "eth-account==0.2.0-alpha.0",
+        "eth-account>=0.2.1,<0.3.0",
         "eth-utils>=1.0.1,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
         "lru-dict>=1.1.6,<2.0.0",
