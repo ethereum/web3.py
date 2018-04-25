@@ -35,6 +35,7 @@ _replace() {
     "${find_cmd[@]}" -exec sed -i "$1" {} +
   fi
 }
+_replace "s/<MODULE_NAME>/$MODULE_NAME/g"
 _replace "s/<PYPI_NAME>/$PYPI_NAME/g"
 _replace "s/<REPO_NAME>/$REPO_NAME/g"
 _replace "s/<RTD_NAME>/$RTD_NAME/g"
