@@ -26,6 +26,7 @@ setup(
         "eth-hash[pycryptodome]",
         "requests>=2.16.0,<3.0.0",
         "websockets>=4.0.1",
+        "pypiwin32>=223;platform_system=='Windows'",
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.5, <4',
@@ -38,9 +39,6 @@ setup(
         'linter': [
             "flake8==3.4.1",
             "isort>=4.2.15,<5",
-        ],
-        'platform_system=="Windows"': [
-            'pypiwin32'  # TODO: specify a version number, move under install_requires
         ],
     },
     py_modules=['web3', 'ens'],
