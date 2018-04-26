@@ -38,18 +38,31 @@ def test_assert_valid_transaction_params_invalid_param():
 
 
 def test_extract_valid_transaction_params():
-    input = {
+    from copy import deepcopy
+    base_input = {
         'from': '0x0',
         'to': '0x0',
         'gas': 21000,
         'gasPrice': 5000000,
         'value': 1,
-        'data': '0x0',
         'nonce': 2,
         'chainId': 1,
     }
+
+    input = deepcopy(base_input)
+    input['data'] = '0x0'
     valid_transaction_params = extract_valid_transaction_params(input)
     assert valid_transaction_params == input
+
+    in_input = deepcopy(base_input)
+    in_input['input'] = '0x0'
+    in_input['data'] = '0x0'
+    valid_transaction_params = extract_valid_transaction_params(in_input)
+    assert valid_transaction_params == input
+
+    input['input'] = '0x1'
+    with pytest.raises(AttributeError, match=r'.* You need to resolve this conflict.'):
+        extract_valid_transaction_params(input)
 
 
 def test_extract_valid_transaction_params_includes_invalid():
