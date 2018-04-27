@@ -71,10 +71,10 @@ Sign a Message
     like `EIP-683 <https://github.com/ethereum/EIPs/pull/683>`_,
     `EIP-712 <https://github.com/ethereum/EIPs/pull/712>`_, and
     `EIP-719 <https://github.com/ethereum/EIPs/pull/719>`_. Consider
-    the :meth:`w3.eth.Eth.sign` approach be deprecated.
+    the :meth:`w3.eth.sign() <web3.eth.Eth.sign>` approach be deprecated.
 
 For this example, we will use the same message hashing mechanism that
-is provided by :meth:`w3.eth.Eth.sign`.
+is provided by :meth:`w3.eth.sign() <web3.eth.Eth.sign>`.
 
 .. doctest::
 

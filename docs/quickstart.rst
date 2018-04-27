@@ -3,31 +3,22 @@ Quickstart
 
 .. contents:: :local:
 
-
-Environment
-------------
-
-Web3.py requires Python 3. Often, the
-best way to guarantee a clean Python 3 environment is with ``virtualenv``, like:
-
-.. code-block:: shell
-
-    # once:
-    $ virtualenv -p python3 ~/.venv-py3
-
-    # each session:
-    $ source ~/.venv-py3/bin/activate
-
-    # with virtualenv active, install...
+.. NOTE:: All code starting with a ``$`` is meant to run on your terminal.
+    All code starting with a ``>>>`` is meant to run in a python interpreter,
+    like `ipython <https://pypi.org/project/ipython/>`_.
 
 Installation
 ------------
 
-Web3.py can be installed using ``pip`` as follows.
+Web3.py can be installed (preferably in a virtualenv) using ``pip`` as follows:
 
 .. code-block:: shell
 
    $ pip install web3
+
+
+.. NOTE:: If you run into problems during installation, you might have a
+    broken environment. See the troubleshooting guide to :ref:`setup-environment`.
 
 
 Installation from source can be done from the root of the project with the
@@ -51,6 +42,10 @@ Use the ``auto`` module to guess at common node connection options.
     >>> from web3.auto import w3
     >>> w3.eth.blockNumber
     4000000
+
+.. NOTE:: If you get the result ``UnhandledRequest: No providers responded to the RPC request``
+    then you are not connected to a node. See :ref:`why_need_connection` and
+    :ref:`choosing_node`, and :ref:`choosing_provider`.
 
 To peek under the hood, see: :ref:`automatic_provider_detection`
 
