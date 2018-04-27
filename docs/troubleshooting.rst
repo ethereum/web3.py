@@ -35,11 +35,11 @@ Often, the best way to guarantee a correct environment is with ``virtualenv``, l
 
 .. _use-metamask-accounts:
 
-How do I use my Metamask accounts from Web3.py?
+How do I use my MetaMask accounts from Web3.py?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This requires exporting your private key from metamask, and using
-the local private key tools in web3 to sign and send transactions.
+Export your private key from MetaMask, and use
+the local private key tools in Web3.py to sign and send transactions.
 
 See `how to export your private key
 <https://ethereum.stackexchange.com/questions/33053/what-is-a-private-key-in-an-ethereum-wallet-like-metamask-and-how-do-i-find-it>`_

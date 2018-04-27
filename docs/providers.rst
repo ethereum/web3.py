@@ -10,6 +10,40 @@ request to an HTTP or IPC socket based server.
 If you are already happily connected to your Ethereum node, then you
 can skip the rest of the Providers section.
 
+.. _choosing_provider:
+
+Choosing How to Connect to Your Node
+--------------------------------------
+
+Most nodes have a variety of ways to connect to them. If you have not
+decided what kind of node to use, head on over to :ref:`choosing_node`
+
+As an example, go-ethereum supports IPC, HTTP, and Websockets. IPC is a protocol for
+connecting over a local filesystem, so it is not an option when using a
+remote hosted node, like Infura. In general, you're likely to want to choose
+connections in this order:
+
+1. IPC (fastest and most secure: works locally)
+2. Websockets (works remotely)
+3. HTTP (works remotely, more nodes support it)
+
+If you have the option of running Web3.py on the same machine as the node, choose IPC.
+
+If you must connect to a node on a different computer, use Websockets.
+
+If your node does not support Websockets, use HTTP.
+
+Most nodes have a way of "turning off" connection options.
+We recommend turning off all connection options that you are not using.
+This provides a safer setup: it reduces the
+number of ways that malicious hackers can try to steal your ether.
+
+Once you have decided how to connect, you specify the details using a Provider.
+Typically, you provide some kind of connection parameter. With IPC,
+you provide the path to the IPC file.
+
+Read on to learn more about using providers.
+
 Automatic vs Manual Providers
 -----------------------------
 
@@ -30,8 +64,8 @@ You can manually create a connection by specifying a provider like so:
 
 .. code-block:: python
 
-    from web3 import Web3, HTTPProvider
-    provider = HTTPProvider('http://localhost:8545')
+    from web3 import Web3
+    provider = Web3.HTTPProvider('http://localhost:8545')
     web3 = Web3(provider)
 
 .. _automatic_provider_detection:
@@ -51,7 +85,7 @@ succesful connection it can make:
    - :ref:`overview_type_conversions`
    - :ref:`overview_currency_conversions`
    - :ref:`overview_addresses`
-   - :class:`~web3.account.Account`
+   - :ref:`eth-account`
    - etc.
 
 .. _automatic_provider_detection_examples:

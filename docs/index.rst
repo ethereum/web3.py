@@ -14,6 +14,7 @@ Contents
 
     quickstart
     overview
+    node
     v4_migration
     filters
     contracts

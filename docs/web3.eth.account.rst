@@ -3,6 +3,8 @@
 Working with Local Private Keys
 ==========================================
 
+.. _local-vs-hosted:
+
 Local vs Hosted Nodes
 ---------------------------------
 
@@ -201,6 +203,8 @@ Then call ecr with these arguments from `Prepare message for ecrecover in Solidi
 
 The message is verified, because we get the correct sender of
 the message back in response: ``0x5ce9454909639d2d17a3f753ce7d93fa0b9ab12e``.
+
+.. _local-sign-transaction:
 
 Sign a Transaction
 ------------------------

@@ -43,14 +43,14 @@ Use the ``auto`` module to guess at common node connection options.
     >>> w3.eth.blockNumber
     4000000
 
-.. NOTE:: If you get the result ``UnhandledRequest: No providers responded to the RPC request``
-    then you are not connected to a node. See :ref:`why_need_connection` and
-    :ref:`choosing_node`, and :ref:`choosing_provider`.
-
-To peek under the hood, see: :ref:`automatic_provider_detection`
-
 This ``w3`` instance will now allow you to interact with the Ethereum
 blockchain.
+
+.. NOTE:: If you get the result ``UnhandledRequest: No providers responded to the RPC request``
+    then you are not connected to a node. See :ref:`why_need_connection` and
+    :ref:`choosing_node`
+
+To peek under the hood, see: :ref:`automatic_provider_detection`
 
 
 Connecting to your Node
