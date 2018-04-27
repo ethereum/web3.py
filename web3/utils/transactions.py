@@ -91,19 +91,28 @@ def get_required_transaction(web3, transaction_hash):
 
 
 def extract_valid_transaction_params(transaction_params):
-    t_params = {key: transaction_params[key]
-                for key in VALID_TRANSACTION_PARAMS if key in transaction_params}
+    extracted_params = {key: transaction_params[key]
+                        for key in VALID_TRANSACTION_PARAMS if key in transaction_params}
 
-    if t_params.get('data') is not None and transaction_params.get('input') is not None:
-        if t_params['data'] != transaction_params['input']:
-            msg = 'failure to handle this transaction due to both "input: {}" and'
-            msg += ' "data: {}" are populated. You need to resolve this conflict.'
-            raise AttributeError(msg.format(transaction_params['input'], t_params['data']))
-
-    if t_params.get('data') is None and transaction_params.get('input') is not None:
-        t_params['data'] = transaction_params['input']
-
-    return t_params
+    if extracted_params.get('data') is not None:
+        if transaction_params.get('input') is not None:
+            if extracted_params['data'] != transaction_params['input']:
+                msg = 'failure to handle this transaction due to both "input: {}" and'
+                msg += ' "data: {}" are populated. You need to resolve this conflict.'
+                err_vals = (transaction_params['input'], extracted_params['data'])
+                raise AttributeError(msg.format(*err_vals))
+            else:
+                return extracted_params
+        else:
+            return extracted_params
+    elif extracted_params.get('data') is None:
+        if transaction_params.get('input') is not None:
+            extracted_params['data'] = transaction_params['input']
+            return extracted_params
+        else:
+            return extracted_params
+    else:
+        return extracted_params
 
 
 def assert_valid_transaction_params(transaction_params):
