@@ -3,7 +3,7 @@
 Working with Local Private Keys
 ==========================================
 
-.. _local-vs-hosted:
+.. _local_vs_hosted:
 
 Local vs Hosted Nodes
 ---------------------------------

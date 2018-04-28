@@ -18,20 +18,17 @@ Choosing How to Connect to Your Node
 Most nodes have a variety of ways to connect to them. If you have not
 decided what kind of node to use, head on over to :ref:`choosing_node`
 
-As an example, go-ethereum supports IPC, HTTP, and Websockets. IPC is a protocol for
-connecting over a local filesystem, so it is not an option when using a
-remote hosted node, like Infura. In general, you're likely to want to choose
-connections in this order:
+The most common ways to connect to your node are:
 
-1. IPC (fastest and most secure: works locally)
-2. Websockets (works remotely)
-3. HTTP (works remotely, more nodes support it)
+1. IPC (uses local filesystem: fastest and most secure)
+2. Websockets (works remotely, faster than HTTP)
+3. HTTP (more nodes support it)
 
-If you have the option of running Web3.py on the same machine as the node, choose IPC.
+If you're not sure how to decide, choose this way:
 
-If you must connect to a node on a different computer, use Websockets.
-
-If your node does not support Websockets, use HTTP.
+- If you have the option of running Web3.py on the same machine as the node, choose IPC.
+- If you must connect to a node on a different computer, use Websockets.
+- If your node does not support Websockets, use HTTP.
 
 Most nodes have a way of "turning off" connection options.
 We recommend turning off all connection options that you are not using.
@@ -39,10 +36,28 @@ This provides a safer setup: it reduces the
 number of ways that malicious hackers can try to steal your ether.
 
 Once you have decided how to connect, you specify the details using a Provider.
-Typically, you provide some kind of connection parameter. With IPC,
-you provide the path to the IPC file.
+Providers are Web3.py classes that are configured for the kind of connection you want.
 
-Read on to learn more about using providers.
+See:
+
+- :class:`~web3.providers.ipc.IPCProvider`
+- :class:`~web3.providers.websocket.WebsocketProvider`
+- :class:`~web3.providers.rpc.HTTPProvider`
+
+Once you have configured your provider, for example:
+
+.. code-block:: python
+
+    from web3 import Web3
+    my_provider = Web3.IPCProvider('/my/node/ipc/path')
+
+Then you are ready to initialize your Web3 instance, like so:
+
+.. code-block:: python
+
+    w3 = Web3(my_provider)
+
+Finally, you are ready to :ref:`get started with Web3.py<first_w3_use>`.
 
 Automatic vs Manual Providers
 -----------------------------
@@ -60,13 +75,16 @@ when you initialize like so:
     from web3 import Web3
     w3 = Web3()
 
-You can manually create a connection by specifying a provider like so:
+Sometimes, web3 cannot automatically detect where your node is.
 
-.. code-block:: python
+- If you are not sure which kind of connection method to use, see
+  :ref:`choosing_provider`.
+- If you know the connection method, but not the other information
+  needed to connect (like the path to the IPC file), you will need to look up
+  that information in your node's configuration.
+- If you're not sure which node you are using, see :ref:`choosing_node`
 
-    from web3 import Web3
-    provider = Web3.HTTPProvider('http://localhost:8545')
-    web3 = Web3(provider)
+For a deeper dive into how automated detection works, see:
 
 .. _automatic_provider_detection:
 
@@ -93,18 +111,17 @@ succesful connection it can make:
 Examples Using Automated Detection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Some nodes provide APIs beyond the standards. Sometimes the same information is provided
+in different ways across nodes. If you want to write code that works
+across multiple nodes, you may want to look up the node type you are connected to.
 
-    There are client specific APIs.  If you are writing client agnostic code, in some situations
-    you may want to know what ethereum implementation is connected, and proceed
-    accordingly.
-
-    The following retrieves the client enode endpoint verifying there is a connected provider:
+For example, the following retrieves the client enode endpoint for both geth and parity:
 
 .. code-block:: python
 
     from web3.auto import w3
 
-    connected = any(provider.isConnected for provider in w3.providers)
+    connected = w3.isConnected()
 
     if connected and w3.version.node.startswith('Parity'):
         enode = w3.parity.enode
@@ -114,6 +131,19 @@ Examples Using Automated Detection
 
     else:
         enode = None
+
+.. _provider_uri:
+
+Provider via Environment Variable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Alternatively, you can set the environment variable ``WEB3_PROVIDER_URI``
+before starting your script, and web3 will look for that provider first.
+
+Valid formats for the this environment variable are:
+
+- ``file:///path/to/node/rpc-json/file.ipc``
+- ``http://192.168.1.2:8545``
 
 
 Built In Providers
@@ -141,6 +171,10 @@ HTTPProvider
 
         >>> from web3 import Web3
         >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545")
+
+    Note that you should create only one HTTPProvider per python
+    process, as the HTTPProvider recycles underlying TCP/IP network connections,
+    for better performance.
 
     Under the hood, the ``HTTPProvider`` uses the python requests library for
     making requests.  If you would like to modify how requests are made, you can
