@@ -71,7 +71,8 @@ class ContactClassForTest(Contract):
         ),
         ((ABI, ADDRESS), {'abi': ABI}, TypeError),
         ((ABI, ADDRESS), {'address': ADDRESS}, TypeError),
-        ((ADDRESS,), {}, {'address': ADDRESS}),
+        ((ABI, ADDRESS), {}, {'address': ADDRESS}),
+        ((ADDRESS,), {}, TypeError),
         ((), {'abi': MALFORMED_ABI_1, 'address': ADDRESS}, ValueError),
         ((), {'abi': MALFORMED_ABI_2, 'address': ADDRESS}, ValueError),
         ((), {'abi': ABI, 'address': CODE}, ValueError),
@@ -108,15 +109,16 @@ def test_deprecated_properties():
 
 @pytest.mark.skipif(sys.version_info.major == 2, reason="Python2 fails weirdly on this test")
 def test_deprecated_instantiation():
+
     with pytest.warns(Warning) as record:
-        ContactClassForTest(ADDRESS)
-        ContactClassForTest(address=ADDRESS)
+        ContactClassForTest(address=ADDRESS, abi=ABI)
+        ContactClassForTest(ADDRESS, abi=ABI)
         warnings.warn(Warning('test'))
 
-    assert len(record) == 1
+    assert len(record) == 3
 
-    with pytest.warns(DeprecationWarning):
-        ContactClassForTest()  # no address
+    with pytest.raises(TypeError):
+        ContactClassForTest()  # no address, no abi
 
     with pytest.warns(DeprecationWarning):
         ContactClassForTest(ABI, ADDRESS)  # no address
@@ -124,5 +126,5 @@ def test_deprecated_instantiation():
     with pytest.warns(DeprecationWarning):
         ContactClassForTest(ABI)  # no address
 
-    with pytest.warns(DeprecationWarning):
-        ContactClassForTest(code='0x1')  # no address
+    with pytest.raises(TypeError):
+        ContactClassForTest(code='0x1')  # no address, no abi

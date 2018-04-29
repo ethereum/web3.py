@@ -202,6 +202,9 @@ class Contract(object):
                 "instantiation.  Please update your code to reflect this change"
             ))
 
+        if self.abi is None:
+            raise TypeError("The 'abi' argument is required was not found")
+
     @classmethod
     def factory(cls, web3, contract_name=None, **kwargs):
         if contract_name is None:
