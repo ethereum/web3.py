@@ -11,6 +11,9 @@ from eth_utils.curried import (
 from web3.exceptions import (
     ValidationError,
 )
+from web3.middleware.formatting import (
+    construct_web3_formatting_middleware,
+)
 
 
 @curry
@@ -31,16 +34,36 @@ def transaction_normalizer(transaction):
     return dissoc(transaction, 'chainId')
 
 
-def validation_middleware(make_request, web3):
-    transaction_validator = apply_formatters_to_dict({
-    })
+def transaction_param_validator(web3):
+    transactions_params_validators = {
+        'chainId': apply_formatter_if(
+            # Bypass `validate_chain_id` if chainId can't be determined
+            lambda _: is_not_null(web3.net.chainId),
+            validate_chain_id(web3)
+        ),
+    }
+    return apply_formatter_at_index(
+        apply_formatters_to_dict(transactions_params_validators),
+        0
+    )
 
-    transaction_sanitizer = compose(transaction_normalizer, transaction_validator)
 
-    def middleware(method, params):
-        if method in {'eth_sendTransaction', 'eth_estimateGas', 'eth_call'}:
-            post_validated_params = apply_formatter_at_index(transaction_sanitizer, 0, params)
-            return make_request(method, post_validated_params)
-        else:
-            return make_request(method, params)
-    return middleware
+@curry
+def chain_id_validator(web3):
+    return compose(
+        apply_formatter_at_index(transaction_normalizer, 0),
+        transaction_param_validator(web3)
+    )
+
+
+def build_validators_with_web3(w3):
+    return dict(
+        request_formatters={
+            'eth_sendTransaction': chain_id_validator(w3),
+            'eth_estimateGas': chain_id_validator(w3),
+            'eth_call': chain_id_validator(w3),
+        }
+    )
+
+
+validation_middleware = construct_web3_formatting_middleware(build_validators_with_web3)
