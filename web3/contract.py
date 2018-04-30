@@ -131,7 +131,7 @@ class ContractFunctions:
                 "Are you sure you provided the correct contract abi?"
             )
         else:
-            raise AttributeError
+            return super().__getattribute__(function_name)
 
     def __getitem__(self, function_name):
         return getattr(self, function_name)
@@ -171,7 +171,7 @@ class ContractEvents:
                 "Are you sure you provided the correct contract abi?"
             )
         else:
-            raise AttributeError
+            return super().__getattribute__(event_name)
 
     def __getitem__(self, event_name):
         return getattr(self, event_name)
