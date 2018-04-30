@@ -130,7 +130,8 @@ class ContractFunctions:
                 "The function '{}' was not found in this contract's abi. ".format(function_name),
                 "Are you sure you provided the correct contract abi?"
             )
-        return getattr(self, function_name)
+        else:
+            raise AttributeError
 
     def __getitem__(self, function_name):
         return getattr(self, function_name)
@@ -169,7 +170,8 @@ class ContractEvents:
                 "The event '{}' was not found in this contract's abi. ".format(event_name),
                 "Are you sure you provided the correct contract abi?"
             )
-        return getattr(self, event_name)
+        else:
+            raise AttributeError
 
     def __getitem__(self, event_name):
         return getattr(self, event_name)
