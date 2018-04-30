@@ -1,7 +1,7 @@
 Web3.py
 =======
 
-Web3.py is a python library for interacting with Ethereum.  It's API is derived
+Web3.py is a python library for interacting with Ethereum.  Its API is derived
 from the `Web3.js`_ Javascript API and should be familiar to anyone who has
 used ``web3.js``.
 
@@ -14,6 +14,7 @@ Contents
 
     quickstart
     overview
+    node
     v4_migration
     filters
     contracts
@@ -21,6 +22,7 @@ Contents
     ens_overview
     middleware
     examples
+    troubleshooting
     web3.main
     web3.eth
     web3.eth.account
@@ -36,12 +38,6 @@ Contents
     internals
     conventions
     releases
-
-Release notes
--------------
-
-`View release notes on Github <https://github.com/ethereum/web3.py/blob/master/CHANGELOG>`_.
-
 
 Indices and tables
 ------------------

@@ -82,3 +82,9 @@ The following methods are available on the ``web3.personal`` namespace.
         False
         >>> web3.personal.unlockAccount('0xd3cda913deb6f67967b99d67acdfa1712c293601', 'the-passphrase')
         True
+
+.. py:method:: sendTransaction(self, transaction, passphrase)
+
+    * Delegates to ``personal_sendTransaction`` RPC Method
+
+    Sends the transaction.

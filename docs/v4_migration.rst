@@ -156,3 +156,9 @@ Contracts
   value by decoding the underlying bytes using UTF-8.
 - When a contract returns the ABI type ``bytes`` (of any length),
   Web3.py v4 now returns a :class:`bytes` value
+
+Personal API
+--------------
+
+``w3.personal.signAndSendTransaction`` is no longer available. Use
+:meth:`w3.personal.sendTransaction() <web3.personal.sendTransaction>` instead.

@@ -21,16 +21,15 @@ you can find the latest block number in these two ways:
           'number': 4022281,
           # ... etc ...
         })
+
         >>> block['number']
         4022281
         >>> block.number
         4022281
+
         >>> block.number = 4022282
         Traceback # ... etc ...
         TypeError: This data is immutable -- create a copy instead of modifying
-        >>> next_block = web3.utils.datastructures.AttributeDict(block, number=4022282)
-        >>> next_block.number
-        4022282
 
 
 Properties

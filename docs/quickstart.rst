@@ -3,31 +3,23 @@ Quickstart
 
 .. contents:: :local:
 
-
-Environment
-------------
-
-Web3.py requires Python 3. Often, the
-best way to guarantee a clean Python 3 environment is with ``virtualenv``, like:
-
-.. code-block:: shell
-
-    # once:
-    $ virtualenv -p python3 ~/.venv-py3
-
-    # each session:
-    $ source ~/.venv-py3/bin/activate
-
-    # with virtualenv active, install...
+.. NOTE:: All code starting with a ``$`` is meant to run on your terminal.
+    All code starting with a ``>>>`` is meant to run in a python interpreter,
+    like `ipython <https://pypi.org/project/ipython/>`_.
 
 Installation
 ------------
 
-Web3.py can be installed using ``pip`` as follows.
+Web3.py can be installed (preferably in a :ref:`virtualenv <setup_environment>`)
+using ``pip`` as follows:
 
 .. code-block:: shell
 
    $ pip install web3
+
+
+.. NOTE:: If you run into problems during installation, you might have a
+    broken environment. See the troubleshooting guide to :ref:`setup_environment`.
 
 
 Installation from source can be done from the root of the project with the
@@ -44,7 +36,8 @@ Using Web3
 To use the web3 library you will need to initialize the
 :class:`~web3.Web3` class.
 
-Use the ``auto`` module to guess at common node connection options.
+Use the ``auto`` module to :ref:`guess at common node connection options
+<automatic_provider_detection>`.
 
 .. code-block:: python
 
@@ -52,119 +45,47 @@ Use the ``auto`` module to guess at common node connection options.
     >>> w3.eth.blockNumber
     4000000
 
-To peek under the hood, see: :ref:`automatic_provider_detection`
-
 This ``w3`` instance will now allow you to interact with the Ethereum
 blockchain.
 
+.. NOTE:: If you get the result ``UnhandledRequest: No providers responded to the RPC request``
+    then you are not connected to a node. See :ref:`why_need_connection` and
+    :ref:`choosing_provider`
 
-Connecting to your Node
------------------------
+.. _first_w3_use:
 
-Sometimes, web3 cannot automatically detect where your node is.
+Getting Blockchain Info
+----------------------------------------
 
-You can connect to your Ethereum node (for example: geth or parity) using one of
-the available :ref:`providers`, typically IPC or HTTP.
-
-If your node is running locally, IPC will be faster and safer to expose.
-If sharing the node across machines on a network, use HTTP instead.
-
-IPC Provider
-~~~~~~~~~~~~
+It's time to start using Web3.py! Try getting all the information about the latest block.
 
 .. code-block:: python
 
-    >>> from web3 import Web3, IPCProvider
+    >>> w3.eth.getBlock('latest')
+    {'difficulty': 1,
+     'gasLimit': 6283185,
+     'gasUsed': 0,
+     'hash': HexBytes('0x53b983fe73e16f6ed8178f6c0e0b91f23dc9dad4cb30d0831f178291ffeb8750'),
+     'logsBloom': HexBytes('0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'),
+     'miner': '0x0000000000000000000000000000000000000000',
+     'mixHash': HexBytes('0x0000000000000000000000000000000000000000000000000000000000000000'),
+     'nonce': HexBytes('0x0000000000000000'),
+     'number': 0,
+     'parentHash': HexBytes('0x0000000000000000000000000000000000000000000000000000000000000000'),
+     'proofOfAuthorityData': HexBytes('0x0000000000000000000000000000000000000000000000000000000000000000dddc391ab2bf6701c74d0c8698c2e13355b2e4150000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'),
+     'receiptsRoot': HexBytes('0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421'),
+     'sha3Uncles': HexBytes('0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347'),
+     'size': 622,
+     'stateRoot': HexBytes('0x1f5e460eb84dc0606ab74189dbcfe617300549f8f4778c3c9081c119b5b5d1c1'),
+     'timestamp': 0,
+     'totalDifficulty': 1,
+     'transactions': [],
+     'transactionsRoot': HexBytes('0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421'),
+     'uncles': []}
 
-    # for an IPC based connection
-    >>> w3 = Web3(IPCProvider('/path/to/node/rpc-json/file.ipc'))
+Many of the typical things you'll want to do will be in the :class:`w3.eth <web3.eth.Eth>` API,
+so that is a good place to start.
 
-    >>> w3.eth.blockNumber
-    4000000
-
-
-HTTP Provider
-~~~~~~~~~~~~~
-
-.. code-block:: python
-
-    >>> from web3 import Web3, HTTPProvider
-
-    # Note that you should create only one HTTPProvider per
-    # process, as it recycles underlying TCP/IP network connections between
-    # your process and Ethereum node
-    >>> w3 = Web3(HTTPProvider('http://192.168.1.2:8545'))
-
-    >>> w3.eth.blockNumber
-    4000000
-
-.. _provider_uri:
-
-Provider via Environment Variable
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Alternatively, you can set the environment variable ``WEB3_PROVIDER_URI``
-before starting your script, and web3 will look for that provider first.
-
-Valid formats for the this environment variable are:
-
-- ``file:///path/to/node/rpc-json/file.ipc``
-- ``http://192.168.1.2:8545``
-
-Simple Contract Example
------------------------
-
-.. code-block:: python
-
-    import json
-    import web3
-
-    from web3 import Web3, TestRPCProvider
-    from solc import compile_source
-    from web3.contract import ConciseContract
-
-    # Solidity source code
-    contract_source_code = '''
-    pragma solidity ^0.4.0;
-
-    contract Greeter {
-        string public greeting;
-
-        function Greeter() {
-            greeting = 'Hello';
-        }
-
-        function setGreeting(string _greeting) public {
-            greeting = _greeting;
-        }
-
-        function greet() constant returns (string) {
-            return greeting;
-        }
-    }
-    '''
-
-    compiled_sol = compile_source(contract_source_code) # Compiled source code
-    contract_interface = compiled_sol['<stdin>:Greeter']
-
-    # web3.py instance
-    w3 = Web3(TestRPCProvider())
-
-    # Instantiate and deploy contract
-    contract = w3.eth.contract(abi=contract_interface['abi'], bytecode=contract_interface['bin'])
-
-    # Get transaction hash from deployed contract
-    tx_hash = contract.deploy(transaction={'from': w3.eth.accounts[0], 'gas': 410000})
-
-    # Get tx receipt to get contract address
-    tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
-    contract_address = tx_receipt['contractAddress']
-
-    # Contract instance in concise mode
-    contract_instance = w3.eth.contract(abi=contract_interface['abi'], address=contract_address, ContractFactoryClass=ConciseContract)
-
-    # Getters + Setters for web3.eth.contract object
-    print('Contract value: {}'.format(contract_instance.greet()))
-    contract_instance.setGreeting('Nihao', transact={'from': w3.eth.accounts[0]})
-    print('Setting value to: Nihao')
-    print('Contract value: {}'.format(contract_instance.greet()))
+If you want to dive straight into contracts, check out the section on :ref:`contracts`,
+including a :ref:`contract_example`, and how to create a contract instance using
+:meth:`w3.eth.contract() <web3.eth.Eth.contract>`.
