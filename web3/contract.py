@@ -27,6 +27,8 @@ from web3.exceptions import (
     BlockNumberOutofRange,
     FallbackNotFound,
     MismatchedABI,
+    NoABIFunctionsFound,
+    NoABIEventsFound
 )
 from web3.utils.abi import (
     fallback_func_abi_exists,
@@ -117,6 +119,19 @@ class ContractFunctions:
         for func in self._functions:
             yield func['name']
 
+    def __getattr__(self, function_name):
+        if '_functions' not in self.__dict__ :
+            raise NoABIFunctionsFound(
+                "The abi for this contract contains no function definitions. ",
+                "Are you sure you provided the correct contract abi?"
+            )
+        elif function_name not in self.__dict__['_functions']:
+            raise MismatchedABI(
+                "The function '{}' was not found in this contract's abi. ".format(function_name),
+                "Are you sure you provided the correct contract abi?"
+            )
+        return getattr(self, function_name)
+
     def __getitem__(self, function_name):
         return getattr(self, function_name)
 
@@ -142,6 +157,19 @@ class ContractEvents:
                         contract_abi=self.abi,
                         address=address,
                         event_name=event['name']))
+
+    def __getattr__(self, event_name):
+        if '_events' not in self.__dict__ :
+            raise NoABIEventsFound(
+                "The abi for this contract contains no event definitions. ",
+                "Are you sure you provided the correct contract abi?"
+            )
+        elif event_name not in self.__dict__['_events']:
+            raise MismatchedABI(
+                "The event '{}' was not found in this contract's abi. ".format(event_name),
+                "Are you sure you provided the correct contract abi?"
+            )
+        return getattr(self, event_name)
 
     def __getitem__(self, event_name):
         return getattr(self, event_name)

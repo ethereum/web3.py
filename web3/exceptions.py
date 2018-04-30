@@ -67,7 +67,8 @@ class UnhandledRequest(Exception):
 
 class MismatchedABI(Exception):
     """
-    Raised when an ABI does not match with supplied parameters.
+    Raised when an ABI does not match with supplied parameters, or when an
+    attempt is made to access a function/event that does not exist in the ABI.
     """
     pass
 
@@ -82,5 +83,19 @@ class FallbackNotFound(Exception):
 class ValidationError(Exception):
     """
     Raised when a supplied value is invalid.
+    """
+    pass
+
+
+class NoABIFunctionsFound(AttributeError):
+    """
+    Raised when an ABI doesn't contain any functions.
+    """
+    pass
+
+
+class NoABIEventsFound(AttributeError):
+    """
+    Raised when an ABI doesn't contain any events.
     """
     pass
