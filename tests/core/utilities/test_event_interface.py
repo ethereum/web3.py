@@ -1,8 +1,8 @@
 import pytest
 
 from web3.exceptions import (
-    NoABIEventsFound,
-    MismatchedABI
+    MismatchedABI,
+    NoABIEventsFound
 )
 
 EVENT_1_ABI = {

@@ -9,9 +9,9 @@ from web3.exceptions import (
     BadFunctionCallOutput,
     BlockNumberOutofRange,
     InvalidAddress,
-    ValidationError,
+    MismatchedABI,
     NoABIFunctionsFound,
-    MismatchedABI
+    ValidationError
 )
 from web3.utils.ens import (
     contract_ens_addresses,
