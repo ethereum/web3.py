@@ -23,6 +23,9 @@ from web3.testing import Testing
 from web3.txpool import TxPool
 from web3.version import Version
 
+from web3.providers.eth_tester import (
+    EthereumTesterProvider,
+)
 from web3.providers.ipc import (
     IPCProvider,
 )
@@ -31,7 +34,6 @@ from web3.providers.rpc import (
 )
 from web3.providers.tester import (
     TestRPCProvider,
-    EthereumTesterProvider,
 )
 from web3.providers.websocket import (
     WebsocketProvider
