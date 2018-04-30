@@ -11,7 +11,7 @@ from web3.exceptions import (
     InvalidAddress,
     MismatchedABI,
     NoABIFunctionsFound,
-    ValidationError
+    ValidationError,
 )
 from web3.utils.ens import (
     contract_ens_addresses,

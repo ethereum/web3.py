@@ -28,7 +28,7 @@ from web3.exceptions import (
     FallbackNotFound,
     MismatchedABI,
     NoABIEventsFound,
-    NoABIFunctionsFound
+    NoABIFunctionsFound,
 )
 from web3.utils.abi import (
     fallback_func_abi_exists,
