@@ -120,7 +120,7 @@ class ContractFunctions:
             yield func['name']
 
     def __getattr__(self, function_name):
-        if '_functions' not in self.__dict__ :
+        if '_functions' not in self.__dict__:
             raise NoABIFunctionsFound(
                 "The abi for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract abi?"
@@ -159,7 +159,7 @@ class ContractEvents:
                         event_name=event['name']))
 
     def __getattr__(self, event_name):
-        if '_events' not in self.__dict__ :
+        if '_events' not in self.__dict__:
             raise NoABIEventsFound(
                 "The abi for this contract contains no event definitions. ",
                 "Are you sure you provided the correct contract abi?"
