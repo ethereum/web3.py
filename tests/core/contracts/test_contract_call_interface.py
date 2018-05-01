@@ -9,6 +9,8 @@ from web3.exceptions import (
     BadFunctionCallOutput,
     BlockNumberOutofRange,
     InvalidAddress,
+    MismatchedABI,
+    NoABIFunctionsFound,
     ValidationError,
 )
 from web3.utils.ens import (
@@ -447,7 +449,7 @@ diagnosis_ambiguous_encoding = (
 
 
 def test_no_functions_match_identifier(arrays_contract):
-    with pytest.raises(AttributeError):
+    with pytest.raises(MismatchedABI):
         arrays_contract.functions.thisFunctionDoesNotExist().call()
 
 
@@ -485,3 +487,15 @@ def test_function_multiple_possible_encodings(web3):
     regex = message_regex + diagnosis_ambiguous_encoding
     with pytest.raises(ValidationError, match=regex):
         Contract.functions.a(100).call()
+
+
+def test_function_no_abi(web3):
+    contract = web3.eth.contract()
+    with pytest.raises(NoABIFunctionsFound):
+        contract.functions.thisFunctionDoesNotExist().call()
+
+
+def test_call_abi_no_functions(web3):
+    contract = web3.eth.contract(abi=[])
+    with pytest.raises(NoABIFunctionsFound):
+        contract.functions.thisFunctionDoesNotExist().call()
