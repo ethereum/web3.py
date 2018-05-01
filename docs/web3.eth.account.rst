@@ -58,6 +58,9 @@ or see a full list of things you can do in the docs for
 Extract private key from geth keyfile
 ---------------------------------------------
 
+.. NOTE::
+  The amount of available ram should be greater than 1GB.
+  
 .. code-block:: python
 
     with open('~/.ethereum/keystore/UTC--...--5ce9454909639D2D17A3F753ce7d93fa0b9aB12E') as keyfile:
