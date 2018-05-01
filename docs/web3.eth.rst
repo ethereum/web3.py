@@ -440,24 +440,21 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Delegates to ``eth_sendRawTransaction`` RPC Method
 
-    Sends a signed and serialized transaction.
+    Sends a signed and serialized transaction. Returns the transaction hash.
 
     .. code-block:: python
 
-        >>> import rlp
-        >>> from ethereum.transactions import Transaction
-        >>> tx = Transaction(
-            nonce=web3.eth.getTransactionCount(web3.eth.coinbase),
-            gasprice=web3.eth.gasPrice,
-            startgas=100000,
+        >>> signed_txn = w3.eth.account.signTransaction(dict(
+            nonce=w3.eth.getTransactionCount(w3.eth.coinbase),
+            gasPrice=w3.eth.gasPrice,
+            gas=100000,
             to='0xd3cda913deb6f67967b99d67acdfa1712c293601',
             value=12345,
             data=b'',
+          ),
+          private_key_for_senders_account,
         )
-        >>> tx.sign(the_private_key_for_the_from_account)
-        >>> raw_tx = rlp.encode(tx)
-        >>> raw_tx_hex = web3.toHex(raw_tx)
-        >>> web3.eth.sendRawTransaction(raw_tx_hex)
+        >>> w3.eth.sendRawTransaction(signed_txn.rawTransaction)
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
 
 
