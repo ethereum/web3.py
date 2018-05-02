@@ -1,5 +1,8 @@
 import pytest
 
+from web3.exceptions import (
+    ValidationError,
+)
 from web3.middleware import (
     construct_fixture_middleware,
     geth_poa_middleware,
@@ -12,7 +15,7 @@ def test_long_extra_data(web3):
         'eth_getBlockByNumber': {'extraData': '0x' + 'ff' * 33},
     })
     web3.middleware_stack.inject(return_block_with_long_extra_data, layer=0)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         web3.eth.getBlock('latest')
 
 
