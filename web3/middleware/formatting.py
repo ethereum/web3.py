@@ -28,11 +28,10 @@ def construct_web3_formatting_middleware(web3_formatters_builder):
                 'request_formatters': {},
                 'result_formatters': {},
                 'error_formatters': {},
-                'make_request': make_request,
             },
             web3_formatters_builder(w3),
         )
-        return apply_formatters(**formatters)
+        return apply_formatters(make_request=make_request, **formatters)
 
     return formatter_middleware
 

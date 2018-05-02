@@ -50,7 +50,7 @@ def check_extradata_length(val):
             "The field extraData is %d bytes, but should be %d. "
             "It is quite likely that you are connected to a POA chain. "
             "Refer "
-            "http://web3py.readthedocs.io/en/latest/middleware.html#geth-style-proof-of-authority "
+            "http://web3py.readthedocs.io/en/stable/middleware.html#geth-style-proof-of-authority "
             "for more details. The full extraData is: %r" % (
                 len(result), MAX_EXTRADATA_LENGTH, result
             )
@@ -81,7 +81,10 @@ BLOCK_VALIDATORS = {
 }
 
 
-block_validator = apply_formatters_to_dict(BLOCK_VALIDATORS)
+block_validator = apply_formatter_if(
+    is_not_null,
+    apply_formatters_to_dict(BLOCK_VALIDATORS)
+)
 
 
 @curry
@@ -92,9 +95,6 @@ def chain_id_validator(web3):
     )
 
 
-extra_data_validator = apply_formatter_if(is_not_null, block_validator)
-
-
 def build_validators_with_web3(w3):
     return dict(
         request_formatters={
@@ -103,8 +103,8 @@ def build_validators_with_web3(w3):
             'eth_call': chain_id_validator(w3),
         },
         result_formatters={
-            'eth_getBlockByHash': extra_data_validator,
-            'eth_getBlockByNumber': extra_data_validator,
+            'eth_getBlockByHash': block_validator,
+            'eth_getBlockByNumber': block_validator,
         },
     )
 
