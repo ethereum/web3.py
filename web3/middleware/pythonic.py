@@ -1,18 +1,6 @@
 import codecs
 import operator
 
-from cytoolz import (
-    curry,
-)
-from cytoolz.curried import (
-    keymap,
-    valmap,
-)
-from cytoolz.functoolz import (
-    complement,
-    compose,
-    partial,
-)
 from eth_utils.curried import (
     combine_argument_formatters,
     is_address,
@@ -43,6 +31,18 @@ from web3.utils.formatters import (
     is_array_of_dicts,
     is_array_of_strings,
     remove_key_if,
+)
+from web3.utils.toolz import (
+    curry,
+)
+from web3.utils.toolz.curried import (
+    keymap,
+    valmap,
+)
+from web3.utils.toolz.functoolz import (
+    complement,
+    compose,
+    partial,
 )
 
 from .formatting import (

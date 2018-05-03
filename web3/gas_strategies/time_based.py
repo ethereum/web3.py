@@ -2,13 +2,14 @@ import collections
 import math
 import operator
 
-from cytoolz import (
+from eth_utils import (
+    to_tuple,
+)
+
+from web3.utils.toolz import (
     curry,
     groupby,
     sliding_window,
-)
-from eth_utils import (
-    to_tuple,
 )
 
 MinerData = collections.namedtuple('MinerData', ['miner', 'num_blocks', 'min_gas_price'])

@@ -5,9 +5,6 @@ import pprint
 import shutil
 import sys
 
-from cytoolz import (
-    merge,
-)
 from eth_utils import (
     is_dict,
     is_same_address,
@@ -23,6 +20,9 @@ from web3.utils.module_testing.emitter_contract import (
 from web3.utils.module_testing.math_contract import (
     MATH_ABI,
     MATH_BYTECODE,
+)
+from web3.utils.toolz import (
+    merge,
 )
 
 

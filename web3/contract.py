@@ -17,10 +17,6 @@ from eth_utils import (
     is_text,
     to_tuple,
 )
-from toolz.functoolz import (
-    compose,
-    partial,
-)
 
 from web3.exceptions import (
     BadFunctionCallOutput,
@@ -75,6 +71,10 @@ from web3.utils.normalizers import (
     normalize_abi,
     normalize_address,
     normalize_bytecode,
+)
+from web3.utils.toolz.functoolz import (
+    compose,
+    partial,
 )
 from web3.utils.transactions import (
     fill_transaction_defaults,

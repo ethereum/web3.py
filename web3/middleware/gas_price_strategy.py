@@ -1,4 +1,4 @@
-from cytoolz.dicttoolz import (
+from web3.utils.toolz.dicttoolz import (
     assoc,
 )
 

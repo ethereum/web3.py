@@ -4,13 +4,14 @@ import pytest
 import shutil
 import subprocess
 
-from cytoolz import (
-    assoc,
-)
 from eth_utils import (
     is_checksum_address,
     is_dict,
     to_text,
+)
+
+from web3.utils.toolz import (
+    assoc,
 )
 
 from .utils import (

@@ -1,6 +1,3 @@
-from cytoolz import (
-    compose,
-)
 from eth_utils.curried import (
     apply_formatters_to_dict,
     apply_key_map,
@@ -11,6 +8,9 @@ from hexbytes import (
 
 from web3.middleware.formatting import (
     construct_formatting_middleware,
+)
+from web3.utils.toolz import (
+    compose,
 )
 
 remap_geth_poa_fields = apply_key_map({

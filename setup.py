@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from setuptools import (
-    setup,
     find_packages,
+    setup,
 )
 
 
@@ -17,7 +17,8 @@ setup(
     url='https://github.com/ethereum/web3.py',
     include_package_data=True,
     install_requires=[
-        "cytoolz>=0.9.0,<1.0.0",
+        "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
+        "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
         "eth-abi>=1.0.0,<2",
         "eth-account>=0.2.1,<0.3.0",
         "eth-utils>=1.0.1,<2.0.0",

@@ -1,8 +1,5 @@
 import functools
 
-from cytoolz import (
-    pipe,
-)
 from eth_abi import (
     encode_abi as eth_abi_encode_abi,
 )
@@ -17,9 +14,6 @@ from eth_utils import (
 )
 from hexbytes import (
     HexBytes,
-)
-from toolz.dicttoolz import (
-    valmap,
 )
 
 from web3.exceptions import (
@@ -49,6 +43,12 @@ from web3.utils.normalizers import (
     abi_bytes_to_bytes,
     abi_ens_resolver,
     abi_string_to_text,
+)
+from web3.utils.toolz import (
+    pipe,
+)
+from web3.utils.toolz.dicttoolz import (
+    valmap,
 )
 
 

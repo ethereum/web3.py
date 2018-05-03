@@ -10,10 +10,6 @@ import sys
 import tempfile
 import time
 
-from cytoolz import (
-    merge,
-    valmap,
-)
 from eth_utils.curried import (
     apply_formatter_if,
     is_bytes,
@@ -35,6 +31,10 @@ from web3.utils.module_testing.emitter_contract import (
 from web3.utils.module_testing.math_contract import (
     MATH_ABI,
     MATH_BYTECODE,
+)
+from web3.utils.toolz import (
+    merge,
+    valmap,
 )
 
 COINBASE = '0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'

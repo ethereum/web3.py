@@ -1,9 +1,3 @@
-from cytoolz import (
-    complement,
-    compose,
-    curry,
-    dissoc,
-)
 from eth_utils.curried import (
     apply_formatter_at_index,
     apply_formatter_if,
@@ -19,6 +13,12 @@ from web3.exceptions import (
 )
 from web3.middleware.formatting import (
     construct_web3_formatting_middleware,
+)
+from web3.utils.toolz import (
+    complement,
+    compose,
+    curry,
+    dissoc,
 )
 
 MAX_EXTRADATA_LENGTH = 32

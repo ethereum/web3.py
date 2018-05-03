@@ -1,11 +1,10 @@
-from cytoolz.functoolz import (
+import web3.utils.formatters
+from web3.utils.toolz.functoolz import (
     curry,
 )
-from toolz.itertoolz import (
+from web3.utils.toolz.itertoolz import (
     concat,
 )
-
-import web3.utils.formatters
 
 
 @curry

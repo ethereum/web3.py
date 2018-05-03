@@ -2,11 +2,6 @@ import operator
 import random
 import sys
 
-from cytoolz.functoolz import (
-    compose,
-    curry,
-    excepts,
-)
 from eth_tester.exceptions import (
     BlockNotFound,
     FilterNotFound,
@@ -22,6 +17,11 @@ from eth_utils import (
 
 from web3.utils.formatters import (
     apply_formatter_if,
+)
+from web3.utils.toolz.functoolz import (
+    compose,
+    curry,
+    excepts,
 )
 
 

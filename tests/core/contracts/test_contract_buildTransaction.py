@@ -2,7 +2,7 @@
 
 import pytest
 
-from cytoolz import (
+from web3.utils.toolz import (
     dissoc,
 )
 

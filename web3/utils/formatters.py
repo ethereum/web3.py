@@ -3,13 +3,6 @@ from collections import (
     Mapping,
 )
 
-from cytoolz import (
-    dissoc,
-)
-from cytoolz.functoolz import (
-    compose,
-    curry,
-)
 from eth_utils import (
     is_dict,
     is_list_like,
@@ -20,6 +13,13 @@ from eth_utils import (
 
 from web3.utils.decorators import (
     reject_recursive_repeats,
+)
+from web3.utils.toolz import (
+    dissoc,
+)
+from web3.utils.toolz.functoolz import (
+    compose,
+    curry,
 )
 
 
