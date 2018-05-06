@@ -46,8 +46,6 @@ from web3.utils.normalizers import (
 )
 from web3.utils.toolz import (
     pipe,
-)
-from web3.utils.toolz.dicttoolz import (
     valmap,
 )
 

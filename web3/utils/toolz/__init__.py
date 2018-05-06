@@ -1,14 +1,13 @@
-import sys
-
 try:
     from cytoolz import (
         assoc,
         complement,
         compose,
-        curried,
+        concat,
         curry,
         dicttoolz,
         dissoc,
+        excepts,
         functoolz,
         groupby,
         identity,
@@ -24,10 +23,11 @@ except ImportError:
         assoc,
         complement,
         compose,
-        curried,
+        concat,
         curry,
         dicttoolz,
         dissoc,
+        excepts,
         functoolz,
         groupby,
         identity,
@@ -38,10 +38,3 @@ except ImportError:
         sliding_window,
         valmap,
     )
-
-
-modules = [curried, dicttoolz, functoolz, itertoolz]
-for module in modules:
-    module_name = module.__name__.split('.')[-1]
-    sys.modules['web3.utils.toolz.{0}'.format(module_name)] = module
-del sys, modules

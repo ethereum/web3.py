@@ -72,7 +72,7 @@ from web3.utils.normalizers import (
     normalize_address,
     normalize_bytecode,
 )
-from web3.utils.toolz.functoolz import (
+from web3.utils.toolz import (
     compose,
     partial,
 )

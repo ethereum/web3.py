@@ -28,11 +28,9 @@ from web3.utils.threads import (
     spawn,
 )
 from web3.utils.toolz import (
-    valmap,
-)
-from web3.utils.toolz.functoolz import (
     complement,
     compose,
+    valmap,
 )
 
 from .base import (

@@ -33,16 +33,14 @@ from web3.utils.formatters import (
     remove_key_if,
 )
 from web3.utils.toolz import (
+    complement,
+    compose,
     curry,
+    partial,
 )
 from web3.utils.toolz.curried import (
     keymap,
     valmap,
-)
-from web3.utils.toolz.functoolz import (
-    complement,
-    compose,
-    partial,
 )
 
 from .formatting import (

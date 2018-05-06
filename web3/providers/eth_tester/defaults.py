@@ -18,7 +18,7 @@ from eth_utils import (
 from web3.utils.formatters import (
     apply_formatter_if,
 )
-from web3.utils.toolz.functoolz import (
+from web3.utils.toolz import (
     compose,
     curry,
     excepts,

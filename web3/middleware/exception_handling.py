@@ -1,4 +1,4 @@
-from web3.utils.toolz.functoolz import (
+from web3.utils.toolz import (
     excepts,
 )
 

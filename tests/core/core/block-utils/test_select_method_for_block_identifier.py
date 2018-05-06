@@ -3,7 +3,7 @@ import pytest
 from web3.utils.blocks import (
     select_method_for_block_identifier,
 )
-from web3.utils.toolz.functoolz import (
+from web3.utils.toolz import (
     partial,
 )
 

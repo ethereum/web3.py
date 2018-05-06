@@ -1,9 +1,7 @@
 from web3.utils.toolz import (
+    assoc,
     curry,
     merge,
-)
-from web3.utils.toolz.dicttoolz import (
-    assoc,
 )
 
 

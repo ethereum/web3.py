@@ -1,9 +1,7 @@
 import web3.utils.formatters
-from web3.utils.toolz.functoolz import (
-    curry,
-)
-from web3.utils.toolz.itertoolz import (
+from web3.utils.toolz import (
     concat,
+    curry,
 )
 
 

@@ -36,7 +36,7 @@ from web3.utils.filters import (
     LogFilter,
     TransactionFilter,
 )
-from web3.utils.toolz.dicttoolz import (
+from web3.utils.toolz import (
     assoc,
     merge,
 )

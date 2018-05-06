@@ -15,11 +15,9 @@ from web3.utils.decorators import (
     reject_recursive_repeats,
 )
 from web3.utils.toolz import (
-    dissoc,
-)
-from web3.utils.toolz.functoolz import (
     compose,
     curry,
+    dissoc,
 )
 
 

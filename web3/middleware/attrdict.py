@@ -5,7 +5,7 @@ from eth_utils import (
 from web3.utils.datastructures import (
     AttributeDict,
 )
-from web3.utils.toolz.dicttoolz import (
+from web3.utils.toolz import (
     assoc,
 )
 
