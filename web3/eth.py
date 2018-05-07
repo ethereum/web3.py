@@ -1,7 +1,3 @@
-from cytoolz.dicttoolz import (
-    assoc,
-    merge,
-)
 from eth_account import (
     Account,
 )
@@ -39,6 +35,10 @@ from web3.utils.filters import (
     BlockFilter,
     LogFilter,
     TransactionFilter,
+)
+from web3.utils.toolz import (
+    assoc,
+    merge,
 )
 from web3.utils.transactions import (
     assert_valid_transaction_params,

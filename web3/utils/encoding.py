@@ -1,9 +1,6 @@
 # String encodings and numeric representations
 import re
 
-from cytoolz import (
-    curry,
-)
 from eth_utils import (
     add_0x_prefix,
     big_endian_to_int,
@@ -28,6 +25,9 @@ from web3.utils.abi import (
     is_uint_type,
     size_of_type,
     sub_type_of_array_type,
+)
+from web3.utils.toolz import (
+    curry,
 )
 from web3.utils.validation import (
     assert_one_val,

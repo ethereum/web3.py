@@ -1,9 +1,7 @@
-from cytoolz import (
+from web3.utils.toolz import (
+    assoc,
     curry,
     merge,
-)
-from cytoolz.dicttoolz import (
-    assoc,
 )
 
 

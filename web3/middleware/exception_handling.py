@@ -1,4 +1,4 @@
-from cytoolz.functoolz import (
+from web3.utils.toolz import (
     excepts,
 )
 

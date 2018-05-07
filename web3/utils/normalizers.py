@@ -3,9 +3,6 @@ import codecs
 import functools
 import json
 
-from cytoolz import (
-    curry,
-)
 from eth_abi.abi import (
     process_type,
 )
@@ -29,6 +26,9 @@ from web3.utils.encoding import (
 from web3.utils.ens import (
     is_ens_name,
     validate_name_has_address,
+)
+from web3.utils.toolz import (
+    curry,
 )
 from web3.utils.validation import (
     validate_abi,

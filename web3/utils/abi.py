@@ -4,11 +4,6 @@ from collections import (
 import itertools
 import re
 
-from cytoolz import (
-    curry,
-    partial,
-    pipe,
-)
 from eth_abi.abi import (
     collapse_type,
     process_type,
@@ -32,6 +27,11 @@ from web3.utils.ens import (
 )
 from web3.utils.formatters import (
     recursive_map,
+)
+from web3.utils.toolz import (
+    curry,
+    partial,
+    pipe,
 )
 
 

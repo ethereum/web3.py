@@ -1,14 +1,5 @@
 import operator
 
-from cytoolz import (
-    assoc,
-    complement,
-    compose,
-    curry,
-    identity,
-    partial,
-    pipe,
-)
 from eth_utils import (
     is_dict,
     is_hex,
@@ -30,6 +21,15 @@ from web3.utils.formatters import (
     is_array_of_dicts,
     remove_key_if,
     static_return,
+)
+from web3.utils.toolz import (
+    assoc,
+    complement,
+    compose,
+    curry,
+    identity,
+    partial,
+    pipe,
 )
 
 

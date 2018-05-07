@@ -2,13 +2,6 @@ from wsgiref.simple_server import (
     make_server,
 )
 
-from cytoolz import (
-    valmap,
-)
-from cytoolz.functoolz import (
-    complement,
-    compose,
-)
 from eth_utils import (
     decode_hex,
     is_integer,
@@ -33,6 +26,11 @@ from web3.utils.formatters import (
 )
 from web3.utils.threads import (
     spawn,
+)
+from web3.utils.toolz import (
+    complement,
+    compose,
+    valmap,
 )
 
 from .base import (

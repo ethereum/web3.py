@@ -1,13 +1,12 @@
 import math
 
-from cytoolz import (
+from web3.utils.threads import (
+    Timeout,
+)
+from web3.utils.toolz import (
     assoc,
     curry,
     merge,
-)
-
-from web3.utils.threads import (
-    Timeout,
 )
 
 VALID_TRANSACTION_PARAMS = [

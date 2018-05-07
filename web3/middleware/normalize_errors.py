@@ -1,4 +1,4 @@
-from cytoolz import (
+from web3.utils.toolz import (
     assoc,
     dissoc,
 )

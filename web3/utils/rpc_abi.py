@@ -1,6 +1,3 @@
-from cytoolz import (
-    curry,
-)
 from eth_utils import (
     to_dict,
 )
@@ -10,6 +7,9 @@ from web3.utils.abi import (
 )
 from web3.utils.formatters import (
     apply_formatter_at_index,
+)
+from web3.utils.toolz import (
+    curry,
 )
 
 TRANSACTION_PARAMS_ABIS = {
