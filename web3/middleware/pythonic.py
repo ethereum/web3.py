@@ -277,6 +277,7 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'personal_sign': apply_formatter_at_index(text_if_str(to_hex), 0),
         'personal_ecRecover': apply_formatter_at_index(text_if_str(to_hex), 0),
+        'personal_sendTransaction': apply_formatter_at_index(transaction_param_formatter, 0),
         # Snapshot and Revert
         'evm_revert': apply_formatter_at_index(integer_to_hex, 0),
     },
