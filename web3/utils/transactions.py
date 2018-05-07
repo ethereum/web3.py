@@ -107,12 +107,11 @@ def extract_valid_transaction_params(transaction_params):
             return extracted_params
     elif extracted_params.get('data') is None:
         if transaction_params.get('input') is not None:
-            extracted_params['data'] = transaction_params['input']
-            return extracted_params
+            return assoc(extracted_params, 'data', transaction_params['input'])
         else:
             return extracted_params
     else:
-        return extracted_params
+        raise Exception("Unreachable path: transaction's 'data' is either set or not set")
 
 
 def assert_valid_transaction_params(transaction_params):
