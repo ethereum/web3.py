@@ -21,8 +21,8 @@ from web3.utils.abi import (
         (True, 'bytes32', False),  # no wrong types
         (0, 'bytes32', False),  # no wrong types
         # int
-        (-1 * 2**255, 'int256', False),
-        (-1 * 2**255 + 1, 'int256', True),
+        (-1 * 2**255 - 1, 'int256', False),
+        (-1 * 2**255, 'int256', True),
         (-1, 'int256', True),
         (0, 'int256', True),
         (1, 'int256', True),
