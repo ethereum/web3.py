@@ -15,6 +15,7 @@ from eth_utils import (
     is_hex,
     is_list_like,
     to_bytes,
+    to_text,
     to_tuple,
 )
 
@@ -135,6 +136,14 @@ def is_encodable(_type, value):
             return eth_abi_is_encodable(_type, bytes_val)
         else:
             return False
+    elif base == 'string' and isinstance(value, bytes):
+        # bytes that were encoded with utf-8 can be used anywhere a string is needed
+        try:
+            string_val = to_text(value)
+        except UnicodeDecodeError:
+            return False
+        else:
+            return eth_abi_is_encodable(_type, string_val)
     else:
         return eth_abi_is_encodable(_type, value)
 
