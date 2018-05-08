@@ -1307,7 +1307,7 @@ class ContractEvent:
             argument_filters=_filters,
             fromBlock=fromBlock,
             toBlock=toBlock,
-            address=address,
+            # address=address,
             topics=topics,
         )
 
