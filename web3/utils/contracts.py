@@ -105,7 +105,7 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
         if arg_count_matches == 0:
             diagnosis = "\nFunction invocation failed due to improper number of arguments."
         elif encoding_matches == 0:
-            diagnosis = "\nFunction invocation failed due to improper argument encoding."
+            diagnosis = "\nFunction invocation failed due to no matching argument types."
         elif encoding_matches > 1:
             diagnosis = (
                 "\nAmbiguous argument encoding. "
