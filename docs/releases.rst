@@ -1,6 +1,32 @@
 Release Notes
 =============
 
+v4.2.1
+--------
+
+Released May 9, 2018
+
+- Bugfixes
+
+  - When :meth:`getting a transaction <web3.eth.Eth.getTransaction>`
+    with data attached and trying to :meth:`modify it <web3.eth.Eth.modifyTransaction>`
+    (say, to increase the gas price), the data was not being reattached in
+    the new transaction.
+  - :meth:`web3.personal.sendTransaction` was crashing when using a transaction
+    generated with ``buildTransaction()``
+- Misc
+
+  - Improved error message when connecting to a geth-style PoA network
+  - Improved error message when address is not checksummed
+  - Started in on support for ``fixedMxN`` ABI arguments
+  - Lots of documentation upgrades, including:
+
+    - Guide for understanding nodes/networks/connections
+    - Simplified Quickstart with notes for common issues
+    - A new Troubleshooting section
+  - Potential pypy performance improvements (use toolz instead of cytoolz)
+  - eth-tester upgraded to beta 24
+
 v4.2.0
 --------
 
