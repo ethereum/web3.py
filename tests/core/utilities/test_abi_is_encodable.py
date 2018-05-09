@@ -21,8 +21,8 @@ from web3.utils.abi import (
         (True, 'bytes32', False),  # no wrong types
         (0, 'bytes32', False),  # no wrong types
         # int
-        (-1 * 2**255, 'int256', False),
-        (-1 * 2**255 + 1, 'int256', True),
+        (-1 * 2**255 - 1, 'int256', False),
+        (-1 * 2**255, 'int256', True),
         (-1, 'int256', True),
         (0, 'int256', True),
         (1, 'int256', True),
@@ -55,6 +55,12 @@ from web3.utils.abi import (
         ('ff', 'address', True),  # this could theoretically be a top-level domain (TLD)
         ('0xname.eth', 'address', True),  # 0x in name is fine, if it is not a TLD
         ('0xff', 'address', False),  # but any valid hex starting with 0x should be rejected
+        # string
+        ('', 'string', True),
+        ('anything', 'string', True),
+        (b'', 'string', True),
+        (b'anything', 'string', True),
+        (b'\x80', 'string', False),  # bytes that cannot be decoded with utf-8 are invalid
     ),
 )
 def test_is_encodable(value, _type, expected):

@@ -4,18 +4,18 @@ from collections import (
 import itertools
 import re
 
+from eth_abi import (
+    is_encodable as eth_abi_is_encodable,
+)
 from eth_abi.abi import (
     collapse_type,
     process_type,
 )
 from eth_utils import (
-    decode_hex,
-    is_address,
-    is_boolean,
     is_hex,
-    is_integer,
     is_list_like,
-    is_string,
+    to_bytes,
+    to_text,
     to_tuple,
 )
 
@@ -124,50 +124,28 @@ def is_encodable(_type, value):
             return False
         sub_type = (base, sub, arrlist[:-1])
         return all(is_encodable(sub_type, sub_value) for sub_value in value)
-    elif base == 'bool':
-        return is_boolean(value)
-    elif base == 'uint':
-        if not is_integer(value):
-            return False
-        exp = int(sub)
-        if value < 0 or value >= 2**exp:
-            return False
+    elif base == 'address' and is_ens_name(value):
+        # ENS names can be used anywhere an address is needed
+        # Web3.py will resolve the name to an address before encoding it
         return True
-    elif base == 'int':
-        if not is_integer(value):
-            return False
-        exp = int(sub)
-        if value <= -1 * 2**(exp - 1) or value >= 2**(exp - 1):
-            return False
-        return True
-    elif base == 'string':
-        if not is_string(value):
-            return False
-        return True
-    elif base == 'bytes':
-        if not is_string(value):
-            return False
-
-        if not sub:
-            return True
-
-        max_length = int(sub)
-        if isinstance(value, str):
-            decodable = is_hex(value) and len(value) % 2 == 0
-            return decodable and len(decode_hex(value)) <= max_length
-        elif isinstance(value, bytes):
-            return len(value) <= max_length
+    elif base == 'bytes' and isinstance(value, str):
+        # Hex-encoded bytes values can be used anywhere a bytes value is needed
+        if is_hex(value) and len(value) % 2 == 0:
+            # Require hex-encoding of full bytes (even length)
+            bytes_val = to_bytes(hexstr=value)
+            return eth_abi_is_encodable(_type, bytes_val)
         else:
             return False
-    elif base == 'address':
-        if is_ens_name(value):
-            return True
-        elif is_address(value):
-            return True
-        else:
+    elif base == 'string' and isinstance(value, bytes):
+        # bytes that were encoded with utf-8 can be used anywhere a string is needed
+        try:
+            string_val = to_text(value)
+        except UnicodeDecodeError:
             return False
+        else:
+            return eth_abi_is_encodable(_type, string_val)
     else:
-        raise ValueError("Unsupported type")
+        return eth_abi_is_encodable(_type, value)
 
 
 def filter_by_encodability(args, kwargs, contract_abi):
