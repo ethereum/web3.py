@@ -41,7 +41,7 @@ Released Apr 9, 2018
 - Various documentation updates
 - Pinned eth-account to older version
 
-v4.0.0 (stable)
+v4.0.0
 -----------------
 
 Released Apr 2, 2018

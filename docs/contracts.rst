@@ -453,7 +453,7 @@ Methods
         "0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd"
 
 
-.. py:method:: ContractFunction.call(transaction)
+.. py:method:: ContractFunction.call(transaction, block_identifier='latest')
 
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
