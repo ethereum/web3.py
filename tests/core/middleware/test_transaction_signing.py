@@ -126,11 +126,13 @@ def test_to_account_type_error(w3):
 def fund_account(w3, private_key):
     # fund local account
     account = to_account(w3, private_key)
+    tx_value = w3.toWei(10, 'ether')
     w3.eth.sendTransaction({
         'to': account.address,
         'from': w3.eth.accounts[0],
-        'value': 10})
-    assert w3.eth.getBalance(account.address) == 10
+        'gas': 21000,
+        'value': tx_value})
+    assert w3.eth.getBalance(account.address) == tx_value
 
 
 def test_signed_transaction_with_set_gas(w3, key_object, fund_account):
@@ -163,6 +165,7 @@ def test_wrong_address_signed_transaction(w3, key_object):
         w3.eth.sendTransaction({
             'to': w3.eth.accounts[0],
             'from': w3.eth.accounts[1],
+            'gas': 21000,
             'value': 10})
 
 
@@ -171,6 +174,7 @@ def test_invalid_address_signed_transaction(w3, key_object):
     with pytest.raises(ValueError):
         w3.eth.sendTransaction({
             'to': w3.eth.accounts[0],
+            'gas': 21000,
             'from': '!@#',
             'value': 10})
 
@@ -180,4 +184,5 @@ def test_missing_address_signed_transaction(w3, key_object):
     with pytest.raises(ValueError):
         w3.eth.sendTransaction({
             'to': w3.eth.accounts[0],
+            'gas': 21000,
             'value': 10})
