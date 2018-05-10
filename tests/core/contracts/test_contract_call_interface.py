@@ -559,7 +559,7 @@ DEFAULT_DECIMALS = getcontext().prec
         ('reflect', Decimal(1) / 10 ** 81, "no matching argument types"),
 
         # floats not accepted, for floating point error concerns
-        pytest.param('reflect_short_u', 0.1, "no matching argument types", marks=pytest.mark.xfail),
+        ('reflect_short_u', 0.1, "no matching argument types"),
 
         # ambiguous
         ('reflect', Decimal('12.7'), "Ambiguous argument encoding"),

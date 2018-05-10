@@ -111,7 +111,7 @@ def filter_by_argument_name(argument_names, contract_abi):
     ]
 
 
-def _is_encodable(_type, value):
+def is_encodable(_type, value):
     try:
         base, sub, arrlist = _type
     except ValueError:
@@ -146,15 +146,6 @@ def _is_encodable(_type, value):
             return eth_abi_is_encodable(_type, string_val)
     else:
         return eth_abi_is_encodable(_type, value)
-
-
-# this is a hack until https://github.com/ethereum/eth-abi/pull/71 is released
-# Update eth-abi, and delete this wrapper, once there is an updated version
-def is_encodable(_type, value):
-    try:
-        return _is_encodable(_type, value)
-    except ValueError:
-        return False
 
 
 def filter_by_encodability(args, kwargs, contract_abi):
