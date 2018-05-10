@@ -1,10 +1,13 @@
-import operator
-from functools import singledispatch
-from eth_account.local import (
-    LocalAccount,
+from functools import (
+    singledispatch,
 )
+import operator
+
 from eth_account import (
     Account,
+)
+from eth_account.local import (
+    LocalAccount,
 )
 from eth_keys.datatypes import (
     PrivateKey,
@@ -12,12 +15,12 @@ from eth_keys.datatypes import (
 from eth_utils import (
     is_same_address,
 )
-from web3.utils.toolz import (
-    compose,
-)
 
 from web3.utils.formatters import (
     apply_formatter_if,
+)
+from web3.utils.toolz import (
+    compose,
 )
 from web3.utils.transactions import (
     fill_nonce,
