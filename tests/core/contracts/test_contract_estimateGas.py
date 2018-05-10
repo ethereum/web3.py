@@ -56,7 +56,7 @@ def test_contract_estimateGas(math_contract, estimateGas):
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 32772) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 45673) < 200  # eth-tester with py-evm
 
 
 def test_contract_fallback_estimateGas(fallback_function_contract):
@@ -64,7 +64,7 @@ def test_contract_fallback_estimateGas(fallback_function_contract):
     try:
         assert abs(gas_estimate - 21472) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 29910) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 45403) < 200  # eth-tester with py-evm
 
 
 def test_contract_estimateGas_with_arguments(web3, math_contract, estimateGas):
@@ -74,5 +74,5 @@ def test_contract_estimateGas_with_arguments(web3, math_contract, estimateGas):
     try:
         assert abs(gas_estimate - 21984) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 30000) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 33855) < 200  # eth-tester with py-evm
         pass

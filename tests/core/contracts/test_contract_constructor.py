@@ -20,7 +20,7 @@ def test_contract_constructor_gas_estimate_no_constructor(MathContract):
     try:
         assert abs(gas_estimate - 167412) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 200321) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 177396) < 200  # eth-tester with py-evm
 
 
 def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
@@ -29,7 +29,7 @@ def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
     try:
         assert abs(gas_estimate - 43082) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 85694) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 61594) < 200  # eth-tester with py-evm
 
 
 @pytest.mark.parametrize(
@@ -50,7 +50,7 @@ def test_contract_constructor_gas_estimate_with_constructor_with_arguments(
     try:
         assert abs(gas_estimate - 78572) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 112574) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 89122) < 200  # eth-tester with py-evm
 
 
 def test_contract_constructor_gas_estimate_with_constructor_with_address_argument(
@@ -60,7 +60,7 @@ def test_contract_constructor_gas_estimate_with_constructor_with_address_argumen
     try:
         assert abs(gas_estimate - 50181) < 200  # Geth
     except AssertionError:
-        assert abs(gas_estimate - 95399) < 200  # eth-tester with py-evm
+        assert abs(gas_estimate - 66546) < 200  # eth-tester with py-evm
 
 
 def test_contract_constructor_transact_no_constructor(web3, MathContract, MATH_RUNTIME):
