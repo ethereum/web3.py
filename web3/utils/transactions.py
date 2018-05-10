@@ -32,9 +32,10 @@ TRANSACTION_DEFAULTS = {
 @curry
 def fill_nonce(web3, transaction):
     if 'from' in transaction and 'nonce' not in transaction:
-        return dict(
-            **transaction,
-            nonce=web3.eth.getTransactionCount(
+        return assoc(
+            transaction,
+            'nonce',
+            web3.eth.getTransactionCount(
                 transaction['from'],
                 block_identifier='pending'))
     else:

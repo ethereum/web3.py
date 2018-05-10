@@ -65,7 +65,7 @@ def w3_dummy(w3_base, result_generator_middleware):
 )
 def test_sign_and_send_raw_middleware(w3_dummy, w3, method, expected, key_object):
     w3_dummy.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
-    account = to_account(w3, key_object)
+    account = to_account(key_object)
 
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
@@ -112,20 +112,20 @@ def key_object(request, private_key):
     return request.param(private_key)
 
 
-def test_to_account(w3, key_object):
-    account = to_account(w3, key_object)
+def test_to_account(key_object):
+    account = to_account(key_object)
     assert isinstance(account, eth_account.local.LocalAccount)
 
 
 def test_to_account_type_error(w3):
     with pytest.raises(TypeError):
-        to_account(w3, 1234567890)
+        to_account(1234567890)
 
 
 @pytest.fixture(scope='session')
 def fund_account(w3, private_key):
     # fund local account
-    account = to_account(w3, private_key)
+    account = to_account(private_key)
     tx_value = w3.toWei(10, 'ether')
     w3.eth.sendTransaction({
         'to': account.address,
@@ -136,7 +136,7 @@ def fund_account(w3, private_key):
 
 
 def test_signed_transaction_with_set_gas(w3, key_object, fund_account):
-    account = to_account(w3, key_object)
+    account = to_account(key_object)
     w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
     start_balance = w3.eth.getBalance(account.address)
     w3.eth.sendTransaction({
@@ -149,7 +149,7 @@ def test_signed_transaction_with_set_gas(w3, key_object, fund_account):
 
 
 def test_signed_transaction_unset_gas(w3, key_object, fund_account):
-    account = to_account(w3, key_object)
+    account = to_account(key_object)
     w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
     start_balance = w3.eth.getBalance(account.address)
     w3.eth.sendTransaction({
