@@ -51,14 +51,16 @@ def to_account(web3, private_key):
         "Was of type {0}".format(type(private_key)))
 
 
-def construct_sign_and_send_raw_middleware(private_key):
+def construct_sign_and_send_raw_middleware(private_key_or_account):
 
     def sign_and_send_raw_middleware(make_request, web3):
-        account = to_account(web3, private_key)
+        account = to_account(web3, private_key_or_account)
 
         def middleware(method, params):
-            if method == "eth_sendTransaction":
+            if not method == "eth_sendTransaction":
+                return make_request(method, params)
 
+            else:
                 fill_tx = compose(
                     fill_transaction_defaults(web3),
                     fill_nonce(web3))
@@ -84,8 +86,6 @@ def construct_sign_and_send_raw_middleware(private_key):
                     "eth_sendRawTransaction",
                     [raw_tx])
 
-            else:
-                return make_request(method, params)
 
         return middleware
 
