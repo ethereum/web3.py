@@ -15,21 +15,26 @@ def test_contract_constructor_abi_encoding_with_no_constructor_fn(MathContract, 
     assert deploy_data == MATH_CODE
 
 
-def test_contract_constructor_gas_estimate_no_constructor(MathContract):
+def test_contract_constructor_gas_estimate_no_constructor(web3, MathContract):
     gas_estimate = MathContract.constructor().estimateGas()
-    try:
-        assert abs(gas_estimate - 167412) < 200  # Geth
-    except AssertionError:
-        assert abs(gas_estimate - 177396) < 200  # eth-tester with py-evm
+
+    deploy_txn = MathContract.constructor().transact()
+    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    gas_used = txn_receipt.get('gasUsed')
+
+    assert abs(gas_estimate - gas_used) < 21000
 
 
 def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
+        web3,
         SimpleConstructorContract):
     gas_estimate = SimpleConstructorContract.constructor().estimateGas()
-    try:
-        assert abs(gas_estimate - 43082) < 200  # Geth
-    except AssertionError:
-        assert abs(gas_estimate - 61594) < 200  # eth-tester with py-evm
+
+    deploy_txn = SimpleConstructorContract.constructor().transact()
+    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    gas_used = txn_receipt.get('gasUsed')
+
+    assert abs(gas_estimate - gas_used) < 21000
 
 
 @pytest.mark.parametrize(
@@ -42,25 +47,33 @@ def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
     ),
 )
 def test_contract_constructor_gas_estimate_with_constructor_with_arguments(
+        web3,
         WithConstructorArgumentsContract,
         constructor_args,
         constructor_kwargs):
     gas_estimate = WithConstructorArgumentsContract.constructor(
         *constructor_args, **constructor_kwargs).estimateGas()
-    try:
-        assert abs(gas_estimate - 78572) < 200  # Geth
-    except AssertionError:
-        assert abs(gas_estimate - 89122) < 200  # eth-tester with py-evm
+
+    deploy_txn = WithConstructorArgumentsContract.constructor(
+        *constructor_args, **constructor_kwargs).transact()
+    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    gas_used = txn_receipt.get('gasUsed')
+
+    assert abs(gas_estimate - gas_used) < 21000
 
 
 def test_contract_constructor_gas_estimate_with_constructor_with_address_argument(
+        web3,
         WithConstructorAddressArgumentsContract):
     gas_estimate = WithConstructorAddressArgumentsContract.constructor(
         "0x16D9983245De15E7A9A73bC586E01FF6E08dE737").estimateGas()
-    try:
-        assert abs(gas_estimate - 50181) < 200  # Geth
-    except AssertionError:
-        assert abs(gas_estimate - 66546) < 200  # eth-tester with py-evm
+
+    deploy_txn = WithConstructorAddressArgumentsContract.constructor(
+        "0x16D9983245De15E7A9A73bC586E01FF6E08dE737").transact()
+    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    gas_used = txn_receipt.get('gasUsed')
+
+    assert abs(gas_estimate - gas_used) < 21000
 
 
 def test_contract_constructor_transact_no_constructor(web3, MathContract, MATH_RUNTIME):
