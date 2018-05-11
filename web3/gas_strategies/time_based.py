@@ -6,6 +6,9 @@ from eth_utils import (
     to_tuple,
 )
 
+from web3.exceptions import (
+    ValidationError,
+)
 from web3.utils.toolz import (
     curry,
     groupby,
@@ -19,10 +22,10 @@ Probability = collections.namedtuple('Probability', ['gas_price', 'prob'])
 def _get_avg_block_time(w3, sample_size):
     latest = w3.eth.getBlock('latest')
 
-    if latest['number'] == 0 or sample_size == 0:
-        return 0
-
     constrained_sample_size = min(sample_size, latest['number'])
+    if constrained_sample_size == 0:
+        raise ValidationError('Constrained sample size is 0')
+
     oldest = w3.eth.getBlock(latest['number'] - constrained_sample_size)
     return (latest['timestamp'] - oldest['timestamp']) / constrained_sample_size
 
