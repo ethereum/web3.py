@@ -1,6 +1,8 @@
 import itertools
 
 from eth_utils import (
+    encode_hex,
+    function_abi_to_4byte_selector,
     is_0x_prefixed,
     is_boolean,
     is_bytes,
@@ -33,11 +35,19 @@ def validate_abi(abi):
     """
     Helper function for validating an ABI
     """
+    seen_selectors = set()
     if not is_list_like(abi):
         raise ValueError("'abi' is not a list")
     for e in abi:
         if not is_dict(e):
             raise ValueError("The elements of 'abi' are not all dictionaries")
+        if e['type'] == 'function':
+            selector = encode_hex(function_abi_to_4byte_selector(e))
+            if selector in seen_selectors:
+                raise ValueError(
+                    'Found collisions of functions with selector: %s' % selector
+                )
+            seen_selectors.add(selector)
 
 
 def validate_abi_type(abi_type):
