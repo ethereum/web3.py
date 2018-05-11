@@ -20,6 +20,9 @@ from web3.providers import (
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
+from web3.utils.toolz import (
+    assoc,
+)
 
 KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{"cipher":"aes-128-ctr","ciphertext":"52e06bc9397ea9fa2f0dae8de2b3e8116e92a2ecca9ad5ff0061d1c449704e98","cipherparams":{"iv":"aa5d0a5370ef65395c1a6607af857124"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"9fdf0764eb3645ffc184e166537f6fe70516bf0e34dc7311dea21f100f0c9263"},"mac":"4e0b51f42b865c15c485f4faefdd1f01a38637e5247f8c75ffe6a8c0eba856f6"},"id":"5a6124e0-10f1-4c1c-ae3e-d903eacb740a","version":3}'  # noqa: E501
 
@@ -135,38 +138,56 @@ def fund_account(w3, private_key):
     assert w3.eth.getBalance(account.address) == tx_value
 
 
-def test_signed_transaction_with_set_gas(w3, key_object, fund_account):
+@pytest.mark.parametrize(
+    'transaction,expected',
+    (
+        (
+            #  Transaction with set gas
+            {
+                'gas': 21000,
+                'gasPrice': 0,
+                'value': 1
+            },
+            -1
+        ),
+        (
+            #  Transaction with no set gas
+            {
+                'value': 1
+            },
+            -1
+        ),
+        (
+            #  Transaction with mismatched sender
+            {
+                'from': 'mismatched',
+                'gas': 21000,
+                'value': 10
+            },
+            ValueError
+        )
+    )
+)
+def test_signed_transaction(w3, key_object, fund_account, transaction, expected):
+    w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
     account = to_account(key_object)
-    w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
-    start_balance = w3.eth.getBalance(account.address)
-    w3.eth.sendTransaction({
-        'to': w3.eth.accounts[0],
-        'from': account.address,
-        'gas': 21000,
-        'gasPrice': 0,
-        'value': 1})
-    assert w3.eth.getBalance(account.address) <= start_balance - 1
+    if 'from' not in transaction:
+        _transaction = assoc(transaction, 'from', account.address)
+    elif 'from' in transaction and transaction['from'] == 'mismatched':
+        _transaction = assoc(transaction, 'from', w3.eth.accounts[1])
+        assert _transaction['from'] != account.address
+    else:
+        _transaction = transaction
 
+    _transaction = assoc(_transaction, 'to', w3.eth.accounts[0])
 
-def test_signed_transaction_unset_gas(w3, key_object, fund_account):
-    account = to_account(key_object)
-    w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
-    start_balance = w3.eth.getBalance(account.address)
-    w3.eth.sendTransaction({
-        'to': w3.eth.accounts[0],
-        'from': account.address,
-        'value': 1})
-    assert w3.eth.getBalance(account.address) <= start_balance - 1
-
-
-def test_wrong_address_signed_transaction(w3, key_object):
-    w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
-    with pytest.raises(ValueError):
-        w3.eth.sendTransaction({
-            'to': w3.eth.accounts[0],
-            'from': w3.eth.accounts[1],
-            'gas': 21000,
-            'value': 10})
+    start_balance = w3.eth.getBalance(_transaction['from'])
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            w3.eth.sendTransaction(_transaction)
+    else:
+        w3.eth.sendTransaction(_transaction)
+        assert w3.eth.getBalance(_transaction['from']) <= start_balance + expected
 
 
 def test_invalid_address_signed_transaction(w3, key_object):
