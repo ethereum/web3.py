@@ -27,6 +27,8 @@ from web3.exceptions import (
     NoABIFunctionsFound,
 )
 from web3.utils.abi import (
+    abi_to_signature,
+    check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
     filter_by_type,
     get_abi_output_types,
@@ -55,6 +57,7 @@ from web3.utils.empty import (
     empty,
 )
 from web3.utils.encoding import (
+    to_4byte_hex,
     to_hex,
 )
 from web3.utils.events import (
@@ -638,6 +641,58 @@ class Contract:
 
         return Caller()
 
+    @combomethod
+    def all_functions(self):
+        return find_functions_by_identifier(
+            self.abi, self.web3, self.address, lambda _: True
+        )
+
+    @combomethod
+    def get_function_by_signature(self, signature):
+        _signature = signature.replace(' ', '')
+
+        def callable_check(fn_abi):
+            return abi_to_signature(fn_abi) == _signature
+
+        fns = find_functions_by_identifier(self.abi, self.web3, self.address, callable_check)
+        return get_function_by_identifier(fns, 'signature')
+
+    @combomethod
+    def find_functions_by_name(self, fn_name):
+        def callable_check(fn_abi):
+            return fn_abi['name'] == fn_name
+
+        return find_functions_by_identifier(
+            self.abi, self.web3, self.address, callable_check
+        )
+
+    @combomethod
+    def get_function_by_name(self, fn_name):
+        fns = self.find_functions_by_name(fn_name)
+        return get_function_by_identifier(fns, 'name')
+
+    @combomethod
+    def get_function_by_selector(self, selector):
+        def callable_check(fn_abi):
+            return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(selector)
+
+        fns = find_functions_by_identifier(self.abi, self.web3, self.address, callable_check)
+        return get_function_by_identifier(fns, 'selector')
+
+    @combomethod
+    def find_functions_by_args(self, *args):
+        def callable_check(fn_abi):
+            return check_if_arguments_can_be_encoded(fn_abi, args=args, kwargs={})
+
+        return find_functions_by_identifier(
+            self.abi, self.web3, self.address, callable_check
+        )
+
+    @combomethod
+    def get_function_by_args(self, *args):
+        fns = self.find_functions_by_args(*args)
+        return get_function_by_identifier(fns, 'args')
+
     #
     # Private Helpers
     #
@@ -940,8 +995,11 @@ class ContractFunction:
     abi = None
     transaction = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, abi=None):
+        self.abi = abi
+        self.fn_name = type(self).__name__
 
+    def __call__(self, *args, **kwargs):
         if args is None:
             self.args = tuple()
         else:
@@ -951,15 +1009,17 @@ class ContractFunction:
             self.kwargs = {}
         else:
             self.kwargs = kwargs
-        self.fn_name = type(self).__name__
         self._set_function_info()
+        return self
 
     def _set_function_info(self):
-        self.abi = find_matching_fn_abi(self.contract_abi,
-                                        self.function_identifier,
-                                        self.args,
-                                        self.kwargs)
-
+        if not self.abi:
+            self.abi = find_matching_fn_abi(
+                self.contract_abi,
+                self.function_identifier,
+                self.args,
+                self.kwargs
+            )
         if self.function_identifier is FallbackFn:
             self.selector = encode_hex(b'')
         elif is_text(self.function_identifier):
@@ -1142,7 +1202,12 @@ class ContractFunction:
 
     @classmethod
     def factory(cls, class_name, **kwargs):
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get('abi'))
+
+    def __repr__(self):
+        if self.abi:
+            return '<Function %s>' % abi_to_signature(self.abi)
+        return '<Function %s>' % self.fn_name
 
 
 class ContractEvent:
@@ -1393,3 +1458,32 @@ def build_transaction_for_function(abi,
     prepared_transaction = fill_transaction_defaults(web3, prepared_transaction)
 
     return prepared_transaction
+
+
+def find_functions_by_identifier(contract_abi, web3, address, callable_check):
+    fns_abi = filter_by_type('function', contract_abi)
+    return [
+        ContractFunction.factory(
+            fn_abi['name'],
+            web3=web3,
+            contract_abi=contract_abi,
+            address=address,
+            function_identifier=fn_abi['name'],
+            abi=fn_abi
+        )
+        for fn_abi in fns_abi
+        if callable_check(fn_abi)
+    ]
+
+
+def get_function_by_identifier(fns, identifier):
+    if len(fns) > 1:
+        raise ValueError(
+            'Found multiple functions with matching {0}. '
+            'Found: {1!r}'.format(identifier, fns)
+        )
+    elif len(fns) == 0:
+        raise ValueError(
+            'Could not find any function with matching {0}'.format(identifier)
+        )
+    return fns[0]

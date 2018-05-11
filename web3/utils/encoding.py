@@ -13,6 +13,7 @@ from eth_utils import (
     is_hex,
     is_integer,
     is_list_like,
+    is_string,
     remove_0x_prefix,
     to_hex,
 )
@@ -262,3 +263,31 @@ class FriendlyJsonSerde:
             return self._friendly_json_encode(obj)
         except TypeError as exc:
             raise TypeError("Could not encode to JSON: {}".format(exc))
+
+
+def to_4byte_hex(hex_or_str_or_bytes):
+    size_of_4bytes = 4 * 8
+    if is_integer(hex_or_str_or_bytes):
+        byte_str = to_bytes(primitive=hex_or_str_or_bytes)
+        hex_str = to_hex_with_size(hex_or_str_or_bytes, size_of_4bytes)
+    elif is_bytes(hex_or_str_or_bytes):
+        byte_str = hex_or_str_or_bytes
+        hex_str = encode_hex(hex_or_str_or_bytes)
+    elif is_string(hex_or_str_or_bytes):
+        if not is_hex(hex_or_str_or_bytes):
+            raise ValueError(
+                'expected a hexadecimal string. Got {0!r}'.format(
+                    hex_or_str_or_bytes
+                )
+            )
+        byte_str = to_bytes(hexstr=hex_or_str_or_bytes)
+        hex_str = hex_or_str_or_bytes
+    else:
+        raise TypeError(
+            'expected a int, str, byte or bytearray. Got: %s' % type(hex_or_str_or_bytes)
+        )
+    if len(byte_str) > 4:
+        raise ValueError(
+            'expected value of size 4 bytes. Got: %d bytes' % len(byte_str)
+        )
+    return hex_str
