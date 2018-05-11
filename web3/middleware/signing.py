@@ -13,7 +13,7 @@ from eth_keys.datatypes import (
     PrivateKey,
 )
 from eth_utils import (
-    is_same_address,
+    to_dict,
 )
 
 from web3.utils.formatters import (
@@ -43,6 +43,18 @@ def raw_key_formatter(private_key):
     return formatter(private_key)
 
 
+@to_dict
+def to_accounts(val):
+    if isinstance(val, (list, tuple, set,)):
+        for i in val:
+            account = to_account(i)
+            yield account.address, account
+    else:
+        account = to_account(val)
+        yield account.address, account
+        return
+
+
 @singledispatch
 def to_account(val):
     raise TypeError(
@@ -67,10 +79,11 @@ to_account.register(str, private_key_to_account)
 to_account.register(bytes, private_key_to_account)
 
 
-def construct_sign_and_send_raw_middleware(private_key_or_account):
+def construct_sign_and_send_raw_middleware(private_keys_or_accounts, strict=False):
+
+    accounts = to_accounts(private_keys_or_accounts)
 
     def sign_and_send_raw_middleware(make_request, w3):
-        account = to_account(private_key_or_account)
 
         fill_tx = compose(
             fill_transaction_defaults(w3),
@@ -83,24 +96,31 @@ def construct_sign_and_send_raw_middleware(private_key_or_account):
             else:
                 transaction = fill_tx(params[0])
 
-                if 'from' in transaction:
-                    if not is_same_address(account.address, transaction['from']):
-                        raise ValueError(
-                            "Sending account address mismatch."
-                            "Transaction 'from' parameter does not match the"
-                            "address to the private key used to construct signing"
-                            "middleware.")
-                else:
+            if 'from' not in transaction:
+                if strict:
                     raise ValueError(
                         "Transaction signing middleware parameter"
                         "requirement not met: 'from' address was not included in"
                         "transaction parameters.")
+                else:
+                    return make_request(method, params)
 
-                raw_tx = account.signTransaction(transaction).rawTransaction
+            elif transaction.get('from') not in accounts.keys():
+                if strict:
+                    raise ValueError(
+                        "Sending account address mismatch."
+                        "Transaction 'from' parameter does not match the"
+                        "address to the private key used to construct signing"
+                        "middleware.")
+                else:
+                    return make_request(method, params)
 
-                return make_request(
-                    "eth_sendRawTransaction",
-                    [raw_tx])
+            account = accounts[transaction.get('from')]
+            raw_tx = account.signTransaction(transaction).rawTransaction
+
+            return make_request(
+                "eth_sendRawTransaction",
+                [raw_tx])
 
         return middleware
 

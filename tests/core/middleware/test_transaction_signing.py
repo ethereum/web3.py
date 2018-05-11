@@ -12,7 +12,7 @@ from web3.middleware import (
     construct_sign_and_send_raw_middleware,
 )
 from web3.middleware.signing import (
-    to_account,
+    to_accounts,
 )
 from web3.providers import (
     BaseProvider,
@@ -22,12 +22,13 @@ from web3.providers.eth_tester import (
 )
 from web3.utils.toolz import (
     assoc,
+    dissoc,
 )
 
 KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{"cipher":"aes-128-ctr","ciphertext":"52e06bc9397ea9fa2f0dae8de2b3e8116e92a2ecca9ad5ff0061d1c449704e98","cipherparams":{"iv":"aa5d0a5370ef65395c1a6607af857124"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"9fdf0764eb3645ffc184e166537f6fe70516bf0e34dc7311dea21f100f0c9263"},"mac":"4e0b51f42b865c15c485f4faefdd1f01a38637e5247f8c75ffe6a8c0eba856f6"},"id":"5a6124e0-10f1-4c1c-ae3e-d903eacb740a","version":3}'  # noqa: E501
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture()
 def private_key():
     return eth_account.Account.decrypt(KEYFILE_DATA, 'web3py-test')
 
@@ -40,7 +41,7 @@ class DummyProvider(BaseProvider):
         ))
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture()
 def result_generator_middleware():
     return construct_result_generator_middleware({
         'eth_sendRawTransaction': lambda *args: args,
@@ -48,12 +49,12 @@ def result_generator_middleware():
     })
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture()
 def w3_base():
     return Web3(providers=[DummyProvider()], middlewares=[])
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture()
 def w3_dummy(w3_base, result_generator_middleware):
     w3_base.middleware_stack.add(result_generator_middleware)
     return w3_base
@@ -68,7 +69,8 @@ def w3_dummy(w3_base, result_generator_middleware):
 )
 def test_sign_and_send_raw_middleware(w3_dummy, w3, method, expected, key_object):
     w3_dummy.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
-    account = to_account(key_object)
+    accounts = to_accounts(key_object)
+    account = next(iter(accounts.values()))
 
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
@@ -99,47 +101,54 @@ def test_sign_and_send_raw_middleware(w3_dummy, w3, method, expected, key_object
         assert isinstance(raw_txn, bytes)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture()
 def w3():
     return Web3(EthereumTesterProvider())
 
 
 @pytest.fixture(
-    scope='session',
     params=[
         eth_keys.keys.PrivateKey,
         eth_account.Account.privateKeyToAccount,
         HexBytes,
+        [eth_keys.keys.PrivateKey, eth_account.Account.privateKeyToAccount, HexBytes],
+        (eth_keys.keys.PrivateKey, eth_account.Account.privateKeyToAccount, HexBytes),
     ])
 def key_object(request, private_key):
-    return request.param(private_key)
+    try:
+        iter(request.param)
+    except TypeError:
+        return request.param(private_key)
+    else:
+        return type(request.param)([i(private_key) for i in request.param])
 
 
-def test_to_account(key_object):
-    account = to_account(key_object)
-    assert isinstance(account, eth_account.local.LocalAccount)
+def test_to_accounts(key_object):
+    accounts = to_accounts(key_object)
+    assert all(isinstance(account, eth_account.local.LocalAccount) for account in accounts.values())
 
 
 def test_to_account_type_error(w3):
     with pytest.raises(TypeError):
-        to_account(1234567890)
+        to_accounts(1234567890)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture()
 def fund_account(w3, private_key):
     # fund local account
-    account = to_account(private_key)
+    accounts = to_accounts(private_key)
     tx_value = w3.toWei(10, 'ether')
-    w3.eth.sendTransaction({
-        'to': account.address,
-        'from': w3.eth.accounts[0],
-        'gas': 21000,
-        'value': tx_value})
-    assert w3.eth.getBalance(account.address) == tx_value
+    for address, account in accounts.items():
+        w3.eth.sendTransaction({
+            'to': account.address,
+            'from': w3.eth.accounts[0],
+            'gas': 21000,
+            'value': tx_value})
+        assert w3.eth.getBalance(account.address) == tx_value
 
 
 @pytest.mark.parametrize(
-    'transaction,expected',
+    'transaction,is_strict,expected',
     (
         (
             #  Transaction with set gas
@@ -148,6 +157,7 @@ def fund_account(w3, private_key):
                 'gasPrice': 0,
                 'value': 1
             },
+            False,
             -1
         ),
         (
@@ -155,55 +165,77 @@ def fund_account(w3, private_key):
             {
                 'value': 1
             },
+            False,
             -1
         ),
         (
             #  Transaction with mismatched sender
             {
-                'from': 'mismatched',
+                'from': 'MISMATCHED',
                 'gas': 21000,
                 'value': 10
             },
+            True,
             ValueError
+        ),
+        (
+            #  Strict transaction with missing sender
+            {
+                'from': 'NO_ADDRESS',
+                'gas': 21000,
+                'value': 10
+            },
+            True,
+            ValueError
+        ),
+        (
+            #  Un-strict transaction with mismatched sender
+            {
+                'from': 'MISMATCHED',
+                'gas': 21000,
+                'value': 10
+            },
+            False,
+            -10
+        ),
+        (
+            #  Un-strict transaction with invalid sender
+            {
+                'from': 'INVALIDADDRESS',
+                'gas': 21000,
+                'value': 10
+            },
+            True,
+            ValueError,
         )
     )
 )
-def test_signed_transaction(w3, key_object, fund_account, transaction, expected):
-    w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
-    account = to_account(key_object)
+def test_signed_transaction(w3, key_object, fund_account, transaction, is_strict, expected):
+    w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object, strict=is_strict))
+    accounts = to_accounts(key_object)
+    account = next(iter(accounts.values()))
+
     if 'from' not in transaction:
         _transaction = assoc(transaction, 'from', account.address)
-    elif 'from' in transaction and transaction['from'] == 'mismatched':
+
+    elif 'from' in transaction and transaction['from'] == 'MISMATCHED':
         _transaction = assoc(transaction, 'from', w3.eth.accounts[1])
         assert _transaction['from'] != account.address
+
+    elif 'from' in transaction and transaction['from'] == 'NO_ADDRESS':
+        _transaction = dissoc(transaction, 'from')
+
     else:
         _transaction = transaction
 
     _transaction = assoc(_transaction, 'to', w3.eth.accounts[0])
 
-    start_balance = w3.eth.getBalance(_transaction['from'])
+    if 'from' in _transaction:
+        start_balance = w3.eth.getBalance(_transaction['from'])
+
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
             w3.eth.sendTransaction(_transaction)
     else:
         w3.eth.sendTransaction(_transaction)
         assert w3.eth.getBalance(_transaction['from']) <= start_balance + expected
-
-
-def test_invalid_address_signed_transaction(w3, key_object):
-    w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
-    with pytest.raises(ValueError):
-        w3.eth.sendTransaction({
-            'to': w3.eth.accounts[0],
-            'gas': 21000,
-            'from': '!@#',
-            'value': 10})
-
-
-def test_missing_address_signed_transaction(w3, key_object):
-    w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
-    with pytest.raises(ValueError):
-        w3.eth.sendTransaction({
-            'to': w3.eth.accounts[0],
-            'gas': 21000,
-            'value': 10})
