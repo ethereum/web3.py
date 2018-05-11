@@ -1,3 +1,7 @@
+from decimal import (
+    Decimal,
+    getcontext,
+)
 import json
 import pytest
 
@@ -67,6 +71,11 @@ def address_contract(web3, WithConstructorAddressArgumentsContract):
 @pytest.fixture(params=[b'\x04\x06', '0x0406', '0406'])
 def bytes_contract(web3, BytesContract, request):
     return deploy(web3, BytesContract, args=[request.param])
+
+
+@pytest.fixture()
+def fixed_reflection_contract(web3, FixedReflectionContract):
+    return deploy(web3, FixedReflectionContract)
 
 
 @pytest.fixture()
@@ -440,7 +449,7 @@ diagnosis_arg_regex = (
     r"\nFunction invocation failed due to improper number of arguments."
 )
 diagnosis_encoding_regex = (
-    r"\nFunction invocation failed due to improper argument encoding."
+    r"\nFunction invocation failed due to no matching argument types."
 )
 diagnosis_ambiguous_encoding = (
     r"\nAmbiguous argument encoding. "
@@ -499,3 +508,66 @@ def test_call_abi_no_functions(web3):
     contract = web3.eth.contract(abi=[])
     with pytest.raises(NoABIFunctionsFound):
         contract.functions.thisFunctionDoesNotExist().call()
+
+
+@pytest.mark.parametrize(
+    'function, value',
+    (
+        # minimum positive unambiguous value (larger than fixed8x1)
+        ('reflect', Decimal('12.8')),
+        # maximum value (for ufixed256x1)
+        ('reflect', Decimal(2 ** 256 - 1) / 10),
+        # maximum negative unambiguous value (less than 0 from ufixed*)
+        ('reflect', Decimal('-0.1')),
+        # minimum value (for fixed8x1)
+        ('reflect', Decimal('-12.8')),
+        # only ufixed256x80 type supports 2-80 decimals
+        ('reflect', Decimal(2 ** 256 - 1) / 10 ** 80),  # maximum allowed value
+        ('reflect', Decimal(1) / 10 ** 80),  # smallest non-zero value
+        # minimum value (for ufixed8x1)
+        ('reflect_short_u', 0),
+        # maximum value (for ufixed8x1)
+        ('reflect_short_u', Decimal('25.5')),
+    ),
+)
+def test_reflect_fixed_value(web3, fixed_reflection_contract, function, value):
+    contract_func = fixed_reflection_contract.functions[function]
+    reflected = contract_func(value).call({'gas': 420000})
+    assert reflected == value
+
+
+DEFAULT_DECIMALS = getcontext().prec
+
+
+@pytest.mark.parametrize(
+    'function, value, error',
+    (
+        # out of range
+        ('reflect_short_u', Decimal('25.6'), "no matching argument types"),
+        ('reflect_short_u', Decimal('-.1'), "no matching argument types"),
+        # too many digits for *x1, too large for 256x80
+        ('reflect', Decimal('0.01'), "no matching argument types"),
+
+        # too many digits
+        ('reflect_short_u', Decimal('0.01'), "no matching argument types"),
+        (
+            'reflect_short_u',
+            Decimal('1e-%d' % (DEFAULT_DECIMALS + 1)),
+            "no matching argument types",
+        ),
+        ('reflect_short_u', Decimal('25.4' + '9' * DEFAULT_DECIMALS), "no matching argument types"),
+        ('reflect', Decimal(1) / 10 ** 81, "no matching argument types"),
+
+        # floats not accepted, for floating point error concerns
+        ('reflect_short_u', 0.1, "no matching argument types"),
+
+        # ambiguous
+        ('reflect', Decimal('12.7'), "Ambiguous argument encoding"),
+        ('reflect', Decimal(0), "Ambiguous argument encoding"),
+        ('reflect', 0, "Ambiguous argument encoding"),
+    ),
+)
+def test_invalid_fixed_value_reflections(web3, fixed_reflection_contract, function, value, error):
+    contract_func = fixed_reflection_contract.functions[function]
+    with pytest.raises(ValidationError, match=error):
+        contract_func(value).call({'gas': 420000})

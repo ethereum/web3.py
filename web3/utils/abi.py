@@ -264,9 +264,9 @@ BASE_TYPE_REGEX = '|'.join((
 ))
 
 SUB_TYPE_REGEX = (
-    '\['
+    r'\['
     '[0-9]*'
-    '\]'
+    r'\]'
 )
 
 TYPE_REGEX = (
@@ -322,7 +322,7 @@ def size_of_type(abi_type):
         return 8
     if abi_type == 'address':
         return 160
-    return int(re.sub("\D", "", abi_type))
+    return int(re.sub(r"\D", "", abi_type))
 
 
 END_BRACKETS_OF_ARRAY_TYPE_REGEX = r"\[[^]]*\]$"
@@ -371,7 +371,7 @@ NAME_REGEX = (
 ENUM_REGEX = (
     '^'
     '{lib_name}'
-    '\.'
+    r'\.'
     '{enum_name}'
     '$'
 ).format(lib_name=NAME_REGEX, enum_name=NAME_REGEX)

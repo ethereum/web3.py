@@ -432,6 +432,51 @@ def FallballFunctionContract(web3, FALLBACK_FUNCTION_CONTRACT):
     return web3.eth.contract(**FALLBACK_FUNCTION_CONTRACT)
 
 
+# no matter the function selector, this will return back the 32 bytes of data supplied
+CONTRACT_REFLECTION_CODE = (
+    "0x610011566020600460003760206000f3005b61000461001103610004600039610004610011036000f3"
+)
+
+# reference source used to generate it:
+LLL_SOURCE = "['seq', ['return', 0, ['lll', ['seq', ['calldatacopy', 0, 4, 32], ['return', 0, 32], 'stop' ], 0]]])"  # noqa: E501
+
+CONTRACT_FIXED_ABI = [
+    {
+        "type": "function",
+        "constant": False,
+        "inputs": [{"type": "fixed8x1"}],
+        "name": "reflect",
+        "outputs": [{"type": "fixed8x1"}],
+    },
+    {
+        "type": "function",
+        "constant": False,
+        "inputs": [{"type": "ufixed256x80"}],
+        "name": "reflect",
+        "outputs": [{"type": "ufixed256x80"}],
+    },
+    {
+        "type": "function",
+        "constant": False,
+        "inputs": [{"type": "ufixed256x1"}],
+        "name": "reflect",
+        "outputs": [{"type": "ufixed256x1"}],
+    },
+    {
+        "type": "function",
+        "constant": False,
+        "inputs": [{"type": "ufixed8x1"}],
+        "name": "reflect_short_u",
+        "outputs": [{"type": "ufixed8x1"}],
+    },
+]
+
+
+@pytest.fixture
+def FixedReflectionContract(web3):
+    return web3.eth.contract(abi=CONTRACT_FIXED_ABI, bytecode=CONTRACT_REFLECTION_CODE)
+
+
 class LogFunctions:
     LogAnonymous = 0
     LogNoArguments = 1
