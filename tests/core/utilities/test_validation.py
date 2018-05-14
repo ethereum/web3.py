@@ -22,6 +22,46 @@ ABI = [
 
 MALFORMED_ABI_1 = "NON-LIST ABI"
 MALFORMED_ABI_2 = [5, {"test": "value"}, True]
+MALFORMED_SELECTOR_COLLISION_ABI = [
+    {
+        'constant': False,
+        'inputs': [{'name': 'input', 'type': 'uint256'}],
+        'name': 'blockHashAmphithyronVersify',
+        'outputs': [{'name': '', 'type': 'uint256'}],
+        'payable': False,
+        'stateMutability': 'nonpayable',
+        'type': 'function'
+    },
+    {
+        'constant': False,
+        'inputs': [{'name': 'input', 'type': 'uint256'}],
+        'name': 'blockHashAskewLimitary',
+        'outputs': [{'name': '', 'type': 'uint256'}],
+        'payable': False,
+        'stateMutability': 'nonpayable',
+        'type': 'function'
+    }
+]
+MALFORMED_SIGNATURE_COLLISION_ABI = [
+    {
+        'constant': False,
+        'inputs': [{'name': 'input', 'type': 'uint256'}],
+        'name': 'blockHashAmphithyronVersify',
+        'outputs': [{'name': '', 'type': 'uint256'}],
+        'payable': False,
+        'stateMutability': 'nonpayable',
+        'type': 'function'
+    },
+    {
+        'constant': False,
+        'inputs': [{'name': 'input', 'type': 'uint256'}],
+        'name': 'blockHashAmphithyronVersify',
+        'outputs': [{'name': '', 'type': 'uint256'}],
+        'payable': False,
+        'stateMutability': 'nonpayable',
+        'type': 'function'
+    }
+]
 
 ADDRESS = '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 PADDED_ADDRESS = '0x000000000000000000000000d3cda913deb6f67967b99d67acdfa1712c293601'
@@ -35,6 +75,8 @@ NON_CHECKSUM_ADDRESS = '0xd3cda913deb6f67967b99d67acdfa1712c293601'
         (ABI, validate_abi, None),
         (MALFORMED_ABI_1, validate_abi, ValueError),
         (MALFORMED_ABI_2, validate_abi, ValueError),
+        (MALFORMED_SELECTOR_COLLISION_ABI, validate_abi, ValueError),
+        (MALFORMED_SIGNATURE_COLLISION_ABI, validate_abi, ValueError),
         (ADDRESS, validate_address, None),
         (PADDED_ADDRESS, validate_address, InvalidAddress),
         (INVALID_CHECKSUM_ADDRESS, validate_address, InvalidAddress),
