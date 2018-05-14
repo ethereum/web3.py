@@ -18,6 +18,7 @@ from web3.exceptions import (
     InvalidAddress,
 )
 from web3.utils.abi import (
+    abi_to_signature,
     is_address_type,
     is_array_type,
     is_bool_type,
@@ -35,7 +36,7 @@ def validate_abi(abi):
     """
     Helper function for validating an ABI
     """
-    seen_selectors = set()
+    seen_selectors = dict()
     if not is_list_like(abi):
         raise ValueError("'abi' is not a list")
     for e in abi:
@@ -45,9 +46,13 @@ def validate_abi(abi):
             selector = encode_hex(function_abi_to_4byte_selector(e))
             if selector in seen_selectors:
                 raise ValueError(
-                    'Found collisions of functions with selector: %s' % selector
+                    'Found collisions for functions: [{0}] '
+                    'with selector: {1}'.format(
+                        ', '.join([seen_selectors[selector], abi_to_signature(e)]),
+                        selector
+                    )
                 )
-            seen_selectors.add(selector)
+            seen_selectors[selector] = abi_to_signature(e)
 
 
 def validate_abi_type(abi_type):

@@ -649,10 +649,14 @@ class Contract:
 
     @combomethod
     def get_function_by_signature(self, signature):
-        _signature = signature.replace(' ', '')
+        if ' ' in signature:
+            raise ValueError(
+                'Function signature should not contain any spaces. '
+                'Found spaces in input: %s' % signature
+            )
 
         def callable_check(fn_abi):
-            return abi_to_signature(fn_abi) == _signature
+            return abi_to_signature(fn_abi) == signature
 
         fns = find_functions_by_identifier(self.abi, self.web3, self.address, callable_check)
         return get_function_by_identifier(fns, 'signature')
