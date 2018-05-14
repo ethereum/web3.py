@@ -1,6 +1,9 @@
 import pytest
 
 from web3 import Web3
+from web3.exceptions import (
+    ValidationError,
+)
 from web3.gas_strategies.time_based import (
     construct_time_based_gas_price_strategy,
 )
@@ -139,3 +142,56 @@ def test_time_based_gas_price_strategy(strategy_params, expected):
     w3.eth.setGasPriceStrategy(time_based_gas_price_strategy)
     actual = w3.eth.generateGasPrice()
     assert actual == expected
+
+
+@pytest.mark.parametrize(
+    'strategy_params_zero,expected_exception_message',
+    (
+        # 120 second wait times, 0 sample_size
+        (dict(max_wait_seconds=80, sample_size=0, probability=98),
+            'Constrained sample size is 0'),
+        (dict(max_wait_seconds=80, sample_size=0, probability=90),
+            'Constrained sample size is 0'),
+        (dict(max_wait_seconds=80, sample_size=0, probability=50),
+            'Constrained sample size is 0'),
+        # 60 second wait times, 0 sample_size
+        (dict(max_wait_seconds=60, sample_size=0, probability=98),
+            'Constrained sample size is 0'),
+        (dict(max_wait_seconds=60, sample_size=0, probability=90),
+            'Constrained sample size is 0'),
+        (dict(max_wait_seconds=60, sample_size=0, probability=50),
+            'Constrained sample size is 0'),
+        # 40 second wait times, 0 sample_size
+        (dict(max_wait_seconds=40, sample_size=0, probability=98),
+            'Constrained sample size is 0'),
+        (dict(max_wait_seconds=40, sample_size=0, probability=90),
+            'Constrained sample size is 0'),
+        (dict(max_wait_seconds=40, sample_size=0, probability=50),
+            'Constrained sample size is 0'),
+        # 20 second wait times, 0 sample_size
+        (dict(max_wait_seconds=20, sample_size=0, probability=98),
+            'Constrained sample size is 0'),
+        (dict(max_wait_seconds=20, sample_size=0, probability=90),
+            'Constrained sample size is 0'),
+        (dict(max_wait_seconds=20, sample_size=0, probability=50),
+            'Constrained sample size is 0'),
+    ),
+)
+def test_time_based_gas_price_strategy_zero_sample(strategy_params_zero,
+                                                   expected_exception_message):
+    with pytest.raises(ValidationError) as excinfo:
+        fixture_middleware = construct_result_generator_middleware({
+            'eth_getBlockByHash': _get_block_by_something,
+            'eth_getBlockByNumber': _get_block_by_something,
+        })
+
+        w3 = Web3(
+            providers=[BaseProvider()],
+            middlewares=[fixture_middleware],
+        )
+        time_based_gas_price_strategy_zero = construct_time_based_gas_price_strategy(
+            **strategy_params_zero,
+        )
+        w3.eth.setGasPriceStrategy(time_based_gas_price_strategy_zero)
+        w3.eth.generateGasPrice()
+    assert str(excinfo.value) == expected_exception_message
