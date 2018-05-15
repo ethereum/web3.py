@@ -4,6 +4,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+PROJECT_ROOT=$(dirname $(dirname $(readlink -f $0)))
+
 echo "What is your python module name?"
 read MODULE_NAME
 
@@ -27,7 +29,7 @@ echo "What is a one-liner describing the project?"
 read SHORT_DESCRIPTION
 
 _replace() {
-  local find_cmd=(find . ! -perm -u=x ! -path '*/.git/*' -type f)
+  local find_cmd=(find "$PROJECT_ROOT" ! -perm -u=x ! -path '*/.git/*' -type f)
 
   if [[ $(uname) == Darwin ]]; then
     "${find_cmd[@]}" -exec sed -i '' "$1" {} +
