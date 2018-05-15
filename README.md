@@ -3,7 +3,7 @@
 [![Join the chat at https://gitter.im/ethereum/web3.py](https://badges.gitter.im/ethereum/web3.py.svg)](https://gitter.im/ethereum/web3.py?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Build Status](https://travis-ci.org/ethereum/web3.py.png)](https://travis-ci.org/ethereum/web3.py)
-   
+
 
 A Python implementation of [web3.js](https://github.com/ethereum/web3.js)
 
@@ -69,31 +69,28 @@ print('Setting value to: Nihao')
 print('Contract value: {}'.format(contract_instance.greet()))
 ```
 
-## Developer setup
-
-If you would like to hack on web3.py, set up your dev environment with:
+## Developer Setup
 
 ```sh
-sudo apt-get install libssl-dev libffi-dev autoconf automake libtool
-# ^ This is for Debian-like systems. TODO: Add more platforms
-
-sudo pacman -Sy libsecp256k1
-# ^ This is for ArchLinux system
-
-sudo dnf install openssl-devel libffi-devel autoconf automake libtool
-# ^ This is for Fedora.
-
 git clone git@github.com:ethereum/web3.py.git
 cd web3.py
-virtualenv venv
-. venv/bin/activate
-pip install -r requirements-dev.txt
-pip install -e .[tester]
 ```
 
-For different environments, you can set up multiple virtualenvs, like:
+Please see OS-specific instructions for:
 
-**Docs**
+- [Linux](docs/README-linux.md#Developer-Setup)
+- [Mac](docs/README-osx.md#Developer-Setup)
+- [Windows](docs/README-windows.md#Developer-Setup)
+
+Then run these install commands:
+
+```sh
+virtualenv venv
+. venv/bin/activate
+pip install -e .[tester] -r requirements-dev.txt
+```
+
+For different environments, you can set up multiple `virtualenv`. For example, if you want to create a `venvdocs`, then you do the following:
 
 ```sh
 virtualenv venvdocs
@@ -145,17 +142,13 @@ Show flake8 errors on file change:
 when-changed -v -s -r -1 web3/ tests/ ens/ -c "clear; flake8 web3 tests ens && echo 'flake8 success' || echo 'error'"
 ```
 
-You can use pytest-watch, running one for every Python environment:
+You can use `pytest-watch`, running one for every Python environment:
 
 ```sh
 pip install pytest-watch
 
 cd venv
 ptw --onfail "notify-send -t 5000 'Test failure ⚠⚠⚠⚠⚠' 'python 3 test on web3.py failed'" ../tests ../web3
-
-#in a new console
-cd venvpy2
-ptw --onfail "notify-send -t 5000 'Test failure ⚠⚠⚠⚠⚠' 'python 2 test on web3.py failed'" ../tests ../web3
 ```
 
 Or, you can run multi-process tests in one command, but without color:
@@ -165,6 +158,30 @@ Or, you can run multi-process tests in one command, but without color:
 pytest --numprocesses=4 --looponfail --maxfail=1
 # the same thing, succinctly:
 pytest -n 4 -f --maxfail=1
+```
+
+#### How to Execute the Tests?
+
+1. [Setup your development environment](https://github.com/ethereum/web3.py/#developer-setup).
+
+2. Execute `tox` for the tests
+
+There are multiple [components](https://github.com/ethereum/web3.py/blob/master/.travis.yml#L53) of the tests. You can run test to against specific component. For example:
+
+```sh
+# Run Tests for the Core component (for Python 3.5):
+tox -e py35-core
+
+# Run Tests for the Core component (for Python 3.6):
+tox -e py36-core
+```
+
+If for some reason it is not working, add `--recreate` params.
+
+`tox` is good for testing against the full set of build targets. But if you want to run the tests individually, `py.test` is better for development workflow. For example, to run only the tests in one file:
+
+```sh
+py.test tests/core/gas-strategies/test_time_based_gas_price_strategy.py
 ```
 
 ### Release setup
