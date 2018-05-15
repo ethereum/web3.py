@@ -29,7 +29,7 @@ lint-roll:
 	$(MAKE) lint
 
 test:
-	py.test tests
+	pytest tests
 
 test-all:
 	tox
