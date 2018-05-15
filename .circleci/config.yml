@@ -8,6 +8,17 @@ common: &common
     - checkout
     - run:
         name: merge pull request base
+        command: ./.circleci/merge_pr.sh
+    - run:
+        name: merge pull request base (2nd try)
+        command: ./.circleci/merge_pr.sh
+        when: on_fail
+    - run:
+        name: merge pull request base (3nd try)
+        command: ./.circleci/merge_pr.sh
+        when: on_fail
+    - run:
+        name: merge pull request base
         command: |
           if [[ -n "${CIRCLE_PR_NUMBER}" ]]; then
             PR_INFO_URL=https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pulls/$CIRCLE_PR_NUMBER
@@ -33,6 +44,7 @@ common: &common
         command: ~/.local/bin/tox -r
     - save_cache:
         paths:
+          - .hypothesis
           - .tox
           - ~/.cache/pip
           - ~/.local
