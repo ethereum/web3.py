@@ -162,7 +162,7 @@ Or, you can run multi-process tests in one command, but without color:
 
 ```sh
 # in the project root:
-py.test --numprocesses=4 --looponfail --maxfail=1
+pytest --numprocesses=4 --looponfail --maxfail=1
 # the same thing, succinctly:
 pytest -n 4 -f --maxfail=1
 ```
