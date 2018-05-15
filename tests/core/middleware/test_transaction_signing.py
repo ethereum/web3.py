@@ -6,7 +6,15 @@ from hexbytes import (
     HexBytes,
 )
 
+from eth_utils import (
+    to_bytes,
+    to_hex,
+)
+
 from web3 import Web3
+from web3.exceptions import (
+    InvalidAddress
+)
 from web3.middleware import (
     construct_result_generator_middleware,
     construct_sign_and_send_raw_middleware,
@@ -21,16 +29,43 @@ from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 from web3.utils.toolz import (
-    assoc,
-    dissoc,
+    valfilter,
+    merge,
 )
 
-KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{"cipher":"aes-128-ctr","ciphertext":"52e06bc9397ea9fa2f0dae8de2b3e8116e92a2ecca9ad5ff0061d1c449704e98","cipherparams":{"iv":"aa5d0a5370ef65395c1a6607af857124"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"9fdf0764eb3645ffc184e166537f6fe70516bf0e34dc7311dea21f100f0c9263"},"mac":"4e0b51f42b865c15c485f4faefdd1f01a38637e5247f8c75ffe6a8c0eba856f6"},"id":"5a6124e0-10f1-4c1c-ae3e-d903eacb740a","version":3}'  # noqa: E501
+PRIVATE_KEY_1 = to_bytes(
+    hexstr='0x6a8b4de52b288e111c14e1c4b868bc125d325d40331d86d875a3467dd44bf829')
+
+ADDRESS_1 = '0x634743b15C948820069a43f6B361D03EfbBBE5a8'
+
+PRIVATE_KEY_2 = to_bytes(
+    hexstr='0xbf963e13b164c2100795f53e5590010f76b7a91b5a78de8e2b97239c8cfca8e8')
+
+ADDRESS_2 = '0x91eD14b5956DBcc1310E65DC4d7E82f02B95BA46'
+
+KEY_FUNCS = (
+    eth_keys.keys.PrivateKey,
+    eth_account.Account.privateKeyToAccount,
+    HexBytes,
+    to_hex,
+    lambda bytes_key: bytes_key,
+)
 
 
-@pytest.fixture()
-def private_key():
-    return eth_account.Account.decrypt(KEYFILE_DATA, 'web3py-test')
+SAME_KEY_MIXED_TYPE = tuple(key_func(PRIVATE_KEY_1) for key_func in KEY_FUNCS)
+
+MIXED_KEY_MIXED_TYPE = tuple(
+    key_func(key) for key in [PRIVATE_KEY_1, PRIVATE_KEY_2] for key_func in KEY_FUNCS
+)
+
+SAME_KEY_SAME_TYPE = (
+    eth_keys.keys.PrivateKey(PRIVATE_KEY_1),
+    eth_keys.keys.PrivateKey(PRIVATE_KEY_1)
+)
+
+MIXED_KEY_SAME_TYPE = (
+    eth_keys.keys.PrivateKey(PRIVATE_KEY_1), eth_keys.keys.PrivateKey(PRIVATE_KEY_2)
+)
 
 
 class DummyProvider(BaseProvider):
@@ -61,16 +96,53 @@ def w3_dummy(w3_base, result_generator_middleware):
 
 
 @pytest.mark.parametrize(
-    'method,expected',
+    'method,strict_account_matching,key_object,from_,expected',
     (
-        ('eth_sendTransaction', 'eth_sendRawTransaction'),
-        ('eth_call', NotImplementedError),
+        ('eth_sendTransaction', True, SAME_KEY_MIXED_TYPE, ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', True, SAME_KEY_MIXED_TYPE, ADDRESS_2, ValueError),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE, ADDRESS_2, NotImplementedError),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE, ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', True, MIXED_KEY_MIXED_TYPE, ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', True, MIXED_KEY_MIXED_TYPE, ADDRESS_2, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', False, MIXED_KEY_MIXED_TYPE, ADDRESS_2, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', False, MIXED_KEY_MIXED_TYPE, ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', True, SAME_KEY_SAME_TYPE, ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', True, SAME_KEY_SAME_TYPE, ADDRESS_2, ValueError),
+        ('eth_sendTransaction', False, SAME_KEY_SAME_TYPE, ADDRESS_2, NotImplementedError),
+        ('eth_sendTransaction', False, SAME_KEY_SAME_TYPE, ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', True, MIXED_KEY_SAME_TYPE, ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', True, MIXED_KEY_SAME_TYPE, ADDRESS_2, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', False, MIXED_KEY_SAME_TYPE, ADDRESS_2, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', False, MIXED_KEY_SAME_TYPE, ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE[0], ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE[1], ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE[2], ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE[3], ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE[4], ADDRESS_1, 'eth_sendRawTransaction'),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE[0], ADDRESS_2, NotImplementedError),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE[1], ADDRESS_2, NotImplementedError),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE[2], ADDRESS_2, NotImplementedError),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE[3], ADDRESS_2, NotImplementedError),
+        ('eth_sendTransaction', False, SAME_KEY_MIXED_TYPE[4], ADDRESS_2, NotImplementedError),
+        ('eth_sendTransaction', True, SAME_KEY_MIXED_TYPE[0], ADDRESS_2, ValueError),
+        ('eth_sendTransaction', True, SAME_KEY_MIXED_TYPE[1], ADDRESS_2, ValueError),
+        ('eth_sendTransaction', True, SAME_KEY_MIXED_TYPE[2], ADDRESS_2, ValueError),
+        ('eth_sendTransaction', True, SAME_KEY_MIXED_TYPE[3], ADDRESS_2, ValueError),
+        ('eth_sendTransaction', True, SAME_KEY_MIXED_TYPE[4], ADDRESS_2, ValueError),
+        ('eth_call', True, MIXED_KEY_MIXED_TYPE, ADDRESS_1, NotImplementedError),
+        ('eth_call', False, MIXED_KEY_MIXED_TYPE, ADDRESS_1, NotImplementedError),
     )
 )
-def test_sign_and_send_raw_middleware(w3_dummy, w3, method, expected, key_object):
-    w3_dummy.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
-    accounts = to_accounts(key_object)
-    account = next(iter(accounts.values()))
+def test_sign_and_send_raw_middleware(
+        w3_dummy,
+        w3,
+        method,
+        strict_account_matching,
+        from_,
+        expected,
+        key_object):
+    w3_dummy.middleware_stack.add(
+        construct_sign_and_send_raw_middleware(key_object, strict=strict_account_matching))
 
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
@@ -78,7 +150,7 @@ def test_sign_and_send_raw_middleware(w3_dummy, w3, method, expected, key_object
                 method,
                 [{
                     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-                    'from': account.address,
+                    'from': from_,
                     'gas': 21000,
                     'gasPrice': 0,
                     'value': 1,
@@ -89,7 +161,7 @@ def test_sign_and_send_raw_middleware(w3_dummy, w3, method, expected, key_object
             method,
             [{
                 'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-                'from': account.address,
+                'from': from_,
                 'gas': 21000,
                 'gasPrice': 0,
                 'value': 1,
@@ -106,23 +178,20 @@ def w3():
     return Web3(EthereumTesterProvider())
 
 
-@pytest.fixture(
-    params=[
-        eth_keys.keys.PrivateKey,
-        eth_account.Account.privateKeyToAccount,
-        HexBytes,
-        [eth_keys.keys.PrivateKey, eth_account.Account.privateKeyToAccount, HexBytes],
-        (eth_keys.keys.PrivateKey, eth_account.Account.privateKeyToAccount, HexBytes),
-    ])
-def key_object(request, private_key):
-    try:
-        iter(request.param)
-    except TypeError:
-        return request.param(private_key)
-    else:
-        return type(request.param)([i(private_key) for i in request.param])
-
-
+@pytest.mark.parametrize(
+    'key_object',
+    (
+        (SAME_KEY_MIXED_TYPE),
+        (MIXED_KEY_MIXED_TYPE),
+        (SAME_KEY_SAME_TYPE),
+        (MIXED_KEY_SAME_TYPE),
+        (SAME_KEY_MIXED_TYPE[0]),
+        (SAME_KEY_MIXED_TYPE[1]),
+        (SAME_KEY_MIXED_TYPE[2]),
+        (SAME_KEY_MIXED_TYPE[3]),
+        (SAME_KEY_MIXED_TYPE[4]),
+    )
+)
 def test_to_accounts(key_object):
     accounts = to_accounts(key_object)
     assert all(isinstance(account, eth_account.local.LocalAccount) for account in accounts.values())
@@ -134,21 +203,20 @@ def test_to_account_type_error(w3):
 
 
 @pytest.fixture()
-def fund_account(w3, private_key):
+def fund_account(w3):
     # fund local account
-    accounts = to_accounts(private_key)
     tx_value = w3.toWei(10, 'ether')
-    for address, account in accounts.items():
+    for address in (ADDRESS_1, ADDRESS_2):
         w3.eth.sendTransaction({
-            'to': account.address,
+            'to': address,
             'from': w3.eth.accounts[0],
             'gas': 21000,
             'value': tx_value})
-        assert w3.eth.getBalance(account.address) == tx_value
+        assert w3.eth.getBalance(address) == tx_value
 
 
 @pytest.mark.parametrize(
-    'transaction,is_strict,expected',
+    'transaction,is_strict,expected,key_object,from_',
     (
         (
             #  Transaction with set gas
@@ -158,7 +226,9 @@ def fund_account(w3, private_key):
                 'value': 1
             },
             False,
-            -1
+            -1,
+            MIXED_KEY_MIXED_TYPE,
+            ADDRESS_1,
         ),
         (
             #  Transaction with no set gas
@@ -166,76 +236,70 @@ def fund_account(w3, private_key):
                 'value': 1
             },
             False,
-            -1
+            -1,
+            MIXED_KEY_MIXED_TYPE,
+            ADDRESS_1,
         ),
         (
             #  Transaction with mismatched sender
             {
-                'from': 'MISMATCHED',
-                'gas': 21000,
-                'value': 10
-            },
-            True,
-            ValueError
-        ),
-        (
-            #  Strict transaction with missing sender
-            {
-                'from': 'NO_ADDRESS',
-                'gas': 21000,
-                'value': 10
-            },
-            True,
-            ValueError
-        ),
-        (
-            #  Un-strict transaction with mismatched sender
-            {
-                'from': 'MISMATCHED',
-                'gas': 21000,
-                'value': 10
-            },
-            False,
-            -10
-        ),
-        (
-            #  Un-strict transaction with invalid sender
-            {
-                'from': 'INVALIDADDRESS',
                 'gas': 21000,
                 'value': 10
             },
             True,
             ValueError,
+            SAME_KEY_MIXED_TYPE,
+            ADDRESS_2,
+        ),
+        (
+            #  Strict transaction with missing sender
+            {
+                'gas': 21000,
+                'value': 10
+            },
+            True,
+            ValueError,
+            SAME_KEY_MIXED_TYPE,
+            '',
+        ),
+        (
+            #  Un-strict transaction with mismatched sender
+            # expect a key error with sendTransaction + unmanaged account
+            {
+                'gas': 21000,
+                'value': 10
+            },
+            False,
+            KeyError,
+            SAME_KEY_MIXED_TYPE,
+            ADDRESS_2,
+        ),
+        (
+            #  Un-strict transaction with invalid sender
+            {
+                'gas': 21000,
+                'value': 10
+            },
+            False,
+            InvalidAddress,
+            SAME_KEY_MIXED_TYPE,
+            '0x0000',
         )
     )
 )
-def test_signed_transaction(w3, key_object, fund_account, transaction, is_strict, expected):
+def test_signed_transaction(w3, key_object, fund_account, transaction, is_strict, expected, from_):
     w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object, strict=is_strict))
-    accounts = to_accounts(key_object)
-    account = next(iter(accounts.values()))
 
-    if 'from' not in transaction:
-        _transaction = assoc(transaction, 'from', account.address)
+    # Drop any falsy addresses
+    to_from = valfilter(bool, {'to': w3.eth.accounts[0], 'from': from_})
 
-    elif 'from' in transaction and transaction['from'] == 'MISMATCHED':
-        _transaction = assoc(transaction, 'from', w3.eth.accounts[1])
-        assert _transaction['from'] != account.address
-
-    elif 'from' in transaction and transaction['from'] == 'NO_ADDRESS':
-        _transaction = dissoc(transaction, 'from')
-
-    else:
-        _transaction = transaction
-
-    _transaction = assoc(_transaction, 'to', w3.eth.accounts[0])
-
-    if 'from' in _transaction:
-        start_balance = w3.eth.getBalance(_transaction['from'])
+    _transaction = merge(transaction, to_from)
 
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
+            start_balance = w3.eth.getBalance(_transaction.get('from', w3.eth.accounts[0]))
             w3.eth.sendTransaction(_transaction)
     else:
+        start_balance = w3.eth.getBalance(_transaction.get('from', w3.eth.accounts[0]))
         w3.eth.sendTransaction(_transaction)
-        assert w3.eth.getBalance(_transaction['from']) <= start_balance + expected
+        assert w3.eth.getBalance(_transaction.get('from')) <= start_balance + expected
