@@ -2,18 +2,17 @@ import pytest
 
 import eth_account
 import eth_keys
-from hexbytes import (
-    HexBytes,
-)
-
 from eth_utils import (
     to_bytes,
     to_hex,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3 import Web3
 from web3.exceptions import (
-    InvalidAddress
+    InvalidAddress,
 )
 from web3.middleware import (
     construct_result_generator_middleware,
@@ -29,8 +28,8 @@ from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 from web3.utils.toolz import (
-    valfilter,
     merge,
+    valfilter,
 )
 
 PRIVATE_KEY_1 = to_bytes(
