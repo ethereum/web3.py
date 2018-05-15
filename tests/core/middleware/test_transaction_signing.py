@@ -20,7 +20,7 @@ from web3.middleware import (
     construct_sign_and_send_raw_middleware,
 )
 from web3.middleware.signing import (
-    to_accounts,
+    gen_normalized_accounts,
 )
 from web3.providers import (
     BaseProvider,
@@ -192,14 +192,14 @@ def w3():
         (SAME_KEY_MIXED_TYPE[4]),
     )
 )
-def test_to_accounts(key_object):
-    accounts = to_accounts(key_object)
+def test_gen_normalized_accounts(key_object):
+    accounts = gen_normalized_accounts(key_object)
     assert all(isinstance(account, eth_account.local.LocalAccount) for account in accounts.values())
 
 
-def test_to_account_type_error(w3):
+def test_gen_normalized_accounts_type_error(w3):
     with pytest.raises(TypeError):
-        to_accounts(1234567890)
+        gen_normalized_accounts(1234567890)
 
 
 @pytest.fixture()

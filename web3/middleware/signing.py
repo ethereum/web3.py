@@ -31,20 +31,16 @@ to_hexstr_from_eth_key = operator.methodcaller('to_hex')
 
 
 def is_eth_key(value):
-    if isinstance(value, PrivateKey):
-        return True
-    return False
+    return isinstance(value, PrivateKey)
 
 
-def raw_key_formatter(private_key):
-    formatter = compose(
-        apply_formatter_if(is_eth_key, to_hexstr_from_eth_key),
-    )
-    return formatter(private_key)
+key_normalizer = compose(
+    apply_formatter_if(is_eth_key, to_hexstr_from_eth_key),
+)
 
 
 @to_dict
-def to_accounts(val):
+def gen_normalized_accounts(val):
     if isinstance(val, (list, tuple, set,)):
         for i in val:
             account = to_account(i)
@@ -60,7 +56,7 @@ def to_account(val):
     raise TypeError(
         "key must be one of the types: "
         "eth_keys.datatype.PrivateKey, eth_account.local.LocalAccount, "
-        "or raw private key as a string or bytestring. "
+        "or raw private key as a hex string or byte string. "
         "Was of type {0}".format(type(val)))
 
 
@@ -70,7 +66,7 @@ def _(val):
 
 
 def private_key_to_account(val):
-    normalized_key = raw_key_formatter(val)
+    normalized_key = key_normalizer(val)
     return Account.privateKeyToAccount(normalized_key)
 
 
@@ -79,9 +75,21 @@ to_account.register(str, private_key_to_account)
 to_account.register(bytes, private_key_to_account)
 
 
-def construct_sign_and_send_raw_middleware(private_keys_or_accounts, strict=False):
+def construct_sign_and_send_raw_middleware(private_key_or_account, strict=False):
+    """Capture transactions sign and send as raw transactions
 
-    accounts = to_accounts(private_keys_or_accounts)
+
+    Keyword arguments:
+    private_key_or_account -- A single private key or a tuple,
+    list or set of private keys. Keys can be any of the following formats:
+      - An eth_account.LocalAccount object
+      - An eth_keys.PrivateKey object
+      - A raw private key as a hex string or byte string
+    strict -- Sets whether transactions with 'from' addresses not matching any in
+    private_key_or_account should be blocked or passed through.
+    """
+
+    accounts = gen_normalized_accounts(private_key_or_account)
 
     def sign_and_send_raw_middleware(make_request, w3):
 
@@ -90,7 +98,7 @@ def construct_sign_and_send_raw_middleware(private_keys_or_accounts, strict=Fals
             fill_nonce(w3))
 
         def middleware(method, params):
-            if not method == "eth_sendTransaction":
+            if method != "eth_sendTransaction":
                 return make_request(method, params)
 
             else:
@@ -105,17 +113,20 @@ def construct_sign_and_send_raw_middleware(private_keys_or_accounts, strict=Fals
                 else:
                     return make_request(method, params)
 
-            elif transaction.get('from') not in accounts.keys():
+            elif transaction.get('from') not in accounts:
                 if strict:
                     raise ValueError(
                         "Sending account address mismatch."
                         "Transaction 'from' parameter does not match the"
                         "address to the private key used to construct signing"
-                        "middleware.")
+                        "middleware."
+                        "'{0}' does not match any in {1}.".format(
+                            transaction.get('from'),
+                            accounts.keys()))
                 else:
                     return make_request(method, params)
 
-            account = accounts[transaction.get('from')]
+            account = accounts[transaction['from']]
             raw_tx = account.signTransaction(transaction).rawTransaction
 
             return make_request(
