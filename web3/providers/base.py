@@ -1,5 +1,4 @@
 import itertools
-import json
 
 from eth_utils import (
     to_bytes,
@@ -8,6 +7,9 @@ from eth_utils import (
 
 from web3.middleware import (
     combine_middlewares,
+)
+from web3.utils.encoding import (
+    FriendlyJsonSerde,
 )
 
 
@@ -57,15 +59,18 @@ class JSONBaseProvider(BaseProvider):
         self.request_counter = itertools.count()
 
     def decode_rpc_response(self, response):
-        return json.loads(to_text(response))
+        text_response = to_text(response)
+        return FriendlyJsonSerde().json_decode(text_response)
 
     def encode_rpc_request(self, method, params):
-        return to_bytes(text=json.dumps({
+        rpc_dict = {
             "jsonrpc": "2.0",
             "method": method,
             "params": params or [],
             "id": next(self.request_counter),
-        }))
+        }
+        encoded = FriendlyJsonSerde().json_encode(rpc_dict)
+        return to_bytes(text=encoded)
 
     def isConnected(self):
         try:
