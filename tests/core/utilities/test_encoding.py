@@ -1,4 +1,6 @@
-# encoding: utf-8
+from ast import (
+    literal_eval,
+)
 import datetime
 import pytest
 from unittest.mock import (
@@ -148,21 +150,30 @@ def test_text_if_str_on_text(val):
 
 
 @pytest.mark.parametrize(
-    "py_obj,exc_type, expected",
-    [({'date': [datetime.datetime(2018, 5, 10, 1, 5, 10).isoformat(),
-                datetime.datetime(2018, 5, 10, 1, 5, 10).isoformat(), ],
-      'other_date': datetime.datetime(2018, 5, 10, 1, 5, 10).date().isoformat()},
-     None,
-     '{"date": ["2018-05-10T01:05:10", "2018-05-10T01:05:10"], "other_date": "2018-05-10"}',),
-     ({'date': [datetime.datetime.utcnow(),
-                datetime.datetime.now(), ],
-       'other_date': datetime.datetime.utcnow().date()},
-      TypeError,
-      r'Could not encode: .* is not JSON serializable'),
-     ]
+    "py_obj, exc_type, expected",
+    (
+        (
+            {
+                'date': [
+                    datetime.datetime(2018, 5, 10, 1, 5, 10).isoformat(),
+                    datetime.datetime(2018, 5, 10, 1, 5, 10).isoformat(),
+                ],
+                'other_date': datetime.datetime(2018, 5, 10, 1, 5, 10).date().isoformat(),
+            },
+            None,
+            '{"date": ["2018-05-10T01:05:10", "2018-05-10T01:05:10"], "other_date": "2018-05-10"}',
+        ),
+        (
+            {
+                'date': [datetime.datetime.utcnow(), datetime.datetime.now()],
+                'other_date': datetime.datetime.utcnow().date(),
+            },
+            TypeError,
+            "Could not encode to JSON: .*'other_date'.*is not JSON serializable",
+        ),
+    ),
 )
 def test_friendly_json_encode(py_obj, exc_type, expected):
-    from ast import literal_eval
     if exc_type is None:
         assert literal_eval(FriendlyJson().json_encode(py_obj)) == literal_eval(expected)
     else:
@@ -172,9 +183,12 @@ def test_friendly_json_encode(py_obj, exc_type, expected):
 
 @pytest.mark.parametrize(
     "json_str, expected",
-    [('{"date": ["2018-05-10T01:05:10", "2018-05-10T01:05:10"],"other_date": "2018-05-10"}',
-      dict),
-     ]
+    (
+        (
+            '{"date": ["2018-05-10T01:05:10", "2018-05-10T01:05:10"],"other_date": "2018-05-10"}',
+            dict,
+        ),
+    ),
 )
 def test_friendly_json_decode(json_str, expected):
     assert isinstance(FriendlyJson().json_decode(json_str), expected)
@@ -182,10 +196,12 @@ def test_friendly_json_decode(json_str, expected):
 
 @pytest.mark.parametrize(
     "rpc_response, expected",
-    [('{"jsonrpc": "2.0", "method": "test_method", "params": [], "id": 1}',
-      {"jsonrpc": "2.0", "method": "test_method", "params": [], "id": 1},
-      ),
-     ]
+    (
+        (
+            '{"jsonrpc": "2.0", "method": "test_method", "params": [], "id": 1}',
+            {"jsonrpc": "2.0", "method": "test_method", "params": [], "id": 1},
+        ),
+    ),
 )
 def test_decode_rpc_response(rpc_response, expected):
     assert JSONBaseProvider().decode_rpc_response(rpc_response.encode('utf8')) == expected
@@ -193,23 +209,29 @@ def test_decode_rpc_response(rpc_response, expected):
 
 @pytest.mark.parametrize(
     "rpc_kwargs, exc_type, expected",
-    [({'id': 1, 'method': 'test_method', 'params': [], "jsonrpc": "2.0"},
-      None,
-      '{"id": 0, "method": "test_method", "params": [], "jsonrpc": "2.0",}'
-      ),
-     ({'id': 0, 'method': 'test_method', 'params': [datetime.datetime(2018, 5, 10, 1, 5, 10)]},
-      TypeError,
-      r'Could not encode: .* is not JSON serializable',
-      ),
-     ]
+    (
+        (
+            {'id': 1, 'method': 'test', 'params': [], "jsonrpc": "2.0"},
+            None,
+            '{"id": 0, "method": "test", "params": [], "jsonrpc": "2.0",}',
+        ),
+        (
+            {'id': 0, 'method': 'test', 'params': [datetime.datetime(2018, 5, 10, 1, 5, 10)]},
+            TypeError,
+            r"Could not encode to JSON: .*'params'.* is not JSON serializable",
+        ),
+    ),
 )
 def test_encode_rpc_request(rpc_kwargs, exc_type, expected):
-    from ast import literal_eval
     if exc_type is None:
-        res = JSONBaseProvider().encode_rpc_request(rpc_kwargs['method'],
-                                                    rpc_kwargs['params']).decode('utf8')
-        assert literal_eval(res) == literal_eval(expected)
+        res = JSONBaseProvider().encode_rpc_request(
+            rpc_kwargs['method'],
+            rpc_kwargs['params']
+        )
+        assert literal_eval(res.decode('utf8')) == literal_eval(expected)
     else:
         with pytest.raises(exc_type, match=expected):
-            JSONBaseProvider().encode_rpc_request(rpc_kwargs['method'],
-                                                  rpc_kwargs['params'])
+            JSONBaseProvider().encode_rpc_request(
+                rpc_kwargs['method'],
+                rpc_kwargs['params'],
+            )

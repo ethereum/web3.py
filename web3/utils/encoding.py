@@ -214,37 +214,38 @@ def hexstr_if_str(to_type, hexstr_or_primitive):
 
 
 class FriendlyJsonSerde:
-    ''' friendly json serde '''
-    def __init__(self,):
-        self.type_error = False
-        self.type_error_msg = 'Could not encode: '
+    '''
+    Friendly JSON serializer & deserializer
 
+    When encoding or decoding fails, this class collects
+    information on which fields failed, to show more
+    helpful information in the raised error messages.
+    '''
     def _json_mapping_errors(self, mapping):
         for key, val in mapping.items():
             try:
                 self._friendly_json_encode(val)
             except TypeError as exc:
-                yield "value at %r because (%s)" % (key, exc)
+                yield "%r: because (%s)" % (key, exc)
 
     def _json_list_errors(self, iterable):
         for index, element in enumerate(iterable):
             try:
                 self._friendly_json_encode(element)
             except TypeError as exc:
-                yield "item at index %d because (%s)" % (index, exc)
+                yield "%d: because (%s)" % (index, exc)
 
     def _friendly_json_encode(self, obj):
         try:
             encoded = json.dumps(obj)
             return encoded
         except TypeError as full_exception:
-            self.type_error = True
             if hasattr(obj, 'items'):
                 item_errors = '; '.join(self._json_mapping_errors(obj))
-                self.type_error_msg += item_errors
+                raise TypeError("dict had unencodable value at keys: {{{}}}".format(item_errors))
             elif is_list_like(obj):
                 element_errors = '; '.join(self._json_list_errors(obj))
-                self.type_error_msg += element_errors
+                raise TypeError("list had unencodable value at index: [{}]".format(element_errors))
             else:
                 raise full_exception
 
@@ -257,8 +258,7 @@ class FriendlyJsonSerde:
             raise ValueError(err_msg)
 
     def json_encode(self, obj):
-            encoded = self._friendly_json_encode(obj)
-            if self.type_error:
-                raise TypeError(self.type_error_msg)
-            else:
-                return encoded
+        try:
+            return self._friendly_json_encode(obj)
+        except TypeError as exc:
+            raise TypeError("Could not encode to JSON: {}".format(exc))

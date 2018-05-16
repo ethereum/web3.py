@@ -59,15 +59,16 @@ class JSONBaseProvider(BaseProvider):
         self.request_counter = itertools.count()
 
     def decode_rpc_response(self, response):
-        decoded = FriendlyJsonSerde().json_decode(to_text(response))
-        return decoded
+        text_response = to_text(response)
+        return FriendlyJsonSerde().json_decode(text_response)
 
     def encode_rpc_request(self, method, params):
-        rpc_dict = {"jsonrpc": "2.0",
-                    "method": method,
-                    "params": params or [],
-                    "id": next(self.request_counter),
-                    }
+        rpc_dict = {
+            "jsonrpc": "2.0",
+            "method": method,
+            "params": params or [],
+            "id": next(self.request_counter),
+        }
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
         return to_bytes(text=encoded)
 
