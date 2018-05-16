@@ -170,7 +170,7 @@ class IPCProvider(JSONBaseProvider):
                         continue
                     if raw_response == b"":
                         timeout.sleep(0)
-                    else:
+                    elif has_valid_json_rpc_ending(raw_response):
                         try:
                             response = self.decode_rpc_response(raw_response)
                         except JSONDecodeError:
@@ -178,3 +178,16 @@ class IPCProvider(JSONBaseProvider):
                             continue
                         else:
                             return response
+                    else:
+                        timeout.sleep(0)
+                        continue
+
+
+# A valid JSON RPC response can only end in } or ] http://www.jsonrpc.org/specification
+def has_valid_json_rpc_ending(raw_response):
+    stripped_raw_response = raw_response.rstrip()
+    for valid_ending in [b"}", b"]"]:
+        if stripped_raw_response.endswith(valid_ending):
+            return True
+    else:
+        return False
