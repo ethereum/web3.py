@@ -50,29 +50,41 @@ def fallback_function_contract(web3,
     return _fallback_function_contract
 
 
-def test_contract_estimateGas(math_contract, estimateGas):
+def test_contract_estimateGas(web3, math_contract, estimateGas, transact):
     gas_estimate = estimateGas(contract=math_contract,
                                contract_function='increment')
-    try:
-        assert abs(gas_estimate - 21472) < 200  # Geth
-    except AssertionError:
-        assert abs(gas_estimate - 32772) < 200  # eth-tester with py-evm
+
+    txn_hash = transact(
+        contract=math_contract,
+        contract_function='increment')
+
+    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    gas_used = txn_receipt.get('gasUsed')
+
+    assert abs(gas_estimate - gas_used) < 21000
 
 
-def test_contract_fallback_estimateGas(fallback_function_contract):
+def test_contract_fallback_estimateGas(web3, fallback_function_contract):
     gas_estimate = fallback_function_contract.fallback.estimateGas()
-    try:
-        assert abs(gas_estimate - 21472) < 200  # Geth
-    except AssertionError:
-        assert abs(gas_estimate - 29910) < 200  # eth-tester with py-evm
+
+    txn_hash = fallback_function_contract.fallback.transact()
+
+    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    gas_used = txn_receipt.get('gasUsed')
+
+    assert abs(gas_estimate - gas_used) < 21000
 
 
-def test_contract_estimateGas_with_arguments(web3, math_contract, estimateGas):
+def test_contract_estimateGas_with_arguments(web3, math_contract, estimateGas, transact):
     gas_estimate = estimateGas(contract=math_contract,
                                contract_function='add',
                                func_args=[5, 6])
-    try:
-        assert abs(gas_estimate - 21984) < 200  # Geth
-    except AssertionError:
-        assert abs(gas_estimate - 30000) < 200  # eth-tester with py-evm
-        pass
+
+    txn_hash = transact(
+        contract=math_contract,
+        contract_function='add',
+        func_args=[5, 6])
+    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    gas_used = txn_receipt.get('gasUsed')
+
+    assert abs(gas_estimate - gas_used) < 21000

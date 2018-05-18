@@ -16,6 +16,7 @@ try:
         partial,
         pipe,
         sliding_window,
+        valfilter,
         valmap,
     )
 except ImportError:
@@ -36,5 +37,6 @@ except ImportError:
         partial,
         pipe,
         sliding_window,
+        valfilter,
         valmap,
     )

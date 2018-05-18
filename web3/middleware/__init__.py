@@ -53,6 +53,10 @@ from .validation import (  # noqa: F401
     validation_middleware,
 )
 
+from .signing import (  # noqa: F401
+    construct_sign_and_send_raw_middleware,
+)
+
 
 def combine_middlewares(middlewares, web3, provider_request_fn):
     """

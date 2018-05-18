@@ -30,6 +30,19 @@ TRANSACTION_DEFAULTS = {
 
 
 @curry
+def fill_nonce(web3, transaction):
+    if 'from' in transaction and 'nonce' not in transaction:
+        return assoc(
+            transaction,
+            'nonce',
+            web3.eth.getTransactionCount(
+                transaction['from'],
+                block_identifier='pending'))
+    else:
+        return transaction
+
+
+@curry
 def fill_transaction_defaults(web3, transaction):
     '''
     if web3 is None, fill as much as possible while offline
