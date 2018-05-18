@@ -5,6 +5,7 @@ from web3.utils.module_testing import (
     EthModuleTest,
     PersonalModuleTest,
     Web3ModuleTest,
+    ParityModuleTest,
 )
 
 
@@ -117,3 +118,17 @@ class ParityPersonalModuleTest(PersonalModuleTest):
             web3,
             unlockable_account,
             unlockable_account_pw)
+
+
+class ParityParityModuleTest(ParityModuleTest):
+    def test_trace_replay_transaction(self, web3, mined_txn_hash):
+        super().test_trace_replay_transaction(web3, mined_txn_hash)
+
+    def test_trace_replay_block_transactions(self, web3, block_with_txn):
+        super().test_trace_replay_block_transactions(web3, block_with_txn)
+
+    def test_trace_block(self, web3, block_with_txn):
+        super().test_trace_block(web3, block_with_txn)
+
+    def test_trace_transaction(self, web3, mined_txn_hash):
+        super().test_trace_transaction(web3, mined_txn_hash

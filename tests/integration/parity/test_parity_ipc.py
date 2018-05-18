@@ -15,6 +15,7 @@ from .common import (
     ParityEthModuleTest,
     ParityPersonalModuleTest,
     ParityWeb3ModuleTest,
+    ParityParityModuleTest,
 )
 
 
@@ -60,6 +61,7 @@ def parity_import_blocks_command(parity_binary, ipc_path, datadir, passwordfile)
         '--password', passwordfile,
         '--no-jsonrpc',
         '--no-ws',
+        '--tracing', 'on'
     )
 
 
@@ -87,4 +89,8 @@ class TestParityNetModule(NetModuleTest):
 
 
 class TestParityPersonalModuleTest(ParityPersonalModuleTest):
+    pass
+
+
+class TestParityParityModuleTest(ParityParityModuleTest):
     pass

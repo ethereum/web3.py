@@ -13,3 +13,7 @@ from .personal_module import (  # noqa: F401
 from .version_module import (  # noqa: F401
     VersionModuleTest,
 )
+
+from .parity_module import (
+    ParityModuleTest,
+)
