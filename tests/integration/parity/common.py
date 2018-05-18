@@ -131,4 +131,4 @@ class ParityParityModuleTest(ParityModuleTest):
         super().test_trace_block(web3, block_with_txn)
 
     def test_trace_transaction(self, web3, mined_txn_hash):
-        super().test_trace_transaction(web3, mined_txn_hash
+        super().test_trace_transaction(web3, mined_txn_hash)
