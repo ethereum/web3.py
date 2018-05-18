@@ -46,7 +46,7 @@ def parity_command_arguments(
         '--unlock', author,
         '--password', passwordfile,
         '--no-jsonrpc',
-        '--no-ws',
+        '--no-ws'
     )
 
 

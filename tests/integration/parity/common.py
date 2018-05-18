@@ -125,6 +125,8 @@ class ParityParityModuleTest(ParityModuleTest):
         super().test_trace_replay_transaction(web3, mined_txn_hash)
 
     def test_trace_replay_block_transactions(self, web3, block_with_txn):
+
+        pytest.xfail('This method does not exist in older parity versions')
         super().test_trace_replay_block_transactions(web3, block_with_txn)
 
     def test_trace_block(self, web3, block_with_txn):

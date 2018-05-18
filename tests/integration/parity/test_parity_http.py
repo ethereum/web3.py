@@ -62,6 +62,7 @@ def parity_import_blocks_command(parity_binary, rpc_port, datadir, passwordfile)
         '--jsonrpc-port', str(rpc_port),
         '--no-ipc',
         '--no-ws',
+	'--tracing', 'on'
     )
 
 
