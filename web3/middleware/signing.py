@@ -75,7 +75,7 @@ to_account.register(str, private_key_to_account)
 to_account.register(bytes, private_key_to_account)
 
 
-def construct_sign_and_send_raw_middleware(private_key_or_account, strict=False):
+def construct_sign_and_send_raw_middleware(private_key_or_account):
     """Capture transactions sign and send as raw transactions
 
 
@@ -85,8 +85,6 @@ def construct_sign_and_send_raw_middleware(private_key_or_account, strict=False)
       - An eth_account.LocalAccount object
       - An eth_keys.PrivateKey object
       - A raw private key as a hex string or byte string
-    strict -- Sets whether transactions with 'from' addresses not matching any in
-    private_key_or_account should be blocked or passed through.
     """
 
     accounts = gen_normalized_accounts(private_key_or_account)
@@ -104,26 +102,9 @@ def construct_sign_and_send_raw_middleware(private_key_or_account, strict=False)
                 transaction = fill_tx(params[0])
 
             if 'from' not in transaction:
-                if strict:
-                    raise ValueError(
-                        "Transaction signing middleware parameter "
-                        "requirement not met: 'from' address was not included in "
-                        "transaction parameters.")
-                else:
-                    return make_request(method, params)
-
+                return make_request(method, params)
             elif transaction.get('from') not in accounts:
-                if strict:
-                    raise ValueError(
-                        "Sending account address mismatch. "
-                        "Transaction 'from' parameter does not match the "
-                        "address to the private key used to construct signing "
-                        "middleware."
-                        "'{0}' does not match any in {1}.".format(
-                            transaction.get('from'),
-                            accounts.keys()))
-                else:
-                    return make_request(method, params)
+                return make_request(method, params)
 
             account = accounts[transaction['from']]
             raw_tx = account.signTransaction(transaction).rawTransaction
