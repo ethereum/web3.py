@@ -14,6 +14,7 @@ from .common import (
     ParityEthModuleTest,
     ParityPersonalModuleTest,
     ParityWeb3ModuleTest,
+    ParityParityModuleTest,
     get_open_port,
 )
 
@@ -47,6 +48,7 @@ def parity_command_arguments(
         '--ws-origins', '*',
         '--no-ipc',
         '--no-jsonrpc',
+        '--tracing', 'on'
     )
 
 
@@ -89,4 +91,8 @@ class TestParityNetModule(NetModuleTest):
 
 
 class TestParityPersonalModuleTest(ParityPersonalModuleTest):
+    pass
+
+
+class TestParityParityModuleTest(ParityParityModuleTest):
     pass
