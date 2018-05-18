@@ -100,15 +100,14 @@ def construct_sign_and_send_raw_middleware(private_key_or_account, strict=False)
         def middleware(method, params):
             if method != "eth_sendTransaction":
                 return make_request(method, params)
-
             else:
                 transaction = fill_tx(params[0])
 
             if 'from' not in transaction:
                 if strict:
                     raise ValueError(
-                        "Transaction signing middleware parameter"
-                        "requirement not met: 'from' address was not included in"
+                        "Transaction signing middleware parameter "
+                        "requirement not met: 'from' address was not included in "
                         "transaction parameters.")
                 else:
                     return make_request(method, params)
@@ -116,9 +115,9 @@ def construct_sign_and_send_raw_middleware(private_key_or_account, strict=False)
             elif transaction.get('from') not in accounts:
                 if strict:
                     raise ValueError(
-                        "Sending account address mismatch."
-                        "Transaction 'from' parameter does not match the"
-                        "address to the private key used to construct signing"
+                        "Sending account address mismatch. "
+                        "Transaction 'from' parameter does not match the "
+                        "address to the private key used to construct signing "
                         "middleware."
                         "'{0}' does not match any in {1}.".format(
                             transaction.get('from'),

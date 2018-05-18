@@ -28,6 +28,7 @@ from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 from web3.utils.toolz import (
+    identity,
     merge,
     valfilter,
 )
@@ -47,7 +48,7 @@ KEY_FUNCS = (
     eth_account.Account.privateKeyToAccount,
     HexBytes,
     to_hex,
-    lambda bytes_key: bytes_key,
+    identity,
 )
 
 
@@ -286,7 +287,14 @@ def fund_account(w3):
         )
     )
 )
-def test_signed_transaction(w3, key_object, fund_account, transaction, is_strict, expected, from_):
+def test_signed_transaction(
+        w3,
+        fund_account,
+        transaction,
+        is_strict,
+        expected,
+        key_object,
+        from_):
     w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object, strict=is_strict))
 
     # Drop any falsy addresses
