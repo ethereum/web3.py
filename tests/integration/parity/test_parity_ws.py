@@ -14,7 +14,7 @@ from .common import (
     ParityEthModuleTest,
     ParityPersonalModuleTest,
     ParityWeb3ModuleTest,
-    ParityParityModuleTest,
+    ParityTraceModuleTest,
     get_open_port,
 )
 
@@ -95,5 +95,5 @@ class TestParityPersonalModuleTest(ParityPersonalModuleTest):
     pass
 
 
-class TestParityParityModuleTest(ParityParityModuleTest):
+class TestParityTraceModuleTest(ParityTraceModuleTest):
     pass

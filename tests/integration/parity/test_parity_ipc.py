@@ -15,7 +15,7 @@ from .common import (
     ParityEthModuleTest,
     ParityPersonalModuleTest,
     ParityWeb3ModuleTest,
-    ParityParityModuleTest,
+    ParityTraceModuleTest,
 )
 
 
@@ -92,5 +92,5 @@ class TestParityPersonalModuleTest(ParityPersonalModuleTest):
     pass
 
 
-class TestParityParityModuleTest(ParityParityModuleTest):
+class TestParityTraceModuleTest(ParityTraceModuleTest):
     pass
