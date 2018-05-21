@@ -72,7 +72,7 @@ Sign a Message
 ---------------
 
 .. WARNING:: There is no single message format that is broadly adopted
-    with commutity consensus. Keep an eye on several options,
+    with community consensus. Keep an eye on several options,
     like `EIP-683 <https://github.com/ethereum/EIPs/pull/683>`_,
     `EIP-712 <https://github.com/ethereum/EIPs/pull/712>`_, and
     `EIP-719 <https://github.com/ethereum/EIPs/pull/719>`_. Consider
