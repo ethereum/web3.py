@@ -173,6 +173,22 @@ class Eth(Module):
             [block_identifier],
         )
 
+    def getUncleFromBlock(self, block_identifier, uncle_index):
+        """
+        `eth_getUncleByBlockHashAndIndex`
+        `eth_getUncleByBlockNumberAndIndex`
+        """
+        method = select_method_for_block_identifier(
+            block_identifier,
+            if_predefined='eth_getUncleByBlockNumberAndIndex',
+            if_hash='eth_getUncleByBlockHashAndIndex',
+            if_number='eth_getUncleByBlockNumberAndIndex',
+        )
+        return self.web3.manager.request_blocking(
+            method,
+            [block_identifier, uncle_index],
+        )
+
     def getTransaction(self, transaction_hash):
         return self.web3.manager.request_blocking(
             "eth_getTransactionByHash",

@@ -262,6 +262,11 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'eth_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
         'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
+        'eth_getUncleByBlockNumberAndIndex': compose(
+            apply_formatter_at_index(block_number_formatter, 0),
+            apply_formatter_at_index(integer_to_hex, 1),
+        ),
+        'eth_getUncleByBlockHashAndIndex': apply_formatter_at_index(integer_to_hex, 1),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_getLogs': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_call': combine_argument_formatters(
