@@ -285,6 +285,8 @@ pythonic_middleware = construct_formatting_middleware(
         'personal_sendTransaction': apply_formatter_at_index(transaction_param_formatter, 0),
         # Snapshot and Revert
         'evm_revert': apply_formatter_at_index(integer_to_hex, 0),
+        'trace_replayBlockTransactions': apply_formatter_at_index(block_number_formatter, 0),
+        'trace_block': apply_formatter_at_index(block_number_formatter, 0),
     },
     result_formatters={
         # Eth
