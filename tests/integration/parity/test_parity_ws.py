@@ -13,8 +13,8 @@ from web3.utils.module_testing import (
 from .common import (
     ParityEthModuleTest,
     ParityPersonalModuleTest,
-    ParityWeb3ModuleTest,
     ParityTraceModuleTest,
+    ParityWeb3ModuleTest,
     get_open_port,
 )
 
@@ -48,7 +48,6 @@ def parity_command_arguments(
         '--ws-origins', '*',
         '--no-ipc',
         '--no-jsonrpc',
-        '--tracing', 'on'
     )
 
 
@@ -64,7 +63,7 @@ def parity_import_blocks_command(parity_binary, ws_port, datadir, passwordfile):
         '--ws-origins', '*',
         '--no-ipc',
         '--no-jsonrpc',
-	'--tracing', 'on'
+        '--tracing', 'on',
     )
 
 
