@@ -351,6 +351,127 @@ Each Contract Factory exposes the following methods.
     Returns the transaction hash for the deploy transaction.
 
 
+.. py:classmethod:: Contract.all_functions()
+
+    Returns a list of all the functions present in a Contract where every function is
+    an instance of :py:class:`ContractFunction`.
+
+    .. code-block:: python
+
+        >> contract.all_functions()
+        [<Function identity(uint256,bool)>, <Function identity(int256,bool)>]
+
+
+.. py:classmethod:: Contract.get_function_by_signature(signature)
+
+    Searches for a distinct function with matching signature. Returns an instance of
+    :py:class:`ContractFunction` upon finding a match. Raises `ValueError` if no
+    match is found.
+
+    .. code-block:: python
+
+        >> contract.get_function_by_signature('identity(uint256,bool)')
+        <Function identity(uint256,bool)>
+
+
+.. py:classmethod:: Contract.find_functions_by_name(name)
+
+    Searches for all function with matching name. Returns a list of matching functions
+    where every function is an instance of :py:class:`ContractFunction`. Returns an empty
+    list when no match is found.
+
+    .. code-block:: python
+
+        >> contract.find_functions_by_name('identity')
+        [<Function identity(uint256,bool)>, <Function identity(int256,bool)>]
+
+
+.. py:classmethod:: Contract.get_function_by_name(name)
+
+    Searches for a distinct function with matching name. Returns an instance of
+    :py:class:`ContractFunction` upon finding a match. Raises `ValueError` if no
+    match is found or if multiple matches are found.
+
+    .. code-block:: python
+
+        >> contract.get_function_by_name('unique_name')
+        <Function unique_name(uint256)>
+
+
+.. py:classmethod:: Contract.get_function_by_selector(selector)
+
+    Searches for a distinct function with matching selector.
+    The selector can be a hexadecimal string, bytes or int.
+    Returns an instance of :py:class:`ContractFunction` upon finding a match.
+    Raises `ValueError` if no match is found.
+
+    .. code-block:: python
+
+        >> contract.get_function_by_selector('0xac37eebb')
+        <Function identity(uint256)'>
+        >> contract.get_function_by_selector(b'\xac7\xee\xbb')
+        <Function identity(uint256)'>
+        >> contract.get_function_by_selector(0xac37eebb)
+        <Function identity(uint256)'>
+
+
+.. py:classmethod:: Contract.find_functions_by_args(*args)
+
+    Searches for all function with matching args. Returns a list of matching functions
+    where every function is an instance of :py:class:`ContractFunction`. Returns an empty
+    list when no match is found.
+
+    .. code-block:: python
+
+        >> contract.find_functions_by_args(1, True)
+        [<Function identity(uint256,bool)>, <Function identity(int256,bool)>]
+
+
+.. py:classmethod:: Contract.get_function_by_args(*args)
+
+    Searches for a distinct function with matching args. Returns an instance of
+    :py:class:`ContractFunction` upon finding a match. Raises `ValueError` if no
+    match is found or if multiple matches are found.
+
+    .. code-block:: python
+
+        >> contract.get_function_by_args(1)
+        <Function unique_func_with_args(uint256)>
+
+
+.. note::
+    `Contract` methods `all_functions`, `get_function_by_signature`, `find_functions_by_name`,
+    `get_function_by_name`, `get_function_by_selector`, `find_functions_by_args` and
+    `get_function_by_args` can only be used when abi is provided to the contract.
+
+
+Invoke Ambiguous Contract Functions Example
+-------------------------------------------
+
+Below is an example of a contract that has multiple functions of the same name,
+and the arguments are ambiguous.
+
+.. code-block:: python
+
+        >> contract_source_code = '''
+        pragma solidity ^0.4.21;
+        contract AmbiguousDuo {
+          function identity(uint256 input, bool uselessFlag) returns (uint256) {
+            return input;
+          }
+          function identity(int256 input, bool uselessFlag) returns (int256) {
+            return input;
+          }
+        }
+        '''
+        # fast forward all the steps of compiling and deploying the contract.
+        >> ambiguous_contract.functions.identity(1, True) # raises ValidationError
+
+        >> ambiguous_contract.get_function_by_signature('identity(uint256,bool)')(1, True)
+        <Function identity(uint256,bool)>
+
+
+
 .. _event-log-object:
 
 Event Log Object
