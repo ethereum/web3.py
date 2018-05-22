@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import os
 from threading import (
     Thread,
@@ -51,7 +52,7 @@ class PersistentWebSocket:
 
 
 class WebsocketProvider(JSONBaseProvider):
-
+    logger = logging.getLogger("web3.providers.WebsocketProvider")
     _loop = None
 
     def __init__(self, endpoint_uri=None):
@@ -72,6 +73,8 @@ class WebsocketProvider(JSONBaseProvider):
             return json.loads(await conn.recv())
 
     def make_request(self, method, params):
+        self.logger.debug("Making request WebSocket. URI: %s, "
+                          "Method: %s", self.endpoint_uri, method)
         request_data = self.encode_rpc_request(method, params)
         future = asyncio.run_coroutine_threadsafe(
             self.coro_make_request(request_data),

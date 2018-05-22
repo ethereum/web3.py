@@ -22,14 +22,13 @@ from .base import (
     JSONBaseProvider,
 )
 
-logger = logging.getLogger(__name__)
-
 
 def get_default_endpoint():
     return os.environ.get('WEB3_HTTP_PROVIDER_URI', 'http://localhost:8545')
 
 
 class HTTPProvider(JSONBaseProvider):
+    logger = logging.getLogger("web3.providers.HTTPProvider")
     endpoint_uri = None
     _request_args = None
     _request_kwargs = None
@@ -60,6 +59,8 @@ class HTTPProvider(JSONBaseProvider):
         }
 
     def make_request(self, method, params):
+        self.logger.debug("Making request HTTP. URI: %s, Method: %s",
+                          self.endpoint_uri, method)
         request_data = self.encode_rpc_request(method, params)
         raw_response = make_post_request(
             self.endpoint_uri,
@@ -67,4 +68,7 @@ class HTTPProvider(JSONBaseProvider):
             **self.get_request_kwargs()
         )
         response = self.decode_rpc_response(raw_response)
+        self.logger.debug("Getting response HTTP. URI: %s, "
+                          "Method: %s, Response: %s",
+                          self.endpoint_uri, method, response)
         return response
