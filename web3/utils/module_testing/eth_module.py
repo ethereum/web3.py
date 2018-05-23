@@ -501,13 +501,18 @@ class EthModuleTest:
         assert is_dict(transaction)
         assert transaction['to'] is None, "to field is %r" % transaction['to']
 
-    def test_eth_getTransactionByBlockHashAndIndex(self, web3, block_with_txn, mined_txn_hash):
+    def test_eth_getTransactionFromBlockHashAndIndex(self, web3, block_with_txn, mined_txn_hash):
         transaction = web3.eth.getTransactionFromBlock(block_with_txn['hash'], 0)
         assert is_dict(transaction)
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
-    def test_eth_getTransactionByBlockNumberAndIndex(self, web3, block_with_txn, mined_txn_hash):
+    def test_eth_getTransactionFromBlockNumberAndIndex(self, web3, block_with_txn, mined_txn_hash):
         transaction = web3.eth.getTransactionFromBlock(block_with_txn['number'], 0)
+        assert is_dict(transaction)
+        assert transaction['hash'] == HexBytes(mined_txn_hash)
+
+    def test_eth_getTransactionByBlockNumberAndIndex(self, web3, block_with_txn, mined_txn_hash):
+        transaction = web3.eth.getTransactionByBlock(block_with_txn['number'], 0)
         assert is_dict(transaction)
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
