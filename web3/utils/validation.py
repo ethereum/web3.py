@@ -46,12 +46,8 @@ from web3.utils.toolz import (
 
 def _prepare_selector_collision_msg(duplicates):
     dup_sel = valmap(apply_formatter_to_array(abi_to_signature), duplicates)
-    joined_func_groups = map(lambda funcs: ', '.join(funcs), dup_sel.values())
-    sel_func_groups = zip(joined_func_groups, dup_sel.keys())
-    func_sel_msg_list = map(
-        lambda func_sel_pair: ' have selector '.join(func_sel_pair),
-        sel_func_groups
-    )
+    joined_funcs = valmap(lambda funcs: ', '.join(funcs), dup_sel)
+    func_sel_msg_list = [funcs + ' have selector ' + sel for sel, funcs in joined_funcs.items()]
     return ' and\n'.join(func_sel_msg_list)
 
 
@@ -63,7 +59,7 @@ def validate_abi(abi):
         raise ValueError("'abi' is not a list")
 
     if not all(is_dict(e) for e in abi):
-        raise ValueError("'abi' is not a list")
+        raise ValueError("'abi' is not a list of dictionaries")
 
     functions = filter_by_type('function', abi)
     selectors = groupby(

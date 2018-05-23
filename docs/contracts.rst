@@ -358,7 +358,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >> contract.all_functions()
+        >>> contract.all_functions()
         [<Function identity(uint256,bool)>, <Function identity(int256,bool)>]
 
 
@@ -370,7 +370,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >> contract.get_function_by_signature('identity(uint256,bool)')
+        >>> contract.get_function_by_signature('identity(uint256,bool)')
         <Function identity(uint256,bool)>
 
 
@@ -382,7 +382,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >> contract.find_functions_by_name('identity')
+        >>> contract.find_functions_by_name('identity')
         [<Function identity(uint256,bool)>, <Function identity(int256,bool)>]
 
 
@@ -394,7 +394,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >> contract.get_function_by_name('unique_name')
+        >>> contract.get_function_by_name('unique_name')
         <Function unique_name(uint256)>
 
 
@@ -407,11 +407,11 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >> contract.get_function_by_selector('0xac37eebb')
+        >>> contract.get_function_by_selector('0xac37eebb')
         <Function identity(uint256)'>
-        >> contract.get_function_by_selector(b'\xac7\xee\xbb')
+        >>> contract.get_function_by_selector(b'\xac7\xee\xbb')
         <Function identity(uint256)'>
-        >> contract.get_function_by_selector(0xac37eebb)
+        >>> contract.get_function_by_selector(0xac37eebb)
         <Function identity(uint256)'>
 
 
@@ -423,7 +423,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >> contract.find_functions_by_args(1, True)
+        >>> contract.find_functions_by_args(1, True)
         [<Function identity(uint256,bool)>, <Function identity(int256,bool)>]
 
 
@@ -435,7 +435,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >> contract.get_function_by_args(1)
+        >>> contract.get_function_by_args(1)
         <Function unique_func_with_args(uint256)>
 
 
@@ -443,6 +443,14 @@ Each Contract Factory exposes the following methods.
     `Contract` methods `all_functions`, `get_function_by_signature`, `find_functions_by_name`,
     `get_function_by_name`, `get_function_by_selector`, `find_functions_by_args` and
     `get_function_by_args` can only be used when abi is provided to the contract.
+
+
+.. note::
+    `Web3.py` rejects the initialization of contracts that have more than one function
+    with the same selector or signature.
+    eg. `blockHashAddendsInexpansible(uint256)` and `blockHashAskewLimitary(uint256)` have the
+    same selector value equal to `0x00000000`. A contract containing both of these functions
+    will be rejected.
 
 
 Invoke Ambiguous Contract Functions Example
@@ -453,7 +461,7 @@ and the arguments are ambiguous.
 
 .. code-block:: python
 
-        >> contract_source_code = '''
+        >>> contract_source_code = '''
         pragma solidity ^0.4.21;
         contract AmbiguousDuo {
           function identity(uint256 input, bool uselessFlag) returns (uint256) {
@@ -465,10 +473,13 @@ and the arguments are ambiguous.
         }
         '''
         # fast forward all the steps of compiling and deploying the contract.
-        >> ambiguous_contract.functions.identity(1, True) # raises ValidationError
+        >>> ambiguous_contract.functions.identity(1, True) # raises ValidationError
 
-        >> ambiguous_contract.get_function_by_signature('identity(uint256,bool)')(1, True)
-        <Function identity(uint256,bool)>
+        >>> identity_func = ambiguous_contract.get_function_by_signature('identity(uint256,bool)')
+        >>> identity_func(1, True)
+        <Function identity(uint256,bool) bound to (1, True)>
+        >>> identity_func(1, True).call()
+        1
 
 
 
