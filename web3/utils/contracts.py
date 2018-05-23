@@ -173,8 +173,10 @@ def prepare_transaction(abi,
                         fn_identifier,
                         fn_args=None,
                         fn_kwargs=None,
-                        transaction=None):
+                        transaction=None,
+                        is_function_abi=False):
     """
+    :parameter `is_function_abi` is used to distinguish  function abi from contract abi
     Returns a dictionary of the transaction that could be used to call this
     TODO: make this a public API
     TODO: add new prepare_deploy_transaction API
@@ -196,16 +198,23 @@ def prepare_transaction(abi,
         fn_identifier,
         fn_args,
         fn_kwargs,
+        is_function_abi
     )
     return prepared_transaction
 
 
-def encode_transaction_data(abi, web3, fn_identifier, args=None, kwargs=None):
+def encode_transaction_data(
+        abi,
+        web3,
+        fn_identifier,
+        args=None,
+        kwargs=None,
+        is_function_abi=False):
     if fn_identifier is FallbackFn:
-        fn_abi, fn_selector, fn_arguments = get_fallback_function_info(abi)
+        fn_abi, fn_selector, fn_arguments = get_fallback_function_info(abi, is_function_abi)
     elif is_text(fn_identifier):
         fn_abi, fn_selector, fn_arguments = get_function_info(
-            abi, fn_identifier, args, kwargs
+            abi, fn_identifier, args, kwargs, is_function_abi
         )
     else:
         raise TypeError("Unsupported function identifier")
@@ -213,20 +222,23 @@ def encode_transaction_data(abi, web3, fn_identifier, args=None, kwargs=None):
     return add_0x_prefix(encode_abi(web3, fn_abi, fn_arguments, fn_selector))
 
 
-def get_fallback_function_info(abi):
-    fn_abi = get_fallback_func_abi(abi)
+def get_fallback_function_info(abi, is_function_abi=False):
+    fn_abi = abi if is_function_abi else get_fallback_func_abi(abi)
     fn_selector = encode_hex(b'')
     fn_arguments = tuple()
     return fn_abi, fn_selector, fn_arguments
 
 
-def get_function_info(abi, fn_name, args=None, kwargs=None):
+def get_function_info(abi, fn_name, args=None, kwargs=None, is_function_abi=False):
     if args is None:
         args = tuple()
     if kwargs is None:
         kwargs = {}
 
-    fn_abi = find_matching_fn_abi(abi, fn_name, args, kwargs)
+    fn_abi = abi
+    if not is_function_abi:
+        fn_abi = find_matching_fn_abi(abi, fn_name, args, kwargs)
+
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
 
     fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)

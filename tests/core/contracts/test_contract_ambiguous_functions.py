@@ -1,5 +1,9 @@
 import pytest
 
+from hexbytes import (
+    HexBytes,
+)
+
 from web3.utils.toolz import (
     compose,
     curry,
@@ -35,7 +39,18 @@ AMBIGUOUS_CONTRACT_ABI = [
     }
 ]
 
-map_repr = compose(list, curry(map, lambda func: repr(func)))
+
+@pytest.fixture()
+def string_contract(web3, StringContract):
+    deploy_txn = StringContract.constructor("Caqalai").transact()
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    contract = StringContract(address=deploy_receipt['contractAddress'])
+    assert len(web3.eth.getCode(contract.address)) > 0
+    return contract
+
+
+map_repr = compose(list, curry(map, repr))
 
 
 @pytest.mark.parametrize(
@@ -158,3 +173,12 @@ def test_functions_error_messages(web3, method, args, expected_message, expected
     contract = web3.eth.contract(abi=AMBIGUOUS_CONTRACT_ABI)
     with pytest.raises(expected_error, match=expected_message):
         getattr(contract, method)(*args)
+
+
+def test_contract_function_methods(string_contract):
+    set_value_func = string_contract.get_function_by_signature('setValue(string)')
+    get_value_func = string_contract.get_function_by_signature('getValue()')
+    assert isinstance(set_value_func('Hello').transact(), HexBytes)
+    assert get_value_func().call() == 'Hello'
+    assert isinstance(set_value_func('Hello World').estimateGas(), int)
+    assert isinstance(set_value_func('Hello World').buildTransaction(), dict)

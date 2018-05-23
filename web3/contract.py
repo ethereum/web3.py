@@ -438,7 +438,8 @@ class Contract:
                     contract.address,
                     contract.web3,
                     function_name,
-                    estimate_transaction
+                    estimate_transaction,
+                    False,
                 )
                 return callable_fn
 
@@ -508,6 +509,7 @@ class Contract:
                     function_name,
                     call_transaction,
                     'latest',
+                    False,
                 )
                 return callable_fn
 
@@ -590,6 +592,7 @@ class Contract:
                     contract.web3,
                     function_name,
                     transact_transaction,
+                    False,
                 )
                 return callable_fn
 
@@ -636,6 +639,7 @@ class Contract:
                     contract.web3,
                     function_name,
                     built_transaction,
+                    False,
                 )
                 return callable_fn
 
@@ -998,6 +1002,7 @@ class ContractFunction:
     contract_abi = None
     abi = None
     transaction = None
+    arguments = None
 
     def __init__(self, abi=None):
         self.abi = abi
@@ -1084,15 +1089,18 @@ class ContractFunction:
                 )
         block_id = parse_block_identifier(self.web3, block_identifier)
 
-        return call_contract_function(self.contract_abi,
-                                      self.web3,
-                                      self.address,
-                                      self._return_data_normalizers,
-                                      self.function_identifier,
-                                      call_transaction,
-                                      block_id,
-                                      *self.args,
-                                      **self.kwargs)
+        return call_contract_function(
+            self.abi or self.contract_abi,
+            self.web3,
+            self.address,
+            self._return_data_normalizers,
+            self.function_identifier,
+            call_transaction,
+            block_id,
+            bool(self.abi),
+            *self.args,
+            **self.kwargs
+        )
 
     def transact(self, transaction=None):
         if transaction is None:
@@ -1119,13 +1127,16 @@ class ContractFunction:
                     "Please ensure that this contract instance has an address."
                 )
 
-        return transact_with_contract_function(self.contract_abi,
-                                               self.address,
-                                               self.web3,
-                                               self.function_identifier,
-                                               transact_transaction,
-                                               *self.args,
-                                               **self.kwargs)
+        return transact_with_contract_function(
+            self.abi or self.contract_abi,
+            self.address,
+            self.web3,
+            self.function_identifier,
+            transact_transaction,
+            bool(self.abi),
+            *self.args,
+            **self.kwargs
+        )
 
     def estimateGas(self, transaction=None):
         if transaction is None:
@@ -1154,13 +1165,16 @@ class ContractFunction:
                     "Please ensure that this contract instance has an address."
                 )
 
-        return estimate_gas_for_function(self.contract_abi,
-                                         self.address,
-                                         self.web3,
-                                         self.function_identifier,
-                                         estimate_gas_transaction,
-                                         *self.args,
-                                         **self.kwargs)
+        return estimate_gas_for_function(
+            self.abi or self.contract_abi,
+            self.address,
+            self.web3,
+            self.function_identifier,
+            estimate_gas_transaction,
+            bool(self.abi),
+            *self.args,
+            **self.kwargs
+        )
 
     def buildTransaction(self, transaction=None):
         """
@@ -1190,13 +1204,16 @@ class ContractFunction:
                 "Please ensure that this contract instance has an address."
             )
 
-        return build_transaction_for_function(self.contract_abi,
-                                              self.address,
-                                              self.web3,
-                                              self.function_identifier,
-                                              built_transaction,
-                                              *self.args,
-                                              **self.kwargs)
+        return build_transaction_for_function(
+            self.abi or self.contract_abi,
+            self.address,
+            self.web3,
+            self.function_identifier,
+            built_transaction,
+            bool(self.abi),
+            *self.args,
+            **self.kwargs
+        )
 
     @combomethod
     def _encode_transaction_data(cls):
@@ -1210,7 +1227,10 @@ class ContractFunction:
 
     def __repr__(self):
         if self.abi:
-            return '<Function %s>' % abi_to_signature(self.abi)
+            _repr = '<Function %s' % abi_to_signature(self.abi)
+            if self.arguments:
+                _repr += ' bound to %r' % (self.arguments,)
+            return _repr + '>'
         return '<Function %s>' % self.fn_name
 
 
@@ -1309,6 +1329,7 @@ def call_contract_function(abi,
                            function_identifier,
                            transaction,
                            block_id=None,
+                           is_function_abi=False,
                            *args,
                            **kwargs):
     """
@@ -1323,6 +1344,7 @@ def call_contract_function(abi,
         fn_args=args,
         fn_kwargs=kwargs,
         transaction=transaction,
+        is_function_abi=is_function_abi,
     )
 
     if block_id is None:
@@ -1330,7 +1352,9 @@ def call_contract_function(abi,
     else:
         return_data = web3.eth.call(call_transaction, block_identifier=block_id)
 
-    function_abi = find_matching_fn_abi(abi, function_identifier, args, kwargs)
+    function_abi = abi
+    if not is_function_abi:
+        function_abi = find_matching_fn_abi(abi, function_identifier, args, kwargs)
 
     output_types = get_abi_output_types(function_abi)
 
@@ -1391,6 +1415,7 @@ def transact_with_contract_function(abi,
                                     web3,
                                     function_name=None,
                                     transaction=None,
+                                    is_function_abi=False,
                                     *args,
                                     **kwargs):
     """
@@ -1405,6 +1430,7 @@ def transact_with_contract_function(abi,
         fn_args=args,
         fn_kwargs=kwargs,
         transaction=transaction,
+        is_function_abi=is_function_abi,
     )
 
     txn_hash = web3.eth.sendTransaction(transact_transaction)
@@ -1416,6 +1442,7 @@ def estimate_gas_for_function(abi,
                               web3,
                               fn_identifier=None,
                               transaction=None,
+                              is_function_abi=False,
                               *args,
                               **kwargs):
     """Estimates gas cost a function call would take.
@@ -1431,6 +1458,7 @@ def estimate_gas_for_function(abi,
         fn_args=args,
         fn_kwargs=kwargs,
         transaction=transaction,
+        is_function_abi=is_function_abi,
     )
 
     gas_estimate = web3.eth.estimateGas(estimate_transaction)
@@ -1442,6 +1470,7 @@ def build_transaction_for_function(abi,
                                    web3,
                                    function_name=None,
                                    transaction=None,
+                                   is_function_abi=False,
                                    *args,
                                    **kwargs):
     """Builds a dictionary with the fields required to make the given transaction
@@ -1457,6 +1486,7 @@ def build_transaction_for_function(abi,
         fn_args=args,
         fn_kwargs=kwargs,
         transaction=transaction,
+        is_function_abi=is_function_abi,
     )
 
     prepared_transaction = fill_transaction_defaults(web3, prepared_transaction)
