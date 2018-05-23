@@ -18,8 +18,18 @@ class ParityModuleTest:
         assert trace['vmTrace'] is None
         assert trace['trace'][0]['action']['from'] == add_0x_prefix(parity_fixture_data['coinbase'])
 
-    def test_trace_replay_block_transactions(self, web3, block_with_txn):
-        web3.parity.traceReplayBlockTransactions(block_with_txn['number'])
+    def test_trace_replay_block_with_transactions(self,
+                                                  web3,
+                                                  block_with_txn,
+                                                  parity_fixture_data):
+        trace = web3.parity.traceReplayBlockTransactions(block_with_txn['number'])
+        assert len(trace) > 0
+        trace_0_action = trace[0]['trace'][0]['action']
+        assert trace_0_action['from'] == add_0x_prefix(parity_fixture_data['coinbase'])
+
+    def test_trace_replay_block_without_transactions(self, web3, empty_block):
+        trace = web3.parity.traceReplayBlockTransactions(empty_block['number'])
+        assert len(trace) == 0
 
     def test_trace_block(self, web3, block_with_txn):
         trace = web3.parity.traceBlock(block_with_txn['number'])
@@ -71,5 +81,4 @@ class ParityModuleTest:
         trace = web3.parity.traceRawTransaction(raw_transaction)
         assert trace['stateDiff'] is None
         assert trace['vmTrace'] is None
-        print(trace['trace'][0]['action'])
         assert trace['trace'][0]['action']['from'] == funded_account_for_raw_txn.lower()
