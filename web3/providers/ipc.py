@@ -1,3 +1,4 @@
+import logging
 import os
 import socket
 import sys
@@ -136,6 +137,7 @@ def get_default_ipc_path(testnet=False):
 
 
 class IPCProvider(JSONBaseProvider):
+    logger = logging.getLogger("web3.providers.IPCProvider")
     _socket = None
 
     def __init__(self, ipc_path=None, testnet=False, timeout=10, *args, **kwargs):
@@ -150,6 +152,8 @@ class IPCProvider(JSONBaseProvider):
         super().__init__(*args, **kwargs)
 
     def make_request(self, method, params):
+        self.logger.debug("Making request IPC. Path: %s, Method: %s",
+                          self.ipc_path, method)
         request = self.encode_rpc_request(method, params)
 
         with self._lock, self._socket as sock:

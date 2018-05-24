@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from eth_utils import (
@@ -32,6 +33,8 @@ from web3.utils.threads import (
 
 
 class RequestManager:
+    logger = logging.getLogger("web3.RequestManager")
+
     def __init__(self, web3, providers, middlewares=None):
         self.web3 = web3
         self.pending_requests = {}
@@ -82,6 +85,7 @@ class RequestManager:
     def _make_request(self, method, params):
         for provider in self.providers:
             request_func = provider.request_func(self.web3, tuple(self.middleware_stack))
+            self.logger.debug("Making request. Method: %s", method)
             try:
                 return request_func(method, params)
             except CannotHandleRequest:
