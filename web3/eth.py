@@ -197,6 +197,13 @@ class Eth(Module):
 
     def getTransactionFromBlock(self, block_identifier, transaction_index):
         """
+        Alias for the method getTransactionByBlock
+        Depreceated to maintain naming consistency with the json-rpc API
+        """
+        return self.getTransactionByBlock(block_identifier, transaction_index)
+
+    def getTransactionByBlock(self, block_identifier, transaction_index):
+        """
         `eth_getTransactionByBlockHashAndIndex`
         `eth_getTransactionByBlockNumberAndIndex`
         """
@@ -210,13 +217,6 @@ class Eth(Module):
             method,
             [block_identifier, transaction_index],
         )
-
-    def getTransactionByBlock(self, block_identifier, transaction_index):
-        """
-        Alias for the method getTransactionFromBlock
-        More details here: https://github.com/ethereum/web3.py/pull/857
-        """
-        return self.getTransactionFromBlock(block_identifier, transaction_index)
 
     def waitForTransactionReceipt(self, transaction_hash, timeout=120):
         return wait_for_transaction_receipt(self.web3, transaction_hash, timeout)
