@@ -173,7 +173,7 @@ class Eth(Module):
             [block_identifier],
         )
 
-    def getUncleFromBlock(self, block_identifier, uncle_index):
+    def getUncleByBlock(self, block_identifier, uncle_index):
         """
         `eth_getUncleByBlockHashAndIndex`
         `eth_getUncleByBlockNumberAndIndex`
@@ -196,6 +196,13 @@ class Eth(Module):
         )
 
     def getTransactionFromBlock(self, block_identifier, transaction_index):
+        """
+        Alias for the method getTransactionByBlock
+        Depreceated to maintain naming consistency with the json-rpc API
+        """
+        return self.getTransactionByBlock(block_identifier, transaction_index)
+
+    def getTransactionByBlock(self, block_identifier, transaction_index):
         """
         `eth_getTransactionByBlockHashAndIndex`
         `eth_getTransactionByBlockNumberAndIndex`
