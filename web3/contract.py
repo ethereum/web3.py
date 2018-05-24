@@ -354,7 +354,7 @@ class Contract:
         :param data: defaults to function selector
         """
         fn_abi, fn_selector, fn_arguments = get_function_info(
-            cls.abi, fn_name, args, kwargs,
+            fn_name, contract_abi=cls.abi, args=args, kwargs=kwargs,
         )
 
         if data is None:
@@ -434,12 +434,12 @@ class Contract:
             def __getattr__(self, function_name):
                 callable_fn = functools.partial(
                     estimate_gas_for_function,
-                    contract.abi,
                     contract.address,
                     contract.web3,
                     function_name,
                     estimate_transaction,
-                    False,
+                    contract.abi,
+                    None,
                 )
                 return callable_fn
 
@@ -502,14 +502,14 @@ class Contract:
             def __getattr__(self, function_name):
                 callable_fn = functools.partial(
                     call_contract_function,
-                    contract.abi,
                     contract.web3,
                     contract.address,
                     contract._return_data_normalizers,
                     function_name,
                     call_transaction,
                     'latest',
-                    False,
+                    contract.abi,
+                    None,
                 )
                 return callable_fn
 
@@ -587,12 +587,12 @@ class Contract:
             def __getattr__(self, function_name):
                 callable_fn = functools.partial(
                     transact_with_contract_function,
-                    contract.abi,
                     contract.address,
                     contract.web3,
                     function_name,
                     transact_transaction,
-                    False,
+                    contract.abi,
+                    None,
                 )
                 return callable_fn
 
@@ -634,12 +634,12 @@ class Contract:
             def __getattr__(self, function_name):
                 callable_fn = functools.partial(
                     build_transaction_for_function,
-                    contract.abi,
                     contract.address,
                     contract.web3,
                     function_name,
                     built_transaction,
-                    False,
+                    contract.abi,
+                    None,
                 )
                 return callable_fn
 
@@ -713,13 +713,15 @@ class Contract:
                              fn_kwargs=None,
                              transaction=None):
 
-        return prepare_transaction(cls.abi,
-                                   cls.address,
-                                   cls.web3,
-                                   fn_identifier=fn_name,
-                                   fn_args=fn_args,
-                                   fn_kwargs=fn_kwargs,
-                                   transaction=transaction)
+        return prepare_transaction(
+            cls.address,
+            cls.web3,
+            fn_identifier=fn_name,
+            contract_abi=cls.abi,
+            transaction=transaction,
+            fn_args=fn_args,
+            fn_kwargs=fn_kwargs,
+        )
 
     @classmethod
     def _find_matching_fn_abi(cls, fn_identifier=None, args=None, kwargs=None):
@@ -1090,14 +1092,14 @@ class ContractFunction:
         block_id = parse_block_identifier(self.web3, block_identifier)
 
         return call_contract_function(
-            self.abi or self.contract_abi,
             self.web3,
             self.address,
             self._return_data_normalizers,
             self.function_identifier,
             call_transaction,
             block_id,
-            bool(self.abi),
+            self.contract_abi,
+            self.abi,
             *self.args,
             **self.kwargs
         )
@@ -1128,12 +1130,12 @@ class ContractFunction:
                 )
 
         return transact_with_contract_function(
-            self.abi or self.contract_abi,
             self.address,
             self.web3,
             self.function_identifier,
             transact_transaction,
-            bool(self.abi),
+            self.contract_abi,
+            self.abi,
             *self.args,
             **self.kwargs
         )
@@ -1166,12 +1168,12 @@ class ContractFunction:
                 )
 
         return estimate_gas_for_function(
-            self.abi or self.contract_abi,
             self.address,
             self.web3,
             self.function_identifier,
             estimate_gas_transaction,
-            bool(self.abi),
+            self.contract_abi,
+            self.abi,
             *self.args,
             **self.kwargs
         )
@@ -1205,12 +1207,12 @@ class ContractFunction:
             )
 
         return build_transaction_for_function(
-            self.abi or self.contract_abi,
             self.address,
             self.web3,
             self.function_identifier,
             built_transaction,
-            bool(self.abi),
+            self.contract_abi,
+            self.abi,
             *self.args,
             **self.kwargs
         )
@@ -1322,29 +1324,30 @@ class ContractEvent:
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
 
 
-def call_contract_function(abi,
-                           web3,
-                           address,
-                           normalizers,
-                           function_identifier,
-                           transaction,
-                           block_id=None,
-                           is_function_abi=False,
-                           *args,
-                           **kwargs):
+def call_contract_function(
+        web3,
+        address,
+        normalizers,
+        function_identifier,
+        transaction,
+        block_id=None,
+        contract_abi=None,
+        fn_abi=None,
+        *args,
+        **kwargs):
     """
     Helper function for interacting with a contract function using the
     `eth_call` API.
     """
     call_transaction = prepare_transaction(
-        abi,
         address,
         web3,
         fn_identifier=function_identifier,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
         fn_args=args,
         fn_kwargs=kwargs,
-        transaction=transaction,
-        is_function_abi=is_function_abi,
     )
 
     if block_id is None:
@@ -1352,11 +1355,10 @@ def call_contract_function(abi,
     else:
         return_data = web3.eth.call(call_transaction, block_identifier=block_id)
 
-    function_abi = abi
-    if not is_function_abi:
-        function_abi = find_matching_fn_abi(abi, function_identifier, args, kwargs)
+    if fn_abi is None:
+        fn_abi = find_matching_fn_abi(contract_abi, function_identifier, args, kwargs)
 
-    output_types = get_abi_output_types(function_abi)
+    output_types = get_abi_output_types(fn_abi)
 
     try:
         output_data = decode_abi(output_types, return_data)
@@ -1410,83 +1412,86 @@ def parse_block_identifier(web3, block_identifier):
         raise BlockNumberOutofRange
 
 
-def transact_with_contract_function(abi,
-                                    address,
-                                    web3,
-                                    function_name=None,
-                                    transaction=None,
-                                    is_function_abi=False,
-                                    *args,
-                                    **kwargs):
+def transact_with_contract_function(
+        address,
+        web3,
+        function_name=None,
+        transaction=None,
+        contract_abi=None,
+        fn_abi=None,
+        *args,
+        **kwargs):
     """
     Helper function for interacting with a contract function by sending a
     transaction.
     """
     transact_transaction = prepare_transaction(
-        abi,
         address,
         web3,
         fn_identifier=function_name,
+        contract_abi=contract_abi,
+        transaction=transaction,
+        fn_abi=fn_abi,
         fn_args=args,
         fn_kwargs=kwargs,
-        transaction=transaction,
-        is_function_abi=is_function_abi,
     )
 
     txn_hash = web3.eth.sendTransaction(transact_transaction)
     return txn_hash
 
 
-def estimate_gas_for_function(abi,
-                              address,
-                              web3,
-                              fn_identifier=None,
-                              transaction=None,
-                              is_function_abi=False,
-                              *args,
-                              **kwargs):
+def estimate_gas_for_function(
+        address,
+        web3,
+        fn_identifier=None,
+        transaction=None,
+        contract_abi=None,
+        fn_abi=None,
+        *args,
+        **kwargs):
     """Estimates gas cost a function call would take.
 
     Don't call this directly, instead use :meth:`Contract.estimateGas`
     on your contract instance.
     """
     estimate_transaction = prepare_transaction(
-        abi,
         address,
         web3,
         fn_identifier=fn_identifier,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
         fn_args=args,
         fn_kwargs=kwargs,
-        transaction=transaction,
-        is_function_abi=is_function_abi,
     )
 
     gas_estimate = web3.eth.estimateGas(estimate_transaction)
     return gas_estimate
 
 
-def build_transaction_for_function(abi,
-                                   address,
-                                   web3,
-                                   function_name=None,
-                                   transaction=None,
-                                   is_function_abi=False,
-                                   *args,
-                                   **kwargs):
+def build_transaction_for_function(
+        address,
+        web3,
+        function_name=None,
+        transaction=None,
+        contract_abi=None,
+        fn_abi=None,
+        *args,
+        **kwargs):
     """Builds a dictionary with the fields required to make the given transaction
 
     Don't call this directly, instead use :meth:`Contract.buildTransaction`
     on your contract instance.
     """
     prepared_transaction = prepare_transaction(
-        abi,
         address,
         web3,
         fn_identifier=function_name,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
         fn_args=args,
         fn_kwargs=kwargs,
-        transaction=transaction,
-        is_function_abi=is_function_abi,
     )
 
     prepared_transaction = fill_transaction_defaults(web3, prepared_transaction)
