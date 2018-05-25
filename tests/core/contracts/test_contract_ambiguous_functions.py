@@ -182,3 +182,11 @@ def test_contract_function_methods(string_contract):
     assert get_value_func().call() == 'Hello'
     assert isinstance(set_value_func('Hello World').estimateGas(), int)
     assert isinstance(set_value_func('Hello World').buildTransaction(), dict)
+
+
+def test_diff_between_fn_and_fn_called(string_contract):
+    get_value_func = string_contract.get_function_by_signature('getValue()')
+    get_value_func_called = get_value_func()
+    assert get_value_func is not get_value_func_called
+    assert repr(get_value_func) == '<Function getValue()>'
+    assert repr(get_value_func_called) == '<Function getValue() bound to ()>'

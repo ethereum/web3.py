@@ -1,6 +1,7 @@
 """Interaction with smart contracts over Web3 connector.
 
 """
+import copy
 import functools
 import itertools
 
@@ -1011,17 +1012,18 @@ class ContractFunction:
         self.fn_name = type(self).__name__
 
     def __call__(self, *args, **kwargs):
+        clone = copy.copy(self)
         if args is None:
-            self.args = tuple()
+            clone.args = tuple()
         else:
-            self.args = args
+            clone.args = args
 
         if kwargs is None:
-            self.kwargs = {}
+            clone.kwargs = {}
         else:
-            self.kwargs = kwargs
-        self._set_function_info()
-        return self
+            clone.kwargs = kwargs
+        clone._set_function_info()
+        return clone
 
     def _set_function_info(self):
         if not self.abi:
@@ -1230,7 +1232,7 @@ class ContractFunction:
     def __repr__(self):
         if self.abi:
             _repr = '<Function %s' % abi_to_signature(self.abi)
-            if self.arguments:
+            if self.arguments is not None:
                 _repr += ' bound to %r' % (self.arguments,)
             return _repr + '>'
         return '<Function %s>' % self.fn_name
