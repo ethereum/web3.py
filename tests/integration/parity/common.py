@@ -3,6 +3,7 @@ import socket
 
 from web3.utils.module_testing import (
     EthModuleTest,
+    ParityModuleTest as TraceModuleTest,
     PersonalModuleTest,
     Web3ModuleTest,
 )
@@ -117,3 +118,33 @@ class ParityPersonalModuleTest(PersonalModuleTest):
             web3,
             unlockable_account,
             unlockable_account_pw)
+
+
+class ParityTraceModuleTest(TraceModuleTest):
+    def test_trace_replay_transaction(self, web3, parity_fixture_data):
+        super().test_trace_replay_transaction(web3, parity_fixture_data)
+
+    def test_trace_replay_block_with_transactions(self,
+                                                  web3,
+                                                  block_with_txn,
+                                                  parity_fixture_data):
+        pytest.xfail('This method does not exist in older parity versions')
+        super().test_trace_replay_block_with_transactions(web3,
+                                                          block_with_txn,
+                                                          parity_fixture_data)
+
+    def test_trace_replay_block_without_transactions(self, web3, empty_block):
+        pytest.xfail('This method does not exist in older parity versions')
+        super().test_trace_replay_block_without_transactions(web3, empty_block)
+
+    def test_trace_block(self, web3, block_with_txn):
+        super().test_trace_block(web3, block_with_txn)
+
+    def test_trace_transaction(self, web3, parity_fixture_data):
+        super().test_trace_transaction(web3, parity_fixture_data)
+
+    def test_trace_call(self, web3, math_contract):
+        super().test_trace_call(web3, math_contract)
+
+    def test_eth_call_with_0_result(self, web3, math_contract):
+        super().test_eth_call_with_0_result(web3, math_contract)
