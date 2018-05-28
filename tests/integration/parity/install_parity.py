@@ -18,7 +18,8 @@ BASE_BIN_PATH = "~/.parity-bin"
 VERSION_STRINGS = {
     "v1.8.7": "1_8_7",
     "v1.8.8": "1_8_8",
-    "v1.9.1": "1_9_1"
+    "v1.9.1": "1_9_1",
+    "v1.9.7": "1_9_7",
 }
 ARCHITECTURE = 'x86_64'
 OS = 'linux'
