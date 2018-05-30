@@ -21,7 +21,7 @@ VERSION_STRINGS = {
     "v1.9.1": "1_9_1"
 }
 ARCHITECTURE = 'x86_64'
-OS = 'linux'
+OS = 'debian'
 
 
 @toolz.curry
