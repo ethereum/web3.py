@@ -36,6 +36,9 @@ parity_steps: &parity_steps
         name: install dependencies
         command: pip install --user tox
     - run:
+        name: install parity dependencies
+        command: apt-get install libssl libcrypto
+    - run:
         name: install parity if needed
         command: |
           pip install --user requests eth_utils tqdm eth-hash[pycryptodome]
