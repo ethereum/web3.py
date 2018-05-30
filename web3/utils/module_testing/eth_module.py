@@ -2,6 +2,10 @@
 
 import pytest
 
+from flaky import (
+    flaky,
+)
+
 from eth_abi import (
     decode_single,
 )
@@ -25,6 +29,9 @@ from web3.exceptions import (
 
 UNKNOWN_ADDRESS = '0xdeadbeef00000000000000000000000000000000'
 UNKNOWN_HASH = '0xdeadbeef00000000000000000000000000000000000000000000000000000000'
+
+# some tests appear flaky with Parity
+MAX_FLAKY_RUNS = 3
 
 
 class EthModuleTest:
@@ -529,6 +536,7 @@ class EthModuleTest:
         assert receipt['transactionIndex'] == 0
         assert receipt['transactionHash'] == HexBytes(mined_txn_hash)
 
+    @flaky(max_runs=MAX_FLAKY_RUNS)
     def test_eth_getTransactionReceipt_unmined(self, web3, unlocked_account):
         txn_hash = web3.eth.sendTransaction({
             'from': unlocked_account,
@@ -704,6 +712,8 @@ class EthModuleTest:
         result = web3.eth.getLogs(filter_params)
         assert_contains_log(result)
 
+    
+    @flaky(max_runs=MAX_FLAKY_RUNS)
     def test_eth_call_old_contract_state(self, web3, math_contract, unlocked_account):
         start_block = web3.eth.getBlock('latest')
         block_num = start_block.number
@@ -717,19 +727,22 @@ class EthModuleTest:
         # Ideas to improve this test:
         #  - Enable on-demand mining in more clients
         #  - Increment the math contract in all of the fixtures, and check the value in an old block
+
         block_hash_call_result = math_contract.functions.counter().call(block_identifier=block_hash)
         block_num_call_result = math_contract.functions.counter().call(block_identifier=block_num)
         latest_call_result = math_contract.functions.counter().call(block_identifier='latest')
         default_call_result = math_contract.functions.counter().call()
-        pending_call_result = math_contract.functions.counter().call(block_identifier='pending')
 
         assert block_hash_call_result == 0
         assert block_num_call_result == 0
         assert latest_call_result == 0
         assert default_call_result == 0
 
-        if pending_call_result != 1:
-            raise AssertionError("pending call result was %d instead of 1" % pending_call_result)
+        # retrieve this right before using - Parity tests might hit a race otherwise
+        pending_call_result = math_contract.functions.counter().call(block_identifier='pending')
+        # should be '1' on first flaky run, '2' on second, or '3' on third
+        if pending_call_result not in range(1, MAX_FLAKY_RUNS+1):
+            raise AssertionError("pending call result was %d!" % pending_call_result)
 
     def test_eth_uninstallFilter(self, web3):
         filter = web3.eth.filter({})
