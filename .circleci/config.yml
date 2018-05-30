@@ -46,6 +46,8 @@ parity_steps: &parity_steps
         command: |
           find /home/circleci/.parity-bin
           file /home/circleci/.parity-bin/*
+          ldd /home/circleci/.parity-bin/*
+          echo "-----"
           find /lib -name "libssl*"
           find /lib -name "libcrypto*"
     - run:
