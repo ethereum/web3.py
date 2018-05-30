@@ -170,7 +170,7 @@ jobs:
       - image: circleci/python:3.5
     environment:
       TOXENV: py35-integration-parity-ipc
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.8.9
 
   py35-integration-parity-http:
     <<: *parity_steps
@@ -178,7 +178,7 @@ jobs:
       - image: circleci/python:3.5
     environment:
       TOXENV: py35-integration-parity-http
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.8.9
 
   py35-integration-parity-ws:
     <<: *parity_steps
@@ -186,7 +186,7 @@ jobs:
       - image: circleci/python:3.5
     environment:
       TOXENV: py35-integration-parity-ws
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.8.9
 
   py35-integration-ethtester-pyethereum:
     <<: *common
@@ -288,7 +288,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-parity-ipc
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.10.4
 
   py36-integration-parity-http:
     <<: *parity_steps
@@ -296,7 +296,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-parity-http
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.10.4
 
   py36-integration-parity-ws:
     <<: *parity_steps
@@ -304,7 +304,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-parity-ws
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.10.4
 
   py36-integration-ethtester-pyethereum:
     <<: *common
