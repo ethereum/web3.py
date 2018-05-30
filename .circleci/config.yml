@@ -44,8 +44,8 @@ parity_steps: &parity_steps
     - run:
         name: DEBUG system shared libraries
         command: |
-          find /home/circleci/.parity-bin -type f
-          ldd /home/circleci/.parity-bin/"parity*"
+          find /home/circleci/.parity-bin
+          file /home/circleci/.parity-bin/"parity*"
           find /lib -name "libssl*"
           find /lib -name "libcrypto*"
     - run:
