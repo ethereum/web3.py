@@ -36,11 +36,23 @@ parity_steps: &parity_steps
         name: install dependencies
         command: pip install --user tox
     - run:
+        name: install parity dependencies
+        command: apt-get install libssl libcrypto
+    - run:
         name: install parity if needed
         command: |
           pip install --user requests eth_utils tqdm eth-hash[pycryptodome]
           echo $PARITY_VERSION
           python tests/integration/parity/install_parity.py $PARITY_VERSION
+    - run:
+        name: DEBUG system shared libraries
+        command: |
+          find /home/circleci/.parity-bin
+          file /home/circleci/.parity-bin/*
+          ldd /home/circleci/.parity-bin/*
+          echo "-----"
+          find /lib -name "libssl*"
+          find /lib -name "libcrypto*"
     - run:
         name: run tox
         command: ~/.local/bin/tox -r
@@ -170,7 +182,7 @@ jobs:
       - image: circleci/python:3.5
     environment:
       TOXENV: py35-integration-parity-ipc
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.9.7
 
   py35-integration-parity-http:
     <<: *parity_steps
@@ -178,7 +190,7 @@ jobs:
       - image: circleci/python:3.5
     environment:
       TOXENV: py35-integration-parity-http
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.9.7
 
   py35-integration-parity-ws:
     <<: *parity_steps
@@ -186,7 +198,7 @@ jobs:
       - image: circleci/python:3.5
     environment:
       TOXENV: py35-integration-parity-ws
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.9.7
 
   py35-integration-ethtester-pyethereum:
     <<: *common
@@ -288,7 +300,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-parity-ipc
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.9.7
 
   py36-integration-parity-http:
     <<: *parity_steps
@@ -296,7 +308,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-parity-http
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.9.7
 
   py36-integration-parity-ws:
     <<: *parity_steps
@@ -304,7 +316,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-parity-ws
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.9.7
 
   py36-integration-ethtester-pyethereum:
     <<: *common
@@ -326,31 +338,31 @@ workflows:
   version: 2
   test:
     jobs:
-      - lint
-      - doctest
-      - py35-core
-      - py35-ens
-      - py35-integration-goethereum-ipc-1.7.2
-      - py35-integration-goethereum-http-1.7.2
-      - py35-integration-goethereum-ws-1.7.2
-      - py35-integration-goethereum-ipc-1.8.1
-      - py35-integration-goethereum-http-1.8.1
-      - py35-integration-goethereum-ws-1.8.1
+      # - lint
+      # - doctest
+      # - py35-core
+      # - py35-ens
+      # - py35-integration-goethereum-ipc-1.7.2
+      # - py35-integration-goethereum-http-1.7.2
+      # - py35-integration-goethereum-ws-1.7.2
+      # - py35-integration-goethereum-ipc-1.8.1
+      # - py35-integration-goethereum-http-1.8.1
+      # - py35-integration-goethereum-ws-1.8.1
       - py35-integration-parity-ipc
       - py35-integration-parity-http
       - py35-integration-parity-ws
-      - py35-integration-ethtester-pyethereum
-      - py35-integration-ethtester-pyevm
-      - py36-core
-      - py36-ens
-      - py36-integration-goethereum-ipc-1.7.2
-      - py36-integration-goethereum-http-1.7.2
-      - py36-integration-goethereum-ws-1.7.2
-      - py36-integration-goethereum-ipc-1.8.1
-      - py36-integration-goethereum-http-1.8.1
-      - py36-integration-goethereum-ws-1.8.1
+      # - py35-integration-ethtester-pyethereum
+      # - py35-integration-ethtester-pyevm
+      # - py36-core
+      # - py36-ens
+      # - py36-integration-goethereum-ipc-1.7.2
+      # - py36-integration-goethereum-http-1.7.2
+      # - py36-integration-goethereum-ws-1.7.2
+      # - py36-integration-goethereum-ipc-1.8.1
+      # - py36-integration-goethereum-http-1.8.1
+      # - py36-integration-goethereum-ws-1.8.1
       - py36-integration-parity-ipc
       - py36-integration-parity-http
       - py36-integration-parity-ws
-      - py36-integration-ethtester-pyethereum
-      - py36-integration-ethtester-pyevm
+      # - py36-integration-ethtester-pyethereum
+      # - py36-integration-ethtester-pyevm
