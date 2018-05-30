@@ -42,6 +42,13 @@ parity_steps: &parity_steps
           echo $PARITY_VERSION
           python tests/integration/parity/install_parity.py $PARITY_VERSION
     - run:
+        name: DEBUG system shared libraries
+        command: |
+          find ~/.parity-bin -type f
+          ldd `which parity`
+          find /lib -name "libssl*"
+          find /lib -name "libcrypto*"
+    - run:
         name: run tox
         command: ~/.local/bin/tox -r
     - save_cache:
