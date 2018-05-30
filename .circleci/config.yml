@@ -45,7 +45,6 @@ parity_steps: &parity_steps
         name: DEBUG system shared libraries
         command: |
           find ~/.parity-bin -type f
-          ldd `which parity`
           find /lib -name "libssl*"
           find /lib -name "libcrypto*"
     - run:
