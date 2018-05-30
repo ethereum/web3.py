@@ -19,6 +19,9 @@ except ImportError:
 
 
 def get_ipc_socket(ipc_path, timeout=0.1):
+    # in case it's a `pathlib.Path` or similar
+    ipc_path = str(ipc_path)
+
     if sys.platform == 'win32':
         # On Windows named pipe is used. Simulate socket with it.
         from web3.utils.windows import NamedPipe
