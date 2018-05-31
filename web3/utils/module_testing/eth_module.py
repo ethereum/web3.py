@@ -29,7 +29,7 @@ from web3.exceptions import (
 UNKNOWN_ADDRESS = '0xdeadbeef00000000000000000000000000000000'
 UNKNOWN_HASH = '0xdeadbeef00000000000000000000000000000000000000000000000000000000'
 
-# some tests appear flaky with Parity
+# some tests appear flaky with Parity v1.10.x
 MAX_FLAKY_RUNS = 3
 
 
