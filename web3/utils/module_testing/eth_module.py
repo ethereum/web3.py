@@ -2,10 +2,6 @@
 
 import pytest
 
-from flaky import (
-    flaky,
-)
-
 from eth_abi import (
     decode_single,
 )
@@ -18,6 +14,9 @@ from eth_utils import (
     is_list_like,
     is_same_address,
     is_string,
+)
+from flaky import (
+    flaky,
 )
 from hexbytes import (
     HexBytes,
@@ -712,7 +711,6 @@ class EthModuleTest:
         result = web3.eth.getLogs(filter_params)
         assert_contains_log(result)
 
-    
     @flaky(max_runs=MAX_FLAKY_RUNS)
     def test_eth_call_old_contract_state(self, web3, math_contract, unlocked_account):
         start_block = web3.eth.getBlock('latest')
@@ -741,7 +739,7 @@ class EthModuleTest:
         # retrieve this right before using - Parity tests might hit a race otherwise
         pending_call_result = math_contract.functions.counter().call(block_identifier='pending')
         # should be '1' on first flaky run, '2' on second, or '3' on third
-        if pending_call_result not in range(1, MAX_FLAKY_RUNS+1):
+        if pending_call_result not in range(1, MAX_FLAKY_RUNS + 1):
             raise AssertionError("pending call result was %d!" % pending_call_result)
 
     def test_eth_uninstallFilter(self, web3):
