@@ -91,6 +91,7 @@ class ParityEthModuleTest(EthModuleTest):
         })
         receipt = web3.eth.getTransactionReceipt(txn_hash)
         assert receipt is not None
+        assert receipt['blockHash'] is None
 
     @flaky(max_runs=MAX_FLAKY_RUNS)
     def test_eth_call_old_contract_state(self, web3, math_contract, unlocked_account):
