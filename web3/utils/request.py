@@ -5,7 +5,12 @@ from web3.utils.caching import (
     generate_cache_key,
 )
 
-_session_cache = lru.LRU(8)
+
+def _remove_session(key, session):
+    session.close()
+
+
+_session_cache = lru.LRU(8, callback=_remove_session)
 
 
 def _get_session(*args, **kwargs):
