@@ -18,10 +18,11 @@ BASE_BIN_PATH = "~/.parity-bin"
 VERSION_STRINGS = {
     "v1.8.7": "1_8_7",
     "v1.8.8": "1_8_8",
-    "v1.9.1": "1_9_1"
+    "v1.9.1": "1_9_1",
+    "v1.10.4": "1_10_4",
 }
 ARCHITECTURE = 'x86_64'
-OS = 'linux'
+OS = 'debian'
 
 
 @toolz.curry

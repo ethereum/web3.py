@@ -39,8 +39,16 @@ parity_steps: &parity_steps
         name: install parity if needed
         command: |
           pip install --user requests eth_utils tqdm eth-hash[pycryptodome]
-          echo $PARITY_VERSION
+          echo "Job specifies Parity version $PARITY_VERSION"
           python tests/integration/parity/install_parity.py $PARITY_VERSION
+    - run:
+        name: update parity deps from testing repo if needed
+        command: |
+          [ "`cat /etc/*release | grep jessie`" != "" ] && echo "On Jessie - installing missing deps..." || echo "Not on Jessie - doing nothing."
+          [ "`cat /etc/*release | grep jessie`" != "" ] || exit 0
+          echo "deb http://ftp.debian.org/debian testing main" > testing.list && sudo mv testing.list /etc/apt/sources.list.d/
+          sudo apt update
+          sudo apt-get -t testing install libstdc++6
     - run:
         name: run tox
         command: ~/.local/bin/tox -r
@@ -167,26 +175,26 @@ jobs:
   py35-integration-parity-ipc:
     <<: *parity_steps
     docker:
-      - image: circleci/python:3.5
+      - image: circleci/python:3.5-jessie
     environment:
       TOXENV: py35-integration-parity-ipc
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.10.4
 
   py35-integration-parity-http:
     <<: *parity_steps
     docker:
-      - image: circleci/python:3.5
+      - image: circleci/python:3.5-jessie
     environment:
       TOXENV: py35-integration-parity-http
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.10.4
 
   py35-integration-parity-ws:
     <<: *parity_steps
     docker:
-      - image: circleci/python:3.5
+      - image: circleci/python:3.5-jessie
     environment:
       TOXENV: py35-integration-parity-ws
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.10.4
 
   py35-integration-ethtester-pyethereum:
     <<: *common
@@ -285,26 +293,26 @@ jobs:
   py36-integration-parity-ipc:
     <<: *parity_steps
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.6-stretch
     environment:
       TOXENV: py36-integration-parity-ipc
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.10.4
 
   py36-integration-parity-http:
     <<: *parity_steps
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.6-stretch
     environment:
       TOXENV: py36-integration-parity-http
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.10.4
 
   py36-integration-parity-ws:
     <<: *parity_steps
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.6-stretch
     environment:
       TOXENV: py36-integration-parity-ws
-      PARITY_VERSION: v1.8.8
+      PARITY_VERSION: v1.10.4
 
   py36-integration-ethtester-pyethereum:
     <<: *common
