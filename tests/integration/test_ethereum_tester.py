@@ -246,7 +246,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
         try:
             super().test_eth_call_old_contract_state(web3, math_contract, unlocked_account)
         except AssertionError as err:
-            if str(err) == "pending call result was 0 instead of 1":
+            if str(err) == "pending call result was 0!":
                 pass
             else:
                 raise err
