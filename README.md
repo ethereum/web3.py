@@ -9,7 +9,7 @@
 
 <SHORT_DESCRIPTION>
 
-Read more in the [documentation on ReadTheDocs](http://<RTD_NAME>.readthedocs.io/). [View the change log](http://<RTD_NAME>.readthedocs.io/en/latest/releases.html).
+Read more in the [documentation on ReadTheDocs](https://<RTD_NAME>.readthedocs.io/). [View the change log](https://<RTD_NAME>.readthedocs.io/en/latest/releases.html).
 
 ## Quickstart
 
@@ -17,7 +17,7 @@ Read more in the [documentation on ReadTheDocs](http://<RTD_NAME>.readthedocs.io
 pip install <PYPI_NAME>
 ```
 
-## Developer setup
+## Developer Setup
 
 If you would like to hack on <REPO_NAME>, please check out the
 [Ethereum Development Tactical Manual](https://github.com/pipermerriam/ethereum-dev-tactical-manual)
@@ -33,7 +33,6 @@ for information on how we do:
 You can set up your dev environment with:
 
 ```sh
-
 git clone git@github.com:ethereum/<REPO_NAME>.git
 cd <REPO_NAME>
 virtualenv -p python3 venv
