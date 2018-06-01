@@ -167,14 +167,17 @@ def encode_abi(web3, abi, arguments, data=None):
         return encode_hex(encoded_arguments)
 
 
-def prepare_transaction(abi,
-                        address,
-                        web3,
-                        fn_identifier,
-                        fn_args=None,
-                        fn_kwargs=None,
-                        transaction=None):
+def prepare_transaction(
+        address,
+        web3,
+        fn_identifier,
+        contract_abi=None,
+        fn_abi=None,
+        transaction=None,
+        fn_args=None,
+        fn_kwargs=None):
     """
+    :parameter `is_function_abi` is used to distinguish  function abi from contract abi
     Returns a dictionary of the transaction that could be used to call this
     TODO: make this a public API
     TODO: add new prepare_deploy_transaction API
@@ -191,21 +194,28 @@ def prepare_transaction(abi,
         prepared_transaction.setdefault('to', address)
 
     prepared_transaction['data'] = encode_transaction_data(
-        abi,
         web3,
         fn_identifier,
+        contract_abi,
+        fn_abi,
         fn_args,
         fn_kwargs,
     )
     return prepared_transaction
 
 
-def encode_transaction_data(abi, web3, fn_identifier, args=None, kwargs=None):
+def encode_transaction_data(
+        web3,
+        fn_identifier,
+        contract_abi=None,
+        fn_abi=None,
+        args=None,
+        kwargs=None):
     if fn_identifier is FallbackFn:
-        fn_abi, fn_selector, fn_arguments = get_fallback_function_info(abi)
+        fn_abi, fn_selector, fn_arguments = get_fallback_function_info(contract_abi, fn_abi)
     elif is_text(fn_identifier):
         fn_abi, fn_selector, fn_arguments = get_function_info(
-            abi, fn_identifier, args, kwargs
+            fn_identifier, contract_abi, fn_abi, args, kwargs,
         )
     else:
         raise TypeError("Unsupported function identifier")
@@ -213,20 +223,23 @@ def encode_transaction_data(abi, web3, fn_identifier, args=None, kwargs=None):
     return add_0x_prefix(encode_abi(web3, fn_abi, fn_arguments, fn_selector))
 
 
-def get_fallback_function_info(abi):
-    fn_abi = get_fallback_func_abi(abi)
+def get_fallback_function_info(contract_abi=None, fn_abi=None):
+    if fn_abi is None:
+        fn_abi = get_fallback_func_abi(contract_abi)
     fn_selector = encode_hex(b'')
     fn_arguments = tuple()
     return fn_abi, fn_selector, fn_arguments
 
 
-def get_function_info(abi, fn_name, args=None, kwargs=None):
+def get_function_info(fn_name, contract_abi=None, fn_abi=None, args=None, kwargs=None):
     if args is None:
         args = tuple()
     if kwargs is None:
         kwargs = {}
 
-    fn_abi = find_matching_fn_abi(abi, fn_name, args, kwargs)
+    if fn_abi is None:
+        fn_abi = find_matching_fn_abi(contract_abi, fn_name, args, kwargs)
+
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
 
     fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)

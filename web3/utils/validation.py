@@ -1,6 +1,7 @@
 import itertools
 
 from eth_utils import (
+    function_abi_to_4byte_selector,
     is_0x_prefixed,
     is_boolean,
     is_bytes,
@@ -11,11 +12,16 @@ from eth_utils import (
     is_list_like,
     is_string,
 )
+from eth_utils.hexadecimal import (
+    encode_hex,
+)
 
 from web3.exceptions import (
     InvalidAddress,
 )
 from web3.utils.abi import (
+    abi_to_signature,
+    filter_by_type,
     is_address_type,
     is_array_type,
     is_bool_type,
@@ -27,6 +33,22 @@ from web3.utils.abi import (
     length_of_array_type,
     sub_type_of_array_type,
 )
+from web3.utils.formatters import (
+    apply_formatter_to_array,
+)
+from web3.utils.toolz import (
+    compose,
+    groupby,
+    valfilter,
+    valmap,
+)
+
+
+def _prepare_selector_collision_msg(duplicates):
+    dup_sel = valmap(apply_formatter_to_array(abi_to_signature), duplicates)
+    joined_funcs = valmap(lambda funcs: ', '.join(funcs), dup_sel)
+    func_sel_msg_list = [funcs + ' have selector ' + sel for sel, funcs in joined_funcs.items()]
+    return ' and\n'.join(func_sel_msg_list)
 
 
 def validate_abi(abi):
@@ -35,9 +57,21 @@ def validate_abi(abi):
     """
     if not is_list_like(abi):
         raise ValueError("'abi' is not a list")
-    for e in abi:
-        if not is_dict(e):
-            raise ValueError("The elements of 'abi' are not all dictionaries")
+
+    if not all(is_dict(e) for e in abi):
+        raise ValueError("'abi' is not a list of dictionaries")
+
+    functions = filter_by_type('function', abi)
+    selectors = groupby(
+        compose(encode_hex, function_abi_to_4byte_selector),
+        functions
+    )
+    duplicates = valfilter(lambda funcs: len(funcs) > 1, selectors)
+    if duplicates:
+        raise ValueError(
+            'Abi contains functions with colliding selectors. '
+            'Functions {0}'.format(_prepare_selector_collision_msg(duplicates))
+        )
 
 
 def validate_abi_type(abi_type):

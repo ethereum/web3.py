@@ -262,3 +262,14 @@ class FriendlyJsonSerde:
             return self._friendly_json_encode(obj)
         except TypeError as exc:
             raise TypeError("Could not encode to JSON: {}".format(exc))
+
+
+def to_4byte_hex(hex_or_str_or_bytes):
+    size_of_4bytes = 4 * 8
+    byte_str = hexstr_if_str(to_bytes, hex_or_str_or_bytes)
+    if len(byte_str) > 4:
+        raise ValueError(
+            'expected value of size 4 bytes. Got: %d bytes' % len(byte_str)
+        )
+    hex_str = encode_hex(byte_str)
+    return pad_hex(hex_str, size_of_4bytes)
