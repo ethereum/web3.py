@@ -8,6 +8,7 @@ from setuptools import (
 extras_require={
     'test': [
         "pytest==3.3.2",
+        "pytest-xdist",
         "tox>=2.9.1,<3",
     ],
     'lint': [
@@ -20,7 +21,6 @@ extras_require={
     ],
     'dev': [
         "bumpversion>=0.5.3,<1",
-        "pytest-xdist",
         "pytest-watch>=4.1.0,<5",
         "wheel",
         "ipython",
