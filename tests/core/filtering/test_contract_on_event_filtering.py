@@ -1,7 +1,27 @@
 import pytest
 
+from eth_utils import (
+    is_address,
+)
+
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
+
+
+@pytest.mark.parametrize('call_as_instance', (True, False))
+def test_create_filter_address_parameter(web3, emitter, Emitter, call_as_instance):
+    if call_as_instance:
+        event_filter = emitter.events.LogNoArguments.createFilter(fromBlock="latest")
+    else:
+        event_filter = Emitter.events.LogNoArguments.createFilter(fromBlock="latest")
+
+    if call_as_instance:
+        # Assert this is a single string value, and not a list of addresses
+        assert isinstance(event_filter.filter_params['address'], str)
+        assert is_address(event_filter.filter_params['address'])
+    else:
+        #  Undeployed contract shouldnt have address...
+        assert 'address' not in event_filter.filter_params
 
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
