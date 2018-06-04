@@ -5,9 +5,10 @@ from setuptools import (
     find_packages,
 )
 
-extras_require={
+extras_require = {
     'test': [
         "pytest==3.3.2",
+        "pytest-xdist",
         "tox>=2.9.1,<3",
     ],
     'lint': [
@@ -20,7 +21,6 @@ extras_require={
     ],
     'dev': [
         "bumpversion>=0.5.3,<1",
-        "pytest-xdist",
         "pytest-watch>=4.1.0,<5",
         "wheel",
         "ipython",
@@ -28,10 +28,10 @@ extras_require={
 }
 
 extras_require['dev'] = (
-    extras_require['dev']
-    + extras_require['test']
-    + extras_require['lint']
-    + extras_require['doc']
+    extras_require['dev'] +
+    extras_require['test'] +
+    extras_require['lint'] +
+    extras_require['doc']
 )
 
 setup(
