@@ -58,7 +58,7 @@ Type Conversions
 
 .. py:method:: Web3.toHex(primitive=None, hexstr=None, text=None)
 
-    Takes a variety of inputs and returns it in its hexidecimal representation.
+    Takes a variety of inputs and returns it in its hexadecimal representation.
     It follows the rules for converting to hex in the
     `JSON-RPC spec`_
 

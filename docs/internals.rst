@@ -22,7 +22,7 @@ Here are some common things you might want to do with these APIs.
 * Transparently intercept transactions sent over ``eth_sendTransaction``, sign
   them locally, and then send them through ``eth_sendRawTransaction``.
 * Modify the response from an RPC request so that it is returned in different
-  format such as converting all integer values to their hexidecimal
+  format such as converting all integer values to their hexadecimal
   representation.
 * Validate the inputs to RPC requests
 
@@ -193,8 +193,8 @@ responses for certain methods your middleware would likely not call the
 By default, Web3 will use the ``web3.middleware.pythonic_middleware``.  This
 middleware performs the following translations for requests and responses.
 
-* Numeric request parameters will be converted to their hexidecimal representation
-* Numeric responses will be converted from their hexidecimal representations to
+* Numeric request parameters will be converted to their hexadecimal representation
+* Numeric responses will be converted from their hexadecimal representations to
   their integer representations.
 
 The ``RequestManager`` object exposes the ``middleware_stack`` object to manage middlewares. It
