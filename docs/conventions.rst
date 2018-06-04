@@ -18,4 +18,8 @@ Hexidecimal Representations
 Addresses
 ---------
 
-* Any hexidecimal address with at least one capitalized letter will be validated using the EIP55 checksum spec.
+All addresses must be supplied in one of two ways:
+
+* A 20-byte hexidecimal that is checksummed using the `EIP-55
+  <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_ spec.
+* An Ethereum Name Service name (often in the form ``myname.eth``)
