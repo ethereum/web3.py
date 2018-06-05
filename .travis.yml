@@ -30,13 +30,13 @@ matrix:
       env: TOX_POSARGS="-e py35-integration-goethereum-ws" GETH_VERSION=v1.8.1
     # parity-ipc
     - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-parity-ipc" PARITY_VERSION=v1.10.4
+      env: TOX_POSARGS="-e py35-integration-parity-ipc" PARITY_VERSION=v1.10.4 PARITY_OS=debian
     # parity-http
     - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-parity-http" PARITY_VERSION=v1.10.4
+      env: TOX_POSARGS="-e py35-integration-parity-http" PARITY_VERSION=v1.10.4 PARITY_OS=debian
     # parity-ws
     - python: "3.5"
-      env: TOX_POSARGS="-e py35-integration-parity-ws" PARITY_VERSION=v1.10.4
+      env: TOX_POSARGS="-e py35-integration-parity-ws" PARITY_VERSION=v1.10.4 PARITY_OS=debian
     # ENS
     - python: "3.5"
       env: TOX_POSARGS="-e py35-ens"
@@ -72,13 +72,13 @@ matrix:
       env: TOX_POSARGS="-e py36-integration-goethereum-ws" GETH_VERSION=v1.8.1
     # parity-ipc
     - python: "3.6"
-      env: TOX_POSARGS="-e py36-integration-parity-ipc" PARITY_VERSION=v1.10.4
+      env: TOX_POSARGS="-e py36-integration-parity-ipc" PARITY_VERSION=v1.10.4 PARITY_OS=debian
     # parity-http
     - python: "3.6"
-      env: TOX_POSARGS="-e py36-integration-parity-http" PARITY_VERSION=v1.10.4
+      env: TOX_POSARGS="-e py36-integration-parity-http" PARITY_VERSION=v1.10.4 PARITY_OS=debian
     # parity-ws
     - python: "3.6"
-      env: TOX_POSARGS="-e py36-integration-parity-ws" PARITY_VERSION=v1.10.4
+      env: TOX_POSARGS="-e py36-integration-parity-ws" PARITY_VERSION=v1.10.4 PARITY_OS=debian
     # ENS
     - python: "3.6"
       env: TOX_POSARGS="-e py36-ens"

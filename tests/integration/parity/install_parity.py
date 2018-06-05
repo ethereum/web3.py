@@ -22,7 +22,7 @@ VERSION_STRINGS = {
     "v1.10.4": "1_10_4",
 }
 ARCHITECTURE = 'x86_64'
-OS = 'debian'
+OS = os.getenv('PARITY_OS', 'debian')
 
 
 @toolz.curry
