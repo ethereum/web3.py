@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/ethereum/web3.py](https://badges.gitter.im/ethereum/web3.py.svg)](https://gitter.im/ethereum/web3.py?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Build Status](https://travis-ci.org/ethereum/web3.py.png)](https://travis-ci.org/ethereum/web3.py)
+[![Build Status](https://circleci.com/gh/ethereum/web3.py.svg?style=shield)](https://circleci.com/gh/ethereum/web3.py.svg?style=shield)
 
 
 A Python implementation of [web3.js](https://github.com/ethereum/web3.js)
