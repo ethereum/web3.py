@@ -60,6 +60,7 @@ parity_steps: &parity_steps
           - ./eggs
           - ~/.ethash
           - ~/.py-geth
+          - ~/.parity-bin
         key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
 geth_steps: &geth_steps
