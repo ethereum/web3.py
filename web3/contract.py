@@ -1296,9 +1296,6 @@ class ContractEvent:
         if argument_filters is None:
             argument_filters = dict()
 
-        if not address:
-            address = self.address
-
         _filters = dict(**argument_filters)
 
         data_filter_set, event_filter_params = construct_event_filter_params(
