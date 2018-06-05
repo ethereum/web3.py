@@ -22,4 +22,4 @@ All addresses must be supplied in one of two ways:
 
 * A 20-byte hexadecimal that is checksummed using the `EIP-55
   <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_ spec.
-* An Ethereum Name Service name (often in the form ``myname.eth``)
+* While connected to mainnet, an Ethereum Name Service name (often in the form ``myname.eth``)
