@@ -453,6 +453,8 @@ Each Contract Factory exposes the following methods.
     will be rejected.
 
 
+.. _ambiguous-contract-functions:
+
 Invoke Ambiguous Contract Functions Example
 -------------------------------------------
 
