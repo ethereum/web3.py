@@ -1,6 +1,51 @@
 Release Notes
 =============
 
+v4.3.0
+--------
+
+Released June 6, 2018
+
+- Features
+
+  - Support for the ABI types like: `fixedMxN
+    <http://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#types>`_
+    which is used by Vyper.
+  - In-flight transaction-signing middleware: Use local keys as if they were hosted keys
+    using the new ``sign_and_send_raw_middleware``
+  - New :meth:`~web3.eth.Eth.getUncleByBlock` API
+  - New name :meth:`~web3.eth.Eth.getTransactionByBlock`, which replaces the deprecated
+    :meth:`~web3.eth.Eth.getTransactionFromBlock`
+  - Add several new Parity trace functions
+  - New API to resolve ambiguous function calls, for example:
+
+    - Two functions with the same name that accept similar argument types, like
+      ``myfunc(uint8)`` and ``myfunc(int8)``, and you want to call
+      ``contract.functions.myfunc(1).call()``
+    - See how to use it at: :ref:`ambiguous-contract-functions`
+- Bugfixes
+
+  - Gas estimation doesn't crash, when 0 blocks are available. (ie~ on the genesis block)
+  - Close out all HTTPProvider sessions, to squash warnings on exit
+  - Stop adding Contract address twice to the filter. It was making some nodes unhappy
+- Misc
+
+  - Friendlier json encoding/decoding failure error messages
+  - Performance improvements, when the responses from the node are large
+    (by reducing the number of times we evaluate if the response is valid json)
+  - Parity CI test fixes (ugh, environment setup hell, thanks to the
+    community for cleaning this up!)
+  - Don't crash when requesting a transaction that was created with the parity bug
+    (which allowed an unsigned transaction to be included, so ``publicKey`` is ``None``)
+  - Doc fixes: addresses must be checksummed (or ENS names on mainnet)
+  - Enable local integration testing of parity on non-Debian OS
+  - README:
+
+    - Testing setup for devs
+    - Change the build badge from Travis to Circle CI
+  - Cache the parity binary in Circle CI, to reduce the impact of their binary API going down
+  - Dropped the dot: ``py.test`` -> ``pytest``
+
 v4.2.1
 --------
 
