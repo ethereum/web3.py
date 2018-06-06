@@ -35,6 +35,8 @@ Released June 6, 2018
     (by reducing the number of times we evaluate if the response is valid json)
   - Parity CI test fixes (ugh, environment setup hell, thanks to the
     community for cleaning this up!)
+  - Don't crash when requesting a transaction that was created with the parity bug
+    (which allowed an unsigned transaction to be included, so ``publicKey`` is ``None``)
   - Doc fixes: addresses must be checksummed (or ENS names on mainnet)
   - Enable local integration testing of parity on non-Debian OS
   - README:
