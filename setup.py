@@ -45,7 +45,7 @@ setup(
     url='https://github.com/ethereum/<REPO_NAME>',
     include_package_data=True,
     install_requires=[
-        "eth-utils>=0.7.4,<1.0.0",
+        "eth-utils>=1,<2",
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.5, <4',
