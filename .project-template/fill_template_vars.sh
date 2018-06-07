@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-PROJECT_ROOT=$(dirname $(dirname $(readlink -f $0)))
+PROJECT_ROOT=$(dirname $(dirname $(python -c 'import os, sys; sys.stdout.write(os.path.realpath(sys.argv[1]))' "$0")))
 
 echo "What is your python module name?"
 read MODULE_NAME
