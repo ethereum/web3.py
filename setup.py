@@ -23,6 +23,7 @@ extras_require = {
         "bumpversion>=0.5.3,<1",
         "pytest-watch>=4.1.0,<5",
         "wheel",
+        "twine",
         "ipython",
     ],
 }
