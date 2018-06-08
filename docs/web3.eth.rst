@@ -256,7 +256,54 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.getUncle(block_identifier)
 
-    .. note:: Not Implemented
+    .. note:: Method to get an Uncle from its hash is not available through
+      RPC, a possible substitute is the method ``Eth.getUncleByBlock``
+
+
+.. py:method:: Eth.getUncleByBlock(block_identifier, uncle_index)
+
+    * Delegates to ``eth_getUncleByBlockHashAndIndex`` or
+      ``eth_getUncleByBlockNumberAndIndex`` RPC methods
+
+    Returns the uncle at the index specified by ``uncle_index``
+    from the block specified by ``block_identifier``.  Delegates to
+    ``eth_getUncleByBlockNumberAndIndex`` if ``block_identifier`` is an
+    integer or one of the predefined block parameters ``'latest', 'earliest',
+    'pending'``, otherwise delegates to
+    ``eth_getUncleByBlockHashAndIndex``.
+
+    .. code-block:: python
+
+        >>> web3.eth.getUncleByBlock(56160, 0)
+        AttributeDict({
+          'author': '0xbe4532e1b1db5c913cf553be76180c1777055403',
+          'difficulty': '0x17dd9ca0afe',
+          'extraData': '0x476574682f686261722f76312e302e312f6c696e75782f676f312e342e32',
+          'gasLimit': '0x2fefd8',
+          'gasUsed': '0x0',
+          'hash': '0xc78c35720d930f9ef34b4e6fb9d02ffec936f9b02a8f0fa858456e4afd4d5614',
+          'logsBloom':'0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,
+          'miner': '0xbe4532e1b1db5c913cf553be76180c1777055403',
+          'mixHash': '0x041e14603f35a82f6023802fec96ef760433292434a39787514f140950597e5e',
+          'nonce': '0x5d2b7e3f1af09995',
+          'number': '0xdb5e',
+          'parentHash': '0xcc30e8a9b15c548d5bf113c834143a8f0e1909fbfea96b2a208dc154293a78cf',
+          'receiptsRoot': '0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421',
+          'sealFields': ['0xa0041e14603f35a82f6023802fec96ef760433292434a39787514f140950597e5e', '0x885d2b7e3f1af09995'],
+          'sha3Uncles': '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
+          'size': None, 'stateRoot': '0x8ce2b1bf8e25a06a8ca34c647ff5fd0fa48ac725cc07f657ae1645ab8ef68c91',
+          'timestamp': '0x55c6a972',
+          'totalDifficulty': '0xce4c4f0a0b810b',
+          'transactions': [],
+          'transactionsRoot': '0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421',
+          'uncles': []
+        })
+
+        # You can also refer to the block by hash:
+        >>> web3.eth.getUncleByBlock('0x685b2226cbf6e1f890211010aa192bf16f0a0cba9534264a033b023d7367b845', 0)
+        AttributeDict({
+            ...
+        })
 
 
 .. py:method:: Eth.getTransaction(transaction_hash)
@@ -284,6 +331,12 @@ The following methods are available on the ``web3.eth`` namespace.
 
 
 .. py:method:: Eth.getTransactionFromBlock(block_identifier, transaction_index)
+
+  .. note:: This method is deprecated and replaced by
+    ``Eth.getTransactionByBlock``
+
+
+.. py:method:: Eth.getTransactionByBlock(block_identifier, transaction_index)
 
     * Delegates to ``eth_getTransactionByBlockNumberAndIndex`` or
       ``eth_getTransactionByBlockHashAndIndex`` RPC Methods

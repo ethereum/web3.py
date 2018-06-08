@@ -195,6 +195,7 @@ class Eth(Module):
             [transaction_hash],
         )
 
+    @deprecated_for("w3.eth.getTransactionByBlock")
     def getTransactionFromBlock(self, block_identifier, transaction_index):
         """
         Alias for the method getTransactionByBlock
