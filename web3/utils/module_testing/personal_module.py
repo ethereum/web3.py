@@ -28,21 +28,21 @@ class PersonalModuleTest:
             in accounts
         ))
 
-    def test_personal_lockAccount(self, web3, unlocked_account):
+    def test_personal_lockAccount(self, web3, unlockable_account_dual_type):
         # TODO: how do we test this better?
-        web3.personal.lockAccount(unlocked_account)
+        web3.personal.lockAccount(unlockable_account_dual_type)
 
     def test_personal_unlockAccount_success(self,
                                             web3,
-                                            unlockable_account,
+                                            unlockable_account_dual_type,
                                             unlockable_account_pw):
-        result = web3.personal.unlockAccount(unlockable_account, unlockable_account_pw)
+        result = web3.personal.unlockAccount(unlockable_account_dual_type, unlockable_account_pw)
         assert result is True
 
     def test_personal_unlockAccount_failure(self,
                                             web3,
-                                            unlockable_account):
-        result = web3.personal.unlockAccount(unlockable_account, 'bad-password')
+                                            unlockable_account_dual_type):
+        result = web3.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
         assert result is False
 
     def test_personal_newAccount(self, web3):
@@ -51,12 +51,12 @@ class PersonalModuleTest:
 
     def test_personal_sendTransaction(self,
                                       web3,
-                                      unlockable_account,
+                                      unlockable_account_dual_type,
                                       unlockable_account_pw):
-        assert web3.eth.getBalance(unlockable_account) > web3.toWei(1, 'ether')
+        assert web3.eth.getBalance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
         txn_params = {
-            'from': unlockable_account,
-            'to': unlockable_account,
+            'from': unlockable_account_dual_type,
+            'to': unlockable_account_dual_type,
             'gas': 21000,
             'value': 1,
             'gasPrice': web3.toWei(1, 'gwei'),
@@ -64,17 +64,18 @@ class PersonalModuleTest:
         txn_hash = web3.personal.sendTransaction(txn_params, unlockable_account_pw)
         assert txn_hash
         transaction = web3.eth.getTransaction(txn_hash)
-        assert transaction['from'] == txn_params['from']
-        assert transaction['to'] == txn_params['to']
+
+        assert is_same_address(transaction['from'], txn_params['from'])
+        assert is_same_address(transaction['to'], txn_params['to'])
         assert transaction['gas'] == txn_params['gas']
         assert transaction['value'] == txn_params['value']
         assert transaction['gasPrice'] == txn_params['gasPrice']
 
     def test_personal_sign_and_ecrecover(self,
                                          web3,
-                                         unlockable_account,
+                                         unlockable_account_dual_type,
                                          unlockable_account_pw):
         message = 'test-web3-personal-sign'
-        signature = web3.personal.sign(message, unlockable_account, unlockable_account_pw)
+        signature = web3.personal.sign(message, unlockable_account_dual_type, unlockable_account_pw)
         signer = web3.personal.ecRecover(message, signature)
-        assert is_same_address(signer, unlockable_account)
+        assert is_same_address(signer, unlockable_account_dual_type)

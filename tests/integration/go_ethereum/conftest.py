@@ -7,6 +7,7 @@ import subprocess
 from eth_utils import (
     is_checksum_address,
     is_dict,
+    to_bytes,
     to_text,
 )
 
@@ -172,6 +173,14 @@ def emitter_contract(web3, emitter_contract_factory, geth_fixture_data):
     return emitter_contract_factory(address=geth_fixture_data['emitter_address'])
 
 
+@pytest.fixture(scope="module", params=['bytes', 'hex'])
+def emitter_contract_address(emitter_contract, request):
+    if request.param == 'bytes':
+        return to_bytes(hexstr=emitter_contract.address)
+    else:
+        return emitter_contract.address
+
+
 @pytest.fixture
 def unlocked_account(web3, unlockable_account, unlockable_account_pw):
     web3.personal.unlockAccount(unlockable_account, unlockable_account_pw)
@@ -187,6 +196,21 @@ def unlockable_account_pw(geth_fixture_data):
 @pytest.fixture(scope="module")
 def unlockable_account(web3, coinbase):
     yield coinbase
+
+
+@pytest.fixture(params=['bytes', 'hex'])
+def unlockable_account_dual_type(unlockable_account, request):
+    if request.param == 'bytes':
+        return to_bytes(hexstr=unlockable_account)
+    else:
+        return unlockable_account
+
+
+@pytest.yield_fixture
+def unlocked_account_dual_type(web3, unlockable_account_dual_type, unlockable_account_pw):
+    web3.personal.unlockAccount(unlockable_account_dual_type, unlockable_account_pw)
+    yield unlockable_account_dual_type
+    web3.personal.lockAccount(unlockable_account_dual_type)
 
 
 @pytest.fixture(scope="module")

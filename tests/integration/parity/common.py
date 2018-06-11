@@ -196,8 +196,8 @@ class ParityTraceModuleTest(TraceModuleTest):
     def test_trace_transaction(self, web3, parity_fixture_data):
         super().test_trace_transaction(web3, parity_fixture_data)
 
-    def test_trace_call(self, web3, math_contract):
-        super().test_trace_call(web3, math_contract)
+    def test_trace_call(self, web3, math_contract, math_contract_address):
+        super().test_trace_call(web3, math_contract, math_contract_address)
 
-    def test_eth_call_with_0_result(self, web3, math_contract):
-        super().test_eth_call_with_0_result(web3, math_contract)
+    def test_eth_call_with_0_result(self, web3, math_contract, math_contract_address):
+        super().test_eth_call_with_0_result(web3, math_contract, math_contract_address)

@@ -6,6 +6,7 @@ import tempfile
 from eth_utils import (
     is_checksum_address,
     is_dict,
+    to_bytes,
 )
 
 from .install_parity import (
@@ -138,9 +139,25 @@ def math_contract(web3, math_contract_factory, parity_fixture_data):
     return math_contract_factory(address=parity_fixture_data['math_address'])
 
 
+@pytest.fixture(scope="module", params=['bytes', 'hex'])
+def math_contract_address(math_contract, request):
+    if request.param == 'bytes':
+        return math_contract.address
+    else:
+        return math_contract.address
+
+
 @pytest.fixture(scope="module")
 def emitter_contract(web3, emitter_contract_factory, parity_fixture_data):
     return emitter_contract_factory(address=parity_fixture_data['emitter_address'])
+
+
+@pytest.fixture(scope="module", params=['bytes', 'hex'])
+def emitter_contract_address(emitter_contract, request):
+    if request.param == 'bytes':
+        return to_bytes(hexstr=emitter_contract.address)
+    else:
+        return emitter_contract.address
 
 
 @pytest.fixture(scope="module")
@@ -156,6 +173,19 @@ def unlockable_account_pw(parity_fixture_data):
 @pytest.fixture(scope="module")
 def unlockable_account(web3, coinbase):
     yield coinbase
+
+
+@pytest.fixture(params=['bytes', 'hex'])
+def unlockable_account_dual_type(unlockable_account, request):
+    if request.param == 'bytes':
+        return to_bytes(hexstr=unlockable_account)
+    else:
+        return unlockable_account
+
+
+@pytest.fixture
+def unlocked_account_dual_type(unlockable_account_dual_type):
+    return unlockable_account_dual_type
 
 
 @pytest.fixture(scope="module")

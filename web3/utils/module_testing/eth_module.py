@@ -23,7 +23,7 @@ from web3.exceptions import (
     InvalidAddress,
 )
 
-UNKNOWN_ADDRESS = '0xdeadbeef00000000000000000000000000000000'
+UNKNOWN_ADDRESS = '0xdEADBEeF00000000000000000000000000000000'
 UNKNOWN_HASH = '0xdeadbeef00000000000000000000000000000000000000000000000000000000'
 
 
@@ -153,28 +153,34 @@ class EthModuleTest:
         assert is_string(code)
         assert len(code) > 2
 
-    def test_eth_sign(self, web3, unlocked_account):
-        signature = web3.eth.sign(unlocked_account, text='Message tö sign. Longer than hash!')
+    def test_eth_sign(self, web3, unlocked_account_dual_type):
+        signature = web3.eth.sign(
+            unlocked_account_dual_type, text='Message tö sign. Longer than hash!'
+        )
         assert is_bytes(signature)
         assert len(signature) == 32 + 32 + 1
 
         # test other formats
         hexsign = web3.eth.sign(
-            unlocked_account,
+            unlocked_account_dual_type,
             hexstr='0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821'
         )
         assert hexsign == signature
 
         intsign = web3.eth.sign(
-            unlocked_account,
+            unlocked_account_dual_type,
             0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821
         )
         assert intsign == signature
 
-        bytessign = web3.eth.sign(unlocked_account, b'Message t\xc3\xb6 sign. Longer than hash!')
+        bytessign = web3.eth.sign(
+            unlocked_account_dual_type, b'Message t\xc3\xb6 sign. Longer than hash!'
+        )
         assert bytessign == signature
 
-        new_signature = web3.eth.sign(unlocked_account, text='different message is different')
+        new_signature = web3.eth.sign(
+            unlocked_account_dual_type, text='different message is different'
+        )
         assert new_signature != signature
 
     def test_eth_sendTransaction_addr_checksum_required(self, web3, unlocked_account):
@@ -195,10 +201,10 @@ class EthModuleTest:
             invalid_params = dict(txn_params, **{'to': non_checksum_addr})
             web3.eth.sendTransaction(invalid_params)
 
-    def test_eth_sendTransaction(self, web3, unlocked_account):
+    def test_eth_sendTransaction(self, web3, unlocked_account_dual_type):
         txn_params = {
-            'from': unlocked_account,
-            'to': unlocked_account,
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
             'value': 1,
             'gas': 21000,
             'gasPrice': web3.eth.gasPrice,
@@ -232,10 +238,10 @@ class EthModuleTest:
         assert txn['gasPrice'] == txn_params['gasPrice']
         assert txn['nonce'] == txn_params['nonce']
 
-    def test_eth_replaceTransaction(self, web3, unlocked_account):
+    def test_eth_replaceTransaction(self, web3, unlocked_account_dual_type):
         txn_params = {
-            'from': unlocked_account,
-            'to': unlocked_account,
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
             'value': 1,
             'gas': 21000,
             'gasPrice': web3.eth.gasPrice,
@@ -252,10 +258,11 @@ class EthModuleTest:
         assert replace_txn['gas'] == 21000
         assert replace_txn['gasPrice'] == txn_params['gasPrice']
 
-    def test_eth_replaceTransaction_non_existing_transaction(self, web3, unlocked_account):
+    def test_eth_replaceTransaction_non_existing_transaction(
+            self, web3, unlocked_account_dual_type):
         txn_params = {
-            'from': unlocked_account,
-            'to': unlocked_account,
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
             'value': 1,
             'gas': 21000,
             'gasPrice': web3.eth.gasPrice,
@@ -267,10 +274,10 @@ class EthModuleTest:
             )
 
     # auto mine is enabled for this test
-    def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account):
+    def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account_dual_type):
         txn_params = {
-            'from': unlocked_account,
-            'to': unlocked_account,
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
             'value': 1,
             'gas': 21000,
             'gasPrice': web3.eth.gasPrice,
@@ -297,10 +304,10 @@ class EthModuleTest:
         with pytest.raises(ValueError):
             web3.eth.replaceTransaction(txn_hash, txn_params)
 
-    def test_eth_replaceTransaction_gas_price_too_low(self, web3, unlocked_account):
+    def test_eth_replaceTransaction_gas_price_too_low(self, web3, unlocked_account_dual_type):
         txn_params = {
-            'from': unlocked_account,
-            'to': unlocked_account,
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
             'value': 1,
             'gas': 21000,
             'gasPrice': 10,
@@ -529,10 +536,10 @@ class EthModuleTest:
         assert receipt['transactionIndex'] == 0
         assert receipt['transactionHash'] == HexBytes(mined_txn_hash)
 
-    def test_eth_getTransactionReceipt_unmined(self, web3, unlocked_account):
+    def test_eth_getTransactionReceipt_unmined(self, web3, unlocked_account_dual_type):
         txn_hash = web3.eth.sendTransaction({
-            'from': unlocked_account,
-            'to': unlocked_account,
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
             'value': 1,
             'gas': 21000,
             'gasPrice': web3.eth.gasPrice,
@@ -664,7 +671,7 @@ class EthModuleTest:
             self,
             web3,
             block_with_txn_with_log,
-            emitter_contract,
+            emitter_contract_address,
             txn_hash_with_log):
 
         def assert_contains_log(result):
@@ -673,7 +680,7 @@ class EthModuleTest:
             assert log_entry['blockNumber'] == block_with_txn_with_log['number']
             assert log_entry['blockHash'] == block_with_txn_with_log['hash']
             assert log_entry['logIndex'] == 0
-            assert is_same_address(log_entry['address'], emitter_contract.address)
+            assert is_same_address(log_entry['address'], emitter_contract_address)
             assert log_entry['transactionIndex'] == 0
             assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
 
@@ -699,7 +706,7 @@ class EthModuleTest:
         # filter with emitter_contract.address
         filter_params = {
             "fromBlock": 0,
-            "address": emitter_contract.address,
+            "address": emitter_contract_address,
         }
         result = web3.eth.getLogs(filter_params)
         assert_contains_log(result)
