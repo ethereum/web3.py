@@ -19,6 +19,7 @@ from web3.miner import Miner
 from web3.net import Net
 from web3.parity import Parity
 from web3.personal import Personal
+from web3.pm import PM
 from web3.testing import Testing
 from web3.txpool import TxPool
 from web3.version import Version
@@ -108,11 +109,14 @@ class Web3:
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
-    def __init__(self, providers=empty, middlewares=None, modules=None, ens=empty):
+    def __init__(self, providers=empty, middlewares=None, modules=None, pm=False, ens=empty):
         self.manager = RequestManager(self, providers, middlewares)
 
         if modules is None:
             modules = get_default_modules()
+
+        if pm is True:
+            modules['pm'] = PM
 
         for module_name, module_class in modules.items():
             module_class.attach(self, module_name)
