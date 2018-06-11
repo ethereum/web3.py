@@ -1,14 +1,17 @@
-from typing import (
-    Any,
-    Dict,
+from ethpm import (
+    Package,
 )
 
-from ethpm import Package
+from web3.module import (
+    Module,
+)
 
-from web3.module import Module
 
-
+# Package Management is currently still in alpha, so
+# it is *not* automatically available on a web3 object.
+# To use the `PM` module, attach it to your web3 object
+# i.e. PM.attach(web3, 'pm')
 class PM(Module):
-    def get_package(self, manifest: Dict[str, Any]) -> Package:
+    def get_package(self, manifest):
         pkg = Package(manifest)
         return pkg

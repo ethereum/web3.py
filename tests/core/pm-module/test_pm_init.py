@@ -1,4 +1,8 @@
-from web3 import Web3
+import pytest
+
+from web3.pm import (
+    PM,
+)
 
 VALID_MANIFEST = {
     'package_name': 'foo',
@@ -7,7 +11,13 @@ VALID_MANIFEST = {
 }
 
 
-def test_pm_init_with_minimal_manifest():
-    w3 = Web3(Web3.EthereumTesterProvider(), pm=True)
-    pm = w3.pm.get_package(VALID_MANIFEST)
+# Returns web3 instance with `pm` module attached
+@pytest.fixture
+def web3():
+    PM.attach(web3, 'pm')
+    return web3
+
+
+def test_pm_init_with_minimal_manifest(web3):
+    pm = web3.pm.get_package(VALID_MANIFEST)
     assert pm.name == 'foo'
