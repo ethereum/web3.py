@@ -3,6 +3,7 @@ import itertools
 from eth_utils import (
     function_abi_to_4byte_selector,
     is_0x_prefixed,
+    is_binary_address,
     is_boolean,
     is_bytes,
     is_checksum_address,
@@ -142,6 +143,11 @@ def validate_address(value):
     """
     Helper function for validating an address
     """
+    if is_bytes(value):
+        if not is_binary_address(value):
+            raise InvalidAddress("Address must be 20 bytes when input type is bytes", value)
+        return
+
     if not isinstance(value, str):
         raise TypeError('Address {} must be provided as a string'.format(value))
     if not is_hex_address(value):
