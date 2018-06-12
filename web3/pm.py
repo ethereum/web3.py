@@ -12,6 +12,6 @@ from web3.module import (
 # To use the `PM` module, attach it to your web3 object
 # i.e. PM.attach(web3, 'pm')
 class PM(Module):
-    def get_package(self, manifest):
+    def get_package_from_manifest(self, manifest):
         pkg = Package(manifest)
         return pkg
