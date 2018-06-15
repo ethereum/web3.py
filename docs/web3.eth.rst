@@ -386,7 +386,7 @@ The following methods are available on the ``web3.eth`` namespace.
     returns its transaction receipt.
 
     Optionally, specify a ``timeout`` in seconds. If timeout elapses before the transaction
-    is added to a block, then :meth:`~Eth.waitForTransactionReceipt` returns None.
+    is added to a block, then :meth:`~Eth.waitForTransactionReceipt` raises a `Timeout` exception.
 
     .. code-block:: python
 
