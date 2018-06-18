@@ -19,6 +19,6 @@ COPY ens ./ens/
 COPY setup.py .
 COPY README.md .
 
-RUN pip install -e .
+RUN pip install -e .[tester]
 
 WORKDIR /code
