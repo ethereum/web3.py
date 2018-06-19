@@ -26,7 +26,7 @@ setup(
         "lru-dict>=1.1.6,<2.0.0",
         "eth-hash[pycryptodome]",
         "requests>=2.16.0,<3.0.0",
-        "websockets>=4.0.1,<5.0.0",
+        "websockets>=5.0.1,<6.0.0",
         "pypiwin32>=223;platform_system=='Windows'",
     ],
     setup_requires=['setuptools-markdown'],
