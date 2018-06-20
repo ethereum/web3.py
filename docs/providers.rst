@@ -144,6 +144,7 @@ Valid formats for the this environment variable are:
 
 - ``file:///path/to/node/rpc-json/file.ipc``
 - ``http://192.168.1.2:8545``
+- ``https://node.ontheweb.com``
 
 
 Built In Providers

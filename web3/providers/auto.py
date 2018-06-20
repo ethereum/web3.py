@@ -22,7 +22,7 @@ def load_provider_from_environment():
     uri = urlparse(uri_string)
     if uri.scheme == 'file':
         return IPCProvider(uri.path)
-    elif uri.scheme == 'http':
+    elif uri.scheme == 'http' or uri.scheme == 'https':
         return HTTPProvider(uri_string)
     elif uri.scheme == 'ws':
         return WebsocketProvider(uri_string)
