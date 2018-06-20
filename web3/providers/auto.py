@@ -13,6 +13,8 @@ from web3.providers import (
     WebsocketProvider,
 )
 
+HTTP_SCHEMES = {'http', 'https'}
+
 
 def load_provider_from_environment():
     uri_string = os.environ.get('WEB3_PROVIDER_URI', '')
@@ -22,7 +24,7 @@ def load_provider_from_environment():
     uri = urlparse(uri_string)
     if uri.scheme == 'file':
         return IPCProvider(uri.path)
-    elif uri.scheme == 'http' or uri.scheme == 'https':
+    elif uri.scheme in HTTP_SCHEMES:
         return HTTPProvider(uri_string)
     elif uri.scheme == 'ws':
         return WebsocketProvider(uri_string)
