@@ -12,6 +12,19 @@ from web3.providers import (
     IPCProvider,
     WebsocketProvider,
 )
+from web3.providers.ipc import (
+    get_dev_ipc_path,
+)
+
+INFURA_MAINNET_HTTP_URL = 'https://mainnet.infura.io'
+
+
+def load_infura_mainnet_http_provider():
+    return HTTPProvider(INFURA_MAINNET_HTTP_URL)
+
+
+def load_gethdev_ipc_provider():
+    return IPCProvider(get_dev_ipc_path())
 
 
 def load_provider_from_environment():
@@ -42,6 +55,8 @@ class AutoProvider(BaseProvider):
         IPCProvider,
         HTTPProvider,
         WebsocketProvider,
+        load_gethdev_ipc_provider,
+        load_infura_mainnet_http_provider,
     )
     _active_provider = None
 
