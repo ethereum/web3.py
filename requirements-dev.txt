@@ -1,7 +1,7 @@
 bumpversion
 flaky>=3.3.0
 hypothesis>=3.31.2
-pytest==3.2.5
+pytest>=3.5.0,<4
 pytest-mock==1.*
 pytest-pythonpath>=0.3
 pytest-watch==4.*
