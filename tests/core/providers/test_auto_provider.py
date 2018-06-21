@@ -1,8 +1,9 @@
+import importlib
+import logging
 import pytest
 
-from web3.auto.infura import (
-    INFURA_MAINNET_HTTP_URL,
-    w3,
+from web3.auto import (
+    infura,
 )
 from web3.providers import (
     HTTPProvider,
@@ -31,6 +32,42 @@ def test_load_provider_from_env(monkeypatch, uri, expected_type, expected_attrs)
         assert getattr(provider, attr) == val
 
 
-def test_web3_auto_infura():
+def test_web3_auto_infura_empty_key(monkeypatch, caplog):
+    monkeypatch.setenv('INFURA_API_KEY', '')
+
+    importlib.reload(infura)
+    assert len(caplog.record_tuples) == 1
+    logger, level, msg = caplog.record_tuples[0]
+    assert 'INFURA_API_KEY' in msg
+    assert level == logging.WARNING
+
+    w3 = infura.w3
     assert isinstance(w3.providers[0], HTTPProvider)
-    assert getattr(w3.providers[0], 'endpoint_uri') == INFURA_MAINNET_HTTP_URL
+    assert getattr(w3.providers[0], 'endpoint_uri') == infura.INFURA_MAINNET_BASE_URL
+
+
+def test_web3_auto_infura_missing_key(monkeypatch, caplog):
+    monkeypatch.delenv('INFURA_API_KEY', raising=False)
+
+    importlib.reload(infura)
+    assert len(caplog.record_tuples) == 1
+    logger, level, msg = caplog.record_tuples[0]
+    assert 'INFURA_API_KEY' in msg
+    assert level == logging.WARNING
+
+    w3 = infura.w3
+    assert isinstance(w3.providers[0], HTTPProvider)
+    assert getattr(w3.providers[0], 'endpoint_uri') == infura.INFURA_MAINNET_BASE_URL
+
+
+def test_web3_auto_infura(monkeypatch, caplog):
+    API_KEY = 'aoeuhtns'
+    monkeypatch.setenv('INFURA_API_KEY', API_KEY)
+    expected_url = '%s/%s' % (infura.INFURA_MAINNET_BASE_URL, API_KEY)
+
+    importlib.reload(infura)
+    assert len(caplog.record_tuples) == 0
+
+    w3 = infura.w3
+    assert isinstance(w3.providers[0], HTTPProvider)
+    assert getattr(w3.providers[0], 'endpoint_uri') == expected_url
