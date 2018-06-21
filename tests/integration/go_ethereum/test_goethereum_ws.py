@@ -1,5 +1,8 @@
 import pytest
 
+from tests.integration.common import (
+    MiscWebsocketTest,
+)
 from tests.integration.utils import (
     wait_for_ws,
 )
@@ -64,4 +67,8 @@ class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
 
 
 class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
+    pass
+
+
+class TestMiscWebsocketTest(MiscWebsocketTest):
     pass

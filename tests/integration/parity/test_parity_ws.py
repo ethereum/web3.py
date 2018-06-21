@@ -1,6 +1,9 @@
 import os
 import pytest
 
+from tests.integration.common import (
+    MiscWebsocketTest,
+)
 from tests.integration.utils import (
     wait_for_ws,
 )
@@ -95,4 +98,8 @@ class TestParityPersonalModuleTest(ParityPersonalModuleTest):
 
 
 class TestParityTraceModuleTest(ParityTraceModuleTest):
+    pass
+
+
+class TestMiscWebsocketTest(MiscWebsocketTest):
     pass
