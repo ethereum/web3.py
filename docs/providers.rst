@@ -224,15 +224,30 @@ IPCProvider
 WebsocketProvider
 ~~~~~~~~~~~~~~~~~
 
-.. py:class:: web3.providers.websocket.WebsocketProvider(endpoint_uri)
+.. py:class:: web3.providers.websocket.WebsocketProvider(endpoint_uri[, websocket_kwargs])
 
     This provider handles interactions with an WS or WSS based JSON-RPC server.
+
+    * ``endpoint_uri`` should be the full URI to the RPC endpoint such as
+      ``'ws://localhost:8546'``.
+    * ``websocket_kwargs`` this should be a dictionary of keyword arguments which
+      will be passed onto the ws/wss websocket connection.
 
     .. code-block:: python
 
         >>> from web3 import Web3
         >>> web3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546")
 
+    Under the hood, the ``WebsocketProvider`` uses the python websockets library for
+    making requests.  If you would like to modify how requests are made, you can
+    use the ``websocket_kwargs`` to do so.  A common use case for this is increasing
+    the timeout for each request.
+
+
+    .. code-block:: python
+
+        >>> from web3 import Web3
+        >>> web3 = Web3(Web3.WebsocketProvider("http://127.0.0.1:8546", websocket_kwargs={'timeout': 60}))
 
 .. py:currentmodule:: web3.providers.eth_tester
 
