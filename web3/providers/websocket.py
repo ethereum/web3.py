@@ -8,9 +8,14 @@ from threading import (
 
 import websockets
 
+from web3.exceptions import (
+    ValidationError,
+)
 from web3.providers.base import (
     JSONBaseProvider,
 )
+
+RESTRICTED_WEBSOCKET_KWARGS = {'uri', 'loop'}
 
 
 def _start_event_loop(loop):
@@ -32,14 +37,17 @@ def get_default_endpoint():
 
 class PersistentWebSocket:
 
-    def __init__(self, endpoint_uri, loop):
+    def __init__(self, endpoint_uri, loop, websocket_kwargs):
         self.ws = None
         self.endpoint_uri = endpoint_uri
         self.loop = loop
+        self.websocket_kwargs = websocket_kwargs
 
     async def __aenter__(self):
         if self.ws is None:
-            self.ws = await websockets.connect(uri=self.endpoint_uri, loop=self.loop)
+            self.ws = await websockets.connect(
+                uri=self.endpoint_uri, loop=self.loop, **self.websocket_kwargs
+            )
         return self.ws
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -55,13 +63,26 @@ class WebsocketProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.WebsocketProvider")
     _loop = None
 
-    def __init__(self, endpoint_uri=None):
+    def __init__(self, endpoint_uri=None, websocket_kwargs=None):
         self.endpoint_uri = endpoint_uri
         if self.endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()
         if WebsocketProvider._loop is None:
             WebsocketProvider._loop = _get_threaded_loop()
-        self.conn = PersistentWebSocket(self.endpoint_uri, WebsocketProvider._loop)
+        if websocket_kwargs is None:
+            websocket_kwargs = {}
+        else:
+            found_restricted_keys = set(websocket_kwargs.keys()).intersection(
+                RESTRICTED_WEBSOCKET_KWARGS
+            )
+            if found_restricted_keys:
+                raise ValidationError(
+                    '{0} are not allowed in websocket_kwargs, '
+                    'found: {1}'.format(RESTRICTED_WEBSOCKET_KWARGS, found_restricted_keys)
+                )
+        self.conn = PersistentWebSocket(
+            self.endpoint_uri, WebsocketProvider._loop, websocket_kwargs
+        )
         super().__init__()
 
     def __str__(self):
