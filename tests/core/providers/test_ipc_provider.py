@@ -8,6 +8,12 @@ from threading import (
 import time
 import uuid
 
+from web3.auto.gethdev import (
+    w3,
+)
+from web3.middleware import (
+    construct_fixture_middleware,
+)
 from web3.providers.ipc import (
     IPCProvider,
 )
@@ -71,3 +77,14 @@ def test_sync_waits_for_full_result(jsonrpc_ipc_pipe_path, serve_empty_result):
     result = provider.make_request("method", [])
     assert result == {'id': 1, 'result': {}}
     provider._socket.sock.close()
+
+
+def test_web3_auto_gethdev():
+    assert isinstance(w3.providers[0], IPCProvider)
+    return_block_with_long_extra_data = construct_fixture_middleware({
+        'eth_getBlockByNumber': {'extraData': '0x' + 'ff' * 33},
+    })
+    w3.middleware_stack.inject(return_block_with_long_extra_data, layer=0)
+    block = w3.eth.getBlock('latest')
+    assert 'extraData' not in block
+    assert block.proofOfAuthorityData == b'\xff' * 33

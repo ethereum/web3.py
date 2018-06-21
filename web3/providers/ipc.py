@@ -136,6 +136,50 @@ def get_default_ipc_path(testnet=False):
         )
 
 
+def get_dev_ipc_path():
+    if sys.platform == 'darwin':
+        tmpdir = os.environ.get('TMPDIR', '')
+        ipc_path = os.path.expanduser(os.path.join(
+            tmpdir,
+            "geth.ipc"
+        ))
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+    elif sys.platform.startswith('linux'):
+        ipc_path = os.path.expanduser(os.path.join(
+            "/tmp",
+            "geth.ipc"
+        ))
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+    elif sys.platform == 'win32':
+        ipc_path = os.path.join(
+            "\\\\",
+            ".",
+            "pipe",
+            "geth.ipc"
+        )
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+        ipc_path = os.path.join(
+            "\\\\",
+            ".",
+            "pipe",
+            "jsonrpc.ipc"
+        )
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+    else:
+        raise ValueError(
+            "Unsupported platform '{0}'.  Only darwin/linux2/win32 are "
+            "supported.  You must specify the ipc_path".format(sys.platform)
+        )
+
+
 class IPCProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.IPCProvider")
     _socket = None
