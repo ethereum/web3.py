@@ -20,62 +20,70 @@ from web3.exceptions import (
 from web3.utils.ens import (
     contract_ens_addresses,
 )
+from web3.utils.toolz import (
+    identity,
+)
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
-def deploy(web3, Contract, args=None):
+def deploy(web3, Contract, apply_func=identity, args=None):
     args = args or []
     deploy_txn = Contract.constructor(*args).transact()
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    contract = Contract(address=deploy_receipt['contractAddress'])
+    address = apply_func(deploy_receipt['contractAddress'])
+    contract = Contract(address=address)
+    assert contract.address == address
     assert len(web3.eth.getCode(contract.address)) > 0
     return contract
 
 
 @pytest.fixture()
-def address_reflector_contract(web3, AddressReflectorContract):
-    return deploy(web3, AddressReflectorContract)
+def address_reflector_contract(web3, AddressReflectorContract, address_conversion_func):
+    return deploy(web3, AddressReflectorContract, address_conversion_func)
 
 
 @pytest.fixture()
-def math_contract(web3, MathContract):
-    return deploy(web3, MathContract)
+def math_contract(web3, MathContract, address_conversion_func):
+    return deploy(web3, MathContract, address_conversion_func)
 
 
 @pytest.fixture()
-def string_contract(web3, StringContract):
-    return deploy(web3, StringContract, args=["Caqalai"])
+def string_contract(web3, StringContract, address_conversion_func):
+    return deploy(web3, StringContract, address_conversion_func, args=["Caqalai"])
 
 
 @pytest.fixture()
-def arrays_contract(web3, ArraysContract):
+def arrays_contract(web3, ArraysContract, address_conversion_func):
     # bytes_32 = [keccak('0'), keccak('1')]
     bytes32_array = [
         b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',  # noqa: E501
         b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6',  # noqa: E501
     ]
     byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
-    return deploy(web3, ArraysContract, args=[bytes32_array, byte_arr])
+    return deploy(web3, ArraysContract, address_conversion_func, args=[bytes32_array, byte_arr])
 
 
 @pytest.fixture()
-def address_contract(web3, WithConstructorAddressArgumentsContract):
-    return deploy(web3, WithConstructorAddressArgumentsContract, args=[
-        "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
-    ])
+def address_contract(web3, WithConstructorAddressArgumentsContract, address_conversion_func):
+    return deploy(
+        web3,
+        WithConstructorAddressArgumentsContract,
+        address_conversion_func,
+        args=["0xd3CdA913deB6f67967B99D67aCDFa1712C293601"]
+    )
 
 
 @pytest.fixture(params=[b'\x04\x06', '0x0406', '0406'])
-def bytes_contract(web3, BytesContract, request):
-    return deploy(web3, BytesContract, args=[request.param])
+def bytes_contract(web3, BytesContract, request, address_conversion_func):
+    return deploy(web3, BytesContract, address_conversion_func, args=[request.param])
 
 
 @pytest.fixture()
-def fixed_reflection_contract(web3, FixedReflectionContract):
-    return deploy(web3, FixedReflectionContract)
+def fixed_reflection_contract(web3, FixedReflectionContract, address_conversion_func):
+    return deploy(web3, FixedReflectionContract, address_conversion_func)
 
 
 @pytest.fixture()
@@ -91,30 +99,30 @@ def call_transaction():
     '0406040604060406040604060406040604060406040604060406040604060406',
     HexBytes('0406040604060406040604060406040604060406040604060406040604060406'),
 ])
-def bytes32_contract(web3, Bytes32Contract, request):
-    return deploy(web3, Bytes32Contract, args=[request.param])
+def bytes32_contract(web3, Bytes32Contract, request, address_conversion_func):
+    return deploy(web3, Bytes32Contract, address_conversion_func, args=[request.param])
 
 
 @pytest.fixture()
-def undeployed_math_contract(web3, MathContract):
-    empty_address = "0x000000000000000000000000000000000000dEaD"
+def undeployed_math_contract(web3, MathContract, address_conversion_func):
+    empty_address = address_conversion_func("0x000000000000000000000000000000000000dEaD")
     _undeployed_math_contract = MathContract(address=empty_address)
     return _undeployed_math_contract
 
 
 @pytest.fixture()
-def mismatched_math_contract(web3, StringContract, MathContract):
+def mismatched_math_contract(web3, StringContract, MathContract, address_conversion_func):
     deploy_txn = StringContract.constructor("Caqalai").transact()
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-
-    _mismatched_math_contract = MathContract(address=deploy_receipt['contractAddress'])
+    address = address_conversion_func(deploy_receipt['contractAddress'])
+    _mismatched_math_contract = MathContract(address=address)
     return _mismatched_math_contract
 
 
 @pytest.fixture()
-def fallback_function_contract(web3, FallballFunctionContract):
-    return deploy(web3, FallballFunctionContract)
+def fallback_function_contract(web3, FallballFunctionContract, address_conversion_func):
+    return deploy(web3, FallballFunctionContract, address_conversion_func)
 
 
 def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):

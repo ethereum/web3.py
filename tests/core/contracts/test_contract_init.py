@@ -1,9 +1,5 @@
 import pytest
 
-from eth_utils import (
-    to_bytes,
-)
-
 from web3.exceptions import (
     BadFunctionCallOutput,
     NameNotFound,
@@ -14,22 +10,13 @@ from web3.utils.ens import (
 )
 
 
-@pytest.fixture
-def math_deploy_receipt(MathContract):
+@pytest.fixture()
+def math_addr(MathContract, address_conversion_func):
     web3 = MathContract.web3
     deploy_txn = MathContract.constructor().transact({'from': web3.eth.coinbase})
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    return deploy_receipt
-
-
-@pytest.fixture(params=['hex', 'bytes'])
-def math_addr(request, math_deploy_receipt):
-    addr = math_deploy_receipt['contractAddress']
-    if request.param == 'bytes':
-        return to_bytes(hexstr=addr)
-    else:
-        return addr
+    return address_conversion_func(deploy_receipt['contractAddress'])
 
 
 def test_contract_with_unset_address(MathContract):

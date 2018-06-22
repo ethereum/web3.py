@@ -10,7 +10,7 @@ from web3.contract import (
 
 
 @pytest.fixture()
-def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
+def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, address_conversion_func):
     # Deploy math contract
     # NOTE Must use non-specialized contract factory or else deploy() doesn't work
     MathContract = web3.eth.contract(
@@ -20,7 +20,7 @@ def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
     )
     tx_hash = MathContract.constructor().transact()
     tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
-    math_address = tx_receipt['contractAddress']
+    math_address = address_conversion_func(tx_receipt['contractAddress'])
     # Return interactive contract instance at deployed address
     # TODO Does parent class not implement 'deploy()' for a reason?
     MathContract = web3.eth.contract(
@@ -29,7 +29,9 @@ def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
         bytecode_runtime=MATH_RUNTIME,
         ContractFactoryClass=ImplicitContract,
     )
-    return MathContract(math_address)
+    contract = MathContract(math_address)
+    assert contract.address == math_address
+    return contract
 
 
 @pytest.fixture()
