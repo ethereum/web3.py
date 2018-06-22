@@ -24,6 +24,9 @@ from web3.utils.module_testing import (
 from web3.utils.module_testing.emitter_contract import (
     EMITTER_ENUM,
 )
+from web3.utils.toolz import (
+    identity,
+)
 
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
@@ -46,6 +49,11 @@ def web3(eth_tester_provider):
     return _web3
 
 
+@pytest.fixture(scope="module", params=[lambda x: to_bytes(hexstr=x), identity])
+def address_conversion_func(request):
+    return request.param
+
+
 #
 # Math Contract Setup
 #
@@ -64,17 +72,15 @@ def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
     return math_contract_factory(contract_address)
 
 
-@pytest.fixture(scope="module", params=['bytes', 'hex'])
-def math_contract_address(math_contract, request):
-    if request.param == 'bytes':
-        return to_bytes(hexstr=math_contract.address)
-    else:
-        return math_contract.address
-
+@pytest.fixture(scope="module")
+def math_contract_address(math_contract, address_conversion_func):
+    return address_conversion_func(math_contract.address)
 
 #
 # Emitter Contract Setup
 #
+
+
 @pytest.fixture(scope="module")
 def emitter_contract_deploy_txn_hash(web3, emitter_contract_factory):
     deploy_txn_hash = emitter_contract_factory.constructor().transact({'from': web3.eth.coinbase})
@@ -90,12 +96,9 @@ def emitter_contract(web3, emitter_contract_factory, emitter_contract_deploy_txn
     return emitter_contract_factory(contract_address)
 
 
-@pytest.fixture(scope="module", params=['bytes', 'hex'])
-def emitter_contract_address(emitter_contract, request):
-    if request.param == 'bytes':
-        return to_bytes(hexstr=emitter_contract.address)
-    else:
-        return emitter_contract.address
+@pytest.fixture(scope="module")
+def emitter_contract_address(emitter_contract, address_conversion_func):
+    return address_conversion_func(emitter_contract.address)
 
 
 @pytest.fixture(scope="module")
@@ -168,12 +171,9 @@ def unlocked_account(web3, unlockable_account, unlockable_account_pw):
     web3.personal.lockAccount(unlockable_account)
 
 
-@pytest.fixture(params=['bytes', 'hex'])
-def unlockable_account_dual_type(unlockable_account, request):
-    if request.param == 'bytes':
-        return to_bytes(hexstr=unlockable_account)
-    else:
-        return unlockable_account
+@pytest.fixture()
+def unlockable_account_dual_type(unlockable_account, address_conversion_func):
+    return address_conversion_func(unlockable_account)
 
 
 @pytest.fixture
@@ -284,6 +284,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
                 raise err
         else:
             raise AssertionError("eth-tester was unexpectedly able to give the pending call result")
+
+    def test_eth_getStorageAt(self, ):
+        pytest.xfail('json-rpc method is not implemented on eth-tester')
+        super().test_eth_getStorageAt(web3, emitter_contract_address)
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):

@@ -9,6 +9,10 @@ from eth_utils import (
     to_bytes,
 )
 
+from web3.utils.toolz import (
+    identity,
+)
+
 from .install_parity import (
     get_executable_path,
     install_parity,
@@ -124,6 +128,11 @@ def parity_import_blocks_process(parity_import_blocks_command):
     yield from get_process(parity_import_blocks_command, terminates=True)
 
 
+@pytest.fixture(scope="module", params=[lambda x: to_bytes(hexstr=x), identity])
+def address_conversion_func(request):
+    return request.param
+
+
 @pytest.fixture(scope='module')
 def coinbase(web3):
     return web3.eth.coinbase
@@ -139,12 +148,9 @@ def math_contract(web3, math_contract_factory, parity_fixture_data):
     return math_contract_factory(address=parity_fixture_data['math_address'])
 
 
-@pytest.fixture(scope="module", params=['bytes', 'hex'])
-def math_contract_address(math_contract, request):
-    if request.param == 'bytes':
-        return math_contract.address
-    else:
-        return math_contract.address
+@pytest.fixture()
+def math_contract_address(math_contract, address_conversion_func):
+    return address_conversion_func(math_contract.address)
 
 
 @pytest.fixture(scope="module")
@@ -152,12 +158,9 @@ def emitter_contract(web3, emitter_contract_factory, parity_fixture_data):
     return emitter_contract_factory(address=parity_fixture_data['emitter_address'])
 
 
-@pytest.fixture(scope="module", params=['bytes', 'hex'])
-def emitter_contract_address(emitter_contract, request):
-    if request.param == 'bytes':
-        return to_bytes(hexstr=emitter_contract.address)
-    else:
-        return emitter_contract.address
+@pytest.fixture()
+def emitter_contract_address(emitter_contract, address_conversion_func):
+    return address_conversion_func(emitter_contract.address)
 
 
 @pytest.fixture(scope="module")
@@ -175,12 +178,9 @@ def unlockable_account(web3, coinbase):
     yield coinbase
 
 
-@pytest.fixture(params=['bytes', 'hex'])
-def unlockable_account_dual_type(unlockable_account, request):
-    if request.param == 'bytes':
-        return to_bytes(hexstr=unlockable_account)
-    else:
-        return unlockable_account
+@pytest.fixture()
+def unlockable_account_dual_type(unlockable_account, address_conversion_func):
+    return address_conversion_func(unlockable_account)
 
 
 @pytest.fixture

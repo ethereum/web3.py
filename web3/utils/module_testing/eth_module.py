@@ -95,20 +95,24 @@ class EthModuleTest:
         assert is_integer(balance)
         assert balance >= 0
 
-    def test_eth_getStorageAt(self, web3):
-        coinbase = web3.eth.coinbase
+    def test_eth_getStorageAt(self, web3, emitter_contract_address):
+        storage = web3.eth.getStorageAt(emitter_contract_address, 0)
+        assert isinstance(storage, HexBytes)
 
+    def test_eth_getStorageAt_invalid_address(self, web3):
+        coinbase = web3.eth.coinbase
         with pytest.raises(InvalidAddress):
             web3.eth.getStorageAt(coinbase.lower(), 0)
 
-    def test_eth_getTransactionCount(self, web3):
-        coinbase = web3.eth.coinbase
-        transaction_count = web3.eth.getTransactionCount(coinbase)
-        with pytest.raises(InvalidAddress):
-            web3.eth.getTransactionCount(coinbase.lower())
-
+    def test_eth_getTransactionCount(self, web3, unlocked_account_dual_type):
+        transaction_count = web3.eth.getTransactionCount(unlocked_account_dual_type)
         assert is_integer(transaction_count)
         assert transaction_count >= 0
+
+    def test_eth_getTransactionCount_invalid_address(self, web3):
+        coinbase = web3.eth.coinbase
+        with pytest.raises(InvalidAddress):
+            web3.eth.getTransactionCount(coinbase.lower())
 
     def test_eth_getBlockTransactionCountByHash_empty_block(self, web3, empty_block):
         transaction_count = web3.eth.getBlockTransactionCount(empty_block['hash'])
@@ -146,12 +150,14 @@ class EthModuleTest:
         assert is_integer(uncle_count)
         assert uncle_count == 0
 
-    def test_eth_getCode(self, web3, math_contract):
-        code = web3.eth.getCode(math_contract.address)
-        with pytest.raises(InvalidAddress):
-            code = web3.eth.getCode(math_contract.address.lower())
+    def test_eth_getCode(self, web3, math_contract_address):
+        code = web3.eth.getCode(math_contract_address)
         assert is_string(code)
         assert len(code) > 2
+
+    def test_eth_getCode_invalid_address(self, web3, math_contract):
+        with pytest.raises(InvalidAddress):
+            web3.eth.getCode(math_contract.address.lower())
 
     def test_eth_sign(self, web3, unlocked_account_dual_type):
         signature = web3.eth.sign(
@@ -449,11 +455,10 @@ class EthModuleTest:
         result = decode_single('uint256', call_result)
         assert result == 0
 
-    def test_eth_estimateGas(self, web3):
-        coinbase = web3.eth.coinbase
+    def test_eth_estimateGas(self, web3, unlocked_account_dual_type):
         gas_estimate = web3.eth.estimateGas({
-            'from': coinbase,
-            'to': coinbase,
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
             'value': 1,
         })
         assert is_integer(gas_estimate)
