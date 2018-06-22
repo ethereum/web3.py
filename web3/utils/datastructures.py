@@ -5,12 +5,16 @@ from collections import (
     MutableMapping,
     OrderedDict,
     Sequence,
+    UserList,
 )
 
 from eth_utils import (
     is_integer,
 )
 
+from web3.exceptions import (
+    ItemResetException,
+)
 from web3.utils.formatters import (
     recursive_map,
 )
@@ -212,3 +216,40 @@ class NamedElementOnion(Mapping):
         if not isinstance(elements, Sequence):
             elements = list(elements)
         return iter(elements)
+
+
+def is_index_out_of_range(seq, index):
+    if len(seq) < index + 1:
+        return True
+    else:
+        return False
+
+
+class SingleIndexAssignmentList(UserList):
+    def __init__(self, seq=None):
+        if seq is not None:
+            self.set_prohibited = [False for i in seq]
+        else:
+            self.set_prohibited = list()
+        super().__init__(seq)
+
+    def append(self, value):
+        self.set_prohibited.append(True)
+        super().append(value)
+
+    def __setitem__(self, index, value):
+        #  set out of range list item
+        if is_index_out_of_range(self.data, index):
+            original_length = len(self.data)
+            for i in range(original_length, index):
+                self.data.append(None)
+                self.set_prohibited.append(False)
+            self.data.append(value)
+            self.set_prohibited.append(True)
+        # set an in range empty item
+        elif not is_index_out_of_range(self.data, index):
+            if self.set_prohibited[index] is False:
+                self.data[index] = value
+                self.set_prohibited[index] = True
+            else:
+                raise ItemResetException("Values can't be reset.")

@@ -99,3 +99,10 @@ class NoABIEventsFound(AttributeError):
     Raised when an ABI doesn't contain any events.
     """
     pass
+
+
+class ItemResetException(Exception):
+    """
+    Raised when resetting a value is prohibited.
+    """
+    pass
