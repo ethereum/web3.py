@@ -27,6 +27,11 @@ FILTER_PARAMS_ABIS = {
     'address': 'address',
 }
 
+TRACE_PARAMS_ABIS = {
+    'to': 'address',
+    'from': 'address',
+}
+
 RPC_ABIS = {
     # eth
     'eth_call': TRANSACTION_PARAMS_ABIS,
@@ -51,6 +56,7 @@ RPC_ABIS = {
     'personal_lockAccount': ['address'],
     'personal_unlockAccount': ['address', None, None],
     'personal_sign': [None, 'address', None],
+    'trace_call': TRACE_PARAMS_ABIS,
 }
 
 
