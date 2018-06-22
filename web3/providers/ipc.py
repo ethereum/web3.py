@@ -1,5 +1,6 @@
 import logging
 import os
+import pathlib
 import socket
 import sys
 import threading
@@ -188,6 +189,8 @@ class IPCProvider(JSONBaseProvider):
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path(testnet)
         else:
+            if isinstance(ipc_path, pathlib.Path):
+                ipc_path = str(ipc_path.resolve())
             self.ipc_path = ipc_path
 
         self.timeout = timeout
