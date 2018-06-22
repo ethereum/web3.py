@@ -1,4 +1,5 @@
 import os
+import pathlib
 import pytest
 import socket
 import tempfile
@@ -73,7 +74,7 @@ def serve_empty_result(simple_ipc_server):
 
 
 def test_sync_waits_for_full_result(jsonrpc_ipc_pipe_path, serve_empty_result):
-    provider = IPCProvider(jsonrpc_ipc_pipe_path, timeout=3)
+    provider = IPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path), timeout=3)
     result = provider.make_request("method", [])
     assert result == {'id': 1, 'result': {}}
     provider._socket.sock.close()
