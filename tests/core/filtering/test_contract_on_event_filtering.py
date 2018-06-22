@@ -17,7 +17,6 @@ def test_create_filter_address_parameter(web3, emitter, Emitter, call_as_instanc
 
     if call_as_instance:
         # Assert this is a single string value, and not a list of addresses
-        assert isinstance(event_filter.filter_params['address'], str)
         assert is_address(event_filter.filter_params['address'])
     else:
         #  Undeployed contract shouldnt have address...
@@ -135,3 +134,12 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
     old_logs = post_event_filter.get_all_entries()
     assert len(old_logs) == 1
     assert old_logs[0]['transactionHash'] == txn_hashes[1]
+
+
+def test_filter_with_contract_address(web3, emitter, emitter_event_ids, wait_for_transaction):
+    event_filter = web3.eth.filter(filter_params={'address': emitter.address})
+    txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
+    wait_for_transaction(web3, txn_hash)
+    seen_logs = event_filter.get_new_entries()
+    assert len(seen_logs) == 1
+    assert seen_logs[0]['transactionHash'] == txn_hash

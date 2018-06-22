@@ -1,5 +1,9 @@
 import pytest
 
+from eth_utils import (
+    is_same_address,
+)
+
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
@@ -60,5 +64,5 @@ def test_get_all_entries_returned_block_data(
     assert event_data['blockHash'] == txn_receipt['blockHash']
     assert event_data['blockNumber'] == txn_receipt['blockNumber']
     assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
-    assert event_data['address'] == emitter.address
+    assert is_same_address(event_data['address'], emitter.address)
     assert event_data['event'] == 'LogNoArguments'
