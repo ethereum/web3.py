@@ -1,6 +1,32 @@
 Release Notes
 =============
 
+v4.4.0
+--------
+
+Released June 21, 2018
+
+- Features
+
+  - Add support for https in WEB3_PROVIDER_URI environment variable
+  - Can send websocket connection parameters in :class:`~web3.providers.websocket.WebsocketProvider`
+  - Two new auto-initialization options:
+
+    - ``from web3.auto.gethdev import w3``
+    - ``from web3.auto.infura import w3``
+      (After setting the ``INFURA_API_KEY`` environment variable)
+  - Alpha support for a new package management tool based on ethpm-spec, see :doc:`web3.pm`
+- Bugfixes
+
+  - Can now receive large responses in :class:`~web3.providers.websocket.WebsocketProvider` by
+    specifying a large ``max_size`` in the websocket connection parameters.
+- Misc
+
+  - Websockets dependency upgraded to v5
+  - Raise deprecation warning on :meth:`~web3.eth.Eth.getTransactionFromBlock`
+  - Fix docs for :meth:`~web3.eth.Eth.waitForTransactionReceipt`
+  - Developer Dockerfile now installs testing dependencies
+
 v4.3.0
 --------
 
