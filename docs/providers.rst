@@ -171,7 +171,7 @@ HTTPProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545")
+        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
 
     Note that you should create only one HTTPProvider per python
     process, as the HTTPProvider recycles underlying TCP/IP network connections,
@@ -236,7 +236,7 @@ WebsocketProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546")
+        >>> web3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546"))
 
     Under the hood, the ``WebsocketProvider`` uses the python websockets library for
     making requests.  If you would like to modify how requests are made, you can
