@@ -7,7 +7,6 @@ from eth_tester import (
 from eth_utils import (
     is_checksum_address,
     is_dict,
-    to_bytes,
 )
 
 from web3 import Web3
@@ -23,9 +22,6 @@ from web3.utils.module_testing import (
 )
 from web3.utils.module_testing.emitter_contract import (
     EMITTER_ENUM,
-)
-from web3.utils.toolz import (
-    identity,
 )
 
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
@@ -47,11 +43,6 @@ def eth_tester_provider(eth_tester):
 def web3(eth_tester_provider):
     _web3 = Web3(eth_tester_provider)
     return _web3
-
-
-@pytest.fixture(scope="module", params=[lambda x: to_bytes(hexstr=x), identity])
-def address_conversion_func(request):
-    return request.param
 
 
 #

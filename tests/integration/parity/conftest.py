@@ -6,11 +6,6 @@ import tempfile
 from eth_utils import (
     is_checksum_address,
     is_dict,
-    to_bytes,
-)
-
-from web3.utils.toolz import (
-    identity,
 )
 
 from .install_parity import (
@@ -126,11 +121,6 @@ def parity_process(parity_command_arguments):
 @pytest.fixture(scope="module")
 def parity_import_blocks_process(parity_import_blocks_command):
     yield from get_process(parity_import_blocks_command, terminates=True)
-
-
-@pytest.fixture(scope="module", params=[lambda x: to_bytes(hexstr=x), identity])
-def address_conversion_func(request):
-    return request.param
 
 
 @pytest.fixture(scope='module')

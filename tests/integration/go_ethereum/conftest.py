@@ -7,13 +7,11 @@ import subprocess
 from eth_utils import (
     is_checksum_address,
     is_dict,
-    to_bytes,
     to_text,
 )
 
 from web3.utils.toolz import (
     assoc,
-    identity,
 )
 
 from .utils import (
@@ -152,11 +150,6 @@ def geth_process(geth_binary, datadir, genesis_file, geth_command_arguments):
                 to_text(errors),
             )
         )
-
-
-@pytest.fixture(scope="module", params=[lambda x: to_bytes(hexstr=x), identity])
-def address_conversion_func(request):
-    return request.param
 
 
 @pytest.fixture(scope='module')
