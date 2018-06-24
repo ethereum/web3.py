@@ -4,6 +4,11 @@ from unittest.mock import (
     patch,
 )
 
+from eth_utils import (
+    is_same_address,
+    to_bytes,
+)
+
 from ens.constants import (
     EMPTY_ADDR_HEX,
 )
@@ -12,11 +17,10 @@ from ens.main import (
 )
 from web3 import Web3
 
+
 '''
 API at: https://github.com/carver/ens.py/issues/2
 '''
-
-TEST_ADDRESS = "0x000000000000000000000000000000000000dEaD"
 
 
 @pytest.mark.parametrize(
@@ -66,23 +70,23 @@ TEST_ADDRESS = "0x000000000000000000000000000000000000dEaD"
         ),
     ],
 )
-def test_set_address(ens, name, full_name, namehash_hex):
+def test_set_address(ens, name, full_name, namehash_hex, TEST_ADDRESS):
     assert ens.address(name) is None
     owner = ens.owner('tester')
 
     ens.setup_address(name, TEST_ADDRESS)
-    assert ens.address(name) == TEST_ADDRESS
+    assert is_same_address(ens.address(name), TEST_ADDRESS)
 
     # check that .eth is only appended if guess_tld is True
     namehash = Web3.toBytes(hexstr=namehash_hex)
     normal_name = ens.nameprep(full_name)
     if ens.nameprep(name) == normal_name:
-        assert ens.address(name, guess_tld=False) == TEST_ADDRESS
+        assert is_same_address(ens.address(name, guess_tld=False), TEST_ADDRESS)
     else:
         assert ens.address(name, guess_tld=False) is None
 
     # check that the correct namehash is set:
-    assert ens.resolver(normal_name).addr(namehash) == TEST_ADDRESS
+    assert is_same_address(ens.resolver(normal_name).addr(namehash), TEST_ADDRESS)
 
     # check that the correct owner is set:
     assert ens.owner(name) == owner
@@ -98,12 +102,12 @@ def test_set_address(ens, name, full_name, namehash_hex):
         ('unicÖde.tester.eth', 'unicöde.tester.eth'),
     ],
 )
-def test_set_address_equivalence(ens, name, equivalent):
+def test_set_address_equivalence(ens, name, equivalent, TEST_ADDRESS):
     assert ens.address(name) is None
 
     ens.setup_address(name, TEST_ADDRESS)
-    assert ens.address(name) == TEST_ADDRESS
-    assert ens.address(equivalent) == TEST_ADDRESS
+    assert is_same_address(ens.address(name), TEST_ADDRESS)
+    assert is_same_address(ens.address(equivalent), TEST_ADDRESS)
 
     ens.setup_address(name, None)
     assert ens.address(name) is None
@@ -112,7 +116,11 @@ def test_set_address_equivalence(ens, name, equivalent):
 @pytest.mark.parametrize(
     'set_address',
     [
-        TEST_ADDRESS,
+        # since the test uses getTransactionCount,
+        # using a same address converted to bytes and hex will error with same count,
+        # use two different addresses of each type (hex, bytes)
+        "0x000000000000000000000000000000000000dEaD",
+        to_bytes(hexstr="0x5B2063246F2191f18F2675ceDB8b28102e957458"),
         EMPTY_ADDR_HEX,
         None,
         '',
@@ -129,7 +137,7 @@ def test_set_address_noop(ens, set_address):
     assert eth.getTransactionCount(owner) == starting_transactions
 
 
-def test_set_address_unauthorized(ens):
+def test_set_address_unauthorized(ens, TEST_ADDRESS):
     with pytest.raises(UnauthorizedError):
         ens.setup_address('eth', TEST_ADDRESS)
 
@@ -156,7 +164,7 @@ def test_first_owner_upchain_identify(ens):
             (addr, ['abcdefg', 'bcdefgh'], 'cdefghi.eth')
 
 
-def test_set_resolver_leave_default(ens):
+def test_set_resolver_leave_default(ens, TEST_ADDRESS):
     owner = ens.owner('tester')
     ens.setup_address('leave-default-resolver.tester.eth', TEST_ADDRESS)
     eth = ens.web3.eth

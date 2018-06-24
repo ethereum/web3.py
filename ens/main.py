@@ -1,5 +1,6 @@
 
 from eth_utils import (
+    is_binary_address,
     is_checksum_address,
     to_checksum_address,
 )
@@ -122,6 +123,8 @@ class ENS:
             address = None
         elif address is default:
             address = owner
+        elif is_binary_address(address):
+            address = to_checksum_address(address)
         elif not is_checksum_address(address):
             raise ValueError("You must supply the address in checksum format")
         if self.address(name) == address:
@@ -166,6 +169,8 @@ class ENS:
                 address = self.owner(name)
             if not address:
                 raise UnownedName("claim subdomain using setup_address() first")
+            if is_binary_address(address):
+                address = to_checksum_address(address)
             if not is_checksum_address(address):
                 raise ValueError("You must supply the address in checksum format")
             self._assert_control(address, name)

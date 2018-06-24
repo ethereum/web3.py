@@ -5,6 +5,9 @@ import pytest
 from eth_tester import (
     EthereumTester,
 )
+from eth_utils import (
+    to_bytes,
+)
 
 from ens import ENS
 from ens.contract_data import (
@@ -27,6 +30,9 @@ from web3.contract import (
 )
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
+)
+from web3.utils.toolz import (
+    identity,
 )
 
 
@@ -222,3 +228,13 @@ def ens(ens_setup, mocker):
     mocker.patch('web3.middleware.stalecheck._isfresh', return_value=True)
     ens_setup.web3.eth.defaultAccount = ens_setup.web3.eth.coinbase
     return ens_setup
+
+
+@pytest.fixture(scope="module", params=[lambda x: to_bytes(hexstr=x), identity])
+def address_conversion_func(request):
+    return request.param
+
+
+@pytest.fixture()
+def TEST_ADDRESS(address_conversion_func):
+    return address_conversion_func("0x000000000000000000000000000000000000dEaD")
