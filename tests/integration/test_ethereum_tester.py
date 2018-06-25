@@ -276,7 +276,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
         else:
             raise AssertionError("eth-tester was unexpectedly able to give the pending call result")
 
-    def test_eth_getStorageAt(self, ):
+    def test_eth_getStorageAt(self, web3, emitter_contract_address):
         pytest.xfail('json-rpc method is not implemented on eth-tester')
         super().test_eth_getStorageAt(web3, emitter_contract_address)
 
