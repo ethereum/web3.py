@@ -145,7 +145,44 @@ Valid formats for the this environment variable are:
 - ``file:///path/to/node/rpc-json/file.ipc``
 - ``http://192.168.1.2:8545``
 - ``https://node.ontheweb.com``
+- ``ws://127.0.0.1:8546``
 
+
+Auto-initialization Provider Shortcuts
+--------------------------------------
+
+There are a couple auto-initialization shortcuts for common providers.
+
+Infura Mainnet
+~~~~~~~~~~~~~~
+
+To easily connect to the Infura Mainnet remote node, first register for a free
+API key if you don't have one at https://infura.io/signup .
+
+Then set the environment variable ``INFURA_API_KEY`` with your API key::
+
+    $ export INFURA_API_KEY=YourApiKey
+
+.. code-block:: python
+
+    >>> from web3.auto.infura import w3
+    
+    # confirm that the connection succeeded
+    >>> w3.isConnected()
+    True
+
+Geth dev Proof of Authority
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To connect to a ``geth --dev`` Proof of Authority instance with defaults:
+
+.. code-block:: python
+
+    >>> from web3.auto.gethdev import w3
+    
+    # confirm that the connection succeeded
+    >>> w3.isConnected()
+    True
 
 Built In Providers
 ------------------
@@ -171,7 +208,7 @@ HTTPProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545")
+        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
 
     Note that you should create only one HTTPProvider per python
     process, as the HTTPProvider recycles underlying TCP/IP network connections,
@@ -236,7 +273,7 @@ WebsocketProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546")
+        >>> web3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546"))
 
     Under the hood, the ``WebsocketProvider`` uses the python websockets library for
     making requests.  If you would like to modify how requests are made, you can

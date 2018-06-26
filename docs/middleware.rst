@@ -322,15 +322,27 @@ Geth-style Proof of Authority
 
 This middleware is required to connect to ``geth --dev`` or the Rinkeby public network.
 
-For example, to connect to a local ``geth --dev`` instance on Linux:
+The easiest way to connect to a default ``geth --dev`` instance which loads the middleware is:
+
+
+.. code-block:: python
+
+    >>> from web3.auto.gethdev import w3
+
+    # confirm that the connection succeeded
+    >>> w3.version.node
+    'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
+
+This example connects to a local ``geth --dev`` instance on Linux with a
+unique IPC location and loads the middleware:
 
 
 .. code-block:: python
 
     >>> from web3 import Web3, IPCProvider
 
-    # connect to the default geth --dev IPC location
-    >>> w3 = Web3(IPCProvider('/tmp/geth.ipc'))
+    # connect to the IPC location started with 'geth --dev --datadir ~/mynode'
+    >>> w3 = Web3(IPCProvider('~/mynode/geth.ipc'))
 
     >>> from web3.middleware import geth_poa_middleware
 
