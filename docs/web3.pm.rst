@@ -16,7 +16,7 @@ To use ``web3.pm``, attach it to your ``web3`` instance.
 .. code-block:: python
 
    from web3.pm import PM
-   PM.attach(web3, 'pmp')
+   PM.attach(web3, 'pm')
 
 
 Methods
