@@ -73,7 +73,13 @@ def install_parity(version_string):
     uri, checksum = get_uri(**params)[0]
 
     if not os.path.exists(path):
-        download_binary(path, uri, checksum)
+        try:
+            download_binary(path, uri, checksum)
+        except AssertionError as exc:
+            raise Exception("failed to download binary at uri %r with params %r" % (
+                uri,
+                params,
+            )) from exc
 
     return path
 
@@ -82,7 +88,7 @@ def download_binary(path, uri, checksum):
     r = get_binary_stream(uri)
     total_size = int(r.headers.get('content-length', 0))
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    digest = hashlib.md5()
+    digest = hashlib.sha256()
     with open(path, 'wb') as f:
         with tqdm(total=total_size,
                   unit='B',
@@ -92,7 +98,8 @@ def download_binary(path, uri, checksum):
                 f.write(data)
                 pbar.update(len(data))
                 digest.update(data)
-    assert digest.hexdigest() == checksum
+    hex_digest = digest.hexdigest()
+    assert hex_digest == checksum, "digest vs checksum: %r vs %r" % (hex_digest, checksum)
     chmod_plus_x(path)
 
 
