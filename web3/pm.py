@@ -1,10 +1,16 @@
-from ethpm import (
-    Package,
-)
-
 from web3.module import (
     Module,
 )
+
+try:
+    from ethpm import (
+        Package,
+    )
+except ImportError as exc:
+    raise Exception(
+        "To use the (alpha) ethpm package, you must install it explicitly. "
+        "Install with `pip install --upgrade ethpm`."
+    ) from exc
 
 
 # Package Management is currently still in alpha
