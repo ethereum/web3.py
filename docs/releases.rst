@@ -1,6 +1,22 @@
 Release Notes
 =============
 
+v4.4.1
+--------
+
+Released June 29, 2018
+
+- Bugfixes
+
+  - eth-pm package was renamed (old one deleted) which broke the web3 release.
+    eth-pm was removed from the web3.py install until it's stable.
+
+- Misc
+
+  - :class:`~web3.providers.ipc.IPCProvider` now accepts a :class:`pathlib.Path`
+    argument for the IPC path
+  - Docs explaining the :ref:`new custom autoproviders in web3 <custom_auto_providers>`
+
 v4.4.0
 --------
 

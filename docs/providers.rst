@@ -148,6 +148,8 @@ Valid formats for the this environment variable are:
 - ``ws://127.0.0.1:8546``
 
 
+.. _custom_auto_providers:
+
 Auto-initialization Provider Shortcuts
 --------------------------------------
 
