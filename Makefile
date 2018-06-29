@@ -44,7 +44,7 @@ docs: build-docs
 	open docs/_build/html/index.html
 
 linux-docs: build-docs
-	xdg-open docs/_build/html/index.html
+	readlink -f docs/_build/html/index.html
 
 release: clean
 	CURRENT_SIGN_SETTING=$(git config commit.gpgSign)
