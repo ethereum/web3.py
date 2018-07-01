@@ -1,7 +1,6 @@
 from ethpm import (
     Package,
 )
-
 from web3.module import (
     Module,
 )
