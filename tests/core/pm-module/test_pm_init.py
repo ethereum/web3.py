@@ -18,6 +18,7 @@ def web3():
     return web3
 
 
+@pytest.mark.skip(reason='Skipped until `ethpm` dependency is stabilized.')
 def test_pm_init_with_minimal_manifest(web3):
     pm = web3.pm.get_package_from_manifest(VALID_MANIFEST)
     assert pm.name == 'foo'
