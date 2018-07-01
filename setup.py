@@ -32,6 +32,9 @@ setup(
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.5, <4',
     extras_require={
+        'ethpm': [
+            "ethpm==0.1.0a30",
+        ],
         'tester': [
             "eth-tester[py-evm]==0.1.0-beta.26",
             "py-geth>=2.0.1,<3.0.0",
