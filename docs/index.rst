@@ -21,6 +21,7 @@ Contents
     providers
     ens_overview
     middleware
+    package_management
     examples
     troubleshooting
     web3.main

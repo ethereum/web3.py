@@ -282,6 +282,7 @@ texinfo_documents = [
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.5', None),
     'eth-account': ('http://eth-account.readthedocs.io/en/latest/', None),
+    'ethpm': ('https://py-ethpm.readthedocs.io/en/latest/', None),
     # does not exist yet: 'eth-tester': ('http://eth-tester.readthedocs.io/en/latest/', None),
     'hexbytes': ('http://hexbytes.readthedocs.io/en/latest/', None),
 }
