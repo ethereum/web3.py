@@ -1397,12 +1397,15 @@ def call_contract_function(
 
 
 def parse_block_identifier(web3, block_identifier):
-    last_block = web3.eth.getBlock('latest').number
-    if isinstance(block_identifier, int) and abs(block_identifier) <= last_block:
-        if block_identifier >= 0:
-            return block_identifier
+    if isinstance(block_identifier, int):
+        last_block = web3.eth.getBlock('latest').number
+        if abs(block_identifier) <= last_block:
+            if block_identifier >= 0:
+                return block_identifier
+            else:
+                return last_block + block_identifier + 1
         else:
-            return last_block + block_identifier + 1
+            raise BlockNumberOutofRange
     elif block_identifier in ['latest', 'earliest', 'pending']:
         return block_identifier
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
