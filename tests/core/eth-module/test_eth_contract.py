@@ -3,8 +3,13 @@ from unittest.mock import (
     Mock,
 )
 
+from eth_utils import (
+    to_bytes,
+)
+
 ABI = [{}]
 ADDRESS = '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+BYTES_ADDRESS = to_bytes(hexstr=ADDRESS)
 NON_CHECKSUM_ADDRESS = '0xd3cda913deb6f67967b99d67acdfa1712c293601'
 INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
 
@@ -13,6 +18,7 @@ INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
     'args,kwargs,expected',
     (
         ((ADDRESS,), {}, None),
+        ((BYTES_ADDRESS,), {}, None),
         ((INVALID_CHECKSUM_ADDRESS,), {}, ValueError),
         ((NON_CHECKSUM_ADDRESS,), {}, ValueError),
         ((), {'address': ADDRESS}, None),

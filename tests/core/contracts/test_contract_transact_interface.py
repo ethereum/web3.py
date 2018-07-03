@@ -15,34 +15,40 @@ pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
 @pytest.fixture()
-def math_contract(web3, MathContract):
+def math_contract(web3, MathContract, address_conversion_func):
     deploy_txn = MathContract.constructor().transact()
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    _math_contract = MathContract(address=deploy_receipt['contractAddress'])
+    address = address_conversion_func(deploy_receipt['contractAddress'])
+    _math_contract = MathContract(address=address)
+    assert _math_contract.address == address
     return _math_contract
 
 
 @pytest.fixture()
-def string_contract(web3, StringContract):
+def string_contract(web3, StringContract, address_conversion_func):
     deploy_txn = StringContract.constructor("Caqalai").transact()
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    _math_contract = StringContract(address=deploy_receipt['contractAddress'])
-    return _math_contract
+    address = address_conversion_func(deploy_receipt['contractAddress'])
+    _string_contract = StringContract(address=address)
+    assert _string_contract.address == address
+    return _string_contract
 
 
 @pytest.fixture()
-def fallback_function_contract(web3, FallballFunctionContract):
+def fallback_function_contract(web3, FallballFunctionContract, address_conversion_func):
     deploy_txn = FallballFunctionContract.constructor().transact()
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    _fallback_contract = FallballFunctionContract(address=deploy_receipt['contractAddress'])
+    address = address_conversion_func(deploy_receipt['contractAddress'])
+    _fallback_contract = FallballFunctionContract(address=address)
+    assert _fallback_contract.address == address
     return _fallback_contract
 
 
 @pytest.fixture()
-def arrays_contract(web3, ArraysContract):
+def arrays_contract(web3, ArraysContract, address_conversion_func):
     # bytes_32 = [keccak('0'), keccak('1')]
     bytes32_array = [
         b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',  # noqa: E501
@@ -52,7 +58,8 @@ def arrays_contract(web3, ArraysContract):
     deploy_txn = ArraysContract.constructor(bytes32_array, byte_arr).transact()
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    _arrays_contract = ArraysContract(address=deploy_receipt['contractAddress'])
+    address = address_conversion_func(deploy_receipt['contractAddress'])
+    _arrays_contract = ArraysContract(address=address)
     return _arrays_contract
 
 

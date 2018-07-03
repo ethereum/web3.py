@@ -25,8 +25,9 @@ def deploy(web3, Contract, args=None):
 
 
 @pytest.fixture()
-def EMPTY_ADDR():
-    return '0x' + '00' * 20
+def EMPTY_ADDR(address_conversion_func):
+    addr = '0x' + '00' * 20
+    return address_conversion_func(addr)
 
 
 @pytest.fixture()

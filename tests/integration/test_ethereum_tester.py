@@ -63,9 +63,15 @@ def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
     return math_contract_factory(contract_address)
 
 
+@pytest.fixture(scope="module")
+def math_contract_address(math_contract, address_conversion_func):
+    return address_conversion_func(math_contract.address)
+
 #
 # Emitter Contract Setup
 #
+
+
 @pytest.fixture(scope="module")
 def emitter_contract_deploy_txn_hash(web3, emitter_contract_factory):
     deploy_txn_hash = emitter_contract_factory.constructor().transact({'from': web3.eth.coinbase})
@@ -79,6 +85,11 @@ def emitter_contract(web3, emitter_contract_factory, emitter_contract_deploy_txn
     contract_address = deploy_receipt['contractAddress']
     assert is_checksum_address(contract_address)
     return emitter_contract_factory(contract_address)
+
+
+@pytest.fixture(scope="module")
+def emitter_contract_address(emitter_contract, address_conversion_func):
+    return address_conversion_func(emitter_contract.address)
 
 
 @pytest.fixture(scope="module")
@@ -149,6 +160,18 @@ def unlocked_account(web3, unlockable_account, unlockable_account_pw):
     web3.personal.unlockAccount(unlockable_account, unlockable_account_pw)
     yield unlockable_account
     web3.personal.lockAccount(unlockable_account)
+
+
+@pytest.fixture()
+def unlockable_account_dual_type(unlockable_account, address_conversion_func):
+    return address_conversion_func(unlockable_account)
+
+
+@pytest.fixture
+def unlocked_account_dual_type(web3, unlockable_account_dual_type, unlockable_account_pw):
+    web3.personal.unlockAccount(unlockable_account_dual_type, unlockable_account_pw)
+    yield unlockable_account_dual_type
+    web3.personal.lockAccount(unlockable_account_dual_type)
 
 
 @pytest.fixture(scope="module")
@@ -252,6 +275,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
                 raise err
         else:
             raise AssertionError("eth-tester was unexpectedly able to give the pending call result")
+
+    def test_eth_getStorageAt(self, web3, emitter_contract_address):
+        pytest.xfail('json-rpc method is not implemented on eth-tester')
+        super().test_eth_getStorageAt(web3, emitter_contract_address)
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):

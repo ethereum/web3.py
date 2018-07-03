@@ -11,20 +11,24 @@ pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
 @pytest.fixture()
-def math_contract(web3, MathContract):
+def math_contract(web3, MathContract, address_conversion_func):
     deploy_txn = MathContract.constructor().transact()
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    _math_contract = MathContract(address=deploy_receipt['contractAddress'])
+    math_contract_address = address_conversion_func(deploy_receipt['contractAddress'])
+    _math_contract = MathContract(address=math_contract_address)
+    assert _math_contract.address == math_contract_address
     return _math_contract
 
 
 @pytest.fixture()
-def fallback_function_contract(web3, FallballFunctionContract):
+def fallback_function_contract(web3, FallballFunctionContract, address_conversion_func):
     deploy_txn = FallballFunctionContract.constructor().transact()
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    _fallback_contract = FallballFunctionContract(address=deploy_receipt['contractAddress'])
+    fallback_contract_address = address_conversion_func(deploy_receipt['contractAddress'])
+    _fallback_contract = FallballFunctionContract(address=fallback_contract_address)
+    assert _fallback_contract.address == fallback_contract_address
     return _fallback_contract
 
 

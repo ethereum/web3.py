@@ -8,11 +8,15 @@ from ens.main import (
 )
 from web3 import Web3
 
+
 '''
 API at: https://github.com/carver/ens.py/issues/2
 '''
 
-TEST_ADDRESS = "0x000000000000000000000000000000000000dEaD"
+
+@pytest.fixture()
+def TEST_ADDRESS(address_conversion_func):
+    return address_conversion_func("0x000000000000000000000000000000000000dEaD")
 
 
 @pytest.mark.parametrize(
@@ -86,7 +90,7 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
     assert not ens.address(name)
 
 
-def test_cannot_set_name_on_mismatch_address(ens):
+def test_cannot_set_name_on_mismatch_address(ens, TEST_ADDRESS):
     ens.setup_address('mismatch-reverse.tester.eth', TEST_ADDRESS)
     with pytest.raises(AddressMismatch):
         ens.setup_name('mismatch-reverse.tester.eth', '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413')
@@ -121,7 +125,7 @@ def test_setup_name_unowned_exception(ens):
         ens.setup_name('unowned-name.tester.eth')
 
 
-def test_setup_name_unauthorized(ens):
+def test_setup_name_unauthorized(ens, TEST_ADDRESS):
     with pytest.raises(UnauthorizedError):
         ens.setup_name('root-owned-tld', TEST_ADDRESS)
 

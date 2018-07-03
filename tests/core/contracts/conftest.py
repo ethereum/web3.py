@@ -292,17 +292,19 @@ def Emitter(web3_empty, EMITTER):
 
 
 @pytest.fixture()
-def emitter(web3_empty, Emitter, wait_for_transaction, wait_for_block):
+def emitter(web3_empty, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
     web3 = web3_empty
 
     wait_for_block(web3)
     deploy_txn_hash = Emitter.constructor().transact({'from': web3.eth.coinbase, 'gas': 1000000})
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
-    contract_address = deploy_receipt['contractAddress']
+    contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
     bytecode = web3.eth.getCode(contract_address)
     assert bytecode == Emitter.bytecode_runtime
-    return Emitter(address=contract_address)
+    emitter_contract = Emitter(address=contract_address)
+    assert emitter_contract.address == contract_address
+    return emitter_contract
 
 
 CONTRACT_ARRAYS_SOURCE = """
@@ -527,8 +529,8 @@ def emitter_log_topics():
 
 
 @pytest.fixture()
-def some_address():
-    return '0x5B2063246F2191f18F2675ceDB8b28102e957458'
+def some_address(address_conversion_func):
+    return address_conversion_func('0x5B2063246F2191f18F2675ceDB8b28102e957458')
 
 
 def invoke_contract(api_style=None,

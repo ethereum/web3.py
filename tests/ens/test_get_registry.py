@@ -26,7 +26,8 @@ def test_resolver_empty(ens):
         ),
     ],
 )
-def test_reverse_domain(address, expected_reverse):
+def test_reverse_domain(address, expected_reverse, address_conversion_func):
+    address = address_conversion_func(address)
     assert ENS.reverse_domain(address) == expected_reverse
 
 

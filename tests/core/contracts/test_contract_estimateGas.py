@@ -11,7 +11,8 @@ def math_contract(web3,
                   MATH_ABI,
                   MATH_CODE,
                   MATH_RUNTIME,
-                  wait_for_transaction):
+                  wait_for_transaction,
+                  address_conversion_func):
     MathContract = web3.eth.contract(
         abi=MATH_ABI,
         bytecode=MATH_CODE,
@@ -21,10 +22,11 @@ def math_contract(web3,
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
 
     assert deploy_receipt is not None
-    contract_address = deploy_receipt['contractAddress']
+    contract_address = address_conversion_func(deploy_receipt['contractAddress'])
     web3.isAddress(contract_address)
 
     _math_contract = MathContract(address=contract_address)
+    assert _math_contract.address == contract_address
     return _math_contract
 
 
@@ -33,7 +35,8 @@ def fallback_function_contract(web3,
                                FALLBACK_FUNCTION_ABI,
                                FALLBACK_FUNCTION_CODE,
                                FALLBACK_FUNCTION_RUNTIME,
-                               wait_for_transaction):
+                               wait_for_transaction,
+                               address_conversion_func):
     fallback_contract = web3.eth.contract(
         abi=FALLBACK_FUNCTION_ABI,
         bytecode=FALLBACK_FUNCTION_CODE,
@@ -43,10 +46,11 @@ def fallback_function_contract(web3,
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
 
     assert deploy_receipt is not None
-    contract_address = deploy_receipt['contractAddress']
+    contract_address = address_conversion_func(deploy_receipt['contractAddress'])
     web3.isAddress(contract_address)
 
     _fallback_function_contract = fallback_contract(address=contract_address)
+    assert _fallback_function_contract.address == contract_address
     return _fallback_function_contract
 
 

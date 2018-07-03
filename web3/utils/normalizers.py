@@ -9,6 +9,9 @@ from eth_abi.abi import (
 from eth_utils import (
     to_checksum_address,
 )
+from eth_utils.address import (
+    is_binary_address,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -119,6 +122,8 @@ def abi_bytes_to_bytes(abi_type, data):
 def abi_address_to_hex(abi_type, data):
     if abi_type == 'address':
         validate_address(data)
+        if is_binary_address(data):
+            return abi_type, to_checksum_address(data)
 
 
 @curry

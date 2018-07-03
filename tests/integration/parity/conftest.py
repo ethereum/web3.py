@@ -138,9 +138,19 @@ def math_contract(web3, math_contract_factory, parity_fixture_data):
     return math_contract_factory(address=parity_fixture_data['math_address'])
 
 
+@pytest.fixture()
+def math_contract_address(math_contract, address_conversion_func):
+    return address_conversion_func(math_contract.address)
+
+
 @pytest.fixture(scope="module")
 def emitter_contract(web3, emitter_contract_factory, parity_fixture_data):
     return emitter_contract_factory(address=parity_fixture_data['emitter_address'])
+
+
+@pytest.fixture()
+def emitter_contract_address(emitter_contract, address_conversion_func):
+    return address_conversion_func(emitter_contract.address)
 
 
 @pytest.fixture(scope="module")
@@ -156,6 +166,16 @@ def unlockable_account_pw(parity_fixture_data):
 @pytest.fixture(scope="module")
 def unlockable_account(web3, coinbase):
     yield coinbase
+
+
+@pytest.fixture()
+def unlockable_account_dual_type(unlockable_account, address_conversion_func):
+    return address_conversion_func(unlockable_account)
+
+
+@pytest.fixture
+def unlocked_account_dual_type(unlockable_account_dual_type):
+    return unlockable_account_dual_type
 
 
 @pytest.fixture(scope="module")

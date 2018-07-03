@@ -222,3 +222,8 @@ def ens(ens_setup, mocker):
     mocker.patch('web3.middleware.stalecheck._isfresh', return_value=True)
     ens_setup.web3.eth.defaultAccount = ens_setup.web3.eth.coinbase
     return ens_setup
+
+
+@pytest.fixture()
+def TEST_ADDRESS(address_conversion_func):
+    return address_conversion_func("0x000000000000000000000000000000000000dEaD")

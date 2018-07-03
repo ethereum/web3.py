@@ -53,15 +53,17 @@ def Emitter(web3, EMITTER):
 
 
 @pytest.fixture()
-def emitter(web3, Emitter, wait_for_transaction, wait_for_block):
+def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
     wait_for_block(web3)
     deploy_txn_hash = Emitter.constructor().transact({'from': web3.eth.coinbase, 'gas': 1000000})
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
-    contract_address = deploy_receipt['contractAddress']
+    contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
     bytecode = web3.eth.getCode(contract_address)
     assert bytecode == Emitter.bytecode_runtime
-    return Emitter(address=contract_address)
+    _emitter = Emitter(address=contract_address)
+    assert _emitter.address == contract_address
+    return _emitter
 
 
 class LogFunctions:

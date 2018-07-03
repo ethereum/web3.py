@@ -10,13 +10,13 @@ from web3.utils.ens import (
 )
 
 
-@pytest.fixture
-def math_addr(MathContract):
+@pytest.fixture()
+def math_addr(MathContract, address_conversion_func):
     web3 = MathContract.web3
     deploy_txn = MathContract.constructor().transact({'from': web3.eth.coinbase})
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
-    return deploy_receipt['contractAddress']
+    return address_conversion_func(deploy_receipt['contractAddress'])
 
 
 def test_contract_with_unset_address(MathContract):

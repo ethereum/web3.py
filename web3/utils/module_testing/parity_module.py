@@ -39,12 +39,12 @@ class ParityModuleTest:
         trace = web3.parity.traceTransaction(parity_fixture_data['mined_txn_hash'])
         assert trace[0]['action']['from'] == add_0x_prefix(parity_fixture_data['coinbase'])
 
-    def test_trace_call(self, web3, math_contract):
+    def test_trace_call(self, web3, math_contract, math_contract_address):
         coinbase = web3.eth.coinbase
         txn_params = math_contract._prepare_transaction(
             fn_name='add',
             fn_args=(7, 11),
-            transaction={'from': coinbase, 'to': math_contract.address},
+            transaction={'from': coinbase, 'to': math_contract_address},
         )
         trace = web3.parity.traceCall(txn_params)
         assert trace['stateDiff'] is None
@@ -52,12 +52,12 @@ class ParityModuleTest:
         result = hex_to_integer(trace['output'])
         assert result == 18
 
-    def test_eth_call_with_0_result(self, web3, math_contract):
+    def test_eth_call_with_0_result(self, web3, math_contract, math_contract_address):
         coinbase = web3.eth.coinbase
         txn_params = math_contract._prepare_transaction(
             fn_name='add',
             fn_args=(0, 0),
-            transaction={'from': coinbase, 'to': math_contract.address},
+            transaction={'from': coinbase, 'to': math_contract_address},
         )
         trace = web3.parity.traceCall(txn_params)
         assert trace['stateDiff'] is None
