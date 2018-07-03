@@ -127,7 +127,7 @@ class TransactionFilter(Filter):
     pass
 
 
-ZERO_32BYTES = '[a-f0-9]{64}'
+ANY_ABI_VALUE = '[a-f0-9]{16,512}'
 
 
 def construct_data_filter_regex(data_filter_set):
@@ -135,7 +135,7 @@ def construct_data_filter_regex(data_filter_set):
         '^' +
         '|'.join((
             '0x' + ''.join(
-                (ZERO_32BYTES if v is None else v[2:] for v in data_filter)
+                (ANY_ABI_VALUE if v is None else v[2:] for v in data_filter)
             )
             for data_filter in data_filter_set
         )) +
