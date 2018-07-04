@@ -108,21 +108,21 @@ def _get_block_by_something(method, params):
     'strategy_params,expected',
     (
         # 120 second wait times
-        (dict(max_wait_seconds=80, sample_size=5, probability=98), 35),
-        (dict(max_wait_seconds=80, sample_size=5, probability=90), 27),
-        (dict(max_wait_seconds=80, sample_size=5, probability=50), 10),
+        (dict(max_wait_seconds=80, sample_size=5, probability=98), 53),
+        (dict(max_wait_seconds=80, sample_size=5, probability=90), 40),
+        (dict(max_wait_seconds=80, sample_size=5, probability=50), 35),
         # 60 second wait times
-        (dict(max_wait_seconds=60, sample_size=5, probability=98), 44),
-        (dict(max_wait_seconds=60, sample_size=5, probability=90), 29),
-        (dict(max_wait_seconds=60, sample_size=5, probability=50), 11),
+        (dict(max_wait_seconds=60, sample_size=5, probability=98), 57),
+        (dict(max_wait_seconds=60, sample_size=5, probability=90), 47),
+        (dict(max_wait_seconds=60, sample_size=5, probability=50), 35),
         # 40 second wait times
-        (dict(max_wait_seconds=40, sample_size=5, probability=98), 48),
-        (dict(max_wait_seconds=40, sample_size=5, probability=90), 38),
-        (dict(max_wait_seconds=40, sample_size=5, probability=50), 16),
+        (dict(max_wait_seconds=40, sample_size=5, probability=98), 59),
+        (dict(max_wait_seconds=40, sample_size=5, probability=90), 54),
+        (dict(max_wait_seconds=40, sample_size=5, probability=50), 35),
         # 20 second wait times
-        (dict(max_wait_seconds=20, sample_size=5, probability=98), 49),
-        (dict(max_wait_seconds=20, sample_size=5, probability=90), 45),
-        (dict(max_wait_seconds=20, sample_size=5, probability=50), 25),
+        (dict(max_wait_seconds=20, sample_size=5, probability=98), 60),
+        (dict(max_wait_seconds=20, sample_size=5, probability=90), 58),
+        (dict(max_wait_seconds=20, sample_size=5, probability=50), 43),
     ),
 )
 def test_time_based_gas_price_strategy(strategy_params, expected):
