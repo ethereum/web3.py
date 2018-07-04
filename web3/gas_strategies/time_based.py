@@ -64,7 +64,7 @@ def _aggregate_miner_data(raw_data):
             miner,
             len(set(block_hashes)),
             min(gas_prices),
-            percentile(list(gas_prices), percentile=15))
+            percentile(gas_prices, percentile=15))
 
 
 @to_tuple
