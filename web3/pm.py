@@ -7,10 +7,7 @@ try:
         Package,
     )
 except ImportError as exc:
-    raise Exception(
-        "To use the (alpha) ethpm package, you must install it explicitly. "
-        "Install with `pip install --upgrade ethpm`."
-    ) from exc
+    pass
 
 
 # Package Management is currently still in alpha
@@ -19,5 +16,5 @@ except ImportError as exc:
 # i.e. PM.attach(web3, 'pm')
 class PM(Module):
     def get_package_from_manifest(self, manifest):
-        pkg = Package(manifest)
+        pkg = Package(manifest, self.web3)
         return pkg
