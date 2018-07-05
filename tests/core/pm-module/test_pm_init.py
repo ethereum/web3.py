@@ -21,10 +21,7 @@ else:
     ethpm_installed = True
 
 
-V2_PACKAGES_DIR = Path(__file__).parent / 'packages'
-
-
-# Returns web3 instance with `pm` module attached.
+# Returns web3 instance with `pm` module attached
 @pytest.fixture
 def web3():
     w3 = Web3(Web3.EthereumTesterProvider())
