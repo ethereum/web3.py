@@ -5,11 +5,15 @@ from pathlib import (
 import pytest
 
 from web3 import Web3
+from web3.pm import (
+    PM,
+)
 
 try:
-    from web3.pm import PM
-    from ethpm.exceptions import InsufficientAssetsError
-except ImportError:
+    from ethpm.exceptions import (
+        InsufficientAssetsError,
+    )
+except ImportError as exc:
     ethpm_installed = False
 else:
     ethpm_installed = True
