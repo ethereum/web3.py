@@ -4,12 +4,15 @@ from pathlib import (
 )
 import pytest
 
+from solc import compile_source
+
 from web3 import Web3
 from web3.pm import (
     PM,
 )
 
 try:
+    from ethpm.backends.ipfs import IPFSGatewayBackend
     from ethpm.exceptions import (
         InsufficientAssetsError,
     )
@@ -65,6 +68,8 @@ def test_deploy_a_standalone_package_integration(web3, standard_token_manifest):
     tx_hash = ERC20.constructor(100).transact()
     tx_receipt = web3.eth.getTransactionReceipt(tx_hash)
     address = tx_receipt["contractAddress"]
+    # do we want a `pm` api for this? 
+    # token_package.get_contract_instance(address)
     erc20 = web3.eth.contract(address=address, abi=ERC20.abi)
     total_supply = erc20.functions.totalSupply().call()
     assert total_supply == 100
