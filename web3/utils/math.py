@@ -3,7 +3,10 @@ import math
 
 def percentile(values, percentile):
     if not values:
-        return None
+        raise ValueError("Expected a sequence of values, got {0}".format(values))
+    if not percentile:
+        raise ValueError("Expected a percentile choice, got {0}".format(percentile))
+
     index = len(values) * percentile / 100
     sorted_values = sorted(values)
     if index % 2 == 0:
