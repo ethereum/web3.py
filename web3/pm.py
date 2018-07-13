@@ -7,7 +7,10 @@ try:
         Package,
     )
 except ImportError as exc:
-    pass
+    raise ImportError(
+        "To use web3's alpha package management features, you must install the "
+        "`ethpm` dependency manually: pip install --upgrade ethpm"
+    ) from exc
 
 
 # Package Management is currently still in alpha
