@@ -7,16 +7,14 @@ import pytest
 from solc import compile_source
 
 from web3 import Web3
-from web3.pm import (
-    PM,
-)
 
 try:
     from ethpm.backends.ipfs import IPFSGatewayBackend
     from ethpm.exceptions import (
         InsufficientAssetsError,
     )
-except ImportError as exc:
+    from web3.pm import PM
+except ImportError:
     ethpm_installed = False
 else:
     ethpm_installed = True
