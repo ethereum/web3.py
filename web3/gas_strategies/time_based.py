@@ -9,13 +9,19 @@ from eth_utils import (
 from web3.exceptions import (
     ValidationError,
 )
+from web3.utils.math import (
+    percentile,
+)
 from web3.utils.toolz import (
     curry,
     groupby,
     sliding_window,
 )
 
-MinerData = collections.namedtuple('MinerData', ['miner', 'num_blocks', 'min_gas_price'])
+MinerData = collections.namedtuple(
+    'MinerData',
+    ['miner', 'num_blocks', 'min_gas_price', 'low_percentile_gas_price'])
+
 Probability = collections.namedtuple('Probability', ['gas_price', 'prob'])
 
 
@@ -54,7 +60,11 @@ def _aggregate_miner_data(raw_data):
 
     for miner, miner_data in data_by_miner.items():
         _, block_hashes, gas_prices = map(set, zip(*miner_data))
-        yield MinerData(miner, len(set(block_hashes)), min(gas_prices))
+        yield MinerData(
+            miner,
+            len(set(block_hashes)),
+            min(gas_prices),
+            percentile(gas_prices, percentile=15))
 
 
 @to_tuple
@@ -65,15 +75,15 @@ def _compute_probabilities(miner_data, wait_blocks, sample_size):
     """
     miner_data_by_price = tuple(sorted(
         miner_data,
-        key=operator.attrgetter('min_gas_price'),
+        key=operator.attrgetter('low_percentile_gas_price'),
         reverse=True,
     ))
     for idx in range(len(miner_data_by_price)):
-        min_gas_price = miner_data_by_price[idx].min_gas_price
+        low_percentile_gas_price = miner_data_by_price[idx].low_percentile_gas_price
         num_blocks_accepting_price = sum(m.num_blocks for m in miner_data_by_price[idx:])
         inv_prob_per_block = (sample_size - num_blocks_accepting_price) / sample_size
         probability_accepted = 1 - inv_prob_per_block ** wait_blocks
-        yield Probability(min_gas_price, probability_accepted)
+        yield Probability(low_percentile_gas_price, probability_accepted)
 
 
 def _compute_gas_price(probabilities, desired_probability):
