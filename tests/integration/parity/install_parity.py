@@ -20,6 +20,7 @@ VERSION_STRINGS = {
     "v1.8.8": "1_8_8",
     "v1.9.1": "1_9_1",
     "v1.10.4": "1_10_4",
+    "v1.11.7": "1_11_7",
 }
 ARCHITECTURE = 'x86_64'
 OS = os.getenv('PARITY_OS', 'debian')
