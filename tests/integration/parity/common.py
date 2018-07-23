@@ -30,6 +30,10 @@ class ParityWeb3ModuleTest(Web3ModuleTest):
 
 
 class ParityEthModuleTest(EthModuleTest):
+    def test_eth_getBlockByNumber_pending(self, web3):
+        pytest.xfail('Parity dropped "pending" option in 1.11.1')
+        super().test_eth_getBlockByNumber_pending(web3)
+
     def test_eth_uninstallFilter(self, web3):
         pytest.xfail('eth_uninstallFilter calls to parity always return true')
         super().test_eth_uninstallFilter(web3)
