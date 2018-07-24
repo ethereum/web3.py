@@ -20,7 +20,7 @@ setup(
         "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
         "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
         "eth-abi>=1.1.1,<2",
-        "eth-account>=0.2.1,<0.3.0",
+        "eth-account>=0.2.1,<0.4.0",
         "eth-utils>=1.0.1,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
         "lru-dict>=1.1.6,<2.0.0",
@@ -33,7 +33,7 @@ setup(
     python_requires='>=3.5, <4',
     extras_require={
         'tester': [
-            "eth-tester[py-evm]==0.1.0-beta.26",
+            "eth-tester[py-evm]==0.1.0-beta.29",
             "py-geth>=2.0.1,<3.0.0",
         ],
         'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
