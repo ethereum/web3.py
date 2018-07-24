@@ -201,6 +201,10 @@ ethereum_tester_middleware = construct_formatting_middleware(
             apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
         'eth_uninstallFilter': apply_formatters_to_args(hex_to_integer),
+        'eth_getCode': apply_formatters_to_args(
+            identity,
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
+        ),
         # EVM
         'evm_revert': apply_formatters_to_args(hex_to_integer),
         # Personal
