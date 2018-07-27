@@ -152,12 +152,17 @@ class EthModuleTest:
 
     def test_eth_getCode(self, web3, math_contract_address):
         code = web3.eth.getCode(math_contract_address)
-        assert is_string(code)
-        assert len(code) > 2
+        assert isinstance(code, HexBytes)
+        assert len(code) > 0
 
     def test_eth_getCode_invalid_address(self, web3, math_contract):
         with pytest.raises(InvalidAddress):
             web3.eth.getCode(math_contract.address.lower())
+
+    def test_eth_getCode_with_block_identifier(self, web3, emitter_contract):
+        code = web3.eth.getCode(emitter_contract.address, block_identifier=web3.eth.blockNumber)
+        assert isinstance(code, HexBytes)
+        assert len(code) > 0
 
     def test_eth_sign(self, web3, unlocked_account_dual_type):
         signature = web3.eth.sign(
