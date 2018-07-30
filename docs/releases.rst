@@ -1,6 +1,27 @@
 Release Notes
 =============
 
+v4.5.0
+--------
+
+Released July 30, 2018
+
+- Features
+
+  - Accept addresses supplied in :class:`bytes` format (which does not provide checksum validation)
+  - Improve estimation of gas prices
+- Bugfixes
+
+  - Can now use a block number with :meth:`~web3.eth.Eth.getCode` when connected to
+    :class:`~web3.providers.eth_tester.EthereumTesterProvider` (without crashing)
+- Misc
+
+  - Test Parity 1.11.7
+  - Parity integration tests upgrade to use sha256 instead of md5
+  - Fix some filter docs
+  - eth-account upgrade to v0.3.0
+  - eth-tester upgrade to v0.1.0-beta.29
+
 v4.4.1
 --------
 
