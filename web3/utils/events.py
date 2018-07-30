@@ -28,6 +28,10 @@ from web3.utils.encoding import (
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
 )
+from web3.utils.toolz import (
+    compose,
+    curry,
+)
 
 from .abi import (
     exclude_indexed_event_inputs,
@@ -71,12 +75,7 @@ def construct_event_topic_set(event_abi, arguments=None):
         for arg, arg_options in zipped_abi_and_args
     ]
 
-    topics = [
-        [event_topic] + list(permutation)
-        if any(value is not None for value in permutation)
-        else [event_topic]
-        for permutation in itertools.product(*encoded_args)
-    ]
+    topics = list(normalize_topic_list([event_topic] + encoded_args))
     return topics
 
 

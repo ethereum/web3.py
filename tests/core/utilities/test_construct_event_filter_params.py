@@ -21,10 +21,9 @@ EVENT_1_ABI = {
         (EVENT_1_ABI, {}, {
             "topics": ['0xb470a829ed7792f06947f0ca3730a570cb378329ddcf09f2b4efabd6326f51f6'],
         }),
-        (EVENT_1_ABI, {'topics': ['should-be-preserved']}, {
+        (EVENT_1_ABI, {'topics': ['should-overwrite-topics']}, {
             "topics": [
-                ['should-be-preserved'],
-                ['0xb470a829ed7792f06947f0ca3730a570cb378329ddcf09f2b4efabd6326f51f6'],
+                'should-overwrite-topics'
             ]
         }),
         (EVENT_1_ABI, {'contract_address': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'}, {

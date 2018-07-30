@@ -31,48 +31,46 @@ def hex_and_pad(i):
         (
             EVENT_1_ABI,
             {},
-            [[EVENT_1_TOPIC]],
+            [EVENT_1_TOPIC],
         ),
         (
             EVENT_1_ABI,
             {'arg0': 1},
-            [[EVENT_1_TOPIC]],
+            [EVENT_1_TOPIC],
         ),
         (
             EVENT_1_ABI,
             {'arg0': 1, 'arg3': [1, 2]},
-            [[EVENT_1_TOPIC]],
+            [EVENT_1_TOPIC],
         ),
         (
             EVENT_1_ABI,
             {'arg1': 1},
             [
-                [EVENT_1_TOPIC, hex_and_pad(1), None, None],
+                EVENT_1_TOPIC, hex_and_pad(1)
             ],
         ),
         (
             EVENT_1_ABI,
             {'arg1': [1, 2]},
             [
-                [EVENT_1_TOPIC, hex_and_pad(1), None, None],
-                [EVENT_1_TOPIC, hex_and_pad(2), None, None],
+                EVENT_1_TOPIC, [hex_and_pad(1), hex_and_pad(2)],
             ],
         ),
         (
             EVENT_1_ABI,
             {'arg1': [1], 'arg2': [2]},
             [
-                [EVENT_1_TOPIC, hex_and_pad(1), hex_and_pad(2), None],
+                EVENT_1_TOPIC, hex_and_pad(1), hex_and_pad(2),
             ],
         ),
         (
             EVENT_1_ABI,
             {'arg1': [1, 3], 'arg2': [2, 4]},
             [
-                [EVENT_1_TOPIC, hex_and_pad(1), hex_and_pad(2), None],
-                [EVENT_1_TOPIC, hex_and_pad(1), hex_and_pad(4), None],
-                [EVENT_1_TOPIC, hex_and_pad(3), hex_and_pad(2), None],
-                [EVENT_1_TOPIC, hex_and_pad(3), hex_and_pad(4), None],
+                EVENT_1_TOPIC,
+                [hex_and_pad(1), hex_and_pad(3)],
+                [hex_and_pad(2), hex_and_pad(4)]
             ],
         ),
     )

@@ -26,11 +26,14 @@ def construct_event_filter_params(event_abi,
                                   toBlock=None,
                                   address=None):
     filter_params = {}
+    topic_set = construct_event_topic_set(event_abi, argument_filters)
 
-    if topics is None:
-        topic_set = construct_event_topic_set(event_abi, argument_filters)
-    else:
-        topic_set = [topics] + construct_event_topic_set(event_abi, argument_filters)
+    if topics is not None:
+        if len(topic_set) > 1:
+            raise TypeError(
+                "Merging the topics argument with topics generated "
+                "from argument_filters is not supported.")
+        topic_set = topics
 
     if len(topic_set) == 1 and is_list_like(topic_set[0]):
         filter_params['topics'] = topic_set[0]
