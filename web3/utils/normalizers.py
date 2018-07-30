@@ -7,6 +7,7 @@ import functools
 import json
 
 import eth_abi
+
 from eth_abi.abi import (
     process_type,
 )
