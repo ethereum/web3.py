@@ -2,9 +2,13 @@ from decimal import (
     Decimal,
     getcontext,
 )
+from distutils.version import (
+    LooseVersion,
+)
 import json
 import pytest
 
+import eth_abi
 from hexbytes import (
     HexBytes,
 )
@@ -184,6 +188,9 @@ def test_call_get_string_value(string_contract, call):
     assert result == "Caqalai"
 
 
+@pytest.mark.skipif(
+    LooseVersion(eth_abi.__version__) >= LooseVersion("2"),
+    reason="eth-abi >=2 does utf-8 string decoding")
 def test_call_read_string_variable(string_contract, call):
     result = call(contract=string_contract,
                   contract_function='constValue')
