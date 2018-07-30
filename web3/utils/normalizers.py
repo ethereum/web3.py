@@ -144,7 +144,7 @@ def abi_ens_resolver(w3, abi_type, val):
 
 
 BASE_RETURN_NORMALIZERS = [
-    addresses_checksummed
+    addresses_checksummed,
 ]
 
 
