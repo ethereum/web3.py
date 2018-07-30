@@ -11,11 +11,6 @@ import eth_abi
 from eth_abi import (
     is_encodable as eth_abi_is_encodable,
 )
-from eth_abi.grammar import (
-    parse as parse_type_string,
-    normalize as normalize_type_string,
-    TupleType,
-)
 from eth_utils import (
     is_hex,
     is_list_like,
@@ -116,7 +111,13 @@ def filter_by_argument_name(argument_names, contract_abi):
     ]
 
 
-if LooseVersion(eth_abi.__version__) >= LooseVersion("0.5.0"):
+if LooseVersion(eth_abi.__version__) >= LooseVersion("1.0.0"):
+    from eth_abi.grammar import (
+        parse as parse_type_string,
+        normalize as normalize_type_string,
+        TupleType,
+    )
+
     def process_type(type_str):
         normalized_type_str = normalize_type_string(type_str)
         abi_type = parse_type_string(normalized_type_str)
