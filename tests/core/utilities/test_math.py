@@ -5,6 +5,9 @@ from hypothesis import (
     strategies as st,
 )
 
+from web3.exceptions import (
+    InsufficientData,
+)
 from web3.utils.math import (
     percentile,
 )
@@ -30,7 +33,7 @@ def test_percentiles_out_of_one_hundred(p, expected):
 
 
 def test_percentiles_with_single_values():
-    with pytest.raises(ValueError):
+    with pytest.raises(InsufficientData):
         percentile([0], 1)
 
 
