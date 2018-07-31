@@ -456,6 +456,7 @@ workflows:
       - doctest
       - py35-core-eth_abi0
       - py35-core-eth_abi1
+      - py35-core-eth_abi2
       - py35-ens
       - py35-integration-goethereum-ipc-1.7.2
       - py35-integration-goethereum-http-1.7.2
@@ -469,6 +470,7 @@ workflows:
       - py35-integration-ethtester-pyevm
       - py36-core-eth_abi0
       - py36-core-eth_abi1
+      - py36-core-eth_abi2
       - py36-ens
       - py36-integration-goethereum-ipc-1.7.2
       - py36-integration-goethereum-http-1.7.2
