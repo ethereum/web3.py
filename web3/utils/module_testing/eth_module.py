@@ -718,8 +718,37 @@ class EthModuleTest:
             "fromBlock": 0,
             "address": emitter_contract_address,
         }
+        # Test with topic arguments
+
+        # Test with None event sig
+        filter_params = {
+            "fromBlock": 0,
+            "topics": [
+                None,
+                '0x000000000000000000000000000000000000000000000000000000000000d431'],
+        }
+
         result = web3.eth.getLogs(filter_params)
         assert_contains_log(result)
+
+        # Test with None indexed arg
+        filter_params = {
+            "fromBlock": 0,
+            "topics": [
+                '0x057bc32826fbe161da1c110afcdcae7c109a8b69149f727fc37a603c60ef94ca',
+                None],
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert_contains_log(result)
+
+        # Test with None overflowing
+        filter_params = {
+            "fromBlock": 0,
+            "topics": [None, None, None],
+        }
+
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
 
     def test_eth_call_old_contract_state(self, web3, math_contract, unlocked_account):
         start_block = web3.eth.getBlock('latest')
