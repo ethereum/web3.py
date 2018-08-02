@@ -1,13 +1,9 @@
 from collections import (
     namedtuple,
 )
-from distutils.version import (
-    LooseVersion,
-)
 import itertools
 import re
 
-import eth_abi
 from eth_abi import (
     is_encodable as eth_abi_is_encodable,
 )
@@ -111,7 +107,12 @@ def filter_by_argument_name(argument_names, contract_abi):
     ]
 
 
-if LooseVersion(eth_abi.__version__) >= LooseVersion("1.0.0"):
+try:
+    from eth_abi.abi import (
+        process_type,
+        collapse_type,
+    )
+except ImportError:
     from eth_abi.grammar import (
         parse as parse_type_string,
         normalize as normalize_type_string,
@@ -156,11 +157,6 @@ if LooseVersion(eth_abi.__version__) >= LooseVersion("1.0.0"):
 
     def collapse_type(base, sub, arrlist):
         return base + str(sub) + ''.join(map(repr, arrlist))
-else:
-    from eth_abi.abi import (
-        process_type,
-        collapse_type,
-    )
 
 
 def is_encodable(_type, value):
