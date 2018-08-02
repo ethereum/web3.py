@@ -97,6 +97,10 @@ class ParityEthModuleTest(EthModuleTest):
         assert receipt is not None
         assert receipt['blockHash'] is None
 
+    def test_eth_getLogs_with_logs_none_topic_args(self, web3):
+        pytest.xfail("Parity matches None to asbent values")
+        super().test_eth_getLogs_with_logs_none_topic_args(web3)
+
     @flaky(max_runs=MAX_FLAKY_RUNS)
     def test_eth_call_old_contract_state(self, web3, math_contract, unlocked_account):
         start_block = web3.eth.getBlock('latest')
