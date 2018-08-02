@@ -28,6 +28,10 @@ from web3.utils.encoding import (
 from web3.utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
 )
+from web3.utils.toolz import (
+    compose,
+    curry,
+)
 
 from .abi import (
     exclude_indexed_event_inputs,
@@ -71,12 +75,7 @@ def construct_event_topic_set(event_abi, arguments=None):
         for arg, arg_options in zipped_abi_and_args
     ]
 
-    topics = [
-        [event_topic] + list(permutation)
-        if any(value is not None for value in permutation)
-        else [event_topic]
-        for permutation in itertools.product(*encoded_args)
-    ]
+    topics = list(normalize_topic_list([event_topic] + encoded_args))
     return topics
 
 
@@ -221,3 +220,21 @@ def get_event_data(event_abi, log_entry):
     }
 
     return AttributeDict.recursive(event_data)
+
+
+@to_tuple
+def pop_singlets(seq):
+    yield from (i[0] if is_list_like(i) and len(i) == 1 else i for i in seq)
+
+
+@curry
+def remove_trailing_from_seq(seq, remove_value=None):
+    index = len(seq)
+    while index > 0 and seq[index - 1] == remove_value:
+        index -= 1
+    return seq[:index]
+
+
+normalize_topic_list = compose(
+    remove_trailing_from_seq(remove_value=None),
+    pop_singlets,)
