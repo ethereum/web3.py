@@ -762,3 +762,17 @@ For example:
        >>> rich_logs = contract.events.myEvent().processReceipt(tx_receipt)
        >>> rich_logs[0]['args']
        {'myArg': 12345}
+
+Utils
+-----
+
+.. py:classmethod:: Contract.decode_function_input(data)
+
+    Decodes function input data and returns :py:class:`ContractFunction` and decoded parameters as :py:class:`dict`.
+
+    .. code-block:: python
+
+        >>> data = '338b5dea00000000000000000000000042d6622dece394b54999fbd73d108123806f6a180000000000000000000000000000000000000000000000000000000000000032'
+        >>> contract.decode_function_input(data)
+        (<Function depositToken(address,uint256)>,
+         {'token': '0x42d6622dece394b54999fbd73d108123806f6a18', 'amount': 50})
