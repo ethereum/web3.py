@@ -1408,17 +1408,14 @@ def parse_block_identifier(web3, block_identifier):
 
 
 def parse_block_identifier_int(web3, block_identifier_int):
-    last_block = web3.eth.getBlock('latest').number
-
     if block_identifier_int >= 0:
         block_num = block_identifier_int
     else:
+        last_block = web3.eth.getBlock('latest').number
         block_num = last_block + block_identifier_int + 1
-
-    if 0 <= block_num <= last_block:
-        return block_num
-    else:
-        raise BlockNumberOutofRange
+        if block_num < 0:
+            raise BlockNumberOutofRange
+    return block_num
 
 
 def transact_with_contract_function(
