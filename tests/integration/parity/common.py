@@ -38,10 +38,6 @@ class ParityEthModuleTest(EthModuleTest):
         pytest.xfail('eth_uninstallFilter calls to parity always return true')
         super().test_eth_uninstallFilter(web3)
 
-    def test_eth_newBlockFilter(self, web3):
-        pytest.xfail('Parity returns latest block on first polling for new blocks')
-        super().test_eth_newBlockFilter(web3)
-
     def test_eth_replaceTransaction(self, web3, unlocked_account):
         pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction(web3, unlocked_account)
