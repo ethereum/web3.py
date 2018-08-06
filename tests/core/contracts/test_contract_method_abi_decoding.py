@@ -1,7 +1,12 @@
+from binascii import (
+    unhexlify,
+)
 import json
 import pytest
-from eth_abi import encode_single
-from binascii import unhexlify
+
+from eth_abi import (
+    encode_single,
+)
 
 ABI_A = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"}]')
 ABI_B = json.loads('[{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501

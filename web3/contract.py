@@ -18,6 +18,9 @@ from eth_utils import (
     is_text,
     to_tuple,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3.exceptions import (
     BadFunctionCallOutput,
@@ -83,7 +86,6 @@ from web3.utils.toolz import (
 from web3.utils.transactions import (
     fill_transaction_defaults,
 )
-from hexbytes import HexBytes
 
 DEPRECATED_SIGNATURE_MESSAGE = (
     "The constructor signature for the `Contract` object has changed. "
