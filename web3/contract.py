@@ -83,6 +83,7 @@ from web3.utils.toolz import (
 from web3.utils.transactions import (
     fill_transaction_defaults,
 )
+from hexbytes import HexBytes
 
 DEPRECATED_SIGNATURE_MESSAGE = (
     "The constructor signature for the `Contract` object has changed. "
@@ -687,6 +688,16 @@ class Contract:
 
         fns = find_functions_by_identifier(self.abi, self.web3, self.address, callable_check)
         return get_function_by_identifier(fns, 'selector')
+
+    @combomethod
+    def decode_function_input(self, data):
+        data = HexBytes(data)
+        selector, params = data[:4], data[4:]
+        func = self.get_function_by_selector(selector)
+        names = [x['name'] for x in func.abi['inputs']]
+        types = [x['type'] for x in func.abi['inputs']]
+        decoded = decode_abi(types, params)
+        return func, dict(zip(names, decoded))
 
     @combomethod
     def find_functions_by_args(self, *args):
