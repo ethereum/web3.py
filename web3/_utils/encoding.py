@@ -2,6 +2,9 @@
 import json
 import re
 
+from eth_abi.encoding import (
+    BaseArrayEncoder,
+)
 from eth_utils import (
     add_0x_prefix,
     big_endian_to_int,
@@ -275,3 +278,34 @@ def to_4byte_hex(hex_or_str_or_bytes):
         )
     hex_str = encode_hex(byte_str)
     return pad_hex(hex_str, size_of_4bytes)
+
+
+class DynamicArrayPackedEncoder(BaseArrayEncoder):
+    is_dynamic = True
+
+    def encode(self, value):
+        encoded_elements = self.encode_elements(value)
+        encoded_value = encoded_elements
+
+        return encoded_value
+
+
+def encode_single_packed(_type, value):
+    import codecs
+    from eth_abi import (
+        grammar as abi_type_parser,
+    )
+    from eth_abi.registry import has_arrlist, registry
+    abi_type = abi_type_parser.parse(_type)
+    if has_arrlist(_type):
+        item_encoder = registry.get_encoder(str(abi_type.item_type))
+        if abi_type.arrlist[-1] != 1:
+            return DynamicArrayPackedEncoder(item_encoder=item_encoder).encode(value)
+        else:
+            raise NotImplementedError(
+                "Fixed arrays are not implemented in this packed encoder prototype")
+    else:
+        if abi_type.base == "string":
+            return codecs.encode(value, 'utf8')
+        elif abi_type.base == "bytes":
+            return value

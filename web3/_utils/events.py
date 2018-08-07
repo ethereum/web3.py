@@ -1,3 +1,7 @@
+from abc import (
+    ABC,
+    abstractmethod,
+)
 import itertools
 
 from eth_abi import (
@@ -9,19 +13,32 @@ from eth_utils import (
     encode_hex,
     event_abi_to_log_topic,
     is_list_like,
+    keccak,
+    to_dict,
+    to_hex,
     to_tuple,
 )
 
+from web3._utils.abi import (
+    process_type,
+)
 from web3._utils.encoding import (
+    encode_single_packed,
     hexstr_if_str,
     to_bytes,
+)
+from web3._utils.formatters import (
+    apply_formatter_if,
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
 )
 from web3._utils.toolz import (
+    complement,
     compose,
+    cons,
     curry,
+    valfilter,
 )
 from web3.datastructures import (
     AttributeDict,
@@ -236,3 +253,161 @@ def remove_trailing_from_seq(seq, remove_value=None):
 normalize_topic_list = compose(
     remove_trailing_from_seq(remove_value=None),
     pop_singlets,)
+
+
+def is_indexed(arg):
+    if isinstance(arg, TopicArgumentFilter) is True:
+        return True
+    return False
+
+
+not_indexed = complement(is_indexed)
+
+
+class EventFilterBuilder:
+    _fromBlock = None
+    _toBlock = None
+    _address = None
+
+    def __init__(self, event_abi):
+        self.event_abi = event_abi
+        self.event_topic = self._initial_event_topic()
+        self.args = AttributeDict(_build_argument_filters_from_event_abi(event_abi))
+        self._ordered_arg_names = tuple(arg['name'] for arg in event_abi['inputs'])
+
+    @property
+    def fromBlock(self):
+        return self._fromBlock
+
+    @fromBlock.setter
+    def fromBlock(self, value):
+        self._fromBlock = value
+
+    @property
+    def toBlock(self):
+        return self._toBlock
+
+    @toBlock.setter
+    def toBlock(self, value):
+        self._toBlock = value
+
+    @property
+    def address(self):
+        return self._address
+
+    @address.setter
+    def address(self, value):
+        self._address = value
+
+    @property
+    @to_tuple
+    def indexed_args(self):
+        return filter(
+            is_indexed,
+            map(lambda x: self.args[x], self._ordered_arg_names))
+
+    @property
+    @to_tuple
+    def data_args(self):
+        return filter(
+            not_indexed,
+            map(lambda x: self.args[x], self._ordered_arg_names))
+
+    @property
+    def topics(self):
+        arg_topics = tuple(arg.match_values for arg in self.indexed_args)
+        return normalize_topic_list(cons(to_hex(self.event_topic), arg_topics))
+
+    @property
+    def data_argument_values(self):
+        if self.data_args is not None:
+            return tuple(arg.match_values for arg in self.data_args)
+        else:
+            return (None,)
+
+    @property
+    def filter_params(self):
+        params = {
+            "topics": self.topics,
+            "fromBlock": self.fromBlock,
+            "toBlock": self.toBlock,
+            "address": self.address
+        }
+        return valfilter(lambda x: x is not None, params)
+
+    def deploy(self, web3):
+        log_filter = web3.eth.filter(self.filter_params)
+        log_filter.filter_params = self.filter_params
+        log_filter.set_data_filters(self.data_argument_values)
+        log_filter.builder = self
+        return log_filter
+
+    def _initial_event_topic(self):
+        if self.event_abi['anonymous'] is False:
+            return event_abi_to_log_topic(self.event_abi)
+        else:
+            return list()
+
+
+@to_dict
+def _build_argument_filters_from_event_abi(event_abi):
+    for item in event_abi['inputs']:
+        if item['indexed'] is True:
+            argument_filter_class = TopicArgumentFilter
+        else:
+            argument_filter_class = DataArgumentFilter
+        key = item['name']
+        value = argument_filter_class(arg_type=item['type'])
+
+        yield key, value
+
+
+array_to_tuple = apply_formatter_if(is_list_like, tuple)
+
+
+class BaseArgumentFilter(ABC):
+    _match_values = None
+
+    def __init__(self, arg_type):
+        self.arg_type = arg_type
+
+    def match_single(self, value):
+        self._match_values = self._normalize_match_values((value,))
+
+    def match_any(self, *values):
+        self._match_values = self._normalize_match_values(values)
+
+    @to_tuple
+    def _normalize_match_values(self, match_values):
+        for value in match_values:
+            yield array_to_tuple(value)
+
+    @property
+    @abstractmethod
+    def match_values(self):
+        raise NotImplementedError("ArgumentFilter classes must implement match_values method")
+
+
+class DataArgumentFilter(BaseArgumentFilter):
+    @property
+    def match_values(self):
+        return (self.arg_type, self._match_values)
+
+
+class TopicArgumentFilter(BaseArgumentFilter):
+    @to_tuple
+    def _get_match_values(self):
+            yield from (self._encode(value) for value in self._match_values)
+
+    @property
+    def match_values(self):
+        if self._match_values is not None:
+            return self._get_match_values()
+        else:
+            return None
+
+    def _encode(self, value):
+        if is_dynamic_sized_type(self.arg_type):
+            return to_hex(keccak(encode_single_packed(self.arg_type, value)))
+        else:
+            return to_hex(encode_single(self.arg_type, value))
