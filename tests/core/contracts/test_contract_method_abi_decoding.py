@@ -4,15 +4,14 @@ from binascii import (
 import json
 import pytest
 
-from eth_abi import (
-    encode_single,
-)
-
 ABI_A = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"}]')
 ABI_B = json.loads('[{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
 ABI_C = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
 ABI_D = json.loads('[{ "constant": false, "inputs": [ { "name": "b", "type": "bytes32[]" } ], "name": "byte_array", "outputs": [], "payable": false, "type": "function" }]')  # noqa: E501
-A = encode_single('bytes32', b'a')
+ABI_BYTES = json.loads('[{"constant":false,"inputs":[{"name":"bytesarg","type":"bytes"}],"name":"bytesfunc","outputs":[],"type":"function"}]')  # noqa: E501
+ABI_STRING = json.loads('[{"constant":false,"inputs":[{"name":"stringarg","type":"string"}],"name":"stringfunc","outputs":[],"type":"function"}]')  # noqa: E501
+ABI_ADDRESS = json.loads('[{"constant":false,"inputs":[{"name":"addressarg","type":"address"}],"name":"addressfunc","outputs":[],"type":"function"}]')  # noqa: E501
+a32bytes = b'a'.ljust(32, b'\x00')
 
 
 @pytest.mark.parametrize(
@@ -44,21 +43,21 @@ A = encode_single('bytes32', b'a')
             '0x9f3fab586100000000000000000000000000000000000000000000000000000000000000',
             'a',
             [b'a'],
-            {'': A},
+            {'': a32bytes},
         ),
         (
             ABI_C,
             '0x9f3fab586100000000000000000000000000000000000000000000000000000000000000',
             'a',
             ['0x61'],
-            {'': A},
+            {'': a32bytes},
         ),
         (
             ABI_C,
             '0x9f3fab586100000000000000000000000000000000000000000000000000000000000000',
             'a',
             ['61'],
-            {'': A},
+            {'': a32bytes},
         ),
         (
             ABI_C,
@@ -67,6 +66,27 @@ A = encode_single('bytes32', b'a')
             [127],
             {'': 127},
         ),
+        (
+            ABI_BYTES,
+            '0xb606a9f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000016100000000000000000000000000000000000000000000000000000000000000',  # noqa: E501
+            'bytesfunc',
+            [],
+            {'bytesarg': b'a'},
+        ),
+        (
+            ABI_STRING,
+            '0x33b4005f000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000016100000000000000000000000000000000000000000000000000000000000000',  # noqa: E501
+            'stringfunc',
+            [],
+            {'stringarg': 'a'},
+        ),
+        (
+            ABI_ADDRESS,
+            '0x4767be6c000000000000000000000000ffffffffffffffffffffffffffffffffffffffff',
+            'addressfunc',
+            [],
+            {'addressarg': '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF'},
+        ),
     ),
 )
 def test_contract_abi_decoding(web3, abi, data, method, arguments, expected):
@@ -74,6 +94,10 @@ def test_contract_abi_decoding(web3, abi, data, method, arguments, expected):
     func, params = contract.decode_function_input(data)
     assert func.fn_name == method
     assert params == expected
+
+    reinvoke_func = contract.functions[func.fn_name](**params)
+    rebuild_txn = reinvoke_func.buildTransaction({'gas': 0, 'nonce': 0, 'to': '\x00' * 20})
+    assert rebuild_txn['data'] == data
 
 
 @pytest.mark.parametrize(
@@ -97,3 +121,7 @@ def test_contract_abi_encoding_kwargs(web3, abi, method, expected, data):
     func, params = contract.decode_function_input(data)
     assert func.fn_name == method
     assert params == expected
+
+    reinvoke_func = contract.functions[func.fn_name](**params)
+    rebuild_txn = reinvoke_func.buildTransaction({'gas': 0, 'nonce': 0, 'to': '\x00' * 20})
+    assert rebuild_txn['data'] == data

@@ -1207,7 +1207,7 @@ class ContractFunction:
 
         if not self.address and 'to' not in built_transaction:
             raise ValueError(
-                "When using `ContractFunction.buildTransaction` from a Contract factory"
+                "When using `ContractFunction.buildTransaction` from a contract factory "
                 "you must provide a `to` address with the transaction"
             )
         if self.address and 'to' in built_transaction:
