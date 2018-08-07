@@ -15,6 +15,7 @@ from eth_utils import (
     add_0x_prefix,
     encode_hex,
     function_abi_to_4byte_selector,
+    is_list_like,
     is_text,
     to_tuple,
 )
@@ -29,6 +30,7 @@ from web3._utils.abi import (
     filter_by_type,
     get_abi_output_types,
     get_constructor_abi,
+    is_array_type,
     map_abi_data,
     merge_args_and_kwargs,
 )
@@ -57,6 +59,7 @@ from web3._utils.encoding import (
     to_hex,
 )
 from web3._utils.events import (
+    EventFilterBuilder,
     get_event_data,
 )
 from web3._utils.filters import (
@@ -1279,7 +1282,11 @@ class ContractEvent:
 
         _filters = dict(**argument_filters)
 
-        data_filter_set, event_filter_params = construct_event_filter_params(
+        event_abi = self._get_event_abi()
+
+        check_for_depracated_api_filter_arguments(event_abi, _filters)
+
+        _, event_filter_params = construct_event_filter_params(
             self._get_event_abi(),
             contract_address=self.address,
             argument_filters=_filters,
@@ -1291,17 +1298,42 @@ class ContractEvent:
 
         log_data_extract_fn = functools.partial(get_event_data, self._get_event_abi())
 
-        log_filter = self.web3.eth.filter(event_filter_params)
+        filter_builder = EventFilterBuilder(event_abi)
+        filter_builder.address = event_filter_params.get('address')
+        filter_builder.fromBlock = event_filter_params.get('fromBlock')
+        filter_builder.toBlock = event_filter_params.get('toBlock')
+        for arg, value in _filters.items():
+            filter_builder.args[arg].match_single(value)
 
-        log_filter.set_data_filters(data_filter_set)
+        log_filter = filter_builder.deploy(self.web3)
         log_filter.log_entry_formatter = log_data_extract_fn
-        log_filter.filter_params = event_filter_params
+        log_filter.builder = filter_builder
 
         return log_filter
+
+    @combomethod
+    def buildFilter(self):
+        return EventFilterBuilder(self._get_event_abi())
 
     @classmethod
     def factory(cls, class_name, **kwargs):
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
+
+
+def check_for_depracated_api_filter_arguments(event_abi, _filters):
+    name_indexed_inputs = {_input['name']: _input for _input in event_abi['inputs']}
+
+    for filter_name, filter_value in _filters.items():
+        _input = name_indexed_inputs[filter_name]
+        if is_array_type(_input['type']):
+            raise TypeError(
+                "createFilter no longer supports array type filter arguments. "
+                "see the build_filter method for filtering array type filters.")
+        if is_list_like(filter_value):
+            raise TypeError(
+                "createFilter no longer supports setting filter argument options implicitly. "
+                "see the build_filter method for filtering setting filters with the match_any "
+                "method.")
 
 
 def call_contract_function(

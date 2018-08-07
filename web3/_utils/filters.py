@@ -1,12 +1,23 @@
-import re
-
+from eth_abi import (
+    decode_abi,
+    is_encodable,
+)
+from eth_abi.grammar import (
+    parse as parse_type_string,
+)
 from eth_utils import (
     is_list_like,
     is_string,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3._utils.threads import (
     TimerClass,
+)
+from web3._utils.toolz import (
+    curry,
 )
 from web3._utils.validation import (
     validate_address,
@@ -130,22 +141,6 @@ class TransactionFilter(Filter):
     pass
 
 
-ZERO_32BYTES = '[a-f0-9]{64}'
-
-
-def construct_data_filter_regex(data_filter_set):
-    return re.compile((
-        '^' +
-        '|'.join((
-            '0x' + ''.join(
-                (ZERO_32BYTES if v is None else v[2:] for v in data_filter)
-            )
-            for data_filter in data_filter_set
-        )) +
-        '$'
-    ))
-
-
 class LogFilter(Filter):
     data_filter_set = None
     data_filter_set_regex = None
@@ -166,16 +161,51 @@ class LogFilter(Filter):
         return entry
 
     def set_data_filters(self, data_filter_set):
+        """(('uint256', [12345, 54321]), ('string', ('a-single-string',)))
+        """
         self.data_filter_set = data_filter_set
         if any(data_filter_set):
-            self.data_filter_set_regex = construct_data_filter_regex(
-                data_filter_set,
-            )
+            self.data_filter_set_function = match_fn(data_filter_set)
 
     def is_valid_entry(self, entry):
-        if not self.data_filter_set_regex:
+        if not self.data_filter_set:
             return True
-        return bool(self.data_filter_set_regex.match(entry['data']))
+        return bool(self.data_filter_set_function(entry['data']))
+
+
+def normalize_data_values(type_string, data_value):
+    _type = parse_type_string(type_string)
+    if _type.base == "string":
+        if _type.arrlist is not None:
+            return tuple((bytes_to_str(value) for value in data_value))
+        else:
+            return bytes_to_str(data_value)
+    return data_value
+
+
+def bytes_to_str(value):
+    return value.decode("utf-8")
+
+
+@curry
+def match_fn(match_values_and_abi, data):
+    abi_types, all_match_values = zip(*match_values_and_abi)
+    decoded_values = decode_abi(abi_types, HexBytes(data))
+    for data_value, match_values, abi_type in zip(decoded_values, all_match_values, abi_types):
+        if match_values is None:
+            continue
+        normalized_data = normalize_data_values(abi_type, data_value)
+        for value in match_values:
+            if not is_encodable(abi_type, value):
+                raise ValueError(
+                    "Value {0} is of the wrong abi type. "
+                    "Expected {1} typed value.".format(value, abi_type))
+            if value == normalized_data:
+                break
+        else:
+            return False
+
+    return True
 
 
 class ShhFilter(Filter):
