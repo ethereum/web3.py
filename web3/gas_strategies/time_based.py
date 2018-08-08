@@ -62,7 +62,7 @@ def _aggregate_miner_data(raw_data):
     for miner, miner_data in data_by_miner.items():
         _, block_hashes, gas_prices = map(set, zip(*miner_data))
         try:
-            price_percentile = percentile(gas_prices, percentile=15)
+            price_percentile = percentile(gas_prices, percentile=20)
         except InsufficientData:
             price_percentile = min(gas_prices)
         yield MinerData(

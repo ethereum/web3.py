@@ -118,20 +118,20 @@ def _get_block_by_something(method, params):
     (
         # 120 second wait times
         (dict(max_wait_seconds=80, sample_size=5, probability=98), 70),
-        (dict(max_wait_seconds=80, sample_size=5, probability=90), 23),
-        (dict(max_wait_seconds=80, sample_size=5, probability=50), 7),
+        (dict(max_wait_seconds=80, sample_size=5, probability=90), 25),
+        (dict(max_wait_seconds=80, sample_size=5, probability=50), 11),
         # 60 second wait times
         (dict(max_wait_seconds=60, sample_size=5, probability=98), 92),
-        (dict(max_wait_seconds=60, sample_size=5, probability=90), 48),
-        (dict(max_wait_seconds=60, sample_size=5, probability=50), 7),
+        (dict(max_wait_seconds=60, sample_size=5, probability=90), 49),
+        (dict(max_wait_seconds=60, sample_size=5, probability=50), 11),
         # 40 second wait times
         (dict(max_wait_seconds=40, sample_size=5, probability=98), 100),
         (dict(max_wait_seconds=40, sample_size=5, probability=90), 81),
-        (dict(max_wait_seconds=40, sample_size=5, probability=50), 7),
+        (dict(max_wait_seconds=40, sample_size=5, probability=50), 11),
         # 20 second wait times
         (dict(max_wait_seconds=20, sample_size=5, probability=98), 100),
         (dict(max_wait_seconds=20, sample_size=5, probability=90), 100),
-        (dict(max_wait_seconds=20, sample_size=5, probability=50), 34),
+        (dict(max_wait_seconds=20, sample_size=5, probability=50), 36),
     ),
 )
 def test_time_based_gas_price_strategy(strategy_params, expected):
@@ -150,7 +150,7 @@ def test_time_based_gas_price_strategy(strategy_params, expected):
     )
     w3.eth.setGasPriceStrategy(time_based_gas_price_strategy)
     actual = w3.eth.generateGasPrice()
-    assert actual == expected
+    assert int(actual) == expected
 
 
 @pytest.mark.parametrize(
