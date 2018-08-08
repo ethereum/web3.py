@@ -762,3 +762,26 @@ For example:
        >>> rich_logs = contract.events.myEvent().processReceipt(tx_receipt)
        >>> rich_logs[0]['args']
        {'myArg': 12345}
+
+Utils
+-----
+
+.. py:classmethod:: Contract.decode_function_input(data)
+
+    Decodes the transaction data used to invoke a smart contract function, and returns
+    :py:class:`ContractFunction` and decoded parameters as :py:class:`dict`.
+
+    .. code-block:: python
+
+        >>> transaction = w3.eth.getTransaction('0x5798fbc45e3b63832abc4984b0f3574a13545f415dd672cd8540cd71f735db56')
+        >>> transaction.input
+        '0x612e45a3000000000000000000000000b656b2a9c3b2416437a811e07466ca712f5a5b5a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000093a80000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000116c6f6e656c792c20736f206c6f6e656c7900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+        >>> contract.decode_function_input(transaction.input)
+        (<Function newProposal(address,uint256,string,bytes,uint256,bool)>,
+         {'_recipient': '0xb656b2a9c3b2416437a811e07466ca712f5a5b5a',
+          '_amount': 0,
+          '_description': b'lonely, so lonely',
+          '_transactionData': b'',
+          '_debatingPeriod': 604800,
+          '_newCurator': True})
+ 
