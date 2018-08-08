@@ -699,7 +699,8 @@ class Contract:
         names = [x['name'] for x in func.abi['inputs']]
         types = [x['type'] for x in func.abi['inputs']]
         decoded = decode_abi(types, params)
-        return func, dict(zip(names, decoded))
+        normalized = map_abi_data(BASE_RETURN_NORMALIZERS, types, decoded)
+        return func, dict(zip(names, normalized))
 
     @combomethod
     def find_functions_by_args(self, *args):
