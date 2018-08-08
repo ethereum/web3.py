@@ -99,3 +99,11 @@ class NoABIEventsFound(AttributeError):
     Raised when an ABI doesn't contain any events.
     """
     pass
+
+
+class InsufficientData(Exception):
+    """
+    Raised when there are insufficient data points to
+    complete a calculation
+    """
+    pass

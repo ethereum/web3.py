@@ -7,6 +7,7 @@ from eth_utils import (
 )
 
 from web3.exceptions import (
+    InsufficientData,
     ValidationError,
 )
 from web3.utils.math import (
@@ -60,11 +61,15 @@ def _aggregate_miner_data(raw_data):
 
     for miner, miner_data in data_by_miner.items():
         _, block_hashes, gas_prices = map(set, zip(*miner_data))
+        try:
+            price_percentile = percentile(gas_prices, percentile=20)
+        except InsufficientData:
+            price_percentile = min(gas_prices)
         yield MinerData(
             miner,
             len(set(block_hashes)),
             min(gas_prices),
-            percentile(gas_prices, percentile=15))
+            price_percentile)
 
 
 @to_tuple

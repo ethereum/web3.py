@@ -1,8 +1,14 @@
+from web3.exceptions import (
+    InsufficientData,
+)
+
+
 def percentile(values=None, percentile=None):
     """Calculates a simplified weighted average percentile
     """
-    if values in [None, tuple(), []] or len(values) < 3:
-        raise ValueError("Expected a sequence of at least 3 integers, got {0}".format(values))
+    if values in [None, tuple(), []] or len(values) < 1:
+        raise InsufficientData(
+            "Expected a sequence of at least 1 integers, got {0!r}".format(values))
     if percentile is None:
         raise ValueError("Expected a percentile choice, got {0}".format(percentile))
 
@@ -11,6 +17,8 @@ def percentile(values=None, percentile=None):
     rank = len(values) * percentile / 100
     if rank > 0:
         index = rank - 1
+        if index < 0:
+            return sorted_values[0]
     else:
         index = rank
 
