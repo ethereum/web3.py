@@ -5,6 +5,23 @@ from setuptools import (
     setup,
 )
 
+extras_require = {
+    'tester': [
+        "eth-tester[py-evm]==0.1.0-beta.30",
+        "py-geth>=2.0.1,<3.0.0",
+    ],
+    'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
+    'linter': [
+        "flake8==3.4.1",
+        "isort>=4.2.15,<5",
+    ],
+}
+
+extras_require['dev'] = (
+    extras_require['tester'] +
+    extras_require['testrpc'] +
+    extras_require['linter']
+)
 
 setup(
     name='web3',
@@ -31,17 +48,7 @@ setup(
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.5, <4',
-    extras_require={
-        'tester': [
-            "eth-tester[py-evm]==0.1.0-beta.30",
-            "py-geth>=2.0.1,<3.0.0",
-        ],
-        'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
-        'linter': [
-            "flake8==3.4.1",
-            "isort>=4.2.15,<5",
-        ],
-    },
+    extras_require=extras_require,
     py_modules=['web3', 'ens'],
     license="MIT",
     zip_safe=False,
