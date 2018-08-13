@@ -46,10 +46,10 @@ def array_values(draw):
     return (matching, non_matching)
 
 
-@pytest.mark.xfail(reason="The regex based data filters do not work with dynamic sized types")
+@pytest.mark.xfail(reason="Topic filters do not work with dynamic sized types")
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @given(vals=dynamic_values())
-def test_data_filters_with_dynamic_arguments(
+def test_topic_filters_with_dynamic_arguments(
         web3,
         emitter,
         Emitter,
@@ -63,12 +63,12 @@ def test_data_filters_with_dynamic_arguments(
         event_filter = create_filter(emitter, [
             'LogDynamicArgs', {
                 'filter': {
-                    'arg1': vals[0]}}])
+                    'arg0': vals[0]}}])
     else:
         event_filter = create_filter(Emitter, [
             'LogDynamicArgs', {
                 'filter': {
-                    'arg1': vals[0]}}])
+                    'arg0': vals[0]}}])
 
     txn_hashes = []
     txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals[0], arg1=vals[0]).transact())
@@ -87,7 +87,7 @@ def test_data_filters_with_dynamic_arguments(
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @given(vals=fixed_values())
-def test_data_filters_with_fixed_arguments(
+def test_topic_filters_with_fixed_arguments(
         web3,
         emitter,
         Emitter,
@@ -99,7 +99,7 @@ def test_data_filters_with_fixed_arguments(
 
     if call_as_instance:
         event_filter = create_filter(emitter, [
-            'LogQuadrupleArg', {
+            'LogQuadrupleWithIndex', {
                 'filter': {
                     'arg0': vals[0][0],
                     'arg1': vals[0][1],
@@ -107,7 +107,7 @@ def test_data_filters_with_fixed_arguments(
                     'arg3': vals[0][3]}}])
     else:
         event_filter = create_filter(Emitter, [
-            'LogQuadrupleArg', {
+            'LogQuadrupleWithIndex', {
                 'filter': {
                     'arg0': vals[0][0],
                     'arg1': vals[0][1],
@@ -116,13 +116,13 @@ def test_data_filters_with_fixed_arguments(
 
     txn_hashes = []
     txn_hashes.append(emitter.functions.logQuadruple(
-        which=5,
+        which=11,
         arg0=vals[0][0],
         arg1=vals[0][1],
         arg2=vals[0][2],
         arg3=vals[0][3]).transact())
     txn_hashes.append(emitter.functions.logQuadruple(
-        which=5,
+        which=11,
         arg0=vals[1],
         arg1=vals[2],
         arg2=vals[3],
@@ -136,10 +136,10 @@ def test_data_filters_with_fixed_arguments(
     assert log_entries[0]['transactionHash'] == txn_hashes[0]
 
 
-@pytest.mark.xfail(reason="The regex based data filters do not work with dynamic sized types")
+@pytest.mark.xfail(reason="Topic filters do not work with dynamic sized types")
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @given(vals=array_values())
-def test_data_filters_with_list_arguments(
+def test_topic_filters_with_list_arguments(
         web3,
         emitter,
         Emitter,
@@ -154,11 +154,11 @@ def test_data_filters_with_list_arguments(
     if call_as_instance:
         event_filter = create_filter(emitter, [
             'LogListArgs', {
-                'filter': {"arg1": matching}}])
+                'filter': {"arg0": matching}}])
     else:
         event_filter = create_filter(Emitter, [
             'LogListArgs', {
-                'filter': {"arg1": matching}}])
+                'filter': {"arg0": matching}}])
 
     txn_hashes = []
     txn_hashes.append(emitter.functions.logDynamicArgs(
