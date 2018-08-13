@@ -1,19 +1,18 @@
 import pytest
-from hypothesis import (
-    strategies as st,
-    given,
-)
 import random
 
 from eth_utils import (
     to_tuple,
+)
+from hypothesis import (
+    given,
+    strategies as st,
 )
 
 
 @pytest.fixture
 @to_tuple
 def deployed_contract_addresses(web3, Emitter):
-    contract_addresses = []
     for i in range(25):
         tx_hash = Emitter.constructor().transact()
         yield web3.eth.getTransactionReceipt(tx_hash)['contractAddress']
@@ -157,7 +156,7 @@ def test_event_filter_new_events_many_deployed_contracts(
             contract_address = deployed_contract_addresses[
                 random.randint(0, len(deployed_contract_addresses))]
             yield web3.eth.contract(
-                    address=contract_address, abi=Emitter.abi).functions.logNoArgs(which=1).transact
+                address=contract_address, abi=Emitter.abi).functions.logNoArgs(which=1).transact
 
     non_matching_transact = gen_non_matching_transact()
 

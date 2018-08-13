@@ -80,24 +80,24 @@ def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_convers
 
 
 class LogFunctions:
-    LogAnonymous=0
-    LogNoArguments=1
-    LogSingleArg=2
-    LogDoubleArg=3
-    LogTripleArg=4
-    LogQuadrupleArg=5
-    LogSingleAnonymous=6
-    LogSingleWithIndex=7
-    LogDoubleAnonymous=8
-    LogDoubleWithIndex=9
-    LogTripleWithIndex=10
-    LogQuadrupleWithIndex=11
-    LogBytes=12
-    LogString=13
-    LogDynamicArgs=14
-    LogListArgs=15
-    LogAddressIndexed=16
-    LogAddressNotIndexed=17
+    LogAnonymous = 0
+    LogNoArguments = 1
+    LogSingleArg = 2
+    LogDoubleArg = 3
+    LogTripleArg = 4
+    LogQuadrupleArg = 5
+    LogSingleAnonymous = 6
+    LogSingleWithIndex = 7
+    LogDoubleAnonymous = 8
+    LogDoubleWithIndex = 9
+    LogTripleWithIndex = 10
+    LogQuadrupleWithIndex = 11
+    LogBytes = 12
+    LogString = 13
+    LogDynamicArgs = 14
+    LogListArgs = 15
+    LogAddressIndexed = 16
+    LogAddressNotIndexed = 17
 
 
 @pytest.fixture()
@@ -122,8 +122,10 @@ class LogTopics:
     LogString = encode_hex(event_signature_to_log_topic("LogString(string)"))
     LogDynamicArgs = encode_hex(event_signature_to_log_topic("LogDynamicArgs(string,string)"))
     LogListArgs = encode_hex(event_signature_to_log_topic("LogListArgs(bytes2[],bytes2[])"))
-    LogAddressIndexed = encode_hex(event_signature_to_log_topic("LogAddressIndexed(address,address)"))
-    LogAddressNotIndexed = encode_hex(event_signature_to_log_topic("LogAddressNotIndexed(address,address)"))
+    LogAddressIndexed = encode_hex(event_signature_to_log_topic(
+        "LogAddressIndexed(address,address)"))
+    LogAddressNotIndexed = encode_hex(event_signature_to_log_topic(
+        "LogAddressNotIndexed(address,address)"))
 
 
 @pytest.fixture()

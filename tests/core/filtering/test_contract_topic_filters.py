@@ -1,7 +1,8 @@
 import pytest
+
 from hypothesis import (
-    strategies as st,
     given,
+    strategies as st,
 )
 
 
