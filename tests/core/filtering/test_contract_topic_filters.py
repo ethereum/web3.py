@@ -176,16 +176,16 @@ def test_topic_filters_with_list_arguments(
                 'filter': {"arg0": matching}}])
 
     txn_hashes = []
-    txn_hashes.append(emitter.functions.logDynamicArgs(
+    txn_hashes.append(emitter.functions.logListArgs(
         arg0=matching,
         arg1=matching).transact())
-    txn_hashes.append(emitter.functions.logDynamicArgs(
+    txn_hashes.append(emitter.functions.logListArgs(
         arg0=non_matching,
         arg1=non_matching).transact())
-    txn_hashes.append(emitter.functions.logDynamicArgs(
+    txn_hashes.append(emitter.functions.logListArgs(
         arg0=non_matching,
         arg1=matching).transact())
-    txn_hashes.append(emitter.functions.logDynamicArgs(
+    txn_hashes.append(emitter.functions.logListArgs(
         arg0=matching,
         arg1=non_matching).transact())
 
