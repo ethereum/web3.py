@@ -12,9 +12,10 @@ from hypothesis import (
 
 @pytest.fixture
 @to_tuple
-def deployed_contract_addresses(web3, Emitter):
+def deployed_contract_addresses(web3, Emitter, wait_for_transaction):
     for i in range(25):
         tx_hash = Emitter.constructor().transact()
+        wait_for_transaction(web3, tx_hash)
         yield web3.eth.getTransactionReceipt(tx_hash)['contractAddress']
 
 
