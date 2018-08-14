@@ -14,13 +14,15 @@ def dynamic_values(draw):
     non_matching_2 = draw(st.text().filter(lambda x: x not in exclusions))
     non_matching_3 = draw(st.text().filter(lambda x: x not in exclusions))
     non_matching_4 = draw(st.text().filter(lambda x: x not in exclusions))
-    return (
-        matching_value,
-        non_matching_1,
-        non_matching_2,
-        non_matching_3,
-        non_matching_4,
-    )
+    return {
+        "matching":  matching_value,
+        "non_matching": [
+            non_matching_1,
+            non_matching_2,
+            non_matching_3,
+            non_matching_4
+        ]
+    }
 
 
 @st.composite
@@ -30,13 +32,15 @@ def fixed_values(draw):
     non_matching_2 = draw(st.integers(min_value=0).filter(lambda x: x not in matching_values))
     non_matching_3 = draw(st.integers(min_value=0).filter(lambda x: x not in matching_values))
     non_matching_4 = draw(st.integers(min_value=0).filter(lambda x: x not in matching_values))
-    return (
-        matching_values,
-        non_matching_1,
-        non_matching_2,
-        non_matching_3,
-        non_matching_4,
-    )
+    return {
+        "matching":  matching_value,
+        "non_matching": [
+            non_matching_1,
+            non_matching_2,
+            non_matching_3,
+            non_matching_4
+        ]
+    }
 
 
 @st.composite
@@ -64,19 +68,19 @@ def test_data_filters_with_dynamic_arguments(
         event_filter = create_filter(emitter, [
             'LogDynamicArgs', {
                 'filter': {
-                    'arg1': vals[0]}}])
+                    'arg1': vals['matching']}}])
     else:
         event_filter = create_filter(Emitter, [
             'LogDynamicArgs', {
                 'filter': {
-                    'arg1': vals[0]}}])
+                    'arg1': vals['matching']}}])
 
     txn_hashes = []
-    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals[0], arg1=vals[0]).transact())
-    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals[1], arg1=vals[1]).transact())
-    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals[2], arg1=vals[2]).transact())
-    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals[3], arg1=vals[3]).transact())
-    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals[4], arg1=vals[4]).transact())
+    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals['matching'], arg1=vals['matching']).transact())
+    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals['non_matching'][0], arg1=vals['non_matching'][0]).transact())
+    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals['non_matching'][1], arg1=vals['non_matching'][1]).transact())
+    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals['non_matching'][2], arg1=vals['non_matching'][2]).transact())
+    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals['non_matching'][3], arg1=vals['non_matching'][3]).transact())
 
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
@@ -102,32 +106,32 @@ def test_data_filters_with_fixed_arguments(
         event_filter = create_filter(emitter, [
             'LogQuadrupleArg', {
                 'filter': {
-                    'arg0': vals[0][0],
-                    'arg1': vals[0][1],
-                    'arg2': vals[0][2],
-                    'arg3': vals[0][3]}}])
+                    'arg0': vals['matching'][0],
+                    'arg1': vals['matching'][1],
+                    'arg2': vals['matching'][2],
+                    'arg3': vals['matching'][3]}}])
     else:
         event_filter = create_filter(Emitter, [
             'LogQuadrupleArg', {
                 'filter': {
-                    'arg0': vals[0][0],
-                    'arg1': vals[0][1],
-                    'arg2': vals[0][2],
-                    'arg3': vals[0][3]}}])
+                    'arg0': vals['matching'][0],
+                    'arg1': vals['matching'][1],
+                    'arg2': vals['matching'][2],
+                    'arg3': vals['matching'][3]}}])
 
     txn_hashes = []
     txn_hashes.append(emitter.functions.logQuadruple(
         which=5,
-        arg0=vals[0][0],
-        arg1=vals[0][1],
-        arg2=vals[0][2],
-        arg3=vals[0][3]).transact())
+        arg0=vals['matching'][0],
+        arg1=vals['matching'][1],
+        arg2=vals['matching'][2],
+        arg3=vals['matching'][3]).transact())
     txn_hashes.append(emitter.functions.logQuadruple(
         which=5,
-        arg0=vals[1],
-        arg1=vals[2],
-        arg2=vals[3],
-        arg3=vals[4]).transact())
+        arg0=vals['non_matching'][0],
+        arg1=vals['non_matching'][1],
+        arg2=vals['non_matching'][2],
+        arg3=vals['non_matching'][3]).transact())
 
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
