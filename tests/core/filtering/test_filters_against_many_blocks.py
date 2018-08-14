@@ -5,7 +5,6 @@ from eth_utils import (
     to_tuple,
 )
 
-
 SEED = 50505050505
 random.seed(SEED)
 

@@ -15,7 +15,7 @@ def dynamic_values(draw):
     non_matching_3 = draw(st.text().filter(lambda x: x not in exclusions))
     non_matching_4 = draw(st.text().filter(lambda x: x not in exclusions))
     return {
-        "matching":  matching_value,
+        "matching": matching_value,
         "non_matching": [
             non_matching_1,
             non_matching_2,
@@ -33,7 +33,7 @@ def fixed_values(draw):
     non_matching_3 = draw(st.integers(min_value=0).filter(lambda x: x not in matching_values))
     non_matching_4 = draw(st.integers(min_value=0).filter(lambda x: x not in matching_values))
     return {
-        "matching":  matching_value,
+        "matching": matching_values,
         "non_matching": [
             non_matching_1,
             non_matching_2,
@@ -76,11 +76,21 @@ def test_data_filters_with_dynamic_arguments(
                     'arg1': vals['matching']}}])
 
     txn_hashes = []
-    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals['matching'], arg1=vals['matching']).transact())
-    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals['non_matching'][0], arg1=vals['non_matching'][0]).transact())
-    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals['non_matching'][1], arg1=vals['non_matching'][1]).transact())
-    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals['non_matching'][2], arg1=vals['non_matching'][2]).transact())
-    txn_hashes.append(emitter.functions.logDynamicArgs(arg0=vals['non_matching'][3], arg1=vals['non_matching'][3]).transact())
+    txn_hashes.append(
+        emitter.functions.logDynamicArgs(
+            arg0=vals['matching'], arg1=vals['matching']).transact())
+    txn_hashes.append(
+        emitter.functions.logDynamicArgs(
+            arg0=vals['non_matching'][0], arg1=vals['non_matching'][0]).transact())
+    txn_hashes.append(
+        emitter.functions.logDynamicArgs(
+            arg0=vals['non_matching'][1], arg1=vals['non_matching'][1]).transact())
+    txn_hashes.append(
+        emitter.functions.logDynamicArgs(
+            arg0=vals['non_matching'][2], arg1=vals['non_matching'][2]).transact())
+    txn_hashes.append(
+        emitter.functions.logDynamicArgs(
+            arg0=vals['non_matching'][3], arg1=vals['non_matching'][3]).transact())
 
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
