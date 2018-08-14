@@ -4,17 +4,16 @@ import random
 from eth_utils import (
     to_tuple,
 )
-from hypothesis import (
-    given,
-    strategies as st,
-)
 
 
-@pytest.fixture
+SEED = 50505050505
+random.seed(SEED)
+
+
 @to_tuple
-def deployed_contract_addresses(web3, Emitter, wait_for_transaction):
+def deploy_contracts(web3, contract, wait_for_transaction):
     for i in range(25):
-        tx_hash = Emitter.constructor().transact()
+        tx_hash = contract.constructor().transact()
         wait_for_transaction(web3, tx_hash)
         yield web3.eth.getTransactionReceipt(tx_hash)['contractAddress']
 
@@ -42,17 +41,13 @@ def single_transaction(w3):
         yield tx_hash
 
 
-@given(seed=st.integers())
 def test_event_filter_new_events(
         web3,
         emitter,
         Emitter,
         wait_for_transaction,
         emitter_event_ids,
-        create_filter,
-        seed):
-
-    random.seed(seed)
+        create_filter):
 
     matching_transact = emitter.functions.logNoArgs(
         which=1).transact
@@ -79,38 +74,27 @@ def test_event_filter_new_events(
 
 
 @pytest.mark.xfail
-@given(
-    target_block_count=st.integers(min_value=1, max_value=100),
-    seed=st.integers())
-def test_block_filter(
-        web3,
-        target_block_count,
-        seed):
-
-    random.seed(seed)
+def test_block_filter(web3):
     block_filter = web3.eth.filter("latest")
 
-    target_block = random.randint(30, 55)
     tx_padder = pad_with_transactions(web3)
     tx_padder.send(None)
-    while web3.eth.blockNumber < target_block:
+    while web3.eth.blockNumber < 50:
         tx_padder.send(lambda: "ok")
         next(tx_padder)
 
     assert len(block_filter.get_new_entries()) == web3.eth.blockNumber
 
 
-@given(target_tx_count=st.integers(min_value=1, max_value=100))
 def test_transaction_filter_with_mining(
-        web3,
-        target_tx_count):
+        web3):
 
     transaction_filter = web3.eth.filter("pending")
 
     transaction_counter = 0
 
     transact_once = single_transaction(web3)
-    while transaction_counter < target_tx_count:
+    while transaction_counter < 100:
         next(transact_once)
         transaction_counter += 1
 
@@ -118,10 +102,8 @@ def test_transaction_filter_with_mining(
 
 
 @pytest.mark.xfail
-@given(target_tx_count=st.integers(min_value=1, max_value=100))
 def test_transaction_filter_without_mining(
-        web3,
-        target_tx_count):
+        web3):
 
     web3.providers[0].ethereum_tester.auto_mine_transactions = False
     transaction_filter = web3.eth.filter("pending")
@@ -129,33 +111,30 @@ def test_transaction_filter_without_mining(
     transaction_counter = 0
 
     transact_once = single_transaction(web3)
-    while transaction_counter < target_tx_count:
+    while transaction_counter < 100:
         next(transact_once)
         transaction_counter += 1
 
     assert len(transaction_filter.get_new_entries()) == transaction_counter
 
 
-@given(seed=st.integers())
 def test_event_filter_new_events_many_deployed_contracts(
         web3,
         emitter,
         Emitter,
         wait_for_transaction,
         emitter_event_ids,
-        create_filter,
-        seed,
-        deployed_contract_addresses):
-
-    random.seed(seed)
+        create_filter):
 
     matching_transact = emitter.functions.logNoArgs(
         which=1).transact
 
+    deployed_contract_addresses = deploy_contracts(web3, Emitter, wait_for_transaction)
+
     def gen_non_matching_transact():
         while True:
             contract_address = deployed_contract_addresses[
-                random.randint(0, len(deployed_contract_addresses))]
+                random.randint(0, len(deployed_contract_addresses) - 1)]
             yield web3.eth.contract(
                 address=contract_address, abi=Emitter.abi).functions.logNoArgs(which=1).transact
 
