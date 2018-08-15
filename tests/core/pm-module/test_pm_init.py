@@ -4,17 +4,17 @@ from pathlib import (
 )
 import pytest
 
+from eth_utils import to_canonical_address
 from solc import compile_source
 
 from web3 import Web3
 
 try:
-    from ethpm.backends.ipfs import IPFSGatewayBackend
     from ethpm.exceptions import (
         InsufficientAssetsError,
     )
-    from web3.pm import PM
-except ImportError:
+    from ethpm import Package  # noqa: E402
+except ImportError as exc:
     ethpm_installed = False
 else:
     ethpm_installed = True
@@ -28,6 +28,10 @@ V2_PACKAGES_DIR = Path(__file__).parent / 'packages'
 def web3():
     w3 = Web3(Web3.EthereumTesterProvider())
     w3.eth.defaultAccount = w3.eth.accounts[0]
+    try:
+        from web3.pm import PM  # noqa: F811
+    except ModuleNotFoundError as exc:
+        assert False, "eth-pm import failed because: %s" % exc
     PM.attach(w3, 'pm')
     return w3
 
@@ -65,7 +69,17 @@ def test_deploy_a_standalone_package_integration(web3, standard_token_manifest):
     # totalSupply = 100
     tx_hash = ERC20.constructor(100).transact()
     tx_receipt = web3.eth.getTransactionReceipt(tx_hash)
-    address = tx_receipt["contractAddress"]
+    address = to_canonical_address(tx_receipt["contractAddress"])
     erc20 = web3.eth.contract(address=address, abi=ERC20.abi)
     total_supply = erc20.functions.totalSupply().call()
     assert total_supply == 100
+
+
+@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
+def test_pm_init_with_manifest_uri(web3, monkeypatch):
+    monkeypatch.setenv(
+        "ETHPM_IPFS_BACKEND_CLASS", "ethpm.backends.ipfs.DummyIPFSBackend"
+    )
+    dummy_standard_token_uri = "ipfs://QmVu9zuza5mkJwwcFdh2SXBugm1oSgZVuEKkph9XLsbUwg"
+    pkg = web3.pm.get_package_from_uri(dummy_standard_token_uri)
+    assert isinstance(pkg, Package)
