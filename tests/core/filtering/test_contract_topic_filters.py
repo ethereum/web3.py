@@ -51,7 +51,6 @@ def array_values(draw):
     return (matching, non_matching)
 
 
-@pytest.mark.xfail(reason="Topic filters do not work with dynamic sized types")
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @given(vals=dynamic_values())
 def test_topic_filters_with_dynamic_arguments(
@@ -151,7 +150,6 @@ def test_topic_filters_with_fixed_arguments(
     assert log_entries[0]['transactionHash'] == txn_hashes[0]
 
 
-@pytest.mark.xfail(reason="Topic filters do not work with dynamic sized types")
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @given(vals=array_values())
 def test_topic_filters_with_list_arguments(

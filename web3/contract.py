@@ -1284,7 +1284,7 @@ class ContractEvent:
 
         event_abi = self._get_event_abi()
 
-        check_for_depracated_api_filter_arguments(event_abi, _filters)
+        check_for_forbidden_api_filter_arguments(event_abi, _filters)
 
         _, event_filter_params = construct_event_filter_params(
             self._get_event_abi(),
@@ -1320,7 +1320,7 @@ class ContractEvent:
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
 
 
-def check_for_depracated_api_filter_arguments(event_abi, _filters):
+def check_for_forbidden_api_filter_arguments(event_abi, _filters):
     name_indexed_inputs = {_input['name']: _input for _input in event_abi['inputs']}
 
     for filter_name, filter_value in _filters.items():
