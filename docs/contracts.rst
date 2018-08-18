@@ -117,7 +117,7 @@ example in :class:`ConciseContract` for specifying an alternate factory.
     recommended to use the classic ``Contract`` for those use cases.
     Just to be be clear, `ConciseContract` only exposes contract functions and all
     other `Contract` class methods and properties are not available with the `ConciseContract`
-    API. This includes but is not limited to ``contract.address``,``contract.abi``, and
+    API. This includes but is not limited to ``contract.address``, ``contract.abi``, and
     ``contract.deploy()``.
 
     Create this type of contract by passing a :py:class:`Contract` instance to
