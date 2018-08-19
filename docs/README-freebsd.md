@@ -36,12 +36,12 @@ cd /tmp
 git clone https://github.com/ethereum/go-ethereum
 cd go-ethereum
 make geth
-sudo cp go-ethereum/build/bin/geth /usr/local/bin/
+cp build/bin/geth /usr/local/bin/
 ```
 
-##### cargo (https://github.com/paukstis/freebsd_parity/blob/v1.6/README.md)
+##### parity (https://github.com/paukstis/freebsd_parity/blob/v1.6/README.md)
 ```
-BROKEN (build crashes in FreeBSD 11.2)
+BROKEN (build crashes on FreeBSD 11.2)
 ```
 
 ```
