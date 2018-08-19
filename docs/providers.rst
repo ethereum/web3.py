@@ -246,7 +246,7 @@ IPCProvider
     If no ``ipc_path`` is specified, it will use the first IPC file
     it can find from this list:
 
-    - On Linux:
+    - On Linux and FreeBSD:
 
       - ``~/.ethereum/geth.ipc``
       - ``~/.local/share/io.parity.ethereum/jsonrpc.ipc``
