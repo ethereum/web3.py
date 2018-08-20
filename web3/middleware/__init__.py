@@ -34,6 +34,9 @@ from .names import (  # noqa: F401
 from .normalize_errors import (  # noqa: F401
     normalize_errors_middleware,
 )
+from .normalize_request_parameters import (  # noqa: F401
+    request_parameter_normalizer,
+)
 from .pythonic import (  # noqa: F401
     pythonic_middleware,
 )

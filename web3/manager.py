@@ -16,6 +16,7 @@ from web3.middleware import (
     name_to_address_middleware,
     normalize_errors_middleware,
     pythonic_middleware,
+    request_parameter_normalizer,
     validation_middleware,
 )
 from web3.providers import (
@@ -70,6 +71,7 @@ class RequestManager:
         Leaving ens unspecified will prevent the middleware from resolving names.
         '''
         return [
+            (request_parameter_normalizer, 'request_param_normalizer'),
             (gas_price_strategy_middleware, 'gas_price_strategy'),
             (name_to_address_middleware(web3), 'name_to_address'),
             (attrdict_middleware, 'attrdict'),

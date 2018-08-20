@@ -677,6 +677,16 @@ class EthModuleTest:
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 0
 
+        # Test with multiple `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
+
     def test_eth_getLogs_with_logs(
             self,
             web3,
