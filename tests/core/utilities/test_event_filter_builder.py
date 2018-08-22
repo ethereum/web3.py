@@ -5,7 +5,7 @@ from hypothesis import (
     strategies as st,
 )
 
-from web3.utils.events import (
+from web3._utils.events import (
     DataArgumentFilter,
     TopicArgumentFilter,
     normalize_topic_list,
@@ -35,18 +35,18 @@ def test_normalize_topic_list(topic_list, expected):
 
 @given(st.text())
 def test_match_single_string_type_properties_data_arg(value):
-    ea = DataArgumentFilter(arg_type="string")
-    ea.match_single(value)
+    data_filter = DataArgumentFilter(arg_type="string")
+    data_filter.match_single(value)
 
 
 @given(st.text())
 def test_match_single_string_type_properties_topic_arg(value):
-    ea = TopicArgumentFilter(arg_type="string")
-    ea.match_single(value)
+    topic_filter = TopicArgumentFilter(arg_type="string")
+    topic_filter.match_single(value)
 
 
 @given(st.lists(elements=st.text(), max_size=10, min_size=0))
 def test_match_any_string_type_properties(values):
-    ea = TopicArgumentFilter(arg_type="string")
-    ea.match_any(*values)
-    assert len(ea.match_values) == len(values)
+    topic_filter = TopicArgumentFilter(arg_type="string")
+    topic_filter.match_any(*values)
+    assert len(topic_filter.match_values) == len(values)

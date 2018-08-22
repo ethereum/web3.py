@@ -8,15 +8,20 @@ from eth_abi.grammar import (
 from eth_utils import (
     is_list_like,
     is_string,
+    is_text,
 )
 from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.formatters import (
+    apply_formatter_if,
+)
 from web3._utils.threads import (
     TimerClass,
 )
 from web3._utils.toolz import (
+    complement,
     curry,
 )
 from web3._utils.validation import (
@@ -161,7 +166,10 @@ class LogFilter(Filter):
         return entry
 
     def set_data_filters(self, data_filter_set):
-        """(('uint256', [12345, 54321]), ('string', ('a-single-string',)))
+        """Sets the data filters (non indexed argument filters)
+
+        Expects a set of tuples with the type and value, e.g.:
+        (('uint256', [12345, 54321]), ('string', ('a-single-string',)))
         """
         self.data_filter_set = data_filter_set
         if any(data_filter_set):
@@ -173,22 +181,36 @@ class LogFilter(Filter):
         return bool(self.data_filter_set_function(entry['data']))
 
 
+def decode_utf8_bytes(value):
+    return value.decode("utf-8")
+
+
+not_text = complement(is_text)
+normalize_to_text = apply_formatter_if(not_text, decode_utf8_bytes)
+
+
 def normalize_data_values(type_string, data_value):
+    """Decodes utf-8 bytes to strings for abi string values.
+
+    eth-abi v1 returns utf-8 bytes for string values.
+    This can be removed once eth-abi v2 is required.
+    """
     _type = parse_type_string(type_string)
     if _type.base == "string":
         if _type.arrlist is not None:
-            return tuple((bytes_to_str(value) for value in data_value))
+            return tuple((normalize_to_text(value) for value in data_value))
         else:
-            return bytes_to_str(data_value)
+            return normalize_to_text(data_value)
     return data_value
-
-
-def bytes_to_str(value):
-    return value.decode("utf-8")
 
 
 @curry
 def match_fn(match_values_and_abi, data):
+    """Match function used for filtering non-indexed event arguments.
+
+    Values provided through the match_values_and_abi parameter are
+    compared to the abi decoded log data.
+    """
     abi_types, all_match_values = zip(*match_values_and_abi)
     decoded_values = decode_abi(abi_types, HexBytes(data))
     for data_value, match_values, abi_type in zip(decoded_values, all_match_values, abi_types):

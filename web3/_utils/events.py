@@ -19,9 +19,7 @@ from eth_utils import (
     to_tuple,
 )
 
-from web3._utils.abi import (
-    process_type,
-)
+import web3
 from web3._utils.encoding import (
     encode_single_packed,
     hexstr_if_str,
@@ -160,6 +158,7 @@ def get_event_abi_types_for_decoding(event_inputs):
             yield input_abi['type']
 
 
+@curry
 def get_event_data(event_abi, log_entry):
     """
     Given an event ABI and a log entry for that event, return the decoded
@@ -261,18 +260,22 @@ def is_indexed(arg):
     return False
 
 
-not_indexed = complement(is_indexed)
+is_not_indexed = complement(is_indexed)
 
 
 class EventFilterBuilder:
+    formatter = None
     _fromBlock = None
     _toBlock = None
     _address = None
+    _immutable = False
 
-    def __init__(self, event_abi):
+    def __init__(self, event_abi, formatter=None):
         self.event_abi = event_abi
-        self.event_topic = self._initial_event_topic()
-        self.args = AttributeDict(_build_argument_filters_from_event_abi(event_abi))
+        self.formatter = formatter
+        self.event_topic = initialize_event_topics(self.event_abi)
+        self.args = AttributeDict(
+            _build_argument_filters_from_event_abi(event_abi))
         self._ordered_arg_names = tuple(arg['name'] for arg in event_abi['inputs'])
 
     @property
@@ -281,7 +284,12 @@ class EventFilterBuilder:
 
     @fromBlock.setter
     def fromBlock(self, value):
-        self._fromBlock = value
+        if self._fromBlock is None and not self._immutable:
+            self._fromBlock = value
+        else:
+            raise ValueError(
+                "fromBlock is already set to {0}. "
+                "Resetting filter parameters is not permitted".format(self._fromBlock))
 
     @property
     def toBlock(self):
@@ -289,7 +297,12 @@ class EventFilterBuilder:
 
     @toBlock.setter
     def toBlock(self, value):
-        self._toBlock = value
+        if self._toBlock is None and not self._immutable:
+            self._toBlock = value
+        else:
+            raise ValueError(
+                "toBlock is already set to {0}. "
+                "Resetting filter parameters is not permitted".format(self._toBlock))
 
     @property
     def address(self):
@@ -297,21 +310,26 @@ class EventFilterBuilder:
 
     @address.setter
     def address(self, value):
-        self._address = value
+        if self._address is None and not self._immutable:
+            self._address = value
+        else:
+            raise ValueError(
+                "address is already set to {0}. "
+                "Resetting filter parameters is not permitted".format(self.address))
+
+    @property
+    def ordered_args(self):
+        return tuple(map(self.args.__getitem__, self._ordered_arg_names))
 
     @property
     @to_tuple
     def indexed_args(self):
-        return filter(
-            is_indexed,
-            map(lambda x: self.args[x], self._ordered_arg_names))
+        return tuple(filter(is_indexed, self.ordered_args))
 
     @property
     @to_tuple
     def data_args(self):
-        return filter(
-            not_indexed,
-            map(lambda x: self.args[x], self._ordered_arg_names))
+        return tuple(filter(is_not_indexed, self.ordered_args))
 
     @property
     def topics(self):
@@ -335,57 +353,77 @@ class EventFilterBuilder:
         }
         return valfilter(lambda x: x is not None, params)
 
-    def deploy(self, web3):
-        log_filter = web3.eth.filter(self.filter_params)
+    def deploy(self, w3):
+        if not isinstance(w3, web3.Web3):
+            raise ValueError("Invalid web3 argument: got: {0}".format(repr(w3)))
+
+        for arg in self.args.values():
+            arg._immutable = True
+        self._immutable = True
+
+        log_filter = w3.eth.filter(self.filter_params)
         log_filter.filter_params = self.filter_params
         log_filter.set_data_filters(self.data_argument_values)
         log_filter.builder = self
+        if self.formatter is not None:
+            log_filter.log_entry_formatter = self.formatter
         return log_filter
 
-    def _initial_event_topic(self):
-        if self.event_abi['anonymous'] is False:
-            return event_abi_to_log_topic(self.event_abi)
-        else:
-            return list()
+
+def initialize_event_topics(event_abi):
+    if event_abi['anonymous'] is False:
+        return event_abi_to_log_topic(event_abi)
+    else:
+        return list()
 
 
 @to_dict
 def _build_argument_filters_from_event_abi(event_abi):
     for item in event_abi['inputs']:
-        if item['indexed'] is True:
-            argument_filter_class = TopicArgumentFilter
-        else:
-            argument_filter_class = DataArgumentFilter
         key = item['name']
-        value = argument_filter_class(arg_type=item['type'])
-
+        if item['indexed'] is True:
+            value = TopicArgumentFilter(arg_type=item['type'])
+        else:
+            value = DataArgumentFilter(arg_type=item['type'])
         yield key, value
 
 
 array_to_tuple = apply_formatter_if(is_list_like, tuple)
 
 
+@to_tuple
+def _normalize_match_values(match_values):
+    for value in match_values:
+        yield array_to_tuple(value)
+
+
 class BaseArgumentFilter(ABC):
     _match_values = None
+    _immutable = False
 
     def __init__(self, arg_type):
         self.arg_type = arg_type
 
     def match_single(self, value):
-        self._match_values = self._normalize_match_values((value,))
+        if self._immutable:
+            raise ValueError("Setting values is forbidden after filter is deployed.")
+        if self._match_values is None:
+            self._match_values = _normalize_match_values((value,))
+        else:
+            raise ValueError("An argument match value/s has already been set.")
 
     def match_any(self, *values):
-        self._match_values = self._normalize_match_values(values)
-
-    @to_tuple
-    def _normalize_match_values(self, match_values):
-        for value in match_values:
-            yield array_to_tuple(value)
+        if self._immutable:
+            raise ValueError("Setting values is forbidden after filter is deployed.")
+        if self._match_values is None:
+            self._match_values = _normalize_match_values(values)
+        else:
+            raise ValueError("An argument match value/s has already been set.")
 
     @property
     @abstractmethod
     def match_values(self):
-        raise NotImplementedError("ArgumentFilter classes must implement match_values method")
+        pass
 
 
 class DataArgumentFilter(BaseArgumentFilter):
@@ -397,7 +435,7 @@ class DataArgumentFilter(BaseArgumentFilter):
 class TopicArgumentFilter(BaseArgumentFilter):
     @to_tuple
     def _get_match_values(self):
-            yield from (self._encode(value) for value in self._match_values)
+        yield from (self._encode(value) for value in self._match_values)
 
     @property
     def match_values(self):

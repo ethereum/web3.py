@@ -290,6 +290,7 @@ class DynamicArrayPackedEncoder(BaseArrayEncoder):
         return encoded_value
 
 
+#  TODO: Replace with eth-abi packed encoder once web3 requires eth-abi>=2
 def encode_single_packed(_type, value):
     import codecs
     from eth_abi import (
@@ -304,8 +305,7 @@ def encode_single_packed(_type, value):
         else:
             raise NotImplementedError(
                 "Fixed arrays are not implemented in this packed encoder prototype")
-    else:
-        if abi_type.base == "string":
-            return codecs.encode(value, 'utf8')
-        elif abi_type.base == "bytes":
-            return value
+    elif abi_type.base == "string":
+        return codecs.encode(value, 'utf8')
+    elif abi_type.base == "bytes":
+        return value
