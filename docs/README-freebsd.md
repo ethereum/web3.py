@@ -4,20 +4,19 @@
 
 ### Prerequisites
 
-#### As superuser
-```
-pkg install python3 py36-virtualenv leveldb libxml2 libxslt pkgconf secp256k1 wget git hs-pandoc
-wget https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/secp256k1/include/secp256k1_recovery.h -O /usr/local/include/secp256k1_recovery.h
-echo '#include "/usr/include/stdlib.h"' > /usr/include/alloca.h
-```
+Make sure you've UTF-8 defined for charset and lang in your [~/.login_conf](https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/using-localization.html), 
+otherwise almost every module will fail to install. Python 3 is very sensitive to that.
 
-#### As user
 ```
+sudo pkg install python3 py36-virtualenv leveldb libxml2 libxslt pkgconf secp256k1 wget git
+sudo wget https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/secp256k1/include/secp256k1_recovery.h -O /usr/local/include/secp256k1_recovery.h
+echo '#include "/usr/include/stdlib.h"' | sudo tee -a /usr/include/alloca.h > /dev/null
 mkdir -p /tmp/venv_python
 virtualenv-3.6 /tmp/venv_python/python3
 source /tmp/venv_python/python3/bin/activate.csh
 
-pip install eth-account ptyprocess
+# these two modules fail to install natively
+pip install ptyprocess eth-account
 
 cd /tmp
 git clone https://github.com/ethereum/web3.py.git
