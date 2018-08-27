@@ -7,7 +7,18 @@ from setuptools import (
 
 extras_require = {
     'test': [
-        "eth-testrpc>=1.3.3,<2.0.0"
+        "flaky>=3.3.0",
+        "hypothesis>=3.31.2",
+        "pytest>=3.5.0,<4",
+        "pytest-mock==1.*",
+        "pytest-pythonpath>=0.3",
+        "pytest-watch==4.*",
+        "pytest-xdist==1.*",
+    ],
+    'testrpc': [
+        "eth-testrpc>=1.3.3,<2.0.0",
+    ],
+    'tester': [
         "eth-tester[py-evm]==0.1.0-beta.31",
         "py-geth>=2.0.1,<3.0.0",
     ],
@@ -36,13 +47,6 @@ extras_require = {
     ],
     'dev': [
         "bumpversion",
-        "flaky>=3.3.0",
-        "hypothesis>=3.31.2",
-        "pytest>=3.5.0,<4",
-        "pytest-mock==1.*",
-        "pytest-pythonpath>=0.3",
-        "pytest-watch==4.*",
-        "pytest-xdist==1.*",
         "tox>=1.8.0",
         "tqdm",
         "when-changed",
