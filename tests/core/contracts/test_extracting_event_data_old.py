@@ -123,7 +123,7 @@ def test_dynamic_length_argument_extraction(web3,
     event_topic = emitter_log_topics.LogDynamicArgs
     assert event_topic in log_entry['topics']
 
-    string_0_topic = web3.sha3(text=string_0)
+    string_0_topic = web3.keccak(text=string_0)
     assert string_0_topic in log_entry['topics']
 
     event_data = get_event_data(event_abi, log_entry)

@@ -16,8 +16,8 @@ from web3 import Web3
         ('', HexBytes('0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470')),
     ],
 )
-def test_sha3_text(message, digest):
-    assert Web3.sha3(text=message) == digest
+def test_keccak_text(message, digest):
+    assert Web3.keccak(text=message) == digest
 
 
 @pytest.mark.parametrize(
@@ -41,8 +41,8 @@ def test_sha3_text(message, digest):
         ),
     ],
 )
-def test_sha3_hexstr(hexstr, digest):
-    assert Web3.sha3(hexstr=hexstr) == digest
+def test_keccak_hexstr(hexstr, digest):
+    assert Web3.keccak(hexstr=hexstr) == digest
 
 
 @pytest.mark.parametrize(
@@ -53,9 +53,9 @@ def test_sha3_hexstr(hexstr, digest):
         (-1, ValueError),
     ],
 )
-def test_sha3_primitive_invalid(primitive, exception):
+def test_keccak_primitive_invalid(primitive, exception):
     with pytest.raises(exception):
-        Web3.sha3(primitive)
+        Web3.keccak(primitive)
 
 
 @pytest.mark.parametrize(
@@ -71,8 +71,8 @@ def test_sha3_primitive_invalid(primitive, exception):
         ),
     ],
 )
-def test_sha3_primitive(primitive, digest):
-    assert Web3.sha3(primitive) == digest
+def test_keccak_primitive(primitive, digest):
+    assert Web3.keccak(primitive) == digest
 
 
 @pytest.mark.parametrize(
@@ -83,17 +83,17 @@ def test_sha3_primitive(primitive, digest):
         {'text': '', 'hexstr': '0x'},
     ],
 )
-def test_sha3_raise_if_primitive_and(kwargs):
+def test_keccak_raise_if_primitive_and(kwargs):
     # must not set more than one input
     with pytest.raises(TypeError):
-        Web3.sha3('', **kwargs)
+        Web3.keccak('', **kwargs)
 
 
-def test_sha3_raise_if_hexstr_and_text():
+def test_keccak_raise_if_hexstr_and_text():
     with pytest.raises(TypeError):
-        Web3.sha3(hexstr='0x', text='')
+        Web3.keccak(hexstr='0x', text='')
 
 
-def test_sha3_raise_if_no_args():
+def test_keccak_raise_if_no_args():
     with pytest.raises(TypeError):
-        Web3.sha3()
+        Web3.keccak()
