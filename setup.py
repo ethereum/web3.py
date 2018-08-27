@@ -14,6 +14,7 @@ extras_require = {
         "pytest-pythonpath>=0.3",
         "pytest-watch==4.*",
         "pytest-xdist==1.*",
+        "tqdm",
     ],
     'testrpc': [
         "eth-testrpc>=1.3.3,<2.0.0",
@@ -48,7 +49,6 @@ extras_require = {
     'dev': [
         "bumpversion",
         "tox>=1.8.0",
-        "tqdm",
         "when-changed",
     ],
 }
