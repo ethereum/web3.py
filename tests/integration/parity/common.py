@@ -38,10 +38,6 @@ class ParityEthModuleTest(EthModuleTest):
         pytest.xfail('eth_uninstallFilter calls to parity always return true')
         super().test_eth_uninstallFilter(web3)
 
-    def test_eth_newBlockFilter(self, web3):
-        pytest.xfail('Parity returns latest block on first polling for new blocks')
-        super().test_eth_newBlockFilter(web3)
-
     def test_eth_replaceTransaction(self, web3, unlocked_account):
         pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction(web3, unlocked_account)
@@ -96,6 +92,10 @@ class ParityEthModuleTest(EthModuleTest):
         receipt = web3.eth.getTransactionReceipt(txn_hash)
         assert receipt is not None
         assert receipt['blockHash'] is None
+
+    def test_eth_getLogs_with_logs_none_topic_args(self, web3):
+        pytest.xfail("Parity matches None to asbent values")
+        super().test_eth_getLogs_with_logs_none_topic_args(web3)
 
     @flaky(max_runs=MAX_FLAKY_RUNS)
     def test_eth_call_old_contract_state(self, web3, math_contract, unlocked_account):

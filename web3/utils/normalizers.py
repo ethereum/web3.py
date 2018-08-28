@@ -1,8 +1,12 @@
 
 import codecs
+from distutils.version import (
+    LooseVersion,
+)
 import functools
 import json
 
+import eth_abi
 from eth_abi.abi import (
     process_type,
 )
@@ -141,8 +145,11 @@ def abi_ens_resolver(w3, abi_type, val):
 
 BASE_RETURN_NORMALIZERS = [
     addresses_checksummed,
-    decode_abi_strings,
 ]
+
+
+if LooseVersion(eth_abi.__version__) < LooseVersion("2"):
+    BASE_RETURN_NORMALIZERS.append(decode_abi_strings)
 
 
 #

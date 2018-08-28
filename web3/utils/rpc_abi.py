@@ -24,7 +24,7 @@ TRANSACTION_PARAMS_ABIS = {
 
 FILTER_PARAMS_ABIS = {
     'to': 'address',
-    'address': 'address',
+    'address': 'address[]',
 }
 
 TRACE_PARAMS_ABIS = {

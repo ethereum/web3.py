@@ -677,6 +677,16 @@ class EthModuleTest:
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 0
 
+        # Test with multiple `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
+
     def test_eth_getLogs_with_logs(
             self,
             web3,
@@ -718,8 +728,56 @@ class EthModuleTest:
             "fromBlock": 0,
             "address": emitter_contract_address,
         }
+
+    def test_eth_getLogs_with_logs_topic_args(
+            self,
+            web3,
+            block_with_txn_with_log,
+            emitter_contract_address,
+            txn_hash_with_log):
+        def assert_contains_log(result):
+            assert len(result) == 1
+            log_entry = result[0]
+            assert log_entry['blockNumber'] == block_with_txn_with_log['number']
+            assert log_entry['blockHash'] == block_with_txn_with_log['hash']
+            assert log_entry['logIndex'] == 0
+            assert is_same_address(log_entry['address'], emitter_contract_address)
+            assert log_entry['transactionIndex'] == 0
+            assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
+
+        # Test with None event sig
+
+        filter_params = {
+            "fromBlock": 0,
+            "topics": [
+                None,
+                '0x000000000000000000000000000000000000000000000000000000000000d431'],
+        }
+
         result = web3.eth.getLogs(filter_params)
         assert_contains_log(result)
+
+        # Test with None indexed arg
+        filter_params = {
+            "fromBlock": 0,
+            "topics": [
+                '0x057bc32826fbe161da1c110afcdcae7c109a8b69149f727fc37a603c60ef94ca',
+                None],
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert_contains_log(result)
+
+    def test_eth_getLogs_with_logs_none_topic_args(
+            self,
+            web3):
+        # Test with None overflowing
+        filter_params = {
+            "fromBlock": 0,
+            "topics": [None, None, None],
+        }
+
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
 
     def test_eth_call_old_contract_state(self, web3, math_contract, unlocked_account):
         start_block = web3.eth.getBlock('latest')

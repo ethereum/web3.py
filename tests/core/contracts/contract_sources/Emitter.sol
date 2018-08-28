@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.21;
 
 
 contract Emitter {
@@ -19,6 +19,9 @@ contract Emitter {
     event LogTripleWithIndex(uint arg0, uint indexed arg1, uint indexed arg2);
     event LogQuadrupleWithIndex(uint arg0, uint arg1, uint indexed arg2, uint indexed arg3);
     event LogDynamicArgs(string indexed arg0, string arg1);
+    event LogListArgs(bytes2[] indexed arg0, bytes2[] arg1);
+    event LogAddressIndexed(address indexed arg0, address arg1);
+    event LogAddressNotIndexed(address arg0, address arg1);
 
     enum WhichEvent {
         LogAnonymous,
@@ -35,41 +38,53 @@ contract Emitter {
         LogQuadrupleWithIndex,
         LogBytes,
         LogString,
-        LogDynamicArgs
+        LogDynamicArgs,
+        LogListArgs,
+        LogAddressIndexed,
+        LogAddressNotIndexed
     }
 
     function logNoArgs(WhichEvent which) public {
-        if (which == WhichEvent.LogNoArguments) LogNoArguments();
-        else if (which == WhichEvent.LogAnonymous) LogAnonymous();
-        else throw;
+        if (which == WhichEvent.LogNoArguments) emit LogNoArguments();
+        else if (which == WhichEvent.LogAnonymous) emit LogAnonymous();
+        else revert("Didn't match any allowable event index");
     }
 
     function logSingle(WhichEvent which, uint arg0) public {
-        if (which == WhichEvent.LogSingleArg) LogSingleArg(arg0);
-        else if (which == WhichEvent.LogSingleWithIndex) LogSingleWithIndex(arg0);
-        else if (which == WhichEvent.LogSingleAnonymous) LogSingleAnonymous(arg0);
-        else throw;
+        if (which == WhichEvent.LogSingleArg) emit LogSingleArg(arg0);
+        else if (which == WhichEvent.LogSingleWithIndex) emit LogSingleWithIndex(arg0);
+        else if (which == WhichEvent.LogSingleAnonymous) emit LogSingleAnonymous(arg0);
+        else revert("Didn't match any allowable event index");
     }
 
     function logDouble(WhichEvent which, uint arg0, uint arg1) public {
-        if (which == WhichEvent.LogDoubleArg) LogDoubleArg(arg0, arg1);
-        else if (which == WhichEvent.LogDoubleWithIndex) LogDoubleWithIndex(arg0, arg1);
-        else if (which == WhichEvent.LogDoubleAnonymous) LogDoubleAnonymous(arg0, arg1);
-        else throw;
+        if (which == WhichEvent.LogDoubleArg) emit LogDoubleArg(arg0, arg1);
+        else if (which == WhichEvent.LogDoubleWithIndex) emit LogDoubleWithIndex(arg0, arg1);
+        else if (which == WhichEvent.LogDoubleAnonymous) emit LogDoubleAnonymous(arg0, arg1);
+        else revert("Didn't match any allowable event index");
     }
 
     function logTriple(WhichEvent which, uint arg0, uint arg1, uint arg2) public {
-        if (which == WhichEvent.LogTripleArg) LogTripleArg(arg0, arg1, arg2);
-        else if (which == WhichEvent.LogTripleWithIndex) LogTripleWithIndex(arg0, arg1, arg2);
-        else throw;
+        if (which == WhichEvent.LogTripleArg) emit LogTripleArg(arg0, arg1, arg2);
+        else if (which == WhichEvent.LogTripleWithIndex) emit LogTripleWithIndex(arg0, arg1, arg2);
+        else revert("Didn't match any allowable event index");
     }
 
     function logQuadruple(WhichEvent which, uint arg0, uint arg1, uint arg2, uint arg3) public {
-        if (which == WhichEvent.LogQuadrupleArg) LogQuadrupleArg(arg0, arg1, arg2, arg3);
-        else if (which == WhichEvent.LogQuadrupleWithIndex) LogQuadrupleWithIndex(arg0, arg1, arg2, arg3);
-        else throw;
+        if (which == WhichEvent.LogQuadrupleArg) emit LogQuadrupleArg(arg0, arg1, arg2, arg3);
+        else if (which == WhichEvent.LogQuadrupleWithIndex) emit LogQuadrupleWithIndex(arg0, arg1, arg2, arg3);
+        else revert("Didn't match any allowable event index");
     }
     function logDynamicArgs(string arg0, string arg1) public {
-        LogDynamicArgs(arg0, arg1);
+        emit LogDynamicArgs(arg0, arg1);
+    }
+    function logListArgs(bytes2[] arg0, bytes2[] arg1) public {
+        emit LogListArgs(arg0, arg1);
+    }
+    function logAddressIndexedArgs(address arg0, address arg1) public {
+        emit LogAddressIndexed(arg0, arg1);
+    }
+    function logAddressNotIndexedArgs(address arg0, address arg1) public {
+        emit LogAddressNotIndexed(arg0, arg1);
     }
 }

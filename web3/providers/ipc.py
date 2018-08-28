@@ -91,7 +91,7 @@ def get_default_ipc_path(testnet=False):
         if os.path.exists(ipc_path):
             return ipc_path
 
-    elif sys.platform.startswith('linux'):
+    elif sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
         ipc_path = os.path.expanduser(os.path.join(
             "~",
             ".ethereum",
@@ -132,7 +132,7 @@ def get_default_ipc_path(testnet=False):
 
     else:
         raise ValueError(
-            "Unsupported platform '{0}'.  Only darwin/linux2/win32 are "
+            "Unsupported platform '{0}'.  Only darwin/linux/win32/freebsd are "
             "supported.  You must specify the ipc_path".format(sys.platform)
         )
 
@@ -147,7 +147,7 @@ def get_dev_ipc_path():
         if os.path.exists(ipc_path):
             return ipc_path
 
-    elif sys.platform.startswith('linux'):
+    elif sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
         ipc_path = os.path.expanduser(os.path.join(
             "/tmp",
             "geth.ipc"
@@ -176,7 +176,7 @@ def get_dev_ipc_path():
 
     else:
         raise ValueError(
-            "Unsupported platform '{0}'.  Only darwin/linux2/win32 are "
+            "Unsupported platform '{0}'.  Only darwin/linux/win32/freebsd are "
             "supported.  You must specify the ipc_path".format(sys.platform)
         )
 

@@ -18,6 +18,9 @@ from eth_utils import (
     is_text,
     to_tuple,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3.exceptions import (
     BadFunctionCallOutput,
@@ -689,6 +692,17 @@ class Contract:
         return get_function_by_identifier(fns, 'selector')
 
     @combomethod
+    def decode_function_input(self, data):
+        data = HexBytes(data)
+        selector, params = data[:4], data[4:]
+        func = self.get_function_by_selector(selector)
+        names = [x['name'] for x in func.abi['inputs']]
+        types = [x['type'] for x in func.abi['inputs']]
+        decoded = decode_abi(types, params)
+        normalized = map_abi_data(BASE_RETURN_NORMALIZERS, types, decoded)
+        return func, dict(zip(names, normalized))
+
+    @combomethod
     def find_functions_by_args(self, *args):
         def callable_check(fn_abi):
             return check_if_arguments_can_be_encoded(fn_abi, args=args, kwargs={})
@@ -1194,7 +1208,7 @@ class ContractFunction:
 
         if not self.address and 'to' not in built_transaction:
             raise ValueError(
-                "When using `ContractFunction.buildTransaction` from a Contract factory"
+                "When using `ContractFunction.buildTransaction` from a contract factory "
                 "you must provide a `to` address with the transaction"
             )
         if self.address and 'to' in built_transaction:

@@ -306,3 +306,65 @@ Output:
      'logs': [AttributeDict({'type': 'mined', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x3ac3518cc59d1698aa03a0bab7fb8191a4ef017aeda7429b11e8c6462b20a62a'), 'blockHash': HexBytes('0x94e07b0b88667da284e914fa44b87d4e7fec39761be51245ef94632a3b5ab9f0'), 'blockNumber': 2, 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', 'data': '0x', 'topics': [HexBytes('0x6c2b4666ba8da5a95717621d879a77de725f3d816709b9cbe9f059b8f875e284'), HexBytes('0x00000000000000000000000000000000000000000000000000000000000000ff')]})],
      'transactionHash': HexBytes('0x3ac3518cc59d1698aa03a0bab7fb8191a4ef017aeda7429b11e8c6462b20a62a'),
      'transactionIndex': 0}
+
+
+Interacting with an ERC20 Contract
+----------------------------------
+
+The ERC20 (formally `EIP20 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md>`_) token standard is the most widely used standard in Ethereum. Here's how to check the current state of an ERC20 token contract.
+
+First, create your Python object representing the ERC20 contract.
+For this example, we'll be inspecting the `Unicorns <https://etherscan.io/token/0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7>`_ token contract.
+
+.. testsetup::
+    
+    import os
+    # Please play nice and don't use this key for any shenanigans, thanks!!
+    os.environ['INFURA_API_KEY'] = "b2679bb624354d1b9a2586154651b51f"
+
+.. doctest::
+
+    >>> import json
+    >>> from web3.auto.infura import w3
+
+    >>> ERC20_ABI = json.loads('[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}]')  # noqa: 501
+
+    # Address field should be the checksum address at which the ERC20 contract was deployed
+    >>> erc20 = w3.eth.contract(address='0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7', abi=ERC20_ABI)
+
+Fetch various data about the current state of the ERC20 contract.
+
+.. doctest::
+
+    >>> erc20.functions.name().call()
+    'Unicorns'
+    >>> erc20.functions.symbol().call()
+    '🦄'
+    >>> erc20.functions.decimals().call()
+    0
+    >>> erc20.functions.totalSupply().call()
+    2038
+
+Get the balance of an account address. 
+
+.. doctest::
+
+    >>> erc20.functions.balanceOf('0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb').call()
+    1
+
+Calculate the token count from the token balance of an account address.
+
+.. doctest::
+   
+    >>> from decimal import Decimal
+    
+    # Most applications expect *exact* results, so using the Decimal library,
+    # with default precision of 28, is usually sufficient to avoid any rounding error.
+    >>> decimals = erc20.functions.decimals().call()
+    >>> balance = erc20.functions.balanceOf('0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb').call()
+    >>> balance / Decimal(10 ** decimals)
+    Decimal('1')
+
+Balance is *always* an integer in the currency's smallest natural unit (equivalent to 'wei' for ether). Token balance is typically used only for backend calculations.
+
+Token count *may* be a integer or fraction in the currency's primary unit (equivalent to 'eth' for ether). Token count is typically displayed to the user on the front-end since it is more readable.

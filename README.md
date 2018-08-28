@@ -81,6 +81,7 @@ Please see OS-specific instructions for:
 - [Linux](docs/README-linux.md#Developer-Setup)
 - [Mac](docs/README-osx.md#Developer-Setup)
 - [Windows](docs/README-windows.md#Developer-Setup)
+- [FreeBSD](docs/README-freebsd.md#Developer-Setup)
 
 Then run these install commands:
 

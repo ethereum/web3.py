@@ -242,14 +242,15 @@ entries to a handler.
 Running the event loop in a separate thread
 """""""""""""""""""""""""""""""""""""""""""
 
-Here is an extended version of above example, where the event loop is run in a separate thread, 
+Here is an extended version of above example, where the event loop is run in a separate thread,
 releasing the ``main`` function for other tasks.
 
         .. code-block:: python
 
             from web3.auto import w3
-            import sleep
             from threading import Thread
+            import time
+            import asyncio
 
 
             def handle_event(event):
@@ -266,6 +267,7 @@ releasing the ``main`` function for other tasks.
 
             def main():
                 loop = asyncio.new_event_loop()
+                block_filter = w3.eth.filter('latest')
                 worker = Thread(target=log_loop, args=(block_filter, 5), daemon=True)
                 worker.start()
                     # .. do some other stuff

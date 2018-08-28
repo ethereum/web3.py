@@ -7,7 +7,7 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        "eth-tester[py-evm]==0.1.0-beta.30",
+        "eth-tester[py-evm]==0.1.0-beta.31",
         "py-geth>=2.0.1,<3.0.0",
     ],
     'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
@@ -26,7 +26,7 @@ extras_require['dev'] = (
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='4.5.0',
+    version='4.6.0',
     description="""Web3.py""",
     long_description_markdown_filename='README.md',
     author='Piper Merriam',
@@ -36,14 +36,14 @@ setup(
     install_requires=[
         "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
         "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
-        "eth-abi>=1.1.1,<2",
+        "eth-abi>=1.1.1,<3",
         "eth-account>=0.2.1,<0.4.0",
         "eth-utils>=1.0.1,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
         "lru-dict>=1.1.6,<2.0.0",
         "eth-hash[pycryptodome]",
         "requests>=2.16.0,<3.0.0",
-        "websockets>=5.0.1,<6.0.0",
+        "websockets>=6.0.0,<7.0.0",
         "pypiwin32>=223;platform_system=='Windows'",
     ],
     setup_requires=['setuptools-markdown'],

@@ -1,6 +1,47 @@
 Release Notes
 =============
 
+v4.6.0
+--------
+
+Released Aug 24, 2018
+
+- Features
+
+  - Support for Python 3.7, most notably in :class:`~web3.providers.websocket.WebsocketProvider`
+    -  `#996 <https://github.com/ethereum/web3.py/pull/996>`_
+  - You can now decode a transaction's data to its original function call and arguments with:
+    :meth:`contract.decode_function_input() <web3.contract.Contract.decode_function_input>` - `#991
+    <https://github.com/ethereum/web3.py/pull/991>`_
+  - Support for :class:`~web3.providers.ipc.IPCProvider` in FreeBSD (and more readme docs) - `#1008
+    <https://github.com/ethereum/web3.py/pull/1008>`_
+- Bugfixes
+
+  - Fix crash in time-based gas strategies with small number of transactions - `#983
+    <https://github.com/ethereum/web3.py/pull/983>`_
+  - Fx crash when passing multiple addresses to :meth:`w3.eth.getLogs() <web3.eth.Eth.getLogs>` -
+    `#1005 <https://github.com/ethereum/web3.py/pull/1005>`_
+- Misc
+
+  - Disallow configuring filters with both manual and generated topic lists - `#976
+    <https://github.com/ethereum/web3.py/pull/976>`_
+  - Add support for the upcoming eth-abi v2, which does ABI string decoding differently - `#974
+    <https://github.com/ethereum/web3.py/pull/974>`_
+  - Add a lot more filter tests - `#997
+    <https://github.com/ethereum/web3.py/pull/997>`_
+  - Add more tests for filtering with ``None``. Note that geth & parity differ here. - `#985
+    <https://github.com/ethereum/web3.py/pull/985>`_
+  - Follow-up on Parity bug that we reported upstream (`parity#7816
+    <https://github.com/paritytech/parity-ethereum/issues/7816>`_): they resolved in 1.10. We
+    removed xfail on that test. - `#992
+    <https://github.com/ethereum/web3.py/pull/992>`_
+  - Docs: add an example of interacting with an ERC20 contract - `#995
+    <https://github.com/ethereum/web3.py/pull/995>`_
+  - A couple doc typo fixes
+
+      - `#1006 <https://github.com/ethereum/web3.py/pull/1006>`_
+      - `#1010 <https://github.com/ethereum/web3.py/pull/1010>`_
+
 v4.5.0
 --------
 
