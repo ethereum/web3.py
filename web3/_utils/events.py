@@ -12,13 +12,7 @@ from eth_utils import (
     to_tuple,
 )
 
-from web3.datastructures import (
-    AttributeDict,
-)
-from web3.exceptions import (
-    MismatchedABI,
-)
-from web3.utils.abi import (
+from web3._utils.abi import (
     process_type,
 )
 from web3._utils.encoding import (
@@ -31,6 +25,12 @@ from web3._utils.normalizers import (
 from web3._utils.toolz import (
     compose,
     curry,
+)
+from web3.datastructures import (
+    AttributeDict,
+)
+from web3.exceptions import (
+    MismatchedABI,
 )
 
 from .abi import (

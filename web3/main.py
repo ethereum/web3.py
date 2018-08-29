@@ -1,6 +1,6 @@
 from eth_utils import (
-    apply_to_return_value,
     add_0x_prefix,
+    apply_to_return_value,
     from_wei,
     is_address,
     is_checksum_address,
@@ -9,20 +9,55 @@ from eth_utils import (
     to_checksum_address,
     to_wei,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from ens import ENS
-
-from web3.admin import Admin
-from web3.eth import Eth
-from web3.iban import Iban
-from web3.miner import Miner
-from web3.net import Net
-from web3.parity import Parity
-from web3.personal import Personal
-from web3.testing import Testing
-from web3.txpool import TxPool
-from web3.version import Version
-
+from web3._utils.abi import (
+    map_abi_data,
+)
+from web3._utils.decorators import (
+    combomethod,
+    deprecated_for,
+)
+from web3._utils.empty import (
+    empty,
+)
+from web3._utils.encoding import (
+    hex_encode_abi_type,
+    to_bytes,
+    to_hex,
+    to_int,
+    to_text,
+)
+from web3._utils.normalizers import (
+    abi_ens_resolver,
+)
+from web3.admin import (
+    Admin,
+)
+from web3.eth import (
+    Eth,
+)
+from web3.iban import (
+    Iban,
+)
+from web3.manager import (
+    RequestManager,
+)
+from web3.miner import (
+    Miner,
+)
+from web3.net import (
+    Net,
+)
+from web3.parity import (
+    Parity,
+)
+from web3.personal import (
+    Personal,
+)
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
@@ -36,33 +71,16 @@ from web3.providers.tester import (
     TestRPCProvider,
 )
 from web3.providers.websocket import (
-    WebsocketProvider
+    WebsocketProvider,
 )
-
-from web3.manager import (
-    RequestManager,
+from web3.testing import (
+    Testing,
 )
-
-from web3._utils.abi import (
-    map_abi_data,
+from web3.txpool import (
+    TxPool,
 )
-from hexbytes import (
-    HexBytes,
-)
-from web3._utils.decorators import (
-    combomethod,
-    deprecated_for,
-)
-from web3._utils.empty import empty
-from web3._utils.encoding import (
-    hex_encode_abi_type,
-    to_bytes,
-    to_int,
-    to_hex,
-    to_text,
-)
-from web3._utils.normalizers import (
-    abi_ens_resolver,
+from web3.version import (
+    Version,
 )
 
 

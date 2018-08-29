@@ -10,15 +10,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.contract import (
-    Contract,
-)
-from web3.iban import (
-    Iban,
-)
-from web3.module import (
-    Module,
-)
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
@@ -47,6 +38,15 @@ from web3._utils.transactions import (
     get_required_transaction,
     replace_transaction,
     wait_for_transaction_receipt,
+)
+from web3.contract import (
+    Contract,
+)
+from web3.iban import (
+    Iban,
+)
+from web3.module import (
+    Module,
 )
 
 

@@ -10,9 +10,6 @@ from eth_utils import (
 )
 
 from web3 import Web3
-from web3.providers.eth_tester import (
-    EthereumTesterProvider,
-)
 from web3._utils.module_testing import (
     EthModuleTest,
     NetModuleTest,
@@ -22,6 +19,9 @@ from web3._utils.module_testing import (
 )
 from web3._utils.module_testing.emitter_contract import (
     EMITTER_ENUM,
+)
+from web3.providers.eth_tester import (
+    EthereumTesterProvider,
 )
 
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")

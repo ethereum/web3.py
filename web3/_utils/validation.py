@@ -17,9 +17,6 @@ from eth_utils.hexadecimal import (
     encode_hex,
 )
 
-from web3.exceptions import (
-    InvalidAddress,
-)
 from web3._utils.abi import (
     abi_to_signature,
     filter_by_type,
@@ -42,6 +39,9 @@ from web3._utils.toolz import (
     groupby,
     valfilter,
     valmap,
+)
+from web3.exceptions import (
+    InvalidAddress,
 )
 
 

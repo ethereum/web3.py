@@ -16,9 +16,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.exceptions import (
-    ValidationError,
-)
 from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
@@ -47,6 +44,9 @@ from web3._utils.normalizers import (
 from web3._utils.toolz import (
     pipe,
     valmap,
+)
+from web3.exceptions import (
+    ValidationError,
 )
 
 

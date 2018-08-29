@@ -6,10 +6,6 @@ from eth_utils import (
     is_string,
 )
 
-from web3.middleware import (
-    construct_fixture_middleware,
-    construct_formatting_middleware,
-)
 from web3._utils.formatters import (
     apply_formatter_if,
     apply_formatter_to_array,
@@ -30,6 +26,10 @@ from web3._utils.toolz import (
     identity,
     partial,
     pipe,
+)
+from web3.middleware import (
+    construct_fixture_middleware,
+    construct_formatting_middleware,
 )
 
 

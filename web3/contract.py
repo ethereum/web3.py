@@ -22,14 +22,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.exceptions import (
-    BadFunctionCallOutput,
-    BlockNumberOutofRange,
-    FallbackNotFound,
-    MismatchedABI,
-    NoABIEventsFound,
-    NoABIFunctionsFound,
-)
 from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
@@ -85,6 +77,14 @@ from web3._utils.toolz import (
 )
 from web3._utils.transactions import (
     fill_transaction_defaults,
+)
+from web3.exceptions import (
+    BadFunctionCallOutput,
+    BlockNumberOutofRange,
+    FallbackNotFound,
+    MismatchedABI,
+    NoABIEventsFound,
+    NoABIFunctionsFound,
 )
 
 DEPRECATED_SIGNATURE_MESSAGE = (

@@ -6,10 +6,6 @@ from eth_utils import (
     to_tuple,
 )
 
-from web3.exceptions import (
-    InsufficientData,
-    ValidationError,
-)
 from web3._utils.math import (
     percentile,
 )
@@ -17,6 +13,10 @@ from web3._utils.toolz import (
     curry,
     groupby,
     sliding_window,
+)
+from web3.exceptions import (
+    InsufficientData,
+    ValidationError,
 )
 
 MinerData = collections.namedtuple(

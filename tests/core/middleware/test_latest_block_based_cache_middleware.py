@@ -10,6 +10,9 @@ from eth_utils import (
 )
 
 from web3 import Web3
+from web3._utils.caching import (
+    generate_cache_key,
+)
 from web3.middleware import (  # noqa: F401
     construct_error_generator_middleware,
     construct_latest_block_based_cache_middleware,
@@ -17,9 +20,6 @@ from web3.middleware import (  # noqa: F401
 )
 from web3.providers.base import (
     BaseProvider,
-)
-from web3._utils.caching import (
-    generate_cache_key,
 )
 
 

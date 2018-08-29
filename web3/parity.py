@@ -2,11 +2,11 @@ from eth_utils import (
     is_checksum_address,
 )
 
-from web3.module import (
-    Module,
-)
 from web3._utils.toolz import (
     assoc,
+)
+from web3.module import (
+    Module,
 )
 
 
