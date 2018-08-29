@@ -15,12 +15,46 @@ extras_require = {
         "flake8==3.4.1",
         "isort>=4.2.15,<5",
     ],
+    'docs': [
+        "mock",
+        "sphinx-better-theme>=0.1.4",
+        "click>=5.1",
+        "configparser==3.5.0",
+        "contextlib2>=0.5.4",
+        #"eth-testrpc>=0.8.0",
+        #"ethereum-tester-client>=1.1.0",
+        "ethtoken",
+        "py-geth>=1.4.0",
+        "py-solc>=0.4.0",
+        "pytest>=2.7.2",
+        "sphinx",
+        "sphinx_rtd_theme>=0.1.9",
+        "toposort>=1.4",
+        "urllib3",
+        "web3>=2.1.0",
+        "wheel"
+    ],
+    'dev': [
+        "bumpversion",
+        "flaky>=3.3.0",
+        "hypothesis>=3.31.2",
+        "pytest>=3.5.0,<4",
+        "pytest-mock==1.*",
+        "pytest-pythonpath>=0.3",
+        "pytest-watch==4.*",
+        "pytest-xdist==1.*",
+        "tox>=1.8.0",
+        "tqdm",
+        "when-changed"
+    ]
 }
 
 extras_require['dev'] = (
     extras_require['tester'] +
     extras_require['testrpc'] +
-    extras_require['linter']
+    extras_require['linter'] +
+    extras_require['docs'] +
+    extras_require['dev']
 )
 
 setup(
