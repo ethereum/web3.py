@@ -8,7 +8,7 @@ from eth_utils import (
 from web3.middleware import (
     combine_middlewares,
 )
-from web3.utils.encoding import (
+from web3._utils.encoding import (
     FriendlyJsonSerde,
 )
 

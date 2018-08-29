@@ -19,7 +19,7 @@ from hypothesis import (
 from web3.providers import (
     JSONBaseProvider,
 )
-from web3.utils.encoding import (
+from web3._utils.encoding import (
     FriendlyJsonSerde as FriendlyJson,
     hex_encode_abi_type,
     hexstr_if_str,
@@ -27,7 +27,7 @@ from web3.utils.encoding import (
     to_hex,
     to_int,
 )
-from web3.utils.hypothesis import (
+from web3._utils.hypothesis import (
     hexstr_strategy,
 )
 

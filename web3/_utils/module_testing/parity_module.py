@@ -4,7 +4,7 @@ from eth_utils import (
     add_0x_prefix,
 )
 
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     hex_to_integer,
 )
 

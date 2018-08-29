@@ -21,14 +21,14 @@ from web3.exceptions import (
 from web3.utils.abi import (
     process_type,
 )
-from web3.utils.encoding import (
+from web3._utils.encoding import (
     hexstr_if_str,
     to_bytes,
 )
-from web3.utils.normalizers import (
+from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     compose,
     curry,
 )

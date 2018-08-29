@@ -15,10 +15,10 @@ from eth_utils import (
     keccak,
 )
 
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     apply_formatter_if,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     compose,
     curry,
     excepts,

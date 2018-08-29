@@ -4,7 +4,7 @@ from eth_utils import (
     to_bytes,
 )
 
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     identity,
 )
 

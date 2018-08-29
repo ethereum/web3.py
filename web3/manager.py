@@ -25,10 +25,10 @@ from web3.middleware import (
 from web3.providers import (
     AutoProvider,
 )
-from web3.utils.empty import (
+from web3._utils.empty import (
     empty,
 )
-from web3.utils.threads import (
+from web3._utils.threads import (
     spawn,
 )
 

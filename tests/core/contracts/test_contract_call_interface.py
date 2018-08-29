@@ -21,10 +21,10 @@ from web3.exceptions import (
     NoABIFunctionsFound,
     ValidationError,
 )
-from web3.utils.ens import (
+from web3._utils.ens import (
     contract_ens_addresses,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     identity,
 )
 

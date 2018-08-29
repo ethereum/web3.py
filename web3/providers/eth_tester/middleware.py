@@ -10,7 +10,7 @@ from web3.middleware import (
     construct_fixture_middleware,
     construct_formatting_middleware,
 )
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     apply_formatter_if,
     apply_formatter_to_array,
     apply_formatters_to_args,
@@ -22,7 +22,7 @@ from web3.utils.formatters import (
     remove_key_if,
     static_return,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     assoc,
     complement,
     compose,

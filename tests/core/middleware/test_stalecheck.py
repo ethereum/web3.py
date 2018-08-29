@@ -15,6 +15,9 @@ from web3.middleware.stalecheck import (
     StaleBlockchain,
     _isfresh,
 )
+from web3.datastructures import (
+    AttributeDict,
+)
 
 
 @pytest.fixture

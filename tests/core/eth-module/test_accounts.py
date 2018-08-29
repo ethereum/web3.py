@@ -19,11 +19,11 @@ from web3 import (
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
-from web3.utils.encoding import (
+from web3._utils.encoding import (
     to_bytes,
     to_hex,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     dissoc,
 )
 

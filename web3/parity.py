@@ -5,7 +5,7 @@ from eth_utils import (
 from web3.module import (
     Module,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     assoc,
 )
 

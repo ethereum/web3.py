@@ -27,7 +27,7 @@ from web3.providers import (
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     identity,
     merge,
     valfilter,

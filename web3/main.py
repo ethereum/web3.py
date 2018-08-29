@@ -43,25 +43,25 @@ from web3.manager import (
     RequestManager,
 )
 
-from web3.utils.abi import (
+from web3._utils.abi import (
     map_abi_data,
 )
 from hexbytes import (
     HexBytes,
 )
-from web3.utils.decorators import (
+from web3._utils.decorators import (
     combomethod,
     deprecated_for,
 )
-from web3.utils.empty import empty
-from web3.utils.encoding import (
+from web3._utils.empty import empty
+from web3._utils.encoding import (
     hex_encode_abi_type,
     to_bytes,
     to_int,
     to_hex,
     to_text,
 )
-from web3.utils.normalizers import (
+from web3._utils.normalizers import (
     abi_ens_resolver,
 )
 

@@ -1,6 +1,6 @@
 import random
 
-from web3.utils.threads import (
+from web3._utils.threads import (
     Timeout,
 )
 

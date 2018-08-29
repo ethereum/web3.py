@@ -4,7 +4,7 @@ from web3.exceptions import (
     BadFunctionCallOutput,
     NameNotFound,
 )
-from web3.utils.ens import (
+from web3._utils.ens import (
     contract_ens_addresses,
     ens_addresses,
 )

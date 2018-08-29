@@ -10,7 +10,7 @@ from eth_utils import (
     is_integer,
 )
 
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     recursive_map,
 )
 

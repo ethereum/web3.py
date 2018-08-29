@@ -13,14 +13,14 @@ from web3 import Web3
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
-from web3.utils.module_testing import (
+from web3._utils.module_testing import (
     EthModuleTest,
     NetModuleTest,
     PersonalModuleTest,
     VersionModuleTest,
     Web3ModuleTest,
 )
-from web3.utils.module_testing.emitter_contract import (
+from web3._utils.module_testing.emitter_contract import (
     EMITTER_ENUM,
 )
 

@@ -6,7 +6,7 @@ from eth_utils import (
     to_checksum_address,
 )
 
-from web3.utils.validation import (
+from web3._utils.validation import (
     validate_address,
 )
 

@@ -17,7 +17,7 @@ from eth_utils import (
     to_hex,
 )
 
-from web3.utils.abi import (
+from web3._utils.abi import (
     is_address_type,
     is_array_type,
     is_bool_type,
@@ -28,10 +28,10 @@ from web3.utils.abi import (
     size_of_type,
     sub_type_of_array_type,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     curry,
 )
-from web3.utils.validation import (
+from web3._utils.validation import (
     assert_one_val,
     validate_abi_type,
     validate_abi_value,

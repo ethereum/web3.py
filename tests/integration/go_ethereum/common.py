@@ -1,7 +1,7 @@
 import pytest
 import socket
 
-from web3.utils.module_testing import (
+from web3._utils.module_testing import (
     EthModuleTest,
     NetModuleTest,
     PersonalModuleTest,

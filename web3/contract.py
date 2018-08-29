@@ -30,7 +30,7 @@ from web3.exceptions import (
     NoABIEventsFound,
     NoABIFunctionsFound,
 )
-from web3.utils.abi import (
+from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
@@ -40,50 +40,50 @@ from web3.utils.abi import (
     map_abi_data,
     merge_args_and_kwargs,
 )
-from web3.utils.blocks import (
+from web3._utils.blocks import (
     is_hex_encoded_block_hash,
 )
-from web3.utils.contracts import (
+from web3._utils.contracts import (
     encode_abi,
     find_matching_event_abi,
     find_matching_fn_abi,
     get_function_info,
     prepare_transaction,
 )
-from web3.utils.datatypes import (
+from web3._utils.datatypes import (
     PropertyCheckingFactory,
 )
-from web3.utils.decorators import (
+from web3._utils.decorators import (
     combomethod,
     deprecated_for,
 )
-from web3.utils.empty import (
+from web3._utils.empty import (
     empty,
 )
-from web3.utils.encoding import (
+from web3._utils.encoding import (
     to_4byte_hex,
     to_hex,
 )
-from web3.utils.events import (
+from web3._utils.events import (
     get_event_data,
 )
-from web3.utils.filters import (
+from web3._utils.filters import (
     construct_event_filter_params,
 )
-from web3.utils.function_identifiers import (
+from web3._utils.function_identifiers import (
     FallbackFn,
 )
-from web3.utils.normalizers import (
+from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
     normalize_abi,
     normalize_address,
     normalize_bytecode,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     compose,
     partial,
 )
-from web3.utils.transactions import (
+from web3._utils.transactions import (
     fill_transaction_defaults,
 )
 

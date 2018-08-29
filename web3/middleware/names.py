@@ -1,7 +1,7 @@
-from web3.utils.normalizers import (
+from web3._utils.normalizers import (
     abi_ens_resolver,
 )
-from web3.utils.rpc_abi import (
+from web3._utils.rpc_abi import (
     RPC_ABIS,
     abi_request_formatters,
 )

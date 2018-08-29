@@ -8,7 +8,7 @@ from hypothesis import (
 from web3.exceptions import (
     InsufficientData,
 )
-from web3.utils.math import (
+from web3._utils.math import (
     percentile,
 )
 

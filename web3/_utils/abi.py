@@ -18,13 +18,13 @@ from eth_utils import (
 from web3.exceptions import (
     FallbackNotFound,
 )
-from web3.utils.ens import (
+from web3._utils.ens import (
     is_ens_name,
 )
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     recursive_map,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     curry,
     partial,
     pipe,

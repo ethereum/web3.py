@@ -19,7 +19,7 @@ from hexbytes import (
 from web3.exceptions import (
     ValidationError,
 )
-from web3.utils.abi import (
+from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
     filter_by_argument_count,
@@ -32,19 +32,19 @@ from web3.utils.abi import (
     map_abi_data,
     merge_args_and_kwargs,
 )
-from web3.utils.encoding import (
+from web3._utils.encoding import (
     to_hex,
 )
-from web3.utils.function_identifiers import (
+from web3._utils.function_identifiers import (
     FallbackFn,
 )
-from web3.utils.normalizers import (
+from web3._utils.normalizers import (
     abi_address_to_hex,
     abi_bytes_to_bytes,
     abi_ens_resolver,
     abi_string_to_text,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     pipe,
     valmap,
 )

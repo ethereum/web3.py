@@ -2,7 +2,7 @@ from eth_utils import (
     is_string,
 )
 
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     apply_formatter_at_index,
     apply_formatter_if,
     apply_formatters_to_dict,

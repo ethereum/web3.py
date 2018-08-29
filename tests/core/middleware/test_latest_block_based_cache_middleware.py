@@ -18,7 +18,7 @@ from web3.middleware import (  # noqa: F401
 from web3.providers.base import (
     BaseProvider,
 )
-from web3.utils.caching import (
+from web3._utils.caching import (
     generate_cache_key,
 )
 
