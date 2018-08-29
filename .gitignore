@@ -45,6 +45,7 @@ docs/_build
 docs/modules.rst
 docs/*.internal.rst
 docs/*.utils.rst
+docs/*._utils.*
 
 # Blockchain
 chains
