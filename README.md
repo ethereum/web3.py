@@ -88,7 +88,7 @@ Then run these install commands:
 ```sh
 virtualenv venv
 . venv/bin/activate
-pip install -e .[tester] -r requirements-dev.txt
+pip install -e .[dev]
 ```
 
 For different environments, you can set up multiple `virtualenv`. For example, if you want to create a `venvdocs`, then you do the following:
@@ -96,7 +96,7 @@ For different environments, you can set up multiple `virtualenv`. For example, i
 ```sh
 virtualenv venvdocs
 . venvdocs/bin/activate
-pip install -r requirements-docs.txt
+pip install -e .[docs]
 pip install -e .
 ```
 
