@@ -366,7 +366,6 @@ class Contract:
 
         return encode_abi(cls.web3, fn_abi, fn_arguments, data)
 
-
     @combomethod
     @deprecated_for("contract.functions.<method name>.estimateGas")
     def estimateGas(self, transaction=None):
