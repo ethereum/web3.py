@@ -21,7 +21,7 @@ pip install ptyprocess eth-account
 cd /tmp
 git clone https://github.com/ethereum/web3.py.git
 cd web3.py
-pip install -e .\[tester\] .\[dev\] --global-option=build_ext --global-option='-I/usr/local/include'
+pip install -e .\[dev\] --global-option=build_ext --global-option='-I/usr/local/include'
 ```
 
 ## Test
