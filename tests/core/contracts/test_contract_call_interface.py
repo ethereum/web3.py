@@ -409,9 +409,6 @@ def test_call_fallback_function(fallback_function_contract):
 def test_throws_error_if_block_out_of_range(web3, math_contract):
     web3.providers[0].make_request(method='evm_mine', params=[20])
     with pytest.raises(BlockNumberOutofRange):
-        math_contract.functions.counter().call(block_identifier=50)
-
-    with pytest.raises(BlockNumberOutofRange):
         math_contract.functions.counter().call(block_identifier=-50)
 
 
