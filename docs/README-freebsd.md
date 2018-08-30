@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-Make sure you've UTF-8 defined for charset and lang in your [~/.login_conf](https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/using-localization.html), 
+Make sure you've UTF-8 defined for charset and lang in your [~/.login_conf](https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/using-localization.html),
 otherwise almost every module will fail to install. Python 3 is very sensitive to that.
 
 ```
@@ -21,7 +21,7 @@ pip install ptyprocess eth-account
 cd /tmp
 git clone https://github.com/ethereum/web3.py.git
 cd web3.py
-pip install -e .\[tester\] -r requirements-dev.txt --global-option=build_ext --global-option='-I/usr/local/include'
+pip install -e .\[tester\] .\[dev\] --global-option=build_ext --global-option='-I/usr/local/include'
 ```
 
 ## Test
