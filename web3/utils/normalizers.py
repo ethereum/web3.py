@@ -31,6 +31,7 @@ from web3.utils.encoding import (
     to_text,
 )
 from web3.utils.ens import (
+    StaticENS,
     is_ens_name,
     validate_name_has_address,
 )
@@ -134,9 +135,20 @@ def abi_address_to_hex(abi_type, data):
 def abi_ens_resolver(w3, abi_type, val):
     if abi_type == 'address' and is_ens_name(val):
         if w3 is None:
-            raise InvalidAddress("Could not look up name, because no web3 connection available")
+            raise InvalidAddress(
+                "Could not look up name %r because no web3"
+                " connection available" % (val)
+            )
         elif w3.ens is None:
-            raise InvalidAddress("Could not look up name, because ENS is set to None")
+            raise InvalidAddress(
+                "Could not look up name %r because ENS is"
+                " set to None" % (val)
+            )
+        elif int(w3.net.version) is not 1 and not isinstance(w3.ens, StaticENS):
+            raise InvalidAddress(
+                "Could not look up name %r because web3 is"
+                " not connected to mainnet" % (val)
+            )
         else:
             return (abi_type, validate_name_has_address(w3.ens, val))
     else:
