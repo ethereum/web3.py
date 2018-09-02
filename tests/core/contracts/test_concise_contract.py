@@ -8,7 +8,7 @@ from eth_utils import (
 )
 
 from web3.contract import (
-    CONCISE_NORMALIZERS,
+    CALLER_NORMALIZERS,
     ConciseContract,
     ConciseMethod,
 )
@@ -109,7 +109,7 @@ def test_conciscecontract_keeps_custom_normalizers_on_base(web3):
 
     # check that concise contract includes the new normalizers
     concise_normalizers_size = len(concise._classic_contract._return_data_normalizers)
-    assert concise_normalizers_size == new_normalizers_size + len(CONCISE_NORMALIZERS)
+    assert concise_normalizers_size == new_normalizers_size + len(CALLER_NORMALIZERS)
     assert concise._classic_contract._return_data_normalizers[0] is None
 
 
