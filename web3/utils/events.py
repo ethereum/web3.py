@@ -15,11 +15,11 @@ from eth_utils import (
     to_tuple,
 )
 
+from web3.datastructures import (
+    AttributeDict,
+)
 from web3.exceptions import (
     MismatchedABI,
-)
-from web3.utils.datastructures import (
-    AttributeDict,
 )
 from web3.utils.encoding import (
     hexstr_if_str,

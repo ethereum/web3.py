@@ -2,7 +2,7 @@ from eth_utils import (
     is_dict,
 )
 
-from web3.utils.datastructures import (
+from web3.datastructures import (
     AttributeDict,
 )
 from web3.utils.toolz import (
