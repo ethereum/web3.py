@@ -1416,7 +1416,7 @@ def parse_block_identifier(web3, block_identifier):
     elif block_identifier in ['latest', 'earliest', 'pending']:
         return block_identifier
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
-        return web3.eth.getBlock(block_identifier).number
+        return web3.eth.getBlock(block_identifier)['number']
     else:
         raise BlockNumberOutofRange
 
@@ -1425,7 +1425,7 @@ def parse_block_identifier_int(web3, block_identifier_int):
     if block_identifier_int >= 0:
         block_num = block_identifier_int
     else:
-        last_block = web3.eth.getBlock('latest').number
+        last_block = web3.eth.getBlock('latest')['number']
         block_num = last_block + block_identifier_int + 1
         if block_num < 0:
             raise BlockNumberOutofRange
