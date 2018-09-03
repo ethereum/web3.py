@@ -5,6 +5,9 @@ from eth_utils import (
     is_list_like,
 )
 
+from web3.datastructures import (
+    NamedElementOnion,
+)
 from web3.exceptions import (
     CannotHandleRequest,
     UnhandledRequest,
@@ -21,9 +24,6 @@ from web3.middleware import (
 )
 from web3.providers import (
     AutoProvider,
-)
-from web3.utils.datastructures import (
-    NamedElementOnion,
 )
 from web3.utils.empty import (
     empty,
