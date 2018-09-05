@@ -40,6 +40,11 @@ AttributeDict
     address that the name points to. For example :meth:`~web3.Eth.sendTransaction` will
     accept .eth names in the 'from' and 'to' fields.
 
+.. note::
+    This middleware only converts ENS names if invoked with the mainnet
+    (where the ENS contract is deployed), for all other cases will result in an
+    ``InvalidAddress`` error
+
 Pythonic
 ~~~~~~~~~~~~
 
