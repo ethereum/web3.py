@@ -1,6 +1,27 @@
 Release Notes
 =============
 
+v4.7.0
+--------
+
+Released September 5th, 2018
+
+- Features
+
+  - Move :module:`~web3.utils.datastructures` to public namespace :module:`~web3.datastructures` 
+    to improve support for type checking.
+    - `#1038 <https://github.com/ethereum/web3.py/pull/1038>`_
+  - Optimization to contract calls
+    - `#944 <https://github.com/ethereum/web3.py/pull/944>`_
+- Bugfixes
+
+  - ENS name resolution only attempted on mainnet by default.
+    -  `#1037 <https://github.com/ethereum/web3.py/pull/1037>`_
+  - Fix attribute access error when attributedict middleware is not used.
+    - `#1040 <https://github.com/ethereum/web3.py/pull/1040>`_
+- Misc
+  - Upgrade eth-tester to 0.1.0-beta.32, and remove integration tests for py-ethereum.
+
 v4.6.0
 --------
 
