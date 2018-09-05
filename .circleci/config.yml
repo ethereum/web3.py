@@ -200,14 +200,6 @@ jobs:
       PARITY_VERSION: v1.11.7
       PARITY_OS: debian
 
-  py35-integration-ethtester-pyethereum:
-    <<: *common
-    docker:
-      - image: circleci/python:3.5
-    environment:
-      TOXENV: py35-integration-ethtester
-      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEthereum16Backend
-
   py35-integration-ethtester-pyevm:
     <<: *common
     docker:
@@ -321,14 +313,6 @@ jobs:
       PARITY_VERSION: v1.11.7
       PARITY_OS: debian
 
-  py36-integration-ethtester-pyethereum:
-    <<: *common
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-integration-ethtester
-      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEthereum16Backend
-
   py36-integration-ethtester-pyevm:
     <<: *common
     docker:
@@ -428,14 +412,6 @@ jobs:
       PARITY_VERSION: v1.11.7
       PARITY_OS: debian
 
-  py37-integration-ethtester-pyethereum:
-    <<: *common
-    docker:
-      - image: circleci/python:3.7
-    environment:
-      TOXENV: py37-integration-ethtester
-      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEthereum16Backend
-
   py37-integration-ethtester-pyevm:
     <<: *common
     docker:
@@ -461,7 +437,6 @@ workflows:
       - py35-integration-parity-ipc
       - py35-integration-parity-http
       - py35-integration-parity-ws
-      - py35-integration-ethtester-pyethereum
       - py35-integration-ethtester-pyevm
       - py36-core
       - py36-ens
@@ -474,7 +449,6 @@ workflows:
       - py36-integration-parity-ipc
       - py36-integration-parity-http
       - py36-integration-parity-ws
-      - py36-integration-ethtester-pyethereum
       - py36-integration-ethtester-pyevm
       - py37-core
       - py37-ens
@@ -487,5 +461,4 @@ workflows:
       - py37-integration-parity-ipc
       - py37-integration-parity-http
       - py37-integration-parity-ws
-      - py37-integration-ethtester-pyethereum
       - py37-integration-ethtester-pyevm
