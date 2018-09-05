@@ -86,7 +86,11 @@ The version format for this repo is `{major}.{minor}.{patch}` for stable, and
 `{major}.{minor}.{patch}-{stage}.{devnum}` for unstable (`stage` can be alpha or beta).
 
 To issue the next version in line, specify which part to bump,
-like `make release bump=minor` or `make release bump=devnum`.
+like `make release bump=minor` or `make release bump=devnum`. This is typically done from the
+master branch, except when releasing a beta (in which case the beta is released from master,
+and the previous stable branch is released from said branch). To include changes made with each
+release, update "docs/releases.rst" with the changes, and apply commit directly to master 
+before release.
 
 If you are in a beta version, `make release bump=stage` will switch to a stable.
 
