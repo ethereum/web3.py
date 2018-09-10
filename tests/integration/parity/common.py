@@ -205,3 +205,6 @@ class ParityTraceModuleTest(TraceModuleTest):
 
     def test_eth_call_with_0_result(self, web3, math_contract, math_contract_address):
         super().test_eth_call_with_0_result(web3, math_contract, math_contract_address)
+
+    def test_trace_filter(self, web3, txn_filter_params, parity_fixture_data):
+        super().test_trace_filter(web3, txn_filter_params, parity_fixture_data)

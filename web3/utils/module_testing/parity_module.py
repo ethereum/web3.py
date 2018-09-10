@@ -82,3 +82,8 @@ class ParityModuleTest:
         assert trace['stateDiff'] is None
         assert trace['vmTrace'] is None
         assert trace['trace'][0]['action']['from'] == funded_account_for_raw_txn.lower()
+
+    def test_trace_filter(self, web3, txn_filter_params, parity_fixture_data):
+        trace = web3.parity.traceFilter(txn_filter_params)
+        assert isinstance(trace, list)
+        assert trace[0]['action']['from'] == add_0x_prefix(parity_fixture_data['coinbase'])
