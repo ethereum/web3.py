@@ -188,10 +188,10 @@ class IPCProvider(JSONBaseProvider):
     def __init__(self, ipc_path=None, testnet=False, timeout=10, *args, **kwargs):
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path(testnet)
+        elif isinstance(ipc_path, str) or isinstance(ipc_path, pathlib.Path):
+            self.ipc_path = str(pathlib.Path(ipc_path).expanduser().resolve())
         else:
-            if isinstance(ipc_path, pathlib.Path):
-                ipc_path = str(ipc_path.resolve())
-            self.ipc_path = ipc_path
+            raise TypeError("ipc_path must be of type string or pathlib.Path")
 
         self.timeout = timeout
         self._lock = threading.Lock()
