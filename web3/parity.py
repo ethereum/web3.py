@@ -46,6 +46,12 @@ class Parity(Module):
             [block_identifier]
         )
 
+    def traceFilter(self, params):
+        return self.web3.manager.request_blocking(
+            "trace_filter",
+            [params]
+        )
+
     def traceTransaction(self, transaction_hash):
         return self.web3.manager.request_blocking(
             "trace_transaction",

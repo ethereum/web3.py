@@ -214,3 +214,12 @@ def block_with_txn_with_log(web3, parity_fixture_data):
 @pytest.fixture(scope="module")
 def txn_hash_with_log(parity_fixture_data):
     return parity_fixture_data['txn_hash_with_log']
+
+
+@pytest.fixture(scope="module")
+def txn_filter_params(coinbase):
+    return {
+        "fromBlock": "earliest",
+        "toBlock": "latest",
+        "fromAddress": [coinbase],
+    }
