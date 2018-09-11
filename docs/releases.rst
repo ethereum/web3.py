@@ -1,10 +1,20 @@
 Release Notes
 =============
 
+v4.7.1
+--------
+
+Released September 11th, 2018
+
+- Bugfixes
+
+  - `old pip bug <https://github.com/pypa/pip/issues/4614>`_ used during
+    release made it impossible for non-windows users to install 4.7.0.
+
 v4.7.0
 --------
 
-Released September 5th, 2018
+Released September 10th, 2018
 
 - Features
 
