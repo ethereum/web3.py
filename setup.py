@@ -43,6 +43,7 @@ extras_require = {
         "pytest-pythonpath>=0.3",
         "pytest-watch==4.*",
         "pytest-xdist==1.*",
+        "setuptools>=36.2.0",
         "tox>=1.8.0",
         "tqdm",
         "when-changed"
