@@ -356,6 +356,11 @@ def is_string_type(abi_type):
     return abi_type == 'string'
 
 
+@curry
+def is_length(target_length, value):
+    return len(value) == target_length
+
+
 def size_of_type(abi_type):
     """
     Returns size in bits of abi_type

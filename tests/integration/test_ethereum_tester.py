@@ -280,6 +280,14 @@ class TestEthereumTesterEthModule(EthModuleTest):
         pytest.xfail('json-rpc method is not implemented on eth-tester')
         super().test_eth_getStorageAt(web3, emitter_contract_address)
 
+    def test_eth_estimateGas_with_block(self,
+                                        web3,
+                                        unlocked_account_dual_type):
+        pytest.xfail('Block identifier has not been implemented in eth-tester')
+        super().test_eth_estimateGas_with_block(
+            web3, unlocked_account_dual_type
+        )
+
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
     pass

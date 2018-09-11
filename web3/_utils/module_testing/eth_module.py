@@ -469,6 +469,17 @@ class EthModuleTest:
         assert is_integer(gas_estimate)
         assert gas_estimate > 0
 
+    def test_eth_estimateGas_with_block(self,
+                                        web3,
+                                        unlocked_account_dual_type):
+        gas_estimate = web3.eth.estimateGas({
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': 1,
+        }, 'latest')
+        assert is_integer(gas_estimate)
+        assert gas_estimate > 0
+
     def test_eth_getBlockByHash(self, web3, empty_block):
         block = web3.eth.getBlock(empty_block['hash'])
         assert block['hash'] == empty_block['hash']
