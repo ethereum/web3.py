@@ -32,7 +32,6 @@ from web3.datastructures import (
 from web3.exceptions import (
     MismatchedABI,
 )
-
 from .abi import (
     exclude_indexed_event_inputs,
     get_abi_input_names,

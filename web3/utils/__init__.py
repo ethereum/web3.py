@@ -1,4 +1,28 @@
-from web3._utils import *
-import web3._utils.compat as compat
-import web3._utils.six as six
-import web3._utils.toolz as toolz
+from web3._utils import (  # noqa: F401
+    abi,
+    blocks,
+    caching,
+    compat,
+    contracts,
+    datatypes,
+    decorators,
+    empty,
+    encoding,
+    ens,
+    events,
+    filters,
+    formatters,
+    function_identifiers,
+    http,
+    hypothesis,
+    math,
+    module_testing,
+    normalizers,
+    request,
+    rpc_abi,
+    six,
+    threads,
+    toolz,
+    transactions,
+    validation,
+)

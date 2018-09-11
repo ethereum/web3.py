@@ -17,9 +17,6 @@ from web3._utils.http import (
 from web3._utils.request import (
     make_post_request,
 )
-from web3.middleware import (
-    http_retry_request_middleware,
-)
 
 from .base import (
     JSONBaseProvider,
