@@ -8,6 +8,8 @@ Released September 5th, 2018
 
 - Features
 
+  - Add traceFilter method to the parity module.
+    - `#1051 <https://github.com/ethereum/web3.py/pull/1051>`_
   - Move :module:`~web3.utils.datastructures` to public namespace :module:`~web3.datastructures` 
     to improve support for type checking.
     - `#1038 <https://github.com/ethereum/web3.py/pull/1038>`_
@@ -21,6 +23,7 @@ Released September 5th, 2018
     - `#1040 <https://github.com/ethereum/web3.py/pull/1040>`_
 - Misc
   - Upgrade eth-tester to 0.1.0-beta.32, and remove integration tests for py-ethereum.
+  - Upgrade eth-hash to 0.2.0 with pycryptodome 3.6.6 which resolves a vulnerability.
 
 v4.6.0
 --------
