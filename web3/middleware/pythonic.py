@@ -84,7 +84,7 @@ def to_hexbytes(num_bytes, val, variable_length=False):
 
 
 TRANSACTION_FORMATTERS = {
-    'blockHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
+    'blockHash': apply_formatter_if(is_not_null, to_hexbytes(64)),
     'blockNumber': apply_formatter_if(is_not_null, to_integer_if_hex),
     'transactionIndex': apply_formatter_if(is_not_null, to_integer_if_hex),
     'nonce': to_integer_if_hex,
@@ -93,11 +93,11 @@ TRANSACTION_FORMATTERS = {
     'value': to_integer_if_hex,
     'from': to_checksum_address,
     'publicKey': apply_formatter_if(is_not_null, to_hexbytes(64)),
-    'r': to_hexbytes(32, variable_length=True),
+    'r': to_hexbytes(64, variable_length=True),
     'raw': HexBytes,
-    's': to_hexbytes(32, variable_length=True),
+    's': to_hexbytes(64, variable_length=True),
     'to': apply_formatter_if(is_address, to_checksum_address),
-    'hash': to_hexbytes(32),
+    'hash': to_hexbytes(64),
     'v': apply_formatter_if(is_not_null, to_integer_if_hex),
     'standardV': apply_formatter_if(is_not_null, to_integer_if_hex),
 }
@@ -120,13 +120,13 @@ whisper_log_formatter = apply_formatters_to_dict(WHISPER_LOG_FORMATTERS)
 
 
 LOG_ENTRY_FORMATTERS = {
-    'blockHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
+    'blockHash': apply_formatter_if(is_not_null, to_hexbytes(64)),
     'blockNumber': apply_formatter_if(is_not_null, to_integer_if_hex),
     'transactionIndex': apply_formatter_if(is_not_null, to_integer_if_hex),
-    'transactionHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
+    'transactionHash': apply_formatter_if(is_not_null, to_hexbytes(64)),
     'logIndex': to_integer_if_hex,
     'address': to_checksum_address,
-    'topics': apply_formatter_to_array(to_hexbytes(32)),
+    'topics': apply_formatter_to_array(to_hexbytes(64)),
     'data': to_ascii_if_bytes,
 }
 
@@ -135,10 +135,10 @@ log_entry_formatter = apply_formatters_to_dict(LOG_ENTRY_FORMATTERS)
 
 
 RECEIPT_FORMATTERS = {
-    'blockHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
+    'blockHash': apply_formatter_if(is_not_null, to_hexbytes(64)),
     'blockNumber': apply_formatter_if(is_not_null, to_integer_if_hex),
     'transactionIndex': apply_formatter_if(is_not_null, to_integer_if_hex),
-    'transactionHash': to_hexbytes(32),
+    'transactionHash': to_hexbytes(64),
     'cumulativeGasUsed': to_integer_if_hex,
     'status': to_integer_if_hex,
     'gasUsed': to_integer_if_hex,
@@ -151,29 +151,29 @@ RECEIPT_FORMATTERS = {
 receipt_formatter = apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
 BLOCK_FORMATTERS = {
-    'extraData': to_hexbytes(32, variable_length=True),
+    'extraData': to_hexbytes(64, variable_length=True),
     'gasLimit': to_integer_if_hex,
     'gasUsed': to_integer_if_hex,
     'size': to_integer_if_hex,
     'timestamp': to_integer_if_hex,
-    'hash': apply_formatter_if(is_not_null, to_hexbytes(32)),
+    'hash': apply_formatter_if(is_not_null, to_hexbytes(64)),
     'logsBloom': to_hexbytes(256),
     'miner': apply_formatter_if(is_not_null, to_checksum_address),
-    'mixHash': to_hexbytes(32),
+    'mixHash': to_hexbytes(64),
     'nonce': apply_formatter_if(is_not_null, to_hexbytes(8, variable_length=True)),
     'number': apply_formatter_if(is_not_null, to_integer_if_hex),
-    'parentHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
-    'sha3Uncles': apply_formatter_if(is_not_null, to_hexbytes(32)),
-    'uncles': apply_formatter_to_array(to_hexbytes(32)),
+    'parentHash': apply_formatter_if(is_not_null, to_hexbytes(64)),
+    'sha3Uncles': apply_formatter_if(is_not_null, to_hexbytes(64)),
+    'uncles': apply_formatter_to_array(to_hexbytes(64)),
     'difficulty': to_integer_if_hex,
-    'receiptsRoot': to_hexbytes(32),
-    'stateRoot': to_hexbytes(32),
+    'receiptsRoot': to_hexbytes(64),
+    'stateRoot': to_hexbytes(64),
     'totalDifficulty': to_integer_if_hex,
     'transactions': apply_one_of_formatters((
         (apply_formatter_to_array(transaction_formatter), is_array_of_dicts),
-        (apply_formatter_to_array(to_hexbytes(32)), is_array_of_strings),
+        (apply_formatter_to_array(to_hexbytes(64)), is_array_of_strings),
     )),
-    'transactionsRoot': to_hexbytes(32),
+    'transactionsRoot': to_hexbytes(64),
 }
 
 
@@ -231,7 +231,7 @@ filter_params_formatter = apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
 
 filter_result_formatter = apply_one_of_formatters((
     (apply_formatter_to_array(log_entry_formatter), is_array_of_dicts),
-    (apply_formatter_to_array(to_hexbytes(32)), is_array_of_strings),
+    (apply_formatter_to_array(to_hexbytes(64)), is_array_of_strings),
 ))
 
 TRANSACTION_PARAM_FORMATTERS = {
@@ -330,15 +330,15 @@ pythonic_middleware = construct_formatting_middleware(
             apply_formatter_if(is_integer, str),
             to_integer_if_hex,
         ),
-        'eth_sendRawTransaction': to_hexbytes(32),
-        'eth_sendTransaction': to_hexbytes(32),
+        'eth_sendRawTransaction': to_hexbytes(64),
+        'eth_sendTransaction': to_hexbytes(64),
         'eth_sign': HexBytes,
         'eth_syncing': apply_formatter_if(is_not_false, syncing_formatter),
         # personal
         'personal_importRawKey': to_checksum_address,
         'personal_listAccounts': apply_formatter_to_array(to_checksum_address),
         'personal_newAccount': to_checksum_address,
-        'personal_sendTransaction': to_hexbytes(32),
+        'personal_sendTransaction': to_hexbytes(64),
         # SHH
         'shh_getFilterMessages': apply_formatter_to_array(whisper_log_formatter),
         # Transaction Pool
