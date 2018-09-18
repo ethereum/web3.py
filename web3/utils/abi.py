@@ -160,10 +160,10 @@ except ImportError:
 
 
 def is_encodable(_type, value):
-    try:
-        base, sub, arrlist = _type
-    except ValueError:
-        base, sub, arrlist = process_type(_type)
+    if not isinstance(_type, str):
+        raise ValueError("is_encodable only accepts type strings")
+
+    base, sub, arrlist = process_type(_type)
 
     if arrlist:
         if not is_list_like(value):
@@ -171,7 +171,7 @@ def is_encodable(_type, value):
         if arrlist[-1] and len(value) != arrlist[-1][0]:
             return False
         sub_type = (base, sub, arrlist[:-1])
-        return all(is_encodable(sub_type, sub_value) for sub_value in value)
+        return all(is_encodable(collapse_type(*sub_type), sub_value) for sub_value in value)
     elif base == 'address' and is_ens_name(value):
         # ENS names can be used anywhere an address is needed
         # Web3.py will resolve the name to an address before encoding it
