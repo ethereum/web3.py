@@ -187,7 +187,7 @@ jobs:
     environment:
       TOXENV: py35-integration-parity-ipc
       PARITY_VERSION: v2.0.5
-      PARITY_OS: debian
+      PARITY_OS: linux
 
   py35-integration-parity-http:
     <<: *parity_steps
@@ -196,7 +196,7 @@ jobs:
     environment:
       TOXENV: py35-integration-parity-http
       PARITY_VERSION: v2.0.5
-      PARITY_OS: debian
+      PARITY_OS: linux
 
   py35-integration-parity-ws:
     <<: *parity_steps
@@ -205,7 +205,7 @@ jobs:
     environment:
       TOXENV: py35-integration-parity-ws
       PARITY_VERSION: v2.0.5
-      PARITY_OS: debian
+      PARITY_OS: linux
 
   py35-integration-ethtester-pyevm:
     <<: *common
@@ -307,7 +307,7 @@ jobs:
     environment:
       TOXENV: py36-integration-parity-ipc
       PARITY_VERSION: v2.0.5
-      PARITY_OS: debian
+      PARITY_OS: linux
 
   py36-integration-parity-http:
     <<: *parity_steps
@@ -316,7 +316,7 @@ jobs:
     environment:
       TOXENV: py36-integration-parity-http
       PARITY_VERSION: v2.0.5
-      PARITY_OS: debian
+      PARITY_OS: linux
 
   py36-integration-parity-ws:
     <<: *parity_steps
@@ -325,7 +325,7 @@ jobs:
     environment:
       TOXENV: py36-integration-parity-ws
       PARITY_VERSION: v2.0.5
-      PARITY_OS: debian
+      PARITY_OS: linux
 
   py36-integration-ethtester-pyevm:
     <<: *common
@@ -413,7 +413,7 @@ jobs:
     environment:
       TOXENV: py37-integration-parity-ipc
       PARITY_VERSION: v2.0.5
-      PARITY_OS: debian
+      PARITY_OS: linux
 
   py37-integration-parity-http:
     <<: *parity_steps
@@ -422,7 +422,7 @@ jobs:
     environment:
       TOXENV: py37-integration-parity-http
       PARITY_VERSION: v2.0.5
-      PARITY_OS: debian
+      PARITY_OS: linux
 
   py37-integration-parity-ws:
     <<: *parity_steps
@@ -431,7 +431,7 @@ jobs:
     environment:
       TOXENV: py37-integration-parity-ws
       PARITY_VERSION: v2.0.5
-      PARITY_OS: debian
+      PARITY_OS: linux
 
   py37-integration-ethtester-pyevm:
     <<: *common
