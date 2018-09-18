@@ -21,6 +21,18 @@ def test_keccak_text(message, digest):
 
 
 @pytest.mark.parametrize(
+    'message, digest',
+    [
+        ('cowmö', HexBytes('0x0f355f04c0a06eebac1d219b34c598f85a1169badee164be8a30345944885fe8')),
+        ('', HexBytes('0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470')),
+    ],
+)
+def test_sha3_text(message, digest):
+    with pytest.deprecated_call():
+        assert Web3.sha3(text=message) == digest
+
+
+@pytest.mark.parametrize(
     'hexstr, digest',
     [
         (
@@ -43,6 +55,32 @@ def test_keccak_text(message, digest):
 )
 def test_keccak_hexstr(hexstr, digest):
     assert Web3.keccak(hexstr=hexstr) == digest
+
+
+@pytest.mark.parametrize(
+    'hexstr, digest',
+    [
+        (
+            '0x636f776dc3b6',
+            HexBytes('0x0f355f04c0a06eebac1d219b34c598f85a1169badee164be8a30345944885fe8')
+        ),
+        (
+            '636f776dc3b6',
+            HexBytes('0x0f355f04c0a06eebac1d219b34c598f85a1169badee164be8a30345944885fe8')
+        ),
+        (
+            '0x',
+            HexBytes('0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470')
+        ),
+        (
+            '',
+            HexBytes('0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470')
+        ),
+    ],
+)
+def test_sha3_hexstr(hexstr, digest):
+    with pytest.deprecated_call():
+        assert Web3.sha3(hexstr=hexstr) == digest
 
 
 @pytest.mark.parametrize(

@@ -133,21 +133,10 @@ class Web3:
         self.manager.providers = providers
 
     @staticmethod
-    @deprecated_for("This method has been renamed to web3.keccak")
+    @deprecated_for("This method has been renamed to keccak")
     @apply_to_return_value(HexBytes)
     def sha3(primitive=None, text=None, hexstr=None):
-        if isinstance(primitive, (bytes, int, type(None))):
-            input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
-            return eth_utils_keccak(input_bytes)
-
-        raise TypeError(
-            "You called sha3 with first arg %r and keywords %r. You must call it with one of "
-            "these approaches: sha3(text='txt'), sha3(hexstr='0x747874'), "
-            "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)." % (
-                primitive,
-                {'text': text, 'hexstr': hexstr}
-            )
-        )
+        return Web3.keccak(primitive, text, hexstr)
 
     @staticmethod
     @apply_to_return_value(HexBytes)
