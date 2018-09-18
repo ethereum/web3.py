@@ -123,14 +123,14 @@ except ImportError:
         normalized_type_str = normalize_type_string(type_str)
         abi_type = parse_type_string(normalized_type_str)
 
-        type_str_repr = repr(type_str)
-        if type_str != normalized_type_str:
-            type_str_repr = '{} (normalized to {})'.format(
-                type_str_repr,
-                repr(normalized_type_str),
-            )
-
         if isinstance(abi_type, TupleType):
+            type_str_repr = repr(type_str)
+            if type_str != normalized_type_str:
+                type_str_repr = '{} (normalized to {})'.format(
+                    type_str_repr,
+                    repr(normalized_type_str),
+                )
+
             raise ValueError(
                 "Cannot process type {}: tuple types not supported".format(
                     type_str_repr,
