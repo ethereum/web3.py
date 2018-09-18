@@ -7,10 +7,6 @@ import re
 from eth_abi import (
     is_encodable as eth_abi_is_encodable,
 )
-from eth_abi.abi import (
-    collapse_type,
-    process_type,
-)
 from eth_utils import (
     is_hex,
     is_list_like,
@@ -111,11 +107,63 @@ def filter_by_argument_name(argument_names, contract_abi):
     ]
 
 
+try:
+    from eth_abi.abi import (
+        process_type,
+        collapse_type,
+    )
+except ImportError:
+    from eth_abi.grammar import (
+        parse as parse_type_string,
+        normalize as normalize_type_string,
+        TupleType,
+    )
+
+    def process_type(type_str):
+        normalized_type_str = normalize_type_string(type_str)
+        abi_type = parse_type_string(normalized_type_str)
+
+        if isinstance(abi_type, TupleType):
+            type_str_repr = repr(type_str)
+            if type_str != normalized_type_str:
+                type_str_repr = '{} (normalized to {})'.format(
+                    type_str_repr,
+                    repr(normalized_type_str),
+                )
+
+            raise ValueError(
+                "Cannot process type {}: tuple types not supported".format(
+                    type_str_repr,
+                )
+            )
+
+        abi_type.validate()
+
+        sub = abi_type.sub
+        if isinstance(sub, tuple):
+            sub = 'x'.join(map(str, sub))
+        elif isinstance(sub, int):
+            sub = str(sub)
+        else:
+            sub = ''
+
+        arrlist = abi_type.arrlist
+        if isinstance(arrlist, tuple):
+            arrlist = list(map(list, arrlist))
+        else:
+            arrlist = []
+
+        return abi_type.base, sub, arrlist
+
+    def collapse_type(base, sub, arrlist):
+        return base + str(sub) + ''.join(map(repr, arrlist))
+
+
 def is_encodable(_type, value):
-    try:
-        base, sub, arrlist = _type
-    except ValueError:
-        base, sub, arrlist = process_type(_type)
+    if not isinstance(_type, str):
+        raise ValueError("is_encodable only accepts type strings")
+
+    base, sub, arrlist = process_type(_type)
 
     if arrlist:
         if not is_list_like(value):
@@ -123,7 +171,7 @@ def is_encodable(_type, value):
         if arrlist[-1] and len(value) != arrlist[-1][0]:
             return False
         sub_type = (base, sub, arrlist[:-1])
-        return all(is_encodable(sub_type, sub_value) for sub_value in value)
+        return all(is_encodable(collapse_type(*sub_type), sub_value) for sub_value in value)
     elif base == 'address' and is_ens_name(value):
         # ENS names can be used anywhere an address is needed
         # Web3.py will resolve the name to an address before encoding it

@@ -7,9 +7,6 @@ import functools
 import json
 
 import eth_abi
-from eth_abi.abi import (
-    process_type,
-)
 from eth_utils import (
     to_checksum_address,
 )
@@ -22,6 +19,9 @@ from hexbytes import (
 
 from web3.exceptions import (
     InvalidAddress,
+)
+from web3.utils.abi import (
+    process_type,
 )
 from web3.utils.encoding import (
     hexstr_if_str,

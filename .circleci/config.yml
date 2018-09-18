@@ -118,6 +118,13 @@ jobs:
     environment:
       TOXENV: py35-core
 
+  py35-core-eth_abi2:
+    <<: *common
+    docker:
+      - image: circleci/python:3.5
+    environment:
+      TOXENV: py35-core-eth_abi2
+
   py35-ens:
     <<: *common
     docker:
@@ -231,6 +238,13 @@ jobs:
     environment:
       TOXENV: py36-core
 
+  py36-core-eth_abi2:
+    <<: *common
+    docker:
+      - image: circleci/python:3.6
+    environment:
+      TOXENV: py36-core-eth_abi2
+
   py36-ens:
     <<: *common
     docker:
@@ -330,6 +344,13 @@ jobs:
     environment:
       TOXENV: py37-core
 
+  py37-core-eth_abi2:
+    <<: *common
+    docker:
+      - image: circleci/python:3.7
+    environment:
+      TOXENV: py37-core-eth_abi2
+
   py37-ens:
     <<: *common
     docker:
@@ -426,6 +447,7 @@ workflows:
     jobs:
       - lint
       - doctest
+      - py35-core-eth_abi2
       - py35-core
       - py35-ens
       - py35-integration-goethereum-ipc-1.7.2
@@ -438,6 +460,7 @@ workflows:
       - py35-integration-parity-http
       - py35-integration-parity-ws
       - py35-integration-ethtester-pyevm
+      - py36-core-eth_abi2
       - py36-core
       - py36-ens
       - py36-integration-goethereum-ipc-1.7.2
@@ -450,6 +473,7 @@ workflows:
       - py36-integration-parity-http
       - py36-integration-parity-ws
       - py36-integration-ethtester-pyevm
+      - py37-core-eth_abi2
       - py37-core
       - py37-ens
       - py37-integration-goethereum-ipc-1.7.2

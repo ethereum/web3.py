@@ -5,9 +5,6 @@ from eth_abi import (
     decode_single,
     encode_single,
 )
-from eth_abi.abi import (
-    process_type,
-)
 from eth_utils import (
     encode_hex,
     event_abi_to_log_topic,
@@ -20,6 +17,9 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     MismatchedABI,
+)
+from web3.utils.abi import (
+    process_type,
 )
 from web3.utils.encoding import (
     hexstr_if_str,
