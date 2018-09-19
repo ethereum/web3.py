@@ -9,6 +9,9 @@ from eth_utils import (
 from web3._utils.empty import (
     empty,
 )
+from web3.exceptions import (
+    ValidationError,
+)
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
@@ -63,6 +66,17 @@ def arrays_contract(web3, ArraysContract, address_conversion_func):
     return _arrays_contract
 
 
+@pytest.fixture()
+def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
+    deploy_txn = PayableTesterContract.constructor().transact()
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    address = address_conversion_func(deploy_receipt['contractAddress'])
+    _payable_tester = PayableTesterContract(address=address)
+    assert _payable_tester.address == address
+    return _payable_tester
+
+
 def test_transacting_with_contract_no_arguments(web3, math_contract, transact, call):
     initial_value = call(contract=math_contract,
                          contract_function='counter')
@@ -76,6 +90,48 @@ def test_transacting_with_contract_no_arguments(web3, math_contract, transact, c
                        contract_function='counter')
 
     assert final_value - initial_value == 1
+
+
+def test_transact_not_sending_ether_to_nonpayable_function(
+        web3,
+        payable_tester_contract,
+        transact,
+        call):
+    initial_value = call(contract=payable_tester_contract,
+                         contract_function='wasCalled')
+
+    assert initial_value is False
+    txn_hash = transact(contract=payable_tester_contract,
+                        contract_function='doNoValueCall')
+    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    assert txn_receipt is not None
+
+    final_value = call(contract=payable_tester_contract,
+                       contract_function='wasCalled')
+
+    assert final_value is True
+
+
+def test_transact_sending_ether_to_nonpayable_function(
+        web3,
+        payable_tester_contract,
+        transact,
+        call):
+    initial_value = call(contract=payable_tester_contract,
+                         contract_function='wasCalled')
+
+    assert initial_value is False
+    with pytest.raises(ValidationError):
+        txn_hash = transact(contract=payable_tester_contract,
+                            contract_function='doNoValueCall',
+                            tx_params={'value': 1})
+        txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+        assert txn_receipt is not None
+
+    final_value = call(contract=payable_tester_contract,
+                       contract_function='wasCalled')
+
+    assert final_value is False
 
 
 @pytest.mark.parametrize(
