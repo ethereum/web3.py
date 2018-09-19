@@ -10,6 +10,35 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.blocks import (
+    select_method_for_block_identifier,
+)
+from web3._utils.decorators import (
+    deprecated_for,
+)
+from web3._utils.empty import (
+    empty,
+)
+from web3._utils.encoding import (
+    to_hex,
+)
+from web3._utils.filters import (
+    BlockFilter,
+    LogFilter,
+    TransactionFilter,
+)
+from web3._utils.toolz import (
+    assoc,
+    merge,
+)
+from web3._utils.transactions import (
+    assert_valid_transaction_params,
+    extract_valid_transaction_params,
+    get_buffered_gas_estimate,
+    get_required_transaction,
+    replace_transaction,
+    wait_for_transaction_receipt,
+)
 from web3.contract import (
     Contract,
 )
@@ -18,35 +47,6 @@ from web3.iban import (
 )
 from web3.module import (
     Module,
-)
-from web3.utils.blocks import (
-    select_method_for_block_identifier,
-)
-from web3.utils.decorators import (
-    deprecated_for,
-)
-from web3.utils.empty import (
-    empty,
-)
-from web3.utils.encoding import (
-    to_hex,
-)
-from web3.utils.filters import (
-    BlockFilter,
-    LogFilter,
-    TransactionFilter,
-)
-from web3.utils.toolz import (
-    assoc,
-    merge,
-)
-from web3.utils.transactions import (
-    assert_valid_transaction_params,
-    extract_valid_transaction_params,
-    get_buffered_gas_estimate,
-    get_required_transaction,
-    replace_transaction,
-    wait_for_transaction_receipt,
 )
 
 

@@ -5,17 +5,17 @@ from eth_utils import (
     to_dict,
 )
 
+from web3._utils.http import (
+    construct_user_agent,
+)
+from web3._utils.request import (
+    make_post_request,
+)
 from web3.datastructures import (
     NamedElementOnion,
 )
 from web3.middleware import (
     http_retry_request_middleware,
-)
-from web3.utils.http import (
-    construct_user_agent,
-)
-from web3.utils.request import (
-    make_post_request,
 )
 
 from .base import (

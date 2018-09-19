@@ -17,30 +17,30 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.exceptions import (
-    InvalidAddress,
-)
-from web3.utils.abi import (
+from web3._utils.abi import (
     process_type,
 )
-from web3.utils.encoding import (
+from web3._utils.encoding import (
     hexstr_if_str,
     text_if_str,
     to_bytes,
     to_hex,
     to_text,
 )
-from web3.utils.ens import (
+from web3._utils.ens import (
     StaticENS,
     is_ens_name,
     validate_name_has_address,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     curry,
 )
-from web3.utils.validation import (
+from web3._utils.validation import (
     validate_abi,
     validate_address,
+)
+from web3.exceptions import (
+    InvalidAddress,
 )
 
 

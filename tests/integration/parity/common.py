@@ -5,7 +5,7 @@ from flaky import (
     flaky,
 )
 
-from web3.utils.module_testing import (
+from web3._utils.module_testing import (
     EthModuleTest,
     ParityModuleTest as TraceModuleTest,
     PersonalModuleTest,

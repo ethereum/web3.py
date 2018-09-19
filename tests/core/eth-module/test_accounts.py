@@ -16,15 +16,15 @@ from web3 import (
     Account,
     Web3,
 )
-from web3.providers.eth_tester import (
-    EthereumTesterProvider,
-)
-from web3.utils.encoding import (
+from web3._utils.encoding import (
     to_bytes,
     to_hex,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     dissoc,
+)
+from web3.providers.eth_tester import (
+    EthereumTesterProvider,
 )
 
 # from https://github.com/ethereum/tests/blob/3930ca3a9a377107d5792b3e7202f79c688f1a67/BasicTests/txtest.json # noqa: 501

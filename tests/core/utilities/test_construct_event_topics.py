@@ -1,6 +1,6 @@
 import pytest
 
-from web3.utils.events import (
+from web3._utils.events import (
     construct_event_topic_set,
 )
 

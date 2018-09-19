@@ -8,7 +8,7 @@ from tests.integration.utils import (
     wait_for_ws,
 )
 from web3 import Web3
-from web3.utils.module_testing import (
+from web3._utils.module_testing import (
     NetModuleTest,
     VersionModuleTest,
 )

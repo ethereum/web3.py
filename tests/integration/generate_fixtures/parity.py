@@ -13,7 +13,7 @@ from eth_utils import (
 import common
 import go_ethereum
 from web3 import Web3
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     merge,
 )
 

@@ -16,13 +16,13 @@ from eth_utils import (
     to_dict,
 )
 
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     apply_formatter_if,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     compose,
 )
-from web3.utils.transactions import (
+from web3._utils.transactions import (
     fill_nonce,
     fill_transaction_defaults,
 )

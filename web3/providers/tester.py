@@ -9,14 +9,10 @@ from eth_utils import (
     to_text,
 )
 
-from web3.middleware import (
-    construct_exception_handler_middleware,
-    construct_formatting_middleware,
-)
-from web3.utils.decorators import (
+from web3._utils.decorators import (
     deprecated_for,
 )
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     apply_formatter_at_index,
     apply_formatter_if,
     apply_formatters_to_dict,
@@ -24,13 +20,17 @@ from web3.utils.formatters import (
     static_result,
     static_return,
 )
-from web3.utils.threads import (
+from web3._utils.threads import (
     spawn,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     complement,
     compose,
     valmap,
+)
+from web3.middleware import (
+    construct_exception_handler_middleware,
+    construct_formatting_middleware,
 )
 
 from .base import (

@@ -1,5 +1,5 @@
-import web3.utils.formatters
-from web3.utils.toolz import (
+import web3._utils.formatters
+from web3._utils.toolz import (
     concat,
     curry,
 )
@@ -28,7 +28,7 @@ class PropertyCheckingFactory(type):
             verify_key_attr(concat(base.__dict__.keys() for base in all_bases))
 
         if normalizers:
-            processed_namespace = web3.utils.formatters.apply_formatters_to_dict(
+            processed_namespace = web3._utils.formatters.apply_formatters_to_dict(
                 normalizers,
                 namespace)
         else:

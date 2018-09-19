@@ -16,11 +16,11 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.utils.encoding import (
+from web3._utils.encoding import (
     hexstr_if_str,
     to_hex,
 )
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     apply_formatter_at_index,
     apply_formatter_if,
     apply_formatter_to_array,
@@ -32,13 +32,13 @@ from web3.utils.formatters import (
     is_array_of_strings,
     remove_key_if,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     complement,
     compose,
     curry,
     partial,
 )
-from web3.utils.toolz.curried import (
+from web3._utils.toolz.curried import (
     keymap,
     valmap,
 )

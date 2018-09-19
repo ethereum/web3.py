@@ -13,6 +13,12 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.ens import (
+    contract_ens_addresses,
+)
+from web3._utils.toolz import (
+    identity,
+)
 from web3.exceptions import (
     BadFunctionCallOutput,
     BlockNumberOutofRange,
@@ -20,12 +26,6 @@ from web3.exceptions import (
     MismatchedABI,
     NoABIFunctionsFound,
     ValidationError,
-)
-from web3.utils.ens import (
-    contract_ens_addresses,
-)
-from web3.utils.toolz import (
-    identity,
 )
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade

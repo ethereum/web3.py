@@ -2,7 +2,7 @@
 
 import pytest
 
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     dissoc,
 )
 

@@ -11,6 +11,11 @@ from hexbytes import (
 )
 
 from web3 import Web3
+from web3._utils.toolz import (
+    identity,
+    merge,
+    valfilter,
+)
 from web3.exceptions import (
     InvalidAddress,
 )
@@ -26,11 +31,6 @@ from web3.providers import (
 )
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
-)
-from web3.utils.toolz import (
-    identity,
-    merge,
-    valfilter,
 )
 
 PRIVATE_KEY_1 = to_bytes(

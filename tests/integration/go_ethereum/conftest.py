@@ -10,7 +10,7 @@ from eth_utils import (
     to_text,
 )
 
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     assoc,
 )
 

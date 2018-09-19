@@ -5,10 +5,10 @@ from eth_utils import (
     is_string,
 )
 
-from web3.utils.threads import (
+from web3._utils.threads import (
     TimerClass,
 )
-from web3.utils.validation import (
+from web3._utils.validation import (
     validate_address,
 )
 

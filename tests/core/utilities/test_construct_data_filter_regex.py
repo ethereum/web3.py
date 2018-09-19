@@ -1,6 +1,6 @@
 import pytest
 
-from web3.utils.filters import (
+from web3._utils.filters import (
     construct_data_filter_regex,
 )
 

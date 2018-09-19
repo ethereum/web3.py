@@ -1,12 +1,10 @@
 import sys
 
+import pywintypes  # noqa: E402
+import win32file  # noqa: E402
 
 if sys.platform != 'win32':
     raise ImportError("This module should not be imported on non `win32` platforms")
-
-
-import win32file  # noqa: E402
-import pywintypes  # noqa: E402
 
 
 class NamedPipe:

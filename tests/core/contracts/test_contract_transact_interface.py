@@ -6,7 +6,7 @@ from eth_utils import (
     to_bytes,
 )
 
-from web3.utils.empty import (
+from web3._utils.empty import (
     empty,
 )
 

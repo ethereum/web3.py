@@ -1,14 +1,14 @@
 import json
 import pytest
 
-from web3.exceptions import (
-    ValidationError,
-)
-from web3.utils.abi import (
+from web3._utils.abi import (
     get_abi_input_types,
 )
-from web3.utils.function_identifiers import (
+from web3._utils.function_identifiers import (
     FallbackFn,
+)
+from web3.exceptions import (
+    ValidationError,
 )
 
 SINGLE_FN_NO_ARGS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501

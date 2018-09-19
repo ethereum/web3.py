@@ -12,25 +12,22 @@ from eth_utils import (
     to_tuple,
 )
 
+from web3._utils.encoding import (
+    hexstr_if_str,
+    to_bytes,
+)
+from web3._utils.normalizers import (
+    BASE_RETURN_NORMALIZERS,
+)
+from web3._utils.toolz import (
+    compose,
+    curry,
+)
 from web3.datastructures import (
     AttributeDict,
 )
 from web3.exceptions import (
     MismatchedABI,
-)
-from web3.utils.abi import (
-    process_type,
-)
-from web3.utils.encoding import (
-    hexstr_if_str,
-    to_bytes,
-)
-from web3.utils.normalizers import (
-    BASE_RETURN_NORMALIZERS,
-)
-from web3.utils.toolz import (
-    compose,
-    curry,
 )
 
 from .abi import (
@@ -39,6 +36,7 @@ from .abi import (
     get_indexed_event_inputs,
     map_abi_data,
     normalize_event_input_types,
+    process_type,
 )
 
 

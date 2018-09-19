@@ -17,10 +17,7 @@ from eth_utils.hexadecimal import (
     encode_hex,
 )
 
-from web3.exceptions import (
-    InvalidAddress,
-)
-from web3.utils.abi import (
+from web3._utils.abi import (
     abi_to_signature,
     filter_by_type,
     is_address_type,
@@ -34,14 +31,17 @@ from web3.utils.abi import (
     length_of_array_type,
     sub_type_of_array_type,
 )
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     apply_formatter_to_array,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     compose,
     groupby,
     valfilter,
     valmap,
+)
+from web3.exceptions import (
+    InvalidAddress,
 )
 
 
