@@ -133,23 +133,16 @@ def emitter_log_topics():
     return LogTopics
 
 
-def return_filter_by_api(
-        api_style=None,
+def return_filter(
         contract=None,
         args=[]):
-    if api_style == 'v3':
-        with pytest.deprecated_call():
-            return contract.eventFilter(*args)
-    elif api_style == 'v4':
         event_name = args[0]
         kwargs = apply_key_map({'filter': 'argument_filters'}, args[1])
         if 'fromBlock' not in kwargs:
             kwargs['fromBlock'] = 'latest'
         return contract.events[event_name].createFilter(**kwargs)
-    else:
-        raise ValueError("api_style must be 'v3 or v4'")
 
 
-@pytest.fixture(params=['v3', 'v4'])
+@pytest.fixture()
 def create_filter(request):
-    return functools.partial(return_filter_by_api, request.param)
+    return functools.partial(return_filter)

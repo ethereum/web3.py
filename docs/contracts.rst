@@ -282,51 +282,6 @@ Each Contract Factory exposes the following methods.
     ``argument_filters``, optional. Expects a dictionary of argument names and values. When provided event logs are filtered for the event argument values. Event arguments can be both indexed or unindexed. Indexed values with be translated to their corresponding topic arguments. Unindexed arguments will be filtered using a regular expression.
     ``topics`` optional, accepts the standard JSON-RPC topics argument.  See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the ``topics`` parameters.
 
-.. py:classmethod:: Contract.eventFilter(event_name, filter_params=None)
-
-        .. warning:: Contract.eventFilter() has been deprecated for :meth:`Contract.events.<event name>.createFilter()`
-
-    Creates a new :py:class:`web3.utils.filters.LogFilter` instance.
-
-    The ``event_name`` parameter should be the name of the contract event you
-    want to filter on.
-
-    If provided,  ``filter_params`` should be a dictionary specifying
-    additional filters for log entries.  The following keys are supported.
-
-    * ``filter``: ``dictionary`` - (optional) Dictionary keys should be
-      argument names for the Event arguments. Dictionary values should be the
-      value you want to filter on, or a list of values to be filtered on.
-      Lists of values will match log entries whose argument matches any value
-      in the list. Indexed and unindexed event arguments are accepted. The
-      processing of indexed argument values into hex encoded topics is handled
-      internally when using the ``filter`` parameter.
-    * ``fromBlock``: ``integer/tag`` - (optional, default: "latest") Integer
-      block number, or "latest" for the last mined block or "pending",
-      "earliest" for not yet mined transactions.
-    * ``toBlock``: ``integer/tag`` - (optional, default: "latest") Integer
-      block number, or "latest" for the last mined block or "pending",
-      "earliest" for not yet mined transactions.
-    * ``address``: ``string`` or list of ``strings``, each 20 Bytes -
-      (optional) Contract address or a list of addresses from which logs should
-      originate.
-    * ``topics``: list of 32 byte ``strings`` or ``null`` - (optional) Array of
-      topics that should be used for filtering, with the keccak hash of the event
-      signature as the first item, and the remaining items as hex encoded
-      argument values. Topics are order-dependent.  This parameter can also be a
-      list of topic lists in which case filtering will match any of the provided
-      topic arrays. This argument is useful when relying on the internally
-      generated topic lists via the ``filter`` argument is not desired. If
-      ``topics`` is included with the ``filter`` argument, the ``topics`` list
-      will be prepended to any topic lists inferred from the ``filter`` arguments.
-
-    The event topic for the event specified by ``event_name`` will be added to
-    the ``filter_params['topics']`` list.
-
-    If the :py:attr:`Contract.address` attribute for this contract is
-    non-null, the contract address will be added to the ``filter_params``.
-
-
 .. py:classmethod:: Contract.deploy(transaction=None, args=None)
 
     .. warning:: Deprecated: this method is deprecated in favor of
@@ -483,42 +438,6 @@ and the arguments are ambiguous.
         >>> identity_func(1, True).call()
         1
 
-
-
-.. _event-log-object:
-
-Event Log Object
-~~~~~~~~~~~~~~~~
-
-    The Event Log Object is a python dictionary with the following keys:
-
-    * ``args``: Dictionary - The arguments coming from the event.
-    * ``event``: String - The event name.
-    * ``logIndex``: Number - integer of the log index position in the block.
-    * ``transactionIndex``: Number - integer of the transactions index position
-      log was created from.
-    * ``transactionHash``: String, 32 Bytes - hash of the transactions this log
-      was created from.
-    * ``address``: String, 32 Bytes - address from which this log originated.
-    * ``blockHash``: String, 32 Bytes - hash of the block where this log was
-      in. null when its pending.
-    * ``blockNumber``: Number - the block number where this log was in. null
-      when its pending.
-
-
-    .. code-block:: python
-
-        >>> transfer_filter = my_token_contract.eventFilter('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
-        >>> transfer_filter.get_new_entries()
-        [...]  # array of Event Log Objects that match the filter.
-
-        # wait a while...
-
-        >>> transfer_filter.get_new_entries()
-        [...]  # new events since the last call
-
-        >>> transfer_filter.get_all_entries()
-        [...]  # all events that match the filter.
 
 Contract Functions
 ------------------
