@@ -4,7 +4,7 @@ from eth_utils import (
     from_wei,
     is_address,
     is_checksum_address,
-    keccak,
+    keccak as eth_utils_keccak,
     remove_0x_prefix,
     to_checksum_address,
     to_wei,
@@ -51,6 +51,7 @@ from hexbytes import (
 )
 from web3.utils.decorators import (
     combomethod,
+    deprecated_for,
 )
 from web3.utils.empty import empty
 from web3.utils.encoding import (
@@ -132,16 +133,22 @@ class Web3:
         self.manager.providers = providers
 
     @staticmethod
+    @deprecated_for("This method has been renamed to keccak")
     @apply_to_return_value(HexBytes)
     def sha3(primitive=None, text=None, hexstr=None):
+        return Web3.keccak(primitive, text, hexstr)
+
+    @staticmethod
+    @apply_to_return_value(HexBytes)
+    def keccak(primitive=None, text=None, hexstr=None):
         if isinstance(primitive, (bytes, int, type(None))):
             input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
-            return keccak(input_bytes)
+            return eth_utils_keccak(input_bytes)
 
         raise TypeError(
-            "You called sha3 with first arg %r and keywords %r. You must call it with one of "
-            "these approaches: sha3(text='txt'), sha3(hexstr='0x747874'), "
-            "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)." % (
+            "You called keccak with first arg %r and keywords %r. You must call it with one of "
+            "these approaches: keccak(text='txt'), keccak(hexstr='0x747874'), "
+            "keccak(b'\\x74\\x78\\x74'), or keccak(0x747874)." % (
                 primitive,
                 {'text': text, 'hexstr': hexstr}
             )
