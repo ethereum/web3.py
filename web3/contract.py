@@ -1105,6 +1105,7 @@ class ContractFunction:
                 raise ValueError(
                     "Please ensure that this contract instance has an address."
                 )
+
         block_id = parse_block_identifier(self.web3, block_identifier)
 
         return call_contract_function(

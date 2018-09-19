@@ -91,6 +91,11 @@ def fixed_reflection_contract(web3, FixedReflectionContract, address_conversion_
 
 
 @pytest.fixture()
+def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
+    return deploy(web3, PayableTesterContract, address_conversion_func)
+
+
+@pytest.fixture()
 def call_transaction():
     return {
         'data': '0x61bc221a',
@@ -530,6 +535,19 @@ def test_call_abi_no_functions(web3):
     contract = web3.eth.contract(abi=[])
     with pytest.raises(NoABIFunctionsFound):
         contract.functions.thisFunctionDoesNotExist().call()
+
+
+def test_call_not_sending_ether_to_nonpayable_function(payable_tester_contract, call):
+    result = call(contract=payable_tester_contract,
+                  contract_function='doNoValueCall')
+    assert result == []
+
+
+def test_call_sending_ether_to_nonpayable_function(payable_tester_contract, call):
+    with pytest.raises(ValidationError):
+        call(contract=payable_tester_contract,
+             contract_function='doNoValueCall',
+             tx_params={'value': 1})
 
 
 @pytest.mark.parametrize(
