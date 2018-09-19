@@ -182,6 +182,11 @@ def prepare_transaction(
     TODO: make this a public API
     TODO: add new prepare_deploy_transaction API
     """
+    if fn_abi is None:
+        fn_abi = find_matching_fn_abi(contract_abi, fn_identifier, fn_args, fn_kwargs)
+
+    validate_payable(transaction, fn_abi)
+
     if transaction is None:
         prepared_transaction = {}
     else:
@@ -245,3 +250,17 @@ def get_function_info(fn_name, contract_abi=None, fn_abi=None, args=None, kwargs
     fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
 
     return fn_abi, fn_selector, fn_arguments
+
+
+def validate_payable(transaction, abi):
+    """Raise ValidationError if non-zero ether
+    is sent to a non payable function.
+    """
+    if 'value' in transaction:
+        if transaction['value'] != 0:
+            if "payable" in abi and not abi["payable"]:
+                raise ValidationError(
+                    "Sending non-zero ether to a contract function "
+                    "with payable=False. Please ensure that "
+                    "transaction's value is 0."
+                )
