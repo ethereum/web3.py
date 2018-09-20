@@ -1,12 +1,28 @@
-import re
-
+from eth_abi import (
+    decode_abi,
+    is_encodable,
+)
+from eth_abi.grammar import (
+    parse as parse_type_string,
+)
 from eth_utils import (
     is_list_like,
     is_string,
+    is_text,
+)
+from hexbytes import (
+    HexBytes,
 )
 
+from web3._utils.formatters import (
+    apply_formatter_if,
+)
 from web3._utils.threads import (
     TimerClass,
+)
+from web3._utils.toolz import (
+    complement,
+    curry,
 )
 from web3._utils.validation import (
     validate_address,
@@ -130,22 +146,6 @@ class TransactionFilter(Filter):
     pass
 
 
-ZERO_32BYTES = '[a-f0-9]{64}'
-
-
-def construct_data_filter_regex(data_filter_set):
-    return re.compile((
-        '^' +
-        '|'.join((
-            '0x' + ''.join(
-                (ZERO_32BYTES if v is None else v[2:] for v in data_filter)
-            )
-            for data_filter in data_filter_set
-        )) +
-        '$'
-    ))
-
-
 class LogFilter(Filter):
     data_filter_set = None
     data_filter_set_regex = None
@@ -166,16 +166,68 @@ class LogFilter(Filter):
         return entry
 
     def set_data_filters(self, data_filter_set):
+        """Sets the data filters (non indexed argument filters)
+
+        Expects a set of tuples with the type and value, e.g.:
+        (('uint256', [12345, 54321]), ('string', ('a-single-string',)))
+        """
         self.data_filter_set = data_filter_set
         if any(data_filter_set):
-            self.data_filter_set_regex = construct_data_filter_regex(
-                data_filter_set,
-            )
+            self.data_filter_set_function = match_fn(data_filter_set)
 
     def is_valid_entry(self, entry):
-        if not self.data_filter_set_regex:
+        if not self.data_filter_set:
             return True
-        return bool(self.data_filter_set_regex.match(entry['data']))
+        return bool(self.data_filter_set_function(entry['data']))
+
+
+def decode_utf8_bytes(value):
+    return value.decode("utf-8")
+
+
+not_text = complement(is_text)
+normalize_to_text = apply_formatter_if(not_text, decode_utf8_bytes)
+
+
+def normalize_data_values(type_string, data_value):
+    """Decodes utf-8 bytes to strings for abi string values.
+
+    eth-abi v1 returns utf-8 bytes for string values.
+    This can be removed once eth-abi v2 is required.
+    """
+    _type = parse_type_string(type_string)
+    if _type.base == "string":
+        if _type.arrlist is not None:
+            return tuple((normalize_to_text(value) for value in data_value))
+        else:
+            return normalize_to_text(data_value)
+    return data_value
+
+
+@curry
+def match_fn(match_values_and_abi, data):
+    """Match function used for filtering non-indexed event arguments.
+
+    Values provided through the match_values_and_abi parameter are
+    compared to the abi decoded log data.
+    """
+    abi_types, all_match_values = zip(*match_values_and_abi)
+    decoded_values = decode_abi(abi_types, HexBytes(data))
+    for data_value, match_values, abi_type in zip(decoded_values, all_match_values, abi_types):
+        if match_values is None:
+            continue
+        normalized_data = normalize_data_values(abi_type, data_value)
+        for value in match_values:
+            if not is_encodable(abi_type, value):
+                raise ValueError(
+                    "Value {0} is of the wrong abi type. "
+                    "Expected {1} typed value.".format(value, abi_type))
+            if value == normalized_data:
+                break
+        else:
+            return False
+
+    return True
 
 
 class ShhFilter(Filter):

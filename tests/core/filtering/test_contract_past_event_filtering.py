@@ -9,6 +9,7 @@ pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
+@pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_on_filter_using_get_all_entries_interface(
     web3,
     emitter,
@@ -16,11 +17,21 @@ def test_on_filter_using_get_all_entries_interface(
     wait_for_transaction,
     emitter_event_ids,
     call_as_instance,
+    api_style,
+    create_filter,
 ):
     if call_as_instance:
-        event_filter = emitter.events.LogNoArguments.createFilter(fromBlock='latest')
+        contract = emitter
     else:
-        event_filter = Emitter.events.LogNoArguments.createFilter(fromBlock='latest')
+        contract = Emitter
+
+    if api_style == 'build_filter':
+        builder = contract.events.LogNoArguments.build_filter()
+        builder.fromBlock = "latest"
+        event_filter = builder.deploy(web3)
+    else:
+        event_filter = create_filter(
+            contract, ["LogNoArguments", {"fromBlock": "latest"}])
 
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
     wait_for_transaction(web3, txn_hash)
@@ -38,6 +49,7 @@ def test_on_filter_using_get_all_entries_interface(
 
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
+@pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_get_all_entries_returned_block_data(
     web3,
     emitter,
@@ -45,6 +57,8 @@ def test_get_all_entries_returned_block_data(
     wait_for_transaction,
     emitter_event_ids,
     call_as_instance,
+    api_style,
+    create_filter,
 ):
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
     txn_receipt = wait_for_transaction(web3, txn_hash)
@@ -54,9 +68,15 @@ def test_get_all_entries_returned_block_data(
     else:
         contract = Emitter
 
-    events = contract.events.LogNoArguments.createFilter(fromBlock=txn_receipt['blockNumber'])
+    if api_style == 'build_filter':
+        builder = contract.events.LogNoArguments.build_filter()
+        builder.fromBlock = txn_receipt["blockNumber"]
+        event_filter = builder.deploy(web3)
+    else:
+        event_filter = create_filter(contract, [
+            "LogNoArguments", {"fromBlock": txn_receipt["blockNumber"]}])
 
-    log_entries = events.get_all_entries()
+    log_entries = event_filter.get_all_entries()
 
     assert len(log_entries) == 1
     event_data = log_entries[0]
