@@ -16,6 +16,9 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.abi import (
+    is_length,
+)
 from web3._utils.encoding import (
     hexstr_if_str,
     to_hex,
@@ -244,6 +247,12 @@ transaction_param_formatter = compose(
     apply_formatters_to_dict(TRANSACTION_PARAM_FORMATTERS),
 )
 
+estimate_gas_without_block_id = apply_formatter_at_index(transaction_param_formatter, 0)
+estimate_gas_with_block_id = combine_argument_formatters(
+    transaction_param_formatter,
+    block_number_formatter,
+)
+
 
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
@@ -273,7 +282,10 @@ pythonic_middleware = construct_formatting_middleware(
             transaction_param_formatter,
             block_number_formatter,
         ),
-        'eth_estimateGas': apply_formatter_at_index(transaction_param_formatter, 0),
+        'eth_estimateGas': apply_one_of_formatters((
+            (estimate_gas_without_block_id, is_length(1)),
+            (estimate_gas_with_block_id, is_length(2)),
+        )),
         'eth_sendTransaction': apply_formatter_at_index(transaction_param_formatter, 0),
         # personal
         'personal_importRawKey': apply_formatter_at_index(

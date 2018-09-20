@@ -60,6 +60,14 @@ class GoEthereumEthModuleTest(EthModuleTest):
         pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_modifyTransaction(web3, unlocked_account)
 
+    def test_eth_estimateGas_with_block(self,
+                                        web3,
+                                        unlocked_account_dual_type):
+        pytest.xfail('Block identifier has not been implemented in geth')
+        super().test_eth_estimateGas_with_block(
+            web3, unlocked_account_dual_type
+        )
+
 
 class GoEthereumVersionModuleTest(VersionModuleTest):
     pass

@@ -632,7 +632,7 @@ The following methods are available on the ``web3.eth`` namespace.
     In most cases it is better to make contract function call through the :py:class:`web3.contract.Contract` interface.
 
 
-.. py:method:: Eth.estimateGas(transaction)
+.. py:method:: Eth.estimateGas(transaction, block_identifier=None)
 
     * Delegates to ``eth_estimateGas`` RPC Method
 
@@ -640,13 +640,19 @@ The following methods are available on the ``web3.eth`` namespace.
     on the blockchain.  Returns amount of gas consumed by execution which can
     be used as a gas estimate.
 
-    The ``transaction`` parameter is handled in the same manner as the
-    :meth:`~web3.eth.Eth.sendTransaction()` method.
+    The ``transaction`` and ``block_identifier`` parameters are handled in the
+    same manner as the :meth:`~web3.eth.call()` method.
 
     .. code-block:: python
 
         >>> web3.eth.estimateGas({'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601', 'from': web3.eth.coinbase, 'value': 12345})
         21000
+
+    .. note::
+        The parameter ``block_identifier`` is not enabled in geth nodes,
+        hence passing a value of ``block_identifier`` when connected to a geth
+        nodes would result in an error like:  ``ValueError: {'code': -32602, 'message': 'too many arguments, want at most 1'}``
+
 
 .. py:method:: Eth.generateGasPrice(transaction_params=None)
 
