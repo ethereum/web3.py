@@ -299,17 +299,15 @@ class Eth(Module):
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
-        # TODO: move to middleware
         if block_identifier is None:
-            return self.web3.manager.request_blocking(
-                "eth_estimateGas",
-                [transaction],
-            )
+            params = [transaction]
         else:
-            return self.web3.manager.request_blocking(
-                "eth_estimateGas",
-                [transaction, block_identifier],
-            )
+            params = [transaction, block_identifier]
+
+        return self.web3.manager.request_blocking(
+            "eth_estimateGas",
+            params,
+        )
 
     def filter(self, filter_params=None, filter_id=None):
         if filter_id and filter_params:
