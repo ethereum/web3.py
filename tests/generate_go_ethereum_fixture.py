@@ -297,17 +297,11 @@ def verify_chain_state(web3, chain_data):
 
 
 def mine_transaction_hash(web3, txn_hash):
-    start_time = time.time()
     web3.miner.start(1)
-    while time.time() < start_time + 60:
-        receipt = web3.eth.waitForTransactionReceipt(txn_hash)
-        if receipt is not None:
-            web3.miner.stop()
-            return receipt
-        else:
-            time.sleep(0.1)
-    else:
-        raise ValueError("Math contract deploy transaction not mined during wait period")
+    try:
+        return web3.eth.waitForTransactionReceipt(txn_hash, timeout=60)
+    finally:
+        web3.miner.stop()
 
 
 def mine_block(web3):

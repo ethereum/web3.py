@@ -27,6 +27,9 @@ from web3._utils.filters import (
     LogFilter,
     TransactionFilter,
 )
+from web3._utils.threads import (
+    Timeout,
+)
 from web3._utils.toolz import (
     assoc,
     merge,
@@ -41,6 +44,9 @@ from web3._utils.transactions import (
 )
 from web3.contract import (
     Contract,
+)
+from web3.exceptions import (
+    TimeExhausted,
 )
 from web3.iban import (
     Iban,
@@ -220,7 +226,15 @@ class Eth(Module):
         )
 
     def waitForTransactionReceipt(self, transaction_hash, timeout=120):
-        return wait_for_transaction_receipt(self.web3, transaction_hash, timeout)
+        try:
+            return wait_for_transaction_receipt(self.web3, transaction_hash, timeout)
+        except Timeout:
+            raise TimeExhausted(
+                "Transaction {} is not in the chain, after {} seconds".format(
+                    transaction_hash,
+                    timeout,
+                )
+            )
 
     def getTransactionReceipt(self, transaction_hash):
         return self.web3.manager.request_blocking(
