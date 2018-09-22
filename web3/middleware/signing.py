@@ -19,12 +19,20 @@ from eth_utils import (
 from web3.utils.formatters import (
     apply_formatter_if,
 )
+from web3.utils.rpc_abi import (
+    TRANSACTION_PARAMS_ABIS,
+    apply_abi_formatters_to_dict,
+)
 from web3.utils.toolz import (
     compose,
 )
 from web3.utils.transactions import (
     fill_nonce,
     fill_transaction_defaults,
+)
+
+from .abi import (
+    STANDARD_NORMALIZERS,
 )
 
 to_hexstr_from_eth_key = operator.methodcaller('to_hex')
@@ -75,6 +83,15 @@ to_account.register(str, private_key_to_account)
 to_account.register(bytes, private_key_to_account)
 
 
+def format_transaction(transaction):
+    """Format transaction so that it can be used correctly in the signing middleware.
+
+    Converts bytes to hex strings and other types that can be passed to the underlying layers.
+    Also has the effect of normalizing 'from' for easier comparisons.
+    """
+    return apply_abi_formatters_to_dict(STANDARD_NORMALIZERS, TRANSACTION_PARAMS_ABIS, transaction)
+
+
 def construct_sign_and_send_raw_middleware(private_key_or_account):
     """Capture transactions sign and send as raw transactions
 
@@ -91,7 +108,8 @@ def construct_sign_and_send_raw_middleware(private_key_or_account):
 
     def sign_and_send_raw_middleware(make_request, w3):
 
-        fill_tx = compose(
+        format_and_fill_tx = compose(
+            format_transaction,
             fill_transaction_defaults(w3),
             fill_nonce(w3))
 
@@ -99,7 +117,7 @@ def construct_sign_and_send_raw_middleware(private_key_or_account):
             if method != "eth_sendTransaction":
                 return make_request(method, params)
             else:
-                transaction = fill_tx(params[0])
+                transaction = format_and_fill_tx(params[0])
 
             if 'from' not in transaction:
                 return make_request(method, params)
