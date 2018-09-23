@@ -165,9 +165,9 @@ def get_logs_multipart(
         address,
         topics,
         max_blocks):
-    """Use to make large requests to ``eth_getLogs``
+    """Used to break up requests to ``eth_getLogs``
 
-    The getLog request is broken into multiple calls of the max number of blocks
+    The getLog request is partitioned into multiple calls of the max number of blocks
     ``max_blocks``.
     """
     _block_ranges = block_ranges(startBlock, stopBlock, max_blocks)
@@ -240,7 +240,7 @@ class RequestLogs:
                         stop,
                         self.address,
                         self.topics,
-                        max_blocks=5)))
+                        max_blocks=50)))
 
     def get_logs(self):
         return list(
@@ -251,7 +251,7 @@ class RequestLogs:
                     self.to_block,
                     self.address,
                     self.topics,
-                    max_blocks=5)))
+                    max_blocks=50)))
 
 
 FILTER_PARAMS_KEY_MAP = {
