@@ -318,6 +318,9 @@ def local_filter_middleware(make_request, web3):
 
         elif method in FILTER_CHANGES_METHODS:
             filter_id = params[0]
+            #  Pass through to filters not created by middleware
+            if filter_id not in filters:
+                return make_request(method, params)
             _filter = filters[filter_id]
             if method == 'eth_getFilterChanges':
                 return {'result': next(_filter.filter_changes)}
