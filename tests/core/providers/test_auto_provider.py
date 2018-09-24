@@ -1,6 +1,10 @@
 import importlib
 import logging
 import pytest
+import sys
+from tempfile import (
+    gettempdir,
+)
 
 from web3.auto import (
     infura,
@@ -14,6 +18,8 @@ from web3.providers.auto import (
     load_provider_from_environment,
 )
 
+TEMP_DIR = gettempdir()
+
 
 @pytest.mark.parametrize(
     'uri, expected_type, expected_attrs',
@@ -21,7 +27,10 @@ from web3.providers.auto import (
         ('', type(None), {}),
         ('http://1.2.3.4:5678', HTTPProvider, {'endpoint_uri': 'http://1.2.3.4:5678'}),
         ('https://node.ontheweb.com', HTTPProvider, {'endpoint_uri': 'https://node.ontheweb.com'}),
-        ('file:///root/path/to/file.ipc', IPCProvider, {'ipc_path': '/root/path/to/file.ipc'}),
+        pytest.param(
+            *('file://%s/file.ipc' % TEMP_DIR, IPCProvider, {'ipc_path': '%s/file.ipc' % TEMP_DIR}),
+            marks=pytest.mark.skipif(sys.version_info < (3, 6), reason="path must exist in py3.5"),
+        ),
         ('ws://1.2.3.4:5679', WebsocketProvider, {'endpoint_uri': 'ws://1.2.3.4:5679'})
     ),
 )
