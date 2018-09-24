@@ -1,6 +1,18 @@
 Release Notes
 =============
 
+v4.7.2
+--------
+
+Released September 25th, 2018
+
+- Bugfixes
+
+  - IPC paths starting with ``~`` are appropriately resolved to the home directory
+    - `#1072 <https://github.com/ethereum/web3.py/pull/1072>`_
+  - You can use the local signing middleware with :class:`bytes`-type addresses
+    - `#1069 <https://github.com/ethereum/web3.py/pull/1069>`_
+
 v4.7.1
 --------
 
@@ -20,7 +32,7 @@ Released September 10th, 2018
 
   - Add traceFilter method to the parity module.
     - `#1051 <https://github.com/ethereum/web3.py/pull/1051>`_
-  - Move :module:`~web3.utils.datastructures` to public namespace :module:`~web3.datastructures` 
+  - Move :mod:`web3.utils.datastructures` to public namespace :mod:`web3.datastructures`
     to improve support for type checking.
     - `#1038 <https://github.com/ethereum/web3.py/pull/1038>`_
   - Optimization to contract calls
