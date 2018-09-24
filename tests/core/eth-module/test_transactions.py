@@ -1,11 +1,14 @@
 import pytest
 
 from web3.exceptions import (
+    TimeExhausted,
     ValidationError,
 )
 from web3.middleware.simulate_unmined_transaction import (
     unmined_receipt_simulator_middleware,
 )
+
+RECEIPT_TIMEOUT = 0.2
 
 
 @pytest.mark.parametrize(
@@ -28,8 +31,9 @@ def test_send_transaction_with_valid_chain_id(web3, make_chain_id, expect_succes
         'chainId': make_chain_id(web3),
     }
     if expect_success:
-        # just be happy that we didn't crash
-        web3.eth.sendTransaction(transaction)
+        txn_hash = web3.eth.sendTransaction(transaction)
+        receipt = web3.eth.waitForTransactionReceipt(txn_hash, timeout=RECEIPT_TIMEOUT)
+        assert receipt.get('blockNumber') is not None
     else:
         with pytest.raises(ValidationError) as exc_info:
             web3.eth.sendTransaction(transaction)
@@ -37,7 +41,12 @@ def test_send_transaction_with_valid_chain_id(web3, make_chain_id, expect_succes
         assert 'chain ID' in str(exc_info.value)
 
 
-def test_unmined_transaction_wait_for_receipt(web3, extra_accounts):
+def test_wait_for_missing_receipt(web3):
+    with pytest.raises(TimeExhausted):
+        web3.eth.waitForTransactionReceipt(b'\0' * 32, timeout=RECEIPT_TIMEOUT)
+
+
+def test_unmined_transaction_wait_for_receipt(web3):
     web3.middleware_stack.add(unmined_receipt_simulator_middleware)
     txn_hash = web3.eth.sendTransaction({
         'from': web3.eth.coinbase,

@@ -107,3 +107,10 @@ class InsufficientData(Exception):
     complete a calculation
     """
     pass
+
+
+class TimeExhausted(Exception):
+    """
+    Raised when a method has not retrieved the desired result within a specified timeout.
+    """
+    pass
