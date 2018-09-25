@@ -251,14 +251,6 @@ The following example demonstrates a few things:
         return address
     
     
-    def wait_for_receipt(w3, tx_hash, poll_interval):
-       while True:
-           tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
-           if tx_receipt:
-             return tx_receipt
-           time.sleep(poll_interval)
-    
-    
     w3 = Web3(EthereumTesterProvider())
     
     contract_source_path = 'contract.sol'
@@ -279,9 +271,11 @@ The following example demonstrates a few things:
     if gas_estimate < 100000:
       print("Sending transaction to setVar(255)\n")
       tx_hash = store_var_contract.functions.setVar(255).transact()
-      receipt = wait_for_receipt(w3, tx_hash, 1)
+      receipt = w3.eth.waitForTransactionReceipt(tx_hash)
       print("Transaction receipt mined: \n")
       pprint.pprint(dict(receipt))
+      print("Was transaction successful? \n")
+      pprint.pprint(receipt['status'])
     else:
       print("Gas cost exceeds 100000")
 
