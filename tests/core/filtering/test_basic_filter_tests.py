@@ -1,13 +1,17 @@
 
 
-def test_filtering_sequential_blocks(
+def test_filtering_sequential_blocks_with_bounded_range(
         web3,
         emitter,
         Emitter,
         wait_for_transaction):
     builder = emitter.events.LogNoArguments.build_filter()
-    filter_ = builder.deploy(web3)
+    builder.fromBlock = "latest"
+
     initial_block_number = web3.eth.blockNumber
+
+    builder.toBlock = initial_block_number + 100
+    filter_ = builder.deploy(web3)
     for i in range(100):
         emitter.functions.logNoArgs(which=1).transact()
     assert web3.eth.blockNumber == initial_block_number + 100
