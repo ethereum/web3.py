@@ -137,7 +137,7 @@ def iter_latest_block_ranges(w3, from_block, to_block=None):
     until reaching toBlock. e.g.:
 
 
-    >>> blocks_to_filter = unload_latest_blocks(w3, 0, 50)
+    >>> blocks_to_filter = iter_latest_block_ranges(w3, 0, 50)
     >>> next(blocks_to_filter)  # latest block number = 11
     (0, 11)
     >>> next(blocks_to_filter)  # latest block number = 45
@@ -145,13 +145,14 @@ def iter_latest_block_ranges(w3, from_block, to_block=None):
     >>> next(blocks_to_filter)  # latest block number = 50
     (46, 50)
     """
-    _from_block = from_block
-    for _latest_block in iter_latest_block(w3, to_block):
-        if _latest_block is None:
+    for latest_block in iter_latest_block(w3, to_block):
+        if latest_block is None:
+            yield (None, None)
+        elif from_block > latest_block:
             yield (None, None)
         else:
-            yield (_from_block, _latest_block)
-            _from_block = _latest_block + 1
+            yield (from_block, latest_block)
+            from_block = latest_block + 1
 
 
 def drop_items_with_none_value(params):
@@ -203,13 +204,7 @@ class RequestLogs:
 
     @property
     def from_block(self):
-        if self._from_block > self.w3.eth.blockNumber:
-            from_block = self.w3.eth.blockNumber
-
-        else:
-            from_block = self._from_block
-
-        return from_block
+        return self._from_block
 
     @property
     def to_block(self):
@@ -219,16 +214,13 @@ class RequestLogs:
         elif self._to_block == 'latest':
             to_block = self.w3.eth.blockNumber
 
-        elif self._to_block > self.w3.eth.blockNumber:
-            to_block = self.w3.eth.blockNumber
-
         else:
             to_block = self._to_block
 
         return to_block
 
     def _get_filter_changes(self):
-        for start, stop in iter_latest_block_ranges(self.w3, self._from_block, self._to_block):
+        for start, stop in iter_latest_block_ranges(self.w3, self.from_block, self.to_block):
             if None in (start, stop):
                 yield []
 

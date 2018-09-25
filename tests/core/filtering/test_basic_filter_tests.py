@@ -28,3 +28,9 @@ def test_filtering_starting_block_range(
         emitter.functions.logNoArgs(which=1).transact()
     assert web3.eth.blockNumber == initial_block_number + 10
     assert len(filter_.get_new_entries()) == 10
+
+
+def test_requesting_results_with_no_new_blocks(web3, emitter):
+    builder = emitter.events.LogNoArguments.build_filter()
+    filter_ = builder.deploy(web3)
+    assert len(filter_.get_new_entries()) == 0
