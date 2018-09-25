@@ -59,8 +59,8 @@ def gen_bounded_segments(start, stop, step):
         yield (start, stop)
         return
     for segment in zip(
-            range(start, stop - step, step),
-            range(start + step, stop, step)):
+            range(start, stop - step + 1, step),
+            range(start + step, stop + 1, step)):
         yield segment
     else:
         remainder = (stop - start) % step
@@ -195,7 +195,7 @@ class RequestLogs:
         self.topics = topics
         self.web3 = web3
         if from_block is None or from_block == 'latest':
-            self._from_block = web3.eth.blockNumber
+            self._from_block = web3.eth.blockNumber + 1
         else:
             self._from_block = from_block
         self._to_block = to_block
@@ -228,7 +228,7 @@ class RequestLogs:
         return to_block
 
     def _get_filter_changes(self):
-        for start, stop in iter_latest_block_ranges(self.web3, self.from_block, self._to_block):
+        for start, stop in iter_latest_block_ranges(self.web3, self._from_block, self._to_block):
             if None in (start, stop):
                 yield []
 

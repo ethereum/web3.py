@@ -17,7 +17,15 @@ from web3.providers.eth_tester import (
 )
 
 
-@pytest.fixture(params=[True, False], ids=["local_filter_middleware", "node_based_filter"])
+@pytest.fixture()
+def tester_snapshot(web3):
+    return web3.providers[0].ethereum_tester.take_snapshot()
+
+
+@pytest.fixture(
+    scope='function',
+    params=[True, False],
+    ids=["local_filter_middleware", "node_based_filter"])
 def web3(request):
     use_filter_middleware = request.param
     provider = EthereumTesterProvider()

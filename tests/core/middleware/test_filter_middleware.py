@@ -58,6 +58,10 @@ def w3(w3_base, result_generator_middleware):
 
 
 @pytest.mark.parametrize("start, stop, expected", [
+    (2, 7, [
+        (2, 6),
+        (7, 7)
+    ]),
     (0, 12, [
         (0, 4),
         (5, 9),

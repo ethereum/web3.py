@@ -56,6 +56,14 @@ def array_values(draw):
     return (matching, non_matching)
 
 
+def clear_chain_state(web3, snapshot):
+    """Clear chain state
+    Hypothesis doesn't allow function scoped fixtures to re-run between test runs
+    so chain state needs to be explicitly cleared
+    """
+    web3.providers[0].ethereum_tester.revert_to_snapshot(snapshot)
+
+
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 @given(vals=dynamic_values())
 @settings(max_examples=5, deadline=None)
@@ -65,7 +73,9 @@ def test_data_filters_with_dynamic_arguments(
         create_filter,
         emitter,
         api_style,
+        tester_snapshot,
         vals):
+    clear_chain_state(web3, tester_snapshot)
 
     if api_style == 'build_filter':
         filter_builder = emitter.events.LogDynamicArgs.build_filter()
@@ -104,7 +114,9 @@ def test_data_filters_with_fixed_arguments(
         create_filter,
         api_style,
         vals,
+        tester_snapshot,
         request):
+    clear_chain_state(web3, tester_snapshot)
 
     if api_style == 'build_filter':
         filter_builder = emitter.events.LogQuadrupleArg.build_filter()
@@ -156,7 +168,9 @@ def test_data_filters_with_list_arguments(
         create_filter,
         api_style,
         vals,
+        tester_snapshot,
         request):
+    clear_chain_state(web3, tester_snapshot)
 
     matching, non_matching = vals
 
