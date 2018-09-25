@@ -88,7 +88,7 @@ def block_ranges(start_block, last_block=None, step=5):
     )
 
 
-def iter_latest_block(web3, to_block=None):
+def iter_latest_block(w3, to_block=None):
     """Returns a generator that dispenses the latest block, if
     any new blocks have been mined since last iteration.
 
@@ -97,7 +97,7 @@ def iter_latest_block(web3, to_block=None):
     If ``to_block`` is defined, ``StopIteration`` is raised
     after to_block is reached.
 
-    >>> mined_blocks = dispense_mined_blocks(web3, 0, 10)
+    >>> mined_blocks = dispense_mined_blocks(w3, 0, 10)
     >>> next(new_blocks)  # Latest block = 0
     0
     >>> next(new_blocks)  # No new blocks
@@ -119,7 +119,7 @@ def iter_latest_block(web3, to_block=None):
     )
 
     while True:
-        latest_block = web3.eth.blockNumber
+        latest_block = w3.eth.blockNumber
         if is_bounded_range and latest_block > to_block:
             return
         #  No new blocks since last iteration.
@@ -130,7 +130,7 @@ def iter_latest_block(web3, to_block=None):
         _last = latest_block
 
 
-def iter_latest_block_ranges(web3, from_block, to_block=None):
+def iter_latest_block_ranges(w3, from_block, to_block=None):
     """Returns an iterator unloading ranges of available blocks
 
     starting from `fromBlock` to the latest mined block,
@@ -146,7 +146,7 @@ def iter_latest_block_ranges(web3, from_block, to_block=None):
     (46, 50)
     """
     _from_block = from_block
-    for _latest_block in iter_latest_block(web3, to_block):
+    for _latest_block in iter_latest_block(w3, to_block):
         if _latest_block is None:
             yield (None, None)
         else:
@@ -159,7 +159,7 @@ def drop_items_with_none_value(params):
 
 
 def get_logs_multipart(
-        web3,
+        w3,
         startBlock,
         stopBlock,
         address,
@@ -178,14 +178,14 @@ def get_logs_multipart(
             'address': address,
             'topics': topics
         }
-        yield web3.eth.getLogs(
+        yield w3.eth.getLogs(
             drop_items_with_none_value(params))
 
 
 class RequestLogs:
     def __init__(
             self,
-            web3,
+            w3,
             from_block=None,
             to_block=None,
             address=None,
@@ -193,9 +193,9 @@ class RequestLogs:
 
         self.address = address
         self.topics = topics
-        self.web3 = web3
+        self.w3 = w3
         if from_block is None or from_block == 'latest':
-            self._from_block = web3.eth.blockNumber + 1
+            self._from_block = w3.eth.blockNumber + 1
         else:
             self._from_block = from_block
         self._to_block = to_block
@@ -203,8 +203,8 @@ class RequestLogs:
 
     @property
     def from_block(self):
-        if self._from_block > self.web3.eth.blockNumber:
-            from_block = self.web3.eth.blockNumber
+        if self._from_block > self.w3.eth.blockNumber:
+            from_block = self.w3.eth.blockNumber
 
         else:
             from_block = self._from_block
@@ -214,13 +214,13 @@ class RequestLogs:
     @property
     def to_block(self):
         if self._to_block is None:
-            to_block = self.web3.eth.blockNumber
+            to_block = self.w3.eth.blockNumber
 
         elif self._to_block == 'latest':
-            to_block = self.web3.eth.blockNumber
+            to_block = self.w3.eth.blockNumber
 
-        elif self._to_block > self.web3.eth.blockNumber:
-            to_block = self.web3.eth.blockNumber
+        elif self._to_block > self.w3.eth.blockNumber:
+            to_block = self.w3.eth.blockNumber
 
         else:
             to_block = self._to_block
@@ -228,14 +228,14 @@ class RequestLogs:
         return to_block
 
     def _get_filter_changes(self):
-        for start, stop in iter_latest_block_ranges(self.web3, self._from_block, self._to_block):
+        for start, stop in iter_latest_block_ranges(self.w3, self._from_block, self._to_block):
             if None in (start, stop):
                 yield []
 
             yield list(
                 concat(
                     get_logs_multipart(
-                        self.web3,
+                        self.w3,
                         start,
                         stop,
                         self.address,
@@ -246,7 +246,7 @@ class RequestLogs:
         return list(
             concat(
                 get_logs_multipart(
-                    self.web3,
+                    self.w3,
                     self.from_block,
                     self.to_block,
                     self.address,
@@ -269,9 +269,9 @@ FILTER_CHANGES_METHODS = set([
 
 
 class RequestBlocks:
-    def __init__(self, web3):
-        self.web3 = web3
-        self.start_block = web3.eth.blockNumber + 1
+    def __init__(self, w3):
+        self.w3 = w3
+        self.start_block = w3.eth.blockNumber + 1
 
     @property
     def filter_changes(self):
@@ -280,22 +280,22 @@ class RequestBlocks:
     def get_filter_changes(self):
 
         block_range_iter = iter_latest_block_ranges(
-            self.web3,
+            self.w3,
             self.start_block,
             None)
 
         for block_range in block_range_iter:
-            yield(block_hashes_in_range(self.web3, block_range))
+            yield(block_hashes_in_range(self.w3, block_range))
 
 
 @to_list
-def block_hashes_in_range(web3, block_range):
+def block_hashes_in_range(w3, block_range):
     from_block, to_block = block_range
     for block_number in range(from_block, to_block + 1):
-        yield getattr(web3.eth.getBlock(block_number), 'hash', None)
+        yield getattr(w3.eth.getBlock(block_number), 'hash', None)
 
 
-def local_filter_middleware(make_request, web3):
+def local_filter_middleware(make_request, w3):
     filters = {}
     filter_id_counter = map(to_hex, itertools.count())
 
@@ -305,10 +305,10 @@ def local_filter_middleware(make_request, web3):
             filter_id = next(filter_id_counter)
 
             if method == 'eth_newFilter':
-                _filter = RequestLogs(web3, **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0]))
+                _filter = RequestLogs(w3, **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0]))
 
             elif method == 'eth_newBlockFilter':
-                _filter = RequestBlocks(web3)
+                _filter = RequestBlocks(w3)
 
             else:
                 raise NotImplementedError(method)
