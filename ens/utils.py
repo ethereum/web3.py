@@ -161,14 +161,14 @@ def to_utc_datetime(timestamp):
 def sha3_text(val):
     if isinstance(val, str):
         val = val.encode('utf-8')
-    return Web3().sha3(val)
+    return Web3().keccak(val)
 
 
 def label_to_hash(label):
     label = normalize_name(label)
     if '.' in label:
         raise ValueError("Cannot generate hash for label %r with a '.'" % label)
-    return Web3().sha3(text=label)
+    return Web3().keccak(text=label)
 
 
 def name_to_hash(name):
@@ -179,7 +179,7 @@ def name_to_hash(name):
             labelhash = label_to_hash(label)
             assert isinstance(labelhash, bytes)
             assert isinstance(node, bytes)
-            node = Web3().sha3(node + labelhash)
+            node = Web3().keccak(node + labelhash)
     return node
 
 
