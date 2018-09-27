@@ -86,7 +86,9 @@ def test_block_ranges(start, stop, expected):
         with pytest.raises(expected):
             block_ranges(start, stop)
     else:
-        for actual, expected in zip(block_ranges(start, stop), expected):
+        actual = tuple(block_ranges(start, stop))
+        assert len(actual) == len(expected)
+        for actual, expected in zip(actual, expected):
             assert actual == expected
 
 
@@ -111,12 +113,7 @@ def test_iter_latest_block_ranges(
     for index, block in enumerate(current_block):
         iter_block_number.send(block)
         expected_tuple = expected[index]
-        try:
-            actual_tuple = next(latest_block_ranges)
-        except StopIteration as e:
-            if e.value:
-                actual_tuple = e.value
-
+        actual_tuple = next(latest_block_ranges)
         assert actual_tuple == expected_tuple
 
 

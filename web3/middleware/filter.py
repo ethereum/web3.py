@@ -1,4 +1,5 @@
 import itertools
+import os
 
 from eth_utils import (
     apply_key_map,
@@ -11,15 +12,20 @@ from web3._utils.toolz import (
     valfilter,
 )
 
+if 'WEB3_MAX_BLOCK_REQUEST' in os.environ:
+    MAX_BLOCK_REQUEST = os.environ['WEB3_MAX_BLOCK_REQUEST']
+else:
+    MAX_BLOCK_REQUEST = 50
 
-def segment_count(start, stop=None, step=5):
+
+def segment_count(start, stop, step=5):
     """Creates a segment counting generator
 
     The generator returns tuple pairs of integers
     that correspond to segments in the provided range.
 
     :param start: The initial value of the counting range
-    :param stop: Optional, if provided the last value in the
+    :param stop: The last value in the
     counting range
     :param step: Optional, the segment length. Default is 5.
     :type start: int
@@ -39,17 +45,7 @@ def segment_count(start, stop=None, step=5):
     >>> next(segment_counter) #  Remainder is also returned
     (9, 10)
     """
-    if stop is None:
-        return gen_unbounded_segments(start, step)
-    else:
-        return gen_bounded_segments(start, stop, step)
-
-
-def gen_unbounded_segments(start, step):
-    for segment in zip(
-            itertools.count(start, step),
-            itertools.count(start + step, step)):
-        yield segment
+    return gen_bounded_segments(start, stop, step)
 
 
 def gen_bounded_segments(start, stop, step):
@@ -62,14 +58,14 @@ def gen_bounded_segments(start, stop, step):
             range(start, stop - step + 1, step),
             range(start + step, stop + 1, step)):
         yield segment
-    else:
-        remainder = (stop - start) % step
-        #  Handle the remainder
-        if remainder:
-            yield (stop - remainder, stop)
+
+    remainder = (stop - start) % step
+    #  Handle the remainder
+    if remainder:
+        yield (stop - remainder, stop)
 
 
-def block_ranges(start_block, last_block=None, step=5):
+def block_ranges(start_block, last_block, step=5):
     """Returns 2-tuple ranges describing ranges of block from start_block to last_block
 
        Ranges do not overlap to facilitate use as ``toBlock``, ``fromBlock``
@@ -210,10 +206,8 @@ class RequestLogs:
     def to_block(self):
         if self._to_block is None:
             to_block = self.w3.eth.blockNumber
-
         elif self._to_block == 'latest':
             to_block = self.w3.eth.blockNumber
-
         else:
             to_block = self._to_block
 
@@ -232,7 +226,7 @@ class RequestLogs:
                         stop,
                         self.address,
                         self.topics,
-                        max_blocks=50)))
+                        max_blocks=MAX_BLOCK_REQUEST)))
 
     def get_logs(self):
         return list(
@@ -243,7 +237,7 @@ class RequestLogs:
                     self.to_block,
                     self.address,
                     self.topics,
-                    max_blocks=50)))
+                    max_blocks=MAX_BLOCK_REQUEST)))
 
 
 FILTER_PARAMS_KEY_MAP = {
