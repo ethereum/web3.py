@@ -9,16 +9,29 @@ from eth_utils import (
 )
 
 from web3 import Web3
+from web3.middleware import (
+    local_filter_middleware,
+)
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 
 
 @pytest.fixture()
+def tester_snapshot(web3):
+    return web3.providers[0].ethereum_tester.take_snapshot()
+
+
+@pytest.fixture(
+    scope='function',
+    params=[True, False],
+    ids=["local_filter_middleware", "node_based_filter"])
 def web3(request):
+    use_filter_middleware = request.param
     provider = EthereumTesterProvider()
     w3 = Web3(provider)
-
+    if use_filter_middleware:
+        w3.middleware_stack.add(local_filter_middleware)
     return w3
 
 

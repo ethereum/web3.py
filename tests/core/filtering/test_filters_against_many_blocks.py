@@ -60,7 +60,7 @@ def test_event_filter_new_events(
         is_match = bool(random.randint(0, 1))
         if is_match:
             expected_match_counter += 1
-            matching_transact()
+            wait_for_transaction(web3, matching_transact())
             pad_with_transactions(web3)
             continue
         non_matching_transact()

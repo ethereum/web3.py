@@ -368,3 +368,25 @@ which uses a prototype PoA for it's development mode and the Rinkeby test networ
 Unfortunately, it does deviate from the yellow paper specification, which constrains the
 ``extraData`` field in each block to a maximum of 32-bytes. Geth's PoA uses more than
 32 bytes, so this middleware modifies the block data a bit before returning it.
+
+.. _local-filter:
+
+Locally Managed Log and Block Filters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This middleware provides an alternative to ethereum node managed filters. When used, Log and
+Block filter logic are handled locally while using the same web3 filter api. Filter results are
+retrieved using JSON-RPC endpoints that don't rely on server state. 
+
+.. code-block:: python
+
+    >>> from web3 import Web3, EthereumTesterProvider
+    >>> w3 = Web3(EthereumTesterProvider)
+    >>> from web3.middleware import local_filter_middleware
+    >>> w3.middleware_stack.add(local_filter_middleware())
+
+    #  Normal block and log filter apis behave as before.
+    >>> block_filter = w3.eth.filter("latest")
+
+    >>> log_filter = myContract.events.myEvent.build_filter().deploy()
+

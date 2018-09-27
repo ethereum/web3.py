@@ -17,6 +17,9 @@ from .cache import (  # noqa: F401
 from .exception_handling import (  # noqa: F401
     construct_exception_handler_middleware,
 )
+from .filter import (  # noqa: F401
+    local_filter_middleware,
+)
 from .fixture import (  # noqa: F401
     construct_fixture_middleware,
     construct_result_generator_middleware,
