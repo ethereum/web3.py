@@ -341,6 +341,17 @@ Each Contract Factory exposes the following methods.
     Returns the transaction hash for the deploy transaction.
 
 
+.. py:classmethod:: Contract.encodeABI(fn_name, args=None, kwargs=None, data=None)
+
+   Encodes the arguments using the Ethereum ABI for the contract function that
+   matches the given `fn_name` and arguements `args`. The `data` parameter
+   defaults to the function selector.
+
+   .. code-block:: python
+
+      >>> contract.encodeABI(fn_name="register", args=["rainbows", 10])
+      "0xea87152b0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000087261696e626f7773000000000000000000000000000000000000000000000000"
+
 .. py:classmethod:: Contract.all_functions()
 
     Returns a list of all the functions present in a Contract where every function is
