@@ -7,7 +7,7 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        "eth-tester[py-evm]==0.1.0-beta.32",
+        "eth-tester[py-evm]==0.1.0-beta.33",
         "py-geth>=2.0.1,<3.0.0",
     ],
     'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
@@ -71,7 +71,7 @@ setup(
         "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
         "eth-abi>=1.2.0,<2.0.0",
         "eth-account>=0.2.1,<0.4.0",
-        "eth-utils>=1.0.1,<2.0.0",
+        "eth-utils>=1.2.0,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
         "lru-dict>=1.1.6,<2.0.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
