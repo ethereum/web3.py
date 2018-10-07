@@ -80,7 +80,7 @@ Block and Transaction Filter Classes
 ------------------------------------
 
 .. py:class:: BlockFilter(...)
-    
+
 BlockFilter is a subclass of :class:``Filter``.
 
 You can setup a filter for new blocks using ``web3.eth.filter('latest')`` which
@@ -250,7 +250,6 @@ releasing the ``main`` function for other tasks.
             from web3.auto import w3
             from threading import Thread
             import time
-            import asyncio
 
 
             def handle_event(event):
@@ -258,7 +257,7 @@ releasing the ``main`` function for other tasks.
                 # and whatever
 
 
-            async def log_loop(event_filter, poll_interval):
+            def log_loop(event_filter, poll_interval):
                 while True:
                     for event in event_filter.get_new_entries():
                         handle_event(event)
@@ -266,7 +265,6 @@ releasing the ``main`` function for other tasks.
 
 
             def main():
-                loop = asyncio.new_event_loop()
                 block_filter = w3.eth.filter('latest')
                 worker = Thread(target=log_loop, args=(block_filter, 5), daemon=True)
                 worker.start()
