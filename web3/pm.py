@@ -79,7 +79,7 @@ class Registry(Contract):
         registry_package = Package(manifest, w3)
         registry_deployer = Deployer(registry_package)
         deployed_registry_package = registry_deployer.deploy("registry")
-        deployed_registry_address = deployed_registry_package.deployments.get_contract_instance("registry").address
+        deployed_registry_address = deployed_registry_package.deployments.get_instance("registry").address
         return cls(deployed_registry_address, deployed_registry_package.w3)
 
 
@@ -89,33 +89,39 @@ class Registry(Contract):
         
 
     def get_release_data(self, name, version):
-        return self.registry.functions.get_release_data(name, version).call()
+        release_id = self.registry.functions.getReleaseId(name, version).call()
+        return self.registry.functions.getReleaseData(release_id).call()
 
     @property
     def owner(self):
         return self.registry.functions.owner().call()
 
     @to_tuple
-    def get_all_packages(self):
-        package_count = self.registry.functions.package_count().call()
-        for index in range(package_count):
-            package_id = self.registry.functions.get_package_id(index).call()
-            package_data = self.registry.functions.get_package_data_by_id(package_id).call()
-            yield (package_data[0].rstrip(b'\x00'), package_data[1])
+    def get_all_package_ids(self):
+        package_count = self.registry.functions.packageCount().call()
+        for index in range(0, package_count, 4):
+            package_ids = self.registry.functions.getAllPackageIds(index, 5).call()
+            for pkg_id in package_ids:
+                if pkg_id != b'\x00' * 32:
+                    pkg_name = self.registry.functions.getPackageName(pkg_id).call()
+                    pkg_data = self.registry.functions.getPackageData(pkg_name).call()
+                    yield (pkg_name.rstrip(b'\x00'), pkg_data[2])
         
 
     @to_tuple
     def get_all_package_versions(self, name): # -> (version, uri):
-        package_data = self.registry.functions.get_package_data(name).call()
-        release_count = package_data[1]
-        for index in range(release_count):
-            release_id = self.registry.functions.get_release_id_by_package_and_count(name, (index + 1)).call()
-            release_data = self.registry.functions.get_release_data_by_id(release_id).call()
-            yield (release_data[1].rstrip(b'\x00'), release_data[2].rstrip(b'\x00'))
+        name, package_id, release_count = self.registry.functions.getPackageData(name).call()
+        for index in range(0, release_count, 4):
+            release_ids = self.registry.functions.getAllReleaseIds(b'package', index, 5).call()
+            for r_id in release_ids:
+                if r_id != b'\x00' * 32:
+                    release_data = self.registry.functions.getReleaseData(r_id).call()
+                    yield (release_data[1].rstrip(b'\x00'), release_data[2].rstrip(b'\x00'))
+            
 
 
     def transfer_owner(self, new_address):
-        tx_receipt = self.registry.functions.transfer_owner(new_address).transact()
+        tx_receipt = self.registry.functions.transferOwner(new_address).transact()
         self.w3.eth.waitForTransactionReceipt(tx_receipt)
 
 
