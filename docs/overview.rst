@@ -267,7 +267,7 @@ Cryptographic Hashing
 
     .. code-block:: python
 
-        >>> Web3.soliditySha3(['bool'], True)
+        >>> Web3.soliditySha3(['bool'], [True])
         HexBytes("0x5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2")
 
         >>> Web3.soliditySha3(['uint8', 'uint8', 'uint8'], [97, 98, 99])
