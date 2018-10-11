@@ -47,7 +47,7 @@ def vy_registry(twig_deployer, w3):
     registry_path = ASSETS_DIR / 'vyper_registry'
     registry_deployer = twig_deployer(registry_path)
     registry_package = registry_deployer.deploy("registry")
-    registry_instance = registry_package.deployments.get_contract_instance("registry")
+    registry_instance = registry_package.deployments.get_instance("registry")
     owner = registry_instance.functions.owner().call()
     assert owner == w3.eth.accounts[0]
     return Registry(registry_instance.address, w3)
@@ -69,11 +69,31 @@ def test_registry_releases_properly(vy_registry):
 def test_registry_get_all_packages(vy_registry):
     vy_registry.release(b"package1",b"1.0.0",b"p1.v1.0.0.com")
     vy_registry.release(b"package1",b"1.0.1",b"p1.v1.0.1.com")
+    all_pkgs_1 = vy_registry.get_all_package_ids()
+    assert all_pkgs_1 == ((b'package1', 2),)
     vy_registry.release(b"package2",b"1.0.0",b"p2.v1.0.0.com")
     vy_registry.release(b"package3",b"1.0.0",b"p3.v1.0.0.com")
     vy_registry.release(b"package3",b"1.0.1",b"p3.v1.0.1.com")
-    all_packages = vy_registry.get_all_packages()
-    assert all_packages == ((b'package1', 2),(b'package2',1),(b'package3',2))
+    all_pkgs_2 = vy_registry.get_all_package_ids()
+    assert all_pkgs_2 == (
+        (b'package1', 2),
+        (b'package2', 1),
+        (b'package3', 2),
+    )
+    vy_registry.release(b"package4",b"1.0.0",b"p2.v1.0.0.com")
+    vy_registry.release(b"package5",b"1.0.0",b"p2.v1.0.0.com")
+    vy_registry.release(b"package6",b"1.0.0",b"p2.v1.0.0.com")
+    vy_registry.release(b"package7",b"1.0.0",b"p2.v1.0.0.com")
+    all_pkgs_3 = vy_registry.get_all_package_ids()
+    assert all_pkgs_3 == (
+        (b'package1', 2),
+        (b'package2', 1),
+        (b'package3', 2),
+        (b'package4', 1),
+        (b'package5', 1),
+        (b'package6', 1),
+        (b'package7', 1),
+    )
 
 def test_registry_get_all_package_versions(vy_registry):
     vy_registry.release(b"package",b"1.0.0",b"p1.v1.0.0.com")
@@ -81,14 +101,29 @@ def test_registry_get_all_package_versions(vy_registry):
     vy_registry.release(b"package",b"1.0.2",b"p1.v1.0.2.com")
     vy_registry.release(b"package",b"1.1.0",b"p1.v1.1.0.com")
     vy_registry.release(b"package",b"2.0.0",b"p1.v2.0.0.com")
-    all_releases = vy_registry.get_all_package_versions(b"package")
-    assert all_releases == (
+    all_rls_1 = vy_registry.get_all_package_versions(b"package")
+    assert all_rls_1 == (
         (b'1.0.0',b'p1.v1.0.0.com'),
         (b'1.0.1',b'p1.v1.0.1.com'),
         (b'1.0.2',b'p1.v1.0.2.com'),
         (b'1.1.0',b'p1.v1.1.0.com'),
         (b'2.0.0',b'p1.v2.0.0.com'),
     )
+    vy_registry.release(b"package",b"3.0.0",b"p1.v3.0.0.com")
+    vy_registry.release(b"package",b"4.0.0",b"p1.v4.0.0.com")
+    vy_registry.release(b"package",b"5.0.0",b"p1.v5.0.0.com")
+    all_rls_2 = vy_registry.get_all_package_versions(b'package')
+    assert all_rls_2 == (
+        (b'1.0.0',b'p1.v1.0.0.com'),
+        (b'1.0.1',b'p1.v1.0.1.com'),
+        (b'1.0.2',b'p1.v1.0.2.com'),
+        (b'1.1.0',b'p1.v1.1.0.com'),
+        (b'2.0.0',b'p1.v2.0.0.com'),
+        (b'3.0.0',b'p1.v3.0.0.com'),
+        (b'4.0.0',b'p1.v4.0.0.com'),
+        (b'5.0.0',b'p1.v5.0.0.com'),
+    )
+
 
 def test_registry_transfer_owner(vy_registry, w3):
     vy_registry.transfer_owner(w3.eth.accounts[1])
