@@ -1,6 +1,3 @@
-from pathlib import (
-    Path,
-)
 import pytest
 
 from eth_utils import (

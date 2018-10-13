@@ -1,17 +1,34 @@
 import json
-from eth_utils import to_canonical_address, to_tuple, combomethod
 
-from pytest_ethereum.deployer import Deployer
-from web3.contract import Contract
+from eth_utils import (
+    is_canonical_address,
+    is_checksum_address,
+    to_canonical_address,
+    to_tuple,
+)
+
+from web3._utils.ens import (
+    is_ens_name,
+)
+from web3.contract import (
+    Contract,
+)
+from web3.exceptions import (
+    InvalidAddress,
+    NameNotFound,
+    PMError,
+)
 from web3.module import (
     Module,
 )
 
 try:
-    from ethpm.utils.chains import get_genesis_block_hash
     from ethpm import (
         ASSETS_DIR,
         Package,
+    )
+    from pytest_ethereum.deployer import (
+        Deployer,
     )
 except ImportError as exc:
     raise ImportError(
@@ -20,58 +37,132 @@ except ImportError as exc:
     ) from exc
 
 
-# Package Management is currently still in alpha
+# Package Management is currently still in alpha.
 # It is not automatically available on a web3 object.
 # To use the `PM` module, attach it to your web3 object
 # i.e. PM.attach(web3, 'pm')
 
 
 class PM(Module):
-
-    def set_registry(self, address=None):
-        if not address:
-            self.registry = Registry.deploy_new_instance(self.web3)
-        else:
-            self.registry = Registry(address, self.web3)
-
     def get_package_from_manifest(self, manifest):
+        """
+        * :manifest: must be a dict representing a valid manifest
+        * Returns a ``Package`` instance representing the Manifest
+        """
         pkg = Package(manifest, self.web3)
         return pkg
 
-    def get_package_from_uri(self, uri):
-        pkg = Package.from_uri(uri, self.web3)
+    def get_package_from_uri(self, manifest_uri):
+        """
+        * :uri: *must* be a valid content-addressed URI, as defined in the
+        `Py-EthPM Documentation <https://py-ethpm.readthedocs.io/en/latest/uri_backends.html>`_.
+        * Returns a ``Package`` isntance representing the Manifest stored at the URI.
+        """
+        pkg = Package.from_uri(manifest_uri, self.web3)
         return pkg
 
-    def release_package(self, name, version, uri):
-        if not self.registry:
-            raise AttributeError("Registry has not been set for web3.pm")
+    def set_registry(self, address):
+        """
+        Sets the current registry used in ``web3.pm`` functions that read/write to an
+        onchain registry.
+        Requires a valid ENS instance set as web3.ens property to pass ENS domains in as :address:
+
+        :address: Address of the on-chain registry - Accepts ENS name, if web3.ens is valid
+        """
+        if is_canonical_address(address) or is_checksum_address(address):
+            self.registry = Registry(address, self.web3)
+        elif is_ens_name(address):
+            self._validate_set_ens()
+            addr_lookup = self.web3.ens.address(address, guess_tld=False)
+            if not addr_lookup:
+                raise NameNotFound(
+                    "No address found after ENS lookup for name: {0}.".format(address)
+                )
+            self.registry = Registry(addr_lookup, self.web3)
+        else:
+            raise PMError(
+                "Expected an address or ENS name for the address, "
+                "instead received {0}.".format(type(address))
+            )
+
+    def deploy_and_set_registry(self):
+        """
+        Deploys a new instance of a Registry.vy and sets that Registry to ``web3.pm``.
+        (py-ethpm/ethpm/assets/vyper_registry/registry.v.py)
+        """
+        self.registry = Registry.deploy_new_instance(self.web3)
+
+    def release_package(self, name, version, manifest_uri):
+        """
+        Publishes a version release to the current registry. Requires ``web3.PM`` to have a
+        registry set. Requires ``web3.eth.defaultAccount`` to be the registry owner.
+        """
+        self._validate_set_registry()
         if self.web3.eth.defaultAccount != self.registry.owner:
-            # change error
-            raise AttributeError("Owner doesn't have right permissions to release pkg.")
-        self.registry.release(name, version, uri)
+            raise PMError("Owner doesn't have right permissions to release pkg.")
+        self.registry.release(name, version, manifest_uri)
 
-    def get_release_data_from_registry(self, name, version):
-        if not self.registry:
-            raise AttributeError("Registry has not been set for web3.pm")
-        return self.registry.get_release_data(name, version) 
+    def get_release_data(self, name, version):
+        """
+        Returns ``(package_name, version, manifest_uri`` associated with the given package name
+        and version, if they are published to the currently set registry.
+        """
+        self._validate_set_registry()
+        return self.registry.get_release_data(name, version)
 
-    def get_package_from_registry(self, name, version):
-        if not self.registry:
-            raise AttributeError("Registry has not been set for web3.pm")
-        release_uri = self.registry.get_release_data(name, version)
-        return self.get_package_from_uri(release_uri)
+    def get_package(self, name, version):
+        """
+        Returns a ``Package`` instance, generated by the ``manifest_uri`` associated with the
+        given package name and version, if they are published to the currently set registry.
+        """
+        self._validate_set_registry()
+        _, _, release_uri = self.registry.get_release_data(name, version)
+        return self.get_package_from_uri(release_uri.rstrip(b'\x00'))
+
+    def _validate_set_registry(self):
+        try:
+            self.registry
+        except AttributeError:
+            raise PMError(
+                "web3.pm does not have a set registry. "
+                "Please set registry with either: "
+                "web3.pm.set_registry(address) or "
+                "web3.pm.deploy_and_set_registry()"
+            )
+        if not isinstance(self.registry, Registry):
+            raise PMError(
+                "web3.pm requires a Registry instance to be set as the "
+                "web3.pm.registry attribute."
+            )
+
+    def _validate_set_ens(self):
+        if not self.web3:
+            raise InvalidAddress(
+                "xxxCould not look up name %r because no web3"
+                " connection available"
+            )
+        elif not self.web3.ens:
+            raise InvalidAddress(
+                "xxxCould not look up name %r because ENS is"
+                " set to None"
+            )
 
 
 class Registry(Contract):
     def __init__(self, address, w3):
         # only works with v.py registry in ethpm/assets
-        # abi verification for compatibility?
-        # todo ens linking
+        # todo: 100% ERC1319 compatibility
+        if is_canonical_address(address) or is_checksum_address(address):
+            registry_address = to_canonical_address(address)
+        else:
+            raise PMError("Registry class only accepts canonical/checksum addresses.")
         manifest = json.loads((ASSETS_DIR / 'vyper_registry' / '1.0.0.json').read_text())
         registry_package = Package(manifest, w3)
-        self.registry = registry_package.get_contract_instance("registry", to_canonical_address(address))
+        self.registry = registry_package.get_contract_instance(
+            "registry", registry_address
+        )
         self.w3 = w3
-        self.address = address
+        self.address = registry_address
 
     @classmethod
     def deploy_new_instance(cls, w3):
@@ -79,49 +170,68 @@ class Registry(Contract):
         registry_package = Package(manifest, w3)
         registry_deployer = Deployer(registry_package)
         deployed_registry_package = registry_deployer.deploy("registry")
-        deployed_registry_address = deployed_registry_package.deployments.get_instance("registry").address
-        return cls(deployed_registry_address, deployed_registry_package.w3)
+        registry_address = deployed_registry_package.deployments.get_instance("registry").address
+        return cls(registry_address, deployed_registry_package.w3)
 
-
-    def release(self, name, version, uri):
-        tx_receipt = self.registry.functions.release(name, version, uri).transact()
-        self.w3.eth.waitForTransactionReceipt(tx_receipt)
-        
+    def release(self, name, version, manifest_uri):
+        """
+        Returns tx_receipt from adding a new release.
+        """
+        tx_hash = self.registry.functions.release(name, version, manifest_uri).transact()
+        return self.w3.eth.waitForTransactionReceipt(tx_hash)
 
     def get_release_data(self, name, version):
+        """
+        Returns (package_name, version, manifest_uri) associated with given name, version.
+        """
         release_id = self.registry.functions.getReleaseId(name, version).call()
         return self.registry.functions.getReleaseData(release_id).call()
 
     @property
     def owner(self):
+        """
+        Returns the owner address.
+        """
         return self.registry.functions.owner().call()
 
     @to_tuple
-    def get_all_package_ids(self):
+    def get_all_package_names(self):
+        """
+        Returns the package_name for every package on registry.
+        """
         package_count = self.registry.functions.packageCount().call()
-        for index in range(0, package_count, 4):
-            package_ids = self.registry.functions.getAllPackageIds(index, 5).call()
+        for offset in range(0, package_count, 4):
+            package_ids = self.registry.functions.getAllPackageIds(offset, 5).call()
             for pkg_id in package_ids:
                 if pkg_id != b'\x00' * 32:
                     pkg_name = self.registry.functions.getPackageName(pkg_id).call()
-                    pkg_data = self.registry.functions.getPackageData(pkg_name).call()
-                    yield (pkg_name.rstrip(b'\x00'), pkg_data[2])
-        
+                    # rstrip used to trim trailing bytes returned in package_name: bytes32
+                    yield pkg_name.rstrip(b'\x00')
+
+    def get_release_count(self, name):
+        """
+        Returns the release count for a given package_name.
+        """
+        _, _, release_count = self.registry.functions.getPackageData(name).call()
+        return release_count
 
     @to_tuple
-    def get_all_package_versions(self, name): # -> (version, uri):
+    def get_all_package_versions(self, name):
+        """
+        Returns (version, manifest_uri) for every release of a given package.
+        """
         name, package_id, release_count = self.registry.functions.getPackageData(name).call()
         for index in range(0, release_count, 4):
             release_ids = self.registry.functions.getAllReleaseIds(b'package', index, 5).call()
             for r_id in release_ids:
                 if r_id != b'\x00' * 32:
-                    release_data = self.registry.functions.getReleaseData(r_id).call()
-                    yield (release_data[1].rstrip(b'\x00'), release_data[2].rstrip(b'\x00'))
-            
-
+                    _, version, uri = self.registry.functions.getReleaseData(r_id).call()
+                    # rstrip used to trim trailing bytes returned in package_name: bytes32
+                    yield (version.rstrip(b'\x00'), uri.rstrip(b'\x00'))
 
     def transfer_owner(self, new_address):
-        tx_receipt = self.registry.functions.transferOwner(new_address).transact()
-        self.w3.eth.waitForTransactionReceipt(tx_receipt)
-
-
+        """
+        Transfers ownership of registry to new_address.
+        """
+        tx_hash = self.registry.functions.transferOwner(new_address).transact()
+        return self.w3.eth.waitForTransactionReceipt(tx_hash)
