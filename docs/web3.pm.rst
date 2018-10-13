@@ -34,12 +34,4 @@ Methods
 
 The following methods are available on the ``web3.pm`` namespace.
 
-.. py:method:: PM.get_package_from_manifest(self, manifest)
-    
-    * :manifest: must be a dict representing a valid manifest
-    * Returns a ``Package`` instance representing the Manifest
-
-.. py:method:: PM.get_package_from_uri(self, uri)
-
-    * :uri: *must* be a valid content-addressed URI, as defined in the `Py-EthPM Documentation <https://py-ethpm.readthedocs.io/en/latest/uri_backends.html>`_.
-    * Returns a ``Package`` isntance representing the Manifest stored at the URI.
+TODO: autoclass docstrings once ``web3.pm`` is stable.
