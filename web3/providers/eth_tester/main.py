@@ -1,3 +1,4 @@
+import asyncio
 from web3.providers import (
     BaseProvider,
 )
@@ -33,7 +34,8 @@ class EthereumTesterProvider(BaseProvider):
         else:
             self.api_endpoints = api_endpoints
 
-    def make_request(self, method, params):
+    async def make_request(self, method, params):
+        await asyncio.sleep(0)
         namespace, _, endpoint = method.partition('_')
         try:
             delegator = self.api_endpoints[namespace][endpoint]

@@ -35,7 +35,7 @@ def construct_web3_formatting_middleware(web3_formatters_builder):
 
 
 @curry
-def apply_formatters(
+async def apply_formatters(
         method,
         params,
         make_request,
@@ -45,9 +45,9 @@ def apply_formatters(
     if method in request_formatters:
         formatter = request_formatters[method]
         formatted_params = formatter(params)
-        response = make_request(method, formatted_params)
+        response = await make_request(method, formatted_params)
     else:
-        response = make_request(method, params)
+        response = await make_request(method, params)
 
     if 'result' in response and method in result_formatters:
         formatter = result_formatters[method]

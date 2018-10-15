@@ -32,12 +32,12 @@ def make_stalecheck_middleware(
     def stalecheck_middleware(make_request, web3):
         cache = {'latest': None}
 
-        def middleware(method, params):
+        async def middleware(method, params):
             if method not in skip_stalecheck_for_methods:
                 if _isfresh(cache['latest'], allowable_delay):
                     pass
                 else:
-                    latest = web3.eth.getBlock('latest')
+                    latest = await web3.eth.getBlock('latest')
                     if _isfresh(latest, allowable_delay):
                         cache['latest'] = latest
                     else:

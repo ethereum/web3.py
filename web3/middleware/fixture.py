@@ -4,12 +4,13 @@ def construct_fixture_middleware(fixtures):
     which is found in the provided fixtures.
     """
     def fixture_middleware(make_request, web3):
-        def middleware(method, params):
+        async def middleware(method, params):
             if method in fixtures:
                 result = fixtures[method]
                 return {'result': result}
             else:
-                return make_request(method, params)
+                response = await make_request(method, params)
+                return response
         return middleware
     return fixture_middleware
 

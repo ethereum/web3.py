@@ -304,7 +304,7 @@ def default_transaction_fields_middleware(make_request, web3):
     fill_default_from = fill_default('from', guess_from, web3)
     fill_default_gas = fill_default('gas', guess_gas, web3)
 
-    def middleware(method, params):
+    async def middleware(method, params):
         # TODO send call to eth-tester without gas, and remove guess_gas entirely
         if method == 'eth_call':
             filled_transaction = pipe(
@@ -312,7 +312,7 @@ def default_transaction_fields_middleware(make_request, web3):
                 fill_default_from,
                 fill_default_gas,
             )
-            return make_request(method, [filled_transaction] + params[1:])
+            return await make_request(method, [filled_transaction] + params[1:])
         elif method in (
             'eth_estimateGas',
             'eth_sendTransaction',
@@ -321,7 +321,9 @@ def default_transaction_fields_middleware(make_request, web3):
                 params[0],
                 fill_default_from,
             )
-            return make_request(method, [filled_transaction] + params[1:])
+            response = await make_request(method, [filled_transaction] + params[1:])
+            return response
         else:
-            return make_request(method, params)
+            response = await make_request(method, params)
+            return response
     return middleware

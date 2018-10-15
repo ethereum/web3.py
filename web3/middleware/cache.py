@@ -89,20 +89,20 @@ def construct_simple_cache_middleware(
         cache = cache_class()
         lock = threading.Lock()
 
-        def middleware(method, params):
+        async def middleware(method, params):
             lock_acquired = lock.acquire(blocking=False)
 
             try:
                 if lock_acquired and method in rpc_whitelist:
                     cache_key = generate_cache_key((method, params))
                     if cache_key not in cache:
-                        response = make_request(method, params)
+                        response = await make_request(method, params)
                         if should_cache_fn(method, params, response):
                             cache[cache_key] = response
                         return response
                     return cache[cache_key]
                 else:
-                    return make_request(method, params)
+                    return await make_request(method, params)
             finally:
                 if lock_acquired:
                     lock.release()
@@ -188,7 +188,7 @@ def construct_time_based_cache_middleware(
         cache = cache_class()
         lock = threading.Lock()
 
-        def middleware(method, params):
+        async def middleware(method, params):
             lock_acquired = lock.acquire(blocking=False)
 
             try:
@@ -205,14 +205,14 @@ def construct_time_based_cache_middleware(
                             del cache[cache_key]
 
                     # cache either missed or expired so make the request.
-                    response = make_request(method, params)
+                    response = await make_request(method, params)
 
                     if should_cache_fn(method, params, response):
                         cache[cache_key] = (time.time(), response)
 
                     return response
                 else:
-                    return make_request(method, params)
+                    return await make_request(method, params)
             finally:
                 if lock_acquired:
                     lock.release()
@@ -318,7 +318,7 @@ def construct_latest_block_based_cache_middleware(
         cache = cache_class()
         block_info = {}
 
-        def _update_block_info_cache():
+        async def _update_block_info_cache():
             avg_block_time = block_info.get(AVG_BLOCK_TIME_KEY, default_average_block_time)
             avg_block_sample_size = block_info.get(AVG_BLOCK_SAMPLE_SIZE_KEY, 0)
             avg_block_time_updated_at = block_info.get(AVG_BLOCK_TIME_UPDATED_AT_KEY, 0)
@@ -336,12 +336,12 @@ def construct_latest_block_based_cache_middleware(
                 # measured by blocks is greater than or equal to the number of
                 # blocks sampled then we need to recompute the average block
                 # time.
-                latest_block = web3.eth.getBlock('latest')
+                latest_block = await web3.eth.getBlock('latest')
                 ancestor_block_number = max(
                     0,
                     latest_block['number'] - average_block_time_sample_size,
                 )
-                ancestor_block = web3.eth.getBlock(ancestor_block_number)
+                ancestor_block = await web3.eth.getBlock(ancestor_block_number)
                 sample_size = latest_block['number'] - ancestor_block_number
 
                 block_info[AVG_BLOCK_SAMPLE_SIZE_KEY] = sample_size
@@ -359,14 +359,14 @@ def construct_latest_block_based_cache_middleware(
 
                 # latest block is too old so update cache
                 if time_since_latest_block > avg_block_time:
-                    block_info['latest_block'] = web3.eth.getBlock('latest')
+                    block_info['latest_block'] = await web3.eth.getBlock('latest')
             else:
                 # latest block has not been fetched so we fetch it.
-                block_info['latest_block'] = web3.eth.getBlock('latest')
+                block_info['latest_block'] = await web3.eth.getBlock('latest')
 
         lock = threading.Lock()
 
-        def middleware(method, params):
+        async def middleware(method, params):
             lock_acquired = lock.acquire(blocking=False)
 
             try:
@@ -382,12 +382,12 @@ def construct_latest_block_based_cache_middleware(
                     if cache_key in cache:
                         return cache[cache_key]
 
-                    response = make_request(method, params)
+                    response = await make_request(method, params)
                     if should_cache_fn(method, params, response):
                         cache[cache_key] = response
                     return response
                 else:
-                    return make_request(method, params)
+                    return await make_request(method, params)
             finally:
                 if lock_acquired:
                     lock.release()

@@ -58,11 +58,11 @@ class HTTPProvider(JSONBaseProvider):
             'User-Agent': construct_user_agent(str(type(self))),
         }
 
-    def make_request(self, method, params):
+    async def make_request(self, method, params):
         self.logger.debug("Making request HTTP. URI: %s, Method: %s",
                           self.endpoint_uri, method)
         request_data = self.encode_rpc_request(method, params)
-        raw_response = make_post_request(
+        raw_response = await make_post_request(
             self.endpoint_uri,
             request_data,
             **self.get_request_kwargs()

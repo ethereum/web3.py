@@ -1,15 +1,15 @@
+import asyncio
 import logging
-import uuid
 
 from eth_utils import (
     is_list_like,
 )
 
+from web3._utils.async_tools import (
+    sync,
+)
 from web3._utils.empty import (
     empty,
-)
-from web3._utils.threads import (
-    spawn,
 )
 from web3.datastructures import (
     NamedElementOnion,
@@ -102,25 +102,22 @@ class RequestManager:
                 )
             )
 
-    def request_blocking(self, method, params):
+    async def request_async(self, method, params):
         """
-        Make a synchronous request using the provider
+        Make an asynchronous request using the provider
         """
-        response = self._make_request(method, params)
+        response = await self._make_request(method, params)
 
         if "error" in response:
             raise ValueError(response["error"])
 
         return response['result']
 
-    def request_async(self, raw_method, raw_params):
-        request_id = uuid.uuid4()
-        self.pending_requests[request_id] = spawn(
-            self.request_blocking,
-            raw_method=raw_method,
-            raw_params=raw_params,
-        )
-        return request_id
+    def request_blocking(self, method, params):
+        """
+        Make a synchronous request using the provider
+        """
+        return sync(self.request_async(method, params))
 
     def receive_blocking(self, request_id, timeout=None):
         try:

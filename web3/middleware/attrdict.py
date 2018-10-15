@@ -14,8 +14,8 @@ def attrdict_middleware(make_request, web3):
     """
     Converts any result which is a dictionary into an a
     """
-    def middleware(method, params):
-        response = make_request(method, params)
+    async def middleware(method, params):
+        response = await make_request(method, params)
 
         if 'result' in response:
             result = response['result']
