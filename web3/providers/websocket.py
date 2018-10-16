@@ -86,8 +86,9 @@ class WebsocketProvider(JSONBaseProvider):
         return "WS connection {0}".format(self.endpoint_uri)
 
     async def make_request(self, method, params):
-        self.logger.debug("Making request WebSocket. URI: %s, "
-                          "Method: %s", self.endpoint_uri, method)
+        self.logger.debug(
+            "Making request WebSocket. URI: %s, "
+            "Method: %s, Threads: %s", self.endpoint_uri, method, threading.active_count())
         request_data = self.encode_rpc_request(method, params)
         async with self.conn as conn:
             await asyncio.wait_for(

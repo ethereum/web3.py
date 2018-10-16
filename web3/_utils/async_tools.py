@@ -26,26 +26,26 @@ def threadpool(f, executor=None):
 
 @singledispatch
 @threadpool
-def run_in_new_loop_in_thread(co: Any, args, kwargs):
+def run_in_loop_in_thread(co: Any, args, kwargs):
     raise TypeError('Called with unsupported argument: {}'.format(co))
 
 
-@run_in_new_loop_in_thread.register(asyncio.Future)
-@run_in_new_loop_in_thread.register(types.GeneratorType)
-@run_in_new_loop_in_thread.register(types.CoroutineType)
+@run_in_loop_in_thread.register(asyncio.Future)
+@run_in_loop_in_thread.register(types.GeneratorType)
+@run_in_loop_in_thread.register(types.CoroutineType)
 @threadpool
 def run_co_in_new_loop_in_thread(co: Generator[Any, None, Any]) -> Any:
-    loop = asyncio.new_event_loop()
+    loop = asyncio.get_event_loop()
     return loop.run_until_complete(co)
 
 
-@run_in_new_loop_in_thread.register(types.FunctionType)
-@run_in_new_loop_in_thread.register(types.MethodType)
+@run_in_loop_in_thread.register(types.FunctionType)
+@run_in_loop_in_thread.register(types.MethodType)
 @threadpool
 def run_f_in_new_loop_in_thread(f: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(f)
     def run(*args, **kwargs):
-        loop = asyncio.new_event_loop()
+        loop = asyncio.get_event_loop()
         return loop.run_until_complete(f(*args, **kwargs))
     return run
 
@@ -63,7 +63,7 @@ def sync_co(co: Generator[Any, None, Any]) -> Any:
         raise TypeError('Called with unsupported argument: {}'.format(co))
     loop = asyncio.get_event_loop()
     if loop.is_running():
-        return run_in_new_loop_in_thread(co).result()
+        return run_in_loop_in_thread(co).result()
     else:
         return loop.run_until_complete(co)
 
@@ -78,7 +78,7 @@ def sync_fu(f: Callable[..., Any]) -> Callable[..., Any]:
     def run(*args, **kwargs):
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            run_in_new_loop_in_thread(f(*args, **kwargs))
+            run_in_loop_in_thread(f(*args, **kwargs))
         else:
             return loop.run_until_complete(f(*args, **kwargs))
     return run
