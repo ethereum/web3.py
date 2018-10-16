@@ -33,6 +33,7 @@ class PersistentWebSocket:
     def __init__(self, endpoint_uri, websocket_kwargs):
         self.endpoint_uri = endpoint_uri
         self.websocket_kwargs = websocket_kwargs
+        self.local.__setattr__('ws', None)
 
     async def __aenter__(self):
         loop = asyncio.get_event_loop()
@@ -44,7 +45,6 @@ class PersistentWebSocket:
         return self.local.ws
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        thread_id = threading.get_ident()
         if exc_val is not None:
             try:
                 await self.local.ws.close()
@@ -77,7 +77,7 @@ class WebsocketProvider(JSONBaseProvider):
                     '{0} are not allowed in websocket_kwargs, '
                     'found: {1}'.format(RESTRICTED_WEBSOCKET_KWARGS, found_restricted_keys)
                 )
-        self.conn = WebSocketConnection(
+        self.conn = PersistentWebSocket(
             self.endpoint_uri, websocket_kwargs
         )
         super().__init__()
