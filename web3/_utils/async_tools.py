@@ -7,7 +7,6 @@ from functools import (
     wraps,
 )
 import inspect
-from threading import Lock
 import types
 from typing import (
     Any,
@@ -42,6 +41,8 @@ def run_co_in_new_loop_in_thread(co: Generator[Any, None, Any]) -> Any:
         loop = asyncio.get_event_loop()
     except RuntimeError:
         loop = asyncio.new_event_loop()
+        #  I get an error regarding what seems like a stale loop.
+        asyncio.set_event_loop(loop)
     return loop.run_until_complete(co)
 
 
@@ -55,6 +56,7 @@ def run_f_in_new_loop_in_thread(f: Callable[..., Any]) -> Callable[..., Any]:
             loop = asyncio.get_event_loop()
         except RuntimeError:
             loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
         return loop.run_until_complete(f(*args, **kwargs))
     return run
 
