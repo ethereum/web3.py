@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import pathlib
@@ -198,7 +199,8 @@ class IPCProvider(JSONBaseProvider):
         self._socket = PersistantSocket(self.ipc_path)
         super().__init__(*args, **kwargs)
 
-    def make_request(self, method, params):
+    async def make_request(self, method, params):
+        await asyncio.sleep(0)
         self.logger.debug("Making request IPC. Path: %s, Method: %s",
                           self.ipc_path, method)
         request = self.encode_rpc_request(method, params)
