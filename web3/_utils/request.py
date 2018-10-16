@@ -9,4 +9,4 @@ async def make_post_request(endpoint_uri, data, *args, **kwargs):
                 json=data,
                 *args,
                 **kwargs) as response:
-            return response
+            return await response.text()

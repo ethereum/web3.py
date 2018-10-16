@@ -5,6 +5,9 @@ from eth_utils import (
     to_dict,
 )
 
+from web3._utils.encoding import (
+    FriendlyJsonSerde,
+)
 from web3._utils.http import (
     construct_user_agent,
 )
@@ -83,5 +86,4 @@ class HTTPProvider(JSONBaseProvider):
             "params": params or [],
             "id": next(self.request_counter),
         }
-        encoded = FriendlyJsonSerde().json_encode(rpc_dict)
-        return encoded
+        return rpc_dict

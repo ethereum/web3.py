@@ -5,6 +5,9 @@ from eth_utils import (
     to_text,
 )
 
+from web3._utils.async_tools import (
+    sync,
+)
 from web3._utils.encoding import (
     FriendlyJsonSerde,
 )
@@ -74,7 +77,7 @@ class JSONBaseProvider(BaseProvider):
 
     def isConnected(self):
         try:
-            response = self.make_request('web3_clientVersion', [])
+            response = sync(self.make_request('web3_clientVersion', []))
         except IOError:
             return False
         else:
