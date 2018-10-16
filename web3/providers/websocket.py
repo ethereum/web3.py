@@ -44,6 +44,7 @@ class PersistentWebSocket:
         return self.local.ws
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
+        thread_id = threading.get_ident()
         if exc_val is not None:
             try:
                 await self.local.ws.close()
@@ -76,7 +77,7 @@ class WebsocketProvider(JSONBaseProvider):
                     '{0} are not allowed in websocket_kwargs, '
                     'found: {1}'.format(RESTRICTED_WEBSOCKET_KWARGS, found_restricted_keys)
                 )
-        self.conn = PersistentWebSocket(
+        self.conn = WebSocketConnection(
             self.endpoint_uri, websocket_kwargs
         )
         super().__init__()
