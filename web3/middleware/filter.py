@@ -285,7 +285,7 @@ def local_filter_middleware(make_request, w3):
     filters = {}
     filter_id_counter = map(to_hex, itertools.count())
 
-    def middleware(method, params):
+    async def middleware(method, params):
         if method in NEW_FILTER_METHODS:
 
             filter_id = next(filter_id_counter)
@@ -306,7 +306,7 @@ def local_filter_middleware(make_request, w3):
             filter_id = params[0]
             #  Pass through to filters not created by middleware
             if filter_id not in filters:
-                return make_request(method, params)
+                return await make_request(method, params)
             _filter = filters[filter_id]
             if method == 'eth_getFilterChanges':
                 return {'result': next(_filter.filter_changes)}
@@ -315,6 +315,6 @@ def local_filter_middleware(make_request, w3):
             else:
                 raise NotImplementedError(method)
         else:
-            return make_request(method, params)
+            return await make_request(method, params)
 
     return middleware

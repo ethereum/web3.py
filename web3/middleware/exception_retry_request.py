@@ -1,7 +1,7 @@
-from requests.exceptions import (
-    ConnectionError,
-    HTTPError,
-    Timeout,
+from aiohttp.client_exceptions import (
+    ClientConnectorError,
+    ClientResponseError,
+    ServerTimeoutError,
     TooManyRedirects,
 )
 
@@ -73,18 +73,18 @@ def exception_retry_middleware(make_request, web3, errors, retries=5):
     Creates middleware that retries failed HTTP requests. Is a default
     middleware for HTTPProvider.
     '''
-    def middleware(method, params):
+    async def middleware(method, params):
         if check_if_retry_on_failure(method):
             for i in range(retries):
                 try:
-                    return make_request(method, params)
+                    return await make_request(method, params)
                 except errors:
                     if i < retries - 1:
                         continue
                     else:
                         raise
         else:
-            return make_request(method, params)
+            return await make_request(method, params)
     return middleware
 
 
@@ -92,5 +92,5 @@ def http_retry_request_middleware(make_request, web3):
     return exception_retry_middleware(
         make_request,
         web3,
-        (ConnectionError, HTTPError, Timeout, TooManyRedirects)
+        (ClientConnectorError, ClientResponseError, ServerTimeoutError, TooManyRedirects)
     )

@@ -1,7 +1,6 @@
 import itertools
 
 from eth_utils import (
-    to_bytes,
     to_text,
 )
 
@@ -70,7 +69,7 @@ class JSONBaseProvider(BaseProvider):
             "id": next(self.request_counter),
         }
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
-        return to_bytes(text=encoded)
+        return encoded
 
     def isConnected(self):
         try:

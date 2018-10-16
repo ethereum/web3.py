@@ -80,6 +80,7 @@ setup(
         "requests>=2.16.0,<3.0.0",
         "websockets>=6.0.0,<7.0.0",
         "pypiwin32>=223;platform_system=='Windows'",
+        "aiohttp",
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.5.3,<4',

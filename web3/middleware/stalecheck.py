@@ -37,12 +37,12 @@ def make_stalecheck_middleware(
                 if _isfresh(cache['latest'], allowable_delay):
                     pass
                 else:
-                    latest = await web3.eth.getBlock('latest')
+                    latest = web3.eth.getBlock('latest')
                     if _isfresh(latest, allowable_delay):
                         cache['latest'] = latest
                     else:
                         raise StaleBlockchain(latest, allowable_delay)
 
-            return make_request(method, params)
+            return await make_request(method, params)
         return middleware
     return stalecheck_middleware

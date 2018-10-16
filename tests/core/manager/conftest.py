@@ -16,10 +16,10 @@ def middleware_factory():
                 return 'middleware-' + key
 
             def __call__(self, make_request, web3):
-                def middleware_fn(method, params):
+                async def middleware_fn(method, params):
                     params.append(key)
                     method = "|".join((method, key))
-                    response = make_request(method, params)
+                    response = await make_request(method, params)
                     response['result']['middlewares'].append(key)
                     return response
                 return middleware_fn

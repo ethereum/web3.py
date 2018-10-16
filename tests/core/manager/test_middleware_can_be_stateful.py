@@ -9,7 +9,7 @@ from web3.providers import (
 def stateful_middleware(make_request, web3):
     state = []
 
-    def middleware(method, params):
+    async def middleware(method, params):
         state.append((method, params))
         return {'result': state}
 

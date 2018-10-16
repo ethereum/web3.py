@@ -7,7 +7,7 @@ from web3.providers import (
 
 
 class DummyProvider(BaseProvider):
-    def make_request(self, method, params):
+    async def make_request(self, method, params):
         return {
             'result': {
                 'method': method,

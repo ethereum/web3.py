@@ -113,21 +113,21 @@ def construct_sign_and_send_raw_middleware(private_key_or_account):
             fill_transaction_defaults(w3),
             fill_nonce(w3))
 
-        def middleware(method, params):
+        async def middleware(method, params):
             if method != "eth_sendTransaction":
-                return make_request(method, params)
+                return await make_request(method, params)
             else:
                 transaction = format_and_fill_tx(params[0])
 
             if 'from' not in transaction:
-                return make_request(method, params)
+                return await make_request(method, params)
             elif transaction.get('from') not in accounts:
-                return make_request(method, params)
+                return await make_request(method, params)
 
             account = accounts[transaction['from']]
             raw_tx = account.signTransaction(transaction).rawTransaction
 
-            return make_request(
+            return await make_request(
                 "eth_sendRawTransaction",
                 [raw_tx])
 

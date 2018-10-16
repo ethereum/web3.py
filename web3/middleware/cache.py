@@ -318,7 +318,7 @@ def construct_latest_block_based_cache_middleware(
         cache = cache_class()
         block_info = {}
 
-        async def _update_block_info_cache():
+        def _update_block_info_cache():
             avg_block_time = block_info.get(AVG_BLOCK_TIME_KEY, default_average_block_time)
             avg_block_sample_size = block_info.get(AVG_BLOCK_SAMPLE_SIZE_KEY, 0)
             avg_block_time_updated_at = block_info.get(AVG_BLOCK_TIME_UPDATED_AT_KEY, 0)
@@ -336,12 +336,12 @@ def construct_latest_block_based_cache_middleware(
                 # measured by blocks is greater than or equal to the number of
                 # blocks sampled then we need to recompute the average block
                 # time.
-                latest_block = await web3.eth.getBlock('latest')
+                latest_block = web3.eth.getBlock('latest')
                 ancestor_block_number = max(
                     0,
                     latest_block['number'] - average_block_time_sample_size,
                 )
-                ancestor_block = await web3.eth.getBlock(ancestor_block_number)
+                ancestor_block = web3.eth.getBlock(ancestor_block_number)
                 sample_size = latest_block['number'] - ancestor_block_number
 
                 block_info[AVG_BLOCK_SAMPLE_SIZE_KEY] = sample_size
@@ -359,10 +359,10 @@ def construct_latest_block_based_cache_middleware(
 
                 # latest block is too old so update cache
                 if time_since_latest_block > avg_block_time:
-                    block_info['latest_block'] = await web3.eth.getBlock('latest')
+                    block_info['latest_block'] = web3.eth.getBlock('latest')
             else:
                 # latest block has not been fetched so we fetch it.
-                block_info['latest_block'] = await web3.eth.getBlock('latest')
+                block_info['latest_block'] = web3.eth.getBlock('latest')
 
         lock = threading.Lock()
 

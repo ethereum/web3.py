@@ -1,4 +1,5 @@
 import asyncio
+
 from web3._utils.async_tools import (
     sync,
 )
