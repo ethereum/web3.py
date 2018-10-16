@@ -72,3 +72,16 @@ class HTTPProvider(JSONBaseProvider):
                           "Method: %s, Response: %s",
                           self.endpoint_uri, method, response)
         return response
+
+    def decode_rpc_response(self, response):
+        return FriendlyJsonSerde().json_decode(response)
+
+    def encode_rpc_request(self, method, params):
+        rpc_dict = {
+            "jsonrpc": "2.0",
+            "method": method,
+            "params": params or [],
+            "id": next(self.request_counter),
+        }
+        encoded = FriendlyJsonSerde().json_encode(rpc_dict)
+        return encoded
