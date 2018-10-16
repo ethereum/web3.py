@@ -7,6 +7,7 @@ from functools import (
     wraps,
 )
 import inspect
+from threading import Lock
 import types
 from typing import (
     Any,
@@ -35,7 +36,12 @@ def run_in_loop_in_thread(co: Any, args, kwargs):
 @run_in_loop_in_thread.register(types.CoroutineType)
 @threadpool
 def run_co_in_new_loop_in_thread(co: Generator[Any, None, Any]) -> Any:
-    loop = asyncio.get_event_loop()
+    try:
+        #  in get_event_loog, self._local._set_called == True, even
+        #  though there is no event_loop.
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
     return loop.run_until_complete(co)
 
 
@@ -45,7 +51,10 @@ def run_co_in_new_loop_in_thread(co: Generator[Any, None, Any]) -> Any:
 def run_f_in_new_loop_in_thread(f: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(f)
     def run(*args, **kwargs):
-        loop = asyncio.get_event_loop()
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
         return loop.run_until_complete(f(*args, **kwargs))
     return run
 
