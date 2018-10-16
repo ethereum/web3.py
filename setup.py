@@ -81,7 +81,7 @@ setup(
         "pypiwin32>=223;platform_system=='Windows'",
     ],
     setup_requires=['setuptools-markdown'],
-    python_requires='>=3.5.2, <4',
+    python_requires='>=3.5.3,<4',
     extras_require=extras_require,
     py_modules=['web3', 'ens'],
     license="MIT",
