@@ -6,6 +6,9 @@ from tests.integration.common import (
 from tests.integration.utils import (
     wait_for_ws,
 )
+from tests.utils import (
+    get_open_port,
+)
 from web3 import Web3
 
 from .common import (
@@ -14,7 +17,6 @@ from .common import (
     GoEthereumPersonalModuleTest,
     GoEthereumTest,
     GoEthereumVersionModuleTest,
-    get_open_port,
 )
 
 

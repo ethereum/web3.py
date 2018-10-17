@@ -7,6 +7,9 @@ from tests.integration.common import (
 from tests.integration.utils import (
     wait_for_ws,
 )
+from tests.utils import (
+    get_open_port,
+)
 from web3 import Web3
 from web3._utils.module_testing import (
     NetModuleTest,
@@ -18,7 +21,6 @@ from .common import (
     ParityPersonalModuleTest,
     ParityTraceModuleTest,
     ParityWeb3ModuleTest,
-    get_open_port,
 )
 
 

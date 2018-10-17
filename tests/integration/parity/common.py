@@ -1,5 +1,4 @@
 import pytest
-import socket
 
 from flaky import (
     flaky,
@@ -14,14 +13,6 @@ from web3._utils.module_testing import (
 
 # some tests appear flaky with Parity v1.10.x
 MAX_FLAKY_RUNS = 3
-
-
-def get_open_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return str(port)
 
 
 class ParityWeb3ModuleTest(Web3ModuleTest):
