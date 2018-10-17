@@ -28,7 +28,7 @@ def start_websocket_server(open_port):
     def run_server():
         async def empty_server(websocket, path):
             data = await websocket.recv()
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.02)
             await websocket.send(data)
         server = websockets.serve(empty_server, '127.0.0.1', open_port, loop=event_loop)
         event_loop.run_until_complete(server)
@@ -36,8 +36,10 @@ def start_websocket_server(open_port):
 
     thd = Thread(target=run_server)
     thd.start()
-    yield
-    event_loop.call_soon_threadsafe(event_loop.stop)
+    try:
+        yield
+    finally:
+        event_loop.call_soon_threadsafe(event_loop.stop)
 
 
 @pytest.fixture()
@@ -46,7 +48,7 @@ def w3(open_port, start_websocket_server):
     event_loop = asyncio.new_event_loop()
     endpoint_uri = 'ws://127.0.0.1:{}'.format(open_port)
     event_loop.run_until_complete(wait_for_ws(endpoint_uri, event_loop))
-    provider = WebsocketProvider(endpoint_uri, websocket_timeout=0)
+    provider = WebsocketProvider(endpoint_uri, websocket_timeout=0.01)
     return Web3(provider)
 
 
