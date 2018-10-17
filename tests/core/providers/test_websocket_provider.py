@@ -10,7 +10,7 @@ from threading import (
 import websockets
 
 from tests.utils import (
-    wait_for_ws
+    wait_for_ws,
 )
 from web3 import Web3
 from web3.exceptions import (
