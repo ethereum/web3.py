@@ -50,11 +50,3 @@ def kill_proc_gracefully(proc):
     if proc.poll() is None:
         proc.kill()
         wait_for_popen(proc, 2)
-
-
-def get_open_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return str(port)
