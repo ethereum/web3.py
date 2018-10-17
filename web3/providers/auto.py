@@ -14,6 +14,7 @@ from web3.providers import (
 )
 
 HTTP_SCHEMES = {'http', 'https'}
+WS_SCHEMES = {'ws', 'wss'}
 
 
 def load_provider_from_environment():
@@ -26,7 +27,7 @@ def load_provider_from_environment():
         return IPCProvider(uri.path)
     elif uri.scheme in HTTP_SCHEMES:
         return HTTPProvider(uri_string)
-    elif uri.scheme == 'ws':
+    elif uri.scheme in WS_SCHEMES:
         return WebsocketProvider(uri_string)
     else:
         raise NotImplementedError(
