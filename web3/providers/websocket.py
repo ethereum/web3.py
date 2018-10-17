@@ -97,7 +97,10 @@ class WebsocketProvider(JSONBaseProvider):
 
     async def coro_make_request(self, request_data):
         async with self.conn as conn:
-            await conn.send(request_data)
+            await asyncio.wait_for(
+                conn.send(request_data),
+                timeout=self.websocket_timeout
+            )
             return json.loads(
                 await asyncio.wait_for(
                     conn.recv(),
