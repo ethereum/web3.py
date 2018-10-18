@@ -35,8 +35,11 @@ def run_in_loop_in_thread(co: Any, args, kwargs):
 @run_in_loop_in_thread.register(types.CoroutineType)
 @threadpool
 def run_co_in_new_loop_in_thread(co: Generator[Any, None, Any]) -> Any:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
     return loop.run_until_complete(co)
 
 
