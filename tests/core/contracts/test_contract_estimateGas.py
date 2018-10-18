@@ -1,5 +1,9 @@
 import pytest
 
+from web3.exceptions import (
+    ValidationError,
+)
+
 
 @pytest.fixture(autouse=True)
 def wait_for_first_block(web3, wait_for_block):
@@ -54,6 +58,19 @@ def fallback_function_contract(web3,
     return _fallback_function_contract
 
 
+@pytest.fixture()
+def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
+    deploy_txn = PayableTesterContract.constructor().transact({'from': web3.eth.coinbase})
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+
+    assert deploy_receipt is not None
+    payable_tester_address = address_conversion_func(deploy_receipt['contractAddress'])
+
+    _payable_tester = PayableTesterContract(address=payable_tester_address)
+    assert _payable_tester.address == payable_tester_address
+    return _payable_tester
+
+
 def test_contract_estimateGas(web3, math_contract, estimateGas, transact):
     gas_estimate = estimateGas(contract=math_contract,
                                contract_function='increment')
@@ -92,3 +109,31 @@ def test_contract_estimateGas_with_arguments(web3, math_contract, estimateGas, t
     gas_used = txn_receipt.get('gasUsed')
 
     assert abs(gas_estimate - gas_used) < 21000
+
+
+def test_estimateGas_not_sending_ether_to_nonpayable_function(
+        web3,
+        payable_tester_contract,
+        estimateGas,
+        transact):
+    gas_estimate = estimateGas(contract=payable_tester_contract,
+                               contract_function='doNoValueCall')
+
+    txn_hash = transact(
+        contract=payable_tester_contract,
+        contract_function='doNoValueCall')
+
+    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    gas_used = txn_receipt.get('gasUsed')
+
+    assert abs(gas_estimate - gas_used) < 21000
+
+
+def test_estimateGas_sending_ether_to_nonpayable_function(
+        web3,
+        payable_tester_contract,
+        estimateGas):
+    with pytest.raises(ValidationError):
+        estimateGas(contract=payable_tester_contract,
+                    contract_function='doNoValueCall',
+                    tx_params={'value': 1})

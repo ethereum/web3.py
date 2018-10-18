@@ -2,6 +2,9 @@
 
 import pytest
 
+from web3.exceptions import (
+    ValidationError,
+)
 from web3.utils.toolz import (
     dissoc,
 )
@@ -30,6 +33,42 @@ def fallback_function_contract(web3, FallballFunctionContract, address_conversio
     _fallback_contract = FallballFunctionContract(address=fallback_contract_address)
     assert _fallback_contract.address == fallback_contract_address
     return _fallback_contract
+
+
+@pytest.fixture()
+def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
+    deploy_txn = PayableTesterContract.constructor().transact()
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    payable_tester_address = address_conversion_func(deploy_receipt['contractAddress'])
+    _payable_tester = PayableTesterContract(address=payable_tester_address)
+    assert _payable_tester.address == payable_tester_address
+    return _payable_tester
+
+
+def test_build_transaction_not_paying_to_nonpayable_function(
+        web3,
+        payable_tester_contract,
+        buildTransaction):
+    txn = buildTransaction(contract=payable_tester_contract,
+                           contract_function='doNoValueCall')
+    assert dissoc(txn, 'gas') == {
+        'to': payable_tester_contract.address,
+        'data': '0xe4cb8f5c',
+        'value': 0,
+        'gasPrice': 1,
+        'chainId': None,
+    }
+
+
+def test_build_transaction_paying_to_nonpayable_function(
+        web3,
+        payable_tester_contract,
+        buildTransaction):
+    with pytest.raises(ValidationError):
+        buildTransaction(contract=payable_tester_contract,
+                         contract_function='doNoValueCall',
+                         tx_params={'value': 1})
 
 
 def test_build_transaction_with_contract_no_arguments(web3, math_contract, buildTransaction):
