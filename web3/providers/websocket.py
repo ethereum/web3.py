@@ -16,6 +16,7 @@ from web3.providers.base import (
 )
 
 RESTRICTED_WEBSOCKET_KWARGS = {'uri', 'loop'}
+DEFAULT_WEBSOCKET_TIMEOUT = 10
 
 
 def _start_event_loop(loop):
@@ -63,8 +64,14 @@ class WebsocketProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.WebsocketProvider")
     _loop = None
 
-    def __init__(self, endpoint_uri=None, websocket_kwargs=None):
+    def __init__(
+            self,
+            endpoint_uri=None,
+            websocket_kwargs=None,
+            websocket_timeout=DEFAULT_WEBSOCKET_TIMEOUT
+    ):
         self.endpoint_uri = endpoint_uri
+        self.websocket_timeout = websocket_timeout
         if self.endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()
         if WebsocketProvider._loop is None:
@@ -90,8 +97,16 @@ class WebsocketProvider(JSONBaseProvider):
 
     async def coro_make_request(self, request_data):
         async with self.conn as conn:
-            await conn.send(request_data)
-            return json.loads(await conn.recv())
+            await asyncio.wait_for(
+                conn.send(request_data),
+                timeout=self.websocket_timeout
+            )
+            return json.loads(
+                await asyncio.wait_for(
+                    conn.recv(),
+                    timeout=self.websocket_timeout
+                )
+            )
 
     def make_request(self, method, params):
         self.logger.debug("Making request WebSocket. URI: %s, "

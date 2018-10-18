@@ -11,9 +11,6 @@ from eth_utils import (
 )
 
 import common
-from tests.utils import (
-    get_open_port,
-)
 from web3 import Web3
 from web3.utils.module_testing.emitter_contract import (
     EMITTER_ABI,
@@ -45,7 +42,7 @@ def generate_go_ethereum_fixture(destination_dir):
         geth_ipc_path_dir = stack.enter_context(common.tempdir())
         geth_ipc_path = os.path.join(geth_ipc_path_dir, 'geth.ipc')
 
-        geth_port = get_open_port()
+        geth_port = common.get_open_port()
         geth_binary = common.get_geth_binary()
 
         geth_proc = stack.enter_context(common.get_geth_process(  # noqa: F841

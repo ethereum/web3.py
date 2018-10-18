@@ -76,14 +76,6 @@ def tempdir():
         shutil.rmtree(dir_path)
 
 
-def get_open_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return str(port)
-
-
 def get_geth_binary():
     from geth.install import (
         get_executable_path,
