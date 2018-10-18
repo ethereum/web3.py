@@ -48,7 +48,7 @@ class ENS:
     is_valid_name = staticmethod(is_valid_name)
     reverse_domain = staticmethod(address_to_reverse_domain)
 
-    def __init__(self, providers=default, addr=None):
+    def __init__(self, providers=default, addr=None) -> None:
         '''
         :param providers: a list or single provider used to connect to Ethereum
         :type providers: instance of `web3.providers.base.BaseProvider`
@@ -62,7 +62,7 @@ class ENS:
         self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
 
     @classmethod
-    def fromWeb3(cls, web3, addr=None):
+    def fromWeb3(cls, web3, addr=None) -> ENS:
         '''
         Generate an ENS instance with web3
 
@@ -72,7 +72,7 @@ class ENS:
         '''
         return cls(web3.manager.providers, addr=addr)
 
-    def address(self, name, guess_tld=True):
+    def address(self, name: str, guess_tld=True):
         '''
         Look up the Ethereum address that `name` currently points to.
 
@@ -198,7 +198,7 @@ class ENS:
         reversed_domain = address_to_reverse_domain(target_address)
         return self.resolver(reversed_domain)
 
-    def owner(self, name):
+    def owner(self, name: str) -> str:
         '''
         Get the owner of a name. Note that this may be different from the
         deed holder in the '.eth' registrar. Learn more about the difference
@@ -213,7 +213,7 @@ class ENS:
         return self.ens.owner(node)
 
     @dict_copy
-    def setup_owner(self, name, new_owner=default, transact={}):
+    def setup_owner(self, name: str, new_owner=default, transact={}):
         '''
         Set the owner of the supplied name to `new_owner`.
 
@@ -254,7 +254,7 @@ class ENS:
             self._claim_ownership(new_owner, unowned, owned, super_owner, transact=transact)
             return new_owner
 
-    def _assert_control(self, account, name, parent_owned=None):
+    def _assert_control(self, account, name: str, parent_owned=None) -> None:
         if not address_in(account, self.web3.eth.accounts):
             raise UnauthorizedError(
                 "in order to modify %r, you must control account %r, which owns %r" % (
@@ -279,7 +279,7 @@ class ENS:
         return (owner, unowned, name)
 
     @dict_copy
-    def _claim_ownership(self, owner, unowned, owned, old_owner=None, transact={}):
+    def _claim_ownership(self, owner, unowned, owned, old_owner=None, transact={}) -> None:
         transact['from'] = old_owner or owner
         for label in reversed(unowned):
             self.ens.setSubnodeOwner(

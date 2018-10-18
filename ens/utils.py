@@ -1,3 +1,4 @@
+from typing import Callable
 
 import copy
 import datetime
@@ -32,7 +33,7 @@ def Web3():
     return Web3
 
 
-def dict_copy(func):
+def dict_copy(func: Callable) -> Callable:
     "copy dict keyword args, to avoid modifying caller's copy"
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -71,7 +72,7 @@ def customize_web3(w3):
     return w3
 
 
-def normalize_name(name):
+def normalize_name(name: str) -> str:
     '''
     Clean the fully qualified name, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
@@ -91,7 +92,7 @@ def normalize_name(name):
         raise InvalidName("%s is an invalid name, because %s" % (name, exc)) from exc
 
 
-def is_valid_name(name):
+def is_valid_name(name: str) -> bool:
     '''
     Validate whether the fully qualified name is valid, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
@@ -108,19 +109,19 @@ def is_valid_name(name):
         return False
 
 
-def label_to_name(label, default_tld, recognized_tlds):
+def label_to_name(label: str, default_tld: str, recognized_tlds: str) -> str:
     label = normalize_name(label)
-    pieces = label.split('.')
+    pieces  = label.split('.')
     if pieces[-1] not in recognized_tlds:
         pieces.append(default_tld)
     return '.'.join(pieces)
 
 
-def dot_eth_name(label):
+def dot_eth_name(label: str) -> str:
     return label_to_name(label, 'eth', RECOGNIZED_TLDS)
 
 
-def name_to_label(name, registrar):
+def name_to_label(name: str, registrar: str) -> str:
     name = normalize_name(name)
     if '.' not in name:
         label = name
@@ -138,7 +139,7 @@ def name_to_label(name, registrar):
     return label
 
 
-def dot_eth_label(name):
+def dot_eth_label(name: str) -> str:
     '''
     Convert from a name, like 'ethfinex.eth', to a label, like 'ethfinex'
     If name is already a label, this should be a noop, except for converting to a string
@@ -183,7 +184,7 @@ def name_to_hash(name):
     return node
 
 
-def dot_eth_namehash(name):
+def dot_eth_namehash(name: str):
     '''
     Generate the namehash. This is also known as the ``node`` in ENS contracts.
 

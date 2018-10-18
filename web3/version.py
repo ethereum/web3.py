@@ -10,13 +10,13 @@ class Version(Module):
         return __version__
 
     @property
-    def node(self):
+    def node(self) -> str:
         return self.web3.manager.request_blocking("web3_clientVersion", [])
 
     @property
-    def network(self):
+    def network(self) -> str:
         return self.web3.manager.request_blocking("net_version", [])
 
     @property
-    def ethereum(self):
+    def ethereum(self) -> str:
         return self.web3.manager.request_blocking("eth_protocolVersion", [])

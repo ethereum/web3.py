@@ -390,7 +390,7 @@ class Eth(Module):
         else:
             return ContractFactory
 
-    def setContractFactory(self, contractFactory):
+    def setContractFactory(self, contractFactory) -> None:
         self.defaultContractFactory = contractFactory
 
     def getCompilers(self):
@@ -403,5 +403,5 @@ class Eth(Module):
         if self.gasPriceStrategy:
             return self.gasPriceStrategy(self.web3, transaction_params)
 
-    def setGasPriceStrategy(self, gas_price_strategy):
+    def setGasPriceStrategy(self, gas_price_strategy) -> None:
         self.gasPriceStrategy = gas_price_strategy

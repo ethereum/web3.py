@@ -1,11 +1,11 @@
 class Module:
     web3 = None
 
-    def __init__(self, web3):
+    def __init__(self, web3) -> None:
         self.web3 = web3
 
     @classmethod
-    def attach(cls, target, module_name=None):
+    def attach(cls, target, module_name: str = None) -> None:
         if not module_name:
             module_name = cls.__name__.lower()
 
