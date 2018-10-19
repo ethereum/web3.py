@@ -16,15 +16,33 @@ class Parity(Module):
     """
     defaultBlock = "latest"
 
+    def allTransactions(self):
+        return self.web3.manager.request_blocking(
+            "parity_allTransactions",
+            [],
+        )
+
     def enode(self):
         return self.web3.manager.request_blocking(
             "parity_enode",
             [],
         )
 
+    def futureTransactions(self):
+        return self.web3.manager.request_blocking(
+            "parity_futureTransactions",
+            [],
+        )
+
     def netPeers(self):
         return self.web3.manager.request_blocking(
             "parity_netPeers",
+            [],
+        )
+
+    def localTransactions(self):
+        return self.web3.manager.request_blocking(
+            "parity_localTransactions",
             [],
         )
 
@@ -75,4 +93,16 @@ class Parity(Module):
         return self.web3.manager.request_blocking(
             "trace_rawTransaction",
             [raw_transaction, mode],
+        )
+
+    def pendingTransactions(self):
+        return self.web3.manager.request_blocking(
+            "parity_pendingTransactions",
+            [],
+        )
+
+    def pendingTransactionsStats(self):
+        return self.web3.manager.request_blocking(
+            "parity_pendingTransactionsStats",
+            [],
         )
