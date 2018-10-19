@@ -10,9 +10,11 @@ async def asleep(n, timeout):
     await asyncio.sleep(n)
     timeout.check()
 
+
 def sleep(n, timeout):
     time.sleep(n)
     timeout.check()
+
 
 class Timeout(Exception):
     """
@@ -83,7 +85,7 @@ class Timeout(Exception):
         self.is_running = False
 
     def sleep(self, seconds):
-        return self._sleep(seconds)
+        return self._sleep(seconds, self)
 
 
 class ThreadWithReturn(threading.Thread):

@@ -78,7 +78,7 @@ async def test_sync_waits_for_full_result(jsonrpc_ipc_pipe_path, serve_empty_res
     provider = IPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path), timeout=3)
     result = await provider.make_request("method", [])
     assert result == {'id': 1, 'result': {}}
-    provider._socket.sock.close()
+    provider._conn.conn.close()
 
 
 def test_web3_auto_gethdev():
