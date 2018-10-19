@@ -2,9 +2,7 @@ import asyncio
 import logging
 import os
 import pathlib
-import socket
 import sys
-import threading
 
 from web3._utils.threads import (
     Timeout,
@@ -19,49 +17,91 @@ try:
 except ImportError:
     JSONDecodeError = ValueError
 
+DEFAULT_LIMIT = 2 ** 16
 
-def get_ipc_socket(ipc_path, timeout=0.1):
+
+if sys.platform == 'win32':
+    asyncio.set_event_loop(asyncio.ProactorEventLoop())
+
+
+async def open_named_pipe_connection(
+        path=None,
+        *,
+        loop=None,
+        limit=DEFAULT_LIMIT,
+        **kwargs):
+    """Connect to a server using a Win32 named pipe."""
+    if sys.platform != 'win32':
+        raise TypeError("open_named_pipe_connection is a windows only method")
+
+    loop = loop or asyncio.get_event_loop()
+    if not isinstance(loop, (asyncio.ProactorEventLoop,)):
+        raise TypeError(
+            "Using the IPCProvider on windows requires an asyncio.ProactorEventLoop. "
+            "try: asyncio.set_event_loop(asyncio.ProactorEventLoop()).")
+
+    reader = asyncio.StreamReader(limit=limit, loop=loop)
+    protocol = asyncio.StreamReaderProtocol(reader, loop=loop)
+    #  create_pipe_connection is part of the windows event loop using IOCP
+    transport, _ = await loop.create_pipe_connection(
+        lambda: protocol, path, **kwargs
+    )
+    writer = asyncio.StreamWriter(transport, protocol, reader, loop)
+    return reader, writer
+
+
+def get_ipc_connection(ipc_path):
     if sys.platform == 'win32':
-        # On Windows named pipe is used. Simulate socket with it.
-        from web3._utils.windows import NamedPipe
-
-        return NamedPipe(ipc_path)
+        return open_named_pipe_connection(ipc_path)
     else:
-        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        sock.connect(ipc_path)
-        sock.settimeout(timeout)
-        return sock
+        return asyncio.open_unix_connection(ipc_path)
+
+
+class IPCConnection:
+    def __init__(self, reader, writer):
+        self.reader = reader
+        self.writer = writer
+
+    async def send(self, data):
+        self.writer.write(data)
+        await self.writer.drain()
+
+    async def read(self, n=-1):
+        return await self.reader.read(n)
+
+    def close(self):
+        self.writer.close()
 
 
 class PersistantSocket:
-    sock = None
+    conn = None
 
     def __init__(self, ipc_path):
         self.ipc_path = ipc_path
 
-    def __enter__(self):
+    async def __aenter__(self):
         if not self.ipc_path:
             raise FileNotFoundError("cannot connect to IPC socket at path: %r" % self.ipc_path)
 
-        if not self.sock:
-            self.sock = self._open()
-        return self.sock
+        if not self.conn:
+            self.conn = IPCConnection(*(await self._open()))
+        return self.conn
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    async def __aexit__(self, exc_type, exc_value, traceback):
         # only close the socket if there was an error
         if exc_value is not None:
             try:
-                self.sock.close()
+                self.conn.close()
             except Exception:
                 pass
-            self.sock = None
+            self.conn = None
 
-    def _open(self):
-        return get_ipc_socket(self.ipc_path)
+    async def _open(self):
+        return await get_ipc_connection(self.ipc_path)
 
-    def reset(self):
-        self.sock.close()
-        self.sock = self._open()
+    async def reset(self):
+        self.conn.close()
+        self.conn = IPCConnection(*(await self._open()))
         return self.sock
 
 
@@ -184,7 +224,7 @@ def get_dev_ipc_path():
 
 class IPCProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.IPCProvider")
-    _socket = None
+    _conn = None
 
     def __init__(self, ipc_path=None, testnet=False, timeout=10, *args, **kwargs):
         if ipc_path is None:
@@ -195,44 +235,39 @@ class IPCProvider(JSONBaseProvider):
             self.ipc_path = ipc_path
 
         self.timeout = timeout
-        self._lock = threading.Lock()
-        self._socket = PersistantSocket(self.ipc_path)
+        self._lock = asyncio.Lock()
+        self._conn = PersistantSocket(self.ipc_path)
         super().__init__(*args, **kwargs)
 
     async def make_request(self, method, params):
-        await asyncio.sleep(0)
         self.logger.debug("Making request IPC. Path: %s, Method: %s",
                           self.ipc_path, method)
         request = self.encode_rpc_request(method, params)
 
-        with self._lock, self._socket as sock:
+        async with self._lock, self._conn as conn:
             try:
-                sock.sendall(request)
+                await conn.send(request)
             except BrokenPipeError:
                 # one extra attempt, then give up
-                sock = self._socket.reset()
-                sock.sendall(request)
+                conn = await self._conn.reset()
+                await conn.send(request)
 
             raw_response = b""
-            with Timeout(self.timeout) as timeout:
+            async with Timeout(self.timeout) as timeout:
                 while True:
-                    try:
-                        raw_response += sock.recv(4096)
-                    except socket.timeout:
-                        timeout.sleep(0)
-                        continue
+                    raw_response += await conn.read(4096)
                     if raw_response == b"":
                         timeout.sleep(0)
                     elif has_valid_json_rpc_ending(raw_response):
                         try:
                             response = self.decode_rpc_response(raw_response)
                         except JSONDecodeError:
-                            timeout.sleep(0)
+                            await timeout.sleep(0)
                             continue
                         else:
                             return response
                     else:
-                        timeout.sleep(0)
+                        await timeout.sleep(0)
                         continue
 
 

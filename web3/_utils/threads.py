@@ -1,9 +1,18 @@
 """
 A minimal implementation of the various gevent APIs used within this codebase.
 """
+import asyncio
 import threading
 import time
 
+
+async def asleep(n, timeout):
+    await asyncio.sleep(n)
+    timeout.check()
+
+def sleep(n, timeout):
+    time.sleep(n)
+    timeout.check()
 
 class Timeout(Exception):
     """
@@ -13,16 +22,26 @@ class Timeout(Exception):
     exception = None
     begun_at = None
     is_running = None
+    _sleep = None
 
     def __init__(self, seconds=None, exception=None, *args, **kwargs):
         self.seconds = seconds
         self.exception = exception
 
     def __enter__(self):
+        self._sleep = sleep
         self.start()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        return False
+
+    async def __aenter__(self):
+        self._sleep = asleep
+        self.start()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
         return False
 
     def __str__(self):
@@ -64,8 +83,7 @@ class Timeout(Exception):
         self.is_running = False
 
     def sleep(self, seconds):
-        time.sleep(seconds)
-        self.check()
+        return self._sleep(seconds)
 
 
 class ThreadWithReturn(threading.Thread):
