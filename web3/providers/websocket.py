@@ -14,6 +14,7 @@ from web3.exceptions import (
 from web3.providers.base import (
     JSONBaseProvider,
 )
+from typing import Any, Dict, Optional
 
 RESTRICTED_WEBSOCKET_KWARGS = {'uri', 'loop'}
 DEFAULT_WEBSOCKET_TIMEOUT = 10
@@ -38,7 +39,7 @@ def get_default_endpoint():
 
 class PersistentWebSocket:
 
-    def __init__(self, endpoint_uri, loop, websocket_kwargs):
+    def __init__(self, endpoint_uri: str, loop, websocket_kwargs: Dict[str, int]) -> None:
         self.ws = None
         self.endpoint_uri = endpoint_uri
         self.loop = loop
@@ -66,10 +67,10 @@ class WebsocketProvider(JSONBaseProvider):
 
     def __init__(
             self,
-            endpoint_uri=None,
-            websocket_kwargs=None,
-            websocket_timeout=DEFAULT_WEBSOCKET_TIMEOUT
-    ):
+            endpoint_uri: Optional[str] = None,
+            websocket_kwargs: Optional[Dict[str, int]] = None,
+            websocket_timeout: int = DEFAULT_WEBSOCKET_TIMEOUT
+    ) -> None:
         self.endpoint_uri = endpoint_uri
         self.websocket_timeout = websocket_timeout
         if self.endpoint_uri is None:
@@ -108,7 +109,7 @@ class WebsocketProvider(JSONBaseProvider):
                 )
             )
 
-    def make_request(self, method, params):
+    def make_request(self, method: str, params: Any) -> Dict[str, Any]:
         self.logger.debug("Making request WebSocket. URI: %s, "
                           "Method: %s", self.endpoint_uri, method)
         request_data = self.encode_rpc_request(method, params)

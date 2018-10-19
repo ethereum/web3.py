@@ -33,14 +33,18 @@ from .events import (
     construct_event_topic_set,
 )
 
+from hexbytes.main import HexBytes
+from typing import Any, Dict, List, Optional, Tuple, Union
+from web3.datastructures import AttributeDict
 
-def construct_event_filter_params(event_abi,
-                                  contract_address=None,
-                                  argument_filters=None,
-                                  topics=None,
-                                  fromBlock=None,
-                                  toBlock=None,
-                                  address=None):
+
+def construct_event_filter_params(event_abi: Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]],
+                                  contract_address: Optional[Union[str, bytes]] = None,
+                                  argument_filters: Optional[Union[Dict[str, List[int]], Dict[str, int], Dict[str, str]]] = None,
+                                  topics: Optional[List[str]] = None,
+                                  fromBlock: Optional[Union[int, str]] = None,
+                                  toBlock: Optional[str] = None,
+                                  address: Optional[str] = None) -> Any:
     filter_params = {}
     topic_set = construct_event_topic_set(event_abi, argument_filters)
 
@@ -95,7 +99,7 @@ class Filter:
     poll_interval = None
     filter_id = None
 
-    def __init__(self, web3, filter_id):
+    def __init__(self, web3, filter_id: str) -> None:
         self.web3 = web3
         self.filter_id = filter_id
         self.callbacks = []
@@ -104,31 +108,31 @@ class Filter:
     def __str__(self):
         return "Filter for {0}".format(self.filter_id)
 
-    def format_entry(self, entry):
+    def format_entry(self, entry: HexBytes) -> HexBytes:
         """
         Hook for subclasses to change the format of the value that is passed
         into the callback functions.
         """
         return entry
 
-    def is_valid_entry(self, entry):
+    def is_valid_entry(self, entry: HexBytes) -> bool:
         """
         Hook for subclasses to implement additional filtering layers.
         """
         return True
 
-    def _filter_valid_entries(self, entries):
+    def _filter_valid_entries(self, entries: Union[List[HexBytes], List[Dict[str, Union[str, int, HexBytes, List[HexBytes]]]]]) -> filter:
         return filter(self.is_valid_entry, entries)
 
-    def get_new_entries(self):
+    def get_new_entries(self) -> Union[List[HexBytes], List[AttributeDict], List[Dict[str, Union[str, int, HexBytes, List[HexBytes]]]]]:
         log_entries = self._filter_valid_entries(self.web3.eth.getFilterChanges(self.filter_id))
         return self._format_log_entries(log_entries)
 
-    def get_all_entries(self):
+    def get_all_entries(self) -> List[AttributeDict]:
         log_entries = self._filter_valid_entries(self.web3.eth.getFilterLogs(self.filter_id))
         return self._format_log_entries(log_entries)
 
-    def _format_log_entries(self, log_entries=None):
+    def _format_log_entries(self, log_entries: Optional[filter] = None) -> Union[List[HexBytes], List[AttributeDict], List[Dict[str, Union[str, int, HexBytes, List[HexBytes]]]]]:
         if log_entries is None:
             return []
 
@@ -151,7 +155,7 @@ class LogFilter(Filter):
     data_filter_set_regex = None
     log_entry_formatter = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.log_entry_formatter = kwargs.pop(
             'log_entry_formatter',
             self.log_entry_formatter,
@@ -160,12 +164,12 @@ class LogFilter(Filter):
             self.set_data_filters(kwargs.pop('data_filter_set'))
         super().__init__(*args, **kwargs)
 
-    def format_entry(self, entry):
+    def format_entry(self, entry: Union[HexBytes, Dict[str, Union[str, int, HexBytes, List[HexBytes]]]]) -> Union[Dict[str, Union[str, int, HexBytes, List[HexBytes]]], HexBytes, AttributeDict]:
         if self.log_entry_formatter:
             return self.log_entry_formatter(entry)
         return entry
 
-    def set_data_filters(self, data_filter_set):
+    def set_data_filters(self, data_filter_set: Tuple) -> None:
         """Sets the data filters (non indexed argument filters)
 
         Expects a set of tuples with the type and value, e.g.:
@@ -175,13 +179,13 @@ class LogFilter(Filter):
         if any(data_filter_set):
             self.data_filter_set_function = match_fn(data_filter_set)
 
-    def is_valid_entry(self, entry):
+    def is_valid_entry(self, entry: Union[HexBytes, Dict[str, Union[str, int, HexBytes, List[HexBytes]]]]) -> bool:
         if not self.data_filter_set:
             return True
         return bool(self.data_filter_set_function(entry['data']))
 
 
-def decode_utf8_bytes(value):
+def decode_utf8_bytes(value: bytes) -> str:
     return value.decode("utf-8")
 
 
@@ -189,7 +193,7 @@ not_text = complement(is_text)
 normalize_to_text = apply_formatter_if(not_text, decode_utf8_bytes)
 
 
-def normalize_data_values(type_string, data_value):
+def normalize_data_values(type_string: str, data_value: Union[bytes, int, Tuple]) -> Union[int, str, Tuple]:
     """Decodes utf-8 bytes to strings for abi string values.
 
     eth-abi v1 returns utf-8 bytes for string values.

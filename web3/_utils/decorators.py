@@ -1,13 +1,14 @@
 import functools
 import threading
 import warnings
+from typing import Callable, Optional, Type, Union
 
 
 class combomethod:
     def __init__(self, method):
         self.method = method
 
-    def __get__(self, obj=None, objtype=None):
+    def __get__(self, obj = None, objtype = None) -> Callable:
         @functools.wraps(self.method)
         def _wrapper(*args, **kwargs):
             if obj is not None:
@@ -17,7 +18,7 @@ class combomethod:
         return _wrapper
 
 
-def reject_recursive_repeats(to_wrap):
+def reject_recursive_repeats(to_wrap: Callable) -> Callable:
     '''
     Prevent simple cycles by returning None when called recursively with same instance
     '''

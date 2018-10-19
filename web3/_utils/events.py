@@ -54,8 +54,11 @@ from .abi import (
     process_type,
 )
 
+from cytoolz.functoolz import curry
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
-def construct_event_topic_set(event_abi, arguments=None):
+
+def construct_event_topic_set(event_abi: Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]], arguments: Optional[Union[Dict[str, str], Dict[str, int], Dict[str, List[int]], Dict[str, Union[int, List[int]]]]] = None) -> Union[List[Union[str, List[str]]], List[str]]:
     if arguments is None:
         arguments = {}
     if isinstance(arguments, (list, tuple)):
@@ -92,7 +95,7 @@ def construct_event_topic_set(event_abi, arguments=None):
     return topics
 
 
-def construct_event_data_set(event_abi, arguments=None):
+def construct_event_data_set(event_abi: Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]], arguments: Optional[Union[Dict[str, str], Dict[str, int], Dict[str, List[int]]]] = None) -> Union[List[List[Any]], List[List[str]], List[List[Union[str, None]]]]:
     if arguments is None:
         arguments = {}
     if isinstance(arguments, (list, tuple)):
@@ -133,7 +136,7 @@ def construct_event_data_set(event_abi, arguments=None):
     return data
 
 
-def is_dynamic_sized_type(_type):
+def is_dynamic_sized_type(_type: str) -> bool:
     base_type, type_size, arrlist = process_type(_type)
     if arrlist:
         return True
@@ -145,7 +148,7 @@ def is_dynamic_sized_type(_type):
 
 
 @to_tuple
-def get_event_abi_types_for_decoding(event_inputs):
+def get_event_abi_types_for_decoding(event_inputs: Tuple) -> Iterator[str]:
     """
     Event logs use the `sha3(value)` for indexed inputs of type `bytes` or
     `string`.  Because of this we need to modify the types so that we can
@@ -237,7 +240,7 @@ def get_event_data(event_abi, log_entry):
 
 
 @to_tuple
-def pop_singlets(seq):
+def pop_singlets(seq: Any) -> None:
     yield from (i[0] if is_list_like(i) and len(i) == 1 else i for i in seq)
 
 
@@ -254,7 +257,7 @@ normalize_topic_list = compose(
     pop_singlets,)
 
 
-def is_indexed(arg):
+def is_indexed(arg) -> bool:
     if isinstance(arg, TopicArgumentFilter) is True:
         return True
     return False
@@ -270,7 +273,7 @@ class EventFilterBuilder:
     _address = None
     _immutable = False
 
-    def __init__(self, event_abi, formatter=None):
+    def __init__(self, event_abi: Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]], formatter: Optional[curry] = None) -> None:
         self.event_abi = event_abi
         self.formatter = formatter
         self.event_topic = initialize_event_topics(self.event_abi)
@@ -318,33 +321,33 @@ class EventFilterBuilder:
                 "Resetting filter parameters is not permitted".format(self.address))
 
     @property
-    def ordered_args(self):
+    def ordered_args(self) -> Tuple:
         return tuple(map(self.args.__getitem__, self._ordered_arg_names))
 
     @property
     @to_tuple
-    def indexed_args(self):
+    def indexed_args(self) -> Tuple:
         return tuple(filter(is_indexed, self.ordered_args))
 
     @property
     @to_tuple
-    def data_args(self):
+    def data_args(self) -> Tuple:
         return tuple(filter(is_not_indexed, self.ordered_args))
 
     @property
-    def topics(self):
+    def topics(self) -> Union[Tuple[str, Tuple[str, str], Tuple[str, str]], Tuple[str, str], Tuple[str], Tuple[str, str, str]]:
         arg_topics = tuple(arg.match_values for arg in self.indexed_args)
         return normalize_topic_list(cons(to_hex(self.event_topic), arg_topics))
 
     @property
-    def data_argument_values(self):
+    def data_argument_values(self) -> Tuple:
         if self.data_args is not None:
             return tuple(arg.match_values for arg in self.data_args)
         else:
             return (None,)
 
     @property
-    def filter_params(self):
+    def filter_params(self) -> Dict[str, Any]:
         params = {
             "topics": self.topics,
             "fromBlock": self.fromBlock,
@@ -370,7 +373,7 @@ class EventFilterBuilder:
         return log_filter
 
 
-def initialize_event_topics(event_abi):
+def initialize_event_topics(event_abi: Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]) -> bytes:
     if event_abi['anonymous'] is False:
         return event_abi_to_log_topic(event_abi)
     else:
@@ -378,7 +381,7 @@ def initialize_event_topics(event_abi):
 
 
 @to_dict
-def _build_argument_filters_from_event_abi(event_abi):
+def _build_argument_filters_from_event_abi(event_abi: Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]):
     for item in event_abi['inputs']:
         key = item['name']
         if item['indexed'] is True:
@@ -392,7 +395,7 @@ array_to_tuple = apply_formatter_if(is_list_like, tuple)
 
 
 @to_tuple
-def _normalize_match_values(match_values):
+def _normalize_match_values(match_values: Tuple) -> Iterator[Any]:
     for value in match_values:
         yield array_to_tuple(value)
 
@@ -401,10 +404,10 @@ class BaseArgumentFilter(ABC):
     _match_values = None
     _immutable = False
 
-    def __init__(self, arg_type):
+    def __init__(self, arg_type: str) -> None:
         self.arg_type = arg_type
 
-    def match_single(self, value):
+    def match_single(self, value: Union[List[bytes], int, str]) -> None:
         if self._immutable:
             raise ValueError("Setting values is forbidden after filter is deployed.")
         if self._match_values is None:
@@ -412,7 +415,7 @@ class BaseArgumentFilter(ABC):
         else:
             raise ValueError("An argument match value/s has already been set.")
 
-    def match_any(self, *values):
+    def match_any(self, *values) -> None:
         if self._immutable:
             raise ValueError("Setting values is forbidden after filter is deployed.")
         if self._match_values is None:
@@ -428,23 +431,23 @@ class BaseArgumentFilter(ABC):
 
 class DataArgumentFilter(BaseArgumentFilter):
     @property
-    def match_values(self):
+    def match_values(self) -> Any:
         return (self.arg_type, self._match_values)
 
 
 class TopicArgumentFilter(BaseArgumentFilter):
     @to_tuple
-    def _get_match_values(self):
+    def _get_match_values(self) -> None:
         yield from (self._encode(value) for value in self._match_values)
 
     @property
-    def match_values(self):
+    def match_values(self) -> Optional[Tuple]:
         if self._match_values is not None:
             return self._get_match_values()
         else:
             return None
 
-    def _encode(self, value):
+    def _encode(self, value: Any) -> str:
         if is_dynamic_sized_type(self.arg_type):
             return to_hex(keccak(encode_single_packed(self.arg_type, value)))
         else:

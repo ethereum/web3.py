@@ -13,8 +13,10 @@ from web3.exceptions import (
     NameNotFound,
 )
 
+from typing import Dict, Iterator, List, Optional, Tuple, Union
 
-def is_ens_name(value):
+
+def is_ens_name(value: Optional[Union[str, bytes, List[str]]]) -> bool:
     if not isinstance(value, str):
         return False
     elif is_hex_address(value):
@@ -25,7 +27,7 @@ def is_ens_name(value):
         return ENS.is_valid_name(value)
 
 
-def validate_name_has_address(ens, name):
+def validate_name_has_address(ens, name: str) -> Union[str, bytes]:
     addr = ens.address(name, guess_tld=False)
     if addr:
         return addr
@@ -34,17 +36,17 @@ def validate_name_has_address(ens, name):
 
 
 class StaticENS:
-    def __init__(self, name_addr_pairs):
+    def __init__(self, name_addr_pairs: Union[zip, List[Tuple[str, str]], List[Tuple[str, bytes]], Dict[str, str]]) -> None:
         self.registry = dict(name_addr_pairs)
 
-    def address(self, name, guess_tld=True):
+    def address(self, name: str, guess_tld: bool = True) -> Optional[Union[str, bytes]]:
         # no automated web3 usages should be guessing the TLD
         assert not guess_tld
         return self.registry.get(name, None)
 
 
 @contextmanager
-def ens_addresses(w3, name_addr_pairs):
+def ens_addresses(w3, name_addr_pairs: Union[zip, List[Tuple[str, str]], List[Tuple[str, bytes]], Dict[str, str]]) -> Iterator[None]:
     original_ens = w3.ens
     w3.ens = StaticENS(name_addr_pairs)
     yield

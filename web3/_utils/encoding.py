@@ -41,7 +41,9 @@ from web3._utils.validation import (
 )
 
 
-def hex_encode_abi_type(abi_type, value, force_size=None):
+from datetime import date, datetime
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+def hex_encode_abi_type(abi_type: str, value: Any, force_size: Optional[int] = None) -> str:
     """
     Encodes value into a hex string in format of abi_type
     """
@@ -73,7 +75,7 @@ def hex_encode_abi_type(abi_type, value, force_size=None):
         )
 
 
-def to_hex_twos_compliment(value, bit_size):
+def to_hex_twos_compliment(value: int, bit_size: int) -> str:
     """
     Converts integer value to twos compliment hex representation with given bit_size
     """
@@ -86,14 +88,14 @@ def to_hex_twos_compliment(value, bit_size):
     return hex_value
 
 
-def to_hex_with_size(value, bit_size):
+def to_hex_with_size(value: int, bit_size: int) -> str:
     """
     Converts a value to hex with given bit_size:
     """
     return pad_hex(to_hex(value), bit_size)
 
 
-def pad_hex(value, bit_size):
+def pad_hex(value: str, bit_size: int) -> str:
     """
     Pads a hex string up to the given bit_size
     """
@@ -109,7 +111,7 @@ def trim_hex(hexstr):
     return hexstr
 
 
-def to_int(value=None, hexstr=None, text=None):
+def to_int(value: Optional[Union[bool, str, bytes]] = None, hexstr: Optional[str] = None, text: Optional[str] = None) -> int:
     """
     Converts value to it's integer representation.
 
@@ -143,7 +145,7 @@ def pad_bytes(fill_with, num_bytes, unpadded):
 zpad_bytes = pad_bytes(b'\0')
 
 
-def to_bytes(primitive=None, hexstr=None, text=None):
+def to_bytes(primitive: Optional[Union[bytes, int]] = None, hexstr: Optional[str] = None, text: Optional[str] = None) -> bytes:
     assert_one_val(primitive, hexstr=hexstr, text=text)
 
     if is_boolean(primitive):
@@ -161,7 +163,7 @@ def to_bytes(primitive=None, hexstr=None, text=None):
     raise TypeError("expected an int in first arg, or keyword of hexstr or text")
 
 
-def to_text(primitive=None, hexstr=None, text=None):
+def to_text(primitive: Optional[Union[int, str, bytes]] = None, hexstr: Optional[str] = None, text: Optional[str] = None) -> str:
     assert_one_val(primitive, hexstr=hexstr, text=text)
 
     if hexstr is not None:
@@ -224,21 +226,21 @@ class FriendlyJsonSerde:
     information on which fields failed, to show more
     helpful information in the raised error messages.
     '''
-    def _json_mapping_errors(self, mapping):
+    def _json_mapping_errors(self, mapping: Dict[str, Union[List[datetime], date, int, str]]) -> Iterator[str]:
         for key, val in mapping.items():
             try:
                 self._friendly_json_encode(val)
             except TypeError as exc:
                 yield "%r: because (%s)" % (key, exc)
 
-    def _json_list_errors(self, iterable):
+    def _json_list_errors(self, iterable: List[datetime]) -> Iterator[str]:
         for index, element in enumerate(iterable):
             try:
                 self._friendly_json_encode(element)
             except TypeError as exc:
                 yield "%d: because (%s)" % (index, exc)
 
-    def _friendly_json_encode(self, obj):
+    def _friendly_json_encode(self, obj: Any) -> str:
         try:
             encoded = json.dumps(obj)
             return encoded
@@ -252,7 +254,7 @@ class FriendlyJsonSerde:
             else:
                 raise full_exception
 
-    def json_decode(self, json_str):
+    def json_decode(self, json_str: str) -> Dict[str, Any]:
         try:
             decoded = json.loads(json_str)
             return decoded
@@ -262,14 +264,14 @@ class FriendlyJsonSerde:
             # so we have to re-raise the same type.
             raise json.decoder.JSONDecodeError(err_msg, exc.doc, exc.pos)
 
-    def json_encode(self, obj):
+    def json_encode(self, obj: Dict[str, Any]) -> str:
         try:
             return self._friendly_json_encode(obj)
         except TypeError as exc:
             raise TypeError("Could not encode to JSON: {}".format(exc))
 
 
-def to_4byte_hex(hex_or_str_or_bytes):
+def to_4byte_hex(hex_or_str_or_bytes: Union[int, str, bytes]) -> str:
     size_of_4bytes = 4 * 8
     byte_str = hexstr_if_str(to_bytes, hex_or_str_or_bytes)
     if len(byte_str) > 4:
@@ -283,7 +285,7 @@ def to_4byte_hex(hex_or_str_or_bytes):
 class DynamicArrayPackedEncoder(BaseArrayEncoder):
     is_dynamic = True
 
-    def encode(self, value):
+    def encode(self, value: Tuple[bytes, ...]) -> bytes:
         encoded_elements = self.encode_elements(value)
         encoded_value = encoded_elements
 
@@ -291,7 +293,7 @@ class DynamicArrayPackedEncoder(BaseArrayEncoder):
 
 
 #  TODO: Replace with eth-abi packed encoder once web3 requires eth-abi>=2
-def encode_single_packed(_type, value):
+def encode_single_packed(_type: str, value: Any) -> bytes:
     import codecs
     from eth_abi import (
         grammar as abi_type_parser,

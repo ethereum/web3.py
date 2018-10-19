@@ -16,7 +16,9 @@ from .six import (
 )
 
 
-def generate_cache_key(value):
+from typing import Any
+
+def generate_cache_key(value: Any) -> str:
     """
     Generates a cache key for the *args and **kwargs
     """

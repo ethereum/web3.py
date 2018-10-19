@@ -48,9 +48,11 @@ from web3._utils.toolz import (
 from web3.exceptions import (
     ValidationError,
 )
+from hexbytes.main import HexBytes
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 
-def find_matching_event_abi(abi, event_name=None, argument_names=None):
+def find_matching_event_abi(abi: Union[List[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, Union[bool, str]], Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]]], List[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]]]], event_name: Optional[str] = None, argument_names = None) -> Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]:
 
     filters = [
         functools.partial(filter_by_type, 'event'),
@@ -74,7 +76,7 @@ def find_matching_event_abi(abi, event_name=None, argument_names=None):
         raise ValueError("Multiple events found")
 
 
-def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
+def find_matching_fn_abi(abi: Any, fn_identifier: Optional[Union[str, Type[FallbackFn]]] = None, args: Optional[Union[Tuple, List[int], List[bytes], List[str]]] = None, kwargs: Optional[Any] = None) -> Dict[str, Union[bool, List[Dict[str, str]], str]]:
     args = args or tuple()
     kwargs = kwargs or dict()
     filters = []
@@ -128,7 +130,7 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
         raise ValidationError(message)
 
 
-def encode_abi(web3, abi, arguments, data=None):
+def encode_abi(web3, abi: Dict[str, Union[bool, List[Dict[str, str]], str]], arguments: Any, data: Optional[Union[str, HexBytes]] = None) -> str:
     argument_types = get_abi_input_types(abi)
 
     if not check_if_arguments_can_be_encoded(abi, arguments, {}):
@@ -168,14 +170,14 @@ def encode_abi(web3, abi, arguments, data=None):
 
 
 def prepare_transaction(
-        address,
+        address: Optional[Union[str, bytes]],
         web3,
-        fn_identifier,
-        contract_abi=None,
-        fn_abi=None,
-        transaction=None,
-        fn_args=None,
-        fn_kwargs=None):
+        fn_identifier: Union[str, Type[FallbackFn]],
+        contract_abi: Optional[Any] = None,
+        fn_abi: Optional[Union[Dict[str, Union[bool, str]], Dict[str, Union[bool, List[Dict[str, str]], str]]]] = None,
+        transaction: Optional[Dict[str, Union[int, bytes, str]]] = None,
+        fn_args: Optional[Tuple] = None,
+        fn_kwargs: Optional[Any] = None) -> Dict[str, Union[int, bytes, str]]:
     """
     :parameter `is_function_abi` is used to distinguish  function abi from contract abi
     Returns a dictionary of the transaction that could be used to call this
@@ -211,11 +213,11 @@ def prepare_transaction(
 
 def encode_transaction_data(
         web3,
-        fn_identifier,
-        contract_abi=None,
-        fn_abi=None,
-        args=None,
-        kwargs=None):
+        fn_identifier: Union[str, Type[FallbackFn]],
+        contract_abi: Optional[Any] = None,
+        fn_abi: Optional[Dict[str, Union[bool, List[Dict[str, str]], str]]] = None,
+        args: Optional[Tuple] = None,
+        kwargs: Optional[Any] = None) -> str:
     if fn_identifier is FallbackFn:
         fn_abi, fn_selector, fn_arguments = get_fallback_function_info(contract_abi, fn_abi)
     elif is_text(fn_identifier):
@@ -228,7 +230,7 @@ def encode_transaction_data(
     return add_0x_prefix(encode_abi(web3, fn_abi, fn_arguments, fn_selector))
 
 
-def get_fallback_function_info(contract_abi=None, fn_abi=None):
+def get_fallback_function_info(contract_abi: Optional[List[Dict[str, Union[bool, List[Dict[str, str]], str]]]] = None, fn_abi: Optional[Dict[str, Union[bool, str]]] = None) -> Tuple[Dict[str, Union[bool, str]], str, Tuple]:
     if fn_abi is None:
         fn_abi = get_fallback_func_abi(contract_abi)
     fn_selector = encode_hex(b'')
@@ -236,7 +238,7 @@ def get_fallback_function_info(contract_abi=None, fn_abi=None):
     return fn_abi, fn_selector, fn_arguments
 
 
-def get_function_info(fn_name, contract_abi=None, fn_abi=None, args=None, kwargs=None):
+def get_function_info(fn_name: str, contract_abi: Optional[Any] = None, fn_abi: Optional[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, Union[bool, str]]]] = None, args: Optional[Union[List[bytes], List[str], Tuple, List[int]]] = None, kwargs: Optional[Any] = None) -> Any:
     if args is None:
         args = tuple()
     if kwargs is None:
@@ -252,7 +254,7 @@ def get_function_info(fn_name, contract_abi=None, fn_abi=None, args=None, kwargs
     return fn_abi, fn_selector, fn_arguments
 
 
-def validate_payable(transaction, abi):
+def validate_payable(transaction: Dict[str, Union[int, bytes, str]], abi: Dict[str, Union[bool, List[Dict[str, str]], str]]) -> None:
     """Raise ValidationError if non-zero ether
     is sent to a non payable function.
     """

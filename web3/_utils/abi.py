@@ -31,11 +31,12 @@ from web3.exceptions import (
 )
 
 
-def filter_by_type(_type, contract_abi):
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
+def filter_by_type(_type: str, contract_abi: Any) -> Union[List[Dict[str, Union[bool, str]]], List[Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]], List[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, Union[bool, str]]]], List[Dict[str, Union[bool, List[Dict[str, str]], str]]], List[Union[Dict[str, Union[bool, str]], Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]]]]:
     return [abi for abi in contract_abi if abi['type'] == _type]
 
 
-def filter_by_name(name, contract_abi):
+def filter_by_name(name: str, contract_abi: Any) -> Union[List[Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]], List[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, Union[bool, str]]]], List[Dict[str, Union[bool, List[Dict[str, str]], str]]], List[Dict[str, Union[bool, str]]]]:
     return [
         abi
         for abi
@@ -47,28 +48,28 @@ def filter_by_name(name, contract_abi):
     ]
 
 
-def get_abi_input_types(abi):
+def get_abi_input_types(abi: Dict[str, Union[bool, List[Dict[str, str]], str]]) -> List[str]:
     if 'inputs' not in abi and abi['type'] == 'fallback':
         return []
     else:
         return [arg['type'] for arg in abi['inputs']]
 
 
-def get_abi_output_types(abi):
+def get_abi_output_types(abi: Dict[str, Union[bool, List[Dict[str, str]], str]]) -> List[str]:
     if abi['type'] == 'fallback':
         return []
     else:
         return [arg['type'] for arg in abi['outputs']]
 
 
-def get_abi_input_names(abi):
+def get_abi_input_names(abi: Dict[str, Union[bool, str, List[Dict[str, Union[bool, str]]], List[Dict[str, str]], List[Any]]]) -> List[str]:
     if 'inputs' not in abi and abi['type'] == 'fallback':
         return []
     else:
         return [arg['name'] for arg in abi['inputs']]
 
 
-def get_fallback_func_abi(contract_abi):
+def get_fallback_func_abi(contract_abi: List[Dict[str, Union[bool, List[Dict[str, str]], str]]]) -> Dict[str, Union[bool, str]]:
     fallback_abis = filter_by_type('fallback', contract_abi)
     if fallback_abis:
         return fallback_abis[0]
@@ -76,19 +77,19 @@ def get_fallback_func_abi(contract_abi):
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
 
-def fallback_func_abi_exists(contract_abi):
+def fallback_func_abi_exists(contract_abi: Any) -> List[Dict[str, Union[bool, str]]]:
     return filter_by_type('fallback', contract_abi)
 
 
-def get_indexed_event_inputs(event_abi):
+def get_indexed_event_inputs(event_abi: Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]) -> List[Dict[str, Union[bool, str]]]:
     return [arg for arg in event_abi['inputs'] if arg['indexed'] is True]
 
 
-def exclude_indexed_event_inputs(event_abi):
+def exclude_indexed_event_inputs(event_abi: Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]) -> List[Dict[str, Union[bool, str]]]:
     return [arg for arg in event_abi['inputs'] if arg['indexed'] is False]
 
 
-def filter_by_argument_count(num_arguments, contract_abi):
+def filter_by_argument_count(num_arguments: int, contract_abi: Union[List[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, Union[bool, str]]]], List[Dict[str, Union[bool, List[Dict[str, str]], str]]], List[Dict[str, Union[bool, str]]]]) -> Union[List[Dict[str, Union[bool, List[Dict[str, str]], str]]], List[Dict[str, Union[bool, str]]]]:
     return [
         abi
         for abi
@@ -97,7 +98,7 @@ def filter_by_argument_count(num_arguments, contract_abi):
     ]
 
 
-def filter_by_argument_name(argument_names, contract_abi):
+def filter_by_argument_name(argument_names: List[str], contract_abi: List[Dict[str, Union[bool, List[Dict[str, str]], str]]]) -> Union[List[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, Union[bool, str]]]], List[Dict[str, Union[bool, List[Dict[str, str]], str]]]]:
     return [
         abi
         for abi in contract_abi
@@ -159,7 +160,7 @@ except ImportError:
         return base + str(sub) + ''.join(map(repr, arrlist))
 
 
-def is_encodable(_type, value):
+def is_encodable(_type: str, value: Any) -> bool:
     if not isinstance(_type, str):
         raise ValueError("is_encodable only accepts type strings")
 
@@ -196,7 +197,7 @@ def is_encodable(_type, value):
         return eth_abi_is_encodable(_type, value)
 
 
-def filter_by_encodability(args, kwargs, contract_abi):
+def filter_by_encodability(args: Union[Tuple, List[int], List[str], List[bytes]], kwargs: Dict[str, Any], contract_abi: Union[List[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, Union[bool, str]]]], List[Dict[str, Union[bool, List[Dict[str, str]], str]]], List[Dict[str, Union[bool, str]]]]) -> Union[List[Dict[str, Union[bool, List[Dict[str, str]], str]]], List[Dict[str, Union[bool, str]]]]:
     return [
         function_abi
         for function_abi
@@ -205,7 +206,7 @@ def filter_by_encodability(args, kwargs, contract_abi):
     ]
 
 
-def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
+def check_if_arguments_can_be_encoded(function_abi: Dict[str, Union[bool, List[Dict[str, str]], str]], args: Any, kwargs: Dict[str, Any]) -> bool:
     try:
         arguments = merge_args_and_kwargs(function_abi, args, kwargs)
     except TypeError:
@@ -222,7 +223,7 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     )
 
 
-def merge_args_and_kwargs(function_abi, args, kwargs):
+def merge_args_and_kwargs(function_abi: Dict[str, Union[bool, List[Dict[str, str]], str]], args: Any, kwargs: Dict[str, Any]) -> Any:
     if len(args) + len(kwargs) != len(function_abi.get('inputs', [])):
         raise TypeError(
             "Incorrect argument count.  Expected '{0}'.  Got '{1}'".format(
@@ -278,7 +279,7 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
         return tuple()
 
 
-def get_constructor_abi(contract_abi):
+def get_constructor_abi(contract_abi: Union[List[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]]], List[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, Union[List[Dict[str, str]], str]]]], List[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, str]]], List[Union[Dict[str, Union[bool, List[Dict[str, str]], str]], Dict[str, Union[bool, str]], Dict[str, Union[bool, List[Dict[str, Union[bool, str]]], str]]]]]) -> Optional[Union[Dict[str, Union[List[Dict[str, str]], str]], Dict[str, str]]]:
     candidates = [
         abi for abi in contract_abi if abi['type'] == 'constructor'
     ]
@@ -328,31 +329,31 @@ TYPE_REGEX = (
 )
 
 
-def is_recognized_type(abi_type):
+def is_recognized_type(abi_type: str) -> bool:
     return bool(re.match(TYPE_REGEX, abi_type))
 
 
-def is_bool_type(abi_type):
+def is_bool_type(abi_type: str) -> bool:
     return abi_type == 'bool'
 
 
-def is_uint_type(abi_type):
+def is_uint_type(abi_type: str) -> bool:
     return abi_type in UINT_TYPES
 
 
-def is_int_type(abi_type):
+def is_int_type(abi_type: str) -> bool:
     return abi_type in INT_TYPES
 
 
-def is_address_type(abi_type):
+def is_address_type(abi_type: str) -> bool:
     return abi_type == 'address'
 
 
-def is_bytes_type(abi_type):
+def is_bytes_type(abi_type: str) -> bool:
     return abi_type in BYTES_TYPES + ['bytes']
 
 
-def is_string_type(abi_type):
+def is_string_type(abi_type: str) -> bool:
     return abi_type == 'string'
 
 
@@ -361,7 +362,7 @@ def is_length(target_length, value):
     return len(value) == target_length
 
 
-def size_of_type(abi_type):
+def size_of_type(abi_type: str) -> Optional[int]:
     """
     Returns size in bits of abi_type
     """
@@ -381,7 +382,7 @@ def size_of_type(abi_type):
 END_BRACKETS_OF_ARRAY_TYPE_REGEX = r"\[[^]]*\]$"
 
 
-def sub_type_of_array_type(abi_type):
+def sub_type_of_array_type(abi_type: str) -> str:
     if not is_array_type(abi_type):
         raise ValueError(
             "Cannot parse subtype of nonarray abi-type: {0}".format(abi_type)
@@ -390,7 +391,7 @@ def sub_type_of_array_type(abi_type):
     return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, '', abi_type, 1)
 
 
-def length_of_array_type(abi_type):
+def length_of_array_type(abi_type: str) -> Optional[int]:
     if not is_array_type(abi_type):
         raise ValueError(
             "Cannot parse length of nonarray abi-type: {0}".format(abi_type)
@@ -411,7 +412,7 @@ ARRAY_REGEX = (
 ).format(sub_type=SUB_TYPE_REGEX)
 
 
-def is_array_type(abi_type):
+def is_array_type(abi_type: str) -> bool:
     return bool(re.match(ARRAY_REGEX, abi_type))
 
 
@@ -430,12 +431,12 @@ ENUM_REGEX = (
 ).format(lib_name=NAME_REGEX, enum_name=NAME_REGEX)
 
 
-def is_probably_enum(abi_type):
+def is_probably_enum(abi_type: str) -> bool:
     return bool(re.match(ENUM_REGEX, abi_type))
 
 
 @to_tuple
-def normalize_event_input_types(abi_args):
+def normalize_event_input_types(abi_args: Union[List[Dict[str, Union[bool, str]]], List[Dict[str, str]]]) -> Iterator[Dict[str, Union[bool, str]]]:
     for arg in abi_args:
         if is_recognized_type(arg['type']):
             yield arg
@@ -445,7 +446,7 @@ def normalize_event_input_types(abi_args):
             yield arg
 
 
-def abi_to_signature(abi):
+def abi_to_signature(abi: Dict[str, Union[bool, List[Dict[str, str]], str]]) -> str:
     function_signature = "{fn_name}({fn_input_types})".format(
         fn_name=abi['name'],
         fn_input_types=','.join([
@@ -545,11 +546,11 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
     positional argument that is iterable, to match the init
     interface of all other relevant collections.
     '''
-    def __new__(cls, iterable):
+    def __new__(cls, iterable: Any):
         return super().__new__(cls, *iterable)
 
 
-def abi_sub_tree(data_type, data_value):
+def abi_sub_tree(data_type: Optional[Union[Tuple[str, str, List[Any]], Tuple[str, str, List[List[int]]], str]], data_value: Any):
     if data_type is None:
         return ABITypedData([None, data_value])
 
@@ -573,7 +574,7 @@ def abi_sub_tree(data_type, data_value):
         return ABITypedData([collapsed, data_value])
 
 
-def strip_abi_type(elements):
+def strip_abi_type(elements: Any) -> Any:
     if isinstance(elements, ABITypedData):
         return elements.data
     else:

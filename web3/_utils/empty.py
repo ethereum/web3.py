@@ -1,5 +1,5 @@
 class Empty:
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return False
 
     def __nonzero__(self):
