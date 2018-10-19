@@ -20,7 +20,6 @@ from web3._utils import (  # noqa: F401
     normalizers,
     request,
     rpc_abi,
-    six,
     threads,
     toolz,
     transactions,
