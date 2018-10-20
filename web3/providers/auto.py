@@ -48,7 +48,7 @@ class AutoProvider(BaseProvider):
     )
     _active_provider = None
 
-    def __init__(self, potential_providers=None):
+    def __init__(self, potential_providers: None = None) -> None:
         '''
         :param iterable potential_providers: ordered series of provider classes to attempt with
 

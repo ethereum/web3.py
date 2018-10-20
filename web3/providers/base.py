@@ -11,6 +11,13 @@ from web3._utils.encoding import (
 from web3.middleware import (
     combine_middlewares,
 )
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Tuple,
+    Union
+)
 
 
 class BaseProvider:
@@ -25,7 +32,7 @@ class BaseProvider:
     def middlewares(self, values):
         self._middlewares = tuple(values)
 
-    def request_func(self, web3, outer_middlewares):
+    def request_func(self, web3, outer_middlewares: Union[Tuple[Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable], Tuple[Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable], Tuple[Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable]]) -> Callable:
         '''
         @param outer_middlewares is an iterable of middlewares, ordered by first to execute
         @returns a function that calls all the middleware and eventually self.make_request()
@@ -40,7 +47,7 @@ class BaseProvider:
             )
         return self._request_func_cache[-1]
 
-    def _generate_request_func(self, web3, middlewares):
+    def _generate_request_func(self, web3, middlewares: Union[Tuple[Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable], Tuple[Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable], Tuple[Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable], Tuple[Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable], Tuple[Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable, Callable]]) -> Callable:
         return combine_middlewares(
             middlewares=middlewares,
             web3=web3,
@@ -55,14 +62,14 @@ class BaseProvider:
 
 
 class JSONBaseProvider(BaseProvider):
-    def __init__(self):
+    def __init__(self) -> None:
         self.request_counter = itertools.count()
 
-    def decode_rpc_response(self, response):
+    def decode_rpc_response(self, response: bytes) -> Dict[str, Any]:
         text_response = to_text(response)
         return FriendlyJsonSerde().json_decode(text_response)
 
-    def encode_rpc_request(self, method, params):
+    def encode_rpc_request(self, method: str, params: Any) -> bytes:
         rpc_dict = {
             "jsonrpc": "2.0",
             "method": method,
@@ -72,7 +79,7 @@ class JSONBaseProvider(BaseProvider):
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
         return to_bytes(text=encoded)
 
-    def isConnected(self):
+    def isConnected(self) -> bool:
         try:
             response = self.make_request('web3_clientVersion', [])
         except IOError:

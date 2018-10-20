@@ -9,6 +9,8 @@ from .middleware import (
 )
 
 
+from eth_tester.main import EthereumTester
+from typing import Any, Dict, Optional
 class EthereumTesterProvider(BaseProvider):
     middlewares = [
         default_transaction_fields_middleware,
@@ -18,7 +20,7 @@ class EthereumTesterProvider(BaseProvider):
     ethereum_tester = None
     api_endpoints = None
 
-    def __init__(self, ethereum_tester=None, api_endpoints=None):
+    def __init__(self, ethereum_tester: Optional[EthereumTester] = None, api_endpoints: None = None) -> None:
         if ethereum_tester is None:
             # do not import eth_tester until runtime, it is not a default dependency
             from eth_tester import EthereumTester
@@ -33,7 +35,7 @@ class EthereumTesterProvider(BaseProvider):
         else:
             self.api_endpoints = api_endpoints
 
-    def make_request(self, method, params):
+    def make_request(self, method: str, params: Any) -> Dict[str, Any]:
         namespace, _, endpoint = method.partition('_')
         try:
             delegator = self.api_endpoints[namespace][endpoint]
@@ -53,5 +55,5 @@ class EthereumTesterProvider(BaseProvider):
                 'result': response,
             }
 
-    def isConnected(self):
+    def isConnected(self) -> bool:
         return True

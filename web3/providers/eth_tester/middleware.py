@@ -33,11 +33,13 @@ from web3.middleware import (
 )
 
 
-def is_named_block(value):
+from typing import Callable, Dict, Union
+from web3.main import Web3
+def is_named_block(value: str) -> bool:
     return value in {"latest", "earliest", "pending"}
 
 
-def is_hexstr(value):
+def is_hexstr(value: Union[int, str]) -> bool:
     return is_string(value) and is_hex(value)
 
 
@@ -273,7 +275,7 @@ ethereum_tester_fixture_middleware = construct_fixture_middleware({
 })
 
 
-def guess_from(web3, transaction):
+def guess_from(web3: Web3, transaction: Dict[str, str]) -> str:
     coinbase = web3.eth.coinbase
     if coinbase is not None:
         return coinbase
@@ -287,7 +289,7 @@ def guess_from(web3, transaction):
     return None
 
 
-def guess_gas(web3, transaction):
+def guess_gas(web3: Web3, transaction: Dict[str, str]) -> int:
     return web3.eth.estimateGas(transaction) * 2
 
 
@@ -300,7 +302,7 @@ def fill_default(field, guess_func, web3, transaction):
         return assoc(transaction, field, guess_val)
 
 
-def default_transaction_fields_middleware(make_request, web3):
+def default_transaction_fields_middleware(make_request: Callable, web3: Web3) -> Callable:
     fill_default_from = fill_default('from', guess_from, web3)
     fill_default_gas = fill_default('gas', guess_gas, web3)
 

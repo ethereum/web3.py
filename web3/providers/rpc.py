@@ -23,6 +23,7 @@ from .base import (
 )
 
 
+from typing import Any, Dict, Iterator, Tuple
 def get_default_endpoint():
     return os.environ.get('WEB3_HTTP_PROVIDER_URI', 'http://localhost:8545')
 
@@ -46,19 +47,19 @@ class HTTPProvider(JSONBaseProvider):
         return "RPC connection {0}".format(self.endpoint_uri)
 
     @to_dict
-    def get_request_kwargs(self):
+    def get_request_kwargs(self) -> Iterator[Tuple[str, Dict[str, str]]]:
         if 'headers' not in self._request_kwargs:
             yield 'headers', self.get_request_headers()
         for key, value in self._request_kwargs.items():
             yield key, value
 
-    def get_request_headers(self):
+    def get_request_headers(self) -> Dict[str, str]:
         return {
             'Content-Type': 'application/json',
             'User-Agent': construct_user_agent(str(type(self))),
         }
 
-    def make_request(self, method, params):
+    def make_request(self, method: str, params: Any) -> Dict[str, Any]:
         self.logger.debug("Making request HTTP. URI: %s, Method: %s",
                           self.endpoint_uri, method)
         request_data = self.encode_rpc_request(method, params)
