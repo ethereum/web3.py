@@ -1,4 +1,16 @@
-from typing import Callable
+from hexbytes import HexBytes
+from typing import (
+    Any,
+    Callable,
+    List,
+    Type,
+    Union,
+    TypeVar,
+    Optional,
+)
+from eth_typing import (
+    ChecksumAddress,
+)
 
 import copy
 import datetime
@@ -24,34 +36,33 @@ from ens.exceptions import (
     InvalidLabel,
     InvalidName,
 )
-
-from hexbytes.main import HexBytes
-from typing import List, Type, Union
-
+from web3 import Web3
+ 
+T = TypeVar('T')
 default = object()
 
 
-def Web3():
+def Web3() -> type:
     from web3 import Web3
     return Web3
 
 
-def dict_copy(func: Callable) -> Callable:
+def dict_copy(func: Callable[..., T]) -> Callable[..., T]:
     "copy dict keyword args, to avoid modifying caller's copy"
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> T:
         copied_kwargs = copy.deepcopy(kwargs)
         return func(*args, **copied_kwargs)
     return wrapper
 
 
-def ensure_hex(data):
+def ensure_hex(data: Type[HexBytes]) -> Type[HexBytes]:
     if not isinstance(data, str):
         return Web3().toHex(data)
     return data
 
 
-def init_web3(providers=default):
+def init_web3(provider=default) -> Web3:
     from web3 import Web3
 
     if providers is default:
@@ -62,7 +73,7 @@ def init_web3(providers=default):
     return customize_web3(w3)
 
 
-def customize_web3(w3):
+def customize_web3(w3: Web3) -> Web3:
     from web3.contract import ConciseContract
     from web3.middleware import make_stalecheck_middleware
 
@@ -155,14 +166,14 @@ def dot_eth_label(name: str) -> str:
         return label
 
 
-def to_utc_datetime(timestamp):
+def to_utc_datetime(timestamp: float) -> Optional[datetime.datetime]:
     if timestamp:
         return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)
     else:
         return None
 
 
-def sha3_text(val):
+def sha3_text(val: str) -> str:
     if isinstance(val, str):
         val = val.encode('utf-8')
     return Web3().keccak(val)
@@ -208,20 +219,20 @@ def dot_eth_namehash(name: str) -> HexBytes:
     return name_to_hash(expanded_name)
 
 
-def address_in(address: str, addresses: List[str]) -> bool:
+def address_in(address: ChecksumAddress, addresses: List[ChecksumAddress]) -> bool:
     return any(is_same_address(address, item) for item in addresses)
 
 
-def address_to_reverse_domain(address: Union[str, bytes]) -> str:
+def address_to_reverse_domain(address: ChecksumAddress) -> str:
     lower_unprefixed_address = remove_0x_prefix(to_normalized_address(address))
     return lower_unprefixed_address + '.' + REVERSE_REGISTRAR_DOMAIN
 
 
-def estimate_auction_start_gas(labels):
+def estimate_auction_start_gas(labels: List[str]) -> int:
     return AUCTION_START_GAS_CONSTANT + AUCTION_START_GAS_MARGINAL * len(labels)
 
 
-def assert_signer_in_modifier_kwargs(modifier_kwargs):
+def assert_signer_in_modifier_kwargs(modifier_kwargs: Any) -> ChecksumAddress:
     ERR_MSG = "You must specify the sending account"
     assert len(modifier_kwargs) == 1, ERR_MSG
 

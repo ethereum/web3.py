@@ -1,3 +1,16 @@
+from hexbytes import HexBytes
+from typing import (
+    Any,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
+from eth_typing import (
+    ChecksumAddress,
+)
 
 from eth_utils import (
     is_binary_address,
@@ -29,8 +42,10 @@ from ens.utils import (
     normalize_name,
 )
 
-from hexbytes.main import HexBytes
-from typing import Any, Dict, List, Optional, Tuple, Union
+from web3.contract import ConciseContract
+
+from web3 import Web3
+
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
 
 
@@ -50,7 +65,7 @@ class ENS:
     is_valid_name = staticmethod(is_valid_name)
     reverse_domain = staticmethod(address_to_reverse_domain)
 
-    def __init__(self, providers=default, addr=None) -> None:
+    def __init__(self, providers: Any = default, addr: Optional[ChecksumAddress] = None) -> None:
         '''
         :param providers: a list or single provider used to connect to Ethereum
         :type providers: instance of `web3.providers.base.BaseProvider`
@@ -64,7 +79,7 @@ class ENS:
         self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
 
     @classmethod
-    def fromWeb3(cls, web3, addr = None): # mt: web3: Web3, and return as ENS
+    def fromWeb3(cls, web3: Web3, addr: Optional[ChecksumAddress] = None) -> ENS:
         '''
         Generate an ENS instance with web3
 
@@ -101,7 +116,7 @@ class ENS:
     reverse = name
 
     @dict_copy
-    def setup_address(self, name, address=default, transact={}):
+    def setup_address(self, name: str, address=default, transact={}):
         '''
         Set up the name to point to the supplied address.
         The sender of the transaction must own the name, or
@@ -190,7 +205,7 @@ class ENS:
         else:
             return None
 
-    def resolver(self, normal_name: str): # mt: Optional[ConciseContract]
+    def resolver(self, normal_name: str) -> Optional[ConciseContract]:
         resolver_addr = self.ens.resolver(name_to_hash(normal_name))
         if not resolver_addr:
             return None
@@ -314,6 +329,6 @@ class ENS:
         transact['from'] = address
         return self._reverse_registrar().setName(name, transact=transact)
 
-    def _reverse_registrar(self): # mt: return was set as ConciseContract
+    def _reverse_registrar(self) -> ConciseContract:
         addr = self.ens.owner(name_to_hash(REVERSE_REGISTRAR_DOMAIN))
         return self.web3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
