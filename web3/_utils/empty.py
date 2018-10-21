@@ -2,7 +2,7 @@ class Empty:
     def __bool__(self) -> bool:
         return False
 
-    def __nonzero__(self):
+    def __nonzero__(self) -> bool:
         return False
 
 
