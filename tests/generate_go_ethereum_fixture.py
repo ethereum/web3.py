@@ -22,6 +22,9 @@ from eth_utils.curried import (
     to_wei,
 )
 
+from tests.utils import (
+    get_open_port,
+)
 from web3 import Web3
 from web3.utils.module_testing.emitter_contract import (
     EMITTER_ABI,
@@ -98,14 +101,6 @@ def tempdir():
         yield dir_path
     finally:
         shutil.rmtree(dir_path)
-
-
-def get_open_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return str(port)
 
 
 def get_geth_binary():

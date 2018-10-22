@@ -4,7 +4,8 @@ import pytest
 from tests.integration.common import (
     MiscWebsocketTest,
 )
-from tests.integration.utils import (
+from tests.utils import (
+    get_open_port,
     wait_for_ws,
 )
 from web3 import Web3
@@ -18,7 +19,6 @@ from .common import (
     ParityPersonalModuleTest,
     ParityTraceModuleTest,
     ParityWeb3ModuleTest,
-    get_open_port,
 )
 
 

@@ -12,6 +12,9 @@ from eth_utils import (
 
 import common
 import go_ethereum
+from tests.utils import (
+    get_open_port,
+)
 from web3 import Web3
 from web3.utils.toolz import (
     merge,
@@ -176,7 +179,7 @@ def generate_parity_fixture(destination_dir):
 
         geth_datadir = stack.enter_context(common.tempdir())
 
-        geth_port = common.get_open_port()
+        geth_port = get_open_port()
 
         geth_ipc_path_dir = stack.enter_context(common.tempdir())
         geth_ipc_path = os.path.join(geth_ipc_path_dir, 'geth.ipc')
@@ -221,7 +224,7 @@ def generate_parity_fixture(destination_dir):
         parity_ipc_path_dir = stack.enter_context(common.tempdir())
         parity_ipc_path = os.path.join(parity_ipc_path_dir, 'jsonrpc.ipc')
 
-        parity_port = common.get_open_port()
+        parity_port = get_open_port()
         parity_binary = get_parity_binary()
 
         parity_proc = stack.enter_context(get_parity_process(  # noqa: F841
