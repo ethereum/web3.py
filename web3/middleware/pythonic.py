@@ -253,6 +253,10 @@ estimate_gas_with_block_id = combine_argument_formatters(
     block_number_formatter,
 )
 
+parity_transactions_result_formatter = apply_one_of_formatters((
+    (apply_formatter_to_array(log_entry_formatter), is_array_of_dicts),
+    (apply_formatter_to_array(to_hexbytes(32)), is_array_of_strings),
+))
 
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
@@ -360,5 +364,10 @@ pythonic_middleware = construct_formatting_middleware(
         'evm_snapshot': hex_to_integer,
         # Net
         'net_peerCount': to_integer_if_hex,
+        # Parity
+        'parity_allTransactions': parity_transactions_result_formatter,
+        'parity_futureTransactions': parity_transactions_result_formatter,
+        'parity_pendingTransactions': parity_transactions_result_formatter,
+        'parity_pendingTransactionsStats': parity_transactions_result_formatter,
     },
 )
