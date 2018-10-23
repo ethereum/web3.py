@@ -56,5 +56,6 @@ class EthereumTesterProvider(BaseProvider):
                 'result': response,
             }
 
-    def isConnected(self):
+    async def isConnected(self):
+        asyncio.sleep(0)
         return True

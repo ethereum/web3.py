@@ -61,30 +61,30 @@ class AutoProvider(BaseProvider):
         else:
             self._potential_providers = self.default_providers
 
-    def make_request(self, method, params):
+    async def make_request(self, method, params):
         try:
-            return self._proxy_request(method, params)
+            return await self._proxy_request(method, params)
         except IOError as exc:
-            return self._proxy_request(method, params, use_cache=False)
+            return await self._proxy_request(method, params, use_cache=False)
 
-    def isConnected(self):
-        provider = self._get_active_provider(use_cache=True)
-        return provider is not None and provider.isConnected()
+    async def isConnected(self):
+        provider = await self._get_active_provider(use_cache=True)
+        return provider is not None and await provider.isConnected()
 
-    def _proxy_request(self, method, params, use_cache=True):
-        provider = self._get_active_provider(use_cache)
+    async def _proxy_request(self, method, params, use_cache=True):
+        provider = await self._get_active_provider(use_cache)
         if provider is None:
             raise CannotHandleRequest("Could not discover provider")
 
-        return provider.make_request(method, params)
+        return await provider.make_request(method, params)
 
-    def _get_active_provider(self, use_cache):
+    async def _get_active_provider(self, use_cache):
         if use_cache and self._active_provider is not None:
             return self._active_provider
 
         for Provider in self._potential_providers:
             provider = Provider()
-            if provider is not None and provider.isConnected():
+            if provider is not None and await provider.isConnected():
                 self._active_provider = provider
                 return provider
 

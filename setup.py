@@ -47,7 +47,8 @@ extras_require = {
         "setuptools>=36.2.0",
         "tox>=1.8.0",
         "tqdm",
-        "when-changed"
+        "when-changed",
+        "asynctest",
     ]
 }
 
@@ -80,6 +81,7 @@ setup(
         "websockets>=6.0.0,<7.0.0",
         "pypiwin32>=223;platform_system=='Windows'",
         "aiohttp",
+        "paco",
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.5.3,<4',

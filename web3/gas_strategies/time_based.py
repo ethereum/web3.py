@@ -26,19 +26,19 @@ MinerData = collections.namedtuple(
 Probability = collections.namedtuple('Probability', ['gas_price', 'prob'])
 
 
-def _get_avg_block_time(w3, sample_size):
-    latest = w3.eth.getBlock('latest')
+async def _get_avg_block_time(w3, sample_size):
+    latest = await w3.eth.coro_getBlock('latest')
 
     constrained_sample_size = min(sample_size, latest['number'])
     if constrained_sample_size == 0:
         raise ValidationError('Constrained sample size is 0')
 
-    oldest = w3.eth.getBlock(latest['number'] - constrained_sample_size)
+    oldest = await w3.eth.coro_getBlock(latest['number'] - constrained_sample_size)
     return (latest['timestamp'] - oldest['timestamp']) / constrained_sample_size
 
 
-def _get_raw_miner_data(w3, sample_size):
-    latest = w3.eth.getBlock('latest', full_transactions=True)
+async def _get_raw_miner_data(w3, sample_size):
+    latest = await w3.eth.coro_getBlock('latest', full_transactions=True)
 
     for transaction in latest['transactions']:
         yield (latest['miner'], latest['hash'], transaction['gasPrice'])
@@ -51,7 +51,7 @@ def _get_raw_miner_data(w3, sample_size):
 
         # we intentionally trace backwards using parent hashes rather than
         # block numbers to make caching the data easier to implement.
-        block = w3.eth.getBlock(block['parentHash'], full_transactions=True)
+        block = await w3.eth.coro_getBlock(block['parentHash'], full_transactions=True)
         for transaction in block['transactions']:
             yield (block['miner'], block['hash'], transaction['gasPrice'])
 
@@ -152,11 +152,11 @@ def construct_time_based_gas_price_strategy(max_wait_seconds,
         that the transaction will be mined within ``max_wait_seconds``.  0 means 0%
         and 100 means 100%.
     """
-    def time_based_gas_price_strategy(web3, transaction_params):
-        avg_block_time = _get_avg_block_time(web3, sample_size=sample_size)
+    async def time_based_gas_price_strategy(web3, transaction_params):
+        avg_block_time = await _get_avg_block_time(web3, sample_size=sample_size)
         wait_blocks = int(math.ceil(max_wait_seconds / avg_block_time))
 
-        raw_miner_data = _get_raw_miner_data(web3, sample_size=sample_size)
+        raw_miner_data = await _get_raw_miner_data(web3, sample_size=sample_size)
         miner_data = _aggregate_miner_data(raw_miner_data)
 
         probabilities = _compute_probabilities(

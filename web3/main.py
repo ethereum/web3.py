@@ -17,6 +17,9 @@ from ens import ENS
 from web3._utils.abi import (
     map_abi_data,
 )
+from web3._utils.async_tools import (
+    sync,
+)
 from web3._utils.decorators import (
     combomethod,
     deprecated_for,
@@ -200,7 +203,7 @@ class Web3:
 
     def isConnected(self):
         for provider in self.providers:
-            if provider.isConnected():
+            if sync(provider.isConnected()):
                 return True
         else:
             return False

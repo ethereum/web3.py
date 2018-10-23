@@ -10,6 +10,9 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.async_tools import (
+    sync,
+)
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
@@ -143,6 +146,23 @@ class Eth(Module):
         )
 
         return self.web3.manager.request_blocking(
+            method,
+            [block_identifier, full_transactions],
+        )
+
+    async def coro_getBlock(self, block_identifier, full_transactions=False):
+        """
+        `eth_getBlockByHash`
+        `eth_getBlockByNumber`
+        """
+        method = select_method_for_block_identifier(
+            block_identifier,
+            if_predefined='eth_getBlockByNumber',
+            if_hash='eth_getBlockByHash',
+            if_number='eth_getBlockByNumber',
+        )
+
+        return await self.web3.manager.request_async(
             method,
             [block_identifier, full_transactions],
         )
@@ -401,7 +421,11 @@ class Eth(Module):
 
     def generateGasPrice(self, transaction_params=None):
         if self.gasPriceStrategy:
-            return self.gasPriceStrategy(self.web3, transaction_params)
+            return sync(self.gasPriceStrategy(self.web3, transaction_params))
+
+    async def coro_generateGasPrice(self, transaction_params=None):
+        if self.gasPriceStrategy:
+            return await self.gasPriceStrategy(self.web3, transaction_params)
 
     def setGasPriceStrategy(self, gas_price_strategy):
         self.gasPriceStrategy = gas_price_strategy

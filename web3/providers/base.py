@@ -75,9 +75,9 @@ class JSONBaseProvider(BaseProvider):
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
         return to_bytes(text=encoded)
 
-    def isConnected(self):
+    async def isConnected(self):
         try:
-            response = sync(self.make_request('web3_clientVersion', []))
+            response = await self.make_request('web3_clientVersion', [])
         except IOError:
             return False
         else:

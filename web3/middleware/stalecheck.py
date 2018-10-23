@@ -37,7 +37,7 @@ def make_stalecheck_middleware(
                 if _isfresh(cache['latest'], allowable_delay):
                     pass
                 else:
-                    latest = web3.eth.getBlock('latest')
+                    latest = await web3.eth.coro_getBlock('latest')
                     if _isfresh(latest, allowable_delay):
                         cache['latest'] = latest
                     else:

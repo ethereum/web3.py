@@ -318,7 +318,7 @@ def construct_latest_block_based_cache_middleware(
         cache = cache_class()
         block_info = {}
 
-        def _update_block_info_cache():
+        async def _update_block_info_cache():
             avg_block_time = block_info.get(AVG_BLOCK_TIME_KEY, default_average_block_time)
             avg_block_sample_size = block_info.get(AVG_BLOCK_SAMPLE_SIZE_KEY, 0)
             avg_block_time_updated_at = block_info.get(AVG_BLOCK_TIME_UPDATED_AT_KEY, 0)
@@ -359,10 +359,10 @@ def construct_latest_block_based_cache_middleware(
 
                 # latest block is too old so update cache
                 if time_since_latest_block > avg_block_time:
-                    block_info['latest_block'] = web3.eth.getBlock('latest')
+                    block_info['latest_block'] = await web3.eth.coro_getBlock('latest')
             else:
                 # latest block has not been fetched so we fetch it.
-                block_info['latest_block'] = web3.eth.getBlock('latest')
+                block_info['latest_block'] = await web3.eth.coro_getBlock('latest')
 
         lock = threading.Lock()
 
@@ -376,7 +376,7 @@ def construct_latest_block_based_cache_middleware(
                     not _is_latest_block_number_request(method, params)
                 )
                 if should_try_cache:
-                    _update_block_info_cache()
+                    await _update_block_info_cache()
                     latest_block_hash = block_info['latest_block']['hash']
                     cache_key = generate_cache_key((latest_block_hash, method, params))
                     if cache_key in cache:
