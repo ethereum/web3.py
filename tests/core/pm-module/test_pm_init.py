@@ -3,19 +3,20 @@ import pytest
 from eth_utils import (
     to_canonical_address,
 )
+from ethpm import (
+    Package,
+)
+from ethpm.exceptions import (
+    InsufficientAssetsError,
+)
+from ethpm.tools import (
+    get_manifest as get_ethpm_manifest,
+)
 
 from web3 import Web3
-
-try:
-    from ethpm import Package  # noqa: E402
-    from ethpm.tools import get_manifest as get_ethpm_manifest
-    from ethpm.exceptions import (
-        InsufficientAssetsError,
-    )
-except ImportError:
-    ethpm_installed = False
-else:
-    ethpm_installed = True
+from web3.pm import (
+    PM,
+)
 
 
 # Returns web3 instance with `pm` module attached
@@ -23,22 +24,16 @@ else:
 def web3():
     w3 = Web3(Web3.EthereumTesterProvider())
     w3.eth.defaultAccount = w3.eth.accounts[0]
-    try:
-        from web3.pm import PM  # noqa: F811
-    except ModuleNotFoundError as exc:
-        assert False, "eth-pm import failed because: %s" % exc
     PM.attach(w3, 'pm')
     return w3
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_pm_init_with_minimal_manifest(web3):
     owned_manifest = get_ethpm_manifest('owned', '1.0.1.json')
     pm = web3.pm.get_package_from_manifest(owned_manifest)
     assert pm.name == 'owned'
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_get_contract_factory_raises_insufficient_assets_error(web3):
     insufficient_owned_manifest = get_ethpm_manifest('owned', '1.0.0.json')
     owned_package = web3.pm.get_package_from_manifest(insufficient_owned_manifest)
@@ -46,7 +41,6 @@ def test_get_contract_factory_raises_insufficient_assets_error(web3):
         owned_package.get_contract_factory('Owned')
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_get_contract_factory_with_valid_owned_manifest(web3):
     owned_manifest = get_ethpm_manifest('owned', '1.0.1.json')
     owned_package = web3.pm.get_package_from_manifest(owned_manifest)
@@ -58,7 +52,6 @@ def test_get_contract_factory_with_valid_owned_manifest(web3):
     assert owned_instance.abi == owned_factory.abi
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_get_contract_factory_with_valid_safe_math_lib_manifest(web3):
     safe_math_lib_manifest = get_ethpm_manifest('safe-math-lib', '1.0.1.json')
     safe_math_package = web3.pm.get_package_from_manifest(safe_math_lib_manifest)
@@ -70,7 +63,6 @@ def test_get_contract_factory_with_valid_safe_math_lib_manifest(web3):
     assert safe_math_instance.functions.safeAdd(1, 2).call() == 3
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_get_contract_factory_with_valid_escrow_manifest(web3):
     escrow_manifest = get_ethpm_manifest("escrow", "1.0.2.json")
     escrow_package = web3.pm.get_package_from_manifest(escrow_manifest)
@@ -89,7 +81,6 @@ def test_get_contract_factory_with_valid_escrow_manifest(web3):
     assert escrow_instance.functions.sender().call() == web3.eth.accounts[0]
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_deploy_a_standalone_package_integration(web3):
     standard_token_manifest = get_ethpm_manifest("standard-token", "1.0.1.json")
     token_package = web3.pm.get_package_from_manifest(standard_token_manifest)
@@ -104,7 +95,6 @@ def test_deploy_a_standalone_package_integration(web3):
     assert total_supply == 100
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_pm_init_with_manifest_uri(web3, monkeypatch):
     monkeypatch.setenv(
         "ETHPM_IPFS_BACKEND_CLASS", "ethpm.backends.ipfs.DummyIPFSBackend"

@@ -12,12 +12,6 @@ Installation
 
 .. warning:: The PM module is still under development, and not all use-cases are currently supported, so it is not included by default in the web3 instance.
 
-You must install the eth-pm module separately, until it is stable. Install with:
-
-.. code-block:: python
-
-  pip install --upgrade ethpm
-
 Attaching
 ---------
 
@@ -34,4 +28,10 @@ Methods
 
 The following methods are available on the ``web3.pm`` namespace.
 
-TODO: autoclass docstrings once ``web3.pm`` is stable.
+.. autoclass:: web3.pm.PM
+   :members:
+
+.. note:: The ``web3.pm.Registry`` class is not designed to be interacted with directly, rather via the ``web3.pm.PM`` api.
+
+.. autoclass:: web3.pm.Registry
+   :members:
