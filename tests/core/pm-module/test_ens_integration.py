@@ -8,6 +8,9 @@ from ethpm import (
 )
 
 from ens import ENS
+from ethpm import (
+    ASSETS_DIR,
+)
 from web3 import Web3
 from web3.exceptions import (
     InvalidAddress,

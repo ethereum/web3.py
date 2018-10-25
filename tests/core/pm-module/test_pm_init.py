@@ -13,6 +13,15 @@ from ethpm.tools import (
     get_manifest as get_ethpm_manifest,
 )
 
+from ethpm import (
+    Package,
+)
+from ethpm.exceptions import (
+    InsufficientAssetsError,
+)
+from ethpm.tools import (
+    get_manifest as get_ethpm_manifest,
+)
 from web3 import Web3
 from web3.pm import (
     PM,
