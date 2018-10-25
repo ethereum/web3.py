@@ -7,11 +7,11 @@ from threading import (
     Thread,
 )
 
-import websockets
-
 from tests.utils import (
     wait_for_ws,
 )
+import websockets
+
 from web3 import Web3
 from web3.exceptions import (
     ValidationError,

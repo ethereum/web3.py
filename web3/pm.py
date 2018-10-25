@@ -1,10 +1,19 @@
 import json
 
 from eth_utils import (
+    is_bytes,
     is_canonical_address,
     is_checksum_address,
     to_canonical_address,
+    to_text,
     to_tuple,
+)
+from ethpm import (
+    ASSETS_DIR,
+    Package,
+)
+from pytest_ethereum.deployer import (
+    Deployer,
 )
 
 from web3._utils.ens import (
@@ -22,41 +31,32 @@ from web3.module import (
     Module,
 )
 
-try:
-    from ethpm import (
-        ASSETS_DIR,
-        Package,
-    )
-    from pytest_ethereum.deployer import (
-        Deployer,
-    )
-except ImportError as exc:
-    raise ImportError(
-        "To use web3's alpha package management features, you must install the "
-        "`ethpm` dependency manually: pip install --upgrade ethpm"
-    ) from exc
-
-
-# Package Management is currently still in alpha.
-# It is not automatically available on a web3 object.
-# To use the `PM` module, attach it to your web3 object
-# i.e. PM.attach(web3, 'pm')
+# Package Management is still in alpha. It is not automatically available on a web3 object.
+# To use the `PM` module, attach it to your web3 object using the `attach` facility
+# PM.attach(web3, 'pm')
 
 
 class PM(Module):
     def get_package_from_manifest(self, manifest):
         """
-        * :manifest: must be a dict representing a valid manifest
-        * Returns a ``Package`` instance representing the Manifest
+        Returns a ``Package`` instance representing the Manifest
+
+        * Parameters:
+            * ``manifest``: A dict representing a valid manifest
         """
         pkg = Package(manifest, self.web3)
         return pkg
 
     def get_package_from_uri(self, manifest_uri):
         """
-        * :uri: *must* be a valid content-addressed URI, as defined in the
-        `Py-EthPM Documentation <https://py-ethpm.readthedocs.io/en/latest/uri_backends.html>`_.
-        * Returns a ``Package`` isntance representing the Manifest stored at the URI.
+        Returns a ``Package`` instance representing the Manifest stored at the URI.
+        If you want to use a specific IPFS backend, set ``ETHPM_IPFS_BACKEND_CLASS``
+        to your desired backend. Defaults to Infura IPFS backend.
+
+        * Parameters:
+            * ``uri``: Must be a valid content-addressed URI, as defined in
+            `Py-EthPM Docs <https://py-ethpm.readthedocs.io/en/latest/uri_backends.html>`_.
+
         """
         pkg = Package.from_uri(manifest_uri, self.web3)
         return pkg
@@ -64,10 +64,11 @@ class PM(Module):
     def set_registry(self, address):
         """
         Sets the current registry used in ``web3.pm`` functions that read/write to an
-        onchain registry.
-        Requires a valid ENS instance set as web3.ens property to pass ENS domains in as :address:
+        on-chain registry. Requires a valid ENS instance set as web3.ens property to
+        pass ENS domains in as ``address``.
 
-        :address: Address of the on-chain registry - Accepts ENS name, if web3.ens is valid
+        * Parameters:
+            * ``address``: Address of on-chain registry - Accepts ENS name, if web3.ens is valid.
         """
         if is_canonical_address(address) or is_checksum_address(address):
             self.registry = Registry(address, self.web3)
@@ -87,15 +88,26 @@ class PM(Module):
 
     def deploy_and_set_registry(self):
         """
-        Deploys a new instance of a Registry.vy and sets that Registry to ``web3.pm``.
-        (py-ethpm/ethpm/assets/vyper_registry/registry.v.py)
+        Deploys a new instance of a vyper registry and sets that registry to ``web3.pm``.
+        Registry contract can be found `here <https://github.com/ethpm/py-ethpm/blob/
+        master/ethpm/assets/vyper_registry/registryV2.vy>`__. To tie your registry to an
+        ENS name, use web3's ENS module, ie.
+
+        .. code-block:: python
+
+           w3.ens.setup_address(ens_name, w3.pm.registry.address)
         """
         self.registry = Registry.deploy_new_instance(self.web3)
 
     def release_package(self, name, version, manifest_uri):
         """
-        Publishes a version release to the current registry. Requires ``web3.PM`` to have a
-        registry set. Requires ``web3.eth.defaultAccount`` to be the registry owner.
+        Publishes a version release to the current registry. Requires ``web3.PM`` to
+        have a registry set. Requires ``web3.eth.defaultAccount`` to be the registry owner.
+
+        * Parameters:
+            * ``name``: Must be a valid package name of bytes type, with less than 32 bytes.
+            * ``version``: Must be a valid package version of bytes type, with less than 32 bytes.
+            * ``manifest_uri``: Must be a valid manifest URI of bytes type, with less than 64 bytes.
         """
         self._validate_set_registry()
         if self.web3.eth.defaultAccount != self.registry.owner:
@@ -104,8 +116,12 @@ class PM(Module):
 
     def get_release_data(self, name, version):
         """
-        Returns ``(package_name, version, manifest_uri`` associated with the given package name
-        and version, if they are published to the currently set registry.
+        Returns ``(package_name, version, manifest_uri)`` associated with the given
+        package name and version, *if* they are published to the currently set registry.
+
+        * Parameters:
+            * ``name``: Must be a valid package name of bytes type, with less than 32 bytes.
+            * ``version``: Must be a valid package version of bytes type, with less than 32 bytes.
         """
         self._validate_set_registry()
         return self.registry.get_release_data(name, version)
@@ -114,10 +130,14 @@ class PM(Module):
         """
         Returns a ``Package`` instance, generated by the ``manifest_uri`` associated with the
         given package name and version, if they are published to the currently set registry.
+
+        * Parameters:
+            * ``name``: Must be a valid package name of bytes type, with less than 32 bytes.
+            * ``version``: Must be a valid package version of bytes type, with less than 32 bytes.
         """
         self._validate_set_registry()
         _, _, release_uri = self.registry.get_release_data(name, version)
-        return self.get_package_from_uri(release_uri.rstrip(b'\x00'))
+        return self.get_package_from_uri(to_text(release_uri))
 
     def _validate_set_registry(self):
         try:
@@ -138,26 +158,37 @@ class PM(Module):
     def _validate_set_ens(self):
         if not self.web3:
             raise InvalidAddress(
-                "xxxCould not look up name %r because no web3"
-                " connection available"
+                "Could not look up ENS address because no web3 "
+                "connection available"
             )
         elif not self.web3.ens:
             raise InvalidAddress(
-                "xxxCould not look up name %r because ENS is"
-                " set to None"
+                "Could not look up ENS address because web3.ens is "
+                "set to None"
             )
 
 
 class Registry(Contract):
+    """
+    A class that represents an on-chain Registry. Currently tied to the vyper registry
+    implementation found `here <https://github.com/ethpm/py-ethpm/blob/master/ethpm/
+    assets/vyper_registry/registryV2.vy>`__. This implementation is not yet
+    `ERC1319 <https://github.com/ethereum/EIPs/issues/1319>`__ compliant, however efforts
+    to make the vyper implementation and this class
+    `ERC1319 <https://github.com/ethereum/EIPs/issues/1319>`__ compliant are currently underway,
+    and will both be updated accordingly.
+
+    * Parameters:
+        * ``address``: The address of previously deployed vyper registry on ``w3``
+        * ``w3``: A web3 instance connected to the chain on which the vyper registry is deployed.
+    """
     def __init__(self, address, w3):
-        # only works with v.py registry in ethpm/assets
-        # todo: 100% ERC1319 compatibility
         if is_canonical_address(address) or is_checksum_address(address):
             registry_address = to_canonical_address(address)
         else:
-            raise PMError("Registry class only accepts canonical/checksum addresses.")
-        manifest = json.loads((ASSETS_DIR / 'vyper_registry' / '1.0.0.json').read_text())
-        registry_package = Package(manifest, w3)
+            raise PMError("Registry class only accepts canonical or checksum addresses.")
+
+        registry_package = get_vyper_registry_package(w3)
         self.registry = registry_package.get_contract_instance(
             "registry", registry_address
         )
@@ -166,8 +197,14 @@ class Registry(Contract):
 
     @classmethod
     def deploy_new_instance(cls, w3):
-        manifest = json.loads((ASSETS_DIR / 'vyper_registry' / '1.0.0.json').read_text())
-        registry_package = Package(manifest, w3)
+        """
+        Returns a ``Registry`` instance, connected to a newly-deployed instance of a
+        vyper registry on the provided ``web3`` connected blockchain.
+
+        * Parameters:
+            * ``w3``: An active web3 instance on which to deploy the vyper registry.
+        """
+        registry_package = get_vyper_registry_package(w3)
         registry_deployer = Deployer(registry_package)
         deployed_registry_package = registry_deployer.deploy("registry")
         registry_address = deployed_registry_package.deployments.get_instance("registry").address
@@ -175,29 +212,60 @@ class Registry(Contract):
 
     def release(self, name, version, manifest_uri):
         """
-        Returns tx_receipt from adding a new release.
+        Returns a tx_receipt generated from adding a new release to the registry. Trailing
+        underscores are added to manifest uri to allow them to compliant with vyper
+        type constraints.
+
+        * Parameters:
+            * ``name``: Must be a valid package name of bytes type, with less than 32 bytes.
+            * ``version``: Must be a valid package version of bytes type, with less than 32 bytes.
+            * ``manifest_uri``: Must be a valid manifest URI of bytes type, with less than 64 bytes.
         """
-        tx_hash = self.registry.functions.release(name, version, manifest_uri).transact()
+        if not is_bytes(name) or not is_bytes(version) or not is_bytes(manifest_uri):
+            raise PMError(
+                "Expected bytes type for name, version, and manifest_uri. "
+                "Instead got {0}, {1}, {2}.".format(type(name), type(version), type(manifest_uri))
+            )
+        if len(name) > 32 or len(version) > 32:
+            raise PMError(
+                "Name and version must be shorter than 32 bytes. "
+                "Instead got lengths of {0}, {1}.".format(len(name), len(version))
+            )
+        if len(manifest_uri) <= 32:
+            uri_1 = manifest_uri.ljust(32, b'_')
+            uri_2 = b'_' * 32
+        elif len(manifest_uri) <= 64:
+            uri_1 = manifest_uri[:32]
+            uri_2 = manifest_uri[32:64].ljust(32, b'_')
+        else:
+            raise PMError("URI lengths of more than 64 are not currently supported.")
+
+        tx_hash = self.registry.functions.release(name, version, uri_1, uri_2).transact()
         return self.w3.eth.waitForTransactionReceipt(tx_hash)
 
     def get_release_data(self, name, version):
         """
-        Returns (package_name, version, manifest_uri) associated with given name, version.
+        Returns ``(package_name, version, manifest_uri)`` associated with given name, version.
+
+        * Parameters:
+            * ``name``: Must be a valid package name of bytes type, with less than 32 bytes.
+            * ``version``: Must be a valid package version of bytes type, with less than 32 bytes.
         """
         release_id = self.registry.functions.getReleaseId(name, version).call()
-        return self.registry.functions.getReleaseData(release_id).call()
+        release_data = self.registry.functions.getReleaseData(release_id).call()
+        return normalize_release_data(release_data)
 
     @property
     def owner(self):
         """
-        Returns the owner address.
+        Returns the owner address of the registry.
         """
         return self.registry.functions.owner().call()
 
     @to_tuple
     def get_all_package_names(self):
         """
-        Returns the package_name for every package on registry.
+        Returns the ``package_name`` for every package on registry.
         """
         package_count = self.registry.functions.packageCount().call()
         for offset in range(0, package_count, 4):
@@ -210,7 +278,10 @@ class Registry(Contract):
 
     def get_release_count(self, name):
         """
-        Returns the release count for a given package_name.
+        Returns the release count for a given ``package_name``.
+
+        * Parameters:
+            * ``name``: Must be a valid package name of bytes type, with less than 32 bytes.
         """
         _, _, release_count = self.registry.functions.getPackageData(name).call()
         return release_count
@@ -218,7 +289,10 @@ class Registry(Contract):
     @to_tuple
     def get_all_package_versions(self, name):
         """
-        Returns (version, manifest_uri) for every release of a given package.
+        Returns ``(version, manifest_uri)`` for every release of a given package.
+
+        * Parameters:
+            * ``name``: Must be a valid package name of bytes type, with less than 32 bytes.
         """
         name, package_id, release_count = self.registry.functions.getPackageData(name).call()
         for index in range(0, release_count, 4):
@@ -226,12 +300,31 @@ class Registry(Contract):
             for r_id in release_ids:
                 if r_id != b'\x00' * 32:
                     _, version, uri = self.registry.functions.getReleaseData(r_id).call()
-                    # rstrip used to trim trailing bytes returned in package_name: bytes32
-                    yield (version.rstrip(b'\x00'), uri.rstrip(b'\x00'))
+                    # rstrip used to trim trailing bytes returned in vyper bytes32 types
+                    yield (version.rstrip(b'\x00'), uri.rstrip(b'_'))
 
     def transfer_owner(self, new_address):
         """
         Transfers ownership of registry to new_address.
+
+        * Parameters:
+            * ``new_address``: Address of the new registry owner account.
         """
         tx_hash = self.registry.functions.transferOwner(new_address).transact()
         return self.w3.eth.waitForTransactionReceipt(tx_hash)
+
+
+def get_vyper_registry_package(w3):
+    manifest = json.loads((ASSETS_DIR / 'vyper_registry' / '1.0.2.json').read_text())
+    return Package(manifest, w3)
+
+
+@to_tuple
+def normalize_release_data(release_data):
+    """
+    ``rstrip.(b'\x00')`` used to trim trailing bytes returned in vyper bytes32 types.
+    ``rstrip.(b'_')`` used to trim trailing underscores padding manifest uris.
+    """
+    yield release_data[0].rstrip(b'\x00')
+    yield release_data[1].rstrip(b'\x00')
+    yield release_data[2].rstrip(b'_')

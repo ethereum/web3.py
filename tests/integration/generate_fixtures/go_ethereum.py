@@ -9,11 +9,11 @@ from eth_utils import (
     is_dict,
     is_same_address,
 )
-
-import common
 from tests.utils import (
     get_open_port,
 )
+
+import common
 from web3 import Web3
 from web3._utils.module_testing.emitter_contract import (
     EMITTER_ABI,
