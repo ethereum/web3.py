@@ -56,7 +56,7 @@ class PM(Module):
         """
         * :uri: *must* be a valid content-addressed URI, as defined in the
         `Py-EthPM Documentation <https://py-ethpm.readthedocs.io/en/latest/uri_backends.html>`_.
-        * Returns a ``Package`` isntance representing the Manifest stored at the URI.
+        * Returns a ``Package`` instance representing the Manifest stored at the URI.
         """
         pkg = Package.from_uri(manifest_uri, self.web3)
         return pkg
@@ -89,6 +89,9 @@ class PM(Module):
         """
         Deploys a new instance of a Registry.vy and sets that Registry to ``web3.pm``.
         (py-ethpm/ethpm/assets/vyper_registry/registry.v.py)
+
+        To tie your registry to an ENS name, use web3's ENS module, ie.
+        w3.ens.setup_address(ens_name, w3.pm.registry.address)
         """
         self.registry = Registry.deploy_new_instance(self.web3)
 
@@ -96,6 +99,7 @@ class PM(Module):
         """
         Publishes a version release to the current registry. Requires ``web3.PM`` to have a
         registry set. Requires ``web3.eth.defaultAccount`` to be the registry owner.
+        todo: release package uris longer than 32 bytes
         """
         self._validate_set_registry()
         if self.web3.eth.defaultAccount != self.registry.owner:

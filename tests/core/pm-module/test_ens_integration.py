@@ -3,24 +3,18 @@ import pytest
 from eth_utils import (
     to_canonical_address,
 )
+from ethpm import (
+    ASSETS_DIR,
+)
 
 from ens import ENS
 from web3 import Web3
 from web3.exceptions import (
     InvalidAddress,
 )
-
-try:
-    from ethpm import (
-        ASSETS_DIR,
-    )
-    from web3.pm import (
-        PM,
-    )
-except ImportError:
-    ethpm_installed = False
-else:
-    ethpm_installed = True
+from web3.pm import (
+    PM,
+)
 
 
 def bytes32(val):
@@ -128,7 +122,6 @@ def ens(ens_setup, mocker):
     return ens_setup
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_ens_must_be_set_before_ens_methods_can_be_used(ens):
     w3 = ens.web3
     PM.attach(w3, 'pm')
@@ -136,7 +129,6 @@ def test_ens_must_be_set_before_ens_methods_can_be_used(ens):
         w3.pm.set_registry("tester.eth")
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_web3_ens(ens):
     w3 = ens.web3
     PM.attach(w3, 'pm')
@@ -155,7 +147,6 @@ def test_web3_ens(ens):
     assert manifest_uri.rstrip(b'\x00') == b'1.com'
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_registry_init_with_ens_name(ens):
     w3 = ens.web3
     PM.attach(w3, 'pm')

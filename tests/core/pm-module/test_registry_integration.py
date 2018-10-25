@@ -4,30 +4,25 @@ import pytest
 from eth_utils import (
     to_canonical_address,
 )
+from ethpm import (
+    ASSETS_DIR,
+)
+from ethpm.contract import (
+    LinkableContract,
+)
+from ethpm.exceptions import (
+    CannotHandleURI,
+)
+import pytest_ethereum as pte
 
 from web3 import Web3
 from web3.exceptions import (
     PMError,
 )
-
-try:
-    from ethpm import (
-        ASSETS_DIR,
-    )
-    from ethpm.contract import (
-        LinkableContract,
-    )
-    from ethpm.exceptions import (
-        CannotHandleURI,
-    )
-    import pytest_ethereum as pte
-    from web3.pm import (
-        Registry,
-    )
-except ImportError:
-    ethpm_installed = False
-else:
-    ethpm_installed = True
+from web3.pm import (
+    PM,
+    Registry,
+)
 
 
 @pytest.fixture
@@ -35,16 +30,11 @@ def w3():
     w3 = Web3(Web3.EthereumTesterProvider())
     w3.eth.defaultAccount = w3.eth.accounts[0]
     w3.eth.defaultContractFactory = LinkableContract
-    try:
-        from web3.pm import PM  # noqa: F811
-    except ModuleNotFoundError as exc:
-        assert False, "eth-pm import failed because: %s" % exc
     PM.attach(w3, 'pm')
     return w3
 
 
 # Solidity registry
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_with_solidity_registry_manifest(w3):
     manifest_path = ASSETS_DIR / 'registry' / "1.0.2.json"
     manifest = json.loads(manifest_path.read_text())
@@ -71,13 +61,11 @@ def vy_registry(twig_deployer, w3):
 
 
 # `Registry` class tests
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_registry_init(vy_registry, w3):
     # update to get_package_from_uri
     assert vy_registry.registry.functions.owner().call() == w3.eth.accounts[0]
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_registry_releases_properly(vy_registry):
     vy_registry.release(b"package", b"1.0.0", b"google.com")
     release_data = vy_registry.get_release_data(b'package', b'1.0.0')
@@ -86,7 +74,6 @@ def test_registry_releases_properly(vy_registry):
     assert release_data[2][:10] == b'google.com'
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_registry_get_all_package_names(vy_registry):
     vy_registry.release(b"package1", b"1.0.0", b"p1.v1.0.0.com")
     vy_registry.release(b"package1", b"1.0.1", b"p1.v1.0.1.com")
@@ -117,7 +104,6 @@ def test_registry_get_all_package_names(vy_registry):
     )
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_registry_get_release_count(vy_registry):
     vy_registry.release(b"package1", b"1.0.0", b"p1.v1.0.0.com")
     vy_registry.release(b"package1", b"1.0.1", b"p1.v1.0.1.com")
@@ -133,7 +119,6 @@ def test_registry_get_release_count(vy_registry):
         vy_registry.get_release_count(b'nope')
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_registry_get_all_package_versions(vy_registry):
     vy_registry.release(b"package", b"1.0.0", b"p1.v1.0.0.com")
     vy_registry.release(b"package", b"1.0.1", b"p1.v1.0.1.com")
@@ -164,28 +149,24 @@ def test_registry_get_all_package_versions(vy_registry):
     )
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_registry_transfer_owner(vy_registry, w3):
     vy_registry.transfer_owner(w3.eth.accounts[1])
     assert vy_registry.registry.functions.owner().call() == w3.eth.accounts[1]
 
 
 # web3.pm integration
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_pm_deploy_and_set_registry(w3):
     assert not hasattr(w3.pm, 'registry')
     w3.pm.deploy_and_set_registry()
     assert isinstance(w3.pm.registry, Registry)
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_pm_set_registry(vy_registry, w3):
     assert not hasattr(w3.pm, 'registry')
     w3.pm.set_registry(address=to_canonical_address(vy_registry.address))
     assert isinstance(w3.pm.registry, Registry)
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_pm_must_set_registry_before_registry_interaction_functions(w3):
     with pytest.raises(PMError):
         w3.pm.release_package(b'package', b'1.0.0', b'google.com')
@@ -195,7 +176,6 @@ def test_pm_must_set_registry_before_registry_interaction_functions(w3):
         w3.pm.get_package(b'package', b'1.0.0')
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_pm_release_package(w3):
     w3.pm.deploy_and_set_registry()
     w3.pm.release_package(b'package', b'1.0.0', b'google.com')
@@ -203,7 +183,6 @@ def test_pm_release_package(w3):
     assert package_data[0][:7] == b'package'
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_pm_release_package_raises_exception_with_invalid_from_address(vy_registry, w3):
     w3.pm.deploy_and_set_registry()
     w3.eth.defaultAccount = w3.eth.accounts[1]
@@ -211,7 +190,6 @@ def test_pm_release_package_raises_exception_with_invalid_from_address(vy_regist
         w3.pm.release_package(b'package', b'1.0.0', b'google.com')
 
 
-@pytest.mark.skipif(ethpm_installed is False, reason="ethpm is not installed")
 def test_pm_get_package(w3):
     w3.pm.deploy_and_set_registry()
     w3.pm.release_package(b'package', b'1.0.0', b'google.com')

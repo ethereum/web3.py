@@ -9,12 +9,12 @@ import time
 from eth_utils import (
     to_text,
 )
-
-import common
-import go_ethereum
 from tests.utils import (
     get_open_port,
 )
+
+import common
+import go_ethereum
 from web3 import Web3
 from web3._utils.toolz import (
     merge,
