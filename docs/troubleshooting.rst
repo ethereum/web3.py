@@ -69,4 +69,7 @@ Here are some links to testnet ether instructions (in no particular order):
 
 - `Kovan <https://github.com/kovan-testnet/faucet>`_
 - `Rinkeby <https://www.rinkeby.io/#faucet>`_
-- `Ropsten <https://www.reddit.com/r/ethdev/comments/72ltwj/the_new_if_you_need_some_ropsten_testnet_ethers/>`_
+- Ropsten:
+
+  - `ropsten.be <https://faucet.ropsten.be/>`_
+  - `Kyber <https://faucet.kyber.network/>`_
