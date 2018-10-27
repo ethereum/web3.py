@@ -1,6 +1,33 @@
 Release Notes
 =============
 
+v4.8.0
+--------
+
+Released October 28, 2018
+
+- Features
+
+  - Add timeout for WebsocketProvider
+    - `#1119 <https://github.com/ethereum/web3.py/pull/1119>`_
+  - Reject transactions that send ether to non-payable contract functions
+    - `#1115 <https://github.com/ethereum/web3.py/pull/1115>`_
+  - Add Auto Infura Ropsten support: ``from web3.auto.infura.ropsten import w3``
+    - `#1124 <https://github.com/ethereum/web3.py/pull/1124>`_
+  - Auto-detect trinity IPC file location
+    - `#1129 <https://github.com/ethereum/web3.py/pull/1129>`_
+- Misc
+
+  - Require Python >=3.5.3
+    - `#1107 <https://github.com/ethereum/web3.py/pull/1107>`_
+  - Upgrade eth-tester and eth-utils
+    - `#1085 <https://github.com/ethereum/web3.py/pull/1085>`_
+  - Configure readthedocs for a more recent python
+    - `#1082 <https://github.com/ethereum/web3.py/pull/1082>`_
+  - soliditySha3 docs fixup
+    - `#1100 <https://github.com/ethereum/web3.py/pull/1100>`_
+  - Update ropsten faucet links in troubleshooting docs
+
 v4.7.2
 --------
 

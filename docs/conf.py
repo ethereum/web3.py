@@ -83,6 +83,7 @@ exclude_patterns = [
     'web3.rst',
     'modules.rst',
     'web3.auto.rst',
+    'web3.auto.infura.rst',
     'web3.gas_strategies.rst',
     'web3.middleware.rst',
     'web3.providers.rst',
