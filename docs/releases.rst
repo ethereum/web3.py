@@ -1,6 +1,33 @@
 Release Notes
 =============
 
+v5.0.0-alpha.2
+--------------
+
+Released December 20th, 2018
+
+- Breaking Changes
+
+  - Remove support for python3.5, drop support for eth-abi v1
+    - `#1163 <https://github.com/ethereum/web3.py/pull/1163>`_
+- Features
+
+  - Support for custom ReleaseManager was fixed
+    - `#1165 <https://github.com/ethereum/web3.py/pull/1165>`_
+
+- Misc
+
+  - Fix doctest nonsense with unicorn token
+    - `3b2047 <https://github.com/ethereum/web3.py/commit/3b20479ea52>`_
+  - Docs for installing web3 in FreeBSD
+    - `#1156 <https://github.com/ethereum/web3.py/pull/1156>`_
+  - Use latest python in readthedocs
+    - `#1162 <https://github.com/ethereum/web3.py/pull/1162>`_
+  - Use twine in release script
+    - `#1164 <https://github.com/ethereum/web3.py/pull/1164>`_
+  - Upgrade eth-tester, for eth-abi v2 support
+    - `#1168 <https://github.com/ethereum/web3.py/pull/1168>`_
+
 v5.0.0-alpha.1
 --------------
 
@@ -71,7 +98,7 @@ Released October 28, 2018
     - `#1107 <https://github.com/ethereum/web3.py/pull/1107>`_
   - Upgrade eth-tester and eth-utils
     - `#1085 <https://github.com/ethereum/web3.py/pull/1085>`_
-  - Configure readthedocs dependencies and python version
+  - Configure readthedocs dependencies
     - `#1082 <https://github.com/ethereum/web3.py/pull/1082>`_
   - soliditySha3 docs fixup
     - `#1100 <https://github.com/ethereum/web3.py/pull/1100>`_
@@ -108,7 +135,7 @@ Released September 10th, 2018
 
   - Add traceFilter method to the parity module.
     - `#1051 <https://github.com/ethereum/web3.py/pull/1051>`_
-  - Move :module:`~web3.utils.datastructures` to public namespace :module:`~web3.datastructures` 
+  - Move :mod:`~web3.utils.datastructures` to public namespace :mod:`~web3.datastructures`
     to improve support for type checking.
     - `#1038 <https://github.com/ethereum/web3.py/pull/1038>`_
   - Optimization to contract calls
