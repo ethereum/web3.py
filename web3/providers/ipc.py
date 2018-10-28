@@ -1,6 +1,8 @@
 import logging
 import os
-import pathlib
+from pathlib import (
+    Path,
+)
 import socket
 import sys
 import threading
@@ -91,6 +93,12 @@ def get_default_ipc_path(testnet=False):
         if os.path.exists(ipc_path):
             return ipc_path
 
+        base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
+        if not testnet:
+            ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'
+            if ipc_path.exists():
+                return str(ipc_path)
+
     elif sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
         ipc_path = os.path.expanduser(os.path.join(
             "~",
@@ -110,6 +118,12 @@ def get_default_ipc_path(testnet=False):
         ))
         if os.path.exists(ipc_path):
             return ipc_path
+
+        base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
+        if not testnet:
+            ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'
+            if ipc_path.exists():
+                return str(ipc_path)
 
     elif sys.platform == 'win32':
         ipc_path = os.path.join(
@@ -188,8 +202,8 @@ class IPCProvider(JSONBaseProvider):
     def __init__(self, ipc_path=None, testnet=False, timeout=10, *args, **kwargs):
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path(testnet)
-        elif isinstance(ipc_path, str) or isinstance(ipc_path, pathlib.Path):
-            self.ipc_path = str(pathlib.Path(ipc_path).expanduser().resolve())
+        elif isinstance(ipc_path, str) or isinstance(ipc_path, Path):
+            self.ipc_path = str(Path(ipc_path).expanduser().resolve())
         else:
             raise TypeError("ipc_path must be of type string or pathlib.Path")
 
