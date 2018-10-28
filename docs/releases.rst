@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-v4.8.0
+v4.8.1
 --------
 
 Released October 28, 2018
@@ -22,7 +22,7 @@ Released October 28, 2018
     - `#1107 <https://github.com/ethereum/web3.py/pull/1107>`_
   - Upgrade eth-tester and eth-utils
     - `#1085 <https://github.com/ethereum/web3.py/pull/1085>`_
-  - Configure readthedocs for a more recent python
+  - Configure readthedocs dependencies and python version
     - `#1082 <https://github.com/ethereum/web3.py/pull/1082>`_
   - soliditySha3 docs fixup
     - `#1100 <https://github.com/ethereum/web3.py/pull/1100>`_
