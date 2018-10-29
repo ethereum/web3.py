@@ -44,7 +44,7 @@ from ens.utils import (
 
 from web3.contract import ConciseContract
 
-from web3 import Web3
+from web3.main import Web3
 
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
 
@@ -65,7 +65,7 @@ class ENS:
     is_valid_name = staticmethod(is_valid_name)
     reverse_domain = staticmethod(address_to_reverse_domain)
 
-    def __init__(self, providers: Any = default, addr: Optional[ChecksumAddress] = None) -> None:
+    def __init__(self, providers: Sequence[web3.providers.base.BaseProvider] = default, addr: Optional[ChecksumAddress] = None) -> None:
         '''
         :param providers: a list or single provider used to connect to Ethereum
         :type providers: instance of `web3.providers.base.BaseProvider`
@@ -271,7 +271,11 @@ class ENS:
             self._claim_ownership(new_owner, unowned, owned, super_owner, transact=transact)
             return new_owner
 
-    def _assert_control(self, account: ChecksumAddress, name: str, parent_owned: Optional[str] = None) -> None:
+    def _assert_control(
+            self,
+            account: ChecksumAddress,
+            name: str,
+            parent_owned: Optional[ChecksumAddress] = None) -> None:
         if not address_in(account, self.web3.eth.accounts):
             raise UnauthorizedError(
                 "in order to modify %r, you must control account %r, which owns %r" % (
@@ -296,7 +300,13 @@ class ENS:
         return (owner, unowned, name)
 
     @dict_copy
-    def _claim_ownership(self, owner: ChecksumAddress, unowned: List[str], owned: str, old_owner: Optional[ChecksumAddress] = None, transact: Dict[str, str] = {}) -> None:
+    def _claim_ownership(
+            self,
+            owner: ChecksumAddress,
+            unowned: Sequence[str],
+            owned: str,
+            old_owner: Optional[ChecksumAddress] = None,
+            transact: Dict[str, str] = {}) -> None:
         transact['from'] = old_owner or owner
         for label in reversed(unowned):
             self.ens.setSubnodeOwner(

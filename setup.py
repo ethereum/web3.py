@@ -48,7 +48,7 @@ extras_require = {
         "tox>=1.8.0",
         "tqdm",
         "when-changed",
-        "eth-typing==2.0.0",
+        "eth-typing<2.0.0,>=1.1.0",
     ]
 }
 

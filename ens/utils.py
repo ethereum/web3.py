@@ -36,8 +36,8 @@ from ens.exceptions import (
     InvalidLabel,
     InvalidName,
 )
-from web3 import Web3
- 
+import web3
+
 T = TypeVar('T')
 default = object()
 
@@ -62,7 +62,7 @@ def ensure_hex(data: Type[HexBytes]) -> Type[HexBytes]:
     return data
 
 
-def init_web3(provider=default) -> Web3:
+def init_web3(provider: web3.Web3.providers.base.BaseProvider = default) -> web3.Web3:
     from web3 import Web3
 
     if providers is default:
@@ -73,7 +73,7 @@ def init_web3(provider=default) -> Web3:
     return customize_web3(w3)
 
 
-def customize_web3(w3: Web3) -> Web3:
+def customize_web3(w3: Type[T]) -> Type[T]:
     from web3.contract import ConciseContract
     from web3.middleware import make_stalecheck_middleware
 
