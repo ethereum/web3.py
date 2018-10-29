@@ -1,3 +1,4 @@
+import collections
 import hashlib
 
 from eth_utils import (
@@ -9,10 +10,6 @@ from eth_utils import (
     is_number,
     is_text,
     to_bytes,
-)
-
-from .six import (
-    Generator,
 )
 
 
@@ -34,7 +31,7 @@ def generate_cache_key(value: Any) -> str:
             for key
             in sorted(value.keys())
         ))
-    elif is_list_like(value) or isinstance(value, Generator):
+    elif is_list_like(value) or isinstance(value, collections.Generator):
         return generate_cache_key("".join((
             generate_cache_key(item)
             for item

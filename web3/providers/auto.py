@@ -22,6 +22,10 @@ def load_provider_from_environment():
     if not uri_string:
         return None
 
+    return load_provider_from_uri(uri_string)
+
+
+def load_provider_from_uri(uri_string):
     uri = urlparse(uri_string)
     if uri.scheme == 'file':
         return IPCProvider(uri.path)

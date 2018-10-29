@@ -33,38 +33,44 @@ def test_load_provider_from_env(monkeypatch, uri, expected_type, expected_attrs)
         assert getattr(provider, attr) == val
 
 
-def test_web3_auto_infura_empty_key(monkeypatch, caplog):
-    monkeypatch.setenv('INFURA_API_KEY', '')
+@pytest.mark.parametrize('environ_name', ['INFURA_API_KEY', 'WEB3_INFURA_API_KEY'])
+def test_web3_auto_infura_empty_key(monkeypatch, caplog, environ_name):
+    monkeypatch.setenv('WEB3_INFURA_SCHEME', 'https')
+    monkeypatch.setenv(environ_name, '')
 
     importlib.reload(infura)
     assert len(caplog.record_tuples) == 1
     logger, level, msg = caplog.record_tuples[0]
-    assert 'INFURA_API_KEY' in msg
+    assert 'WEB3_INFURA_API_KEY' in msg
     assert level == logging.WARNING
 
     w3 = infura.w3
     assert isinstance(w3.providers[0], HTTPProvider)
-    assert getattr(w3.providers[0], 'endpoint_uri') == infura.INFURA_MAINNET_BASE_URL
+    assert getattr(w3.providers[0], 'endpoint_uri') == 'https://mainnet.infura.io/'
 
 
-def test_web3_auto_infura_missing_key(monkeypatch, caplog):
-    monkeypatch.delenv('INFURA_API_KEY', raising=False)
+@pytest.mark.parametrize('environ_name', ['INFURA_API_KEY', 'WEB3_INFURA_API_KEY'])
+def test_web3_auto_infura_deleted_key(monkeypatch, caplog, environ_name):
+    monkeypatch.setenv('WEB3_INFURA_SCHEME', 'https')
+    monkeypatch.delenv(environ_name, raising=False)
 
     importlib.reload(infura)
     assert len(caplog.record_tuples) == 1
     logger, level, msg = caplog.record_tuples[0]
-    assert 'INFURA_API_KEY' in msg
+    assert 'WEB3_INFURA_API_KEY' in msg
     assert level == logging.WARNING
 
     w3 = infura.w3
     assert isinstance(w3.providers[0], HTTPProvider)
-    assert getattr(w3.providers[0], 'endpoint_uri') == infura.INFURA_MAINNET_BASE_URL
+    assert getattr(w3.providers[0], 'endpoint_uri') == 'https://mainnet.infura.io/'
 
 
-def test_web3_auto_infura(monkeypatch, caplog):
+@pytest.mark.parametrize('environ_name', ['INFURA_API_KEY', 'WEB3_INFURA_API_KEY'])
+def test_web3_auto_infura(monkeypatch, caplog, environ_name):
+    monkeypatch.setenv('WEB3_INFURA_SCHEME', 'https')
     API_KEY = 'aoeuhtns'
-    monkeypatch.setenv('INFURA_API_KEY', API_KEY)
-    expected_url = '%s/%s' % (infura.INFURA_MAINNET_BASE_URL, API_KEY)
+    monkeypatch.setenv(environ_name, API_KEY)
+    expected_url = 'https://%s/%s' % (infura.INFURA_MAINNET_DOMAIN, API_KEY)
 
     importlib.reload(infura)
     assert len(caplog.record_tuples) == 0
@@ -72,3 +78,12 @@ def test_web3_auto_infura(monkeypatch, caplog):
     w3 = infura.w3
     assert isinstance(w3.providers[0], HTTPProvider)
     assert getattr(w3.providers[0], 'endpoint_uri') == expected_url
+
+
+def test_web3_auto_infura_websocket_default(caplog):
+    importlib.reload(infura)
+    assert len(caplog.record_tuples) == 0
+
+    w3 = infura.w3
+    assert isinstance(w3.providers[0], WebsocketProvider)
+    assert getattr(w3.providers[0], 'endpoint_uri') == 'wss://mainnet.infura.io/ws'
