@@ -1,4 +1,5 @@
 import operator
+import paco
 
 from eth_utils import (
     is_dict,
@@ -6,6 +7,9 @@ from eth_utils import (
     is_string,
 )
 
+from web3._utils.async_tools import (
+    coro_pipe,
+)
 from web3._utils.formatters import (
     apply_formatter_if,
     apply_formatter_to_array,
@@ -22,10 +26,8 @@ from web3._utils.toolz import (
     assoc,
     complement,
     compose,
-    curry,
     identity,
     partial,
-    pipe,
 )
 from web3.middleware import (
     construct_fixture_middleware,
@@ -273,13 +275,13 @@ ethereum_tester_fixture_middleware = construct_fixture_middleware({
 })
 
 
-def guess_from(web3, transaction):
-    coinbase = web3.eth.coinbase
+async def coro_guess_from(web3, transaction):
+    coinbase = await web3.eth.coro_coinbase()
     if coinbase is not None:
         return coinbase
 
     try:
-        return web3.eth.accounts[0]
+        return await web3.eth.coro_accounts()[0]
     except KeyError as e:
         # no accounts available to pre-fill, carry on
         pass
@@ -287,37 +289,37 @@ def guess_from(web3, transaction):
     return None
 
 
-def guess_gas(web3, transaction):
-    return web3.eth.estimateGas(transaction) * 2
+async def coro_guess_gas(web3, transaction):
+    return await web3.eth.coro_estimateGas(transaction) * 2
 
 
-@curry
-def fill_default(field, guess_func, web3, transaction):
+@paco.curry
+async def coro_fill_default(field, guess_coro, web3, transaction):
     if field in transaction and transaction[field] is not None:
         return transaction
     else:
-        guess_val = guess_func(web3, transaction)
+        guess_val = await guess_coro(web3, transaction)
         return assoc(transaction, field, guess_val)
 
 
 def default_transaction_fields_middleware(make_request, web3):
-    fill_default_from = fill_default('from', guess_from, web3)
-    fill_default_gas = fill_default('gas', guess_gas, web3)
+    fill_default_from = coro_fill_default('from', coro_guess_from, web3)
+    fill_default_gas = coro_fill_default('gas', coro_guess_gas, web3)
 
     async def middleware(method, params):
         # TODO send call to eth-tester without gas, and remove guess_gas entirely
         if method == 'eth_call':
-            filled_transaction = pipe(
+            filled_transaction = await coro_pipe(
                 params[0],
                 fill_default_from,
-                fill_default_gas,
+                fill_default_gas
             )
             return await make_request(method, [filled_transaction] + params[1:])
         elif method in (
             'eth_estimateGas',
             'eth_sendTransaction',
         ):
-            filled_transaction = pipe(
+            filled_transaction = await coro_pipe(
                 params[0],
                 fill_default_from,
             )

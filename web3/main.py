@@ -12,6 +12,7 @@ from eth_utils import (
 from hexbytes import (
     HexBytes,
 )
+import paco
 
 from ens import ENS
 from web3._utils.abi import (
@@ -99,6 +100,10 @@ def get_default_modules():
         "parity": Parity,
         "testing": Testing,
     }
+
+
+async def _is_provider_connected(provider):
+    return await provider.isConnected()
 
 
 class Web3:
@@ -201,12 +206,11 @@ class Web3:
         ))
         return cls.sha3(hexstr=hex_string)
 
+    async def coro_isConnected(self):
+        return await paco.some(_is_provider_connected, self.providers)
+
     def isConnected(self):
-        for provider in self.providers:
-            if sync(provider.isConnected()):
-                return True
-        else:
-            return False
+        return sync(self.coro_isConnected())
 
     @property
     def ens(self):

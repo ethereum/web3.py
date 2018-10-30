@@ -81,7 +81,7 @@ setup(
         "websockets>=6.0.0,<7.0.0",
         "pypiwin32>=223;platform_system=='Windows'",
         "aiohttp",
-        "paco",
+        "paco>=0.2.3",
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.5.3,<4',
