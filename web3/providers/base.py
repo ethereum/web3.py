@@ -53,8 +53,11 @@ class BaseProvider:
     def make_request(self, method, params):
         raise NotImplementedError("Providers must implement this method")
 
-    def isConnected(self):
+    async def coro_isConnected(self):
         raise NotImplementedError("Providers must implement this method")
+
+    def isConnected(self):
+        return sync(self.coro_isConnected())
 
 
 class JSONBaseProvider(BaseProvider):
@@ -75,7 +78,7 @@ class JSONBaseProvider(BaseProvider):
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
         return to_bytes(text=encoded)
 
-    async def isConnected(self):
+    async def coro_isConnected(self):
         try:
             response = await self.make_request('web3_clientVersion', [])
         except IOError:

@@ -3,6 +3,9 @@ from urllib.parse import (
     urlparse,
 )
 
+from web3._utils.async_tools import (
+    sync,
+)
 from web3.exceptions import (
     CannotHandleRequest,
 )
@@ -67,9 +70,12 @@ class AutoProvider(BaseProvider):
         except IOError as exc:
             return await self._proxy_request(method, params, use_cache=False)
 
-    async def isConnected(self):
+    async def coro_isConnected(self):
         provider = await self._get_active_provider(use_cache=True)
-        return provider is not None and await provider.isConnected()
+        return provider is not None and await provider.coro_isConnected()
+
+    def isConnected(self):
+        return sync(self.coro_isConnected())
 
     async def _proxy_request(self, method, params, use_cache=True):
         provider = await self._get_active_provider(use_cache)
@@ -84,7 +90,7 @@ class AutoProvider(BaseProvider):
 
         for Provider in self._potential_providers:
             provider = Provider()
-            if provider is not None and await provider.isConnected():
+            if provider is not None and await provider.coro_isConnected():
                 self._active_provider = provider
                 return provider
 

@@ -1,4 +1,7 @@
 import asyncio
+from asynctest import (
+    CoroutineMock,
+)
 import pytest
 from unittest.mock import (
     Mock,
@@ -81,7 +84,8 @@ async def test_stalecheck_pass(request_middleware):
 @pytest.mark.asyncio
 async def test_stalecheck_fail(request_middleware, now):
     with patch('web3.middleware.stalecheck._isfresh', return_value=False):
-        request_middleware.web3.eth.getBlock.return_value = stub_block(now)
+        request_middleware.web3.eth.coro_getBlock = CoroutineMock(
+            return_value=stub_block(now))
         with pytest.raises(StaleBlockchain):
             await request_middleware('', [])
 
@@ -97,14 +101,14 @@ async def test_stalecheck_ignores_get_by_block_methods(request_middleware, rpc_m
     # This is especially critical for getBlock('latest') which would cause infinite recursion
     with patch('web3.middleware.stalecheck._isfresh', side_effect=[False, True]):
         await request_middleware(rpc_method, [])
-        assert not request_middleware.web3.eth.getBlock.called
+        assert not request_middleware.web3.eth.coro_getBlock.called
 
 
 @pytest.mark.asyncio
 async def test_stalecheck_calls_isfresh_with_empty_cache(request_middleware, allowable_delay):
     with patch('web3.middleware.stalecheck._isfresh', side_effect=[False, True]) as freshspy:
         block = object()
-        request_middleware.web3.eth.getBlock.return_value = block
+        request_middleware.web3.eth.coro_getBlock = CoroutineMock(return_value=block)
         await request_middleware('', [])
         cache_call, live_call = freshspy.call_args_list
         assert cache_call[0] == (None, allowable_delay)
@@ -115,7 +119,7 @@ async def test_stalecheck_calls_isfresh_with_empty_cache(request_middleware, all
 async def test_stalecheck_adds_block_to_cache(request_middleware, allowable_delay):
     with patch('web3.middleware.stalecheck._isfresh', side_effect=[False, True, True]) as freshspy:
         block = object()
-        request_middleware.web3.eth.getBlock.return_value = block
+        request_middleware.web3.eth.coro_getBlock = CoroutineMock(return_value=block)
 
         # cache miss
         await request_middleware('', [])

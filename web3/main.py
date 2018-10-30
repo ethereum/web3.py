@@ -103,7 +103,7 @@ def get_default_modules():
 
 
 async def _is_provider_connected(provider):
-    return await provider.isConnected()
+    return await provider.coro_isConnected()
 
 
 class Web3:

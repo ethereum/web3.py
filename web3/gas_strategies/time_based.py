@@ -11,6 +11,7 @@ from web3._utils.math import (
 )
 from web3._utils.toolz import (
     curry,
+    concat,
     groupby,
     sliding_window,
 )
@@ -37,14 +38,18 @@ async def _get_avg_block_time(w3, sample_size):
     return (latest['timestamp'] - oldest['timestamp']) / constrained_sample_size
 
 
+def _formatted_block_data(block):
+    for transaction in block['transactions']:
+        yield (block['miner'], block['hash'], transaction['gasPrice'])
+
+
 async def _get_raw_miner_data(w3, sample_size):
     latest = await w3.eth.coro_getBlock('latest', full_transactions=True)
 
-    for transaction in latest['transactions']:
-        yield (latest['miner'], latest['hash'], transaction['gasPrice'])
+    pending_txns = _formatted_block_data(latest)
 
     block = latest
-
+    block_txns = []
     for _ in range(sample_size - 1):
         if block['number'] == 0:
             break
@@ -52,8 +57,8 @@ async def _get_raw_miner_data(w3, sample_size):
         # we intentionally trace backwards using parent hashes rather than
         # block numbers to make caching the data easier to implement.
         block = await w3.eth.coro_getBlock(block['parentHash'], full_transactions=True)
-        for transaction in block['transactions']:
-            yield (block['miner'], block['hash'], transaction['gasPrice'])
+        block_txns = concat([block_txns, _formatted_block_data(block)])
+    return concat([pending_txns, block_txns])
 
 
 def _aggregate_miner_data(raw_data):

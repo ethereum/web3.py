@@ -6,12 +6,12 @@ from web3.providers import (
 
 
 class ConnectedProvider(BaseProvider):
-    def isConnected(self):
+    async def coro_isConnected(self):
         return True
 
 
 class DisconnectedProvider(BaseProvider):
-    def isConnected(self):
+    async def coro_isConnected(self):
         return False
 
 

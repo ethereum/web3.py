@@ -52,7 +52,7 @@ async def test_prepare_transaction_replacement_already_mined_raises(web3):
 
 async def test_prepare_transaction_replacement_nonce_mismatch_raises(web3):
     with pytest.raises(ValueError):
-        coro_prepare_replacement_transaction(web3, {
+        await coro_prepare_replacement_transaction(web3, {
             'blockHash': None,
             'hash': '0x0',
             'nonce': 1,
@@ -90,10 +90,10 @@ async def test_prepare_transaction_replacement_gas_price_defaulting(web3):
 
 async def test_prepare_transaction_replacement_gas_price_defaulting_when_strategy_higer(web3):
 
-    def higher_gas_price_strategy(web3, txn):
+    async def coro_higher_gas_price_strategy(web3, txn):
         return 20
 
-    web3.eth.setGasPriceStrategy(higher_gas_price_strategy)
+    web3.eth.setGasPriceStrategy(coro_higher_gas_price_strategy)
 
     current_transaction = SIMPLE_CURRENT_TRANSACTION
     new_transaction = {
@@ -108,10 +108,10 @@ async def test_prepare_transaction_replacement_gas_price_defaulting_when_strateg
 
 async def test_prepare_transaction_replacement_gas_price_defaulting_when_strategy_lower(web3):
 
-    def lower_gas_price_strategy(web3, txn):
+    async def coro_lower_gas_price_strategy(web3, txn):
         return 5
 
-    web3.eth.setGasPriceStrategy(lower_gas_price_strategy)
+    web3.eth.setGasPriceStrategy(coro_lower_gas_price_strategy)
 
     current_transaction = SIMPLE_CURRENT_TRANSACTION
     new_transaction = {
