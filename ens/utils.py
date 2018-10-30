@@ -2,7 +2,7 @@ from hexbytes import HexBytes
 from typing import (
     Any,
     Callable,
-    List,
+    Sequence,
     Type,
     Union,
     TypeVar,
@@ -10,6 +10,7 @@ from typing import (
 )
 from eth_typing import (
     ChecksumAddress,
+    Hash32,
 )
 
 import copy
@@ -123,7 +124,7 @@ def is_valid_name(name: str) -> bool:
         return False
 
 
-def label_to_name(label: str, default_tld: str, recognized_tlds: List[str]) -> str:
+def label_to_name(label: str, default_tld: str, recognized_tlds: Sequence[str]) -> str:
     label = normalize_name(label)
     pieces = label.split('.')
     if pieces[-1] not in recognized_tlds:
@@ -173,20 +174,20 @@ def to_utc_datetime(timestamp: float) -> Optional[datetime.datetime]:
         return None
 
 
-def sha3_text(val: str) -> str:
+def sha3_text(val: str) -> Hash32:
     if isinstance(val, str):
         val = val.encode('utf-8')
     return Web3().keccak(val)
 
 
-def label_to_hash(label: str) -> HexBytes:
+def label_to_hash(label: str) -> Hash32:
     label = normalize_name(label)
     if '.' in label:
         raise ValueError("Cannot generate hash for label %r with a '.'" % label)
     return Web3().keccak(text=label)
 
 
-def name_to_hash(name: str) -> bytes:
+def name_to_hash(name: str) -> Hash32:
     node = EMPTY_SHA3_BYTES
     if name:
         labels = name.split(".")
@@ -198,7 +199,7 @@ def name_to_hash(name: str) -> bytes:
     return node
 
 
-def dot_eth_namehash(name: str) -> HexBytes:
+def dot_eth_namehash(name: str) -> Hash32:
     '''
     Generate the namehash. This is also known as the ``node`` in ENS contracts.
 
@@ -219,7 +220,7 @@ def dot_eth_namehash(name: str) -> HexBytes:
     return name_to_hash(expanded_name)
 
 
-def address_in(address: ChecksumAddress, addresses: List[ChecksumAddress]) -> bool:
+def address_in(address: ChecksumAddress, addresses: Sequence[ChecksumAddress]) -> bool:
     return any(is_same_address(address, item) for item in addresses)
 
 
@@ -228,7 +229,7 @@ def address_to_reverse_domain(address: ChecksumAddress) -> str:
     return lower_unprefixed_address + '.' + REVERSE_REGISTRAR_DOMAIN
 
 
-def estimate_auction_start_gas(labels: List[str]) -> int:
+def estimate_auction_start_gas(labels: Sequence[str]) -> int:
     return AUCTION_START_GAS_CONSTANT + AUCTION_START_GAS_MARGINAL * len(labels)
 
 

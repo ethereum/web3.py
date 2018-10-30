@@ -2,7 +2,7 @@ from hexbytes import HexBytes
 from typing import (
     Any,
     Dict,
-    List,
+    Sequence,
     Optional,
     Tuple,
     Type,
@@ -41,9 +41,7 @@ from ens.utils import (
     name_to_hash,
     normalize_name,
 )
-
 from web3.contract import ConciseContract
-
 from web3.main import Web3
 
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
@@ -103,7 +101,7 @@ class ENS:
             expanded = name
         return self.resolve(expanded, 'addr')
 
-    def name(self, address: str) -> Optional[str]:
+    def name(self, address: ChecksumAddress) -> Optional[str]:
         '''
         Look up the name that the address points to, using a
         reverse lookup. Reverse lookup is opt-in for name owners.
@@ -116,7 +114,7 @@ class ENS:
     reverse = name
 
     @dict_copy
-    def setup_address(self, name: str, address=default, transact={}):
+    def setup_address(self, name: str, address: ChecksumAddress = default, transact={}):
         '''
         Set up the name to point to the supplied address.
         The sender of the transaction must own the name, or
@@ -153,7 +151,7 @@ class ENS:
         return resolver.setAddr(dot_eth_namehash(name), address, transact=transact)
 
     @dict_copy
-    def setup_name(self, name: Optional[str], address: Optional[str] = None, transact: Dict[Any, Any] = {}) -> HexBytes:
+    def setup_name(self, name: Optional[str], address: Optional[ChecksumAddress] = None, transact: Dict[Any, Any] = {}) -> HexBytes:
         '''
         Set up the address for reverse lookup, aka "caller ID".
         After successful setup, the method :meth:`~ens.main.ENS.name` will return
@@ -283,7 +281,7 @@ class ENS:
                 )
             )
 
-    def _first_owner(self, name: str) -> Union[Tuple[str, List[str], str], Tuple[str, List[Any], str]]:
+    def _first_owner(self, name: str) -> Union[Tuple[str, Sequence[str], str], Tuple[str, Sequence[Any], str]]:
         '''
         Takes a name, and returns the owner of the deepest subdomain that has an owner
 
