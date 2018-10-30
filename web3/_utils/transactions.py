@@ -1,5 +1,6 @@
 import math
 
+import paco
 from web3._utils.async_tools import (
     sync,
 )
@@ -24,16 +25,8 @@ VALID_TRANSACTION_PARAMS = [
     'chainId',
 ]
 
-TRANSACTION_DEFAULTS = {
-    'value': 0,
-    'data': b'',
-    'gas': lambda web3, tx: web3.eth.estimateGas(tx),
-    'gasPrice': lambda web3, tx: web3.eth.generateGasPrice(tx) or web3.eth.gasPrice,
-    'chainId': lambda web3, tx: web3.net.chainId,
-}
 
-
-@curry
+@paco.curry
 def fill_nonce(web3, transaction):
     if 'from' in transaction and 'nonce' not in transaction:
         return assoc(
@@ -46,13 +39,22 @@ def fill_nonce(web3, transaction):
         return transaction
 
 
-@curry
-def fill_transaction_defaults(web3, transaction):
+@paco.curry
+async def coro_fill_transaction_defaults(web3, transaction):
     '''
     if web3 is None, fill as much as possible while offline
     '''
+    transaction_defaults = {
+        'value': 0,
+        'data': b'',
+        'gas': await web3.eth.coro_estimateGas(transaction),
+        'gasPrice': await web3.eth.coro_generateGasPrice(transaction) or
+        await web3.eth.coro_gasPrice(),
+        'chainId': web3.net.chainId,
+    }
+
     defaults = {}
-    for key, default_getter in TRANSACTION_DEFAULTS.items():
+    for key, default_getter in transaction_defaults.items():
         if key not in transaction:
             if callable(default_getter):
                 if web3 is not None:
@@ -63,6 +65,11 @@ def fill_transaction_defaults(web3, transaction):
                 default_val = default_getter
             defaults[key] = default_val
     return merge(defaults, transaction)
+
+
+@curry
+def fill_transaction_defaults(web3, transaction):
+    return sync(coro_fill_transaction_defaults(web3, transaction))
 
 
 async def coro_wait_for_transaction_receipt(web3, txn_hash, timeout=120, poll_latency=0.1):
