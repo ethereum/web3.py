@@ -196,13 +196,20 @@ def test_registry_get_all_package_versions(vy_registry):
     vy_registry.release(
         b"package", b"2.0.0", b"ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGe"
     )
+    vy_registry.release(
+        b"package2", b"1.0.0", b"ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGe"
+    )
     all_rls_1 = vy_registry.get_all_package_versions(b"package")
+    all_rls_pkg_2 = vy_registry.get_all_package_versions(b"package2")
     assert all_rls_1 == (
         (b"1.0.0", b"ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGa"),
         (b"1.0.1", b"ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGb"),
         (b"1.0.2", b"ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGc"),
         (b"1.1.0", b"ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGd"),
         (b"2.0.0", b"ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGe"),
+    )
+    assert all_rls_pkg_2 == (
+        (b"1.0.0", b"ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGe"),
     )
     vy_registry.release(
         b"package", b"3.0.0", b"ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGf"
