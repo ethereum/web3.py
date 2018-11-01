@@ -9,7 +9,7 @@ from hexbytes import (
     HexBytes,
 )
 from inspect import (
-    iscoroutinefunction,
+    signature,
 )
 
 from web3._utils.async_tools import (
@@ -38,6 +38,7 @@ from web3._utils.threads import (
 from web3._utils.toolz import (
     assoc,
     merge,
+    complement,
 )
 from web3._utils.transactions import (
     assert_valid_transaction_params,
@@ -67,9 +68,23 @@ def is_coro(fn):
     return False
 
 
+def is_zero_arg_co(coro):
+    params = signature(coro).parameters
+    if len(params) == 0:
+        return True
+    elif len(params) == 1 and params.get('self'):
+        return True
+    return False
+
+
+is_coro_with_args = complement(is_zero_arg_co)
+
+
 def _build_sync_methods(cls):
     coro_fns = tuple(filter(is_coro, cls.__dict__.values()))
-    for coro in coro_fns:
+    for pcoro in filter(is_zero_arg_co, coro_fns):
+        _add_sync_property(cls, pcoro)
+    for coro in filter(is_coro_with_args, coro_fns):
         _add_sync_method(cls, coro)
 
 
@@ -80,6 +95,16 @@ def _add_sync_method(cls, coro):
     method.__name__ = coro.__name__[len('coro_'):]
     if not cls.__dict__.get(method.__name__):
         setattr(cls, method.__name__, method)
+
+
+def _add_sync_property(cls, coro):
+    @property
+    def prop(self):
+        return sync(coro(self))
+    prop.__doc__ = coro.__doc__
+    name = coro.__name__[len('coro_'):]
+    if not cls.__dict__.get(name):
+        setattr(cls, name, prop)
 
 
 class Eth(Module):
