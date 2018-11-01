@@ -296,7 +296,7 @@ class Registry(Contract):
         """
         name, package_id, release_count = self.registry.functions.getPackageData(name).call()
         for index in range(0, release_count, 4):
-            release_ids = self.registry.functions.getAllReleaseIds(b'package', index, 5).call()
+            release_ids = self.registry.functions.getAllReleaseIds(name, index, 5).call()
             for r_id in release_ids:
                 if r_id != b'\x00' * 32:
                     _, version, uri = self.registry.functions.getReleaseData(r_id).call()
