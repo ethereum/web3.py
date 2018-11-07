@@ -4,7 +4,6 @@ from typing import (
     Callable,
     Sequence,
     Type,
-    Union,
     TypeVar,
     Optional,
 )
@@ -37,13 +36,13 @@ from ens.exceptions import (
     InvalidLabel,
     InvalidName,
 )
-import web3
+from web3.Web3.providers.base import BaseProvider
 
 T = TypeVar('T')
 default = object()
 
 
-def Web3() -> type:
+def Web3() -> Type:
     from web3 import Web3
     return Web3
 
@@ -63,7 +62,7 @@ def ensure_hex(data: Type[HexBytes]) -> Type[HexBytes]:
     return data
 
 
-def init_web3(provider: web3.Web3.providers.base.BaseProvider = default) -> web3.Web3:
+def init_web3(providers: BaseProvider = default) -> Web3:
     from web3 import Web3
 
     if providers is default:
