@@ -101,14 +101,11 @@ class ContractFunctions:
     """Class containing contract function objects
     """
 
-    _function_names = []
-
     def __init__(self, abi, web3, address=None):
         if abi:
             self.abi = abi
             self._functions = filter_by_type('function', self.abi)
             for func in self._functions:
-                self._function_names.append(func['name'])
                 setattr(
                     self,
                     func['name'],
@@ -148,14 +145,11 @@ class ContractEvents:
     """Class containing contract event objects
     """
 
-    _event_names = []
-
     def __init__(self, abi, web3, address=None):
         if abi:
             self.abi = abi
             self._events = filter_by_type('event', self.abi)
             for event in self._events:
-                self._event_names.append(event['name'])
                 setattr(
                     self,
                     event['name'],
