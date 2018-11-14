@@ -390,3 +390,28 @@ retrieved using JSON-RPC endpoints that don't rely on server state.
 
     >>> log_filter = myContract.events.myEvent.build_filter().deploy()
 
+Signing
+~~~~~~~
+
+.. py:method:: web3.middleware.construct_sign_and_send_raw_middleware(private_key_or_account)
+
+This middleware automatically captures transactions, signs them, and sends them as raw transactions. The from field on the transaction, or ``w3.eth.defaultAccount`` must be set to the address of the private key for this middleware to have any effect.
+ 
+   * ``private_key_or_account`` A single private key or a tuple, list or set of private keys.
+
+      Keys can be in any of the following formats:
+
+      * An ``eth_account.LocalAccount`` object
+      * An ``eth_keys.PrivateKey`` object
+      * A raw private key as a hex string or byte string
+
+.. code-block:: python
+
+   >>> from web3 import Web3, EthereumTesterProvider
+   >>> w3 = Web3(EthereumTesterProvider)
+   >>> from web3.middleware import construct_sign_and_send_raw_middleware
+   >>> from eth_account import Account
+   >>> acct = Account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
+   >>> w3.middleware_stack.add(construct_sign_and_send_raw_middleware(acct))
+   >>> w3.eth.defaultAccount = acct.address
+   # Now you can send a tx from acct.address without having to build and sign each raw transaction
