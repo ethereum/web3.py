@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+v4.8.2
+--------
+
+Released November 15, 2018
+
+- Misc
+
+  - Reduce unneeded memory usage
+    - `#1138 <https://github.com/ethereum/web3.py/pull/1138>`_
+
 v4.8.1
 --------
 
