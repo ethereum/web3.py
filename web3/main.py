@@ -151,7 +151,7 @@ class Web3:
         self.manager.providers = providers
 
     @staticmethod
-    @deprecated_for("This method has been renamed to keccak")
+    @deprecated_for("keccak")
     @apply_to_return_value(HexBytes)
     def sha3(primitive=None, text=None, hexstr=None):
         return Web3.keccak(primitive, text, hexstr)
@@ -173,9 +173,15 @@ class Web3:
         )
 
     @combomethod
+    @deprecated_for("solidityKeccak")
     def soliditySha3(cls, abi_types, values):
+        # just call it as a class method
+        return Web3.solidityKeccak(abi_types, values)
+
+    @combomethod
+    def solidityKeccak(cls, abi_types, values):
         """
-        Executes sha3 (keccak256) exactly as Solidity does.
+        Executes keccak256 exactly as Solidity does.
         Takes list of abi_types as inputs -- `[uint24, int8[], bool]`
         and list of corresponding values  -- `[20, [-1, 5, 0], True]`
         """
@@ -196,7 +202,7 @@ class Web3:
             for abi_type, value
             in zip(abi_types, normalized_values)
         ))
-        return cls.sha3(hexstr=hex_string)
+        return cls.keccak(hexstr=hex_string)
 
     def isConnected(self):
         for provider in self.providers:
