@@ -175,8 +175,7 @@ class Web3:
     @combomethod
     @deprecated_for("solidityKeccak")
     def soliditySha3(cls, abi_types, values):
-        # just call it as a class method
-        return Web3.solidityKeccak(abi_types, values)
+        return cls.solidityKeccak(abi_types, values)
 
     @combomethod
     def solidityKeccak(cls, abi_types, values):
