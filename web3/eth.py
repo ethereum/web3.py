@@ -225,9 +225,9 @@ class Eth(Module):
             [block_identifier, transaction_index],
         )
 
-    def waitForTransactionReceipt(self, transaction_hash, timeout=120):
+    def waitForTransactionReceipt(self, transaction_hash, timeout=120, poll_latency=0.1):
         try:
-            return wait_for_transaction_receipt(self.web3, transaction_hash, timeout)
+            return wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
         except Timeout:
             raise TimeExhausted(
                 "Transaction {} is not in the chain, after {} seconds".format(
