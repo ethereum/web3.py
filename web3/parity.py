@@ -22,6 +22,14 @@ class Parity(Module):
             [],
         )
 
+    def listStorageKeys(self, address, quantity, hash_, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
+        return self.web3.manager.request_blocking(
+            "parity_listStorageKeys",
+            [address, quantity, hash_, block_identifier],
+        )
+
     def netPeers(self):
         return self.web3.manager.request_blocking(
             "parity_netPeers",
