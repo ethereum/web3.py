@@ -169,6 +169,9 @@ class ParityPersonalModuleTest(PersonalModuleTest):
 
 
 class ParityTraceModuleTest(TraceModuleTest):
+    def test_list_storage_keys_no_support(self, web3, emitter_contract_address):
+        super().test_list_storage_keys_no_support(web3, emitter_contract_address)
+
     def test_trace_replay_transaction(self, web3, parity_fixture_data):
         super().test_trace_replay_transaction(web3, parity_fixture_data)
 
