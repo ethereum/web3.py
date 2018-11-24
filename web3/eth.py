@@ -225,8 +225,10 @@ class Eth(Module):
             [block_identifier, transaction_index],
         )
 
-    def waitForTransactionReceipt(self, transaction_hash, timeout=120, poll_latency=0.1):
+    def waitForTransactionReceipt(self, transaction_hash, timeout=120, poll_latency = 0.2):
         try:
+            if poll_latency > timeout :
+                poll_latency = timeout
             return wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
         except Timeout:
             raise TimeExhausted(
