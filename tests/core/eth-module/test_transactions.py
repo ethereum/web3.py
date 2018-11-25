@@ -28,8 +28,8 @@ RECEIPT_POLL_LATENCY = 0.1
         ),
     ),
 )
-def test_send_transaction_with_valid_chain_id( \
-web3, make_chain_id, expect_success, timeout, poll_latency):
+def test_send_transaction_with_valid_chain_id(web3, \
+    make_chain_id, expect_success, timeout, poll_latency):
     transaction = {
         'to': web3.eth.accounts[1],
         'chainId': make_chain_id(web3),
