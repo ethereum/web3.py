@@ -10,9 +10,10 @@ from web3.middleware.simulate_unmined_transaction import (
 
 RECEIPT_TIMEOUT = 0.2
 RECEIPT_POLL_LATENCY = 0.1
-@pytest.mark.parametrize("timeout", [0.2,120])
-@pytest.mark.parametrize("poll_latency", [0.1, 0.3, 110, 120, 130])
 
+
+@pytest.mark.parametrize("timeout", [0.2, 120])
+@pytest.mark.parametrize("poll_latency", [0.1, 0.3, 110, 120, 130])
 @pytest.mark.parametrize(
     'make_chain_id, expect_success',
     (
@@ -27,7 +28,7 @@ RECEIPT_POLL_LATENCY = 0.1
         ),
     ),
 )
-def test_send_transaction_with_valid_chain_id(
+def test_send_transaction_with_valid_chain_id( \
 web3, make_chain_id, expect_success, timeout, poll_latency):
     transaction = {
         'to': web3.eth.accounts[1],
