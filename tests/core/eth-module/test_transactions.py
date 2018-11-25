@@ -10,8 +10,8 @@ from web3.middleware.simulate_unmined_transaction import (
 
 RECEIPT_TIMEOUT = 0.2
 RECEIPT_POLL_LATENCY = 0.1
-@pytest.mark.parametrize("timeout", [0.2, 120])
-@pytest.mark.parametrize("poll_latency", [0.1, 0.3, 110, 120, 130])
+@pytest.mark.parametrize("timeout",[0.2,120])
+@pytest.mark.parametrize("poll_latency",[0.1,0.3,110,120,130])
 
 @pytest.mark.parametrize(
     'make_chain_id, expect_success',
@@ -27,14 +27,14 @@ RECEIPT_POLL_LATENCY = 0.1
         ),
     ),
 )
-def test_send_transaction_with_valid_chain_id(web3, make_chain_id, expect_success, timeout, poll_latency ):
+def test_send_transaction_with_valid_chain_id(web3, make_chain_id, expect_success, timeout, poll_latency):
     transaction = {
         'to': web3.eth.accounts[1],
         'chainId': make_chain_id(web3),
     }
     if expect_success:
         txn_hash = web3.eth.sendTransaction(transaction)
-        receipt = web3.eth.waitForTransactionReceipt(txn_hash, timeout, poll_latency )
+        receipt = web3.eth.waitForTransactionReceipt(txn_hash, timeout, poll_latency)
         assert receipt.get('blockNumber') is not None
     else:
         with pytest.raises(ValidationError) as exc_info:
@@ -42,11 +42,12 @@ def test_send_transaction_with_valid_chain_id(web3, make_chain_id, expect_succes
 
         assert 'chain ID' in str(exc_info.value)
 
+
 @pytest.mark.parametrize("timeout", [0.2])
 @pytest.mark.parametrize("poll_latency", [0.1, 0.3])
 def test_wait_for_missing_receipt(web3, timeout, poll_latency):
     with pytest.raises(TimeExhausted):
-        web3.eth.waitForTransactionReceipt(b'\0' * 32, timeout,poll_latency )
+        web3.eth.waitForTransactionReceipt(b'\0' * 32, timeout, poll_latency)
 
 
 def test_unmined_transaction_wait_for_receipt(web3):
