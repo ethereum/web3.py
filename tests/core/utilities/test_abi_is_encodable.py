@@ -61,6 +61,83 @@ from web3._utils.abi import (
         (b'', 'string', True),
         (b'anything', 'string', True),
         (b'\x80', 'string', False),  # bytes that cannot be decoded with utf-8 are invalid
+        # tuple
+        (['0x' + '00' * 20, 0], '(address,uint256)', True),
+        (('0x' + '00' * 20, 0), '(address,uint256)', True),
+        ([0], '(address,uint256)', False),
+        (['0x' + '00' * 20], '(uint256)', False),
+        ([], '(address)', False),
+        ((1, (2, 3), 0), '(uint256,(uint256,uint256),uint256)', True),
+        ((0, (2, 3)), '(uint256,(uint256,uint256))', True),
+        (((2, 3), 0), '((uint256,uint256),uint256)', True),
+        ((((0,),),), '(((uint256)))', True),
+        ([0, 1, 2, 3], 'uint256[]', True),
+        ([(0, 1), (2, 3)], '(uint256,uint256)[]', True),
+        ([(0, 1, 2), (3, 4, 5)], '(uint256,uint256,uint256)[]', True),
+        (
+            [0, ['0x' + '00' * 20, '0x' + '00' * 20], ['0x' + '00' * 20, '0x' + '00' * 20], 5],
+            '(int,(address,address),(address,address),int)',
+            True,
+        ),
+        (
+            (0, ('0x' + '00' * 20, '0x' + '00' * 20), ('0x' + '00' * 20, '0x' + '00' * 20), 5),
+            '(int,(address,address),(address,address),int)',
+            True,
+        ),
+        (
+            [
+                ['0x' + '00' * 20, '0x' + '00' * 20],
+                2,
+                ['0x' + '00' * 20, '0x' + '00' * 20],
+                5,
+                ['0x' + '00' * 20, '0x' + '00' * 20],
+            ],
+            '((address,address),int,(address,address),int,(address,address))',
+            True,
+        ),
+        (
+            (
+                ('0x' + '00' * 20, '0x' + '00' * 20),
+                2,
+                ('0x' + '00' * 20, '0x' + '00' * 20),
+                5,
+                ('0x' + '00' * 20, '0x' + '00' * 20),
+            ),
+            '((address,address),int,(address,address),int,(address,address))',
+            True,
+        ),
+        (
+            [0, ['0x' + '00' * 20, [1, 2]], 3],
+            '(int,(address,(int,int)),int)',
+            True,
+        ),
+        (
+            (0, ('0x' + '00' * 20, (1, 2)), 3),
+            '(int,(address,(int,int)),int)',
+            True,
+        ),
+        (
+            [
+                [['0x' + '00' * 20], '0x' + '00' * 20],
+                1,
+                ['0x' + '00' * 20, '0x' + '00' * 20],
+                2,
+                [[3, [4, 5]], '0x' + '00' * 20]
+            ],
+            '(((address),address),int,(address,address),int,((int,(int,int)),address))',
+            True,
+        ),
+        (
+            (
+                (('0x' + '00' * 20,), '0x' + '00' * 20),
+                1,
+                ('0x' + '00' * 20, '0x' + '00' * 20),
+                2,
+                ((3, (4, 5)), '0x' + '00' * 20)
+            ),
+            '(((address),address),int,(address,address),int,((int,(int,int)),address))',
+            True,
+        ),
     ),
 )
 def test_is_encodable(value, _type, expected):

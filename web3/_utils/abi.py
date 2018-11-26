@@ -7,12 +7,18 @@ import re
 from eth_abi import (
     is_encodable as eth_abi_is_encodable,
 )
+from eth_abi.grammar import (
+    parse as parse_type_string,
+)
 from eth_utils import (
     is_hex,
     is_list_like,
     to_bytes,
     to_text,
     to_tuple,
+)
+from eth_utils.abi import (
+    collapse_if_tuple,
 )
 
 from web3._utils.ens import (
@@ -51,14 +57,14 @@ def get_abi_input_types(abi):
     if 'inputs' not in abi and abi['type'] == 'fallback':
         return []
     else:
-        return [arg['type'] for arg in abi['inputs']]
+        return [collapse_if_tuple(abi_input) for abi_input in abi['inputs']]
 
 
 def get_abi_output_types(abi):
     if abi['type'] == 'fallback':
         return []
     else:
-        return [arg['type'] for arg in abi['outputs']]
+        return [collapse_if_tuple(arg) for arg in abi['outputs']]
 
 
 def get_abi_input_names(abi):
@@ -114,7 +120,6 @@ try:
     )
 except ImportError:
     from eth_abi.grammar import (
-        parse as parse_type_string,
         normalize as normalize_type_string,
         TupleType,
     )
@@ -163,6 +168,33 @@ def is_encodable(_type, value):
     if not isinstance(_type, str):
         raise ValueError("is_encodable only accepts type strings")
 
+    if _type[0] == "(":  # it's a tuple. check encodability of each component
+        if not is_list_like(value):
+            return False
+
+        if _type.endswith("[]"):
+            element_type = _type.rstrip("[]")
+            element_values = value
+            return all(
+                [
+                    is_encodable(element_type, element_value)
+                    for element_value in element_values
+                ]
+            )
+
+        component_types = [str(t) for t in parse_type_string(_type).components]
+
+        if len(component_types) != len(value):
+            return False
+
+        return all(
+            [
+                is_encodable(component_type, component_value)
+                for component_type, component_value
+                in zip(component_types, value)
+            ]
+        )
+
     base, sub, arrlist = process_type(_type)
 
     if arrlist:
@@ -205,6 +237,69 @@ def filter_by_encodability(args, kwargs, contract_abi):
     ]
 
 
+def get_abi_inputs(function_abi, arg_values):
+    """Similar to get_abi_input_types(), but gets values too.
+
+    Returns a zip of types and their corresponding argument values.
+    Importantly, looks in `function_abi` for tuples, and for any found, (a)
+    translates them from the ABI dict representation to the parenthesized type
+    list representation that's expected by eth_abi, and (b) translates their
+    corresponding arguments values from the python dict representation to the
+    tuple representation expected by eth_abi.
+
+    >>> get_abi_inputs(
+    ...     {
+    ...         'inputs': [
+    ...             {
+    ...                 'components': [
+    ...                     {'name': 'anAddress', 'type': 'address'},
+    ...                     {'name': 'anInt', 'type': 'uint256'},
+    ...                     {'name': 'someBytes', 'type': 'bytes'}
+    ...                 ],
+    ...                 'name': 'arg',
+    ...                 'type': 'tuple'
+    ...             }
+    ...         ],
+    ...         'type': 'function'
+    ...     },
+    ...     (
+    ...         {
+    ...             'anInt': 12345,
+    ...             'anAddress': '0x0000000000000000000000000000000000000000',
+    ...             'someBytes': b'0000',
+    ...         },
+    ...     ),
+    ... )
+    (['(address,uint256,bytes)'], (('0x0000000000000000000000000000000000000000', 12345, b'0000'),))
+    """
+    if "inputs" not in function_abi:
+        return ([], ())
+
+    types = []
+    values = tuple()
+    for abi_input, arg_value in zip(function_abi["inputs"], arg_values):
+        if abi_input["type"] == "tuple":
+            component_types = []
+            component_values = []
+            for component, value in zip(abi_input["components"], arg_value):
+                component_types.append(component["type"])
+                if isinstance(arg_value, dict):
+                    component_values.append(arg_value[component["name"]])
+                elif isinstance(arg_value, tuple):
+                    component_values.append(value)
+                else:
+                    raise TypeError(
+                        "Unknown value type {} for ABI type 'tuple'"
+                        .format(type(arg_value))
+                    )
+            types.append("(" + ",".join(component_types) + ")")
+            values += (tuple(component_values),)
+        else:
+            types.append(abi_input["type"])
+            values += (arg_value,)
+    return types, values
+
+
 def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     try:
         arguments = merge_args_and_kwargs(function_abi, args, kwargs)
@@ -214,7 +309,7 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     if len(function_abi.get('inputs', [])) != len(arguments):
         return False
 
-    types = get_abi_input_types(function_abi)
+    types, arguments = get_abi_inputs(function_abi, arguments)
 
     return all(
         is_encodable(_type, arg)
@@ -520,7 +615,13 @@ def data_tree_map(func, data_tree):
     receive two args: abi_type, and data
     '''
     def map_to_typed_data(elements):
-        if isinstance(elements, ABITypedData) and elements.abi_type is not None:
+        if (
+            isinstance(elements, ABITypedData) and elements.abi_type is not None and
+            not (
+                isinstance(elements.abi_type, str) and
+                elements.abi_type[0] == "("
+            )
+        ):
             return ABITypedData(func(*elements))
         else:
             return elements
@@ -550,6 +651,13 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
 
 
 def abi_sub_tree(data_type, data_value):
+    if (
+        isinstance(data_type, str) and
+        data_type[0] == "(" and
+        isinstance(data_value, tuple)
+    ):
+        return ABITypedData([data_type, data_value])
+
     if data_type is None:
         return ABITypedData([None, data_value])
 
