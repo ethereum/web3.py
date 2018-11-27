@@ -57,6 +57,8 @@ RPC_ABIS = {
     'personal_unlockAccount': ['address', None, None],
     'personal_sign': [None, 'address', None],
     'trace_call': TRACE_PARAMS_ABIS,
+    # parity
+    'parity_listStorageKeys': ['address', None, None, None],
 }
 
 
