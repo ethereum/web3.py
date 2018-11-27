@@ -81,4 +81,8 @@ Each ``web3`` instance also exposes these namespaced APIs.
 
     See :doc:`./web3.admin`
 
+.. py:attribute:: Web3.pm
+
+    See :doc:`./web3.pm`
+
 

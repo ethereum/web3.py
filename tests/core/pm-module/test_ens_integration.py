@@ -14,6 +14,7 @@ from web3.exceptions import (
 )
 from web3.pm import (
     PM,
+    VyperReferenceRegistry,
 )
 
 
@@ -26,6 +27,9 @@ def bytes32(val):
         return result.rjust(32, b'\0')
     else:
         return result
+
+
+pytest_plugins = ["pytest_ethereum.plugins"]
 
 
 @pytest.fixture
@@ -134,25 +138,13 @@ def test_web3_ens(ens):
     PM.attach(w3, 'pm')
     ns = ENS.fromWeb3(w3, ens.ens.address)
     w3.ens = ns
-    w3.pm.deploy_and_set_registry()
-    assert w3.pm.registry
-    w3.ens.setup_address('tester.eth', w3.pm.registry.address)
+    registry = VyperReferenceRegistry.deploy_new_instance(w3)
+    w3.ens.setup_address('tester.eth', registry.address)
     actual_addr = ens.address('tester.eth')
-    assert w3.pm.registry.address == to_canonical_address(actual_addr)
-    w3.pm.release_package(b'pkg', b'v1', b'1.com')
-    pkg_name, version, manifest_uri = w3.pm.get_release_data(b'pkg', b'v1')
-    # trim trailing bytes returned from vyper bytes32 type
-    assert pkg_name.rstrip(b'\x00') == b'pkg'
-    assert version.rstrip(b'\x00') == b'v1'
-    assert manifest_uri.rstrip(b'\x00') == b'1.com'
-
-
-def test_registry_init_with_ens_name(ens):
-    w3 = ens.web3
-    PM.attach(w3, 'pm')
-    ns = ENS.fromWeb3(w3, ens.ens.address)
-    w3.ens = ns
-    w3.pm.deploy_and_set_registry()
-    w3.ens.setup_address('tester.eth', w3.pm.registry.address)
     w3.pm.set_registry('tester.eth')
-    assert w3.pm.registry.address == to_canonical_address(ens.address('tester.eth'))
+    assert w3.pm.registry.address == to_canonical_address(actual_addr)
+    w3.pm.release_package('pkg', 'v1', 'website.com')
+    pkg_name, version, manifest_uri = w3.pm.get_release_data('pkg', 'v1')
+    assert pkg_name == 'pkg'
+    assert version == 'v1'
+    assert manifest_uri == 'website.com'
