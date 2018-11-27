@@ -11,6 +11,10 @@ from web3._utils.formatters import (
 
 class ParityModuleTest:
 
+    def test_list_storage_keys_no_support(self, web3, emitter_contract_address):
+        keys = web3.parity.listStorageKeys(emitter_contract_address, 10, None)
+        assert keys is None
+
     def test_trace_replay_transaction(self, web3, parity_fixture_data):
         trace = web3.parity.traceReplayTransaction(parity_fixture_data['mined_txn_hash'])
 
