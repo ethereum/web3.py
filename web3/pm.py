@@ -149,7 +149,7 @@ class ERCRegistry(ABC):
         pass
 
     @abstractmethod
-    def _get_release_data(self, release_id: bytes) -> Tuple[str]:
+    def _get_release_data(self, release_id: bytes) -> Tuple[str, str, str]:
         """
         Returns a tuple containing (package_name, version, manifest_uri) for the given release id,
         if the release exists on the connected registry.
@@ -220,7 +220,7 @@ class VyperReferenceRegistry(ERCRegistry):
         ).address
         return cls(to_canonical_address(registry_address), deployed_registry_package.w3)
 
-    def _release(self, package_name: str, version: str, manifest_uri: str) -> TxReceipt:
+    def _release(self, package_name: str, version: str, manifest_uri: str) -> bytes:
         if len(package_name) > 32 or len(version) > 32:
             raise PMError(
                 "Vyper registry only works with package names and versions less than 32 chars."
@@ -316,7 +316,7 @@ class SolidityReferenceRegistry(ERCRegistry):
         self.address = address
         self.w3 = w3
 
-    def _release(self, package_name: str, version: str, manifest_uri: str) -> TxReceipt:
+    def _release(self, package_name: str, version: str, manifest_uri: str) -> bytes:
         tx_hash = self.registry.functions.release(
             package_name, version, manifest_uri
         ).transact()
@@ -467,7 +467,7 @@ class PM(Module):
         return self.registry._release(package_name, version, manifest_uri)
 
     @to_tuple
-    def get_all_package_names(self) -> Iterable[Tuple[str]]:
+    def get_all_package_names(self) -> Iterable[str]:
         """
         Returns a tuple containing all the package names available on the current registry.
         """
@@ -502,7 +502,7 @@ class PM(Module):
         return self.registry._get_release_id(package_name, version)
 
     @to_tuple
-    def get_all_package_releases(self, package_name) -> Iterable[Tuple[Tuple[str]]]:
+    def get_all_package_releases(self, package_name: str) -> Iterable[Tuple[str, str]]:
         """
         Returns a tuple of release data (version, manifest_ur) for every release of the
         given package name available on the current registry.
@@ -514,7 +514,7 @@ class PM(Module):
             _, version, manifest_uri = self.registry._get_release_data(release_id)
             yield (version, manifest_uri)
 
-    def get_release_id_data(self, release_id) -> Tuple[str]:
+    def get_release_id_data(self, release_id: bytes) -> Tuple[str, str, str]:
         """
         Returns ``(package_name, version, manifest_uri)`` associated with the given
         release id, *if* it is available on the current registry.
@@ -525,7 +525,7 @@ class PM(Module):
         self._validate_set_registry()
         return self.registry._get_release_data(release_id)
 
-    def get_release_data(self, package_name: str, version: str) -> Tuple[str]:
+    def get_release_data(self, package_name: str, version: str) -> Tuple[str, str, str]:
         """
         Returns ``(package_name, version, manifest_uri)`` associated with the given
         package name and version, *if* they are published to the currently set registry.

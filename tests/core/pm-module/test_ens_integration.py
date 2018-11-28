@@ -1,6 +1,7 @@
 import pytest
 
 from eth_utils import (
+    to_bytes,
     to_canonical_address,
 )
 from ethpm import (
@@ -8,7 +9,6 @@ from ethpm import (
 )
 
 from ens import ENS
-from web3 import Web3
 from web3.exceptions import (
     InvalidAddress,
 )
@@ -20,13 +20,10 @@ from web3.pm import (
 
 def bytes32(val):
     if isinstance(val, int):
-        result = Web3.toBytes(val)
+        result = to_bytes(val)
     else:
         raise TypeError('val %r could not be converted to bytes')
-    if len(result) < 32:
-        return result.rjust(32, b'\0')
-    else:
-        return result
+    return result.rjust(32, b'\0')
 
 
 pytest_plugins = ["pytest_ethereum.plugins"]
@@ -46,6 +43,8 @@ def ens_setup(solc_deployer):
     ens_key = accounts.pop()
 
     # create ENS contract
+    # values borrowed from:
+    # https://github.com/ethereum/web3.py/blob/master/tests/ens/conftest.py#L109
     eth_labelhash = w3.keccak(text='eth')
     eth_namehash = bytes32(0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae)
     resolver_namehash = bytes32(0xfdd5d5de6dd63db72bbc2d487944ba13bf775b50a80805fe6fcaba9b0fba88f5)

@@ -54,7 +54,7 @@ SOL_RELEASE_ID_4 = b"p\x82\xe9T\xe4\xfdj\xdf\x8a%\xc6\xce\xfe!\x8f2\xecf\xd8\xa1
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 
 
-def w3():
+def setup_w3():
     genesis_overrides = {"gas_limit": 5500000}
     custom_genesis_params = PyEVMBackend._generate_genesis_params(
         overrides=genesis_overrides
@@ -219,7 +219,10 @@ def release_packages(registry):
     return registry
 
 
-W3 = w3()
+# Module-level variables used here for efficiency
+# Tests are written against the sample packages released in `release_packages()` above, if more
+# tests are needed, they should take into account the releases that exist on a "loaded registry".
+W3 = setup_w3()
 FRESH_VY_REGISTRY = vy_registry(W3)
 FRESH_SOL_REGISTRY = sol_registry(W3)
 LOADED_VY_REGISTRY = release_packages(vy_registry(W3))
