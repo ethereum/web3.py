@@ -411,6 +411,23 @@ def test_call_fallback_function(fallback_function_contract):
     assert result == []
 
 
+def test_reader_default(math_contract):
+    result = math_contract.reader.return13()
+    assert result == 13
+
+
+def test_reader_with_parens(math_contract):
+    # result = math_contract.reader().return13()
+    # assert result == 13
+    pass
+
+
+def test_reader_with_parens_and_transaction_dict(math_contract):
+    # result = math_contract.reader({transaction_dict}).return13()
+    # assert result == 13
+    pass
+
+
 def test_throws_error_if_block_out_of_range(web3, math_contract):
     web3.provider.make_request(method='evm_mine', params=[20])
     with pytest.raises(BlockNumberOutofRange):
