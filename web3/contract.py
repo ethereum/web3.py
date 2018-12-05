@@ -124,9 +124,12 @@ class ReaderMethod:
         return getattr(self._function(*args), modifier)(modifier_dict)
 
 class ContractReader:
-    def __init__(self, abi, web3, address,method_class=ReaderMethod):
-        if abi:
-            self.abi = abi
+    def __init__(self, abi, web3, address, method_class=ReaderMethod):
+        self.web3 = web3
+        self.address = address
+        self.abi = abi
+
+        if self.abi:
             self._functions = filter_by_type('function', self.abi)
             for func in self._functions:
                 _concise_method = method_class(
@@ -139,7 +142,10 @@ class ContractReader:
                 )
 
                 setattr(self, func['name'], _concise_method)
+        # TODO - make sure to handle if there is no abi
 
+    def __call__(self):
+        return type(self)(self.abi, self.web3, self.address)
 
 class ContractFunctions:
     """Class containing contract function objects
