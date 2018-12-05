@@ -491,7 +491,7 @@ Contract Functions
 .. py:class:: ContractFunction
 
 The named functions exposed through the :py:attr:`Contract.functions` property are
-of the ContractFunction type. This class it not to be used directly,
+of the ContractFunction type. This class is not to be used directly,
 but instead through :py:attr:`Contract.functions`.
 
 For example:
@@ -700,7 +700,7 @@ Events
 
 .. py:class:: ContractEvents
 
-The named events exposed through the :py:attr:`Contract.events` property are of the ContractEvents type. This class it not to be used directly, but instead through :py:attr:`Contract.events`.
+The named events exposed through the :py:attr:`Contract.events` property are of the ContractEvents type. This class is not to be used directly, but instead through :py:attr:`Contract.events`.
 
 For example:
 
