@@ -411,18 +411,18 @@ def test_call_fallback_function(fallback_function_contract):
     assert result == []
 
 
-def test_reader_default(math_contract):
-    result = math_contract.reader.return13()
+def test_caller_default(math_contract):
+    result = math_contract.caller.return13()
     assert result == 13
 
 
-def test_reader_with_parens(math_contract):
-    result = math_contract.reader().return13()
+def test_caller_with_parens(math_contract):
+    result = math_contract.caller().return13()
     assert result == 13
 
 
-def test_reader_with_parens_and_transaction_dict(math_contract):
-    result = math_contract.reader({'from': 'notarealaddress.eth'}).add(2, 3)
+def test_caller_with_parens_and_transaction_dict(math_contract):
+    result = math_contract.caller({'from': 'notarealaddress.eth'}).add(2, 3)
     assert result == 5
 
 
