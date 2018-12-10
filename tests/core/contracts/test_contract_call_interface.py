@@ -27,6 +27,9 @@ from web3.exceptions import (
     NoABIFunctionsFound,
     ValidationError,
 )
+from web3.contract import (
+    ContractCaller
+)
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
@@ -411,21 +414,6 @@ def test_call_fallback_function(fallback_function_contract):
     assert result == []
 
 
-def test_caller_default(math_contract):
-    result = math_contract.caller.return13()
-    assert result == 13
-
-
-def test_caller_with_parens(math_contract):
-    result = math_contract.caller().return13()
-    assert result == 13
-
-
-def test_caller_with_parens_and_transaction_dict(math_contract):
-    result = math_contract.caller({'from': 'notarealaddress.eth'}).add(2, 3)
-    assert result == 5
-
-
 def test_throws_error_if_block_out_of_range(web3, math_contract):
     web3.provider.make_request(method='evm_mine', params=[20])
     with pytest.raises(BlockNumberOutofRange):
@@ -626,3 +614,23 @@ def test_invalid_fixed_value_reflections(web3, fixed_reflection_contract, functi
     contract_func = fixed_reflection_contract.functions[function]
     with pytest.raises(ValidationError, match=error):
         contract_func(value).call({'gas': 420000})
+
+
+def test_caller_default(math_contract):
+    result = math_contract.caller.return13()
+    assert result == 13
+
+
+def test_caller_with_parens(math_contract):
+    result = math_contract.caller().return13()
+    assert result == 13
+
+
+def test_caller_with_parens_and_transaction_dict(math_contract):
+    result = math_contract.caller({'from': 'notarealaddress.eth'}).add(2, 3)
+    assert result == 5
+
+
+def test_caller_with_no_abi(web3):
+    result = ContractCaller(None, web3, '0x1234')
+    assert isinstance(result, ContractCaller)
