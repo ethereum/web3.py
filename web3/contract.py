@@ -885,6 +885,7 @@ class ConciseContract:
 
     > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
     '''
+    @deprecated_for("contract.caller.<method name> or contract.caller({transaction_dict}).<method name>")
     def __init__(self, classic_contract, method_class=ConciseMethod):
 
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
@@ -960,6 +961,7 @@ class ImplicitContract(ConciseContract):
 
     > contract.functions.withdraw(amount).transact({})
     '''
+    @deprecated_for("Please use the verbose contract syntax. Ex: contract.functions.withdraw(amount).transact({})")
     def __init__(self, classic_contract, method_class=ImplicitMethod):
         super().__init__(classic_contract, method_class=method_class)
 
