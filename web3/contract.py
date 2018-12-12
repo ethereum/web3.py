@@ -961,7 +961,7 @@ class ImplicitContract(ConciseContract):
 
     > contract.functions.withdraw(amount).transact({})
     '''
-    @deprecated_for("Please use the verbose contract syntax. Ex: contract.functions.withdraw(amount).transact({})")
+    @deprecated_for("verbose contract syntax. Ex: contract.functions.withdraw(amount).transact({})")
     def __init__(self, classic_contract, method_class=ImplicitMethod):
         super().__init__(classic_contract, method_class=method_class)
 
