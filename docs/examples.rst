@@ -336,8 +336,8 @@ Fetch various data about the current state of the ERC20 contract.
     '🦄'
     >>> erc20.functions.decimals().call()
     0
-    >>> erc20.functions.totalSupply().call()
-    2040
+    >>> total_supply = erc20.functions.totalSupply().call()
+    >>> assert total_supply > 2040
 
 Get the balance of an account address. 
 
