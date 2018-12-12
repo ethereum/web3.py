@@ -65,7 +65,7 @@ def wait_for_transaction_receipt(web3, txn_hash, timeout=120, poll_latency=0.1):
     with Timeout(timeout) as _timeout:
         while True:
             txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
-            if txn_receipt is not None:
+            if txn_receipt is not None and txn_receipt['blockHash'] is not None:
                 break
             _timeout.sleep(poll_latency)
     return txn_receipt
