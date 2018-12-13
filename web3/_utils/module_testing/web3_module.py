@@ -164,13 +164,13 @@ class Web3ModuleTest:
             ),
         ),
     )
-    def test_soliditySha3(self, web3, types, values, expected):
+    def test_solidityKeccak(self, web3, types, values, expected):
         if isinstance(expected, type) and issubclass(expected, Exception):
             with pytest.raises(expected):
-                web3.soliditySha3(types, values)
+                web3.solidityKeccak(types, values)
             return
 
-        actual = web3.soliditySha3(types, values)
+        actual = web3.solidityKeccak(types, values)
         assert actual == expected
 
     @pytest.mark.parametrize(
@@ -188,17 +188,17 @@ class Web3ModuleTest:
             ),
         ),
     )
-    def test_soliditySha3_ens(self, web3, types, values, expected):
+    def test_solidityKeccak_ens(self, web3, types, values, expected):
         with ens_addresses(web3, {
             'one.eth': "0x49EdDD3769c0712032808D86597B84ac5c2F5614",
             'two.eth': "0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5",
         }):
             # when called as class method, any name lookup attempt will fail
             with pytest.raises(InvalidAddress):
-                Web3.soliditySha3(types, values)
+                Web3.solidityKeccak(types, values)
 
-            # when called as instance method method, ens lookups can succeed
-            actual = web3.soliditySha3(types, values)
+            # when called as instance method, ens lookups can succeed
+            actual = web3.solidityKeccak(types, values)
             assert actual == expected
 
     @pytest.mark.parametrize(
@@ -209,9 +209,9 @@ class Web3ModuleTest:
             ([], ['0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5']),
         )
     )
-    def test_soliditySha3_same_number_of_types_and_values(self, web3, types, values):
+    def test_solidityKeccak_same_number_of_types_and_values(self, web3, types, values):
         with pytest.raises(ValueError):
-            web3.soliditySha3(types, values)
+            web3.solidityKeccak(types, values)
 
     def test_is_connected(self, web3):
         assert web3.isConnected()

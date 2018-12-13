@@ -52,5 +52,5 @@ def test_fail_name_resolver(w3):
         'net_version': '2',
     })
     w3.middleware_stack.inject(return_chain_on_mainnet, layer=0)
-    with pytest.raises(InvalidAddress, match='.*ethereum\.eth.*'):
+    with pytest.raises(InvalidAddress, match=r'.*ethereum\.eth.*'):
         w3.eth.getBalance("ethereum.eth")

@@ -29,7 +29,7 @@ def generate_cache_key(value):
             for key
             in sorted(value.keys())
         ))
-    elif is_list_like(value) or isinstance(value, collections.Generator):
+    elif is_list_like(value) or isinstance(value, collections.abc.Generator):
         return generate_cache_key("".join((
             generate_cache_key(item)
             for item
