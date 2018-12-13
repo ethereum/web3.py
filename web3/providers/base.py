@@ -77,8 +77,8 @@ class JSONBaseProvider(BaseProvider):
             response = self.make_request('web3_clientVersion', [])
         except IOError:
             return False
-        else:
-            assert response['jsonrpc'] == '2.0'
-            assert 'error' not in response
-            return True
-        assert False
+
+        assert response['jsonrpc'] == '2.0'
+        assert 'error' not in response
+
+        return True
