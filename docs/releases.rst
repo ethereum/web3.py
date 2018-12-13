@@ -1,6 +1,94 @@
 Release Notes
 =============
 
+v5.0.0-alpha.1
+--------------
+
+Released December 13th, 2018
+
+- Features
+
+  - Add Rinkeby and Kovan Infura networks; made mainnet the default
+    - `#1150 <https://github.com/ethereum/web3.py/pull/1150>`_
+  - Add parity-specific ``listStorageKeys`` RPC
+    - `#1145 <https://github.com/ethereum/web3.py/pull/1145>`_
+  - Deprecated ``Web3.soliditySha3``; use ``Web3.solidityKeccak`` instead.
+    - `#1139 <https://github.com/ethereum/web3.py/pull/1139>`_
+  - Add default trinity locations to IPC path guesser
+    - `#1121 <https://github.com/ethereum/web3.py/pull/1121>`_
+  - Add wss to ``AutoProvider``
+    - `#1110 <https://github.com/ethereum/web3.py/pull/1110>`_
+  - Add timeout for ``WebsocketProvider``
+    - `#1109 <https://github.com/ethereum/web3.py/pull/1109>`_
+  - Receipt timeout raises ``TimeExhausted``
+    - `#1070 <https://github.com/ethereum/web3.py/pull/1070>`_
+  - Allow specification of block number for ``eth_estimateGas``
+    - `#1046 <https://github.com/ethereum/web3.py/pull/1046>`_
+
+
+- Misc
+
+  - Removed ``web3._utils.six`` support
+    - `#1116 <https://github.com/ethereum/web3.py/pull/1116>`_
+  - Upgrade eth-utils to 1.2.0
+    - `#1104 <https://github.com/ethereum/web3.py/pull/1104>`_
+  - Require Python version 3.5.3 or greater
+    - `#1095 <https://github.com/ethereum/web3.py/pull/1095>`_
+  - Bump websockets version to 7.0.0
+    - `#1146 <https://github.com/ethereum/web3.py/pull/1146>`_
+  - Bump parity test binary to 1.11.11
+    - `#1064 <https://github.com/ethereum/web3.py/pull/1064>`_
+
+
+v4.8.2
+--------
+
+Released November 15, 2018
+
+- Misc
+
+  - Reduce unneeded memory usage
+    - `#1138 <https://github.com/ethereum/web3.py/pull/1138>`_
+
+v4.8.1
+--------
+
+Released October 28, 2018
+
+- Features
+
+  - Add timeout for WebsocketProvider
+    - `#1119 <https://github.com/ethereum/web3.py/pull/1119>`_
+  - Reject transactions that send ether to non-payable contract functions
+    - `#1115 <https://github.com/ethereum/web3.py/pull/1115>`_
+  - Add Auto Infura Ropsten support: ``from web3.auto.infura.ropsten import w3``
+    - `#1124 <https://github.com/ethereum/web3.py/pull/1124>`_
+  - Auto-detect trinity IPC file location
+    - `#1129 <https://github.com/ethereum/web3.py/pull/1129>`_
+- Misc
+
+  - Require Python >=3.5.3
+    - `#1107 <https://github.com/ethereum/web3.py/pull/1107>`_
+  - Upgrade eth-tester and eth-utils
+    - `#1085 <https://github.com/ethereum/web3.py/pull/1085>`_
+  - Configure readthedocs dependencies and python version
+    - `#1082 <https://github.com/ethereum/web3.py/pull/1082>`_
+  - soliditySha3 docs fixup
+    - `#1100 <https://github.com/ethereum/web3.py/pull/1100>`_
+  - Update ropsten faucet links in troubleshooting docs
+
+v4.7.2
+--------
+
+Released September 25th, 2018
+
+- Bugfixes
+
+  - IPC paths starting with ``~`` are appropriately resolved to the home directory
+    - `#1072 <https://github.com/ethereum/web3.py/pull/1072>`_
+  - You can use the local signing middleware with :class:`bytes`-type addresses
+    - `#1069 <https://github.com/ethereum/web3.py/pull/1069>`_
+
 v4.7.1
 --------
 
