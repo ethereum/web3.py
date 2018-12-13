@@ -1,2 +1,2 @@
-python:
-  version: 3.6
+build:
+  image: latest
