@@ -45,6 +45,7 @@ extras_require = {
         "pytest-xdist==1.*",
         "tox>=1.8.0",
         "tqdm",
+        "twine",
         "when-changed"
     ]
 }
