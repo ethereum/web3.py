@@ -529,14 +529,14 @@ def test_function_multiple_possible_encodings(web3):
 
 
 def test_function_no_abi(web3):
-    contract = web3.eth.contract()
     with pytest.raises(NoABIFunctionsFound):
+        contract = web3.eth.contract()
         contract.functions.thisFunctionDoesNotExist().call()
 
 
 def test_call_abi_no_functions(web3):
-    contract = web3.eth.contract(abi=[])
     with pytest.raises(NoABIFunctionsFound):
+        contract = web3.eth.contract(abi=[])
         contract.functions.thisFunctionDoesNotExist().call()
 
 
@@ -617,8 +617,8 @@ def test_invalid_fixed_value_reflections(web3, fixed_reflection_contract, functi
 
 
 def test_caller_default(math_contract):
-    result = math_contract.caller.return13()
-    assert result == 13
+    result = math_contract.caller.add(3, 5)
+    assert result == 8
 
 
 def test_caller_with_parens(math_contract):
