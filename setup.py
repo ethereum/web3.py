@@ -46,6 +46,7 @@ extras_require = {
         "setuptools>=36.2.0",
         "tox>=1.8.0",
         "tqdm",
+        "twine",
         "when-changed"
     ]
 }
