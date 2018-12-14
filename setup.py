@@ -70,7 +70,7 @@ setup(
     install_requires=[
         "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
         "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
-        "eth-abi>=1.2.0,<2.0.0",
+        "eth-abi>=2.0.0a1,<3.0.0",
         "eth-account>=0.2.1,<0.4.0",
         "eth-utils>=1.2.0,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
@@ -81,7 +81,7 @@ setup(
         "pypiwin32>=223;platform_system=='Windows'",
     ],
     setup_requires=['setuptools-markdown'],
-    python_requires='>=3.5.3,<4',
+    python_requires='>=3.6,<4',
     extras_require=extras_require,
     py_modules=['web3', 'ens'],
     license="MIT",
@@ -94,7 +94,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
 )
