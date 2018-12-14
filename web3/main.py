@@ -44,7 +44,7 @@ from web3.iban import (
     Iban,
 )
 from web3.manager import (
-    RequestManager,
+    RequestManager as DefaultRequestManager,
 )
 from web3.miner import (
     Miner,
@@ -107,7 +107,7 @@ class Web3:
     WebsocketProvider = WebsocketProvider
 
     # Managers
-    RequestManager = RequestManager
+    RequestManager = DefaultRequestManager
 
     # Iban
     Iban = Iban
@@ -128,7 +128,7 @@ class Web3:
     toChecksumAddress = staticmethod(to_checksum_address)
 
     def __init__(self, providers=empty, middlewares=None, modules=None, ens=empty):
-        self.manager = RequestManager(self, providers, middlewares)
+        self.manager = self.RequestManager(self, providers, middlewares)
 
         if modules is None:
             modules = get_default_modules()
