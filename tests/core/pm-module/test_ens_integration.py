@@ -26,14 +26,11 @@ def bytes32(val):
     return result.rjust(32, b'\0')
 
 
-pytest_plugins = ["pytest_ethereum.plugins"]
-
-
 @pytest.fixture
-def ens_setup(solc_deployer):
+def ens_setup(deployer):
     # todo: move to module level once ethpm alpha stable
     ENS_MANIFEST = ASSETS_DIR / 'ens' / '1.0.1.json'
-    ens_deployer = solc_deployer(ENS_MANIFEST)
+    ens_deployer = deployer(ENS_MANIFEST)
     w3 = ens_deployer.package.w3
 
     # ** Set up ENS contracts **

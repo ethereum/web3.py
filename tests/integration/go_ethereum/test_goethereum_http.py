@@ -3,7 +3,6 @@ import pytest
 from tests.utils import (
     get_open_port,
 )
-
 from web3 import Web3
 
 from .common import (

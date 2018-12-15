@@ -9,7 +9,6 @@ extras_require = {
     'tester': [
         "eth-tester[py-evm]==0.1.0-beta.36",
         "py-geth>=2.0.1,<3.0.0",
-        "pytest-ethereum>=0.1.3a6,<1",
     ],
     'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
     'linter': [
@@ -75,6 +74,7 @@ setup(
         "ethpm>=0.1.4a10,<1",
         "hexbytes>=0.1.0,<1.0.0",
         "lru-dict>=1.1.6,<2.0.0",
+        "pytest-ethereum>=0.1.3a6,<1",
         "requests>=2.16.0,<3.0.0",
         "websockets>=7.0.0,<8.0.0",
         "pypiwin32>=223;platform_system=='Windows'",

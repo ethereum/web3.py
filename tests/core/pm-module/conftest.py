@@ -24,9 +24,6 @@ from pytest_ethereum import (
 from pytest_ethereum.deployer import (
     Deployer,
 )
-from pytest_ethereum.plugins import (
-    twig_manifest,
-)
 
 from web3 import Web3
 from web3.pm import (
@@ -173,7 +170,7 @@ def sol_registry(w3):
 
 def vy_registry(w3):
     registry_path = ASSETS_DIR / "vyper_registry"
-    manifest = twig_manifest(registry_path, "registry", "1.0.0")
+    manifest = json.loads((registry_path / "1.0.0.json").read_text().rstrip('\n'))
     registry_package = Package(manifest, w3)
     registry_deployer = Deployer(registry_package)
     deployed_registry_package = registry_deployer.deploy("registry")

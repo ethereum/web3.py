@@ -419,7 +419,7 @@ class PM(Module):
             self.registry = VyperReferenceRegistry(canonical_address, self.web3)
         elif is_ens_name(address):
             self._validate_set_ens()
-            addr_lookup = self.web3.ens.address(address, guess_tld=False)
+            addr_lookup = self.web3.ens.address(address)
             if not addr_lookup:
                 raise NameNotFound(
                     "No address found after ENS lookup for name: {0}.".format(address)
