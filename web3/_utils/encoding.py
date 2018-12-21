@@ -2,6 +2,8 @@
 import json
 import re
 
+from hexbytes import HexBytes
+
 from eth_abi.encoding import (
     BaseArrayEncoder,
 )
@@ -19,6 +21,8 @@ from eth_utils import (
     remove_0x_prefix,
     to_hex,
 )
+
+from web3.datastructures import AttributeDict
 
 from web3._utils.abi import (
     is_address_type,
@@ -238,9 +242,9 @@ class FriendlyJsonSerde:
             except TypeError as exc:
                 yield "%d: because (%s)" % (index, exc)
 
-    def _friendly_json_encode(self, obj):
+    def _friendly_json_encode(self, obj, cls=None):
         try:
-            encoded = json.dumps(obj)
+            encoded = json.dumps(obj, cls=cls)
             return encoded
         except TypeError as full_exception:
             if hasattr(obj, 'items'):
@@ -262,9 +266,9 @@ class FriendlyJsonSerde:
             # so we have to re-raise the same type.
             raise json.decoder.JSONDecodeError(err_msg, exc.doc, exc.pos)
 
-    def json_encode(self, obj):
+    def json_encode(self, obj, cls=None):
         try:
-            return self._friendly_json_encode(obj)
+            return self._friendly_json_encode(obj, cls=cls)
         except TypeError as exc:
             raise TypeError("Could not encode to JSON: {}".format(exc))
 
@@ -309,3 +313,19 @@ def encode_single_packed(_type, value):
         return codecs.encode(value, 'utf8')
     elif abi_type.base == "bytes":
         return value
+
+
+class Web3JsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, AttributeDict):
+            return { k: v for k,v in obj.items() }
+        if isinstance(obj, HexBytes):
+            return obj.hex()
+        return json.JSONEncoder.default(self, obj)
+
+
+def to_json(obj):
+    '''
+    Convert a complex object (like a transaction object) to a JSON string
+    '''
+    return FriendlyJsonSerde().json_encode(obj, cls=Web3JsonEncoder)
