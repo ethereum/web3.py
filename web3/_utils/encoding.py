@@ -318,7 +318,7 @@ def encode_single_packed(_type, value):
 class Web3JsonEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, AttributeDict):
-            return { k: v for k,v in obj.items() }
+            return {k: v for k, v in obj.items()}
         if isinstance(obj, HexBytes):
             return obj.hex()
         return json.JSONEncoder.default(self, obj)
