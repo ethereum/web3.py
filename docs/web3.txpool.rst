@@ -21,7 +21,7 @@ The following properties are available on the ``web3.txpool`` namespace.
     * Delegates to ``txpool_inspect`` RPC Method
 
     Returns a textual summary of all transactions currently pending for
-    inclusing in the next block(s) as well as ones that are scheduled for
+    including in the next block(s) as well as ones that are scheduled for
     future execution.
 
     .. code-block:: python
@@ -83,7 +83,7 @@ The following properties are available on the ``web3.txpool`` namespace.
     * Delegates to ``txpool_status`` RPC Method
 
     Returns a textual summary of all transactions currently pending for
-    inclusing in the next block(s) as well as ones that are scheduled for
+    including in the next block(s) as well as ones that are scheduled for
     future execution.
 
     .. code-block:: python
