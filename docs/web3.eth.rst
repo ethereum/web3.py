@@ -418,8 +418,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. doctest::
 
         >>> from web3.auto import w3
-        # not yet mined
-        >>> w3.eth.getTransactionReceipt('0xf5fb3ce9c0fce91dd3d112c2ab63f9d1800f6f70667d0c4481fd72d573e12345')  # doctest: +SKIP
+        >>> w3.eth.getTransactionReceipt('0xf5fb3ce9c0fce91dd3d112c2ab63f9d1800f6f70667d0c4481fd72d573e12345')  # not yet mined # doctest: +SKIP
         None
         # wait for it to be mined....
         >>> w3.eth.getTransactionReceipt('0xf5fb3ce9c0fce91dd3d112c2ab63f9d1800f6f70667d0c4481fd72d573e5c315')
