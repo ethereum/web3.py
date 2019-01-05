@@ -14,7 +14,6 @@ from web3._utils import (  # noqa: F401
     formatters,
     function_identifiers,
     http,
-    hypothesis,
     math,
     module_testing,
     normalizers,
@@ -24,4 +23,7 @@ from web3._utils import (  # noqa: F401
     toolz,
     transactions,
     validation,
+)
+from web3.tools import (# noqa: F401
+    hypothesis
 )
