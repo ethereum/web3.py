@@ -24,7 +24,7 @@ from web3._utils.encoding import (
     to_hex,
     to_int,
 )
-from web3._utils.hypothesis import (
+from web3.tools.hypothesis import (
     hexstr_strategy,
 )
 from web3.providers import (
