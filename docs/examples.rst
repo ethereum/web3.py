@@ -368,76 +368,71 @@ Creation of the contract factory from the ERC20 ABI
 ---------------------------------------------------
 Using this command, you can create a contract factory from the ERC20 ABI. You need to specify the contract address
 
-.. testsetup::
-    import os
-    os.environ['INFURA_API_KEY'] = "b2679bb624354d1b9a2586154651b51f"
+.. testsetup:: *
+
+    from web3 import Web3
+    import json
+    web3 = Web3(Web3.EthereumTesterProvider())
+    bytecode='60606040526040516108ee3803806108ee83398101604052805160805160a05160c05160e0519394928301939192019060008054600160a060020a03191633179055600160a060020a0381166000146100655760008054600160a060020a031916821790555b600160a060020a033316600090815260056020908152604082208790558551600180549381905292600281851615610100026000190190911604601f9081018390047fb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf69081019390919089019083901061010257805160ff19168380011785555b506101329291505b8082111561018b57600081556001016100ee565b828001600101855582156100e6579182015b828111156100e6578251826000505591602001919060010190610114565b50508160026000509080519060200190828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061018f57805160ff19168380011785555b506101bf9291506100ee565b5090565b8280016001018555821561017f579182015b8281111561017f5782518260005055916020019190600101906101a1565b50506003805460ff19169390931790925550505060045561070a806101e46000396000f3606060405236156100b95760e060020a600035046306fdde0381146100c1578063095ea7b31461011d57806318160ddd1461015857806323b872dd14610161578063313ce5671461019357806370a082311461019f57806379c65068146101b75780638da5cb5b146101db57806395d89b41146101ed578063a9059cbb14610246578063b414d4b614610275578063dc3080f214610290578063dd62ed3e146102b5578063e724529c146102da578063f2fde38b146102fe575b61031f610002565b610321600180546020600282841615610100026000190190921691909104601f810182900490910260809081016040526060828152929190828280156103dc5780601f106103b1576101008083540402835291602001916103dc565b600160a060020a03338116600090815260076020908152604080832060043594909416835292905290812060243590555b6060908152602090f35b61014e60045481565b61014e600435602435604435600160a060020a0383166000908152600560205260408120548290101561058a57610002565b61014e60035460ff1681565b61014e60043560056020526000908152604090205481565b61031f60043560243560005433600160a060020a039081169116146104d957610002565b61014e600054600160a060020a031681565b610321600280546020601f600019600184161561010002019092168390049182018190040260809081016040526060828152929190828280156103dc5780601f106103b1576101008083540402835291602001916103dc565b61031f60043560243533600160a060020a0316600090815260056020526040902054819010156103e457610002565b61014e60043560066020526000908152604090205460ff1681565b60086020908152600435600090815260408082209092526024358152205461014e9081565b60076020908152600435600090815260408082209092526024358152205461014e9081565b61031f60043560243560005433600160a060020a0390811691161461053557610002565b61031f60043560005433600160a060020a0390811691161461038f57610002565b005b60405180806020018281038252838181518152602001915080519060200190808383829060006004602084601f0104600f02600301f150905090810190601f1680156103815780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b6000805473ffffffffffffffffffffffffffffffffffffffff19168217905550565b820191906000526020600020905b8154815290600101906020018083116103bf57829003601f168201915b505050505081565b600160a060020a03821660009081526040902054808201101561040657610002565b33600160a060020a031660009081526006602052604090205460ff161561042c57610002565b806005600050600033600160a060020a03168152602001908152602001600020600082828250540392505081905550806005600050600084600160a060020a0316815260200190815260200160002060008282825054019250508190555081600160a060020a031633600160a060020a03167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef836040518082815260200191505060405180910390a35050565b600160a060020a0380831660008181526005602090815260408220805486019055600480548601905590546060858152929316917fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9190a35050565b600160a060020a03821660008181526006602052604090819020805460ff191684179055606091825260808390527f48335238b4855f35377ed80f164e8c6f3c366e54ac00b96a6402d4a9814a03a591a15050565b600160a060020a0383168152604081205482810110156105a957610002565b600160a060020a03841681526006602052604081205460ff16156105cc57610002565b600760209081526040808320600160a060020a033381168086529184528285205490881685526008845282852091855292528220548301111561060e57610002565b816005600050600086600160a060020a03168152602001908152602001600020600082828250540392505081905550816005600050600085600160a060020a03168152602001908152602001600020600082828250540192505081905550816008600050600086600160a060020a03168152602001908152602001600020600050600033600160a060020a0316815260200190815260200160002060008282825054019250508190555082600160a060020a031633600160a060020a03167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a3939250505056000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000fb6916095ca1df60bb79ce92ce3ea74c37c5d3590000000000000000000000000000000000000000000000000000000000000008556e69636f726e730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004f09fa68400000000000000000000000000000000000000000000000000000000'
+    abi='[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}]'
 
 .. doctest::
 
-    >>> from web3 import Web3
-    >>> import json
-
-    >>> w3 = Web3(Web3.EthereumTesterProvider())
-
-    >>> ERC20_ABI = json.loads('[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}]')  # noqa: 501
-    
-    >>> new_contract = w3.eth.contract(abi=ERC20_ABI, address='0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7')
-    >>> print('Creator ', new_contract.call().creator)
-
+    >>> factory=web3.eth.contract(abi=json.loads(abi), bytecode=bytecode)
+    >>> tx_hash = factory.constructor(1000000, 'DEM', 18, 'DE', 1).transact()
+    >>> print(tx_hash)
+    b'\xe9K\xcfz\xfc9*-+\x17|\xd4at.\xe32t\x13\xf4\\\xe8\x8b\x9e6?\x08\xa1\xb4\xe6[\xd3'
+    >>> txn_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
 
 
 Instantiate a contract pointing at a specific address
 -----------------------------------------------------
-.. testsetup::
-    import os
-    # Please play nice and don't use this key for any shenanigans, thanks!!
-    os.environ['INFURA_API_KEY'] = "b2679bb624354d1b9a2586154651b51f"
 
 .. doctest::
 
-    >>> from web3.auto.infura import w3
-    >>> import json
-
-    >>> ERC20_ABI = json.loads('[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}]')  # noqa: 501
-    >>> new_contract = w3.eth.contract(abi=ERC20_ABI, address='0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7')
-    print('Specific token address details ', new_contract.functions.balanceOf(address).call())
-
-
+    >>> new_contract = web3.eth.contract(address='0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7', abi=json.loads(abi))
+    >>> balance = new_contract.functions.balanceOf('0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7')
 
 Query account balance
 ---------------------
 
-.. testsetup::
-    import os
-    # Please play nice and don't use this key for any shenanigans, thanks!!
-    os.environ['INFURA_API_KEY'] = "b2679bb624354d1b9a2586154651b51f"
-
 .. doctest::
-    >>> from web3.auto.infura import w3
-    >>> import json
 
-    >>> ERC20_ABI = json.loads('[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}]')  # noqa: 501
-
-    >>> new_contract = w3.eth.contract(abi=ERC20_ABI, address='0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7')
-
-    >>> print("Starting account balance:", new_contract.functions.getBalance(w3.eth.accounts[1]))
-    >>> txn_hash = new_contract.functions.transfer(...).transact()
-    >>> txn_receipt = w3.eth.waitForTransactionReceipt(txn_hash)
-    >>> print("New account balance:", new_contract.functions.getBalance(w3.eth.accounts[1]))
+    >>> new_contract = web3.eth.contract(address=web3.eth.accounts[0], abi=json.loads(abi))
+    >>> balance = web3.eth.getBalance(web3.eth.accounts[0])
 
 Perform direct transfer call
 ----------------------------
 
-.. testsetup::
-    import os
-    # Please play nice and don't use this key for any shenanigans, thanks!!
-    os.environ['INFURA_API_KEY'] = "b2679bb624354d1b9a2586154651b51f"
+.. doctest::
+
+    >>> new_contract = web3.eth.contract(address=web3.eth.accounts[0], abi=json.loads(abi))
+    >>> txn_hash = new_contract.functions.transfer(web3.eth.accounts[1], 12345).transact()
+    >>> txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+
+Querying the approved spending balance for external transfers
+-------------------------------------------------------------
 
 .. doctest::
-    >>> from web3.auto.infura import w3
-    >>> import json
 
-    >>> ERC20_ABI = json.loads('[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}]')  # noqa: 501
-    >>> address='0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7'
-    >>> new_contract = w3.eth.contract(abi=ERC20_ABI, address=address)
-    >>> print('Account balance ', new_contract.functions.transfer(w3.eth.accounts[1], 12345).transact()
+    >>> new_contract = web3.eth.contract(address=web3.eth.accounts[0], abi=json.loads(abi))
+    >>> txn_hash = new_contract.functions.transferFrom(web3.eth.accounts[0], web3.eth.accounts[1], 12345).transact()
+    >>> txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+
+Creating an approval for external transfers
+-------------------------------------------
+
+.. doctest::
+
+    >>> new_contract = web3.eth.contract(address=web3.eth.accounts[0], abi=json.loads(abi))
+    >>> txn_hash = new_contract.functions.approve(web3.eth.accounts[0], 12345).transact()
+    >>> txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+
+Performing a transferFrom call with an approved transfer.
+---------------------------------------------------------
+
+.. doctest::
+
+    >>> new_contract = web3.eth.contract(address=web3.eth.accounts[0], abi=json.loads(abi))
+    >>> txn_hash = new_contract.functions.transferFrom(web3.eth.accounts[0], web3.eth.accounts[1], 12345).transact()
+    >>> txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
