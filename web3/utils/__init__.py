@@ -24,6 +24,6 @@ from web3._utils import (  # noqa: F401
     transactions,
     validation,
 )
-from web3.tools import (# noqa: F401
+from web3.tools import (  # noqa: F401
     hypothesis
 )
