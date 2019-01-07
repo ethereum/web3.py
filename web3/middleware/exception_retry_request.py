@@ -23,6 +23,7 @@ whitelist = [
     'eth_blockNumber',
     'eth_getBalance',
     'eth_getStorageAt',
+    'eth_getProof',
     'eth_getCode',
     'eth_getBlockByNumber',
     'eth_getBlockByHash',

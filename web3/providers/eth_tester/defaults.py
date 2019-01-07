@@ -179,6 +179,7 @@ API_ENDPOINTS = {
         ),
         'getBalance': call_eth_tester('get_balance'),
         'getStorageAt': not_implemented,
+        'getProof': not_implemented,
         'getTransactionCount': call_eth_tester('get_nonce'),
         'getBlockTransactionCountByHash': null_if_block_not_found(compose(
             len,

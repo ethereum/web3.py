@@ -42,6 +42,7 @@ RPC_ABIS = {
     'eth_getCode': ['address', None],
     'eth_getLogs': FILTER_PARAMS_ABIS,
     'eth_getStorageAt': ['address', 'uint', None],
+    'eth_getProof': ['address', 'uint[]', None],
     'eth_getTransactionByBlockHashAndIndex': ['bytes32', 'uint'],
     'eth_getTransactionByHash': ['bytes32'],
     'eth_getTransactionCount': ['address', None],
