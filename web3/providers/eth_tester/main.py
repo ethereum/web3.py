@@ -4,7 +4,6 @@ from web3.providers import (
 
 from .middleware import (
     default_transaction_fields_middleware,
-    ethereum_tester_fixture_middleware,
     ethereum_tester_middleware,
 )
 
@@ -12,7 +11,6 @@ from .middleware import (
 class EthereumTesterProvider(BaseProvider):
     middlewares = [
         default_transaction_fields_middleware,
-        ethereum_tester_fixture_middleware,
         ethereum_tester_middleware,
     ]
     ethereum_tester = None
