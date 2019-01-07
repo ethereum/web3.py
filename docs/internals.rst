@@ -87,7 +87,7 @@ a list when instantiating your ``Web3`` object.
 
 .. code-block:: python
 
-    >>> web3 = Web3([provider_a, provider_b])
+    >>> w3 = Web3([provider_a, provider_b])
 
 
 
@@ -145,7 +145,7 @@ business logic for web3 requests.  Writing middleware is simple.
 
 .. code-block:: python
 
-    def simple_middleware(make_request, web3):
+    def simple_middleware(make_request, w3):
         # do one-time setup operations here
 
         def middleware(method, params):
@@ -167,8 +167,8 @@ It is also possible to implement middlewares as a class.
 .. code-block:: python
 
     class SimpleMiddleware:
-        def __init__(self, make_request, web3):
-            self.web3 = web3
+        def __init__(self, make_request, w3):
+            self.w3 = w3
             self.make_request = make_request
 
         def __call__(self, method, params):
