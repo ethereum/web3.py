@@ -335,9 +335,9 @@ Query account balance
 
 .. doctest::
 
-    >>> new_contract = w3.eth.contract(address=w3.eth.accounts[0], abi=json.loads(abi))
-    >>> w3.eth.getBalance(w3.eth.accounts[0])
-    999999999999999999350633
+    >>> new_contract = w3.eth.contract(address='0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7', abi=json.loads(abi))
+    >>> w3.eth.getBalance('0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7')
+    0
 
 Querying the approved spending balance for external transfers
 -------------------------------------------------------------
