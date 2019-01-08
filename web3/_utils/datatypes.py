@@ -1,11 +1,9 @@
 import web3._utils.formatters
 from web3._utils.toolz import (
     concat,
-    curry,
 )
 
 
-@curry
 def verify_attr(class_name, key, namespace):
     if key not in namespace:
         raise AttributeError(
@@ -23,14 +21,16 @@ class PropertyCheckingFactory(type):
 
     def __new__(mcs, name, bases, namespace, normalizers=None):
         all_bases = set(concat(base.__mro__ for base in bases))
+        all_keys = set(concat(base.__dict__.keys() for base in all_bases))
+
         for key in namespace:
-            verify_key_attr = verify_attr(name, key)
-            verify_key_attr(concat(base.__dict__.keys() for base in all_bases))
+            verify_attr(name, key, all_keys)
 
         if normalizers:
             processed_namespace = web3._utils.formatters.apply_formatters_to_dict(
                 normalizers,
-                namespace)
+                namespace,
+            )
         else:
             processed_namespace = namespace
 
