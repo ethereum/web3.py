@@ -9,7 +9,6 @@ from threading import (
 
 import websockets
 
-
 from tests.utils import (
     wait_for_ws,
 )
