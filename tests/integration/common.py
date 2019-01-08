@@ -6,6 +6,7 @@ from websockets.exceptions import (
 
 from web3 import Web3
 
+
 class MiscWebsocketTest:
 
     def test_websocket_max_size_error(self, web3, endpoint_uri):
