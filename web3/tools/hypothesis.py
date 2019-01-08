@@ -1,4 +1,4 @@
-from hypothesis import (
+from hypothesis import (  # noqa: F401
     example,
     given,
     settings,
