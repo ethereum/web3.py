@@ -33,11 +33,11 @@ for i, c in enumerate('0123456789abcdef'):
 
 class _Account(rlp.Serializable):
     fields = [
-                ('nonce', big_endian_int),
-                ('balance', big_endian_int),
-                ('storage', Binary.fixed_length(32, allow_empty=True)),
-                ('code_hash', Binary.fixed_length(32))
-              ]
+        ('nonce', big_endian_int),
+        ('balance', big_endian_int),
+        ('storage', Binary.fixed_length(32, allow_empty=True)),
+        ('code_hash', Binary.fixed_length(32))
+    ]
 
 
 def verify_eth_getProof(proof, root):
