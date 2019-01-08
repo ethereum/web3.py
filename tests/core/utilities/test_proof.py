@@ -1,13 +1,13 @@
 import pytest
 
-import rlp
-
 from eth_utils import (
     keccak,
 )
 from hexbytes import (
     HexBytes,
 )
+import rlp
+
 from web3._utils.encoding import (
     pad_bytes,
 )

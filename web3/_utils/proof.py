@@ -1,12 +1,12 @@
+from eth_utils import (
+    keccak,
+)
 import rlp
 from rlp.sedes import (
     Binary,
     big_endian_int,
 )
 
-from eth_utils import (
-    keccak,
-)
 from web3._utils.encoding import (
     pad_bytes,
     pad_hex,
