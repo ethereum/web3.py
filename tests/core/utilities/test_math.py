@@ -1,15 +1,14 @@
 import pytest
 
-from hypothesis import (
-    given,
-    strategies as st,
-)
-
 from web3._utils.math import (
     percentile,
 )
 from web3.exceptions import (
     InsufficientData,
+)
+from web3.tools.hypothesis import (
+    given,
+    strategies as st,
 )
 
 values = range(100)

@@ -3,13 +3,13 @@ import random
 from eth_utils import (
     to_dict,
 )
-from hypothesis import (
-    given,
-    strategies as st,
-)
 
 from web3._utils.caching import (
     generate_cache_key,
+)
+from web3.tools.hypothesis import (
+    given,
+    strategies as st,
 )
 
 

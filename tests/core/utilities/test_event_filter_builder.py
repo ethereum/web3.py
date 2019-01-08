@@ -1,14 +1,13 @@
 import pytest
 
-from hypothesis import (
-    given,
-    strategies as st,
-)
-
 from web3._utils.events import (
     DataArgumentFilter,
     TopicArgumentFilter,
     normalize_topic_list,
+)
+from web3.tools.hypothesis import (
+    given,
+    strategies as st,
 )
 
 

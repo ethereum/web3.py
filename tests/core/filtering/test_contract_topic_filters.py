@@ -1,6 +1,6 @@
 import pytest
 
-from hypothesis import (
+from web3.tools.hypothesis import (
     given,
     settings,
     strategies as st,

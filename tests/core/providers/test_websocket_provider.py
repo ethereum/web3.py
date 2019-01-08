@@ -7,8 +7,6 @@ from threading import (
     Thread,
 )
 
-import websockets
-
 from tests.utils import (
     wait_for_ws,
 )
@@ -19,6 +17,7 @@ from web3.exceptions import (
 from web3.providers.websocket import (
     WebsocketProvider,
 )
+import websockets
 
 
 @pytest.yield_fixture
