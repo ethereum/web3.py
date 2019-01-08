@@ -1,20 +1,22 @@
 import pytest
+
 import rlp
-from web3.datastructures import (
-    AttributeDict,
+
+from eth_utils import (
+    keccak,
 )
 from hexbytes import (
     HexBytes,
 )
-from web3._utils.proof import (
-    verify_eth_getProof,
-    _verify,
-)
 from web3._utils.encoding import (
     pad_bytes,
 )
-from eth_utils import (
-    keccak,
+from web3._utils.proof import (
+    _verify,
+    verify_eth_getProof,
+)
+from web3.datastructures import (
+    AttributeDict,
 )
 
 # accountProof
