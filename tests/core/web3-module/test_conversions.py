@@ -201,6 +201,7 @@ def test_to_hex_cleanup_only(val, expected):
     (
         (AttributeDict({'one': HexBytes('0x1')}), '{"one": "0x01"}'),
         (AttributeDict({'two': HexBytes(2)}), '{"two": "0x02"}'),
+        (AttributeDict({'three': AttributeDict({ 'four': 4 })}), '{"three": {"four": 4}}'),
         ({'three': 3}, '{"three": 3}'),
     ),
 )
