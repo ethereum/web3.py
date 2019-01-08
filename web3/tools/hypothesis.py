@@ -1,4 +1,4 @@
-from web3.tools.hypothesis import (
+from hypothesis import (
     strategies as st,
 )
 
