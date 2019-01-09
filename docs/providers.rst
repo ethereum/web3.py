@@ -210,7 +210,7 @@ HTTPProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
+        >>> w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
 
     Note that you should create only one HTTPProvider per python
     process, as the HTTPProvider recycles underlying TCP/IP network connections,
@@ -225,7 +225,7 @@ HTTPProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 60}))
+        >>> w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 60}))
 
 
 IPCProvider
@@ -241,7 +241,7 @@ IPCProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc"))
+        >>> w3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc"))
 
     If no ``ipc_path`` is specified, it will use the first IPC file
     it can find from this list:
@@ -275,7 +275,7 @@ WebsocketProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546"))
+        >>> w3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546"))
 
     Under the hood, the ``WebsocketProvider`` uses the python websockets library for
     making requests.  If you would like to modify how requests are made, you can
@@ -286,7 +286,7 @@ WebsocketProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.WebsocketProvider("http://127.0.0.1:8546", websocket_kwargs={'timeout': 60}))
+        >>> w3 = Web3(Web3.WebsocketProvider("http://127.0.0.1:8546", websocket_kwargs={'timeout': 60}))
 
 .. py:currentmodule:: web3.providers.eth_tester
 
@@ -366,7 +366,7 @@ simply instantiate your web3 instance with an iterable of provider instances.
     >>> from . import MySpecialProvider
     >>> special_provider = MySpecialProvider()
     >>> infura_provider = HTTPProvider('https://ropsten.infura.io')
-    >>> web3 = Web3([special_provider, infura_provider])
+    >>> w3 = Web3([special_provider, infura_provider])
 
 
 When web3 has multiple providers it will iterate over them in order, trying the
