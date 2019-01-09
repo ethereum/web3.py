@@ -36,13 +36,13 @@ local development this would be something like ``ws://127.0.0.1:8546``.
     # Note that you should create only one RPCProvider per
     # process, as it recycles underlying TCP/IP network connections between
     # your process and Ethereum node
-    >>> web3 = Web3(HTTPProvider('http://localhost:8545'))
+    >>> w3 = Web3(HTTPProvider('http://localhost:8545'))
 
     # or for an IPC based connection
-    >>> web3 = Web3(IPCProvider())
+    >>> w3 = Web3(IPCProvider())
 
     # or for Websocket based connection
-    >>> web3 = Web3(WebsocketProvider('ws://127.0.0.1:8546'))
+    >>> w3 = Web3(WebsocketProvider('ws://127.0.0.1:8546'))
 
 
 Base API
@@ -207,7 +207,7 @@ Addresses
 
     .. code-block:: python
 
-        >>> web3.isAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> wch3.isAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
 
 
@@ -218,9 +218,9 @@ Addresses
 
     .. code-block:: python
 
-        >>> web3.isChecksumAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> wch3.isChecksumAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
-        >>> web3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> wch3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
         False
 
 
