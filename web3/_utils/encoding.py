@@ -2,8 +2,6 @@
 import json
 import re
 
-from hexbytes import HexBytes
-
 from eth_abi.encoding import (
     BaseArrayEncoder,
 )
@@ -21,8 +19,9 @@ from eth_utils import (
     remove_0x_prefix,
     to_hex,
 )
-
-from web3.datastructures import AttributeDict
+from hexbytes import (
+    HexBytes,
+)
 
 from web3._utils.abi import (
     is_address_type,
@@ -42,6 +41,9 @@ from web3._utils.validation import (
     assert_one_val,
     validate_abi_type,
     validate_abi_value,
+)
+from web3.datastructures import (
+    AttributeDict,
 )
 
 
