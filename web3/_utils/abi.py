@@ -599,8 +599,8 @@ def abi_data_tree(types, data):
     As an example:
 
     >>> abi_data_tree(types=["bool[2]", "uint"], data=[[True, False], 0])
-    [("bool[2]", [("bool", True), ("bool", False)]), ("uint256", 0)]
-    '''
+    [ABITypedData(abi_type='bool[2]', data=[ABITypedData(abi_type='bool', data=True), ABITypedData(abi_type='bool', data=False)]), ABITypedData(abi_type='uint256', data=0)]
+    '''  # noqa: E501 (line too long)
     return [
         abi_sub_tree(data_type, data_value)
         for data_type, data_value
@@ -632,9 +632,11 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
     '''
     This class marks data as having a certain ABI-type.
 
+    >>> addr1 = "0x" + "0" * 20
+    >>> addr2 = "0x" + "f" * 20
     >>> a1 = ABITypedData(['address', addr1])
     >>> a2 = ABITypedData(['address', addr2])
-    >>> addrs = ABITypedData(['address[]', [a1, a2])
+    >>> addrs = ABITypedData(['address[]', [a1, a2]])
 
     You can access the fields using tuple() interface, or with
     attributes:
