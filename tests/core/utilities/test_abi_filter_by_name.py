@@ -66,6 +66,6 @@ ABI = [
         ('does_not_exist', []),
     )
 )
-def test_filter_by_arguments(name, expected):
+def test_filter_by_name(name, expected):
     actual_matches = filter_by_name(name, ABI)
     assert actual_matches == expected
