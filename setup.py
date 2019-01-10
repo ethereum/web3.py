@@ -7,7 +7,7 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        "eth-tester[py-evm]==0.1.0-beta.33",
+        "eth-tester[py-evm]==0.1.0-beta.35",
         "py-geth>=2.0.1,<3.0.0",
     ],
     'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
@@ -24,7 +24,7 @@ extras_require = {
         "ethtoken",
         "py-geth>=1.4.0",
         "py-solc>=0.4.0",
-        "pytest>=2.7.2",
+        "pytest>=3.5.0,<4.0.0",
         "sphinx",
         "sphinx_rtd_theme>=0.1.9",
         "toposort>=1.4",
@@ -36,7 +36,7 @@ extras_require = {
         "bumpversion",
         "flaky>=3.3.0",
         "hypothesis>=3.31.2",
-        "pytest>=3.5.0,<4",
+        "pytest>=3.6.0,<4.0.0",
         "pytest-mock==1.*",
         "pytest-pythonpath>=0.3",
         "pytest-watch==4.*",
