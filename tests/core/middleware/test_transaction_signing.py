@@ -2,6 +2,9 @@ import pytest
 
 import eth_account
 import eth_keys
+from eth_tester.exceptions import (
+    ValidationError,
+)
 from eth_utils import (
     to_bytes,
     to_hex,
@@ -231,12 +234,12 @@ def fund_account(w3):
         ),
         (
             # Transaction with mismatched sender
-            # expect a key error with sendTransaction + unmanaged account
+            # expect a validation error with sendTransaction + unmanaged account
             {
                 'gas': 21000,
                 'value': 10
             },
-            KeyError,
+            ValidationError,
             SAME_KEY_MIXED_TYPE,
             ADDRESS_2,
         ),
