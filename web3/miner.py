@@ -4,10 +4,6 @@ from web3.module import (
 
 
 class Miner(Module):
-    @property
-    def hashrate(self):
-        return self.web3.manager.request_blocking("eth_hashrate", [])
-
     def makeDAG(self, number):
         return self.web3.manager.request_blocking("miner_makeDag", [number])
 

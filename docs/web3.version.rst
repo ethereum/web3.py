@@ -37,18 +37,6 @@ The following properties are available on the ``web3.eth`` namespace.
         'Geth/v1.4.11-stable-fed692f6/darwin/go1.7'
 
 
-.. py:method:: Version.network(self)
-
-    * Delegates to ``net_version`` RPC Method
-
-    Returns the current network protocol version.
-
-    .. code-block:: python
-
-        >>> web3.version.network
-        1
-
-
 .. py:method:: Version.ethereum(self)
 
     * Delegates to ``eth_protocolVersion`` RPC Method
