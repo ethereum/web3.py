@@ -134,6 +134,11 @@ def fallback_function_contract(web3, FallballFunctionContract, address_conversio
     return deploy(web3, FallballFunctionContract, address_conversion_func)
 
 
+@pytest.fixture()
+def tuple_contract(web3, TupleContract, address_conversion_func):
+    return deploy(web3, TupleContract, address_conversion_func)
+
+
 def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):
     with pytest.raises(InvalidAddress):
         WithConstructorAddressArgumentsContract.constructor(
@@ -611,3 +616,21 @@ def test_invalid_fixed_value_reflections(web3, fixed_reflection_contract, functi
     contract_func = fixed_reflection_contract.functions[function]
     with pytest.raises(ValidationError, match=error):
         contract_func(value).call({'gas': 420000})
+
+
+@pytest.mark.parametrize(
+    'method_input, expected',
+    (
+        (
+            {'anInt': 0, 'aBool': True, 'anAddress': '0x' + 'f' * 40},
+            (0, True, '0x' + 'f' * 40)
+        ),
+        (
+            (0, True, '0x' + 'f' * 40),
+            (0, True, '0x' + 'f' * 40),
+        ),
+    )
+)
+def test_call_tuple_contract(tuple_contract, method_input, expected):
+    result = tuple_contract.functions.method(method_input).call()
+    assert result == expected
