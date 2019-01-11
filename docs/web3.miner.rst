@@ -9,26 +9,6 @@ The ``web3.miner`` object exposes methods to interact with the RPC APIs under
 the ``miner_`` namespace.
 
 
-Properties
-----------
-
-The following properties are available on the ``web3.miner`` namespace.
-
-.. py:attribute:: Miner.hashrate
-
-    * Delegates to ``eth_hashrate`` RPC Method
-
-    Returns the current number of hashes per second the node is mining with.
-
-    .. code-block:: python
-
-        >>> web3.eth.hashrate
-        906
-
-
-    .. note:: This property is an alias to ``web3.eth.hashrate``.
-
-
 Methods
 -------
 

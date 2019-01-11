@@ -11,7 +11,7 @@ def test_txpool_content(web3_empty):
     web3.miner.stop()
 
     with Timeout(60) as timeout:
-        while web3.miner.hashrate or web3.eth.mining:
+        while web3.eth.hashrate or web3.eth.mining:
             timeout.sleep(random.random())
 
     txn_1_hash = web3.eth.sendTransaction({

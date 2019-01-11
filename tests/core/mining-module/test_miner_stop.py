@@ -14,7 +14,7 @@ def test_miner_stop(web3_empty):
     web3 = web3_empty
 
     assert web3.eth.mining
-    assert web3.miner.hashrate
+    assert web3.eth.hashrate
 
     web3.miner.stop()
 
@@ -24,4 +24,4 @@ def test_miner_stop(web3_empty):
             timeout.check()
 
     assert not web3.eth.mining
-    assert not web3.miner.hashrate
+    assert not web3.eth.hashrate
