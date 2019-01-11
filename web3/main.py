@@ -67,9 +67,6 @@ from web3.providers.ipc import (
 from web3.providers.rpc import (
     HTTPProvider,
 )
-from web3.providers.tester import (
-    TestRPCProvider,
-)
 from web3.providers.websocket import (
     WebsocketProvider,
 )
@@ -102,7 +99,6 @@ class Web3:
     # Providers
     HTTPProvider = HTTPProvider
     IPCProvider = IPCProvider
-    TestRPCProvider = TestRPCProvider
     EthereumTesterProvider = EthereumTesterProvider
     WebsocketProvider = WebsocketProvider
 

@@ -294,9 +294,7 @@ EthereumTesterProvider
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. warning:: Experimental:  This provider is experimental. There are still significant gaps in
-    functionality. However, it is the default replacement for
-    :class:`web3.providers.tester.EthereumTesterProvider`
-    and is being actively developed and supported.
+    functionality. However it is being actively developed and supported.
 
 .. py:class:: EthereumTesterProvider(eth_tester=None)
 
@@ -310,38 +308,6 @@ EthereumTesterProvider
 
         >>> from web3 import Web3, EthereumTesterProvider
         >>> w3 = Web3(EthereumTesterProvider())
-
-
-
-EthereumTesterProvider (legacy)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning:: Deprecated:  This provider is deprecated in favor of
-    :class:`~web3.providers.eth_tester.EthereumTesterProvider` and the newly created eth-tester.
-
-.. py:class:: web3.providers.tester.EthereumTesterProvider()
-
-    This provider can be used for testing.  It uses an ephemeral blockchain
-    backed by the ``ethereum.tester`` module.
-
-    .. code-block:: python
-
-        >>> from web3 import Web3
-        >>> from web3.providers.tester import EthereumTesterProvider
-        >>> w3 = Web3(EthereumTesterProvider())
-
-TestRPCProvider
-~~~~~~~~~~~~~~~
-
-.. warning:: Deprecated:  This provider is deprecated in favor of
-    :class:`~web3.providers.eth_tester.EthereumTesterProvider` and the newly created eth-tester.
-
-.. py:class:: TestRPCProvider()
-
-    This provider can be used for testing.  It uses an ephemeral blockchain
-    backed by the ``ethereum.tester`` module.  This provider will be slower
-    than the ``EthereumTesterProvider`` since it uses an HTTP server for RPC
-    interactions with.
 
 
 AutoProvider

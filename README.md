@@ -17,7 +17,8 @@ Read more in the [documentation on ReadTheDocs](http://web3py.readthedocs.io/). 
 import json
 import web3
 
-from web3 import Web3, HTTPProvider, TestRPCProvider
+from web3 import Web3
+from web3.providers.eth_tester import EthereumTesterProvider
 from solc import compile_source
 from web3.contract import ConciseContract
 
@@ -46,7 +47,7 @@ compiled_sol = compile_source(contract_source_code) # Compiled source code
 contract_interface = compiled_sol['<stdin>:Greeter']
 
 # web3.py instance
-w3 = Web3(TestRPCProvider())
+w3 = Web3(EthereumTesterProvider())
 
 # Instantiate and deploy contract
 contract = w3.eth.contract(abi=contract_interface['abi'], bytecode=contract_interface['bin'])
