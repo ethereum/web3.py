@@ -63,7 +63,7 @@ def clear_chain_state(web3, snapshot):
     Hypothesis doesn't allow function scoped fixtures to re-run between test runs
     so chain state needs to be explicitly cleared
     """
-    web3.providers[0].ethereum_tester.revert_to_snapshot(snapshot)
+    web3.provider.ethereum_tester.revert_to_snapshot(snapshot)
 
 
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))

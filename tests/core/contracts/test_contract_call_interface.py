@@ -412,13 +412,13 @@ def test_call_fallback_function(fallback_function_contract):
 
 
 def test_throws_error_if_block_out_of_range(web3, math_contract):
-    web3.providers[0].make_request(method='evm_mine', params=[20])
+    web3.provider.make_request(method='evm_mine', params=[20])
     with pytest.raises(BlockNumberOutofRange):
         math_contract.functions.counter().call(block_identifier=-50)
 
 
 def test_accepts_latest_block(web3, math_contract):
-    web3.providers[0].make_request(method='evm_mine', params=[5])
+    web3.provider.make_request(method='evm_mine', params=[5])
     math_contract.functions.increment().transact()
 
     late = math_contract.functions.counter().call(block_identifier='latest')
@@ -429,9 +429,9 @@ def test_accepts_latest_block(web3, math_contract):
 
 
 def test_accepts_block_hash_as_identifier(web3, math_contract):
-    blocks = web3.providers[0].make_request(method='evm_mine', params=[5])
+    blocks = web3.provider.make_request(method='evm_mine', params=[5])
     math_contract.functions.increment().transact()
-    more_blocks = web3.providers[0].make_request(method='evm_mine', params=[5])
+    more_blocks = web3.provider.make_request(method='evm_mine', params=[5])
 
     old = math_contract.functions.counter().call(block_identifier=blocks['result'][2])
     new = math_contract.functions.counter().call(block_identifier=more_blocks['result'][2])
@@ -441,10 +441,10 @@ def test_accepts_block_hash_as_identifier(web3, math_contract):
 
 
 def test_neg_block_indexes_from_the_end(web3, math_contract):
-    web3.providers[0].make_request(method='evm_mine', params=[5])
+    web3.provider.make_request(method='evm_mine', params=[5])
     math_contract.functions.increment().transact()
     math_contract.functions.increment().transact()
-    web3.providers[0].make_request(method='evm_mine', params=[5])
+    web3.provider.make_request(method='evm_mine', params=[5])
 
     output1 = math_contract.functions.counter().call(block_identifier=-7)
     output2 = math_contract.functions.counter().call(block_identifier=-6)
@@ -455,7 +455,7 @@ def test_neg_block_indexes_from_the_end(web3, math_contract):
 
 def test_returns_data_from_specified_block(web3, math_contract):
     start_num = web3.eth.getBlock('latest').number
-    web3.providers[0].make_request(method='evm_mine', params=[5])
+    web3.provider.make_request(method='evm_mine', params=[5])
     math_contract.functions.increment().transact()
     math_contract.functions.increment().transact()
 

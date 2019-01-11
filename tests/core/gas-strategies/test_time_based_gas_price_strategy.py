@@ -141,7 +141,7 @@ def test_time_based_gas_price_strategy(strategy_params, expected):
     })
 
     w3 = Web3(
-        providers=[BaseProvider()],
+        provider=BaseProvider(),
         middlewares=[fixture_middleware],
     )
 
@@ -195,7 +195,7 @@ def test_time_based_gas_price_strategy_zero_sample(strategy_params_zero,
         })
 
         w3 = Web3(
-            providers=[BaseProvider()],
+            provider=BaseProvider(),
             middlewares=[fixture_middleware],
         )
         time_based_gas_price_strategy_zero = construct_time_based_gas_price_strategy(

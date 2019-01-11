@@ -48,14 +48,14 @@ class ENS:
     is_valid_name = staticmethod(is_valid_name)
     reverse_domain = staticmethod(address_to_reverse_domain)
 
-    def __init__(self, providers=default, addr=None):
+    def __init__(self, provider=default, addr=None):
         '''
-        :param providers: a list or single provider used to connect to Ethereum
-        :type providers: instance of `web3.providers.base.BaseProvider`
+        :param provider: a single provider used to connect to Ethereum
+        :type provider: instance of `web3.providers.base.BaseProvider`
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
         '''
-        self.web3 = init_web3(providers)
+        self.web3 = init_web3(provider)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
         self.ens = self.web3.eth.contract(abi=abis.ENS, address=ens_addr)
@@ -70,7 +70,7 @@ class ENS:
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
         '''
-        return cls(web3.manager.providers, addr=addr)
+        return cls(web3.manager.provider, addr=addr)
 
     def address(self, name, guess_tld=True):
         '''

@@ -89,7 +89,7 @@ def result_generator_middleware():
 
 @pytest.fixture()
 def w3_base():
-    return Web3(providers=[DummyProvider()], middlewares=[])
+    return Web3(provider=DummyProvider(), middlewares=[])
 
 
 @pytest.fixture()

@@ -127,8 +127,8 @@ class Web3:
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
-    def __init__(self, providers=empty, middlewares=None, modules=None, ens=empty):
-        self.manager = self.RequestManager(self, providers, middlewares)
+    def __init__(self, provider=None, middlewares=None, modules=None, ens=empty):
+        self.manager = self.RequestManager(self, provider, middlewares)
 
         if modules is None:
             modules = get_default_modules()
@@ -143,12 +143,12 @@ class Web3:
         return self.manager.middleware_stack
 
     @property
-    def providers(self):
-        return self.manager.providers
+    def provider(self):
+        return self.manager.provider
 
-    @providers.setter
-    def providers(self, providers):
-        self.manager.providers = providers
+    @provider.setter
+    def provider(self, provider):
+        self.manager.provider = provider
 
     @staticmethod
     @deprecated_for("keccak")
@@ -204,11 +204,7 @@ class Web3:
         return cls.keccak(hexstr=hex_string)
 
     def isConnected(self):
-        for provider in self.providers:
-            if provider.isConnected():
-                return True
-        else:
-            return False
+        return self.provider.isConnected()
 
     @property
     def ens(self):

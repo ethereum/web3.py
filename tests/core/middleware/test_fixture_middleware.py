@@ -21,7 +21,7 @@ class DummyProvider(BaseProvider):
 
 @pytest.fixture
 def w3():
-    return Web3(providers=[DummyProvider()], middlewares=[])
+    return Web3(provider=DummyProvider(), middlewares=[])
 
 
 @pytest.mark.parametrize(
