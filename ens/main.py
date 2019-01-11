@@ -30,7 +30,7 @@ from ens.utils import (
 )
 
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
-
+ZERO_ADDR = '0x0000000000000000000000000000000000000000'
 
 class ENS:
     '''
@@ -96,7 +96,6 @@ class ENS:
         '''
         reversed_domain = address_to_reverse_domain(address)
         return self.resolve(reversed_domain, get='name')
-    reverse = name
 
     @dict_copy
     def setup_address(self, name, address=default, transact={}):
@@ -133,7 +132,7 @@ class ENS:
             address = EMPTY_ADDR_HEX
         transact['from'] = owner
         resolver = self._set_resolver(name, transact=transact)
-        return resolver.setAddr(dot_eth_namehash(name), address, transact=transact)
+        return resolver.functions.setAddr(dot_eth_namehash(name), address).transact(transact)
 
     @dict_copy
     def setup_name(self, name, address=None, transact={}):
@@ -156,18 +155,18 @@ class ENS:
             return self._setup_reverse(None, address, transact=transact)
         else:
             resolved = self.address(name)
-            if not address:
+            if not address or address == ZERO_ADDR:
                 address = resolved
-            elif resolved and address != resolved:
+            elif resolved and address != resolved and resolved != ZERO_ADDR:
                 raise AddressMismatch(
                     "Could not set address %r to point to name, because the name resolves to %r. "
                     "To change the name for an existing address, call setup_address() first." % (
                         address, resolved
                     )
                 )
-            if not address:
+            if not address or address == ZERO_ADDR:
                 address = self.owner(name)
-            if not address:
+            if not address or address == ZERO_ADDR:
                 raise UnownedName("claim subdomain using setup_address() first")
             if is_binary_address(address):
                 address = to_checksum_address(address)
@@ -182,15 +181,17 @@ class ENS:
         normal_name = normalize_name(name)
         resolver = self.resolver(normal_name)
         if resolver:
-            lookup_function = getattr(resolver, get)
+            lookup_function = getattr(resolver.functions, get)
             namehash = name_to_hash(normal_name)
-            return lookup_function(namehash)
+            if lookup_function(namehash).call() == ZERO_ADDR: #TODO: is there a better way?
+                return None
+            return lookup_function(namehash).call()
         else:
             return None
 
     def resolver(self, normal_name):
-        resolver_addr = self.ens.resolver(name_to_hash(normal_name))
-        if not resolver_addr:
+        resolver_addr = self.ens.functions.resolver(name_to_hash(normal_name)).call()
+        if not resolver_addr or resolver_addr == ZERO_ADDR:
             return None
         return self._resolverContract(address=resolver_addr)
 
@@ -210,7 +211,7 @@ class ENS:
         :rtype: str
         '''
         node = dot_eth_namehash(name)
-        return self.ens.owner(node)
+        return self.ens.functions.owner(node).call()
 
     @dict_copy
     def setup_owner(self, name, new_owner=default, transact={}):
@@ -271,10 +272,10 @@ class ENS:
         owner = None
         unowned = []
         pieces = dot_eth_name(name).split('.')
-        while pieces and not owner:
+        while pieces and (owner == ZERO_ADDR or not owner):
             name = '.'.join(pieces)
             owner = self.owner(name)
-            if not owner:
+            if owner == ZERO_ADDR or not owner:
                 unowned.append(pieces.pop(0))
         return (owner, unowned, name)
 
@@ -282,25 +283,23 @@ class ENS:
     def _claim_ownership(self, owner, unowned, owned, old_owner=None, transact={}):
         transact['from'] = old_owner or owner
         for label in reversed(unowned):
-            self.ens.setSubnodeOwner(
+            self.ens.functions.setSubnodeOwner(
                 dot_eth_namehash(owned),
                 label_to_hash(label),
-                owner,
-                transact=transact
-            )
+                owner
+            ).transact(transact)
             owned = "%s.%s" % (label, owned)
 
     @dict_copy
     def _set_resolver(self, name, resolver_addr=None, transact={}):
-        if not resolver_addr:
+        if not resolver_addr or resolver_addr == ZERO_ADDR:
             resolver_addr = self.address('resolver.eth')
         namehash = dot_eth_namehash(name)
-        if self.ens.resolver(namehash) != resolver_addr:
-            self.ens.setResolver(
+        if self.ens.caller.resolver(namehash) != resolver_addr:
+            self.ens.functions.setResolver(
                 namehash,
-                resolver_addr,
-                transact=transact
-            )
+                resolver_addr
+            ).transact(transact)
         return self._resolverContract(address=resolver_addr)
 
     @dict_copy
@@ -310,8 +309,8 @@ class ENS:
         else:
             name = ''
         transact['from'] = address
-        return self._reverse_registrar().setName(name, transact=transact)
+        return self._reverse_registrar().functions.setName(name).transact(transact)
 
     def _reverse_registrar(self):
-        addr = self.ens.owner(name_to_hash(REVERSE_REGISTRAR_DOMAIN))
+        addr = self.ens.functions.owner(name_to_hash(REVERSE_REGISTRAR_DOMAIN)).call()
         return self.web3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)

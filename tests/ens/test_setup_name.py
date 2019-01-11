@@ -79,7 +79,7 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
 
     # check that the correct namehash is set:
     node = Web3.toBytes(hexstr=namehash_hex)
-    assert ens.resolver(normalized_name).addr(node) == address
+    assert ens.resolver(normalized_name).caller.addr(node) == address
 
     # check that the correct owner is set:
     assert ens.owner(name) == owner
