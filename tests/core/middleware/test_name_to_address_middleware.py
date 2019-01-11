@@ -29,7 +29,7 @@ class TempENS():
 
 @pytest.fixture
 def w3():
-    w3 = Web3(providers=[BaseProvider()], middlewares=[])
+    w3 = Web3(provider=BaseProvider(), middlewares=[])
     w3.ens = TempENS({NAME: ADDRESS})
     w3.middleware_stack.add(name_to_address_middleware(w3))
     return w3

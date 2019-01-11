@@ -316,29 +316,3 @@ AutoProvider
 :class:`~web3.providers.auto.AutoProvider` is the default used when initializing
 :class:`web3.Web3` without any providers. There's rarely a reason to use it
 explicitly.
-
-
-Using Multiple Providers
-------------------------
-
-Web3 supports the use of multiple providers.  This is useful for cases where
-you wish to delegate requests across different providers.  To use this feature,
-simply instantiate your web3 instance with an iterable of provider instances.
-
-
-.. code-block:: python
-
-    >>> from web3 import Web3, HTTPProvider
-    >>> from . import MySpecialProvider
-    >>> special_provider = MySpecialProvider()
-    >>> infura_provider = HTTPProvider('https://ropsten.infura.io')
-    >>> w3 = Web3([special_provider, infura_provider])
-
-
-When web3 has multiple providers it will iterate over them in order, trying the
-RPC request and returning the first response it receives.  Any provider which
-*cannot* respond to a request **must** throw a
-``web3.exceptions.CannotHandleRequest`` exception.
-
-If none of the configured providers are able to handle the request, then a
-``web3.exceptions.UnhandledRequest`` exception will be thrown.

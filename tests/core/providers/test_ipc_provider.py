@@ -81,7 +81,7 @@ def test_sync_waits_for_full_result(jsonrpc_ipc_pipe_path, serve_empty_result):
 
 
 def test_web3_auto_gethdev():
-    assert isinstance(w3.providers[0], IPCProvider)
+    assert isinstance(w3.provider, IPCProvider)
     return_block_with_long_extra_data = construct_fixture_middleware({
         'eth_getBlockByNumber': {'extraData': '0x' + 'ff' * 33},
     })

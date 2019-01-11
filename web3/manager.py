@@ -1,13 +1,6 @@
 import logging
 import uuid
 
-from eth_utils import (
-    is_list_like,
-)
-
-from web3._utils.empty import (
-    empty,
-)
 from web3._utils.threads import (
     spawn,
 )
@@ -15,7 +8,6 @@ from web3.datastructures import (
     NamedElementOnion,
 )
 from web3.exceptions import (
-    CannotHandleRequest,
     UnhandledRequest,
 )
 from web3.middleware import (
@@ -36,7 +28,7 @@ from web3.providers import (
 class RequestManager:
     logger = logging.getLogger("web3.RequestManager")
 
-    def __init__(self, web3, providers, middlewares=None):
+    def __init__(self, web3, provider=None, middlewares=None):
         self.web3 = web3
         self.pending_requests = {}
 
@@ -44,25 +36,22 @@ class RequestManager:
             middlewares = self.default_middlewares(web3)
 
         self.middleware_stack = NamedElementOnion(middlewares)
-        if providers is empty:
-            self.providers = AutoProvider()
+
+        if provider is None:
+            self.provider = AutoProvider()
         else:
-            self.providers = providers
+            self.provider = provider
 
     web3 = None
-    _providers = None
+    _provider = None
 
     @property
-    def providers(self):
-        return self._providers or tuple()
+    def provider(self):
+        return self._provider
 
-    @providers.setter
-    def providers(self, value):
-        if not is_list_like(value):
-            providers = [value]
-        else:
-            providers = value
-        self._providers = providers
+    @provider.setter
+    def provider(self, provider):
+        self._provider = provider
 
     @staticmethod
     def default_middlewares(web3):
@@ -85,16 +74,13 @@ class RequestManager:
     # Provider requests and response
     #
     def _make_request(self, method, params):
-        for provider in self.providers:
-            request_func = provider.request_func(self.web3, tuple(self.middleware_stack))
+        if self.provider:
+            request_func = self.provider.request_func(self.web3, tuple(self.middleware_stack))
             self.logger.debug("Making request. Method: %s", method)
-            try:
-                return request_func(method, params)
-            except CannotHandleRequest:
-                continue
+            return request_func(method, params)
         else:
             raise UnhandledRequest(
-                "No providers responded to the RPC request:\n"
+                "No provider available to respond to the RPC request:\n"
                 "method:{0}\n"
                 "params:{1}\n".format(
                     method,

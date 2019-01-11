@@ -7,20 +7,12 @@ from web3.providers.eth_tester import (
 )
 
 
-def test_set_providers(web3):
-    providers = [EthereumTesterProvider()]
+def test_set_provider(web3):
+    provider = EthereumTesterProvider()
 
-    web3.providers = providers
+    web3.provider = provider
 
-    assert web3.providers == providers
-
-
-def test_set_providers_single(web3):
-    providers = [EthereumTesterProvider()]
-
-    web3.providers = providers[0]
-
-    assert web3.providers == providers
+    assert web3.provider == provider
 
 
 def test_auto_provider_none():
@@ -30,4 +22,4 @@ def test_auto_provider_none():
     # non-node requests succeed
     w3.toHex(0) == '0x0'
 
-    type(w3.providers[0]) == AutoProvider
+    type(w3.provider) == AutoProvider
