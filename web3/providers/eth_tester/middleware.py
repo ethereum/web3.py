@@ -28,7 +28,6 @@ from web3._utils.toolz import (
     pipe,
 )
 from web3.middleware import (
-    construct_fixture_middleware,
     construct_formatting_middleware,
 )
 
@@ -257,20 +256,6 @@ ethereum_tester_middleware = construct_formatting_middleware(
         'evm_snapshot': integer_to_hex,
     },
 )
-
-
-ethereum_tester_fixture_middleware = construct_fixture_middleware({
-    # Eth
-    'eth_protocolVersion': '63',
-    'eth_hashrate': 0,
-    'eth_gasPrice': 1,
-    'eth_syncing': False,
-    'eth_mining': False,
-    # Net
-    'net_version': '1',
-    'net_listening': False,
-    'net_peerCount': 0,
-})
 
 
 def guess_from(web3, transaction):
