@@ -21,7 +21,6 @@ extras_require = {
         "click>=5.1",
         "configparser==3.5.0",
         "contextlib2>=0.5.4",
-        "ethtoken",
         "py-geth>=1.4.0",
         "py-solc>=0.4.0",
         "pytest>=3.5.0,<4.0.0",
