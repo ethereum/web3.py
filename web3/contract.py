@@ -886,7 +886,9 @@ class ConciseContract:
 
     > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
     '''
-    # @deprecated_for("contract.caller.<method name> or contract.caller({transaction_dict}).<method name>")
+    @deprecated_for(
+        "contract.caller.<method name> or contract.caller({transaction_dict}).<method name>"
+    )
     def __init__(self, classic_contract, method_class=ConciseMethod):
 
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
@@ -962,7 +964,9 @@ class ImplicitContract(ConciseContract):
 
     > contract.functions.withdraw(amount).transact({})
     '''
-    # @deprecated_for("classic contract syntax. Ex: contract.functions.withdraw(amount).transact({})")
+    @deprecated_for(
+        "classic contract syntax. Ex: contract.functions.withdraw(amount).transact({})"
+    )
     def __init__(self, classic_contract, method_class=ImplicitMethod):
         super().__init__(classic_contract, method_class=method_class)
 
@@ -1346,11 +1350,11 @@ class ContractCaller:
             self._functions = filter_by_type('function', self.abi)
             for func in self._functions:
                 fn = ContractFunction.factory(
-                            func['name'],
-                            web3=self.web3,
-                            contract_abi=self.abi,
-                            address=self.address,
-                            function_identifier=func['name'])
+                    func['name'],
+                    web3=self.web3,
+                    contract_abi=self.abi,
+                    address=self.address,
+                    function_identifier=func['name'])
 
                 caller_method = partial(self.call_function, fn, transaction_dict=transaction_dict)
                 setattr(self, func['name'], caller_method)
