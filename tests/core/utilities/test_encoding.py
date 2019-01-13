@@ -15,6 +15,7 @@ from hypothesis import (
     given,
     strategies as st,
 )
+
 from web3._utils.encoding import (
     FriendlyJsonSerde as FriendlyJson,
     hex_encode_abi_type,

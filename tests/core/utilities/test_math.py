@@ -4,6 +4,7 @@ from hypothesis import (
     given,
     strategies as st,
 )
+
 from web3._utils.math import (
     percentile,
 )
