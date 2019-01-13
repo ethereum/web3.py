@@ -36,7 +36,7 @@ class Parity(Module):
             [],
         )
     
-    def addReservedPeer(self, params=[]):
+    def addReservedPeer(self, params):
         return self.web3.manager.request_blocking(
             "parity_addReservedPeer",
             params,
