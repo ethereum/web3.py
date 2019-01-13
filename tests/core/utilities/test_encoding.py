@@ -10,7 +10,11 @@ from unittest.mock import (
 from eth_utils import (
     is_hex,
 )
-
+from hypothesis import (
+    example,
+    given,
+    strategies as st,
+)
 from web3._utils.encoding import (
     FriendlyJsonSerde as FriendlyJson,
     hex_encode_abi_type,
@@ -23,10 +27,7 @@ from web3.providers import (
     JSONBaseProvider,
 )
 from web3.tools.hypothesis import (
-    example,
-    given,
     hexstr_strategy,
-    strategies as st,
 )
 
 
