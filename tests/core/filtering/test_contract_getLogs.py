@@ -1,3 +1,5 @@
+
+
 def test_contract_get_available_events(
     emitter,
 ):
