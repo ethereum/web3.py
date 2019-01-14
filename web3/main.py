@@ -147,12 +147,6 @@ class Web3:
         self.manager.provider = provider
 
     @staticmethod
-    @deprecated_for("keccak")
-    @apply_to_return_value(HexBytes)
-    def sha3(primitive=None, text=None, hexstr=None):
-        return Web3.keccak(primitive, text, hexstr)
-
-    @staticmethod
     @apply_to_return_value(HexBytes)
     def keccak(primitive=None, text=None, hexstr=None):
         if isinstance(primitive, (bytes, int, type(None))):
