@@ -95,7 +95,10 @@ Web3 attempts to connect to nodes in the following order, using the first
 succesful connection it can make:
 
 1. The connection specified by an environment variable, see :ref:`provider_uri`
-2. :class:`~web3.providers.ipc.IPCProvider`, which looks for several IPC file locations
+2. :class:`~web3.providers.ipc.IPCProvider`, which looks for several IPC file locations.
+   `IPCProvider` will not automatically detect a testnet connection, it is suggested that the
+    user instead uses a `w3` instance from `web3.auto.infura` (eg.
+    `from web3.auto.infura.ropsten import w3`) if they want to auto-detect a testnet.
 3. :class:`~web3.providers.rpc.HTTPProvider`, which attempts to connect to "http://localhost:8545"
 4. None - if no providers are successful, you can still use Web3 APIs
    that do not require a connection, like:

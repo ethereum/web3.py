@@ -66,18 +66,12 @@ class PersistantSocket:
         return self.sock
 
 
-def get_default_ipc_path(testnet=False):
-    if testnet:
-        testnet = "testnet"
-    else:
-        testnet = ""
-
+def get_default_ipc_path():
     if sys.platform == 'darwin':
         ipc_path = os.path.expanduser(os.path.join(
             "~",
             "Library",
             "Ethereum",
-            testnet,
             "geth.ipc"
         ))
         if os.path.exists(ipc_path):
@@ -94,16 +88,14 @@ def get_default_ipc_path(testnet=False):
             return ipc_path
 
         base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
-        if not testnet:
-            ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'
-            if ipc_path.exists():
-                return str(ipc_path)
+        ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'
+        if ipc_path.exists():
+            return str(ipc_path)
 
     elif sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
         ipc_path = os.path.expanduser(os.path.join(
             "~",
             ".ethereum",
-            testnet,
             "geth.ipc"
         ))
         if os.path.exists(ipc_path):
@@ -120,10 +112,9 @@ def get_default_ipc_path(testnet=False):
             return ipc_path
 
         base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
-        if not testnet:
-            ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'
-            if ipc_path.exists():
-                return str(ipc_path)
+        ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'
+        if ipc_path.exists():
+            return str(ipc_path)
 
     elif sys.platform == 'win32':
         ipc_path = os.path.join(
@@ -199,9 +190,9 @@ class IPCProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.IPCProvider")
     _socket = None
 
-    def __init__(self, ipc_path=None, testnet=False, timeout=10, *args, **kwargs):
+    def __init__(self, ipc_path=None, timeout=10, *args, **kwargs):
         if ipc_path is None:
-            self.ipc_path = get_default_ipc_path(testnet)
+            self.ipc_path = get_default_ipc_path()
         else:
             if isinstance(ipc_path, Path):
                 ipc_path = str(ipc_path.resolve())
