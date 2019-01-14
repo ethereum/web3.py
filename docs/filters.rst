@@ -4,7 +4,6 @@ Filtering
 
 .. py:module:: web3.utils.filters
 
-
 The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 
 * Pending Transactions: ``web3.eth.filter('pending')``
@@ -31,6 +30,12 @@ The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 
         from web3.auto import w3
         existing_filter = web3.eth.filter(filter_id="0x0")
+
+.. note ::
+
+    Creating event filters requires that your Ethereum node has an API support enabled for filters.
+    It does not work with Infura nodes. To get event logs on Infura or other
+    stateless nodes please see :class:`web3.contract.ContractEvents`.
 
 
 Filter Class
@@ -160,6 +165,13 @@ methods:
 Provides a means to filter on the log data, in other words the ability to filter on values from
 un-indexed event arguments. The parameter ``data_filter_set`` should be a list or set of 32-byte hex encoded values.
 
+Getting events without setting up a filter
+------------------------------------------
+
+You can query Ethereum node for direct fetch of events, without creating a filter first.
+This works on all node types, including Infura.
+
+For examples see :meth:`web3.contract.ContractEvents.getLogs`.
 
 Examples: Listening For Events
 ------------------------------
