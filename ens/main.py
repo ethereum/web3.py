@@ -72,6 +72,7 @@ class ENS:
         '''
         return cls(web3.manager.provider, addr=addr)
 
+    # INFERS
     def address(self, name, guess_tld=True):
         '''
         Look up the Ethereum address that `name` currently points to.
@@ -98,6 +99,7 @@ class ENS:
         return self.resolve(reversed_domain, get='name')
     reverse = name
 
+    # INFER
     @dict_copy
     def setup_address(self, name, address=default, transact={}):
         '''
@@ -109,9 +111,9 @@ class ENS:
         and calls this method with ``sub.parentname.eth``,
         then ``sub`` will be created as part of this call.
 
-        :param str name: ENS name to set up, in checksum format
-        :param str address: name will point to this address. If ``None``, erase the record.
-            If not specified, name will point to the owner's address.
+        :param str name: ENS name to set up
+        :param str address: name will point to this address, in checksum format. If ``None``,
+            erase the record. If not specified, name will point to the owner's address.
         :param dict transact: the transaction configuration, like in
             :meth:`~web3.eth.Eth.sendTransaction`
         :raises InvalidName: if ``name`` has invalid syntax
@@ -135,6 +137,7 @@ class ENS:
         resolver = self._set_resolver(name, transact=transact)
         return resolver.setAddr(dot_eth_namehash(name), address, transact=transact)
 
+    # INFER
     @dict_copy
     def setup_name(self, name, address=None, transact={}):
         '''
@@ -178,6 +181,7 @@ class ENS:
                 self.setup_address(name, address, transact=transact)
             return self._setup_reverse(name, address, transact=transact)
 
+    # INFER
     def resolve(self, name, get='addr'):
         normal_name = normalize_name(name)
         resolver = self.resolver(normal_name)
@@ -198,6 +202,7 @@ class ENS:
         reversed_domain = address_to_reverse_domain(target_address)
         return self.resolver(reversed_domain)
 
+    # INFER
     def owner(self, name):
         '''
         Get the owner of a name. Note that this may be different from the
@@ -212,6 +217,7 @@ class ENS:
         node = dot_eth_namehash(name)
         return self.ens.owner(node)
 
+    # INFER
     @dict_copy
     def setup_owner(self, name, new_owner=default, transact={}):
         '''

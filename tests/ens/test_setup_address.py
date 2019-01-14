@@ -1,4 +1,3 @@
-
 import pytest
 from unittest.mock import (
     patch,
@@ -11,6 +10,9 @@ from eth_utils import (
 
 from ens.constants import (
     EMPTY_ADDR_HEX,
+)
+from ens.exceptions import (
+    InvalidTLD,
 )
 from ens.main import (
     UnauthorizedError,
@@ -31,13 +33,13 @@ API at: https://github.com/carver/ens.py/issues/2
             'tester.eth',
             '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
+        # (
+            # 'tester',
+            # 'tester.eth',
+            # '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+        # ),
         (
-            'tester',
-            'tester.eth',
-            '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
-        ),
-        (
-            'TESTER',
+            'TESTER.eth',
             'TESTER.eth',
             '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
@@ -63,20 +65,16 @@ API at: https://github.com/carver/ens.py/issues/2
             'lots.of.subdomains.tester.eth',
             '0x0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
         ),
-        (
-            'lots.of.subdomains.tester',
-            'lots.of.subdomains.tester.eth',
-            '0x0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
-        ),
     ],
 )
 def test_set_address(ens, name, full_name, namehash_hex, TEST_ADDRESS):
     assert ens.address(name) is None
-    owner = ens.owner('tester')
+    owner = ens.owner('tester.eth')
 
     ens.setup_address(name, TEST_ADDRESS)
     assert is_same_address(ens.address(name), TEST_ADDRESS)
 
+    # WHAT? AND VERIFY IN TEST_SETUP_NAME.py
     # check that .eth is only appended if guess_tld is True
     namehash = Web3.toBytes(hexstr=namehash_hex)
     normal_name = ens.nameprep(full_name)
@@ -96,9 +94,25 @@ def test_set_address(ens, name, full_name, namehash_hex, TEST_ADDRESS):
 
 
 @pytest.mark.parametrize(
+    'name',
+    (
+        'tester',
+        'tester.com',
+        'TESTER',
+        'lots.of.subdomains.tester',
+    ),
+)
+def test_set_address_raises_exception_with_invalid_or_missing_tld(ens, name, TEST_ADDRESS):
+    # assert ens.address(name) is None
+    owner = ens.owner('tester.eth')
+    with pytest.raises(InvalidTLD, match="no valid tld"):
+        ens.setup_address(name, TEST_ADDRESS)
+
+
+@pytest.mark.parametrize(
     'name, equivalent',
     [
-        ('TESTER', 'tester.eth'),
+        ('TESTER.eth', 'tester.eth'),
         ('unicÖde.tester.eth', 'unicöde.tester.eth'),
     ],
 )
@@ -165,12 +179,12 @@ def test_first_owner_upchain_identify(ens):
 
 
 def test_set_resolver_leave_default(ens, TEST_ADDRESS):
-    owner = ens.owner('tester')
+    owner = ens.owner('tester.eth')
     ens.setup_address('leave-default-resolver.tester.eth', TEST_ADDRESS)
     eth = ens.web3.eth
     num_transactions = eth.getTransactionCount(owner)
 
-    ens.setup_address('leave-default-resolver.tester', '0x5B2063246F2191f18F2675ceDB8b28102e957458')
+    ens.setup_address('leave-default-resolver.tester.eth', '0x5B2063246F2191f18F2675ceDB8b28102e957458')
 
     # should skip setting the owner and setting the default resolver, and only
     #   set the name in the default resolver to point to the new address

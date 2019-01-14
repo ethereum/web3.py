@@ -77,3 +77,10 @@ class UnderfundedBid(ValueError):
     as your intent to bid.
     '''
     pass
+
+
+class InvalidTLD(ValueError):
+    '''
+    Raised if ...
+    '''
+    pass

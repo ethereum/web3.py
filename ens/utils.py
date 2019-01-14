@@ -22,6 +22,7 @@ from ens.constants import (
 from ens.exceptions import (
     InvalidLabel,
     InvalidName,
+    InvalidTLD,
 )
 
 default = object()
@@ -108,11 +109,13 @@ def is_valid_name(name):
         return False
 
 
+# INFERS
+# CAN we get rid of this?
 def label_to_name(label, default_tld, recognized_tlds):
     label = normalize_name(label)
     pieces = label.split('.')
     if pieces[-1] not in recognized_tlds:
-        pieces.append(default_tld)
+        raise InvalidTLD("no valid tld")
     return '.'.join(pieces)
 
 
@@ -190,7 +193,7 @@ def dot_eth_namehash(name):
     In normal operation, generating the namehash is handled
     behind the scenes. For advanced usage, it is a helpful utility.
 
-    This will add '.eth' to name if no TLD given. Also, it normalizes the name with
+    !!This will add '.eth' to name if no TLD given. Also, it normalizes the name with
     `nameprep
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
     before hashing.

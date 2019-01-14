@@ -1,6 +1,7 @@
 
 import pytest
 
+from ens.exceptions import InvalidTLD
 from ens.main import (
     AddressMismatch,
     UnauthorizedError,
@@ -28,12 +29,7 @@ def TEST_ADDRESS(address_conversion_func):
             '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
         (
-            'tester',
-            'tester.eth',
-            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
-        ),
-        (
-            'TESTER',
+            'TESTER.eth',
             'tester.eth',
             '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
@@ -58,17 +54,12 @@ def TEST_ADDRESS(address_conversion_func):
             'lots.of.subdomains.tester.eth',
             '0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
         ),
-        (
-            'lots.of.subdomains.tester',
-            'lots.of.subdomains.tester.eth',
-            '0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
-        ),
     ],
 )
 def test_setup_name(ens, name, normalized_name, namehash_hex):
     address = ens.web3.eth.accounts[3]
     assert not ens.name(address)
-    owner = ens.owner('tester')
+    owner = ens.owner('tester.eth')
 
     ens.setup_name(name, address)
     assert ens.name(address) == normalized_name
@@ -88,6 +79,22 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
     ens.setup_address(name, None)
     assert not ens.name(address)
     assert not ens.address(name)
+
+
+@pytest.mark.parametrize(
+    'name',
+    (
+        'tester',
+        'tester.com',
+        'lots.of.subdomains.tester',
+    ),
+)
+def test_cannot_setup_name_with_missing_or_invalid_tld(ens, name):
+    address = ens.web3.eth.accounts[3]
+    assert not ens.name(address)
+    owner = ens.owner('tester.eth')
+    with pytest.raises(InvalidTLD, match="no valid tld"):
+        ens.setup_name(name, address)
 
 
 def test_cannot_set_name_on_mismatch_address(ens, TEST_ADDRESS):
@@ -127,7 +134,7 @@ def test_setup_name_unowned_exception(ens):
 
 def test_setup_name_unauthorized(ens, TEST_ADDRESS):
     with pytest.raises(UnauthorizedError):
-        ens.setup_name('root-owned-tld', TEST_ADDRESS)
+        ens.setup_name('root-owned-tld.eth', TEST_ADDRESS)
 
 
 def test_setup_reverse_dict_unmodified(ens):
