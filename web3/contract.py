@@ -1434,7 +1434,7 @@ class ContractEvent:
         logs = self.web3.eth.getLogs(event_filter_params)
 
         # Convert raw binary data to Python proxy objects as described by ABI
-        return (get_event_data(abi, entry) for entry in logs)
+        return tuple(get_event_data(abi, entry) for entry in logs)
 
     @classmethod
     def factory(cls, class_name, **kwargs):
