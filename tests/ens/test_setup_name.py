@@ -1,7 +1,8 @@
-
 import pytest
 
-from ens.exceptions import InvalidTLD
+from ens.exceptions import (
+    InvalidTLD,
+)
 from ens.main import (
     AddressMismatch,
     UnauthorizedError,
@@ -64,10 +65,6 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
     ens.setup_name(name, address)
     assert ens.name(address) == normalized_name
 
-    # check that .eth is only appended if guess_tld is True
-    if ens.nameprep(name) != normalized_name:
-        assert ens.address(name, guess_tld=False) is None
-
     # check that the correct namehash is set:
     node = Web3.toBytes(hexstr=namehash_hex)
     assert ens.resolver(normalized_name).addr(node) == address
@@ -92,8 +89,7 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
 def test_cannot_setup_name_with_missing_or_invalid_tld(ens, name):
     address = ens.web3.eth.accounts[3]
     assert not ens.name(address)
-    owner = ens.owner('tester.eth')
-    with pytest.raises(InvalidTLD, match="no valid tld"):
+    with pytest.raises(InvalidTLD, match="Label does not have a recognized TLD."):
         ens.setup_name(name, address)
 
 

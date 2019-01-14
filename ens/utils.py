@@ -109,18 +109,18 @@ def is_valid_name(name):
         return False
 
 
-# INFERS
-# CAN we get rid of this?
-def label_to_name(label, default_tld, recognized_tlds):
+def label_to_name(label, recognized_tlds):
     label = normalize_name(label)
     pieces = label.split('.')
     if pieces[-1] not in recognized_tlds:
-        raise InvalidTLD("no valid tld")
+        raise InvalidTLD(
+            f"Label does not have a recognized TLD. TLD must match one of: {recognized_tlds}."
+        )
     return '.'.join(pieces)
 
 
 def dot_eth_name(label):
-    return label_to_name(label, 'eth', RECOGNIZED_TLDS)
+    return label_to_name(label, RECOGNIZED_TLDS)
 
 
 def name_to_label(name, registrar):
@@ -193,8 +193,7 @@ def dot_eth_namehash(name):
     In normal operation, generating the namehash is handled
     behind the scenes. For advanced usage, it is a helpful utility.
 
-    !!This will add '.eth' to name if no TLD given. Also, it normalizes the name with
-    `nameprep
+    This normalizes the name with `nameprep
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
     before hashing.
 

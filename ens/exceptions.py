@@ -81,6 +81,6 @@ class UnderfundedBid(ValueError):
 
 class InvalidTLD(ValueError):
     '''
-    Raised if ...
+    Raised if name does not contain a recognized TLD.
     '''
     pass

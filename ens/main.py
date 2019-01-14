@@ -72,20 +72,14 @@ class ENS:
         '''
         return cls(web3.manager.provider, addr=addr)
 
-    # INFERS
-    def address(self, name, guess_tld=True):
+    def address(self, name):
         '''
         Look up the Ethereum address that `name` currently points to.
 
         :param str name: an ENS name to look up
-        :param bool guess_tld: should `name` be appended with '.eth' if no common TLD found?
         :raises InvalidName: if `name` has invalid syntax
         '''
-        if guess_tld:
-            expanded = dot_eth_name(name)
-        else:
-            expanded = name
-        return self.resolve(expanded, 'addr')
+        return self.resolve(name, 'addr')
 
     def name(self, address):
         '''
@@ -99,7 +93,6 @@ class ENS:
         return self.resolve(reversed_domain, get='name')
     reverse = name
 
-    # INFER
     @dict_copy
     def setup_address(self, name, address=default, transact={}):
         '''
@@ -137,7 +130,6 @@ class ENS:
         resolver = self._set_resolver(name, transact=transact)
         return resolver.setAddr(dot_eth_namehash(name), address, transact=transact)
 
-    # INFER
     @dict_copy
     def setup_name(self, name, address=None, transact={}):
         '''
@@ -181,7 +173,6 @@ class ENS:
                 self.setup_address(name, address, transact=transact)
             return self._setup_reverse(name, address, transact=transact)
 
-    # INFER
     def resolve(self, name, get='addr'):
         normal_name = normalize_name(name)
         resolver = self.resolver(normal_name)
@@ -202,7 +193,6 @@ class ENS:
         reversed_domain = address_to_reverse_domain(target_address)
         return self.resolver(reversed_domain)
 
-    # INFER
     def owner(self, name):
         '''
         Get the owner of a name. Note that this may be different from the
@@ -217,7 +207,6 @@ class ENS:
         node = dot_eth_namehash(name)
         return self.ens.owner(node)
 
-    # INFER
     @dict_copy
     def setup_owner(self, name, new_owner=default, transact={}):
         '''

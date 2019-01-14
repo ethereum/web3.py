@@ -33,11 +33,6 @@ API at: https://github.com/carver/ens.py/issues/2
             'tester.eth',
             '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
-        # (
-            # 'tester',
-            # 'tester.eth',
-            # '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
-        # ),
         (
             'TESTER.eth',
             'TESTER.eth',
@@ -74,14 +69,8 @@ def test_set_address(ens, name, full_name, namehash_hex, TEST_ADDRESS):
     ens.setup_address(name, TEST_ADDRESS)
     assert is_same_address(ens.address(name), TEST_ADDRESS)
 
-    # WHAT? AND VERIFY IN TEST_SETUP_NAME.py
-    # check that .eth is only appended if guess_tld is True
     namehash = Web3.toBytes(hexstr=namehash_hex)
     normal_name = ens.nameprep(full_name)
-    if ens.nameprep(name) == normal_name:
-        assert is_same_address(ens.address(name, guess_tld=False), TEST_ADDRESS)
-    else:
-        assert ens.address(name, guess_tld=False) is None
 
     # check that the correct namehash is set:
     assert is_same_address(ens.resolver(normal_name).addr(namehash), TEST_ADDRESS)
@@ -103,9 +92,7 @@ def test_set_address(ens, name, full_name, namehash_hex, TEST_ADDRESS):
     ),
 )
 def test_set_address_raises_exception_with_invalid_or_missing_tld(ens, name, TEST_ADDRESS):
-    # assert ens.address(name) is None
-    owner = ens.owner('tester.eth')
-    with pytest.raises(InvalidTLD, match="no valid tld"):
+    with pytest.raises(InvalidTLD, match="Label does not have a recognized TLD."):
         ens.setup_address(name, TEST_ADDRESS)
 
 
@@ -184,7 +171,10 @@ def test_set_resolver_leave_default(ens, TEST_ADDRESS):
     eth = ens.web3.eth
     num_transactions = eth.getTransactionCount(owner)
 
-    ens.setup_address('leave-default-resolver.tester.eth', '0x5B2063246F2191f18F2675ceDB8b28102e957458')
+    ens.setup_address(
+        'leave-default-resolver.tester.eth',
+        '0x5B2063246F2191f18F2675ceDB8b28102e957458'
+    )
 
     # should skip setting the owner and setting the default resolver, and only
     #   set the name in the default resolver to point to the new address
