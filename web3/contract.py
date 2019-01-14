@@ -1381,15 +1381,36 @@ class ContractEvent:
                     e["args"]["to"],
                     e["args"]["value"])
 
+        The returned processed log values will look like:
+
+        .. code-block:: python
+
+            (
+                AttributeDict({
+                 'args': AttributeDict({}),
+                 'event': 'LogNoArguments',
+                 'logIndex': 0,
+                 'transactionIndex': 0,
+                 'transactionHash': HexBytes('...'),
+                 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+                 'blockHash': HexBytes('...'),
+                 'blockNumber': 3
+                }),
+                AttributeDict(...),
+                ...
+            )
+
+        See also: :func:`web3.middleware.filter.local_filter_middleware`.
+
         :param argument_filters: TODO
         :param fromBlock: block number, defaults to 1
         :param toBlock: "block number or "latest", defaults to "latest"
-        :yield: Iterable of dictionatries
+        :yield: Tuple of :class:`AttributeDict` instances
         """
 
         if not self.address:
             raise TypeError("This method can be only called on "
-                "an instiated contract with an adress")
+                            "an instated contract with an address")
 
         abi = self._get_event_abi()
 
@@ -1413,8 +1434,7 @@ class ContractEvent:
         logs = self.web3.eth.getLogs(event_filter_params)
 
         # Convert raw binary data to Python proxy objects as described by ABI
-        for entry in logs:
-            yield get_event_data(abi, entry)
+        return (get_event_data(abi, entry) for entry in logs)
 
     @classmethod
     def factory(cls, class_name, **kwargs):
