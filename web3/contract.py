@@ -1339,14 +1339,14 @@ class ContractEvent:
 
 class ContractCaller:
     def __init__(self, abi, web3, address, *args, transaction_dict=None, **kwargs):
-        self.web3 = web3
-        self.abi = abi
-        self.address = address
+        if abi:
+            self.web3 = web3
+            self.abi = abi
+            self.address = address
 
-        if transaction_dict is None:
-            transaction_dict = {}
+            if transaction_dict is None:
+                transaction_dict = {}
 
-        if self.abi:
             self._functions = filter_by_type('function', self.abi)
             for func in self._functions:
                 fn = ContractFunction.factory(
@@ -1358,11 +1358,20 @@ class ContractCaller:
 
                 caller_method = partial(self.call_function, fn, transaction_dict=transaction_dict)
                 setattr(self, func['name'], caller_method)
-        else:
+
+    def __getattr__(self, function_name):
+        if '_functions' not in self.__dict__:
             raise NoABIFunctionsFound(
                 "The abi for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract abi?"
             )
+        elif function_name not in self.__dict__['_functions']:
+            raise MismatchedABI(
+                "The function '{}' was not found in this contract's abi. ".format(function_name),
+                "Are you sure you provided the correct contract abi?"
+            )
+        else:
+            return super().__getattribute__(function_name)
 
     def __call__(self, *args, transaction_dict=None, **kwargs):
         if transaction_dict is None:
