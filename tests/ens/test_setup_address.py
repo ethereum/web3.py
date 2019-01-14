@@ -92,7 +92,7 @@ def test_set_address(ens, name, full_name, namehash_hex, TEST_ADDRESS):
     ),
 )
 def test_set_address_raises_exception_with_invalid_or_missing_tld(ens, name, TEST_ADDRESS):
-    with pytest.raises(InvalidTLD, match="Label does not have a recognized TLD."):
+    with pytest.raises(InvalidTLD, match="ENS.py by default supports the following TLDs"):
         ens.setup_address(name, TEST_ADDRESS)
 
 

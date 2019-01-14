@@ -89,7 +89,7 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
 def test_cannot_setup_name_with_missing_or_invalid_tld(ens, name):
     address = ens.web3.eth.accounts[3]
     assert not ens.name(address)
-    with pytest.raises(InvalidTLD, match="Label does not have a recognized TLD."):
+    with pytest.raises(InvalidTLD, match="ENS.py by default supports the following TLDs"):
         ens.setup_name(name, address)
 
 

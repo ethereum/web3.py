@@ -1,7 +1,7 @@
-
 import copy
 import datetime
 import functools
+import os
 
 from eth_utils import (
     is_same_address,
@@ -14,9 +14,9 @@ from ens.constants import (
     ACCEPTABLE_STALE_HOURS,
     AUCTION_START_GAS_CONSTANT,
     AUCTION_START_GAS_MARGINAL,
+    DEFAULT_RECOGNIZED_TLDS,
     EMPTY_SHA3_BYTES,
     MIN_ETH_LABEL_LENGTH,
-    RECOGNIZED_TLDS,
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
@@ -114,13 +114,25 @@ def label_to_name(label, recognized_tlds):
     pieces = label.split('.')
     if pieces[-1] not in recognized_tlds:
         raise InvalidTLD(
-            f"Label does not have a recognized TLD. TLD must match one of: {recognized_tlds}."
+            f"The label: {label} has an unsupported TLD of {pieces[-1]}. "
+            f"ENS.py by default supports the following TLDs: {recognized_tlds}. "
+            "If you'd like to use an unsupported TLD, please set the environment variable: "
+            "'ENS_RECOGNIZED_TLDS' to a string of desired TLDs separated by a colon (:)."
         )
     return '.'.join(pieces)
 
 
 def dot_eth_name(label):
-    return label_to_name(label, RECOGNIZED_TLDS)
+    recognized_tlds = get_recognized_tlds()
+    return label_to_name(label, recognized_tlds)
+
+
+def get_recognized_tlds():
+    if 'ENS_RECOGNIZED_TLDS' in os.environ:
+        override_tlds = os.environ['ENS_RECOGNIZED_TLDS'].split(':')
+        return set(DEFAULT_RECOGNIZED_TLDS + override_tlds)
+    else:
+        return DEFAULT_RECOGNIZED_TLDS
 
 
 def name_to_label(name, registrar):
