@@ -8,6 +8,19 @@ from .middleware import (
 )
 
 
+class AsyncEthereumTesterProvider(BaseProvider):
+    """This is a placeholder.
+
+    For now its purpose is to provide an awaitable request function
+    for testing the async api execution.
+    """
+    def __init__(self):
+        self.eth_tester = EthereumTesterProvider()
+
+    async def make_request(self, method, params):
+        return self.eth_tester.make_request(method, params)
+
+
 class EthereumTesterProvider(BaseProvider):
     middlewares = [
         default_transaction_fields_middleware,
