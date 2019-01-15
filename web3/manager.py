@@ -60,14 +60,14 @@ class RequestManager:
         Leaving ens unspecified will prevent the middleware from resolving names.
         """
         return [
-            (request_parameter_normalizer, 'request_param_normalizer'),
-            (gas_price_strategy_middleware, 'gas_price_strategy'),
-            (name_to_address_middleware(web3), 'name_to_address'),
-            (attrdict_middleware, 'attrdict'),
-            (pythonic_middleware, 'pythonic'),
-            (normalize_errors_middleware, 'normalize_errors'),
-            (validation_middleware, 'validation'),
-            (abi_middleware, 'abi'),
+            (request_parameter_normalizer, 'request_param_normalizer'),  # Delete
+            (gas_price_strategy_middleware, 'gas_price_strategy'),  # Add Async
+            (name_to_address_middleware(web3), 'name_to_address'),  # Add Async
+            (attrdict_middleware, 'attrdict'),  # Delete
+            (pythonic_middleware, 'pythonic'),  # Delete
+            (normalize_errors_middleware, 'normalize_errors'),  # Add async
+            (validation_middleware, 'validation'),  # Migrate
+            (abi_middleware, 'abi'),  # Migrate
         ]
 
     #

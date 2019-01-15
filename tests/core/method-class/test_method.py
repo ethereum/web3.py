@@ -3,20 +3,17 @@ from inspect import (
 )
 import pytest
 
-from eth_utils.toolz import (
-    identity,
-    pipe,
-)
-
 from web3 import (
     EthereumTesterProvider,
     Web3,
 )
 from web3.method import (
     Method,
+    _apply_request_formatters,
 )
 from web3.module import (
     ModuleV2,
+    apply_response_formatters,
 )
 
 
@@ -55,10 +52,11 @@ def test_get_formatters_default_formatter_for_falsy_config():
         formatter_lookup_fn=''
     )
 
-    default_input_formatters, default_output_formatters = method.get_formatters('')
+    default_request_formatters, default_response_formatters = method.get_formatters('')
 
-    assert pipe(['a', 'b', 'c'], *default_input_formatters) == ['a', 'b', 'c']
-    assert pipe(['a', 'b', 'c'], *default_output_formatters) == ['a', 'b', 'c']
+    assert _apply_request_formatters(['a', 'b', 'c'], default_request_formatters) == ['a', 'b', 'c']
+    assert apply_response_formatters(
+        default_response_formatters, {'result': ['a', 'b', 'c']}) == {'result': ['a', 'b', 'c']}
 
 
 def test_get_formatters_non_falsy_config_retrieval():
@@ -81,7 +79,7 @@ def test_input_munger_parameter_passthrough_matching_arity():
         json_rpc_method='eth_method',
         formatter_lookup_fn=''
     )
-    method.input_munger((object(), ['first', 'second'], {})) == 'success'
+    method.input_munger(object(), ['first', 'second'], {}) == 'success'
 
 
 def test_input_munger_parameter_passthrough_mismatch_arity():
@@ -91,7 +89,7 @@ def test_input_munger_parameter_passthrough_mismatch_arity():
         formatter_lookup_fn=''
     )
     with pytest.raises(TypeError):
-        method.input_munger((object(), ['first', 'second', 'third'], {}))
+        method.input_munger(object(), ['first', 'second', 'third'], {})
 
 
 def test_input_munger_falsy_config_result_in_default_munger():
@@ -100,7 +98,7 @@ def test_input_munger_falsy_config_result_in_default_munger():
         json_rpc_method='eth_method',
         formatter_lookup_fn=''
     )
-    method.input_munger((object(), [], {})) == []
+    method.input_munger(object(), [], {}) == []
 
 
 def test_default_input_munger_with_input_parameters_exception():
@@ -110,7 +108,7 @@ def test_default_input_munger_with_input_parameters_exception():
         formatter_lookup_fn=''
     )
     with pytest.raises(TypeError):
-        method.input_munger((object(), [1], {}))
+        method.input_munger(object(), [1], {})
 
 
 def get_test_formatters(method):
@@ -118,7 +116,8 @@ def get_test_formatters(method):
         return ['ok']
 
     if method == 'eth_method':
-        return ([formatter], [identity])
+        return ((formatter,), (None, None))
+    return (None, (None, None))
 
 
 @pytest.mark.parametrize(
