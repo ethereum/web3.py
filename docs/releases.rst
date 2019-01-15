@@ -1,6 +1,50 @@
 Release Notes
 =============
 
+
+v5.0.0-alpha.3
+--------------
+
+Released January 15th, 2019
+
+- Breaking Changes
+
+  - Remove ``web3.miner.hashrate`` and ``web3.version.network``
+    - `#1198 <https://github.com/ethereum/web3.py/pull/1198>`_
+  - Remove ``web3.providers.tester.EthereumTesterProvider``
+    and ``web3.providers.tester.TestRPCProvider``
+    - `#1199 <https://github.com/ethereum/web3.py/pull/1199>`_
+  - Change ``manager.providers`` from list to single ``manager.provider``
+    - `#1200 <https://github.com/ethereum/web3.py/pull/1200>`_
+  - Replace deprecated ``web3.sha3`` method with ``web3.keccak`` method
+    - `#1207 <https://github.com/ethereum/web3.py/pull/1207>`_
+  - Drop auto detect testnets for IPCProvider
+    - `#1206 <https://github.com/ethereum/web3.py/pull/1206>`_
+
+- Bugfixes
+
+  - Add check to make sure blockHash exists
+    - `#1158 <https://github.com/ethereum/web3.py/pull/1158>`_
+
+- Misc
+
+  - Remove some unreachable code in `providers/base.py`
+    - `#1160 <https://github.com/ethereum/web3.py/pull/1160>`_
+  - Migrate tester provider results from middleware to defaults
+    - `#1188 <https://github.com/ethereum/web3.py/pull/1188>`_
+  - Fix doc formatting for build_filter method
+    - `#1187 <https://github.com/ethereum/web3.py/pull/1187>`_
+  - Add ERC20 example in docs
+    - `#1178 <https://github.com/ethereum/web3.py/pull/1178>`_
+  - Code style improvements
+    - `#1194 <https://github.com/ethereum/web3.py/pull/1194>`_
+    & `#1191 <https://github.com/ethereum/web3.py/pull/1191>`_
+  - Convert Web3 instance variables to w3
+    - `#1186 <https://github.com/ethereum/web3.py/pull/1186>`_
+  - Update eth-utils dependencies and clean up other dependencies
+    - `#1195 <https://github.com/ethereum/web3.py/pull/1195>`_
+
+
 v5.0.0-alpha.2
 --------------
 

@@ -320,7 +320,7 @@ contract which conforms to this standard.
     assert alice == '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf', alice
     assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
     tx_hash = factory.constructor(1000000).transact({'from': alice})
-    assert tx_hash == b'h9\xeb\xdb4\x07\x03y\x92RP`X\xf6\xf7\x9f\xfaT\xed&e\xee*\xc2\rx\xb3\xab\x8c4\xc9\x1f', tx_hash
+    assert tx_hash == b",s\x8c\x1a\xc5\x8d\x1c\x8co\x00\x8d\xbeN\xe9fx\xe8a\xfdT\rL\xa6\xb4&\xef\x8c\xab\x1b\x1a'z", tx_hash
     txn_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
     assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']
