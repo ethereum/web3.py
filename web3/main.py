@@ -135,8 +135,8 @@ class Web3:
         self.ens = ens
 
     @property
-    def middleware_stack(self):
-        return self.manager.middleware_stack
+    def middleware_onion(self):
+        return self.manager.middleware_onion
 
     @property
     def provider(self):
