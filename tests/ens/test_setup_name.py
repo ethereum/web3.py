@@ -1,8 +1,5 @@
 import pytest
 
-from ens.exceptions import (
-    InvalidTLD,
-)
 from ens.main import (
     AddressMismatch,
     UnauthorizedError,
@@ -78,21 +75,6 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
     assert not ens.address(name)
 
 
-@pytest.mark.parametrize(
-    'name',
-    (
-        'tester',
-        'tester.com',
-        'lots.of.subdomains.tester',
-    ),
-)
-def test_cannot_setup_name_with_missing_or_invalid_tld(ens, name):
-    address = ens.web3.eth.accounts[3]
-    assert not ens.name(address)
-    with pytest.raises(InvalidTLD, match="ENS.py by default supports the following TLDs"):
-        ens.setup_name(name, address)
-
-
 def test_cannot_set_name_on_mismatch_address(ens, TEST_ADDRESS):
     ens.setup_address('mismatch-reverse.tester.eth', TEST_ADDRESS)
     with pytest.raises(AddressMismatch):
@@ -130,7 +112,7 @@ def test_setup_name_unowned_exception(ens):
 
 def test_setup_name_unauthorized(ens, TEST_ADDRESS):
     with pytest.raises(UnauthorizedError):
-        ens.setup_name('root-owned-tld.eth', TEST_ADDRESS)
+        ens.setup_name('root-owned-tld', TEST_ADDRESS)
 
 
 def test_setup_reverse_dict_unmodified(ens):

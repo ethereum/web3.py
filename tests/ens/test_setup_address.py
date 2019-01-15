@@ -11,9 +11,6 @@ from eth_utils import (
 from ens.constants import (
     EMPTY_ADDR_HEX,
 )
-from ens.exceptions import (
-    InvalidTLD,
-)
 from ens.main import (
     UnauthorizedError,
 )
@@ -80,20 +77,6 @@ def test_set_address(ens, name, full_name, namehash_hex, TEST_ADDRESS):
 
     ens.setup_address(name, None)
     assert ens.address(name) is None
-
-
-@pytest.mark.parametrize(
-    'name',
-    (
-        'tester',
-        'tester.com',
-        'TESTER',
-        'lots.of.subdomains.tester',
-    ),
-)
-def test_set_address_raises_exception_with_invalid_or_missing_tld(ens, name, TEST_ADDRESS):
-    with pytest.raises(InvalidTLD, match="ENS.py by default supports the following TLDs"):
-        ens.setup_address(name, TEST_ADDRESS)
 
 
 @pytest.mark.parametrize(

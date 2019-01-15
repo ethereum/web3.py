@@ -20,7 +20,6 @@ from ens.utils import (
     address_to_reverse_domain,
     default,
     dict_copy,
-    dot_eth_name,
     dot_eth_namehash,
     init_web3,
     is_valid_name,
@@ -265,7 +264,7 @@ class ENS:
         '''
         owner = None
         unowned = []
-        pieces = dot_eth_name(name).split('.')
+        pieces = normalize_name(name).split('.')
         while pieces and not owner:
             name = '.'.join(pieces)
             owner = self.owner(name)
@@ -301,7 +300,7 @@ class ENS:
     @dict_copy
     def _setup_reverse(self, name, address, transact={}):
         if name:
-            name = dot_eth_name(name)
+            name = normalize_name(name)
         else:
             name = ''
         transact['from'] = address
