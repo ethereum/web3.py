@@ -15,11 +15,11 @@ ACCOUNT_FOR_UNLOCK = '0x12efDc31B1a8FA1A1e756DFD8A1601055C971E13'
 
 class PersonalModuleTest:
     def test_personal_importRawKey(self, web3):
-        actual = web3.personal.importRawKey(PRIVATE_KEY_HEX, PASSWORD)
+        actual = web3.geth.personal.importRawKey(PRIVATE_KEY_HEX, PASSWORD)
         assert actual == ADDRESS
 
     def test_personal_listAccounts(self, web3):
-        accounts = web3.personal.listAccounts
+        accounts = web3.geth.personal.listAccounts
         assert is_list_like(accounts)
         assert len(accounts) > 0
         assert all((
@@ -30,23 +30,23 @@ class PersonalModuleTest:
 
     def test_personal_lockAccount(self, web3, unlockable_account_dual_type):
         # TODO: how do we test this better?
-        web3.personal.lockAccount(unlockable_account_dual_type)
+        web3.geth.personal.lockAccount(unlockable_account_dual_type)
 
     def test_personal_unlockAccount_success(self,
                                             web3,
                                             unlockable_account_dual_type,
                                             unlockable_account_pw):
-        result = web3.personal.unlockAccount(unlockable_account_dual_type, unlockable_account_pw)
+        result = web3.geth.personal.unlockAccount(unlockable_account_dual_type, unlockable_account_pw)
         assert result is True
 
     def test_personal_unlockAccount_failure(self,
                                             web3,
                                             unlockable_account_dual_type):
-        result = web3.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
+        result = web3.geth.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
         assert result is False
 
     def test_personal_newAccount(self, web3):
-        new_account = web3.personal.newAccount(PASSWORD)
+        new_account = web3.geth.personal.newAccount(PASSWORD)
         assert is_checksum_address(new_account)
 
     def test_personal_sendTransaction(self,
@@ -61,7 +61,7 @@ class PersonalModuleTest:
             'value': 1,
             'gasPrice': web3.toWei(1, 'gwei'),
         }
-        txn_hash = web3.personal.sendTransaction(txn_params, unlockable_account_pw)
+        txn_hash = web3.geth.personal.sendTransaction(txn_params, unlockable_account_pw)
         assert txn_hash
         transaction = web3.eth.getTransaction(txn_hash)
 
@@ -75,7 +75,7 @@ class PersonalModuleTest:
                                          web3,
                                          unlockable_account_dual_type,
                                          unlockable_account_pw):
-        message = 'test-web3-personal-sign'
-        signature = web3.personal.sign(message, unlockable_account_dual_type, unlockable_account_pw)
-        signer = web3.personal.ecRecover(message, signature)
+        message = 'test-web3-geth-personal-sign'
+        signature = web3.geth.personal.sign(message, unlockable_account_dual_type, unlockable_account_pw)
+        signer = web3.geth.personal.ecRecover(message, signature)
         assert is_same_address(signer, unlockable_account_dual_type)

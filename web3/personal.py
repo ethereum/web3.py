@@ -1,11 +1,10 @@
-from web3.module import (
-    Module,
-)
-
-
-class Personal(Module):
+class Personal():
     """
-    https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal
+    This API is not automatically available on a `web3` instance, rather it should be accessed
+    through `web3.geth.personal` or `web3.parity.personal`.
+
+    All RPC endpoints under the personal namespace should be added here, and NotImplementedErrors
+    should be raised in subclasses if the endpoints are not supported by the respective client.
     """
     def importRawKey(self, private_key, passphrase):
         return self.web3.manager.request_blocking(
