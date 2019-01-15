@@ -1,16 +1,41 @@
 from eth_utils.toolz import (
+    assoc,
     curry,
     pipe,
 )
 
 
 @curry
+def apply_response_formatters(
+        response_formatters,
+        response):
+
+    result_formatters, error_formatters = response_formatters
+
+    if 'result' in response and result_formatters:
+        formatted_response = assoc(
+            response,
+            'result',
+            pipe(response['result'], *result_formatters),
+        )
+        return formatted_response
+    elif 'error' in response and error_formatters:
+        formatted_response = assoc(
+            response,
+            'error',
+            pipe(response['error'], *error_formatters),
+        )
+        return formatted_response
+    else:
+        return response
+
+
+@curry
 def retrieve_blocking_method_call_fn(w3, module, method):
     def caller(*args, **kwargs):
         (method_str, params), output_formatters = method.process_params(module, *args, **kwargs)
-        return pipe(
-            w3.manager.request_blocking(method_str, params),
-            *output_formatters)
+        response = w3.manager.request_blocking(method_str, params)
+        return apply_response_formatters(output_formatters, response)
     return caller
 
 
