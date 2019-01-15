@@ -47,7 +47,7 @@ def test_wait_for_missing_receipt(web3):
 
 
 def test_unmined_transaction_wait_for_receipt(web3):
-    web3.middleware_stack.add(unmined_receipt_simulator_middleware)
+    web3.middleware_onion.add(unmined_receipt_simulator_middleware)
     txn_hash = web3.eth.sendTransaction({
         'from': web3.eth.coinbase,
         'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',

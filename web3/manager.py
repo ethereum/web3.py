@@ -35,7 +35,7 @@ class RequestManager:
         if middlewares is None:
             middlewares = self.default_middlewares(web3)
 
-        self.middleware_stack = NamedElementOnion(middlewares)
+        self.middleware_onion = NamedElementOnion(middlewares)
 
         if provider is None:
             self.provider = AutoProvider()
@@ -75,7 +75,7 @@ class RequestManager:
     #
     def _make_request(self, method, params):
         if self.provider:
-            request_func = self.provider.request_func(self.web3, tuple(self.middleware_stack))
+            request_func = self.provider.request_func(self.web3, tuple(self.middleware_onion))
             self.logger.debug("Making request. Method: %s", method)
             return request_func(method, params)
         else:

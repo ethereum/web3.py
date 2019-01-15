@@ -52,8 +52,8 @@ def w3_base():
 
 @pytest.fixture(scope='function')
 def w3(w3_base, result_generator_middleware):
-    w3_base.middleware_stack.add(result_generator_middleware)
-    w3_base.middleware_stack.add(local_filter_middleware)
+    w3_base.middleware_onion.add(result_generator_middleware)
+    w3_base.middleware_onion.add(local_filter_middleware)
     return w3_base
 
 

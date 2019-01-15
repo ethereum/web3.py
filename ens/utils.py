@@ -62,8 +62,8 @@ def customize_web3(w3):
     from web3.contract import ConciseContract
     from web3.middleware import make_stalecheck_middleware
 
-    w3.middleware_stack.remove('name_to_address')
-    w3.middleware_stack.add(
+    w3.middleware_onion.remove('name_to_address')
+    w3.middleware_onion.add(
         make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600),
         name='stalecheck',
     )

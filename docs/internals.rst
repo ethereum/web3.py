@@ -197,7 +197,7 @@ middleware performs the following translations for requests and responses.
 * Numeric responses will be converted from their hexadecimal representations to
   their integer representations.
 
-The ``RequestManager`` object exposes the ``middleware_stack`` object to manage middlewares. It
+The ``RequestManager`` object exposes the ``middleware_onion`` object to manage middlewares. It
 is also exposed on the ``Web3`` object for convenience. That API is detailed in
 :ref:`Modifying_Middleware`.
 
