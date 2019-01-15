@@ -1,13 +1,20 @@
 import functools
 import warnings
 
-from eth_utils import (
-    to_tuple,
-)
 from eth_utils.toolz import (
-    identity,
     pipe,
 )
+
+from web3._utils.method_formatters import (
+    lookup_formatters,
+)
+
+
+def _apply_request_formatters(params, request_formatters):
+    if request_formatters:
+        formatted_params = pipe(params, *request_formatters)
+        return formatted_params
+    return params
 
 
 def _munger_star_apply(fn):
@@ -15,10 +22,6 @@ def _munger_star_apply(fn):
     def inner(args):
         return fn(*args)
     return inner
-
-
-def get_default_formatters(*args, **kwargs):
-    return ([identity], [identity],)
 
 
 def default_munger(module, *args, **kwargs):
@@ -84,7 +87,7 @@ class Method:
 
         self.json_rpc_method = json_rpc_method
         self.mungers = mungers or [default_munger]
-        self.formatter_lookup_fn = formatter_lookup_fn or get_default_formatters
+        self.formatter_lookup_fn = formatter_lookup_fn or lookup_formatters
 
     def __get__(self, obj=None, obj_type=None):
         if obj is None:
@@ -111,14 +114,9 @@ class Method:
         the request and output formatters, respectively.
         """
         formatters = self.formatter_lookup_fn(method_string)
-        return formatters or get_default_formatters()
+        return formatters
 
-    def input_munger(self, val):
-        try:
-            module, args, kwargs = val
-        except TypeError:
-            raise ValueError("input_munger expects a 3-tuple")
-
+    def input_munger(self, module, args, kwargs):
         # TODO: Create friendly error output.
         mungers_iter = iter(self.mungers)
         root_munger = next(mungers_iter)
@@ -129,28 +127,13 @@ class Method:
         return munged_inputs
 
     def process_params(self, module, *args, **kwargs):
-        # takes in input params, steps 1-3
-        params, method, (req_formatters, ret_formatters) = _pipe_and_accumulate(
-            (module, args, kwargs,),
-            [self.input_munger, self.method_selector_fn, self.get_formatters])
+        params = self.input_munger(module, args, kwargs)
+        method = self.method_selector_fn(params)
+        request_formatters, response_formatters = self.get_formatters(method)
 
-        return (method, pipe(params, *req_formatters)), ret_formatters
+        request = (method, _apply_request_formatters(params, request_formatters))
 
-
-@to_tuple
-def _pipe_and_accumulate(val, fns):
-    """pipes val through a list of fns while accumulating results from
-    each function, returning a tuple.
-
-    e.g.:
-
-        >>> _pipe_and_accumulate([lambda x: x**2, lambda x: x*10], 5)
-        (25, 250)
-
-    """
-    for fn in fns:
-        val = fn(val)
-        yield val
+        return request, response_formatters
 
 
 class DeprecatedMethod():
