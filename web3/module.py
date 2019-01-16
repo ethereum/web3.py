@@ -1,50 +1,38 @@
 from eth_utils.toolz import (
-    assoc,
     curry,
     pipe,
 )
 
 
 @curry
-def apply_response_formatters(
-        response_formatters,
-        response):
+def apply_result_formatters(
+        result_formatters,
+        result):
 
-    result_formatters, error_formatters = response_formatters
-
-    if 'result' in response and result_formatters:
-        formatted_response = assoc(
-            response,
-            'result',
-            pipe(response['result'], *result_formatters),
-        )
-        return formatted_response
-    elif 'error' in response and error_formatters:
-        formatted_response = assoc(
-            response,
-            'error',
-            pipe(response['error'], *error_formatters),
-        )
-        return formatted_response
+    if result_formatters:
+        formatted_result = pipe(result, *result_formatters)
+        return formatted_result
     else:
-        return response
+        return result
 
 
 @curry
 def retrieve_blocking_method_call_fn(w3, module, method):
     def caller(*args, **kwargs):
-        (method_str, params), output_formatters = method.process_params(module, *args, **kwargs)
-        response = w3.manager.request_blocking(method_str, params)
-        return apply_response_formatters(output_formatters, response)
+        (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)
+        result_formatters, error_formatters = response_formatters
+        result = w3.manager.request_blocking(method_str, params, error_formatters)
+        return apply_result_formatters(result_formatters, result)
     return caller
 
 
 @curry
 def retrieve_async_method_call_fn(w3, module, method):
     async def caller(*args, **kwargs):
-        (method_str, params), output_formatters = method.process_params(module, *args, **kwargs)
-        raw_result = await w3.manager.coro_request(method_str, params)
-        return pipe(raw_result, *output_formatters)
+        (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)
+        result_formatters, error_formatters = response_formatters
+        result = await w3.manager.coro_request(method_str, params, error_formatters)
+        return apply_result_formatters(result_formatters, result)
     return caller
 
 
