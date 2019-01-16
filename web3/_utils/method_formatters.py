@@ -43,6 +43,16 @@ from web3._utils.formatters import (
     is_array_of_strings,
     remove_key_if,
 )
+from web3._utils.normalizers import (
+    abi_address_to_hex,
+    abi_bytes_to_hex,
+    abi_int_to_hex,
+    abi_string_to_hex,
+)
+from web3._utils.rpc_abi import (
+    RPC_ABIS,
+    abi_request_formatters,
+)
 from web3._utils.toolz.curried import (
     keymap,
     valmap,
@@ -387,6 +397,17 @@ ATTRDICT_FORMATTER = {
 }
 
 
+STANDARD_NORMALIZERS = [
+    abi_bytes_to_hex,
+    abi_int_to_hex,
+    abi_string_to_hex,
+    abi_address_to_hex,
+]
+
+
+ABI_REQUEST_FORMATTERS = abi_request_formatters(STANDARD_NORMALIZERS, RPC_ABIS)
+
+
 @curry
 def method_filter(formatter_dict, method):
     if method in formatter_dict:
@@ -398,6 +419,7 @@ def method_filter(formatter_dict, method):
 REQUEST_FORMATTER_MAPS = (
     method_filter(METHOD_NORMALIZERS),
     method_filter(PYTHONIC_RESULT_FORMATTERS),
+    method_filter(ABI_REQUEST_FORMATTERS),
 )
 
 
@@ -406,10 +428,8 @@ RESULT_FORMATTER_MAPS = (
     method_filter(ATTRDICT_FORMATTER),
 )
 
-
 #  Note error formatters work on the full response dict
 ERROR_FORMATTER_MAPS = (
-
 )
 
 

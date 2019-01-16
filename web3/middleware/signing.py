@@ -19,6 +19,9 @@ from eth_utils import (
 from web3._utils.formatters import (
     apply_formatter_if,
 )
+from web3._utils.method_formatters import (
+    STANDARD_NORMALIZERS,
+)
 from web3._utils.rpc_abi import (
     TRANSACTION_PARAMS_ABIS,
     apply_abi_formatters_to_dict,
@@ -29,10 +32,6 @@ from web3._utils.toolz import (
 from web3._utils.transactions import (
     fill_nonce,
     fill_transaction_defaults,
-)
-
-from .abi import (
-    STANDARD_NORMALIZERS,
 )
 
 to_hexstr_from_eth_key = operator.methodcaller('to_hex')
