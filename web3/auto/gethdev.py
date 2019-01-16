@@ -10,4 +10,4 @@ from web3.providers.ipc import (
 )
 
 w3 = Web3(IPCProvider(get_dev_ipc_path()))
-w3.middleware_stack.inject(geth_poa_middleware, layer=0)
+w3.middleware_onion.inject(geth_poa_middleware, layer=0)
