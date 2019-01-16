@@ -1,26 +1,11 @@
-from web3._utils.normalizers import (
-    abi_address_to_hex,
-    abi_bytes_to_hex,
-    abi_int_to_hex,
-    abi_string_to_hex,
-)
-from web3._utils.rpc_abi import (
-    RPC_ABIS,
-    abi_request_formatters,
+from web3._utils.method_formatters import (
+    ABI_REQUEST_FORMATTERS,
 )
 
 from .formatting import (
     construct_formatting_middleware,
 )
 
-STANDARD_NORMALIZERS = [
-    abi_bytes_to_hex,
-    abi_int_to_hex,
-    abi_string_to_hex,
-    abi_address_to_hex,
-]
-
-
 abi_middleware = construct_formatting_middleware(
-    request_formatters=abi_request_formatters(STANDARD_NORMALIZERS, RPC_ABIS)
+    request_formatters=ABI_REQUEST_FORMATTERS
 )
