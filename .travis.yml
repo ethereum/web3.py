@@ -4,23 +4,23 @@ dist: trusty
 matrix:
   include:
     #
-    # Python 3.5 testing
-    #
-    # lint
-    - python: "3.5"
-      env: TOX_POSARGS="-e lint"
-    # doctest
-    - python: "3.5"
-      env: TOX_POSARGS="-e doctest"
-    # core
-    - python: "3.5"
-      env: TOX_POSARGS="-e py35-core"
-    #
     # Python 3.6 testing
     #
     # core
     - python: "3.6"
       env: TOX_POSARGS="-e py36-core"
+    # lint
+    - python: "3.6"
+      env: TOX_POSARGS="-e lint"
+    # doctest
+    - python: "3.6"
+      env: TOX_POSARGS="-e doctest"
+    #
+    # Python 3.7 testing
+    #
+    # core
+    - python: "3.7"
+      env: TOX_POSARGS="-e py37-core"
     #
     # pypy3 testing
     #

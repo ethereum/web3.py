@@ -49,7 +49,7 @@ setup(
         "eth-utils>=1,<2",
     ],
     setup_requires=['setuptools-markdown'],
-    python_requires='>=3.5, <4',
+    python_requires='>=3.6, <4',
     extras_require=extras_require,
     py_modules=['<MODULE_NAME>'],
     license="MIT",
@@ -62,8 +62,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
 )
