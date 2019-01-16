@@ -81,8 +81,8 @@ class RequestManager:
             (attrdict_middleware, 'attrdict'),  # Delete
             (pythonic_middleware, 'pythonic'),  # Delete
             (normalize_errors_middleware, 'normalize_errors'),  # Add async
-            (validation_middleware, 'validation'),  # Migrate
-            (abi_middleware, 'abi'),  # Migrate
+            (validation_middleware, 'validation'),  # Add async
+            (abi_middleware, 'abi'),  # Delete
         ]
 
     #
