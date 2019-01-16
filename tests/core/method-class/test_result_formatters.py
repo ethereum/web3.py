@@ -26,7 +26,7 @@ def result_formatter(result):
 
 
 def formatters(method):
-    return ((identity,), (result_formatter,))
+    return ((identity,), ((result_formatter,), None))
 
 
 def test_method():
@@ -43,7 +43,7 @@ class DummyProvider(BaseProvider):
 
 result_middleware = construct_result_generator_middleware(
     {
-        'test_method': lambda m, p: {'result': 'ok'},
+        'test_method': lambda m, p: 'ok',
     })
 
 

@@ -1,6 +1,10 @@
 import logging
 import uuid
 
+from eth_utils.toolz import (
+    pipe,
+)
+
 from web3._utils.decorators import (
     deprecated_for,
 )
@@ -23,6 +27,17 @@ from web3.middleware import (
 from web3.providers import (
     AutoProvider,
 )
+
+
+def apply_error_formatters(
+        error_formatters,
+        response):
+
+    if 'error' in response and error_formatters:
+        formatted_response = pipe(response, *error_formatters)
+        return formatted_response
+    else:
+        return response
 
 
 class RequestManager:
@@ -87,22 +102,24 @@ class RequestManager:
         self.logger.debug("Making request. Method: %s", method)
         return await request_func(method, params)
 
-    def request_blocking(self, method, params):
+    def request_blocking(self, method, params, error_formatters=None):
         """
         Make a synchronous request using the provider
         """
         response = self._make_request(method, params)
+        apply_error_formatters(error_formatters, response)
 
         if "error" in response:
             raise ValueError(response["error"])
 
         return response['result']
 
-    async def coro_request(self, method, params):
+    async def coro_request(self, method, params, error_formatters=None):
         """
         Couroutine for making a request using the provider
         """
         response = await self._coro_make_request(method, params)
+        apply_error_formatters(error_formatters, response)
 
         if "error" in response:
             raise ValueError(response["error"])

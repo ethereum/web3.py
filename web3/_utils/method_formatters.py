@@ -407,6 +407,7 @@ RESULT_FORMATTER_MAPS = (
 )
 
 
+#  Note error formatters work on the full response dict
 ERROR_FORMATTER_MAPS = (
 
 )

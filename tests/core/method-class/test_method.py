@@ -13,7 +13,7 @@ from web3.method import (
 )
 from web3.module import (
     ModuleV2,
-    apply_response_formatters,
+    apply_result_formatters,
 )
 
 
@@ -52,11 +52,10 @@ def test_get_formatters_default_formatter_for_falsy_config():
         formatter_lookup_fn=''
     )
 
-    default_request_formatters, default_response_formatters = method.get_formatters('')
-
+    default_request_formatters, (default_result_formatters, _) = method.get_formatters('')
     assert _apply_request_formatters(['a', 'b', 'c'], default_request_formatters) == ['a', 'b', 'c']
-    assert apply_response_formatters(
-        default_response_formatters, {'result': ['a', 'b', 'c']}) == {'result': ['a', 'b', 'c']}
+    assert apply_result_formatters(
+        default_result_formatters, ['a', 'b', 'c']) == ['a', 'b', 'c']
 
 
 def test_get_formatters_non_falsy_config_retrieval():
