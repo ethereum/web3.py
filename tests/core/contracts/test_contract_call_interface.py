@@ -611,34 +611,3 @@ def test_invalid_fixed_value_reflections(web3, fixed_reflection_contract, functi
     contract_func = fixed_reflection_contract.functions[function]
     with pytest.raises(ValidationError, match=error):
         contract_func(value).call({'gas': 420000})
-
-
-def test_caller_default(math_contract):
-    result = math_contract.caller.add(3, 5)
-    assert result == 8
-
-
-def test_caller_with_parens(math_contract):
-    result = math_contract.caller().return13()
-    assert result == 13
-
-
-def test_caller_with_parens_and_transaction_dict(math_contract):
-    result = math_contract.caller({'from': 'notarealaddress.eth'}).add(2, 3)
-    assert result == 5
-
-
-def test_caller_with_no_abi(web3):
-    with pytest.raises(NoABIFunctionsFound):
-        contract = web3.eth.contract()
-        contract.caller().thisFunctionDoesNotExist()
-
-
-def test_caller_with_block_identifier(math_contract):
-    result = math_contract.caller(block_identifier=10).return13()
-    assert result == 13
-
-
-def test_caller_with_transaction_keyword(math_contract):
-    result = math_contract.caller(transaction={'from': 'notarealaddress.eth'}).return13()
-    assert result == 13

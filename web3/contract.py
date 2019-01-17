@@ -1340,10 +1340,11 @@ class ContractEvent:
 
 class ContractCaller:
     def __init__(self, abi, web3, address, *args, transaction_dict=None, **kwargs):
+        self.web3 = web3
+        self.address = address
+
         if abi:
-            self.web3 = web3
             self.abi = abi
-            self.address = address
 
             if transaction_dict is None:
                 transaction_dict = {}
