@@ -157,7 +157,7 @@ def label_to_hash(label):
     return Web3().keccak(text=label)
 
 
-def name_to_hash(name):
+def normal_name_to_hash(name):
     node = EMPTY_SHA3_BYTES
     if name:
         labels = name.split(".")
@@ -169,7 +169,7 @@ def name_to_hash(name):
     return node
 
 
-def dot_eth_namehash(name):
+def raw_name_to_hash(name):
     '''
     Generate the namehash. This is also known as the ``node`` in ENS contracts.
 
@@ -185,8 +185,8 @@ def dot_eth_namehash(name):
     :rtype: bytes
     :raises InvalidName: if ``name`` has invalid syntax
     '''
-    expanded_name = normalize_name(name)
-    return name_to_hash(expanded_name)
+    normalized_name = normalize_name(name)
+    return normal_name_to_hash(normalized_name)
 
 
 def address_in(address, addresses):
