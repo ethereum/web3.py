@@ -1358,24 +1358,24 @@ class ContractEvent:
                 toBlock="latest"):
         """Get events for this contract instance using eth_getLogs API.
 
-        This is a stateless method, as opposite to createFilter.
+        This is a stateless method, as opposed to createFilter.
         It can be safely called against nodes which do not provide
         eth_newFilter API, like Infura nodes.
 
         If no block range is provided and there are many events,
         like ``Transfer`` events for a popular token,
-        the Ethereum node might be overload and timeout
-        on underlying JSON-RPC call.
+        the Ethereum node might be overloaded and timeout
+        on the underlying JSON-RPC call.
 
         Example - how to get all ERC-20 token transactions
         for the latest 10 blocks:
 
         .. code-block:: python
 
-            f = max(mycontract.web3.eth.blockNumber - 10, 1)
-            t= mycontract.web3.eth.blockNumber
+            from = max(mycontract.web3.eth.blockNumber - 10, 1)
+            to = mycontract.web3.eth.blockNumber
 
-            events = mycontract.events.Transfer.getLogs(fromBlock=f, toBlock=t)
+            events = mycontract.events.Transfer.getLogs(fromBlock=from, toBlock=to)
 
             for e in events:
                 print(e["args"]["from"],
@@ -1403,9 +1403,9 @@ class ContractEvent:
 
         See also: :func:`web3.middleware.filter.local_filter_middleware`.
 
-        :param argument_filters: TODO
+        :param argument_filters:
         :param fromBlock: block number, defaults to 1
-        :param toBlock: "block number or "latest", defaults to "latest"
+        :param toBlock: block number or "latest". Defaults to "latest"
         :yield: Tuple of :class:`AttributeDict` instances
         """
 
