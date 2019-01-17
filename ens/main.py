@@ -20,13 +20,12 @@ from ens.utils import (
     address_to_reverse_domain,
     default,
     dict_copy,
-    dot_eth_name,
-    dot_eth_namehash,
     init_web3,
     is_valid_name,
     label_to_hash,
-    name_to_hash,
+    normal_name_to_hash,
     normalize_name,
+    raw_name_to_hash,
 )
 
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
@@ -43,7 +42,7 @@ class ENS:
     '''
 
     labelhash = staticmethod(label_to_hash)
-    namehash = staticmethod(dot_eth_namehash)
+    namehash = staticmethod(raw_name_to_hash)
     nameprep = staticmethod(normalize_name)
     is_valid_name = staticmethod(is_valid_name)
     reverse_domain = staticmethod(address_to_reverse_domain)
@@ -72,19 +71,14 @@ class ENS:
         '''
         return cls(web3.manager.provider, addr=addr)
 
-    def address(self, name, guess_tld=True):
+    def address(self, name):
         '''
         Look up the Ethereum address that `name` currently points to.
 
         :param str name: an ENS name to look up
-        :param bool guess_tld: should `name` be appended with '.eth' if no common TLD found?
         :raises InvalidName: if `name` has invalid syntax
         '''
-        if guess_tld:
-            expanded = dot_eth_name(name)
-        else:
-            expanded = name
-        return self.resolve(expanded, 'addr')
+        return self.resolve(name, 'addr')
 
     def name(self, address):
         '''
@@ -109,9 +103,9 @@ class ENS:
         and calls this method with ``sub.parentname.eth``,
         then ``sub`` will be created as part of this call.
 
-        :param str name: ENS name to set up, in checksum format
-        :param str address: name will point to this address. If ``None``, erase the record.
-            If not specified, name will point to the owner's address.
+        :param str name: ENS name to set up
+        :param str address: name will point to this address, in checksum format. If ``None``,
+            erase the record. If not specified, name will point to the owner's address.
         :param dict transact: the transaction configuration, like in
             :meth:`~web3.eth.Eth.sendTransaction`
         :raises InvalidName: if ``name`` has invalid syntax
@@ -133,7 +127,7 @@ class ENS:
             address = EMPTY_ADDR_HEX
         transact['from'] = owner
         resolver = self._set_resolver(name, transact=transact)
-        return resolver.setAddr(dot_eth_namehash(name), address, transact=transact)
+        return resolver.setAddr(raw_name_to_hash(name), address, transact=transact)
 
     @dict_copy
     def setup_name(self, name, address=None, transact={}):
@@ -183,13 +177,13 @@ class ENS:
         resolver = self.resolver(normal_name)
         if resolver:
             lookup_function = getattr(resolver, get)
-            namehash = name_to_hash(normal_name)
+            namehash = normal_name_to_hash(normal_name)
             return lookup_function(namehash)
         else:
             return None
 
     def resolver(self, normal_name):
-        resolver_addr = self.ens.resolver(name_to_hash(normal_name))
+        resolver_addr = self.ens.resolver(normal_name_to_hash(normal_name))
         if not resolver_addr:
             return None
         return self._resolverContract(address=resolver_addr)
@@ -209,7 +203,7 @@ class ENS:
         :return: owner address
         :rtype: str
         '''
-        node = dot_eth_namehash(name)
+        node = raw_name_to_hash(name)
         return self.ens.owner(node)
 
     @dict_copy
@@ -270,7 +264,7 @@ class ENS:
         '''
         owner = None
         unowned = []
-        pieces = dot_eth_name(name).split('.')
+        pieces = normalize_name(name).split('.')
         while pieces and not owner:
             name = '.'.join(pieces)
             owner = self.owner(name)
@@ -283,7 +277,7 @@ class ENS:
         transact['from'] = old_owner or owner
         for label in reversed(unowned):
             self.ens.setSubnodeOwner(
-                dot_eth_namehash(owned),
+                raw_name_to_hash(owned),
                 label_to_hash(label),
                 owner,
                 transact=transact
@@ -294,7 +288,7 @@ class ENS:
     def _set_resolver(self, name, resolver_addr=None, transact={}):
         if not resolver_addr:
             resolver_addr = self.address('resolver.eth')
-        namehash = dot_eth_namehash(name)
+        namehash = raw_name_to_hash(name)
         if self.ens.resolver(namehash) != resolver_addr:
             self.ens.setResolver(
                 namehash,
@@ -306,12 +300,12 @@ class ENS:
     @dict_copy
     def _setup_reverse(self, name, address, transact={}):
         if name:
-            name = dot_eth_name(name)
+            name = normalize_name(name)
         else:
             name = ''
         transact['from'] = address
         return self._reverse_registrar().setName(name, transact=transact)
 
     def _reverse_registrar(self):
-        addr = self.ens.owner(name_to_hash(REVERSE_REGISTRAR_DOMAIN))
+        addr = self.ens.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
         return self.web3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)

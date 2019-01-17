@@ -1,4 +1,3 @@
-
 import pytest
 
 from ens.main import (
@@ -28,12 +27,7 @@ def TEST_ADDRESS(address_conversion_func):
             '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
         (
-            'tester',
-            'tester.eth',
-            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
-        ),
-        (
-            'TESTER',
+            'TESTER.eth',
             'tester.eth',
             '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
@@ -58,24 +52,15 @@ def TEST_ADDRESS(address_conversion_func):
             'lots.of.subdomains.tester.eth',
             '0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
         ),
-        (
-            'lots.of.subdomains.tester',
-            'lots.of.subdomains.tester.eth',
-            '0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
-        ),
     ],
 )
 def test_setup_name(ens, name, normalized_name, namehash_hex):
     address = ens.web3.eth.accounts[3]
     assert not ens.name(address)
-    owner = ens.owner('tester')
+    owner = ens.owner('tester.eth')
 
     ens.setup_name(name, address)
     assert ens.name(address) == normalized_name
-
-    # check that .eth is only appended if guess_tld is True
-    if ens.nameprep(name) != normalized_name:
-        assert ens.address(name, guess_tld=False) is None
 
     # check that the correct namehash is set:
     node = Web3.toBytes(hexstr=namehash_hex)

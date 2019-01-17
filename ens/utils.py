@@ -1,4 +1,3 @@
-
 import copy
 import datetime
 import functools
@@ -16,7 +15,6 @@ from ens.constants import (
     AUCTION_START_GAS_MARGINAL,
     EMPTY_SHA3_BYTES,
     MIN_ETH_LABEL_LENGTH,
-    RECOGNIZED_TLDS,
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
@@ -108,18 +106,6 @@ def is_valid_name(name):
         return False
 
 
-def label_to_name(label, default_tld, recognized_tlds):
-    label = normalize_name(label)
-    pieces = label.split('.')
-    if pieces[-1] not in recognized_tlds:
-        pieces.append(default_tld)
-    return '.'.join(pieces)
-
-
-def dot_eth_name(label):
-    return label_to_name(label, 'eth', RECOGNIZED_TLDS)
-
-
 def name_to_label(name, registrar):
     name = normalize_name(name)
     if '.' not in name:
@@ -171,7 +157,7 @@ def label_to_hash(label):
     return Web3().keccak(text=label)
 
 
-def name_to_hash(name):
+def normal_name_to_hash(name):
     node = EMPTY_SHA3_BYTES
     if name:
         labels = name.split(".")
@@ -183,15 +169,14 @@ def name_to_hash(name):
     return node
 
 
-def dot_eth_namehash(name):
+def raw_name_to_hash(name):
     '''
     Generate the namehash. This is also known as the ``node`` in ENS contracts.
 
     In normal operation, generating the namehash is handled
     behind the scenes. For advanced usage, it is a helpful utility.
 
-    This will add '.eth' to name if no TLD given. Also, it normalizes the name with
-    `nameprep
+    This normalizes the name with `nameprep
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
     before hashing.
 
@@ -200,8 +185,8 @@ def dot_eth_namehash(name):
     :rtype: bytes
     :raises InvalidName: if ``name`` has invalid syntax
     '''
-    expanded_name = dot_eth_name(name)
-    return name_to_hash(expanded_name)
+    normalized_name = normalize_name(name)
+    return normal_name_to_hash(normalized_name)
 
 
 def address_in(address, addresses):
