@@ -58,13 +58,6 @@ class StaleBlockchain(Exception):
         return self.args[0]
 
 
-class UnhandledRequest(Exception):
-    """
-    Raised by the manager when none of it's providers responds to a request.
-    """
-    pass
-
-
 class MismatchedABI(Exception):
     """
     Raised when an ABI does not match with supplied parameters, or when an
