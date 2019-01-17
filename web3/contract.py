@@ -265,11 +265,12 @@ class Contract:
             class_name or cls.__name__,
             (cls,),
             kwargs,
-            normalizers=normalizers)
-        setattr(contract, 'functions', ContractFunctions(contract.abi, contract.web3))
-        setattr(contract, 'caller', ContractCaller(contract.abi, contract.web3, contract.address))
-        setattr(contract, 'events', ContractEvents(contract.abi, contract.web3))
-        setattr(contract, 'fallback', Contract.get_fallback_function(contract.abi, contract.web3))
+            normalizers=normalizers,
+        )
+        contract.functions = ContractFunctions(contract.abi, contract.web3)
+        contract.caller = ContractCaller(contract.abi, contract.web3, contract.address)
+        contract.events = ContractEvents(contract.abi, contract.web3)
+        contract.fallback = Contract.get_fallback_function(contract.abi, contract.web3)
 
         return contract
 
