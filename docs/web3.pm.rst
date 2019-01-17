@@ -8,15 +8,30 @@ To learn more about the EthPM spec, visit the `documentation <http://ethpm.githu
 To learn more about the Py-EthPM library used in this module, visit the `documentation <https://py-ethpm.readthedocs.io/en/latest/>`__.
 
 
-Attaching
----------
-  To use ``web3.pm``, attach it to your ``web3`` instance.
- 	 
- .. code-block:: python
- 	 
-    from web3.pm import PM
-    PM.attach(web3, 'pm')
- 	 
+.. WARNING::
+
+   The ``web3.pm`` API is still under development and likely to change quickly.
+
+   Now is a great time to get familiar with the API, and test out writing
+   code that uses some of the great upcoming features.
+
+   By default, access to this module has been turned off in the stable version of Web3.py:
+
+   .. code-block:: python
+
+      >>> from web3.auto import w3
+      >>> w3.pm
+      ...
+      AttributeError: The Package Management feature is disabled by default ...
+
+   In order to access these features, you can turn it on with...
+
+   .. code-block:: python
+
+      >>> web3.enable_unstable_package_management_api()
+      >>> w3.pm
+      <web3.pm.PM at 0x....>
+
 
 Methods
 -------

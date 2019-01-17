@@ -13,7 +13,6 @@ from web3.exceptions import (
     InvalidAddress,
 )
 from web3.pm import (
-    PM,
     VyperReferenceRegistry,
 )
 
@@ -119,19 +118,18 @@ def ens_setup(deployer):
 def ens(ens_setup, mocker):
     mocker.patch('web3.middleware.stalecheck._isfresh', return_value=True)
     ens_setup.web3.eth.defaultAccount = ens_setup.web3.eth.coinbase
+    ens_setup.web3.enable_unstable_package_management_api()
     return ens_setup
 
 
 def test_ens_must_be_set_before_ens_methods_can_be_used(ens):
     w3 = ens.web3
-    PM.attach(w3, 'pm')
     with pytest.raises(InvalidAddress):
         w3.pm.set_registry("tester.eth")
 
 
 def test_web3_ens(ens):
     w3 = ens.web3
-    PM.attach(w3, 'pm')
     ns = ENS.fromWeb3(w3, ens.ens.address)
     w3.ens = ns
     registry = VyperReferenceRegistry.deploy_new_instance(w3)

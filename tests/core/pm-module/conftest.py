@@ -27,7 +27,6 @@ from pytest_ethereum.deployer import (
 
 from web3 import Web3
 from web3.pm import (
-    PM,
     SolidityReferenceRegistry,
     VyperReferenceRegistry,
 )
@@ -61,7 +60,7 @@ def setup_w3():
     w3 = Web3(Web3.EthereumTesterProvider(ethereum_tester=t))
     w3.eth.defaultAccount = w3.eth.accounts[0]
     w3.eth.defaultContractFactory = LinkableContract
-    PM.attach(w3, 'pm')
+    w3.enable_unstable_package_management_api()
     return w3
 
 
