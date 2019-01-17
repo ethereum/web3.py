@@ -168,7 +168,7 @@ un-indexed event arguments. The parameter ``data_filter_set`` should be a list o
 Getting events without setting up a filter
 ------------------------------------------
 
-You can query Ethereum node for direct fetch of events, without creating a filter first.
+You can query an Ethereum node for direct fetch of events, without creating a filter first.
 This works on all node types, including Infura.
 
 For examples see :meth:`web3.contract.ContractEvents.getLogs`.
