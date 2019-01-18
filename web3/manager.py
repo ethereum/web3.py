@@ -96,6 +96,10 @@ class RequestManager:
         if "error" in response:
             raise ValueError(response["error"])
 
+        # Raise exception for all jsonrpc calls that return None except getTransactionReceipt
+        if method != 'eth_getTransactionReceipt' and response['result'] is None:
+            raise ValueError(f"The call to {method} did not return a value.")
+
         return response['result']
 
     async def coro_request(self, method, params):

@@ -485,8 +485,8 @@ class EthModuleTest:
         assert block['hash'] == empty_block['hash']
 
     def test_eth_getBlockByHash_not_found(self, web3, empty_block):
-        block = web3.eth.getBlock(UNKNOWN_HASH)
-        assert block is None
+        with pytest.raises(ValueError):
+            web3.eth.getBlock(UNKNOWN_HASH)
 
     def test_eth_getBlockByNumber_with_integer(self, web3, empty_block):
         block = web3.eth.getBlock(empty_block['number'])
@@ -498,8 +498,8 @@ class EthModuleTest:
         assert block['number'] == current_block_number
 
     def test_eth_getBlockByNumber_not_found(self, web3, empty_block):
-        block = web3.eth.getBlock(12345)
-        assert block is None
+        with pytest.raises(ValueError):
+            web3.eth.getBlock(12345)
 
     def test_eth_getBlockByNumber_pending(self, web3, empty_block):
         current_block_number = web3.eth.blockNumber
