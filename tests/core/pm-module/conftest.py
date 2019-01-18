@@ -1,7 +1,5 @@
 import json
-import logging
 import pytest
-import sys
 
 from eth_tester import (
     EthereumTester,
@@ -9,6 +7,7 @@ from eth_tester import (
 )
 from eth_utils import (
     function_abi_to_4byte_selector,
+    to_bytes,
     to_canonical_address,
 )
 from ethpm import (
@@ -19,7 +18,7 @@ from ethpm.contract import (
     LinkableContract,
 )
 from pytest_ethereum import (
-    linker as l,
+    linker,
 )
 from pytest_ethereum.deployer import (
     Deployer,
@@ -27,28 +26,24 @@ from pytest_ethereum.deployer import (
 
 from web3 import Web3
 from web3.pm import (
-    PM,
     SolidityReferenceRegistry,
     VyperReferenceRegistry,
 )
 
-VY_PACKAGE_ID_1 = b'\xd0Y\xe8\xa6\xeaZ\x8b\xbf\x8d\xd0\x97\xa7\xb8\x92#\x16\xdc\xb7\xf0$\xe8"\x0bV\xd3\xc9\xe7\x18\x8ajv@'  # noqa: E501
-VY_PACKAGE_ID_2 = b"m\xf7\t\xa8V\x98\xad\x92\x14b\xb8\x97\x95G\xe3\xa8s\xe2.\x1cs\xb1\xcbi\x1f\x93v\x84\x7f\xb2\xd4\x02"  # noqa: E501
-VY_PACKAGE_ID_3 = b"\x80\xe4\x1aB\xe3\xb8\xc3\xaf\x0e\xa5\x1c?\xd5\rH\x1e\xef\x13g\xdd\x9d7\x97\xba\x93\xd3]\xcf`f\x08\x82"  # noqa: E501
-VY_RELEASE_ID_1 = b"Y^&\xf1\xb2${\xac\xc5~2\x80\x7f\x80Y\xe0\xb0\x83}\xd9\xc4~iF\x99A\x96\xbd)\xc9\xca\x97"  # noqa: E501
-VY_RELEASE_ID_2 = b"\x04Y,\xb9\xce\xd5A>\x1b\t\xe8{\x08\x9b\xf6\x96\xa0^\xfbv\xee\x87\xc8\xc4\x12Yc_\xacm\x93\x8a"  # noqa: E501
-VY_RELEASE_ID_3 = b'\xa0m\xbcQ\xf8\x89\x18\x94w\x8c\xe0=\xc2=pm"\x8c\x99x\x95\x95u\x8b\xd3\xdc\xac:\x93\xf4\x7f\n'  # noqa: E501
-VY_RELEASE_ID_4 = b"\x9co\x87\xdd\xa6C[%\x06\xe8\x12\x06\xb3\x9e\xd7\x82\xa4K\x92\xd8&\xc2J\xb0+\xbd\xed2\x1b\x86\xe2\xad"  # noqa: E501
-SOL_PACKAGE_ID_1 = b"`\xc5\x11+a\x15\x9ekB\xd5M\x94Px9N\x9d_\xc9\xc6\xff\x0f=\xf7\x89w\x00o\x8b\xbc\x06\xd4"  # noqa: E501
-SOL_PACKAGE_ID_2 = b"\xdb\xcf\xb0\xbdq\x15\xbfe\x93P\xd7{\xb2+\xb8\x89\xca\x82\x94\xf6\x1b\x0c\xa4\x80\xf8\xa4{\xb8\xfc\x90L\xc9"  # noqa: E501
-SOL_PACKAGE_ID_3 = b"\xf3\xe4\x00,H\xa7\xf8\xf3H]b\x98\x83\x17\x84\x9c\x17S@\xb6e\x17\xc3\xb2\x99?rVC\xeb\xa8K"  # noqa: E501
-SOL_RELEASE_ID_1 = b"s\x83Vh\xf7\x1cz\xe8\\\xbd\xcd\xbbZ\x99\x05\xfaB\x0f\xfe\x85\xa8G\xd2\x83\xfa\x9b\xee\xfc\xd5l\xac\xc4"  # noqa: E501
-SOL_RELEASE_ID_2 = b"\xe5\xef\x02\x92\xa3\xb3kj\xc2\xbe\x07\xee\x92\xdfa\xbe\x15\xe0\xb9\xf1\x02\xdf2\xcb\xe3\xf0\xc0\x12\xefi\xd4b"  # noqa: E501
-SOL_RELEASE_ID_3 = b"\x12\x80\x14\x8e\n\xf5\xc4~\x95\xb4\x1d\xf1W4\xd0rls \xfcL\xf2\x1e\xfe9#\xfb\x04{S\x89\x9d"  # noqa: E501
-SOL_RELEASE_ID_4 = b"p\x82\xe9T\xe4\xfdj\xdf\x8a%\xc6\xce\xfe!\x8f2\xecf\xd8\xa1\x97\x19\x7f\x1d\x05\xaag\xa6\\\xafQ\x11"  # noqa: E501
-
-
-logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
+VY_PACKAGE_ID_1 = to_bytes(hexstr='0xd059e8a6ea5a8bbf8dd097a7b8922316dcb7f024e8220b56d3c9e7188a6a7640')  # noqa: E501
+VY_PACKAGE_ID_2 = to_bytes(hexstr='0x6df709a85698ad921462b8979547e3a873e22e1c73b1cb691f9376847fb2d402')  # noqa: E501
+VY_PACKAGE_ID_3 = to_bytes(hexstr='0x80e41a42e3b8c3af0ea51c3fd50d481eef1367dd9d3797ba93d35dcf60660882')  # noqa: E501
+VY_RELEASE_ID_1 = to_bytes(hexstr='0x595e26f1b2247bacc57e32807f8059e0b0837dd9c47e6946994196bd29c9ca97')  # noqa: E501
+VY_RELEASE_ID_2 = to_bytes(hexstr='0x04592cb9ced5413e1b09e87b089bf696a05efb76ee87c8c41259635fac6d938a')  # noqa: E501
+VY_RELEASE_ID_3 = to_bytes(hexstr='0xa06dbc51f8891894778ce03dc23d706d228c99789595758bd3dcac3a93f47f0a')  # noqa: E501
+VY_RELEASE_ID_4 = to_bytes(hexstr='0x9c6f87dda6435b2506e81206b39ed782a44b92d826c24ab02bbded321b86e2ad')  # noqa: E501
+SOL_PACKAGE_ID_1 = to_bytes(hexstr='0x60c5112b61159e6b42d54d945078394e9d5fc9c6ff0f3df78977006f8bbc06d4')  # noqa: E501
+SOL_PACKAGE_ID_2 = to_bytes(hexstr='0xdbcfb0bd7115bf659350d77bb22bb889ca8294f61b0ca480f8a47bb8fc904cc9')  # noqa: E501
+SOL_PACKAGE_ID_3 = to_bytes(hexstr='0xf3e4002c48a7f8f3485d62988317849c175340b66517c3b2993f725643eba84b')  # noqa: E501
+SOL_RELEASE_ID_1 = to_bytes(hexstr='0x73835668f71c7ae85cbdcdbb5a9905fa420ffe85a847d283fa9beefcd56cacc4')  # noqa: E501
+SOL_RELEASE_ID_2 = to_bytes(hexstr='0xe5ef0292a3b36b6ac2be07ee92df61be15e0b9f102df32cbe3f0c012ef69d462')  # noqa: E501
+SOL_RELEASE_ID_3 = to_bytes(hexstr='0x1280148e0af5c47e95b41df15734d0726c7320fc4cf21efe3923fb047b53899d')  # noqa: E501
+SOL_RELEASE_ID_4 = to_bytes(hexstr='0x7082e954e4fd6adf8a25c6cefe218f32ec66d8a197197f1d05aa67a65caf5111')  # noqa: E501
 
 
 def setup_w3():
@@ -61,7 +56,7 @@ def setup_w3():
     w3 = Web3(Web3.EthereumTesterProvider(ethereum_tester=t))
     w3.eth.defaultAccount = w3.eth.accounts[0]
     w3.eth.defaultContractFactory = LinkableContract
-    PM.attach(w3, 'pm')
+    w3.enable_unstable_package_management_api()
     return w3
 
 
@@ -140,18 +135,18 @@ def solidity_registry_strategy():
         ).transact()
         w3.eth.waitForTransactionReceipt(txh_6)
 
-    strategy = l.linker(
-        l.deploy("IndexedOrderedSetLib"),
-        l.link("PackageDB", "IndexedOrderedSetLib"),
-        l.link("ReleaseDB", "IndexedOrderedSetLib"),
-        l.deploy("PackageRegistry"),
-        l.deploy("WhitelistAuthority"),
-        l.deploy("PackageDB"),
-        l.deploy("ReleaseDB"),
-        l.deploy("ReleaseValidator"),
-        l.run_python(set_authority),
-        l.run_python(set_dependencies),
-        l.run_python(set_permissions),
+    strategy = linker.linker(
+        linker.deploy("IndexedOrderedSetLib"),
+        linker.link("PackageDB", "IndexedOrderedSetLib"),
+        linker.link("ReleaseDB", "IndexedOrderedSetLib"),
+        linker.deploy("PackageRegistry"),
+        linker.deploy("WhitelistAuthority"),
+        linker.deploy("PackageDB"),
+        linker.deploy("ReleaseDB"),
+        linker.deploy("ReleaseValidator"),
+        linker.run_python(set_authority),
+        linker.run_python(set_dependencies),
+        linker.run_python(set_permissions),
     )
     return strategy
 

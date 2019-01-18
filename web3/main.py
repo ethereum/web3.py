@@ -206,3 +206,18 @@ class Web3:
     @ens.setter
     def ens(self, new_ens):
         self._ens = new_ens
+
+    @property
+    def pm(self):
+        if self._pm is not None:
+            return self._pm
+        else:
+            raise AttributeError(
+                "The Package Management feature is disabled by default until "
+                "its API stabilizes. To use these features, please enable them by running "
+                "`w3.enable_unstable_package_management_api()` and try again."
+            )
+
+    def enable_unstable_package_management_api(self):
+        from web3.pm import PM
+        PM.attach(self, '_pm')

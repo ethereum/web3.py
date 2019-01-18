@@ -16,7 +16,6 @@ from web3.exceptions import (
     PMError,
 )
 from web3.pm import (
-    PM,
     ERCRegistry,
     VyperReferenceRegistry,
     get_vyper_registry_manifest,
@@ -28,7 +27,7 @@ def fresh_w3():
     w3 = Web3(Web3.EthereumTesterProvider())
     w3.eth.defaultAccount = w3.eth.accounts[0]
     w3.eth.defaultContractFactory = LinkableContract
-    PM.attach(w3, "pm")
+    w3.enable_unstable_package_management_api()
     return w3
 
 

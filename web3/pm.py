@@ -36,9 +36,6 @@ from ethpm.validation import (
     validate_package_name,
     validate_package_version,
 )
-from pytest_ethereum.deployer import (
-    Deployer,
-)
 
 from web3 import Web3
 from web3._utils.ens import (
@@ -56,9 +53,16 @@ from web3.module import (
 TxReceipt = NewType("TxReceipt", Dict[str, Any])
 
 
-# Package Management is still in alpha. It is not automatically available on a web3 object.
-# To use the `PM` module, attach it to your web3 object using the `attach` facility
-# PM.attach(web3, 'pm')
+# Package Management is still in alpha, and its API is likely to change, so it
+# is not automatically available on a web3 instance. To use the `PM` module,
+# please enable the package management API on an individual web3 instance.
+#
+# >>> from web3.auto import w3
+# >>> w3.pm
+# AttributeError: The Package Management feature is disabled by default ...
+# >>> w3.enable_unstable_package_management_api()
+# >>> w3.pm
+# <web3.pm.PM at 0x....>
 
 
 class ERCRegistry(ABC):
@@ -66,8 +70,10 @@ class ERCRegistry(ABC):
     The ERCRegistry class is a base class for all registry implementations to inherit from. It
     defines the methods specified in `ERC 1319 <https://github.com/ethereum/EIPs/issues/1319>`__.
     All of these methods are prefixed with an underscore, since they are not intended to be
-    accessed directly, but rather through the methods on ``web3.pm``.
-    Any custom methods in a subclass should not be prefixed with an underscore.
+    accessed directly, but rather through the methods on ``web3.pm``. They are unlikely to change,
+    but must be implemented in a `ERCRegistry` subclass in order to be compatible with the
+    `PM` module. Any custom methods (eg. not definied in ERC1319) in a subclass
+    should *not* be prefixed with an underscore.
 
     All of these methods must be implemented in any subclass in order to work with `web3.pm.PM`.
     Any implementation specific logic should be handled in a subclass.
@@ -213,12 +219,11 @@ class VyperReferenceRegistry(ERCRegistry):
         """
         manifest = get_vyper_registry_manifest()
         registry_package = Package(manifest, w3)
-        registry_deployer = Deployer(registry_package)
-        deployed_registry_package = registry_deployer.deploy("registry")
-        registry_address = deployed_registry_package.deployments.get_instance(
-            "registry"
-        ).address
-        return cls(to_canonical_address(registry_address), deployed_registry_package.w3)
+        registry_factory = registry_package.get_contract_factory("registry")
+        tx_hash = registry_factory.constructor().transact()
+        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+        registry_address = to_canonical_address(tx_receipt.contractAddress)
+        return cls(registry_address, w3)
 
     def _release(self, package_name: str, version: str, manifest_uri: str) -> bytes:
         if len(package_name) > 32 or len(version) > 32:
