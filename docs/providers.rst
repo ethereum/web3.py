@@ -301,11 +301,11 @@ EthereumTesterProvider
 
 .. py:class:: EthereumTesterProvider(eth_tester=None)
 
-    This provider integrates with the ``eth-tester`` library.  The
-    ``eth_tester`` constructor argument should be an instance of the
-    :class:`~eth_tester.EthereumTester` class provided by the ``eth-tester``
-    library.  If you would like a custom eth-tester instance to test with,
-    see the ``eth-tester`` library documentation for details.
+    This provider integrates with the ``eth-tester`` library.  The ``eth_tester`` constructor
+    argument should be an instance of the :class:`~eth_tester.EthereumTester` or
+    :class:`~eth_tester.PyEVMBackend` class provided by the ``eth-tester`` library.
+    If you would like a custom eth-tester instance to test with, see the
+    ``eth-tester`` library `documentation <https://github.com/ethereum/eth-tester>`_ for details.
 
     .. code-block:: python
 
