@@ -47,17 +47,25 @@ def test_caller_with_no_abi(web3):
         contract.caller.thisFunctionDoesNotExist()
 
 
-def test_caller_with_a_nonexistant_function(web3):
-    contract = web3.eth.contract(math_contract)
+def test_caller_with_a_nonexistent_function(web3, math_contract):
+    contract = math_contract
     with pytest.raises(MismatchedABI):
         contract.caller.thisFunctionDoesNotExist()
 
 
-def test_caller_with_block_identifier(math_contract):
-    # TODO: see how increment in the math contract changes with block_identifier
-    # TODO: dig into if we even want this block identifier here
-    result = math_contract.caller(block_identifier=10).return13()
-    assert result == 13
+def test_caller_with_block_identifier(web3, math_contract):
+    start_num = web3.eth.getBlock('latest').number
+    assert math_contract.caller.counter() == 0
+
+    web3.provider.make_request(method='evm_mine', params=[5])
+    math_contract.functions.increment().transact()
+    math_contract.functions.increment().transact()
+
+    output1 = math_contract.caller(block_identifier=start_num + 6).counter()
+    output2 = math_contract.caller(block_identifier=start_num + 7).counter()
+
+    assert output1 == 1
+    assert output2 == 2
 
 
 def test_caller_with_transaction_keyword(math_contract):

@@ -1339,7 +1339,14 @@ class ContractEvent:
 
 
 class ContractCaller:
-    def __init__(self, abi, web3, address, *args, transaction_dict=None, **kwargs):
+    def __init__(self,
+                 abi,
+                 web3,
+                 address,
+                 *args,
+                 transaction_dict=None,
+                 block_identifier='latest',
+                 **kwargs):
         self.web3 = web3
         self.address = address
 
@@ -1358,7 +1365,8 @@ class ContractCaller:
                     address=self.address,
                     function_identifier=func['name'])
 
-                caller_method = partial(self.call_function, fn, transaction_dict=transaction_dict)
+                block_id = parse_block_identifier(self.web3, block_identifier)
+                caller_method = partial(self.call_function, fn, transaction_dict=transaction_dict, block_identifier=block_id)
                 setattr(self, func['name'], caller_method)
 
     def __getattr__(self, function_name):
@@ -1375,16 +1383,22 @@ class ContractCaller:
         else:
             return super().__getattribute__(function_name)
 
-    def __call__(self, *args, transaction_dict=None, **kwargs):
+    def __call__(self, *args, transaction_dict=None, block_identifier='latest', **kwargs):
         if transaction_dict is None:
             transaction_dict = {}
-        return type(self)(self.abi, self.web3, self.address, *args, transaction_dict, **kwargs)
+        return type(self)(self.abi,
+                          self.web3,
+                          self.address,
+                          *args,
+                          transaction_dict=transaction_dict,
+                          block_identifier=block_identifier,
+                          **kwargs)
 
     @staticmethod
-    def call_function(fn, *args, transaction_dict=None, **kwargs):
+    def call_function(fn, *args, transaction_dict=None, block_identifier='latest', **kwargs):
         if transaction_dict is None:
             transaction_dict = {}
-        return fn(*args, **kwargs).call(transaction_dict)
+        return fn(*args, **kwargs).call(transaction_dict, block_identifier)
 
 
 def check_for_forbidden_api_filter_arguments(event_abi, _filters):
