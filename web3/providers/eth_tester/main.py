@@ -31,21 +31,22 @@ class EthereumTesterProvider(BaseProvider):
 
     def __init__(self, ethereum_tester=None, api_endpoints=None):
         # do not import eth_tester until runtime, it is not a default dependency
-        from eth_tester import EthereumTester, PyEVMBackend
+        from eth_tester import EthereumTester
+        from eth_tester.backends.base import BaseChainBackend
         if ethereum_tester is None:
             self.ethereum_tester = EthereumTester()
+        elif isinstance(ethereum_tester, EthereumTester):
+            self.ethereum_tester = ethereum_tester
+        elif isinstance(ethereum_tester, BaseChainBackend):
+            self.ethereum_tester = EthereumTester(ethereum_tester)
         else:
-            if isinstance(ethereum_tester, EthereumTester):
-                self.ethereum_tester = ethereum_tester
-            elif isinstance(ethereum_tester, PyEVMBackend):
-                self.ethereum_tester = EthereumTester(ethereum_tester)
-            else:
-                raise TypeError(
-                    "Expected ethereum_tester to be of type `eth_tester.EthereumTester` or "
-                    f"`eth_tester.PyEVMBackend`, instead received {type(ethereum_tester)}. "
-                    "If you would like a custom eth-tester instance to test with, see the "
-                    "eth-tester documentation. https://github.com/ethereum/eth-tester."
-                )
+            raise TypeError(
+                "Expected ethereum_tester to be of type `eth_tester.EthereumTester` or "
+                "a subclass of `eth_tester.backends.base.BaseChainBackend`, "
+                f"instead received {type(ethereum_tester)}. "
+                "If you would like a custom eth-tester instance to test with, see the "
+                "eth-tester documentation. https://github.com/ethereum/eth-tester."
+            )
 
         if api_endpoints is None:
             # do not import eth_tester derivatives until runtime, it is not a default dependency
