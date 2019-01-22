@@ -19,7 +19,6 @@ from web3._utils.abi import (
 )
 from web3._utils.decorators import (
     combomethod,
-    deprecated_for,
 )
 from web3._utils.empty import (
     empty,
@@ -161,11 +160,6 @@ class Web3:
                 {'text': text, 'hexstr': hexstr}
             )
         )
-
-    @combomethod
-    @deprecated_for("solidityKeccak")
-    def soliditySha3(cls, abi_types, values):
-        return cls.solidityKeccak(abi_types, values)
 
     @combomethod
     def solidityKeccak(cls, abi_types, values):
