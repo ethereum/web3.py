@@ -17,9 +17,9 @@ from ens.main import (
 from web3 import Web3
 
 
-'''
+"""
 API at: https://github.com/carver/ens.py/issues/2
-'''
+"""
 
 
 @pytest.mark.parametrize(

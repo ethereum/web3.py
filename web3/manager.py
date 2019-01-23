@@ -55,10 +55,10 @@ class RequestManager:
 
     @staticmethod
     def default_middlewares(web3):
-        '''
+        """
         List the default middlewares for the request manager.
         Leaving ens unspecified will prevent the middleware from resolving names.
-        '''
+        """
         return [
             (request_parameter_normalizer, 'request_param_normalizer'),
             (gas_price_strategy_middleware, 'gas_price_strategy'),

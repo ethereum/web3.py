@@ -18,9 +18,9 @@ class combomethod:
 
 
 def reject_recursive_repeats(to_wrap):
-    '''
+    """
     Prevent simple cycles by returning None when called recursively with same instance
-    '''
+    """
     to_wrap.__already_called = {}
 
     @functools.wraps(to_wrap)
@@ -40,13 +40,13 @@ def reject_recursive_repeats(to_wrap):
 
 
 def deprecated_for(replace_message):
-    '''
+    """
     Decorate a deprecated function, with info about what to use instead, like:
 
     @deprecated_for("toBytes()")
     def toAscii(arg):
         ...
-    '''
+    """
     def decorator(to_wrap):
         @functools.wraps(to_wrap)
         def wrapper(*args, **kwargs):

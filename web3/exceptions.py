@@ -12,9 +12,9 @@ class BadFunctionCallOutput(Exception):
 
 
 class BlockNumberOutofRange(Exception):
-    '''
+    """
     block_identifier passed does not match known block.
-    '''
+    """
     pass
 
 

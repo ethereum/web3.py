@@ -516,7 +516,7 @@ def abi_to_signature(abi):
 
 @curry
 def map_abi_data(normalizers, types, data):
-    '''
+    """
     This function will apply normalizers to your data, in the
     context of the relevant types. Each normalizer is in the format:
 
@@ -537,7 +537,7 @@ def map_abi_data(normalizers, types, data):
     1. Decorating the data tree with types
     2. Recursively mapping each of the normalizers to the data
     3. Stripping the types back out of the tree
-    '''
+    """
     pipeline = itertools.chain(
         [abi_data_tree(types)],
         map(data_tree_map, normalizers),
@@ -549,7 +549,7 @@ def map_abi_data(normalizers, types, data):
 
 @curry
 def abi_data_tree(types, data):
-    '''
+    """
     Decorate the data tree with pairs of (type, data). The pair tuple is actually an
     ABITypedData, but can be accessed as a tuple.
 
@@ -557,7 +557,7 @@ def abi_data_tree(types, data):
 
     >>> abi_data_tree(types=["bool[2]", "uint"], data=[[True, False], 0])
     [("bool[2]", [("bool", True), ("bool", False)]), ("uint256", 0)]
-    '''
+    """
     return [
         abi_sub_tree(data_type, data_value)
         for data_type, data_value
@@ -567,10 +567,10 @@ def abi_data_tree(types, data):
 
 @curry
 def data_tree_map(func, data_tree):
-    '''
+    """
     Map func to every ABITypedData element in the tree. func will
     receive two args: abi_type, and data
-    '''
+    """
     def map_to_typed_data(elements):
         if isinstance(elements, ABITypedData) and elements.abi_type is not None:
             return ABITypedData(func(*elements))
@@ -580,7 +580,7 @@ def data_tree_map(func, data_tree):
 
 
 class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
-    '''
+    """
     This class marks data as having a certain ABI-type.
 
     >>> a1 = ABITypedData(['address', addr1])
@@ -596,7 +596,7 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
     Unlike a typical `namedtuple`, you initialize with a single
     positional argument that is iterable, to match the init
     interface of all other relevant collections.
-    '''
+    """
     def __new__(cls, iterable):
         return super().__new__(cls, *iterable)
 

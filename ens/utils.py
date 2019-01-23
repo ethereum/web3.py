@@ -70,7 +70,7 @@ def customize_web3(w3):
 
 
 def normalize_name(name):
-    '''
+    """
     Clean the fully qualified name, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
 
@@ -78,7 +78,7 @@ def normalize_name(name):
 
     :param str name: the dot-separated ENS name
     :raises InvalidName: if ``name`` has invalid syntax
-    '''
+    """
     if not name:
         return name
     elif isinstance(name, (bytes, bytearray)):
@@ -90,13 +90,13 @@ def normalize_name(name):
 
 
 def is_valid_name(name):
-    '''
+    """
     Validate whether the fully qualified name is valid, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
 
     :param str name: the dot-separated ENS name
     :returns: True if ``name`` is set, and :meth:`~ens.main.ENS.nameprep` will not raise InvalidName
-    '''
+    """
     if not name:
         return False
     try:
@@ -125,11 +125,11 @@ def name_to_label(name, registrar):
 
 
 def dot_eth_label(name):
-    '''
+    """
     Convert from a name, like 'ethfinex.eth', to a label, like 'ethfinex'
     If name is already a label, this should be a noop, except for converting to a string
     and validating the name syntax.
-    '''
+    """
     label = name_to_label(name, registrar='eth')
     if len(label) < MIN_ETH_LABEL_LENGTH:
         raise InvalidLabel('name %r is too short' % label)
@@ -170,7 +170,7 @@ def normal_name_to_hash(name):
 
 
 def raw_name_to_hash(name):
-    '''
+    """
     Generate the namehash. This is also known as the ``node`` in ENS contracts.
 
     In normal operation, generating the namehash is handled
@@ -184,7 +184,7 @@ def raw_name_to_hash(name):
     :return: the namehash
     :rtype: bytes
     :raises InvalidName: if ``name`` has invalid syntax
-    '''
+    """
     normalized_name = normalize_name(name)
     return normal_name_to_hash(normalized_name)
 

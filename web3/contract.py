@@ -899,7 +899,7 @@ class ConciseMethod:
 
 
 class ConciseContract:
-    '''
+    """
     An alternative Contract Factory which invokes all methods as `call()`,
     unless you add a keyword argument. The keyword argument assigns the prep method.
 
@@ -910,7 +910,7 @@ class ConciseContract:
     is equivalent to this call in the classic contract:
 
     > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
-    '''
+    """
     def __init__(self, classic_contract, method_class=ConciseMethod):
 
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
@@ -971,7 +971,7 @@ class ImplicitMethod(ConciseMethod):
 
 
 class ImplicitContract(ConciseContract):
-    '''
+    """
     ImplicitContract class is similar to the ConciseContract class
     however it performs a transaction instead of a call if no modifier
     is given and the method is not marked 'constant' in the ABI.
@@ -985,7 +985,7 @@ class ImplicitContract(ConciseContract):
     is equivalent to this call in the classic contract:
 
     > contract.functions.withdraw(amount).transact({})
-    '''
+    """
     def __init__(self, classic_contract, method_class=ImplicitMethod):
         super().__init__(classic_contract, method_class=method_class)
 

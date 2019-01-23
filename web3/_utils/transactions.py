@@ -44,9 +44,9 @@ def fill_nonce(web3, transaction):
 
 @curry
 def fill_transaction_defaults(web3, transaction):
-    '''
+    """
     if web3 is None, fill as much as possible while offline
-    '''
+    """
     defaults = {}
     for key, default_getter in TRANSACTION_DEFAULTS.items():
         if key not in transaction:
