@@ -563,8 +563,8 @@ def RETURN_ARGS_ABI():
 
 @pytest.fixture()
 def RETURN_ARGS_CONTRACT(RETURN_ARGS_CODE,
-                 RETURN_ARGS_RUNTIME,
-                 RETURN_ARGS_ABI):
+                         RETURN_ARGS_RUNTIME,
+                         RETURN_ARGS_ABI):
     return {
         'bytecode': RETURN_ARGS_CODE,
         'bytecode_runtime': RETURN_ARGS_RUNTIME,
