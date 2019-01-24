@@ -180,13 +180,13 @@ def to_text(primitive=None, hexstr=None, text=None):
 
 @curry
 def text_if_str(to_type, text_or_primitive):
-    '''
+    """
     Convert to a type, assuming that strings can be only unicode text (not a hexstr)
 
     @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
         eg~ to_bytes, to_text, to_hex, to_int, etc
     @param hexstr_or_primitive in bytes, str, or int.
-    '''
+    """
     if isinstance(text_or_primitive, str):
         (primitive, text) = (None, text_or_primitive)
     else:
@@ -196,13 +196,13 @@ def text_if_str(to_type, text_or_primitive):
 
 @curry
 def hexstr_if_str(to_type, hexstr_or_primitive):
-    '''
+    """
     Convert to a type, assuming that strings can be only hexstr (not unicode text)
 
     @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
         eg~ to_bytes, to_text, to_hex, to_int, etc
     @param text_or_primitive in bytes, str, or int.
-    '''
+    """
     if isinstance(hexstr_or_primitive, str):
         (primitive, hexstr) = (None, hexstr_or_primitive)
         if remove_0x_prefix(hexstr) and not is_hex(hexstr):
@@ -217,13 +217,13 @@ def hexstr_if_str(to_type, hexstr_or_primitive):
 
 
 class FriendlyJsonSerde:
-    '''
+    """
     Friendly JSON serializer & deserializer
 
     When encoding or decoding fails, this class collects
     information on which fields failed, to show more
     helpful information in the raised error messages.
-    '''
+    """
     def _json_mapping_errors(self, mapping):
         for key, val in mapping.items():
             try:

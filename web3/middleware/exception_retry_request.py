@@ -69,10 +69,10 @@ def check_if_retry_on_failure(method):
 
 
 def exception_retry_middleware(make_request, web3, errors, retries=5):
-    '''
+    """
     Creates middleware that retries failed HTTP requests. Is a default
     middleware for HTTPProvider.
-    '''
+    """
     def middleware(method, params):
         if check_if_retry_on_failure(method):
             for i in range(retries):

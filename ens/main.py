@@ -32,14 +32,14 @@ ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
 
 
 class ENS:
-    '''
+    """
     Quick access to common Ethereum Name Service functions,
     like getting the address for a name.
 
     Unless otherwise specified, all addresses are assumed to be a `str` in
     `checksum format <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_,
     like: ``"0x314159265dD8dbb310642f98f50C066173C1259b"``
-    '''
+    """
 
     labelhash = staticmethod(label_to_hash)
     namehash = staticmethod(raw_name_to_hash)
@@ -48,12 +48,12 @@ class ENS:
     reverse_domain = staticmethod(address_to_reverse_domain)
 
     def __init__(self, provider=default, addr=None):
-        '''
+        """
         :param provider: a single provider used to connect to Ethereum
         :type provider: instance of `web3.providers.base.BaseProvider`
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
-        '''
+        """
         self.web3 = init_web3(provider)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
@@ -62,39 +62,39 @@ class ENS:
 
     @classmethod
     def fromWeb3(cls, web3, addr=None):
-        '''
+        """
         Generate an ENS instance with web3
 
         :param `web3.Web3` web3: to infer connection information
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
-        '''
+        """
         return cls(web3.manager.provider, addr=addr)
 
     def address(self, name):
-        '''
+        """
         Look up the Ethereum address that `name` currently points to.
 
         :param str name: an ENS name to look up
         :raises InvalidName: if `name` has invalid syntax
-        '''
+        """
         return self.resolve(name, 'addr')
 
     def name(self, address):
-        '''
+        """
         Look up the name that the address points to, using a
         reverse lookup. Reverse lookup is opt-in for name owners.
 
         :param address:
         :type address: hex-string
-        '''
+        """
         reversed_domain = address_to_reverse_domain(address)
         return self.resolve(reversed_domain, get='name')
     reverse = name
 
     @dict_copy
     def setup_address(self, name, address=default, transact={}):
-        '''
+        """
         Set up the name to point to the supplied address.
         The sender of the transaction must own the name, or
         its parent name.
@@ -110,7 +110,7 @@ class ENS:
             :meth:`~web3.eth.Eth.sendTransaction`
         :raises InvalidName: if ``name`` has invalid syntax
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
-        '''
+        """
         owner = self.setup_owner(name, transact=transact)
         self._assert_control(owner, name)
         if not address or address == EMPTY_ADDR_HEX:
@@ -131,7 +131,7 @@ class ENS:
 
     @dict_copy
     def setup_name(self, name, address=None, transact={}):
-        '''
+        """
         Set up the address for reverse lookup, aka "caller ID".
         After successful setup, the method :meth:`~ens.main.ENS.name` will return
         `name` when supplied with `address`.
@@ -144,7 +144,7 @@ class ENS:
         :raises InvalidName: if `name` has invalid syntax
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         :raises UnownedName: if no one owns `name`
-        '''
+        """
         if not name:
             self._assert_control(address, 'the reverse record')
             return self._setup_reverse(None, address, transact=transact)
@@ -193,7 +193,7 @@ class ENS:
         return self.resolver(reversed_domain)
 
     def owner(self, name):
-        '''
+        """
         Get the owner of a name. Note that this may be different from the
         deed holder in the '.eth' registrar. Learn more about the difference
         between deed and name ownership in the ENS `Managing Ownership docs
@@ -202,13 +202,13 @@ class ENS:
         :param str name: ENS name to look up
         :return: owner address
         :rtype: str
-        '''
+        """
         node = raw_name_to_hash(name)
         return self.ens.owner(node)
 
     @dict_copy
     def setup_owner(self, name, new_owner=default, transact={}):
-        '''
+        """
         Set the owner of the supplied name to `new_owner`.
 
         For typical scenarios, you'll never need to call this method directly,
@@ -230,7 +230,7 @@ class ENS:
         :raises InvalidName: if `name` has invalid syntax
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         :returns: the new owner's address
-        '''
+        """
         (super_owner, unowned, owned) = self._first_owner(name)
         if new_owner is default:
             new_owner = super_owner
@@ -257,11 +257,11 @@ class ENS:
             )
 
     def _first_owner(self, name):
-        '''
+        """
         Takes a name, and returns the owner of the deepest subdomain that has an owner
 
         :returns: (owner or None, list(unowned_subdomain_labels), first_owned_domain)
-        '''
+        """
         owner = None
         unowned = []
         pieces = normalize_name(name).split('.')

@@ -53,13 +53,13 @@ class AutoProvider(BaseProvider):
     _active_provider = None
 
     def __init__(self, potential_providers=None):
-        '''
+        """
         :param iterable potential_providers: ordered series of provider classes to attempt with
 
         AutoProvider will initialize each potential provider (without arguments),
         in an attempt to find an active node. The list will default to
         :attribute:`default_providers`.
-        '''
+        """
         if potential_providers:
             self._potential_providers = potential_providers
         else:
