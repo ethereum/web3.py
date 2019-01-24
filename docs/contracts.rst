@@ -29,7 +29,7 @@ To run this example, you will need to install a few extra features:
     from web3.contract import ConciseContract
 
     # Solidity source code
-    contract_source_code = '''
+    contract_source_code = """
     pragma solidity ^0.4.21;
 
     contract Greeter {
@@ -47,7 +47,7 @@ To run this example, you will need to install a few extra features:
             return greeting;
         }
     }
-    '''
+    """
 
     compiled_sol = compile_source(contract_source_code) # Compiled source code
     contract_interface = compiled_sol['<stdin>:Greeter']
@@ -459,7 +459,7 @@ and the arguments are ambiguous.
 
 .. code-block:: python
 
-        >>> contract_source_code = '''
+        >>> contract_source_code = """
         pragma solidity ^0.4.21;
         contract AmbiguousDuo {
           function identity(uint256 input, bool uselessFlag) returns (uint256) {
@@ -469,7 +469,7 @@ and the arguments are ambiguous.
             return input;
           }
         }
-        '''
+        """
         # fast forward all the steps of compiling and deploying the contract.
         >>> ambiguous_contract.functions.identity(1, True) # raises ValidationError
 

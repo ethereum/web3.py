@@ -1,3 +1,4 @@
+import binascii
 from collections import (
     namedtuple,
 )
@@ -5,12 +6,20 @@ import itertools
 import re
 
 from eth_abi import (
-    is_encodable as eth_abi_is_encodable,
+    decoding,
+    encoding,
+)
+from eth_abi.codec import (
+    ABICodec,
+)
+from eth_abi.registry import (
+    BaseEquals,
+    registry as default_registry,
 )
 from eth_utils import (
-    is_hex,
-    is_list_like,
-    to_bytes,
+    decode_hex,
+    is_bytes,
+    is_text,
     to_text,
     to_tuple,
 )
@@ -159,41 +168,84 @@ except ImportError:
         return base + str(sub) + ''.join(map(repr, arrlist))
 
 
-def is_encodable(_type, value):
-    if not isinstance(_type, str):
-        raise ValueError("is_encodable only accepts type strings")
+class AddressEncoder(encoding.AddressEncoder):
+    @classmethod
+    def validate_value(cls, value):
+        if is_ens_name(value):
+            return
 
-    base, sub, arrlist = process_type(_type)
+        super().validate_value(value)
 
-    if arrlist:
-        if not is_list_like(value):
-            return False
-        if arrlist[-1] and len(value) != arrlist[-1][0]:
-            return False
-        sub_type = (base, sub, arrlist[:-1])
-        return all(is_encodable(collapse_type(*sub_type), sub_value) for sub_value in value)
-    elif base == 'address' and is_ens_name(value):
-        # ENS names can be used anywhere an address is needed
-        # Web3.py will resolve the name to an address before encoding it
-        return True
-    elif base == 'bytes' and isinstance(value, str):
-        # Hex-encoded bytes values can be used anywhere a bytes value is needed
-        if is_hex(value) and len(value) % 2 == 0:
-            # Require hex-encoding of full bytes (even length)
-            bytes_val = to_bytes(hexstr=value)
-            return eth_abi_is_encodable(_type, bytes_val)
-        else:
-            return False
-    elif base == 'string' and isinstance(value, bytes):
-        # bytes that were encoded with utf-8 can be used anywhere a string is needed
-        try:
-            string_val = to_text(value)
-        except UnicodeDecodeError:
-            return False
-        else:
-            return eth_abi_is_encodable(_type, string_val)
-    else:
-        return eth_abi_is_encodable(_type, value)
+
+class AcceptsHexStrMixin:
+    def validate_value(self, value):
+        if is_text(value):
+            try:
+                value = decode_hex(value)
+            except binascii.Error:
+                self.invalidate_value(
+                    value,
+                    msg='invalid hex string',
+                )
+
+        super().validate_value(value)
+
+
+class BytesEncoder(AcceptsHexStrMixin, encoding.BytesEncoder):
+    pass
+
+
+class ByteStringEncoder(AcceptsHexStrMixin, encoding.ByteStringEncoder):
+    pass
+
+
+class TextStringEncoder(encoding.TextStringEncoder):
+    @classmethod
+    def validate_value(cls, value):
+        if is_bytes(value):
+            try:
+                value = to_text(value)
+            except UnicodeDecodeError:
+                cls.invalidate_value(
+                    value,
+                    msg='not decodable as unicode string',
+                )
+
+        super().validate_value(value)
+
+
+# We make a copy here just to make sure that eth-abi's default registry is not
+# affected by our custom encoder subclasses
+registry = default_registry.copy()
+
+registry.unregister('address')
+registry.unregister('bytes<M>')
+registry.unregister('bytes')
+registry.unregister('string')
+
+registry.register(
+    BaseEquals('address'),
+    AddressEncoder, decoding.AddressDecoder,
+    label='address',
+)
+registry.register(
+    BaseEquals('bytes', with_sub=True),
+    BytesEncoder, decoding.BytesDecoder,
+    label='bytes<M>',
+)
+registry.register(
+    BaseEquals('bytes', with_sub=False),
+    ByteStringEncoder, decoding.ByteStringDecoder,
+    label='bytes',
+)
+registry.register(
+    BaseEquals('string'),
+    TextStringEncoder, decoding.StringDecoder,
+    label='string',
+)
+
+codec = ABICodec(registry)
+is_encodable = codec.is_encodable
 
 
 def filter_by_encodability(args, kwargs, contract_abi):
@@ -464,7 +516,7 @@ def abi_to_signature(abi):
 
 @curry
 def map_abi_data(normalizers, types, data):
-    '''
+    """
     This function will apply normalizers to your data, in the
     context of the relevant types. Each normalizer is in the format:
 
@@ -485,7 +537,7 @@ def map_abi_data(normalizers, types, data):
     1. Decorating the data tree with types
     2. Recursively mapping each of the normalizers to the data
     3. Stripping the types back out of the tree
-    '''
+    """
     pipeline = itertools.chain(
         [abi_data_tree(types)],
         map(data_tree_map, normalizers),
@@ -497,7 +549,7 @@ def map_abi_data(normalizers, types, data):
 
 @curry
 def abi_data_tree(types, data):
-    '''
+    """
     Decorate the data tree with pairs of (type, data). The pair tuple is actually an
     ABITypedData, but can be accessed as a tuple.
 
@@ -505,7 +557,7 @@ def abi_data_tree(types, data):
 
     >>> abi_data_tree(types=["bool[2]", "uint"], data=[[True, False], 0])
     [("bool[2]", [("bool", True), ("bool", False)]), ("uint256", 0)]
-    '''
+    """
     return [
         abi_sub_tree(data_type, data_value)
         for data_type, data_value
@@ -515,10 +567,10 @@ def abi_data_tree(types, data):
 
 @curry
 def data_tree_map(func, data_tree):
-    '''
+    """
     Map func to every ABITypedData element in the tree. func will
     receive two args: abi_type, and data
-    '''
+    """
     def map_to_typed_data(elements):
         if isinstance(elements, ABITypedData) and elements.abi_type is not None:
             return ABITypedData(func(*elements))
@@ -528,7 +580,7 @@ def data_tree_map(func, data_tree):
 
 
 class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
-    '''
+    """
     This class marks data as having a certain ABI-type.
 
     >>> a1 = ABITypedData(['address', addr1])
@@ -544,7 +596,7 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
     Unlike a typical `namedtuple`, you initialize with a single
     positional argument that is iterable, to match the init
     interface of all other relevant collections.
-    '''
+    """
     def __new__(cls, iterable):
         return super().__new__(cls, *iterable)
 

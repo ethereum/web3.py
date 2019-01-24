@@ -2,6 +2,42 @@ Release Notes
 =============
 
 
+v5.0.0-alpha.4
+--------------
+
+Released January 23rd, 2019
+
+- Breaking Changes
+
+  - Rename ``middleware_stack`` to ``middleware_onion``
+    - `#1210 <https://github.com/ethereum/web3.py/pull/1210>`_
+  - Drop already deprecated ``web3.soliditySha3``
+    - `#1217 <https://github.com/ethereum/web3.py/pull/1217>`_
+  - ENS: Stop inferring ``.eth`` TLD on domain names
+    - `#1205 <https://github.com/ethereum/web3.py/pull/1205>`_
+
+- Bugfixes
+
+  - Validate ``ethereum_tester`` class in ``EthereumTesterProvider``
+    - `#1217 <https://github.com/ethereum/web3.py/pull/1217>`_
+  - Support ``getLogs()`` method without creating filters
+    - `#1192 <https://github.com/ethereum/web3.py/pull/1192>`_
+
+- Features
+
+  - Stablize the ``PM`` module
+    - `#1125 <https://github.com/ethereum/web3.py/pull/1125>`_
+  - Implement async ``Version`` module
+    - `#1166 <https://github.com/ethereum/web3.py/pull/1166>`_
+
+- Misc
+
+  - Update .gitignore to ignore ``.DS_Store`` and ``.mypy_cache/``
+    - `#1215 <https://github.com/ethereum/web3.py/pull/1215>`_
+  - Change CircleCI badge link to CircleCI project
+    - `#1214 <https://github.com/ethereum/web3.py/pull/1214>`_
+
+
 v5.0.0-alpha.3
 --------------
 

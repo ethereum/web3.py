@@ -1,14 +1,14 @@
 import logging
 import uuid
 
+from web3._utils.decorators import (
+    deprecated_for,
+)
 from web3._utils.threads import (
     spawn,
 )
 from web3.datastructures import (
     NamedElementOnion,
-)
-from web3.exceptions import (
-    UnhandledRequest,
 )
 from web3.middleware import (
     abi_middleware,
@@ -55,10 +55,10 @@ class RequestManager:
 
     @staticmethod
     def default_middlewares(web3):
-        '''
+        """
         List the default middlewares for the request manager.
         Leaving ens unspecified will prevent the middleware from resolving names.
-        '''
+        """
         return [
             (request_parameter_normalizer, 'request_param_normalizer'),
             (gas_price_strategy_middleware, 'gas_price_strategy'),
@@ -74,19 +74,18 @@ class RequestManager:
     # Provider requests and response
     #
     def _make_request(self, method, params):
-        if self.provider:
-            request_func = self.provider.request_func(self.web3, tuple(self.middleware_onion))
-            self.logger.debug("Making request. Method: %s", method)
-            return request_func(method, params)
-        else:
-            raise UnhandledRequest(
-                "No provider available to respond to the RPC request:\n"
-                "method:{0}\n"
-                "params:{1}\n".format(
-                    method,
-                    params,
-                )
-            )
+        request_func = self.provider.request_func(
+            self.web3,
+            tuple(self.middleware_onion))
+        self.logger.debug("Making request. Method: %s", method)
+        return request_func(method, params)
+
+    async def _coro_make_request(self, method, params):
+        request_func = self.provider.request_func(
+            self.web3,
+            tuple(self.middleware_onion))
+        self.logger.debug("Making request. Method: %s", method)
+        return await request_func(method, params)
 
     def request_blocking(self, method, params):
         """
@@ -99,6 +98,18 @@ class RequestManager:
 
         return response['result']
 
+    async def coro_request(self, method, params):
+        """
+        Couroutine for making a request using the provider
+        """
+        response = await self._coro_make_request(method, params)
+
+        if "error" in response:
+            raise ValueError(response["error"])
+
+        return response['result']
+
+    @deprecated_for("coro_request")
     def request_async(self, raw_method, raw_params):
         request_id = uuid.uuid4()
         self.pending_requests[request_id] = spawn(
