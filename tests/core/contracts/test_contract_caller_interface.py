@@ -78,7 +78,7 @@ def test_caller_with_transaction_keyword(web3, return_args_contract):
     }
     contract = return_args_contract.caller(transaction_dict=transaction_dict)
 
-    sender, _, gasLeft, value = contract.returnMeta()
+    sender, _, gasLeft, value, _ = contract.returnMeta()
 
     assert address == sender
     assert gasLeft <= transaction_dict['gas']
@@ -96,7 +96,7 @@ def test_caller_with_dict_but_no_transaction_keyword(web3, return_args_contract)
 
     contract = return_args_contract.caller(transaction_dict)
 
-    sender, _, gasLeft, value = contract.returnMeta()
+    sender, _, gasLeft, value, _ = contract.returnMeta()
 
     assert address == sender
     assert gasLeft <= transaction_dict['gas']
@@ -114,7 +114,7 @@ def test_caller_with_args_and_no_transaction_keyword(web3, return_args_contract)
 
     contract = return_args_contract.caller(transaction_dict)
 
-    sender, _, gasLeft, value = contract.returnMeta()
+    sender, _, gasLeft, value, _ = contract.returnMeta()
 
     assert address == sender
     assert gasLeft <= transaction_dict['gas']
