@@ -12,9 +12,9 @@ class BadFunctionCallOutput(Exception):
 
 
 class BlockNumberOutofRange(Exception):
-    '''
+    """
     block_identifier passed does not match known block.
-    '''
+    """
     pass
 
 
@@ -56,13 +56,6 @@ class StaleBlockchain(Exception):
 
     def __str__(self):
         return self.args[0]
-
-
-class UnhandledRequest(Exception):
-    """
-    Raised by the manager when none of it's providers responds to a request.
-    """
-    pass
 
 
 class MismatchedABI(Exception):
@@ -112,5 +105,12 @@ class InsufficientData(Exception):
 class TimeExhausted(Exception):
     """
     Raised when a method has not retrieved the desired result within a specified timeout.
+    """
+    pass
+
+
+class PMError(Exception):
+    """
+    Raised when an error occurs in the PM module.
     """
     pass

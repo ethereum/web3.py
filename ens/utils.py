@@ -1,4 +1,3 @@
-
 import copy
 import datetime
 import functools
@@ -16,7 +15,6 @@ from ens.constants import (
     AUCTION_START_GAS_MARGINAL,
     EMPTY_SHA3_BYTES,
     MIN_ETH_LABEL_LENGTH,
-    RECOGNIZED_TLDS,
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
@@ -62,8 +60,8 @@ def customize_web3(w3):
     from web3.contract import ConciseContract
     from web3.middleware import make_stalecheck_middleware
 
-    w3.middleware_stack.remove('name_to_address')
-    w3.middleware_stack.add(
+    w3.middleware_onion.remove('name_to_address')
+    w3.middleware_onion.add(
         make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600),
         name='stalecheck',
     )
@@ -72,7 +70,7 @@ def customize_web3(w3):
 
 
 def normalize_name(name):
-    '''
+    """
     Clean the fully qualified name, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
 
@@ -80,7 +78,7 @@ def normalize_name(name):
 
     :param str name: the dot-separated ENS name
     :raises InvalidName: if ``name`` has invalid syntax
-    '''
+    """
     if not name:
         return name
     elif isinstance(name, (bytes, bytearray)):
@@ -92,13 +90,13 @@ def normalize_name(name):
 
 
 def is_valid_name(name):
-    '''
+    """
     Validate whether the fully qualified name is valid, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
 
     :param str name: the dot-separated ENS name
     :returns: True if ``name`` is set, and :meth:`~ens.main.ENS.nameprep` will not raise InvalidName
-    '''
+    """
     if not name:
         return False
     try:
@@ -106,18 +104,6 @@ def is_valid_name(name):
         return True
     except InvalidName:
         return False
-
-
-def label_to_name(label, default_tld, recognized_tlds):
-    label = normalize_name(label)
-    pieces = label.split('.')
-    if pieces[-1] not in recognized_tlds:
-        pieces.append(default_tld)
-    return '.'.join(pieces)
-
-
-def dot_eth_name(label):
-    return label_to_name(label, 'eth', RECOGNIZED_TLDS)
 
 
 def name_to_label(name, registrar):
@@ -139,11 +125,11 @@ def name_to_label(name, registrar):
 
 
 def dot_eth_label(name):
-    '''
+    """
     Convert from a name, like 'ethfinex.eth', to a label, like 'ethfinex'
     If name is already a label, this should be a noop, except for converting to a string
     and validating the name syntax.
-    '''
+    """
     label = name_to_label(name, registrar='eth')
     if len(label) < MIN_ETH_LABEL_LENGTH:
         raise InvalidLabel('name %r is too short' % label)
@@ -171,7 +157,7 @@ def label_to_hash(label):
     return Web3().keccak(text=label)
 
 
-def name_to_hash(name):
+def normal_name_to_hash(name):
     node = EMPTY_SHA3_BYTES
     if name:
         labels = name.split(".")
@@ -183,15 +169,14 @@ def name_to_hash(name):
     return node
 
 
-def dot_eth_namehash(name):
-    '''
+def raw_name_to_hash(name):
+    """
     Generate the namehash. This is also known as the ``node`` in ENS contracts.
 
     In normal operation, generating the namehash is handled
     behind the scenes. For advanced usage, it is a helpful utility.
 
-    This will add '.eth' to name if no TLD given. Also, it normalizes the name with
-    `nameprep
+    This normalizes the name with `nameprep
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
     before hashing.
 
@@ -199,9 +184,9 @@ def dot_eth_namehash(name):
     :return: the namehash
     :rtype: bytes
     :raises InvalidName: if ``name`` has invalid syntax
-    '''
-    expanded_name = dot_eth_name(name)
-    return name_to_hash(expanded_name)
+    """
+    normalized_name = normalize_name(name)
+    return normal_name_to_hash(normalized_name)
 
 
 def address_in(address, addresses):

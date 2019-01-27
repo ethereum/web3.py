@@ -61,9 +61,8 @@ Look up the address for an ENS name
     assert eth_address == '0x5B2063246F2191f18F2675ceDB8b28102e957458'
 
 
-    # ens.py will assume you want a .eth name if you don't specify a full name
-
-    assert ns.address('jasoncarver') == eth_address
+The ``ENS`` module has no opinion as to which TLD you can use,
+but will not infer a TLD if it is not provided with the name.
 
 
 Get name from address

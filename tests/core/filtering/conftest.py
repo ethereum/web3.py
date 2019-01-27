@@ -31,7 +31,7 @@ def web3(request):
     provider = EthereumTesterProvider()
     w3 = Web3(provider)
     if use_filter_middleware:
-        w3.middleware_stack.add(local_filter_middleware)
+        w3.middleware_onion.add(local_filter_middleware)
     return w3
 
 

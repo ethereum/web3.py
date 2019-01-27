@@ -147,6 +147,23 @@ class ContractFunctions:
 
 class ContractEvents:
     """Class containing contract event objects
+
+    This is available via:
+
+    .. code-block:: python
+
+        >>> mycontract.events
+        <web3.contract.ContractEvents object at 0x108afde10>
+
+    To get list of all supported events in the contract ABI.
+    This allows you to iterate over :class:`ContractEvent` proxy classes.
+
+    .. code-block:: python
+
+        >>> for e in mycontract.events: print(e)
+        <class 'web3._utils.datatypes.LogAnonymous'>
+        ...
+
     """
 
     def __init__(self, abi, web3, address=None):
@@ -180,6 +197,14 @@ class ContractEvents:
 
     def __getitem__(self, event_name):
         return getattr(self, event_name)
+
+    def __iter__(self):
+        """Iterate over supported
+
+        :return: Iterable of :class:`ContractEvent`
+        """
+        for event in self._events:
+            yield self[event['name']]
 
 
 class Contract:
@@ -216,6 +241,8 @@ class Contract:
     clone_bin = None
 
     functions = None
+
+    #: Instance of :class:`ContractEvents` presenting available Event ABIs
     events = None
 
     dev_doc = None
@@ -872,7 +899,7 @@ class ConciseMethod:
 
 
 class ConciseContract:
-    '''
+    """
     An alternative Contract Factory which invokes all methods as `call()`,
     unless you add a keyword argument. The keyword argument assigns the prep method.
 
@@ -883,7 +910,7 @@ class ConciseContract:
     is equivalent to this call in the classic contract:
 
     > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
-    '''
+    """
     def __init__(self, classic_contract, method_class=ConciseMethod):
 
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
@@ -944,7 +971,7 @@ class ImplicitMethod(ConciseMethod):
 
 
 class ImplicitContract(ConciseContract):
-    '''
+    """
     ImplicitContract class is similar to the ConciseContract class
     however it performs a transaction instead of a call if no modifier
     is given and the method is not marked 'constant' in the ABI.
@@ -958,7 +985,7 @@ class ImplicitContract(ConciseContract):
     is equivalent to this call in the classic contract:
 
     > contract.functions.withdraw(amount).transact({})
-    '''
+    """
     def __init__(self, classic_contract, method_class=ImplicitMethod):
         super().__init__(classic_contract, method_class=method_class)
 
@@ -1323,6 +1350,92 @@ class ContractEvent:
             formatter=get_event_data(self._get_event_abi()))
         builder.address = self.address
         return builder
+
+    @combomethod
+    def getLogs(self,
+                argument_filters=None,
+                fromBlock=1,
+                toBlock="latest"):
+        """Get events for this contract instance using eth_getLogs API.
+
+        This is a stateless method, as opposed to createFilter.
+        It can be safely called against nodes which do not provide
+        eth_newFilter API, like Infura nodes.
+
+        If no block range is provided and there are many events,
+        like ``Transfer`` events for a popular token,
+        the Ethereum node might be overloaded and timeout
+        on the underlying JSON-RPC call.
+
+        Example - how to get all ERC-20 token transactions
+        for the latest 10 blocks:
+
+        .. code-block:: python
+
+            from = max(mycontract.web3.eth.blockNumber - 10, 1)
+            to = mycontract.web3.eth.blockNumber
+
+            events = mycontract.events.Transfer.getLogs(fromBlock=from, toBlock=to)
+
+            for e in events:
+                print(e["args"]["from"],
+                    e["args"]["to"],
+                    e["args"]["value"])
+
+        The returned processed log values will look like:
+
+        .. code-block:: python
+
+            (
+                AttributeDict({
+                 'args': AttributeDict({}),
+                 'event': 'LogNoArguments',
+                 'logIndex': 0,
+                 'transactionIndex': 0,
+                 'transactionHash': HexBytes('...'),
+                 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+                 'blockHash': HexBytes('...'),
+                 'blockNumber': 3
+                }),
+                AttributeDict(...),
+                ...
+            )
+
+        See also: :func:`web3.middleware.filter.local_filter_middleware`.
+
+        :param argument_filters:
+        :param fromBlock: block number, defaults to 1
+        :param toBlock: block number or "latest". Defaults to "latest"
+        :yield: Tuple of :class:`AttributeDict` instances
+        """
+
+        if not self.address:
+            raise TypeError("This method can be only called on "
+                            "an instated contract with an address")
+
+        abi = self._get_event_abi()
+
+        if argument_filters is None:
+            argument_filters = dict()
+
+        _filters = dict(**argument_filters)
+
+        # Construct JSON-RPC raw filter presentation based on human readable Python descriptions
+        # Namely, convert event names to their keccak signatures
+        data_filter_set, event_filter_params = construct_event_filter_params(
+            abi,
+            contract_address=self.address,
+            argument_filters=_filters,
+            fromBlock=fromBlock,
+            toBlock=toBlock,
+            address=self.address,
+        )
+
+        # Call JSON-RPC API
+        logs = self.web3.eth.getLogs(event_filter_params)
+
+        # Convert raw binary data to Python proxy objects as described by ABI
+        return tuple(get_event_data(abi, entry) for entry in logs)
 
     @classmethod
     def factory(cls, class_name, **kwargs):

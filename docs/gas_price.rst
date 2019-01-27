@@ -112,6 +112,6 @@ Available gas price strategies
         w3 = Web3()
         w3.eth.setGasPriceStrategy(medium_gas_price_strategy)
 
-        w3.middleware_stack.add(middleware.time_based_cache_middleware)
-        w3.middleware_stack.add(middleware.latest_block_based_cache_middleware)
-        w3.middleware_stack.add(middleware.simple_cache_middleware)
+        w3.middleware_onion.add(middleware.time_based_cache_middleware)
+        w3.middleware_onion.add(middleware.latest_block_based_cache_middleware)
+        w3.middleware_onion.add(middleware.simple_cache_middleware)

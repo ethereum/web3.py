@@ -19,7 +19,6 @@ from web3._utils.abi import (
 )
 from web3._utils.decorators import (
     combomethod,
-    deprecated_for,
 )
 from web3._utils.empty import (
     empty,
@@ -135,8 +134,8 @@ class Web3:
         self.ens = ens
 
     @property
-    def middleware_stack(self):
-        return self.manager.middleware_stack
+    def middleware_onion(self):
+        return self.manager.middleware_onion
 
     @property
     def provider(self):
@@ -145,12 +144,6 @@ class Web3:
     @provider.setter
     def provider(self, provider):
         self.manager.provider = provider
-
-    @staticmethod
-    @deprecated_for("keccak")
-    @apply_to_return_value(HexBytes)
-    def sha3(primitive=None, text=None, hexstr=None):
-        return Web3.keccak(primitive, text, hexstr)
 
     @staticmethod
     @apply_to_return_value(HexBytes)
@@ -167,11 +160,6 @@ class Web3:
                 {'text': text, 'hexstr': hexstr}
             )
         )
-
-    @combomethod
-    @deprecated_for("solidityKeccak")
-    def soliditySha3(cls, abi_types, values):
-        return cls.solidityKeccak(abi_types, values)
 
     @combomethod
     def solidityKeccak(cls, abi_types, values):
@@ -212,3 +200,18 @@ class Web3:
     @ens.setter
     def ens(self, new_ens):
         self._ens = new_ens
+
+    @property
+    def pm(self):
+        if self._pm is not None:
+            return self._pm
+        else:
+            raise AttributeError(
+                "The Package Management feature is disabled by default until "
+                "its API stabilizes. To use these features, please enable them by running "
+                "`w3.enable_unstable_package_management_api()` and try again."
+            )
+
+    def enable_unstable_package_management_api(self):
+        from web3.pm import PM
+        PM.attach(self, '_pm')
