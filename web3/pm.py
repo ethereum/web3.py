@@ -17,6 +17,7 @@ from eth_utils import (
     is_checksum_address,
     to_bytes,
     to_canonical_address,
+    to_checksum_address,
     to_text,
     to_tuple,
 )
@@ -451,7 +452,7 @@ class PM(Module):
            w3.ens.setup_address(ens_name, w3.pm.registry.address)
         """
         self.registry = VyperReferenceRegistry.deploy_new_instance(self.web3)
-        return self.registry.address
+        return to_checksum_address(self.registry.address)
 
     def release_package(
         self, package_name: str, version: str, manifest_uri: str

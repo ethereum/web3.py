@@ -203,7 +203,7 @@ class Web3:
 
     @property
     def pm(self):
-        if self._pm is not None:
+        if hasattr(self, '_pm'):
             return self._pm
         else:
             raise AttributeError(
