@@ -3,9 +3,6 @@ import functools
 from eth_abi import (
     encode_abi as eth_abi_encode_abi,
 )
-from eth_abi.exceptions import (
-    EncodingError,
-)
 from eth_utils import (
     add_0x_prefix,
     encode_hex,
@@ -139,27 +136,21 @@ def encode_abi(web3, abi, arguments, data=None):
             )
         )
 
-    try:
-        normalizers = [
-            abi_ens_resolver(web3),
-            abi_address_to_hex,
-            abi_bytes_to_bytes,
-            abi_string_to_text,
-        ]
-        normalized_arguments = map_abi_data(
-            normalizers,
-            argument_types,
-            arguments,
-        )
-        encoded_arguments = eth_abi_encode_abi(
-            argument_types,
-            normalized_arguments,
-        )
-    except EncodingError as e:
-        raise TypeError(
-            "One or more arguments could not be encoded to the necessary "
-            "ABI type: {0}".format(str(e))
-        )
+    normalizers = [
+        abi_ens_resolver(web3),
+        abi_address_to_hex,
+        abi_bytes_to_bytes,
+        abi_string_to_text,
+    ]
+    normalized_arguments = map_abi_data(
+        normalizers,
+        argument_types,
+        arguments,
+    )
+    encoded_arguments = eth_abi_encode_abi(
+        argument_types,
+        normalized_arguments,
+    )
 
     if data:
         return to_hex(HexBytes(data) + encoded_arguments)
