@@ -334,9 +334,10 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
     sorted_args = list(zip(
         *sorted(
             itertools.chain(kwargs.items(), args_as_kwargs.items()),
-            key=lambda kv: sorted_arg_names.index(kv[0])
+            key=lambda kv: sorted_arg_names.index(kv[0]),
         )
     ))
+
     if sorted_args:
         return sorted_args[1]
     else:
