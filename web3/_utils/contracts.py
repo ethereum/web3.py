@@ -93,8 +93,10 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
     else:
         matching_identifiers = name_filter(abi)
         matching_function_signatures = [abi_to_signature(func) for func in matching_identifiers]
+
         arg_count_matches = len(arg_count_filter(matching_identifiers))
         encoding_matches = len(encoding_filter(matching_identifiers))
+
         if arg_count_matches == 0:
             diagnosis = "\nFunction invocation failed due to improper number of arguments."
         elif encoding_matches == 0:
@@ -104,6 +106,7 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
                 "\nAmbiguous argument encoding. "
                 "Provided arguments can be encoded to multiple functions matching this call."
             )
+
         message = (
             "\nCould not identify the intended function with name `{name}`, "
             "positional argument(s) of type `{arg_types}` and "
@@ -118,6 +121,7 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
             candidates=matching_function_signatures,
             diagnosis=diagnosis,
         )
+
         raise ValidationError(message)
 
 
