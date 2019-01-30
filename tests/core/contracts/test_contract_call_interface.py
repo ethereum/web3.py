@@ -631,5 +631,16 @@ def test_caller_with_parens_and_transaction_dict(math_contract):
 
 
 def test_caller_with_no_abi(web3):
-    result = ContractCaller(None, web3, '0x1234')
-    assert isinstance(result, ContractCaller)
+    with pytest.raises(NoABIFunctionsFound):
+        contract = web3.eth.contract()
+        contract.caller().thisFunctionDoesNotExist()
+
+
+def test_caller_with_block_identifier(math_contract):
+    result = math_contract.caller(block_identifier=10).return13()
+    assert result == 13
+
+
+def test_caller_with_transaction_keyword(math_contract):
+    result = math_contract.caller(transaction={'from': 'notarealaddress.eth'}).return13()
+    assert result == 13
