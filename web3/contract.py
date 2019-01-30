@@ -1447,18 +1447,8 @@ class ContractEvent:
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
 
 
-class CallerMethod:
-    def __init__(self, function, normalizers=None):
-        self._function = function
-
-    def __call__(self, *args, **kwargs):
-        # TODO: Remove this and consolidate into ContractCaller.
-        # I don't know why this is working but it is.
-        return self._function(*args, **kwargs).call()
-
-
 class ContractCaller:
-    def __init__(self, abi, web3, address, *args, **kwargs):
+    def __init__(self, abi, web3, address, *args, transaction=None, **kwargs):
         self.web3 = web3
         self.address = address
         self.abi = abi
@@ -1473,12 +1463,24 @@ class ContractCaller:
                             address=self.address,
                             function_identifier=func['name'])
 
-                caller_method = CallerMethod(fn)
+                caller_method = partial(self.call_function, fn, transaction=transaction)
                 setattr(self, func['name'], caller_method)
-            # TODO - make sure to handle if there is no abi
+        else:
+            raise NoABIFunctionsFound(
+                "The abi for this contract contains no function definitions. ",
+                "Are you sure you provided the correct contract abi?"
+            )
 
-    def __call__(self, *args, **kwargs):
-        return type(self)(self.abi, self.web3, self.address, *args, **kwargs)
+    def __call__(self, *args, transaction=None, **kwargs):
+        if transaction == None:
+            transaction = {}
+        return type(self)(self.abi, self.web3, self.address, transaction, **kwargs)
+
+    @staticmethod
+    def call_function(fn, *args, transaction_dict=None, **kwargs):
+        if transaction_dict is None:
+            transaction_dict = {}
+        return fn(*args, **kwargs).call(transaction_dict)
 
 
 def check_for_forbidden_api_filter_arguments(event_abi, _filters):
