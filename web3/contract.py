@@ -990,7 +990,7 @@ class ImplicitContract(ConciseContract):
 
     > contract.functions.withdraw(amount).transact({})
     """
-    @deprecated_for("verbose contract syntax. Ex: contract.functions.withdraw(amount).transact({})")
+    @deprecated_for("classic contract syntax. Ex: contract.functions.withdraw(amount).transact({})")
     def __init__(self, classic_contract, method_class=ImplicitMethod):
         super().__init__(classic_contract, method_class=method_class)
 
@@ -1450,11 +1450,11 @@ class ContractEvent:
 class ContractCaller:
     def __init__(self, abi, web3, address, *args, transaction_dict=None, **kwargs):
         self.web3 = web3
-        self.address = address
         self.abi = abi
+        self.address = address
 
         if transaction_dict is None:
-            transaction = {}
+            transaction_dict = {}
 
         if self.abi:
             self._functions = filter_by_type('function', self.abi)
@@ -1466,7 +1466,7 @@ class ContractCaller:
                             address=self.address,
                             function_identifier=func['name'])
 
-                caller_method = partial(self.call_function, fn, transaction_dict=transaction)
+                caller_method = partial(self.call_function, fn, transaction_dict=transaction_dict)
                 setattr(self, func['name'], caller_method)
         else:
             raise NoABIFunctionsFound(
