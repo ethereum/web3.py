@@ -209,3 +209,7 @@ def assert_signer_in_modifier_kwargs(modifier_kwargs):
         raise TypeError(ERR_MSG)
 
     return modifier_dict['from']
+
+
+def none_or_zero_address(addr):
+    return not addr or addr == '0x' + '00' * 20

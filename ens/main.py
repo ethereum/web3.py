@@ -23,6 +23,7 @@ from ens.utils import (
     init_web3,
     is_valid_name,
     label_to_hash,
+    none_or_zero_address,
     normal_name_to_hash,
     normalize_name,
     raw_name_to_hash,
@@ -112,7 +113,7 @@ class ENS:
         """
         owner = self.setup_owner(name, transact=transact)
         self._assert_control(owner, name)
-        if not address or address == EMPTY_ADDR_HEX:
+        if none_or_zero_address(address):
             address = None
         elif address is default:
             address = owner
@@ -149,7 +150,7 @@ class ENS:
             return self._setup_reverse(None, address, transact=transact)
         else:
             resolved = self.address(name)
-            if not address or address == EMPTY_ADDR_HEX:
+            if none_or_zero_address(address):
                 address = resolved
             elif resolved and address != resolved and resolved != EMPTY_ADDR_HEX:
                 raise AddressMismatch(
@@ -158,9 +159,9 @@ class ENS:
                         address, resolved
                     )
                 )
-            if not address or address == EMPTY_ADDR_HEX:
+            if none_or_zero_address(address):
                 address = self.owner(name)
-            if not address or address == EMPTY_ADDR_HEX:
+            if none_or_zero_address(address):
                 raise UnownedName("claim subdomain using setup_address() first")
             if is_binary_address(address):
                 address = to_checksum_address(address)
@@ -177,7 +178,8 @@ class ENS:
         if resolver:
             lookup_function = getattr(resolver.functions, get)
             namehash = normal_name_to_hash(normal_name)
-            if lookup_function(namehash).call() == EMPTY_ADDR_HEX:  # TODO: is there a better way?
+            address = lookup_function(namehash).call()
+            if none_or_zero_address(address):
                 return None
             return lookup_function(namehash).call()
         else:
@@ -185,7 +187,7 @@ class ENS:
 
     def resolver(self, normal_name):
         resolver_addr = self.ens.caller.resolver(normal_name_to_hash(normal_name))
-        if not resolver_addr or resolver_addr == EMPTY_ADDR_HEX:
+        if none_or_zero_address(resolver_addr):
             return None
         return self._resolverContract(address=resolver_addr)
 
@@ -266,10 +268,10 @@ class ENS:
         owner = None
         unowned = []
         pieces = normalize_name(name).split('.')
-        while pieces and (owner == EMPTY_ADDR_HEX or not owner):
+        while pieces and none_or_zero_address(owner):
             name = '.'.join(pieces)
             owner = self.owner(name)
-            if owner == EMPTY_ADDR_HEX or not owner:
+            if none_or_zero_address(owner):
                 unowned.append(pieces.pop(0))
         return (owner, unowned, name)
 
@@ -286,7 +288,7 @@ class ENS:
 
     @dict_copy
     def _set_resolver(self, name, resolver_addr=None, transact={}):
-        if not resolver_addr or resolver_addr == EMPTY_ADDR_HEX:
+        if none_or_zero_address(resolver_addr):
             resolver_addr = self.address('resolver.eth')
         namehash = raw_name_to_hash(name)
         if self.ens.caller.resolver(namehash) != resolver_addr:
