@@ -101,17 +101,17 @@ DEPRECATED_SIGNATURE_MESSAGE = (
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 
-class ReaderMethod:
+class CallerMethod:
     def __init__(self, function, normalizers=None):
         self._function = function
 
     def __call__(self, *args, **kwargs):
-        # TODO: Remove this and consolidate into ContractReader.
+        # TODO: Remove this and consolidate into ContractCaller.
         # I don't know why this is working but it is.
         return self._function(*args, **kwargs).call()
 
 
-class ContractReader:
+class ContractCaller:
     def __init__(self, abi, web3, address, *args, **kwargs):
         self.web3 = web3
         self.address = address
@@ -127,8 +127,8 @@ class ContractReader:
                             address=self.address,
                             function_identifier=func['name'])
 
-                reader_method = ReaderMethod(fn)
-                setattr(self, func['name'], reader_method)
+                caller_method = CallerMethod(fn)
+                setattr(self, func['name'], caller_method)
             # TODO - make sure to handle if there is no abi
 
     def __call__(self, *args, **kwargs):
@@ -275,7 +275,7 @@ class Contract:
     clone_bin = None
 
     functions = None
-    reader = None
+    caller = None
 
     #: Instance of :class:`ContractEvents` presenting available Event ABIs
     events = None
@@ -306,7 +306,7 @@ class Contract:
             raise TypeError("The address argument is required to instantiate a contract.")
 
         self.functions = ContractFunctions(self.abi, self.web3, self.address)
-        self.reader = ContractReader(self.abi, self.web3, self.address) # TODO: Change to caller
+        self.caller = ContractCaller(self.abi, self.web3, self.address)
         self.events = ContractEvents(self.abi, self.web3, self.address)
         self.fallback = Contract.get_fallback_function(self.abi, self.web3, self.address)
 
@@ -329,7 +329,7 @@ class Contract:
             normalizers=normalizers,
         )
         contract.functions = ContractFunctions(contract.abi, contract.web3)
-        contract.reader = ContractReader(contract.abi, contract.web3, contract.address) # TODO: Change to caller
+        contract.caller = ContractCaller(contract.abi, contract.web3, contract.address)
         contract.events = ContractEvents(contract.abi, contract.web3)
         contract.fallback = Contract.get_fallback_function(contract.abi, contract.web3)
 
