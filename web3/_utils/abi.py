@@ -275,6 +275,14 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
 
 
 def merge_args_and_kwargs(function_abi, args, kwargs):
+    """
+    Takes a list of positional args (``args``) and a dict of keyword args
+    (``kwargs``) defining values to be passed to a call to the contract function
+    described by ``function_abi``.  Checks to ensure that the correct number of
+    args were given, no duplicate args were given, and no unknown args were
+    given.  Returns a list of argument values aligned to the order of inputs
+    defined in ``function_abi``.
+    """
     if len(args) + len(kwargs) != len(function_abi.get('inputs', [])):
         raise TypeError(
             "Incorrect argument count.  Expected '{0}'.  Got '{1}'".format(
