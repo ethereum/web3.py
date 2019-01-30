@@ -745,3 +745,33 @@ Utils
           '_debatingPeriod': 604800,
           '_newCurator': True})
  
+ContractCaller
+--------------
+
+.. py:class:: ContractCaller
+   The :py:attr:`Contract.caller` is a shorthand way to call functions in a contract. This class is not to be used directly, but instead through :py:attr:`Contract.caller`.
+
+There are a number of different ways to invoke the :py:attr:`Contract.caller`.
+
+For example:
+
+    .. code-block:: python
+        >>> myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
+        >>> twentyone = myContract.caller.multiply7(3)
+It can also be invoked using parentheses:
+
+    .. code-block:: python
+        >>> myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
+        >>> twentyone = myContract.caller().multiply7(3)
+And a transaction dictionary, with or without the `transaction_dict` keyword. For example:
+
+    .. code-block:: python
+        >>> myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
+        >>> twentyone = myContract.caller({'from': '0x...'}).multiply7(3)
+        >>> myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
+        >>> twentyone = myContract.caller(transaction_dict={'from': '0x...'}).multiply7(3)
+Like :py:class:`ContractFunction`, :py:class:`ContractCaller`
+provides methods to interact with contract functions.
+Positional and keyword arguments supplied to the contract caller subclass
+will be used to find the contract function by signature,
+and forwarded to the contract function when applicable.

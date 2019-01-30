@@ -1450,6 +1450,19 @@ class ContractEvent:
 
 
 class ContractCaller:
+    """
+    An alternative Contract API.
+    This call:
+    > contract.caller({'from': eth.accounts[1], 'gas': 100000, ...}).add(2, 3)
+    is equivalent to this call in the classic contract:
+    > contract.functions.add(2, 3).call({'from': eth.accounts[1], 'gas': 100000, ...})
+    Other options for invoking this class include:
+    > contract.caller.add(2, 3)
+    or
+    > contract.caller().add(2, 3)
+    or
+    > contract.caller(transaction_dict={'from': eth.accounts[1], 'gas': 100000, ...}).add(2, 3)
+    """
     def __init__(self,
                  abi,
                  web3,
