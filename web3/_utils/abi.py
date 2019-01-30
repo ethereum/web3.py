@@ -283,6 +283,7 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
     given.  Returns a list of argument values aligned to the order of inputs
     defined in ``function_abi``.
     """
+    # Ensure the function is being applied to the correct number of args
     if len(args) + len(kwargs) != len(function_abi.get('inputs', [])):
         raise TypeError(
             "Incorrect argument count.  Expected '{0}'.  Got '{1}'".format(
@@ -291,9 +292,11 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
             )
         )
 
+    # If no keyword args were given, we don't need to align them
     if not kwargs:
         return args
 
+    # Check for duplicate args
     args_as_kwargs = {
         arg_abi['name']: arg
         for arg_abi, arg in zip(function_abi['inputs'], args)
@@ -307,6 +310,7 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
             )
         )
 
+    # Check for unknown args
     sorted_arg_names = [arg_abi['name'] for arg_abi in function_abi['inputs']]
 
     unknown_kwargs = {key for key in kwargs.keys() if key not in sorted_arg_names}
@@ -318,7 +322,6 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
                     dups=', '.join(unknown_kwargs),
                 )
             )
-        # show type instead of name in the error message incase key 'name' is missing.
         raise TypeError(
             "Type: '{_type}' got unexpected keyword argument(s) '{dups}'".format(
                 _type=function_abi.get('type'),
@@ -326,6 +329,8 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
             )
         )
 
+    # Sort args according to their position in the ABI and unzip them from their
+    # names
     sorted_args = list(zip(
         *sorted(
             itertools.chain(kwargs.items(), args_as_kwargs.items()),
