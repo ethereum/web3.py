@@ -527,14 +527,14 @@ def test_function_multiple_possible_encodings(web3):
 
 
 def test_function_no_abi(web3):
+    contract = web3.eth.contract()
     with pytest.raises(NoABIFunctionsFound):
-        contract = web3.eth.contract()
         contract.functions.thisFunctionDoesNotExist().call()
 
 
 def test_call_abi_no_functions(web3):
+    contract = web3.eth.contract(abi=[])
     with pytest.raises(NoABIFunctionsFound):
-        contract = web3.eth.contract(abi=[])
         contract.functions.thisFunctionDoesNotExist().call()
 
 
@@ -630,8 +630,8 @@ def test_caller_with_parens_and_transaction_dict(math_contract):
 
 
 def test_caller_with_no_abi(web3):
+    contract = web3.eth.contract()
     with pytest.raises(NoABIFunctionsFound):
-        contract = web3.eth.contract()
         contract.caller().thisFunctionDoesNotExist()
 
 
