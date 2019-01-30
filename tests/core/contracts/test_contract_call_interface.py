@@ -417,14 +417,15 @@ def test_reader_default(math_contract):
 
 
 def test_reader_with_parens(math_contract):
-    # result = math_contract.reader().return13()
-    # assert result == 13
-    pass
+    result = math_contract.reader().return13()
+    assert result == 13
 
 
 def test_reader_with_parens_and_transaction_dict(math_contract):
     # result = math_contract.reader({transaction_dict}).return13()
     # assert result == 13
+    # result = math_contract.reader(transaction_dict={'a': 2}).multiply7()
+    # assert result == 14
     pass
 
 
