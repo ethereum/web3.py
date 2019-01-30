@@ -71,7 +71,7 @@ def test_set_address(ens, name, full_name, namehash_hex, TEST_ADDRESS):
     assert is_same_address(ens.address(name), TEST_ADDRESS)
 
     # check that the correct namehash is set:
-    assert is_same_address(ens.resolver(normal_name).addr(namehash), TEST_ADDRESS)
+    assert is_same_address(ens.resolver(normal_name).caller.addr(namehash), TEST_ADDRESS)
 
     # check that the correct owner is set:
     assert ens.owner(name) == owner

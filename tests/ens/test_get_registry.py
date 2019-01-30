@@ -9,7 +9,7 @@ from web3 import Web3
 
 
 def test_resolver_empty(ens):
-    with patch.object(ens.ens, 'resolver', return_value=None):
+    with patch.object(ens.ens.caller, 'resolver', return_value=None):
         assert ens.resolver('') is None
 
 
