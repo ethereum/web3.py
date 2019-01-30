@@ -101,38 +101,6 @@ DEPRECATED_SIGNATURE_MESSAGE = (
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 
-class CallerMethod:
-    def __init__(self, function, normalizers=None):
-        self._function = function
-
-    def __call__(self, *args, **kwargs):
-        # TODO: Remove this and consolidate into ContractCaller.
-        # I don't know why this is working but it is.
-        return self._function(*args, **kwargs).call()
-
-
-class ContractCaller:
-    def __init__(self, abi, web3, address, *args, **kwargs):
-        self.web3 = web3
-        self.address = address
-        self.abi = abi
-
-        if self.abi:
-            self._functions = filter_by_type('function', self.abi)
-            for func in self._functions:
-                fn = ContractFunction.factory(
-                            func['name'],
-                            web3=self.web3,
-                            contract_abi=self.abi,
-                            address=self.address,
-                            function_identifier=func['name'])
-
-                caller_method = CallerMethod(fn)
-                setattr(self, func['name'], caller_method)
-            # TODO - make sure to handle if there is no abi
-
-    def __call__(self, *args, **kwargs):
-        return type(self)(self.abi, self.web3, self.address, *args, **kwargs)
 
 
 class ContractFunctions:
@@ -1477,6 +1445,40 @@ class ContractEvent:
     @classmethod
     def factory(cls, class_name, **kwargs):
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
+
+
+class CallerMethod:
+    def __init__(self, function, normalizers=None):
+        self._function = function
+
+    def __call__(self, *args, **kwargs):
+        # TODO: Remove this and consolidate into ContractCaller.
+        # I don't know why this is working but it is.
+        return self._function(*args, **kwargs).call()
+
+
+class ContractCaller:
+    def __init__(self, abi, web3, address, *args, **kwargs):
+        self.web3 = web3
+        self.address = address
+        self.abi = abi
+
+        if self.abi:
+            self._functions = filter_by_type('function', self.abi)
+            for func in self._functions:
+                fn = ContractFunction.factory(
+                            func['name'],
+                            web3=self.web3,
+                            contract_abi=self.abi,
+                            address=self.address,
+                            function_identifier=func['name'])
+
+                caller_method = CallerMethod(fn)
+                setattr(self, func['name'], caller_method)
+            # TODO - make sure to handle if there is no abi
+
+    def __call__(self, *args, **kwargs):
+        return type(self)(self.abi, self.web3, self.address, *args, **kwargs)
 
 
 def check_for_forbidden_api_filter_arguments(event_abi, _filters):
