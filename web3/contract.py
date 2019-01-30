@@ -1454,10 +1454,8 @@ class ContractCaller:
                  abi,
                  web3,
                  address,
-                 *args,
                  transaction_dict=None,
-                 block_identifier='latest',
-                 **kwargs):
+                 block_identifier='latest'):
         self.web3 = web3
         self.address = address
 
@@ -1479,7 +1477,6 @@ class ContractCaller:
                 block_id = parse_block_identifier(self.web3, block_identifier)
                 caller_method = partial(self.call_function,
                                         fn,
-                                        *args,
                                         transaction_dict=transaction_dict,
                                         block_identifier=block_id)
 
@@ -1499,15 +1496,14 @@ class ContractCaller:
         else:
             return super().__getattribute__(function_name)
 
-    def __call__(self, transaction_dict=None, block_identifier='latest', **kwargs):
+    def __call__(self, transaction_dict=None, block_identifier='latest'):
         if transaction_dict is None:
             transaction_dict = {}
         return type(self)(self.abi,
                           self.web3,
                           self.address,
                           transaction_dict=transaction_dict,
-                          block_identifier=block_identifier,
-                          **kwargs)
+                          block_identifier=block_identifier)
 
     @staticmethod
     def call_function(fn, *args, transaction_dict=None, block_identifier='latest', **kwargs):
