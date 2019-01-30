@@ -1448,10 +1448,13 @@ class ContractEvent:
 
 
 class ContractCaller:
-    def __init__(self, abi, web3, address, *args, transaction=None, **kwargs):
+    def __init__(self, abi, web3, address, *args, transaction_dict=None, **kwargs):
         self.web3 = web3
         self.address = address
         self.abi = abi
+
+        if transaction_dict is None:
+            transaction = {}
 
         if self.abi:
             self._functions = filter_by_type('function', self.abi)
@@ -1463,7 +1466,7 @@ class ContractCaller:
                             address=self.address,
                             function_identifier=func['name'])
 
-                caller_method = partial(self.call_function, fn, transaction=transaction)
+                caller_method = partial(self.call_function, fn, transaction_dict=transaction)
                 setattr(self, func['name'], caller_method)
         else:
             raise NoABIFunctionsFound(
@@ -1471,10 +1474,10 @@ class ContractCaller:
                 "Are you sure you provided the correct contract abi?"
             )
 
-    def __call__(self, *args, transaction=None, **kwargs):
-        if transaction == None:
-            transaction = {}
-        return type(self)(self.abi, self.web3, self.address, transaction, **kwargs)
+    def __call__(self, *args, transaction_dict=None, **kwargs):
+        if transaction_dict == None:
+            transaction_dict = {}
+        return type(self)(self.abi, self.web3, self.address, transaction_dict, **kwargs)
 
     @staticmethod
     def call_function(fn, *args, transaction_dict=None, **kwargs):
