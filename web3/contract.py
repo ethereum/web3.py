@@ -102,29 +102,17 @@ ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 
 class ReaderMethod:
-    ALLOWED_MODIFIERS = {'call', 'estimateGas', 'transact', 'buildTransaction'}
-
     def __init__(self, function, normalizers=None):
         self._function = function
 
     def __call__(self, *args, **kwargs):
-        return self.__prepared_function(*args, **kwargs)
+        # TODO: Remove this and consolidate into ContractReader.
+        # I don't know why this is working but it is.
+        return self._function(*args, **kwargs).call()
 
-    def __prepared_function(self, *args, **kwargs):
-        if not kwargs:
-            modifier, modifier_dict = 'call', {}
-        elif len(kwargs) == 1:
-            modifier, modifier_dict = kwargs.popitem()
-            if modifier not in self.ALLOWED_MODIFIERS:
-                raise TypeError(
-                    "The only allowed keyword arguments are: %s" % self.ALLOWED_MODIFIERS)
-        else:
-            raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
-
-        return getattr(self._function(*args), modifier)(modifier_dict)
 
 class ContractReader:
-    def __init__(self, abi, web3, address, method_class=ReaderMethod):
+    def __init__(self, abi, web3, address, *args, **kwargs):
         self.web3 = web3
         self.address = address
         self.abi = abi
@@ -132,20 +120,19 @@ class ContractReader:
         if self.abi:
             self._functions = filter_by_type('function', self.abi)
             for func in self._functions:
-                _concise_method = method_class(
-                    ContractFunction.factory(
-                        func['name'],
-                        web3=web3,
-                        contract_abi=self.abi,
-                        address=address,
-                        function_identifier=func['name'])
-                )
+                fn = ContractFunction.factory(
+                            func['name'],
+                            web3=self.web3,
+                            contract_abi=self.abi,
+                            address=self.address,
+                            function_identifier=func['name'])
 
-                setattr(self, func['name'], _concise_method)
+                reader_method = ReaderMethod(fn)
+                setattr(self, func['name'], reader_method)
             # TODO - make sure to handle if there is no abi
 
-    def __call__(self):
-        return type(self)(self.abi, self.web3, self.address)
+    def __call__(self, *args, **kwargs):
+        return type(self)(self.abi, self.web3, self.address, *args, **kwargs)
 
 
 class ContractFunctions:
