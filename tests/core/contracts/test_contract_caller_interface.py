@@ -26,6 +26,11 @@ def math_contract(web3, MathContract, address_conversion_func):
     return deploy(web3, MathContract, address_conversion_func)
 
 
+@pytest.fixture()
+def return_args_contract(web3, ReturnArgsContract, address_conversion_func):
+    return deploy(web3, ReturnArgsContract, address_conversion_func)
+
+
 def test_caller_default(math_contract):
     result = math_contract.caller.add(3, 5)
     assert result == 8
@@ -34,11 +39,6 @@ def test_caller_default(math_contract):
 def test_caller_with_parens(math_contract):
     result = math_contract.caller().return13()
     assert result == 13
-
-
-def test_caller_with_parens_and_transaction_dict(math_contract):
-    result = math_contract.caller({'from': 'notarealaddress.eth'}).add(2, 3)
-    assert result == 5
 
 
 def test_caller_with_no_abi(web3):
@@ -68,7 +68,13 @@ def test_caller_with_block_identifier(web3, math_contract):
     assert output2 == 2
 
 
-def test_caller_with_transaction_keyword(math_contract):
-    # TODO: Make sure from is actually set correctly here.
-    result = math_contract.caller(transaction={'from': 'notarealaddress.eth'}).return13()
-    assert result == 13
+def test_caller_with_transaction_keyword(web3, return_args_contract):
+    address = web3.eth.accounts[0]
+    contract = return_args_contract.caller(transaction_dict={'from': address})
+    assert contract.returnMeta() == [address, b'\xc7\xfa}f', 45532, 0]
+
+
+def test_caller_with_dict_but_no_transaction_keyword(web3, return_args_contract):
+    address = web3.eth.accounts[0]
+    contract = return_args_contract.caller({'from': address})
+    assert contract.returnMeta() == [address, b'\xc7\xfa}f', 45532, 0]
