@@ -37,8 +37,8 @@ def test_caller_default(math_contract):
 
 
 def test_caller_with_parens(math_contract):
-    result = math_contract.caller().return13()
-    assert result == 13
+    result = math_contract.caller().add(3, 5)
+    assert result == 8
 
 
 def test_caller_with_no_abi(web3):
@@ -69,12 +69,56 @@ def test_caller_with_block_identifier(web3, math_contract):
 
 
 def test_caller_with_transaction_keyword(web3, return_args_contract):
-    address = web3.eth.accounts[0]
-    contract = return_args_contract.caller(transaction_dict={'from': address})
-    assert contract.returnMeta() == [address, b'\xc7\xfa}f', 45532, 0]
+    address = web3.eth.accounts[1]
+    transaction_dict = {
+        'from': address,
+        'gas': 210000,
+        'gasPrice': web3.toWei(.001, 'ether'),
+        'value': 12345,
+    }
+    contract = return_args_contract.caller(transaction_dict=transaction_dict)
+
+    sender, _, gasLeft, value = contract.returnMeta()
+
+    assert address == sender
+    assert gasLeft <= transaction_dict['gas']
+    assert value == transaction_dict['value']
 
 
 def test_caller_with_dict_but_no_transaction_keyword(web3, return_args_contract):
-    address = web3.eth.accounts[0]
-    contract = return_args_contract.caller({'from': address})
-    assert contract.returnMeta() == [address, b'\xc7\xfa}f', 45532, 0]
+    address = web3.eth.accounts[1]
+    transaction_dict = {
+        'from': address,
+        'gas': 210000,
+        'gasPrice': web3.toWei(.001, 'ether'),
+        'value': 12345,
+    }
+
+    contract = return_args_contract.caller(transaction_dict)
+
+    sender, _, gasLeft, value = contract.returnMeta()
+
+    assert address == sender
+    assert gasLeft <= transaction_dict['gas']
+    assert value == transaction_dict['value']
+
+
+def test_caller_with_args_and_no_transaction_keyword(web3, return_args_contract):
+    address = web3.eth.accounts[1]
+    transaction_dict = {
+        'from': address,
+        'gas': 210000,
+        'gasPrice': web3.toWei(.001, 'ether'),
+        'value': 12345,
+    }
+
+    contract = return_args_contract.caller(transaction_dict)
+
+    sender, _, gasLeft, value = contract.returnMeta()
+
+    assert address == sender
+    assert gasLeft <= transaction_dict['gas']
+    assert value == transaction_dict['value']
+
+    add_result = contract.add(3, 5)
+    assert add_result == 8
