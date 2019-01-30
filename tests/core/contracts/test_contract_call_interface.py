@@ -28,7 +28,6 @@ from web3.exceptions import (
     ValidationError,
 )
 
-
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
