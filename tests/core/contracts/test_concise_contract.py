@@ -98,8 +98,8 @@ def test_class_construction_sets_class_vars(web3,
     assert classic.bytecode_runtime == decode_hex(MATH_RUNTIME)
 
 
-def test_conciscecontract_keeps_custom_normalizers_on_base(web3):
-    base_contract = web3.eth.contract()
+def test_conciscecontract_keeps_custom_normalizers_on_base(web3, MATH_ABI):
+    base_contract = web3.eth.contract(abi=MATH_ABI)
     # give different normalizers to this base instance
     base_contract._return_data_normalizers = base_contract._return_data_normalizers + tuple([None])
 
