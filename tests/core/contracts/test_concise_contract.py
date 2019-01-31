@@ -133,3 +133,9 @@ def test_conciscecontract_function_collision(
 
     with pytest.raises(AttributeError, match=r'Namespace collision .* with ConciseContract API.'):
         concise_contract.getValue()
+
+
+def test_concisecontract_deprecation_warning(web3, StringContract):
+    contract = deploy(web3, StringContract, args=["blarg"])
+    with pytest.warns(DeprecationWarning):
+        ConciseContract(contract)
