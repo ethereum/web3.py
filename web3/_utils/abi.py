@@ -275,6 +275,15 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
 
 
 def merge_args_and_kwargs(function_abi, args, kwargs):
+    """
+    Takes a list of positional args (``args``) and a dict of keyword args
+    (``kwargs``) defining values to be passed to a call to the contract function
+    described by ``function_abi``.  Checks to ensure that the correct number of
+    args were given, no duplicate args were given, and no unknown args were
+    given.  Returns a list of argument values aligned to the order of inputs
+    defined in ``function_abi``.
+    """
+    # Ensure the function is being applied to the correct number of args
     if len(args) + len(kwargs) != len(function_abi.get('inputs', [])):
         raise TypeError(
             "Incorrect argument count.  Expected '{0}'.  Got '{1}'".format(
@@ -283,47 +292,50 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
             )
         )
 
+    # If no keyword args were given, we don't need to align them
     if not kwargs:
         return args
 
-    args_as_kwargs = {
-        arg_abi['name']: arg
-        for arg_abi, arg in zip(function_abi['inputs'], args)
-    }
-    duplicate_keys = set(args_as_kwargs).intersection(kwargs.keys())
-    if duplicate_keys:
+    kwarg_names = set(kwargs.keys())
+    sorted_arg_names = tuple(arg_abi['name'] for arg_abi in function_abi['inputs'])
+    args_as_kwargs = dict(zip(sorted_arg_names, args))
+
+    # Check for duplicate args
+    duplicate_args = kwarg_names.intersection(args_as_kwargs.keys())
+    if duplicate_args:
         raise TypeError(
             "{fn_name}() got multiple values for argument(s) '{dups}'".format(
                 fn_name=function_abi['name'],
-                dups=', '.join(duplicate_keys),
+                dups=', '.join(duplicate_args),
             )
         )
 
-    sorted_arg_names = [arg_abi['name'] for arg_abi in function_abi['inputs']]
-
-    unknown_kwargs = {key for key in kwargs.keys() if key not in sorted_arg_names}
-    if unknown_kwargs:
+    # Check for unknown args
+    unknown_args = kwarg_names.difference(sorted_arg_names)
+    if unknown_args:
         if function_abi.get('name'):
             raise TypeError(
                 "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
                     fn_name=function_abi.get('name'),
-                    dups=', '.join(unknown_kwargs),
+                    dups=', '.join(unknown_args),
                 )
             )
-        # show type instead of name in the error message incase key 'name' is missing.
         raise TypeError(
             "Type: '{_type}' got unexpected keyword argument(s) '{dups}'".format(
                 _type=function_abi.get('type'),
-                dups=', '.join(unknown_kwargs),
+                dups=', '.join(unknown_args),
             )
         )
 
-    sorted_args = list(zip(
+    # Sort args according to their position in the ABI and unzip them from their
+    # names
+    sorted_args = tuple(zip(
         *sorted(
             itertools.chain(kwargs.items(), args_as_kwargs.items()),
-            key=lambda kv: sorted_arg_names.index(kv[0])
+            key=lambda kv: sorted_arg_names.index(kv[0]),
         )
     ))
+
     if sorted_args:
         return sorted_args[1]
     else:
