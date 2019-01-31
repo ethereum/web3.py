@@ -296,42 +296,40 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
     if not kwargs:
         return args
 
+    kwarg_names = set(kwargs.keys())
+    sorted_arg_names = tuple(arg_abi['name'] for arg_abi in function_abi['inputs'])
+    args_as_kwargs = dict(zip(sorted_arg_names, args))
+
     # Check for duplicate args
-    args_as_kwargs = {
-        arg_abi['name']: arg
-        for arg_abi, arg in zip(function_abi['inputs'], args)
-    }
-    duplicate_keys = set(args_as_kwargs).intersection(kwargs.keys())
-    if duplicate_keys:
+    duplicate_args = kwarg_names.intersection(args_as_kwargs.keys())
+    if duplicate_args:
         raise TypeError(
             "{fn_name}() got multiple values for argument(s) '{dups}'".format(
                 fn_name=function_abi['name'],
-                dups=', '.join(duplicate_keys),
+                dups=', '.join(duplicate_args),
             )
         )
 
     # Check for unknown args
-    sorted_arg_names = [arg_abi['name'] for arg_abi in function_abi['inputs']]
-
-    unknown_kwargs = {key for key in kwargs.keys() if key not in sorted_arg_names}
-    if unknown_kwargs:
+    unknown_args = kwarg_names.difference(sorted_arg_names)
+    if unknown_args:
         if function_abi.get('name'):
             raise TypeError(
                 "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
                     fn_name=function_abi.get('name'),
-                    dups=', '.join(unknown_kwargs),
+                    dups=', '.join(unknown_args),
                 )
             )
         raise TypeError(
             "Type: '{_type}' got unexpected keyword argument(s) '{dups}'".format(
                 _type=function_abi.get('type'),
-                dups=', '.join(unknown_kwargs),
+                dups=', '.join(unknown_args),
             )
         )
 
     # Sort args according to their position in the ABI and unzip them from their
     # names
-    sorted_args = list(zip(
+    sorted_args = tuple(zip(
         *sorted(
             itertools.chain(kwargs.items(), args_as_kwargs.items()),
             key=lambda kv: sorted_arg_names.index(kv[0]),
