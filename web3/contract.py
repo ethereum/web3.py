@@ -968,6 +968,7 @@ class ImplicitMethod(ConciseMethod):
 
         return function_abi['constant'] if 'constant' in function_abi.keys() else False
 
+    @deprecated_for("classic contract syntax. Ex: contract.functions.withdraw(amount).transact({})")
     def __call__(self, *args, **kwargs):
         # Modifier is not provided and method is not constant/pure do a transaction instead
         if not kwargs and not self.__call_by_default(args):
@@ -992,7 +993,6 @@ class ImplicitContract(ConciseContract):
 
     > contract.functions.withdraw(amount).transact({})
     """
-    @deprecated_for("classic contract syntax. Ex: contract.functions.withdraw(amount).transact({})")
     def __init__(self, classic_contract, method_class=ImplicitMethod):
         super().__init__(classic_contract, method_class=method_class)
 
