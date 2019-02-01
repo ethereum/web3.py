@@ -87,8 +87,8 @@ from web3.exceptions import (
     BlockNumberOutofRange,
     FallbackNotFound,
     MismatchedABI,
-    NoABIFound,
     NoABIEventsFound,
+    NoABIFound,
     NoABIFunctionsFound,
 )
 
