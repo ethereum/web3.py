@@ -1518,7 +1518,8 @@ class ContractCaller:
             functions_available = ', '.join([fn['name'] for fn in self._functions])
             raise MismatchedABI(
                 "The function '{}' was not found in this contract's ABI. ".format(function_name),
-                "Here is a list of all of the function names found: {}. ".format(functions_available),
+                "Here is a list of all of the function names found: ",
+                "{}. ".format(functions_available),
                 "Did you mean to call one of those functions?"
             )
         else:
