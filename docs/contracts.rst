@@ -26,7 +26,6 @@ To run this example, you will need to install a few extra features:
 
     from web3 import Web3
     from solc import compile_source
-    from web3.contract import ConciseContract
 
     # Solidity source code
     contract_source_code = """
@@ -89,11 +88,6 @@ To run this example, you will need to install a few extra features:
         greeter.functions.greet().call()
     ))
 
-    # When issuing a lot of reads, try this more concise reader:
-    reader = ConciseContract(greeter)
-    assert reader.greet() == "Nihao"
-
-
 Contract Factories
 ------------------
 
@@ -110,6 +104,9 @@ example in :class:`ConciseContract` for specifying an alternate factory.
     The address parameter can be a hex address or an ENS name, like ``mycontract.eth``.
 
 .. py:class:: ConciseContract(Contract())
+
+    .. warning:: Deprecated: This method is deprecated in favor of the :class:`~ContractCaller` API
+      or the verbose syntax
 
     This variation of :class:`Contract` is designed for more succinct read access,
     without making write access more wordy. This comes at a cost of losing
@@ -144,6 +141,8 @@ example in :class:`ConciseContract` for specifying an alternate factory.
         >>> contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
 
 .. py:class:: ImplicitContract(Contract())
+
+   .. warning:: Deprecated: This method is deprecated in favor of the verbose syntax
 
    This variation mirrors :py:class:`ConciseContract`, but it invokes all methods as a
    transaction rather than a call, so if the classic contract had a method like
@@ -749,9 +748,11 @@ ContractCaller
 --------------
 
 .. py:class:: ContractCaller
-   The :py:attr:`Contract.caller` is a shorthand way to call functions in a contract. This class is not to be used directly, but instead through :py:attr:`Contract.caller`.
 
-There are a number of different ways to invoke the :py:attr:`Contract.caller`.
+The :py:class:``ContractCaller`` class provides an API to call functions in a contract. This class
+is not to be used directly, but instead through ``Contract.caller``.
+
+There are a number of different ways to invoke the ``ContractCaller``.
 
 For example:
 
@@ -782,7 +783,7 @@ It can also be invoked using parentheses:
    >>> twentyone
    21
 
-And a transaction dictionary, with or without the `transaction_dict` keyword. For example:
+And a transaction dictionary, with or without the ``transaction_dict`` keyword. For example:
 
 .. doctest::
 
