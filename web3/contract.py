@@ -87,6 +87,7 @@ from web3.exceptions import (
     BlockNumberOutofRange,
     FallbackNotFound,
     MismatchedABI,
+    NoABIFound,
     NoABIEventsFound,
     NoABIFunctionsFound,
 )
@@ -1479,10 +1480,10 @@ class ContractCaller:
                  block_identifier='latest'):
         self.web3 = web3
         self.address = address
+        self.abi = abi
+        self._functions = None
 
         if abi:
-            self.abi = abi
-
             if transaction_dict is None:
                 transaction_dict = {}
 
@@ -1504,15 +1505,21 @@ class ContractCaller:
                 setattr(self, func['name'], caller_method)
 
     def __getattr__(self, function_name):
-        if '_functions' not in self.__dict__:
-            raise NoABIFunctionsFound(
-                "The abi for this contract contains no function definitions. ",
-                "Are you sure you provided the correct contract abi?"
+        if self.abi is None:
+            raise NoABIFound(
+                "There is no ABI found for this contract.",
             )
-        elif function_name not in self.__dict__['_functions']:
+        if not self._functions or len(self._functions) == 0:
+            raise NoABIFunctionsFound(
+                "The ABI for this contract contains no function definitions. ",
+                "Are you sure you provided the correct contract ABI?"
+            )
+        elif function_name not in self._functions:
+            functions_available = ', '.join([fn['name'] for fn in self._functions])
             raise MismatchedABI(
-                "The function '{}' was not found in this contract's abi. ".format(function_name),
-                "Are you sure you provided the correct contract abi?"
+                "The function '{}' was not found in this contract's ABI. ".format(function_name),
+                "Here is a list of all of the function names found: {}".format(functions_available),
+                "Did you mean to call one of those functions?"
             )
         else:
             return super().__getattribute__(function_name)
