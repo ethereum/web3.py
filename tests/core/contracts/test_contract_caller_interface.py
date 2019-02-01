@@ -5,6 +5,7 @@ from web3._utils.toolz import (
 )
 from web3.exceptions import (
     MismatchedABI,
+    NoABIFound,
     NoABIFunctionsFound,
 )
 
@@ -43,6 +44,24 @@ def test_caller_with_parens(math_contract):
 
 def test_caller_with_no_abi(web3):
     contract = web3.eth.contract()
+    with pytest.raises(NoABIFound):
+        contract.caller.thisFunctionDoesNotExist()
+
+
+def test_caller_with_no_abi_and_parens(web3):
+    contract = web3.eth.contract()
+    with pytest.raises(NoABIFound):
+        contract.caller().thisFunctionDoesNotExist()
+
+
+def test_caller_with_empty_abi_and_parens(web3):
+    contract = web3.eth.contract(abi=[])
+    with pytest.raises(NoABIFunctionsFound):
+        contract.caller().thisFunctionDoesNotExist()
+
+
+def test_caller_with_empty_abi(web3):
+    contract = web3.eth.contract(abi=[])
     with pytest.raises(NoABIFunctionsFound):
         contract.caller.thisFunctionDoesNotExist()
 

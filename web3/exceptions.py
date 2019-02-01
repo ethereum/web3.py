@@ -82,7 +82,14 @@ class ValidationError(Exception):
 
 class NoABIFunctionsFound(AttributeError):
     """
-    Raised when an ABI doesn't contain any functions.
+    Raised when an ABI is present, but doesn't contain any functions.
+    """
+    pass
+
+
+class NoABIFound(AttributeError):
+    """
+    Raised when no ABI is present.
     """
     pass
 

@@ -755,23 +755,44 @@ There are a number of different ways to invoke the :py:attr:`Contract.caller`.
 
 For example:
 
-    .. code-block:: python
-        >>> myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
-        >>> twentyone = myContract.caller.multiply7(3)
+.. testsetup::
+
+   import json
+   from web3 import Web3
+   w3 = Web3(Web3.EthereumTesterProvider())
+   bytecode = "0x606060405261022e806100126000396000f360606040523615610074576000357c01000000000000000000000000000000000000000000000000000000009004806316216f391461007657806361bc221a146100995780637cf5dab0146100bc578063a5f3c23b146100e8578063d09de08a1461011d578063dcf537b11461014057610074565b005b610083600480505061016c565b6040518082815260200191505060405180910390f35b6100a6600480505061017f565b6040518082815260200191505060405180910390f35b6100d26004808035906020019091905050610188565b6040518082815260200191505060405180910390f35b61010760048080359060200190919080359060200190919050506101ea565b6040518082815260200191505060405180910390f35b61012a6004805050610201565b6040518082815260200191505060405180910390f35b6101566004808035906020019091905050610217565b6040518082815260200191505060405180910390f35b6000600d9050805080905061017c565b90565b60006000505481565b6000816000600082828250540192505081905550600060005054905080507f3496c3ede4ec3ab3686712aa1c238593ea6a42df83f98a5ec7df9834cfa577c5816040518082815260200191505060405180910390a18090506101e5565b919050565b6000818301905080508090506101fb565b92915050565b600061020d6001610188565b9050610214565b90565b60006007820290508050809050610229565b91905056"
+   ABI = json.loads('[{"constant":false,"inputs":[],"name":"return13","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":true,"inputs":[],"name":"counter","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"amt","type":"uint256"}],"name":"increment","outputs":[{"name":"result","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"},{"name":"b","type":"int256"}],"name":"add","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":false,"inputs":[],"name":"increment","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"}],"name":"multiply7","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"Increased","type":"event"}]')
+   contract = w3.eth.contract(abi=ABI, bytecode=bytecode)
+   deploy_txn = contract.constructor().transact()
+   deploy_receipt = w3.eth.waitForTransactionReceipt(deploy_txn)
+   address = deploy_receipt.contractAddress
+
+.. doctest::
+
+   >>> myContract = w3.eth.contract(address=address, abi=ABI)
+   >>> twentyone = myContract.caller.multiply7(3)
+   >>> twentyone
+   21
 
 It can also be invoked using parentheses:
 
-    .. code-block:: python
-        >>> myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
-        >>> twentyone = myContract.caller().multiply7(3)
+.. doctest::
+
+   >>> twentyone = myContract.caller().multiply7(3)
+   >>> twentyone
+   21
 
 And a transaction dictionary, with or without the `transaction_dict` keyword. For example:
 
-    .. code-block:: python
-        >>> myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
-        >>> twentyone = myContract.caller({'from': '0x...'}).multiply7(3)
-        >>> myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
-        >>> twentyone = myContract.caller(transaction_dict={'from': '0x...'}).multiply7(3)
+.. doctest::
+
+   >>> from_address = w3.eth.accounts[1]
+   >>> twentyone = myContract.caller({'from': from_address}).multiply7(3)
+   >>> twentyone
+   21
+   >>> twentyone = myContract.caller(transaction_dict={'from': from_address}).multiply7(3)
+   >>> twentyone
+   21
 
 Like :py:class:`ContractFunction`, :py:class:`ContractCaller`
 provides methods to interact with contract functions.
