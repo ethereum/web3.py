@@ -4,6 +4,15 @@ Filtering
 
 .. py:module:: web3.utils.filters
 
+.. note ::
+
+    Most one-liners below assume ``w3`` to be a :class:`web3.Web3` instance;
+    obtainable, for example, with:
+
+    .. code-block:: python
+
+        from web3.auto import w3
+
 The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 
 * Pending Transactions: ``web3.eth.filter('pending')``
@@ -22,14 +31,13 @@ The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 
     .. code-block:: python
 
-        event_filter = web3.eth.filter({"address": contract_address})
+        event_filter = w3.eth.filter({"address": contract_address})
 
 * Attaching to an existing filter
 
     .. code-block:: python
 
-        from web3.auto import w3
-        existing_filter = web3.eth.filter(filter_id="0x0")
+        existing_filter = w3.eth.filter(filter_id="0x0")
 
 .. note ::
 
@@ -86,27 +94,27 @@ Block and Transaction Filter Classes
 
 .. py:class:: BlockFilter(...)
 
-BlockFilter is a subclass of :class:``Filter``.
+``BlockFilter`` is a subclass of :class:`Filter`.
 
 You can setup a filter for new blocks using ``web3.eth.filter('latest')`` which
-will return a new :py:class:`BlockFilter` object.
+will return a new :class:`BlockFilter` object.
 
     .. code-block:: python
 
-        >>> new_block_filter = web.eth.filter('latest')
-        >>> new_block_filter.get_new_entries()
+        new_block_filter = w3.eth.filter('latest')
+        new_block_filter.get_new_entries()
 
 .. py:class:: TransactionFilter(...)
 
-TransactionFilter is a subclass of :class:``Filter``.
+``TransactionFilter`` is a subclass of :class:`Filter`.
 
 You can setup a filter for new blocks using ``web3.eth.filter('pending')`` which
-will return a new :py:class:`BlockFilter` object.
+will return a new :class:`BlockFilter` object.
 
     .. code-block:: python
 
-        >>> new_transaction_filter = web.eth.filter('pending')
-        >>> new_transaction_filter.get_new_entries()
+        new_transaction_filter = w3.eth.filter('pending')
+        new_transaction_filter.get_new_entries()
 
 
 Event Log Filters
