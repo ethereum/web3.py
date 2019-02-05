@@ -2,7 +2,6 @@
 
 """
 import copy
-import functools
 import itertools
 
 from eth_abi import (
@@ -49,7 +48,6 @@ from web3._utils.datatypes import (
 )
 from web3._utils.decorators import (
     combomethod,
-    deprecated_for,
 )
 from web3._utils.empty import (
     empty,
