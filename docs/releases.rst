@@ -2,7 +2,9 @@ Release Notes
 =============
 
 - Unreleased Breaking Changes
-   - Remove deprecated ``call``, ``buildTransaction``, ``transact``, and ``estimateGas`` methods
+   - Remove deprecated ``call``, ``buildTransaction``,
+     ``transact``, and ``estimateGas`` methods
+     - `#1232 <https://github.com/ethereum/web3.py/pull/1232>`_
 
 
 v5.0.0-alpha.4
