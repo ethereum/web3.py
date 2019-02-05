@@ -1,6 +1,9 @@
 Release Notes
 =============
 
+- Unreleased Breaking Changes
+   - Remove deprecated ``call``, ``buildTransaction``, ``transact``, and ``estimateGas`` methods
+
 
 v5.0.0-alpha.4
 --------------
