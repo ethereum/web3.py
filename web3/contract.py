@@ -306,59 +306,6 @@ class Contract:
     # Contract Methods
     #
     @classmethod
-    @deprecated_for("contract.constructor.transact")
-    def deploy(cls, transaction=None, args=None, kwargs=None):
-        """
-        Deploys the contract on a blockchain.
-
-        Example:
-
-        .. code-block:: python
-
-            >>> MyContract.deploy(
-                transaction={
-                    'from': web3.eth.accounts[1],
-                    'value': 12345,
-                },
-                args=('DGD', 18),
-            )
-            '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
-
-        :param transaction: Transaction parameters for the deployment
-                            transaction as a dict
-
-        :param args: The contract constructor arguments as positional arguments
-        :param kwargs: The contract constructor arguments as keyword arguments
-
-        :return: hexadecimal transaction hash of the deployment transaction
-        """
-        if transaction is None:
-            deploy_transaction = {}
-        else:
-            deploy_transaction = dict(**transaction)
-
-        if not cls.bytecode:
-            raise ValueError(
-                "Cannot deploy a contract that does not have 'bytecode' associated "
-                "with it"
-            )
-
-        if 'data' in deploy_transaction:
-            raise ValueError(
-                "Cannot specify `data` for contract deployment"
-            )
-
-        if 'to' in deploy_transaction:
-            raise ValueError(
-                "Cannot specify `to` for contract deployment"
-            )
-
-        deploy_transaction['data'] = cls._encode_constructor_data(args, kwargs)
-
-        txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
-        return txn_hash
-
-    @classmethod
     def constructor(cls, *args, **kwargs):
         """
         :param args: The contract constructor arguments as positional arguments
