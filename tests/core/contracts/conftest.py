@@ -581,8 +581,7 @@ def some_address(address_conversion_func):
     return address_conversion_func('0x5B2063246F2191f18F2675ceDB8b28102e957458')
 
 
-def invoke_contract(api_style=None,
-                    api_call_desig='call',
+def invoke_contract(api_call_desig='call',
                     contract=None,
                     contract_function=None,
                     func_args=[],
@@ -592,34 +591,27 @@ def invoke_contract(api_style=None,
     if api_call_desig not in allowable_call_desig:
         raise ValueError("allowable_invoke_method must be one of: %s" % allowable_call_desig)
 
-    if api_style == 'func_first':
-        function = contract.functions[contract_function]
-        result = getattr(function(*func_args, **func_kwargs), api_call_desig)(tx_params)
-    elif api_style == 'func_last':
-        api_call_cls = getattr(contract, api_call_desig)
-        with pytest.deprecated_call():
-            result = getattr(api_call_cls(tx_params), contract_function)(*func_args, **func_kwargs)
-    else:
-        raise ValueError("api_style must be 'func_first or func_last'")
+    function = contract.functions[contract_function]
+    result = getattr(function(*func_args, **func_kwargs), api_call_desig)(tx_params)
 
     return result
 
 
-@pytest.fixture(params=['func_first', 'func_last'])
+@pytest.fixture
 def transact(request):
-    return functools.partial(invoke_contract, request.param, api_call_desig='transact')
+    return functools.partial(invoke_contract, api_call_desig='transact')
 
 
-@pytest.fixture(params=['func_first', 'func_last'])
+@pytest.fixture
 def call(request):
-    return functools.partial(invoke_contract, request.param, api_call_desig='call')
+    return functools.partial(invoke_contract, api_call_desig='call')
 
 
-@pytest.fixture(params=['func_first', 'func_last'])
+@pytest.fixture
 def estimateGas(request):
-    return functools.partial(invoke_contract, request.param, api_call_desig='estimateGas')
+    return functools.partial(invoke_contract, api_call_desig='estimateGas')
 
 
-@pytest.fixture(params=['func_first', 'func_last'])
+@pytest.fixture
 def buildTransaction(request):
-    return functools.partial(invoke_contract, request.param, api_call_desig='buildTransaction')
+    return functools.partial(invoke_contract, api_call_desig='buildTransaction')
