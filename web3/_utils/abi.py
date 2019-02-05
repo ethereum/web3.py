@@ -1,12 +1,15 @@
 import binascii
 from collections import (
+    abc,
     namedtuple,
 )
+import copy
 import itertools
 import re
 from typing import (
     Any,
     Optional,
+    Tuple,
     Union,
 )
 
@@ -32,6 +35,7 @@ from eth_typing import (
 from eth_utils import (
     decode_hex,
     is_bytes,
+    is_list_like,
     is_text,
     to_text,
     to_tuple,
@@ -304,6 +308,85 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
         return sorted_args[1]
     else:
         return tuple()
+
+
+TUPLE_TYPE_STR_RE = re.compile(r'^(tuple)(\[([1-9][0-9]*)?\])?$')
+
+
+def get_tuple_type_str_parts(s: str) -> Optional[Tuple[str, Optional[str]]]:
+    """
+    Takes a JSON ABI type string.  For tuple type strings, returns the separated
+    prefix and array dimension parts.  For all other strings, returns ``None``.
+    """
+    match = TUPLE_TYPE_STR_RE.match(s)
+
+    if match is not None:
+        tuple_prefix = match.group(1)
+        tuple_dims = match.group(2)
+
+        return tuple_prefix, tuple_dims
+
+    return None
+
+
+def _convert_abi_input(comp, arg):
+    """
+    Converts an argument ``arg`` corresponding to an ABI component ``comp``
+    into a plain value (for non-tuple components) or a properly converted and
+    ordered sequence (for tuple list components or tuple components).
+    """
+    tuple_parts = get_tuple_type_str_parts(comp['type'])
+
+    if tuple_parts is None:
+        # Component is non-tuple.  Just return value.
+        return arg
+
+    tuple_prefix, tuple_dims = tuple_parts
+    if tuple_dims is None:
+        # Component is non-list tuple.  Each sub component of tuple will be
+        # applied to each element in `arg`.
+        sub_comps = comp['components']
+    else:
+        # Component is list tuple.  A non-list version of this component will be
+        # repeatedly applied to each element in `arg`.
+        new_comp = copy.copy(comp)
+        new_comp['type'] = tuple_prefix
+
+        sub_comps = itertools.repeat(new_comp)
+
+    if isinstance(arg, abc.Mapping):
+        # Arg is mapping.  Convert to properly ordered sequence.
+        arg = tuple(arg[c['name']] for c in sub_comps)
+
+    if not is_list_like(arg):
+        raise TypeError(
+            'Expected non-string sequence for "{}" component type: got {}'.format(
+                comp['type'],
+                arg,
+            ),
+        )
+
+    return type(arg)(_convert_abi_input(c, a) for c, a in zip(sub_comps, arg))
+
+
+def get_abi_inputs(abi, args):
+    """
+    Takes a function ABI (``abi``) and a sequence or mapping of args
+    (``args``).  Returns a list of canonical type names for the function's
+    inputs and a list of arguments in corresponding order.  The args contained
+    in ``args`` may contain nested mappings or sequences corresponding to
+    tuple-encoded values in ``abi``.
+    """
+    inputs = abi.get('inputs', [])
+
+    if isinstance(args, abc.Mapping):
+        # `args` is mapping, convert to properly ordered sequence
+        args = tuple(args[i['name']] for i in inputs)
+
+    return (
+        tuple(collapse_if_tuple(i) for i in inputs),
+        type(args)(_convert_abi_input(i, a) for i, a in zip(inputs, args)),
+    )
 
 
 def get_constructor_abi(contract_abi):
