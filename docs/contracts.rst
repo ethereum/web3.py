@@ -783,7 +783,7 @@ It can also be invoked using parentheses:
    >>> twentyone
    21
 
-And a transaction dictionary, with or without the ``transaction_dict`` keyword. For example:
+And a transaction dictionary, with or without the ``transaction`` keyword. For example:
 
 .. doctest::
 
@@ -791,7 +791,7 @@ And a transaction dictionary, with or without the ``transaction_dict`` keyword. 
    >>> twentyone = myContract.caller({'from': from_address}).multiply7(3)
    >>> twentyone
    21
-   >>> twentyone = myContract.caller(transaction_dict={'from': from_address}).multiply7(3)
+   >>> twentyone = myContract.caller(transaction={'from': from_address}).multiply7(3)
    >>> twentyone
    21
 

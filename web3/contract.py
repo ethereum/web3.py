@@ -1470,13 +1470,13 @@ class ContractCaller:
 
     or
 
-    > contract.caller(transaction_dict={'from': eth.accounts[1], 'gas': 100000, ...}).add(2, 3)
+    > contract.caller(transaction={'from': eth.accounts[1], 'gas': 100000, ...}).add(2, 3)
     """
     def __init__(self,
                  abi,
                  web3,
                  address,
-                 transaction_dict=None,
+                 transaction=None,
                  block_identifier='latest'):
         self.web3 = web3
         self.address = address
@@ -1484,8 +1484,8 @@ class ContractCaller:
         self._functions = None
 
         if abi:
-            if transaction_dict is None:
-                transaction_dict = {}
+            if transaction is None:
+                transaction = {}
 
             self._functions = filter_by_type('function', self.abi)
             for func in self._functions:
@@ -1499,7 +1499,7 @@ class ContractCaller:
                 block_id = parse_block_identifier(self.web3, block_identifier)
                 caller_method = partial(self.call_function,
                                         fn,
-                                        transaction_dict=transaction_dict,
+                                        transaction=transaction,
                                         block_identifier=block_id)
 
                 setattr(self, func['name'], caller_method)
@@ -1525,20 +1525,20 @@ class ContractCaller:
         else:
             return super().__getattribute__(function_name)
 
-    def __call__(self, transaction_dict=None, block_identifier='latest'):
-        if transaction_dict is None:
-            transaction_dict = {}
+    def __call__(self, transaction=None, block_identifier='latest'):
+        if transaction is None:
+            transaction = {}
         return type(self)(self.abi,
                           self.web3,
                           self.address,
-                          transaction_dict=transaction_dict,
+                          transaction=transaction,
                           block_identifier=block_identifier)
 
     @staticmethod
-    def call_function(fn, *args, transaction_dict=None, block_identifier='latest', **kwargs):
-        if transaction_dict is None:
-            transaction_dict = {}
-        return fn(*args, **kwargs).call(transaction_dict, block_identifier)
+    def call_function(fn, *args, transaction=None, block_identifier='latest', **kwargs):
+        if transaction is None:
+            transaction = {}
+        return fn(*args, **kwargs).call(transaction, block_identifier)
 
 
 def check_for_forbidden_api_filter_arguments(event_abi, _filters):
