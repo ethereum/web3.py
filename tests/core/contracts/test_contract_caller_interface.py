@@ -23,13 +23,28 @@ def deploy(web3, Contract, apply_func=identity, args=None):
 
 
 @pytest.fixture()
+def address(web3):
+    return web3.eth.accounts[1]
+
+
+@pytest.fixture()
 def math_contract(web3, MathContract, address_conversion_func):
     return deploy(web3, MathContract, address_conversion_func)
 
 
 @pytest.fixture()
-def return_args_contract(web3, ReturnArgsContract, address_conversion_func):
-    return deploy(web3, ReturnArgsContract, address_conversion_func)
+def caller_tester_contract(web3, CallerTesterContract, address_conversion_func):
+    return deploy(web3, CallerTesterContract, address_conversion_func)
+
+
+@pytest.fixture()
+def transaction_dict(web3, address):
+    return {
+        'from': address,
+        'gas': 210000,
+        'gasPrice': web3.toWei(.001, 'ether'),
+        'value': 12345,
+    }
 
 
 def test_caller_default(math_contract):
@@ -87,15 +102,37 @@ def test_caller_with_block_identifier(web3, math_contract):
     assert output2 == 2
 
 
-def test_caller_with_transaction_keyword(web3, return_args_contract):
-    address = web3.eth.accounts[1]
-    transaction_dict = {
-        'from': address,
-        'gas': 210000,
-        'gasPrice': web3.toWei(.001, 'ether'),
-        'value': 12345,
-    }
-    contract = return_args_contract.caller(transaction_dict=transaction_dict)
+def test_caller_with_block_identifier_and_transaction_dict(web3,
+                                                           caller_tester_contract,
+                                                           transaction_dict,
+                                                           address):
+    start_num = web3.eth.getBlock('latest').number
+    assert caller_tester_contract.caller.counter() == 0
+
+    web3.provider.make_request(method='evm_mine', params=[5])
+    caller_tester_contract.functions.increment().transact()
+
+    block_id = start_num + 6
+    contract = caller_tester_contract.caller(
+        transaction=transaction_dict,
+        block_identifier=block_id
+    )
+
+    sender, _, gasLeft, value, block_num = contract.returnMeta()
+    counter = contract.counter()
+
+    assert sender == address
+    assert gasLeft <= transaction_dict['gas']
+    assert value == transaction_dict['value']
+    assert block_num == block_id
+    assert counter == 1
+
+
+def test_caller_with_transaction_keyword(web3,
+                                         caller_tester_contract,
+                                         transaction_dict,
+                                         address):
+    contract = caller_tester_contract.caller(transaction=transaction_dict)
 
     sender, _, gasLeft, value, _ = contract.returnMeta()
 
@@ -104,16 +141,11 @@ def test_caller_with_transaction_keyword(web3, return_args_contract):
     assert value == transaction_dict['value']
 
 
-def test_caller_with_dict_but_no_transaction_keyword(web3, return_args_contract):
-    address = web3.eth.accounts[1]
-    transaction_dict = {
-        'from': address,
-        'gas': 210000,
-        'gasPrice': web3.toWei(.001, 'ether'),
-        'value': 12345,
-    }
-
-    contract = return_args_contract.caller(transaction_dict)
+def test_caller_with_dict_but_no_transaction_keyword(web3,
+                                                     caller_tester_contract,
+                                                     transaction_dict,
+                                                     address):
+    contract = caller_tester_contract.caller(transaction_dict)
 
     sender, _, gasLeft, value, _ = contract.returnMeta()
 
@@ -122,16 +154,11 @@ def test_caller_with_dict_but_no_transaction_keyword(web3, return_args_contract)
     assert value == transaction_dict['value']
 
 
-def test_caller_with_args_and_no_transaction_keyword(web3, return_args_contract):
-    address = web3.eth.accounts[1]
-    transaction_dict = {
-        'from': address,
-        'gas': 210000,
-        'gasPrice': web3.toWei(.001, 'ether'),
-        'value': 12345,
-    }
-
-    contract = return_args_contract.caller(transaction_dict)
+def test_caller_with_args_and_no_transaction_keyword(web3,
+                                                     caller_tester_contract,
+                                                     transaction_dict,
+                                                     address):
+    contract = caller_tester_contract.caller(transaction_dict)
 
     sender, _, gasLeft, value, _ = contract.returnMeta()
 
