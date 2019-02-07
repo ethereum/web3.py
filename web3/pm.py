@@ -33,6 +33,19 @@ from ethpm.typing import (
     Address,
     Manifest,
 )
+from ethpm.utils.backend import (
+    resolve_uri_contents,
+)
+from ethpm.utils.ipfs import (
+    is_ipfs_uri,
+)
+from ethpm.utils.manifest_validation import (
+    validate_manifest_against_schema,
+    validate_raw_manifest_format,
+)
+from ethpm.utils.uri import (
+    is_valid_content_addressed_github_uri,
+)
 from ethpm.validation import (
     validate_package_name,
     validate_package_version,
@@ -44,6 +57,7 @@ from web3._utils.ens import (
 )
 from web3.exceptions import (
     InvalidAddress,
+    ManifestValidationError,
     NameNotFound,
     PMError,
 )
@@ -463,12 +477,28 @@ class PM(Module):
         to be the registry owner.
 
         * Parameters:
-            * ``package_name``: Must be a valid package name.
-            * ``version``: Must be a valid package version.
-            * ``manifest_uri``: Must be a valid manifest URI.
+            * ``package_name``: Must be a valid package name, matching the given manifest.
+            * ``version``: Must be a valid package version, matching the given manifest.
+            * ``manifest_uri``: Must be a valid content-addressed URI. Currently, only IPFS
+            and Github content-addressed URIs are supported.
         """
-        validate_package_name(package_name)
-        validate_package_version(version)
+        validate_is_supported_manifest_uri(manifest_uri)
+        raw_manifest = to_text(resolve_uri_contents(manifest_uri))
+        validate_raw_manifest_format(raw_manifest)
+        manifest = json.loads(raw_manifest)
+        validate_manifest_against_schema(manifest)
+        if package_name != manifest['package_name']:
+            raise ManifestValidationError(
+                f"Provided package name: {package_name} does not match the package name "
+                f"found in the manifest: {manifest['package_name']}."
+            )
+
+        if version != manifest['version']:
+            raise ManifestValidationError(
+                f"Provided package version: {version} does not match the package version "
+                f"found in the manifest: {manifest['version']}."
+            )
+
         self._validate_set_registry()
         return self.registry._release(package_name, version, manifest_uri)
 
@@ -595,6 +625,14 @@ def get_vyper_registry_manifest() -> Dict[str, Any]:
 
 def get_solidity_registry_manifest() -> Dict[str, Any]:
     return json.loads((ASSETS_DIR / "registry" / "1.0.0.json").read_text())
+
+
+def validate_is_supported_manifest_uri(uri):
+    if not is_ipfs_uri(uri) and not is_valid_content_addressed_github_uri(uri):
+        raise ManifestValidationError(
+            f"URI: {uri} is not a valid content-addressed URI. "
+            "Currently only IPFS and Github content-addressed URIs are supported."
+        )
 
 
 @to_tuple

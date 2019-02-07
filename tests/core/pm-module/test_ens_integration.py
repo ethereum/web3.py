@@ -137,8 +137,8 @@ def test_web3_ens(ens):
     actual_addr = ens.address('tester.eth')
     w3.pm.set_registry('tester.eth')
     assert w3.pm.registry.address == to_canonical_address(actual_addr)
-    w3.pm.release_package('pkg', 'v1', 'website.com')
-    pkg_name, version, manifest_uri = w3.pm.get_release_data('pkg', 'v1')
-    assert pkg_name == 'pkg'
-    assert version == 'v1'
-    assert manifest_uri == 'website.com'
+    w3.pm.release_package('owned', '1.0.0', 'ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW')
+    pkg_name, version, manifest_uri = w3.pm.get_release_data('owned', '1.0.0')
+    assert pkg_name == 'owned'
+    assert version == '1.0.0'
+    assert manifest_uri == 'ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW'
