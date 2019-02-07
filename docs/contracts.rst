@@ -783,7 +783,8 @@ It can also be invoked using parentheses:
    >>> twentyone
    21
 
-And a transaction dictionary, with or without the ``transaction`` keyword. For example:
+And a transaction dictionary, with or without the ``transaction`` keyword.
+You can also optionally include a block identifier. For example:
 
 .. doctest::
 
@@ -792,6 +793,9 @@ And a transaction dictionary, with or without the ``transaction`` keyword. For e
    >>> twentyone
    21
    >>> twentyone = myContract.caller(transaction={'from': from_address}).multiply7(3)
+   >>> twentyone
+   21
+   >>> twentyone = myContract.caller(block_identifier='latest').multiply7(3)
    >>> twentyone
    21
 
