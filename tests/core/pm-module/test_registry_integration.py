@@ -62,7 +62,7 @@ def test_pm_set_solidity_registry(empty_sol_registry, fresh_w3):
 def test_pm_must_set_registry_before_all_registry_interaction_functions(fresh_w3):
     with pytest.raises(PMError):
         fresh_w3.pm.release_package(
-            "package", "1.0.0", "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGe"
+            "package", "1.0.0", "ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW"
         )
     with pytest.raises(PMError):
         fresh_w3.pm.get_release_id_data(b"invalid_release_id")
@@ -88,21 +88,21 @@ def test_pm_must_set_registry_before_all_registry_interaction_functions(fresh_w3
 def test_pm_release_package(registry_getter, w3):
     w3.pm.registry = registry_getter
     w3.pm.release_package(
-        "package123", "1.0.0", "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGE"
+        "escrow", "1.0.0", "ipfs://QmPDwMHk8e1aMEZg3iKsUiPSkhHkywpGB3KHKM52RtGrkv"
     )
     w3.pm.release_package(
-        "package456", "1.0.0", "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGI"
+        "owned", "1.0.0", "ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW"
     )
-    release_id_1 = w3.pm.get_release_id("package123", "1.0.0")
-    release_id_2 = w3.pm.get_release_id("package456", "1.0.0")
+    release_id_1 = w3.pm.get_release_id("escrow", "1.0.0")
+    release_id_2 = w3.pm.get_release_id("owned", "1.0.0")
     package_data_1 = w3.pm.get_release_id_data(release_id_1)
     package_data_2 = w3.pm.get_release_id_data(release_id_2)
-    assert package_data_1[0] == "package123"
+    assert package_data_1[0] == "escrow"
     assert package_data_1[1] == "1.0.0"
-    assert package_data_1[2] == "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGE"
-    assert package_data_2[0] == "package456"
+    assert package_data_1[2] == "ipfs://QmPDwMHk8e1aMEZg3iKsUiPSkhHkywpGB3KHKM52RtGrkv"
+    assert package_data_2[0] == "owned"
     assert package_data_2[1] == "1.0.0"
-    assert package_data_2[2] == "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGI"
+    assert package_data_2[2] == "ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW"
 
 
 @pytest.mark.parametrize(

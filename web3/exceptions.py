@@ -114,3 +114,10 @@ class PMError(Exception):
     Raised when an error occurs in the PM module.
     """
     pass
+
+
+class ManifestValidationError(PMError):
+    """
+    Raised when a provided manifest cannot be published, since it's invalid.
+    """
+    pass
