@@ -333,7 +333,7 @@ class SolidityReferenceRegistry(ERCRegistry):
             "abi"
         ]
         self.registry = w3.eth.contract(address=address, abi=abi)
-        self.address = address
+        self.address = to_checksum_address(address)
         self.w3 = w3
 
     def _release(self, package_name: str, version: str, manifest_uri: str) -> bytes:
