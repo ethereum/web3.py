@@ -1,10 +1,39 @@
 Release Notes
 =============
 
-- Unreleased Breaking Changes
-   - Remove deprecated ``call``, ``buildTransaction``,
-     ``transact``, and ``estimateGas`` methods
-     - `#1232 <https://github.com/ethereum/web3.py/pull/1232>`_
+
+v5.0.0-alpha.5
+--------------
+
+Released February 13th, 2019
+
+- Breaking Changes
+
+  - Remove deprecated ``buildTransaction``, ``call``, ``deploy``,
+    ``estimateGas``, and ``transact`` methods
+    - `#1232 <https://github.com/ethereum/web3.py/pull/1232>`_
+
+- Features
+
+  - Adds ``Web3.toJSON`` method
+    - `#1173 <https://github.com/ethereum/web3.py/pull/1173>`_
+  - Contract Caller API Implemented
+    - `#1227 <https://github.com/ethereum/web3.py/pull/1227>`_
+  - Add Geth POA middleware to use Rinkeby with Infura Auto
+    - `#1234 <https://github.com/ethereum/web3.py/pull/1234>`_
+  - Add manifest and input argument validation to ``pm.release_package()``
+    - `#1237 <https://github.com/ethereum/web3.py/pull/1237>`_
+
+- Misc
+
+  - Clean up intro and block/tx sections in Filter docs
+    - `#1223 <https://github.com/ethereum/web3.py/pull/1223>`_
+  - Remove unnecessary ``EncodingError`` exception catching
+    - `#1224 <https://github.com/ethereum/web3.py/pull/1224>`_
+  - Improvements to ``merge_args_and_kwargs`` utility function
+    - `#1228 <https://github.com/ethereum/web3.py/pull/1228>`_
+  - Update vyper registry assets
+    - `#1242 <https://github.com/ethereum/web3.py/pull/1242>`_
 
 
 v5.0.0-alpha.4
