@@ -24,6 +24,7 @@ from web3.exceptions import (
     BlockNumberOutofRange,
     InvalidAddress,
     MismatchedABI,
+    NoABIFound,
     NoABIFunctionsFound,
     ValidationError,
 )
@@ -527,7 +528,7 @@ def test_function_multiple_possible_encodings(web3):
 
 def test_function_no_abi(web3):
     contract = web3.eth.contract()
-    with pytest.raises(NoABIFunctionsFound):
+    with pytest.raises(NoABIFound):
         contract.functions.thisFunctionDoesNotExist().call()
 
 

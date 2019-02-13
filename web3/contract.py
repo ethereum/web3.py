@@ -106,8 +106,11 @@ class ContractFunctions:
     """
 
     def __init__(self, abi, web3, address=None):
-        if abi:
-            self.abi = abi
+        self.abi = abi
+        self.web3 = web3
+        self.address = address
+
+        if self.abi:
             self._functions = filter_by_type('function', self.abi)
             for func in self._functions:
                 setattr(
@@ -115,9 +118,9 @@ class ContractFunctions:
                     func['name'],
                     ContractFunction.factory(
                         func['name'],
-                        web3=web3,
+                        web3=self.web3,
                         contract_abi=self.abi,
-                        address=address,
+                        address=self.address,
                         function_identifier=func['name']))
 
     def __iter__(self):
@@ -128,6 +131,10 @@ class ContractFunctions:
             yield func['name']
 
     def __getattr__(self, function_name):
+        if self.abi is None:
+            raise NoABIFound(
+                "There is no ABI found for this contract.",
+            )
         if '_functions' not in self.__dict__:
             raise NoABIFunctionsFound(
                 "The abi for this contract contains no function definitions. ",
@@ -1180,7 +1187,7 @@ class ContractCaller:
         self.abi = abi
         self._functions = None
 
-        if abi:
+        if self.abi:
             if transaction is None:
                 transaction = {}
 
