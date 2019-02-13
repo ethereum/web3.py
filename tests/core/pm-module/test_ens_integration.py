@@ -2,7 +2,6 @@ import pytest
 
 from eth_utils import (
     to_bytes,
-    to_canonical_address,
 )
 from ethpm import (
     ASSETS_DIR,
@@ -136,7 +135,7 @@ def test_web3_ens(ens):
     w3.ens.setup_address('tester.eth', registry.address)
     actual_addr = ens.address('tester.eth')
     w3.pm.set_registry('tester.eth')
-    assert w3.pm.registry.address == to_canonical_address(actual_addr)
+    assert w3.pm.registry.address == actual_addr
     w3.pm.release_package('owned', '1.0.0', 'ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW')
     pkg_name, version, manifest_uri = w3.pm.get_release_data('owned', '1.0.0')
     assert pkg_name == 'owned'
