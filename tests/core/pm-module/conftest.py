@@ -165,7 +165,7 @@ def sol_registry(w3):
 
 def vy_registry(w3):
     registry_path = ASSETS_DIR / "vyper_registry"
-    manifest = json.loads((registry_path / "1.0.0.json").read_text().rstrip('\n'))
+    manifest = json.loads((registry_path / "0.1.0.json").read_text().rstrip('\n'))
     registry_package = Package(manifest, w3)
     registry_deployer = Deployer(registry_package)
     deployed_registry_package = registry_deployer.deploy("registry")

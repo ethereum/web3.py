@@ -223,7 +223,7 @@ class VyperReferenceRegistry(ERCRegistry):
         # todo: validate runtime bytecode
         abi = get_vyper_registry_manifest()["contract_types"]["registry"]["abi"]
         self.registry = w3.eth.contract(address=address, abi=abi)
-        self.address = address
+        self.address = to_checksum_address(address)
         self.w3 = w3
 
     @classmethod
@@ -620,7 +620,7 @@ class PM(Module):
 
 
 def get_vyper_registry_manifest() -> Dict[str, Any]:
-    return json.loads((ASSETS_DIR / "vyper_registry" / "1.0.0.json").read_text())
+    return json.loads((ASSETS_DIR / "vyper_registry" / "0.1.0.json").read_text())
 
 
 def get_solidity_registry_manifest() -> Dict[str, Any]:
