@@ -121,30 +121,23 @@ try:
 except ImportError:
     from eth_abi.grammar import (
         normalize as normalize_type_string,
-        TupleType,
     )
 
     def process_type(type_str):
         normalized_type_str = normalize_type_string(type_str)
         abi_type = parse_type_string(normalized_type_str)
 
-        if isinstance(abi_type, TupleType):
-            type_str_repr = repr(type_str)
-            if type_str != normalized_type_str:
-                type_str_repr = '{} (normalized to {})'.format(
-                    type_str_repr,
-                    repr(normalized_type_str),
-                )
-
-            raise ValueError(
-                "Cannot process type {}: tuple types not supported".format(
-                    type_str_repr,
-                )
-            )
-
         abi_type.validate()
 
-        sub = abi_type.sub
+        if hasattr(abi_type, 'base'):
+            base = abi_type.base
+        else:
+            base = str(abi_type.item_type)
+
+        if hasattr(abi_type, 'sub'):
+            sub = abi_type.sub
+        else:
+            sub = None
         if isinstance(sub, tuple):
             sub = 'x'.join(map(str, sub))
         elif isinstance(sub, int):
@@ -158,7 +151,7 @@ except ImportError:
         else:
             arrlist = []
 
-        return abi_type.base, sub, arrlist
+        return base, sub, arrlist
 
     def collapse_type(base, sub, arrlist):
         return base + str(sub) + ''.join(map(repr, arrlist))
@@ -275,23 +268,68 @@ def get_abi_inputs(function_abi, arg_values):
     if "inputs" not in function_abi:
         return ([], ())
 
+    def collate_tuple_components(components, values):
+        """Collates tuple components with their values.
+
+        :param components: is an array of ABI components, such as one extracted
+        from an input element of a function ABI.
+        :param values: can be any of a list, tuple, or dict.  If a dict, key
+        names must correspond to component names specified in the components
+        parameter.  If a list or array, the order of the elements should
+        correspond to the order of elements in the components array.
+
+        Returns a two-element tuple.  The first element is a string comprised
+        of the parenthesized list of tuple component types.  The second element
+        is a tuple of the values corresponding to the types in the first
+        element.
+
+        >>> collate_tuple_components(
+        ...     [
+        ...         {'name': 'anAddress', 'type': 'address'},
+        ...         {'name': 'anInt', 'type': 'uint256'},
+        ...         {'name': 'someBytes', 'type': 'bytes'}
+        ...     ],
+        ...     (
+        ...         {
+        ...             'anInt': 12345,
+        ...             'anAddress': '0x0000000000000000000000000000000000000000',
+        ...             'someBytes': b'0000',
+        ...         },
+        ...     ),
+        ... )
+
+        """
+        component_types = []
+        component_values = []
+        for component, value in zip(components, values):
+            component_types.append(component["type"])
+            if isinstance(values, dict):
+                component_values.append(values[component["name"]])
+            elif is_list_like(values):
+                component_values.append(value)
+            else:
+                raise TypeError(
+                    "Unknown value type {} for ABI type 'tuple'"
+                    .format(type(values))
+                )
+        return component_types, component_values
+
     types = []
     values = tuple()
     for abi_input, arg_value in zip(function_abi["inputs"], arg_values):
-        if abi_input["type"] == "tuple":
-            component_types = []
-            component_values = []
-            for component, value in zip(abi_input["components"], arg_value):
-                component_types.append(component["type"])
-                if isinstance(arg_value, dict):
-                    component_values.append(arg_value[component["name"]])
-                elif isinstance(arg_value, tuple):
-                    component_values.append(value)
-                else:
-                    raise TypeError(
-                        "Unknown value type {} for ABI type 'tuple'"
-                        .format(type(arg_value))
-                    )
+        if abi_input["type"] == "tuple[]":
+            value_array = []
+            for arg_arr_elem_val in arg_value:
+                component_types, component_values = collate_tuple_components(
+                    abi_input["components"], arg_arr_elem_val
+                )
+                value_array.append(component_values)
+            types.append("(" + ",".join(component_types) + ")[]")
+            values += (value_array,)
+        elif abi_input["type"] == "tuple":
+            component_types, component_values = collate_tuple_components(
+                abi_input["components"], arg_value
+            )
             types.append("(" + ",".join(component_types) + ")")
             values += (tuple(component_values),)
         else:

@@ -631,6 +631,24 @@ def test_invalid_fixed_value_reflections(web3, fixed_reflection_contract, functi
         ),
     )
 )
-def test_call_tuple_contract(tuple_contract, method_input, expected):
-    result = tuple_contract.functions.method(method_input).call()
+def test_call_tuple_contract_struct(tuple_contract, method_input, expected):
+    result = tuple_contract.functions.methodTakingStruct(method_input).call()
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    'method_input, expected',
+    (
+        (
+            [{'anInt': 0, 'aBool': True, 'anAddress': '0x' + 'f' * 40}],
+            ((0, True, '0x' + 'f' * 40),)
+        ),
+        (
+            [(0, True, '0x' + 'f' * 40)],
+            ((0, True, '0x' + 'f' * 40),)
+        ),
+    )
+)
+def test_call_tuple_contract_struct_array(tuple_contract, method_input, expected):
+    result = tuple_contract.functions.methodTakingArrayOfStructs(method_input).call()
     assert result == expected
