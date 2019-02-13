@@ -53,12 +53,12 @@ def ens_addresses(w3, name_addr_pairs):
 
 @contextmanager
 def contract_ens_addresses(contract, name_addr_pairs):
-    '''
+    """
     Use this context manager to temporarily resolve name/address pairs
     supplied as the argument. For example:
 
     with contract_ens_addresses(mycontract, [('resolve-as-1s.eth', '0x111...111')]):
         # any contract call or transaction in here would only resolve the above ENS pair
-    '''
+    """
     with ens_addresses(contract.web3, name_addr_pairs):
         yield

@@ -12,9 +12,9 @@ class BadFunctionCallOutput(Exception):
 
 
 class BlockNumberOutofRange(Exception):
-    '''
+    """
     block_identifier passed does not match known block.
-    '''
+    """
     pass
 
 
@@ -58,13 +58,6 @@ class StaleBlockchain(Exception):
         return self.args[0]
 
 
-class UnhandledRequest(Exception):
-    """
-    Raised by the manager when none of it's providers responds to a request.
-    """
-    pass
-
-
 class MismatchedABI(Exception):
     """
     Raised when an ABI does not match with supplied parameters, or when an
@@ -89,7 +82,14 @@ class ValidationError(Exception):
 
 class NoABIFunctionsFound(AttributeError):
     """
-    Raised when an ABI doesn't contain any functions.
+    Raised when an ABI is present, but doesn't contain any functions.
+    """
+    pass
+
+
+class NoABIFound(AttributeError):
+    """
+    Raised when no ABI is present.
     """
     pass
 
@@ -112,5 +112,19 @@ class InsufficientData(Exception):
 class TimeExhausted(Exception):
     """
     Raised when a method has not retrieved the desired result within a specified timeout.
+    """
+    pass
+
+
+class PMError(Exception):
+    """
+    Raised when an error occurs in the PM module.
+    """
+    pass
+
+
+class ManifestValidationError(PMError):
+    """
+    Raised when a provided manifest cannot be published, since it's invalid.
     """
     pass

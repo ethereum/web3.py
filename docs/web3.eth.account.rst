@@ -302,5 +302,5 @@ To sign a transaction locally that will invoke a smart contract:
     >>> w3.eth.sendRawTransaction(signed_txn.rawTransaction)  # doctest: +SKIP
 
     # When you run sendRawTransaction, you get the same result as the hash of the transaction:
-    >>> w3.toHex(w3.sha3(signed_txn.rawTransaction))
+    >>> w3.toHex(w3.keccak(signed_txn.rawTransaction))
     '0x4795adc6a719fa64fa21822630c0218c04996e2689ded114b6553cef1ae36618'

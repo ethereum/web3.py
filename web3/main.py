@@ -19,7 +19,6 @@ from web3._utils.abi import (
 )
 from web3._utils.decorators import (
     combomethod,
-    deprecated_for,
 )
 from web3._utils.empty import (
     empty,
@@ -30,6 +29,7 @@ from web3._utils.encoding import (
     to_hex,
     to_int,
     to_text,
+    to_json,
 )
 from web3._utils.normalizers import (
     abi_ens_resolver,
@@ -67,9 +67,6 @@ from web3.providers.ipc import (
 from web3.providers.rpc import (
     HTTPProvider,
 )
-from web3.providers.tester import (
-    TestRPCProvider,
-)
 from web3.providers.websocket import (
     WebsocketProvider,
 )
@@ -102,7 +99,6 @@ class Web3:
     # Providers
     HTTPProvider = HTTPProvider
     IPCProvider = IPCProvider
-    TestRPCProvider = TestRPCProvider
     EthereumTesterProvider = EthereumTesterProvider
     WebsocketProvider = WebsocketProvider
 
@@ -117,6 +113,7 @@ class Web3:
     toInt = staticmethod(to_int)
     toHex = staticmethod(to_hex)
     toText = staticmethod(to_text)
+    toJSON = staticmethod(to_json)
 
     # Currency Utility
     toWei = staticmethod(to_wei)
@@ -127,8 +124,8 @@ class Web3:
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
-    def __init__(self, providers=empty, middlewares=None, modules=None, ens=empty):
-        self.manager = self.RequestManager(self, providers, middlewares)
+    def __init__(self, provider=None, middlewares=None, modules=None, ens=empty):
+        self.manager = self.RequestManager(self, provider, middlewares)
 
         if modules is None:
             modules = get_default_modules()
@@ -139,22 +136,16 @@ class Web3:
         self.ens = ens
 
     @property
-    def middleware_stack(self):
-        return self.manager.middleware_stack
+    def middleware_onion(self):
+        return self.manager.middleware_onion
 
     @property
-    def providers(self):
-        return self.manager.providers
+    def provider(self):
+        return self.manager.provider
 
-    @providers.setter
-    def providers(self, providers):
-        self.manager.providers = providers
-
-    @staticmethod
-    @deprecated_for("keccak")
-    @apply_to_return_value(HexBytes)
-    def sha3(primitive=None, text=None, hexstr=None):
-        return Web3.keccak(primitive, text, hexstr)
+    @provider.setter
+    def provider(self, provider):
+        self.manager.provider = provider
 
     @staticmethod
     @apply_to_return_value(HexBytes)
@@ -171,11 +162,6 @@ class Web3:
                 {'text': text, 'hexstr': hexstr}
             )
         )
-
-    @combomethod
-    @deprecated_for("solidityKeccak")
-    def soliditySha3(cls, abi_types, values):
-        return cls.solidityKeccak(abi_types, values)
 
     @combomethod
     def solidityKeccak(cls, abi_types, values):
@@ -204,11 +190,7 @@ class Web3:
         return cls.keccak(hexstr=hex_string)
 
     def isConnected(self):
-        for provider in self.providers:
-            if provider.isConnected():
-                return True
-        else:
-            return False
+        return self.provider.isConnected()
 
     @property
     def ens(self):
@@ -220,3 +202,18 @@ class Web3:
     @ens.setter
     def ens(self, new_ens):
         self._ens = new_ens
+
+    @property
+    def pm(self):
+        if hasattr(self, '_pm'):
+            return self._pm
+        else:
+            raise AttributeError(
+                "The Package Management feature is disabled by default until "
+                "its API stabilizes. To use these features, please enable them by running "
+                "`w3.enable_unstable_package_management_api()` and try again."
+            )
+
+    def enable_unstable_package_management_api(self):
+        from web3.pm import PM
+        PM.attach(self, '_pm')

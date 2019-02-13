@@ -2,7 +2,6 @@
 
 """
 import copy
-import functools
 import itertools
 
 from eth_abi import (
@@ -88,6 +87,7 @@ from web3.exceptions import (
     FallbackNotFound,
     MismatchedABI,
     NoABIEventsFound,
+    NoABIFound,
     NoABIFunctionsFound,
 )
 
@@ -147,6 +147,23 @@ class ContractFunctions:
 
 class ContractEvents:
     """Class containing contract event objects
+
+    This is available via:
+
+    .. code-block:: python
+
+        >>> mycontract.events
+        <web3.contract.ContractEvents object at 0x108afde10>
+
+    To get list of all supported events in the contract ABI.
+    This allows you to iterate over :class:`ContractEvent` proxy classes.
+
+    .. code-block:: python
+
+        >>> for e in mycontract.events: print(e)
+        <class 'web3._utils.datatypes.LogAnonymous'>
+        ...
+
     """
 
     def __init__(self, abi, web3, address=None):
@@ -180,6 +197,14 @@ class ContractEvents:
 
     def __getitem__(self, event_name):
         return getattr(self, event_name)
+
+    def __iter__(self):
+        """Iterate over supported
+
+        :return: Iterable of :class:`ContractEvent`
+        """
+        for event in self._events:
+            yield self[event['name']]
 
 
 class Contract:
@@ -216,6 +241,9 @@ class Contract:
     clone_bin = None
 
     functions = None
+    caller = None
+
+    #: Instance of :class:`ContractEvents` presenting available Event ABIs
     events = None
 
     dev_doc = None
@@ -244,6 +272,7 @@ class Contract:
             raise TypeError("The address argument is required to instantiate a contract.")
 
         self.functions = ContractFunctions(self.abi, self.web3, self.address)
+        self.caller = ContractCaller(self.abi, self.web3, self.address)
         self.events = ContractEvents(self.abi, self.web3, self.address)
         self.fallback = Contract.get_fallback_function(self.abi, self.web3, self.address)
 
@@ -266,6 +295,7 @@ class Contract:
             normalizers=normalizers,
         )
         contract.functions = ContractFunctions(contract.abi, contract.web3)
+        contract.caller = ContractCaller(contract.abi, contract.web3, contract.address)
         contract.events = ContractEvents(contract.abi, contract.web3)
         contract.fallback = Contract.get_fallback_function(contract.abi, contract.web3)
 
@@ -274,59 +304,6 @@ class Contract:
     #
     # Contract Methods
     #
-    @classmethod
-    @deprecated_for("contract.constructor.transact")
-    def deploy(cls, transaction=None, args=None, kwargs=None):
-        """
-        Deploys the contract on a blockchain.
-
-        Example:
-
-        .. code-block:: python
-
-            >>> MyContract.deploy(
-                transaction={
-                    'from': web3.eth.accounts[1],
-                    'value': 12345,
-                },
-                args=('DGD', 18),
-            )
-            '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
-
-        :param transaction: Transaction parameters for the deployment
-                            transaction as a dict
-
-        :param args: The contract constructor arguments as positional arguments
-        :param kwargs: The contract constructor arguments as keyword arguments
-
-        :return: hexadecimal transaction hash of the deployment transaction
-        """
-        if transaction is None:
-            deploy_transaction = {}
-        else:
-            deploy_transaction = dict(**transaction)
-
-        if not cls.bytecode:
-            raise ValueError(
-                "Cannot deploy a contract that does not have 'bytecode' associated "
-                "with it"
-            )
-
-        if 'data' in deploy_transaction:
-            raise ValueError(
-                "Cannot specify `data` for contract deployment"
-            )
-
-        if 'to' in deploy_transaction:
-            raise ValueError(
-                "Cannot specify `to` for contract deployment"
-            )
-
-        deploy_transaction['data'] = cls._encode_constructor_data(args, kwargs)
-
-        txn_hash = cls.web3.eth.sendTransaction(deploy_transaction)
-        return txn_hash
-
     @classmethod
     def constructor(cls, *args, **kwargs):
         """
@@ -364,255 +341,6 @@ class Contract:
             data = fn_selector
 
         return encode_abi(cls.web3, fn_abi, fn_arguments, data)
-
-    @combomethod
-    @deprecated_for("contract.functions.<method name>.estimateGas")
-    def estimateGas(self, transaction=None):
-        """
-        Estimate the gas for a call
-        """
-        if transaction is None:
-            estimate_transaction = {}
-        else:
-            estimate_transaction = dict(**transaction)
-
-        if 'data' in estimate_transaction:
-            raise ValueError("Cannot set data in call transaction")
-        if 'to' in estimate_transaction:
-            raise ValueError("Cannot set to in call transaction")
-
-        if self.address:
-            estimate_transaction.setdefault('to', self.address)
-        if self.web3.eth.defaultAccount is not empty:
-            estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
-
-        if 'to' not in estimate_transaction:
-            if isinstance(self, type):
-                raise ValueError(
-                    "When using `Contract.estimateGas` from a contract factory "
-                    "you must provide a `to` address with the transaction"
-                )
-            else:
-                raise ValueError(
-                    "Please ensure that this contract instance has an address."
-                )
-
-        contract = self
-
-        class Caller:
-            def __getattr__(self, function_name):
-                callable_fn = functools.partial(
-                    estimate_gas_for_function,
-                    contract.address,
-                    contract.web3,
-                    function_name,
-                    estimate_transaction,
-                    contract.abi,
-                    None,
-                )
-                return callable_fn
-
-        return Caller()
-
-    @combomethod
-    @deprecated_for("contract.<functions/events>.<method name>.call")
-    def call(self, transaction=None):
-        """
-        Execute a contract function call using the `eth_call` interface.
-
-        This method prepares a ``Caller`` object that exposes the contract
-        functions and public variables as callable Python functions.
-
-        Reading a public ``owner`` address variable example:
-
-        .. code-block:: python
-
-            ContractFactory = w3.eth.contract(
-                abi=wallet_contract_definition["abi"]
-            )
-
-            # Not a real contract address
-            contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
-
-            # Read "owner" public variable
-            addr = contract.functions.owner().call()
-
-        :param transaction: Dictionary of transaction info for web3 interface
-        :return: ``Caller`` object that has contract public functions
-            and variables exposed as Python methods
-        """
-        if transaction is None:
-            call_transaction = {}
-        else:
-            call_transaction = dict(**transaction)
-
-        if 'data' in call_transaction:
-            raise ValueError("Cannot set data in call transaction")
-
-        if self.address:
-            call_transaction.setdefault('to', self.address)
-        if self.web3.eth.defaultAccount is not empty:
-            call_transaction.setdefault('from', self.web3.eth.defaultAccount)
-
-        if 'to' not in call_transaction:
-            if isinstance(self, type):
-                raise ValueError(
-                    "When using `Contract.call` from a contract factory you "
-                    "must provide a `to` address with the transaction"
-                )
-            else:
-                raise ValueError(
-                    "Please ensure that this contract instance has an address."
-                )
-
-        contract = self
-
-        class Caller:
-            def __getattr__(self, function_name):
-                callable_fn = functools.partial(
-                    call_contract_function,
-                    contract.web3,
-                    contract.address,
-                    contract._return_data_normalizers,
-                    function_name,
-                    call_transaction,
-                    'latest',
-                    contract.abi,
-                    None,
-                )
-                return callable_fn
-
-        return Caller()
-
-    @combomethod
-    @deprecated_for("contract.<functions/events>.<method name>.transact")
-    def transact(self, transaction=None):
-        """
-        Execute a contract function call using the `eth_sendTransaction`
-        interface.
-
-        You should specify the account that pays the gas for this transaction
-        in `transaction`. If no account is specified the coinbase account of
-        web3 interface is used.
-
-        Example:
-
-        .. code-block:: python
-
-            # Assume we have a Wallet contract with the following methods.
-            # * Wallet.deposit()  # deposits to `msg.sender`
-            # * Wallet.deposit(address to)  # deposits to the account indicated
-            #   by the `to` parameter.
-            # * Wallet.withdraw(address amount)
-
-            >>> wallet = Wallet(address='0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24')
-            # Deposit to the `web3.eth.coinbase` account.
-            >>> wallet.functions.deposit().transact({'value': 12345})
-            '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
-            # Deposit to some other account using funds from `web3.eth.coinbase`.
-            >>> wallet.functions.deposit(web3.eth.accounts[1]).transact({'value': 54321})
-            '0xe122ba26d25a93911e241232d3ba7c76f5a6bfe9f8038b66b198977115fb1ddf'
-            # Withdraw 12345 wei.
-            >>> wallet.functions.withdraw(12345).transact()
-
-        The new public transaction will be created.  Transaction receipt will
-        be available once the transaction has been mined.
-
-        :param transaction: Dictionary of transaction info for web3 interface.
-        Variables include ``from``, ``gas``, ``value``, ``gasPrice``, ``nonce``.
-
-        :return: ``Transactor`` object that has contract
-            public functions exposed as Python methods.
-            Calling these methods will execute a transaction against the contract.
-
-        """
-        if transaction is None:
-            transact_transaction = {}
-        else:
-            transact_transaction = dict(**transaction)
-
-        if 'data' in transact_transaction:
-            raise ValueError("Cannot set data in call transaction")
-
-        if self.address is not None:
-            transact_transaction.setdefault('to', self.address)
-        if self.web3.eth.defaultAccount is not empty:
-            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
-
-        if 'to' not in transact_transaction:
-            if isinstance(self, type):
-                raise ValueError(
-                    "When using `Contract.transact` from a contract factory you "
-                    "must provide a `to` address with the transaction"
-                )
-            else:
-                raise ValueError(
-                    "Please ensure that this contract instance has an address."
-                )
-
-        contract = self
-
-        class Transactor:
-            def __getattr__(self, function_name):
-                callable_fn = functools.partial(
-                    transact_with_contract_function,
-                    contract.address,
-                    contract.web3,
-                    function_name,
-                    transact_transaction,
-                    contract.abi,
-                    None,
-                )
-                return callable_fn
-
-        return Transactor()
-
-    @combomethod
-    @deprecated_for("contract.<functions/events>.<method name>.buildTransaction")
-    def buildTransaction(self, transaction=None):
-        """
-        Build the transaction dictionary without sending
-        """
-        if transaction is None:
-            built_transaction = {}
-        else:
-            built_transaction = dict(**transaction)
-
-        if 'data' in built_transaction:
-            raise ValueError("Cannot set data in call buildTransaction")
-
-        if isinstance(self, type) and 'to' not in built_transaction:
-            raise ValueError(
-                "When using `Contract.buildTransaction` from a contract factory "
-                "you must provide a `to` address with the transaction"
-            )
-        if not isinstance(self, type) and 'to' in built_transaction:
-            raise ValueError("Cannot set to in call buildTransaction")
-
-        if self.address:
-            built_transaction.setdefault('to', self.address)
-
-        if 'to' not in built_transaction:
-            raise ValueError(
-                "Please ensure that this contract instance has an address."
-            )
-
-        contract = self
-
-        class Caller:
-            def __getattr__(self, function_name):
-                callable_fn = functools.partial(
-                    build_transaction_for_function,
-                    contract.address,
-                    contract.web3,
-                    function_name,
-                    built_transaction,
-                    contract.abi,
-                    None,
-                )
-                return callable_fn
-
-        return Caller()
 
     @combomethod
     def all_functions(self):
@@ -872,7 +600,7 @@ class ConciseMethod:
 
 
 class ConciseContract:
-    '''
+    """
     An alternative Contract Factory which invokes all methods as `call()`,
     unless you add a keyword argument. The keyword argument assigns the prep method.
 
@@ -883,7 +611,10 @@ class ConciseContract:
     is equivalent to this call in the classic contract:
 
     > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
-    '''
+    """
+    @deprecated_for(
+        "contract.caller.<method name> or contract.caller({transaction_dict}).<method name>"
+    )
     def __init__(self, classic_contract, method_class=ConciseMethod):
 
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
@@ -935,6 +666,7 @@ class ImplicitMethod(ConciseMethod):
 
         return function_abi['constant'] if 'constant' in function_abi.keys() else False
 
+    @deprecated_for("classic contract syntax. Ex: contract.functions.withdraw(amount).transact({})")
     def __call__(self, *args, **kwargs):
         # Modifier is not provided and method is not constant/pure do a transaction instead
         if not kwargs and not self.__call_by_default(args):
@@ -944,7 +676,7 @@ class ImplicitMethod(ConciseMethod):
 
 
 class ImplicitContract(ConciseContract):
-    '''
+    """
     ImplicitContract class is similar to the ConciseContract class
     however it performs a transaction instead of a call if no modifier
     is given and the method is not marked 'constant' in the ABI.
@@ -958,7 +690,7 @@ class ImplicitContract(ConciseContract):
     is equivalent to this call in the classic contract:
 
     > contract.functions.withdraw(amount).transact({})
-    '''
+    """
     def __init__(self, classic_contract, method_class=ImplicitMethod):
         super().__init__(classic_contract, method_class=method_class)
 
@@ -1324,9 +1056,186 @@ class ContractEvent:
         builder.address = self.address
         return builder
 
+    @combomethod
+    def getLogs(self,
+                argument_filters=None,
+                fromBlock=1,
+                toBlock="latest"):
+        """Get events for this contract instance using eth_getLogs API.
+
+        This is a stateless method, as opposed to createFilter.
+        It can be safely called against nodes which do not provide
+        eth_newFilter API, like Infura nodes.
+
+        If no block range is provided and there are many events,
+        like ``Transfer`` events for a popular token,
+        the Ethereum node might be overloaded and timeout
+        on the underlying JSON-RPC call.
+
+        Example - how to get all ERC-20 token transactions
+        for the latest 10 blocks:
+
+        .. code-block:: python
+
+            from = max(mycontract.web3.eth.blockNumber - 10, 1)
+            to = mycontract.web3.eth.blockNumber
+
+            events = mycontract.events.Transfer.getLogs(fromBlock=from, toBlock=to)
+
+            for e in events:
+                print(e["args"]["from"],
+                    e["args"]["to"],
+                    e["args"]["value"])
+
+        The returned processed log values will look like:
+
+        .. code-block:: python
+
+            (
+                AttributeDict({
+                 'args': AttributeDict({}),
+                 'event': 'LogNoArguments',
+                 'logIndex': 0,
+                 'transactionIndex': 0,
+                 'transactionHash': HexBytes('...'),
+                 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+                 'blockHash': HexBytes('...'),
+                 'blockNumber': 3
+                }),
+                AttributeDict(...),
+                ...
+            )
+
+        See also: :func:`web3.middleware.filter.local_filter_middleware`.
+
+        :param argument_filters:
+        :param fromBlock: block number, defaults to 1
+        :param toBlock: block number or "latest". Defaults to "latest"
+        :yield: Tuple of :class:`AttributeDict` instances
+        """
+
+        if not self.address:
+            raise TypeError("This method can be only called on "
+                            "an instated contract with an address")
+
+        abi = self._get_event_abi()
+
+        if argument_filters is None:
+            argument_filters = dict()
+
+        _filters = dict(**argument_filters)
+
+        # Construct JSON-RPC raw filter presentation based on human readable Python descriptions
+        # Namely, convert event names to their keccak signatures
+        data_filter_set, event_filter_params = construct_event_filter_params(
+            abi,
+            contract_address=self.address,
+            argument_filters=_filters,
+            fromBlock=fromBlock,
+            toBlock=toBlock,
+            address=self.address,
+        )
+
+        # Call JSON-RPC API
+        logs = self.web3.eth.getLogs(event_filter_params)
+
+        # Convert raw binary data to Python proxy objects as described by ABI
+        return tuple(get_event_data(abi, entry) for entry in logs)
+
     @classmethod
     def factory(cls, class_name, **kwargs):
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
+
+
+class ContractCaller:
+    """
+    An alternative Contract API.
+
+    This call:
+
+    > contract.caller({'from': eth.accounts[1], 'gas': 100000, ...}).add(2, 3)
+    is equivalent to this call in the classic contract:
+    > contract.functions.add(2, 3).call({'from': eth.accounts[1], 'gas': 100000, ...})
+
+    Other options for invoking this class include:
+
+    > contract.caller.add(2, 3)
+
+    or
+
+    > contract.caller().add(2, 3)
+
+    or
+
+    > contract.caller(transaction={'from': eth.accounts[1], 'gas': 100000, ...}).add(2, 3)
+    """
+    def __init__(self,
+                 abi,
+                 web3,
+                 address,
+                 transaction=None,
+                 block_identifier='latest'):
+        self.web3 = web3
+        self.address = address
+        self.abi = abi
+        self._functions = None
+
+        if abi:
+            if transaction is None:
+                transaction = {}
+
+            self._functions = filter_by_type('function', self.abi)
+            for func in self._functions:
+                fn = ContractFunction.factory(
+                    func['name'],
+                    web3=self.web3,
+                    contract_abi=self.abi,
+                    address=self.address,
+                    function_identifier=func['name'])
+
+                block_id = parse_block_identifier(self.web3, block_identifier)
+                caller_method = partial(self.call_function,
+                                        fn,
+                                        transaction=transaction,
+                                        block_identifier=block_id)
+
+                setattr(self, func['name'], caller_method)
+
+    def __getattr__(self, function_name):
+        if self.abi is None:
+            raise NoABIFound(
+                "There is no ABI found for this contract.",
+            )
+        elif not self._functions or len(self._functions) == 0:
+            raise NoABIFunctionsFound(
+                "The ABI for this contract contains no function definitions. ",
+                "Are you sure you provided the correct contract ABI?"
+            )
+        elif function_name not in self._functions:
+            functions_available = ', '.join([fn['name'] for fn in self._functions])
+            raise MismatchedABI(
+                "The function '{}' was not found in this contract's ABI. ".format(function_name),
+                "Here is a list of all of the function names found: ",
+                "{}. ".format(functions_available),
+                "Did you mean to call one of those functions?"
+            )
+        else:
+            return super().__getattribute__(function_name)
+
+    def __call__(self, transaction=None, block_identifier='latest'):
+        if transaction is None:
+            transaction = {}
+        return type(self)(self.abi,
+                          self.web3,
+                          self.address,
+                          transaction=transaction,
+                          block_identifier=block_identifier)
+
+    @staticmethod
+    def call_function(fn, *args, transaction=None, block_identifier='latest', **kwargs):
+        if transaction is None:
+            transaction = {}
+        return fn(*args, **kwargs).call(transaction, block_identifier)
 
 
 def check_for_forbidden_api_filter_arguments(event_abi, _filters):

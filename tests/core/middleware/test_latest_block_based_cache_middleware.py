@@ -25,7 +25,7 @@ from web3.providers.base import (
 
 @pytest.fixture
 def w3_base():
-    return Web3(providers=[BaseProvider()], middlewares=[])
+    return Web3(provider=BaseProvider(), middlewares=[])
 
 
 def _mk_block(n, timestamp):
@@ -140,9 +140,9 @@ def w3(w3_base,
        result_generator_middleware,
        block_data_middleware,
        latest_block_based_cache_middleware):
-    w3_base.middleware_stack.add(block_data_middleware)
-    w3_base.middleware_stack.add(result_generator_middleware)
-    w3_base.middleware_stack.add(latest_block_based_cache_middleware)
+    w3_base.middleware_onion.add(block_data_middleware)
+    w3_base.middleware_onion.add(result_generator_middleware)
+    w3_base.middleware_onion.add(latest_block_based_cache_middleware)
     return w3_base
 
 
@@ -151,8 +151,8 @@ def test_latest_block_based_cache_middleware_pulls_from_cache(
         block_data_middleware,
         result_generator_middleware):
     w3 = w3_base
-    w3.middleware_stack.add(block_data_middleware)
-    w3.middleware_stack.add(result_generator_middleware)
+    w3.middleware_onion.add(block_data_middleware)
+    w3.middleware_onion.add(result_generator_middleware)
 
     current_block_hash = w3.eth.getBlock('latest')['hash']
 
@@ -163,7 +163,7 @@ def test_latest_block_based_cache_middleware_pulls_from_cache(
             ): {'result': 'value-a'},
         }
 
-    w3.middleware_stack.add(construct_latest_block_based_cache_middleware(
+    w3.middleware_onion.add(construct_latest_block_based_cache_middleware(
         cache_class=cache_class,
         rpc_whitelist={'fake_endpoint'},
     ))
@@ -205,11 +205,11 @@ def test_latest_block_cache_middleware_does_not_cache_bad_responses(
         return None
 
     w3 = w3_base
-    w3.middleware_stack.add(block_data_middleware)
-    w3.middleware_stack.add(construct_result_generator_middleware({
+    w3.middleware_onion.add(block_data_middleware)
+    w3.middleware_onion.add(construct_result_generator_middleware({
         'fake_endpoint': result_cb,
     }))
-    w3.middleware_stack.add(latest_block_based_cache_middleware)
+    w3.middleware_onion.add(latest_block_based_cache_middleware)
 
     w3.manager.request_blocking('fake_endpoint', [])
     w3.manager.request_blocking('fake_endpoint', [])
@@ -228,11 +228,11 @@ def test_latest_block_cache_middleware_does_not_cache_error_response(
         next(counter)
         return "the error message"
 
-    w3.middleware_stack.add(block_data_middleware)
-    w3.middleware_stack.add(construct_error_generator_middleware({
+    w3.middleware_onion.add(block_data_middleware)
+    w3.middleware_onion.add(construct_error_generator_middleware({
         'fake_endpoint': error_cb,
     }))
-    w3.middleware_stack.add(latest_block_based_cache_middleware)
+    w3.middleware_onion.add(latest_block_based_cache_middleware)
 
     with pytest.raises(ValueError):
         w3.manager.request_blocking('fake_endpoint', [])

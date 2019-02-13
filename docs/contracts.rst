@@ -26,10 +26,9 @@ To run this example, you will need to install a few extra features:
 
     from web3 import Web3
     from solc import compile_source
-    from web3.contract import ConciseContract
 
     # Solidity source code
-    contract_source_code = '''
+    contract_source_code = """
     pragma solidity ^0.4.21;
 
     contract Greeter {
@@ -47,7 +46,7 @@ To run this example, you will need to install a few extra features:
             return greeting;
         }
     }
-    '''
+    """
 
     compiled_sol = compile_source(contract_source_code) # Compiled source code
     contract_interface = compiled_sol['<stdin>:Greeter']
@@ -89,11 +88,6 @@ To run this example, you will need to install a few extra features:
         greeter.functions.greet().call()
     ))
 
-    # When issuing a lot of reads, try this more concise reader:
-    reader = ConciseContract(greeter)
-    assert reader.greet() == "Nihao"
-
-
 Contract Factories
 ------------------
 
@@ -110,6 +104,9 @@ example in :class:`ConciseContract` for specifying an alternate factory.
     The address parameter can be a hex address or an ENS name, like ``mycontract.eth``.
 
 .. py:class:: ConciseContract(Contract())
+
+    .. warning:: Deprecated: This method is deprecated in favor of the :class:`~ContractCaller` API
+      or the verbose syntax
 
     This variation of :class:`Contract` is designed for more succinct read access,
     without making write access more wordy. This comes at a cost of losing
@@ -144,6 +141,8 @@ example in :class:`ConciseContract` for specifying an alternate factory.
         >>> contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
 
 .. py:class:: ImplicitContract(Contract())
+
+   .. warning:: Deprecated: This method is deprecated in favor of the verbose syntax
 
    This variation mirrors :py:class:`ConciseContract`, but it invokes all methods as a
    transaction rather than a call, so if the classic contract had a method like
@@ -459,7 +458,7 @@ and the arguments are ambiguous.
 
 .. code-block:: python
 
-        >>> contract_source_code = '''
+        >>> contract_source_code = """
         pragma solidity ^0.4.21;
         contract AmbiguousDuo {
           function identity(uint256 input, bool uselessFlag) returns (uint256) {
@@ -469,7 +468,7 @@ and the arguments are ambiguous.
             return input;
           }
         }
-        '''
+        """
         # fast forward all the steps of compiling and deploying the contract.
         >>> ambiguous_contract.functions.identity(1, True) # raises ValidationError
 
@@ -745,3 +744,63 @@ Utils
           '_debatingPeriod': 604800,
           '_newCurator': True})
  
+ContractCaller
+--------------
+
+.. py:class:: ContractCaller
+
+The :py:class:``ContractCaller`` class provides an API to call functions in a contract. This class
+is not to be used directly, but instead through ``Contract.caller``.
+
+There are a number of different ways to invoke the ``ContractCaller``.
+
+For example:
+
+.. testsetup::
+
+   import json
+   from web3 import Web3
+   w3 = Web3(Web3.EthereumTesterProvider())
+   bytecode = "0x606060405261022e806100126000396000f360606040523615610074576000357c01000000000000000000000000000000000000000000000000000000009004806316216f391461007657806361bc221a146100995780637cf5dab0146100bc578063a5f3c23b146100e8578063d09de08a1461011d578063dcf537b11461014057610074565b005b610083600480505061016c565b6040518082815260200191505060405180910390f35b6100a6600480505061017f565b6040518082815260200191505060405180910390f35b6100d26004808035906020019091905050610188565b6040518082815260200191505060405180910390f35b61010760048080359060200190919080359060200190919050506101ea565b6040518082815260200191505060405180910390f35b61012a6004805050610201565b6040518082815260200191505060405180910390f35b6101566004808035906020019091905050610217565b6040518082815260200191505060405180910390f35b6000600d9050805080905061017c565b90565b60006000505481565b6000816000600082828250540192505081905550600060005054905080507f3496c3ede4ec3ab3686712aa1c238593ea6a42df83f98a5ec7df9834cfa577c5816040518082815260200191505060405180910390a18090506101e5565b919050565b6000818301905080508090506101fb565b92915050565b600061020d6001610188565b9050610214565b90565b60006007820290508050809050610229565b91905056"
+   ABI = json.loads('[{"constant":false,"inputs":[],"name":"return13","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":true,"inputs":[],"name":"counter","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"amt","type":"uint256"}],"name":"increment","outputs":[{"name":"result","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"},{"name":"b","type":"int256"}],"name":"add","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":false,"inputs":[],"name":"increment","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"}],"name":"multiply7","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"Increased","type":"event"}]')
+   contract = w3.eth.contract(abi=ABI, bytecode=bytecode)
+   deploy_txn = contract.constructor().transact()
+   deploy_receipt = w3.eth.waitForTransactionReceipt(deploy_txn)
+   address = deploy_receipt.contractAddress
+
+.. doctest::
+
+   >>> myContract = w3.eth.contract(address=address, abi=ABI)
+   >>> twentyone = myContract.caller.multiply7(3)
+   >>> twentyone
+   21
+
+It can also be invoked using parentheses:
+
+.. doctest::
+
+   >>> twentyone = myContract.caller().multiply7(3)
+   >>> twentyone
+   21
+
+And a transaction dictionary, with or without the ``transaction`` keyword.
+You can also optionally include a block identifier. For example:
+
+.. doctest::
+
+   >>> from_address = w3.eth.accounts[1]
+   >>> twentyone = myContract.caller({'from': from_address}).multiply7(3)
+   >>> twentyone
+   21
+   >>> twentyone = myContract.caller(transaction={'from': from_address}).multiply7(3)
+   >>> twentyone
+   21
+   >>> twentyone = myContract.caller(block_identifier='latest').multiply7(3)
+   >>> twentyone
+   21
+
+Like :py:class:`ContractFunction`, :py:class:`ContractCaller`
+provides methods to interact with contract functions.
+Positional and keyword arguments supplied to the contract caller subclass
+will be used to find the contract function by signature,
+and forwarded to the contract function when applicable.

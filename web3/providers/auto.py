@@ -53,13 +53,13 @@ class AutoProvider(BaseProvider):
     _active_provider = None
 
     def __init__(self, potential_providers=None):
-        '''
+        """
         :param iterable potential_providers: ordered series of provider classes to attempt with
 
         AutoProvider will initialize each potential provider (without arguments),
         in an attempt to find an active node. The list will default to
         :attribute:`default_providers`.
-        '''
+        """
         if potential_providers:
             self._potential_providers = potential_providers
         else:
@@ -78,7 +78,12 @@ class AutoProvider(BaseProvider):
     def _proxy_request(self, method, params, use_cache=True):
         provider = self._get_active_provider(use_cache)
         if provider is None:
-            raise CannotHandleRequest("Could not discover provider")
+            raise CannotHandleRequest(
+                "Could not discover provider while making request: "
+                "method:{0}\n"
+                "params:{1}\n".format(
+                    method,
+                    params))
 
         return provider.make_request(method, params)
 

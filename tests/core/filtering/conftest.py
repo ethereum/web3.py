@@ -19,7 +19,7 @@ from web3.providers.eth_tester import (
 
 @pytest.fixture()
 def tester_snapshot(web3):
-    return web3.providers[0].ethereum_tester.take_snapshot()
+    return web3.provider.ethereum_tester.take_snapshot()
 
 
 @pytest.fixture(
@@ -31,7 +31,7 @@ def web3(request):
     provider = EthereumTesterProvider()
     w3 = Web3(provider)
     if use_filter_middleware:
-        w3.middleware_stack.add(local_filter_middleware)
+        w3.middleware_onion.add(local_filter_middleware)
     return w3
 
 

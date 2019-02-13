@@ -7,8 +7,8 @@ from web3.providers.eth_tester import (
 
 
 def test_sync_filter_against_latest_blocks(web3, sleep_interval, wait_for_block):
-    if EthereumTesterProvider not in map(type, web3.providers):
-        web3.providers = EthereumTesterProvider()
+    if not isinstance(web3.provider, EthereumTesterProvider):
+        web3.provider = EthereumTesterProvider()
 
     txn_filter = web3.eth.filter("latest")
 

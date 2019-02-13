@@ -4,6 +4,14 @@ Filtering
 
 .. py:module:: web3.utils.filters
 
+.. note ::
+
+    Most one-liners below assume ``w3`` to be a :class:`web3.Web3` instance;
+    obtainable, for example, with:
+
+    .. code-block:: python
+
+        from web3.auto import w3
 
 The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 
@@ -23,14 +31,19 @@ The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 
     .. code-block:: python
 
-        event_filter = web3.eth.filter({"address": contract_address})
+        event_filter = w3.eth.filter({"address": contract_address})
 
 * Attaching to an existing filter
 
     .. code-block:: python
 
-        from web3.auto import w3
-        existing_filter = web3.eth.filter(filter_id="0x0")
+        existing_filter = w3.eth.filter(filter_id="0x0")
+
+.. note ::
+
+    Creating event filters requires that your Ethereum node has an API support enabled for filters.
+    It does not work with Infura nodes. To get event logs on Infura or other
+    stateless nodes please see :class:`web3.contract.ContractEvents`.
 
 
 Filter Class
@@ -81,27 +94,27 @@ Block and Transaction Filter Classes
 
 .. py:class:: BlockFilter(...)
 
-BlockFilter is a subclass of :class:``Filter``.
+``BlockFilter`` is a subclass of :class:`Filter`.
 
 You can setup a filter for new blocks using ``web3.eth.filter('latest')`` which
-will return a new :py:class:`BlockFilter` object.
+will return a new :class:`BlockFilter` object.
 
     .. code-block:: python
 
-        >>> new_block_filter = web.eth.filter('latest')
-        >>> new_block_filter.get_new_entries()
+        new_block_filter = w3.eth.filter('latest')
+        new_block_filter.get_new_entries()
 
 .. py:class:: TransactionFilter(...)
 
-TransactionFilter is a subclass of :class:``Filter``.
+``TransactionFilter`` is a subclass of :class:`Filter`.
 
 You can setup a filter for new blocks using ``web3.eth.filter('pending')`` which
-will return a new :py:class:`BlockFilter` object.
+will return a new :class:`BlockFilter` object.
 
     .. code-block:: python
 
-        >>> new_transaction_filter = web.eth.filter('pending')
-        >>> new_transaction_filter.get_new_entries()
+        new_transaction_filter = w3.eth.filter('pending')
+        new_transaction_filter.get_new_entries()
 
 
 Event Log Filters
@@ -160,6 +173,13 @@ methods:
 Provides a means to filter on the log data, in other words the ability to filter on values from
 un-indexed event arguments. The parameter ``data_filter_set`` should be a list or set of 32-byte hex encoded values.
 
+Getting events without setting up a filter
+------------------------------------------
+
+You can query an Ethereum node for direct fetch of events, without creating a filter first.
+This works on all node types, including Infura.
+
+For examples see :meth:`web3.contract.ContractEvents.getLogs`.
 
 Examples: Listening For Events
 ------------------------------

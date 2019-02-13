@@ -45,8 +45,8 @@ def test_web3_auto_infura_empty_key(monkeypatch, caplog, environ_name):
     assert level == logging.WARNING
 
     w3 = infura.w3
-    assert isinstance(w3.providers[0], HTTPProvider)
-    assert getattr(w3.providers[0], 'endpoint_uri') == 'https://mainnet.infura.io/'
+    assert isinstance(w3.provider, HTTPProvider)
+    assert getattr(w3.provider, 'endpoint_uri') == 'https://mainnet.infura.io/'
 
 
 @pytest.mark.parametrize('environ_name', ['INFURA_API_KEY', 'WEB3_INFURA_API_KEY'])
@@ -61,8 +61,8 @@ def test_web3_auto_infura_deleted_key(monkeypatch, caplog, environ_name):
     assert level == logging.WARNING
 
     w3 = infura.w3
-    assert isinstance(w3.providers[0], HTTPProvider)
-    assert getattr(w3.providers[0], 'endpoint_uri') == 'https://mainnet.infura.io/'
+    assert isinstance(w3.provider, HTTPProvider)
+    assert getattr(w3.provider, 'endpoint_uri') == 'https://mainnet.infura.io/'
 
 
 @pytest.mark.parametrize('environ_name', ['INFURA_API_KEY', 'WEB3_INFURA_API_KEY'])
@@ -76,8 +76,8 @@ def test_web3_auto_infura(monkeypatch, caplog, environ_name):
     assert len(caplog.record_tuples) == 0
 
     w3 = infura.w3
-    assert isinstance(w3.providers[0], HTTPProvider)
-    assert getattr(w3.providers[0], 'endpoint_uri') == expected_url
+    assert isinstance(w3.provider, HTTPProvider)
+    assert getattr(w3.provider, 'endpoint_uri') == expected_url
 
 
 def test_web3_auto_infura_websocket_default(caplog):
@@ -85,5 +85,5 @@ def test_web3_auto_infura_websocket_default(caplog):
     assert len(caplog.record_tuples) == 0
 
     w3 = infura.w3
-    assert isinstance(w3.providers[0], WebsocketProvider)
-    assert getattr(w3.providers[0], 'endpoint_uri') == 'wss://mainnet.infura.io/ws'
+    assert isinstance(w3.provider, WebsocketProvider)
+    assert getattr(w3.provider, 'endpoint_uri') == 'wss://mainnet.infura.io/ws'

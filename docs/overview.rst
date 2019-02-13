@@ -163,6 +163,18 @@ Type Conversions
         >>> Web3.toInt(hexstr='000F')
         15
 
+.. py:method:: Web3.toJSON(obj)
+
+    Takes a variety of inputs and returns its JSON equivalent.
+
+
+    .. code-block:: python
+
+        >>> Web3.toJSON(3)
+        '3'
+        >>> Web3.toJSON({'one': 1})
+        '{"one": 1}'
+
 .. _overview_currency_conversions:
 
 Currency Conversions

@@ -1,6 +1,120 @@
 Release Notes
 =============
 
+
+v5.0.0-alpha.5
+--------------
+
+Released February 13th, 2019
+
+- Breaking Changes
+
+  - Remove deprecated ``buildTransaction``, ``call``, ``deploy``,
+    ``estimateGas``, and ``transact`` methods
+    - `#1232 <https://github.com/ethereum/web3.py/pull/1232>`_
+
+- Features
+
+  - Adds ``Web3.toJSON`` method
+    - `#1173 <https://github.com/ethereum/web3.py/pull/1173>`_
+  - Contract Caller API Implemented
+    - `#1227 <https://github.com/ethereum/web3.py/pull/1227>`_
+  - Add Geth POA middleware to use Rinkeby with Infura Auto
+    - `#1234 <https://github.com/ethereum/web3.py/pull/1234>`_
+  - Add manifest and input argument validation to ``pm.release_package()``
+    - `#1237 <https://github.com/ethereum/web3.py/pull/1237>`_
+
+- Misc
+
+  - Clean up intro and block/tx sections in Filter docs
+    - `#1223 <https://github.com/ethereum/web3.py/pull/1223>`_
+  - Remove unnecessary ``EncodingError`` exception catching
+    - `#1224 <https://github.com/ethereum/web3.py/pull/1224>`_
+  - Improvements to ``merge_args_and_kwargs`` utility function
+    - `#1228 <https://github.com/ethereum/web3.py/pull/1228>`_
+  - Update vyper registry assets
+    - `#1242 <https://github.com/ethereum/web3.py/pull/1242>`_
+
+
+v5.0.0-alpha.4
+--------------
+
+Released January 23rd, 2019
+
+- Breaking Changes
+
+  - Rename ``middleware_stack`` to ``middleware_onion``
+    - `#1210 <https://github.com/ethereum/web3.py/pull/1210>`_
+  - Drop already deprecated ``web3.soliditySha3``
+    - `#1217 <https://github.com/ethereum/web3.py/pull/1217>`_
+  - ENS: Stop inferring ``.eth`` TLD on domain names
+    - `#1205 <https://github.com/ethereum/web3.py/pull/1205>`_
+
+- Bugfixes
+
+  - Validate ``ethereum_tester`` class in ``EthereumTesterProvider``
+    - `#1217 <https://github.com/ethereum/web3.py/pull/1217>`_
+  - Support ``getLogs()`` method without creating filters
+    - `#1192 <https://github.com/ethereum/web3.py/pull/1192>`_
+
+- Features
+
+  - Stablize the ``PM`` module
+    - `#1125 <https://github.com/ethereum/web3.py/pull/1125>`_
+  - Implement async ``Version`` module
+    - `#1166 <https://github.com/ethereum/web3.py/pull/1166>`_
+
+- Misc
+
+  - Update .gitignore to ignore ``.DS_Store`` and ``.mypy_cache/``
+    - `#1215 <https://github.com/ethereum/web3.py/pull/1215>`_
+  - Change CircleCI badge link to CircleCI project
+    - `#1214 <https://github.com/ethereum/web3.py/pull/1214>`_
+
+
+v5.0.0-alpha.3
+--------------
+
+Released January 15th, 2019
+
+- Breaking Changes
+
+  - Remove ``web3.miner.hashrate`` and ``web3.version.network``
+    - `#1198 <https://github.com/ethereum/web3.py/pull/1198>`_
+  - Remove ``web3.providers.tester.EthereumTesterProvider``
+    and ``web3.providers.tester.TestRPCProvider``
+    - `#1199 <https://github.com/ethereum/web3.py/pull/1199>`_
+  - Change ``manager.providers`` from list to single ``manager.provider``
+    - `#1200 <https://github.com/ethereum/web3.py/pull/1200>`_
+  - Replace deprecated ``web3.sha3`` method with ``web3.keccak`` method
+    - `#1207 <https://github.com/ethereum/web3.py/pull/1207>`_
+  - Drop auto detect testnets for IPCProvider
+    - `#1206 <https://github.com/ethereum/web3.py/pull/1206>`_
+
+- Bugfixes
+
+  - Add check to make sure blockHash exists
+    - `#1158 <https://github.com/ethereum/web3.py/pull/1158>`_
+
+- Misc
+
+  - Remove some unreachable code in `providers/base.py`
+    - `#1160 <https://github.com/ethereum/web3.py/pull/1160>`_
+  - Migrate tester provider results from middleware to defaults
+    - `#1188 <https://github.com/ethereum/web3.py/pull/1188>`_
+  - Fix doc formatting for build_filter method
+    - `#1187 <https://github.com/ethereum/web3.py/pull/1187>`_
+  - Add ERC20 example in docs
+    - `#1178 <https://github.com/ethereum/web3.py/pull/1178>`_
+  - Code style improvements
+    - `#1194 <https://github.com/ethereum/web3.py/pull/1194>`_
+    & `#1191 <https://github.com/ethereum/web3.py/pull/1191>`_
+  - Convert Web3 instance variables to w3
+    - `#1186 <https://github.com/ethereum/web3.py/pull/1186>`_
+  - Update eth-utils dependencies and clean up other dependencies
+    - `#1195 <https://github.com/ethereum/web3.py/pull/1195>`_
+
+
 v5.0.0-alpha.2
 --------------
 

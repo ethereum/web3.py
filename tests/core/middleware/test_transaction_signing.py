@@ -89,12 +89,12 @@ def result_generator_middleware():
 
 @pytest.fixture()
 def w3_base():
-    return Web3(providers=[DummyProvider()], middlewares=[])
+    return Web3(provider=DummyProvider(), middlewares=[])
 
 
 @pytest.fixture()
 def w3_dummy(w3_base, result_generator_middleware):
-    w3_base.middleware_stack.add(result_generator_middleware)
+    w3_base.middleware_onion.add(result_generator_middleware)
     return w3_base
 
 
@@ -135,7 +135,7 @@ def test_sign_and_send_raw_middleware(
         from_,
         expected,
         key_object):
-    w3_dummy.middleware_stack.add(
+    w3_dummy.middleware_onion.add(
         construct_sign_and_send_raw_middleware(key_object))
 
     if isinstance(expected, type) and issubclass(expected, Exception):
@@ -262,7 +262,7 @@ def test_signed_transaction(
         expected,
         key_object,
         from_):
-    w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
+    w3.middleware_onion.add(construct_sign_and_send_raw_middleware(key_object))
 
     # Drop any falsy addresses
     to_from = valfilter(bool, {'to': w3.eth.accounts[0], 'from': from_})
@@ -296,7 +296,7 @@ def test_sign_and_send_raw_middleware_with_byte_addresses(
     from_ = from_converter(ADDRESS_1)
     to_ = to_converter(ADDRESS_2)
 
-    w3_dummy.middleware_stack.add(
+    w3_dummy.middleware_onion.add(
         construct_sign_and_send_raw_middleware(private_key))
 
     actual = w3_dummy.manager.request_blocking(

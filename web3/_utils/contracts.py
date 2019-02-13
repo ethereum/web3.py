@@ -3,9 +3,6 @@ import functools
 from eth_abi import (
     encode_abi as eth_abi_encode_abi,
 )
-from eth_abi.exceptions import (
-    EncodingError,
-)
 from eth_utils import (
     add_0x_prefix,
     encode_hex,
@@ -78,7 +75,6 @@ def find_matching_event_abi(abi, event_name=None, argument_names=None):
 def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
     args = args or tuple()
     kwargs = kwargs or dict()
-    filters = []
     num_arguments = len(args) + len(kwargs)
 
     if fn_identifier is FallbackFn:
@@ -90,19 +86,18 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
     name_filter = functools.partial(filter_by_name, fn_identifier)
     arg_count_filter = functools.partial(filter_by_argument_count, num_arguments)
     encoding_filter = functools.partial(filter_by_encodability, args, kwargs)
-    filters.extend([
-        name_filter,
-        arg_count_filter,
-        encoding_filter,
-    ])
-    function_candidates = pipe(abi, *filters)
+
+    function_candidates = pipe(abi, name_filter, arg_count_filter, encoding_filter)
+
     if len(function_candidates) == 1:
         return function_candidates[0]
     else:
         matching_identifiers = name_filter(abi)
         matching_function_signatures = [abi_to_signature(func) for func in matching_identifiers]
+
         arg_count_matches = len(arg_count_filter(matching_identifiers))
         encoding_matches = len(encoding_filter(matching_identifiers))
+
         if arg_count_matches == 0:
             diagnosis = "\nFunction invocation failed due to improper number of arguments."
         elif encoding_matches == 0:
@@ -112,6 +107,7 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
                 "\nAmbiguous argument encoding. "
                 "Provided arguments can be encoded to multiple functions matching this call."
             )
+
         message = (
             "\nCould not identify the intended function with name `{name}`, "
             "positional argument(s) of type `{arg_types}` and "
@@ -126,6 +122,7 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
             candidates=matching_function_signatures,
             diagnosis=diagnosis,
         )
+
         raise ValidationError(message)
 
 
@@ -140,27 +137,21 @@ def encode_abi(web3, abi, arguments, data=None):
             )
         )
 
-    try:
-        normalizers = [
-            abi_ens_resolver(web3),
-            abi_address_to_hex,
-            abi_bytes_to_bytes,
-            abi_string_to_text,
-        ]
-        normalized_arguments = map_abi_data(
-            normalizers,
-            argument_types,
-            arguments,
-        )
-        encoded_arguments = eth_abi_encode_abi(
-            argument_types,
-            normalized_arguments,
-        )
-    except EncodingError as e:
-        raise TypeError(
-            "One or more arguments could not be encoded to the necessary "
-            "ABI type: {0}".format(str(e))
-        )
+    normalizers = [
+        abi_ens_resolver(web3),
+        abi_address_to_hex,
+        abi_bytes_to_bytes,
+        abi_string_to_text,
+    ]
+    normalized_arguments = map_abi_data(
+        normalizers,
+        argument_types,
+        arguments,
+    )
+    encoded_arguments = eth_abi_encode_abi(
+        argument_types,
+        normalized_arguments,
+    )
 
     if data:
         return to_hex(HexBytes(data) + encoded_arguments)

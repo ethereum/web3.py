@@ -99,3 +99,8 @@ def test_implicitcontract_transact_override(math_contract, get_transaction_count
     assert get_transaction_count(blocknum) == starting_txns
     # Check that no blocks were mined
     assert get_transaction_count("pending") == (blocknum, 0)
+
+
+def test_implicitcontract_deprecation_warning(math_contract):
+    with pytest.warns(DeprecationWarning):
+        math_contract.counter(transact={})

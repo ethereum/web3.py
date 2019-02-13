@@ -13,8 +13,8 @@ def test_provider_property_setter_and_getter():
     assert provider_a is not provider_b
 
     manager = RequestManager(None, provider_a)
-    assert manager.providers[0] is provider_a
+    assert manager.provider is provider_a
 
-    manager.providers = provider_b
+    manager.provider = provider_b
 
-    assert manager.providers[0] is provider_b
+    assert manager.provider is provider_b

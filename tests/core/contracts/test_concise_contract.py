@@ -98,8 +98,8 @@ def test_class_construction_sets_class_vars(web3,
     assert classic.bytecode_runtime == decode_hex(MATH_RUNTIME)
 
 
-def test_conciscecontract_keeps_custom_normalizers_on_base(web3):
-    base_contract = web3.eth.contract()
+def test_conciscecontract_keeps_custom_normalizers_on_base(web3, MATH_ABI):
+    base_contract = web3.eth.contract(abi=MATH_ABI)
     # give different normalizers to this base instance
     base_contract._return_data_normalizers = base_contract._return_data_normalizers + tuple([None])
 
@@ -133,3 +133,9 @@ def test_conciscecontract_function_collision(
 
     with pytest.raises(AttributeError, match=r'Namespace collision .* with ConciseContract API.'):
         concise_contract.getValue()
+
+
+def test_concisecontract_deprecation_warning(web3, StringContract):
+    contract = deploy(web3, StringContract, args=["blarg"])
+    with pytest.warns(DeprecationWarning):
+        ConciseContract(contract)

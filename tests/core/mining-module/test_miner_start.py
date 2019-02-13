@@ -15,7 +15,7 @@ def test_miner_start(web3_empty, wait_for_miner_start):
 
     # sanity
     assert web3.eth.mining
-    assert web3.miner.hashrate
+    assert web3.eth.hashrate
 
     web3.miner.stop()
 
@@ -24,11 +24,11 @@ def test_miner_start(web3_empty, wait_for_miner_start):
             timeout.sleep(random.random())
 
     assert not web3.eth.mining
-    assert not web3.miner.hashrate
+    assert not web3.eth.hashrate
 
     web3.miner.start(1)
 
     wait_for_miner_start(web3)
 
     assert web3.eth.mining
-    assert web3.miner.hashrate
+    assert web3.eth.hashrate

@@ -26,10 +26,10 @@ class BaseProvider:
         self._middlewares = tuple(values)
 
     def request_func(self, web3, outer_middlewares):
-        '''
+        """
         @param outer_middlewares is an iterable of middlewares, ordered by first to execute
         @returns a function that calls all the middleware and eventually self.make_request()
-        '''
+        """
         all_middlewares = tuple(outer_middlewares) + tuple(self.middlewares)
 
         cache_key = self._request_func_cache[0]

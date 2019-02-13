@@ -47,13 +47,13 @@ def result_generator_middleware(iter_block_number):
 
 @pytest.fixture(scope='function')
 def w3_base():
-    return Web3(providers=[DummyProvider()], middlewares=[])
+    return Web3(provider=DummyProvider(), middlewares=[])
 
 
 @pytest.fixture(scope='function')
 def w3(w3_base, result_generator_middleware):
-    w3_base.middleware_stack.add(result_generator_middleware)
-    w3_base.middleware_stack.add(local_filter_middleware)
+    w3_base.middleware_onion.add(result_generator_middleware)
+    w3_base.middleware_onion.add(local_filter_middleware)
     return w3_base
 
 

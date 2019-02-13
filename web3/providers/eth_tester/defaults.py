@@ -157,20 +157,20 @@ API_ENDPOINTS = {
         ),
     },
     'net': {
-        'version': not_implemented,
-        'peerCount': not_implemented,
-        'listening': not_implemented,
+        'version': static_return('1'),
+        'peerCount': static_return(0),
+        'listening': static_return(False),
     },
     'eth': {
-        'protocolVersion': not_implemented,
-        'syncing': not_implemented,
+        'protocolVersion': static_return('63'),
+        'syncing': static_return(False),
         'coinbase': compose(
             operator.itemgetter(0),
             call_eth_tester('get_accounts'),
         ),
-        'mining': not_implemented,
-        'hashrate': not_implemented,
-        'gasPrice': not_implemented,
+        'mining': static_return(False),
+        'hashrate': static_return(0),
+        'gasPrice': static_return(1),
         'accounts': call_eth_tester('get_accounts'),
         'blockNumber': compose(
             operator.itemgetter('number'),

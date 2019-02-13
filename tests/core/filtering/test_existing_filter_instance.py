@@ -10,8 +10,8 @@ from web3.providers.eth_tester import (
 
 @pytest.fixture()
 def filter_id(web3):
-    if EthereumTesterProvider not in map(type, web3.providers):
-        web3.providers = EthereumTesterProvider()
+    if not isinstance(web3.provider, EthereumTesterProvider):
+        web3.provider = EthereumTesterProvider()
 
     block_filter = web3.eth.filter("latest")
     return block_filter.filter_id

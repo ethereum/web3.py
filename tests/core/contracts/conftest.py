@@ -527,6 +527,69 @@ def FallballFunctionContract(web3, FALLBACK_FUNCTION_CONTRACT):
     return web3.eth.contract(**FALLBACK_FUNCTION_CONTRACT)
 
 
+CONTRACT_CALLER_TESTER_SOURCE = """
+contract CallerTester {
+  int public count;
+
+  function add(int256 a, int256 b) public payable returns (int256) {
+    return a + b;
+  }
+
+  function increment() public returns (int256) {
+    return count += 1;
+  }
+
+  function counter() public payable returns (int256) {
+    return count;
+  }
+
+  function returnMeta() public payable returns (address, bytes memory, uint256, uint, uint) {
+    return (msg.sender, msg.data, gasleft(), msg.value, block.number);
+  }
+}
+"""
+
+
+CONTRACT_CALLER_TESTER_CODE = "608060405234801561001057600080fd5b50610241806100206000396000f3fe608060405260043610610066577c0100000000000000000000000000000000000000000000000000000000600035046306661abd811461006b57806361bc221a14610092578063a5f3c23b1461009a578063c7fa7d66146100bd578063d09de08a14610185575b600080fd5b34801561007757600080fd5b5061008061019a565b60408051918252519081900360200190f35b6100806101a0565b610080600480360360408110156100b057600080fd5b50803590602001356101a6565b6100c56101aa565b604051808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200180602001858152602001848152602001838152602001828103825286818151815260200191508051906020019080838360005b8381101561014657818101518382015260200161012e565b50505050905090810190601f1680156101735780820380516001836020036101000a031916815260200191505b50965050505050505060405180910390f35b34801561019157600080fd5b50610080610207565b60005481565b60005490565b0190565b600060606000806000336000365a344385955084848080601f016020809104026020016040519081016040528093929190818152602001838380828437600092019190915250989e929d50949b5092995090975095505050505050565b60008054600101908190559056fea165627a7a72305820ffe1620e420efa326b9c5e4ef9f93cac71cf986196246c7966d71a39259899b10029"  # noqa: E501
+
+
+CONTRACT_CALLER_TESTER_RUNTIME = "608060405260043610610066577c0100000000000000000000000000000000000000000000000000000000600035046306661abd811461006b57806361bc221a14610092578063a5f3c23b1461009a578063c7fa7d66146100bd578063d09de08a14610185575b600080fd5b34801561007757600080fd5b5061008061019a565b60408051918252519081900360200190f35b6100806101a0565b610080600480360360408110156100b057600080fd5b50803590602001356101a6565b6100c56101aa565b604051808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200180602001858152602001848152602001838152602001828103825286818151815260200191508051906020019080838360005b8381101561014657818101518382015260200161012e565b50505050905090810190601f1680156101735780820380516001836020036101000a031916815260200191505b50965050505050505060405180910390f35b34801561019157600080fd5b50610080610207565b60005481565b60005490565b0190565b600060606000806000336000365a344385955084848080601f016020809104026020016040519081016040528093929190818152602001838380828437600092019190915250989e929d50949b5092995090975095505050505050565b60008054600101908190559056fea165627a7a72305820ffe1620e420efa326b9c5e4ef9f93cac71cf986196246c7966d71a39259899b10029"  # noqa: E501
+
+
+CONTRACT_CALLER_TESTER_ABI = json.loads('[ { "constant": true, "inputs": [], "name": "count", "outputs": [ { "name": "", "type": "int256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [], "name": "counter", "outputs": [ { "name": "", "type": "int256" } ], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": false, "inputs": [ { "name": "a", "type": "int256" }, { "name": "b", "type": "int256" } ], "name": "add", "outputs": [ { "name": "", "type": "int256" } ], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": false, "inputs": [], "name": "returnMeta", "outputs": [ { "name": "", "type": "address" }, { "name": "", "type": "bytes" }, { "name": "", "type": "uint256" }, { "name": "", "type": "uint256" }, { "name": "", "type": "uint256" } ], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": false, "inputs": [], "name": "increment", "outputs": [ { "name": "", "type": "int256" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" } ]')  # noqa: E501
+
+
+@pytest.fixture()
+def CALLER_TESTER_CODE():
+    return CONTRACT_CALLER_TESTER_CODE
+
+
+@pytest.fixture()
+def CALLER_TESTER_RUNTIME():
+    return CONTRACT_CALLER_TESTER_RUNTIME
+
+
+@pytest.fixture()
+def CALLER_TESTER_ABI():
+    return CONTRACT_CALLER_TESTER_ABI
+
+
+@pytest.fixture()
+def CALLER_TESTER_CONTRACT(CALLER_TESTER_CODE,
+                           CALLER_TESTER_RUNTIME,
+                           CALLER_TESTER_ABI):
+    return {
+        'bytecode': CALLER_TESTER_CODE,
+        'bytecode_runtime': CALLER_TESTER_RUNTIME,
+        'abi': CALLER_TESTER_ABI,
+    }
+
+
+@pytest.fixture()
+def CallerTesterContract(web3, CALLER_TESTER_CONTRACT):
+    return web3.eth.contract(**CALLER_TESTER_CONTRACT)
+
+
 CONTRACT_TUPLE_SOURCE = """
 pragma experimental ABIEncoderV2;
 
@@ -738,8 +801,7 @@ def some_address(address_conversion_func):
     return address_conversion_func('0x5B2063246F2191f18F2675ceDB8b28102e957458')
 
 
-def invoke_contract(api_style=None,
-                    api_call_desig='call',
+def invoke_contract(api_call_desig='call',
                     contract=None,
                     contract_function=None,
                     func_args=[],
@@ -749,34 +811,27 @@ def invoke_contract(api_style=None,
     if api_call_desig not in allowable_call_desig:
         raise ValueError("allowable_invoke_method must be one of: %s" % allowable_call_desig)
 
-    if api_style == 'func_first':
-        function = contract.functions[contract_function]
-        result = getattr(function(*func_args, **func_kwargs), api_call_desig)(tx_params)
-    elif api_style == 'func_last':
-        api_call_cls = getattr(contract, api_call_desig)
-        with pytest.deprecated_call():
-            result = getattr(api_call_cls(tx_params), contract_function)(*func_args, **func_kwargs)
-    else:
-        raise ValueError("api_style must be 'func_first or func_last'")
+    function = contract.functions[contract_function]
+    result = getattr(function(*func_args, **func_kwargs), api_call_desig)(tx_params)
 
     return result
 
 
-@pytest.fixture(params=['func_first', 'func_last'])
+@pytest.fixture
 def transact(request):
-    return functools.partial(invoke_contract, request.param, api_call_desig='transact')
+    return functools.partial(invoke_contract, api_call_desig='transact')
 
 
-@pytest.fixture(params=['func_first', 'func_last'])
+@pytest.fixture
 def call(request):
-    return functools.partial(invoke_contract, request.param, api_call_desig='call')
+    return functools.partial(invoke_contract, api_call_desig='call')
 
 
-@pytest.fixture(params=['func_first', 'func_last'])
+@pytest.fixture
 def estimateGas(request):
-    return functools.partial(invoke_contract, request.param, api_call_desig='estimateGas')
+    return functools.partial(invoke_contract, api_call_desig='estimateGas')
 
 
-@pytest.fixture(params=['func_first', 'func_last'])
+@pytest.fixture
 def buildTransaction(request):
-    return functools.partial(invoke_contract, request.param, api_call_desig='buildTransaction')
+    return functools.partial(invoke_contract, api_call_desig='buildTransaction')

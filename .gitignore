@@ -108,3 +108,9 @@ fabric.properties
 
 # VS Code
 .vscode/
+
+# DS Store files
+*.DS_Store
+
+# mypy Cache
+.mypy_cache/

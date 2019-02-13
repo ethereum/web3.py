@@ -19,6 +19,9 @@ from eth_utils import (
     remove_0x_prefix,
     to_hex,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3._utils.abi import (
     is_address_type,
@@ -38,6 +41,9 @@ from web3._utils.validation import (
     assert_one_val,
     validate_abi_type,
     validate_abi_value,
+)
+from web3.datastructures import (
+    AttributeDict,
 )
 
 
@@ -180,13 +186,13 @@ def to_text(primitive=None, hexstr=None, text=None):
 
 @curry
 def text_if_str(to_type, text_or_primitive):
-    '''
+    """
     Convert to a type, assuming that strings can be only unicode text (not a hexstr)
 
     @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
         eg~ to_bytes, to_text, to_hex, to_int, etc
     @param hexstr_or_primitive in bytes, str, or int.
-    '''
+    """
     if isinstance(text_or_primitive, str):
         (primitive, text) = (None, text_or_primitive)
     else:
@@ -196,13 +202,13 @@ def text_if_str(to_type, text_or_primitive):
 
 @curry
 def hexstr_if_str(to_type, hexstr_or_primitive):
-    '''
+    """
     Convert to a type, assuming that strings can be only hexstr (not unicode text)
 
     @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
         eg~ to_bytes, to_text, to_hex, to_int, etc
     @param text_or_primitive in bytes, str, or int.
-    '''
+    """
     if isinstance(hexstr_or_primitive, str):
         (primitive, hexstr) = (None, hexstr_or_primitive)
         if remove_0x_prefix(hexstr) and not is_hex(hexstr):
@@ -217,13 +223,13 @@ def hexstr_if_str(to_type, hexstr_or_primitive):
 
 
 class FriendlyJsonSerde:
-    '''
+    """
     Friendly JSON serializer & deserializer
 
     When encoding or decoding fails, this class collects
     information on which fields failed, to show more
     helpful information in the raised error messages.
-    '''
+    """
     def _json_mapping_errors(self, mapping):
         for key, val in mapping.items():
             try:
@@ -238,9 +244,9 @@ class FriendlyJsonSerde:
             except TypeError as exc:
                 yield "%d: because (%s)" % (index, exc)
 
-    def _friendly_json_encode(self, obj):
+    def _friendly_json_encode(self, obj, cls=None):
         try:
-            encoded = json.dumps(obj)
+            encoded = json.dumps(obj, cls=cls)
             return encoded
         except TypeError as full_exception:
             if hasattr(obj, 'items'):
@@ -262,9 +268,9 @@ class FriendlyJsonSerde:
             # so we have to re-raise the same type.
             raise json.decoder.JSONDecodeError(err_msg, exc.doc, exc.pos)
 
-    def json_encode(self, obj):
+    def json_encode(self, obj, cls=None):
         try:
-            return self._friendly_json_encode(obj)
+            return self._friendly_json_encode(obj, cls=cls)
         except TypeError as exc:
             raise TypeError("Could not encode to JSON: {}".format(exc))
 
@@ -309,3 +315,19 @@ def encode_single_packed(_type, value):
         return codecs.encode(value, 'utf8')
     elif abi_type.base == "bytes":
         return value
+
+
+class Web3JsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, AttributeDict):
+            return {k: v for k, v in obj.items()}
+        if isinstance(obj, HexBytes):
+            return obj.hex()
+        return json.JSONEncoder.default(self, obj)
+
+
+def to_json(obj):
+    '''
+    Convert a complex object (like a transaction object) to a JSON string
+    '''
+    return FriendlyJsonSerde().json_encode(obj, cls=Web3JsonEncoder)
