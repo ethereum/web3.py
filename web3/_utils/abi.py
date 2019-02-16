@@ -234,7 +234,10 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     if len(function_abi.get('inputs', [])) != len(arguments):
         return False
 
-    types = get_abi_input_types(function_abi)
+    try:
+        types, arguments = get_abi_inputs(function_abi, arguments)
+    except TypeError:
+        return False
 
     return all(
         is_encodable(_type, arg)

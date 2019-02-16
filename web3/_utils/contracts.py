@@ -22,6 +22,7 @@ from web3._utils.abi import (
     filter_by_name,
     filter_by_type,
     get_abi_input_types,
+    get_abi_inputs,
     get_fallback_func_abi,
     map_abi_data,
     merge_args_and_kwargs,
@@ -239,6 +240,8 @@ def get_function_info(fn_name, contract_abi=None, fn_abi=None, args=None, kwargs
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
 
     fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
+
+    _, fn_arguments = get_abi_inputs(fn_abi, fn_arguments)
 
     return fn_abi, fn_selector, fn_arguments
 
