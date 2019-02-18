@@ -135,6 +135,11 @@ def fallback_function_contract(web3, FallballFunctionContract, address_conversio
     return deploy(web3, FallballFunctionContract, address_conversion_func)
 
 
+@pytest.fixture()
+def tuple_contract(web3, TupleContract, address_conversion_func):
+    return deploy(web3, TupleContract, address_conversion_func)
+
+
 def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):
     with pytest.raises(InvalidAddress):
         WithConstructorAddressArgumentsContract.constructor(
@@ -612,3 +617,61 @@ def test_invalid_fixed_value_reflections(web3, fixed_reflection_contract, functi
     contract_func = fixed_reflection_contract.functions[function]
     with pytest.raises(ValidationError, match=error):
         contract_func(value).call({'gas': 420000})
+
+
+@pytest.mark.parametrize(
+    'method_input, expected',
+    (
+        (
+            {'a': 123, 'b': [1, 2], 'c': [
+                {'x': 234, 'y': [True, False], 'z': [
+                    '0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                ]},
+                {'x': 345, 'y': [False, False], 'z': [
+                    '0xefd1FF70c185A1C0b125939815225199079096Ee',
+                    '0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e',
+                ]},
+            ]},
+            (123, [1, 2], [
+                (234, [True, False], [
+                    '0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                ]),
+                (345, [False, False], [
+                    '0xefd1FF70c185A1C0b125939815225199079096Ee',
+                    '0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e',
+                ]),
+            ]),
+        ),
+        (
+            (123, [1, 2], [
+                (234, [True, False], [
+                    '0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                ]),
+                (345, [False, False], [
+                    '0xefd1FF70c185A1C0b125939815225199079096Ee',
+                    '0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e',
+                ]),
+            ]),
+            (123, [1, 2], [
+                (234, [True, False], [
+                    '0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                ]),
+                (345, [False, False], [
+                    '0xefd1FF70c185A1C0b125939815225199079096Ee',
+                    '0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e',
+                ]),
+            ]),
+        ),
+    ),
+)
+def test_call_tuple_contract(tuple_contract, method_input, expected):
+    result = tuple_contract.functions.method(method_input).call()
+    assert result == expected
