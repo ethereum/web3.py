@@ -11,7 +11,7 @@ if (3, 5) <= sys.version_info < (3, 6):
 if sys.version_info < (3, 5):
     raise EnvironmentError(
         "Python 3.5 or above is required. "
-        "Note that support for Python 3.5 will be remove in web3.py v5")
+        "Note that support for Python 3.5 will be removed in web3.py v5")
 
 from eth_account import Account  # noqa: E402
 from web3.main import Web3  # noqa: E402

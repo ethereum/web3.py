@@ -15,27 +15,29 @@ HTTP_SCHEME = 'https'
 
 
 def load_api_key():
-    # at web3py v5, drop old variable name INFURA_API_KEY
-    key = os.environ.get(
-        'WEB3_INFURA_API_KEY',
-        os.environ.get('INFURA_API_KEY', '')
-    )
+    # in web3py v6 remove outdated WEB3_INFURA_API_KEY
+    key = os.environ.get('WEB3_INFURA_PROJECT_ID',
+                         os.environ.get('WEB3_INFURA_API_KEY', ''))
     if key == '':
         logging.getLogger('web3.auto.infura').warning(
-            "No Infura API Key found. Add environment variable WEB3_INFURA_API_KEY to ensure "
-            "continued API access. New keys are available at https://infura.io/register"
+            "No Infura Project ID found. Add environment variable WEB3_INFURA_PROJECT_ID to "
+            " ensure continued API access after March 27th. "
+            "New keys are available at https://infura.io/register"
         )
     return key
 
 
 def build_infura_url(domain):
     scheme = os.environ.get('WEB3_INFURA_SCHEME', WEBSOCKET_SCHEME)
+    key = load_api_key()
 
-    if scheme == WEBSOCKET_SCHEME:
-        # websockets doesn't use the API key (yet?)
-        return "%s://%s/ws" % (scheme, domain)
+    if key and scheme == WEBSOCKET_SCHEME:
+        return "%s://%s/ws/v3/%s" % (scheme, domain, key)
+    elif key and scheme == HTTP_SCHEME:
+        return "%s://%s/v3/%s" % (scheme, domain, key)
+    elif scheme == WEBSOCKET_SCHEME:
+        return "%s://%s/ws/" % (scheme, domain)
     elif scheme == HTTP_SCHEME:
-        key = load_api_key()
         return "%s://%s/%s" % (scheme, domain, key)
     else:
         raise ValidationError("Cannot connect to Infura with scheme %r" % scheme)
