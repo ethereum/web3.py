@@ -46,10 +46,10 @@ from web3.exceptions import (
 
 def implicitly_identity(to_wrap):
     @functools.wraps(to_wrap)
-    def wrapper(abi_type, data):
-        modified = to_wrap(abi_type, data)
+    def wrapper(type_str, data):
+        modified = to_wrap(type_str, data)
         if modified is None:
-            return abi_type, data
+            return type_str, data
         else:
             return modified
     return wrapper
@@ -61,15 +61,15 @@ def implicitly_identity(to_wrap):
 
 
 @implicitly_identity
-def addresses_checksummed(abi_type, data):
-    if abi_type == 'address':
-        return abi_type, to_checksum_address(data)
+def addresses_checksummed(type_str, data):
+    if type_str == 'address':
+        return type_str, to_checksum_address(data)
 
 
 @implicitly_identity
-def decode_abi_strings(abi_type, data):
-    if abi_type == 'string':
-        return abi_type, codecs.decode(data, 'utf8', 'backslashreplace')
+def decode_abi_strings(type_str, data):
+    if type_str == 'string':
+        return type_str, codecs.decode(data, 'utf8', 'backslashreplace')
 
 
 #
@@ -78,17 +78,17 @@ def decode_abi_strings(abi_type, data):
 
 
 @implicitly_identity
-def abi_bytes_to_hex(abi_type, data):
-    base, sub, arrlist = process_type(abi_type)
+def abi_bytes_to_hex(type_str, data):
+    base, sub, arrlist = process_type(type_str)
     if base == 'bytes' and not arrlist:
         bytes_data = hexstr_if_str(to_bytes, data)
         if not sub:
-            return abi_type, to_hex(bytes_data)
+            return type_str, to_hex(bytes_data)
         else:
             num_bytes = int(sub)
             if len(bytes_data) <= num_bytes:
                 padded = bytes_data.ljust(num_bytes, b'\0')
-                return abi_type, to_hex(padded)
+                return type_str, to_hex(padded)
             else:
                 raise ValueError(
                     "This value was expected to be at most %d bytes, but instead was %d: %r" % (
@@ -98,42 +98,42 @@ def abi_bytes_to_hex(abi_type, data):
 
 
 @implicitly_identity
-def abi_int_to_hex(abi_type, data):
-    base, _sub, arrlist = process_type(abi_type)
+def abi_int_to_hex(type_str, data):
+    base, _sub, arrlist = process_type(type_str)
     if base == 'uint' and not arrlist:
-        return abi_type, hexstr_if_str(to_hex, data)
+        return type_str, hexstr_if_str(to_hex, data)
 
 
 @implicitly_identity
-def abi_string_to_hex(abi_type, data):
-    if abi_type == 'string':
-        return abi_type, text_if_str(to_hex, data)
+def abi_string_to_hex(type_str, data):
+    if type_str == 'string':
+        return type_str, text_if_str(to_hex, data)
 
 
 @implicitly_identity
-def abi_string_to_text(abi_type, data):
-    if abi_type == 'string':
-        return abi_type, text_if_str(to_text, data)
+def abi_string_to_text(type_str, data):
+    if type_str == 'string':
+        return type_str, text_if_str(to_text, data)
 
 
 @implicitly_identity
-def abi_bytes_to_bytes(abi_type, data):
-    base, sub, arrlist = process_type(abi_type)
+def abi_bytes_to_bytes(type_str, data):
+    base, sub, arrlist = process_type(type_str)
     if base == 'bytes' and not arrlist:
-        return abi_type, hexstr_if_str(to_bytes, data)
+        return type_str, hexstr_if_str(to_bytes, data)
 
 
 @implicitly_identity
-def abi_address_to_hex(abi_type, data):
-    if abi_type == 'address':
+def abi_address_to_hex(type_str, data):
+    if type_str == 'address':
         validate_address(data)
         if is_binary_address(data):
-            return abi_type, to_checksum_address(data)
+            return type_str, to_checksum_address(data)
 
 
 @curry
-def abi_ens_resolver(w3, abi_type, val):
-    if abi_type == 'address' and is_ens_name(val):
+def abi_ens_resolver(w3, type_str, val):
+    if type_str == 'address' and is_ens_name(val):
         if w3 is None:
             raise InvalidAddress(
                 "Could not look up name %r because no web3"
@@ -150,9 +150,9 @@ def abi_ens_resolver(w3, abi_type, val):
                 " not connected to mainnet" % (val)
             )
         else:
-            return (abi_type, validate_name_has_address(w3.ens, val))
+            return type_str, validate_name_has_address(w3.ens, val)
     else:
-        return (abi_type, val)
+        return type_str, val
 
 
 BASE_RETURN_NORMALIZERS = [
