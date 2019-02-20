@@ -10,6 +10,9 @@ from eth_abi import (
     encode_single,
     grammar,
 )
+from eth_typing import (
+    TypeStr,
+)
 from eth_utils import (
     encode_hex,
     event_abi_to_log_topic,
@@ -133,8 +136,8 @@ def construct_event_data_set(event_abi, arguments=None):
     return data
 
 
-def is_dynamic_sized_type(abi_type):
-    abi_type = grammar.parse(abi_type)
+def is_dynamic_sized_type(type_str: TypeStr) -> bool:
+    abi_type = grammar.parse(type_str)
     return abi_type.is_dynamic
 
 

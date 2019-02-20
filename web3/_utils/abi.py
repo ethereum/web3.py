@@ -4,6 +4,11 @@ from collections import (
 )
 import itertools
 import re
+from typing import (
+    Any,
+    Optional,
+    Union,
+)
 
 from eth_abi import (
     decoding,
@@ -13,11 +18,15 @@ from eth_abi.codec import (
     ABICodec,
 )
 from eth_abi.grammar import (
+    ABIType,
     parse,
 )
 from eth_abi.registry import (
     BaseEquals,
     registry as default_registry,
+)
+from eth_typing import (
+    TypeStr,
 )
 from eth_utils import (
     decode_hex,
@@ -564,11 +573,11 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
         return super().__new__(cls, *iterable)
 
 
-def abi_sub_tree(abi_type, data_value):
+def abi_sub_tree(abi_type: Optional[Union[TypeStr, ABIType]], data_value: Any) -> ABITypedData:
     if abi_type is None:
         return ABITypedData([None, data_value])
 
-    if isinstance(abi_type, str):
+    if isinstance(abi_type, TypeStr):
         abi_type = parse(abi_type)
 
     if abi_type.is_array:
