@@ -159,11 +159,11 @@ Infura Mainnet
 ~~~~~~~~~~~~~~
 
 To easily connect to the Infura Mainnet remote node, first register for a free
-API key if you don't have one at https://infura.io/signup .
+API key if you don't have one at https://infura.io/register .
 
-Then set the environment variable ``INFURA_API_KEY`` with your API key::
+Then set the environment variable ``WEB3_INFURA_API_KEY`` with your API key::
 
-    $ export INFURA_API_KEY=YourApiKey
+    $ export WEB3_INFURA_API_KEY=YourApiKey
 
 .. code-block:: python
 
