@@ -2,6 +2,7 @@ import pytest
 
 from hypothesis import (
     given,
+    settings,
     strategies as st,
 )
 
@@ -102,6 +103,7 @@ def test_topic_filters_with_dynamic_arguments(
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @given(vals=fixed_values())
+@settings(max_examples=5, deadline=None)
 def test_topic_filters_with_fixed_arguments(
         web3,
         emitter,
