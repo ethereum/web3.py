@@ -597,7 +597,7 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
 
     >>> a1 = ABITypedData(['address', addr1])
     >>> a2 = ABITypedData(['address', addr2])
-    >>> addrs = ABITypedData(['address[]', [a1, a2])
+    >>> addrs = ABITypedData(['address[]', [a1, a2]])
 
     You can access the fields using tuple() interface, or with
     attributes:
