@@ -7,6 +7,13 @@ import functools
 import json
 
 import eth_abi
+from eth_abi.exceptions import (
+    ParseError,
+)
+from eth_abi.grammar import (
+    BasicType,
+    parse,
+)
 from eth_utils import (
     to_checksum_address,
 )
@@ -17,9 +24,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.abi import (
-    process_type,
-)
 from web3._utils.encoding import (
     hexstr_if_str,
     text_if_str,
@@ -77,31 +81,55 @@ def decode_abi_strings(type_str, data):
 #
 
 
-@implicitly_identity
-def abi_bytes_to_hex(type_str, data):
-    base, sub, arrlist = process_type(type_str)
-    if base == 'bytes' and not arrlist:
-        bytes_data = hexstr_if_str(to_bytes, data)
-        if not sub:
-            return type_str, to_hex(bytes_data)
-        else:
-            num_bytes = int(sub)
-            if len(bytes_data) <= num_bytes:
-                padded = bytes_data.ljust(num_bytes, b'\0')
-                return type_str, to_hex(padded)
-            else:
-                raise ValueError(
-                    "This value was expected to be at most %d bytes, but instead was %d: %r" % (
-                        (num_bytes, len(bytes_data), data)
-                    )
-                )
+def parse_basic_type_str(old_normalizer):
+    """
+    Modifies a normalizer to automatically parse the incoming type string.  If
+    that type string does not represent a basic type (i.e. non-tuple type) or is
+    not parsable, the normalizer does nothing.
+    """
+    @functools.wraps(old_normalizer)
+    def new_normalizer(type_str, data):
+        try:
+            abi_type = parse(type_str)
+        except ParseError:
+            # If type string is not parsable, do nothing
+            return type_str, data
+
+        if not isinstance(abi_type, BasicType):
+            return type_str, data
+
+        return old_normalizer(abi_type, type_str, data)
+
+    return new_normalizer
 
 
 @implicitly_identity
-def abi_int_to_hex(type_str, data):
-    base, _sub, arrlist = process_type(type_str)
-    if base == 'uint' and not arrlist:
-        return type_str, hexstr_if_str(to_hex, data)
+@parse_basic_type_str
+def abi_bytes_to_hex(abi_type, type_str, data):
+    if abi_type.base != 'bytes' or abi_type.is_array:
+        return
+
+    bytes_data = hexstr_if_str(to_bytes, data)
+    if abi_type.sub is None:
+        return type_str, to_hex(bytes_data)
+
+    num_bytes = abi_type.sub
+    if len(bytes_data) > num_bytes:
+        raise ValueError(
+            "This value was expected to be at most %d bytes, but instead was %d: %r" % (
+                (num_bytes, len(bytes_data), data)
+            )
+        )
+
+    padded = bytes_data.ljust(num_bytes, b'\0')
+    return type_str, to_hex(padded)
+
+
+@implicitly_identity
+@parse_basic_type_str
+def abi_int_to_hex(abi_type, type_str, data):
+    if abi_type.base == 'uint' and not abi_type.is_array:
+        return abi_type, hexstr_if_str(to_hex, data)
 
 
 @implicitly_identity
@@ -117,9 +145,9 @@ def abi_string_to_text(type_str, data):
 
 
 @implicitly_identity
-def abi_bytes_to_bytes(type_str, data):
-    base, sub, arrlist = process_type(type_str)
-    if base == 'bytes' and not arrlist:
+@parse_basic_type_str
+def abi_bytes_to_bytes(abi_type, type_str, data):
+    if abi_type.base == 'bytes' and not abi_type.is_array:
         return type_str, hexstr_if_str(to_bytes, data)
 
 
