@@ -21,7 +21,7 @@ def load_api_key():
     if key == '':
         logging.getLogger('web3.auto.infura').warning(
             "No Infura Project ID found. Add environment variable WEB3_INFURA_PROJECT_ID to "
-            " ensure continued API access after March 27th. "
+            "ensure continued API access after March 27th. "
             "New keys are available at https://infura.io/register"
         )
     return key
