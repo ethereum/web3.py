@@ -305,7 +305,7 @@ def encode_single_packed(_type, value):
     from eth_abi.registry import has_arrlist, registry
     abi_type = abi_type_parser.parse(_type)
     if has_arrlist(_type):
-        item_encoder = registry.get_encoder(str(abi_type.item_type))
+        item_encoder = registry.get_encoder(abi_type.item_type.to_type_str())
         if abi_type.arrlist[-1] != 1:
             return DynamicArrayPackedEncoder(item_encoder=item_encoder).encode(value)
         else:
