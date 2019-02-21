@@ -162,16 +162,16 @@ Infura Mainnet
 ~~~~~~~~~~~~~~
 
 To easily connect to the Infura Mainnet remote node, first register for a free
-API key if you don't have one at https://infura.io/signup .
+project ID if you don't have one at https://infura.io/register .
 
-Then set the environment variable ``INFURA_API_KEY`` with your API key::
+Then set the environment variable ``WEB3_INFURA_PROJECT_ID`` with your Project ID::
 
-    $ export INFURA_API_KEY=YourApiKey
+    $ export WEB3_INFURA_PROJECT_ID=YourProjectID
 
 .. code-block:: python
 
     >>> from web3.auto.infura import w3
-    
+
     # confirm that the connection succeeded
     >>> w3.isConnected()
     True
@@ -184,7 +184,7 @@ To connect to a ``geth --dev`` Proof of Authority instance with defaults:
 .. code-block:: python
 
     >>> from web3.auto.gethdev import w3
-    
+
     # confirm that the connection succeeded
     >>> w3.isConnected()
     True
