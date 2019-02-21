@@ -1,6 +1,20 @@
 Release Notes
 =============
 
+Breaking Change to Infura coming March 27th.
+ After March 27th, you'll need an API key to interact with Infura.
+ Sign up for one at https://infura.io/register.
+
+v4.8.3
+--------
+
+Released February 21, 2019
+
+- Misc
+
+  - Interact with Infura using an API Key. Key will be required after March 27th.
+    - `#1250 <https://github.com/ethereum/web3.py/pull/1250>`_
+
 v4.8.2
 --------
 
