@@ -582,9 +582,9 @@ def abi_sub_tree(abi_type: Optional[Union[TypeStr, ABIType]], data_value: Any) -
 
     if abi_type.is_array:
         it = abi_type.item_type
-        return ABITypedData([str(abi_type), [abi_sub_tree(it, i) for i in data_value]])
+        return ABITypedData([abi_type.to_type_str(), [abi_sub_tree(it, i) for i in data_value]])
     else:
-        return ABITypedData([str(abi_type), data_value])
+        return ABITypedData([abi_type.to_type_str(), data_value])
 
 
 def strip_abi_type(elements):
