@@ -4,6 +4,11 @@ from collections import (
 )
 import itertools
 import re
+from typing import (
+    Any,
+    Optional,
+    Union,
+)
 
 from eth_abi import (
     decoding,
@@ -12,9 +17,16 @@ from eth_abi import (
 from eth_abi.codec import (
     ABICodec,
 )
+from eth_abi.grammar import (
+    ABIType,
+    parse,
+)
 from eth_abi.registry import (
     BaseEquals,
     registry as default_registry,
+)
+from eth_typing import (
+    TypeStr,
 )
 from eth_utils import (
     decode_hex,
@@ -114,58 +126,6 @@ def filter_by_argument_name(argument_names, contract_abi):
             get_abi_input_names(abi)
         ) == set(argument_names)
     ]
-
-
-try:
-    from eth_abi.abi import (
-        process_type,
-        collapse_type,
-    )
-except ImportError:
-    from eth_abi.grammar import (
-        parse as parse_type_string,
-        normalize as normalize_type_string,
-        TupleType,
-    )
-
-    def process_type(type_str):
-        normalized_type_str = normalize_type_string(type_str)
-        abi_type = parse_type_string(normalized_type_str)
-
-        if isinstance(abi_type, TupleType):
-            type_str_repr = repr(type_str)
-            if type_str != normalized_type_str:
-                type_str_repr = '{} (normalized to {})'.format(
-                    type_str_repr,
-                    repr(normalized_type_str),
-                )
-
-            raise ValueError(
-                "Cannot process type {}: tuple types not supported".format(
-                    type_str_repr,
-                )
-            )
-
-        abi_type.validate()
-
-        sub = abi_type.sub
-        if isinstance(sub, tuple):
-            sub = 'x'.join(map(str, sub))
-        elif isinstance(sub, int):
-            sub = str(sub)
-        else:
-            sub = ''
-
-        arrlist = abi_type.arrlist
-        if isinstance(arrlist, tuple):
-            arrlist = list(map(list, arrlist))
-        else:
-            arrlist = []
-
-        return abi_type.base, sub, arrlist
-
-    def collapse_type(base, sub, arrlist):
-        return base + str(sub) + ''.join(map(repr, arrlist))
 
 
 class AddressEncoder(encoding.AddressEncoder):
@@ -597,7 +557,7 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
 
     >>> a1 = ABITypedData(['address', addr1])
     >>> a2 = ABITypedData(['address', addr2])
-    >>> addrs = ABITypedData(['address[]', [a1, a2])
+    >>> addrs = ABITypedData(['address[]', [a1, a2]])
 
     You can access the fields using tuple() interface, or with
     attributes:
@@ -613,28 +573,18 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
         return super().__new__(cls, *iterable)
 
 
-def abi_sub_tree(data_type, data_value):
-    if data_type is None:
+def abi_sub_tree(abi_type: Optional[Union[TypeStr, ABIType]], data_value: Any) -> ABITypedData:
+    if abi_type is None:
         return ABITypedData([None, data_value])
 
-    try:
-        base, sub, arrlist = data_type
-    except ValueError:
-        base, sub, arrlist = process_type(data_type)
+    if isinstance(abi_type, TypeStr):
+        abi_type = parse(abi_type)
 
-    collapsed = collapse_type(base, sub, arrlist)
-
-    if arrlist:
-        sub_type = (base, sub, arrlist[:-1])
-        return ABITypedData([
-            collapsed,
-            [
-                abi_sub_tree(sub_type, sub_value)
-                for sub_value in data_value
-            ],
-        ])
+    if abi_type.is_array:
+        it = abi_type.item_type
+        return ABITypedData([abi_type.to_type_str(), [abi_sub_tree(it, i) for i in data_value]])
     else:
-        return ABITypedData([collapsed, data_value])
+        return ABITypedData([abi_type.to_type_str(), data_value])
 
 
 def strip_abi_type(elements):
