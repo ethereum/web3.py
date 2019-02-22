@@ -21,9 +21,10 @@ VERSION_STRINGS = {
     "v1.9.1": "1_9_1",
     "v1.10.4": "1_10_4",
     "v1.11.11": "1_11_11",
+    "v2.2.11": "2_2_11",
 }
 ARCHITECTURE = 'x86_64'
-OS = os.getenv('PARITY_OS', 'debian')
+OS = os.getenv('PARITY_OS', 'darwin')
 
 
 @toolz.curry
