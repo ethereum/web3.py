@@ -19,6 +19,7 @@ from eth_abi.codec import (
 )
 from eth_abi.grammar import (
     ABIType,
+    TupleType,
     parse,
 )
 from eth_abi.registry import (
@@ -583,11 +584,25 @@ def abi_sub_tree(abi_type: Optional[Union[TypeStr, ABIType]], data_value: Any) -
     if isinstance(abi_type, TypeStr):
         abi_type = parse(abi_type)
 
+    # In the two special cases below, we rebuild the given data structures with
+    # annotated items
     if abi_type.is_array:
-        it = abi_type.item_type
-        return ABITypedData([abi_type.to_type_str(), [abi_sub_tree(it, i) for i in data_value]])
-    else:
-        return ABITypedData([abi_type.to_type_str(), data_value])
+        # If type is array, determine item type and annotate all
+        # items in iterable with that type
+        item_type_str = abi_type.item_type.to_type_str()
+        data_value = [abi_sub_tree(item_type_str, i) for i in data_value]
+    elif isinstance(abi_type, TupleType):
+        # Otherwise, if type is tuple, determine component types and annotate
+        # items in iterable respectively with those types
+        data_value = type(data_value)(
+            abi_sub_tree(comp_type.to_type_str(), i)
+            for comp_type, i in zip(abi_type.components, data_value)
+        )
+
+    return ABITypedData([
+        abi_type.to_type_str(),
+        data_value,
+    ])
 
 
 def strip_abi_type(elements):

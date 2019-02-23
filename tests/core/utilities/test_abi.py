@@ -7,6 +7,8 @@ from web3._utils.abi import (
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
+    abi_string_to_text,
+    addresses_checksummed,
 )
 
 
@@ -52,6 +54,24 @@ def test_abi_data_tree(types, data, expected):
             [['0x5b2063246f2191f18f2675cedb8b28102e957458'] * 2],
             BASE_RETURN_NORMALIZERS,
             [['0x5B2063246F2191f18F2675ceDB8b28102e957458'] * 2],
+        ),
+        (
+            ["(address,address)[]"],
+            [[(
+                '0x5b2063246f2191f18f2675cedb8b28102e957458',
+                '0xebe0da78ecb266c7ea605dc889c64849f860383f',
+            )] * 2],
+            BASE_RETURN_NORMALIZERS,
+            [[(
+                '0x5B2063246F2191f18F2675ceDB8b28102e957458',
+                '0xeBe0DA78ecb266C7EA605DC889c64849F860383F',
+            )] * 2],
+        ),
+        (
+            ['(string,address[])'],
+            [(b'a string', [b'\xf2\xe2F\xbbv\xdf\x87l\xef\x8b8\xae\x84\x13\x0fOU\xde9['])],
+            [addresses_checksummed, abi_string_to_text],
+            [('a string', ['0xF2E246BB76DF876Cef8b38ae84130F4F55De395b'])],
         ),
     ],
 )
