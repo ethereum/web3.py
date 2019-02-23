@@ -381,7 +381,7 @@ retrieved using JSON-RPC endpoints that don't rely on server state.
 .. code-block:: python
 
     >>> from web3 import Web3, EthereumTesterProvider
-    >>> w3 = Web3(EthereumTesterProvider)
+    >>> w3 = Web3(EthereumTesterProvider())
     >>> from web3.middleware import local_filter_middleware
     >>> w3.middleware_onion.add(local_filter_middleware)
 
