@@ -1,6 +1,28 @@
 Release Notes
 =============
 
+Breaking Change to Infura coming March 27th.
+ After March 27th, you'll need an API key to interact with Infura.
+ Sign up for one at https://infura.io/register.
+
+
+v5.0.0-alpha.6
+--------------
+Released February 25th, 2019
+
+- Features
+
+  - New ``NoABIFound`` error for cases where there is no ABI -
+    - `#1247 <https://github.com/ethereum/web3.py/pull/1247>`_
+
+- Misc
+
+  - Interact with Infura using an API Key. Key will be required after March 27th.
+    - `#1232 <https://github.com/ethereum/web3.py/pull/1232>`_
+  - Remove ``process_type`` utility function in favor of
+    eth-abi functionality
+    - `#1249 <https://github.com/ethereum/web3.py/pull/1249>`_
+
 
 v5.0.0-alpha.5
 --------------
