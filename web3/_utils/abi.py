@@ -235,13 +235,13 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
         return False
 
     try:
-        types, arguments = get_abi_inputs(function_abi, arguments)
+        types, aligned_args = get_aligned_abi_inputs(function_abi, arguments)
     except TypeError:
         return False
 
     return all(
         is_encodable(_type, arg)
-        for _type, arg in zip(types, arguments)
+        for _type, arg in zip(types, aligned_args)
     )
 
 
@@ -332,13 +332,13 @@ def get_tuple_type_str_parts(s: str) -> Optional[Tuple[str, Optional[str]]]:
     return None
 
 
-def _convert_abi_input(comp, arg):
+def _convert_abi_input(arg_abi, arg):
     """
-    Converts an argument ``arg`` corresponding to an ABI component ``comp``
+    Converts an argument ``arg`` corresponding to an ABI component ``arg_abi``
     into a plain value (for non-tuple components) or a properly converted and
     ordered sequence (for tuple list components or tuple components).
     """
-    tuple_parts = get_tuple_type_str_parts(comp['type'])
+    tuple_parts = get_tuple_type_str_parts(arg_abi['type'])
 
     if tuple_parts is None:
         # Component is non-tuple.  Just return value.
@@ -348,37 +348,37 @@ def _convert_abi_input(comp, arg):
     if tuple_dims is None:
         # Component is non-list tuple.  Each sub component of tuple will be
         # applied to each element in `arg`.
-        sub_comps = comp['components']
+        sub_abis = arg_abi['components']
     else:
         # Component is list tuple.  A non-list version of this component will be
         # repeatedly applied to each element in `arg`.
-        new_comp = copy.copy(comp)
-        new_comp['type'] = tuple_prefix
+        new_abi = copy.copy(arg_abi)
+        new_abi['type'] = tuple_prefix
 
-        sub_comps = itertools.repeat(new_comp)
+        sub_abis = itertools.repeat(new_abi)
 
     if isinstance(arg, abc.Mapping):
         # Arg is mapping.  Convert to properly ordered sequence.
-        arg = tuple(arg[c['name']] for c in sub_comps)
+        arg = tuple(arg[c['name']] for c in sub_abis)
 
     if not is_list_like(arg):
         raise TypeError(
             'Expected non-string sequence for "{}" component type: got {}'.format(
-                comp['type'],
+                arg_abi['type'],
                 arg,
             ),
         )
 
-    return type(arg)(_convert_abi_input(c, a) for c, a in zip(sub_comps, arg))
+    return type(arg)(_convert_abi_input(c, a) for c, a in zip(sub_abis, arg))
 
 
-def get_abi_inputs(abi, args):
+def get_aligned_abi_inputs(abi, args):
     """
-    Takes a function ABI (``abi``) and a sequence or mapping of args
-    (``args``).  Returns a list of canonical type names for the function's
-    inputs and a list of arguments in corresponding order.  The args contained
-    in ``args`` may contain nested mappings or sequences corresponding to
-    tuple-encoded values in ``abi``.
+    Takes a function ABI (``abi``) and a sequence or mapping of args (``args``).
+    Returns a list of type strings for the function's inputs and a list of
+    arguments which have been aligned to the layout of those types.  The args
+    contained in ``args`` may contain nested mappings or sequences corresponding
+    to tuple-encoded values in ``abi``.
     """
     inputs = abi.get('inputs', [])
 

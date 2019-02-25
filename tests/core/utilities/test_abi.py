@@ -3,7 +3,7 @@ import pytest
 
 from web3._utils.abi import (
     abi_data_tree,
-    get_abi_inputs,
+    get_aligned_abi_inputs,
     get_tuple_type_str_parts,
     map_abi_data,
 )
@@ -177,8 +177,8 @@ GET_ABI_INPUTS_TESTS = (
     'abi, args, expected',
     GET_ABI_INPUTS_TESTS,
 )
-def test_get_abi_inputs(abi, args, expected):
-    assert get_abi_inputs(abi, args) == expected
+def test_get_aligned_abi_inputs(abi, args, expected):
+    assert get_aligned_abi_inputs(abi, args) == expected
 
 
 GET_ABI_INPUTS_RAISING_TESTS = (
@@ -205,9 +205,9 @@ GET_ABI_INPUTS_RAISING_TESTS = (
     'abi, args',
     GET_ABI_INPUTS_RAISING_TESTS,
 )
-def test_get_abi_inputs_raises_type_error(abi, args):
+def test_get_aligned_abi_inputs_raises_type_error(abi, args):
     with pytest.raises(TypeError):
-        get_abi_inputs(abi, args)
+        get_aligned_abi_inputs(abi, args)
 
 
 @pytest.mark.parametrize(
