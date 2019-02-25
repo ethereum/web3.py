@@ -14,7 +14,7 @@ extras_require = {
     'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
     'linter': [
         "flake8==3.4.1",
-        "isort>=4.2.15,<5",
+        "isort>=4.2.15,<4.3.5",
     ],
     'docs': [
         "mock",
