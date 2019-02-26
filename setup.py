@@ -13,7 +13,7 @@ extras_require = {
     'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
     'linter': [
         "flake8==3.4.1",
-        "isort>=4.2.15,<5",
+        "isort>=4.2.15,<4.3.5",
     ],
     'docs': [
         "mock",
@@ -21,8 +21,8 @@ extras_require = {
         "click>=5.1",
         "configparser==3.5.0",
         "contextlib2>=0.5.4",
-        #"eth-testrpc>=0.8.0",
-        #"ethereum-tester-client>=1.1.0",
+        # "eth-testrpc>=0.8.0",
+        # "ethereum-tester-client>=1.1.0",
         "ethtoken",
         "py-geth>=1.4.0",
         "py-solc>=0.4.0",
