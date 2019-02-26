@@ -332,11 +332,10 @@ def get_tuple_type_str_parts(s: str) -> Optional[Tuple[str, Optional[str]]]:
     return None
 
 
-def _convert_abi_input(arg_abi, arg):
+def _align_abi_input(arg_abi, arg):
     """
-    Converts an argument ``arg`` corresponding to an ABI component ``arg_abi``
-    into a plain value (for non-tuple components) or a properly converted and
-    ordered sequence (for tuple list components or tuple components).
+    Aligns the values of any mapping at any level of nesting in ``arg``
+    according to the layout of the corresponding abi spec.
     """
     tuple_parts = get_tuple_type_str_parts(arg_abi['type'])
 
@@ -370,7 +369,7 @@ def _convert_abi_input(arg_abi, arg):
         )
 
     return type(arg)(
-        _convert_abi_input(sub_abi, sub_arg)
+        _align_abi_input(sub_abi, sub_arg)
         for sub_abi, sub_arg in zip(sub_abis, arg)
     )
 
@@ -392,7 +391,7 @@ def get_aligned_abi_inputs(abi, args):
     return (
         tuple(collapse_if_tuple(abi) for abi in input_abis),
         type(args)(
-            _convert_abi_input(abi, arg)
+            _align_abi_input(abi, arg)
             for abi, arg in zip(input_abis, args)
         ),
     )
