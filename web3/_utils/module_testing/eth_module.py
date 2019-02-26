@@ -565,8 +565,8 @@ class EthModuleTest:
             'gas': 21000,
             'gasPrice': web3.eth.gasPrice,
         })
-        receipt = web3.eth.getTransactionReceipt(txn_hash)
-        assert receipt is None
+        with pytest.raises(ValueError):
+            web3.eth.getTransactionReceipt(txn_hash)
 
     def test_eth_getTransactionReceipt_with_log_entry(self,
                                                       web3,
