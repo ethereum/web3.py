@@ -140,6 +140,11 @@ def tuple_contract(web3, TupleContract, address_conversion_func):
     return deploy(web3, TupleContract, address_conversion_func)
 
 
+@pytest.fixture()
+def nested_tuple_contract(web3, NestedTupleContract, address_conversion_func):
+    return deploy(web3, NestedTupleContract, address_conversion_func)
+
+
 def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):
     with pytest.raises(InvalidAddress):
         WithConstructorAddressArgumentsContract.constructor(
@@ -674,4 +679,72 @@ def test_invalid_fixed_value_reflections(web3, fixed_reflection_contract, functi
 )
 def test_call_tuple_contract(tuple_contract, method_input, expected):
     result = tuple_contract.functions.method(method_input).call()
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    'method_input, expected',
+    (
+        (
+            {'t': [
+                {'u': [
+                    {'x': 1, 'y': 2},
+                    {'x': 3, 'y': 4},
+                    {'x': 5, 'y': 6},
+                ]},
+                {'u': [
+                    {'x': 7, 'y': 8},
+                    {'x': 9, 'y': 10},
+                    {'x': 11, 'y': 12},
+                ]},
+            ]},
+            (
+                [
+                    ([
+                        (1, 2),
+                        (3, 4),
+                        (5, 6),
+                    ],),
+                    ([
+                        (7, 8),
+                        (9, 10),
+                        (11, 12),
+                    ],),
+                ],
+            ),
+        ),
+        (
+            (
+                [
+                    ([
+                        (1, 2),
+                        (3, 4),
+                        (5, 6),
+                    ],),
+                    ([
+                        (7, 8),
+                        (9, 10),
+                        (11, 12),
+                    ],),
+                ],
+            ),
+            (
+                [
+                    ([
+                        (1, 2),
+                        (3, 4),
+                        (5, 6),
+                    ],),
+                    ([
+                        (7, 8),
+                        (9, 10),
+                        (11, 12),
+                    ],),
+                ],
+            ),
+        ),
+    ),
+)
+def test_call_nested_tuple_contract(nested_tuple_contract, method_input, expected):
+    result = nested_tuple_contract.functions.method(method_input).call()
     assert result == expected
