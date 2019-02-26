@@ -49,6 +49,7 @@ def parity_command_arguments(
         '--password', passwordfile,
         '--ws-port', ws_port,
         '--ws-origins', '*',
+        '--ws-apis', 'all',
         '--no-ipc',
         '--no-jsonrpc',
     )
@@ -64,6 +65,7 @@ def parity_import_blocks_command(parity_binary, ws_port, datadir, passwordfile):
         '--password', passwordfile,
         '--ws-port', str(ws_port),
         '--ws-origins', '*',
+        '--ws-apis', 'all',
         '--no-ipc',
         '--no-jsonrpc',
         '--tracing', 'on',

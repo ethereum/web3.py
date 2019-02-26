@@ -18,10 +18,10 @@ from web3.version import (
 def blocking_w3():
     return Web3(
         EthereumTesterProvider(),
-        modules={
-            'blocking_version': BlockingVersion,
-            'legacy_version': Version
-        })
+        modules=[
+            {"name": "blocking_version", "module": BlockingVersion},
+            {"name": "legacy_version", "module": Version},
+        ])
 
 
 @pytest.fixture
@@ -29,9 +29,9 @@ def async_w3():
     return Web3(
         AsyncEthereumTesterProvider(),
         middlewares=[],
-        modules={
-            'async_version': AsyncVersion,
-        })
+        modules=[
+            {"name": 'async_version', "module": AsyncVersion},
+        ])
 
 
 def test_blocking_version(blocking_w3):

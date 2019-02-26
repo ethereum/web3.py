@@ -5,30 +5,32 @@ from eth_utils import (
 from web3._utils.toolz import (
     assoc,
 )
-from web3.personal import (
-    Personal,
-)
 from web3.module import (
     Module,
+    ModuleV2,
+)
+from web3.personal import (
+    ecRecover,
+    importRawKey,
+    listAccounts,
+    newAccount,
+    sendTransaction,
+    sign,
+    unlockAccount,
 )
 
 
-class ParityPersonal(Personal):
+class ParityPersonal(ModuleV2):
     """
     https://wiki.parity.io/JSONRPC-personal-module
     """
-    def __init__(self, w3):
-        self.w3 = w3
-
-    def importRawKey(self, private_key, passphrase):
-        raise NotImplementedError(
-            "personal_importRawKey RPC-endpoint is not supported by the Parity client."
-        )
-
-    def lockAccount(self, account):
-        raise NotImplementedError(
-            "personal_lockAccount RPC-endpoint is not supported by the Parity client."
-        )
+    ecRecover = ecRecover()
+    importRawKey = importRawKey()
+    listAccounts = listAccounts()
+    newAccount = newAccount()
+    sendTransaction = sendTransaction()
+    sign = sign()
+    unlockAccount = unlockAccount()
 
 
 class Parity(Module):
@@ -36,10 +38,6 @@ class Parity(Module):
     https://paritytech.github.io/wiki/JSONRPC-parity-module
     """
     defaultBlock = "latest"
-
-    @property
-    def personal(self):
-        return ParityPersonal(self.web3)
 
     def enode(self):
         return self.web3.manager.request_blocking(

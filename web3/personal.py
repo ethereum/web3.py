@@ -1,61 +1,71 @@
-class Personal():
-    """
-    This API is not automatically available on a `web3` instance, rather it should be accessed
-    through `web3.geth.personal` or `web3.parity.personal`.
+from web3.method import (
+    Method,
+)
 
-    All RPC endpoints under the personal namespace should be added here, and NotImplementedErrors
-    should be raised in subclasses if the endpoints are not supported by the respective client.
-    """
-    def importRawKey(self, private_key, passphrase):
-        return self.web3.manager.request_blocking(
-            "personal_importRawKey",
-            [private_key, passphrase],
-        )
 
-    def newAccount(self, password):
-        return self.web3.manager.request_blocking(
-            "personal_newAccount", [password],
-        )
+def default_root_munger(module, *args):
+    return [*args]
 
-    @property
-    def listAccounts(self):
-        return self.web3.manager.request_blocking(
-            "personal_listAccounts", [],
-        )
 
-    def sendTransaction(self, transaction, passphrase):
-        return self.web3.manager.request_blocking(
-            "personal_sendTransaction",
-            [transaction, passphrase],
-        )
+def importRawKey():
+    return Method(
+        "personal_importRawKey",
+        mungers=[default_root_munger],
+        formatter_lookup_fn=None,
+    )
 
-    def lockAccount(self, account):
-        return self.web3.manager.request_blocking(
-            "personal_lockAccount",
-            [account],
-        )
 
-    def unlockAccount(self, account, passphrase, duration=None):
-        try:
-            return self.web3.manager.request_blocking(
-                "personal_unlockAccount",
-                [account, passphrase, duration],
-            )
-        except ValueError as err:
-            if "could not decrypt" in str(err):
-                # Hack to handle go-ethereum error response.
-                return False
-            else:
-                raise
+def newAccount():
+    return Method(
+        "personal_newAccount",
+        mungers=[default_root_munger],
+        formatter_lookup_fn=None,
+    )
 
-    def sign(self, message, signer, passphrase):
-        return self.web3.manager.request_blocking(
-            'personal_sign',
-            [message, signer, passphrase],
-        )
 
-    def ecRecover(self, message, signature):
-        return self.web3.manager.request_blocking(
-            'personal_ecRecover',
-            [message, signature],
-        )
+def listAccounts():
+    return Method(
+        "personal_listAccounts",
+        mungers=None,
+        formatter_lookup_fn=None,
+    )
+
+
+def sendTransaction():
+    return Method(
+        "personal_sendTransaction",
+        mungers=[default_root_munger],
+        formatter_lookup_fn=None,
+    )
+
+
+def lockAccount():
+    return Method(
+        "personal_lockAccount",
+        mungers=[default_root_munger],
+        formatter_lookup_fn=None,
+    )
+
+
+def unlockAccount():
+    return Method(
+        "personal_unlockAccount",
+        mungers=[default_root_munger],
+        formatter_lookup_fn=None,
+    )
+
+
+def sign():
+    return Method(
+        "personal_sign",
+        mungers=[default_root_munger],
+        formatter_lookup_fn=None,
+    )
+
+
+def ecRecover():
+    return Method(
+        "personal_ecRecover",
+        mungers=[default_root_munger],
+        formatter_lookup_fn=None,
+    )

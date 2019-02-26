@@ -42,6 +42,7 @@ from web3.eth import (
 )
 from web3.geth import (
     Geth,
+    GethPersonal,
 )
 from web3.iban import (
     Iban,
@@ -57,6 +58,7 @@ from web3.net import (
 )
 from web3.parity import (
     Parity,
+    ParityPersonal,
 )
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
@@ -82,17 +84,17 @@ from web3.version import (
 
 
 def get_default_modules():
-    return {
-        "eth": Eth,
-        "net": Net,
-        "version": Version,
-        "txpool": TxPool,
-        "miner": Miner,
-        "admin": Admin,
-        "parity": Parity,
-        "geth": Geth,
-        "testing": Testing,
-    }
+    return [
+        {"name": "eth", "module": Eth},
+        {"name": "net", "module": Net},
+        {"name": "version", "module": Version},
+        {"name": "txpool", "module": TxPool},
+        {"name": "miner", "module": Miner},
+        {"name": "admin", "module": Admin},
+        {"name": "parity", "module": Parity, 'submodules': {'personal': ParityPersonal}},
+        {"name": "geth", "module": Geth, 'submodules': {'personal': GethPersonal}},
+        {"name": "testing", "module": Testing},
+    ]
 
 
 class Web3:
@@ -130,8 +132,11 @@ class Web3:
         if modules is None:
             modules = get_default_modules()
 
-        for module_name, module_class in modules.items():
-            module_class.attach(self, module_name)
+        for module in modules:
+            module['module'].attach(self, module['name'])
+            if 'submodules' in module:
+                for subname, submodule in module['submodules'].items():
+                    submodule.attach(getattr(self, module['name']), subname)
 
         self.ens = ens
 

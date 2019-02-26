@@ -12,8 +12,8 @@ from eth_utils import (
 from web3 import Web3
 from web3._utils.module_testing import (
     EthModuleTest,
+    GoEthereumPersonalModuleTest,
     NetModuleTest,
-    PersonalModuleTest,
     VersionModuleTest,
     Web3ModuleTest,
 )
@@ -146,7 +146,7 @@ def unlockable_account_pw(web3):
 
 @pytest.fixture(scope='module')
 def unlockable_account(web3, unlockable_account_pw):
-    account = web3.personal.importRawKey(UNLOCKABLE_PRIVATE_KEY, unlockable_account_pw)
+    account = web3.geth.personal.importRawKey(UNLOCKABLE_PRIVATE_KEY, unlockable_account_pw)
     web3.eth.sendTransaction({
         'from': web3.eth.coinbase,
         'to': account,
@@ -157,9 +157,9 @@ def unlockable_account(web3, unlockable_account_pw):
 
 @pytest.fixture
 def unlocked_account(web3, unlockable_account, unlockable_account_pw):
-    web3.personal.unlockAccount(unlockable_account, unlockable_account_pw)
+    web3.geth.personal.unlockAccount(unlockable_account, unlockable_account_pw)
     yield unlockable_account
-    web3.personal.lockAccount(unlockable_account)
+    web3.geth.personal.lockAccount(unlockable_account)
 
 
 @pytest.fixture()
@@ -169,9 +169,9 @@ def unlockable_account_dual_type(unlockable_account, address_conversion_func):
 
 @pytest.fixture
 def unlocked_account_dual_type(web3, unlockable_account_dual_type, unlockable_account_pw):
-    web3.personal.unlockAccount(unlockable_account_dual_type, unlockable_account_pw)
+    web3.geth.personal.unlockAccount(unlockable_account_dual_type, unlockable_account_pw)
     yield unlockable_account_dual_type
-    web3.personal.lockAccount(unlockable_account_dual_type)
+    web3.geth.personal.lockAccount(unlockable_account_dual_type)
 
 
 @pytest.fixture(scope="module")
@@ -297,8 +297,16 @@ class TestEthereumTesterNetModule(NetModuleTest):
     pass
 
 
-class TestEthereumTesterPersonalModule(PersonalModuleTest):
+# Use web3.geth.personal namespace for testing eth-tester
+class TestEthereumTesterPersonalModule(GoEthereumPersonalModuleTest):
     test_personal_sign_and_ecrecover = not_implemented(
-        PersonalModuleTest.test_personal_sign_and_ecrecover,
+        GoEthereumPersonalModuleTest.test_personal_sign_and_ecrecover,
         ValueError,
     )
+
+    # Test overridden here since eth-tester returns False rather than None for failed unlock
+    def test_personal_unlockAccount_failure(self,
+                                            web3,
+                                            unlockable_account_dual_type):
+        result = web3.geth.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
+        assert result is False

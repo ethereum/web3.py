@@ -1,20 +1,32 @@
 from web3.module import (
     Module,
+    ModuleV2,
 )
 from web3.personal import (
-    Personal,
+    ecRecover,
+    importRawKey,
+    listAccounts,
+    lockAccount,
+    newAccount,
+    sendTransaction,
+    sign,
+    unlockAccount,
 )
-
-
-class GethPersonal(Personal):
-    """
-    https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal
-    """
-    def __init__(self, w3):
-        self.w3 = w3
 
 
 class Geth(Module):
-    @property
-    def personal(self):
-        return GethPersonal(self.web3)
+    pass
+
+
+class GethPersonal(ModuleV2):
+    """
+    https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal
+    """
+    ecRecover = ecRecover()
+    importRawKey = importRawKey()
+    listAccounts = listAccounts()
+    lockAccount = lockAccount()
+    newAccount = newAccount()
+    sendTransaction = sendTransaction()
+    sign = sign()
+    unlockAccount = unlockAccount()
