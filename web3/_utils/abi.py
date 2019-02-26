@@ -340,24 +340,24 @@ def _align_abi_input(arg_abi, arg):
     tuple_parts = get_tuple_type_str_parts(arg_abi['type'])
 
     if tuple_parts is None:
-        # Component is non-tuple.  Just return value.
+        # Arg is non-tuple.  Just return value.
         return arg
 
     tuple_prefix, tuple_dims = tuple_parts
     if tuple_dims is None:
-        # Component is non-list tuple.  Each sub component of tuple will be
-        # applied to each element in `arg`.
+        # Arg is non-list tuple.  Each sub arg in `arg` will be aligned
+        # according to its corresponding abi.
         sub_abis = arg_abi['components']
     else:
-        # Component is list tuple.  A non-list version of this component will be
-        # repeatedly applied to each element in `arg`.
+        # Arg is list tuple.  A non-list version of its abi will be used to
+        # align each element in `arg`.
         new_abi = copy.copy(arg_abi)
         new_abi['type'] = tuple_prefix
 
         sub_abis = itertools.repeat(new_abi)
 
     if isinstance(arg, abc.Mapping):
-        # Arg is mapping.  Convert to properly ordered sequence.
+        # Arg is mapping.  Align values according to abi order.
         arg = tuple(arg[abi['name']] for abi in sub_abis)
 
     if not is_list_like(arg):
@@ -385,7 +385,7 @@ def get_aligned_abi_inputs(abi, args):
     input_abis = abi.get('inputs', [])
 
     if isinstance(args, abc.Mapping):
-        # `args` is mapping, convert to properly ordered sequence
+        # `args` is mapping.  Align values according to abi order.
         args = tuple(args[abi['name']] for abi in input_abis)
 
     return (
