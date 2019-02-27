@@ -6,6 +6,30 @@ Breaking Change to Infura coming March 27th.
  Sign up for one at https://infura.io/register.
 
 
+v5 Breaking Changes Summary
+  - Remove deprecated ``buildTransaction``, ``call``, ``deploy``,
+    ``estimateGas``, and ``transact`` methods
+    - `#1232 <https://github.com/ethereum/web3.py/pull/1232>`_
+  - Rename ``middleware_stack`` to ``middleware_onion``
+    - `#1210 <https://github.com/ethereum/web3.py/pull/1210>`_
+  - Drop already deprecated ``web3.soliditySha3``
+    - `#1217 <https://github.com/ethereum/web3.py/pull/1217>`_
+  - ENS: Stop inferring ``.eth`` TLD on domain names
+    - `#1205 <https://github.com/ethereum/web3.py/pull/1205>`_
+  - Remove ``web3.miner.hashrate`` and ``web3.version.network``
+    - `#1198 <https://github.com/ethereum/web3.py/pull/1198>`_
+  - Remove ``web3.providers.tester.EthereumTesterProvider``
+    and ``web3.providers.tester.TestRPCProvider``
+    - `#1199 <https://github.com/ethereum/web3.py/pull/1199>`_
+  - Change ``manager.providers`` from list to single ``manager.provider``
+    - `#1200 <https://github.com/ethereum/web3.py/pull/1200>`_
+  - Replace deprecated ``web3.sha3`` method with ``web3.keccak`` method
+    - `#1207 <https://github.com/ethereum/web3.py/pull/1207>`_
+  - Drop auto detect testnets for IPCProvider
+    - `#1206 <https://github.com/ethereum/web3.py/pull/1206>`_
+  - Remove support for python3.5, drop support for eth-abi v1
+    - `#1163 <https://github.com/ethereum/web3.py/pull/1163>`_
+
 v5.0.0-alpha.6
 --------------
 Released February 25th, 2019

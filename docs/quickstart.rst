@@ -89,3 +89,7 @@ so that is a good place to start.
 If you want to dive straight into contracts, check out the section on :ref:`contracts`,
 including a :ref:`contract_example`, and how to create a contract instance using
 :meth:`w3.eth.contract() <web3.eth.Eth.contract>`.
+
+.. NOTE:: It is recommended that your development environment have the ``PYTHONWARNINGS=default``
+    environment variable set. Some deprecation warnings will not show up
+    without this variable being set.
