@@ -14,4 +14,4 @@ from .endpoints import (
 _infura_url = build_infura_url(INFURA_RINKEBY_DOMAIN)
 
 w3 = Web3(load_provider_from_uri(_infura_url))
-w3.middleware_stack.inject(geth_poa_middleware, layer=0)
+w3.middleware_onion.inject(geth_poa_middleware, layer=0)
