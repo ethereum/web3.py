@@ -182,7 +182,8 @@ def test_latest_block_based_cache_middleware_busts_cache(w3, mocker):
     result = w3.manager.request_blocking('fake_endpoint', [])
 
     assert w3.manager.request_blocking('fake_endpoint', []) == result
-    w3.testing.mine()
+    with pytest.raises(ValueError):
+        w3.testing.mine()
 
     # should still be cached for at least 1 second.  This also verifies that
     # the middleware caches the latest block based on the block time.
@@ -211,8 +212,10 @@ def test_latest_block_cache_middleware_does_not_cache_bad_responses(
     }))
     w3.middleware_onion.add(latest_block_based_cache_middleware)
 
-    w3.manager.request_blocking('fake_endpoint', [])
-    w3.manager.request_blocking('fake_endpoint', [])
+    with pytest.raises(ValueError):
+        w3.manager.request_blocking('fake_endpoint', [])
+    with pytest.raises(ValueError):
+        w3.manager.request_blocking('fake_endpoint', [])
 
     assert next(counter) == 2
 

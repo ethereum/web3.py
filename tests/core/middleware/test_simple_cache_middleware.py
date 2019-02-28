@@ -78,8 +78,10 @@ def test_simple_cache_middleware_does_not_cache_none_responses(w3_base):
         rpc_whitelist={'fake_endpoint'},
     ))
 
-    w3.manager.request_blocking('fake_endpoint', [])
-    w3.manager.request_blocking('fake_endpoint', [])
+    with pytest.raises(ValueError):
+        w3.manager.request_blocking('fake_endpoint', [])
+    with pytest.raises(ValueError):
+        w3.manager.request_blocking('fake_endpoint', [])
 
     assert next(counter) == 2
 

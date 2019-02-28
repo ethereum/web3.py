@@ -117,8 +117,10 @@ def test_time_based_cache_middleware_does_not_cache_bad_responses(
     w3.middleware_onion.add(construct_result_generator_middleware({'fake_endpoint': mk_result}))
     w3.middleware_onion.add(time_cache_middleware)
 
-    w3.manager.request_blocking('fake_endpoint', [])
-    w3.manager.request_blocking('fake_endpoint', [])
+    with pytest.raises(ValueError):
+        w3.manager.request_blocking('fake_endpoint', [])
+    with pytest.raises(ValueError):
+        w3.manager.request_blocking('fake_endpoint', [])
 
     assert next(counter) == 2
 

@@ -96,6 +96,9 @@ class RequestManager:
         if "error" in response:
             raise ValueError(response["error"])
 
+        if response['result'] is None:
+            raise ValueError(f"The call to {method} did not return a value.")
+
         return response['result']
 
     async def coro_request(self, method, params):
@@ -106,6 +109,9 @@ class RequestManager:
 
         if "error" in response:
             raise ValueError(response["error"])
+
+        if response['result'] is None:
+            raise ValueError(f"The call to {method} did not return a value.")
 
         return response['result']
 

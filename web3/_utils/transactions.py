@@ -64,7 +64,10 @@ def fill_transaction_defaults(web3, transaction):
 def wait_for_transaction_receipt(web3, txn_hash, timeout=120, poll_latency=0.1):
     with Timeout(timeout) as _timeout:
         while True:
-            txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
+            try:
+                txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
+            except ValueError:
+                txn_receipt = None
             # FIXME: The check for a null `blockHash` is due to parity's
             # non-standard implementation of the JSON-RPC API and should
             # be removed once the formal spec for the JSON-RPC endpoints

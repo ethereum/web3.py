@@ -53,7 +53,8 @@ def test_unmined_transaction_wait_for_receipt(web3):
         'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
         'value': 123457
     })
-    assert web3.eth.getTransactionReceipt(txn_hash) is None
+    with pytest.raises(ValueError):
+        web3.eth.getTransactionReceipt(txn_hash)
 
     txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
     assert txn_receipt['transactionHash'] == txn_hash
