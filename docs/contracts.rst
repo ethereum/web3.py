@@ -21,72 +21,83 @@ To run this example, you will need to install a few extra features:
 
 .. code-block:: python
 
-    import json
-    import web3
+    >>> import json
 
-    from web3 import Web3
-    from solc import compile_source
+    >>> from web3 import Web3
+    >>> from solc import compile_standard
 
     # Solidity source code
-    contract_source_code = """
-    pragma solidity ^0.4.21;
-
-    contract Greeter {
-        string public greeting;
-
-        function Greeter() public {
-            greeting = 'Hello';
-        }
-
-        function setGreeting(string _greeting) public {
-            greeting = _greeting;
-        }
-
-        function greet() view public returns (string) {
-            return greeting;
-        }
-    }
-    """
-
-    compiled_sol = compile_source(contract_source_code) # Compiled source code
-    contract_interface = compiled_sol['<stdin>:Greeter']
+    >>> compiled_sol = compile_standard({
+    ...     "language": "Solidity",
+    ...     "sources": {
+    ...         "Greeter.sol": {
+    ...             "content": '''
+    ...                 pragma solidity ^0.5.0;
+    ...
+    ...                 contract Greeter {
+    ...                   string public greeting;
+    ...
+    ...                   constructor() public {
+    ...                       greeting = 'Hello';
+    ...                   }
+    ...
+    ...                   function setGreeting(string memory _greeting) public {
+    ...                       greeting = _greeting;
+    ...                   }
+    ...
+    ...                   function greet() view public returns (string memory) {
+    ...                       return greeting;
+    ...                   }
+    ...                 }
+    ...               '''
+    ...         }
+    ...     },
+    ...     "settings":
+    ...         {
+    ...             "outputSelection": {
+    ...                 "*": {
+    ...                     "*": [
+    ...                         "metadata", "evm.bytecode"
+    ...                         , "evm.bytecode.sourceMap"
+    ...                     ]
+    ...                 }
+    ...             }
+    ...         }
+    ... })
 
     # web3.py instance
-    w3 = Web3(Web3.EthereumTesterProvider())
+    >>> w3 = Web3(Web3.EthereumTesterProvider())
 
     # set pre-funded account as sender
-    w3.eth.defaultAccount = w3.eth.accounts[0]
+    >>> w3.eth.defaultAccount = w3.eth.accounts[0]
 
-    # Instantiate and deploy contract
-    Greeter = w3.eth.contract(abi=contract_interface['abi'], bytecode=contract_interface['bin'])
+    # get bytecode
+    >>> bytecode = compiled_sol['contracts']['Greeter.sol']['Greeter']['evm']['bytecode']['object']
+
+    # get abi
+    >>> abi = json.loads(compiled_sol['contracts']['Greeter.sol']['Greeter']['metadata'])['output']['abi']
+
+    >>> Greeter = w3.eth.contract(abi=abi, bytecode=bytecode)
 
     # Submit the transaction that deploys the contract
-    tx_hash = Greeter.constructor().transact()
+    >>> tx_hash = Greeter.constructor().transact()
 
     # Wait for the transaction to be mined, and get the transaction receipt
-    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
 
-    # Create the contract instance with the newly-deployed address
-    greeter = w3.eth.contract(
-        address=tx_receipt.contractAddress,
-        abi=contract_interface['abi'],
-    )
+    >>> greeter = w3.eth.contract(
+    ...     address=tx_receipt.contractAddress,
+    ...     abi=abi
+    ... )
 
-    # Display the default greeting from the contract
-    print('Default contract greeting: {}'.format(
-        greeter.functions.greet().call()
-    ))
+    >>> greeter.functions.greet().call()
+    'Hello'
 
-    print('Setting the greeting to Nihao...')
-    tx_hash = greeter.functions.setGreeting('Nihao').transact()
+    >>> tx_hash = greeter.functions.setGreeting('Nihao').transact()
+    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    >>> greeter.functions.greet().call()
+    'Nihao'
 
-    # Wait for transaction to be mined...
-    w3.eth.waitForTransactionReceipt(tx_hash)
-
-    # Display the new greeting value
-    print('Updated contract greeting: {}'.format(
-        greeter.functions.greet().call()
-    ))
 
 Contract Factories
 ------------------
@@ -743,7 +754,7 @@ Utils
           '_transactionData': b'',
           '_debatingPeriod': 604800,
           '_newCurator': True})
- 
+
 ContractCaller
 --------------
 
@@ -756,7 +767,7 @@ There are a number of different ways to invoke the ``ContractCaller``.
 
 For example:
 
-.. testsetup::
+.. testsetup:: contractcaller
 
    import json
    from web3 import Web3
@@ -768,7 +779,7 @@ For example:
    deploy_receipt = w3.eth.waitForTransactionReceipt(deploy_txn)
    address = deploy_receipt.contractAddress
 
-.. doctest::
+.. doctest:: contractcaller
 
    >>> myContract = w3.eth.contract(address=address, abi=ABI)
    >>> twentyone = myContract.caller.multiply7(3)
@@ -777,7 +788,7 @@ For example:
 
 It can also be invoked using parentheses:
 
-.. doctest::
+.. doctest:: contractcaller
 
    >>> twentyone = myContract.caller().multiply7(3)
    >>> twentyone
@@ -786,7 +797,7 @@ It can also be invoked using parentheses:
 And a transaction dictionary, with or without the ``transaction`` keyword.
 You can also optionally include a block identifier. For example:
 
-.. doctest::
+.. doctest:: contractcaller
 
    >>> from_address = w3.eth.accounts[1]
    >>> twentyone = myContract.caller({'from': from_address}).multiply7(3)
