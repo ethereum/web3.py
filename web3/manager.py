@@ -110,6 +110,9 @@ class RequestManager:
         if "error" in response:
             raise ValueError(response["error"])
 
+        if response['result'] is None:
+            raise ValueError(f"The call to {method} did not return a value.")
+
         return response['result']
 
     @deprecated_for("coro_request")
