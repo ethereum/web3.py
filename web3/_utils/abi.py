@@ -358,19 +358,21 @@ def _align_abi_input(arg_abi, arg):
 
     if isinstance(arg, abc.Mapping):
         # Arg is mapping.  Align values according to abi order.
-        arg = tuple(arg[abi['name']] for abi in sub_abis)
+        aligned_arg = tuple(arg[abi['name']] for abi in sub_abis)
+    else:
+        aligned_arg = arg
 
-    if not is_list_like(arg):
+    if not is_list_like(aligned_arg):
         raise TypeError(
             'Expected non-string sequence for "{}" component type: got {}'.format(
                 arg_abi['type'],
-                arg,
+                aligned_arg,
             ),
         )
 
-    return type(arg)(
+    return type(aligned_arg)(
         _align_abi_input(sub_abi, sub_arg)
-        for sub_abi, sub_arg in zip(sub_abis, arg)
+        for sub_abi, sub_arg in zip(sub_abis, aligned_arg)
     )
 
 
@@ -668,12 +670,15 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
         return super().__new__(cls, *iterable)
 
 
-def abi_sub_tree(abi_type: Optional[Union[TypeStr, ABIType]], data_value: Any) -> ABITypedData:
-    if abi_type is None:
+def abi_sub_tree(type_str_or_abi_type: Optional[Union[TypeStr, ABIType]],
+                 data_value: Any) -> ABITypedData:
+    if type_str_or_abi_type is None:
         return ABITypedData([None, data_value])
 
-    if isinstance(abi_type, TypeStr):
-        abi_type = parse(abi_type)
+    if isinstance(type_str_or_abi_type, TypeStr):
+        abi_type = parse(type_str_or_abi_type)
+    else:
+        abi_type = type_str_or_abi_type
 
     # In the two special cases below, we rebuild the given data structures with
     # annotated items
@@ -681,21 +686,23 @@ def abi_sub_tree(abi_type: Optional[Union[TypeStr, ABIType]], data_value: Any) -
         # If type is array, determine item type and annotate all
         # items in iterable with that type
         item_type_str = abi_type.item_type.to_type_str()
-        data_value = [
+        value_to_annotate = [
             abi_sub_tree(item_type_str, item_value)
             for item_value in data_value
         ]
     elif isinstance(abi_type, TupleType):
         # Otherwise, if type is tuple, determine component types and annotate
         # tuple components in iterable respectively with those types
-        data_value = type(data_value)(
+        value_to_annotate = type(data_value)(
             abi_sub_tree(comp_type.to_type_str(), comp_value)
             for comp_type, comp_value in zip(abi_type.components, data_value)
         )
+    else:
+        value_to_annotate = data_value
 
     return ABITypedData([
         abi_type.to_type_str(),
-        data_value,
+        value_to_annotate,
     ])
 
 
