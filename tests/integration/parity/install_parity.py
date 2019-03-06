@@ -21,10 +21,10 @@ VERSION_STRINGS = {
     "v1.9.1": "1_9_1",
     "v1.10.4": "1_10_4",
     "v1.11.11": "1_11_11",
-    "v2.2.11": "2_2_11",
+    "v2.3.5": "2_3_5",
 }
 ARCHITECTURE = 'x86_64'
-OS = os.getenv('PARITY_OS', 'darwin')
+OS = os.getenv('PARITY_OS', 'linux')
 
 
 @toolz.curry
@@ -64,7 +64,7 @@ def get_executable_path(version_string):
 
 def install_parity(version_string):
     if version_string not in VERSION_STRINGS.keys():
-        raise ValueError("{0} is not an accepted version identifier.")
+        raise ValueError("{0} is not an accepted version identifier.".format(version_string))
 
     path = get_executable_path(version_string)
 
