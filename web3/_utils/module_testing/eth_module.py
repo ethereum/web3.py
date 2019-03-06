@@ -20,7 +20,9 @@ from hexbytes import (
 )
 
 from web3.exceptions import (
+    BlockNotFound,
     InvalidAddress,
+    TransactionNotFound,
 )
 
 UNKNOWN_ADDRESS = '0xdEADBEeF00000000000000000000000000000000'
@@ -278,7 +280,7 @@ class EthModuleTest:
             'gas': 21000,
             'gasPrice': web3.eth.gasPrice,
         }
-        with pytest.raises(ValueError):
+        with pytest.raises(TransactionNotFound):
             web3.eth.replaceTransaction(
                 '0x98e8cc09b311583c5079fa600f6c2a3bea8611af168c52e4b60b5b243a441997',
                 txn_params
@@ -485,7 +487,7 @@ class EthModuleTest:
         assert block['hash'] == empty_block['hash']
 
     def test_eth_getBlockByHash_not_found(self, web3, empty_block):
-        with pytest.raises(ValueError):
+        with pytest.raises(BlockNotFound):
             web3.eth.getBlock(UNKNOWN_HASH)
 
     def test_eth_getBlockByNumber_with_integer(self, web3, empty_block):
@@ -498,7 +500,7 @@ class EthModuleTest:
         assert block['number'] == current_block_number
 
     def test_eth_getBlockByNumber_not_found(self, web3, empty_block):
-        with pytest.raises(ValueError):
+        with pytest.raises(BlockNotFound):
             web3.eth.getBlock(12345)
 
     def test_eth_getBlockByNumber_pending(self, web3, empty_block):
@@ -565,7 +567,7 @@ class EthModuleTest:
             'gas': 21000,
             'gasPrice': web3.eth.gasPrice,
         })
-        with pytest.raises(ValueError):
+        with pytest.raises(TransactionNotFound):
             web3.eth.getTransactionReceipt(txn_hash)
 
     def test_eth_getTransactionReceipt_with_log_entry(self,

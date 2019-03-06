@@ -8,6 +8,9 @@ from web3._utils.toolz import (
     curry,
     merge,
 )
+from web3.exceptions import (
+    TransactionNotFound,
+)
 
 VALID_TRANSACTION_PARAMS = [
     'from',
@@ -66,7 +69,7 @@ def wait_for_transaction_receipt(web3, txn_hash, timeout=120, poll_latency=0.1):
         while True:
             try:
                 txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
-            except ValueError:
+            except TransactionNotFound:
                 txn_receipt = None
             # FIXME: The check for a null `blockHash` is due to parity's
             # non-standard implementation of the JSON-RPC API and should

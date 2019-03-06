@@ -128,3 +128,17 @@ class ManifestValidationError(PMError):
     Raised when a provided manifest cannot be published, since it's invalid.
     """
     pass
+
+
+class TransactionNotFound(Exception):
+    """
+    Raised when a tx hash used to lookup a tx in a jsonrpc call cannot be found.
+    """
+    pass
+
+
+class BlockNotFound(Exception):
+    """
+    Raised when the block id used to lookup a block in a jsonrpc call cannot be found.
+    """
+    pass

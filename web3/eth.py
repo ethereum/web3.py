@@ -46,7 +46,9 @@ from web3.contract import (
     Contract,
 )
 from web3.exceptions import (
+    BlockNotFound,
     TimeExhausted,
+    TransactionNotFound,
 )
 from web3.iban import (
     Iban,
@@ -142,10 +144,13 @@ class Eth(Module):
             if_number='eth_getBlockByNumber',
         )
 
-        return self.web3.manager.request_blocking(
-            method,
-            [block_identifier, full_transactions],
-        )
+        try:
+            return self.web3.manager.request_blocking(
+                method,
+                [block_identifier, full_transactions],
+            )
+        except ValueError:
+            raise BlockNotFound(f"Block with id: {block_identifier} not found.")
 
     def getBlockTransactionCount(self, block_identifier):
         """
@@ -158,10 +163,13 @@ class Eth(Module):
             if_hash='eth_getBlockTransactionCountByHash',
             if_number='eth_getBlockTransactionCountByNumber',
         )
-        return self.web3.manager.request_blocking(
-            method,
-            [block_identifier],
-        )
+        try:
+            return self.web3.manager.request_blocking(
+                method,
+                [block_identifier],
+            )
+        except ValueError:
+            raise BlockNotFound(f"Block with id: {block_identifier} not found.")
 
     def getUncleCount(self, block_identifier):
         """
@@ -174,10 +182,13 @@ class Eth(Module):
             if_hash='eth_getUncleCountByBlockHash',
             if_number='eth_getUncleCountByBlockNumber',
         )
-        return self.web3.manager.request_blocking(
-            method,
-            [block_identifier],
-        )
+        try:
+            return self.web3.manager.request_blocking(
+                method,
+                [block_identifier],
+            )
+        except ValueError:
+            raise BlockNotFound(f"Block with id: {block_identifier} not found.")
 
     def getUncleByBlock(self, block_identifier, uncle_index):
         """
@@ -190,16 +201,24 @@ class Eth(Module):
             if_hash='eth_getUncleByBlockHashAndIndex',
             if_number='eth_getUncleByBlockNumberAndIndex',
         )
-        return self.web3.manager.request_blocking(
-            method,
-            [block_identifier, uncle_index],
-        )
+        try:
+            return self.web3.manager.request_blocking(
+                method,
+                [block_identifier, uncle_index],
+            )
+        except ValueError:
+            raise BlockNotFound(
+                f"Uncle at index: {uncle_index} of block with id: {block_identifier} not found."
+            )
 
     def getTransaction(self, transaction_hash):
-        return self.web3.manager.request_blocking(
-            "eth_getTransactionByHash",
-            [transaction_hash],
-        )
+        try:
+            return self.web3.manager.request_blocking(
+                "eth_getTransactionByHash",
+                [transaction_hash],
+            )
+        except ValueError:
+            raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
 
     @deprecated_for("w3.eth.getTransactionByBlock")
     def getTransactionFromBlock(self, block_identifier, transaction_index):
@@ -220,10 +239,16 @@ class Eth(Module):
             if_hash='eth_getTransactionByBlockHashAndIndex',
             if_number='eth_getTransactionByBlockNumberAndIndex',
         )
-        return self.web3.manager.request_blocking(
-            method,
-            [block_identifier, transaction_index],
-        )
+        try:
+            return self.web3.manager.request_blocking(
+                method,
+                [block_identifier, transaction_index],
+            )
+        except ValueError:
+            raise TransactionNotFound(
+                f"Transaction index: {transaction_index} "
+                f"on block id: {block_identifier} not found."
+            )
 
     def waitForTransactionReceipt(self, transaction_hash, timeout=120):
         try:
@@ -237,20 +262,20 @@ class Eth(Module):
             )
 
     def getTransactionReceipt(self, transaction_hash):
-        return self.web3.manager.request_blocking(
-            "eth_getTransactionReceipt",
-            [transaction_hash],
-        )
+        try:
+            return self.web3.manager.request_blocking(
+                "eth_getTransactionReceipt",
+                [transaction_hash],
+            )
+        except ValueError:
+            raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
 
     def getTransactionCount(self, account, block_identifier=None):
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
             "eth_getTransactionCount",
-            [
-                account,
-                block_identifier,
-            ],
+            [account, block_identifier],
         )
 
     def replaceTransaction(self, transaction_hash, new_transaction):
