@@ -1,12 +1,15 @@
 import binascii
 from collections import (
+    abc,
     namedtuple,
 )
+import copy
 import itertools
 import re
 from typing import (
     Any,
     Optional,
+    Tuple,
     Union,
 )
 
@@ -19,6 +22,7 @@ from eth_abi.codec import (
 )
 from eth_abi.grammar import (
     ABIType,
+    TupleType,
     parse,
 )
 from eth_abi.registry import (
@@ -31,9 +35,13 @@ from eth_typing import (
 from eth_utils import (
     decode_hex,
     is_bytes,
+    is_list_like,
     is_text,
     to_text,
     to_tuple,
+)
+from eth_utils.abi import (
+    collapse_if_tuple,
 )
 
 from web3._utils.ens import (
@@ -72,14 +80,14 @@ def get_abi_input_types(abi):
     if 'inputs' not in abi and abi['type'] == 'fallback':
         return []
     else:
-        return [arg['type'] for arg in abi['inputs']]
+        return [collapse_if_tuple(arg) for arg in abi['inputs']]
 
 
 def get_abi_output_types(abi):
     if abi['type'] == 'fallback':
         return []
     else:
-        return [arg['type'] for arg in abi['outputs']]
+        return [collapse_if_tuple(arg) for arg in abi['outputs']]
 
 
 def get_abi_input_names(abi):
@@ -226,11 +234,14 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     if len(function_abi.get('inputs', [])) != len(arguments):
         return False
 
-    types = get_abi_input_types(function_abi)
+    try:
+        types, aligned_args = get_aligned_abi_inputs(function_abi, arguments)
+    except TypeError:
+        return False
 
     return all(
         is_encodable(_type, arg)
-        for _type, arg in zip(types, arguments)
+        for _type, arg in zip(types, aligned_args)
     )
 
 
@@ -300,6 +311,92 @@ def merge_args_and_kwargs(function_abi, args, kwargs):
         return sorted_args[1]
     else:
         return tuple()
+
+
+TUPLE_TYPE_STR_RE = re.compile(r'^(tuple)(\[([1-9][0-9]*)?\])?$')
+
+
+def get_tuple_type_str_parts(s: str) -> Optional[Tuple[str, Optional[str]]]:
+    """
+    Takes a JSON ABI type string.  For tuple type strings, returns the separated
+    prefix and array dimension parts.  For all other strings, returns ``None``.
+    """
+    match = TUPLE_TYPE_STR_RE.match(s)
+
+    if match is not None:
+        tuple_prefix = match.group(1)
+        tuple_dims = match.group(2)
+
+        return tuple_prefix, tuple_dims
+
+    return None
+
+
+def _align_abi_input(arg_abi, arg):
+    """
+    Aligns the values of any mapping at any level of nesting in ``arg``
+    according to the layout of the corresponding abi spec.
+    """
+    tuple_parts = get_tuple_type_str_parts(arg_abi['type'])
+
+    if tuple_parts is None:
+        # Arg is non-tuple.  Just return value.
+        return arg
+
+    tuple_prefix, tuple_dims = tuple_parts
+    if tuple_dims is None:
+        # Arg is non-list tuple.  Each sub arg in `arg` will be aligned
+        # according to its corresponding abi.
+        sub_abis = arg_abi['components']
+    else:
+        # Arg is list tuple.  A non-list version of its abi will be used to
+        # align each element in `arg`.
+        new_abi = copy.copy(arg_abi)
+        new_abi['type'] = tuple_prefix
+
+        sub_abis = itertools.repeat(new_abi)
+
+    if isinstance(arg, abc.Mapping):
+        # Arg is mapping.  Align values according to abi order.
+        aligned_arg = tuple(arg[abi['name']] for abi in sub_abis)
+    else:
+        aligned_arg = arg
+
+    if not is_list_like(aligned_arg):
+        raise TypeError(
+            'Expected non-string sequence for "{}" component type: got {}'.format(
+                arg_abi['type'],
+                aligned_arg,
+            ),
+        )
+
+    return type(aligned_arg)(
+        _align_abi_input(sub_abi, sub_arg)
+        for sub_abi, sub_arg in zip(sub_abis, aligned_arg)
+    )
+
+
+def get_aligned_abi_inputs(abi, args):
+    """
+    Takes a function ABI (``abi``) and a sequence or mapping of args (``args``).
+    Returns a list of type strings for the function's inputs and a list of
+    arguments which have been aligned to the layout of those types.  The args
+    contained in ``args`` may contain nested mappings or sequences corresponding
+    to tuple-encoded values in ``abi``.
+    """
+    input_abis = abi.get('inputs', [])
+
+    if isinstance(args, abc.Mapping):
+        # `args` is mapping.  Align values according to abi order.
+        args = tuple(args[abi['name']] for abi in input_abis)
+
+    return (
+        tuple(collapse_if_tuple(abi) for abi in input_abis),
+        type(args)(
+            _align_abi_input(abi, arg)
+            for abi, arg in zip(input_abis, args)
+        ),
+    )
 
 
 def get_constructor_abi(contract_abi):
@@ -573,18 +670,40 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
         return super().__new__(cls, *iterable)
 
 
-def abi_sub_tree(abi_type: Optional[Union[TypeStr, ABIType]], data_value: Any) -> ABITypedData:
-    if abi_type is None:
+def abi_sub_tree(type_str_or_abi_type: Optional[Union[TypeStr, ABIType]],
+                 data_value: Any) -> ABITypedData:
+    if type_str_or_abi_type is None:
         return ABITypedData([None, data_value])
 
-    if isinstance(abi_type, TypeStr):
-        abi_type = parse(abi_type)
-
-    if abi_type.is_array:
-        it = abi_type.item_type
-        return ABITypedData([abi_type.to_type_str(), [abi_sub_tree(it, i) for i in data_value]])
+    if isinstance(type_str_or_abi_type, TypeStr):
+        abi_type = parse(type_str_or_abi_type)
     else:
-        return ABITypedData([abi_type.to_type_str(), data_value])
+        abi_type = type_str_or_abi_type
+
+    # In the two special cases below, we rebuild the given data structures with
+    # annotated items
+    if abi_type.is_array:
+        # If type is array, determine item type and annotate all
+        # items in iterable with that type
+        item_type_str = abi_type.item_type.to_type_str()
+        value_to_annotate = [
+            abi_sub_tree(item_type_str, item_value)
+            for item_value in data_value
+        ]
+    elif isinstance(abi_type, TupleType):
+        # Otherwise, if type is tuple, determine component types and annotate
+        # tuple components in iterable respectively with those types
+        value_to_annotate = type(data_value)(
+            abi_sub_tree(comp_type.to_type_str(), comp_value)
+            for comp_type, comp_value in zip(abi_type.components, data_value)
+        )
+    else:
+        value_to_annotate = data_value
+
+    return ABITypedData([
+        abi_type.to_type_str(),
+        value_to_annotate,
+    ])
 
 
 def strip_abi_type(elements):

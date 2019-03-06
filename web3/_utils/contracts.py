@@ -22,6 +22,7 @@ from web3._utils.abi import (
     filter_by_name,
     filter_by_type,
     get_abi_input_types,
+    get_aligned_abi_inputs,
     get_fallback_func_abi,
     map_abi_data,
     merge_args_and_kwargs,
@@ -240,7 +241,9 @@ def get_function_info(fn_name, contract_abi=None, fn_abi=None, args=None, kwargs
 
     fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
 
-    return fn_abi, fn_selector, fn_arguments
+    _, aligned_fn_arguments = get_aligned_abi_inputs(fn_abi, fn_arguments)
+
+    return fn_abi, fn_selector, aligned_fn_arguments
 
 
 def validate_payable(transaction, abi):
