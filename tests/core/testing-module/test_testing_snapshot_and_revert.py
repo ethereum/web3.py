@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_snapshot_revert_to_latest_snapshot(web3):
     web3.testing.mine(5)
 
@@ -14,8 +11,7 @@ def test_snapshot_revert_to_latest_snapshot(web3):
 
     block_after_mining = web3.eth.getBlock("latest")
 
-    with pytest.raises(ValueError):
-        web3.testing.revert()
+    web3.testing.revert()
 
     block_after_revert = web3.eth.getBlock("latest")
 
@@ -42,8 +38,7 @@ def test_snapshot_revert_to_specific(web3):
 
     block_after_mining = web3.eth.getBlock("latest")
 
-    with pytest.raises(ValueError):
-        web3.testing.revert(snapshot_idx)
+    web3.testing.revert(snapshot_idx)
 
     block_after_revert = web3.eth.getBlock("latest")
 
