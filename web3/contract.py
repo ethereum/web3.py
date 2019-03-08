@@ -1067,7 +1067,8 @@ class ContractEvent:
     def getLogs(self,
                 argument_filters=None,
                 fromBlock=1,
-                toBlock="latest"):
+                toBlock="latest",
+                blockHash=None):
         """Get events for this contract instance using eth_getLogs API.
 
         This is a stateless method, as opposed to createFilter.
@@ -1142,6 +1143,13 @@ class ContractEvent:
             toBlock=toBlock,
             address=self.address,
         )
+
+        if blockHash is not None:
+            if 'fromBlock' in event_filter_params:
+                del event_filter_params['fromBlock']
+            if 'toBlock' in event_filter_params:
+                del event_filter_params['toBlock']
+            event_filter_params['blockHash'] = blockHash
 
         # Call JSON-RPC API
         logs = self.web3.eth.getLogs(event_filter_params)
