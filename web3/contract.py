@@ -1059,8 +1059,8 @@ class ContractEvent:
     @combomethod
     def getLogs(self,
                 argument_filters=None,
-                fromBlock=1,
-                toBlock="latest",
+                fromBlock=None,
+                toBlock=None,
                 blockHash=None):
         """Get events for this contract instance using eth_getLogs API.
 
@@ -1068,7 +1068,7 @@ class ContractEvent:
         It can be safely called against nodes which do not provide
         eth_newFilter API, like Infura nodes.
 
-        If no block range is provided and there are many events,
+        If there are many events,
         like ``Transfer`` events for a popular token,
         the Ethereum node might be overloaded and timeout
         on the underlying JSON-RPC call.
@@ -1110,8 +1110,10 @@ class ContractEvent:
         See also: :func:`web3.middleware.filter.local_filter_middleware`.
 
         :param argument_filters:
-        :param fromBlock: block number, defaults to 1
+        :param fromBlock: block number or "latest", defaults to "latest"
         :param toBlock: block number or "latest". Defaults to "latest"
+        :param blockHash: block hash. blockHash cannot be set at the
+          same time as fromBlock or toBlock
         :yield: Tuple of :class:`AttributeDict` instances
         """
 
@@ -1126,6 +1128,12 @@ class ContractEvent:
 
         _filters = dict(**argument_filters)
 
+        blkhash_set = blockHash is not None
+        blknum_set = fromBlock is not None or toBlock is not None
+        if blkhash_set and blknum_set:
+            raise ValidationError('blockHash cannot be set at the same'
+                    ' time as fromBlock or toBlock')
+
         # Construct JSON-RPC raw filter presentation based on human readable Python descriptions
         # Namely, convert event names to their keccak signatures
         data_filter_set, event_filter_params = construct_event_filter_params(
@@ -1138,10 +1146,6 @@ class ContractEvent:
         )
 
         if blockHash is not None:
-            if 'fromBlock' in event_filter_params:
-                del event_filter_params['fromBlock']
-            if 'toBlock' in event_filter_params:
-                del event_filter_params['toBlock']
             event_filter_params['blockHash'] = blockHash
 
         # Call JSON-RPC API
