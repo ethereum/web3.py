@@ -29,6 +29,32 @@ v5 Breaking Changes Summary
     - `#1206 <https://github.com/ethereum/web3.py/pull/1206>`_
   - Remove support for python3.5, drop support for eth-abi v1
     - `#1163 <https://github.com/ethereum/web3.py/pull/1163>`_
+  - Updated JSON-RPC calls that lookup txs or blocks to raise
+    an error if lookup fails
+    - `#1218 <https://github.com/ethereum/web3.py/pull/1218>`_ and
+    `#1268 <https://github.com/ethereum/web3.py/pull/1268>`_
+
+v5.0.0-alpha.7
+--------------
+Released March 11, 2019
+
+- Breaking Changes
+
+  - Updated JSON-RPC calls that lookup txs or blocks to raise
+    an error if lookup fails
+    - `#1218 <https://github.com/ethereum/web3.py/pull/1218>`_ and
+    `#1268 <https://github.com/ethereum/web3.py/pull/1268>`_
+
+- Features
+
+  - Tuple ABI support
+    - `#1235 <https://github.com/ethereum/web3.py/pull/1235>`_
+
+- Bugfixes
+
+  - One last ``middleware_stack`` was still hanging on.
+    Changed to ``middleware_onion``
+    - `#1262 <https://github.com/ethereum/web3.py/pull/1262>`_
 
 v5.0.0-alpha.6
 --------------
@@ -36,7 +62,7 @@ Released February 25th, 2019
 
 - Features
 
-  - New ``NoABIFound`` error for cases where there is no ABI -
+  - New ``NoABIFound`` error for cases where there is no ABI
     - `#1247 <https://github.com/ethereum/web3.py/pull/1247>`_
 
 - Misc
