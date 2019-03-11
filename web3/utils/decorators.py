@@ -57,3 +57,19 @@ def deprecated_for(replace_message):
             return to_wrap(*args, **kwargs)
         return wrapper
     return decorator
+
+
+def deprecated_in_v5(f):
+    '''
+    Decorate a function to be deprecated in v5
+
+    @deprecated_for_v5
+    def toAscii(arg):
+        ...
+    '''
+    def decorator(to_wrap):
+        warnings.warn(
+            "%s to be deprecated in v5, according to EIP 1474" % (f.__name__),
+            category=DeprecationWarning,
+            stacklevel=2)
+    return decorator

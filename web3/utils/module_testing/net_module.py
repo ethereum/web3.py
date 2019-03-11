@@ -1,3 +1,5 @@
+import pytest
+
 from eth_utils import (
     is_boolean,
     is_integer,
@@ -21,3 +23,7 @@ class NetModuleTest:
         peer_count = web3.net.peerCount
 
         assert is_integer(peer_count)
+
+    def test_net_chainId(self, web3):
+        with pytest.warns(DeprecationWarning):
+            web3.net.chainId

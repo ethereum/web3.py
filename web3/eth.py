@@ -24,6 +24,7 @@ from web3.utils.blocks import (
 )
 from web3.utils.decorators import (
     deprecated_for,
+    deprecated_in_v5,
 )
 from web3.utils.empty import (
     empty,
@@ -374,6 +375,7 @@ class Eth(Module):
     def setContractFactory(self, contractFactory):
         self.defaultContractFactory = contractFactory
 
+    @deprecated_in_v5
     def getCompilers(self):
         return self.web3.manager.request_blocking("eth_getCompilers", [])
 
