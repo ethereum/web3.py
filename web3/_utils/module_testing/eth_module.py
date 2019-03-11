@@ -531,16 +531,6 @@ class EthModuleTest:
         assert is_dict(transaction)
         assert transaction['to'] is None, "to field is %r" % transaction['to']
 
-    def test_eth_getTransactionFromBlockHashAndIndex(self, web3, block_with_txn, mined_txn_hash):
-        transaction = web3.eth.getTransactionFromBlock(block_with_txn['hash'], 0)
-        assert is_dict(transaction)
-        assert transaction['hash'] == HexBytes(mined_txn_hash)
-
-    def test_eth_getTransactionFromBlockNumberAndIndex(self, web3, block_with_txn, mined_txn_hash):
-        transaction = web3.eth.getTransactionFromBlock(block_with_txn['number'], 0)
-        assert is_dict(transaction)
-        assert transaction['hash'] == HexBytes(mined_txn_hash)
-
     def test_eth_getTransactionByBlockHashAndIndex(self, web3, block_with_txn, mined_txn_hash):
         transaction = web3.eth.getTransactionByBlock(block_with_txn['hash'], 0)
         assert is_dict(transaction)
@@ -598,22 +588,6 @@ class EthModuleTest:
 
     def test_eth_getUncleByBlockNumberAndIndex(self, web3):
         # TODO: how do we make uncles....
-        pass
-
-    def test_eth_getCompilers(self, web3):
-        # TODO: do we want to test this?
-        pass
-
-    def test_eth_compileSolidity(self, web3):
-        # TODO: do we want to test this?
-        pass
-
-    def test_eth_compileLLL(self, web3):
-        # TODO: do we want to test this?
-        pass
-
-    def test_eth_compileSerpent(self, web3):
-        # TODO: do we want to test this?
         pass
 
     def test_eth_newFilter(self, web3):
@@ -828,3 +802,11 @@ class EthModuleTest:
 
         failure = web3.eth.uninstallFilter(filter.filter_id)
         assert failure is False
+
+    def test_eth_getTransactionFromBlock_deprecation(self, web3, block_with_txn):
+        with pytest.raises(DeprecationWarning):
+            web3.eth.getTransactionFromBlock(block_with_txn['hash'], 0)
+
+    def test_eth_getCompilers_deprecation(self, web3):
+        with pytest.raises(DeprecationWarning):
+            web3.eth.getCompilers()

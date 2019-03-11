@@ -16,13 +16,12 @@ RECEIPT_TIMEOUT = 0.2
     'make_chain_id, expect_success',
     (
         (
-            lambda web3: web3.net.chainId,
+            lambda web3: web3.net.version,
             True,
         ),
         pytest.param(
             lambda web3: 999999999999,
             False,
-            marks=pytest.mark.xfail,
         ),
     ),
 )

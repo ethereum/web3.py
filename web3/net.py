@@ -14,7 +14,7 @@ class Net(Module):
 
     @property
     def chainId(self):
-        return None
+        raise DeprecationWarning("This method has been deprecated in EIP 1474.")
 
     @property
     def version(self):
