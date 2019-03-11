@@ -142,8 +142,9 @@ The following methods are available on the ``web3.parity.personal`` namespace.
 
     .. code-block:: python
 
+        # Invalid call to personal_unlockAccount on Parity currently returns True, due to Parity bug
         >>> web3.parity.personal.unlockAccount('0xd3cda913deb6f67967b99d67acdfa1712c293601', 'wrong-passphrase')
-        False
+        True
         >>> web3.parity.personal.unlockAccount('0xd3cda913deb6f67967b99d67acdfa1712c293601', 'the-passphrase')
         True
 

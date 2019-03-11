@@ -31,6 +31,9 @@ from web3._utils.encoding import (
     to_text,
     to_json,
 )
+from web3._utils.module import (
+    attach_modules,
+)
 from web3._utils.normalizers import (
     abi_ens_resolver,
 )
@@ -84,17 +87,21 @@ from web3.version import (
 
 
 def get_default_modules():
-    return [
-        {"name": "eth", "module": Eth},
-        {"name": "net", "module": Net},
-        {"name": "version", "module": Version},
-        {"name": "txpool", "module": TxPool},
-        {"name": "miner", "module": Miner},
-        {"name": "admin", "module": Admin},
-        {"name": "parity", "module": Parity, 'submodules': {'personal': ParityPersonal}},
-        {"name": "geth", "module": Geth, 'submodules': {'personal': GethPersonal}},
-        {"name": "testing", "module": Testing},
-    ]
+    return {
+        "eth": (Eth,),
+        "net": (Net,),
+        "version": (Version,),
+        "txpool": (TxPool,),
+        "miner": (Miner,),
+        "admin": (Admin,),
+        "parity": (Parity, {
+            "personal": (ParityPersonal,)
+        }),
+        "geth": (Geth, {
+            "personal": (GethPersonal,)
+        }),
+        "testing": (Testing,),
+    }
 
 
 class Web3:
@@ -132,11 +139,7 @@ class Web3:
         if modules is None:
             modules = get_default_modules()
 
-        for module in modules:
-            module['module'].attach(self, module['name'])
-            if 'submodules' in module:
-                for subname, submodule in module['submodules'].items():
-                    submodule.attach(getattr(self, module['name']), subname)
+        attach_modules(self, modules)
 
         self.ens = ens
 

@@ -112,6 +112,7 @@ class ParityPersonalModuleTest():
         )
         assert result is True
 
+    # Seems to be an issue with Parity since this should return False
     def test_personal_unlockAccount_failure(self,
                                             web3,
                                             unlockable_account_dual_type):
