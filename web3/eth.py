@@ -13,9 +13,6 @@ from hexbytes import (
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
-from web3._utils.decorators import (
-    deprecated_for,
-)
 from web3._utils.empty import (
     empty,
 )
@@ -65,10 +62,6 @@ class Eth(Module):
     defaultContractFactory = Contract
     iban = Iban
     gasPriceStrategy = None
-
-    @deprecated_for("doing nothing at all")
-    def enable_unaudited_features(self):
-        pass
 
     def namereg(self):
         raise NotImplementedError()
@@ -220,13 +213,12 @@ class Eth(Module):
             raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
         return result
 
-    @deprecated_for("w3.eth.getTransactionByBlock")
     def getTransactionFromBlock(self, block_identifier, transaction_index):
         """
         Alias for the method getTransactionByBlock
         Depreceated to maintain naming consistency with the json-rpc API
         """
-        return self.getTransactionByBlock(block_identifier, transaction_index)
+        raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
     def getTransactionByBlock(self, block_identifier, transaction_index):
         """
@@ -419,7 +411,7 @@ class Eth(Module):
         self.defaultContractFactory = contractFactory
 
     def getCompilers(self):
-        return self.web3.manager.request_blocking("eth_getCompilers", [])
+        raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
     def getWork(self):
         return self.web3.manager.request_blocking("eth_getWork", [])

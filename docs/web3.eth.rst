@@ -332,8 +332,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.getTransactionFromBlock(block_identifier, transaction_index)
 
-  .. note:: This method is deprecated and replaced by
-    ``Eth.getTransactionByBlock``
+   .. note:: This method is deprecated in EIP 1474.
 
 
 .. py:method:: Eth.getTransactionByBlock(block_identifier, transaction_index)

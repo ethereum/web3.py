@@ -29,7 +29,7 @@ is_not_null = complement(is_null)
 
 @curry
 def validate_chain_id(web3, chain_id):
-    if chain_id == web3.net.chainId:
+    if chain_id == web3.net.version:
         return chain_id
     else:
         raise ValidationError(
@@ -66,7 +66,7 @@ def transaction_param_validator(web3):
     transactions_params_validators = {
         'chainId': apply_formatter_if(
             # Bypass `validate_chain_id` if chainId can't be determined
-            lambda _: is_not_null(web3.net.chainId),
+            lambda _: is_not_null(web3.net.version),
             validate_chain_id(web3)
         ),
     }
