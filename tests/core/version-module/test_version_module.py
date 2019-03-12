@@ -36,8 +36,13 @@ def async_w3():
 
 def test_blocking_version(blocking_w3):
     assert blocking_w3.blocking_version.api == blocking_w3.legacy_version.api
-    assert blocking_w3.blocking_version.node == blocking_w3.legacy_version.node
-    assert blocking_w3.blocking_version.ethereum == blocking_w3.legacy_version.ethereum
+
+
+def test_legacy_version_deprecation(blocking_w3):
+    with pytest.raises(DeprecationWarning):
+        blocking_w3.legacy_version.node
+    with pytest.raises(DeprecationWarning):
+        blocking_w3.legacy_version.ethereum
 
 
 @pytest.mark.asyncio

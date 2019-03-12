@@ -31,7 +31,7 @@ UNKNOWN_HASH = '0xdeadbeef000000000000000000000000000000000000000000000000000000
 
 class EthModuleTest:
     def test_eth_protocolVersion(self, web3):
-        protocol_version = web3.version.ethereum
+        protocol_version = web3.eth.protocolVersion
 
         assert is_string(protocol_version)
         assert protocol_version.isdigit()

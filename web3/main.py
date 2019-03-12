@@ -81,16 +81,12 @@ from web3.testing import (
 from web3.txpool import (
     TxPool,
 )
-from web3.version import (
-    Version,
-)
 
 
 def get_default_modules():
     return {
         "eth": (Eth,),
         "net": (Net,),
-        "version": (Version,),
         "txpool": (TxPool,),
         "miner": (Miner,),
         "admin": (Admin,),
@@ -154,6 +150,10 @@ class Web3:
     @provider.setter
     def provider(self, provider):
         self.manager.provider = provider
+
+    @property
+    def clientVersion(self):
+        return self.manager.request_blocking("web3_clientVersion", [])
 
     @staticmethod
     @apply_to_return_value(HexBytes)
