@@ -588,8 +588,8 @@ class EthModuleTest:
         pass
 
     def test_eth_getCompilers(self, web3):
-        # TODO: do we want to test this?
-        pass
+        with pytest.warns(DeprecationWarning):
+            web3.eth.getCompilers()
 
     def test_eth_compileSolidity(self, web3):
         # TODO: do we want to test this?
