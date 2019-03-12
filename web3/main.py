@@ -44,9 +44,10 @@ from web3.eth import (
 from web3.geth import (
     Geth,
     GethAdmin,
-    GethPersonal,
-    GethTxPool,
     GethMiner,
+    GethPersonal,
+    GethShh,
+    GethTxPool,
 )
 from web3.iban import (
     Iban,
@@ -60,6 +61,7 @@ from web3.net import (
 from web3.parity import (
     Parity,
     ParityPersonal,
+    ParityShh,
 )
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
@@ -87,12 +89,14 @@ def get_default_modules():
         "net": (Net,),
         "version": (Version,),
         "parity": (Parity, {
-            "personal": (ParityPersonal,)
+            "personal": (ParityPersonal,),
+            "shh": (ParityShh,),
         }),
         "geth": (Geth, {
             "admin": (GethAdmin,),
             "miner": (GethMiner,),
             "personal": (GethPersonal,),
+            "shh": (GethShh,),
             "txpool": (GethTxPool,),
         }),
         "testing": (Testing,),

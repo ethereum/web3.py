@@ -1,79 +1,179 @@
-from web3._utils.filters import (
-    ShhFilter,
-)
-from web3.module import (
-    Module,
+from web3.method import (
+    Method,
+    default_root_munger,
 )
 
 
-class Shh(Module):
-    @property
-    def version(self):
-        return self.web3.manager.request_blocking("shh_version", [])
+def version():
+    return Method(
+        "shh_version",
+        mungers=None,
+    )
 
-    @property
-    def info(self):
-        return self.web3.manager.request_blocking("shh_info", [])
 
-    def setMaxMessageSize(self, size):
-        return self.web3.manager.request_blocking("shh_setMaxMessageSize", [size])
+def info():
+    return Method(
+        "shh_info",
+        mungers=None,
+    )
 
-    def setMinPoW(self, min_pow):
-        return self.web3.manager.request_blocking("shh_setMinPoW", [min_pow])
 
-    def markTrustedPeer(self, enode):
-        return self.web3.manager.request_blocking("shh_markTrustedPeer", [enode])
+def setMaxMessageSize():
+    return Method(
+        "shh_setMaxMessageSize",
+        mungers=[default_root_munger],
+    )
 
-    def newKeyPair(self):
-        return self.web3.manager.request_blocking("shh_newKeyPair", [])
 
-    def addPrivateKey(self, key):
-        return self.web3.manager.request_blocking("shh_addPrivateKey", [key])
+def setMinPoW():
+    return Method(
+        "shh_setMinPoW",
+        mungers=[default_root_munger],
+    )
 
-    def deleteKeyPair(self, id):
-        return self.web3.manager.request_blocking("shh_deleteKeyPair", [id])
 
-    def hasKeyPair(self, id):
-        return self.web3.manager.request_blocking("shh_hasKeyPair", [id])
+def markTrustedPeer():
+    return Method(
+        "shh_markTrustedPeer",
+        mungers=[default_root_munger],
+    )
 
-    def getPublicKey(self, id):
-        return self.web3.manager.request_blocking("shh_getPublicKey", [id])
 
-    def getPrivateKey(self, id):
-        return self.web3.manager.request_blocking("shh_getPrivateKey", [id])
+def newKeyPair():
+    return Method(
+        "shh_newKeyPair",
+        mungers=None,
+    )
 
-    def newSymKey(self):
-        return self.web3.manager.request_blocking("shh_newSymKey", [])
 
-    def addSymKey(self, key):
-        return self.web3.manager.request_blocking("shh_addSymKey", [key])
+def addPrivateKey():
+    return Method(
+        "shh_addPrivateKey",
+        mungers=[default_root_munger],
+    )
 
-    def generateSymKeyFromPassword(self, password):
-        return self.web3.manager.request_blocking("shh_generateSymKeyFromPassword", [password])
 
-    def hasSymKey(self, id):
-        return self.web3.manager.request_blocking("shh_hasSymKey", [id])
+def deleteKeyPair():
+    return Method(
+        "shh_deleteKeyPair",
+        mungers=[default_root_munger],
+    )
 
-    def getSymKey(self, id):
-        return self.web3.manager.request_blocking("shh_getSymKey", [id])
 
-    def deleteSymKey(self, id):
-        return self.web3.manager.request_blocking("shh_deleteSymKey", [id])
+def deleteKey():
+    return Method(
+        "shh_deleteKey",
+        mungers=[default_root_munger],
+    )
 
-    def post(self, message):
-        if message and ("payload" in message):
-            return self.web3.manager.request_blocking("shh_post", [message])
-        else:
-            raise ValueError(
-                "message cannot be None or does not contain field 'payload'"
-            )
 
-    def newMessageFilter(self, criteria, poll_interval=None):
-        filter_id = self.web3.manager.request_blocking("shh_newMessageFilter", [criteria])
-        return ShhFilter(self.web3, filter_id, poll_interval=poll_interval)
+def hasKeyPair():
+    return Method(
+        "shh_hasKeyPair",
+        mungers=[default_root_munger],
+    )
 
-    def deleteMessageFilter(self, filter_id):
-        return self.web3.manager.request_blocking("shh_deleteMessageFilter", [filter_id])
 
-    def getMessages(self, filter_id):
-        return self.web3.manager.request_blocking("shh_getFilterMessages", [filter_id])
+def getPublicKey():
+    return Method(
+        "shh_getPublicKey",
+        mungers=[default_root_munger],
+    )
+
+
+def getPrivateKey():
+    return Method(
+        "shh_getPrivateKey",
+        mungers=[default_root_munger],
+    )
+
+
+def newSymKey():
+    return Method(
+        "shh_newSymKey",
+        mungers=None,
+    )
+
+
+def addSymKey():
+    return Method(
+        "shh_addSymKey",
+        mungers=[default_root_munger],
+    )
+
+
+def generateSymKeyFromPassword():
+    return Method(
+        "shh_generateSymKeyFromPassword",
+        mungers=[default_root_munger],
+    )
+
+
+def hasSymKey():
+    return Method(
+        "shh_hasSymKey",
+        mungers=[default_root_munger],
+    )
+
+
+def getSymKey():
+    return Method(
+        "shh_getSymKey",
+        mungers=[default_root_munger],
+    )
+
+
+def deleteSymKey():
+    return Method(
+        "shh_deleteSymKey",
+        mungers=[default_root_munger],
+    )
+
+
+def post_munger(module, message):
+    if message and ("payload" in message):
+        return (message,)
+    else:
+        raise ValueError("Message cannot be None or does not contain field 'payload'")
+
+
+def post():
+    return Method(
+        "shh_post",
+        mungers=[post_munger],
+    )
+
+
+def newMessageFilter():
+    return Method(
+        "shh_newMessageFilter",
+        mungers=[default_root_munger],
+    )
+
+
+def deleteMessageFilter():
+    return Method(
+        "shh_deleteMessageFilter",
+        mungers=[default_root_munger],
+    )
+
+
+def getFilterMessages():
+    return Method(
+        "shh_getFilterMessages",
+        mungers=[default_root_munger],
+    )
+
+
+def subscribe():
+    return Method(
+        "shh_subscribe",
+        mungers=[default_root_munger],
+    )
+
+
+def unsubscribe():
+    return Method(
+        "shh_unsubscribe",
+        mungers=[default_root_munger],
+    )

@@ -7,9 +7,13 @@ SHH API
 The ``web3.shh`` object exposes methods to interact with the RPC APIs under the
 ``shh_`` namespace.
 
+Web3.py exposes select Whisper methods under the ``web3.geth`` and ``web3.parity`` 
+namespaces to interact with the Whisper RPC API based on which endpoints are 
+supported by each respective client.
+
+
 .. warning:: The Whisper protocol is in flux, with incompatible versions supported
-    by different major clients. So it is not currently included by default in the web3
-    instance.
+    by different major clients.
 
 
 Properties

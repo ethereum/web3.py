@@ -8,6 +8,7 @@ from tests.utils import (
 from web3 import Web3
 
 from .common import (
+    CommonGoEthereumShhModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
@@ -26,6 +27,7 @@ def geth_command_arguments(geth_binary, datadir, geth_ipc_path):
         geth_binary,
         '--datadir', str(datadir),
         '--ipcpath', geth_ipc_path,
+        '--shh',
         '--nodiscover',
         '--fakepow',
         '--port', geth_port,
@@ -66,4 +68,8 @@ class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
 
 
 class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
+    pass
+
+
+class TestGoEthereumShhModuleTest(CommonGoEthereumShhModuleTest):
     pass

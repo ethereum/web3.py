@@ -33,6 +33,31 @@ from web3.personal import (
     sign,
     unlockAccount,
 )
+from web3.shh import (
+    addPrivateKey,
+    addSymKey,
+    deleteKeyPair,
+    deleteMessageFilter,
+    deleteSymKey,
+    generateSymKeyFromPassword,
+    getFilterMessages,
+    getPrivateKey,
+    getPublicKey,
+    getSymKey,
+    hasKeyPair,
+    hasSymKey,
+    info,
+    markTrustedPeer,
+    newKeyPair,
+    newMessageFilter,
+    newSymKey,
+    post,
+    setMaxMessageSize,
+    setMinPoW,
+    subscribe,
+    unsubscribe,
+    version,
+)
 from web3.txpool import (
     content,
     inspect,
@@ -94,3 +119,32 @@ class GethMiner(ModuleV2):
     stop = stop()
     startAutoDag = startAutoDag()
     stopAutoDag = stopAutoDag()
+
+
+class GethShh(ModuleV2):
+    """
+    https://github.com/ethereum/go-ethereum/wiki/Whisper-v6-RPC-API
+    """
+    version = version()
+    info = info()
+    setMaxMessageSize = setMaxMessageSize()
+    setMinPoW = setMinPoW()
+    markTrustedPeer = markTrustedPeer()
+    newKeyPair = newKeyPair()
+    addPrivateKey = addPrivateKey()
+    deleteKeyPair = deleteKeyPair()
+    hasKeyPair = hasKeyPair()
+    getPublicKey = getPublicKey()
+    getPrivateKey = getPrivateKey()
+    newSymKey = newSymKey()
+    addSymKey = addSymKey()
+    generateSymKeyFromPassword = generateSymKeyFromPassword()
+    hasSymKey = hasSymKey()
+    getSymKey = getSymKey()
+    deleteSymKey = deleteSymKey()
+    post = post()
+    newMessageFilter = newMessageFilter()
+    deleteMessageFilter = deleteMessageFilter()
+    getMessages = getFilterMessages()
+    subscribe = subscribe()
+    unsubscribe = unsubscribe()

@@ -13,6 +13,9 @@ from web3._utils.module_testing import (  # noqa: F401
 from web3._utils.module_testing.eth_module import (
     UNKNOWN_ADDRESS,
 )
+from web3._utils.module_testing.shh_module import (
+    ParityShhModuleTest,
+)
 
 # some tests appear flaky with Parity v1.10.x
 MAX_FLAKY_RUNS = 3
@@ -167,36 +170,14 @@ class ParityEthModuleTest(EthModuleTest):
 
 
 class ParityTraceModuleTest(TraceModuleTest):
-    def test_list_storage_keys_no_support(self, web3, emitter_contract_address):
-        super().test_list_storage_keys_no_support(web3, emitter_contract_address)
+    pass
 
-    def test_trace_replay_transaction(self, web3, parity_fixture_data):
-        super().test_trace_replay_transaction(web3, parity_fixture_data)
 
-    def test_trace_replay_block_with_transactions(self,
-                                                  web3,
-                                                  block_with_txn,
-                                                  parity_fixture_data):
-        pytest.xfail('This method does not exist in older parity versions')
-        super().test_trace_replay_block_with_transactions(web3,
-                                                          block_with_txn,
-                                                          parity_fixture_data)
+class CommonParityShhModuleTest(ParityShhModuleTest):
+    def test_shh_sync_filter(self, web3):
+        pytest.xfail("Skip until parity filter bug is resolved")
+        super().test_shh_sync_filter(web3)
 
-    def test_trace_replay_block_without_transactions(self, web3, empty_block):
-        pytest.xfail('This method does not exist in older parity versions')
-        super().test_trace_replay_block_without_transactions(web3, empty_block)
-
-    def test_trace_block(self, web3, block_with_txn):
-        super().test_trace_block(web3, block_with_txn)
-
-    def test_trace_transaction(self, web3, parity_fixture_data):
-        super().test_trace_transaction(web3, parity_fixture_data)
-
-    def test_trace_call(self, web3, math_contract, math_contract_address):
-        super().test_trace_call(web3, math_contract, math_contract_address)
-
-    def test_eth_call_with_0_result(self, web3, math_contract, math_contract_address):
-        super().test_eth_call_with_0_result(web3, math_contract, math_contract_address)
-
-    def test_trace_filter(self, web3, txn_filter_params, parity_fixture_data):
-        super().test_trace_filter(web3, txn_filter_params, parity_fixture_data)
+    def test_shh_async_filter(self, web3):
+        pytest.xfail("Skip until parity filter bug is resolved")
+        super().test_shh_async_filter(web3)

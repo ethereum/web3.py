@@ -239,7 +239,8 @@ class ShhFilter(Filter):
         super().__init__(*args, **kwargs)
 
     def get_new_entries(self):
-        log_entries = self._filter_valid_entries(self.web3.shh.getMessages(self.filter_id))
+        all_messages = self.web3.parity.shh.getFilterMessages(self.filter_id)
+        log_entries = self._filter_valid_entries(all_messages)
         return self._format_log_entries(log_entries)
 
     def get_all_entries(self):
