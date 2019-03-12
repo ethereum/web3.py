@@ -8,7 +8,8 @@ from .net_module import (  # noqa: F401
     NetModuleTest,
 )
 from .personal_module import (  # noqa: F401
-    PersonalModuleTest,
+    GoEthereumPersonalModuleTest,
+    ParityPersonalModuleTest,
 )
 from .version_module import (  # noqa: F401
     VersionModuleTest,

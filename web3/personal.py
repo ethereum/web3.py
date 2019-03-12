@@ -1,62 +1,63 @@
-from web3.module import (
-    Module,
+from web3.method import (
+    Method,
 )
 
 
-class Personal(Module):
-    """
-    https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal
-    """
-    def importRawKey(self, private_key, passphrase):
-        return self.web3.manager.request_blocking(
-            "personal_importRawKey",
-            [private_key, passphrase],
-        )
+def default_root_munger(module, *args):
+    return [*args]
 
-    def newAccount(self, password):
-        return self.web3.manager.request_blocking(
-            "personal_newAccount", [password],
-        )
 
-    @property
-    def listAccounts(self):
-        return self.web3.manager.request_blocking(
-            "personal_listAccounts", [],
-        )
+def importRawKey():
+    return Method(
+        "personal_importRawKey",
+        mungers=[default_root_munger],
+    )
 
-    def sendTransaction(self, transaction, passphrase):
-        return self.web3.manager.request_blocking(
-            "personal_sendTransaction",
-            [transaction, passphrase],
-        )
 
-    def lockAccount(self, account):
-        return self.web3.manager.request_blocking(
-            "personal_lockAccount",
-            [account],
-        )
+def newAccount():
+    return Method(
+        "personal_newAccount",
+        mungers=[default_root_munger],
+    )
 
-    def unlockAccount(self, account, passphrase, duration=None):
-        try:
-            return self.web3.manager.request_blocking(
-                "personal_unlockAccount",
-                [account, passphrase, duration],
-            )
-        except ValueError as err:
-            if "could not decrypt" in str(err):
-                # Hack to handle go-ethereum error response.
-                return False
-            else:
-                raise
 
-    def sign(self, message, signer, passphrase):
-        return self.web3.manager.request_blocking(
-            'personal_sign',
-            [message, signer, passphrase],
-        )
+def listAccounts():
+    return Method(
+        "personal_listAccounts",
+        mungers=None,
+    )
 
-    def ecRecover(self, message, signature):
-        return self.web3.manager.request_blocking(
-            'personal_ecRecover',
-            [message, signature],
-        )
+
+def sendTransaction():
+    return Method(
+        "personal_sendTransaction",
+        mungers=[default_root_munger],
+    )
+
+
+def lockAccount():
+    return Method(
+        "personal_lockAccount",
+        mungers=[default_root_munger],
+    )
+
+
+def unlockAccount():
+    return Method(
+        "personal_unlockAccount",
+        mungers=[default_root_munger],
+    )
+
+
+def sign():
+    return Method(
+        "personal_sign",
+        mungers=[default_root_munger],
+    )
+
+
+def ecRecover():
+    return Method(
+        "personal_ecRecover",
+        mungers=[default_root_munger],
+    )

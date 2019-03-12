@@ -7,7 +7,30 @@ from web3._utils.toolz import (
 )
 from web3.module import (
     Module,
+    ModuleV2,
 )
+from web3.personal import (
+    ecRecover,
+    importRawKey,
+    listAccounts,
+    newAccount,
+    sendTransaction,
+    sign,
+    unlockAccount,
+)
+
+
+class ParityPersonal(ModuleV2):
+    """
+    https://wiki.parity.io/JSONRPC-personal-module
+    """
+    ecRecover = ecRecover()
+    importRawKey = importRawKey()
+    listAccounts = listAccounts()
+    newAccount = newAccount()
+    sendTransaction = sendTransaction()
+    sign = sign()
+    unlockAccount = unlockAccount()
 
 
 class Parity(Module):

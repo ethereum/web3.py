@@ -19,8 +19,8 @@ def blocking_w3():
     return Web3(
         EthereumTesterProvider(),
         modules={
-            'blocking_version': BlockingVersion,
-            'legacy_version': Version
+            "blocking_version": (BlockingVersion,),
+            "legacy_version": (Version,),
         })
 
 
@@ -30,7 +30,7 @@ def async_w3():
         AsyncEthereumTesterProvider(),
         middlewares=[],
         modules={
-            'async_version': AsyncVersion,
+            'async_version': (AsyncVersion,),
         })
 
 

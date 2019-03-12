@@ -1,9 +1,9 @@
 import pytest
 
-from web3._utils.module_testing import (
+from web3._utils.module_testing import (  # noqa: F401
     EthModuleTest,
+    GoEthereumPersonalModuleTest,
     NetModuleTest,
-    PersonalModuleTest,
     VersionModuleTest,
     Web3ModuleTest,
 )
@@ -65,8 +65,4 @@ class GoEthereumVersionModuleTest(VersionModuleTest):
 
 
 class GoEthereumNetModuleTest(NetModuleTest):
-    pass
-
-
-class GoEthereumPersonalModuleTest(PersonalModuleTest):
     pass

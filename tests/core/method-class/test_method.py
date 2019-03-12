@@ -265,7 +265,7 @@ class FakeModule(ModuleV2):
 def dummy_w3():
     return Web3(
         EthereumTesterProvider(),
-        modules={'fake': FakeModule},
+        modules={'fake': (FakeModule,)},
         middlewares=[])
 
 

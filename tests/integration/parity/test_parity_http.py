@@ -47,6 +47,7 @@ def parity_command_arguments(
         '--unlock', author,
         '--password', passwordfile,
         '--jsonrpc-port', rpc_port,
+        '--jsonrpc-apis', 'all',
         '--no-ipc',
         '--no-ws',
     )
@@ -61,6 +62,7 @@ def parity_import_blocks_command(parity_binary, rpc_port, datadir, passwordfile)
         '--base-path', datadir,
         '--password', passwordfile,
         '--jsonrpc-port', str(rpc_port),
+        '--jsonrpc-apis', 'all',
         '--no-ipc',
         '--no-ws',
         '--tracing', 'on',

@@ -31,6 +31,9 @@ from web3._utils.encoding import (
     to_text,
     to_json,
 )
+from web3._utils.module import (
+    attach_modules,
+)
 from web3._utils.normalizers import (
     abi_ens_resolver,
 )
@@ -39,6 +42,10 @@ from web3.admin import (
 )
 from web3.eth import (
     Eth,
+)
+from web3.geth import (
+    Geth,
+    GethPersonal,
 )
 from web3.iban import (
     Iban,
@@ -54,9 +61,7 @@ from web3.net import (
 )
 from web3.parity import (
     Parity,
-)
-from web3.personal import (
-    Personal,
+    ParityPersonal,
 )
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
@@ -83,15 +88,19 @@ from web3.version import (
 
 def get_default_modules():
     return {
-        "eth": Eth,
-        "net": Net,
-        "personal": Personal,
-        "version": Version,
-        "txpool": TxPool,
-        "miner": Miner,
-        "admin": Admin,
-        "parity": Parity,
-        "testing": Testing,
+        "eth": (Eth,),
+        "net": (Net,),
+        "version": (Version,),
+        "txpool": (TxPool,),
+        "miner": (Miner,),
+        "admin": (Admin,),
+        "parity": (Parity, {
+            "personal": (ParityPersonal,)
+        }),
+        "geth": (Geth, {
+            "personal": (GethPersonal,)
+        }),
+        "testing": (Testing,),
     }
 
 
@@ -130,8 +139,7 @@ class Web3:
         if modules is None:
             modules = get_default_modules()
 
-        for module_name, module_class in modules.items():
-            module_class.attach(self, module_name)
+        attach_modules(self, modules)
 
         self.ens = ens
 
