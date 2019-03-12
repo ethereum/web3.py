@@ -7,9 +7,24 @@ Breaking Change to Infura coming March 27th.
 
 
 v5 Breaking Changes Summary
-  - Remove deprecated ``buildTransaction``, ``call``, ``deploy``,
-    ``estimateGas``, and ``transact`` methods
+  - Deprecate ``contract.buildTransaction...``, ``contract.call...``,
+    ``contract.deploy...``, ``contract.estimateGas...``,
+    and ``contract.transact...`` methods.
     - `#1232 <https://github.com/ethereum/web3.py/pull/1232>`_
+
+  Refer to the following table for an example of what should be used:
+
+  ============================= =====================================================
+  Old                           New
+  ----------------------------- -----------------------------------------------------
+  ``contract.buildTransaction`` ``contract.functions.buildTransaction.<method name>``
+  ``contract.estimateGas``      ``contract.functions.<method name>.estimateGas``
+  ``contract.call``             ``contract.<functions/events>.<method name>.call``
+  ``contract.transact``         ``contract.<functions/events>.<method name>.transact``
+  ``contract.deploy``           ``contract.constructor.transact``
+  ============================= =====================================================
+
+
   - Rename ``middleware_stack`` to ``middleware_onion``
     - `#1210 <https://github.com/ethereum/web3.py/pull/1210>`_
   - Drop already deprecated ``web3.soliditySha3``
