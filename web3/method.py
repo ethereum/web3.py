@@ -27,6 +27,10 @@ def default_munger(module, *args, **kwargs):
         raise TypeError("Parameters passed to method without parameter mungers defined.")
 
 
+def default_root_munger(module, *args):
+    return [*args]
+
+
 class Method:
     """Method object for web3 module methods
 

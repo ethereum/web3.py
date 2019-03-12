@@ -12,6 +12,11 @@ from web3.personal import (
     sign,
     unlockAccount,
 )
+from web3.txpool import (
+    content,
+    inspect,
+    status,
+)
 
 
 class Geth(Module):
@@ -30,3 +35,12 @@ class GethPersonal(ModuleV2):
     sendTransaction = sendTransaction()
     sign = sign()
     unlockAccount = unlockAccount()
+
+
+class GethTxPool(ModuleV2):
+    """
+    https://github.com/ethereum/go-ethereum/wiki/Management-APIs#txpool
+    """
+    content = content()
+    inspect = inspect()
+    status = status()

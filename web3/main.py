@@ -46,6 +46,7 @@ from web3.eth import (
 from web3.geth import (
     Geth,
     GethPersonal,
+    GethTxPool,
 )
 from web3.iban import (
     Iban,
@@ -78,9 +79,6 @@ from web3.providers.websocket import (
 from web3.testing import (
     Testing,
 )
-from web3.txpool import (
-    TxPool,
-)
 from web3.version import (
     Version,
 )
@@ -91,14 +89,14 @@ def get_default_modules():
         "eth": (Eth,),
         "net": (Net,),
         "version": (Version,),
-        "txpool": (TxPool,),
         "miner": (Miner,),
         "admin": (Admin,),
         "parity": (Parity, {
             "personal": (ParityPersonal,)
         }),
         "geth": (Geth, {
-            "personal": (GethPersonal,)
+            "personal": (GethPersonal,),
+            "txpool": (GethTxPool,),
         }),
         "testing": (Testing,),
     }
