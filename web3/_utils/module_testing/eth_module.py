@@ -196,6 +196,23 @@ class EthModuleTest:
         )
         assert new_signature != signature
 
+    def test_eth_signTransaction(self, web3, unlocked_account, geth_signed_tx=None):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gasPrice': web3.eth.gasPrice,
+            'nonce': 0,
+        }
+        COINBASE_PK = '0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d'
+        result = web3.eth.signTransaction(txn_params)
+        actual = web3.eth.account.signTransaction(txn_params, COINBASE_PK)
+        if geth_signed_tx:
+            assert result['raw'] == geth_signed_tx
+        else:
+            assert result['raw'] == actual.rawTransaction
+
     def test_eth_sendTransaction_addr_checksum_required(self, web3, unlocked_account):
         non_checksum_addr = unlocked_account.lower()
         txn_params = {

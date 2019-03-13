@@ -109,6 +109,15 @@ TRANSACTION_FORMATTERS = {
 transaction_formatter = apply_formatters_to_dict(TRANSACTION_FORMATTERS)
 
 
+SIGNED_TX_FORMATTER = {
+    'raw': HexBytes,
+    'tx': transaction_formatter,
+}
+
+
+signed_tx_formatter = apply_formatters_to_dict(SIGNED_TX_FORMATTER)
+
+
 WHISPER_LOG_FORMATTERS = {
     'sig': to_hexbytes(130),
     'topic': to_hexbytes(8),
@@ -344,6 +353,7 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'eth_sendRawTransaction': to_hexbytes(32),
         'eth_sendTransaction': to_hexbytes(32),
+        'eth_signTransaction': apply_formatter_if(is_not_null, signed_tx_formatter),
         'eth_sign': HexBytes,
         'eth_syncing': apply_formatter_if(is_not_false, syncing_formatter),
         # personal

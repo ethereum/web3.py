@@ -201,6 +201,7 @@ API_ENDPOINTS = {
         )),
         'getCode': call_eth_tester('get_code'),
         'sign': not_implemented,
+        'signTransaction': not_implemented,
         'sendTransaction': call_eth_tester('send_transaction'),
         'sendRawTransaction': call_eth_tester('send_raw_transaction'),
         'call': call_eth_tester('call'),  # TODO: untested
