@@ -395,6 +395,11 @@ class Eth(Module):
             "eth_getLogs", [filter_params],
         )
 
+    def submitHashrate(self, hashrate, node_id):
+        return self.web3.manager.request_blocking(
+            "eth_submitHashrate", [hashrate, node_id],
+        )
+
     def uninstallFilter(self, filter_id):
         return self.web3.manager.request_blocking(
             "eth_uninstallFilter", [filter_id],

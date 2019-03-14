@@ -847,6 +847,17 @@ with the filtering API.
     :meth:`~Eth.filter` for details on allowed filter parameters.
 
 
+.. py:method:: Eth.submitHashrate(hashrate, nodeid)
+
+    * Delegates to ``eth_submitHashrate`` RPC Method.
+
+    .. code-block:: python
+     
+       >>> node_id = '59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c' 
+       >>> web3.eth.submitHashrate(5000, node_id)
+       True
+
+
 Contracts
 ---------
 

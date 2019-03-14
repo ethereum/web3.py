@@ -832,3 +832,9 @@ class EthModuleTest:
     def test_eth_getCompilers_deprecation(self, web3):
         with pytest.raises(DeprecationWarning):
             web3.eth.getCompilers()
+
+    def test_eth_submitHashrate(self, web3):
+        # node_id from EIP 1474: https://github.com/ethereum/EIPs/pull/1474/files
+        node_id = '59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c'
+        result = web3.eth.submitHashrate(5000, node_id)
+        assert result is True
