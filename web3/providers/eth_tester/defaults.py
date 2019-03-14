@@ -162,7 +162,7 @@ API_ENDPOINTS = {
         'listening': static_return(False),
     },
     'eth': {
-        'protocolVersion': static_return('63'),
+        'protocolVersion': static_return(63),
         'syncing': static_return(False),
         'coinbase': compose(
             operator.itemgetter(0),
