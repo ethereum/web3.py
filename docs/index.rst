@@ -15,7 +15,7 @@ Contents
     quickstart
     overview
     node
-    v4_migration
+    v5_migration
     filters
     contracts
     providers
