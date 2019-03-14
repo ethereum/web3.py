@@ -91,13 +91,6 @@ from web3.exceptions import (
     NoABIFunctionsFound,
 )
 
-DEPRECATED_SIGNATURE_MESSAGE = (
-    "The constructor signature for the `Contract` object has changed. "
-    "Please update your code to reflect the updated function signature: "
-    "'Contract(address)'.  To construct contract classes use the "
-    "'Contract.factory(...)' class method."
-)
-
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 
