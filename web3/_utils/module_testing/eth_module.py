@@ -212,6 +212,11 @@ class EthModuleTest:
             assert result['raw'] == geth_signed_tx
         else:
             assert result['raw'] == actual.rawTransaction
+        assert result['tx']['to'] == txn_params['to']
+        assert result['tx']['value'] == txn_params['value']
+        assert result['tx']['gas'] == txn_params['gas']
+        assert result['tx']['gasPrice'] == txn_params['gasPrice']
+        assert result['tx']['nonce'] == txn_params['nonce']
 
     def test_eth_sendTransaction_addr_checksum_required(self, web3, unlocked_account):
         non_checksum_addr = unlocked_account.lower()
