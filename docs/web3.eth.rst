@@ -849,7 +849,7 @@ with the filtering API.
 
 .. py:method:: Eth.submitHashrate(hashrate, nodeid)
 
-    * Delegates to ``eth_submitHashrate`` RPC Method.
+    * Delegates to ``eth_submitHashrate`` RPC Method
 
     .. code-block:: python
      
@@ -857,6 +857,20 @@ with the filtering API.
        >>> web3.eth.submitHashrate(5000, node_id)
        True
 
+
+.. py:method:: Eth.submitWork(nonce, pow_hash, mix_digest)
+
+    * Delegates to ``eth_submitWork`` RPC Method.
+
+    .. code-block:: python
+      
+       >>> web3.eth.submitWork(
+               1,
+               '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+               '0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000',
+           )
+       True
+  
 
 Contracts
 ---------

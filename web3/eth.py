@@ -400,6 +400,11 @@ class Eth(Module):
             "eth_submitHashrate", [hashrate, node_id],
         )
 
+    def submitWork(self, nonce, pow_hash, mix_digest):
+        return self.web3.manager.request_blocking(
+            "eth_submitWork", [nonce, pow_hash, mix_digest],
+        )
+
     def uninstallFilter(self, filter_id):
         return self.web3.manager.request_blocking(
             "eth_uninstallFilter", [filter_id],

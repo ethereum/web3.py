@@ -296,7 +296,6 @@ pythonic_middleware = construct_formatting_middleware(
             (estimate_gas_with_block_id, is_length(2)),
         )),
         'eth_sendTransaction': apply_formatter_at_index(transaction_param_formatter, 0),
-        'eth_submitHashrate': apply_formatter_at_index(hexstr_if_str(to_hex), 1),
         # personal
         'personal_importRawKey': apply_formatter_at_index(
             compose(remove_0x_prefix, hexstr_if_str(to_hex)),

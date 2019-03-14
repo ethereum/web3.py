@@ -216,8 +216,9 @@ def disable_auto_mine(func):
 
 class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, ValueError)
-    test_eth_submitHashrate = not_implemented(EthModuleTest.test_eth_submitHashrate, ValueError)
     test_eth_signTransaction = not_implemented(EthModuleTest.test_eth_signTransaction, ValueError)
+    test_eth_submitHashrate = not_implemented(EthModuleTest.test_eth_submitHashrate, ValueError)
+    test_eth_submitWork = not_implemented(EthModuleTest.test_eth_submitWork, ValueError)
 
     @disable_auto_mine
     def test_eth_getTransactionReceipt_unmined(self, eth_tester, web3, unlocked_account):
