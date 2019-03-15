@@ -50,6 +50,7 @@ RPC_ABIS = {
     'eth_newFilter': FILTER_PARAMS_ABIS,
     'eth_sendRawTransaction': ['bytes'],
     'eth_sendTransaction': TRANSACTION_PARAMS_ABIS,
+    'eth_signTransaction': TRANSACTION_PARAMS_ABIS,
     'eth_sign': ['address', 'bytes'],
     # personal
     'personal_sendTransaction': TRANSACTION_PARAMS_ABIS,

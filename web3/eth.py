@@ -311,6 +311,11 @@ class Eth(Module):
             "eth_sign", [account, message_hex],
         )
 
+    def signTransaction(self, transaction):
+        return self.web3.manager.request_blocking(
+            "eth_signTransaction", [transaction],
+        )
+
     @apply_to_return_value(HexBytes)
     def call(self, transaction, block_identifier=None):
         # TODO: move to middleware
