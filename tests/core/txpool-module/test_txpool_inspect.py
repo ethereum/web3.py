@@ -27,7 +27,7 @@ def test_txpool_inspect(web3_empty):
     })
     txn_2 = web3.eth.getTransaction(txn_2_hash)
 
-    inspect_content = web3.txpool.inspect
+    inspect_content = web3.geth.txpool.inspect
 
     assert web3.eth.coinbase in inspect_content['pending']
 
