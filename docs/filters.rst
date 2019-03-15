@@ -120,7 +120,7 @@ will return a new :class:`BlockFilter` object.
 Event Log Filters
 -----------------
 
-You can set up a filter for event logs using the web3.py contract api: 
+You can set up a filter for event logs using the web3.py contract api:
 :func:`web3.contract.Contract.events.<event_name>.createFilter`, which provides some conveniances for
 creating event log filters. Refer to the following example:
 
@@ -137,7 +137,7 @@ equivalent filter creation would look like:
 
     .. code-block:: python
 
-        event_signature_hash = web3.sha3(text="eventName(uint32)").hex()
+        event_signature_hash = web3.keccak(text="eventName(uint32)").hex()
         event_filter = web3.eth.filter({
             "address": myContract_address,
             "topics": [event_signature_hash,
@@ -215,15 +215,15 @@ Asynchronous Filter Polling
 
 Starting with web3 version 4, the ``watch`` method was taken out of the web3 filter objects.
 There are many decisions to be made when designing a system regarding threading and concurrency.
-Rather than force a decision, web3 leaves these choices up to the user. Below are some example 
+Rather than force a decision, web3 leaves these choices up to the user. Below are some example
 implementations of asynchronous filter-event handling that can serve as starting points.
 
 Single threaded concurrency with ``async`` and ``await``
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Beginning in python 3.5, the ``async`` and ``await`` built-in keywords were added.  These provide a
-shared api for coroutines that can be utilized by modules such as the built-in asyncio_.  Below is 
-an example event loop using asyncio_, that polls multiple web3 filter object, and passes new 
+shared api for coroutines that can be utilized by modules such as the built-in asyncio_.  Below is
+an example event loop using asyncio_, that polls multiple web3 filter object, and passes new
 entries to a handler.
 
         .. code-block:: python
