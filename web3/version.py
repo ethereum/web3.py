@@ -49,8 +49,8 @@ class Version(Module):
 
     @property
     def node(self):
-        return self.web3.manager.request_blocking("web3_clientVersion", [])
+        raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
     @property
     def ethereum(self):
-        return self.web3.manager.request_blocking("eth_protocolVersion", [])
+        raise DeprecationWarning("This method has been deprecated as of EIP 1474.")

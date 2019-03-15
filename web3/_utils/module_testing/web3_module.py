@@ -15,7 +15,7 @@ from web3.exceptions import (
 
 class Web3ModuleTest:
     def test_web3_clientVersion(self, web3):
-        client_version = web3.version.node
+        client_version = web3.clientVersion
         self._check_web3_clientVersion(client_version)
 
     def _check_web3_clientVersion(self, client_version):

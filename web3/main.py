@@ -155,6 +155,10 @@ class Web3:
     def provider(self, provider):
         self.manager.provider = provider
 
+    @property
+    def clientVersion(self):
+        return self.manager.request_blocking("web3_clientVersion", [])
+
     @staticmethod
     @apply_to_return_value(HexBytes)
     def keccak(primitive=None, text=None, hexstr=None):
