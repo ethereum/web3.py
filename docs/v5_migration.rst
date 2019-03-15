@@ -54,6 +54,10 @@ Removed Methods
 - ``web3.version.network`` was a duplicate of ``web3.net.version`` and was removed.
 - check this one: ``web3.providers.tester.EthereumTesterProvider`` and ``web3.providers.tester.TestRPCProvider`` have been removed for ``web3.providers.eth_tester.EthereumTesterProvider``
 
+Deprecated Methods
+~~~~~~~~~~~~~~~~~~
+- ``web3.sha3`` was deprecated for :meth:`~Web3.keccak`
+- ``web3.soliditySha3`` was deprecated for :meth:`~Web3.solidityKeccak`
 
 ENS
 ~~~

@@ -144,7 +144,7 @@ def is_dynamic_sized_type(type_str: TypeStr) -> bool:
 @to_tuple
 def get_event_abi_types_for_decoding(event_inputs):
     """
-    Event logs use the `sha3(value)` for indexed inputs of type `bytes` or
+    Event logs use the `keccak(value)` for indexed inputs of type `bytes` or
     `string`.  Because of this we need to modify the types so that we can
     decode the log entries using the correct types.
     """
