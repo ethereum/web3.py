@@ -9,6 +9,7 @@ from eth_abi import (
 )
 from eth_abi.exceptions import (
     DecodingError,
+    ValidationError,
 )
 from eth_utils import (
     add_0x_prefix,
@@ -1131,7 +1132,8 @@ class ContractEvent:
         blkhash_set = blockHash is not None
         blknum_set = fromBlock is not None or toBlock is not None
         if blkhash_set and blknum_set:
-            raise ValidationError('blockHash cannot be set at the same'
+            raise ValidationError(
+                    'blockHash cannot be set at the same'
                     ' time as fromBlock or toBlock')
 
         # Construct JSON-RPC raw filter presentation based on human readable Python descriptions
