@@ -1,17 +1,24 @@
-from web3.module import (
-    Module,
+from web3.method import (
+    Method,
 )
 
 
-class TxPool(Module):
-    @property
-    def content(self):
-        return self.web3.manager.request_blocking("txpool_content", [])
+def content():
+    return Method(
+        "txpool_content",
+        mungers=None,
+    )
 
-    @property
-    def inspect(self):
-        return self.web3.manager.request_blocking("txpool_inspect", [])
 
-    @property
-    def status(self):
-        return self.web3.manager.request_blocking("txpool_status", [])
+def inspect():
+    return Method(
+        "txpool_inspect",
+        mungers=None,
+    )
+
+
+def status():
+    return Method(
+        "txpool_status",
+        mungers=None,
+    )

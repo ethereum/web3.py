@@ -1,22 +1,22 @@
 TX Pool API
 ===========
 
-.. py:module:: web3.txpool
-.. py:currentmodule:: web3.txpool
-
-.. py:class:: TxPool
-
-The ``web3.txpool`` object exposes methods to interact with the RPC APIs under
-the ``txpool_`` namespace.
+.. py:module:: web3.geth.txpool
+.. py:currentmodule:: web3.geth.txpool
 
 
-Properties
-----------
+The ``web3.geth.txpool`` object exposes methods to interact with the RPC APIs under
+the ``txpool_`` namespace. These methods are only exposed under the ``geth`` namespace
+since they are not standard nor supported in Parity.
 
-The following properties are available on the ``web3.txpool`` namespace.
+
+Methods
+-------
+
+The following methods are available on the ``web3.geth.txpool`` namespace.
 
 
-.. py:attribute:: TxPool.inspect
+.. py:method:: TxPool.inspect()
 
     * Delegates to ``txpool_inspect`` RPC Method
 
@@ -26,7 +26,7 @@ The following properties are available on the ``web3.txpool`` namespace.
 
     .. code-block:: python
 
-        >>> web3.txpool.inspect
+        >>> web3.geth.txpool.inspect()
         {
             'pending': {
                 '0x26588a9301b0428d95e6fc3a5024fce8bec12d51': {
@@ -78,7 +78,7 @@ The following properties are available on the ``web3.txpool`` namespace.
         }
 
 
-.. py:attribute:: TxPool.status
+.. py:method:: TxPool.status()
 
     * Delegates to ``txpool_status`` RPC Method
 
@@ -94,7 +94,7 @@ The following properties are available on the ``web3.txpool`` namespace.
         }
 
 
-.. py:attribute:: TxPool.content
+.. py:method:: TxPool.content()
 
     * Delegates to ``txpool_content`` RPC Method
 
@@ -102,7 +102,7 @@ The following properties are available on the ``web3.txpool`` namespace.
 
     .. code-block:: python
 
-        >>> web3.txpool.content
+        >>> web3.geth.txpool.content()
         {
           'pending': {
             '0x0216d5032f356960cd3749c31ab34eeff21b3395': {

@@ -1,10 +1,7 @@
 from web3.method import (
     Method,
+    default_root_munger,
 )
-
-
-def default_root_munger(module, *args):
-    return [*args]
 
 
 def importRawKey():
