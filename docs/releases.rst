@@ -34,6 +34,11 @@ v5 Breaking Changes Summary
     - `#1218 <https://github.com/ethereum/web3.py/pull/1218>`_ and
     `#1268 <https://github.com/ethereum/web3.py/pull/1268>`_
 
+Unreleased (latest source)
+--------------------------
+  - Remove ``web3/utils`` directory in favor of ``web3/_utils``
+    - `#1282 <https://github.com/ethereum/web3.py/pull/1282>`_
+
 v5.0.0-alpha.7
 --------------
 Released March 11, 2019
