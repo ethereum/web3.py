@@ -9,7 +9,6 @@ from eth_abi import (
 )
 from eth_abi.exceptions import (
     DecodingError,
-    ValidationError,
 )
 from eth_utils import (
     add_0x_prefix,
@@ -90,6 +89,7 @@ from web3.exceptions import (
     NoABIEventsFound,
     NoABIFound,
     NoABIFunctionsFound,
+    ValidationError,
 )
 
 DEPRECATED_SIGNATURE_MESSAGE = (
