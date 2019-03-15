@@ -1133,8 +1133,8 @@ class ContractEvent:
         blknum_set = fromBlock is not None or toBlock is not None
         if blkhash_set and blknum_set:
             raise ValidationError(
-                    'blockHash cannot be set at the same'
-                    ' time as fromBlock or toBlock')
+                'blockHash cannot be set at the same'
+                ' time as fromBlock or toBlock')
 
         # Construct JSON-RPC raw filter presentation based on human readable Python descriptions
         # Namely, convert event names to their keccak signatures

@@ -83,13 +83,15 @@ def test_contract_getLogs_argument_filter(
     assert len(all_logs) == 4
 
     # Filter all entries where arg1 in (1, 2)
-    partial_logs = contract.events.LogTripleWithIndex.getLogs(fromBlock=1,
+    partial_logs = contract.events.LogTripleWithIndex.getLogs(
+        fromBlock=1,
         argument_filters={'arg1': [1, 2]},
     )
     assert len(partial_logs) == 2
 
     # Filter all entries where arg0 == 1
-    partial_logs = contract.events.LogTripleWithIndex.getLogs(fromBlock=1,
+    partial_logs = contract.events.LogTripleWithIndex.getLogs(
+        fromBlock=1,
         argument_filters={'arg0': 1},
     )
     assert len(partial_logs) == 4
