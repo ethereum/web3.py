@@ -294,6 +294,53 @@ Cryptographic Hashing
         >>> Web3.solidityKeccak(['address'], ["ethereumfoundation.eth"])
         HexBytes("0x913c99ea930c78868f1535d34cd705ab85929b2eaaf70fcd09677ecd6e5d75e9")
 
+.. py:classmethod:: Web3.sha3(primitive=None, hexstr=None, text=None)
+
+    .. WARNING::
+      This method has been deprecated for :meth:`~Web3.keccak`
+
+    Returns the Keccak SHA256 of the given value. Text is encoded to UTF-8 before
+    computing the hash, just like Solidity. Any of the following are
+    valid and equivalent:
+
+    .. code-block:: python
+
+        >>> Web3.sha3(0x747874)
+        >>> Web3.sha3(b'\x74\x78\x74')
+        >>> Web3.sha3(hexstr='0x747874')
+        >>> Web3.sha3(hexstr='747874')
+        >>> Web3.sha3(text='txt')
+        HexBytes('0xd7278090a36507640ea6b7a0034b69b0d240766fa3f98e3722be93c613b29d2e')
+
+.. py:classmethod:: Web3.soliditySha3(abi_types, value)
+
+    .. WARNING::
+      This method has been deprecated for :meth:`~Web3.solidityKeccak`
+
+
+    Returns the sha3 as it would be computed by the solidity ``sha3`` function
+    on the provided ``value`` and ``abi_types``.  The ``abi_types`` value
+    should be a list of solidity type strings which correspond to each of the
+    provided values.
+
+
+    .. code-block:: python
+
+        >>> Web3.soliditySha3(['bool'], [True])
+        HexBytes("0x5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2")
+
+        >>> Web3.soliditySha3(['uint8', 'uint8', 'uint8'], [97, 98, 99])
+        HexBytes("0x4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45")
+
+        >>> Web3.soliditySha3(['uint8[]'], [[97, 98, 99]])
+        HexBytes("0x233002c671295529bcc50b76a2ef2b0de2dac2d93945fca745255de1a9e4017e")
+
+        >>> Web3.soliditySha3(['address'], ["0x49eddd3769c0712032808d86597b84ac5c2f5614"])
+        HexBytes("0x2ff37b5607484cd4eecf6d13292e22bd6e5401eaffcc07e279583bc742c68882")
+
+        >>> Web3.soliditySha3(['address'], ["ethereumfoundation.eth"])
+        HexBytes("0x913c99ea930c78868f1535d34cd705ab85929b2eaaf70fcd09677ecd6e5d75e9")
+
 Modules
 -------
 

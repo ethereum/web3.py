@@ -19,6 +19,7 @@ from web3._utils.abi import (
 )
 from web3._utils.decorators import (
     combomethod,
+    deprecated_for,
 )
 from web3._utils.empty import (
     empty,
@@ -157,6 +158,11 @@ class Web3:
     def clientVersion(self):
         return self.manager.request_blocking("web3_clientVersion", [])
 
+    @deprecated_for("keccak")
+    @apply_to_return_value(HexBytes)
+    def sha3(primitive=None, text=None, hexstr=None):
+        return Web3.keccak(primitive, text, hexstr)
+
     @staticmethod
     @apply_to_return_value(HexBytes)
     def keccak(primitive=None, text=None, hexstr=None):
@@ -172,6 +178,11 @@ class Web3:
                 {'text': text, 'hexstr': hexstr}
             )
         )
+
+    @combomethod
+    @deprecated_for("solidityKeccak")
+    def soliditySha3(cls, abi_types, values):
+        return cls.solidityKeccak(abi_types, values)
 
     @combomethod
     def solidityKeccak(cls, abi_types, values):
