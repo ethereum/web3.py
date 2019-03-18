@@ -1,21 +1,19 @@
 Admin API
 ==========
 
-.. py:module:: web3.admin
-.. py:currentmodule:: web3.admin
-
-.. py:class:: Admin
+.. py:class:: GethAdmin
 
 The ``web3.admin`` object exposes methods to interact with the RPC APIs under the
-``admin_`` namespace.
+``admin_`` namespace that are supported by the Geth client.
 
 
-Properties
-----------
+Methods
+-------
 
-The following properties are available on the ``web3.admin`` namespace.
+The following methods are available on the ``web3.geth.admin`` namespace.
 
-.. py:attribute:: datadir
+
+.. py:method:: datadir()
 
     * Delegates to ``admin_datadir`` RPC Method
 
@@ -23,11 +21,11 @@ The following properties are available on the ``web3.admin`` namespace.
 
     .. code-block:: python
 
-        >>> web3.admin.datadir
+        >>> web3.geth.admin.datadir()
         '/Users/piper/Library/Ethereum'
 
 
-.. py:attribute:: nodeInfo
+.. py:method:: nodeInfo()
 
     * Delegates to ``admin_nodeInfo`` RPC Method
 
@@ -35,7 +33,7 @@ The following properties are available on the ``web3.admin`` namespace.
 
     .. code-block:: python
 
-        >>> web3.admin.nodeInfo
+        >>> web3.geth.admin.nodeInfo()
         {
             'enode': 'enode://e54eebad24dce1f6d246bea455ffa756d97801582420b9ed681a2ea84bf376d0bd87ae8dd6dc06cdb862a2ca89ecabe1be1050be35b4e70d62bc1a092cb7e2d3@[::]:30303',
             'id': 'e54eebad24dce1f6d246bea455ffa756d97801582420b9ed681a2ea84bf376d0bd87ae8dd6dc06cdb862a2ca89ecabe1be1050be35b4e70d62bc1a092cb7e2d3',
@@ -54,7 +52,7 @@ The following properties are available on the ``web3.admin`` namespace.
         }
 
 
-.. py:attribute:: peers
+.. py:method:: peers()
 
     * Delegates to ``admin_peers`` RPC Method
 
@@ -62,7 +60,7 @@ The following properties are available on the ``web3.admin`` namespace.
 
     .. code-block:: python
 
-        >>> web3.admin.peers
+        >>> web3.geth.admin.peers()
         [
             {
                 'caps': ['eth/63'],
@@ -99,11 +97,6 @@ The following properties are available on the ``web3.admin`` namespace.
             ...
         ]
 
-Methods
--------
-
-The following methods are available on the ``web3.admin`` namespace.
-
 
 .. py:method:: addPeer(node_url)
 
@@ -113,7 +106,7 @@ The following methods are available on the ``web3.admin`` namespace.
 
     .. code-block:: python
 
-        >>> web3.admin.addPeer('enode://e54eebad24dce1f6d246bea455ffa756d97801582420b9ed681a2ea84bf376d0bd87ae8dd6dc06cdb862a2ca89ecabe1be1050be35b4e70d62bc1a092cb7e2d3@52.71.255.237:30303')
+        >>> web3.geth.admin.addPeer('enode://e54eebad24dce1f6d246bea455ffa756d97801582420b9ed681a2ea84bf376d0bd87ae8dd6dc06cdb862a2ca89ecabe1be1050be35b4e70d62bc1a092cb7e2d3@52.71.255.237:30303')
         True
 
 
@@ -127,7 +120,7 @@ The following methods are available on the ``web3.admin`` namespace.
 
     .. code-block:: python
 
-        >>> web3.admin.setSolc('/usr/local/bin/solc')
+        >>> web3.geth.admin.setSolc('/usr/local/bin/solc')
         "solc, the solidity compiler commandline interface\nVersion: 0.3.5-9da08ac3/Release-Darwin/appleclang/JIT"
 
 
@@ -142,7 +135,7 @@ The following methods are available on the ``web3.admin`` namespace.
 
     .. code-block:: python
 
-        >>> web3.admin.startRPC()
+        >>> web3.geth.admin.startRPC()
         True
 
 
@@ -157,7 +150,7 @@ The following methods are available on the ``web3.admin`` namespace.
 
     .. code-block:: python
 
-        >>> web3.admin.startWS()
+        >>> web3.geth.admin.startWS()
         True
 
 
@@ -169,7 +162,7 @@ The following methods are available on the ``web3.admin`` namespace.
 
     .. code-block:: python
 
-        >>> web3.admin.stopRPC()
+        >>> web3.geth.admin.stopRPC()
         True
 
 
@@ -181,5 +174,5 @@ The following methods are available on the ``web3.admin`` namespace.
 
     .. code-block:: python
 
-        >>> web3.admin.stopWS()
+        >>> web3.geth.admin.stopWS()
         True
