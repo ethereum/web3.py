@@ -9,6 +9,16 @@ from web3.admin import (
     stopRPC,
     stopWS,
 )
+from web3.miner import (
+    makeDag,
+    setEtherbase,
+    setExtra,
+    setGasPrice,
+    start,
+    startAutoDag,
+    stop,
+    stopAutoDag,
+)
 from web3.module import (
     Module,
     ModuleV2,
@@ -36,7 +46,7 @@ class Geth(Module):
 
 class GethPersonal(ModuleV2):
     """
-    https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal
+    https://github.com/ethereum/go-ethereum/wiki/management-apis#personal
     """
     ecRecover = ecRecover()
     importRawKey = importRawKey()
@@ -70,3 +80,17 @@ class GethAdmin(ModuleV2):
     startWS = startWS()
     stopRPC = stopRPC()
     stopWS = stopWS()
+
+
+class GethMiner(ModuleV2):
+    """
+    https://github.com/ethereum/go-ethereum/wiki/Management-APIs#miner
+    """
+    makeDag = makeDag()
+    setExtra = setExtra()
+    setEtherbase = setEtherbase()
+    setGasPrice = setGasPrice()
+    start = start()
+    stop = stop()
+    startAutoDag = startAutoDag()
+    stopAutoDag = stopAutoDag()

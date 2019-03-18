@@ -17,7 +17,7 @@ def test_miner_start(web3_empty, wait_for_miner_start):
     assert web3.eth.mining
     assert web3.eth.hashrate
 
-    web3.miner.stop()
+    web3.geth.miner.stop()
 
     with Timeout(60) as timeout:
         while web3.eth.mining or web3.eth.hashrate:
