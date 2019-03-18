@@ -25,16 +25,17 @@ JSON-RPC Updates
 
 In v4, JSON-RPC calls that looked up transactions or blocks and
 didn't find them, returned ``None``. Now if a transaction or
-block is not found, an error will be thrown. This applies to
-the following web3 methods:
+block is not found, a `BlockNotFound` or a `TransactionNotFound`
+error will be thrown as appropriate. This applies to the
+following web3 methods:
 
-- :meth:`~web3.eth.Eth.getTransaction`
-- :meth:`~web3.eth.Eth.getTransactionReceipt`
-- :meth:`~web3.eth.Eth.getTransactionFromBlock`
-- :meth:`~web3.eth.Eth.getTransactionCount`
-- :meth:`~web3.eth.Eth.getBlock`
-- :meth:`~web3.eth.Eth.getUncleCount`
-- :meth:`~web3.eth.Eth.getUncleByBlock`
+- :meth:`~web3.eth.Eth.getTransaction` will throw a ``TransactionNotFound`` error
+- :meth:`~web3.eth.Eth.getTransactionReceipt` will throw a ``TransactionNotFound`` error
+- :meth:`~web3.eth.Eth.getTransactionByBlock` will throw a ``TransactionNotFound`` error
+- :meth:`~web3.eth.Eth.getTransactionCount` will throw a ``BlockNotFound`` error
+- :meth:`~web3.eth.Eth.getBlock` will throw a ``BlockNotFound`` error
+- :meth:`~web3.eth.Eth.getUncleCount` will throw a ``BlockNotFound`` error
+- :meth:`~web3.eth.Eth.getUncleByBlock` will throw a ``BlockNotFound`` error
 
 Removed Methods
 ~~~~~~~~~~~~~~~
@@ -45,15 +46,18 @@ Removed Methods
 - ``contract.call`` was removed for ``contract.<functions/events>.<method name>.call``
 - ``contract.transact`` was removed for ``contract.<functions/events>.<method name>.transact``
 - ``contract.eventFilter`` was removed for ``contract.events.<event name>.createFilter``
-- ``middleware_stack`` was removed for :meth:`~Web3.middleware_onion`
+- ``middleware_stack`` was renamed to :meth:`~Web3.middleware_onion`
 - ``web3.miner.hashrate`` was a duplicate of :meth:`~web3.eth.Eth.hashrate` and was removed.
 - ``web3.version.network`` was a duplicate of :meth:`~web3.net.Net.version` and was removed.
 - ``web3.providers.tester.EthereumTesterProvider`` and ``web3.providers.tester.TestRPCProvider`` have been removed for :meth:`~web3.providers.eth_tester.EthereumTesterProvider`
 
 Deprecated Methods
 ~~~~~~~~~~~~~~~~~~
+Expect the following methods to be removed in v6:
+
 - ``web3.sha3`` was deprecated for :meth:`~Web3.keccak`
 - ``web3.soliditySha3`` was deprecated for :meth:`~Web3.solidityKeccak`
+- :meth:`~web3.eth.Eth.getTransactionFromBlock` has been deprecated according to EIP 1474 and does not have a replacement
 
 Manager Provider
 ~~~~~~~~~~~~~~~~
