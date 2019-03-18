@@ -16,6 +16,7 @@ Contents
     overview
     node
     v5_migration
+    v4_migration
     filters
     contracts
     providers
