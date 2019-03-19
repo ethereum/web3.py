@@ -36,6 +36,8 @@ v5 Breaking Changes Summary
 
 Unreleased (latest source)
 --------------------------
+  - Move ``web3.admin`` module to ``web3.geth`` namespace.
+    - `#1288 <https://github.com/ethereum/web3.py/pull/1288>`_
   - Remove ``web3/utils`` directory in favor of ``web3/_utils``
     - `#1282 <https://github.com/ethereum/web3.py/pull/1282>`_
   - Implement ``eth_submitHashrate`` and ``eth_submitWork`` JSONRPC endpoints.

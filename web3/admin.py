@@ -1,45 +1,71 @@
-from web3.module import (
-    Module,
+from web3.method import (
+    Method,
+    default_root_munger,
 )
 
 
-class Admin(Module):
-    def addPeer(self, node_url):
-        return self.web3.manager.request_blocking(
-            "admin_addPeer", [node_url],
-        )
+def admin_start_params_munger(module, host='localhost', port='8546', cors='', apis='eth,net,web3'):
+    return module, [host, port, cors, apis]
 
-    @property
-    def datadir(self):
-        return self.web3.manager.request_blocking("admin_datadir", [])
 
-    @property
-    def nodeInfo(self):
-        return self.web3.manager.request_blocking("admin_nodeInfo", [])
+def addPeer():
+    return Method(
+        "admin_addPeer",
+        mungers=[default_root_munger],
+    )
 
-    @property
-    def peers(self):
-        return self.web3.manager.request_blocking("admin_peers", [])
 
-    def setSolc(self, solc_path):
-        return self.web3.manager.request_blocking(
-            "admin_setSolc", [solc_path],
-        )
+def datadir():
+    return Method(
+        "admin_datadir",
+        mungers=None,
+    )
 
-    def startRPC(self, host='localhost', port='8545', cors="", apis="eth,net,web3"):
-        return self.web3.manager.request_blocking(
-            "admin_startRPC",
-            [host, port, cors, apis],
-        )
 
-    def startWS(self, host='localhost', port='8546', cors="", apis="eth,net,web3"):
-        return self.web3.manager.request_blocking(
-            "admin_startWS",
-            [host, port, cors, apis],
-        )
+def nodeInfo():
+    return Method(
+        "admin_nodeInfo",
+        mungers=None,
+    )
 
-    def stopRPC(self):
-        return self.web3.manager.request_blocking("admin_stopRPC", [])
 
-    def stopWS(self):
-        return self.web3.manager.request_blocking("admin_stopWS", [])
+def peers():
+    return Method(
+        "admin_peers",
+        mungers=None,
+    )
+
+
+def setSolc():
+    return Method(
+        "admin_setSolc",
+        mungers=[default_root_munger],
+    )
+
+
+def startRPC():
+    return Method(
+        "admin_startRPC",
+        mungers=[admin_start_params_munger],
+    )
+
+
+def startWS():
+    return Method(
+        "admin_startWS",
+        mungers=[admin_start_params_munger],
+    )
+
+
+def stopRPC():
+    return Method(
+        "admin_stopRPC",
+        mungers=None,
+    )
+
+
+def stopWS():
+    return Method(
+        "admin_stopWS",
+        mungers=None,
+    )

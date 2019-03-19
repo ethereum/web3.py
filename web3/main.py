@@ -38,14 +38,12 @@ from web3._utils.module import (
 from web3._utils.normalizers import (
     abi_ens_resolver,
 )
-from web3.admin import (
-    Admin,
-)
 from web3.eth import (
     Eth,
 )
 from web3.geth import (
     Geth,
+    GethAdmin,
     GethPersonal,
     GethTxPool,
 )
@@ -91,11 +89,11 @@ def get_default_modules():
         "net": (Net,),
         "version": (Version,),
         "miner": (Miner,),
-        "admin": (Admin,),
         "parity": (Parity, {
             "personal": (ParityPersonal,)
         }),
         "geth": (Geth, {
+            "admin": (GethAdmin,),
             "personal": (GethPersonal,),
             "txpool": (GethTxPool,),
         }),

@@ -1,3 +1,14 @@
+from web3.admin import (
+    addPeer,
+    datadir,
+    nodeInfo,
+    peers,
+    setSolc,
+    startRPC,
+    startWS,
+    stopRPC,
+    stopWS,
+)
 from web3.module import (
     Module,
     ModuleV2,
@@ -44,3 +55,18 @@ class GethTxPool(ModuleV2):
     content = content()
     inspect = inspect()
     status = status()
+
+
+class GethAdmin(ModuleV2):
+    """
+    https://github.com/ethereum/go-ethereum/wiki/Management-APIs#admin
+    """
+    addPeer = addPeer()
+    datadir = datadir()
+    nodeInfo = nodeInfo()
+    peers = peers()
+    setSolc = setSolc()
+    startRPC = startRPC()
+    startWS = startWS()
+    stopRPC = stopRPC()
+    stopWS = stopWS()

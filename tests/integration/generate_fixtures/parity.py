@@ -262,9 +262,9 @@ def generate_parity_fixture(destination_dir):
 def connect_nodes(w3_parity, w3_secondary):
     parity_peers = w3_parity.parity.netPeers()
     parity_enode = w3_parity.parity.enode()
-    secondary_node_info = w3_secondary.admin.nodeInfo
+    secondary_node_info = w3_secondary.geth.admin.nodeInfo
     if secondary_node_info['id'] not in (node.get('id', tuple()) for node in parity_peers['peers']):
-        w3_secondary.admin.addPeer(parity_enode)
+        w3_secondary.geth.admin.addPeer(parity_enode)
 
 
 def wait_for_chain_sync(web3, target):
