@@ -44,8 +44,7 @@ class BlockingVersion(BaseVersion):
 class Version(Module):
     @property
     def api(self):
-        from web3 import __version__
-        return __version__
+        raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
     @property
     def node(self):

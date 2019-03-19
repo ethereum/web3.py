@@ -28,6 +28,30 @@ Providers
     also accepts a single provider.
 
 
+Attributes
+~~~~~~~~~~
+
+.. py:attribute:: Web3.api
+
+    Returns the current Web3 version.
+
+    .. code-block:: python
+     
+       >>> web3.api
+       "4.7.0"
+
+.. py:attribute:: Web3.clientVersion
+
+    * Delegates to ``web3_clientVersion`` RPC Method
+
+    Returns the current client version.
+
+    .. code-block:: python
+
+       >>> web3.clientVersion
+       'Geth/v1.4.11-stable-fed692f6/darwin/go1.7'
+
+
 Encoding and Decoding Helpers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
