@@ -10,6 +10,9 @@ from web3._utils.module_testing import (  # noqa: F401
     ParityPersonalModuleTest,
     Web3ModuleTest,
 )
+from web3._utils.module_testing.eth_module import (
+    UNKNOWN_ADDRESS,
+)
 
 # some tests appear flaky with Parity v1.10.x
 MAX_FLAKY_RUNS = 3
@@ -17,7 +20,7 @@ MAX_FLAKY_RUNS = 3
 
 class ParityWeb3ModuleTest(Web3ModuleTest):
     def _check_web3_clientVersion(self, client_version):
-        assert client_version.startswith('Parity/')
+        assert client_version.startswith('Parity-Ethereum/')
 
 
 class ParityEthModuleTest(EthModuleTest):
@@ -118,6 +121,44 @@ class ParityEthModuleTest(EthModuleTest):
         # should be '1' on first flaky run, '2' on second, or '3' on third
         if pending_call_result not in range(1, MAX_FLAKY_RUNS + 1):
             raise AssertionError("pending call result was %d!" % pending_call_result)
+
+    def test_eth_getLogs_without_logs(self, web3, block_with_txn_with_log):
+        # Test with block range
+
+        filter_params = {
+            "fromBlock": 0,
+            "toBlock": block_with_txn_with_log['number'] - 1,
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
+
+        # the range is wrong, parity returns error message
+        filter_params = {
+            "fromBlock": block_with_txn_with_log['number'],
+            "toBlock": block_with_txn_with_log['number'] - 1,
+        }
+        with pytest.raises(ValueError):
+            web3.eth.getLogs(filter_params)
+
+        # Test with `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": UNKNOWN_ADDRESS,
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
+
+        # Test with multiple `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
 
 
 class ParityTraceModuleTest(TraceModuleTest):

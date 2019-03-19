@@ -31,22 +31,22 @@ CHAIN_CONFIG = {
                 "durationLimit": "0x0d",
                 "blockReward": "0x4563918244F40000",
                 "homesteadTransition": 0,
-                "eip150Transition": 0,
-                "eip160Transition": 10,
-                "eip161abcTransition": 10,
-                "eip161dTransition": 10
             }
         }
     },
     "params": {
         "gasLimitBoundDivisor": "0x0400",
         "registrar": "0x81a4b044831c4f12ba601adb9274516939e9b8a2",
+        "eip150Transition": 0,
         "eip155Transition": 10,
+        "eip160Transition": 10,
+        "eip161abcTransition": 10,
+        "eip161dTransition": 10,
         "accountStartNonce": "0x0",
         "maximumExtraDataSize": "0x20",
         "minGasLimit": "0x1388",
         "networkID": "0x539",
-        "eip98Transition": "0x7fffffffffffffff"
+        "eip98Transition": "0x7fffffffffffffff",
     },
     "genesis": {
         "seal": {
@@ -107,13 +107,12 @@ def get_parity_process(
         '--base-path', datadir,
         '--ipc-path', ipc_path,
         '--no-ws',
-        '--no-ui',
         '--no-warp',
         '--chain', chain_config_file_path,
         '--keys-path', keys_path,
-        '--rpcapi', 'all',
-        '--rpcport', parity_port,
-        # '--author', common.COINBASE[2:],
+        '--jsonrpc-apis', 'all',
+        '--jsonrpc-port', parity_port,
+        '--fat-db', 'on',
     )
     print(' '.join(run_command))
     try:
@@ -145,18 +144,18 @@ def parity_export_blocks_process(
         'blocks', os.path.join(datadir, 'blocks_export.rlp'),
         '--base-path', datadir,
         '--no-ws',
-        '--no-ui',
         '--no-warp',
         '--chain', chain_config_file_path,
-        '--rpcapi', 'all',
-        '--rpcport', parity_port,
-        # '--author', common.COINBASE[2:],
+        '--jsonrpc-apis', 'all',
+        '--jsonrpc-port', parity_port,
+        '--fat-db', 'on',
     )
     print(' '.join(run_command))
     try:
         proc = common.get_process(run_command)
         yield proc
     finally:
+        time.sleep(10)
         common.kill_proc_gracefully(proc)
         output, errors = proc.communicate()
         print(
@@ -241,6 +240,7 @@ def generate_parity_fixture(destination_dir):
 
         time.sleep(10)
         connect_nodes(web3, web3_geth)
+        time.sleep(10)
         wait_for_chain_sync(web3, fixture_block_count)
 
         static_data = {
@@ -262,7 +262,7 @@ def generate_parity_fixture(destination_dir):
 def connect_nodes(w3_parity, w3_secondary):
     parity_peers = w3_parity.parity.netPeers()
     parity_enode = w3_parity.parity.enode()
-    secondary_node_info = w3_secondary.geth.admin.nodeInfo
+    secondary_node_info = w3_secondary.geth.admin.nodeInfo()
     if secondary_node_info['id'] not in (node.get('id', tuple()) for node in parity_peers['peers']):
         w3_secondary.geth.admin.addPeer(parity_enode)
 

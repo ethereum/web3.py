@@ -18,36 +18,21 @@ from .utils import (
 
 KEYFILE_PW = 'web3py-test'
 
-PARITY_1_8_8_FIXTURE = {
-    'datadir': 'parity-188-fixture',
-    'coinbase': 'dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
-    'block_hash_with_log': '0xf9aea1029be4b93e30313814d297a2da0c5b204856c4de16c21b87ebaf8f20c5',
-    'block_with_txn_hash': '0xf460bffb4ea46c5ec26e2062911f24af3349cd1c895fdb009b4d544569d22a49',
-    'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
-    'emitter_deploy_txn_hash': '0xa81e903e9953758c8da5aaae66451ff909edd7bd6aefc3ebeab1e709e3229bcc',
-    'empty_block_hash': '0x3b32b087d4fc72091be4fa6b44fc2a78289a15c53fba3454755dd9eaf39f0481',
-    'keyfile_pw': 'web3py-test',
-    'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
-    'math_deploy_txn_hash': '0x03cc47c8f58608576187825aed01c4fc64786f1172d182d432336881a75a0fa3',
-    'mined_txn_hash': '0x9839fde5fce7f0ed29b49a687d4f7630076069e65c2e1df87ffab9b2844d3899',
-    'raw_txn_account': '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6',
-    'txn_hash_with_log': '0x26bad3318b3466833f96d04ac9ba46fbbce11c15be2f83c9fe0b5dc15b2646cd'
-}
 
-PARITY_1_8_7_FIXTURE = {
-    'datadir': 'parity-187-fixture',
+PARITY_2_3_5_FIXTURE = {
+    'datadir': 'parity-235-fixture',
     'coinbase': 'dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
-    'block_hash_with_log': '0x342e12ab6d24d7fb1d774a6b47cd2cc04430a3295bee5662d5a1a0b766480031',
-    'block_with_txn_hash': '0xa866266a5a348948c38855cc6e990093b35a3d2c43fdddfe3b1259c9c3fc7404',
+    'block_hash_with_log': '0x8633d4b5497e5a7e81356cbe3f0a49b63fb2020ddeb6c8c27bcecec541055a3b',
+    'block_with_txn_hash': '0xf474a7b80cb6cb2b728b290ce6a0893f5f85d2998c4b252d73300da56de205de',
     'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
-    'emitter_deploy_txn_hash': '0xa81e903e9953758c8da5aaae66451ff909edd7bd6aefc3ebeab1e709e3229bcc',
-    'empty_block_hash': '0xbcb2826e4376c23e66750607af72965f177f93b39e5024be259e6b0ff4f95e9d',
+    'emitter_deploy_txn_hash': '0xa3e3838c01e73dafc7fc9d7e4e6c97523445006ae125ad1085abcf065feed382',
+    'empty_block_hash': '0xc46c025ae50a970408a429a5a2baa65f056a173ff1dae0cab4b490d2ee94413f',
     'keyfile_pw': 'web3py-test',
     'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
-    'math_deploy_txn_hash': '0x03cc47c8f58608576187825aed01c4fc64786f1172d182d432336881a75a0fa3',
-    'mined_txn_hash': '0x9839fde5fce7f0ed29b49a687d4f7630076069e65c2e1df87ffab9b2844d3899',
+    'math_deploy_txn_hash': '0xb680f86c00d69484ce68b4d3932c27c4e858c91d6ba8a27f8c499006fe4ced4a',
+    'mined_txn_hash': '0x6401f455c01f9eb79fa672a4d24cc7cbbe3891e89eea8db8be39969dc9c480bc',
     'raw_txn_account': '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6',
-    'txn_hash_with_log': '0x26bad3318b3466833f96d04ac9ba46fbbce11c15be2f83c9fe0b5dc15b2646cd'
+    'txn_hash_with_log': '0xf6ffb7387cd0288cd1db1b1e368e7d4a21bc6e70fd2ef0e9af41f6c32b9e2cc7'
 }
 
 
@@ -72,12 +57,7 @@ def get_parity_version(parity_binary):
 
 @pytest.fixture(scope="module")
 def parity_fixture_data(parity_binary):
-    if os.path.basename(parity_binary) == 'parity-1_8_7':
-        return PARITY_1_8_7_FIXTURE
-    elif os.path.basename(parity_binary) == 'parity-1_8_8':
-        return PARITY_1_8_8_FIXTURE
-    else:
-        return PARITY_1_8_7_FIXTURE
+    return PARITY_2_3_5_FIXTURE
 
 
 @pytest.fixture(scope='module')
