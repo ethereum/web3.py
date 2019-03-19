@@ -8,7 +8,7 @@ from web3._utils.threads import (
 def test_txpool_content(web3_empty):
     web3 = web3_empty
 
-    web3.miner.stop()
+    web3.geth.miner.stop()
 
     with Timeout(60) as timeout:
         while web3.eth.hashrate or web3.eth.mining:

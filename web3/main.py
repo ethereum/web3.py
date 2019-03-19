@@ -46,15 +46,13 @@ from web3.geth import (
     GethAdmin,
     GethPersonal,
     GethTxPool,
+    GethMiner,
 )
 from web3.iban import (
     Iban,
 )
 from web3.manager import (
     RequestManager as DefaultRequestManager,
-)
-from web3.miner import (
-    Miner,
 )
 from web3.net import (
     Net,
@@ -88,12 +86,12 @@ def get_default_modules():
         "eth": (Eth,),
         "net": (Net,),
         "version": (Version,),
-        "miner": (Miner,),
         "parity": (Parity, {
             "personal": (ParityPersonal,)
         }),
         "geth": (Geth, {
             "admin": (GethAdmin,),
+            "miner": (GethMiner,),
             "personal": (GethPersonal,),
             "txpool": (GethTxPool,),
         }),

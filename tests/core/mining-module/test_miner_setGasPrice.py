@@ -18,7 +18,7 @@ def test_miner_setGasPrice(web3_empty, wait_for_block):
     # sanity check
     assert web3.eth.gasPrice > 1000
 
-    web3.miner.setGasPrice(initial_gas_price // 2)
+    web3.geth.miner.setGasPrice(initial_gas_price // 2)
 
     with Timeout(60) as timeout:
         while web3.eth.gasPrice == initial_gas_price:

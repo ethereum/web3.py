@@ -1,33 +1,60 @@
-from web3.module import (
-    Module,
+from web3.method import (
+    Method,
+    default_root_munger,
 )
 
 
-class Miner(Module):
-    def makeDAG(self, number):
-        return self.web3.manager.request_blocking("miner_makeDag", [number])
+def makeDag():
+    return Method(
+        "miner_makeDag",
+        mungers=[default_root_munger],
+    )
 
-    def setExtra(self, extra):
-        return self.web3.manager.request_blocking("miner_setExtra", [extra])
 
-    def setEtherBase(self, etherbase):
-        return self.web3.manager.request_blocking("miner_setEtherbase", [etherbase])
+def setExtra():
+    return Method(
+        "miner_setExtra",
+        mungers=[default_root_munger],
+    )
 
-    def setGasPrice(self, gas_price):
-        return self.web3.manager.request_blocking(
-            "miner_setGasPrice", [gas_price],
-        )
 
-    def start(self, num_threads):
-        return self.web3.manager.request_blocking(
-            "miner_start", [num_threads],
-        )
+def setEtherbase():
+    return Method(
+        "miner_setEtherbase",
+        mungers=[default_root_munger],
+    )
 
-    def stop(self):
-        return self.web3.manager.request_blocking("miner_stop", [])
 
-    def startAutoDAG(self):
-        return self.web3.manager.request_blocking("miner_startAutoDag", [])
+def setGasPrice():
+    return Method(
+        "miner_setGasPrice",
+        mungers=[default_root_munger],
+    )
 
-    def stopAutoDAG(self):
-        return self.web3.manager.request_blocking("miner_stopAutoDag", [])
+
+def start():
+    return Method(
+        "miner_start",
+        mungers=[default_root_munger],
+    )
+
+
+def stop():
+    return Method(
+        "miner_stop",
+        mungers=None,
+    )
+
+
+def startAutoDag():
+    return Method(
+        "miner_startAutoDag",
+        mungers=None,
+    )
+
+
+def stopAutoDag():
+    return Method(
+        "miner_stopAutoDag",
+        mungers=None,
+    )
