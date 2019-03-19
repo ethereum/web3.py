@@ -13,6 +13,9 @@ from web3.version import (
     Version,
 )
 
+# This file is being left in since the Version module is being experimented on for
+# async behavior. But, this file along with web3/version.py should be removed eventually.
+
 
 @pytest.fixture
 def blocking_w3():
@@ -32,10 +35,6 @@ def async_w3():
         modules={
             'async_version': (AsyncVersion,),
         })
-
-
-def test_blocking_version(blocking_w3):
-    assert blocking_w3.blocking_version.api == blocking_w3.legacy_version.api
 
 
 def test_legacy_version_deprecation(blocking_w3):
