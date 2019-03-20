@@ -125,7 +125,7 @@ def construct_sign_and_send_raw_middleware(private_key_or_account):
                 return make_request(method, params)
 
             account = accounts[transaction['from']]
-            raw_tx = account.signTransaction(transaction).rawTransaction
+            raw_tx = account.signTransaction(transaction).rawTransaction.hex()
 
             return make_request(
                 "eth_sendRawTransaction",
