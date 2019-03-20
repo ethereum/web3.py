@@ -107,3 +107,10 @@ class InsufficientData(Exception):
     complete a calculation
     """
     pass
+
+
+class InfuraKeyNotFound(Exception):
+    """
+    Raised when there is no Infura Project Id set.
+    """
+    pass
