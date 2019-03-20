@@ -33,17 +33,55 @@ v5 Breaking Changes Summary
     an error if lookup fails
     - `#1218 <https://github.com/ethereum/web3.py/pull/1218>`_ and
     `#1268 <https://github.com/ethereum/web3.py/pull/1268>`_
-
-Unreleased (latest source)
---------------------------
-  - Move ``web3.admin`` module to ``web3.geth`` namespace.
-    - `#1288 <https://github.com/ethereum/web3.py/pull/1288>`_
-  - Move ``web3.miner`` module to ``web3.geth`` namespace.
-    - `#1287 <https://github.com/ethereum/web3.py/pull/1287>`_
   - Remove ``web3/utils`` directory in favor of ``web3/_utils``
     - `#1282 <https://github.com/ethereum/web3.py/pull/1282>`_
+  - Relocated personal RPC endpoints to Parity and Geth class
+    - `#1211 <https://github.com/ethereum/web3.py/pull/1211>`_
+  - Deprecated ``web3.net.chainId()``, ``web3.eth.getCompilers()``,
+    and ``web3.eth.getTransactionFromBlock()``. Removed ``web3.eth.enableUnauditedFeatures()``
+    - `#1270 <https://github.com/ethereum/web3.py/pull/1270>`_
+  - Relocated eth_protocolVersion and web3_clientVersion
+    - `#1274 <https://github.com/ethereum/web3.py/pull/1274>`_
+  - Relocated ``web3.txpool`` to ``web3.geth.txpool``
+    - `#1275 <https://github.com/ethereum/web3.py/pull/1275>`_
+  - Relocated admin module to Geth namespace
+    - `#1288 <https://github.com/ethereum/web3.py/pull/1288>`_
+  - Relocated miner module to Geth namespace
+    - `#1287 <https://github.com/ethereum/web3.py/pull/1287>`_
+
+v5.0.0-alpha.8
+--------------
+Released March 20, 2019
+
+- Breaking Changes
+
+  - Removed ``web3/utils`` directory in favor of ``web3/_utils``
+    - `#1282 <https://github.com/ethereum/web3.py/pull/1282>`_
+  - Relocated personal RPC endpoints to Parity and Geth class
+    - `#1211 <https://github.com/ethereum/web3.py/pull/1211>`_
+  - Deprecated ``web3.net.chainId()``, ``web3.eth.getCompilers()``,
+    and ``web3.eth.getTransactionFromBlock()``. Removed ``web3.eth.enableUnauditedFeatures()``
+    - `#1270 <https://github.com/ethereum/web3.py/pull/1270>`_
+  - Relocated eth_protocolVersion and web3_clientVersion
+    - `#1274 <https://github.com/ethereum/web3.py/pull/1274>`_
+  - Relocated ``web3.txpool`` to ``web3.geth.txpool``
+    - `#1275 <https://github.com/ethereum/web3.py/pull/1275>`_
+  - Relocated admin module to Geth namespace
+    - `#1288 <https://github.com/ethereum/web3.py/pull/1288>`_
+  - Relocated miner module to Geth namespace
+    - `#1287 <https://github.com/ethereum/web3.py/pull/1287>`_
+
+- Features
+
   - Implement ``eth_submitHashrate`` and ``eth_submitWork`` JSONRPC endpoints.
     - `#1280 <https://github.com/ethereum/web3.py/pull/1280>`_
+  - Implement ``web3.eth.signTransaction``
+    - `#1277 <https://github.com/ethereum/web3.py/pull/1277>`_
+
+- Docs
+
+  - Added v5 migration docs
+    - `#1284 <https://github.com/ethereum/web3.py/pull/1284>`_
 
 v5.0.0-alpha.7
 --------------

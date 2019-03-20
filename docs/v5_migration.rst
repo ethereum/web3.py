@@ -50,6 +50,21 @@ Removed Methods
 - ``web3.miner.hashrate`` was a duplicate of :meth:`~web3.eth.Eth.hashrate` and was removed.
 - ``web3.version.network`` was a duplicate of :meth:`~web3.net.Net.version` and was removed.
 - ``web3.providers.tester.EthereumTesterProvider`` and ``web3.providers.tester.TestRPCProvider`` have been removed for :meth:`~web3.providers.eth_tester.EthereumTesterProvider`
+- ``web3.eth.enableUnauditedFeatures`` was removed
+- ``web3.txpool`` was moved to :meth:`~web3.geth.txpool`
+- ``web3.version.node`` was removed for ``web3.clientVersion``
+- ``web3.version.ethereum`` was removed for :meth:`~web3.eth.Eth.protocolVersion`
+- Relocated personal RPC endpoints to reflect Parity and Geth implementations:
+
+  - ``web3.personal.listAccounts`` was removed for :meth:`~web3.geth.personal.listAccounts` or :meth:`~web3.parity.personal.listAccounts`
+  - ``web3.personal.importRawKey`` was removed for :meth:`~web3.geth.personal.importRawKey` or :meth:`~web3.parity.personal.importRawKey`
+  - ``web3.personal.newAccount`` was removed for :meth:`~web3.geth.personal.newAccount` or :meth:`~web3.parity.personal.newAccount`
+  - ``web3.personal.lockAccount`` was removed for :meth:`~web3.geth.personal.lockAccount`
+  - ``web3.personal.unlockAccount`` was removed for :meth:`~web3.geth.personal.unlockAccount` or :meth:`~web3.parity.personal.unlockAccount`
+  - ``web3.personal.sendTransaction`` was removed for :meth:`~web3.geth.personal.sendTransaction` or :meth:`~web3.parity.personal.sendTransaction`
+
+- Relocated ``web3.admin`` module to ``web3.geth`` namespace
+- Relocated ``web3.miner`` module to ``web3.geth`` namespace
 
 Deprecated Methods
 ~~~~~~~~~~~~~~~~~~
@@ -57,7 +72,9 @@ Expect the following methods to be removed in v6:
 
 - ``web3.sha3`` was deprecated for :meth:`~Web3.keccak`
 - ``web3.soliditySha3`` was deprecated for :meth:`~Web3.solidityKeccak`
-- :meth:`~web3.eth.Eth.getTransactionFromBlock` has been deprecated according to EIP 1474 and does not have a replacement
+- :meth:`~web3.net.Net.chainId` was deprecated and will be replaced eventually. Follow issue `#1293 <https://github.com/ethereum/web3.py/issues/1293>`_ for details
+- ``web3.eth.getCompilers()`` was deprecated and will not be replaced
+- :meth:`~web3.eth.getTransactionFromBlock()` was deprecated for :meth:`~Web3.getTransactionByBlock`
 
 Manager Provider
 ~~~~~~~~~~~~~~~~
