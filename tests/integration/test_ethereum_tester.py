@@ -7,9 +7,13 @@ from eth_tester import (
 from eth_utils import (
     is_checksum_address,
     is_dict,
+    is_hex,
 )
 
 from web3 import Web3
+from web3._utils.formatters import (
+    hex_to_integer,
+)
 from web3._utils.module_testing import (
     EthModuleTest,
     GoEthereumPersonalModuleTest,
@@ -290,6 +294,11 @@ class TestEthereumTesterEthModule(EthModuleTest):
         super().test_eth_estimateGas_with_block(
             web3, unlocked_account_dual_type
         )
+
+    def test_eth_chainId(self, web3):
+        chain_id = web3.eth.chainId
+        assert is_hex(chain_id)
+        assert hex_to_integer(chain_id) is 61
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
