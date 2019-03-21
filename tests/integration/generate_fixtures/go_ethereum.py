@@ -117,7 +117,7 @@ def setup_chain_state(web3):
     #
     # Block with Transaction
     #
-    web3.personal.unlockAccount(coinbase, common.KEYFILE_PW)
+    web3.geth.personal.unlockAccount(coinbase, common.KEYFILE_PW)
     web3.geth.miner.start(1)
     mined_txn_hash = web3.eth.sendTransaction({
         'from': coinbase,

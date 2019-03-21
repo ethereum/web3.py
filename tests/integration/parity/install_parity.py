@@ -16,14 +16,10 @@ from tqdm import tqdm
 URI_QUERY_URL = "https://vanity-service.parity.io/parity-binaries"
 BASE_BIN_PATH = "~/.parity-bin"
 VERSION_STRINGS = {
-    "v1.8.7": "1_8_7",
-    "v1.8.8": "1_8_8",
-    "v1.9.1": "1_9_1",
-    "v1.10.4": "1_10_4",
-    "v1.11.11": "1_11_11",
+    "v2.3.5": "2_3_5",
 }
 ARCHITECTURE = 'x86_64'
-OS = os.getenv('PARITY_OS', 'debian')
+OS = os.getenv('PARITY_OS', 'linux')
 
 
 @toolz.curry
@@ -57,7 +53,7 @@ def get_binary_uri(releases_json):
 def get_executable_path(version_string):
     identifier = VERSION_STRINGS[version_string]
     base_path = os.environ.get('PARITY_BASE_INSTALL_PATH', BASE_BIN_PATH)
-    path = os.path.join(base_path, 'parity-{0}'.format(identifier))
+    path = os.path.join(base_path, f'parity-{identifier}')
     return os.path.expanduser(path)
 
 
@@ -66,7 +62,6 @@ def install_parity(version_string):
         raise ValueError("{0} is not an accepted version identifier.")
 
     path = get_executable_path(version_string)
-
     get_uri = toolz.functoolz.compose(
         get_binary_uri,
         get_parity_release_json)
