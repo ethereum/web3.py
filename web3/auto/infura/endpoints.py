@@ -33,8 +33,14 @@ def build_infura_url(domain):
     scheme = os.environ.get('WEB3_INFURA_SCHEME', WEBSOCKET_SCHEME)
     key = load_api_key()
 
-    if scheme == WEBSOCKET_SCHEME:
-        return "%s://%s/ws/v3/%s" % (scheme, domain, key)
+    secret = os.environ.get('WEB3_INFURA_API_SECRET', '')
+
+    if secret and scheme == WEBSOCKET_SCHEME:
+        return "%s://:%s@%s/ws/v3/%s" % (scheme, secret, domain, key)
+    elif secret and scheme == HTTP_SCHEME:
+        return "%s://:%s@%s/v3/%s" % (scheme, secret, domain, key)
+    elif scheme == WEBSOCKET_SCHEME:
+        return "%s://%s/ws/" % (scheme, domain)
     elif scheme == HTTP_SCHEME:
         return "%s://%s/v3/%s" % (scheme, domain, key)
     else:
