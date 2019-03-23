@@ -105,9 +105,9 @@ def _compute_gas_price(probabilities, desired_probability):
     last = probabilities[-1]
 
     if desired_probability >= first.prob:
-        return first.gas_price
+        return int(first.gas_price)
     elif desired_probability <= last.prob:
-        return last.gas_price
+        return int(last.gas_price)
 
     for left, right in sliding_window(2, probabilities):
         if desired_probability < right.prob:
