@@ -21,6 +21,7 @@ def load_api_key():
         'WEB3_INFURA_API_KEY',
         os.environ.get('INFURA_API_KEY', '')
     )
+
     if key == '':
         raise InfuraKeyNotFound(
             "No Infura Project ID found. Please ensure "
@@ -29,18 +30,25 @@ def load_api_key():
     return key
 
 
+def load_secret():
+    secret = os.environ.get('WEB3_INFURA_API_SECRET', '')
+    return secret
+
+
+def build_http_headers():
+    secret = load_secret()
+    if secret:
+        headers = {'auth': ('', secret)}
+        return headers
+
+
 def build_infura_url(domain):
     scheme = os.environ.get('WEB3_INFURA_SCHEME', WEBSOCKET_SCHEME)
     key = load_api_key()
+    secret = load_secret()
 
-    secret = os.environ.get('WEB3_INFURA_API_SECRET', '')
-
-    if secret and scheme == WEBSOCKET_SCHEME:
+    if scheme == WEBSOCKET_SCHEME:
         return "%s://:%s@%s/ws/v3/%s" % (scheme, secret, domain, key)
-    elif secret and scheme == HTTP_SCHEME:
-        return "%s://:%s@%s/v3/%s" % (scheme, secret, domain, key)
-    elif scheme == WEBSOCKET_SCHEME:
-        return "%s://%s/ws/" % (scheme, domain)
     elif scheme == HTTP_SCHEME:
         return "%s://%s/v3/%s" % (scheme, domain, key)
     else:

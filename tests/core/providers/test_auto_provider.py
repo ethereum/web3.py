@@ -33,9 +33,11 @@ from web3.auto import (  # noqa E402 isort:skip
 
 
 @pytest.fixture(autouse=True)
-def delete_infura_key(monkeypatch):
+def delete_environment_variables(monkeypatch):
     monkeypatch.delenv('INFURA_API_KEY', raising=False)
     monkeypatch.delenv('WEB3_INFURA_API_KEY', raising=False)
+    monkeypatch.delenv('WEB3_INFURA_API_SECRET', raising=False)
+    monkeypatch.delenv('WEB3_INFURA_SCHEME', raising=False)
 
 
 @pytest.mark.parametrize(
@@ -119,7 +121,7 @@ def test_web3_auto_infura_websocket_default(monkeypatch, caplog, environ_name):
     w3 = infura.w3
     assert isinstance(w3.providers[0], WebsocketProvider)
 
-    expected_url = 'wss://%s/ws/v3/%s' % (infura.INFURA_MAINNET_DOMAIN, API_KEY)
+    expected_url = 'wss://:@%s/ws/v3/%s' % (infura.INFURA_MAINNET_DOMAIN, API_KEY)
     assert getattr(w3.providers[0], 'endpoint_uri') == expected_url
 
 
@@ -129,3 +131,32 @@ def test_web3_auto_infura_raises_error_with_nonexistent_scheme(monkeypatch):
 
     with pytest.raises(ValidationError):
         importlib.reload(infura)
+
+
+@pytest.mark.parametrize('environ_name', ['INFURA_API_KEY', 'WEB3_INFURA_API_KEY'])
+def test_web3_auto_infura_websocket_with_secret(monkeypatch, caplog, environ_name):
+    monkeypatch.setenv(environ_name, 'test')
+    monkeypatch.setenv('WEB3_INFURA_API_SECRET', 'secret')
+
+    importlib.reload(infura)
+
+    w3 = infura.w3
+    assert isinstance(w3.providers[0], WebsocketProvider)
+    expected_url = 'wss://:secret@%s/ws/v3/test' % (infura.INFURA_MAINNET_DOMAIN)
+    assert getattr(w3.providers[0], 'endpoint_uri') == expected_url
+
+
+@pytest.mark.parametrize('environ_name', ['INFURA_API_KEY', 'WEB3_INFURA_API_KEY'])
+def test_web3_auto_infura_with_secret(monkeypatch, caplog, environ_name):
+    monkeypatch.setenv('WEB3_INFURA_SCHEME', 'https')
+    monkeypatch.setenv(environ_name, 'test')
+    monkeypatch.setenv('WEB3_INFURA_API_SECRET', 'secret')
+
+    importlib.reload(infura)
+
+    w3 = infura.w3
+    assert isinstance(w3.providers[0], HTTPProvider)
+    expected_url = 'https://%s/v3/test' % (infura.INFURA_MAINNET_DOMAIN)
+    expected_auth_value = ('', 'secret')
+    assert getattr(w3.providers[0], 'endpoint_uri') == expected_url
+    assert w3.providers[0].get_request_kwargs()['auth'] == expected_auth_value
