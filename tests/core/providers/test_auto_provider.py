@@ -4,7 +4,17 @@ import pytest
 
 from web3.auto import (
     infura,
+    nodesmith,
 )
+
+from web3.auto.nodesmith import (
+    goerli,
+    kovan,
+    mainnet,
+    rinkeby,
+    ropsten,
+)
+
 from web3.providers import (
     HTTPProvider,
     IPCProvider,
@@ -122,4 +132,26 @@ def test_web3_auto_infura_websocket_default(monkeypatch, caplog, environ_name):
 
     w3 = infura.w3
     assert isinstance(w3.provider, WebsocketProvider)
+    assert getattr(w3.provider, 'endpoint_uri') == expected_url
+
+def test_web3_auto_nodesmith_missing_key(monkeypatch, caplog):
+    importlib.reload(nodesmith)
+    assert len(caplog.record_tuples) == 1
+    logger, level, msg = caplog.record_tuples[0]
+    assert 'NODESMITH_API_KEY' in msg
+    assert level == logging.ERROR
+
+@pytest.mark.parametrize('network', [(goerli, 'goerli'), (kovan, 'kovan'), (mainnet, 'mainnet'), (rinkeby, 'rinkeby'), (ropsten, 'ropsten')])
+def test_web3_auto_nodesmith_different_networks(monkeypatch, network):
+
+    network_module = network[0]
+    network_name = network[1]
+    API_KEY = 'ns_python'
+    monkeypatch.setenv('NODESMITH_API_KEY', API_KEY)
+    expected_url = nodesmith.NODESMITH_URL_FORMAT % (network_name, API_KEY)
+
+    importlib.reload(network_module)
+
+    w3 = network_module.w3
+    assert isinstance(w3.provider, HTTPProvider)
     assert getattr(w3.provider, 'endpoint_uri') == expected_url
