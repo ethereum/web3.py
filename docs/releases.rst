@@ -5,6 +5,26 @@ Breaking Change to Infura coming March 27th.
  After March 27th, you'll need an API key to interact with Infura.
  Sign up for one at https://infura.io/register.
 
+v4.9.0
+--------
+
+Released March 25, 2019
+
+- Breaking Changes
+
+  - Raise error when connecting to Infura if there is no API key set
+    - `#1296 <https://github.com/ethereum/web3.py/pull/1296>`_
+
+- Features
+
+  - Allow users to optionally use their Infura API secret key
+    - `#1298 <https://github.com/ethereum/web3.py/pull/1298>`_
+
+- Misc
+
+  - Add deprecation warnings to JSON-RPC endpoints dropped in v5
+    - `#1271 <https://github.com/ethereum/web3.py/pull/1271>`_
+
 v4.8.3
 --------
 
