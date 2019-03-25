@@ -25,12 +25,12 @@ def load_provider_from_environment():
     return load_provider_from_uri(uri_string)
 
 
-def load_provider_from_uri(uri_string):
+def load_provider_from_uri(uri_string, headers=None):
     uri = urlparse(uri_string)
     if uri.scheme == 'file':
         return IPCProvider(uri.path)
     elif uri.scheme in HTTP_SCHEMES:
-        return HTTPProvider(uri_string)
+        return HTTPProvider(uri_string, headers)
     elif uri.scheme in WS_SCHEMES:
         return WebsocketProvider(uri_string)
     else:

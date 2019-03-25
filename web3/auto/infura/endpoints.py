@@ -29,12 +29,24 @@ def load_api_key():
     return key
 
 
+def load_secret():
+    return os.environ.get('WEB3_INFURA_API_SECRET', '')
+
+
+def build_http_headers():
+    secret = load_secret()
+    if secret:
+        headers = {'auth': ('', secret)}
+        return headers
+
+
 def build_infura_url(domain):
     scheme = os.environ.get('WEB3_INFURA_SCHEME', WEBSOCKET_SCHEME)
     key = load_api_key()
+    secret = load_secret()
 
     if scheme == WEBSOCKET_SCHEME:
-        return "%s://%s/ws/v3/%s" % (scheme, domain, key)
+        return "%s://:%s@%s/ws/v3/%s" % (scheme, secret, domain, key)
     elif scheme == HTTP_SCHEME:
         return "%s://%s/v3/%s" % (scheme, domain, key)
     else:
