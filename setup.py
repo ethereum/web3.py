@@ -42,7 +42,7 @@ setup(
     version='0.1.0-alpha.0',
     description="""<PYPI_NAME>: <SHORT_DESCRIPTION>""",
     long_description_markdown_filename='README.md',
-    author='Jason Carver',
+    author='The Ethereum Foundation',
     author_email='ethcalibur+pip@gmail.com',
     url='https://github.com/ethereum/<REPO_NAME>',
     include_package_data=True,
