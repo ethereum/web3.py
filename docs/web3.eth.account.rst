@@ -13,8 +13,8 @@ Local Node
   When you run ``geth`` or ``parity`` on your machine, you are running a local node.
 
 Hosted Node
-  A hosted node is controlled by someone else. When you connect to Infura, you are
-  connected to a hosted node.
+  A hosted node is controlled by someone else. When you connect to Infura or Nodesmith,
+  you are connected to a hosted node.
 
 Local vs Hosted Keys
 ---------------------------------

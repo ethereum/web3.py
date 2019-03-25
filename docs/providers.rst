@@ -176,6 +176,28 @@ Then set the environment variable ``WEB3_INFURA_PROJECT_ID`` with your Project I
     >>> w3.isConnected()
     True
 
+Nodesmith
+~~~~~~~~~
+
+To connect to Nodesmith's mainnet or various testnet endpoints, first register
+for a free API Key at https://nodesmith.io.
+
+Then set the environment variable ``NODESMITH_API_KEY`` with your API key::
+
+    $ export NODESMITH_API_KEY=YourApiKey
+
+In your code, import the appropriate module for the network you want to connect to
+with the format ``web3.auto.nodesmith.<network_name>``. For example, to connect to the
+`Goerli <https://goerli.net/>`_ test network:
+
+.. code-block:: python
+
+    >>> from web3.auto.nodesmith.goerli import w3
+
+    # Get the network's id, 5 for Goerli
+    >>> w3.net.version
+    '5'
+
 Geth dev Proof of Authority
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
