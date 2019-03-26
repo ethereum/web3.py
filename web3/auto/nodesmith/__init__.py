@@ -5,7 +5,6 @@ from web3.providers.auto import (
 
 from .endpoints import (
     build_nodesmith_url,
-    NODESMITH_URL_FORMAT,
 )
 
 # By default, connect to the mainnet endpoint
