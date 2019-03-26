@@ -43,7 +43,7 @@ setup(
     description="""<PYPI_NAME>: <SHORT_DESCRIPTION>""",
     long_description_markdown_filename='README.md',
     author='The Ethereum Foundation',
-    author_email='ethcalibur+pip@gmail.com',
+    author_email='snakecharmers@ethereum.org',
     url='https://github.com/ethereum/<REPO_NAME>',
     include_package_data=True,
     install_requires=[
