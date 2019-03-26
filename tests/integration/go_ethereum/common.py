@@ -62,7 +62,7 @@ class GoEthereumEthModuleTest(EthModuleTest):
     def test_eth_submitHashrate(self, web3):
         if 'v1.8.22' in web3.clientVersion:
             # https://github.com/ethereum/go-ethereum/commit/51db5975cc5fb88db6a0dba1826b534fd4df29d7
-            pytest.xfail('eth_submitHashrate depracated in 1.8.22 for ethash_submitHashRate')
+            pytest.xfail('eth_submitHashrate depracated in v1.8.22 for ethash_submitHashRate')
         super().test_eth_submitHashrate(web3)
 
     def test_eth_chainId(self, web3):
