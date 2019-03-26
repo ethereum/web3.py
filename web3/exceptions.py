@@ -142,3 +142,10 @@ class BlockNotFound(Exception):
     Raised when the block id used to lookup a block in a jsonrpc call cannot be found.
     """
     pass
+
+
+class InfuraKeyNotFound(Exception):
+    """
+    Raised when there is no Infura Project Id set.
+    """
+    pass
