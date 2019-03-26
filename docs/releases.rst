@@ -5,6 +5,16 @@ Breaking Change to Infura coming March 27th.
  After March 27th, you'll need an API key to interact with Infura.
  Sign up for one at https://infura.io/register.
 
+v4.9.1
+--------
+
+Released March 26, 2019
+
+- Misc
+
+  - Add documentation about Infura Secret key environment variable
+    - `#1303 <https://github.com/ethereum/web3.py/pull/1303>`_
+
 v4.9.0
 --------
 
