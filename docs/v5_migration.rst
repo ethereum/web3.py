@@ -1,3 +1,5 @@
+.. _migrating_v4_to_v5:
+
 Migrating your code from v4 to v5
 =======================================
 

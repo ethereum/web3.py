@@ -1,53 +1,23 @@
 Release Notes
 =============
 
-Breaking Change to Infura coming March 27th.
- After March 27th, you'll need an API key to interact with Infura.
- Sign up for one at https://infura.io/register.
-
-
 v5 Breaking Changes Summary
-  - Remove deprecated ``buildTransaction``, ``call``, ``deploy``,
-    ``estimateGas``, and ``transact`` methods
-    - `#1232 <https://github.com/ethereum/web3.py/pull/1232>`_
-  - Rename ``middleware_stack`` to ``middleware_onion``
-    - `#1210 <https://github.com/ethereum/web3.py/pull/1210>`_
-  - Drop already deprecated ``web3.soliditySha3``
-    - `#1217 <https://github.com/ethereum/web3.py/pull/1217>`_
-  - ENS: Stop inferring ``.eth`` TLD on domain names
-    - `#1205 <https://github.com/ethereum/web3.py/pull/1205>`_
-  - Remove ``web3.miner.hashrate`` and ``web3.version.network``
-    - `#1198 <https://github.com/ethereum/web3.py/pull/1198>`_
-  - Remove ``web3.providers.tester.EthereumTesterProvider``
-    and ``web3.providers.tester.TestRPCProvider``
-    - `#1199 <https://github.com/ethereum/web3.py/pull/1199>`_
-  - Change ``manager.providers`` from list to single ``manager.provider``
-    - `#1200 <https://github.com/ethereum/web3.py/pull/1200>`_
-  - Replace deprecated ``web3.sha3`` method with ``web3.keccak`` method
-    - `#1207 <https://github.com/ethereum/web3.py/pull/1207>`_
-  - Drop auto detect testnets for IPCProvider
-    - `#1206 <https://github.com/ethereum/web3.py/pull/1206>`_
-  - Remove support for python3.5, drop support for eth-abi v1
-    - `#1163 <https://github.com/ethereum/web3.py/pull/1163>`_
-  - Updated JSON-RPC calls that lookup txs or blocks to raise
-    an error if lookup fails
-    - `#1218 <https://github.com/ethereum/web3.py/pull/1218>`_ and
-    `#1268 <https://github.com/ethereum/web3.py/pull/1268>`_
-  - Remove ``web3/utils`` directory in favor of ``web3/_utils``
-    - `#1282 <https://github.com/ethereum/web3.py/pull/1282>`_
-  - Relocated personal RPC endpoints to Parity and Geth class
-    - `#1211 <https://github.com/ethereum/web3.py/pull/1211>`_
-  - Deprecated ``web3.net.chainId()``, ``web3.eth.getCompilers()``,
-    and ``web3.eth.getTransactionFromBlock()``. Removed ``web3.eth.enableUnauditedFeatures()``
-    - `#1270 <https://github.com/ethereum/web3.py/pull/1270>`_
-  - Relocated eth_protocolVersion and web3_clientVersion
-    - `#1274 <https://github.com/ethereum/web3.py/pull/1274>`_
-  - Relocated ``web3.txpool`` to ``web3.geth.txpool``
-    - `#1275 <https://github.com/ethereum/web3.py/pull/1275>`_
-  - Relocated admin module to Geth namespace
-    - `#1288 <https://github.com/ethereum/web3.py/pull/1288>`_
-  - Relocated miner module to Geth namespace
-    - `#1287 <https://github.com/ethereum/web3.py/pull/1287>`_
+   See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
+
+v5.0.0-alpha.9
+--------------
+Released March 26, 2019
+
+- Breaking Changes
+
+  - Raise error if there is no Infura API Key
+    - `#1294 <https://github.com/ethereum/web3.py/pull/1294>`_ &
+    - `#1299 <https://github.com/ethereum/web3.py/pull/1299>`_
+
+- Misc
+
+  - Upgraded Parity version for integration testing
+    - `#1292 <https://github.com/ethereum/web3.py/pull/1292>`_
 
 v5.0.0-alpha.8
 --------------

@@ -168,6 +168,11 @@ Then set the environment variable ``WEB3_INFURA_PROJECT_ID`` with your Project I
 
     $ export WEB3_INFURA_PROJECT_ID=YourProjectID
 
+If you have checked the box in the Infura UI indicating that requests need
+an optional secret key, set the environment variable ``WEB3_INFURA_API_SECRET``::
+
+    $ export WEB3_INFURA_API_SECRET=YourProjectSecret
+
 .. code-block:: python
 
     >>> from web3.auto.infura import w3
