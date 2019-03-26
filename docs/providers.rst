@@ -165,10 +165,16 @@ Then set the environment variable ``WEB3_INFURA_API_KEY`` with your API key::
 
     $ export WEB3_INFURA_API_KEY=YourApiKey
 
+If you have checked the box in the Infura UI indicating that requests need
+an optional secret key, set the environment variable ``WEB3_INFURA_API_SECRET``::
+
+    $ export WEB3_INFURA_API_SECRET=YourSecretKey
+
+
 .. code-block:: python
 
     >>> from web3.auto.infura import w3
-    
+
     # confirm that the connection succeeded
     >>> w3.isConnected()
     True
@@ -181,7 +187,7 @@ To connect to a ``geth --dev`` Proof of Authority instance with defaults:
 .. code-block:: python
 
     >>> from web3.auto.gethdev import w3
-    
+
     # confirm that the connection succeeded
     >>> w3.isConnected()
     True
