@@ -3,18 +3,13 @@ import logging
 import os
 import pytest
 
-from web3.auto import (
-    nodesmith,
-)
-
 from eth_utils import (
     ValidationError,
 )
 
-from web3.exceptions import (
-    InfuraKeyNotFound,
+from web3.auto import (
+    nodesmith,
 )
-
 from web3.auto.nodesmith import (
     goerli,
     kovan,
@@ -22,7 +17,9 @@ from web3.auto.nodesmith import (
     rinkeby,
     ropsten,
 )
-
+from web3.exceptions import (
+    InfuraKeyNotFound,
+)
 from web3.providers import (
     HTTPProvider,
     IPCProvider,

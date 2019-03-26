@@ -1,6 +1,6 @@
 from web3 import Web3
 from web3.providers.auto import (
-    load_provider_from_uri
+    load_provider_from_uri,
 )
 
 from .endpoints import (
