@@ -258,6 +258,10 @@ def generate_parity_fixture(destination_dir):
             parity_port=parity_port,
         ))
 
+        time.sleep(10)
+        shutil.make_archive(destination_dir, 'zip', destination_dir)
+        shutil.rmtree(destination_dir)
+
 
 def connect_nodes(w3_parity, w3_secondary):
     parity_peers = w3_parity.parity.netPeers()

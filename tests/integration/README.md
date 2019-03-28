@@ -89,6 +89,6 @@ The address of an account that can be unlocked using the `unlockable_account_pw`
 The password that can be used to unlock the `unlockable_account`
 
 
-# Creating a fixture zip file
+# Updating Fixture ZIPs
 
-Once you've generated a new fixture datadir for a client version. Zip the contents of the file, and list the 
+**ONLY** trusted parties should be allowed to update zipped fixtures, since they pose an attack surface through which a third party could inject malicious code into the codebase.

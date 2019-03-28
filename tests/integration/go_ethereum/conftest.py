@@ -1,8 +1,9 @@
 import json
 import os
-from pathlib import Path
+from pathlib import (
+    Path,
+)
 import pytest
-import shutil
 import subprocess
 import zipfile
 
@@ -10,10 +11,6 @@ from eth_utils import (
     is_checksum_address,
     is_dict,
     to_text,
-)
-
-from web3._utils.toolz import (
-    assoc,
 )
 
 from .utils import (
@@ -68,7 +65,6 @@ def geth_zipfile_version(geth_binary):
 
 @pytest.fixture(scope='module')
 def datadir(tmpdir_factory, geth_zipfile_version):
-    # how to create in future
     zipfile_path = absolute_datadir(geth_zipfile_version)
     base_dir = tmpdir_factory.mktemp('goethereum')
     tmp_datadir = os.path.join(str(base_dir), 'datadir')

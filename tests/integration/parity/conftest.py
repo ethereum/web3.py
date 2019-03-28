@@ -1,6 +1,5 @@
 import os
 import pytest
-import shutil
 import tempfile
 import zipfile
 
