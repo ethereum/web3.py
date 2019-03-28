@@ -1,7 +1,7 @@
 import os
 import pytest
-import shutil
 import tempfile
+import zipfile
 
 from eth_utils import (
     is_checksum_address,
@@ -20,7 +20,7 @@ KEYFILE_PW = 'web3py-test'
 
 
 PARITY_2_3_5_FIXTURE = {
-    'datadir': 'parity-235-fixture',
+    'zip': 'parity-235-fixture.zip',
     'coinbase': 'dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
     'block_hash_with_log': '0x8633d4b5497e5a7e81356cbe3f0a49b63fb2020ddeb6c8c27bcecec541055a3b',
     'block_with_txn_hash': '0xf474a7b80cb6cb2b728b290ce6a0893f5f85d2998c4b252d73300da56de205de',
@@ -62,14 +62,15 @@ def parity_fixture_data(parity_binary):
 
 @pytest.fixture(scope='module')
 def datadir(tmpdir_factory, parity_fixture_data):
-    fixture_datadir = os.path.abspath(os.path.join(
+    zipfile_path = os.path.abspath(os.path.join(
         os.path.dirname(__file__),
         '..',
-        parity_fixture_data['datadir'],
+        parity_fixture_data['zip'],
     ))
     base_dir = tmpdir_factory.mktemp('parity')
     tmp_datadir = os.path.join(str(base_dir), 'datadir')
-    shutil.copytree(fixture_datadir, tmp_datadir)
+    with zipfile.ZipFile(zipfile_path, 'r') as zip_ref:
+        zip_ref.extractall(tmp_datadir)
     return tmp_datadir
 
 

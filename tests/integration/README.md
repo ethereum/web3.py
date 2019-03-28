@@ -87,3 +87,8 @@ The address of an account that can be unlocked using the `unlockable_account_pw`
 #### `unlockable_account_pw`
 
 The password that can be used to unlock the `unlockable_account`
+
+
+# Updating Fixture ZIPs
+
+**ONLY** trusted parties should be allowed to update zipped fixtures, since they pose an attack surface through which a third party could inject malicious code into the codebase.
