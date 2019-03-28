@@ -150,7 +150,7 @@ def test_time_based_gas_price_strategy(strategy_params, expected):
     )
     w3.eth.setGasPriceStrategy(time_based_gas_price_strategy)
     actual = w3.eth.generateGasPrice()
-    assert int(actual) == expected
+    assert actual == expected
 
 
 @pytest.mark.parametrize(
