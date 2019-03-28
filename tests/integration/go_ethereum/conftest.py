@@ -1,8 +1,10 @@
 import json
 import os
+from pathlib import Path
 import pytest
 import shutil
 import subprocess
+import zipfile
 
 from eth_utils import (
     is_checksum_address,
@@ -20,36 +22,8 @@ from .utils import (
 
 KEYFILE_PW = 'web3py-test'
 
-
-GETH_16_FIXTURE = {
-    'datadir': 'geth-16-datadir-fixture',
-    'block_hash_with_log': '0x5d84bd72195aacbbf6f3ed66be7a16495ed470cbc3e4764c69e4be75ab084148',
-    'block_with_txn_hash': '0x4000549a8a573ed2e436de3a9014fdf71922f59aa11753870baa2ad03a32ebfc',
-    'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
-    'emitter_deploy_txn_hash': '0x1f676a3d88a8eb3210df677f3dca96edd78b646f8dcecab82d186d7394c8ab6c',
-    'empty_block_hash': '0xd09336bcc6164d8d958914f7800356a3bb0cf05f98e20aefc00ce23d9ca62d2d',
-    'keyfile_pw': 'web3py-test',
-    'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
-    'math_deploy_txn_hash': '0xbefcf394f431fd983901d16c155da2d009da720b7b88cb9c7dce66f5d3ac44e7',
-    'mined_txn_hash': '0x95110dd5943f513a1fd29767b48fe2178b973e99f5d73693d889081d7bdcd0c2',
-    'raw_txn_account': '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6',
-    'txn_hash_with_log': '0x2fd8dcd6ab1318245f8423df8e31f66f5d0fac2db34d7ab4a2a21a71037beae1',
-}
-GETH_17_FIXTURE = {
-    'datadir': 'geth-17-datadir-fixture',
-    'block_hash_with_log': '0x78a60c6b31c7af5e5ce87bad73b595dfe5b8715b161f4d3ded468ddcb14b5aeb',
-    'block_with_txn_hash': '0x034faac7d0932774d9d837a97d55061a2dca9724c9779427a075f0a475aa3f43',
-    'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
-    'emitter_deploy_txn_hash': '0x1f676a3d88a8eb3210df677f3dca96edd78b646f8dcecab82d186d7394c8ab6c',
-    'empty_block_hash': '0xc7a1b4c19f6c1d830a743f7a93a58bab129f4671f1eb1a82ae77e6643d733b9b',
-    'keyfile_pw': 'web3py-test',
-    'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
-    'math_deploy_txn_hash': '0xbefcf394f431fd983901d16c155da2d009da720b7b88cb9c7dce66f5d3ac44e7',
-    'mined_txn_hash': '0x95110dd5943f513a1fd29767b48fe2178b973e99f5d73693d889081d7bdcd0c2',
-    'raw_txn_account': '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6',
-    'txn_hash_with_log': '0x2fd8dcd6ab1318245f8423df8e31f66f5d0fac2db34d7ab4a2a21a71037beae1',
-}
-GETH_181_DIRECTORY_NAME = 'geth-1.8.1-datadir-fixture'
+GETH_17_ZIP = 'geth-17-fixture.zip'
+GETH_181_ZIP = 'geth-1.8.1-fixture.zip'
 
 
 @pytest.fixture(scope='module')
@@ -80,35 +54,33 @@ def absolute_datadir(directory_name):
     ))
 
 
-def load_fixture_data(fixture_path):
-    fixture_path = absolute_datadir(fixture_path)
-    config_path = os.path.join(fixture_path, 'config.json')
-    with open(config_path) as config_file:
-        loaded_data = json.loads(config_file.read())
-        return assoc(loaded_data, 'datadir', fixture_path)
-
-
 @pytest.fixture(scope="module")
-def geth_fixture_data(geth_binary):
+def geth_zipfile_version(geth_binary):
     from geth import get_geth_version
     version = get_geth_version(geth_executable=os.path.expanduser(geth_binary))
     if version.major == 1:
-        if version.minor == 6:
-            return GETH_16_FIXTURE
-        elif version.minor == 7:
-            return GETH_17_FIXTURE
+        if version.minor == 7:
+            return GETH_17_ZIP
         elif version.minor == 8:
-            return load_fixture_data(GETH_181_DIRECTORY_NAME)
+            return GETH_181_ZIP
     assert False, "Unsupported geth version"
 
 
 @pytest.fixture(scope='module')
-def datadir(tmpdir_factory, geth_fixture_data):
-    fixture_datadir = absolute_datadir(geth_fixture_data['datadir'])
+def datadir(tmpdir_factory, geth_zipfile_version):
+    # how to create in future
+    zipfile_path = absolute_datadir(geth_zipfile_version)
     base_dir = tmpdir_factory.mktemp('goethereum')
     tmp_datadir = os.path.join(str(base_dir), 'datadir')
-    shutil.copytree(fixture_datadir, tmp_datadir)
+    with zipfile.ZipFile(zipfile_path, 'r') as zip_ref:
+        zip_ref.extractall(tmp_datadir)
     return tmp_datadir
+
+
+@pytest.fixture(scope="module")
+def geth_fixture_data(datadir):
+    config_file_path = Path(datadir) / 'config.json'
+    return json.loads(config_file_path.read_text())
 
 
 @pytest.fixture(scope='module')

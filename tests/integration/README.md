@@ -87,3 +87,8 @@ The address of an account that can be unlocked using the `unlockable_account_pw`
 #### `unlockable_account_pw`
 
 The password that can be used to unlock the `unlockable_account`
+
+
+# Creating a fixture zip file
+
+Once you've generated a new fixture datadir for a client version. Zip the contents of the file, and list the 
