@@ -153,6 +153,18 @@ The following properties are available on the ``web3.eth`` namespace.
        '63'
 
 
+.. py:attribute:: Eth.chainId
+
+    * Delegates to ``eth_chainId`` RPC Method
+
+    Returns a hex-encoded integer value for the currently configured "Chain Id" value introduced in `EIP-155 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_. Returns ``None`` if no Chain Id is available.
+
+    .. code-block:: python
+
+       >>> web3.eth.chainId
+       '0x3d'
+
+
 Methods
 -------
 

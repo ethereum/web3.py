@@ -65,6 +65,11 @@ class GoEthereumEthModuleTest(EthModuleTest):
             pytest.xfail('eth_submitHashrate depracated in 1.8.22 for ethash_submitHashRate')
         super().test_eth_submitHashrate(web3)
 
+    def test_eth_chainId(self, web3):
+        if 'v1.7.2' in web3.clientVersion:
+            pytest.xfail('eth_chainId not implemented in geth 1.7.2')
+        super().test_eth_chainId(web3)
+
 
 class GoEthereumVersionModuleTest(VersionModuleTest):
     pass

@@ -101,6 +101,10 @@ class Eth(Module):
     def blockNumber(self):
         return self.web3.manager.request_blocking("eth_blockNumber", [])
 
+    @property
+    def chainId(self):
+        return self.web3.manager.request_blocking("eth_chainId", [])
+
     def getBalance(self, account, block_identifier=None):
         if block_identifier is None:
             block_identifier = self.defaultBlock

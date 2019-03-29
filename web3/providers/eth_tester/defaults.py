@@ -170,6 +170,7 @@ API_ENDPOINTS = {
         ),
         'mining': static_return(False),
         'hashrate': static_return(0),
+        'chainId': static_return('0x3d'),
         'gasPrice': static_return(1),
         'accounts': call_eth_tester('get_accounts'),
         'blockNumber': compose(
