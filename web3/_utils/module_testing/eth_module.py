@@ -196,7 +196,7 @@ class EthModuleTest:
         )
         assert new_signature != signature
 
-    def test_eth_signTransaction(self, web3, unlocked_account, geth_signed_tx=None):
+    def test_eth_signTransaction(self, web3, unlocked_account):
         txn_params = {
             'from': unlocked_account,
             'to': unlocked_account,
@@ -205,13 +205,9 @@ class EthModuleTest:
             'gasPrice': web3.eth.gasPrice,
             'nonce': 0,
         }
-        COINBASE_PK = '0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d'
         result = web3.eth.signTransaction(txn_params)
-        actual = web3.eth.account.signTransaction(txn_params, COINBASE_PK)
-        if geth_signed_tx:
-            assert result['raw'] == geth_signed_tx
-        else:
-            assert result['raw'] == actual.rawTransaction
+        signatory_account = web3.eth.account.recoverTransaction(result['raw'])
+        assert unlocked_account == signatory_account
         assert result['tx']['to'] == txn_params['to']
         assert result['tx']['value'] == txn_params['value']
         assert result['tx']['gas'] == txn_params['gas']

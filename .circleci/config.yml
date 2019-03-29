@@ -81,8 +81,8 @@ geth_steps: &geth_steps
           export GOROOT=/usr/local/go
           export GETH_BINARY="$HOME/.py-geth/geth-$GETH_VERSION/bin/geth"
           if [ ! -e "$GETH_BINARY" ]; then
-            curl -O https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz
-            tar xvf go1.7.4.linux-amd64.tar.gz
+            curl -O https://storage.googleapis.com/golang/go1.12.1.linux-amd64.tar.gz
+            tar xvf go1.12.1.linux-amd64.tar.gz
             sudo chown -R root:root ./go
             sudo mv go /usr/local
             sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
@@ -163,29 +163,29 @@ jobs:
       TOXENV: py36-integration-goethereum-ws
       GETH_VERSION: v1.7.2
 
-  py36-integration-goethereum-ipc-1.8.1:
+  py36-integration-goethereum-ipc-1.8.22:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-goethereum-ipc
-      GETH_VERSION: v1.8.1
+      GETH_VERSION: v1.8.22
 
-  py36-integration-goethereum-http-1.8.1:
+  py36-integration-goethereum-http-1.8.22:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-goethereum-http
-      GETH_VERSION: v1.8.1
+      GETH_VERSION: v1.8.22
 
-  py36-integration-goethereum-ws-1.8.1:
+  py36-integration-goethereum-ws-1.8.22:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-goethereum-ws
-      GETH_VERSION: v1.8.1
+      GETH_VERSION: v1.8.22
 
   py36-integration-parity-ipc:
     <<: *parity_steps
@@ -262,29 +262,29 @@ jobs:
       TOXENV: py37-integration-goethereum-ws
       GETH_VERSION: v1.7.2
 
-  py37-integration-goethereum-ipc-1.8.1:
+  py37-integration-goethereum-ipc-1.8.22:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ipc
-      GETH_VERSION: v1.8.1
+      GETH_VERSION: v1.8.22
 
-  py37-integration-goethereum-http-1.8.1:
+  py37-integration-goethereum-http-1.8.22:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-http
-      GETH_VERSION: v1.8.1
+      GETH_VERSION: v1.8.22
 
-  py37-integration-goethereum-ws-1.8.1:
+  py37-integration-goethereum-ws-1.8.22:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ws
-      GETH_VERSION: v1.8.1
+      GETH_VERSION: v1.8.22
 
   py37-integration-parity-ipc:
     <<: *parity_steps
@@ -332,9 +332,9 @@ workflows:
       - py36-integration-goethereum-ipc-1.7.2
       - py36-integration-goethereum-http-1.7.2
       - py36-integration-goethereum-ws-1.7.2
-      - py36-integration-goethereum-ipc-1.8.1
-      - py36-integration-goethereum-http-1.8.1
-      - py36-integration-goethereum-ws-1.8.1
+      - py36-integration-goethereum-ipc-1.8.22
+      - py36-integration-goethereum-http-1.8.22
+      - py36-integration-goethereum-ws-1.8.22
       - py36-integration-parity-ipc
       - py36-integration-parity-http
       - py36-integration-parity-ws
@@ -344,9 +344,9 @@ workflows:
       - py37-integration-goethereum-ipc-1.7.2
       - py37-integration-goethereum-http-1.7.2
       - py37-integration-goethereum-ws-1.7.2
-      - py37-integration-goethereum-ipc-1.8.1
-      - py37-integration-goethereum-http-1.8.1
-      - py37-integration-goethereum-ws-1.8.1
+      - py37-integration-goethereum-ipc-1.8.22
+      - py37-integration-goethereum-http-1.8.22
+      - py37-integration-goethereum-ws-1.8.22
       - py37-integration-parity-ipc
       - py37-integration-parity-http
       - py37-integration-parity-ws
