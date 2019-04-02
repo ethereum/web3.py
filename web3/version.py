@@ -44,13 +44,18 @@ class BlockingVersion(BaseVersion):
 class Version(Module):
     @property
     def api(self):
-        from web3 import __version__
-        return __version__
+        raise DeprecationWarning(
+            "This method has been deprecated ... Please use web3.api instead."
+        )
 
     @property
     def node(self):
-        raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
+        raise DeprecationWarning(
+            "This method has been deprecated ... Please use web3.clientVersion instead."
+        )
 
     @property
     def ethereum(self):
-        raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
+        raise DeprecationWarning(
+            "This method has been deprecated ... Please use web3.eth.protocolVersion instead."
+        )

@@ -480,7 +480,8 @@ class PM(Module):
             * ``package_name``: Must be a valid package name, matching the given manifest.
             * ``version``: Must be a valid package version, matching the given manifest.
             * ``manifest_uri``: Must be a valid content-addressed URI. Currently, only IPFS
-            and Github content-addressed URIs are supported.
+              and Github content-addressed URIs are supported.
+
         """
         validate_is_supported_manifest_uri(manifest_uri)
         raw_manifest = to_text(resolve_uri_contents(manifest_uri))

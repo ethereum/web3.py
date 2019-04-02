@@ -154,6 +154,11 @@ class Web3:
     def clientVersion(self):
         return self.manager.request_blocking("web3_clientVersion", [])
 
+    @property
+    def api(self):
+        from web3 import __version__
+        return __version__
+
     @deprecated_for("keccak")
     @apply_to_return_value(HexBytes)
     def sha3(primitive=None, text=None, hexstr=None):
