@@ -33,31 +33,7 @@ from web3.personal import (
     sign,
     unlockAccount,
 )
-from web3.shh import (
-    addPrivateKey,
-    addSymKey,
-    deleteKeyPair,
-    deleteMessageFilter,
-    deleteSymKey,
-    generateSymKeyFromPassword,
-    getFilterMessages,
-    getPrivateKey,
-    getPublicKey,
-    getSymKey,
-    hasKeyPair,
-    hasSymKey,
-    info,
-    markTrustedPeer,
-    newKeyPair,
-    newMessageFilter,
-    newSymKey,
-    post,
-    setMaxMessageSize,
-    setMinPoW,
-    subscribe,
-    unsubscribe,
-    version,
-)
+from web3 import shh
 from web3.txpool import (
     content,
     inspect,
@@ -73,78 +49,78 @@ class GethPersonal(ModuleV2):
     """
     https://github.com/ethereum/go-ethereum/wiki/management-apis#personal
     """
-    ecRecover = ecRecover()
-    importRawKey = importRawKey()
-    listAccounts = listAccounts()
-    lockAccount = lockAccount()
-    newAccount = newAccount()
-    sendTransaction = sendTransaction()
-    sign = sign()
-    unlockAccount = unlockAccount()
+    ecRecover = ecRecover
+    importRawKey = importRawKey
+    listAccounts = listAccounts
+    lockAccount = lockAccount
+    newAccount = newAccount
+    sendTransaction = sendTransaction
+    sign = sign
+    unlockAccount = unlockAccount
 
 
 class GethTxPool(ModuleV2):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#txpool
     """
-    content = content()
-    inspect = inspect()
-    status = status()
+    content = content
+    inspect = inspect
+    status = status
 
 
 class GethAdmin(ModuleV2):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#admin
     """
-    addPeer = addPeer()
-    datadir = datadir()
-    nodeInfo = nodeInfo()
-    peers = peers()
-    setSolc = setSolc()
-    startRPC = startRPC()
-    startWS = startWS()
-    stopRPC = stopRPC()
-    stopWS = stopWS()
+    addPeer = addPeer
+    datadir = datadir
+    nodeInfo = nodeInfo
+    peers = peers
+    setSolc = setSolc
+    startRPC = startRPC
+    startWS = startWS
+    stopRPC = stopRPC
+    stopWS = stopWS
 
 
 class GethMiner(ModuleV2):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#miner
     """
-    makeDag = makeDag()
-    setExtra = setExtra()
-    setEtherbase = setEtherbase()
-    setGasPrice = setGasPrice()
-    start = start()
-    stop = stop()
-    startAutoDag = startAutoDag()
-    stopAutoDag = stopAutoDag()
+    makeDag = makeDag
+    setExtra = setExtra
+    setEtherbase = setEtherbase
+    setGasPrice = setGasPrice
+    start = start
+    stop = stop
+    startAutoDag = startAutoDag
+    stopAutoDag = stopAutoDag
 
 
 class GethShh(ModuleV2):
     """
     https://github.com/ethereum/go-ethereum/wiki/Whisper-v6-RPC-API
     """
-    version = version()
-    info = info()
-    setMaxMessageSize = setMaxMessageSize()
-    setMinPoW = setMinPoW()
-    markTrustedPeer = markTrustedPeer()
-    newKeyPair = newKeyPair()
-    addPrivateKey = addPrivateKey()
-    deleteKeyPair = deleteKeyPair()
-    hasKeyPair = hasKeyPair()
-    getPublicKey = getPublicKey()
-    getPrivateKey = getPrivateKey()
-    newSymKey = newSymKey()
-    addSymKey = addSymKey()
-    generateSymKeyFromPassword = generateSymKeyFromPassword()
-    hasSymKey = hasSymKey()
-    getSymKey = getSymKey()
-    deleteSymKey = deleteSymKey()
-    post = post()
-    newMessageFilter = newMessageFilter()
-    deleteMessageFilter = deleteMessageFilter()
-    getMessages = getFilterMessages()
-    subscribe = subscribe()
-    unsubscribe = unsubscribe()
+    version = shh.version
+    info = shh.info
+    setMaxMessageSize = shh.setMaxMessageSize
+    setMinPoW = shh.setMinPoW
+    markTrustedPeer = shh.markTrustedPeer
+    newKeyPair = shh.newKeyPair
+    addPrivateKey = shh.addPrivateKey
+    deleteKeyPair = shh.deleteKeyPair
+    hasKeyPair = shh.hasKeyPair
+    getPublicKey = shh.getPublicKey
+    getPrivateKey = shh.getPrivateKey
+    newSymKey = shh.newSymKey
+    addSymKey = shh.addSymKey
+    generateSymKeyFromPassword =  shh.generateSymKeyFromPassword
+    hasSymKey = shh.hasSymKey
+    getSymKey = shh.getSymKey
+    deleteSymKey = shh.deleteSymKey
+    post = shh.post
+    newMessageFilter = shh.newMessageFilter
+    deleteMessageFilter = shh.deleteMessageFilter
+    getMessages = shh.getFilterMessages
+    subscribe = shh.subscribe
+    unsubscribe = shh.unsubscribe

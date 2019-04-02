@@ -41,34 +41,34 @@ class ParityShh(ModuleV2):
     """
     https://wiki.parity.io/JSONRPC-shh-module
     """
-    info = info()
-    newKeyPair = newKeyPair()
-    addPrivateKey = addPrivateKey()
-    newSymKey = newSymKey()
-    addSymKey = addSymKey()
-    getPublicKey = getPublicKey()
-    getPrivateKey = getPrivateKey()
-    getSymKey = getSymKey()
-    post = post()
-    newMessageFilter = newMessageFilter()
-    deleteMessageFilter = deleteMessageFilter()
-    getFilterMessages = getFilterMessages()
-    deleteKey = deleteKey()
-    subscribe = subscribe()
-    unsubscribe = unsubscribe()
+    info = info
+    newKeyPair = newKeyPair
+    addPrivateKey = addPrivateKey
+    newSymKey = newSymKey
+    addSymKey = addSymKey
+    getPublicKey = getPublicKey
+    getPrivateKey = getPrivateKey
+    getSymKey = getSymKey
+    post = post
+    newMessageFilter = newMessageFilter
+    deleteMessageFilter = deleteMessageFilter
+    getFilterMessages = getFilterMessages
+    deleteKey = deleteKey
+    subscribe = subscribe
+    unsubscribe = unsubscribe
 
 
 class ParityPersonal(ModuleV2):
     """
     https://wiki.parity.io/JSONRPC-personal-module
     """
-    ecRecover = ecRecover()
-    importRawKey = importRawKey()
-    listAccounts = listAccounts()
-    newAccount = newAccount()
-    sendTransaction = sendTransaction()
-    sign = sign()
-    unlockAccount = unlockAccount()
+    ecRecover = ecRecover
+    importRawKey = importRawKey
+    listAccounts = listAccounts
+    newAccount = newAccount
+    sendTransaction = sendTransaction
+    sign = sign
+    unlockAccount = unlockAccount
 
 
 class Parity(Module):

@@ -4,57 +4,49 @@ from web3.method import (
 )
 
 
-def makeDag():
-    return Method(
-        "miner_makeDag",
-        mungers=[default_root_munger],
-    )
+makeDag = Method(
+    "miner_makeDag",
+    mungers=[default_root_munger],
+)
 
 
-def setExtra():
-    return Method(
-        "miner_setExtra",
-        mungers=[default_root_munger],
-    )
+setExtra = Method(
+    "miner_setExtra",
+    mungers=[default_root_munger],
+)
 
 
-def setEtherbase():
-    return Method(
-        "miner_setEtherbase",
-        mungers=[default_root_munger],
-    )
+setEtherbase = Method(
+    "miner_setEtherbase",
+    mungers=[default_root_munger],
+)
 
 
-def setGasPrice():
-    return Method(
-        "miner_setGasPrice",
-        mungers=[default_root_munger],
-    )
+setGasPrice = Method(
+    "miner_setGasPrice",
+    mungers=[default_root_munger],
+)
 
 
-def start():
-    return Method(
-        "miner_start",
-        mungers=[default_root_munger],
-    )
+start = Method(
+    "miner_start",
+    mungers=[default_root_munger],
+)
 
 
-def stop():
-    return Method(
-        "miner_stop",
-        mungers=None,
-    )
+stop = Method(
+    "miner_stop",
+    mungers=None,
+)
 
 
-def startAutoDag():
-    return Method(
-        "miner_startAutoDag",
-        mungers=None,
-    )
+startAutoDag = Method(
+    "miner_startAutoDag",
+    mungers=None,
+)
 
 
-def stopAutoDag():
-    return Method(
-        "miner_stopAutoDag",
-        mungers=None,
-    )
+stopAutoDag = Method(
+    "miner_stopAutoDag",
+    mungers=None,
+)

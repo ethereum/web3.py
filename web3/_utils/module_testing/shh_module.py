@@ -200,6 +200,10 @@ class GoEthereumShhModuleTest():
             assert version == '6.0'
 
     def test_shh_info(self, web3):
+        pre_info = web3.geth.shh.info()
+        assert pre_info["maxMessageSize"] is not 1024
+        assert pre_info["minPow"] is not 0.5
+
         web3.geth.shh.setMaxMessageSize(1024)
         web3.geth.shh.setMinPoW(0.5)
 
