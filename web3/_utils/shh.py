@@ -3,7 +3,6 @@ from web3.method import (
     default_root_munger,
 )
 
-
 version = Method(
     "shh_version",
     mungers=None,

@@ -2,7 +2,6 @@ from web3.method import (
     Method,
 )
 
-
 content = Method(
     "txpool_content",
     mungers=None,

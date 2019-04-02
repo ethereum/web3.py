@@ -3,7 +3,6 @@ from web3.method import (
     default_root_munger,
 )
 
-
 importRawKey = Method(
     "personal_importRawKey",
     mungers=[default_root_munger],

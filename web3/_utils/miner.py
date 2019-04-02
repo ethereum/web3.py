@@ -3,7 +3,6 @@ from web3.method import (
     default_root_munger,
 )
 
-
 makeDag = Method(
     "miner_makeDag",
     mungers=[default_root_munger],

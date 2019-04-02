@@ -2,14 +2,7 @@ from eth_utils import (
     is_checksum_address,
 )
 
-from web3._utils.toolz import (
-    assoc,
-)
-from web3.module import (
-    Module,
-    ModuleV2,
-)
-from web3.personal import (
+from web3._utils.personal import (
     ecRecover,
     importRawKey,
     listAccounts,
@@ -18,7 +11,7 @@ from web3.personal import (
     sign,
     unlockAccount,
 )
-from web3.shh import (
+from web3._utils.shh import (
     addPrivateKey,
     addSymKey,
     deleteKey,
@@ -34,6 +27,13 @@ from web3.shh import (
     post,
     subscribe,
     unsubscribe,
+)
+from web3._utils.toolz import (
+    assoc,
+)
+from web3.module import (
+    Module,
+    ModuleV2,
 )
 
 

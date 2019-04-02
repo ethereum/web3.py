@@ -1,4 +1,7 @@
-from web3.admin import (
+from web3._utils import (
+    shh,
+)
+from web3._utils.admin import (
     addPeer,
     datadir,
     nodeInfo,
@@ -9,7 +12,7 @@ from web3.admin import (
     stopRPC,
     stopWS,
 )
-from web3.miner import (
+from web3._utils.miner import (
     makeDag,
     setEtherbase,
     setExtra,
@@ -19,11 +22,7 @@ from web3.miner import (
     stop,
     stopAutoDag,
 )
-from web3.module import (
-    Module,
-    ModuleV2,
-)
-from web3.personal import (
+from web3._utils.personal import (
     ecRecover,
     importRawKey,
     listAccounts,
@@ -33,11 +32,14 @@ from web3.personal import (
     sign,
     unlockAccount,
 )
-from web3 import shh
-from web3.txpool import (
+from web3._utils.txpool import (
     content,
     inspect,
     status,
+)
+from web3.module import (
+    Module,
+    ModuleV2,
 )
 
 
@@ -114,7 +116,7 @@ class GethShh(ModuleV2):
     getPrivateKey = shh.getPrivateKey
     newSymKey = shh.newSymKey
     addSymKey = shh.addSymKey
-    generateSymKeyFromPassword =  shh.generateSymKeyFromPassword
+    generateSymKeyFromPassword = shh.generateSymKeyFromPassword
     hasSymKey = shh.hasSymKey
     getSymKey = shh.getSymKey
     deleteSymKey = shh.deleteSymKey
