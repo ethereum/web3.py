@@ -83,10 +83,10 @@ class Parity(Module):
             [],
         )
 
-    def addReservedPeer(self, params):
+    def addReservedPeer(self, url):
         return self.web3.manager.request_blocking(
             "parity_addReservedPeer",
-            params,
+            [url],
         )
 
     def traceReplayTransaction(self, transaction_hash, mode=['trace']):
