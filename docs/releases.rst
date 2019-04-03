@@ -4,6 +4,50 @@ Release Notes
 v5 Breaking Changes Summary
    See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
+v5.0.0-alpha.10
+---------------
+Released April 15, 2019
+
+- Features
+
+  - Add getLogs by blockHash
+    - `#1269 <https://github.com/ethereum/web3.py/pull/1269>`_
+  - Implement chainId endpoint
+    - `#1295 <https://github.com/ethereum/web3.py/pull/1295>`_
+  - Moved non-standard JSON-RPC endpoints to applicable
+    Parity/Geth docs. Deprecated ``web3.version`` for ``web3.api``
+    - `#1290 <https://github.com/ethereum/web3.py/pull/1290>`_
+  - Moved Whisper endpoints to applicable Geth or Parity namespace
+    - `#1308 <https://github.com/ethereum/web3.py/pull/1308>`_
+  - Added support for Goerli provider
+    - `#1286 <https://github.com/ethereum/web3.py/pull/1286>`_
+  - Added addReservedPeer to Parity module
+    - `#1311 <https://github.com/ethereum/web3.py/pull/1311>`_
+
+- Bugfixes
+
+  - Cast gas price values to integers in gas strategies
+    - `#1297 <https://github.com/ethereum/web3.py/pull/1297>`_
+  - Missing constructor function no longer ignores constructor args
+    - `#1316 <https://github.com/ethereum/web3.py/pull/1316>`_
+
+- Misc
+
+  - Require eth-utils >= 1.4, downgrade Go version for integration tests
+    - `#1310 <https://github.com/ethereum/web3.py/pull/1310>`_
+  - Fix doc build warnings
+    - `#1331 <https://github.com/ethereum/web3.py/pull/1331>`_
+  - Zip Fixture data
+    - `#1307 <https://github.com/ethereum/web3.py/pull/1307>`_
+  - Update Geth version for integration tests
+    - `#1301 <https://github.com/ethereum/web3.py/pull/1301>`_
+  - Remove unneeded testrpc
+    - `#1322 <https://github.com/ethereum/web3.py/pull/1322>`_
+  - Add ContractCaller docs to v5 migration guide
+    - `#1323 <https://github.com/ethereum/web3.py/pull/1323>`_
+
+
+
 v5.0.0-alpha.9
 --------------
 Released March 26, 2019
