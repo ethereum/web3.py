@@ -91,13 +91,7 @@ class ParityModuleTest:
         trace = web3.parity.traceFilter(txn_filter_params)
         assert isinstance(trace, list)
         assert trace[0]['action']['from'] == add_0x_prefix(parity_fixture_data['coinbase'])
-        
-    
-    @pytest.mark.parametrize(
-        'params',
- ['enode://f1a6b0bdbf014355587c3018454d070ac57801f05d3b39fe85da574f002a32e929f683d72aa5a8318382e4d3c7a05c9b91687b0d997a39619fb8a6e7ad88e512@1.1.1.1:30300']
-    )
-    def test_add_reserved_peer(self, web3, params):
-        response = web3.parity.addReservedPeer([params])
-        assert response["result"]==True
-        
+
+    def test_add_reserved_peer(self, web3):
+        peer_addr = 'enode://f1a6b0bdbf014355587c3018454d070ac57801f05d3b39fe85da574f002a32e929f683d72aa5a8318382e4d3c7a05c9b91687b0d997a39619fb8a6e7ad88e512@1.1.1.1:30300'  # noqa: E501
+        assert web3.parity.addReservedPeer(peer_addr)
