@@ -80,10 +80,6 @@ Each ``web3`` instance also exposes these namespaced APIs.
 
     See :doc:`./web3.eth`
 
-.. py:attribute:: Web3.shh
-
-    See :doc:`./web3.shh`
-
 .. py:attribute:: Web3.miner
 
     See :doc:`./web3.miner`

@@ -330,6 +330,7 @@ class ParityShhModuleTest():
         time.sleep(1)
 
         # Commented out until parity filter bug is resolved
+        # https://github.com/paritytech/parity-ethereum/issues/10565
         # message = ShhFilter(web3, shh_filter).get_new_entries()
         # assert message["payload"] == HexBytes(payload)
 

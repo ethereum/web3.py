@@ -28,7 +28,6 @@ Contents
     web3.eth
     web3.eth.account
     web3.pm
-    web3.shh
     web3.net
     web3.miner
     web3.geth

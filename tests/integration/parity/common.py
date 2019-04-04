@@ -175,9 +175,11 @@ class ParityTraceModuleTest(TraceModuleTest):
 
 class CommonParityShhModuleTest(ParityShhModuleTest):
     def test_shh_sync_filter(self, web3):
+        # https://github.com/paritytech/parity-ethereum/issues/10565
         pytest.xfail("Skip until parity filter bug is resolved")
         super().test_shh_sync_filter(web3)
 
     def test_shh_async_filter(self, web3):
+        # https://github.com/paritytech/parity-ethereum/issues/10565
         pytest.xfail("Skip until parity filter bug is resolved")
         super().test_shh_async_filter(web3)

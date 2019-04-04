@@ -2,6 +2,9 @@ from eth_utils import (
     is_checksum_address,
 )
 
+from web3._utils import (
+    shh,
+)
 from web3._utils.personal import (
     ecRecover,
     importRawKey,
@@ -10,23 +13,6 @@ from web3._utils.personal import (
     sendTransaction,
     sign,
     unlockAccount,
-)
-from web3._utils.shh import (
-    addPrivateKey,
-    addSymKey,
-    deleteKey,
-    deleteMessageFilter,
-    getFilterMessages,
-    getPrivateKey,
-    getPublicKey,
-    getSymKey,
-    info,
-    newKeyPair,
-    newMessageFilter,
-    newSymKey,
-    post,
-    subscribe,
-    unsubscribe,
 )
 from web3._utils.toolz import (
     assoc,
@@ -41,21 +27,21 @@ class ParityShh(ModuleV2):
     """
     https://wiki.parity.io/JSONRPC-shh-module
     """
-    info = info
-    newKeyPair = newKeyPair
-    addPrivateKey = addPrivateKey
-    newSymKey = newSymKey
-    addSymKey = addSymKey
-    getPublicKey = getPublicKey
-    getPrivateKey = getPrivateKey
-    getSymKey = getSymKey
-    post = post
-    newMessageFilter = newMessageFilter
-    deleteMessageFilter = deleteMessageFilter
-    getFilterMessages = getFilterMessages
-    deleteKey = deleteKey
-    subscribe = subscribe
-    unsubscribe = unsubscribe
+    info = shh.info
+    newKeyPair = shh.newKeyPair
+    addPrivateKey = shh.addPrivateKey
+    newSymKey = shh.newSymKey
+    addSymKey = shh.addSymKey
+    getPublicKey = shh.getPublicKey
+    getPrivateKey = shh.getPrivateKey
+    getSymKey = shh.getSymKey
+    post = shh.post
+    newMessageFilter = shh.newMessageFilter
+    deleteMessageFilter = shh.deleteMessageFilter
+    getFilterMessages = shh.getFilterMessages
+    deleteKey = shh.deleteKey
+    subscribe = shh.subscribe
+    unsubscribe = shh.unsubscribe
 
 
 class ParityPersonal(ModuleV2):
