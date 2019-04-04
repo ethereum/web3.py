@@ -41,7 +41,7 @@ extras_require = {
         "pytest-mock==1.*",
         "pytest-pythonpath>=0.3",
         "pytest-watch==4.*",
-        "pytest-xdist==1.*",
+        "pytest-xdist==1.27.0",
         "setuptools>=36.2.0",
         "tox>=1.8.0",
         "tqdm",
