@@ -474,6 +474,10 @@ class Contract:
                 encode_abi(cls.web3, constructor_abi, arguments, data=cls.bytecode)
             )
         else:
+            if args is not None or kwargs is not None:
+                msg = "Constructor args were provided, but no constructor function was provided."
+                raise TypeError(msg)
+
             deploy_data = to_hex(cls.bytecode)
 
         return deploy_data
