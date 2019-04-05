@@ -3,6 +3,7 @@ import pytest
 from web3._utils.module_testing import (  # noqa: F401
     EthModuleTest,
     GoEthereumPersonalModuleTest,
+    GoEthereumShhModuleTest,
     NetModuleTest,
     VersionModuleTest,
     Web3ModuleTest,
@@ -62,7 +63,7 @@ class GoEthereumEthModuleTest(EthModuleTest):
     def test_eth_submitHashrate(self, web3):
         if 'v1.8.22' in web3.clientVersion:
             # https://github.com/ethereum/go-ethereum/commit/51db5975cc5fb88db6a0dba1826b534fd4df29d7
-            pytest.xfail('eth_submitHashrate depracated in 1.8.22 for ethash_submitHashRate')
+            pytest.xfail('eth_submitHashrate deprecated in 1.8.22 for ethash_submitHashRate')
         super().test_eth_submitHashrate(web3)
 
     def test_eth_chainId(self, web3):
@@ -77,3 +78,20 @@ class GoEthereumVersionModuleTest(VersionModuleTest):
 
 class GoEthereumNetModuleTest(NetModuleTest):
     pass
+
+
+class CommonGoEthereumShhModuleTest(GoEthereumShhModuleTest):
+    def test_shh_sync_filter(self, web3):
+        if 'v1.7.2' in web3.clientVersion:
+            pytest.xfail('Whisper version 6 not supported in geth 1.7.2')
+        super().test_shh_sync_filter(web3)
+
+    def test_shh_async_filter(self, web3):
+        if 'v1.7.2' in web3.clientVersion:
+            pytest.xfail('Whisper version 6 not supported in geth 1.7.2')
+        super().test_shh_async_filter(web3)
+
+    def test_shh_post(self, web3):
+        if 'v1.7.2' in web3.clientVersion:
+            pytest.xfail('Whisper version 6 not supported in geth 1.7.2')
+        super().test_shh_post(web3)
