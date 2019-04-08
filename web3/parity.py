@@ -1,6 +1,9 @@
 from eth_utils import (
     is_checksum_address,
 )
+from eth_utils.toolz import (
+    assoc,
+)
 
 from web3._utils import (
     shh,
@@ -14,9 +17,6 @@ from web3._utils.personal import (
     sign,
     signTypedData,
     unlockAccount,
-)
-from web3._utils.toolz import (
-    assoc,
 )
 from web3.module import (
     Module,

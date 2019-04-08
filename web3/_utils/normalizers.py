@@ -20,6 +20,9 @@ from eth_utils import (
 from eth_utils.address import (
     is_binary_address,
 )
+from eth_utils.toolz import (
+    curry,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -35,9 +38,6 @@ from web3._utils.ens import (
     StaticENS,
     is_ens_name,
     validate_name_has_address,
-)
-from web3._utils.toolz import (
-    curry,
 )
 from web3._utils.validation import (
     validate_abi,

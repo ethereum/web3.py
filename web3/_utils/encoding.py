@@ -19,6 +19,9 @@ from eth_utils import (
     remove_0x_prefix,
     to_hex,
 )
+from eth_utils.toolz import (
+    curry,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -33,9 +36,6 @@ from web3._utils.abi import (
     is_uint_type,
     size_of_type,
     sub_type_of_array_type,
-)
-from web3._utils.toolz import (
-    curry,
 )
 from web3._utils.validation import (
     assert_one_val,

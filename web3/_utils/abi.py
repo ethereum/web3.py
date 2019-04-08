@@ -43,17 +43,17 @@ from eth_utils import (
 from eth_utils.abi import (
     collapse_if_tuple,
 )
+from eth_utils.toolz import (
+    curry,
+    partial,
+    pipe,
+)
 
 from web3._utils.ens import (
     is_ens_name,
 )
 from web3._utils.formatters import (
     recursive_map,
-)
-from web3._utils.toolz import (
-    curry,
-    partial,
-    pipe,
 )
 from web3.exceptions import (
     FallbackNotFound,

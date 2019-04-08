@@ -15,6 +15,9 @@ from eth_keys.datatypes import (
 from eth_utils import (
     to_dict,
 )
+from eth_utils.toolz import (
+    compose,
+)
 
 from web3._utils.formatters import (
     apply_formatter_if,
@@ -22,9 +25,6 @@ from web3._utils.formatters import (
 from web3._utils.rpc_abi import (
     TRANSACTION_PARAMS_ABIS,
     apply_abi_formatters_to_dict,
-)
-from web3._utils.toolz import (
-    compose,
 )
 from web3._utils.transactions import (
     fill_nonce,

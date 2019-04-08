@@ -22,6 +22,13 @@ from eth_utils import (
     to_hex,
     to_tuple,
 )
+from eth_utils.toolz import (
+    complement,
+    compose,
+    cons,
+    curry,
+    valfilter,
+)
 
 import web3
 from web3._utils.encoding import (
@@ -34,13 +41,6 @@ from web3._utils.formatters import (
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
-)
-from web3._utils.toolz import (
-    complement,
-    compose,
-    cons,
-    curry,
-    valfilter,
 )
 from web3.datastructures import (
     AttributeDict,

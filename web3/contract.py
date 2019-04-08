@@ -18,6 +18,10 @@ from eth_utils import (
     is_text,
     to_tuple,
 )
+from eth_utils.toolz import (
+    compose,
+    partial,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -73,10 +77,6 @@ from web3._utils.normalizers import (
     normalize_abi,
     normalize_address,
     normalize_bytecode,
-)
-from web3._utils.toolz import (
-    compose,
-    partial,
 )
 from web3._utils.transactions import (
     fill_transaction_defaults,

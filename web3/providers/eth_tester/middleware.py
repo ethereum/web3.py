@@ -5,6 +5,15 @@ from eth_utils import (
     is_hex,
     is_string,
 )
+from eth_utils.toolz import (
+    assoc,
+    complement,
+    compose,
+    curry,
+    identity,
+    partial,
+    pipe,
+)
 
 from web3._utils.formatters import (
     apply_formatter_if,
@@ -17,15 +26,6 @@ from web3._utils.formatters import (
     is_array_of_dicts,
     remove_key_if,
     static_return,
-)
-from web3._utils.toolz import (
-    assoc,
-    complement,
-    compose,
-    curry,
-    identity,
-    partial,
-    pipe,
 )
 from web3.middleware import (
     construct_formatting_middleware,

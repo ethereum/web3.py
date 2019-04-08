@@ -9,6 +9,10 @@ from eth_utils import (
     function_abi_to_4byte_selector,
     is_text,
 )
+from eth_utils.toolz import (
+    pipe,
+    valmap,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -38,10 +42,6 @@ from web3._utils.normalizers import (
     abi_bytes_to_bytes,
     abi_ens_resolver,
     abi_string_to_text,
-)
-from web3._utils.toolz import (
-    pipe,
-    valmap,
 )
 from web3.exceptions import (
     ValidationError,

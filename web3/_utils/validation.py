@@ -16,6 +16,12 @@ from eth_utils import (
 from eth_utils.hexadecimal import (
     encode_hex,
 )
+from eth_utils.toolz import (
+    compose,
+    groupby,
+    valfilter,
+    valmap,
+)
 
 from web3._utils.abi import (
     abi_to_signature,
@@ -33,12 +39,6 @@ from web3._utils.abi import (
 )
 from web3._utils.formatters import (
     apply_formatter_to_array,
-)
-from web3._utils.toolz import (
-    compose,
-    groupby,
-    valfilter,
-    valmap,
 )
 from web3.exceptions import (
     InvalidAddress,

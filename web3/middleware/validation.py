@@ -4,16 +4,16 @@ from eth_utils.curried import (
     apply_formatters_to_dict,
     is_null,
 )
-from hexbytes import (
-    HexBytes,
-)
-
-from web3._utils.toolz import (
+from eth_utils.toolz import (
     complement,
     compose,
     curry,
     dissoc,
 )
+from hexbytes import (
+    HexBytes,
+)
+
 from web3.exceptions import (
     ValidationError,
 )

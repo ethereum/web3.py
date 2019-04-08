@@ -1,12 +1,13 @@
 import math
 
-from web3._utils.threads import (
-    Timeout,
-)
-from web3._utils.toolz import (
+from eth_utils.toolz import (
     assoc,
     curry,
     merge,
+)
+
+from web3._utils.threads import (
+    Timeout,
 )
 from web3.exceptions import (
     TransactionNotFound,

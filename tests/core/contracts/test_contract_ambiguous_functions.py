@@ -1,12 +1,11 @@
 import pytest
 
-from hexbytes import (
-    HexBytes,
-)
-
-from web3._utils.toolz import (
+from eth_utils.toolz import (
     compose,
     curry,
+)
+from hexbytes import (
+    HexBytes,
 )
 
 AMBIGUOUS_CONTRACT_ABI = [
