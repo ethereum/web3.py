@@ -1,10 +1,11 @@
 import pytest
 
+from eth_utils.toolz import (
+    partial,
+)
+
 from web3._utils.blocks import (
     select_method_for_block_identifier,
-)
-from web3._utils.toolz import (
-    partial,
 )
 
 selector_fn = partial(

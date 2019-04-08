@@ -12,6 +12,13 @@ from eth_utils.curried import (
     text_if_str,
     to_checksum_address,
 )
+from eth_utils.toolz import (
+    complement,
+    compose,
+    curried,
+    curry,
+    partial,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -34,16 +41,6 @@ from web3._utils.formatters import (
     is_array_of_dicts,
     is_array_of_strings,
     remove_key_if,
-)
-from web3._utils.toolz import (
-    complement,
-    compose,
-    curry,
-    partial,
-)
-from web3._utils.toolz.curried import (
-    keymap,
-    valmap,
 )
 
 from .formatting import (
@@ -206,12 +203,12 @@ syncing_formatter = apply_formatters_to_dict(SYNCING_FORMATTERS)
 
 TRANSACTION_POOL_CONTENT_FORMATTERS = {
     'pending': compose(
-        keymap(to_ascii_if_bytes),
-        valmap(transaction_formatter),
+        curried.keymap(to_ascii_if_bytes),
+        curried.valmap(transaction_formatter),
     ),
     'queued': compose(
-        keymap(to_ascii_if_bytes),
-        valmap(transaction_formatter),
+        curried.keymap(to_ascii_if_bytes),
+        curried.valmap(transaction_formatter),
     ),
 }
 
@@ -222,8 +219,8 @@ transaction_pool_content_formatter = apply_formatters_to_dict(
 
 
 TRANSACTION_POOL_INSPECT_FORMATTERS = {
-    'pending': keymap(to_ascii_if_bytes),
-    'queued': keymap(to_ascii_if_bytes),
+    'pending': curried.keymap(to_ascii_if_bytes),
+    'queued': curried.keymap(to_ascii_if_bytes),
 }
 
 

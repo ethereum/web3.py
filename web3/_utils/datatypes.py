@@ -1,7 +1,8 @@
-import web3._utils.formatters
-from web3._utils.toolz import (
+from eth_utils.toolz import (
     concat,
 )
+
+import web3._utils.formatters
 
 
 def verify_attr(class_name, key, namespace):

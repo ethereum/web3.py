@@ -6,6 +6,10 @@ from eth_utils import (
     is_checksum_address,
     is_string,
 )
+from eth_utils.toolz import (
+    assoc,
+    merge,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -26,10 +30,6 @@ from web3._utils.filters import (
 )
 from web3._utils.threads import (
     Timeout,
-)
-from web3._utils.toolz import (
-    assoc,
-    merge,
 )
 from web3._utils.transactions import (
     assert_valid_transaction_params,

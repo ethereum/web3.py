@@ -10,6 +10,10 @@ from eth_utils import (
     is_string,
     is_text,
 )
+from eth_utils.toolz import (
+    complement,
+    curry,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -19,10 +23,6 @@ from web3._utils.formatters import (
 )
 from web3._utils.threads import (
     TimerClass,
-)
-from web3._utils.toolz import (
-    complement,
-    curry,
 )
 from web3._utils.validation import (
     validate_address,

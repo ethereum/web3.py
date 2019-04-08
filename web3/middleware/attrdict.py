@@ -1,10 +1,10 @@
 from eth_utils import (
     is_dict,
 )
-
-from web3._utils.toolz import (
+from eth_utils.toolz import (
     assoc,
 )
+
 from web3.datastructures import (
     AttributeDict,
 )

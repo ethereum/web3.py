@@ -9,15 +9,15 @@ import json
 import pytest
 
 import eth_abi
+from eth_utils.toolz import (
+    identity,
+)
 from hexbytes import (
     HexBytes,
 )
 
 from web3._utils.ens import (
     contract_ens_addresses,
-)
-from web3._utils.toolz import (
-    identity,
 )
 from web3.exceptions import (
     BadFunctionCallOutput,

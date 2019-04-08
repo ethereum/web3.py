@@ -9,6 +9,9 @@ from eth_utils import (
     is_dict,
     is_same_address,
 )
+from eth_utils.toolz import (
+    merge,
+)
 
 import common
 from tests.utils import (
@@ -23,9 +26,6 @@ from web3._utils.module_testing.emitter_contract import (
 from web3._utils.module_testing.math_contract import (
     MATH_ABI,
     MATH_BYTECODE,
-)
-from web3._utils.toolz import (
-    merge,
 )
 
 # this script is used for generating the parity fixture

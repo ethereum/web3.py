@@ -14,16 +14,16 @@ from eth_utils import (
     to_bytes,
     to_hex,
 )
+from eth_utils.toolz import (
+    identity,
+    merge,
+    valfilter,
+)
 from hexbytes import (
     HexBytes,
 )
 
 from web3 import Web3
-from web3._utils.toolz import (
-    identity,
-    merge,
-    valfilter,
-)
 from web3.exceptions import (
     InvalidAddress,
 )

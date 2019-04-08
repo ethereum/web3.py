@@ -21,6 +21,10 @@ from eth_utils.curried import (
     to_text,
     to_wei,
 )
+from eth_utils.toolz import (
+    merge,
+    valmap,
+)
 
 from tests.utils import (
     get_open_port,
@@ -34,10 +38,6 @@ from web3._utils.module_testing.emitter_contract import (
 from web3._utils.module_testing.math_contract import (
     MATH_ABI,
     MATH_BYTECODE,
-)
-from web3._utils.toolz import (
-    merge,
-    valmap,
 )
 
 COINBASE = '0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'

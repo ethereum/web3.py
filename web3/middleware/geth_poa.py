@@ -2,13 +2,13 @@ from eth_utils.curried import (
     apply_formatters_to_dict,
     apply_key_map,
 )
+from eth_utils.toolz import (
+    compose,
+)
 from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.toolz import (
-    compose,
-)
 from web3.middleware.formatting import (
     construct_formatting_middleware,
 )
