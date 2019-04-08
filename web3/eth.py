@@ -320,6 +320,11 @@ class Eth(Module):
             "eth_signTransaction", [transaction],
         )
 
+    def signTypedData(self, account, jsonMessage):
+        return self.web3.manager.request_blocking(
+            "eth_signTypedData", [account, jsonMessage],
+        )
+
     @apply_to_return_value(HexBytes)
     def call(self, transaction, block_identifier=None):
         # TODO: move to middleware

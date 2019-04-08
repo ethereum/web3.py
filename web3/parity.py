@@ -12,6 +12,7 @@ from web3._utils.personal import (
     newAccount,
     sendTransaction,
     sign,
+    signTypedData,
     unlockAccount,
 )
 from web3._utils.toolz import (
@@ -54,6 +55,7 @@ class ParityPersonal(ModuleV2):
     newAccount = newAccount
     sendTransaction = sendTransaction
     sign = sign
+    signTypedData = signTypedData
     unlockAccount = unlockAccount
 
 

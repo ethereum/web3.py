@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import pytest
 
 from eth_abi import (
@@ -201,6 +202,104 @@ class EthModuleTest:
             unlocked_account_dual_type, text='different message is different'
         )
         assert new_signature != signature
+
+    def test_eth_signTypedData(self, web3, unlocked_account_dual_type, skip_if_testrpc):
+        validJSONMessage = '''
+            {
+                "types": {
+                    "EIP712Domain": [
+                        {"name": "name", "type": "string"},
+                        {"name": "version", "type": "string"},
+                        {"name": "chainId", "type": "uint256"},
+                        {"name": "verifyingContract", "type": "address"}
+                    ],
+                    "Person": [
+                        {"name": "name", "type": "string"},
+                        {"name": "wallet", "type": "address"}
+                    ],
+                    "Mail": [
+                        {"name": "from", "type": "Person"},
+                        {"name": "to", "type": "Person"},
+                        {"name": "contents", "type": "string"}
+                    ]
+                },
+                "primaryType": "Mail",
+                "domain": {
+                    "name": "Ether Mail",
+                    "version": "1",
+                    "chainId": "0x01",
+                    "verifyingContract": "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC"
+                },
+                "message": {
+                    "from": {
+                        "name": "Cow",
+                        "wallet": "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"
+                    },
+                    "to": {
+                        "name": "Bob",
+                        "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"
+                    },
+                    "contents": "Hello, Bob!"
+                }
+            }
+        '''
+        skip_if_testrpc(web3)
+        signature = HexBytes(web3.eth.signTypedData(
+            unlocked_account_dual_type,
+            json.loads(validJSONMessage)
+        ))
+        assert len(signature) == 32 + 32 + 1
+
+    def test_invalid_eth_signTypedData(self,
+                                       web3,
+                                       unlocked_account_dual_type,
+                                       skip_if_testrpc):
+        skip_if_testrpc(web3)
+        invalid_typed_message = '''
+            {
+                "types": {
+                    "EIP712Domain": [
+                        {"name": "name", "type": "string"},
+                        {"name": "version", "type": "string"},
+                        {"name": "chainId", "type": "uint256"},
+                        {"name": "verifyingContract", "type": "address"}
+                    ],
+                    "Person": [
+                        {"name": "name", "type": "string"},
+                        {"name": "wallet", "type": "address"}
+                    ],
+                    "Mail": [
+                        {"name": "from", "type": "Person"},
+                        {"name": "to", "type": "Person[2]"},
+                        {"name": "contents", "type": "string"}
+                    ]
+                },
+                "primaryType": "Mail",
+                "domain": {
+                    "name": "Ether Mail",
+                    "version": "1",
+                    "chainId": "0x01",
+                    "verifyingContract": "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC"
+                },
+                "message": {
+                    "from": {
+                        "name": "Cow",
+                        "wallet": "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"
+                    },
+                    "to": [{
+                        "name": "Bob",
+                        "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"
+                    }],
+                    "contents": "Hello, Bob!"
+                }
+            }
+        '''
+        with pytest.raises(ValueError) as e:
+            web3.eth.signTypedData(
+                unlocked_account_dual_type,
+                json.loads(invalid_typed_message)
+            )
+        assert "Expected 2 items for array type Person[2], got 1 items" in str(e.value)
 
     def test_eth_signTransaction(self, web3, unlocked_account):
         txn_params = {

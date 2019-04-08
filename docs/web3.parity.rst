@@ -64,11 +64,22 @@ The following methods are available on the ``web3.parity.personal`` namespace.
         >>> web3.parity.personal.unlockAccount('0xd3cda913deb6f67967b99d67acdfa1712c293601', 'the-passphrase')
         True
 
+
 .. py:method:: sendTransaction(self, transaction, passphrase)
 
     * Delegates to ``personal_sendTransaction`` RPC Method
 
     Sends the transaction.
+
+
+.. py:method:: signTypedData(self, jsonMessage, account, passphrase)
+
+    * Delegates to ``personal_signTypedData`` RPC Method
+
+    Please note that the ``jsonMessage`` argument is the loaded JSON Object
+    and **NOT** the JSON String itself.
+
+    Signs the ``Structured Data`` (or ``Typed Data``) with the passphrase of the given ``account``
 
 
 ParityShh
@@ -121,14 +132,14 @@ Full documentation for Parity-supported endpoints can be found `here <https://wi
 
 .. py:method:: Shh.newMessageFilter(self, criteria)
 
-    * Return the filter ID that can be used with ``ShhFilter`` to poll for new messages that match the set of criteria. 
+    * Return the filter ID that can be used with ``ShhFilter`` to poll for new messages that match the set of criteria.
 
     * Parameters:
 		* ``decryptWith``: 32 bytes - Identity of key used for description. Null if listening for broadcasts.
 		* ``from``: 64 bytes - If present, only accept messages signed by this key.
         * ``topics``: Array of possible topics (or partial topics). Should be non-empty.
- 
-    * Returns the newly created filter id. 
+
+    * Returns the newly created filter id.
 
     .. code-block:: python
 
@@ -176,7 +187,7 @@ Full documentation for Parity-supported endpoints can be found `here <https://wi
 		True
 
 .. py:method:: Shh.unsubscribe(self, filter_id)
-	
+
 	* Close a subscribed filter.
 
     * Returns ``True`` if the filter subscription was sucesfully closed, otherwise ``False``
