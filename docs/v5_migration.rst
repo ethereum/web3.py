@@ -74,9 +74,29 @@ Expect the following methods to be removed in v6:
 
 - ``web3.sha3`` was deprecated for :meth:`~Web3.keccak`
 - ``web3.soliditySha3`` was deprecated for :meth:`~Web3.solidityKeccak`
-- :meth:`~web3.net.Net.chainId` was deprecated and will be replaced eventually. Follow issue `#1293 <https://github.com/ethereum/web3.py/issues/1293>`_ for details
+- :meth:`~web3.net.Net.chainId` was deprecated for :meth:`~web3.eth.Eth.chainId`.
+  Follow issue `#1293 <https://github.com/ethereum/web3.py/issues/1293>`_ for details
 - ``web3.eth.getCompilers()`` was deprecated and will not be replaced
 - :meth:`~web3.eth.getTransactionFromBlock()` was deprecated for :meth:`~Web3.getTransactionByBlock`
+
+Deprecated ConciseContract and ImplicitContract
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ConciseContract and ImplicitContract have been deprecated and will be removed in v6.
+
+ImplicitContract instances will need to use the verbose syntax. For example:
+
+``contract.functions.<function name>.transact({})``
+
+ConciseContract has been replaced with the ContractCaller API. Instead of using the ConciseContract factory, you can now use:
+
+``contract.caller.<function_name>``
+
+or the classic contract syntax:
+
+``contract.functions.<function name>.call()``.
+
+Some more concrete examples can be found in the `ContractCaller docs <https://web3py.readthedocs.io/en/latest/contracts.html?highlight=Caller#contractcaller>`_
+
 
 Manager Provider
 ~~~~~~~~~~~~~~~~
