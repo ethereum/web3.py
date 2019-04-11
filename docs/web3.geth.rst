@@ -27,7 +27,7 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
         '/Users/piper/Library/Ethereum'
 
 
-.. py:method:: nodeInfo()
+.. py:method:: node_info()
 
     * Delegates to ``admin_nodeInfo`` RPC Method
 
@@ -35,7 +35,7 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     .. code-block:: python
 
-        >>> web3.geth.admin.nodeInfo()
+        >>> web3.geth.admin.node_info()
         {
             'enode': 'enode://e54eebad24dce1f6d246bea455ffa756d97801582420b9ed681a2ea84bf376d0bd87ae8dd6dc06cdb862a2ca89ecabe1be1050be35b4e70d62bc1a092cb7e2d3@[::]:30303',
             'id': 'e54eebad24dce1f6d246bea455ffa756d97801582420b9ed681a2ea84bf376d0bd87ae8dd6dc06cdb862a2ca89ecabe1be1050be35b4e70d62bc1a092cb7e2d3',
@@ -52,6 +52,12 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
                 },
             },
         }
+
+
+.. py:method:: nodeInfo()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.admin.node_info()`
 
 
 .. py:method:: peers()
@@ -100,7 +106,7 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
         ]
 
 
-.. py:method:: addPeer(node_url)
+.. py:method:: add_peer(node_url)
 
     * Delegates to ``admin_addPeer`` RPC Method
 
@@ -108,25 +114,19 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     .. code-block:: python
 
-        >>> web3.geth.admin.addPeer('enode://e54eebad24dce1f6d246bea455ffa756d97801582420b9ed681a2ea84bf376d0bd87ae8dd6dc06cdb862a2ca89ecabe1be1050be35b4e70d62bc1a092cb7e2d3@52.71.255.237:30303')
+        >>> web3.geth.admin.add_peer('enode://e54eebad24dce1f6d246bea455ffa756d97801582420b9ed681a2ea84bf376d0bd87ae8dd6dc06cdb862a2ca89ecabe1be1050be35b4e70d62bc1a092cb7e2d3@52.71.255.237:30303')
         True
 
 
+.. py:method:: addPeer(node_url)
+
+    .. warning:: Deprecated: This method is deprecated in favor of :meth:`~web3.geth.admin.add_peer()`
+
 .. py:method:: setSolc(solc_path)
 
-    * Delegates to ``admin_setSolc`` RPC Method
+    .. Warning:: This method has been removed from Geth
 
-    Sets the system path to the ``solc`` binary for use with the
-    ``eth_compileSolidity`` RPC method.  Returns the output reported by ``solc
-    --version``.
-
-    .. code-block:: python
-
-        >>> web3.geth.admin.setSolc('/usr/local/bin/solc')
-        "solc, the solidity compiler commandline interface\nVersion: 0.3.5-9da08ac3/Release-Darwin/appleclang/JIT"
-
-
-.. py:method:: startRPC(host='localhost', port='8545', cors="", apis="eth,net,web3")
+.. py:method:: start_rpc(host='localhost', port='8545', cors="", apis="eth,net,web3")
 
     * Delegates to ``admin_startRPC`` RPC Method
 
@@ -137,11 +137,17 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     .. code-block:: python
 
-        >>> web3.geth.admin.startRPC()
+        >>> web3.geth.admin.start_rpc()
         True
 
 
-.. py:method:: startWS(host='localhost', port='8546', cors="", apis="eth,net,web3")
+.. py:method:: startRPC(host='localhost', port='8545', cors="", apis="eth,net,web3")
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~web3.geth.admin.start_rpc()`
+
+
+.. py:method:: start_ws(host='localhost', port='8546', cors="", apis="eth,net,web3")
 
     * Delegates to ``admin_startWS`` RPC Method
 
@@ -152,11 +158,17 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     .. code-block:: python
 
-        >>> web3.geth.admin.startWS()
+        >>> web3.geth.admin.start_ws()
         True
 
 
-.. py:method:: stopRPC()
+.. py:method:: startWS(host='localhost', port='8546', cors="", apis="eth,net,web3")
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~web3.geth.admin.start_ws()`
+
+
+.. py:method:: stop_rpc()
 
     * Delegates to ``admin_stopRPC`` RPC Method
 
@@ -164,11 +176,17 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     .. code-block:: python
 
-        >>> web3.geth.admin.stopRPC()
+        >>> web3.geth.admin.stop_rpc()
         True
 
 
-.. py:method:: stopWS()
+.. py:method:: stopRPC()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~web3.geth.admin.stop_rpc()`
+
+
+.. py:method:: stop_ws()
 
     * Delegates to ``admin_stopWS`` RPC Method
 
@@ -176,8 +194,14 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     .. code-block:: python
 
-        >>> web3.geth.admin.stopWS()
+        >>> web3.geth.admin.stop_ws()
         True
+
+
+.. py:method:: stopWS()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~web3.geth.admin.stop_ws()`
 
 
 .. py:module:: web3.geth.personal

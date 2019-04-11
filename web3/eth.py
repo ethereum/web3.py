@@ -228,7 +228,7 @@ class Eth(Module):
     def getTransactionFromBlock(self, block_identifier, transaction_index):
         """
         Alias for the method getTransactionByBlock
-        Depreceated to maintain naming consistency with the json-rpc API
+        Deprecated to maintain naming consistency with the json-rpc API
         """
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
