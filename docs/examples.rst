@@ -449,3 +449,26 @@ When someone has an allowance they can transfer those tokens using the
 
 
 .. _ERC20: https://github.com/ethereum/EIPs/blob/7f4f0377730f5fc266824084188cc17cf246932e/EIPS/eip-20.md
+
+
+Contract Unit Tests in Python
+-----------------------------
+
+Here is an example of how one can use the pytest platform in python, web3.py,
+eth-tester, and pyevm to perform unit tests entirely in python without any
+additional need for a full featured ethereum node/client. To install needed
+dependencies you can use the pinned extra for eth_tester in web3 and pytest:
+
+.. code-block:: bash
+
+    $ pip install web3[tester] pytest
+
+Once you have an environment set up for testing, you can then write your tests
+like so:
+
+.. include::  ../tests/core/contracts/test_contract_example.py
+    :code: python
+    :start-line: 1
+
+
+
