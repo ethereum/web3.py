@@ -2,13 +2,18 @@ from web3._utils import (
     shh,
 )
 from web3._utils.admin import (
+    add_peer,
     addPeer,
     datadir,
+    node_info,
     nodeInfo,
     peers,
-    setSolc,
+    start_rpc,
+    start_ws,
     startRPC,
     startWS,
+    stop_rpc,
+    stop_ws,
     stopRPC,
     stopWS,
 )
@@ -76,11 +81,17 @@ class GethAdmin(ModuleV2):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#admin
     """
+    add_peer = add_peer
+    node_info = node_info
+    start_rpc = start_rpc
+    start_ws = start_ws
+    stop_ws = stop_ws
+    stop_rpc = stop_rpc
+    # deprecated
     addPeer = addPeer
     datadir = datadir
     nodeInfo = nodeInfo
     peers = peers
-    setSolc = setSolc
     startRPC = startRPC
     startWS = startWS
     stopRPC = stopRPC

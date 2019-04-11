@@ -265,11 +265,17 @@ API_ENDPOINTS = {
         'getMessages': not_implemented,
     },
     'admin': {
+        'add_peer': not_implemented,
+        'node_info': not_implemented,
+        'start_rpc': not_implemented,
+        'start_ws': not_implemented,
+        'stop_rpc': not_implemented,
+        'stop_ws': not_implemented,
+        # deprecated
         'addPeer': not_implemented,
         'datadir': not_implemented,
         'nodeInfo': not_implemented,
         'peers': not_implemented,
-        'setSolc': not_implemented,
         'startRPC': not_implemented,
         'startWS': not_implemented,
         'stopRPC': not_implemented,

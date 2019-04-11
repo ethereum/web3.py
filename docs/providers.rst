@@ -143,7 +143,7 @@ Provider via Environment Variable
 Alternatively, you can set the environment variable ``WEB3_PROVIDER_URI``
 before starting your script, and web3 will look for that provider first.
 
-Valid formats for the this environment variable are:
+Valid formats for this environment variable are:
 
 - ``file:///path/to/node/rpc-json/file.ipc``
 - ``http://192.168.1.2:8545``

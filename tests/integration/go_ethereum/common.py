@@ -2,6 +2,7 @@ import pytest
 
 from web3._utils.module_testing import (  # noqa: F401
     EthModuleTest,
+    GoEthereumAdminModuleTest,
     GoEthereumPersonalModuleTest,
     GoEthereumShhModuleTest,
     NetModuleTest,
@@ -109,3 +110,7 @@ class CommonGoEthereumShhModuleTest(GoEthereumShhModuleTest):
         if 'v1.7.2' in web3.clientVersion:
             pytest.xfail('Whisper version 6 not supported in geth 1.7.2')
         super().test_shh_post(web3)
+
+
+class GoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
+    pass
