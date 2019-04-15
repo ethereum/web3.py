@@ -124,11 +124,11 @@ Full documentation for Parity-supported endpoints can be found `here <https://wi
     * Return the filter ID that can be used with ``ShhFilter`` to poll for new messages that match the set of criteria. 
 
     * Parameters:
-		* ``decryptWith``: 32 bytes - Identity of key used for description. Null if listening for broadcasts.
-		* ``from``: 64 bytes - If present, only accept messages signed by this key.
+        * ``decryptWith``: 32 bytes - Identity of key used for description. Null if listening for broadcasts.
+        * ``from``: 64 bytes - If present, only accept messages signed by this key.
         * ``topics``: Array of possible topics (or partial topics). Should be non-empty.
- 
-    * Returns the newly created filter id. 
+
+    * Returns the newly created filter id.
 
     .. code-block:: python
 
