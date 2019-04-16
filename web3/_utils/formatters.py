@@ -1,4 +1,4 @@
-from collections import (
+from collections.abc import (
     Iterable,
     Mapping,
 )

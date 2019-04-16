@@ -1,8 +1,10 @@
 from collections import (
+    OrderedDict,
+)
+from collections.abc import (
     Hashable,
     Mapping,
     MutableMapping,
-    OrderedDict,
     Sequence,
 )
 
