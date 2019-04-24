@@ -1,9 +1,25 @@
 Release Notes
 =============
 
-Breaking Change to Infura coming March 27th.
+Breaking Change to Infura coming March 27th, 2019.
  After March 27th, you'll need an API key to interact with Infura.
  Sign up for one at https://infura.io/register.
+
+v4.9.2
+------
+
+Released April 24, 2019
+
+- Bugfixes
+
+  - Cast gas price values to integers in gas strategies
+    - `#1304 <https://github.com/ethereum/web3.py/pull/1304>`_
+
+- Misc
+
+  - Upgrade eth-tester version requirement
+    - `#1333 <https://github.com/ethereum/web3.py/pull/1333>`_
+
 
 v4.9.1
 --------
