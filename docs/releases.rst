@@ -4,6 +4,25 @@ Release Notes
 v5 Breaking Changes Summary
    See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
+v5.0.0-alpha.11
+---------------
+Released April 24, 2019
+
+- Docs
+
+  - Add documentation for web3.py unit tests
+    - `#1324 <https://github.com/ethereum/web3.py/pull/1324>`_
+
+- Misc
+
+  - Update deprecated collections.abc imports
+    - `#1334 <https://github.com/ethereum/web3.py/pull/1334>`_
+  - Fix documentation typo
+    - `#1335 <https://github.com/ethereum/web3.py/pull/1335>`_
+  - Upgrade eth-tester version
+    - `#1332 <https://github.com/ethereum/web3.py/pull/1332>`_
+
+
 v5.0.0-alpha.10
 ---------------
 Released April 15, 2019
