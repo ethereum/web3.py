@@ -198,7 +198,6 @@ class IPCProvider(JSONBaseProvider):
         else:
             raise TypeError("ipc_path must be of type string or pathlib.Path")
 
-
         self.timeout = timeout
         self._lock = threading.Lock()
         self._socket = PersistantSocket(self.ipc_path)
