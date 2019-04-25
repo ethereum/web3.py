@@ -4,6 +4,25 @@ Release Notes
 v5 Breaking Changes Summary
    See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
+v5.0.0-beta.1
+-------------
+Released May 6, 2019
+
+- Features
+
+  - Add support for tilda in provider IPC Path
+    - `#1049 <https://github.com/ethereum/web3.py/pull/1049>`_
+  - EIP 712 Signing Supported
+    - `#1319 <https://github.com/ethereum/web3.py/pull/1319>`_
+
+- Docs
+
+  - Update contract example to use ``compile_standard``
+    - `#1263 <https://github.com/ethereum/web3.py/pull/1263>`_
+  - Fix typo in middleware docs
+    - `#1339 <https://github.com/ethereum/web3.py/pull/1339>`_
+
+
 v5.0.0-alpha.11
 ---------------
 Released April 24, 2019
