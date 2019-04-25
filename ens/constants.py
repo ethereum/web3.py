@@ -9,6 +9,4 @@ EMPTY_ADDR_HEX = '0x' + '00' * 20
 
 MIN_ETH_LABEL_LENGTH = 7
 
-RECOGNIZED_TLDS = ['eth', 'reverse', 'test']
-
 REVERSE_REGISTRAR_DOMAIN = 'addr.reverse'

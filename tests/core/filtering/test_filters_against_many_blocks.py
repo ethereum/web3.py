@@ -32,12 +32,14 @@ def single_transaction(w3):
     return tx_hash
 
 
+@pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_event_filter_new_events(
         web3,
         emitter,
         Emitter,
         wait_for_transaction,
         emitter_event_ids,
+        api_style,
         create_filter):
 
     matching_transact = emitter.functions.logNoArgs(
@@ -45,7 +47,12 @@ def test_event_filter_new_events(
     non_matching_transact = emitter.functions.logNoArgs(
         which=0).transact
 
-    event_filter = emitter.events.LogNoArguments().createFilter(fromBlock='latest')
+    if api_style == 'build_filter':
+        builder = emitter.events.LogNoArguments.build_filter()
+        builder.fromBlock = 'latest'
+        event_filter = builder.deploy(web3)
+    else:
+        event_filter = emitter.events.LogNoArguments().createFilter(fromBlock='latest')
 
     expected_match_counter = 0
 
@@ -53,7 +60,7 @@ def test_event_filter_new_events(
         is_match = bool(random.randint(0, 1))
         if is_match:
             expected_match_counter += 1
-            matching_transact()
+            wait_for_transaction(web3, matching_transact())
             pad_with_transactions(web3)
             continue
         non_matching_transact()
@@ -103,12 +110,14 @@ def test_transaction_filter_without_mining(
     assert len(transaction_filter.get_new_entries()) == transaction_counter
 
 
+@pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_event_filter_new_events_many_deployed_contracts(
         web3,
         emitter,
         Emitter,
         wait_for_transaction,
         emitter_event_ids,
+        api_style,
         create_filter):
 
     matching_transact = emitter.functions.logNoArgs(
@@ -125,7 +134,12 @@ def test_event_filter_new_events_many_deployed_contracts(
 
     non_matching_transact = gen_non_matching_transact()
 
-    event_filter = emitter.events.LogNoArguments().createFilter(fromBlock='latest')
+    if api_style == 'build_filter':
+        builder = emitter.events.LogNoArguments.build_filter()
+        builder.fromBlock = "latest"
+        event_filter = builder.deploy(web3)
+    else:
+        event_filter = emitter.events.LogNoArguments().createFilter(fromBlock='latest')
 
     expected_match_counter = 0
 

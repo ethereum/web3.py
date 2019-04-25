@@ -13,19 +13,20 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.ens import (
+    contract_ens_addresses,
+)
+from web3._utils.toolz import (
+    identity,
+)
 from web3.exceptions import (
     BadFunctionCallOutput,
     BlockNumberOutofRange,
     InvalidAddress,
     MismatchedABI,
+    NoABIFound,
     NoABIFunctionsFound,
     ValidationError,
-)
-from web3.utils.ens import (
-    contract_ens_addresses,
-)
-from web3.utils.toolz import (
-    identity,
 )
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
@@ -91,6 +92,11 @@ def fixed_reflection_contract(web3, FixedReflectionContract, address_conversion_
 
 
 @pytest.fixture()
+def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
+    return deploy(web3, PayableTesterContract, address_conversion_func)
+
+
+@pytest.fixture()
 def call_transaction():
     return {
         'data': '0x61bc221a',
@@ -127,6 +133,16 @@ def mismatched_math_contract(web3, StringContract, MathContract, address_convers
 @pytest.fixture()
 def fallback_function_contract(web3, FallballFunctionContract, address_conversion_func):
     return deploy(web3, FallballFunctionContract, address_conversion_func)
+
+
+@pytest.fixture()
+def tuple_contract(web3, TupleContract, address_conversion_func):
+    return deploy(web3, TupleContract, address_conversion_func)
+
+
+@pytest.fixture()
+def nested_tuple_contract(web3, NestedTupleContract, address_conversion_func):
+    return deploy(web3, NestedTupleContract, address_conversion_func)
 
 
 def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):
@@ -182,7 +198,7 @@ def test_saved_method_call_with_multiple_arguments(math_contract, call_args, cal
 def test_call_get_string_value(string_contract, call):
     result = call(contract=string_contract,
                   contract_function='getValue')
-    # eth_abi.decode_api() does not assume implicit utf-8
+    # eth_abi.decode_abi() does not assume implicit utf-8
     # encoding of string return values. Thus, we need to decode
     # ourselves for fair comparison.
     assert result == "Caqalai"
@@ -407,13 +423,13 @@ def test_call_fallback_function(fallback_function_contract):
 
 
 def test_throws_error_if_block_out_of_range(web3, math_contract):
-    web3.providers[0].make_request(method='evm_mine', params=[20])
+    web3.provider.make_request(method='evm_mine', params=[20])
     with pytest.raises(BlockNumberOutofRange):
         math_contract.functions.counter().call(block_identifier=-50)
 
 
 def test_accepts_latest_block(web3, math_contract):
-    web3.providers[0].make_request(method='evm_mine', params=[5])
+    web3.provider.make_request(method='evm_mine', params=[5])
     math_contract.functions.increment().transact()
 
     late = math_contract.functions.counter().call(block_identifier='latest')
@@ -424,9 +440,9 @@ def test_accepts_latest_block(web3, math_contract):
 
 
 def test_accepts_block_hash_as_identifier(web3, math_contract):
-    blocks = web3.providers[0].make_request(method='evm_mine', params=[5])
+    blocks = web3.provider.make_request(method='evm_mine', params=[5])
     math_contract.functions.increment().transact()
-    more_blocks = web3.providers[0].make_request(method='evm_mine', params=[5])
+    more_blocks = web3.provider.make_request(method='evm_mine', params=[5])
 
     old = math_contract.functions.counter().call(block_identifier=blocks['result'][2])
     new = math_contract.functions.counter().call(block_identifier=more_blocks['result'][2])
@@ -436,10 +452,10 @@ def test_accepts_block_hash_as_identifier(web3, math_contract):
 
 
 def test_neg_block_indexes_from_the_end(web3, math_contract):
-    web3.providers[0].make_request(method='evm_mine', params=[5])
+    web3.provider.make_request(method='evm_mine', params=[5])
     math_contract.functions.increment().transact()
     math_contract.functions.increment().transact()
-    web3.providers[0].make_request(method='evm_mine', params=[5])
+    web3.provider.make_request(method='evm_mine', params=[5])
 
     output1 = math_contract.functions.counter().call(block_identifier=-7)
     output2 = math_contract.functions.counter().call(block_identifier=-6)
@@ -450,7 +466,7 @@ def test_neg_block_indexes_from_the_end(web3, math_contract):
 
 def test_returns_data_from_specified_block(web3, math_contract):
     start_num = web3.eth.getBlock('latest').number
-    web3.providers[0].make_request(method='evm_mine', params=[5])
+    web3.provider.make_request(method='evm_mine', params=[5])
     math_contract.functions.increment().transact()
     math_contract.functions.increment().transact()
 
@@ -522,7 +538,7 @@ def test_function_multiple_possible_encodings(web3):
 
 def test_function_no_abi(web3):
     contract = web3.eth.contract()
-    with pytest.raises(NoABIFunctionsFound):
+    with pytest.raises(NoABIFound):
         contract.functions.thisFunctionDoesNotExist().call()
 
 
@@ -530,6 +546,19 @@ def test_call_abi_no_functions(web3):
     contract = web3.eth.contract(abi=[])
     with pytest.raises(NoABIFunctionsFound):
         contract.functions.thisFunctionDoesNotExist().call()
+
+
+def test_call_not_sending_ether_to_nonpayable_function(payable_tester_contract, call):
+    result = call(contract=payable_tester_contract,
+                  contract_function='doNoValueCall')
+    assert result == []
+
+
+def test_call_sending_ether_to_nonpayable_function(payable_tester_contract, call):
+    with pytest.raises(ValidationError):
+        call(contract=payable_tester_contract,
+             contract_function='doNoValueCall',
+             tx_params={'value': 1})
 
 
 @pytest.mark.parametrize(
@@ -593,3 +622,129 @@ def test_invalid_fixed_value_reflections(web3, fixed_reflection_contract, functi
     contract_func = fixed_reflection_contract.functions[function]
     with pytest.raises(ValidationError, match=error):
         contract_func(value).call({'gas': 420000})
+
+
+@pytest.mark.parametrize(
+    'method_input, expected',
+    (
+        (
+            {'a': 123, 'b': [1, 2], 'c': [
+                {'x': 234, 'y': [True, False], 'z': [
+                    '0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                ]},
+                {'x': 345, 'y': [False, False], 'z': [
+                    '0xefd1FF70c185A1C0b125939815225199079096Ee',
+                    '0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e',
+                ]},
+            ]},
+            (123, [1, 2], [
+                (234, [True, False], [
+                    '0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                ]),
+                (345, [False, False], [
+                    '0xefd1FF70c185A1C0b125939815225199079096Ee',
+                    '0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e',
+                ]),
+            ]),
+        ),
+        (
+            (123, [1, 2], [
+                (234, [True, False], [
+                    '0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                ]),
+                (345, [False, False], [
+                    '0xefd1FF70c185A1C0b125939815225199079096Ee',
+                    '0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e',
+                ]),
+            ]),
+            (123, [1, 2], [
+                (234, [True, False], [
+                    '0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                    '0xfdF1946A9b40245224488F1a36f4A9ed4844a523',
+                ]),
+                (345, [False, False], [
+                    '0xefd1FF70c185A1C0b125939815225199079096Ee',
+                    '0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e',
+                ]),
+            ]),
+        ),
+    ),
+)
+def test_call_tuple_contract(tuple_contract, method_input, expected):
+    result = tuple_contract.functions.method(method_input).call()
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    'method_input, expected',
+    (
+        (
+            {'t': [
+                {'u': [
+                    {'x': 1, 'y': 2},
+                    {'x': 3, 'y': 4},
+                    {'x': 5, 'y': 6},
+                ]},
+                {'u': [
+                    {'x': 7, 'y': 8},
+                    {'x': 9, 'y': 10},
+                    {'x': 11, 'y': 12},
+                ]},
+            ]},
+            (
+                [
+                    ([
+                        (1, 2),
+                        (3, 4),
+                        (5, 6),
+                    ],),
+                    ([
+                        (7, 8),
+                        (9, 10),
+                        (11, 12),
+                    ],),
+                ],
+            ),
+        ),
+        (
+            (
+                [
+                    ([
+                        (1, 2),
+                        (3, 4),
+                        (5, 6),
+                    ],),
+                    ([
+                        (7, 8),
+                        (9, 10),
+                        (11, 12),
+                    ],),
+                ],
+            ),
+            (
+                [
+                    ([
+                        (1, 2),
+                        (3, 4),
+                        (5, 6),
+                    ],),
+                    ([
+                        (7, 8),
+                        (9, 10),
+                        (11, 12),
+                    ],),
+                ],
+            ),
+        ),
+    ),
+)
+def test_call_nested_tuple_contract(nested_tuple_contract, method_input, expected):
+    result = nested_tuple_contract.functions.method(method_input).call()
+    assert result == expected

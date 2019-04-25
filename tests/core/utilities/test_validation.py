@@ -4,14 +4,14 @@ from eth_utils import (
     to_bytes,
 )
 
-from web3.exceptions import (
-    InvalidAddress,
-)
-from web3.utils.validation import (
+from web3._utils.validation import (
     validate_abi,
     validate_abi_type,
     validate_abi_value,
     validate_address,
+)
+from web3.exceptions import (
+    InvalidAddress,
 )
 
 ABI = [

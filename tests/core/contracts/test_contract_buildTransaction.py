@@ -2,8 +2,11 @@
 
 import pytest
 
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     dissoc,
+)
+from web3.exceptions import (
+    ValidationError,
 )
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
@@ -32,6 +35,42 @@ def fallback_function_contract(web3, FallballFunctionContract, address_conversio
     return _fallback_contract
 
 
+@pytest.fixture()
+def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
+    deploy_txn = PayableTesterContract.constructor().transact()
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    payable_tester_address = address_conversion_func(deploy_receipt['contractAddress'])
+    _payable_tester = PayableTesterContract(address=payable_tester_address)
+    assert _payable_tester.address == payable_tester_address
+    return _payable_tester
+
+
+def test_build_transaction_not_paying_to_nonpayable_function(
+        web3,
+        payable_tester_contract,
+        buildTransaction):
+    txn = buildTransaction(contract=payable_tester_contract,
+                           contract_function='doNoValueCall')
+    assert dissoc(txn, 'gas') == {
+        'to': payable_tester_contract.address,
+        'data': '0xe4cb8f5c',
+        'value': 0,
+        'gasPrice': 1,
+        'chainId': 1,
+    }
+
+
+def test_build_transaction_paying_to_nonpayable_function(
+        web3,
+        payable_tester_contract,
+        buildTransaction):
+    with pytest.raises(ValidationError):
+        buildTransaction(contract=payable_tester_contract,
+                         contract_function='doNoValueCall',
+                         tx_params={'value': 1})
+
+
 def test_build_transaction_with_contract_no_arguments(web3, math_contract, buildTransaction):
     txn = buildTransaction(contract=math_contract, contract_function='increment')
     assert dissoc(txn, 'gas') == {
@@ -39,7 +78,7 @@ def test_build_transaction_with_contract_no_arguments(web3, math_contract, build
         'data': '0xd09de08a',
         'value': 0,
         'gasPrice': 1,
-        'chainId': None,
+        'chainId': 1,
     }
 
 
@@ -50,7 +89,7 @@ def test_build_transaction_with_contract_fallback_function(web3, fallback_functi
         'data': '0x',
         'value': 0,
         'gasPrice': 1,
-        'chainId': None,
+        'chainId': 1,
     }
 
 
@@ -69,7 +108,7 @@ def test_build_transaction_with_contract_class_method(
         'data': '0xd09de08a',
         'value': 0,
         'gasPrice': 1,
-        'chainId': None,
+        'chainId': 1,
     }
 
 
@@ -83,7 +122,7 @@ def test_build_transaction_with_contract_default_account_is_set(
         'data': '0xd09de08a',
         'value': 0,
         'gasPrice': 1,
-        'chainId': None,
+        'chainId': 1,
     }
 
 
@@ -97,7 +136,7 @@ def test_build_transaction_with_gas_price_strategy_set(web3, math_contract, buil
         'data': '0xd09de08a',
         'value': 0,
         'gasPrice': 5,
-        'chainId': None,
+        'chainId': 1,
     }
 
 
@@ -125,31 +164,31 @@ def test_build_transaction_with_contract_to_address_supplied_errors(web3,
         (
             {}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 0, 'gasPrice': 1, 'chainId': None,
+                'value': 0, 'gasPrice': 1, 'chainId': 1,
             }, False
         ),
         (
             {'gas': 800000}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 0, 'gasPrice': 1, 'chainId': None,
+                'value': 0, 'gasPrice': 1, 'chainId': 1,
             }, False
         ),
         (
             {'gasPrice': 21000000000}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 0, 'gasPrice': 21000000000, 'chainId': None,
+                'value': 0, 'gasPrice': 21000000000, 'chainId': 1,
             }, False
         ),
         (
             {'nonce': 7}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 0, 'gasPrice': 1, 'nonce': 7, 'chainId': None,
+                'value': 0, 'gasPrice': 1, 'nonce': 7, 'chainId': 1,
             }, True
         ),
         (
             {'value': 20000}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 20000, 'gasPrice': 1, 'chainId': None,
+                'value': 20000, 'gasPrice': 1, 'chainId': 1,
             }, False
         ),
     ),

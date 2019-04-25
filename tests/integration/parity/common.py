@@ -1,35 +1,37 @@
 import pytest
-import socket
 
 from flaky import (
     flaky,
 )
 
-from web3.utils.module_testing import (
+from web3._utils.module_testing import (  # noqa: F401
     EthModuleTest,
     ParityModuleTest as TraceModuleTest,
-    PersonalModuleTest,
+    ParityPersonalModuleTest,
     Web3ModuleTest,
+)
+from web3._utils.module_testing.eth_module import (
+    UNKNOWN_ADDRESS,
+)
+from web3._utils.module_testing.shh_module import (
+    ParityShhModuleTest,
 )
 
 # some tests appear flaky with Parity v1.10.x
 MAX_FLAKY_RUNS = 3
 
 
-def get_open_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return str(port)
-
-
 class ParityWeb3ModuleTest(Web3ModuleTest):
     def _check_web3_clientVersion(self, client_version):
-        assert client_version.startswith('Parity/')
+        assert client_version.startswith('Parity-Ethereum/')
 
 
 class ParityEthModuleTest(EthModuleTest):
+    def test_eth_chainId(self, web3):
+        # Parity will return null if chainId is not available
+        chain_id = web3.eth.chainId
+        assert chain_id is None
+
     def test_eth_getBlockByNumber_pending(self, web3):
         pytest.xfail('Parity dropped "pending" option in 1.11.1')
         super().test_eth_getBlockByNumber_pending(web3)
@@ -128,80 +130,56 @@ class ParityEthModuleTest(EthModuleTest):
         if pending_call_result not in range(1, MAX_FLAKY_RUNS + 1):
             raise AssertionError("pending call result was %d!" % pending_call_result)
 
+    def test_eth_getLogs_without_logs(self, web3, block_with_txn_with_log):
+        # Test with block range
 
-class ParityPersonalModuleTest(PersonalModuleTest):
-    def test_personal_importRawKey(self, web3):
-        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
-        super().test_personal_importRawKey(web3)
+        filter_params = {
+            "fromBlock": 0,
+            "toBlock": block_with_txn_with_log['number'] - 1,
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
 
-    def test_personal_listAccounts(self, web3):
-        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
-        super().test_personal_listAccounts(web3)
+        # the range is wrong, parity returns error message
+        filter_params = {
+            "fromBlock": block_with_txn_with_log['number'],
+            "toBlock": block_with_txn_with_log['number'] - 1,
+        }
+        with pytest.raises(ValueError):
+            web3.eth.getLogs(filter_params)
 
-    def test_personal_lockAccount(self, web3, unlocked_account):
-        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
-        super().test_personal_lockAccount(web3, unlocked_account)
+        # Test with `address`
 
-    def test_personal_unlockAccount_success(self, web3):
-        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
-        super().test_personal_unlockAccount_success(web3)
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": UNKNOWN_ADDRESS,
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
 
-    def test_personal_unlockAccount_failure(self, web3, unlockable_account):
-        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
-        super().test_personal_unlockAccount_failure(web3, unlockable_account)
+        # Test with multiple `address`
 
-    def test_personal_newAccount(self, web3):
-        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
-        super().test_personal_newAccount(web3)
-
-    def test_personal_sendTransaction(
-            self,
-            web3,
-            unlockable_account,
-            unlockable_account_pw):
-        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
-        super().test_personal_sendTransaction(
-            web3,
-            unlockable_account,
-            unlockable_account_pw)
-
-    def test_personal_sign_and_ecrecover(
-            self,
-            web3,
-            unlockable_account,
-            unlockable_account_pw):
-        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
-        super().test_personal_sign_and_ecrecover(
-            web3,
-            unlockable_account,
-            unlockable_account_pw)
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
+        }
+        result = web3.eth.getLogs(filter_params)
+        assert len(result) == 0
 
 
 class ParityTraceModuleTest(TraceModuleTest):
-    def test_trace_replay_transaction(self, web3, parity_fixture_data):
-        super().test_trace_replay_transaction(web3, parity_fixture_data)
+    pass
 
-    def test_trace_replay_block_with_transactions(self,
-                                                  web3,
-                                                  block_with_txn,
-                                                  parity_fixture_data):
-        pytest.xfail('This method does not exist in older parity versions')
-        super().test_trace_replay_block_with_transactions(web3,
-                                                          block_with_txn,
-                                                          parity_fixture_data)
 
-    def test_trace_replay_block_without_transactions(self, web3, empty_block):
-        pytest.xfail('This method does not exist in older parity versions')
-        super().test_trace_replay_block_without_transactions(web3, empty_block)
+class CommonParityShhModuleTest(ParityShhModuleTest):
+    def test_shh_sync_filter(self, web3):
+        # https://github.com/paritytech/parity-ethereum/issues/10565
+        pytest.xfail("Skip until parity filter bug is resolved")
+        super().test_shh_sync_filter(web3)
 
-    def test_trace_block(self, web3, block_with_txn):
-        super().test_trace_block(web3, block_with_txn)
-
-    def test_trace_transaction(self, web3, parity_fixture_data):
-        super().test_trace_transaction(web3, parity_fixture_data)
-
-    def test_trace_call(self, web3, math_contract, math_contract_address):
-        super().test_trace_call(web3, math_contract, math_contract_address)
-
-    def test_eth_call_with_0_result(self, web3, math_contract, math_contract_address):
-        super().test_eth_call_with_0_result(web3, math_contract, math_contract_address)
+    def test_shh_async_filter(self, web3):
+        # https://github.com/paritytech/parity-ethereum/issues/10565
+        pytest.xfail("Skip until parity filter bug is resolved")
+        super().test_shh_async_filter(web3)

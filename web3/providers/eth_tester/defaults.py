@@ -15,10 +15,10 @@ from eth_utils import (
     keccak,
 )
 
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     apply_formatter_if,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     compose,
     curry,
     excepts,
@@ -157,20 +157,21 @@ API_ENDPOINTS = {
         ),
     },
     'net': {
-        'version': not_implemented,
-        'peerCount': not_implemented,
-        'listening': not_implemented,
+        'version': static_return('1'),
+        'peerCount': static_return(0),
+        'listening': static_return(False),
     },
     'eth': {
-        'protocolVersion': not_implemented,
-        'syncing': not_implemented,
+        'protocolVersion': static_return(63),
+        'syncing': static_return(False),
         'coinbase': compose(
             operator.itemgetter(0),
             call_eth_tester('get_accounts'),
         ),
-        'mining': not_implemented,
-        'hashrate': not_implemented,
-        'gasPrice': not_implemented,
+        'mining': static_return(False),
+        'hashrate': static_return(0),
+        'chainId': static_return('0x3d'),
+        'gasPrice': static_return(1),
         'accounts': call_eth_tester('get_accounts'),
         'blockNumber': compose(
             operator.itemgetter('number'),
@@ -201,6 +202,7 @@ API_ENDPOINTS = {
         )),
         'getCode': call_eth_tester('get_code'),
         'sign': not_implemented,
+        'signTransaction': not_implemented,
         'sendTransaction': call_eth_tester('send_transaction'),
         'sendRawTransaction': call_eth_tester('send_raw_transaction'),
         'call': call_eth_tester('call'),  # TODO: untested

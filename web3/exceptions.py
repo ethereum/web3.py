@@ -12,9 +12,9 @@ class BadFunctionCallOutput(Exception):
 
 
 class BlockNumberOutofRange(Exception):
-    '''
+    """
     block_identifier passed does not match known block.
-    '''
+    """
     pass
 
 
@@ -58,13 +58,6 @@ class StaleBlockchain(Exception):
         return self.args[0]
 
 
-class UnhandledRequest(Exception):
-    """
-    Raised by the manager when none of it's providers responds to a request.
-    """
-    pass
-
-
 class MismatchedABI(Exception):
     """
     Raised when an ABI does not match with supplied parameters, or when an
@@ -89,7 +82,14 @@ class ValidationError(Exception):
 
 class NoABIFunctionsFound(AttributeError):
     """
-    Raised when an ABI doesn't contain any functions.
+    Raised when an ABI is present, but doesn't contain any functions.
+    """
+    pass
+
+
+class NoABIFound(AttributeError):
+    """
+    Raised when no ABI is present.
     """
     pass
 
@@ -105,5 +105,47 @@ class InsufficientData(Exception):
     """
     Raised when there are insufficient data points to
     complete a calculation
+    """
+    pass
+
+
+class TimeExhausted(Exception):
+    """
+    Raised when a method has not retrieved the desired result within a specified timeout.
+    """
+    pass
+
+
+class PMError(Exception):
+    """
+    Raised when an error occurs in the PM module.
+    """
+    pass
+
+
+class ManifestValidationError(PMError):
+    """
+    Raised when a provided manifest cannot be published, since it's invalid.
+    """
+    pass
+
+
+class TransactionNotFound(Exception):
+    """
+    Raised when a tx hash used to lookup a tx in a jsonrpc call cannot be found.
+    """
+    pass
+
+
+class BlockNotFound(Exception):
+    """
+    Raised when the block id used to lookup a block in a jsonrpc call cannot be found.
+    """
+    pass
+
+
+class InfuraKeyNotFound(Exception):
+    """
+    Raised when there is no Infura Project Id set.
     """
     pass

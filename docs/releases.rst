@@ -1,6 +1,423 @@
 Release Notes
 =============
 
+v5 Breaking Changes Summary
+   See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
+
+v5.0.0-alpha.11
+---------------
+Released April 24, 2019
+
+- Docs
+
+  - Add documentation for web3.py unit tests
+    - `#1324 <https://github.com/ethereum/web3.py/pull/1324>`_
+
+- Misc
+
+  - Update deprecated collections.abc imports
+    - `#1334 <https://github.com/ethereum/web3.py/pull/1334>`_
+  - Fix documentation typo
+    - `#1335 <https://github.com/ethereum/web3.py/pull/1335>`_
+  - Upgrade eth-tester version
+    - `#1332 <https://github.com/ethereum/web3.py/pull/1332>`_
+
+
+v5.0.0-alpha.10
+---------------
+Released April 15, 2019
+
+- Features
+
+  - Add getLogs by blockHash
+    - `#1269 <https://github.com/ethereum/web3.py/pull/1269>`_
+  - Implement chainId endpoint
+    - `#1295 <https://github.com/ethereum/web3.py/pull/1295>`_
+  - Moved non-standard JSON-RPC endpoints to applicable
+    Parity/Geth docs. Deprecated ``web3.version`` for ``web3.api``
+    - `#1290 <https://github.com/ethereum/web3.py/pull/1290>`_
+  - Moved Whisper endpoints to applicable Geth or Parity namespace
+    - `#1308 <https://github.com/ethereum/web3.py/pull/1308>`_
+  - Added support for Goerli provider
+    - `#1286 <https://github.com/ethereum/web3.py/pull/1286>`_
+  - Added addReservedPeer to Parity module
+    - `#1311 <https://github.com/ethereum/web3.py/pull/1311>`_
+
+- Bugfixes
+
+  - Cast gas price values to integers in gas strategies
+    - `#1297 <https://github.com/ethereum/web3.py/pull/1297>`_
+  - Missing constructor function no longer ignores constructor args
+    - `#1316 <https://github.com/ethereum/web3.py/pull/1316>`_
+
+- Misc
+
+  - Require eth-utils >= 1.4, downgrade Go version for integration tests
+    - `#1310 <https://github.com/ethereum/web3.py/pull/1310>`_
+  - Fix doc build warnings
+    - `#1331 <https://github.com/ethereum/web3.py/pull/1331>`_
+  - Zip Fixture data
+    - `#1307 <https://github.com/ethereum/web3.py/pull/1307>`_
+  - Update Geth version for integration tests
+    - `#1301 <https://github.com/ethereum/web3.py/pull/1301>`_
+  - Remove unneeded testrpc
+    - `#1322 <https://github.com/ethereum/web3.py/pull/1322>`_
+  - Add ContractCaller docs to v5 migration guide
+    - `#1323 <https://github.com/ethereum/web3.py/pull/1323>`_
+
+
+
+v5.0.0-alpha.9
+--------------
+Released March 26, 2019
+
+- Breaking Changes
+
+  - Raise error if there is no Infura API Key
+    - `#1294 <https://github.com/ethereum/web3.py/pull/1294>`_ &
+    - `#1299 <https://github.com/ethereum/web3.py/pull/1299>`_
+
+- Misc
+
+  - Upgraded Parity version for integration testing
+    - `#1292 <https://github.com/ethereum/web3.py/pull/1292>`_
+
+v5.0.0-alpha.8
+--------------
+Released March 20, 2019
+
+- Breaking Changes
+
+  - Removed ``web3/utils`` directory in favor of ``web3/_utils``
+    - `#1282 <https://github.com/ethereum/web3.py/pull/1282>`_
+  - Relocated personal RPC endpoints to Parity and Geth class
+    - `#1211 <https://github.com/ethereum/web3.py/pull/1211>`_
+  - Deprecated ``web3.net.chainId()``, ``web3.eth.getCompilers()``,
+    and ``web3.eth.getTransactionFromBlock()``. Removed ``web3.eth.enableUnauditedFeatures()``
+    - `#1270 <https://github.com/ethereum/web3.py/pull/1270>`_
+  - Relocated eth_protocolVersion and web3_clientVersion
+    - `#1274 <https://github.com/ethereum/web3.py/pull/1274>`_
+  - Relocated ``web3.txpool`` to ``web3.geth.txpool``
+    - `#1275 <https://github.com/ethereum/web3.py/pull/1275>`_
+  - Relocated admin module to Geth namespace
+    - `#1288 <https://github.com/ethereum/web3.py/pull/1288>`_
+  - Relocated miner module to Geth namespace
+    - `#1287 <https://github.com/ethereum/web3.py/pull/1287>`_
+
+- Features
+
+  - Implement ``eth_submitHashrate`` and ``eth_submitWork`` JSONRPC endpoints.
+    - `#1280 <https://github.com/ethereum/web3.py/pull/1280>`_
+  - Implement ``web3.eth.signTransaction``
+    - `#1277 <https://github.com/ethereum/web3.py/pull/1277>`_
+
+- Docs
+
+  - Added v5 migration docs
+    - `#1284 <https://github.com/ethereum/web3.py/pull/1284>`_
+
+v5.0.0-alpha.7
+--------------
+Released March 11, 2019
+
+- Breaking Changes
+
+  - Updated JSON-RPC calls that lookup txs or blocks to raise
+    an error if lookup fails
+    - `#1218 <https://github.com/ethereum/web3.py/pull/1218>`_ and
+    `#1268 <https://github.com/ethereum/web3.py/pull/1268>`_
+
+- Features
+
+  - Tuple ABI support
+    - `#1235 <https://github.com/ethereum/web3.py/pull/1235>`_
+
+- Bugfixes
+
+  - One last ``middleware_stack`` was still hanging on.
+    Changed to ``middleware_onion``
+    - `#1262 <https://github.com/ethereum/web3.py/pull/1262>`_
+
+v5.0.0-alpha.6
+--------------
+Released February 25th, 2019
+
+- Features
+
+  - New ``NoABIFound`` error for cases where there is no ABI
+    - `#1247 <https://github.com/ethereum/web3.py/pull/1247>`_
+
+- Misc
+
+  - Interact with Infura using an API Key. Key will be required after March 27th.
+    - `#1232 <https://github.com/ethereum/web3.py/pull/1232>`_
+  - Remove ``process_type`` utility function in favor of
+    eth-abi functionality
+    - `#1249 <https://github.com/ethereum/web3.py/pull/1249>`_
+
+
+v5.0.0-alpha.5
+--------------
+
+Released February 13th, 2019
+
+- Breaking Changes
+
+  - Remove deprecated ``buildTransaction``, ``call``, ``deploy``,
+    ``estimateGas``, and ``transact`` methods
+    - `#1232 <https://github.com/ethereum/web3.py/pull/1232>`_
+
+- Features
+
+  - Adds ``Web3.toJSON`` method
+    - `#1173 <https://github.com/ethereum/web3.py/pull/1173>`_
+  - Contract Caller API Implemented
+    - `#1227 <https://github.com/ethereum/web3.py/pull/1227>`_
+  - Add Geth POA middleware to use Rinkeby with Infura Auto
+    - `#1234 <https://github.com/ethereum/web3.py/pull/1234>`_
+  - Add manifest and input argument validation to ``pm.release_package()``
+    - `#1237 <https://github.com/ethereum/web3.py/pull/1237>`_
+
+- Misc
+
+  - Clean up intro and block/tx sections in Filter docs
+    - `#1223 <https://github.com/ethereum/web3.py/pull/1223>`_
+  - Remove unnecessary ``EncodingError`` exception catching
+    - `#1224 <https://github.com/ethereum/web3.py/pull/1224>`_
+  - Improvements to ``merge_args_and_kwargs`` utility function
+    - `#1228 <https://github.com/ethereum/web3.py/pull/1228>`_
+  - Update vyper registry assets
+    - `#1242 <https://github.com/ethereum/web3.py/pull/1242>`_
+
+
+v5.0.0-alpha.4
+--------------
+
+Released January 23rd, 2019
+
+- Breaking Changes
+
+  - Rename ``middleware_stack`` to ``middleware_onion``
+    - `#1210 <https://github.com/ethereum/web3.py/pull/1210>`_
+  - Drop already deprecated ``web3.soliditySha3``
+    - `#1217 <https://github.com/ethereum/web3.py/pull/1217>`_
+  - ENS: Stop inferring ``.eth`` TLD on domain names
+    - `#1205 <https://github.com/ethereum/web3.py/pull/1205>`_
+
+- Bugfixes
+
+  - Validate ``ethereum_tester`` class in ``EthereumTesterProvider``
+    - `#1217 <https://github.com/ethereum/web3.py/pull/1217>`_
+  - Support ``getLogs()`` method without creating filters
+    - `#1192 <https://github.com/ethereum/web3.py/pull/1192>`_
+
+- Features
+
+  - Stablize the ``PM`` module
+    - `#1125 <https://github.com/ethereum/web3.py/pull/1125>`_
+  - Implement async ``Version`` module
+    - `#1166 <https://github.com/ethereum/web3.py/pull/1166>`_
+
+- Misc
+
+  - Update .gitignore to ignore ``.DS_Store`` and ``.mypy_cache/``
+    - `#1215 <https://github.com/ethereum/web3.py/pull/1215>`_
+  - Change CircleCI badge link to CircleCI project
+    - `#1214 <https://github.com/ethereum/web3.py/pull/1214>`_
+
+
+v5.0.0-alpha.3
+--------------
+
+Released January 15th, 2019
+
+- Breaking Changes
+
+  - Remove ``web3.miner.hashrate`` and ``web3.version.network``
+    - `#1198 <https://github.com/ethereum/web3.py/pull/1198>`_
+  - Remove ``web3.providers.tester.EthereumTesterProvider``
+    and ``web3.providers.tester.TestRPCProvider``
+    - `#1199 <https://github.com/ethereum/web3.py/pull/1199>`_
+  - Change ``manager.providers`` from list to single ``manager.provider``
+    - `#1200 <https://github.com/ethereum/web3.py/pull/1200>`_
+  - Replace deprecated ``web3.sha3`` method with ``web3.keccak`` method
+    - `#1207 <https://github.com/ethereum/web3.py/pull/1207>`_
+  - Drop auto detect testnets for IPCProvider
+    - `#1206 <https://github.com/ethereum/web3.py/pull/1206>`_
+
+- Bugfixes
+
+  - Add check to make sure blockHash exists
+    - `#1158 <https://github.com/ethereum/web3.py/pull/1158>`_
+
+- Misc
+
+  - Remove some unreachable code in `providers/base.py`
+    - `#1160 <https://github.com/ethereum/web3.py/pull/1160>`_
+  - Migrate tester provider results from middleware to defaults
+    - `#1188 <https://github.com/ethereum/web3.py/pull/1188>`_
+  - Fix doc formatting for build_filter method
+    - `#1187 <https://github.com/ethereum/web3.py/pull/1187>`_
+  - Add ERC20 example in docs
+    - `#1178 <https://github.com/ethereum/web3.py/pull/1178>`_
+  - Code style improvements
+    - `#1194 <https://github.com/ethereum/web3.py/pull/1194>`_
+    & `#1191 <https://github.com/ethereum/web3.py/pull/1191>`_
+  - Convert Web3 instance variables to w3
+    - `#1186 <https://github.com/ethereum/web3.py/pull/1186>`_
+  - Update eth-utils dependencies and clean up other dependencies
+    - `#1195 <https://github.com/ethereum/web3.py/pull/1195>`_
+
+
+v5.0.0-alpha.2
+--------------
+
+Released December 20th, 2018
+
+- Breaking Changes
+
+  - Remove support for python3.5, drop support for eth-abi v1
+    - `#1163 <https://github.com/ethereum/web3.py/pull/1163>`_
+- Features
+
+  - Support for custom ReleaseManager was fixed
+    - `#1165 <https://github.com/ethereum/web3.py/pull/1165>`_
+
+- Misc
+
+  - Fix doctest nonsense with unicorn token
+    - `3b2047 <https://github.com/ethereum/web3.py/commit/3b20479ea52>`_
+  - Docs for installing web3 in FreeBSD
+    - `#1156 <https://github.com/ethereum/web3.py/pull/1156>`_
+  - Use latest python in readthedocs
+    - `#1162 <https://github.com/ethereum/web3.py/pull/1162>`_
+  - Use twine in release script
+    - `#1164 <https://github.com/ethereum/web3.py/pull/1164>`_
+  - Upgrade eth-tester, for eth-abi v2 support
+    - `#1168 <https://github.com/ethereum/web3.py/pull/1168>`_
+
+v5.0.0-alpha.1
+--------------
+
+Released December 13th, 2018
+
+- Features
+
+  - Add Rinkeby and Kovan Infura networks; made mainnet the default
+    - `#1150 <https://github.com/ethereum/web3.py/pull/1150>`_
+  - Add parity-specific ``listStorageKeys`` RPC
+    - `#1145 <https://github.com/ethereum/web3.py/pull/1145>`_
+  - Deprecated ``Web3.soliditySha3``; use ``Web3.solidityKeccak`` instead.
+    - `#1139 <https://github.com/ethereum/web3.py/pull/1139>`_
+  - Add default trinity locations to IPC path guesser
+    - `#1121 <https://github.com/ethereum/web3.py/pull/1121>`_
+  - Add wss to ``AutoProvider``
+    - `#1110 <https://github.com/ethereum/web3.py/pull/1110>`_
+  - Add timeout for ``WebsocketProvider``
+    - `#1109 <https://github.com/ethereum/web3.py/pull/1109>`_
+  - Receipt timeout raises ``TimeExhausted``
+    - `#1070 <https://github.com/ethereum/web3.py/pull/1070>`_
+  - Allow specification of block number for ``eth_estimateGas``
+    - `#1046 <https://github.com/ethereum/web3.py/pull/1046>`_
+
+
+- Misc
+
+  - Removed ``web3._utils.six`` support
+    - `#1116 <https://github.com/ethereum/web3.py/pull/1116>`_
+  - Upgrade eth-utils to 1.2.0
+    - `#1104 <https://github.com/ethereum/web3.py/pull/1104>`_
+  - Require Python version 3.5.3 or greater
+    - `#1095 <https://github.com/ethereum/web3.py/pull/1095>`_
+  - Bump websockets version to 7.0.0
+    - `#1146 <https://github.com/ethereum/web3.py/pull/1146>`_
+  - Bump parity test binary to 1.11.11
+    - `#1064 <https://github.com/ethereum/web3.py/pull/1064>`_
+
+
+v4.8.2
+--------
+
+Released November 15, 2018
+
+- Misc
+
+  - Reduce unneeded memory usage
+    - `#1138 <https://github.com/ethereum/web3.py/pull/1138>`_
+
+v4.8.1
+--------
+
+Released October 28, 2018
+
+- Features
+
+  - Add timeout for WebsocketProvider
+    - `#1119 <https://github.com/ethereum/web3.py/pull/1119>`_
+  - Reject transactions that send ether to non-payable contract functions
+    - `#1115 <https://github.com/ethereum/web3.py/pull/1115>`_
+  - Add Auto Infura Ropsten support: ``from web3.auto.infura.ropsten import w3``
+    - `#1124 <https://github.com/ethereum/web3.py/pull/1124>`_
+  - Auto-detect trinity IPC file location
+    - `#1129 <https://github.com/ethereum/web3.py/pull/1129>`_
+- Misc
+
+  - Require Python >=3.5.3
+    - `#1107 <https://github.com/ethereum/web3.py/pull/1107>`_
+  - Upgrade eth-tester and eth-utils
+    - `#1085 <https://github.com/ethereum/web3.py/pull/1085>`_
+  - Configure readthedocs dependencies
+    - `#1082 <https://github.com/ethereum/web3.py/pull/1082>`_
+  - soliditySha3 docs fixup
+    - `#1100 <https://github.com/ethereum/web3.py/pull/1100>`_
+  - Update ropsten faucet links in troubleshooting docs
+
+v4.7.2
+--------
+
+Released September 25th, 2018
+
+- Bugfixes
+
+  - IPC paths starting with ``~`` are appropriately resolved to the home directory
+    - `#1072 <https://github.com/ethereum/web3.py/pull/1072>`_
+  - You can use the local signing middleware with :class:`bytes`-type addresses
+    - `#1069 <https://github.com/ethereum/web3.py/pull/1069>`_
+
+v4.7.1
+--------
+
+Released September 11th, 2018
+
+- Bugfixes
+
+  - `old pip bug <https://github.com/pypa/pip/issues/4614>`_ used during
+    release made it impossible for non-windows users to install 4.7.0.
+
+v4.7.0
+--------
+
+Released September 10th, 2018
+
+- Features
+
+  - Add traceFilter method to the parity module.
+    - `#1051 <https://github.com/ethereum/web3.py/pull/1051>`_
+  - Move :mod:`~web3.utils.datastructures` to public namespace :mod:`~web3.datastructures`
+    to improve support for type checking.
+    - `#1038 <https://github.com/ethereum/web3.py/pull/1038>`_
+  - Optimization to contract calls
+    - `#944 <https://github.com/ethereum/web3.py/pull/944>`_
+- Bugfixes
+
+  - ENS name resolution only attempted on mainnet by default.
+    -  `#1037 <https://github.com/ethereum/web3.py/pull/1037>`_
+  - Fix attribute access error when attributedict middleware is not used.
+    - `#1040 <https://github.com/ethereum/web3.py/pull/1040>`_
+- Misc
+  - Upgrade eth-tester to 0.1.0-beta.32, and remove integration tests for py-ethereum.
+  - Upgrade eth-hash to 0.2.0 with pycryptodome 3.6.6 which resolves a vulnerability.
+
 v4.6.0
 --------
 

@@ -5,11 +5,11 @@ from eth_utils import (
     to_text,
 )
 
+from web3._utils.encoding import (
+    FriendlyJsonSerde,
+)
 from web3.middleware import (
     combine_middlewares,
-)
-from web3.utils.encoding import (
-    FriendlyJsonSerde,
 )
 
 
@@ -26,10 +26,10 @@ class BaseProvider:
         self._middlewares = tuple(values)
 
     def request_func(self, web3, outer_middlewares):
-        '''
+        """
         @param outer_middlewares is an iterable of middlewares, ordered by first to execute
         @returns a function that calls all the middleware and eventually self.make_request()
-        '''
+        """
         all_middlewares = tuple(outer_middlewares) + tuple(self.middlewares)
 
         cache_key = self._request_func_cache[0]
@@ -77,8 +77,8 @@ class JSONBaseProvider(BaseProvider):
             response = self.make_request('web3_clientVersion', [])
         except IOError:
             return False
-        else:
-            assert response['jsonrpc'] == '2.0'
-            assert 'error' not in response
-            return True
-        assert False
+
+        assert response['jsonrpc'] == '2.0'
+        assert 'error' not in response
+
+        return True

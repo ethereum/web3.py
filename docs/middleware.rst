@@ -142,12 +142,12 @@ to the request inside the innermost layer of the onion. Here is a (simplified) d
                                           Returned value in Web3.py
 
 
-The middlewares are maintained in ``Web3.middleware_stack``. See
+The middlewares are maintained in ``Web3.middleware_onion``. See
 below for the API.
 
 When specifying middlewares in a list, or retrieving the list of middlewares, they will
 be returned in the order of outermost layer first and innermost layer last. In the above
-example, that means that ``list(w3.middleware_stack)`` would return the middlewares in
+example, that means that ``list(w3.middleware_onion)`` would return the middlewares in
 the order of: ``[2, 1, 0]``.
 
 See "Internals: :ref:`internals__middlewares`" for a deeper dive to how middlewares work.
@@ -157,7 +157,7 @@ Middleware Stack API
 
 To add or remove items in different layers, use the following API:
 
-.. py:method:: Web3.middleware_stack.add(middleware, name=None)
+.. py:method:: Web3.middleware_onion.add(middleware, name=None)
 
     Middleware will be added to the outermost layer. That means the new middleware will modify the
     request first, and the response last. You can optionally name it with any hashable object,
@@ -166,27 +166,27 @@ To add or remove items in different layers, use the following API:
     .. code-block:: python
 
         >>> w3 = Web3(...)
-        >>> w3.middleware_stack.add(web3.middleware.pythonic_middleware)
+        >>> w3.middleware_onion.add(web3.middleware.pythonic_middleware)
         # or
-        >>> w3.middleware_stack.add(web3.middleware.pythonic_middleware, 'pythonic')
+        >>> w3.middleware_onion.add(web3.middleware.pythonic_middleware, 'pythonic')
 
-.. py:method:: Web3.middleware_stack.inject(middleware, name=None, layer=None)
+.. py:method:: Web3.middleware_onion.inject(middleware, name=None, layer=None)
 
     Inject a named middleware to an arbitrary layer.
 
     The current implementation only supports injection at the innermost or
     outermost layers. Note that injecting to the outermost layer is equivalent to calling
-    :meth:`Web3.middleware_stack.add` .
+    :meth:`Web3.middleware_onion.add` .
 
     .. code-block:: python
 
         # Either of these will put the pythonic middleware at the innermost layer
         >>> w3 = Web3(...)
-        >>> w3.middleware_stack.inject(web3.middleware.pythonic_middleware, layer=0)
+        >>> w3.middleware_onion.inject(web3.middleware.pythonic_middleware, layer=0)
         # or
-        >>> w3.middleware_stack.inject(web3.middleware.pythonic_middleware, 'pythonic', layer=0)
+        >>> w3.middleware_onion.inject(web3.middleware.pythonic_middleware, 'pythonic', layer=0)
 
-.. py:method:: Web3.middleware_stack.remove(middleware)
+.. py:method:: Web3.middleware_onion.remove(middleware)
 
     Middleware will be removed from whatever layer it was in. If you added the middleware with
     a name, use the name to remove it. If you added the middleware as an object, use the object
@@ -195,11 +195,11 @@ To add or remove items in different layers, use the following API:
     .. code-block:: python
 
         >>> w3 = Web3(...)
-        >>> w3.middleware_stack.remove(web3.middleware.pythonic_middleware)
+        >>> w3.middleware_onion.remove(web3.middleware.pythonic_middleware)
         # or
-        >>> w3.middleware_stack.remove('pythonic')
+        >>> w3.middleware_onion.remove('pythonic')
 
-.. py:method:: Web3.middleware_stack.replace(old_middleware, new_middleware)
+.. py:method:: Web3.middleware_onion.replace(old_middleware, new_middleware)
 
     Middleware will be replaced from whatever layer it was in. If the middleware was named, it will
     continue to have the same name. If it was un-named, then you will now reference it with the new
@@ -210,25 +210,25 @@ To add or remove items in different layers, use the following API:
         >>> from web3.middleware import pythonic_middleware, attrdict_middleware
         >>> w3 = Web3(...)
 
-        >>> w3.middleware_stack.replace(pythonic_middleware, attrdict_middleware)
+        >>> w3.middleware_onion.replace(pythonic_middleware, attrdict_middleware)
         # this is now referenced by the new middleware object, so to remove it:
-        >>> w3.middleware_stack.remove(attrdict_middleware)
+        >>> w3.middleware_onion.remove(attrdict_middleware)
 
         # or, if it was named
 
-        >>> w3.middleware_stack.replace('pythonic', attrdict_middleware)
+        >>> w3.middleware_onion.replace('pythonic', attrdict_middleware)
         # this is still referenced by the original name, so to remove it:
-        >>> w3.middleware_stack.remove('pythonic')
+        >>> w3.middleware_onion.remove('pythonic')
 
-.. py:method:: Web3.middleware_stack.clear()
+.. py:method:: Web3.middleware_onion.clear()
 
     Empty all the middlewares, including the default ones.
 
     .. code-block:: python
 
         >>> w3 = Web3(...)
-        >>> w3.middleware_stack.clear()
-        >>> assert len(w3.middleware_stack) == 0
+        >>> w3.middleware_onion.clear()
+        >>> assert len(w3.middleware_onion) == 0
 
 
 Optional Middleware
@@ -244,7 +244,7 @@ Web3 ships with non-default middleware, for your custom use. In addition to the 
 .. warning::
   This will
   *replace* the default middlewares. To keep the default functionality,
-  either use ``middleware_stack.add()`` from above, or add the default middlewares to your list of
+  either use ``middleware_onion.add()`` from above, or add the default middlewares to your list of
   new middlewares.
 
 Below is a list of built-in middleware, which is not enabled by default.
@@ -266,7 +266,7 @@ Stalecheck
     .. code-block:: python
 
         two_day_stalecheck = make_stalecheck_middleware(60 * 60 * 24 * 2)
-        web3.middleware_stack.add(two_day_stalecheck)
+        web3.middleware_onion.add(two_day_stalecheck)
 
     If the latest block in the blockchain is older than 2 days in this example, then the
     middleware will raise a ``StaleBlockchain`` exception on every call except
@@ -352,7 +352,7 @@ unique IPC location and loads the middleware:
     >>> from web3.middleware import geth_poa_middleware
 
     # inject the poa compatibility middleware to the innermost layer
-    >>> w3.middleware_stack.inject(geth_poa_middleware, layer=0)
+    >>> w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     # confirm that the connection succeeded
     >>> w3.version.node
@@ -368,3 +368,50 @@ which uses a prototype PoA for it's development mode and the Rinkeby test networ
 Unfortunately, it does deviate from the yellow paper specification, which constrains the
 ``extraData`` field in each block to a maximum of 32-bytes. Geth's PoA uses more than
 32 bytes, so this middleware modifies the block data a bit before returning it.
+
+.. _local-filter:
+
+Locally Managed Log and Block Filters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This middleware provides an alternative to ethereum node managed filters. When used, Log and
+Block filter logic are handled locally while using the same web3 filter api. Filter results are
+retrieved using JSON-RPC endpoints that don't rely on server state. 
+
+.. code-block:: python
+
+    >>> from web3 import Web3, EthereumTesterProvider
+    >>> w3 = Web3(EthereumTesterProvider)
+    >>> from web3.middleware import local_filter_middleware
+    >>> w3.middleware_onion.add(local_filter_middleware())
+
+    #  Normal block and log filter apis behave as before.
+    >>> block_filter = w3.eth.filter("latest")
+
+    >>> log_filter = myContract.events.myEvent.build_filter().deploy()
+
+Signing
+~~~~~~~
+
+.. py:method:: web3.middleware.construct_sign_and_send_raw_middleware(private_key_or_account)
+
+This middleware automatically captures transactions, signs them, and sends them as raw transactions. The from field on the transaction, or ``w3.eth.defaultAccount`` must be set to the address of the private key for this middleware to have any effect.
+ 
+   * ``private_key_or_account`` A single private key or a tuple, list or set of private keys.
+
+      Keys can be in any of the following formats:
+
+      * An ``eth_account.LocalAccount`` object
+      * An ``eth_keys.PrivateKey`` object
+      * A raw private key as a hex string or byte string
+
+.. code-block:: python
+
+   >>> from web3 import Web3, EthereumTesterProvider
+   >>> w3 = Web3(EthereumTesterProvider)
+   >>> from web3.middleware import construct_sign_and_send_raw_middleware
+   >>> from eth_account import Account
+   >>> acct = Account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
+   >>> w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
+   >>> w3.eth.defaultAccount = acct.address
+   # Now you can send a tx from acct.address without having to build and sign each raw transaction

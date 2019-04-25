@@ -12,7 +12,7 @@ from web3.providers.base import (
 
 @pytest.fixture
 def w3_base():
-    return Web3(providers=[BaseProvider()], middlewares=[])
+    return Web3(provider=BaseProvider(), middlewares=[])
 
 
 @pytest.fixture
@@ -24,8 +24,8 @@ def result_generator_middleware():
 
 @pytest.fixture
 def w3(w3_base, result_generator_middleware):
-    w3_base.middleware_stack.add(result_generator_middleware)
-    w3_base.middleware_stack.add(request_parameter_normalizer)
+    w3_base.middleware_onion.add(result_generator_middleware)
+    w3_base.middleware_onion.add(request_parameter_normalizer)
     return w3_base
 
 

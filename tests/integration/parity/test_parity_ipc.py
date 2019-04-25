@@ -6,12 +6,13 @@ from tests.integration.parity.utils import (
     wait_for_socket,
 )
 from web3 import Web3
-from web3.utils.module_testing import (
+from web3._utils.module_testing import (
     NetModuleTest,
     VersionModuleTest,
 )
 
 from .common import (
+    CommonParityShhModuleTest,
     ParityEthModuleTest,
     ParityPersonalModuleTest,
     ParityTraceModuleTest,
@@ -45,8 +46,10 @@ def parity_command_arguments(
         '--base-path', datadir,
         '--unlock', author,
         '--password', passwordfile,
+        '--ipc-apis', 'all',
         '--no-jsonrpc',
         '--no-ws',
+        '--whisper',
     )
 
 
@@ -59,6 +62,7 @@ def parity_import_blocks_command(parity_binary, ipc_path, datadir, passwordfile)
         '--ipc-path', ipc_path,
         '--base-path', datadir,
         '--password', passwordfile,
+        '--ipc-apis', 'all',
         '--no-jsonrpc',
         '--no-ws',
         '--tracing', 'on',
@@ -93,4 +97,8 @@ class TestParityPersonalModuleTest(ParityPersonalModuleTest):
 
 
 class TestParityTraceModuleTest(ParityTraceModuleTest):
+    pass
+
+
+class TestParityShhModuleTest(CommonParityShhModuleTest):
     pass

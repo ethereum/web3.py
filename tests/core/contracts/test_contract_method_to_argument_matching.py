@@ -1,20 +1,94 @@
 import json
 import pytest
 
-from web3.exceptions import (
-    ValidationError,
-)
-from web3.utils.abi import (
+from web3._utils.abi import (
     get_abi_input_types,
 )
-from web3.utils.function_identifiers import (
+from web3._utils.function_identifiers import (
     FallbackFn,
+)
+from web3.exceptions import (
+    ValidationError,
 )
 
 SINGLE_FN_NO_ARGS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
 SINGLE_FN_ONE_ARG = json.loads('[{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
-MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
 FALLBACK_FUNCTION = json.loads('[{"constant": false, "inputs": [], "name": "getData", "outputs": [{"name": "r", "type": "uint256"}], "payable": false, "stateMutability": "nonpayable", "type": "function"}, {"payable": false, "stateMutability": "nonpayable", "type": "fallback"}]')  # noqa: E501
+MULTIPLE_FUNCTIONS = json.loads('''
+[
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "a",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "a",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "a",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "name": "a",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "",
+        "type": "int8"
+      }
+    ],
+    "name": "a",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "components": [
+          {"name": "", "type": "int256"},
+          {"name": "", "type": "bool"}
+        ]
+      }
+    ],
+    "name": "a",
+    "outputs": [],
+    "type": "function"
+  }
+]
+''')
 
 
 def test_finds_single_function_without_args(web3):
@@ -57,6 +131,7 @@ def test_error_when_no_function_name_match(web3):
         ([1234567890], ['uint256']),
         # ([255], ['uint8']),  # TODO: enable
         ([-1], ['int8']),
+        ([[(-1, True), (2, False)]], ['(int256,bool)[]']),
     )
 )
 def test_finds_function_with_matching_args(web3, arguments, expected_types):

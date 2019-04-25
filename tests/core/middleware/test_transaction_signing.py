@@ -2,6 +2,9 @@ import pytest
 
 import eth_account
 import eth_keys
+from eth_tester.exceptions import (
+    ValidationError,
+)
 from eth_utils import (
     to_bytes,
     to_hex,
@@ -11,6 +14,11 @@ from hexbytes import (
 )
 
 from web3 import Web3
+from web3._utils.toolz import (
+    identity,
+    merge,
+    valfilter,
+)
 from web3.exceptions import (
     InvalidAddress,
 )
@@ -26,11 +34,6 @@ from web3.providers import (
 )
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
-)
-from web3.utils.toolz import (
-    identity,
-    merge,
-    valfilter,
 )
 
 PRIVATE_KEY_1 = to_bytes(
@@ -86,13 +89,17 @@ def result_generator_middleware():
 
 @pytest.fixture()
 def w3_base():
-    return Web3(providers=[DummyProvider()], middlewares=[])
+    return Web3(provider=DummyProvider(), middlewares=[])
 
 
 @pytest.fixture()
 def w3_dummy(w3_base, result_generator_middleware):
-    w3_base.middleware_stack.add(result_generator_middleware)
+    w3_base.middleware_onion.add(result_generator_middleware)
     return w3_base
+
+
+def hex_to_bytes(s):
+    return to_bytes(hexstr=s)
 
 
 @pytest.mark.parametrize(
@@ -117,6 +124,8 @@ def w3_dummy(w3_base, result_generator_middleware):
         ('eth_sendTransaction', SAME_KEY_MIXED_TYPE[3], ADDRESS_2, NotImplementedError),
         ('eth_sendTransaction', SAME_KEY_MIXED_TYPE[4], ADDRESS_2, NotImplementedError),
         ('eth_call', MIXED_KEY_MIXED_TYPE, ADDRESS_1, NotImplementedError),
+        ('eth_sendTransaction', SAME_KEY_SAME_TYPE, hex_to_bytes(ADDRESS_1),
+         'eth_sendRawTransaction'),
     )
 )
 def test_sign_and_send_raw_middleware(
@@ -126,7 +135,7 @@ def test_sign_and_send_raw_middleware(
         from_,
         expected,
         key_object):
-    w3_dummy.middleware_stack.add(
+    w3_dummy.middleware_onion.add(
         construct_sign_and_send_raw_middleware(key_object))
 
     if isinstance(expected, type) and issubclass(expected, Exception):
@@ -225,12 +234,12 @@ def fund_account(w3):
         ),
         (
             # Transaction with mismatched sender
-            # expect a key error with sendTransaction + unmanaged account
+            # expect a validation error with sendTransaction + unmanaged account
             {
                 'gas': 21000,
                 'value': 10
             },
-            KeyError,
+            ValidationError,
             SAME_KEY_MIXED_TYPE,
             ADDRESS_2,
         ),
@@ -253,7 +262,7 @@ def test_signed_transaction(
         expected,
         key_object,
         from_):
-    w3.middleware_stack.add(construct_sign_and_send_raw_middleware(key_object))
+    w3.middleware_onion.add(construct_sign_and_send_raw_middleware(key_object))
 
     # Drop any falsy addresses
     to_from = valfilter(bool, {'to': w3.eth.accounts[0], 'from': from_})
@@ -268,3 +277,39 @@ def test_signed_transaction(
         start_balance = w3.eth.getBalance(_transaction.get('from', w3.eth.accounts[0]))
         w3.eth.sendTransaction(_transaction)
         assert w3.eth.getBalance(_transaction.get('from')) <= start_balance + expected
+
+
+@pytest.mark.parametrize(
+    'from_converter,to_converter',
+    (
+        (identity, identity),
+        (hex_to_bytes, identity),
+        (identity, hex_to_bytes),
+        (hex_to_bytes, hex_to_bytes),
+    )
+)
+def test_sign_and_send_raw_middleware_with_byte_addresses(
+        w3_dummy,
+        from_converter,
+        to_converter):
+    private_key = PRIVATE_KEY_1
+    from_ = from_converter(ADDRESS_1)
+    to_ = to_converter(ADDRESS_2)
+
+    w3_dummy.middleware_onion.add(
+        construct_sign_and_send_raw_middleware(private_key))
+
+    actual = w3_dummy.manager.request_blocking(
+        'eth_sendTransaction',
+        [{
+            'to': to_,
+            'from': from_,
+            'gas': 21000,
+            'gasPrice': 0,
+            'value': 1,
+            'nonce': 0
+        }])
+    raw_txn = actual[1][0]
+    actual_method = actual[0]
+    assert actual_method == 'eth_sendRawTransaction'
+    assert isinstance(raw_txn, bytes)

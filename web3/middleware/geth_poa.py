@@ -6,11 +6,11 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.toolz import (
+    compose,
+)
 from web3.middleware.formatting import (
     construct_formatting_middleware,
-)
-from web3.utils.toolz import (
-    compose,
 )
 
 remap_geth_poa_fields = apply_key_map({

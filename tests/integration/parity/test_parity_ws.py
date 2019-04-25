@@ -4,21 +4,22 @@ import pytest
 from tests.integration.common import (
     MiscWebsocketTest,
 )
-from tests.integration.utils import (
+from tests.utils import (
+    get_open_port,
     wait_for_ws,
 )
 from web3 import Web3
-from web3.utils.module_testing import (
+from web3._utils.module_testing import (
     NetModuleTest,
     VersionModuleTest,
 )
 
 from .common import (
+    CommonParityShhModuleTest,
     ParityEthModuleTest,
     ParityPersonalModuleTest,
     ParityTraceModuleTest,
     ParityWeb3ModuleTest,
-    get_open_port,
 )
 
 
@@ -49,8 +50,10 @@ def parity_command_arguments(
         '--password', passwordfile,
         '--ws-port', ws_port,
         '--ws-origins', '*',
+        '--ws-apis', 'all',
         '--no-ipc',
         '--no-jsonrpc',
+        '--whisper',
     )
 
 
@@ -64,6 +67,7 @@ def parity_import_blocks_command(parity_binary, ws_port, datadir, passwordfile):
         '--password', passwordfile,
         '--ws-port', str(ws_port),
         '--ws-origins', '*',
+        '--ws-apis', 'all',
         '--no-ipc',
         '--no-jsonrpc',
         '--tracing', 'on',
@@ -102,4 +106,8 @@ class TestParityTraceModuleTest(ParityTraceModuleTest):
 
 
 class TestMiscWebsocketTest(MiscWebsocketTest):
+    pass
+
+
+class TestParityShhModuleTest(CommonParityShhModuleTest):
     pass

@@ -16,11 +16,14 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.utils.encoding import (
+from web3._utils.abi import (
+    is_length,
+)
+from web3._utils.encoding import (
     hexstr_if_str,
     to_hex,
 )
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     apply_formatter_at_index,
     apply_formatter_if,
     apply_formatter_to_array,
@@ -32,13 +35,13 @@ from web3.utils.formatters import (
     is_array_of_strings,
     remove_key_if,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     complement,
     compose,
     curry,
     partial,
 )
-from web3.utils.toolz.curried import (
+from web3._utils.toolz.curried import (
     keymap,
     valmap,
 )
@@ -104,6 +107,15 @@ TRANSACTION_FORMATTERS = {
 
 
 transaction_formatter = apply_formatters_to_dict(TRANSACTION_FORMATTERS)
+
+
+SIGNED_TX_FORMATTER = {
+    'raw': HexBytes,
+    'tx': transaction_formatter,
+}
+
+
+signed_tx_formatter = apply_formatters_to_dict(SIGNED_TX_FORMATTER)
 
 
 WHISPER_LOG_FORMATTERS = {
@@ -244,6 +256,12 @@ transaction_param_formatter = compose(
     apply_formatters_to_dict(TRANSACTION_PARAM_FORMATTERS),
 )
 
+estimate_gas_without_block_id = apply_formatter_at_index(transaction_param_formatter, 0)
+estimate_gas_with_block_id = combine_argument_formatters(
+    transaction_param_formatter,
+    block_number_formatter,
+)
+
 
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
@@ -273,7 +291,10 @@ pythonic_middleware = construct_formatting_middleware(
             transaction_param_formatter,
             block_number_formatter,
         ),
-        'eth_estimateGas': apply_formatter_at_index(transaction_param_formatter, 0),
+        'eth_estimateGas': apply_one_of_formatters((
+            (estimate_gas_without_block_id, is_length(1)),
+            (estimate_gas_with_block_id, is_length(2)),
+        )),
         'eth_sendTransaction': apply_formatter_at_index(transaction_param_formatter, 0),
         # personal
         'personal_importRawKey': apply_formatter_at_index(
@@ -332,6 +353,7 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'eth_sendRawTransaction': to_hexbytes(32),
         'eth_sendTransaction': to_hexbytes(32),
+        'eth_signTransaction': apply_formatter_if(is_not_null, signed_tx_formatter),
         'eth_sign': HexBytes,
         'eth_syncing': apply_formatter_if(is_not_false, syncing_formatter),
         # personal

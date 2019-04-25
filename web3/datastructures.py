@@ -1,8 +1,10 @@
 from collections import (
+    OrderedDict,
+)
+from collections.abc import (
     Hashable,
     Mapping,
     MutableMapping,
-    OrderedDict,
     Sequence,
 )
 
@@ -10,7 +12,7 @@ from eth_utils import (
     is_integer,
 )
 
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     recursive_map,
 )
 
@@ -97,10 +99,10 @@ class AttributeDict(ReadableAttributeDict, Hashable):
 
 
 class NamedElementOnion(Mapping):
-    '''
+    """
     Add layers to an onion-shaped structure. Optionally, inject to a specific layer.
     This structure is iterable, where the outermost layer is first, and innermost is last.
-    '''
+    """
 
     def __init__(self, init_elements, valid_element=callable):
         self._queue = OrderedDict()
@@ -123,13 +125,13 @@ class NamedElementOnion(Mapping):
         self._queue[name] = element
 
     def inject(self, element, name=None, layer=None):
-        '''
+        """
         Inject a named element to an arbitrary layer in the onion.
 
         The current implementation only supports insertion at the innermost layer,
         or at the outermost layer. Note that inserting to the outermost is equivalent
         to calling :meth:`add` .
-        '''
+        """
         if not is_integer(layer):
             raise TypeError("The layer for insertion must be an int.")
         elif layer != 0 and layer != len(self._queue):

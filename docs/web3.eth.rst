@@ -141,6 +141,30 @@ The following properties are available on the ``web3.eth`` namespace.
         2206939
 
 
+.. py:attribute:: Eth.protocolVersion
+
+    * Delegates to ``eth_protocolVersion`` RPC Method
+
+    Returns the id of the current Ethereum protocol version.
+
+    .. code-block:: python
+
+       >>> web3.eth.protocolVersion
+       '63'
+
+
+.. py:attribute:: Eth.chainId
+
+    * Delegates to ``eth_chainId`` RPC Method
+
+    Returns a hex-encoded integer value for the currently configured "Chain Id" value introduced in `EIP-155 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_. Returns ``None`` if no Chain Id is available.
+
+    .. code-block:: python
+
+       >>> web3.eth.chainId
+       '0x3d'
+
+
 Methods
 -------
 
@@ -282,7 +306,7 @@ The following methods are available on the ``web3.eth`` namespace.
           'gasLimit': '0x2fefd8',
           'gasUsed': '0x0',
           'hash': '0xc78c35720d930f9ef34b4e6fb9d02ffec936f9b02a8f0fa858456e4afd4d5614',
-          'logsBloom':'0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,
+          'logsBloom':'0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
           'miner': '0xbe4532e1b1db5c913cf553be76180c1777055403',
           'mixHash': '0x041e14603f35a82f6023802fec96ef760433292434a39787514f140950597e5e',
           'nonce': '0x5d2b7e3f1af09995',
@@ -332,8 +356,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.getTransactionFromBlock(block_identifier, transaction_index)
 
-  .. note:: This method is deprecated and replaced by
-    ``Eth.getTransactionByBlock``
+   .. note:: This method is deprecated in EIP 1474.
 
 
 .. py:method:: Eth.getTransactionByBlock(block_identifier, transaction_index)
@@ -386,7 +409,8 @@ The following methods are available on the ``web3.eth`` namespace.
     returns its transaction receipt.
 
     Optionally, specify a ``timeout`` in seconds. If timeout elapses before the transaction
-    is added to a block, then :meth:`~Eth.waitForTransactionReceipt` raises a `Timeout` exception.
+    is added to a block, then :meth:`~Eth.waitForTransactionReceipt` raises a
+    :class:`web3.exceptions.TimeExhausted` exception.
 
     .. code-block:: python
 
@@ -487,6 +511,27 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> web3.eth.sendTransaction({'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601', 'from': web3.eth.coinbase, 'value': 12345})
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
+
+
+.. py:method:: Eth.signTransaction()
+
+    * Delegates to ``eth_signTransaction`` RPC Method.
+
+    Returns a transaction that's been signed by the node's private key, but not yet submitted.
+    The signed tx can be submitted with `Eth.sendRawTransaction``
+
+    .. code-block:: python
+
+        >>> signed_txn = w3.eth.signTransaction(dict(
+            nonce=w3.eth.getTransactionCount(w3.eth.coinbase),
+            gasPrice=w3.eth.gasPrice,
+            gas=100000,
+            to='0xd3cda913deb6f67967b99d67acdfa1712c293601',
+            value=1,
+            data=b'',
+            )
+        )
+        b"\xf8d\x80\x85\x040\xe24\x00\x82R\x08\x94\xdcTM\x1a\xa8\x8f\xf8\xbb\xd2\xf2\xae\xc7T\xb1\xf1\xe9\x9e\x18\x12\xfd\x01\x80\x1b\xa0\x11\r\x8f\xee\x1d\xe5=\xf0\x87\x0en\xb5\x99\xed;\xf6\x8f\xb3\xf1\xe6,\x82\xdf\xe5\x97lF|\x97%;\x15\xa04P\xb7=*\xef \t\xf0&\xbc\xbf\tz%z\xe7\xa3~\xb5\xd3\xb7=\xc0v\n\xef\xad+\x98\xe3'"  # noqa: E501
 
 
 .. py:method:: Eth.sendRawTransaction(raw_transaction)
@@ -632,7 +677,7 @@ The following methods are available on the ``web3.eth`` namespace.
     In most cases it is better to make contract function call through the :py:class:`web3.contract.Contract` interface.
 
 
-.. py:method:: Eth.estimateGas(transaction)
+.. py:method:: Eth.estimateGas(transaction, block_identifier=None)
 
     * Delegates to ``eth_estimateGas`` RPC Method
 
@@ -640,13 +685,19 @@ The following methods are available on the ``web3.eth`` namespace.
     on the blockchain.  Returns amount of gas consumed by execution which can
     be used as a gas estimate.
 
-    The ``transaction`` parameter is handled in the same manner as the
-    :meth:`~web3.eth.Eth.sendTransaction()` method.
+    The ``transaction`` and ``block_identifier`` parameters are handled in the
+    same manner as the :meth:`~web3.eth.call()` method.
 
     .. code-block:: python
 
         >>> web3.eth.estimateGas({'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601', 'from': web3.eth.coinbase, 'value': 12345})
         21000
+
+    .. note::
+        The parameter ``block_identifier`` is not enabled in geth nodes,
+        hence passing a value of ``block_identifier`` when connected to a geth
+        nodes would result in an error like:  ``ValueError: {'code': -32602, 'message': 'too many arguments, want at most 1'}``
+
 
 .. py:method:: Eth.generateGasPrice(transaction_params=None)
 
@@ -807,6 +858,31 @@ with the filtering API.
     filter, running :meth:`~Eth.getFilterLogs`, and then uninstalling the filter. See
     :meth:`~Eth.filter` for details on allowed filter parameters.
 
+
+.. py:method:: Eth.submitHashrate(hashrate, nodeid)
+
+    * Delegates to ``eth_submitHashrate`` RPC Method
+
+    .. code-block:: python
+     
+       >>> node_id = '59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c' 
+       >>> web3.eth.submitHashrate(5000, node_id)
+       True
+
+
+.. py:method:: Eth.submitWork(nonce, pow_hash, mix_digest)
+
+    * Delegates to ``eth_submitWork`` RPC Method.
+
+    .. code-block:: python
+      
+       >>> web3.eth.submitWork(
+               1,
+               '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+               '0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000',
+           )
+       True
+  
 
 Contracts
 ---------

@@ -95,7 +95,10 @@ Web3 attempts to connect to nodes in the following order, using the first
 succesful connection it can make:
 
 1. The connection specified by an environment variable, see :ref:`provider_uri`
-2. :class:`~web3.providers.ipc.IPCProvider`, which looks for several IPC file locations
+2. :class:`~web3.providers.ipc.IPCProvider`, which looks for several IPC file locations.
+   `IPCProvider` will not automatically detect a testnet connection, it is suggested that the
+   user instead uses a `w3` instance from `web3.auto.infura` (e.g.
+   `from web3.auto.infura.ropsten import w3`) if they want to auto-detect a testnet.
 3. :class:`~web3.providers.rpc.HTTPProvider`, which attempts to connect to "http://localhost:8545"
 4. None - if no providers are successful, you can still use Web3 APIs
    that do not require a connection, like:
@@ -127,7 +130,7 @@ For example, the following retrieves the client enode endpoint for both geth and
         enode = w3.parity.enode
 
     elif connected and w3.version.node.startswith('Geth'):
-        enode = w3.admin.nodeInfo['enode']
+        enode = w3.geth.admin.nodeInfo['enode']
 
     else:
         enode = None
@@ -159,16 +162,21 @@ Infura Mainnet
 ~~~~~~~~~~~~~~
 
 To easily connect to the Infura Mainnet remote node, first register for a free
-API key if you don't have one at https://infura.io/signup .
+project ID if you don't have one at https://infura.io/register .
 
-Then set the environment variable ``INFURA_API_KEY`` with your API key::
+Then set the environment variable ``WEB3_INFURA_PROJECT_ID`` with your Project ID::
 
-    $ export INFURA_API_KEY=YourApiKey
+    $ export WEB3_INFURA_PROJECT_ID=YourProjectID
+
+If you have checked the box in the Infura UI indicating that requests need
+an optional secret key, set the environment variable ``WEB3_INFURA_API_SECRET``::
+
+    $ export WEB3_INFURA_API_SECRET=YourProjectSecret
 
 .. code-block:: python
 
     >>> from web3.auto.infura import w3
-    
+
     # confirm that the connection succeeded
     >>> w3.isConnected()
     True
@@ -181,7 +189,7 @@ To connect to a ``geth --dev`` Proof of Authority instance with defaults:
 .. code-block:: python
 
     >>> from web3.auto.gethdev import w3
-    
+
     # confirm that the connection succeeded
     >>> w3.isConnected()
     True
@@ -210,7 +218,7 @@ HTTPProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
+        >>> w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
 
     Note that you should create only one HTTPProvider per python
     process, as the HTTPProvider recycles underlying TCP/IP network connections,
@@ -225,7 +233,7 @@ HTTPProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 60}))
+        >>> w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 60}))
 
 
 IPCProvider
@@ -241,7 +249,7 @@ IPCProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc"))
+        >>> w3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc"))
 
     If no ``ipc_path`` is specified, it will use the first IPC file
     it can find from this list:
@@ -275,7 +283,7 @@ WebsocketProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546"))
+        >>> w3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546"))
 
     Under the hood, the ``WebsocketProvider`` uses the python websockets library for
     making requests.  If you would like to modify how requests are made, you can
@@ -286,7 +294,7 @@ WebsocketProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> web3 = Web3(Web3.WebsocketProvider("http://127.0.0.1:8546", websocket_kwargs={'timeout': 60}))
+        >>> w3 = Web3(Web3.WebsocketProvider("http://127.0.0.1:8546", websocket_kwargs={'timeout': 60}))
 
 .. py:currentmodule:: web3.providers.eth_tester
 
@@ -294,54 +302,20 @@ EthereumTesterProvider
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. warning:: Experimental:  This provider is experimental. There are still significant gaps in
-    functionality. However, it is the default replacement for
-    :class:`web3.providers.tester.EthereumTesterProvider`
-    and is being actively developed and supported.
+    functionality. However it is being actively developed and supported.
 
 .. py:class:: EthereumTesterProvider(eth_tester=None)
 
-    This provider integrates with the ``eth-tester`` library.  The
-    ``eth_tester`` constructor argument should be an instance of the
-    :class:`~eth_tester.EthereumTester` class provided by the ``eth-tester``
-    library.  If you would like a custom eth-tester instance to test with,
-    see the ``eth-tester`` library documentation for details.
+    This provider integrates with the ``eth-tester`` library.  The ``eth_tester`` constructor
+    argument should be an instance of the :class:`~eth_tester.EthereumTester` or a subclass of
+    :class:`~eth_tester.backends.base.BaseChainBackend` class provided by the ``eth-tester`` library.
+    If you would like a custom eth-tester instance to test with, see the
+    ``eth-tester`` library `documentation <https://github.com/ethereum/eth-tester>`_ for details.
 
     .. code-block:: python
 
         >>> from web3 import Web3, EthereumTesterProvider
         >>> w3 = Web3(EthereumTesterProvider())
-
-
-
-EthereumTesterProvider (legacy)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning:: Deprecated:  This provider is deprecated in favor of
-    :class:`~web3.providers.eth_tester.EthereumTesterProvider` and the newly created eth-tester.
-
-.. py:class:: web3.providers.tester.EthereumTesterProvider()
-
-    This provider can be used for testing.  It uses an ephemeral blockchain
-    backed by the ``ethereum.tester`` module.
-
-    .. code-block:: python
-
-        >>> from web3 import Web3
-        >>> from web3.providers.tester import EthereumTesterProvider
-        >>> w3 = Web3(EthereumTesterProvider())
-
-TestRPCProvider
-~~~~~~~~~~~~~~~
-
-.. warning:: Deprecated:  This provider is deprecated in favor of
-    :class:`~web3.providers.eth_tester.EthereumTesterProvider` and the newly created eth-tester.
-
-.. py:class:: TestRPCProvider()
-
-    This provider can be used for testing.  It uses an ephemeral blockchain
-    backed by the ``ethereum.tester`` module.  This provider will be slower
-    than the ``EthereumTesterProvider`` since it uses an HTTP server for RPC
-    interactions with.
 
 
 AutoProvider
@@ -350,29 +324,3 @@ AutoProvider
 :class:`~web3.providers.auto.AutoProvider` is the default used when initializing
 :class:`web3.Web3` without any providers. There's rarely a reason to use it
 explicitly.
-
-
-Using Multiple Providers
-------------------------
-
-Web3 supports the use of multiple providers.  This is useful for cases where
-you wish to delegate requests across different providers.  To use this feature,
-simply instantiate your web3 instance with an iterable of provider instances.
-
-
-.. code-block:: python
-
-    >>> from web3 import Web3, HTTPProvider
-    >>> from . import MySpecialProvider
-    >>> special_provider = MySpecialProvider()
-    >>> infura_provider = HTTPProvider('https://ropsten.infura.io')
-    >>> web3 = Web3([special_provider, infura_provider])
-
-
-When web3 has multiple providers it will iterate over them in order, trying the
-RPC request and returning the first response it receives.  Any provider which
-*cannot* respond to a request **must** throw a
-``web3.exceptions.CannotHandleRequest`` exception.
-
-If none of the configured providers are able to handle the request, then a
-``web3.exceptions.UnhandledRequest`` exception will be thrown.

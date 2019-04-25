@@ -1,6 +1,6 @@
 import random
 
-from web3.utils.threads import (
+from web3._utils.threads import (
     Timeout,
 )
 
@@ -8,10 +8,10 @@ from web3.utils.threads import (
 def test_txpool_content(web3_empty):
     web3 = web3_empty
 
-    web3.miner.stop()
+    web3.geth.miner.stop()
 
     with Timeout(60) as timeout:
-        while web3.miner.hashrate or web3.eth.mining:
+        while web3.eth.hashrate or web3.eth.mining:
             timeout.sleep(random.random())
 
     txn_1_hash = web3.eth.sendTransaction({
@@ -27,7 +27,7 @@ def test_txpool_content(web3_empty):
     })
     txn_2 = web3.eth.getTransaction(txn_2_hash)
 
-    content = web3.txpool.content
+    content = web3.geth.txpool.content
 
     assert web3.eth.coinbase in content['pending']
 

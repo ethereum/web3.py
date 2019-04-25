@@ -28,6 +28,30 @@ Providers
     also accepts a single provider.
 
 
+Attributes
+~~~~~~~~~~
+
+.. py:attribute:: Web3.api
+
+    Returns the current Web3 version.
+
+    .. code-block:: python
+     
+       >>> web3.api
+       "4.7.0"
+
+.. py:attribute:: Web3.clientVersion
+
+    * Delegates to ``web3_clientVersion`` RPC Method
+
+    Returns the current client version.
+
+    .. code-block:: python
+
+       >>> web3.clientVersion
+       'Geth/v1.4.11-stable-fed692f6/darwin/go1.7'
+
+
 Encoding and Decoding Helpers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -52,33 +76,22 @@ RPC APIS
 Each ``web3`` instance also exposes these namespaced APIs.
 
 
-
 .. py:attribute:: Web3.eth
 
     See :doc:`./web3.eth`
-
-.. py:attribute:: Web3.shh
-
-    See :doc:`./web3.shh`
-
-.. py:attribute:: Web3.personal
-
-    See :doc:`./web3.personal`
-
-.. py:attribute:: Web3.version
-
-    See :doc:`./web3.version`
-
-.. py:attribute:: Web3.txpool
-
-    See :doc:`./web3.txpool`
 
 .. py:attribute:: Web3.miner
 
     See :doc:`./web3.miner`
 
-.. py:attribute:: Web3.admin
+.. py:attribute:: Web3.pm
 
-    See :doc:`./web3.admin`
+    See :doc:`./web3.pm`
 
+.. py:attribute:: Web3.geth
 
+    See :doc:`./web3.geth`
+
+.. py:attribute:: Web3.parity
+
+    See :doc:`./web3.parity`

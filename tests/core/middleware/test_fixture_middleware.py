@@ -21,7 +21,7 @@ class DummyProvider(BaseProvider):
 
 @pytest.fixture
 def w3():
-    return Web3(providers=[DummyProvider()], middlewares=[])
+    return Web3(provider=DummyProvider(), middlewares=[])
 
 
 @pytest.mark.parametrize(
@@ -32,7 +32,7 @@ def w3():
     )
 )
 def test_fixture_middleware(w3, method, expected):
-    w3.middleware_stack.add(construct_fixture_middleware({'test_endpoint': 'value-a'}))
+    w3.middleware_onion.add(construct_fixture_middleware({'test_endpoint': 'value-a'}))
 
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
@@ -53,7 +53,7 @@ def test_result_middleware(w3, method, expected):
     def _callback(method, params):
         return params[0]
 
-    w3.middleware_stack.add(construct_result_generator_middleware({
+    w3.middleware_onion.add(construct_result_generator_middleware({
         'test_endpoint': _callback,
     }))
 
@@ -76,7 +76,7 @@ def test_error_middleware(w3, method, expected):
     def _callback(method, params):
         return params[0]
 
-    w3.middleware_stack.add(construct_error_generator_middleware({
+    w3.middleware_onion.add(construct_error_generator_middleware({
         'test_endpoint': _callback,
     }))
 

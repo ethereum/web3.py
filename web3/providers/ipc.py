@@ -1,11 +1,13 @@
 import logging
 import os
-import pathlib
+from pathlib import (
+    Path,
+)
 import socket
 import sys
 import threading
 
-from web3.utils.threads import (
+from web3._utils.threads import (
     Timeout,
 )
 
@@ -22,7 +24,7 @@ except ImportError:
 def get_ipc_socket(ipc_path, timeout=0.1):
     if sys.platform == 'win32':
         # On Windows named pipe is used. Simulate socket with it.
-        from web3.utils.windows import NamedPipe
+        from web3._utils.windows import NamedPipe
 
         return NamedPipe(ipc_path)
     else:
@@ -64,18 +66,12 @@ class PersistantSocket:
         return self.sock
 
 
-def get_default_ipc_path(testnet=False):
-    if testnet:
-        testnet = "testnet"
-    else:
-        testnet = ""
-
+def get_default_ipc_path():
     if sys.platform == 'darwin':
         ipc_path = os.path.expanduser(os.path.join(
             "~",
             "Library",
             "Ethereum",
-            testnet,
             "geth.ipc"
         ))
         if os.path.exists(ipc_path):
@@ -91,11 +87,15 @@ def get_default_ipc_path(testnet=False):
         if os.path.exists(ipc_path):
             return ipc_path
 
+        base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
+        ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'
+        if ipc_path.exists():
+            return str(ipc_path)
+
     elif sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
         ipc_path = os.path.expanduser(os.path.join(
             "~",
             ".ethereum",
-            testnet,
             "geth.ipc"
         ))
         if os.path.exists(ipc_path):
@@ -110,6 +110,11 @@ def get_default_ipc_path(testnet=False):
         ))
         if os.path.exists(ipc_path):
             return ipc_path
+
+        base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
+        ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'
+        if ipc_path.exists():
+            return str(ipc_path)
 
     elif sys.platform == 'win32':
         ipc_path = os.path.join(
@@ -185,13 +190,14 @@ class IPCProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.IPCProvider")
     _socket = None
 
-    def __init__(self, ipc_path=None, testnet=False, timeout=10, *args, **kwargs):
+    def __init__(self, ipc_path=None, timeout=10, *args, **kwargs):
         if ipc_path is None:
-            self.ipc_path = get_default_ipc_path(testnet)
-        elif isinstance(ipc_path, str) or isinstance(ipc_path, pathlib.Path):
-            self.ipc_path = str(pathlib.Path(ipc_path).expanduser().resolve())
+            self.ipc_path = get_default_ipc_path()
+        elif isinstance(ipc_path, str) or isinstance(ipc_path, Path):
+            self.ipc_path = str(Path(ipc_path).expanduser().resolve())
         else:
             raise TypeError("ipc_path must be of type string or pathlib.Path")
+
 
         self.timeout = timeout
         self._lock = threading.Lock()

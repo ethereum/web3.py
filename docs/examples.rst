@@ -251,14 +251,6 @@ The following example demonstrates a few things:
         return address
     
     
-    def wait_for_receipt(w3, tx_hash, poll_interval):
-       while True:
-           tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
-           if tx_receipt:
-             return tx_receipt
-           time.sleep(poll_interval)
-    
-    
     w3 = Web3(EthereumTesterProvider())
     
     contract_source_path = 'contract.sol'
@@ -279,9 +271,11 @@ The following example demonstrates a few things:
     if gas_estimate < 100000:
       print("Sending transaction to setVar(255)\n")
       tx_hash = store_var_contract.functions.setVar(255).transact()
-      receipt = wait_for_receipt(w3, tx_hash, 1)
+      receipt = w3.eth.waitForTransactionReceipt(tx_hash)
       print("Transaction receipt mined: \n")
       pprint.pprint(dict(receipt))
+      print("Was transaction successful? \n")
+      pprint.pprint(receipt['status'])
     else:
       print("Gas cost exceeds 100000")
 
@@ -308,63 +302,172 @@ Output:
      'transactionIndex': 0}
 
 
-Interacting with an ERC20 Contract
-----------------------------------
+Working with an ERC20 Token Contract
+------------------------------------
 
-The ERC20 (formally `EIP20 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md>`_) token standard is the most widely used standard in Ethereum. Here's how to check the current state of an ERC20 token contract.
-
-First, create your Python object representing the ERC20 contract.
-For this example, we'll be inspecting the `Unicorns <https://etherscan.io/token/0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7>`_ token contract.
+Most fungible tokens on the Ethereum blockchain conform to the `ERC20`_
+standard.  This section of the guide covers interacting with an existing token
+contract which conforms to this standard.
 
 .. testsetup::
-    
-    import os
-    # Please play nice and don't use this key for any shenanigans, thanks!!
-    os.environ['INFURA_API_KEY'] = "b2679bb624354d1b9a2586154651b51f"
+
+    from web3 import Web3
+    w3 = Web3(Web3.EthereumTesterProvider())
+    bytecode = '6060604052341561000c57fe5b604051602080610acb833981016040528080519060200190919050505b620f42408114151561003b5760006000fd5b670de0b6b3a76400008102600281905550600254600060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055505b505b610a27806100a46000396000f30060606040523615610097576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806306fdde0314610099578063095ea7b31461013257806318160ddd1461018957806323b872dd146101af578063313ce5671461022557806370a082311461025157806395d89b411461029b578063a9059cbb14610334578063dd62ed3e1461038b575bfe5b34156100a157fe5b6100a96103f4565b60405180806020018281038252838181518152602001915080519060200190808383600083146100f8575b8051825260208311156100f8576020820191506020810190506020830392506100d4565b505050905090810190601f1680156101245780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b341561013a57fe5b61016f600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803590602001909190505061042e565b604051808215151515815260200191505060405180910390f35b341561019157fe5b610199610521565b6040518082815260200191505060405180910390f35b34156101b757fe5b61020b600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803573ffffffffffffffffffffffffffffffffffffffff16906020019091908035906020019091905050610527565b604051808215151515815260200191505060405180910390f35b341561022d57fe5b610235610791565b604051808260ff1660ff16815260200191505060405180910390f35b341561025957fe5b610285600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610796565b6040518082815260200191505060405180910390f35b34156102a357fe5b6102ab6107e0565b60405180806020018281038252838181518152602001915080519060200190808383600083146102fa575b8051825260208311156102fa576020820191506020810190506020830392506102d6565b505050905090810190601f1680156103265780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b341561033c57fe5b610371600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803590602001909190505061081a565b604051808215151515815260200191505060405180910390f35b341561039357fe5b6103de600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610973565b6040518082815260200191505060405180910390f35b604060405190810160405280600981526020017f54657374546f6b656e000000000000000000000000000000000000000000000081525081565b600081600160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925846040518082815260200191505060405180910390a3600190505b92915050565b60025481565b600081600060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410806105f1575081600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054105b156105fc5760006000fd5b81600060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254019250508190555081600060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254039250508190555081600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825403925050819055508273ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a3600190505b9392505050565b601281565b6000600060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490505b919050565b604060405190810160405280600481526020017f544553540000000000000000000000000000000000000000000000000000000081525081565b600081600060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410156108695760006000fd5b81600060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254039250508190555081600060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a3600190505b92915050565b6000600160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490505b929150505600a165627a7a723058205071371ee2a4a1be3c96e77d939cdc26161a256fdd638efc08bd33dfc65d3b850029'
+    ABI = '[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"inputs":[{"name":"_totalSupply","type":"uint256"}],"payable":false,"type":"constructor","stateMutability":"nonpayable"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]'
+    factory = w3.eth.contract(abi=ABI, bytecode=bytecode)
+    alice, bob = w3.eth.accounts[0], w3.eth.accounts[1]
+    assert alice == '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf', alice
+    assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
+    tx_hash = factory.constructor(1000000).transact({'from': alice})
+    assert tx_hash == b'h9\xeb\xdb4\x07\x03y\x92RP`X\xf6\xf7\x9f\xfaT\xed&e\xee*\xc2\rx\xb3\xab\x8c4\xc9\x1f', tx_hash
+    txn_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
+    contract_address = txn_receipt['contractAddress']
+    contract = w3.eth.contract(contract_address, abi=ABI)
+    total_supply = contract.functions.totalSupply().call()
+    decimals = 10 ** 18
+    assert total_supply == 1000000 * decimals, total_supply
+
+
+In this guide we will interact with an existing token contract that we have
+already deployed to a local testing chain.  This guide assumes:
+
+1. An existing token contract at a known address.
+1. Access to the proper ``ABI`` for the given contract.
+1. A `~web3.main.Web3` instance connected to a provider with an unlocked account which can send transactions.
+
+
+Creating the contract factory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First we need to create a contract instance with the address of our token
+contract and the ``ERC20`` ABI.
 
 .. doctest::
 
-    >>> import json
-    >>> from web3.auto.infura import w3
+    >>> contract = w3.eth.contract(contract_address, abi=ABI)
+    >>> contract.address
+    '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b'
 
-    >>> ERC20_ABI = json.loads('[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}]')  # noqa: 501
 
-    # Address field should be the checksum address at which the ERC20 contract was deployed
-    >>> erc20 = w3.eth.contract(address='0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7', abi=ERC20_ABI)
+Querying token metadata
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Fetch various data about the current state of the ERC20 contract.
+Each token will have a total supply which represents the total number of tokens
+in circulation.  In this example we've initialized the token contract to have 1
+million tokens.  Since this token contract is setup to have 18 decimal places,
+the raw total supply returned by the contract is going to have 18 additional
+decimal places.
 
 .. doctest::
 
-    >>> erc20.functions.name().call()
-    'Unicorns'
-    >>> erc20.functions.symbol().call()
-    '🦄'
-    >>> erc20.functions.decimals().call()
+    >>> contract.functions.name().call()
+    'TestToken'
+    >>> contract.functions.symbol().call()
+    'TEST'
+    >>> decimals = contract.functions.decimals().call()
+    >>> decimals
+    18
+    >>> DECIMALS = 10 ** decimals
+    >>> contract.functions.totalSupply().call() // DECIMALS
+    1000000
+
+
+Query account balances
+~~~~~~~~~~~~~~~~~~~~~~
+
+Next we can query some account balances using the contract's ``balanceOf``
+function.  The token contract we are using starts with a single account which
+we'll refer to as ``alice`` holding all of the tokens.
+
+.. doctest::
+
+    >>> alice = '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'
+    >>> bob = '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF'
+    >>> raw_balance = contract.functions.balanceOf(alice).call()
+    >>> raw_balance
+    1000000000000000000000000
+    >>> raw_balance // DECIMALS
+    1000000
+    >>> contract.functions.balanceOf(bob).call()
     0
-    >>> erc20.functions.totalSupply().call()
-    2039
 
-Get the balance of an account address. 
+
+Sending tokens
+~~~~~~~~~~~~~~
+
+Next we can transfer some tokens from ``alice`` to ``bob`` using the contract's
+``transfer`` function.
+
+
+.. doctest::
+
+    >>> tx_hash = contract.functions.transfer(bob, 100).transact({'from': alice})
+    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    >>> contract.functions.balanceOf(alice).call()
+    999999999999999999999900
+    >>> contract.functions.balanceOf(bob).call()
+    100
+
+
+Creating an approval for external transfers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Alice could also *approve* someone else to spend tokens from her account using
+the ``approve`` function.  We can also query how many tokens we're approved to
+spend using the ``allowance`` function.
 
 .. doctest::
 
-    >>> erc20.functions.balanceOf('0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb').call()
-    1
+    >>> contract.functions.allowance(alice, bob).call()
+    0
+    >>> tx_hash = contract.functions.approve(bob, 200).transact({'from': alice})
+    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    >>> contract.functions.allowance(alice, bob).call()
+    200
 
-Calculate the token count from the token balance of an account address.
+
+Performing an external transfer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When someone has an allowance they can transfer those tokens using the
+``transferFrom`` function.
 
 .. doctest::
-   
-    >>> from decimal import Decimal
-    
-    # Most applications expect *exact* results, so using the Decimal library,
-    # with default precision of 28, is usually sufficient to avoid any rounding error.
-    >>> decimals = erc20.functions.decimals().call()
-    >>> balance = erc20.functions.balanceOf('0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb').call()
-    >>> balance / Decimal(10 ** decimals)
-    Decimal('1')
 
-Balance is *always* an integer in the currency's smallest natural unit (equivalent to 'wei' for ether). Token balance is typically used only for backend calculations.
+    >>> contract.functions.allowance(alice, bob).call()
+    200
+    >>> contract.functions.balanceOf(bob).call()
+    100
+    >>> tx_hash = contract.functions.transferFrom(alice, bob, 75).transact({'from': bob})
+    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    >>> contract.functions.allowance(alice, bob).call()
+    125
+    >>> contract.functions.balanceOf(bob).call()
+    175
 
-Token count *may* be a integer or fraction in the currency's primary unit (equivalent to 'eth' for ether). Token count is typically displayed to the user on the front-end since it is more readable.
+
+.. _ERC20: https://github.com/ethereum/EIPs/blob/7f4f0377730f5fc266824084188cc17cf246932e/EIPS/eip-20.md
+
+
+Contract Unit Tests in Python
+-----------------------------
+
+Here is an example of how one can use the `pytest`_ framework in python, Web3.py,
+eth-tester, and PyEVM to perform unit tests entirely in python without any
+additional need for a full featured ethereum node/client. To install needed
+dependencies you can use the pinned extra for eth_tester in web3 and pytest:
+
+.. _pytest: https://docs.pytest.org/en/latest/
+
+.. code-block:: bash
+
+    $ pip install web3[tester] pytest
+
+Once you have an environment set up for testing, you can then write your tests
+like so:
+
+.. include::  ../tests/core/contracts/test_contract_example.py
+    :code: python
+    :start-line: 1

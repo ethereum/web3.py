@@ -3,18 +3,19 @@ import pytest
 from tests.integration.common import (
     MiscWebsocketTest,
 )
-from tests.integration.utils import (
+from tests.utils import (
+    get_open_port,
     wait_for_ws,
 )
 from web3 import Web3
 
 from .common import (
+    CommonGoEthereumShhModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
     GoEthereumTest,
     GoEthereumVersionModuleTest,
-    get_open_port,
 )
 
 
@@ -36,8 +37,9 @@ def geth_command_arguments(geth_binary, datadir, ws_port):
         '--nodiscover',
         '--fakepow',
         '--ws',
+        '--shh',
         '--wsport', ws_port,
-        '--wsapi', 'db,eth,net,web3,personal,web3',
+        '--wsapi', 'db,eth,net,shh,web3,personal,web3',
         '--wsorigins', '*',
         '--ipcdisable',
     )
@@ -72,3 +74,9 @@ class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
 
 class TestMiscWebsocketTest(MiscWebsocketTest):
     pass
+
+
+class TestGoEthereumShhModuleTest(CommonGoEthereumShhModuleTest):
+    def test_shh_async_filter(self, web3):
+        pytest.xfail("async filter bug in geth ws version")
+        super().test_shh_async_filter(web3)

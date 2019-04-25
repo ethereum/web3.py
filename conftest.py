@@ -1,14 +1,17 @@
+import os
 import pytest
 import time
 import warnings
 
+from web3._utils.threads import (
+    Timeout,
+)
+from web3.main import (
+    Web3,
+)
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
-from web3.utils.threads import (
-    Timeout,
-)
-from web3.main import Web3
 
 
 class PollDelayCounter:
@@ -38,19 +41,15 @@ def sleep_interval():
     return PollDelayCounter()
 
 
-def is_all_testrpc_providers(providers):
-    return all(
-        isinstance(provider, EthereumTesterProvider)
-        for provider
-        in providers
-    )
+def is_testrpc_provider(provider):
+    return isinstance(provider, EthereumTesterProvider)
 
 
 @pytest.fixture()
 def skip_if_testrpc():
 
     def _skip_if_testrpc(web3):
-        if is_all_testrpc_providers(web3.providers):
+        if is_testrpc_provider(web3.provider):
             pytest.skip()
     return _skip_if_testrpc
 

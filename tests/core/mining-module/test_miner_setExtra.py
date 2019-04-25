@@ -7,7 +7,7 @@ from flaky import (
     flaky,
 )
 
-from web3.utils.threads import (
+from web3._utils.threads import (
     Timeout,
 )
 
@@ -23,7 +23,7 @@ def test_miner_setExtra(web3_empty, wait_for_block):
     # sanity
     assert initial_extra != new_extra_data
 
-    web3.miner.setExtra(new_extra_data)
+    web3.geth.miner.setExtra(new_extra_data)
 
     with Timeout(60) as timeout:
         while True:

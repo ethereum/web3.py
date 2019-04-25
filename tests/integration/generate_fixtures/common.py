@@ -12,6 +12,10 @@ from eth_utils import (
     to_text,
 )
 
+from web3.exceptions import (
+    TransactionNotFound,
+)
+
 COINBASE = '0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'
 COINBASE_PK = '0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d'
 
@@ -33,7 +37,7 @@ GENESIS_DATA = {
         "eip150Block": 0,
         "eip155Block": 10,
         "eip158Block": 10,
-        "eip160Block": 10
+        "eip160Block": 10,
     },
     "nonce": "0x0000000000000042",
     "alloc": {
@@ -74,14 +78,6 @@ def tempdir():
         yield dir_path
     finally:
         shutil.rmtree(dir_path)
-
-
-def get_open_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return str(port)
 
 
 def get_geth_binary():
@@ -202,11 +198,11 @@ def mine_block(web3):
     origin_block_number = web3.eth.blockNumber
 
     start_time = time.time()
-    web3.miner.start(1)
+    web3.geth.miner.start(1)
     while time.time() < start_time + 120:
         block_number = web3.eth.blockNumber
         if block_number > origin_block_number:
-            web3.miner.stop()
+            web3.geth.miner.stop()
             return block_number
         else:
             time.sleep(0.1)
@@ -216,11 +212,14 @@ def mine_block(web3):
 
 def mine_transaction_hash(web3, txn_hash):
     start_time = time.time()
-    web3.miner.start(1)
+    web3.geth.miner.start(1)
     while time.time() < start_time + 120:
-        receipt = web3.eth.getTransactionReceipt(txn_hash)
+        try:
+            receipt = web3.eth.getTransactionReceipt(txn_hash)
+        except TransactionNotFound:
+            continue
         if receipt is not None:
-            web3.miner.stop()
+            web3.geth.miner.stop()
             return receipt
         else:
             time.sleep(0.1)
@@ -229,7 +228,7 @@ def mine_transaction_hash(web3, txn_hash):
 
 
 def deploy_contract(web3, name, factory):
-    web3.personal.unlockAccount(web3.eth.coinbase, KEYFILE_PW)
+    web3.geth.personal.unlockAccount(web3.eth.coinbase, KEYFILE_PW)
     deploy_txn_hash = factory.constructor().transact({'from': web3.eth.coinbase})
     print('{0}_CONTRACT_DEPLOY_HASH: '.format(name.upper()), deploy_txn_hash)
     deploy_receipt = mine_transaction_hash(web3, deploy_txn_hash)

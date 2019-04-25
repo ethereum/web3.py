@@ -6,17 +6,17 @@ from eth_utils import (
     to_tuple,
 )
 
-from web3.exceptions import (
-    InsufficientData,
-    ValidationError,
-)
-from web3.utils.math import (
+from web3._utils.math import (
     percentile,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     curry,
     groupby,
     sliding_window,
+)
+from web3.exceptions import (
+    InsufficientData,
+    ValidationError,
 )
 
 MinerData = collections.namedtuple(
@@ -105,9 +105,9 @@ def _compute_gas_price(probabilities, desired_probability):
     last = probabilities[-1]
 
     if desired_probability >= first.prob:
-        return first.gas_price
+        return int(first.gas_price)
     elif desired_probability <= last.prob:
-        return last.gas_price
+        return int(last.gas_price)
 
     for left, right in sliding_window(2, probabilities):
         if desired_probability < right.prob:

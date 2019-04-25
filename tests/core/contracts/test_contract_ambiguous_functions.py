@@ -4,7 +4,7 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     compose,
     curry,
 )

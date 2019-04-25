@@ -11,19 +11,25 @@ from eth_utils import (
 )
 
 import common
+from tests.utils import (
+    get_open_port,
+)
 from web3 import Web3
-from web3.utils.module_testing.emitter_contract import (
+from web3._utils.module_testing.emitter_contract import (
     EMITTER_ABI,
     EMITTER_BYTECODE,
     EMITTER_ENUM,
 )
-from web3.utils.module_testing.math_contract import (
+from web3._utils.module_testing.math_contract import (
     MATH_ABI,
     MATH_BYTECODE,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     merge,
 )
+
+# this script is used for generating the parity fixture
+# to generate geth fixtures use tests/generate_go_ethereum_fixture.py
 
 
 def generate_go_ethereum_fixture(destination_dir):
@@ -42,7 +48,7 @@ def generate_go_ethereum_fixture(destination_dir):
         geth_ipc_path_dir = stack.enter_context(common.tempdir())
         geth_ipc_path = os.path.join(geth_ipc_path_dir, 'geth.ipc')
 
-        geth_port = common.get_open_port()
+        geth_port = get_open_port()
         geth_binary = common.get_geth_binary()
 
         geth_proc = stack.enter_context(common.get_geth_process(  # noqa: F841
@@ -63,7 +69,7 @@ def generate_go_ethereum_fixture(destination_dir):
         }
         pprint.pprint(merge(chain_data, static_data))
 
-        shutil.copytree(datadir, destination_dir)
+        shutil.make_archive(destination_dir, 'zip', datadir)
 
 
 def setup_chain_state(web3):
@@ -114,8 +120,8 @@ def setup_chain_state(web3):
     #
     # Block with Transaction
     #
-    web3.personal.unlockAccount(coinbase, common.KEYFILE_PW)
-    web3.miner.start(1)
+    web3.geth.personal.unlockAccount(coinbase, common.KEYFILE_PW)
+    web3.geth.miner.start(1)
     mined_txn_hash = web3.eth.sendTransaction({
         'from': coinbase,
         'to': coinbase,

@@ -39,7 +39,7 @@ A block as returned by `web3.eth.getBlock` that has a single transaction.
 #### `math_contract`
 
 An deployed Contract instance of the *Math* contract found in
-`web3.utils.module_testing.math_contract`.
+`web3._utils.module_testing.math_contract`.
 
 
 #### `unlocked_account`
@@ -66,7 +66,7 @@ The transaction hash of a transaction which has been mined.
 #### `emitter_contract`
 
 An deployed Contract instance of the *Emitter* contract found in
-`web3.utils.module_testing.emitter_contract`.
+`web3._utils.module_testing.emitter_contract`.
 
 
 #### `block_with_txn_with_log`
@@ -87,3 +87,8 @@ The address of an account that can be unlocked using the `unlockable_account_pw`
 #### `unlockable_account_pw`
 
 The password that can be used to unlock the `unlockable_account`
+
+
+# Updating Fixture ZIPs
+
+**ONLY** trusted parties should be allowed to update zipped fixtures, since they pose an attack surface through which a third party could inject malicious code into the codebase.

@@ -15,6 +15,7 @@ Contents
     quickstart
     overview
     node
+    v5_migration
     v4_migration
     filters
     contracts
@@ -27,13 +28,10 @@ Contents
     web3.eth
     web3.eth.account
     web3.pm
-    web3.shh
-    web3.personal
     web3.net
-    web3.version
-    web3.txpool
     web3.miner
-    web3.admin
+    web3.geth
+    web3.parity
     gas_price
     ens
     internals

@@ -87,7 +87,7 @@ a list when instantiating your ``Web3`` object.
 
 .. code-block:: python
 
-    >>> web3 = Web3([provider_a, provider_b])
+    >>> w3 = Web3([provider_a, provider_b])
 
 
 
@@ -145,7 +145,7 @@ business logic for web3 requests.  Writing middleware is simple.
 
 .. code-block:: python
 
-    def simple_middleware(make_request, web3):
+    def simple_middleware(make_request, w3):
         # do one-time setup operations here
 
         def middleware(method, params):
@@ -167,8 +167,8 @@ It is also possible to implement middlewares as a class.
 .. code-block:: python
 
     class SimpleMiddleware:
-        def __init__(self, make_request, web3):
-            self.web3 = web3
+        def __init__(self, make_request, w3):
+            self.w3 = w3
             self.make_request = make_request
 
         def __call__(self, method, params):
@@ -197,7 +197,7 @@ middleware performs the following translations for requests and responses.
 * Numeric responses will be converted from their hexadecimal representations to
   their integer representations.
 
-The ``RequestManager`` object exposes the ``middleware_stack`` object to manage middlewares. It
+The ``RequestManager`` object exposes the ``middleware_onion`` object to manage middlewares. It
 is also exposed on the ``Web3`` object for convenience. That API is detailed in
 :ref:`Modifying_Middleware`.
 

@@ -21,6 +21,19 @@ def test_contract_constructor_abi_encoding_with_constructor_with_no_args(SimpleC
 
 
 @pytest.mark.parametrize(
+    'args,kwargs',
+    (
+        (None, 'kwarg-is-ignored'),
+        ('arg-is-ignored', None),
+    ),
+)
+def test_contract_error_if_additional_args_are_supplied_with_no_constructor_fn(MathContract,
+                                                                               args, kwargs):
+    with pytest.raises(TypeError, match="Constructor args"):
+        MathContract._encode_constructor_data(args, kwargs)
+
+
+@pytest.mark.parametrize(
     'arguments',
     (
         [],

@@ -5,11 +5,11 @@ from hypothesis import (
     strategies as st,
 )
 
+from web3._utils.math import (
+    percentile,
+)
 from web3.exceptions import (
     InsufficientData,
-)
-from web3.utils.math import (
-    percentile,
 )
 
 values = range(100)

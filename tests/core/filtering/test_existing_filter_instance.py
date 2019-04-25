@@ -1,17 +1,17 @@
 import pytest
 
+from web3._utils.threads import (
+    Timeout,
+)
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
-)
-from web3.utils.threads import (
-    Timeout,
 )
 
 
 @pytest.fixture()
 def filter_id(web3):
-    if EthereumTesterProvider not in map(type, web3.providers):
-        web3.providers = EthereumTesterProvider()
+    if not isinstance(web3.provider, EthereumTesterProvider):
+        web3.provider = EthereumTesterProvider()
 
     block_filter = web3.eth.filter("latest")
     return block_filter.filter_id

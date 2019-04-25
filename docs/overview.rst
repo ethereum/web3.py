@@ -36,13 +36,13 @@ local development this would be something like ``ws://127.0.0.1:8546``.
     # Note that you should create only one RPCProvider per
     # process, as it recycles underlying TCP/IP network connections between
     # your process and Ethereum node
-    >>> web3 = Web3(HTTPProvider('http://localhost:8545'))
+    >>> w3 = Web3(HTTPProvider('http://localhost:8545'))
 
     # or for an IPC based connection
-    >>> web3 = Web3(IPCProvider())
+    >>> w3 = Web3(IPCProvider())
 
     # or for Websocket based connection
-    >>> web3 = Web3(WebsocketProvider('ws://127.0.0.1:8546'))
+    >>> w3 = Web3(WebsocketProvider('ws://127.0.0.1:8546'))
 
 
 Base API
@@ -163,6 +163,18 @@ Type Conversions
         >>> Web3.toInt(hexstr='000F')
         15
 
+.. py:method:: Web3.toJSON(obj)
+
+    Takes a variety of inputs and returns its JSON equivalent.
+
+
+    .. code-block:: python
+
+        >>> Web3.toJSON(3)
+        '3'
+        >>> Web3.toJSON({'one': 1})
+        '{"one": 1}'
+
 .. _overview_currency_conversions:
 
 Currency Conversions
@@ -207,7 +219,7 @@ Addresses
 
     .. code-block:: python
 
-        >>> web3.isAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> wch3.isAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
 
 
@@ -218,9 +230,9 @@ Addresses
 
     .. code-block:: python
 
-        >>> web3.isChecksumAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> wch3.isChecksumAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
-        >>> web3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> wch3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
         False
 
 
@@ -242,7 +254,50 @@ Addresses
 Cryptographic Hashing
 ~~~~~~~~~~~~~~~~~~~~~
 
+.. py:classmethod:: Web3.keccak(primitive=None, hexstr=None, text=None)
+
+    Returns the Keccak-256 of the given value. Text is encoded to UTF-8 before
+    computing the hash, just like Solidity. Any of the following are
+    valid and equivalent:
+
+    .. code-block:: python
+
+        >>> Web3.keccak(0x747874)
+        >>> Web3.keccak(b'\x74\x78\x74')
+        >>> Web3.keccak(hexstr='0x747874')
+        >>> Web3.keccak(hexstr='747874')
+        >>> Web3.keccak(text='txt')
+        HexBytes('0xd7278090a36507640ea6b7a0034b69b0d240766fa3f98e3722be93c613b29d2e')
+
+.. py:classmethod:: Web3.solidityKeccak(abi_types, value)
+
+    Returns the Keccak-256 as it would be computed by the solidity ``keccak``
+    function on the provided ``value`` and ``abi_types``.  The ``abi_types``
+    value should be a list of solidity type strings which correspond to each
+    of the provided values.
+
+
+    .. code-block:: python
+
+        >>> Web3.solidityKeccak(['bool'], [True])
+        HexBytes("0x5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2")
+
+        >>> Web3.solidityKeccak(['uint8', 'uint8', 'uint8'], [97, 98, 99])
+        HexBytes("0x4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45")
+
+        >>> Web3.solidityKeccak(['uint8[]'], [[97, 98, 99]])
+        HexBytes("0x233002c671295529bcc50b76a2ef2b0de2dac2d93945fca745255de1a9e4017e")
+
+        >>> Web3.solidityKeccak(['address'], ["0x49eddd3769c0712032808d86597b84ac5c2f5614"])
+        HexBytes("0x2ff37b5607484cd4eecf6d13292e22bd6e5401eaffcc07e279583bc742c68882")
+
+        >>> Web3.solidityKeccak(['address'], ["ethereumfoundation.eth"])
+        HexBytes("0x913c99ea930c78868f1535d34cd705ab85929b2eaaf70fcd09677ecd6e5d75e9")
+
 .. py:classmethod:: Web3.sha3(primitive=None, hexstr=None, text=None)
+
+    .. WARNING::
+      This method has been deprecated for :meth:`~Web3.keccak`
 
     Returns the Keccak SHA256 of the given value. Text is encoded to UTF-8 before
     computing the hash, just like Solidity. Any of the following are
@@ -259,6 +314,10 @@ Cryptographic Hashing
 
 .. py:classmethod:: Web3.soliditySha3(abi_types, value)
 
+    .. WARNING::
+      This method has been deprecated for :meth:`~Web3.solidityKeccak`
+
+
     Returns the sha3 as it would be computed by the solidity ``sha3`` function
     on the provided ``value`` and ``abi_types``.  The ``abi_types`` value
     should be a list of solidity type strings which correspond to each of the
@@ -267,7 +326,7 @@ Cryptographic Hashing
 
     .. code-block:: python
 
-        >>> Web3.soliditySha3(['bool'], True)
+        >>> Web3.soliditySha3(['bool'], [True])
         HexBytes("0x5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2")
 
         >>> Web3.soliditySha3(['uint8', 'uint8', 'uint8'], [97, 98, 99])

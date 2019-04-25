@@ -1,4 +1,4 @@
-from web3.utils.empty import (
+from web3._utils.empty import (
     empty,
 )
 

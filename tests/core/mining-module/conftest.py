@@ -11,4 +11,3 @@ def always_wait_for_mining_start(web3,
 
     assert web3.eth.mining
     assert web3.eth.hashrate
-    assert web3.miner.hashrate

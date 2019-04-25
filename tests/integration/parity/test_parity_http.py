@@ -4,18 +4,21 @@ import pytest
 from tests.integration.parity.utils import (
     wait_for_http,
 )
+from tests.utils import (
+    get_open_port,
+)
 from web3 import Web3
-from web3.utils.module_testing import (
+from web3._utils.module_testing import (
     NetModuleTest,
     VersionModuleTest,
 )
 
 from .common import (
+    CommonParityShhModuleTest,
     ParityEthModuleTest,
     ParityPersonalModuleTest,
     ParityTraceModuleTest,
     ParityWeb3ModuleTest,
-    get_open_port,
 )
 
 
@@ -45,8 +48,10 @@ def parity_command_arguments(
         '--unlock', author,
         '--password', passwordfile,
         '--jsonrpc-port', rpc_port,
+        '--jsonrpc-apis', 'all',
         '--no-ipc',
         '--no-ws',
+        '--whisper',
     )
 
 
@@ -59,6 +64,7 @@ def parity_import_blocks_command(parity_binary, rpc_port, datadir, passwordfile)
         '--base-path', datadir,
         '--password', passwordfile,
         '--jsonrpc-port', str(rpc_port),
+        '--jsonrpc-apis', 'all',
         '--no-ipc',
         '--no-ws',
         '--tracing', 'on',
@@ -93,4 +99,8 @@ class TestParityPersonalModuleTest(ParityPersonalModuleTest):
 
 
 class TestParityTraceModuleTest(ParityTraceModuleTest):
+    pass
+
+
+class TestParityShhModuleTest(CommonParityShhModuleTest):
     pass

@@ -1,21 +1,13 @@
 import pytest
-import socket
 
-from web3.utils.module_testing import (
+from web3._utils.module_testing import (  # noqa: F401
     EthModuleTest,
+    GoEthereumPersonalModuleTest,
+    GoEthereumShhModuleTest,
     NetModuleTest,
-    PersonalModuleTest,
     VersionModuleTest,
     Web3ModuleTest,
 )
-
-
-def get_open_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return str(port)
 
 
 class GoEthereumTest(Web3ModuleTest):
@@ -60,6 +52,25 @@ class GoEthereumEthModuleTest(EthModuleTest):
         pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_modifyTransaction(web3, unlocked_account)
 
+    def test_eth_estimateGas_with_block(self,
+                                        web3,
+                                        unlocked_account_dual_type):
+        pytest.xfail('Block identifier has not been implemented in geth')
+        super().test_eth_estimateGas_with_block(
+            web3, unlocked_account_dual_type
+        )
+
+    def test_eth_submitHashrate(self, web3):
+        if 'v1.8.22' in web3.clientVersion:
+            # https://github.com/ethereum/go-ethereum/commit/51db5975cc5fb88db6a0dba1826b534fd4df29d7
+            pytest.xfail('eth_submitHashrate deprecated in 1.8.22 for ethash_submitHashRate')
+        super().test_eth_submitHashrate(web3)
+
+    def test_eth_chainId(self, web3):
+        if 'v1.7.2' in web3.clientVersion:
+            pytest.xfail('eth_chainId not implemented in geth 1.7.2')
+        super().test_eth_chainId(web3)
+
 
 class GoEthereumVersionModuleTest(VersionModuleTest):
     pass
@@ -69,5 +80,18 @@ class GoEthereumNetModuleTest(NetModuleTest):
     pass
 
 
-class GoEthereumPersonalModuleTest(PersonalModuleTest):
-    pass
+class CommonGoEthereumShhModuleTest(GoEthereumShhModuleTest):
+    def test_shh_sync_filter(self, web3):
+        if 'v1.7.2' in web3.clientVersion:
+            pytest.xfail('Whisper version 6 not supported in geth 1.7.2')
+        super().test_shh_sync_filter(web3)
+
+    def test_shh_async_filter(self, web3):
+        if 'v1.7.2' in web3.clientVersion:
+            pytest.xfail('Whisper version 6 not supported in geth 1.7.2')
+        super().test_shh_async_filter(web3)
+
+    def test_shh_post(self, web3):
+        if 'v1.7.2' in web3.clientVersion:
+            pytest.xfail('Whisper version 6 not supported in geth 1.7.2')
+        super().test_shh_post(web3)

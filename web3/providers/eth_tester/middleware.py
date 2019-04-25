@@ -6,11 +6,7 @@ from eth_utils import (
     is_string,
 )
 
-from web3.middleware import (
-    construct_fixture_middleware,
-    construct_formatting_middleware,
-)
-from web3.utils.formatters import (
+from web3._utils.formatters import (
     apply_formatter_if,
     apply_formatter_to_array,
     apply_formatters_to_args,
@@ -22,7 +18,7 @@ from web3.utils.formatters import (
     remove_key_if,
     static_return,
 )
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     assoc,
     complement,
     compose,
@@ -30,6 +26,9 @@ from web3.utils.toolz import (
     identity,
     partial,
     pipe,
+)
+from web3.middleware import (
+    construct_formatting_middleware,
 )
 
 
@@ -257,20 +256,6 @@ ethereum_tester_middleware = construct_formatting_middleware(
         'evm_snapshot': integer_to_hex,
     },
 )
-
-
-ethereum_tester_fixture_middleware = construct_fixture_middleware({
-    # Eth
-    'eth_protocolVersion': '63',
-    'eth_hashrate': 0,
-    'eth_gasPrice': 1,
-    'eth_syncing': False,
-    'eth_mining': False,
-    # Net
-    'net_version': '1',
-    'net_listening': False,
-    'net_peerCount': 0,
-})
 
 
 def guess_from(web3, transaction):

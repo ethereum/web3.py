@@ -12,8 +12,11 @@ from eth_utils import (
 
 import common
 import go_ethereum
+from tests.utils import (
+    get_open_port,
+)
 from web3 import Web3
-from web3.utils.toolz import (
+from web3._utils.toolz import (
     merge,
 )
 
@@ -28,22 +31,22 @@ CHAIN_CONFIG = {
                 "durationLimit": "0x0d",
                 "blockReward": "0x4563918244F40000",
                 "homesteadTransition": 0,
-                "eip150Transition": 0,
-                "eip160Transition": 10,
-                "eip161abcTransition": 10,
-                "eip161dTransition": 10
             }
         }
     },
     "params": {
         "gasLimitBoundDivisor": "0x0400",
         "registrar": "0x81a4b044831c4f12ba601adb9274516939e9b8a2",
+        "eip150Transition": 0,
         "eip155Transition": 10,
+        "eip160Transition": 10,
+        "eip161abcTransition": 10,
+        "eip161dTransition": 10,
         "accountStartNonce": "0x0",
         "maximumExtraDataSize": "0x20",
         "minGasLimit": "0x1388",
         "networkID": "0x539",
-        "eip98Transition": "0x7fffffffffffffff"
+        "eip98Transition": "0x7fffffffffffffff",
     },
     "genesis": {
         "seal": {
@@ -104,13 +107,12 @@ def get_parity_process(
         '--base-path', datadir,
         '--ipc-path', ipc_path,
         '--no-ws',
-        '--no-ui',
         '--no-warp',
         '--chain', chain_config_file_path,
         '--keys-path', keys_path,
-        '--rpcapi', 'all',
-        '--rpcport', parity_port,
-        # '--author', common.COINBASE[2:],
+        '--jsonrpc-apis', 'all',
+        '--jsonrpc-port', parity_port,
+        '--fat-db', 'on',
     )
     print(' '.join(run_command))
     try:
@@ -142,18 +144,18 @@ def parity_export_blocks_process(
         'blocks', os.path.join(datadir, 'blocks_export.rlp'),
         '--base-path', datadir,
         '--no-ws',
-        '--no-ui',
         '--no-warp',
         '--chain', chain_config_file_path,
-        '--rpcapi', 'all',
-        '--rpcport', parity_port,
-        # '--author', common.COINBASE[2:],
+        '--jsonrpc-apis', 'all',
+        '--jsonrpc-port', parity_port,
+        '--fat-db', 'on',
     )
     print(' '.join(run_command))
     try:
         proc = common.get_process(run_command)
         yield proc
     finally:
+        time.sleep(10)
         common.kill_proc_gracefully(proc)
         output, errors = proc.communicate()
         print(
@@ -176,7 +178,7 @@ def generate_parity_fixture(destination_dir):
 
         geth_datadir = stack.enter_context(common.tempdir())
 
-        geth_port = common.get_open_port()
+        geth_port = get_open_port()
 
         geth_ipc_path_dir = stack.enter_context(common.tempdir())
         geth_ipc_path = os.path.join(geth_ipc_path_dir, 'geth.ipc')
@@ -221,7 +223,7 @@ def generate_parity_fixture(destination_dir):
         parity_ipc_path_dir = stack.enter_context(common.tempdir())
         parity_ipc_path = os.path.join(parity_ipc_path_dir, 'jsonrpc.ipc')
 
-        parity_port = common.get_open_port()
+        parity_port = get_open_port()
         parity_binary = get_parity_binary()
 
         parity_proc = stack.enter_context(get_parity_process(  # noqa: F841
@@ -238,6 +240,7 @@ def generate_parity_fixture(destination_dir):
 
         time.sleep(10)
         connect_nodes(web3, web3_geth)
+        time.sleep(10)
         wait_for_chain_sync(web3, fixture_block_count)
 
         static_data = {
@@ -255,13 +258,17 @@ def generate_parity_fixture(destination_dir):
             parity_port=parity_port,
         ))
 
+        time.sleep(10)
+        shutil.make_archive(destination_dir, 'zip', destination_dir)
+        shutil.rmtree(destination_dir)
+
 
 def connect_nodes(w3_parity, w3_secondary):
     parity_peers = w3_parity.parity.netPeers()
     parity_enode = w3_parity.parity.enode()
-    secondary_node_info = w3_secondary.admin.nodeInfo
+    secondary_node_info = w3_secondary.geth.admin.nodeInfo()
     if secondary_node_info['id'] not in (node.get('id', tuple()) for node in parity_peers['peers']):
-        w3_secondary.admin.addPeer(parity_enode)
+        w3_secondary.geth.admin.addPeer(parity_enode)
 
 
 def wait_for_chain_sync(web3, target):

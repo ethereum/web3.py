@@ -10,43 +10,48 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.contract import (
-    Contract,
-)
-from web3.iban import (
-    Iban,
-)
-from web3.module import (
-    Module,
-)
-from web3.utils.blocks import (
+from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
-from web3.utils.decorators import (
-    deprecated_for,
-)
-from web3.utils.empty import (
+from web3._utils.empty import (
     empty,
 )
-from web3.utils.encoding import (
+from web3._utils.encoding import (
     to_hex,
 )
-from web3.utils.filters import (
+from web3._utils.filters import (
     BlockFilter,
     LogFilter,
     TransactionFilter,
 )
-from web3.utils.toolz import (
+from web3._utils.threads import (
+    Timeout,
+)
+from web3._utils.toolz import (
     assoc,
     merge,
 )
-from web3.utils.transactions import (
+from web3._utils.transactions import (
     assert_valid_transaction_params,
     extract_valid_transaction_params,
     get_buffered_gas_estimate,
     get_required_transaction,
     replace_transaction,
     wait_for_transaction_receipt,
+)
+from web3.contract import (
+    Contract,
+)
+from web3.exceptions import (
+    BlockNotFound,
+    TimeExhausted,
+    TransactionNotFound,
+)
+from web3.iban import (
+    Iban,
+)
+from web3.module import (
+    Module,
 )
 
 
@@ -57,10 +62,6 @@ class Eth(Module):
     defaultContractFactory = Contract
     iban = Iban
     gasPriceStrategy = None
-
-    @deprecated_for("doing nothing at all")
-    def enable_unaudited_features(self):
-        pass
 
     def namereg(self):
         raise NotImplementedError()
@@ -100,6 +101,10 @@ class Eth(Module):
     def blockNumber(self):
         return self.web3.manager.request_blocking("eth_blockNumber", [])
 
+    @property
+    def chainId(self):
+        return self.web3.manager.request_blocking("eth_chainId", [])
+
     def getBalance(self, account, block_identifier=None):
         if block_identifier is None:
             block_identifier = self.defaultBlock
@@ -136,10 +141,13 @@ class Eth(Module):
             if_number='eth_getBlockByNumber',
         )
 
-        return self.web3.manager.request_blocking(
+        result = self.web3.manager.request_blocking(
             method,
             [block_identifier, full_transactions],
         )
+        if result is None:
+            raise BlockNotFound(f"Block with id: {block_identifier} not found.")
+        return result
 
     def getBlockTransactionCount(self, block_identifier):
         """
@@ -152,10 +160,13 @@ class Eth(Module):
             if_hash='eth_getBlockTransactionCountByHash',
             if_number='eth_getBlockTransactionCountByNumber',
         )
-        return self.web3.manager.request_blocking(
+        result = self.web3.manager.request_blocking(
             method,
             [block_identifier],
         )
+        if result is None:
+            raise BlockNotFound(f"Block with id: {block_identifier} not found.")
+        return result
 
     def getUncleCount(self, block_identifier):
         """
@@ -168,10 +179,13 @@ class Eth(Module):
             if_hash='eth_getUncleCountByBlockHash',
             if_number='eth_getUncleCountByBlockNumber',
         )
-        return self.web3.manager.request_blocking(
+        result = self.web3.manager.request_blocking(
             method,
             [block_identifier],
         )
+        if result is None:
+            raise BlockNotFound(f"Block with id: {block_identifier} not found.")
+        return result
 
     def getUncleByBlock(self, block_identifier, uncle_index):
         """
@@ -184,24 +198,31 @@ class Eth(Module):
             if_hash='eth_getUncleByBlockHashAndIndex',
             if_number='eth_getUncleByBlockNumberAndIndex',
         )
-        return self.web3.manager.request_blocking(
+        result = self.web3.manager.request_blocking(
             method,
             [block_identifier, uncle_index],
         )
+        if result is None:
+            raise BlockNotFound(
+                f"Uncle at index: {uncle_index} of block with id: {block_identifier} not found."
+            )
+        return result
 
     def getTransaction(self, transaction_hash):
-        return self.web3.manager.request_blocking(
+        result = self.web3.manager.request_blocking(
             "eth_getTransactionByHash",
             [transaction_hash],
         )
+        if result is None:
+            raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
+        return result
 
-    @deprecated_for("w3.eth.getTransactionByBlock")
     def getTransactionFromBlock(self, block_identifier, transaction_index):
         """
         Alias for the method getTransactionByBlock
         Depreceated to maintain naming consistency with the json-rpc API
         """
-        return self.getTransactionByBlock(block_identifier, transaction_index)
+        raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
     def getTransactionByBlock(self, block_identifier, transaction_index):
         """
@@ -214,29 +235,43 @@ class Eth(Module):
             if_hash='eth_getTransactionByBlockHashAndIndex',
             if_number='eth_getTransactionByBlockNumberAndIndex',
         )
-        return self.web3.manager.request_blocking(
+        result = self.web3.manager.request_blocking(
             method,
             [block_identifier, transaction_index],
         )
+        if result is None:
+            raise TransactionNotFound(
+                f"Transaction index: {transaction_index} "
+                f"on block id: {block_identifier} not found."
+            )
+        return result
 
     def waitForTransactionReceipt(self, transaction_hash, timeout=120):
-        return wait_for_transaction_receipt(self.web3, transaction_hash, timeout)
+        try:
+            return wait_for_transaction_receipt(self.web3, transaction_hash, timeout)
+        except Timeout:
+            raise TimeExhausted(
+                "Transaction {} is not in the chain, after {} seconds".format(
+                    transaction_hash,
+                    timeout,
+                )
+            )
 
     def getTransactionReceipt(self, transaction_hash):
-        return self.web3.manager.request_blocking(
+        result = self.web3.manager.request_blocking(
             "eth_getTransactionReceipt",
             [transaction_hash],
         )
+        if result is None:
+            raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
+        return result
 
     def getTransactionCount(self, account, block_identifier=None):
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
             "eth_getTransactionCount",
-            [
-                account,
-                block_identifier,
-            ],
+            [account, block_identifier],
         )
 
     def replaceTransaction(self, transaction_hash, new_transaction):
@@ -280,6 +315,11 @@ class Eth(Module):
             "eth_sign", [account, message_hex],
         )
 
+    def signTransaction(self, transaction):
+        return self.web3.manager.request_blocking(
+            "eth_signTransaction", [transaction],
+        )
+
     @apply_to_return_value(HexBytes)
     def call(self, transaction, block_identifier=None):
         # TODO: move to middleware
@@ -294,14 +334,19 @@ class Eth(Module):
             [transaction, block_identifier],
         )
 
-    def estimateGas(self, transaction):
+    def estimateGas(self, transaction, block_identifier=None):
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
+        if block_identifier is None:
+            params = [transaction]
+        else:
+            params = [transaction, block_identifier]
+
         return self.web3.manager.request_blocking(
             "eth_estimateGas",
-            [transaction],
+            params,
         )
 
     def filter(self, filter_params=None, filter_id=None):
@@ -354,6 +399,16 @@ class Eth(Module):
             "eth_getLogs", [filter_params],
         )
 
+    def submitHashrate(self, hashrate, node_id):
+        return self.web3.manager.request_blocking(
+            "eth_submitHashrate", [hashrate, node_id],
+        )
+
+    def submitWork(self, nonce, pow_hash, mix_digest):
+        return self.web3.manager.request_blocking(
+            "eth_submitWork", [nonce, pow_hash, mix_digest],
+        )
+
     def uninstallFilter(self, filter_id):
         return self.web3.manager.request_blocking(
             "eth_uninstallFilter", [filter_id],
@@ -375,7 +430,7 @@ class Eth(Module):
         self.defaultContractFactory = contractFactory
 
     def getCompilers(self):
-        return self.web3.manager.request_blocking("eth_getCompilers", [])
+        raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
     def getWork(self):
         return self.web3.manager.request_blocking("eth_getWork", [])
