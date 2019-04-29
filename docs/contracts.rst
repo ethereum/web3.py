@@ -743,13 +743,13 @@ Utils
           '_transactionData': b'',
           '_debatingPeriod': 604800,
           '_newCurator': True})
- 
+
 ContractCaller
 --------------
 
 .. py:class:: ContractCaller
 
-The :py:class:``ContractCaller`` class provides an API to call functions in a contract. This class
+The ``ContractCaller`` class provides an API to call functions in a contract. This class
 is not to be used directly, but instead through ``Contract.caller``.
 
 There are a number of different ways to invoke the ``ContractCaller``.
