@@ -168,18 +168,18 @@ class ParityEthModuleTest(EthModuleTest):
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 0
 
+    @pytest.mark.xfail(reason='eth_signTypedData has not been released in Parity')
     def test_eth_signTypedData(self,
                                web3,
                                unlocked_account_dual_type):
-        pytest.xfail('eth_signTypedData JSON RPC call has not been released in parity')
         super().test_eth_signTypedData(
             web3, unlocked_account_dual_type
         )
 
+    @pytest.mark.xfail(reason='eth_signTypedData has not been released in Parity')
     def test_invalid_eth_signTypedData(self,
                                        web3,
                                        unlocked_account_dual_type):
-        pytest.xfail('eth_signTypedData JSON RPC call has not been released in parity')
         super().test_invalid_eth_signTypedData(
             web3, unlocked_account_dual_type
         )

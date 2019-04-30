@@ -294,12 +294,12 @@ class EthModuleTest:
                 }
             }
         '''
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(ValueError,
+                           match=r".*Expected 2 items for array type Person\[2\], got 1 items.*"):
             web3.eth.signTypedData(
                 unlocked_account_dual_type,
                 json.loads(invalid_typed_message)
             )
-        assert "Expected 2 items for array type Person[2], got 1 items" in str(e.value)
 
     def test_eth_signTransaction(self, web3, unlocked_account):
         txn_params = {

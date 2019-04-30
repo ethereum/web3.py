@@ -71,18 +71,18 @@ class GoEthereumEthModuleTest(EthModuleTest):
             pytest.xfail('eth_chainId not implemented in geth 1.7.2')
         super().test_eth_chainId(web3)
 
+    @pytest.mark.xfail(reason='eth_signTypedData has not been released in geth')
     def test_eth_signTypedData(self,
                                web3,
                                unlocked_account_dual_type):
-        pytest.xfail('eth_signTypedData JSON RPC call has not been released in geth')
         super().test_eth_signTypedData(
             web3, unlocked_account_dual_type
         )
 
+    @pytest.mark.xfail(reason='eth_signTypedData has not been released in geth')
     def test_invalid_eth_signTypedData(self,
                                        web3,
                                        unlocked_account_dual_type):
-        pytest.xfail('eth_signTypedData JSON RPC call has not been released in geth')
         super().test_invalid_eth_signTypedData(
             web3, unlocked_account_dual_type
         )
