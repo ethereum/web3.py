@@ -383,7 +383,7 @@ retrieved using JSON-RPC endpoints that don't rely on server state.
     >>> from web3 import Web3, EthereumTesterProvider
     >>> w3 = Web3(EthereumTesterProvider)
     >>> from web3.middleware import local_filter_middleware
-    >>> w3.middleware_onion.add(local_filter_middleware())
+    >>> w3.middleware_onion.add(local_filter_middleware)
 
     #  Normal block and log filter apis behave as before.
     >>> block_filter = w3.eth.filter("latest")
