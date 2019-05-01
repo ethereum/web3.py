@@ -47,6 +47,7 @@ whitelist = [
     'eth_getCompilers',
     'eth_getWork',
     'eth_sign',
+    'eth_signTypedData',
     'eth_sendRawTransaction',
     'personal_importRawKey',
     'personal_newAccount',
@@ -54,7 +55,8 @@ whitelist = [
     'personal_lockAccount',
     'personal_unlockAccount',
     'personal_ecRecover',
-    'personal_sign'
+    'personal_sign',
+    'personal_signTypedData',
 ]
 
 

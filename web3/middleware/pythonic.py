@@ -355,11 +355,13 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_sendTransaction': to_hexbytes(32),
         'eth_signTransaction': apply_formatter_if(is_not_null, signed_tx_formatter),
         'eth_sign': HexBytes,
+        'eth_signTypedData': HexBytes,
         'eth_syncing': apply_formatter_if(is_not_false, syncing_formatter),
         # personal
         'personal_importRawKey': to_checksum_address,
         'personal_listAccounts': apply_formatter_to_array(to_checksum_address),
         'personal_newAccount': to_checksum_address,
+        'personal_signTypedData': HexBytes,
         'personal_sendTransaction': to_hexbytes(32),
         # SHH
         'shh_getFilterMessages': apply_formatter_to_array(whisper_log_formatter),

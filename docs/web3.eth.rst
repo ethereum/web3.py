@@ -654,6 +654,19 @@ The following methods are available on the ``web3.eth`` namespace.
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
 
+.. py:method:: Eth.signTypedData(account, jsonMessage)
+
+    * Delegates to ``eth_signTypedData`` RPC Method
+
+    Please note that the ``jsonMessage`` argument is the loaded JSON Object
+    and **NOT** the JSON String itself.
+
+    Signs the ``Structured Data`` (or ``Typed Data``) with the private key of the given ``account``.
+    The account must be unlocked.
+
+    ``account`` may be a hex address or an ENS name
+
+
 .. py:method:: Eth.call(transaction, block_identifier=web3.eth.defaultBlock)
 
     * Delegates to ``eth_call`` RPC Method
@@ -864,8 +877,8 @@ with the filtering API.
     * Delegates to ``eth_submitHashrate`` RPC Method
 
     .. code-block:: python
-     
-       >>> node_id = '59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c' 
+
+       >>> node_id = '59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c'
        >>> web3.eth.submitHashrate(5000, node_id)
        True
 
@@ -875,14 +888,14 @@ with the filtering API.
     * Delegates to ``eth_submitWork`` RPC Method.
 
     .. code-block:: python
-      
+
        >>> web3.eth.submitWork(
                1,
                '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
                '0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000',
            )
        True
-  
+
 
 Contracts
 ---------

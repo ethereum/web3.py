@@ -52,6 +52,7 @@ RPC_ABIS = {
     'eth_sendTransaction': TRANSACTION_PARAMS_ABIS,
     'eth_signTransaction': TRANSACTION_PARAMS_ABIS,
     'eth_sign': ['address', 'bytes'],
+    'eth_signTypedData': ['address', None],
     'eth_submitHashrate': ['uint', 'bytes32'],
     'eth_submitWork': ['bytes8', 'bytes32', 'bytes32'],
     # personal
@@ -59,6 +60,7 @@ RPC_ABIS = {
     'personal_lockAccount': ['address'],
     'personal_unlockAccount': ['address', None, None],
     'personal_sign': [None, 'address', None],
+    'personal_signTypedData': [None, 'address', None],
     'trace_call': TRACE_PARAMS_ABIS,
     # parity
     'parity_listStorageKeys': ['address', None, None, None],

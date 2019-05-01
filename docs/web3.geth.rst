@@ -251,6 +251,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
         >>> web3.geth.personal.unlockAccount('0xd3cda913deb6f67967b99d67acdfa1712c293601', 'the-passphrase')
         True
 
+
 .. py:method:: sendTransaction(self, transaction, passphrase)
 
     * Delegates to ``personal_sendTransaction`` RPC Method
@@ -502,7 +503,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
 .. py:method:: Shh.newMessageFilter(self, criteria)
 
-    * Create a new filter id. This filter id can be used with ``ShhFilter`` to poll for new messages that match the set of criteria. 
+    * Create a new filter id. This filter id can be used with ``ShhFilter`` to poll for new messages that match the set of criteria.
 
     * Parameters:
         * ``symKeyID``: When using symmetric key encryption, holds the symmetric key ID.
