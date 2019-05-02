@@ -222,7 +222,7 @@ class Contract:
     * Create a Contract proxy object for an existing deployed smart contract by
       its address using :meth:`__init__`
 
-    * Deploy a new smart contract using :py:meth:`Contract.deploy`
+    * Deploy a new smart contract using :py:meth:`Contract.constructor.transact()`
     """
 
     # set during class construction
