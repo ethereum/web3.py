@@ -29,7 +29,8 @@ echo "What is a one-liner describing the project?"
 read SHORT_DESCRIPTION
 
 _replace() {
-  local find_cmd=(find "$PROJECT_ROOT" ! -perm -u=x ! -path '*/.git/*' -type f)
+  echo "Replacing values: $1"
+  local find_cmd=(find "$PROJECT_ROOT" ! -perm -u=x ! -path '*/.git/*' ! -path '*/venv*/*' -type f)
 
   if [[ $(uname) == Darwin ]]; then
     "${find_cmd[@]}" -exec sed -i '' "$1" {} +
