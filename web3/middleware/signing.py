@@ -6,7 +6,7 @@ import operator
 from eth_account import (
     Account,
 )
-from eth_account.local import (
+from eth_account.signers.local import (
     LocalAccount,
 )
 from eth_keys.datatypes import (
@@ -63,7 +63,7 @@ def gen_normalized_accounts(val):
 def to_account(val):
     raise TypeError(
         "key must be one of the types: "
-        "eth_keys.datatype.PrivateKey, eth_account.local.LocalAccount, "
+        "eth_keys.datatype.PrivateKey, eth_account.signers.local.LocalAccount, "
         "or raw private key as a hex string or byte string. "
         "Was of type {0}".format(type(val)))
 

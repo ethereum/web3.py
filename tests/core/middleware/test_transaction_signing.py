@@ -1,6 +1,11 @@
 import pytest
 
-import eth_account
+from eth_account import (
+    Account,
+)
+from eth_account.signers.local import (
+    LocalAccount,
+)
 import eth_keys
 from eth_tester.exceptions import (
     ValidationError,
@@ -48,7 +53,7 @@ ADDRESS_2 = '0x91eD14b5956DBcc1310E65DC4d7E82f02B95BA46'
 
 KEY_FUNCS = (
     eth_keys.keys.PrivateKey,
-    eth_account.Account.privateKeyToAccount,
+    Account.privateKeyToAccount,
     HexBytes,
     to_hex,
     identity,
@@ -188,7 +193,7 @@ def w3():
 )
 def test_gen_normalized_accounts(key_object):
     accounts = gen_normalized_accounts(key_object)
-    assert all(isinstance(account, eth_account.local.LocalAccount) for account in accounts.values())
+    assert all(isinstance(account, LocalAccount) for account in accounts.values())
 
 
 def test_gen_normalized_accounts_type_error(w3):
