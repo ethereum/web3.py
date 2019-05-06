@@ -84,12 +84,12 @@ is provided by :meth:`w3.eth.sign() <web3.eth.Eth.sign>`.
 .. doctest::
 
     >>> from web3.auto import w3
-    >>> from eth_account.messages import defunct_hash_message
+    >>> from eth_account.messages import encode_defunct
 
     >>> msg = "I♥SF"
     >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
-    >>> message_hash = defunct_hash_message(text=msg)
-    >>> signed_message = w3.eth.account.signHash(message_hash, private_key=private_key)
+    >>> message = encode_defunct(text=msg)
+    >>> signed_message = w3.eth.account.sign_message(message, private_key=private_key)
     >>> signed_message
     AttrDict({'messageHash': HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
      'r': 104389933075820307925104709181714897380569894203213074526835978196648170704563,
@@ -104,15 +104,19 @@ With the original message text and a signature:
 
 .. doctest::
 
-    >>> message_hash = defunct_hash_message(text="I♥SF")
-    >>> w3.eth.account.recoverHash(message_hash, signature=signed_message.signature)
+    >>> message = encode_defunct(text="I♥SF")
+    >>> w3.eth.account.recover_message(message, signature=signed_message.signature)
     '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
 
 Verify a Message from message hash
 -----------------------------------------------------------
 
-Sometimes you don't have the original message, all you have is the
-prefixed & hashed message. To verify it, use:
+Sometimes, for historical reasons, you don't have the original message,
+all you have is the prefixed & hashed message. To verify it, use:
+
+.. CAUTION:: This method is deprecated, only having a hash typically indicates that
+    you're using some old kind of mechanism. Expect this method to go away in the
+    next major version upgrade.
 
 .. doctest::
 
@@ -159,13 +163,18 @@ this will prepare it for Solidity:
 .. doctest::
 
     >>> from web3 import Web3
-    >>> from eth_account.messages import defunct_hash_message
+    >>> from eth_account.messages import encode_defunct, _hash_eip191_message
 
     >>> hex_message = '0x49e299a55346'
     >>> hex_signature = '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'
 
-    # ecrecover in Solidity expects a prefixed & hashed version of the message
-    >>> message_hash = defunct_hash_message(hexstr=hex_message)
+    # ecrecover in Solidity expects an encoded version of the message
+
+    # - encode the message
+    >>> message = encode_defunct(hexstr=hex_message)
+
+    # - hash the message explicitly
+    >>> message_hash = _hash_eip191_message(message)
 
     # Remix / web3.js expect the message hash to be encoded to a hex string
     >>> hex_message_hash = Web3.toHex(message_hash)
@@ -226,7 +235,7 @@ with :meth:`~web3.eth.Eth.sendRawTransaction`.
     ...     'chainId': 1
     ... }
     >>> key = '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
-    >>> signed = w3.eth.account.signTransaction(transaction, key)
+    >>> signed = w3.eth.account.sign_transaction(transaction, key)
     >>> signed.rawTransaction
     HexBytes('0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428')
     >>> signed.hash
@@ -249,8 +258,8 @@ To sign a transaction locally that will invoke a smart contract:
 
 #. Initialize your :meth:`Contract <web3.eth.Eth.contract>` object
 #. Build the transaction
-#. Sign the transaction, with :meth:`w3.eth.account.signTransaction()
-   <eth_account.account.Account.signTransaction>`
+#. Sign the transaction, with :meth:`w3.eth.account.sign_transaction()
+   <eth_account.account.Account.sign_transaction>`
 #. Broadcast the transaction with :meth:`~web3.eth.Eth.sendRawTransaction`
 
 .. testsetup::
@@ -287,7 +296,7 @@ To sign a transaction locally that will invoke a smart contract:
      'data': '0xa9059cbb000000000000000000000000fb6916095ca1df60bb79ce92ce3ea74c37c5d3590000000000000000000000000000000000000000000000000000000000000001'}
 
     >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
-    >>> signed_txn = w3.eth.account.signTransaction(unicorn_txn, private_key=private_key)
+    >>> signed_txn = w3.eth.account.sign_transaction(unicorn_txn, private_key=private_key)
     >>> signed_txn.hash
     HexBytes('0x4795adc6a719fa64fa21822630c0218c04996e2689ded114b6553cef1ae36618')
     >>> signed_txn.rawTransaction
