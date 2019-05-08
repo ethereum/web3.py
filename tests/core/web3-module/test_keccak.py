@@ -97,3 +97,10 @@ def test_keccak_raise_if_hexstr_and_text():
 def test_keccak_raise_if_no_args():
     with pytest.raises(TypeError):
         Web3.keccak()
+
+
+def test_deprecated_bound_method():
+    w3 = Web3()
+    h = HexBytes('0x0f355f04c0a06eebac1d219b34c598f85a1169badee164be8a30345944885fe8')
+    with pytest.warns(DeprecationWarning, match='sha3 is deprecated in favor of keccak'):
+        assert w3.sha3(text='cowmö') == h
