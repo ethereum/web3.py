@@ -163,6 +163,7 @@ class Web3:
         from web3 import __version__
         return __version__
 
+    @staticmethod
     @deprecated_for("keccak")
     @apply_to_return_value(HexBytes)
     def sha3(primitive=None, text=None, hexstr=None):
