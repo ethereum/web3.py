@@ -4,6 +4,28 @@ Release Notes
 v5 Breaking Changes Summary
    See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
+v5.0.0-beta.2
+-------------
+Released May 13, 2019
+
+- Features
+
+  - Mark deprecated sha3 method as static
+    - `#1350 <https://github.com/ethereum/web3.py/pull/1350>`_
+  - Upgrade to eth-account v0.4.0
+    - `#1348 <https://github.com/ethereum/web3.py/pull/1348>`_
+
+- Docs
+
+  - Add note about web3[tester] in documentation
+    - `#1325 <https://github.com/ethereum/web3.py/pull/1325>`_
+
+- Misc
+
+  - Replace ``web3._utils.toolz`` imports with ``eth_utils.toolz``
+    - `#1317 <https://github.com/ethereum/web3.py/pull/1317>`_
+
+
 v5.0.0-beta.1
 -------------
 Released May 6, 2019
