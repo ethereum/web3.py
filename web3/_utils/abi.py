@@ -837,6 +837,7 @@ def strip_abi_type(elements: Any) -> Any:
         return elements
 
 
+<<<<<<< HEAD
 def build_non_strict_registry() -> ABIRegistry:
     # We make a copy here just to make sure that eth-abi's default registry is not
     # affected by our custom encoder subclasses
@@ -970,3 +971,25 @@ def abi_decoded_namedtuple_factory(
             return super().__new__(self, *args)
 
     return ABIDecodedNamedTuple
+=======
+def named_data_tree(abi, data):
+    """
+    Turn tuple into a rich dict. Useful if you deal with named output values like Struct.
+    """
+    abi_type = parse(collapse_if_tuple(abi))
+    name = abi['name']
+
+    if abi_type.is_array:
+        item_type = abi_type.item_type.to_type_str()
+        item_abi = {**abi, 'type': item_type, 'name': ''}
+        result = {name: [named_data_tree(item_abi, item) for item in data]}
+    elif isinstance(abi_type, TupleType):
+        result = {name: {}}
+        components = [named_data_tree(a, b) for a, b in zip(abi['components'], data)]
+        for item in components:
+            result[name].update(item)
+    else:
+        result = {name: data}
+
+    return result.get('', result)
+>>>>>>> e8f42aa7... Add rich tuple decoder
