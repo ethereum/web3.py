@@ -36,6 +36,7 @@ from web3._utils.abi import (
     is_array_type,
     map_abi_data,
     merge_args_and_kwargs,
+    named_data_tree,
 )
 from web3._utils.blocks import (
     is_hex_encoded_block_hash,
@@ -99,7 +100,7 @@ class ContractFunctions:
     """Class containing contract function objects
     """
 
-    def __init__(self, abi, web3, address=None):
+    def __init__(self, abi, web3, address=None, decode=False):
         self.abi = abi
         self.web3 = web3
         self.address = address
@@ -115,7 +116,8 @@ class ContractFunctions:
                         web3=self.web3,
                         contract_abi=self.abi,
                         address=self.address,
-                        function_identifier=func['name']))
+                        function_identifier=func['name'],
+                        decode=decode))
 
     def __iter__(self):
         if not hasattr(self, '_functions') or not self._functions:
@@ -243,6 +245,7 @@ class Contract:
 
     functions = None
     caller = None
+    decode = None
 
     #: Instance of :class:`ContractEvents` presenting available Event ABIs
     events = None
@@ -272,8 +275,8 @@ class Contract:
         if not self.address:
             raise TypeError("The address argument is required to instantiate a contract.")
 
-        self.functions = ContractFunctions(self.abi, self.web3, self.address)
-        self.caller = ContractCaller(self.abi, self.web3, self.address)
+        self.functions = ContractFunctions(self.abi, self.web3, self.address, decode=self.decode)
+        self.caller = ContractCaller(self.abi, self.web3, self.address, decode=self.decode)
         self.events = ContractEvents(self.abi, self.web3, self.address)
         self.fallback = Contract.get_fallback_function(self.abi, self.web3, self.address)
 
@@ -295,6 +298,7 @@ class Contract:
             kwargs,
             normalizers=normalizers,
         )
+        contract.decode = kwargs.get('decode', False)
         contract.functions = ContractFunctions(contract.abi, contract.web3)
         contract.caller = ContractCaller(contract.abi, contract.web3, contract.address)
         contract.events = ContractEvents(contract.abi, contract.web3)
@@ -722,6 +726,7 @@ class ContractFunction:
     abi = None
     transaction = None
     arguments = None
+    decode = None
 
     def __init__(self, abi=None):
         self.abi = abi
@@ -819,6 +824,7 @@ class ContractFunction:
             block_id,
             self.contract_abi,
             self.abi,
+            self.decode,
             *self.args,
             **self.kwargs
         )
@@ -1192,11 +1198,13 @@ class ContractCaller:
                  web3,
                  address,
                  transaction=None,
-                 block_identifier='latest'):
+                 block_identifier='latest',
+                 decode=False):
         self.web3 = web3
         self.address = address
         self.abi = abi
         self._functions = None
+        self.decode = decode
 
         if self.abi:
             if transaction is None:
@@ -1209,7 +1217,8 @@ class ContractCaller:
                     web3=self.web3,
                     contract_abi=self.abi,
                     address=self.address,
-                    function_identifier=func['name'])
+                    function_identifier=func['name'],
+                    decode=decode)
 
                 block_id = parse_block_identifier(self.web3, block_identifier)
                 caller_method = partial(self.call_function,
@@ -1247,7 +1256,8 @@ class ContractCaller:
                           self.web3,
                           self.address,
                           transaction=transaction,
-                          block_identifier=block_identifier)
+                          block_identifier=block_identifier,
+                          decode=self.decode)
 
     @staticmethod
     def call_function(fn, *args, transaction=None, block_identifier='latest', **kwargs):
@@ -1281,6 +1291,7 @@ def call_contract_function(
         block_id=None,
         contract_abi=None,
         fn_abi=None,
+        decode=False,
         *args,
         **kwargs):
     """
@@ -1338,6 +1349,12 @@ def call_contract_function(
         normalizers,
     )
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
+
+    if decode:
+        normalized_data = [
+            named_data_tree(abi, data) for abi, data
+            in zip(fn_abi['outputs'], normalized_data)
+        ]
 
     if len(normalized_data) == 1:
         return normalized_data[0]
