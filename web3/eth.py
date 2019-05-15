@@ -121,6 +121,14 @@ class Eth(Module):
             [account, position, block_identifier]
         )
 
+    def getProof(self, account, positions, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
+        return self.web3.manager.request_blocking(
+            "eth_getProof",
+            [account, positions, block_identifier]
+        )
+
     def getCode(self, account, block_identifier=None):
         if block_identifier is None:
             block_identifier = self.defaultBlock

@@ -189,6 +189,25 @@ BLOCK_FORMATTERS = {
 block_formatter = apply_formatters_to_dict(BLOCK_FORMATTERS)
 
 
+STORAGE_PROOF_FORMATTERS = {
+    'key': HexBytes,
+    'value': HexBytes,
+    'proof': apply_formatter_to_array(HexBytes),
+}
+
+ACCOUNT_PROOF_FORMATTERS = {
+    'address': to_checksum_address,
+    'accountProof': apply_formatter_to_array(HexBytes),
+    'balance': to_integer_if_hex,
+    'codeHash': to_hexbytes(32),
+    'nonce': to_integer_if_hex,
+    'storageHash': to_hexbytes(32),
+    'storageProof': apply_formatter_to_array(apply_formatters_to_dict(STORAGE_PROOF_FORMATTERS))
+}
+
+proof_formatter = apply_formatters_to_dict(ACCOUNT_PROOF_FORMATTERS)
+
+
 SYNCING_FORMATTERS = {
     'startingBlock': to_integer_if_hex,
     'currentBlock': to_integer_if_hex,
@@ -271,6 +290,7 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'eth_getCode': apply_formatter_at_index(block_number_formatter, 1),
         'eth_getStorageAt': apply_formatter_at_index(block_number_formatter, 2),
+        'eth_getProof': apply_formatter_at_index(block_number_formatter, 2),
         'eth_getTransactionByBlockNumberAndIndex': compose(
             apply_formatter_at_index(block_number_formatter, 0),
             apply_formatter_at_index(integer_to_hex, 1),
@@ -327,6 +347,7 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getFilterLogs': filter_result_formatter,
         'eth_getLogs': filter_result_formatter,
         'eth_getStorageAt': HexBytes,
+        'eth_getProof': apply_formatter_if(is_not_null, proof_formatter),
         'eth_getTransactionByBlockHashAndIndex': apply_formatter_if(
             is_not_null,
             transaction_formatter,
