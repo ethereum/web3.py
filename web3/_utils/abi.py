@@ -725,10 +725,8 @@ def named_data_tree(abi, data):
         item_abi = {**abi, 'type': item_type, 'name': ''}
         result = {name: [named_data_tree(item_abi, item) for item in data]}
     elif isinstance(abi_type, TupleType):
-        result = {name: {}}
         components = [named_data_tree(a, b) for a, b in zip(abi['components'], data)]
-        for item in components:
-            result[name].update(item)
+        result = {name: {key: item[key] for item in components for key in item}}
     else:
         result = {name: data}
 
