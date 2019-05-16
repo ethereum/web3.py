@@ -1,8 +1,8 @@
 import functools
 
 from eth_abi import (
-    encode_abi as eth_abi_encode_abi,
     decode_abi,
+    encode_abi as eth_abi_encode_abi,
 )
 from eth_utils import (
     add_0x_prefix,

@@ -4,7 +4,9 @@ from web3._utils.abi import (
     named_arguments_tuple,
 )
 
-from .test_abi import TEST_FUNCTION_ABI
+from .test_abi import (
+    TEST_FUNCTION_ABI,
+)
 
 abi = TEST_FUNCTION_ABI['inputs']
 
@@ -20,7 +22,6 @@ inputs = (
 
 def test_named_arguments_decode():
     data = named_arguments_tuple(abi, inputs)
-    s, t, a = data
     assert data == inputs
     assert data.s.c[2].y == 10
     assert data.t.x == 11
