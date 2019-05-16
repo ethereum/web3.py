@@ -713,12 +713,20 @@ def strip_abi_type(elements):
         return elements
 
 
+def decode_arguments(abi, data):
+    """
+    Convert function inputs/outputs tuple to named tuple using names from ABI.
+    Useful when dealing with structs. The output of this function is accepted where tuples work.
+
+    ABI argument should be fn_abi['inputs'] or fn_abi['outputs']
+    """
+    decoded = [named_data_tree(*item) for item in zip(abi, data)]
+    fields = [item['name'] for item in abi]
+    return foldable_namedtuple(fields)(decoded) if all(fields) else decode
+
+
 def named_data_tree(abi, data):
-    """
-    Convert tuple into a named tuple. Useful if you deal with named output values like structs.
-    """
     abi_type = parse(collapse_if_tuple(abi))
-    name = abi['name']
 
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()
