@@ -224,10 +224,10 @@ def encode_transaction_data(
 
 def decode_transaction_data(fn_abi, data, normalizers=None):
     data = HexBytes(data)
-    selector, params = data[:4], data[4:]
     types = get_abi_input_types(fn_abi)
-    decoded = decode_abi(types, params)
-    decoded = map_abi_data(normalizers, types, decoded)
+    decoded = decode_abi(types, data[4:])
+    if normalizers:
+        decoded = map_abi_data(normalizers, types, decoded)
     return named_arguments_tuple(fn_abi['inputs'], decoded)
 
 

@@ -722,7 +722,7 @@ def named_arguments_tuple(abi, data):
     """
     decoded = [named_data_tree(*item) for item in zip(abi, data)]
     fields = [item['name'] for item in abi]
-    return foldable_namedtuple(fields)(decoded) if all(fields) else decode
+    return foldable_namedtuple(fields)(decoded) if all(fields) else decoded
 
 
 def named_data_tree(abi, data):

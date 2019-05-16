@@ -31,7 +31,6 @@ from web3._utils.abi import (
     check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
     filter_by_type,
-    get_abi_input_types,
     get_abi_output_types,
     get_constructor_abi,
     is_array_type,
@@ -394,8 +393,7 @@ class Contract:
     @combomethod
     def decode_function_input(self, data):
         data = HexBytes(data)
-        selector, params = data[:4], data[4:]
-        func = self.get_function_by_selector(selector)
+        func = self.get_function_by_selector(data[:4])
         arguments = decode_transaction_data(func.abi, data, normalizers=BASE_RETURN_NORMALIZERS)
         return func, arguments
 
@@ -1350,7 +1348,7 @@ def call_contract_function(
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
 
     if decode:
-        normalized_data = decode_arguments(fn_abi['outputs'], normalized_data)
+        normalized_data = named_arguments_tuple(fn_abi['outputs'], normalized_data)
 
     if len(normalized_data) == 1:
         return normalized_data[0]
