@@ -1,7 +1,7 @@
 from web3._utils.abi import (
     check_if_arguments_can_be_encoded,
     foldable_namedtuple,
-    named_data_tree,
+    named_arguments_tuple,
 )
 
 from .test_abi import TEST_FUNCTION_ABI
@@ -18,16 +18,17 @@ inputs = (
 )
 
 
-def test_named_data_tree():
-    s, t, a = [named_data_tree(*item) for item in zip(abi, inputs)]
-    assert (s, t, a) == inputs
-    assert s.c[2].y == 10
-    assert t.x == 11
-    assert a == 13
+def test_named_arguments_decode():
+    data = named_arguments_tuple(abi, inputs)
+    s, t, a = data
+    assert data == inputs
+    assert data.s.c[2].y == 10
+    assert data.t.x == 11
+    assert data.a == 13
 
 
 def test_namedtuples_encodable():
-    args = [named_data_tree(*item) for item in zip(abi, inputs)]
+    args = named_arguments_tuple(abi, inputs)
     assert check_if_arguments_can_be_encoded(TEST_FUNCTION_ABI, args, {})
 
 

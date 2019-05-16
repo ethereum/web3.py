@@ -29,6 +29,7 @@ from hexbytes import (
 from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
+    decode_arguments,
     fallback_func_abi_exists,
     filter_by_type,
     get_abi_input_types,
@@ -398,9 +399,8 @@ class Contract:
         types = get_abi_input_types(func.abi)
         decoded = decode_abi(types, params)
         normalized = map_abi_data(BASE_RETURN_NORMALIZERS, types, decoded)
-        args = [named_data_tree(a, b) for a, b in zip(func.abi['inputs'], normalized)]
-        result = {key: item[key] for item in args for key in item}
-        return func, result
+        args = decode_arguments(func.abi['inputs'], normalized)
+        return func, args
 
     @combomethod
     def find_functions_by_args(self, *args):
@@ -1353,10 +1353,7 @@ def call_contract_function(
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
 
     if decode:
-        normalized_data = [
-            named_data_tree(abi, data) for abi, data
-            in zip(fn_abi['outputs'], normalized_data)
-        ]
+        normalized_data = decode_arguments(fn_abi['outputs'], normalized_data)
 
     if len(normalized_data) == 1:
         return normalized_data[0]

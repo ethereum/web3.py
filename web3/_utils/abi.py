@@ -713,7 +713,7 @@ def strip_abi_type(elements):
         return elements
 
 
-def decode_arguments(abi, data):
+def named_arguments_tuple(abi, data):
     """
     Convert function inputs/outputs tuple to named tuple using names from ABI.
     Useful when dealing with structs. The output of this function is accepted where tuples work.
