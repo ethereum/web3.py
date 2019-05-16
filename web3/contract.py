@@ -998,17 +998,15 @@ class ContractEvent:
 
     @combomethod
     def processReceipt(self, txn_receipt, errors=WARN):
-        self.check_for_valid_error_flag(errors)
         return self._parse_logs(txn_receipt, errors)
 
-    def check_for_valid_error_flag(self, errors):
+    @to_tuple
+    def _parse_logs(self, txn_receipt, errors):
         try:
             errors.name
         except AttributeError:
             raise AttributeError(f'Error flag must be one of: {EventLogErrorFlags.flag_options()}')
 
-    @to_tuple
-    def _parse_logs(self, txn_receipt, errors):
         for log in txn_receipt['logs']:
             try:
                 rich_log = get_event_data(self.abi, log)
@@ -1029,6 +1027,10 @@ class ContractEvent:
                     )
                     continue
             yield rich_log
+
+    @combomethod
+    def processLog(self, log):
+        return get_event_data(self.abi, log)
 
     @combomethod
     def createFilter(

@@ -718,6 +718,8 @@ For example:
 
 :py:class:`ContractEvent` provides methods to interact with contract events. Positional and keyword arguments supplied to the contract event subclass will be used to find the contract event by signature.
 
+.. _processReceipt:
+
 .. py:method:: ContractEvents.myEvent(*args, **kwargs).processReceipt(transaction_receipt, errors=WARN)
 
    Extracts the pertinent logs from a transaction receipt.
@@ -733,28 +735,81 @@ For example:
        >>> rich_logs[0]['args']
        {'myArg': 12345}
 
-   The default ``WARN`` flag logs a warning to the console if the log has errors, and the log that raised the warning will be discarded. Any logs that didn't encounter errors during processing will be returned.
-   There are also a few other flags available:
+   If there are errors, the logs will be handled differently depending on the flag that is passed in:
 
+     - ``WARN`` (default) - logs a warning to the console for the log that has an error, and discards the log. Returns any logs that are able to be processed.
      - ``STRICT`` - stops all processing and raises the error encountered.
      - ``IGNORE`` - returns any raw logs that raised an error with an added "errors" field, along with any other logs were able to be processed.
      - ``DISCARD`` - silently discards any logs that have errors, and returns processed logs that don't have errors.
-     - ``WARN`` - logs a warning to the console for the log that has an error, and discards the log. Returns any logs that are able to be processed.
 
-   An event log error flag needs to be imported from web3/log.py.
+   An event log error flag needs to be imported from ``web3/logs.py``.
 
    .. code-block:: python
 
+       >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
+       >>> tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt)
+       >>> processed_logs
+       (
+          AttributeDict({
+              'args': AttributeDict({}),
+              'event': 'myEvent',
+              'logIndex': 0,
+              'transactionIndex': 0,
+              'transactionHash': HexBytes('0xfb95ccb6ab39e19821fb339dee33e7afe2545527725b61c64490a5613f8d11fa'),
+              'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+              'blockHash': HexBytes('0xd74c3e8bdb19337987b987aee0fa48ed43f8f2318edfc84e3a8643e009592a68'),
+              'blockNumber': 3
+          })
+       )
+
+
+       # Or, if there were errors encountered during processing:
        >>> from web3.logs import STRICT, IGNORE, DISCARD, WARN
+       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=IGNORE)
+       >>> processed_logs
+       (
+           AttributeDict({
+               'type': 'mined',
+               'logIndex': 0,
+               'transactionIndex': 0,
+               'transactionHash': HexBytes('0x01682095d5abb0270d11a31139b9a1f410b363c84add467004e728ec831bd529'),
+               'blockHash': HexBytes('0x92abf9325a3959a911a2581e9ea36cba3060d8b293b50e5738ff959feb95258a'),
+               'blockNumber': 5,
+               'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+               'data': '0x0000000000000000000000000000000000000000000000000000000000003039',
+               'topics': [
+                   HexBytes('0xf70fe689e290d8ce2b2a388ac28db36fbb0e16a6d89c6804c461f65a1b40bb15')l
+               ],
+               'errors': LogTopicError('Expected 1 log topics.  Got 0')})
+          })
+       )
+       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=DISCARD)
+       >>> assert processed_logs == ()
+       True
+
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).processLog(log)
+
+   Similar to processReceipt_, but only processes one log at a time, instead of a whole transaction receipt.
+   Will return a single :ref:`Event Log Object <event-log-object>` if there are no errors encountered during processing. If an error is encountered during processing, it will be raised.
+
+   .. code-block:: python
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
-       >>> returned_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=IGNORE)
-       >>> assert returned_logs[0] == tx_receipt['logs'][0]
-       True
-       >>> returned_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=DISCARD)
-       >>> assert returned_logs == ()
-       True
+       >>> log_to_process = tx_receipt['logs'][0]
+       >>> processed_log = contract.events.myEvent().processLog(log_to_process)
+       >>> processed_log
+       AttributeDict({
+           'args': AttributeDict({}),
+           'event': 'myEvent',
+           'logIndex': 0,
+           'transactionIndex': 0,
+           'transactionHash': HexBytes('0xfb95ccb6ab39e19821fb339dee33e7afe2545527725b61c64490a5613f8d11fa'),
+           'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+           'blockHash': HexBytes('0xd74c3e8bdb19337987b987aee0fa48ed43f8f2318edfc84e3a8643e009592a68'),
+           'blockNumber': 3
+       })
 
 
 .. _event-log-object:

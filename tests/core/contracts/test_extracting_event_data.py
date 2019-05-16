@@ -223,38 +223,199 @@ def test_dynamic_length_argument_extraction(web3,
 
 
 @pytest.mark.parametrize(
-    'contract_fn,event_name,call_args,expected_args',
+    'contract_fn,event_name,call_args,expected_args,warning_msg,process_receipt',
     (
-        ('logNoArgs', 'LogNoArguments', [], {}),
-        ('logSingle', 'LogSingleArg', [12345], {'arg0': 12345}),
-        ('logSingle', 'LogSingleWithIndex', [12345], {'arg0': 12345}),
-        ('logSingle', 'LogSingleAnonymous', [12345], {'arg0': 12345}),
-        ('logDouble', 'LogDoubleArg', [12345, 54321], {'arg0': 12345, 'arg1': 54321}),
-        ('logDouble', 'LogDoubleAnonymous', [12345, 54321], {'arg0': 12345, 'arg1': 54321}),
-        ('logDouble', 'LogDoubleWithIndex', [12345, 54321], {'arg0': 12345, 'arg1': 54321}),
+        (
+            'logNoArgs',
+            'LogAnonymous',
+            [],
+            {},
+            'Expected non-anonymous event to have 1 or more topics',
+            True
+        ),
+        (
+            'logNoArgs',
+            'LogAnonymous',
+            [],
+            {},
+            'Expected non-anonymous event to have 1 or more topics',
+            False
+        ),
+        (
+            'logNoArgs',
+            'LogNoArguments',
+            [],
+            {},
+            'The event signature did not match the provided ABI',
+            True
+        ),
+        (
+            'logNoArgs',
+            'LogNoArguments',
+            [],
+            {},
+            'The event signature did not match the provided ABI',
+            False
+        ),
+        (
+            'logSingle',
+            'LogSingleArg',
+            [12345],
+            {'arg0': 12345},
+            'The event signature did not match the provided ABI',
+            True
+        ),
+        (
+            'logSingle',
+            'LogSingleArg',
+            [12345],
+            {'arg0': 12345},
+            'The event signature did not match the provided ABI',
+            False
+        ),
+        (
+            'logSingle',
+            'LogSingleWithIndex',
+            [12345],
+            {'arg0': 12345},
+            'The event signature did not match the provided ABI',
+            True
+        ),
+        (
+            'logSingle',
+            'LogSingleWithIndex',
+            [12345],
+            {'arg0': 12345},
+            'The event signature did not match the provided ABI',
+            False
+        ),
+        (
+            'logSingle',
+            'LogSingleAnonymous',
+            [12345],
+            {'arg0': 12345},
+            'The event signature did not match the provided ABI',
+            True
+        ),
+        (
+            'logSingle',
+            'LogSingleAnonymous',
+            [12345],
+            {'arg0': 12345},
+            'The event signature did not match the provided ABI',
+            False
+        ),
+        (
+            'logDouble',
+            'LogDoubleArg',
+            [12345, 54321],
+            {'arg0': 12345, 'arg1': 54321},
+            'The event signature did not match the provided ABI',
+            True
+        ),
+        (
+            'logDouble',
+            'LogDoubleArg',
+            [12345, 54321],
+            {'arg0': 12345, 'arg1': 54321},
+            'The event signature did not match the provided ABI',
+            False
+        ),
+        (
+            'logDouble',
+            'LogDoubleAnonymous',
+            [12345, 54321],
+            {'arg0': 12345, 'arg1': 54321},
+            'The event signature did not match the provided ABI',
+            True
+        ),
+        (
+            'logDouble',
+            'LogDoubleAnonymous',
+            [12345, 54321],
+            {'arg0': 12345, 'arg1': 54321},
+            'The event signature did not match the provided ABI',
+            False
+        ),
+        (
+            'logDouble',
+            'LogDoubleWithIndex',
+            [12345, 54321],
+            {'arg0': 12345, 'arg1': 54321},
+            'The event signature did not match the provided ABI',
+            True
+        ),
+        (
+            'logDouble',
+            'LogDoubleWithIndex',
+            [12345, 54321],
+            {'arg0': 12345, 'arg1': 54321},
+            'The event signature did not match the provided ABI',
+            False
+        ),
         (
             'logTriple',
             'LogTripleArg',
             [12345, 54321, 98765],
             {'arg0': 12345, 'arg1': 54321, 'arg2': 98765},
+            'The event signature did not match the provided ABI',
+            True,
+        ),
+        (
+            'logTriple',
+            'LogTripleArg',
+            [12345, 54321, 98765],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765},
+            'The event signature did not match the provided ABI',
+            False,
         ),
         (
             'logTriple',
             'LogTripleWithIndex',
             [12345, 54321, 98765],
             {'arg0': 12345, 'arg1': 54321, 'arg2': 98765},
+            'The event signature did not match the provided ABI',
+            True,
+        ),
+        (
+            'logTriple',
+            'LogTripleWithIndex',
+            [12345, 54321, 98765],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765},
+            'The event signature did not match the provided ABI',
+            False,
         ),
         (
             'logQuadruple',
             'LogQuadrupleArg',
             [12345, 54321, 98765, 56789],
             {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789},
+            'The event signature did not match the provided ABI',
+            True,
+        ),
+        (
+            'logQuadruple',
+            'LogQuadrupleArg',
+            [12345, 54321, 98765, 56789],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789},
+            'The event signature did not match the provided ABI',
+            False,
         ),
         (
             'logQuadruple',
             'LogQuadrupleWithIndex',
             [12345, 54321, 98765, 56789],
             {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789},
+            'The event signature did not match the provided ABI',
+            True,
+        ),
+        (
+            'logQuadruple',
+            'LogQuadrupleWithIndex',
+            [12345, 54321, 98765, 56789],
+            {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789},
+            'The event signature did not match the provided ABI',
+            False,
         ),
     )
 )
@@ -265,7 +426,9 @@ def test_event_rich_log(
         wait_for_transaction,
         contract_fn,
         event_name,
+        warning_msg,
         call_args,
+        process_receipt,
         expected_args):
 
     emitter_fn = emitter.functions[contract_fn]
@@ -275,11 +438,14 @@ def test_event_rich_log(
 
     event_instance = emitter.events[event_name]()
 
-    rich_logs = event_instance.processReceipt(txn_receipt)
-
-    assert len(rich_logs) == 1
-
-    rich_log = rich_logs[0]
+    if process_receipt:
+        processed_logs = event_instance.processReceipt(txn_receipt)
+        assert len(processed_logs) == 1
+        rich_log = processed_logs[0]
+    elif not process_receipt:
+        rich_log = event_instance.processLog(txn_receipt['logs'][0])
+    else:
+        raise Exception('Unreachable!')
 
     assert rich_log['args'] == expected_args
     assert rich_log.args == expected_args
@@ -291,35 +457,13 @@ def test_event_rich_log(
     assert is_same_address(rich_log['address'], emitter.address)
     assert rich_log['event'] == event_name
 
-    rich_logs = event_instance.processReceipt(txn_receipt)
     quiet_event = emitter.events['LogBytes']
-    with pytest.warns(UserWarning,
-                      match='The event signature did not match the provided ABI'):
+    with pytest.warns(UserWarning, match=warning_msg):
         empty_rich_log = quiet_event().processReceipt(txn_receipt)
         assert empty_rich_log == tuple()
 
 
-def test_nonanonymous_event_abi_mismatch_warning(
-        web3,
-        emitter,
-        emitter_event_ids,
-        wait_for_transaction):
-    emitter_fn = emitter.functions.logNoArgs
-    event_id = getattr(emitter_event_ids, 'LogAnonymous')
-    txn_hash = emitter_fn(event_id).transact()
-    txn_receipt = wait_for_transaction(web3, txn_hash)
-
-    event_instance = emitter.events.LogAnonymous()
-
-    event_instance.processReceipt(txn_receipt)
-    quiet_event = emitter.events['LogBytes']
-    with pytest.warns(UserWarning,
-                      match='Expected non-anonymous event to have 1 or more topics'):
-        empty_rich_log = quiet_event().processReceipt(txn_receipt)
-        assert empty_rich_log == tuple()
-
-
-def test_event_processing_with_discard_flag(
+def test_receipt_processing_with_discard_flag(
         web3,
         event_contract,
         indexed_event_contract,
@@ -327,12 +471,12 @@ def test_event_processing_with_discard_flag(
         wait_for_transaction):
 
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
-    returned_logs = event_instance.processReceipt(dup_txn_receipt, errors=DISCARD)
 
+    returned_logs = event_instance.processReceipt(dup_txn_receipt, errors=DISCARD)
     assert returned_logs == ()
 
 
-def test_event_processing_with_ignore_flag(
+def test_receipt_processing_with_ignore_flag(
         web3,
         event_contract,
         indexed_event_contract,
@@ -361,7 +505,7 @@ def test_event_processing_with_ignore_flag(
         assert is_same_address(log['address'], event_contract.address)
 
 
-def test_event_processing_with_warn_flag(
+def test_receipt_processing_with_warn_flag(
         web3,
         indexed_event_contract,
         dup_txn_receipt):
@@ -369,11 +513,11 @@ def test_event_processing_with_warn_flag(
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.warns(UserWarning, match='Expected 1 log topics.  Got 0'):
-        returned_log = event_instance.processReceipt(dup_txn_receipt, errors=WARN)
-        assert len(returned_log) == 0
+        returned_logs = event_instance.processReceipt(dup_txn_receipt, errors=WARN)
+        assert len(returned_logs) == 0
 
 
-def test_event_processing_with_strict_flag(
+def test_receipt_processing_with_strict_flag(
         web3,
         indexed_event_contract,
         dup_txn_receipt):
@@ -384,7 +528,7 @@ def test_event_processing_with_strict_flag(
         event_instance.processReceipt(dup_txn_receipt, errors=STRICT)
 
 
-def test_event_processing_with_invalid_flag(
+def test_receipt_processing_with_invalid_flag(
         web3,
         indexed_event_contract,
         dup_txn_receipt):
@@ -395,7 +539,7 @@ def test_event_processing_with_invalid_flag(
         event_instance.processReceipt(dup_txn_receipt, errors='not-a-flag')
 
 
-def test_event_processing_with_no_flag(
+def test_receipt_processing_with_no_flag(
         web3,
         indexed_event_contract,
         dup_txn_receipt):
@@ -405,3 +549,13 @@ def test_event_processing_with_no_flag(
     with pytest.warns(UserWarning, match='Expected 1 log topics.  Got 0'):
         returned_log = event_instance.processReceipt(dup_txn_receipt)
         assert len(returned_log) == 0
+
+
+def test_single_log_processing_with_errors(
+        web3,
+        indexed_event_contract,
+        dup_txn_receipt):
+    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+
+    with pytest.raises(LogTopicError, match="Expected 1 log topics.  Got 0"):
+        event_instance.processLog(dup_txn_receipt['logs'][0])
