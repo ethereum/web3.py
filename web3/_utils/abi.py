@@ -749,4 +749,9 @@ def foldable_namedtuple(fields):
     class Tuple(namedtuple('Tuple', fields)):
         def __new__(self, args):
             return super().__new__(self, *args)
+
+        def __repr__(self):
+            repr_fmt = '(' + ', '.join(f'{name}=%r' for name in self._fields) + ')'
+            return repr_fmt % self
+
     return Tuple
