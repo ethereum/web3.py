@@ -2,6 +2,7 @@ import functools
 
 from eth_abi import (
     encode_abi as eth_abi_encode_abi,
+    decode_abi,
 )
 from eth_utils import (
     add_0x_prefix,
@@ -30,6 +31,7 @@ from web3._utils.abi import (
     get_fallback_func_abi,
     map_abi_data,
     merge_args_and_kwargs,
+    named_arguments_tuple,
 )
 from web3._utils.encoding import (
     to_hex,
@@ -218,6 +220,15 @@ def encode_transaction_data(
         raise TypeError("Unsupported function identifier")
 
     return add_0x_prefix(encode_abi(web3, fn_abi, fn_arguments, fn_selector))
+
+
+def decode_transaction_data(fn_abi, data, normalizers=None):
+    data = HexBytes(data)
+    selector, params = data[:4], data[4:]
+    types = get_abi_input_types(fn_abi)
+    decoded = decode_abi(types, params)
+    decoded = map_abi_data(normalizers, types, decoded)
+    return named_arguments_tuple(fn_abi['inputs'], decoded)
 
 
 def get_fallback_function_info(contract_abi=None, fn_abi=None):

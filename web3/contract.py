@@ -29,7 +29,6 @@ from hexbytes import (
 from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
-    decode_arguments,
     fallback_func_abi_exists,
     filter_by_type,
     get_abi_input_types,
@@ -38,12 +37,13 @@ from web3._utils.abi import (
     is_array_type,
     map_abi_data,
     merge_args_and_kwargs,
-    named_data_tree,
+    named_arguments_tuple,
 )
 from web3._utils.blocks import (
     is_hex_encoded_block_hash,
 )
 from web3._utils.contracts import (
+    decode_transaction_data,
     encode_abi,
     find_matching_event_abi,
     find_matching_fn_abi,
@@ -396,11 +396,8 @@ class Contract:
         data = HexBytes(data)
         selector, params = data[:4], data[4:]
         func = self.get_function_by_selector(selector)
-        types = get_abi_input_types(func.abi)
-        decoded = decode_abi(types, params)
-        normalized = map_abi_data(BASE_RETURN_NORMALIZERS, types, decoded)
-        args = decode_arguments(func.abi['inputs'], normalized)
-        return func, args
+        arguments = decode_transaction_data(func.abi, data, normalizers=BASE_RETURN_NORMALIZERS)
+        return func, arguments
 
     @combomethod
     def find_functions_by_args(self, *args):
