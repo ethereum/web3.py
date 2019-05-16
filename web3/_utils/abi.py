@@ -729,6 +729,16 @@ def named_data_tree(abi, data):
     if isinstance(abi_type, TupleType):
         items = [named_data_tree(*item) for item in zip(abi['components'], data)]
         names = [item['name'] for item in abi['components']]
-        return namedtuple('Tuple', names)(*items)
+        return foldable_namedtuple(names)(items)
 
     return data
+
+
+def foldable_namedtuple(fields):
+    """
+    Customized namedtuple such that `type(x)(x) == x`.
+    """
+    class Tuple(namedtuple('Tuple', fields)):
+        def __new__(self, args):
+            return super().__new__(self, *args)
+    return Tuple
