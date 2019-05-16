@@ -715,7 +715,7 @@ def strip_abi_type(elements):
 
 def named_data_tree(abi, data):
     """
-    Turn tuple into a rich dict. Useful if you deal with named output values like Struct.
+    Convert tuple into a named tuple. Useful if you deal with named output values like structs.
     """
     abi_type = parse(collapse_if_tuple(abi))
     name = abi['name']
@@ -723,11 +723,12 @@ def named_data_tree(abi, data):
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()
         item_abi = {**abi, 'type': item_type, 'name': ''}
-        result = {name: [named_data_tree(item_abi, item) for item in data]}
-    elif isinstance(abi_type, TupleType):
-        components = [named_data_tree(a, b) for a, b in zip(abi['components'], data)]
-        result = {name: {key: item[key] for item in components for key in item}}
-    else:
-        result = {name: data}
+        items = [named_data_tree(item_abi, item) for item in data]
+        return items
 
-    return result.get('', result)
+    if isinstance(abi_type, TupleType):
+        items = [named_data_tree(*item) for item in zip(abi['components'], data)]
+        names = [item['name'] for item in abi['components']]
+        return namedtuple('Tuple', names)(*items)
+
+    return data
