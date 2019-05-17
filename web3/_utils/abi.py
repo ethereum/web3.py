@@ -750,8 +750,12 @@ def foldable_namedtuple(fields):
         def __new__(self, args):
             return super().__new__(self, *args)
 
-        def __repr__(self):
-            repr_fmt = '(' + ', '.join(f'{name}=%r' for name in self._fields) + ')'
-            return repr_fmt % self
-
     return Tuple
+
+
+def Tuple(**kwargs):
+    """
+    Literal namedtuple constructor such that `Tuple(x=1, y=2)` returns `Tuple(x=1, y=2)`.
+    """
+    keys, values = zip(*kwargs.items())
+    return foldable_namedtuple(keys)(values)
