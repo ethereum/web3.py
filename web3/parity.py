@@ -139,3 +139,15 @@ class Parity(Module):
             "trace_rawTransaction",
             [raw_transaction, mode],
         )
+
+    def setMode(self, mode):
+        return self.web3.manager.request_blocking(
+            "parity_setMode",
+            [mode]
+        )
+
+    def getMode(self):
+        return self.web3.manager.request_blocking(
+            "parity_mode",
+            []
+        )
