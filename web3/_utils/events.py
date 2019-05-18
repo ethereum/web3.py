@@ -22,6 +22,9 @@ from eth_utils import (
     to_hex,
     to_tuple,
 )
+from eth_utils.abi import (
+    collapse_if_tuple,
+)
 from eth_utils.toolz import (
     complement,
     compose,
@@ -54,6 +57,7 @@ from .abi import (
     get_abi_input_names,
     get_indexed_event_inputs,
     map_abi_data,
+    named_tree,
     normalize_event_input_types,
 )
 
@@ -152,7 +156,7 @@ def get_event_abi_types_for_decoding(event_inputs):
         if input_abi['indexed'] and is_dynamic_sized_type(input_abi['type']):
             yield 'bytes32'
         else:
-            yield input_abi['type']
+            yield collapse_if_tuple(input_abi)
 
 
 @curry
@@ -202,6 +206,10 @@ def get_event_data(event_abi, log_entry):
         log_data_types,
         decoded_log_data
     )
+    named_log_data = named_tree(
+        log_data_normalized_inputs,
+        normalized_log_data,
+    )
 
     decoded_topic_data = [
         decode_single(topic_type, topic_data)
@@ -216,7 +224,7 @@ def get_event_data(event_abi, log_entry):
 
     event_args = dict(itertools.chain(
         zip(log_topic_names, normalized_topic_data),
-        zip(log_data_names, normalized_log_data),
+        named_log_data.items(),
     ))
 
     event_data = {
