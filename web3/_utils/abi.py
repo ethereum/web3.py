@@ -747,6 +747,8 @@ def foldable_namedtuple(fields):
     Customized namedtuple such that `type(x)(x) == x`.
     """
     fields = [field.lstrip('_') for field in fields]
+    if '' in fields or len(set(fields)) < len(fields):
+        return tuple
 
     class Tuple(namedtuple('Tuple', fields)):
         def __new__(self, args):
