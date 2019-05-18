@@ -37,6 +37,7 @@ from web3._utils.abi import (
     map_abi_data,
     merge_args_and_kwargs,
     named_arguments_tuple,
+    namedtuple_to_dict,
 )
 from web3._utils.blocks import (
     is_hex_encoded_block_hash,
@@ -391,10 +392,12 @@ class Contract:
         return get_function_by_identifier(fns, 'selector')
 
     @combomethod
-    def decode_function_input(self, data):
+    def decode_function_input(self, data, as_dict=True):
         data = HexBytes(data)
         func = self.get_function_by_selector(data[:4])
         arguments = decode_transaction_data(func.abi, data, normalizers=BASE_RETURN_NORMALIZERS)
+        if as_dict:
+            return func, namedtuple_to_dict(arguments)
         return func, arguments
 
     @combomethod

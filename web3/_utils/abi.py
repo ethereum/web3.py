@@ -725,6 +725,13 @@ def named_arguments_tuple(abi, data):
     return foldable_namedtuple(fields)(decoded) if all(fields) else decoded
 
 
+def namedtuple_to_dict(data):
+    def as_dict(item):
+        return getattr(item, '_asdict', lambda: item)()
+
+    return recursive_map(as_dict, data)
+
+
 def named_data_tree(abi, data):
     abi_type = parse(collapse_if_tuple(abi))
 
@@ -753,6 +760,9 @@ def foldable_namedtuple(fields):
     class Tuple(namedtuple('Tuple', fields)):
         def __new__(self, args):
             return super().__new__(self, *args)
+
+        def _asdict(self):
+            return dict(super()._asdict())
 
     return Tuple
 
