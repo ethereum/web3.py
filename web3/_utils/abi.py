@@ -5,8 +5,10 @@ from collections import (
 )
 import copy
 import itertools
+from keyword import (
+    kwlist,
+)
 import re
-from keyword import kwlist
 from typing import (
     Any,
     Optional,
@@ -714,40 +716,39 @@ def strip_abi_type(elements):
         return elements
 
 
-def named_arguments_tuple(abi, data):
+def named_tree(abi, data: tuple):
     """
-    Convert function inputs/outputs tuple to named tuple using names from ABI.
-    Useful when dealing with structs. The output of this function is accepted where tuples work.
-
-    ABI argument should be fn_abi['inputs'] or fn_abi['outputs']
+    Convert function inputs/outputs or event data tuple to dict with names taken from ABI.
     """
-    decoded = [named_data_tree(*item) for item in zip(abi, data)]
-    fields = [item['name'] for item in abi]
-    return foldable_namedtuple(fields)(decoded) if all(fields) else decoded
+    names = [item['name'] for item in abi]
+    items = [named_subtree(*item) for item in zip(abi, data)]
+    return dict(zip(names, items)) if all(names) else items
 
 
-def namedtuple_to_dict(data):
-    def as_dict(item):
-        return getattr(item, '_asdict', lambda: item)()
-
-    return recursive_map(as_dict, data)
-
-
-def named_data_tree(abi, data):
+def named_subtree(abi, data):
     abi_type = parse(collapse_if_tuple(abi))
 
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()
         item_abi = {**abi, 'type': item_type, 'name': ''}
-        items = [named_data_tree(item_abi, item) for item in data]
+        items = [named_subtree(item_abi, item) for item in data]
         return items
 
     if isinstance(abi_type, TupleType):
-        items = [named_data_tree(*item) for item in zip(abi['components'], data)]
         names = [item['name'] for item in abi['components']]
-        return foldable_namedtuple(names)(items)
+        items = [named_subtree(*item) for item in zip(abi['components'], data)]
+        return dict(zip(names, items))
 
     return data
+
+
+def dict_to_namedtuple(data):
+    def to_tuple(item):
+        if isinstance(item, dict):
+            return Tuple(**item)
+        return item
+
+    return recursive_map(to_tuple, data)
 
 
 def foldable_namedtuple(fields):

@@ -29,6 +29,7 @@ from hexbytes import (
 from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
+    dict_to_namedtuple,
     fallback_func_abi_exists,
     filter_by_type,
     get_abi_output_types,
@@ -36,8 +37,7 @@ from web3._utils.abi import (
     is_array_type,
     map_abi_data,
     merge_args_and_kwargs,
-    named_arguments_tuple,
-    namedtuple_to_dict,
+    named_tree,
 )
 from web3._utils.blocks import (
     is_hex_encoded_block_hash,
@@ -392,12 +392,10 @@ class Contract:
         return get_function_by_identifier(fns, 'selector')
 
     @combomethod
-    def decode_function_input(self, data, as_dict=True):
+    def decode_function_input(self, data):
         data = HexBytes(data)
         func = self.get_function_by_selector(data[:4])
         arguments = decode_transaction_data(func.abi, data, normalizers=BASE_RETURN_NORMALIZERS)
-        if as_dict:
-            return func, namedtuple_to_dict(arguments)
         return func, arguments
 
     @combomethod
@@ -1351,9 +1349,10 @@ def call_contract_function(
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
 
     if decode:
-        normalized_data = named_arguments_tuple(fn_abi['outputs'], normalized_data)
+        decoded = named_tree(fn_abi['outputs'], normalized_data)
+        normalized_data = dict_to_namedtuple(decoded)
 
-    if len(normalized_data) == 1:
+    if isinstance(normalized_data, list) and len(normalized_data) == 1:
         return normalized_data[0]
     else:
         return normalized_data

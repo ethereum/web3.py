@@ -31,7 +31,7 @@ from web3._utils.abi import (
     get_fallback_func_abi,
     map_abi_data,
     merge_args_and_kwargs,
-    named_arguments_tuple,
+    named_tree,
 )
 from web3._utils.encoding import (
     to_hex,
@@ -228,7 +228,7 @@ def decode_transaction_data(fn_abi, data, normalizers=None):
     decoded = decode_abi(types, data[4:])
     if normalizers:
         decoded = map_abi_data(normalizers, types, decoded)
-    return named_arguments_tuple(fn_abi['inputs'], decoded)
+    return named_tree(fn_abi['inputs'], decoded)
 
 
 def get_fallback_function_info(contract_abi=None, fn_abi=None):
