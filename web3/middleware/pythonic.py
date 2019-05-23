@@ -2,7 +2,7 @@ import codecs
 import operator
 
 from eth_utils.curried import (
-    combine_argument_formatters,
+    apply_formatters_to_sequence,
     is_address,
     is_bytes,
     is_integer,
@@ -273,10 +273,10 @@ transaction_param_formatter = compose(
 )
 
 estimate_gas_without_block_id = apply_formatter_at_index(transaction_param_formatter, 0)
-estimate_gas_with_block_id = combine_argument_formatters(
+estimate_gas_with_block_id = apply_formatters_to_sequence([
     transaction_param_formatter,
     block_number_formatter,
-)
+])
 
 
 pythonic_middleware = construct_formatting_middleware(
@@ -304,10 +304,10 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getUncleByBlockHashAndIndex': apply_formatter_at_index(integer_to_hex, 1),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_getLogs': apply_formatter_at_index(filter_params_formatter, 0),
-        'eth_call': combine_argument_formatters(
+        'eth_call': apply_formatters_to_sequence([
             transaction_param_formatter,
             block_number_formatter,
-        ),
+        ]),
         'eth_estimateGas': apply_one_of_formatters((
             (estimate_gas_without_block_id, is_length(1)),
             (estimate_gas_with_block_id, is_length(2)),
