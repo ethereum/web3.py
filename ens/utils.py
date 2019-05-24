@@ -14,11 +14,9 @@ from ens.constants import (
     AUCTION_START_GAS_CONSTANT,
     AUCTION_START_GAS_MARGINAL,
     EMPTY_SHA3_BYTES,
-    MIN_ETH_LABEL_LENGTH,
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
-    InvalidLabel,
     InvalidName,
 )
 
@@ -81,10 +79,11 @@ def normalize_name(name):
         return name
     elif isinstance(name, (bytes, bytearray)):
         name = name.decode('utf-8')
+
     try:
-        return idna.decode(name, uts46=True, std3_rules=True)
+        return idna.uts46_remap(name, std3_rules=True)
     except idna.IDNAError as exc:
-        raise InvalidName("%s is an invalid name, because %s" % (name, exc)) from exc
+        raise InvalidName(f"{name} is an invalid name, because {exc}") from exc
 
 
 def is_valid_name(name):
@@ -102,37 +101,6 @@ def is_valid_name(name):
         return True
     except InvalidName:
         return False
-
-
-def name_to_label(name, registrar):
-    name = normalize_name(name)
-    if '.' not in name:
-        label = name
-    else:
-        name_pieces = name.split('.')
-        registrar_pieces = registrar.split('.')
-        if len(name_pieces) != len(registrar_pieces) + 1:
-            raise ValueError(
-                "You must specify a label, like 'tickets' "
-                "or a fully-qualified name, like 'tickets.%s'" % registrar
-            )
-        label, *label_registrar = name_pieces
-        if label_registrar != registrar_pieces:
-            raise ValueError("This interface only manages names under .%s " % registrar)
-    return label
-
-
-def dot_eth_label(name):
-    """
-    Convert from a name, like 'ethfinex.eth', to a label, like 'ethfinex'
-    If name is already a label, this should be a noop, except for converting to a string
-    and validating the name syntax.
-    """
-    label = name_to_label(name, registrar='eth')
-    if len(label) < MIN_ETH_LABEL_LENGTH:
-        raise InvalidLabel('name %r is too short' % label)
-    else:
-        return label
 
 
 def to_utc_datetime(timestamp):
