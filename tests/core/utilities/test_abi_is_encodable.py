@@ -34,9 +34,9 @@ from web3._utils.abi import (
         ('dennisthepeasant.eth', 'address', True),  # passes because eth_utils converts to bytes :/
         ('autonomouscollective.eth', 'address', True),
         ('all-TLDs-valid-now.test', 'address', True),
-        ('-rejects-invalid-names.test', 'address', False),
         ('ff', 'address', True),  # this could theoretically be a top-level domain (TLD)
         ('0xname.eth', 'address', True),  # 0x in name is fine, if it is not a TLD
+        ('rejects_invalid_names.eth', 'address', False),  # no underscore in domain names
 
         # Special bytes<M> behavior
         ('12', 'bytes2', True),  # undersize OK
@@ -66,7 +66,7 @@ from web3._utils.abi import (
         (('1', 0), '(bytes,int128)', False),
 
         (('dennisthepeasant.eth', 0), '(address,int128)', True),
-        (('-rejects-invalid-names.test', 0), '(address,int128)', False),
+        (('rejects_invalid_domains.eth', 0), '(address,int128)', False),
 
         ((b'anything', 0), '(string,int128)', True),
         ((b'\x80', 0), '(string,int128)', False),
