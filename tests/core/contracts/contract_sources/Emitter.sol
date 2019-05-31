@@ -75,16 +75,28 @@ contract Emitter {
         else if (which == WhichEvent.LogQuadrupleWithIndex) emit LogQuadrupleWithIndex(arg0, arg1, arg2, arg3);
         else revert("Didn't match any allowable event index");
     }
+
     function logDynamicArgs(string arg0, string arg1) public {
         emit LogDynamicArgs(arg0, arg1);
     }
+
     function logListArgs(bytes2[] arg0, bytes2[] arg1) public {
         emit LogListArgs(arg0, arg1);
     }
+
     function logAddressIndexedArgs(address arg0, address arg1) public {
         emit LogAddressIndexed(arg0, arg1);
     }
+
     function logAddressNotIndexedArgs(address arg0, address arg1) public {
         emit LogAddressNotIndexed(arg0, arg1);
+    }
+
+    function logBytes(bytes v) public {
+        emit LogBytes(v);
+    }
+
+    function logString(string v) public {
+        emit LogString(v);
     }
 }

@@ -2,8 +2,8 @@ import asyncio
 import pytest
 
 from web3._utils.module_testing.emitter_contract import (
-    EMITTER_ABI,
-    EMITTER_BYTECODE,
+    CONTRACT_EMITTER_ABI,
+    CONTRACT_EMITTER_CODE,
 )
 from web3._utils.module_testing.math_contract import (
     MATH_ABI,
@@ -19,7 +19,7 @@ def math_contract_factory(web3):
 
 @pytest.fixture(scope="module")
 def emitter_contract_factory(web3):
-    contract_factory = web3.eth.contract(abi=EMITTER_ABI, bytecode=EMITTER_BYTECODE)
+    contract_factory = web3.eth.contract(abi=CONTRACT_EMITTER_ABI, bytecode=CONTRACT_EMITTER_CODE)
     return contract_factory
 
 

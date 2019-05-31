@@ -2,6 +2,7 @@ from abc import (
     ABC,
     abstractmethod,
 )
+from enum import Enum
 import itertools
 
 from eth_abi import (
@@ -46,6 +47,8 @@ from web3.datastructures import (
     AttributeDict,
 )
 from web3.exceptions import (
+    InvalidEventABI,
+    LogTopicError,
     MismatchedABI,
 )
 
@@ -176,7 +179,7 @@ def get_event_data(event_abi, log_entry):
     log_topic_names = get_abi_input_names({'inputs': log_topics_abi})
 
     if len(log_topics) != len(log_topic_types):
-        raise ValueError("Expected {0} log topics.  Got {1}".format(
+        raise LogTopicError("Expected {0} log topics.  Got {1}".format(
             len(log_topic_types),
             len(log_topics),
         ))
@@ -191,9 +194,9 @@ def get_event_data(event_abi, log_entry):
     # names and the data argument names.
     duplicate_names = set(log_topic_names).intersection(log_data_names)
     if duplicate_names:
-        raise ValueError(
-            "Invalid Event ABI:  The following argument names are duplicated "
-            "between event inputs: '{0}'".format(', '.join(duplicate_names))
+        raise InvalidEventABI(
+            "The following argument names are duplicated "
+            f"between event inputs: '{', '.join(duplicate_names)}'"
         )
 
     decoded_log_data = decode_abi(log_data_types, log_data)
@@ -446,3 +449,14 @@ class TopicArgumentFilter(BaseArgumentFilter):
             return to_hex(keccak(encode_single_packed(self.arg_type, value)))
         else:
             return to_hex(encode_single(self.arg_type, value))
+
+
+class EventLogErrorFlags(Enum):
+    Discard = 'discard'
+    Ignore = 'ignore'
+    Strict = 'strict'
+    Warn = 'warn'
+
+    @classmethod
+    def flag_options(self):
+        return [key.upper() for key in self.__members__.keys()]

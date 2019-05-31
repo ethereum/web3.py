@@ -149,3 +149,19 @@ class InfuraKeyNotFound(Exception):
     Raised when there is no Infura Project Id set.
     """
     pass
+
+
+class LogTopicError(ValueError):
+    # Inherits from ValueError for backwards compatibility
+    """
+    Raised when the number of log topics is mismatched.
+    """
+    pass
+
+
+class InvalidEventABI(ValueError):
+    # Inherits from ValueError for backwards compatibility
+    """
+    Raised when the event ABI is invalid.
+    """
+    pass
