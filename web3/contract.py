@@ -3,6 +3,7 @@
 """
 import copy
 import itertools
+import warnings
 
 from eth_abi import (
     decode_abi,
@@ -81,15 +82,28 @@ from web3._utils.normalizers import (
 from web3._utils.transactions import (
     fill_transaction_defaults,
 )
+from web3.datastructures import (
+    AttributeDict,
+    MutableAttributeDict,
+)
 from web3.exceptions import (
     BadFunctionCallOutput,
     BlockNumberOutofRange,
     FallbackNotFound,
+    InvalidEventABI,
+    LogTopicError,
     MismatchedABI,
     NoABIEventsFound,
     NoABIFound,
     NoABIFunctionsFound,
     ValidationError,
+)
+from web3.logs import (
+    DISCARD,
+    IGNORE,
+    STRICT,
+    WARN,
+    EventLogErrorFlags,
 )
 
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
@@ -983,17 +997,38 @@ class ContractEvent:
             event_name=cls.event_name)
 
     @combomethod
-    def processReceipt(self, txn_receipt):
-        return self._parse_logs(txn_receipt)
+    def processReceipt(self, txn_receipt, errors=WARN):
+        self.check_for_valid_error_flag(errors)
+        return self._parse_logs(txn_receipt, errors)
+
+    def check_for_valid_error_flag(self, errors):
+        try:
+            errors.name
+        except AttributeError:
+            raise AttributeError(f'Error flag must be one of: {EventLogErrorFlags.flag_options()}')
 
     @to_tuple
-    def _parse_logs(self, txn_receipt):
+    def _parse_logs(self, txn_receipt, errors):
         for log in txn_receipt['logs']:
             try:
-                decoded_log = get_event_data(self.abi, log)
-            except MismatchedABI:
-                continue
-            yield decoded_log
+                rich_log = get_event_data(self.abi, log)
+            except (MismatchedABI, LogTopicError, InvalidEventABI, TypeError) as e:
+                if errors == DISCARD:
+                    continue
+                elif errors == IGNORE:
+                    new_log = MutableAttributeDict(log)
+                    new_log['errors'] = e
+                    rich_log = AttributeDict(new_log)
+                elif errors == STRICT:
+                    raise e
+                else:
+                    warnings.warn(
+                        f'The log with transaction hash: {log.transactionHash} and '
+                        f'logIndex: {log.logIndex} encountered the following error '
+                        f'during processing: {type(e).__name__}({e}). It has been discarded.'
+                    )
+                    continue
+            yield rich_log
 
     @combomethod
     def createFilter(

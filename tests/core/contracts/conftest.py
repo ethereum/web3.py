@@ -6,6 +6,17 @@ from eth_utils import (
     event_signature_to_log_topic,
 )
 
+from web3._utils.module_testing.event_contract import (
+    EVNT_CONTRACT_ABI,
+    EVNT_CONTRACT_CODE,
+    EVNT_CONTRACT_RUNTIME,
+)
+from web3._utils.module_testing.indexed_event_contract import (
+    IND_EVENT_CONTRACT_ABI,
+    IND_EVENT_CONTRACT_CODE,
+    IND_EVENT_CONTRACT_RUNTIME,
+)
+
 CONTRACT_NESTED_TUPLE_SOURCE = """
 pragma solidity >=0.4.19 <0.6.0;
 pragma experimental ABIEncoderV2;
@@ -402,6 +413,121 @@ def emitter(web3_empty, Emitter, wait_for_transaction, wait_for_block, address_c
     return emitter_contract
 
 
+@pytest.fixture()
+def EVENT_CONTRACT_CODE():
+    return EVNT_CONTRACT_CODE
+
+
+@pytest.fixture()
+def EVENT_CONTRACT_RUNTIME():
+    return EVNT_CONTRACT_RUNTIME
+
+
+@pytest.fixture()
+def EVENT_CONTRACT_ABI():
+    return EVNT_CONTRACT_ABI
+
+
+@pytest.fixture()
+def EVENT_CONTRACT(
+        EVENT_CONTRACT_CODE,
+        EVENT_CONTRACT_RUNTIME,
+        EVENT_CONTRACT_ABI):
+    return {
+        'bytecode': EVENT_CONTRACT_CODE,
+        'bytecode_runtime': EVENT_CONTRACT_RUNTIME,
+        'abi': EVENT_CONTRACT_ABI,
+    }
+
+
+@pytest.fixture()
+def EventContract(web3_empty, EVENT_CONTRACT):
+    web3 = web3_empty
+    return web3.eth.contract(**EVENT_CONTRACT)
+
+
+@pytest.fixture()
+def event_contract(
+        web3_empty,
+        EventContract,
+        wait_for_transaction,
+        wait_for_block,
+        address_conversion_func):
+
+    web3 = web3_empty
+
+    wait_for_block(web3)
+    deploy_txn_hash = EventContract.constructor().transact({
+        'from': web3.eth.coinbase, 'gas': 1000000
+    })
+    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
+    contract_address = address_conversion_func(deploy_receipt['contractAddress'])
+
+    bytecode = web3.eth.getCode(contract_address)
+    assert bytecode == EventContract.bytecode_runtime
+    event_contract = EventContract(address=contract_address)
+    assert event_contract.address == contract_address
+    return event_contract
+
+
+@pytest.fixture()
+def INDEXED_EVENT_CONTRACT_CODE():
+    return IND_EVENT_CONTRACT_CODE
+
+
+@pytest.fixture()
+def INDEXED_EVENT_CONTRACT_RUNTIME():
+    return IND_EVENT_CONTRACT_RUNTIME
+
+
+@pytest.fixture()
+def INDEXED_EVENT_CONTRACT_ABI():
+    return IND_EVENT_CONTRACT_ABI
+
+
+@pytest.fixture()
+def INDEXED_EVENT_CONTRACT(
+        INDEXED_EVENT_CONTRACT_CODE,
+        INDEXED_EVENT_CONTRACT_RUNTIME,
+        INDEXED_EVENT_CONTRACT_ABI):
+    return {
+        'bytecode': INDEXED_EVENT_CONTRACT_CODE,
+        'bytecode_runtime': INDEXED_EVENT_CONTRACT_RUNTIME,
+        'abi': INDEXED_EVENT_CONTRACT_ABI,
+    }
+
+
+@pytest.fixture()
+def IndexedEventContract(web3_empty, INDEXED_EVENT_CONTRACT):
+    web3 = web3_empty
+    return web3.eth.contract(**INDEXED_EVENT_CONTRACT)
+
+
+@pytest.fixture()
+def indexed_event(
+        web3_empty,
+        IndexedEventContract,
+        wait_for_transaction,
+        wait_for_block,
+        address_conversion_func):
+
+    web3 = web3_empty
+
+    wait_for_block(web3)
+    deploy_txn_hash = IndexedEventContract.constructor().transact({
+        'from': web3.eth.coinbase,
+        'gas': 1000000
+    })
+    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
+    contract_address = address_conversion_func(deploy_receipt['contractAddress'])
+
+    bytecode = web3.eth.getCode(contract_address)
+    assert bytecode == IndexedEventContract.bytecode_runtime
+    indexed_event_contract = IndexedEventContract(address=contract_address)
+    assert indexed_event_contract.address == contract_address
+    return indexed_event_contract
+
+
 CONTRACT_ARRAYS_SOURCE = """
     contract ArraysContract {
 
@@ -698,6 +824,7 @@ class LogFunctions:
     LogDoubleWithIndex = 9
     LogTripleWithIndex = 10
     LogQuadrupleWithIndex = 11
+    LogBytes = 12
 
 
 @pytest.fixture()

@@ -718,11 +718,11 @@ For example:
 
 :py:class:`ContractEvent` provides methods to interact with contract events. Positional and keyword arguments supplied to the contract event subclass will be used to find the contract event by signature.
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).processReceipt(transaction_receipt)
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).processReceipt(transaction_receipt, errors=WARN)
 
    Extracts the pertinent logs from a transaction receipt.
 
-   Returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
+   If there are no errors, ``processReceipt`` returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
    with decoded ouput.
 
    .. code-block:: python
@@ -732,6 +732,63 @@ For example:
        >>> rich_logs = contract.events.myEvent().processReceipt(tx_receipt)
        >>> rich_logs[0]['args']
        {'myArg': 12345}
+
+   The default ``WARN`` flag logs a warning to the console if the log has errors, and the log that raised the warning will be discarded. Any logs that didn't encounter errors during processing will be returned.
+   There are also a few other flags available:
+
+     - ``STRICT`` - stops all processing and raises the error encountered.
+     - ``IGNORE`` - returns any raw logs that raised an error with an added "errors" field, along with any other logs were able to be processed.
+     - ``DISCARD`` - silently discards any logs that have errors, and returns processed logs that don't have errors.
+     - ``WARN`` - logs a warning to the console for the log that has an error, and discards the log. Returns any logs that are able to be processed.
+
+   An event log error flag needs to be imported from web3/log.py.
+
+   .. code-block:: python
+
+       >>> from web3.logs import STRICT, IGNORE, DISCARD, WARN
+
+       >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
+       >>> tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+       >>> returned_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=IGNORE)
+       >>> assert returned_logs[0] == tx_receipt['logs'][0]
+       True
+       >>> returned_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=DISCARD)
+       >>> assert returned_logs == ()
+       True
+
+
+.. _event-log-object:
+
+Event Log Object
+~~~~~~~~~~~~~~~~
+
+    The Event Log Object is a python dictionary with the following keys:
+
+    * ``args``: Dictionary - The arguments coming from the event.
+    * ``event``: String - The event name.
+    * ``logIndex``: Number - integer of the log index position in the block.
+    * ``transactionIndex``: Number - integer of the transactions index position
+      log was created from.
+    * ``transactionHash``: String, 32 Bytes - hash of the transactions this log
+      was created from.
+    * ``address``: String, 32 Bytes - address from which this log originated.
+    * ``blockHash``: String, 32 Bytes - hash of the block where this log was
+      in. null when it's pending.
+    * ``blockNumber``: Number - the block number where this log was in. null
+      when it's pending.
+
+
+    .. code-block:: python
+
+        >>> transfer_filter = my_token_contract.eventFilter('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
+        >>> transfer_filter.get_new_entries()
+        [...]  # array of Event Log Objects that match the filter.
+        # wait a while...
+        >>> transfer_filter.get_new_entries()
+        [...]  # new events since the last call
+        >>> transfer_filter.get_all_entries()
+        [...]  # all events that match the filter.
+
 
 Utils
 -----
