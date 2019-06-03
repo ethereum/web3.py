@@ -85,7 +85,10 @@ logs
 .idea/mongoSettings.xml
 
 # VIM temp files
-*.swp
+*.sw[op]
+
+# mypy
+.mypy_cache
 
 ## File-based project format:
 *.iws
