@@ -1,3 +1,4 @@
+import json
 import pytest
 
 from eth_utils import (
@@ -11,6 +12,10 @@ from ethpm.exceptions import (
 )
 from ethpm.tools import (
     get_manifest as get_ethpm_manifest,
+)
+
+from web3.exceptions import (
+    PMError,
 )
 
 
@@ -89,3 +94,34 @@ def test_pm_init_with_manifest_uri(w3, monkeypatch):
     pkg = w3.pm.get_package_from_uri(dummy_standard_token_uri)
     assert isinstance(pkg, Package)
     assert pkg.name == "standard-token"
+
+
+@pytest.fixture
+def tmp_ethpmdir(tmp_path):
+    owned_manifest = get_ethpm_manifest("owned", "1.0.0.json")
+    ethpmdir = tmp_path / '_ethpm_packages'
+    ethpmdir.mkdir()
+    owned_dir = ethpmdir / 'owned'
+    owned_dir.mkdir()
+    manifest = owned_dir / 'manifest.json'
+    manifest.touch()
+    manifest.write_text(json.dumps(owned_manifest, sort_keys=True, separators=(",", ":")))
+    return ethpmdir
+
+
+def test_get_local_package(w3, tmp_ethpmdir):
+    pkg = w3.pm.get_local_package("owned", tmp_ethpmdir)
+    assert isinstance(pkg, Package)
+    assert pkg.name == "owned"
+
+
+def test_get_local_package_with_invalid_ethpmdir(w3, tmp_path):
+    invalid_ethpmdir = tmp_path / 'invalid'
+    invalid_ethpmdir.mkdir()
+    with pytest.raises(PMError, match="not a valid ethPM packages directory."):
+        w3.pm.get_local_package("owned", invalid_ethpmdir)
+
+
+def test_get_local_package_with_uninstalled_package(w3, tmp_ethpmdir):
+    with pytest.raises(PMError, match="Package: safe-math not found in "):
+        w3.pm.get_local_package("safe-math", tmp_ethpmdir)
