@@ -3,6 +3,9 @@ from abc import (
     abstractmethod,
 )
 import json
+from pathlib import (
+    Path,
+)
 from typing import (
     Any,
     Dict,
@@ -421,6 +424,33 @@ class PM(Module):
         """
         return Package.from_uri(manifest_uri, self.web3)
 
+    def get_local_package(self, package_name: str, ethpm_dir: Path = None) -> Package:
+        """
+        Returns a `Package <https://github.com/ethpm/py-ethpm/blob/master/ethpm/package.py>`__
+        instance built with the Manifest found at the package name in your local ethpm_dir.
+
+        * Parameters:
+            * ``package_name``: Must be the name of a package installed locally.
+            * ``ethpm_dir``: Path pointing to the target ethpm directory (optional).
+        """
+        if not ethpm_dir:
+            ethpm_dir = Path.cwd() / '_ethpm_packages'
+
+        if not ethpm_dir.name == "_ethpm_packages" or not ethpm_dir.is_dir():
+            raise PMError(f"{ethpm_dir} is not a valid ethPM packages directory.")
+
+        local_packages = [pkg.name for pkg in ethpm_dir.iterdir() if pkg.is_dir()]
+        if package_name not in local_packages:
+            raise PMError(
+                f"Package: {package_name} not found in {ethpm_dir}. "
+                f"Available packages include: {local_packages}."
+            )
+
+        target_manifest = json.loads(
+            (ethpm_dir / package_name / "manifest.json").read_text()
+        )
+        return self.get_package_from_manifest(target_manifest)
+
     def set_registry(self, address: Address) -> None:
         """
         Sets the current registry used in ``web3.pm`` functions that read/write to an on-chain
@@ -488,13 +518,13 @@ class PM(Module):
         validate_raw_manifest_format(raw_manifest)
         manifest = json.loads(raw_manifest)
         validate_manifest_against_schema(manifest)
-        if package_name != manifest['package_name']:
+        if package_name != manifest["package_name"]:
             raise ManifestValidationError(
                 f"Provided package name: {package_name} does not match the package name "
                 f"found in the manifest: {manifest['package_name']}."
             )
 
-        if version != manifest['version']:
+        if version != manifest["version"]:
             raise ManifestValidationError(
                 f"Provided package version: {version} does not match the package version "
                 f"found in the manifest: {manifest['version']}."
