@@ -21,11 +21,9 @@ class GoEthereumEthModuleTest(EthModuleTest):
         super().test_eth_replaceTransaction(web3, unlocked_account)
 
     def test_eth_replaceTransaction_incorrect_nonce(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction_incorrect_nonce(web3, unlocked_account)
 
     def test_eth_replaceTransaction_gas_price_too_low(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction_gas_price_too_low(web3, unlocked_account)
 
     @pytest.mark.xfail(reason='Needs ability to efficiently control mining')
