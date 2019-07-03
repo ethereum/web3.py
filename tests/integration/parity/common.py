@@ -32,8 +32,8 @@ class ParityEthModuleTest(EthModuleTest):
         chain_id = web3.eth.chainId
         assert chain_id is None
 
+    @pytest.mark.xfail(reason='Parity dropped "pending" option in 1.11.1')
     def test_eth_getBlockByNumber_pending(self, web3):
-        pytest.xfail('Parity dropped "pending" option in 1.11.1')
         super().test_eth_getBlockByNumber_pending(web3)
 
     def test_eth_uninstallFilter(self, web3):
@@ -44,8 +44,8 @@ class ParityEthModuleTest(EthModuleTest):
         pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction(web3, unlocked_account)
 
+    @pytest.mark.xfail(reason='Parity is not setup to auto mine')
     def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account):
-        pytest.xfail('Parity is not setup to auto mine')
         super().test_eth_replaceTransaction_already_mined(web3, unlocked_account)
 
     def test_eth_replaceTransaction_incorrect_nonce(self, web3, unlocked_account):
@@ -76,8 +76,8 @@ class ParityEthModuleTest(EthModuleTest):
             web3, unlocked_account
         )
 
+    @pytest.mark.xfail(reason='Needs ability to efficiently control mining')
     def test_eth_modifyTransaction(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_modifyTransaction(web3, unlocked_account)
 
     @flaky(max_runs=MAX_FLAKY_RUNS)
@@ -95,8 +95,8 @@ class ParityEthModuleTest(EthModuleTest):
         assert receipt is not None
         assert receipt['blockHash'] is None
 
+    @pytest.mark.xfail(reason="Parity matches None to asbent values")
     def test_eth_getLogs_with_logs_none_topic_args(self, web3):
-        pytest.xfail("Parity matches None to asbent values")
         super().test_eth_getLogs_with_logs_none_topic_args(web3)
 
     @flaky(max_runs=MAX_FLAKY_RUNS)
@@ -190,12 +190,12 @@ class ParityTraceModuleTest(TraceModuleTest):
 
 
 class CommonParityShhModuleTest(ParityShhModuleTest):
+    @pytest.mark.xfail(reason="Skip until parity filter bug is resolved")
     def test_shh_sync_filter(self, web3):
         # https://github.com/paritytech/parity-ethereum/issues/10565
-        pytest.xfail("Skip until parity filter bug is resolved")
         super().test_shh_sync_filter(web3)
 
+    @pytest.mark.xfail(reason="Skip until parity filter bug is resolved")
     def test_shh_async_filter(self, web3):
         # https://github.com/paritytech/parity-ethereum/issues/10565
-        pytest.xfail("Skip until parity filter bug is resolved")
         super().test_shh_async_filter(web3)
