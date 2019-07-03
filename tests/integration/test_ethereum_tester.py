@@ -284,14 +284,14 @@ class TestEthereumTesterEthModule(EthModuleTest):
         else:
             raise AssertionError("eth-tester was unexpectedly able to give the pending call result")
 
+    @pytest.mark.xfail(reason='json-rpc method is not implemented on eth-tester')
     def test_eth_getStorageAt(self, web3, emitter_contract_address):
-        pytest.xfail('json-rpc method is not implemented on eth-tester')
         super().test_eth_getStorageAt(web3, emitter_contract_address)
 
+    @pytest.mark.xfail(reason='Block identifier has not been implemented in eth-tester')
     def test_eth_estimateGas_with_block(self,
                                         web3,
                                         unlocked_account_dual_type):
-        pytest.xfail('Block identifier has not been implemented in eth-tester')
         super().test_eth_estimateGas_with_block(
             web3, unlocked_account_dual_type
         )

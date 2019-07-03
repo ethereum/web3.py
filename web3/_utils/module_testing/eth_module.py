@@ -361,7 +361,7 @@ class EthModuleTest:
             'value': 1,
             'gas': 21000,
             # Increased gas price to ensure transaction hash different from other tests
-            'gasPrice': web3.eth.gasPrice * 2,
+            'gasPrice': web3.eth.gasPrice * 3,
             'nonce': web3.eth.getTransactionCount(unlocked_account),
         }
         txn_hash = web3.eth.sendTransaction(txn_params)

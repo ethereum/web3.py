@@ -189,12 +189,12 @@ class ParityPersonalModuleTest():
         new_account = web3.parity.personal.newAccount(PASSWORD)
         assert is_checksum_address(new_account)
 
+    @pytest.mark.xfail(reason='this non-standard json-rpc method is not implemented on parity')
     def test_personal_lockAccount(self, web3, unlocked_account):
-        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
         super().test_personal_lockAccount(web3, unlocked_account)
 
+    @pytest.mark.xfail(reason='this non-standard json-rpc method is not implemented on parity')
     def test_personal_importRawKey(self, web3):
-        pytest.xfail('this non-standard json-rpc method is not implemented on parity')
         super().test_personal_importRawKey(web3)
 
     def test_personal_sendTransaction(self,
