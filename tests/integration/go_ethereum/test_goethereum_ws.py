@@ -77,6 +77,6 @@ class TestMiscWebsocketTest(MiscWebsocketTest):
 
 
 class TestGoEthereumShhModuleTest(CommonGoEthereumShhModuleTest):
-    @pytest.mark.xfail(reason="async filter bug in geth ws version")
     def test_shh_async_filter(self, web3):
+        pytest.xfail("async filter bug in geth ws version")
         super().test_shh_async_filter(web3)

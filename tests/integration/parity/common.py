@@ -41,7 +41,6 @@ class ParityEthModuleTest(EthModuleTest):
         super().test_eth_uninstallFilter(web3)
 
     def test_eth_replaceTransaction(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction(web3, unlocked_account)
 
     @pytest.mark.xfail(reason='Parity is not setup to auto mine')
@@ -49,21 +48,17 @@ class ParityEthModuleTest(EthModuleTest):
         super().test_eth_replaceTransaction_already_mined(web3, unlocked_account)
 
     def test_eth_replaceTransaction_incorrect_nonce(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction_incorrect_nonce(web3, unlocked_account)
 
     def test_eth_replaceTransaction_gas_price_too_low(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction_gas_price_too_low(web3, unlocked_account)
 
     def test_eth_replaceTransaction_gas_price_defaulting_minimum(self, web3, unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction_gas_price_defaulting_minimum(web3, unlocked_account)
 
     def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(self,
                                                                          web3,
                                                                          unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(
             web3, unlocked_account
         )
@@ -71,7 +66,6 @@ class ParityEthModuleTest(EthModuleTest):
     def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(self,
                                                                         web3,
                                                                         unlocked_account):
-        pytest.xfail('Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(
             web3, unlocked_account
         )
@@ -190,12 +184,12 @@ class ParityTraceModuleTest(TraceModuleTest):
 
 
 class CommonParityShhModuleTest(ParityShhModuleTest):
-    @pytest.mark.xfail(reason="Skip until parity filter bug is resolved")
     def test_shh_sync_filter(self, web3):
         # https://github.com/paritytech/parity-ethereum/issues/10565
+        pytest.xfail("Skip until parity filter bug is resolved")
         super().test_shh_sync_filter(web3)
 
-    @pytest.mark.xfail(reason="Skip until parity filter bug is resolved")
     def test_shh_async_filter(self, web3):
         # https://github.com/paritytech/parity-ethereum/issues/10565
+        pytest.xfail("Skip until parity filter bug is resolved")
         super().test_shh_async_filter(web3)
