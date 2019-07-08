@@ -89,6 +89,7 @@ def result_generator_middleware():
     return construct_result_generator_middleware({
         'eth_sendRawTransaction': lambda *args: args,
         'net_version': lambda *_: 1,
+        'eth_chainId': lambda *_: "0x02",
     })
 
 
