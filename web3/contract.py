@@ -1,6 +1,9 @@
 """Interaction with smart contracts over Web3 connector.
 
 """
+from collections.abc import (
+    Sequence,
+)
 import copy
 import itertools
 
@@ -1352,7 +1355,7 @@ def call_contract_function(
         decoded = named_tree(fn_abi['outputs'], normalized_data)
         normalized_data = dict_to_namedtuple(decoded)
 
-    if isinstance(normalized_data, list) and len(normalized_data) == 1:
+    if isinstance(normalized_data, Sequence) and len(normalized_data) == 1:
         return normalized_data[0]
     else:
         return normalized_data
