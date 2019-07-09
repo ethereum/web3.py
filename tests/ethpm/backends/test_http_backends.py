@@ -4,13 +4,12 @@ from requests.exceptions import HTTPError
 from ethpm import Package
 from ethpm.backends.http import GithubOverHTTPSBackend
 from ethpm.constants import GITHUB_API_AUTHORITY
-from ethpm.exceptions import CannotHandleURI, ValidationError
 
 
 @pytest.mark.parametrize(
     "uri",
     (
-        "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480",
+        "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480",  # noqa: E501
     ),
 )
 def test_github_over_https_backend_fetch_uri_contents(uri, owned_contract, w3):
@@ -23,6 +22,6 @@ def test_github_over_https_backend_fetch_uri_contents(uri, owned_contract, w3):
 
 
 def test_github_over_https_backend_raises_error_with_invalid_content_hash(w3):
-    invalid_uri = "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03123"
+    invalid_uri = "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03123"  # noqa: E501
     with pytest.raises(HTTPError):
         Package.from_uri(invalid_uri, w3)

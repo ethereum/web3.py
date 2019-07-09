@@ -461,9 +461,7 @@ def test_builder_with_link_references(
     registry_package, dummy_ipfs_backend, monkeypatch
 ):
     root, expected_manifest, compiler_output = registry_package
-    ipfs_backend = get_ipfs_backend()
     monkeypatch.chdir(root)
-    pinner = source_pinner(compiler_output, ipfs_backend)
     inliner = source_inliner(compiler_output)
     manifest = build(
         {},

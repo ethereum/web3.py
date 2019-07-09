@@ -1,6 +1,6 @@
 import pytest
 
-from ethpm import ASSETS_DIR, Package
+from ethpm import Package
 from ethpm.exceptions import CannotHandleURI
 
 

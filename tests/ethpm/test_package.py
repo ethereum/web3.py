@@ -76,5 +76,5 @@ def test_package_object_properties(safe_math_package):
     assert safe_math_package.name == "safe-math-lib"
     assert safe_math_package.version == "1.0.0"
     assert safe_math_package.manifest_version == "2"
-    assert safe_math_package.uri == None
+    assert safe_math_package.uri is None
     assert safe_math_package.__repr__() == "<Package safe-math-lib==1.0.0>"

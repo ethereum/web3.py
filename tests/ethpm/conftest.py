@@ -7,7 +7,7 @@ from web3.tools import linker as l  # noqa: E741
 from web3 import Web3
 
 from ethpm import ASSETS_DIR, V2_PACKAGES_DIR, Package
-from ethpm._utils.chains import create_block_uri, get_genesis_block_hash
+from ethpm._utils.chains import create_block_uri
 from ethpm.tools import get_manifest as get_manifest_tool
 from ethpm.uri import create_latest_block_uri
 

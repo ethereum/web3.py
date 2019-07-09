@@ -49,6 +49,5 @@ def test_builder_pins_manifest_to_provided_ipfs_backend(backend):
     assert manifest["Hash"] == minified_manifest_hash
     pinned_manifest = backend.fetch_uri_contents(manifest["Hash"])
     assert (
-        pinned_manifest
-        == b'{"manifest_version":"2","package_name":"package","version":"1.0.0"}'
+        pinned_manifest == b'{"manifest_version":"2","package_name":"package","version":"1.0.0"}'
     )

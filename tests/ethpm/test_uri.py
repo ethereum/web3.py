@@ -2,7 +2,6 @@ import pytest
 
 from ethpm.backends.http import is_valid_api_github_uri
 from ethpm.backends.registry import parse_registry_uri
-from ethpm.exceptions import ValidationError
 from ethpm.uri import (
     create_content_addressed_github_uri,
     is_valid_content_addressed_github_uri,
@@ -29,7 +28,7 @@ from ethpm.uri import (
         # valid github urls
         ("https://api.github.com/repos/contents/path", True),
         (
-            "https://api.github.com/repos/ethpm/ethpm-spec/contents/examples/owned/contracts/Owned.sol",
+            "https://api.github.com/repos/ethpm/ethpm-spec/contents/examples/owned/contracts/Owned.sol",  # noqa: E501
             True,
         ),
     ),
@@ -43,11 +42,11 @@ def test_is_valid_github_uri(uri, expected):
     "uri,expected",
     (
         (
-            "https://api.github.com/repos/ethpm/ethpm-spec/contents/examples/owned/contracts/Owned.sol",
+            "https://api.github.com/repos/ethpm/ethpm-spec/contents/examples/owned/contracts/Owned.sol",  # noqa: E501
             False,
         ),
         (
-            "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480",
+            "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480",  # noqa: E501
             True,
         ),
     ),
@@ -59,7 +58,7 @@ def test_is_valid_content_addressed_github_uri(uri, expected):
 
 def test_create_github_uri():
     api_uri = "https://api.github.com/repos/ethpm/py-ethpm/contents/ethpm/assets/owned/1.0.1.json"
-    expected_blob_uri = "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480"
+    expected_blob_uri = "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480"  # noqa: E501
     actual_blob_uri = create_content_addressed_github_uri(api_uri)
     assert actual_blob_uri == expected_blob_uri
 

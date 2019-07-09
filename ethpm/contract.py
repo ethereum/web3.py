@@ -151,8 +151,6 @@ def apply_link_ref(offset: int, length: int, value: bytes, bytecode: bytes) -> b
 
     new_bytes = (
         # Ignore linting error b/c conflict b/w black & flake8
-        bytecode[:offset]
-        + value
-        + bytecode[offset + length :]  # noqa: E201, E203
+        bytecode[:offset] + value + bytecode[offset + length:]  # noqa: E201, E203
     )
     return new_bytes

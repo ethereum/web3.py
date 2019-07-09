@@ -4,7 +4,7 @@ from web3.contract import Contract
 
 from ethpm import Package
 from ethpm.contract import LinkableContract, apply_all_link_refs
-from ethpm.exceptions import BytecodeLinkingError, ValidationError
+from ethpm.exceptions import BytecodeLinkingError
 
 
 @pytest.mark.parametrize(
@@ -90,13 +90,8 @@ SAFE_MATH_CANON = to_canonical_address(SAFE_MATH_ADDRESS)
                 {"length": 20, "name": "SafeMathLib", "offsets": [25]},
             ],
             {"SafeSendLib": SAFE_SEND_CANON, "SafeMathLib": SAFE_MATH_CANON},
-            b"\00"
-            + SAFE_SEND_CANON
-            + bytearray(4)
-            + SAFE_MATH_CANON
-            + bytearray(5)
-            + SAFE_SEND_CANON
-            + bytearray(10),
+            b"\00" + SAFE_SEND_CANON + bytearray(4) + SAFE_MATH_CANON +
+            bytearray(5) + SAFE_SEND_CANON + bytearray(10),
         ),
     ),
 )
