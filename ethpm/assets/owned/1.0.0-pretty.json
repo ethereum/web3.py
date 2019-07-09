@@ -1,0 +1,21 @@
+{
+  "manifest_version": "2",
+  "version": "1.0.0",
+  "package_name": "owned",
+  "meta": {
+    "license": "MIT",
+    "authors": [
+      "Piper Merriam <pipermerriam@gmail.com>"
+    ],
+    "description": "Reusable contracts which implement a privileged 'owner' model for authorization.",
+    "keywords": [
+      "authorization"
+    ],
+    "links": {
+      "documentation": "ipfs://QmUYcVzTfSwJoigggMxeo2g5STWAgJdisQsqcXHws7b1FW"
+    }
+  },
+  "sources": {
+    "./contracts/Owned.sol": "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGV"
+  }
+}

@@ -9,7 +9,7 @@ extras_require = {
     'tester': [
         "eth-tester[py-evm]==0.1.0-beta.39",
         "py-geth>=2.0.1,<3.0.0",
-        "pytest-ethereum>=0.1.3a6,<1.0.0",
+        # "pytest-ethereum>=0.1.3a6,<1.0.0",
     ],
     'linter': [
         "flake8==3.4.1",
@@ -82,7 +82,7 @@ setup(
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.6,<4',
     extras_require=extras_require,
-    py_modules=['web3', 'ens'],
+    py_modules=['web3', 'ens', 'ethpm'],
     license="MIT",
     zip_safe=False,
     keywords='ethereum',
