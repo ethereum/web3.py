@@ -5,7 +5,7 @@ from eth_utils import (
 )
 
 from ethpm import (
-    V2_PACKAGES_DIR,
+    ASSETS_DIR,
 )
 from ethpm.backends.ipfs import (
     InfuraIPFSBackend,
@@ -16,7 +16,7 @@ from ethpm.tools import (
     builder as b,
 )
 
-OWNED_MANIFEST_PATH = V2_PACKAGES_DIR / "owned" / "1.0.0.json"
+OWNED_MANIFEST_PATH = ASSETS_DIR / "owned" / "1.0.0.json"
 
 
 def test_local_ipfs_backend_integration_round_trip(monkeypatch):

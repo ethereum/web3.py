@@ -12,8 +12,8 @@ from jsonschema import (
 )
 
 from ethpm import (
+    ASSETS_DIR,
     SPEC_DIR,
-    V2_PACKAGES_DIR,
 )
 from ethpm.exceptions import (
     ValidationError,
@@ -116,11 +116,11 @@ def validate_manifest_deployments(manifest: Dict[str, Any]) -> None:
 
 def validate_manifest_exists(manifest_id: str) -> None:
     """
-    Validate that manifest with manifest_id exists in V2_PACKAGES_DIR
+    Validate that manifest with manifest_id exists in ASSETS_DIR
     """
-    if not (V2_PACKAGES_DIR / manifest_id).is_file():
+    if not (ASSETS_DIR / manifest_id).is_file():
         raise ValidationError(
-            f"Manifest not found in V2_PACKAGES_DIR with id: {manifest_id}"
+            f"Manifest not found in ASSETS_DIR with id: {manifest_id}"
         )
 
 

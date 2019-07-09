@@ -8,7 +8,6 @@ from eth_utils.toolz import (
 
 from ethpm import (
     ASSETS_DIR,
-    V2_PACKAGES_DIR,
     Package,
 )
 from ethpm._utils.chains import (
@@ -48,13 +47,13 @@ def package_names():
 
 @pytest.fixture(params=PACKAGE_NAMES)
 def all_strict_manifests(request):
-    return (V2_PACKAGES_DIR / request.param[0] / "1.0.0.json").read_text().rstrip("\n")
+    return (ASSETS_DIR / request.param[0] / "1.0.0.json").read_text().rstrip("\n")
 
 
 @pytest.fixture(params=PACKAGE_NAMES)
 def all_pretty_manifests(request):
     return (
-        (V2_PACKAGES_DIR / request.param[0] / "1.0.0-pretty.json")
+        (ASSETS_DIR / request.param[0] / "1.0.0-pretty.json")
         .read_text()
         .rstrip("\n")
     )
@@ -104,7 +103,7 @@ def safe_math_manifest(get_manifest):
 @pytest.fixture
 def piper_coin_manifest():
     return json.loads(
-        (V2_PACKAGES_DIR / "piper-coin" / "1.0.0-pretty.json").read_text()
+        (ASSETS_DIR / "piper-coin" / "1.0.0-pretty.json").read_text()
     )
 
 
@@ -139,7 +138,7 @@ def get_factory(get_manifest, escrow_manifest, w3):
 
 @pytest.fixture
 def owned_contract():
-    return (V2_PACKAGES_DIR / "owned" / "contracts" / "Owned.sol").read_text()
+    return (ASSETS_DIR / "owned" / "contracts" / "Owned.sol").read_text()
 
 
 @pytest.fixture

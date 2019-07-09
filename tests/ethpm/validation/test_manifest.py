@@ -1,7 +1,7 @@
 import pytest
 
 from ethpm import (
-    V2_PACKAGES_DIR,
+    ASSETS_DIR,
 )
 from ethpm.exceptions import (
     ValidationError,
@@ -56,7 +56,7 @@ def test_validate_raw_manifest_format_invalidates_invalid_manifests(tmpdir, mani
 
 def test_validate_manifest_exists_validates():
     assert (
-        validate_manifest_exists(V2_PACKAGES_DIR / "safe-math-lib" / "1.0.0.json")
+        validate_manifest_exists(ASSETS_DIR / "safe-math-lib" / "1.0.0.json")
         is None
     )
 

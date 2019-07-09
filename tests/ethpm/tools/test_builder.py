@@ -47,7 +47,7 @@ from ethpm.tools.builder import (
     version,
     write_to_disk,
 )
-from pytest_ethereum.linker import (
+from web3.tools.pytest_ethereum.linker import (
     deploy,
     link,
     linker,

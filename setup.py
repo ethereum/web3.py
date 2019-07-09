@@ -84,6 +84,7 @@ setup(
     python_requires='>=3.6,<4',
     extras_require=extras_require,
     py_modules=['web3', 'ens', 'ethpm'],
+    entry_points={"pytest11": ["pytest_ethereum = web3.tools.pytest_ethereum.plugins"]},
     license="MIT",
     zip_safe=False,
     keywords='ethereum',

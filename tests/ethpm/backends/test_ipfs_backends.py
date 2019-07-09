@@ -9,7 +9,7 @@ from eth_utils import (
 )
 
 from ethpm import (
-    V2_PACKAGES_DIR,
+    ASSETS_DIR,
 )
 from ethpm.backends.ipfs import (
     DummyIPFSBackend,
@@ -22,7 +22,7 @@ from ethpm.constants import (
     INFURA_GATEWAY_MULTIADDR,
 )
 
-OWNED_MANIFEST_PATH = V2_PACKAGES_DIR / "owned" / "1.0.0.json"
+OWNED_MANIFEST_PATH = ASSETS_DIR / "owned" / "1.0.0.json"
 
 
 @pytest.fixture
@@ -116,7 +116,7 @@ def test_pin_assets_to_dummy_backend(dummy_ipfs_backend):
     assert asset_data["Hash"] == "QmaRFTSyy6kifqpJBVF2dndQEduDE9s8kafNaRh6UTYKhj"
     assert asset_data["Size"] == "434"
     # Test pinning a directory
-    dir_data = backend.pin_assets(V2_PACKAGES_DIR / "standard-token" / "contracts")
+    dir_data = backend.pin_assets(ASSETS_DIR / "standard-token" / "contracts")
     dir_names = [result["Name"] for result in dir_data]
     dir_hashes = [result["Hash"] for result in dir_data]
     dir_sizes = [result["Size"] for result in dir_data]
