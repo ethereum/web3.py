@@ -1,19 +1,34 @@
 import logging
-from typing import Generator, Type
+from typing import (
+    Generator,
+    Type,
+)
 
-from eth_typing import URI
-from eth_utils import to_tuple
-from ipfshttpclient.exceptions import ConnectionError
+from eth_typing import (
+    URI,
+)
+from eth_utils import (
+    to_tuple,
+)
+from ipfshttpclient.exceptions import (
+    ConnectionError,
+)
 
-from ethpm.backends.base import BaseURIBackend
-from ethpm.backends.http import GithubOverHTTPSBackend
+from ethpm.backends.base import (
+    BaseURIBackend,
+)
+from ethpm.backends.http import (
+    GithubOverHTTPSBackend,
+)
 from ethpm.backends.ipfs import (
     DummyIPFSBackend,
     InfuraIPFSBackend,
     LocalIPFSBackend,
     get_ipfs_backend_class,
 )
-from ethpm.backends.registry import RegistryURIBackend
+from ethpm.backends.registry import (
+    RegistryURIBackend,
+)
 
 logger = logging.getLogger("ethpm.utils.backend")
 

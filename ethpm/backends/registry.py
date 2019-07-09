@@ -1,16 +1,34 @@
-from collections import namedtuple
+from collections import (
+    namedtuple,
+)
 import os
-from urllib import parse
+from urllib import (
+    parse,
+)
 
-from eth_typing import URI
+from eth_typing import (
+    URI,
+)
+
+from ethpm._utils.registry import (
+    fetch_standard_registry_abi,
+)
+from ethpm.backends.base import (
+    BaseURIBackend,
+)
+from ethpm.constants import (
+    INFURA_API_KEY,
+)
+from ethpm.exceptions import (
+    ValidationError,
+)
+from ethpm.validation.uri import (
+    validate_registry_uri,
+)
 from web3 import Web3
-from web3.providers.auto import load_provider_from_uri
-
-from ethpm._utils.registry import fetch_standard_registry_abi
-from ethpm.backends.base import BaseURIBackend
-from ethpm.constants import INFURA_API_KEY
-from ethpm.exceptions import ValidationError
-from ethpm.validation.uri import validate_registry_uri
+from web3.providers.auto import (
+    load_provider_from_uri,
+)
 
 # TODO: Update registry ABI once ERC is finalized.
 REGISTRY_ABI = fetch_standard_registry_abi()

@@ -1,7 +1,11 @@
 import pytest
 
-from ethpm.backends.http import is_valid_api_github_uri
-from ethpm.backends.registry import parse_registry_uri
+from ethpm.backends.http import (
+    is_valid_api_github_uri,
+)
+from ethpm.backends.registry import (
+    parse_registry_uri,
+)
 from ethpm.uri import (
     create_content_addressed_github_uri,
     is_valid_content_addressed_github_uri,

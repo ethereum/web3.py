@@ -1,11 +1,16 @@
 import json
 import os
-from pathlib import Path
-
+from pathlib import (
+    Path,
+)
 import pytest
 
-from ethpm import Package
-from ethpm.exceptions import ValidationError
+from ethpm import (
+    Package,
+)
+from ethpm.exceptions import (
+    ValidationError,
+)
 
 
 @pytest.fixture

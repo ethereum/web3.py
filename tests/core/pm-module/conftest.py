@@ -10,6 +10,7 @@ from eth_utils import (
     to_bytes,
     to_canonical_address,
 )
+
 from ethpm import (
     ASSETS_DIR,
     Package,
@@ -17,17 +18,16 @@ from ethpm import (
 from ethpm.contract import (
     LinkableContract,
 )
+from web3 import Web3
+from web3.pm import (
+    SolidityReferenceRegistry,
+    VyperReferenceRegistry,
+)
 from web3.tools import (
     linker,
 )
 from web3.tools.pytest_ethereum.deployer import (
     Deployer,
-)
-
-from web3 import Web3
-from web3.pm import (
-    SolidityReferenceRegistry,
-    VyperReferenceRegistry,
 )
 
 VY_PACKAGE_ID_1 = to_bytes(hexstr='0xd059e8a6ea5a8bbf8dd097a7b8922316dcb7f024e8220b56d3c9e7188a6a7640')  # noqa: E501

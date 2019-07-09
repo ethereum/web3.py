@@ -1,13 +1,28 @@
 import hashlib
-from pathlib import Path
-from typing import Dict
-from urllib import parse
+from pathlib import (
+    Path,
+)
+from typing import (
+    Dict,
+)
+from urllib import (
+    parse,
+)
 
-from base58 import b58encode
-from eth_utils import to_text
-from google.protobuf.descriptor import Descriptor
+from base58 import (
+    b58encode,
+)
+from eth_utils import (
+    to_text,
+)
+from google.protobuf.descriptor import (
+    Descriptor,
+)
 
-from ethpm._utils.protobuf.ipfs_file_pb2 import Data, PBNode
+from ethpm._utils.protobuf.ipfs_file_pb2 import (
+    Data,
+    PBNode,
+)
 
 
 def dummy_ipfs_pin(path: Path) -> Dict[str, str]:

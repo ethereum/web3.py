@@ -1,7 +1,14 @@
-from abc import ABC, abstractmethod
-from typing import Union
+from abc import (
+    ABC,
+    abstractmethod,
+)
+from typing import (
+    Union,
+)
 
-from eth_typing import URI
+from eth_typing import (
+    URI,
+)
 
 
 class BaseURIBackend(ABC):

@@ -1,16 +1,32 @@
 import base64
 import json
-from typing import Tuple
-from urllib import parse
+from typing import (
+    Tuple,
+)
+from urllib import (
+    parse,
+)
 
-from eth_typing import URI
-from eth_utils import is_text
+from eth_typing import (
+    URI,
+)
+from eth_utils import (
+    is_text,
+)
 import requests
 
-from ethpm.backends.base import BaseURIBackend
-from ethpm.constants import GITHUB_API_AUTHORITY
-from ethpm.exceptions import CannotHandleURI
-from ethpm.validation.uri import validate_blob_uri_contents
+from ethpm.backends.base import (
+    BaseURIBackend,
+)
+from ethpm.constants import (
+    GITHUB_API_AUTHORITY,
+)
+from ethpm.exceptions import (
+    CannotHandleURI,
+)
+from ethpm.validation.uri import (
+    validate_blob_uri_contents,
+)
 
 
 class GithubOverHTTPSBackend(BaseURIBackend):

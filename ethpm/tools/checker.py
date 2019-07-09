@@ -1,11 +1,24 @@
 import re
-from typing import Any, Dict
+from typing import (
+    Any,
+    Dict,
+)
 
-from eth_typing import Manifest
-from eth_utils.toolz import assoc, assoc_in, curry
+from eth_typing import (
+    Manifest,
+)
+from eth_utils.toolz import (
+    assoc,
+    assoc_in,
+    curry,
+)
 
-from ethpm.constants import PACKAGE_NAME_REGEX
-from ethpm.tools.builder import build
+from ethpm.constants import (
+    PACKAGE_NAME_REGEX,
+)
+from ethpm.tools.builder import (
+    build,
+)
 
 # todo: validate no duplicate blockchain uris in deployments, if web3 is available
 

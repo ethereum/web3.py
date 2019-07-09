@@ -1,10 +1,25 @@
 import functools
 import json
-from pathlib import Path
+from pathlib import (
+    Path,
+)
 import tempfile
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Set,
+    Tuple,
+)
 
-from eth_typing import URI, HexStr, Manifest
+from eth_typing import (
+    URI,
+    HexStr,
+    Manifest,
+)
 from eth_utils import (
     add_0x_prefix,
     is_hex,
@@ -14,19 +29,46 @@ from eth_utils import (
     to_hex,
     to_list,
 )
-from eth_utils.toolz import assoc, assoc_in, concat, curry, pipe
-from web3 import Web3
+from eth_utils.toolz import (
+    assoc,
+    assoc_in,
+    concat,
+    curry,
+    pipe,
+)
 
-from ethpm import Package
-from ethpm._utils.chains import is_BIP122_block_uri
-from ethpm._utils.mappings import deep_merge_dicts
-from ethpm.backends.ipfs import BaseIPFSBackend
-from ethpm.exceptions import ManifestBuildingError, ValidationError
-from ethpm.package import format_manifest
-from ethpm.uri import is_supported_content_addressed_uri
-from ethpm.validation.manifest import validate_manifest_against_schema
-from ethpm.validation.misc import validate_address
-from ethpm.validation.package import validate_package_name
+from ethpm import (
+    Package,
+)
+from ethpm._utils.chains import (
+    is_BIP122_block_uri,
+)
+from ethpm._utils.mappings import (
+    deep_merge_dicts,
+)
+from ethpm.backends.ipfs import (
+    BaseIPFSBackend,
+)
+from ethpm.exceptions import (
+    ManifestBuildingError,
+    ValidationError,
+)
+from ethpm.package import (
+    format_manifest,
+)
+from ethpm.uri import (
+    is_supported_content_addressed_uri,
+)
+from ethpm.validation.manifest import (
+    validate_manifest_against_schema,
+)
+from ethpm.validation.misc import (
+    validate_address,
+)
+from ethpm.validation.package import (
+    validate_package_name,
+)
+from web3 import Web3
 
 
 def build(obj: Dict[str, Any], *fns: Callable[..., Any]) -> Dict[str, Any]:

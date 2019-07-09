@@ -1,30 +1,58 @@
 import json
-from pathlib import Path
-from typing import Any, Dict, Generator, Optional, Tuple, Union
+from pathlib import (
+    Path,
+)
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    Optional,
+    Tuple,
+    Union,
+)
 
-from eth_typing import URI, Address, ContractName, Manifest
-from eth_utils import to_canonical_address, to_text, to_tuple
-from web3 import Web3
-from web3.eth import Contract
+from eth_typing import (
+    URI,
+    Address,
+    ContractName,
+    Manifest,
+)
+from eth_utils import (
+    to_canonical_address,
+    to_text,
+    to_tuple,
+)
 
-from ethpm._utils.cache import cached_property
-from ethpm._utils.contract import generate_contract_factory_kwargs
+from ethpm._utils.cache import (
+    cached_property,
+)
+from ethpm._utils.contract import (
+    generate_contract_factory_kwargs,
+)
 from ethpm._utils.deployments import (
     get_linked_deployments,
     normalize_linked_references,
     validate_deployments_tx_receipt,
     validate_linked_references,
 )
-from ethpm.contract import LinkableContract
-from ethpm.dependencies import Dependencies
-from ethpm.deployments import Deployments
+from ethpm.contract import (
+    LinkableContract,
+)
+from ethpm.dependencies import (
+    Dependencies,
+)
+from ethpm.deployments import (
+    Deployments,
+)
 from ethpm.exceptions import (
     BytecodeLinkingError,
     FailureToFetchIPFSAssetsError,
     InsufficientAssetsError,
     PyEthPMError,
 )
-from ethpm.uri import resolve_uri_contents
+from ethpm.uri import (
+    resolve_uri_contents,
+)
 from ethpm.validation.manifest import (
     check_for_deployments,
     validate_build_dependencies_are_present,
@@ -32,13 +60,22 @@ from ethpm.validation.manifest import (
     validate_manifest_deployments,
     validate_raw_manifest_format,
 )
-from ethpm.validation.misc import validate_address, validate_w3_instance
+from ethpm.validation.misc import (
+    validate_address,
+    validate_w3_instance,
+)
 from ethpm.validation.package import (
     validate_build_dependency,
     validate_contract_name,
     validate_minimal_contract_factory_data,
 )
-from ethpm.validation.uri import validate_single_matching_uri
+from ethpm.validation.uri import (
+    validate_single_matching_uri,
+)
+from web3 import Web3
+from web3.eth import (
+    Contract,
+)
 
 
 class Package(object):

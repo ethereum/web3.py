@@ -1,9 +1,20 @@
-from eth_utils import to_bytes
 import pytest
 
-from ethpm import V2_PACKAGES_DIR
-from ethpm.backends.ipfs import InfuraIPFSBackend, LocalIPFSBackend, get_ipfs_backend
-from ethpm.tools import builder as b
+from eth_utils import (
+    to_bytes,
+)
+
+from ethpm import (
+    V2_PACKAGES_DIR,
+)
+from ethpm.backends.ipfs import (
+    InfuraIPFSBackend,
+    LocalIPFSBackend,
+    get_ipfs_backend,
+)
+from ethpm.tools import (
+    builder as b,
+)
 
 OWNED_MANIFEST_PATH = V2_PACKAGES_DIR / "owned" / "1.0.0.json"
 

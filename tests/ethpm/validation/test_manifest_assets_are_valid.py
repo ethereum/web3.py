@@ -1,10 +1,15 @@
 import json
-
 import pytest
 
-from ethpm import ASSETS_DIR
-from ethpm.exceptions import InsufficientAssetsError
-from ethpm.validation.manifest import validate_manifest_against_schema
+from ethpm import (
+    ASSETS_DIR,
+)
+from ethpm.exceptions import (
+    InsufficientAssetsError,
+)
+from ethpm.validation.manifest import (
+    validate_manifest_against_schema,
+)
 
 SOURCES_GLOB = "**/*.json"
 

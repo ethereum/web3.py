@@ -1,11 +1,18 @@
 import json
-
-from eth_utils import to_canonical_address
 import pytest
-import web3
 
-from ethpm import ASSETS_DIR, Package
-from ethpm.exceptions import BytecodeLinkingError
+from eth_utils import (
+    to_canonical_address,
+)
+
+from ethpm import (
+    ASSETS_DIR,
+    Package,
+)
+from ethpm.exceptions import (
+    BytecodeLinkingError,
+)
+import web3
 
 
 def test_deployed_escrow_and_safe_send(escrow_manifest, w3):

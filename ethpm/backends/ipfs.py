@@ -1,25 +1,43 @@
-from abc import abstractmethod
+from abc import (
+    abstractmethod,
+)
 import os
-from pathlib import Path
-from typing import Dict, List, Type
+from pathlib import (
+    Path,
+)
+from typing import (
+    Dict,
+    List,
+    Type,
+)
 
-from eth_utils import import_string, to_bytes
+from eth_utils import (
+    import_string,
+    to_bytes,
+)
 import ipfshttpclient
 
-from ethpm import ASSETS_DIR
+from ethpm import (
+    ASSETS_DIR,
+)
 from ethpm._utils.ipfs import (
     dummy_ipfs_pin,
     extract_ipfs_path_from_uri,
     generate_file_hash,
     is_ipfs_uri,
 )
-from ethpm.backends.base import BaseURIBackend
+from ethpm.backends.base import (
+    BaseURIBackend,
+)
 from ethpm.constants import (
     DEFAULT_IPFS_BACKEND,
     INFURA_GATEWAY_MULTIADDR,
     IPFS_GATEWAY_PREFIX,
 )
-from ethpm.exceptions import CannotHandleURI, ValidationError
+from ethpm.exceptions import (
+    CannotHandleURI,
+    ValidationError,
+)
 
 
 class BaseIPFSBackend(BaseURIBackend):

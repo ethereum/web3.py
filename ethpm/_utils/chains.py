@@ -1,9 +1,19 @@
 import re
-from typing import Tuple
-from urllib import parse
+from typing import (
+    Tuple,
+)
+from urllib import (
+    parse,
+)
 
-from eth_typing import URI
-from eth_utils import add_0x_prefix, remove_0x_prefix
+from eth_typing import (
+    URI,
+)
+from eth_utils import (
+    add_0x_prefix,
+    remove_0x_prefix,
+)
+
 from web3 import Web3
 
 

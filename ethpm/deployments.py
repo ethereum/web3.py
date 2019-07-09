@@ -1,11 +1,23 @@
-from typing import Dict, ItemsView, List
+from typing import (
+    Dict,
+    ItemsView,
+    List,
+)
 
-from eth_utils import to_canonical_address
+from eth_utils import (
+    to_canonical_address,
+)
+
+from ethpm.exceptions import (
+    ValidationError,
+)
+from ethpm.validation.package import (
+    validate_contract_name,
+)
 from web3 import Web3
-from web3.eth import Contract
-
-from ethpm.exceptions import ValidationError
-from ethpm.validation.package import validate_contract_name
+from web3.eth import (
+    Contract,
+)
 
 
 class Deployments:

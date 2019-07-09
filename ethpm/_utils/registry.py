@@ -1,5 +1,8 @@
 import json
-from typing import Any, Dict
+from typing import (
+    Any,
+    Dict,
+)
 
 
 def is_ens_domain(authority: str) -> bool:

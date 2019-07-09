@@ -1,14 +1,28 @@
 import json
-from pathlib import Path
-
-from eth_utils import to_canonical_address
-from eth_utils.toolz import assoc, assoc_in
+from pathlib import (
+    Path,
+)
 import pytest
-from pytest_ethereum.linker import deploy, link, linker
 
-from ethpm import ASSETS_DIR, Package
-from ethpm.backends.ipfs import get_ipfs_backend
-from ethpm.exceptions import ManifestBuildingError, ValidationError
+from eth_utils import (
+    to_canonical_address,
+)
+from eth_utils.toolz import (
+    assoc,
+    assoc_in,
+)
+
+from ethpm import (
+    ASSETS_DIR,
+    Package,
+)
+from ethpm.backends.ipfs import (
+    get_ipfs_backend,
+)
+from ethpm.exceptions import (
+    ManifestBuildingError,
+    ValidationError,
+)
 from ethpm.tools.builder import (
     as_package,
     authors,
@@ -32,6 +46,11 @@ from ethpm.tools.builder import (
     validate,
     version,
     write_to_disk,
+)
+from pytest_ethereum.linker import (
+    deploy,
+    link,
+    linker,
 )
 
 BASE_MANIFEST = {"package_name": "package", "manifest_version": "2", "version": "1.0.0"}

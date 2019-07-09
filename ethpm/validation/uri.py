@@ -1,15 +1,33 @@
 import hashlib
-from typing import List
-from urllib import parse
+from typing import (
+    List,
+)
+from urllib import (
+    parse,
+)
 
-from eth_utils import is_checksum_address, to_bytes, to_text
+from eth_utils import (
+    is_checksum_address,
+    to_bytes,
+    to_text,
+)
+
+from ethpm._utils.ipfs import (
+    is_ipfs_uri,
+)
+from ethpm._utils.registry import (
+    is_ens_domain,
+)
+from ethpm.constants import (
+    REGISTRY_URI_SCHEME,
+)
+from ethpm.exceptions import (
+    ValidationError,
+)
+from ethpm.validation.package import (
+    validate_package_name,
+)
 from web3 import Web3
-
-from ethpm._utils.ipfs import is_ipfs_uri
-from ethpm._utils.registry import is_ens_domain
-from ethpm.constants import REGISTRY_URI_SCHEME
-from ethpm.exceptions import ValidationError
-from ethpm.validation.package import validate_package_name
 
 
 def validate_ipfs_uri(uri: str) -> None:

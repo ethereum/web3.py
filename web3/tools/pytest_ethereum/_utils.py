@@ -1,13 +1,38 @@
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Tuple,
+)
 
-from eth_typing import URI, Address, Manifest
-from eth_utils import to_canonical_address, to_dict, to_hex, to_list
-from eth_utils.toolz import assoc, assoc_in, dissoc
-from ethpm import Package
-from ethpm.uri import check_if_chain_matches_chain_uri
+from eth_typing import (
+    URI,
+    Address,
+    Manifest,
+)
+from eth_utils import (
+    to_canonical_address,
+    to_dict,
+    to_hex,
+    to_list,
+)
+from eth_utils.toolz import (
+    assoc,
+    assoc_in,
+    dissoc,
+)
+
+from ethpm import (
+    Package,
+)
+from ethpm.uri import (
+    check_if_chain_matches_chain_uri,
+)
 from web3 import Web3
-
-from web3.tools.pytest_ethereum.exceptions import LinkerError
+from web3.tools.pytest_ethereum.exceptions import (
+    LinkerError,
+)
 
 
 def pluck_matching_uri(deployment_data: Dict[URI, Dict[str, str]], w3: Web3) -> URI:

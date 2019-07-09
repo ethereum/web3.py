@@ -1,10 +1,24 @@
-from typing import Any, Callable, Dict, Tuple  # noqa: F401
+from typing import (  # noqa: F401
+    Any,
+    Callable,
+    Dict,
+    Tuple,
+)
 
-from eth_typing import Address
-from ethpm import Package
+from eth_typing import (
+    Address,
+)
 
-from web3.tools.pytest_ethereum.exceptions import DeployerError
-from web3.tools.pytest_ethereum.linker import deploy, linker
+from ethpm import (
+    Package,
+)
+from web3.tools.pytest_ethereum.exceptions import (
+    DeployerError,
+)
+from web3.tools.pytest_ethereum.linker import (
+    deploy,
+    linker,
+)
 
 
 class Deployer:

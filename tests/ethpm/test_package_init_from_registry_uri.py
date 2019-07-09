@@ -1,7 +1,11 @@
 import pytest
 
-from ethpm import Package
-from ethpm.exceptions import CannotHandleURI
+from ethpm import (
+    Package,
+)
+from ethpm.exceptions import (
+    CannotHandleURI,
+)
 
 
 @pytest.mark.parametrize(

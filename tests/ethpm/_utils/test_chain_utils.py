@@ -1,6 +1,9 @@
 import pytest
 
-from ethpm._utils.chains import is_BIP122_block_uri, parse_BIP122_uri
+from ethpm._utils.chains import (
+    is_BIP122_block_uri,
+    parse_BIP122_uri,
+)
 
 HASH_A = "0x1234567890123456789012345678901234567890123456789012345678901234"
 HASH_A_NO_PREFIX = "1234567890123456789012345678901234567890123456789012345678901234"

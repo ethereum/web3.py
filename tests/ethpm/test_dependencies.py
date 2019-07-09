@@ -1,9 +1,17 @@
 import pytest
 
-from ethpm import Package
-from ethpm.dependencies import Dependencies
-from ethpm.exceptions import ValidationError
-from ethpm.validation.package import validate_build_dependency
+from ethpm import (
+    Package,
+)
+from ethpm.dependencies import (
+    Dependencies,
+)
+from ethpm.exceptions import (
+    ValidationError,
+)
+from ethpm.validation.package import (
+    validate_build_dependency,
+)
 
 
 @pytest.fixture

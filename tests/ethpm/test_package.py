@@ -1,9 +1,18 @@
-from eth_utils import is_same_address, to_canonical_address
 import pytest
-from web3 import Web3
 
-from ethpm.exceptions import InsufficientAssetsError, ValidationError
-from ethpm.package import Package
+from eth_utils import (
+    is_same_address,
+    to_canonical_address,
+)
+
+from ethpm.exceptions import (
+    InsufficientAssetsError,
+    ValidationError,
+)
+from ethpm.package import (
+    Package,
+)
+from web3 import Web3
 
 
 @pytest.fixture()

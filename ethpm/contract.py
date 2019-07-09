@@ -1,12 +1,36 @@
-from typing import Any, Dict, List, Optional, Tuple, Type  # noqa: F401
+from typing import (  # noqa: F401
+    Any,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Type,
+)
 
-from eth_utils import combomethod, is_canonical_address, to_bytes, to_checksum_address
-from eth_utils.toolz import assoc, curry, pipe
+from eth_utils import (
+    combomethod,
+    is_canonical_address,
+    to_bytes,
+    to_checksum_address,
+)
+from eth_utils.toolz import (
+    assoc,
+    curry,
+    pipe,
+)
+
+from ethpm.exceptions import (
+    BytecodeLinkingError,
+    ValidationError,
+)
+from ethpm.validation.misc import (
+    validate_address,
+    validate_empty_bytes,
+)
 from web3 import Web3
-from web3.contract import Contract
-
-from ethpm.exceptions import BytecodeLinkingError, ValidationError
-from ethpm.validation.misc import validate_address, validate_empty_bytes
+from web3.contract import (
+    Contract,
+)
 
 
 class LinkableContract(Contract):

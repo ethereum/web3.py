@@ -1,6 +1,13 @@
-from typing import Any, Dict, Generator, Tuple
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    Tuple,
+)
 
-from eth_utils import to_dict
+from eth_utils import (
+    to_dict,
+)
 
 
 @to_dict

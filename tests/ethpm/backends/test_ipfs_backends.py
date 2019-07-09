@@ -1,10 +1,16 @@
 import json
-from pathlib import Path
-
-from eth_utils import to_text
+from pathlib import (
+    Path,
+)
 import pytest
 
-from ethpm import V2_PACKAGES_DIR
+from eth_utils import (
+    to_text,
+)
+
+from ethpm import (
+    V2_PACKAGES_DIR,
+)
 from ethpm.backends.ipfs import (
     DummyIPFSBackend,
     InfuraIPFSBackend,
@@ -12,7 +18,9 @@ from ethpm.backends.ipfs import (
     get_ipfs_backend,
     get_ipfs_backend_class,
 )
-from ethpm.constants import INFURA_GATEWAY_MULTIADDR
+from ethpm.constants import (
+    INFURA_GATEWAY_MULTIADDR,
+)
 
 OWNED_MANIFEST_PATH = V2_PACKAGES_DIR / "owned" / "1.0.0.json"
 

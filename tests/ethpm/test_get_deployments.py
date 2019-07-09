@@ -1,8 +1,14 @@
 import pytest
 
-from ethpm import Package
-from ethpm.deployments import Deployments
-from ethpm.exceptions import ValidationError
+from ethpm import (
+    Package,
+)
+from ethpm.deployments import (
+    Deployments,
+)
+from ethpm.exceptions import (
+    ValidationError,
+)
 
 
 def test_get_deployments_with_no_deployments(w3, manifest_with_empty_deployments):

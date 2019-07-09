@@ -1,5 +1,8 @@
 import functools
-from typing import Any, Callable
+from typing import (
+    Any,
+    Callable,
+)
 
 
 class cached_property:

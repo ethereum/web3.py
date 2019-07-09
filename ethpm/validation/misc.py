@@ -1,9 +1,16 @@
-from typing import Any
+from typing import (
+    Any,
+)
 
-from eth_utils import is_address, is_canonical_address
+from eth_utils import (
+    is_address,
+    is_canonical_address,
+)
+
+from ethpm.exceptions import (
+    ValidationError,
+)
 from web3 import Web3
-
-from ethpm.exceptions import ValidationError
 
 
 def validate_address(address: Any) -> None:

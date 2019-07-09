@@ -1,7 +1,12 @@
 import json
-from typing import Any, Dict
+from typing import (
+    Any,
+    Dict,
+)
 
-from ethpm import ASSETS_DIR
+from ethpm import (
+    ASSETS_DIR,
+)
 
 
 def get_manifest(use_case: str, filename: str) -> Dict[str, Any]:

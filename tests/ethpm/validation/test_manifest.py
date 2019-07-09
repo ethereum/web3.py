@@ -1,7 +1,11 @@
 import pytest
 
-from ethpm import V2_PACKAGES_DIR
-from ethpm.exceptions import ValidationError
+from ethpm import (
+    V2_PACKAGES_DIR,
+)
+from ethpm.exceptions import (
+    ValidationError,
+)
 from ethpm.validation.manifest import (
     extract_contract_types_from_deployments,
     validate_manifest_against_schema,
@@ -10,7 +14,9 @@ from ethpm.validation.manifest import (
     validate_meta_object,
     validate_raw_manifest_format,
 )
-from ethpm.validation.package import validate_manifest_version
+from ethpm.validation.package import (
+    validate_manifest_version,
+)
 
 
 def test_validate_raw_manifest_configuration_validates_strict_manifests(

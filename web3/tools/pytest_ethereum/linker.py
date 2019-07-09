@@ -1,18 +1,39 @@
 import logging
-from typing import Any, Callable, Dict, Tuple
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Tuple,
+)
 
-from eth_typing import Address
-from eth_utils import to_canonical_address, to_checksum_address, to_hex
-from eth_utils.toolz import assoc_in, curry, pipe
-from ethpm import Package
-from ethpm.uri import create_latest_block_uri
+from eth_typing import (
+    Address,
+)
+from eth_utils import (
+    to_canonical_address,
+    to_checksum_address,
+    to_hex,
+)
+from eth_utils.toolz import (
+    assoc_in,
+    curry,
+    pipe,
+)
 
+from ethpm import (
+    Package,
+)
+from ethpm.uri import (
+    create_latest_block_uri,
+)
 from web3.tools.pytest_ethereum._utils import (
     create_deployment_data,
     get_deployment_address,
     insert_deployment,
 )
-from web3.tools.pytest_ethereum.exceptions import LinkerError
+from web3.tools.pytest_ethereum.exceptions import (
+    LinkerError,
+)
 
 logger = logging.getLogger("pytest_ethereum.linker")
 

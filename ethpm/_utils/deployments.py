@@ -1,10 +1,25 @@
-from typing import Any, Dict, Generator, List, Tuple
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    List,
+    Tuple,
+)
 
-from eth_utils import is_same_address, to_bytes, to_tuple
-from eth_utils.toolz import get_in
+from eth_utils import (
+    is_same_address,
+    to_bytes,
+    to_tuple,
+)
+from eth_utils.toolz import (
+    get_in,
+)
+
+from ethpm.exceptions import (
+    BytecodeLinkingError,
+    ValidationError,
+)
 from web3 import Web3
-
-from ethpm.exceptions import BytecodeLinkingError, ValidationError
 
 
 def get_linked_deployments(deployments: Dict[str, Any]) -> Dict[str, Any]:

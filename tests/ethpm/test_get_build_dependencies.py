@@ -1,8 +1,15 @@
 import pytest
 
-from ethpm import Package
-from ethpm.dependencies import Dependencies
-from ethpm.exceptions import FailureToFetchIPFSAssetsError, ValidationError
+from ethpm import (
+    Package,
+)
+from ethpm.dependencies import (
+    Dependencies,
+)
+from ethpm.exceptions import (
+    FailureToFetchIPFSAssetsError,
+    ValidationError,
+)
 
 
 @pytest.fixture

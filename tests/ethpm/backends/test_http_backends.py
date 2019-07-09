@@ -1,9 +1,18 @@
 import pytest
-from requests.exceptions import HTTPError
 
-from ethpm import Package
-from ethpm.backends.http import GithubOverHTTPSBackend
-from ethpm.constants import GITHUB_API_AUTHORITY
+from requests.exceptions import (
+    HTTPError,
+)
+
+from ethpm import (
+    Package,
+)
+from ethpm.backends.http import (
+    GithubOverHTTPSBackend,
+)
+from ethpm.constants import (
+    GITHUB_API_AUTHORITY,
+)
 
 
 @pytest.mark.parametrize(

@@ -1,7 +1,15 @@
 import itertools
-from typing import Any, Dict, Iterable, Tuple
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Tuple,
+)
 
-from eth_utils import is_dict, to_dict
+from eth_utils import (
+    is_dict,
+    to_dict,
+)
 
 
 @to_dict

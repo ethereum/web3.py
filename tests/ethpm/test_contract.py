@@ -1,10 +1,22 @@
-from eth_utils import to_canonical_address
 import pytest
-from web3.contract import Contract
 
-from ethpm import Package
-from ethpm.contract import LinkableContract, apply_all_link_refs
-from ethpm.exceptions import BytecodeLinkingError
+from eth_utils import (
+    to_canonical_address,
+)
+
+from ethpm import (
+    Package,
+)
+from ethpm.contract import (
+    LinkableContract,
+    apply_all_link_refs,
+)
+from ethpm.exceptions import (
+    BytecodeLinkingError,
+)
+from web3.contract import (
+    Contract,
+)
 
 
 @pytest.mark.parametrize(

@@ -15,6 +15,11 @@ from typing import (
     Tuple,
 )
 
+from eth_typing import (
+    URI,
+    Address,
+    Manifest,
+)
 from eth_utils import (
     is_canonical_address,
     is_checksum_address,
@@ -27,28 +32,23 @@ from eth_utils import (
 from eth_utils.toolz import (
     concat,
 )
+
 from ethpm import (
     ASSETS_DIR,
     Package,
-)
-from eth_typing import (
-    URI,
-    Address,
-    Manifest,
-)
-from ethpm.validation.manifest import (
-    validate_manifest_against_schema,
-    validate_raw_manifest_format,
 )
 from ethpm.uri import (
     is_supported_content_addressed_uri,
     resolve_uri_contents,
 )
+from ethpm.validation.manifest import (
+    validate_manifest_against_schema,
+    validate_raw_manifest_format,
+)
 from ethpm.validation.package import (
     validate_package_name,
     validate_package_version,
 )
-
 from web3 import Web3
 from web3._utils.ens import (
     is_ens_name,

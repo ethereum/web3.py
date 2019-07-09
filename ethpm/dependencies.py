@@ -1,6 +1,12 @@
-from typing import Dict, List, Tuple
+from typing import (
+    Dict,
+    List,
+    Tuple,
+)
 
-from ethpm.validation.package import validate_package_name
+from ethpm.validation.package import (
+    validate_package_name,
+)
 
 
 class Dependencies:

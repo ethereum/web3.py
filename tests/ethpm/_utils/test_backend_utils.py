@@ -4,10 +4,19 @@ from ethpm._utils.backend import (
     get_resolvable_backends_for_uri,
     get_translatable_backends_for_uri,
 )
-from ethpm.backends.ipfs import InfuraIPFSBackend, LocalIPFSBackend
-from ethpm.backends.registry import RegistryURIBackend
-from ethpm.exceptions import CannotHandleURI
-from ethpm.uri import resolve_uri_contents
+from ethpm.backends.ipfs import (
+    InfuraIPFSBackend,
+    LocalIPFSBackend,
+)
+from ethpm.backends.registry import (
+    RegistryURIBackend,
+)
+from ethpm.exceptions import (
+    CannotHandleURI,
+)
+from ethpm.uri import (
+    resolve_uri_contents,
+)
 
 
 @pytest.mark.parametrize(
