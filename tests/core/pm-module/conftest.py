@@ -17,10 +17,10 @@ from ethpm import (
 from ethpm.contract import (
     LinkableContract,
 )
-from pytest_ethereum import (
+from web3.tools import (
     linker,
 )
-from pytest_ethereum.deployer import (
+from web3.tools.pytest_ethereum.deployer import (
     Deployer,
 )
 

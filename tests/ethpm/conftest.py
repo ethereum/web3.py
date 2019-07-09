@@ -3,7 +3,7 @@ import json
 
 from eth_utils.toolz import assoc_in
 import pytest
-from pytest_ethereum import linker as l  # noqa: E741
+from web3.tools import linker as l  # noqa: E741
 from web3 import Web3
 
 from ethpm import ASSETS_DIR, V2_PACKAGES_DIR, Package
