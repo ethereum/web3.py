@@ -1,18 +1,19 @@
 import json
-from pathlib import Path
-from typing import Callable
-
-from ethpm import Package
+from pathlib import (
+    Path,
+)
 import pytest
+from typing import (
+    Callable,
+)
+
+from ethpm import (
+    Package,
+)
 from web3 import Web3
-
-from web3.tools.pytest_ethereum.deployer import Deployer
-
-
-# @pytest.fixture
-# def w3() -> Web3:
-    # w3 = Web3(Web3.EthereumTesterProvider())
-    # return w3
+from web3.tools.pytest_ethereum.deployer import (
+    Deployer,
+)
 
 
 @pytest.fixture
