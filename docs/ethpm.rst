@@ -36,9 +36,8 @@ new ``Package`` class for a given package.
    >>> from ethpm import Package, ASSETS_DIR
    >>> from web3 import Web3
 
-   >>> owned_manifest_path = ASSETS_DIR / 'owned' / '1.0.0.json'
    >>> w3 = Web3(Web3.EthereumTesterProvider())
-
+   >>> owned_manifest_path = ASSETS_DIR / 'owned' / '1.0.0.json'
    >>> OwnedPackage = Package.from_file(owned_manifest_path, w3)
    >>> assert isinstance(OwnedPackage, Package)
 
@@ -121,7 +120,7 @@ Properties
 
 .. py:attribute:: LinkableContract.linked_references
 
-   A list of link reference data for the runtime bytecode, if present in the manifest data used to generate a ``LinkableContract`` factory. Runtime bytecode link reference data must be present in a manifest in order to use ``pytest-ethereum``'s ``Deployer`` for a contract which requires bytecode linking.
+   A list of link reference data for the runtime bytecode, if present in the manifest data used to generate a ``LinkableContract`` factory. If you want to use the `web3` `Deployer` tool for a contract, then runtime bytecode link reference data must be present in a manifest.
 
 .. py:attribute:: LinkableContract.needs_bytecode_linking
 

@@ -10,17 +10,6 @@ common: &common
         keys:
           - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
-        name: install ipfs
-        command:
-          wget https://dist.ipfs.io/go-ipfs/v0.4.19/go-ipfs_v0.4.19_linux-amd64.tar.gz &&
-          tar xvfz go-ipfs_v0.4.19_linux-amd64.tar.gz &&
-          sudo cp go-ipfs/ipfs /usr/local/bin && 
-          ipfs init
-    - run:
-        name: start ipfs node in background
-        command: ipfs daemon
-        background: true
-    - run:
         name: install dependencies
         command: pip install --user tox
     - run:
@@ -117,6 +106,40 @@ geth_steps: &geth_steps
           - ~/.py-geth
         key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
+ethpm_steps: &ethpm_steps
+  working_directory: ~/repo
+  steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+    - run:
+        name: install ipfs
+        command:
+          wget https://dist.ipfs.io/go-ipfs/v0.4.19/go-ipfs_v0.4.19_linux-amd64.tar.gz &&
+          tar xvfz go-ipfs_v0.4.19_linux-amd64.tar.gz &&
+          sudo cp go-ipfs/ipfs /usr/local/bin && 
+          ipfs init
+    - run:
+        name: start ipfs node in background
+        command: ipfs daemon
+        background: true
+    - run:
+        name: install dependencies
+        command: pip install --user tox
+    - run:
+        name: run tox
+        command: ~/.local/bin/tox -r
+    - save_cache:
+        paths:
+          - .tox
+          - ~/.cache/pip
+          - ~/.local
+          - ./eggs
+          - ~/.ethash
+          - ~/.py-geth
+        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+
 
 jobs:
   #
@@ -151,7 +174,7 @@ jobs:
       TOXENV: py36-ens
 
   py36-ethpm:
-    <<: *common
+    <<: *ethpm_steps
     docker:
       - image: circleci/python:3.6
     environment:
@@ -257,7 +280,7 @@ jobs:
       TOXENV: py37-ens
 
   py37-ethpm:
-    <<: *common
+    <<: *ethpm_steps
     docker:
       - image: circleci/python:3.7
     environment:
