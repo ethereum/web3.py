@@ -113,8 +113,8 @@ def test_pin_assets_to_dummy_backend(dummy_ipfs_backend):
     hashes = backend.pin_assets(OWNED_MANIFEST_PATH)
     asset_data = hashes[0]
     assert asset_data["Name"] == "1.0.0.json"
-    assert asset_data["Hash"] == "QmaRFTSyy6kifqpJBVF2dndQEduDE9s8kafNaRh6UTYKhj"
-    assert asset_data["Size"] == "434"
+    assert asset_data["Hash"] == "QmYogrz6sKuyMW8NHUdw1kEy9Tn15R3GaF9T14S4zwb4bR"
+    assert asset_data["Size"] == "433"
     # Test pinning a directory
     dir_data = backend.pin_assets(ASSETS_DIR / "standard-token" / "contracts")
     dir_names = [result["Name"] for result in dir_data]
