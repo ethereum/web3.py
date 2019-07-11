@@ -70,7 +70,6 @@ class ParityEthModuleTest(EthModuleTest):
             web3, unlocked_account
         )
 
-    @pytest.mark.xfail(reason='Needs ability to efficiently control mining')
     def test_eth_modifyTransaction(self, web3, unlocked_account):
         super().test_eth_modifyTransaction(web3, unlocked_account)
 
