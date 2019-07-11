@@ -3,11 +3,11 @@ import pytest
 from eth_utils import (
     to_bytes,
 )
+
+from ens import ENS
 from ethpm import (
     ASSETS_DIR,
 )
-
-from ens import ENS
 from web3.exceptions import (
     InvalidAddress,
 )

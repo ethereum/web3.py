@@ -4,13 +4,13 @@ from eth_utils import (
     is_address,
     to_checksum_address,
 )
+
 from ethpm import (
     Package,
 )
 from ethpm.contract import (
     LinkableContract,
 )
-
 from web3 import Web3
 from web3.exceptions import (
     PMError,

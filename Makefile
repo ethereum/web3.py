@@ -35,7 +35,7 @@ test-all:
 	tox
 
 build-docs:
-	sphinx-apidoc -o docs/ . setup.py "web3/utils/*" "*conftest*" "tests"
+	sphinx-apidoc -o docs/ . setup.py "web3/utils/*" "*conftest*" "tests" "ethpm"
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(MAKE) -C docs doctest

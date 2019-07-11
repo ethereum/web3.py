@@ -34,6 +34,7 @@ Contents
     web3.parity
     gas_price
     ens
+    ethpm
     internals
     conventions
     releases

@@ -15,6 +15,11 @@ from typing import (
     Tuple,
 )
 
+from eth_typing import (
+    URI,
+    Address,
+    Manifest,
+)
 from eth_utils import (
     is_canonical_address,
     is_checksum_address,
@@ -27,33 +32,23 @@ from eth_utils import (
 from eth_utils.toolz import (
     concat,
 )
+
 from ethpm import (
     ASSETS_DIR,
     Package,
 )
-from ethpm.typing import (
-    URI,
-    Address,
-    Manifest,
-)
-from ethpm.utils.backend import (
+from ethpm.uri import (
+    is_supported_content_addressed_uri,
     resolve_uri_contents,
 )
-from ethpm.utils.ipfs import (
-    is_ipfs_uri,
-)
-from ethpm.utils.manifest_validation import (
+from ethpm.validation.manifest import (
     validate_manifest_against_schema,
     validate_raw_manifest_format,
 )
-from ethpm.utils.uri import (
-    is_valid_content_addressed_github_uri,
-)
-from ethpm.validation import (
+from ethpm.validation.package import (
     validate_package_name,
     validate_package_version,
 )
-
 from web3 import Web3
 from web3._utils.ens import (
     is_ens_name,
@@ -659,7 +654,7 @@ def get_solidity_registry_manifest() -> Dict[str, Any]:
 
 
 def validate_is_supported_manifest_uri(uri):
-    if not is_ipfs_uri(uri) and not is_valid_content_addressed_github_uri(uri):
+    if not is_supported_content_addressed_uri(uri):
         raise ManifestValidationError(
             f"URI: {uri} is not a valid content-addressed URI. "
             "Currently only IPFS and Github content-addressed URIs are supported."

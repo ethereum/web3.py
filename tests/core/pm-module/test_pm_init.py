@@ -4,6 +4,7 @@ import pytest
 from eth_utils import (
     to_canonical_address,
 )
+
 from ethpm import (
     Package,
 )
@@ -13,7 +14,6 @@ from ethpm.exceptions import (
 from ethpm.tools import (
     get_manifest as get_ethpm_manifest,
 )
-
 from web3.exceptions import (
     PMError,
 )
