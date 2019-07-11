@@ -25,8 +25,8 @@ from eth_utils import (
     is_hex,
     is_string,
     to_bytes,
+    to_checksum_address,
     to_dict,
-    to_hex,
     to_list,
 )
 from eth_utils.toolz import (
@@ -62,13 +62,13 @@ from ethpm.uri import (
 from ethpm.validation.manifest import (
     validate_manifest_against_schema,
 )
-from ethpm.validation.misc import (
-    validate_address,
-)
 from ethpm.validation.package import (
     validate_package_name,
 )
 from web3 import Web3
+from web3._utils.validation import (
+    validate_address,
+)
 
 
 def build(obj: Dict[str, Any], *fns: Callable[..., Any]) -> Dict[str, Any]:
@@ -705,7 +705,7 @@ def _build_deployments_object(
     Returns a dict with properly formatted deployment data.
     """
     yield "contract_type", contract_type
-    yield "address", to_hex(address)
+    yield "address", to_checksum_address(address)
     if deployment_bytecode:
         yield "deployment_bytecode", deployment_bytecode
     if compiler:

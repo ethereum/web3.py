@@ -11,7 +11,7 @@ from eth_utils import (
     combomethod,
     is_canonical_address,
     to_bytes,
-    to_checksum_address,
+    to_canonical_address,
 )
 from eth_utils.toolz import (
     assoc,
@@ -24,10 +24,12 @@ from ethpm.exceptions import (
     ValidationError,
 )
 from ethpm.validation.misc import (
-    validate_address,
     validate_empty_bytes,
 )
 from web3 import Web3
+from web3._utils.validation import (
+    validate_address,
+)
 from web3.contract import (
     Contract,
 )
@@ -49,10 +51,7 @@ class LinkableContract(Contract):
                 "Contract cannot be instantiated until its bytecode is linked."
             )
         validate_address(address)
-        # todo: remove automatic checksumming of address once web3 dep is updated in pytest-ethereum
-        super(LinkableContract, self).__init__(
-            address=to_checksum_address(address), **kwargs
-        )
+        super(LinkableContract, self).__init__(address=address, **kwargs)
 
     @classmethod
     def factory(
@@ -125,11 +124,7 @@ class LinkableContract(Contract):
                 "`link_bytecode` on a contract factory."
             )
         for address in attr_dict.values():
-            if not is_canonical_address(address):
-                raise BytecodeLinkingError(
-                    f"Address: {address} as specified in the attr_dict is not "
-                    "a valid canoncial address."
-                )
+            validate_address(address)
 
 
 def is_prelinked_bytecode(bytecode: bytes, link_refs: List[Dict[str, Any]]) -> bool:
@@ -173,8 +168,9 @@ def apply_link_ref(offset: int, length: int, value: bytes, bytecode: bytes) -> b
     except ValidationError:
         raise BytecodeLinkingError("Link references cannot be applied to bytecode")
 
+    address = value if is_canonical_address(value) else to_canonical_address(value)
     new_bytes = (
         # Ignore linting error b/c conflict b/w black & flake8
-        bytecode[:offset] + value + bytecode[offset + length:]  # noqa: E201, E203
+        bytecode[:offset] + address + bytecode[offset + length:]  # noqa: E201, E203
     )
     return new_bytes

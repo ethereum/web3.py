@@ -61,7 +61,6 @@ from ethpm.validation.manifest import (
     validate_raw_manifest_format,
 )
 from ethpm.validation.misc import (
-    validate_address,
     validate_w3_instance,
 )
 from ethpm.validation.package import (
@@ -73,6 +72,9 @@ from ethpm.validation.uri import (
     validate_single_matching_uri,
 )
 from web3 import Web3
+from web3._utils.validation import (
+    validate_address,
+)
 from web3.eth import (
     Contract,
 )
@@ -275,9 +277,8 @@ class Package(object):
         contract_kwargs = generate_contract_factory_kwargs(
             self.manifest["contract_types"][name]
         )
-        canonical_address = to_canonical_address(address)
         contract_instance = self.w3.eth.contract(
-            address=canonical_address, **contract_kwargs
+            address=address, **contract_kwargs
         )
         return contract_instance
 
@@ -347,7 +348,7 @@ class Package(object):
         if linked_deployments:
             for deployment_data in linked_deployments.values():
                 on_chain_bytecode = self.w3.eth.getCode(
-                    to_canonical_address(deployment_data["address"])
+                    deployment_data["address"]
                 )
                 unresolved_linked_refs = normalize_linked_references(
                     deployment_data["runtime_bytecode"]["link_dependencies"]
