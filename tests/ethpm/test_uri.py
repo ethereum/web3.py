@@ -71,17 +71,18 @@ def test_create_github_uri():
     "uri,expected",
     (
         (
-            "ercXXX://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/owned?version=1.0.0",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "owned", "1.0.0"],
+            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned?version=1.0.0",
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "owned", "1.0.0"],
         ),
         (
-            "ercXXX://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet?version=2.8.0/",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "wallet", "2.8.0"],
+            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet?version=2.8.0/",
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0"],
         ),
     ),
 )
 def test_parse_registry_uri(uri, expected):
-    address, pkg_name, pkg_version = parse_registry_uri(uri)
+    address, chain_id, pkg_name, pkg_version = parse_registry_uri(uri)
     assert address == expected[0]
-    assert pkg_name == expected[1]
-    assert pkg_version == expected[2]
+    assert chain_id == expected[1]
+    assert pkg_name == expected[2]
+    assert pkg_version == expected[3]

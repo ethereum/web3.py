@@ -216,19 +216,25 @@ way through the EIP process)
 
 ::
 
-   scheme://authority/package-name?version=x.x.x
+   scheme://address:chain_id/package-name?version=x.x.x
 
 -  URI must be a string type
--  ``scheme``: ``ercxxx``
--  ``authority``: Must be a valid ENS domain or a valid checksum address
+-  ``scheme``: ``erc1319``
+-  ``address``: Must be a valid ENS domain or a valid checksum address
    pointing towards a registry contract.
+-  ``chain_id``: Chain ID of the chain on which the registry lives. Supported chains include...
+  - 1: Mainnet
+  - 3: Ropsten
+  - 4: Rinkeby
+  - 5: Goerli
+  - 42: Kovan
 -  ``package-name``: Must conform to the package-name as specified in
    the
    `EthPM-Spec <http://ethpm-spec.readthedocs.io/en/latest/package-spec.html#package-name>`__.
 -  ``version``: The URI escaped version string, *should* conform to the
    `semver <http://semver.org/>`__ version numbering specification.
 
-i.e. ``ercxxx://packages.zeppelinos.eth/owned?version=1.0.0``
+i.e. ``erc1319://packages.zeppelinos.eth:1/owned?version=1.0.0``
 
 Builder
 -------

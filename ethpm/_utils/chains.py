@@ -1,5 +1,6 @@
 import re
 from typing import (
+    Any,
     Tuple,
 )
 from urllib import (
@@ -11,9 +12,13 @@ from eth_typing import (
 )
 from eth_utils import (
     add_0x_prefix,
+    is_integer,
     remove_0x_prefix,
 )
 
+from ethpm.constants import (
+    SUPPORTED_CHAIN_IDS,
+)
 from web3 import Web3
 
 
@@ -91,3 +96,12 @@ def create_BIP122_uri(
 
 def create_block_uri(chain_id: str, block_identifier: str) -> URI:
     return create_BIP122_uri(chain_id, "block", remove_0x_prefix(block_identifier))
+
+
+def is_supported_chain_id(chain_id: Any) -> bool:
+    if not is_integer(chain_id):
+        return False
+
+    if chain_id not in SUPPORTED_CHAIN_IDS.keys():
+        return False
+    return True
