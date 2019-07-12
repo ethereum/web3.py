@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from ethpm._utils.backend import (
@@ -29,6 +30,7 @@ from ethpm.uri import (
         ("erc1319://packages.zeppelinos.eth:1/erc20?version=1.0.0", ()),
     ),
 )
+@pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
 def test_get_resolvable_backends_for_supported_uris(dummy_ipfs_backend, uri, backends):
     good_backends = get_resolvable_backends_for_uri(uri)
     assert good_backends == backends
@@ -41,8 +43,9 @@ def test_get_resolvable_backends_for_supported_uris(dummy_ipfs_backend, uri, bac
         ("ipfs://QmTKB75Y73zhNbD3Y73xeXGjYrZHmaXXNxoZqGCagu7r8u/", ()),
     ),
 )
+@pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
 def test_get_translatable_backends_for_supported_uris(
-    dummy_ipfs_backend, uri, backends, infura_env
+    dummy_ipfs_backend, uri, backends
 ):
     good_backends = get_translatable_backends_for_uri(uri)
     assert good_backends == backends
@@ -65,6 +68,7 @@ def test_get_translatable_backends_for_supported_uris(
         "https://github.com/ethpm/ethpm-spec/examples/owned/1.0.0.json#content_hash",
     ),
 )
-def test_resolve_uri_contents_raises_exception_for_unsupported_schemes(uri, infura_env):
+@pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
+def test_resolve_uri_contents_raises_exception_for_unsupported_schemes(uri):
     with pytest.raises(CannotHandleURI):
         resolve_uri_contents(uri)

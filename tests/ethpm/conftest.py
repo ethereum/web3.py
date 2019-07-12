@@ -41,12 +41,6 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture
-def infura_env(monkeypatch):
-    # Please play nice and don't use this key for any shenanigans, thanks!
-    monkeypatch.setenv("WEB3_INFURA_PROJECT_ID", '4f1a358967c7474aae6f8f4a7698aefc')
-
-
-@pytest.fixture
 def package_names():
     return PACKAGE_NAMES
 

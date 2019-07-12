@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from requests.exceptions import (
@@ -21,7 +22,8 @@ from ethpm.constants import (
         "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480",  # noqa: E501
     ),
 )
-def test_github_over_https_backend_fetch_uri_contents(uri, owned_contract, w3, infura_env):
+@pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
+def test_github_over_https_backend_fetch_uri_contents(uri, owned_contract, w3):
     # these tests may occassionally fail CI as a result of their network requests
     backend = GithubOverHTTPSBackend()
     assert backend.base_uri == GITHUB_API_AUTHORITY
@@ -30,7 +32,8 @@ def test_github_over_https_backend_fetch_uri_contents(uri, owned_contract, w3, i
     assert owned_package.name == "owned"
 
 
-def test_github_over_https_backend_raises_error_with_invalid_content_hash(w3, infura_env):
+@pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
+def test_github_over_https_backend_raises_error_with_invalid_content_hash(w3):
     invalid_uri = "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03123"  # noqa: E501
     with pytest.raises(HTTPError):
         Package.from_uri(invalid_uri, w3)

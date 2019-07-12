@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from ethpm import (
@@ -26,6 +27,7 @@ def test_package_from_uri_with_valid_uri(dummy_ipfs_backend, w3):
         "ipfsQmTKB75Y73zhNbD3Y73xeXGjYrZHmaXXNxoZqGCagu7r8u/readme/",
     ),
 )
-def test_package_from_uri_rejects_invalid_ipfs_uri(invalid, w3, infura_env):
+@pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
+def test_package_from_uri_rejects_invalid_ipfs_uri(invalid, w3):
     with pytest.raises(CannotHandleURI):
         Package.from_uri(invalid, w3)
