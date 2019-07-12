@@ -24,7 +24,6 @@ from eth_utils import (
     is_canonical_address,
     is_checksum_address,
     to_bytes,
-    to_canonical_address,
     to_checksum_address,
     to_text,
     to_tuple,
@@ -235,8 +234,7 @@ class VyperReferenceRegistry(ERCRegistry):
         registry_factory = registry_package.get_contract_factory("registry")
         tx_hash = registry_factory.constructor().transact()
         tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-        registry_address = to_canonical_address(tx_receipt.contractAddress)
-        return cls(registry_address, w3)
+        return cls(tx_receipt.contractAddress, w3)
 
     def _release(self, package_name: str, version: str, manifest_uri: str) -> bytes:
         if len(package_name) > 32 or len(version) > 32:
@@ -460,8 +458,7 @@ class PM(Module):
             * ``address``: Address of on-chain Vyper Reference Registry.
         """
         if is_canonical_address(address) or is_checksum_address(address):
-            canonical_address = to_canonical_address(address)
-            self.registry = VyperReferenceRegistry(canonical_address, self.web3)
+            self.registry = VyperReferenceRegistry(address, self.web3)
         elif is_ens_name(address):
             self._validate_set_ens()
             addr_lookup = self.web3.ens.address(address)
@@ -469,9 +466,7 @@ class PM(Module):
                 raise NameNotFound(
                     "No address found after ENS lookup for name: {0}.".format(address)
                 )
-            self.registry = VyperReferenceRegistry(
-                to_canonical_address(addr_lookup), self.web3
-            )
+            self.registry = VyperReferenceRegistry(addr_lookup, self.web3)
         else:
             raise PMError(
                 "Expected a canonical/checksummed address or ENS name for the address, "

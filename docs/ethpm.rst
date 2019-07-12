@@ -82,7 +82,7 @@ LinkableContract
 
 .. doctest::
 
-   >>> from eth_utils import is_address, to_canonical_address
+   >>> from eth_utils import is_address
    >>> from web3 import Web3
    >>> from ethpm import Package, ASSETS_DIR
 
@@ -104,7 +104,7 @@ LinkableContract
    >>> safe_send_tx_receipt = w3.eth.waitForTransactionReceipt(safe_send_tx_hash)
 
    >>> # Link Escrow factory to deployed SafeSendLib instance
-   >>> LinkedEscrowFactory = EscrowFactory.link_bytecode({"SafeSendLib": to_canonical_address(safe_send_tx_receipt.contractAddress)})
+   >>> LinkedEscrowFactory = EscrowFactory.link_bytecode({"SafeSendLib": safe_send_tx_receipt.contractAddress})
    >>> assert LinkedEscrowFactory.needs_bytecode_linking is False
    >>> escrow_tx_hash = LinkedEscrowFactory.constructor(w3.eth.accounts[0]).transact()
    >>> escrow_tx_receipt = w3.eth.waitForTransactionReceipt(escrow_tx_hash)
@@ -725,7 +725,6 @@ This is the simplest builder function for adding a deployment to a manifest. All
 
 .. doctest::
 
-   >>> from eth_utils import to_canonical_address
    >>> expected_manifest = {
    ...   'package_name': 'owned',
    ...   'manifest_version': '2',
@@ -734,7 +733,7 @@ This is the simplest builder function for adding a deployment to a manifest. All
    ...     'blockchain://1234567890123456789012345678901234567890123456789012345678901234/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef': {
    ...       'Owned': {
    ...         'contract_type': 'Owned',
-   ...         'address': '0x4f5b11c860b37b68de6d14fb7e7b5f18a9a1bd00',
+   ...         'address': '0x4F5B11C860B37B68De6d14FB7e7b5f18A9a1BD00',
    ...       }
    ...     }
    ...   }
@@ -745,7 +744,7 @@ This is the simplest builder function for adding a deployment to a manifest. All
    ...         block_uri='blockchain://1234567890123456789012345678901234567890123456789012345678901234/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
    ...         contract_instance='Owned',
    ...         contract_type='Owned',
-   ...         address=to_canonical_address('0x4f5b11c860b37b68de6d14fb7e7b5f18a9a1bd00'),
+   ...         address='0x4F5B11C860B37B68De6d14FB7e7b5f18A9a1BD00',
    ...     ),
    ... )
    >>> assert expected_manifest == built_manifest

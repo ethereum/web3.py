@@ -12,7 +12,6 @@ from eth_typing import (
     Manifest,
 )
 from eth_utils import (
-    to_canonical_address,
     to_dict,
     to_hex,
     to_list,
@@ -108,7 +107,7 @@ def create_deployment_data(
     link_refs: List[Dict[str, Any]] = None,
 ) -> Iterable[Tuple[str, Any]]:
     yield "contract_type", contract_name
-    yield "address", to_hex(new_address)
+    yield "address", new_address
     yield "transaction", to_hex(tx_receipt.transactionHash)
     yield "block", to_hex(tx_receipt.blockHash)
     if link_refs:
@@ -130,9 +129,7 @@ def get_deployment_address(linked_type: str, package: Package) -> Address:
     Return the address of a linked_type found in a package's manifest deployments.
     """
     try:
-        deployment_address = to_canonical_address(
-            package.deployments.get(linked_type)["address"]
-        )
+        deployment_address = package.deployments.get(linked_type)["address"]
     except KeyError:
         raise LinkerError(
             f"Package data does not contain a valid deployment of {linked_type} on the "

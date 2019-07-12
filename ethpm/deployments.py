@@ -4,10 +4,6 @@ from typing import (
     List,
 )
 
-from eth_utils import (
-    to_canonical_address,
-)
-
 from ethpm.exceptions import (
     ValidationError,
 )
@@ -64,7 +60,7 @@ class Deployments:
         # in case the deployment uses a contract alias
         contract_type = self.deployment_data[contract_name]["contract_type"]
         factory = self.contract_factories[contract_type]
-        address = to_canonical_address(self.deployment_data[contract_name]["address"])
+        address = self.deployment_data[contract_name]["address"]
         contract_kwargs = {
             "abi": factory.abi,
             "bytecode": factory.bytecode,

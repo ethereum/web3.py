@@ -618,7 +618,7 @@ def test_builder_deployment_simple(w3):
                 "blockchain://1234567890123456789012345678901234567890123456789012345678901234/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef": {  # noqa: E501
                     "Owned": {
                         "contract_type": "Owned",
-                        "address": "0xd3cda913deb6f67967b99d67acdfa1712c293601",
+                        "address": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
                     }
                 }
             },
@@ -663,34 +663,26 @@ def test_builder_deployment_type_complex(escrow_package):
         manifest_version("2"),
         escrow_dep_type(
             block_uri="blockchain://1111111111111111111111111111111111111111111111111111111111111111/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",  # noqa: E501
-            address=to_canonical_address(
-                escrow.deployments.get_instance("Escrow").address
-            ),
+            address=escrow.deployments.get_instance("Escrow").address,
         ),
         # dep_type with block uri
         safesendlib_dep_type(
             block_uri="blockchain://1111111111111111111111111111111111111111111111111111111111111111/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",  # noqa: E501
-            address=to_canonical_address(
-                address=escrow.deployments.get_instance("SafeSendLib").address
-            ),
+            address=escrow.deployments.get_instance("SafeSendLib").address,
         ),
         # simple deployment
         deployment(
             block_uri="blockchain://1234567890123456789012345678901234567890123456789012345678901234/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",  # noqa: E501
             contract_instance="Escrow",
             contract_type="Escrow",
-            address=to_canonical_address(
-                escrow.deployments.get_instance("Escrow").address
-            ),
+            address=escrow.deployments.get_instance("Escrow").address,
         ),
         # simple deployment
         deployment(
             block_uri="blockchain://1234567890123456789012345678901234567890123456789012345678901234/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",  # noqa: E501
             contract_instance="SafeSendLib",
             contract_type="SafeSendLib",
-            address=to_canonical_address(
-                escrow.deployments.get_instance("SafeSendLib").address
-            ),
+            address=escrow.deployments.get_instance("SafeSendLib").address,
         ),
     )
     assert len(manifest["deployments"].keys()) == 2

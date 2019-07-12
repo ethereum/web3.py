@@ -8,7 +8,6 @@ from eth_tester import (
 from eth_utils import (
     function_abi_to_4byte_selector,
     to_bytes,
-    to_canonical_address,
 )
 
 from ethpm import (
@@ -160,7 +159,7 @@ def sol_registry(w3):
     deployed_registry_package = registry_deployer.deploy("PackageRegistry")
     assert isinstance(registry_package, Package)
     registry = deployed_registry_package.deployments.get_instance("PackageRegistry")
-    return SolidityReferenceRegistry(to_canonical_address(registry.address), w3)
+    return SolidityReferenceRegistry(registry.address, w3)
 
 
 def vy_registry(w3):
@@ -171,7 +170,7 @@ def vy_registry(w3):
     deployed_registry_package = registry_deployer.deploy("registry")
     registry_instance = deployed_registry_package.deployments.get_instance("registry")
     assert registry_instance.functions.owner().call() == w3.eth.defaultAccount
-    return VyperReferenceRegistry(to_canonical_address(registry_instance.address), w3)
+    return VyperReferenceRegistry(registry_instance.address, w3)
 
 
 def release_packages(registry):

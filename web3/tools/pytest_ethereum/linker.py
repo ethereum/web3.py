@@ -10,7 +10,6 @@ from eth_typing import (
     Address,
 )
 from eth_utils import (
-    to_canonical_address,
     to_checksum_address,
     to_hex,
 )
@@ -73,11 +72,13 @@ def _deploy(
         )
     tx_hash = factory.constructor(*args).transact(transaction)
     tx_receipt = package.w3.eth.waitForTransactionReceipt(tx_hash)
-    address = to_canonical_address(tx_receipt.contractAddress)
     # Create manifest copy with new deployment instance
     latest_block_uri = create_latest_block_uri(package.w3, 0)
     deployment_data = create_deployment_data(
-        contract_name, address, tx_receipt, factory.linked_references
+        contract_name,
+        to_checksum_address(tx_receipt.contractAddress),
+        tx_receipt,
+        factory.linked_references,
     )
     manifest = insert_deployment(
         package, contract_name, deployment_data, latest_block_uri

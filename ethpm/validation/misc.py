@@ -1,29 +1,7 @@
-from typing import (
-    Any,
-)
-
-from eth_utils import (
-    is_address,
-    is_canonical_address,
-)
-
 from ethpm.exceptions import (
     ValidationError,
 )
 from web3 import Web3
-
-
-def validate_address(address: Any) -> None:
-    """
-    Raise a ValidationError if an address is not canonicalized.
-    """
-    if not is_address(address):
-        raise ValidationError(f"Expected an address, got: {address}")
-    if not is_canonical_address(address):
-        raise ValidationError(
-            "Py-EthPM library only accepts canonicalized addresses. "
-            f"{address} is not in the accepted format."
-        )
 
 
 def validate_w3_instance(w3: Web3) -> None:

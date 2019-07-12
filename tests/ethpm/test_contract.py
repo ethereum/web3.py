@@ -26,18 +26,14 @@ from web3.contract import (
             "escrow",
             "Escrow",
             {
-                "SafeSendLib": to_canonical_address(
-                    "0x4F5B11c860b37b68DE6D14Fb7e7b5f18A9A1bdC0"
-                )
+                "SafeSendLib": "0x4F5B11c860b37b68DE6D14Fb7e7b5f18A9A1bdC0"
             },
         ),
         (
             "wallet",
             "Wallet",
             {
-                "SafeMathLib": to_canonical_address(
-                    "0xa66A05D6AB5c1c955F4D2c3FCC166AE6300b452B"
-                )
+                "SafeMathLib": "0xa66A05D6AB5c1c955F4D2c3FCC166AE6300b452B"
             },
         ),
     ),
