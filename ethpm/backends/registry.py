@@ -1,7 +1,6 @@
 from collections import (
     namedtuple,
 )
-import os
 from urllib import (
     parse,
 )
@@ -16,19 +15,12 @@ from ethpm._utils.registry import (
 from ethpm.backends.base import (
     BaseURIBackend,
 )
-from ethpm.constants import (
-    ETHPM_INFURA_API_KEY,
-)
 from ethpm.exceptions import (
     CannotHandleURI,
     ValidationError,
 )
 from ethpm.validation.uri import (
     validate_registry_uri,
-)
-from web3 import Web3
-from web3.exceptions import (
-    InfuraKeyNotFound,
 )
 
 # TODO: Update registry ABI once ERC is finalized.
@@ -44,10 +36,6 @@ class RegistryURIBackend(BaseURIBackend):
     """
 
     def __init__(self) -> None:
-        try:
-            from web3.auto.infura.endpoints import load_api_key
-        except InfuraKeyNotFound:
-            os.environ['WEB3_INFURA_PROJECT_ID'] = ETHPM_INFURA_API_KEY
         from web3.auto.infura import w3
         self.w3 = w3
 

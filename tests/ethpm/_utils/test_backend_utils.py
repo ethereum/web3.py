@@ -42,7 +42,7 @@ def test_get_resolvable_backends_for_supported_uris(dummy_ipfs_backend, uri, bac
     ),
 )
 def test_get_translatable_backends_for_supported_uris(
-    dummy_ipfs_backend, uri, backends
+    dummy_ipfs_backend, uri, backends, infura_env
 ):
     good_backends = get_translatable_backends_for_uri(uri)
     assert good_backends == backends
@@ -65,6 +65,6 @@ def test_get_translatable_backends_for_supported_uris(
         "https://github.com/ethpm/ethpm-spec/examples/owned/1.0.0.json#content_hash",
     ),
 )
-def test_resolve_uri_contents_raises_exception_for_unsupported_schemes(uri):
+def test_resolve_uri_contents_raises_exception_for_unsupported_schemes(uri, infura_env):
     with pytest.raises(CannotHandleURI):
         resolve_uri_contents(uri)
