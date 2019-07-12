@@ -9,9 +9,13 @@ from urllib import (
 from eth_utils import (
     is_checksum_address,
     to_bytes,
+    to_int,
     to_text,
 )
 
+from ethpm._utils.chains import (
+    is_supported_chain_id,
+)
 from ethpm._utils.ipfs import (
     is_ipfs_uri,
 )
@@ -61,8 +65,26 @@ def validate_registry_uri_authority(auth: str) -> None:
     Raise an exception if the authority is not a valid ENS domain
     or a valid checksummed contract address.
     """
-    if is_ens_domain(auth) is False and not is_checksum_address(auth):
-        raise ValidationError(f"{auth} is not a valid registry URI authority.")
+    try:
+        address, chain_id = auth.split(':')
+    except ValueError:
+        raise ValidationError(
+            f"{auth} is not a valid registry URI authority. "
+            "Please try again with a valid registry URI."
+        )
+
+    if is_ens_domain(address) is False and not is_checksum_address(address):
+        raise ValidationError(
+            f"{auth} is not a valid registry address. "
+            "Please try again with a valid registry URI."
+        )
+
+    if not is_supported_chain_id(to_int(text=chain_id)):
+        raise ValidationError(
+            f"Chain ID: {chain_id} is not supported. Supported chain ids include: "
+            "1 (mainnet), 3 (ropsten), 4 (rinkeby), 5 (goerli) and 42 (kovan). "
+            "Please try again with a valid registry URI."
+        )
 
 
 def validate_registry_uri_scheme(scheme: str) -> None:

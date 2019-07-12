@@ -20,6 +20,7 @@ from ethpm.constants import (
     INFURA_API_KEY,
 )
 from ethpm.exceptions import (
+    CannotHandleURI,
     ValidationError,
 )
 from ethpm.validation.uri import (
@@ -32,7 +33,7 @@ from web3.providers.auto import (
 
 # TODO: Update registry ABI once ERC is finalized.
 REGISTRY_ABI = fetch_standard_registry_abi()
-RegistryURI = namedtuple("RegistryURI", ["auth", "name", "version"])
+RegistryURI = namedtuple("RegistryURI", ["address", "chain_id", "name", "version"])
 
 
 class RegistryURIBackend(BaseURIBackend):
@@ -57,7 +58,12 @@ class RegistryURIBackend(BaseURIBackend):
         """
         Return content-addressed URI stored at registry URI.
         """
-        address, pkg_name, pkg_version = parse_registry_uri(uri)
+        address, chain_id, pkg_name, pkg_version = parse_registry_uri(uri)
+        if chain_id != '1':
+            # todo: support all testnets
+            raise CannotHandleURI(
+                "Currently only mainnet registry uris are supported."
+            )
         self.w3.enable_unstable_package_management_api()
         self.w3.pm.set_registry(address)
         _, _, manifest_uri = self.w3.pm.get_release_data(pkg_name, pkg_version)
@@ -83,7 +89,7 @@ def parse_registry_uri(uri: str) -> RegistryURI:
     """
     validate_registry_uri(uri)
     parsed_uri = parse.urlparse(uri)
-    authority = parsed_uri.netloc
+    address, chain_id = parsed_uri.netloc.split(":")
     pkg_name = parsed_uri.path.strip("/")
     pkg_version = parsed_uri.query.lstrip("version=").strip("/")
-    return RegistryURI(authority, pkg_name, pkg_version)
+    return RegistryURI(address, chain_id, pkg_name, pkg_version)
