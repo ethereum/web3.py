@@ -17,7 +17,7 @@ from ethpm.backends.base import (
     BaseURIBackend,
 )
 from ethpm.constants import (
-    INFURA_API_KEY,
+    ETHPM_INFURA_API_KEY,
 )
 from ethpm.exceptions import (
     CannotHandleURI,
@@ -27,8 +27,8 @@ from ethpm.validation.uri import (
     validate_registry_uri,
 )
 from web3 import Web3
-from web3.providers.auto import (
-    load_provider_from_uri,
+from web3.exceptions import (
+    InfuraKeyNotFound,
 )
 
 # TODO: Update registry ABI once ERC is finalized.
@@ -44,9 +44,12 @@ class RegistryURIBackend(BaseURIBackend):
     """
 
     def __init__(self) -> None:
-        os.environ.setdefault("INFUFA_API_KEY", INFURA_API_KEY)
-        infura_url = f"wss://mainnet.infura.io/ws/v3/{INFURA_API_KEY}"
-        self.w3 = Web3(load_provider_from_uri(infura_url))
+        try:
+            from web3.auto.infura.endpoints import load_api_key
+        except InfuraKeyNotFound:
+            os.environ['WEB3_INFURA_PROJECT_ID'] = ETHPM_INFURA_API_KEY
+        from web3.auto.infura import w3
+        self.w3 = w3
 
     def can_translate_uri(self, uri: str) -> bool:
         return is_valid_registry_uri(uri)
