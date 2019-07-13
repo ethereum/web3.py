@@ -236,7 +236,7 @@ The following methods are available on the ``web3.eth`` namespace.
         })
 
     * Merkle proof verification using py-trie.
-    
+
     The following example verifies that the values returned in the AttributeDict are included in the state of given trie ``root``.
 
     .. code-block:: python
@@ -278,7 +278,7 @@ The following methods are available on the ``web3.eth`` namespace.
             )
             rlp_account = rlp.encode(acc)
             trie_key = keccak(bytes.fromhex(proof.address[2:]))
-        
+
             assert rlp_account == HexaryTrie.get_from_proof(
                 root, trie_key, format_proof_nodes(proof.accountProof)
             ), "Failed to verify account proof {}".format(proof.address)
@@ -639,7 +639,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Delegates to ``eth_sendRawTransaction`` RPC Method
 
-    Sends a signed and serialized transaction. Returns the transaction hash.
+    Sends a signed and serialized transaction. Returns the transaction hash as a HexBytes object.
 
     .. code-block:: python
 
@@ -654,7 +654,7 @@ The following methods are available on the ``web3.eth`` namespace.
           private_key_for_senders_account,
         )
         >>> w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-        '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
+        HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
 
 
 .. py:method:: Eth.replaceTransaction(transaction_hash, new_transaction)
