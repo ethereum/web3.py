@@ -179,6 +179,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-ethpm
+      WEB3_INFURA_PROJECT_ID: 4f1a358967c7474aae6f8f4a7698aefc
 
   py36-integration-goethereum-ipc-1.7.2:
     <<: *geth_steps
@@ -285,6 +286,7 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-ethpm
+      WEB3_INFURA_PROJECT_ID: 4f1a358967c7474aae6f8f4a7698aefc
 
   py37-integration-goethereum-ipc-1.7.2:
     <<: *geth_steps

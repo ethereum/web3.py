@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from ethpm.backends.registry import (
@@ -13,6 +14,7 @@ def backend():
     return RegistryURIBackend()
 
 
+@pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
 def test_registry_uri_backend(backend):
     valid_uri = "erc1319://snakecharmers.eth:1/owned?version=1.0.0"
     expected_uri = 'ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW'
@@ -21,6 +23,7 @@ def test_registry_uri_backend(backend):
     assert backend.fetch_uri_contents(valid_uri) == expected_uri
 
 
+@pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
 def test_registry_uri_backend_raises_exception_for_non_mainnet_chains(backend):
     ropsten_uri = "erc1319://snakecharmers.eth:3/owned?version=1.0.0"
     with pytest.raises(CannotHandleURI, match="Currently only mainnet"):
