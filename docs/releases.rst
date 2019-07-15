@@ -4,6 +4,43 @@ Release Notes
 v5 Breaking Changes Summary
    See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
+v5.0.0-beta.3
+-------------
+Released July 15, 2019
+
+- Features
+
+  - Add eth_getProof support
+    - `#1185 <https://github.com/ethereum/web3.py/pull/1185>`_
+  - Implement web3.pm.get_local_package()
+    - `#1372 <https://github.com/ethereum/web3.py/pull/1372>`_
+  - Update registry URIs to support chain IDs
+    - `#1382 <https://github.com/ethereum/web3.py/pull/1382>`_
+  - Add error flags to ``event.processReceipt``
+    - `#1366 <https://github.com/ethereum/web3.py/pull/1366>`_
+
+- Bugfixes
+
+  - Remove full IDNA processing in favor of UTS46
+    - `#1364 <https://github.com/ethereum/web3.py/pull/1364>`_
+
+- Misc
+
+  - Migrate py-ethpm library to web3/ethpm
+    - `#1379 <https://github.com/ethereum/web3.py/pull/1379>`_
+  - Relax canonical address requirement in ethPM
+    - `#1380 <https://github.com/ethereum/web3.py/pull/1380>`_
+  - Replace ethPM's infura strategy with web3's native infura support
+    - `#1383 <https://github.com/ethereum/web3.py/pull/1383>`_
+  - Change ``combine_argument_formatters`` to ``apply_formatters_to_sequence``
+    - `#1360 <https://github.com/ethereum/web3.py/pull/1360>`_
+  - Move ``pytest.xfail`` instances to ``@pytest.mark.xfail``
+    - `#1376 <https://github.com/ethereum/web3.py/pull/1376>`_
+  - Change ``net.version`` to ``eth.chainId`` in default
+    transaction params
+    - `#1378 <https://github.com/ethereum/web3.py/pull/1378>`_
+
+
 v5.0.0-beta.2
 -------------
 Released May 13, 2019
