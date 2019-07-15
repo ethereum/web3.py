@@ -47,7 +47,7 @@ def validate_registry_uri(uri: str) -> None:
     Raise an exception if the URI does not conform to the registry URI scheme.
     """
     parsed = parse.urlparse(uri)
-    scheme, authority, pkg_name, query = (
+    scheme, authority, pkg_path, version = (
         parsed.scheme,
         parsed.netloc,
         parsed.path,
@@ -55,9 +55,13 @@ def validate_registry_uri(uri: str) -> None:
     )
     validate_registry_uri_scheme(scheme)
     validate_registry_uri_authority(authority)
-    if query:
-        validate_registry_uri_version(query)
-    validate_package_name(pkg_name[1:])
+    pkg_name = pkg_path.lstrip("/")
+    if pkg_name:
+        validate_package_name(pkg_name)
+    if not pkg_name and version:
+        raise ValidationError("Registry URIs cannot provide a version without a package name.")
+    if version:
+        validate_registry_uri_version(version)
 
 
 def validate_registry_uri_authority(auth: str) -> None:
@@ -75,7 +79,7 @@ def validate_registry_uri_authority(auth: str) -> None:
 
     if is_ens_domain(address) is False and not is_checksum_address(address):
         raise ValidationError(
-            f"{auth} is not a valid registry address. "
+            f"{address} is not a valid registry address. "
             "Please try again with a valid registry URI."
         )
 

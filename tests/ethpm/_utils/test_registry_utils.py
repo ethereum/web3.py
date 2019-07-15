@@ -11,7 +11,14 @@ from ethpm.validation.uri import (
 @pytest.mark.parametrize(
     "uri",
     (
-        ("erc1319://zeppelinos.eth:1/erc20/"),
+        # no package id in uri
+        ("erc1319://zeppelinos.eth:1"),
+        ("erc1319://zeppelinos.eth:1/"),
+        ("erc1319://packages.zeppelinos.eth:1"),
+        ("erc1319://packages.zeppelinos.eth:1/"),
+        ("erc1319://0xd3CdA913deB6f67967B99D67aCDFa1712C293601:1"),
+        ("erc1319://0xd3CdA913deB6f67967B99D67aCDFa1712C293601:1/"),
+        # with package id in uri
         ("erc1319://zeppelinos.eth:1/erc20/"),
         ("erc1319://zeppelinos.eth:1/erc20//"),
         ("erc1319://zeppelinos.eth:1/erc20?version=1.0.0"),
@@ -33,6 +40,8 @@ def test_is_registry_uri_validates(uri):
     "uri",
     (
         # invalid authority
+        ("erc1319://zeppelinos.eth"),
+        ("erc1319://zeppelinos.eth/"),
         ("erc1319://zeppelinos.eth/erc20?version=1.0.0"),
         ("erc1319://zeppelinos.eth:333/erc20?version=1.0.0"),
         ("erc1319://packages.zeppelinos.com:1/erc20?version=1.0.0"),
@@ -40,10 +49,10 @@ def test_is_registry_uri_validates(uri):
         ("erc1319://packageszeppelinoseth:1/erc20?version=1.0.0"),
         ("erc1319://0xd3cda913deb6f67967b99d67acdfa1712c293601:1/erc20?version=1.0.0"),
         # invalid package name
-        ("erc1319://packages.zeppelinos.eth:1/"),
-        ("erc1319://packages.zeppelinos.eth:1///"),
         ("erc1319://packages.zeppelinos.eth:1/?version=1.0.0"),
+        ("erc1319://packages.zeppelinos.eth:1/?version=1.0.0/"),
         ("erc1319://packages.zeppelinos.eth:1/!rc20?version=1.0.0"),
+        ("erc1319://packages.zeppelinos.eth:1/!rc20?version=1.0.0/"),
         # invalid version param
         ("erc1319://zeppelinos.eth:1/erc20?versions=1.0.0"),
         ("erc1319://zeppelinos.eth:1/erc20?version1.0.0"),
