@@ -81,6 +81,8 @@ def parse_registry_uri(uri: str) -> RegistryURI:
     validate_registry_uri(uri)
     parsed_uri = parse.urlparse(uri)
     address, chain_id = parsed_uri.netloc.split(":")
-    pkg_name = parsed_uri.path.strip("/")
-    pkg_version = parsed_uri.query.lstrip("version=").strip("/")
+    parsed_name = parsed_uri.path.strip("/")
+    parsed_version = parsed_uri.query.lstrip("version=").strip("/")
+    pkg_name = parsed_name if parsed_name else None
+    pkg_version = parsed_version if parsed_version else None
     return RegistryURI(address, chain_id, pkg_name, pkg_version)
