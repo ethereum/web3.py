@@ -4,6 +4,29 @@ Release Notes
 v5 Breaking Changes Summary
    See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
+v5.0.0-beta.4
+-------------
+Released July 18,2019
+
+*This is intended to be the final release before the stable v5 release.*
+
+
+- Features
+
+  - [ethPM] Update registry uri to support basic uris w/o package id
+    - `#1389 <https://github.com/ethereum/web3.py/pull/1389>`_
+
+- Docs
+
+  - Clarify in docs the return of ``Eth.sendRawTransaction()`` as
+    a HexBytes object, not a string.
+    - `#1384 <https://github.com/ethereum/web3.py/pull/1384>`_
+
+- Misc
+
+  - [ethPM] Migrate tests over from pytest-ethereum
+    - `#1385 <https://github.com/ethereum/web3.py/pull/1385>`_
+
 v5.0.0-beta.3
 -------------
 Released July 15, 2019
