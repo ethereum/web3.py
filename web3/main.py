@@ -243,4 +243,5 @@ class Web3:
 
     def enable_unstable_package_management_api(self):
         from web3.pm import PM
-        PM.attach(self, '_pm')
+        if not hasattr(self, '_pm'):
+            PM.attach(self, '_pm')
