@@ -19,5 +19,7 @@ from .version_module import (  # noqa: F401
     VersionModuleTest,
 )
 from .parity_module import (  # noqa: F401
+    ParitySetModuleTest,
+    ParityTraceModuleTest,
     ParityModuleTest,
 )

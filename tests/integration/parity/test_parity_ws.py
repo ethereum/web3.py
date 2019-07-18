@@ -17,7 +17,9 @@ from web3._utils.module_testing import (
 from .common import (
     CommonParityShhModuleTest,
     ParityEthModuleTest,
+    ParityModuleTest,
     ParityPersonalModuleTest,
+    ParitySetModuleTest,
     ParityTraceModuleTest,
     ParityWeb3ModuleTest,
 )
@@ -104,6 +106,14 @@ class TestParityPersonalModuleTest(ParityPersonalModuleTest):
 
 
 class TestParityTraceModuleTest(ParityTraceModuleTest):
+    pass
+
+
+class TestParityModuleTest(ParityModuleTest):
+    pass
+
+
+class TestParitySetModuleTest(ParitySetModuleTest):
     pass
 
 

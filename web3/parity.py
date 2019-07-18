@@ -146,7 +146,7 @@ class Parity(Module):
             [mode]
         )
 
-    def getMode(self):
+    def mode(self):
         return self.web3.manager.request_blocking(
             "parity_mode",
             []
