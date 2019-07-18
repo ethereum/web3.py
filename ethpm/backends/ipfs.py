@@ -36,7 +36,7 @@ from ethpm.constants import (
 )
 from ethpm.exceptions import (
     CannotHandleURI,
-    ValidationError,
+    EthPMValidationError,
 )
 
 
@@ -82,7 +82,7 @@ class IPFSOverHTTPBackend(BaseIPFSBackend):
         contents = self.client.cat(ipfs_hash)
         validation_hash = generate_file_hash(contents)
         if validation_hash != ipfs_hash:
-            raise ValidationError(
+            raise EthPMValidationError(
                 f"Hashed IPFS contents retrieved from uri: {uri} do not match its content hash."
             )
         return contents

@@ -16,7 +16,7 @@ from ethpm import (
     SPEC_DIR,
 )
 from ethpm.exceptions import (
-    ValidationError,
+    EthPMValidationError,
 )
 
 MANIFEST_SCHEMA_PATH = SPEC_DIR / "package.spec.json"
@@ -37,18 +37,18 @@ def validate_meta_object(meta: Dict[str, Any], allow_extra_meta_fields: bool) ->
     for key, value in meta.items():
         if key in META_FIELDS:
             if type(value) is not META_FIELDS[key]:
-                raise ValidationError(
+                raise EthPMValidationError(
                     f"Values for {key} are expected to have the type {META_FIELDS[key]}, "
                     f"instead got {type(value)}."
                 )
         elif allow_extra_meta_fields:
             if key[:2] != "x-":
-                raise ValidationError(
+                raise EthPMValidationError(
                     "Undefined meta fields need to begin with 'x-', "
                     f"{key} is not a valid undefined meta field."
                 )
         else:
-            raise ValidationError(
+            raise EthPMValidationError(
                 f"{key} is not a permitted meta field. To allow undefined fields, "
                 "set `allow_extra_meta_fields` to True."
             )
@@ -77,7 +77,7 @@ def validate_manifest_against_schema(manifest: Dict[str, Any]) -> None:
     try:
         validate(manifest, schema_data)
     except jsonValidationError as e:
-        raise ValidationError(
+        raise EthPMValidationError(
             f"Manifest invalid for schema version {schema_data['version']}. "
             f"Reason: {e.message}"
         )
@@ -91,10 +91,10 @@ def check_for_deployments(manifest: Dict[str, Any]) -> bool:
 
 def validate_build_dependencies_are_present(manifest: Dict[str, Any]) -> None:
     if "build_dependencies" not in manifest:
-        raise ValidationError("Manifest doesn't have any build dependencies.")
+        raise EthPMValidationError("Manifest doesn't have any build dependencies.")
 
     if not manifest["build_dependencies"]:
-        raise ValidationError("Manifest's build dependencies key is empty.")
+        raise EthPMValidationError("Manifest's build dependencies key is empty.")
 
 
 def validate_manifest_deployments(manifest: Dict[str, Any]) -> None:
@@ -109,7 +109,7 @@ def validate_manifest_deployments(manifest: Dict[str, Any]) -> None:
             all_contract_types
         )
         if missing_contract_types:
-            raise ValidationError(
+            raise EthPMValidationError(
                 f"Manifest missing references to contracts: {missing_contract_types}."
             )
 
@@ -119,14 +119,14 @@ def validate_manifest_exists(manifest_id: str) -> None:
     Validate that manifest with manifest_id exists in ASSETS_DIR
     """
     if not (ASSETS_DIR / manifest_id).is_file():
-        raise ValidationError(
+        raise EthPMValidationError(
             f"Manifest not found in ASSETS_DIR with id: {manifest_id}"
         )
 
 
 def validate_raw_manifest_format(raw_manifest: str) -> None:
     """
-    Raise a ValidationError if a manifest ...
+    Raise a EthPMValidationError if a manifest ...
     - is not tightly packed (i.e. no linebreaks or extra whitespace)
     - does not have alphabetically sorted keys
     - has duplicate keys
@@ -143,7 +143,7 @@ def validate_raw_manifest_format(raw_manifest: str) -> None:
         )
     compact_manifest = json.dumps(manifest_dict, sort_keys=True, separators=(",", ":"))
     if raw_manifest != compact_manifest:
-        raise ValidationError(
+        raise EthPMValidationError(
             "The manifest appears to be malformed. Please ensure that it conforms to the "
             "EthPM-Spec for document format. "
             "http://ethpm.github.io/ethpm-spec/package-spec.html#document-format "

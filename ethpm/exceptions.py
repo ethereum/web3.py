@@ -14,7 +14,7 @@ class InsufficientAssetsError(PyEthPMError):
     pass
 
 
-class ValidationError(PyEthPMError):
+class EthPMValidationError(PyEthPMError):
     """
     Raised when something does not pass a validation check.
     """

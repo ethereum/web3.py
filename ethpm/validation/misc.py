@@ -1,5 +1,5 @@
 from ethpm.exceptions import (
-    ValidationError,
+    EthPMValidationError,
 )
 from web3 import Web3
 
@@ -17,7 +17,7 @@ def validate_empty_bytes(offset: int, length: int, bytecode: bytes) -> None:
     slot_length = offset + length
     slot = bytecode[offset:slot_length]
     if slot != bytearray(length):
-        raise ValidationError(
+        raise EthPMValidationError(
             f"Bytecode segment: [{offset}:{slot_length}] is not comprised of empty bytes, "
             f"rather: {slot}."
         )

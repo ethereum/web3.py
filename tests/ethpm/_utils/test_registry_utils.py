@@ -1,7 +1,7 @@
 import pytest
 
 from ethpm.exceptions import (
-    ValidationError,
+    EthPMValidationError,
 )
 from ethpm.validation.uri import (
     validate_registry_uri,
@@ -77,5 +77,5 @@ def test_is_registry_uri_validates(uri):
     ),
 )
 def test_is_registry_uri_raises_exception_for_invalid_uris(uri):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         validate_registry_uri(uri)

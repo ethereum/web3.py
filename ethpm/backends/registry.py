@@ -17,7 +17,7 @@ from ethpm.backends.base import (
 )
 from ethpm.exceptions import (
     CannotHandleURI,
-    ValidationError,
+    EthPMValidationError,
 )
 from ethpm.validation.uri import (
     validate_registry_uri,
@@ -68,7 +68,7 @@ def is_valid_registry_uri(uri: str) -> bool:
     """
     try:
         validate_registry_uri(uri)
-    except ValidationError:
+    except EthPMValidationError:
         return False
     else:
         return True
