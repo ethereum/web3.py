@@ -35,9 +35,6 @@ from ethpm._utils.deployments import (
     validate_deployments_tx_receipt,
     validate_linked_references,
 )
-from ethpm.contract import (
-    LinkableContract,
-)
 from ethpm.dependencies import (
     Dependencies,
 )
@@ -45,7 +42,6 @@ from ethpm.deployments import (
     Deployments,
 )
 from ethpm.exceptions import (
-    BytecodeLinkingError,
     FailureToFetchIPFSAssetsError,
     InsufficientAssetsError,
     PyEthPMError,
@@ -75,6 +71,9 @@ from web3 import Web3
 from web3._utils.validation import (
     validate_address,
 )
+from web3.exceptions import (
+    BytecodeLinkingError,
+)
 from web3.eth import (
     Contract,
 )
@@ -99,7 +98,6 @@ class Package(object):
         validate_w3_instance(w3)
 
         self.w3 = w3
-        self.w3.eth.defaultContractFactory = LinkableContract
         self.manifest = manifest
         self._uri = uri
 
@@ -225,9 +223,7 @@ class Package(object):
            Owned = OwnedPackage.get_contract_factory('owned')
 
         In cases where a contract uses a library, the contract factory will have
-        unlinked bytecode. The ``ethpm`` package ships with its own subclass of
-        ``web3.contract.Contract``, ``ethpm.contract.LinkableContract`` with a few extra
-        methods and properties related to bytecode linking.
+        unlinked bytecode. 
 
         .. code:: python
 

@@ -38,14 +38,6 @@ class FailureToFetchIPFSAssetsError(PyEthPMError):
     pass
 
 
-class BytecodeLinkingError(PyEthPMError):
-    """
-    Raised when an attempt to link a contract factory's bytecode failed.
-    """
-
-    pass
-
-
 class ManifestBuildingError(PyEthPMError):
     """
     Raised when an attempt to build a manifest failed.

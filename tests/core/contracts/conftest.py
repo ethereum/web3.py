@@ -1,3 +1,4 @@
+import copy
 import functools
 import json
 import pytest
@@ -6,6 +7,13 @@ from eth_utils import (
     event_signature_to_log_topic,
 )
 
+from ethpm import (
+    Package,
+)
+from ethpm.tools import (
+    get_manifest as get_manifest_tool,
+)
+from web3 import Web3
 from web3._utils.module_testing.event_contract import (
     EVNT_CONTRACT_ABI,
     EVNT_CONTRACT_CODE,
@@ -900,3 +908,70 @@ def estimateGas(request):
 @pytest.fixture
 def buildTransaction(request):
     return functools.partial(invoke_contract, api_call_desig='buildTransaction')
+
+#
+# test contract linking
+#
+#
+
+PACKAGE_NAMES = [
+    ("escrow", "1.0.3.json"),
+    ("owned", "1.0.0.json"),
+    ("piper-coin", "1.0.0.json"),
+    ("safe-math-lib", "1.0.0.json"),
+    ("standard-token", "1.0.0.json"),
+    ("transferable", "1.0.0.json"),
+    ("wallet-with-send", "1.0.0.json"),
+    ("wallet", "1.0.0.json"),
+]
+
+
+def fetch_manifest(name, version):
+    return get_manifest_tool(name, version)
+
+
+MANIFESTS = {name: fetch_manifest(name, version) for name, version in PACKAGE_NAMES}
+
+
+@pytest.fixture
+def w3():
+    w3 = Web3(Web3.EthereumTesterProvider())
+    w3.eth.defaultAccount = w3.eth.accounts[0]
+    return w3
+
+
+@pytest.fixture
+def get_manifest():
+    def _get_manifest(name):
+        return copy.deepcopy(MANIFESTS[name])
+
+    return _get_manifest
+
+
+ESCROW_DEPLOYMENT_BYTECODE = {
+    "bytecode": "0x60806040526040516020806102a8833981016040525160008054600160a060020a0319908116331790915560018054600160a060020a0390931692909116919091179055610256806100526000396000f3006080604052600436106100565763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166366d003ac811461005b57806367e404ce1461008c57806369d89575146100a1575b600080fd5b34801561006757600080fd5b506100706100b8565b60408051600160a060020a039092168252519081900360200190f35b34801561009857600080fd5b506100706100c7565b3480156100ad57600080fd5b506100b66100d6565b005b600154600160a060020a031681565b600054600160a060020a031681565b600054600160a060020a031633141561019857600154604080517f9341231c000000000000000000000000000000000000000000000000000000008152600160a060020a039092166004830152303160248301525173000000000000000000000000000000000000000091639341231c916044808301926020929190829003018186803b15801561016657600080fd5b505af415801561017a573d6000803e3d6000fd5b505050506040513d602081101561019057600080fd5b506102289050565b600154600160a060020a031633141561005657600054604080517f9341231c000000000000000000000000000000000000000000000000000000008152600160a060020a039092166004830152303160248301525173000000000000000000000000000000000000000091639341231c916044808301926020929190829003018186803b15801561016657600080fd5b5600a165627a7a723058201766d3411ff91d047cf900369478c682a497a6e560cd1b2fe4d9f2d6fe13b4210029",  # noqa: E501
+    "link_references": [{"offsets": [383, 577], "length": 20, "name": "SafeSendLib"}],
+}
+
+
+@pytest.fixture
+def escrow_manifest(get_manifest):
+    escrow_manifest = get_manifest("escrow")
+    escrow_manifest["contract_types"]["Escrow"][
+        "deployment_bytecode"
+    ] = ESCROW_DEPLOYMENT_BYTECODE
+    return escrow_manifest
+
+
+@pytest.fixture
+def get_factory(get_manifest, escrow_manifest, w3):
+    def _get_factory(package, factory_name):
+        manifest = get_manifest(package)
+        # Special case to fetch escrow manifest with added deployment bytecode
+        if package == "escrow":
+            manifest = escrow_manifest
+        Pkg = Package(manifest, w3)
+        factory = Pkg.get_contract_factory(factory_name)
+        return factory
+
+    return _get_factory

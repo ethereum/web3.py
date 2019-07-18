@@ -7,16 +7,16 @@ from eth_utils import (
 from ethpm import (
     Package,
 )
-from ethpm.contract import (
-    LinkableContract,
-    apply_all_link_refs,
-)
-from ethpm.exceptions import (
-    BytecodeLinkingError,
-)
 from web3.contract import (
+    apply_all_link_refs,
     Contract,
+    validate_empty_bytes,
 )
+from web3.exceptions import (
+    BytecodeLinkingError,
+    ValidationError,
+)
+
 
 
 @pytest.mark.parametrize(
@@ -44,9 +44,8 @@ def test_linkable_contract_class_handles_link_refs(
     factory = get_factory(package, factory)
     assert factory.needs_bytecode_linking is True
     linked_factory = factory.link_bytecode(attr_dict)
-    assert issubclass(LinkableContract, Contract)
-    assert issubclass(factory, LinkableContract)
-    assert issubclass(linked_factory, LinkableContract)
+    assert issubclass(factory, Contract)
+    assert issubclass(linked_factory, Contract)
     assert factory.needs_bytecode_linking is True
     assert linked_factory.needs_bytecode_linking is False
     # Can't link a factory that's already linked
@@ -179,3 +178,30 @@ def test_unlinked_factory_cannot_be_deployed(get_factory):
     assert escrow.needs_bytecode_linking
     with pytest.raises(BytecodeLinkingError):
         escrow.constructor("0x4F5B11c860b37b68DE6D14Fb7e7b5f18A9A1bdC0").transact()
+
+
+@pytest.mark.parametrize(
+    "offset,length,bytecode",
+    (
+        (0, 3, b"\00\00\00"),
+        (1, 20, b"\01" + bytearray(20) + b"\01"),
+        (26, 20, b"\01" + bytearray(20) + b"\01" * 5 + bytearray(20) + b"\01"),
+    ),
+)
+def test_validate_empty_bytes(offset, length, bytecode):
+    result = validate_empty_bytes(offset, length, bytecode)
+    assert result is None
+
+
+@pytest.mark.parametrize(
+    "offset,length,bytecode",
+    (
+        (0, 2, b"\00"),
+        (0, 3, b"\01\01\01"),
+        (1, 1, b"\00\01\00\01"),
+        (1, 20, bytearray(20) + b"\01"),
+    ),
+)
+def test_validate_empty_bytes_invalidates(offset, length, bytecode):
+    with pytest.raises(ValidationError):
+        validate_empty_bytes(offset, length, bytecode)

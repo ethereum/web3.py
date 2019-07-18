@@ -165,3 +165,11 @@ class InvalidEventABI(ValueError):
     Raised when the event ABI is invalid.
     """
     pass
+
+
+
+class BytecodeLinkingError(Exception):
+    """
+    Raised when an attempt to link a contract factory's bytecode failed.
+    """
+    pass

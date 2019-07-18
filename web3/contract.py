@@ -1,8 +1,16 @@
-"""Interaction with smart contracts over Web3 connector.
-
+"""
+Interaction with smart contracts over Web3 connector.
 """
 import copy
 import itertools
+from typing import (
+    Any,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Type,
+)
 import warnings
 
 from eth_abi import (
@@ -15,16 +23,25 @@ from eth_utils import (
     add_0x_prefix,
     encode_hex,
     function_abi_to_4byte_selector,
+    is_canonical_address,
     is_list_like,
     is_text,
+    to_bytes,
+    to_canonical_address,
     to_tuple,
 )
 from eth_utils.toolz import (
+    assoc,
     compose,
+    curry,
     partial,
+    pipe,
 )
 from hexbytes import (
     HexBytes,
+)
+from web3.exceptions import (
+    BytecodeLinkingError,
 )
 
 from web3._utils.abi import (
@@ -82,6 +99,9 @@ from web3._utils.normalizers import (
 from web3._utils.transactions import (
     fill_transaction_defaults,
 )
+from web3._utils.validation import (
+    validate_address,
+)
 from web3.datastructures import (
     AttributeDict,
     MutableAttributeDict,
@@ -110,7 +130,8 @@ ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 
 class ContractFunctions:
-    """Class containing contract function objects
+    """
+    Class containing contract function objects
     """
 
     def __init__(self, abi, web3, address=None):
@@ -161,7 +182,8 @@ class ContractFunctions:
 
 
 class ContractEvents:
-    """Class containing contract event objects
+    """
+    Class containing contract event objects
 
     This is available via:
 
@@ -214,7 +236,8 @@ class ContractEvents:
         return getattr(self, event_name)
 
     def __iter__(self):
-        """Iterate over supported
+        """
+        Iterate over supported
 
         :return: Iterable of :class:`ContractEvent`
         """
@@ -223,7 +246,8 @@ class ContractEvents:
 
 
 class Contract:
-    """Base class for Contract proxy classes.
+    """
+    Base class for Contract proxy classes.
 
     First you need to create your Contract classes using
     :meth:`web3.eth.Eth.contract` that takes compiled Solidity contract
@@ -269,8 +293,14 @@ class Contract:
     src_map_runtime = None
     user_doc = None
 
+    # bytecode linking properties
+    unlinked_references: Optional[Tuple[Dict[str, Any]]] = None
+    linked_references: Optional[Tuple[Dict[str, Any]]] = None
+    needs_bytecode_linking = None
+
     def __init__(self, address=None):
-        """Create a new smart contract proxy object.
+        """
+        Create a new smart contract proxy object.
 
         :param address: Contract address as 0x hex string
         """
@@ -286,6 +316,11 @@ class Contract:
         if not self.address:
             raise TypeError("The address argument is required to instantiate a contract.")
 
+        if self.needs_bytecode_linking:
+            raise BytecodeLinkingError(
+                "Contract cannot be instantiated until its bytecode is linked."
+            )
+
         self.functions = ContractFunctions(self.abi, self.web3, self.address)
         self.caller = ContractCaller(self.abi, self.web3, self.address)
         self.events = ContractEvents(self.abi, self.web3, self.address)
@@ -293,12 +328,24 @@ class Contract:
 
     @classmethod
     def factory(cls, web3, class_name=None, **kwargs):
+        # bytecode linking
+        dep_link_refs = kwargs.get("unlinked_references")
+        bytecode = kwargs.get("bytecode")
+        needs_bytecode_linking = False
 
-        kwargs['web3'] = web3
+        # only works w/ ethpm.Package
+        if dep_link_refs and bytecode:
+            if not is_prelinked_bytecode(to_bytes(hexstr=bytecode), dep_link_refs):
+                needs_bytecode_linking = True
+
+        updated_kwargs = assoc(kwargs, "needs_bytecode_linking", needs_bytecode_linking)
+
+        # before 
+        updated_kwargs['web3'] = web3
 
         normalizers = {
             'abi': normalize_abi,
-            'address': partial(normalize_address, kwargs['web3'].ens),
+            'address': partial(normalize_address, updated_kwargs['web3'].ens),
             'bytecode': normalize_bytecode,
             'bytecode_runtime': normalize_bytecode,
         }
@@ -306,7 +353,7 @@ class Contract:
         contract = PropertyCheckingFactory(
             class_name or cls.__name__,
             (cls,),
-            kwargs,
+            updated_kwargs,
             normalizers=normalizers,
         )
         contract.functions = ContractFunctions(contract.abi, contract.web3)
@@ -315,6 +362,58 @@ class Contract:
         contract.fallback = Contract.get_fallback_function(contract.abi, contract.web3)
 
         return contract
+    
+    @classmethod
+    def link_bytecode(cls, attr_dict: Dict[str, str]) -> Type["LinkableContract"]:
+        """
+        Return a cloned contract factory with the deployment / runtime bytecode linked.
+
+        :attr_dict: Dict[`ContractType`: `Address`] for all deployment and runtime link references.
+        """
+        if not cls.unlinked_references and not cls.linked_references:
+            raise BytecodeLinkingError("Contract factory has no linkable bytecode.")
+        if not cls.needs_bytecode_linking:
+            raise BytecodeLinkingError(
+                "Bytecode for this contract factory does not require bytecode linking."
+            )
+        cls.validate_attr_dict(attr_dict)
+        bytecode = apply_all_link_refs(cls.bytecode, cls.unlinked_references, attr_dict)
+        runtime = apply_all_link_refs(
+            cls.bytecode_runtime, cls.linked_references, attr_dict
+        )
+        linked_class = cls.factory(
+            cls.web3, bytecode_runtime=runtime, bytecode=bytecode
+        )
+        if linked_class.needs_bytecode_linking:
+            raise BytecodeLinkingError(
+                "Expected class to be fully linked, but class still needs bytecode linking."
+            )
+        return linked_class
+
+    @combomethod
+    def validate_attr_dict(self, attr_dict: Dict[str, str]) -> None:
+        """
+        Validates that ContractType keys in attr_dict reference existing manifest ContractTypes.
+        """
+        attr_dict_names = list(attr_dict.keys())
+
+        if not self.unlinked_references and not self.linked_references:
+            raise BytecodeLinkingError(
+                "Unable to validate attr dict, this contract has no linked/unlinked references."
+            )
+
+        unlinked_refs = self.unlinked_references or ({},)
+        linked_refs = self.linked_references or ({},)
+        all_link_refs = unlinked_refs + linked_refs
+
+        all_link_names = [ref["name"] for ref in all_link_refs if ref]
+        if set(attr_dict_names) != set(all_link_names):
+            raise BytecodeLinkingError(
+                "All link references must be defined when calling "
+                "`link_bytecode` on a contract factory."
+            )
+        for address in attr_dict.values():
+            validate_address(address)
 
     #
     # Contract Methods
@@ -330,6 +429,11 @@ class Contract:
             raise ValueError(
                 "Cannot call constructor on a contract that does not have 'bytecode' associated "
                 "with it"
+            )
+
+        if cls.needs_bytecode_linking:
+            raise BytecodeLinkingError(
+                "Contract cannot be deployed until its bytecode is linked."
             )
 
         return ContractConstructor(cls.web3,
@@ -970,7 +1074,8 @@ class ContractFunction:
 
 
 class ContractEvent:
-    """Base class for contract events
+    """
+    Base class for contract events
 
     An event accessed via the api contract.events.myEvents(*args, **kwargs)
     is a subclass of this class.
@@ -1102,7 +1207,8 @@ class ContractEvent:
                 fromBlock=None,
                 toBlock=None,
                 blockHash=None):
-        """Get events for this contract instance using eth_getLogs API.
+        """
+        Get events for this contract instance using eth_getLogs API.
 
         This is a stateless method, as opposed to createFilter.
         It can be safely called against nodes which do not provide
@@ -1439,7 +1545,8 @@ def estimate_gas_for_function(
         fn_abi=None,
         *args,
         **kwargs):
-    """Estimates gas cost a function call would take.
+    """
+    Estimates gas cost a function call would take.
 
     Don't call this directly, instead use :meth:`Contract.estimateGas`
     on your contract instance.
@@ -1468,7 +1575,8 @@ def build_transaction_for_function(
         fn_abi=None,
         *args,
         **kwargs):
-    """Builds a dictionary with the fields required to make the given transaction
+    """
+    Builds a dictionary with the fields required to make the given transaction
 
     Don't call this directly, instead use :meth:`Contract.buildTransaction`
     on your contract instance.
@@ -1516,3 +1624,65 @@ def get_function_by_identifier(fns, identifier):
             'Could not find any function with matching {0}'.format(identifier)
         )
     return fns[0]
+
+
+def apply_all_link_refs(
+    bytecode: bytes, link_refs: List[Dict[str, Any]], attr_dict: Dict[str, str]
+) -> bytes:
+    """
+    Applies all link references corresponding to a valid attr_dict to the bytecode.
+    """
+    if link_refs is None:
+        return bytecode
+    link_fns = (
+        apply_link_ref(offset, ref["length"], attr_dict[ref["name"]])
+        for ref in link_refs
+        for offset in ref["offsets"]
+    )
+    linked_bytecode = pipe(bytecode, *link_fns)
+    return linked_bytecode
+
+
+@curry
+def apply_link_ref(offset: int, length: int, value: bytes, bytecode: bytes) -> bytes:
+    """
+    Returns the new bytecode with `value` put into the location indicated by `offset` and `length`.
+    """
+    try:
+        validate_empty_bytes(offset, length, bytecode)
+    except ValidationError:
+        raise BytecodeLinkingError("Link references cannot be applied to bytecode")
+
+    address = value if is_canonical_address(value) else to_canonical_address(value)
+    new_bytes = (
+        # Ignore linting error b/c conflict b/w black & flake8
+        bytecode[:offset] + address + bytecode[offset + length:]  # noqa: E201, E203
+    )
+    return new_bytes
+
+def is_prelinked_bytecode(bytecode: bytes, link_refs: List[Dict[str, Any]]) -> bool:
+    """
+    Returns False if all expected link_refs are unlinked, otherwise returns True.
+    todo support partially pre-linked bytecode (currently all or nothing)
+    """
+    for link_ref in link_refs:
+        for offset in link_ref["offsets"]:
+            try:
+                validate_empty_bytes(offset, link_ref["length"], bytecode)
+            except ValidationError:
+                return True
+    return False
+
+
+def validate_empty_bytes(offset: int, length: int, bytecode: bytes) -> None:
+    """
+    Validates that segment [`offset`:`offset`+`length`] of
+    `bytecode` is comprised of empty bytes (b'\00').
+    """
+    slot_length = offset + length
+    slot = bytecode[offset:slot_length]
+    if slot != bytearray(length):
+        raise ValidationError(
+            f"Bytecode segment: [{offset}:{slot_length}] is not comprised of empty bytes, "
+            f"rather: {slot}."
+        )

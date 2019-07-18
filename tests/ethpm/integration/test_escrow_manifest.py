@@ -9,7 +9,7 @@ from ethpm import (
     ASSETS_DIR,
     Package,
 )
-from ethpm.exceptions import (
+from web3.exceptions import (
     BytecodeLinkingError,
 )
 import web3

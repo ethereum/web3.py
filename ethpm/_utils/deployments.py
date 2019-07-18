@@ -16,8 +16,10 @@ from eth_utils.toolz import (
 )
 
 from ethpm.exceptions import (
-    BytecodeLinkingError,
     ValidationError,
+)
+from web3.exceptions import (
+    BytecodeLinkingError,
 )
 from web3 import Web3
 

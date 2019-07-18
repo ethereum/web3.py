@@ -14,9 +14,6 @@ from ethpm import (
     ASSETS_DIR,
     Package,
 )
-from ethpm.contract import (
-    LinkableContract,
-)
 from web3 import Web3
 from web3.pm import (
     SolidityReferenceRegistry,
@@ -54,7 +51,6 @@ def setup_w3():
     t = EthereumTester(backend=pyevm_backend)
     w3 = Web3(Web3.EthereumTesterProvider(ethereum_tester=t))
     w3.eth.defaultAccount = w3.eth.accounts[0]
-    w3.eth.defaultContractFactory = LinkableContract
     w3.enable_unstable_package_management_api()
     return w3
 

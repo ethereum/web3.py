@@ -9,14 +9,13 @@ from ethpm._utils.deployments import (
     normalize_linked_references,
     validate_linked_references,
 )
-from ethpm.contract import (
-    LinkableContract,
-)
 from ethpm.deployments import (
     Deployments,
 )
-from ethpm.exceptions import (
+from web3.exceptions import (
     BytecodeLinkingError,
+)
+from ethpm.exceptions import (
     ValidationError,
 )
 from web3.eth import (
@@ -155,7 +154,7 @@ def test_deployments_get_instance_with_contract_alias(safe_math_lib_package_with
 def test_deployments_get_instance_with_link_dependency(escrow_package):
     deployments = escrow_package.deployments
     escrow_deployment = deployments.get_instance("Escrow")
-    assert isinstance(escrow_deployment, LinkableContract)
+    assert isinstance(escrow_deployment, Contract)
     assert not escrow_deployment.needs_bytecode_linking
 
 
