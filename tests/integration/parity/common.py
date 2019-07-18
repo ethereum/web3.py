@@ -6,8 +6,10 @@ from flaky import (
 
 from web3._utils.module_testing import (  # noqa: F401
     EthModuleTest,
-    ParityModuleTest as TraceModuleTest,
+    ParityModuleTest,
     ParityPersonalModuleTest,
+    ParitySetModuleTest,
+    ParityTraceModuleTest,
     Web3ModuleTest,
 )
 from web3._utils.module_testing.eth_module import (
@@ -178,7 +180,15 @@ class ParityEthModuleTest(EthModuleTest):
         )
 
 
-class ParityTraceModuleTest(TraceModuleTest):
+class ParityTraceModuleTest(ParityTraceModuleTest):
+    pass
+
+
+class ParitySetModuleTest(ParitySetModuleTest):
+    pass
+
+
+class ParityModuleTest(ParityModuleTest):
     pass
 
 

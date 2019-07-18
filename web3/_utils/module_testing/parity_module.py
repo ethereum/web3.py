@@ -9,11 +9,7 @@ from web3._utils.formatters import (
 )
 
 
-class ParityModuleTest:
-
-    def test_list_storage_keys_no_support(self, web3, emitter_contract_address):
-        keys = web3.parity.listStorageKeys(emitter_contract_address, 10, None)
-        assert keys is None
+class ParityTraceModuleTest:
 
     def test_trace_replay_transaction(self, web3, parity_fixture_data):
         trace = web3.parity.traceReplayTransaction(parity_fixture_data['mined_txn_hash'])
@@ -92,6 +88,39 @@ class ParityModuleTest:
         assert isinstance(trace, list)
         assert trace[0]['action']['from'] == add_0x_prefix(parity_fixture_data['coinbase'])
 
+
+class ParityModuleTest:
+
     def test_add_reserved_peer(self, web3):
         peer_addr = 'enode://f1a6b0bdbf014355587c3018454d070ac57801f05d3b39fe85da574f002a32e929f683d72aa5a8318382e4d3c7a05c9b91687b0d997a39619fb8a6e7ad88e512@1.1.1.1:30300'  # noqa: E501
         assert web3.parity.addReservedPeer(peer_addr)
+
+    def test_list_storage_keys_no_support(self, web3, emitter_contract_address):
+        keys = web3.parity.listStorageKeys(emitter_contract_address, 10, None)
+        assert keys is None
+
+    def test_mode(self, web3):
+        assert web3.parity.mode() is not None
+
+
+class ParitySetModuleTest:
+
+    @pytest.mark.parametrize(
+        'mode',
+        [
+            ('dark'),
+            ('offline'),
+            ('active'),
+            ('passive'),
+        ]
+    )
+    def test_set_mode(self, web3, mode):
+        assert web3.parity.setMode(mode) is True
+
+    def test_set_mode_with_bad_string(self, web3):
+        with pytest.raises(ValueError, match="Couldn't parse parameters: mode"):
+            web3.parity.setMode('not a mode')
+
+    def test_set_mode_with_no_argument(self, web3):
+        with pytest.raises(TypeError, match='missing 1 required positional argument'):
+            web3.parity.setMode()
