@@ -15,7 +15,6 @@ from eth_utils import (
     is_list_like,
     is_same_address,
     is_string,
-    to_int,
 )
 from hexbytes import (
     HexBytes,
@@ -70,7 +69,7 @@ class EthModuleTest:
     def test_eth_chainId(self, web3):
         chain_id = web3.eth.chainId
         # chain id value from geth fixture genesis file
-        assert to_int(hexstr=chain_id) == 131277322940537
+        assert chain_id == 131277322940537
 
     def test_eth_gasPrice(self, web3):
         gas_price = web3.eth.gasPrice
