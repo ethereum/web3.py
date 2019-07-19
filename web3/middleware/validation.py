@@ -29,14 +29,14 @@ is_not_null = complement(is_null)
 
 @curry
 def validate_chain_id(web3, chain_id):
-    if int(chain_id) == int(web3.eth.chainId, 16):
+    if int(chain_id) == web3.eth.chainId:
         return chain_id
     else:
         raise ValidationError(
             "The transaction declared chain ID %r, "
             "but the connected node is on %r" % (
                 chain_id,
-                int(web3.eth.chainId, 16),
+                web3.eth.chainId,
             )
         )
 
