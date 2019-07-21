@@ -109,7 +109,7 @@ pytest -n 4 -f --maxfail=1
 
 2. Execute `tox` for the tests
 
-There are multiple [components](https://github.com/ethereum/web3.py/blob/master/.travis.yml#L53) of the tests. You can run test to against specific component. For example:
+There are multiple [components](https://github.com/ethereum/web3.py/blob/master/.circleci/config.yml#L144) of the tests. You can run test to against specific component. For example:
 
 ```sh
 # Run Tests for the Core component (for Python 3.5):
