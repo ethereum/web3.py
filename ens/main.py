@@ -11,6 +11,7 @@ from ens.constants import (
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
+    UnknownNetwork,
     AddressMismatch,
     UnauthorizedError,
     UnownedName,
@@ -46,6 +47,11 @@ def get_address_for_network(net):
         return ENS_RINKEBY_ADDR
     elif version == 5:
         return ENS_GOERLI_ADDR
+    else:
+        raise UnknownNetwork(
+            "ENS is not available on the current network by default. "
+            "You need to manually set the `addr` parameter to the registry's address."
+        )
 
 
 class ENS:
