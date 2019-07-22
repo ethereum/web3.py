@@ -1,6 +1,14 @@
 import idna
 
 
+class UnknownNetwork(Exception):
+    """
+    ENS is pre-configured only on some public networks. In order to use it
+    in local networks, users need to specify registry address manually.
+    """
+    pass
+
+
 class AddressMismatch(ValueError):
     """
     In order to set up reverse resolution correctly, the ENS name should first
