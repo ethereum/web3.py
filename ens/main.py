@@ -11,9 +11,9 @@ from ens.constants import (
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
-    UnknownNetwork,
     AddressMismatch,
     UnauthorizedError,
+    UnknownNetwork,
     UnownedName,
 )
 from ens.utils import (
@@ -37,7 +37,7 @@ ENS_GOERLI_ADDR = '0x112234455c3a32fd11230c42e7bccd4a84e02010'
 
 
 def get_address_for_network(net):
-    version = net.version
+    version = int(net.version)
 
     if version == 1:
         return ENS_MAINNET_ADDR
@@ -76,6 +76,7 @@ class ENS:
         :type provider: instance of `web3.providers.base.BaseProvider`
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
+        :raises UnknownNetwork: if network is unknown
         """
         self.web3 = init_web3(provider)
 
