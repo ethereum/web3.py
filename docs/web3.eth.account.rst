@@ -273,6 +273,9 @@ To sign a transaction locally that will invoke a smart contract:
 
 .. doctest::
 
+    # When running locally, execute the statements found in the file linked below to load the EIP20_ABI variable.
+    # See: https://github.com/carver/ethtoken.py/blob/v0.0.1-alpha.4/ethtoken/abi.py
+
     >>> from web3.auto import w3
 
     >>> unicorns = w3.eth.contract(address="0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359", abi=EIP20_ABI)
