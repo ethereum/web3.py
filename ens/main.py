@@ -30,6 +30,22 @@ from ens.utils import (
 )
 
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
+ENS_ROPSTEN_ADDR = '0x112234455c3a32fd11230c42e7bccd4a84e02010'
+ENS_RINKEBY_ADDR = '0xe7410170f87102df0055eb195163a03b7f2bff4a'
+ENS_GOERLI_ADDR = '0x112234455c3a32fd11230c42e7bccd4a84e02010'
+
+
+def get_address_for_network(net):
+    version = net.version
+
+    if version == 1:
+        return ENS_MAINNET_ADDR
+    elif version == 3:
+        return ENS_ROPSTEN_ADDR
+    elif version == 4:
+        return ENS_RINKEBY_ADDR
+    elif version == 5:
+        return ENS_GOERLI_ADDR
 
 
 class ENS:
@@ -57,7 +73,7 @@ class ENS:
         """
         self.web3 = init_web3(provider)
 
-        ens_addr = addr if addr else ENS_MAINNET_ADDR
+        ens_addr = addr if addr else get_address_for_network(net=self.web3.net)
         self.ens = self.web3.eth.contract(abi=abis.ENS, address=ens_addr)
         self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
 
