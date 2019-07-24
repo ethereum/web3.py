@@ -10,7 +10,6 @@ from typing import (
     Any,
     Dict,
     Iterable,
-    List,
     NewType,
     Tuple,
 )
@@ -23,7 +22,6 @@ from eth_typing import (
 from eth_utils import (
     is_canonical_address,
     is_checksum_address,
-    to_bytes,
     to_checksum_address,
     to_text,
     to_tuple,
@@ -77,13 +75,13 @@ TxReceipt = NewType("TxReceipt", Dict[str, Any])
 # <web3.pm.PM at 0x....>
 
 
-class ERCRegistry(ABC):
+class ERC1319Registry(ABC):
     """
-    The ERCRegistry class is a base class for all registry implementations to inherit from. It
+    The ERC1319Registry class is a base class for all registry implementations to inherit from. It
     defines the methods specified in `ERC 1319 <https://github.com/ethereum/EIPs/issues/1319>`__.
     All of these methods are prefixed with an underscore, since they are not intended to be
     accessed directly, but rather through the methods on ``web3.pm``. They are unlikely to change,
-    but must be implemented in a `ERCRegistry` subclass in order to be compatible with the
+    but must be implemented in a `ERC1319Registry` subclass in order to be compatible with the
     `PM` module. Any custom methods (eg. not definied in ERC1319) in a subclass
     should *not* be prefixed with an underscore.
 
@@ -208,124 +206,25 @@ class ERCRegistry(ABC):
         """
         pass
 
-
-class VyperReferenceRegistry(ERCRegistry):
-    """
-    The ``VyperReferenceRegistry`` class implements all of the methods found in ``ERCRegistry``,
-    along with some custom methods included in the `implementation
-    <https://github.com/ethpm/py-ethpm/blob/master/ethpm/assets/vyper_registry/registry.vy>`__.
-    """
-
-    def __init__(self, address: Address, w3: Web3) -> None:
-        # todo: validate runtime bytecode
-        abi = get_vyper_registry_manifest()["contract_types"]["registry"]["abi"]
-        self.registry = w3.eth.contract(address=address, abi=abi)
-        self.address = to_checksum_address(address)
-        self.w3 = w3
-
-    @classmethod
-    def deploy_new_instance(cls, w3: Web3) -> "VyperReferenceRegistry":
+    @abstractmethod
+    def deploy_new_instance(cls, w3):
         """
-        Returns a new instance of ```VyperReferenceRegistry`` representing a freshly deployed
-        instance on the given ``web3`` instance of the Vyper Reference Registry implementation.
-        """
-        manifest = get_vyper_registry_manifest()
-        registry_package = Package(manifest, w3)
-        registry_factory = registry_package.get_contract_factory("registry")
-        tx_hash = registry_factory.constructor().transact()
-        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-        return cls(tx_receipt.contractAddress, w3)
-
-    def _release(self, package_name: str, version: str, manifest_uri: str) -> bytes:
-        if len(package_name) > 32 or len(version) > 32:
-            raise PMError(
-                "Vyper registry only works with package names and versions less than 32 chars."
-            )
-        if len(manifest_uri) > 1000:
-            raise PMError(
-                "Vyper registry only works with manifest URIs shorter than 1000 chars."
-            )
-        args = process_vyper_args(package_name, version, manifest_uri)
-        tx_hash = self.registry.functions.release(*args).transact()
-        self.w3.eth.waitForTransactionReceipt(tx_hash)
-        return self._get_release_id(package_name, version)
-
-    def _get_package_name(self, package_id: bytes) -> str:
-        package_name = self.registry.functions.getPackageName(package_id).call()
-        return to_text(package_name.rstrip(b"\x00"))
-
-    @to_tuple
-    def _get_all_package_ids(self) -> Iterable[Tuple[bytes]]:
-        num_packages = self._num_package_ids()
-        for index in range(0, num_packages, 4):
-            package_ids = self.registry.functions.getAllPackageIds(index, 5).call()
-            for package_id in package_ids:
-                if package_id != b"\x00" * 32:
-                    yield package_id
-
-    def _get_release_id(self, package_name: str, version: str) -> bytes:
-        actual_args = process_vyper_args(package_name, version)
-        return self.registry.functions.getReleaseId(*actual_args).call()
-
-    @to_tuple
-    def _get_all_release_ids(self, package_name: str) -> Iterable[Tuple[bytes]]:
-        actual_name = process_vyper_args(package_name)
-        num_releases = self.registry.functions.numReleaseIds(*actual_name).call()
-        for index in range(0, num_releases, 4):
-            release_ids = self.registry.functions.getAllReleaseIds(
-                *actual_name, index, 5
-            ).call()
-            for release_id in release_ids:
-                if release_id != b"\x00" * 32:
-                    yield release_id
-
-    @to_tuple
-    def _get_release_data(self, release_id: bytes) -> Iterable[Tuple[str]]:
-        release_data = self.registry.functions.getReleaseData(release_id).call()
-        for data in release_data:
-            if data != b"\x00" * 32:
-                yield to_text(data.rstrip(b"\x00"))
-
-    def _generate_release_id(self, package_name: str, version: str) -> bytes:
-        args = process_vyper_args(package_name, version)
-        return self.registry.functions.generateReleaseId(*args).call()
-
-    def _num_package_ids(self) -> int:
-        return self.registry.functions.numPackageIds().call()
-
-    def _num_release_ids(self, package_name: str) -> int:
-        args = process_vyper_args(package_name)
-        return self.registry.functions.numReleaseIds(*args).call()
-
-    def owner(self) -> Address:
-        """
-        Returns the address of the ``owner`` of this registry instance. Only the ``owner``
-        is allowed to add releases to the Vyper Reference Registry implementation.
-        """
-        return self.registry.functions.owner().call()
-
-    def transfer_owner(self, new_owner: Address) -> TxReceipt:
-        """
-        Transfers ownership of this registry instance to the given ``new_owner``. Only the
-        ``owner`` is allowed to transfer ownership.
+        Class method that returns a newly deployed instance of ERC1319Registry.
 
         * Parameters:
-            * ``new_owner``: The address of the new owner.
+            * ``w3``: Web3 instance on which to deploy the new registry.
         """
-        tx_hash = self.registry.functions.transferOwner(new_owner).transact()
-        return self.w3.eth.waitForTransactionReceipt(tx_hash)
+        pass
 
 
-class SolidityReferenceRegistry(ERCRegistry):
+class SimpleRegistry(ERC1319Registry):
     """
     This class represents an instance of the `Solidity Reference Registry implementation
-    <https://github.com/ethpm/py-ethpm/tree/master/ethpm/assets/registry>`__.
-    To use this subclass, you must manually set an instance of this class to the
-    ``registry`` attribute on ``web3.pm``.
+    <https://github.com/ethpm/solidity-registry>`__.
     """
 
     def __init__(self, address: Address, w3: Web3) -> None:
-        abi = get_solidity_registry_manifest()["contract_types"]["PackageRegistry"][
+        abi = get_simple_registry_manifest()["contract_types"]["PackageRegistry"][
             "abi"
         ]
         self.registry = w3.eth.contract(address=address, abi=abi)
@@ -385,12 +284,19 @@ class SolidityReferenceRegistry(ERCRegistry):
     def _num_release_ids(self, package_name: str) -> int:
         return self.registry.functions.numReleaseIds(package_name).call()
 
+    @classmethod
+    def deploy_new_instance(cls, w3):
+        manifest = get_simple_registry_manifest()
+        registry_package = Package(manifest, w3)
+        registry_factory = registry_package.get_contract_factory("PackageRegistry")
+        tx_hash = registry_factory.constructor().transact()
+        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+        return cls(tx_receipt.contractAddress, w3)
+
 
 class PM(Module):
     """
-    By default, the PM module uses the Vyper Reference Registry `implementation
-    <https://github.com/ethpm/py-ethpm/blob/master/ethpm/assets/vyper_registry/registry.vy>`__.
-    However, it will work with any subclass of ``ERCRegistry``, tailored to a particular
+    The PM module will work with any subclass of ``ERC1319Registry``, tailored to a particular
     implementation of `ERC1319  <https://github.com/ethereum/EIPs/issues/1319>`__, set as
     its ``registry`` attribute.
     """
@@ -448,17 +354,15 @@ class PM(Module):
         """
         Sets the current registry used in ``web3.pm`` functions that read/write to an on-chain
         registry. This method accepts checksummed/canonical addresses or ENS names. Addresses
-        must point to an instance of the Vyper Reference Registry implementation.
-        If you want to use a different registry implementation with ``web3.pm``, manually
-        set the ``web3.pm.registry`` attribute to any subclass of ``ERCRegistry``.
+        must point to an on-chain instance of an ERC1319 registry implementation.
 
         To use an ENS domain as the address, make sure a valid ENS instance set as ``web3.ens``.
 
         * Parameters:
-            * ``address``: Address of on-chain Vyper Reference Registry.
+            * ``address``: Address of on-chain Registry.
         """
         if is_canonical_address(address) or is_checksum_address(address):
-            self.registry = VyperReferenceRegistry(address, self.web3)
+            self.registry = SimpleRegistry(address, self.web3)
         elif is_ens_name(address):
             self._validate_set_ens()
             addr_lookup = self.web3.ens.address(address)
@@ -466,7 +370,7 @@ class PM(Module):
                 raise NameNotFound(
                     "No address found after ENS lookup for name: {0}.".format(address)
                 )
-            self.registry = VyperReferenceRegistry(addr_lookup, self.web3)
+            self.registry = SimpleRegistry(addr_lookup, self.web3)
         else:
             raise PMError(
                 "Expected a canonical/checksummed address or ENS name for the address, "
@@ -475,8 +379,7 @@ class PM(Module):
 
     def deploy_and_set_registry(self) -> Address:
         """
-        Returns the address of a freshly deployed instance of the `vyper registry
-        <https://github.com/ethpm/py-ethpm/blob/master/ethpm/assets/vyper_registry/registry.vy>`__,
+        Returns the address of a freshly deployed instance of `SimpleRegistry`
         and sets the newly deployed registry as the active registry on ``web3.pm.registry``.
 
         To tie your registry to an ENS name, use web3's ENS module, ie.
@@ -485,7 +388,7 @@ class PM(Module):
 
            w3.ens.setup_address(ens_name, w3.pm.registry.address)
         """
-        self.registry = VyperReferenceRegistry.deploy_new_instance(self.web3)
+        self.registry = SimpleRegistry.deploy_new_instance(self.web3)
         return to_checksum_address(self.registry.address)
 
     def release_package(
@@ -622,9 +525,9 @@ class PM(Module):
                 "web3.pm.set_registry(address) or "
                 "web3.pm.deploy_and_set_registry()"
             )
-        if not isinstance(self.registry, ERCRegistry):
+        if not isinstance(self.registry, ERC1319Registry):
             raise PMError(
-                "web3.pm requires an instance of a subclass of ERCRegistry "
+                "web3.pm requires an instance of a subclass of ERC1319Registry "
                 "to be set as the web3.pm.registry attribute. Instead found: "
                 f"{type(self.registry)}."
             )
@@ -640,12 +543,8 @@ class PM(Module):
             )
 
 
-def get_vyper_registry_manifest() -> Dict[str, Any]:
-    return json.loads((ASSETS_DIR / "vyper_registry" / "0.1.0.json").read_text())
-
-
-def get_solidity_registry_manifest() -> Dict[str, Any]:
-    return json.loads((ASSETS_DIR / "registry" / "1.0.0.json").read_text())
+def get_simple_registry_manifest() -> Dict[str, Any]:
+    return json.loads((ASSETS_DIR / "registry" / "2.0.0a1.json").read_text())
 
 
 def validate_is_supported_manifest_uri(uri):
@@ -654,9 +553,3 @@ def validate_is_supported_manifest_uri(uri):
             f"URI: {uri} is not a valid content-addressed URI. "
             "Currently only IPFS and Github content-addressed URIs are supported."
         )
-
-
-@to_tuple
-def process_vyper_args(*args: List[str]) -> Iterable[bytes]:
-    for arg in args:
-        yield to_bytes(text=arg)
