@@ -50,8 +50,8 @@ from ethpm.backends.ipfs import (
     BaseIPFSBackend,
 )
 from ethpm.exceptions import (
+    EthPMValidationError,
     ManifestBuildingError,
-    ValidationError,
 )
 from ethpm.package import (
     format_manifest,
@@ -559,7 +559,7 @@ def validate_link_ref(offset: int, length: int, bytecode: str) -> str:
     slot_length = offset + length
     slot = bytecode[offset:slot_length]
     if slot[:2] != "__" and slot[-2:] != "__":
-        raise ValidationError(
+        raise EthPMValidationError(
             f"Slot: {slot}, at offset: {offset} of length: {length} is not a valid "
             "link_ref that can be replaced."
         )
@@ -734,7 +734,7 @@ def build_dependency(package_name: str, uri: URI) -> Manifest:
 def _build_dependency(package_name: str, uri: URI, manifest: Manifest) -> Manifest:
     validate_package_name(package_name)
     if not is_supported_content_addressed_uri(uri):
-        raise ValidationError(
+        raise EthPMValidationError(
             f"{uri} is not a supported content-addressed URI. "
             "Currently only IPFS and Github blob uris are supported."
         )

@@ -26,7 +26,7 @@ from ethpm.constants import (
     REGISTRY_URI_SCHEME,
 )
 from ethpm.exceptions import (
-    ValidationError,
+    EthPMValidationError,
 )
 from ethpm.validation.package import (
     validate_package_name,
@@ -39,7 +39,7 @@ def validate_ipfs_uri(uri: str) -> None:
     Raise an exception if the provided URI is not a valid IPFS URI.
     """
     if not is_ipfs_uri(uri):
-        raise ValidationError(f"URI: {uri} is not a valid IPFS URI.")
+        raise EthPMValidationError(f"URI: {uri} is not a valid IPFS URI.")
 
 
 def validate_registry_uri(uri: str) -> None:
@@ -59,7 +59,7 @@ def validate_registry_uri(uri: str) -> None:
     if pkg_name:
         validate_package_name(pkg_name)
     if not pkg_name and version:
-        raise ValidationError("Registry URIs cannot provide a version without a package name.")
+        raise EthPMValidationError("Registry URIs cannot provide a version without a package name.")
     if version:
         validate_registry_uri_version(version)
 
@@ -72,19 +72,19 @@ def validate_registry_uri_authority(auth: str) -> None:
     try:
         address, chain_id = auth.split(':')
     except ValueError:
-        raise ValidationError(
+        raise EthPMValidationError(
             f"{auth} is not a valid registry URI authority. "
             "Please try again with a valid registry URI."
         )
 
     if is_ens_domain(address) is False and not is_checksum_address(address):
-        raise ValidationError(
+        raise EthPMValidationError(
             f"{address} is not a valid registry address. "
             "Please try again with a valid registry URI."
         )
 
     if not is_supported_chain_id(to_int(text=chain_id)):
-        raise ValidationError(
+        raise EthPMValidationError(
             f"Chain ID: {chain_id} is not supported. Supported chain ids include: "
             "1 (mainnet), 3 (ropsten), 4 (rinkeby), 5 (goerli) and 42 (kovan). "
             "Please try again with a valid registry URI."
@@ -96,7 +96,7 @@ def validate_registry_uri_scheme(scheme: str) -> None:
     Raise an exception if the scheme is not the valid registry URI scheme ('ercXXX').
     """
     if scheme != REGISTRY_URI_SCHEME:
-        raise ValidationError(f"{scheme} is not a valid registry URI scheme.")
+        raise EthPMValidationError(f"{scheme} is not a valid registry URI scheme.")
 
 
 def validate_registry_uri_version(query: str) -> None:
@@ -105,7 +105,7 @@ def validate_registry_uri_version(query: str) -> None:
     """
     query_dict = parse.parse_qs(query, keep_blank_values=True)
     if "version" not in query_dict:
-        raise ValidationError(f"{query} is not a correctly formatted version param.")
+        raise EthPMValidationError(f"{query} is not a correctly formatted version param.")
 
 
 def validate_single_matching_uri(all_blockchain_uris: List[str], w3: Web3) -> str:
@@ -120,9 +120,9 @@ def validate_single_matching_uri(all_blockchain_uris: List[str], w3: Web3) -> st
     ]
 
     if not matching_uris:
-        raise ValidationError("Package has no matching URIs on chain.")
+        raise EthPMValidationError("Package has no matching URIs on chain.")
     elif len(matching_uris) != 1:
-        raise ValidationError(
+        raise EthPMValidationError(
             f"Package has too many ({len(matching_uris)}) matching URIs: {matching_uris}."
         )
     return matching_uris[0]
@@ -141,6 +141,6 @@ def validate_blob_uri_contents(contents: bytes, blob_uri: str) -> None:
     hashable_contents = "blob " + str(content_length) + "\0" + contents_str
     hash_object = hashlib.sha1(to_bytes(text=hashable_contents))
     if hash_object.hexdigest() != blob_hash:
-        raise ValidationError(
+        raise EthPMValidationError(
             f"Hash of contents fetched from {blob_uri} do not match its hash: {blob_hash}."
         )

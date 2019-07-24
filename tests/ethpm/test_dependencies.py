@@ -7,7 +7,7 @@ from ethpm.dependencies import (
     Dependencies,
 )
 from ethpm.exceptions import (
-    ValidationError,
+    EthPMValidationError,
 )
 from ethpm.validation.package import (
     validate_build_dependency,
@@ -65,5 +65,5 @@ def test_validate_build_dependencies(dummy_ipfs_backend):
     ),
 )
 def test_get_build_dependencies_invalidates(name, uri):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         validate_build_dependency(name, uri)

@@ -17,7 +17,7 @@ from ethpm.deployments import (
 )
 from ethpm.exceptions import (
     BytecodeLinkingError,
-    ValidationError,
+    EthPMValidationError,
 )
 from web3.eth import (
     Contract,
@@ -60,7 +60,7 @@ def test_deployment_implements_getitem(deployment):
 def test_deployment_getitem_with_invalid_contract_name_raises_exception(
     name, deployment
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         assert deployment[name]
 
 
@@ -72,7 +72,7 @@ def test_deployment_getitem_without_deployment_reference_raises_exception(deploy
 def test_deployment_getitem_without_contract_type_reference_raises_exception(
     invalid_deployment
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         invalid_deployment["SafeMathLib"]
 
 
@@ -84,7 +84,7 @@ def test_deployment_implements_get_items(deployment):
 def test_deployment_get_items_with_invalid_contract_names_raises_exception(
     invalid_deployment
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         invalid_deployment.items()
 
 
@@ -96,7 +96,7 @@ def test_deployment_implements_get_values(deployment):
 def test_deployment_get_values_with_invalid_contract_names_raises_exception(
     invalid_deployment
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         invalid_deployment.values()
 
 
@@ -114,7 +114,7 @@ def test_deployment_implements_key_lookup_with_nonexistent_key_raises_exception(
 
 @pytest.mark.parametrize("invalid_name", ("", "-abc", "A=bc", "X" * 257))
 def test_get_instance_with_invalid_name_raises_exception(deployment, invalid_name):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         deployment.get_instance(invalid_name)
 
 
@@ -126,7 +126,7 @@ def test_get_instance_without_reference_in_deployments_raises_exception(deployme
 def test_get_instance_without_reference_in_contract_factories_raises(
     invalid_deployment
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         invalid_deployment.get_instance("SafeMathLib")
 
 
@@ -242,5 +242,5 @@ def test_validate_linked_references(link_deps, bytecode):
     ),
 )
 def test_validate_linked_references_invalidates(link_deps, bytecode):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         validate_linked_references(link_deps, bytecode)

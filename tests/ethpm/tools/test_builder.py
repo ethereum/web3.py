@@ -20,8 +20,8 @@ from ethpm.backends.ipfs import (
     get_ipfs_backend,
 )
 from ethpm.exceptions import (
+    EthPMValidationError,
     ManifestBuildingError,
-    ValidationError,
 )
 from ethpm.tools.builder import (
     as_package,
@@ -199,7 +199,7 @@ def test_to_disk_with_invalid_args_raises_exception(manifest_dir, write_to_disk_
 
 
 def test_builder_with_manifest_validation():
-    with pytest.raises(ValidationError, match="_invalid_package_name"):
+    with pytest.raises(EthPMValidationError, match="_invalid_package_name"):
         build(
             {},
             package_name("_invalid_package_name"),
@@ -724,7 +724,7 @@ def test_builder_with_multiple_build_dependencies():
 
 def test_builder_with_invalid_uri():
     with pytest.raises(
-        ValidationError, match="is not a supported content-addressed URI"
+        EthPMValidationError, match="is not a supported content-addressed URI"
     ):
         build(
             {},

@@ -15,8 +15,8 @@ from ethpm.constants import (
     PACKAGE_NAME_REGEX,
 )
 from ethpm.exceptions import (
+    EthPMValidationError,
     InsufficientAssetsError,
-    ValidationError,
 )
 
 
@@ -37,7 +37,7 @@ def validate_package_version(version: Any) -> None:
     Validates that a package version is of text type.
     """
     if not is_text(version):
-        raise ValidationError(
+        raise EthPMValidationError(
             f"Expected a version of text type, instead received {type(version)}."
         )
 
@@ -48,7 +48,7 @@ def validate_package_name(pkg_name: str) -> None:
     as defined in the EthPM-Spec.
     """
     if not bool(re.match(PACKAGE_NAME_REGEX, pkg_name)):
-        raise ValidationError(f"{pkg_name} is not a valid package name.")
+        raise EthPMValidationError(f"{pkg_name} is not a valid package name.")
 
 
 def validate_manifest_version(version: str) -> None:
@@ -56,7 +56,7 @@ def validate_manifest_version(version: str) -> None:
     Raise an exception if the version is not "2".
     """
     if not version == "2":
-        raise ValidationError(
+        raise EthPMValidationError(
             f"Py-EthPM does not support the provided specification version: {version}"
         )
 
@@ -69,7 +69,7 @@ def validate_build_dependency(key: str, uri: str) -> None:
     validate_package_name(key)
     # validate is supported content-addressed uri
     if not is_ipfs_uri(uri):
-        raise ValidationError(f"URI: {uri} is not a valid IPFS URI.")
+        raise EthPMValidationError(f"URI: {uri} is not a valid IPFS URI.")
 
 
 CONTRACT_NAME_REGEX = re.compile("^[a-zA-Z][-a-zA-Z0-9_]{0,255}$")
@@ -77,4 +77,4 @@ CONTRACT_NAME_REGEX = re.compile("^[a-zA-Z][-a-zA-Z0-9_]{0,255}$")
 
 def validate_contract_name(name: str) -> None:
     if not CONTRACT_NAME_REGEX.match(name):
-        raise ValidationError(f"Contract name: {name} is not valid.")
+        raise EthPMValidationError(f"Contract name: {name} is not valid.")

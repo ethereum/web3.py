@@ -21,7 +21,7 @@ from eth_utils.toolz import (
 
 from ethpm.exceptions import (
     BytecodeLinkingError,
-    ValidationError,
+    EthPMValidationError,
 )
 from ethpm.validation.misc import (
     validate_empty_bytes,
@@ -136,7 +136,7 @@ def is_prelinked_bytecode(bytecode: bytes, link_refs: List[Dict[str, Any]]) -> b
         for offset in link_ref["offsets"]:
             try:
                 validate_empty_bytes(offset, link_ref["length"], bytecode)
-            except ValidationError:
+            except EthPMValidationError:
                 return True
     return False
 
@@ -165,7 +165,7 @@ def apply_link_ref(offset: int, length: int, value: bytes, bytecode: bytes) -> b
     """
     try:
         validate_empty_bytes(offset, length, bytecode)
-    except ValidationError:
+    except EthPMValidationError:
         raise BytecodeLinkingError("Link references cannot be applied to bytecode")
 
     address = value if is_canonical_address(value) else to_canonical_address(value)

@@ -36,7 +36,7 @@ from ethpm.constants import (
 )
 from ethpm.exceptions import (
     CannotHandleURI,
-    ValidationError,
+    EthPMValidationError,
 )
 
 
@@ -80,11 +80,14 @@ class IPFSOverHTTPBackend(BaseIPFSBackend):
     def fetch_uri_contents(self, uri: str) -> bytes:
         ipfs_hash = extract_ipfs_path_from_uri(uri)
         contents = self.client.cat(ipfs_hash)
-        validation_hash = generate_file_hash(contents)
-        if validation_hash != ipfs_hash:
-            raise ValidationError(
-                f"Hashed IPFS contents retrieved from uri: {uri} do not match its content hash."
-            )
+        # Local validation of hashed contents only works for non-chunked files ~< 256kb
+        # Improved validation WIP @ https://github.com/ethpm/py-ethpm/pull/165
+        if len(contents) <= 262144:
+            validation_hash = generate_file_hash(contents)
+            if validation_hash != ipfs_hash:
+                raise EthPMValidationError(
+                    f"Hashed IPFS contents retrieved from uri: {uri} do not match its content hash."
+                )
         return contents
 
     @property

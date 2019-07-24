@@ -358,7 +358,7 @@ By default, the manifest builder does *not* perform any validation that the gene
    ...     validate(),
    ... )
    Traceback (most recent call last):
-   ethpm.exceptions.ValidationError: Manifest invalid for schema version 2. Reason: '_InvalidPkgName' does not match '^[a-z][-a-z0-9]{0,255}$'
+   ethpm.exceptions.EthPMValidationError: Manifest invalid for schema version 2. Reason: '_InvalidPkgName' does not match '^[a-z][-a-z0-9]{0,255}$'
 
 
 To write a manifest to disk
