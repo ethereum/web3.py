@@ -52,8 +52,7 @@ def deprecated_for(replace_message):
         def wrapper(*args, **kwargs):
             warnings.warn(
                 "%s is deprecated in favor of %s" % (to_wrap.__name__, replace_message),
-                category=DeprecationWarning,
-                stacklevel=2)
+                category=DeprecationWarning)
             return to_wrap(*args, **kwargs)
         return wrapper
     return decorator
