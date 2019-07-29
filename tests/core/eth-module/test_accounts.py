@@ -123,7 +123,7 @@ def test_eth_account_privateKeyToAccount_seed_restrictions(acct):
 def test_eth_account_privateKeyToAccount_properties(acct, PRIVATE_BYTES):
     account = acct.privateKeyToAccount(PRIVATE_BYTES)
     assert callable(account.signHash)
-    assert callable(account.signTransaction)
+    assert callable(account.sign_transaction)
     assert is_checksum_address(account.address)
     assert account.address == '0xa79F6f349C853F9Ea0B29636779ae3Cb4E3BA729'
     assert account.privateKey == PRIVATE_BYTES
@@ -132,7 +132,7 @@ def test_eth_account_privateKeyToAccount_properties(acct, PRIVATE_BYTES):
 def test_eth_account_create_properties(acct):
     account = acct.create()
     assert callable(account.signHash)
-    assert callable(account.signTransaction)
+    assert callable(account.sign_transaction)
     assert is_checksum_address(account.address)
     assert isinstance(account.privateKey, bytes) and len(account.privateKey) == 32
 
@@ -283,7 +283,7 @@ def test_eth_account_sign(acct, message, key, expected_bytes, expected_hash, v, 
     ids=['web3js_example', '31byte_r_and_s'],
 )
 def test_eth_account_sign_transaction(acct, txn, private_key, expected_raw_tx, tx_hash, r, s, v):
-    signed = acct.signTransaction(txn, private_key)
+    signed = acct.sign_transaction(txn, private_key)
     assert signed.r == r
     assert signed.s == s
     assert signed.v == v
@@ -291,7 +291,7 @@ def test_eth_account_sign_transaction(acct, txn, private_key, expected_raw_tx, t
     assert signed.hash == tx_hash
 
     account = acct.privateKeyToAccount(private_key)
-    assert account.signTransaction(txn) == signed
+    assert account.sign_transaction(txn) == signed
 
 
 @pytest.mark.parametrize(
@@ -309,7 +309,7 @@ def test_eth_account_sign_transaction_from_eth_test(acct, transaction_info):
     # generated from the transaction hash and private key, mostly due to code
     # author's ignorance. The example test fixtures and implementations seem to agree, so far.
     # See ecdsa_raw_sign() in /eth_keys/backends/native/ecdsa.py
-    signed = acct.signTransaction(transaction, key)
+    signed = acct.sign_transaction(transaction, key)
     assert signed.r == Web3.toInt(hexstr=expected_raw_txn[-130:-66])
 
     # confirm that signed transaction can be recovered to the sender
