@@ -4,7 +4,7 @@ from ethpm import (
     ASSETS_DIR,
 )
 from ethpm.exceptions import (
-    ValidationError,
+    EthPMValidationError,
 )
 from ethpm.validation.manifest import (
     extract_contract_types_from_deployments,
@@ -28,7 +28,7 @@ def test_validate_raw_manifest_configuration_validates_strict_manifests(
 def test_validate_raw_manifest_format_invalidates_pretty_manifests(
     all_pretty_manifests
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         validate_raw_manifest_format(all_pretty_manifests)
 
 
@@ -50,7 +50,7 @@ def test_validate_raw_manifest_format_invalidates_invalid_manifests(tmpdir, mani
     p = tmpdir.mkdir("invalid").join("manifest.json")
     p.write(manifest)
     invalid_manifest = p.read()
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         validate_raw_manifest_format(invalid_manifest)
 
 
@@ -62,7 +62,7 @@ def test_validate_manifest_exists_validates():
 
 
 def test_validate_manifest_exists_invalidates():
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         validate_manifest_exists("DNE")
 
 
@@ -71,14 +71,14 @@ def test_validate_manifest_against_all_manifest_types(all_manifests):
 
 
 def test_validate_manifest_invalidates(invalid_manifest):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         validate_manifest_against_schema(invalid_manifest)
 
 
 def test_validate_deployed_contracts_present_validates(
     manifest_with_conflicting_deployments
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         validate_manifest_deployments(manifest_with_conflicting_deployments)
 
 
@@ -116,7 +116,7 @@ def test_validate_manifest_version_validates_version_two_string(version):
 
 @pytest.mark.parametrize("version", (1, 2, "1" "3", b"3"))
 def test_validate_manifest_version_invalidates_incorrect_versions(version):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         validate_manifest_version(version)
 
 
@@ -213,5 +213,5 @@ def test_validate_meta_object_validates(meta, extra_fields):
     ),
 )
 def test_validate_meta_object_invalidates(meta, extra_fields):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         validate_meta_object(meta, allow_extra_meta_fields=extra_fields)

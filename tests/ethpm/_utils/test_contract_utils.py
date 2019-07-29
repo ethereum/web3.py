@@ -4,8 +4,8 @@ from ethpm._utils.contract import (
     generate_contract_factory_kwargs,
 )
 from ethpm.exceptions import (
+    EthPMValidationError,
     InsufficientAssetsError,
-    ValidationError,
 )
 from ethpm.validation.misc import (
     validate_w3_instance,
@@ -51,7 +51,7 @@ def test_validate_contract_name_validates(name):
 
 @pytest.mark.parametrize("name", ("", "-abc", "A=bc", "X" * 257))
 def test_validate_contract_name_invalidates(name):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         assert validate_contract_name(name)
 
 

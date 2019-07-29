@@ -7,7 +7,7 @@ from ethpm.deployments import (
     Deployments,
 )
 from ethpm.exceptions import (
-    ValidationError,
+    EthPMValidationError,
 )
 
 
@@ -27,7 +27,7 @@ def test_get_deployments_with_no_match_raises_exception(
     manifest_with_no_matching_deployments, w3
 ):
     package = Package(manifest_with_no_matching_deployments, w3)
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         package.deployments
 
 
@@ -35,7 +35,7 @@ def test_get_deployments_with_multiple_matches_raises_exception(
     manifest_with_multiple_matches, w3
 ):
     package = Package(manifest_with_multiple_matches, w3)
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         package.deployments
 
 

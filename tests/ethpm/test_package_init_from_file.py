@@ -9,7 +9,7 @@ from ethpm import (
     Package,
 )
 from ethpm.exceptions import (
-    ValidationError,
+    EthPMValidationError,
 )
 
 
@@ -61,7 +61,7 @@ def test_package_init_for_manifest_with_build_dependency(
 
 
 def test_init_from_invalid_manifest_data(w3):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         Package({}, w3)
 
 
@@ -84,7 +84,7 @@ def test_from_file_fails_with_non_json(non_json_manifest, w3):
 
 
 def test_from_file_fails_with_invalid_manifest(invalid_manifest_from_path, w3):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         Package.from_file(invalid_manifest_from_path, w3)
 
 

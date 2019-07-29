@@ -5,8 +5,8 @@ from eth_utils import (
 )
 
 from ethpm.exceptions import (
+    EthPMValidationError,
     InsufficientAssetsError,
-    ValidationError,
 )
 from ethpm.package import (
     Package,
@@ -41,7 +41,7 @@ def test_update_web3(deployed_safe_math, w3):
     assert new_package.w3 is new_w3
     assert original_package is not new_package
     assert original_package.manifest == new_package.manifest
-    with pytest.raises(ValidationError, match="Package has no matching URIs on chain."):
+    with pytest.raises(EthPMValidationError, match="Package has no matching URIs on chain."):
         new_package.deployments
 
 

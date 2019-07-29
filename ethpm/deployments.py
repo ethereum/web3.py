@@ -5,7 +5,7 @@ from typing import (
 )
 
 from ethpm.exceptions import (
-    ValidationError,
+    EthPMValidationError,
 )
 from ethpm.validation.package import (
     validate_contract_name,
@@ -79,7 +79,7 @@ class Deployments:
 
         contract_type = self.deployment_data[name]["contract_type"]
         if contract_type not in self.contract_factories:
-            raise ValidationError(
+            raise EthPMValidationError(
                 f"Contract type: {contract_type} for alias: {name} not found. "
                 f"Available contract types include: {list(sorted(self.contract_factories.keys()))}."
             )

@@ -12,7 +12,7 @@ from web3.exceptions import (
     InvalidAddress,
 )
 from web3.pm import (
-    VyperReferenceRegistry,
+    SimpleRegistry,
 )
 
 
@@ -131,7 +131,7 @@ def test_web3_ens(ens):
     w3 = ens.web3
     ns = ENS.fromWeb3(w3, ens.ens.address)
     w3.ens = ns
-    registry = VyperReferenceRegistry.deploy_new_instance(w3)
+    registry = SimpleRegistry.deploy_new_instance(w3)
     w3.ens.setup_address('tester.eth', registry.address)
     actual_addr = ens.address('tester.eth')
     w3.pm.set_registry('tester.eth')

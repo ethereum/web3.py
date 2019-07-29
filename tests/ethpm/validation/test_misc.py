@@ -1,7 +1,7 @@
 import pytest
 
 from ethpm.exceptions import (
-    ValidationError,
+    EthPMValidationError,
 )
 from ethpm.validation.misc import (
     validate_empty_bytes,
@@ -31,5 +31,5 @@ def test_validate_empty_bytes(offset, length, bytecode):
     ),
 )
 def test_validate_empty_bytes_invalidates(offset, length, bytecode):
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         validate_empty_bytes(offset, length, bytecode)

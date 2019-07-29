@@ -7,8 +7,8 @@ from ethpm.dependencies import (
     Dependencies,
 )
 from ethpm.exceptions import (
+    EthPMValidationError,
     FailureToFetchIPFSAssetsError,
-    ValidationError,
 )
 
 
@@ -35,7 +35,7 @@ def test_get_build_dependencies_without_dependencies_raises_exception(
 ):
     piper_coin_manifest.pop("build_dependencies", None)
     pkg = Package(piper_coin_manifest, w3)
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         pkg.build_dependencies
 
 
@@ -44,5 +44,5 @@ def test_get_build_dependencies_with_empty_dependencies_raises_exception(
 ):
     piper_coin_manifest["build_dependencies"] = {}
     pkg = Package(piper_coin_manifest, w3)
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthPMValidationError):
         pkg.build_dependencies
