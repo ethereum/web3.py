@@ -4,11 +4,42 @@ Release Notes
 v5 Breaking Changes Summary
    See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
+v5.0.0-beta.5
+-------------
+Released July 29, 2019
+
+*This is intended to be the final release before the stable v5 release.*
+
+- Features
+
+  - Parity operating mode can be read and set
+    - `#1355 <https://github.com/ethereum/web3.py/pull/1355>`_
+  - Process a single event log, instead of a whole transaction
+    receipt
+    - `#1354 <https://github.com/ethereum/web3.py/pull/1354>`_
+
+- Docs
+
+  - Remove doctest dependency on ethtoken
+    - `#1395 <https://github.com/ethereum/web3.py/pull/1395>`_
+
+- Bugfixes
+
+  - [ethPM] Bypass IPFS validation for large files
+    - `#1393 <https://github.com/ethereum/web3.py/pull/1393>`_
+
+- Misc
+
+  - [ethPM] Update default Registry solidity contract
+    - `#1400 <https://github.com/ethereum/web3.py/pull/1400>`_
+  - [ethPM] Update web3.pm to use new simple Registry implementation
+    - `#1398 <https://github.com/ethereum/web3.py/pull/1398>`_
+
+
 v5.0.0-beta.4
 -------------
 Released July 18,2019
 
-*This is intended to be the final release before the stable v5 release.*
 
 
 - Features
