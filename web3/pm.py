@@ -544,7 +544,7 @@ class PM(Module):
 
 
 def get_simple_registry_manifest() -> Dict[str, Any]:
-    return json.loads((ASSETS_DIR / "registry" / "2.0.0a1.json").read_text())
+    return json.loads((ASSETS_DIR / "simple-registry" / "2.0.0a1.json").read_text())
 
 
 def validate_is_supported_manifest_uri(uri):
