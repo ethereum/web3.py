@@ -41,6 +41,8 @@ build-docs:
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(MAKE) -C docs doctest
+	./newsfragments/validate_files.py
+	towncrier --draft --version preview
 
 docs: build-docs
 	open docs/_build/html/index.html
@@ -49,12 +51,22 @@ linux-docs: build-docs
 	xdg-open docs/_build/html/index.html
 
 release: clean
+	CURRENT_SIGN_SETTING=$(git config commit.gpgSign)
 	git config commit.gpgSign true
-	bumpversion $(bump)
+	# Let UPCOMING_VERSION be the version that is used for the current bump
+	$(eval UPCOMING_VERSION=$(shell bumpversion $(bump) --dry-run --list | grep new_version= | sed 's/new_version=//g'))
+	# Now generate the release notes to have them included in the release commit
+	towncrier --yes --version $(UPCOMING_VERSION)
+	# Before we bump the version, make sure that the towncrier-generated docs will build
+	make build-docs
+	# We need --allow-dirty because of the generated release_notes file that goes into the release
+	# commit. No other files are added accidentially. The dry-run still runs *without* --allow-dirty
+	bumpversion --allow-dirty $(bump)
 	git push upstream && git push upstream --tags
 	python setup.py sdist bdist_wheel
 	twine upload dist/*
 	git config commit.gpgSign "$(CURRENT_SIGN_SETTING)"
+
 
 dist: clean
 	python setup.py sdist bdist_wheel
