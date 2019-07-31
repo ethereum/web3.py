@@ -6,7 +6,7 @@ v5 Breaking Changes Summary
 
 v5.0.0-beta.5
 -------------
-Released July 29, 2019
+Released July 31, 2019
 
 *This is intended to be the final release before the stable v5 release.*
 
@@ -34,6 +34,8 @@ Released July 29, 2019
     - `#1400 <https://github.com/ethereum/web3.py/pull/1400>`_
   - [ethPM] Update web3.pm to use new simple Registry implementation
     - `#1398 <https://github.com/ethereum/web3.py/pull/1398>`_
+  - Update dependency requirement formatting for releasing
+    - `#1403 <https://github.com/ethereum/web3.py/pull/1403>`_
 
 
 v5.0.0-beta.4
