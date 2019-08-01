@@ -4,6 +4,36 @@ Release Notes
 v5 Breaking Changes Summary
    See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
+v5.0.0
+------
+Released August 1, 2019
+
+- Features
+
+  - ``web3.eth.chainId`` now returns an integer instead of hex
+    - `#1394 <https://github.com/ethereum/web3.py/pull/1394>`_
+
+- Bugfixes
+
+  - Deprecation Warnings now show for methods that have a
+    ``@combomethod`` decorator
+    - `#1401 <https://github.com/ethereum/web3.py/pull/1401>`_
+
+- Misc
+
+  - [ethPM] Add ethPM to the docker file
+    - `#1405 <https://github.com/ethereum/web3.py/pull/1405>`_
+
+- Docs
+
+  - Docs are updated to use checksummed addresses
+    - `#1390 <https://github.com/ethereum/web3.py/pull/1390>`_
+  - Minor doc formatting fixes
+    - `#1338 <https://github.com/ethereum/web3.py/pull/1338>`_ &
+    `#1345 <https://github.com/ethereum/web3.py/pull/1345>`_
+
+
+
 v5.0.0-beta.5
 -------------
 Released July 31, 2019
