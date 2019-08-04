@@ -960,6 +960,43 @@ FIFS_REGISTRAR = [
 
 RESOLVER = [
   {
+    "constant": False,
+    "inputs": [
+      {
+        "name": "node",
+        "type": "bytes32"
+      },
+      {
+        "name": "hash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "setContent",
+    "outputs": [],
+    "payable": False,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": True,
+    "inputs": [
+      {
+        "name": "node",
+        "type": "bytes32"
+      }
+    ],
+    "name": "content",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "payable": False,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": True,
     "inputs": [
       {
@@ -975,6 +1012,29 @@ RESOLVER = [
       }
     ],
     "payable": False,
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "constant": False,
+    "inputs": [
+      {
+        "name": "node",
+        "type": "bytes32"
+      },
+      {
+        "name": "key",
+        "type": "string"
+      },
+      {
+        "name": "value",
+        "type": "string"
+      }
+    ],
+    "name": "setText",
+    "outputs": [],
+    "payable": False,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1001,6 +1061,7 @@ RESOLVER = [
       }
     ],
     "payable": False,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1022,24 +1083,25 @@ RESOLVER = [
     "name": "setPubkey",
     "outputs": [],
     "payable": False,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": True,
+    "constant": False,
     "inputs": [
       {
         "name": "node",
         "type": "bytes32"
-      }
-    ],
-    "name": "content",
-    "outputs": [
+      },
       {
-        "name": "ret",
-        "type": "bytes32"
+        "name": "hash",
+        "type": "bytes"
       }
     ],
+    "name": "setContenthash",
+    "outputs": [],
     "payable": False,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1053,11 +1115,35 @@ RESOLVER = [
     "name": "addr",
     "outputs": [
       {
-        "name": "ret",
+        "name": "",
         "type": "address"
       }
     ],
     "payable": False,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": True,
+    "inputs": [
+      {
+        "name": "node",
+        "type": "bytes32"
+      },
+      {
+        "name": "key",
+        "type": "string"
+      }
+    ],
+    "name": "text",
+    "outputs": [
+      {
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "payable": False,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1079,6 +1165,7 @@ RESOLVER = [
     "name": "setABI",
     "outputs": [],
     "payable": False,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1092,11 +1179,12 @@ RESOLVER = [
     "name": "name",
     "outputs": [
       {
-        "name": "ret",
+        "name": "",
         "type": "string"
       }
     ],
     "payable": False,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1114,23 +1202,26 @@ RESOLVER = [
     "name": "setName",
     "outputs": [],
     "payable": False,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": False,
+    "constant": True,
     "inputs": [
       {
         "name": "node",
         "type": "bytes32"
-      },
-      {
-        "name": "hash",
-        "type": "bytes32"
       }
     ],
-    "name": "setContent",
-    "outputs": [],
+    "name": "contenthash",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes"
+      }
+    ],
     "payable": False,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1153,6 +1244,7 @@ RESOLVER = [
       }
     ],
     "payable": False,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1170,6 +1262,7 @@ RESOLVER = [
     "name": "setAddr",
     "outputs": [],
     "payable": False,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1180,6 +1273,7 @@ RESOLVER = [
       }
     ],
     "payable": False,
+    "stateMutability": "nonpayable",
     "type": "constructor"
   },
   {
@@ -1197,23 +1291,6 @@ RESOLVER = [
       }
     ],
     "name": "AddrChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": False,
-    "inputs": [
-      {
-        "indexed": True,
-        "name": "node",
-        "type": "bytes32"
-      },
-      {
-        "indexed": False,
-        "name": "hash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "ContentChanged",
     "type": "event"
   },
   {
@@ -1270,6 +1347,45 @@ RESOLVER = [
       }
     ],
     "name": "PubkeyChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": False,
+    "inputs": [
+      {
+        "indexed": True,
+        "name": "node",
+        "type": "bytes32"
+      },
+      {
+        "indexed": False,
+        "name": "indexedKey",
+        "type": "string"
+      },
+      {
+        "indexed": False,
+        "name": "key",
+        "type": "string"
+      }
+    ],
+    "name": "TextChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": False,
+    "inputs": [
+      {
+        "indexed": True,
+        "name": "node",
+        "type": "bytes32"
+      },
+      {
+        "indexed": False,
+        "name": "hash",
+        "type": "bytes"
+      }
+    ],
+    "name": "ContenthashChanged",
     "type": "event"
   }
 ]

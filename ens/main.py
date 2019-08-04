@@ -27,6 +27,8 @@ from ens.utils import (
     normal_name_to_hash,
     normalize_name,
     raw_name_to_hash,
+    resolve_content_record,
+    resolve_other_record,
 )
 
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
@@ -80,6 +82,15 @@ class ENS:
         :raises InvalidName: if `name` has invalid syntax
         """
         return self.resolve(name, 'addr')
+
+    def content(self, name):
+        """
+        Look up the content record that `name` currently stores.
+
+        :param str name: an ENS name to look up
+        :raises InvalidName: if `name` has invalid syntax
+        """
+        return self.resolve(name, 'content')
 
     def name(self, address):
         """
@@ -176,12 +187,10 @@ class ENS:
         normal_name = normalize_name(name)
         resolver = self.resolver(normal_name)
         if resolver:
-            lookup_function = getattr(resolver.functions, get)
-            namehash = normal_name_to_hash(normal_name)
-            address = lookup_function(namehash).call()
-            if is_none_or_zero_address(address):
-                return None
-            return lookup_function(namehash).call()
+            if get == 'content' or get == 'contenthash':
+                return resolve_content_record(resolver, normal_name)
+            else:
+                return resolve_other_record(resolver, get, normal_name)
         else:
             return None
 

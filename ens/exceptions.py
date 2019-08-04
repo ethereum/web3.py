@@ -61,6 +61,13 @@ class InvalidLabel(ValueError):
     pass
 
 
+class NonStandardResolver(ValueError):
+    """
+    Raised if resolver is not standard
+    """
+    pass
+
+
 class OversizeTransaction(ValueError):
     """
     Raised if a transaction you are trying to create would cost so

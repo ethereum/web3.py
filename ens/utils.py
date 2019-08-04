@@ -2,6 +2,8 @@ import copy
 import datetime
 import functools
 
+import content_hash
+
 from eth_utils import (
     is_same_address,
     remove_0x_prefix,
@@ -18,6 +20,7 @@ from ens.constants import (
 )
 from ens.exceptions import (
     InvalidName,
+    NonStandardResolver,
 )
 
 default = object()
@@ -181,3 +184,48 @@ def assert_signer_in_modifier_kwargs(modifier_kwargs):
 
 def is_none_or_zero_address(addr):
     return not addr or addr == '0x' + '00' * 20
+
+
+def resolve_content_record(resolver, name):
+    is_eip1577 = resolver.functions.supportsInterface('0xbc1c58d1').call()
+    is_legacy = resolver.functions.supportsInterface('0xd8389dc5').call()
+
+    namehash = normal_name_to_hash(name)
+
+    if is_eip1577:
+        raw_content_hash = resolver.functions.contenthash(namehash).call().hex()
+
+        if is_none_or_zero_address(raw_content_hash):
+            return None
+
+        decoded_content_hash = content_hash.decode(raw_content_hash)
+        type_content_hash = content_hash.get_codec(raw_content_hash)
+
+        return {
+            'type': type_content_hash,
+            'hash': decoded_content_hash,
+        }
+
+    if is_legacy:
+        content = resolver.functions.content(namehash).call()
+
+        if is_none_or_zero_address(content):
+            return None
+
+        return {
+            'type': None,
+            'hash': content.hex(),
+        }
+
+    raise NonStandardResolver('Resolver should either supports contenthash() or content()')
+
+
+def resolve_other_record(resolver, get, name):
+    lookup_function = getattr(resolver.functions, get)
+    namehash = normal_name_to_hash(name)
+    address = lookup_function(namehash).call()
+
+    if is_none_or_zero_address(address):
+        return None
+
+    return address
