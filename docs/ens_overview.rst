@@ -65,6 +65,26 @@ The ``ENS`` module has no opinion as to which TLD you can use,
 but will not infer a TLD if it is not provided with the name.
 
 
+Look up the content for an ENS name
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    from ens.auto import ns
+
+
+    # look up the content record for a name
+
+    content = ns.content('almonit.eth')
+
+    assert content['type'] == ipfs-ns'
+    assert content['hash'] == 'QmaDyyRFycWw2WZLBwDMY2sHL4pscwFm3HwZKu7xKRjjmK'
+
+
+The ``ENS`` module has no opinion as to which TLD you can use,
+but will not infer a TLD if it is not provided with the name.
+
+
 Get name from address
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -124,6 +144,27 @@ Wait for the transaction to be mined, then:
 
     assert ns.address('supreme.executive.power.derives.from.a.mandate.from.the.masses.jasoncarver.eth') == \
         '0x5B2063246F2191f18F2675ceDB8b28102e957458'
+
+
+Point your name to your content
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Do you want to set up your name so that :meth:`~ens.main.ENS.content` will show the
+content it points to?
+
+::
+
+    content = {
+        'type': 'ipfs-ns',
+        'hash': 'QmaDyyRFycWw2WZLBwDMY2sHL4pscwFm3HwZKu7xKRjjmK',
+    }
+    ns.setup_content('jasoncarver.eth', content)
+
+You must already be the owner of the domain (or its parent).
+
+You can claim arbitrarily deep subdomains. *Gas costs scale up with the
+number of subdomains!*
+
 
 Allow people to find your name using your address
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
