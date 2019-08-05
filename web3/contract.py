@@ -32,6 +32,8 @@ from web3._utils.abi import (
     check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
     filter_by_type,
+    get_abi_input_names,
+    get_abi_input_types,
     get_abi_output_types,
     get_constructor_abi,
     is_array_type,
@@ -404,10 +406,13 @@ class Contract:
         data = HexBytes(data)
         selector, params = data[:4], data[4:]
         func = self.get_function_by_selector(selector)
-        names = [x['name'] for x in func.abi['inputs']]
-        types = [x['type'] for x in func.abi['inputs']]
+
+        names = get_abi_input_names(func.abi)
+        types = get_abi_input_types(func.abi)
+
         decoded = decode_abi(types, params)
         normalized = map_abi_data(BASE_RETURN_NORMALIZERS, types, decoded)
+
         return func, dict(zip(names, normalized))
 
     @combomethod
