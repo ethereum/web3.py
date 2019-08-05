@@ -15,6 +15,8 @@ from ens.constants import (
     AUCTION_START_GAS_CONSTANT,
     AUCTION_START_GAS_MARGINAL,
     EMPTY_SHA3_BYTES,
+    RESOLVER_EIP1577_INTERFACE,
+    RESOLVER_LEGACY_INTERFACE,
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
@@ -186,8 +188,8 @@ def is_none_or_zero_address(addr):
 
 
 def resolve_content_record(resolver, name):
-    is_eip1577 = resolver.functions.supportsInterface('0xbc1c58d1').call()
-    is_legacy = resolver.functions.supportsInterface('0xd8389dc5').call()
+    is_eip1577 = resolver.functions.supportsInterface(RESOLVER_EIP1577_INTERFACE).call()
+    is_legacy = resolver.functions.supportsInterface(RESOLVER_LEGACY_INTERFACE).call()
 
     namehash = normal_name_to_hash(name)
 
