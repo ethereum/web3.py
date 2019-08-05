@@ -1,4 +1,5 @@
 
+import content_hash
 from eth_utils import (
     is_binary_address,
     is_checksum_address,
@@ -32,8 +33,6 @@ from ens.utils import (
     resolve_content_record,
     resolve_other_record,
 )
-
-import content_hash
 
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
 

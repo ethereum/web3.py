@@ -3,7 +3,6 @@ import datetime
 import functools
 
 import content_hash
-
 from eth_utils import (
     is_same_address,
     remove_0x_prefix,
