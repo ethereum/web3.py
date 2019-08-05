@@ -8,10 +8,12 @@ from eth_utils import (
 from ens import abis
 from ens.constants import (
     EMPTY_ADDR_HEX,
+    EMPTY_SHA3_BYTES,
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
     AddressMismatch,
+    NonStandardResolver,
     UnauthorizedError,
     UnownedName,
 )
@@ -30,6 +32,8 @@ from ens.utils import (
     resolve_content_record,
     resolve_other_record,
 )
+
+import content_hash
 
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
 
@@ -89,6 +93,7 @@ class ENS:
 
         :param str name: an ENS name to look up
         :raises InvalidName: if `name` has invalid syntax
+        :raises NonStandardResolver: if resolver has not standard interface
         """
         return self.resolve(name, 'content')
 
@@ -139,6 +144,61 @@ class ENS:
         transact['from'] = owner
         resolver = self._set_resolver(name, transact=transact)
         return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
+
+    @dict_copy
+    def setup_content(self, name, content, transact={}):
+        """
+        Set up the name to store the supplied content record.
+        The sender of the transaction must own the name, or
+        its parent name.
+
+        :param str name: ENS name to set up
+        :param dict content: content to set up, with `type` and `hash` in content hash format.
+            If resolver does not support EIP 1577, `type` is ignored and `hash` is set as HEX value.
+            If ``{}``, erase the record.
+        :param dict transact: the transaction configuration, like in
+            :meth:`~web3.eth.Eth.sendTransaction`
+        :raises InvalidName: if ``name`` has invalid syntax
+        :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
+        """
+        owner = self.setup_owner(name, transact=transact)
+        self._assert_control(owner, name)
+
+        current = self.content(name)
+        if current == content or (not current and not content):
+            return None
+
+        transact['from'] = owner
+        resolver = self._set_resolver(name, transact=transact)
+
+        is_eip1577 = resolver.functions.supportsInterface('0xbc1c58d1').call()
+        is_legacy = resolver.functions.supportsInterface('0xd8389dc5').call()
+
+        if is_eip1577:
+            if not content:
+                value = ''
+            else:
+                value = content_hash.encode(content['type'], content['hash'])
+
+            return resolver.functions.setContenthash(
+                raw_name_to_hash(name),
+                value
+            ).transact(transact)
+
+        if is_legacy:
+            if not content:
+                value = EMPTY_SHA3_BYTES.hex()
+            else:
+                value = '0x' + content['hash']
+
+            return resolver.functions.setContent(
+                raw_name_to_hash(name),
+                value
+            ).transact(transact)
+
+        raise NonStandardResolver(
+            'Resolver should either supports setContenthash() or setContent()'
+        )
 
     @dict_copy
     def setup_name(self, name, address=None, transact={}):
