@@ -9,15 +9,15 @@ project depends on Web3.py v4, then you'll probably need to make some changes.
 
 Here are the most common required updates:
 
-Python 3.5 no longer supported.
--------------------------------
+Python 3.5 no longer supported
+------------------------------
 
 You will need to upgrade to either Python 3.6 or 3.7
 
 ``eth-abi`` v1 no longer supported
 ----------------------------------
 
-You will need to upgrade the ``eth-abi`` dependency to v2 or higher.
+You will need to upgrade the ``eth-abi`` dependency to v2
 
 Changes to base API
 -------------------
@@ -27,7 +27,7 @@ JSON-RPC Updates
 
 In v4, JSON-RPC calls that looked up transactions or blocks and
 didn't find them, returned ``None``. Now if a transaction or
-block is not found, a `BlockNotFound` or a `TransactionNotFound`
+block is not found, a ``BlockNotFound`` or a ``TransactionNotFound``
 error will be thrown as appropriate. This applies to the
 following web3 methods:
 
@@ -116,9 +116,9 @@ Similarly, instances of ``web3.providers`` have been changed to
 Testnet Changes
 ~~~~~~~~~~~~~~~
 
-- Web3.py will no longer automatically look up a testnet connection
-  in IPCProvider. Something like ``from web3.auto.ropsten import w3``
-  should be used instead.
+Web3.py will no longer automatically look up a testnet connection
+in IPCProvider. Something like ``from web3.auto.infura.ropsten import w3``
+should be used instead.
 
 ENS
 ---

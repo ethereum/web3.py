@@ -4,11 +4,74 @@ Release Notes
 v5 Breaking Changes Summary
    See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
+v5.0.0
+------
+Released August 1, 2019
+
+- Features
+
+  - ``web3.eth.chainId`` now returns an integer instead of hex
+    - `#1394 <https://github.com/ethereum/web3.py/pull/1394>`_
+
+- Bugfixes
+
+  - Deprecation Warnings now show for methods that have a
+    ``@combomethod`` decorator
+    - `#1401 <https://github.com/ethereum/web3.py/pull/1401>`_
+
+- Misc
+
+  - [ethPM] Add ethPM to the docker file
+    - `#1405 <https://github.com/ethereum/web3.py/pull/1405>`_
+
+- Docs
+
+  - Docs are updated to use checksummed addresses
+    - `#1390 <https://github.com/ethereum/web3.py/pull/1390>`_
+  - Minor doc formatting fixes
+    - `#1338 <https://github.com/ethereum/web3.py/pull/1338>`_ &
+    `#1345 <https://github.com/ethereum/web3.py/pull/1345>`_
+
+
+
+v5.0.0-beta.5
+-------------
+Released July 31, 2019
+
+*This is intended to be the final release before the stable v5 release.*
+
+- Features
+
+  - Parity operating mode can be read and set
+    - `#1355 <https://github.com/ethereum/web3.py/pull/1355>`_
+  - Process a single event log, instead of a whole transaction
+    receipt
+    - `#1354 <https://github.com/ethereum/web3.py/pull/1354>`_
+
+- Docs
+
+  - Remove doctest dependency on ethtoken
+    - `#1395 <https://github.com/ethereum/web3.py/pull/1395>`_
+
+- Bugfixes
+
+  - [ethPM] Bypass IPFS validation for large files
+    - `#1393 <https://github.com/ethereum/web3.py/pull/1393>`_
+
+- Misc
+
+  - [ethPM] Update default Registry solidity contract
+    - `#1400 <https://github.com/ethereum/web3.py/pull/1400>`_
+  - [ethPM] Update web3.pm to use new simple Registry implementation
+    - `#1398 <https://github.com/ethereum/web3.py/pull/1398>`_
+  - Update dependency requirement formatting for releasing
+    - `#1403 <https://github.com/ethereum/web3.py/pull/1403>`_
+
+
 v5.0.0-beta.4
 -------------
 Released July 18,2019
 
-*This is intended to be the final release before the stable v5 release.*
 
 
 - Features

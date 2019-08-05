@@ -19,7 +19,7 @@ The following methods are available on the ``web3.parity.personal`` namespace.
     .. code-block:: python
 
         >>> web3.parity.personal.listAccounts()
-        ['0xd3cda913deb6f67967b99d67acdfa1712c293601']
+        ['0xd3CdA913deB6f67967B99D67aCDFa1712C293601']
 
 
 .. py:method:: importRawKey(self, private_key, passphrase)
@@ -32,7 +32,7 @@ The following methods are available on the ``web3.parity.personal`` namespace.
     .. code-block:: python
 
         >>> web3.parity.personal.importRawKey(some_private_key, 'the-passphrase')
-        '0xd3cda913deb6f67967b99d67acdfa1712c293601'
+        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
 
 .. py:method:: newAccount(self, password)
@@ -45,7 +45,7 @@ The following methods are available on the ``web3.parity.personal`` namespace.
     .. code-block:: python
 
         >>> web3.parity.personal.newAccount('the-passphrase')
-        '0xd3cda913deb6f67967b99d67acdfa1712c293601'
+        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
 
 .. py:method:: unlockAccount(self, account, passphrase, duration=None)
@@ -59,9 +59,9 @@ The following methods are available on the ``web3.parity.personal`` namespace.
     .. code-block:: python
 
         # Invalid call to personal_unlockAccount on Parity currently returns True, due to Parity bug
-        >>> web3.parity.personal.unlockAccount('0xd3cda913deb6f67967b99d67acdfa1712c293601', 'wrong-passphrase')
+        >>> web3.parity.personal.unlockAccount('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'wrong-passphrase')
         True
-        >>> web3.parity.personal.unlockAccount('0xd3cda913deb6f67967b99d67acdfa1712c293601', 'the-passphrase')
+        >>> web3.parity.personal.unlockAccount('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'the-passphrase')
         True
 
 

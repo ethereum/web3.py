@@ -1,4 +1,5 @@
 import functools
+import warnings
 
 from eth_utils import (
     to_tuple,
@@ -150,3 +151,17 @@ def _pipe_and_accumulate(val, fns):
     for fn in fns:
         val = fn(val)
         yield val
+
+
+class DeprecatedMethod():
+    def __init__(self, method, old_name, new_name):
+        self.method = method
+        self.old_name = old_name
+        self.new_name = new_name
+
+    def __get__(self, obj=None, obj_type=None):
+        warnings.warn(
+            f"{self.old_name} is deprecated in favor of {self.new_name}",
+            category=DeprecationWarning,
+        )
+        return self.method.__get__(obj, obj_type)

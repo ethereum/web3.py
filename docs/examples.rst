@@ -17,7 +17,7 @@ representation.  Block numbers
     # get a block by number
     >>> web3.eth.getBlock(12345)
     {
-        'author': '0xad5c1768e5974c231b2148169da064e61910f31a',
+        'author': '0xad5C1768e5974C231b2148169da064e61910f31a',
         'difficulty': 735512610763,
         'extraData': '0x476574682f76312e302e302f6c696e75782f676f312e342e32',
         'gasLimit': 5000,
@@ -146,7 +146,7 @@ You can look up transactions using the ``web3.eth.getTransaction`` function.
         'blockNumber': 46147,
         'condition': None,
         'creates': None,
-        'from': '0xa1e4380a3b1f749673e270229993ee55f35663b4',
+        'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
         'gas': 21000,
         'gasPrice': 50000000000000,
         'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
@@ -158,7 +158,7 @@ You can look up transactions using the ``web3.eth.getTransaction`` function.
         'raw': '0xf86780862d79883d2000825208945df9b87991262f6ba471f09758cde1c0fc1de734827a69801ca088ff6cf0fefd94db46111149ae4bfc179e9b94721fffd821d38d16464b3f71d0a045e0aff800961cfce805daef7016b9b675c137a6a41a548f7b60a3484c06a33a',
         's': '0x45e0aff800961cfce805daef7016b9b675c137a6a41a548f7b60a3484c06a33a',
         'standardV': '0x1',
-        'to': '0x5df9b87991262f6ba471f09758cde1c0fc1de734',
+        'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
         'transactionIndex': 0,
         'v': '0x1c',
         'value': 31337,

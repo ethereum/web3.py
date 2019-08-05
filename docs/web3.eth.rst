@@ -78,7 +78,7 @@ The following properties are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.coinbase
-        '0xd3cda913deb6f67967b99d67acdfa1712c293601'
+        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
 
 .. py:attribute:: Eth.mining
@@ -126,7 +126,7 @@ The following properties are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.accounts
-        ['0xd3cda913deb6f67967b99d67acdfa1712c293601']
+        ['0xd3CdA913deB6f67967B99D67aCDFa1712C293601']
 
 
 .. py:attribute:: Eth.blockNumber
@@ -157,12 +157,12 @@ The following properties are available on the ``web3.eth`` namespace.
 
     * Delegates to ``eth_chainId`` RPC Method
 
-    Returns a hex-encoded integer value for the currently configured "Chain Id" value introduced in `EIP-155 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_. Returns ``None`` if no Chain Id is available.
+    Returns an integer value for the currently configured "Chain Id" value introduced in `EIP-155 <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_. Returns ``None`` if no Chain Id is available.
 
     .. code-block:: python
 
        >>> web3.eth.chainId
-       '0x3d'
+       61
 
 
 Methods
@@ -182,7 +182,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getBalance('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> web3.eth.getBalance('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         77320681768999138915
 
 
@@ -197,7 +197,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getStorageAt('0x6c8f2a135f6ed072de4503bd7c4999a1a17f824b', 0)
+        >>> web3.eth.getStorageAt('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', 0)
         '0x00000000000000000000000000000000000000000000000000120a0b063499d4'
 
 
@@ -212,7 +212,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getProof('0x6c8f2a135f6ed072de4503bd7c4999a1a17f824b', [0], 3391)
+        >>> web3.eth.getProof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0], 3391)
         AttributeDict({
             'address': '0x4CB06C43fcdABeA22541fcF1F856A6a296448B6c',
             'accountProof': ['0xf90211a03841a7ddd65c70c94b8efa79190d00f0ab134b26f18dcad508f60a7e74559d0ba0464b07429a05039e22931492d6c6251a860c018ea390045d596b1ac11b5c7aa7a011f4b89823a03c9c4b5a8ab079ee1bc0e2a83a508bb7a5dc7d7fb4f2e95d3186a0b5f7c51c3b2d51d97f171d2b38a4df1a7c0acc5eb0de46beeff4d07f5ed20e19a0b591a2ce02367eda31cf2d16eca7c27fd44dbf0864b64ea8259ad36696eb2a04a02b646a7552b8392ae94263757f699a27d6e9176b4c06b9fc0a722f893b964795a02df05d68bceb88eebf68aafde61d10ab942097afc1c58b8435ffd3895358a742a0c2f16143c4d1db03276c433696dddb3e9f3b113bcd854b127962262e98f43147a0828820316cc02bfefd899aba41340659fd06df1e0a0796287ec2a4110239f6d2a050496598670b04df7bbff3718887fa36437d6d8c7afb4eff86f76c5c7097dcc4a0c14e9060c6b3784e35b9e6ae2ad2984142a75910ccc89eb89dc1e2f44b6c58c2a009804db571d0ce07913e1cbacc4f1dc4fb8265c936f5c612e3a47e91c64d8e9fa063d96f38b3cb51b1665c6641e25ffe24803f2941e5df79942f6a53b7169647e4a0899f71abb18c6c956118bf567fac629b75f7e9526873e429d3d8abb6dbb58021a00fd717235298742623c0b3cafb3e4bd86c0b5ab1f71097b4dd19f3d6925d758da0096437146c16097f2ccc1d3e910d65a4132803baee2249e72c8bf0bcaaeb37e580',
@@ -298,7 +298,7 @@ The following methods are available on the ``web3.eth`` namespace.
             return True
 
         block = w3.eth.getBlock(3391)
-        proof = w3.eth.getProof('0x6c8f2a135f6ed072de4503bd7c4999a1a17f824b', [0, 1], 3391)
+        proof = w3.eth.getProof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0, 1], 3391)
         assert verify_eth_getProof(proof, block.stateRoot)
 
 
@@ -314,10 +314,10 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         # For a contract address.
-        >>> web3.eth.getCode('0x6c8f2a135f6ed072de4503bd7c4999a1a17f824b')
+        >>> web3.eth.getCode('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B')
         '0x6060604052361561027c5760e060020a60003504630199.....'
         # For a private key address.
-        >>> web3.eth.getCode('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> web3.eth.getCode('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         '0x'
 
 
@@ -443,13 +443,13 @@ The following methods are available on the ``web3.eth`` namespace.
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
-            'from': '0xa1e4380a3b1f749673e270229993ee55f35663b4',
+            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gas': 21000,
             'gasPrice': 50000000000000,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'input': '0x',
             'nonce': 0,
-            'to': '0x5df9b87991262f6ba471f09758cde1c0fc1de734',
+            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
             'transactionIndex': 0,
             'value': 31337,
         })
@@ -478,13 +478,13 @@ The following methods are available on the ``web3.eth`` namespace.
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
-            'from': '0xa1e4380a3b1f749673e270229993ee55f35663b4',
+            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gas': 21000,
             'gasPrice': 50000000000000,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'input': '0x',
             'nonce': 0,
-            'to': '0x5df9b87991262f6ba471f09758cde1c0fc1de734',
+            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
             'transactionIndex': 0,
             'value': 31337,
         })
@@ -492,13 +492,13 @@ The following methods are available on the ``web3.eth`` namespace.
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
-            'from': '0xa1e4380a3b1f749673e270229993ee55f35663b4',
+            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gas': 21000,
             'gasPrice': 50000000000000,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'input': '0x',
             'nonce': 0,
-            'to': '0x5df9b87991262f6ba471f09758cde1c0fc1de734',
+            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
             'transactionIndex': 0,
             'value': 31337,
         })
@@ -524,11 +524,11 @@ The following methods are available on the ``web3.eth`` namespace.
             'blockNumber': 46147,
             'contractAddress': None,
             'cumulativeGasUsed': 21000,
-            'from': '0xa1e4380a3b1f749673e270229993ee55f35663b4',
+            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gasUsed': 21000,
             'logs': [],
             'root': '96a8e009d2b88b1483e6941e6812e32263b05683fac202abc622a3e31aed1957',
-            'to': '0x5df9b87991262f6ba471f09758cde1c0fc1de734',
+            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
             'transactionHash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'transactionIndex': 0,
         })
@@ -551,11 +551,11 @@ The following methods are available on the ``web3.eth`` namespace.
             'blockNumber': 46147,
             'contractAddress': None,
             'cumulativeGasUsed': 21000,
-            'from': '0xa1e4380a3b1f749673e270229993ee55f35663b4',
+            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gasUsed': 21000,
             'logs': [],
             'root': '96a8e009d2b88b1483e6941e6812e32263b05683fac202abc622a3e31aed1957',
-            'to': '0x5df9b87991262f6ba471f09758cde1c0fc1de734',
+            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
             'transactionHash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'transactionIndex': 0,
         })
@@ -572,7 +572,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getTransactionCount('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> web3.eth.getTransactionCount('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         340
 
 
@@ -610,7 +610,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.sendTransaction({'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601', 'from': web3.eth.coinbase, 'value': 12345})
+        >>> web3.eth.sendTransaction({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from': web3.eth.coinbase, 'value': 12345})
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
 
 
@@ -627,7 +627,7 @@ The following methods are available on the ``web3.eth`` namespace.
             nonce=w3.eth.getTransactionCount(w3.eth.coinbase),
             gasPrice=w3.eth.gasPrice,
             gas=100000,
-            to='0xd3cda913deb6f67967b99d67acdfa1712c293601',
+            to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
             value=1,
             data=b'',
             )
@@ -647,7 +647,7 @@ The following methods are available on the ``web3.eth`` namespace.
             nonce=w3.eth.getTransactionCount(w3.eth.coinbase),
             gasPrice=w3.eth.gasPrice,
             gas=100000,
-            to='0xd3cda913deb6f67967b99d67acdfa1712c293601',
+            to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
             value=12345,
             data=b'',
           ),
@@ -688,13 +688,13 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> tx = web3.eth.sendTransaction({
-                'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
                 'from': web3.eth.coinbase,
                 'value': 1000
             })
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
         >>> web3.eth.replaceTransaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', {
-                'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
                 'from': web3.eth.coinbase,
                 'value': 2000
             })
@@ -718,7 +718,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> tx = web3.eth.sendTransaction({
-                'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
                 'from': web3.eth.coinbase,
                 'value': 1000
             })
@@ -740,17 +740,17 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.sign(
-              '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+              '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
               text='some-text-tö-sign')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
         >>> web3.eth.sign(
-              '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+              '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
               data=b'some-text-t\xc3\xb6-sign')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
         >>> web3.eth.sign(
-              '0xd3cda913deb6f67967b99d67acdfa1712c293601',
+              '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
               hexstr='0x736f6d652d746578742d74c3b62d7369676e')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
@@ -804,7 +804,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.estimateGas({'to': '0xd3cda913deb6f67967b99d67acdfa1712c293601', 'from': web3.eth.coinbase, 'value': 12345})
+        >>> web3.eth.estimateGas({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from': web3.eth.coinbase, 'value': 12345})
         21000
 
     .. note::
@@ -892,7 +892,7 @@ with the filtering API.
         <BlockFilter at 0x10b72dc28>
         >>> web3.eth.filter('pending')
         <TransactionFilter at 0x10b780340>
-        >>> web3.eth.filter({'fromBlock': 1000000, 'toBlock': 1000100, 'address': '0x6c8f2a135f6ed072de4503bd7c4999a1a17f824b'})
+        >>> web3.eth.filter({'fromBlock': 1000000, 'toBlock': 1000100, 'address': '0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B'})
         <LogFilter at 0x10b7803d8>
 
 .. py:method:: Eth.getFilterChanges(self, filter_id)
@@ -908,7 +908,7 @@ with the filtering API.
         >>> web3.eth.getFilterChanges(filt.filter_id)
         [
             {
-                'address': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24',
+                'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24',
                 'blockHash': '0xb72256286ca528e09022ffd408856a73ef90e7216ac560187c6e43b4c4efd2f0',
                 'blockNumber': 2217196,
                 'data': '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -935,7 +935,7 @@ with the filtering API.
         >>> web3.eth.getFilterLogs(filt.filter_id)
         [
             {
-                'address': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24',
+                'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24',
                 'blockHash': '0xb72256286ca528e09022ffd408856a73ef90e7216ac560187c6e43b4c4efd2f0',
                 'blockNumber': 2217196,
                 'data': '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -1013,7 +1013,7 @@ Contracts
 
         w3 = Web3(...)
 
-        contract = w3.eth.contract(address='0x000000000000000000000000000000000000dead', abi=...)
+        contract = w3.eth.contract(address='0x000000000000000000000000000000000000dEaD', abi=...)
 
         # alternatively:
         contract = w3.eth.contract(address='mycontract.eth', abi=...)
@@ -1037,7 +1037,7 @@ Contracts
         Contract = w3.eth.contract(abi=...)
 
         # later, initialize contracts with the same metadata at different addresses:
-        contract1 = Contract(address='0x000000000000000000000000000000000000dead')
+        contract1 = Contract(address='0x000000000000000000000000000000000000dEaD')
         contract2 = Contract(address='mycontract.eth')
 
     ``contract_name`` will be used as the name of the contract class.  If it is

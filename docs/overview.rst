@@ -48,7 +48,7 @@ local development this would be something like ``ws://127.0.0.1:8546``.
 Base API
 --------
 
-The ``Web3`` class exposes the following convenience APIs.
+The ``Web3`` class exposes the following convenient APIs.
 
 
 .. _overview_type_conversions:
@@ -288,7 +288,7 @@ Cryptographic Hashing
         >>> Web3.solidityKeccak(['uint8[]'], [[97, 98, 99]])
         HexBytes("0x233002c671295529bcc50b76a2ef2b0de2dac2d93945fca745255de1a9e4017e")
 
-        >>> Web3.solidityKeccak(['address'], ["0x49eddd3769c0712032808d86597b84ac5c2f5614"])
+        >>> Web3.solidityKeccak(['address'], ["0x49EdDD3769c0712032808D86597B84ac5c2F5614"])
         HexBytes("0x2ff37b5607484cd4eecf6d13292e22bd6e5401eaffcc07e279583bc742c68882")
 
         >>> Web3.solidityKeccak(['address'], ["ethereumfoundation.eth"])
@@ -335,7 +335,7 @@ Cryptographic Hashing
         >>> Web3.soliditySha3(['uint8[]'], [[97, 98, 99]])
         HexBytes("0x233002c671295529bcc50b76a2ef2b0de2dac2d93945fca745255de1a9e4017e")
 
-        >>> Web3.soliditySha3(['address'], ["0x49eddd3769c0712032808d86597b84ac5c2f5614"])
+        >>> Web3.soliditySha3(['address'], ["0x49EdDD3769c0712032808D86597B84ac5c2F5614"])
         HexBytes("0x2ff37b5607484cd4eecf6d13292e22bd6e5401eaffcc07e279583bc742c68882")
 
         >>> Web3.soliditySha3(['address'], ["ethereumfoundation.eth"])

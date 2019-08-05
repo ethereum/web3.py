@@ -40,25 +40,17 @@ The following methods are available on the ``web3.pm`` namespace.
 .. autoclass:: web3.pm.PM
    :members:
 
-.. autoclass:: web3.pm.ERCRegistry
+.. autoclass:: web3.pm.ERC1319Registry
    :members: __init__, _release, _get_package_name, _get_all_package_ids, _get_release_id, _get_all_release_ids, _get_release_data, _generate_release_id, _num_package_ids, _num_release_ids
-
-.. autoclass:: web3.pm.VyperReferenceRegistry
-   :members: deploy_new_instance, owner, transfer_owner
-
-.. autoclass:: web3.pm.SolidityReferenceRegistry
-   :members:
 
 
 Creating your own Registry class
 --------------------------------
-If you want to implement your own registry and use it with ``web3.pm``, you must create a subclass that inherits from ``ERCRegistry``, and implements all the `ERC 1319 standard methods <https://github.com/ethereum/EIPs/issues/1319>`_ prefixed with an underscore in ``ERCRegistry``. Then, you have to manually set it as the ``registry`` attribute on ``web3.pm``.
+If you want to implement your own registry and use it with ``web3.pm``, you must create a subclass that inherits from ``ERC1319Registry``, and implements all the `ERC 1319 standard methods <https://github.com/ethereum/EIPs/issues/1319>`_ prefixed with an underscore in ``ERC1319Registry``. Then, you have to manually set it as the ``registry`` attribute on ``web3.pm``.
 
 .. code-block:: python
     
     custom_registry = CustomRegistryClass(address, w3)
     w3.pm.registry = custom_registry
 
-One reason a user might want to create their own Registry class is if they build a custom Package Registry smart contract that has features beyond those specified in `ERC 1319 <https://github.com/ethereum/EIPs/issues/1319>`_. For example, the ability to delete a release or some micropayment feature. Rather than accessing those functions directly on the contract instance, they can create a custom ``ERCRegistry`` subclass to easily call both the standard & custom methods.
-
-The ``VyperReferenceRegistry`` class is an example of this, as it contains all of the ``ERC 1319`` defined functions (prefixed with an underscore, eg ``_get_package_name``) but also contains functions that are unique to the Vyper Registry reference implementation (eg ``transfer_owner``).
+One reason a user might want to create their own Registry class is if they build a custom Package Registry smart contract that has features beyond those specified in `ERC 1319 <https://github.com/ethereum/EIPs/issues/1319>`_. For example, the ability to delete a release or some micropayment feature. Rather than accessing those functions directly on the contract instance, they can create a custom ``ERC1319Registry`` subclass to easily call both the standard & custom methods.

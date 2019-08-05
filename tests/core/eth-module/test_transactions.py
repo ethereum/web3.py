@@ -16,7 +16,7 @@ RECEIPT_TIMEOUT = 0.2
     'make_chain_id, expect_success',
     (
         (
-            lambda web3: int(web3.eth.chainId, 16),
+            lambda web3: web3.eth.chainId,
             True,
         ),
         pytest.param(

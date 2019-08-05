@@ -11,6 +11,7 @@ from web3 import Web3
 
 from .common import (
     CommonGoEthereumShhModuleTest,
+    GoEthereumAdminModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
@@ -39,7 +40,7 @@ def geth_command_arguments(geth_binary, datadir, ws_port):
         '--ws',
         '--shh',
         '--wsport', ws_port,
-        '--wsapi', 'db,eth,net,shh,web3,personal,web3',
+        '--wsapi', 'admin,db,eth,net,shh,web3,personal,web3',
         '--wsorigins', '*',
         '--ipcdisable',
     )
@@ -54,6 +55,24 @@ def web3(geth_process, endpoint_uri, event_loop):
 
 class TestGoEthereumTest(GoEthereumTest):
     pass
+
+
+class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
+    @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
+    def test_admin_peers(web3):
+        super().test_admin_peers(web3)
+
+    @pytest.mark.xfail(reason='Only one WebSocket endpoint is allowed to be active at any time')
+    def test_admin_start_stop_ws(web3):
+        super().test_admin_start_stop_ws(web3)
+
+    @pytest.mark.xfail(reason='Only one WebSocket endpoint is allowed to be active at any time')
+    def test_admin_startWS(self, web3):
+        super().test_admin_startWS(web3)
+
+    @pytest.mark.xfail(reason='Only one WebSocket endpoint is allowed to be active at any time')
+    def test_admin_stopWS(self, web3):
+        super().test_admin_stopWS(web3)
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):

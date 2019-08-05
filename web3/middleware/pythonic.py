@@ -262,15 +262,11 @@ filter_result_formatter = apply_one_of_formatters((
     (apply_formatter_to_array(to_hexbytes(32)), is_array_of_strings),
 ))
 
-TRANSACTION_PARAM_FORMATTERS = {
-    'chainId': apply_formatter_if(is_integer, str),
-}
-
 
 transaction_param_formatter = compose(
     remove_key_if('to', lambda txn: txn['to'] in {'', b'', None}),
-    apply_formatters_to_dict(TRANSACTION_PARAM_FORMATTERS),
 )
+
 
 estimate_gas_without_block_id = apply_formatter_at_index(transaction_param_formatter, 0)
 estimate_gas_with_block_id = apply_formatters_to_sequence([
@@ -334,6 +330,7 @@ pythonic_middleware = construct_formatting_middleware(
         # Eth
         'eth_accounts': apply_formatter_to_array(to_checksum_address),
         'eth_blockNumber': to_integer_if_hex,
+        'eth_chainId': to_integer_if_hex,
         'eth_coinbase': to_checksum_address,
         'eth_estimateGas': to_integer_if_hex,
         'eth_gasPrice': to_integer_if_hex,

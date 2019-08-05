@@ -282,15 +282,16 @@ Each Contract Factory exposes the following methods.
 
 .. _contract_createFilter:
 
-.. py:classmethod:: Contract.events.<event name>.createFilter(fromBlock=block, toBlock=block, argument_filters={"arg1": "value"}, topics=[])
+.. py:classmethod:: Contract.events.<event name>.createFilter(fromBlock=block, toBlock=block, \
+                    argument_filters={"arg1": "value"}, topics=[])
 
     Creates a new event filter, an instance of :py:class:`web3.utils.filters.LogFilter`.
 
-    ``fromBlock`` is a mandatory field. Defines the starting block (exclusive) filter block range. It can be either the starting block number, or 'latest' for the last mined block, or 'pending' for unmined transactions. In the case of ``fromBlock``, 'latest' and 'pending' set the 'latest' or 'pending' block as a static value for the starting filter block.
-    ``toBlock`` optional. Defaults to 'latest'. Defines the ending block (inclusive) in the filter block range.  Special values 'latest' and 'pending' set a dynamic range that always includes the 'latest' or 'pending' blocks for the filter's upper block range.
-    ``address`` optional. Defaults to the contract address. The filter matches the event logs emanating from ``address``.
-    ``argument_filters``, optional. Expects a dictionary of argument names and values. When provided event logs are filtered for the event argument values. Event arguments can be both indexed or unindexed. Indexed values with be translated to their corresponding topic arguments. Unindexed arguments will be filtered using a regular expression.
-    ``topics`` optional, accepts the standard JSON-RPC topics argument.  See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the ``topics`` parameters.
+    - ``fromBlock`` is a mandatory field. Defines the starting block (exclusive) filter block range. It can be either the starting block number, or 'latest' for the last mined block, or 'pending' for unmined transactions. In the case of ``fromBlock``, 'latest' and 'pending' set the 'latest' or 'pending' block as a static value for the starting filter block.
+    - ``toBlock`` optional. Defaults to 'latest'. Defines the ending block (inclusive) in the filter block range.  Special values 'latest' and 'pending' set a dynamic range that always includes the 'latest' or 'pending' blocks for the filter's upper block range.
+    - ``address`` optional. Defaults to the contract address. The filter matches the event logs emanating from ``address``.
+    - ``argument_filters``, optional. Expects a dictionary of argument names and values. When provided event logs are filtered for the event argument values. Event arguments can be both indexed or unindexed. Indexed values with be translated to their corresponding topic arguments. Unindexed arguments will be filtered using a regular expression.
+    - ``topics`` optional, accepts the standard JSON-RPC topics argument.  See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the ``topics`` parameters.
 
 .. _contract_build_filter:
 
@@ -835,7 +836,7 @@ Event Log Object
 
     .. code-block:: python
 
-        >>> transfer_filter = my_token_contract.eventFilter('Transfer', {'filter': {'_from': '0xdc3a9db694bcdd55ebae4a89b22ac6d12b3f0c24'}})
+        >>> transfer_filter = my_token_contract.eventFilter('Transfer', {'filter': {'_from': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24'}})
         >>> transfer_filter.get_new_entries()
         [...]  # array of Event Log Objects that match the filter.
         # wait a while...
@@ -860,7 +861,7 @@ Utils
         '0x612e45a3000000000000000000000000b656b2a9c3b2416437a811e07466ca712f5a5b5a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000093a80000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000116c6f6e656c792c20736f206c6f6e656c7900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
         >>> contract.decode_function_input(transaction.input)
         (<Function newProposal(address,uint256,string,bytes,uint256,bool)>,
-         {'_recipient': '0xb656b2a9c3b2416437a811e07466ca712f5a5b5a',
+         {'_recipient': '0xB656b2a9c3b2416437A811e07466cA712F5a5b5a',
           '_amount': 0,
           '_description': b'lonely, so lonely',
           '_transactionData': b'',
@@ -872,7 +873,7 @@ ContractCaller
 
 .. py:class:: ContractCaller
 
-The :py:class:``ContractCaller`` class provides an API to call functions in a contract. This class
+The ``ContractCaller`` class provides an API to call functions in a contract. This class
 is not to be used directly, but instead through ``Contract.caller``.
 
 There are a number of different ways to invoke the ``ContractCaller``.
