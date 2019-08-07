@@ -30,28 +30,12 @@ from ens.utils import (
     raw_name_to_hash,
 )
 
-ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
-ENS_ROPSTEN_ADDR = '0x112234455C3a32FD11230C42E7Bccd4A84e02010'
-ENS_RINKEBY_ADDR = '0xe7410170f87102DF0055eB195163A03B7F2Bff4A'
-ENS_GOERLI_ADDR = '0x112234455C3a32FD11230C42E7Bccd4A84e02010'
-
-
-def get_address_for_network(net):
-    version = int(net.version)
-
-    if version == 1:
-        return ENS_MAINNET_ADDR
-    elif version == 3:
-        return ENS_ROPSTEN_ADDR
-    elif version == 4:
-        return ENS_RINKEBY_ADDR
-    elif version == 5:
-        return ENS_GOERLI_ADDR
-    else:
-        raise UnknownNetwork(
-            "ENS is not available on the current network by default. "
-            "You need to manually set the `addr` parameter to the registry's address."
-        )
+NET_VERSION_TO_ENS_ADDR = {
+    1: '0x314159265dD8dbb310642f98f50C066173C1259b',
+    3: '0x112234455C3a32FD11230C42E7Bccd4A84e02010',
+    4: '0xe7410170f87102DF0055eB195163A03B7F2Bff4A',
+    5: '0x112234455C3a32FD11230C42E7Bccd4A84e02010',
+}
 
 
 class ENS:
@@ -80,7 +64,15 @@ class ENS:
         """
         self.web3 = init_web3(provider)
 
-        ens_addr = addr if addr else get_address_for_network(net=self.web3.net)
+        try:
+            net_version = int(self.web3.net.version)
+            ens_addr = addr if addr else NET_VERSION_TO_ENS_ADDR[net_version]
+        except KeyError:
+            raise UnknownNetwork(
+                "ENS is not available on the current network by default. "
+                "You need to manually set the `addr` parameter to the registry's address."
+            )
+
         self.ens = self.web3.eth.contract(abi=abis.ENS, address=ens_addr)
         self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
 
