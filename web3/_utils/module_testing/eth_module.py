@@ -3,9 +3,6 @@
 import json
 import pytest
 
-from eth_abi import (
-    decode_single,
-)
 from eth_utils import (
     is_boolean,
     is_bytes,
@@ -569,7 +566,7 @@ class EthModuleTest:
         )
         call_result = web3.eth.call(txn_params)
         assert is_string(call_result)
-        result = decode_single('uint256', call_result)
+        result = web3.codec.decode_single('uint256', call_result)
         assert result == 18
 
     def test_eth_call_with_0_result(self, web3, math_contract):
@@ -581,7 +578,7 @@ class EthModuleTest:
         )
         call_result = web3.eth.call(txn_params)
         assert is_string(call_result)
-        result = decode_single('uint256', call_result)
+        result = web3.codec.decode_single('uint256', call_result)
         assert result == 0
 
     def test_eth_estimateGas(self, web3, unlocked_account_dual_type):

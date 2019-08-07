@@ -1,3 +1,6 @@
+from eth_abi.codec import (
+    ABICodec,
+)
 from eth_utils import (
     add_0x_prefix,
     apply_to_return_value,
@@ -15,6 +18,8 @@ from hexbytes import (
 
 from ens import ENS
 from web3._utils.abi import (
+    build_default_registry,
+    build_strict_registry,
     map_abi_data,
 )
 from web3._utils.decorators import (
@@ -140,6 +145,8 @@ class Web3:
 
         attach_modules(self, modules)
 
+        self.codec = ABICodec(build_default_registry())
+
         self.ens = ens
 
     @property
@@ -219,6 +226,9 @@ class Web3:
     def isConnected(self):
         return self.provider.isConnected()
 
+    def is_encodable(self, _type, value):
+        return self.codec.is_encodable(_type, value)
+
     @property
     def ens(self):
         if self._ens is empty:
@@ -245,3 +255,6 @@ class Web3:
         from web3.pm import PM
         if not hasattr(self, '_pm'):
             PM.attach(self, '_pm')
+
+    def enable_strict_bytes_type_checking(self):
+        self.codec = ABICodec(build_strict_registry())

@@ -3,10 +3,6 @@ from decimal import (
 )
 import pytest
 
-from eth_abi import (
-    encode_abi,
-)
-
 from web3._utils.filters import (
     match_fn,
 )
@@ -83,19 +79,19 @@ from web3._utils.filters import (
         ),
     )
 )
-def test_match_fn_with_various_data_types(data, expected, match_data_and_abi):
+def test_match_fn_with_various_data_types(web3, data, expected, match_data_and_abi):
     abi_types, match_data = zip(*match_data_and_abi)
-    encoded_data = encode_abi(abi_types, data)
-    assert match_fn(match_data_and_abi, encoded_data) == expected
+    encoded_data = web3.codec.encode_abi(abi_types, data)
+    assert match_fn(web3, match_data_and_abi, encoded_data) == expected
 
 
-def test_wrong_type_match_data():
+def test_wrong_type_match_data(web3):
     data = ("hello", "goodbye")
     match_data_and_abi = (
         ("string", (50505050,)),
         ("string", (50505050,)),
     )
     abi_types, match_data = zip(*match_data_and_abi)
-    encoded_data = encode_abi(abi_types, data)
+    encoded_data = web3.codec.encode_abi(abi_types, data)
     with pytest.raises(ValueError):
-        match_fn(match_data_and_abi, encoded_data)
+        match_fn(web3, match_data_and_abi, encoded_data)

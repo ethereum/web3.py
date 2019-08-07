@@ -9,6 +9,9 @@ import json
 import pytest
 
 import eth_abi
+from eth_utils import (
+    is_text,
+)
 from eth_utils.toolz import (
     identity,
 )
@@ -72,6 +75,22 @@ def arrays_contract(web3, ArraysContract, address_conversion_func):
 
 
 @pytest.fixture()
+def strict_arrays_contract(web3_strict_types, StrictArraysContract, address_conversion_func):
+    # bytes_32 = [keccak('0'), keccak('1')]
+    bytes32_array = [
+        b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',  # noqa: E501
+        b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6',  # noqa: E501
+    ]
+    byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
+    return deploy(
+        web3_strict_types,
+        StrictArraysContract,
+        address_conversion_func,
+        args=[bytes32_array, byte_arr]
+    )
+
+
+@pytest.fixture()
 def address_contract(web3, WithConstructorAddressArgumentsContract, address_conversion_func):
     return deploy(
         web3,
@@ -83,7 +102,14 @@ def address_contract(web3, WithConstructorAddressArgumentsContract, address_conv
 
 @pytest.fixture(params=[b'\x04\x06', '0x0406', '0406'])
 def bytes_contract(web3, BytesContract, request, address_conversion_func):
-    return deploy(web3, BytesContract, address_conversion_func, args=[request.param])
+    if is_text(request.param) and request.param[:2] != '0x':
+        with pytest.warns(
+            DeprecationWarning,
+            match='in v6 it will be invalid to pass a hex string without the "0x" prefix'
+        ):
+            return deploy(web3, BytesContract, address_conversion_func, args=[request.param])
+    else:
+        return deploy(web3, BytesContract, address_conversion_func, args=[request.param])
 
 
 @pytest.fixture()
@@ -110,7 +136,11 @@ def call_transaction():
     HexBytes('0406040604060406040604060406040604060406040604060406040604060406'),
 ])
 def bytes32_contract(web3, Bytes32Contract, request, address_conversion_func):
-    return deploy(web3, Bytes32Contract, address_conversion_func, args=[request.param])
+    if is_text(request.param) and request.param[:2] != '0x':
+        with pytest.warns(DeprecationWarning):
+            return deploy(web3, Bytes32Contract, address_conversion_func, args=[request.param])
+    else:
+        return deploy(web3, Bytes32Contract, address_conversion_func, args=[request.param])
 
 
 @pytest.fixture()
@@ -250,6 +280,47 @@ def test_call_get_byte_array(arrays_contract, call):
                   contract_function='getByteValue')
     expected_byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
     assert result == expected_byte_arr
+
+
+@pytest.mark.parametrize('args,expected', [([b''], [b'\x00']), (['0x'], [b'\x00'])])
+def test_set_byte_array(arrays_contract, call, transact, args, expected):
+    transact(
+        contract=arrays_contract,
+        contract_function='setByteValue',
+        func_args=[args]
+    )
+    result = call(contract=arrays_contract,
+                  contract_function='getByteValue')
+
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    'args,expected', [
+        ([b'1'], [b'1']),
+        (['0xDe'], [b'\xDe'])
+    ]
+)
+def test_set_strict_byte_array(strict_arrays_contract, call, transact, args, expected):
+    transact(
+        contract=strict_arrays_contract,
+        contract_function='setByteValue',
+        func_args=[args]
+    )
+    result = call(contract=strict_arrays_contract,
+                  contract_function='getByteValue')
+
+    assert result == expected
+
+
+@pytest.mark.parametrize('args', ([''], ['s']))
+def test_set_strict_byte_array_with_invalid_args(strict_arrays_contract, transact, args):
+    with pytest.raises(ValidationError):
+        transact(
+            contract=strict_arrays_contract,
+            contract_function='setByteValue',
+            func_args=[args]
+        )
 
 
 def test_call_get_byte_const_array(arrays_contract, call):
