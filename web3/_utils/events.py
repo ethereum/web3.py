@@ -6,9 +6,6 @@ from enum import Enum
 import itertools
 
 from eth_abi import (
-    decode_abi,
-    decode_single,
-    encode_single,
     grammar,
 )
 from eth_typing import (
@@ -61,7 +58,7 @@ from .abi import (
 )
 
 
-def construct_event_topic_set(event_abi, arguments=None):
+def construct_event_topic_set(event_abi, abi_codec, arguments=None):
     if arguments is None:
         arguments = {}
     if isinstance(arguments, (list, tuple)):
@@ -89,7 +86,7 @@ def construct_event_topic_set(event_abi, arguments=None):
     ]
     encoded_args = [
         [
-            None if option is None else encode_hex(encode_single(arg['type'], option))
+            None if option is None else encode_hex(abi_codec.encode_single(arg['type'], option))
             for option in arg_options]
         for arg, arg_options in zipped_abi_and_args
     ]
@@ -98,7 +95,7 @@ def construct_event_topic_set(event_abi, arguments=None):
     return topics
 
 
-def construct_event_data_set(event_abi, arguments=None):
+def construct_event_data_set(event_abi, abi_codec, arguments=None):
     if arguments is None:
         arguments = {}
     if isinstance(arguments, (list, tuple)):
@@ -125,7 +122,7 @@ def construct_event_data_set(event_abi, arguments=None):
     ]
     encoded_args = [
         [
-            None if option is None else encode_hex(encode_single(arg['type'], option))
+            None if option is None else encode_hex(abi_codec.encode_single(arg['type'], option))
             for option in arg_options]
         for arg, arg_options in zipped_abi_and_args
     ]
@@ -159,7 +156,7 @@ def get_event_abi_types_for_decoding(event_inputs):
 
 
 @curry
-def get_event_data(event_abi, log_entry):
+def get_event_data(abi_codec, event_abi, log_entry):
     """
     Given an event ABI and a log entry for that event, return the decoded
     event data
@@ -199,7 +196,7 @@ def get_event_data(event_abi, log_entry):
             f"between event inputs: '{', '.join(duplicate_names)}'"
         )
 
-    decoded_log_data = decode_abi(log_data_types, log_data)
+    decoded_log_data = abi_codec.decode_abi(log_data_types, log_data)
     normalized_log_data = map_abi_data(
         BASE_RETURN_NORMALIZERS,
         log_data_types,
@@ -207,7 +204,7 @@ def get_event_data(event_abi, log_entry):
     )
 
     decoded_topic_data = [
-        decode_single(topic_type, topic_data)
+        abi_codec.decode_single(topic_type, topic_data)
         for topic_type, topic_data
         in zip(log_topic_types, log_topics)
     ]
@@ -270,12 +267,13 @@ class EventFilterBuilder:
     _address = None
     _immutable = False
 
-    def __init__(self, event_abi, formatter=None):
+    def __init__(self, event_abi, abi_codec, formatter=None):
         self.event_abi = event_abi
+        self.abi_codec = abi_codec
         self.formatter = formatter
         self.event_topic = initialize_event_topics(self.event_abi)
         self.args = AttributeDict(
-            _build_argument_filters_from_event_abi(event_abi))
+            _build_argument_filters_from_event_abi(event_abi, abi_codec))
         self._ordered_arg_names = tuple(arg['name'] for arg in event_abi['inputs'])
 
     @property
@@ -378,11 +376,11 @@ def initialize_event_topics(event_abi):
 
 
 @to_dict
-def _build_argument_filters_from_event_abi(event_abi):
+def _build_argument_filters_from_event_abi(event_abi, abi_codec):
     for item in event_abi['inputs']:
         key = item['name']
         if item['indexed'] is True:
-            value = TopicArgumentFilter(arg_type=item['type'])
+            value = TopicArgumentFilter(abi_codec=abi_codec, arg_type=item['type'])
         else:
             value = DataArgumentFilter(arg_type=item['type'])
         yield key, value
@@ -433,6 +431,10 @@ class DataArgumentFilter(BaseArgumentFilter):
 
 
 class TopicArgumentFilter(BaseArgumentFilter):
+    def __init__(self, arg_type, abi_codec):
+        self.abi_codec = abi_codec
+        self.arg_type = arg_type
+
     @to_tuple
     def _get_match_values(self):
         yield from (self._encode(value) for value in self._match_values)
@@ -448,7 +450,7 @@ class TopicArgumentFilter(BaseArgumentFilter):
         if is_dynamic_sized_type(self.arg_type):
             return to_hex(keccak(encode_single_packed(self.arg_type, value)))
         else:
-            return to_hex(encode_single(self.arg_type, value))
+            return to_hex(self.abi_codec.encode_single(self.arg_type, value))
 
 
 class EventLogErrorFlags(Enum):

@@ -135,6 +135,8 @@ def test_validation(param, validation, expected):
         ('bytes', "0x5402", None),
         ('bytes', "5402", TypeError),
         ('bytes', b'T\x02', None),
+        ('bytes2', b'T\x02', None),
+        ('bytes3', b'T\x02', None),
     )
 )
 def test_validate_abi_value(abi_type, value, expected):
