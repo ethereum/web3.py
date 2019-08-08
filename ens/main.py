@@ -8,6 +8,7 @@ from eth_utils import (
 from ens import abis
 from ens.constants import (
     EMPTY_ADDR_HEX,
+    NET_VERSION_TO_ENS_ADDR,
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
@@ -29,13 +30,6 @@ from ens.utils import (
     normalize_name,
     raw_name_to_hash,
 )
-
-NET_VERSION_TO_ENS_ADDR = {
-    1: '0x314159265dD8dbb310642f98f50C066173C1259b',
-    3: '0x112234455C3a32FD11230C42E7Bccd4A84e02010',
-    4: '0xe7410170f87102DF0055eB195163A03B7F2Bff4A',
-    5: '0x112234455C3a32FD11230C42E7Bccd4A84e02010',
-}
 
 
 class ENS:
