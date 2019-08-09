@@ -252,6 +252,29 @@ def test_call_get_byte_array(arrays_contract, call):
     assert result == expected_byte_arr
 
 
+@pytest.mark.parametrize('args,expected', [([b''], [b'\x00']), (['0x'], [b'\x00'])])
+def test_set_byte_array(arrays_contract, call, transact, args, expected):
+    transact(
+        contract=arrays_contract,
+        contract_function='setByteValue',
+        func_args=[args]
+    )
+    result = call(contract=arrays_contract,
+                  contract_function='getByteValue')
+
+    assert result == expected
+
+
+@pytest.mark.parametrize('args', ([''], ['s']))
+def test_set_byte_array_with_invalid_args(arrays_contract, transact, args):
+    with pytest.raises(ValidationError):
+        transact(
+            contract=arrays_contract,
+            contract_function='setByteValue',
+            func_args=[args]
+        )
+
+
 def test_call_get_byte_const_array(arrays_contract, call):
     result = call(contract=arrays_contract,
                   contract_function='getByteConstValue')

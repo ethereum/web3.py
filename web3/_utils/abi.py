@@ -147,7 +147,12 @@ class AddressEncoder(encoding.AddressEncoder):
 
 class AcceptsHexStrMixin:
     def validate_value(self, value):
-        if is_text(value):
+        if value == '':
+            self.invalidate_value(
+                value,
+                msg='invalid hex string. To pass in an empty hex string, use "0x".',
+            )
+        elif is_text(value):
             try:
                 value = decode_hex(value)
             except binascii.Error:
