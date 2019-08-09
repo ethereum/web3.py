@@ -4,9 +4,6 @@ from typing import (
     List,
 )
 
-from ethpm.exceptions import (
-    EthPMValidationError,
-)
 from ethpm.validation.package import (
     validate_contract_name,
 )
@@ -25,11 +22,11 @@ class Deployments:
     def __init__(
         self,
         deployment_data: Dict[str, Dict[str, str]],
-        contract_factories: Dict[str, Contract],
+        contract_instances: Dict[str, Contract],
         w3: Web3,
     ) -> None:
         self.deployment_data = deployment_data
-        self.contract_factories = contract_factories
+        self.contract_instances = contract_instances
         self.w3 = w3
 
     def __getitem__(self, key: str) -> Dict[str, str]:
@@ -56,30 +53,12 @@ class Deployments:
         after validating contract name.
         """
         self._validate_name_and_references(contract_name)
-        # Use a deployment's "contract_type" to lookup contract factory
-        # in case the deployment uses a contract alias
-        contract_type = self.deployment_data[contract_name]["contract_type"]
-        factory = self.contract_factories[contract_type]
-        address = self.deployment_data[contract_name]["address"]
-        contract_kwargs = {
-            "abi": factory.abi,
-            "bytecode": factory.bytecode,
-            "bytecode_runtime": factory.bytecode_runtime,
-        }
-        return self.w3.eth.contract(address=address, **contract_kwargs)
+        return self.contract_instances[contract_name]
 
     def _validate_name_and_references(self, name: str) -> None:
         validate_contract_name(name)
-
         if name not in self.deployment_data:
             raise KeyError(
-                "Contract name not found in deployment data. "
+                f"Contract deployment: {name} not found in deployment data. "
                 f"Available deployments include: {list(sorted(self.deployment_data.keys()))}."
-            )
-
-        contract_type = self.deployment_data[name]["contract_type"]
-        if contract_type not in self.contract_factories:
-            raise EthPMValidationError(
-                f"Contract type: {contract_type} for alias: {name} not found. "
-                f"Available contract types include: {list(sorted(self.contract_factories.keys()))}."
             )

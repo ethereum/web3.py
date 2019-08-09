@@ -19,6 +19,7 @@ from eth_typing import (
 )
 from eth_utils import (
     to_canonical_address,
+    to_dict,
     to_text,
     to_tuple,
 )
@@ -46,6 +47,7 @@ from ethpm.deployments import (
 )
 from ethpm.exceptions import (
     BytecodeLinkingError,
+    EthPMValidationError,
     FailureToFetchIPFSAssetsError,
     InsufficientAssetsError,
     PyEthPMError,
@@ -323,7 +325,7 @@ class Package(object):
     def deployments(self) -> Union["Deployments", Dict[None, None]]:
         """
         Returns a ``Deployments`` object containing all the deployment data and contract
-        factories of a ``Package``'s `contract_types`. Automatically filters deployments
+        instances of a ``Package``'s `contract_types`. Automatically filters deployments
         to only expose those available on the current ``Package.w3`` instance.
 
         .. code:: python
@@ -337,12 +339,7 @@ class Package(object):
         matching_uri = validate_single_matching_uri(all_blockchain_uris, self.w3)
 
         deployments = self.manifest["deployments"][matching_uri]
-        all_contract_factories = {
-            deployment_data["contract_type"]: self.get_contract_factory(
-                deployment_data["contract_type"]
-            )
-            for deployment_data in deployments.values()
-        }
+        all_contract_instances = self._get_all_contract_instances(deployments)
         validate_deployments_tx_receipt(deployments, self.w3, allow_missing_data=True)
         linked_deployments = get_linked_deployments(deployments)
         if linked_deployments:
@@ -360,7 +357,23 @@ class Package(object):
                 for linked_ref in resolved_linked_refs:
                     validate_linked_references(linked_ref, on_chain_bytecode)
 
-        return Deployments(deployments, all_contract_factories, self.w3)
+        return Deployments(deployments, all_contract_instances, self.w3)
+
+    @to_dict
+    def _get_all_contract_instances(self, deployments):
+        contract_types = self.manifest['contract_types'].keys()
+        for deployment_name, deployment_data in deployments.items():
+            if deployment_data['contract_type'] not in contract_types:
+                raise EthPMValidationError(
+                    f"Contract type: {deployment_data['contract_type']} for alias: "
+                    f"{deployment_name} not found. Available contract types include: "
+                    f"{list(sorted(contract_types))}."
+                )
+            contract_instance = self.get_contract_instance(
+                deployment_data['contract_type'],
+                deployment_data['address'],
+            )
+            yield deployment_name, contract_instance
 
     @to_tuple
     def _resolve_linked_references(
