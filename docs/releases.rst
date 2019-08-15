@@ -4,6 +4,24 @@ Release Notes
 v5 Breaking Changes Summary
    See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
+v5.0.1
+------
+Released August 15, 2019
+
+- Bugfixes
+
+  - [ethPM] Add begin/close chars to package name regex
+    - `#1418 <https://github.com/ethereum/web3.py/pull/1418>`_
+  - [ethPM] Update deployments to work when only abi available
+    - `#1417 <https://github.com/ethereum/web3.py/pull/1417>`_
+  - Fix tuples handled incorrectly in ``decode_function_input``
+    - `#1410 <https://github.com/ethereum/web3.py/pull/1410>`_
+
+- Misc
+
+  - Eliminate ``signTransaction`` warning
+    - `#1404 <https://github.com/ethereum/web3.py/pull/1404>`_
+
 v5.0.0
 ------
 Released August 1, 2019
