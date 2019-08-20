@@ -534,7 +534,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
         * ``privateKeyID``: When using asymmetric key encryption, holds the private key ID.
         * ``sig``: Public key of the signature.
         * ``minPoW``: Minimal PoW requirement for incoming messages.
-        * ``topics``: Array of possible topics (or partial topics).
+        * ``topic``: Array of possible topics (or partial topics).
         * ``allowP2P``: Indicates if this filter allows processing of direct peer-to-peer messages.
 
 
