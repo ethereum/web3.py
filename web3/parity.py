@@ -151,3 +151,9 @@ class Parity(Module):
             "parity_mode",
             []
         )
+    
+    def nextNonce(self, account):
+        return self.web3.manager.request_blocking(
+            "parity_nextNonce",
+            [account]
+        )

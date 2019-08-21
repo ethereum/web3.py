@@ -387,5 +387,7 @@ pythonic_middleware = construct_formatting_middleware(
         'evm_snapshot': hex_to_integer,
         # Net
         'net_peerCount': to_integer_if_hex,
+        # Parity
+        'parity_nextNonce': to_integer_if_hex,
     },
 )
