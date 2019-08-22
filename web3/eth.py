@@ -260,7 +260,7 @@ class Eth(Module):
         except Timeout:
             raise TimeExhausted(
                 "Transaction {} is not in the chain, after {} seconds".format(
-                    transaction_hash,
+                    to_hex(transaction_hash),
                     timeout,
                 )
             )
