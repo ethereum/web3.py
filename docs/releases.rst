@@ -4,6 +4,15 @@ Release Notes
 v5 Breaking Changes Summary
    See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
+v5.0.2
+------
+Released August 22, 2019
+
+- Bugfixes
+
+  - [ethPM] Fix bug in package id and release id fetching strategy
+    - `#1427 <https://github.com/ethereum/web3.py/pull/1427>`_
+
 v5.0.1
 ------
 Released August 15, 2019
