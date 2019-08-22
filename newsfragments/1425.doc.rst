@@ -1,0 +1,1 @@
+Remove whitespace, move ``topics`` key -> ``topic`` in Geth docs

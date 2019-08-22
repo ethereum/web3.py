@@ -26,6 +26,7 @@ extras_require = {
         "sphinx",
         "sphinx_rtd_theme>=0.1.9",
         "toposort>=1.4",
+        "towncrier>=19.2.0,<20",
         "urllib3",
         "web3>=2.1.0",
         "wheel"
@@ -41,9 +42,9 @@ extras_require = {
         "pytest-xdist>=1.29,<2",
         "setuptools>=36.2.0",
         "tox>=1.8.0",
-        "tqdm",
-        "twine",
-        "when-changed"
+        "tqdm>4.32,<5",
+        "twine>=1.13,<2",
+        "when-changed>=0.3.0,<0.4"
     ]
 }
 
