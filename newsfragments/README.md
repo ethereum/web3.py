@@ -13,12 +13,12 @@ relevant to people working on the code itself.)
 * `doc`
 * `misc`
 
- So for example: `123.feature.rst`, `456.bugfix.rst`
+So for example: `123.feature.rst`, `456.bugfix.rst`
 
- If the PR fixes an issue, use that number here. If there is no issue,
+If the PR fixes an issue, use that number here. If there is no issue,
 then open up the PR first and use the PR number for the newsfragment.
 
- Note that the `towncrier` tool will automatically
+Note that the `towncrier` tool will automatically
 reflow your text, so don't try to do any fancy formatting. Run
- `towncrier --draft` to get a preview of what the release notes entry
- will look like in the final release notes.
+`towncrier --draft` to get a preview of what the release notes entry
+will look like in the final release notes.
