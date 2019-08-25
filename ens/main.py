@@ -19,7 +19,6 @@ from ens.utils import (
     address_in,
     address_to_reverse_domain,
     default,
-    dict_copy,
     init_web3,
     is_none_or_zero_address,
     is_valid_name,
@@ -92,8 +91,7 @@ class ENS:
         reversed_domain = address_to_reverse_domain(address)
         return self.resolve(reversed_domain, get='name')
 
-    
-    def setup_address(self, name, address=default,transact=None):
+    def setup_address(self, name, address=default, transact=None):
         """
         Set up the name to point to the supplied address.
         The sender of the transaction must own the name, or
@@ -112,7 +110,7 @@ class ENS:
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         """
         if transact is None:
-            transact={}
+            transact = {}
         owner = self.setup_owner(name, transact=transact)
         self._assert_control(owner, name)
         if is_none_or_zero_address(address):
@@ -131,7 +129,6 @@ class ENS:
         resolver = self._set_resolver(name, transact=transact)
         return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
 
-    
     def setup_name(self, name, address=None, transact=None):
         """
         Set up the address for reverse lookup, aka "caller ID".
@@ -148,7 +145,7 @@ class ENS:
         :raises UnownedName: if no one owns `name`
         """
         if transact is None:
-            transact={}
+            transact = {}
         if not name:
             self._assert_control(address, 'the reverse record')
             return self._setup_reverse(None, address, transact=transact)
@@ -213,7 +210,6 @@ class ENS:
         node = raw_name_to_hash(name)
         return self.ens.caller.owner(node)
 
-    
     def setup_owner(self, name, new_owner=default, transact=None):
         """
         Set the owner of the supplied name to `new_owner`.
@@ -239,7 +235,7 @@ class ENS:
         :returns: the new owner's address
         """
         if transact is None:
-            transact={}
+            transact = {}
         (super_owner, unowned, owned) = self._first_owner(name)
         if new_owner is default:
             new_owner = super_owner
@@ -281,10 +277,9 @@ class ENS:
                 unowned.append(pieces.pop(0))
         return (owner, unowned, name)
 
-    
     def _claim_ownership(self, owner, unowned, owned, old_owner=None, transact=None):
         if transact is None:
-            transact={}
+            transact = {}
         transact['from'] = old_owner or owner
         for label in reversed(unowned):
             self.ens.functions.setSubnodeOwner(
@@ -294,10 +289,9 @@ class ENS:
             ).transact(transact)
             owned = "%s.%s" % (label, owned)
 
-    
     def _set_resolver(self, name, resolver_addr=None, transact=None):
         if transact is None:
-            transact={}
+            transact = {}
         if is_none_or_zero_address(resolver_addr):
             resolver_addr = self.address('resolver.eth')
         namehash = raw_name_to_hash(name)
@@ -308,10 +302,9 @@ class ENS:
             ).transact(transact)
         return self._resolverContract(address=resolver_addr)
 
-    
     def _setup_reverse(self, name, address, transact=None):
         if transact is None:
-            transact={}
+            transact = {}
         if name:
             name = normalize_name(name)
         else:
