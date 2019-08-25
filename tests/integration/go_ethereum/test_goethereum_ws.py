@@ -99,3 +99,7 @@ class TestGoEthereumShhModuleTest(CommonGoEthereumShhModuleTest):
     def test_shh_async_filter(self, web3):
         pytest.xfail("async filter bug in geth ws version")
         super().test_shh_async_filter(web3)
+
+    def test_shh_async_filter_deprecated(self, web3):
+        pytest.xfail("async filter bug in geth ws version")
+        super().test_shh_async_filter(web3)
