@@ -1,3 +1,12 @@
+Web3 5.0.3 (2019-08-26)
+-----------------------
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove whitespace, move ``topics`` key -> ``topic`` in Geth docs (`#1425 <https://github.com/ethereum/web3.py/issues/1425>`__)
+
+
 Release Notes
 =============
 
