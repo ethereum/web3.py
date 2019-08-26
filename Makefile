@@ -40,16 +40,12 @@ build-docs:
 	$(MAKE) -C docs html
 	$(MAKE) -C docs doctest
 
-docs: build-docs
+docs: build-docs validate-docs
 	open docs/_build/html/index.html
 
-validate-docs:
+validate-docs: build-docs
 	python newsfragments/validate_files.py
 	towncrier --draft
-
-validate-and-test-docs: validate-docs
-	$(MAKE) -C docs doctest
-
 
 linux-docs: build-docs
 	readlink -f docs/_build/html/index.html
