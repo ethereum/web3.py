@@ -118,7 +118,7 @@ ethpm_steps: &ethpm_steps
         command:
           wget https://dist.ipfs.io/go-ipfs/v0.4.19/go-ipfs_v0.4.19_linux-amd64.tar.gz &&
           tar xvfz go-ipfs_v0.4.19_linux-amd64.tar.gz &&
-          sudo cp go-ipfs/ipfs /usr/local/bin && 
+          sudo cp go-ipfs/ipfs /usr/local/bin &&
           ipfs init
     - run:
         name: start ipfs node in background
@@ -152,12 +152,12 @@ jobs:
     environment:
       TOXENV: lint
 
-  doctest:
+  docs:
     <<: *common
     docker:
       - image: circleci/python:3.6
     environment:
-      TOXENV: doctest
+      TOXENV: docs
 
   py36-core:
     <<: *common
@@ -376,7 +376,7 @@ workflows:
   test:
     jobs:
       - lint
-      - doctest
+      - docs
       - py36-core
       - py36-ens
       - py36-ethpm
