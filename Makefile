@@ -61,9 +61,10 @@ release: clean
 	# previous dry-run runs *without* --allow-dirty which ensures it's really just the release notes
 	# file that we are allowing to sit here dirty, waiting to get included in the release commit.
 	bumpversion --allow-dirty $(bump)
-	git push upstream && git push upstream --tags
+	# git push upstream && git push upstream --tags
 	python setup.py sdist bdist_wheel
-	twine upload dist/*
+	# twine upload dist/*
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 	git config commit.gpgSign "$(CURRENT_SIGN_SETTING)"
 
 dist: clean
