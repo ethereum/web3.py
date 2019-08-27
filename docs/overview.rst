@@ -12,7 +12,7 @@ Providers
 ---------
 
 *Providers* are how web3 connects to the blockchain.  The Web3 library comes
-with a the following built-in providers that should be suitable for most normal
+with the following built-in providers that should be suitable for most normal
 use cases.
 
 - ``web3.HTTPProvider`` for connecting to http and https based JSON-RPC servers.
