@@ -1,0 +1,2 @@
+Enforce stricter doc checking, turning warnings into errors to fail CI builds
+to catch issues quickly.
