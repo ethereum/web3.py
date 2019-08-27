@@ -32,6 +32,7 @@ Contents
     web3.miner
     web3.geth
     web3.parity
+    web3.tools
     gas_price
     ens
     ethpm

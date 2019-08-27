@@ -1,2 +1,5 @@
 Enforce stricter doc checking, turning warnings into errors to fail CI builds
 to catch issues quickly.
+
+Add missing ``web3.tools.rst`` to the table of contents and fix incorrectly formatted
+JSON example.

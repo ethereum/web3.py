@@ -488,7 +488,7 @@ Sample standard-json-input.json
         "language": "Solidity",
         "sources": {
             "Contract.sol": {
-                "urls": [<path-to-contract>]
+                "urls": ["<path-to-contract>"]
             }
         },
         "settings": {
