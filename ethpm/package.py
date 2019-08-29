@@ -6,6 +6,7 @@ from typing import (
     Any,
     Dict,
     Generator,
+    List,
     Optional,
     Tuple,
     Union,
@@ -175,7 +176,6 @@ class Package(object):
         The uri (local file_path / content-addressed URI) of a ``Package``'s manifest.
         """
         return self._uri
-    
 
     @property
     def contract_types(self) -> List[str]:
@@ -186,7 +186,6 @@ class Package(object):
             return sorted(self.manifest['contract_types'].keys())
         else:
             return ValueError("No contract types found in manifest; {self.__repr__()}.")
-
 
     @classmethod
     def from_file(cls, file_path: Path, w3: Web3) -> "Package":
@@ -214,7 +213,7 @@ class Package(object):
         URI schemes supported:
         - IPFS          `ipfs://Qm...`
         - HTTP          `https://api.github.com/repos/:owner/:repo/git/blobs/:file_sha`
-        - Registry      `ercXXX://registry.eth/greeter?version=1.0.0`
+        - Registry      `erc1319://registry.eth:1/greeter?version=1.0.0`
 
         .. code:: python
 

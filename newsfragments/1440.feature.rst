@@ -1,0 +1,1 @@
+Add ``contract_types`` property to ``Package`` class.
