@@ -47,7 +47,7 @@ Properties
 Each ``Package`` exposes the following properties.
 
 .. autoclass:: ethpm.Package
-   :members: name, version, manifest_version, uri, __repr__, build_dependencies, deployments
+   :members: name, version, manifest_version, uri, __repr__, contract_types, build_dependencies, deployments
 
 .. py:attribute:: Package.w3
 
