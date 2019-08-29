@@ -175,6 +175,18 @@ class Package(object):
         The uri (local file_path / content-addressed URI) of a ``Package``'s manifest.
         """
         return self._uri
+    
+
+    @property
+    def contract_types(self) -> List[str]:
+        """
+        All contract types included in this package.
+        """
+        if 'contract_types' in self.manifest:
+            return sorted(self.manifest['contract_types'].keys())
+        else:
+            return ValueError("No contract types found in manifest; {self.__repr__()}.")
+
 
     @classmethod
     def from_file(cls, file_path: Path, w3: Web3) -> "Package":
@@ -253,7 +265,7 @@ class Package(object):
             raise InsufficientAssetsError(
                 "This package does not contain any package data to generate "
                 f"a contract factory for contract type: {name}. Available contract types include: "
-                f"{ list(self.manifest['contract_types'].keys()) }."
+                f"{self.contract_types}."
             )
 
         validate_minimal_contract_factory_data(contract_data)
@@ -361,13 +373,12 @@ class Package(object):
 
     @to_dict
     def _get_all_contract_instances(self, deployments):
-        contract_types = self.manifest['contract_types'].keys()
         for deployment_name, deployment_data in deployments.items():
-            if deployment_data['contract_type'] not in contract_types:
+            if deployment_data['contract_type'] not in self.contract_types:
                 raise EthPMValidationError(
                     f"Contract type: {deployment_data['contract_type']} for alias: "
                     f"{deployment_name} not found. Available contract types include: "
-                    f"{list(sorted(contract_types))}."
+                    f"{self.contract_types}."
                 )
             contract_instance = self.get_contract_instance(
                 deployment_data['contract_type'],
