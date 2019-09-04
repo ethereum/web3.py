@@ -471,3 +471,50 @@ like so:
 .. include::  ../tests/core/contracts/test_contract_example.py
     :code: python
     :start-line: 1
+    
+Using Infura Rinkeby Node
+-------------------------
+Import your required libraries
+
+.. code-block:: python
+
+    from web3 import Web3, HTTPProvider
+    
+Initialize a web3 instance with an Infura node
+
+.. code-block:: python
+    
+    w3 = Web3(Web3.HTTPProvider("https://rinkeby.infura.io/v3/YOUR_INFURA_KEY"))
+
+ 
+Inject the middleware into the middleware onion
+
+.. code-block:: python
+
+    from web3.middleware import geth_poa_middleware
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    
+Just remember that you have to sign all transactions locally, as infura does not handle any keys from your wallet ( refer to `this`_  )
+
+
+..  _this: https://web3py.readthedocs.io/en/stable/web3.eth.account.html#local-vs-hosted-nodes
+
+.. code-block:: python
+    
+    transaction = contract.functions.function_Name(params).buildTransaction()
+    transaction.update({ 'gas' : appropriate_gas_amount })  
+    transaction.update({ 'nonce' : web3.eth.getTransactionCount('Your_Wallet_Address') })
+    signed_tx = w3.eth.account.signTransaction(transaction, private_key)
+    
+P.S : the two updates are done to the transaction dictionary, since a raw transaction might not contain gas & nonce amounts, so you have to add them manually.
+    
+And finally, send the transaction
+
+.. code-block:: python
+
+    txn_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    txn_receipt = w3.eth.waitForTransactionReceipt(txn_hash)
+    
+Tip : afterwards you can use the value stored in ``txn_hash``, in an explorer like `etherscan`_ to view the transaction's details
+
+.. _etherscan: https://rinkeby.etherscan.io
