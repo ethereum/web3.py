@@ -93,3 +93,42 @@ including a :ref:`contract_example`, and how to create a contract instance using
 .. NOTE:: It is recommended that your development environment have the ``PYTHONWARNINGS=default``
     environment variable set. Some deprecation warnings will not show up
     without this variable being set.
+    
+ Using Infura Rinkeby Node
+ =========================
+ Import your required libraries
+
+.. code-block:: python
+
+    from web3 import Web3, HTTPProvider
+    
+Intialize your infura node in a variable
+
+.. code-block:: python
+    
+    w3 = Web3(Web3.HTTPProvider("https://rinkeby.infura.io/v3/YOUR_INFURA_KEY"))
+
+ 
+inject the middle-ware in the variable holding your infura node;
+
+.. code-block:: python
+    
+    w3.middleware_stack.inject(geth_poa_middleware, layer=0)
+    
+just remember that you have to sign all transactions LOCALLY, as infura does not handle any keys from your wallet
+
+.. code-block:: python
+    
+    transaction = contract.functions.function_Name(params)
+    signed_tx = w3.eth.account.signTransaction(transaction, private_key)
+    
+and then send the transaction;
+
+.. code-block:: python
+
+    txn_hash = w3.eth.sendRawTransaction(signed.rawTransaction) 
+    txn_receipt = w3.eth.waitForTransactionReceipt(txn_hash) 
+
+
+   
+
