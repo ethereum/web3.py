@@ -166,7 +166,7 @@ BLOCK_FORMATTERS = {
     'size': to_integer_if_hex,
     'timestamp': to_integer_if_hex,
     'hash': apply_formatter_if(is_not_null, to_hexbytes(32)),
-    'logsBloom': to_hexbytes(256),
+    'logsBloom': apply_formatter_if(is_not_null, to_hexbytes(256)),
     'miner': apply_formatter_if(is_not_null, to_checksum_address),
     'mixHash': to_hexbytes(32),
     'nonce': apply_formatter_if(is_not_null, to_hexbytes(8, variable_length=True)),

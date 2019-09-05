@@ -1,0 +1,1 @@
+Add null check to logsbloom formatter
