@@ -10,6 +10,10 @@ from jsonschema import (
     ValidationError as jsonValidationError,
     validate,
 )
+from jsonschema.validators import (
+    Draft4Validator,
+    validator_for,
+)
 
 from ethpm import (
     ASSETS_DIR,
@@ -75,7 +79,7 @@ def validate_manifest_against_schema(manifest: Dict[str, Any]) -> None:
     """
     schema_data = _load_schema_data()
     try:
-        validate(manifest, schema_data)
+        validate(manifest, schema_data, cls=validator_for(schema_data, Draft4Validator))
     except jsonValidationError as e:
         raise EthPMValidationError(
             f"Manifest invalid for schema version {schema_data['version']}. "
