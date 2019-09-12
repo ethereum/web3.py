@@ -41,30 +41,25 @@ def hex_and_pad(i):
 
 
 @pytest.mark.parametrize(
-    'event_abi,arguments,expected',
+    'arguments,expected',
     (
         (
-            EVENT_1_ABI,
             {},
             [[]],
         ),
         (
-            EVENT_1_ABI,
             {'arg1': 1},
             [[]],
         ),
         (
-            EVENT_1_ABI,
             {'arg0': 1},
             [[hex_and_pad(1), None, None]],
         ),
         (
-            EVENT_1_ABI,
             {'arg0': [1]},
             [[hex_and_pad(1), None, None]],
         ),
         (
-            EVENT_1_ABI,
             {'arg0': [1, 2]},
             [
                 [hex_and_pad(1), None, None],
@@ -72,7 +67,6 @@ def hex_and_pad(i):
             ],
         ),
         (
-            EVENT_1_ABI,
             {'arg0': [1, 3], 'arg3': [2, 4]},
             [
                 [hex_and_pad(1), hex_and_pad(2), None],
@@ -83,36 +77,31 @@ def hex_and_pad(i):
         ),
     )
 )
-def test_construct_event_data_set(web3, event_abi, arguments, expected):
-    actual = construct_event_data_set(event_abi, web3.codec, arguments)
+def test_construct_event_data_set(web3, arguments, expected):
+    actual = construct_event_data_set(EVENT_1_ABI, web3.codec, arguments)
     assert actual == expected
 
 
 @pytest.mark.parametrize(
-    'event_abi,arguments,expected',
+    'arguments,expected',
     (
         (
-            EVENT_1_ABI,
             {},
             [[]],
         ),
         (
-            EVENT_1_ABI,
             {'arg1': 1},
             [[]],
         ),
         (
-            EVENT_1_ABI,
             {'arg0': 1},
             [[hex_and_pad(1), None, None]],
         ),
         (
-            EVENT_1_ABI,
             {'arg0': [1]},
             [[hex_and_pad(1), None, None]],
         ),
         (
-            EVENT_1_ABI,
             {'arg0': [1, 2]},
             [
                 [hex_and_pad(1), None, None],
@@ -120,7 +109,6 @@ def test_construct_event_data_set(web3, event_abi, arguments, expected):
             ],
         ),
         (
-            EVENT_1_ABI,
             {'arg0': [1, 3], 'arg3': [2, 4]},
             [
                 [hex_and_pad(1), hex_and_pad(2), None],
@@ -131,39 +119,34 @@ def test_construct_event_data_set(web3, event_abi, arguments, expected):
         ),
     )
 )
-def test_construct_event_data_set_strict(web3_strict_types, event_abi, arguments, expected):
-    actual = construct_event_data_set(event_abi, web3_strict_types.codec, arguments)
+def test_construct_event_data_set_strict(w3_strict_abi, arguments, expected):
+    actual = construct_event_data_set(EVENT_1_ABI, w3_strict_abi.codec, arguments)
     assert actual == expected
 
 
 @pytest.mark.parametrize(
-    'event_abi,arguments,expected_error',
+    'arguments,expected_error',
     (
         (
-            EVENT_2_ABI,
             {'arg0': '131414'},
             EncodingTypeError,
         ),
         (
-            EVENT_2_ABI,
             {'arg0': b'131414'},
             ValueOutOfBounds,
         ),
         (
-            EVENT_2_ABI,
             {'arg0': b'13'},
             ValueOutOfBounds,
         ),
         (
-            EVENT_2_ABI,
             {'arg0': b'12'},
             ValueOutOfBounds,
         ),
     )
 )
-def test_construct_event_data_set_strict_with_errors(web3_strict_types,
-                                                     event_abi,
+def test_construct_event_data_set_strict_with_errors(w3_strict_abi,
                                                      arguments,
                                                      expected_error):
     with pytest.raises(expected_error):
-        construct_event_data_set(event_abi, web3_strict_types.codec, arguments)
+        construct_event_data_set(EVENT_2_ABI, w3_strict_abi.codec, arguments)

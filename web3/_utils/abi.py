@@ -152,16 +152,37 @@ class AddressEncoder(encoding.AddressEncoder):
         super().validate_value(value)
 
 
-class AcceptsHexStrMixin:
-    def validate(self):
-        super().validate()
+class AcceptsHexStrEncoder(encoding.BaseEncoder):
+    def __init__(self, subencoder):
+        self.subencoder = subencoder
 
-        if self.is_strict is None:
-            raise ValueError("`is_strict` may not be none")
+    @property
+    def is_dynamic(self):
+        return self.subencoder.is_dynamic
+
+    @classmethod
+    def from_type_str(cls, abi_type, registry):
+        subencoder_cls = cls.get_subencoder_class()
+        subencoder = subencoder_cls.from_type_str(abi_type, registry)
+        return cls(subencoder)
+
+    @classmethod
+    def get_subencoder_class(cls):
+        if cls.subencoder_cls is None:
+            raise AttributeError(f'No subencoder class is set. {cls.__name__}')
+        return cls.subencoder_cls
 
     @combomethod
     def validate_value(self, value):
-        original_value = value
+        normalized_value = self.validate_and_normalize(value)
+        return self.subencoder.validate_value(normalized_value)
+
+    def encode(self, value):
+        normalized_value = self.validate_and_normalize(value)
+        return self.subencoder.encode(normalized_value)
+
+    def validate_and_normalize(self, value):
+        raw_value = value
         if is_text(value):
             try:
                 value = decode_hex(value)
@@ -171,33 +192,32 @@ class AcceptsHexStrMixin:
                     msg=f'{value} is an invalid hex string',
                 )
             else:
-                self.check_for_0x(original_value)
-
-        super().validate_value(value)
-
-    def check_for_0x(self, original_value):
-        if original_value[:2] != '0x':
-            if self.is_strict:
-                self.invalidate_value(
-                    original_value,
-                    msg='hex string must be prefixed with 0x'
-                )
-            elif original_value[:2] != '0x':
-                warnings.warn(
-                    'in v6 it will be invalid to pass a hex string without the "0x" prefix',
-                    category=DeprecationWarning
-                )
+                if raw_value[:2] != '0x':
+                    if self.is_strict:
+                        self.invalidate_value(
+                            raw_value,
+                            msg='hex string must be prefixed with 0x'
+                        )
+                    elif raw_value[:2] != '0x':
+                        warnings.warn(
+                            'in v6 it will be invalid to pass a hex string without the "0x" prefix',
+                            category=DeprecationWarning
+                        )
+        return value
 
 
-class BytesEncoder(AcceptsHexStrMixin, encoding.BytesEncoder):
+class BytesEncoder(AcceptsHexStrEncoder):
+    subencoder_cls = encoding.BytesEncoder
     is_strict = False
 
 
-class ByteStringEncoder(AcceptsHexStrMixin, encoding.ByteStringEncoder):
+class ByteStringEncoder(AcceptsHexStrEncoder):
+    subencoder_cls = encoding.ByteStringEncoder
     is_strict = False
 
 
-class StrictByteStringEncoder(AcceptsHexStrMixin, encoding.ByteStringEncoder):
+class StrictByteStringEncoder(AcceptsHexStrEncoder):
+    subencoder_cls = encoding.ByteStringEncoder
     is_strict = True
 
 
@@ -231,26 +251,26 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
             raise ValueError("Value byte size exceeds data size")
 
     def encode(self, value):
-        self.validate_value(value)
-        return self.encode_fn(value)
+        normalized_value = self.validate_value(value)
+        return self.encode_fn(normalized_value)
 
     def validate_value(self, value):
         if not is_bytes(value) and not is_text(value):
             self.invalidate_value(value)
 
-        original_value = value
+        raw_value = value
         if is_text(value):
             try:
                 value = decode_hex(value)
             except binascii.Error:
                 self.invalidate_value(
                     value,
-                    msg=f'{value} is an invalid hex string',
+                    msg=f'{value} is not a valid hex string',
                 )
             else:
-                if original_value[:2] != '0x':
+                if raw_value[:2] != '0x':
                     self.invalidate_value(
-                        original_value,
+                        raw_value,
                         msg='hex string must be prefixed with 0x'
                     )
 
@@ -267,10 +287,26 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
                 exc=ValueOutOfBounds,
                 msg="less than total byte size for bytes{} encoding".format(byte_size),
             )
+        return value
 
     @staticmethod
     def encode_fn(value):
         return value
+
+    @parse_type_str('bytes')
+    def from_type_str(cls, abi_type, registry):
+        return cls(
+            value_bit_size=abi_type.sub * 8,
+            data_byte_size=abi_type.sub,
+        )
+
+
+class BytesDecoder(decoding.FixedByteSizeDecoder):
+    is_big_endian = False
+
+    @staticmethod
+    def decoder_fn(data):
+        return data
 
     @parse_type_str('bytes')
     def from_type_str(cls, abi_type, registry):
@@ -840,7 +876,7 @@ def build_strict_registry():
     )
     registry.register(
         BaseEquals('bytes', with_sub=True),
-        ExactLengthBytesEncoder, decoding.BytesDecoder,
+        ExactLengthBytesEncoder, BytesDecoder,
         label='bytes<M>',
     )
     registry.register(

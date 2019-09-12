@@ -28,6 +28,10 @@ All addresses must be supplied in one of three ways:
 Strict Bytes Type Checking
 --------------------------
 
+.. note ::
+
+  In version 6, this will be the default behavior
+
 There is a method on web3 that will enable stricter bytes type checking.
 The default is to allow Python strings, and to allow bytestrings less
 than the specified byte size. To enable stricter checks, use

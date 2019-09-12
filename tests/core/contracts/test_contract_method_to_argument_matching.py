@@ -162,8 +162,8 @@ def test_error_when_duplicate_match(web3):
 
 
 @pytest.mark.parametrize('arguments', (['0xf00b47'], [b''], [''], ['00' * 16]))
-def test_strict_errors_if_type_is_wrong(web3_strict_types, arguments):
-    Contract = web3_strict_types.eth.contract(abi=MULTIPLE_FUNCTIONS)
+def test_strict_errors_if_type_is_wrong(w3_strict_abi, arguments):
+    Contract = w3_strict_abi.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
     with pytest.raises(ValidationError):
         Contract._find_matching_fn_abi('a', arguments)
@@ -178,8 +178,8 @@ def test_strict_errors_if_type_is_wrong(web3_strict_types, arguments):
         ([[(-1, True), (2, False)]], ['(int256,bool)[]']),
     )
 )
-def test_strict_finds_function_with_matching_args(web3_strict_types, arguments, expected_types):
-    Contract = web3_strict_types.eth.contract(abi=MULTIPLE_FUNCTIONS)
+def test_strict_finds_function_with_matching_args(w3_strict_abi, arguments, expected_types):
+    Contract = w3_strict_abi.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
     abi = Contract._find_matching_fn_abi('a', arguments)
     assert abi['name'] == 'a'

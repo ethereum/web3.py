@@ -215,11 +215,11 @@ def WithConstructorArgumentsContract(web3,
 
 
 @pytest.fixture()
-def WithConstructorArgumentsContractStrict(web3_strict_types,
+def WithConstructorArgumentsContractStrict(w3_strict_abi,
                                            WITH_CONSTRUCTOR_ARGUMENTS_CODE,
                                            WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
                                            WITH_CONSTRUCTOR_ARGUMENTS_ABI):
-    return web3_strict_types.eth.contract(
+    return w3_strict_abi.eth.contract(
         abi=WITH_CONSTRUCTOR_ARGUMENTS_ABI,
         bytecode=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
         bytecode_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
@@ -402,27 +402,27 @@ def EMITTER(EMITTER_CODE,
 
 
 @pytest.fixture()
-def StrictEmitter(web3_strict_types, EMITTER):
-    web3 = web3_strict_types
-    return web3.eth.contract(**EMITTER)
+def StrictEmitter(w3_strict_abi, EMITTER):
+    w3 = w3_strict_abi
+    return w3.eth.contract(**EMITTER)
 
 
 @pytest.fixture()
-def strict_emitter(web3_strict_types,
+def strict_emitter(w3_strict_abi,
                    StrictEmitter,
                    wait_for_transaction,
                    wait_for_block,
                    address_conversion_func):
-    web3 = web3_strict_types
+    w3 = w3_strict_abi
 
-    wait_for_block(web3)
+    wait_for_block(w3)
     deploy_txn_hash = StrictEmitter.constructor().transact(
-        {'from': web3.eth.coinbase, 'gas': 1000000}
+        {'from': w3.eth.coinbase, 'gas': 1000000}
     )
-    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
+    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
-    bytecode = web3.eth.getCode(contract_address)
+    bytecode = w3.eth.getCode(contract_address)
     assert bytecode == StrictEmitter.bytecode_runtime
     emitter_contract = StrictEmitter(address=contract_address)
     assert emitter_contract.address == contract_address
@@ -625,8 +625,8 @@ def ArraysContract(web3, ARRAYS_CONTRACT):
 
 
 @pytest.fixture()
-def StrictArraysContract(web3_strict_types, ARRAYS_CONTRACT):
-    return web3_strict_types.eth.contract(**ARRAYS_CONTRACT)
+def StrictArraysContract(w3_strict_abi, ARRAYS_CONTRACT):
+    return w3_strict_abi.eth.contract(**ARRAYS_CONTRACT)
 
 
 CONTRACT_PAYABLE_TESTER_SOURCE = """

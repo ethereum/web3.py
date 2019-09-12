@@ -75,7 +75,7 @@ def arrays_contract(web3, ArraysContract, address_conversion_func):
 
 
 @pytest.fixture()
-def strict_arrays_contract(web3_strict_types, StrictArraysContract, address_conversion_func):
+def strict_arrays_contract(w3_strict_abi, StrictArraysContract, address_conversion_func):
     # bytes_32 = [keccak('0'), keccak('1')]
     bytes32_array = [
         b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',  # noqa: E501
@@ -83,7 +83,7 @@ def strict_arrays_contract(web3_strict_types, StrictArraysContract, address_conv
     ]
     byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
     return deploy(
-        web3_strict_types,
+        w3_strict_abi,
         StrictArraysContract,
         address_conversion_func,
         args=[bytes32_array, byte_arr]

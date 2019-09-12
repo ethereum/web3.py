@@ -545,12 +545,12 @@ The following values will raise an error by default:
      - String is not valid hex
 
 However, you may want to be stricter with acceptable values for bytes types.
-For this you can use the ``enable_strict_bytes_type_checking`` method,
+For this you can use the :meth:`w3.enable_strict_bytes_type_checking()` method,
 which is available on the web3 instance. A web3 instance which has had this method
 invoked will enforce a stricter set of rules on which values are accepted.
 
  - A Python string that is not prefixed with ``0x`` will throw an error.
- - A bytestring that is less than (or greater than) the specified byte size
+ - A bytestring whose length not exactly the specified byte size
    will raise an error.
 
 .. list-table:: Valid byte and hex strings for a strict bytes4 type
@@ -586,13 +586,75 @@ invoked will enforce a stricter set of rules on which values are accepted.
      - Needs to have exactly 4 bytes
 
 
-For example, the following contract code will generate the abi below and some bytecode:
+Taking the following contract code as an example:
 
 .. testsetup::
 
     from web3 import Web3
     w3 = Web3(Web3.EthereumTesterProvider())
     bytecode = "608060405234801561001057600080fd5b506040516106103803806106108339810180604052602081101561003357600080fd5b81019080805164010000000081111561004b57600080fd5b8281019050602081018481111561006157600080fd5b815185602082028301116401000000008211171561007e57600080fd5b5050929190505050806000908051906020019061009c9291906100a3565b505061019c565b82805482825590600052602060002090600f0160109004810192821561015a5791602002820160005b8382111561012a57835183826101000a81548161ffff02191690837e010000000000000000000000000000000000000000000000000000000000009004021790555092602001926002016020816001010492830192600103026100cc565b80156101585782816101000a81549061ffff021916905560020160208160010104928301926001030261012a565b505b509050610167919061016b565b5090565b61019991905b8082111561019557600081816101000a81549061ffff021916905550600101610171565b5090565b90565b610465806101ab6000396000f3fe608060405260043610610051576000357c0100000000000000000000000000000000000000000000000000000000900480633b3230ee14610056578063d7c8a410146100e7578063dfe3136814610153575b600080fd5b34801561006257600080fd5b5061008f6004803603602081101561007957600080fd5b8101908080359060200190929190505050610218565b60405180827dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff19167dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1916815260200191505060405180910390f35b3480156100f357600080fd5b506100fc61026c565b6040518080602001828103825283818151815260200191508051906020019060200280838360005b8381101561013f578082015181840152602081019050610124565b505050509050019250505060405180910390f35b34801561015f57600080fd5b506102166004803603602081101561017657600080fd5b810190808035906020019064010000000081111561019357600080fd5b8201836020820111156101a557600080fd5b803590602001918460208302840111640100000000831117156101c757600080fd5b919080806020026020016040519081016040528093929190818152602001838360200280828437600081840152601f19601f820116905080830192505050505050509192919290505050610326565b005b60008181548110151561022757fe5b9060005260206000209060109182820401919006600202915054906101000a90047e010000000000000000000000000000000000000000000000000000000000000281565b6060600080548060200260200160405190810160405280929190818152602001828054801561031c57602002820191906000526020600020906000905b82829054906101000a90047e01000000000000000000000000000000000000000000000000000000000000027dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1916815260200190600201906020826001010492830192600103820291508084116102a95790505b5050505050905090565b806000908051906020019061033c929190610340565b5050565b82805482825590600052602060002090600f016010900481019282156103f75791602002820160005b838211156103c757835183826101000a81548161ffff02191690837e01000000000000000000000000000000000000000000000000000000000000900402179055509260200192600201602081600101049283019260010302610369565b80156103f55782816101000a81549061ffff02191690556002016020816001010492830192600103026103c7565b505b5090506104049190610408565b5090565b61043691905b8082111561043257600081816101000a81549061ffff02191690555060010161040e565b5090565b9056fea165627a7a72305820a8f9f1f4815c1eedfb8df31298a5cd13b198895de878871328b5d96296b69b4e0029"
+    abi = '''
+      [
+        {
+          "constant": true,
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "bytes2Value",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes2"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "getBytes2Value",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes2[]"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [
+            {
+              "name": "_bytes2Value",
+              "type": "bytes2[]"
+            }
+          ],
+          "name": "setBytes2Value",
+          "outputs": [],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "name": "_bytes2Value",
+              "type": "bytes2[]"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        }
+      ]
+     '''.strip()
 
 .. code-block::
 
@@ -614,71 +676,11 @@ For example, the following contract code will generate the abi below and some by
     ... #      }
     ... #  }
 
-.. doctest::
 
-    >>> abi = '''
-    ...  [
-    ...    {
-    ...      "constant": true,
-    ...      "inputs": [
-    ...        {
-    ...          "name": "",
-    ...          "type": "uint256"
-    ...        }
-    ...      ],
-    ...      "name": "bytes2Value",
-    ...      "outputs": [
-    ...        {
-    ...          "name": "",
-    ...          "type": "bytes2"
-    ...        }
-    ...      ],
-    ...      "payable": false,
-    ...      "stateMutability": "view",
-    ...      "type": "function"
-    ...    },
-    ...    {
-    ...      "constant": true,
-    ...      "inputs": [],
-    ...      "name": "getBytes2Value",
-    ...      "outputs": [
-    ...        {
-    ...          "name": "",
-    ...          "type": "bytes2[]"
-    ...        }
-    ...      ],
-    ...      "payable": false,
-    ...      "stateMutability": "view",
-    ...      "type": "function"
-    ...    },
-    ...    {
-    ...      "constant": false,
-    ...      "inputs": [
-    ...        {
-    ...          "name": "_bytes2Value",
-    ...          "type": "bytes2[]"
-    ...        }
-    ...      ],
-    ...      "name": "setBytes2Value",
-    ...      "outputs": [],
-    ...      "payable": false,
-    ...      "stateMutability": "nonpayable",
-    ...      "type": "function"
-    ...    },
-    ...    {
-    ...      "inputs": [
-    ...        {
-    ...          "name": "_bytes2Value",
-    ...          "type": "bytes2[]"
-    ...        }
-    ...      ],
-    ...      "payable": false,
-    ...      "stateMutability": "nonpayable",
-    ...      "type": "constructor"
-    ...    }
-    ...  ]
-    ... '''.strip()
+    >>> # abi = "..."
     >>> # bytecode = "6080..."
+
+.. doctest::
 
     >>> ArraysContract = w3.eth.contract(abi=abi, bytecode=bytecode)
 

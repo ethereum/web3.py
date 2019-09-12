@@ -43,33 +43,6 @@ def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_convers
 
 
 @pytest.fixture()
-def StrictEmitter(web3_strict_types, EMITTER):
-    return web3_strict_types.eth.contract(**EMITTER)
-
-
-@pytest.fixture()
-def strict_emitter(
-        web3_strict_types,
-        StrictEmitter,
-        wait_for_transaction,
-        wait_for_block,
-        address_conversion_func):
-
-    wait_for_block(web3_strict_types)
-    deploy_txn_hash = StrictEmitter.constructor().transact(
-        {'from': web3_strict_types.eth.coinbase, 'gas': 1000000}
-    )
-    deploy_receipt = web3_strict_types.eth.waitForTransactionReceipt(deploy_txn_hash)
-    contract_address = address_conversion_func(deploy_receipt['contractAddress'])
-
-    bytecode = web3_strict_types.eth.getCode(contract_address)
-    assert bytecode == StrictEmitter.bytecode_runtime
-    _emitter = StrictEmitter(address=contract_address)
-    assert _emitter.address == contract_address
-    return _emitter
-
-
-@pytest.fixture()
 def EventContract(web3, EVENT_CONTRACT):
     return web3.eth.contract(**EVENT_CONTRACT)
 
@@ -215,11 +188,9 @@ def test_event_data_extraction(web3,
 
 
 @pytest.mark.parametrize(
-    'contract_fn,event_name,call_args,expected_args',
+    'call_args,expected_args',
     (
         (
-            'logListArgs',
-            'LogListArgs',
             [[b'13'], [b'54']],
             {
                 'arg0': b'H\x7f\xad\xb3\x16zAS7\xa5\x0c\xfe\xe2%T\xb7\x17\x81p\xf04~\x8d(\x93\x8e\x19\x97k\xd9"1',  # noqa: E501
@@ -227,8 +198,6 @@ def test_event_data_extraction(web3,
             }
         ),
         (
-            'logListArgs',
-            'LogListArgs',
             [[b'1'], [b'5']],
             {
                 'arg0': b' F=9\n\x03\xb6\xe1\x00\xc5\xb7\xce\xf5\xa5\xac\x08\x08\xb8\xaf\xc4d=\xdb\xda\xf1\x05|a\x0f.\xa1!',  # noqa: E501
@@ -241,17 +210,16 @@ def test_event_data_extraction_bytes(web3,
                                      wait_for_transaction,
                                      emitter_log_topics,
                                      emitter_event_ids,
-                                     contract_fn,
-                                     event_name,
                                      call_args,
                                      expected_args):
-    emitter_fn = emitter.functions[contract_fn]
+    emitter_fn = emitter.functions.logListArgs
     txn_hash = emitter_fn(*call_args).transact()
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
     assert len(txn_receipt['logs']) == 1
     log_entry = txn_receipt['logs'][0]
 
+    event_name = 'LogListArgs'
     event_abi = emitter._find_matching_event_abi(event_name)
 
     event_topic = getattr(emitter_log_topics, event_name)
@@ -268,40 +236,21 @@ def test_event_data_extraction_bytes(web3,
     assert event_data['event'] == event_name
 
 
-@pytest.mark.parametrize(
-    'contract_fn,event_name,call_args,expected_args',
-    (
-        (
-            'logListArgs',
-            'LogListArgs',
-            [['13'], ['54']],
-            {
-                'arg0': b']\x0b\xf6sp\xbe\xa2L\xa9is\xe4\xab\xb7\xfa+nVJpgt\xa7\x8f:\xa4\x9f\xdb\x93\xf0\x8f\xae',  # noqa: E501
-                'arg1': [b'T\x00']
-            }
-        ),
-    )
-)
 def test_event_data_extraction_bytes_with_warning(web3,
                                                   emitter,
                                                   wait_for_transaction,
-                                                  emitter_log_topics,
-                                                  emitter_event_ids,
-                                                  contract_fn,
-                                                  event_name,
-                                                  call_args,
-                                                  expected_args):
-    emitter_fn = emitter.functions[contract_fn]
+                                                  emitter_log_topics):
     with pytest.warns(
         DeprecationWarning,
         match='in v6 it will be invalid to pass a hex string without the "0x" prefix'
     ):
-        txn_hash = emitter_fn(*call_args).transact()
+        txn_hash = emitter.functions.logListArgs(['13'], ['54']).transact()
         txn_receipt = wait_for_transaction(web3, txn_hash)
 
         assert len(txn_receipt['logs']) == 1
         log_entry = txn_receipt['logs'][0]
 
+        event_name = 'LogListArgs'
         event_abi = emitter._find_matching_event_abi(event_name)
 
         event_topic = getattr(emitter_log_topics, event_name)
@@ -309,6 +258,10 @@ def test_event_data_extraction_bytes_with_warning(web3,
         assert event_topic in log_entry['topics']
 
         event_data = get_event_data(web3.codec, event_abi, log_entry)
+        expected_args = {
+            'arg0': b']\x0b\xf6sp\xbe\xa2L\xa9is\xe4\xab\xb7\xfa+nVJpgt\xa7\x8f:\xa4\x9f\xdb\x93\xf0\x8f\xae',  # noqa: E501
+            'arg1': [b'T\x00']
+        }
 
         assert event_data['args'] == expected_args
         assert event_data['blockHash'] == txn_receipt['blockHash']
@@ -319,33 +272,20 @@ def test_event_data_extraction_bytes_with_warning(web3,
 
 
 @pytest.mark.parametrize(
-    'contract_fn,event_name,call_args,expected_error',
+    'call_args',
     (
         (
-            'logListArgs',
-            'LogListArgs',
             [[b'1312'], [b'4354']],
-            ValidationError,
         ),
         (
-            'logListArgs',
-            'LogListArgs',
             [[b'1'], [b'5']],
-            ValidationError,
         ),
     )
 )
-def test_event_data_extraction_bytes_strict_with_errors(web3_strict_types,
-                                                        strict_emitter,
-                                                        wait_for_transaction,
-                                                        emitter_log_topics,
-                                                        emitter_event_ids,
-                                                        contract_fn,
-                                                        event_name,
-                                                        call_args,
-                                                        expected_error):
-    emitter_fn = strict_emitter.functions[contract_fn]
-    with pytest.raises(expected_error):
+def test_event_data_extraction_bytes_strict_with_errors(strict_emitter,
+                                                        call_args):
+    emitter_fn = strict_emitter.functions.logListArgs
+    with pytest.raises(ValidationError):
         emitter_fn(*call_args).transact()
 
 
@@ -385,14 +325,14 @@ def test_dynamic_length_argument_extraction(web3,
     assert event_data['event'] == 'LogDynamicArgs'
 
 
-def test_argument_extraction_strict_bytes_types(web3_strict_types,
+def test_argument_extraction_strict_bytes_types(w3_strict_abi,
                                                 strict_emitter,
                                                 wait_for_transaction,
                                                 emitter_log_topics):
     arg_0 = [b'12']
     arg_1 = [b'12']
     txn_hash = strict_emitter.functions.logListArgs(arg_0, arg_1).transact()
-    txn_receipt = wait_for_transaction(web3_strict_types, txn_hash)
+    txn_receipt = wait_for_transaction(w3_strict_abi, txn_hash)
 
     assert len(txn_receipt['logs']) == 1
     log_entry = txn_receipt['logs'][0]
@@ -403,12 +343,12 @@ def test_argument_extraction_strict_bytes_types(web3_strict_types,
     event_topic = emitter_log_topics.LogListArgs
     assert event_topic in log_entry['topics']
 
-    encoded_arg_0 = web3_strict_types.codec.encode_abi(['bytes2'], arg_0)
+    encoded_arg_0 = w3_strict_abi.codec.encode_abi(['bytes2'], arg_0)
     padded_arg_0 = encoded_arg_0.ljust(32, b'\x00')
-    arg_0_topic = web3_strict_types.keccak(padded_arg_0)
+    arg_0_topic = w3_strict_abi.keccak(padded_arg_0)
     assert arg_0_topic in log_entry['topics']
 
-    event_data = get_event_data(web3_strict_types.codec, event_abi, log_entry)
+    event_data = get_event_data(w3_strict_abi.codec, event_abi, log_entry)
 
     expected_args = {
         "arg0": arg_0_topic,
@@ -664,47 +604,18 @@ def test_event_rich_log(
         assert empty_rich_log == tuple()
 
 
-@pytest.mark.parametrize(
-    'contract_fn,event_name,call_args,expected_args,process_receipt',
-    (
-        (
-            'logListArgs',
-            'LogListArgs',
-            [[b'13'], [b'54']],
-            {
-                'arg0': b'H\x7f\xad\xb3\x16zAS7\xa5\x0c\xfe\xe2%T\xb7\x17\x81p\xf04~\x8d(\x93\x8e\x19\x97k\xd9"1',  # noqa: E501
-                'arg1': [b'54']
-            },
-            True
-        ),
-        (
-            'logListArgs',
-            'LogListArgs',
-            [[b'13'], [b'54']],
-            {
-                'arg0': b'H\x7f\xad\xb3\x16zAS7\xa5\x0c\xfe\xe2%T\xb7\x17\x81p\xf04~\x8d(\x93\x8e\x19\x97k\xd9"1',  # noqa: E501
-                'arg1': [b'54']
-            },
-            False
-        ),
-    )
-)
+@pytest.mark.parametrize('process_receipt', (True, False))
 def test_event_rich_log_with_byte_args(
         web3,
         emitter,
         emitter_event_ids,
         wait_for_transaction,
-        contract_fn,
-        event_name,
-        call_args,
-        process_receipt,
-        expected_args):
+        process_receipt):
 
-    emitter_fn = emitter.functions[contract_fn]
-    txn_hash = emitter_fn(*call_args).transact()
+    txn_hash = emitter.functions.logListArgs([b'13'], [b'54']).transact()
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
-    event_instance = emitter.events[event_name]()
+    event_instance = emitter.events.LogListArgs()
 
     if process_receipt:
         processed_logs = event_instance.processReceipt(txn_receipt)
@@ -715,6 +626,10 @@ def test_event_rich_log_with_byte_args(
     else:
         raise Exception('Unreachable!')
 
+    expected_args = {
+        'arg0': b'H\x7f\xad\xb3\x16zAS7\xa5\x0c\xfe\xe2%T\xb7\x17\x81p\xf04~\x8d(\x93\x8e\x19\x97k\xd9"1',  # noqa: E501
+        'arg1': [b'54']
+    }
     assert rich_log['args'] == expected_args
     assert rich_log.args == expected_args
     for arg in expected_args:
@@ -723,7 +638,7 @@ def test_event_rich_log_with_byte_args(
     assert rich_log['blockNumber'] == txn_receipt['blockNumber']
     assert rich_log['transactionIndex'] == txn_receipt['transactionIndex']
     assert is_same_address(rich_log['address'], emitter.address)
-    assert rich_log['event'] == event_name
+    assert rich_log['event'] == 'LogListArgs'
 
 
 def test_receipt_processing_with_discard_flag(

@@ -209,6 +209,7 @@ def match_fn(w3, match_values_and_abi, data):
     compared to the abi decoded log data.
     """
     abi_types, all_match_values = zip(*match_values_and_abi)
+
     decoded_values = w3.codec.decode_abi(abi_types, HexBytes(data))
     for data_value, match_values, abi_type in zip(decoded_values, all_match_values, abi_types):
         if match_values is None:

@@ -1,10 +1,5 @@
 import pytest
 
-from web3 import (
-    EthereumTesterProvider,
-    Web3,
-)
-
 
 @pytest.mark.parametrize(
     'value,_type,expected',
@@ -42,7 +37,6 @@ from web3 import (
         # Special bytes<M> behavior
         ('0x12', 'bytes2', True),  # with or without 0x OK
         (b'\x12', 'bytes2', True),  # as bytes value undersize OK
-        ('0123', 'bytes1', False),  # no oversize hex strings
         ('1', 'bytes2', False),  # no odd length
         ('0x1', 'bytes2', False),  # no odd length
 
@@ -70,28 +64,26 @@ from web3 import (
         ((b'\x80', 0), '(string,int128)', False),
     ),
 )
-def test_is_encodable(value, _type, expected):
-    w3 = Web3(EthereumTesterProvider())
-    actual = w3.is_encodable(_type, value)
+def test_is_encodable(web3, value, _type, expected):
+    actual = web3.is_encodable(_type, value)
     assert actual is expected
 
 
 @pytest.mark.parametrize(
     'value,_type,expected',
     (
-        ('12', 'bytes2', True),
-        ('0123', 'bytes2', True),
-
-        ('12', 'bytes', True),
+        ('12', 'bytes2', True),  # no 0x prefix, can be decoded as hex
+        ('0123', 'bytes2', True),  # no 0x prefix, can be decoded as hex
+        ('0123', 'bytes1', False),  # no oversize values
+        ('12', 'bytes', True),  # no 0x prefix, can be decoded as hex
     )
 )
-def test_is_encodable_warnings(value, _type, expected):
-    w3 = Web3(EthereumTesterProvider())
+def test_is_encodable_warnings(web3, value, _type, expected):
     with pytest.warns(
         DeprecationWarning,
         match='in v6 it will be invalid to pass a hex string without the "0x" prefix'
     ):
-        actual = w3.is_encodable(_type, value)
+        actual = web3.is_encodable(_type, value)
         assert actual is expected
 
 
@@ -108,11 +100,11 @@ def test_is_encodable_warnings(value, _type, expected):
         ('0x1', 'bytes2', False),  # no odd length
 
         # Special bytes behavior
-        ('12', 'bytes', False),  # has to have 0x if string
+        ('12', 'bytes', False),  # no hex strings without leading 0x
         ('0x12', 'bytes', True),
-        ('1', 'bytes', False),
-        ('0x1', 'bytes', False),
-        ('0x0x0x0x', 'bytes', False),
+        ('1', 'bytes', False),  # no hex strings without leading 0x
+        ('0x1', 'bytes', False),  # cannot be decoded as hex
+        ('0x0x0x0x', 'bytes', False),  # cannot be decoded as hex
 
         # Special string behavior
         (b'', 'string', True),
@@ -120,9 +112,6 @@ def test_is_encodable_warnings(value, _type, expected):
         (b'\x80', 'string', False),  # bytes that cannot be decoded with utf-8 are invalid
     ),
 )
-def test_is_encodable_strict(value, _type, expected):
-    w3 = Web3(EthereumTesterProvider())
-    w3.enable_strict_bytes_type_checking()
-
-    actual = w3.is_encodable(_type, value)
+def test_is_encodable_strict(w3_strict_abi, value, _type, expected):
+    actual = w3_strict_abi.is_encodable(_type, value)
     assert actual is expected
