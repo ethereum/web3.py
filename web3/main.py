@@ -1,3 +1,6 @@
+from eth_abi.codec import (
+    ABICodec,
+)
 from eth_utils import (
     add_0x_prefix,
     apply_to_return_value,
@@ -16,6 +19,9 @@ from hexbytes import (
 from ens import ENS
 from web3._utils.abi import (
     map_abi_data,
+)
+from web3._utils.abi import (
+    build_default_registry,
 )
 from web3._utils.decorators import (
     combomethod,
@@ -140,6 +146,7 @@ class Web3:
 
         attach_modules(self, modules)
 
+        self.codec = ABICodec(build_default_registry())
         self.ens = ens
 
     @property

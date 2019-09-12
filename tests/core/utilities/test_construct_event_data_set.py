@@ -68,6 +68,6 @@ def hex_and_pad(i):
         ),
     )
 )
-def test_construct_event_data_set(event_abi, arguments, expected):
-    actual = construct_event_data_set(event_abi, arguments)
+def test_construct_event_data_set(event_abi, web3, arguments, expected):
+    actual = construct_event_data_set(event_abi, web3.codec, arguments)
     assert actual == expected

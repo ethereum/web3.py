@@ -351,7 +351,7 @@ class Contract:
         :param data: defaults to function selector
         """
         fn_abi, fn_selector, fn_arguments = get_function_info(
-            fn_name, contract_abi=cls.abi, args=args, kwargs=kwargs,
+            fn_name, cls.web3.codec, contract_abi=cls.abi, args=args, kwargs=kwargs,
         )
 
         if data is None:
@@ -418,7 +418,7 @@ class Contract:
     @combomethod
     def find_functions_by_args(self, *args):
         def callable_check(fn_abi):
-            return check_if_arguments_can_be_encoded(fn_abi, args=args, kwargs={})
+            return check_if_arguments_can_be_encoded(fn_abi, self.web3.codec, args=args, kwargs={})
 
         return find_functions_by_identifier(
             self.abi, self.web3, self.address, callable_check
@@ -454,6 +454,7 @@ class Contract:
     @classmethod
     def _find_matching_fn_abi(cls, fn_identifier=None, args=None, kwargs=None):
         return find_matching_fn_abi(cls.abi,
+                                    cls.web3.codec,
                                     fn_identifier=fn_identifier,
                                     args=args,
                                     kwargs=kwargs)
@@ -685,6 +686,7 @@ CONCISE_NORMALIZERS = (
 class ImplicitMethod(ConciseMethod):
     def __call_by_default(self, args):
         function_abi = find_matching_fn_abi(self._function.contract_abi,
+                                            self._function.web3.codec,
                                             fn_identifier=self._function.function_identifier,
                                             args=args)
 
@@ -764,6 +766,7 @@ class ContractFunction:
         if not self.abi:
             self.abi = find_matching_fn_abi(
                 self.contract_abi,
+                self.web3.codec,
                 self.function_identifier,
                 self.args,
                 self.kwargs
@@ -1063,6 +1066,7 @@ class ContractEvent:
 
         _, event_filter_params = construct_event_filter_params(
             self._get_event_abi(),
+            abi_codec=self.web3.codec,
             contract_address=self.address,
             argument_filters=_filters,
             fromBlock=fromBlock,
@@ -1071,7 +1075,7 @@ class ContractEvent:
             topics=topics,
         )
 
-        filter_builder = EventFilterBuilder(event_abi)
+        filter_builder = EventFilterBuilder(event_abi, self.web3.codec)
         filter_builder.address = event_filter_params.get('address')
         filter_builder.fromBlock = event_filter_params.get('fromBlock')
         filter_builder.toBlock = event_filter_params.get('toBlock')
@@ -1099,6 +1103,7 @@ class ContractEvent:
     def build_filter(self):
         builder = EventFilterBuilder(
             self._get_event_abi(),
+            self.web3.codec,
             formatter=get_event_data(self._get_event_abi()))
         builder.address = self.address
         return builder
@@ -1186,6 +1191,7 @@ class ContractEvent:
         # Namely, convert event names to their keccak signatures
         data_filter_set, event_filter_params = construct_event_filter_params(
             abi,
+            abi_codec=self.web3.codec,
             contract_address=self.address,
             argument_filters=_filters,
             fromBlock=fromBlock,
@@ -1346,7 +1352,7 @@ def call_contract_function(
         return_data = web3.eth.call(call_transaction, block_identifier=block_id)
 
     if fn_abi is None:
-        fn_abi = find_matching_fn_abi(contract_abi, function_identifier, args, kwargs)
+        fn_abi = find_matching_fn_abi(contract_abi, web3.codec, function_identifier, args, kwargs)
 
     output_types = get_abi_output_types(fn_abi)
 

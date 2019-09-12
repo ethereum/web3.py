@@ -1,9 +1,5 @@
 import pytest
 
-from web3._utils.abi import (
-    is_encodable,
-)
-
 
 @pytest.mark.parametrize(
     'value,_type,expected',
@@ -72,6 +68,6 @@ from web3._utils.abi import (
         ((b'\x80', 0), '(string,int128)', False),
     ),
 )
-def test_is_encodable(value, _type, expected):
-    actual = is_encodable(_type, value)
+def test_is_encodable(web3, value, _type, expected):
+    actual = web3.codec.is_encodable(_type, value)
     assert actual is expected

@@ -12,13 +12,11 @@ from typing import (
     Tuple,
     Union,
 )
+import warnings
 
 from eth_abi import (
     decoding,
     encoding,
-)
-from eth_abi.codec import (
-    ABICodec,
 )
 from eth_abi.grammar import (
     ABIType,
@@ -145,26 +143,55 @@ class AddressEncoder(encoding.AddressEncoder):
         super().validate_value(value)
 
 
-class AcceptsHexStrMixin:
+class AcceptsHexStrEncoder(encoding.BaseEncoder):
+    def __init__(self, subencoder):
+        self.subencoder = subencoder
+
+    @classmethod
+    def from_type_str(cls, abi_type, registry):
+        subencoder_cls = cls.get_subencoder_class()
+        subencoder = subencoder_cls.from_type_str(abi_type, registry)
+        return cls(subencoder)
+
+    @classmethod
+    def get_subencoder_class(cls):
+        if cls.subencoder_cls is None:
+            raise AttributeError(f'{cls.__name__} needs to have a subencoder class set.')
+        return cls.subencoder_cls
+
     def validate_value(self, value):
-        if is_text(value):
+        normalized_value = self.validate_and_normalize(value)
+        return self.subencoder.validate_value(normalized_value)
+
+    def encode(self, value):
+        normalized_value = self.validate_and_normalize(value)
+        return self.subencoder.encode(normalized_value)
+
+    def validate_and_normalize(self, value):
+        raw_value = value
+        if is_text(raw_value):
             try:
-                value = decode_hex(value)
+                value = decode_hex(raw_value)
             except binascii.Error:
                 self.invalidate_value(
-                    value,
+                    raw_value,
                     msg='invalid hex string',
                 )
+            else:
+                if raw_value[:2] != '0x':
+                    warnings.warn(
+                        'in v6 it will be invalid to pass a hex string without the "0x" prefix',
+                        category=DeprecationWarning
+                    )
+        return value
 
-        super().validate_value(value)
+
+class BytesEncoder(AcceptsHexStrEncoder):
+    subencoder_cls = encoding.BytesEncoder
 
 
-class BytesEncoder(AcceptsHexStrMixin, encoding.BytesEncoder):
-    pass
-
-
-class ByteStringEncoder(AcceptsHexStrMixin, encoding.ByteStringEncoder):
-    pass
+class ByteStringEncoder(AcceptsHexStrEncoder):
+    subencoder_cls = encoding.ByteStringEncoder
 
 
 class TextStringEncoder(encoding.TextStringEncoder):
@@ -212,20 +239,17 @@ registry.register(
     label='string',
 )
 
-codec = ABICodec(registry)
-is_encodable = codec.is_encodable
 
-
-def filter_by_encodability(args, kwargs, contract_abi):
+def filter_by_encodability(abi_codec, args, kwargs, contract_abi):
     return [
         function_abi
         for function_abi
         in contract_abi
-        if check_if_arguments_can_be_encoded(function_abi, args, kwargs)
+        if check_if_arguments_can_be_encoded(function_abi, abi_codec, args, kwargs)
     ]
 
 
-def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
+def check_if_arguments_can_be_encoded(function_abi, abi_codec, args, kwargs):
     try:
         arguments = merge_args_and_kwargs(function_abi, args, kwargs)
     except TypeError:
@@ -240,7 +264,7 @@ def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
         return False
 
     return all(
-        is_encodable(_type, arg)
+        abi_codec.is_encodable(_type, arg)
         for _type, arg in zip(types, aligned_args)
     )
 
@@ -711,3 +735,36 @@ def strip_abi_type(elements):
         return elements.data
     else:
         return elements
+
+
+def build_default_registry():
+    # We make a copy here just to make sure that eth-abi's default registry is not
+    # affected by our custom encoder subclasses
+    registry = default_registry.copy()
+
+    registry.unregister('address')
+    registry.unregister('bytes<M>')
+    registry.unregister('bytes')
+    registry.unregister('string')
+
+    registry.register(
+        BaseEquals('address'),
+        AddressEncoder, decoding.AddressDecoder,
+        label='address',
+    )
+    registry.register(
+        BaseEquals('bytes', with_sub=True),
+        BytesEncoder, decoding.BytesDecoder,
+        label='bytes<M>',
+    )
+    registry.register(
+        BaseEquals('bytes', with_sub=False),
+        ByteStringEncoder, decoding.ByteStringDecoder,
+        label='bytes',
+    )
+    registry.register(
+        BaseEquals('string'),
+        TextStringEncoder, decoding.StringDecoder,
+        label='string',
+    )
+    return registry

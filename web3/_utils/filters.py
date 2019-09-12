@@ -35,6 +35,7 @@ from .events import (
 
 
 def construct_event_filter_params(event_abi,
+                                  abi_codec,
                                   contract_address=None,
                                   argument_filters=None,
                                   topics=None,
@@ -42,7 +43,7 @@ def construct_event_filter_params(event_abi,
                                   toBlock=None,
                                   address=None):
     filter_params = {}
-    topic_set = construct_event_topic_set(event_abi, argument_filters)
+    topic_set = construct_event_topic_set(event_abi, abi_codec, argument_filters)
 
     if topics is not None:
         if len(topic_set) > 1:
@@ -84,7 +85,7 @@ def construct_event_filter_params(event_abi,
     if toBlock is not None:
         filter_params['toBlock'] = toBlock
 
-    data_filters_set = construct_event_data_set(event_abi, argument_filters)
+    data_filters_set = construct_event_data_set(event_abi, abi_codec, argument_filters)
 
     return data_filters_set, filter_params
 
