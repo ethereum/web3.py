@@ -147,6 +147,9 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
     def __init__(self, subencoder):
         self.subencoder = subencoder
 
+    def is_dynamic(self):
+        return self.subencoder.is_dynamic
+
     @classmethod
     def from_type_str(cls, abi_type, registry):
         subencoder_cls = cls.get_subencoder_class()
