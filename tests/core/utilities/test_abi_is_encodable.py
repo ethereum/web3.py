@@ -69,5 +69,5 @@ import pytest
     ),
 )
 def test_is_encodable(web3, value, _type, expected):
-    actual = web3.codec.is_encodable(_type, value)
+    actual = web3.is_encodable(_type, value)
     assert actual is expected

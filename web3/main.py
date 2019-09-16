@@ -252,3 +252,6 @@ class Web3:
         from web3.pm import PM
         if not hasattr(self, '_pm'):
             PM.attach(self, '_pm')
+
+    def is_encodable(self, _type, value):
+        return self.codec.is_encodable(_type, value)
