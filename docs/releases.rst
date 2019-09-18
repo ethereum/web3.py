@@ -1,3 +1,36 @@
+Web3 5.1.0 (2019-09-18)
+-----------------------
+
+Features
+~~~~~~~~
+
+- Add ``contract_types`` property to ``Package`` class. (`#1440 <https://github.com/ethereum/web3.py/issues/1440>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix flaky parity integration test in the whisper module (`#1147 <https://github.com/ethereum/web3.py/issues/1147>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove whitespace, move ``topics`` key -> ``topic`` in Geth docs (`#1425 <https://github.com/ethereum/web3.py/issues/1425>`__)
+- Enforce stricter doc checking, turning warnings into errors to fail CI builds
+  to catch issues quickly.
+
+  Add missing ``web3.tools.rst`` to the table of contents and fix incorrectly formatted
+  JSON example. (`#1437 <https://github.com/ethereum/web3.py/issues/1437>`__)
+- Add example using Geth POA Middleware with Infura Rinkeby Node (`#1444 <https://github.com/ethereum/web3.py/issues/1444>`__)
+
+
+Misc
+~~~~
+
+- `#1446 <https://github.com/ethereum/web3.py/issues/1446>`__, `#1451 <https://github.com/ethereum/web3.py/issues/1451>`__
+
+
 Release Notes
 =============
 
