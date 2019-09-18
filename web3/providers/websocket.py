@@ -116,4 +116,4 @@ class WebsocketProvider(JSONBaseProvider):
             self.coro_make_request(request_data),
             WebsocketProvider._loop
         )
-        return future.result()
+        return future.result(self.websocket_timeout)
