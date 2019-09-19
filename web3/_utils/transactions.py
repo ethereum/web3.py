@@ -65,7 +65,7 @@ def fill_transaction_defaults(web3, transaction):
     return merge(defaults, transaction)
 
 
-def wait_for_transaction_receipt(web3, txn_hash, timeout=120, poll_latency=0.1):
+def wait_for_transaction_receipt(web3, txn_hash, timeout, poll_latency):
     with Timeout(timeout) as _timeout:
         while True:
             try:
