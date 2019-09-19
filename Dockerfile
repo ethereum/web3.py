@@ -4,7 +4,7 @@ FROM python:3.6
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-# Install Linux dependencies
+# Install Linux dependencies.
 RUN apt-get update && apt-get install -y libssl-dev
 
 COPY web3 ./web3/
