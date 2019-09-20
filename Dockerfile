@@ -18,3 +18,4 @@ COPY README.md .
 RUN pip install -e .[dev]
 
 WORKDIR /code
+
