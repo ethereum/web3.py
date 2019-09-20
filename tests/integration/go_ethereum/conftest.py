@@ -21,6 +21,7 @@ KEYFILE_PW = 'web3py-test'
 
 GETH_17_ZIP = 'geth-17-fixture.zip'
 GETH_1822_ZIP = 'geth-1.8.22-fixture.zip'
+GETH_193_ZIP = 'geth-1.9.3-fixture.zip'
 
 
 @pytest.fixture(scope='module')
@@ -60,6 +61,8 @@ def geth_zipfile_version(geth_binary):
             return GETH_17_ZIP
         elif version.minor == 8:
             return GETH_1822_ZIP
+        elif version.minor == 9:
+            return GETH_193_ZIP
     assert False, "Unsupported geth version"
 
 

@@ -41,6 +41,7 @@ def geth_command_arguments(geth_binary, datadir, rpc_port):
         '--rpcport', rpc_port,
         '--rpcapi', 'admin,db,eth,net,web3,personal,shh,web3',
         '--ipcdisable',
+        '--allow-insecure-unlock',
     )
 
 
