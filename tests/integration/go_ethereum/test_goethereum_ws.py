@@ -43,6 +43,7 @@ def geth_command_arguments(geth_binary, datadir, ws_port):
         '--wsapi', 'admin,db,eth,net,shh,web3,personal,web3',
         '--wsorigins', '*',
         '--ipcdisable',
+        '--allow-insecure-unlock',
     )
 
 
