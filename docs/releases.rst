@@ -1,3 +1,11 @@
+Release Notes
+=============
+
+v5 Breaking Changes Summary
+   See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
+
+.. towncrier release notes start
+
 Web3 5.1.0 (2019-09-18)
 -----------------------
 
@@ -30,12 +38,6 @@ Misc
 
 - `#1446 <https://github.com/ethereum/web3.py/issues/1446>`__, `#1451 <https://github.com/ethereum/web3.py/issues/1451>`__
 
-
-Release Notes
-=============
-
-v5 Breaking Changes Summary
-   See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
 
 v5.0.2
 ------
