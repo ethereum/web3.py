@@ -656,7 +656,7 @@ Taking the following contract code as an example:
       ]
      '''.strip()
 
-.. code-block::
+.. code-block:: python
 
     >>> #  pragma solidity >=0.4.22 <0.6.0;
     ...
@@ -675,7 +675,6 @@ Taking the following contract code as an example:
     ... #          return bytes2Value;
     ... #      }
     ... #  }
-
 
     >>> # abi = "..."
     >>> # bytecode = "6080..."
