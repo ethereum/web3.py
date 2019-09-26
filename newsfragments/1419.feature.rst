@@ -1,1 +1,0 @@
-Add ``enable_strict_bytes_type_checking`` flag to web3 instance

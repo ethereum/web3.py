@@ -1,1 +1,0 @@
-Move Geth Whisper methods to snake case and deprecate camel case methods
