@@ -47,7 +47,7 @@ result_middleware = construct_result_generator_middleware(
     })
 
 
-class TestModule(ModuleV2):
+class ModuleForTest(ModuleV2):
     method = test_method()
 
 
@@ -56,7 +56,7 @@ def dummy_w3():
     w3 = Web3(
         DummyProvider(),
         middlewares=[result_middleware],
-        modules={'module': TestModule})
+        modules={"module": (ModuleForTest,)})
     return w3
 
 
