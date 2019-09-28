@@ -30,6 +30,7 @@ from ens.utils import (
     normalize_name,
     raw_name_to_hash,
 )
+from web3.exceptions import StaleBlockchain
 
 
 class ENS:
@@ -58,14 +59,17 @@ class ENS:
         """
         self.web3 = init_web3(provider)
 
-        try:
-            net_version = int(self.web3.net.version)
-            ens_addr = addr if addr else NET_VERSION_TO_ENS_ADDR[net_version]
-        except KeyError:
-            raise UnknownNetwork(
-                "ENS is not available on the current network by default. "
-                "You need to manually set the `addr` parameter to the registry's address."
-            )
+        if addr:
+            ens_addr = addr
+        else:
+            try:
+                net_version = int(self.web3.net.version)
+                ens_addr = NET_VERSION_TO_ENS_ADDR[net_version]
+            except (StaleBlockchain, KeyError):
+                raise UnknownNetwork(
+                    "ENS is not available on the current network by default. "
+                    "You need to manually set the `addr` parameter to the registry's address."
+                )
 
         self.ens = self.web3.eth.contract(abi=abis.ENS, address=ens_addr)
         self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
