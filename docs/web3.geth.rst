@@ -265,7 +265,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
     * Delegates to ``personal_unlockAccount`` RPC Method
 
     Unlocks the given ``account`` for ``duration`` seconds. If ``duration`` is 
-	``None`` then the account will remain unlocked for 300 seconds (which is current default by Geth); 
+	``None`` then the account will remain unlocked for 300 seconds (which is current default by Geth), 
 	if ``duration`` is set to ``0``, the account will remain unlocked indefinitely.  
 	Returns boolean as to whether the account was successfully unlocked.
 
