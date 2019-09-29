@@ -114,3 +114,6 @@ fabric.properties
 
 # mypy Cache
 .mypy_cache/
+
+# pip wheel metadata
+pip-wheel-metadata/

@@ -26,9 +26,6 @@ from eth_utils import (
     to_text,
     to_tuple,
 )
-from eth_utils.toolz import (
-    concat,
-)
 
 from ethpm import (
     ASSETS_DIR,
@@ -217,6 +214,9 @@ class ERC1319Registry(ABC):
         pass
 
 
+BATCH_SIZE = 100
+
+
 class SimpleRegistry(ERC1319Registry):
     """
     This class represents an instance of the `Solidity Reference Registry implementation
@@ -245,13 +245,16 @@ class SimpleRegistry(ERC1319Registry):
     @to_tuple
     def _get_all_package_ids(self) -> Iterable[Tuple[bytes]]:
         num_packages = self._num_package_ids()
-        # Logic here b/c Solidity Reference Registry implementation returns ids in reverse order
-        package_ids = [
-            self.registry.functions.getAllPackageIds(index, (index + 4)).call()[0]
-            for index in range(0, num_packages, 4)
-        ]
-        for package_id in concat([x[::-1] for x in package_ids]):
-            yield package_id
+        pointer = 0
+        while pointer < num_packages:
+            new_ids, new_pointer = self.registry.functions.getAllPackageIds(
+                pointer,
+                (pointer + BATCH_SIZE)
+            ).call()
+            if not new_pointer > pointer:
+                break
+            yield from reversed(new_ids)
+            pointer = new_pointer
 
     def _get_release_id(self, package_name: str, version: str) -> bytes:
         return self.registry.functions.getReleaseId(package_name, version).call()
@@ -259,15 +262,17 @@ class SimpleRegistry(ERC1319Registry):
     @to_tuple
     def _get_all_release_ids(self, package_name: str) -> Iterable[Tuple[bytes]]:
         num_releases = self._num_release_ids(package_name)
-        # Logic here b/c Solidity Reference Registry implementation returns ids in reverse order
-        release_ids = [
-            self.registry.functions.getAllReleaseIds(
-                package_name, index, (index + 4)
-            ).call()[0]
-            for index in range(0, num_releases, 4)
-        ]
-        for release_id in concat([x[::-1] for x in release_ids]):
-            yield release_id
+        pointer = 0
+        while pointer < num_releases:
+            new_ids, new_pointer = self.registry.functions.getAllReleaseIds(
+                package_name,
+                pointer,
+                (pointer + BATCH_SIZE)
+            ).call()
+            if not new_pointer > pointer:
+                break
+            yield from reversed(new_ids)
+            pointer = new_pointer
 
     @to_tuple
     def _get_release_data(self, release_id: bytes) -> Iterable[Tuple[str]]:

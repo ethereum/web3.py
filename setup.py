@@ -7,7 +7,7 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        "eth-tester[py-evm]==0.1.0-beta.39",
+        "eth-tester[py-evm]==v0.2.0-beta.2",
         "py-geth>=2.0.1,<3.0.0",
     ],
     'linter': [
@@ -26,6 +26,7 @@ extras_require = {
         "sphinx",
         "sphinx_rtd_theme>=0.1.9",
         "toposort>=1.4",
+        "towncrier>=19.2.0,<20",
         "urllib3",
         "web3>=2.1.0",
         "wheel"
@@ -41,9 +42,9 @@ extras_require = {
         "pytest-xdist>=1.29,<2",
         "setuptools>=36.2.0",
         "tox>=1.8.0",
-        "tqdm",
-        "twine",
-        "when-changed"
+        "tqdm>4.32,<5",
+        "twine>=1.13,<2",
+        "when-changed>=0.3.0,<0.4"
     ]
 }
 
@@ -57,7 +58,7 @@ extras_require['dev'] = (
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='5.0.0',
+    version='5.2.0',
     description="""Web3.py""",
     long_description_markdown_filename='README.md',
     author='Piper Merriam',
@@ -72,7 +73,7 @@ setup(
         "eth-utils>=1.4.0,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
         "ipfshttpclient>=0.4.12,<1",
-        "jsonschema>=2.6.0,<3",
+        "jsonschema>=3.0.0,<4.0.0",
         "lru-dict>=1.1.6,<2.0.0",
         "protobuf>=3.0.0,<4",
         "pypiwin32>=223;platform_system=='Windows'",

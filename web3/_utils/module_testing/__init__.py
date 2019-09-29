@@ -1,6 +1,3 @@
-from .web3_module import (  # noqa: F401
-    Web3ModuleTest,
-)
 from .eth_module import (  # noqa: F401
     EthModuleTest,
 )
@@ -9,6 +6,11 @@ from .go_ethereum_admin_module import (  # noqa: F401
 )
 from .net_module import (  # noqa: F401
     NetModuleTest,
+)
+from .parity_module import (  # noqa: F401
+    ParityModuleTest,
+    ParitySetModuleTest,
+    ParityTraceModuleTest,
 )
 from .personal_module import (  # noqa: F401
     GoEthereumPersonalModuleTest,
@@ -21,8 +23,6 @@ from .shh_module import (  # noqa: F401
 from .version_module import (  # noqa: F401
     VersionModuleTest,
 )
-from .parity_module import (  # noqa: F401
-    ParitySetModuleTest,
-    ParityTraceModuleTest,
-    ParityModuleTest,
+from .web3_module import (  # noqa: F401
+    Web3ModuleTest,
 )

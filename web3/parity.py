@@ -29,20 +29,32 @@ class ParityShh(ModuleV2):
     https://wiki.parity.io/JSONRPC-shh-module
     """
     info = shh.info
-    newKeyPair = shh.newKeyPair
-    addPrivateKey = shh.addPrivateKey
-    newSymKey = shh.newSymKey
-    addSymKey = shh.addSymKey
-    getPublicKey = shh.getPublicKey
-    getPrivateKey = shh.getPrivateKey
-    getSymKey = shh.getSymKey
+    new_key_pair = shh.new_key_pair
+    add_private_key = shh.add_private_key
+    new_sym_key = shh.new_sym_key
+    add_sym_key = shh.add_sym_key
+    get_public_key = shh.get_public_key
+    get_private_key = shh.get_private_key
+    get_sym_key = shh.get_sym_key
     post = shh.post
-    newMessageFilter = shh.newMessageFilter
-    deleteMessageFilter = shh.deleteMessageFilter
-    getFilterMessages = shh.getFilterMessages
-    deleteKey = shh.deleteKey
+    new_message_filter = shh.new_message_filter
+    delete_message_filter = shh.delete_message_filter
+    get_filter_messages = shh.get_filter_messages
+    delete_key = shh.delete_key
     subscribe = shh.subscribe
     unsubscribe = shh.unsubscribe
+    # Deprecated
+    newKeyPair = shh.new_key_pair
+    addPrivateKey = shh.add_private_key
+    newSymKey = shh.new_sym_key
+    addSymKey = shh.add_sym_key
+    getPublicKey = shh.get_public_key
+    getPrivateKey = shh.get_private_key
+    getSymKey = shh.get_sym_key
+    newMessageFilter = shh.new_message_filter
+    deleteMessageFilter = shh.delete_message_filter
+    getFilterMessages = shh.get_filter_messages
+    deleteKey = shh.delete_key
 
 
 class ParityPersonal(ModuleV2):

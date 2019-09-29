@@ -55,7 +55,7 @@ def validate_registry_uri(uri: str) -> None:
     )
     validate_registry_uri_scheme(scheme)
     validate_registry_uri_authority(authority)
-    pkg_name = pkg_path.lstrip("/")
+    pkg_name = pkg_path.strip("/")
     if pkg_name:
         validate_package_name(pkg_name)
     if not pkg_name and version:

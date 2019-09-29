@@ -12,7 +12,7 @@ Providers
 ---------
 
 *Providers* are how web3 connects to the blockchain.  The Web3 library comes
-with a the following built-in providers that should be suitable for most normal
+with the following built-in providers that should be suitable for most normal
 use cases.
 
 - ``web3.HTTPProvider`` for connecting to http and https based JSON-RPC servers.
@@ -340,6 +340,38 @@ Cryptographic Hashing
 
         >>> Web3.soliditySha3(['address'], ["ethereumfoundation.eth"])
         HexBytes("0x913c99ea930c78868f1535d34cd705ab85929b2eaaf70fcd09677ecd6e5d75e9")
+
+Check Encodability
+~~~~~~~~~~~~~~~~~~~~
+
+.. py:method:: w3.is_encodable(_type, value)
+
+  Returns ``True`` if a value can be encoded as the given type. Otherwise returns ``False``.
+
+   .. code-block:: python
+
+        >>> from web3.auto.gethdev import w3
+        >>> w3.is_encodable('bytes2', b'12')
+        True
+        >>> w3.is_encodable('bytes2', b'1')
+        True
+        >>> w3.is_encodable('bytes2', '0x1234')
+        True
+        >>> w3.is_encodable('bytes2', b'123')
+        False
+
+.. py:method:: w3.enable_strict_bytes_type_checking()
+
+   Enables stricter bytes type checking. For more examples see :ref:`enable-strict-byte-check`
+
+    .. doctest::
+
+        >>> from web3.auto.gethdev import w3
+        >>> w3.enable_strict_bytes_type_checking()
+        >>> w3.is_encodable('bytes2', b'12')
+        True
+        >>> w3.is_encodable('bytes2', b'1')
+        False
 
 Modules
 -------

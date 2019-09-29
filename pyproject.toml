@@ -1,0 +1,7 @@
+[tool.towncrier]
+    package="web3"
+    filename = "docs/releases.rst"
+    directory = "newsfragments"
+    underlines = ["-", "~", "^"]
+    issue_format = "`#{issue} <https://github.com/ethereum/web3.py/issues/{issue}>`__"
+    title_format = "v{version} ({project_date})"

@@ -89,6 +89,7 @@ exclude_patterns = [
     'web3.providers.rst',
     'web3.providers.eth_tester.rst',
     'web3.testing.rst',
+    'web3.tools.*',
 ]
 
 # The reST default role (used for this markup: `text`) to use for all

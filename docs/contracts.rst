@@ -491,6 +491,219 @@ and the arguments are ambiguous.
         1
 
 
+.. _enable-strict-byte-check:
+
+Enabling Strict Checks for Bytes Types
+--------------------------------------
+
+By default, web3 is not very strict when it comes to hex and bytes values.
+A bytes type will take a hex string, a bytestring, or a regular python
+string that can be decoded as a hex.
+Additionally, if an abi specifies a byte size, but the value that gets
+passed in is less than the specified size, web3 will automatically pad the value.
+For example, if an abi specifies a type of ``bytes4``, web3 will handle all of the following values:
+
+.. list-table:: Valid byte and hex strings for a bytes4 type
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Input
+     - Normalizes to
+   * - ``''``
+     - ``b'\x00\x00\x00\x00'``
+   * - ``'0x'``
+     - ``b'\x00\x00\x00\x00'``
+   * - ``b''``
+     - ``b'\x00\x00\x00\x00'``
+   * - ``b'ab'``
+     - ``b'ab\x00\x00'``
+   * - ``'0xab'``
+     - ``b'\xab\x00\x00\x00'``
+   * - ``'1234'``
+     - ``b'\x124\x00\x00'``
+   * - ``'0x61626364'``
+     - ``b'abcd'``
+   * - ``'1234'``
+     - ``b'1234'``
+
+
+The following values will raise an error by default:
+
+.. list-table:: Invalid byte and hex strings for a bytes4 type
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Input
+     - Reason
+   * - ``b'abcde'``
+     - Bytestring with more than 4 bytes
+   * - ``'0x6162636423'``
+     - Hex string with more than 4 bytes
+   * - ``2``
+     - Wrong type
+   * - ``'ah'``
+     - String is not valid hex
+
+However, you may want to be stricter with acceptable values for bytes types.
+For this you can use the :meth:`w3.enable_strict_bytes_type_checking()` method,
+which is available on the web3 instance. A web3 instance which has had this method
+invoked will enforce a stricter set of rules on which values are accepted.
+
+ - A Python string that is not prefixed with ``0x`` will throw an error.
+ - A bytestring whose length not exactly the specified byte size
+   will raise an error.
+
+.. list-table:: Valid byte and hex strings for a strict bytes4 type
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Input
+     - Normalizes to
+   * - ``'0x'``
+     - ``b'\x00\x00\x00\x00'``
+   * - ``'0x61626364'``
+     - ``b'abcd'``
+   * - ``'1234'``
+     - ``b'1234'``
+
+.. list-table:: Invalid byte and hex strings with strict bytes4 type checking
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Input
+     - Reason
+   * - ``''``
+     - Needs to be prefixed with a "0x" to be interpreted as an empty hex string
+   * - ``'1234'``
+     - Needs to either be a bytestring (b'1234') or be a hex value of the right size, prefixed with 0x (in this case: '0x31323334')
+   * - ``b''``
+     - Needs to have exactly 4 bytes
+   * - ``b'ab'``
+     - Needs to have exactly 4 bytes
+   * - ``'0xab'``
+     - Needs to have exactly 4 bytes
+   * - ``'0x6162636464'``
+     - Needs to have exactly 4 bytes
+
+
+Taking the following contract code as an example:
+
+.. testsetup::
+
+    from web3 import Web3
+    w3 = Web3(Web3.EthereumTesterProvider())
+    bytecode = "608060405234801561001057600080fd5b506040516106103803806106108339810180604052602081101561003357600080fd5b81019080805164010000000081111561004b57600080fd5b8281019050602081018481111561006157600080fd5b815185602082028301116401000000008211171561007e57600080fd5b5050929190505050806000908051906020019061009c9291906100a3565b505061019c565b82805482825590600052602060002090600f0160109004810192821561015a5791602002820160005b8382111561012a57835183826101000a81548161ffff02191690837e010000000000000000000000000000000000000000000000000000000000009004021790555092602001926002016020816001010492830192600103026100cc565b80156101585782816101000a81549061ffff021916905560020160208160010104928301926001030261012a565b505b509050610167919061016b565b5090565b61019991905b8082111561019557600081816101000a81549061ffff021916905550600101610171565b5090565b90565b610465806101ab6000396000f3fe608060405260043610610051576000357c0100000000000000000000000000000000000000000000000000000000900480633b3230ee14610056578063d7c8a410146100e7578063dfe3136814610153575b600080fd5b34801561006257600080fd5b5061008f6004803603602081101561007957600080fd5b8101908080359060200190929190505050610218565b60405180827dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff19167dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1916815260200191505060405180910390f35b3480156100f357600080fd5b506100fc61026c565b6040518080602001828103825283818151815260200191508051906020019060200280838360005b8381101561013f578082015181840152602081019050610124565b505050509050019250505060405180910390f35b34801561015f57600080fd5b506102166004803603602081101561017657600080fd5b810190808035906020019064010000000081111561019357600080fd5b8201836020820111156101a557600080fd5b803590602001918460208302840111640100000000831117156101c757600080fd5b919080806020026020016040519081016040528093929190818152602001838360200280828437600081840152601f19601f820116905080830192505050505050509192919290505050610326565b005b60008181548110151561022757fe5b9060005260206000209060109182820401919006600202915054906101000a90047e010000000000000000000000000000000000000000000000000000000000000281565b6060600080548060200260200160405190810160405280929190818152602001828054801561031c57602002820191906000526020600020906000905b82829054906101000a90047e01000000000000000000000000000000000000000000000000000000000000027dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1916815260200190600201906020826001010492830192600103820291508084116102a95790505b5050505050905090565b806000908051906020019061033c929190610340565b5050565b82805482825590600052602060002090600f016010900481019282156103f75791602002820160005b838211156103c757835183826101000a81548161ffff02191690837e01000000000000000000000000000000000000000000000000000000000000900402179055509260200192600201602081600101049283019260010302610369565b80156103f55782816101000a81549061ffff02191690556002016020816001010492830192600103026103c7565b505b5090506104049190610408565b5090565b61043691905b8082111561043257600081816101000a81549061ffff02191690555060010161040e565b5090565b9056fea165627a7a72305820a8f9f1f4815c1eedfb8df31298a5cd13b198895de878871328b5d96296b69b4e0029"
+    abi = '''
+      [
+        {
+          "constant": true,
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "bytes2Value",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes2"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "getBytes2Value",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes2[]"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [
+            {
+              "name": "_bytes2Value",
+              "type": "bytes2[]"
+            }
+          ],
+          "name": "setBytes2Value",
+          "outputs": [],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "name": "_bytes2Value",
+              "type": "bytes2[]"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        }
+      ]
+     '''.strip()
+
+.. code-block:: python
+
+    >>> #  pragma solidity >=0.4.22 <0.6.0;
+    ...
+    ... #   contract ArraysContract {
+    ... #      bytes2[] public bytes2Value;
+
+    ... #      constructor(bytes2[] memory _bytes2Value) public {
+    ... #          bytes2Value = _bytes2Value;
+    ... #      }
+
+    ... #      function setBytes2Value(bytes2[] memory _bytes2Value) public {
+    ... #          bytes2Value = _bytes2Value;
+    ... #      }
+
+    ... #      function getBytes2Value() public view returns (bytes2[] memory) {
+    ... #          return bytes2Value;
+    ... #      }
+    ... #  }
+
+    >>> # abi = "..."
+    >>> # bytecode = "6080..."
+
+.. doctest::
+
+    >>> ArraysContract = w3.eth.contract(abi=abi, bytecode=bytecode)
+
+    >>> tx_hash = ArraysContract.constructor([b'b']).transact()
+    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+
+    >>> array_contract = w3.eth.contract(
+    ...     address=tx_receipt.contractAddress,
+    ...     abi=abi
+    ... )
+
+    >>> array_contract.functions.getBytes2Value().call()
+    [b'b\x00']
+    >>> array_contract.functions.setBytes2Value([b'a']).transact()
+    HexBytes('0x39bc9a0bf5b8ec8e8115ccb20bf02f5570351a20a8fd774da91353f38535bec1')
+    >>> array_contract.functions.getBytes2Value().call()
+    [b'a\x00']
+    >>> w3.enable_strict_bytes_type_checking()
+    >>> array_contract.functions.setBytes2Value([b'a']).transact()
+    Traceback (most recent call last):
+       ...
+    ValidationError:
+    Could not identify the intended function with name `setBytes2Value`
+
 Contract Functions
 ------------------
 
