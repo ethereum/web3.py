@@ -6,6 +6,7 @@ from web3.exceptions import (
 
 SKIP_STALECHECK_FOR_METHODS = set([
     'eth_getBlockByNumber',
+    'net_version',
 ])
 
 
