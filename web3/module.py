@@ -5,12 +5,9 @@ from eth_utils.toolz import (
 
 
 @curry
-def apply_result_formatters(
-        result_formatters,
-        result):
-
+def apply_result_formatters(result_formatters, result):
     if result_formatters:
-        formatted_result = pipe(result, *result_formatters)
+        formatted_result = pipe(result, result_formatters)
         return formatted_result
     else:
         return result

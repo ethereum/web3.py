@@ -2,7 +2,12 @@ import codecs
 import operator
 
 from eth_utils.curried import (
+    apply_formatter_at_index,
+    apply_formatter_if,
+    apply_formatter_to_array,
+    apply_formatters_to_dict,
     apply_formatters_to_sequence,
+    apply_one_of_formatters,
     is_address,
     is_bytes,
     is_dict,
@@ -12,6 +17,7 @@ from eth_utils.curried import (
     remove_0x_prefix,
     text_if_str,
     to_checksum_address,
+    to_list,
     to_tuple,
 )
 from eth_utils.toolz import (
@@ -33,11 +39,6 @@ from web3._utils.encoding import (
     to_hex,
 )
 from web3._utils.formatters import (
-    apply_formatter_at_index,
-    apply_formatter_if,
-    apply_formatter_to_array,
-    apply_formatters_to_dict,
-    apply_one_of_formatters,
     hex_to_integer,
     integer_to_hex,
     is_array_of_dicts,
@@ -137,6 +138,10 @@ WHISPER_LOG_FORMATTERS = {
 whisper_log_formatter = apply_formatters_to_dict(WHISPER_LOG_FORMATTERS)
 
 
+def apply_list_to_array_formatter(formatter):
+    return to_list(apply_formatter_to_array(formatter))
+
+
 LOG_ENTRY_FORMATTERS = {
     'blockHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
     'blockNumber': apply_formatter_if(is_not_null, to_integer_if_hex),
@@ -144,7 +149,7 @@ LOG_ENTRY_FORMATTERS = {
     'transactionHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
     'logIndex': to_integer_if_hex,
     'address': to_checksum_address,
-    'topics': apply_formatter_to_array(to_hexbytes(32)),
+    'topics': apply_list_to_array_formatter(to_hexbytes(32)),
     'data': to_ascii_if_bytes,
 }
 
@@ -161,7 +166,7 @@ RECEIPT_FORMATTERS = {
     'status': to_integer_if_hex,
     'gasUsed': to_integer_if_hex,
     'contractAddress': apply_formatter_if(is_not_null, to_checksum_address),
-    'logs': apply_formatter_to_array(log_entry_formatter),
+    'logs': apply_list_to_array_formatter(log_entry_formatter),
     'logsBloom': to_hexbytes(256),
 }
 
@@ -182,14 +187,14 @@ BLOCK_FORMATTERS = {
     'number': apply_formatter_if(is_not_null, to_integer_if_hex),
     'parentHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
     'sha3Uncles': apply_formatter_if(is_not_null, to_hexbytes(32)),
-    'uncles': apply_formatter_to_array(to_hexbytes(32)),
+    'uncles': apply_list_to_array_formatter(to_hexbytes(32)),
     'difficulty': to_integer_if_hex,
     'receiptsRoot': to_hexbytes(32),
     'stateRoot': to_hexbytes(32),
     'totalDifficulty': to_integer_if_hex,
     'transactions': apply_one_of_formatters((
-        (apply_formatter_to_array(transaction_formatter), is_array_of_dicts),
-        (apply_formatter_to_array(to_hexbytes(32)), is_array_of_strings),
+        (is_array_of_dicts, apply_list_to_array_formatter(transaction_formatter)),
+        (is_array_of_strings, apply_list_to_array_formatter(to_hexbytes(32))),
     )),
     'transactionsRoot': to_hexbytes(32),
 }
@@ -240,17 +245,19 @@ transaction_pool_inspect_formatter = apply_formatters_to_dict(
 STORAGE_PROOF_FORMATTERS = {
     'key': HexBytes,
     'value': HexBytes,
-    'proof': apply_formatter_to_array(HexBytes),
+    'proof': apply_list_to_array_formatter(HexBytes),
 }
 
 ACCOUNT_PROOF_FORMATTERS = {
     'address': to_checksum_address,
-    'accountProof': apply_formatter_to_array(HexBytes),
+    'accountProof': apply_list_to_array_formatter(HexBytes),
     'balance': to_integer_if_hex,
     'codeHash': to_hexbytes(32),
     'nonce': to_integer_if_hex,
     'storageHash': to_hexbytes(32),
-    'storageProof': apply_formatter_to_array(apply_formatters_to_dict(STORAGE_PROOF_FORMATTERS))
+    'storageProof': apply_list_to_array_formatter(
+        apply_formatters_to_dict(STORAGE_PROOF_FORMATTERS)
+    )
 }
 
 proof_formatter = apply_formatters_to_dict(ACCOUNT_PROOF_FORMATTERS)
@@ -265,8 +272,8 @@ filter_params_formatter = apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
 
 
 filter_result_formatter = apply_one_of_formatters((
-    (apply_formatter_to_array(log_entry_formatter), is_array_of_dicts),
-    (apply_formatter_to_array(to_hexbytes(32)), is_array_of_strings),
+    (is_array_of_dicts, apply_list_to_array_formatter(log_entry_formatter)),
+    (is_array_of_strings, apply_list_to_array_formatter(to_hexbytes(32))),
 ))
 
 
@@ -287,6 +294,10 @@ SIGNED_TX_FORMATTER = {
 }
 
 signed_tx_formatter = apply_formatters_to_dict(SIGNED_TX_FORMATTER)
+
+FILTER_PARAM_NORMALIZERS = apply_formatters_to_dict({
+    'address': apply_formatter_if(is_string, lambda x: [x])
+})
 
 PYTHONIC_REQUEST_FORMATTERS = {
     # Eth
@@ -316,11 +327,10 @@ PYTHONIC_REQUEST_FORMATTERS = {
         block_number_formatter,
     ]),
     'eth_estimateGas': apply_one_of_formatters((
-        (estimate_gas_without_block_id, is_length(1)),
-        (estimate_gas_with_block_id, is_length(2)),
+        (is_length(1), estimate_gas_without_block_id),
+        (is_length(2), estimate_gas_with_block_id),
     )),
     'eth_sendTransaction': apply_formatter_at_index(transaction_param_formatter, 0),
-    'eth_chainId': to_integer_if_hex,
     'eth_getProof': apply_formatter_at_index(block_number_formatter, 2),
     # personal
     'personal_importRawKey': apply_formatter_at_index(
@@ -343,7 +353,7 @@ PYTHONIC_REQUEST_FORMATTERS = {
 
 PYTHONIC_RESULT_FORMATTERS = {
     # Eth
-    'eth_accounts': apply_formatter_to_array(to_checksum_address),
+    'eth_accounts': apply_list_to_array_formatter(to_checksum_address),
     'eth_blockNumber': to_integer_if_hex,
     'eth_chainId': to_integer_if_hex,
     'eth_coinbase': to_checksum_address,
@@ -389,12 +399,12 @@ PYTHONIC_RESULT_FORMATTERS = {
     'eth_syncing': apply_formatter_if(is_not_false, syncing_formatter),
     # personal
     'personal_importRawKey': to_checksum_address,
-    'personal_listAccounts': apply_formatter_to_array(to_checksum_address),
+    'personal_listAccounts': apply_list_to_array_formatter(to_checksum_address),
     'personal_newAccount': to_checksum_address,
     'personal_sendTransaction': to_hexbytes(32),
     'personal_signTypedData': HexBytes,
     # SHH
-    'shh_getFilterMessages': apply_formatter_to_array(whisper_log_formatter),
+    'shh_getFilterMessages': apply_list_to_array_formatter(whisper_log_formatter),
     # Transaction Pool
     'txpool_content': transaction_pool_content_formatter,
     'txpool_inspect': transaction_pool_inspect_formatter,
@@ -405,20 +415,14 @@ PYTHONIC_RESULT_FORMATTERS = {
 }
 
 
-FILTER_PARAM_NORMALIZERS = apply_formatters_to_dict({
-    'address': apply_formatter_if(is_string, lambda x: [x])})
-
+ATTRDICT_FORMATTER = {
+    '*': apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
+}
 
 METHOD_NORMALIZERS = {
     'eth_getLogs': apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0),
     'eth_newFilter': apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0)
 }
-
-
-ATTRDICT_FORMATTER = {
-    '*': apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
-}
-
 
 STANDARD_NORMALIZERS = [
     abi_bytes_to_hex,
@@ -431,41 +435,34 @@ STANDARD_NORMALIZERS = [
 ABI_REQUEST_FORMATTERS = abi_request_formatters(STANDARD_NORMALIZERS, RPC_ABIS)
 
 
-@curry
-def method_filter(formatter_dict, method):
-    if method in formatter_dict:
-        return formatter_dict[method]
-    if '*' in formatter_dict:
-        return formatter_dict['*']
-
-
-REQUEST_FORMATTER_MAPS = (
-    method_filter(METHOD_NORMALIZERS),
-    method_filter(PYTHONIC_RESULT_FORMATTERS),
-    method_filter(ABI_REQUEST_FORMATTERS),
-)
-
-
-RESULT_FORMATTER_MAPS = (
-    method_filter(PYTHONIC_RESULT_FORMATTERS),
-    method_filter(ATTRDICT_FORMATTER),
-)
-
-#  Note error formatters work on the full response dict
-ERROR_FORMATTER_MAPS = (
-)
-
-
 @to_tuple
-def get_formatters(sequential_formatters, method):
-    for lookup_fn in sequential_formatters:
-        formatter = lookup_fn('method')
-        if formatter:
-            yield formatter
+def combine_formatters(formatter_maps, method_name):
+    for formatter_map in formatter_maps:
+        if method_name in formatter_map:
+            yield formatter_map[method_name]
 
 
-def lookup_formatters(method):
-    request_formatters = get_formatters(REQUEST_FORMATTER_MAPS, method) or None
-    result_formatters = get_formatters(RESULT_FORMATTER_MAPS, method) or None
-    error_formatters = get_formatters(ERROR_FORMATTER_MAPS, method) or None
-    return (request_formatters, (result_formatters, error_formatters))
+def get_request_formatters(method_name):
+    request_formatter_maps = (
+        METHOD_NORMALIZERS,
+        PYTHONIC_REQUEST_FORMATTERS,
+        ABI_REQUEST_FORMATTERS
+    )
+    formatters = combine_formatters(request_formatter_maps, method_name)
+    return compose(*formatters)
+
+
+def get_result_formatters(method_name):
+    formatters = combine_formatters((PYTHONIC_RESULT_FORMATTERS,), method_name)
+    attrdict_formatter = apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
+
+    return compose(*formatters, attrdict_formatter)
+
+
+def get_error_formatters(method_name):
+    #  Note error formatters work on the full response dict
+    # TODO - test this function
+    error_formatter_maps = ()
+    formatters = combine_formatters(error_formatter_maps, method_name)
+
+    return compose(*formatters)

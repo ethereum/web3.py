@@ -1,18 +1,24 @@
 import functools
 import warnings
 
+from eth_utils.curried import (
+    to_tuple,
+)
 from eth_utils.toolz import (
     pipe,
 )
 
 from web3._utils.method_formatters import (
-    lookup_formatters,
+    get_error_formatters,
+    get_request_formatters,
+    get_result_formatters,
 )
 
 
+@to_tuple
 def _apply_request_formatters(params, request_formatters):
     if request_formatters:
-        formatted_params = pipe(params, *request_formatters)
+        formatted_params = pipe(params, request_formatters)
         return formatted_params
     return params
 
@@ -82,12 +88,18 @@ class Method:
             self,
             json_rpc_method=None,
             mungers=None,
-            formatter_lookup_fn=None,
+            request_formatters=None,
+            result_formatters=None,
+            error_formatters=None,
             web3=None):
 
         self.json_rpc_method = json_rpc_method
         self.mungers = mungers or [default_munger]
-        self.formatter_lookup_fn = formatter_lookup_fn or lookup_formatters
+        # TODO - decide if this request_formatters
+        # (and result_formatters) is worth keeping for testing
+        self.request_formatters = request_formatters or get_request_formatters
+        self.result_formatters = result_formatters or get_result_formatters
+        self.error_formatters = get_error_formatters
 
     def __get__(self, obj=None, obj_type=None):
         if obj is None:
@@ -107,15 +119,6 @@ class Method:
             return lambda *_: self.json_rpc_method
         raise ValueError("``json_rpc_method`` config invalid.  May be a string or function")
 
-    def get_formatters(self, method_string):
-        """Lookup the request formatters for the rpc_method
-
-        The lookup_fn output is expected to be a 2 length tuple of lists of
-        the request and output formatters, respectively.
-        """
-        formatters = self.formatter_lookup_fn(method_string)
-        return formatters
-
     def input_munger(self, module, args, kwargs):
         # TODO: Create friendly error output.
         mungers_iter = iter(self.mungers)
@@ -128,10 +131,10 @@ class Method:
 
     def process_params(self, module, *args, **kwargs):
         params = self.input_munger(module, args, kwargs)
-        method = self.method_selector_fn(params)
-        request_formatters, response_formatters = self.get_formatters(method)
+        method = self.method_selector_fn()
+        response_formatters = (self.result_formatters(method), self.error_formatters(method))
 
-        request = (method, _apply_request_formatters(params, request_formatters))
+        request = (method, _apply_request_formatters(params, self.request_formatters(method)))
 
         return request, response_formatters
 
