@@ -1,7 +1,7 @@
 import pytest
 
 from eth_utils.toolz import (
-    identity,
+    compose,
 )
 
 from web3 import Web3
@@ -19,21 +19,10 @@ from web3.providers import (
 )
 
 
-def result_formatter(result):
-    if result == 'ok':
+def result_formatter(method):
+    def formatter(self):
         return 'OKAY'
-    return result
-
-
-def formatters(method):
-    return ((identity,), ((result_formatter,), None))
-
-
-def test_method():
-    method = Method(
-        'test_method',
-        formatter_lookup_fn=formatters)
-    return method
+    return compose(formatter)
 
 
 class DummyProvider(BaseProvider):
@@ -41,14 +30,15 @@ class DummyProvider(BaseProvider):
         raise NotImplementedError
 
 
-result_middleware = construct_result_generator_middleware(
-    {
-        'test_method': lambda m, p: 'ok',
-    })
+result_middleware = construct_result_generator_middleware({
+    'method_for_test': lambda m, p: 'ok',
+})
 
 
 class ModuleForTest(ModuleV2):
-    method = test_method()
+    method = Method(
+        'method_for_test',
+        result_formatters=result_formatter)
 
 
 @pytest.fixture

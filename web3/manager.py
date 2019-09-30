@@ -34,7 +34,7 @@ def apply_error_formatters(
         response):
 
     if 'error' in response and error_formatters:
-        formatted_response = pipe(response, *error_formatters)
+        formatted_response = pipe(response, error_formatters)
         return formatted_response
     else:
         return response
