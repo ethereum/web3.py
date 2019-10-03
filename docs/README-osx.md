@@ -19,3 +19,14 @@ brew install openssl libffi autoconf automake libtool
 ```sh
 brew install leveldb
 ```
+
+4. When you are on `>=OSX 10.15 Catalina` and you encounter error with default `ZSH` shell:
+```sh
+pip install -e .[dev]
+zsh: no matches found: .[dev]
+```
+
+Run install commands as follows:
+```sh
+pip install -e .'[dev]'
+```
