@@ -124,3 +124,7 @@ class CommonGoEthereumShhModuleTest(GoEthereumShhModuleTest):
 
 class GoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
     pass
+
+
+class GoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
+    pass

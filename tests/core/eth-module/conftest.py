@@ -12,7 +12,7 @@ def extra_accounts(web3, account_password):
     num_accounts_to_create = 10 - len(web3.eth.accounts)
 
     for i in range(num_accounts_to_create):
-        web3.personal.newAccount(account_password)
+        web3.personal.new_account(account_password)
 
     return web3.eth.accounts
 

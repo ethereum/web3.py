@@ -352,22 +352,30 @@ API_ENDPOINTS = {
         'stopAutoDAG': not_implemented,
     },
     'personal': {
-        'ecRecover': not_implemented,
-        'importRawKey': call_eth_tester('add_account'),
-        'listAccounts': call_eth_tester('get_accounts'),
-        'lockAccount': excepts(
+        'ec_recover': not_implemented,
+        'import_raw_key': call_eth_tester('add_account'),
+        'list_accounts': call_eth_tester('get_accounts'),
+        'lock_account': excepts(
             ValidationError,
             compose(static_return(True), call_eth_tester('lock_account')),
             static_return(False),
         ),
-        'newAccount': create_new_account,
-        'unlockAccount': excepts(
+        'new_account': create_new_account,
+        'unlock_account': excepts(
             ValidationError,
             compose(static_return(True), call_eth_tester('unlock_account')),
             static_return(False),
         ),
-        'sendTransaction': personal_send_transaction,
+        'send_transaction': personal_send_transaction,
         'sign': not_implemented,
+        # deprecated
+        'ecRecover': not_implemented,
+        'importRawKey': not_implemented,
+        'listAccounts': not_implemented,
+        'lockAccount': not_implemented,
+        'newAccount': not_implemented,
+        'unlockAccount': not_implemented,
+        'sendTransaction': not_implemented,
     },
     'testing': {
         'timeTravel': call_eth_tester('time_travel'),

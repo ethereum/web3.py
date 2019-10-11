@@ -211,7 +211,7 @@ GethPersonal API
 
 The following methods are available on the ``web3.geth.personal`` namespace.
 
-.. py:method:: listAccounts
+.. py:method:: list_accounts
 
     * Delegates to ``personal_listAccounts`` RPC Method
 
@@ -219,11 +219,15 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.listAccounts()
+        >>> web3.geth.personal.list_accounts()
         ['0xd3CdA913deB6f67967B99D67aCDFa1712C293601']
 
+.. py:method:: listAccounts()
 
-.. py:method:: importRawKey(self, private_key, passphrase)
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~web3.geth.personal.list_accounts()`
+
+.. py:method:: import_raw_key(self, private_key, passphrase)
 
     * Delegates to ``personal_importRawKey`` RPC Method
 
@@ -232,11 +236,15 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.importRawKey(some_private_key, 'the-passphrase')
+        >>> web3.geth.personal.import_raw_key(some_private_key, 'the-passphrase')
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
+.. py:method:: importRawKey()
 
-.. py:method:: newAccount(self, password)
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~web3.geth.personal.import_raw_key()`
+
+.. py:method:: new_account(self, password)
 
     * Delegates to ``personal_newAccount`` RPC Method
 
@@ -245,11 +253,15 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.newAccount('the-passphrase')
+        >>> web3.geth.personal.new_account('the-passphrase')
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
+.. py:method:: newAccount()
 
-.. py:method:: lockAccount(self, account)
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~web3.geth.personal.new_account()`
+
+.. py:method:: lock_account(self, account)
 
     * Delegates to ``personal_lockAccount`` RPC Method
 
@@ -257,10 +269,14 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.lockAccount('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.geth.personal.lock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
 
+.. py:method:: lockAccount()
 
-.. py:method:: unlockAccount(self, account, passphrase, duration=None)
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~web3.geth.personal.lock_account()`
+
+.. py:method:: unlock_account(self, account, passphrase, duration=None)
 
     * Delegates to ``personal_unlockAccount`` RPC Method
 
@@ -271,18 +287,26 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.unlockAccount('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'wrong-passphrase')
+        >>> web3.geth.personal.unlock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'wrong-passphrase')
         False
-        >>> web3.geth.personal.unlockAccount('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'the-passphrase')
+        >>> web3.geth.personal.unlock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'the-passphrase')
         True
 
+.. py:method:: unlockAccount()
 
-.. py:method:: sendTransaction(self, transaction, passphrase)
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~web3.geth.personal.unlock_account()`
+
+.. py:method:: send_transaction(self, transaction, passphrase)
 
     * Delegates to ``personal_sendTransaction`` RPC Method
 
     Sends the transaction.
 
+.. py:method:: sendTransaction()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~web3.geth.personal.send_transaction()`
 
 .. py:module:: web3.geth.txpool
 

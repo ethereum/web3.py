@@ -152,9 +152,9 @@ def emitter_contract_address(emitter_contract, address_conversion_func):
 
 @pytest.fixture
 def unlocked_account(web3, unlockable_account, unlockable_account_pw):
-    web3.geth.personal.unlockAccount(unlockable_account, unlockable_account_pw)
+    web3.geth.personal.unlock_account(unlockable_account, unlockable_account_pw)
     yield unlockable_account
-    web3.geth.personal.lockAccount(unlockable_account)
+    web3.geth.personal.lock_account(unlockable_account)
 
 
 @pytest.fixture(scope='module')
@@ -174,9 +174,9 @@ def unlockable_account_dual_type(unlockable_account, address_conversion_func):
 
 @pytest.yield_fixture
 def unlocked_account_dual_type(web3, unlockable_account_dual_type, unlockable_account_pw):
-    web3.geth.personal.unlockAccount(unlockable_account_dual_type, unlockable_account_pw)
+    web3.geth.personal.unlock_account(unlockable_account_dual_type, unlockable_account_pw)
     yield unlockable_account_dual_type
-    web3.geth.personal.lockAccount(unlockable_account_dual_type)
+    web3.geth.personal.lock_account(unlockable_account_dual_type)
 
 
 @pytest.fixture(scope="module")

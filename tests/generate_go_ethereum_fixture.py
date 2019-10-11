@@ -316,7 +316,7 @@ def mine_block(web3):
 
 
 def deploy_contract(web3, name, factory):
-    web3.geth.personal.unlockAccount(web3.eth.coinbase, KEYFILE_PW)
+    web3.geth.personal.unlock_account(web3.eth.coinbase, KEYFILE_PW)
     deploy_txn_hash = factory.constructor().transact({'from': web3.eth.coinbase})
     print('{0}_CONTRACT_DEPLOY_HASH: '.format(name.upper()), deploy_txn_hash)
     deploy_receipt = mine_transaction_hash(web3, deploy_txn_hash)
@@ -375,7 +375,7 @@ def setup_chain_state(web3):
     #
     # Block with Transaction
     #
-    web3.geth.personal.unlockAccount(coinbase, KEYFILE_PW)
+    web3.geth.personal.unlock_account(coinbase, KEYFILE_PW)
     web3.geth.miner.start(1)
     mined_txn_hash = web3.eth.sendTransaction({
         'from': coinbase,

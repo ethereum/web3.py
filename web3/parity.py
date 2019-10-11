@@ -9,14 +9,14 @@ from web3._utils import (
     shh,
 )
 from web3._utils.personal import (
-    ecRecover,
-    importRawKey,
-    listAccounts,
-    newAccount,
-    sendTransaction,
+    ec_recover,
+    import_raw_key,
+    list_accounts,
+    new_account,
+    send_transaction,
     sign,
-    signTypedData,
-    unlockAccount,
+    sign_typed_data,
+    unlock_account,
 )
 from web3.module import (
     Module,
@@ -61,14 +61,22 @@ class ParityPersonal(ModuleV2):
     """
     https://wiki.parity.io/JSONRPC-personal-module
     """
-    ecRecover = ecRecover
-    importRawKey = importRawKey
-    listAccounts = listAccounts
-    newAccount = newAccount
-    sendTransaction = sendTransaction
     sign = sign
-    signTypedData = signTypedData
-    unlockAccount = unlockAccount
+    ec_recover = ec_recover
+    import_raw_key = import_raw_key
+    list_accounts = list_accounts
+    new_account = new_account
+    send_transaction = send_transaction
+    sign_typed_data = sign_typed_data
+    unlock_account = unlock_account
+    # Deprecated
+    ecRecover = ec_recover
+    importRawKey = import_raw_key
+    listAccounts = list_accounts
+    newAccount = new_account
+    sendTransaction = send_transaction
+    signTypedData = sign_typed_data
+    unlockAccount = unlock_account
 
 
 class Parity(Module):
