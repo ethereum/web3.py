@@ -6,6 +6,22 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.2.1 (2019-10-17)
+-------------------
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update documentation for unlock account duration (`#1464 <https://github.com/ethereum/web3.py/issues/1464>`__)
+- Clarify module installation command for OSX>=10.15 (`#1467 <https://github.com/ethereum/web3.py/issues/1467>`__)
+
+
+Misc
+~~~~
+
+- `#1468 <https://github.com/ethereum/web3.py/issues/1468>`__
+
+
 v5.2.0 (2019-09-26)
 -------------------
 

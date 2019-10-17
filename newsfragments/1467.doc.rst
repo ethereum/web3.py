@@ -1,1 +1,0 @@
-Clarify module installation command for OSX>=10.15
