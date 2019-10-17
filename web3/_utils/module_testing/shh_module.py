@@ -504,6 +504,10 @@ class ParityShhModuleTest():
 
         watcher.stop()
 
+    # Sometimes the post fails because PoW is too low.
+    # We don't care if an error or a True response comes back,
+    # we only care that we're interfacing correctly with Parity
+    @pytest.mark.xfail(strict=False, raises=ValueError)
     def test_shh_remove_filter(self, web3):
         receiver = web3.parity.shh.new_key_pair()
         receiver_pub = web3.parity.shh.get_public_key(receiver)
@@ -567,6 +571,11 @@ class ParityShhModuleTest():
     #
     # shh_post
     #
+
+    # Sometimes the post fails because PoW is too low.
+    # We don't care if an error or a True response comes back,
+    # we only care that we're interfacing correctly with Parity
+    @pytest.mark.xfail(strict=False, raises=ValueError)
     def test_shh_post(self, web3):
         sender = web3.parity.shh.new_key_pair()
         assert web3.parity.shh.post({
