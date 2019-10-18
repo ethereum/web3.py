@@ -75,7 +75,7 @@ def _(val):
 
 def private_key_to_account(val):
     normalized_key = key_normalizer(val)
-    return Account.privateKeyToAccount(normalized_key)
+    return Account.from_key(normalized_key)
 
 
 to_account.register(PrivateKey, private_key_to_account)
