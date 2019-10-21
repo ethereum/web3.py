@@ -1,0 +1,1 @@
+Remove warnings from asyncio version module tests
