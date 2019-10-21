@@ -78,7 +78,7 @@ setup(
         "protobuf>=3.0.0,<4",
         "pypiwin32>=223;platform_system=='Windows'",
         "requests>=2.16.0,<3.0.0",
-        "websockets>=7.0.0,<8.0.0",
+        "websockets>=8.0.0,<9.0.0",
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.6,<4',
