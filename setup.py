@@ -36,6 +36,7 @@ extras_require = {
         "flaky>=3.3.0",
         "hypothesis>=3.31.2",
         "pytest>=4.4.0,<5.0.0",
+        "pytest-asyncio>=0.10.0,<0.11",
         "pytest-mock>=1.10,<2",
         "pytest-pythonpath>=0.3",
         "pytest-watch>=4.2,<5",
