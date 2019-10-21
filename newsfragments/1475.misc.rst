@@ -1,0 +1,1 @@
+Remove deprecation warnings in concise contract and implicit contract tests
