@@ -6,6 +6,27 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.2.2 (2019-10-21)
+-------------------
+
+Features
+~~~~~~~~
+
+- Add poll_latency to waitForTransactionReceipt (`#1453 <https://github.com/ethereum/web3.py/issues/1453>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix flaky Parity whisper module test (`#1473 <https://github.com/ethereum/web3.py/issues/1473>`__)
+
+
+Misc
+~~~~
+
+- `#1472 <https://github.com/ethereum/web3.py/issues/1472>`__, `#1474 <https://github.com/ethereum/web3.py/issues/1474>`__
+
+
 v5.2.1 (2019-10-17)
 -------------------
 
