@@ -55,6 +55,7 @@ Table of Contents
     internals
     ethpm
     ens_overview
+    v6_migration
     v5_migration
     v4_migration
 
