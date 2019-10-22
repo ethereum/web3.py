@@ -1,0 +1,1 @@
+All exceptions inherit from a custom class. EthPM exceptions inherit from PyEthPMError, ENS exceptions inherit from ENS Error, and all other web3.py exceptions inherit from Web3Exception
