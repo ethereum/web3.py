@@ -7,6 +7,10 @@ from eth_utils import (
     to_bytes,
 )
 
+from web3.exceptions import (
+    InvalidAddress,
+)
+
 ABI = [{}]
 ADDRESS = "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"
 BYTES_ADDRESS = to_bytes(hexstr=ADDRESS)
@@ -19,11 +23,11 @@ INVALID_CHECKSUM_ADDRESS = "0xd3CDA913deB6f67967B99D67aCDFa1712C293601"
     (
         ((ADDRESS,), {}, None),
         ((BYTES_ADDRESS,), {}, None),
-        ((INVALID_CHECKSUM_ADDRESS,), {}, ValueError),
-        ((NON_CHECKSUM_ADDRESS,), {}, ValueError),
+        ((INVALID_CHECKSUM_ADDRESS,), {}, InvalidAddress),
+        ((NON_CHECKSUM_ADDRESS,), {}, InvalidAddress),
         ((), {"address": ADDRESS}, None),
-        ((), {"address": INVALID_CHECKSUM_ADDRESS}, ValueError),
-        ((), {"address": NON_CHECKSUM_ADDRESS}, ValueError),
+        ((), {"address": INVALID_CHECKSUM_ADDRESS}, InvalidAddress),
+        ((), {"address": NON_CHECKSUM_ADDRESS}, InvalidAddress),
     ),
 )
 def test_contract_address_validation(w3, args, kwargs, expected):

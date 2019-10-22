@@ -10,7 +10,22 @@ from web3.types import (
 )
 
 
-class BadFunctionCallOutput(Exception):
+class Web3Exception(Exception):
+    """
+    Exception mixin inherited by all exceptions of web3.py
+
+    This allows::
+
+        try:
+            some_call()
+        except Web3Exception:
+            # deal with web3 exception
+        except:
+            # deal with other exceptions
+    """
+
+
+class BadFunctionCallOutput(Web3Exception):
     """
     We failed to decode ABI output.
 
@@ -20,7 +35,7 @@ class BadFunctionCallOutput(Exception):
     pass
 
 
-class BlockNumberOutofRange(Exception):
+class BlockNumberOutofRange(Web3Exception):
     """
     block_identifier passed does not match known block.
     """
@@ -28,7 +43,7 @@ class BlockNumberOutofRange(Exception):
     pass
 
 
-class CannotHandleRequest(Exception):
+class CannotHandleRequest(Web3Exception):
     """
     Raised by a provider to signal that it cannot handle an RPC request and
     that the manager should proceed to the next provider.
@@ -37,7 +52,7 @@ class CannotHandleRequest(Exception):
     pass
 
 
-class TooManyRequests(Exception):
+class TooManyRequests(Web3Exception):
     """
     Raised by a provider to signal that too many requests have been made consecutively.
     """
@@ -45,7 +60,7 @@ class TooManyRequests(Exception):
     pass
 
 
-class MultipleFailedRequests(Exception):
+class MultipleFailedRequests(Web3Exception):
     """
     Raised by a provider to signal that multiple requests to retrieve the same
     (or similar) data have failed.
@@ -54,7 +69,7 @@ class MultipleFailedRequests(Exception):
     pass
 
 
-class InvalidAddress(ValueError):
+class InvalidAddress(Web3Exception):
     """
     The supplied address does not have a valid checksum, as defined in EIP-55
     """
@@ -62,7 +77,7 @@ class InvalidAddress(ValueError):
     pass
 
 
-class NameNotFound(ValueError):
+class NameNotFound(Web3Exception):
     """
     Raised when a caller provides an Ethereum Name Service name that
     does not resolve to an address.
@@ -71,7 +86,7 @@ class NameNotFound(ValueError):
     pass
 
 
-class StaleBlockchain(Exception):
+class StaleBlockchain(Web3Exception):
     """
     Raised by the stalecheck_middleware when the latest block is too old.
     """
@@ -93,7 +108,7 @@ class StaleBlockchain(Exception):
         return self.args[0]
 
 
-class MismatchedABI(Exception):
+class MismatchedABI(Web3Exception):
     """
     Raised when an ABI does not match with supplied parameters, or when an
     attempt is made to access a function/event that does not exist in the ABI.
@@ -120,7 +135,7 @@ class ABIFunctionNotFound(AttributeError, MismatchedABI):
     pass
 
 
-class FallbackNotFound(Exception):
+class FallbackNotFound(Web3Exception):
     """
     Raised when fallback function doesn't exist in contract.
     """
@@ -128,7 +143,7 @@ class FallbackNotFound(Exception):
     pass
 
 
-class ValidationError(Exception):
+class ValidationError(Web3Exception):
     """
     Raised when a supplied value is invalid.
     """
@@ -144,7 +159,7 @@ class ExtraDataLengthError(ValidationError):
     pass
 
 
-class NoABIFunctionsFound(AttributeError):
+class NoABIFunctionsFound(Web3Exception):
     """
     Raised when an ABI is present, but doesn't contain any functions.
     """
@@ -152,7 +167,7 @@ class NoABIFunctionsFound(AttributeError):
     pass
 
 
-class NoABIFound(AttributeError):
+class NoABIFound(Web3Exception):
     """
     Raised when no ABI is present.
     """
@@ -160,7 +175,7 @@ class NoABIFound(AttributeError):
     pass
 
 
-class NoABIEventsFound(AttributeError):
+class NoABIEventsFound(Web3Exception):
     """
     Raised when an ABI doesn't contain any events.
     """
@@ -168,7 +183,7 @@ class NoABIEventsFound(AttributeError):
     pass
 
 
-class InsufficientData(Exception):
+class InsufficientData(Web3Exception):
     """
     Raised when there are insufficient data points to
     complete a calculation
@@ -177,7 +192,7 @@ class InsufficientData(Exception):
     pass
 
 
-class TimeExhausted(Exception):
+class TimeExhausted(Web3Exception):
     """
     Raised when a method has not retrieved the desired
     result within a specified timeout.
@@ -186,7 +201,7 @@ class TimeExhausted(Exception):
     pass
 
 
-class PMError(Exception):
+class PMError(Web3Exception):
     """
     Raised when an error occurs in the PM module.
     """
@@ -202,7 +217,7 @@ class ManifestValidationError(PMError):
     pass
 
 
-class TransactionNotFound(Exception):
+class TransactionNotFound(Web3Exception):
     """
     Raised when a tx hash used to lookup a tx in a jsonrpc call cannot be found.
     """
@@ -210,7 +225,7 @@ class TransactionNotFound(Exception):
     pass
 
 
-class BlockNotFound(Exception):
+class BlockNotFound(Web3Exception):
     """
     Raised when the block id used to lookup a block in a jsonrpc call cannot be found.
     """
@@ -218,7 +233,7 @@ class BlockNotFound(Exception):
     pass
 
 
-class InfuraProjectIdNotFound(Exception):
+class InfuraProjectIdNotFound(Web3Exception):
     """
     Raised when there is no Infura Project Id set.
     """
@@ -226,24 +241,23 @@ class InfuraProjectIdNotFound(Exception):
     pass
 
 
-class LogTopicError(ValueError):
-    # Inherits from ValueError for backwards compatibility
+class LogTopicError(Web3Exception):
     """
     Raised when the number of log topics is mismatched.
     """
+
     pass
 
 
-class InvalidEventABI(ValueError):
-    # Inherits from ValueError for backwards compatibility
+class InvalidEventABI(Web3Exception):
     """
     Raised when the event ABI is invalid.
     """
+
     pass
 
 
-class ContractLogicError(ValueError):
-    # Inherits from ValueError for backwards compatibility
+class ContractLogicError(Web3Exception):
     """
     Raised on a contract revert error
     """
@@ -259,7 +273,7 @@ class OffchainLookup(ContractLogicError):
         super().__init__()
 
 
-class InvalidTransaction(Exception):
+class InvalidTransaction(Web3Exception):
     """
     Raised when a transaction includes an invalid combination of arguments.
     """
@@ -279,9 +293,9 @@ class TransactionTypeMismatch(InvalidTransaction):
         super().__init__(message)
 
 
-class BadResponseFormat(ValueError, KeyError):
-    # Inherits from KeyError and ValueError for backwards compatibility
+class BadResponseFormat(Web3Exception):
     """
     Raised when a JSON-RPC response comes back in an unexpected format
     """
+
     pass
