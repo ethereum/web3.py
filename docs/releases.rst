@@ -1,6 +1,9 @@
 Release Notes
 =============
 
+v6 Breaking Changes Summary
+   See the :ref:`v6 Migration Guide<migrating_v5_to_v6>`
+
 .. towncrier release notes start
 
 v6.0.0-beta.9 (2023-01-03)
