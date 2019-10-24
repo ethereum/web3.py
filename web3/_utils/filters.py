@@ -6,6 +6,9 @@ from eth_utils import (
     is_string,
     is_text,
 )
+from eth_utils.curried import (
+    apply_formatter_if,
+)
 from eth_utils.toolz import (
     complement,
     curry,
@@ -14,9 +17,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.formatters import (
-    apply_formatter_if,
-)
 from web3._utils.threads import (
     TimerClass,
 )
