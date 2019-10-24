@@ -14,14 +14,13 @@ from eth_utils import (
     is_null,
     keccak,
 )
+from eth_utils.curried import (
+    apply_formatter_if,
+)
 from eth_utils.toolz import (
     compose,
     curry,
     excepts,
-)
-
-from web3._utils.formatters import (
-    apply_formatter_if,
 )
 
 
