@@ -57,10 +57,16 @@ from web3.module import (
 
 class Eth(Module):
     account = Account()
+    default_account = empty
+    default_block = "latest"
+    default_contract_factory = Contract
+    iban = Iban
+    gas_price_strategy = None
+
+    # Deprecated
     defaultAccount = empty
     defaultBlock = "latest"
     defaultContractFactory = Contract
-    iban = Iban
     gasPriceStrategy = None
 
     def namereg(self):
@@ -107,7 +113,7 @@ class Eth(Module):
 
     def getBalance(self, account, block_identifier=None):
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             "eth_getBalance",
             [account, block_identifier],
@@ -115,7 +121,7 @@ class Eth(Module):
 
     def getStorageAt(self, account, position, block_identifier=None):
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             "eth_getStorageAt",
             [account, position, block_identifier]
@@ -123,7 +129,7 @@ class Eth(Module):
 
     def getProof(self, account, positions, block_identifier=None):
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             "eth_getProof",
             [account, positions, block_identifier]
@@ -131,7 +137,7 @@ class Eth(Module):
 
     def getCode(self, account, block_identifier=None):
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             "eth_getCode",
             [account, block_identifier],
@@ -276,7 +282,7 @@ class Eth(Module):
 
     def getTransactionCount(self, account, block_identifier=None):
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             "eth_getTransactionCount",
             [account, block_identifier],
@@ -295,8 +301,8 @@ class Eth(Module):
 
     def sendTransaction(self, transaction):
         # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
-            transaction = assoc(transaction, 'from', self.defaultAccount)
+        if 'from' not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, 'from', self.default_account)
 
         # TODO: move gas estimation in middleware
         if 'gas' not in transaction:
@@ -336,12 +342,12 @@ class Eth(Module):
     @apply_to_return_value(HexBytes)
     def call(self, transaction, block_identifier=None):
         # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
-            transaction = assoc(transaction, 'from', self.defaultAccount)
+        if 'from' not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, 'from', self.default_account)
 
         # TODO: move to middleware
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             "eth_call",
             [transaction, block_identifier],
@@ -349,8 +355,8 @@ class Eth(Module):
 
     def estimateGas(self, transaction, block_identifier=None):
         # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
-            transaction = assoc(transaction, 'from', self.defaultAccount)
+        if 'from' not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, 'from', self.default_account)
 
         if block_identifier is None:
             params = [transaction]
@@ -430,7 +436,7 @@ class Eth(Module):
     def contract(self,
                  address=None,
                  **kwargs):
-        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
+        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.default_contract_factory)
 
         ContractFactory = ContractFactoryClass.factory(self.web3, **kwargs)
 
@@ -440,7 +446,7 @@ class Eth(Module):
             return ContractFactory
 
     def setContractFactory(self, contractFactory):
-        self.defaultContractFactory = contractFactory
+        self.default_contract_factory = contractFactory
 
     def getCompilers(self):
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
@@ -449,8 +455,8 @@ class Eth(Module):
         return self.web3.manager.request_blocking("eth_getWork", [])
 
     def generateGasPrice(self, transaction_params=None):
-        if self.gasPriceStrategy:
-            return self.gasPriceStrategy(self.web3, transaction_params)
+        if self.gas_price_strategy:
+            return self.gas_price_strategy(self.web3, transaction_params)
 
     def setGasPriceStrategy(self, gas_price_strategy):
-        self.gasPriceStrategy = gas_price_strategy
+        self.gas_price_strategy = gas_price_strategy
