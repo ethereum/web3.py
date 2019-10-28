@@ -34,14 +34,18 @@ Using Web3
 ----------
 
 To use the web3 library you will need to initialize the
-:class:`~web3.Web3` class.
+:class:`~web3.Web3` class by connecting to an Ethereum node. The quickest way to do so for free is by setting up an account on `Infura https://infura.io/>`. On Infura, create a project and copy the Project ID. Then set the environment variable ``WEB3_INFURA_PROJECT_ID``.
+
+.. code-block:: shell
+    
+    $ export WEB3_INFURA_PROJECT_ID=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 Use the ``auto`` module to :ref:`guess at common node connection options
-<automatic_provider_detection>`.
+<automatic_provider_detection>`. Or specify to use the Infura node by importing from ``web3.auto.infura``.
 
 .. code-block:: python
 
-    >>> from web3.auto import w3
+    >>> from web3.auto.infura import w3
     >>> w3.eth.blockNumber
     4000000
 
