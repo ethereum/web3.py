@@ -1,0 +1,1 @@
+Remove outdated py.test command from readme
