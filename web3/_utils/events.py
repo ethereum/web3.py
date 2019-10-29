@@ -11,6 +11,7 @@ from eth_abi import (
 from eth_typing import (
     TypeStr,
 )
+from eth_utils.abi import collapse_if_tuple
 from eth_utils import (
     encode_hex,
     event_abi_to_log_topic,
@@ -152,7 +153,7 @@ def get_event_abi_types_for_decoding(event_inputs):
         if input_abi['indexed'] and is_dynamic_sized_type(input_abi['type']):
             yield 'bytes32'
         else:
-            yield input_abi['type']
+            yield collapse_if_tuple(input_abi)
 
 
 @curry
