@@ -48,8 +48,8 @@ Use the ``web3.auto.infura`` module to connect to the Infura node.
     >>> w3.eth.blockNumber
     4000000
     
-.. NOTE:: Use the ``auto`` module to :ref:`guess at common node connection options
-<automatic_provider_detection>`.
+.. NOTE:: 
+    Use the ``auto`` module to :ref:`guess at common node connection options <automatic_provider_detection>`.
 
 This ``w3`` instance will now allow you to interact with the Ethereum
 blockchain.
