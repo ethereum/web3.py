@@ -40,14 +40,16 @@ To use the web3 library you will need to initialize the
     
     $ export WEB3_INFURA_PROJECT_ID=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-Use the ``auto`` module to :ref:`guess at common node connection options
-<automatic_provider_detection>`. Or specify to use the Infura node by importing from ``web3.auto.infura``.
+Use the ``web3.auto.infura`` module to connect to the Infura node.
 
 .. code-block:: python
 
     >>> from web3.auto import w3
     >>> w3.eth.blockNumber
     4000000
+    
+.. NOTE:: Use the ``auto`` module to :ref:`guess at common node connection options
+<automatic_provider_detection>`.
 
 This ``w3`` instance will now allow you to interact with the Ethereum
 blockchain.
