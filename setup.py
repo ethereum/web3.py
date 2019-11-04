@@ -74,7 +74,7 @@ setup(
         "eth-account>=0.4.0,<0.5.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
         "eth-typing>=2.0.0,<3.0.0",
-        "eth-utils>=1.4.0,<2.0.0",
+        "eth-utils>=1.8.0,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
         "ipfshttpclient>=0.4.12,<1",
         "jsonschema>=3.0.0,<4.0.0",
