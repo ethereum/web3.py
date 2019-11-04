@@ -10,6 +10,8 @@ extras_require = {
         "eth-tester[py-evm]==v0.2.0-beta.2",
         "py-geth>=2.0.1,<3.0.0",
     ],
+    'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
+    'eth-tester-rpc': ['eth-tester-rpc==0.1.0b2'],
     'linter': [
         "flake8==3.4.1",
         "isort>=4.2.15,<4.3.5",
@@ -80,7 +82,7 @@ setup(
         "protobuf>=3.10.0,<4",
         "pypiwin32>=223;platform_system=='Windows'",
         "requests>=2.16.0,<3.0.0",
-        "websockets>=7.0.0,<8.0.0",
+        "websockets>=8.1.0,<9.0.0",
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.6,<4',
