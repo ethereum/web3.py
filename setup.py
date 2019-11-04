@@ -10,8 +10,6 @@ extras_require = {
         "eth-tester[py-evm]==v0.2.0-beta.2",
         "py-geth>=2.0.1,<3.0.0",
     ],
-    'testrpc': ["eth-testrpc>=1.3.3,<2.0.0"],
-    'eth-tester-rpc': ['eth-tester-rpc==0.1.0b2'],
     'linter': [
         "flake8==3.4.1",
         "isort>=4.2.15,<4.3.5",
