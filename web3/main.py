@@ -150,6 +150,9 @@ class Web3:
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
+    # mypy Types
+    eth: Eth
+
     def __init__(
         self,
         provider: BaseProvider=None,

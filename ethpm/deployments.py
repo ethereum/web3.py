@@ -47,7 +47,7 @@ class Deployments:
         values = [self.get(name) for name in self.deployment_data]
         return values
 
-    def get_instance(self, contract_name: str) -> None:
+    def get_instance(self, contract_name: str) -> Contract:
         """
         Fetches a contract instance belonging to deployment
         after validating contract name.

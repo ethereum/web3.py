@@ -51,7 +51,7 @@ class LinkableContract(Contract):
                 "Contract cannot be instantiated until its bytecode is linked."
             )
         validate_address(address)
-        super(LinkableContract, self).__init__(address=address, **kwargs)
+        super(LinkableContract, self).__init__(address=address)
 
     @classmethod
     def factory(
