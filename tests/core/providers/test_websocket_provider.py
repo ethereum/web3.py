@@ -1,8 +1,6 @@
 import asyncio
-from concurrent.futures import (
-    TimeoutError,
-)
 import pytest
+import sys
 from threading import (
     Thread,
 )
@@ -19,6 +17,15 @@ from web3.exceptions import (
 from web3.providers.websocket import (
     WebsocketProvider,
 )
+
+if sys.version_info >= (3, 8):
+    from asyncio.exceptions import (
+        TimeoutError,
+    )
+else:
+    from concurrent.futures import (
+        TimeoutError,
+    )
 
 
 @pytest.yield_fixture
