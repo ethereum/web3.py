@@ -13,6 +13,7 @@ extras_require = {
     'linter': [
         "flake8==3.4.1",
         "isort>=4.2.15,<4.3.5",
+        "mypy==0.730",
     ],
     'docs': [
         "mock",
