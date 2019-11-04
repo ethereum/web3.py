@@ -15,7 +15,7 @@ from eth_utils import (
 from hexbytes import (
     HexBytes,
 )
-from typing import Any, Dict, Iterable, List, TYPE_CHECKING, Union
+from typing import Any, cast, Dict, List, Sequence, TYPE_CHECKING
 
 from eth_typing import HexStr, Primitives
 from eth_typing.abi import TypeStr
@@ -32,7 +32,6 @@ from web3._utils.decorators import (
 )
 from web3._utils.empty import (
     empty,
-    Empty,
 )
 from web3._utils.encoding import (
     hex_encode_abi_type,
@@ -102,7 +101,7 @@ if TYPE_CHECKING:
     from web3.pm import PM  # noqa: F401
 
 
-def get_default_modules() -> Dict[str, Iterable[Any]]:
+def get_default_modules() -> Dict[str, Sequence[Any]]:
     return {
         "eth": (Eth,),
         "net": (Net,),
@@ -154,9 +153,9 @@ class Web3:
     def __init__(
         self,
         provider: BaseProvider=None,
-        middlewares: List[Any]=None,
-        modules: Dict[str, Iterable[Any]]=None,
-        ens: Union[ENS, Empty]=empty
+        middlewares: Sequence[Any]=None,
+        modules: Dict[str, Sequence[Any]]=None,
+        ens: ENS=cast(ENS, empty)
     ) -> None:
         self.manager = self.RequestManager(self, provider, middlewares)
 
@@ -250,14 +249,14 @@ class Web3:
         return self.codec.is_encodable(_type, value)
 
     @property
-    def ens(self) -> Union[ENS, Empty]:
-        if self._ens is empty:
+    def ens(self) -> ENS:
+        if self._ens is cast(ENS, empty):
             return ENS.fromWeb3(self)
         else:
             return self._ens
 
     @ens.setter
-    def ens(self, new_ens: Union[ENS, Empty]) -> None:
+    def ens(self, new_ens: ENS) -> None:
         self._ens = new_ens
 
     @property
