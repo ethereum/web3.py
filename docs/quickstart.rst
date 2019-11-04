@@ -34,25 +34,36 @@ Using Web3
 ----------
 
 To use the web3 library you will need to initialize the
-:class:`~web3.Web3` class and connecting to an Ethereum node. The quickest way to do so for free is by setting up an account on `Infura https://infura.io/>`. On Infura, create a project and copy the Project ID. Then set the environment variable ``WEB3_INFURA_PROJECT_ID``.
+:class:`~web3.Web3` class and connecting to an Ethereum node.
+The quickest way to do so for free is by setting up an account on
+`Infura https://infura.io/>`. On Infura, create a project and copy
+the Project ID. Then set the environment variable ``WEB3_INFURA_PROJECT_ID``.
 
 .. code-block:: shell
-    
+
     $ export WEB3_INFURA_PROJECT_ID=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 Use the ``web3.auto.infura`` module to connect to the Infura node.
 
 .. code-block:: python
 
-    >>> from web3.auto import w3
+    >>> from web3.auto.infura import w3
     >>> w3.eth.blockNumber
     4000000
-    
-.. NOTE:: 
-    Use the ``auto`` module to :ref:`guess at common node connection options <automatic_provider_detection>`.
 
 This ``w3`` instance will now allow you to interact with the Ethereum
 blockchain.
+
+.. NOTE::
+    If you don't want to use Infura, the ``web3.auto`` module is
+    available and will :ref:`guess at common node connection
+    options <automatic_provider_detection>`.
+
+      .. code-block:: python
+
+          >>> from web3.auto import w3
+          >>> w3.eth.blockNumber
+          4000000
 
 .. NOTE:: If you get the result ``UnhandledRequest: No providers responded to the RPC request``
     then you are not connected to a node. See :ref:`why_need_connection` and
