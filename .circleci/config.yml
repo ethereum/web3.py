@@ -446,16 +446,16 @@ jobs:
   py38-integration-parity-ipc:
     <<: *parity_steps
     docker:
-      - image: circleci/python:3.8-stretch
+      - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-parity-ipc
       PARITY_VERSION: v2.3.5
       PARITY_OS: linux
 
-  py37-integration-parity-http:
+  py38-integration-parity-http:
     <<: *parity_steps
     docker:
-      - image: circleci/python:3.8-stretch
+      - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-parity-http
       PARITY_VERSION: v2.3.5
@@ -464,7 +464,7 @@ jobs:
   py38-integration-parity-ws:
     <<: *parity_steps
     docker:
-      - image: circleci/python:3.8-stretch
+      - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-parity-ws
       PARITY_VERSION: v2.3.5
