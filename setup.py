@@ -77,7 +77,7 @@ setup(
         "ipfshttpclient>=0.4.12,<1",
         "jsonschema>=3.0.0,<4.0.0",
         "lru-dict>=1.1.6,<2.0.0",
-        "protobuf>=3.0.0,<4",
+        "protobuf>=3.10.0,<4",
         "pypiwin32>=223;platform_system=='Windows'",
         "requests>=2.16.0,<3.0.0",
         "websockets>=7.0.0,<8.0.0",
