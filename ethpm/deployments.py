@@ -1,7 +1,13 @@
 from typing import (
+    Any,
     Dict,
     ItemsView,
     List,
+)
+
+from eth_typing import (
+    Address,
+    HexStr,
 )
 
 from ethpm.validation.package import (
@@ -11,6 +17,11 @@ from web3 import Web3
 from web3.eth import (
     Contract,
 )
+
+try:
+    from typing import TypedDict  # type: ignore
+except ImportError:
+    from mypy_extensions import TypedDict  # <=3.7
 
 
 class Deployments:
@@ -62,3 +73,12 @@ class Deployments:
                 f"Contract deployment: {name} not found in deployment data. "
                 f"Available deployments include: {list(sorted(self.deployment_data.keys()))}."
             )
+
+
+class DeploymentData(TypedDict):
+    address: Address
+    transaction: HexStr
+    block: HexStr
+    runtime_bytecode: Dict[str, Any]
+    compiler: Dict[str, str]
+    contract_type: str

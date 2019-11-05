@@ -47,6 +47,7 @@ from ethpm.dependencies import (
     Dependencies,
 )
 from ethpm.deployments import (
+    DeploymentData,
     Deployments,
 )
 from ethpm.exceptions import (
@@ -375,7 +376,7 @@ class Package(object):
 
     @to_dict
     def _get_all_contract_instances(
-        self, deployments: Dict[str, Any]
+        self, deployments: Dict[str, DeploymentData]
     ) -> Iterable[Tuple[str, Contract]]:
         for deployment_name, deployment_data in deployments.items():
             if deployment_data['contract_type'] not in self.contract_types:
