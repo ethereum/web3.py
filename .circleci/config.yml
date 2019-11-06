@@ -288,8 +288,9 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-ethpm
-      WEB3_INFURA_PROJECT_ID: ae13436d29b34850b640af9c80f80871
-      WEB3_INFURA_API_SECRET: 067ddad6021048f0840a38a4e52eb568
+      # Please don't use this key for any shenanigans
+      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
+      WEB3_INFURA_API_SECRET: 1955838f22ac4d858434f41498557130
 
   py37-integration-goethereum-ipc-1.7.2:
     <<: *geth_steps
@@ -396,8 +397,9 @@ jobs:
       - image: circleci/python:3.8
     environment:
       TOXENV: py38-ethpm
-      WEB3_INFURA_PROJECT_ID: ae13436d29b34850b640af9c80f80871
-      WEB3_INFURA_API_SECRET: 067ddad6021048f0840a38a4e52eb568
+      # Please don't use this key for any shenanigans
+      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
+      WEB3_INFURA_API_SECRET: 1955838f22ac4d858434f41498557130
 
   py38-integration-goethereum-ipc-1.7.2:
     <<: *geth_steps
