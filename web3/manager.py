@@ -107,9 +107,9 @@ class RequestManager:
         Make a synchronous request using the provider
         """
         response = self._make_request(method, params)
-        apply_error_formatters(error_formatters, response)
 
         if "error" in response:
+            apply_error_formatters(error_formatters, response)
             raise ValueError(response["error"])
 
         return response['result']
@@ -119,9 +119,9 @@ class RequestManager:
         Couroutine for making a request using the provider
         """
         response = await self._coro_make_request(method, params)
-        apply_error_formatters(error_formatters, response)
 
         if "error" in response:
+            apply_error_formatters(error_formatters, response)
             raise ValueError(response["error"])
 
         if response['result'] is None:

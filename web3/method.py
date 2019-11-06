@@ -73,12 +73,8 @@ class Method:
     method inputs are passed to the method selection function, and the returned
     method string is used.
 
-    3. request and response formatters are retrieved - formatters are retrieved
-    using the json rpc method string. The lookup function provided by the
-    formatter_lookup_fn configuration is passed the method string and is
-    expected to return a 2-tuple of lists containing the
-    request_formatters and response_formatters in that order.
-    e.g. ([*request_formatters], [*response_formatters]).
+    3. request and response formatters are set - formatters are retrieved
+    using the json rpc method string.
 
     4. After the parameter processing from steps 1-3 the request is made using
     the calling function returned by the module attribute ``retrieve_caller_fn``
@@ -95,8 +91,6 @@ class Method:
 
         self.json_rpc_method = json_rpc_method
         self.mungers = mungers or [default_munger]
-        # TODO - decide if this request_formatters
-        # (and result_formatters) is worth keeping for testing
         self.request_formatters = request_formatters or get_request_formatters
         self.result_formatters = result_formatters or get_result_formatters
         self.error_formatters = get_error_formatters
@@ -120,6 +114,13 @@ class Method:
         raise ValueError("``json_rpc_method`` config invalid.  May be a string or function")
 
     def input_munger(self, module, args, kwargs):
+        # This function takes the "root_munger" - the first munger in
+        # the list of mungers) and then pipes the return value of the
+        # previous munger as an argument to the next munger to return
+        # an array of arguments that have been formatted.
+        # See the test_process_params test
+        # in tests/core/method-class/test_method.py for an example
+        # with multiple mungers.
         # TODO: Create friendly error output.
         mungers_iter = iter(self.mungers)
         root_munger = next(mungers_iter)

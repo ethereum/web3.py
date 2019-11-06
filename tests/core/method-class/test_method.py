@@ -32,7 +32,7 @@ def test_method_accepts_callable_for_selector():
 
 def test_method_selector_fn_accepts_str():
     method = Method(
-        mungers=[],
+        mungers=None,
         json_rpc_method='eth_method',
     )
     assert method.method_selector_fn() == 'eth_method'
@@ -107,7 +107,7 @@ def test_default_input_munger_with_input_parameters_exception():
 
 
 @pytest.mark.parametrize(
-    "method_config,args,kwargs,expected_result",
+    "method_config,args,kwargs,expected_request_result,expected_result_formatters_len",
     (
         (
             {
@@ -115,7 +115,8 @@ def test_default_input_munger_with_input_parameters_exception():
             },
             [],
             {},
-            ValueError
+            ValueError,
+            2
         ),
         (
             {
@@ -124,7 +125,8 @@ def test_default_input_munger_with_input_parameters_exception():
             },
             ['unexpected_argument'],
             {},
-            TypeError
+            TypeError,
+            2
         ),
         (
             {
@@ -133,7 +135,8 @@ def test_default_input_munger_with_input_parameters_exception():
             },
             ['0x0000000000000000000000000000000000000000', 3],
             {},
-            ('eth_getBalance', (('0x' + '00' * 20), "0x3"))
+            ('eth_getBalance', (('0x' + '00' * 20), "0x3")),
+            2
         ),
         (
             {
@@ -142,7 +145,8 @@ def test_default_input_munger_with_input_parameters_exception():
             },
             ['0x0000000000000000000000000000000000000000', 3],
             {},
-            ('eth_getBalance', (('0x' + '00' * 20), "0x3"))
+            ('eth_getBalance', (('0x' + '00' * 20), "0x3")),
+            2
         ),
         (
             {
@@ -154,7 +158,8 @@ def test_default_input_munger_with_input_parameters_exception():
             },
             [1, 2, 3, ('0x' + '00' * 20)],
             {},
-            ('eth_getBalance', (('0x' + '00' * 20), "1"))
+            ('eth_getBalance', (('0x' + '00' * 20), "1")),
+            2,
         ),
         (
             {
@@ -167,6 +172,7 @@ def test_default_input_munger_with_input_parameters_exception():
             [1, 2, 3, 4],
             {},
             TypeError,
+            2,
         ),
         (
             {
@@ -175,7 +181,8 @@ def test_default_input_munger_with_input_parameters_exception():
             },
             ('0x0000000000000000000000000000000000000000', 3),
             {},
-            ('eth_getBalance', ('0x0000000000000000000000000000000000000000', '0x3'))
+            ('eth_getBalance', ('0x0000000000000000000000000000000000000000', '0x3')),
+            2,
         ),
         (
             {
@@ -187,7 +194,18 @@ def test_default_input_munger_with_input_parameters_exception():
             },
             [('0x' + '00' * 20), 1, 2, 3],
             {},
-            ('eth_getBalance', (('0x' + '00' * 20), '1'))
+            ('eth_getBalance', (('0x' + '00' * 20), '1')),
+            2,
+        ),
+        (
+            {
+                'mungers': None,
+                'json_rpc_method': 'eth_chainId',
+            },
+            [],
+            {},
+            ('eth_chainId', ()),
+            2,
         )
     ),
     ids=[
@@ -199,22 +217,27 @@ def test_default_input_munger_with_input_parameters_exception():
         'test-munger-wrong-length-arg',
         'test-request-formatters',
         'test-mungers-and-request-formatters',
+        'test-response-formatters',
     ]
 )
 def test_process_params(
         method_config,
         args,
         kwargs,
-        expected_result,):
+        expected_request_result,
+        expected_result_formatters_len):
 
-    if isclass(expected_result) and issubclass(expected_result, Exception):
-        with pytest.raises(expected_result):
+    if isclass(expected_request_result) and issubclass(expected_request_result, Exception):
+        with pytest.raises(expected_request_result):
             method = Method(**method_config)
-            req_params, output_formatter = method.process_params(object(), *args, **kwargs)
+            request_params, output_formatter = method.process_params(object(), *args, **kwargs)
     else:
         method = Method(**method_config)
-        req_params, output_formatter = method.process_params(object(), *args, **kwargs)
-        assert req_params == expected_result
+        request_params, output_formatter = method.process_params(object(), *args, **kwargs)
+        assert request_params == expected_request_result
+        first_formatter = (output_formatter[0].first,)
+        all_other_formatters = output_formatter[0].funcs
+        assert len(first_formatter + all_other_formatters) == expected_result_formatters_len
 
 
 def keywords(module, keyword_one, keyword_two):
@@ -233,7 +256,7 @@ def return_exception_raising_formatter(method):
 
 class FakeModule(ModuleV2):
     method = Method(
-        'eth_getBalance',
+        'eth_method',
         mungers=[keywords],
         request_formatters=return_exception_raising_formatter)
 
@@ -252,8 +275,7 @@ def test_munger_class_method_access_raises_friendly_error():
 
 
 def test_munger_arguments_by_keyword(dummy_w3):
-    addr = '0x' + '00' * 20
     with pytest.raises(Success):
-        dummy_w3.fake.method(addr, keyword_two='latest')
+        dummy_w3.fake.method(keyword_one=1, keyword_two='latest')
     with pytest.raises(Success):
-        dummy_w3.fake.method(addr, 'latest')
+        dummy_w3.fake.method(1, keyword_two=2)
