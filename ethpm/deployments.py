@@ -14,14 +14,12 @@ from ethpm.validation.package import (
     validate_contract_name,
 )
 from web3 import Web3
+from web3._utils.compat import (
+    TypedDict,
+)
 from web3.eth import (
     Contract,
 )
-
-try:
-    from typing import TypedDict  # type: ignore
-except ImportError:
-    from mypy_extensions import TypedDict  # <=3.7
 
 
 class Deployments:
