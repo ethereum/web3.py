@@ -1,13 +1,22 @@
 from typing import (
+    Any,
     Dict,
     ItemsView,
     List,
+)
+
+from eth_typing import (
+    Address,
+    HexStr,
 )
 
 from ethpm.validation.package import (
     validate_contract_name,
 )
 from web3 import Web3
+from web3._utils.compat import (
+    TypedDict,
+)
 from web3.eth import (
     Contract,
 )
@@ -47,7 +56,7 @@ class Deployments:
         values = [self.get(name) for name in self.deployment_data]
         return values
 
-    def get_instance(self, contract_name: str) -> None:
+    def get_instance(self, contract_name: str) -> Contract:
         """
         Fetches a contract instance belonging to deployment
         after validating contract name.
@@ -62,3 +71,12 @@ class Deployments:
                 f"Contract deployment: {name} not found in deployment data. "
                 f"Available deployments include: {list(sorted(self.deployment_data.keys()))}."
             )
+
+
+class DeploymentData(TypedDict):
+    address: Address
+    transaction: HexStr
+    block: HexStr
+    runtime_bytecode: Dict[str, Any]
+    compiler: Dict[str, str]
+    contract_type: str

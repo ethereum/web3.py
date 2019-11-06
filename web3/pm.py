@@ -490,7 +490,7 @@ class PM(Module):
         self._validate_set_registry()
         return self.registry._get_release_data(release_id)
 
-    def get_release_data(self, package_name: str, version: str) -> Tuple[str, str, str]:
+    def get_release_data(self, package_name: str, version: str) -> Tuple[str, str, URI]:
         """
         Returns ``(package_name, version, manifest_uri)`` associated with the given
         package name and version, *if* they are published to the currently set registry.

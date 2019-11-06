@@ -6,10 +6,13 @@ from typing import (
     Any,
     Dict,
     Generator,
+    Iterable,
     List,
     Optional,
     Tuple,
+    Type,
     Union,
+    cast,
 )
 
 from eth_typing import (
@@ -44,6 +47,7 @@ from ethpm.dependencies import (
     Dependencies,
 )
 from ethpm.deployments import (
+    DeploymentData,
     Deployments,
 )
 from ethpm.exceptions import (
@@ -102,7 +106,7 @@ class Package(object):
         validate_w3_instance(w3)
 
         self.w3 = w3
-        self.w3.eth.defaultContractFactory = LinkableContract
+        self.w3.eth.defaultContractFactory = cast(Type[Contract], LinkableContract)
         self.manifest = manifest
         self._uri = uri
 
@@ -185,7 +189,7 @@ class Package(object):
         if 'contract_types' in self.manifest:
             return sorted(self.manifest['contract_types'].keys())
         else:
-            return ValueError("No contract types found in manifest; {self.__repr__()}.")
+            raise ValueError("No contract types found in manifest; {self.__repr__()}.")
 
     @classmethod
     def from_file(cls, file_path: Path, w3: Web3) -> "Package":
@@ -371,7 +375,9 @@ class Package(object):
         return Deployments(deployments, all_contract_instances, self.w3)
 
     @to_dict
-    def _get_all_contract_instances(self, deployments):
+    def _get_all_contract_instances(
+        self, deployments: Dict[str, DeploymentData]
+    ) -> Iterable[Tuple[str, Contract]]:
         for deployment_name, deployment_data in deployments.items():
             if deployment_data['contract_type'] not in self.contract_types:
                 raise EthPMValidationError(

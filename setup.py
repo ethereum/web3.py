@@ -77,6 +77,9 @@ setup(
         "ipfshttpclient>=0.4.12,<1",
         "jsonschema>=3.0.0,<4.0.0",
         "lru-dict>=1.1.6,<2.0.0",
+        # remove mypy_extensions after python_requires>=3.8
+        # see web3._utils.compat
+        "mypy_extensions>=0.4.1,<1.0.0",
         "protobuf>=3.10.0,<4",
         "pypiwin32>=223;platform_system=='Windows'",
         "requests>=2.16.0,<3.0.0",
