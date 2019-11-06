@@ -1,11 +1,26 @@
 import copy
 import datetime
 import functools
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Optional,
+    Sequence,
+    Type,
+    cast,
+)
 
+from eth_typing import (
+    Address,
+)
 from eth_utils import (
     is_same_address,
     remove_0x_prefix,
     to_normalized_address,
+)
+from hexbytes import (
+    HexBytes,
 )
 import idna
 
@@ -13,6 +28,7 @@ from ens.constants import (
     ACCEPTABLE_STALE_HOURS,
     AUCTION_START_GAS_CONSTANT,
     AUCTION_START_GAS_MARGINAL,
+    EMPTY_ADDR_HEX,
     EMPTY_SHA3_BYTES,
     REVERSE_REGISTRAR_DOMAIN,
 )
@@ -23,38 +39,46 @@ from ens.exceptions import (
 default = object()
 
 
-def Web3():
-    from web3 import Web3
-    return Web3
+if TYPE_CHECKING:
+    from web3 import Web3 as Web3Type  # noqa: F401
+    from web3.providers import (  # noqa: F401
+        BaseProvider,
+    )
 
 
-def dict_copy(func):
+def Web3() -> Type['Web3Type']:
+    from web3 import Web3 as Web3Main
+    return Web3Main
+
+
+def dict_copy(func: Callable[..., Any]) -> Callable[..., Any]:
     "copy dict keyword args, to avoid modifying caller's copy"
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Callable[..., Any]:
         copied_kwargs = copy.deepcopy(kwargs)
         return func(*args, **copied_kwargs)
     return wrapper
 
 
-def ensure_hex(data):
+def ensure_hex(data: HexBytes) -> HexBytes:
     if not isinstance(data, str):
         return Web3().toHex(data)
     return data
 
 
-def init_web3(providers=default):
-    from web3 import Web3
+# this was providers -> provider?
+def init_web3(provider: 'BaseProvider'=cast('BaseProvider', default)) -> 'Web3Type':
+    from web3 import Web3 as Web3Main
 
-    if providers is default:
-        w3 = Web3(ens=None)
+    if provider is default:
+        w3 = Web3Main(ens=None)
     else:
-        w3 = Web3(providers, ens=None)
+        w3 = Web3Main(provider, ens=None)
 
     return customize_web3(w3)
 
 
-def customize_web3(w3):
+def customize_web3(w3: 'Web3Type') -> 'Web3Type':
     from web3.middleware import make_stalecheck_middleware
 
     w3.middleware_onion.remove('name_to_address')
@@ -65,7 +89,7 @@ def customize_web3(w3):
     return w3
 
 
-def normalize_name(name):
+def normalize_name(name: str) -> str:
     """
     Clean the fully qualified name, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
@@ -86,7 +110,7 @@ def normalize_name(name):
         raise InvalidName(f"{name} is an invalid name, because {exc}") from exc
 
 
-def is_valid_name(name):
+def is_valid_name(name: str) -> bool:
     """
     Validate whether the fully qualified name is valid, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
@@ -103,27 +127,27 @@ def is_valid_name(name):
         return False
 
 
-def to_utc_datetime(timestamp):
+def to_utc_datetime(timestamp: float) -> Optional[datetime.datetime]:
     if timestamp:
         return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)
     else:
         return None
 
 
-def sha3_text(val):
+def sha3_text(val: Any) -> HexBytes:
     if isinstance(val, str):
         val = val.encode('utf-8')
     return Web3().keccak(val)
 
 
-def label_to_hash(label):
+def label_to_hash(label: str) -> HexBytes:
     label = normalize_name(label)
     if '.' in label:
         raise ValueError("Cannot generate hash for label %r with a '.'" % label)
     return Web3().keccak(text=label)
 
 
-def normal_name_to_hash(name):
+def normal_name_to_hash(name: str) -> HexBytes:
     node = EMPTY_SHA3_BYTES
     if name:
         labels = name.split(".")
@@ -135,7 +159,7 @@ def normal_name_to_hash(name):
     return node
 
 
-def raw_name_to_hash(name):
+def raw_name_to_hash(name: str) -> HexBytes:
     """
     Generate the namehash. This is also known as the ``node`` in ENS contracts.
 
@@ -155,20 +179,20 @@ def raw_name_to_hash(name):
     return normal_name_to_hash(normalized_name)
 
 
-def address_in(address, addresses):
+def address_in(address: Address, addresses: Sequence[Address]) -> bool:
     return any(is_same_address(address, item) for item in addresses)
 
 
-def address_to_reverse_domain(address):
+def address_to_reverse_domain(address: Address) -> str:
     lower_unprefixed_address = remove_0x_prefix(to_normalized_address(address))
     return lower_unprefixed_address + '.' + REVERSE_REGISTRAR_DOMAIN
 
 
-def estimate_auction_start_gas(labels):
+def estimate_auction_start_gas(labels: Sequence[str]) -> int:
     return AUCTION_START_GAS_CONSTANT + AUCTION_START_GAS_MARGINAL * len(labels)
 
 
-def assert_signer_in_modifier_kwargs(modifier_kwargs):
+def assert_signer_in_modifier_kwargs(modifier_kwargs: Any) -> Address:
     ERR_MSG = "You must specify the sending account"
     assert len(modifier_kwargs) == 1, ERR_MSG
 
@@ -179,5 +203,5 @@ def assert_signer_in_modifier_kwargs(modifier_kwargs):
     return modifier_dict['from']
 
 
-def is_none_or_zero_address(addr):
-    return not addr or addr == '0x' + '00' * 20
+def is_none_or_zero_address(addr: Address) -> bool:
+    return not addr or addr == EMPTY_ADDR_HEX
