@@ -453,7 +453,10 @@ def get_request_formatters(method_name):
 
 
 def get_result_formatters(method_name):
-    formatters = combine_formatters((PYTHONIC_RESULT_FORMATTERS,), method_name)
+    formatters = combine_formatters(
+        (PYTHONIC_RESULT_FORMATTERS,),
+        method_name
+    )
     attrdict_formatter = apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
 
     return compose(*formatters, attrdict_formatter)
