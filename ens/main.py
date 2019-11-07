@@ -58,7 +58,6 @@ if TYPE_CHECKING:
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
 
 
-# relocate / move to eth_typing
 class TxDict(TypedDict):
     nonce: int
     gasPrice: int
@@ -301,8 +300,6 @@ class ENS:
             self._claim_ownership(new_owner, unowned, owned, super_owner, transact=transact)
             return new_owner
 
-    # do we need optional on parent_owned?
-    # ChecksumAddress v Address
     def _assert_control(self, account: Address, name: str, parent_owned: str=None) -> None:
         if not address_in(account, self.web3.eth.accounts):
             raise UnauthorizedError(
