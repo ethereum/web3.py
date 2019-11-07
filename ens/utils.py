@@ -40,13 +40,13 @@ default = object()
 
 
 if TYPE_CHECKING:
-    from web3 import Web3 as Web3Type  # noqa: F401
+    from web3 import Web3 as _Web3  # noqa: F401
     from web3.providers import (  # noqa: F401
         BaseProvider,
     )
 
 
-def Web3() -> Type['Web3Type']:
+def Web3() -> Type['_Web3']:
     from web3 import Web3 as Web3Main
     return Web3Main
 
@@ -66,7 +66,7 @@ def ensure_hex(data: HexBytes) -> HexBytes:
     return data
 
 
-def init_web3(provider: 'BaseProvider'=cast('BaseProvider', default)) -> 'Web3Type':
+def init_web3(provider: 'BaseProvider'=cast('BaseProvider', default)) -> '_Web3':
     from web3 import Web3 as Web3Main
 
     if provider is default:
@@ -77,7 +77,7 @@ def init_web3(provider: 'BaseProvider'=cast('BaseProvider', default)) -> 'Web3Ty
     return customize_web3(w3)
 
 
-def customize_web3(w3: 'Web3Type') -> 'Web3Type':
+def customize_web3(w3: '_Web3') -> '_Web3':
     from web3.middleware import make_stalecheck_middleware
 
     w3.middleware_onion.remove('name_to_address')

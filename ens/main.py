@@ -9,7 +9,6 @@ from typing import (
 
 from eth_typing import (
     Address,
-    ChecksumAddress,
     Hash32,
 )
 from eth_utils import (
@@ -58,14 +57,15 @@ if TYPE_CHECKING:
 ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
 
 
-class TxDict(TypedDict):
-    nonce: int
-    gasPrice: int
-    gas: int
-    # _from: Union[ChecksumAddress, str]  # address or ENS name
-    to: Union[ChecksumAddress, str]  # address or ENS name
-    value: int
-    data: Union[bytes, str]
+TxDict = TypedDict("TxDict", {
+    "nonce": int,
+    "gasPrice": int,
+    "gas": int,
+    "from": Union[Address, str],
+    "to": Union[Address, str],
+    "value": int,
+    "data": Union[bytes, str]}
+)
 
 
 class ENS:
@@ -167,7 +167,7 @@ class ENS:
             return None
         if address is None:
             address = EMPTY_ADDR_HEX
-        transact['from'] = owner  # type: ignore
+        transact['from'] = owner
         resolver = self._set_resolver(name, transact=transact)
         return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
 
@@ -335,7 +335,7 @@ class ENS:
     ) -> None:
         if transact is None:
             transact = cast(TxDict, {})
-        transact['from'] = old_owner or owner  # type: ignore
+        transact['from'] = old_owner or owner
         for label in reversed(unowned):
             self.ens.functions.setSubnodeOwner(
                 raw_name_to_hash(owned),
@@ -370,7 +370,7 @@ class ENS:
             name = normalize_name(name)
         else:
             name = ''
-        transact['from'] = address  # type: ignore
+        transact['from'] = address
         # type ignored b/c functions are dynamically set on Contract instances
         return self._reverse_registrar().functions.setName(name).transact(transact)  # type: ignore
 
