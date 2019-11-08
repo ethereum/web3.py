@@ -4,10 +4,12 @@ import functools
 from typing import (
     TYPE_CHECKING,
     Any,
+    AnyStr,
     Callable,
+    Collection,
     Optional,
-    Sequence,
     Type,
+    TypeVar,
     cast,
 )
 
@@ -51,10 +53,13 @@ def Web3() -> Type['_Web3']:
     return Web3Main
 
 
-def dict_copy(func: Callable[..., Any]) -> Callable[..., Any]:
+TFunc = TypeVar("TFunc", bound=Callable[..., Any])
+
+
+def dict_copy(func: TFunc) -> TFunc:
     "copy dict keyword args, to avoid modifying caller's copy"
     @functools.wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Callable[..., Any]:
+    def wrapper(*args: Any, **kwargs: Any) -> TFunc:
         copied_kwargs = copy.deepcopy(kwargs)
         return func(*args, **copied_kwargs)
     return wrapper
@@ -133,7 +138,7 @@ def to_utc_datetime(timestamp: float) -> Optional[datetime.datetime]:
         return None
 
 
-def sha3_text(val: Any) -> HexBytes:
+def sha3_text(val: AnyStr) -> HexBytes:
     if isinstance(val, str):
         val = val.encode('utf-8')
     return Web3().keccak(val)
@@ -178,7 +183,7 @@ def raw_name_to_hash(name: str) -> HexBytes:
     return normal_name_to_hash(normalized_name)
 
 
-def address_in(address: Address, addresses: Sequence[Address]) -> bool:
+def address_in(address: Address, addresses: Collection[Address]) -> bool:
     return any(is_same_address(address, item) for item in addresses)
 
 
@@ -187,7 +192,7 @@ def address_to_reverse_domain(address: Address) -> str:
     return lower_unprefixed_address + '.' + REVERSE_REGISTRAR_DOMAIN
 
 
-def estimate_auction_start_gas(labels: Sequence[str]) -> int:
+def estimate_auction_start_gas(labels: Collection[str]) -> int:
     return AUCTION_START_GAS_CONSTANT + AUCTION_START_GAS_MARGINAL * len(labels)
 
 
