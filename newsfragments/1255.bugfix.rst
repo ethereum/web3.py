@@ -1,0 +1,1 @@
+Make local block filter return empty list when when no blocks mined
