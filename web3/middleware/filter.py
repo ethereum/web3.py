@@ -277,7 +277,7 @@ class RequestBlocks:
 def block_hashes_in_range(w3, block_range):
     from_block, to_block = block_range
     if from_block is None or to_block is None:
-        return None
+        return
     for block_number in range(from_block, to_block + 1):
         yield getattr(w3.eth.getBlock(block_number), 'hash', None)
 
