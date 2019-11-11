@@ -110,7 +110,7 @@ def iter_latest_block(w3, to_block=None):
 
     is_bounded_range = (
         to_block is not None and
-        to_block is not 'latest'
+        to_block != 'latest'
     )
 
     while True:

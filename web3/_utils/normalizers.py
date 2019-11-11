@@ -172,7 +172,7 @@ def abi_ens_resolver(w3, type_str, val):
                 "Could not look up name %r because ENS is"
                 " set to None" % (val)
             )
-        elif int(w3.net.version) is not 1 and not isinstance(w3.ens, StaticENS):
+        elif int(w3.net.version) != 1 and not isinstance(w3.ens, StaticENS):
             raise InvalidAddress(
                 "Could not look up name %r because web3 is"
                 " not connected to mainnet" % (val)

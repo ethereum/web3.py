@@ -138,7 +138,7 @@ def test_get_linked_deployments(escrow_package):
     assert actual_linked_deployments == {"Escrow": all_deployments["Escrow"]}
     # integration via package.deployments
     deployments = escrow_package.deployments
-    assert len(deployments.contract_instances) is 2
+    assert len(deployments.contract_instances) == 2
 
 
 @pytest.mark.parametrize(
