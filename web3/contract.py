@@ -464,8 +464,7 @@ class Contract:
     #
     # Private Helpers
     #
-    # https://github.com/python/mypy/issues/6283
-    _return_data_normalizers: Tuple[Callable[..., Any]] = tuple()  # type: ignore
+    _return_data_normalizers: Tuple[Callable[..., Any], ...] = tuple()
 
     @classmethod
     def _prepare_transaction(cls,
@@ -647,7 +646,7 @@ class ConciseMethod:
     ALLOWED_MODIFIERS = {'call', 'estimateGas', 'transact', 'buildTransaction'}
 
     def __init__(
-        self, function: 'ContractFunction', normalizers: Tuple[Callable[..., Any]]=None
+        self, function: 'ContractFunction', normalizers: Tuple[Callable[..., Any], ...]=None
     ) -> None:
         self._function = function
         self._function._return_data_normalizers = normalizers
@@ -691,8 +690,7 @@ class ConciseContract:
         classic_contract: Contract,
         method_class: Union[Type['ConciseMethod'], Type['ImplicitMethod']]=ConciseMethod
     ) -> None:
-        # type ignored b/c error w/ interpreting +=
-        classic_contract._return_data_normalizers += CONCISE_NORMALIZERS  # type: ignore
+        classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
         self._classic_contract = classic_contract
         self.address = self._classic_contract.address
 
@@ -767,7 +765,11 @@ class ImplicitContract(ConciseContract):
 
     > contract.functions.withdraw(amount).transact({})
     """
-    def __init__(self, classic_contract: Contract, method_class: Union[Type[ImplicitMethod], Type[ConciseMethod]]=ImplicitMethod) -> None:  # noqa: E501
+    def __init__(
+        self,
+        classic_contract: Contract,
+        method_class: Union[Type[ImplicitMethod], Type[ConciseMethod]]=ImplicitMethod
+    ) -> None:
         super().__init__(classic_contract, method_class=method_class)
 
 
@@ -1016,8 +1018,7 @@ class ContractFunction:
     def _encode_transaction_data(cls) -> str:
         return add_0x_prefix(encode_abi(cls.web3, cls.abi, cls.arguments, cls.selector))
 
-    # https://github.com/python/mypy/issues/6283
-    _return_data_normalizers: Tuple[Callable[..., Any]] = tuple()  # type: ignore
+    _return_data_normalizers: Optional[Tuple[Callable[..., Any], ...]] = tuple()
 
     @classmethod
     def factory(cls, class_name: str, **kwargs: Any) -> 'ContractFunction':
@@ -1389,7 +1390,7 @@ def check_for_forbidden_api_filter_arguments(event_abi: ABIEvent, _filters: Dict
 def call_contract_function(
         web3: 'Web3',
         address: ChecksumAddress,
-        normalizers: Tuple[Any],  # mypy should be tuple[callable[..., Any]]
+        normalizers: Tuple[Callable[..., Any], ...],
         function_identifier: Union[str, Type[FallbackFn]],
         transaction: TxDict,
         block_id: BlockIdentifier=None,
