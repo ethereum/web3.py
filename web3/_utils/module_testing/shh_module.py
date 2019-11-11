@@ -378,8 +378,8 @@ class GoEthereumShhModuleTest():
 
     def test_shh_info(self, web3):
         pre_info = web3.geth.shh.info()
-        assert pre_info["maxMessageSize"] is not 1024
-        assert pre_info["minPow"] is not 0.5
+        assert pre_info["maxMessageSize"] != 1024
+        assert pre_info["minPow"] != 0.5
 
         web3.geth.shh.set_max_message_size(1024)
         web3.geth.shh.set_min_pow(0.5)
@@ -393,8 +393,8 @@ class GoEthereumShhModuleTest():
     def test_shh_info_deprecated(self, web3):
         with pytest.warns(DeprecationWarning):
             pre_info = web3.geth.shh.info()
-            assert pre_info["maxMessageSize"] is not 1024
-            assert pre_info["minPow"] is not 0.5
+            assert pre_info["maxMessageSize"] != 1024
+            assert pre_info["minPow"] != 0.5
 
             web3.geth.shh.setMaxMessageSize(1024)
             web3.geth.shh.setMinPoW(0.5)
