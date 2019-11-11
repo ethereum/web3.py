@@ -48,6 +48,9 @@ from web3.exceptions import (
     LogTopicError,
     MismatchedABI,
 )
+from web3.types import (
+    EventData,
+)
 
 from .abi import (
     exclude_indexed_event_inputs,
@@ -156,7 +159,7 @@ def get_event_abi_types_for_decoding(event_inputs):
 
 
 @curry
-def get_event_data(abi_codec, event_abi, log_entry):
+def get_event_data(abi_codec, event_abi, log_entry) -> EventData:
     """
     Given an event ABI and a log entry for that event, return the decoded
     event data

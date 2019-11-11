@@ -32,6 +32,7 @@ from web3._utils.validation import (
 )
 from web3.contract import (
     Contract,
+    ContractConstructor,
 )
 
 
@@ -57,7 +58,7 @@ class LinkableContract(Contract):
     @classmethod
     def factory(
         cls, web3: Web3, class_name: str = None, **kwargs: Any
-    ) -> "LinkableContract":
+    ) -> Contract:
         dep_link_refs = kwargs.get("unlinked_references")
         bytecode = kwargs.get("bytecode")
         needs_bytecode_linking = False
@@ -68,7 +69,7 @@ class LinkableContract(Contract):
         return super(LinkableContract, cls).factory(web3, class_name, **kwargs)
 
     @classmethod
-    def constructor(cls, *args: Any, **kwargs: Any) -> bool:
+    def constructor(cls, *args: Any, **kwargs: Any) -> ContractConstructor:
         if cls.needs_bytecode_linking:
             raise BytecodeLinkingError(
                 "Contract cannot be deployed until its bytecode is linked."
