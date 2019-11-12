@@ -1085,7 +1085,7 @@ class ContractEvent:
                 elif errors == IGNORE:
                     new_log = MutableAttributeDict(log)
                     new_log['errors'] = e
-                    rich_log = AttributeDict(new_log)
+                    rich_log = AttributeDict(cast(Dict[Any, Any], new_log))
                 elif errors == STRICT:
                     raise e
                 else:
