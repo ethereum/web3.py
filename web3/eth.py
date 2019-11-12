@@ -1,5 +1,24 @@
+from typing import (
+    Any,
+    Collection,
+    Dict,
+    List,
+    NoReturn,
+    Optional,
+    Sequence,
+    Type,
+    Union,
+)
+
 from eth_account import (
     Account,
+)
+from eth_typing import (
+    Address,
+    BlockNumber,
+    ChecksumAddress,
+    Hash32,
+    HexStr,
 )
 from eth_utils import (
     apply_to_return_value,
@@ -25,6 +44,7 @@ from web3._utils.encoding import (
 )
 from web3._utils.filters import (
     BlockFilter,
+    Filter,
     LogFilter,
     TransactionFilter,
 )
@@ -40,7 +60,9 @@ from web3._utils.transactions import (
     wait_for_transaction_receipt,
 )
 from web3.contract import (
+    ConciseContract,
     Contract,
+    ContractCaller,
 )
 from web3.exceptions import (
     BlockNotFound,
@@ -53,59 +75,75 @@ from web3.iban import (
 from web3.module import (
     Module,
 )
+from web3.types import (
+    ENS,
+    BlockData,
+    BlockIdentifier,
+    FilterParams,
+    GasPriceStrategy,
+    LogParams,
+    MerkleProof,
+    SyncStatus,
+    TxParams,
+    TxReceipt,
+    Uncle,
+    Wei,
+)
 
 
 class Eth(Module):
     account = Account()
     defaultAccount = empty
     defaultBlock = "latest"
-    defaultContractFactory = Contract
+    defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa
     iban = Iban
     gasPriceStrategy = None
 
-    def namereg(self):
+    def namereg(self) -> NoReturn:
         raise NotImplementedError()
 
-    def icapNamereg(self):
+    def icapNamereg(self) -> NoReturn:
         raise NotImplementedError()
 
     @property
-    def protocolVersion(self):
+    def protocolVersion(self) -> str:
         return self.web3.manager.request_blocking("eth_protocolVersion", [])
 
     @property
-    def syncing(self):
+    def syncing(self) -> Union[SyncStatus, bool]:
         return self.web3.manager.request_blocking("eth_syncing", [])
 
     @property
-    def coinbase(self):
+    def coinbase(self) -> ChecksumAddress:
         return self.web3.manager.request_blocking("eth_coinbase", [])
 
     @property
-    def mining(self):
+    def mining(self) -> bool:
         return self.web3.manager.request_blocking("eth_mining", [])
 
     @property
-    def hashrate(self):
+    def hashrate(self) -> int:
         return self.web3.manager.request_blocking("eth_hashrate", [])
 
     @property
-    def gasPrice(self):
+    def gasPrice(self) -> Wei:
         return self.web3.manager.request_blocking("eth_gasPrice", [])
 
     @property
-    def accounts(self):
+    def accounts(self) -> Collection[ChecksumAddress]:
         return self.web3.manager.request_blocking("eth_accounts", [])
 
     @property
-    def blockNumber(self):
+    def blockNumber(self) -> BlockNumber:
         return self.web3.manager.request_blocking("eth_blockNumber", [])
 
     @property
-    def chainId(self):
+    def chainId(self) -> int:
         return self.web3.manager.request_blocking("eth_chainId", [])
 
-    def getBalance(self, account, block_identifier=None):
+    def getBalance(
+        self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
+    ) -> Wei:
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
@@ -113,7 +151,13 @@ class Eth(Module):
             [account, block_identifier],
         )
 
-    def getStorageAt(self, account, position, block_identifier=None):
+    # mypy double check this return
+    def getStorageAt(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        position: int,
+        block_identifier: BlockIdentifier=None
+    ) -> Hash32:
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
@@ -121,7 +165,12 @@ class Eth(Module):
             [account, position, block_identifier]
         )
 
-    def getProof(self, account, positions, block_identifier=None):
+    def getProof(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        positions: Sequence[int],
+        block_identifier: BlockIdentifier=None
+    ) -> MerkleProof:
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
@@ -129,7 +178,9 @@ class Eth(Module):
             [account, positions, block_identifier]
         )
 
-    def getCode(self, account, block_identifier=None):
+    def getCode(
+        self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
+    ) -> HexStr:
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
@@ -137,7 +188,9 @@ class Eth(Module):
             [account, block_identifier],
         )
 
-    def getBlock(self, block_identifier, full_transactions=False):
+    def getBlock(
+        self, block_identifier: BlockIdentifier, full_transactions: bool=False
+    ) -> BlockData:
         """
         `eth_getBlockByHash`
         `eth_getBlockByNumber`
@@ -157,7 +210,7 @@ class Eth(Module):
             raise BlockNotFound(f"Block with id: {block_identifier} not found.")
         return result
 
-    def getBlockTransactionCount(self, block_identifier):
+    def getBlockTransactionCount(self, block_identifier: BlockIdentifier) -> int:
         """
         `eth_getBlockTransactionCountByHash`
         `eth_getBlockTransactionCountByNumber`
@@ -176,7 +229,7 @@ class Eth(Module):
             raise BlockNotFound(f"Block with id: {block_identifier} not found.")
         return result
 
-    def getUncleCount(self, block_identifier):
+    def getUncleCount(self, block_identifier: BlockIdentifier) -> int:
         """
         `eth_getUncleCountByBlockHash`
         `eth_getUncleCountByBlockNumber`
@@ -195,7 +248,7 @@ class Eth(Module):
             raise BlockNotFound(f"Block with id: {block_identifier} not found.")
         return result
 
-    def getUncleByBlock(self, block_identifier, uncle_index):
+    def getUncleByBlock(self, block_identifier: BlockIdentifier, uncle_index: int) -> Uncle:
         """
         `eth_getUncleByBlockHashAndIndex`
         `eth_getUncleByBlockNumberAndIndex`
@@ -216,7 +269,7 @@ class Eth(Module):
             )
         return result
 
-    def getTransaction(self, transaction_hash):
+    def getTransaction(self, transaction_hash: Hash32) -> TxReceipt:
         result = self.web3.manager.request_blocking(
             "eth_getTransactionByHash",
             [transaction_hash],
@@ -225,14 +278,18 @@ class Eth(Module):
             raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
         return result
 
-    def getTransactionFromBlock(self, block_identifier, transaction_index):
+    def getTransactionFromBlock(
+        self, block_identifier: BlockIdentifier, transaction_index: int
+    ) -> NoReturn:
         """
         Alias for the method getTransactionByBlock
         Deprecated to maintain naming consistency with the json-rpc API
         """
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
-    def getTransactionByBlock(self, block_identifier, transaction_index):
+    def getTransactionByBlock(
+        self, block_identifier: BlockIdentifier, transaction_index: int
+    ) -> TxReceipt:
         """
         `eth_getTransactionByBlockHashAndIndex`
         `eth_getTransactionByBlockNumberAndIndex`
@@ -254,7 +311,9 @@ class Eth(Module):
             )
         return result
 
-    def waitForTransactionReceipt(self, transaction_hash, timeout=120, poll_latency=0.1):
+    def waitForTransactionReceipt(
+        self, transaction_hash: Hash32, timeout: int=120, poll_latency: float=0.1
+    ) -> TxReceipt:
         try:
             return wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
         except Timeout:
@@ -265,7 +324,7 @@ class Eth(Module):
                 )
             )
 
-    def getTransactionReceipt(self, transaction_hash):
+    def getTransactionReceipt(self, transaction_hash: Hash32) -> TxReceipt:
         result = self.web3.manager.request_blocking(
             "eth_getTransactionReceipt",
             [transaction_hash],
@@ -274,7 +333,9 @@ class Eth(Module):
             raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
         return result
 
-    def getTransactionCount(self, account, block_identifier=None):
+    def getTransactionCount(
+        self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
+    ) -> int:
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
@@ -282,18 +343,19 @@ class Eth(Module):
             [account, block_identifier],
         )
 
-    def replaceTransaction(self, transaction_hash, new_transaction):
+    def replaceTransaction(self, transaction_hash: Hash32, new_transaction: TxParams) -> Hash32:
         current_transaction = get_required_transaction(self.web3, transaction_hash)
         return replace_transaction(self.web3, current_transaction, new_transaction)
 
-    def modifyTransaction(self, transaction_hash, **transaction_params):
+    # https://github.com/python/mypy/issues/4441
+    def modifyTransaction(self, transaction_hash: Hash32, **transaction_params: Any) -> None:
         assert_valid_transaction_params(transaction_params)
         current_transaction = get_required_transaction(self.web3, transaction_hash)
         current_transaction_params = extract_valid_transaction_params(current_transaction)
         new_transaction = merge(current_transaction_params, transaction_params)
         return replace_transaction(self.web3, current_transaction, new_transaction)
 
-    def sendTransaction(self, transaction):
+    def sendTransaction(self, transaction: TxParams) -> Hash32:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
@@ -311,30 +373,38 @@ class Eth(Module):
             [transaction],
         )
 
-    def sendRawTransaction(self, raw_transaction):
+    def sendRawTransaction(self, raw_transaction: HexStr) -> Hash32:
         return self.web3.manager.request_blocking(
             "eth_sendRawTransaction",
             [raw_transaction],
         )
 
-    def sign(self, account, data=None, hexstr=None, text=None):
+    def sign(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        data: bytes=None,
+        hexstr: HexStr=None,
+        text: str=None
+    ) -> HexStr:
         message_hex = to_hex(data, hexstr=hexstr, text=text)
         return self.web3.manager.request_blocking(
             "eth_sign", [account, message_hex],
         )
 
-    def signTransaction(self, transaction):
+    def signTransaction(self, transaction: TxParams) -> bytes:
         return self.web3.manager.request_blocking(
             "eth_signTransaction", [transaction],
         )
 
-    def signTypedData(self, account, jsonMessage):
+    def signTypedData(
+        self, account: Union[Address, ChecksumAddress, ENS], jsonMessage: Dict[Any, Any]
+    ) -> HexStr:
         return self.web3.manager.request_blocking(
             "eth_signTypedData", [account, jsonMessage],
         )
 
     @apply_to_return_value(HexBytes)
-    def call(self, transaction, block_identifier=None):
+    def call(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> Sequence[Any]:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
@@ -347,7 +417,7 @@ class Eth(Module):
             [transaction, block_identifier],
         )
 
-    def estimateGas(self, transaction, block_identifier=None):
+    def estimateGas(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> int:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
@@ -362,7 +432,7 @@ class Eth(Module):
             params,
         )
 
-    def filter(self, filter_params=None, filter_id=None):
+    def filter(self, filter_params: Union[str, FilterParams]=None, filter_id: int=None) -> Filter:
         if filter_id and filter_params:
             raise TypeError(
                 "Ambiguous invocation: provide either a `filter_params` or a `filter_id` argument. "
@@ -397,39 +467,41 @@ class Eth(Module):
                             "a valid filter object, or a filter_id as a string "
                             "or hex.")
 
-    def getFilterChanges(self, filter_id):
+    def getFilterChanges(self, filter_id: int) -> List[LogParams]:
         return self.web3.manager.request_blocking(
             "eth_getFilterChanges", [filter_id],
         )
 
-    def getFilterLogs(self, filter_id):
+    def getFilterLogs(self, filter_id: int) -> List[LogParams]:
         return self.web3.manager.request_blocking(
             "eth_getFilterLogs", [filter_id],
         )
 
-    def getLogs(self, filter_params):
+    def getLogs(self, filter_params: FilterParams) -> List[LogParams]:
         return self.web3.manager.request_blocking(
             "eth_getLogs", [filter_params],
         )
 
-    def submitHashrate(self, hashrate, node_id):
+    def submitHashrate(self, hashrate: int, node_id: Hash32) -> bool:
         return self.web3.manager.request_blocking(
             "eth_submitHashrate", [hashrate, node_id],
         )
 
-    def submitWork(self, nonce, pow_hash, mix_digest):
+    def submitWork(self, nonce: int, pow_hash: Hash32, mix_digest: Hash32) -> bool:
         return self.web3.manager.request_blocking(
             "eth_submitWork", [nonce, pow_hash, mix_digest],
         )
 
-    def uninstallFilter(self, filter_id):
+    def uninstallFilter(self, filter_id: int) -> bool:
         return self.web3.manager.request_blocking(
             "eth_uninstallFilter", [filter_id],
         )
 
-    def contract(self,
-                 address=None,
-                 **kwargs):
+    def contract(
+        self, address: Union[Address, ChecksumAddress, ENS]=None, **kwargs: Any
+    ) -> Any:
+        # Union[Contract, ContractCaller, ConciseContract, Type[Union[Contract,
+        # ContractCaller, ConciseContract]]]:  # noqa: E501
         ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
 
         ContractFactory = ContractFactoryClass.factory(self.web3, **kwargs)
@@ -439,18 +511,21 @@ class Eth(Module):
         else:
             return ContractFactory
 
-    def setContractFactory(self, contractFactory):
+    def setContractFactory(
+        self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
+    ) -> None:
         self.defaultContractFactory = contractFactory
 
-    def getCompilers(self):
+    def getCompilers(self) -> NoReturn:
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
-    def getWork(self):
+    def getWork(self) -> List[Hash32]:
         return self.web3.manager.request_blocking("eth_getWork", [])
 
-    def generateGasPrice(self, transaction_params=None):
+    def generateGasPrice(self, transaction_params: TxParams=None) -> Optional[Wei]:
         if self.gasPriceStrategy:
             return self.gasPriceStrategy(self.web3, transaction_params)
+        return None
 
-    def setGasPriceStrategy(self, gas_price_strategy):
+    def setGasPriceStrategy(self, gas_price_strategy: GasPriceStrategy) -> None:
         self.gasPriceStrategy = gas_price_strategy

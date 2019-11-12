@@ -134,7 +134,7 @@ from web3.types import (
     ABIFunction,
     BlockIdentifier,
     EventData,
-    TxDict,
+    TxParams,
     TxReceipt,
 )
 
@@ -473,7 +473,7 @@ class Contract:
                              fn_name: str,
                              fn_args: Any=None,
                              fn_kwargs: Any=None,
-                             transaction: TxDict=None) -> TxDict:
+                             transaction: TxParams=None) -> TxParams:
 
         return prepare_transaction(
             cls.address,
@@ -583,9 +583,9 @@ class ContractConstructor:
         return HexStr(data)
 
     @combomethod
-    def estimateGas(self, transaction: TxDict=None) -> int:
+    def estimateGas(self, transaction: TxParams=None) -> int:
         if transaction is None:
-            estimate_gas_transaction: TxDict = {}
+            estimate_gas_transaction: TxParams = {}
         else:
             estimate_gas_transaction = dict(**transaction)
             self.check_forbidden_keys_in_transaction(estimate_gas_transaction,
@@ -599,9 +599,9 @@ class ContractConstructor:
         return self.web3.eth.estimateGas(estimate_gas_transaction)
 
     @combomethod
-    def transact(self, transaction: TxDict=None) -> Hash32:
+    def transact(self, transaction: TxParams=None) -> Hash32:
         if transaction is None:
-            transact_transaction: TxDict = {}
+            transact_transaction: TxParams = {}
         else:
             transact_transaction = dict(**transaction)
             self.check_forbidden_keys_in_transaction(transact_transaction,
@@ -616,13 +616,13 @@ class ContractConstructor:
         return self.web3.eth.sendTransaction(transact_transaction)
 
     @combomethod
-    def buildTransaction(self, transaction: TxDict=None) -> TxDict:
+    def buildTransaction(self, transaction: TxParams=None) -> TxParams:
         """
         Build the transaction dictionary without sending
         """
 
         if transaction is None:
-            built_transaction: TxDict = {}
+            built_transaction: TxParams = {}
         else:
             built_transaction = dict(**transaction)
             self.check_forbidden_keys_in_transaction(built_transaction,
@@ -637,7 +637,7 @@ class ContractConstructor:
 
     @staticmethod
     def check_forbidden_keys_in_transaction(
-        transaction: TxDict, forbidden_keys: Collection[str]=None
+        transaction: TxParams, forbidden_keys: Collection[str]=None
     ) -> None:
         keys_found = set(transaction.keys()) & set(forbidden_keys)
         if keys_found:
@@ -795,7 +795,7 @@ class ContractFunction:
     web3: 'Web3' = None
     contract_abi: ABI = None
     abi: ABIFunction = None
-    transaction: TxDict = None
+    transaction: TxParams = None
     arguments: Tuple[Any] = None
     args: Any = None
     kwargs: Any = None
@@ -837,7 +837,7 @@ class ContractFunction:
         self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
 
     def call(
-        self, transaction: TxDict=None, block_identifier: BlockIdentifier='latest'
+        self, transaction: TxParams=None, block_identifier: BlockIdentifier='latest'
     ) -> Sequence[Any]:
         """
         Execute a contract function call using the `eth_call` interface.
@@ -903,7 +903,7 @@ class ContractFunction:
             **self.kwargs
         )
 
-    def transact(self, transaction: TxDict=None) -> HexStr:
+    def transact(self, transaction: TxParams=None) -> Hash32:
         if transaction is None:
             transact_transaction: Dict[str, Any] = {}
         else:
@@ -939,7 +939,7 @@ class ContractFunction:
             **self.kwargs
         )
 
-    def estimateGas(self, transaction: TxDict=None) -> int:
+    def estimateGas(self, transaction: TxParams=None) -> int:
         if transaction is None:
             estimate_gas_transaction: Dict[str, Any] = {}
         else:
@@ -977,7 +977,7 @@ class ContractFunction:
             **self.kwargs
         )
 
-    def buildTransaction(self, transaction: TxDict=None) -> TxDict:
+    def buildTransaction(self, transaction: TxParams=None) -> TxParams:
         """
         Build the transaction dictionary without sending
         """
@@ -1300,7 +1300,7 @@ class ContractCaller:
                  abi: ABI,
                  web3: 'Web3',
                  address: ChecksumAddress,
-                 transaction: TxDict=None,
+                 transaction: TxParams=None,
                  block_identifier: BlockIdentifier='latest') -> None:
         self.web3 = web3
         self.address = address
@@ -1350,7 +1350,7 @@ class ContractCaller:
             return super().__getattribute__(function_name)
 
     def __call__(
-        self, transaction: TxDict=None, block_identifier: BlockIdentifier='latest'
+        self, transaction: TxParams=None, block_identifier: BlockIdentifier='latest'
     ) -> 'ContractCaller':
         if transaction is None:
             transaction = {}
@@ -1364,7 +1364,7 @@ class ContractCaller:
     def call_function(
         fn: ContractFunction,
         *args: Any,
-        transaction: TxDict=None,
+        transaction: TxParams=None,
         block_identifier: BlockIdentifier='latest',
         **kwargs: Any
     ) -> Sequence[Any]:
@@ -1396,7 +1396,7 @@ def call_contract_function(
         address: ChecksumAddress,
         normalizers: Tuple[Callable[..., Any], ...],
         function_identifier: Union[str, Type[FallbackFn]],
-        transaction: TxDict,
+        transaction: TxParams,
         block_id: BlockIdentifier=None,
         contract_abi: ABI=None,
         fn_abi: ABIFunction=None,
@@ -1490,11 +1490,11 @@ def transact_with_contract_function(
         address: ChecksumAddress,
         web3: 'Web3',
         function_name: Union[str, Type[FallbackFn]]=None,
-        transaction: TxDict=None,
+        transaction: TxParams=None,
         contract_abi: ABI=None,
         fn_abi: ABIFunction=None,
         *args: Any,
-        **kwargs: Any) -> HexStr:
+        **kwargs: Any) -> Hash32:
     """
     Helper function for interacting with a contract function by sending a
     transaction.
@@ -1518,7 +1518,7 @@ def estimate_gas_for_function(
         address: ChecksumAddress,
         web3: 'Web3',
         fn_identifier: Union[str, Type[FallbackFn]]=None,
-        transaction: TxDict=None,
+        transaction: TxParams=None,
         contract_abi: ABI=None,
         fn_abi: ABIFunction=None,
         *args: Any,
@@ -1547,11 +1547,11 @@ def build_transaction_for_function(
         address: ChecksumAddress,
         web3: 'Web3',
         function_name: Union[str, Type[FallbackFn]]=None,
-        transaction: TxDict=None,
+        transaction: TxParams=None,
         contract_abi: ABI=None,
         fn_abi: ABIFunction=None,
         *args: Any,
-        **kwargs: Any) -> TxDict:
+        **kwargs: Any) -> TxParams:
     """Builds a dictionary with the fields required to make the given transaction
 
     Don't call this directly, instead use :meth:`Contract.buildTransaction`

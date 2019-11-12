@@ -9,6 +9,7 @@ from urllib import (
 
 from eth_typing import (
     URI,
+    BlockNumber,
 )
 from eth_utils import (
     add_0x_prefix,
@@ -23,7 +24,7 @@ from web3 import Web3
 
 
 def get_genesis_block_hash(web3: Web3) -> str:
-    return web3.eth.getBlock(0)["hash"]
+    return web3.eth.getBlock(BlockNumber(0))["hash"]
 
 
 BLOCK = "block"

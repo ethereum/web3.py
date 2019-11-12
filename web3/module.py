@@ -3,6 +3,8 @@ from eth_utils.toolz import (
     pipe,
 )
 
+from web3 import Web3
+
 
 @curry
 def retrieve_blocking_method_call_fn(w3, module, method):
@@ -25,7 +27,7 @@ def retrieve_async_method_call_fn(w3, module, method):
 
 #  TODO: Replace this with ModuleV2 when ready.
 class Module:
-    web3 = None
+    web3: Web3 = None
 
     def __init__(self, web3):
         self.web3 = web3

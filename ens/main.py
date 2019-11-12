@@ -52,11 +52,11 @@ if TYPE_CHECKING:
         BaseProvider,
     )
     from web3.types import (  # noqa: F401
-        TxDict,
+        TxParams,
     )
 
 
-ENS_MAINNET_ADDR = '0x314159265dD8dbb310642f98f50C066173C1259b'
+ENS_MAINNET_ADDR = cast(ChecksumAddress, '0x314159265dD8dbb310642f98f50C066173C1259b')
 
 
 class ENS:
@@ -126,7 +126,7 @@ class ENS:
         self,
         name: str,
         address: Union[Address, ChecksumAddress, HexAddress]=cast(ChecksumAddress, default),
-        transact: 'TxDict'={}
+        transact: 'TxParams'={}
     ) -> Hash32:
         """
         Set up the name to point to the supplied address.
@@ -164,7 +164,9 @@ class ENS:
         return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
 
     @dict_copy
-    def setup_name(self, name: str, address: ChecksumAddress=None, transact: 'TxDict'={}) -> Hash32:
+    def setup_name(
+        self, name: str, address: ChecksumAddress=None, transact: 'TxParams'={}
+    ) -> Hash32:
         """
         Set up the address for reverse lookup, aka "caller ID".
         After successful setup, the method :meth:`~ens.main.ENS.name` will return
@@ -248,7 +250,7 @@ class ENS:
         self,
         name: str,
         new_owner: ChecksumAddress=cast(ChecksumAddress, default),
-        transact: 'TxDict'={}
+        transact: 'TxParams'={}
     ) -> ChecksumAddress:
         """
         Set the owner of the supplied name to `new_owner`.
@@ -321,7 +323,7 @@ class ENS:
         unowned: Sequence[str],
         owned: str,
         old_owner: ChecksumAddress=None,
-        transact: 'TxDict'={}
+        transact: 'TxParams'={}
     ) -> None:
         transact['from'] = old_owner or owner
         for label in reversed(unowned):
@@ -334,7 +336,7 @@ class ENS:
 
     @dict_copy
     def _set_resolver(
-        self, name: str, resolver_addr: ChecksumAddress=None, transact: 'TxDict'={}
+        self, name: str, resolver_addr: ChecksumAddress=None, transact: 'TxParams'={}
     ) -> 'Contract':
         if is_none_or_zero_address(resolver_addr):
             resolver_addr = self.address('resolver.eth')
@@ -347,7 +349,9 @@ class ENS:
         return self._resolverContract(address=resolver_addr)
 
     @dict_copy
-    def _setup_reverse(self, name: str, address: ChecksumAddress, transact: 'TxDict'={}) -> Hash32:
+    def _setup_reverse(
+        self, name: str, address: ChecksumAddress, transact: 'TxParams'={}
+    ) -> Hash32:
         if name:
             name = normalize_name(name)
         else:
