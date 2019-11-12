@@ -4,17 +4,19 @@ import functools
 from typing import (
     TYPE_CHECKING,
     Any,
-    AnyStr,
     Callable,
     Collection,
     Optional,
     Type,
     TypeVar,
+    Union,
     cast,
 )
 
 from eth_typing import (
     Address,
+    ChecksumAddress,
+    HexAddress,
 )
 from eth_utils import (
     is_same_address,
@@ -62,7 +64,7 @@ def dict_copy(func: TFunc) -> TFunc:
     def wrapper(*args: Any, **kwargs: Any) -> TFunc:
         copied_kwargs = copy.deepcopy(kwargs)
         return func(*args, **copied_kwargs)
-    return wrapper
+    return cast(TFunc, wrapper)
 
 
 def ensure_hex(data: HexBytes) -> HexBytes:
@@ -138,7 +140,7 @@ def to_utc_datetime(timestamp: float) -> Optional[datetime.datetime]:
         return None
 
 
-def sha3_text(val: AnyStr) -> HexBytes:
+def sha3_text(val: Union[str, bytes]) -> HexBytes:
     if isinstance(val, str):
         val = val.encode('utf-8')
     return Web3().keccak(val)
@@ -183,11 +185,11 @@ def raw_name_to_hash(name: str) -> HexBytes:
     return normal_name_to_hash(normalized_name)
 
 
-def address_in(address: Address, addresses: Collection[Address]) -> bool:
+def address_in(address: ChecksumAddress, addresses: Collection[ChecksumAddress]) -> bool:
     return any(is_same_address(address, item) for item in addresses)
 
 
-def address_to_reverse_domain(address: Address) -> str:
+def address_to_reverse_domain(address: ChecksumAddress) -> str:
     lower_unprefixed_address = remove_0x_prefix(to_normalized_address(address))
     return lower_unprefixed_address + '.' + REVERSE_REGISTRAR_DOMAIN
 
@@ -196,7 +198,7 @@ def estimate_auction_start_gas(labels: Collection[str]) -> int:
     return AUCTION_START_GAS_CONSTANT + AUCTION_START_GAS_MARGINAL * len(labels)
 
 
-def assert_signer_in_modifier_kwargs(modifier_kwargs: Any) -> Address:
+def assert_signer_in_modifier_kwargs(modifier_kwargs: Any) -> ChecksumAddress:
     ERR_MSG = "You must specify the sending account"
     assert len(modifier_kwargs) == 1, ERR_MSG
 
@@ -207,5 +209,5 @@ def assert_signer_in_modifier_kwargs(modifier_kwargs: Any) -> Address:
     return modifier_dict['from']
 
 
-def is_none_or_zero_address(addr: Address) -> bool:
+def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress]) -> bool:
     return not addr or addr == EMPTY_ADDR_HEX

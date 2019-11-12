@@ -8,8 +8,10 @@ from typing import (
 )
 
 from eth_typing import (
-    AnyAddress,
+    Address,
+    ChecksumAddress,
     Hash32,
+    HexAddress,
 )
 from eth_utils import (
     is_binary_address,
@@ -60,8 +62,8 @@ TxDict = TypedDict("TxDict", {
     "nonce": int,
     "gasPrice": int,
     "gas": int,
-    "from": Union[AnyAddress, str],
-    "to": Union[AnyAddress, str],
+    "from": Union[ChecksumAddress, str],
+    "to": Union[ChecksumAddress, str],
     "value": int,
     "data": Union[bytes, str]},
     # so TxDict can be used w/o requiring all kwargs
@@ -86,7 +88,7 @@ class ENS:
     reverse_domain = staticmethod(address_to_reverse_domain)
 
     def __init__(
-        self, provider: 'BaseProvider'=cast('BaseProvider', default), addr: AnyAddress=None
+        self, provider: 'BaseProvider'=cast('BaseProvider', default), addr: ChecksumAddress=None
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum
@@ -101,7 +103,7 @@ class ENS:
         self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
 
     @classmethod
-    def fromWeb3(cls, web3: 'Web3', addr: AnyAddress=None) -> 'ENS':
+    def fromWeb3(cls, web3: 'Web3', addr: ChecksumAddress=None) -> 'ENS':
         """
         Generate an ENS instance with web3
 
@@ -111,16 +113,16 @@ class ENS:
         """
         return cls(web3.manager.provider, addr=addr)
 
-    def address(self, name: str) -> AnyAddress:
+    def address(self, name: str) -> ChecksumAddress:
         """
         Look up the Ethereum address that `name` currently points to.
 
         :param str name: an ENS name to look up
         :raises InvalidName: if `name` has invalid syntax
         """
-        return cast(AnyAddress, self.resolve(name, 'addr'))
+        return cast(ChecksumAddress, self.resolve(name, 'addr'))
 
-    def name(self, address: AnyAddress) -> str:
+    def name(self, address: ChecksumAddress) -> str:
         """
         Look up the name that the address points to, using a
         reverse lookup. Reverse lookup is opt-in for name owners.
@@ -129,11 +131,14 @@ class ENS:
         :type address: hex-string
         """
         reversed_domain = address_to_reverse_domain(address)
-        return cast(str, self.resolve(reversed_domain, get='name'))
+        return self.resolve(reversed_domain, get='name')
 
     @dict_copy
     def setup_address(
-        self, name: str, address: AnyAddress=cast(AnyAddress, default), transact: TxDict={}
+        self,
+        name: str,
+        address: Union[Address, ChecksumAddress, HexAddress]=cast(ChecksumAddress, default),
+        transact: TxDict={}
     ) -> Hash32:
         """
         Set up the name to point to the supplied address.
@@ -159,7 +164,7 @@ class ENS:
         elif address is default:
             address = owner
         elif is_binary_address(address):
-            address = cast(AnyAddress, to_checksum_address(address))
+            address = to_checksum_address(cast(str, address))
         elif not is_checksum_address(address):
             raise ValueError("You must supply the address in checksum format")
         if self.address(name) == address:
@@ -167,11 +172,11 @@ class ENS:
         if address is None:
             address = EMPTY_ADDR_HEX
         transact['from'] = owner
-        resolver = self._set_resolver(name, transact=transact)
+        resolver: 'Contract' = self._set_resolver(name, transact=transact)
         return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
 
     @dict_copy
-    def setup_name(self, name: str, address: AnyAddress=None, transact: TxDict={}) -> Hash32:
+    def setup_name(self, name: str, address: ChecksumAddress=None, transact: TxDict={}) -> Hash32:
         """
         Set up the address for reverse lookup, aka "caller ID".
         After successful setup, the method :meth:`~ens.main.ENS.name` will return
@@ -205,7 +210,7 @@ class ENS:
             if is_none_or_zero_address(address):
                 raise UnownedName("claim subdomain using setup_address() first")
             if is_binary_address(address):
-                address = cast(AnyAddress, to_checksum_address(address))
+                address = to_checksum_address(address)
             if not is_checksum_address(address):
                 raise ValueError("You must supply the address in checksum format")
             self._assert_control(address, name)
@@ -213,7 +218,7 @@ class ENS:
                 self.setup_address(name, address, transact=transact)
             return self._setup_reverse(name, address, transact=transact)
 
-    def resolve(self, name: str, get: str='addr') -> Optional[Union[AnyAddress, str]]:
+    def resolve(self, name: str, get: str='addr') -> Optional[Union[ChecksumAddress, str]]:
         normal_name = normalize_name(name)
         resolver = self.resolver(normal_name)
         if resolver:
@@ -232,11 +237,11 @@ class ENS:
             return None
         return self._resolverContract(address=resolver_addr)
 
-    def reverser(self, target_address: AnyAddress) -> Optional['Contract']:
+    def reverser(self, target_address: ChecksumAddress) -> Optional['Contract']:
         reversed_domain = address_to_reverse_domain(target_address)
         return self.resolver(reversed_domain)
 
-    def owner(self, name: str) -> AnyAddress:
+    def owner(self, name: str) -> ChecksumAddress:
         """
         Get the owner of a name. Note that this may be different from the
         deed holder in the '.eth' registrar. Learn more about the difference
@@ -252,8 +257,11 @@ class ENS:
 
     @dict_copy
     def setup_owner(
-        self, name: str, new_owner: AnyAddress=cast(AnyAddress, default), transact: TxDict={}
-    ) -> AnyAddress:
+        self,
+        name: str,
+        new_owner: ChecksumAddress=cast(ChecksumAddress, default),
+        transact: TxDict={}
+    ) -> ChecksumAddress:
         """
         Set the owner of the supplied name to `new_owner`.
 
@@ -281,7 +289,7 @@ class ENS:
         if new_owner is default:
             new_owner = super_owner
         elif not new_owner:
-            new_owner = EMPTY_ADDR_HEX
+            new_owner = ChecksumAddress(EMPTY_ADDR_HEX)
         else:
             new_owner = to_checksum_address(new_owner)
         current_owner = self.owner(name)
@@ -294,7 +302,7 @@ class ENS:
             self._claim_ownership(new_owner, unowned, owned, super_owner, transact=transact)
             return new_owner
 
-    def _assert_control(self, account: AnyAddress, name: str, parent_owned: str=None) -> None:
+    def _assert_control(self, account: ChecksumAddress, name: str, parent_owned: str=None) -> None:
         if not address_in(account, self.web3.eth.accounts):
             raise UnauthorizedError(
                 "in order to modify %r, you must control account %r, which owns %r" % (
@@ -302,7 +310,7 @@ class ENS:
                 )
             )
 
-    def _first_owner(self, name: str) -> Tuple[Optional[AnyAddress], Sequence[str], str]:
+    def _first_owner(self, name: str) -> Tuple[Optional[ChecksumAddress], Sequence[str], str]:
         """
         Takes a name, and returns the owner of the deepest subdomain that has an owner
 
@@ -321,10 +329,10 @@ class ENS:
     @dict_copy
     def _claim_ownership(
         self,
-        owner: AnyAddress,
+        owner: ChecksumAddress,
         unowned: Sequence[str],
         owned: str,
-        old_owner: AnyAddress=None,
+        old_owner: ChecksumAddress=None,
         transact: TxDict={}
     ) -> None:
         transact['from'] = old_owner or owner
@@ -338,7 +346,7 @@ class ENS:
 
     @dict_copy
     def _set_resolver(
-        self, name: str, resolver_addr: AnyAddress=None, transact: TxDict={}
+        self, name: str, resolver_addr: ChecksumAddress=None, transact: TxDict={}
     ) -> 'Contract':
         if is_none_or_zero_address(resolver_addr):
             resolver_addr = self.address('resolver.eth')
@@ -351,14 +359,13 @@ class ENS:
         return self._resolverContract(address=resolver_addr)
 
     @dict_copy
-    def _setup_reverse(self, name: str, address: AnyAddress, transact: TxDict={}) -> Hash32:
+    def _setup_reverse(self, name: str, address: ChecksumAddress, transact: TxDict={}) -> Hash32:
         if name:
             name = normalize_name(name)
         else:
             name = ''
         transact['from'] = address
-        # type ignored b/c functions are dynamically set on Contract instances
-        return self._reverse_registrar().functions.setName(name).transact(transact)  # type: ignore
+        return self._reverse_registrar().functions.setName(name).transact(transact)
 
     def _reverse_registrar(self) -> 'Contract':
         addr = self.ens.caller.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
