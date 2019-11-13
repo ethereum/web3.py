@@ -95,7 +95,7 @@ class Eth(Module):
     account = Account()
     defaultAccount = empty
     defaultBlock = "latest"
-    defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa
+    defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
     gasPriceStrategy = None
 
@@ -151,7 +151,6 @@ class Eth(Module):
             [account, block_identifier],
         )
 
-    # mypy double check this return
     def getStorageAt(
         self,
         account: Union[Address, ChecksumAddress, ENS],
@@ -347,6 +346,7 @@ class Eth(Module):
         current_transaction = get_required_transaction(self.web3, transaction_hash)
         return replace_transaction(self.web3, current_transaction, new_transaction)
 
+    # todo: Update Any to stricter kwarg checking with TxParams
     # https://github.com/python/mypy/issues/4441
     def modifyTransaction(self, transaction_hash: Hash32, **transaction_params: Any) -> None:
         assert_valid_transaction_params(transaction_params)
@@ -500,8 +500,6 @@ class Eth(Module):
     def contract(
         self, address: Union[Address, ChecksumAddress, ENS]=None, **kwargs: Any
     ) -> Any:
-        # Union[Contract, ContractCaller, ConciseContract, Type[Union[Contract,
-        # ContractCaller, ConciseContract]]]:  # noqa: E501
         ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
 
         ContractFactory = ContractFactoryClass.factory(self.web3, **kwargs)

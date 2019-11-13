@@ -71,9 +71,6 @@ ABIFunction = TypedDict("ABIFunction", {
 ABI = Sequence[Union[ABIFunction, ABIEvent]]
 
 
-# resolve with web3.eth docs which say hex address / ens
-# - but should probably be checksum address?
-# resolve with BlockIdentifier in eth-typing
 BlockIdentifier = Union[str, BlockNumber, Hash32]
 
 
