@@ -62,8 +62,8 @@ TxDict = TypedDict("TxDict", {
     "nonce": int,
     "gasPrice": int,
     "gas": int,
-    "from": Union[ChecksumAddress, str],
-    "to": Union[ChecksumAddress, str],
+    "from": Union[Address, ChecksumAddress, str],
+    "to": Union[Address, ChecksumAddress, str],
     "value": int,
     "data": Union[bytes, str]},
     # so TxDict can be used w/o requiring all kwargs
