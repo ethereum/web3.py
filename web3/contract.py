@@ -254,7 +254,7 @@ class Contract:
     bytecode_runtime = None
     clone_bin = None
 
-    functions = None
+    functions: ContractFunctions = None
     caller = None
 
     #: Instance of :class:`ContractEvents` presenting available Event ABIs
