@@ -1,0 +1,1 @@
+Infura websocket provider works when no secret key is present

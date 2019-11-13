@@ -181,7 +181,6 @@ jobs:
       TOXENV: py36-ethpm
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
-      WEB3_INFURA_API_SECRET: 1955838f22ac4d858434f41498557130
 
   py36-integration-goethereum-ipc-1.7.2:
     <<: *geth_steps
@@ -290,7 +289,6 @@ jobs:
       TOXENV: py37-ethpm
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
-      WEB3_INFURA_API_SECRET: 1955838f22ac4d858434f41498557130
 
   py37-integration-goethereum-ipc-1.7.2:
     <<: *geth_steps
@@ -399,7 +397,6 @@ jobs:
       TOXENV: py38-ethpm
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
-      WEB3_INFURA_API_SECRET: 1955838f22ac4d858434f41498557130
 
   py38-integration-goethereum-ipc-1.7.2:
     <<: *geth_steps
