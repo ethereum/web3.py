@@ -11,6 +11,8 @@ from typing import (
     Dict,
     Generator,
     Iterable,
+    List,
+    NoReturn,
     Optional,
     Sequence,
     Tuple,
@@ -164,7 +166,7 @@ class ContractFunctions:
                         address=self.address,
                         function_identifier=func['name']))
 
-    def __iter__(self) -> Optional[Generator[str, None, None]]:
+    def __iter__(self) -> Generator[str, None, None]:
         if not hasattr(self, '_functions') or not self._functions:
             return
 
@@ -391,7 +393,7 @@ class Contract:
         return encode_abi(cls.web3, fn_abi, fn_arguments, data)
 
     @combomethod
-    def all_functions(self) -> Collection['ContractFunction']:
+    def all_functions(self) -> List['ContractFunction']:
         return find_functions_by_identifier(
             self.abi, self.web3, self.address, lambda _: True
         )
@@ -411,7 +413,7 @@ class Contract:
         return get_function_by_identifier(fns, 'signature')
 
     @combomethod
-    def find_functions_by_name(self, fn_name: str) -> Collection['ContractFunction']:
+    def find_functions_by_name(self, fn_name: str) -> List['ContractFunction']:
         def callable_check(fn_abi: ABIFunction) -> bool:
             return fn_abi['name'] == fn_name
 
@@ -448,7 +450,7 @@ class Contract:
         return func, dict(zip(names, normalized))
 
     @combomethod
-    def find_functions_by_args(self, *args: Any) -> Collection['ContractFunction']:
+    def find_functions_by_args(self, *args: Any) -> List['ContractFunction']:
         def callable_check(fn_abi: ABIFunction) -> bool:
             return check_if_arguments_can_be_encoded(fn_abi, self.web3.codec, args=args, kwargs={})
 
@@ -542,7 +544,7 @@ class Contract:
 
 
 def mk_collision_prop(fn_name: str) -> Callable[[], None]:
-    def collision_fn() -> None:
+    def collision_fn() -> NoReturn:
         msg = "Namespace collision for function name {0} with ConciseContract API.".format(fn_name)
         raise AttributeError(msg)
     collision_fn.__name__ = fn_name
@@ -775,7 +777,7 @@ class ImplicitContract(ConciseContract):
 
 class NonExistentFallbackFunction:
     @staticmethod
-    def _raise_exception() -> None:
+    def _raise_exception() -> NoReturn:
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
     def __getattr__(self, attr: Any) -> Callable[[], None]:
@@ -1371,7 +1373,9 @@ class ContractCaller:
         return fn(*args, **kwargs).call(transaction, block_identifier)
 
 
-def check_for_forbidden_api_filter_arguments(event_abi: ABIEvent, _filters: Dict[str, Any]) -> None:
+def check_for_forbidden_api_filter_arguments(
+    event_abi: ABIEvent, _filters: Dict[str, Any]
+) -> None:
     name_indexed_inputs = {_input['name']: _input for _input in event_abi['inputs']}
 
     for filter_name, filter_value in _filters.items():
@@ -1571,7 +1575,7 @@ def build_transaction_for_function(
 
 def find_functions_by_identifier(
     contract_abi: ABI, web3: 'Web3', address: ChecksumAddress, callable_check: Callable[..., Any]
-) -> Sequence[ContractFunction]:
+) -> List[ContractFunction]:
     fns_abi = filter_by_type('function', contract_abi)
     return [
         ContractFunction.factory(

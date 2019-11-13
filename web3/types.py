@@ -8,6 +8,7 @@ from typing import (
 )
 
 from eth_typing import (
+    Address,
     BlockNumber,
     ChecksumAddress,
     Hash32,
@@ -67,7 +68,7 @@ ABIFunction = TypedDict("ABIFunction", {
 
 ABI = Sequence[Union[ABIFunction, ABIEvent]]
 
-BlockIdentifier = Union[str, BlockNumber, bytes, Hash32]
+BlockIdentifier = Union[str, BlockNumber, Hash32]
 
 EventData = TypedDict("EventData", {
     "args": Dict[str, Any],
@@ -85,11 +86,12 @@ TxDict = TypedDict("TxDict", {
     "nonce": int,
     "gasPrice": int,
     "gas": int,
-    "from": Union[ChecksumAddress, str],
-    "to": Union[ChecksumAddress, str],
+    "from": Union[Address, ChecksumAddress, str],
+    "to": Union[Address, ChecksumAddress, str],
     "value": int,
-    "data": Union[bytes, str]
-})
+    "data": Union[bytes, str]},
+    total=False
+)
 
 
 LogsParameter = TypedDict("LogsParameter", {
