@@ -1,1 +1,0 @@
-Start adding type hints to web3, beginning with web3.main

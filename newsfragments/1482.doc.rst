@@ -1,1 +1,0 @@
-Update Quickstart instructions to use the auto Infura module instead of the more complicated web3 auto module

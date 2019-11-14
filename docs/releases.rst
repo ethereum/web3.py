@@ -6,6 +6,36 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.3.0 (2019-11-14)
+-------------------
+
+Features
+~~~~~~~~
+
+- Support handling ENS domains in ERC1319 URIs. (`#1489 <https://github.com/ethereum/web3.py/issues/1489>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Make local block filter return empty list when when no blocks mined (`#1255 <https://github.com/ethereum/web3.py/issues/1255>`__)
+- Google protobuf dependency was updated to `3.10.0` (`#1493 <https://github.com/ethereum/web3.py/issues/1493>`__)
+- Infura websocket provider works when no secret key is present (`#1501 <https://github.com/ethereum/web3.py/issues/1501>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update Quickstart instructions to use the auto Infura module instead of the more complicated web3 auto module (`#1482 <https://github.com/ethereum/web3.py/issues/1482>`__)
+- Remove outdated py.test command from readme (`#1483 <https://github.com/ethereum/web3.py/issues/1483>`__)
+
+
+Misc
+~~~~
+
+- `#1461 <https://github.com/ethereum/web3.py/issues/1461>`__, `#1471 <https://github.com/ethereum/web3.py/issues/1471>`__, `#1475 <https://github.com/ethereum/web3.py/issues/1475>`__, `#1476 <https://github.com/ethereum/web3.py/issues/1476>`__, `#1479 <https://github.com/ethereum/web3.py/issues/1479>`__, `#1488 <https://github.com/ethereum/web3.py/issues/1488>`__, `#1492 <https://github.com/ethereum/web3.py/issues/1492>`__, `#1498 <https://github.com/ethereum/web3.py/issues/1498>`__
+
+
 v5.2.2 (2019-10-21)
 -------------------
 

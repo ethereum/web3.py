@@ -1,1 +1,0 @@
-Fix Syntax warnings: use `==` instead of `is` where appropriate, and similarly `!=` instead of `is not`
