@@ -1,6 +1,10 @@
 import datetime
 import time
 
+from web3.types import (
+    BlockData,
+)
+
 
 class BadFunctionCallOutput(Exception):
     """
@@ -45,7 +49,7 @@ class StaleBlockchain(Exception):
     """
     Raised by the stalecheck_middleware when the latest block is too old.
     """
-    def __init__(self, block, allowable_delay):
+    def __init__(self, block: BlockData, allowable_delay: int) -> None:
         last_block_date = datetime.datetime.fromtimestamp(block.timestamp).strftime('%c')
         message = (
             "The latest block, #%d, is %d seconds old, but is only allowed to be %d s old. "
@@ -54,7 +58,7 @@ class StaleBlockchain(Exception):
         )
         super().__init__(message, block, allowable_delay)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.args[0]
 
 
