@@ -34,6 +34,7 @@ ABIEventParams = TypedDict("ABIEventParams", {
     "indexed": bool,
 })
 
+ENS = NewType("ENS", str)
 
 ABIEvent = TypedDict("ABIEvent", {
     "type": "event",
