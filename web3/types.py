@@ -94,6 +94,9 @@ EventData = TypedDict("EventData", {
     "blockNumber": int,
 })
 
+JsonRpcResponse = Dict[str, Any]
+
+Middleware = Callable[[Any, Any], Any]
 
 JsonRpcError = TypedDict("JsonRpcError", {
     "code": int,
