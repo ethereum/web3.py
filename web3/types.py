@@ -89,6 +89,7 @@ EventData = TypedDict("EventData", {
     "blockNumber": int,
 })
 
+JsonRpcResponse = Dict[str, Any]
 
 FilterParams = TypedDict("FilterParams", {
     "from": Union["earliest", "pending", "latest", BlockNumber],
