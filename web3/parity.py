@@ -1,8 +1,29 @@
+from typing import (
+    Any,
+    Dict,
+    List,
+    NewType,
+    Sequence,
+    Union,
+)
+
+from eth_typing import (
+    Address,
+    ChecksumAddress,
+    Hash32,
+    HexStr,
+)
 from eth_utils import (
     is_checksum_address,
 )
 from eth_utils.toolz import (
     assoc,
+)
+from mypy_extensions import (
+    TypedDict,
+)
+from typing_extensions import (
+    Literal,
 )
 
 from web3._utils import (
@@ -22,6 +43,32 @@ from web3.module import (
     Module,
     ModuleV2,
 )
+from web3.types import (
+    ENS,
+    BlockIdentifier,
+    TxParams,
+)
+
+# special parity types
+BlockTrace = NewType("BlockTrace", Dict[str, Any])
+FilterTrace = NewType("FilterTrace", Dict[str, Any])
+ParityEnodeURI = NewType("ParityEnodeURI", str)
+ParityMode = Literal["active", "passive", "dark", "offline"]
+TraceMode = Sequence[Literal["trace", "vmTrace", "stateDiff"]]
+NetPeers = TypedDict("NetPeers", {
+    "active": int,
+    "connected": int,
+    "max": int,
+    "peers": List[Dict[Any, Any]],
+})
+FilterParams = TypedDict("FilterParams", {
+    "fromBlock": BlockIdentifier,
+    "toBlock": BlockIdentifier,
+    "fromAddress": Sequence[Union[Address, ChecksumAddress, ENS]],
+    "toAddress": Sequence[Union[Address, ChecksumAddress, ENS]],
+    "after": int,
+    "count": int,
+}, total=False)
 
 
 class ParityShh(ModuleV2):
@@ -77,13 +124,19 @@ class Parity(Module):
     """
     defaultBlock = "latest"
 
-    def enode(self):
+    def enode(self) -> ParityEnodeURI:
         return self.web3.manager.request_blocking(
             "parity_enode",
             [],
         )
 
-    def listStorageKeys(self, address, quantity, hash_, block_identifier=None):
+    def listStorageKeys(
+        self,
+        address: Union[Address, ChecksumAddress, ENS],
+        quantity: int,
+        hash_: Hash32,
+        block_identifier: BlockIdentifier=None,
+    ) -> List[Hash32]:
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
@@ -91,52 +144,61 @@ class Parity(Module):
             [address, quantity, hash_, block_identifier],
         )
 
-    def netPeers(self):
+    def netPeers(self) -> NetPeers:
         return self.web3.manager.request_blocking(
             "parity_netPeers",
             [],
         )
 
-    def addReservedPeer(self, url):
+    def addReservedPeer(self, url: ParityEnodeURI) -> bool:
         return self.web3.manager.request_blocking(
             "parity_addReservedPeer",
             [url],
         )
 
-    def traceReplayTransaction(self, transaction_hash, mode=['trace']):
+    def traceReplayTransaction(
+        self, transaction_hash: Hash32, mode: TraceMode=['trace']
+    ) -> BlockTrace:
         return self.web3.manager.request_blocking(
             "trace_replayTransaction",
             [transaction_hash, mode],
         )
 
-    def traceReplayBlockTransactions(self, block_identifier, mode=['trace']):
+    def traceReplayBlockTransactions(
+        self, block_identifier: BlockIdentifier, mode: TraceMode=['trace']
+    ) -> List[BlockTrace]:
         return self.web3.manager.request_blocking(
             "trace_replayBlockTransactions",
             [block_identifier, mode]
         )
 
-    def traceBlock(self, block_identifier):
+    def traceBlock(self, block_identifier: BlockIdentifier) -> List[BlockTrace]:
         return self.web3.manager.request_blocking(
             "trace_block",
             [block_identifier]
         )
 
-    def traceFilter(self, params):
+    def traceFilter(self, params: FilterParams) -> List[FilterTrace]:
         return self.web3.manager.request_blocking(
             "trace_filter",
             [params]
         )
 
-    def traceTransaction(self, transaction_hash):
+    def traceTransaction(self, transaction_hash: Hash32) -> List[FilterTrace]:
         return self.web3.manager.request_blocking(
             "trace_transaction",
             [transaction_hash]
         )
 
-    def traceCall(self, transaction, mode=['trace'], block_identifier=None):
+    def traceCall(
+        self,
+        transaction: TxParams,
+        mode: TraceMode=['trace'],
+        block_identifier: BlockIdentifier=None
+    ) -> List[BlockTrace]:
         # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
-            transaction = assoc(transaction, 'from', self.defaultAccount)
+        if 'from' not in transaction and is_checksum_address(self.web3.eth.defaultAccount):
+            transaction = assoc(transaction, 'from', self.web3.eth.defaultAccount)
 
         # TODO: move to middleware
         if block_identifier is None:
@@ -146,19 +208,21 @@ class Parity(Module):
             [transaction, mode, block_identifier],
         )
 
-    def traceRawTransaction(self, raw_transaction, mode=['trace']):
+    def traceRawTransaction(
+        self, raw_transaction: HexStr, mode: TraceMode=['trace']
+    ) -> List[BlockTrace]:
         return self.web3.manager.request_blocking(
             "trace_rawTransaction",
             [raw_transaction, mode],
         )
 
-    def setMode(self, mode):
+    def setMode(self, mode: ParityMode) -> bool:
         return self.web3.manager.request_blocking(
             "parity_setMode",
             [mode]
         )
 
-    def mode(self):
+    def mode(self) -> ParityMode:
         return self.web3.manager.request_blocking(
             "parity_mode",
             []
