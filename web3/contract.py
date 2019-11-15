@@ -1328,7 +1328,7 @@ class ContractCaller:
 
                 setattr(self, func['name'], caller_method)
 
-    def __getattr__(self, function_name: str) -> ContractFunction:
+    def __getattr__(self, function_name: str) -> Any:
         if self.abi is None:
             raise NoABIFound(
                 "There is no ABI found for this contract.",

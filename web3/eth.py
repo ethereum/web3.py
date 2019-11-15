@@ -1,13 +1,14 @@
 from typing import (
     Any,
-    Collection,
     Dict,
     List,
     NoReturn,
     Optional,
     Sequence,
+    Tuple,
     Type,
     Union,
+    overload,
 )
 
 from eth_account import (
@@ -130,7 +131,7 @@ class Eth(Module):
         return self.web3.manager.request_blocking("eth_gasPrice", [])
 
     @property
-    def accounts(self) -> Collection[ChecksumAddress]:
+    def accounts(self) -> Tuple[ChecksumAddress]:
         return self.web3.manager.request_blocking("eth_accounts", [])
 
     @property
@@ -156,7 +157,7 @@ class Eth(Module):
         account: Union[Address, ChecksumAddress, ENS],
         position: int,
         block_identifier: BlockIdentifier=None
-    ) -> Hash32:
+    ) -> bytes:
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
@@ -497,9 +498,15 @@ class Eth(Module):
             "eth_uninstallFilter", [filter_id],
         )
 
-    def contract(
+    @overload
+    def contract(self, address: None=None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
+
+    @overload  # noqa: F811
+    def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Contract: ...  # noqa: E704,E501
+
+    def contract(  # noqa: F811
         self, address: Union[Address, ChecksumAddress, ENS]=None, **kwargs: Any
-    ) -> Any:
+    ) -> Union[Type[Contract], Contract]:
         ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
 
         ContractFactory = ContractFactoryClass.factory(self.web3, **kwargs)
