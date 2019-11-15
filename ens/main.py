@@ -126,7 +126,7 @@ class ENS:
         self,
         name: str,
         address: Union[Address, ChecksumAddress, HexAddress]=cast(ChecksumAddress, default),
-        transact: 'TxParams'={}
+        transact: "TxParams"={}
     ) -> Hash32:
         """
         Set up the name to point to the supplied address.
@@ -165,7 +165,7 @@ class ENS:
 
     @dict_copy
     def setup_name(
-        self, name: str, address: ChecksumAddress=None, transact: 'TxParams'={}
+        self, name: str, address: ChecksumAddress=None, transact: "TxParams"={}
     ) -> Hash32:
         """
         Set up the address for reverse lookup, aka "caller ID".
@@ -250,7 +250,7 @@ class ENS:
         self,
         name: str,
         new_owner: ChecksumAddress=cast(ChecksumAddress, default),
-        transact: 'TxParams'={}
+        transact: "TxParams"={}
     ) -> ChecksumAddress:
         """
         Set the owner of the supplied name to `new_owner`.
@@ -323,7 +323,7 @@ class ENS:
         unowned: Sequence[str],
         owned: str,
         old_owner: ChecksumAddress=None,
-        transact: 'TxParams'={}
+        transact: "TxParams"={}
     ) -> None:
         transact['from'] = old_owner or owner
         for label in reversed(unowned):
@@ -336,7 +336,7 @@ class ENS:
 
     @dict_copy
     def _set_resolver(
-        self, name: str, resolver_addr: ChecksumAddress=None, transact: 'TxParams'={}
+        self, name: str, resolver_addr: ChecksumAddress=None, transact: "TxParams"={}
     ) -> 'Contract':
         if is_none_or_zero_address(resolver_addr):
             resolver_addr = self.address('resolver.eth')
@@ -350,7 +350,7 @@ class ENS:
 
     @dict_copy
     def _setup_reverse(
-        self, name: str, address: ChecksumAddress, transact: 'TxParams'={}
+        self, name: str, address: ChecksumAddress, transact: "TxParams"={}
     ) -> Hash32:
         if name:
             name = normalize_name(name)

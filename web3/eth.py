@@ -37,6 +37,9 @@ from hexbytes import (
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
+from web3._utils.compat import (
+    Literal,
+)
 from web3._utils.empty import (
     empty,
 )
@@ -95,7 +98,7 @@ from web3.types import (
 class Eth(Module):
     account = Account()
     defaultAccount = empty
-    defaultBlock = "latest"
+    defaultBlock: Literal["latest"] = "latest"  # noqa: E704
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
     gasPriceStrategy = None

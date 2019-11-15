@@ -75,7 +75,9 @@ ABIFunction = TypedDict("ABIFunction", {
 ABI = Sequence[Union[ABIFunction, ABIEvent]]
 
 
-BlockIdentifier = Union[str, BlockNumber, Hash32]
+BlockParams = Literal["latest", "earliest", "pending"]
+
+BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr]
 
 
 ENS = NewType("ENS", str)
@@ -237,3 +239,25 @@ Uncle = TypedDict("Uncle", {
     'transactionsRoot': Hash32,
     'uncles': Sequence[Hash32]
 })
+
+
+# web3.parity types
+ParityBlockTrace = NewType("ParityBlockTrace", Dict[str, Any])
+ParityFilterTrace = NewType("ParityFilterTrace", Dict[str, Any])
+ParityEnodeURI = NewType("ParityEnodeURI", str)
+ParityMode = Literal["active", "passive", "dark", "offline"]
+ParityTraceMode = Sequence[Literal["trace", "vmTrace", "stateDiff"]]
+ParityNetPeers = TypedDict("ParityNetPeers", {
+    "active": int,
+    "connected": int,
+    "max": int,
+    "peers": List[Dict[Any, Any]],
+})
+ParityFilterParams = TypedDict("ParityFilterParams", {
+    "fromBlock": BlockIdentifier,
+    "toBlock": BlockIdentifier,
+    "fromAddress": Sequence[Union[Address, ChecksumAddress, ENS]],
+    "toAddress": Sequence[Union[Address, ChecksumAddress, ENS]],
+    "after": int,
+    "count": int,
+}, total=False)
