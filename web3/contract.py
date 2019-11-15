@@ -3,7 +3,7 @@
 """
 import copy
 import itertools
-from typing import (
+from typing import (  # noqa: F401
     TYPE_CHECKING,
     Any,
     Callable,
@@ -12,6 +12,7 @@ from typing import (
     Generator,
     Iterable,
     List,
+    MutableMapping,
     NoReturn,
     Optional,
     Sequence,
@@ -128,12 +129,13 @@ from web3.logs import (
     WARN,
     EventLogErrorFlags,
 )
-from web3.types import (
+from web3.types import (  # noqa: F401
     ABI,
     ABIEvent,
     ABIFunction,
     BlockIdentifier,
     EventData,
+    LogParams,
     TxParams,
     TxReceipt,
 )
@@ -1083,7 +1085,7 @@ class ContractEvent:
                 if errors == DISCARD:
                     continue
                 elif errors == IGNORE:
-                    new_log = MutableAttributeDict(log)
+                    new_log: LogParams = MutableAttributeDict(log)
                     new_log['errors'] = e
                     rich_log = AttributeDict(cast(Dict[Any, Any], new_log))
                 elif errors == STRICT:

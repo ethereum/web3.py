@@ -93,6 +93,9 @@ from web3.providers.websocket import (
 from web3.testing import (
     Testing,
 )
+from web3.types import (
+    Middleware,
+)
 from web3.version import (
     Version,
 )
@@ -172,7 +175,7 @@ class Web3:
         self.ens = ens
 
     @property
-    def middleware_onion(self) -> NamedElementOnion:
+    def middleware_onion(self) -> NamedElementOnion[str, Middleware]:
         return self.manager.middleware_onion
 
     @property

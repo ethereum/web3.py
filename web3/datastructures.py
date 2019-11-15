@@ -13,7 +13,9 @@ from typing import (  # noqa: F401
     Mapping,
     MutableMapping,
     Sequence,
+    Type,
     TypeVar,
+    Union,
     cast,
 )
 
@@ -29,21 +31,23 @@ from web3._utils.formatters import (
 # "the implementation of hashable collections requires that a key's hash value is immutable"
 # https://docs.python.org/3/reference/datamodel.html#object.__hash__
 
+T = TypeVar("T")
+TKey = TypeVar("TKey", bound=Hashable)
+TValue = TypeVar("TValue")
 
-pretty = TypeVar("pretty", bound=Any)
 
-
-class ReadableAttributeDict(Mapping[Any, Any]):
+class ReadableAttributeDict(Mapping[TKey, TValue]):
     """
     The read attributes for the AttributeDict types
     """
 
-    def __init__(self, dictionary: Dict[Any, Any], *args: Any, **kwargs: Any) -> None:
-        self.__dict__ = dict(dictionary)
+    def __init__(self, dictionary: Dict[TKey, TValue], *args: Any, **kwargs: Any) -> None:
+        # type ignored on 46/50 b/c dict() expects str index type not TKey
+        self.__dict__ = dict(dictionary)  # type: ignore
         self.__dict__.update(dict(*args, **kwargs))
 
-    def __getitem__(self, key: Any) -> Any:
-        return self.__dict__[key]
+    def __getitem__(self, key: TKey) -> TValue:
+        return self.__dict__[key]  # type: ignore
 
     def __iter__(self) -> Iterator[Any]:
         return iter(self.__dict__)
@@ -54,7 +58,7 @@ class ReadableAttributeDict(Mapping[Any, Any]):
     def __repr__(self) -> str:
         return self.__class__.__name__ + "(%r)" % self.__dict__
 
-    def _repr_pretty_(self, builder: pretty, cycle: bool) -> None:
+    def _repr_pretty_(self, builder: Any, cycle: bool) -> None:
         """
         Custom pretty output for the IPython console
         https://ipython.readthedocs.io/en/stable/api/generated/IPython.lib.pretty.html#extending
@@ -67,18 +71,19 @@ class ReadableAttributeDict(Mapping[Any, Any]):
         builder.text(")")
 
     @classmethod
-    def _apply_if_mapping(cls, value: Any) -> Any:
+    def _apply_if_mapping(cls: Type[T], value: TValue) -> Union[T, TValue]:
         if isinstance(value, Mapping):
-            return cls(cast(Dict[Any, Any], value))
+            # error: Too many arguments for "object"
+            return cls(value)  # type: ignore
         else:
             return value
 
     @classmethod
-    def recursive(cls, value: Any) -> Mapping[Any, Any]:
+    def recursive(cls, value: TValue) -> 'ReadableAttributeDict[TKey, TValue]':
         return recursive_map(cls._apply_if_mapping, value)
 
 
-class MutableAttributeDict(MutableMapping[Any, Any], ReadableAttributeDict):
+class MutableAttributeDict(MutableMapping[Any, Any], ReadableAttributeDict[TKey, TValue]):
 
     def __setitem__(self, key: Any, val: Any) -> None:
         self.__dict__[key] = val
@@ -87,7 +92,7 @@ class MutableAttributeDict(MutableMapping[Any, Any], ReadableAttributeDict):
         del self.__dict__[key]
 
 
-class AttributeDict(ReadableAttributeDict, Hashable):
+class AttributeDict(ReadableAttributeDict[TKey, TValue], Hashable):
     """
     This provides superficial immutability, someone could hack around it
     """
@@ -111,14 +116,14 @@ class AttributeDict(ReadableAttributeDict, Hashable):
             return False
 
 
-class NamedElementOnion(Mapping[Any, Any]):
+class NamedElementOnion(Mapping[TKey, TValue]):
     """
     Add layers to an onion-shaped structure. Optionally, inject to a specific layer.
     This structure is iterable, where the outermost layer is first, and innermost is last.
     """
 
     def __init__(
-        self, init_elements: Sequence[Any], valid_element: Callable[..., Any]=callable
+        self, init_elements: Sequence[Any], valid_element: Callable[..., bool]=callable
     ) -> None:
         self._queue: 'OrderedDict[Any, Any]' = OrderedDict()
         for element in reversed(init_elements):
@@ -127,9 +132,9 @@ class NamedElementOnion(Mapping[Any, Any]):
             else:
                 self.add(*element)
 
-    def add(self, element: Any, name: str=None) -> None:
+    def add(self, element: TValue, name: TKey=None) -> None:
         if name is None:
-            name = element
+            name = cast(TKey, element)
 
         if name in self._queue:
             if name is element:
@@ -139,7 +144,7 @@ class NamedElementOnion(Mapping[Any, Any]):
 
         self._queue[name] = element
 
-    def inject(self, element: Any, name: str=None, layer: int=None) -> None:
+    def inject(self, element: TValue, name: TKey=None, layer: int=None) -> None:
         """
         Inject a named element to an arbitrary layer in the onion.
 
@@ -163,7 +168,7 @@ class NamedElementOnion(Mapping[Any, Any]):
 
         if layer == 0:
             if name is None:
-                name = element
+                name = cast(TKey, element)
             self._queue.move_to_end(name, last=False)
         elif layer == len(self._queue):
             return
@@ -173,7 +178,7 @@ class NamedElementOnion(Mapping[Any, Any]):
     def clear(self) -> None:
         self._queue.clear()
 
-    def replace(self, old: Any, new: Any) -> Any:
+    def replace(self, old: TKey, new: TKey) -> TValue:
         if old not in self._queue:
             raise ValueError("You can't replace unless one already exists, use add instead")
         to_be_replaced = self._queue[old]
@@ -184,12 +189,12 @@ class NamedElementOnion(Mapping[Any, Any]):
             self._queue[old] = new
         return to_be_replaced
 
-    def remove(self, old: Any) -> None:
+    def remove(self, old: TKey) -> None:
         if old not in self._queue:
             raise ValueError("You can only remove something that has been added")
         del self._queue[old]
 
-    def _replace_with_new_name(self, old: Any, new: Any) -> None:
+    def _replace_with_new_name(self, old: TKey, new: TKey) -> None:
         self._queue[new] = new
         found_old = False
         for key in list(self._queue.keys()):
@@ -201,13 +206,14 @@ class NamedElementOnion(Mapping[Any, Any]):
                 self._queue.move_to_end(key)
         del self._queue[old]
 
-    def __iter__(self) -> Iterator[Any]:
-        elements = cast(List[Any], self._queue.values())
+    def __iter__(self) -> Iterator[TKey]:
+        elements = self._queue.values()
         if not isinstance(elements, Sequence):
-            elements = list(elements)
+            # type ignored b/c elements is set as _OrderedDictValuesView[Any] on 210
+            elements = list(elements)  # type: ignore
         return iter(reversed(elements))
 
-    def __add__(self, other: Any) -> 'NamedElementOnion':
+    def __add__(self, other: Any) -> 'NamedElementOnion[TKey, TValue]':
         if not isinstance(other, NamedElementOnion):
             raise NotImplementedError("You can only combine with another NamedElementOnion")
         combined = self._queue.copy()
@@ -217,13 +223,13 @@ class NamedElementOnion(Mapping[Any, Any]):
     def __contains__(self, element: Any) -> bool:
         return element in self._queue
 
-    def __getitem__(self, element: Any) -> Any:
+    def __getitem__(self, element: TKey) -> TValue:
         return self._queue[element]
 
     def __len__(self) -> int:
         return len(self._queue)
 
-    def __reversed__(self) -> Iterator[Any]:
+    def __reversed__(self) -> Iterator[TValue]:
         elements = cast(List[Any], self._queue.values())
         if not isinstance(elements, Sequence):
             elements = list(elements)
