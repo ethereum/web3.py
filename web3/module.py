@@ -3,7 +3,6 @@ from typing import (
     Any,
     Callable,
     Coroutine,
-    Dict,
     Union,
 )
 
@@ -25,7 +24,7 @@ if TYPE_CHECKING:
 
 @curry
 def apply_result_formatters(
-    result_formatters: Dict[str, Any], result: JsonRpcResponse
+    result_formatters: Callable[..., Any], result: JsonRpcResponse
 ) -> JsonRpcResponse:
     if result_formatters:
         formatted_result = pipe(result, result_formatters)

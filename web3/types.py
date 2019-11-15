@@ -19,6 +19,9 @@ from eth_typing import (
 from hexbytes import (
     HexBytes,
 )
+from typing_extensions import (
+    Literal,
+)
 
 from web3._utils.compat import (
     TypedDict,
@@ -89,7 +92,20 @@ EventData = TypedDict("EventData", {
     "blockNumber": int,
 })
 
-JsonRpcResponse = Dict[str, Any]
+
+JsonRpcError = TypedDict("JsonRpcError", {
+    "code": int,
+    "message": str,
+})
+
+
+JsonRpcResponse = TypedDict("JsonRpcResponse", {
+    "id": int,
+    "jsonrpc": Literal["2.0"],
+    "result": Any,
+    "error": JsonRpcError,
+}, total=False)
+
 
 FilterParams = TypedDict("FilterParams", {
     "from": Union["earliest", "pending", "latest", BlockNumber],
