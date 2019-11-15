@@ -130,6 +130,8 @@ TxParams = TypedDict("TxParams", {
 
 # this Any should be updated to Web3 once all type hints land
 GasPriceStrategy = Callable[[Any, TxParams], Wei]
+# 2 input to parent callable Any should be updated to Web3 once all type hints land
+Middleware = Callable[[Callable[[str, Any], JsonRpcResponse], Any], Any]
 
 
 LogParams = TypedDict("LogParams", {
