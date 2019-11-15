@@ -3,10 +3,10 @@ from typing import (  # noqa: F401
     TYPE_CHECKING,
     Any,
     Callable,
-    Collection,
     Dict,
     List,
     NoReturn,
+    Sequence,
     Tuple,
 )
 import uuid
@@ -66,7 +66,7 @@ class RequestManager:
         self,
         web3: 'Web3',
         provider: BaseProvider=None,
-        middlewares: Collection[Tuple[Middleware, str]]=None
+        middlewares: Sequence[Tuple[Middleware, str]]=None
     ) -> None:
         self.web3 = web3
         self.pending_requests: Dict[UUID, ThreadWithReturn] = {}
@@ -74,7 +74,7 @@ class RequestManager:
         if middlewares is None:
             middlewares = self.default_middlewares(web3)
 
-        self.middleware_onion = NamedElementOnion(middlewares)
+        self.middleware_onion: NamedElementOnion[str, Middleware] = NamedElementOnion(middlewares)
 
         if provider is None:
             self.provider = AutoProvider()
