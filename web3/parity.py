@@ -1,6 +1,7 @@
 from typing import (
     Any,
     Dict,
+    List,
     NewType,
     Sequence,
     Union,
@@ -58,7 +59,7 @@ NetPeers = TypedDict("NetPeers", {
     "active": int,
     "connected": int,
     "max": int,
-    "peers": Sequence[Dict[Any, Any]],
+    "peers": List[Dict[Any, Any]],
 })
 FilterParams = TypedDict("FilterParams", {
     "fromBlock": BlockIdentifier,
@@ -135,7 +136,7 @@ class Parity(Module):
         quantity: int,
         hash_: Hash32,
         block_identifier: BlockIdentifier=None,
-    ) -> Sequence[Hash32]:
+    ) -> List[Hash32]:
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
@@ -165,25 +166,25 @@ class Parity(Module):
 
     def traceReplayBlockTransactions(
         self, block_identifier: BlockIdentifier, mode: TraceMode=['trace']
-    ) -> Sequence[BlockTrace]:
+    ) -> List[BlockTrace]:
         return self.web3.manager.request_blocking(
             "trace_replayBlockTransactions",
             [block_identifier, mode]
         )
 
-    def traceBlock(self, block_identifier: BlockIdentifier) -> Sequence[BlockTrace]:
+    def traceBlock(self, block_identifier: BlockIdentifier) -> List[BlockTrace]:
         return self.web3.manager.request_blocking(
             "trace_block",
             [block_identifier]
         )
 
-    def traceFilter(self, params: FilterParams) -> Sequence[FilterTrace]:
+    def traceFilter(self, params: FilterParams) -> List[FilterTrace]:
         return self.web3.manager.request_blocking(
             "trace_filter",
             [params]
         )
 
-    def traceTransaction(self, transaction_hash: Hash32) -> Sequence[FilterTrace]:
+    def traceTransaction(self, transaction_hash: Hash32) -> List[FilterTrace]:
         return self.web3.manager.request_blocking(
             "trace_transaction",
             [transaction_hash]
@@ -194,7 +195,7 @@ class Parity(Module):
         transaction: TxParams,
         mode: TraceMode=['trace'],
         block_identifier: BlockIdentifier=None
-    ) -> Sequence[BlockTrace]:
+    ) -> List[BlockTrace]:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.web3.eth.defaultAccount):
             transaction = assoc(transaction, 'from', self.web3.eth.defaultAccount)
@@ -209,7 +210,7 @@ class Parity(Module):
 
     def traceRawTransaction(
         self, raw_transaction: HexStr, mode: TraceMode=['trace']
-    ) -> Sequence[BlockTrace]:
+    ) -> List[BlockTrace]:
         return self.web3.manager.request_blocking(
             "trace_rawTransaction",
             [raw_transaction, mode],
