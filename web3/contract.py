@@ -3,7 +3,7 @@
 """
 import copy
 import itertools
-from typing import (  # noqa: F401
+from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
@@ -12,7 +12,6 @@ from typing import (  # noqa: F401
     Generator,
     Iterable,
     List,
-    MutableMapping,
     NoReturn,
     Optional,
     Sequence,
@@ -1087,7 +1086,7 @@ class ContractEvent:
                 elif errors == IGNORE:
                     new_log: LogParams = MutableAttributeDict(log)
                     new_log['errors'] = e
-                    rich_log = AttributeDict(cast(Dict[Any, Any], new_log))
+                    rich_log = AttributeDict(new_log)
                 elif errors == STRICT:
                     raise e
                 else:

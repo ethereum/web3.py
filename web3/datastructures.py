@@ -4,7 +4,7 @@ from collections import (
 from collections.abc import (
     Hashable,
 )
-from typing import (  # noqa: F401
+from typing import (
     Any,
     Callable,
     Dict,
@@ -83,7 +83,7 @@ class ReadableAttributeDict(Mapping[TKey, TValue]):
         return recursive_map(cls._apply_if_mapping, value)
 
 
-class MutableAttributeDict(MutableMapping[Any, Any], ReadableAttributeDict[TKey, TValue]):
+class MutableAttributeDict(MutableMapping[TKey, TValue], ReadableAttributeDict[TKey, TValue]):
 
     def __setitem__(self, key: Any, val: Any) -> None:
         self.__dict__[key] = val
@@ -97,13 +97,13 @@ class AttributeDict(ReadableAttributeDict[TKey, TValue], Hashable):
     This provides superficial immutability, someone could hack around it
     """
 
-    def __setattr__(self, attr: Any, val: Any) -> None:
+    def __setattr__(self, attr: str, val: TValue) -> None:
         if attr == '__dict__':
             super().__setattr__(attr, val)
         else:
             raise TypeError('This data is immutable -- create a copy instead of modifying')
 
-    def __delattr__(self, key: Any) -> None:
+    def __delattr__(self, key: str) -> None:
         raise TypeError('This data is immutable -- create a copy instead of modifying')
 
     def __hash__(self) -> int:
