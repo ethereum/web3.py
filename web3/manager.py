@@ -1,7 +1,8 @@
 import logging
-from typing import (
+from typing import (  # noqa: F401
     TYPE_CHECKING,
     Any,
+    Callable,
     Collection,
     Dict,
     List,
@@ -49,7 +50,7 @@ if TYPE_CHECKING:
 
 
 def apply_error_formatters(
-    error_formatters: Dict[str, Any], response: JsonRpcResponse
+    error_formatters: Callable[..., Any], response: JsonRpcResponse
 ) -> JsonRpcResponse:
     if 'error' in response and error_formatters:
         formatted_response = pipe(response, error_formatters)
@@ -128,7 +129,7 @@ class RequestManager:
         return await request_func(method, params)
 
     def request_blocking(
-        self, method: str, params: Any, error_formatters: Dict[str, Any]=None
+        self, method: str, params: Any, error_formatters: Callable[..., Any]=None
     ) -> Any:
         """
         Make a synchronous request using the provider
@@ -142,7 +143,7 @@ class RequestManager:
         return response['result']
 
     async def coro_request(
-        self, method: str, params: Any, error_formatters: Dict[str, Any]=None
+        self, method: str, params: Any, error_formatters: Callable[..., Any]=None
     ) -> Any:
         """
         Couroutine for making a request using the provider
