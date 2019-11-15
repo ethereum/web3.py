@@ -1,5 +1,9 @@
 from typing import (
     TYPE_CHECKING,
+    Any,
+    Callable,
+    Coroutine,
+    Union,
 )
 
 from eth_utils.toolz import (
@@ -7,12 +11,21 @@ from eth_utils.toolz import (
     pipe,
 )
 
+from web3.method import (
+    Method,
+)
+from web3.types import (
+    JsonRpcResponse,
+)
+
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
 
 @curry
-def apply_result_formatters(result_formatters, result):
+def apply_result_formatters(
+    result_formatters: Callable[..., Any], result: JsonRpcResponse
+) -> JsonRpcResponse:
     if result_formatters:
         formatted_result = pipe(result, result_formatters)
         return formatted_result
@@ -21,8 +34,10 @@ def apply_result_formatters(result_formatters, result):
 
 
 @curry
-def retrieve_blocking_method_call_fn(w3, module, method):
-    def caller(*args, **kwargs):
+def retrieve_blocking_method_call_fn(
+    w3: "Web3", module: Union["Module", "ModuleV2"], method: Method
+) -> Callable[..., JsonRpcResponse]:
+    def caller(*args: Any, **kwargs: Any) -> JsonRpcResponse:
         (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)
         result_formatters, error_formatters = response_formatters
         result = w3.manager.request_blocking(method_str, params, error_formatters)
@@ -31,8 +46,10 @@ def retrieve_blocking_method_call_fn(w3, module, method):
 
 
 @curry
-def retrieve_async_method_call_fn(w3, module, method):
-    async def caller(*args, **kwargs):
+def retrieve_async_method_call_fn(
+    w3: "Web3", module: Union["Module", "ModuleV2"], method: Method
+) -> Callable[..., Coroutine[Any, Any, JsonRpcResponse]]:
+    async def caller(*args: Any, **kwargs: Any) -> JsonRpcResponse:
         (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)
         result_formatters, error_formatters = response_formatters
         result = await w3.manager.coro_request(method_str, params, error_formatters)
@@ -44,11 +61,11 @@ def retrieve_async_method_call_fn(w3, module, method):
 class Module:
     web3: "Web3" = None
 
-    def __init__(self, web3):
+    def __init__(self, web3: "Web3") -> None:
         self.web3 = web3
 
     @classmethod
-    def attach(cls, target, module_name=None):
+    def attach(cls, target: "Web3", module_name: str=None) -> None:
         if not module_name:
             module_name = cls.__name__.lower()
 
@@ -76,7 +93,7 @@ class Module:
 class ModuleV2(Module):
     is_async = False
 
-    def __init__(self, web3):
+    def __init__(self, web3: "Web3") -> None:
         if self.is_async:
             self.retrieve_caller_fn = retrieve_async_method_call_fn(web3, self)
         else:
