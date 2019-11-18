@@ -95,7 +95,7 @@ def test_event_data_extraction(web3,
     else:
         assert event_topic in log_entry['topics']
 
-    event_data = get_event_data(event_abi, log_entry)
+    event_data = get_event_data(web3.codec, event_abi, log_entry)
 
     assert event_data['args'] == expected_args
     assert event_data['blockHash'] == txn_receipt['blockHash']
@@ -126,7 +126,7 @@ def test_dynamic_length_argument_extraction(web3,
     string_0_topic = web3.keccak(text=string_0)
     assert string_0_topic in log_entry['topics']
 
-    event_data = get_event_data(event_abi, log_entry)
+    event_data = get_event_data(web3.codec, event_abi, log_entry)
 
     expected_args = {
         "arg0": string_0_topic,

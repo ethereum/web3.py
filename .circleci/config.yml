@@ -179,7 +179,8 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-ethpm
-      WEB3_INFURA_PROJECT_ID: 4f1a358967c7474aae6f8f4a7698aefc
+      # Please don't use this key for any shenanigans
+      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
 
   py36-integration-goethereum-ipc-1.7.2:
     <<: *geth_steps
@@ -286,7 +287,8 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-ethpm
-      WEB3_INFURA_PROJECT_ID: 4f1a358967c7474aae6f8f4a7698aefc
+      # Please don't use this key for any shenanigans
+      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
 
   py37-integration-goethereum-ipc-1.7.2:
     <<: *geth_steps
@@ -370,6 +372,114 @@ jobs:
     environment:
       TOXENV: py37-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+  #
+  # Python 3.8
+  #
+  py38-core:
+    <<: *common
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-core
+
+  py38-ens:
+    <<: *common
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-ens
+
+  py38-ethpm:
+    <<: *ethpm_steps
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-ethpm
+      # Please don't use this key for any shenanigans
+      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
+
+  py38-integration-goethereum-ipc-1.7.2:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-ipc
+      GETH_VERSION: v1.7.2
+
+  py38-integration-goethereum-http-1.7.2:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-http
+      GETH_VERSION: v1.7.2
+
+  py38-integration-goethereum-ws-1.7.2:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-ws
+      GETH_VERSION: v1.7.2
+
+  py38-integration-goethereum-ipc-1.8.22:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-ipc
+      GETH_VERSION: v1.8.22
+
+  py38-integration-goethereum-http-1.8.22:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-http
+      GETH_VERSION: v1.8.22
+
+  py38-integration-goethereum-ws-1.8.22:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-ws
+      GETH_VERSION: v1.8.22
+
+  py38-integration-parity-ipc:
+    <<: *parity_steps
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-integration-parity-ipc
+      PARITY_VERSION: v2.3.5
+      PARITY_OS: linux
+
+  py38-integration-parity-http:
+    <<: *parity_steps
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-integration-parity-http
+      PARITY_VERSION: v2.3.5
+      PARITY_OS: linux
+
+  py38-integration-parity-ws:
+    <<: *parity_steps
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-integration-parity-ws
+      PARITY_VERSION: v2.3.5
+      PARITY_OS: linux
+
+  py38-integration-ethtester-pyevm:
+    <<: *common
+    docker:
+      - image: circleci/python:3.8
+    environment:
+      TOXENV: py38-integration-ethtester
+      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
 workflows:
   version: 2
@@ -403,3 +513,16 @@ workflows:
       - py37-integration-parity-http
       - py37-integration-parity-ws
       - py37-integration-ethtester-pyevm
+      - py38-core
+      - py38-ens
+      - py38-ethpm
+      - py38-integration-goethereum-ipc-1.7.2
+      - py38-integration-goethereum-http-1.7.2
+      - py38-integration-goethereum-ws-1.7.2
+      - py38-integration-goethereum-ipc-1.8.22
+      - py38-integration-goethereum-http-1.8.22
+      - py38-integration-goethereum-ws-1.8.22
+      - py38-integration-parity-ipc
+      - py38-integration-parity-http
+      - py38-integration-parity-ws
+      - py38-integration-ethtester-pyevm

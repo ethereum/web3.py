@@ -15,12 +15,15 @@ from eth_keys.datatypes import (
 from eth_utils import (
     to_dict,
 )
+from eth_utils.curried import (
+    apply_formatter_if,
+)
 from eth_utils.toolz import (
     compose,
 )
 
-from web3._utils.formatters import (
-    apply_formatter_if,
+from web3._utils.method_formatters import (
+    STANDARD_NORMALIZERS,
 )
 from web3._utils.rpc_abi import (
     TRANSACTION_PARAMS_ABIS,
@@ -29,10 +32,6 @@ from web3._utils.rpc_abi import (
 from web3._utils.transactions import (
     fill_nonce,
     fill_transaction_defaults,
-)
-
-from .abi import (
-    STANDARD_NORMALIZERS,
 )
 
 to_hexstr_from_eth_key = operator.methodcaller('to_hex')
@@ -75,7 +74,7 @@ def _(val):
 
 def private_key_to_account(val):
     normalized_key = key_normalizer(val)
-    return Account.privateKeyToAccount(normalized_key)
+    return Account.from_key(normalized_key)
 
 
 to_account.register(PrivateKey, private_key_to_account)

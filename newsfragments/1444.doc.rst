@@ -1,1 +1,0 @@
-Add example using Geth POA Middleware with Infura Rinkeby Node
