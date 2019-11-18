@@ -11,6 +11,8 @@ from typing import (
     Dict,
     Iterable,
     Tuple,
+    Type,
+    TypeVar,
     Union,
     cast,
 )
@@ -73,6 +75,8 @@ from web3.types import (
 # >>> w3.enable_unstable_package_management_api()
 # >>> w3.pm
 # <web3.pm.PM at 0x....>
+
+T = TypeVar("T")
 
 
 class ERC1319Registry(ABC):
@@ -154,7 +158,7 @@ class ERC1319Registry(ABC):
         pass
 
     @abstractmethod
-    def _get_all_release_ids(self, package_name: str) -> Iterable[Tuple[bytes]]:
+    def _get_all_release_ids(self, package_name: str) -> Iterable[bytes]:
         """
         Returns a tuple containg all of the release ids belonging to the given package name,
         if the package has releases on the connected registry.
@@ -206,8 +210,9 @@ class ERC1319Registry(ABC):
         """
         pass
 
+    @classmethod
     @abstractmethod
-    def deploy_new_instance(cls, w3: Web3) -> 'ERC1319Registry':
+    def deploy_new_instance(cls: Type[T], w3: Web3) -> T:
         """
         Class method that returns a newly deployed instance of ERC1319Registry.
 
@@ -263,7 +268,7 @@ class SimpleRegistry(ERC1319Registry):
         return self.registry.functions.getReleaseId(package_name, version).call()
 
     @to_tuple
-    def _get_all_release_ids(self, package_name: str) -> Iterable[Tuple[bytes]]:
+    def _get_all_release_ids(self, package_name: str) -> Iterable[bytes]:
         num_releases = self._num_release_ids(package_name)
         pointer = 0
         while pointer < num_releases:
