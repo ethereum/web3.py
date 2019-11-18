@@ -1,6 +1,5 @@
 import asyncio
 import pytest
-import sys
 from threading import (
     Thread,
 )
