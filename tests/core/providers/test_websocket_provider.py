@@ -3,6 +3,7 @@ from concurrent.futures import (
     TimeoutError,
 )
 import pytest
+from unittest.mock import patch
 from threading import (
     Thread,
 )
@@ -51,11 +52,15 @@ def w3(open_port, start_websocket_server):
     provider = WebsocketProvider(endpoint_uri, websocket_timeout=0.01)
     return Web3(provider)
 
-
 def test_websocket_provider_timeout(w3):
     with pytest.raises(TimeoutError):
         w3.eth.accounts
 
+@patch('web3.providers.websocket.WebsocketProvider.coro_make_request')
+def test_websocket_provider_future_timeout(coro_make_request_mock, w3):
+    coro_make_request_mock.side_effect = asyncio.coroutine(lambda o: asyncio.sleep(0.02))
+    with pytest.raises(TimeoutError):
+        w3.provider.make_request('method', 'param')
 
 def test_restricted_websocket_kwargs():
     invalid_kwargs = {'uri': 'ws://127.0.0.1:8546'}
