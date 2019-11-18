@@ -75,7 +75,9 @@ ABIFunction = TypedDict("ABIFunction", {
 ABI = Sequence[Union[ABIFunction, ABIEvent]]
 
 
+LatestBlockParam = Literal["latest"]
 BlockParams = Literal["latest", "earliest", "pending"]
+
 
 BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr]
 
@@ -95,17 +97,30 @@ EventData = TypedDict("EventData", {
 })
 
 
-JsonRpcError = TypedDict("JsonRpcError", {
+RPCError = TypedDict("RPCError", {
     "code": int,
     "message": str,
 })
 
 
-JsonRpcResponse = TypedDict("JsonRpcResponse", {
+RPCResponse = TypedDict("RPCResponse", {
     "id": int,
     "jsonrpc": Literal["2.0"],
     "result": Any,
-    "error": JsonRpcError,
+    "error": RPCError,
+}, total=False)
+
+
+RPCEndpoint = NewType("RPCEndpoint", str)
+
+
+Formatters = Dict[RPCEndpoint, Callable[..., Any]]
+
+
+FormattersDict = TypedDict("FormattersDict", {
+    "request_formatters": Formatters,
+    "result_formatters": Formatters,
+    "error_formatters": Formatters,
 }, total=False)
 
 
@@ -124,14 +139,14 @@ TxParams = TypedDict("TxParams", {
     "from": Union[Address, ChecksumAddress, str],
     "to": Union[Address, ChecksumAddress, str],
     "value": Wei,
-    "data": Union[bytes, str],
+    "data": Union[bytes, HexStr],
 }, total=False)
 
 
 # this Any should be updated to Web3 once all type hints land
 GasPriceStrategy = Callable[[Any, TxParams], Wei]
 # 2 input to parent callable Any should be updated to Web3 once all type hints land
-Middleware = Callable[[Callable[[str, Any], JsonRpcResponse], Any], Any]
+Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], Any], Any]
 
 
 LogParams = TypedDict("LogParams", {

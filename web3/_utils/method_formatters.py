@@ -1,5 +1,10 @@
 import codecs
 import operator
+from typing import (
+    Any,
+    Callable,
+    Dict,
+)
 
 from eth_utils.curried import (
     apply_formatter_at_index,
@@ -57,6 +62,9 @@ from web3._utils.rpc_abi import (
 )
 from web3.datastructures import (
     AttributeDict,
+)
+from web3.types import (
+    RPCEndpoint,
 )
 
 
@@ -299,7 +307,7 @@ FILTER_PARAM_NORMALIZERS = apply_formatters_to_dict({
     'address': apply_formatter_if(is_string, lambda x: [x])
 })
 
-PYTHONIC_REQUEST_FORMATTERS = {
+PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     'eth_getBalance': apply_formatter_at_index(block_number_formatter, 1),
     'eth_getBlockByNumber': apply_formatter_at_index(block_number_formatter, 0),
@@ -351,7 +359,7 @@ PYTHONIC_REQUEST_FORMATTERS = {
 }
 
 
-PYTHONIC_RESULT_FORMATTERS = {
+PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     'eth_accounts': apply_list_to_array_formatter(to_checksum_address),
     'eth_blockNumber': to_integer_if_hex,
@@ -419,7 +427,7 @@ ATTRDICT_FORMATTER = {
     '*': apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
 }
 
-METHOD_NORMALIZERS = {
+METHOD_NORMALIZERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     'eth_getLogs': apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0),
     'eth_newFilter': apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0)
 }

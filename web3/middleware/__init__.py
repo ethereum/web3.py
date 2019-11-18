@@ -1,5 +1,16 @@
 import functools
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Sequence,
+)
 
+from web3.types import (
+    RPCEndpoint,
+    RPCResponse,
+    Middleware,
+)
 from .abi import (  # noqa: F401
     abi_middleware,
 )
@@ -59,8 +70,15 @@ from .validation import (  # noqa: F401
     validation_middleware,
 )
 
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
-def combine_middlewares(middlewares, web3, provider_request_fn):
+
+def combine_middlewares(
+    middlewares: Sequence[Middleware],
+    web3: 'Web3',
+    provider_request_fn: Callable[[RPCEndpoint, Any], Any]
+) -> Callable[..., RPCResponse]:
     """
     Returns a callable function which will call the provider.provider_request
     function wrapped with all of the middlewares.
