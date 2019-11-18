@@ -1,3 +1,7 @@
+from typing import (
+    NoReturn,
+)
+
 from web3.method import (
     Method,
 )
@@ -14,7 +18,7 @@ class BaseVersion(ModuleV2):
     _get_protocol_version = Method('eth_protocolVersion')
 
     @property
-    def api(self):
+    def api(self) -> str:
         from web3 import __version__
         return __version__
 
@@ -23,39 +27,39 @@ class AsyncVersion(BaseVersion):
     is_async = True
 
     @property
-    async def node(self):
+    async def node(self) -> str:
         return await self._get_node_version()
 
     @property
-    async def ethereum(self):
+    async def ethereum(self) -> int:
         return await self._get_protocol_version()
 
 
 class BlockingVersion(BaseVersion):
     @property
-    def node(self):
+    def node(self) -> str:
         return self._get_node_version()
 
     @property
-    def ethereum(self):
+    def ethereum(self) -> int:
         return self._get_protocol_version()
 
 
 class Version(Module):
     @property
-    def api(self):
+    def api(self) -> NoReturn:
         raise DeprecationWarning(
             "This method has been deprecated ... Please use web3.api instead."
         )
 
     @property
-    def node(self):
+    def node(self) -> NoReturn:
         raise DeprecationWarning(
             "This method has been deprecated ... Please use web3.clientVersion instead."
         )
 
     @property
-    def ethereum(self):
+    def ethereum(self) -> NoReturn:
         raise DeprecationWarning(
             "This method has been deprecated ... Please use web3.eth.protocolVersion instead."
         )
