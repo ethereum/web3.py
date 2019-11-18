@@ -2,9 +2,6 @@ from abc import (
     ABC,
     abstractmethod,
 )
-from collections import (
-    namedtuple,
-)
 import json
 from pathlib import (
     Path,
@@ -13,6 +10,7 @@ from typing import (
     Any,
     Dict,
     Iterable,
+    NamedTuple,
     Tuple,
     Type,
     TypeVar,
@@ -79,8 +77,13 @@ from web3.types import (
 # >>> w3.pm
 # <web3.pm.PM at 0x....>
 
-ReleaseData = namedtuple("ReleaseData", ["package_name", "version", "manifest_uri"])
 T = TypeVar("T")
+
+
+class ReleaseData(NamedTuple):
+    package_name: str
+    version: str
+    manifest_uri: URI
 
 
 class ERC1319Registry(ABC):
