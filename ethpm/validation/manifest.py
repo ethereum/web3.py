@@ -1,9 +1,13 @@
+from abc import (
+    ABCMeta,
+)
 import json
 from typing import (
     Any,
     Dict,
     List,
     Set,
+    cast,
 )
 
 from jsonschema import (
@@ -40,7 +44,7 @@ def validate_meta_object(meta: Dict[str, Any], allow_extra_meta_fields: bool) ->
     """
     for key, value in meta.items():
         if key in META_FIELDS:
-            if type(value) is not META_FIELDS[key]:
+            if cast(ABCMeta, type(value)) is not META_FIELDS[key]:
                 raise EthPMValidationError(
                     f"Values for {key} are expected to have the type {META_FIELDS[key]}, "
                     f"instead got {type(value)}."

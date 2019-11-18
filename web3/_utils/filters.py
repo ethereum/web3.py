@@ -1,7 +1,3 @@
-from eth_abi import (
-    decode_abi,
-    is_encodable,
-)
 from eth_abi.grammar import (
     parse as parse_type_string,
 )
@@ -9,6 +5,9 @@ from eth_utils import (
     is_list_like,
     is_string,
     is_text,
+)
+from eth_utils.curried import (
+    apply_formatter_if,
 )
 from eth_utils.toolz import (
     complement,
@@ -18,9 +17,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.formatters import (
-    apply_formatter_if,
-)
 from web3._utils.threads import (
     TimerClass,
 )
@@ -35,6 +31,7 @@ from .events import (
 
 
 def construct_event_filter_params(event_abi,
+                                  abi_codec,
                                   contract_address=None,
                                   argument_filters=None,
                                   topics=None,
@@ -42,7 +39,7 @@ def construct_event_filter_params(event_abi,
                                   toBlock=None,
                                   address=None):
     filter_params = {}
-    topic_set = construct_event_topic_set(event_abi, argument_filters)
+    topic_set = construct_event_topic_set(event_abi, abi_codec, argument_filters)
 
     if topics is not None:
         if len(topic_set) > 1:
@@ -84,7 +81,7 @@ def construct_event_filter_params(event_abi,
     if toBlock is not None:
         filter_params['toBlock'] = toBlock
 
-    data_filters_set = construct_event_data_set(event_abi, argument_filters)
+    data_filters_set = construct_event_data_set(event_abi, abi_codec, argument_filters)
 
     return data_filters_set, filter_params
 
@@ -173,7 +170,7 @@ class LogFilter(Filter):
         """
         self.data_filter_set = data_filter_set
         if any(data_filter_set):
-            self.data_filter_set_function = match_fn(data_filter_set)
+            self.data_filter_set_function = match_fn(self.web3, data_filter_set)
 
     def is_valid_entry(self, entry):
         if not self.data_filter_set:
@@ -205,23 +202,25 @@ def normalize_data_values(type_string, data_value):
 
 
 @curry
-def match_fn(match_values_and_abi, data):
+def match_fn(w3, match_values_and_abi, data):
     """Match function used for filtering non-indexed event arguments.
 
     Values provided through the match_values_and_abi parameter are
     compared to the abi decoded log data.
     """
     abi_types, all_match_values = zip(*match_values_and_abi)
-    decoded_values = decode_abi(abi_types, HexBytes(data))
+
+    decoded_values = w3.codec.decode_abi(abi_types, HexBytes(data))
     for data_value, match_values, abi_type in zip(decoded_values, all_match_values, abi_types):
         if match_values is None:
             continue
         normalized_data = normalize_data_values(abi_type, data_value)
         for value in match_values:
-            if not is_encodable(abi_type, value):
+            if not w3.is_encodable(abi_type, value):
                 raise ValueError(
-                    "Value {0} is of the wrong abi type. "
-                    "Expected {1} typed value.".format(value, abi_type))
+                    f"Value {value} is of the wrong abi type. "
+                    f"Expected {abi_type} typed value."
+                )
             if value == normalized_data:
                 break
         else:

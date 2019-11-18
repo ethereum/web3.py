@@ -110,7 +110,7 @@ def iter_latest_block(w3, to_block=None):
 
     is_bounded_range = (
         to_block is not None and
-        to_block is not 'latest'
+        to_block != 'latest'
     )
 
     while True:
@@ -276,6 +276,8 @@ class RequestBlocks:
 @to_list
 def block_hashes_in_range(w3, block_range):
     from_block, to_block = block_range
+    if from_block is None or to_block is None:
+        return
     for block_number in range(from_block, to_block + 1):
         yield getattr(w3.eth.getBlock(block_number), 'hash', None)
 

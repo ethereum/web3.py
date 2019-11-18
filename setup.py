@@ -13,6 +13,7 @@ extras_require = {
     'linter': [
         "flake8==3.4.1",
         "isort>=4.2.15,<4.3.5",
+        "mypy==0.730",
     ],
     'docs': [
         "mock",
@@ -36,6 +37,7 @@ extras_require = {
         "flaky>=3.3.0",
         "hypothesis>=3.31.2",
         "pytest>=4.4.0,<5.0.0",
+        "pytest-asyncio>=0.10.0,<0.11",
         "pytest-mock>=1.10,<2",
         "pytest-pythonpath>=0.3",
         "pytest-watch>=4.2,<5",
@@ -58,7 +60,7 @@ extras_require['dev'] = (
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='5.0.2',
+    version='5.3.0',
     description="""Web3.py""",
     long_description_markdown_filename='README.md',
     author='Piper Merriam',
@@ -70,15 +72,18 @@ setup(
         "eth-account>=0.4.0,<0.5.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
         "eth-typing>=2.0.0,<3.0.0",
-        "eth-utils>=1.4.0,<2.0.0",
+        "eth-utils>=1.8.0,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
         "ipfshttpclient>=0.4.12,<1",
         "jsonschema>=3.0.0,<4.0.0",
         "lru-dict>=1.1.6,<2.0.0",
-        "protobuf>=3.0.0,<4",
+        # remove mypy_extensions after python_requires>=3.8
+        # see web3._utils.compat
+        "mypy_extensions>=0.4.1,<1.0.0",
+        "protobuf>=3.10.0,<4",
         "pypiwin32>=223;platform_system=='Windows'",
         "requests>=2.16.0,<3.0.0",
-        "websockets>=7.0.0,<8.0.0",
+        "websockets>=8.1.0,<9.0.0",
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.6,<4',
@@ -97,5 +102,6 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
 )

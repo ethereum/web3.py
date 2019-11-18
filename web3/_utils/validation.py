@@ -13,6 +13,9 @@ from eth_utils import (
     is_list_like,
     is_string,
 )
+from eth_utils.curried import (
+    apply_formatter_to_array,
+)
 from eth_utils.hexadecimal import (
     encode_hex,
 )
@@ -36,9 +39,6 @@ from web3._utils.abi import (
     is_uint_type,
     length_of_array_type,
     sub_type_of_array_type,
-)
-from web3._utils.formatters import (
-    apply_formatter_to_array,
 )
 from web3.exceptions import (
     InvalidAddress,

@@ -36,7 +36,7 @@ Contents
     ens
     ethpm
     internals
-    conventions
+    abi_types
     releases
 
 Indices and tables

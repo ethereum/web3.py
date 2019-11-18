@@ -46,8 +46,10 @@ def build_infura_url(domain):
     key = load_api_key()
     secret = load_secret()
 
-    if scheme == WEBSOCKET_SCHEME:
+    if scheme == WEBSOCKET_SCHEME and secret != '':
         return "%s://:%s@%s/ws/v3/%s" % (scheme, secret, domain, key)
+    elif scheme == WEBSOCKET_SCHEME and secret == '':
+        return "%s://%s/ws/v3/%s" % (scheme, domain, key)
     elif scheme == HTTP_SCHEME:
         return "%s://%s/v3/%s" % (scheme, domain, key)
     else:

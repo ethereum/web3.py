@@ -19,13 +19,13 @@ from ethpm.tools import (
 OWNED_MANIFEST_PATH = ASSETS_DIR / "owned" / "1.0.0.json"
 
 
-def test_local_ipfs_backend_integration_round_trip(monkeypatch):
+def test_local_ipfs_backend_integration_round_trip(monkeypatch, request):
     """
     To run this integration test requires an running IPFS node.
     If you want to run these tests, first start your IPFS node, and
     then run pytest with the arg `--integration`.
     """
-    if not pytest.config.getoption("--integration"):
+    if not request.config.getoption("--integration"):
         pytest.skip("Not asked to run integration tests")
 
     monkeypatch.setenv(
@@ -45,8 +45,8 @@ def backend(request):
     return request.param()
 
 
-def test_builder_pins_manifest_to_provided_ipfs_backend(backend):
-    if not pytest.config.getoption("--integration"):
+def test_builder_pins_manifest_to_provided_ipfs_backend(backend, request):
+    if not request.config.getoption("--integration"):
         pytest.skip("Not asked to run integration tests")
 
     minified_manifest_hash = "QmVwwpt2BAkmWQt4eNnswhWd6bYgLbnUQDMHdVMHotwiqz"

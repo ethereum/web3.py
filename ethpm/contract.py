@@ -32,6 +32,7 @@ from web3._utils.validation import (
 )
 from web3.contract import (
     Contract,
+    ContractConstructor,
 )
 
 
@@ -51,12 +52,13 @@ class LinkableContract(Contract):
                 "Contract cannot be instantiated until its bytecode is linked."
             )
         validate_address(address)
-        super(LinkableContract, self).__init__(address=address, **kwargs)
+        # type ignored to allow for undefined **kwargs on `Contract` base class __init__
+        super(LinkableContract, self).__init__(address=address, **kwargs)  # type: ignore
 
     @classmethod
     def factory(
         cls, web3: Web3, class_name: str = None, **kwargs: Any
-    ) -> "LinkableContract":
+    ) -> Contract:
         dep_link_refs = kwargs.get("unlinked_references")
         bytecode = kwargs.get("bytecode")
         needs_bytecode_linking = False
@@ -67,7 +69,7 @@ class LinkableContract(Contract):
         return super(LinkableContract, cls).factory(web3, class_name, **kwargs)
 
     @classmethod
-    def constructor(cls, *args: Any, **kwargs: Any) -> bool:
+    def constructor(cls, *args: Any, **kwargs: Any) -> ContractConstructor:
         if cls.needs_bytecode_linking:
             raise BytecodeLinkingError(
                 "Contract cannot be deployed until its bytecode is linked."

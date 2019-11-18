@@ -72,24 +72,24 @@ def test_create_github_uri():
     (
         (
             "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", None, None],
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", None, None, None],
         ),
         (
             "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "owned", None],
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "owned", None, None],
         ),
         (
             "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned?version=1.0.0",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "owned", "1.0.0"],
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "owned", "1.0.0", None],
         ),
         (
             "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet?version=2.8.0/",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0"],
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", None],
         ),
     ),
 )
 def test_parse_registry_uri(uri, expected):
-    address, chain_id, pkg_name, pkg_version = parse_registry_uri(uri)
+    address, chain_id, pkg_name, pkg_version, ens = parse_registry_uri(uri)
     assert address == expected[0]
     assert chain_id == expected[1]
     assert pkg_name == expected[2]

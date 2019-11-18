@@ -1,8 +1,5 @@
 import functools
 
-from eth_abi import (
-    encode_abi as eth_abi_encode_abi,
-)
 from eth_utils import (
     add_0x_prefix,
     encode_hex,
@@ -72,7 +69,7 @@ def find_matching_event_abi(abi, event_name=None, argument_names=None):
         raise ValueError("Multiple events found")
 
 
-def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
+def find_matching_fn_abi(abi, abi_codec, fn_identifier=None, args=None, kwargs=None):
     args = args or tuple()
     kwargs = kwargs or dict()
     num_arguments = len(args) + len(kwargs)
@@ -85,7 +82,7 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
 
     name_filter = functools.partial(filter_by_name, fn_identifier)
     arg_count_filter = functools.partial(filter_by_argument_count, num_arguments)
-    encoding_filter = functools.partial(filter_by_encodability, args, kwargs)
+    encoding_filter = functools.partial(filter_by_encodability, abi_codec, args, kwargs)
 
     function_candidates = pipe(abi, name_filter, arg_count_filter, encoding_filter)
 
@@ -129,7 +126,7 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
 def encode_abi(web3, abi, arguments, data=None):
     argument_types = get_abi_input_types(abi)
 
-    if not check_if_arguments_can_be_encoded(abi, arguments, {}):
+    if not check_if_arguments_can_be_encoded(abi, web3.codec, arguments, {}):
         raise TypeError(
             "One or more arguments could not be encoded to the necessary "
             "ABI type.  Expected types are: {0}".format(
@@ -148,7 +145,7 @@ def encode_abi(web3, abi, arguments, data=None):
         argument_types,
         arguments,
     )
-    encoded_arguments = eth_abi_encode_abi(
+    encoded_arguments = web3.codec.encode_abi(
         argument_types,
         normalized_arguments,
     )
@@ -175,7 +172,7 @@ def prepare_transaction(
     TODO: add new prepare_deploy_transaction API
     """
     if fn_abi is None:
-        fn_abi = find_matching_fn_abi(contract_abi, fn_identifier, fn_args, fn_kwargs)
+        fn_abi = find_matching_fn_abi(contract_abi, web3.codec, fn_identifier, fn_args, fn_kwargs)
 
     validate_payable(transaction, fn_abi)
 
@@ -212,7 +209,7 @@ def encode_transaction_data(
         fn_abi, fn_selector, fn_arguments = get_fallback_function_info(contract_abi, fn_abi)
     elif is_text(fn_identifier):
         fn_abi, fn_selector, fn_arguments = get_function_info(
-            fn_identifier, contract_abi, fn_abi, args, kwargs,
+            fn_identifier, web3.codec, contract_abi, fn_abi, args, kwargs,
         )
     else:
         raise TypeError("Unsupported function identifier")
@@ -228,14 +225,14 @@ def get_fallback_function_info(contract_abi=None, fn_abi=None):
     return fn_abi, fn_selector, fn_arguments
 
 
-def get_function_info(fn_name, contract_abi=None, fn_abi=None, args=None, kwargs=None):
+def get_function_info(fn_name, abi_codec, contract_abi=None, fn_abi=None, args=None, kwargs=None):
     if args is None:
         args = tuple()
     if kwargs is None:
         kwargs = {}
 
     if fn_abi is None:
-        fn_abi = find_matching_fn_abi(contract_abi, fn_name, args, kwargs)
+        fn_abi = find_matching_fn_abi(contract_abi, abi_codec, fn_name, args, kwargs)
 
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
 

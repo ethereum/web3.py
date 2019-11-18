@@ -9,6 +9,8 @@ from urllib import (
 
 from eth_typing import (
     URI,
+    BlockNumber,
+    HexStr,
 )
 from eth_utils import (
     add_0x_prefix,
@@ -23,7 +25,7 @@ from web3 import Web3
 
 
 def get_genesis_block_hash(web3: Web3) -> str:
-    return web3.eth.getBlock(0)["hash"]
+    return web3.eth.getBlock(BlockNumber(0))["hash"]
 
 
 BLOCK = "block"
@@ -44,12 +46,12 @@ def is_BIP122_uri(value: URI) -> bool:
     return bool(re.match(BIP122_URL_REGEX, value))
 
 
-def parse_BIP122_uri(blockchain_uri: URI) -> Tuple[str, str, str]:
+def parse_BIP122_uri(blockchain_uri: URI) -> Tuple[HexStr, str, HexStr]:
     match = re.match(BIP122_URL_REGEX, blockchain_uri)
     if match is None:
         raise ValueError(f"Invalid URI format: '{blockchain_uri}'")
     chain_id, resource_type, resource_hash = match.groups()
-    return (add_0x_prefix(chain_id), resource_type, add_0x_prefix(resource_hash))
+    return (HexStr(add_0x_prefix(chain_id)), resource_type, HexStr(add_0x_prefix(resource_hash)))
 
 
 def is_BIP122_block_uri(value: URI) -> bool:
