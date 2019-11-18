@@ -1,11 +1,11 @@
 import asyncio
 import pytest
-
-from unittest.mock import patch
-
 import sys
 from threading import (
     Thread,
+)
+from unittest.mock import (
+    patch,
 )
 
 import websockets
