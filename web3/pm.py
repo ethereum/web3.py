@@ -2,6 +2,9 @@ from abc import (
     ABC,
     abstractmethod,
 )
+from collections import (
+    namedtuple,
+)
 import json
 from pathlib import (
     Path,
@@ -76,6 +79,7 @@ from web3.types import (
 # >>> w3.pm
 # <web3.pm.PM at 0x....>
 
+ReleaseData = namedtuple("ReleaseData", ["package_name", "version", "manifest_uri"])
 T = TypeVar("T")
 
 
@@ -169,7 +173,7 @@ class ERC1319Registry(ABC):
         pass
 
     @abstractmethod
-    def _get_release_data(self, release_id: bytes) -> Iterable[str]:
+    def _get_release_data(self, release_id: bytes) -> ReleaseData:
         """
         Returns a tuple containing (package_name, version, manifest_uri) for the given release id,
         if the release exists on the connected registry.
@@ -282,11 +286,9 @@ class SimpleRegistry(ERC1319Registry):
             yield from reversed(new_ids)
             pointer = new_pointer
 
-    @to_tuple
-    def _get_release_data(self, release_id: bytes) -> Iterable[str]:
-        release_data = self.registry.functions.getReleaseData(release_id).call()
-        for data in release_data:
-            yield data
+    def _get_release_data(self, release_id: bytes) -> ReleaseData:
+        name, version, uri = self.registry.functions.getReleaseData(release_id).call()
+        return ReleaseData(name, version, uri)
 
     def _generate_release_id(self, package_name: str, version: str) -> bytes:
         return self.registry.functions.generateReleaseId(package_name, version).call()
@@ -487,10 +489,10 @@ class PM(Module):
         self._validate_set_registry()
         release_ids = self.registry._get_all_release_ids(package_name)
         for release_id in release_ids:
-            _, version, manifest_uri = self.registry._get_release_data(release_id)
-            yield (version, manifest_uri)
+            release_data = self.registry._get_release_data(release_id)
+            yield (release_data.version, release_data.manifest_uri)
 
-    def get_release_id_data(self, release_id: bytes) -> Tuple[str, ...]:
+    def get_release_id_data(self, release_id: bytes) -> ReleaseData:
         """
         Returns ``(package_name, version, manifest_uri)`` associated with the given
         release id, *if* it is available on the current registry.
@@ -501,7 +503,7 @@ class PM(Module):
         self._validate_set_registry()
         return self.registry._get_release_data(release_id)
 
-    def get_release_data(self, package_name: str, version: str) -> Tuple[str, ...]:
+    def get_release_data(self, package_name: str, version: str) -> ReleaseData:
         """
         Returns ``(package_name, version, manifest_uri)`` associated with the given
         package name and version, *if* they are published to the currently set registry.
@@ -528,8 +530,8 @@ class PM(Module):
         validate_package_name(package_name)
         validate_package_version(version)
         self._validate_set_registry()
-        _, _, release_uri = self.get_release_data(package_name, version)
-        return self.get_package_from_uri(URI(release_uri))
+        release_data = self.get_release_data(package_name, version)
+        return self.get_package_from_uri(URI(release_data.manifest_uri))
 
     def _validate_set_registry(self) -> None:
         try:
