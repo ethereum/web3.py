@@ -1,4 +1,7 @@
 import asyncio
+from concurrent.futures import (
+    TimeoutError,
+)
 import pytest
 from threading import (
     Thread,
@@ -18,10 +21,6 @@ from web3.exceptions import (
 )
 from web3.providers.websocket import (
     WebsocketProvider,
-)
-
-from concurrent.futures import (
-    TimeoutError,
 )
 
 
