@@ -21,14 +21,9 @@ from web3.providers.websocket import (
     WebsocketProvider,
 )
 
-if sys.version_info >= (3, 8):
-    from asyncio.exceptions import (
-        TimeoutError,
-    )
-else:
-    from concurrent.futures import (
-        TimeoutError,
-    )
+from concurrent.futures import (
+    TimeoutError,
+)
 
 
 @pytest.yield_fixture
