@@ -588,7 +588,7 @@ invoked will enforce a stricter set of rules on which values are accepted.
 
 Taking the following contract code as an example:
 
-.. testsetup::
+.. testsetup:: arrayscontract
 
     from web3 import Web3
     w3 = Web3(Web3.EthereumTesterProvider())
@@ -679,7 +679,7 @@ Taking the following contract code as an example:
     >>> # abi = "..."
     >>> # bytecode = "6080..."
 
-.. doctest::
+.. doctest:: arrayscontract
 
     >>> ArraysContract = w3.eth.contract(abi=abi, bytecode=bytecode)
 
@@ -993,7 +993,7 @@ For example:
                'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
                'data': '0x0000000000000000000000000000000000000000000000000000000000003039',
                'topics': [
-                   HexBytes('0xf70fe689e290d8ce2b2a388ac28db36fbb0e16a6d89c6804c461f65a1b40bb15')l
+                   HexBytes('0xf70fe689e290d8ce2b2a388ac28db36fbb0e16a6d89c6804c461f65a1b40bb15')
                ],
                'errors': LogTopicError('Expected 1 log topics.  Got 0')})
           })
@@ -1046,18 +1046,78 @@ Event Log Object
     * ``blockNumber``: Number - the block number where this log was in. null
       when it's pending.
 
+.. testsetup:: createFilter
 
-    .. code-block:: python
+    from web3 import Web3
+    w3 = Web3(Web3.EthereumTesterProvider())
+    bytecode = '6060604052341561000c57fe5b604051602080610acb833981016040528080519060200190919050505b620f42408114151561003b5760006000fd5b670de0b6b3a76400008102600281905550600254600060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055505b505b610a27806100a46000396000f30060606040523615610097576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806306fdde0314610099578063095ea7b31461013257806318160ddd1461018957806323b872dd146101af578063313ce5671461022557806370a082311461025157806395d89b411461029b578063a9059cbb14610334578063dd62ed3e1461038b575bfe5b34156100a157fe5b6100a96103f4565b60405180806020018281038252838181518152602001915080519060200190808383600083146100f8575b8051825260208311156100f8576020820191506020810190506020830392506100d4565b505050905090810190601f1680156101245780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b341561013a57fe5b61016f600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803590602001909190505061042e565b604051808215151515815260200191505060405180910390f35b341561019157fe5b610199610521565b6040518082815260200191505060405180910390f35b34156101b757fe5b61020b600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803573ffffffffffffffffffffffffffffffffffffffff16906020019091908035906020019091905050610527565b604051808215151515815260200191505060405180910390f35b341561022d57fe5b610235610791565b604051808260ff1660ff16815260200191505060405180910390f35b341561025957fe5b610285600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610796565b6040518082815260200191505060405180910390f35b34156102a357fe5b6102ab6107e0565b60405180806020018281038252838181518152602001915080519060200190808383600083146102fa575b8051825260208311156102fa576020820191506020810190506020830392506102d6565b505050905090810190601f1680156103265780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b341561033c57fe5b610371600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803590602001909190505061081a565b604051808215151515815260200191505060405180910390f35b341561039357fe5b6103de600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610973565b6040518082815260200191505060405180910390f35b604060405190810160405280600981526020017f54657374546f6b656e000000000000000000000000000000000000000000000081525081565b600081600160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925846040518082815260200191505060405180910390a3600190505b92915050565b60025481565b600081600060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410806105f1575081600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054105b156105fc5760006000fd5b81600060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254019250508190555081600060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254039250508190555081600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825403925050819055508273ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a3600190505b9392505050565b601281565b6000600060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490505b919050565b604060405190810160405280600481526020017f544553540000000000000000000000000000000000000000000000000000000081525081565b600081600060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410156108695760006000fd5b81600060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254039250508190555081600060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a3600190505b92915050565b6000600160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490505b929150505600a165627a7a723058205071371ee2a4a1be3c96e77d939cdc26161a256fdd638efc08bd33dfc65d3b850029'
+    ABI = '[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"inputs":[{"name":"_totalSupply","type":"uint256"}],"payable":false,"type":"constructor","stateMutability":"nonpayable"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]'
+    my_token_contract = w3.eth.contract(abi=ABI, bytecode=bytecode)
+    alice, bob = w3.eth.accounts[0], w3.eth.accounts[1]
+    assert alice == '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf', alice
+    assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
+    tx_hash = my_token_contract.constructor(1000000).transact({'from': alice})
+    assert tx_hash == b'h9\xeb\xdb4\x07\x03y\x92RP`X\xf6\xf7\x9f\xfaT\xed&e\xee*\xc2\rx\xb3\xab\x8c4\xc9\x1f', tx_hash
+    txn_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
+    contract_address = txn_receipt['contractAddress']
+    contract = w3.eth.contract(contract_address, abi=ABI)
+    total_supply = contract.functions.totalSupply().call()
+    decimals = 10 ** 18
+    assert total_supply == 1000000 * decimals, total_supply
+    tx_hash = contract.functions.transfer(alice, 10).transact()
+    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
 
-        >>> transfer_filter = my_token_contract.eventFilter('Transfer', {'filter': {'_from': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24'}})
-        >>> transfer_filter.get_new_entries()
-        [...]  # array of Event Log Objects that match the filter.
-        # wait a while...
-        >>> transfer_filter.get_new_entries()
-        [...]  # new events since the last call
-        >>> transfer_filter.get_all_entries()
-        [...]  # all events that match the filter.
+.. doctest:: createFilter
 
+     >>> transfer_filter = my_token_contract.events.Transfer.createFilter(fromBlock="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
+     >>> transfer_filter.get_new_entries()
+     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+      'value': 10}),
+      'event': 'Transfer',
+      'logIndex': 0,
+      'transactionIndex': 0,
+      'transactionHash': HexBytes('0xc7b96b166506c5a6edf6bccd22195e9f1aac025421b4a3eac159b878eef5e6e7'),
+      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+      'blockHash': HexBytes('...'),
+      'blockNumber': 2})]
+     >>> transfer_filter.get_new_entries()
+     []
+     >>> tx_hash = contract.functions.transfer(alice, 10).transact()
+     >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+     >>> transfer_filter.get_new_entries()
+     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+      'value': 10}),
+      'event': 'Transfer',
+      'logIndex': 0,
+      'transactionIndex': 0,
+      'transactionHash': HexBytes('0xb1cf8541708184daf8c1ea59ce494bbafe0bb45208c09a81bff184907e88e9b9'),
+      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+      'blockHash': HexBytes('...'),
+      'blockNumber': 3})]
+     >>> transfer_filter.get_all_entries()
+     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+      'value': 10}),
+      'event': 'Transfer',
+      'logIndex': 0,
+      'transactionIndex': 0,
+      'transactionHash': HexBytes('0xc7b96b166506c5a6edf6bccd22195e9f1aac025421b4a3eac159b878eef5e6e7'),
+      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+      'blockHash': HexBytes('...'),
+      'blockNumber': 2}),
+      AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+      'value': 10}),
+      'event': 'Transfer',
+      'logIndex': 0,
+      'transactionIndex': 0,
+      'transactionHash': HexBytes('0xb1cf8541708184daf8c1ea59ce494bbafe0bb45208c09a81bff184907e88e9b9'),
+      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+      'blockHash': HexBytes('...'),
+      'blockNumber': 3})]
 
 Utils
 -----
@@ -1099,7 +1159,7 @@ For example:
    from web3 import Web3
    w3 = Web3(Web3.EthereumTesterProvider())
    bytecode = "0x606060405261022e806100126000396000f360606040523615610074576000357c01000000000000000000000000000000000000000000000000000000009004806316216f391461007657806361bc221a146100995780637cf5dab0146100bc578063a5f3c23b146100e8578063d09de08a1461011d578063dcf537b11461014057610074565b005b610083600480505061016c565b6040518082815260200191505060405180910390f35b6100a6600480505061017f565b6040518082815260200191505060405180910390f35b6100d26004808035906020019091905050610188565b6040518082815260200191505060405180910390f35b61010760048080359060200190919080359060200190919050506101ea565b6040518082815260200191505060405180910390f35b61012a6004805050610201565b6040518082815260200191505060405180910390f35b6101566004808035906020019091905050610217565b6040518082815260200191505060405180910390f35b6000600d9050805080905061017c565b90565b60006000505481565b6000816000600082828250540192505081905550600060005054905080507f3496c3ede4ec3ab3686712aa1c238593ea6a42df83f98a5ec7df9834cfa577c5816040518082815260200191505060405180910390a18090506101e5565b919050565b6000818301905080508090506101fb565b92915050565b600061020d6001610188565b9050610214565b90565b60006007820290508050809050610229565b91905056"
-   ABI = json.loads('[{"constant":false,"inputs":[],"name":"return13","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":true,"inputs":[],"name":"counter","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"amt","type":"uint256"}],"name":"increment","outputs":[{"name":"result","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"},{"name":"b","type":"int256"}],"name":"add","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":false,"inputs":[],"name":"increment","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"}],"name":"multiply7","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"Increased","type":"event"}]')
+   ABI = json.loads('[{"constant":false,"inputs":[],"name":"return13","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":true,"inputs":[],"name":"counter","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"amt","type":"uint256"}],"name":"increment","outputs":[{"name":"result","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"},{"name":"b","type":"int256"}],"name":"add","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":false,"inputs":[],"name":"increment","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"}],"name":"multiply7","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"increased","type":"event"}]')
    contract = w3.eth.contract(abi=ABI, bytecode=bytecode)
    deploy_txn = contract.constructor().transact()
    deploy_receipt = w3.eth.waitForTransactionReceipt(deploy_txn)
