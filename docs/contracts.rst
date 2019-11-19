@@ -282,7 +282,7 @@ Each Contract Factory exposes the following methods.
 
 .. _contract_createFilter:
 
-.. py:classmethod:: Contract.events.<event name>.createFilter(fromBlock=block, toBlock=block, \
+.. py:classmethod:: Contract.events.your_event_name.createFilter(fromBlock=block, toBlock=block, \
                     argument_filters={"arg1": "value"}, topics=[])
 
     Creates a new event filter, an instance of :py:class:`web3.utils.filters.LogFilter`.
@@ -293,9 +293,7 @@ Each Contract Factory exposes the following methods.
     - ``argument_filters``, optional. Expects a dictionary of argument names and values. When provided event logs are filtered for the event argument values. Event arguments can be both indexed or unindexed. Indexed values with be translated to their corresponding topic arguments. Unindexed arguments will be filtered using a regular expression.
     - ``topics`` optional, accepts the standard JSON-RPC topics argument.  See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the ``topics`` parameters.
 
-.. _contract_build_filter:
-
-.. py:classmethod:: Contract.events.<event name>.build_filter()
+.. py:classmethod:: Contract.events.your_event_name.build_filter()
 
     Creates a EventFilterBuilder instance with the event abi, and the contract address if called from a deployed contract instance.  The EventFilterBuilder provides a convenient way to construct the filter parameters with value checking against the event abi. It allows for defining multiple match values or of single values through the match_any and match_single methods.
 
