@@ -62,7 +62,7 @@ class RegistryURIBackend(BaseURIBackend):
         self.w3.enable_unstable_package_management_api()
         self.w3.pm.set_registry(address)
         _, _, manifest_uri = self.w3.pm.get_release_data(pkg_name, pkg_version)
-        return manifest_uri
+        return URI(manifest_uri)
 
 
 def is_valid_registry_uri(uri: str) -> bool:
