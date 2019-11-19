@@ -119,11 +119,11 @@ FilterParams = TypedDict("FilterParams", {
 
 TxParams = TypedDict("TxParams", {
     "nonce": int,
-    "gasPrice": int,
-    "gas": int,
+    "gasPrice": Wei,
+    "gas": Wei,
     "from": Union[Address, ChecksumAddress, str],
     "to": Union[Address, ChecksumAddress, str],
-    "value": int,
+    "value": Wei,
     "data": Union[bytes, str],
 }, total=False)
 
@@ -182,7 +182,7 @@ TxReceipt = TypedDict("TxReceipt", {
     "blockNumber": int,
     "contractAddress": Optional[ChecksumAddress],
     "cumulativeGasUsed": int,
-    "gasUsed": int,
+    "gasUsed": Wei,
     "from": ChecksumAddress,
     "logs": List[LogParams],
     "logsBloom": HexBytes,
@@ -197,8 +197,8 @@ TxReceipt = TypedDict("TxReceipt", {
 BlockData = TypedDict("BlockData", {
     'difficulty': int,
     'extraData': HexStr,
-    'gasLimit': int,
-    'gasUsed': int,
+    'gasLimit': Wei,
+    'gasUsed': Wei,
     'hash': Hash32,
     'logsBloom': HexStr,
     'miner': ChecksumAddress,
