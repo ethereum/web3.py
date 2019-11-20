@@ -8,6 +8,7 @@ from typing import (
     Collection,
     Dict,
     Set,
+    Type,
     cast,
 )
 
@@ -16,7 +17,8 @@ import lru
 from web3._utils.caching import (
     generate_cache_key,
 )
-from web3.types import (
+from web3.types import (  # noqa: F401
+    BlockData,
     Middleware,
     RPCEndpoint,
     RPCResponse,
@@ -89,7 +91,7 @@ def _should_cache(method: RPCEndpoint, params: Any, response: RPCResponse) -> bo
 
 
 def construct_simple_cache_middleware(
-    cache_class: Callable[..., Dict[Any, Any]],
+    cache_class: Type[Dict[Any, Any]],
     rpc_whitelist: Collection[RPCEndpoint]=SIMPLE_CACHE_RPC_WHITELIST,
     should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool]=_should_cache
 ) -> Middleware:
@@ -133,7 +135,7 @@ def construct_simple_cache_middleware(
 
 
 _simple_cache_middleware = construct_simple_cache_middleware(
-    cache_class=functools.partial(lru.LRU, 256),
+    cache_class=cast(Type[Dict[Any, Any]], functools.partial(lru.LRU, 256)),
 )
 
 
@@ -343,7 +345,7 @@ def construct_latest_block_based_cache_middleware(
         make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
-        block_info: Dict[str, Any] = {}
+        block_info: BlockData = {}
 
         def _update_block_info_cache() -> None:
             avg_block_time = block_info.get(AVG_BLOCK_TIME_KEY, default_average_block_time)
