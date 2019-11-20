@@ -57,6 +57,7 @@ def not_implemented(*args: Any, **kwargs: Any) -> NoReturn:
     raise NotImplementedError("RPC method not implemented")
 
 
+# double check RPCResponse
 @curry
 def call_eth_tester(
     fn_name: str, eth_tester: "EthereumTester", fn_args: Any, fn_kwargs: Any=None
