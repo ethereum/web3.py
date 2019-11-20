@@ -33,7 +33,7 @@ from eth_utils.toolz import (
 
 from web3.types import (
     LatestBlockParam,
-    LogParams,
+    LogReceipt,
     RPCEndpoint,
     RPCResponse,
 )
@@ -198,7 +198,7 @@ def get_logs_multipart(
     address: Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]],
     topics: List[Optional[Union[Hash32, List[Hash32]]]],
     max_blocks: int
-) -> Iterable[List[LogParams]]:
+) -> Iterable[List[LogReceipt]]:
     """Used to break up requests to ``eth_getLogs``
 
     The getLog request is partitioned into multiple calls of the max number of blocks
@@ -251,7 +251,7 @@ class RequestLogs:
 
         return to_block
 
-    def _get_filter_changes(self) -> Iterator[List[LogParams]]:
+    def _get_filter_changes(self) -> Iterator[List[LogReceipt]]:
         for start, stop in iter_latest_block_ranges(self.w3, self.from_block, self.to_block):
             if None in (start, stop):
                 yield []
@@ -266,7 +266,7 @@ class RequestLogs:
                         self.topics,
                         max_blocks=MAX_BLOCK_REQUEST)))
 
-    def get_logs(self) -> List[LogParams]:
+    def get_logs(self) -> List[LogReceipt]:
         return list(
             concat(
                 get_logs_multipart(

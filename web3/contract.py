@@ -134,7 +134,7 @@ from web3.types import (  # noqa: F401
     ABIFunction,
     BlockIdentifier,
     EventData,
-    LogParams,
+    LogReceipt,
     TxParams,
     TxReceipt,
 )
@@ -1084,7 +1084,7 @@ class ContractEvent:
                 if errors == DISCARD:
                     continue
                 elif errors == IGNORE:
-                    new_log: LogParams = MutableAttributeDict(log)
+                    new_log: LogReceipt = MutableAttributeDict(log)
                     new_log['errors'] = e
                     rich_log = AttributeDict(new_log)
                 elif errors == STRICT:

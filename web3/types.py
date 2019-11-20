@@ -149,7 +149,7 @@ GasPriceStrategy = Callable[[Any, TxParams], Wei]
 Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], Any], Any]
 
 
-LogParams = TypedDict("LogParams", {
+LogReceipt = TypedDict("LogReceipt", {
     "address": ChecksumAddress,
     "blockHash": Hash32,
     "blockNumber": int,
@@ -199,7 +199,7 @@ TxReceipt = TypedDict("TxReceipt", {
     "cumulativeGasUsed": int,
     "gasUsed": Wei,
     "from": ChecksumAddress,
-    "logs": List[LogParams],
+    "logs": List[LogReceipt],
     "logsBloom": HexBytes,
     "root": HexStr,
     "status": int,
