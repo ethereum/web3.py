@@ -54,7 +54,7 @@ class EthereumTesterProvider(BaseProvider):
     def __init__(
         self,
         ethereum_tester: "EthereumTester"=None,
-        api_endpoints: Dict[str, Dict[str, Callable[..., Any]]]=None
+        api_endpoints: Dict[str, Dict[str, Callable[..., RPCResponse]]]=None
     ) -> None:
         # do not import eth_tester until runtime, it is not a default dependency
         from eth_tester import EthereumTester  # noqa: F811

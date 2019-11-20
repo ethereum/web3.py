@@ -241,11 +241,11 @@ class Web3:
             w3 = cls
         normalized_values = map_abi_data([abi_ens_resolver(w3)], abi_types, values)
 
-        hex_string = add_0x_prefix(''.join(
+        hex_string = add_0x_prefix(HexStr(''.join(
             remove_0x_prefix(hex_encode_abi_type(abi_type, value))
             for abi_type, value
             in zip(abi_types, normalized_values)
-        ))
+        )))
         return cls.keccak(hexstr=hex_string)
 
     def isConnected(self) -> bool:

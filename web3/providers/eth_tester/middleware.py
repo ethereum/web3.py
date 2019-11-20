@@ -301,7 +301,7 @@ def guess_gas(web3: "Web3", transaction: TxParams) -> Wei:
 
 @curry
 def fill_default(
-    field: str, guess_func: Callable[..., Any], web3: Web3, transaction: TxParams
+    field: str, guess_func: Callable[..., Any], web3: "Web3", transaction: TxParams
 ) -> TxParams:
     if field in transaction and transaction[field] is not None:
         return transaction

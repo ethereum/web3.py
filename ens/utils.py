@@ -17,6 +17,7 @@ from eth_typing import (
     Address,
     ChecksumAddress,
     HexAddress,
+    HexStr,
 )
 from eth_utils import (
     is_same_address,
@@ -190,7 +191,7 @@ def address_in(address: ChecksumAddress, addresses: Collection[ChecksumAddress])
 
 
 def address_to_reverse_domain(address: ChecksumAddress) -> str:
-    lower_unprefixed_address = remove_0x_prefix(to_normalized_address(address))
+    lower_unprefixed_address = remove_0x_prefix(HexStr(to_normalized_address(address)))
     return lower_unprefixed_address + '.' + REVERSE_REGISTRAR_DOMAIN
 
 

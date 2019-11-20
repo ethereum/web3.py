@@ -541,7 +541,7 @@ class Contract:
 
             deploy_data = to_hex(cls.bytecode)
 
-        return HexStr(deploy_data)
+        return deploy_data
 
 
 def mk_collision_prop(fn_name: str) -> Callable[[], None]:
@@ -581,7 +581,7 @@ class ContractConstructor:
         else:
             data = to_hex(self.bytecode)
 
-        return HexStr(data)
+        return data
 
     @combomethod
     def estimateGas(self, transaction: TxParams=None) -> int:
@@ -1018,7 +1018,7 @@ class ContractFunction:
         )
 
     @combomethod
-    def _encode_transaction_data(cls) -> str:
+    def _encode_transaction_data(cls) -> HexStr:
         return add_0x_prefix(encode_abi(cls.web3, cls.abi, cls.arguments, cls.selector))
 
     _return_data_normalizers: Optional[Tuple[Callable[..., Any], ...]] = tuple()

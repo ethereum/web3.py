@@ -51,7 +51,7 @@ def parse_BIP122_uri(blockchain_uri: URI) -> Tuple[HexStr, str, HexStr]:
     if match is None:
         raise ValueError(f"Invalid URI format: '{blockchain_uri}'")
     chain_id, resource_type, resource_hash = match.groups()
-    return (HexStr(add_0x_prefix(chain_id)), resource_type, HexStr(add_0x_prefix(resource_hash)))
+    return (add_0x_prefix(HexStr(chain_id)), resource_type, add_0x_prefix(HexStr(resource_hash)))
 
 
 def is_BIP122_block_uri(value: URI) -> bool:
@@ -69,7 +69,7 @@ def is_block_or_transaction_hash(value: str) -> bool:
 
 
 def create_BIP122_uri(
-    chain_id: str, resource_type: str, resource_identifier: str
+    chain_id: HexStr, resource_type: str, resource_identifier: HexStr
 ) -> URI:
     """
     See: https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki
@@ -96,7 +96,7 @@ def create_BIP122_uri(
     )
 
 
-def create_block_uri(chain_id: str, block_identifier: str) -> URI:
+def create_block_uri(chain_id: HexStr, block_identifier: HexStr) -> URI:
     return create_BIP122_uri(chain_id, "block", remove_0x_prefix(block_identifier))
 
 

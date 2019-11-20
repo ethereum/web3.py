@@ -52,7 +52,6 @@ def not_implemented(*args: Any, **kwargs: Any) -> NoReturn:
     raise NotImplementedError("RPC method not implemented")
 
 
-# double check RPCResponse
 @curry
 def call_eth_tester(
     fn_name: str, eth_tester: "EthereumTester", fn_args: Any, fn_kwargs: Any=None
@@ -62,19 +61,18 @@ def call_eth_tester(
     return getattr(eth_tester, fn_name)(*fn_args, **fn_kwargs)
 
 
-# double check these
-def without_eth_tester(fn: Callable[..., Any]) -> Callable[..., Any]:
+def without_eth_tester(fn: Callable[..., Any]) -> Callable[..., RPCResponse]:
     # workaround for: https://github.com/pytoolz/cytoolz/issues/103
     # @functools.wraps(fn)
-    def inner(eth_tester: "EthereumTester", params: Any) -> Callable[..., Any]:
+    def inner(eth_tester: "EthereumTester", params: Any) -> Callable[..., RPCResponse]:
         return fn(params)
     return inner
 
 
-def without_params(fn: Callable[..., Any]) -> Callable[..., Any]:
+def without_params(fn: Callable[..., Any]) -> Callable[..., RPCResponse]:
     # workaround for: https://github.com/pytoolz/cytoolz/issues/103
     # @functools.wraps(fn)
-    def inner(eth_tester: "EthereumTester", params: Any) -> Callable[..., Any]:
+    def inner(eth_tester: "EthereumTester", params: Any) -> Callable[..., RPCResponse]:
         return fn(eth_tester)
     return inner
 
@@ -151,8 +149,7 @@ def get_logs(eth_tester: "EthereumTester", params: Any) -> List[LogReceipt]:
     return logs
 
 
-# update to HexStr after eth-utils release
-def _generate_random_private_key() -> str:
+def _generate_random_private_key() -> HexStr:
     """
     WARNING: This is not a secure way to generate private keys and should only
     be used for testing purposes.
@@ -168,7 +165,6 @@ def create_new_account(eth_tester: "EthereumTester") -> HexAddress:
     return eth_tester.add_account(_generate_random_private_key())
 
 
-# do we need to update txhashes everywhere from Hash32?
 def personal_send_transaction(eth_tester: "EthereumTester", params: Any) -> HexStr:
     transaction, password = params
 

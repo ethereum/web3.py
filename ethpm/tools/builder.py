@@ -501,7 +501,7 @@ def normalize_bytecode_object(obj: Dict[str, Any]) -> Iterable[Tuple[str, Any]]:
         yield "bytecode", add_0x_prefix(bytecode)
 
 
-def process_bytecode(link_refs: Dict[str, Any], bytecode: bytes) -> str:
+def process_bytecode(link_refs: Dict[str, Any], bytecode: bytes) -> HexStr:
     """
     Replace link_refs in bytecode with 0's.
     """
