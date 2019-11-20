@@ -9,6 +9,7 @@ from typing import (
 from eth_typing import (
     URI,
     Address,
+    ContractName,
     Manifest,
 )
 from eth_utils import (
@@ -31,6 +32,9 @@ from ethpm.uri import (
 from web3 import Web3
 from web3.tools.pytest_ethereum.exceptions import (
     LinkerError,
+)
+from web3.types import (
+    TxReceipt,
 )
 
 
@@ -101,9 +105,9 @@ def insert_deployment(
 
 @to_dict
 def create_deployment_data(
-    contract_name: str,
+    contract_name: ContractName,
     new_address: Address,
-    tx_receipt: Dict[str, Any],
+    tx_receipt: TxReceipt,
     link_refs: List[Dict[str, Any]] = None,
 ) -> Iterable[Tuple[str, Any]]:
     yield "contract_type", contract_name
