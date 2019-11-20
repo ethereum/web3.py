@@ -1,14 +1,33 @@
 import functools
 import threading
 import time
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Collection,
+    Dict,
+    Set,
+    Type,
+    cast,
+)
 
 import lru
 
 from web3._utils.caching import (
     generate_cache_key,
 )
+from web3.types import (  # noqa: F401
+    BlockData,
+    Middleware,
+    RPCEndpoint,
+    RPCResponse,
+)
 
-SIMPLE_CACHE_RPC_WHITELIST = {
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
+
+SIMPLE_CACHE_RPC_WHITELIST = cast(Set[RPCEndpoint], {
     'web3_clientVersion',
     'web3_sha3',
     'net_version',
@@ -57,10 +76,10 @@ SIMPLE_CACHE_RPC_WHITELIST = {
     # 'eth_getWork',
     # 'eth_submitWork',
     # 'eth_submitHashrate',
-}
+})
 
 
-def _should_cache(method, params, response):
+def _should_cache(method: RPCEndpoint, params: Any, response: RPCResponse) -> bool:
     if 'error' in response:
         return False
     elif 'result' not in response:
@@ -72,9 +91,10 @@ def _should_cache(method, params, response):
 
 
 def construct_simple_cache_middleware(
-        cache_class,
-        rpc_whitelist=SIMPLE_CACHE_RPC_WHITELIST,
-        should_cache_fn=_should_cache):
+    cache_class: Type[Dict[Any, Any]],
+    rpc_whitelist: Collection[RPCEndpoint]=SIMPLE_CACHE_RPC_WHITELIST,
+    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool]=_should_cache
+) -> Middleware:
     """
     Constructs a middleware which caches responses based on the request
     ``method`` and ``params``
@@ -85,11 +105,15 @@ def construct_simple_cache_middleware(
         ``response`` and returns a boolean as to whether the response should be
         cached.
     """
-    def simple_cache_middleware(make_request, web3):
+    def simple_cache_middleware(
+        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
         lock = threading.Lock()
 
-        def middleware(method, params):
+        def middleware(
+            method: RPCEndpoint, params: Any
+        ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
             lock_acquired = lock.acquire(blocking=False)
 
             try:
@@ -111,11 +135,11 @@ def construct_simple_cache_middleware(
 
 
 _simple_cache_middleware = construct_simple_cache_middleware(
-    cache_class=functools.partial(lru.LRU, 256),
+    cache_class=cast(Type[Dict[Any, Any]], functools.partial(lru.LRU, 256)),
 )
 
 
-TIME_BASED_CACHE_RPC_WHITELIST = {
+TIME_BASED_CACHE_RPC_WHITELIST = cast(Set[RPCEndpoint], {
     # 'web3_clientVersion',
     # 'web3_sha3',
     # 'net_version',
@@ -164,14 +188,15 @@ TIME_BASED_CACHE_RPC_WHITELIST = {
     # 'eth_getWork',
     # 'eth_submitWork',
     # 'eth_submitHashrate',
-}
+})
 
 
 def construct_time_based_cache_middleware(
-        cache_class,
-        cache_expire_seconds=15,
-        rpc_whitelist=TIME_BASED_CACHE_RPC_WHITELIST,
-        should_cache_fn=_should_cache):
+    cache_class: Callable[..., Dict[Any, Any]],
+    cache_expire_seconds: int=15,
+    rpc_whitelist: Collection[RPCEndpoint]=TIME_BASED_CACHE_RPC_WHITELIST,
+    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool]=_should_cache
+) -> Middleware:
     """
     Constructs a middleware which caches responses based on the request
     ``method`` and ``params`` for a maximum amount of time as specified
@@ -184,11 +209,13 @@ def construct_time_based_cache_middleware(
         ``response`` and returns a boolean as to whether the response should be
         cached.
     """
-    def time_based_cache_middleware(make_request, web3):
+    def time_based_cache_middleware(
+        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
         lock = threading.Lock()
 
-        def middleware(method, params):
+        def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             lock_acquired = lock.acquire(blocking=False)
 
             try:
@@ -225,7 +252,7 @@ _time_based_cache_middleware = construct_time_based_cache_middleware(
 )
 
 
-BLOCK_NUMBER_RPC_WHITELIST = {
+BLOCK_NUMBER_RPC_WHITELIST = cast(Set[RPCEndpoint], {
     # 'web3_clientVersion',
     # 'web3_sha3',
     # 'net_version',
@@ -274,15 +301,14 @@ BLOCK_NUMBER_RPC_WHITELIST = {
     # 'eth_getWork',
     # 'eth_submitWork',
     # 'eth_submitHashrate',
-}
-
+})
 
 AVG_BLOCK_TIME_KEY = 'avg_block_time'
 AVG_BLOCK_SAMPLE_SIZE_KEY = 'avg_block_sample_size'
 AVG_BLOCK_TIME_UPDATED_AT_KEY = 'avg_block_time_updated_at'
 
 
-def _is_latest_block_number_request(method, params):
+def _is_latest_block_number_request(method: RPCEndpoint, params: Any) -> bool:
     if method != 'eth_getBlockByNumber':
         return False
     elif params[:1] == ['latest']:
@@ -291,11 +317,12 @@ def _is_latest_block_number_request(method, params):
 
 
 def construct_latest_block_based_cache_middleware(
-        cache_class,
-        rpc_whitelist=BLOCK_NUMBER_RPC_WHITELIST,
-        average_block_time_sample_size=240,
-        default_average_block_time=15,
-        should_cache_fn=_should_cache):
+    cache_class: Callable[..., Dict[Any, Any]],
+    rpc_whitelist: Collection[RPCEndpoint]=BLOCK_NUMBER_RPC_WHITELIST,
+    average_block_time_sample_size: int=240,
+    default_average_block_time: int=15,
+    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool]=_should_cache
+) -> Middleware:
     """
     Constructs a middleware which caches responses based on the request
     ``method``, ``params``, and the current latest block hash.
@@ -314,11 +341,13 @@ def construct_latest_block_based_cache_middleware(
         a new block when the last seen latest block is older than the average
         block time.
     """
-    def latest_block_based_cache_middleware(make_request, web3):
+    def latest_block_based_cache_middleware(
+        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
-        block_info = {}
+        block_info: BlockData = {}
 
-        def _update_block_info_cache():
+        def _update_block_info_cache() -> None:
             avg_block_time = block_info.get(AVG_BLOCK_TIME_KEY, default_average_block_time)
             avg_block_sample_size = block_info.get(AVG_BLOCK_SAMPLE_SIZE_KEY, 0)
             avg_block_time_updated_at = block_info.get(AVG_BLOCK_TIME_UPDATED_AT_KEY, 0)
@@ -366,7 +395,7 @@ def construct_latest_block_based_cache_middleware(
 
         lock = threading.Lock()
 
-        def middleware(method, params):
+        def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             lock_acquired = lock.acquire(blocking=False)
 
             try:

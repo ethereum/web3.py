@@ -15,7 +15,7 @@ from web3.method import (
     Method,
 )
 from web3.types import (
-    JsonRpcResponse,
+    RPCResponse,
 )
 
 if TYPE_CHECKING:
@@ -24,8 +24,8 @@ if TYPE_CHECKING:
 
 @curry
 def apply_result_formatters(
-    result_formatters: Callable[..., Any], result: JsonRpcResponse
-) -> JsonRpcResponse:
+    result_formatters: Callable[..., Any], result: RPCResponse
+) -> RPCResponse:
     if result_formatters:
         formatted_result = pipe(result, result_formatters)
         return formatted_result
@@ -36,8 +36,8 @@ def apply_result_formatters(
 @curry
 def retrieve_blocking_method_call_fn(
     w3: "Web3", module: Union["Module", "ModuleV2"], method: Method
-) -> Callable[..., JsonRpcResponse]:
-    def caller(*args: Any, **kwargs: Any) -> JsonRpcResponse:
+) -> Callable[..., RPCResponse]:
+    def caller(*args: Any, **kwargs: Any) -> RPCResponse:
         (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)
         result_formatters, error_formatters = response_formatters
         result = w3.manager.request_blocking(method_str, params, error_formatters)
@@ -48,8 +48,8 @@ def retrieve_blocking_method_call_fn(
 @curry
 def retrieve_async_method_call_fn(
     w3: "Web3", module: Union["Module", "ModuleV2"], method: Method
-) -> Callable[..., Coroutine[Any, Any, JsonRpcResponse]]:
-    async def caller(*args: Any, **kwargs: Any) -> JsonRpcResponse:
+) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
+    async def caller(*args: Any, **kwargs: Any) -> RPCResponse:
         (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)
         result_formatters, error_formatters = response_formatters
         result = await w3.manager.coro_request(method_str, params, error_formatters)

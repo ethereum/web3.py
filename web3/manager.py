@@ -41,8 +41,8 @@ from web3.providers import (
     BaseProvider,
 )
 from web3.types import (
-    JsonRpcResponse,
     Middleware,
+    RPCResponse,
 )
 
 if TYPE_CHECKING:
@@ -50,8 +50,8 @@ if TYPE_CHECKING:
 
 
 def apply_error_formatters(
-    error_formatters: Callable[..., Any], response: JsonRpcResponse
-) -> JsonRpcResponse:
+    error_formatters: Callable[..., Any], response: RPCResponse
+) -> RPCResponse:
     if 'error' in response and error_formatters:
         formatted_response = pipe(response, error_formatters)
         return formatted_response
@@ -114,14 +114,14 @@ class RequestManager:
     #
     # Provider requests and response
     #
-    def _make_request(self, method: str, params: Any) -> JsonRpcResponse:
+    def _make_request(self, method: str, params: Any) -> RPCResponse:
         request_func = self.provider.request_func(
             self.web3,
             tuple(self.middleware_onion))
         self.logger.debug("Making request. Method: %s", method)
         return request_func(method, params)
 
-    async def _coro_make_request(self, method: str, params: Any) -> JsonRpcResponse:
+    async def _coro_make_request(self, method: str, params: Any) -> RPCResponse:
         request_func = self.provider.request_func(
             self.web3,
             tuple(self.middleware_onion))

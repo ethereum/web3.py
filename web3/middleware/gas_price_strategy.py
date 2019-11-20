@@ -1,13 +1,29 @@
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+)
+
 from eth_utils.toolz import (
     assoc,
 )
 
+from web3.types import (
+    RPCEndpoint,
+    RPCResponse,
+)
 
-def gas_price_strategy_middleware(make_request, web3):
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
+
+
+def gas_price_strategy_middleware(
+    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     """
     Includes a gas price using the gas price strategy
     """
-    def middleware(method, params):
+    def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == 'eth_sendTransaction':
             transaction = params[0]
             if 'gasPrice' not in transaction:
