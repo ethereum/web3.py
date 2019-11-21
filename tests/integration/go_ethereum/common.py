@@ -11,12 +11,49 @@ from web3._utils.module_testing import (  # noqa: F401
 )
 
 
+OLDER_GETH_VERSIONS = ['v1.7.2', 'v1.8.22']
+NEWER_GETH_VERSIONS = ['v1.8.22', 'v1.9.3']
+
+
 class GoEthereumTest(Web3ModuleTest):
     def _check_web3_clientVersion(self, client_version):
         assert client_version.startswith('Geth/')
 
 
 class GoEthereumEthModuleTest(EthModuleTest):
+    def test_eth_replaceTransaction(self, web3, unlocked_account):
+        if any([v in web3.clientVersion for v in OLDER_GETH_VERSIONS]):
+            pytest.xfail(reason='Needs ability to efficiently control mining')
+        super().test_eth_replaceTransaction(web3, unlocked_account)
+
+    def test_eth_replaceTransaction_gas_price_defaulting_minimum(self, web3, unlocked_account):
+        if any([v in web3.clientVersion for v in OLDER_GETH_VERSIONS]):
+            pytest.xfail(reason='Needs ability to efficiently control mining')
+        super().test_eth_replaceTransaction_gas_price_defaulting_minimum(web3, unlocked_account)
+
+    def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(self,
+                                                                         web3,
+                                                                         unlocked_account):
+        if any([v in web3.clientVersion for v in OLDER_GETH_VERSIONS]):
+            pytest.xfail(reason='Needs ability to efficiently control mining')
+        super().test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(
+            web3, unlocked_account
+        )
+
+    def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(self,
+                                                                        web3,
+                                                                        unlocked_account):
+        if any([v in web3.clientVersion for v in OLDER_GETH_VERSIONS]):
+            pytest.xfail(reason='Needs ability to efficiently control mining')
+        super().test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(
+            web3, unlocked_account
+        )
+
+    def test_eth_modifyTransaction(self, web3, unlocked_account):
+        if any([v in web3.clientVersion for v in OLDER_GETH_VERSIONS]):
+            pytest.xfail(reason='Needs ability to efficiently control mining')
+        super().test_eth_modifyTransaction(web3, unlocked_account)
+
     @pytest.mark.xfail(reason='Block identifier has not been implemented in geth')
     def test_eth_estimateGas_with_block(self,
                                         web3,
@@ -26,7 +63,7 @@ class GoEthereumEthModuleTest(EthModuleTest):
         )
 
     def test_eth_submitHashrate(self, web3):
-        if 'v1.8.22' in web3.clientVersion:
+        if any([v in web3.clientVersion for v in NEWER_GETH_VERSIONS]):
             # https://github.com/ethereum/go-ethereum/commit/51db5975cc5fb88db6a0dba1826b534fd4df29d7
             pytest.xfail('eth_submitHashrate deprecated in 1.8.22 for ethash_submitHashRate')
         super().test_eth_submitHashrate(web3)
