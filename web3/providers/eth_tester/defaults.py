@@ -9,6 +9,7 @@ from typing import (
     NoReturn,
     Tuple,
     Type,
+    TypeVar,
 )
 
 from eth_tester.exceptions import (
@@ -47,6 +48,10 @@ if TYPE_CHECKING:
         EthereumTester,
     )
 
+TReturn = TypeVar("TReturn")
+TParams = TypeVar("TParams")
+TValue = TypeVar("TValue")
+
 
 def not_implemented(*args: Any, **kwargs: Any) -> NoReturn:
     raise NotImplementedError("RPC method not implemented")
@@ -61,18 +66,22 @@ def call_eth_tester(
     return getattr(eth_tester, fn_name)(*fn_args, **fn_kwargs)
 
 
-def without_eth_tester(fn: Callable[..., Any]) -> Callable[..., RPCResponse]:
+def without_eth_tester(
+    fn: Callable[[TParams], TReturn]
+) -> Callable[["EthereumTester", TParams], TReturn]:
     # workaround for: https://github.com/pytoolz/cytoolz/issues/103
     # @functools.wraps(fn)
-    def inner(eth_tester: "EthereumTester", params: Any) -> Callable[..., RPCResponse]:
+    def inner(eth_tester: "EthereumTester", params: TParams) -> TReturn:
         return fn(params)
     return inner
 
 
-def without_params(fn: Callable[..., Any]) -> Callable[..., RPCResponse]:
+def without_params(
+    fn: Callable[[TParams], TReturn]
+) -> Callable[["EthereumTester", TParams], TReturn]:
     # workaround for: https://github.com/pytoolz/cytoolz/issues/103
     # @functools.wraps(fn)
-    def inner(eth_tester: "EthereumTester", params: Any) -> Callable[..., RPCResponse]:
+    def inner(eth_tester: "EthereumTester", params: Any) -> TReturn:
         return fn(eth_tester)
     return inner
 
@@ -84,8 +93,8 @@ def preprocess_params(
     return eth_tester, preprocessor_fn(params)
 
 
-def static_return(value: Any) -> Callable[..., Any]:
-    def inner(*args: Any, **kwargs: Any) -> Any:
+def static_return(value: TValue) -> Callable[..., TValue]:
+    def inner(*args: Any, **kwargs: Any) -> TValue:
         return value
     return inner
 
@@ -101,7 +110,9 @@ def client_version(eth_tester: "EthereumTester", params: Any) -> str:
 
 
 @curry
-def null_if_excepts(exc_type: Type[BaseException], fn: Callable[..., Any]) -> Callable[..., Any]:
+def null_if_excepts(
+    exc_type: Type[BaseException], fn: Callable[..., TReturn]
+) -> Callable[..., TReturn]:
     return excepts(
         exc_type,
         fn,
