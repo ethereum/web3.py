@@ -7,8 +7,8 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        "eth-tester[py-evm]==0.1.0-beta.39",
-        "py-geth @ git+ssh://git@github.com/ethereum/py-geth@ad462e7c841ebd9363b318889252e1f7d7c09c56#egg=py_geth",  # noqa: F401
+        "eth-tester[py-evm]==v0.2.0-beta.2",
+        "py-geth>=2.0.1,<3.0.0",
     ],
     'linter': [
         "flake8==3.4.1",
