@@ -30,8 +30,7 @@ def endpoint_uri(ws_port):
     return 'ws://localhost:{0}'.format(ws_port)
 
 
-@pytest.fixture(scope='module')
-def geth_command_arguments(geth_binary, datadir, ws_port):
+def base_geth_command_arguments(geth_binary, datadir, ws_port):
     return (
         geth_binary,
         '--datadir', str(datadir),
@@ -43,8 +42,21 @@ def geth_command_arguments(geth_binary, datadir, ws_port):
         '--wsapi', 'admin,db,eth,net,shh,web3,personal,web3',
         '--wsorigins', '*',
         '--ipcdisable',
-        '--allow-insecure-unlock',
     )
+
+
+@pytest.fixture(scope='module')
+def geth_command_arguments(geth_binary, geth_version, datadir, ws_port):
+    if geth_version.major == 1:
+        if geth_version.minor == 9:
+            return (
+                base_geth_command_arguments(geth_binary, datadir, ws_port) +
+                ('--allow-insecure-unlock',)
+            )
+        elif geth_version.minor == 8 or geth_version.minor == 7:
+            return base_geth_command_arguments(geth_binary, datadir, ws_port)
+        else:
+            assert False, "Unsupported geth version"
 
 
 @pytest.fixture(scope="module")

@@ -53,15 +53,19 @@ def absolute_datadir(directory_name):
 
 
 @pytest.fixture(scope="module")
-def geth_zipfile_version(geth_binary):
+def geth_version(geth_binary):
     from geth import get_geth_version
-    version = get_geth_version(geth_executable=os.path.expanduser(geth_binary))
-    if version.major == 1:
-        if version.minor == 7:
+    return get_geth_version(geth_executable=os.path.expanduser(geth_binary))
+
+
+@pytest.fixture(scope="module")
+def geth_zipfile_version(geth_version):
+    if geth_version.major == 1:
+        if geth_version.minor == 7:
             return GETH_17_ZIP
-        elif version.minor == 8:
+        elif geth_version.minor == 8:
             return GETH_1822_ZIP
-        elif version.minor == 9:
+        elif geth_version.minor == 9:
             return GETH_193_ZIP
     assert False, "Unsupported geth version"
 
