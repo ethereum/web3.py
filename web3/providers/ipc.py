@@ -6,9 +6,17 @@ from pathlib import (
 import socket
 import sys
 import threading
+from typing import (
+    Any,
+    Type,
+)
 
 from web3._utils.threads import (
     Timeout,
+)
+from web3.types import (
+    RPCEndpoint,
+    RPCResponse,
 )
 
 from .base import (
@@ -18,10 +26,12 @@ from .base import (
 try:
     from json import JSONDecodeError
 except ImportError:
-    JSONDecodeError = ValueError
+    # type ignored b/c mypy unhappy w/ conflicting exception types
+    # difficult to cast / resolve w/ conditional import
+    JSONDecodeError = ValueError  # type: ignore
 
 
-def get_ipc_socket(ipc_path, timeout=0.1):
+def get_ipc_socket(ipc_path: str, timeout: float=0.1) -> socket.socket:
     if sys.platform == 'win32':
         # On Windows named pipe is used. Simulate socket with it.
         from web3._utils.windows import NamedPipe
@@ -37,10 +47,10 @@ def get_ipc_socket(ipc_path, timeout=0.1):
 class PersistantSocket:
     sock = None
 
-    def __init__(self, ipc_path):
+    def __init__(self, ipc_path: str) -> None:
         self.ipc_path = ipc_path
 
-    def __enter__(self):
+    def __enter__(self) -> socket.socket:
         if not self.ipc_path:
             raise FileNotFoundError("cannot connect to IPC socket at path: %r" % self.ipc_path)
 
@@ -48,7 +58,7 @@ class PersistantSocket:
             self.sock = self._open()
         return self.sock
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type: Type[BaseException], exc_value: Any, traceback: Any) -> None:
         # only close the socket if there was an error
         if exc_value is not None:
             try:
@@ -57,16 +67,17 @@ class PersistantSocket:
                 pass
             self.sock = None
 
-    def _open(self):
+    def _open(self) -> socket.socket:
         return get_ipc_socket(self.ipc_path)
 
-    def reset(self):
+    def reset(self) -> socket.socket:
         self.sock.close()
         self.sock = self._open()
         return self.sock
 
 
-def get_default_ipc_path():
+# type ignored b/c missing return statement is by design here
+def get_default_ipc_path() -> str:  # type: ignore
     if sys.platform == 'darwin':
         ipc_path = os.path.expanduser(os.path.join(
             "~",
@@ -88,8 +99,8 @@ def get_default_ipc_path():
             return ipc_path
 
         base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
-        ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'
-        if ipc_path.exists():
+        ipc_path = str(base_trinity_path / 'mainnet' / 'jsonrpc.ipc')
+        if Path(ipc_path).exists():
             return str(ipc_path)
 
     elif sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
@@ -112,8 +123,9 @@ def get_default_ipc_path():
             return ipc_path
 
         base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
-        ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'
-        if ipc_path.exists():
+        # type ignored b/c ipc_path is already defined as a str above
+        ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'  # type: ignore
+        if ipc_path.exists():  # type: ignore
             return str(ipc_path)
 
     elif sys.platform == 'win32':
@@ -142,7 +154,8 @@ def get_default_ipc_path():
         )
 
 
-def get_dev_ipc_path():
+# type ignored b/c missing return statement is by design here
+def get_dev_ipc_path() -> str:  # type: ignore
     if sys.platform == 'darwin':
         tmpdir = os.environ.get('TMPDIR', '')
         ipc_path = os.path.expanduser(os.path.join(
@@ -190,7 +203,7 @@ class IPCProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.IPCProvider")
     _socket = None
 
-    def __init__(self, ipc_path=None, timeout=10, *args, **kwargs):
+    def __init__(self, ipc_path: str=None, timeout: int=10, *args: Any, **kwargs: Any) -> None:
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path()
         elif isinstance(ipc_path, str) or isinstance(ipc_path, Path):
@@ -201,9 +214,9 @@ class IPCProvider(JSONBaseProvider):
         self.timeout = timeout
         self._lock = threading.Lock()
         self._socket = PersistantSocket(self.ipc_path)
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
-    def make_request(self, method, params):
+    def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug("Making request IPC. Path: %s, Method: %s",
                           self.ipc_path, method)
         request = self.encode_rpc_request(method, params)
@@ -240,7 +253,7 @@ class IPCProvider(JSONBaseProvider):
 
 
 # A valid JSON RPC response can only end in } or ] http://www.jsonrpc.org/specification
-def has_valid_json_rpc_ending(raw_response):
+def has_valid_json_rpc_ending(raw_response: bytes) -> bool:
     stripped_raw_response = raw_response.rstrip()
     for valid_ending in [b"}", b"]"]:
         if stripped_raw_response.endswith(valid_ending):

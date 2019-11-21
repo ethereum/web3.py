@@ -47,9 +47,6 @@ from web3._utils.module import (
 from web3._utils.normalizers import (
     abi_ens_resolver,
 )
-from web3.datastructures import (
-    NamedElementOnion,
-)
 from web3.eth import (
     Eth,
 )
@@ -93,8 +90,9 @@ from web3.providers.websocket import (
 from web3.testing import (
     Testing,
 )
-from web3.types import (
+from web3.types import (  # noqa: F401
     Middleware,
+    MiddlewareOnion,
 )
 from web3.version import (
     Version,
@@ -175,7 +173,7 @@ class Web3:
         self.ens = ens
 
     @property
-    def middleware_onion(self) -> NamedElementOnion[str, Middleware]:
+    def middleware_onion(self) -> MiddlewareOnion:
         return self.manager.middleware_onion
 
     @property

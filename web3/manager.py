@@ -6,6 +6,7 @@ from typing import (  # noqa: F401
     Dict,
     List,
     NoReturn,
+    Optional,
     Sequence,
     Tuple,
 )
@@ -40,8 +41,9 @@ from web3.providers import (
     AutoProvider,
     BaseProvider,
 )
-from web3.types import (
+from web3.types import (  # noqa: F401
     Middleware,
+    MiddlewareOnion,
     RPCResponse,
 )
 
@@ -74,7 +76,7 @@ class RequestManager:
         if middlewares is None:
             middlewares = self.default_middlewares(web3)
 
-        self.middleware_onion: NamedElementOnion[str, Middleware] = NamedElementOnion(middlewares)
+        self.middleware_onion: MiddlewareOnion = NamedElementOnion(middlewares)
 
         if provider is None:
             self.provider = AutoProvider()
@@ -117,14 +119,14 @@ class RequestManager:
     def _make_request(self, method: str, params: Any) -> RPCResponse:
         request_func = self.provider.request_func(
             self.web3,
-            tuple(self.middleware_onion))
+            self.middleware_onion)
         self.logger.debug("Making request. Method: %s", method)
         return request_func(method, params)
 
     async def _coro_make_request(self, method: str, params: Any) -> RPCResponse:
         request_func = self.provider.request_func(
             self.web3,
-            tuple(self.middleware_onion))
+            self.middleware_onion)
         self.logger.debug("Making request. Method: %s", method)
         return await request_func(method, params)
 
