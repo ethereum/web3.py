@@ -1,11 +1,31 @@
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Coroutine,
+    Dict,
+)
+
+from web3._utils.compat import (
+    Literal,
+)
 from web3.providers import (
     BaseProvider,
+)
+from web3.types import (
+    RPCEndpoint,
+    RPCResponse,
 )
 
 from .middleware import (
     default_transaction_fields_middleware,
     ethereum_tester_middleware,
 )
+
+if TYPE_CHECKING:
+    from eth_tester import (  # noqa: F401
+        EthereumTester,
+    )
 
 
 class AsyncEthereumTesterProvider(BaseProvider):
@@ -14,10 +34,12 @@ class AsyncEthereumTesterProvider(BaseProvider):
     For now its purpose is to provide an awaitable request function
     for testing the async api execution.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self.eth_tester = EthereumTesterProvider()
 
-    async def make_request(self, method, params):
+    async def make_request(
+        self, method: RPCEndpoint, params: Any
+    ) -> Coroutine[Any, Any, RPCResponse]:
         return self.eth_tester.make_request(method, params)
 
 
@@ -29,9 +51,13 @@ class EthereumTesterProvider(BaseProvider):
     ethereum_tester = None
     api_endpoints = None
 
-    def __init__(self, ethereum_tester=None, api_endpoints=None):
+    def __init__(
+        self,
+        ethereum_tester: "EthereumTester"=None,
+        api_endpoints: Dict[str, Dict[str, Callable[..., RPCResponse]]]=None
+    ) -> None:
         # do not import eth_tester until runtime, it is not a default dependency
-        from eth_tester import EthereumTester
+        from eth_tester import EthereumTester  # noqa: F811
         from eth_tester.backends.base import BaseChainBackend
         if ethereum_tester is None:
             self.ethereum_tester = EthereumTester()
@@ -55,7 +81,7 @@ class EthereumTesterProvider(BaseProvider):
         else:
             self.api_endpoints = api_endpoints
 
-    def make_request(self, method, params):
+    def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         namespace, _, endpoint = method.partition('_')
         try:
             delegator = self.api_endpoints[namespace][endpoint]
@@ -75,5 +101,5 @@ class EthereumTesterProvider(BaseProvider):
                 'result': response,
             }
 
-    def isConnected(self):
+    def isConnected(self) -> Literal[True]:
         return True

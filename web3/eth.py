@@ -85,7 +85,7 @@ from web3.types import (
     BlockIdentifier,
     FilterParams,
     GasPriceStrategy,
-    LogParams,
+    LogReceipt,
     MerkleProof,
     SyncStatus,
     TxParams,
@@ -421,7 +421,7 @@ class Eth(Module):
             [transaction, block_identifier],
         )
 
-    def estimateGas(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> int:
+    def estimateGas(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> Wei:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
@@ -471,17 +471,17 @@ class Eth(Module):
                             "a valid filter object, or a filter_id as a string "
                             "or hex.")
 
-    def getFilterChanges(self, filter_id: int) -> List[LogParams]:
+    def getFilterChanges(self, filter_id: int) -> List[LogReceipt]:
         return self.web3.manager.request_blocking(
             "eth_getFilterChanges", [filter_id],
         )
 
-    def getFilterLogs(self, filter_id: int) -> List[LogParams]:
+    def getFilterLogs(self, filter_id: int) -> List[LogReceipt]:
         return self.web3.manager.request_blocking(
             "eth_getFilterLogs", [filter_id],
         )
 
-    def getLogs(self, filter_params: FilterParams) -> List[LogParams]:
+    def getLogs(self, filter_params: FilterParams) -> List[LogReceipt]:
         return self.web3.manager.request_blocking(
             "eth_getLogs", [filter_params],
         )
