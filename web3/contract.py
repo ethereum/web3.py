@@ -797,7 +797,7 @@ class ContractFunction:
     contract_abi: ABI = None
     abi: ABIFunction = None
     transaction: TxParams = None
-    arguments: Tuple[Any] = None
+    arguments: Tuple[Any, ...] = None
     args: Any = None
     kwargs: Any = None
 

@@ -74,8 +74,8 @@ ABIFunction = TypedDict("ABIFunction", {
     "constant": bool,
 }, total=False)
 
-
-ABI = Sequence[Union[ABIFunction, ABIEvent]]
+ABIElement = NewType("ABIElement", ABIEvent, ABIFunction)
+ABI = Sequence[ABIElement]
 
 
 LatestBlockParam = Literal["latest"]
