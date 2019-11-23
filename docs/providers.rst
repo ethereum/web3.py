@@ -126,10 +126,10 @@ For example, the following retrieves the client enode endpoint for both geth and
 
     connected = w3.isConnected()
 
-    if connected and w3.version.node.startswith('Parity'):
+    if connected and w3.clientVersion.startswith('Parity'):
         enode = w3.parity.enode
 
-    elif connected and w3.version.node.startswith('Geth'):
+    elif connected and w3.clientVersion.startswith('Geth'):
         enode = w3.geth.admin.nodeInfo['enode']
 
     else:
