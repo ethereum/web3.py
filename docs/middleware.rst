@@ -335,7 +335,7 @@ The easiest way to connect to a default ``geth --dev`` instance which loads the 
     >>> from web3.auto.gethdev import w3
 
     # confirm that the connection succeeded
-    >>> w3.version.node
+    >>> w3.clientVersion
     'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
 
 This example connects to a local ``geth --dev`` instance on Linux with a
@@ -355,7 +355,7 @@ unique IPC location and loads the middleware:
     >>> w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     # confirm that the connection succeeded
-    >>> w3.version.node
+    >>> w3.clientVersion
     'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
 
 Why is ``geth_poa_middleware`` necessary?
