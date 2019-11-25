@@ -67,6 +67,10 @@ logs
 .idea/dictionaries
 .idea/vcs.xml
 .idea/jsLibraryMappings.xml
+.idea/inspectionProfiles
+.idea/misc.xml
+.idea/web3.py.iml
+.idea/modules.xml
 
 # Sensitive or high-churn files:
 .idea/dataSources.ids
