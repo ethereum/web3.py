@@ -328,7 +328,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the block specified by ``block_identifier``.  Delegates to
     ``eth_getBlockByNumber`` if ``block_identifier`` is an integer or one of
     the predefined block parameters ``'latest', 'earliest', 'pending'``,
-    otherwise delegates to ``eth_getBlockByHash``.
+    otherwise delegates to ``eth_getBlockByHash``. Throws ``BlockNotFound`` error if the block is not found.
 
     If ``full_transactions`` is ``True`` then the ``'transactions'`` key will
     contain full transactions objects.  Otherwise it will be an array of
@@ -369,7 +369,7 @@ The following methods are available on the ``web3.eth`` namespace.
     ``block_identifier``.  Delegates to
     ``eth_getBlockTransactionCountByNumber`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
-    'pending'``, otherwise delegates to ``eth_getBlockTransactionCountByHash``.
+    'pending'``, otherwise delegates to ``eth_getBlockTransactionCountByHash``. Throws ``BlockNotFoundError`` if transactions are not found.
 
     .. code-block:: python
 
@@ -395,7 +395,7 @@ The following methods are available on the ``web3.eth`` namespace.
     ``eth_getUncleByBlockNumberAndIndex`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
     'pending'``, otherwise delegates to
-    ``eth_getUncleByBlockHashAndIndex``.
+    ``eth_getUncleByBlockHashAndIndex``. Throws ``BlockNotFound`` if the block is not found.
 
     .. code-block:: python
 
@@ -435,7 +435,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Delegates to ``eth_getTransactionByHAsh`` RPC Method
 
-    Returns the transaction specified by ``transaction_hash``
+    Returns the transaction specified by ``transaction_hash``. If the transaction has not yet been mined returns ``TransactionNotFound``.
 
     .. code-block:: python
 
@@ -470,7 +470,7 @@ The following methods are available on the ``web3.eth`` namespace.
     ``eth_getTransactionByBlockNumberAndIndex`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
     'pending'``, otherwise delegates to
-    ``eth_getTransactionByBlockHashAndIndex``.
+    ``eth_getTransactionByBlockHashAndIndex``. If the transaction has not yet been mined returns ``TransactionNotFound``.
 
     .. code-block:: python
 
@@ -538,7 +538,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Delegates to ``eth_getTransactionReceipt`` RPC Method
 
-    Returns the transaction receipt specified by ``transaction_hash``.  If the transaction has not yet been mined returns ``None``
+    Returns the transaction receipt specified by ``transaction_hash``.  If the transaction has not yet been mined returns ``TransactionNotFound``
 
     .. code-block:: python
 
