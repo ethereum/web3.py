@@ -44,10 +44,10 @@ class AsyncEthereumTesterProvider(BaseProvider):
 
 
 class EthereumTesterProvider(BaseProvider):
-    middlewares = [
+    middlewares = (
         default_transaction_fields_middleware,
         ethereum_tester_middleware,
-    ]
+    )
     ethereum_tester = None
     api_endpoints = None
 

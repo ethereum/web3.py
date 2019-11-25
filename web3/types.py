@@ -26,6 +26,9 @@ from typing_extensions import (
 from web3._utils.compat import (
     TypedDict,
 )
+from web3.datastructures import (
+    NamedElementOnion,
+)
 
 Wei = NewType('Wei', int)
 
@@ -147,6 +150,7 @@ TxParams = TypedDict("TxParams", {
 GasPriceStrategy = Callable[[Any, TxParams], Wei]
 # 2 input to parent callable Any should be updated to Web3 once all type hints land
 Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], Any], Any]
+MiddlewareOnion = NamedElementOnion[str, Middleware]
 
 
 LogReceipt = TypedDict("LogReceipt", {
