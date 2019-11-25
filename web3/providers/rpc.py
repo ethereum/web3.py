@@ -61,7 +61,7 @@ class HTTPProvider(JSONBaseProvider):
         return "RPC connection {0}".format(self.endpoint_uri)
 
     @to_dict
-    def get_request_kwargs(self) -> Iterable[Tuple[Any, Any]]:
+    def get_request_kwargs(self) -> Iterable[Tuple[str, Any]]:
         if 'headers' not in self._request_kwargs:
             yield 'headers', self.get_request_headers()
         for key, value in self._request_kwargs.items():

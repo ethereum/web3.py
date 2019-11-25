@@ -1,3 +1,6 @@
+from json import (
+    JSONDecodeError,
+)
 import logging
 import os
 from pathlib import (
@@ -6,6 +9,9 @@ from pathlib import (
 import socket
 import sys
 import threading
+from types import (
+    TracebackType,
+)
 from typing import (
     Any,
     Type,
@@ -22,13 +28,6 @@ from web3.types import (
 from .base import (
     JSONBaseProvider,
 )
-
-try:
-    from json import JSONDecodeError
-except ImportError:
-    # type ignored b/c mypy unhappy w/ conflicting exception types
-    # difficult to cast / resolve w/ conditional import
-    JSONDecodeError = ValueError  # type: ignore
 
 
 def get_ipc_socket(ipc_path: str, timeout: float=0.1) -> socket.socket:
@@ -58,7 +57,9 @@ class PersistantSocket:
             self.sock = self._open()
         return self.sock
 
-    def __exit__(self, exc_type: Type[BaseException], exc_value: Any, traceback: Any) -> None:
+    def __exit__(
+        self, exc_type: Type[BaseException], exc_value: BaseException, traceback: TracebackType
+    ) -> None:
         # only close the socket if there was an error
         if exc_value is not None:
             try:

@@ -5,6 +5,9 @@ import os
 from threading import (
     Thread,
 )
+from types import (
+    TracebackType,
+)
 from typing import (
     Any,
     Type,
@@ -64,7 +67,9 @@ class PersistentWebSocket:
             )
         return self.ws
 
-    async def __aexit__(self, exc_type: Type[BaseException], exc_val: Any, exc_tb: Any) -> None:
+    async def __aexit__(
+        self, exc_type: Type[BaseException], exc_val: BaseException, exc_tb: TracebackType
+    ) -> None:
         if exc_val is not None:
             try:
                 await self.ws.close()
