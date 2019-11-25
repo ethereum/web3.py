@@ -6,8 +6,6 @@ directory = "newsfragments"
 underlines = ["-", "~", "^"]
 issue_format = "`#{issue} <https://github.com/ethereum/<REPO_NAME>/issues/{issue}>`__"
 
-# Configure all default sections plus an extra one for performance improvements.
-
 [[tool.towncrier.type]]
 directory = "feature"
 name = "Features"
@@ -34,6 +32,11 @@ name = "Deprecations and Removals"
 showcontent = true
 
 [[tool.towncrier.type]]
+directory = "internal"
+name = "Internal Changes - for <PROJECT_NAME> Contributors"
+showcontent = true
+
+[[tool.towncrier.type]]
 directory = "misc"
-name = "Miscellaneous internal changes"
+name = "Miscellaneous changes"
 showcontent = false
