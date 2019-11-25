@@ -1,5 +1,8 @@
 import collections
 import hashlib
+from typing import (
+    Any,
+)
 
 from eth_utils import (
     is_boolean,
@@ -13,7 +16,7 @@ from eth_utils import (
 )
 
 
-def generate_cache_key(value):
+def generate_cache_key(value: Any) -> str:
     """
     Generates a cache key for the *args and **kwargs
     """

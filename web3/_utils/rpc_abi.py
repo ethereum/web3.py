@@ -11,6 +11,23 @@ from eth_utils.toolz import (
 from web3._utils.abi import (
     map_abi_data,
 )
+from web3.types import (
+    RPCEndpoint,
+)
+
+
+class RPC:
+    eth_getBlockByNumber = RPCEndpoint("eth_getBlockByNumber")
+    eth_getBlockByHash = RPCEndpoint("eth_getBlockByHash")
+    eth_getBlockTransactionCountByNumber = RPCEndpoint("eth_getBlockTransactionCountByNumber")
+    eth_getBlockTransactionCountByHash = RPCEndpoint("eth_getBlockTransactionCountByHash")
+    eth_getUncleCountByBlockNumber = RPCEndpoint("eth_getUncleCountByBlockNumber")
+    eth_getUncleCountByBlockHash = RPCEndpoint("eth_getUncleCountByBlockHash")
+    eth_getUncleByBlockNumberAndIndex = RPCEndpoint("eth_getUncleByBlockNumberAndIndex")
+    eth_getUncleByBlockHashAndIndex = RPCEndpoint("eth_getUncleByBlockHashAndIndex")
+    eth_getTransactionByBlockNumberAndIndex = RPCEndpoint("eth_getTransactionByBlockNumberAndIndex")
+    eth_getTransactionByBlockHashAndIndex = RPCEndpoint("eth_getTransactionByBlockHashAndIndex")
+
 
 TRANSACTION_PARAMS_ABIS = {
     'data': 'bytes',
