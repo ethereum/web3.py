@@ -377,7 +377,7 @@ class Contract:
     #  Public API
     #
     @combomethod
-    def encodeABI(cls, fn_name: str, args: Any=None, kwargs: Any=None, data: bytes=None) -> ABI:
+    def encodeABI(cls, fn_name: str, args: Any=None, kwargs: Any=None, data: HexStr=None) -> HexStr:
         """
         Encodes the arguments using the Ethereum ABI for the contract function
         that matches the given name and arguments..
@@ -498,7 +498,7 @@ class Contract:
 
     @classmethod
     def _find_matching_event_abi(
-        cls, event_name: str=None, argument_names: Collection[str]=None
+        cls, event_name: str=None, argument_names: Sequence[str]=None
     ) -> ABIEvent:
         return find_matching_event_abi(
             abi=cls.abi,
@@ -557,7 +557,7 @@ class ContractConstructor:
     Class for contract constructor API.
     """
     def __init__(
-        self, web3: 'Web3', abi: ABI, bytecode: bytes, *args: Any, **kwargs: Any
+        self, web3: 'Web3', abi: ABI, bytecode: HexStr, *args: Any, **kwargs: Any
     ) -> None:
         self.web3 = web3
         self.abi = abi
