@@ -25,10 +25,10 @@ from eth_utils.toolz import (
     merge,
     valmap,
 )
-
 from tests.utils import (
     get_open_port,
 )
+
 from web3 import Web3
 from web3._utils.module_testing.emitter_contract import (
     EMITTER_ABI,

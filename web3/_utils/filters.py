@@ -17,11 +17,17 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.events import (
+    EventFilterBuilder,
+)
 from web3._utils.threads import (
     TimerClass,
 )
 from web3._utils.validation import (
     validate_address,
+)
+from web3.types import (
+    FilterParams,
 )
 
 from .events import (
@@ -147,6 +153,8 @@ class LogFilter(Filter):
     data_filter_set = None
     data_filter_set_regex = None
     log_entry_formatter = None
+    filter_params: FilterParams = None
+    builder: EventFilterBuilder = None
 
     def __init__(self, *args, **kwargs):
         self.log_entry_formatter = kwargs.pop(

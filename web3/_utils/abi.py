@@ -80,7 +80,6 @@ from web3.exceptions import (
 )
 from web3.types import (
     ABI,
-    ABIElement,
     ABIEvent,
     ABIEventParams,
     ABIFunction,
@@ -88,44 +87,47 @@ from web3.types import (
 )
 
 
-def filter_by_type(_type: str, contract_abi: ABI) -> List[ABIElement]:
-    return [abi for abi in contract_abi if abi['type'] == _type]
+def filter_by_type(_type: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+    # fix for this just landed, not yet released : https://github.com/python/mypy/pull/7917
+    # after it's released, update Union[ABIFunction, ABIEvent] -> ABIElement
+    return [abi for abi in contract_abi if abi['type'] == _type]  # type: ignore
 
 
-def filter_by_name(name: str, contract_abi: ABI) -> List[ABIElement]:
+def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
     return [
         abi
         for abi
         in contract_abi
         if (
-            abi['type'] not in ('fallback', 'constructor') and
-            abi['name'] == name
+            # type ignored b/c see line 91
+            abi['type'] not in ('fallback', 'constructor') and  # type: ignore
+            abi['name'] == name  # type: ignore
         )
     ]
 
 
-def get_abi_input_types(abi: ABIElement) -> List[str]:
+def get_abi_input_types(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
     if 'inputs' not in abi and abi['type'] == 'fallback':
         return []
     else:
         return [collapse_if_tuple(arg) for arg in abi['inputs']]
 
 
-def get_abi_output_types(abi: ABIElement) -> List[str]:
+def get_abi_output_types(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
     if abi['type'] == 'fallback':
         return []
     else:
         return [collapse_if_tuple(arg) for arg in abi['outputs']]
 
 
-def get_abi_input_names(abi: ABIElement) -> List[str]:
+def get_abi_input_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
     if 'inputs' not in abi and abi['type'] == 'fallback':
         return []
     else:
         return [arg['name'] for arg in abi['inputs']]
 
 
-def get_fallback_func_abi(contract_abi: ABI) -> ABIElement:
+def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
     fallback_abis = filter_by_type('fallback', contract_abi)
     if fallback_abis:
         return fallback_abis[0]
@@ -133,7 +135,7 @@ def get_fallback_func_abi(contract_abi: ABI) -> ABIElement:
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
 
-def fallback_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
+def fallback_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
     return filter_by_type('fallback', contract_abi)
 
 
@@ -145,16 +147,21 @@ def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
     return [arg for arg in event_abi['inputs'] if arg['indexed'] is False]
 
 
-def filter_by_argument_count(num_arguments: int, contract_abi: ABI) -> List[ABIElement]:
+def filter_by_argument_count(
+    num_arguments: int, contract_abi: ABI
+) -> List[Union[ABIFunction, ABIEvent]]:
     return [
         abi
         for abi
         in contract_abi
-        if len(abi['inputs']) == num_arguments
+        # type ignored b/c see line 91
+        if len(abi['inputs']) == num_arguments  # type: ignore
     ]
 
 
-def filter_by_argument_name(argument_names: Collection[str], contract_abi: ABI) -> List[ABIElement]:
+def filter_by_argument_name(
+    argument_names: Collection[str], contract_abi: ABI
+) -> List[Union[ABIFunction, ABIEvent]]:
     return [
         abi
         for abi in contract_abi
@@ -177,7 +184,6 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
     subencoder_cls: Type[encoding.BaseEncoder] = None
     is_strict: bool = None
 
-    # shouldn't this be BaseEncoder
     def __init__(self, subencoder: encoding.BaseEncoder) -> None:
         self.subencoder = subencoder
 
@@ -187,7 +193,7 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
         return self.subencoder.is_dynamic
 
     @classmethod
-    def from_type_str(cls, abi_type: str, registry: ABIRegistry) -> "AcceptsHexStrEncoder":
+    def from_type_str(cls, abi_type: TypeStr, registry: ABIRegistry) -> "AcceptsHexStrEncoder":
         subencoder_cls = cls.get_subencoder_class()
         # cast b/c expects BaseCoder but `from_type_string` restricted to BaseEncoder subclasses
         subencoder = cast(encoding.BaseEncoder, subencoder_cls.from_type_str(abi_type, registry))
@@ -367,7 +373,7 @@ class TextStringEncoder(encoding.TextStringEncoder):
 
 def filter_by_encodability(
     abi_codec: codec.ABIEncoder, args: Sequence[Any], kwargs: Dict[str, Any], contract_abi: ABI
-) -> List[ABIElement]:
+) -> List[ABIFunction]:
     return [
         function_abi
         for function_abi
@@ -377,7 +383,7 @@ def filter_by_encodability(
 
 
 def check_if_arguments_can_be_encoded(
-    function_abi: ABIElement,
+    function_abi: ABIFunction,
     abi_codec: codec.ABIEncoder,
     args: Sequence[Any],
     kwargs: Dict[str, Any],
@@ -560,9 +566,10 @@ def get_aligned_abi_inputs(
     )
 
 
-def get_constructor_abi(contract_abi: ABI) -> ABIElement:
+def get_constructor_abi(contract_abi: ABI) -> ABIFunction:
     candidates = [
-        abi for abi in contract_abi if abi['type'] == 'constructor'
+        # type ignored b/c see line 91
+        abi for abi in contract_abi if abi['type'] == 'constructor'  # type: ignore
     ]
     if len(candidates) == 1:
         return candidates[0]
@@ -611,32 +618,31 @@ TYPE_REGEX = (
 )
 
 
-def is_recognized_type(abi_type: str) -> bool:
+def is_recognized_type(abi_type: TypeStr) -> bool:
     return bool(re.match(TYPE_REGEX, abi_type))
 
 
-# tighten up abi type def
-def is_bool_type(abi_type: str) -> bool:
+def is_bool_type(abi_type: TypeStr) -> bool:
     return abi_type == 'bool'
 
 
-def is_uint_type(abi_type: str) -> bool:
+def is_uint_type(abi_type: TypeStr) -> bool:
     return abi_type in UINT_TYPES
 
 
-def is_int_type(abi_type: str) -> bool:
+def is_int_type(abi_type: TypeStr) -> bool:
     return abi_type in INT_TYPES
 
 
-def is_address_type(abi_type: str) -> bool:
+def is_address_type(abi_type: TypeStr) -> bool:
     return abi_type == 'address'
 
 
-def is_bytes_type(abi_type: str) -> bool:
+def is_bytes_type(abi_type: TypeStr) -> bool:
     return abi_type in BYTES_TYPES + ['bytes']
 
 
-def is_string_type(abi_type: str) -> bool:
+def is_string_type(abi_type: TypeStr) -> bool:
     return abi_type == 'string'
 
 
@@ -645,7 +651,7 @@ def is_length(target_length: int, value: Any) -> bool:
     return len(value) == target_length
 
 
-def size_of_type(abi_type: str) -> int:
+def size_of_type(abi_type: TypeStr) -> int:
     """
     Returns size in bits of abi_type
     """
@@ -665,7 +671,7 @@ def size_of_type(abi_type: str) -> int:
 END_BRACKETS_OF_ARRAY_TYPE_REGEX = r"\[[^]]*\]$"
 
 
-def sub_type_of_array_type(abi_type: str) -> str:
+def sub_type_of_array_type(abi_type: TypeStr) -> str:
     if not is_array_type(abi_type):
         raise ValueError(
             "Cannot parse subtype of nonarray abi-type: {0}".format(abi_type)
@@ -674,7 +680,7 @@ def sub_type_of_array_type(abi_type: str) -> str:
     return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, '', abi_type, 1)
 
 
-def length_of_array_type(abi_type: str) -> int:
+def length_of_array_type(abi_type: TypeStr) -> int:
     if not is_array_type(abi_type):
         raise ValueError(
             "Cannot parse length of nonarray abi-type: {0}".format(abi_type)
@@ -695,7 +701,7 @@ ARRAY_REGEX = (
 ).format(sub_type=SUB_TYPE_REGEX)
 
 
-def is_array_type(abi_type: str) -> bool:
+def is_array_type(abi_type: TypeStr) -> bool:
     return bool(re.match(ARRAY_REGEX, abi_type))
 
 
@@ -714,12 +720,14 @@ ENUM_REGEX = (
 ).format(lib_name=NAME_REGEX, enum_name=NAME_REGEX)
 
 
-def is_probably_enum(abi_type: str) -> bool:
+def is_probably_enum(abi_type: TypeStr) -> bool:
     return bool(re.match(ENUM_REGEX, abi_type))
 
 
 @to_tuple
-def normalize_event_input_types(abi_args: Collection[ABIElement]) -> Iterable[Dict[str, Any]]:
+def normalize_event_input_types(
+    abi_args: Collection[Union[ABIFunction, ABIEvent]]
+) -> Iterable[Union[TypeStr, Dict[TypeStr, Any]]]:
     for arg in abi_args:
         if is_recognized_type(arg['type']):
             yield arg
@@ -729,11 +737,12 @@ def normalize_event_input_types(abi_args: Collection[ABIElement]) -> Iterable[Di
             yield arg
 
 
-def abi_to_signature(abi: ABIElement) -> str:
+def abi_to_signature(abi: Union[ABIFunction, ABIEvent]) -> str:
     function_signature = "{fn_name}({fn_input_types})".format(
         fn_name=abi['name'],
         fn_input_types=','.join([
-            arg['type'] for arg in normalize_event_input_types(abi.get('inputs', []))
+            # type ignored b/c see line 91
+            arg['type'] for arg in normalize_event_input_types(abi.get('inputs', []))  # type: ignore # noqa: E501
         ]),
     )
     return function_signature

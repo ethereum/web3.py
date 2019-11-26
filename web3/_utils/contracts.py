@@ -1,5 +1,6 @@
 import functools
 from typing import (
+    TYPE_CHECKING,
     Any,
     Sequence,
     Tuple,
@@ -28,7 +29,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3 import Web3
 from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
@@ -64,6 +64,9 @@ from web3.types import (
     ABIFunction,
     TxParams,
 )
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
 
 def find_matching_event_abi(
@@ -153,7 +156,7 @@ def find_matching_fn_abi(
 
 
 def encode_abi(
-    web3: Web3, abi: ABIFunction, arguments: Sequence[Any], data: HexStr=None
+    web3: "Web3", abi: ABIFunction, arguments: Sequence[Any], data: HexStr=None
 ) -> HexStr:
     argument_types = get_abi_input_types(abi)
 
@@ -189,7 +192,7 @@ def encode_abi(
 
 def prepare_transaction(
     address: ChecksumAddress,
-    web3: Web3,
+    web3: "Web3",
     fn_identifier: Union[str, Type[FallbackFn]],
     contract_abi: ABI=None,
     fn_abi: ABIFunction=None,
@@ -231,7 +234,7 @@ def prepare_transaction(
 
 
 def encode_transaction_data(
-    web3: Web3,
+    web3: "Web3",
     fn_identifier: Union[str, Type[FallbackFn]],
     contract_abi: ABI=None,
     fn_abi: ABIFunction=None,

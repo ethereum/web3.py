@@ -74,11 +74,16 @@ ABIFunction = TypedDict("ABIFunction", {
     "constant": bool,
 }, total=False)
 
-ABIElement = NewType("ABIElement", ABIEvent, ABIFunction)
-ABI = Sequence[ABIElement]
+
+ABIElement = Union[ABIFunction, ABIEvent]
+
+
+ABI = Sequence[Union[ABIFunction, ABIEvent]]
 
 
 LatestBlockParam = Literal["latest"]
+
+
 BlockParams = Literal["latest", "earliest", "pending"]
 
 
@@ -128,8 +133,8 @@ FormattersDict = TypedDict("FormattersDict", {
 
 
 FilterParams = TypedDict("FilterParams", {
-    "from": Union["earliest", "pending", "latest", BlockNumber],
-    "to": Union["earliest", "pending", "latest", BlockNumber],
+    "fromBlock": Union["earliest", "pending", "latest", BlockNumber],
+    "toBlock": Union["earliest", "pending", "latest", BlockNumber],
     "address": Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]],
     "topics": List[Optional[Union[Hash32, List[Hash32]]]],
 }, total=False)
