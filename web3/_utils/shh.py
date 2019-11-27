@@ -1,7 +1,16 @@
+from typing import (
+    Any,
+    Dict,
+    Tuple,
+)
+
 from web3.method import (
     DeprecatedMethod,
     Method,
     default_root_munger,
+)
+from web3.module import (
+    Module,
 )
 
 version = Method(
@@ -112,7 +121,7 @@ delete_sym_key = Method(
 )
 
 
-def post_munger(module, message):
+def post_munger(module: Module, message: Dict[str, Any]) -> Tuple[Dict[str, Any]]:
     if message and ("payload" in message):
         return (message,)
     else:

@@ -105,10 +105,6 @@ def get_block_gas_limit(web3: "Web3", block_identifier: BlockIdentifier=None) ->
     block = web3.eth.getBlock(block_identifier)
     return block['gasLimit']
 
-#
-#
-#  HASH32 ? HEXSTR
-#
 
 def get_buffered_gas_estimate(
     web3: "Web3", transaction: TxParams, gas_buffer: Wei=Wei(100000)
