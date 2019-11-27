@@ -355,7 +355,7 @@ class Eth(Module):
 
     # todo: Update Any to stricter kwarg checking with TxParams
     # https://github.com/python/mypy/issues/4441
-    def modifyTransaction(self, transaction_hash: Hash32, **transaction_params: Any) -> None:
+    def modifyTransaction(self, transaction_hash: Hash32, **transaction_params: Any) -> Hash32:
         assert_valid_transaction_params(transaction_params)
         current_transaction = get_required_transaction(self.web3, transaction_hash)
         current_transaction_params = extract_valid_transaction_params(current_transaction)

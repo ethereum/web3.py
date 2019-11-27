@@ -1,4 +1,7 @@
 import sys
+from typing import (
+    Tuple,
+)
 
 import pywintypes  # noqa: E402
 import win32file  # noqa: E402
@@ -8,7 +11,7 @@ if sys.platform != 'win32':
 
 
 class NamedPipe:
-    def __init__(self, ipc_path):
+    def __init__(self, ipc_path: str) -> None:
         try:
             self.handle = win32file.CreateFile(
                 ipc_path, win32file.GENERIC_READ | win32file.GENERIC_WRITE,
@@ -16,14 +19,14 @@ class NamedPipe:
         except pywintypes.error as err:
             raise IOError(err)
 
-    def recv(self, max_length):
+    def recv(self, max_length: int) -> str:
         (err, data) = win32file.ReadFile(self.handle, max_length)
         if err:
             raise IOError(err)
         return data
 
-    def sendall(self, data):
+    def sendall(self, data: str) -> Tuple[int, int]:
         return win32file.WriteFile(self.handle, data)
 
-    def close(self):
+    def close(self) -> None:
         self.handle.close()
