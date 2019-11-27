@@ -1106,8 +1106,8 @@ class ContractEvent:
     def createFilter(
             self, *,  # PEP 3102
             argument_filters: Dict[str, Any]=None,
-            fromBlock: Union[int, str]=None,
-            toBlock: Union[int, str]="latest",
+            fromBlock: BlockIdentifier=None,
+            toBlock: BlockIdentifier="latest",
             address: ChecksumAddress=None,
             topics: Sequence[Any]=None) -> LogFilter:
         """
@@ -1173,8 +1173,8 @@ class ContractEvent:
     @combomethod
     def getLogs(self,
                 argument_filters: Dict[str, Any]=None,
-                fromBlock: Union[int, str]=None,
-                toBlock: Union[int, str]=None,
+                fromBlock: BlockIdentifier=None,
+                toBlock: BlockIdentifier=None,
                 blockHash: Hash32=None) -> Iterable[EventData]:
         """Get events for this contract instance using eth_getLogs API.
 
@@ -1271,7 +1271,7 @@ class ContractEvent:
         return tuple(get_event_data(self.web3.codec, abi, entry) for entry in logs)
 
     @classmethod
-    def factory(cls, class_name: str, **kwargs: Any) -> 'ContractEvent':
+    def factory(cls, class_name: str, **kwargs: Any) -> PropertyCheckingFactory:
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
 
 

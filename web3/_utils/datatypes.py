@@ -35,7 +35,8 @@ class PropertyCheckingFactory(type):
         # filtered out here.
         super().__init__(name, bases, namespace)
 
-    def __new__(
+    # __new__ must return a class instance
+    def __new__(  # type: ignore
         mcs,
         name: str,
         bases: Tuple[type],
