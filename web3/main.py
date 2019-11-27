@@ -19,6 +19,9 @@ from typing import Any, cast, Dict, List, Sequence, TYPE_CHECKING
 
 from eth_typing import HexStr, Primitives
 from eth_typing.abi import TypeStr
+from eth_utils import (
+    combomethod,
+)
 
 from ens import ENS
 from web3._utils.abi import (
@@ -27,7 +30,6 @@ from web3._utils.abi import (
     map_abi_data,
 )
 from web3._utils.decorators import (
-    combomethod,
     deprecated_for,
 )
 from web3._utils.empty import (

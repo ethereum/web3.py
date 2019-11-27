@@ -33,6 +33,7 @@ from eth_typing import (
 )
 from eth_utils import (
     add_0x_prefix,
+    combomethod,
     encode_hex,
     function_abi_to_4byte_selector,
     is_list_like,
@@ -74,7 +75,6 @@ from web3._utils.datatypes import (
     PropertyCheckingFactory,
 )
 from web3._utils.decorators import (
-    combomethod,
     deprecated_for,
 )
 from web3._utils.empty import (
@@ -1271,7 +1271,7 @@ class ContractEvent:
         return tuple(get_event_data(self.web3.codec, abi, entry) for entry in logs)
 
     @classmethod
-    def factory(cls, class_name: str, **kwargs: Any) -> PropertyCheckingFactory:
+    def factory(cls, class_name: str, **kwargs: Any) -> 'ContractEvent':
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
 
 
