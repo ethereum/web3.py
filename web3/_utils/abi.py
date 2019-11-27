@@ -647,7 +647,7 @@ def is_string_type(abi_type: TypeStr) -> bool:
 
 
 @curry
-def is_length(target_length: int, value: Any) -> bool:
+def is_length(target_length: int, value: abc.Sized) -> bool:
     return len(value) == target_length
 
 
