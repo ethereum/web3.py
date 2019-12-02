@@ -235,7 +235,7 @@ with :meth:`~web3.eth.Eth.sendRawTransaction`.
     ...     'chainId': 1
     ... }
     >>> key = '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
-    >>> signed = w3.eth.account.sign_transaction(transaction, key)
+    >>> signed = w3.eth.account.signTransaction(transaction, key)
     >>> signed.rawTransaction
     HexBytes('0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428')
     >>> signed.hash
@@ -258,8 +258,8 @@ To sign a transaction locally that will invoke a smart contract:
 
 #. Initialize your :meth:`Contract <web3.eth.Eth.contract>` object
 #. Build the transaction
-#. Sign the transaction, with :meth:`w3.eth.account.sign_transaction()
-   <eth_account.account.Account.sign_transaction>`
+#. Sign the transaction, with :meth:`w3.eth.account.signTransaction()
+   <eth_account.account.Account.signTransaction>`
 #. Broadcast the transaction with :meth:`~web3.eth.Eth.sendRawTransaction`
 
 .. testsetup::
