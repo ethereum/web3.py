@@ -50,6 +50,7 @@ from eth_typing import (
     TypeStr,
 )
 from eth_utils import (
+    combomethod,
     decode_hex,
     is_bytes,
     is_list_like,
@@ -66,9 +67,6 @@ from eth_utils.toolz import (
     pipe,
 )
 
-from web3._utils.decorators import (
-    combomethod,
-)
 from web3._utils.ens import (
     is_ens_name,
 )

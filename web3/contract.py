@@ -33,6 +33,7 @@ from eth_typing import (
 )
 from eth_utils import (
     add_0x_prefix,
+    combomethod,
     encode_hex,
     function_abi_to_4byte_selector,
     is_list_like,
@@ -74,7 +75,6 @@ from web3._utils.datatypes import (
     PropertyCheckingFactory,
 )
 from web3._utils.decorators import (
-    combomethod,
     deprecated_for,
 )
 from web3._utils.empty import (
@@ -1106,8 +1106,8 @@ class ContractEvent:
     def createFilter(
             self, *,  # PEP 3102
             argument_filters: Dict[str, Any]=None,
-            fromBlock: Union[int, str]=None,
-            toBlock: Union[int, str]="latest",
+            fromBlock: BlockIdentifier=None,
+            toBlock: BlockIdentifier="latest",
             address: ChecksumAddress=None,
             topics: Sequence[Any]=None) -> LogFilter:
         """
@@ -1173,8 +1173,8 @@ class ContractEvent:
     @combomethod
     def getLogs(self,
                 argument_filters: Dict[str, Any]=None,
-                fromBlock: Union[int, str]=None,
-                toBlock: Union[int, str]=None,
+                fromBlock: BlockIdentifier=None,
+                toBlock: BlockIdentifier=None,
                 blockHash: Hash32=None) -> Iterable[EventData]:
         """Get events for this contract instance using eth_getLogs API.
 

@@ -439,7 +439,9 @@ class Eth(Module):
             params,
         )
 
-    def filter(self, filter_params: Union[str, FilterParams]=None, filter_id: int=None) -> Filter:
+    def filter(
+        self, filter_params: Union[str, FilterParams]=None, filter_id: HexStr=None
+    ) -> Filter:
         if filter_id and filter_params:
             raise TypeError(
                 "Ambiguous invocation: provide either a `filter_params` or a `filter_id` argument. "
@@ -474,12 +476,12 @@ class Eth(Module):
                             "a valid filter object, or a filter_id as a string "
                             "or hex.")
 
-    def getFilterChanges(self, filter_id: int) -> List[LogReceipt]:
+    def getFilterChanges(self, filter_id: HexStr) -> List[LogReceipt]:
         return self.web3.manager.request_blocking(
             "eth_getFilterChanges", [filter_id],
         )
 
-    def getFilterLogs(self, filter_id: int) -> List[LogReceipt]:
+    def getFilterLogs(self, filter_id: HexStr) -> List[LogReceipt]:
         return self.web3.manager.request_blocking(
             "eth_getFilterLogs", [filter_id],
         )
@@ -499,7 +501,7 @@ class Eth(Module):
             "eth_submitWork", [nonce, pow_hash, mix_digest],
         )
 
-    def uninstallFilter(self, filter_id: int) -> bool:
+    def uninstallFilter(self, filter_id: HexStr) -> bool:
         return self.web3.manager.request_blocking(
             "eth_uninstallFilter", [filter_id],
         )
