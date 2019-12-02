@@ -1,11 +1,20 @@
+from typing import (
+    Tuple,
+)
+
 from web3.method import (
     DeprecatedMethod,
     Method,
     default_root_munger,
 )
+from web3.module import (
+    Module,
+)
 
 
-def admin_start_params_munger(module, host='localhost', port='8546', cors='', apis='eth,net,web3'):
+def admin_start_params_munger(
+    module: Module, host: str='localhost', port: str='8546', cors: str='', apis: str='eth,net,web3'
+) -> Tuple[str, str, str, str]:
     return (host, port, cors, apis)
 
 

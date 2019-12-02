@@ -52,6 +52,9 @@ from web3._utils.filters import (
     LogFilter,
     TransactionFilter,
 )
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3._utils.threads import (
     Timeout,
 )
@@ -200,9 +203,9 @@ class Eth(Module):
         """
         method = select_method_for_block_identifier(
             block_identifier,
-            if_predefined='eth_getBlockByNumber',
-            if_hash='eth_getBlockByHash',
-            if_number='eth_getBlockByNumber',
+            if_predefined=RPC.eth_getBlockByNumber,
+            if_hash=RPC.eth_getBlockByHash,
+            if_number=RPC.eth_getBlockByNumber,
         )
 
         result = self.web3.manager.request_blocking(
@@ -220,9 +223,9 @@ class Eth(Module):
         """
         method = select_method_for_block_identifier(
             block_identifier,
-            if_predefined='eth_getBlockTransactionCountByNumber',
-            if_hash='eth_getBlockTransactionCountByHash',
-            if_number='eth_getBlockTransactionCountByNumber',
+            if_predefined=RPC.eth_getBlockTransactionCountByNumber,
+            if_hash=RPC.eth_getBlockTransactionCountByHash,
+            if_number=RPC.eth_getBlockTransactionCountByNumber,
         )
         result = self.web3.manager.request_blocking(
             method,
@@ -239,9 +242,9 @@ class Eth(Module):
         """
         method = select_method_for_block_identifier(
             block_identifier,
-            if_predefined='eth_getUncleCountByBlockNumber',
-            if_hash='eth_getUncleCountByBlockHash',
-            if_number='eth_getUncleCountByBlockNumber',
+            if_predefined=RPC.eth_getUncleCountByBlockNumber,
+            if_hash=RPC.eth_getUncleCountByBlockHash,
+            if_number=RPC.eth_getUncleCountByBlockNumber,
         )
         result = self.web3.manager.request_blocking(
             method,
@@ -258,9 +261,9 @@ class Eth(Module):
         """
         method = select_method_for_block_identifier(
             block_identifier,
-            if_predefined='eth_getUncleByBlockNumberAndIndex',
-            if_hash='eth_getUncleByBlockHashAndIndex',
-            if_number='eth_getUncleByBlockNumberAndIndex',
+            if_predefined=RPC.eth_getUncleByBlockNumberAndIndex,
+            if_hash=RPC.eth_getUncleByBlockHashAndIndex,
+            if_number=RPC.eth_getUncleByBlockNumberAndIndex,
         )
         result = self.web3.manager.request_blocking(
             method,
@@ -299,9 +302,9 @@ class Eth(Module):
         """
         method = select_method_for_block_identifier(
             block_identifier,
-            if_predefined='eth_getTransactionByBlockNumberAndIndex',
-            if_hash='eth_getTransactionByBlockHashAndIndex',
-            if_number='eth_getTransactionByBlockNumberAndIndex',
+            if_predefined=RPC.eth_getTransactionByBlockNumberAndIndex,
+            if_hash=RPC.eth_getTransactionByBlockHashAndIndex,
+            if_number=RPC.eth_getTransactionByBlockNumberAndIndex,
         )
         result = self.web3.manager.request_blocking(
             method,

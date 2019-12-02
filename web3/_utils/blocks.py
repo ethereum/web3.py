@@ -1,3 +1,7 @@
+from typing import (
+    Any,
+)
+
 from eth_utils import (
     is_bytes,
     is_hex,
@@ -7,8 +11,12 @@ from eth_utils import (
     remove_0x_prefix,
 )
 
+from web3.types import (
+    RPCEndpoint,
+)
 
-def is_predefined_block_number(value):
+
+def is_predefined_block_number(value: Any) -> bool:
     if is_text(value):
         value_text = value
     elif is_bytes(value):
@@ -25,13 +33,13 @@ def is_predefined_block_number(value):
     return value_text in {"latest", "pending", "earliest"}
 
 
-def is_hex_encoded_block_hash(value):
+def is_hex_encoded_block_hash(value: Any) -> bool:
     if not is_string(value):
         return False
     return len(remove_0x_prefix(value)) == 64 and is_hex(value)
 
 
-def is_hex_encoded_block_number(value):
+def is_hex_encoded_block_number(value: Any) -> bool:
     if not is_string(value):
         return False
     elif is_hex_encoded_block_hash(value):
@@ -43,7 +51,9 @@ def is_hex_encoded_block_number(value):
     return 0 <= value_as_int < 2**256
 
 
-def select_method_for_block_identifier(value, if_hash, if_number, if_predefined):
+def select_method_for_block_identifier(
+    value: Any, if_hash: RPCEndpoint, if_number: RPCEndpoint, if_predefined: RPCEndpoint
+) -> RPCEndpoint:
     if is_predefined_block_number(value):
         return if_predefined
     elif isinstance(value, bytes):
