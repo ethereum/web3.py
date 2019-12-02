@@ -27,7 +27,7 @@ class PropertyCheckingFactory(type):
     def __init__(
         cls,
         name: str,
-        bases: Tuple[type],
+        bases: Tuple[Type[Any], ...],
         namespace: Dict[str, Any],
         **kwargs: Dict[str, Any],
     ) -> None:

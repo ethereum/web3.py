@@ -3,8 +3,12 @@ import threading
 from typing import (
     Any,
     Callable,
+    TypeVar,
+    cast,
 )
 import warnings
+
+TFunc = TypeVar("TFunc", bound=Callable[..., Any])
 
 
 def reject_recursive_repeats(to_wrap: Callable[..., Any]) -> Callable[..., Any]:
@@ -38,12 +42,12 @@ def deprecated_for(replace_message: str) -> Callable[..., Any]:
     def toAscii(arg):
         ...
     """
-    def decorator(to_wrap: Callable[..., Any]) -> Callable[..., Any]:
+    def decorator(to_wrap: TFunc) -> TFunc:
         @functools.wraps(to_wrap)
         def wrapper(*args: Any, **kwargs: Any) -> Callable[..., Any]:
             warnings.warn(
                 f"{to_wrap.__name__} is deprecated in favor of {replace_message}",
                 category=DeprecationWarning)
             return to_wrap(*args, **kwargs)
-        return wrapper
+        return cast(TFunc, wrapper)
     return decorator
