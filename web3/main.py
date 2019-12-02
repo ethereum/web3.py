@@ -155,6 +155,9 @@ class Web3:
 
     # mypy Types
     eth: Eth
+    parity: Parity
+    geth: Geth
+    net: Net
 
     def __init__(
         self,
@@ -187,7 +190,7 @@ class Web3:
         self.manager.provider = provider
 
     @property
-    def clientVersion(self) -> int:
+    def clientVersion(self) -> str:
         return self.manager.request_blocking("web3_clientVersion", [])
 
     @property

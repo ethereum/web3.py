@@ -90,11 +90,13 @@ from web3.types import (
     GasPriceStrategy,
     LogReceipt,
     MerkleProof,
+    SignedTx,
     SyncStatus,
     TxParams,
     TxReceipt,
     Uncle,
     Wei,
+    _Hash32,
 )
 
 
@@ -275,7 +277,7 @@ class Eth(Module):
             )
         return result
 
-    def getTransaction(self, transaction_hash: Hash32) -> TxReceipt:
+    def getTransaction(self, transaction_hash: _Hash32) -> TxReceipt:
         result = self.web3.manager.request_blocking(
             "eth_getTransactionByHash",
             [transaction_hash],
@@ -330,7 +332,7 @@ class Eth(Module):
                 )
             )
 
-    def getTransactionReceipt(self, transaction_hash: Hash32) -> TxReceipt:
+    def getTransactionReceipt(self, transaction_hash: _Hash32) -> TxReceipt:
         result = self.web3.manager.request_blocking(
             "eth_getTransactionReceipt",
             [transaction_hash],
@@ -349,7 +351,7 @@ class Eth(Module):
             [account, block_identifier],
         )
 
-    def replaceTransaction(self, transaction_hash: Hash32, new_transaction: TxParams) -> Hash32:
+    def replaceTransaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> Hash32:
         current_transaction = get_required_transaction(self.web3, transaction_hash)
         return replace_transaction(self.web3, current_transaction, new_transaction)
 
@@ -389,7 +391,7 @@ class Eth(Module):
     def sign(
         self,
         account: Union[Address, ChecksumAddress, ENS],
-        data: bytes=None,
+        data: Union[int, bytes]=None,
         hexstr: HexStr=None,
         text: str=None
     ) -> HexStr:
@@ -398,7 +400,7 @@ class Eth(Module):
             "eth_sign", [account, message_hex],
         )
 
-    def signTransaction(self, transaction: TxParams) -> bytes:
+    def signTransaction(self, transaction: TxParams) -> SignedTx:
         return self.web3.manager.request_blocking(
             "eth_signTransaction", [transaction],
         )
@@ -491,12 +493,12 @@ class Eth(Module):
             "eth_getLogs", [filter_params],
         )
 
-    def submitHashrate(self, hashrate: int, node_id: Hash32) -> bool:
+    def submitHashrate(self, hashrate: int, node_id: _Hash32) -> bool:
         return self.web3.manager.request_blocking(
             "eth_submitHashrate", [hashrate, node_id],
         )
 
-    def submitWork(self, nonce: int, pow_hash: Hash32, mix_digest: Hash32) -> bool:
+    def submitWork(self, nonce: int, pow_hash: _Hash32, mix_digest: _Hash32) -> bool:
         return self.web3.manager.request_blocking(
             "eth_submitWork", [nonce, pow_hash, mix_digest],
         )

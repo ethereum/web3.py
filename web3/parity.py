@@ -47,6 +47,7 @@ from web3.types import (
     ParityNetPeers,
     ParityTraceMode,
     TxParams,
+    _Hash32,
 )
 
 
@@ -102,6 +103,8 @@ class Parity(Module):
     https://paritytech.github.io/wiki/JSONRPC-parity-module
     """
     defaultBlock: Literal["latest"] = "latest"  # noqa: E704
+    shh: ParityShh
+    personal: ParityPersonal
 
     def enode(self) -> ParityEnodeURI:
         return self.web3.manager.request_blocking(
@@ -136,7 +139,7 @@ class Parity(Module):
         )
 
     def traceReplayTransaction(
-        self, transaction_hash: Hash32, mode: ParityTraceMode=['trace']
+        self, transaction_hash: _Hash32, mode: ParityTraceMode=['trace']
     ) -> ParityBlockTrace:
         return self.web3.manager.request_blocking(
             "trace_replayTransaction",
@@ -163,7 +166,7 @@ class Parity(Module):
             [params]
         )
 
-    def traceTransaction(self, transaction_hash: Hash32) -> List[ParityFilterTrace]:
+    def traceTransaction(self, transaction_hash: _Hash32) -> List[ParityFilterTrace]:
         return self.web3.manager.request_blocking(
             "trace_transaction",
             [transaction_hash]
@@ -174,7 +177,7 @@ class Parity(Module):
         transaction: TxParams,
         mode: ParityTraceMode=['trace'],
         block_identifier: BlockIdentifier=None
-    ) -> List[ParityBlockTrace]:
+    ) -> ParityBlockTrace:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.web3.eth.defaultAccount):
             transaction = assoc(transaction, 'from', self.web3.eth.defaultAccount)
@@ -189,7 +192,7 @@ class Parity(Module):
 
     def traceRawTransaction(
         self, raw_transaction: HexStr, mode: ParityTraceMode=['trace']
-    ) -> List[ParityBlockTrace]:
+    ) -> ParityBlockTrace:
         return self.web3.manager.request_blocking(
             "trace_rawTransaction",
             [raw_transaction, mode],

@@ -21,5 +21,5 @@ class Net(Module):
         raise DeprecationWarning("This method has been deprecated in EIP 1474.")
 
     @property
-    def version(self) -> int:
+    def version(self) -> str:
         return self.web3.manager.request_blocking("net_version", [])

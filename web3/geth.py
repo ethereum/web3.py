@@ -49,10 +49,6 @@ from web3.module import (
 )
 
 
-class Geth(Module):
-    pass
-
-
 class GethPersonal(ModuleV2):
     """
     https://github.com/ethereum/go-ethereum/wiki/management-apis#personal
@@ -159,3 +155,9 @@ class GethShh(ModuleV2):
     newSymKey = shh.newSymKey
     setMaxMessageSize = shh.setMaxMessageSize
     setMinPoW = shh.setMinPoW
+
+
+class Geth(Module):
+    shh: GethShh
+    personal: GethPersonal
+    admin: GethAdmin

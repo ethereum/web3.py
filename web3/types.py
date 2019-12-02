@@ -37,6 +37,11 @@ TParams = TypeVar("TParams")
 TValue = TypeVar("TValue")
 
 
+HexBytes32 = NewType("HexBytes32", HexBytes)
+HexStr32 = NewType("HexStr32", HexStr)
+
+_Hash32 = Union[Hash32, HexBytes, HexStr]
+
 # todo: move these to eth_typing once web3 is type hinted
 ABIEventParams = TypedDict("ABIEventParams", {
     "name": str,
@@ -154,6 +159,10 @@ TxParams = TypedDict("TxParams", {
     "data": Union[bytes, HexStr],
 }, total=False)
 
+SignedTx = TypedDict("SignedTx", {
+    "raw": bytes,
+    "tx": TxParams,
+}, total=False)
 
 # this Any should be updated to Web3 once all type hints land
 GasPriceStrategy = Callable[[Any, TxParams], Wei]
@@ -231,7 +240,7 @@ BlockData = TypedDict("BlockData", {
     'logsBloom': HexStr,
     'miner': ChecksumAddress,
     'nonce': HexStr,
-    'number': int,
+    'number': BlockNumber,
     'parentHash': Hash32,
     'receiptRoot': Hash32,
     'sha3Uncles': Hash32,
@@ -269,6 +278,17 @@ Uncle = TypedDict("Uncle", {
     'transactionsRoot': Hash32,
     'uncles': Sequence[Hash32]
 })
+
+# shh
+ShhMessage = TypedDict("ShhMessage", {
+    "from": bytes,
+    "recipient": bytes,
+    "ttl": int,
+    "topics": List[HexStr],
+    "timestamp": int,
+    "payload": bytes,
+    "padding": bytes,
+}, total=False)
 
 
 # web3.parity types
