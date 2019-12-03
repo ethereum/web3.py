@@ -2,6 +2,9 @@ from typing import (
     NoReturn,
 )
 
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.module import (
     Module,
 )
@@ -10,11 +13,11 @@ from web3.module import (
 class Net(Module):
     @property
     def listening(self) -> bool:
-        return self.web3.manager.request_blocking("net_listening", [])
+        return self.web3.manager.request_blocking(RPC.net_listening, [])
 
     @property
     def peerCount(self) -> int:
-        return self.web3.manager.request_blocking("net_peerCount", [])
+        return self.web3.manager.request_blocking(RPC.net_peerCount, [])
 
     @property
     def chainId(self) -> NoReturn:
@@ -22,4 +25,4 @@ class Net(Module):
 
     @property
     def version(self) -> str:
-        return self.web3.manager.request_blocking("net_version", [])
+        return self.web3.manager.request_blocking(RPC.net_version, [])

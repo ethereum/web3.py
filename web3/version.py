@@ -2,6 +2,9 @@ from typing import (
     NoReturn,
 )
 
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.method import (
     Method,
 )
@@ -14,8 +17,8 @@ from web3.module import (
 class BaseVersion(ModuleV2):
     retrieve_caller_fn = None
 
-    _get_node_version = Method('web3_clientVersion')
-    _get_protocol_version = Method('eth_protocolVersion')
+    _get_node_version = Method(RPC.web3_clientVersion)
+    _get_protocol_version = Method(RPC.eth_protocolVersion)
 
     @property
     def api(self) -> str:

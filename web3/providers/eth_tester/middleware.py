@@ -61,7 +61,7 @@ def is_hexstr(value: Any) -> bool:
     return is_string(value) and is_hex(value)
 
 
-to_integer_if_hex = apply_formatter_if(is_hexstr, hex_to_integer)  # type: ignore
+to_integer_if_hex = apply_formatter_if(is_hexstr, hex_to_integer)
 
 
 is_not_named_block = complement(is_named_block)
@@ -162,7 +162,7 @@ filter_params_transformer = compose(filter_params_remapper, filter_params_format
 
 
 TRANSACTION_FORMATTERS = {
-    'to': apply_formatter_if(partial(operator.eq, ''), static_return(None)),  # type: ignore
+    'to': apply_formatter_if(partial(operator.eq, ''), static_return(None)),
 }
 
 
@@ -182,28 +182,26 @@ ethereum_tester_middleware = construct_formatting_middleware(
     request_formatters={
         # Eth
         RPCEndpoint('eth_getBlockByNumber'): apply_formatters_to_args(
-            # type ignored for apply_formatter_if b/c
-            # https://github.com/ethereum/eth-utils/issues/156
-            apply_formatter_if(is_not_named_block, to_integer_if_hex),  # type: ignore
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
         RPCEndpoint('eth_getFilterChanges'): apply_formatters_to_args(hex_to_integer),
         RPCEndpoint('eth_getFilterLogs'): apply_formatters_to_args(hex_to_integer),
         RPCEndpoint('eth_getBlockTransactionCountByNumber'): apply_formatters_to_args(
-            apply_formatter_if(is_not_named_block, to_integer_if_hex),  # type: ignore
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
         RPCEndpoint('eth_getUncleCountByBlockNumber'): apply_formatters_to_args(
-            apply_formatter_if(is_not_named_block, to_integer_if_hex),  # type: ignore
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
         RPCEndpoint('eth_getTransactionByBlockHashAndIndex'): apply_formatters_to_args(
             identity,
             to_integer_if_hex,
         ),
         RPCEndpoint('eth_getTransactionByBlockNumberAndIndex'): apply_formatters_to_args(
-            apply_formatter_if(is_not_named_block, to_integer_if_hex),  # type: ignore
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
             to_integer_if_hex,
         ),
         RPCEndpoint('eth_getUncleByBlockNumberAndIndex'): apply_formatters_to_args(
-            apply_formatter_if(is_not_named_block, to_integer_if_hex),  # type: ignore
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
             to_integer_if_hex,
         ),
         RPCEndpoint('eth_newFilter'): apply_formatters_to_args(
@@ -220,12 +218,12 @@ ethereum_tester_middleware = construct_formatting_middleware(
         ),
         RPCEndpoint('eth_call'): apply_formatters_to_args(
             transaction_params_transformer,
-            apply_formatter_if(is_not_named_block, to_integer_if_hex),  # type: ignore
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
         RPCEndpoint('eth_uninstallFilter'): apply_formatters_to_args(hex_to_integer),
         RPCEndpoint('eth_getCode'): apply_formatters_to_args(
             identity,
-            apply_formatter_if(is_not_named_block, to_integer_if_hex),  # type: ignore
+            apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
         # EVM
         RPCEndpoint('evm_revert'): apply_formatters_to_args(hex_to_integer),
@@ -236,42 +234,42 @@ ethereum_tester_middleware = construct_formatting_middleware(
         ),
     },
     result_formatters={
-        RPCEndpoint('eth_getBlockByHash'): apply_formatter_if(  # type: ignore
+        RPCEndpoint('eth_getBlockByHash'): apply_formatter_if(
             is_dict,
             block_key_remapper,
         ),
-        RPCEndpoint('eth_getBlockByNumber'): apply_formatter_if(  # type: ignore
+        RPCEndpoint('eth_getBlockByNumber'): apply_formatter_if(
             is_dict,
             block_key_remapper,
         ),
-        RPCEndpoint('eth_getBlockTransactionCountByHash'): apply_formatter_if(  # type: ignore
+        RPCEndpoint('eth_getBlockTransactionCountByHash'): apply_formatter_if(
             is_dict,
             transaction_key_remapper,
         ),
-        RPCEndpoint('eth_getBlockTransactionCountByNumber'): apply_formatter_if(  # type: ignore
+        RPCEndpoint('eth_getBlockTransactionCountByNumber'): apply_formatter_if(
             is_dict,
             transaction_key_remapper,
         ),
-        RPCEndpoint('eth_getTransactionByHash'): apply_formatter_if(  # type: ignore
+        RPCEndpoint('eth_getTransactionByHash'): apply_formatter_if(
             is_dict,
             compose(transaction_key_remapper, transaction_formatter),
         ),
-        RPCEndpoint('eth_getTransactionReceipt'): apply_formatter_if(  # type: ignore
+        RPCEndpoint('eth_getTransactionReceipt'): apply_formatter_if(
             is_dict,
             compose(receipt_key_remapper, receipt_formatter),
         ),
         RPCEndpoint('eth_newFilter'): integer_to_hex,
         RPCEndpoint('eth_newBlockFilter'): integer_to_hex,
         RPCEndpoint('eth_newPendingTransactionFilter'): integer_to_hex,
-        RPCEndpoint('eth_getLogs'): apply_formatter_if(  # type: ignore
+        RPCEndpoint('eth_getLogs'): apply_formatter_if(
             is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),
-        RPCEndpoint('eth_getFilterChanges'): apply_formatter_if(  # type: ignore
+        RPCEndpoint('eth_getFilterChanges'): apply_formatter_if(
             is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),
-        RPCEndpoint('eth_getFilterLogs'): apply_formatter_if(  # type: ignore
+        RPCEndpoint('eth_getFilterLogs'): apply_formatter_if(
             is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),

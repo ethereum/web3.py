@@ -3,7 +3,10 @@ import operator
 from typing import (
     Any,
     Callable,
+    Collection,
     Dict,
+    Iterable,
+    Union,
 )
 
 from eth_utils.curried import (
@@ -57,6 +60,7 @@ from web3._utils.normalizers import (
     abi_string_to_hex,
 )
 from web3._utils.rpc_abi import (
+    RPC,
     RPC_ABIS,
     abi_request_formatters,
 )
@@ -68,7 +72,7 @@ from web3.types import (
 )
 
 
-def bytes_to_ascii(value):
+def bytes_to_ascii(value: bytes) -> str:
     return codecs.decode(value, 'ascii')
 
 
@@ -84,7 +88,9 @@ is_not_null = complement(is_null)
 
 
 @curry
-def to_hexbytes(num_bytes, val, variable_length=False):
+def to_hexbytes(
+    num_bytes: int, val: Union[str, int, bytes], variable_length: bool=False
+) -> HexBytes:
     if isinstance(val, (str, int, bytes)):
         result = HexBytes(val)
     else:
@@ -103,7 +109,7 @@ def to_hexbytes(num_bytes, val, variable_length=False):
         )
 
 
-def is_attrdict(val):
+def is_attrdict(val: Any) -> bool:
     return isinstance(val, AttributeDict)
 
 
@@ -146,7 +152,7 @@ WHISPER_LOG_FORMATTERS = {
 whisper_log_formatter = apply_formatters_to_dict(WHISPER_LOG_FORMATTERS)
 
 
-def apply_list_to_array_formatter(formatter):
+def apply_list_to_array_formatter(formatter: Any) -> Callable[..., Any]:
     return to_list(apply_formatter_to_array(formatter))
 
 
@@ -309,50 +315,50 @@ FILTER_PARAM_NORMALIZERS = apply_formatters_to_dict({
 
 PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
-    'eth_getBalance': apply_formatter_at_index(block_number_formatter, 1),
-    'eth_getBlockByNumber': apply_formatter_at_index(block_number_formatter, 0),
-    'eth_getBlockTransactionCountByNumber': apply_formatter_at_index(
+    RPC.eth_getBalance: apply_formatter_at_index(block_number_formatter, 1),
+    RPC.eth_getBlockByNumber: apply_formatter_at_index(block_number_formatter, 0),
+    RPC.eth_getBlockTransactionCountByNumber: apply_formatter_at_index(
         block_number_formatter,
         0,
     ),
-    'eth_getCode': apply_formatter_at_index(block_number_formatter, 1),
-    'eth_getStorageAt': apply_formatter_at_index(block_number_formatter, 2),
-    'eth_getTransactionByBlockNumberAndIndex': compose(
+    RPC.eth_getCode: apply_formatter_at_index(block_number_formatter, 1),
+    RPC.eth_getStorageAt: apply_formatter_at_index(block_number_formatter, 2),
+    RPC.eth_getTransactionByBlockNumberAndIndex: compose(
         apply_formatter_at_index(block_number_formatter, 0),
         apply_formatter_at_index(integer_to_hex, 1),
     ),
-    'eth_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
-    'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
-    'eth_getUncleByBlockNumberAndIndex': compose(
+    RPC.eth_getTransactionCount: apply_formatter_at_index(block_number_formatter, 1),
+    RPC.eth_getUncleCountByBlockNumber: apply_formatter_at_index(block_number_formatter, 0),
+    RPC.eth_getUncleByBlockNumberAndIndex: compose(
         apply_formatter_at_index(block_number_formatter, 0),
         apply_formatter_at_index(integer_to_hex, 1),
     ),
-    'eth_getUncleByBlockHashAndIndex': apply_formatter_at_index(integer_to_hex, 1),
-    'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
-    'eth_getLogs': apply_formatter_at_index(filter_params_formatter, 0),
-    'eth_call': apply_formatters_to_sequence([
+    RPC.eth_getUncleByBlockHashAndIndex: apply_formatter_at_index(integer_to_hex, 1),
+    RPC.eth_newFilter: apply_formatter_at_index(filter_params_formatter, 0),
+    RPC.eth_getLogs: apply_formatter_at_index(filter_params_formatter, 0),
+    RPC.eth_call: apply_formatters_to_sequence([
         transaction_param_formatter,
         block_number_formatter,
     ]),
-    'eth_estimateGas': apply_one_of_formatters((
+    RPC.eth_estimateGas: apply_one_of_formatters((
         (is_length(1), estimate_gas_without_block_id),
         (is_length(2), estimate_gas_with_block_id),
     )),
-    'eth_sendTransaction': apply_formatter_at_index(transaction_param_formatter, 0),
-    'eth_getProof': apply_formatter_at_index(block_number_formatter, 2),
+    RPC.eth_sendTransaction: apply_formatter_at_index(transaction_param_formatter, 0),
+    RPC.eth_getProof: apply_formatter_at_index(block_number_formatter, 2),
     # personal
-    'personal_importRawKey': apply_formatter_at_index(
+    RPC.personal_importRawKey: apply_formatter_at_index(
         compose(remove_0x_prefix, hexstr_if_str(to_hex)),
         0,
     ),
-    'personal_sign': apply_formatter_at_index(text_if_str(to_hex), 0),
-    'personal_ecRecover': apply_formatter_at_index(text_if_str(to_hex), 0),
-    'personal_sendTransaction': apply_formatter_at_index(transaction_param_formatter, 0),
+    RPC.personal_sign: apply_formatter_at_index(text_if_str(to_hex), 0),
+    RPC.personal_ecRecover: apply_formatter_at_index(text_if_str(to_hex), 0),
+    RPC.personal_sendTransaction: apply_formatter_at_index(transaction_param_formatter, 0),
     # Snapshot and Revert
-    'evm_revert': apply_formatter_at_index(integer_to_hex, 0),
-    'trace_replayBlockTransactions': apply_formatter_at_index(block_number_formatter, 0),
-    'trace_block': apply_formatter_at_index(block_number_formatter, 0),
-    'trace_call': compose(
+    RPC.evm_revert: apply_formatter_at_index(integer_to_hex, 0),
+    RPC.trace_replayBlockTransactions: apply_formatter_at_index(block_number_formatter, 0),
+    RPC.trace_block: apply_formatter_at_index(block_number_formatter, 0),
+    RPC.trace_call: compose(
         apply_formatter_at_index(transaction_param_formatter, 0),
         apply_formatter_at_index(block_number_formatter, 2)
     ),
@@ -361,65 +367,65 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 
 PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
-    'eth_accounts': apply_list_to_array_formatter(to_checksum_address),
-    'eth_blockNumber': to_integer_if_hex,
-    'eth_chainId': to_integer_if_hex,
-    'eth_coinbase': to_checksum_address,
-    'eth_estimateGas': to_integer_if_hex,
-    'eth_gasPrice': to_integer_if_hex,
-    'eth_getBalance': to_integer_if_hex,
-    'eth_getBlockByHash': apply_formatter_if(is_not_null, block_formatter),
-    'eth_getBlockByNumber': apply_formatter_if(is_not_null, block_formatter),
-    'eth_getBlockTransactionCountByHash': to_integer_if_hex,
-    'eth_getBlockTransactionCountByNumber': to_integer_if_hex,
-    'eth_getCode': HexBytes,
-    'eth_getFilterChanges': filter_result_formatter,
-    'eth_getFilterLogs': filter_result_formatter,
-    'eth_getLogs': filter_result_formatter,
-    'eth_getProof': apply_formatter_if(is_not_null, proof_formatter),
-    'eth_getStorageAt': HexBytes,
-    'eth_getTransactionByBlockHashAndIndex': apply_formatter_if(
+    RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
+    RPC.eth_blockNumber: to_integer_if_hex,
+    RPC.eth_chainId: to_integer_if_hex,
+    RPC.eth_coinbase: to_checksum_address,
+    RPC.eth_estimateGas: to_integer_if_hex,
+    RPC.eth_gasPrice: to_integer_if_hex,
+    RPC.eth_getBalance: to_integer_if_hex,
+    RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, block_formatter),
+    RPC.eth_getBlockByNumber: apply_formatter_if(is_not_null, block_formatter),
+    RPC.eth_getBlockTransactionCountByHash: to_integer_if_hex,
+    RPC.eth_getBlockTransactionCountByNumber: to_integer_if_hex,
+    RPC.eth_getCode: HexBytes,
+    RPC.eth_getFilterChanges: filter_result_formatter,
+    RPC.eth_getFilterLogs: filter_result_formatter,
+    RPC.eth_getLogs: filter_result_formatter,
+    RPC.eth_getProof: apply_formatter_if(is_not_null, proof_formatter),
+    RPC.eth_getStorageAt: HexBytes,
+    RPC.eth_getTransactionByBlockHashAndIndex: apply_formatter_if(
         is_not_null,
         transaction_formatter,
     ),
-    'eth_getTransactionByBlockNumberAndIndex': apply_formatter_if(
+    RPC.eth_getTransactionByBlockNumberAndIndex: apply_formatter_if(
         is_not_null,
         transaction_formatter,
     ),
-    'eth_getTransactionByHash': apply_formatter_if(is_not_null, transaction_formatter),
-    'eth_getTransactionCount': to_integer_if_hex,
-    'eth_getTransactionReceipt': apply_formatter_if(
+    RPC.eth_getTransactionByHash: apply_formatter_if(is_not_null, transaction_formatter),
+    RPC.eth_getTransactionCount: to_integer_if_hex,
+    RPC.eth_getTransactionReceipt: apply_formatter_if(
         is_not_null,
         receipt_formatter,
     ),
-    'eth_getUncleCountByBlockHash': to_integer_if_hex,
-    'eth_getUncleCountByBlockNumber': to_integer_if_hex,
-    'eth_hashrate': to_integer_if_hex,
-    'eth_protocolVersion': compose(
+    RPC.eth_getUncleCountByBlockHash: to_integer_if_hex,
+    RPC.eth_getUncleCountByBlockNumber: to_integer_if_hex,
+    RPC.eth_hashrate: to_integer_if_hex,
+    RPC.eth_protocolVersion: compose(
         apply_formatter_if(is_integer, str),
         to_integer_if_hex,
     ),
-    'eth_sendRawTransaction': to_hexbytes(32),
-    'eth_sendTransaction': to_hexbytes(32),
-    'eth_sign': HexBytes,
-    'eth_signTransaction': apply_formatter_if(is_not_null, signed_tx_formatter),
-    'eth_signTypedData': HexBytes,
-    'eth_syncing': apply_formatter_if(is_not_false, syncing_formatter),
+    RPC.eth_sendRawTransaction: to_hexbytes(32),
+    RPC.eth_sendTransaction: to_hexbytes(32),
+    RPC.eth_sign: HexBytes,
+    RPC.eth_signTransaction: apply_formatter_if(is_not_null, signed_tx_formatter),
+    RPC.eth_signTypedData: HexBytes,
+    RPC.eth_syncing: apply_formatter_if(is_not_false, syncing_formatter),
     # personal
-    'personal_importRawKey': to_checksum_address,
-    'personal_listAccounts': apply_list_to_array_formatter(to_checksum_address),
-    'personal_newAccount': to_checksum_address,
-    'personal_sendTransaction': to_hexbytes(32),
-    'personal_signTypedData': HexBytes,
+    RPC.personal_importRawKey: to_checksum_address,
+    RPC.personal_listAccounts: apply_list_to_array_formatter(to_checksum_address),
+    RPC.personal_newAccount: to_checksum_address,
+    RPC.personal_sendTransaction: to_hexbytes(32),
+    RPC.personal_signTypedData: HexBytes,
     # SHH
-    'shh_getFilterMessages': apply_list_to_array_formatter(whisper_log_formatter),
+    RPC.shh_getFilterMessages: apply_list_to_array_formatter(whisper_log_formatter),
     # Transaction Pool
-    'txpool_content': transaction_pool_content_formatter,
-    'txpool_inspect': transaction_pool_inspect_formatter,
+    RPC.txpool_content: transaction_pool_content_formatter,
+    RPC.txpool_inspect: transaction_pool_inspect_formatter,
     # Snapshot and Revert
-    'evm_snapshot': hex_to_integer,
+    RPC.evm_snapshot: hex_to_integer,
     # Net
-    'net_peerCount': to_integer_if_hex,
+    RPC.net_peerCount: to_integer_if_hex,
 }
 
 
@@ -428,8 +434,8 @@ ATTRDICT_FORMATTER = {
 }
 
 METHOD_NORMALIZERS: Dict[RPCEndpoint, Callable[..., Any]] = {
-    'eth_getLogs': apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0),
-    'eth_newFilter': apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0)
+    RPC.eth_getLogs: apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0),
+    RPC.eth_newFilter: apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0)
 }
 
 STANDARD_NORMALIZERS = [
@@ -444,13 +450,17 @@ ABI_REQUEST_FORMATTERS = abi_request_formatters(STANDARD_NORMALIZERS, RPC_ABIS)
 
 
 @to_tuple
-def combine_formatters(formatter_maps, method_name):
+def combine_formatters(
+    formatter_maps: Collection[Dict[RPCEndpoint, Callable[..., Any]]], method_name: RPCEndpoint
+) -> Iterable[Callable[..., Any]]:
     for formatter_map in formatter_maps:
         if method_name in formatter_map:
             yield formatter_map[method_name]
 
 
-def get_request_formatters(method_name):
+def get_request_formatters(
+    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+) -> Dict[str, Callable[..., Any]]:
     request_formatter_maps = (
         METHOD_NORMALIZERS,
         PYTHONIC_REQUEST_FORMATTERS,
@@ -460,7 +470,9 @@ def get_request_formatters(method_name):
     return compose(*formatters)
 
 
-def get_result_formatters(method_name):
+def get_result_formatters(
+    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+) -> Dict[str, Callable[..., Any]]:
     formatters = combine_formatters(
         (PYTHONIC_RESULT_FORMATTERS,),
         method_name
@@ -470,7 +482,9 @@ def get_result_formatters(method_name):
     return compose(*formatters, attrdict_formatter)
 
 
-def get_error_formatters(method_name):
+def get_error_formatters(
+    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+) -> Dict[str, Callable[..., Any]]:
     #  Note error formatters work on the full response dict
     # TODO - test this function
     error_formatter_maps = ()
