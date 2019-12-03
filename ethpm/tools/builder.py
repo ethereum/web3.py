@@ -433,8 +433,9 @@ def normalize_compiler_output(compiler_output: Dict[str, Any]) -> Dict[str, Any]
     ]
     paths, names = zip(*paths_and_names)
     if len(names) != len(set(names)):
+        duplicates = set([name for name in names if names.count(name) > 1])
         raise ManifestBuildingError(
-            "Duplicate contract names were found in the compiler output."
+            f"Duplicate contract types: {duplicates} were found in the compiler output."
         )
     return {
         name: normalize_contract_type(compiler_output[path][name])
