@@ -9,11 +9,15 @@ from types import (
 from typing import (
     Any,
     Callable,
+    Generic,
     Type,
 )
 
 from web3._utils.compat import (
     Literal,
+)
+from web3.types import (
+    TReturn,
 )
 
 
@@ -27,7 +31,7 @@ class Timeout(Exception):
     is_running = None
 
     def __init__(
-        self, seconds: int=None, exception: Type[BaseException]=None, *args: Any, **kwargs: Any
+        self, seconds: float=None, exception: Type[BaseException]=None, *args: Any, **kwargs: Any
     ) -> None:
         self.seconds = seconds
         self.exception = exception
@@ -84,8 +88,10 @@ class Timeout(Exception):
         self.check()
 
 
-class ThreadWithReturn(threading.Thread):
-    def __init__(self, target: Callable[..., Any]=None, args: Any=None, kwargs: Any=None) -> None:
+class ThreadWithReturn(threading.Thread, Generic[TReturn]):
+    def __init__(
+        self, target: Callable[..., TReturn]=None, args: Any=None, kwargs: Any=None
+    ) -> None:
         super().__init__(
             target=target,
             args=args or tuple(),
@@ -98,7 +104,7 @@ class ThreadWithReturn(threading.Thread):
     def run(self) -> None:
         self._return = self.target(*self.args, **self.kwargs)
 
-    def get(self, timeout: int=None) -> Any:
+    def get(self, timeout: float=None) -> TReturn:
         self.join(timeout)
         try:
             return self._return
@@ -124,11 +130,11 @@ class TimerClass(threading.Thread):
 
 
 def spawn(
-    target: Callable[..., Any],
+    target: Callable[..., TReturn],
     *args: Any,
-    thread_class: Type[ThreadWithReturn]=ThreadWithReturn,
+    thread_class: Type[ThreadWithReturn[TReturn]]=ThreadWithReturn,
     **kwargs: Any,
-) -> ThreadWithReturn:
+) -> ThreadWithReturn[TReturn]:
     thread = thread_class(
         target=target,
         args=args,

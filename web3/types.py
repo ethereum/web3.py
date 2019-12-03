@@ -6,6 +6,7 @@ from typing import (
     NewType,
     Optional,
     Sequence,
+    TypeVar,
     Union,
 )
 
@@ -31,6 +32,9 @@ from web3.datastructures import (
 )
 
 Wei = NewType('Wei', int)
+TReturn = TypeVar("TReturn")
+TParams = TypeVar("TParams")
+TValue = TypeVar("TValue")
 
 
 # todo: move these to eth_typing once web3 is type hinted

@@ -71,7 +71,7 @@ class RequestManager:
         middlewares: Sequence[Tuple[Middleware, str]]=None
     ) -> None:
         self.web3 = web3
-        self.pending_requests: Dict[UUID, ThreadWithReturn] = {}
+        self.pending_requests: Dict[UUID, ThreadWithReturn[RPCResponse]] = {}
 
         if middlewares is None:
             middlewares = self.default_middlewares(web3)
@@ -171,7 +171,7 @@ class RequestManager:
         )
         return request_id
 
-    def receive_blocking(self, request_id: UUID, timeout: int=None) -> Any:
+    def receive_blocking(self, request_id: UUID, timeout: float=None) -> Any:
         try:
             request = self.pending_requests.pop(request_id)
         except KeyError:

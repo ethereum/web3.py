@@ -81,7 +81,7 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
 
 
 def wait_for_transaction_receipt(
-    web3: "Web3", txn_hash: Hash32, timeout: int, poll_latency: float
+    web3: "Web3", txn_hash: Hash32, timeout: float, poll_latency: float
 ) -> TxReceipt:
     with Timeout(timeout) as _timeout:
         while True:
