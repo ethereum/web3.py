@@ -1,5 +1,11 @@
 import math
+from typing import (
+    TYPE_CHECKING,
+)
 
+from eth_typing import (
+    Hash32,
+)
 from eth_utils.toolz import (
     assoc,
     curry,
@@ -11,6 +17,12 @@ from web3._utils.threads import (
 )
 from web3.exceptions import (
     TransactionNotFound,
+)
+from web3.types import (
+    BlockIdentifier,
+    TxParams,
+    TxReceipt,
+    Wei,
 )
 
 VALID_TRANSACTION_PARAMS = [
@@ -32,9 +44,12 @@ TRANSACTION_DEFAULTS = {
     'chainId': lambda web3, tx: web3.eth.chainId,
 }
 
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
+
 
 @curry
-def fill_nonce(web3, transaction):
+def fill_nonce(web3: "Web3", transaction: TxParams) -> TxParams:
     if 'from' in transaction and 'nonce' not in transaction:
         return assoc(
             transaction,
@@ -47,7 +62,7 @@ def fill_nonce(web3, transaction):
 
 
 @curry
-def fill_transaction_defaults(web3, transaction):
+def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
     """
     if web3 is None, fill as much as possible while offline
     """
@@ -65,7 +80,9 @@ def fill_transaction_defaults(web3, transaction):
     return merge(defaults, transaction)
 
 
-def wait_for_transaction_receipt(web3, txn_hash, timeout, poll_latency):
+def wait_for_transaction_receipt(
+    web3: "Web3", txn_hash: Hash32, timeout: float, poll_latency: float
+) -> TxReceipt:
     with Timeout(timeout) as _timeout:
         while True:
             try:
@@ -82,14 +99,16 @@ def wait_for_transaction_receipt(web3, txn_hash, timeout, poll_latency):
     return txn_receipt
 
 
-def get_block_gas_limit(web3, block_identifier=None):
+def get_block_gas_limit(web3: "Web3", block_identifier: BlockIdentifier=None) -> Wei:
     if block_identifier is None:
         block_identifier = web3.eth.blockNumber
     block = web3.eth.getBlock(block_identifier)
     return block['gasLimit']
 
 
-def get_buffered_gas_estimate(web3, transaction, gas_buffer=100000):
+def get_buffered_gas_estimate(
+    web3: "Web3", transaction: TxParams, gas_buffer: Wei=Wei(100000)
+) -> Wei:
     gas_estimate_transaction = dict(**transaction)
 
     gas_estimate = web3.eth.estimateGas(gas_estimate_transaction)
@@ -103,10 +122,10 @@ def get_buffered_gas_estimate(web3, transaction, gas_buffer=100000):
             "limit: {1}".format(gas_estimate, gas_limit)
         )
 
-    return min(gas_limit, gas_estimate + gas_buffer)
+    return Wei(min(gas_limit, gas_estimate + gas_buffer))
 
 
-def get_required_transaction(web3, transaction_hash):
+def get_required_transaction(web3: "Web3", transaction_hash: Hash32) -> TxReceipt:
     current_transaction = web3.eth.getTransaction(transaction_hash)
     if not current_transaction:
         raise ValueError('Supplied transaction with hash {} does not exist'
@@ -114,7 +133,7 @@ def get_required_transaction(web3, transaction_hash):
     return current_transaction
 
 
-def extract_valid_transaction_params(transaction_params):
+def extract_valid_transaction_params(transaction_params: TxParams) -> TxParams:
     extracted_params = {key: transaction_params[key]
                         for key in VALID_TRANSACTION_PARAMS if key in transaction_params}
 
@@ -138,13 +157,15 @@ def extract_valid_transaction_params(transaction_params):
         raise Exception("Unreachable path: transaction's 'data' is either set or not set")
 
 
-def assert_valid_transaction_params(transaction_params):
+def assert_valid_transaction_params(transaction_params: TxParams) -> None:
     for param in transaction_params:
         if param not in VALID_TRANSACTION_PARAMS:
             raise ValueError('{} is not a valid transaction parameter'.format(param))
 
 
-def prepare_replacement_transaction(web3, current_transaction, new_transaction):
+def prepare_replacement_transaction(
+    web3: "Web3", current_transaction: TxParams, new_transaction: TxParams
+) -> TxParams:
     if current_transaction['blockHash'] is not None:
         raise ValueError('Supplied transaction with hash {} has already been mined'
                          .format(current_transaction['hash']))
@@ -168,7 +189,9 @@ def prepare_replacement_transaction(web3, current_transaction, new_transaction):
     return new_transaction
 
 
-def replace_transaction(web3, current_transaction, new_transaction):
+def replace_transaction(
+    web3: "Web3", current_transaction: TxParams, new_transaction: TxParams
+) -> Hash32:
     new_transaction = prepare_replacement_transaction(
         web3, current_transaction, new_transaction
     )

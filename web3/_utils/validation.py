@@ -1,5 +1,13 @@
 import itertools
+from typing import (
+    Any,
+    Dict,
+)
 
+from eth_typing import (
+    HexStr,
+    TypeStr,
+)
 from eth_utils import (
     function_abi_to_4byte_selector,
     is_0x_prefixed,
@@ -43,16 +51,21 @@ from web3._utils.abi import (
 from web3.exceptions import (
     InvalidAddress,
 )
+from web3.types import (  # noqa: F401
+    ABI,
+    ABIEvent,
+    ABIFunction,
+)
 
 
-def _prepare_selector_collision_msg(duplicates):
+def _prepare_selector_collision_msg(duplicates: Dict[HexStr, ABIFunction]) -> str:
     dup_sel = valmap(apply_formatter_to_array(abi_to_signature), duplicates)
     joined_funcs = valmap(lambda funcs: ', '.join(funcs), dup_sel)
     func_sel_msg_list = [funcs + ' have selector ' + sel for sel, funcs in joined_funcs.items()]
     return ' and\n'.join(func_sel_msg_list)
 
 
-def validate_abi(abi):
+def validate_abi(abi: ABI) -> None:
     """
     Helper function for validating an ABI
     """
@@ -75,7 +88,7 @@ def validate_abi(abi):
         )
 
 
-def validate_abi_type(abi_type):
+def validate_abi_type(abi_type: TypeStr) -> None:
     """
     Helper function for validating an abi_type
     """
@@ -83,7 +96,7 @@ def validate_abi_type(abi_type):
         raise ValueError("Unrecognized abi_type: {abi_type}".format(abi_type=abi_type))
 
 
-def validate_abi_value(abi_type, value):
+def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
     """
     Helper function for validating a value against the expected abi_type
     Note: abi_type 'bytes' must either be python3 'bytes' object or ''
@@ -139,7 +152,7 @@ def validate_abi_value(abi_type, value):
     )
 
 
-def validate_address(value):
+def validate_address(value: Any) -> None:
     """
     Helper function for validating an address
     """
@@ -170,13 +183,13 @@ def validate_address(value):
             )
 
 
-def has_one_val(*args, **kwargs):
+def has_one_val(*args: Any, **kwargs: Any) -> bool:
     vals = itertools.chain(args, kwargs.values())
     not_nones = list(filter(lambda val: val is not None, vals))
     return len(not_nones) == 1
 
 
-def assert_one_val(*args, **kwargs):
+def assert_one_val(*args: Any, **kwargs: Any) -> None:
     if not has_one_val(*args, **kwargs):
         raise TypeError(
             "Exactly one of the passed values can be specified. "

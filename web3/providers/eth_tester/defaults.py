@@ -9,7 +9,6 @@ from typing import (
     NoReturn,
     Tuple,
     Type,
-    TypeVar,
 )
 
 from eth_tester.exceptions import (
@@ -40,6 +39,9 @@ from eth_utils.toolz import (
 from web3.types import (
     LogReceipt,
     RPCResponse,
+    TParams,
+    TReturn,
+    TValue,
     TxReceipt,
 )
 
@@ -47,10 +49,6 @@ if TYPE_CHECKING:
     from eth_tester import (  # noqa: F401
         EthereumTester,
     )
-
-TReturn = TypeVar("TReturn")
-TParams = TypeVar("TParams")
-TValue = TypeVar("TValue")
 
 
 def not_implemented(*args: Any, **kwargs: Any) -> NoReturn:
