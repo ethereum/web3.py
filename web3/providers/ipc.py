@@ -217,6 +217,9 @@ class IPCProvider(JSONBaseProvider):
         self._socket = PersistantSocket(self.ipc_path)
         super().__init__()
 
+    def __str__(self) -> str:
+        return "IPC connection {0}".format(self.ipc_path)
+
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug("Making request IPC. Path: %s, Method: %s",
                           self.ipc_path, method)
