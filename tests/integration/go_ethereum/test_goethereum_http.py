@@ -30,19 +30,38 @@ def endpoint_uri(rpc_port):
 
 
 @pytest.fixture(scope='module')
-def geth_command_arguments(geth_binary, datadir, rpc_port):
-    return (
-        geth_binary,
-        '--datadir', str(datadir),
-        '--shh',
-        '--nodiscover',
-        '--fakepow',
-        '--rpc',
-        '--rpcport', rpc_port,
-        '--rpcapi', 'admin,db,eth,net,web3,personal,shh,web3',
-        '--ipcdisable',
-        '--allow-insecure-unlock',
-    )
+def geth_command_arguments(geth_binary,
+                           datadir,
+                           rpc_port,
+                           base_geth_command_arguments,
+                           geth_version):
+
+    if geth_version.major == 1:
+        if geth_version.minor == 9:
+            return (
+                base_geth_command_arguments +
+                (
+                    '--rpc',
+                    '--rpcport', rpc_port,
+                    '--rpcapi', 'admin,db,eth,net,web3,personal,shh,web3',
+                    '--ipcdisable',
+                    '--allow-insecure-unlock',
+                )
+            )
+        elif geth_version.minor == 8 or geth_version.minor == 7:
+            return (
+                base_geth_command_arguments +
+                (
+                    '--rpc',
+                    '--rpcport', rpc_port,
+                    '--rpcapi', 'admin,db,eth,net,web3,personal,shh,web3',
+                    '--ipcdisable',
+                )
+            )
+        else:
+            assert False, "Unsupported geth version"
+    else:
+        assert False, "Unsupported geth version"
 
 
 @pytest.fixture(scope="module")

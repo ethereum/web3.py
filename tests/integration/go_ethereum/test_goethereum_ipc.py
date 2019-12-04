@@ -22,16 +22,18 @@ from .utils import (
 
 
 @pytest.fixture(scope='module')
-def geth_command_arguments(geth_binary, datadir, geth_ipc_path):
+def geth_command_arguments(geth_binary,
+                           datadir,
+                           geth_ipc_path,
+                           base_geth_command_arguments,
+                           geth_version):
     geth_port = get_open_port()
     return (
-        geth_binary,
-        '--datadir', str(datadir),
-        '--ipcpath', geth_ipc_path,
-        '--shh',
-        '--nodiscover',
-        '--fakepow',
-        '--port', geth_port,
+        base_geth_command_arguments +
+        (
+            '--port', geth_port,
+            '--ipcpath', geth_ipc_path,
+        )
     )
 
 

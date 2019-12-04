@@ -59,6 +59,17 @@ def geth_version(geth_binary):
 
 
 @pytest.fixture(scope="module")
+def base_geth_command_arguments(geth_binary, datadir):
+    return (
+        geth_binary,
+        '--datadir', str(datadir),
+        '--shh',
+        '--nodiscover',
+        '--fakepow',
+    )
+
+
+@pytest.fixture(scope="module")
 def geth_zipfile_version(geth_version):
     if geth_version.major == 1:
         if geth_version.minor == 7:
