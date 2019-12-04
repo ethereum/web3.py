@@ -21,7 +21,7 @@ KEYFILE_PW = 'web3py-test'
 
 GETH_17_ZIP = 'geth-17-fixture.zip'
 GETH_1822_ZIP = 'geth-1.8.22-fixture.zip'
-GETH_193_ZIP = 'geth-1.9.3-fixture.zip'
+GETH_197_ZIP = 'geth-1.9.7-fixture.zip'
 
 
 @pytest.fixture(scope='module')
@@ -53,7 +53,7 @@ def absolute_datadir(directory_name):
 
 
 @pytest.fixture(scope="module")
-def geth_version(geth_binary):
+def get_geth_version(geth_binary):
     from geth import get_geth_version
     return get_geth_version(geth_executable=os.path.expanduser(geth_binary))
 
@@ -70,14 +70,14 @@ def base_geth_command_arguments(geth_binary, datadir):
 
 
 @pytest.fixture(scope="module")
-def geth_zipfile_version(geth_version):
-    if geth_version.major == 1:
-        if geth_version.minor == 7:
+def geth_zipfile_version(get_geth_version):
+    if get_geth_version.major == 1:
+        if get_geth_version.minor == 7:
             return GETH_17_ZIP
-        elif geth_version.minor == 8:
+        elif get_geth_version.minor == 8:
             return GETH_1822_ZIP
-        elif geth_version.minor == 9:
-            return GETH_193_ZIP
+        elif get_geth_version.minor == 9:
+            return GETH_197_ZIP
     assert False, "Unsupported geth version"
 
 

@@ -32,13 +32,13 @@ def endpoint_uri(ws_port):
 
 @pytest.fixture(scope='module')
 def geth_command_arguments(geth_binary,
-                           geth_version,
+                           get_geth_version,
                            datadir,
                            ws_port,
                            base_geth_command_arguments):
 
-    if geth_version.major == 1:
-        if geth_version.minor == 9:
+    if get_geth_version.major == 1:
+        if get_geth_version.minor == 9:
             return (
                 base_geth_command_arguments +
                 (
@@ -50,7 +50,7 @@ def geth_command_arguments(geth_binary,
                     '--allow-insecure-unlock',
                 )
             )
-        elif geth_version.minor == 8 or geth_version.minor == 7:
+        elif get_geth_version.minor == 8 or get_geth_version.minor == 7:
             return (
                 base_geth_command_arguments +
                 (
