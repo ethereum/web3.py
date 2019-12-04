@@ -218,7 +218,7 @@ class IPCProvider(JSONBaseProvider):
         super().__init__()
 
     def __str__(self) -> str:
-        return "IPC connection {0}".format(self.ipc_path)
+        return f"<{self.__class__.__name__} {self.ipc_path}>"
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug("Making request IPC. Path: %s, Method: %s",
