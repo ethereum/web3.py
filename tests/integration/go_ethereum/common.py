@@ -10,9 +10,8 @@ from web3._utils.module_testing import (  # noqa: F401
     Web3ModuleTest,
 )
 
-
 OLDER_GETH_VERSIONS = ['v1.7.2', 'v1.8.22']
-NEWER_GETH_VERSIONS = ['v1.8.22', 'v1.9.3']
+NEWER_GETH_VERSIONS = ['v1.8.22', 'v1.9.7']
 
 
 class GoEthereumTest(Web3ModuleTest):

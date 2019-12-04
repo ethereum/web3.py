@@ -477,7 +477,7 @@ class EthModuleTest:
         txn_hash = web3.eth.sendTransaction(txn_params)
 
         txn_params['gasPrice'] = Wei(web3.eth.gasPrice * 2)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Supplied transaction with hash"):
             web3.eth.replaceTransaction(txn_hash, txn_params)
 
     def test_eth_replaceTransaction_incorrect_nonce(
