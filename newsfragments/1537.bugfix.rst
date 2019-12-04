@@ -1,0 +1,1 @@
+Update eth-utils dependency which contains mypy bugfix.
