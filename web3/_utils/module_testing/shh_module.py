@@ -1,5 +1,9 @@
 import pytest
 import time
+from typing import (  # noqa: F401
+    TYPE_CHECKING,
+    List,
+)
 
 from eth_utils import (
     is_integer,
@@ -11,13 +15,19 @@ from hexbytes import (
 from web3._utils.filters import (
     ShhFilter,
 )
+from web3.types import (  # noqa: F401
+    ShhMessage,
+)
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
 
 class GoEthereumShhModuleTest():
     #
     # shh_filter
     #
-    def test_shh_sync_filter(self, web3):
+    def test_shh_sync_filter(self, web3: "Web3") -> None:
         sender = web3.geth.shh.new_key_pair()
         sender_pub = web3.geth.shh.get_public_key(sender)
 
@@ -62,7 +72,7 @@ class GoEthereumShhModuleTest():
         assert message["payload"] == HexBytes(payloads[1])
         assert message["topic"] == HexBytes(topic)
 
-    def test_shh_sync_filter_deprecated(self, web3):
+    def test_shh_sync_filter_deprecated(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             sender = web3.geth.shh.newKeyPair()
             sender_pub = web3.geth.shh.getPublicKey(sender)
@@ -107,8 +117,8 @@ class GoEthereumShhModuleTest():
             assert message["payload"] == HexBytes(payloads[1])
             assert message["topic"] == HexBytes(topic)
 
-    def test_shh_async_filter(self, web3):
-        received_messages = []
+    def test_shh_async_filter(self, web3: "Web3") -> None:
+        received_messages: List[ShhMessage] = []
 
         sender = web3.geth.shh.new_key_pair()
         sender_pub = web3.geth.shh.get_public_key(sender)
@@ -155,8 +165,8 @@ class GoEthereumShhModuleTest():
 
         watcher.stop()
 
-    def test_shh_async_filter_deprecated(self, web3):
-        received_messages = []
+    def test_shh_async_filter_deprecated(self, web3: "Web3") -> None:
+        received_messages: List[ShhMessage] = []
 
         with pytest.warns(DeprecationWarning) as warnings:
             sender = web3.geth.shh.newKeyPair()
@@ -206,7 +216,7 @@ class GoEthereumShhModuleTest():
 
             watcher.stop()
 
-    def test_shh_remove_filter_deprecated(self, web3):
+    def test_shh_remove_filter_deprecated(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             receiver = web3.geth.shh.newKeyPair()
             receiver_pub = web3.geth.shh.getPublicKey(receiver)
@@ -233,7 +243,7 @@ class GoEthereumShhModuleTest():
             except BaseException:
                 assert True
 
-    def test_shh_remove_filter(self, web3):
+    def test_shh_remove_filter(self, web3: "Web3") -> None:
 
         receiver = web3.geth.shh.new_key_pair()
         receiver_pub = web3.geth.shh.get_public_key(receiver)
@@ -263,7 +273,7 @@ class GoEthereumShhModuleTest():
     #
     # shh_key_pair
     #
-    def test_shh_asymmetric_key_pair(self, web3):
+    def test_shh_asymmetric_key_pair(self, web3: "Web3") -> None:
         # Test generating key
 
         key_id = web3.geth.shh.new_key_pair()
@@ -279,7 +289,7 @@ class GoEthereumShhModuleTest():
         assert web3.geth.shh.has_key_pair(key_id)
         assert web3.geth.shh.delete_key_pair(key_id)
 
-    def test_shh_asymmetric_key_pair_deprecated(self, web3):
+    def test_shh_asymmetric_key_pair_deprecated(self, web3: "Web3") -> None:
         # Test generating key
         with pytest.warns(DeprecationWarning):
             key_id = web3.geth.shh.newKeyPair()
@@ -295,7 +305,7 @@ class GoEthereumShhModuleTest():
             assert web3.geth.shh.hasKeyPair(key_id)
             assert web3.geth.shh.deleteKeyPair(key_id)
 
-    def test_shh_symmetric_key_pair(self, web3):
+    def test_shh_symmetric_key_pair(self, web3: "Web3") -> None:
         # Test generating key
         key_id = web3.geth.shh.new_sym_key()
         assert web3.geth.shh.has_sym_key(key_id)
@@ -310,7 +320,7 @@ class GoEthereumShhModuleTest():
         assert web3.geth.shh.has_sym_key(key_id)
         assert web3.geth.shh.delete_sym_key(key_id)
 
-    def test_shh_symmetric_key_pair_deprecated(self, web3):
+    def test_shh_symmetric_key_pair_deprecated(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             # Test generating key
             key_id = web3.geth.shh.newSymKey()
@@ -326,7 +336,7 @@ class GoEthereumShhModuleTest():
             assert web3.geth.shh.hasSymKey(key_id)
             assert web3.geth.shh.deleteSymKey(key_id)
 
-    def test_shh_symmetric_key_pair_from_password_deprecated(self, web3):
+    def test_shh_symmetric_key_pair_from_password_deprecated(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             key_id = web3.geth.shh.generateSymKeyFromPassword('shh be quiet')
 
@@ -334,7 +344,7 @@ class GoEthereumShhModuleTest():
             assert len(web3.geth.shh.getSymKey(key_id)) == 66
             assert web3.geth.shh.deleteSymKey(key_id)
 
-    def test_shh_symmetric_key_pair_from_password(self, web3):
+    def test_shh_symmetric_key_pair_from_password(self, web3: "Web3") -> None:
 
         key_id = web3.geth.shh.generate_sym_key_from_password('shh be quiet')
 
@@ -345,7 +355,7 @@ class GoEthereumShhModuleTest():
     #
     # shh_post
     #
-    def test_shh_post(self, web3):
+    def test_shh_post(self, web3: "Web3") -> None:
         receiver_pub = web3.geth.shh.get_public_key(web3.geth.shh.new_key_pair())
         assert web3.geth.shh.post({
             "topic": "0x12345678",
@@ -355,7 +365,7 @@ class GoEthereumShhModuleTest():
             "pubKey": receiver_pub,
         })
 
-    def test_shh_post_deprecated(self, web3):
+    def test_shh_post_deprecated(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             receiver_pub = web3.geth.shh.getPublicKey(web3.geth.shh.newKeyPair())
             assert web3.geth.shh.post({
@@ -369,14 +379,14 @@ class GoEthereumShhModuleTest():
     #
     # shh_properties
     #
-    def test_shh_version(self, web3):
+    def test_shh_version(self, web3: "Web3") -> None:
         version = web3.geth.shh.version()
         if '1.7' in web3.clientVersion:
             assert version == '5.0'
         else:
             assert version == '6.0'
 
-    def test_shh_info(self, web3):
+    def test_shh_info(self, web3: "Web3") -> None:
         pre_info = web3.geth.shh.info()
         assert pre_info["maxMessageSize"] != 2048
         assert pre_info["minPow"] != 0.6
@@ -390,7 +400,7 @@ class GoEthereumShhModuleTest():
         assert info["maxMessageSize"] == 2048
         assert info["minPow"] == 0.6
 
-    def test_shh_info_deprecated(self, web3):
+    def test_shh_info_deprecated(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             pre_info = web3.geth.shh.info()
             assert pre_info["maxMessageSize"] != 1024
@@ -410,7 +420,7 @@ class ParityShhModuleTest():
     #
     # shh_filter
     #
-    def test_shh_sync_filter(self, web3):
+    def test_shh_sync_filter(self, web3: "Web3") -> None:
         sender = web3.parity.shh.new_key_pair()
         sender_pub = web3.parity.shh.get_public_key(sender)
 
@@ -420,7 +430,7 @@ class ParityShhModuleTest():
         topic = '0x13370000'
         payloads = [web3.toHex(text="test message :)"), web3.toHex(text="2nd test message")]
 
-        shh_filter_id = web3.parity.shh.new_mssage_filter({
+        shh_filter_id = web3.parity.shh.new_message_filter({
             'decryptWith': receiver,
             'from': sender_pub,
             'topics': [topic],
@@ -455,8 +465,8 @@ class ParityShhModuleTest():
         assert message["payload"] == HexBytes(payloads[1])
         assert message["topic"] == HexBytes(topic)
 
-    def test_shh_async_filter(self, web3):
-        received_messages = []
+    def test_shh_async_filter(self, web3: "Web3") -> None:
+        received_messages: List[ShhMessage] = []
 
         sender = web3.parity.shh.new_key_pair()
         sender_pub = web3.parity.shh.get_public_key(sender)
@@ -508,7 +518,7 @@ class ParityShhModuleTest():
     # We don't care if an error or a True response comes back,
     # we only care that we're interfacing correctly with Parity
     @pytest.mark.xfail(strict=False, raises=ValueError)
-    def test_shh_remove_filter(self, web3):
+    def test_shh_remove_filter(self, web3: "Web3") -> None:
         receiver = web3.parity.shh.new_key_pair()
         receiver_pub = web3.parity.shh.get_public_key(receiver)
 
@@ -541,7 +551,7 @@ class ParityShhModuleTest():
     #
     # shh_key_pair
     #
-    def test_shh_asymmetric_key_pair(self, web3):
+    def test_shh_asymmetric_key_pair(self, web3: "Web3") -> None:
         # Test generating key
         key_id = web3.parity.shh.new_key_pair()
         assert len(web3.parity.shh.get_public_key(key_id)) == 130
@@ -555,7 +565,7 @@ class ParityShhModuleTest():
         key_id = web3.parity.shh.add_private_key(private_key)
         assert web3.parity.shh.delete_key(key_id)
 
-    def test_shh_symmetric_key_pair(self, web3):
+    def test_shh_symmetric_key_pair(self, web3: "Web3") -> None:
         # Test generating key
         key_id = web3.parity.shh.new_sym_key()
 
@@ -576,7 +586,7 @@ class ParityShhModuleTest():
     # We don't care if an error or a True response comes back,
     # we only care that we're interfacing correctly with Parity
     @pytest.mark.xfail(strict=False, raises=ValueError)
-    def test_shh_post(self, web3):
+    def test_shh_post(self, web3: "Web3") -> None:
         sender = web3.parity.shh.new_key_pair()
         assert web3.parity.shh.post({
             "topics": ["0x12345678"],
@@ -586,7 +596,7 @@ class ParityShhModuleTest():
             "ttl": 400,
         })
 
-    def test_shh_info(self, web3):
+    def test_shh_info(self, web3: "Web3") -> None:
         info = web3.parity.shh.info()
 
         assert len(info) == 3

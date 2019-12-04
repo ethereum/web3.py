@@ -23,6 +23,7 @@ from web3.types import (
     TxParams,
     TxReceipt,
     Wei,
+    _Hash32,
 )
 
 VALID_TRANSACTION_PARAMS = [
@@ -125,7 +126,7 @@ def get_buffered_gas_estimate(
     return Wei(min(gas_limit, gas_estimate + gas_buffer))
 
 
-def get_required_transaction(web3: "Web3", transaction_hash: Hash32) -> TxReceipt:
+def get_required_transaction(web3: "Web3", transaction_hash: _Hash32) -> TxReceipt:
     current_transaction = web3.eth.getTransaction(transaction_hash)
     if not current_transaction:
         raise ValueError('Supplied transaction with hash {} does not exist'
