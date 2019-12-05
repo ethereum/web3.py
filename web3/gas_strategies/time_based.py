@@ -9,7 +9,6 @@ from typing import (
 
 from eth_typing import (
     ChecksumAddress,
-    Hash32,
 )
 from eth_utils import (
     to_tuple,
@@ -18,6 +17,9 @@ from eth_utils.toolz import (
     curry,
     groupby,
     sliding_window,
+)
+from hexbytes import (
+    HexBytes,
 )
 
 from web3 import Web3
@@ -29,6 +31,7 @@ from web3.exceptions import (
     ValidationError,
 )
 from web3.types import (
+    BlockNumber,
     GasPriceStrategy,
     TxParams,
     Wei,
@@ -41,24 +44,25 @@ MinerData = collections.namedtuple(
 Probability = collections.namedtuple('Probability', ['gas_price', 'prob'])
 
 
-def _get_avg_block_time(w3: Web3, sample_size: int) -> int:
+def _get_avg_block_time(w3: Web3, sample_size: int) -> float:
     latest = w3.eth.getBlock('latest')
 
     constrained_sample_size = min(sample_size, latest['number'])
     if constrained_sample_size == 0:
         raise ValidationError('Constrained sample size is 0')
 
-    oldest = w3.eth.getBlock(latest['number'] - constrained_sample_size)
+    oldest = w3.eth.getBlock(BlockNumber(latest['number'] - constrained_sample_size))
     return (latest['timestamp'] - oldest['timestamp']) / constrained_sample_size
 
 
 def _get_raw_miner_data(
     w3: Web3, sample_size: int
-) -> Iterable[Tuple[ChecksumAddress, Hash32, Wei]]:
+) -> Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]:
     latest = w3.eth.getBlock('latest', full_transactions=True)
 
     for transaction in latest['transactions']:
-        yield (latest['miner'], latest['hash'], transaction['gasPrice'])
+        # type ignored b/c actual transaction is TxData not HexBytes
+        yield (latest['miner'], latest['hash'], transaction['gasPrice'])  # type: ignore
 
     block = latest
 
@@ -70,11 +74,12 @@ def _get_raw_miner_data(
         # block numbers to make caching the data easier to implement.
         block = w3.eth.getBlock(block['parentHash'], full_transactions=True)
         for transaction in block['transactions']:
-            yield (block['miner'], block['hash'], transaction['gasPrice'])
+            # type ignored b/c actual transaction is TxData not HexBytes
+            yield (block['miner'], block['hash'], transaction['gasPrice'])  # type: ignore
 
 
 def _aggregate_miner_data(
-    raw_data: Iterable[Tuple[ChecksumAddress, Hash32, Wei]]
+    raw_data: Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]
 ) -> Iterable[MinerData]:
     data_by_miner = groupby(0, raw_data)
 

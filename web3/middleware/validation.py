@@ -20,6 +20,9 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.exceptions import (
     ValidationError,
 )
@@ -110,13 +113,13 @@ def chain_id_validator(web3: "Web3") -> Callable[..., Any]:
 def build_validators_with_web3(w3: "Web3") -> FormattersDict:
     return dict(
         request_formatters={
-            'eth_sendTransaction': chain_id_validator(w3),
-            'eth_estimateGas': chain_id_validator(w3),
-            'eth_call': chain_id_validator(w3),
+            RPC.eth_sendTransaction: chain_id_validator(w3),
+            RPC.eth_estimateGas: chain_id_validator(w3),
+            RPC.eth_call: chain_id_validator(w3),
         },
         result_formatters={
-            'eth_getBlockByHash': block_validator,
-            'eth_getBlockByNumber': block_validator,
+            RPC.eth_getBlockByHash: block_validator,
+            RPC.eth_getBlockByNumber: block_validator,
         },
     )
 

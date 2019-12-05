@@ -11,6 +11,7 @@ from typing import (
     Optional,
     Tuple,
     Union,
+    cast,
 )
 
 import eth_abi
@@ -239,8 +240,8 @@ if LooseVersion(eth_abi.__version__) < LooseVersion("2"):
 def normalize_abi(abi: Union[ABI, str]) -> ABI:
     if isinstance(abi, str):
         abi = json.loads(abi)
-    validate_abi(abi)
-    return abi
+    validate_abi(cast(ABI, abi))
+    return cast(ABI, abi)
 
 
 def normalize_address(ens: ENS, address: ChecksumAddress) -> ChecksumAddress:

@@ -5,6 +5,9 @@ from typing import (  # noqa: F401
     List,
 )
 
+from eth_typing import (
+    HexStr,
+)
 from eth_utils import (
     is_integer,
 )
@@ -34,7 +37,7 @@ class GoEthereumShhModuleTest():
         receiver = web3.geth.shh.new_key_pair()
         receiver_pub = web3.geth.shh.get_public_key(receiver)
 
-        topic = '0x13370000'
+        topic = HexStr('0x13370000')
         payloads = [web3.toHex(text="test message :)"), web3.toHex(text="2nd test message")]
 
         shh_filter_id = web3.geth.shh.new_message_filter({
@@ -79,7 +82,7 @@ class GoEthereumShhModuleTest():
             receiver = web3.geth.shh.newKeyPair()
             receiver_pub = web3.geth.shh.getPublicKey(receiver)
 
-            topic = '0x13370000'
+            topic = HexStr('0x13370000')
             payloads = [web3.toHex(text="test message :)"), web3.toHex(text="2nd test message")]
 
             shh_filter_id = web3.geth.shh.newMessageFilter({
@@ -125,7 +128,7 @@ class GoEthereumShhModuleTest():
         receiver = web3.geth.shh.new_key_pair()
         receiver_pub = web3.geth.shh.get_public_key(receiver)
 
-        topic = '0x13370000'
+        topic = HexStr('0x13370000')
         payloads = [web3.toHex(text="test message :)"), web3.toHex(text="2nd test message")]
 
         shh_filter_id = web3.geth.shh.new_message_filter({
@@ -175,7 +178,7 @@ class GoEthereumShhModuleTest():
             receiver = web3.geth.shh.newKeyPair()
             receiver_pub = web3.geth.shh.getPublicKey(receiver)
 
-            topic = '0x13370000'
+            topic = HexStr('0x13370000')
             payloads = [web3.toHex(text="test message :)"), web3.toHex(text="2nd test message")]
 
             shh_filter_id = web3.geth.shh.newMessageFilter({
@@ -358,7 +361,7 @@ class GoEthereumShhModuleTest():
     def test_shh_post(self, web3: "Web3") -> None:
         receiver_pub = web3.geth.shh.get_public_key(web3.geth.shh.new_key_pair())
         assert web3.geth.shh.post({
-            "topic": "0x12345678",
+            "topic": HexStr("0x12345678"),
             "powTarget": 2.5,
             "powTime": 2,
             "payload": web3.toHex(text="testing shh on web3.py"),
@@ -369,7 +372,7 @@ class GoEthereumShhModuleTest():
         with pytest.warns(DeprecationWarning):
             receiver_pub = web3.geth.shh.getPublicKey(web3.geth.shh.newKeyPair())
             assert web3.geth.shh.post({
-                "topic": "0x12345678",
+                "topic": HexStr("0x12345678"),
                 "powTarget": 2.5,
                 "powTime": 2,
                 "payload": web3.toHex(text="testing shh on web3.py"),
@@ -427,7 +430,7 @@ class ParityShhModuleTest():
         receiver = web3.parity.shh.new_key_pair()
         receiver_pub = web3.parity.shh.get_public_key(receiver)
 
-        topic = '0x13370000'
+        topic = HexStr('0x13370000')
         payloads = [web3.toHex(text="test message :)"), web3.toHex(text="2nd test message")]
 
         shh_filter_id = web3.parity.shh.new_message_filter({
@@ -474,7 +477,7 @@ class ParityShhModuleTest():
         receiver = web3.parity.shh.new_key_pair()
         receiver_pub = web3.parity.shh.get_public_key(receiver)
 
-        topic = '0x13370000'
+        topic = HexStr('0x13370000')
         payloads = [web3.toHex(text="test message :)"), web3.toHex(text="2nd test message")]
 
         shh_filter_id = web3.parity.shh.new_message_filter({
@@ -523,7 +526,7 @@ class ParityShhModuleTest():
         receiver_pub = web3.parity.shh.get_public_key(receiver)
 
         payload = web3.toHex(text="test message :)")
-        topic = '0x13370000'
+        topic = HexStr('0x13370000')
         shh_filter = web3.parity.shh.new_message_filter({'decryptWith': None, 'topics': [topic]})
 
         assert web3.parity.shh.post({
@@ -589,7 +592,7 @@ class ParityShhModuleTest():
     def test_shh_post(self, web3: "Web3") -> None:
         sender = web3.parity.shh.new_key_pair()
         assert web3.parity.shh.post({
-            "topics": ["0x12345678"],
+            "topics": [HexStr("0x12345678")],
             "payload": web3.toHex(text="testing shh on web3.py"),
             "from": sender,
             "priority": 40,

@@ -6,6 +6,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
 )
 
 from eth_abi.codec import (
@@ -199,7 +200,7 @@ def prepare_transaction(
     transaction: TxParams=None,
     fn_args: Sequence[Any]=None,
     fn_kwargs: Any=None,
-) -> HexStr:
+) -> TxParams:
     """
     :parameter `is_function_abi` is used to distinguish  function abi from contract abi
     Returns a dictionary of the transaction that could be used to call this
@@ -214,7 +215,7 @@ def prepare_transaction(
     if transaction is None:
         prepared_transaction: TxParams = {}
     else:
-        prepared_transaction = dict(**transaction)
+        prepared_transaction = cast(TxParams, dict(**transaction))
 
     if 'data' in prepared_transaction:
         raise ValueError("Transaction parameter may not contain a 'data' key")
@@ -280,7 +281,8 @@ def get_function_info(
     if fn_abi is None:
         fn_abi = find_matching_fn_abi(contract_abi, abi_codec, fn_name, args, kwargs)
 
-    fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
+    # https://github.com/python/mypy/issues/4976
+    fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))  # type: ignore
 
     fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
 

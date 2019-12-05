@@ -83,10 +83,10 @@ class WebsocketProvider(JSONBaseProvider):
     _loop = None
 
     def __init__(
-            self,
-            endpoint_uri: URI=None,
-            websocket_kwargs: Any=None,
-            websocket_timeout: int=DEFAULT_WEBSOCKET_TIMEOUT,
+        self,
+        endpoint_uri: URI=None,
+        websocket_kwargs: Any=None,
+        websocket_timeout: int=DEFAULT_WEBSOCKET_TIMEOUT,
     ) -> None:
         self.endpoint_uri = endpoint_uri
         self.websocket_timeout = websocket_timeout

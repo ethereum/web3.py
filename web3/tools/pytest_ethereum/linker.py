@@ -75,7 +75,7 @@ def _deploy(
     latest_block_uri = create_latest_block_uri(package.w3, 0)
     deployment_data = create_deployment_data(
         contract_name,
-        to_checksum_address(tx_receipt.contractAddress),
+        to_checksum_address(tx_receipt["contractAddress"]),
         tx_receipt,
         factory.linked_references,
     )

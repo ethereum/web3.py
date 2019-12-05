@@ -17,6 +17,9 @@ from eth_utils import (
     is_integer,
     remove_0x_prefix,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from ethpm.constants import (
     SUPPORTED_CHAIN_IDS,
@@ -24,7 +27,7 @@ from ethpm.constants import (
 from web3 import Web3
 
 
-def get_genesis_block_hash(web3: Web3) -> str:
+def get_genesis_block_hash(web3: Web3) -> HexBytes:
     return web3.eth.getBlock(BlockNumber(0))["hash"]
 
 

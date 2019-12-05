@@ -86,9 +86,7 @@ from web3.types import (
 
 
 def filter_by_type(_type: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
-    # fix for this just landed, not yet released : https://github.com/python/mypy/pull/7917
-    # after it's released, update Union[ABIFunction, ABIEvent] -> ABIElement
-    return [abi for abi in contract_abi if abi['type'] == _type]  # type: ignore
+    return [abi for abi in contract_abi if abi['type'] == _type]
 
 
 def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
@@ -97,25 +95,26 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIE
         for abi
         in contract_abi
         if (
-            # type ignored b/c see line 91
-            abi['type'] not in ('fallback', 'constructor') and  # type: ignore
-            abi['name'] == name  # type: ignore
+            abi['type'] not in ('fallback', 'constructor') and
+            abi['name'] == name
         )
     ]
 
 
-def get_abi_input_types(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
+def get_abi_input_types(abi: ABIFunction) -> List[str]:
     if 'inputs' not in abi and abi['type'] == 'fallback':
         return []
     else:
-        return [collapse_if_tuple(arg) for arg in abi['inputs']]
+        # https://github.com/python/mypy/issues/4976
+        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi['inputs']]
 
 
-def get_abi_output_types(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
+def get_abi_output_types(abi: ABIFunction) -> List[str]:
     if abi['type'] == 'fallback':
         return []
     else:
-        return [collapse_if_tuple(arg) for arg in abi['outputs']]
+        # https://github.com/python/mypy/issues/4976
+        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi['outputs']]
 
 
 def get_abi_input_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
@@ -128,7 +127,7 @@ def get_abi_input_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
 def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
     fallback_abis = filter_by_type('fallback', contract_abi)
     if fallback_abis:
-        return fallback_abis[0]
+        return cast(ABIFunction, fallback_abis[0])
     else:
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
@@ -152,8 +151,7 @@ def filter_by_argument_count(
         abi
         for abi
         in contract_abi
-        # type ignored b/c see line 91
-        if len(abi['inputs']) == num_arguments  # type: ignore
+        if len(abi['inputs']) == num_arguments
     ]
 
 
@@ -373,10 +371,12 @@ def filter_by_encodability(
     abi_codec: codec.ABIEncoder, args: Sequence[Any], kwargs: Dict[str, Any], contract_abi: ABI
 ) -> List[ABIFunction]:
     return [
-        function_abi
+        cast(ABIFunction, function_abi)
         for function_abi
         in contract_abi
-        if check_if_arguments_can_be_encoded(function_abi, abi_codec, args, kwargs)
+        if check_if_arguments_can_be_encoded(
+            cast(ABIFunction, function_abi), abi_codec, args, kwargs
+        )
     ]
 
 
@@ -516,7 +516,7 @@ def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
         new_abi = copy.copy(arg_abi)
         new_abi['type'] = tuple_prefix
 
-        sub_abis = itertools.repeat(new_abi)
+        sub_abis = itertools.repeat(new_abi)  # type: ignore
 
     if isinstance(arg, abc.Mapping):
         # Arg is mapping.  Align values according to abi order.
@@ -555,7 +555,8 @@ def get_aligned_abi_inputs(
         args = tuple(args[abi['name']] for abi in input_abis)
 
     return (
-        tuple(collapse_if_tuple(abi) for abi in input_abis),
+        # https://github.com/python/mypy/issues/4976
+        tuple(collapse_if_tuple(abi) for abi in input_abis),  # type: ignore
         # too many arguments for Sequence
         type(args)(  # type: ignore
             _align_abi_input(abi, arg)
@@ -566,11 +567,10 @@ def get_aligned_abi_inputs(
 
 def get_constructor_abi(contract_abi: ABI) -> ABIFunction:
     candidates = [
-        # type ignored b/c see line 91
-        abi for abi in contract_abi if abi['type'] == 'constructor'  # type: ignore
+        abi for abi in contract_abi if abi['type'] == 'constructor'
     ]
     if len(candidates) == 1:
-        return candidates[0]
+        return cast(ABIFunction, candidates[0])
     elif len(candidates) == 0:
         return None
     elif len(candidates) > 1:
@@ -725,7 +725,7 @@ def is_probably_enum(abi_type: TypeStr) -> bool:
 @to_tuple
 def normalize_event_input_types(
     abi_args: Collection[Union[ABIFunction, ABIEvent]]
-) -> Iterable[Union[TypeStr, Dict[TypeStr, Any]]]:
+) -> Iterable[Union[ABIFunction, ABIEvent, Dict[TypeStr, Any]]]:
     for arg in abi_args:
         if is_recognized_type(arg['type']):
             yield arg
@@ -739,8 +739,7 @@ def abi_to_signature(abi: Union[ABIFunction, ABIEvent]) -> str:
     function_signature = "{fn_name}({fn_input_types})".format(
         fn_name=abi['name'],
         fn_input_types=','.join([
-            # type ignored b/c see line 91
-            arg['type'] for arg in normalize_event_input_types(abi.get('inputs', []))  # type: ignore # noqa: E501
+            arg['type'] for arg in normalize_event_input_types(abi.get('inputs', []))
         ]),
     )
     return function_signature

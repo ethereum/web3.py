@@ -10,14 +10,15 @@ from typing import (
 from eth_typing import (
     Address,
     ChecksumAddress,
-    Hash32,
     HexAddress,
-    HexStr,
 )
 from eth_utils import (
     is_binary_address,
     is_checksum_address,
     to_checksum_address,
+)
+from hexbytes import (
+    HexBytes,
 )
 
 from ens import abis
@@ -57,9 +58,7 @@ if TYPE_CHECKING:
     )
 
 
-ENS_MAINNET_ADDR = ChecksumAddress(
-    HexAddress(HexStr('0x314159265dD8dbb310642f98f50C066173C1259b'))
-)
+ENS_MAINNET_ADDR = cast(ChecksumAddress, '0x314159265dD8dbb310642f98f50C066173C1259b')
 
 
 class ENS:
@@ -130,7 +129,7 @@ class ENS:
         name: str,
         address: Union[Address, ChecksumAddress, HexAddress]=cast(ChecksumAddress, default),
         transact: "TxParams"={}
-    ) -> Hash32:
+    ) -> HexBytes:
         """
         Set up the name to point to the supplied address.
         The sender of the transaction must own the name, or
@@ -169,7 +168,7 @@ class ENS:
     @dict_copy
     def setup_name(
         self, name: str, address: ChecksumAddress=None, transact: "TxParams"={}
-    ) -> Hash32:
+    ) -> HexBytes:
         """
         Set up the address for reverse lookup, aka "caller ID".
         After successful setup, the method :meth:`~ens.main.ENS.name` will return
@@ -354,7 +353,7 @@ class ENS:
     @dict_copy
     def _setup_reverse(
         self, name: str, address: ChecksumAddress, transact: "TxParams"={}
-    ) -> Hash32:
+    ) -> HexBytes:
         if name:
             name = normalize_name(name)
         else:

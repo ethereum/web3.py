@@ -12,7 +12,6 @@ from typing import (
 from eth_typing import (
     BlockNumber,
     ChecksumAddress,
-    HexAddress,
     HexStr,
 )
 from eth_utils import (
@@ -34,15 +33,17 @@ from web3.exceptions import (
     InvalidAddress,
     TransactionNotFound,
 )
-from web3.types import (
+from web3.types import (  # noqa: F401
     BlockData,
+    FilterParams,
     LogReceipt,
+    Nonce,
     SyncStatus,
     TxParams,
     Wei,
 )
 
-UNKNOWN_ADDRESS = '0xdEADBEeF00000000000000000000000000000000'
+UNKNOWN_ADDRESS = cast(ChecksumAddress, '0xdEADBEeF00000000000000000000000000000000')
 UNKNOWN_HASH = HexStr('0xdeadbeef00000000000000000000000000000000000000000000000000000000')
 
 if TYPE_CHECKING:
@@ -117,7 +118,7 @@ class EthModuleTest:
         coinbase = web3.eth.coinbase
 
         with pytest.raises(InvalidAddress):
-            web3.eth.getBalance(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
+            web3.eth.getBalance(cast(ChecksumAddress, coinbase.lower()))
 
         balance = web3.eth.getBalance(coinbase)
 
@@ -133,7 +134,7 @@ class EthModuleTest:
     def test_eth_getStorageAt_invalid_address(self, web3: "Web3") -> None:
         coinbase = web3.eth.coinbase
         with pytest.raises(InvalidAddress):
-            web3.eth.getStorageAt(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))), 0)
+            web3.eth.getStorageAt(cast(ChecksumAddress, coinbase.lower()), 0)
 
     def test_eth_getTransactionCount(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
@@ -145,7 +146,7 @@ class EthModuleTest:
     def test_eth_getTransactionCount_invalid_address(self, web3: "Web3") -> None:
         coinbase = web3.eth.coinbase
         with pytest.raises(InvalidAddress):
-            web3.eth.getTransactionCount(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
+            web3.eth.getTransactionCount(cast(ChecksumAddress, coinbase.lower()))
 
     def test_eth_getBlockTransactionCountByHash_empty_block(
         self, web3: "Web3", empty_block: BlockData
@@ -198,7 +199,7 @@ class EthModuleTest:
 
     def test_eth_getCode_invalid_address(self, web3: "Web3", math_contract: "Contract") -> None:
         with pytest.raises(InvalidAddress):
-            web3.eth.getCode(ChecksumAddress(HexAddress(HexStr(math_contract.address.lower()))))
+            web3.eth.getCode(cast(ChecksumAddress, math_contract.address.lower()))
 
     def test_eth_getCode_with_block_identifier(
         self, web3: "Web3", emitter_contract: "Contract"
@@ -345,13 +346,13 @@ class EthModuleTest:
             )
 
     def test_eth_signTransaction(self, web3: "Web3", unlocked_account: ChecksumAddress) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
-            'value': 1,
-            'gas': 21000,
+            'value': Wei(1),
+            'gas': Wei(21000),
             'gasPrice': web3.eth.gasPrice,
-            'nonce': 0,
+            'nonce': Nonce(0),
         }
         result = web3.eth.signTransaction(txn_params)
         signatory_account = web3.eth.account.recoverTransaction(result['raw'])
@@ -366,37 +367,37 @@ class EthModuleTest:
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         non_checksum_addr = unlocked_account.lower()
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
-            'value': 1,
-            'gas': 21000,
+            'value': Wei(1),
+            'gas': Wei(21000),
             'gasPrice': web3.eth.gasPrice,
         }
 
         with pytest.raises(InvalidAddress):
-            invalid_params = dict(txn_params, **{'from': non_checksum_addr})
+            invalid_params = cast(TxParams, dict(txn_params, **{'from': non_checksum_addr}))
             web3.eth.sendTransaction(invalid_params)
 
         with pytest.raises(InvalidAddress):
-            invalid_params = dict(txn_params, **{'to': non_checksum_addr})
+            invalid_params = cast(TxParams, dict(txn_params, **{'to': non_checksum_addr}))
             web3.eth.sendTransaction(invalid_params)
 
     def test_eth_sendTransaction(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
-            'value': 1,
-            'gas': 21000,
+            'value': Wei(1),
+            'gas': Wei(21000),
             'gasPrice': web3.eth.gasPrice,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
         txn = web3.eth.getTransaction(txn_hash)
 
-        assert is_same_address(txn['from'], txn_params['from'])
-        assert is_same_address(txn['to'], txn_params['to'])
+        assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
         assert txn['value'] == 1
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gasPrice']
@@ -404,20 +405,20 @@ class EthModuleTest:
     def test_eth_sendTransaction_with_nonce(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
-            'value': 1,
-            'gas': 21000,
+            'value': Wei(1),
+            'gas': Wei(21000),
             # Increased gas price to ensure transaction hash different from other tests
-            'gasPrice': web3.eth.gasPrice * 3,
+            'gasPrice': Wei(web3.eth.gasPrice * 3),
             'nonce': web3.eth.getTransactionCount(unlocked_account),
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
         txn = web3.eth.getTransaction(txn_hash)
 
-        assert is_same_address(txn['from'], txn_params['from'])
-        assert is_same_address(txn['to'], txn_params['to'])
+        assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
         assert txn['value'] == 1
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gasPrice']
@@ -426,21 +427,21 @@ class EthModuleTest:
     def test_eth_replaceTransaction(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
-            'value': 1,
-            'gas': 21000,
+            'value': Wei(1),
+            'gas': Wei(21000),
             'gasPrice': web3.eth.gasPrice,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
 
-        txn_params['gasPrice'] = web3.eth.gasPrice * 2
+        txn_params['gasPrice'] = Wei(web3.eth.gasPrice * 2)
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
         replace_txn = web3.eth.getTransaction(replace_txn_hash)
 
-        assert is_same_address(replace_txn['from'], txn_params['from'])
-        assert is_same_address(replace_txn['to'], txn_params['to'])
+        assert is_same_address(replace_txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(replace_txn['to'], cast(ChecksumAddress, txn_params['to']))
         assert replace_txn['value'] == 1
         assert replace_txn['gas'] == 21000
         assert replace_txn['gasPrice'] == txn_params['gasPrice']
@@ -448,11 +449,11 @@ class EthModuleTest:
     def test_eth_replaceTransaction_non_existing_transaction(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
-            'value': 1,
-            'gas': 21000,
+            'value': Wei(1),
+            'gas': Wei(21000),
             'gasPrice': web3.eth.gasPrice,
         }
         with pytest.raises(TransactionNotFound):
@@ -465,62 +466,62 @@ class EthModuleTest:
     def test_eth_replaceTransaction_already_mined(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
-            'value': 1,
-            'gas': 21000,
+            'value': Wei(1),
+            'gas': Wei(21000),
             'gasPrice': web3.eth.gasPrice,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
 
-        txn_params['gasPrice'] = web3.eth.gasPrice * 2
+        txn_params['gasPrice'] = Wei(web3.eth.gasPrice * 2)
         with pytest.raises(ValueError):
             web3.eth.replaceTransaction(txn_hash, txn_params)
 
     def test_eth_replaceTransaction_incorrect_nonce(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
-            'value': 1,
-            'gas': 21000,
+            'value': Wei(1),
+            'gas': Wei(21000),
             'gasPrice': web3.eth.gasPrice,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
         txn = web3.eth.getTransaction(txn_hash)
 
-        txn_params['gasPrice'] = web3.eth.gasPrice * 2
-        txn_params['nonce'] = txn['nonce'] + 1
+        txn_params['gasPrice'] = Wei(web3.eth.gasPrice * 2)
+        txn_params['nonce'] = Nonce(txn['nonce'] + 1)
         with pytest.raises(ValueError):
             web3.eth.replaceTransaction(txn_hash, txn_params)
 
     def test_eth_replaceTransaction_gas_price_too_low(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
-            'value': 1,
-            'gas': 21000,
-            'gasPrice': 10,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'gasPrice': Wei(10),
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
 
-        txn_params['gasPrice'] = 9
+        txn_params['gasPrice'] = Wei(9)
         with pytest.raises(ValueError):
             web3.eth.replaceTransaction(txn_hash, txn_params)
 
     def test_eth_replaceTransaction_gas_price_defaulting_minimum(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
-            'value': 1,
-            'gas': 21000,
-            'gasPrice': 10,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'gasPrice': Wei(10),
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
 
@@ -533,12 +534,12 @@ class EthModuleTest:
     def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
-            'value': 1,
-            'gas': 21000,
-            'gasPrice': 10,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'gasPrice': Wei(10),
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
 
@@ -555,12 +556,12 @@ class EthModuleTest:
     def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
-            'value': 1,
-            'gas': 21000,
-            'gasPrice': 10,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'gasPrice': Wei(10),
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
 
@@ -578,11 +579,11 @@ class EthModuleTest:
     def test_eth_modifyTransaction(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
-            'value': 1,
-            'gas': 21000,
+            'value': Wei(1),
+            'gas': Wei(21000),
             'gasPrice': web3.eth.gasPrice,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
@@ -592,8 +593,8 @@ class EthModuleTest:
         )
         modified_txn = web3.eth.getTransaction(modified_txn_hash)
 
-        assert is_same_address(modified_txn['from'], txn_params['from'])
-        assert is_same_address(modified_txn['to'], txn_params['to'])
+        assert is_same_address(modified_txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(modified_txn['to'], cast(ChecksumAddress, txn_params['to']))
         assert modified_txn['value'] == 2
         assert modified_txn['gas'] == 21000
         assert modified_txn['gasPrice'] == cast(int, txn_params['gasPrice']) * 2
@@ -659,7 +660,7 @@ class EthModuleTest:
         gas_estimate = web3.eth.estimateGas({
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
-            'value': 1,
+            'value': Wei(1),
         })
         assert is_integer(gas_estimate)
         assert gas_estimate > 0
@@ -670,7 +671,7 @@ class EthModuleTest:
         gas_estimate = web3.eth.estimateGas({
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
-            'value': 1,
+            'value': Wei(1),
         }, 'latest')
         assert is_integer(gas_estimate)
         assert gas_estimate > 0
@@ -726,7 +727,7 @@ class EthModuleTest:
     ) -> None:
         block = web3.eth.getBlock(block_with_txn['number'], True)
         transaction = block['transactions'][0]
-        assert transaction['hash'] == block_with_txn['transactions'][0]
+        assert transaction['hash'] == block_with_txn['transactions'][0]  # type: ignore
 
     def test_eth_getTransactionByHash(
         self, web3: "Web3", mined_txn_hash: HexStr
@@ -772,8 +773,8 @@ class EthModuleTest:
         txn_hash = web3.eth.sendTransaction({
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
-            'value': 1,
-            'gas': 21000,
+            'value': Wei(1),
+            'gas': Wei(21000),
             'gasPrice': web3.eth.gasPrice,
         })
         with pytest.raises(TransactionNotFound):
@@ -862,9 +863,9 @@ class EthModuleTest:
     ) -> None:
         # Test with block range
 
-        filter_params = {
-            "fromBlock": 0,
-            "toBlock": block_with_txn_with_log['number'] - 1,
+        filter_params: FilterParams = {
+            "fromBlock": BlockNumber(0),
+            "toBlock": BlockNumber(block_with_txn_with_log['number'] - 1),
         }
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 0
@@ -872,7 +873,7 @@ class EthModuleTest:
         # the range is wrong
         filter_params = {
             "fromBlock": block_with_txn_with_log['number'],
-            "toBlock": block_with_txn_with_log['number'] - 1,
+            "toBlock": BlockNumber(block_with_txn_with_log['number'] - 1),
         }
         result = web3.eth.getLogs(filter_params)
         assert len(result) == 0
@@ -881,7 +882,7 @@ class EthModuleTest:
 
         # filter with other address
         filter_params = {
-            "fromBlock": 0,
+            "fromBlock": BlockNumber(0),
             "address": UNKNOWN_ADDRESS,
         }
         result = web3.eth.getLogs(filter_params)
@@ -891,7 +892,7 @@ class EthModuleTest:
 
         # filter with other address
         filter_params = {
-            "fromBlock": 0,
+            "fromBlock": BlockNumber(0),
             "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
         }
         result = web3.eth.getLogs(filter_params)
@@ -917,7 +918,7 @@ class EthModuleTest:
         # Test with block range
 
         # the range includes the block where the log resides in
-        filter_params = {
+        filter_params: FilterParams = {
             "fromBlock": block_with_txn_with_log['number'],
             "toBlock": block_with_txn_with_log['number'],
         }
@@ -926,7 +927,7 @@ class EthModuleTest:
 
         # specify only `from_block`. by default `to_block` should be 'latest'
         filter_params = {
-            "fromBlock": 0,
+            "fromBlock": BlockNumber(0),
         }
         result = web3.eth.getLogs(filter_params)
         assert_contains_log(result)
@@ -935,7 +936,7 @@ class EthModuleTest:
 
         # filter with emitter_contract.address
         filter_params = {
-            "fromBlock": 0,
+            "fromBlock": BlockNumber(0),
             "address": emitter_contract_address,
         }
 
@@ -958,11 +959,11 @@ class EthModuleTest:
 
         # Test with None event sig
 
-        filter_params = {
-            "fromBlock": 0,
+        filter_params: FilterParams = {
+            "fromBlock": BlockNumber(0),
             "topics": [
                 None,
-                '0x000000000000000000000000000000000000000000000000000000000000d431'],
+                HexStr('0x000000000000000000000000000000000000000000000000000000000000d431')],
         }
 
         result = web3.eth.getLogs(filter_params)
@@ -970,9 +971,9 @@ class EthModuleTest:
 
         # Test with None indexed arg
         filter_params = {
-            "fromBlock": 0,
+            "fromBlock": BlockNumber(0),
             "topics": [
-                '0x057bc32826fbe161da1c110afcdcae7c109a8b69149f727fc37a603c60ef94ca',
+                HexStr('0x057bc32826fbe161da1c110afcdcae7c109a8b69149f727fc37a603c60ef94ca'),
                 None],
         }
         result = web3.eth.getLogs(filter_params)
@@ -980,8 +981,8 @@ class EthModuleTest:
 
     def test_eth_getLogs_with_logs_none_topic_args(self, web3: "Web3") -> None:
         # Test with None overflowing
-        filter_params = {
-            "fromBlock": 0,
+        filter_params: FilterParams = {
+            "fromBlock": BlockNumber(0),
             "topics": [None, None, None],
         }
 
@@ -992,8 +993,8 @@ class EthModuleTest:
         self, web3: "Web3", math_contract: "Contract", unlocked_account: ChecksumAddress
     ) -> None:
         start_block = web3.eth.getBlock('latest')
-        block_num = start_block.number
-        block_hash = start_block.hash
+        block_num = start_block["number"]
+        block_hash = start_block["hash"]
 
         math_contract.functions.increment().transact({'from': unlocked_account})
 

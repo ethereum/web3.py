@@ -3,12 +3,11 @@ from typing import (
     Any,
     NoReturn,
     Sequence,
+    cast,
 )
 
 from eth_typing import (
     ChecksumAddress,
-    HexAddress,
-    HexStr,
     TypeStr,
 )
 from hexbytes import (
@@ -205,12 +204,8 @@ class Web3ModuleTest:
         self, web3: "Web3", types: Sequence[TypeStr], values: Sequence[str], expected: HexBytes
     ) -> None:
         with ens_addresses(web3, {
-            'one.eth': ChecksumAddress(
-                HexAddress(HexStr("0x49EdDD3769c0712032808D86597B84ac5c2F5614"))
-            ),
-            'two.eth': ChecksumAddress(
-                HexAddress(HexStr("0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5"))
-            ),
+            'one.eth': cast(ChecksumAddress, "0x49EdDD3769c0712032808D86597B84ac5c2F5614"),
+            'two.eth': cast(ChecksumAddress, "0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5"),
         }):
             # when called as class method, any name lookup attempt will fail
             with pytest.raises(InvalidAddress):

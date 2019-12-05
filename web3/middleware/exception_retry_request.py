@@ -88,7 +88,7 @@ def check_if_retry_on_failure(method: RPCEndpoint) -> bool:
 
 
 def exception_retry_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any],
+    make_request: Callable[[RPCEndpoint, Any], RPCResponse],
     web3: "Web3",
     errors: Collection[Type[BaseException]],
     retries: int=5,
@@ -97,7 +97,7 @@ def exception_retry_middleware(
     Creates middleware that retries failed HTTP requests. Is a default
     middleware for HTTPProvider.
     """
-    def middleware(method: RPCEndpoint, params: Any) -> Callable[[RPCEndpoint, Any], RPCResponse]:
+    def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if check_if_retry_on_failure(method):
             for i in range(retries):
                 try:

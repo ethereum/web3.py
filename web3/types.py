@@ -20,11 +20,9 @@ from eth_typing import (
 from hexbytes import (
     HexBytes,
 )
-from typing_extensions import (
-    Literal,
-)
 
 from web3._utils.compat import (
+    Literal,
     TypedDict,
 )
 from web3.datastructures import (
@@ -48,38 +46,37 @@ ABIEventParams = TypedDict("ABIEventParams", {
     "name": str,
     "type": str,
     "indexed": bool,
-})
+}, total=False)
 
-ENS = NewType("ENS", str)
 
 ABIEvent = TypedDict("ABIEvent", {
-    "type": "event",
+    "type": Literal["event"],
     "name": str,
-    "inputs": Sequence[ABIEventParams],
+    "inputs": Sequence["ABIEventParams"],
     "anonymous": bool,
-})
+}, total=False)
 
 
-ABIFunctionComponents = TypedDict("ABIFunctionParams", {
+ABIFunctionComponents = TypedDict("ABIFunctionComponents", {
     "name": str,
     "type": str,
-    "components": Sequence["ABIFunctionComponents"],
+    "components": Sequence[Any],
 }, total=False)
 
 
 ABIFunctionParams = TypedDict("ABIFunctionParams", {
     "name": str,
     "type": str,
-    "components": Sequence[ABIFunctionComponents],
+    "components": Sequence["ABIFunctionComponents"],
 }, total=False)
 
 
 ABIFunction = TypedDict("ABIFunction", {
-    "type": Union["function", "constructor", "fallback"],
+    "type": Literal["function", "constructor", "fallback"],
     "name": str,
-    "inputs": Sequence[ABIFunctionParams],
-    "outputs": Sequence[ABIFunctionParams],
-    "stateMutability": Union["pure", "view", "nonpayable", "payable"],
+    "inputs": Sequence["ABIFunctionParams"],
+    "outputs": Sequence["ABIFunctionParams"],
+    "stateMutability": Literal["pure", "view", "nonpayable", "payable"],
     "payable": bool,
     "constant": bool,
 }, total=False)
@@ -97,7 +94,7 @@ LatestBlockParam = Literal["latest"]
 BlockParams = Literal["latest", "earliest", "pending"]
 
 
-BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr]
+BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr, HexBytes]
 
 
 ENS = NewType("ENS", str)
@@ -111,9 +108,9 @@ EventData = TypedDict("EventData", {
     "event": str,
     "logIndex": int,
     "transactionIndex": int,
-    "transactionHash": Hash32,
+    "transactionHash": HexBytes,
     "address": ChecksumAddress,
-    "blockHash": Hash32,
+    "blockHash": HexBytes,
     "blockNumber": int,
 })
 
@@ -128,7 +125,7 @@ RPCResponse = TypedDict("RPCResponse", {
     "id": int,
     "jsonrpc": Literal["2.0"],
     "result": Any,
-    "error": RPCError,
+    "error": Union[RPCError, str],
 }, total=False)
 
 
@@ -146,17 +143,39 @@ FormattersDict = TypedDict("FormattersDict", {
 
 
 FilterParams = TypedDict("FilterParams", {
-    "fromBlock": Union["earliest", "pending", "latest", BlockNumber],
-    "toBlock": Union["earliest", "pending", "latest", BlockNumber],
-    "address": Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]],
-    "topics": List[Optional[Union[Hash32, List[Hash32]]]],
+    "fromBlock": BlockIdentifier,
+    "toBlock": BlockIdentifier,
+    "blockHash": HexBytes,
+    "address": Union[Address, ChecksumAddress, List[ChecksumAddress]],
+    "topics": Sequence[Optional[Union[_Hash32, Sequence[_Hash32]]]],
+}, total=False)
+
+TxData = TypedDict("TxData", {
+    "blockHash": HexBytes,
+    "blockNumber": BlockNumber,
+    "chainId": int,
+    "data": Union[bytes, HexStr],
+    "from": ChecksumAddress,
+    "gas": Wei,
+    "gasPrice": Wei,
+    "hash": HexBytes,
+    "input": HexStr,
+    "nonce": int,
+    "r": HexBytes,
+    "s": HexBytes,
+    "to": ChecksumAddress,
+    "transactionIndex": int,
+    "v": int,
+    "value": Wei,
 }, total=False)
 
 
 TxParams = TypedDict("TxParams", {
     "nonce": Nonce,
+    "chainId": int,
     "gasPrice": Wei,
     "gas": Wei,
+    # addr or ens
     "from": Union[Address, ChecksumAddress, str],
     "to": Union[Address, ChecksumAddress, str],
     "value": Wei,
@@ -175,22 +194,23 @@ Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], Any], Any]
 MiddlewareOnion = NamedElementOnion[str, Middleware]
 
 
-LogReceipt = TypedDict("LogReceipt", {
-    "address": ChecksumAddress,
-    "blockHash": Hash32,
-    "blockNumber": int,
-    "data": HexStr,
-    "logIndex": int,
-    "removed": bool,
-    "topics": List[Hash32],
-    "transactionHash": Hash32,
-    "transactionIndex": int,
-})
+class LogReceipt(TypedDict):
+    address: ChecksumAddress
+    blockHash: HexBytes
+    blockNumber: BlockNumber
+    data: HexStr
+    logIndex: int
+    payload: HexBytes
+    removed: bool
+    topic: HexBytes
+    topics: Sequence[HexBytes]
+    transactionHash: HexBytes
+    transactionIndex: int
 
 
 StorageProof = TypedDict("StorageProof", {
     'key': HexStr,
-    'value': Hash32,
+    'value': HexBytes,
     'proof': Sequence[HexStr],
 })
 
@@ -199,9 +219,9 @@ MerkleProof = TypedDict("MerkleProof", {
     'address': ChecksumAddress,
     'accountProof': Sequence[HexStr],
     'balance': int,
-    'codeHash': Hash32,
-    'nonce': Nonce,
-    'storageHash': Hash32,
+    'codeHash': HexBytes,
+    'nonce': int,
+    'storageHash': HexBytes,
     'storageProof': Sequence[StorageProof],
 })
 
@@ -246,7 +266,7 @@ Timestamp = NewType("Timestamp", int)
 
 
 TxReceipt = TypedDict("TxReceipt", {
-    "blockHash": Hash32,
+    "blockHash": HexBytes,
     "blockNumber": int,
     "contractAddress": Optional[ChecksumAddress],
     "cumulativeGasUsed": int,
@@ -257,32 +277,34 @@ TxReceipt = TypedDict("TxReceipt", {
     "root": HexStr,
     "status": int,
     "to": ChecksumAddress,
-    "transactionHash": Hash32,
+    "transactionHash": HexBytes,
     "transactionIndex": int,
 })
 
 
 BlockData = TypedDict("BlockData", {
     'difficulty': int,
-    'extraData': HexStr,
+    'extraData': HexBytes,
     'gasLimit': Wei,
     'gasUsed': Wei,
-    'hash': Hash32,
-    'logsBloom': HexStr,
+    'hash': HexBytes,
+    'logsBloom': HexBytes,
     'miner': ChecksumAddress,
-    'nonce': HexStr,
+    'mixHash': HexBytes,
+    'nonce': HexBytes,
     'number': BlockNumber,
-    'parentHash': Hash32,
-    'receiptRoot': Hash32,
-    'sha3Uncles': Hash32,
+    'parentHash': HexBytes,
+    'receiptRoot': HexBytes,
+    'sha3Uncles': HexBytes,
     'size': int,
-    'stateRoot': Hash32,
+    'stateRoot': HexBytes,
     'timestamp': Timestamp,
     'totalDifficulty': int,
-    'transactions': Union[Sequence[Hash32], Sequence[TxReceipt]],
-    'transactionsRoot': Hash32,
-    'uncles': Sequence[Hash32],
-})
+    # list of tx hashes or of txdatas
+    'transactions': Union[Sequence[HexBytes], Sequence[TxData]],
+    'transactionsRoot': HexBytes,
+    'uncles': Sequence[HexBytes],
+}, total=False)
 
 
 Uncle = TypedDict("Uncle", {
@@ -291,23 +313,23 @@ Uncle = TypedDict("Uncle", {
     'extraData': HexStr,
     'gasLimit': HexStr,
     'gasUsed': HexStr,
-    'hash': Hash32,
+    'hash': HexBytes,
     'logsBloom': HexStr,
-    'miner': Hash32,
-    'mixHash': Hash32,
+    'miner': HexBytes,
+    'mixHash': HexBytes,
     'nonce': HexStr,
     'number': HexStr,
-    'parentHash': Hash32,
-    'receiptsRoot': Hash32,
+    'parentHash': HexBytes,
+    'receiptsRoot': HexBytes,
     'sealFields': Sequence[HexStr],
-    'sha3Uncles': Hash32,
+    'sha3Uncles': HexBytes,
     'size': int,
-    'stateRoot': Hash32,
+    'stateRoot': HexBytes,
     'timestamp': Timestamp,
     'totalDifficulty': HexStr,
-    'transactions': Sequence[Hash32],
-    'transactionsRoot': Hash32,
-    'uncles': Sequence[Hash32]
+    'transactions': Sequence[HexBytes],
+    'transactionsRoot': HexBytes,
+    'uncles': Sequence[HexBytes]
 })
 
 # shh
@@ -318,6 +340,8 @@ ShhSubscriptionID = NewType("ShhSubscriptionID", HexStr)
 
 ShhMessageFilter = TypedDict("ShhMessageFilter", {
     "symKeyID": ShhID,
+    "decryptWith": ShhID,
+    "from": HexStr,
     "privateKeyID": ShhID,
     "sig": str,
     "minPoW": float,
@@ -342,22 +366,27 @@ ShhMessage = TypedDict("ShhMessage", {
 
 ShhMessageParams = TypedDict("ShhMessageParams", {
     "symKeyID": ShhID,
-    "pubKey": str,
+    "from": ShhID,
+    "to": Dict[str, HexStr],
+    "pubKey": HexStr,
     "ttl": int,
     "sig": str,
-    "topic": str,
+    "topics": List[HexStr],
+    "topic": HexStr,
     "payload": str,
     "padding": str,
     "powTime": int,
     "powTarget": float,
+    "priority": int,
     "targetPeer": ShhID,
 }, total=False)
 
 ShhStats = TypedDict("ShhStats", {
-    'maxMessageSize': int,
-    'memory': int,
-    'messages': int,
-    'minPow': float,
+    "maxMessageSize": int,
+    "memory": int,
+    "messages": int,
+    "minPow": float,
+    "targetMemory": int,
 }, total=False)
 
 # txpool types

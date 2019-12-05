@@ -134,7 +134,7 @@ class RequestManager:
             self.web3,
             self.middleware_onion)
         self.logger.debug("Making request. Method: %s", method)
-        return await request_func(method, params)
+        return await request_func(method, params)  # type: ignore
 
     def request_blocking(
         self,

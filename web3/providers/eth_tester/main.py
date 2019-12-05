@@ -2,7 +2,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Coroutine,
     Dict,
 )
 
@@ -37,9 +36,10 @@ class AsyncEthereumTesterProvider(BaseProvider):
     def __init__(self) -> None:
         self.eth_tester = EthereumTesterProvider()
 
-    async def make_request(
+    # type ignore b/c conflict w/ def in BaseProvider
+    async def make_request(  # type: ignore
         self, method: RPCEndpoint, params: Any
-    ) -> Coroutine[Any, Any, RPCResponse]:
+    ) -> RPCResponse:
         return self.eth_tester.make_request(method, params)
 
 
@@ -86,16 +86,16 @@ class EthereumTesterProvider(BaseProvider):
         try:
             delegator = self.api_endpoints[namespace][endpoint]
         except KeyError:
-            return {
+            return RPCResponse({
                 "error": "Unknown RPC Endpoint: {0}".format(method),
-            }
+            })
 
         try:
             response = delegator(self.ethereum_tester, params)
         except NotImplementedError:
-            return {
+            return RPCResponse({
                 "error": "RPC Endpoint has not been implemented: {0}".format(method),
-            }
+            })
         else:
             return {
                 'result': response,

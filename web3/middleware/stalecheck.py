@@ -1,9 +1,10 @@
 import time
-from typing import (
+from typing import (  # noqa: F401
     TYPE_CHECKING,
     Any,
     Callable,
     Collection,
+    Dict,
 )
 
 from web3.exceptions import (
@@ -48,7 +49,7 @@ def make_stalecheck_middleware(
     def stalecheck_middleware(
         make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-        cache = {'latest': None}
+        cache: Dict[str, BlockData] = {'latest': None}
 
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method not in skip_stalecheck_for_methods:

@@ -112,8 +112,8 @@ def create_deployment_data(
 ) -> Iterable[Tuple[str, Any]]:
     yield "contract_type", contract_name
     yield "address", new_address
-    yield "transaction", to_hex(tx_receipt.transactionHash)
-    yield "block", to_hex(tx_receipt.blockHash)
+    yield "transaction", to_hex(tx_receipt["transactionHash"])
+    yield "block", to_hex(tx_receipt["blockHash"])
     if link_refs:
         yield "runtime_bytecode", {"link_dependencies": create_link_dep(link_refs)}
 

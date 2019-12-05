@@ -26,9 +26,9 @@ from eth_abi.exceptions import (
     DecodingError,
 )
 from eth_typing import (
+    Address,
     BlockNumber,
     ChecksumAddress,
-    Hash32,
     HexStr,
 )
 from eth_utils import (
@@ -174,7 +174,7 @@ class ContractFunctions:
         for func in self._functions:
             yield func['name']
 
-    def __getattr__(self, function_name: str) -> ABIFunction:
+    def __getattr__(self, function_name: str) -> "ContractFunction":
         if self.abi is None:
             raise NoABIFound(
                 "There is no ABI found for this contract.",
@@ -232,7 +232,7 @@ class ContractEvents:
                         address=address,
                         event_name=event['name']))
 
-    def __getattr__(self, event_name: str) -> ABIEvent:
+    def __getattr__(self, event_name: str) -> "ContractEvent":
         if '_events' not in self.__dict__:
             raise NoABIEventsFound(
                 "The abi for this contract contains no event definitions. ",
@@ -246,10 +246,10 @@ class ContractEvents:
         else:
             return super().__getattribute__(event_name)
 
-    def __getitem__(self, event_name: str) -> ABIEvent:
+    def __getitem__(self, event_name: str) -> "ContractEvent":
         return getattr(self, event_name)
 
-    def __iter__(self) -> Iterable[str]:
+    def __iter__(self) -> Iterable["ContractEvent"]:
         """Iterate over supported
 
         :return: Iterable of :class:`ContractEvent`
@@ -430,7 +430,8 @@ class Contract:
     @combomethod
     def get_function_by_selector(self, selector: Union[bytes, int, HexStr]) -> 'ContractFunction':
         def callable_check(fn_abi: ABIFunction) -> bool:
-            return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(selector)
+            # https://github.com/python/mypy/issues/4976
+            return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(selector)  # type: ignore # noqa: E501
 
         fns = find_functions_by_identifier(self.abi, self.web3, self.address, callable_check)
         return get_function_by_identifier(fns, 'selector')
@@ -588,28 +589,30 @@ class ContractConstructor:
         if transaction is None:
             estimate_gas_transaction: TxParams = {}
         else:
-            estimate_gas_transaction = dict(**transaction)
+            estimate_gas_transaction = cast(TxParams, dict(**transaction))
             self.check_forbidden_keys_in_transaction(estimate_gas_transaction,
                                                      ["data", "to"])
 
         if self.web3.eth.defaultAccount is not empty:
-            estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)
+            # type ignored b/c check prevents an empty defaultAccount
+            estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore # noqa: E501
 
         estimate_gas_transaction['data'] = self.data_in_transaction
 
         return self.web3.eth.estimateGas(estimate_gas_transaction)
 
     @combomethod
-    def transact(self, transaction: TxParams=None) -> Hash32:
+    def transact(self, transaction: TxParams=None) -> HexBytes:
         if transaction is None:
             transact_transaction: TxParams = {}
         else:
-            transact_transaction = dict(**transaction)
+            transact_transaction = cast(TxParams, dict(**transaction))
             self.check_forbidden_keys_in_transaction(transact_transaction,
                                                      ["data", "to"])
 
         if self.web3.eth.defaultAccount is not empty:
-            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
+            # type ignored b/c check prevents an empty defaultAccount
+            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore
 
         transact_transaction['data'] = self.data_in_transaction
 
@@ -625,15 +628,16 @@ class ContractConstructor:
         if transaction is None:
             built_transaction: TxParams = {}
         else:
-            built_transaction = dict(**transaction)
+            built_transaction = cast(TxParams, dict(**transaction))
             self.check_forbidden_keys_in_transaction(built_transaction,
                                                      ["data", "to"])
 
         if self.web3.eth.defaultAccount is not empty:
-            built_transaction.setdefault('from', self.web3.eth.defaultAccount)
+            # type ignored b/c check prevents an empty defaultAccount
+            built_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore
 
         built_transaction['data'] = self.data_in_transaction
-        built_transaction['to'] = b''
+        built_transaction['to'] = Address(b'')
         return fill_transaction_defaults(self.web3, built_transaction)
 
     @staticmethod
@@ -831,7 +835,8 @@ class ContractFunction:
         if self.function_identifier is FallbackFn:
             self.selector = encode_hex(b'')
         elif is_text(self.function_identifier):
-            self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
+            # https://github.com/python/mypy/issues/4976
+            self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))  # type: ignore
         else:
             raise TypeError("Unsupported function identifier")
 
@@ -839,7 +844,7 @@ class ContractFunction:
 
     def call(
         self, transaction: TxParams=None, block_identifier: BlockIdentifier='latest'
-    ) -> Sequence[Any]:
+    ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
 
@@ -865,9 +870,9 @@ class ContractFunction:
             and variables exposed as Python methods
         """
         if transaction is None:
-            call_transaction: Dict[str, Any] = {}
+            call_transaction: TxParams = {}
         else:
-            call_transaction = dict(**transaction)
+            call_transaction = cast(TxParams, dict(**transaction))
 
         if 'data' in call_transaction:
             raise ValueError("Cannot set data in call transaction")
@@ -875,7 +880,8 @@ class ContractFunction:
         if self.address:
             call_transaction.setdefault('to', self.address)
         if self.web3.eth.defaultAccount is not empty:
-            call_transaction.setdefault('from', self.web3.eth.defaultAccount)
+            # type ignored b/c check prevents an empty defaultAccount
+            call_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore
 
         if 'to' not in call_transaction:
             if isinstance(self, type):
@@ -904,11 +910,11 @@ class ContractFunction:
             **self.kwargs
         )
 
-    def transact(self, transaction: TxParams=None) -> Hash32:
+    def transact(self, transaction: TxParams=None) -> HexBytes:
         if transaction is None:
-            transact_transaction: Dict[str, Any] = {}
+            transact_transaction: TxParams = {}
         else:
-            transact_transaction = dict(**transaction)
+            transact_transaction = cast(TxParams, dict(**transaction))
 
         if 'data' in transact_transaction:
             raise ValueError("Cannot set data in transact transaction")
@@ -916,7 +922,8 @@ class ContractFunction:
         if self.address is not None:
             transact_transaction.setdefault('to', self.address)
         if self.web3.eth.defaultAccount is not empty:
-            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)
+            # type ignored b/c check prevents an empty defaultAccount
+            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore
 
         if 'to' not in transact_transaction:
             if isinstance(self, type):
@@ -942,9 +949,9 @@ class ContractFunction:
 
     def estimateGas(self, transaction: TxParams=None) -> int:
         if transaction is None:
-            estimate_gas_transaction: Dict[str, Any] = {}
+            estimate_gas_transaction: TxParams = {}
         else:
-            estimate_gas_transaction = dict(**transaction)
+            estimate_gas_transaction = cast(TxParams, dict(**transaction))
 
         if 'data' in estimate_gas_transaction:
             raise ValueError("Cannot set data in estimateGas transaction")
@@ -954,7 +961,8 @@ class ContractFunction:
         if self.address:
             estimate_gas_transaction.setdefault('to', self.address)
         if self.web3.eth.defaultAccount is not empty:
-            estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)
+            # type ignored b/c check prevents an empty defaultAccount
+            estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore # noqa: E501
 
         if 'to' not in estimate_gas_transaction:
             if isinstance(self, type):
@@ -983,9 +991,9 @@ class ContractFunction:
         Build the transaction dictionary without sending
         """
         if transaction is None:
-            built_transaction: Dict[str, Any] = {}
+            built_transaction: TxParams = {}
         else:
-            built_transaction = dict(**transaction)
+            built_transaction = cast(TxParams, dict(**transaction))
 
         if 'data' in built_transaction:
             raise ValueError("Cannot set data in build transaction")
@@ -1071,7 +1079,9 @@ class ContractEvent:
         return self._parse_logs(txn_receipt, errors)
 
     @to_tuple
-    def _parse_logs(self, txn_receipt: TxReceipt, errors: EventLogErrorFlags) -> Iterable[ABIEvent]:
+    def _parse_logs(
+        self, txn_receipt: TxReceipt, errors: EventLogErrorFlags
+    ) -> Iterable[EventData]:
         try:
             errors.name
         except AttributeError:
@@ -1084,15 +1094,16 @@ class ContractEvent:
                 if errors == DISCARD:
                     continue
                 elif errors == IGNORE:
-                    new_log: LogReceipt = MutableAttributeDict(log)
+                    # type ignores b/c rich_log set on 1092 conflicts with mutated types
+                    new_log = MutableAttributeDict(log)  # type: ignore
                     new_log['errors'] = e
-                    rich_log = AttributeDict(new_log)
+                    rich_log = AttributeDict(new_log)  # type: ignore
                 elif errors == STRICT:
                     raise e
                 else:
                     warnings.warn(
-                        f'The log with transaction hash: {log.transactionHash} and '
-                        f'logIndex: {log.logIndex} encountered the following error '
+                        f"The log with transaction hash: {log['transactionHash']} and "
+                        f"logIndex: {log['logIndex']} encountered the following error "
                         f'during processing: {type(e).__name__}({e}). It has been discarded.'
                     )
                     continue
@@ -1138,7 +1149,7 @@ class ContractEvent:
         )
 
         filter_builder = EventFilterBuilder(event_abi, self.web3.codec)
-        filter_builder.address = event_filter_params.get('address')
+        filter_builder.address = cast(ChecksumAddress, event_filter_params.get('address'))
         filter_builder.fromBlock = event_filter_params.get('fromBlock')
         filter_builder.toBlock = event_filter_params.get('toBlock')
         match_any_vals = {
@@ -1175,7 +1186,7 @@ class ContractEvent:
                 argument_filters: Dict[str, Any]=None,
                 fromBlock: BlockIdentifier=None,
                 toBlock: BlockIdentifier=None,
-                blockHash: Hash32=None) -> Iterable[EventData]:
+                blockHash: HexBytes=None) -> Iterable[EventData]:
         """Get events for this contract instance using eth_getLogs API.
 
         This is a stateless method, as opposed to createFilter.
@@ -1339,7 +1350,7 @@ class ContractCaller:
                 "The ABI for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract ABI?"
             )
-        elif function_name not in self._functions:
+        elif function_name not in [fn['name'] for fn in self._functions]:
             functions_available = ', '.join([fn['name'] for fn in self._functions])
             raise MismatchedABI(
                 "The function '{}' was not found in this contract's ABI. ".format(function_name),
@@ -1368,7 +1379,7 @@ class ContractCaller:
         transaction: TxParams=None,
         block_identifier: BlockIdentifier='latest',
         **kwargs: Any
-    ) -> Sequence[Any]:
+    ) -> Any:
         if transaction is None:
             transaction = {}
         return fn(*args, **kwargs).call(transaction, block_identifier)
@@ -1402,7 +1413,7 @@ def call_contract_function(
         contract_abi: ABI=None,
         fn_abi: ABIFunction=None,
         *args: Any,
-        **kwargs: Any) -> Sequence[Any]:
+        **kwargs: Any) -> Any:
     """
     Helper function for interacting with a contract function using the
     `eth_call` API.
@@ -1495,7 +1506,7 @@ def transact_with_contract_function(
         contract_abi: ABI=None,
         fn_abi: ABIFunction=None,
         *args: Any,
-        **kwargs: Any) -> Hash32:
+        **kwargs: Any) -> HexBytes:
     """
     Helper function for interacting with a contract function by sending a
     transaction.

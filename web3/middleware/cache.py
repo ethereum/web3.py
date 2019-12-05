@@ -1,7 +1,7 @@
 import functools
 import threading
 import time
-from typing import (
+from typing import (  # noqa: F401
     TYPE_CHECKING,
     Any,
     Callable,
@@ -9,16 +9,22 @@ from typing import (
     Dict,
     Set,
     Type,
+    Union,
     cast,
 )
 
 import lru
+from typing_extensions import (
+    Literal,
+    TypedDict,
+)
 
 from web3._utils.caching import (
     generate_cache_key,
 )
 from web3.types import (  # noqa: F401
     BlockData,
+    BlockNumber,
     Middleware,
     RPCEndpoint,
     RPCResponse,
@@ -106,14 +112,14 @@ def construct_simple_cache_middleware(
         cached.
     """
     def simple_cache_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], RPCResponse], web3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
         lock = threading.Lock()
 
         def middleware(
             method: RPCEndpoint, params: Any
-        ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
+        ) -> RPCResponse:
             lock_acquired = lock.acquire(blocking=False)
 
             try:
@@ -303,9 +309,9 @@ BLOCK_NUMBER_RPC_WHITELIST = cast(Set[RPCEndpoint], {
     # 'eth_submitHashrate',
 })
 
-AVG_BLOCK_TIME_KEY = 'avg_block_time'
-AVG_BLOCK_SAMPLE_SIZE_KEY = 'avg_block_sample_size'
-AVG_BLOCK_TIME_UPDATED_AT_KEY = 'avg_block_time_updated_at'
+AVG_BLOCK_TIME_KEY: Literal['avg_block_time'] = 'avg_block_time'
+AVG_BLOCK_SAMPLE_SIZE_KEY: Literal['avg_block_sample_size'] = 'avg_block_sample_size'
+AVG_BLOCK_TIME_UPDATED_AT_KEY: Literal['avg_block_time_updated_at'] = 'avg_block_time_updated_at'
 
 
 def _is_latest_block_number_request(method: RPCEndpoint, params: Any) -> bool:
@@ -314,6 +320,14 @@ def _is_latest_block_number_request(method: RPCEndpoint, params: Any) -> bool:
     elif params[:1] == ['latest']:
         return True
     return False
+
+
+BlockInfoCache = TypedDict("BlockInfoCache", {
+    "avg_block_time": float,
+    "avg_block_sample_size": int,
+    "avg_block_time_updated_at": float,
+    "latest_block": BlockData,
+}, total=False)
 
 
 def construct_latest_block_based_cache_middleware(
@@ -345,7 +359,7 @@ def construct_latest_block_based_cache_middleware(
         make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
-        block_info: BlockData = {}
+        block_info: BlockInfoCache = {}
 
         def _update_block_info_cache() -> None:
             avg_block_time = block_info.get(AVG_BLOCK_TIME_KEY, default_average_block_time)
@@ -354,7 +368,7 @@ def construct_latest_block_based_cache_middleware(
 
             # compute age as counted by number of blocks since the avg_block_time
             if avg_block_time == 0:
-                avg_block_time_age_in_blocks = avg_block_sample_size
+                avg_block_time_age_in_blocks: float = avg_block_sample_size
             else:
                 avg_block_time_age_in_blocks = (
                     (time.time() - avg_block_time_updated_at) / avg_block_time
@@ -366,10 +380,10 @@ def construct_latest_block_based_cache_middleware(
                 # blocks sampled then we need to recompute the average block
                 # time.
                 latest_block = web3.eth.getBlock('latest')
-                ancestor_block_number = max(
+                ancestor_block_number = BlockNumber(max(
                     0,
                     latest_block['number'] - average_block_time_sample_size,
-                )
+                ))
                 ancestor_block = web3.eth.getBlock(ancestor_block_number)
                 sample_size = latest_block['number'] - ancestor_block_number
 
