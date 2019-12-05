@@ -429,7 +429,7 @@ def _build_argument_filters_from_event_abi(
 
 
 # type ignored b/c mypy complains about curried fns
-array_to_tuple = apply_formatter_if(is_list_like, tuple)  # type: ignore
+array_to_tuple = apply_formatter_if(is_list_like, tuple)
 
 
 @to_tuple

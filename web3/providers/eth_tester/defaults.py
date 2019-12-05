@@ -256,7 +256,7 @@ API_ENDPOINTS = {
         'getTransactionByBlockHashAndIndex': get_transaction_by_block_hash_and_index,
         'getTransactionByBlockNumberAndIndex': get_transaction_by_block_number_and_index,
         'getTransactionReceipt': null_if_transaction_not_found(compose(
-            apply_formatter_if(  # type: ignore
+            apply_formatter_if(
                 compose(is_null, operator.itemgetter('block_number')),
                 static_return(None),
             ),

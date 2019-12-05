@@ -222,7 +222,7 @@ def decode_utf8_bytes(value: bytes) -> str:
 
 not_text = complement(is_text)
 # type ignore b/c mypy doesn't play nicely w/ curried fns
-normalize_to_text = apply_formatter_if(not_text, decode_utf8_bytes)  # type: ignore
+normalize_to_text = apply_formatter_if(not_text, decode_utf8_bytes)
 
 
 def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:

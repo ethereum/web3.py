@@ -69,7 +69,7 @@ def is_eth_key(value: Any) -> bool:
 
 key_normalizer = compose(
     # ignore Too few arguments error b/c to_hexstr... returns callable,
-    apply_formatter_if(is_eth_key, to_hexstr_from_eth_key),  # type: ignore
+    apply_formatter_if(is_eth_key, to_hexstr_from_eth_key),
 )
 
 _PrivateKey = Union[LocalAccount, PrivateKey, HexStr, bytes]

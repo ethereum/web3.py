@@ -77,7 +77,7 @@ def transaction_normalizer(transaction: TxParams) -> TxParams:
 def transaction_param_validator(web3: "Web3") -> Callable[..., Any]:
     transactions_params_validators = {
         # type ignored b/c apply_formatter_if requires more args, but is_not_null is curried
-        "chainId": apply_formatter_if(  # type: ignore
+        "chainId": apply_formatter_if(
             # Bypass `validate_chain_id` if chainId can't be determined
             lambda _: is_not_null(web3.eth.chainId),
             validate_chain_id(web3),
@@ -95,9 +95,9 @@ BLOCK_VALIDATORS = {
 
 
 # types ignored b/c same reason as line 79
-block_validator = apply_formatter_if(  # type: ignore
+block_validator = apply_formatter_if(
     is_not_null,
-    apply_formatters_to_dict(BLOCK_VALIDATORS)  # type: ignore
+    apply_formatters_to_dict(BLOCK_VALIDATORS)
 )
 
 
