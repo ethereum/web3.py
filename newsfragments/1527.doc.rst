@@ -1,1 +1,0 @@
-Add documentation to methods that raise an error in v5 instead of returning ``None``

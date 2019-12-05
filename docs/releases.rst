@@ -6,6 +6,29 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.3.1 (2019-12-05)
+-------------------
+
+Bugfixes
+~~~~~~~~
+
+- Only apply hexbytes formatting to r and s values in transaction if present (`#1531 <https://github.com/ethereum/web3.py/issues/1531>`__)
+- Update eth-utils dependency which contains mypy bugfix. (`#1537 <https://github.com/ethereum/web3.py/issues/1537>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update Contract Event documentation to show correct example (`#1515 <https://github.com/ethereum/web3.py/issues/1515>`__)
+- Add documentation to methods that raise an error in v5 instead of returning ``None`` (`#1527 <https://github.com/ethereum/web3.py/issues/1527>`__)
+
+
+Misc
+~~~~
+
+- `#1518 <https://github.com/ethereum/web3.py/issues/1518>`__, `#1532 <https://github.com/ethereum/web3.py/issues/1532>`__
+
+
 v5.3.0 (2019-11-14)
 -------------------
 
