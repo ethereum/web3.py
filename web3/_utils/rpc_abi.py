@@ -1,3 +1,15 @@
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Sequence,
+    Tuple,
+)
+
+from eth_typing import (
+    TypeStr,
+)
 from eth_utils import (
     to_dict,
 )
@@ -17,6 +29,16 @@ from web3.types import (
 
 
 class RPC:
+    # admin
+    admin_addPeer = RPCEndpoint("admin_addPeer")
+    admin_datadir = RPCEndpoint("admin_datadir")
+    admin_nodeInfo = RPCEndpoint("admin_nodeInfo")
+    admin_peers = RPCEndpoint("admin_peers")
+    admin_startRPC = RPCEndpoint("admin_startRPC")
+    admin_startWS = RPCEndpoint("admin_startWS")
+    admin_stopRPC = RPCEndpoint("admin_stopRPC")
+    admin_stopWS = RPCEndpoint("admin_stopWS")
+
     # eth
     eth_accounts = RPCEndpoint("eth_accounts")
     eth_blockNumber = RPCEndpoint("eth_blockNumber")
@@ -62,37 +84,45 @@ class RPC:
     eth_syncing = RPCEndpoint("eth_syncing")
     eth_uninstallFilter = RPCEndpoint("eth_uninstallFilter")
 
-    # personal
-    personal_ecRecover = RPCEndpoint("personal_ecRecover")
-    personal_importRawKey = RPCEndpoint("personal_importRawKey")
-    personal_listAccounts = RPCEndpoint("personal_listAccounts")
-    personal_newAccount = RPCEndpoint("personal_newAccount")
-    personal_sendTransaction = RPCEndpoint("personal_sendTransaction")
-    personal_sign = RPCEndpoint("personal_sign")
-    personal_signTypedData = RPCEndpoint("personal_signTypedData")
-
     # evm
     evm_mine = RPCEndpoint("evm_mine")
     evm_reset = RPCEndpoint("evm_reset")
     evm_revert = RPCEndpoint("evm_revert")
     evm_snapshot = RPCEndpoint("evm_snapshot")
 
+    # miner
+    miner_makeDag = RPCEndpoint("miner_makeDag")
+    miner_setExtra = RPCEndpoint("miner_setExtra")
+    miner_setEtherbase = RPCEndpoint("miner_setEtherbase")
+    miner_setGasPrice = RPCEndpoint("miner_setGasPrice")
+    miner_start = RPCEndpoint("miner_start")
+    miner_stop = RPCEndpoint("miner_stop")
+    miner_startAutoDag = RPCEndpoint("miner_startAutoDag")
+    miner_stopAutoDag = RPCEndpoint("miner_stopAutoDag")
+
     # net
     net_listening = RPCEndpoint("net_listening")
     net_peerCount = RPCEndpoint("net_peerCount")
     net_version = RPCEndpoint("net_version")
 
-    # trace
-    trace_block = RPCEndpoint("trace_block")
-    trace_call = RPCEndpoint("trace_call")
-    trace_filter = RPCEndpoint("trace_filter")
-    trace_rawTransaction = RPCEndpoint("trace_rawTransaction")
-    trace_replayBlockTransactions = RPCEndpoint("trace_replayBlockTransactions")
-    trace_replayTransaction = RPCEndpoint("trace_replayTransaction")
-    trace_transaction = RPCEndpoint("trace_transaction")
+    # parity
+    parity_addReservedPeer = RPCEndpoint("parity_addReservedPeer")
+    parity_enode = RPCEndpoint("parity_enode")
+    parity_listStorageKeys = RPCEndpoint("parity_listStorageKeys")
+    parity_netPeers = RPCEndpoint("parity_netPeers")
+    parity_mode = RPCEndpoint("parity_mode")
+    parity_setMode = RPCEndpoint("parity_setMode")
 
-    # testing
-    testing_timeTravel = RPCEndpoint("testing_timeTravel")
+    # personal
+    personal_ecRecover = RPCEndpoint("personal_ecRecover")
+    personal_importRawKey = RPCEndpoint("personal_importRawKey")
+    personal_listAccounts = RPCEndpoint("personal_listAccounts")
+    personal_lockAccount = RPCEndpoint("personal_lockAccount")
+    personal_newAccount = RPCEndpoint("personal_newAccount")
+    personal_sendTransaction = RPCEndpoint("personal_sendTransaction")
+    personal_sign = RPCEndpoint("personal_sign")
+    personal_signTypedData = RPCEndpoint("personal_signTypedData")
+    personal_unlockAccount = RPCEndpoint("personal_unlockAccount")
 
     # shh
     shh_addPrivateKey = RPCEndpoint("shh_addPrivateKey")
@@ -120,15 +150,17 @@ class RPC:
     shh_unsubscribe = RPCEndpoint("shh_unsubscribe")
     shh_version = RPCEndpoint("shh_version")
 
-    # admin
-    admin_addPeer = RPCEndpoint("admin_addPeer")
-    admin_datadir = RPCEndpoint("admin_datadir")
-    admin_nodeInfo = RPCEndpoint("admin_nodeInfo")
-    admin_peers = RPCEndpoint("admin_peers")
-    admin_startRPC = RPCEndpoint("admin_startRPC")
-    admin_startWS = RPCEndpoint("admin_startWS")
-    admin_stopRPC = RPCEndpoint("admin_stopRPC")
-    admin_stopWS = RPCEndpoint("admin_stopWS")
+    # testing
+    testing_timeTravel = RPCEndpoint("testing_timeTravel")
+
+    # trace
+    trace_block = RPCEndpoint("trace_block")
+    trace_call = RPCEndpoint("trace_call")
+    trace_filter = RPCEndpoint("trace_filter")
+    trace_rawTransaction = RPCEndpoint("trace_rawTransaction")
+    trace_replayBlockTransactions = RPCEndpoint("trace_replayBlockTransactions")
+    trace_replayTransaction = RPCEndpoint("trace_replayTransaction")
+    trace_transaction = RPCEndpoint("trace_transaction")
 
     # txpool
     txpool_content = RPCEndpoint("txpool_content")
@@ -137,14 +169,6 @@ class RPC:
 
     # web3
     web3_clientVersion = RPCEndpoint("web3_clientVersion")
-
-    # parity
-    parity_addReservedPeer = RPCEndpoint("parity_addReservedPeer")
-    parity_enode = RPCEndpoint("parity_enode")
-    parity_listStorageKeys = RPCEndpoint("parity_listStorageKeys")
-    parity_netPeers = RPCEndpoint("parity_netPeers")
-    parity_mode = RPCEndpoint("parity_mode")
-    parity_setMode = RPCEndpoint("parity_setMode")
 
 
 TRANSACTION_PARAMS_ABIS = {
@@ -204,7 +228,11 @@ RPC_ABIS = {
 
 
 @curry
-def apply_abi_formatters_to_dict(normalizers, abi_dict, data):
+def apply_abi_formatters_to_dict(
+    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
+    abi_dict: Dict[str, Any],
+    data: Dict[Any, Any]
+) -> Dict[Any, Any]:
     fields = list(set(abi_dict.keys()) & set(data.keys()))
     formatted_values = map_abi_data(
         normalizers,
@@ -216,7 +244,10 @@ def apply_abi_formatters_to_dict(normalizers, abi_dict, data):
 
 
 @to_dict
-def abi_request_formatters(normalizers, abis):
+def abi_request_formatters(
+    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
+    abis: Dict[RPCEndpoint, Any],
+) -> Iterable[Tuple[RPCEndpoint, Callable[..., Any]]]:
     for method, abi_types in abis.items():
         if isinstance(abi_types, list):
             yield method, map_abi_data(normalizers, abi_types)

@@ -1,57 +1,60 @@
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.method import (
     Method,
     default_root_munger,
 )
 
 importRawKey = Method(
-    "personal_importRawKey",
+    RPC.personal_importRawKey,
     mungers=[default_root_munger],
 )
 
 
 newAccount = Method(
-    "personal_newAccount",
+    RPC.personal_newAccount,
     mungers=[default_root_munger],
 )
 
 
 listAccounts = Method(
-    "personal_listAccounts",
+    RPC.personal_listAccounts,
     mungers=None,
 )
 
 
 sendTransaction = Method(
-    "personal_sendTransaction",
+    RPC.personal_sendTransaction,
     mungers=[default_root_munger],
 )
 
 
 lockAccount = Method(
-    "personal_lockAccount",
+    RPC.personal_lockAccount,
     mungers=[default_root_munger],
 )
 
 
 unlockAccount = Method(
-    "personal_unlockAccount",
+    RPC.personal_unlockAccount,
     mungers=[default_root_munger],
 )
 
 
 sign = Method(
-    "personal_sign",
+    RPC.personal_sign,
     mungers=[default_root_munger],
 )
 
 
 signTypedData = Method(
-    "personal_signTypedData",
+    RPC.personal_signTypedData,
     mungers=[default_root_munger],
 )
 
 
 ecRecover = Method(
-    "personal_ecRecover",
+    RPC.personal_ecRecover,
     mungers=[default_root_munger],
 )
