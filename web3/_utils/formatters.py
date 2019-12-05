@@ -33,6 +33,10 @@ from eth_utils.toolz import (
 from web3._utils.decorators import (
     reject_recursive_repeats,
 )
+from web3.types import (
+    TReturn,
+    TValue,
+)
 
 TReturn = TypeVar("TReturn")
 TValue = TypeVar("TValue")
