@@ -6,6 +6,21 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.4.0 (2019-12-06)
+-------------------
+
+Features
+~~~~~~~~
+
+- Add __str__ to IPCProvider (`#1536 <https://github.com/ethereum/web3.py/issues/1536>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Add required typing-extensions library to setup.py (`#1544 <https://github.com/ethereum/web3.py/issues/1544>`__)
+
+
 v5.3.1 (2019-12-05)
 -------------------
 

@@ -1,1 +1,0 @@
-Add __str__ to IPCProvider
