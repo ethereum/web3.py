@@ -36,6 +36,7 @@ TReturn = TypeVar("TReturn")
 TParams = TypeVar("TParams")
 TValue = TypeVar("TValue")
 
+Nonce = NewType("Nonce", int)
 
 HexBytes32 = NewType("HexBytes32", HexBytes)
 HexStr32 = NewType("HexStr32", HexStr)
@@ -102,6 +103,9 @@ BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr]
 ENS = NewType("ENS", str)
 
 
+EnodeURI = NewType("EnodeURI", str)
+
+
 EventData = TypedDict("EventData", {
     "args": Dict[str, Any],
     "event": str,
@@ -150,7 +154,7 @@ FilterParams = TypedDict("FilterParams", {
 
 
 TxParams = TypedDict("TxParams", {
-    "nonce": int,
+    "nonce": Nonce,
     "gasPrice": Wei,
     "gas": Wei,
     "from": Union[Address, ChecksumAddress, str],
@@ -196,10 +200,37 @@ MerkleProof = TypedDict("MerkleProof", {
     'accountProof': Sequence[HexStr],
     'balance': int,
     'codeHash': Hash32,
-    'nonce': int,
+    'nonce': Nonce,
     'storageHash': Hash32,
     'storageProof': Sequence[StorageProof],
 })
+
+
+Protocol = TypedDict("Protocol", {
+    "difficulty": int,
+    "head": HexStr,
+    "network": int,
+    "version": int,
+})
+
+NodeInfo = TypedDict("NodeInfo", {
+    'enode': EnodeURI,
+    'id': HexStr,
+    'ip': str,
+    'listenAddr': str,
+    'name': str,
+    'ports': Dict[str, int],
+    'protocols': Dict[str, Protocol],
+})
+
+
+Peer = TypedDict("Peer", {
+    'caps': Sequence[str],
+    'id': HexStr,
+    'name': str,
+    'network': Dict[str, str],
+    'protocols': Dict[str, Protocol],
+}, total=False)
 
 
 SyncStatus = TypedDict("SyncStatus", {
@@ -280,21 +311,92 @@ Uncle = TypedDict("Uncle", {
 })
 
 # shh
+
+ShhID = NewType("ShhID", HexStr)
+ShhFilterID = NewType("ShhFilterID", HexStr)
+ShhSubscriptionID = NewType("ShhSubscriptionID", HexStr)
+
+ShhMessageFilter = TypedDict("ShhMessageFilter", {
+    "symKeyID": ShhID,
+    "privateKeyID": ShhID,
+    "sig": str,
+    "minPoW": float,
+    "topics": List[HexStr],
+    "allowP2P": bool,
+}, total=False)
+
+
 ShhMessage = TypedDict("ShhMessage", {
     "from": bytes,
+    "hash": HexBytes,
     "recipient": bytes,
     "ttl": int,
-    "topics": List[HexStr],
+    "topic": HexBytes,
     "timestamp": int,
-    "payload": bytes,
-    "padding": bytes,
+    "payload": HexBytes,
+    "padding": HexBytes,
+    "pow": float,
+    "recipientPublicKey": ShhID,
+}, total=False)
+
+
+ShhMessageParams = TypedDict("ShhMessageParams", {
+    "symKeyID": ShhID,
+    "pubKey": str,
+    "ttl": int,
+    "sig": str,
+    "topic": str,
+    "payload": str,
+    "padding": str,
+    "powTime": int,
+    "powTarget": float,
+    "targetPeer": ShhID,
+}, total=False)
+
+ShhStats = TypedDict("ShhStats", {
+    'maxMessageSize': int,
+    'memory': int,
+    'messages': int,
+    'minPow': float,
+}, total=False)
+
+# txpool types
+PendingTx = TypedDict("PendingTx", {
+    "blockHash": HexBytes,
+    "blockNumber": None,
+    "from": ChecksumAddress,
+    "gas": HexBytes,
+    "gasPrice": HexBytes,
+    "hash": HexBytes,
+    "input": HexBytes,
+    "nonce": HexBytes,
+    "to": ChecksumAddress,
+    "transactionIndex": None,
+    "value": HexBytes,
+}, total=False)
+
+
+TxPoolContent = TypedDict("TxPoolContent", {
+    "pending": Dict[ChecksumAddress, Dict[Nonce, List[PendingTx]]],
+    "queued": Dict[ChecksumAddress, Dict[Nonce, List[PendingTx]]],
+}, total=False)
+
+
+TxPoolInspect = TypedDict("TxPoolInspect", {
+    "pending": Dict[ChecksumAddress, Dict[Nonce, str]],
+    "queued": Dict[ChecksumAddress, Dict[Nonce, str]],
+}, total=False)
+
+
+TxPoolStatus = TypedDict("TxPoolStatus", {
+    "pending": int,
+    "queued": int,
 }, total=False)
 
 
 # web3.parity types
 ParityBlockTrace = NewType("ParityBlockTrace", Dict[str, Any])
 ParityFilterTrace = NewType("ParityFilterTrace", Dict[str, Any])
-ParityEnodeURI = NewType("ParityEnodeURI", str)
 ParityMode = Literal["active", "passive", "dark", "offline"]
 ParityTraceMode = Sequence[Literal["trace", "vmTrace", "stateDiff"]]
 ParityNetPeers = TypedDict("ParityNetPeers", {

@@ -42,8 +42,8 @@ from web3.module import (
 from web3.types import (
     ENS,
     BlockIdentifier,
+    EnodeURI,
     ParityBlockTrace,
-    ParityEnodeURI,
     ParityFilterParams,
     ParityFilterTrace,
     ParityMode,
@@ -109,7 +109,7 @@ class Parity(Module):
     shh: ParityShh
     personal: ParityPersonal
 
-    def enode(self) -> ParityEnodeURI:
+    def enode(self) -> EnodeURI:
         return self.web3.manager.request_blocking(
             RPC.parity_enode,
             [],
@@ -135,7 +135,7 @@ class Parity(Module):
             [],
         )
 
-    def addReservedPeer(self, url: ParityEnodeURI) -> bool:
+    def addReservedPeer(self, url: EnodeURI) -> bool:
         return self.web3.manager.request_blocking(
             RPC.parity_addReservedPeer,
             [url],

@@ -6,6 +6,9 @@ from typing import (
 from web3.datastructures import (
     AttributeDict,
 )
+from web3.types import (
+    EnodeURI,
+)
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
@@ -14,7 +17,7 @@ if TYPE_CHECKING:
 class GoEthereumAdminModuleTest:
     def test_add_peer(self, web3: "Web3") -> None:
         result = web3.geth.admin.add_peer(
-                'enode://f1a6b0bdbf014355587c3018454d070ac57801f05d3b39fe85da574f002a32e929f683d72aa5a8318382e4d3c7a05c9b91687b0d997a39619fb8a6e7ad88e512@1.1.1.1:30303',  # noqa: E501
+                EnodeURI('enode://f1a6b0bdbf014355587c3018454d070ac57801f05d3b39fe85da574f002a32e929f683d72aa5a8318382e4d3c7a05c9b91687b0d997a39619fb8a6e7ad88e512@1.1.1.1:30303'),  # noqa: E501
                 )
         assert result is True
 

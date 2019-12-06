@@ -1,5 +1,11 @@
 from typing import (
+    Callable,
+    List,
     Tuple,
+)
+
+from typing_extensions import (
+    Protocol,
 )
 
 from web3._utils.rpc_abi import (
@@ -13,6 +19,11 @@ from web3.method import (
 from web3.module import (
     Module,
 )
+from web3.types import (
+    EnodeURI,
+    NodeInfo,
+    Peer,
+)
 
 
 def admin_start_params_munger(
@@ -21,49 +32,56 @@ def admin_start_params_munger(
     return (host, port, cors, apis)
 
 
-add_peer = Method(
+add_peer: Method[Callable[[EnodeURI], bool]] = Method(
     RPC.admin_addPeer,
     mungers=[default_root_munger],
 )
 
 
-datadir = Method(
+datadir: Method[Callable[[], str]] = Method(
     RPC.admin_datadir,
     mungers=None,
 )
 
 
-node_info = Method(
+node_info: Method[Callable[[], NodeInfo]] = Method(
     RPC.admin_nodeInfo,
     mungers=None,
 )
 
 
-peers = Method(
+peers: Method[Callable[[], List[Peer]]] = Method(
     RPC.admin_peers,
     mungers=None,
 )
 
 
-start_rpc = Method(
+class ServerConnection(Protocol):
+    def __call__(
+        self, host: str="localhost", port: int=8546, cors: str="", apis: str="eth,net,web3"
+    ) -> bool:
+        pass
+
+
+start_rpc: Method[ServerConnection] = Method(
     RPC.admin_startRPC,
     mungers=[admin_start_params_munger],
 )
 
 
-start_ws = Method(
+start_ws: Method[ServerConnection] = Method(
     RPC.admin_startWS,
     mungers=[admin_start_params_munger],
 )
 
 
-stop_rpc = Method(
+stop_rpc: Method[Callable[[], bool]] = Method(
     RPC.admin_stopRPC,
     mungers=None,
 )
 
 
-stop_ws = Method(
+stop_ws: Method[Callable[[], bool]] = Method(
     RPC.admin_stopWS,
     mungers=None,
 )

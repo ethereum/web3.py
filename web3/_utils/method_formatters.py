@@ -69,6 +69,7 @@ from web3.datastructures import (
 )
 from web3.types import (
     RPCEndpoint,
+    TReturn,
 )
 
 
@@ -451,8 +452,8 @@ ABI_REQUEST_FORMATTERS = abi_request_formatters(STANDARD_NORMALIZERS, RPC_ABIS)
 
 @to_tuple
 def combine_formatters(
-    formatter_maps: Collection[Dict[RPCEndpoint, Callable[..., Any]]], method_name: RPCEndpoint
-) -> Iterable[Callable[..., Any]]:
+    formatter_maps: Collection[Dict[RPCEndpoint, Callable[..., TReturn]]], method_name: RPCEndpoint
+) -> Iterable[Callable[..., TReturn]]:
     for formatter_map in formatter_maps:
         if method_name in formatter_map:
             yield formatter_map[method_name]
