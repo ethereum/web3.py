@@ -4,6 +4,9 @@ from typing import (
     Tuple,
 )
 
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.method import (
     DeprecatedMethod,
     Method,
@@ -14,109 +17,109 @@ from web3.module import (
 )
 
 version = Method(
-    "shh_version",
+    RPC.shh_version,
     mungers=None,
 )
 
 
 info = Method(
-    "shh_info",
+    RPC.shh_info,
     mungers=None,
 )
 
 
 set_max_message_size = Method(
-    "shh_setMaxMessageSize",
+    RPC.shh_setMaxMessageSize,
     mungers=[default_root_munger],
 )
 
 
 set_min_pow = Method(
-    "shh_setMinPoW",
+    RPC.shh_setMinPoW,
     mungers=[default_root_munger],
 )
 
 
 mark_trusted_peer = Method(
-    "shh_markTrustedPeer",
+    RPC.shh_markTrustedPeer,
     mungers=[default_root_munger],
 )
 
 
 new_key_pair = Method(
-    "shh_newKeyPair",
+    RPC.shh_newKeyPair,
     mungers=None,
 )
 
 
 add_private_key = Method(
-    "shh_addPrivateKey",
+    RPC.shh_addPrivateKey,
     mungers=[default_root_munger],
 )
 
 
 delete_key_pair = Method(
-    "shh_deleteKeyPair",
+    RPC.shh_deleteKeyPair,
     mungers=[default_root_munger],
 )
 
 
 delete_key = Method(
-    "shh_deleteKey",
+    RPC.shh_deleteKey,
     mungers=[default_root_munger],
 )
 
 
 has_key_pair = Method(
-    "shh_hasKeyPair",
+    RPC.shh_hasKeyPair,
     mungers=[default_root_munger],
 )
 
 
 get_public_key = Method(
-    "shh_getPublicKey",
+    RPC.shh_getPublicKey,
     mungers=[default_root_munger],
 )
 
 
 get_private_key = Method(
-    "shh_getPrivateKey",
+    RPC.shh_getPrivateKey,
     mungers=[default_root_munger],
 )
 
 
 new_sym_key = Method(
-    "shh_newSymKey",
+    RPC.shh_newSymKey,
     mungers=None,
 )
 
 
 add_sym_key = Method(
-    "shh_addSymKey",
+    RPC.shh_addSymKey,
     mungers=[default_root_munger],
 )
 
 
 generate_sym_key_from_password = Method(
-    "shh_generateSymKeyFromPassword",
+    RPC.shh_generateSymKeyFromPassword,
     mungers=[default_root_munger],
 )
 
 
 has_sym_key = Method(
-    "shh_hasSymKey",
+    RPC.shh_hasSymKey,
     mungers=[default_root_munger],
 )
 
 
 get_sym_key = Method(
-    "shh_getSymKey",
+    RPC.shh_getSymKey,
     mungers=[default_root_munger],
 )
 
 
 delete_sym_key = Method(
-    "shh_deleteSymKey",
+    RPC.shh_deleteSymKey,
     mungers=[default_root_munger],
 )
 
@@ -129,37 +132,37 @@ def post_munger(module: Module, message: Dict[str, Any]) -> Tuple[Dict[str, Any]
 
 
 post = Method(
-    "shh_post",
+    RPC.shh_post,
     mungers=[post_munger],
 )
 
 
 new_message_filter = Method(
-    "shh_newMessageFilter",
+    RPC.shh_newMessageFilter,
     mungers=[default_root_munger],
 )
 
 
 delete_message_filter = Method(
-    "shh_deleteMessageFilter",
+    RPC.shh_deleteMessageFilter,
     mungers=[default_root_munger],
 )
 
 
 get_filter_messages = Method(
-    "shh_getFilterMessages",
+    RPC.shh_getFilterMessages,
     mungers=[default_root_munger],
 )
 
 
 subscribe = Method(
-    "shh_subscribe",
+    RPC.shh_subscribe,
     mungers=[default_root_munger],
 )
 
 
 unsubscribe = Method(
-    "shh_unsubscribe",
+    RPC.shh_unsubscribe,
     mungers=[default_root_munger],
 )
 
@@ -170,7 +173,7 @@ setMaxMessageSize = DeprecatedMethod(
     'set_max_message_size')
 setMinPoW = DeprecatedMethod(set_min_pow, 'setMinPoW', 'set_min_pow')
 markTrustedPeer = DeprecatedMethod(mark_trusted_peer, 'markTrustedPeer', 'mark_trusted_peer')
-newKeyPair = DeprecatedMethod(new_key_pair, 'newKeyPair', new_key_pair)
+newKeyPair = DeprecatedMethod(new_key_pair, 'newKeyPair', 'new_key_pair')
 addPrivateKey = DeprecatedMethod(add_private_key, 'addPrivateKey', 'add_private_key')
 deleteKeyPair = DeprecatedMethod(delete_key_pair, 'deleteKeyPair', 'delete_key_pair')
 deleteKey = DeprecatedMethod(delete_key, 'deleteKey', 'delete_key')

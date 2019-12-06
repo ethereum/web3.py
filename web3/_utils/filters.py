@@ -47,6 +47,9 @@ from web3._utils.events import (
     construct_event_data_set,
     construct_event_topic_set,
 )
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3._utils.threads import (
     TimerClass,
 )
@@ -221,8 +224,7 @@ def decode_utf8_bytes(value: bytes) -> str:
 
 
 not_text = complement(is_text)
-# type ignore b/c mypy doesn't play nicely w/ curried fns
-normalize_to_text = apply_formatter_if(not_text, decode_utf8_bytes)  # type: ignore
+normalize_to_text = apply_formatter_if(not_text, decode_utf8_bytes)
 
 
 def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:
@@ -278,7 +280,7 @@ class ShhFilter(Filter):
 
     def get_new_entries(self) -> List[LogReceipt]:
         all_messages = self.web3.manager.request_blocking(
-            "shh_getFilterMessages",
+            RPC.shh_getFilterMessages,
             [self.filter_id]
         )
         log_entries = self._filter_valid_entries(all_messages)

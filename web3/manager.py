@@ -9,6 +9,7 @@ from typing import (  # noqa: F401
     Optional,
     Sequence,
     Tuple,
+    Union,
 )
 import uuid
 from uuid import UUID
@@ -44,6 +45,7 @@ from web3.providers import (
 from web3.types import (  # noqa: F401
     Middleware,
     MiddlewareOnion,
+    RPCEndpoint,
     RPCResponse,
 )
 
@@ -116,14 +118,18 @@ class RequestManager:
     #
     # Provider requests and response
     #
-    def _make_request(self, method: str, params: Any) -> RPCResponse:
+    def _make_request(
+        self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
+    ) -> RPCResponse:
         request_func = self.provider.request_func(
             self.web3,
             self.middleware_onion)
         self.logger.debug("Making request. Method: %s", method)
         return request_func(method, params)
 
-    async def _coro_make_request(self, method: str, params: Any) -> RPCResponse:
+    async def _coro_make_request(
+        self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
+    ) -> RPCResponse:
         request_func = self.provider.request_func(
             self.web3,
             self.middleware_onion)
@@ -131,7 +137,10 @@ class RequestManager:
         return await request_func(method, params)
 
     def request_blocking(
-        self, method: str, params: Any, error_formatters: Callable[..., Any]=None
+        self,
+        method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+        params: Any,
+        error_formatters: Callable[..., Any]=None,
     ) -> Any:
         """
         Make a synchronous request using the provider
@@ -145,7 +154,10 @@ class RequestManager:
         return response['result']
 
     async def coro_request(
-        self, method: str, params: Any, error_formatters: Callable[..., Any]=None
+        self,
+        method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+        params: Any,
+        error_formatters: Callable[..., Any]=None,
     ) -> Any:
         """
         Couroutine for making a request using the provider

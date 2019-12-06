@@ -116,39 +116,39 @@ class Eth(Module):
 
     @property
     def protocolVersion(self) -> str:
-        return self.web3.manager.request_blocking("eth_protocolVersion", [])
+        return self.web3.manager.request_blocking(RPC.eth_protocolVersion, [])
 
     @property
     def syncing(self) -> Union[SyncStatus, bool]:
-        return self.web3.manager.request_blocking("eth_syncing", [])
+        return self.web3.manager.request_blocking(RPC.eth_syncing, [])
 
     @property
     def coinbase(self) -> ChecksumAddress:
-        return self.web3.manager.request_blocking("eth_coinbase", [])
+        return self.web3.manager.request_blocking(RPC.eth_coinbase, [])
 
     @property
     def mining(self) -> bool:
-        return self.web3.manager.request_blocking("eth_mining", [])
+        return self.web3.manager.request_blocking(RPC.eth_mining, [])
 
     @property
     def hashrate(self) -> int:
-        return self.web3.manager.request_blocking("eth_hashrate", [])
+        return self.web3.manager.request_blocking(RPC.eth_hashrate, [])
 
     @property
     def gasPrice(self) -> Wei:
-        return self.web3.manager.request_blocking("eth_gasPrice", [])
+        return self.web3.manager.request_blocking(RPC.eth_gasPrice, [])
 
     @property
     def accounts(self) -> Tuple[ChecksumAddress]:
-        return self.web3.manager.request_blocking("eth_accounts", [])
+        return self.web3.manager.request_blocking(RPC.eth_accounts, [])
 
     @property
     def blockNumber(self) -> BlockNumber:
-        return self.web3.manager.request_blocking("eth_blockNumber", [])
+        return self.web3.manager.request_blocking(RPC.eth_blockNumber, [])
 
     @property
     def chainId(self) -> int:
-        return self.web3.manager.request_blocking("eth_chainId", [])
+        return self.web3.manager.request_blocking(RPC.eth_chainId, [])
 
     def getBalance(
         self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
@@ -156,7 +156,7 @@ class Eth(Module):
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
-            "eth_getBalance",
+            RPC.eth_getBalance,
             [account, block_identifier],
         )
 
@@ -169,7 +169,7 @@ class Eth(Module):
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
-            "eth_getStorageAt",
+            RPC.eth_getStorageAt,
             [account, position, block_identifier]
         )
 
@@ -182,7 +182,7 @@ class Eth(Module):
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
-            "eth_getProof",
+            RPC.eth_getProof,
             [account, positions, block_identifier]
         )
 
@@ -192,7 +192,7 @@ class Eth(Module):
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
-            "eth_getCode",
+            RPC.eth_getCode,
             [account, block_identifier],
         )
 
@@ -279,7 +279,7 @@ class Eth(Module):
 
     def getTransaction(self, transaction_hash: _Hash32) -> TxReceipt:
         result = self.web3.manager.request_blocking(
-            "eth_getTransactionByHash",
+            RPC.eth_getTransactionByHash,
             [transaction_hash],
         )
         if result is None:
@@ -320,7 +320,7 @@ class Eth(Module):
         return result
 
     def waitForTransactionReceipt(
-        self, transaction_hash: Hash32, timeout: int=120, poll_latency: float=0.1
+        self, transaction_hash: _Hash32, timeout: int=120, poll_latency: float=0.1
     ) -> TxReceipt:
         try:
             return wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
@@ -334,7 +334,7 @@ class Eth(Module):
 
     def getTransactionReceipt(self, transaction_hash: _Hash32) -> TxReceipt:
         result = self.web3.manager.request_blocking(
-            "eth_getTransactionReceipt",
+            RPC.eth_getTransactionReceipt,
             [transaction_hash],
         )
         if result is None:
@@ -347,7 +347,7 @@ class Eth(Module):
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
-            "eth_getTransactionCount",
+            RPC.eth_getTransactionCount,
             [account, block_identifier],
         )
 
@@ -357,7 +357,7 @@ class Eth(Module):
 
     # todo: Update Any to stricter kwarg checking with TxParams
     # https://github.com/python/mypy/issues/4441
-    def modifyTransaction(self, transaction_hash: Hash32, **transaction_params: Any) -> Hash32:
+    def modifyTransaction(self, transaction_hash: _Hash32, **transaction_params: Any) -> Hash32:
         assert_valid_transaction_params(transaction_params)
         current_transaction = get_required_transaction(self.web3, transaction_hash)
         current_transaction_params = extract_valid_transaction_params(current_transaction)
@@ -378,13 +378,13 @@ class Eth(Module):
             )
 
         return self.web3.manager.request_blocking(
-            "eth_sendTransaction",
+            RPC.eth_sendTransaction,
             [transaction],
         )
 
     def sendRawTransaction(self, raw_transaction: HexStr) -> Hash32:
         return self.web3.manager.request_blocking(
-            "eth_sendRawTransaction",
+            RPC.eth_sendRawTransaction,
             [raw_transaction],
         )
 
@@ -397,19 +397,19 @@ class Eth(Module):
     ) -> HexStr:
         message_hex = to_hex(data, hexstr=hexstr, text=text)
         return self.web3.manager.request_blocking(
-            "eth_sign", [account, message_hex],
+            RPC.eth_sign, [account, message_hex],
         )
 
     def signTransaction(self, transaction: TxParams) -> SignedTx:
         return self.web3.manager.request_blocking(
-            "eth_signTransaction", [transaction],
+            RPC.eth_signTransaction, [transaction],
         )
 
     def signTypedData(
         self, account: Union[Address, ChecksumAddress, ENS], jsonMessage: Dict[Any, Any]
     ) -> HexStr:
         return self.web3.manager.request_blocking(
-            "eth_signTypedData", [account, jsonMessage],
+            RPC.eth_signTypedData, [account, jsonMessage],
         )
 
     @apply_to_return_value(HexBytes)
@@ -422,7 +422,7 @@ class Eth(Module):
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
-            "eth_call",
+            RPC.eth_call,
             [transaction, block_identifier],
         )
 
@@ -437,7 +437,7 @@ class Eth(Module):
             params = [transaction, block_identifier]
 
         return self.web3.manager.request_blocking(
-            "eth_estimateGas",
+            RPC.eth_estimateGas,
             params,
         )
 
@@ -452,12 +452,12 @@ class Eth(Module):
         if is_string(filter_params):
             if filter_params == "latest":
                 filter_id = self.web3.manager.request_blocking(
-                    "eth_newBlockFilter", [],
+                    RPC.eth_newBlockFilter, [],
                 )
                 return BlockFilter(self.web3, filter_id)
             elif filter_params == "pending":
                 filter_id = self.web3.manager.request_blocking(
-                    "eth_newPendingTransactionFilter", [],
+                    RPC.eth_newPendingTransactionFilter, [],
                 )
                 return TransactionFilter(self.web3, filter_id)
             else:
@@ -467,7 +467,7 @@ class Eth(Module):
                 )
         elif isinstance(filter_params, dict):
             _filter_id = self.web3.manager.request_blocking(
-                "eth_newFilter",
+                RPC.eth_newFilter,
                 [filter_params],
             )
             return LogFilter(self.web3, _filter_id)
@@ -480,32 +480,32 @@ class Eth(Module):
 
     def getFilterChanges(self, filter_id: HexStr) -> List[LogReceipt]:
         return self.web3.manager.request_blocking(
-            "eth_getFilterChanges", [filter_id],
+            RPC.eth_getFilterChanges, [filter_id],
         )
 
     def getFilterLogs(self, filter_id: HexStr) -> List[LogReceipt]:
         return self.web3.manager.request_blocking(
-            "eth_getFilterLogs", [filter_id],
+            RPC.eth_getFilterLogs, [filter_id],
         )
 
     def getLogs(self, filter_params: FilterParams) -> List[LogReceipt]:
         return self.web3.manager.request_blocking(
-            "eth_getLogs", [filter_params],
+            RPC.eth_getLogs, [filter_params],
         )
 
     def submitHashrate(self, hashrate: int, node_id: _Hash32) -> bool:
         return self.web3.manager.request_blocking(
-            "eth_submitHashrate", [hashrate, node_id],
+            RPC.eth_submitHashrate, [hashrate, node_id],
         )
 
     def submitWork(self, nonce: int, pow_hash: _Hash32, mix_digest: _Hash32) -> bool:
         return self.web3.manager.request_blocking(
-            "eth_submitWork", [nonce, pow_hash, mix_digest],
+            RPC.eth_submitWork, [nonce, pow_hash, mix_digest],
         )
 
     def uninstallFilter(self, filter_id: HexStr) -> bool:
         return self.web3.manager.request_blocking(
-            "eth_uninstallFilter", [filter_id],
+            RPC.eth_uninstallFilter, [filter_id],
         )
 
     @overload
@@ -535,7 +535,7 @@ class Eth(Module):
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
     def getWork(self) -> List[Hash32]:
-        return self.web3.manager.request_blocking("eth_getWork", [])
+        return self.web3.manager.request_blocking(RPC.eth_getWork, [])
 
     def generateGasPrice(self, transaction_params: TxParams=None) -> Optional[Wei]:
         if self.gasPriceStrategy:

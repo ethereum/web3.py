@@ -43,6 +43,9 @@ from web3._utils.encoding import (
     to_text,
     to_json,
 )
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3._utils.module import (
     attach_modules,
 )
@@ -191,7 +194,7 @@ class Web3:
 
     @property
     def clientVersion(self) -> str:
-        return self.manager.request_blocking("web3_clientVersion", [])
+        return self.manager.request_blocking(RPC.web3_clientVersion, [])
 
     @property
     def api(self) -> str:

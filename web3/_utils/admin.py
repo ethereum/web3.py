@@ -2,6 +2,9 @@ from typing import (
     Tuple,
 )
 
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.method import (
     DeprecatedMethod,
     Method,
@@ -19,49 +22,49 @@ def admin_start_params_munger(
 
 
 add_peer = Method(
-    "admin_addPeer",
+    RPC.admin_addPeer,
     mungers=[default_root_munger],
 )
 
 
 datadir = Method(
-    "admin_datadir",
+    RPC.admin_datadir,
     mungers=None,
 )
 
 
 node_info = Method(
-    "admin_nodeInfo",
+    RPC.admin_nodeInfo,
     mungers=None,
 )
 
 
 peers = Method(
-    "admin_peers",
+    RPC.admin_peers,
     mungers=None,
 )
 
 
 start_rpc = Method(
-    "admin_startRPC",
+    RPC.admin_startRPC,
     mungers=[admin_start_params_munger],
 )
 
 
 start_ws = Method(
-    "admin_startWS",
+    RPC.admin_startWS,
     mungers=[admin_start_params_munger],
 )
 
 
 stop_rpc = Method(
-    "admin_stopRPC",
+    RPC.admin_stopRPC,
     mungers=None,
 )
 
 
 stop_ws = Method(
-    "admin_stopWS",
+    RPC.admin_stopWS,
     mungers=None,
 )
 
