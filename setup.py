@@ -84,6 +84,7 @@ setup(
         "pypiwin32>=223;platform_system=='Windows'",
         "requests>=2.16.0,<3.0.0",
         "websockets>=8.1.0,<9.0.0",
+        "typing-extensions>=3.7.4.1,<4",
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.6,<4',
