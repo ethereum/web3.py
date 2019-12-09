@@ -1,5 +1,4 @@
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -15,6 +14,9 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.compat import (
+    Protocol,
+)
 from web3._utils.rpc_abi import (
     RPC,
 )
@@ -25,11 +27,6 @@ from web3.method import (
 from web3.types import (
     TxParams,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import (  # noqa: F401
-        Protocol,
-    )
 
 importRawKey: Method[Callable[[str, str], ChecksumAddress]] = Method(
     RPC.personal_importRawKey,
@@ -61,7 +58,7 @@ lockAccount: Method[Callable[[ChecksumAddress], bool]] = Method(
 )
 
 
-class UnlockAccountWrapper("Protocol"):
+class UnlockAccountWrapper(Protocol):
     def __call__(self, account: ChecksumAddress, passphrase: str, duration: int=None) -> bool:
         pass
 

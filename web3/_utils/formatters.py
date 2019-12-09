@@ -4,9 +4,9 @@ from collections.abc import (
 from typing import (
     Any,
     Callable,
-    Collection,
     Dict,
     Iterable,
+    Sequence,
     Tuple,
     TypeVar,
 )
@@ -56,7 +56,7 @@ def apply_formatters_to_args(*formatters: Callable[[TValue], TReturn]) -> Callab
 @curry
 @to_list
 def apply_formatter_to_array(
-    formatter: Callable[[TValue], TReturn], value: Collection[TValue]
+    formatter: Callable[[TValue], TReturn], value: Sequence[TValue]
 ) -> Iterable[TReturn]:
     for item in value:
         yield formatter(item)
