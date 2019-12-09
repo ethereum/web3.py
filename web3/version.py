@@ -1,4 +1,5 @@
 from typing import (
+    Callable,
     NoReturn,
 )
 
@@ -17,8 +18,8 @@ from web3.module import (
 class BaseVersion(ModuleV2):
     retrieve_caller_fn = None
 
-    _get_node_version = Method(RPC.web3_clientVersion)
-    _get_protocol_version = Method(RPC.eth_protocolVersion)
+    _get_node_version: Method[Callable[[], str]] = Method(RPC.web3_clientVersion)
+    _get_protocol_version: Method[Callable[[], str]] = Method(RPC.eth_protocolVersion)
 
     @property
     def api(self) -> str:
@@ -31,11 +32,12 @@ class AsyncVersion(BaseVersion):
 
     @property
     async def node(self) -> str:
-        return await self._get_node_version()
+        # types ignored b/c mypy conflict with BlockingVersion properties
+        return await self._get_node_version()  # type: ignore
 
     @property
     async def ethereum(self) -> int:
-        return await self._get_protocol_version()
+        return await self._get_protocol_version()  # type: ignore
 
 
 class BlockingVersion(BaseVersion):
@@ -44,7 +46,7 @@ class BlockingVersion(BaseVersion):
         return self._get_node_version()
 
     @property
-    def ethereum(self) -> int:
+    def ethereum(self) -> str:
         return self._get_protocol_version()
 
 

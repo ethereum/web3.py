@@ -61,6 +61,7 @@ from web3.types import (
     BlockIdentifier,
     FilterParams,
     LogReceipt,
+    ShhFilterID,
 )
 
 if TYPE_CHECKING:
@@ -271,6 +272,8 @@ def match_fn(w3: "Web3", match_values_and_abi: Collection[Tuple[str, Any]], data
 
 
 class ShhFilter(Filter):
+    filter_id: ShhFilterID
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.poll_interval = kwargs.pop(
             'poll_interval',
