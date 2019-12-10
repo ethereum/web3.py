@@ -4,10 +4,9 @@ from typing import (
     Tuple,
 )
 
-from typing_extensions import (
+from web3._utils.compat import (
     Protocol,
 )
-
 from web3._utils.rpc_abi import (
     RPC,
 )

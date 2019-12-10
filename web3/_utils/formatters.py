@@ -1,8 +1,19 @@
 from collections.abc import (
-    Iterable,
     Mapping,
 )
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Sequence,
+    Tuple,
+    TypeVar,
+)
 
+from eth_typing import (
+    HexStr,
+)
 from eth_utils import (
     is_dict,
     is_list_like,
@@ -23,15 +34,18 @@ from web3._utils.decorators import (
     reject_recursive_repeats,
 )
 
+TReturn = TypeVar("TReturn")
+TValue = TypeVar("TValue")
 
-def hex_to_integer(value):
+
+def hex_to_integer(value: HexStr) -> int:
     return int(value, 16)
 
 
 integer_to_hex = hex
 
 
-def apply_formatters_to_args(*formatters):
+def apply_formatters_to_args(*formatters: Callable[[TValue], TReturn]) -> Callable[..., TReturn]:
     return compose(*(
         apply_formatter_at_index(formatter, index)
         for index, formatter
@@ -41,12 +55,14 @@ def apply_formatters_to_args(*formatters):
 
 @curry
 @to_list
-def apply_formatter_to_array(formatter, value):
+def apply_formatter_to_array(
+    formatter: Callable[[TValue], TReturn], value: Sequence[TValue]
+) -> Iterable[TReturn]:
     for item in value:
         yield formatter(item)
 
 
-def map_collection(func, collection):
+def map_collection(func: Callable[..., TReturn], collection: Any) -> Any:
     """
     Apply func to each element of a collection, or value of a dictionary.
     If the value is not a collection, return it unmodified
@@ -63,32 +79,32 @@ def map_collection(func, collection):
 
 
 @reject_recursive_repeats
-def recursive_map(func, data):
+def recursive_map(func: Callable[..., TReturn], data: Any) -> Any:
     """
     Apply func to data, and any collection items inside data (using map_collection).
     Define func so that it only applies to the type of value that you want it to apply to.
     """
-    def recurse(item):
+    def recurse(item: Any) -> TReturn:
         return recursive_map(func, item)
     items_mapped = map_collection(recurse, data)
     return func(items_mapped)
 
 
-def static_return(value):
-    def inner(*args, **kwargs):
+def static_return(value: TValue) -> Callable[..., TValue]:
+    def inner(*args: Any, **kwargs: Any) -> TValue:
         return value
     return inner
 
 
-def static_result(value):
-    def inner(*args, **kwargs):
+def static_result(value: TValue) -> Callable[..., Dict[str, TValue]]:
+    def inner(*args: Any, **kwargs: Any) -> Dict[str, TValue]:
         return {'result': value}
     return inner
 
 
 @curry
 @to_dict
-def apply_key_map(key_mappings, value):
+def apply_key_map(key_mappings: Dict[Any, Any], value: Dict[Any, Any]) -> Iterable[Tuple[Any, Any]]:
     for key, item in value.items():
         if key in key_mappings:
             yield key_mappings[key], item
@@ -96,20 +112,22 @@ def apply_key_map(key_mappings, value):
             yield key, item
 
 
-def is_array_of_strings(value):
+def is_array_of_strings(value: Any) -> bool:
     if not is_list_like(value):
         return False
     return all((is_string(item) for item in value))
 
 
-def is_array_of_dicts(value):
+def is_array_of_dicts(value: Any) -> bool:
     if not is_list_like(value):
         return False
     return all((is_dict(item) for item in value))
 
 
 @curry
-def remove_key_if(key, remove_if, input_dict):
+def remove_key_if(
+    key: Any, remove_if: Callable[[Dict[Any, Any]], bool], input_dict: Dict[Any, Any]
+) -> Dict[Any, Any]:
     if key in input_dict and remove_if(input_dict):
         return dissoc(input_dict, key)
     else:
