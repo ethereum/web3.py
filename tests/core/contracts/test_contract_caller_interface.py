@@ -82,9 +82,19 @@ def test_caller_with_empty_abi(web3):
         contract.caller.thisFunctionDoesNotExist()
 
 
+def test_caller_raw_getattr_with_missing_element(math_contract):
+    with pytest.raises(MismatchedABI, match="not found in this contract's ABI"):
+        math_contract.caller.__getattr__('notafunction')
+
+
+def test_caller_raw_getattr_with_present_element(math_contract):
+    attr = math_contract.caller.__getattr__('return13')
+    assert attr
+
+
 def test_caller_with_a_nonexistent_function(math_contract):
     contract = math_contract
-    with pytest.raises(MismatchedABI):
+    with pytest.raises(MismatchedABI, match="not found in this contract's ABI"):
         contract.caller.thisFunctionDoesNotExist()
 
 
