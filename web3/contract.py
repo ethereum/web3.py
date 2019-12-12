@@ -1351,8 +1351,7 @@ class ContractCaller:
                 "The ABI for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract ABI?"
             )
-        # type ignore b/c bug: fix coming in future pr
-        elif function_name not in self._functions:  # type: ignore
+        elif function_name not in set(fn['name'] for fn in self._functions):
             functions_available = ', '.join([fn['name'] for fn in self._functions])
             raise MismatchedABI(
                 "The function '{}' was not found in this contract's ABI. ".format(function_name),
