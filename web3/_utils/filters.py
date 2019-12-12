@@ -39,9 +39,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.compat import (
-    Literal,
-)
 from web3._utils.events import (
     EventFilterBuilder,
     construct_event_data_set,
@@ -89,7 +86,8 @@ def construct_event_filter_params(
         topic_set = topics
 
     if len(topic_set) == 1 and is_list_like(topic_set[0]):
-        filter_params['topics'] = topic_set[0]
+        # type ignored b/c list-like check on line 88
+        filter_params['topics'] = topic_set[0]  # type: ignore
     else:
         filter_params['topics'] = topic_set
 
@@ -141,20 +139,20 @@ class Filter:
     def __str__(self) -> str:
         return "Filter for {0}".format(self.filter_id)
 
-    def format_entry(self, entry: Dict[str, Any]) -> Dict[str, Any]:
+    def format_entry(self, entry: LogReceipt) -> LogReceipt:
         """
         Hook for subclasses to change the format of the value that is passed
         into the callback functions.
         """
         return entry
 
-    def is_valid_entry(self, entry: Dict[str, Any]) -> Literal[True]:
+    def is_valid_entry(self, entry: LogReceipt) -> bool:
         """
         Hook for subclasses to implement additional filtering layers.
         """
         return True
 
-    def _filter_valid_entries(self, entries: Collection[Dict[str, Any]]) -> Iterator[LogReceipt]:
+    def _filter_valid_entries(self, entries: Collection[LogReceipt]) -> Iterator[LogReceipt]:
         return filter(self.is_valid_entry, entries)
 
     def get_new_entries(self) -> List[LogReceipt]:
@@ -214,7 +212,7 @@ class LogFilter(Filter):
         if any(data_filter_set):
             self.data_filter_set_function = match_fn(self.web3, data_filter_set)
 
-    def is_valid_entry(self, entry: Dict[str, Any]) -> bool:
+    def is_valid_entry(self, entry: LogReceipt) -> bool:
         if not self.data_filter_set:
             return True
         return bool(self.data_filter_set_function(entry['data']))

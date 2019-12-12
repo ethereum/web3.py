@@ -1,7 +1,7 @@
 from hypothesis import (
     strategies as st,
 )
-from hypothesis.searchstrategy import (
+from hypothesis.strategies import (
     SearchStrategy,
 )
 

@@ -2,6 +2,7 @@ import json
 import pytest
 from typing import (
     TYPE_CHECKING,
+    cast,
 )
 
 from eth_typing import (
@@ -14,6 +15,11 @@ from eth_utils import (
 )
 from hexbytes import (
     HexBytes,
+)
+
+from web3.types import (  # noqa: F401
+    TxParams,
+    Wei,
 )
 
 if TYPE_CHECKING:
@@ -78,19 +84,19 @@ class GoEthereumPersonalModuleTest:
         unlockable_account_pw: str,
     ) -> None:
         assert web3.eth.getBalance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
-            'gas': 21000,
-            'value': 1,
+            'gas': Wei(21000),
+            'value': Wei(1),
             'gasPrice': web3.toWei(1, 'gwei'),
         }
         txn_hash = web3.geth.personal.sendTransaction(txn_params, unlockable_account_pw)
         assert txn_hash
         transaction = web3.eth.getTransaction(txn_hash)
 
-        assert is_same_address(transaction['from'], txn_params['from'])
-        assert is_same_address(transaction['to'], txn_params['to'])
+        assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
         assert transaction['gas'] == txn_params['gas']
         assert transaction['value'] == txn_params['value']
         assert transaction['gasPrice'] == txn_params['gasPrice']
@@ -231,19 +237,19 @@ class ParityPersonalModuleTest():
         unlockable_account_pw: str,
     ) -> None:
         assert web3.eth.getBalance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
-            'gas': 21000,
-            'value': 1,
+            'gas': Wei(21000),
+            'value': Wei(1),
             'gasPrice': web3.toWei(1, 'gwei'),
         }
         txn_hash = web3.parity.personal.sendTransaction(txn_params, unlockable_account_pw)
         assert txn_hash
         transaction = web3.eth.getTransaction(txn_hash)
 
-        assert is_same_address(transaction['from'], txn_params['from'])
-        assert is_same_address(transaction['to'], txn_params['to'])
+        assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
         assert transaction['gas'] == txn_params['gas']
         assert transaction['value'] == txn_params['value']
         assert transaction['gasPrice'] == txn_params['gasPrice']

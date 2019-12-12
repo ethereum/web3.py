@@ -301,7 +301,8 @@ def guess_gas(web3: "Web3", transaction: TxParams) -> Wei:
 def fill_default(
     field: str, guess_func: Callable[..., Any], web3: "Web3", transaction: TxParams
 ) -> TxParams:
-    if field in transaction and transaction[field] is not None:
+    # type ignored b/c TxParams keys must be string literal types
+    if field in transaction and transaction[field] is not None:  # type: ignore
         return transaction
     else:
         guess_val = guess_func(web3, transaction)

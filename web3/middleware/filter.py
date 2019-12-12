@@ -31,11 +31,13 @@ from eth_utils.toolz import (
     valfilter,
 )
 
-from web3.types import (
+from web3.types import (  # noqa: F401
+    FilterParams,
     LatestBlockParam,
     LogReceipt,
     RPCEndpoint,
     RPCResponse,
+    _Hash32,
 )
 
 if TYPE_CHECKING:
@@ -94,7 +96,7 @@ def gen_bounded_segments(start: int, stop: int, step: int) -> Iterable[Tuple[int
 
 def block_ranges(
     start_block: BlockNumber, last_block: Optional[BlockNumber], step: int=5
-) -> Iterable[Tuple[int, int]]:
+) -> Iterable[Tuple[BlockNumber, BlockNumber]]:
     """Returns 2-tuple ranges describing ranges of block from start_block to last_block
 
        Ranges do not overlap to facilitate use as ``toBlock``, ``fromBlock``
@@ -107,7 +109,7 @@ def block_ranges(
             "Start must be less than or equal to stop.")
 
     return (
-        (from_block, to_block - 1)
+        (BlockNumber(from_block), BlockNumber(to_block - 1))
         for from_block, to_block
         in segment_count(start_block, last_block + 1, step)
     )
@@ -196,7 +198,7 @@ def get_logs_multipart(
     startBlock: BlockNumber,
     stopBlock: BlockNumber,
     address: Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]],
-    topics: List[Optional[Union[Hash32, List[Hash32]]]],
+    topics: List[Optional[Union[_Hash32, List[_Hash32]]]],
     max_blocks: int
 ) -> Iterable[List[LogReceipt]]:
     """Used to break up requests to ``eth_getLogs``
@@ -212,8 +214,7 @@ def get_logs_multipart(
             "address": address,
             "topics": topics
         }
-        yield w3.eth.getLogs(
-            drop_items_with_none_value(params))
+        yield w3.eth.getLogs(cast(FilterParams, drop_items_with_none_value(params)))
 
 
 class RequestLogs:
@@ -223,7 +224,7 @@ class RequestLogs:
         from_block: Union[BlockNumber, LatestBlockParam]=None,
         to_block: Union[BlockNumber, LatestBlockParam]=None,
         address: Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]]=None,
-        topics: List[Optional[Union[Hash32, List[Hash32]]]]=None
+        topics: List[Optional[Union[_Hash32, List[_Hash32]]]]=None
     ) -> None:
         self.address = address
         self.topics = topics

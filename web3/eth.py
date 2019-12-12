@@ -8,6 +8,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
     overload,
 )
 
@@ -18,7 +19,6 @@ from eth_typing import (
     Address,
     BlockNumber,
     ChecksumAddress,
-    Hash32,
     HexStr,
 )
 from eth_utils import (
@@ -90,8 +90,10 @@ from web3.types import (
     GasPriceStrategy,
     LogReceipt,
     MerkleProof,
+    Nonce,
     SignedTx,
     SyncStatus,
+    TxData,
     TxParams,
     TxReceipt,
     Uncle,
@@ -277,7 +279,7 @@ class Eth(Module):
             )
         return result
 
-    def getTransaction(self, transaction_hash: _Hash32) -> TxReceipt:
+    def getTransaction(self, transaction_hash: _Hash32) -> TxData:
         result = self.web3.manager.request_blocking(
             RPC.eth_getTransactionByHash,
             [transaction_hash],
@@ -297,7 +299,7 @@ class Eth(Module):
 
     def getTransactionByBlock(
         self, block_identifier: BlockIdentifier, transaction_index: int
-    ) -> TxReceipt:
+    ) -> TxData:
         """
         `eth_getTransactionByBlockHashAndIndex`
         `eth_getTransactionByBlockNumberAndIndex`
@@ -343,7 +345,7 @@ class Eth(Module):
 
     def getTransactionCount(
         self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
-    ) -> int:
+    ) -> Nonce:
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
@@ -351,20 +353,22 @@ class Eth(Module):
             [account, block_identifier],
         )
 
-    def replaceTransaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> Hash32:
+    def replaceTransaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
         current_transaction = get_required_transaction(self.web3, transaction_hash)
         return replace_transaction(self.web3, current_transaction, new_transaction)
 
     # todo: Update Any to stricter kwarg checking with TxParams
     # https://github.com/python/mypy/issues/4441
-    def modifyTransaction(self, transaction_hash: _Hash32, **transaction_params: Any) -> Hash32:
-        assert_valid_transaction_params(transaction_params)
+    def modifyTransaction(
+        self, transaction_hash: _Hash32, **transaction_params: Any
+    ) -> HexBytes:
+        assert_valid_transaction_params(cast(TxParams, transaction_params))
         current_transaction = get_required_transaction(self.web3, transaction_hash)
         current_transaction_params = extract_valid_transaction_params(current_transaction)
         new_transaction = merge(current_transaction_params, transaction_params)
         return replace_transaction(self.web3, current_transaction, new_transaction)
 
-    def sendTransaction(self, transaction: TxParams) -> Hash32:
+    def sendTransaction(self, transaction: TxParams) -> HexBytes:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
@@ -382,7 +386,7 @@ class Eth(Module):
             [transaction],
         )
 
-    def sendRawTransaction(self, raw_transaction: HexStr) -> Hash32:
+    def sendRawTransaction(self, raw_transaction: HexStr) -> HexBytes:
         return self.web3.manager.request_blocking(
             RPC.eth_sendRawTransaction,
             [raw_transaction],
@@ -432,7 +436,7 @@ class Eth(Module):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
         if block_identifier is None:
-            params = [transaction]
+            params: Sequence[Union[TxParams, BlockIdentifier]] = [transaction]
         else:
             params = [transaction, block_identifier]
 
@@ -534,7 +538,7 @@ class Eth(Module):
     def getCompilers(self) -> NoReturn:
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
-    def getWork(self) -> List[Hash32]:
+    def getWork(self) -> List[HexBytes]:
         return self.web3.manager.request_blocking(RPC.eth_getWork, [])
 
     def generateGasPrice(self, transaction_params: TxParams=None) -> Optional[Wei]:

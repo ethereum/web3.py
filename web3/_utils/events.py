@@ -112,7 +112,9 @@ def construct_event_topic_set(
         for key, value in arguments.items()  # type: ignore
     }
 
-    event_topic = encode_hex(event_abi_to_log_topic(event_abi))
+    # typed dict cannot be used w/ a normal Dict
+    # https://github.com/python/mypy/issues/4976
+    event_topic = encode_hex(event_abi_to_log_topic(event_abi))  # type: ignore
     indexed_args = get_indexed_event_inputs(event_abi)
     zipped_abi_and_args = [
         (arg, normalized_args.get(arg['name'], [None]))
@@ -179,7 +181,7 @@ def is_dynamic_sized_type(type_str: TypeStr) -> bool:
 
 
 @to_tuple
-def get_event_abi_types_for_decoding(event_inputs: ABIEventParams) -> Iterable[TypeStr]:
+def get_event_abi_types_for_decoding(event_inputs: Sequence[ABIEventParams]) -> Iterable[TypeStr]:
     """
     Event logs use the `keccak(value)` for indexed inputs of type `bytes` or
     `string`.  Because of this we need to modify the types so that we can
@@ -202,7 +204,8 @@ def get_event_data(abi_codec: ABICodec, event_abi: ABIEvent, log_entry: LogRecei
         log_topics = log_entry['topics']
     elif not log_entry['topics']:
         raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
-    elif event_abi_to_log_topic(event_abi) != log_entry['topics'][0]:
+    # type ignored b/c event_abi_to_log_topic(event_abi: Dict[str, Any])
+    elif event_abi_to_log_topic(event_abi) != log_entry['topics'][0]:  # type: ignore
         raise MismatchedABI("The event signature did not match the provided ABI")
     else:
         log_topics = log_entry['topics'][1:]
@@ -267,7 +270,7 @@ def get_event_data(abi_codec: ABICodec, event_abi: ABIEvent, log_entry: LogRecei
         'blockNumber': log_entry['blockNumber'],
     }
 
-    return AttributeDict.recursive(event_data)
+    return cast(EventData, AttributeDict.recursive(event_data))
 
 
 @to_tuple
@@ -409,7 +412,8 @@ class EventFilterBuilder:
 
 def initialize_event_topics(event_abi: ABIEvent) -> Union[bytes, List[Any]]:
     if event_abi['anonymous'] is False:
-        return event_abi_to_log_topic(event_abi)
+        # https://github.com/python/mypy/issues/4976
+        return event_abi_to_log_topic(event_abi)  # type: ignore
     else:
         return list()
 

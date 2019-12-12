@@ -1,15 +1,23 @@
 import math
 from typing import (
     TYPE_CHECKING,
+    List,
+    cast,
 )
 
 from eth_typing import (
-    Hash32,
+    ChecksumAddress,
 )
 from eth_utils.toolz import (
     assoc,
     curry,
     merge,
+)
+from hexbytes import (
+    HexBytes,
+)
+from typing_extensions import (
+    Literal,
 )
 
 from web3._utils.threads import (
@@ -20,13 +28,16 @@ from web3.exceptions import (
 )
 from web3.types import (
     BlockIdentifier,
+    TxData,
     TxParams,
     TxReceipt,
     Wei,
     _Hash32,
 )
 
-VALID_TRANSACTION_PARAMS = [
+TX_PARAM_LITERALS = Literal['from', 'to', 'gas', 'gasPrice', 'value', 'data', 'nonce', 'chainId']
+
+VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
     'from',
     'to',
     'gas',
@@ -56,7 +67,7 @@ def fill_nonce(web3: "Web3", transaction: TxParams) -> TxParams:
             transaction,
             'nonce',
             web3.eth.getTransactionCount(
-                transaction['from'],
+                cast(ChecksumAddress, transaction['from']),
                 block_identifier='pending'))
     else:
         return transaction
@@ -110,7 +121,7 @@ def get_block_gas_limit(web3: "Web3", block_identifier: BlockIdentifier=None) ->
 def get_buffered_gas_estimate(
     web3: "Web3", transaction: TxParams, gas_buffer: Wei=Wei(100000)
 ) -> Wei:
-    gas_estimate_transaction = dict(**transaction)
+    gas_estimate_transaction = cast(TxParams, dict(**transaction))
 
     gas_estimate = web3.eth.estimateGas(gas_estimate_transaction)
 
@@ -126,7 +137,7 @@ def get_buffered_gas_estimate(
     return Wei(min(gas_limit, gas_estimate + gas_buffer))
 
 
-def get_required_transaction(web3: "Web3", transaction_hash: _Hash32) -> TxReceipt:
+def get_required_transaction(web3: "Web3", transaction_hash: _Hash32) -> TxData:
     current_transaction = web3.eth.getTransaction(transaction_hash)
     if not current_transaction:
         raise ValueError('Supplied transaction with hash {} does not exist'
@@ -134,9 +145,12 @@ def get_required_transaction(web3: "Web3", transaction_hash: _Hash32) -> TxRecei
     return current_transaction
 
 
-def extract_valid_transaction_params(transaction_params: TxParams) -> TxParams:
-    extracted_params = {key: transaction_params[key]
-                        for key in VALID_TRANSACTION_PARAMS if key in transaction_params}
+def extract_valid_transaction_params(transaction_params: TxData) -> TxParams:
+    extracted_params = cast(TxParams, {
+        key: transaction_params[key]
+        for key in VALID_TRANSACTION_PARAMS
+        if key in transaction_params
+    })
 
     if extracted_params.get('data') is not None:
         if transaction_params.get('input') is not None:
@@ -165,7 +179,7 @@ def assert_valid_transaction_params(transaction_params: TxParams) -> None:
 
 
 def prepare_replacement_transaction(
-    web3: "Web3", current_transaction: TxParams, new_transaction: TxParams
+    web3: "Web3", current_transaction: TxData, new_transaction: TxParams
 ) -> TxParams:
     if current_transaction['blockHash'] is not None:
         raise ValueError('Supplied transaction with hash {} has already been mined'
@@ -191,8 +205,8 @@ def prepare_replacement_transaction(
 
 
 def replace_transaction(
-    web3: "Web3", current_transaction: TxParams, new_transaction: TxParams
-) -> Hash32:
+    web3: "Web3", current_transaction: TxData, new_transaction: TxParams
+) -> HexBytes:
     new_transaction = prepare_replacement_transaction(
         web3, current_transaction, new_transaction
     )

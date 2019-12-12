@@ -14,10 +14,10 @@ from eth_utils import (
     is_string,
     to_checksum_address,
 )
-from typing_extensions import (
+
+from web3._utils.compat import (
     TypedDict,
 )
-
 from web3._utils.validation import (
     validate_address,
 )

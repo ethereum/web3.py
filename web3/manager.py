@@ -134,7 +134,8 @@ class RequestManager:
             self.web3,
             self.middleware_onion)
         self.logger.debug("Making request. Method: %s", method)
-        return await request_func(method, params)
+        # type ignored b/c request_func is an awaitable in async model
+        return await request_func(method, params)  # type: ignore
 
     def request_blocking(
         self,

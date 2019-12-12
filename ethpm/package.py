@@ -386,7 +386,7 @@ class Package(object):
                     f"{self.contract_types}."
                 )
             contract_instance = self.get_contract_instance(
-                deployment_data['contract_type'],
+                ContractName(deployment_data['contract_type']),
                 deployment_data['address'],
             )
             yield deployment_name, contract_instance

@@ -309,7 +309,7 @@ class SimpleRegistry(ERC1319Registry):
         registry_factory = registry_package.get_contract_factory(ContractName("PackageRegistry"))
         tx_hash = registry_factory.constructor().transact()
         tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-        return cls(tx_receipt.contractAddress, w3)
+        return cls(tx_receipt["contractAddress"], w3)
 
 
 class PM(Module):

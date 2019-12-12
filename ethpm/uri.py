@@ -36,6 +36,9 @@ from ethpm.exceptions import (
     CannotHandleURI,
 )
 from web3 import Web3
+from web3.types import (
+    BlockNumber,
+)
 
 
 def resolve_uri_contents(uri: URI, fingerprint: bool = None) -> bytes:
@@ -101,13 +104,13 @@ def create_latest_block_uri(w3: Web3, from_blocks_ago: int = 3) -> URI:
     """
     chain_id = to_hex(get_genesis_block_hash(w3))
     latest_block_tx_receipt = w3.eth.getBlock("latest")
-    target_block_number = latest_block_tx_receipt.number - from_blocks_ago
+    target_block_number = BlockNumber(latest_block_tx_receipt["number"] - from_blocks_ago)
     if target_block_number < 0:
         raise Exception(
-            f"Only {latest_block_tx_receipt.number} blocks avaible on provided w3, "
+            f"Only {latest_block_tx_receipt['number']} blocks avaible on provided w3, "
             f"cannot create latest block uri for {from_blocks_ago} blocks ago."
         )
-    recent_block = to_hex(w3.eth.getBlock(target_block_number).hash)
+    recent_block = to_hex(w3.eth.getBlock(target_block_number)["hash"])
     return create_block_uri(chain_id, recent_block)
 
 
