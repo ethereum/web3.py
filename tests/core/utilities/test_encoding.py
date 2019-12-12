@@ -9,6 +9,7 @@ from unittest.mock import (
 
 from eth_utils import (
     is_hex,
+    to_hex,
 )
 from hypothesis import (
     example,
@@ -21,8 +22,6 @@ from web3._utils.encoding import (
     hex_encode_abi_type,
     hexstr_if_str,
     text_if_str,
-    to_hex,
-    to_int,
 )
 from web3._utils.hypothesis import (
     hexstr_strategy,
@@ -30,38 +29,6 @@ from web3._utils.hypothesis import (
 from web3.providers import (
     JSONBaseProvider,
 )
-
-
-@pytest.mark.parametrize(
-    "value,expected",
-    [
-        (1, '0x1'),
-        (15, '0xf'),
-        (-1, '-0x1'),
-        (-15, '-0xf'),
-        (0, '0x0'),
-        (-0, '0x0'),
-    ]
-)
-def test_to_hex(value, expected):
-    assert to_hex(value) == expected
-
-
-@given(value=st.integers(min_value=-1 * 2**255 + 1, max_value=2**256 - 1))
-def test_conversion_round_trip(value):
-    intermediate_value = to_hex(value)
-    result_value = to_int(hexstr=intermediate_value)
-    error_msg = "Expected: {0!r}, Result: {1!r}, Intermediate: {2!r}".format(
-        value,
-        result_value,
-        intermediate_value,
-    )
-    assert result_value == value, error_msg
-
-
-def test_bytes_that_start_with_0x():
-    sneaky_bytes = b'0x\xde\xad'
-    assert to_hex(sneaky_bytes) == '0x3078dead'
 
 
 @pytest.mark.parametrize(

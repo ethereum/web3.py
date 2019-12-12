@@ -124,8 +124,8 @@ def get_default_ipc_path() -> str:  # type: ignore
             return ipc_path
 
         base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
-        ipc_path = base_trinity_path / 'mainnet' / 'jsonrpc.ipc'
-        if ipc_path.exists():
+        ipc_path = str(base_trinity_path / 'mainnet' / 'jsonrpc.ipc')
+        if Path(ipc_path).exists():
             return str(ipc_path)
 
     elif sys.platform == 'win32':

@@ -34,6 +34,7 @@ from eth_utils import (
     event_abi_to_log_topic,
     is_list_like,
     keccak,
+    to_bytes,
     to_dict,
     to_hex,
     to_tuple,
@@ -60,7 +61,6 @@ from web3._utils.abi import (
 from web3._utils.encoding import (
     encode_single_packed,
     hexstr_if_str,
-    to_bytes,
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,

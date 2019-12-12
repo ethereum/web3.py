@@ -9,7 +9,10 @@ from eth_utils import (
     is_checksum_address,
     keccak as eth_utils_keccak,
     remove_0x_prefix,
+    to_bytes,
     to_checksum_address,
+    to_int,
+    to_text,
     to_wei,
 )
 from hexbytes import (
@@ -37,10 +40,7 @@ from web3._utils.empty import (
 )
 from web3._utils.encoding import (
     hex_encode_abi_type,
-    to_bytes,
     to_hex,
-    to_int,
-    to_text,
     to_json,
 )
 from web3._utils.rpc_abi import (
