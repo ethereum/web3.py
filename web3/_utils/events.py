@@ -112,6 +112,7 @@ def construct_event_topic_set(
         for key, value in arguments.items()  # type: ignore
     }
 
+    # typed dict cannot be used w/ a normal Dict
     # https://github.com/python/mypy/issues/4976
     event_topic = encode_hex(event_abi_to_log_topic(event_abi))  # type: ignore
     indexed_args = get_indexed_event_inputs(event_abi)

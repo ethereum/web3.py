@@ -430,6 +430,7 @@ class Contract:
     @combomethod
     def get_function_by_selector(self, selector: Union[bytes, int, HexStr]) -> 'ContractFunction':
         def callable_check(fn_abi: ABIFunction) -> bool:
+            # typed dict cannot be used w/ a normal Dict
             # https://github.com/python/mypy/issues/4976
             return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(selector)  # type: ignore # noqa: E501
 
@@ -1350,7 +1351,8 @@ class ContractCaller:
                 "The ABI for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract ABI?"
             )
-        elif function_name not in [fn['name'] for fn in self._functions]:
+        # type ignore b/c bug: fix coming in future pr
+        elif function_name not in self._functions:  # type: ignore
             functions_available = ', '.join([fn['name'] for fn in self._functions])
             raise MismatchedABI(
                 "The function '{}' was not found in this contract's ABI. ".format(function_name),

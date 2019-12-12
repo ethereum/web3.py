@@ -61,8 +61,8 @@ def test_is_valid_content_addressed_github_uri(uri, expected):
 
 
 def test_create_github_uri():
-    api_uri = "https://api.github.com/repos/ethpm/py-ethpm/contents/ethpm/assets/owned/1.0.1.json"
-    expected_blob_uri = "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480"  # noqa: E501
+    api_uri = "https://api.github.com/repos/ethereum/web3.py/contents/ethpm/assets/owned/1.0.1.json"
+    expected_blob_uri = "https://api.github.com/repos/ethereum/web3.py/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480"  # noqa: E501
     actual_blob_uri = create_content_addressed_github_uri(api_uri)
     assert actual_blob_uri == expected_blob_uri
 

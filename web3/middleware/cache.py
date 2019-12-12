@@ -1,7 +1,7 @@
 import functools
 import threading
 import time
-from typing import (  # noqa: F401
+from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
@@ -9,7 +9,6 @@ from typing import (  # noqa: F401
     Dict,
     Set,
     Type,
-    Union,
     cast,
 )
 

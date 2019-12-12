@@ -105,7 +105,6 @@ def get_abi_input_types(abi: ABIFunction) -> List[str]:
     if 'inputs' not in abi and abi['type'] == 'fallback':
         return []
     else:
-        # https://github.com/python/mypy/issues/4976
         return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi['inputs']]
 
 
@@ -113,7 +112,6 @@ def get_abi_output_types(abi: ABIFunction) -> List[str]:
     if abi['type'] == 'fallback':
         return []
     else:
-        # https://github.com/python/mypy/issues/4976
         return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi['outputs']]
 
 
@@ -555,6 +553,7 @@ def get_aligned_abi_inputs(
         args = tuple(args[abi['name']] for abi in input_abis)
 
     return (
+        # typed dict cannot be used w/ a normal Dict
         # https://github.com/python/mypy/issues/4976
         tuple(collapse_if_tuple(abi) for abi in input_abis),  # type: ignore
         # too many arguments for Sequence

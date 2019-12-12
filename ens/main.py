@@ -11,6 +11,7 @@ from eth_typing import (
     Address,
     ChecksumAddress,
     HexAddress,
+    HexStr,
 )
 from eth_utils import (
     is_binary_address,
@@ -58,7 +59,7 @@ if TYPE_CHECKING:
     )
 
 
-ENS_MAINNET_ADDR = cast(ChecksumAddress, '0x314159265dD8dbb310642f98f50C066173C1259b')
+ENS_MAINNET_ADDR = ChecksumAddress(HexAddress(HexStr('0x314159265dD8dbb310642f98f50C066173C1259b')))
 
 
 class ENS:

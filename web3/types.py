@@ -60,6 +60,8 @@ ABIEvent = TypedDict("ABIEvent", {
 ABIFunctionComponents = TypedDict("ABIFunctionComponents", {
     "name": str,
     "type": str,
+    # better typed as Sequence['ABIFunctionComponents']
+    # https://github.com/python/mypy/issues/731
     "components": Sequence[Any],
 }, total=False)
 

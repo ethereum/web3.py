@@ -12,6 +12,7 @@ from typing import (
 from eth_typing import (
     BlockNumber,
     ChecksumAddress,
+    HexAddress,
     HexStr,
 )
 from eth_utils import (
@@ -43,7 +44,7 @@ from web3.types import (  # noqa: F401
     Wei,
 )
 
-UNKNOWN_ADDRESS = cast(ChecksumAddress, '0xdEADBEeF00000000000000000000000000000000')
+UNKNOWN_ADDRESS = ChecksumAddress(HexAddress(HexStr('0xdEADBEeF00000000000000000000000000000000')))
 UNKNOWN_HASH = HexStr('0xdeadbeef00000000000000000000000000000000000000000000000000000000')
 
 if TYPE_CHECKING:
@@ -118,7 +119,7 @@ class EthModuleTest:
         coinbase = web3.eth.coinbase
 
         with pytest.raises(InvalidAddress):
-            web3.eth.getBalance(cast(ChecksumAddress, coinbase.lower()))
+            web3.eth.getBalance(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
 
         balance = web3.eth.getBalance(coinbase)
 
@@ -134,7 +135,7 @@ class EthModuleTest:
     def test_eth_getStorageAt_invalid_address(self, web3: "Web3") -> None:
         coinbase = web3.eth.coinbase
         with pytest.raises(InvalidAddress):
-            web3.eth.getStorageAt(cast(ChecksumAddress, coinbase.lower()), 0)
+            web3.eth.getStorageAt(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))), 0)
 
     def test_eth_getTransactionCount(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
@@ -146,7 +147,7 @@ class EthModuleTest:
     def test_eth_getTransactionCount_invalid_address(self, web3: "Web3") -> None:
         coinbase = web3.eth.coinbase
         with pytest.raises(InvalidAddress):
-            web3.eth.getTransactionCount(cast(ChecksumAddress, coinbase.lower()))
+            web3.eth.getTransactionCount(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
 
     def test_eth_getBlockTransactionCountByHash_empty_block(
         self, web3: "Web3", empty_block: BlockData
@@ -199,7 +200,7 @@ class EthModuleTest:
 
     def test_eth_getCode_invalid_address(self, web3: "Web3", math_contract: "Contract") -> None:
         with pytest.raises(InvalidAddress):
-            web3.eth.getCode(cast(ChecksumAddress, math_contract.address.lower()))
+            web3.eth.getCode(ChecksumAddress(HexAddress(HexStr(math_contract.address.lower()))))
 
     def test_eth_getCode_with_block_identifier(
         self, web3: "Web3", emitter_contract: "Contract"
