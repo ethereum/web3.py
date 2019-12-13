@@ -1,0 +1,8 @@
+include LICENSE
+include README.md
+include requirements-docs.txt
+
+global-include *.pyi
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
