@@ -6,6 +6,111 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.4.0 (2019-12-06)
+-------------------
+
+Features
+~~~~~~~~
+
+- Add __str__ to IPCProvider (`#1536 <https://github.com/ethereum/web3.py/issues/1536>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Add required typing-extensions library to setup.py (`#1544 <https://github.com/ethereum/web3.py/issues/1544>`__)
+
+
+v5.3.1 (2019-12-05)
+-------------------
+
+Bugfixes
+~~~~~~~~
+
+- Only apply hexbytes formatting to r and s values in transaction if present (`#1531 <https://github.com/ethereum/web3.py/issues/1531>`__)
+- Update eth-utils dependency which contains mypy bugfix. (`#1537 <https://github.com/ethereum/web3.py/issues/1537>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update Contract Event documentation to show correct example (`#1515 <https://github.com/ethereum/web3.py/issues/1515>`__)
+- Add documentation to methods that raise an error in v5 instead of returning ``None`` (`#1527 <https://github.com/ethereum/web3.py/issues/1527>`__)
+
+
+Misc
+~~~~
+
+- `#1518 <https://github.com/ethereum/web3.py/issues/1518>`__, `#1532 <https://github.com/ethereum/web3.py/issues/1532>`__
+
+
+v5.3.0 (2019-11-14)
+-------------------
+
+Features
+~~~~~~~~
+
+- Support handling ENS domains in ERC1319 URIs. (`#1489 <https://github.com/ethereum/web3.py/issues/1489>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Make local block filter return empty list when when no blocks mined (`#1255 <https://github.com/ethereum/web3.py/issues/1255>`__)
+- Google protobuf dependency was updated to `3.10.0` (`#1493 <https://github.com/ethereum/web3.py/issues/1493>`__)
+- Infura websocket provider works when no secret key is present (`#1501 <https://github.com/ethereum/web3.py/issues/1501>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update Quickstart instructions to use the auto Infura module instead of the more complicated web3 auto module (`#1482 <https://github.com/ethereum/web3.py/issues/1482>`__)
+- Remove outdated py.test command from readme (`#1483 <https://github.com/ethereum/web3.py/issues/1483>`__)
+
+
+Misc
+~~~~
+
+- `#1461 <https://github.com/ethereum/web3.py/issues/1461>`__, `#1471 <https://github.com/ethereum/web3.py/issues/1471>`__, `#1475 <https://github.com/ethereum/web3.py/issues/1475>`__, `#1476 <https://github.com/ethereum/web3.py/issues/1476>`__, `#1479 <https://github.com/ethereum/web3.py/issues/1479>`__, `#1488 <https://github.com/ethereum/web3.py/issues/1488>`__, `#1492 <https://github.com/ethereum/web3.py/issues/1492>`__, `#1498 <https://github.com/ethereum/web3.py/issues/1498>`__
+
+
+v5.2.2 (2019-10-21)
+-------------------
+
+Features
+~~~~~~~~
+
+- Add poll_latency to waitForTransactionReceipt (`#1453 <https://github.com/ethereum/web3.py/issues/1453>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix flaky Parity whisper module test (`#1473 <https://github.com/ethereum/web3.py/issues/1473>`__)
+
+
+Misc
+~~~~
+
+- `#1472 <https://github.com/ethereum/web3.py/issues/1472>`__, `#1474 <https://github.com/ethereum/web3.py/issues/1474>`__
+
+
+v5.2.1 (2019-10-17)
+-------------------
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update documentation for unlock account duration (`#1464 <https://github.com/ethereum/web3.py/issues/1464>`__)
+- Clarify module installation command for OSX>=10.15 (`#1467 <https://github.com/ethereum/web3.py/issues/1467>`__)
+
+
+Misc
+~~~~
+
+- `#1468 <https://github.com/ethereum/web3.py/issues/1468>`__
+
+
 v5.2.0 (2019-09-26)
 -------------------
 

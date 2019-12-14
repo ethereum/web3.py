@@ -2,6 +2,17 @@ from functools import (
     singledispatch,
 )
 import operator
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Collection,
+    Dict,
+    Iterable,
+    NoReturn,
+    TypeVar,
+    Union,
+)
 
 from eth_account import (
     Account,
@@ -12,15 +23,22 @@ from eth_account.signers.local import (
 from eth_keys.datatypes import (
     PrivateKey,
 )
+from eth_typing import (
+    ChecksumAddress,
+    HexStr,
+)
 from eth_utils import (
     to_dict,
+)
+from eth_utils.curried import (
+    apply_formatter_if,
 )
 from eth_utils.toolz import (
     compose,
 )
 
-from web3._utils.formatters import (
-    apply_formatter_if,
+from web3._utils.method_formatters import (
+    STANDARD_NORMALIZERS,
 )
 from web3._utils.rpc_abi import (
     TRANSACTION_PARAMS_ABIS,
@@ -30,15 +48,22 @@ from web3._utils.transactions import (
     fill_nonce,
     fill_transaction_defaults,
 )
-
-from .abi import (
-    STANDARD_NORMALIZERS,
+from web3.types import (
+    Middleware,
+    RPCEndpoint,
+    RPCResponse,
+    TxParams,
 )
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
+
+T = TypeVar("T")
 
 to_hexstr_from_eth_key = operator.methodcaller('to_hex')
 
 
-def is_eth_key(value):
+def is_eth_key(value: Any) -> bool:
     return isinstance(value, PrivateKey)
 
 
@@ -46,12 +71,16 @@ key_normalizer = compose(
     apply_formatter_if(is_eth_key, to_hexstr_from_eth_key),
 )
 
+_PrivateKey = Union[LocalAccount, PrivateKey, HexStr, bytes]
+
 
 @to_dict
-def gen_normalized_accounts(val):
+def gen_normalized_accounts(
+    val: Union[_PrivateKey, Collection[_PrivateKey]]
+) -> Iterable[Dict[ChecksumAddress, Account]]:
     if isinstance(val, (list, tuple, set,)):
         for i in val:
-            account = to_account(i)
+            account: Account = to_account(i)
             yield account.address, account
     else:
         account = to_account(val)
@@ -60,7 +89,7 @@ def gen_normalized_accounts(val):
 
 
 @singledispatch
-def to_account(val):
+def to_account(val: Any) -> NoReturn:
     raise TypeError(
         "key must be one of the types: "
         "eth_keys.datatype.PrivateKey, eth_account.signers.local.LocalAccount, "
@@ -69,13 +98,13 @@ def to_account(val):
 
 
 @to_account.register(LocalAccount)
-def _(val):
+def _(val: T) -> T:
     return val
 
 
-def private_key_to_account(val):
+def private_key_to_account(val: _PrivateKey) -> Account:
     normalized_key = key_normalizer(val)
-    return Account.privateKeyToAccount(normalized_key)
+    return Account.from_key(normalized_key)
 
 
 to_account.register(PrivateKey, private_key_to_account)
@@ -83,7 +112,7 @@ to_account.register(str, private_key_to_account)
 to_account.register(bytes, private_key_to_account)
 
 
-def format_transaction(transaction):
+def format_transaction(transaction: TxParams) -> TxParams:
     """Format transaction so that it can be used correctly in the signing middleware.
 
     Converts bytes to hex strings and other types that can be passed to the underlying layers.
@@ -92,7 +121,9 @@ def format_transaction(transaction):
     return apply_abi_formatters_to_dict(STANDARD_NORMALIZERS, TRANSACTION_PARAMS_ABIS, transaction)
 
 
-def construct_sign_and_send_raw_middleware(private_key_or_account):
+def construct_sign_and_send_raw_middleware(
+    private_key_or_account: Union[_PrivateKey, Collection[_PrivateKey]]
+) -> Middleware:
     """Capture transactions sign and send as raw transactions
 
 
@@ -106,14 +137,15 @@ def construct_sign_and_send_raw_middleware(private_key_or_account):
 
     accounts = gen_normalized_accounts(private_key_or_account)
 
-    def sign_and_send_raw_middleware(make_request, w3):
-
+    def sign_and_send_raw_middleware(
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
+    ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         format_and_fill_tx = compose(
             format_transaction,
             fill_transaction_defaults(w3),
             fill_nonce(w3))
 
-        def middleware(method, params):
+        def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method != "eth_sendTransaction":
                 return make_request(method, params)
             else:
@@ -128,7 +160,7 @@ def construct_sign_and_send_raw_middleware(private_key_or_account):
             raw_tx = account.sign_transaction(transaction).rawTransaction
 
             return make_request(
-                "eth_sendRawTransaction",
+                RPCEndpoint("eth_sendRawTransaction"),
                 [raw_tx])
 
         return middleware

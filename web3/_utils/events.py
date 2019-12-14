@@ -4,11 +4,29 @@ from abc import (
 )
 from enum import Enum
 import itertools
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Collection,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    cast,
+)
 
 from eth_abi import (
     grammar,
 )
+from eth_abi.codec import (
+    ABICodec,
+)
 from eth_typing import (
+    ChecksumAddress,
+    HexStr,
     TypeStr,
 )
 from eth_utils import (
@@ -20,6 +38,9 @@ from eth_utils import (
     to_hex,
     to_tuple,
 )
+from eth_utils.curried import (
+    apply_formatter_if,
+)
 from eth_utils.toolz import (
     complement,
     compose,
@@ -29,13 +50,17 @@ from eth_utils.toolz import (
 )
 
 import web3
+from web3._utils.abi import (
+    exclude_indexed_event_inputs,
+    get_abi_input_names,
+    get_indexed_event_inputs,
+    map_abi_data,
+    normalize_event_input_types,
+)
 from web3._utils.encoding import (
     encode_single_packed,
     hexstr_if_str,
     to_bytes,
-)
-from web3._utils.formatters import (
-    apply_formatter_if,
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
@@ -48,17 +73,25 @@ from web3.exceptions import (
     LogTopicError,
     MismatchedABI,
 )
-
-from .abi import (
-    exclude_indexed_event_inputs,
-    get_abi_input_names,
-    get_indexed_event_inputs,
-    map_abi_data,
-    normalize_event_input_types,
+from web3.types import (
+    ABIEvent,
+    ABIEventParams,
+    BlockIdentifier,
+    EventData,
+    FilterParams,
+    LogReceipt,
 )
 
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
+    from web3._utils.filters import (  # noqa: F401
+        LogFilter,
+    )
 
-def construct_event_topic_set(event_abi, abi_codec, arguments=None):
+
+def construct_event_topic_set(
+    event_abi: ABIEvent, abi_codec: ABICodec, arguments: Union[Sequence[Any], Dict[str, Any]]=None
+) -> List[HexStr]:
     if arguments is None:
         arguments = {}
     if isinstance(arguments, (list, tuple)):
@@ -75,10 +108,13 @@ def construct_event_topic_set(event_abi, abi_codec, arguments=None):
 
     normalized_args = {
         key: value if is_list_like(value) else [value]
-        for key, value in arguments.items()
+        # type ignored b/c arguments is always a dict at this point
+        for key, value in arguments.items()  # type: ignore
     }
 
-    event_topic = encode_hex(event_abi_to_log_topic(event_abi))
+    # typed dict cannot be used w/ a normal Dict
+    # https://github.com/python/mypy/issues/4976
+    event_topic = encode_hex(event_abi_to_log_topic(event_abi))  # type: ignore
     indexed_args = get_indexed_event_inputs(event_abi)
     zipped_abi_and_args = [
         (arg, normalized_args.get(arg['name'], [None]))
@@ -91,11 +127,13 @@ def construct_event_topic_set(event_abi, abi_codec, arguments=None):
         for arg, arg_options in zipped_abi_and_args
     ]
 
-    topics = list(normalize_topic_list([event_topic] + encoded_args))
+    topics = list(normalize_topic_list([event_topic] + encoded_args))  # type: ignore
     return topics
 
 
-def construct_event_data_set(event_abi, abi_codec, arguments=None):
+def construct_event_data_set(
+    event_abi: ABIEvent, abi_codec: ABICodec, arguments: Union[Sequence[Any], Dict[str, Any]]=None
+) -> List[List[Optional[HexStr]]]:
     if arguments is None:
         arguments = {}
     if isinstance(arguments, (list, tuple)):
@@ -112,7 +150,8 @@ def construct_event_data_set(event_abi, abi_codec, arguments=None):
 
     normalized_args = {
         key: value if is_list_like(value) else [value]
-        for key, value in arguments.items()
+        # type ignored b/c at this point arguments is always a dict
+        for key, value in arguments.items()  # type: ignore
     }
 
     non_indexed_args = exclude_indexed_event_inputs(event_abi)
@@ -142,7 +181,7 @@ def is_dynamic_sized_type(type_str: TypeStr) -> bool:
 
 
 @to_tuple
-def get_event_abi_types_for_decoding(event_inputs):
+def get_event_abi_types_for_decoding(event_inputs: Sequence[ABIEventParams]) -> Iterable[TypeStr]:
     """
     Event logs use the `keccak(value)` for indexed inputs of type `bytes` or
     `string`.  Because of this we need to modify the types so that we can
@@ -156,7 +195,7 @@ def get_event_abi_types_for_decoding(event_inputs):
 
 
 @curry
-def get_event_data(abi_codec, event_abi, log_entry):
+def get_event_data(abi_codec: ABICodec, event_abi: ABIEvent, log_entry: LogReceipt) -> EventData:
     """
     Given an event ABI and a log entry for that event, return the decoded
     event data
@@ -165,7 +204,8 @@ def get_event_data(abi_codec, event_abi, log_entry):
         log_topics = log_entry['topics']
     elif not log_entry['topics']:
         raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
-    elif event_abi_to_log_topic(event_abi) != log_entry['topics'][0]:
+    # type ignored b/c event_abi_to_log_topic(event_abi: Dict[str, Any])
+    elif event_abi_to_log_topic(event_abi) != log_entry['topics'][0]:  # type: ignore
         raise MismatchedABI("The event signature did not match the provided ABI")
     else:
         log_topics = log_entry['topics'][1:]
@@ -173,7 +213,7 @@ def get_event_data(abi_codec, event_abi, log_entry):
     log_topics_abi = get_indexed_event_inputs(event_abi)
     log_topic_normalized_inputs = normalize_event_input_types(log_topics_abi)
     log_topic_types = get_event_abi_types_for_decoding(log_topic_normalized_inputs)
-    log_topic_names = get_abi_input_names({'inputs': log_topics_abi})
+    log_topic_names = get_abi_input_names(ABIEvent({'inputs': log_topics_abi}))
 
     if len(log_topics) != len(log_topic_types):
         raise LogTopicError("Expected {0} log topics.  Got {1}".format(
@@ -185,7 +225,7 @@ def get_event_data(abi_codec, event_abi, log_entry):
     log_data_abi = exclude_indexed_event_inputs(event_abi)
     log_data_normalized_inputs = normalize_event_input_types(log_data_abi)
     log_data_types = get_event_abi_types_for_decoding(log_data_normalized_inputs)
-    log_data_names = get_abi_input_names({'inputs': log_data_abi})
+    log_data_names = get_abi_input_names(ABIEvent({'inputs': log_data_abi}))
 
     # sanity check that there are not name intersections between the topic
     # names and the data argument names.
@@ -230,16 +270,16 @@ def get_event_data(abi_codec, event_abi, log_entry):
         'blockNumber': log_entry['blockNumber'],
     }
 
-    return AttributeDict.recursive(event_data)
+    return cast(EventData, AttributeDict.recursive(event_data))
 
 
 @to_tuple
-def pop_singlets(seq):
+def pop_singlets(seq: Sequence[Any]) -> Iterable[Any]:
     yield from (i[0] if is_list_like(i) and len(i) == 1 else i for i in seq)
 
 
 @curry
-def remove_trailing_from_seq(seq, remove_value=None):
+def remove_trailing_from_seq(seq: Sequence[Any], remove_value: Any=None) -> Sequence[Any]:
     index = len(seq)
     while index > 0 and seq[index - 1] == remove_value:
         index -= 1
@@ -251,7 +291,7 @@ normalize_topic_list = compose(
     pop_singlets,)
 
 
-def is_indexed(arg):
+def is_indexed(arg: Any) -> bool:
     if isinstance(arg, TopicArgumentFilter) is True:
         return True
     return False
@@ -267,7 +307,9 @@ class EventFilterBuilder:
     _address = None
     _immutable = False
 
-    def __init__(self, event_abi, abi_codec, formatter=None):
+    def __init__(
+        self, event_abi: ABIEvent, abi_codec: ABICodec, formatter: EventData=None
+    ) -> None:
         self.event_abi = event_abi
         self.abi_codec = abi_codec
         self.formatter = formatter
@@ -277,11 +319,11 @@ class EventFilterBuilder:
         self._ordered_arg_names = tuple(arg['name'] for arg in event_abi['inputs'])
 
     @property
-    def fromBlock(self):
+    def fromBlock(self) -> BlockIdentifier:
         return self._fromBlock
 
     @fromBlock.setter
-    def fromBlock(self, value):
+    def fromBlock(self, value: BlockIdentifier) -> None:
         if self._fromBlock is None and not self._immutable:
             self._fromBlock = value
         else:
@@ -290,11 +332,11 @@ class EventFilterBuilder:
                 "Resetting filter parameters is not permitted".format(self._fromBlock))
 
     @property
-    def toBlock(self):
+    def toBlock(self) -> BlockIdentifier:
         return self._toBlock
 
     @toBlock.setter
-    def toBlock(self, value):
+    def toBlock(self, value: BlockIdentifier) -> None:
         if self._toBlock is None and not self._immutable:
             self._toBlock = value
         else:
@@ -303,11 +345,11 @@ class EventFilterBuilder:
                 "Resetting filter parameters is not permitted".format(self._toBlock))
 
     @property
-    def address(self):
+    def address(self) -> ChecksumAddress:
         return self._address
 
     @address.setter
-    def address(self, value):
+    def address(self, value: ChecksumAddress) -> None:
         if self._address is None and not self._immutable:
             self._address = value
         else:
@@ -316,33 +358,33 @@ class EventFilterBuilder:
                 "Resetting filter parameters is not permitted".format(self.address))
 
     @property
-    def ordered_args(self):
+    def ordered_args(self) -> Tuple[Any, ...]:
         return tuple(map(self.args.__getitem__, self._ordered_arg_names))
 
-    @property
+    @property  # type: ignore
     @to_tuple
-    def indexed_args(self):
+    def indexed_args(self) -> Tuple[Any, ...]:
         return tuple(filter(is_indexed, self.ordered_args))
 
-    @property
+    @property  # type: ignore
     @to_tuple
-    def data_args(self):
+    def data_args(self) -> Tuple[Any, ...]:
         return tuple(filter(is_not_indexed, self.ordered_args))
 
     @property
-    def topics(self):
+    def topics(self) -> List[HexStr]:
         arg_topics = tuple(arg.match_values for arg in self.indexed_args)
         return normalize_topic_list(cons(to_hex(self.event_topic), arg_topics))
 
     @property
-    def data_argument_values(self):
+    def data_argument_values(self) -> Tuple[Any, ...]:
         if self.data_args is not None:
             return tuple(arg.match_values for arg in self.data_args)
         else:
             return (None,)
 
     @property
-    def filter_params(self):
+    def filter_params(self) -> FilterParams:
         params = {
             "topics": self.topics,
             "fromBlock": self.fromBlock,
@@ -351,7 +393,7 @@ class EventFilterBuilder:
         }
         return valfilter(lambda x: x is not None, params)
 
-    def deploy(self, w3):
+    def deploy(self, w3: "Web3") -> "LogFilter":
         if not isinstance(w3, web3.Web3):
             raise ValueError("Invalid web3 argument: got: {0}".format(repr(w3)))
 
@@ -359,7 +401,7 @@ class EventFilterBuilder:
             arg._immutable = True
         self._immutable = True
 
-        log_filter = w3.eth.filter(self.filter_params)
+        log_filter = cast("LogFilter", w3.eth.filter(self.filter_params))
         log_filter.filter_params = self.filter_params
         log_filter.set_data_filters(self.data_argument_values)
         log_filter.builder = self
@@ -368,17 +410,21 @@ class EventFilterBuilder:
         return log_filter
 
 
-def initialize_event_topics(event_abi):
+def initialize_event_topics(event_abi: ABIEvent) -> Union[bytes, List[Any]]:
     if event_abi['anonymous'] is False:
-        return event_abi_to_log_topic(event_abi)
+        # https://github.com/python/mypy/issues/4976
+        return event_abi_to_log_topic(event_abi)  # type: ignore
     else:
         return list()
 
 
 @to_dict
-def _build_argument_filters_from_event_abi(event_abi, abi_codec):
+def _build_argument_filters_from_event_abi(
+    event_abi: ABIEvent, abi_codec: ABICodec
+) -> Iterable[Tuple[str, 'BaseArgumentFilter']]:
     for item in event_abi['inputs']:
         key = item['name']
+        value: 'BaseArgumentFilter'
         if item['indexed'] is True:
             value = TopicArgumentFilter(abi_codec=abi_codec, arg_type=item['type'])
         else:
@@ -390,19 +436,19 @@ array_to_tuple = apply_formatter_if(is_list_like, tuple)
 
 
 @to_tuple
-def _normalize_match_values(match_values):
+def _normalize_match_values(match_values: Collection[Any]) -> Iterable[Any]:
     for value in match_values:
         yield array_to_tuple(value)
 
 
 class BaseArgumentFilter(ABC):
-    _match_values = None
+    _match_values: Tuple[Any, ...] = None
     _immutable = False
 
-    def __init__(self, arg_type):
+    def __init__(self, arg_type: TypeStr) -> None:
         self.arg_type = arg_type
 
-    def match_single(self, value):
+    def match_single(self, value: Any) -> None:
         if self._immutable:
             raise ValueError("Setting values is forbidden after filter is deployed.")
         if self._match_values is None:
@@ -410,7 +456,7 @@ class BaseArgumentFilter(ABC):
         else:
             raise ValueError("An argument match value/s has already been set.")
 
-    def match_any(self, *values):
+    def match_any(self, *values: Collection[Any]) -> None:
         if self._immutable:
             raise ValueError("Setting values is forbidden after filter is deployed.")
         if self._match_values is None:
@@ -420,33 +466,35 @@ class BaseArgumentFilter(ABC):
 
     @property
     @abstractmethod
-    def match_values(self):
+    def match_values(self) -> None:
         pass
 
 
 class DataArgumentFilter(BaseArgumentFilter):
+    # type ignore b/c conflict with BaseArgumentFilter.match_values type
     @property
-    def match_values(self):
+    def match_values(self) -> Tuple[TypeStr, Tuple[Any, ...]]:  # type: ignore
         return (self.arg_type, self._match_values)
 
 
 class TopicArgumentFilter(BaseArgumentFilter):
-    def __init__(self, arg_type, abi_codec):
+    def __init__(self, arg_type: TypeStr, abi_codec: ABICodec) -> None:
         self.abi_codec = abi_codec
         self.arg_type = arg_type
 
     @to_tuple
-    def _get_match_values(self):
+    def _get_match_values(self) -> Iterable[HexStr]:
         yield from (self._encode(value) for value in self._match_values)
 
+    # type ignore b/c conflict with BaseArgumentFilter.match_values type
     @property
-    def match_values(self):
+    def match_values(self) -> Optional[Tuple[HexStr, ...]]:  # type: ignore
         if self._match_values is not None:
             return self._get_match_values()
         else:
             return None
 
-    def _encode(self, value):
+    def _encode(self, value: Any) -> HexStr:
         if is_dynamic_sized_type(self.arg_type):
             return to_hex(keccak(encode_single_packed(self.arg_type, value)))
         else:
@@ -460,5 +508,5 @@ class EventLogErrorFlags(Enum):
     Warn = 'warn'
 
     @classmethod
-    def flag_options(self):
+    def flag_options(self) -> List[str]:
         return [key.upper() for key in self.__members__.keys()]

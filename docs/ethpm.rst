@@ -200,8 +200,8 @@ A valid content-addressed Github URI *must* conform to the following scheme, as 
 
    >>> from ethpm.uri import create_content_addressed_github_uri
 
-   >>> owned_github_api_uri = "https://api.github.com/repos/ethpm/py-ethpm/contents/ethpm/assets/owned/1.0.1.json"
-   >>> content_addressed_uri = "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480"
+   >>> owned_github_api_uri = "https://api.github.com/repos/ethereum/web3.py/contents/ethpm/assets/owned/1.0.1.json"
+   >>> content_addressed_uri = "https://api.github.com/repos/ethereum/web3.py/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480"
 
    >>> actual_blob_uri = create_content_addressed_github_uri(owned_github_api_uri)
    >>> assert actual_blob_uri == content_addressed_uri

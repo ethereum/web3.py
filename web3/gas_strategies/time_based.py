@@ -1,7 +1,15 @@
 import collections
 import math
 import operator
+from typing import (
+    Iterable,
+    Sequence,
+    Tuple,
+)
 
+from eth_typing import (
+    ChecksumAddress,
+)
 from eth_utils import (
     to_tuple,
 )
@@ -10,13 +18,23 @@ from eth_utils.toolz import (
     groupby,
     sliding_window,
 )
+from hexbytes import (
+    HexBytes,
+)
 
+from web3 import Web3
 from web3._utils.math import (
     percentile,
 )
 from web3.exceptions import (
     InsufficientData,
     ValidationError,
+)
+from web3.types import (
+    BlockNumber,
+    GasPriceStrategy,
+    TxParams,
+    Wei,
 )
 
 MinerData = collections.namedtuple(
@@ -26,22 +44,25 @@ MinerData = collections.namedtuple(
 Probability = collections.namedtuple('Probability', ['gas_price', 'prob'])
 
 
-def _get_avg_block_time(w3, sample_size):
+def _get_avg_block_time(w3: Web3, sample_size: int) -> float:
     latest = w3.eth.getBlock('latest')
 
     constrained_sample_size = min(sample_size, latest['number'])
     if constrained_sample_size == 0:
         raise ValidationError('Constrained sample size is 0')
 
-    oldest = w3.eth.getBlock(latest['number'] - constrained_sample_size)
+    oldest = w3.eth.getBlock(BlockNumber(latest['number'] - constrained_sample_size))
     return (latest['timestamp'] - oldest['timestamp']) / constrained_sample_size
 
 
-def _get_raw_miner_data(w3, sample_size):
+def _get_raw_miner_data(
+    w3: Web3, sample_size: int
+) -> Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]:
     latest = w3.eth.getBlock('latest', full_transactions=True)
 
     for transaction in latest['transactions']:
-        yield (latest['miner'], latest['hash'], transaction['gasPrice'])
+        # type ignored b/c actual transaction is TxData not HexBytes
+        yield (latest['miner'], latest['hash'], transaction['gasPrice'])  # type: ignore
 
     block = latest
 
@@ -53,18 +74,22 @@ def _get_raw_miner_data(w3, sample_size):
         # block numbers to make caching the data easier to implement.
         block = w3.eth.getBlock(block['parentHash'], full_transactions=True)
         for transaction in block['transactions']:
-            yield (block['miner'], block['hash'], transaction['gasPrice'])
+            # type ignored b/c actual transaction is TxData not HexBytes
+            yield (block['miner'], block['hash'], transaction['gasPrice'])  # type: ignore
 
 
-def _aggregate_miner_data(raw_data):
+def _aggregate_miner_data(
+    raw_data: Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]
+) -> Iterable[MinerData]:
     data_by_miner = groupby(0, raw_data)
 
     for miner, miner_data in data_by_miner.items():
         _, block_hashes, gas_prices = map(set, zip(*miner_data))
         try:
-            price_percentile = percentile(gas_prices, percentile=20)
+            # types ignored b/c mypy has trouble inferring gas_prices: Sequence[Wei]
+            price_percentile = percentile(gas_prices, percentile=20)  # type: ignore
         except InsufficientData:
-            price_percentile = min(gas_prices)
+            price_percentile = min(gas_prices)  # type: ignore
         yield MinerData(
             miner,
             len(set(block_hashes)),
@@ -73,7 +98,9 @@ def _aggregate_miner_data(raw_data):
 
 
 @to_tuple
-def _compute_probabilities(miner_data, wait_blocks, sample_size):
+def _compute_probabilities(
+    miner_data: Iterable[MinerData], wait_blocks: int, sample_size: int
+) -> Iterable[Probability]:
     """
     Computes the probabilities that a txn will be accepted at each of the gas
     prices accepted by the miners.
@@ -91,7 +118,7 @@ def _compute_probabilities(miner_data, wait_blocks, sample_size):
         yield Probability(low_percentile_gas_price, probability_accepted)
 
 
-def _compute_gas_price(probabilities, desired_probability):
+def _compute_gas_price(probabilities: Sequence[Probability], desired_probability: float) -> Wei:
     """
     Given a sorted range of ``Probability`` named-tuples returns a gas price
     computed based on where the ``desired_probability`` would fall within the
@@ -105,9 +132,9 @@ def _compute_gas_price(probabilities, desired_probability):
     last = probabilities[-1]
 
     if desired_probability >= first.prob:
-        return int(first.gas_price)
+        return Wei(int(first.gas_price))
     elif desired_probability <= last.prob:
-        return int(last.gas_price)
+        return Wei(int(last.gas_price))
 
     for left, right in sliding_window(2, probabilities):
         if desired_probability < right.prob:
@@ -123,7 +150,7 @@ def _compute_gas_price(probabilities, desired_probability):
         position = adj_prob / window_size
         gas_window_size = left.gas_price - right.gas_price
         gas_price = int(math.ceil(right.gas_price + gas_window_size * position))
-        return gas_price
+        return Wei(gas_price)
     else:
         # The initial `if/else` clause in this function handles the case where
         # the `desired_probability` is either above or below the min/max
@@ -137,9 +164,9 @@ def _compute_gas_price(probabilities, desired_probability):
 
 
 @curry
-def construct_time_based_gas_price_strategy(max_wait_seconds,
-                                            sample_size=120,
-                                            probability=98):
+def construct_time_based_gas_price_strategy(
+    max_wait_seconds: int, sample_size: int=120, probability: int=98
+) -> GasPriceStrategy:
     """
     A gas pricing strategy that uses recently mined block data to derive a gas
     price for which a transaction is likely to be mined within X seconds with
@@ -152,7 +179,7 @@ def construct_time_based_gas_price_strategy(max_wait_seconds,
         that the transaction will be mined within ``max_wait_seconds``.  0 means 0%
         and 100 means 100%.
     """
-    def time_based_gas_price_strategy(web3, transaction_params):
+    def time_based_gas_price_strategy(web3: Web3, transaction_params: TxParams) -> Wei:
         avg_block_time = _get_avg_block_time(web3, sample_size=sample_size)
         wait_blocks = int(math.ceil(max_wait_seconds / avg_block_time))
 

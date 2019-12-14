@@ -1,3 +1,9 @@
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+)
+
 from eth_utils.curried import (
     apply_formatter_at_index,
     apply_formatter_if,
@@ -14,21 +20,30 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.exceptions import (
     ValidationError,
 )
 from web3.middleware.formatting import (
     construct_web3_formatting_middleware,
 )
+from web3.types import (
+    FormattersDict,
+    TxParams,
+)
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
 MAX_EXTRADATA_LENGTH = 32
-
 
 is_not_null = complement(is_null)
 
 
 @curry
-def validate_chain_id(web3, chain_id):
+def validate_chain_id(web3: "Web3", chain_id: int) -> int:
     if int(chain_id) == web3.eth.chainId:
         return chain_id
     else:
@@ -41,7 +56,7 @@ def validate_chain_id(web3, chain_id):
         )
 
 
-def check_extradata_length(val):
+def check_extradata_length(val: Any) -> Any:
     if not isinstance(val, (str, int, bytes)):
         return val
     result = HexBytes(val)
@@ -58,16 +73,16 @@ def check_extradata_length(val):
     return val
 
 
-def transaction_normalizer(transaction):
+def transaction_normalizer(transaction: TxParams) -> TxParams:
     return dissoc(transaction, 'chainId')
 
 
-def transaction_param_validator(web3):
+def transaction_param_validator(web3: "Web3") -> Callable[..., Any]:
     transactions_params_validators = {
-        'chainId': apply_formatter_if(
+        "chainId": apply_formatter_if(
             # Bypass `validate_chain_id` if chainId can't be determined
             lambda _: is_not_null(web3.eth.chainId),
-            validate_chain_id(web3)
+            validate_chain_id(web3),
         ),
     }
     return apply_formatter_at_index(
@@ -88,23 +103,23 @@ block_validator = apply_formatter_if(
 
 
 @curry
-def chain_id_validator(web3):
+def chain_id_validator(web3: "Web3") -> Callable[..., Any]:
     return compose(
         apply_formatter_at_index(transaction_normalizer, 0),
         transaction_param_validator(web3)
     )
 
 
-def build_validators_with_web3(w3):
+def build_validators_with_web3(w3: "Web3") -> FormattersDict:
     return dict(
         request_formatters={
-            'eth_sendTransaction': chain_id_validator(w3),
-            'eth_estimateGas': chain_id_validator(w3),
-            'eth_call': chain_id_validator(w3),
+            RPC.eth_sendTransaction: chain_id_validator(w3),
+            RPC.eth_estimateGas: chain_id_validator(w3),
+            RPC.eth_call: chain_id_validator(w3),
         },
         result_formatters={
-            'eth_getBlockByHash': block_validator,
-            'eth_getBlockByNumber': block_validator,
+            RPC.eth_getBlockByHash: block_validator,
+            RPC.eth_getBlockByNumber: block_validator,
         },
     )
 

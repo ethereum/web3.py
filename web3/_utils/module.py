@@ -1,9 +1,18 @@
+from typing import (
+    Any,
+    Dict,
+    Sequence,
+    TypeVar,
+)
+
 from web3.exceptions import (
     ValidationError,
 )
 
+T = TypeVar("T")
 
-def attach_modules(parent_module, module_definitions):
+
+def attach_modules(parent_module: T, module_definitions: Dict[str, Sequence[Any]]) -> None:
     for module_name, module_info in module_definitions.items():
         module_class = module_info[0]
         module_class.attach(parent_module, module_name)

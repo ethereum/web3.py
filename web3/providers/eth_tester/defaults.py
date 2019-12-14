@@ -1,6 +1,15 @@
 import operator
 import random
 import sys
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    List,
+    NoReturn,
+    Tuple,
+    Type,
+)
 
 from eth_tester.exceptions import (
     BlockNotFound,
@@ -8,11 +17,18 @@ from eth_tester.exceptions import (
     TransactionNotFound,
     ValidationError,
 )
+from eth_typing import (
+    HexAddress,
+    HexStr,
+)
 from eth_utils import (
     decode_hex,
     encode_hex,
     is_null,
     keccak,
+)
+from eth_utils.curried import (
+    apply_formatter_if,
 )
 from eth_utils.toolz import (
     compose,
@@ -20,50 +36,68 @@ from eth_utils.toolz import (
     excepts,
 )
 
-from web3._utils.formatters import (
-    apply_formatter_if,
+from web3.types import (
+    LogReceipt,
+    RPCResponse,
+    TParams,
+    TReturn,
+    TValue,
+    TxReceipt,
 )
 
+if TYPE_CHECKING:
+    from eth_tester import (  # noqa: F401
+        EthereumTester,
+    )
 
-def not_implemented(*args, **kwargs):
+
+def not_implemented(*args: Any, **kwargs: Any) -> NoReturn:
     raise NotImplementedError("RPC method not implemented")
 
 
 @curry
-def call_eth_tester(fn_name, eth_tester, fn_args, fn_kwargs=None):
+def call_eth_tester(
+    fn_name: str, eth_tester: "EthereumTester", fn_args: Any, fn_kwargs: Any=None
+) -> RPCResponse:
     if fn_kwargs is None:
         fn_kwargs = {}
     return getattr(eth_tester, fn_name)(*fn_args, **fn_kwargs)
 
 
-def without_eth_tester(fn):
+def without_eth_tester(
+    fn: Callable[[TParams], TReturn]
+) -> Callable[["EthereumTester", TParams], TReturn]:
     # workaround for: https://github.com/pytoolz/cytoolz/issues/103
     # @functools.wraps(fn)
-    def inner(eth_tester, params):
+    def inner(eth_tester: "EthereumTester", params: TParams) -> TReturn:
         return fn(params)
     return inner
 
 
-def without_params(fn):
+def without_params(
+    fn: Callable[[TParams], TReturn]
+) -> Callable[["EthereumTester", TParams], TReturn]:
     # workaround for: https://github.com/pytoolz/cytoolz/issues/103
     # @functools.wraps(fn)
-    def inner(eth_tester, params):
+    def inner(eth_tester: "EthereumTester", params: Any) -> TReturn:
         return fn(eth_tester)
     return inner
 
 
 @curry
-def preprocess_params(eth_tester, params, preprocessor_fn):
+def preprocess_params(
+    eth_tester: "EthereumTester", params: Any, preprocessor_fn: Callable[..., Any]
+) -> Tuple["EthereumTester", Callable[..., Any]]:
     return eth_tester, preprocessor_fn(params)
 
 
-def static_return(value):
-    def inner(*args, **kwargs):
+def static_return(value: TValue) -> Callable[..., TValue]:
+    def inner(*args: Any, **kwargs: Any) -> TValue:
         return value
     return inner
 
 
-def client_version(eth_tester, params):
+def client_version(eth_tester: "EthereumTester", params: Any) -> str:
     # TODO: account for the backend that is in use.
     from eth_tester import __version__
     return "EthereumTester/{version}/{platform}/python{v.major}.{v.minor}.{v.micro}".format(
@@ -74,7 +108,9 @@ def client_version(eth_tester, params):
 
 
 @curry
-def null_if_excepts(exc_type, fn):
+def null_if_excepts(
+    exc_type: Type[BaseException], fn: Callable[..., TReturn]
+) -> Callable[..., TReturn]:
     return excepts(
         exc_type,
         fn,
@@ -90,7 +126,9 @@ null_if_indexerror = null_if_excepts(IndexError)
 
 @null_if_indexerror
 @null_if_block_not_found
-def get_transaction_by_block_hash_and_index(eth_tester, params):
+def get_transaction_by_block_hash_and_index(
+    eth_tester: "EthereumTester", params: Any
+) -> TxReceipt:
     block_hash, transaction_index = params
     block = eth_tester.get_block_by_hash(block_hash, full_transactions=True)
     transaction = block['transactions'][transaction_index]
@@ -99,26 +137,28 @@ def get_transaction_by_block_hash_and_index(eth_tester, params):
 
 @null_if_indexerror
 @null_if_block_not_found
-def get_transaction_by_block_number_and_index(eth_tester, params):
+def get_transaction_by_block_number_and_index(
+    eth_tester: "EthereumTester", params: Any
+) -> TxReceipt:
     block_number, transaction_index = params
     block = eth_tester.get_block_by_number(block_number, full_transactions=True)
     transaction = block['transactions'][transaction_index]
     return transaction
 
 
-def create_log_filter(eth_tester, params):
+def create_log_filter(eth_tester: "EthereumTester", params: Any) -> int:
     filter_params = params[0]
     filter_id = eth_tester.create_log_filter(**filter_params)
     return filter_id
 
 
-def get_logs(eth_tester, params):
+def get_logs(eth_tester: "EthereumTester", params: Any) -> List[LogReceipt]:
     filter_params = params[0]
     logs = eth_tester.get_logs(**filter_params)
     return logs
 
 
-def _generate_random_private_key():
+def _generate_random_private_key() -> HexStr:
     """
     WARNING: This is not a secure way to generate private keys and should only
     be used for testing purposes.
@@ -130,11 +170,11 @@ def _generate_random_private_key():
 
 
 @without_params
-def create_new_account(eth_tester):
+def create_new_account(eth_tester: "EthereumTester") -> HexAddress:
     return eth_tester.add_account(_generate_random_private_key())
 
 
-def personal_send_transaction(eth_tester, params):
+def personal_send_transaction(eth_tester: "EthereumTester", params: Any) -> HexStr:
     transaction, password = params
 
     try:

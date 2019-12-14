@@ -10,13 +10,19 @@ from typing import (
     Any,
     Dict,
     Iterable,
-    NewType,
+    NamedTuple,
     Tuple,
+    Type,
+    TypeVar,
+    Union,
+    cast,
 )
 
 from eth_typing import (
     URI,
     Address,
+    ChecksumAddress,
+    ContractName,
     Manifest,
 )
 from eth_utils import (
@@ -56,9 +62,9 @@ from web3.exceptions import (
 from web3.module import (
     Module,
 )
-
-TxReceipt = NewType("TxReceipt", Dict[str, Any])
-
+from web3.types import (
+    ENS,
+)
 
 # Package Management is still in alpha, and its API is likely to change, so it
 # is not automatically available on a web3 instance. To use the `PM` module,
@@ -70,6 +76,14 @@ TxReceipt = NewType("TxReceipt", Dict[str, Any])
 # >>> w3.enable_unstable_package_management_api()
 # >>> w3.pm
 # <web3.pm.PM at 0x....>
+
+T = TypeVar("T")
+
+
+class ReleaseData(NamedTuple):
+    package_name: str
+    version: str
+    manifest_uri: URI
 
 
 class ERC1319Registry(ABC):
@@ -132,7 +146,7 @@ class ERC1319Registry(ABC):
         pass
 
     @abstractmethod
-    def _get_all_package_ids(self) -> Tuple[bytes]:
+    def _get_all_package_ids(self) -> Iterable[bytes]:
         """
         Returns a tuple containing all of the package ids found on the connected registry.
         """
@@ -151,7 +165,7 @@ class ERC1319Registry(ABC):
         pass
 
     @abstractmethod
-    def _get_all_release_ids(self, package_name: str) -> Tuple[bytes]:
+    def _get_all_release_ids(self, package_name: str) -> Iterable[bytes]:
         """
         Returns a tuple containg all of the release ids belonging to the given package name,
         if the package has releases on the connected registry.
@@ -162,7 +176,7 @@ class ERC1319Registry(ABC):
         pass
 
     @abstractmethod
-    def _get_release_data(self, release_id: bytes) -> Tuple[str, str, str]:
+    def _get_release_data(self, release_id: bytes) -> ReleaseData:
         """
         Returns a tuple containing (package_name, version, manifest_uri) for the given release id,
         if the release exists on the connected registry.
@@ -203,8 +217,9 @@ class ERC1319Registry(ABC):
         """
         pass
 
+    @classmethod
     @abstractmethod
-    def deploy_new_instance(cls, w3):
+    def deploy_new_instance(cls: Type[T], w3: Web3) -> T:
         """
         Class method that returns a newly deployed instance of ERC1319Registry.
 
@@ -223,12 +238,12 @@ class SimpleRegistry(ERC1319Registry):
     <https://github.com/ethpm/solidity-registry>`__.
     """
 
-    def __init__(self, address: Address, w3: Web3) -> None:
+    def __init__(self, address: ChecksumAddress, w3: Web3) -> None:
         abi = get_simple_registry_manifest()["contract_types"]["PackageRegistry"][
             "abi"
         ]
         self.registry = w3.eth.contract(address=address, abi=abi)
-        self.address = to_checksum_address(address)
+        self.address = address
         self.w3 = w3
 
     def _release(self, package_name: str, version: str, manifest_uri: str) -> bytes:
@@ -243,7 +258,7 @@ class SimpleRegistry(ERC1319Registry):
         return package_name
 
     @to_tuple
-    def _get_all_package_ids(self) -> Iterable[Tuple[bytes]]:
+    def _get_all_package_ids(self) -> Iterable[bytes]:
         num_packages = self._num_package_ids()
         pointer = 0
         while pointer < num_packages:
@@ -260,7 +275,7 @@ class SimpleRegistry(ERC1319Registry):
         return self.registry.functions.getReleaseId(package_name, version).call()
 
     @to_tuple
-    def _get_all_release_ids(self, package_name: str) -> Iterable[Tuple[bytes]]:
+    def _get_all_release_ids(self, package_name: str) -> Iterable[bytes]:
         num_releases = self._num_release_ids(package_name)
         pointer = 0
         while pointer < num_releases:
@@ -274,11 +289,9 @@ class SimpleRegistry(ERC1319Registry):
             yield from reversed(new_ids)
             pointer = new_pointer
 
-    @to_tuple
-    def _get_release_data(self, release_id: bytes) -> Iterable[Tuple[str]]:
-        release_data = self.registry.functions.getReleaseData(release_id).call()
-        for data in release_data:
-            yield data
+    def _get_release_data(self, release_id: bytes) -> ReleaseData:
+        name, version, uri = self.registry.functions.getReleaseData(release_id).call()
+        return ReleaseData(name, version, uri)
 
     def _generate_release_id(self, package_name: str, version: str) -> bytes:
         return self.registry.functions.generateReleaseId(package_name, version).call()
@@ -290,13 +303,13 @@ class SimpleRegistry(ERC1319Registry):
         return self.registry.functions.numReleaseIds(package_name).call()
 
     @classmethod
-    def deploy_new_instance(cls, w3):
+    def deploy_new_instance(cls, w3: Web3) -> 'SimpleRegistry':
         manifest = get_simple_registry_manifest()
         registry_package = Package(manifest, w3)
-        registry_factory = registry_package.get_contract_factory("PackageRegistry")
+        registry_factory = registry_package.get_contract_factory(ContractName("PackageRegistry"))
         tx_hash = registry_factory.constructor().transact()
         tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-        return cls(tx_receipt.contractAddress, w3)
+        return cls(tx_receipt["contractAddress"], w3)
 
 
 class PM(Module):
@@ -355,7 +368,7 @@ class PM(Module):
         )
         return self.get_package_from_manifest(target_manifest)
 
-    def set_registry(self, address: Address) -> None:
+    def set_registry(self, address: Union[Address, ChecksumAddress, ENS]) -> None:
         """
         Sets the current registry used in ``web3.pm`` functions that read/write to an on-chain
         registry. This method accepts checksummed/canonical addresses or ENS names. Addresses
@@ -366,11 +379,14 @@ class PM(Module):
         * Parameters:
             * ``address``: Address of on-chain Registry.
         """
-        if is_canonical_address(address) or is_checksum_address(address):
-            self.registry = SimpleRegistry(address, self.web3)
+        if is_canonical_address(address):
+            addr_string = to_text(address)
+            self.registry = SimpleRegistry(to_checksum_address(addr_string), self.web3)
+        elif is_checksum_address(address):
+            self.registry = SimpleRegistry(cast(ChecksumAddress, address), self.web3)
         elif is_ens_name(address):
             self._validate_set_ens()
-            addr_lookup = self.web3.ens.address(address)
+            addr_lookup = self.web3.ens.address(str(address))
             if not addr_lookup:
                 raise NameNotFound(
                     "No address found after ENS lookup for name: {0}.".format(address)
@@ -382,7 +398,7 @@ class PM(Module):
                 "instead received {0}.".format(type(address))
             )
 
-    def deploy_and_set_registry(self) -> Address:
+    def deploy_and_set_registry(self) -> ChecksumAddress:
         """
         Returns the address of a freshly deployed instance of `SimpleRegistry`
         and sets the newly deployed registry as the active registry on ``web3.pm.registry``.
@@ -397,7 +413,7 @@ class PM(Module):
         return to_checksum_address(self.registry.address)
 
     def release_package(
-        self, package_name: str, version: str, manifest_uri: str
+        self, package_name: str, version: str, manifest_uri: URI
     ) -> bytes:
         """
         Returns the release id generated by releasing a package on the current registry.
@@ -476,10 +492,10 @@ class PM(Module):
         self._validate_set_registry()
         release_ids = self.registry._get_all_release_ids(package_name)
         for release_id in release_ids:
-            _, version, manifest_uri = self.registry._get_release_data(release_id)
-            yield (version, manifest_uri)
+            release_data = self.registry._get_release_data(release_id)
+            yield (release_data.version, release_data.manifest_uri)
 
-    def get_release_id_data(self, release_id: bytes) -> Tuple[str, str, str]:
+    def get_release_id_data(self, release_id: bytes) -> ReleaseData:
         """
         Returns ``(package_name, version, manifest_uri)`` associated with the given
         release id, *if* it is available on the current registry.
@@ -490,7 +506,7 @@ class PM(Module):
         self._validate_set_registry()
         return self.registry._get_release_data(release_id)
 
-    def get_release_data(self, package_name: str, version: str) -> Tuple[str, str, str]:
+    def get_release_data(self, package_name: str, version: str) -> ReleaseData:
         """
         Returns ``(package_name, version, manifest_uri)`` associated with the given
         package name and version, *if* they are published to the currently set registry.
@@ -517,8 +533,8 @@ class PM(Module):
         validate_package_name(package_name)
         validate_package_version(version)
         self._validate_set_registry()
-        _, _, release_uri = self.get_release_data(package_name, version)
-        return self.get_package_from_uri(release_uri)
+        release_data = self.get_release_data(package_name, version)
+        return self.get_package_from_uri(URI(release_data.manifest_uri))
 
     def _validate_set_registry(self) -> None:
         try:
@@ -552,7 +568,7 @@ def get_simple_registry_manifest() -> Dict[str, Any]:
     return json.loads((ASSETS_DIR / "simple-registry" / "2.0.0a1.json").read_text())
 
 
-def validate_is_supported_manifest_uri(uri):
+def validate_is_supported_manifest_uri(uri: URI) -> None:
     if not is_supported_content_addressed_uri(uri):
         raise ManifestValidationError(
             f"URI: {uri} is not a valid content-addressed URI. "

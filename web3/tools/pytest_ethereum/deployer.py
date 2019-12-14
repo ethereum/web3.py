@@ -6,7 +6,7 @@ from typing import (  # noqa: F401
 )
 
 from eth_typing import (
-    Address,
+    ContractName,
 )
 
 from ethpm import (
@@ -31,8 +31,8 @@ class Deployer:
         self.strategies = {}  # type: Dict[str, Callable[[Package], Package]]
 
     def deploy(
-        self, contract_type: str, *args: Any, **kwargs: Any
-    ) -> Tuple[Package, Address]:
+        self, contract_type: ContractName, *args: Any, **kwargs: Any
+    ) -> Package:
         factory = self.package.get_contract_factory(contract_type)
         if contract_type in self.strategies:
             strategy = self.strategies[contract_type]
@@ -46,6 +46,6 @@ class Deployer:
         return strategy(self.package)
 
     def register_strategy(
-        self, contract_type: str, strategy: Callable[[Package], Package]
+        self, contract_type: ContractName, strategy: Callable[[Package], Package]
     ) -> None:
         self.strategies[contract_type] = strategy

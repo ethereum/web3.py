@@ -53,7 +53,7 @@ ADDRESS_2 = '0x91eD14b5956DBcc1310E65DC4d7E82f02B95BA46'
 
 KEY_FUNCS = (
     eth_keys.keys.PrivateKey,
-    Account.privateKeyToAccount,
+    Account.from_key,
     HexBytes,
     to_hex,
     identity,

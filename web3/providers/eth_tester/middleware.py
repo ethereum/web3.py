@@ -1,9 +1,21 @@
 import operator
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+)
 
+from eth_typing import (
+    ChecksumAddress,
+)
 from eth_utils import (
     is_dict,
     is_hex,
     is_string,
+)
+from eth_utils.curried import (
+    apply_formatter_if,
+    apply_formatters_to_dict,
 )
 from eth_utils.toolz import (
     assoc,
@@ -16,10 +28,8 @@ from eth_utils.toolz import (
 )
 
 from web3._utils.formatters import (
-    apply_formatter_if,
     apply_formatter_to_array,
     apply_formatters_to_args,
-    apply_formatters_to_dict,
     apply_key_map,
     hex_to_integer,
     integer_to_hex,
@@ -30,13 +40,24 @@ from web3._utils.formatters import (
 from web3.middleware import (
     construct_formatting_middleware,
 )
+from web3.types import (
+    RPCEndpoint,
+    RPCResponse,
+    TxParams,
+    Wei,
+)
+
+if TYPE_CHECKING:
+    from web3 import (  # noqa: F401
+        Web3,
+    )
 
 
-def is_named_block(value):
+def is_named_block(value: Any) -> bool:
     return value in {"latest", "earliest", "pending"}
 
 
-def is_hexstr(value):
+def is_hexstr(value: Any) -> bool:
     return is_string(value) and is_hex(value)
 
 
@@ -160,105 +181,105 @@ transaction_params_transformer = compose(transaction_params_remapper, transactio
 ethereum_tester_middleware = construct_formatting_middleware(
     request_formatters={
         # Eth
-        'eth_getBlockByNumber': apply_formatters_to_args(
+        RPCEndpoint('eth_getBlockByNumber'): apply_formatters_to_args(
             apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
-        'eth_getFilterChanges': apply_formatters_to_args(hex_to_integer),
-        'eth_getFilterLogs': apply_formatters_to_args(hex_to_integer),
-        'eth_getBlockTransactionCountByNumber': apply_formatters_to_args(
+        RPCEndpoint('eth_getFilterChanges'): apply_formatters_to_args(hex_to_integer),
+        RPCEndpoint('eth_getFilterLogs'): apply_formatters_to_args(hex_to_integer),
+        RPCEndpoint('eth_getBlockTransactionCountByNumber'): apply_formatters_to_args(
             apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
-        'eth_getUncleCountByBlockNumber': apply_formatters_to_args(
+        RPCEndpoint('eth_getUncleCountByBlockNumber'): apply_formatters_to_args(
             apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
-        'eth_getTransactionByBlockHashAndIndex': apply_formatters_to_args(
+        RPCEndpoint('eth_getTransactionByBlockHashAndIndex'): apply_formatters_to_args(
             identity,
             to_integer_if_hex,
         ),
-        'eth_getTransactionByBlockNumberAndIndex': apply_formatters_to_args(
+        RPCEndpoint('eth_getTransactionByBlockNumberAndIndex'): apply_formatters_to_args(
             apply_formatter_if(is_not_named_block, to_integer_if_hex),
             to_integer_if_hex,
         ),
-        'eth_getUncleByBlockNumberAndIndex': apply_formatters_to_args(
+        RPCEndpoint('eth_getUncleByBlockNumberAndIndex'): apply_formatters_to_args(
             apply_formatter_if(is_not_named_block, to_integer_if_hex),
             to_integer_if_hex,
         ),
-        'eth_newFilter': apply_formatters_to_args(
+        RPCEndpoint('eth_newFilter'): apply_formatters_to_args(
             filter_params_transformer,
         ),
-        'eth_getLogs': apply_formatters_to_args(
+        RPCEndpoint('eth_getLogs'): apply_formatters_to_args(
             filter_params_transformer,
         ),
-        'eth_sendTransaction': apply_formatters_to_args(
+        RPCEndpoint('eth_sendTransaction'): apply_formatters_to_args(
             transaction_params_transformer,
         ),
-        'eth_estimateGas': apply_formatters_to_args(
+        RPCEndpoint('eth_estimateGas'): apply_formatters_to_args(
             transaction_params_transformer,
         ),
-        'eth_call': apply_formatters_to_args(
+        RPCEndpoint('eth_call'): apply_formatters_to_args(
             transaction_params_transformer,
             apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
-        'eth_uninstallFilter': apply_formatters_to_args(hex_to_integer),
-        'eth_getCode': apply_formatters_to_args(
+        RPCEndpoint('eth_uninstallFilter'): apply_formatters_to_args(hex_to_integer),
+        RPCEndpoint('eth_getCode'): apply_formatters_to_args(
             identity,
             apply_formatter_if(is_not_named_block, to_integer_if_hex),
         ),
         # EVM
-        'evm_revert': apply_formatters_to_args(hex_to_integer),
+        RPCEndpoint('evm_revert'): apply_formatters_to_args(hex_to_integer),
         # Personal
-        'personal_sendTransaction': apply_formatters_to_args(
+        RPCEndpoint('personal_sendTransaction'): apply_formatters_to_args(
             transaction_params_transformer,
             identity,
         ),
     },
     result_formatters={
-        'eth_getBlockByHash': apply_formatter_if(
+        RPCEndpoint('eth_getBlockByHash'): apply_formatter_if(
             is_dict,
             block_key_remapper,
         ),
-        'eth_getBlockByNumber': apply_formatter_if(
+        RPCEndpoint('eth_getBlockByNumber'): apply_formatter_if(
             is_dict,
             block_key_remapper,
         ),
-        'eth_getBlockTransactionCountByHash': apply_formatter_if(
+        RPCEndpoint('eth_getBlockTransactionCountByHash'): apply_formatter_if(
             is_dict,
             transaction_key_remapper,
         ),
-        'eth_getBlockTransactionCountByNumber': apply_formatter_if(
+        RPCEndpoint('eth_getBlockTransactionCountByNumber'): apply_formatter_if(
             is_dict,
             transaction_key_remapper,
         ),
-        'eth_getTransactionByHash': apply_formatter_if(
+        RPCEndpoint('eth_getTransactionByHash'): apply_formatter_if(
             is_dict,
             compose(transaction_key_remapper, transaction_formatter),
         ),
-        'eth_getTransactionReceipt': apply_formatter_if(
+        RPCEndpoint('eth_getTransactionReceipt'): apply_formatter_if(
             is_dict,
             compose(receipt_key_remapper, receipt_formatter),
         ),
-        'eth_newFilter': integer_to_hex,
-        'eth_newBlockFilter': integer_to_hex,
-        'eth_newPendingTransactionFilter': integer_to_hex,
-        'eth_getLogs': apply_formatter_if(
+        RPCEndpoint('eth_newFilter'): integer_to_hex,
+        RPCEndpoint('eth_newBlockFilter'): integer_to_hex,
+        RPCEndpoint('eth_newPendingTransactionFilter'): integer_to_hex,
+        RPCEndpoint('eth_getLogs'): apply_formatter_if(
             is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),
-        'eth_getFilterChanges': apply_formatter_if(
+        RPCEndpoint('eth_getFilterChanges'): apply_formatter_if(
             is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),
-        'eth_getFilterLogs': apply_formatter_if(
+        RPCEndpoint('eth_getFilterLogs'): apply_formatter_if(
             is_array_of_dicts,
             apply_formatter_to_array(log_key_remapper),
         ),
         # EVM
-        'evm_snapshot': integer_to_hex,
+        RPCEndpoint('evm_snapshot'): integer_to_hex,
     },
 )
 
 
-def guess_from(web3, transaction):
+def guess_from(web3: "Web3", transaction: TxParams) -> ChecksumAddress:
     coinbase = web3.eth.coinbase
     if coinbase is not None:
         return coinbase
@@ -272,24 +293,29 @@ def guess_from(web3, transaction):
     return None
 
 
-def guess_gas(web3, transaction):
-    return web3.eth.estimateGas(transaction) * 2
+def guess_gas(web3: "Web3", transaction: TxParams) -> Wei:
+    return Wei(web3.eth.estimateGas(transaction) * 2)
 
 
 @curry
-def fill_default(field, guess_func, web3, transaction):
-    if field in transaction and transaction[field] is not None:
+def fill_default(
+    field: str, guess_func: Callable[..., Any], web3: "Web3", transaction: TxParams
+) -> TxParams:
+    # type ignored b/c TxParams keys must be string literal types
+    if field in transaction and transaction[field] is not None:  # type: ignore
         return transaction
     else:
         guess_val = guess_func(web3, transaction)
         return assoc(transaction, field, guess_val)
 
 
-def default_transaction_fields_middleware(make_request, web3):
+def default_transaction_fields_middleware(
+    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     fill_default_from = fill_default('from', guess_from, web3)
     fill_default_gas = fill_default('gas', guess_gas, web3)
 
-    def middleware(method, params):
+    def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         # TODO send call to eth-tester without gas, and remove guess_gas entirely
         if method == 'eth_call':
             filled_transaction = pipe(

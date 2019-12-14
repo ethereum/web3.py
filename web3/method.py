@@ -1,38 +1,78 @@
 import functools
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    List,
+    Sequence,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 import warnings
 
-from eth_utils import (
+from eth_utils.curried import (
     to_tuple,
 )
 from eth_utils.toolz import (
-    identity,
     pipe,
 )
 
+from web3._utils.method_formatters import (
+    get_error_formatters,
+    get_request_formatters,
+    get_result_formatters,
+)
+from web3.types import (
+    RPCEndpoint,
+    TReturn,
+)
 
-def _munger_star_apply(fn):
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
+    from web3.module import (  # noqa: F401
+        Module,
+        ModuleV2,
+    )
+
+Munger = Callable[[Union["Module", "ModuleV2"], Any], Any]
+
+
+@to_tuple
+def _apply_request_formatters(
+    params: Any, request_formatters: Dict[RPCEndpoint, Callable[..., TReturn]]
+) -> Any:
+    if request_formatters:
+        formatted_params = pipe(params, request_formatters)
+        return formatted_params
+    return params
+
+
+def _munger_star_apply(fn: Callable[..., TReturn]) -> Callable[..., TReturn]:
     @functools.wraps(fn)
-    def inner(args):
+    def inner(args: Any) -> TReturn:
         return fn(*args)
     return inner
 
 
-def get_default_formatters(*args, **kwargs):
-    return ([identity], [identity],)
-
-
-def default_munger(module, *args, **kwargs):
+def default_munger(module: Union["Module", "ModuleV2"], *args: Any, **kwargs: Any) -> Tuple[()]:
     if not args and not kwargs:
-        return tuple()
+        return ()
     else:
         raise TypeError("Parameters passed to method without parameter mungers defined.")
 
 
-def default_root_munger(module, *args):
+def default_root_munger(module: Union["Module", "ModuleV2"], *args: Any) -> List[Any]:
     return [*args]
 
 
-class Method:
+TFunc = TypeVar('TFunc', bound=Callable[..., Any])
+
+
+class Method(Generic[TFunc]):
     """Method object for web3 module methods
 
     Calls to the Method go through these steps:
@@ -64,12 +104,8 @@ class Method:
     method inputs are passed to the method selection function, and the returned
     method string is used.
 
-    3. request and response formatters are retrieved - formatters are retrieved
-    using the json rpc method string. The lookup function provided by the
-    formatter_lookup_fn configuration is passed the method string and is
-    expected to return a 2-tuple of lists containing the
-    request_formatters and response_formatters in that order.
-    e.g. ([*request_formatters], [*response_formatters]).
+    3. request and response formatters are set - formatters are retrieved
+    using the json rpc method string.
 
     4. After the parameter processing from steps 1-3 the request is made using
     the calling function returned by the module attribute ``retrieve_caller_fn``
@@ -77,16 +113,20 @@ class Method:
     """
     def __init__(
             self,
-            json_rpc_method=None,
-            mungers=None,
-            formatter_lookup_fn=None,
-            web3=None):
+            json_rpc_method: RPCEndpoint=None,
+            mungers: Sequence[Munger]=None,
+            request_formatters: Callable[..., TReturn]=None,
+            result_formatters: Callable[..., TReturn]=None,
+            error_formatters: Callable[..., TReturn]=None,
+            web3: "Web3"=None):
 
         self.json_rpc_method = json_rpc_method
         self.mungers = mungers or [default_munger]
-        self.formatter_lookup_fn = formatter_lookup_fn or get_default_formatters
+        self.request_formatters = request_formatters or get_request_formatters
+        self.result_formatters = result_formatters or get_result_formatters
+        self.error_formatters = get_error_formatters
 
-    def __get__(self, obj=None, obj_type=None):
+    def __get__(self, obj: "ModuleV2"=None, obj_type: Type["ModuleV2"]=None) -> TFunc:
         if obj is None:
             raise TypeError(
                 "Direct calls to methods are not supported. "
@@ -95,7 +135,7 @@ class Method:
         return obj.retrieve_caller_fn(self)
 
     @property
-    def method_selector_fn(self):
+    def method_selector_fn(self) -> Callable[..., Union[RPCEndpoint, Callable[..., RPCEndpoint]]]:
         """Gets the method selector from the config.
         """
         if callable(self.json_rpc_method):
@@ -104,62 +144,44 @@ class Method:
             return lambda *_: self.json_rpc_method
         raise ValueError("``json_rpc_method`` config invalid.  May be a string or function")
 
-    def get_formatters(self, method_string):
-        """Lookup the request formatters for the rpc_method
-
-        The lookup_fn output is expected to be a 2 length tuple of lists of
-        the request and output formatters, respectively.
-        """
-        formatters = self.formatter_lookup_fn(method_string)
-        return formatters or get_default_formatters()
-
-    def input_munger(self, val):
-        try:
-            module, args, kwargs = val
-        except TypeError:
-            raise ValueError("input_munger expects a 3-tuple")
-
+    def input_munger(
+        self, module: Union["Module", "ModuleV2"], args: Any, kwargs: Any
+    ) -> List[Any]:
+        # This function takes the "root_munger" - the first munger in
+        # the list of mungers) and then pipes the return value of the
+        # previous munger as an argument to the next munger to return
+        # an array of arguments that have been formatted.
+        # See the test_process_params test
+        # in tests/core/method-class/test_method.py for an example
+        # with multiple mungers.
         # TODO: Create friendly error output.
         mungers_iter = iter(self.mungers)
         root_munger = next(mungers_iter)
         munged_inputs = pipe(
-            root_munger(module, *args, **kwargs),
+            root_munger(module, *args, **kwargs),  # type: ignore
             *map(lambda m: _munger_star_apply(functools.partial(m, module)), mungers_iter))
 
         return munged_inputs
 
-    def process_params(self, module, *args, **kwargs):
-        # takes in input params, steps 1-3
-        params, method, (req_formatters, ret_formatters) = _pipe_and_accumulate(
-            (module, args, kwargs,),
-            [self.input_munger, self.method_selector_fn, self.get_formatters])
+    def process_params(
+        self, module: Union["Module", "ModuleV2"], *args: Any, **kwargs: Any
+    ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., Any]], Any], Tuple[Any, Any]]:
+        params = self.input_munger(module, args, kwargs)
+        method = self.method_selector_fn()
+        response_formatters = (self.result_formatters(method), self.error_formatters(method))
 
-        return (method, pipe(params, *req_formatters)), ret_formatters
+        request = (method, _apply_request_formatters(params, self.request_formatters(method)))
 
-
-@to_tuple
-def _pipe_and_accumulate(val, fns):
-    """pipes val through a list of fns while accumulating results from
-    each function, returning a tuple.
-
-    e.g.:
-
-        >>> _pipe_and_accumulate([lambda x: x**2, lambda x: x*10], 5)
-        (25, 250)
-
-    """
-    for fn in fns:
-        val = fn(val)
-        yield val
+        return request, response_formatters
 
 
 class DeprecatedMethod():
-    def __init__(self, method, old_name, new_name):
+    def __init__(self, method: Method[Callable[..., Any]], old_name: str, new_name: str) -> None:
         self.method = method
         self.old_name = old_name
         self.new_name = new_name
 
-    def __get__(self, obj=None, obj_type=None):
+    def __get__(self, obj: "ModuleV2"=None, obj_type: Type["ModuleV2"]=None) -> Any:
         warnings.warn(
             f"{self.old_name} is deprecated in favor of {self.new_name}",
             category=DeprecationWarning,

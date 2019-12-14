@@ -335,7 +335,7 @@ The easiest way to connect to a default ``geth --dev`` instance which loads the 
     >>> from web3.auto.gethdev import w3
 
     # confirm that the connection succeeded
-    >>> w3.version.node
+    >>> w3.clientVersion
     'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
 
 This example connects to a local ``geth --dev`` instance on Linux with a
@@ -355,7 +355,7 @@ unique IPC location and loads the middleware:
     >>> w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     # confirm that the connection succeeded
-    >>> w3.version.node
+    >>> w3.clientVersion
     'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
 
 Why is ``geth_poa_middleware`` necessary?
@@ -376,14 +376,16 @@ Locally Managed Log and Block Filters
 
 This middleware provides an alternative to ethereum node managed filters. When used, Log and
 Block filter logic are handled locally while using the same web3 filter api. Filter results are
-retrieved using JSON-RPC endpoints that don't rely on server state. 
+retrieved using JSON-RPC endpoints that don't rely on server state.
 
-.. code-block:: python
+.. doctest::
 
     >>> from web3 import Web3, EthereumTesterProvider
-    >>> w3 = Web3(EthereumTesterProvider)
+    >>> w3 = Web3(EthereumTesterProvider())
     >>> from web3.middleware import local_filter_middleware
     >>> w3.middleware_onion.add(local_filter_middleware)
+
+.. code-block:: python
 
     #  Normal block and log filter apis behave as before.
     >>> block_filter = w3.eth.filter("latest")
@@ -396,7 +398,7 @@ Signing
 .. py:method:: web3.middleware.construct_sign_and_send_raw_middleware(private_key_or_account)
 
 This middleware automatically captures transactions, signs them, and sends them as raw transactions. The from field on the transaction, or ``w3.eth.defaultAccount`` must be set to the address of the private key for this middleware to have any effect.
- 
+
    * ``private_key_or_account`` A single private key or a tuple, list or set of private keys.
 
       Keys can be in any of the following formats:
