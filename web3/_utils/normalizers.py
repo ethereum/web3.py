@@ -28,7 +28,10 @@ from eth_typing import (
     TypeStr,
 )
 from eth_utils import (
+    to_bytes,
     to_checksum_address,
+    to_hex,
+    to_text,
 )
 from eth_utils.address import (
     is_binary_address,
@@ -44,9 +47,6 @@ from ens import ENS
 from web3._utils.encoding import (
     hexstr_if_str,
     text_if_str,
-    to_bytes,
-    to_hex,
-    to_text,
 )
 from web3._utils.ens import (
     StaticENS,

@@ -7,6 +7,8 @@ from eth_account.messages import (
 )
 from eth_utils import (
     is_checksum_address,
+    to_bytes,
+    to_hex,
 )
 from eth_utils.toolz import (
     dissoc,
@@ -18,10 +20,6 @@ from hexbytes import (
 from web3 import (
     Account,
     Web3,
-)
-from web3._utils.encoding import (
-    to_bytes,
-    to_hex,
 )
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
