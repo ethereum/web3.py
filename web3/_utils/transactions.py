@@ -16,10 +16,10 @@ from eth_utils.toolz import (
 from hexbytes import (
     HexBytes,
 )
-from typing_extensions import (
+
+from web3._utils.compat import (
     Literal,
 )
-
 from web3._utils.threads import (
     Timeout,
 )
