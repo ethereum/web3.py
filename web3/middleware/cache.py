@@ -13,13 +13,13 @@ from typing import (
 )
 
 import lru
-from typing_extensions import (
-    Literal,
-    TypedDict,
-)
 
 from web3._utils.caching import (
     generate_cache_key,
+)
+from web3._utils.compat import (
+    Literal,
+    TypedDict,
 )
 from web3.types import (  # noqa: F401
     BlockData,
