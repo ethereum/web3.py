@@ -219,7 +219,7 @@ Addresses
 
     .. code-block:: python
 
-        >>> wch3.isAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.isAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
 
 
@@ -230,9 +230,9 @@ Addresses
 
     .. code-block:: python
 
-        >>> wch3.isChecksumAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.isChecksumAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
-        >>> wch3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> web3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
         False
 
 
