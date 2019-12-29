@@ -1,0 +1,1 @@
+Make 'from' and 'to' fields checksum addresses in returned transaction receipts
