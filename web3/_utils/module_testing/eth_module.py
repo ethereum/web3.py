@@ -767,6 +767,9 @@ class EthModuleTest:
         assert receipt['blockHash'] == block_with_txn['hash']
         assert receipt['transactionIndex'] == 0
         assert receipt['transactionHash'] == HexBytes(mined_txn_hash)
+        assert is_checksum_address(receipt['to'])
+        assert receipt['from'] is not None
+        assert is_checksum_address(receipt['from'])
 
     def test_eth_getTransactionReceipt_unmined(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress

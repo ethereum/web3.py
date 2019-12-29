@@ -183,6 +183,8 @@ RECEIPT_FORMATTERS = {
     'contractAddress': apply_formatter_if(is_not_null, to_checksum_address),
     'logs': apply_list_to_array_formatter(log_entry_formatter),
     'logsBloom': to_hexbytes(256),
+    'from': apply_formatter_if(is_not_null, to_checksum_address),
+    'to': apply_formatter_if(is_address, to_checksum_address),
 }
 
 
