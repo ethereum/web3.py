@@ -1,0 +1,1 @@
+Use local Trinity's IPC socket if it is available, for newer versions of Trinity.
