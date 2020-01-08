@@ -100,7 +100,7 @@ def get_default_ipc_path() -> str:  # type: ignore
             return ipc_path
 
         base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
-        ipc_path = str(base_trinity_path / 'mainnet' / 'jsonrpc.ipc')
+        ipc_path = str(base_trinity_path / 'mainnet' / 'ipcs-eth1' / 'jsonrpc.ipc')
         if Path(ipc_path).exists():
             return str(ipc_path)
 
@@ -124,7 +124,7 @@ def get_default_ipc_path() -> str:  # type: ignore
             return ipc_path
 
         base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
-        ipc_path = str(base_trinity_path / 'mainnet' / 'jsonrpc.ipc')
+        ipc_path = str(base_trinity_path / 'mainnet' / 'ipcs-eth1' / 'jsonrpc.ipc')
         if Path(ipc_path).exists():
             return str(ipc_path)
 

@@ -244,7 +244,7 @@ IPCProvider
     This provider handles interaction with an IPC Socket based JSON-RPC
     server.
 
-    *  ``ipc_path`` is the filesystem path to the IPC socket.:56
+    *  ``ipc_path`` is the filesystem path to the IPC socket:
 
     .. code-block:: python
 
@@ -258,10 +258,12 @@ IPCProvider
 
       - ``~/.ethereum/geth.ipc``
       - ``~/.local/share/io.parity.ethereum/jsonrpc.ipc``
+      - ``~/.local/share/trinity/mainnet/ipcs-eth1/jsonrpc.ipc``
     - On Mac OS:
 
       - ``~/Library/Ethereum/geth.ipc``
       - ``~/Library/Application Support/io.parity.ethereum/jsonrpc.ipc``
+      - ``~/.local/share/trinity/mainnet/ipcs-eth1/jsonrpc.ipc``
     - On Windows:
 
       - ``\\\.\pipe\geth.ipc``
