@@ -95,7 +95,7 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIE
         for abi
         in contract_abi
         if (
-            abi['type'] not in ('fallback', 'constructor') and
+            abi['type'] not in ('fallback', 'constructor', 'receive') and
             abi['name'] == name
         )
     ]
