@@ -20,6 +20,10 @@ ABI_FALLBACK = {
     "constant": False,
     "type": "fallback",
 }
+ABI_RECEIVE = {
+    "stateMutability": "payable",
+    "type": "receive"
+}
 ABI_FUNC_2_SIG_A = {
     "constant": False,
     "inputs": [
@@ -50,6 +54,7 @@ ABI_FUNC_3 = {
 ABI = [
     ABI_CONSTRUCTOR,
     ABI_FALLBACK,
+    ABI_RECEIVE,
     ABI_FUNC_1,
     ABI_FUNC_2_SIG_A,
     ABI_FUNC_2_SIG_B,
