@@ -18,7 +18,6 @@ ABI_CONSTRUCTOR = {
 }
 ABI_FALLBACK = {
     "constant": False,
-    #"stateMutability": "nonpayable", # actually this is how 0.6 abi looks like
     "type": "fallback",
 }
 ABI_RECEIVE = {
