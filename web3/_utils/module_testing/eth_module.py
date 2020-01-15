@@ -438,11 +438,9 @@ class EthModuleTest:
         txn_hash = web3.eth.sendTransaction(txn_params)
 
         txn_params['gasPrice'] = Wei(web3.eth.gasPrice * 2)
-        web3.geth.miner.start()
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
         web3.eth.waitForTransactionReceipt(replace_txn_hash)
         replace_txn = web3.eth.getTransaction(replace_txn_hash)
-        web3.geth.miner.stop()
 
         assert is_same_address(replace_txn['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(replace_txn['to'], cast(ChecksumAddress, txn_params['to']))
