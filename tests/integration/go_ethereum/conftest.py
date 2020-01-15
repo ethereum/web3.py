@@ -78,7 +78,7 @@ def geth_zipfile_version(get_geth_version):
             return GETH_1822_ZIP
         elif get_geth_version.minor == 9:
             return GETH_197_ZIP
-    assert False, "Unsupported geth version"
+    raise AssertionError("Unsupported geth version")
 
 
 @pytest.fixture(scope='module')
