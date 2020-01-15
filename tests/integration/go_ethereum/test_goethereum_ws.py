@@ -44,7 +44,7 @@ def geth_command_arguments(geth_binary,
                 (
                     '--ws',
                     '--wsport', ws_port,
-                    '--wsapi', 'admin,db,eth,net,shh,web3,personal,web3',
+                    '--wsapi', 'admin,db,eth,net,shh,web3,personal,miner',
                     '--wsorigins', '*',
                     '--ipcdisable',
                     '--allow-insecure-unlock',
@@ -56,7 +56,7 @@ def geth_command_arguments(geth_binary,
                 (
                     '--ws',
                     '--wsport', ws_port,
-                    '--wsapi', 'admin,db,eth,net,shh,web3,personal,web3',
+                    '--wsapi', 'admin,db,eth,net,shh,web3,personal,miner',
                     '--wsorigins', '*',
                     '--ipcdisable',
                 )
@@ -97,7 +97,10 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
+    def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account_dual_type):
+        web3.geth.miner.start()
+        super().test_eth_replaceTransaction_already_mined(web3, unlocked_account_dual_type)
+        web3.geth.miner.stop()
 
 
 class TestGoEthereumVersionModuleTest(GoEthereumVersionModuleTest):
