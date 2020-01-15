@@ -21,8 +21,8 @@ class GoEthereumTest(Web3ModuleTest):
 
 class GoEthereumEthModuleTest(EthModuleTest):
     def test_eth_replaceTransaction(self, web3, unlocked_account):
-        # if any([v in web3.clientVersion for v in GETH_VERSIONS_WITHOUT_MINING_CONTROL]):
-        #     pytest.xfail(reason='Needs ability to efficiently control mining')
+        if any([v in web3.clientVersion for v in GETH_VERSIONS_WITHOUT_MINING_CONTROL]):
+            pytest.xfail(reason='Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction(web3, unlocked_account)
 
     def test_eth_replaceTransaction_gas_price_defaulting_minimum(self, web3, unlocked_account):
