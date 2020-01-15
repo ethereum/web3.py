@@ -62,7 +62,10 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
+    def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account_dual_type):
+        web3.geth.miner.start()
+        super().test_eth_replaceTransaction_already_mined(web3, unlocked_account_dual_type)
+        web3.geth.miner.stop()
 
 
 class TestGoEthereumVersionModuleTest(GoEthereumVersionModuleTest):

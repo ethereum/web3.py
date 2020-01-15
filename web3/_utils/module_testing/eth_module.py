@@ -463,7 +463,6 @@ class EthModuleTest:
                 txn_params
             )
 
-    # auto mine is enabled for this test
     def test_eth_replaceTransaction_already_mined(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -475,6 +474,7 @@ class EthModuleTest:
             'gasPrice': web3.eth.gasPrice,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
+        web3.eth.waitForTransactionReceipt(txn_hash)
 
         txn_params['gasPrice'] = Wei(web3.eth.gasPrice * 2)
         with pytest.raises(ValueError, match="Supplied transaction with hash"):

@@ -41,7 +41,7 @@ def geth_command_arguments(rpc_port,
                 (
                     '--rpc',
                     '--rpcport', rpc_port,
-                    '--rpcapi', 'admin,db,eth,net,web3,personal,shh,web3',
+                    '--rpcapi', 'admin,db,eth,net,web3,personal,shh,miner',
                     '--ipcdisable',
                     '--allow-insecure-unlock',
                 )
@@ -52,7 +52,7 @@ def geth_command_arguments(rpc_port,
                 (
                     '--rpc',
                     '--rpcport', rpc_port,
-                    '--rpcapi', 'admin,db,eth,net,web3,personal,shh,web3',
+                    '--rpcapi', 'admin,db,eth,net,web3,personal,shh,miner',
                     '--ipcdisable',
                 )
             )
@@ -92,7 +92,10 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
+    def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account_dual_type):
+        web3.geth.miner.start()
+        super().test_eth_replaceTransaction_already_mined(web3, unlocked_account_dual_type)
+        web3.geth.miner.stop()
 
 
 class TestGoEthereumVersionModuleTest(GoEthereumVersionModuleTest):

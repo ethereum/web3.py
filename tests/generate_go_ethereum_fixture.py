@@ -26,7 +26,7 @@ from eth_utils.toolz import (
     valmap,
 )
 
-from tests.utils import (
+from utils import (
     get_open_port,
 )
 from web3 import Web3
