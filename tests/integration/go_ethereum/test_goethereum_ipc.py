@@ -21,16 +21,24 @@ from .utils import (
 )
 
 
+def _geth_command_arguments(geth_ipc_path,
+                            base_geth_command_arguments):
+
+    geth_port = get_open_port()
+    yield from base_geth_command_arguments
+    yield from (
+        '--port', geth_port,
+        '--ipcpath', geth_ipc_path,
+    )
+
+
 @pytest.fixture(scope='module')
 def geth_command_arguments(geth_ipc_path,
                            base_geth_command_arguments):
-    geth_port = get_open_port()
-    return (
-        base_geth_command_arguments +
-        (
-            '--port', geth_port,
-            '--ipcpath', geth_ipc_path,
-        )
+
+    return _geth_command_arguments(
+        geth_ipc_path,
+        base_geth_command_arguments
     )
 
 

@@ -10,8 +10,8 @@ from web3._utils.module_testing import (  # noqa: F401
     Web3ModuleTest,
 )
 
-GETH_VERSIONS_WITHOUT_MINING_CONTROL = ['v1.7.2', 'v1.8.22']
-GETH_VERSIONS_WITHOUT_ETH_SUBMITHASH = ['v1.8.22', 'v1.9.7']
+VERSIONS_WITHOUT_MINING_CONTROL = ['v1.7.2', 'v1.8.22']
+VERSIONS_WITHOUT_ETH_SUBMITHASH = ['v1.8.22', 'v1.9.7']
 
 
 class GoEthereumTest(Web3ModuleTest):
@@ -21,7 +21,7 @@ class GoEthereumTest(Web3ModuleTest):
 
 class GoEthereumEthModuleTest(EthModuleTest):
     def test_eth_replaceTransaction(self, web3, unlocked_account):
-        if any([v in web3.clientVersion for v in GETH_VERSIONS_WITHOUT_MINING_CONTROL]):
+        if any([v in web3.clientVersion for v in VERSIONS_WITHOUT_MINING_CONTROL]):
             pytest.xfail(reason='Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction(web3, unlocked_account)
 
@@ -31,14 +31,14 @@ class GoEthereumEthModuleTest(EthModuleTest):
         web3.geth.miner.stop()
 
     def test_eth_replaceTransaction_gas_price_defaulting_minimum(self, web3, unlocked_account):
-        if any([v in web3.clientVersion for v in GETH_VERSIONS_WITHOUT_MINING_CONTROL]):
+        if any([v in web3.clientVersion for v in VERSIONS_WITHOUT_MINING_CONTROL]):
             pytest.xfail(reason='Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction_gas_price_defaulting_minimum(web3, unlocked_account)
 
     def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(self,
                                                                          web3,
                                                                          unlocked_account):
-        if any([v in web3.clientVersion for v in GETH_VERSIONS_WITHOUT_MINING_CONTROL]):
+        if any([v in web3.clientVersion for v in VERSIONS_WITHOUT_MINING_CONTROL]):
             pytest.xfail(reason='Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(
             web3, unlocked_account
@@ -47,14 +47,14 @@ class GoEthereumEthModuleTest(EthModuleTest):
     def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(self,
                                                                         web3,
                                                                         unlocked_account):
-        if any([v in web3.clientVersion for v in GETH_VERSIONS_WITHOUT_MINING_CONTROL]):
+        if any([v in web3.clientVersion for v in VERSIONS_WITHOUT_MINING_CONTROL]):
             pytest.xfail(reason='Needs ability to efficiently control mining')
         super().test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(
             web3, unlocked_account
         )
 
     def test_eth_modifyTransaction(self, web3, unlocked_account):
-        if any([v in web3.clientVersion for v in GETH_VERSIONS_WITHOUT_MINING_CONTROL]):
+        if any([v in web3.clientVersion for v in VERSIONS_WITHOUT_MINING_CONTROL]):
             pytest.xfail(reason='Needs ability to efficiently control mining')
         super().test_eth_modifyTransaction(web3, unlocked_account)
 
@@ -67,7 +67,7 @@ class GoEthereumEthModuleTest(EthModuleTest):
         )
 
     def test_eth_submitHashrate(self, web3):
-        if any([v in web3.clientVersion for v in GETH_VERSIONS_WITHOUT_ETH_SUBMITHASH]):
+        if any([v in web3.clientVersion for v in VERSIONS_WITHOUT_ETH_SUBMITHASH]):
             # https://github.com/ethereum/go-ethereum/commit/51db5975cc5fb88db6a0dba1826b534fd4df29d7
             pytest.xfail('eth_submitHashrate deprecated in 1.8.22 for ethash_submitHashRate')
         super().test_eth_submitHashrate(web3)

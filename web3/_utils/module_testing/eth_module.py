@@ -356,7 +356,7 @@ class EthModuleTest:
             'nonce': Nonce(0),
         }
         result = web3.eth.signTransaction(txn_params)
-        signatory_account = web3.eth.account.recoverTransaction(result['raw'])
+        signatory_account = web3.eth.account.recover_transaction(result['raw'])
         assert unlocked_account == signatory_account
         assert result['tx']['to'] == txn_params['to']
         assert result['tx']['value'] == txn_params['value']
