@@ -30,6 +30,26 @@ def endpoint_uri(ws_port):
     return 'ws://localhost:{0}'.format(ws_port)
 
 
+def _geth_command_arguments(ws_port,
+                            base_geth_command_arguments,
+                            geth_version):
+    yield from base_geth_command_arguments
+    if geth_version.major == 1:
+        yield from (
+            '--ws',
+            '--wsport', ws_port,
+            '--wsapi', 'admin,db,eth,net,shh,web3,personal,miner',
+            '--wsorigins', '*',
+            '--ipcdisable',
+        )
+        if geth_version.minor == 9:
+            yield '--allow-insecure-unlock'
+        elif geth_version.minor not in [9, 8, 7]:
+            raise AssertionError("Unsupported Geth version")
+    else:
+        raise AssertionError("Unsupported Geth version")
+
+
 @pytest.fixture(scope='module')
 def geth_command_arguments(geth_binary,
                            get_geth_version,
@@ -37,34 +57,11 @@ def geth_command_arguments(geth_binary,
                            ws_port,
                            base_geth_command_arguments):
 
-    if get_geth_version.major == 1:
-        if get_geth_version.minor == 9:
-            return (
-                base_geth_command_arguments +
-                (
-                    '--ws',
-                    '--wsport', ws_port,
-                    '--wsapi', 'admin,db,eth,net,shh,web3,personal,miner',
-                    '--wsorigins', '*',
-                    '--ipcdisable',
-                    '--allow-insecure-unlock',
-                )
-            )
-        elif get_geth_version.minor == 8 or get_geth_version.minor == 7:
-            return (
-                base_geth_command_arguments +
-                (
-                    '--ws',
-                    '--wsport', ws_port,
-                    '--wsapi', 'admin,db,eth,net,shh,web3,personal,miner',
-                    '--wsorigins', '*',
-                    '--ipcdisable',
-                )
-            )
-        else:
-            assert False, "Unsupported geth version"
-    else:
-        assert False, "Unsupported geth version"
+    return _geth_command_arguments(
+        ws_port,
+        base_geth_command_arguments,
+        get_geth_version
+    )
 
 
 @pytest.fixture(scope="module")
