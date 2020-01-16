@@ -371,23 +371,8 @@ class Eth(ModuleV2):
 
     # TODO - raise TransactionNotFound
     getTransactionReceipt = Method(
-            RPC.eth_getTransactionReceipt,
-<<<<<<< HEAD
-            [transaction_hash],
-        )
-        if result is None:
-            raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
-        return result
-
-    def getTransactionCount(
-        self, account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> Nonce:
-        if block_identifier is None:
-            block_identifier = self.defaultBlock
-        return self.web3.manager.request_blocking(
-=======
-            mungers=[default_root_munger],
+        RPC.eth_getTransactionReceipt,
+        mungers=[default_root_munger],
     )
 
 #     def getTransactionReceipt(self, transaction_hash: _Hash32) -> TxReceipt:
@@ -400,9 +385,8 @@ class Eth(ModuleV2):
 #         return result
 
     getTransactionCount = Method(
->>>>>>> Easy methods changed
-            RPC.eth_getTransactionCount,
-            mungers=[block_identifier_munger],
+        RPC.eth_getTransactionCount,
+        mungers=[block_identifier_munger],
     )
 
     def replaceTransaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
@@ -436,21 +420,6 @@ class Eth(ModuleV2):
 
         return [transaction]
 
-<<<<<<< HEAD
-    def sendRawTransaction(self, raw_transaction: Union[HexStr, bytes]) -> HexBytes:
-        return self.web3.manager.request_blocking(
-            RPC.eth_sendRawTransaction,
-            [raw_transaction],
-        )
-
-    def sign(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        data: Optional[Union[int, bytes]] = None,
-        hexstr: Optional[HexStr] = None,
-        text: Optional[str] = None
-    ) -> HexStr:
-=======
     sendTransaction = Method(
         RPC.eth_sendTransaction,
         mungers=[send_transaction_munger],
@@ -466,7 +435,6 @@ class Eth(ModuleV2):
                     data: Union[int, bytes]=None,
                     hexstr: HexStr=None,
                     text: str=None) -> List:
->>>>>>> Easy methods changed
         message_hex = to_hex(data, hexstr=hexstr, text=text)
         return [account, message_hex]
 
@@ -485,28 +453,21 @@ class Eth(ModuleV2):
         mungers=[default_root_munger],
     )
 
-    @apply_to_return_value(HexBytes)
-    def call(self, transaction: TxParams,
-             block_identifier: Optional[BlockIdentifier] = None) -> Sequence[Any]:
-        # TODO: move to middleware
+    def eth_call_munger(self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None) -> List:
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
         # TODO: move to middleware
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return self.web3.manager.request_blocking(
-            RPC.eth_call,
-            [transaction, block_identifier],
-        )
+        return [transaction, block_identifier]
 
-<<<<<<< HEAD
-    def estimateGas(self, transaction: TxParams,
-                    block_identifier: Optional[BlockIdentifier] = None) -> Wei:
-        # TODO: move to middleware
-=======
+    call = Method(
+        RPC.eth_call,
+        mungers=[eth_call_munger]
+    )
+
     def estimate_gas_munger(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> Wei:
->>>>>>> Easy methods changed
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
