@@ -17,6 +17,7 @@ from eth_utils.curried import (
     apply_formatters_to_dict,
     apply_formatters_to_sequence,
     apply_one_of_formatters,
+    is_0x_prefixed,
     is_address,
     is_bytes,
     is_dict,
@@ -425,8 +426,8 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getUncleCountByBlockNumber: to_integer_if_hex,
     RPC.eth_hashrate: to_integer_if_hex,
     RPC.eth_protocolVersion: compose(
+        apply_formatter_if(is_0x_prefixed, to_integer_if_hex),
         apply_formatter_if(is_integer, str),
-        to_integer_if_hex,
     ),
     RPC.eth_sendRawTransaction: to_hexbytes(32),
     RPC.eth_sendTransaction: to_hexbytes(32),
@@ -488,7 +489,7 @@ def get_request_formatters(
     request_formatter_maps = (
         METHOD_NORMALIZERS,
         PYTHONIC_REQUEST_FORMATTERS,
-        ABI_REQUEST_FORMATTERS
+        ABI_REQUEST_FORMATTERS,
     )
     formatters = combine_formatters(request_formatter_maps, method_name)
     return compose(*formatters)
