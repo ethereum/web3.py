@@ -99,3 +99,5 @@ class ModuleV2(Module):
             self.retrieve_caller_fn = retrieve_async_method_call_fn(web3, self)
         else:
             self.retrieve_caller_fn = retrieve_blocking_method_call_fn(web3, self)
+        # TODO - think about how to remove this. web3.eth? web3.something_else?
+        self.web3 = web3
