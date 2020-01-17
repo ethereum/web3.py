@@ -39,9 +39,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.exceptions import (
-    BlockNotFound,
-)
 from web3._utils.abi import (
     is_length,
 )
@@ -70,6 +67,10 @@ from web3._utils.rpc_abi import (
 from web3.datastructures import (
     AttributeDict,
 )
+from web3.exceptions import (
+    BlockNotFound,
+    TransactionNotFound,
+)
 from web3.types import (
     RPCEndpoint,
     TReturn,
@@ -80,14 +81,10 @@ def bytes_to_ascii(value: bytes) -> str:
     return codecs.decode(value, 'ascii')
 
 
-def raise_block_not_found_if_result_is_none(result):
-    if result is None:
-        raise BlockNotFound
-    return result
-
 to_ascii_if_bytes = apply_formatter_if(is_bytes, bytes_to_ascii)
 to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
 to_hex_if_integer = apply_formatter_if(is_integer, integer_to_hex)
+# TODO - this is the same as the hex_if_int method above
 block_number_formatter = apply_formatter_if(is_integer, integer_to_hex)
 
 
@@ -118,6 +115,32 @@ def to_hexbytes(
             )
         )
 
+
+def raise_block_not_found_on_no_response(result):
+    if result is None:
+        # TODO - figure out how to pass block_identifier
+        raise BlockNotFound
+        # raise BlockNotFound(f"Block with id: {block_identifier} not found.")
+    return result
+
+
+def raise_transaction_not_found_on_no_response(result):
+    if result is None:
+        # TODO - figure out how to pass transaction_hash
+        raise TransactionNotFound
+    #         raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
+    return result
+
+
+def raise_transaction_not_found_on_no_response_with_block_id(result):
+    if result is None:
+        # TODO - figure out how to pass block_identifier
+        raise TransactionNotFound
+    #         raise TransactionNotFound(
+    #             f"Transaction index: {transaction_index} "
+    #             f"on block id: {block_identifier} not found."
+    #         )
+    return result
 
 def is_attrdict(val: Any) -> bool:
     return isinstance(val, AttributeDict)
@@ -401,10 +424,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_estimateGas: to_integer_if_hex,
     RPC.eth_gasPrice: to_integer_if_hex,
     RPC.eth_getBalance: to_integer_if_hex,
-    RPC.eth_getBlockByHash: compose(
-        raise_block_not_found_if_result_is_none,
-        apply_formatter_if(is_not_null, block_formatter),
-    ),
+    RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, block_formatter),
     RPC.eth_getBlockByNumber: apply_formatter_if(is_not_null, block_formatter),
     RPC.eth_getBlockTransactionCountByHash: to_integer_if_hex,
     RPC.eth_getBlockTransactionCountByNumber: to_integer_if_hex,
@@ -459,6 +479,22 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.net_peerCount: to_integer_if_hex,
 }
 
+NULL_RESULT_FORMATTERS = {
+    'eth_getBlockByHash': raise_block_not_found_on_no_response,
+    'eth_getBlockByNumber': raise_block_not_found_on_no_response,
+    'eth_getBlockTransactionCountByHash': raise_block_not_found_on_no_response,
+    'eth_getBlockTransactionCountByNumber': raise_block_not_found_on_no_response,
+    'eth_getTransactionByBlockHashAndIndex': raise_transaction_not_found_on_no_response_with_block_id,
+    'eth_getTransactionByBlockNumberAndIndex': raise_transaction_not_found_on_no_response_with_block_id,
+    'eth_getTransactionByHash': raise_transaction_not_found_on_no_response,
+    'eth_getTransactionReceipt': raise_transaction_not_found_on_no_response,
+    'eth_getUncleByBlockHashAndIndex': raise_block_not_found_on_no_response,
+    'eth_getUncleByBlockNumberAndIndex': raise_block_not_found_on_no_response,
+    'eth_getUncleCountByBlockHash': raise_block_not_found_on_no_response,
+    'eth_getUncleCountByBlockNumber': raise_block_not_found_on_no_response,
+    'eth_getUncleCountByBlockHashAndIndex': raise_block_not_found_on_no_response,
+    'eth_getUncleCountByBlockNumberAndIndex': raise_block_not_found_on_no_response,
+}
 
 ATTRDICT_FORMATTER = {
     '*': apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
@@ -505,7 +541,7 @@ def get_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Dict[str, Callable[..., Any]]:
     formatters = combine_formatters(
-        (PYTHONIC_RESULT_FORMATTERS,),
+        (PYTHONIC_RESULT_FORMATTERS, NULL_RESULT_FORMATTERS),
         method_name
     )
     attrdict_formatter = apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)

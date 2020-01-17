@@ -528,12 +528,12 @@ class Eth(ModuleV2):
 
     getFilterLogs = Method(
         RPC.eth_getFilterLogs,
-        mungers=[block_identifier_munger],
+        mungers=[default_root_munger],
     )
 
     getLogs = Method(
         RPC.eth_getLogs,
-        mungers=[block_identifier_munger],
+        mungers=[default_root_munger],
     )
 
     submitHashrate = Method(

@@ -175,8 +175,8 @@ class Method(Generic[TFunc]):
         # TODO - yuck
         # block_identifier is (always?) the first argument passed in if select_method_for_block_identifier is called.
         # check other functions too
-        block_identifier = args[0]
         if self.method_choice_depends_on_args:
+            block_identifier = args[0]
             self.json_rpc_method = self.method_choice_depends_on_args(value=block_identifier)
         method = self.method_selector_fn()
         response_formatters = (self.result_formatters(method), self.error_formatters(method))
