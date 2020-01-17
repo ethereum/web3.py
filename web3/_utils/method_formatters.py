@@ -39,6 +39,9 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3.exceptions import (
+    BlockNotFound,
+)
 from web3._utils.abi import (
     is_length,
 )
@@ -77,8 +80,14 @@ def bytes_to_ascii(value: bytes) -> str:
     return codecs.decode(value, 'ascii')
 
 
+def raise_block_not_found_if_result_is_none(result):
+    if result is None:
+        raise BlockNotFound
+    return result
+
 to_ascii_if_bytes = apply_formatter_if(is_bytes, bytes_to_ascii)
 to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
+to_hex_if_integer = apply_formatter_if(is_integer, integer_to_hex)
 block_number_formatter = apply_formatter_if(is_integer, integer_to_hex)
 
 
@@ -342,7 +351,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getStorageAt: apply_formatter_at_index(block_number_formatter, 2),
     RPC.eth_getTransactionByBlockNumberAndIndex: compose(
         apply_formatter_at_index(block_number_formatter, 0),
-        apply_formatter_at_index(integer_to_hex, 1),
+        apply_formatter_at_index(to_hex_if_integer, 1),
     ),
     RPC.eth_getTransactionCount: apply_formatter_at_index(block_number_formatter, 1),
     RPC.eth_getUncleCountByBlockNumber: apply_formatter_at_index(block_number_formatter, 0),
@@ -386,13 +395,16 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
     RPC.eth_blockNumber: to_integer_if_hex,
-    RPC.eth_call: HexBytes,
+    RPC.eth_call: to_hexbytes(32),
     RPC.eth_chainId: to_integer_if_hex,
     RPC.eth_coinbase: to_checksum_address,
     RPC.eth_estimateGas: to_integer_if_hex,
     RPC.eth_gasPrice: to_integer_if_hex,
     RPC.eth_getBalance: to_integer_if_hex,
-    RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, block_formatter),
+    RPC.eth_getBlockByHash: compose(
+        raise_block_not_found_if_result_is_none,
+        apply_formatter_if(is_not_null, block_formatter),
+    ),
     RPC.eth_getBlockByNumber: apply_formatter_if(is_not_null, block_formatter),
     RPC.eth_getBlockTransactionCountByHash: to_integer_if_hex,
     RPC.eth_getBlockTransactionCountByNumber: to_integer_if_hex,

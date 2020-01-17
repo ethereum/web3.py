@@ -10,6 +10,9 @@ from eth_utils import (
     is_text,
     remove_0x_prefix,
 )
+from eth_utils.toolz import (
+    curry,
+)
 
 from web3.types import (
     RPCEndpoint,
@@ -51,6 +54,7 @@ def is_hex_encoded_block_number(value: Any) -> bool:
     return 0 <= value_as_int < 2**256
 
 
+@curry
 def select_method_for_block_identifier(
     value: Any, if_hash: RPCEndpoint, if_number: RPCEndpoint, if_predefined: RPCEndpoint
 ) -> RPCEndpoint:

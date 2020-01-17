@@ -227,86 +227,72 @@ class Eth(ModuleV2):
         mungers=[block_identifier_munger],
     )
 
-    def getBlock(
-        self, block_identifier: BlockIdentifier, full_transactions: bool = False
+    def get_block_munger(
+        self, block_identifier: BlockIdentifier, full_transactions: bool=False
     ) -> BlockData:
-        """
-        `eth_getBlockByHash`
-        `eth_getBlockByNumber`
-        """
-        method = select_method_for_block_identifier(
-            block_identifier,
+        return [block_identifier, full_transactions]
+
+    """
+    `eth_getBlockByHash`
+    `eth_getBlockByNumber`
+    """
+    getBlock = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getBlockByNumber,
             if_hash=RPC.eth_getBlockByHash,
             if_number=RPC.eth_getBlockByNumber,
-        )
+        ),
+        mungers=[get_block_munger],
+    )
 
-        result = self.web3.manager.request_blocking(
-            method,
-            [block_identifier, full_transactions],
-        )
-        if result is None:
-            raise BlockNotFound(f"Block with id: {block_identifier} not found.")
-        return result
-
-    def getBlockTransactionCount(self, block_identifier: BlockIdentifier) -> int:
-        """
-        `eth_getBlockTransactionCountByHash`
-        `eth_getBlockTransactionCountByNumber`
-        """
-        method = select_method_for_block_identifier(
-            block_identifier,
+    """
+    `eth_getBlockTransactionCountByHash`
+    `eth_getBlockTransactionCountByNumber`
+    """
+    # TODO - raise BlockNotFound
+    getBlockTransactionCount = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getBlockTransactionCountByNumber,
             if_hash=RPC.eth_getBlockTransactionCountByHash,
             if_number=RPC.eth_getBlockTransactionCountByNumber,
-        )
-        result = self.web3.manager.request_blocking(
-            method,
-            [block_identifier],
-        )
-        if result is None:
-            raise BlockNotFound(f"Block with id: {block_identifier} not found.")
-        return result
+        ),
+        mungers=[default_root_munger]
+    )
 
-    def getUncleCount(self, block_identifier: BlockIdentifier) -> int:
-        """
-        `eth_getUncleCountByBlockHash`
-        `eth_getUncleCountByBlockNumber`
-        """
-        method = select_method_for_block_identifier(
-            block_identifier,
+    """
+    `eth_getUncleCountByBlockHash`
+    `eth_getUncleCountByBlockNumber`
+    """
+    # TODO - raise BlockNotFound
+    # TODO - make sure this works manually
+    getUncleCount = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getUncleCountByBlockNumber,
             if_hash=RPC.eth_getUncleCountByBlockHash,
             if_number=RPC.eth_getUncleCountByBlockNumber,
-        )
-        result = self.web3.manager.request_blocking(
-            method,
-            [block_identifier],
-        )
-        if result is None:
-            raise BlockNotFound(f"Block with id: {block_identifier} not found.")
-        return result
+        ),
+        mungers=[default_root_munger]
+    )
+    #     if result is None:
+    #         raise BlockNotFound(f"Block with id: {block_identifier} not found.")
+    #     return result
 
-    def getUncleByBlock(self, block_identifier: BlockIdentifier, uncle_index: int) -> Uncle:
-        """
-        `eth_getUncleByBlockHashAndIndex`
-        `eth_getUncleByBlockNumberAndIndex`
-        """
-        method = select_method_for_block_identifier(
-            block_identifier,
+    """
+    `eth_getUncleByBlockHashAndIndex`
+    `eth_getUncleByBlockNumberAndIndex`
+    """
+    getUncleByBlock = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getUncleByBlockNumberAndIndex,
             if_hash=RPC.eth_getUncleByBlockHashAndIndex,
             if_number=RPC.eth_getUncleByBlockNumberAndIndex,
-        )
-        result = self.web3.manager.request_blocking(
-            method,
-            [block_identifier, uncle_index],
-        )
-        if result is None:
-            raise BlockNotFound(
-                f"Uncle at index: {uncle_index} of block with id: {block_identifier} not found."
-            )
-        return result
+        ),
+        mungers=[default_root_munger]
+    )
+        # if result is None:
+        #     raise BlockNotFound(
+        #         f"Uncle at index: {uncle_index} of block with id: {block_identifier} not found."
+        #     )
 
     getTransaction = Method(
         RPC.eth_getTransactionByHash,
@@ -332,29 +318,43 @@ class Eth(ModuleV2):
         """
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
-    def getTransactionByBlock(
-        self, block_identifier: BlockIdentifier, transaction_index: int
-    ) -> TxData:
-        """
-        `eth_getTransactionByBlockHashAndIndex`
-        `eth_getTransactionByBlockNumberAndIndex`
-        """
-        method = select_method_for_block_identifier(
-            block_identifier,
+    """
+    `eth_getTransactionByBlockHashAndIndex`
+    `eth_getTransactionByBlockNumberAndIndex`
+    """
+    getTransactionByBlock = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getTransactionByBlockNumberAndIndex,
             if_hash=RPC.eth_getTransactionByBlockHashAndIndex,
             if_number=RPC.eth_getTransactionByBlockNumberAndIndex,
-        )
-        result = self.web3.manager.request_blocking(
-            method,
-            [block_identifier, transaction_index],
-        )
-        if result is None:
-            raise TransactionNotFound(
-                f"Transaction index: {transaction_index} "
-                f"on block id: {block_identifier} not found."
-            )
-        return result
+        ),
+        mungers=[default_root_munger],
+    )
+        # if result is None:
+        #     raise TransactionNotFound(
+        #         f"Transaction index: {transaction_index} "
+        #         f"on block id: {block_identifier} not found."
+        #     )
+
+    # def getTransactionByBlock(
+    #     self, block_identifier: BlockIdentifier, transaction_index: int
+    # ) -> TxData:
+    #     method = select_method_for_block_identifier(
+    #         block_identifier,
+    #         if_predefined=RPC.eth_getTransactionByBlockNumberAndIndex,
+    #         if_hash=RPC.eth_getTransactionByBlockHashAndIndex,
+    #         if_number=RPC.eth_getTransactionByBlockNumberAndIndex,
+    #     )
+    #     result = self.web3.manager.request_blocking(
+    #         method,
+    #         [block_identifier, transaction_index],
+    #     )
+    #     if result is None:
+    #         raise TransactionNotFound(
+    #             f"Transaction index: {transaction_index} "
+    #             f"on block id: {block_identifier} not found."
+    #         )
+    #     return result
 
     def waitForTransactionReceipt(
         self, transaction_hash: _Hash32, timeout: int=120, poll_latency: float=0.1
