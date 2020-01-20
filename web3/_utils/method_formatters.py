@@ -496,10 +496,6 @@ NULL_RESULT_FORMATTERS = {
     'eth_getUncleCountByBlockNumberAndIndex': raise_block_not_found_on_no_response,
 }
 
-ATTRDICT_FORMATTER = {
-    '*': apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
-}
-
 METHOD_NORMALIZERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getLogs: apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0),
     RPC.eth_newFilter: apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0)
@@ -546,7 +542,7 @@ def get_result_formatters(
     )
     attrdict_formatter = apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
 
-    return compose(*formatters, attrdict_formatter)
+    return compose(attrdict_formatter, *formatters)
 
 
 def get_error_formatters(
