@@ -531,9 +531,17 @@ class Eth(ModuleV2):
         mungers=[default_root_munger],
     )
 
+    #TODO - this works, but it should be handled with
+    # FILTER_PARAM_NORMALIZERS
+    def getLogs_munger(self, filter_params: FilterParams) -> List:
+        if 'address' in filter_params and is_string(filter_params['address']):
+            filter_params['address'] = [filter_params['address']]
+
+        return [filter_params]
+
     getLogs = Method(
         RPC.eth_getLogs,
-        mungers=[default_root_munger],
+        mungers=[getLogs_munger],
     )
 
     submitHashrate = Method(
