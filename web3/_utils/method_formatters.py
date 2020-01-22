@@ -418,7 +418,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
     RPC.eth_blockNumber: to_integer_if_hex,
-    RPC.eth_call: to_hexbytes(32),
+    RPC.eth_call: HexBytes,
     RPC.eth_chainId: to_integer_if_hex,
     RPC.eth_coinbase: to_checksum_address,
     RPC.eth_estimateGas: to_integer_if_hex,
