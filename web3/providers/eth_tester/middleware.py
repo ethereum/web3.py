@@ -327,7 +327,7 @@ def default_transaction_fields_middleware(
                 fill_default_from,
                 fill_default_gas,
             )
-            return make_request(method, [filled_transaction] + params[1:])
+            return make_request(method, [filled_transaction] + list(params)[1:])
         elif method in (
             'eth_estimateGas',
             'eth_sendTransaction',
@@ -336,7 +336,7 @@ def default_transaction_fields_middleware(
                 params[0],
                 fill_default_from,
             )
-            return make_request(method, [filled_transaction] + params[1:])
+            return make_request(method, [filled_transaction] + list(params)[1:])
         else:
             return make_request(method, params)
     return middleware
