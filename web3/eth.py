@@ -467,7 +467,8 @@ class Eth(ModuleV2):
         mungers=[eth_call_munger]
     )
 
-    def estimate_gas_munger(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> Wei:
+    # TODO - return type
+    def estimate_gas_munger(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> List:
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
@@ -531,17 +532,9 @@ class Eth(ModuleV2):
         mungers=[default_root_munger],
     )
 
-    #TODO - this works, but it should be handled with
-    # FILTER_PARAM_NORMALIZERS
-    def getLogs_munger(self, filter_params: FilterParams) -> List:
-        if 'address' in filter_params and is_string(filter_params['address']):
-            filter_params['address'] = [filter_params['address']]
-
-        return [filter_params]
-
     getLogs = Method(
         RPC.eth_getLogs,
-        mungers=[getLogs_munger],
+        mungers=[default_root_munger],
     )
 
     submitHashrate = Method(
