@@ -227,11 +227,6 @@ class Eth(ModuleV2):
         mungers=[block_identifier_munger],
     )
 
-    def get_block_munger(
-        self, block_identifier: BlockIdentifier, full_transactions: bool=False
-    ) -> BlockData:
-        return [block_identifier, full_transactions]
-
     """
     `eth_getBlockByHash`
     `eth_getBlockByNumber`
@@ -242,7 +237,7 @@ class Eth(ModuleV2):
             if_hash=RPC.eth_getBlockByHash,
             if_number=RPC.eth_getBlockByNumber,
         ),
-        mungers=[get_block_munger],
+        mungers=[default_root_munger],
     )
 
     """

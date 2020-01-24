@@ -6,12 +6,16 @@ import uuid
 
 from eth_utils import (
     is_integer,
+    is_hex,
     to_tuple,
 )
 
 from web3 import Web3
 from web3._utils.caching import (
     generate_cache_key,
+)
+from web3._utils.formatters import (
+    hex_to_integer,
 )
 from web3.middleware import (  # noqa: F401
     construct_error_generator_middleware,
@@ -77,7 +81,9 @@ def construct_block_data_middleware():
                 return blocks[head_block_number + 1]
             elif block_id == 'earliest':
                 return blocks[0]
-            elif is_integer(block_id):
+            elif is_integer(block_id) or is_hex(block_id):
+                if is_hex(block_id):
+                    block_id = hex_to_integer(block_id)
                 if block_id <= head_block_number:
                     return blocks[block_id]
                 else:
