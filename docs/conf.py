@@ -54,7 +54,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = '<PROJECT_NAME>'
-copyright = '2019, The Ethereum Foundation'
+copyright = '2020, The Ethereum Foundation'
 
 __version__ = setup_version
 # The version info for the project you're documenting, acts as replacement for
