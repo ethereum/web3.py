@@ -23,10 +23,13 @@ from ethpm._utils.registry import (
     is_ens_domain,
 )
 from ethpm.constants import (
-    REGISTRY_URI_SCHEME,
+    REGISTRY_URI_SCHEMES,
 )
 from ethpm.exceptions import (
     EthPMValidationError,
+)
+from ethpm.validation.misc import (
+    validate_escaped_string,
 )
 from ethpm.validation.package import (
     validate_package_name,
@@ -47,21 +50,28 @@ def validate_registry_uri(uri: str) -> None:
     Raise an exception if the URI does not conform to the registry URI scheme.
     """
     parsed = parse.urlparse(uri)
-    scheme, authority, pkg_path, version = (
+    scheme, authority, pkg_path = (
         parsed.scheme,
         parsed.netloc,
         parsed.path,
-        parsed.query,
     )
+    pkg_id = pkg_path.strip("/")
+
+    if "@" in pkg_id:
+        if len(pkg_id.split("@")) != 2:
+            raise EthPMValidationError("Registry URI: {pkg_id} is not properly escaped")
+        pkg_name, pkg_version = pkg_id.split("@")
+    else:
+        pkg_name, pkg_version = (pkg_id, None)
+
     validate_registry_uri_scheme(scheme)
     validate_registry_uri_authority(authority)
-    pkg_name = pkg_path.strip("/")
     if pkg_name:
         validate_package_name(pkg_name)
-    if not pkg_name and version:
+    if not pkg_name and pkg_version:
         raise EthPMValidationError("Registry URIs cannot provide a version without a package name.")
-    if version:
-        validate_registry_uri_version(version)
+    if pkg_version:
+        validate_escaped_string(pkg_version)
 
 
 def validate_registry_uri_authority(auth: str) -> None:
@@ -93,19 +103,15 @@ def validate_registry_uri_authority(auth: str) -> None:
 
 def validate_registry_uri_scheme(scheme: str) -> None:
     """
-    Raise an exception if the scheme is not the valid registry URI scheme ('ercXXX').
+    Raise an exception if the scheme is not a valid registry URI scheme:
+     - 'erc1319'
+     - 'ethpm'
     """
-    if scheme != REGISTRY_URI_SCHEME:
-        raise EthPMValidationError(f"{scheme} is not a valid registry URI scheme.")
-
-
-def validate_registry_uri_version(query: str) -> None:
-    """
-    Raise an exception if the version param is malformed.
-    """
-    query_dict = parse.parse_qs(query, keep_blank_values=True)
-    if "version" not in query_dict:
-        raise EthPMValidationError(f"{query} is not a correctly formatted version param.")
+    if scheme not in REGISTRY_URI_SCHEMES:
+        raise EthPMValidationError(
+            f"{scheme} is not a valid registry URI scheme. "
+            f"Valid schemes include: {REGISTRY_URI_SCHEMES}"
+        )
 
 
 def validate_single_matching_uri(all_blockchain_uris: List[str], w3: Web3) -> str:

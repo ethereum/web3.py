@@ -6,6 +6,9 @@ from ethpm.backends.http import (
 from ethpm.backends.registry import (
     parse_registry_uri,
 )
+from ethpm.exceptions import (
+    EthPMValidationError,
+)
 from ethpm.uri import (
     create_content_addressed_github_uri,
     is_valid_content_addressed_github_uri,
@@ -79,12 +82,30 @@ def test_create_github_uri():
             ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "owned", None, None],
         ),
         (
-            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned?version=1.0.0",
+            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned@1.0.0",
             ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "owned", "1.0.0", None],
         ),
         (
-            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet?version=2.8.0/",
+            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet@2.8.0/",
             ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", None],
+        ),
+        # ethpm scheme
+        (
+            "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet@2.8.0",
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", None],
+        ),
+        # escaped chars
+        (
+            "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet@8%400",
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "8@0", None],
+        ),
+        (
+            "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet@%250",
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "%0", None],
+        ),
+        (
+            "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet@8%400/",
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "8@0", None],
         ),
     ),
 )
@@ -94,3 +115,28 @@ def test_parse_registry_uri(uri, expected):
     assert chain_id == expected[1]
     assert pkg_name == expected[2]
     assert pkg_version == expected[3]
+
+
+@pytest.mark.parametrize(
+    "uri",
+    (
+        # invalid scheme
+        "ethpx://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned@1.0.0",
+        "erc1318://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned@1.0.0",
+        "erc1318://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned@1.0.0/",
+        # missing chain id
+        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/owned@1.0.0",
+        # missing version id
+        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/owned@",
+        # missing package_name
+        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/@1.0.0",
+        # unescaped chars in package_name
+        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/a!bc@1.0.0",
+        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/ab@@1.0.0",
+        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/!bc@1.0.0",
+        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/!bc@1.0.0/",
+    )
+)
+def test_invalid_registry_uris(uri):
+    with pytest.raises(EthPMValidationError):
+        parse_registry_uri(uri)

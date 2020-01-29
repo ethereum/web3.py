@@ -17,7 +17,7 @@ def backend():
 
 @pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
 def test_registry_uri_backend(backend):
-    valid_uri = "erc1319://0x1457890158DECD360e6d4d979edBcDD59c35feeB:1/owned?version=1.0.0"
+    valid_uri = "erc1319://0x1457890158DECD360e6d4d979edBcDD59c35feeB:1/owned@1.0.0"
     expected_uri = 'ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW'
     assert backend.can_translate_uri(valid_uri) is True
     assert backend.can_resolve_uri(valid_uri) is False
@@ -26,7 +26,7 @@ def test_registry_uri_backend(backend):
 
 @pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
 def test_registry_uri_supports_ens_domains(backend):
-    valid_uri = "erc1319://defi.snakecharmers.eth:1/compound?version=1.0.0"
+    valid_uri = "erc1319://defi.snakecharmers.eth:1/compound@1.0.0"
     parsed = parse_registry_uri(valid_uri)
     expected_uri = 'ipfs://QmYvsyuxjj9mKmCvn3jrdfnaHYwFsyHXUu7kETrN4dBhE6'
     assert backend.can_translate_uri(valid_uri) is True
@@ -41,6 +41,6 @@ def test_registry_uri_supports_ens_domains(backend):
 
 @pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
 def test_registry_uri_backend_raises_exception_for_non_mainnet_chains(backend):
-    ropsten_uri = "erc1319://snakecharmers.eth:3/owned?version=1.0.0"
+    ropsten_uri = "erc1319://snakecharmers.eth:3/owned@1.0.0"
     with pytest.raises(CannotHandleURI, match="Currently only mainnet"):
         backend.fetch_uri_contents(ropsten_uri)
