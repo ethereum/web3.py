@@ -24,6 +24,7 @@ from eth_utils.toolz import (
 
 from web3._utils.method_formatters import (
     get_error_formatters,
+    get_null_result_formatters,
     get_request_formatters,
     get_result_formatters,
 )
@@ -119,6 +120,7 @@ class Method(Generic[TFunc]):
             request_formatters: Callable[..., TReturn]=None,
             result_formatters: Callable[..., TReturn]=None,
             error_formatters: Callable[..., TReturn]=None,
+            null_result_formatters: Callable[..., TReturn]=None,
             web3: "Web3"=None,
             # TODO - figure out the types here
             method_choice_depends_on_args=None):
@@ -128,6 +130,7 @@ class Method(Generic[TFunc]):
         self.request_formatters = request_formatters or get_request_formatters
         self.result_formatters = result_formatters or get_result_formatters
         self.error_formatters = get_error_formatters
+        self.null_result_formatters = null_result_formatters or get_null_result_formatters
         self.method_choice_depends_on_args = method_choice_depends_on_args
 
     def __get__(self, obj: Optional["ModuleV2"] = None,
@@ -178,7 +181,7 @@ class Method(Generic[TFunc]):
             block_identifier = args[0]
             self.json_rpc_method = self.method_choice_depends_on_args(value=block_identifier)
         method = self.method_selector_fn()
-        response_formatters = (self.result_formatters(method), self.error_formatters(method))
+        response_formatters = (self.result_formatters(method), self.error_formatters(method), self.null_result_formatters(method))
 
         request = (method, _apply_request_formatters(params, self.request_formatters(method)))
 

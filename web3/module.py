@@ -35,13 +35,23 @@ def apply_result_formatters(
 
 
 @curry
+def apply_null_result_formatters(
+    result_formatters: Callable[..., Any], result: RPCResponse
+, params) -> RPCResponse:
+    null_result = pipe(params, result_formatters)
+    return null_result
+
+
+@curry
 def retrieve_blocking_method_call_fn(
     w3: "Web3", module: Union["Module", "ModuleV2"], method: Method[Callable[..., Any]]
 ) -> Callable[..., RPCResponse]:
     def caller(*args: Any, **kwargs: Any) -> RPCResponse:
         (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)
-        result_formatters, error_formatters = response_formatters
+        result_formatters, error_formatters, null_formatters = response_formatters
         result = w3.manager.request_blocking(method_str, params, error_formatters)
+        if result is None:
+            return apply_null_result_formatters(null_formatters, result, params)
         return apply_result_formatters(result_formatters, result)
     return caller
 

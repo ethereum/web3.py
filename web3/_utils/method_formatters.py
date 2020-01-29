@@ -116,31 +116,29 @@ def to_hexbytes(
         )
 
 
-def raise_block_not_found_on_no_response(result):
-    if result is None:
+def raise_block_not_found_on_no_response(params):
         # TODO - figure out how to pass block_identifier
-        raise BlockNotFound
-        # raise BlockNotFound(f"Block with id: {block_identifier} not found.")
-    return result
+        # raise BlockNotFound
+        block_identifier = params['block_identifier']
+        raise BlockNotFound(f"Block with id: {block_identifier} not found.")
 
 
-def raise_transaction_not_found_on_no_response(result):
-    if result is None:
+def raise_transaction_not_found_on_no_response(params):
         # TODO - figure out how to pass transaction_hash
-        raise TransactionNotFound
-    #         raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
-    return result
+        # raise TransactionNotFound
+        transaction_hash = params[0]
+        raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
 
 
-def raise_transaction_not_found_on_no_response_with_block_id(result):
-    if result is None:
+def raise_transaction_not_found_on_no_response_with_block_id(params):
         # TODO - figure out how to pass block_identifier
-        raise TransactionNotFound
-    #         raise TransactionNotFound(
-    #             f"Transaction index: {transaction_index} "
-    #             f"on block id: {block_identifier} not found."
-    #         )
-    return result
+        # raise TransactionNotFound
+        block_identifier = params['block_identifier']
+        transaction_hash = params['transaction_hash']
+        raise TransactionNotFound(
+            f"Transaction index: {transaction_index} "
+            f"on block id: {block_identifier} not found."
+        )
 
 def is_attrdict(val: Any) -> bool:
     return isinstance(val, AttributeDict)
@@ -537,12 +535,22 @@ def get_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Dict[str, Callable[..., Any]]:
     formatters = combine_formatters(
-        (PYTHONIC_RESULT_FORMATTERS, NULL_RESULT_FORMATTERS),
+        (PYTHONIC_RESULT_FORMATTERS,),
         method_name
     )
     attrdict_formatter = apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
 
     return compose(attrdict_formatter, *formatters)
+
+def get_null_result_formatters(
+    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+) -> Dict[str, Callable[..., Any]]:
+    formatters = combine_formatters(
+        (NULL_RESULT_FORMATTERS,),
+        method_name
+    )
+
+    return compose(*formatters)
 
 
 def get_error_formatters(
