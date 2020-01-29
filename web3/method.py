@@ -172,9 +172,8 @@ class Method(Generic[TFunc]):
         self, module: Union["Module", "ModuleV2"], *args: Any, **kwargs: Any
     ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., Any]], Any], Tuple[Any, Any]]:
         params = self.input_munger(module, args, kwargs)
-        # TODO - yuck
-        # block_identifier is (always?) the first argument passed in if select_method_for_block_identifier is called.
-        # check other functions too
+        # block_identifier is always the first argument passed in for methods where
+        # method_choice_depends_on_args is called.
         if self.method_choice_depends_on_args:
             block_identifier = args[0]
             self.json_rpc_method = self.method_choice_depends_on_args(value=block_identifier)
