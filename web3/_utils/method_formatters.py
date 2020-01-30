@@ -117,24 +117,18 @@ def to_hexbytes(
 
 
 def raise_block_not_found_on_no_response(params):
-        # TODO - figure out how to pass block_identifier
-        # raise BlockNotFound
-        block_identifier = params['block_identifier']
+        block_identifier = params[0]
         raise BlockNotFound(f"Block with id: {block_identifier} not found.")
 
 
 def raise_transaction_not_found_on_no_response(params):
-        # TODO - figure out how to pass transaction_hash
-        # raise TransactionNotFound
         transaction_hash = params[0]
         raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
 
 
 def raise_transaction_not_found_on_no_response_with_block_id(params):
-        # TODO - figure out how to pass block_identifier
-        # raise TransactionNotFound
-        block_identifier = params['block_identifier']
-        transaction_hash = params['transaction_hash']
+        block_identifier = params[0]
+        transaction_hash = params[1]
         raise TransactionNotFound(
             f"Transaction index: {transaction_index} "
             f"on block id: {block_identifier} not found."
