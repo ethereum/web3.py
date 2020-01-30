@@ -5,6 +5,7 @@ from ethpm.exceptions import (
 )
 from ethpm.validation.misc import (
     validate_empty_bytes,
+    validate_escaped_string,
 )
 
 
@@ -33,3 +34,29 @@ def test_validate_empty_bytes(offset, length, bytecode):
 def test_validate_empty_bytes_invalidates(offset, length, bytecode):
     with pytest.raises(EthPMValidationError):
         validate_empty_bytes(offset, length, bytecode)
+
+
+@pytest.mark.parametrize(
+    "string",
+    (
+        "abcd",
+        "abcd%40",
+        "%20%24%26",
+    )
+)
+def test_validate_escaped_strings(string):
+    validate_escaped_string(string)
+
+
+@pytest.mark.parametrize(
+    "string",
+    (
+        "@bcd",
+        "@bcd%40",
+        "!bcd%40",
+        "&bcd%40",
+    )
+)
+def test_validate_escaped_strings_invalidates(string):
+    with pytest.raises(EthPMValidationError):
+        validate_escaped_string(string)

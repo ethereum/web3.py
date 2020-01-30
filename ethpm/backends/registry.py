@@ -1,6 +1,10 @@
 from collections import (
     namedtuple,
 )
+from typing import (
+    Optional,
+    Tuple,
+)
 from urllib import (
     parse,
 )
@@ -80,12 +84,15 @@ def is_valid_registry_uri(uri: str) -> bool:
 
 def parse_registry_uri(uri: str) -> RegistryURI:
     """
-    Validate and return (authority, pkg name, version) from a valid registry URI
+    Validate and return (authority, chain_id, pkg_name, version) from a valid registry URI.
     """
     from web3.auto.infura import w3
     validate_registry_uri(uri)
     parsed_uri = parse.urlparse(uri)
-    address_or_ens, chain_id = parsed_uri.netloc.split(":")
+    if ":" in parsed_uri.netloc:
+        address_or_ens, chain_id = parsed_uri.netloc.split(":")
+    else:
+        address_or_ens, chain_id = parsed_uri.netloc, "1"
     ns = ENS.fromWeb3(w3)
     if is_address(address_or_ens):
         address = address_or_ens
@@ -97,8 +104,17 @@ def parse_registry_uri(uri: str) -> RegistryURI:
         raise CannotHandleURI(
             f"Invalid address or ENS domain found in uri: {uri}."
         )
-    parsed_name = parsed_uri.path.strip("/")
-    parsed_version = parsed_uri.query.lstrip("version=").strip("/")
-    pkg_name = parsed_name if parsed_name else None
-    pkg_version = parsed_version if parsed_version else None
+    pkg_name, pkg_version = _process_pkg_path(parsed_uri.path)
     return RegistryURI(address, chain_id, pkg_name, pkg_version, ens)
+
+
+def _process_pkg_path(pkg_path: str) -> Tuple[Optional[str], Optional[str]]:
+    pkg_id = pkg_path.strip("/")
+    if not pkg_id:
+        return None, None
+
+    if "@" not in pkg_id:
+        return pkg_id, None
+    pkg_name, safe_pkg_version = pkg_id.split("@")
+    pkg_version = parse.unquote(safe_pkg_version)
+    return pkg_name, pkg_version
