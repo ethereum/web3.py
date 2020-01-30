@@ -503,7 +503,7 @@ STANDARD_NORMALIZERS = [
     abi_bytes_to_hex,
     abi_int_to_hex,
     abi_string_to_hex,
-    # abi_address_to_hex,
+    abi_address_to_hex,
 ]
 
 
