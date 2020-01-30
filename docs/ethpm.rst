@@ -216,13 +216,13 @@ way through the EIP process)
 
 ::
 
-   scheme://address:chain_id/package-name?version=x.x.x
+   scheme://address:chain_id/package-name@version
 
 -  URI must be a string type
--  ``scheme``: ``erc1319``
--  ``address``: Must be a valid ENS domain or a valid checksum address
+-  ``scheme``: (required) ``ethpm`` or ``erc1319``
+-  ``address``: (required) Must be a valid ENS domain or a valid checksum address
    pointing towards a registry contract.
--  ``chain_id``: Chain ID of the chain on which the registry lives. Supported chains include...
+-  ``chain_id``: Chain ID of the chain on which the registry lives. Defaults to Mainnet. Supported chains include...
 
   - 1: Mainnet
   - 3: Ropsten
@@ -236,7 +236,17 @@ way through the EIP process)
 -  ``version``: The URI escaped version string, *should* conform to the
    `semver <http://semver.org/>`__ version numbering specification.
 
-i.e. ``erc1319://packages.zeppelinos.eth:1/owned?version=1.0.0``
+i.e. 
+- ``ethpm://packages.zeppelinos.eth/owned@1.0.0``
+- ``ethpm://0x808B53bF4D70A24bA5cb720D37A4835621A9df00:1/ethregistrar@1.0.0``
+
+To specify a specific asset within a package, you can namespace the target asset.
+
+i.e. 
+- ``ethpm://maker.snakecharmers.eth:1/dai-dai@1.0.0/sources/token.sol``
+- ``ethpm://maker.snakecharmers.eth:1/dai-dai@1.0.0/contract_types/DSToken/abi``
+- ``ethpm://maker.snakecharmers.eth:1/dai-dai@1.0.0/deployments/mainnet/dai``
+
 
 Builder
 -------
