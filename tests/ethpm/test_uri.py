@@ -74,12 +74,16 @@ def test_create_github_uri():
     "uri,expected",
     (
         (
-            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1",
+            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
             ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", None, None, None],
         ),
         (
-            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "owned", None, None],
+            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:3",
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "3", None, None, None],
+        ),
+        (
+            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:5/owned",
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "5", "owned", None, None],
         ),
         (
             "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned@1.0.0",
@@ -93,6 +97,19 @@ def test_create_github_uri():
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet@2.8.0",
             ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", None],
+        ),
+        # w/o chain_id
+        (
+            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/owned",
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "owned", None, None],
+        ),
+        (
+            "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0",
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", None],
+        ),
+        (
+            "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@8%400",
+            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "8@0", None],
         ),
         # escaped chars
         (
@@ -124,10 +141,6 @@ def test_parse_registry_uri(uri, expected):
         "ethpx://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned@1.0.0",
         "erc1318://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned@1.0.0",
         "erc1318://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned@1.0.0/",
-        # missing chain id
-        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/owned@1.0.0",
-        # missing version id
-        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/owned@",
         # missing package_name
         "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/@1.0.0",
         # unescaped chars in package_name

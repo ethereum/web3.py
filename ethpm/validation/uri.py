@@ -79,13 +79,15 @@ def validate_registry_uri_authority(auth: str) -> None:
     Raise an exception if the authority is not a valid ENS domain
     or a valid checksummed contract address.
     """
-    try:
+    if ":" in auth:
+        if len(auth.split(":")) != 2:
+            raise EthPMValidationError(
+                f"{auth} is not a valid registry URI authority. "
+                "Please try again with a valid registry URI."
+            )
         address, chain_id = auth.split(':')
-    except ValueError:
-        raise EthPMValidationError(
-            f"{auth} is not a valid registry URI authority. "
-            "Please try again with a valid registry URI."
-        )
+    else:
+        address, chain_id = auth, '1'
 
     if is_ens_domain(address) is False and not is_checksum_address(address):
         raise EthPMValidationError(
