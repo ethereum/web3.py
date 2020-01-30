@@ -25,7 +25,6 @@ if TYPE_CHECKING:
 def name_to_address_middleware(w3: "Web3") -> Middleware:
     normalizers = [
         abi_ens_resolver(w3),
-        abi_address_to_hex,
     ]
     return construct_formatting_middleware(
         request_formatters=abi_request_formatters(normalizers, RPC_ABIS)

@@ -159,6 +159,13 @@ def validate_address(value: Any) -> None:
     """
     Helper function for validating an address
     """
+    if is_ens_name(value):
+        # ENS names get validated in the names
+        # middleware. Don't need to do it here.
+        return
+    if value == b'':
+        # also gets validated later
+        return
     if is_bytes(value):
         if not is_binary_address(value):
             raise InvalidAddress("Address must be 20 bytes when input type is bytes", value)
