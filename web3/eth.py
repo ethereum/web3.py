@@ -34,10 +34,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.method import (
-    Method,
-    default_root_munger,
-)
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
@@ -82,6 +78,10 @@ from web3.exceptions import (
 )
 from web3.iban import (
     Iban,
+)
+from web3.method import (
+    Method,
+    default_root_munger,
 )
 from web3.module import (
     ModuleV2,
@@ -249,7 +249,6 @@ class Eth(ModuleV2):
     `eth_getBlockTransactionCountByHash`
     `eth_getBlockTransactionCountByNumber`
     """
-    # TODO - raise BlockNotFound
     getBlockTransactionCount = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getBlockTransactionCountByNumber,
@@ -263,7 +262,6 @@ class Eth(ModuleV2):
     `eth_getUncleCountByBlockHash`
     `eth_getUncleCountByBlockNumber`
     """
-    # TODO - raise BlockNotFound
     # TODO - make sure this works manually
     getUncleCount = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
@@ -273,9 +271,6 @@ class Eth(ModuleV2):
         ),
         mungers=[default_root_munger]
     )
-    #     if result is None:
-    #         raise BlockNotFound(f"Block with id: {block_identifier} not found.")
-    #     return result
 
     """
     `eth_getUncleByBlockHashAndIndex`
@@ -289,25 +284,12 @@ class Eth(ModuleV2):
         ),
         mungers=[default_root_munger]
     )
-        # if result is None:
-        #     raise BlockNotFound(
-        #         f"Uncle at index: {uncle_index} of block with id: {block_identifier} not found."
-        #     )
 
+    # TODO - raise TransactionNotFound if result is None. (Should we raise if transactionIndex is None? I don't think that result will ever be None.)
     getTransaction = Method(
         RPC.eth_getTransactionByHash,
         mungers=[default_root_munger],
     )
-
-    # TODO - raise TransactionNotFound if result is None. (Should we raise if transactionIndex is None? I don't think that result will ever be None.)
-    # def getTransaction(self, transaction_hash: _Hash32) -> TxData:
-    #     result = self.web3.manager.request_blocking(
-    #         RPC.eth_getTransactionByHash,
-    #         [transaction_hash],
-    #     )
-    #     if result is None:
-    #         raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
-    #     return result
 
     def getTransactionFromBlock(
         self, block_identifier: BlockIdentifier, transaction_index: int
@@ -330,31 +312,6 @@ class Eth(ModuleV2):
         ),
         mungers=[default_root_munger],
     )
-        # if result is None:
-        #     raise TransactionNotFound(
-        #         f"Transaction index: {transaction_index} "
-        #         f"on block id: {block_identifier} not found."
-        #     )
-
-    # def getTransactionByBlock(
-    #     self, block_identifier: BlockIdentifier, transaction_index: int
-    # ) -> TxData:
-    #     method = select_method_for_block_identifier(
-    #         block_identifier,
-    #         if_predefined=RPC.eth_getTransactionByBlockNumberAndIndex,
-    #         if_hash=RPC.eth_getTransactionByBlockHashAndIndex,
-    #         if_number=RPC.eth_getTransactionByBlockNumberAndIndex,
-    #     )
-    #     result = self.web3.manager.request_blocking(
-    #         method,
-    #         [block_identifier, transaction_index],
-    #     )
-    #     if result is None:
-    #         raise TransactionNotFound(
-    #             f"Transaction index: {transaction_index} "
-    #             f"on block id: {block_identifier} not found."
-    #         )
-    #     return result
 
     def waitForTransactionReceipt(
         self, transaction_hash: _Hash32, timeout: int=120, poll_latency: float=0.1
@@ -369,20 +326,10 @@ class Eth(ModuleV2):
                 )
             )
 
-    # TODO - raise TransactionNotFound
     getTransactionReceipt = Method(
         RPC.eth_getTransactionReceipt,
         mungers=[default_root_munger],
     )
-
-#     def getTransactionReceipt(self, transaction_hash: _Hash32) -> TxReceipt:
-#         result = self.web3.manager.request_blocking(
-#             RPC.eth_getTransactionReceipt,
-#             [transaction_hash],
-#         )
-#         if result is None:
-#             raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
-#         return result
 
     getTransactionCount = Method(
         RPC.eth_getTransactionCount,
@@ -406,7 +353,6 @@ class Eth(ModuleV2):
 
     # TODO - better return type
     def send_transaction_munger(self, transaction: TxParams) -> List:
-        # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 

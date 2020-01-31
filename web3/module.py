@@ -36,8 +36,8 @@ def apply_result_formatters(
 
 @curry
 def apply_null_result_formatters(
-    result_formatters: Callable[..., Any], result: RPCResponse
-, params) -> RPCResponse:
+    result_formatters: Callable[..., Any], result: RPCResponse, params
+) -> RPCResponse:
     null_result = pipe(params, result_formatters)
     return null_result
 

@@ -5,8 +5,8 @@ import time
 import uuid
 
 from eth_utils import (
-    is_integer,
     is_hex,
+    is_integer,
     to_tuple,
 )
 
