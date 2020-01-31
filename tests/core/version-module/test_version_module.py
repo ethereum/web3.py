@@ -27,7 +27,6 @@ def blocking_w3():
         modules={
             "blocking_version": (BlockingVersion,),
             "legacy_version": (Version,),
-            "eth": (Eth,),
         })
 
 
@@ -52,5 +51,5 @@ def test_legacy_version_deprecation(blocking_w3):
 async def test_async_blocking_version(async_w3, blocking_w3):
     assert async_w3.async_version.api == blocking_w3.api
 
-    assert await async_w3.async_version.node == blocking_w3.clientVersion
-    assert await async_w3.async_version.ethereum == blocking_w3.eth.protocolVersion
+    assert await async_w3.async_version.node == blocking_w3.blocking_version.node
+    assert await async_w3.async_version.ethereum == blocking_w3.blocking_version.ethereum
