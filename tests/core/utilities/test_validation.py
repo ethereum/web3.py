@@ -91,7 +91,7 @@ BYTES_ADDRESS_LEN_GT_20 = bytes(1) * 21
         (NON_CHECKSUM_ADDRESS, validate_address, InvalidAddress),
         (BYTES_ADDRESS_LEN_LT_20, validate_address, InvalidAddress),
         (BYTES_ADDRESS_LEN_GT_20, validate_address, InvalidAddress),
-        ("NotAddress", validate_address, InvalidAddress),
+        ('NotAddress', validate_address, InvalidAddress),
         (b'not string', validate_address, InvalidAddress),
         ('bool', validate_abi_type, None),
         ('bool[', validate_abi_type, ValueError),

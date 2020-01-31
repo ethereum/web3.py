@@ -41,6 +41,17 @@ def is_ens_name(value: Any) -> bool:
         return ENS.is_valid_name(value)
 
 
+# Check everything short of validating that a name
+# resolves to an address
+def is_theoretically_valid_domain(domain):
+    split_domain = domain.split('.')
+    if len(split_domain) == 1:
+        return False
+        for name in split_domain:
+            if not is_valid_name(name):
+                return False
+    return True
+
 def validate_name_has_address(ens: ENS, name: str) -> ChecksumAddress:
     addr = ens.address(name)
     if addr:
