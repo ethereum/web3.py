@@ -286,7 +286,9 @@ class ENS:
                 self.setup_address(name, address, transact=transact)
             return self._setup_reverse(name, address, transact=transact)
 
-    def resolve(self, name: str, get: str='addr') -> Optional[Union[ChecksumAddress, str]]:
+    def resolve(
+        self, name: str, get: str='addr'
+    ) -> Optional[Union[ChecksumAddress, Dict[str, str], str]]:
         normal_name = normalize_name(name)
         resolver = self.resolver(normal_name)
         if resolver:

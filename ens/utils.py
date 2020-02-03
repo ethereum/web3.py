@@ -51,6 +51,9 @@ default = object()
 
 if TYPE_CHECKING:
     from web3 import Web3 as _Web3  # noqa: F401
+    from web3.contract import (  # noqa: F401
+        Contract,
+    )
     from web3.providers import (  # noqa: F401
         BaseProvider,
     )
