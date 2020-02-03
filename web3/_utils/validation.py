@@ -49,7 +49,6 @@ from web3._utils.abi import (
     sub_type_of_array_type,
 )
 from web3._utils.ens import (
-    # is_ens_name,
     is_theoretically_valid_domain,
 )
 from web3.exceptions import (
@@ -160,9 +159,10 @@ def validate_address(value: Any) -> None:
     """
     Helper function for validating an address
     """
-    if is_string(value) and not is_bytes(value) and not is_checksum_address(value) and not is_hex_address(value):
-        if not is_theoretically_valid_domain(value):
+    if (is_string(value) and not is_bytes(value) and
+            not is_checksum_address(value) and not is_hex_address(value)):
 
+        if not is_theoretically_valid_domain(value):
             # TODO - better error msg
             raise InvalidAddress("Address needs to have a TLD", value)
         return

@@ -128,11 +128,12 @@ def raise_transaction_not_found_on_no_response(params):
 
 def raise_transaction_not_found_on_no_response_with_block_id(params):
         block_identifier = params[0]
-        transaction_hash = params[1]
+        transaction_index = params[1]
         raise TransactionNotFound(
             f"Transaction index: {transaction_index} "
             f"on block id: {block_identifier} not found."
         )
+
 
 def is_attrdict(val: Any) -> bool:
     return isinstance(val, AttributeDict)
@@ -476,8 +477,10 @@ NULL_RESULT_FORMATTERS = {
     'eth_getBlockByNumber': raise_block_not_found_on_no_response,
     'eth_getBlockTransactionCountByHash': raise_block_not_found_on_no_response,
     'eth_getBlockTransactionCountByNumber': raise_block_not_found_on_no_response,
-    'eth_getTransactionByBlockHashAndIndex': raise_transaction_not_found_on_no_response_with_block_id,
-    'eth_getTransactionByBlockNumberAndIndex': raise_transaction_not_found_on_no_response_with_block_id,
+    'eth_getTransactionByBlockHashAndIndex':
+        raise_transaction_not_found_on_no_response_with_block_id,
+    'eth_getTransactionByBlockNumberAndIndex':
+        raise_transaction_not_found_on_no_response_with_block_id,
     'eth_getTransactionByHash': raise_transaction_not_found_on_no_response,
     'eth_getTransactionReceipt': raise_transaction_not_found_on_no_response,
     'eth_getUncleByBlockHashAndIndex': raise_block_not_found_on_no_response,
@@ -535,6 +538,7 @@ def get_result_formatters(
     attrdict_formatter = apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
 
     return compose(attrdict_formatter, *formatters)
+
 
 def get_null_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]

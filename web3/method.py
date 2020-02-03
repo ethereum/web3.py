@@ -181,7 +181,11 @@ class Method(Generic[TFunc]):
             block_identifier = args[0]
             self.json_rpc_method = self.method_choice_depends_on_args(value=block_identifier)
         method = self.method_selector_fn()
-        response_formatters = (self.result_formatters(method), self.error_formatters(method), self.null_result_formatters(method))
+        response_formatters = (
+            self.result_formatters(method),
+            self.error_formatters(method),
+            self.null_result_formatters(method)
+        )
 
         request = (method, _apply_request_formatters(params, self.request_formatters(method)))
 

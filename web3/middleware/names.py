@@ -3,7 +3,6 @@ from typing import (
 )
 
 from web3._utils.normalizers import (
-    abi_address_to_hex,
     abi_ens_resolver,
 )
 from web3._utils.rpc_abi import (

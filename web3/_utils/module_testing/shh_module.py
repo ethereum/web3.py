@@ -523,7 +523,6 @@ class ParityShhModuleTest():
 
         watcher.stop()
 
-
     # Sometimes the post fails because PoW is too low.
     # We don't care if an error or a True response comes back,
     # we only care that we're interfacing correctly with Parity
