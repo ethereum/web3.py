@@ -1,5 +1,3 @@
-import content_hash
-
 import copy
 import datetime
 import functools
@@ -16,6 +14,7 @@ from typing import (
     cast,
 )
 
+import content_hash
 from eth_typing import (
     Address,
     ChecksumAddress,

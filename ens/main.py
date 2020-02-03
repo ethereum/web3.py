@@ -1,5 +1,3 @@
-import content_hash
-
 from typing import (
     TYPE_CHECKING,
     Dict,
@@ -10,6 +8,7 @@ from typing import (
     cast,
 )
 
+import content_hash
 from eth_typing import (
     Address,
     ChecksumAddress,
@@ -28,9 +27,9 @@ from ens import abis
 from ens.constants import (
     EMPTY_ADDR_HEX,
     EMPTY_SHA3_BYTES,
+    ENS_MAINNET_ADDR,
     RESOLVER_EIP1577_INTERFACE,
     RESOLVER_LEGACY_INTERFACE,
-    ENS_MAINNET_ADDR,
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
