@@ -2,6 +2,7 @@ import content_hash
 
 from typing import (
     TYPE_CHECKING,
+    Dict,
     Optional,
     Sequence,
     Tuple,
@@ -118,7 +119,7 @@ class ENS:
         """
         return cast(ChecksumAddress, self.resolve(name, 'addr'))
 
-    def content(self, name):
+    def content(self, name: str) -> Optional[Dict[str, str]]:
         """
         Look up the content record that `name` currently stores.
 
@@ -182,7 +183,12 @@ class ENS:
         return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
 
     @dict_copy
-    def setup_content(self, name, content, transact={}):
+    def setup_content(
+        self,
+        name: str,
+        content: Dict[str, str],
+        transact: "TxParams"={}
+    ) -> HexBytes:
         """
         Set up the name to store the supplied content record.
         The sender of the transaction must own the name, or
@@ -205,7 +211,7 @@ class ENS:
             return None
 
         transact['from'] = owner
-        resolver = self._set_resolver(name, transact=transact)
+        resolver: 'Contract' = self._set_resolver(name, transact=transact)
 
         is_eip1577 = resolver.functions.supportsInterface(RESOLVER_EIP1577_INTERFACE).call()
         is_legacy = resolver.functions.supportsInterface(RESOLVER_LEGACY_INTERFACE).call()
