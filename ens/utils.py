@@ -8,6 +8,7 @@ from typing import (
     Any,
     Callable,
     Collection,
+    Dict,
     Optional,
     Type,
     TypeVar,
@@ -219,7 +220,9 @@ def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress]) -
     return not addr or addr == EMPTY_ADDR_HEX
 
 
-def resolve_content_record(resolver: 'Contract', name: str) -> Optional[Dict[str, str]]:
+def resolve_content_record(
+    resolver: 'Contract', name: str
+) -> Optional[Dict[str, str]]:
     is_eip1577 = resolver.functions.supportsInterface(RESOLVER_EIP1577_INTERFACE).call()
     is_legacy = resolver.functions.supportsInterface(RESOLVER_LEGACY_INTERFACE).call()
 
@@ -253,7 +256,9 @@ def resolve_content_record(resolver: 'Contract', name: str) -> Optional[Dict[str
     raise NonStandardResolver('Resolver should either supports contenthash() or content()')
 
 
-def resolve_other_record(resolver: 'Contract', get: str, name: str) -> Optional[Union[ChecksumAddress, str]]:
+def resolve_other_record(
+    resolver: 'Contract', get: str, name: str
+) -> Optional[Union[ChecksumAddress, str]]:
     lookup_function = getattr(resolver.functions, get)
     namehash = normal_name_to_hash(name)
     address = lookup_function(namehash).call()
