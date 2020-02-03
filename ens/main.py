@@ -30,7 +30,6 @@ from ens.constants import (
 from ens.exceptions import (
     AddressMismatch,
     UnauthorizedError,
-    UnknownNetwork,
     UnownedName,
 )
 from ens.utils import (
