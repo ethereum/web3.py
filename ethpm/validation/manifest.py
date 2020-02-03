@@ -142,7 +142,7 @@ def validate_raw_manifest_format(raw_manifest: str) -> None:
     - has a trailing newline
     """
     try:
-        manifest_dict = json.loads(raw_manifest, encoding="UTF-8")
+        manifest_dict = json.loads(raw_manifest)
     except json.JSONDecodeError as err:
         raise json.JSONDecodeError(
             "Failed to load package data. File is not a valid JSON document.",

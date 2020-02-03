@@ -29,18 +29,34 @@ def endpoint_uri(rpc_port):
     return 'http://localhost:{0}'.format(rpc_port)
 
 
+def _geth_command_arguments(rpc_port,
+                            base_geth_command_arguments,
+                            geth_version):
+    yield from base_geth_command_arguments
+    if geth_version.major == 1:
+        yield from (
+            '--rpc',
+            '--rpcport', rpc_port,
+            '--rpcapi', 'admin,db,eth,net,web3,personal,shh,miner',
+            '--ipcdisable',
+        )
+        if geth_version.minor == 9:
+            yield '--allow-insecure-unlock'
+        elif geth_version.minor not in [9, 8, 7]:
+            raise AssertionError("Unsupported Geth version")
+    else:
+        raise AssertionError("Unsupported Geth version")
+
+
 @pytest.fixture(scope='module')
-def geth_command_arguments(geth_binary, datadir, rpc_port):
-    return (
-        geth_binary,
-        '--datadir', str(datadir),
-        '--shh',
-        '--nodiscover',
-        '--fakepow',
-        '--rpc',
-        '--rpcport', rpc_port,
-        '--rpcapi', 'admin,db,eth,net,web3,personal,shh,web3',
-        '--ipcdisable',
+def geth_command_arguments(rpc_port,
+                           base_geth_command_arguments,
+                           get_geth_version):
+
+    return _geth_command_arguments(
+        rpc_port,
+        base_geth_command_arguments,
+        get_geth_version
     )
 
 

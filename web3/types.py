@@ -1,4 +1,5 @@
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -29,129 +30,127 @@ from web3.datastructures import (
     NamedElementOnion,
 )
 
-Wei = NewType('Wei', int)
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
+
+
 TReturn = TypeVar("TReturn")
 TParams = TypeVar("TParams")
 TValue = TypeVar("TValue")
 
-Nonce = NewType("Nonce", int)
-
-HexBytes32 = NewType("HexBytes32", HexBytes)
-HexStr32 = NewType("HexStr32", HexStr)
-
-_Hash32 = Union[Hash32, HexBytes, HexStr]
-
-# todo: move these to eth_typing once web3 is type hinted
-ABIEventParams = TypedDict("ABIEventParams", {
-    "name": str,
-    "type": str,
-    "indexed": bool,
-}, total=False)
-
-
-ABIEvent = TypedDict("ABIEvent", {
-    "type": Literal["event"],
-    "name": str,
-    "inputs": Sequence["ABIEventParams"],
-    "anonymous": bool,
-}, total=False)
-
-
-ABIFunctionComponents = TypedDict("ABIFunctionComponents", {
-    "name": str,
-    "type": str,
-    # better typed as Sequence['ABIFunctionComponents']
-    # https://github.com/python/mypy/issues/731
-    "components": Sequence[Any],
-}, total=False)
-
-
-ABIFunctionParams = TypedDict("ABIFunctionParams", {
-    "name": str,
-    "type": str,
-    "components": Sequence["ABIFunctionComponents"],
-}, total=False)
-
-
-ABIFunction = TypedDict("ABIFunction", {
-    "type": Literal["function", "constructor", "fallback"],
-    "name": str,
-    "inputs": Sequence["ABIFunctionParams"],
-    "outputs": Sequence["ABIFunctionParams"],
-    "stateMutability": Literal["pure", "view", "nonpayable", "payable"],
-    "payable": bool,
-    "constant": bool,
-}, total=False)
-
-
-ABIElement = Union[ABIFunction, ABIEvent]
-
-
-ABI = Sequence[Union[ABIFunction, ABIEvent]]
-
-
+BlockParams = Literal["latest", "earliest", "pending"]
+BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr, HexBytes]
 LatestBlockParam = Literal["latest"]
 
-
-BlockParams = Literal["latest", "earliest", "pending"]
-
-
-BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr, HexBytes]
-
-
-ENS = NewType("ENS", str)
-
-
+# bytes, hexbytes, or hexstr representing a 32 byte hash
+_Hash32 = Union[Hash32, HexBytes, HexStr]
 EnodeURI = NewType("EnodeURI", str)
-
-
-EventData = TypedDict("EventData", {
-    "args": Dict[str, Any],
-    "event": str,
-    "logIndex": int,
-    "transactionIndex": int,
-    "transactionHash": HexBytes,
-    "address": ChecksumAddress,
-    "blockHash": HexBytes,
-    "blockNumber": int,
-})
-
-
-RPCError = TypedDict("RPCError", {
-    "code": int,
-    "message": str,
-})
-
-
-RPCResponse = TypedDict("RPCResponse", {
-    "id": int,
-    "jsonrpc": Literal["2.0"],
-    "result": Any,
-    "error": Union[RPCError, str],
-}, total=False)
-
-
+ENS = NewType("ENS", str)
+Nonce = NewType("Nonce", int)
 RPCEndpoint = NewType("RPCEndpoint", str)
-
-
+Timestamp = NewType("Timestamp", int)
+Wei = NewType('Wei', int)
 Formatters = Dict[RPCEndpoint, Callable[..., Any]]
 
 
-FormattersDict = TypedDict("FormattersDict", {
-    "request_formatters": Formatters,
-    "result_formatters": Formatters,
-    "error_formatters": Formatters,
-}, total=False)
+# todo: move these to eth_typing once web3 is type hinted
+class ABIEventParams(TypedDict, total=False):
+    indexed: bool
+    name: str
+    type: str
 
 
-FilterParams = TypedDict("FilterParams", {
-    "fromBlock": BlockIdentifier,
-    "toBlock": BlockIdentifier,
-    "blockHash": HexBytes,
-    "address": Union[Address, ChecksumAddress, List[ChecksumAddress]],
-    "topics": Sequence[Optional[Union[_Hash32, Sequence[_Hash32]]]],
-}, total=False)
+class ABIEvent(TypedDict, total=False):
+    anonymous: bool
+    inputs: Sequence["ABIEventParams"]
+    name: str
+    type: Literal["event"]
 
+
+class ABIFunctionComponents(TypedDict, total=False):
+    # better typed as Sequence['ABIFunctionComponents'], but recursion isnt possible yet
+    # https://github.com/python/mypy/issues/731
+    components: Sequence[Any]
+    name: str
+    type: str
+
+
+class ABIFunctionParams(TypedDict, total=False):
+    components: Sequence["ABIFunctionComponents"]
+    name: str
+    type: str
+
+
+class ABIFunction(TypedDict, total=False):
+    constant: bool
+    inputs: Sequence["ABIFunctionParams"]
+    name: str
+    outputs: Sequence["ABIFunctionParams"]
+    payable: bool
+    stateMutability: Literal["pure", "view", "nonpayable", "payable"]
+    type: Literal["function", "constructor", "fallback"]
+
+
+ABIElement = Union[ABIFunction, ABIEvent]
+ABI = Sequence[Union[ABIFunction, ABIEvent]]
+
+
+class EventData(TypedDict):
+    address: ChecksumAddress
+    args: Dict[str, Any]
+    blockHash: HexBytes
+    blockNumber: int
+    event: str
+    logIndex: int
+    transactionHash: HexBytes
+    transactionIndex: int
+
+
+class RPCError(TypedDict):
+    code: int
+    message: str
+
+
+class RPCResponse(TypedDict, total=False):
+    error: Union[RPCError, str]
+    id: int
+    jsonrpc: Literal["2.0"]
+    result: Any
+
+
+Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], "Web3"], Any]
+MiddlewareOnion = NamedElementOnion[str, Middleware]
+
+
+class FormattersDict(TypedDict, total=False):
+    error_formatters: Formatters
+    request_formatters: Formatters
+    result_formatters: Formatters
+
+
+class FilterParams(TypedDict, total=False):
+    address: Union[Address, ChecksumAddress, List[ChecksumAddress]]
+    blockHash: HexBytes
+    fromBlock: BlockIdentifier
+    toBlock: BlockIdentifier
+    topics: Sequence[Optional[Union[_Hash32, Sequence[_Hash32]]]]
+
+
+class LogReceipt(TypedDict):
+    address: ChecksumAddress
+    blockHash: HexBytes
+    blockNumber: BlockNumber
+    data: HexStr
+    logIndex: int
+    payload: HexBytes
+    removed: bool
+    topic: HexBytes
+    topics: Sequence[HexBytes]
+    transactionHash: HexBytes
+    transactionIndex: int
+
+
+# syntax b/c "from" keyword not allowed w/ class construction
 TxData = TypedDict("TxData", {
     "blockHash": HexBytes,
     "blockNumber": BlockNumber,
@@ -172,101 +171,24 @@ TxData = TypedDict("TxData", {
 }, total=False)
 
 
+# syntax b/c "from" keyword not allowed w/ class construction
 TxParams = TypedDict("TxParams", {
-    "nonce": Nonce,
     "chainId": int,
-    "gasPrice": Wei,
-    "gas": Wei,
+    "data": Union[bytes, HexStr],
     # addr or ens
     "from": Union[Address, ChecksumAddress, str],
+    "gas": Wei,
+    "gasPrice": Wei,
+    "nonce": Nonce,
+    # addr or ens
     "to": Union[Address, ChecksumAddress, str],
     "value": Wei,
-    "data": Union[bytes, HexStr],
 }, total=False)
 
-SignedTx = TypedDict("SignedTx", {
-    "raw": bytes,
-    "tx": TxParams,
-}, total=False)
-
-# this Any should be updated to Web3 once all type hints land
-GasPriceStrategy = Callable[[Any, TxParams], Wei]
-# 2 input to parent callable Any should be updated to Web3 once all type hints land
-Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], Any], Any]
-MiddlewareOnion = NamedElementOnion[str, Middleware]
+GasPriceStrategy = Callable[["Web3", TxParams], Wei]
 
 
-class LogReceipt(TypedDict):
-    address: ChecksumAddress
-    blockHash: HexBytes
-    blockNumber: BlockNumber
-    data: HexStr
-    logIndex: int
-    payload: HexBytes
-    removed: bool
-    topic: HexBytes
-    topics: Sequence[HexBytes]
-    transactionHash: HexBytes
-    transactionIndex: int
-
-
-StorageProof = TypedDict("StorageProof", {
-    'key': HexStr,
-    'value': HexBytes,
-    'proof': Sequence[HexStr],
-})
-
-
-MerkleProof = TypedDict("MerkleProof", {
-    'address': ChecksumAddress,
-    'accountProof': Sequence[HexStr],
-    'balance': int,
-    'codeHash': HexBytes,
-    'nonce': int,
-    'storageHash': HexBytes,
-    'storageProof': Sequence[StorageProof],
-})
-
-
-Protocol = TypedDict("Protocol", {
-    "difficulty": int,
-    "head": HexStr,
-    "network": int,
-    "version": int,
-})
-
-NodeInfo = TypedDict("NodeInfo", {
-    'enode': EnodeURI,
-    'id': HexStr,
-    'ip': str,
-    'listenAddr': str,
-    'name': str,
-    'ports': Dict[str, int],
-    'protocols': Dict[str, Protocol],
-})
-
-
-Peer = TypedDict("Peer", {
-    'caps': Sequence[str],
-    'id': HexStr,
-    'name': str,
-    'network': Dict[str, str],
-    'protocols': Dict[str, Protocol],
-}, total=False)
-
-
-SyncStatus = TypedDict("SyncStatus", {
-    'currentBlock': int,
-    'highestBlock': int,
-    'knownStates': int,
-    'pulledStates': int,
-    'startingBlock': int,
-})
-
-
-Timestamp = NewType("Timestamp", int)
-
-
+# syntax b/c "from" keyword not allowed w/ class construction
 TxReceipt = TypedDict("TxReceipt", {
     "blockHash": HexBytes,
     "blockNumber": int,
@@ -284,114 +206,178 @@ TxReceipt = TypedDict("TxReceipt", {
 })
 
 
-BlockData = TypedDict("BlockData", {
-    'difficulty': int,
-    'extraData': HexBytes,
-    'gasLimit': Wei,
-    'gasUsed': Wei,
-    'hash': HexBytes,
-    'logsBloom': HexBytes,
-    'miner': ChecksumAddress,
-    'mixHash': HexBytes,
-    'nonce': HexBytes,
-    'number': BlockNumber,
-    'parentHash': HexBytes,
-    'receiptRoot': HexBytes,
-    'sha3Uncles': HexBytes,
-    'size': int,
-    'stateRoot': HexBytes,
-    'timestamp': Timestamp,
-    'totalDifficulty': int,
+class SignedTx(TypedDict, total=False):
+    raw: bytes
+    tx: TxParams
+
+
+class StorageProof(TypedDict):
+    key: HexStr
+    proof: Sequence[HexStr]
+    value: HexBytes
+
+
+class MerkleProof(TypedDict):
+    address: ChecksumAddress
+    accountProof: Sequence[HexStr]
+    balance: int
+    codeHash: HexBytes
+    nonce: int
+    storageHash: HexBytes
+    storageProof: Sequence[StorageProof]
+
+
+class Protocol(TypedDict):
+    difficulty: int
+    head: HexStr
+    network: int
+    version: int
+
+
+class NodeInfo(TypedDict):
+    enode: EnodeURI
+    id: HexStr
+    ip: str
+    listenAddr: str
+    name: str
+    ports: Dict[str, int]
+    protocols: Dict[str, Protocol]
+
+
+class Peer(TypedDict, total=False):
+    caps: Sequence[str]
+    id: HexStr
+    name: str
+    network: Dict[str, str]
+    protocols: Dict[str, Protocol]
+
+
+class SyncStatus(TypedDict):
+    currentBlock: int
+    highestBlock: int
+    knownStates: int
+    pulledStates: int
+    startingBlock: int
+
+
+class BlockData(TypedDict, total=False):
+    difficulty: int
+    extraData: HexBytes
+    gasLimit: Wei
+    gasUsed: Wei
+    hash: HexBytes
+    logsBloom: HexBytes
+    miner: ChecksumAddress
+    mixHash: HexBytes
+    nonce: HexBytes
+    number: BlockNumber
+    parentHash: HexBytes
+    receiptRoot: HexBytes
+    sha3Uncles: HexBytes
+    size: int
+    stateRoot: HexBytes
+    timestamp: Timestamp
+    totalDifficulty: int
     # list of tx hashes or of txdatas
-    'transactions': Union[Sequence[HexBytes], Sequence[TxData]],
-    'transactionsRoot': HexBytes,
-    'uncles': Sequence[HexBytes],
-}, total=False)
+    transactions: Union[Sequence[HexBytes], Sequence[TxData]]
+    transactionsRoot: HexBytes
+    uncles: Sequence[HexBytes]
 
 
-Uncle = TypedDict("Uncle", {
-    'author': ChecksumAddress,
-    'difficulty': HexStr,
-    'extraData': HexStr,
-    'gasLimit': HexStr,
-    'gasUsed': HexStr,
-    'hash': HexBytes,
-    'logsBloom': HexStr,
-    'miner': HexBytes,
-    'mixHash': HexBytes,
-    'nonce': HexStr,
-    'number': HexStr,
-    'parentHash': HexBytes,
-    'receiptsRoot': HexBytes,
-    'sealFields': Sequence[HexStr],
-    'sha3Uncles': HexBytes,
-    'size': int,
-    'stateRoot': HexBytes,
-    'timestamp': Timestamp,
-    'totalDifficulty': HexStr,
-    'transactions': Sequence[HexBytes],
-    'transactionsRoot': HexBytes,
-    'uncles': Sequence[HexBytes]
-})
+class Uncle(TypedDict):
+    author: ChecksumAddress
+    difficulty: HexStr
+    extraData: HexStr
+    gasLimit: HexStr
+    gasUsed: HexStr
+    hash: HexBytes
+    logsBloom: HexStr
+    miner: HexBytes
+    mixHash: HexBytes
+    nonce: HexStr
+    number: HexStr
+    parentHash: HexBytes
+    receiptsRoot: HexBytes
+    sealFields: Sequence[HexStr]
+    sha3Uncles: HexBytes
+    size: int
+    stateRoot: HexBytes
+    timestamp: Timestamp
+    totalDifficulty: HexStr
+    transactions: Sequence[HexBytes]
+    transactionsRoot: HexBytes
+    uncles: Sequence[HexBytes]
 
+
+#
 # shh
+#
 
 ShhID = NewType("ShhID", HexStr)
 ShhFilterID = NewType("ShhFilterID", HexStr)
 ShhSubscriptionID = NewType("ShhSubscriptionID", HexStr)
 
+
+# syntax b/c "from" keyword not allowed w/ class construction
 ShhMessageFilter = TypedDict("ShhMessageFilter", {
-    "symKeyID": ShhID,
+    "allowP2P": bool,
     "decryptWith": ShhID,
     "from": HexStr,
+    "minPoW": float,
     "privateKeyID": ShhID,
     "sig": str,
-    "minPoW": float,
+    "symKeyID": ShhID,
     "topics": List[HexStr],
-    "allowP2P": bool,
 }, total=False)
 
 
+# syntax b/c "from" keyword not allowed w/ class construction
 ShhMessage = TypedDict("ShhMessage", {
     "from": bytes,
     "hash": HexBytes,
-    "recipient": bytes,
-    "ttl": int,
-    "topic": HexBytes,
-    "timestamp": int,
-    "payload": HexBytes,
     "padding": HexBytes,
+    "payload": HexBytes,
     "pow": float,
+    "recipient": bytes,
     "recipientPublicKey": ShhID,
-}, total=False)
-
-
-ShhMessageParams = TypedDict("ShhMessageParams", {
-    "symKeyID": ShhID,
-    "from": ShhID,
-    "to": Dict[str, HexStr],
-    "pubKey": HexStr,
+    "timestamp": int,
+    "topic": HexBytes,
     "ttl": int,
-    "sig": str,
-    "topics": List[HexStr],
-    "topic": HexStr,
-    "payload": str,
+}, total=False)
+
+
+# syntax b/c "from" keyword not allowed w/ class construction
+ShhMessageParams = TypedDict("ShhMessageParams", {
+    "from": ShhID,
     "padding": str,
-    "powTime": int,
+    "payload": str,
     "powTarget": float,
+    "powTime": int,
     "priority": int,
+    "pubKey": HexStr,
+    "sig": str,
+    "symKeyID": ShhID,
     "targetPeer": ShhID,
+    "to": Dict[str, HexStr],
+    "topic": HexStr,
+    "topics": List[HexStr],
+    "ttl": int,
 }, total=False)
 
-ShhStats = TypedDict("ShhStats", {
-    "maxMessageSize": int,
-    "memory": int,
-    "messages": int,
-    "minPow": float,
-    "targetMemory": int,
-}, total=False)
 
+class ShhStats(TypedDict, total=False):
+    maxMessageSize: int
+    memory: int
+    messages: int
+    minPow: float
+    targetMemory: int
+
+
+#
 # txpool types
+#
+
+# syntax b/c "from" keyword not allowed w/ class construction
 PendingTx = TypedDict("PendingTx", {
     "blockHash": HexBytes,
     "blockNumber": None,
@@ -407,40 +393,42 @@ PendingTx = TypedDict("PendingTx", {
 }, total=False)
 
 
-TxPoolContent = TypedDict("TxPoolContent", {
-    "pending": Dict[ChecksumAddress, Dict[Nonce, List[PendingTx]]],
-    "queued": Dict[ChecksumAddress, Dict[Nonce, List[PendingTx]]],
-}, total=False)
+class TxPoolContent(TypedDict, total=False):
+    pending: Dict[ChecksumAddress, Dict[Nonce, List[PendingTx]]]
+    queued: Dict[ChecksumAddress, Dict[Nonce, List[PendingTx]]]
 
 
-TxPoolInspect = TypedDict("TxPoolInspect", {
-    "pending": Dict[ChecksumAddress, Dict[Nonce, str]],
-    "queued": Dict[ChecksumAddress, Dict[Nonce, str]],
-}, total=False)
+class TxPoolInspect(TypedDict, total=False):
+    pending: Dict[ChecksumAddress, Dict[Nonce, str]]
+    queued: Dict[ChecksumAddress, Dict[Nonce, str]]
 
 
-TxPoolStatus = TypedDict("TxPoolStatus", {
-    "pending": int,
-    "queued": int,
-}, total=False)
+class TxPoolStatus(TypedDict, total=False):
+    pending: int
+    queued: int
 
 
+#
 # web3.parity types
+#
+
 ParityBlockTrace = NewType("ParityBlockTrace", Dict[str, Any])
 ParityFilterTrace = NewType("ParityFilterTrace", Dict[str, Any])
 ParityMode = Literal["active", "passive", "dark", "offline"]
 ParityTraceMode = Sequence[Literal["trace", "vmTrace", "stateDiff"]]
-ParityNetPeers = TypedDict("ParityNetPeers", {
-    "active": int,
-    "connected": int,
-    "max": int,
-    "peers": List[Dict[Any, Any]],
-})
-ParityFilterParams = TypedDict("ParityFilterParams", {
-    "fromBlock": BlockIdentifier,
-    "toBlock": BlockIdentifier,
-    "fromAddress": Sequence[Union[Address, ChecksumAddress, ENS]],
-    "toAddress": Sequence[Union[Address, ChecksumAddress, ENS]],
-    "after": int,
-    "count": int,
-}, total=False)
+
+
+class ParityNetPeers(TypedDict):
+    active: int
+    connected: int
+    max: int
+    peers: List[Dict[Any, Any]]
+
+
+class ParityFilterParams(TypedDict, total=False):
+    after: int
+    count: int
+    fromAddress: Sequence[Union[Address, ChecksumAddress, ENS]]
+    fromBlock: BlockIdentifier
+    toAddress: Sequence[Union[Address, ChecksumAddress, ENS]]
+    toBlock: BlockIdentifier

@@ -298,6 +298,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
         assert is_integer(chain_id)
         assert chain_id == 61
 
+    @pytest.mark.xfail(raises=KeyError, reason="ethereum tester doesn't return 'to' key")
+    def test_eth_getTransactionReceipt_mined(self, web3, block_with_txn, mined_txn_hash):
+        super().test_eth_getTransactionReceipt_mined(web3, block_with_txn, mined_txn_hash)
+
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
     pass

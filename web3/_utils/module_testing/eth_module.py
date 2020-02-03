@@ -356,7 +356,7 @@ class EthModuleTest:
             'nonce': Nonce(0),
         }
         result = web3.eth.signTransaction(txn_params)
-        signatory_account = web3.eth.account.recoverTransaction(result['raw'])
+        signatory_account = web3.eth.account.recover_transaction(result['raw'])
         assert unlocked_account == signatory_account
         assert result['tx']['to'] == txn_params['to']
         assert result['tx']['value'] == txn_params['value']
@@ -463,7 +463,6 @@ class EthModuleTest:
                 txn_params
             )
 
-    # auto mine is enabled for this test
     def test_eth_replaceTransaction_already_mined(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -475,9 +474,10 @@ class EthModuleTest:
             'gasPrice': web3.eth.gasPrice,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
+        web3.eth.waitForTransactionReceipt(txn_hash)
 
         txn_params['gasPrice'] = Wei(web3.eth.gasPrice * 2)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Supplied transaction with hash"):
             web3.eth.replaceTransaction(txn_hash, txn_params)
 
     def test_eth_replaceTransaction_incorrect_nonce(
@@ -767,6 +767,9 @@ class EthModuleTest:
         assert receipt['blockHash'] == block_with_txn['hash']
         assert receipt['transactionIndex'] == 0
         assert receipt['transactionHash'] == HexBytes(mined_txn_hash)
+        assert is_checksum_address(receipt['to'])
+        assert receipt['from'] is not None
+        assert is_checksum_address(receipt['from'])
 
     def test_eth_getTransactionReceipt_unmined(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress

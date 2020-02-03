@@ -116,7 +116,6 @@ def test_package_from_uri_with_valid_uri(dummy_ipfs_backend, w3):
     (
         # Invalid
         "123",
-        b"123",
         "ipfs://",
         "http://QmTKB75Y73zhNbD3Y73xeXGjYrZHmaXXNxoZqGCagu7r8u/readme",
         "ipfsQmTKB75Y73zhNbD3Y73xeXGjYrZHmaXXNxoZqGCagu7r8u/readme/",

@@ -24,7 +24,7 @@ from hexbytes import (
 from ens import abis
 from ens.constants import (
     EMPTY_ADDR_HEX,
-    NET_VERSION_TO_ENS_ADDR,
+    ENS_PUBLIC_ADDR,
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
@@ -88,18 +88,7 @@ class ENS:
         """
         self.web3 = init_web3(provider)
 
-        if addr:
-            ens_addr = addr
-        else:
-            try:
-                net_version = int(self.web3.net.version)
-                ens_addr = NET_VERSION_TO_ENS_ADDR[net_version]
-            except KeyError:
-                raise UnknownNetwork(
-                    "ENS is not available on the current network by default. "
-                    "You need to manually set the `addr` parameter to the registry's address."
-                )
-
+        ens_addr = addr if addr else ENS_PUBLIC_ADDR
         self.ens = self.web3.eth.contract(abi=abis.ENS, address=ens_addr)
         self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
 
