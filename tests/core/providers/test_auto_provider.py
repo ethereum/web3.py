@@ -107,7 +107,7 @@ def test_web3_auto_infura_websocket_default(monkeypatch, caplog, environ_name):
     monkeypatch.setenv('WEB3_INFURA_SCHEME', 'wss')
     API_KEY = 'aoeuhtns'
     monkeypatch.setenv(environ_name, API_KEY)
-    expected_url = 'wss://:@%s/ws/v3/%s' % (infura.INFURA_MAINNET_DOMAIN, API_KEY)
+    expected_url = 'wss://%s/ws/v3/%s' % (infura.INFURA_MAINNET_DOMAIN, API_KEY)
 
     importlib.reload(infura)
     assert len(caplog.record_tuples) == 0

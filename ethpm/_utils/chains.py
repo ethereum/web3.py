@@ -9,11 +9,16 @@ from urllib import (
 
 from eth_typing import (
     URI,
+    BlockNumber,
+    HexStr,
 )
 from eth_utils import (
     add_0x_prefix,
     is_integer,
     remove_0x_prefix,
+)
+from hexbytes import (
+    HexBytes,
 )
 
 from ethpm.constants import (
@@ -22,8 +27,8 @@ from ethpm.constants import (
 from web3 import Web3
 
 
-def get_genesis_block_hash(web3: Web3) -> str:
-    return web3.eth.getBlock(0)["hash"]
+def get_genesis_block_hash(web3: Web3) -> HexBytes:
+    return web3.eth.getBlock(BlockNumber(0))["hash"]
 
 
 BLOCK = "block"
@@ -44,12 +49,12 @@ def is_BIP122_uri(value: URI) -> bool:
     return bool(re.match(BIP122_URL_REGEX, value))
 
 
-def parse_BIP122_uri(blockchain_uri: URI) -> Tuple[str, str, str]:
+def parse_BIP122_uri(blockchain_uri: URI) -> Tuple[HexStr, str, HexStr]:
     match = re.match(BIP122_URL_REGEX, blockchain_uri)
     if match is None:
         raise ValueError(f"Invalid URI format: '{blockchain_uri}'")
     chain_id, resource_type, resource_hash = match.groups()
-    return (add_0x_prefix(chain_id), resource_type, add_0x_prefix(resource_hash))
+    return (add_0x_prefix(HexStr(chain_id)), resource_type, add_0x_prefix(HexStr(resource_hash)))
 
 
 def is_BIP122_block_uri(value: URI) -> bool:
@@ -67,7 +72,7 @@ def is_block_or_transaction_hash(value: str) -> bool:
 
 
 def create_BIP122_uri(
-    chain_id: str, resource_type: str, resource_identifier: str
+    chain_id: HexStr, resource_type: str, resource_identifier: HexStr
 ) -> URI:
     """
     See: https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki
@@ -94,7 +99,7 @@ def create_BIP122_uri(
     )
 
 
-def create_block_uri(chain_id: str, block_identifier: str) -> URI:
+def create_block_uri(chain_id: HexStr, block_identifier: HexStr) -> URI:
     return create_BIP122_uri(chain_id, "block", remove_0x_prefix(block_identifier))
 
 

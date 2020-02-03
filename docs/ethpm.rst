@@ -13,7 +13,7 @@ driven by discussions in `ERC
 
 ``Py-EthPM`` is being built as a low-level library to help developers leverage the ethPM spec. Including ...
 
-- Parse and validate packages. 
+- Parse and validate packages.
 - Construct and publish new packages.
 - Provide access to contract factory classes.
 - Provide access to all of a package's deployments.
@@ -32,7 +32,7 @@ new ``Package`` class for a given package.
 ``Package`` objects *must* be instantiated with a valid ``web3`` object.
 
 .. doctest::
-  
+
    >>> from ethpm import Package, ASSETS_DIR
    >>> from web3 import Web3
 
@@ -47,7 +47,7 @@ Properties
 Each ``Package`` exposes the following properties.
 
 .. autoclass:: ethpm.Package
-   :members: name, version, manifest_version, uri, __repr__, build_dependencies, deployments
+   :members: name, version, manifest_version, uri, __repr__, contract_types, build_dependencies, deployments
 
 .. py:attribute:: Package.w3
 
@@ -140,7 +140,7 @@ URI Schemes and Backends
 BaseURIBackend
 ~~~~~~~~~~~~~~
 
-``Py-EthPM`` uses the ``BaseURIBackend`` as the parent class for all of its URI backends. To write your own backend, it must implement the following methods. 
+``Py-EthPM`` uses the ``BaseURIBackend`` as the parent class for all of its URI backends. To write your own backend, it must implement the following methods.
 
 .. py:method:: BaseURIBackend.can_resolve_uri(uri)
 
@@ -193,15 +193,15 @@ A valid content-addressed Github URI *must* conform to the following scheme, as 
    This util function will return a content-addressed URI, as defined by Github's `blob <https://developer.github.com/v3/git/blobs/>`__ scheme. To generate a content-addressed URI for any manifest stored on github, this function requires accepts a Github API uri that follows the following scheme.
 
 ::
-  
+
    https://api.github.com/repos/:owner/:repo/contents/:path/:to/manifest.json
 
 .. doctest::
 
    >>> from ethpm.uri import create_content_addressed_github_uri
 
-   >>> owned_github_api_uri = "https://api.github.com/repos/ethpm/py-ethpm/contents/ethpm/assets/owned/1.0.1.json"
-   >>> content_addressed_uri = "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480"
+   >>> owned_github_api_uri = "https://api.github.com/repos/ethereum/web3.py/contents/ethpm/assets/owned/1.0.1.json"
+   >>> content_addressed_uri = "https://api.github.com/repos/ethereum/web3.py/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480"
 
    >>> actual_blob_uri = create_content_addressed_github_uri(owned_github_api_uri)
    >>> assert actual_blob_uri == content_addressed_uri
@@ -216,30 +216,42 @@ way through the EIP process)
 
 ::
 
-   scheme://address:chain_id/package-name?version=x.x.x
+   scheme://address:chain_id/package-name@version
 
 -  URI must be a string type
--  ``scheme``: ``erc1319``
--  ``address``: Must be a valid ENS domain or a valid checksum address
+-  ``scheme``: (required) ``ethpm`` or ``erc1319``
+-  ``address``: (required) Must be a valid ENS domain or a valid checksum address
    pointing towards a registry contract.
--  ``chain_id``: Chain ID of the chain on which the registry lives. Supported chains include...
+-  ``chain_id``: Chain ID of the chain on which the registry lives. Defaults to Mainnet. Supported chains include...
+
   - 1: Mainnet
   - 3: Ropsten
   - 4: Rinkeby
   - 5: Goerli
   - 42: Kovan
+
 -  ``package-name``: Must conform to the package-name as specified in
    the
    `EthPM-Spec <http://ethpm-spec.readthedocs.io/en/latest/package-spec.html#package-name>`__.
 -  ``version``: The URI escaped version string, *should* conform to the
    `semver <http://semver.org/>`__ version numbering specification.
 
-i.e. ``erc1319://packages.zeppelinos.eth:1/owned?version=1.0.0``
+i.e. 
+- ``ethpm://packages.zeppelinos.eth/owned@1.0.0``
+- ``ethpm://0x808B53bF4D70A24bA5cb720D37A4835621A9df00:1/ethregistrar@1.0.0``
+
+To specify a specific asset within a package, you can namespace the target asset.
+
+i.e. 
+- ``ethpm://maker.snakecharmers.eth:1/dai-dai@1.0.0/sources/token.sol``
+- ``ethpm://maker.snakecharmers.eth:1/dai-dai@1.0.0/contract_types/DSToken/abi``
+- ``ethpm://maker.snakecharmers.eth:1/dai-dai@1.0.0/deployments/mainnet/dai``
+
 
 Builder
 -------
 
-The manifest Builder is a tool designed to help construct custom manifests. The builder is still under active development, and can only handle simple use-cases for now. 
+The manifest Builder is a tool designed to help construct custom manifests. The builder is still under active development, and can only handle simple use-cases for now.
 
 To create a simple manifest
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -336,7 +348,7 @@ To validate a manifest
        validate(),
    )
 
-By default, the manifest builder does *not* perform any validation that the generated fields are correctly formatted. There are two ways to validate that the built manifest conforms to the EthPM V2 Specification. 
+By default, the manifest builder does *not* perform any validation that the generated fields are correctly formatted. There are two ways to validate that the built manifest conforms to the EthPM V2 Specification.
     - Return a Package, which automatically runs validation.
     - Add the ``validate()`` function to the end of the manifest builder.
 
@@ -481,12 +493,12 @@ Here is an example of how to compile the contracts and generate the standard-jso
 Sample standard-json-input.json
 
 .. code:: json
-    
+
     {
         "language": "Solidity",
         "sources": {
             "Contract.sol": {
-                "urls": [<path-to-contract>]
+                "urls": ["<path-to-contract>"]
             }
         },
         "settings": {
@@ -497,7 +509,7 @@ Sample standard-json-input.json
             }
         }
     }
-    
+
 
 The ``compiler_output`` as used in the following examples is the entire value of the ``contracts`` key of the solc output, which contains compilation data for all compiled contracts.
 
@@ -506,7 +518,7 @@ To add a source
 ~~~~~~~~~~~~~~~
 
 .. code:: python
-  
+
    # To inline a source
    build(
        ...,
@@ -529,7 +541,7 @@ To add a source
        ...,
    )
 
-There are two ways to include a contract source in your manifest. 
+There are two ways to include a contract source in your manifest.
 
 Both strategies require that either . . .
     - The current working directory is set to the package root directory
@@ -537,10 +549,10 @@ Both strategies require that either . . .
     - The package root directory is provided as an argument (``package_root_dir``)
 
 
-To inline the source code directly in the manifest, use ``inline_source()`` or ``source_inliner()`` (to inline multiple sources from the same compiler_output), which requires the contract name and compiler output as args. 
+To inline the source code directly in the manifest, use ``inline_source()`` or ``source_inliner()`` (to inline multiple sources from the same compiler_output), which requires the contract name and compiler output as args.
 
 .. note::
-   
+
    `owned_compiler_output.json` below is expected to be the standard-json output generated by the solidity compiler as described `here <https://solidity.readthedocs.io/en/v0.4.24/using-the-compiler.html>`. The output must contain the `abi` and `bytecode` objects from compilation.
 
 .. doctest::
@@ -652,7 +664,7 @@ The default behavior of the manifest builder's ``contract_type()`` function is t
    >>> assert expected_manifest == built_manifest
 
 
-To select only certain contract type data to be included in your manifest, provide the desired fields as ``True`` keyword arguments. The following fields can be specified for inclusion in the manifest . . . 
+To select only certain contract type data to be included in your manifest, provide the desired fields as ``True`` keyword arguments. The following fields can be specified for inclusion in the manifest . . .
     - ``abi``
     - ``compiler``
     - ``deployment_bytecode``
@@ -719,7 +731,7 @@ To add a deployment
        ),
        ...,
    )
-   
+
 There are two strategies for adding a deployment to your manifest.
 
 .. py:function:: deployment(block_uri, contract_instance, contract_type, address, transaction=None, block=None, deployment_bytecode=None, runtime_bytecode=None, compiler=None)
@@ -819,7 +831,7 @@ To add a build dependency
        ),
        ...,
    )
-   
+
 .. py:function:: build_dependency(package_name, uri)
 
 To add a build dependency to your manifest, just provide the package's name and a supported, content-addressed URI.
@@ -844,7 +856,7 @@ To add a build dependency to your manifest, just provide the package's name and 
 Checker
 -------
 
-The manifest Checker is a tool designed to help validate manifests according to the natural language spec (link). 
+The manifest Checker is a tool designed to help validate manifests according to the natural language spec (link).
 
 To validate a manifest
 ~~~~~~~~~~~~~~~~~~~~~~

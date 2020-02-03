@@ -7,12 +7,13 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        "eth-tester[py-evm]==0.1.0-beta.39",
-        "py-geth>=2.0.1,<3.0.0",
+        "eth-tester[py-evm]==v0.2.0-beta.2",
+        "py-geth>=2.2.0,<3",
     ],
     'linter': [
         "flake8==3.4.1",
         "isort>=4.2.15,<4.3.5",
+        "mypy==0.730",
     ],
     'docs': [
         "mock",
@@ -20,12 +21,13 @@ extras_require = {
         "click>=5.1",
         "configparser==3.5.0",
         "contextlib2>=0.5.4",
-        "py-geth>=1.4.0",
+        "py-geth>=2.2.0,<3",
         "py-solc>=0.4.0",
         "pytest>=4.4.0,<5.0.0",
         "sphinx",
         "sphinx_rtd_theme>=0.1.9",
         "toposort>=1.4",
+        "towncrier>=19.2.0,<20",
         "urllib3",
         "web3>=2.1.0",
         "wheel"
@@ -35,15 +37,16 @@ extras_require = {
         "flaky>=3.3.0",
         "hypothesis>=3.31.2",
         "pytest>=4.4.0,<5.0.0",
+        "pytest-asyncio>=0.10.0,<0.11",
         "pytest-mock>=1.10,<2",
         "pytest-pythonpath>=0.3",
         "pytest-watch>=4.2,<5",
         "pytest-xdist>=1.29,<2",
         "setuptools>=36.2.0",
         "tox>=1.8.0",
-        "tqdm",
-        "twine",
-        "when-changed"
+        "tqdm>4.32,<5",
+        "twine>=1.13,<2",
+        "when-changed>=0.3.0,<0.4"
     ]
 }
 
@@ -57,7 +60,7 @@ extras_require['dev'] = (
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='5.0.0',
+    version='5.4.0',
     description="""Web3.py""",
     long_description_markdown_filename='README.md',
     author='Piper Merriam',
@@ -70,15 +73,17 @@ setup(
         "eth-account>=0.4.0,<0.5.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
         "eth-typing>=2.0.0,<3.0.0",
-        "eth-utils>=1.4.0,<2.0.0",
+        "eth-utils>=1.8.4,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
         "ipfshttpclient>=0.4.12,<1",
-        "jsonschema>=2.6.0,<3",
+        "jsonschema>=3.0.0,<4.0.0",
         "lru-dict>=1.1.6,<2.0.0",
-        "protobuf>=3.0.0,<4",
+        "protobuf>=3.10.0,<4",
         "pypiwin32>=223;platform_system=='Windows'",
         "requests>=2.16.0,<3.0.0",
-        "websockets>=7.0.0,<8.0.0",
+        # remove typing_extensions after python_requires>=3.8, see web3._utils.compat
+         "typing-extensions>=3.7.4.1,<4;python_version<'3.8'",
+        "websockets>=8.1.0,<9.0.0",
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.6,<4',
@@ -97,5 +102,6 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
 )

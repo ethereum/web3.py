@@ -1,6 +1,6 @@
-REGISTRY_URI_SCHEME = "erc1319"
+REGISTRY_URI_SCHEMES = ("erc1319", "ethpm")
 
-PACKAGE_NAME_REGEX = "[a-zA-Z][-_a-zA-Z0-9]{0,255}"
+PACKAGE_NAME_REGEX = "^[a-zA-Z][-_a-zA-Z0-9]{0,255}$"
 
 DEFAULT_IPFS_BACKEND = "ethpm.backends.ipfs.InfuraIPFSBackend"
 

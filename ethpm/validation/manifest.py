@@ -1,14 +1,22 @@
+from abc import (
+    ABCMeta,
+)
 import json
 from typing import (
     Any,
     Dict,
     List,
     Set,
+    cast,
 )
 
 from jsonschema import (
     ValidationError as jsonValidationError,
     validate,
+)
+from jsonschema.validators import (
+    Draft4Validator,
+    validator_for,
 )
 
 from ethpm import (
@@ -36,7 +44,7 @@ def validate_meta_object(meta: Dict[str, Any], allow_extra_meta_fields: bool) ->
     """
     for key, value in meta.items():
         if key in META_FIELDS:
-            if type(value) is not META_FIELDS[key]:
+            if cast(ABCMeta, type(value)) is not META_FIELDS[key]:
                 raise EthPMValidationError(
                     f"Values for {key} are expected to have the type {META_FIELDS[key]}, "
                     f"instead got {type(value)}."
@@ -75,7 +83,7 @@ def validate_manifest_against_schema(manifest: Dict[str, Any]) -> None:
     """
     schema_data = _load_schema_data()
     try:
-        validate(manifest, schema_data)
+        validate(manifest, schema_data, cls=validator_for(schema_data, Draft4Validator))
     except jsonValidationError as e:
         raise EthPMValidationError(
             f"Manifest invalid for schema version {schema_data['version']}. "
@@ -134,7 +142,7 @@ def validate_raw_manifest_format(raw_manifest: str) -> None:
     - has a trailing newline
     """
     try:
-        manifest_dict = json.loads(raw_manifest, encoding="UTF-8")
+        manifest_dict = json.loads(raw_manifest)
     except json.JSONDecodeError as err:
         raise json.JSONDecodeError(
             "Failed to load package data. File is not a valid JSON document.",

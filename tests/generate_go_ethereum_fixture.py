@@ -26,13 +26,13 @@ from eth_utils.toolz import (
     valmap,
 )
 
-from tests.utils import (
+from utils import (
     get_open_port,
 )
 from web3 import Web3
 from web3._utils.module_testing.emitter_contract import (
-    EMITTER_ABI,
-    EMITTER_BYTECODE,
+    CONTRACT_EMITTER_ABI,
+    CONTRACT_EMITTER_CODE,
     EMITTER_ENUM,
 )
 from web3._utils.module_testing.math_contract import (
@@ -78,6 +78,7 @@ GENESIS_DATA = {
     "config": {
         "chainId": 131277322940537,  # the string 'web3py' as an integer
         "homesteadBlock": 0,
+        "eip150Block": 0,
         "eip155Block": 0,
         "eip158Block": 0
     },
@@ -346,8 +347,8 @@ def setup_chain_state(web3):
     # Emitter Contract
     #
     emitter_contract_factory = web3.eth.contract(
-        abi=EMITTER_ABI,
-        bytecode=EMITTER_BYTECODE,
+        abi=CONTRACT_EMITTER_ABI,
+        bytecode=CONTRACT_EMITTER_CODE,
     )
     emitter_deploy_receipt = deploy_contract(web3, 'emitter', emitter_contract_factory)
     emitter_contract = emitter_contract_factory(emitter_deploy_receipt['contractAddress'])

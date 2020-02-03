@@ -69,35 +69,14 @@ def test_deployment_getitem_without_deployment_reference_raises_exception(deploy
         deployment["DoesNotExist"]
 
 
-def test_deployment_getitem_without_contract_type_reference_raises_exception(
-    invalid_deployment
-):
-    with pytest.raises(EthPMValidationError):
-        invalid_deployment["SafeMathLib"]
-
-
 def test_deployment_implements_get_items(deployment):
     expected_items = DEPLOYMENT_DATA.items()
     assert deployment.items() == expected_items
 
 
-def test_deployment_get_items_with_invalid_contract_names_raises_exception(
-    invalid_deployment
-):
-    with pytest.raises(EthPMValidationError):
-        invalid_deployment.items()
-
-
 def test_deployment_implements_get_values(deployment):
     expected_values = list(DEPLOYMENT_DATA.values())
     assert deployment.values() == expected_values
-
-
-def test_deployment_get_values_with_invalid_contract_names_raises_exception(
-    invalid_deployment
-):
-    with pytest.raises(EthPMValidationError):
-        invalid_deployment.values()
 
 
 def test_deployment_implements_key_lookup(deployment):
@@ -121,13 +100,6 @@ def test_get_instance_with_invalid_name_raises_exception(deployment, invalid_nam
 def test_get_instance_without_reference_in_deployments_raises_exception(deployment):
     with pytest.raises(KeyError):
         deployment.get_instance("InvalidContract")
-
-
-def test_get_instance_without_reference_in_contract_factories_raises(
-    invalid_deployment
-):
-    with pytest.raises(EthPMValidationError):
-        invalid_deployment.get_instance("SafeMathLib")
 
 
 def test_deployments_get_instance(safe_math_lib_package):
@@ -166,7 +138,7 @@ def test_get_linked_deployments(escrow_package):
     assert actual_linked_deployments == {"Escrow": all_deployments["Escrow"]}
     # integration via package.deployments
     deployments = escrow_package.deployments
-    assert len(deployments.contract_factories) is 2
+    assert len(deployments.contract_instances) == 2
 
 
 @pytest.mark.parametrize(

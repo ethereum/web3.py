@@ -1,9 +1,25 @@
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Collection,
+    Type,
+)
+
 from requests.exceptions import (
     ConnectionError,
     HTTPError,
     Timeout,
     TooManyRedirects,
 )
+
+from web3.types import (
+    RPCEndpoint,
+    RPCResponse,
+)
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
 whitelist = [
     'admin',
@@ -61,7 +77,7 @@ whitelist = [
 ]
 
 
-def check_if_retry_on_failure(method):
+def check_if_retry_on_failure(method: RPCEndpoint) -> bool:
     root = method.split('_')[0]
     if root in whitelist:
         return True
@@ -71,27 +87,36 @@ def check_if_retry_on_failure(method):
         return False
 
 
-def exception_retry_middleware(make_request, web3, errors, retries=5):
+def exception_retry_middleware(
+    make_request: Callable[[RPCEndpoint, Any], RPCResponse],
+    web3: "Web3",
+    errors: Collection[Type[BaseException]],
+    retries: int=5,
+) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     """
     Creates middleware that retries failed HTTP requests. Is a default
     middleware for HTTPProvider.
     """
-    def middleware(method, params):
+    def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if check_if_retry_on_failure(method):
             for i in range(retries):
                 try:
                     return make_request(method, params)
-                except errors:
+                # https://github.com/python/mypy/issues/5349
+                except errors:  # type: ignore
                     if i < retries - 1:
                         continue
                     else:
                         raise
+            return None
         else:
             return make_request(method, params)
     return middleware
 
 
-def http_retry_request_middleware(make_request, web3):
+def http_retry_request_middleware(
+    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+) -> Callable[[RPCEndpoint, Any], Any]:
     return exception_retry_middleware(
         make_request,
         web3,

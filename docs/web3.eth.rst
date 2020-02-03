@@ -178,7 +178,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the balance of the given ``account`` at the block specified by
     ``block_identifier``.
 
-    ``account`` may be a hex address or an ENS name
+    ``account`` may be a checksum address or an ENS name
 
     .. code-block:: python
 
@@ -193,7 +193,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the value from a storage position for the given ``account`` at the
     block specified by ``block_identifier``.
 
-    ``account`` may be a hex address or an ENS name
+    ``account`` may be a checksum address or an ENS name
 
     .. code-block:: python
 
@@ -208,7 +208,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the values from an array of storage positions for the given ``account`` at the
     block specified by ``block_identifier``.
 
-    ``account`` may be a hex address or an ENS name
+    ``account`` may be a checksum address or an ENS name
 
     .. code-block:: python
 
@@ -309,7 +309,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the bytecode for the given ``account`` at the block specified by
     ``block_identifier``.
 
-    ``account`` may be a hex address or an ENS name
+    ``account`` may be a checksum address or an ENS name
 
     .. code-block:: python
 
@@ -328,7 +328,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the block specified by ``block_identifier``.  Delegates to
     ``eth_getBlockByNumber`` if ``block_identifier`` is an integer or one of
     the predefined block parameters ``'latest', 'earliest', 'pending'``,
-    otherwise delegates to ``eth_getBlockByHash``.
+    otherwise delegates to ``eth_getBlockByHash``. Throws ``BlockNotFound`` error if the block is not found.
 
     If ``full_transactions`` is ``True`` then the ``'transactions'`` key will
     contain full transactions objects.  Otherwise it will be an array of
@@ -369,7 +369,7 @@ The following methods are available on the ``web3.eth`` namespace.
     ``block_identifier``.  Delegates to
     ``eth_getBlockTransactionCountByNumber`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
-    'pending'``, otherwise delegates to ``eth_getBlockTransactionCountByHash``.
+    'pending'``, otherwise delegates to ``eth_getBlockTransactionCountByHash``. Throws ``BlockNotFoundError`` if transactions are not found.
 
     .. code-block:: python
 
@@ -395,7 +395,7 @@ The following methods are available on the ``web3.eth`` namespace.
     ``eth_getUncleByBlockNumberAndIndex`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
     'pending'``, otherwise delegates to
-    ``eth_getUncleByBlockHashAndIndex``.
+    ``eth_getUncleByBlockHashAndIndex``. Throws ``BlockNotFound`` if the block is not found.
 
     .. code-block:: python
 
@@ -435,7 +435,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Delegates to ``eth_getTransactionByHAsh`` RPC Method
 
-    Returns the transaction specified by ``transaction_hash``
+    Returns the transaction specified by ``transaction_hash``. If the transaction has not yet been mined returns ``TransactionNotFound``.
 
     .. code-block:: python
 
@@ -470,7 +470,7 @@ The following methods are available on the ``web3.eth`` namespace.
     ``eth_getTransactionByBlockNumberAndIndex`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
     'pending'``, otherwise delegates to
-    ``eth_getTransactionByBlockHashAndIndex``.
+    ``eth_getTransactionByBlockHashAndIndex``. If the transaction has not yet been mined returns ``TransactionNotFound``.
 
     .. code-block:: python
 
@@ -504,7 +504,7 @@ The following methods are available on the ``web3.eth`` namespace.
         })
 
 
-.. py:method:: Eth.waitForTransactionReceipt(transaction_hash, timeout=120)
+.. py:method:: Eth.waitForTransactionReceipt(transaction_hash, timeout=120, poll_latency=0.1)
 
     Waits for the transaction specified by ``transaction_hash`` to be included in a block, then
     returns its transaction receipt.
@@ -538,7 +538,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Delegates to ``eth_getTransactionReceipt`` RPC Method
 
-    Returns the transaction receipt specified by ``transaction_hash``.  If the transaction has not yet been mined returns ``None``
+    Returns the transaction receipt specified by ``transaction_hash``.  If the transaction has not yet been mined returns ``TransactionNotFound``
 
     .. code-block:: python
 
@@ -568,7 +568,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Returns the number of transactions that have been sent from ``account`` as
     of the block specified by ``block_identifier``.
 
-    ``account`` may be a hex address or an ENS name
+    ``account`` may be a checksum address or an ENS name
 
     .. code-block:: python
 
@@ -584,9 +584,9 @@ The following methods are available on the ``web3.eth`` namespace.
 
     The ``transaction`` parameter should be a dictionary with the following fields.
 
-    * ``from``: ``bytes or text``, hex address or ENS name - (optional, default:
+    * ``from``: ``bytes or text``, checksum address or ENS name - (optional, default:
       ``web3.eth.defaultAccount``) The address the transaction is send from.
-    * ``to``: ``bytes or text``, hex address or ENS name - (optional when creating new
+    * ``to``: ``bytes or text``, checksum address or ENS name - (optional when creating new
       contract) The address the transaction is directed to.
     * ``gas``: ``integer`` - (optional, default: 90000) Integer of the gas
       provided for the transaction execution. It will return unused gas.
@@ -735,7 +735,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Signs the given data with the private key of the given ``account``.
     The account must be unlocked.
 
-    ``account`` may be a hex address or an ENS name
+    ``account`` may be a checksum address or an ENS name
 
     .. code-block:: python
 
@@ -765,7 +765,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Signs the ``Structured Data`` (or ``Typed Data``) with the private key of the given ``account``.
     The account must be unlocked.
 
-    ``account`` may be a hex address or an ENS name
+    ``account`` may be a checksum address or an ENS name
 
 
 .. py:method:: Eth.call(transaction, block_identifier=web3.eth.defaultBlock)
@@ -1004,7 +1004,7 @@ Contracts
 .. py:method:: Eth.contract(address=None, contract_name=None, ContractFactoryClass=Contract, **contract_factory_kwargs)
 
     If ``address`` is provided, then this method will return an instance of the
-    contract defined by ``abi``. The address may be a hex string,
+    contract defined by ``abi``. The address may be a checksum string,
     or an ENS name like ``'mycontract.eth'``.
 
     .. code-block:: python
@@ -1022,7 +1022,7 @@ Contracts
 
         If you use an ENS name to initialize a contract, the contract will be looked up by
         name on each use. If the name could ever change maliciously, first
-        :ref:`ens_get_address`, and then create the contract with the hex address.
+        :ref:`ens_get_address`, and then create the contract with the checksum address.
 
 
     If ``address`` is *not* provided, the newly created contract class will be returned. That

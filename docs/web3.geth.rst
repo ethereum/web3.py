@@ -264,9 +264,10 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     * Delegates to ``personal_unlockAccount`` RPC Method
 
-    Unlocks the given ``account`` for ``duration`` seconds.  If ``duration`` is
-    ``None`` then the account will remain unlocked indefinitely.  Returns
-    boolean as to whether the account was successfully unlocked.
+    Unlocks the given ``account`` for ``duration`` seconds. If ``duration`` is 
+	``None`` then the account will remain unlocked for 300 seconds (which is current default by Geth v1.9.5), 
+	if ``duration`` is set to ``0``, the account will remain unlocked indefinitely.  
+	Returns boolean as to whether the account was successfully unlocked.
 
     .. code-block:: python
 
@@ -525,7 +526,12 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
         >>>web3.geth.shh.post({'payload': web3.toHex(text="test_payload"), 'pubKey': recipient_public, 'topic': '0x12340000', 'powTarget': 2.5, 'powTime': 2})
         True
 
-.. py:method:: Shh.newMessageFilter(self, criteria)
+.. py:method:: Shh.newMessageFilter()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.new_message_filter()`
+
+.. py:method:: Shh.new_message_filter(self, criteria)
 
     * Create a new filter id. This filter id can be used with ``ShhFilter`` to poll for new messages that match the set of criteria.
 
@@ -534,16 +540,22 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
         * ``privateKeyID``: When using asymmetric key encryption, holds the private key ID.
         * ``sig``: Public key of the signature.
         * ``minPoW``: Minimal PoW requirement for incoming messages.
-        * ``topics``: Array of possible topics (or partial topics).
+        * ``topic``: Array of possible topics (or partial topics).
         * ``allowP2P``: Indicates if this filter allows processing of direct peer-to-peer messages.
 
 
     .. code-block:: python
 
-        >>>web3.geth.shh.newMessageFilter({'topic': '0x12340000', 'privateKeyID': recipient_private})
+        >>>web3.geth.shh.new_message_filter({'topic': '0x12340000', 'privateKeyID': recipient_private})
         'b37c3106cfb683e8f01b5019342399e0d1d74e9160f69b27625faba7a6738554'
 
-.. py:method:: Shh.deleteMessageFilter(self, filter_id)
+.. py:method:: Shh.deleteMessageFilter()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.delete_message_filter()`
+
+
+.. py:method:: Shh.delete_message_filter(self, filter_id)
 
     * Deletes a message filter in the node.
 
@@ -551,10 +563,15 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.deleteMessageFilter('b37c3106cfb683e8f01b5019342399e0d1d74e9160f69b27625faba7a6738554')
+        >>>web3.geth.shh.delete_message_filter('b37c3106cfb683e8f01b5019342399e0d1d74e9160f69b27625faba7a6738554')
         True
 
-.. py:method:: Shh.getMessages(self, filter_id)
+.. py:method:: Shh.getMessages()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.get_filter_messages()`
+
+.. py:method:: Shh.get_filter_messages(self, filter_id)
 
     * Retrieve messages that match the filter criteria and are received between the last time this function was called and now.
 
@@ -562,7 +579,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.getMessages('b37c3106cfb683e8f01b5019342399e0d1d74e9160f69b27625faba7a6738554')
+        >>>web3.geth.shh.get_filter_messages('b37c3106cfb683e8f01b5019342399e0d1d74e9160f69b27625faba7a6738554')
         [{
             'ttl': 50,
             'timestamp': 1524497850,
@@ -574,7 +591,12 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
             'recipientPublicKey': HexBytes('0x047d36c9e45fa82fcd27d35bc7d2fd41a2e41e512feec9e4b90ee4293ab12dc2cfc98250a6f5689b07650f8a5ca3a6e0fa8808cd0ce1a1962f2551354487a8fc79')
         }]
 
-.. py:method:: Shh.setMaxMessageSize(self, size)
+.. py:method:: Shh.setMaxMessageSize()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.set_max_message_size()`
+
+.. py:method:: Shh.set_max_message_size(self, size)
 
     * Sets the maximal message size allowed by this node. Incoming and outgoing messages with a larger size will be rejected. Whisper message size can never exceed the limit imposed by the underlying P2P protocol (10 Mb).
 
@@ -582,10 +604,15 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.setMaxMessageSize(1024)
+        >>>web3.geth.shh.set_max_message_size(1024)
         True
 
-.. py:method:: Shh.setMinPoW(self, min_pow)
+.. py:method:: Shh.setMinPoW()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.set_min_pow()`
+
+.. py:method:: Shh.set_min_pow(self, min_pow)
 
     * Sets the minimal PoW required by this node.
 
@@ -593,10 +620,15 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.setMinPoW(0.4)
+        >>>web3.geth.shh.set_min_pow(0.4)
         True
 
-.. py:method:: Shh.markTrustedPeer(self, enode)
+.. py:method:: Shh.markTrustedPeer()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.mark_trusted_peer()`
+
+.. py:method:: Shh.mark_trusted_peer(self, enode)
 
     * Marks specific peer trusted, which will allow it to send historic (expired) messages.
 
@@ -604,14 +636,19 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.markTrustedPeer('enode://d25474361659861e9e651bc728a17e807a3359ca0d344afd544ed0f11a31faecaf4d74b55db53c6670fd624f08d5c79adfc8da5dd4a11b9213db49a3b750845e@52.178.209.125:30379')
+        >>>web3.geth.shh.mark_trusted_peer('enode://d25474361659861e9e651bc728a17e807a3359ca0d344afd544ed0f11a31faecaf4d74b55db53c6670fd624f08d5c79adfc8da5dd4a11b9213db49a3b750845e@52.178.209.125:30379')
         True
 
 ---------------
 Asymmetric Keys
 ---------------
 
-.. py:method:: Shh.newKeyPair(self)
+.. py:method:: Shh.newKeyPair()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.new_key_pair()`
+
+.. py:method:: Shh.new_key_pair(self)
 
     * Generates a new cryptographic identity for the client, and injects it into the known identities for message decryption
 
@@ -619,10 +656,15 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.newKeyPair()
+        >>>web3.geth.shh.new_key_pair()
         '86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb'
 
-.. py:method:: Shh.addPrivateKey(self, key)
+.. py:method:: Shh.addPrivateKey()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.add_private_key()`
+
+.. py:method:: Shh.add_private_key(self, key)
 
     * Stores a key pair derived from a private key, and returns its ID.
 
@@ -630,10 +672,15 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.addPrivateKey('0x7b8190d96cd061a102e551ee36d08d4f3ca1f56fb0008ef5d70c56271d8c46d0')
+        >>>web3.geth.shh.add_private_key('0x7b8190d96cd061a102e551ee36d08d4f3ca1f56fb0008ef5d70c56271d8c46d0')
         '86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb'
 
-.. py:method:: Shh.deleteKeyPair(self, id)
+.. py:method:: Shh.deleteKeyPair()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.delete_key_pair()`
+
+.. py:method:: Shh.delete_key_pair(self, id)
 
     * Deletes the specified key if it exists.
 
@@ -641,10 +688,15 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.deleteKeyPair('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
+        >>>web3.geth.shh.delete_key_pair('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
         True
 
-.. py:method:: Shh.hasKeyPair(self, id)
+.. py:method:: Shh.hasKeyPair()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.has_key_pair()`
+
+.. py:method:: Shh.has_key_pair(self, id)
 
     * Checks if the whisper node has a private key of a key pair matching the given ID.
 
@@ -652,32 +704,47 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.hasKeyPair('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
+        >>>web3.geth.shh.has_key_pair('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
         False
 
-.. py:method:: Shh.getPublicKey(self, id)
+.. py:method:: Shh.getPublicKey()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.get_public_key()`
+
+.. py:method:: Shh.get_public_key(self, id)
 
     * Returns the public key associated with the key pair.
 
     .. code-block:: python
 
-        >>>web3.geth.shh.getPublicKey('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
+        >>>web3.geth.shh.get_public_key('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
         '0x041b0777ceb8cf8748fe0bba5e55039d650a03eb0239a909f9ee345bbbad249f2aa236a4b8f41f51bd0a97d87c08e69e67c51f154d634ba51a224195212fc31e4e'
 
-.. py:method:: Shh.getPrivateKey(self, id)
+.. py:method:: Shh.getPrivateKey()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.get_private_key()`
+
+.. py:method:: Shh.get_private_key(self, id)
 
     * Returns the private key associated with the key pair.
 
     .. code-block:: python
 
-        >>>web3.geth.shh.getPrivateKey('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
+        >>>web3.geth.shh.get_private_key('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
         '0x7b8190d96cd061a102e551ee36d08d4f3ca1f56fb0008ef5d70c56271d8c46d0'
 
 ---------------
 Symmetric Keys
 ---------------
 
-.. py:method:: Shh.newSymKey(self)
+.. py:method:: Shh.newSymKey()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.new_sym_key()`
+
+.. py:method:: Shh.new_sym_key(self)
 
     * Generates a random symmetric key and stores it under id, which is then returned. Will be used in the future for session key exchange
 
@@ -685,10 +752,15 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.newSymKey()
+        >>>web3.geth.shh.new_sym_key()
         '6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c'
 
-.. py:method:: Shh.addSymKey(self, key)
+.. py:method:: Shh.addSymKey()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.add_sym_key()`
+
+.. py:method:: Shh.add_sym_key(self, key)
 
     * Stores the key, and returns its ID.
 
@@ -696,10 +768,15 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.addSymKey('0x58f6556e56a0d41b464a083161377c8a9c2e95156921f954f99ef97d41cebaa2')
+        >>>web3.geth.shh.add_sym_key('0x58f6556e56a0d41b464a083161377c8a9c2e95156921f954f99ef97d41cebaa2')
         '6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c'
 
-.. py:method:: Shh.generateSymKeyFromPassword(self)
+.. py:method:: Shh.generateSymKeyFromPassword()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.generate_sym_key_from_password()`
+
+.. py:method:: Shh.generate_sym_key_from_password(self)
 
     * Generates the key from password, stores it, and returns its ID.
 
@@ -707,10 +784,15 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.generateSymKeyFromPassword('shh secret pwd')
+        >>>web3.geth.shh.generate_sym_key_from_password('shh secret pwd')
         '6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c'
 
-.. py:method:: Shh.hasSymKey(self, id)
+.. py:method:: Shh.hasSymKey()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.has_sym_key()`
+
+.. py:method:: Shh.has_sym_key(self, id)
 
     * Checks if there is a symmetric key stored with the given ID.
 
@@ -718,10 +800,15 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.hasSymKey('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
+        >>>web3.geth.shh.has_sym_key('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
         False
 
-.. py:method:: Shh.getSymKey(self, id)
+.. py:method:: Shh.getSymKey()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.get_sym_key()`
+
+.. py:method:: Shh.get_sym_key(self, id)
 
     * Returns the symmetric key associated with the given ID.
 
@@ -729,10 +816,15 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.getSymKey('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
+        >>>web3.geth.shh.get_sym_key('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
         '0x58f6556e56a0d41b464a083161377c8a9c2e95156921f954f99ef97d41cebaa2'
 
-.. py:method:: Shh.deleteSymKey(self, id)
+.. py:method:: Shh.deleteSymKey()
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.geth.shh.delete_sym_key()`
+
+.. py:method:: Shh.delete_sym_key(self, id)
 
     * Deletes the symmetric key associated with the given ID.
 
@@ -740,5 +832,5 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.deleteSymKey('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
+        >>>web3.geth.shh.delete_sym_key('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
         True

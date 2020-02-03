@@ -16,6 +16,7 @@ from ethpm.validation.manifest import (
 )
 from ethpm.validation.package import (
     validate_manifest_version,
+    validate_package_name,
 )
 
 
@@ -215,3 +216,38 @@ def test_validate_meta_object_validates(meta, extra_fields):
 def test_validate_meta_object_invalidates(meta, extra_fields):
     with pytest.raises(EthPMValidationError):
         validate_meta_object(meta, allow_extra_meta_fields=extra_fields)
+
+
+@pytest.mark.parametrize(
+    "package_name",
+    (
+        "valid",
+        "Valid",
+        "pkg1",
+        "pkg_1",
+        "pkg-1",
+        "wallet0",
+        "wallet_",
+        "wallet-",
+        "x" * 256,
+    )
+)
+def test_validate_package_name_with_valid_package_names(package_name):
+    assert validate_package_name(package_name) is None
+
+
+@pytest.mark.parametrize(
+    "package_name",
+    (
+        "",
+        "0",
+        "_invalid",
+        "-invalid",
+        ".invalid",
+        "wallet.bad",
+        "x" * 257,
+    )
+)
+def test_validate_package_name_raises_exception_for_invalid_names(package_name):
+    with pytest.raises(EthPMValidationError):
+        validate_package_name(package_name)

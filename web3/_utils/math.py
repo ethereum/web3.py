@@ -1,9 +1,13 @@
+from typing import (
+    Sequence,
+)
+
 from web3.exceptions import (
     InsufficientData,
 )
 
 
-def percentile(values=None, percentile=None):
+def percentile(values: Sequence[int]=None, percentile: float=None) -> float:
     """Calculates a simplified weighted average percentile
     """
     if values in [None, tuple(), []] or len(values) < 1:

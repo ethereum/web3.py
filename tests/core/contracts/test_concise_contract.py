@@ -40,7 +40,8 @@ def zero_address_contract(web3, WithConstructorAddressArgumentsContract, EMPTY_A
     _address_contract = WithConstructorAddressArgumentsContract(
         address=deploy_receipt['contractAddress'],
     )
-    return ConciseContract(_address_contract)
+    with pytest.warns(DeprecationWarning, match='deprecated in favor of contract.caller'):
+        return ConciseContract(_address_contract)
 
 
 def test_concisecontract_call_default():
@@ -105,7 +106,8 @@ def test_conciscecontract_keeps_custom_normalizers_on_base(web3, MATH_ABI):
 
     # create concisce contract with custom contract
     new_normalizers_size = len(base_contract._return_data_normalizers)
-    concise = ConciseContract(base_contract)
+    with pytest.warns(DeprecationWarning, match='deprecated in favor of contract.caller'):
+        concise = ConciseContract(base_contract)
 
     # check that concise contract includes the new normalizers
     concise_normalizers_size = len(concise._classic_contract._return_data_normalizers)
@@ -127,7 +129,8 @@ def test_conciscecontract_function_collision(
 
     setattr(ConciseContract, 'getValue', getValue)
 
-    concise_contract = ConciseContract(contract)
+    with pytest.warns(DeprecationWarning, match='deprecated in favor of contract.caller'):
+        concise_contract = ConciseContract(contract)
 
     assert isinstance(concise_contract, ConciseContract)
 

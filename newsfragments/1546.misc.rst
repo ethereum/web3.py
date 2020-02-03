@@ -1,0 +1,1 @@
+Remove redundant mypy-extensions dependency.

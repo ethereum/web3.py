@@ -1,3 +1,10 @@
+from typing import (
+    NoReturn,
+)
+
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.module import (
     Module,
 )
@@ -5,17 +12,17 @@ from web3.module import (
 
 class Net(Module):
     @property
-    def listening(self):
-        return self.web3.manager.request_blocking("net_listening", [])
+    def listening(self) -> bool:
+        return self.web3.manager.request_blocking(RPC.net_listening, [])
 
     @property
-    def peerCount(self):
-        return self.web3.manager.request_blocking("net_peerCount", [])
+    def peerCount(self) -> int:
+        return self.web3.manager.request_blocking(RPC.net_peerCount, [])
 
     @property
-    def chainId(self):
+    def chainId(self) -> NoReturn:
         raise DeprecationWarning("This method has been deprecated in EIP 1474.")
 
     @property
-    def version(self):
-        return self.web3.manager.request_blocking("net_version", [])
+    def version(self) -> str:
+        return self.web3.manager.request_blocking(RPC.net_version, [])

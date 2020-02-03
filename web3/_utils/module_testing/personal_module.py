@@ -1,6 +1,13 @@
 import json
 import pytest
+from typing import (
+    TYPE_CHECKING,
+    cast,
+)
 
+from eth_typing import (
+    ChecksumAddress,
+)
 from eth_utils import (
     is_checksum_address,
     is_list_like,
@@ -9,6 +16,14 @@ from eth_utils import (
 from hexbytes import (
     HexBytes,
 )
+
+from web3.types import (  # noqa: F401
+    TxParams,
+    Wei,
+)
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
 PRIVATE_KEY_HEX = '0x56ebb41875ceedd42e395f730e03b5c44989393c9f0484ee6bc05f933673458f'
 PASSWORD = 'web3-testing'
@@ -20,11 +35,11 @@ ACCOUNT_FOR_UNLOCK = '0x12efDc31B1a8FA1A1e756DFD8A1601055C971E13'
 
 
 class GoEthereumPersonalModuleTest:
-    def test_personal_importRawKey(self, web3):
+    def test_personal_importRawKey(self, web3: "Web3") -> None:
         actual = web3.geth.personal.importRawKey(PRIVATE_KEY_HEX, PASSWORD)
         assert actual == ADDRESS
 
-    def test_personal_listAccounts(self, web3):
+    def test_personal_listAccounts(self, web3: "Web3") -> None:
         accounts = web3.geth.personal.listAccounts()
         assert is_list_like(accounts)
         assert len(accounts) > 0
@@ -34,56 +49,64 @@ class GoEthereumPersonalModuleTest:
             in accounts
         ))
 
-    def test_personal_lockAccount(self, web3, unlockable_account_dual_type):
+    def test_personal_lockAccount(
+        self, web3: "Web3", unlockable_account_dual_type: ChecksumAddress
+    ) -> None:
         # TODO: how do we test this better?
         web3.geth.personal.lockAccount(unlockable_account_dual_type)
 
-    def test_personal_unlockAccount_success(self,
-                                            web3,
-                                            unlockable_account_dual_type,
-                                            unlockable_account_pw):
+    def test_personal_unlockAccount_success(
+        self,
+        web3: "Web3",
+        unlockable_account_dual_type: ChecksumAddress,
+        unlockable_account_pw: str,
+    ) -> None:
         result = web3.geth.personal.unlockAccount(
             unlockable_account_dual_type,
             unlockable_account_pw
         )
         assert result is True
 
-    def test_personal_unlockAccount_failure(self,
-                                            web3,
-                                            unlockable_account_dual_type):
+    def test_personal_unlockAccount_failure(
+        self, web3: "Web3", unlockable_account_dual_type: ChecksumAddress
+    ) -> None:
         with pytest.raises(ValueError):
             web3.geth.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
 
-    def test_personal_newAccount(self, web3):
+    def test_personal_newAccount(self, web3: "Web3") -> None:
         new_account = web3.geth.personal.newAccount(PASSWORD)
         assert is_checksum_address(new_account)
 
-    def test_personal_sendTransaction(self,
-                                      web3,
-                                      unlockable_account_dual_type,
-                                      unlockable_account_pw):
+    def test_personal_sendTransaction(
+        self,
+        web3: "Web3",
+        unlockable_account_dual_type: ChecksumAddress,
+        unlockable_account_pw: str,
+    ) -> None:
         assert web3.eth.getBalance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
-            'gas': 21000,
-            'value': 1,
+            'gas': Wei(21000),
+            'value': Wei(1),
             'gasPrice': web3.toWei(1, 'gwei'),
         }
         txn_hash = web3.geth.personal.sendTransaction(txn_params, unlockable_account_pw)
         assert txn_hash
         transaction = web3.eth.getTransaction(txn_hash)
 
-        assert is_same_address(transaction['from'], txn_params['from'])
-        assert is_same_address(transaction['to'], txn_params['to'])
+        assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
         assert transaction['gas'] == txn_params['gas']
         assert transaction['value'] == txn_params['value']
         assert transaction['gasPrice'] == txn_params['gasPrice']
 
-    def test_personal_sign_and_ecrecover(self,
-                                         web3,
-                                         unlockable_account_dual_type,
-                                         unlockable_account_pw):
+    def test_personal_sign_and_ecrecover(
+        self,
+        web3: "Web3",
+        unlockable_account_dual_type: ChecksumAddress,
+        unlockable_account_pw: str,
+    ) -> None:
         message = 'test-web3-geth-personal-sign'
         signature = web3.geth.personal.sign(
             message,
@@ -94,10 +117,12 @@ class GoEthereumPersonalModuleTest:
         assert is_same_address(signer, unlockable_account_dual_type)
 
     @pytest.mark.xfail(reason="personal_signTypedData JSON RPC call has not been released in geth")
-    def test_personal_sign_typed_data(self,
-                                      web3,
-                                      unlockable_account_dual_type,
-                                      unlockable_account_pw):
+    def test_personal_sign_typed_data(
+        self,
+        web3: "Web3",
+        unlockable_account_dual_type: ChecksumAddress,
+        unlockable_account_pw: str,
+    ) -> None:
         typed_message = '''
             {
                 "types": {
@@ -153,7 +178,7 @@ class GoEthereumPersonalModuleTest:
 
 
 class ParityPersonalModuleTest():
-    def test_personal_listAccounts(self, web3):
+    def test_personal_listAccounts(self, web3: "Web3") -> None:
         accounts = web3.parity.personal.listAccounts()
         assert is_list_like(accounts)
         assert len(accounts) > 0
@@ -163,10 +188,12 @@ class ParityPersonalModuleTest():
             in accounts
         ))
 
-    def test_personal_unlockAccount_success(self,
-                                            web3,
-                                            unlockable_account_dual_type,
-                                            unlockable_account_pw):
+    def test_personal_unlockAccount_success(
+        self,
+        web3: "Web3",
+        unlockable_account_dual_type: ChecksumAddress,
+        unlockable_account_pw: str,
+    ) -> None:
         result = web3.parity.personal.unlockAccount(
             unlockable_account_dual_type,
             unlockable_account_pw,
@@ -175,9 +202,11 @@ class ParityPersonalModuleTest():
         assert result is True
 
     # Seems to be an issue with Parity since this should return False
-    def test_personal_unlockAccount_failure(self,
-                                            web3,
-                                            unlockable_account_dual_type):
+    def test_personal_unlockAccount_failure(
+        self,
+        web3: "Web3",
+        unlockable_account_dual_type: ChecksumAddress,
+    ) -> None:
         result = web3.parity.personal.unlockAccount(
             unlockable_account_dual_type,
             'bad-password',
@@ -185,44 +214,52 @@ class ParityPersonalModuleTest():
         )
         assert result is True
 
-    def test_personal_newAccount(self, web3):
+    def test_personal_newAccount(self, web3: "Web3") -> None:
         new_account = web3.parity.personal.newAccount(PASSWORD)
         assert is_checksum_address(new_account)
 
     @pytest.mark.xfail(reason='this non-standard json-rpc method is not implemented on parity')
-    def test_personal_lockAccount(self, web3, unlocked_account):
-        super().test_personal_lockAccount(web3, unlocked_account)
+    def test_personal_lockAccount(
+        self, web3: "Web3", unlocked_account: ChecksumAddress
+    ) -> None:
+        # method undefined in superclass
+        super().test_personal_lockAccount(web3, unlocked_account)  # type: ignore
 
     @pytest.mark.xfail(reason='this non-standard json-rpc method is not implemented on parity')
-    def test_personal_importRawKey(self, web3):
-        super().test_personal_importRawKey(web3)
+    def test_personal_importRawKey(self, web3: "Web3") -> None:
+        # method undefined in superclass
+        super().test_personal_importRawKey(web3)  # type: ignore
 
-    def test_personal_sendTransaction(self,
-                                      web3,
-                                      unlockable_account_dual_type,
-                                      unlockable_account_pw):
+    def test_personal_sendTransaction(
+        self,
+        web3: "Web3",
+        unlockable_account_dual_type: ChecksumAddress,
+        unlockable_account_pw: str,
+    ) -> None:
         assert web3.eth.getBalance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
-        txn_params = {
+        txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
-            'gas': 21000,
-            'value': 1,
+            'gas': Wei(21000),
+            'value': Wei(1),
             'gasPrice': web3.toWei(1, 'gwei'),
         }
         txn_hash = web3.parity.personal.sendTransaction(txn_params, unlockable_account_pw)
         assert txn_hash
         transaction = web3.eth.getTransaction(txn_hash)
 
-        assert is_same_address(transaction['from'], txn_params['from'])
-        assert is_same_address(transaction['to'], txn_params['to'])
+        assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
         assert transaction['gas'] == txn_params['gas']
         assert transaction['value'] == txn_params['value']
         assert transaction['gasPrice'] == txn_params['gasPrice']
 
-    def test_personal_sign_and_ecrecover(self,
-                                         web3,
-                                         unlockable_account_dual_type,
-                                         unlockable_account_pw):
+    def test_personal_sign_and_ecrecover(
+        self,
+        web3: "Web3",
+        unlockable_account_dual_type: ChecksumAddress,
+        unlockable_account_pw: str,
+    ) -> None:
         message = 'test-web3-parity-personal-sign'
         signature = web3.parity.personal.sign(
             message,
@@ -232,10 +269,12 @@ class ParityPersonalModuleTest():
         signer = web3.parity.personal.ecRecover(message, signature)
         assert is_same_address(signer, unlockable_account_dual_type)
 
-    def test_personal_sign_typed_data(self,
-                                      web3,
-                                      unlockable_account_dual_type,
-                                      unlockable_account_pw):
+    def test_personal_sign_typed_data(
+        self,
+        web3: "Web3",
+        unlockable_account_dual_type: ChecksumAddress,
+        unlockable_account_pw: str,
+    ) -> None:
         typed_message = '''
             {
                 "types": {
@@ -289,10 +328,12 @@ class ParityPersonalModuleTest():
         assert signature == expected_signature
         assert len(signature) == 32 + 32 + 1
 
-    def test_invalid_personal_sign_typed_data(self,
-                                              web3,
-                                              unlockable_account_dual_type,
-                                              unlockable_account_pw):
+    def test_invalid_personal_sign_typed_data(
+        self,
+        web3: "Web3",
+        unlockable_account_dual_type: ChecksumAddress,
+        unlockable_account_pw: str,
+    ) -> None:
         invalid_typed_message = '''
             {
                 "types": {

@@ -121,7 +121,7 @@ Event Log Filters
 -----------------
 
 You can set up a filter for event logs using the web3.py contract api:
-:func:`web3.contract.Contract.events.<event_name>.createFilter`, which provides some conveniances for
+:meth:`web3.contract.Contract.events.your_event_name.createFilter`, which provides some conveniences for
 creating event log filters. Refer to the following example:
 
     .. code-block:: python
@@ -129,10 +129,10 @@ creating event log filters. Refer to the following example:
         event_filter = myContract.events.<event_name>.createFilter(fromBlock="latest", argument_filters={'arg1':10})
         event_filter.get_new_entries()
 
-See :meth:`web3.contract.Contract.events.<event_name>.createFilter` documentation for more information.
+See :meth:`web3.contract.Contract.events.your_event_name.createFilter()` documentation for more information.
 
-You can set up an event log filter like the one above with `web3.eth.filter` by supplying a
-dictionary containing the standard filter parameters. Assuming that `arg1` is indexed, the
+You can set up an event log filter like the one above with ``web3.eth.filter`` by supplying a
+dictionary containing the standard filter parameters. Assuming that ``arg1`` is indexed, the
 equivalent filter creation would look like:
 
     .. code-block:: python

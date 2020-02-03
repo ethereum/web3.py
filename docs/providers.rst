@@ -126,10 +126,10 @@ For example, the following retrieves the client enode endpoint for both geth and
 
     connected = w3.isConnected()
 
-    if connected and w3.version.node.startswith('Parity'):
+    if connected and w3.clientVersion.startswith('Parity'):
         enode = w3.parity.enode
 
-    elif connected and w3.version.node.startswith('Geth'):
+    elif connected and w3.clientVersion.startswith('Geth'):
         enode = w3.geth.admin.nodeInfo['enode']
 
     else:
@@ -244,7 +244,7 @@ IPCProvider
     This provider handles interaction with an IPC Socket based JSON-RPC
     server.
 
-    *  ``ipc_path`` is the filesystem path to the IPC socket.:56
+    *  ``ipc_path`` is the filesystem path to the IPC socket:
 
     .. code-block:: python
 
@@ -258,10 +258,12 @@ IPCProvider
 
       - ``~/.ethereum/geth.ipc``
       - ``~/.local/share/io.parity.ethereum/jsonrpc.ipc``
+      - ``~/.local/share/trinity/mainnet/ipcs-eth1/jsonrpc.ipc``
     - On Mac OS:
 
       - ``~/Library/Ethereum/geth.ipc``
       - ``~/Library/Application Support/io.parity.ethereum/jsonrpc.ipc``
+      - ``~/.local/share/trinity/mainnet/ipcs-eth1/jsonrpc.ipc``
     - On Windows:
 
       - ``\\\.\pipe\geth.ipc``

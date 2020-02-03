@@ -1,5 +1,16 @@
 import pytest
+from typing import (
+    Any,
+    NoReturn,
+    Sequence,
+)
 
+from eth_typing import (
+    ChecksumAddress,
+    HexAddress,
+    HexStr,
+    TypeStr,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -14,11 +25,11 @@ from web3.exceptions import (
 
 
 class Web3ModuleTest:
-    def test_web3_clientVersion(self, web3):
+    def test_web3_clientVersion(self, web3: Web3) -> None:
         client_version = web3.clientVersion
         self._check_web3_clientVersion(client_version)
 
-    def _check_web3_clientVersion(self, client_version):
+    def _check_web3_clientVersion(self, client_version: str) -> NoReturn:
         raise NotImplementedError("Must be implemented by subclasses")
 
     # Contract that calculated test values can be found at
@@ -164,7 +175,9 @@ class Web3ModuleTest:
             ),
         ),
     )
-    def test_solidityKeccak(self, web3, types, values, expected):
+    def test_solidityKeccak(
+        self, web3: "Web3", types: Sequence[TypeStr], values: Sequence[Any], expected: HexBytes
+    ) -> None:
         if isinstance(expected, type) and issubclass(expected, Exception):
             with pytest.raises(expected):
                 web3.solidityKeccak(types, values)
@@ -188,10 +201,16 @@ class Web3ModuleTest:
             ),
         ),
     )
-    def test_solidityKeccak_ens(self, web3, types, values, expected):
+    def test_solidityKeccak_ens(
+        self, web3: "Web3", types: Sequence[TypeStr], values: Sequence[str], expected: HexBytes
+    ) -> None:
         with ens_addresses(web3, {
-            'one.eth': "0x49EdDD3769c0712032808D86597B84ac5c2F5614",
-            'two.eth': "0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5",
+            'one.eth': ChecksumAddress(
+                HexAddress(HexStr("0x49EdDD3769c0712032808D86597B84ac5c2F5614"))
+            ),
+            'two.eth': ChecksumAddress(
+                HexAddress(HexStr("0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5"))
+            ),
         }):
             # when called as class method, any name lookup attempt will fail
             with pytest.raises(InvalidAddress):
@@ -209,9 +228,11 @@ class Web3ModuleTest:
             ([], ['0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5']),
         )
     )
-    def test_solidityKeccak_same_number_of_types_and_values(self, web3, types, values):
+    def test_solidityKeccak_same_number_of_types_and_values(
+        self, web3: "Web3", types: Sequence[TypeStr], values: Sequence[Any]
+    ) -> None:
         with pytest.raises(ValueError):
             web3.solidityKeccak(types, values)
 
-    def test_is_connected(self, web3):
+    def test_is_connected(self, web3: "Web3") -> None:
         assert web3.isConnected()

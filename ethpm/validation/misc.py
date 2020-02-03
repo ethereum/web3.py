@@ -1,3 +1,7 @@
+from urllib import (
+    parse,
+)
+
 from ethpm.exceptions import (
     EthPMValidationError,
 )
@@ -20,4 +24,13 @@ def validate_empty_bytes(offset: int, length: int, bytecode: bytes) -> None:
         raise EthPMValidationError(
             f"Bytecode segment: [{offset}:{slot_length}] is not comprised of empty bytes, "
             f"rather: {slot}."
+        )
+
+
+def validate_escaped_string(string: str) -> None:
+    unsafe = parse.unquote(string)
+    safe = parse.quote(unsafe)
+    if string != safe:
+        raise EthPMValidationError(
+            f"String: {string} is not properly escaped, and contains url unsafe characters."
         )

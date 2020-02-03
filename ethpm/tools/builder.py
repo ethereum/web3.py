@@ -433,8 +433,9 @@ def normalize_compiler_output(compiler_output: Dict[str, Any]) -> Dict[str, Any]
     ]
     paths, names = zip(*paths_and_names)
     if len(names) != len(set(names)):
+        duplicates = set([name for name in names if names.count(name) > 1])
         raise ManifestBuildingError(
-            "Duplicate contract names were found in the compiler output."
+            f"Duplicate contract types: {duplicates} were found in the compiler output."
         )
     return {
         name: normalize_contract_type(compiler_output[path][name])
@@ -501,7 +502,7 @@ def normalize_bytecode_object(obj: Dict[str, Any]) -> Iterable[Tuple[str, Any]]:
         yield "bytecode", add_0x_prefix(bytecode)
 
 
-def process_bytecode(link_refs: Dict[str, Any], bytecode: bytes) -> str:
+def process_bytecode(link_refs: Dict[str, Any], bytecode: bytes) -> HexStr:
     """
     Replace link_refs in bytecode with 0's.
     """

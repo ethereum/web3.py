@@ -12,12 +12,12 @@ Providers
 ---------
 
 *Providers* are how web3 connects to the blockchain.  The Web3 library comes
-with a the following built-in providers that should be suitable for most normal
+with the following built-in providers that should be suitable for most normal
 use cases.
 
-- ``web3.HTTPProvider`` for connecting to http and https based JSON-RPC servers.
-- ``web3.IPCProvider`` for connecting to ipc socket based JSON-RPC servers.
-- ``web3.WebsocketProvider`` for connecting to ws and wss websocket based JSON-RPC servers.
+- ``Web3.HTTPProvider`` for connecting to http and https based JSON-RPC servers.
+- ``Web3.IPCProvider`` for connecting to ipc socket based JSON-RPC servers.
+- ``Web3.WebsocketProvider`` for connecting to ws and wss websocket based JSON-RPC servers.
 
 The ``HTTPProvider`` takes the full URI where the server can be found.  For
 local development this would be something like ``http://localhost:8545``.
@@ -200,7 +200,7 @@ Currency Conversions
 
     .. code-block:: python
 
-        >>> web3.fromWei(1000000000000000000, 'ether')
+        >>> Web3.fromWei(1000000000000000000, 'ether')
         Decimal('1')
 
 
@@ -219,7 +219,7 @@ Addresses
 
     .. code-block:: python
 
-        >>> wch3.isAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> Web3.isAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
 
 
@@ -230,9 +230,9 @@ Addresses
 
     .. code-block:: python
 
-        >>> wch3.isChecksumAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> Web3.isChecksumAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
-        >>> wch3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> Web3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
         False
 
 
@@ -340,6 +340,38 @@ Cryptographic Hashing
 
         >>> Web3.soliditySha3(['address'], ["ethereumfoundation.eth"])
         HexBytes("0x913c99ea930c78868f1535d34cd705ab85929b2eaaf70fcd09677ecd6e5d75e9")
+
+Check Encodability
+~~~~~~~~~~~~~~~~~~~~
+
+.. py:method:: w3.is_encodable(_type, value)
+
+  Returns ``True`` if a value can be encoded as the given type. Otherwise returns ``False``.
+
+   .. code-block:: python
+
+        >>> from web3.auto.gethdev import w3
+        >>> w3.is_encodable('bytes2', b'12')
+        True
+        >>> w3.is_encodable('bytes2', b'1')
+        True
+        >>> w3.is_encodable('bytes2', '0x1234')
+        True
+        >>> w3.is_encodable('bytes2', b'123')
+        False
+
+.. py:method:: w3.enable_strict_bytes_type_checking()
+
+   Enables stricter bytes type checking. For more examples see :ref:`enable-strict-byte-check`
+
+    .. doctest::
+
+        >>> from web3.auto.gethdev import w3
+        >>> w3.enable_strict_bytes_type_checking()
+        >>> w3.is_encodable('bytes2', b'12')
+        True
+        >>> w3.is_encodable('bytes2', b'1')
+        False
 
 Modules
 -------
