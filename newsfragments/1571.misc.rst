@@ -1,1 +1,0 @@
-Updated registry URI utils in ethpm to support new definition.

@@ -6,6 +6,45 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.5.0 (2020-02-03)
+-------------------
+
+Features
+~~~~~~~~
+
+- ENS had to release a new registry to push a bugfix. See
+  `this article <https://medium.com/the-ethereum-name-service/ens-registry-migration-bug-fix-new-features-64379193a5a>`_
+  for background information. Web3.py uses the new registry for all default ENS interactions, now. (`#1573 <https://github.com/ethereum/web3.py/issues/1573>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Minor bugfix in how ContractCaller looks up abi functions. (`#1552 <https://github.com/ethereum/web3.py/issues/1552>`__)
+- Update modules to use compatible typing-extensions import. (`#1554 <https://github.com/ethereum/web3.py/issues/1554>`__)
+- Make 'from' and 'to' fields checksum addresses in returned transaction receipts (`#1562 <https://github.com/ethereum/web3.py/issues/1562>`__)
+- Use local Trinity's IPC socket if it is available, for newer versions of Trinity. (`#1563 <https://github.com/ethereum/web3.py/issues/1563>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add Matomo Tracking to Docs site.
+
+  Matomo is an Open Source web analytics platform that allows us
+  to get better insights and optimize for our audience without
+  the negative consequences of other compareable platforms.
+
+  Read more: https://matomo.org/why-matomo/ (`#1541 <https://github.com/ethereum/web3.py/issues/1541>`__)
+- Fix web3 typo in docs (`#1559 <https://github.com/ethereum/web3.py/issues/1559>`__)
+
+
+Misc
+~~~~
+
+- `#1521 <https://github.com/ethereum/web3.py/issues/1521>`__, `#1546 <https://github.com/ethereum/web3.py/issues/1546>`__, `#1571 <https://github.com/ethereum/web3.py/issues/1571>`__
+
+
 v5.4.0 (2019-12-06)
 -------------------
 

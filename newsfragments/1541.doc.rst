@@ -1,7 +1,0 @@
-Add Matomo Tracking to Docs site.
-
-Matomo is an Open Source web analytics platform that allows us
-to get better insights and optimize for our audience without
-the negative consequences of other compareable platforms.
-
-Read more: https://matomo.org/why-matomo/

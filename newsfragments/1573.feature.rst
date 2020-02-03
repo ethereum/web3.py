@@ -1,3 +1,0 @@
-ENS had to release a new registry to push a bugfix. See
-`this article <https://medium.com/the-ethereum-name-service/ens-registry-migration-bug-fix-new-features-64379193a5a>`_
-for background information. Web3.py uses the new registry for all default ENS interactions, now.
