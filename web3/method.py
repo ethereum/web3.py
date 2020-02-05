@@ -122,8 +122,7 @@ class Method(Generic[TFunc]):
             error_formatters: Callable[..., TReturn]=None,
             null_result_formatters: Callable[..., TReturn]=None,
             web3: "Web3"=None,
-            # TODO - figure out the types here
-            method_choice_depends_on_args=None):
+            method_choice_depends_on_args: Callable[..., TReturn]=None):
 
         self.json_rpc_method = json_rpc_method
         self.mungers = mungers or [default_munger]
@@ -173,7 +172,7 @@ class Method(Generic[TFunc]):
 
     def process_params(
         self, module: Union["Module", "ModuleV2"], *args: Any, **kwargs: Any
-    ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., Any]], Any], Tuple[Any, Any]]:
+    ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., Any]], Any], Tuple[Any, Any], Tuple[Any, Any]]:
         params = self.input_munger(module, args, kwargs)
         # block_identifier is always the first argument passed in for methods where
         # method_choice_depends_on_args is called.

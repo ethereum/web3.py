@@ -35,6 +35,9 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3.types import (
+    _Hash32,
+)
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
@@ -121,7 +124,8 @@ class Eth(ModuleV2):
     def icapNamereg(self) -> NoReturn:
         raise NotImplementedError()
 
-    protocol_version = Method(
+    # _get_node_version: Method[Callable[[], str]] = Method(RPC.web3_clientVersion)
+    protocol_version: Method[Callable[[], None]] = Method(
         RPC.eth_protocolVersion,
         mungers=None,
     )
@@ -130,7 +134,7 @@ class Eth(ModuleV2):
     def protocolVersion(self) -> str:
         return self.protocol_version()
 
-    is_syncing = Method(
+    is_syncing: Method[Callable[[], None]] = Method(
         RPC.eth_syncing,
         mungers=None,
     )
@@ -139,7 +143,7 @@ class Eth(ModuleV2):
     def syncing(self) -> Union[SyncStatus, bool]:
         return self.is_syncing()
 
-    get_coinbase = Method(
+    get_coinbase: Method[Callable[[], None]] = Method(
         RPC.eth_coinbase,
         mungers=None,
     )
@@ -148,7 +152,7 @@ class Eth(ModuleV2):
     def coinbase(self) -> ChecksumAddress:
         return self.get_coinbase()
 
-    is_mining = Method(
+    is_mining: Method[Callable[[], None]] = Method(
         RPC.eth_mining,
         mungers=None,
     )
@@ -157,7 +161,7 @@ class Eth(ModuleV2):
     def mining(self) -> bool:
         return self.is_mining()
 
-    get_hashrate = Method(
+    get_hashrate: Method[Callable[[], None]] = Method(
         RPC.eth_hashrate,
         mungers=None,
     )
@@ -166,11 +170,7 @@ class Eth(ModuleV2):
     def hashrate(self) -> int:
         return self.get_hashrate()
 
-<<<<<<< HEAD
-    gas_price = Method(
-=======
-    gas_price: Method[Callable[[], str]] = Method(
->>>>>>> Fix lint errors aside from types
+    gas_price: Method[Callable[[], None]] = Method(
         RPC.eth_gasPrice,
         mungers=None,
     )
@@ -179,7 +179,7 @@ class Eth(ModuleV2):
     def gasPrice(self) -> Wei:
         return self.gas_price()
 
-    get_accounts = Method(
+    get_accounts: Method[Callable[[], None]] = Method(
         RPC.eth_accounts,
         mungers=None,
     )
@@ -188,7 +188,7 @@ class Eth(ModuleV2):
     def accounts(self) -> Tuple[ChecksumAddress]:
         return self.get_accounts()
 
-    block_number = Method(
+    block_number: Method[Callable[[], None]] = Method(
         RPC.eth_blockNumber,
         mungers=None,
     )
@@ -197,7 +197,7 @@ class Eth(ModuleV2):
     def blockNumber(self) -> BlockNumber:
         return self.block_number()
 
-    chain_id = Method(
+    chain_id: Method[Callable[[], None]] = Method(
         RPC.eth_chainId,
         mungers=None,
     )
@@ -206,42 +206,55 @@ class Eth(ModuleV2):
     def chainId(self) -> int:
         return self.web3.manager.request_blocking(RPC.eth_chainId, [])
 
-    # TODO - tighten up the return type here
-    def block_identifier_munger(self, *args, block_identifier: BlockIdentifier=None) -> List:
+    # Args can be:
+    #    - Account
+    #    - Account, positions
+    def block_identifier_munger(self,
+        *args: Union[ChecksumAddress, List[int]],
+        block_identifier: BlockIdentifier=None
+    ) -> List[Union[ChecksumAddress, List[int], BlockIdentifier]]:
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return [*args, block_identifier]
 
-    getBalance = Method(
+    getBalance: Method[
+        Callable[[Union[ChecksumAddress, BlockIdentifier]], None]
+    ] = Method(
         RPC.eth_getBalance,
         mungers=[block_identifier_munger],
     )
 
-    getStorageAt = Method(
+    getStorageAt: Method[
+        Callable[[Union[ChecksumAddress, BlockIdentifier]], None]
+    ] = Method(
         RPC.eth_getStorageAt,
         mungers=[block_identifier_munger],
     )
 
-    getProof = Method(
+    getProof: Method[
+        Callable[[Union[ChecksumAddress, List[int], BlockIdentifier]], None]
+    ] = Method(
         RPC.eth_getProof,
         mungers=[block_identifier_munger],
     )
 
-    getCode = Method(
+    getCode: Method[
+        Callable[[Union[ChecksumAddress, BlockIdentifier]], None]
+    ] = Method(
         RPC.eth_getCode,
         mungers=[block_identifier_munger],
     )
 
     def get_block_munger(
         self, block_identifier: BlockIdentifier, full_transactions: bool=False
-    ):
+    ) -> List[Union[BlockIdentifier, bool]]:
         return [block_identifier, full_transactions]
 
     """
     `eth_getBlockByHash`
     `eth_getBlockByNumber`
     """
-    getBlock = Method(
+    getBlock: Method[Callable[[Union[BlockIdentifier, bool]], None]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getBlockByNumber,
             if_hash=RPC.eth_getBlockByHash,
@@ -254,7 +267,7 @@ class Eth(ModuleV2):
     `eth_getBlockTransactionCountByHash`
     `eth_getBlockTransactionCountByNumber`
     """
-    getBlockTransactionCount = Method(
+    getBlockTransactionCount: Method[Callable[[], None]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getBlockTransactionCountByNumber,
             if_hash=RPC.eth_getBlockTransactionCountByHash,
@@ -268,7 +281,7 @@ class Eth(ModuleV2):
     `eth_getUncleCountByBlockNumber`
     """
     # TODO - make sure this works manually
-    getUncleCount = Method(
+    getUncleCount: Method[Callable[[], None]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getUncleCountByBlockNumber,
             if_hash=RPC.eth_getUncleCountByBlockHash,
@@ -281,7 +294,7 @@ class Eth(ModuleV2):
     `eth_getUncleByBlockHashAndIndex`
     `eth_getUncleByBlockNumberAndIndex`
     """
-    getUncleByBlock = Method(
+    getUncleByBlock: Method[Callable[[], None]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getUncleByBlockNumberAndIndex,
             if_hash=RPC.eth_getUncleByBlockHashAndIndex,
@@ -292,7 +305,7 @@ class Eth(ModuleV2):
 
     # TODO - raise TransactionNotFound if result is None.
     # (Should we raise if transactionIndex is None? I don't think that result will ever be None.)
-    getTransaction = Method(
+    getTransaction: Method[Callable[[Union[ChecksumAddress, BlockIdentifier]], None]] = Method(
         RPC.eth_getTransactionByHash,
         mungers=[default_root_munger],
     )
@@ -310,7 +323,7 @@ class Eth(ModuleV2):
     `eth_getTransactionByBlockHashAndIndex`
     `eth_getTransactionByBlockNumberAndIndex`
     """
-    getTransactionByBlock = Method(
+    getTransactionByBlock: Method[Callable[[], None]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getTransactionByBlockNumberAndIndex,
             if_hash=RPC.eth_getTransactionByBlockHashAndIndex,
@@ -332,12 +345,12 @@ class Eth(ModuleV2):
                 )
             )
 
-    getTransactionReceipt = Method(
+    getTransactionReceipt: Method[Callable[[_Hash32], None]] = Method(
         RPC.eth_getTransactionReceipt,
         mungers=[default_root_munger],
     )
 
-    getTransactionCount = Method(
+    getTransactionCount: Method[Callable[[Union[_Hash32, BlockIdentifier]], None]] = Method(
         RPC.eth_getTransactionCount,
         mungers=[block_identifier_munger],
     )
@@ -372,12 +385,12 @@ class Eth(ModuleV2):
 
         return [transaction]
 
-    sendTransaction = Method(
+    sendTransaction: Method[Callable[[TxParams], None]] = Method(
         RPC.eth_sendTransaction,
         mungers=[send_transaction_munger],
     )
 
-    sendRawTransaction = Method(
+    sendRawTransaction: Method[Callable[[], None]] = Method(
         RPC.eth_sendRawTransaction,
         mungers=[default_root_munger],
     )
@@ -390,24 +403,24 @@ class Eth(ModuleV2):
         message_hex = to_hex(data, hexstr=hexstr, text=text)
         return [account, message_hex]
 
-    sign = Method(
+    sign: Method[Callable[[], None]] = Method(
         RPC.eth_sign,
         mungers=[sign_munger],
     )
 
-    signTransaction = Method(
+    signTransaction: Method[Callable[[], None]] = Method(
         RPC.eth_signTransaction,
         mungers=[default_root_munger],
     )
 
-    signTypedData = Method(
+    signTypedData: Method[Callable[[], None]] = Method(
         RPC.eth_signTypedData,
         mungers=[default_root_munger],
     )
 
     def eth_call_munger(
         self, transaction: TxParams, block_identifier: BlockIdentifier=None
-    ) -> List:
+    ) -> List[Union[TxParams, BlockIdentifier]]:
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
@@ -416,7 +429,7 @@ class Eth(ModuleV2):
             block_identifier = self.defaultBlock
         return [transaction, block_identifier]
 
-    call = Method(
+    call: Method[Callable[[], None]] = Method(
         RPC.eth_call,
         mungers=[eth_call_munger]
     )
@@ -433,7 +446,7 @@ class Eth(ModuleV2):
             params = [transaction, block_identifier]
         return params
 
-    estimateGas = Method(
+    estimateGas: Method[Callable[[Union[TxParams, BlockIdentifier]], None]] = Method(
         RPC.eth_estimateGas,
         mungers=[estimate_gas_munger],
     )
@@ -477,32 +490,32 @@ class Eth(ModuleV2):
                             "a valid filter object, or a filter_id as a string "
                             "or hex.")
 
-    getFilterChanges = Method(
+    getFilterChanges: Method[Callable[[HexStr], None]] = Method(
         RPC.eth_getFilterChanges,
         mungers=[default_root_munger],
     )
 
-    getFilterLogs = Method(
+    getFilterLogs: Method[Callable[[HexStr], None]] = Method(
         RPC.eth_getFilterLogs,
         mungers=[default_root_munger],
     )
 
-    getLogs = Method(
+    getLogs: Method[Callable[[FilterParams], None]] = Method(
         RPC.eth_getLogs,
         mungers=[default_root_munger],
     )
 
-    submitHashrate = Method(
+    submitHashrate: Method[Callable[[], None]] = Method(
         RPC.eth_submitHashrate,
         mungers=[default_root_munger],
     )
 
-    submitWork = Method(
+    submitWork: Method[Callable[[], None]] = Method(
         RPC.eth_submitWork,
         mungers=[default_root_munger],
     )
 
-    uninstallFilter = Method(
+    uninstallFilter: Method[Callable[[], None]] = Method(
         RPC.eth_uninstallFilter,
         mungers=[default_root_munger],
     )
@@ -534,7 +547,7 @@ class Eth(ModuleV2):
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
     # TODO - test
-    getWork = Method(
+    getWork: Method[Callable[[], None]] = Method(
         RPC.eth_getWork,
         mungers=None,
     )

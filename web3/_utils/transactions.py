@@ -141,8 +141,7 @@ def get_buffered_gas_estimate(
 def get_required_transaction(web3: "Web3", transaction_hash: _Hash32) -> TxData:
     current_transaction = web3.eth.getTransaction(transaction_hash)
     if not current_transaction:
-        raise ValueError('Supplied transaction with hash {} does not exist'
-                         .format(transaction_hash))
+        raise ValueError(f'Supplied transaction with hash {transaction_hash} does not exist')
     return current_transaction
 
 
@@ -186,8 +185,9 @@ def prepare_replacement_transaction(
     gas_multiplier: float = 1.125
 ) -> TxParams:
     if current_transaction['blockHash'] is not None:
-        raise ValueError('Supplied transaction with hash {} has already been mined'
-                         .format(current_transaction['hash']))
+        raise ValueError(
+            f'Supplied transaction with hash {current_transaction["hash"]} has already been mined'
+        )
     if 'nonce' in new_transaction and new_transaction['nonce'] != current_transaction['nonce']:
         raise ValueError('Supplied nonce in new_transaction must match the pending transaction')
 

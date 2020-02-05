@@ -6,10 +6,15 @@ from typing import (
     Collection,
     Dict,
     Iterable,
+    NoReturn,
+    Tuple,
     Union,
 )
 
-from eth_utils.curried import (  # type: ignore
+from eth_typing import (
+    HexStr,
+)
+from eth_utils.curried import (
     apply_formatter_at_index,
     apply_formatter_if,
     apply_formatter_to_array,
@@ -72,8 +77,10 @@ from web3.exceptions import (
     TransactionNotFound,
 )
 from web3.types import (
+    _Hash32,
     RPCEndpoint,
     TReturn,
+    BlockIdentifier,
 )
 
 
@@ -116,17 +123,17 @@ def to_hexbytes(
         )
 
 
-def raise_block_not_found_on_no_response(params):
+def raise_block_not_found_on_no_response(params: Tuple[BlockIdentifier]) -> NoReturn:
         block_identifier = params[0]
         raise BlockNotFound(f"Block with id: {block_identifier} not found.")
 
 
-def raise_transaction_not_found_on_no_response(params):
+def raise_transaction_not_found_on_no_response(params: Tuple[_Hash32]) -> NoReturn:
         transaction_hash = params[0]
         raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
 
 
-def raise_transaction_not_found_on_no_response_with_block_id(params):
+def raise_transaction_not_found_on_no_response_with_block_id(params: Tuple[BlockIdentifier, HexStr]) -> NoReturn:
         block_identifier = params[0]
         transaction_index = params[1]
         raise TransactionNotFound(
