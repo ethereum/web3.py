@@ -5,6 +5,19 @@ Breaking Change to Infura coming March 27th, 2019.
  After March 27th, you'll need an API key to interact with Infura.
  Sign up for one at https://infura.io/register.
 
+v4.10.0
+-------
+Released February 4, 2020
+
+- Features
+
+  -  Update mainnet ENS registrar address
+
+     See: https://docs.ens.domains/ens-migration/guide-for-dapp-developers
+
+     Original announcement about ENS registry location change:
+     https://medium.com/the-ethereum-name-service/ens-registry-migration-bug-fix-new-features-64379193a5a
+
 v4.9.2
 ------
 
