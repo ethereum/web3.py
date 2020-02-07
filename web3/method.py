@@ -29,6 +29,7 @@ from web3._utils.method_formatters import (
     get_result_formatters,
 )
 from web3.types import (
+    BlockIdentifier,
     RPCEndpoint,
     TReturn,
 )
@@ -122,7 +123,7 @@ class Method(Generic[TFunc]):
             error_formatters: Callable[..., TReturn]=None,
             null_result_formatters: Callable[..., TReturn]=None,
             web3: "Web3"=None,
-            method_choice_depends_on_args: Callable[..., TReturn]=None):
+            method_choice_depends_on_args: Callable[[Union[RPCEndpoint, BlockIdentifier]], Any]=None):
 
         self.json_rpc_method = json_rpc_method
         self.mungers = mungers or [default_munger]

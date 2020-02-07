@@ -3,7 +3,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
-    Optional,
+    Sequence,
     Union,
 )
 
@@ -16,6 +16,8 @@ from web3.method import (
     Method,
 )
 from web3.types import (
+    _Hash32,
+    BlockIdentifier,
     RPCResponse,
 )
 
