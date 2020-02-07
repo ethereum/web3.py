@@ -1,0 +1,1 @@
+Update ethpm URI to support namespaced assets
