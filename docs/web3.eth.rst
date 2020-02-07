@@ -431,6 +431,27 @@ The following methods are available on the ``web3.eth`` namespace.
         })
 
 
+.. py:method:: Eth.getUncleCount(block_identifier)
+
+    * Delegates to ``eth_getUncleCountByBlockHash`` or
+      ``eth_getUncleCountByBlockNumber`` RPC methods
+
+    Returns the (integer) number of uncles associated with the block specified by ``block_identifier``.
+    Delegates to ``eth_getUncleCountByBlockNumber`` if ``block_identifier`` is an
+    integer or one of the predefined block parameters ``'latest', 'earliest',
+    'pending'``, otherwise delegates to ``eth_getUncleCountByBlockHash``.
+    Throws ``BlockNotFound`` if the block is not found.
+
+    .. code-block:: python
+
+        >>> web3.eth.getUncleCount(56160)
+        1
+
+        # You can also refer to the block by hash:
+        >>> web3.eth.getUncleCount('0x685b2226cbf6e1f890211010aa192bf16f0a0cba9534264a033b023d7367b845')
+        1
+
+
 .. py:method:: Eth.getTransaction(transaction_hash)
 
     * Delegates to ``eth_getTransactionByHAsh`` RPC Method
