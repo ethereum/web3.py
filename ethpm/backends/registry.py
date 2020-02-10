@@ -33,7 +33,10 @@ from ethpm.validation.uri import (
 
 # TODO: Update registry ABI once ERC is finalized.
 REGISTRY_ABI = fetch_standard_registry_abi()
-RegistryURI = namedtuple("RegistryURI", ["address", "chain_id", "name", "version", "ens"])
+RegistryURI = namedtuple(
+    "RegistryURI",
+    ["address", "chain_id", "name", "version", "namespaced_asset", "ens"]
+)
 
 
 class RegistryURIBackend(BaseURIBackend):
@@ -57,7 +60,7 @@ class RegistryURIBackend(BaseURIBackend):
         """
         Return content-addressed URI stored at registry URI.
         """
-        address, chain_id, pkg_name, pkg_version, _ = parse_registry_uri(uri)
+        address, chain_id, pkg_name, pkg_version, _, _ = parse_registry_uri(uri)
         if chain_id != '1':
             # todo: support all testnets
             raise CannotHandleURI(
@@ -104,17 +107,36 @@ def parse_registry_uri(uri: str) -> RegistryURI:
         raise CannotHandleURI(
             f"Invalid address or ENS domain found in uri: {uri}."
         )
-    pkg_name, pkg_version = _process_pkg_path(parsed_uri.path)
-    return RegistryURI(address, chain_id, pkg_name, pkg_version, ens)
+    pkg_name, pkg_version, namespaced_asset = _process_pkg_path(parsed_uri.path)
+    return RegistryURI(address, chain_id, pkg_name, pkg_version, namespaced_asset, ens)
 
 
-def _process_pkg_path(pkg_path: str) -> Tuple[Optional[str], Optional[str]]:
-    pkg_id = pkg_path.strip("/")
-    if not pkg_id:
-        return None, None
+def _process_pkg_path(raw_pkg_path: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+    pkg_path = raw_pkg_path.strip("/")
+    if not pkg_path:
+        return None, None, None
 
+    pkg_id, namespaced_asset = _parse_pkg_path(pkg_path)
+    pkg_name, pkg_version = _parse_pkg_id(pkg_id)
+    if not pkg_version and namespaced_asset:
+        raise EthPMValidationError(
+            "Invalid registry URI, missing package version."
+            "Version is required if namespaced assets are defined."
+        )
+    return pkg_name, pkg_version, namespaced_asset
+
+
+def _parse_pkg_path(pkg_path: str) -> Tuple[str, Optional[str]]:
+    if "/" in pkg_path:
+        pkg_id, _, namespaced_asset = pkg_path.partition("/")
+        return pkg_id, namespaced_asset
+    else:
+        return pkg_path, None
+
+
+def _parse_pkg_id(pkg_id: str) -> Tuple[str, Optional[str]]:
     if "@" not in pkg_id:
         return pkg_id, None
-    pkg_name, safe_pkg_version = pkg_id.split("@")
+    pkg_name, _, safe_pkg_version = pkg_id.partition("@")
     pkg_version = parse.unquote(safe_pkg_version)
     return pkg_name, pkg_version
