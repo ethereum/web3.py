@@ -1,1 +1,0 @@
-Documents the `getUncleCount` method.

@@ -6,6 +6,21 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.5.1 (2020-02-10)
+-------------------
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Documents the `getUncleCount` method. (`#1534 <https://github.com/ethereum/web3.py/issues/1534>`__)
+
+
+Misc
+~~~~
+
+- `#1576 <https://github.com/ethereum/web3.py/issues/1576>`__
+
+
 v5.5.0 (2020-02-03)
 -------------------
 
