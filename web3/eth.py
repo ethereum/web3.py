@@ -347,7 +347,7 @@ class Eth(ModuleV2):
                 )
             )
 
-    getTransactionReceipt: Method[Callable[[_Hash32], TxData]] = Method(
+    getTransactionReceipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
         RPC.eth_getTransactionReceipt,
         mungers=[default_root_munger],
     )
