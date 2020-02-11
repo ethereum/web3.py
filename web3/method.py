@@ -41,7 +41,7 @@ if TYPE_CHECKING:
         ModuleV2,
     )
 
-Munger = Callable[[Union["Module", "ModuleV2"], Any], Any]
+Munger = Callable[..., Any]
 
 
 @to_tuple
@@ -166,14 +166,14 @@ class Method(Generic[TFunc]):
         mungers_iter = iter(self.mungers)
         root_munger = next(mungers_iter)
         munged_inputs = pipe(
-            root_munger(module, *args, **kwargs),  # type: ignore
+            root_munger(module, *args, **kwargs),
             *map(lambda m: _munger_star_apply(functools.partial(m, module)), mungers_iter))
 
         return munged_inputs
 
     def process_params(
         self, module: Union["Module", "ModuleV2"], *args: Any, **kwargs: Any
-    ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., Any]], Any], Tuple[Any, Any], Tuple[Any, Any]]:
+    ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Any], Tuple[Union[TReturn, Dict[str, Callable[..., Any]]], Dict[str, Callable[..., Any]], Union[TReturn, Dict[str, Callable[..., Any]]]]]:
         params = self.input_munger(module, args, kwargs)
         # block_identifier is always the first argument passed in for methods where
         # method_choice_depends_on_args is called.

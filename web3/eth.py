@@ -125,7 +125,6 @@ class Eth(ModuleV2):
     def icapNamereg(self) -> NoReturn:
         raise NotImplementedError()
 
-    # _get_node_version: Method[Callable[[], str]] = Method(RPC.web3_clientVersion)
     protocol_version: Method[Callable[[], str]] = Method(
         RPC.eth_protocolVersion,
         mungers=None,
@@ -211,15 +210,15 @@ class Eth(ModuleV2):
     #    - Account
     #    - Account, positions
     def block_identifier_munger(self,
-        *args: Union[ChecksumAddress, List[int]],
+        account: ChecksumAddress,
         block_identifier: BlockIdentifier=None
-    ) -> List[Union[ChecksumAddress, List[int], BlockIdentifier]]:
+    ) -> Tuple[ChecksumAddress, BlockIdentifier]:
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return [*args, block_identifier]
+        return (account, block_identifier)
 
     getBalance: Method[
-        Callable[[Union[ChecksumAddress, BlockIdentifier]], Wei]
+        Callable[[ChecksumAddress, Optional[BlockIdentifier]], Wei]
     ] = Method(
         RPC.eth_getBalance,
         mungers=[block_identifier_munger],
@@ -232,12 +231,20 @@ class Eth(ModuleV2):
         mungers=[block_identifier_munger],
     )
 
-    # TODO - make a type for this getProof return value
+    def get_proof_munger(self,
+        account: ChecksumAddress,
+        positions: List[int],
+        block_identifier: BlockIdentifier=None
+    ) -> Tuple[ChecksumAddress, List[int], BlockIdentifier]:
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
+        return (account, positions, block_identifier)
+
     getProof: Method[
-        Callable[[Union[ChecksumAddress, List[int], BlockIdentifier]], None]
+        Callable[[Tuple[ChecksumAddress, List[int], BlockIdentifier]], MerkleProof]
     ] = Method(
         RPC.eth_getProof,
-        mungers=[block_identifier_munger],
+        mungers=[get_proof_munger],
     )
 
     getCode: Method[
@@ -421,14 +428,14 @@ class Eth(ModuleV2):
 
     def eth_call_munger(
         self, transaction: TxParams, block_identifier: BlockIdentifier=None
-    ) -> List[TxParams, BlockIdentifier]:
+    ) -> Tuple[TxParams, BlockIdentifier]:
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
         # TODO: move to middleware
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return [transaction, block_identifier]
+        return (transaction, block_identifier)
 
     call: Method[Callable[[Union[TxParams, BlockIdentifier]], None]] = Method(
         RPC.eth_call,

@@ -24,6 +24,7 @@ from web3.version import (
 def blocking_w3():
     return Web3(
         EthereumTesterProvider(),
+        middlewares=[],
         modules={
             "blocking_version": (BlockingVersion,),
             "legacy_version": (Version,),
