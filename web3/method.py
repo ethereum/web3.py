@@ -29,7 +29,6 @@ from web3._utils.method_formatters import (
     get_result_formatters,
 )
 from web3.types import (
-    BlockIdentifier,
     RPCEndpoint,
     TReturn,
 )
@@ -116,14 +115,14 @@ class Method(Generic[TFunc]):
     """
     def __init__(
             self,
-            json_rpc_method: RPCEndpoint=None,
-            mungers: Sequence[Munger]=None,
-            request_formatters: Callable[..., TReturn]=None,
-            result_formatters: Callable[..., TReturn]=None,
-            error_formatters: Callable[..., TReturn]=None,
-            null_result_formatters: Callable[..., TReturn]=None,
-            web3: "Web3"=None,
-            method_choice_depends_on_args: Callable[[Union[RPCEndpoint, BlockIdentifier]], Any]=None):
+            json_rpc_method: Optional[RPCEndpoint]=None,
+            mungers: Optional[Sequence[Munger]]=None,
+            request_formatters: Optional[Callable[..., TReturn]]=None,
+            result_formatters: Optional[Callable[..., TReturn]]=None,
+            error_formatters: Optional[Callable[..., TReturn]]=None,
+            null_result_formatters: Optional[Callable[..., TReturn]]=None,
+            web3: Optional["Web3"]=None,
+            method_choice_depends_on_args: Optional[Callable[..., Any]]=None):
 
         self.json_rpc_method = json_rpc_method
         self.mungers = mungers or [default_munger]
@@ -173,7 +172,14 @@ class Method(Generic[TFunc]):
 
     def process_params(
         self, module: Union["Module", "ModuleV2"], *args: Any, **kwargs: Any
-    ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Any], Tuple[Union[TReturn, Dict[str, Callable[..., Any]]], Dict[str, Callable[..., Any]], Union[TReturn, Dict[str, Callable[..., Any]]]]]:
+    ) -> Tuple[
+        Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Any],
+        Tuple[
+            Union[TReturn, Dict[str, Callable[..., Any]]],
+            Dict[str, Callable[..., Any]],
+            Union[TReturn, Dict[str, Callable[..., Any]]],
+        ]
+    ]:
         params = self.input_munger(module, args, kwargs)
         # block_identifier is always the first argument passed in for methods where
         # method_choice_depends_on_args is called.

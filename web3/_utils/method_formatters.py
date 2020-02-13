@@ -77,10 +77,10 @@ from web3.exceptions import (
     TransactionNotFound,
 )
 from web3.types import (
-    _Hash32,
+    BlockIdentifier,
     RPCEndpoint,
     TReturn,
-    BlockIdentifier,
+    _Hash32,
 )
 
 
@@ -133,7 +133,9 @@ def raise_transaction_not_found_on_no_response(params: Tuple[_Hash32]) -> NoRetu
         raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
 
 
-def raise_transaction_not_found_on_no_response_with_block_id(params: Tuple[BlockIdentifier, HexStr]) -> NoReturn:
+def raise_transaction_not_found_on_no_response_with_block_id(
+    params: Tuple[BlockIdentifier, HexStr]
+) -> NoReturn:
         block_identifier = params[0]
         transaction_index = params[1]
         raise TransactionNotFound(

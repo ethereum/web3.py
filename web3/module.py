@@ -16,9 +16,10 @@ from web3.method import (
     Method,
 )
 from web3.types import (
-    _Hash32,
     BlockIdentifier,
     RPCResponse,
+    TReturn,
+    _Hash32,
 )
 
 if TYPE_CHECKING:
@@ -38,15 +39,36 @@ def apply_result_formatters(
 
 @curry
 def apply_null_result_formatters(
-    result_formatters: Callable[..., Any], result: RPCResponse, params
+    result_formatters: Callable[..., Any],
+    result: RPCResponse,
+    params: Sequence[Union[BlockIdentifier, _Hash32]]
 ) -> RPCResponse:
     null_result = pipe(params, result_formatters)
     return null_result
 
 
+# @curry
+# def apply_null_result_formatters(
+#     result_formatters: Callable[..., Any], result: RPCResponse, params
+# ) -> RPCResponse:
+#     null_result = pipe(result, *(functools.partial(fn, params) for fn in result_formatters))
+#     return null_result
+
+
+# def star_apply(fn):
+#     def inner(args):
+#         return fn(*args)
+#     return inner
+
+
+# def star_pipe(args, *fns):
+#     foo = [star_apply(fn) for fn in fns]
+#     return pipe(args, *foo)
+
+
 @curry
 def retrieve_blocking_method_call_fn(
-    w3: "Web3", module: Union["Module", "ModuleV2"], method: Method[Callable[..., Any]]
+    w3: "Web3", module: Union["Module", "ModuleV2"], method: Method[Callable[..., TReturn]]
 ) -> Callable[..., RPCResponse]:
     def caller(*args: Any, **kwargs: Any) -> RPCResponse:
         (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)

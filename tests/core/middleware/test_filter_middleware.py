@@ -43,7 +43,8 @@ def iter_block_number(start=0):
 
 
 BLOCK_HASH = '0xfe88c94d860f01a17f961bf4bdfb6e0c6cd10d3fda5cc861e805ca1240c58553'
-FILTER_LOG = [AttributeDict({'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24', 'blockHash': HexBytes('0xb72256286ca528e09022ffd408856a73ef90e7216ac560187c6e43b4c4efd2f0'), 'blockNumber': 2217196, 'data': '0x0000000000000000000000000000000000000000000000000000000000000001', 'logIndex': 0, 'topics': [HexBytes('0xe65b00b698ba37c614af350761c735c5f4a82b4ab365a1f1022d49d9dfc8e930'), HexBytes('0x000000000000000000000000754c50465885f1ed1fa1a55b95ee8ecf3f1f4324'), HexBytes('0x296c7fb6ccafa3e689950b947c2895b07357c95b066d5cdccd58c301f41359a3')], 'transactionHash': HexBytes('0xfe1289fd3915794b99702202f65eea2e424b2f083a12749d29b4dd51f6dce40d'), 'transactionIndex': 1})]
+FILTER_LOG = [AttributeDict({'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24', 'blockHash': HexBytes('0xb72256286ca528e09022ffd408856a73ef90e7216ac560187c6e43b4c4efd2f0'), 'blockNumber': 2217196, 'data': '0x0000000000000000000000000000000000000000000000000000000000000001', 'logIndex': 0, 'topics': [HexBytes('0xe65b00b698ba37c614af350761c735c5f4a82b4ab365a1f1022d49d9dfc8e930'), HexBytes('0x000000000000000000000000754c50465885f1ed1fa1a55b95ee8ecf3f1f4324'), HexBytes('0x296c7fb6ccafa3e689950b947c2895b07357c95b066d5cdccd58c301f41359a3')], 'transactionHash': HexBytes('0xfe1289fd3915794b99702202f65eea2e424b2f083a12749d29b4dd51f6dce40d'), 'transactionIndex': 1})]  # noqa: E501
+
 
 @pytest.fixture(scope='function')
 def result_generator_middleware(iter_block_number):

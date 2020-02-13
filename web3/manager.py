@@ -54,7 +54,7 @@ if TYPE_CHECKING:
 
 
 def apply_error_formatters(
-    error_formatters: Callable[..., Any], response: RPCResponse
+    error_formatters: Optional[Dict[str, Callable[..., Any]]], response: RPCResponse
 ) -> RPCResponse:
     if 'error' in response and error_formatters:
         formatted_response = pipe(response, error_formatters)
@@ -141,7 +141,7 @@ class RequestManager:
         self,
         method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
         params: Any,
-        error_formatters: Optional[Callable[..., Any]] = None,
+        error_formatters: Optional[Dict[str, Callable[..., Any]]]=None,
     ) -> Any:
         """
         Make a synchronous request using the provider
@@ -158,7 +158,7 @@ class RequestManager:
         self,
         method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
         params: Any,
-        error_formatters: Optional[Callable[..., Any]] = None,
+        error_formatters: Optional[Dict[str, Callable[..., Any]]]=None,
     ) -> Any:
         """
         Couroutine for making a request using the provider

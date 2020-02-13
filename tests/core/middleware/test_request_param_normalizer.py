@@ -24,18 +24,21 @@ def w3_base():
 
 @pytest.fixture
 def result_generator_middleware():
-    result = [AttributeDict({
+    result = [
+        AttributeDict({
             'address': '0x2F141Ce366a2462f02cEA3D12CF93E4DCa49e4Fd',
-            'blockHash': HexBytes('0x919e1d4b2e0cae57084bcb9ccf4b46553fee48fe1422f7c58765095cd43d9f2c'),
+            'blockHash': HexBytes('0x919e1d4b2e0cae57084bcb9ccf4b46553fee48fe1422f7c58765095cd43d9f2c'),  # noqa: E501
             'blockNumber': 9346779,
             'data': '0x0000000000000000000000000000000000000000000002e820b216795fe09280',
             'logIndex': 67,
             'removed': False,
-            'topics': [HexBytes('0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'),
+            'topics': [HexBytes('0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'),  # noqa: E501
             HexBytes('0x000000000000000000000000d58b159801499d9b7d56629e4606ae51a1b4fb28'),
             HexBytes('0x0000000000000000000000001f84683e962b7dec4a6a3bd382b8adfc554da8a7')],
-            'transactionHash': HexBytes('0x081a7bfd0943d8b3ba7e15e3d905e60340f0f5559171b4b18d42ee166a27d4a1'),
-            'transactionIndex': 62})]
+            'transactionHash': HexBytes('0x081a7bfd0943d8b3ba7e15e3d905e60340f0f5559171b4b18d42ee166a27d4a1'),  # noqa: E501
+            'transactionIndex': 62,
+        })
+    ]
     return construct_result_generator_middleware({
         'eth_getLogs': lambda _, params: result
     })
