@@ -10,6 +10,7 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.method import (
+    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -18,7 +19,7 @@ from web3.types import (
     Wei,
 )
 
-makeDag: Method[Callable[[BlockNumber], bool]] = Method(
+make_dag: Method[Callable[[BlockNumber], bool]] = Method(
     RPC.miner_makeDag,
     mungers=[default_root_munger],
 )
@@ -64,3 +65,9 @@ stopAutoDag: Method[Callable[[], bool]] = Method(
     RPC.miner_stopAutoDag,
     mungers=None,
 )
+
+
+#
+# Deprecated Methods
+#
+makeDag = DeprecatedMethod(make_dag, 'makeDag', 'make_dag')

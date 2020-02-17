@@ -18,6 +18,7 @@ from web3._utils.admin import (
     stopWS,
 )
 from web3._utils.miner import (
+    make_dag,
     makeDag,
     setEtherbase,
     setExtra,
@@ -98,6 +99,8 @@ class GethMiner(ModuleV2):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#miner
     """
+    make_dag = make_dag
+    # deprecated
     makeDag = makeDag
     setExtra = setExtra
     setEtherbase = setEtherbase

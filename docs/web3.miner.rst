@@ -13,7 +13,7 @@ Methods
 The following methods are available on the ``web3.geth.miner`` namespace.
 
 
-.. py:method:: GethMiner.makeDAG(number)
+.. py:method:: GethMiner.make_dag(number)
 
     * Delegates to ``miner_makeDag`` RPC Method
 
@@ -21,7 +21,13 @@ The following methods are available on the ``web3.geth.miner`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.miner.makeDag(10000)
+        >>> web3.geth.miner.make_dag(10000)
+
+
+.. py:method:: GethMiner.makeDAG(number)
+
+   .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~GethMiner.make_dag(number)`
 
 
 .. py:method:: GethMiner.setExtra(extra)
