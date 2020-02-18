@@ -383,12 +383,18 @@ API_ENDPOINTS = {
         'writeMemProfile': not_implemented,
     },
     'miner': {
+        'make_dag': not_implemented,
+        'set_extra': not_implemented,
+        'set_gas_price': not_implemented,
+        'start': not_implemented,
+        'stop': not_implemented,
+        'start_auto_dag': not_implemented,
+        'stop_auto_dag': not_implemented,
+        # deprecated
         'makeDAG': not_implemented,
         'setExtra': not_implemented,
         'setGasPrice': not_implemented,
-        'start': not_implemented,
         'startAutoDAG': not_implemented,
-        'stop': not_implemented,
         'stopAutoDAG': not_implemented,
     },
     'personal': {
