@@ -25,19 +25,19 @@ make_dag: Method[Callable[[BlockNumber], bool]] = Method(
 )
 
 
-setExtra: Method[Callable[[str], bool]] = Method(
+set_extra: Method[Callable[[str], bool]] = Method(
     RPC.miner_setExtra,
     mungers=[default_root_munger],
 )
 
 
-setEtherbase: Method[Callable[[ChecksumAddress], bool]] = Method(
+set_etherbase: Method[Callable[[ChecksumAddress], bool]] = Method(
     RPC.miner_setEtherbase,
     mungers=[default_root_munger],
 )
 
 
-setGasPrice: Method[Callable[[Wei], bool]] = Method(
+set_gas_price: Method[Callable[[Wei], bool]] = Method(
     RPC.miner_setGasPrice,
     mungers=[default_root_munger],
 )
@@ -55,13 +55,13 @@ stop: Method[Callable[[], bool]] = Method(
 )
 
 
-startAutoDag: Method[Callable[[], bool]] = Method(
+start_auto_dag: Method[Callable[[], bool]] = Method(
     RPC.miner_startAutoDag,
     mungers=None,
 )
 
 
-stopAutoDag: Method[Callable[[], bool]] = Method(
+stop_auto_dag: Method[Callable[[], bool]] = Method(
     RPC.miner_stopAutoDag,
     mungers=None,
 )
@@ -71,3 +71,8 @@ stopAutoDag: Method[Callable[[], bool]] = Method(
 # Deprecated Methods
 #
 makeDag = DeprecatedMethod(make_dag, 'makeDag', 'make_dag')
+setExtra = DeprecatedMethod(set_extra, 'setExtra', 'set_extra')
+setEtherbase = DeprecatedMethod(set_etherbase, 'setEtherbase', 'set_etherbase')
+setGasPrice = DeprecatedMethod(set_gas_price, 'setGasPrice', 'set_gas_price')
+startAutoDag = DeprecatedMethod(start_auto_dag, 'startAutoDag', 'start_auto_dag')
+stopAutoDag = DeprecatedMethod(stop_auto_dag, 'stopAutoDag', 'stop_auto_dag')

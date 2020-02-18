@@ -20,12 +20,17 @@ from web3._utils.admin import (
 from web3._utils.miner import (
     make_dag,
     makeDag,
+    set_etherbase,
+    set_extra,
+    set_gas_price,
     setEtherbase,
     setExtra,
     setGasPrice,
     start,
+    start_auto_dag,
     startAutoDag,
     stop,
+    stop_auto_dag,
     stopAutoDag,
 )
 from web3._utils.personal import (
@@ -100,13 +105,18 @@ class GethMiner(ModuleV2):
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#miner
     """
     make_dag = make_dag
+    set_extra = set_extra
+    set_etherbase = set_etherbase
+    set_gas_price = set_gas_price
+    start = start
+    stop = stop
+    start_auto_dag = start_auto_dag
+    stop_auto_dag = stop_auto_dag
     # deprecated
     makeDag = makeDag
     setExtra = setExtra
     setEtherbase = setEtherbase
     setGasPrice = setGasPrice
-    start = start
-    stop = stop
     startAutoDag = startAutoDag
     stopAutoDag = stopAutoDag
 
