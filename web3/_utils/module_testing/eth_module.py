@@ -530,7 +530,7 @@ class EthModuleTest:
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
         replace_txn = web3.eth.getTransaction(replace_txn_hash)
 
-        assert replace_txn['gasPrice'] == 11  # minimum gas price
+        assert replace_txn['gasPrice'] == 12  # minimum gas price
 
     def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(
         self, web3: "Web3", unlocked_account: ChecksumAddress
@@ -575,7 +575,7 @@ class EthModuleTest:
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
         replace_txn = web3.eth.getTransaction(replace_txn_hash)
         # Strategy provices lower gas price - minimum preferred
-        assert replace_txn['gasPrice'] == 11
+        assert replace_txn['gasPrice'] == 12
 
     def test_eth_modifyTransaction(
         self, web3: "Web3", unlocked_account: ChecksumAddress
