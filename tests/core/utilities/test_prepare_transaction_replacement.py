@@ -24,7 +24,7 @@ def test_prepare_transaction_replacement(web3):
     assert replacement_transaction == {
         'value': 1,
         'nonce': 2,
-        'gasPrice': 11,
+        'gasPrice': 12,
     }
 
 
@@ -38,7 +38,7 @@ def test_prepare_transaction_replacement_without_nonce_sets_correct_nonce(web3):
     assert replacement_transaction == {
         'value': 1,
         'nonce': 2,
-        'gasPrice': 11,
+        'gasPrice': 12,
     }
 
 
@@ -83,7 +83,7 @@ def test_prepare_transaction_replacement_gas_price_defaulting(web3):
     replacement_transaction = prepare_replacement_transaction(
         web3, current_transaction, new_transaction)
 
-    assert replacement_transaction['gasPrice'] == 11
+    assert replacement_transaction['gasPrice'] == 12
 
 
 def test_prepare_transaction_replacement_gas_price_defaulting_when_strategy_higer(web3):
@@ -119,4 +119,4 @@ def test_prepare_transaction_replacement_gas_price_defaulting_when_strategy_lowe
     replacement_transaction = prepare_replacement_transaction(
         web3, current_transaction, new_transaction)
 
-    assert replacement_transaction['gasPrice'] == 11
+    assert replacement_transaction['gasPrice'] == 12

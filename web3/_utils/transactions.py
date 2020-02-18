@@ -179,7 +179,10 @@ def assert_valid_transaction_params(transaction_params: TxParams) -> None:
 
 
 def prepare_replacement_transaction(
-    web3: "Web3", current_transaction: TxData, new_transaction: TxParams
+    web3: "Web3",
+    current_transaction: TxData,
+    new_transaction: TxParams,
+    gas_multiplier: float = 1.125
 ) -> TxParams:
     if current_transaction['blockHash'] is not None:
         raise ValueError('Supplied transaction with hash {} has already been mined'
@@ -195,7 +198,7 @@ def prepare_replacement_transaction(
             raise ValueError('Supplied gas price must exceed existing transaction gas price')
     else:
         generated_gas_price = web3.eth.generateGasPrice(new_transaction)
-        minimum_gas_price = int(math.ceil(current_transaction['gasPrice'] * 1.125))
+        minimum_gas_price = int(math.ceil(current_transaction['gasPrice'] * gas_multiplier))
         if generated_gas_price and generated_gas_price > minimum_gas_price:
             new_transaction = assoc(new_transaction, 'gasPrice', generated_gas_price)
         else:
