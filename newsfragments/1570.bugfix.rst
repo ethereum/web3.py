@@ -1,0 +1,5 @@
+Increase replacement tx minimum gas price bump
+
+Parity/OpenEthereum requires a replacement transaction's
+gas to be a minimum of 12.5% higher than the original
+(vs. Geth's 10%).
