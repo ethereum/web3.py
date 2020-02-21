@@ -1,36 +1,39 @@
 from typing import (
     NoReturn,
 )
-import warnings
 
-from web3._utils.rpc_abi import (
-    RPC,
+from web3._utils.net import (
+    listening,
+    peer_count,
+    peerCount,
+    version,
 )
 from web3.module import (
-    Module,
+    ModuleV2,
 )
 
 
-class Net(Module):
+class Net(ModuleV2):
     """
         https://github.com/ethereum/wiki/wiki/JSON-RPC
     """
 
+    _listening = listening
+    _peer_count = peer_count
+    _peerCount = peerCount
+    _version = version
+
     @property
     def listening(self) -> bool:
-        return self.web3.manager.request_blocking(RPC.net_listening, [])
+        return self._listening()
 
     @property
     def peer_count(self) -> int:
-        return self.web3.manager.request_blocking(RPC.net_peerCount, [])
+        return self._peer_count()
 
     @property
     def peerCount(self) -> int:
-        warnings.warn(
-            "peerCount is deprecated in favor of peer_count",
-            category=DeprecationWarning,
-        )
-        return self.peer_count
+        return self._peerCount()
 
     @property
     def chainId(self) -> NoReturn:
@@ -38,4 +41,4 @@ class Net(Module):
 
     @property
     def version(self) -> str:
-        return self.web3.manager.request_blocking(RPC.net_version, [])
+        return self._version()
