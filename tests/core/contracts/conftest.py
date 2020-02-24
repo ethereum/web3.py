@@ -893,6 +893,82 @@ def CallerTesterContract(web3, CALLER_TESTER_CONTRACT):
     return web3.eth.contract(**CALLER_TESTER_CONTRACT)
 
 
+REVERT_CONTRACT_SOURCE = """
+pragma solidity ^0.6.1;
+
+contract RevertContract {
+  function normalFunction() public pure returns (bool) {
+      return true;
+  }
+
+  function revertFunction() public pure {
+      revert('Function has been reverted.');
+  }
+}
+"""
+
+
+REVERT_CONTRACT_BYTECODE = "608060405234801561001057600080fd5b5061010c806100206000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c806383fcb85e146037578063d67e4b8414603f575b600080fd5b603d605f565b005b604560cd565b604051808215151515815260200191505060405180910390f35b6040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601b8152602001807f46756e6374696f6e20686173206265656e2072657665727465642e000000000081525060200191505060405180910390fd5b6000600190509056fea26469706673582212206b3e8456a530e8c500866943d9e7c5e083be8e70bfd6f57502e9cb19b9ef3e4464736f6c63430006010033"  # noqa: E501
+
+
+REVERT_CONTRACT_RUNTIME_CODE = "6080604052348015600f57600080fd5b506004361060325760003560e01c806383fcb85e146037578063d67e4b8414603f575b600080fd5b603d605f565b005b604560cd565b604051808215151515815260200191505060405180910390f35b6040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601b8152602001807f46756e6374696f6e20686173206265656e2072657665727465642e000000000081525060200191505060405180910390fd5b6000600190509056fea26469706673582212206b3e8456a530e8c500866943d9e7c5e083be8e70bfd6f57502e9cb19b9ef3e4464736f6c63430006010033"  # noqa: E501
+
+
+_REVERT_CONTRACT_ABI = json.loads('''[
+    {
+        "inputs": [],
+        "name": "normalFunction",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "revertFunction",
+        "outputs": [],
+        "stateMutability": "pure",
+        "type": "function"
+    }
+]''')  # noqa: E501
+
+
+@pytest.fixture()
+def REVERT_CONTRACT_CODE():
+    return REVERT_CONTRACT_BYTECODE
+
+
+@pytest.fixture()
+def REVERT_CONTRACT_RUNTIME():
+    return REVERT_CONTRACT_RUNTIME_CODE
+
+
+@pytest.fixture()
+def REVERT_CONTRACT_ABI():
+    return _REVERT_CONTRACT_ABI
+
+
+@pytest.fixture()
+def REVERT_FUNCTION_CONTRACT(REVERT_CONTRACT_CODE,
+                           REVERT_CONTRACT_RUNTIME,
+                           REVERT_CONTRACT_ABI):
+    return {
+        'bytecode': REVERT_CONTRACT_CODE,
+        'bytecode_runtime': REVERT_CONTRACT_RUNTIME,
+        'abi': REVERT_CONTRACT_ABI,
+    }
+
+
+@pytest.fixture()
+def RevertContract(web3, REVERT_FUNCTION_CONTRACT):
+    return web3.eth.contract(**REVERT_FUNCTION_CONTRACT)
+
+
 class LogFunctions:
     LogAnonymous = 0
     LogNoArguments = 1
