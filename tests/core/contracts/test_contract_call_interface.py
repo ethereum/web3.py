@@ -29,6 +29,7 @@ from web3.exceptions import (
     MismatchedABI,
     NoABIFound,
     NoABIFunctionsFound,
+    SolidityError,
     ValidationError,
 )
 
@@ -121,6 +122,10 @@ def fixed_reflection_contract(web3, FixedReflectionContract, address_conversion_
 def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
     return deploy(web3, PayableTesterContract, address_conversion_func)
 
+
+@pytest.fixture()
+def revert_contract(web3, RevertContract, address_conversion_func):
+    return deploy(web3, RevertContract, address_conversion_func)
 
 @pytest.fixture()
 def call_transaction():
@@ -819,3 +824,10 @@ def test_call_tuple_contract(tuple_contract, method_input, expected):
 def test_call_nested_tuple_contract(nested_tuple_contract, method_input, expected):
     result = nested_tuple_contract.functions.method(method_input).call()
     assert result == expected
+
+
+def test_call_revert_contract(revert_contract):
+    with pytest.raises(SolidityError):
+        result = revert_contract.functions.revertFunction().call()
+        # TODO - figure out what result actually is and what we'll need to do to parse out the string
+        assert "Function has been reverted." in result
