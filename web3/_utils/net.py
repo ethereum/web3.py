@@ -20,6 +20,7 @@ peer_count: Method[Callable[[], int]] = Method(
     RPC.net_peerCount,
     mungers=[default_root_munger],
 )
+
 version: Method[Callable[[], str]] = Method(
     RPC.net_version,
     mungers=[default_root_munger],
