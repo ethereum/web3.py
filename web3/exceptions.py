@@ -192,3 +192,11 @@ class InvalidEventABI(ValueError):
     Raised when the event ABI is invalid.
     """
     pass
+
+
+class SolidityError(ValueError):
+    # Inherits from ValueError for backwards compatibility
+    """
+    Raised on a solidity require/revert
+    """
+    pass

@@ -75,11 +75,13 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     BlockNotFound,
+    SolidityError,
     TransactionNotFound,
 )
 from web3.types import (
     BlockIdentifier,
     RPCEndpoint,
+    RPCResponse,
     TReturn,
     _Hash32,
 )
@@ -465,7 +467,6 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.net_peerCount: to_integer_if_hex,
 }
 
-
 ATTRDICT_FORMATTER = {
     '*': apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
 }
@@ -484,6 +485,54 @@ STANDARD_NORMALIZERS = [
 
 
 ABI_REQUEST_FORMATTERS = abi_request_formatters(STANDARD_NORMALIZERS, RPC_ABIS)
+
+
+def get_revert_reason(response: RPCResponse) -> str:
+    """
+    Parse revert reason from response, return None if no revert happened.
+
+    If a revert happened, but no message has been given, return an empty string.
+
+    Reverts contain a `data` attribute with the following layout:
+        "Reverted "
+        Function selector for Error(string): 08c379a (4 bytes)
+        Data offset: 32 (32 bytes)
+        String length (32 bytes)
+        Reason strong (padded, use string length from above to get meaningful part)
+
+    See also https://solidity.readthedocs.io/en/v0.6.3/control-structures.html#revert
+    """
+    assert 'error' in response
+    if not isinstance(response['error'], dict):
+        return None
+
+    data = response['error'].get('data', '')
+
+    if data == 'Reverted 0x':
+        return ''
+
+    # "Reverted", function selector and offset are always the same for revert errors
+    prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'
+    if not data.startswith(prefix):
+        return None
+
+    reason_length = int(data[len(prefix):len(prefix) + 64], 16)
+    reason = data[len(prefix) + 64:len(prefix) + 64 + reason_length * 2]
+    return bytes.fromhex(reason).decode('utf8')
+
+
+def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
+    revert_reason = get_revert_reason(response)
+    if revert_reason is None:
+        return response
+    if revert_reason == '':
+        raise SolidityError()
+    raise SolidityError(revert_reason)
+
+
+ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+    RPC.eth_call: raise_solidity_error_on_revert,
+}
 
 
 @to_tuple
@@ -570,7 +619,7 @@ def get_result_formatters(
 
 def get_error_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
-) -> Dict[str, Callable[..., Any]]:
+) -> Callable[..., Any]:
     #  Note error formatters work on the full response dict
     error_formatter_maps = (NULL_RESULT_FORMATTERS,)
     formatters = combine_formatters(error_formatter_maps, method_name)

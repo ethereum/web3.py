@@ -154,7 +154,7 @@ class RequestManager:
         response = self._make_request(method, params)
 
         if "error" in response:
-            apply_error_formatters(error_formatters, response)
+            response = apply_error_formatters(error_formatters, response)
             raise ValueError(response["error"])
         elif response['result'] is None:
             apply_error_formatters(error_formatters, response, params)

@@ -1,0 +1,1 @@
+Raise `SolidityError` exceptions that contain the revert reason when a `call` fails.
