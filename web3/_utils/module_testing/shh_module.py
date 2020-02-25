@@ -367,6 +367,7 @@ class GoEthereumShhModuleTest():
             "payload": web3.toHex(text="testing shh on web3.py"),
             "pubKey": receiver_pub,
         })
+        time.sleep(1)
 
     def test_shh_post_deprecated(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
@@ -378,6 +379,7 @@ class GoEthereumShhModuleTest():
                 "payload": web3.toHex(text="testing shh on web3.py"),
                 "pubKey": receiver_pub,
             })
+        time.sleep(1)
 
     #
     # shh_properties
@@ -598,6 +600,7 @@ class ParityShhModuleTest():
             "priority": 40,
             "ttl": 400,
         })
+        time.sleep(1)
 
     def test_shh_info(self, web3: "Web3") -> None:
         info = web3.parity.shh.info()
