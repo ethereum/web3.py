@@ -692,7 +692,7 @@ Taking the following contract code as an example:
     >>> array_contract.functions.getBytes2Value().call()
     [b'b\x00']
     >>> array_contract.functions.setBytes2Value([b'a']).transact()
-    HexBytes('0x39bc9a0bf5b8ec8e8115ccb20bf02f5570351a20a8fd774da91353f38535bec1')
+    HexBytes('0x977bd66e0ef59433a02c2f71f61ec3ca48bf7a5a19d10aece84570061fe9d4f3')
     >>> array_contract.functions.getBytes2Value().call()
     [b'a\x00']
     >>> w3.enable_strict_bytes_type_checking()
@@ -1055,7 +1055,7 @@ Event Log Object
     assert alice == '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf', alice
     assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
     tx_hash = my_token_contract.constructor(1000000).transact({'from': alice})
-    assert tx_hash == b'h9\xeb\xdb4\x07\x03y\x92RP`X\xf6\xf7\x9f\xfaT\xed&e\xee*\xc2\rx\xb3\xab\x8c4\xc9\x1f', tx_hash
+    assert tx_hash == b'\x02c\x80Q`\x04\xaeQ@M\xd4V\xa7\xbb\xe9z\xf2,\xfd\xa5\xa4"{v\x07W\xae\x0c\'\x1d\x13\x91', tx_hash
     txn_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
     assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']
@@ -1076,7 +1076,7 @@ Event Log Object
       'event': 'Transfer',
       'logIndex': 0,
       'transactionIndex': 0,
-      'transactionHash': HexBytes('0xc7b96b166506c5a6edf6bccd22195e9f1aac025421b4a3eac159b878eef5e6e7'),
+      'transactionHash': HexBytes('0xb6e1b9f9e282082141991fb9e91e396985e586eb32407034b1a00fb1e3eea577'),
       'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
       'blockHash': HexBytes('...'),
       'blockNumber': 2})]
@@ -1091,7 +1091,7 @@ Event Log Object
       'event': 'Transfer',
       'logIndex': 0,
       'transactionIndex': 0,
-      'transactionHash': HexBytes('0xb1cf8541708184daf8c1ea59ce494bbafe0bb45208c09a81bff184907e88e9b9'),
+      'transactionHash': HexBytes('0x870c07e1103fb458931ddf717e35d5a8c1f0856e806ec97cae08c4a1ecda9786'),
       'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
       'blockHash': HexBytes('...'),
       'blockNumber': 3})]
@@ -1102,7 +1102,7 @@ Event Log Object
       'event': 'Transfer',
       'logIndex': 0,
       'transactionIndex': 0,
-      'transactionHash': HexBytes('0xc7b96b166506c5a6edf6bccd22195e9f1aac025421b4a3eac159b878eef5e6e7'),
+      'transactionHash': HexBytes('0xb6e1b9f9e282082141991fb9e91e396985e586eb32407034b1a00fb1e3eea577'),
       'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
       'blockHash': HexBytes('...'),
       'blockNumber': 2}),
@@ -1112,7 +1112,7 @@ Event Log Object
       'event': 'Transfer',
       'logIndex': 0,
       'transactionIndex': 0,
-      'transactionHash': HexBytes('0xb1cf8541708184daf8c1ea59ce494bbafe0bb45208c09a81bff184907e88e9b9'),
+      'transactionHash': HexBytes('0x870c07e1103fb458931ddf717e35d5a8c1f0856e806ec97cae08c4a1ecda9786'),
       'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
       'blockHash': HexBytes('...'),
       'blockNumber': 3})]
