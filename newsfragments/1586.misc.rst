@@ -1,0 +1,1 @@
+Update eth-tester requirement to v0.4.0-b.1
