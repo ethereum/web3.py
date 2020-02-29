@@ -5,12 +5,14 @@ Parity API
 
 The ``web3.parity`` object exposes modules that enable you to interact with the JSON-RPC endpoints supported by `Parity <https://wiki.parity.io/JSONRPC>`_ that are not defined in the standard set of Ethereum JSONRPC endpoints according to `EIP 1474 <https://github.com/ethereum/EIPs/pull/1474>`_.
 
+.. py:module:: web3.parity.personal
+
 ParityPersonal
 --------------
 
 The following methods are available on the ``web3.parity.personal`` namespace.
 
-.. py:method:: listAccounts
+.. py:method:: list_accounts()
 
     * Delegates to ``personal_listAccounts`` RPC Method
 
@@ -18,11 +20,15 @@ The following methods are available on the ``web3.parity.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.parity.personal.listAccounts()
+        >>> web3.parity.personal.list_accounts()
         ['0xd3CdA913deB6f67967B99D67aCDFa1712C293601']
 
+.. py:method:: listAccounts
 
-.. py:method:: importRawKey(self, private_key, passphrase)
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.parity.personal.list_accounts()`
+
+.. py:method:: import_raw_key(self, private_key, passphrase)
 
     * Delegates to ``personal_importRawKey`` RPC Method
 
@@ -31,11 +37,15 @@ The following methods are available on the ``web3.parity.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.parity.personal.importRawKey(some_private_key, 'the-passphrase')
+        >>> web3.parity.personal.import_raw_key(some_private_key, 'the-passphrase')
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
+.. py:method:: importRawKey(self, private_key, passphrase)
 
-.. py:method:: newAccount(self, password)
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.parity.personal.import_raw_key()`
+
+.. py:method:: new_account(self, password)
 
     * Delegates to ``personal_newAccount`` RPC Method
 
@@ -44,11 +54,15 @@ The following methods are available on the ``web3.parity.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.parity.personal.newAccount('the-passphrase')
+        >>> web3.parity.personal.new_account('the-passphrase')
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
+.. py:method:: newAccount(self, password)
 
-.. py:method:: unlockAccount(self, account, passphrase, duration=None)
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.parity.personal.new_account()`
+
+.. py:method:: unlock_account(self, account, passphrase, duration=None)
 
     * Delegates to ``personal_unlockAccount`` RPC Method
 
@@ -59,20 +73,28 @@ The following methods are available on the ``web3.parity.personal`` namespace.
     .. code-block:: python
 
         # Invalid call to personal_unlockAccount on Parity currently returns True, due to Parity bug
-        >>> web3.parity.personal.unlockAccount('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'wrong-passphrase')
+        >>> web3.parity.personal.unlock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'wrong-passphrase')
         True
-        >>> web3.parity.personal.unlockAccount('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'the-passphrase')
+        >>> web3.parity.personal.unlock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'the-passphrase')
         True
 
+.. py:method:: unlockAccount(self, account, passphrase, duration=None)
 
-.. py:method:: sendTransaction(self, transaction, passphrase)
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.parity.personal.unlock_account()`
+
+.. py:method:: send_transaction(self, transaction, passphrase)
 
     * Delegates to ``personal_sendTransaction`` RPC Method
 
     Sends the transaction.
 
+.. py:method:: sendTransaction(self, account, passphrase, duration=None)
 
-.. py:method:: signTypedData(self, jsonMessage, account, passphrase)
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.parity.personal.send_transaction()`
+
+.. py:method:: sign_typed_data(self, jsonMessage, account, passphrase)
 
     * Delegates to ``personal_signTypedData`` RPC Method
 
@@ -81,6 +103,10 @@ The following methods are available on the ``web3.parity.personal`` namespace.
 
     Signs the ``Structured Data`` (or ``Typed Data``) with the passphrase of the given ``account``
 
+.. py:method:: signTypedData(self, jsonMessage, account, passphrase)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.parity.personal.sign_typed_data()`
 
 ParityShh
 ---------
