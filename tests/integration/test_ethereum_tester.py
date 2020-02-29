@@ -25,8 +25,6 @@ from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 
-pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
-
 
 @pytest.fixture(scope="module")
 def eth_tester():
@@ -147,7 +145,7 @@ def unlockable_account_pw(web3):
 
 @pytest.fixture(scope='module')
 def unlockable_account(web3, unlockable_account_pw):
-    account = web3.geth.personal.importRawKey(UNLOCKABLE_PRIVATE_KEY, unlockable_account_pw)
+    account = web3.geth.personal.import_raw_key(UNLOCKABLE_PRIVATE_KEY, unlockable_account_pw)
     web3.eth.sendTransaction({
         'from': web3.eth.coinbase,
         'to': account,
@@ -158,9 +156,9 @@ def unlockable_account(web3, unlockable_account_pw):
 
 @pytest.fixture
 def unlocked_account(web3, unlockable_account, unlockable_account_pw):
-    web3.geth.personal.unlockAccount(unlockable_account, unlockable_account_pw)
+    web3.geth.personal.unlock_account(unlockable_account, unlockable_account_pw)
     yield unlockable_account
-    web3.geth.personal.lockAccount(unlockable_account)
+    web3.geth.personal.lock_account(unlockable_account)
 
 
 @pytest.fixture()
@@ -170,9 +168,9 @@ def unlockable_account_dual_type(unlockable_account, address_conversion_func):
 
 @pytest.fixture
 def unlocked_account_dual_type(web3, unlockable_account_dual_type, unlockable_account_pw):
-    web3.geth.personal.unlockAccount(unlockable_account_dual_type, unlockable_account_pw)
+    web3.geth.personal.unlock_account(unlockable_account_dual_type, unlockable_account_pw)
     yield unlockable_account_dual_type
-    web3.geth.personal.lockAccount(unlockable_account_dual_type)
+    web3.geth.personal.lock_account(unlockable_account_dual_type)
 
 
 @pytest.fixture(scope="module")
@@ -317,10 +315,22 @@ class TestEthereumTesterPersonalModule(GoEthereumPersonalModuleTest):
         GoEthereumPersonalModuleTest.test_personal_sign_and_ecrecover,
         ValueError,
     )
+    test_personal_sign_and_ecrecover_deprecated = not_implemented(
+        GoEthereumPersonalModuleTest.test_personal_sign_and_ecrecover,
+        ValueError,
+    )
 
     # Test overridden here since eth-tester returns False rather than None for failed unlock
-    def test_personal_unlockAccount_failure(self,
-                                            web3,
-                                            unlockable_account_dual_type):
-        result = web3.geth.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
+    def test_personal_unlock_account_failure(self,
+                                             web3,
+                                             unlockable_account_dual_type):
+        result = web3.geth.personal.unlock_account(unlockable_account_dual_type, 'bad-password')
         assert result is False
+
+    def test_personal_unlockAccount_failure_deprecated(self,
+                                                       web3,
+                                                       unlockable_account_dual_type):
+        with pytest.warns(DeprecationWarning,
+                          match="unlockAccount is deprecated in favor of unlock_account"):
+            result = web3.geth.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
+            assert result is False

@@ -34,14 +34,22 @@ from web3._utils.miner import (
     stopAutoDag,
 )
 from web3._utils.personal import (
+    ec_recover,
     ecRecover,
+    import_raw_key,
     importRawKey,
+    list_accounts,
     listAccounts,
+    lock_account,
     lockAccount,
+    new_account,
     newAccount,
+    send_transaction,
     sendTransaction,
     sign,
+    sign_typed_data,
     signTypedData,
+    unlock_account,
     unlockAccount,
 )
 from web3._utils.txpool import (
@@ -59,13 +67,22 @@ class GethPersonal(ModuleV2):
     """
     https://github.com/ethereum/go-ethereum/wiki/management-apis#personal
     """
+    ec_recover = ec_recover
+    import_raw_key = import_raw_key
+    list_accounts = list_accounts
+    lock_account = lock_account
+    new_account = new_account
+    send_transaction = send_transaction
+    sign = sign
+    sign_typed_data = sign_typed_data
+    unlock_account = unlock_account
+    # deprecated
     ecRecover = ecRecover
     importRawKey = importRawKey
     listAccounts = listAccounts
     lockAccount = lockAccount
     newAccount = newAccount
     sendTransaction = sendTransaction
-    sign = sign
     signTypedData = signTypedData
     unlockAccount = unlockAccount
 
