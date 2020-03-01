@@ -131,7 +131,7 @@ class CommonGoEthereumShhModuleTest(GoEthereumShhModuleTest):
     def test_shh_post_deprecated(self, web3):
         if 'v1.7.2' in web3.clientVersion:
             pytest.xfail('Whisper version 6 not supported in geth 1.7.2')
-        super().test_shh_post(web3)
+        super().test_shh_post_deprecated(web3)
 
 
 class GoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
