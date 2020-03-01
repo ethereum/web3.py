@@ -31,6 +31,8 @@ class GoEthereumShhModuleTest():
     # shh_filter
     #
     def test_shh_sync_filter(self, web3: "Web3") -> None:
+
+        info = web3.geth.shh.info()
         sender = web3.geth.shh.new_key_pair()
         sender_pub = web3.geth.shh.get_public_key(sender)
 
@@ -50,7 +52,7 @@ class GoEthereumShhModuleTest():
 
         web3.geth.shh.post({
             'sig': sender,
-            'powTarget': 2.5,
+            'powTarget': info['minPow'],
             'powTime': 2,
             'payload': payloads[0],
             'pubKey': receiver_pub
@@ -59,7 +61,7 @@ class GoEthereumShhModuleTest():
 
         web3.geth.shh.post({
             'sig': sender,
-            'powTarget': 2.5,
+            'powTarget': info['minPow'],
             'powTime': 2,
             'payload': payloads[1],
             'topic': topic,
@@ -77,6 +79,7 @@ class GoEthereumShhModuleTest():
 
     def test_shh_sync_filter_deprecated(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
+            info = web3.geth.shh.info()
             sender = web3.geth.shh.newKeyPair()
             sender_pub = web3.geth.shh.getPublicKey(sender)
             receiver = web3.geth.shh.newKeyPair()
@@ -95,7 +98,7 @@ class GoEthereumShhModuleTest():
 
             web3.geth.shh.post({
                 'sig': sender,
-                'powTarget': 2.5,
+                'powTarget': info['minPow'],
                 'powTime': 2,
                 'payload': payloads[0],
                 'pubKey': receiver_pub
@@ -104,7 +107,7 @@ class GoEthereumShhModuleTest():
 
             web3.geth.shh.post({
                 'sig': sender,
-                'powTarget': 2.5,
+                'powTarget': info['minPow'],
                 'powTime': 2,
                 'payload': payloads[1],
                 'topic': topic,
@@ -123,6 +126,7 @@ class GoEthereumShhModuleTest():
     def test_shh_async_filter(self, web3: "Web3") -> None:
         received_messages: List[ShhMessage] = []
 
+        info = web3.geth.shh.info()
         sender = web3.geth.shh.new_key_pair()
         sender_pub = web3.geth.shh.get_public_key(sender)
         receiver = web3.geth.shh.new_key_pair()
@@ -142,7 +146,7 @@ class GoEthereumShhModuleTest():
 
         web3.geth.shh.post({
             'sig': sender,
-            'powTarget': 2.5,
+            'powTarget': info['minPow'],
             'powTime': 2,
             'payload': payloads[0],
             'topic': topic,
@@ -152,7 +156,7 @@ class GoEthereumShhModuleTest():
 
         web3.geth.shh.post({
             'sig': sender,
-            'powTarget': 2.5,
+            'powTarget': info['minPow'],
             'powTime': 2,
             'payload': payloads[1],
             'pubKey': receiver_pub
@@ -172,6 +176,7 @@ class GoEthereumShhModuleTest():
         received_messages: List[ShhMessage] = []
 
         with pytest.warns(DeprecationWarning) as warnings:
+            info = web3.geth.shh.info()
             sender = web3.geth.shh.newKeyPair()
             sender_pub = web3.geth.shh.getPublicKey(sender)
 
@@ -192,7 +197,7 @@ class GoEthereumShhModuleTest():
 
             web3.geth.shh.post({
                 'sig': sender,
-                'powTarget': 2.5,
+                'powTarget': info['minPow'],
                 'powTime': 2,
                 'payload': payloads[0],
                 'topic': topic,
@@ -202,7 +207,7 @@ class GoEthereumShhModuleTest():
 
             web3.geth.shh.post({
                 'sig': sender,
-                'powTarget': 2.5,
+                'powTarget': info['minPow'],
                 'powTime': 2,
                 'payload': payloads[1],
                 'pubKey': receiver_pub
@@ -221,6 +226,7 @@ class GoEthereumShhModuleTest():
 
     def test_shh_remove_filter_deprecated(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
+            info = web3.geth.shh.info()
             receiver = web3.geth.shh.newKeyPair()
             receiver_pub = web3.geth.shh.getPublicKey(receiver)
             payload = web3.toHex(text="test message :)")
@@ -228,7 +234,7 @@ class GoEthereumShhModuleTest():
             shh_filter = ShhFilter(web3, shh_filter_id)
 
             web3.geth.shh.post({
-                'powTarget': 2.5,
+                'powTarget': info['minPow'],
                 'powTime': 2,
                 'payload': payload,
                 'pubKey': receiver_pub
@@ -248,6 +254,7 @@ class GoEthereumShhModuleTest():
 
     def test_shh_remove_filter(self, web3: "Web3") -> None:
 
+        info = web3.geth.shh.info()
         receiver = web3.geth.shh.new_key_pair()
         receiver_pub = web3.geth.shh.get_public_key(receiver)
         payload = web3.toHex(text="test message :)")
@@ -255,7 +262,7 @@ class GoEthereumShhModuleTest():
         shh_filter = ShhFilter(web3, shh_filter_id)
 
         web3.geth.shh.post({
-            'powTarget': 2.5,
+            'powTarget': info['minPow'],
             'powTime': 2,
             'payload': payload,
             'pubKey': receiver_pub
@@ -359,10 +366,11 @@ class GoEthereumShhModuleTest():
     # shh_post
     #
     def test_shh_post(self, web3: "Web3") -> None:
+        info = web3.geth.shh.info()
         receiver_pub = web3.geth.shh.get_public_key(web3.geth.shh.new_key_pair())
         assert web3.geth.shh.post({
             "topic": HexStr("0x12345678"),
-            "powTarget": 2.5,
+            "powTarget": info['minPow'],
             "powTime": 2,
             "payload": web3.toHex(text="testing shh on web3.py"),
             "pubKey": receiver_pub,
@@ -370,10 +378,11 @@ class GoEthereumShhModuleTest():
 
     def test_shh_post_deprecated(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
+            info = web3.geth.shh.info()
             receiver_pub = web3.geth.shh.getPublicKey(web3.geth.shh.newKeyPair())
             assert web3.geth.shh.post({
                 "topic": HexStr("0x12345678"),
-                "powTarget": 2.5,
+                "powTarget": info['minPow'],
                 "powTime": 2,
                 "payload": web3.toHex(text="testing shh on web3.py"),
                 "pubKey": receiver_pub,
