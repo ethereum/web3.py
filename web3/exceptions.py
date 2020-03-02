@@ -70,6 +70,14 @@ class MismatchedABI(Exception):
     pass
 
 
+class ABIEventFunctionNotFound(AttributeError, MismatchedABI):
+    """
+    Raised when an attempt is made to access an event
+    that does not exist in the ABI.
+    """
+    pass
+
+
 class FallbackNotFound(Exception):
     """
     Raised when fallback function doesn't exist in contract.

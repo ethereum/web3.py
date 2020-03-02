@@ -12,6 +12,7 @@ from web3._utils.events import (
     get_event_data,
 )
 from web3.exceptions import (
+    ABIEventFunctionNotFound,
     LogTopicError,
     ValidationError,
 )
@@ -111,6 +112,29 @@ def dup_txn_receipt(
     event_contract_fn = event_contract.functions.logTwoEvents
     dup_txn_hash = event_contract_fn(12345).transact()
     return wait_for_transaction(web3, dup_txn_hash)
+
+
+@pytest.fixture()
+def single_event_abi():
+    return '''[{"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"Increased","type":"event"}]'''  # noqa: E501
+
+
+def test_contract_event_getattr(web3, single_event_abi):
+    contract = web3.eth.contract(abi=single_event_abi)
+    assert getattr(contract.events, "Increased")
+
+
+def test_contract_event_getattr_raises_error(web3, single_event_abi):
+    contract = web3.eth.contract(abi=single_event_abi)
+
+    with pytest.raises(ABIEventFunctionNotFound):
+        getattr(contract.events, "Decreased")
+
+
+def test_contract_event_hasattr(web3, single_event_abi):
+    contract = web3.eth.contract(abi=single_event_abi)
+    assert hasattr(contract.events, "Increased") is True
+    assert hasattr(contract.events, "Decreased") is False
 
 
 @pytest.mark.parametrize(

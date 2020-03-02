@@ -110,6 +110,7 @@ from web3.datastructures import (
     MutableAttributeDict,
 )
 from web3.exceptions import (
+    ABIEventFunctionNotFound,
     BadFunctionCallOutput,
     BlockNumberOutofRange,
     FallbackNotFound,
@@ -239,7 +240,7 @@ class ContractEvents:
                 "Are you sure you provided the correct contract abi?"
             )
         elif event_name not in self.__dict__['_events']:
-            raise MismatchedABI(
+            raise ABIEventFunctionNotFound(
                 "The event '{}' was not found in this contract's abi. ".format(event_name),
                 "Are you sure you provided the correct contract abi?"
             )
@@ -256,6 +257,12 @@ class ContractEvents:
         """
         for event in self._events:
             yield self[event['name']]
+
+    def __hasattr__(self, event_name: str) -> bool:
+        try:
+            return event_name in self.__dict__['_events']
+        except ABIEventFunctionNotFound:
+            return False
 
 
 class Contract:
