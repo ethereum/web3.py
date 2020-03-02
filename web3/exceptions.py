@@ -69,6 +69,12 @@ class MismatchedABI(Exception):
     """
     pass
 
+class ABIEventFunctionNotFound(AttributeError, MismatchedABI):
+    """
+    Raised when an attempt is made to access a function/event 
+    that does not exist in the ABI.
+    """
+    pass 
 
 class FallbackNotFound(Exception):
     """
