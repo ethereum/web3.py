@@ -25,6 +25,16 @@ def test_contract_constructor_gas_estimate_no_constructor(web3, MathContract):
     assert abs(gas_estimate - gas_used) < 21000
 
 
+def test_contract_constructor_gas_estimate_with_block_id(web3, MathContract):
+    block_identifier = None
+    gas_estimate = MathContract.constructor().estimateGas(block_identifier=None)
+    deploy_txn = MathContract.constructor().transact()
+    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    gas_used = txn_receipt.get('gasUsed')
+
+    assert abs(gas_estimate - gas_used) < 21000
+
+
 def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
         web3,
         SimpleConstructorContract):
