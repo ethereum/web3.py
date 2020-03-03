@@ -6,6 +6,27 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.6.0 (2020-02-26)
+-------------------
+
+Features
+~~~~~~~~
+
+- Add snake_case methods to Geth Miner class, deprecate camelCase methods (`#1579 <https://github.com/ethereum/web3.py/issues/1579>`__)
+- Add snake_case methods for the net module, deprecate camelCase methods (`#1581 <https://github.com/ethereum/web3.py/issues/1581>`__)
+- Add PEP561 type marker (`#1583 <https://github.com/ethereum/web3.py/issues/1583>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Increase replacement tx minimum gas price bump
+
+  Parity/OpenEthereum requires a replacement transaction's
+  gas to be a minimum of 12.5% higher than the original
+  (vs. Geth's 10%). (`#1570 <https://github.com/ethereum/web3.py/issues/1570>`__)
+
+
 v5.5.1 (2020-02-10)
 -------------------
 

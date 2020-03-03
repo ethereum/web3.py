@@ -198,8 +198,9 @@ API_ENDPOINTS = {
     },
     'net': {
         'version': static_return('1'),
-        'peerCount': static_return(0),
         'listening': static_return(False),
+        'peerCount': static_return(0),
+
     },
     'eth': {
         'protocolVersion': static_return(63),

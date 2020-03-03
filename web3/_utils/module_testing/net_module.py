@@ -25,8 +25,14 @@ class NetModuleTest:
 
         assert is_boolean(listening)
 
+    def test_net_peer_count(self, web3: "Web3") -> None:
+        peer_count = web3.net.peer_count
+
+        assert is_integer(peer_count)
+
     def test_net_peerCount(self, web3: "Web3") -> None:
-        peer_count = web3.net.peerCount
+        with pytest.warns(DeprecationWarning):
+            peer_count = web3.net.peerCount
 
         assert is_integer(peer_count)
 

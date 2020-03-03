@@ -60,8 +60,9 @@ extras_require['dev'] = (
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='5.5.1',
+    version='5.6.0',
     description="""Web3.py""",
+    long_description_content_type='text/markdown',
     long_description_markdown_filename='README.md',
     author='Piper Merriam',
     author_email='pipermerriam@gmail.com',
@@ -93,6 +94,7 @@ setup(
     zip_safe=False,
     keywords='ethereum',
     packages=find_packages(exclude=["tests", "tests.*"]),
+    package_data={"web3": ["py.typed"]},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
