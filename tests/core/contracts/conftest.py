@@ -955,8 +955,8 @@ def REVERT_CONTRACT_ABI():
 
 @pytest.fixture()
 def REVERT_FUNCTION_CONTRACT(REVERT_CONTRACT_CODE,
-                           REVERT_CONTRACT_RUNTIME,
-                           REVERT_CONTRACT_ABI):
+                             REVERT_CONTRACT_RUNTIME,
+                             REVERT_CONTRACT_ABI):
     return {
         'bytecode': REVERT_CONTRACT_CODE,
         'bytecode_runtime': REVERT_CONTRACT_RUNTIME,
