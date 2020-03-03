@@ -872,7 +872,8 @@ def test_call_nested_tuple_contract(nested_tuple_contract, method_input, expecte
 
 
 def test_call_revert_contract(revert_contract):
-    with pytest.raises(SolidityError):
-        result = revert_contract.functions.revertFunction().call()
-        # TODO - figure out what result actually is and what we'll need to do to parse out the string
-        assert "Function has been reverted." in result
+    with pytest.raises(SolidityError, match="Function has been reverted."):
+        # eth-tester will do a gas estimation if we don't submit a gas value,
+        # which does not contain the revert reason. Avoid that by giving a gas
+        # value.
+        revert_contract.functions.revertFunction().call({'gas': 100000})
