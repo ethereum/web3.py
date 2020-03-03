@@ -27,7 +27,7 @@ def test_contract_constructor_gas_estimate_no_constructor(web3, MathContract):
 
 def test_contract_constructor_gas_estimate_with_block_id(web3, MathContract):
     block_identifier = None
-    gas_estimate = MathContract.constructor().estimateGas(block_identifier=None)
+    gas_estimate = MathContract.constructor().estimateGas(block_identifier=block_identifier)
     deploy_txn = MathContract.constructor().transact()
     txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     gas_used = txn_receipt.get('gasUsed')
