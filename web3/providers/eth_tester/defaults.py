@@ -200,7 +200,6 @@ API_ENDPOINTS = {
         'version': static_return('1'),
         'listening': static_return(False),
         'peerCount': static_return(0),
-
     },
     'eth': {
         'protocolVersion': static_return(63),
