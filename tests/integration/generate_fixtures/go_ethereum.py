@@ -127,7 +127,7 @@ def setup_chain_state(web3):
         'to': coinbase,
         'value': 1,
         'gas': 21000,
-        'gas_price': web3.eth.gasPrice,
+        'gas_price': web3.eth.gas_price,
     })
     mined_txn_receipt = common.mine_transaction_hash(web3, mined_txn_hash)
     print('MINED_TXN_HASH:', mined_txn_hash)

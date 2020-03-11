@@ -136,8 +136,16 @@ class Eth(Module):
         return self.web3.manager.request_blocking(RPC.eth_hashrate, [])
 
     @property
-    def gasPrice(self) -> Wei:
+    def gas_price(self) -> Wei:
         return self.web3.manager.request_blocking(RPC.eth_gasPrice, [])
+
+    @property
+    def gasPrice(self) -> Wei:
+        warnings.warn(
+            'gasPrice is deprecated in favor of gas_price',
+            category=DeprecationWarning,
+        )
+        return self.gas_price
 
     @property
     def accounts(self) -> Tuple[ChecksumAddress]:
