@@ -53,7 +53,9 @@ class ParityEthModuleTest(EthModuleTest):
 
     def test_eth_chainId(self, web3):
         # Parity will return null if chainId is not available
-        with pytest.raises(DeprecationWarning):
+        # Note: This does not work here..
+        # with pytest.raises(DeprecationWarning):
+        with pytest.deprecated_call():
             chain_id = web3.eth.chainId
         assert chain_id is None
 

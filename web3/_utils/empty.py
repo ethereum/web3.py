@@ -3,7 +3,7 @@ from web3._utils.compat import (
 )
 
 
-class Empty():
+class Empty:
     def __bool__(self) -> Literal[False]:
         return False
 
