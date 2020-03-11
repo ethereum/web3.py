@@ -149,7 +149,7 @@ def iter_latest_block(
     )
 
     while True:
-        latest_block = w3.eth.blockNumber
+        latest_block = w3.eth.block_number
         # type ignored b/c is_bounded_range prevents unsupported comparison
         if is_bounded_range and latest_block > to_block:  # type: ignore
             yield None
@@ -235,7 +235,7 @@ class RequestLogs:
         self.topics = topics
         self.w3 = w3
         if from_block is None or from_block == "latest":
-            self._from_block = BlockNumber(w3.eth.blockNumber + 1)
+            self._from_block = BlockNumber(w3.eth.block_number + 1)
         elif is_string(from_block) and is_hex(from_block):
             self._from_block = BlockNumber(hex_to_integer(from_block))  # type: ignore
         else:
@@ -251,9 +251,9 @@ class RequestLogs:
     @property
     def to_block(self) -> BlockNumber:
         if self._to_block is None:
-            to_block = self.w3.eth.blockNumber
+            to_block = self.w3.eth.block_number
         elif self._to_block == "latest":
-            to_block = self.w3.eth.blockNumber
+            to_block = self.w3.eth.block_number
         elif is_hex(self._to_block):
             to_block = BlockNumber(hex_to_integer(self._to_block))  # type: ignore
         else:
@@ -307,7 +307,7 @@ FILTER_CHANGES_METHODS = set([
 class RequestBlocks:
     def __init__(self, w3: "Web3") -> None:
         self.w3 = w3
-        self.start_block = BlockNumber(w3.eth.blockNumber + 1)
+        self.start_block = BlockNumber(w3.eth.block_number + 1)
 
     @property
     def filter_changes(self) -> Iterator[List[Hash32]]:

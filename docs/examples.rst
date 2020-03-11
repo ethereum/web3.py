@@ -62,11 +62,11 @@ You can also retrieve the latest block using the string ``'latest'`` in the
 
 
 If you want to know the latest block number you can use the
-``web3.eth.blockNumber`` property.
+``web3.eth.block_number`` property.
 
 .. code-block:: python
 
-    >>> web3.eth.blockNumber
+    >>> web3.eth.block_number
     4194803
 
 
@@ -304,7 +304,6 @@ The following example demonstrates a few things:
     from web3 import Web3
     from eth_tester import PyEVMBackend
     from solcx import compile_source
-
 
     def compile_source_file(file_path):
        with open(file_path, 'r') as f:

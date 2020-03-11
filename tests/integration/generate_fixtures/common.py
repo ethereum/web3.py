@@ -195,12 +195,12 @@ def get_process(run_command):
 
 
 def mine_block(web3):
-    origin_block_number = web3.eth.blockNumber
+    origin_block_number = web3.eth.block_number
 
     start_time = time.time()
     web3.geth.miner.start(1)
     while time.time() < start_time + 120:
-        block_number = web3.eth.blockNumber
+        block_number = web3.eth.block_number
         if block_number > origin_block_number:
             web3.geth.miner.stop()
             return block_number

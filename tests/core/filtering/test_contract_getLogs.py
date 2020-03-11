@@ -35,11 +35,11 @@ def test_contract_getLogs_range(
     contract = emitter
     event_id = emitter_event_ids.LogNoArguments
 
-    assert web3.eth.blockNumber == 2
+    assert web3.eth.block_number == 2
     txn_hash = contract.functions.logNoArgs(event_id).transact()
     # Mined as block 3
     wait_for_transaction(web3, txn_hash)
-    assert web3.eth.blockNumber == 3
+    assert web3.eth.block_number == 3
 
     log_entries = list(contract.events.LogNoArguments.getLogs())
     assert len(log_entries) == 1
