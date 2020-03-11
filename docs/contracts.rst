@@ -69,7 +69,7 @@ To run this example, you will need to install a few extra features:
     >>> w3 = Web3(Web3.EthereumTesterProvider())
 
     # set pre-funded account as sender
-    >>> w3.eth.defaultAccount = w3.eth.accounts[0]
+    >>> w3.eth.default_account = w3.eth.accounts[0]
 
     # get bytecode
     >>> bytecode = compiled_sol['contracts']['Greeter.sol']['Greeter']['evm']['bytecode']['object']

@@ -104,7 +104,7 @@ from web3.types import (
 
 class Eth(Module):
     account = Account()
-    defaultAccount = empty
+    _default_account = empty
     defaultBlock: Literal["latest"] = "latest"  # noqa: E704
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
@@ -151,6 +151,18 @@ class Eth(Module):
     @property
     def chainId(self) -> int:
         return self.web3.manager.request_blocking(RPC.eth_chainId, [])
+
+    @property
+    def default_account(self) -> str:
+        return self.default_account
+
+    @property
+    def defaultAccount(self) -> str:
+        warnings.warn(
+            'defaultAccount is deprecated in favor of default_account',
+            category=DeprecationWarning,
+        )
+        return self._default_account
 
     def getBalance(
         self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
@@ -370,8 +382,8 @@ class Eth(Module):
 
     def sendTransaction(self, transaction: TxParams) -> HexBytes:
         # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
-            transaction = assoc(transaction, 'from', self.defaultAccount)
+        if 'from' not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, 'from', self.default_account)
 
         # TODO: move gas estimation in middleware
         if 'gas' not in transaction:
@@ -419,8 +431,8 @@ class Eth(Module):
     @apply_to_return_value(HexBytes)
     def call(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> Sequence[Any]:
         # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
-            transaction = assoc(transaction, 'from', self.defaultAccount)
+        if 'from' not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, 'from', self.default_account)
 
         # TODO: move to middleware
         if block_identifier is None:
@@ -432,8 +444,8 @@ class Eth(Module):
 
     def estimateGas(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> Wei:
         # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
-            transaction = assoc(transaction, 'from', self.defaultAccount)
+        if 'from' not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, 'from', self.default_account)
 
         if block_identifier is None:
             params: Sequence[Union[TxParams, BlockIdentifier]] = [transaction]

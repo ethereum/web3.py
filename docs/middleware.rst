@@ -397,7 +397,7 @@ Signing
 
 .. py:method:: web3.middleware.construct_sign_and_send_raw_middleware(private_key_or_account)
 
-This middleware automatically captures transactions, signs them, and sends them as raw transactions. The from field on the transaction, or ``w3.eth.defaultAccount`` must be set to the address of the private key for this middleware to have any effect.
+This middleware automatically captures transactions, signs them, and sends them as raw transactions. The from field on the transaction, or ``w3.eth.default_account`` must be set to the address of the private key for this middleware to have any effect.
 
    * ``private_key_or_account`` A single private key or a tuple, list or set of private keys.
 
@@ -415,5 +415,5 @@ This middleware automatically captures transactions, signs them, and sends them 
    >>> from eth_account import Account
    >>> acct = Account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
    >>> w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
-   >>> w3.eth.defaultAccount = acct.address
+   >>> w3.eth.default_account = acct.address
    # Now you can send a tx from acct.address without having to build and sign each raw transaction

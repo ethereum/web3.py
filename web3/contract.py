@@ -594,9 +594,9 @@ class ContractConstructor:
             self.check_forbidden_keys_in_transaction(estimate_gas_transaction,
                                                      ["data", "to"])
 
-        if self.web3.eth.defaultAccount is not empty:
-            # type ignored b/c check prevents an empty defaultAccount
-            estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore # noqa: E501
+        if self.web3.eth.default_account is not empty:
+            # type ignored b/c check prevents an empty default_account
+            estimate_gas_transaction.setdefault('from', self.web3.eth.default_account)  # type: ignore # noqa: E501
 
         estimate_gas_transaction['data'] = self.data_in_transaction
 
@@ -611,9 +611,9 @@ class ContractConstructor:
             self.check_forbidden_keys_in_transaction(transact_transaction,
                                                      ["data", "to"])
 
-        if self.web3.eth.defaultAccount is not empty:
-            # type ignored b/c check prevents an empty defaultAccount
-            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore
+        if self.web3.eth.default_account is not empty:
+            # type ignored b/c check prevents an empty default_account
+            transact_transaction.setdefault('from', self.web3.eth.default_account)  # type: ignore
 
         transact_transaction['data'] = self.data_in_transaction
 
@@ -633,9 +633,9 @@ class ContractConstructor:
             self.check_forbidden_keys_in_transaction(built_transaction,
                                                      ["data", "to"])
 
-        if self.web3.eth.defaultAccount is not empty:
-            # type ignored b/c check prevents an empty defaultAccount
-            built_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore
+        if self.web3.eth.default_account is not empty:
+            # type ignored b/c check prevents an empty default_account
+            built_transaction.setdefault('from', self.web3.eth.default_account)  # type: ignore
 
         built_transaction['data'] = self.data_in_transaction
         built_transaction['to'] = Address(b'')
@@ -880,9 +880,9 @@ class ContractFunction:
 
         if self.address:
             call_transaction.setdefault('to', self.address)
-        if self.web3.eth.defaultAccount is not empty:
-            # type ignored b/c check prevents an empty defaultAccount
-            call_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore
+        if self.web3.eth.default_account is not empty:
+            # type ignored b/c check prevents an empty default_account
+            call_transaction.setdefault('from', self.web3.eth.default_account)  # type: ignore
 
         if 'to' not in call_transaction:
             if isinstance(self, type):
@@ -922,9 +922,9 @@ class ContractFunction:
 
         if self.address is not None:
             transact_transaction.setdefault('to', self.address)
-        if self.web3.eth.defaultAccount is not empty:
-            # type ignored b/c check prevents an empty defaultAccount
-            transact_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore
+        if self.web3.eth.default_account is not empty:
+            # type ignored b/c check prevents an empty default_account
+            transact_transaction.setdefault('from', self.web3.eth.default_account)  # type: ignore
 
         if 'to' not in transact_transaction:
             if isinstance(self, type):
@@ -961,9 +961,9 @@ class ContractFunction:
 
         if self.address:
             estimate_gas_transaction.setdefault('to', self.address)
-        if self.web3.eth.defaultAccount is not empty:
-            # type ignored b/c check prevents an empty defaultAccount
-            estimate_gas_transaction.setdefault('from', self.web3.eth.defaultAccount)  # type: ignore # noqa: E501
+        if self.web3.eth.default_account is not empty:
+            # type ignored b/c check prevents an empty default_account
+            estimate_gas_transaction.setdefault('from', self.web3.eth.default_account)  # type: ignore # noqa: E501
 
         if 'to' not in estimate_gas_transaction:
             if isinstance(self, type):
