@@ -178,23 +178,35 @@ class Eth(ModuleV2, Module):
     def accounts(self) -> Tuple[ChecksumAddress]:
         return self.get_accounts()
 
-    block_number: Method[Callable[[], BlockNumber]] = Method(
+    _block_number: Method[Callable[[], BlockNumber]] = Method(
         RPC.eth_blockNumber,
         mungers=None,
     )
 
     @property
-    def blockNumber(self) -> BlockNumber:
-        return self.block_number()
+    def block_number(self) -> BlockNumber:
+        return self._block_number()
 
-    chain_id: Method[Callable[[], int]] = Method(
+    @property
+    def blockNumber(self) -> BlockNumber:
+        warnings.warn(
+            'blockNumber is deprecated in favor of block_number',
+            category=DeprecationWarning,
+        )
+        return self.block_number
+
+    _chain_id: Method[Callable[[], int]] = Method(
         RPC.eth_chainId,
         mungers=None,
     )
 
     @property
+    def chain_id(self) -> int:
+        return self._chain_id()
+
+    @property
     def chainId(self) -> int:
-        return self.web3.manager.request_blocking(RPC.eth_chainId, [])
+        return self.chain_id
 
     """ property default_account """
 
