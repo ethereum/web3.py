@@ -177,7 +177,7 @@ The following properties are available on the ``web3.eth`` namespace.
        '63'
 
 
-.. py:attribute:: Eth.chainId
+.. py:attribute:: Eth.chain_id
 
     * Delegates to ``eth_chainId`` RPC Method
 
@@ -185,8 +185,15 @@ The following properties are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-       >>> web3.eth.chainId
+       >>> web3.eth.chain_id
        61
+
+
+.. py:attribute:: Eth.chainId
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.chain_id`
+
 
 
 Methods
