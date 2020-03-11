@@ -117,7 +117,7 @@ The following properties are available on the ``web3.eth`` namespace.
         906
 
 
-.. py:attribute:: Eth.gasPrice
+.. py:attribute:: Eth.gas_price
 
     * Delegates to ``eth_gasPrice`` RPC Method
 
@@ -125,8 +125,14 @@ The following properties are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.gasPrice
+        >>> web3.eth.gas_price
         20000000000
+
+
+.. py:attribute:: Eth.gasPrice
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.gas_price`
 
 
 .. py:attribute:: Eth.accounts
@@ -683,7 +689,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> signed_txn = w3.eth.signTransaction(dict(
             nonce=w3.eth.getTransactionCount(w3.eth.coinbase),
-            gasPrice=w3.eth.gasPrice,
+            gasPrice=w3.eth.gas_price,
             gas=100000,
             to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
             value=1,
@@ -703,7 +709,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> signed_txn = w3.eth.account.signTransaction(dict(
             nonce=w3.eth.getTransactionCount(w3.eth.coinbase),
-            gasPrice=w3.eth.gasPrice,
+            gasPrice=w3.eth.gas_price,
             gas=100000,
             to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
             value=12345,
