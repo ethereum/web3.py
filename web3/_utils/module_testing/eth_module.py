@@ -95,8 +95,14 @@ class EthModuleTest:
         assert is_integer(hashrate)
         assert hashrate >= 0
 
+    def test_eth_chain_id(self, web3: "Web3") -> None:
+        chain_id = web3.eth.chain_id
+        # chain id value from geth fixture genesis file
+        assert chain_id == 131277322940537
+
     def test_eth_chainId(self, web3: "Web3") -> None:
-        chain_id = web3.eth.chainId
+        with pytest.warns(DeprecationWarning):
+            chain_id = web3.eth.chainId
         # chain id value from geth fixture genesis file
         assert chain_id == 131277322940537
 

@@ -334,8 +334,14 @@ class TestEthereumTesterEthModule(EthModuleTest):
             web3, unlocked_account_dual_type
         )
 
+    def test_eth_chain_id(self, web3):
+        chain_id = web3.eth.chain_id
+        assert is_integer(chain_id)
+        assert chain_id == 61
+
     def test_eth_chainId(self, web3):
-        chain_id = web3.eth.chainId
+        with pytest.raises(DeprecationWarning):
+            chain_id = web3.eth.chainId
         assert is_integer(chain_id)
         assert chain_id == 61
 

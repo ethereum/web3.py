@@ -214,6 +214,10 @@ class Eth(ModuleV2, Module):
 
     @property
     def chainId(self) -> int:
+        warnings.warn(
+            'chainId is deprecated in favor of chain_id',
+            category=DeprecationWarning,
+        )
         return self.chain_id
 
     """ property default_account """
