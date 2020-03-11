@@ -46,7 +46,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.defaultAccount
 
     .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.default_account`
+      :attr:`~web3.eth.Eth.default_account`
 
 
 .. py:attribute:: Eth.defaultBlock

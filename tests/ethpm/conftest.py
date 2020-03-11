@@ -78,7 +78,7 @@ MANIFESTS_V3 = {name: fetch_manifest(name, version) for name, version in V3_PACK
 @pytest.fixture
 def w3():
     w3 = Web3(Web3.EthereumTesterProvider())
-    w3.eth.defaultAccount = w3.eth.accounts[0]
+    w3.eth.default_account = w3.eth.accounts[0]
     return w3
 
 
