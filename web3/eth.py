@@ -1,3 +1,5 @@
+import warnings
+
 from typing import (
     Any,
     Callable,
@@ -86,6 +88,7 @@ from web3.types import (
     ENS,
     BlockData,
     BlockIdentifier,
+    Empty,
     FilterParams,
     GasPriceStrategy,
     LogReceipt,
@@ -198,16 +201,28 @@ class Eth(ModuleV2, Module):
         return self.web3.manager.request_blocking(RPC.eth_chainId, [])
 
     @property
-    def default_account(self) -> str:
-        return self.default_account
+    def default_account(self) -> Union[Empty, Address]:
+        return self._default_account
+
+    @default_account.setter
+    def default_account(self, account: Union[Empty, Address]):
+        self._default_account = account
 
     @property
-    def defaultAccount(self) -> str:
+    def defaultAccount(self) -> Union[Empty, Address]:
         warnings.warn(
             'defaultAccount is deprecated in favor of default_account',
             category=DeprecationWarning,
         )
         return self._default_account
+
+    @defaultAccount.setter
+    def defaultAccount(self, account: Union[Empty, Address]):
+        warnings.warn(
+            'defaultAccount is deprecated in favor of default_account',
+            category=DeprecationWarning,
+        )
+        self._default_account = account
 
     def block_id_munger(
         self,
@@ -443,7 +458,6 @@ class Eth(ModuleV2, Module):
         if block_identifier is None:
             block_identifier = self.defaultBlock
 
-<<<<<<< HEAD
         return (transaction, block_identifier)
 
     call: Method[Callable[..., Union[bytes, bytearray]]] = Method(
@@ -456,14 +470,8 @@ class Eth(ModuleV2, Module):
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None
     ) -> Sequence[Union[TxParams, BlockIdentifier]]:
-        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
-            transaction = assoc(transaction, 'from', self.defaultAccount)
-=======
-    def estimateGas(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> Wei:
-        # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, 'from', self.default_account)
->>>>>>> 1b792773... eth.defaultAccount to eth.default_account
 
         if block_identifier is None:
             params: Sequence[Union[TxParams, BlockIdentifier]] = [transaction]

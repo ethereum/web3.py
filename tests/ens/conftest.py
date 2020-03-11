@@ -220,7 +220,7 @@ def ens_setup():
 @pytest.fixture
 def ens(ens_setup, mocker):
     mocker.patch('web3.middleware.stalecheck._isfresh', return_value=True)
-    ens_setup.web3.eth.defaultAccount = ens_setup.web3.eth.coinbase
+    ens_setup.web3.eth.default_account = ens_setup.web3.eth.coinbase
     return ens_setup
 
 

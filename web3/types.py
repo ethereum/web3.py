@@ -101,6 +101,7 @@ class ABIFunction(TypedDict, total=False):
 ABIElement = Union[ABIFunction, ABIEvent]
 ABI = Sequence[Union[ABIFunction, ABIEvent]]
 
+Empty = NewType('Empty', bool)
 
 class EventData(TypedDict):
     address: ChecksumAddress
