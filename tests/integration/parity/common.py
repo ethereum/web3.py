@@ -67,7 +67,7 @@ class ParityEthModuleTest(EthModuleTest):
             'to': unlocked_account,
             'value': 1,
             'gas': 21000,
-            'gasPrice': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gas_price,
         })
         receipt = web3.eth.getTransactionReceipt(txn_hash)
         assert receipt is not None

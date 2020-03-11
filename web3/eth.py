@@ -160,14 +160,22 @@ class Eth(ModuleV2, Module):
     def hashrate(self) -> int:
         return self.get_hashrate()
 
-    gas_price: Method[Callable[[], Wei]] = Method(
+    _gas_price: Method[Callable[[], Wei]] = Method(
         RPC.eth_gasPrice,
         mungers=None,
     )
 
     @property
+    def gas_price(self) -> Wei:
+        return self._gas_price()
+
+    @property
     def gasPrice(self) -> Wei:
-        return self.gas_price()
+        warnings.warn(
+            'gasPrice is deprecated in favor of gas_price',
+            category=DeprecationWarning,
+        )
+        return self.gas_price
 
     get_accounts: Method[Callable[[], Tuple[ChecksumAddress]]] = Method(
         RPC.eth_accounts,

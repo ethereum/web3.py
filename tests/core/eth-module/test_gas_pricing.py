@@ -1,6 +1,18 @@
+import pytest
 from unittest.mock import (
     Mock,
 )
+
+
+def test_get_set_gas_price(web3):
+
+    assert web3.eth.gas_price > 0
+
+
+def test_get_set_gasPrice(web3):
+
+    with pytest.warns(DeprecationWarning):
+        assert web3.eth.gasPrice > 0
 
 
 def test_no_gas_price_strategy_returns_none(web3):
