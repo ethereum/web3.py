@@ -147,7 +147,7 @@ The following properties are available on the ``web3.eth`` namespace.
         ['0xd3CdA913deB6f67967B99D67aCDFa1712C293601']
 
 
-.. py:attribute:: Eth.blockNumber
+.. py:attribute:: Eth.block_number
 
     * Delegates to ``eth_blockNumber`` RPC Method
 
@@ -155,8 +155,14 @@ The following properties are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.blockNumber
+        >>> web3.eth.block_number
         2206939
+
+
+.. py:attribute:: Eth.blockNumber
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.block_number`
 
 
 .. py:attribute:: Eth.protocolVersion

@@ -56,7 +56,7 @@ def test_event_filter_new_events(
 
     expected_match_counter = 0
 
-    while web3.eth.blockNumber < 50:
+    while web3.eth.block_number < 50:
         is_match = bool(random.randint(0, 1))
         if is_match:
             expected_match_counter += 1
@@ -73,10 +73,10 @@ def test_event_filter_new_events(
 def test_block_filter(web3):
     block_filter = web3.eth.filter("latest")
 
-    while web3.eth.blockNumber < 50:
+    while web3.eth.block_number < 50:
         pad_with_transactions(web3)
 
-    assert len(block_filter.get_new_entries()) == web3.eth.blockNumber
+    assert len(block_filter.get_new_entries()) == web3.eth.block_number
 
 
 def test_transaction_filter_with_mining(
@@ -143,7 +143,7 @@ def test_event_filter_new_events_many_deployed_contracts(
 
     expected_match_counter = 0
 
-    while web3.eth.blockNumber < 50:
+    while web3.eth.block_number < 50:
         is_match = bool(random.randint(0, 1))
         if is_match:
             expected_match_counter += 1

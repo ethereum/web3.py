@@ -113,7 +113,7 @@ def wait_for_transaction_receipt(
 
 def get_block_gas_limit(web3: "Web3", block_identifier: BlockIdentifier=None) -> Wei:
     if block_identifier is None:
-        block_identifier = web3.eth.blockNumber
+        block_identifier = web3.eth.block_number
     block = web3.eth.getBlock(block_identifier)
     return block['gasLimit']
 

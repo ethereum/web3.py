@@ -48,7 +48,7 @@ Use the ``web3.auto.infura`` module to connect to the Infura node.
 .. code-block:: python
 
     >>> from web3.auto.infura import w3
-    >>> w3.eth.blockNumber
+    >>> w3.eth.block_number
     4000000
 
 This ``w3`` instance will now allow you to interact with the Ethereum
@@ -62,7 +62,7 @@ blockchain.
       .. code-block:: python
 
           >>> from web3.auto import w3
-          >>> w3.eth.blockNumber
+          >>> w3.eth.block_number
           4000000
 
 .. NOTE:: If you get the result ``UnhandledRequest: No providers responded to the RPC request``

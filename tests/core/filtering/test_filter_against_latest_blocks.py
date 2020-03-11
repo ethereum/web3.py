@@ -12,7 +12,7 @@ def test_sync_filter_against_latest_blocks(web3, sleep_interval, wait_for_block)
 
     txn_filter = web3.eth.filter("latest")
 
-    current_block = web3.eth.blockNumber
+    current_block = web3.eth.block_number
 
     wait_for_block(web3, current_block + 3)
 

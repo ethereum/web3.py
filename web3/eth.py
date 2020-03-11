@@ -152,8 +152,16 @@ class Eth(Module):
         return self.web3.manager.request_blocking(RPC.eth_accounts, [])
 
     @property
-    def blockNumber(self) -> BlockNumber:
+    def block_number(self) -> BlockNumber:
         return self.web3.manager.request_blocking(RPC.eth_blockNumber, [])
+
+    @property
+    def blockNumber(self) -> BlockNumber:
+        warnings.warn(
+            'blockNumber is deprecated in favor of block_number',
+            category=DeprecationWarning,
+        )
+        return self.block_number
 
     @property
     def chainId(self) -> int:

@@ -1204,8 +1204,8 @@ class ContractEvent:
 
         .. code-block:: python
 
-            from = max(mycontract.web3.eth.blockNumber - 10, 1)
-            to = mycontract.web3.eth.blockNumber
+            from = max(mycontract.web3.eth.block_number - 10, 1)
+            to = mycontract.web3.eth.block_number
 
             events = mycontract.events.Transfer.getLogs(fromBlock=from, toBlock=to)
 
