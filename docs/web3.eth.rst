@@ -43,16 +43,23 @@ The following properties are available on the ``web3.eth`` namespace.
     The ethereum address that will be used as the default ``from`` address for
     all transactions.
 
+
 .. py:attribute:: Eth.defaultAccount
 
     .. warning:: Deprecated: This property is deprecated in favor of
       :attr:`~web3.eth.Eth.default_account`
 
 
-.. py:attribute:: Eth.defaultBlock
+.. py:attribute:: Eth.default_block
 
     The default block number that will be used for any RPC methods that accept
     a block identifier.  Defaults to ``'latest'``.
+
+
+.. py:attribute:: Eth.defaultBlock
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.default_block`
 
 
 .. py:attribute:: Eth.syncing
@@ -176,7 +183,7 @@ Methods
 The following methods are available on the ``web3.eth`` namespace.
 
 
-.. py:method:: Eth.get_balance(account, block_identifier=eth.defaultBlock)
+.. py:method:: Eth.get_balance(account, block_identifier=eth.default_block)
 
     * Delegates to ``eth_getBalance`` RPC Method
 
@@ -191,13 +198,13 @@ The following methods are available on the ``web3.eth`` namespace.
         77320681768999138915
 
 
-.. py:method:: Eth.getBalance(account, block_identifier=eth.defaultBlock)
+.. py:method:: Eth.getBalance(account, block_identifier=eth.default_block)
 
     .. warning:: Deprecated: This method is deprecated in favor of
       :meth:`~web3.eth.get_balance()`
 
 
-.. py:method:: Eth.get_storage_at(account, position, block_identifier=eth.defaultBlock)
+.. py:method:: Eth.get_storage_at(account, position, block_identifier=eth.default_block)
 
     * Delegates to ``eth_getStorageAt`` RPC Method
 
@@ -212,13 +219,13 @@ The following methods are available on the ``web3.eth`` namespace.
         '0x00000000000000000000000000000000000000000000000000120a0b063499d4'
 
 
-.. py:method:: Eth.getStorageAt(account, position, block_identifier=eth.defaultBlock)
+.. py:method:: Eth.getStorageAt(account, position, block_identifier=eth.default_block)
 
     .. warning:: Deprecated: This method is deprecated in favor of
       :meth:`~web3.eth.Eth.get_storage_at`
 
 
-.. py:method:: Eth.getProof(account, positions, block_identifier=eth.defaultBlock)
+.. py:method:: Eth.getProof(account, positions, block_identifier=eth.default_block)
 
     * Delegates to ``eth_getProof`` RPC Method
 
@@ -319,7 +326,7 @@ The following methods are available on the ``web3.eth`` namespace.
         assert verify_eth_getProof(proof, block.stateRoot)
 
 
-.. py:method:: Eth.getCode(account, block_identifier=eth.defaultBlock)
+.. py:method:: Eth.getCode(account, block_identifier=eth.default_block)
 
     * Delegates to ``eth_getCode`` RPC Method
 
@@ -338,7 +345,7 @@ The following methods are available on the ``web3.eth`` namespace.
         '0x'
 
 
-.. py:method:: Eth.get_block(block_identifier=eth.defaultBlock, full_transactions=False)
+.. py:method:: Eth.get_block(block_identifier=eth.default_block, full_transactions=False)
 
     * Delegates to ``eth_getBlockByNumber`` or ``eth_getBlockByHash`` RPC Methods
 
@@ -612,7 +619,7 @@ The following methods are available on the ``web3.eth`` namespace.
         })
 
 
-.. py:method:: Eth.getTransactionCount(account, block_identifier=web3.eth.defaultBlock)
+.. py:method:: Eth.getTransactionCount(account, block_identifier=web3.eth.default_block)
 
     * Delegates to ``eth_getTransactionCount`` RPC Method
 
@@ -819,7 +826,7 @@ The following methods are available on the ``web3.eth`` namespace.
     ``account`` may be a checksum address or an ENS name
 
 
-.. py:method:: Eth.call(transaction, block_identifier=web3.eth.defaultBlock)
+.. py:method:: Eth.call(transaction, block_identifier=web3.eth.default_block)
 
     * Delegates to ``eth_call`` RPC Method
 

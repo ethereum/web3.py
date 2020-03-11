@@ -26,6 +26,8 @@ def test_uses_defaultAccount_when_set_with_warning(web3, extra_accounts,
                                                    wait_for_transaction):
     with pytest.warns(DeprecationWarning):
         web3.eth.defaultAccount = extra_accounts[2]
+
+    with pytest.warns(DeprecationWarning):
         assert web3.eth.defaultAccount == extra_accounts[2]
 
     txn_hash = web3.eth.sendTransaction({
@@ -58,6 +60,10 @@ def test_uses_given_from_address_when_provided_with_warning(web3, extra_accounts
                                                             wait_for_transaction):
     with pytest.warns(DeprecationWarning):
         web3.eth.defaultAccount = extra_accounts[2]
+
+    with pytest.warns(DeprecationWarning):
+        assert web3.eth.defaultAccount == extra_accounts[2]
+
     txn_hash = web3.eth.sendTransaction({
         "from": extra_accounts[5],
         "to": extra_accounts[1],
