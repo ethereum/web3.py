@@ -1,5 +1,3 @@
-import warnings
-
 from typing import (
     Any,
     Dict,
@@ -13,6 +11,7 @@ from typing import (
     cast,
     overload,
 )
+import warnings
 
 from eth_account import (
     Account,
@@ -39,10 +38,8 @@ from hexbytes import (
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
-from web3._utils.compat import (
-    Literal,
-)
 from web3._utils.empty import (
+    Empty,
     empty,
 )
 from web3._utils.encoding import (
@@ -88,7 +85,6 @@ from web3.types import (
     ENS,
     BlockData,
     BlockIdentifier,
-    Empty,
     FilterParams,
     GasPriceStrategy,
     LogReceipt,
@@ -107,8 +103,8 @@ from web3.types import (
 
 class Eth(Module):
     account = Account()
-    _default_account = empty
-    defaultBlock: Literal["latest"] = "latest"  # noqa: E704
+    _default_account: Union[ChecksumAddress, Empty] = empty
+    _default_block: BlockIdentifier = "latest"  # noqa: E704
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
     gasPriceStrategy = None
@@ -155,16 +151,18 @@ class Eth(Module):
     def chainId(self) -> int:
         return self.web3.manager.request_blocking(RPC.eth_chainId, [])
 
+    """ property default_account """
+
     @property
-    def default_account(self) -> Union[Empty, Address]:
+    def default_account(self) -> Union[ChecksumAddress, Empty]:
         return self._default_account
 
     @default_account.setter
-    def default_account(self, account: Union[Empty, Address]):
+    def default_account(self, account: Union[ChecksumAddress, Empty]) -> None:
         self._default_account = account
 
     @property
-    def defaultAccount(self) -> Union[Empty, Address]:
+    def defaultAccount(self) -> Union[ChecksumAddress, Empty]:
         warnings.warn(
             'defaultAccount is deprecated in favor of default_account',
             category=DeprecationWarning,
@@ -172,18 +170,44 @@ class Eth(Module):
         return self._default_account
 
     @defaultAccount.setter
-    def defaultAccount(self, account: Union[Empty, Address]):
+    def defaultAccount(self, account: Union[ChecksumAddress, Empty]) -> None:
         warnings.warn(
             'defaultAccount is deprecated in favor of default_account',
             category=DeprecationWarning,
         )
         self._default_account = account
 
+    """ property default_block """
+
+    @property
+    def default_block(self) -> BlockIdentifier:
+        return self._default_block
+
+    @default_block.setter
+    def default_block(self, value: BlockIdentifier) -> None:
+        self._default_block = value
+
+    @property
+    def defaultBlock(self) -> BlockIdentifier:
+        warnings.warn(
+            'defaultBlock is deprecated in favor of default_block',
+            category=DeprecationWarning,
+        )
+        return self._default_block
+
+    @defaultBlock.setter
+    def defaultBlock(self, value: BlockIdentifier) -> None:
+        warnings.warn(
+            'defaultBlock is deprecated in favor of default_block',
+            category=DeprecationWarning,
+        )
+        self._default_block = value
+
     def getBalance(
         self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
     ) -> Wei:
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             RPC.eth_getBalance,
             [account, block_identifier],
@@ -196,7 +220,7 @@ class Eth(Module):
         block_identifier: BlockIdentifier=None
     ) -> bytes:
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             RPC.eth_getStorageAt,
             [account, position, block_identifier]
@@ -209,7 +233,7 @@ class Eth(Module):
         block_identifier: BlockIdentifier=None
     ) -> MerkleProof:
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             RPC.eth_getProof,
             [account, positions, block_identifier]
@@ -219,7 +243,7 @@ class Eth(Module):
         self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
     ) -> HexStr:
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             RPC.eth_getCode,
             [account, block_identifier],
@@ -374,7 +398,7 @@ class Eth(Module):
         self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
     ) -> Nonce:
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             RPC.eth_getTransactionCount,
             [account, block_identifier],
@@ -451,7 +475,7 @@ class Eth(Module):
 
         # TODO: move to middleware
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             RPC.eth_call,
             [transaction, block_identifier],
