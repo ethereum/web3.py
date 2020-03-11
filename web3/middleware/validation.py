@@ -44,14 +44,14 @@ is_not_null = complement(is_null)
 
 @curry
 def validate_chain_id(web3: "Web3", chain_id: int) -> int:
-    if int(chain_id) == web3.eth.chainId:
+    if int(chain_id) == web3.eth.chain_id:
         return chain_id
     else:
         raise ValidationError(
             "The transaction declared chain ID %r, "
             "but the connected node is on %r" % (
                 chain_id,
-                web3.eth.chainId,
+                web3.eth.chain_id,
             )
         )
 
@@ -81,7 +81,7 @@ def transaction_param_validator(web3: "Web3") -> Callable[..., Any]:
     transactions_params_validators = {
         "chainId": apply_formatter_if(
             # Bypass `validate_chain_id` if chainId can't be determined
-            lambda _: is_not_null(web3.eth.chainId),
+            lambda _: is_not_null(web3.eth.chain_id),
             validate_chain_id(web3),
         ),
     }
