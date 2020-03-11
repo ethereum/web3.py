@@ -46,6 +46,17 @@ class ParityEthModuleTest(EthModuleTest):
             )
             web3.eth.estimateGas(txn_params)
 
+    def test_eth_chain_id(self, web3):
+        # Parity will return null if chainId is not available
+        chain_id = web3.eth.chain_id
+        assert chain_id is None
+
+    def test_eth_chainId(self, web3):
+        # Parity will return null if chainId is not available
+        with pytest.raises(DeprecationWarning):
+            chain_id = web3.eth.chainId
+        assert chain_id is None
+
     @pytest.mark.xfail(reason='Parity dropped "pending" option in 1.11.1')
     def test_eth_getBlockByNumber_pending(self, web3):
         super().test_eth_getBlockByNumber_pending(web3)
