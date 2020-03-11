@@ -5,6 +5,7 @@ from typing import (
     Tuple,
     Union,
 )
+import warnings
 
 from eth_typing import (
     Address,
@@ -19,9 +20,6 @@ from eth_utils.toolz import (
     assoc,
 )
 
-from web3._utils.compat import (
-    Literal,
-)
 from web3._utils.personal import (
     ec_recover,
     ecRecover,
@@ -90,13 +88,39 @@ class Parity(ModuleV2):
     """
     https://paritytech.github.io/wiki/JSONRPC-parity-module
     """
-    defaultBlock: Literal["latest"] = "latest"  # noqa: E704
+    _default_block: BlockIdentifier = "latest"  # noqa: E704
     personal: ParityPersonal
 
     enode: Method[Callable[[], str]] = Method(
         RPC.parity_enode,
         mungers=None,
     )
+
+    """ property default_block """
+
+    @property
+    def default_block(self) -> BlockIdentifier:
+        return self._default_block
+
+    @default_block.setter
+    def default_block(self, value: BlockIdentifier) -> None:
+        self._default_block = value
+
+    @property
+    def defaultBlock(self) -> BlockIdentifier:
+        warnings.warn(
+            'defaultBlock is deprecated in favor of default_block',
+            category=DeprecationWarning,
+        )
+        return self._default_block
+
+    @defaultBlock.setter
+    def defaultBlock(self, value: BlockIdentifier) -> None:
+        warnings.warn(
+            'defaultBlock is deprecated in favor of default_block',
+            category=DeprecationWarning,
+        )
+        self._default_block = value
 
     def list_storage_keys_munger(
         self,
