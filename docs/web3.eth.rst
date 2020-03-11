@@ -165,7 +165,7 @@ The following properties are available on the ``web3.eth`` namespace.
       :attr:`~web3.eth.block_number`
 
 
-.. py:attribute:: Eth.protocolVersion
+.. py:attribute:: Eth.protocol_version
 
     * Delegates to ``eth_protocolVersion`` RPC Method
 
@@ -173,8 +173,14 @@ The following properties are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-       >>> web3.eth.protocolVersion
+       >>> web3.eth.protocol_version
        '63'
+
+
+.. py:attribute:: Eth.protocolVersion
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.protocol_version`
 
 
 .. py:attribute:: Eth.chainId
