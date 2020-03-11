@@ -115,14 +115,22 @@ class Eth(ModuleV2, Module):
     def icapNamereg(self) -> NoReturn:
         raise NotImplementedError()
 
-    protocol_version: Method[Callable[[], str]] = Method(
+    _protocol_version: Method[Callable[[], str]] = Method(
         RPC.eth_protocolVersion,
         mungers=None,
     )
 
     @property
+    def protocol_version(self) -> str:
+        return self._protocol_version()
+
+    @property
     def protocolVersion(self) -> str:
-        return self.protocol_version()
+        warnings.warn(
+            'protocolVersion is deprecated in favor of protocol_version',
+            category=DeprecationWarning,
+        )
+        return self.protocol_version
 
     is_syncing: Method[Callable[[], Union[SyncStatus, bool]]] = Method(
         RPC.eth_syncing,
