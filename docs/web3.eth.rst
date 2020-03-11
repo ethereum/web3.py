@@ -47,7 +47,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.defaultAccount
 
     .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.default_account`
+      :attr:`~Eth.default_account`
 
 
 .. py:attribute:: Eth.default_block
@@ -59,7 +59,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.defaultBlock
 
     .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.default_block`
+      :attr:`~Eth.default_block`
 
 
 .. py:attribute:: Eth.syncing
@@ -132,7 +132,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.gasPrice
 
     .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.gas_price`
+      :attr:`~Eth.gas_price`
 
 
 .. py:attribute:: Eth.accounts
@@ -162,7 +162,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.blockNumber
 
     .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.block_number`
+      :attr:`~Eth.block_number`
 
 
 .. py:attribute:: Eth.protocol_version
@@ -180,7 +180,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.protocolVersion
 
     .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.protocol_version`
+      :attr:`~Eth.protocol_version`
 
 
 .. py:attribute:: Eth.chain_id
@@ -198,7 +198,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.chainId
 
     .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.chain_id`
+      :attr:`~Eth.chain_id`
 
 
 
