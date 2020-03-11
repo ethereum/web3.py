@@ -258,7 +258,7 @@ def generate_parity_fixture(destination_dir):
         common.wait_for_socket(geth_ipc_path)
         web3_geth = Web3(Web3.IPCProvider(geth_ipc_path))
         chain_data = go_ethereum.setup_chain_state(web3_geth)
-        fixture_block_count = web3_geth.eth.blockNumber
+        fixture_block_count = web3_geth.eth.block_number
 
         datadir = stack.enter_context(common.tempdir())
 
@@ -326,7 +326,7 @@ def connect_nodes(w3_parity, w3_secondary):
 def wait_for_chain_sync(web3, target):
     start_time = time.time()
     while time.time() < start_time + 120:
-        current_block_number = web3.eth.blockNumber
+        current_block_number = web3.eth.block_number
         if current_block_number >= target:
             break
         else:

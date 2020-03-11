@@ -87,7 +87,7 @@ Again, a convenience method exists to save a few keystrokes:
 .. code-block:: python
 
     >>> from web3.auto.infura import w3
-    >>> w3.eth.blockNumber
+    >>> w3.eth.block_number
     4000000
 
 Note that this requires your Infura Project ID to be set as the environment variable

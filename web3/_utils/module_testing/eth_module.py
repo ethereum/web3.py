@@ -116,8 +116,15 @@ class EthModuleTest:
         ))
         assert web3.eth.coinbase in accounts
 
+    def test_eth_block_number(self, web3: "Web3") -> None:
+        block_number = web3.eth.block_number
+        assert is_integer(block_number)
+        assert block_number >= 0
+
     def test_eth_blockNumber(self, web3: "Web3") -> None:
-        block_number = web3.eth.blockNumber
+        with pytest.warns(DeprecationWarning):
+            block_number = web3.eth.blockNumber
+
         assert is_integer(block_number)
         assert block_number >= 0
 
@@ -304,7 +311,7 @@ class EthModuleTest:
     def test_eth_getCode_with_block_identifier(
         self, web3: "Web3", emitter_contract: "Contract"
     ) -> None:
-        code = web3.eth.getCode(emitter_contract.address, block_identifier=web3.eth.blockNumber)
+        code = web3.eth.getCode(emitter_contract.address, block_identifier=web3.eth.block_number)
         assert isinstance(code, HexBytes)
         assert len(code) > 0
 
@@ -914,7 +921,7 @@ class EthModuleTest:
     def test_eth_getBlockByNumber_latest(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
-        current_block_number = web3.eth.blockNumber
+        current_block_number = web3.eth.block_number
         block = web3.eth.get_block('latest')
         assert block['number'] == current_block_number
 
@@ -927,7 +934,7 @@ class EthModuleTest:
     def test_eth_getBlockByNumber_pending(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
-        current_block_number = web3.eth.blockNumber
+        current_block_number = web3.eth.block_number
         block = web3.eth.get_block('pending')
         assert block['number'] == current_block_number + 1
 
