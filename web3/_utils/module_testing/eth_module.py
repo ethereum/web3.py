@@ -53,8 +53,15 @@ if TYPE_CHECKING:
 
 
 class EthModuleTest:
+    def test_eth_protocol_version(self, web3: "Web3") -> None:
+        protocol_version = web3.eth.protocol_version
+
+        assert is_string(protocol_version)
+        assert protocol_version.isdigit()
+
     def test_eth_protocolVersion(self, web3: "Web3") -> None:
-        protocol_version = web3.eth.protocolVersion
+        with pytest.warns(DeprecationWarning):
+            protocol_version = web3.eth.protocolVersion
 
         assert is_string(protocol_version)
         assert protocol_version.isdigit()

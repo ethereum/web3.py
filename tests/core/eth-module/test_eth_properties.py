@@ -1,5 +1,13 @@
+import pytest
+
+
+def test_eth_protocol_version(web3):
+    assert web3.eth.protocol_version == '63'
+
+
 def test_eth_protocolVersion(web3):
-    assert web3.eth.protocolVersion == '63'
+    with pytest.warns(DeprecationWarning):
+        assert web3.eth.protocolVersion == '63'
 
 
 def test_eth_chainId(web3):

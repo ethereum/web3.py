@@ -116,8 +116,16 @@ class Eth(Module):
         raise NotImplementedError()
 
     @property
-    def protocolVersion(self) -> str:
+    def protocol_version(self) -> str:
         return self.web3.manager.request_blocking(RPC.eth_protocolVersion, [])
+
+    @property
+    def protocolVersion(self) -> str:
+        warnings.warn(
+            'protocolVersion is deprecated in favor of protocol_version',
+            category=DeprecationWarning,
+        )
+        return self.protocol_version
 
     @property
     def syncing(self) -> Union[SyncStatus, bool]:

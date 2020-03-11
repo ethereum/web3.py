@@ -14,7 +14,7 @@ def test_uses_default_block(web3, extra_accounts,
 
 
 def test_uses_defaultBlock(web3, extra_accounts,
-                                         wait_for_transaction):
+                           wait_for_transaction):
     with pytest.warns(DeprecationWarning):
         assert(web3.eth.defaultBlock == 'latest')
 
