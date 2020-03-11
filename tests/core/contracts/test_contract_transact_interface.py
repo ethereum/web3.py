@@ -167,29 +167,29 @@ def test_transacting_with_contract_with_arguments(web3,
 def test_deploy_when_default_account_is_set(web3,
                                             wait_for_transaction,
                                             STRING_CONTRACT):
-    web3.eth.defaultAccount = web3.eth.accounts[1]
-    assert web3.eth.defaultAccount is not empty
+    web3.eth.default_account = web3.eth.accounts[1]
+    assert web3.eth.default_account is not empty
 
     StringContract = web3.eth.contract(**STRING_CONTRACT)
 
     deploy_txn = StringContract.constructor("Caqalai").transact()
     web3.eth.waitForTransactionReceipt(deploy_txn)
     txn_after = web3.eth.getTransaction(deploy_txn)
-    assert txn_after['from'] == web3.eth.defaultAccount
+    assert txn_after['from'] == web3.eth.default_account
 
 
 def test_transact_when_default_account_is_set(web3,
                                               wait_for_transaction,
                                               math_contract,
                                               transact):
-    web3.eth.defaultAccount = web3.eth.accounts[1]
-    assert web3.eth.defaultAccount is not empty
+    web3.eth.default_account = web3.eth.accounts[1]
+    assert web3.eth.default_account is not empty
 
     txn_hash = transact(contract=math_contract,
                         contract_function='increment')
     wait_for_transaction(web3, txn_hash)
     txn_after = web3.eth.getTransaction(txn_hash)
-    assert txn_after['from'] == web3.eth.defaultAccount
+    assert txn_after['from'] == web3.eth.default_account
 
 
 def test_transacting_with_contract_with_string_argument(web3, string_contract, transact, call):

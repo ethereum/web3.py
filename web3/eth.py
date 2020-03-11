@@ -1,3 +1,5 @@
+import warnings
+
 from typing import (
     Any,
     Dict,
@@ -86,6 +88,7 @@ from web3.types import (
     ENS,
     BlockData,
     BlockIdentifier,
+    Empty,
     FilterParams,
     GasPriceStrategy,
     LogReceipt,
@@ -153,16 +156,28 @@ class Eth(Module):
         return self.web3.manager.request_blocking(RPC.eth_chainId, [])
 
     @property
-    def default_account(self) -> str:
-        return self.default_account
+    def default_account(self) -> Union[Empty, Address]:
+        return self._default_account
+
+    @default_account.setter
+    def default_account(self, account: Union[Empty, Address]):
+        self._default_account = account
 
     @property
-    def defaultAccount(self) -> str:
+    def defaultAccount(self) -> Union[Empty, Address]:
         warnings.warn(
             'defaultAccount is deprecated in favor of default_account',
             category=DeprecationWarning,
         )
         return self._default_account
+
+    @defaultAccount.setter
+    def defaultAccount(self, account: Union[Empty, Address]):
+        warnings.warn(
+            'defaultAccount is deprecated in favor of default_account',
+            category=DeprecationWarning,
+        )
+        self._default_account = account
 
     def getBalance(
         self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
