@@ -38,32 +38,13 @@ def apply_result_formatters(
 
 
 @curry
-def apply_null_result_formatters(
+def check_null_result_errors(
     result_formatters: Callable[..., Any],
     result: RPCResponse,
     params: Sequence[Union[BlockIdentifier, _Hash32]]
 ) -> RPCResponse:
     null_result = pipe(params, result_formatters)
     return null_result
-
-
-# @curry
-# def apply_null_result_formatters(
-#     result_formatters: Callable[..., Any], result: RPCResponse, params
-# ) -> RPCResponse:
-#     null_result = pipe(result, *(functools.partial(fn, params) for fn in result_formatters))
-#     return null_result
-
-
-# def star_apply(fn):
-#     def inner(args):
-#         return fn(*args)
-#     return inner
-
-
-# def star_pipe(args, *fns):
-#     foo = [star_apply(fn) for fn in fns]
-#     return pipe(args, *foo)
 
 
 @curry
@@ -75,7 +56,7 @@ def retrieve_blocking_method_call_fn(
         result_formatters, error_formatters, null_formatters = response_formatters
         result = w3.manager.request_blocking(method_str, params, error_formatters)
         if result is None:
-            return apply_null_result_formatters(null_formatters, result, params)
+            check_null_result_errors(null_formatters, result, params)
         return apply_result_formatters(result_formatters, result)
     return caller
 
