@@ -455,7 +455,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_hashrate: to_integer_if_hex,
     RPC.eth_protocolVersion: compose(
         apply_formatter_if(is_integer, str),
-        to_integer_if_hex,
+        apply_formatter_if(is_string, hex_to_integer),
     ),
     RPC.eth_sendRawTransaction: to_hexbytes(32),
     RPC.eth_sendTransaction: to_hexbytes(32),

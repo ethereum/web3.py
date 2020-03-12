@@ -204,7 +204,7 @@ API_ENDPOINTS = {
         'peerCount': static_return(0),
     },
     'eth': {
-        'protocolVersion': static_return(63),
+        'protocolVersion': static_return('0x63'),
         'syncing': static_return(False),
         'coinbase': compose(
             operator.itemgetter(0),
