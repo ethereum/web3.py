@@ -190,7 +190,7 @@ class Eth(Module):
 
     def getCode(
         self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
-    ) -> HexStr:
+    ) -> HexBytes:
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return self.web3.manager.request_blocking(
