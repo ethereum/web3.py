@@ -482,22 +482,20 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 NULL_RESULT_FORMATTERS = {
-    'eth_getBlockByHash': raise_block_not_found_on_no_response,
-    'eth_getBlockByNumber': raise_block_not_found_on_no_response,
-    'eth_getBlockTransactionCountByHash': raise_block_not_found_on_no_response,
-    'eth_getBlockTransactionCountByNumber': raise_block_not_found_on_no_response,
-    'eth_getTransactionByBlockHashAndIndex':
+    RPC.eth_getBlockByHash: raise_block_not_found_on_no_response,
+    RPC.eth_getBlockByNumber: raise_block_not_found_on_no_response,
+    RPC.eth_getBlockTransactionCountByHash: raise_block_not_found_on_no_response,
+    RPC.eth_getBlockTransactionCountByNumber: raise_block_not_found_on_no_response,
+    RPC.eth_getTransactionByBlockHashAndIndex:
         raise_transaction_not_found_on_no_response_with_block_id,
-    'eth_getTransactionByBlockNumberAndIndex':
+    RPC.eth_getTransactionByBlockNumberAndIndex:
         raise_transaction_not_found_on_no_response_with_block_id,
-    'eth_getTransactionByHash': raise_transaction_not_found_on_no_response,
-    'eth_getTransactionReceipt': raise_transaction_not_found_on_no_response,
-    'eth_getUncleByBlockHashAndIndex': raise_block_not_found_on_no_response,
-    'eth_getUncleByBlockNumberAndIndex': raise_block_not_found_on_no_response,
-    'eth_getUncleCountByBlockHash': raise_block_not_found_on_no_response,
-    'eth_getUncleCountByBlockNumber': raise_block_not_found_on_no_response,
-    'eth_getUncleCountByBlockHashAndIndex': raise_block_not_found_on_no_response,
-    'eth_getUncleCountByBlockNumberAndIndex': raise_block_not_found_on_no_response,
+    RPC.eth_getTransactionByHash: raise_transaction_not_found_on_no_response,
+    RPC.eth_getTransactionReceipt: raise_transaction_not_found_on_no_response,
+    RPC.eth_getUncleByBlockHashAndIndex: raise_block_not_found_on_no_response,
+    RPC.eth_getUncleByBlockNumberAndIndex: raise_block_not_found_on_no_response,
+    RPC.eth_getUncleCountByBlockHash: raise_block_not_found_on_no_response,
+    RPC.eth_getUncleCountByBlockNumber: raise_block_not_found_on_no_response,
 }
 
 METHOD_NORMALIZERS: Dict[RPCEndpoint, Callable[..., Any]] = {
