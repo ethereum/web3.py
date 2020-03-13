@@ -194,7 +194,7 @@ class Eth(ModuleV2):
 
     @property
     def chainId(self) -> int:
-        return self.web3.manager.request_blocking(RPC.eth_chainId, [])
+        return self.chain_id()
 
     def block_identifier_munger(
         self,
