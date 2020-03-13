@@ -208,4 +208,11 @@ class ContractLogicError(SolidityError, ValueError):
     """
     Raised on a contract revert error
     """
+
+
+class InvalidParityMode(TypeError, ValueError):
+    # Inherits from TypeError for backwards compatibility
+    """
+    Raised when web3.parity.setMode() is called with no or invalid args
+    """
     pass

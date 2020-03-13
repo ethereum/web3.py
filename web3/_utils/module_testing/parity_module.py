@@ -15,6 +15,9 @@ from eth_utils import (
 from web3._utils.formatters import (
     hex_to_integer,
 )
+from web3.exceptions import (
+    InvalidParityMode,
+)
 from web3.types import (
     BlockData,
     EnodeURI,
@@ -154,11 +157,14 @@ class ParitySetModuleTest:
         assert web3.parity.setMode(mode) is True
 
     def test_set_mode_with_bad_string(self, web3: "Web3") -> None:
-        with pytest.raises(ValueError, match="Couldn't parse parameters: mode"):
+        with pytest.raises(InvalidParityMode, match="Couldn't parse parameters: mode"):
             # type ignored b/c it's an invalid literal ParityMode
             web3.parity.setMode('not a mode')  # type: ignore
 
     def test_set_mode_with_no_argument(self, web3: "Web3") -> None:
-        with pytest.raises(TypeError, match='missing 1 required positional argument'):
+        with pytest.raises(
+            InvalidParityMode,
+            match='Invalid params: invalid length 0, expected a tuple of size 1.'
+        ):
             # type ignored b/c setMode expects arguments
             web3.parity.setMode()  # type: ignore
