@@ -82,6 +82,7 @@ from web3.datastructures import (
 from web3.exceptions import (
     BlockNotFound,
     ContractLogicError,
+    InvalidParityMode,
     TransactionNotFound,
 )
 from web3.types import (
@@ -527,9 +528,16 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
     return response
 
 
+def raise_invalid_parity_mode(response: RPCResponse) -> NoReturn:
+    # eth-tester sends back an invalid RPCError, which makes mypy complain
+    error_message = response['error'].get('message')  # type: ignore
+    raise InvalidParityMode(error_message)
+
+
 ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_estimateGas: raise_solidity_error_on_revert,
     RPC.eth_call: raise_solidity_error_on_revert,
+    RPC.parity_setMode: raise_invalid_parity_mode,
 }
 
 

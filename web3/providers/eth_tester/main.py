@@ -95,16 +95,15 @@ class EthereumTesterProvider(BaseProvider):
         try:
             delegator = self.api_endpoints[namespace][endpoint]
         except KeyError:
-            return RPCResponse({
-                "error": "Unknown RPC Endpoint: {0}".format(method),
-            })
-
+            return RPCResponse(
+                {"error": f"Unknown RPC Endpoint: {method}"}
+            )
         try:
             response = delegator(self.ethereum_tester, params)
         except NotImplementedError:
-            return RPCResponse({
-                "error": "RPC Endpoint has not been implemented: {0}".format(method),
-            })
+            return RPCResponse(
+                {"error": f"RPC Endpoint has not been implemented: {method}"}
+            )
         except TransactionFailed as e:
             try:
                 reason = decode_single('(string)', e.args[0].args[0][4:])[0]
