@@ -6,6 +6,29 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.7.0 (2020-03-16)
+-------------------
+
+Features
+~~~~~~~~
+
+- Add snake_case methods for the net module
+
+  Also moved net module to use ModuleV2 instead of Module (`#1592 <https://github.com/ethereum/web3.py/issues/1592>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix return type of eth_getCode. Changed from Hexstr to HexBytes. (`#1601 <https://github.com/ethereum/web3.py/issues/1601>`__)
+
+
+Misc
+~~~~
+
+- `#1590 <https://github.com/ethereum/web3.py/issues/1590>`__
+
+
 v5.6.0 (2020-02-26)
 -------------------
 

@@ -1,1 +1,0 @@
-Fix return type of eth_getCode. Changed from Hexstr to HexBytes.

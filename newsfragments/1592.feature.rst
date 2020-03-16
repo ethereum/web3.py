@@ -1,3 +1,0 @@
-Add snake_case methods for the net module
-
-Also moved net module to use ModuleV2 instead of Module
