@@ -12,7 +12,7 @@ exposed by the web3 object and the backend or node that web3 is connecting to.
 * **Middlewares** provide hooks for monitoring and modifying requests and
   responses to and from the provider.  These can be *global* operating on all
   providers or specific to one provider.
-* **Managers** provide thread safety and primatives to allow for asyncronous usage of web3.
+* **Managers** provide thread safety and primatives to allow for asynchronous usage of web3.
 
 Here are some common things you might want to do with these APIs.
 
