@@ -586,7 +586,9 @@ class ContractConstructor:
         return data
 
     @combomethod
-    def estimateGas(self, transaction: TxParams=None) -> int:
+    def estimateGas(
+        self, transaction: TxParams=None, block_identifier: BlockIdentifier=None
+    ) -> int:
         if transaction is None:
             estimate_gas_transaction: TxParams = {}
         else:
@@ -600,7 +602,9 @@ class ContractConstructor:
 
         estimate_gas_transaction['data'] = self.data_in_transaction
 
-        return self.web3.eth.estimateGas(estimate_gas_transaction)
+        return self.web3.eth.estimateGas(
+            estimate_gas_transaction, block_identifier=block_identifier
+        )
 
     @combomethod
     def transact(self, transaction: TxParams=None) -> HexBytes:

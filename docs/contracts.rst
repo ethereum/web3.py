@@ -240,7 +240,7 @@ Each Contract Factory exposes the following methods.
         >>> txn_receipt['contractAddress']
         '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
 
-.. py:classmethod:: Contract.constructor(*args, **kwargs).estimateGas(transaction=None)
+.. py:classmethod:: Contract.constructor(*args, **kwargs).estimateGas(transaction=None, block_identifier=None)
 
     Estimate gas for constructing and deploying the contract.
 
@@ -248,6 +248,9 @@ Each Contract Factory exposes the following methods.
     :py:meth:`Contract.constructor(*args, **kwargs).transact` method,
     with transaction details being passed into the end portion of the
     function call, and function arguments being passed into the first portion.
+
+    The ``block_identifier`` parameter is passed directly to the call at the end portion 
+    of the function call.
 
     Returns the amount of gas consumed which can be used as a gas estimate for
     executing this transaction publicly.
