@@ -161,7 +161,7 @@ TxData = TypedDict("TxData", {
     "gasPrice": Wei,
     "hash": HexBytes,
     "input": HexStr,
-    "nonce": int,
+    "nonce": Nonce,
     "r": HexBytes,
     "s": HexBytes,
     "to": ChecksumAddress,
@@ -191,7 +191,7 @@ GasPriceStrategy = Callable[["Web3", TxParams], Wei]
 # syntax b/c "from" keyword not allowed w/ class construction
 TxReceipt = TypedDict("TxReceipt", {
     "blockHash": HexBytes,
-    "blockNumber": int,
+    "blockNumber": BlockNumber,
     "contractAddress": Optional[ChecksumAddress],
     "cumulativeGasUsed": int,
     "gasUsed": Wei,
@@ -222,7 +222,7 @@ class MerkleProof(TypedDict):
     accountProof: Sequence[HexStr]
     balance: int
     codeHash: HexBytes
-    nonce: int
+    nonce: Nonce
     storageHash: HexBytes
     storageProof: Sequence[StorageProof]
 
