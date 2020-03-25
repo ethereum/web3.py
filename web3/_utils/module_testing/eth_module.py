@@ -785,7 +785,7 @@ class EthModuleTest:
             if v in web3.clientVersion:
                 assert block['hash'] is None
                 return
-        assert block['hash'] == current_block_number
+        assert block['hash'] == current_block_number + 1
 
     def test_eth_getBlockByNumber_with_integer(
         self, web3: "Web3", empty_block: BlockData
