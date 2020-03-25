@@ -775,11 +775,29 @@ class EthModuleTest:
         with pytest.raises(BlockNotFound):
             web3.eth.getBlock(UNKNOWN_HASH)
 
+    def test_eth_getBlockByHash_pending(
+            self, web3: "Web3", empty_block: BlockData
+    ) -> None:
+        null_versions = ('1.9.8', '1.9.9', '1.9.10', '1.9.11')
+        current_block_number = web3.eth.blockNumber
+        block = web3.eth.getBlock('pending')
+        for v in null_versions:
+            if v in web3.clientVersion:
+                assert block['hash'] is None
+                return
+        assert block['hash'] == current_block_number
+
     def test_eth_getBlockByNumber_with_integer(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
         block = web3.eth.getBlock(empty_block['number'])
         assert block['number'] == empty_block['number']
+
+    def test_eth_getBlockByNumber_not_found(
+            self, web3: "Web3", empty_block: BlockData
+    ) -> None:
+        with pytest.raises(BlockNotFound):
+            web3.eth.getBlock(BlockNumber(12345))
 
     def test_eth_getBlockByNumber_latest(
         self, web3: "Web3", empty_block: BlockData
@@ -788,18 +806,20 @@ class EthModuleTest:
         block = web3.eth.getBlock('latest')
         assert block['number'] == current_block_number
 
-    def test_eth_getBlockByNumber_not_found(
-        self, web3: "Web3", empty_block: BlockData
-    ) -> None:
-        with pytest.raises(BlockNotFound):
-            web3.eth.getBlock(BlockNumber(12345))
-
     def test_eth_getBlockByNumber_pending(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
+        null_versions = ('1.9.8', '1.9.9', '1.9.10', '1.9.11')
         current_block_number = web3.eth.blockNumber
         block = web3.eth.getBlock('pending')
+        for v in null_versions:
+            if v in web3.clientVersion:
+                assert block['number'] is None
+                return
         assert block['number'] == current_block_number + 1
+
+
+
 
     def test_eth_getBlockByNumber_earliest(
         self, web3: "Web3", empty_block: BlockData
