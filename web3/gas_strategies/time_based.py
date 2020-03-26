@@ -23,19 +23,15 @@ from hexbytes import (
 )
 
 from web3 import Web3
-from web3._utils.encoding import (
-    to_hex_with_size,
-)
-
 from web3._utils.math import (
     percentile,
 )
-
 from web3.exceptions import (
     InsufficientData,
     ValidationError,
 )
 from web3.types import (
+    BlockNumber,
     GasPriceStrategy,
     TxParams,
     Wei,
@@ -44,33 +40,33 @@ from web3.types import (
 MinerData = collections.namedtuple(
     'MinerData',
     ['miner', 'num_blocks', 'min_gas_price', 'low_percentile_gas_price'])
-
 Probability = collections.namedtuple('Probability', ['gas_price', 'prob'])
 
 
 def _get_avg_block_time(w3: Web3, sample_size: int) -> float:
     latest = w3.eth.getBlock('latest')
+
     constrained_sample_size = min(sample_size, latest['number'])
     if constrained_sample_size == 0:
         raise ValidationError('Constrained sample size is 0')
+
     oldest = w3.eth.getBlock(BlockNumber(latest['number'] - constrained_sample_size))
     return (latest['timestamp'] - oldest['timestamp']) / constrained_sample_size
 
 
 def _get_weighted_avg_block_time(w3: Web3, sample_size: int) -> float:
-    bit_size = 256
     latest_block_number = w3.eth.getBlock('latest')['number']
     constrained_sample_size = min(sample_size, latest_block_number)
     if constrained_sample_size == 0:
         raise ValidationError('Constrained sample size is 0')
-    oldest_block = w3.eth.getBlock(to_hex_with_size(latest_block_number -
-                                                    constrained_sample_size, bit_size))
+
+    oldest_block = w3.eth.getBlock(BlockNumber(latest_block_number - constrained_sample_size))
     oldest_block_number = oldest_block['number']
     prev_timestamp = oldest_block['timestamp']
     weighted_sum = 0.0
     sum_of_weights = 0.0
     for i in range(oldest_block_number + 1, latest_block_number + 1):
-        curr_timestamp = w3.eth.getBlock(to_hex_with_size(i, bit_size))['timestamp']
+        curr_timestamp = w3.eth.getBlock(BlockNumber(i))['timestamp']
         time = curr_timestamp - prev_timestamp
         weight = (i - oldest_block_number) / constrained_sample_size
         weighted_sum += (time * weight)
@@ -189,30 +185,38 @@ def _compute_gas_price(probabilities: Sequence[Probability], desired_probability
 
 @curry
 def construct_time_based_gas_price_strategy(
-    max_wait_seconds: int, sample_size: int=120, probability: int=98
+    max_wait_seconds: int, sample_size: int=120, probability: int=98, weighted: bool=False
 ) -> GasPriceStrategy:
     """
     A gas pricing strategy that uses recently mined block data to derive a gas
     price for which a transaction is likely to be mined within X seconds with
-    probability P.
+    probability P. If the weighted kwarg is True, more recent block
+    times will be more heavily weighted.
 
-    :param max_wait_seconds: The desired maxiumum number of seconds the
+    :param max_wait_seconds: The desired maximum number of seconds the
         transaction should take to mine.
     :param sample_size: The number of recent blocks to sample
     :param probability: An integer representation of the desired probability
         that the transaction will be mined within ``max_wait_seconds``.  0 means 0%
         and 100 means 100%.
     """
+
     def time_based_gas_price_strategy(web3: Web3, transaction_params: TxParams) -> Wei:
+        if weighted:
+            avg_block_time = _get_weighted_avg_block_time(web3, sample_size=sample_size)
+        else:
+            avg_block_time = _get_avg_block_time(web3, sample_size=sample_size)
+
+        wait_blocks = int(math.ceil(max_wait_seconds / avg_block_time))
         raw_miner_data = _get_raw_miner_data(web3, sample_size=sample_size)
         miner_data = _aggregate_miner_data(raw_miner_data)
-        weighted_avg_block_time = _get_weighted_avg_block_time(web3, sample_size=sample_size)
-        wait_blocks = int(math.ceil(max_wait_seconds / weighted_avg_block_time))
+
         probabilities = _compute_probabilities(
             miner_data,
             wait_blocks=wait_blocks,
             sample_size=sample_size,
         )
+
         gas_price = _compute_gas_price(probabilities, probability / 100)
         return gas_price
     return time_based_gas_price_strategy

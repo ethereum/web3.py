@@ -78,13 +78,14 @@ Available gas price strategies
 
 .. py:module:: web3.gas_strategies.time_based
 
-.. py:method:: construct_time_based_gas_price_strategy(max_wait_seconds, sample_size, probability)
+.. py:method:: construct_time_based_gas_price_strategy(max_wait_seconds, sample_size=120, probability=98, weighted=False)
 
     Constructs a strategy which will compute a gas price such that the
     transaction will be mined within a number of seconds defined by
     ``max_wait_seconds`` with a probability defined by ``probability``.  The
     gas price is computed by sampling ``sample_size`` of the most recently
-    mined blocks.
+    mined blocks. If ``weighted=True``, the block time will be weighted towards
+    more recently mined blocks.
 
     * ``max_wait_seconds`` The desired maxiumum number of seconds the
       transaction should take to mine.
