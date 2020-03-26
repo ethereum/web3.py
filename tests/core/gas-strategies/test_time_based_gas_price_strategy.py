@@ -19,7 +19,8 @@ def _get_block_by_something(method, params):
     block_identifier = params[0]
     if (
         block_identifier == 'latest' or
-        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000005'
+        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000005' or
+        block_identifier == 5
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000005',
@@ -35,9 +36,12 @@ def _get_block_by_something(method, params):
                 {'gasPrice': 50},
             ],
             'miner': '0xA',
-            'timestamp': 100,
+            'timestamp': 120,
         }
-    elif block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000004':
+    elif (
+        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000004' or
+        block_identifier == 4
+    ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000004',
             'number': 4,
@@ -48,9 +52,12 @@ def _get_block_by_something(method, params):
                 {'gasPrice': 60},
             ],
             'miner': '0xB',
-            'timestamp': 80,
+            'timestamp': 90,
         }
-    elif block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000003':
+    elif (
+        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000003' or
+        block_identifier == 3
+    ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000003',
             'number': 3,
@@ -61,7 +68,10 @@ def _get_block_by_something(method, params):
             'miner': '0xC',
             'timestamp': 60,
         }
-    elif block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000002':
+    elif (
+        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000002' or
+        block_identifier == 2
+    ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000002',
             'number': 2,
@@ -69,9 +79,12 @@ def _get_block_by_something(method, params):
             'transactions': [
             ],
             'miner': '0xB',
-            'timestamp': 40,
+            'timestamp': 30,
         }
-    elif block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000001':
+    elif (
+        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000001' or
+        block_identifier == 1
+    ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000001',
             'number': 1,
@@ -82,7 +95,7 @@ def _get_block_by_something(method, params):
                 {'gasPrice': 65},
             ],
             'miner': '0xA',
-            'timestamp': 20,
+            'timestamp': 15,
         }
     elif (
         block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000000' or
@@ -116,7 +129,7 @@ def _get_block_by_something(method, params):
 @pytest.mark.parametrize(
     'strategy_params,expected',
     (
-        # 120 second wait times
+        # 80 second wait times
         (dict(max_wait_seconds=80, sample_size=5, probability=98), 70),
         (dict(max_wait_seconds=80, sample_size=5, probability=90), 25),
         (dict(max_wait_seconds=80, sample_size=5, probability=50), 11),
@@ -132,6 +145,10 @@ def _get_block_by_something(method, params):
         (dict(max_wait_seconds=20, sample_size=5, probability=98), 100),
         (dict(max_wait_seconds=20, sample_size=5, probability=90), 100),
         (dict(max_wait_seconds=20, sample_size=5, probability=50), 36),
+        # 80 second wait times, weighted
+        (dict(max_wait_seconds=80, sample_size=5, probability=98, weighted=True), 92),
+        (dict(max_wait_seconds=80, sample_size=5, probability=90, weighted=True), 49),
+        (dict(max_wait_seconds=80, sample_size=5, probability=50, weighted=True), 11),
     ),
 )
 def test_time_based_gas_price_strategy(strategy_params, expected):
