@@ -202,19 +202,19 @@ Given the following solidity source file stored at ``contract.sol``.
 .. code-block:: javascript
 
     contract StoreVar {
-    
+
         uint8 public _myVar;
         event MyEvent(uint indexed _var);
-    
+
         function setVar(uint8 _var) public {
             _myVar = _var;
             MyEvent(_var);
         }
-    
+
         function getVar() public view returns (uint8) {
             return _myVar;
         }
-    
+
     }
 
 The following example demonstrates a few things:
@@ -229,45 +229,45 @@ The following example demonstrates a few things:
     import sys
     import time
     import pprint
-    
+
     from web3.providers.eth_tester import EthereumTesterProvider
     from web3 import Web3
     from solc import compile_source
-    
+
 
     def compile_source_file(file_path):
        with open(file_path, 'r') as f:
           source = f.read()
-    
+
        return compile_source(source)
-    
-    
+
+
     def deploy_contract(w3, contract_interface):
         tx_hash = w3.eth.contract(
             abi=contract_interface['abi'],
             bytecode=contract_interface['bin']).deploy()
-    
+
         address = w3.eth.getTransactionReceipt(tx_hash)['contractAddress']
         return address
-    
-    
+
+
     w3 = Web3(EthereumTesterProvider())
-    
+
     contract_source_path = 'contract.sol'
     compiled_sol = compile_source_file('contract.sol')
-    
+
     contract_id, contract_interface = compiled_sol.popitem()
-    
+
     address = deploy_contract(w3, contract_interface)
     print("Deployed {0} to: {1}\n".format(contract_id, address))
-    
+
     store_var_contract = w3.eth.contract(
        address=address,
        abi=contract_interface['abi'])
-    
+
     gas_estimate = store_var_contract.functions.setVar(255).estimateGas()
     print("Gas estimate to transact with setVar: {0}\n".format(gas_estimate))
-    
+
     if gas_estimate < 100000:
       print("Sending transaction to setVar(255)\n")
       tx_hash = store_var_contract.functions.setVar(255).transact()
@@ -285,13 +285,13 @@ Output:
 .. code-block:: none
 
     Deployed <stdin>:StoreVar to: 0xF2E246BB76DF876Cef8b38ae84130F4F55De395b
-    
+
     Gas estimate to transact with setVar: 32463
-    
+
     Sending transaction to setVar(255)
-    
-    Transaction receipt mined: 
-    
+
+    Transaction receipt mined:
+
     {'blockHash': HexBytes('0x94e07b0b88667da284e914fa44b87d4e7fec39761be51245ef94632a3b5ab9f0'),
      'blockNumber': 2,
      'contractAddress': None,
@@ -471,7 +471,7 @@ like so:
 .. include::  ../tests/core/contracts/test_contract_example.py
     :code: python
     :start-line: 1
-    
+
 Using Infura Rinkeby Node
 -------------------------
 Import your required libraries
@@ -479,42 +479,42 @@ Import your required libraries
 .. code-block:: python
 
     from web3 import Web3, HTTPProvider
-    
+
 Initialize a web3 instance with an Infura node
 
 .. code-block:: python
-    
+
     w3 = Web3(Web3.HTTPProvider("https://rinkeby.infura.io/v3/YOUR_INFURA_KEY"))
 
- 
+
 Inject the middleware into the middleware onion
 
 .. code-block:: python
 
     from web3.middleware import geth_poa_middleware
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-    
+
 Just remember that you have to sign all transactions locally, as infura does not handle any keys from your wallet ( refer to `this`_  )
 
 
 ..  _this: https://web3py.readthedocs.io/en/stable/web3.eth.account.html#local-vs-hosted-nodes
 
 .. code-block:: python
-    
+
     transaction = contract.functions.function_Name(params).buildTransaction()
-    transaction.update({ 'gas' : appropriate_gas_amount })  
-    transaction.update({ 'nonce' : web3.eth.getTransactionCount('Your_Wallet_Address') })
+    transaction.update({ 'gas' : appropriate_gas_amount })
+    transaction.update({ 'nonce' : w3.eth.getTransactionCount('Your_Wallet_Address') })
     signed_tx = w3.eth.account.signTransaction(transaction, private_key)
-    
+
 P.S : the two updates are done to the transaction dictionary, since a raw transaction might not contain gas & nonce amounts, so you have to add them manually.
-    
+
 And finally, send the transaction
 
 .. code-block:: python
 
     txn_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
     txn_receipt = w3.eth.waitForTransactionReceipt(txn_hash)
-    
+
 Tip : afterwards you can use the value stored in ``txn_hash``, in an explorer like `etherscan`_ to view the transaction's details
 
 .. _etherscan: https://rinkeby.etherscan.io
