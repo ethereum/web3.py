@@ -304,11 +304,11 @@ Output:
 Working with Contracts via ethPM
 --------------------------------
 
-`ethPM <http://www.ethpm.com/>`__ packages contained configured contracts ready for use. Web3's ``ethpm`` module (``web3.pm``)
+`ethPM <http://www.ethpm.com/>`__ packages contain configured contracts ready for use. Web3's ``ethpm`` module (``web3.pm``)
 extends Web3's native ``Contract`` module, with a few modifications for how you instantiate ``Contract`` factories and instances.
 
 All you need is the package name, version and ethPM registry address for the package you wish to use.
-You can find some available registries to explore in the `ethPM explorer <http://explorer.ethpm.com/>`__. 
+An ethPM registry is essentially an on-chain datastore for the release data associated with an ethPM package. You can find some sample registries to explore in the `ethPM explorer <http://explorer.ethpm.com/>`__. Remember, you should only use packages from registries whose maintainer you trust not to inject malicious code!
 
 In this example we will use the ``ethregistrar@1.0.1`` package sourced from the ``ens.snakecharmers.eth`` registry.
 
