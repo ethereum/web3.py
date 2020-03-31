@@ -111,6 +111,7 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     ABIEventFunctionNotFound,
+    ABIFunctionNotFound,
     BadFunctionCallOutput,
     BlockNumberOutofRange,
     FallbackNotFound,
@@ -186,7 +187,7 @@ class ContractFunctions:
                 "Are you sure you provided the correct contract abi?"
             )
         elif function_name not in self.__dict__['_functions']:
-            raise MismatchedABI(
+            raise ABIFunctionNotFound(
                 "The function '{}' was not found in this contract's abi. ".format(function_name),
                 "Are you sure you provided the correct contract abi?"
             )
@@ -195,6 +196,12 @@ class ContractFunctions:
 
     def __getitem__(self, function_name: str) -> ABIFunction:
         return getattr(self, function_name)
+
+    def __hasattr__(self, event_name: str) -> bool:
+        try:
+            return event_name in self.__dict__['_events']
+        except ABIFunctionNotFound:
+            return False
 
 
 class ContractEvents:
@@ -1360,7 +1367,7 @@ class ContractCaller:
             )
         elif function_name not in set(fn['name'] for fn in self._functions):
             functions_available = ', '.join([fn['name'] for fn in self._functions])
-            raise MismatchedABI(
+            raise ABIFunctionNotFound(
                 "The function '{}' was not found in this contract's ABI. ".format(function_name),
                 "Here is a list of all of the function names found: ",
                 "{}. ".format(functions_available),
@@ -1368,6 +1375,12 @@ class ContractCaller:
             )
         else:
             return super().__getattribute__(function_name)
+
+    def __hasattr__(self, event_name: str) -> bool:
+        try:
+            return event_name in self.__dict__['_events']
+        except ABIFunctionNotFound:
+            return False
 
     def __call__(
         self, transaction: TxParams=None, block_identifier: BlockIdentifier='latest'

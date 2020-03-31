@@ -1,9 +1,0 @@
-Fixed hasattr overloader method in the web3.ContractEvent class by implementing a try/except handler
-that returns False if an exception is raised in the __getattr__ overloader method 
-(since __getattr__ HAS to be called in every __hasattr__ call). 
-
-Created an Exception class called 'ABIEventFunctionNotFound', which inherits from both AttributeError and 
-MismatchedABI, and replaced the MismatchedABI raise with a raise to the created class in the __getattr__ 
-overloader method of the web3.ContractEvent object. 
-
-Created the test scripts 'test_contract_events_hasattr.py' and 'test_contract_events_getattr.py'
