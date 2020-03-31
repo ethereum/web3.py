@@ -38,6 +38,24 @@ Often, the best way to guarantee a correct environment is with ``virtualenv``, l
 
 .. _use_metamask_accounts:
 
+Why isn't my web3 instance connecting to the network?
+--------------------------------------------------------
+You can check that your instance is connected via the ``isConnected`` method:
+
+.. code-block:: python
+
+    >>> w3.isConnected()
+    False
+
+There's a variety of explanations for why you may see ``False`` here. If you're
+running a local node, such as Geth, double-check that you've indeed started the
+binary and that you've started it from the intended directory - particularly if
+you've specified a relative path to its ipc file.
+
+If that does not address your issue, it's probable that you still have a
+Provider configuration issue. There are several options for configuring
+a Provider, detailed :ref:`here<providers>`.
+
 How do I use my MetaMask accounts from Web3.py?
 --------------------------------------------------------
 Often you don't need to do this, just make a new account in Web3.py,
