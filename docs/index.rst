@@ -15,15 +15,15 @@ Contents
     quickstart
     overview
     node
+    providers
+    examples
+    troubleshooting
     v5_migration
     v4_migration
     filters
     contracts
-    providers
     ens_overview
     middleware
-    examples
-    troubleshooting
     web3.main
     web3.eth
     web3.eth.account
