@@ -37,7 +37,7 @@ def make_post_request(endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any)
     kwargs.setdefault('timeout', 10)
     session = _get_session(endpoint_uri, **kwargs)
     # https://github.com/python/mypy/issues/2582
-    response = session.post(endpoint_uri, data=data, *args, **extract_request_kwargs(**kwargs))  # type: ignore
+    response = session.post(endpoint_uri, data=data, *args, **extract_request_kwargs(**kwargs))
     response.raise_for_status()
 
     return response.content
@@ -50,6 +50,6 @@ def extract_adapter_kwargs(**kwargs: Any):
 
 def extract_request_kwargs(**kwargs: Any):
     request_args = ['params', 'params', 'data', 'headers', 'cookies', 'files',
-            'auth', 'timeout', 'allow_redirects', 'proxies',
-            'hooks', 'stream', 'verify', 'cert', 'json']
+                    'auth', 'timeout', 'allow_redirects', 'proxies',
+                    'hooks', 'stream', 'verify', 'cert', 'json']
     return {key: value for key, value in kwargs.items() if key in request_args}
