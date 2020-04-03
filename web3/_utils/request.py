@@ -49,7 +49,7 @@ def extract_adapter_kwargs(**kwargs: Any):
 
 
 def extract_request_kwargs(**kwargs: Any):
-    request_args = ['params', 'params', 'data', 'headers', 'cookies', 'files',
+    request_args = ['params', 'params', 'headers', 'cookies', 'files',
                     'auth', 'timeout', 'allow_redirects', 'proxies',
                     'hooks', 'stream', 'verify', 'cert', 'json']
     return {key: value for key, value in kwargs.items() if key in request_args}
