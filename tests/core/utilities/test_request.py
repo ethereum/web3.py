@@ -1,5 +1,9 @@
-from web3._utils import request
-from requests import Session
+from web3._utils import (
+    request
+)
+from requests import (
+    Session
+)
 from requests.adapters import (
     DEFAULT_POOLSIZE,
     HTTPAdapter
