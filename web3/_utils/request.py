@@ -24,10 +24,10 @@ def _get_session(*args: Any, **kwargs: Any) -> requests.Session:
     cache_key = generate_cache_key((args, kwargs))
     if cache_key not in _session_cache:
         session = requests.Session()
-        print(f"adapter kwargs are: {extract_adapter_kwargs(**kwargs)}")
         adapter = requests.adapters.HTTPAdapter(**extract_adapter_kwargs(**kwargs))
-        session.mount('https://', adapter)
+
         session.mount('http://', adapter)
+        session.mount('https://', adapter)
 
         _session_cache[cache_key] = session
     return _session_cache[cache_key]
@@ -35,7 +35,6 @@ def _get_session(*args: Any, **kwargs: Any) -> requests.Session:
 
 def make_post_request(endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any) -> bytes:
     kwargs.setdefault('timeout', 10)
-    # print(f"passed kwargs are: {kwargs}")
     session = _get_session(endpoint_uri, **kwargs)
     # https://github.com/python/mypy/issues/2582
     response = session.post(endpoint_uri, data=data, *args, **extract_request_kwargs(**kwargs))  # type: ignore
