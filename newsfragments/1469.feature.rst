@@ -1,0 +1,1 @@
+Pass `kwargs` to `HttpAdapter` when using `HttpProvider`, allowing consumer to tune the connection pool.
