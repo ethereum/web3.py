@@ -5,6 +5,7 @@ from requests.adapters import (
     DEFAULT_POOLSIZE,
     HTTPAdapter,
 )
+
 from web3._utils import (
     request,
 )
