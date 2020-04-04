@@ -1,5 +1,6 @@
 from typing import (
     Any,
+    Dict,
 )
 
 from eth_typing import (
@@ -43,12 +44,12 @@ def make_post_request(endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any)
     return response.content
 
 
-def extract_adapter_kwargs(**kwargs: Any) -> dict:
+def extract_adapter_kwargs(**kwargs: Any) -> Dict[str, Any]:
     adapter_args = ['pool_connections', 'pool_maxsize', 'max_retries', 'pool_block']
     return {key: value for key, value in kwargs.items() if key in adapter_args}
 
 
-def extract_request_kwargs(**kwargs: Any) -> dict:
+def extract_request_kwargs(**kwargs: Any) -> Dict[str, Any]:
     request_args = ['params', 'params', 'headers', 'cookies', 'files',
                     'auth', 'timeout', 'allow_redirects', 'proxies',
                     'hooks', 'stream', 'verify', 'cert', 'json']
