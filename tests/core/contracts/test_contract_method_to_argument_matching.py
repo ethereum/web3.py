@@ -6,6 +6,7 @@ from web3._utils.abi import (
 )
 from web3._utils.function_identifiers import (
     FallbackFn,
+    ReceiveFn,
 )
 from web3.exceptions import (
     ValidationError,
@@ -14,6 +15,7 @@ from web3.exceptions import (
 SINGLE_FN_NO_ARGS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
 SINGLE_FN_ONE_ARG = json.loads('[{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
 FALLBACK_FUNCTION = json.loads('[{"constant": false, "inputs": [], "name": "getData", "outputs": [{"name": "r", "type": "uint256"}], "payable": false, "stateMutability": "nonpayable", "type": "function"}, {"payable": false, "stateMutability": "nonpayable", "type": "fallback"}]')  # noqa: E501
+RECEIVE_FUNCTION = json.loads('[{"constant": false, "inputs": [], "name": "getData", "outputs": [{"name": "r", "type": "uint256"}], "payable": false, "stateMutability": "nonpayable", "type": "function"}, {"payable": true, "stateMutability": "payable", "type": "receive"}]')  # noqa: E501
 MULTIPLE_FUNCTIONS = json.loads('''
 [
   {
@@ -113,6 +115,13 @@ def test_finds_fallback_function(web3):
 
     abi = Contract._find_matching_fn_abi(FallbackFn, [])
     assert abi['type'] == 'fallback'
+
+
+def test_finds_receive_function(web3):
+    Contract = web3.eth.contract(abi=RECEIVE_FUNCTION)
+
+    abi = Contract._find_matching_fn_abi(ReceiveFn, [])
+    assert abi['type'] == 'receive'
 
 
 def test_error_when_no_function_name_match(web3):

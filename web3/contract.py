@@ -60,6 +60,7 @@ from web3._utils.abi import (
     is_array_type,
     map_abi_data,
     merge_args_and_kwargs,
+    receive_func_abi_exists,
 )
 from web3._utils.blocks import (
     is_hex_encoded_block_hash,
@@ -95,6 +96,7 @@ from web3._utils.filters import (
 )
 from web3._utils.function_identifiers import (
     FallbackFn,
+    ReceiveFn,
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
@@ -340,6 +342,7 @@ class Contract:
         self.caller = ContractCaller(self.abi, self.web3, self.address)
         self.events = ContractEvents(self.abi, self.web3, self.address)
         self.fallback = Contract.get_fallback_function(self.abi, self.web3, self.address)
+        self.receive = Contract.get_receive_function(self.abi, self.web3, self.address)
 
     @classmethod
     def factory(cls, web3: 'Web3', class_name: str=None, **kwargs: Any) -> 'Contract':
@@ -363,6 +366,7 @@ class Contract:
         contract.caller = ContractCaller(contract.abi, contract.web3, contract.address)
         contract.events = ContractEvents(contract.abi, contract.web3)
         contract.fallback = Contract.get_fallback_function(contract.abi, contract.web3)
+        contract.receive = Contract.get_receive_function(contract.abi, contract.web3)
 
         return contract
 
@@ -534,6 +538,20 @@ class Contract:
                 function_identifier=FallbackFn)()
 
         return cast('ContractFunction', NonExistentFallbackFunction())
+
+    @staticmethod
+    def get_receive_function(
+        abi: ABI, web3: 'Web3', address: ChecksumAddress=None
+    ) -> 'ContractFunction':
+        if abi and receive_func_abi_exists(abi):
+            return ContractFunction.factory(
+                'receive',
+                web3=web3,
+                contract_abi=abi,
+                address=address,
+                function_identifier=ReceiveFn)()
+
+        return cast('ContractFunction', NonExistentReceiveFunction())
 
     @combomethod
     def _encode_constructor_data(cls, args: Any=None, kwargs: Any=None) -> HexStr:
@@ -808,6 +826,15 @@ class NonExistentFallbackFunction:
         return NonExistentFallbackFunction._raise_exception
 
 
+class NonExistentReceiveFunction:
+    @staticmethod
+    def _raise_exception() -> NoReturn:
+        raise FallbackNotFound("No receive function was found in the contract ABI.")
+
+    def __getattr__(self, attr: Any) -> Callable[[], None]:
+        return NonExistentReceiveFunction._raise_exception
+
+
 class ContractFunction:
     """Base class for contract functions
 
@@ -815,7 +842,7 @@ class ContractFunction:
     is a subclass of this class.
     """
     address: ChecksumAddress = None
-    function_identifier: Union[str, Type[FallbackFn]] = None
+    function_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]] = None
     web3: 'Web3' = None
     contract_abi: ABI = None
     abi: ABIFunction = None
@@ -852,6 +879,8 @@ class ContractFunction:
                 self.kwargs
             )
         if self.function_identifier is FallbackFn:
+            self.selector = encode_hex(b'')
+        elif self.function_identifier is ReceiveFn:
             self.selector = encode_hex(b'')
         elif is_text(self.function_identifier):
             # https://github.com/python/mypy/issues/4976
@@ -1432,7 +1461,7 @@ def call_contract_function(
         web3: 'Web3',
         address: ChecksumAddress,
         normalizers: Tuple[Callable[..., Any], ...],
-        function_identifier: Union[str, Type[FallbackFn]],
+        function_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]],
         transaction: TxParams,
         block_id: BlockIdentifier=None,
         contract_abi: ABI=None,
@@ -1526,7 +1555,7 @@ def parse_block_identifier_int(web3: 'Web3', block_identifier_int: int) -> Block
 def transact_with_contract_function(
         address: ChecksumAddress,
         web3: 'Web3',
-        function_name: Union[str, Type[FallbackFn]]=None,
+        function_name: Union[str, Type[FallbackFn], Type[ReceiveFn]]=None,
         transaction: TxParams=None,
         contract_abi: ABI=None,
         fn_abi: ABIFunction=None,
@@ -1554,7 +1583,7 @@ def transact_with_contract_function(
 def estimate_gas_for_function(
         address: ChecksumAddress,
         web3: 'Web3',
-        fn_identifier: Union[str, Type[FallbackFn]]=None,
+        fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]]=None,
         transaction: TxParams=None,
         contract_abi: ABI=None,
         fn_abi: ABIFunction=None,
@@ -1583,7 +1612,7 @@ def estimate_gas_for_function(
 def build_transaction_for_function(
         address: ChecksumAddress,
         web3: 'Web3',
-        function_name: Union[str, Type[FallbackFn]]=None,
+        function_name: Union[str, Type[FallbackFn], Type[ReceiveFn]]=None,
         transaction: TxParams=None,
         contract_abi: ABI=None,
         fn_abi: ABIFunction=None,

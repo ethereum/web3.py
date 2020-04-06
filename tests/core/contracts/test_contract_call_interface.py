@@ -25,15 +25,13 @@ from web3._utils.ens import (
 from web3.exceptions import (
     BadFunctionCallOutput,
     BlockNumberOutofRange,
+    FallbackNotFound,
     InvalidAddress,
     MismatchedABI,
     NoABIFound,
     NoABIFunctionsFound,
     ValidationError,
 )
-
-# Ignore warning in pyethereum 1.6 - will go away with the upgrade
-pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
 
 
 def deploy(web3, Contract, apply_func=identity, args=None):
@@ -122,14 +120,6 @@ def payable_tester_contract(web3, PayableTesterContract, address_conversion_func
     return deploy(web3, PayableTesterContract, address_conversion_func)
 
 
-@pytest.fixture()
-def call_transaction():
-    return {
-        'data': '0x61bc221a',
-        'to': '0xc305c901078781C232A2a521C2aF7980f8385ee9'
-    }
-
-
 @pytest.fixture(params=[
     '0x0406040604060406040604060406040604060406040604060406040604060406',
     '0406040604060406040604060406040604060406040604060406040604060406',
@@ -161,8 +151,18 @@ def mismatched_math_contract(web3, StringContract, MathContract, address_convers
 
 
 @pytest.fixture()
-def fallback_function_contract(web3, FallballFunctionContract, address_conversion_func):
-    return deploy(web3, FallballFunctionContract, address_conversion_func)
+def fallback_function_contract(web3, FallbackFunctionContract, address_conversion_func):
+    return deploy(web3, FallbackFunctionContract, address_conversion_func)
+
+
+@pytest.fixture()
+def receive_function_contract(web3, ReceiveFunctionContract, address_conversion_func):
+    return deploy(web3, ReceiveFunctionContract, address_conversion_func)
+
+
+@pytest.fixture()
+def no_receive_function_contract(web3, NoReceiveFunctionContract, address_conversion_func):
+    return deploy(web3, NoReceiveFunctionContract, address_conversion_func)
 
 
 @pytest.fixture()
@@ -491,6 +491,42 @@ def test_call_undeployed_contract(undeployed_math_contract, call):
 def test_call_fallback_function(fallback_function_contract):
     result = fallback_function_contract.fallback.call()
     assert result == []
+
+
+@pytest.mark.parametrize('tx_params,contract_name,expected', (
+    ({'gas': 210000}, 'no_receive', 'fallback'),
+    ({'gas': 210000, 'value': 2}, 'no_receive', ''),
+    ({'value': 2, 'gas': 210000, 'data': '0x477a5c98'}, 'no_receive', ''),
+    ({'gas': 210000, 'data': '0x477a5c98'}, 'no_receive', 'fallback'),
+    ({'data': '0x477a5c98'}, 'receive', 'fallback'),
+    ({'value': 2}, 'receive', 'receive'),
+))
+def test_call_receive_fallback_function(web3,
+                                        tx_params,
+                                        expected,
+                                        call,
+                                        receive_function_contract,
+                                        no_receive_function_contract,
+                                        contract_name):
+    if contract_name == 'receive':
+        contract = receive_function_contract
+    elif contract_name == 'no_receive':
+        contract = no_receive_function_contract
+    else:
+        raise AssertionError('contract must be either receive or no_receive')
+
+    initial_value = call(contract=contract, contract_function='getText')
+    assert initial_value == ''
+    to = {'to': contract.address}
+    merged = {**to, **tx_params}
+    web3.eth.sendTransaction(merged)
+    final_value = call(contract=contract, contract_function='getText')
+    assert final_value == expected
+
+
+def test_call_nonexistent_receive_function(fallback_function_contract):
+    with pytest.raises(FallbackNotFound, match='No receive function was found'):
+        fallback_function_contract.receive.call()
 
 
 def test_throws_error_if_block_out_of_range(web3, math_contract):

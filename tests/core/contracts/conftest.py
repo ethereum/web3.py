@@ -16,10 +16,25 @@ from web3._utils.module_testing.event_contract import (
     EVNT_CONTRACT_CODE,
     EVNT_CONTRACT_RUNTIME,
 )
+from web3._utils.module_testing.fallback_contract import (
+    CONTRACT_FALLBACK_FUNCTION_ABI,
+    CONTRACT_FALLBACK_FUNCTION_CODE,
+    CONTRACT_FALLBACK_FUNCTION_RUNTIME,
+)
 from web3._utils.module_testing.indexed_event_contract import (
     IND_EVENT_CONTRACT_ABI,
     IND_EVENT_CONTRACT_CODE,
     IND_EVENT_CONTRACT_RUNTIME,
+)
+from web3._utils.module_testing.no_receive_contract import (
+    CONTRACT_NO_RECEIVE_FUNCTION_ABI,
+    CONTRACT_NO_RECEIVE_FUNCTION_CODE,
+    CONTRACT_NO_RECEIVE_FUNCTION_RUNTIME,
+)
+from web3._utils.module_testing.receive_contract import (
+    CONTRACT_RECEIVE_FUNCTION_ABI,
+    CONTRACT_RECEIVE_FUNCTION_CODE,
+    CONTRACT_RECEIVE_FUNCTION_RUNTIME,
 )
 
 CONTRACT_NESTED_TUPLE_SOURCE = """
@@ -722,22 +737,6 @@ def FixedReflectionContract(web3):
     return web3.eth.contract(abi=CONTRACT_FIXED_ABI, bytecode=CONTRACT_REFLECTION_CODE)
 
 
-CONTRACT_FALLBACK_FUNCTION_SOURCE = """
-contract A {
-    uint data;
-    function A() public payable { data = 0; }
-    function getData() returns (uint r) { return data; }
-    function() { data = 1; }
-}
-"""
-
-CONTRACT_FALLBACK_FUNCTION_CODE = "60606040526000808190555060ae806100196000396000f300606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633bc5de30146053575b3415604957600080fd5b6001600081905550005b3415605d57600080fd5b60636079565b6040518082815260200191505060405180910390f35b600080549050905600a165627a7a72305820045439389e4742569ec078687e6a0c81997709778a0097adbe07ccfd9f7b1a330029"  # noqa: E501
-
-CONTRACT_FALLBACK_FUNCTION_RUNTIME = "606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633bc5de30146053575b3415604957600080fd5b6001600081905550005b3415605d57600080fd5b60636079565b6040518082815260200191505060405180910390f35b600080549050905600a165627a7a72305820045439389e4742569ec078687e6a0c81997709778a0097adbe07ccfd9f7b1a330029"  # noqa: E501
-
-CONTRACT_FALLBACK_FUNCTION_ABI = json.loads('[{"constant": false, "inputs": [], "name": "getData", "outputs": [{"name": "r", "type": "uint256"}], "payable": false, "stateMutability": "nonpayable", "type": "function"}, {"inputs": [], "payable": true, "stateMutability": "payable", "type": "constructor"}, {"payable": false, "stateMutability": "nonpayable", "type": "fallback"}]')  # noqa: E501
-
-
 @pytest.fixture()
 def FALLBACK_FUNCTION_CODE():
     return CONTRACT_FALLBACK_FUNCTION_CODE
@@ -765,8 +764,70 @@ def FALLBACK_FUNCTION_CONTRACT(FALLBACK_FUNCTION_CODE,
 
 
 @pytest.fixture()
-def FallballFunctionContract(web3, FALLBACK_FUNCTION_CONTRACT):
+def FallbackFunctionContract(web3, FALLBACK_FUNCTION_CONTRACT):
     return web3.eth.contract(**FALLBACK_FUNCTION_CONTRACT)
+
+
+@pytest.fixture()
+def RECEIVE_FUNCTION_CODE():
+    return CONTRACT_RECEIVE_FUNCTION_CODE
+
+
+@pytest.fixture()
+def RECEIVE_FUNCTION_RUNTIME():
+    return CONTRACT_RECEIVE_FUNCTION_RUNTIME
+
+
+@pytest.fixture()
+def RECEIVE_FUNCTION_ABI():
+    return CONTRACT_RECEIVE_FUNCTION_ABI
+
+
+@pytest.fixture()
+def RECEIVE_FUNCTION_CONTRACT(RECEIVE_FUNCTION_CODE,
+                              RECEIVE_FUNCTION_RUNTIME,
+                              RECEIVE_FUNCTION_ABI):
+    return {
+        'bytecode': RECEIVE_FUNCTION_CODE,
+        'bytecode_runtime': RECEIVE_FUNCTION_RUNTIME,
+        'abi': RECEIVE_FUNCTION_ABI,
+    }
+
+
+@pytest.fixture()
+def NoReceiveFunctionContract(web3, NO_RECEIVE_FUNCTION_CONTRACT):
+    return web3.eth.contract(**NO_RECEIVE_FUNCTION_CONTRACT)
+
+
+@pytest.fixture()
+def NO_RECEIVE_FUNCTION_CODE():
+    return CONTRACT_NO_RECEIVE_FUNCTION_CODE
+
+
+@pytest.fixture()
+def NO_RECEIVE_FUNCTION_RUNTIME():
+    return CONTRACT_NO_RECEIVE_FUNCTION_RUNTIME
+
+
+@pytest.fixture()
+def NO_RECEIVE_FUNCTION_ABI():
+    return CONTRACT_NO_RECEIVE_FUNCTION_ABI
+
+
+@pytest.fixture()
+def NO_RECEIVE_FUNCTION_CONTRACT(NO_RECEIVE_FUNCTION_CODE,
+                                 NO_RECEIVE_FUNCTION_RUNTIME,
+                                 NO_RECEIVE_FUNCTION_ABI):
+    return {
+        'bytecode': NO_RECEIVE_FUNCTION_CODE,
+        'bytecode_runtime': NO_RECEIVE_FUNCTION_RUNTIME,
+        'abi': NO_RECEIVE_FUNCTION_ABI,
+    }
+
+
+@pytest.fixture()
+def ReceiveFunctionContract(web3, RECEIVE_FUNCTION_CONTRACT):
+    return web3.eth.contract(**RECEIVE_FUNCTION_CONTRACT)
 
 
 CONTRACT_CALLER_TESTER_SOURCE = """
