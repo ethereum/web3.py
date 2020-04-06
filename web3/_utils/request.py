@@ -38,7 +38,8 @@ def make_post_request(endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any)
     kwargs.setdefault('timeout', 10)
     session = _get_session(endpoint_uri, **kwargs)
     # https://github.com/python/mypy/issues/2582
-    response = session.post(endpoint_uri, data=data, *args, **extract_request_kwargs(**kwargs))
+    response = session.post(endpoint_uri, data=data, *args,
+                            **extract_request_kwargs(**kwargs))  # type: ignore
     response.raise_for_status()
 
     return response.content
