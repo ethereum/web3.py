@@ -5,6 +5,9 @@ import pytest
 from eth_utils import (
     to_bytes,
 )
+from eth_utils.toolz import (
+    identity,
+)
 
 from web3._utils.empty import (
     empty,
@@ -13,41 +16,32 @@ from web3.exceptions import (
     ValidationError,
 )
 
-# Ignore warning in pyethereum 1.6 - will go away with the upgrade
-pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
+
+def deploy(web3, Contract, apply_func=identity, args=None):
+    args = args or []
+    deploy_txn = Contract.constructor(*args).transact()
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    address = apply_func(deploy_receipt['contractAddress'])
+    contract = Contract(address=address)
+    assert contract.address == address
+    assert len(web3.eth.getCode(contract.address)) > 0
+    return contract
 
 
 @pytest.fixture()
 def math_contract(web3, MathContract, address_conversion_func):
-    deploy_txn = MathContract.constructor().transact()
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    address = address_conversion_func(deploy_receipt['contractAddress'])
-    _math_contract = MathContract(address=address)
-    assert _math_contract.address == address
-    return _math_contract
+    return deploy(web3, MathContract, address_conversion_func)
 
 
 @pytest.fixture()
 def string_contract(web3, StringContract, address_conversion_func):
-    deploy_txn = StringContract.constructor("Caqalai").transact()
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    address = address_conversion_func(deploy_receipt['contractAddress'])
-    _string_contract = StringContract(address=address)
-    assert _string_contract.address == address
-    return _string_contract
+    return deploy(web3, StringContract, address_conversion_func, args=["Caqalai"])
 
 
 @pytest.fixture()
-def fallback_function_contract(web3, FallballFunctionContract, address_conversion_func):
-    deploy_txn = FallballFunctionContract.constructor().transact()
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    address = address_conversion_func(deploy_receipt['contractAddress'])
-    _fallback_contract = FallballFunctionContract(address=address)
-    assert _fallback_contract.address == address
-    return _fallback_contract
+def fallback_function_contract(web3, FallbackFunctionContract, address_conversion_func):
+    return deploy(web3, FallbackFunctionContract, address_conversion_func)
 
 
 @pytest.fixture()
@@ -58,23 +52,17 @@ def arrays_contract(web3, ArraysContract, address_conversion_func):
         b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6',  # noqa: E501
     ]
     byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
-    deploy_txn = ArraysContract.constructor(bytes32_array, byte_arr).transact()
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    address = address_conversion_func(deploy_receipt['contractAddress'])
-    _arrays_contract = ArraysContract(address=address)
-    return _arrays_contract
+    return deploy(web3, ArraysContract, address_conversion_func, args=[bytes32_array, byte_arr])
 
 
 @pytest.fixture()
 def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
-    deploy_txn = PayableTesterContract.constructor().transact()
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
-    assert deploy_receipt is not None
-    address = address_conversion_func(deploy_receipt['contractAddress'])
-    _payable_tester = PayableTesterContract(address=address)
-    assert _payable_tester.address == address
-    return _payable_tester
+    return deploy(web3, PayableTesterContract, address_conversion_func)
+
+
+@pytest.fixture()
+def receive_function_contract(web3, ReceiveFunctionContract, address_conversion_func):
+    return deploy(web3, ReceiveFunctionContract, address_conversion_func)
 
 
 def test_transacting_with_contract_no_arguments(web3, math_contract, transact, call):
@@ -321,3 +309,23 @@ def test_fallback_transacting_with_contract(web3, fallback_function_contract, ca
                        contract_function='getData')
 
     assert final_value - initial_value == 1
+
+
+def test_receive_function(receive_function_contract, call):
+    initial_value = call(contract=receive_function_contract,
+                         contract_function='getText')
+    assert initial_value == ''
+    receive_function_contract.receive.transact()
+    final_value = call(contract=receive_function_contract,
+                       contract_function='getText')
+    assert final_value == 'receive'
+
+
+def test_receive_contract_with_fallback_function(receive_function_contract, call):
+    initial_value = call(contract=receive_function_contract,
+                         contract_function='getText')
+    assert initial_value == ''
+    receive_function_contract.fallback.transact()
+    final_value = call(contract=receive_function_contract,
+                       contract_function='getText')
+    assert final_value == 'receive'

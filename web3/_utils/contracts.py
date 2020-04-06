@@ -41,6 +41,7 @@ from web3._utils.abi import (
     get_abi_input_types,
     get_aligned_abi_inputs,
     get_fallback_func_abi,
+    get_receive_func_abi,
     map_abi_data,
     merge_args_and_kwargs,
 )
@@ -49,6 +50,7 @@ from web3._utils.encoding import (
 )
 from web3._utils.function_identifiers import (
     FallbackFn,
+    ReceiveFn,
 )
 from web3._utils.normalizers import (
     abi_address_to_hex,
@@ -99,7 +101,7 @@ def find_matching_event_abi(
 def find_matching_fn_abi(
     abi: ABI,
     abi_codec: ABICodec,
-    fn_identifier: Union[str, Type[FallbackFn]]=None,
+    fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]]=None,
     args: Sequence[Any]=None,
     kwargs: Any=None,
 ) -> ABIFunction:
@@ -109,6 +111,9 @@ def find_matching_fn_abi(
 
     if fn_identifier is FallbackFn:
         return get_fallback_func_abi(abi)
+
+    if fn_identifier is ReceiveFn:
+        return get_receive_func_abi(abi)
 
     if not is_text(fn_identifier):
         raise TypeError("Unsupported function identifier")
@@ -194,7 +199,7 @@ def encode_abi(
 def prepare_transaction(
     address: ChecksumAddress,
     web3: "Web3",
-    fn_identifier: Union[str, Type[FallbackFn]],
+    fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]],
     contract_abi: ABI=None,
     fn_abi: ABIFunction=None,
     transaction: TxParams=None,
@@ -236,7 +241,7 @@ def prepare_transaction(
 
 def encode_transaction_data(
     web3: "Web3",
-    fn_identifier: Union[str, Type[FallbackFn]],
+    fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]],
     contract_abi: ABI=None,
     fn_abi: ABIFunction=None,
     args: Sequence[Any]=None,
@@ -244,6 +249,8 @@ def encode_transaction_data(
 ) -> HexStr:
     if fn_identifier is FallbackFn:
         fn_abi, fn_selector, fn_arguments = get_fallback_function_info(contract_abi, fn_abi)
+    elif fn_identifier is ReceiveFn:
+        fn_abi, fn_selector, fn_arguments = get_receive_function_info(contract_abi, fn_abi)
     elif is_text(fn_identifier):
         fn_abi, fn_selector, fn_arguments = get_function_info(
             # type ignored b/c fn_id here is always str b/c FallbackFn is handled above
@@ -260,6 +267,16 @@ def get_fallback_function_info(
 ) -> Tuple[ABIFunction, HexStr, Sequence[Any]]:
     if fn_abi is None:
         fn_abi = get_fallback_func_abi(contract_abi)
+    fn_selector = encode_hex(b'')
+    fn_arguments: Sequence[Any] = tuple()
+    return fn_abi, fn_selector, fn_arguments
+
+
+def get_receive_function_info(
+    contract_abi: ABI=None, fn_abi: ABIFunction=None
+) -> Tuple[ABIFunction, HexStr, Sequence[Any]]:
+    if fn_abi is None:
+        fn_abi = get_receive_func_abi(contract_abi)
     fn_selector = encode_hex(b'')
     fn_arguments: Sequence[Any] = tuple()
     return fn_abi, fn_selector, fn_arguments

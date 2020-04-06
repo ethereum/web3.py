@@ -88,7 +88,7 @@ class ABIFunction(TypedDict, total=False):
     outputs: Sequence["ABIFunctionParams"]
     payable: bool
     stateMutability: Literal["pure", "view", "nonpayable", "payable"]
-    type: Literal["function", "constructor", "fallback"]
+    type: Literal["function", "constructor", "fallback", "receive"]
 
 
 ABIElement = Union[ABIFunction, ABIEvent]

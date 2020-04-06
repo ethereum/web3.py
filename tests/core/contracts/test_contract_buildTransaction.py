@@ -26,12 +26,12 @@ def math_contract(web3, MathContract, address_conversion_func):
 
 
 @pytest.fixture()
-def fallback_function_contract(web3, FallballFunctionContract, address_conversion_func):
-    deploy_txn = FallballFunctionContract.constructor().transact()
+def fallback_function_contract(web3, FallbackFunctionContract, address_conversion_func):
+    deploy_txn = FallbackFunctionContract.constructor().transact()
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     fallback_contract_address = address_conversion_func(deploy_receipt['contractAddress'])
-    _fallback_contract = FallballFunctionContract(address=fallback_contract_address)
+    _fallback_contract = FallbackFunctionContract(address=fallback_contract_address)
     assert _fallback_contract.address == fallback_contract_address
     return _fallback_contract
 

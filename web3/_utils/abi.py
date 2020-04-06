@@ -102,7 +102,7 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIE
 
 
 def get_abi_input_types(abi: ABIFunction) -> List[str]:
-    if 'inputs' not in abi and abi['type'] == 'fallback':
+    if 'inputs' not in abi and (abi['type'] == 'fallback' or abi['type'] == 'receive'):
         return []
     else:
         return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi['inputs']]
@@ -122,6 +122,14 @@ def get_abi_input_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
         return [arg['name'] for arg in abi['inputs']]
 
 
+def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:
+    receive_abis = filter_by_type('receive', contract_abi)
+    if receive_abis:
+        return cast(ABIFunction, receive_abis[0])
+    else:
+        raise FallbackNotFound("No receive function was found in the contract ABI.")
+
+
 def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
     fallback_abis = filter_by_type('fallback', contract_abi)
     if fallback_abis:
@@ -132,6 +140,10 @@ def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
 
 def fallback_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
     return filter_by_type('fallback', contract_abi)
+
+
+def receive_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+    return filter_by_type('receive', contract_abi)
 
 
 def get_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
