@@ -24,7 +24,7 @@ extras_require = {
         "py-geth>=1.4.0",
         "py-solc>=0.4.0",
         "pytest>=4.4.0,<5.0.0",
-        "sphinx",
+        "sphinx>=2.4.4,<3",
         "sphinx_rtd_theme>=0.1.9",
         "toposort>=1.4",
         "towncrier>=19.2.0,<20",
