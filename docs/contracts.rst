@@ -705,6 +705,9 @@ Taking the following contract code as an example:
     ValidationError:
     Could not identify the intended function with name `setBytes2Value`
 
+
+.. _contract-functions:
+
 Contract Functions
 ------------------
 
