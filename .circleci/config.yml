@@ -288,6 +288,12 @@ jobs:
     environment:
       TOXENV: py36-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+  py36-wheel-cli:
+    <<: *common
+    docker:
+      - image: circleci/python:3.6
+        environment:
+          TOXENV: py36-wheel-cli
   #
   # Python 3.7
   #
@@ -420,6 +426,12 @@ jobs:
     environment:
       TOXENV: py37-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+  py37-wheel-cli:
+    <<: *common
+    docker:
+      - image: circleci/python:3.7
+        environment:
+          TOXENV: py37-wheel-cli
   #
   # Python 3.8
   #
@@ -553,13 +565,24 @@ jobs:
       TOXENV: py38-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
+  py38-wheel-cli:
+    <<: *common
+    docker:
+      - image: circleci/python:3.8
+        environment:
+          TOXENV: py38-wheel-cli
+
 workflows:
   version: 2
   test:
     jobs:
+      # These are the longest running tests, start them first
+      - py36-core
+      - py37-core
+      - py38-core
+
       - lint
       - docs
-      - py36-core
       - py36-ens
       - py36-ethpm
       - py36-integration-goethereum-ipc-1.7.2
@@ -575,7 +598,7 @@ workflows:
       - py36-integration-parity-http
       - py36-integration-parity-ws
       - py36-integration-ethtester-pyevm
-      - py37-core
+      - py36-wheel-cli
       - py37-ens
       - py37-ethpm
       - py37-integration-goethereum-ipc-1.7.2
@@ -591,7 +614,7 @@ workflows:
       - py37-integration-parity-http
       - py37-integration-parity-ws
       - py37-integration-ethtester-pyevm
-      - py38-core
+      - py37-wheel-cli
       - py38-ens
       - py38-ethpm
       - py38-integration-goethereum-ipc-1.7.2
@@ -607,3 +630,4 @@ workflows:
       - py38-integration-parity-http
       - py38-integration-parity-ws
       - py38-integration-ethtester-pyevm
+      - py38-wheel-cli

@@ -88,6 +88,7 @@ exclude_patterns = [
     'web3.middleware.rst',
     'web3.providers.rst',
     'web3.providers.eth_tester.rst',
+    'web3.scripts.*',
     'web3.testing.rst',
     'web3.tools.*',
 ]

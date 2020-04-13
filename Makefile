@@ -69,3 +69,7 @@ release: clean
 dist: clean
 	python setup.py sdist bdist_wheel
 	ls -l dist
+
+package: clean
+	python setup.py sdist bdist_wheel
+	python web3/scripts/release/test_package.py

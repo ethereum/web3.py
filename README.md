@@ -52,7 +52,7 @@ To start up the test environment, run:
 docker-compose up -d
 ```
 
-This will build a Docker container set up with an environment to run the Python test code.  
+This will build a Docker container set up with an environment to run the Python test code.
 
 **Note: This container does not have `go-ethereum` installed, so you cannot run the go-ethereum test suite.**
 
@@ -132,6 +132,33 @@ pytest tests/core/gas-strategies/test_time_based_gas_price_strategy.py
 For Debian-like systems:
 ```
 apt install pandoc
+```
+
+The final step before releasing is to build and test the code that will be released.
+There is a test script that will build and install the wheel locally,
+then generate a temporary virtualenv where you can do some smoke testing:
+
+```
+# Branch name could be either master or a version branch - ex. v5
+
+$ git checkout <branch name> && git pull
+
+$ make package
+
+# in another shell, navigate to the virtualenv mentioned in output of ^
+
+# load the virtualenv with the packaged trinity release
+$ source package-smoke-test/bin/activate
+
+# smoke test the release
+$ pip install ipython
+$ ipython
+>>> from web3.auto import w3
+>>> w3.isConnected()
+>>> ...
+
+# Preview the upcoming release notes
+$ towncrier --draft
 ```
 
 To release a new version:
