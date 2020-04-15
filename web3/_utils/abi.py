@@ -549,8 +549,8 @@ def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
 
 
 def get_aligned_abi_inputs(
-    abi: ABIFunction, args: Union[Sequence[Any], Mapping[Any, Any]]
-) -> Tuple[Tuple[Any, ...], Sequence[Any]]:
+    abi: ABIFunction, args: Union[Tuple[Any, ...], Mapping[Any, Any]]
+) -> Tuple[Tuple[Any, ...], Tuple[Any, ...]]:
     """
     Takes a function ABI (``abi``) and a sequence or mapping of args (``args``).
     Returns a list of type strings for the function's inputs and a list of
@@ -568,8 +568,7 @@ def get_aligned_abi_inputs(
         # typed dict cannot be used w/ a normal Dict
         # https://github.com/python/mypy/issues/4976
         tuple(collapse_if_tuple(abi) for abi in input_abis),  # type: ignore
-        # too many arguments for Sequence
-        type(args)(  # type: ignore
+        type(args)(
             _align_abi_input(abi, arg)
             for abi, arg in zip(input_abis, args)
         ),

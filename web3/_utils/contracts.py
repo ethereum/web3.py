@@ -264,21 +264,21 @@ def encode_transaction_data(
 
 def get_fallback_function_info(
     contract_abi: ABI=None, fn_abi: ABIFunction=None
-) -> Tuple[ABIFunction, HexStr, Sequence[Any]]:
+) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
     if fn_abi is None:
         fn_abi = get_fallback_func_abi(contract_abi)
     fn_selector = encode_hex(b'')
-    fn_arguments: Sequence[Any] = tuple()
+    fn_arguments: Tuple[Any, ...] = tuple()
     return fn_abi, fn_selector, fn_arguments
 
 
 def get_receive_function_info(
     contract_abi: ABI=None, fn_abi: ABIFunction=None
-) -> Tuple[ABIFunction, HexStr, Sequence[Any]]:
+) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
     if fn_abi is None:
         fn_abi = get_receive_func_abi(contract_abi)
     fn_selector = encode_hex(b'')
-    fn_arguments: Sequence[Any] = tuple()
+    fn_arguments: Tuple[Any, ...] = tuple()
     return fn_abi, fn_selector, fn_arguments
 
 
@@ -289,7 +289,7 @@ def get_function_info(
     fn_abi: ABIFunction=None,
     args: Sequence[Any]=None,
     kwargs: Any=None,
-) -> Tuple[ABIFunction, HexStr, Sequence[Any]]:
+) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
     if args is None:
         args = tuple()
     if kwargs is None:
