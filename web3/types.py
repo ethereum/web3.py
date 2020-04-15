@@ -7,6 +7,7 @@ from typing import (
     NewType,
     Optional,
     Sequence,
+    Type,
     TypeVar,
     Union,
 )
@@ -26,6 +27,10 @@ from web3._utils.compat import (
     Literal,
     TypedDict,
 )
+from web3._utils.function_identifiers import (
+    FallbackFn,
+    ReceiveFn,
+)
 from web3.datastructures import (
     NamedElementOnion,
 )
@@ -41,6 +46,8 @@ TValue = TypeVar("TValue")
 BlockParams = Literal["latest", "earliest", "pending"]
 BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr, HexBytes]
 LatestBlockParam = Literal["latest"]
+
+FunctionIdentifier = Union[str, Type[FallbackFn], Type[ReceiveFn]]
 
 # bytes, hexbytes, or hexstr representing a 32 byte hash
 _Hash32 = Union[Hash32, HexBytes, HexStr]
