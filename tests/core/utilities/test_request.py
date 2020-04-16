@@ -1,4 +1,5 @@
 from requests import (
+    adapters,
     Session,
 )
 from requests.adapters import (
@@ -31,9 +32,6 @@ URI = "http://mynode.local:8545"
 def check_adapters_mounted(session: Session):
     assert isinstance(session, Session)
     assert len(session.adapters) == 2
-    assert isinstance(session.adapters['http://'], HTTPAdapter)
-    assert isinstance(session.adapters['https://'], HTTPAdapter)
-    assert session.adapters['http://'] == session.adapters['https://']
 
 
 def test_make_post_request_no_args(mocker):
@@ -55,23 +53,27 @@ def test_make_post_request_no_args(mocker):
     assert adapter._pool_maxsize == DEFAULT_POOLSIZE
 
 
-def test_make_post_request_with_pool_size(mocker):
+def test_precached_session(mocker):
     mocker.patch("requests.Session.post", return_value=MockedResponse())
+
+    # Update the cache with a handcrafted session
+    adapter = adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100)
+    session = Session()
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    request.cache_session(URI, session)
 
     # Submit a second request with different arguments
     assert len(request._session_cache) == 1
-    request_kwargs = {"timeout": 60, "pool_connections": 100, "pool_maxsize": 100}
-    response = request.make_post_request(URI, b'request', **request_kwargs)
+    response = request.make_post_request(URI, b'request', timeout=60)
     assert response == "content"
-
-    # Ensure a new session was cached with the alternate args
-    assert len(request._session_cache) == 2
-    session = request._get_session(**request_kwargs)
+    assert len(request._session_cache) == 1
 
     # Ensure the timeout was passed to the request
+    session = request._get_session(URI)
     session.post.assert_called_once_with(URI, data=b'request', timeout=60)
 
-    # Ensure the pool size was passed to the adapter
+    # Ensure the adapter parameters match those we specified
     check_adapters_mounted(session)
     adapter = session.get_adapter(URI)
     assert isinstance(adapter, HTTPAdapter)

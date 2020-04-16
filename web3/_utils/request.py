@@ -1,6 +1,5 @@
 from typing import (
     Any,
-    Dict,
 )
 
 from eth_typing import (
@@ -14,6 +13,11 @@ from web3._utils.caching import (
 )
 
 
+def cache_session(endpoint_uri: URI, session: requests.Session):
+    cache_key = generate_cache_key(endpoint_uri)
+    _session_cache[cache_key] = session
+
+
 def _remove_session(key: str, session: requests.Session) -> None:
     session.close()
 
@@ -21,37 +25,18 @@ def _remove_session(key: str, session: requests.Session) -> None:
 _session_cache = lru.LRU(8, callback=_remove_session)
 
 
-def _get_session(*args: Any, **kwargs: Any) -> requests.Session:
-    cache_key = generate_cache_key((args, kwargs))
+def _get_session(endpoint_uri: URI) -> requests.Session:
+    cache_key = generate_cache_key(endpoint_uri)
     if cache_key not in _session_cache:
-        session = requests.Session()
-        adapter = requests.adapters.HTTPAdapter(**extract_adapter_kwargs(**kwargs))
-
-        session.mount('http://', adapter)
-        session.mount('https://', adapter)
-
-        _session_cache[cache_key] = session
+        _session_cache[cache_key] = requests.Session()
     return _session_cache[cache_key]
 
 
 def make_post_request(endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any) -> bytes:
     kwargs.setdefault('timeout', 10)
-    session = _get_session(endpoint_uri, **kwargs)
+    session = _get_session(endpoint_uri)
     # https://github.com/python/mypy/issues/2582
-    response = session.post(endpoint_uri, data=data, *args,
-                            **extract_request_kwargs(**kwargs))  # type: ignore
+    response = session.post(endpoint_uri, data=data, *args, **kwargs)  # type: ignore
     response.raise_for_status()
 
     return response.content
-
-
-def extract_adapter_kwargs(**kwargs: Any) -> Dict[str, Any]:
-    adapter_args = ['pool_connections', 'pool_maxsize', 'max_retries', 'pool_block']
-    return {key: value for key, value in kwargs.items() if key in adapter_args}
-
-
-def extract_request_kwargs(**kwargs: Any) -> Dict[str, Any]:
-    request_args = ['params', 'headers', 'cookies', 'files',
-                    'auth', 'timeout', 'allow_redirects', 'proxies',
-                    'hooks', 'stream', 'verify', 'cert', 'json']
-    return {key: value for key, value in kwargs.items() if key in request_args}
