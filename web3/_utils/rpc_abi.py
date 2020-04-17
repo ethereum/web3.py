@@ -117,6 +117,7 @@ class RPC:
     personal_ecRecover = RPCEndpoint("personal_ecRecover")
     personal_importRawKey = RPCEndpoint("personal_importRawKey")
     personal_listAccounts = RPCEndpoint("personal_listAccounts")
+    personal_listWallets = RPCEndpoint("personal_listWallets")
     personal_lockAccount = RPCEndpoint("personal_lockAccount")
     personal_newAccount = RPCEndpoint("personal_newAccount")
     personal_sendTransaction = RPCEndpoint("personal_sendTransaction")

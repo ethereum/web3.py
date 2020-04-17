@@ -316,6 +316,20 @@ FILTER_PARAM_NORMALIZERS = apply_formatters_to_dict({
     'address': apply_formatter_if(is_string, lambda x: [x])
 })
 
+
+GETH_WALLET_FORMATTER = {
+    'address': to_checksum_address
+}
+
+geth_wallet_formatter = apply_formatters_to_dict(GETH_WALLET_FORMATTER)
+
+GETH_WALLETS_FORMATTER = {
+    'accounts': apply_list_to_array_formatter(geth_wallet_formatter),
+}
+
+geth_wallets_formatter = apply_formatters_to_dict(GETH_WALLETS_FORMATTER)
+
+
 PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_getBalance: apply_formatter_at_index(block_number_formatter, 1),
@@ -417,6 +431,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # personal
     RPC.personal_importRawKey: to_checksum_address,
     RPC.personal_listAccounts: apply_list_to_array_formatter(to_checksum_address),
+    RPC.personal_listWallets: apply_list_to_array_formatter(geth_wallets_formatter),
     RPC.personal_newAccount: to_checksum_address,
     RPC.personal_sendTransaction: to_hexbytes(32),
     RPC.personal_signTypedData: HexBytes,

@@ -416,6 +416,17 @@ class TxPoolStatus(TypedDict, total=False):
 
 
 #
+# web3.geth types
+#
+
+
+class GethWallet(TypedDict):
+    accounts: Sequence[Dict[str, str]]
+    status: str
+    url: str
+
+
+#
 # web3.parity types
 #
 

@@ -12,6 +12,7 @@ from eth_utils import (
     is_checksum_address,
     is_list_like,
     is_same_address,
+    is_string,
 )
 from hexbytes import (
     HexBytes,
@@ -66,6 +67,15 @@ class GoEthereumPersonalModuleTest:
                 for item
                 in accounts
             ))
+
+    def test_personal_list_wallets(self, web3: "Web3") -> None:
+        wallets = web3.geth.personal.list_wallets()
+        assert is_list_like(wallets)
+        assert len(wallets) > 0
+        assert is_checksum_address(wallets[0]['accounts'][0]['address'])
+        assert is_string(wallets[0]['accounts'][0]['url'])
+        assert is_string(wallets[0]['status'])
+        assert is_string(wallets[0]['url'])
 
     def test_personal_lock_account(
         self, web3: "Web3", unlockable_account_dual_type: ChecksumAddress

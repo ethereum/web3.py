@@ -39,6 +39,7 @@ from web3._utils.personal import (
     import_raw_key,
     importRawKey,
     list_accounts,
+    list_wallets,
     listAccounts,
     lock_account,
     lockAccount,
@@ -70,6 +71,7 @@ class GethPersonal(ModuleV2):
     ec_recover = ec_recover
     import_raw_key = import_raw_key
     list_accounts = list_accounts
+    list_wallets = list_wallets
     lock_account = lock_account
     new_account = new_account
     send_transaction = send_transaction

@@ -401,6 +401,7 @@ API_ENDPOINTS = {
         'ec_recover': not_implemented,
         'import_raw_key': call_eth_tester('add_account'),
         'list_accounts': call_eth_tester('get_accounts'),
+        'list_wallets': not_implemented,
         'lock_account': excepts(
             ValidationError,
             compose(static_return(True), call_eth_tester('lock_account')),

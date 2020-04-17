@@ -26,6 +26,7 @@ from web3.method import (
     default_root_munger,
 )
 from web3.types import (
+    GethWallet,
     TxParams,
 )
 
@@ -43,6 +44,12 @@ new_account: Method[Callable[[str], ChecksumAddress]] = Method(
 
 list_accounts: Method[Callable[[], List[ChecksumAddress]]] = Method(
     RPC.personal_listAccounts,
+    mungers=None,
+)
+
+
+list_wallets: Method[Callable[[], List[GethWallet]]] = Method(
+    RPC.personal_listWallets,
     mungers=None,
 )
 

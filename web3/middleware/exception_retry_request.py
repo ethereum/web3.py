@@ -69,6 +69,7 @@ whitelist = [
     'personal_importRawKey',
     'personal_newAccount',
     'personal_listAccounts',
+    'personal_listWallets',
     'personal_lockAccount',
     'personal_unlockAccount',
     'personal_ecRecover',

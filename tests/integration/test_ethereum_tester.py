@@ -334,3 +334,7 @@ class TestEthereumTesterPersonalModule(GoEthereumPersonalModuleTest):
                           match="unlockAccount is deprecated in favor of unlock_account"):
             result = web3.geth.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
             assert result is False
+
+    @pytest.mark.xfail(raises=ValueError, reason="list_wallets not implemented in eth-tester")
+    def test_personal_list_wallets(self, web3: "Web3") -> None:
+        super().test_personal_list_wallets(web3)
