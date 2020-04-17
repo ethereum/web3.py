@@ -1,0 +1,1 @@
+Introduced ``list_wallets`` method to the ``GethPersonal`` class.

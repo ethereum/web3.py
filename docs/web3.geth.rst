@@ -229,6 +229,25 @@ The following methods are available on the ``web3.geth.personal`` namespace.
       :meth:`~web3.geth.personal.list_accounts()`
 
 
+.. py:method:: list_wallets()
+
+    * Delegates to ``personal_listWallets`` RPC Method
+
+    Returns the list of wallets managed by Geth.
+
+    .. code-block:: python
+
+        >>> web3.geth.personal.list_wallets()
+        [{
+            accounts: [{
+                address: "0x44f705f3c31017856777f2931c2f09f240dd800b",
+                url: "keystore:///path/to/keystore/UTC--2020-03-30T23-24-43.133883000Z--44f705f3c31017856777f2931c2f09f240dd800b"
+            }],
+            status: "Unlocked",
+            url: "keystore:///path/to/keystore/UTC--2020-03-30T23-24-43.133883000Z--44f705f3c31017856777f2931c2f09f240dd800b"
+        }]
+
+
 .. py:method:: import_raw_key(self, private_key, passphrase)
 
     * Delegates to ``personal_importRawKey`` RPC Method
