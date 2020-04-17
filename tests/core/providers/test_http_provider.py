@@ -1,14 +1,12 @@
 import pytest
 from requests import (
-    Session
+    Session,
 )
 from requests.adapters import (
-    HTTPAdapter
+    HTTPAdapter,
 )
 
-from web3 import (
-    Web3,
-)
+from web3 import Web3
 from web3._utils import (
     request,
 )
