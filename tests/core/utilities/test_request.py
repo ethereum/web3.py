@@ -1,6 +1,6 @@
 from requests import (
-    adapters,
     Session,
+    adapters,
 )
 from requests.adapters import (
     DEFAULT_POOLSIZE,
