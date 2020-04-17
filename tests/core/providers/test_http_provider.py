@@ -24,12 +24,14 @@ def test_no_args():
     web3 = Web3(provider)
     assert web3.manager.provider == provider
 
+
 def test_init_kwargs():
     with pytest.raises(DeprecationWarning):
         provider = HTTPProvider(endpoint_uri=URI,
                                 request_kwargs={'timeout': 60})
         web3 = Web3(provider)
         assert web3.manager.provider == provider
+
 
 def test_user_provided_session():
     adapter = HTTPAdapter(pool_connections=20, pool_maxsize=20)
