@@ -21,15 +21,15 @@ URI = "http://mynode.local:8545"
 
 def test_no_args():
     provider = HTTPProvider()
-    web3: Web3(provider)
-
+    web3 = Web3(provider)
+    assert web3.manager.provider == provider
 
 def test_init_kwargs():
     with pytest.raises(DeprecationWarning):
         provider = HTTPProvider(endpoint_uri=URI,
                                 request_kwargs={'timeout': 60})
-        web3: Web3(provider)
-
+        web3 = Web3(provider)
+        assert web3.manager.provider == provider
 
 def test_user_provided_session():
     adapter = HTTPAdapter(pool_connections=20, pool_maxsize=20)
@@ -38,7 +38,8 @@ def test_user_provided_session():
     session.mount('https://', adapter)
 
     provider = HTTPProvider(endpoint_uri=URI, session=session)
-    web3: Web3(provider)
+    web3 = Web3(provider)
+    assert web3.manager.provider == provider
 
     session = request._get_session(URI)
     adapter = session.get_adapter(URI)

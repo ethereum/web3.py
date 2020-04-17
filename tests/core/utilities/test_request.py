@@ -36,6 +36,7 @@ def check_adapters_mounted(session: Session):
 
 def test_make_post_request_no_args(mocker):
     mocker.patch("requests.Session.post", return_value=MockedResponse())
+    request._session_cache.clear()
 
     # Submit a first request to create a session with default parameters
     assert len(request._session_cache) == 0
