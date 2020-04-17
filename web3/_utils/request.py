@@ -13,7 +13,7 @@ from web3._utils.caching import (
 )
 
 
-def cache_session(endpoint_uri: URI, session: requests.Session):
+def cache_session(endpoint_uri: URI, session: requests.Session) -> None:
     cache_key = generate_cache_key(endpoint_uri)
     _session_cache[cache_key] = session
 
