@@ -61,6 +61,7 @@ class HTTPProvider(JSONBaseProvider):
             self.endpoint_uri = get_default_endpoint()
         else:
             self.endpoint_uri = URI(endpoint_uri)
+
         self._request_kwargs = request_kwargs or {}
 
         if session:
