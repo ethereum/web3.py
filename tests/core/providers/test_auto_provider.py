@@ -145,12 +145,11 @@ def test_web3_auto_infura_with_secret(monkeypatch, caplog, environ_name):
     monkeypatch.setenv(environ_name, 'test')
     monkeypatch.setenv('WEB3_INFURA_API_SECRET', 'secret')
 
-    with pytest.raises(DeprecationWarning):
-        importlib.reload(infura)
+    importlib.reload(infura)
 
-        w3 = infura.w3
-        assert isinstance(w3.provider, HTTPProvider)
-        expected_url = 'https://%s/v3/test' % (infura.INFURA_MAINNET_DOMAIN)
-        expected_auth_value = ('', 'secret')
-        assert getattr(w3.provider, 'endpoint_uri') == expected_url
-        assert w3.provider.get_request_kwargs()['auth'] == expected_auth_value
+    w3 = infura.w3
+    assert isinstance(w3.provider, HTTPProvider)
+    expected_url = 'https://%s/v3/test' % (infura.INFURA_MAINNET_DOMAIN)
+    expected_auth_value = ('', 'secret')
+    assert getattr(w3.provider, 'endpoint_uri') == expected_url
+    assert w3.provider.get_request_kwargs()['auth'] == expected_auth_value

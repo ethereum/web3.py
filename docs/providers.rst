@@ -214,8 +214,10 @@ HTTPProvider
       ``'https://localhost:8545'``.  For RPC servers behind HTTP connections
       running on port 80 and HTTPS connections running on port 443 the port can
       be omitted from the URI.
-    * ``request_kwargs`` this should be a dictionary of keyword arguments which
-      will be passed onto the http/https request.
+    * ``request_kwargs`` should be a dictionary of keyword arguments which
+      will be passed onto each http/https POST request made to your node.
+    * ``session`` allows you to pass a ``requests.Session`` object initialized
+      as desired.
 
     .. code-block:: python
 
@@ -236,6 +238,18 @@ HTTPProvider
 
         >>> from web3 import Web3
         >>> w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 60}))
+
+
+    To tune the connection pool size, you can pass your own ``requests.Session``.
+
+    .. code-block:: python
+
+        >>> from web3 import Web3
+        >>> adapter = requests.adapters.HTTPAdapter(pool_connections=20, pool_maxsize=20)
+        >>> session = requests.Session()
+        >>> session.mount('http://', adapter)
+        >>> session.mount('https://', adapter)
+        >>> w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", session=session))
 
 
 IPCProvider

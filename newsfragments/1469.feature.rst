@@ -1,1 +1,1 @@
-Pass `kwargs` to `HttpAdapter` when using `HttpProvider`, allowing consumer to tune the connection pool.
+Allow consumer to initialize `HttpProvider` with their own `requests.Session`.  This allows the `HttpAdapter` connection pool to be tuned as desired.
