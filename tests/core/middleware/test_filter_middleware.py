@@ -101,6 +101,18 @@ def test_block_ranges(start, stop, expected):
         (1, 19),
         (20, 55),
     ]),
+    (0, None, [10], [
+        (0, 10),
+    ]),
+    (0, 10, [12], [
+        (None, None),
+    ]),
+    (12, 10, [12], [
+        (None, None),
+    ]),
+    (12, 10, [None], [
+        (None, None),
+    ]),
 ])
 def test_iter_latest_block_ranges(
         w3,

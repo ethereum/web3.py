@@ -121,12 +121,10 @@ def iter_latest_block(
     """Returns a generator that dispenses the latest block, if
     any new blocks have been mined since last iteration.
 
-    If there are no new blocks None is returned.
+    If there are no new blocks or the latest block is greater than
+    the ``to_block`` None is returned.
 
-    If ``to_block`` is defined, ``StopIteration`` is raised
-    after to_block is reached.
-
-    >>> mined_blocks = dispense_mined_blocks(w3, 0, 10)
+    >>> new_blocks = iter_latest_block(w3, 0, 10)
     >>> next(new_blocks)  # Latest block = 0
     0
     >>> next(new_blocks)  # No new blocks
@@ -134,11 +132,7 @@ def iter_latest_block(
     1
     >>> next(new_blocks)  # Latest block = 10
     10
-    >>> next(new_blocks)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      StopIteration
-    >>>
+    >>> next(new_blocks)  # latest block > to block
     """
     _last = None
 
@@ -151,7 +145,7 @@ def iter_latest_block(
         latest_block = w3.eth.blockNumber
         # type ignored b/c is_bounded_range prevents unsupported comparison
         if is_bounded_range and latest_block > to_block:  # type: ignore
-            return
+            yield None
         #  No new blocks since last iteration.
         if _last is not None and _last == latest_block:
             yield None
@@ -256,16 +250,16 @@ class RequestLogs:
         for start, stop in iter_latest_block_ranges(self.w3, self.from_block, self.to_block):
             if None in (start, stop):
                 yield []
-
-            yield list(
-                concat(
-                    get_logs_multipart(
-                        self.w3,
-                        start,
-                        stop,
-                        self.address,
-                        self.topics,
-                        max_blocks=MAX_BLOCK_REQUEST)))
+            else:
+                yield list(
+                    concat(
+                        get_logs_multipart(
+                            self.w3,
+                            start,
+                            stop,
+                            self.address,
+                            self.topics,
+                            max_blocks=MAX_BLOCK_REQUEST)))
 
     def get_logs(self) -> List[LogReceipt]:
         return list(

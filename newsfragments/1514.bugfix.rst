@@ -1,0 +1,1 @@
+Fix local_filter_middleware new entries bug
