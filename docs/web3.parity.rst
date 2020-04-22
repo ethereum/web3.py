@@ -148,12 +148,12 @@ Full documentation for Parity-supported endpoints can be found `here <https://wi
     .. code-block:: python
 
         >>> web3.parity.shh.post({
-   		   	"from":"0x193f71c502feb0c181ed0b97352fdcebcb621c733cd80637b2154a2a2b867a12",
-   			"topics":["0x12270000"],
-   			"payload":"0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6",
-   			"priority":40,
-   			"ttl":400
- 			})
+            "from":"0x193f71c502feb0c181ed0b97352fdcebcb621c733cd80637b2154a2a2b867a12",
+            "topics":["0x12270000"],
+            "payload":"0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6",
+            "priority":40,
+            "ttl":400
+        })
         True
 
 .. py:method:: Shh.newMessageFilter(self, criteria)
@@ -169,8 +169,8 @@ Full documentation for Parity-supported endpoints can be found `here <https://wi
 
     .. code-block:: python
 
-        >>>web3.parity.shh.newMessageFilter({'topic': '0x12340000', 'privateKeyID': recipient_private})
-		0xea7120c5408c72cfd7e0e1d2ff62df8e208d9a1f85d2ed54a4a3e1ad6daeb6f9
+        >>> web3.parity.shh.newMessageFilter({'topic': '0x12340000', 'privateKeyID': recipient_private})
+        0xea7120c5408c72cfd7e0e1d2ff62df8e208d9a1f85d2ed54a4a3e1ad6daeb6f9
 
 .. py:method:: Shh.deleteMessageFilter(self, filter_id)
 
@@ -180,7 +180,7 @@ Full documentation for Parity-supported endpoints can be found `here <https://wi
 
     .. code-block:: python
 
-        >>>web3.parity.shh.deleteMessageFilter('0xea7120c5408c72cfd7e0e1d2ff62df8e208d9a1f85d2ed54a4a3e1ad6daeb6f9')
+        >>> web3.parity.shh.deleteMessageFilter('0xea7120c5408c72cfd7e0e1d2ff62df8e208d9a1f85d2ed54a4a3e1ad6daeb6f9')
         True
 
 .. py:method:: Shh.getMessages(self, filter_id)
@@ -191,7 +191,7 @@ Full documentation for Parity-supported endpoints can be found `here <https://wi
 
     .. code-block:: python
 
-        >>>web3.parity.shh.getMessages('0xea7120c5408c72cfd7e0e1d2ff62df8e208d9a1f85d2ed54a4a3e1ad6daeb6f9')
+        >>> web3.parity.shh.getMessages('0xea7120c5408c72cfd7e0e1d2ff62df8e208d9a1f85d2ed54a4a3e1ad6daeb6f9')
         [{
             'ttl': 50,
             'timestamp': 1524497850,
@@ -203,25 +203,25 @@ Full documentation for Parity-supported endpoints can be found `here <https://wi
 
 .. py:method:: Shh.subscribe(self, filter_id)
 
-	* Open a subscription to a filter. Subscription calls are only supported on the websocket transport.
+    * Open a subscription to a filter. Subscription calls are only supported on the websocket transport.
 
     * Returns ``True`` if the filter was sucesfully subscribed to, otherwise ``False``
 
-  	.. code-block:: python
+    .. code-block:: python
 
-        >>>web3.parity.shh.subscribe('0xea7120c5408c72cfd7e0e1d2ff62df8e208d9a1f85d2ed54a4a3e1ad6daeb6f9')
-		True
+        >>> web3.parity.shh.subscribe('0xea7120c5408c72cfd7e0e1d2ff62df8e208d9a1f85d2ed54a4a3e1ad6daeb6f9')
+        True
 
 .. py:method:: Shh.unsubscribe(self, filter_id)
 
-	* Close a subscribed filter.
+    * Close a subscribed filter.
 
     * Returns ``True`` if the filter subscription was sucesfully closed, otherwise ``False``
 
-  	.. code-block:: python
+    .. code-block:: python
 
-        >>>web3.parity.shh.unsubscribe('0xea7120c5408c72cfd7e0e1d2ff62df8e208d9a1f85d2ed54a4a3e1ad6daeb6f9')
-		True
+        >>> web3.parity.shh.unsubscribe('0xea7120c5408c72cfd7e0e1d2ff62df8e208d9a1f85d2ed54a4a3e1ad6daeb6f9')
+        True
 
 ---------------
 Asymmetric Keys
@@ -235,7 +235,7 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.parity.shh.newKeyPair()
+        >>> web3.parity.shh.newKeyPair()
         '86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb'
 
 .. py:method:: Shh.addPrivateKey(self, key)
@@ -246,7 +246,7 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.parity.shh.addPrivateKey('0x7b8190d96cd061a102e551ee36d08d4f3ca1f56fb0008ef5d70c56271d8c46d0')
+        >>> web3.parity.shh.addPrivateKey('0x7b8190d96cd061a102e551ee36d08d4f3ca1f56fb0008ef5d70c56271d8c46d0')
         '86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb'
 
 .. py:method:: Shh.getPublicKey(self, id)
@@ -255,7 +255,7 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.parity.shh.getPublicKey('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
+        >>> web3.parity.shh.getPublicKey('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
         '0x041b0777ceb8cf8748fe0bba5e55039d650a03eb0239a909f9ee345bbbad249f2aa236a4b8f41f51bd0a97d87c08e69e67c51f154d634ba51a224195212fc31e4e'
 
 .. py:method:: Shh.getPrivateKey(self, id)
@@ -264,7 +264,7 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.parity.shh.getPrivateKey('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
+        >>> web3.parity.shh.getPrivateKey('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
         '0x7b8190d96cd061a102e551ee36d08d4f3ca1f56fb0008ef5d70c56271d8c46d0'
 
 ---------------
@@ -279,7 +279,7 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.parity.shh.newSymKey()
+        >>> web3.parity.shh.newSymKey()
         '6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c'
 
 .. py:method:: Shh.addSymKey(self, key)
@@ -290,7 +290,7 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.parity.shh.addSymKey('0x58f6556e56a0d41b464a083161377c8a9c2e95156921f954f99ef97d41cebaa2')
+        >>> web3.parity.shh.addSymKey('0x58f6556e56a0d41b464a083161377c8a9c2e95156921f954f99ef97d41cebaa2')
         '6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c'
 
 .. py:method:: Shh.getSymKey(self, id)
@@ -301,7 +301,7 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.parity.shh.getSymKey('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
+        >>> web3.parity.shh.getSymKey('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
         '0x58f6556e56a0d41b464a083161377c8a9c2e95156921f954f99ef97d41cebaa2'
 
 .. py:method:: Shh.deleteKey(self, id)
@@ -312,5 +312,5 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.parity.shh.deleteKey('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
+        >>> web3.parity.shh.deleteKey('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
         True

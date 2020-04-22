@@ -352,11 +352,11 @@ it as a ``Package`` instance.
 
     # Note. To use the web3.pm module, you will need to instantiate your w3 instance
     # with a web3 provider connected to the chain on which your registry lives.
-    
+
     # The ethPM module is still experimental and subject to change,
     # so for now we need to enable it via a temporary flag.
     w3.enable_unstable_package_management_api()
-    
+
     # Then we need to set the registry address that we want to use.
     # This should be an ENS address, but can also be a checksummed contract address.
     w3.pm.set_registry("ens.snakecharmers.eth")
@@ -365,7 +365,7 @@ it as a ``Package`` instance.
     ens_package = w3.pm.get_package("ethregistrar", "1.0.1")
 
 
-Now that we have a ``Package`` representation of our target ethPM package, we can generate contract factories 
+Now that we have a ``Package`` representation of our target ethPM package, we can generate contract factories
 and instances from this ``Package``. However, it's important to note that some packages might be missing
 the necessary contract assets needed to generate an instance or a factory. You can use the
 `ethPM explorer <http://explorer.ethpm.com/>`__ to figure out the names of the contract types and deployments
@@ -387,7 +387,7 @@ available within an ethPM package.
 
     # To create a contract factory from a contract type located in an ethPM package.
     registrar_factory = ens_package.get_contract_factory("BaseRegistrarImplementation")
-    
+
     # Now you can treat registrar_factory like any other Web3 Contract factory to deploy new instances!
     # Note. This will deploy new instances to the chain of the connected provider (in this example, mainnet)
     registrar_factory.constructor(...).transact()
@@ -433,8 +433,8 @@ In this guide we will interact with an existing token contract that we have
 already deployed to a local testing chain.  This guide assumes:
 
 1. An existing token contract at a known address.
-1. Access to the proper ``ABI`` for the given contract.
-1. A `~web3.main.Web3` instance connected to a provider with an unlocked account which can send transactions.
+2. Access to the proper ``ABI`` for the given contract.
+3. A ``web3.main.Web3`` instance connected to a provider with an unlocked account which can send transactions.
 
 
 Creating the contract factory
