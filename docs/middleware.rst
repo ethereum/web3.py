@@ -20,7 +20,7 @@ Default Middleware
 
 Some middlewares are added by default if you do not supply any. The defaults
 are likely to change regularly, so this list may not include the latest version's defaults.
-You can find the latest defaults in the constructor in `web3/manager.py`
+You can find the latest defaults in the constructor in ``web3/manager.py``
 
 AttributeDict
 ~~~~~~~~~~~~~~~~~~
@@ -68,10 +68,10 @@ HTTPRequestRetry
 .. py:method:: web3.middleware.http_retry_request_middleware
 
     This middleware is a default specifically for HTTPProvider that retries failed
-    requests that return the following errors: `ConnectionError`, `HTTPError`, `Timeout`,
-    `TooManyRedirects`. Additionally there is a whitelist that only allows certain
+    requests that return the following errors: ``ConnectionError``, ``HTTPError``, ``Timeout``,
+    ``TooManyRedirects``. Additionally there is a whitelist that only allows certain
     methods to be retried in order to not resend transactions, excluded methods are:
-    `eth_sendTransaction`, `personal_signAndSendTransaction`, `personal_sendTransaction`.
+    ``eth_sendTransaction``, ``personal_signAndSendTransaction``, ``personal_sendTransaction``.
 
 .. _Modifying_Middleware:
 

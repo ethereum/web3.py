@@ -640,7 +640,7 @@ The following methods are available on the ``web3.eth`` namespace.
     * Delegates to ``eth_signTransaction`` RPC Method.
 
     Returns a transaction that's been signed by the node's private key, but not yet submitted.
-    The signed tx can be submitted with `Eth.sendRawTransaction``
+    The signed tx can be submitted with ``Eth.sendRawTransaction``
 
     .. code-block:: python
 
@@ -839,7 +839,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Uses the selected gas price strategy to calculate a gas price. This method
     returns the gas price denominated in wei.
 
-    The `transaction_params` argument is optional however some gas price strategies
+    The ``transaction_params`` argument is optional however some gas price strategies
     may require it to be able to produce a gas price.
 
     .. code-block:: python

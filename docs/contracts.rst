@@ -249,7 +249,7 @@ Each Contract Factory exposes the following methods.
     with transaction details being passed into the end portion of the
     function call, and function arguments being passed into the first portion.
 
-    The ``block_identifier`` parameter is passed directly to the call at the end portion 
+    The ``block_identifier`` parameter is passed directly to the call at the end portion
     of the function call.
 
     Returns the amount of gas consumed which can be used as a gas estimate for
@@ -351,7 +351,7 @@ Each Contract Factory exposes the following methods.
 .. py:classmethod:: Contract.encodeABI(fn_name, args=None, kwargs=None, data=None)
 
    Encodes the arguments using the Ethereum ABI for the contract function that
-   matches the given `fn_name` and arguements `args`. The `data` parameter
+   matches the given ``fn_name`` and arguments ``args``. The ``data`` parameter
    defaults to the function selector.
 
    .. code-block:: python
@@ -373,7 +373,7 @@ Each Contract Factory exposes the following methods.
 .. py:classmethod:: Contract.get_function_by_signature(signature)
 
     Searches for a distinct function with matching signature. Returns an instance of
-    :py:class:`ContractFunction` upon finding a match. Raises `ValueError` if no
+    :py:class:`ContractFunction` upon finding a match. Raises ``ValueError`` if no
     match is found.
 
     .. code-block:: python
@@ -397,7 +397,7 @@ Each Contract Factory exposes the following methods.
 .. py:classmethod:: Contract.get_function_by_name(name)
 
     Searches for a distinct function with matching name. Returns an instance of
-    :py:class:`ContractFunction` upon finding a match. Raises `ValueError` if no
+    :py:class:`ContractFunction` upon finding a match. Raises ``ValueError`` if no
     match is found or if multiple matches are found.
 
     .. code-block:: python
@@ -411,7 +411,7 @@ Each Contract Factory exposes the following methods.
     Searches for a distinct function with matching selector.
     The selector can be a hexadecimal string, bytes or int.
     Returns an instance of :py:class:`ContractFunction` upon finding a match.
-    Raises `ValueError` if no match is found.
+    Raises ``ValueError`` if no match is found.
 
     .. code-block:: python
 
@@ -438,7 +438,7 @@ Each Contract Factory exposes the following methods.
 .. py:classmethod:: Contract.get_function_by_args(*args)
 
     Searches for a distinct function with matching args. Returns an instance of
-    :py:class:`ContractFunction` upon finding a match. Raises `ValueError` if no
+    :py:class:`ContractFunction` upon finding a match. Raises ``ValueError`` if no
     match is found or if multiple matches are found.
 
     .. code-block:: python
@@ -448,16 +448,16 @@ Each Contract Factory exposes the following methods.
 
 
 .. note::
-    `Contract` methods `all_functions`, `get_function_by_signature`, `find_functions_by_name`,
-    `get_function_by_name`, `get_function_by_selector`, `find_functions_by_args` and
-    `get_function_by_args` can only be used when abi is provided to the contract.
+    ``Contract`` methods ``all_functions``, ``get_function_by_signature``, ``find_functions_by_name``,
+    ``get_function_by_name``, ``get_function_by_selector``, ``find_functions_by_args`` and
+    ``get_function_by_args`` can only be used when abi is provided to the contract.
 
 
 .. note::
-    `Web3.py` rejects the initialization of contracts that have more than one function
+    Web3.py rejects the initialization of contracts that have more than one function
     with the same selector or signature.
-    eg. `blockHashAddendsInexpansible(uint256)` and `blockHashAskewLimitary(uint256)` have the
-    same selector value equal to `0x00000000`. A contract containing both of these functions
+    eg. ``blockHashAddendsInexpansible(uint256)`` and ``blockHashAskewLimitary(uint256)`` have the
+    same selector value equal to ``0x00000000``. A contract containing both of these functions
     will be rejected.
 
 
