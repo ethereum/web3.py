@@ -1,3 +1,0 @@
-Add snake_case methods to Geth and Parity Personal Modules.
-
-Deprecate camelCase methods.

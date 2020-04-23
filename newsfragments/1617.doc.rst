@@ -1,1 +1,0 @@
-Add examples for using web3.contract via the ethpm module.

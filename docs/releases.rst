@@ -6,6 +6,57 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.8.0 (2020-04-23)
+-------------------
+
+Features
+~~~~~~~~
+
+- Introduced ``list_wallets`` method to the ``GethPersonal`` class. (`#1516 <https://github.com/ethereum/web3.py/issues/1516>`__)
+- Added block_identifier parameter to `ContractConstructor.estimateGas` method. (`#1588 <https://github.com/ethereum/web3.py/issues/1588>`__)
+- Add snake_case methods to Geth and Parity Personal Modules.
+
+  Deprecate camelCase methods. (`#1589 <https://github.com/ethereum/web3.py/issues/1589>`__)
+- Added new weighted keyword argument to the time based gas price strategy.
+
+  If ``True``, it will more give more weight to more recent block times. (`#1614 <https://github.com/ethereum/web3.py/issues/1614>`__)
+- Adds support for Solidity's new(ish) receive function.
+
+  Adds a new contract API that mirrors the existing fallback API: ``contract.receive`` (`#1623 <https://github.com/ethereum/web3.py/issues/1623>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fixed hasattr overloader method in the web3.ContractEvent, web3.ContractFunction,
+  and web3.ContractCaller classes by implementing a try/except handler
+  that returns False if an exception is raised in the __getattr__ overloader method
+  (since __getattr__ HAS to be called in every __hasattr__ call).
+
+  Created two new Exception classes, 'ABIEventFunctionNotFound' and 'ABIFunctionNotFound',
+  which inherit from both AttributeError and MismatchedABI, and replaced the MismatchedABI
+  raises in ContractEvent, ContractFunction, and ContractCaller with a raise to the created class
+  in the __getattr__ overloader method of the object. (`#1594 <https://github.com/ethereum/web3.py/issues/1594>`__)
+- Change return type of rpc_gas_price_strategy from int to Wei (`#1612 <https://github.com/ethereum/web3.py/issues/1612>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Fix typo in "Internals" docs. Changed asyncronous --> asynchronous (`#1607 <https://github.com/ethereum/web3.py/issues/1607>`__)
+- Improve documentation that introduces and troubleshoots Providers. (`#1609 <https://github.com/ethereum/web3.py/issues/1609>`__)
+- Add documentation for when to use each transaction method. (`#1610 <https://github.com/ethereum/web3.py/issues/1610>`__)
+- Remove incorrect web3 for w3 in doc example (`#1615 <https://github.com/ethereum/web3.py/issues/1615>`__)
+- Add examples for using web3.contract via the ethpm module. (`#1617 <https://github.com/ethereum/web3.py/issues/1617>`__)
+- Add dark mode to documentation. Also fixes a bunch of formatting issues in docs. (`#1626 <https://github.com/ethereum/web3.py/issues/1626>`__)
+
+
+Misc
+~~~~
+
+- `#1545 <https://github.com/ethereum/web3.py/issues/1545>`__
+
+
 v5.7.0 (2020-03-16)
 -------------------
 

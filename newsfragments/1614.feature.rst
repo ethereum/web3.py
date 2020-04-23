@@ -1,3 +1,0 @@
-Added new weighted keyword argument to the time based gas price strategy.
-
-If ``True``, it will more give more weight to more recent block times.

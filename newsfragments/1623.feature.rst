@@ -1,3 +1,0 @@
-Adds support for Solidity's new(ish) receive function.
-
-Adds a new contract API that mirrors the existing fallback API: ``contract.receive``

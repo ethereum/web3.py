@@ -1,1 +1,0 @@
-Add dark mode to documentation. Also fixes a bunch of formatting issues in docs.
