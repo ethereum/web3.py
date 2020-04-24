@@ -336,7 +336,7 @@ class BlockData(TypedDict, total=False):
     nonce: HexBytes
     number: BlockNumber
     parentHash: HexBytes
-    receiptRoot: HexBytes
+    receiptsRoot: HexBytes
     sha3Uncles: HexBytes
     size: int
     stateRoot: HexBytes

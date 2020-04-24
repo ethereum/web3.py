@@ -207,7 +207,7 @@ RECEIPT_FORMATTERS = {
     "gasUsed": to_integer_if_hex,
     "contractAddress": apply_formatter_if(is_not_null, to_checksum_address),
     "logs": apply_list_to_array_formatter(log_entry_formatter),
-    "logsBloom": to_hexbytes(256),
+    "logsBloom": to_hexbytes(256, variable_length=True),
     "from": apply_formatter_if(is_not_null, to_checksum_address),
     "to": apply_formatter_if(is_address, to_checksum_address),
     "effectiveGasPrice": to_integer_if_hex,
@@ -225,7 +225,9 @@ BLOCK_FORMATTERS = {
     "size": to_integer_if_hex,
     "timestamp": to_integer_if_hex,
     "hash": apply_formatter_if(is_not_null, to_hexbytes(32)),
-    "logsBloom": apply_formatter_if(is_not_null, to_hexbytes(256)),
+    "logsBloom": apply_formatter_if(
+        is_not_null, to_hexbytes(256, variable_length=True)
+    ),
     "miner": apply_formatter_if(is_not_null, to_checksum_address),
     "mixHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
     "nonce": apply_formatter_if(is_not_null, to_hexbytes(8, variable_length=True)),
