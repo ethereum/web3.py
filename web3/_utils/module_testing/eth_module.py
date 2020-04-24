@@ -2889,6 +2889,8 @@ class EthModuleTest:
     def test_eth_getBlockByHash(self, w3: "Web3", empty_block: BlockData) -> None:
         block = w3.eth.get_block(empty_block["hash"])
         assert block["hash"] == empty_block["hash"]
+        assert block["receiptsRoot"] == empty_block["receiptsRoot"]
+        assert block["logsBloom"] == empty_block["logsBloom"]
 
     def test_eth_getBlockByHash_not_found(
         self, w3: "Web3", empty_block: BlockData

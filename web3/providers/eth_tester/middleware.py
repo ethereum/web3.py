@@ -99,6 +99,11 @@ transaction_request_transformer = compose(
     transaction_request_formatter,
 )
 
+BLOCK_FORMATTERS = {
+    "logsBloom": integer_to_hex,
+}
+block_formatter = apply_formatters_to_dict(BLOCK_FORMATTERS)
+
 
 FILTER_REQUEST_KEY_MAPPING = {
     "fromBlock": "from_block",
@@ -172,9 +177,9 @@ BLOCK_RESULT_KEY_MAPPING = {
     "sha3_uncles": "sha3Uncles",
     "transactions_root": "transactionsRoot",
     "parent_hash": "parentHash",
-    "bloom": "logsBloom",
+    "logs_bloom": "logsBloom",
     "state_root": "stateRoot",
-    "receipt_root": "receiptsRoot",
+    "receipts_root": "receiptsRoot",
     "total_difficulty": "totalDifficulty",
     "extra_data": "extraData",
     "gas_used": "gasUsed",
@@ -253,11 +258,11 @@ request_formatters = {
 result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPCEndpoint("eth_getBlockByHash"): apply_formatter_if(
         is_dict,
-        block_result_remapper,
+        compose(block_result_remapper, block_formatter),
     ),
     RPCEndpoint("eth_getBlockByNumber"): apply_formatter_if(
         is_dict,
-        block_result_remapper,
+        compose(block_result_remapper, block_formatter),
     ),
     RPCEndpoint("eth_getBlockTransactionCountByHash"): apply_formatter_if(
         is_dict,
