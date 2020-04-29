@@ -101,7 +101,7 @@ class ENS:
         """
         return cls(web3.manager.provider, addr=addr)
 
-    def address(self, name: str) -> ChecksumAddress:
+    def address(self, name: str) -> Optional[ChecksumAddress]:
         """
         Look up the Ethereum address that `name` currently points to.
 
@@ -110,7 +110,7 @@ class ENS:
         """
         return cast(ChecksumAddress, self.resolve(name, 'addr'))
 
-    def name(self, address: ChecksumAddress) -> str:
+    def name(self, address: ChecksumAddress) -> Optional[str]:
         """
         Look up the name that the address points to, using a
         reverse lookup. Reverse lookup is opt-in for name owners.
