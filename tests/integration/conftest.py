@@ -9,6 +9,10 @@ from web3._utils.module_testing.math_contract import (
     MATH_ABI,
     MATH_BYTECODE,
 )
+from web3._utils.module_testing.revert_contract import (
+    _REVERT_CONTRACT_ABI,
+    REVERT_CONTRACT_BYTECODE,
+)
 
 
 @pytest.fixture(scope="module")
@@ -28,3 +32,9 @@ def event_loop(request):
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
+
+
+@pytest.fixture(scope="module")
+def revert_contract_factory(web3):
+    contract_factory = web3.eth.contract(abi=_REVERT_CONTRACT_ABI, bytecode=REVERT_CONTRACT_BYTECODE)
+    return contract_factory

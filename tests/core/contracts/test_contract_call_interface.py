@@ -189,6 +189,10 @@ def nested_tuple_contract(web3, NestedTupleContract, address_conversion_func):
     return deploy(web3, NestedTupleContract, address_conversion_func)
 
 
+@pytest.fixture()
+def revert_contract(web3, RevertContract, address_conversion_func):
+    return deploy(web3, RevertContract, address_conversion_func)
+
 def test_invalid_address_in_deploy_arg(web3, WithConstructorAddressArgumentsContract):
     with pytest.raises(InvalidAddress):
         WithConstructorAddressArgumentsContract.constructor(

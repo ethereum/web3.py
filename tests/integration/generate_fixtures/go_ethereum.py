@@ -364,6 +364,36 @@ def setup_chain_state(web3):
     print('BLOCK_HASH_WITH_LOG:', block_with_log['hash'])
 
     #
+    # Revert Contract
+    #
+    revert_contract_factory = web3.eth.contract(
+        abi=_REVERT_CONTRACT_ABI,
+        bytecode=REVERT_CONTRACT_BYTECODE,
+    )
+    revert_deploy_receipt = deploy_contract(web3, 'revert', revert_contract_factory)
+    revert_contract = revert_contract_factory(revert_deploy_receipt['contractAddress'])
+
+    txn_hash_normal_function = revert_contract.functions.normalFunction().transact(
+        {'gas': 320000, 'from': web3.eth.coinbase}
+    )
+    print('TXN_HASH_REVERT_NORMAL:', txn_hash_normal_function)
+    txn_hash_revert_with_msg = revert_contract.functions.revertWithMessage().transact(
+        {'gas': 320000, 'from': web3.eth.coinbase}
+    )
+    print('TXN_HASH_REVERT_WITH_MSG:', txn_hash_revert_with_msg)
+    txn_receipt_revert_with_msg = mine_transaction_hash(web3, txn_hash_revert_with_msg)
+    block_hash_revert_with_msg = web3.eth.getBlock(txn_receipt_revert_with_msg['blockHash'])
+    print('BLOCK_HASH_REVERT_WITH_MSG:', block_hash_revert_with_msg['hash'])
+
+    txn_hash_revert_with_no_msg = revert_contract.functions.revertWithoutMessage().transact(
+        {'gas': 320000, 'from': web3.eth.coinbase}
+    )
+    print('TXN_HASH_REVERT_WITH_NO_MSG:', txn_hash_revert_with_no_msg)
+    txn_receipt_revert_with_no_msg = mine_transaction_hash(web3, txn_hash_revert_with_no_msg)
+    block_hash_revert_no_msg = web3.eth.getBlock(txn_receipt_revert_with_no_msg['blockHash'])
+    print('BLOCK_HASH_REVERT_NO_MSG:', block_hash_revert_no_msg['hash'])
+
+    #
     # Empty Block
     #
     empty_block_number = mine_block(web3)

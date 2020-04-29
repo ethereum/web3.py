@@ -741,6 +741,14 @@ class EthModuleTest:
         result = web3.codec.decode_single('uint256', call_result)
         assert result == 0
 
+    def test_eth_call_with_revert(self, web3: "Web3", revert_contract: "Contract") -> None:
+        coinbase = web3.eth.coinbase
+        txn_params = revert_contract._prepare_transaction(fn_name='normalFunction', transaction={'from': coinbase, 'to': revert_contract.address})
+        call_result = web3.eth.call(txn_params)
+        assert is_string(call_result)
+        result = web3.codec.decode_single('bool', call_result)
+        assert result is True
+
     def test_eth_estimateGas(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:

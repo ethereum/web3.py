@@ -226,3 +226,18 @@ def block_with_txn_with_log(web3, geth_fixture_data):
 @pytest.fixture(scope="module")
 def txn_hash_with_log(geth_fixture_data):
     return geth_fixture_data['txn_hash_with_log']
+
+
+@pytest.fixture(scope="module")
+def block_hash_revert_no_msg(geth_fixture_data):
+    return geth_fixture_data['block_hash_revert_no_msg']
+
+
+@pytest.fixture(scope="module")
+def block_hash_revert_with_msg(geth_fixture_data):
+    return geth_fixture_data['block_hash_revert_with_msg']
+
+
+@pytest.fixture(scope="module")
+def revert_contract(web3, revert_contract_factory, geth_fixture_data):
+    return revert_contract_factory(address=geth_fixture_data['revert_address'])
