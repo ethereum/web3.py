@@ -876,4 +876,4 @@ def test_call_revert_contract(revert_contract):
         # eth-tester will do a gas estimation if we don't submit a gas value,
         # which does not contain the revert reason. Avoid that by giving a gas
         # value.
-        revert_contract.functions.revertFunction().call({'gas': 100000})
+        revert_contract.functions.revertWithMessage().call({'gas': 100000})
