@@ -21,6 +21,9 @@ from web3._utils.module_testing import (
 from web3._utils.module_testing.emitter_contract import (
     EMITTER_ENUM,
 )
+from web3.exceptions import (
+    SolidityError,
+)
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
@@ -133,6 +136,30 @@ def block_with_txn_with_log(web3, emitter_contract):
 @pytest.fixture(scope="module")
 def txn_hash_with_log(block_with_txn_with_log):
     return block_with_txn_with_log['transactions'][0]
+
+
+#
+# Revert Contract Setup
+#
+@pytest.fixture(scope="module")
+def revert_contract_deploy_txn_hash(web3, revert_contract_factory):
+    deploy_txn_hash = revert_contract_factory.constructor().transact({'from': web3.eth.coinbase})
+    return deploy_txn_hash
+
+
+@pytest.fixture(scope="module")
+def revert_contract(web3, revert_contract_factory, revert_contract_deploy_txn_hash):
+    deploy_receipt = web3.eth.waitForTransactionReceipt(revert_contract_deploy_txn_hash)
+    assert is_dict(deploy_receipt)
+    contract_address = deploy_receipt['contractAddress']
+    assert is_checksum_address(contract_address)
+    return revert_contract_factory(contract_address)
+
+
+@pytest.fixture(scope="module")
+def revert_contract_address(revert_contract, address_conversion_func):
+    return address_conversion_func(revert_contract.address)
+
 
 
 UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
@@ -308,6 +335,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
     @pytest.mark.xfail(raises=KeyError, reason="ethereum tester doesn't return 'to' key")
     def test_eth_getTransactionReceipt_mined(self, web3, block_with_txn, mined_txn_hash):
         super().test_eth_getTransactionReceipt_mined(web3, block_with_txn, mined_txn_hash)
+
+    def test_eth_call_revert_with_msg(self, web3: "Web3", revert_contract: "Contract") -> None:
+        with pytest.raises(SolidityError, match='foo'):
+            super().test_eth_call_with_revert(web3, revert_contract)
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):

@@ -741,9 +741,11 @@ class EthModuleTest:
         result = web3.codec.decode_single('uint256', call_result)
         assert result == 0
 
-    def test_eth_call_with_revert(self, web3: "Web3", revert_contract: "Contract") -> None:
+    def test_eth_call_revert_with_msg(self, web3: "Web3", revert_contract: "Contract", unlocked_account_dual_type: ChecksumAddress) -> None:
         coinbase = web3.eth.coinbase
-        txn_params = revert_contract._prepare_transaction(fn_name='normalFunction', transaction={'from': coinbase, 'to': revert_contract.address})
+        txn_params = revert_contract._prepare_transaction(fn_name='revertWithMessage', transaction={'from': unlocked_account_dual_type, 'to': revert_contract.address})
+        foo = revert_contract.functions.revertWithMessage().transact({'from': coinbase, 'to': revert_contract.address, 'gas': 320000})
+        import pdb; pdb.set_trace()
         call_result = web3.eth.call(txn_params)
         assert is_string(call_result)
         result = web3.codec.decode_single('bool', call_result)
