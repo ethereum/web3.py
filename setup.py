@@ -7,6 +7,9 @@ from setuptools import (
 
 extras_require = {
     'tester': [
+        # TODO - remove this eth-keys pinning once eth-tester >0.4.0-beta.1 is released
+        # and py-evm v0.3.0-alpha.15 is released
+        "eth-keys>=0.2.1,<0.3",
         "eth-tester[py-evm]==v0.2.0-beta.2",
         "py-geth>=2.2.0,<3",
     ],
@@ -70,7 +73,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "eth-abi>=2.0.0b6,<3.0.0",
-        "eth-account>=0.4.0,<0.5.0",
+        "eth-account>=0.5.2,<0.6.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
         "eth-typing>=2.0.0,<3.0.0",
         "eth-utils>=1.8.4,<2.0.0",
