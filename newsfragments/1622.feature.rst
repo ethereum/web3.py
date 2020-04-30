@@ -1,3 +1,0 @@
-Upgrade eth-account to use v0.5.2+. eth-account 0.5.2 adds support for hd accounts
-
-Also had to pin eth-keys to get dependencies to resolve.

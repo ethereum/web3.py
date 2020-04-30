@@ -6,6 +6,24 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.9.0 (2020-04-30)
+-------------------
+
+Features
+~~~~~~~~
+
+- Upgrade eth-account to use v0.5.2+. eth-account 0.5.2 adds support for hd accounts
+
+  Also had to pin eth-keys to get dependencies to resolve. (`#1622 <https://github.com/ethereum/web3.py/issues/1622>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix local_filter_middleware new entries bug (`#1514 <https://github.com/ethereum/web3.py/issues/1514>`__)
+- ENS ``name`` and ENS ``address`` can return ``None``. Fixes return types. (`#1633 <https://github.com/ethereum/web3.py/issues/1633>`__)
+
+
 v5.8.0 (2020-04-23)
 -------------------
 
