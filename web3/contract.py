@@ -996,7 +996,9 @@ class ContractFunction:
             **self.kwargs
         )
 
-    def estimateGas(self, transaction: TxParams=None) -> int:
+    def estimateGas(
+        self, transaction: TxParams=None, block_identifier: BlockIdentifier=None
+    ) -> int:
         if transaction is None:
             estimate_gas_transaction: TxParams = {}
         else:
@@ -1031,6 +1033,7 @@ class ContractFunction:
             estimate_gas_transaction,
             self.contract_abi,
             self.abi,
+            block_identifier,
             *self.args,
             **self.kwargs
         )
@@ -1588,6 +1591,7 @@ def estimate_gas_for_function(
         transaction: TxParams=None,
         contract_abi: ABI=None,
         fn_abi: ABIFunction=None,
+        block_identifier: BlockIdentifier=None,
         *args: Any,
         **kwargs: Any) -> int:
     """Estimates gas cost a function call would take.
@@ -1606,8 +1610,7 @@ def estimate_gas_for_function(
         fn_kwargs=kwargs,
     )
 
-    gas_estimate = web3.eth.estimateGas(estimate_transaction)
-    return gas_estimate
+    return web3.eth.estimateGas(estimate_transaction, block_identifier)
 
 
 def build_transaction_for_function(
