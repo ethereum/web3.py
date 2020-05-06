@@ -15,13 +15,6 @@
 # input types forgiving, return strict. 
 # todo: test filter middleware by fuzz testing against the other implementation
 
-from web3 import Web3
-from web3.providers.eth_tester import (
-    EthereumTesterProvider,
-)
-from web3.middleware import construct_result_generator_middleware
-
-from web3._utils.rpc_abi import RPC
 from typing import (
     Dict,
     Iterable,
@@ -32,7 +25,6 @@ from typing import (
     TypedDict,
     Union,
 )
-
 from eth_utils import (
     big_endian_to_int,
     decode_hex,
@@ -45,48 +37,42 @@ from eth_utils import (
     to_hex,
     to_int,
 )
-from sqlalchemy import (
-    BigInteger,
-    Boolean,
-    Column,
-    ForeignKey,
-    Index,
-    Integer,
-    LargeBinary,
-    UniqueConstraint,
-    orm,
-)
-from sqlalchemy.orm.exc import NoResultFound
 from eth_typing import (
     Address,
     Hash32,
     HexAddress,
     HexStr,
 )
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import backref, relationship
-
-Base = declarative_base()
-
-ZERO_HASH32 = Hash32(32 * b"\x00")
-
-GENESIS_PARENT_HASH = ZERO_HASH32
-
 import pytest
 from sqlalchemy import create_engine
+from sqlalchemy.orm.exc import NoResultFound
 
-
-#####################
-#    session.py
-#####################
-from sqlalchemy.orm import scoped_session, sessionmaker
-
-Session = scoped_session(sessionmaker())
-
-
-
-
-# else:
+from web3 import Web3
+from web3.providers.eth_tester import (
+    EthereumTesterProvider,
+)
+from web3.middleware import construct_result_generator_middleware
+from web3._utils.rpc_abi import RPC
+from web3.tools.pytest_ethereum.session import Session
+from web3.tools.pytest_ethereum.models import (
+    Base,
+    Block,
+    BlockTransaction,
+    Header,
+    Log,
+    LogTopic,
+    Receipt,
+    Topic,
+    Transaction,
+)
+from web3.tools.pytest_ethereum.factories import (
+    AddressFactory,
+    BlockTransactionFactory,
+    Hash32Factory,
+    HeaderFactory,
+    LogFactory,
+    LogTopicFactory,
+)
 
 class RawFilterParams(TypedDict, total=False):
     fromBlock: Optional[HexStr]
@@ -122,279 +108,6 @@ def session(_Session, _schema):
         transaction.rollback()
         session.close()
 
-
-class BlockUncle(Base):
-    query = Session.query_property()
-
-    __tablename__ = "blockuncle"
-    __table_args__ = (
-        Index(
-            "ix_blockuncle_idx_block_header_hash",
-            "idx",
-            "block_header_hash",
-            unique=True,
-        ),
-        Index(
-            "ix_block_header_hash_uncle_hash",
-            "block_header_hash",
-            "uncle_hash",
-            unique=True,
-        ),
-    )
-
-    idx = Column(Integer, nullable=False)
-
-    block_header_hash = Column(
-        LargeBinary(32), ForeignKey("block.header_hash"), primary_key=True
-    )
-    uncle_hash = Column(LargeBinary(32), ForeignKey("header.hash"), primary_key=True)
-
-    block = relationship("Block")
-    uncle = relationship("Header")
-
-
-class Header(Base):
-    query = Session.query_property()
-
-    __tablename__ = "header"
-
-    hash = Column(LargeBinary(32), primary_key=True)
-
-    block = relationship("Block", uselist=False, back_populates="header")
-    uncle_blocks = relationship(
-        "Block", secondary="blockuncle", order_by=BlockUncle.idx
-    )
-
-    is_canonical = Column(Boolean, nullable=False)
-
-    _parent_hash = Column(
-        LargeBinary(32), ForeignKey("header.hash"), nullable=True, index=True
-    )
-    uncles_hash = Column(LargeBinary(32), nullable=False)
-    coinbase = Column(LargeBinary(20), nullable=False)
-    state_root = Column(LargeBinary(32), nullable=False)
-    transaction_root = Column(LargeBinary(32), nullable=False)
-    receipt_root = Column(LargeBinary(32), nullable=False)
-    _bloom = Column(LargeBinary(1024), nullable=False)
-    difficulty = Column(LargeBinary(32), nullable=False)
-    block_number = Column(BigInteger, index=True, nullable=False)
-    gas_limit = Column(BigInteger, nullable=False)
-    gas_used = Column(BigInteger, nullable=False)
-    timestamp = Column(Integer, nullable=False)
-    extra_data = Column(LargeBinary, nullable=False)
-    # mix_hash = Column(LargeBinary(32), nullable=False)
-    nonce = Column(LargeBinary(8), nullable=False)
-
-    children = relationship(
-        "Header", backref=backref("parent", remote_side=[hash])
-    )
-
-    @property
-    def parent_hash(self) -> Optional[Hash32]:
-        if self._parent_hash is None:
-            if self.block_number == 0:
-                return GENESIS_PARENT_HASH
-            else:
-                return None
-        else:
-            return Hash32(self._parent_hash)
-
-    @parent_hash.setter
-    def parent_hash(self, value: Optional[Hash32]) -> None:
-        if value == GENESIS_PARENT_HASH and self.block_number == 0:
-            self._parent_hash = None
-        else:
-            self._parent_hash = value
-
-
-class BlockTransaction(Base):
-    query = Session.query_property()
-
-    __tablename__ = "blocktransaction"
-    __table_args__ = (
-        Index(
-            "ix_blocktransaction_idx_block_header_hash",
-            "idx",
-            "block_header_hash",
-            unique=True,
-        ),
-        Index(
-            "ix_block_header_hash_transaction_hash",
-            "block_header_hash",
-            "transaction_hash",
-            unique=True,
-        ),
-    )
-    idx = Column(Integer, nullable=False)
-
-    block_header_hash = Column(
-        LargeBinary(32), ForeignKey("block.header_hash"), primary_key=True
-    )
-    transaction_hash = Column(
-        LargeBinary(32), ForeignKey("transaction.hash"), primary_key=True
-    )
-
-    block = relationship("Block")
-    transaction = relationship("Transaction")
-
-
-class Block(Base):
-    query = Session.query_property()
-
-    __tablename__ = "block"
-
-    header_hash = Column(LargeBinary(32), ForeignKey("header.hash"), primary_key=True)
-    header = relationship("Header", back_populates="block")
-
-    uncles = relationship("Header", secondary="blockuncle", order_by=BlockUncle.idx)
-    transactions = relationship(
-        "Transaction", secondary="blocktransaction", order_by=BlockTransaction.idx
-    )
-
-
-class Transaction(Base):
-    query = Session.query_property()
-
-    __tablename__ = "transaction"
-
-    hash = Column(LargeBinary(32), primary_key=True)
-
-    block_header_hash = Column(
-        LargeBinary(32), ForeignKey("block.header_hash"), nullable=True, index=True
-    )
-    block = relationship("Block")
-
-    blocks = relationship(
-        "Block", secondary="blocktransaction", order_by=BlockTransaction.idx
-    )
-    receipt = relationship("Receipt", uselist=False, back_populates="transaction")
-
-    nonce = Column(BigInteger, nullable=False)
-    gas_price = Column(BigInteger, nullable=False)
-    gas = Column(BigInteger, nullable=False)
-    to = Column(LargeBinary(20), nullable=True)
-    value = Column(LargeBinary(32), nullable=False)
-    data = Column(LargeBinary, nullable=False)
-    v = Column(LargeBinary(32), nullable=False)
-    r = Column(LargeBinary(32), nullable=False)
-    s = Column(LargeBinary(32), nullable=False)
-
-    sender = Column(LargeBinary(20), nullable=False)
-
-
-class Receipt(Base):
-    query = Session.query_property()
-
-    __tablename__ = "receipt"
-
-    transaction_hash = Column(
-        LargeBinary(32), ForeignKey("transaction.hash"), primary_key=True
-    )
-    transaction = relationship("Transaction", back_populates="receipt")
-
-    state_root = Column(LargeBinary(32), nullable=False)
-    gas_used = Column(BigInteger, nullable=False)
-    _bloom = Column(LargeBinary(1024), nullable=False)
-    logs = relationship("Log", back_populates="receipt", order_by="Log.idx")
-
-    @property
-    def bloom(self) -> int:
-        return big_endian_to_int(self._bloom)
-
-    @bloom.setter
-    def bloom(self, value: int) -> None:
-        self._bloom = int_to_big_endian(value)
-
-
-class LogTopic(Base):
-    query = Session.query_property()
-
-    __tablename__ = "logtopic"
-    __table_args__ = (
-        UniqueConstraint("idx", "log_id", name="ix_idx_log_id"),
-        Index("ix_idx_topic_topic_log_id", "idx", "topic_topic", "log_id"),
-    )
-    id = Column(Integer, primary_key=True)
-
-    idx = Column(Integer, nullable=False)
-
-    topic_topic = Column(
-        LargeBinary(32), ForeignKey("topic.topic"), index=True, nullable=False
-    )
-    log_id = Column(Integer, ForeignKey("log.id"), index=True, nullable=False)
-
-    topic = relationship("Topic")
-    log = relationship("Log")
-
-
-class Log(Base):
-    query = Session.query_property()
-
-    __tablename__ = "log"
-    __table_args__ = (
-        UniqueConstraint("idx", "receipt_hash", name="ix_idx_receipt_hash"),
-    )
-
-    id = Column(Integer, primary_key=True)
-    idx = Column(Integer, nullable=False)
-
-    receipt_hash = Column(
-        LargeBinary(32),
-        ForeignKey("receipt.transaction_hash"),
-        index=True,
-        nullable=False,
-    )
-    receipt = relationship("Receipt", back_populates="logs")
-
-    address = Column(LargeBinary(20), index=True, nullable=False)
-    topics = relationship("Topic", secondary="logtopic", order_by=LogTopic.idx)
-    data = Column(LargeBinary, nullable=False)
-
-    def __repr__(self) -> str:
-        return (
-            f"Log("
-            f"idx={self.idx!r}, "
-            f"receipt_hash={self.receipt_hash!r}, "
-            f"address={self.address!r}, "
-            f"data={self.data!r}, "
-            f"topics={self.topics!r}"
-            f")"
-        )
-
-    def __str__(self) -> str:
-        # TODO: use eth_utils.humanize_bytes once it is released
-        if len(self.data) > 4:
-            pretty_data = humanize_hash(Hash32(self.data))
-        else:
-            pretty_data = self.data.hex()
-
-        if len(self.topics) == 0:
-            pretty_topics = "(anonymous)"
-        else:
-            pretty_topics = "|".join(
-                (
-                    humanize_hash(Hash32(topic.topic))
-                    for topic in self.topics
-                )
-            )
-
-        return f"Log[#{self.idx} A={humanize_hash(self.address)} D={pretty_data}/T={pretty_topics}]" # noqa: E501
-
-
-class Topic(Base):
-    query = Session.query_property()
-
-    __tablename__ = "topic"
-
-    topic = Column(LargeBinary(32), primary_key=True)
-
-    logs = relationship("Log", secondary="logtopic", order_by=LogTopic.idx)
-
-    def __repr__(self) -> str:
-        return f"Topic(topic={self.topic!r})"
-
-    def __str__(self) -> str:
-        return f"Topic[{humanize_hash(self.topic)}]"
 
 # filters.py
 
@@ -580,149 +293,6 @@ def _rpc_request_to_filter_params(raw_params: RawFilterParams) -> FilterParams:
     return FilterParams(from_block, to_block, address, topics)
 
 
-#####################
-#   factories.py
-#####################
-import factory
-import secrets
-from eth_typing import (
-    Address,
-    Hash32,
-    HexAddress,
-    HexStr,
-)
-
-def AddressFactory() -> Address:
-    return Address(secrets.token_bytes(20))
-
-
-def Hash32Factory() -> Hash32:
-    return Hash32(secrets.token_bytes(32))
-
-
-class HeaderFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
-    class Meta:
-        model = Header
-        sqlalchemy_session = Session
-        rename = {"bloom": "_bloom"}
-
-    hash = factory.LazyFunction(Hash32Factory)
-
-    is_canonical = True
-
-    _parent_hash = GENESIS_PARENT_HASH
-
-    uncles_hash = factory.LazyFunction(Hash32Factory)
-    coinbase = factory.LazyFunction(AddressFactory)
-
-    state_root = factory.LazyFunction(Hash32Factory)
-    transaction_root = factory.LazyFunction(Hash32Factory)
-    receipt_root = factory.LazyFunction(Hash32Factory)
-
-    bloom = b""
-
-    difficulty = b"\x01"
-    block_number = 0
-    gas_limit = 3141592
-    gas_used = 3141592
-    timestamp = 0
-    extra_data = b""
-    # mix_hash = factory.LazyFunction(Hash32Factory)
-    nonce = factory.LazyFunction(lambda: secrets.token_bytes(8))
-
-
-class BlockFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
-    class Meta:
-        model = Block
-        sqlalchemy_session = Session
-
-    header = factory.SubFactory(HeaderFactory)
-
-
-class BlockUncleFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
-    class Meta:
-        model = BlockUncle
-        sqlalchemy_session = Session
-
-    block = factory.SubFactory(BlockFactory)
-    uncle = factory.SubFactory(HeaderFactory)
-
-
-class TransactionFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
-    class Meta:
-        model = Transaction
-        sqlalchemy_session = Session
-
-    # TODO: Compute via RLP
-    hash = factory.LazyFunction(Hash32Factory)
-
-    block = factory.SubFactory(BlockFactory)
-
-    nonce = 0
-    gas_price = 1
-    gas = 21000
-    to = factory.LazyFunction(AddressFactory)
-    value = b"\x00"
-    data = b""
-    v = b"\x00" * 32
-    r = b"\x00" * 32
-    s = b"\x00" * 32
-
-    sender = factory.LazyFunction(AddressFactory)
-
-
-class BlockTransactionFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
-    class Meta:
-        model = BlockTransaction
-        sqlalchemy_session = Session
-
-    block = factory.SubFactory(BlockFactory)
-    transaction = factory.SubFactory(TransactionFactory)
-
-
-class ReceiptFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
-    class Meta:
-        model = Receipt
-        sqlalchemy_session = Session
-        rename = {"bloom": "_bloom"}
-
-    transaction = factory.SubFactory(TransactionFactory)
-
-    state_root = factory.LazyFunction(Hash32Factory)
-    bloom = b""
-    gas_used = 21000
-
-
-class LogFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
-    class Meta:
-        model = Log
-        sqlalchemy_session = Session
-
-    idx = 0
-    receipt = factory.SubFactory(ReceiptFactory)
-
-    address = factory.LazyFunction(AddressFactory)
-    data = b""
-
-
-class TopicFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
-    class Meta:
-        model = Topic
-        sqlalchemy_session = Session
-
-    topic = factory.LazyFunction(Hash32Factory)
-
-
-class LogTopicFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
-    class Meta:
-        model = LogTopic
-        sqlalchemy_session = Session
-
-    idx = 0
-
-    topic = factory.SubFactory(TopicFactory)
-    log = factory.SubFactory(LogFactory)
-
 def _log_to_rpc_response(log: Log) -> RPCLog:
     transaction = log.receipt.transaction
     blocktransaction = BlockTransaction.query.filter(
@@ -829,6 +399,8 @@ def w3(session):
     # todo: make a noop web3 provider for this type of testing
     w3 = Web3(EthereumTesterProvider())
     result_generators = { RPC.eth_getLogs: functools.partial(serve_filter_from_db, session=session) }
+    # do more methods need to be added here?
+    #   getFilterLogs? getFilterChanges?
     middleware = construct_result_generator_middleware(result_generators)
     w3.middleware_onion.add(middleware)
     return w3
@@ -867,7 +439,21 @@ def test_get_logs_finds_exact_topic_match(session, w3):
     topic4 = Hash32Factory()
     topic5 = Hash32Factory()
     construct_log(session, topics=(topic1, topic2, topic3, topic4, topic5))
-    # TODO: assert exception?
+    # TODO: assert exception for more than 4 topics?
+
+# test all filter methods
+#   - createFilter:
+#       event_filter = mycontract.events.myEvent.createFilter(fromBlock='latest', argument_filters={'arg1':10})
+#   - w3.eth.filter({...filter criteria...}):
+#       #get_all_entries()
+#       #get_new_entries()
+#       #format_entry()
+#       #is_valid_entry()
+
+# test that local_filter_middleware works as expected?
 
 # Q's:
-#   Where do local_filter_middleware tests get ran?
+#   - Where do local_filter_middleware tests get run?
+#   - Should this log architecture be a part of eth-tester in some way?
+#   - This only applies to logs and not, for example, new blocks or pending txs?
+#   - Should this result generator middleware get passed into all integration tests to support logs?
