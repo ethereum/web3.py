@@ -7,10 +7,7 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        # TODO - remove this eth-keys pinning once eth-tester >0.4.0-beta.1 is released
-        # and py-evm v0.3.0-alpha.15 is released
-        "eth-keys>=0.2.1,<0.3",
-        "eth-tester[py-evm]==v0.2.0-beta.2",
+        "eth-tester[py-evm]==v0.4.0-beta.2",
         "py-geth>=2.2.0,<3",
     ],
     'linter': [

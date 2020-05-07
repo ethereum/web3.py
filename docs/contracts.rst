@@ -694,8 +694,8 @@ Taking the following contract code as an example:
 
     >>> array_contract.functions.getBytes2Value().call()
     [b'b\x00']
-    >>> array_contract.functions.setBytes2Value([b'a']).transact()
-    HexBytes('0x39bc9a0bf5b8ec8e8115ccb20bf02f5570351a20a8fd774da91353f38535bec1')
+    >>> tx_hash = array_contract.functions.setBytes2Value([b'a']).transact({'gas': 420000, 'gasPrice': 21000})
+    >>> assert tx_hash == b'\x89\xf9\xb3\xa0\x06Q\xe4\x06\xc5h\xe8\\\x1d#6\xc6kN\xc4\x0b\xa8,^rro\xbd\x07"0\xa4\x1c', tx_hash
     >>> array_contract.functions.getBytes2Value().call()
     [b'a\x00']
     >>> w3.enable_strict_bytes_type_checking()
@@ -1060,8 +1060,8 @@ Event Log Object
     alice, bob = w3.eth.accounts[0], w3.eth.accounts[1]
     assert alice == '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf', alice
     assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
-    tx_hash = my_token_contract.constructor(1000000).transact({'from': alice})
-    assert tx_hash == b'h9\xeb\xdb4\x07\x03y\x92RP`X\xf6\xf7\x9f\xfaT\xed&e\xee*\xc2\rx\xb3\xab\x8c4\xc9\x1f', tx_hash
+    tx_hash = my_token_contract.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': 320000})
+    assert tx_hash == b'a\x1a\xa2\xd5\xc3\xe5\x1f\x08\xd0f\\E)\xc5R\x0e\xd3% \xd8\xa4\x8b\xa2\xcf*\xff?/\xce?&\xe4', tx_hash
     txn_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
     assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']
@@ -1069,7 +1069,7 @@ Event Log Object
     total_supply = contract.functions.totalSupply().call()
     decimals = 10 ** 18
     assert total_supply == 1000000 * decimals, total_supply
-    tx_hash = contract.functions.transfer(alice, 10).transact()
+    tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 200000})
     tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
 
 .. doctest:: createFilter
@@ -1082,13 +1082,13 @@ Event Log Object
       'event': 'Transfer',
       'logIndex': 0,
       'transactionIndex': 0,
-      'transactionHash': HexBytes('0xc7b96b166506c5a6edf6bccd22195e9f1aac025421b4a3eac159b878eef5e6e7'),
+      'transactionHash': HexBytes('0x0005643c2425552308b4a28814a4dedafb5d340a811b3d2b1c019b290ffd7410'),
       'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
       'blockHash': HexBytes('...'),
       'blockNumber': 2})]
      >>> transfer_filter.get_new_entries()
      []
-     >>> tx_hash = contract.functions.transfer(alice, 10).transact()
+     >>> tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 200000})
      >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
      >>> transfer_filter.get_new_entries()
      [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
@@ -1097,7 +1097,7 @@ Event Log Object
       'event': 'Transfer',
       'logIndex': 0,
       'transactionIndex': 0,
-      'transactionHash': HexBytes('0xb1cf8541708184daf8c1ea59ce494bbafe0bb45208c09a81bff184907e88e9b9'),
+      'transactionHash': HexBytes('0xea111a49b82b0a0729d49f9ad924d8f87405d01e3fa87463cf2903848aacf7d9'),
       'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
       'blockHash': HexBytes('...'),
       'blockNumber': 3})]
@@ -1108,7 +1108,7 @@ Event Log Object
       'event': 'Transfer',
       'logIndex': 0,
       'transactionIndex': 0,
-      'transactionHash': HexBytes('0xc7b96b166506c5a6edf6bccd22195e9f1aac025421b4a3eac159b878eef5e6e7'),
+      'transactionHash': HexBytes('0x0005643c2425552308b4a28814a4dedafb5d340a811b3d2b1c019b290ffd7410'),
       'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
       'blockHash': HexBytes('...'),
       'blockNumber': 2}),
@@ -1118,7 +1118,7 @@ Event Log Object
       'event': 'Transfer',
       'logIndex': 0,
       'transactionIndex': 0,
-      'transactionHash': HexBytes('0xb1cf8541708184daf8c1ea59ce494bbafe0bb45208c09a81bff184907e88e9b9'),
+      'transactionHash': HexBytes('0xea111a49b82b0a0729d49f9ad924d8f87405d01e3fa87463cf2903848aacf7d9'),
       'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
       'blockHash': HexBytes('...'),
       'blockNumber': 3})]
