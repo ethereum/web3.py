@@ -1,23 +1,7 @@
-# much of this should live in web3/tools/ eventually
-
-# sqlite db lives here?
-# ORM models prob can copy pasta directly
-# in memory instance before each test: https://github.com/ethereum/cthaeh/blob/master/tests/core/conftest.py
-# (cleans up after each)
-#   normalization needed on both sides; maybe simple middleware to do this, redirecting to sqlite
-#   versions of this exist: https://github.com/ethereum/cthaeh/blob/master/cthaeh/rpc.py
-#       #_log_to_rpc & #_rpc_request_to_filter_params
-
-# import middleware/fixture.py to generate fixtures
-# pull in factories? https://github.com/ethereum/cthaeh/blob/master/cthaeh/tools/factories.py
-#  useful for generating test data ^
-
-# input types forgiving, return strict. 
-# todo: test filter middleware by fuzz testing against the other implementation
-
 from typing import (
     Dict,
     Iterable,
+    Iterator,
     List,
     Optional,
     Sequence,
@@ -36,15 +20,17 @@ from eth_utils import (
     to_checksum_address,
     to_hex,
     to_int,
+    to_tuple,
 )
 from eth_typing import (
     Address,
+    BlockNumber,
     Hash32,
     HexAddress,
     HexStr,
 )
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, orm
 from sqlalchemy.orm.exc import NoResultFound
 
 from web3 import Web3
@@ -72,6 +58,10 @@ from web3.tools.pytest_ethereum.factories import (
     HeaderFactory,
     LogFactory,
     LogTopicFactory,
+)
+from web3.tools.pytest_ethereum.filters import (
+    FilterParams,
+    filter_logs,
 )
 
 class RawFilterParams(TypedDict, total=False):
@@ -109,111 +99,7 @@ def session(_Session, _schema):
         session.close()
 
 
-# filters.py
-
-import logging
-from typing import Iterator, NamedTuple, Optional, Tuple, Union
-
-from eth_typing import Address, BlockNumber, Hash32
-from eth_utils import to_tuple
-from sqlalchemy import and_, or_, orm
-from sqlalchemy.orm import aliased
-from sqlalchemy.sql import ClauseElement
-
-BlockIdentifier = BlockNumber
-# TODO: update to python3.8
-# BlockIdentifier = Union[
-#     Literal['latest'],
-#     Literal['pending'],
-#     Literal['earliest'],
-#     BlockNumber,
-# ]
-TopicType = Union[None, Hash32, Tuple[Hash32, ...]]
-
-logger = logging.getLogger("cthaeh.filter")
-
-
-class FilterParams(NamedTuple):
-    from_block: Optional[BlockIdentifier] = None
-    to_block: Optional[BlockIdentifier] = None
-    address: Union[None, Address, Tuple[Address, ...]] = None
-    topics: Tuple[TopicType, ...] = ()
-
-
-logtopic_0 = aliased(LogTopic)
-logtopic_1 = aliased(LogTopic)
-logtopic_2 = aliased(LogTopic)
-logtopic_3 = aliased(LogTopic)
-
-LOG_TOPIC_ALIASES = (logtopic_0, logtopic_1, logtopic_2, logtopic_3)
-
-
-@to_tuple
-def _construct_filters(params: FilterParams) -> Iterator[ClauseElement]:
-    if isinstance(params.address, tuple):
-        # TODO: or
-        yield or_(*tuple(Log.address == address for address in params.address))
-    elif isinstance(params.address, bytes):
-        yield (Log.address == params.address)
-    elif params.address is None:
-        pass
-    else:
-        raise TypeError(f"Invalid address parameter: {params.address!r}")
-
-    if isinstance(params.from_block, int):
-        yield (Header.block_number >= params.from_block)
-    elif params.from_block is None:
-        pass
-    else:
-        raise TypeError(f"Invalid from_block parameter: {params.from_block!r}")
-
-    if isinstance(params.to_block, int):
-        yield (Header.block_number <= params.to_block)
-    elif params.to_block is None:
-        pass
-    else:
-        raise TypeError(f"Invalid to_block parameter: {params.to_block!r}")
-
-    for idx, (topic, alias) in enumerate(zip(params.topics, LOG_TOPIC_ALIASES)):
-        if isinstance(topic, bytes):
-            yield and_(alias.idx == idx, alias.topic_topic == topic)
-        elif isinstance(topic, tuple):
-            yield or_(
-                *(
-                    and_(alias.idx == idx, alias.topic_topic == sub_topic)
-                    for sub_topic in topic
-                )
-            )
-        elif topic is None:
-            pass
-        else:
-            raise TypeError(f"Unsupported topic at index {idx}: {topic!r}")
-
-
-def filter_logs(session: orm.Session, params: FilterParams) -> Tuple[Log, ...]:
-    orm_filters = _construct_filters(params)
-
-    query = (
-        session.query(Log)
-        .join(Receipt, Log.receipt_hash == Receipt.transaction_hash)
-        .join(Transaction, Receipt.transaction_hash == Transaction.hash)
-        .join(Block, Transaction.block_header_hash == Block.header_hash)
-        .join(Header, Block.header_hash == Header.hash)
-        .outerjoin(logtopic_0, Log.id == logtopic_0.log_id)
-        .outerjoin(logtopic_1, Log.id == logtopic_1.log_id)
-        .outerjoin(logtopic_2, Log.id == logtopic_2.log_id)
-        .outerjoin(logtopic_3, Log.id == logtopic_3.log_id)
-        .filter(*orm_filters)
-    )
-
-    logger.debug("PARAMS: %s  QUERY: %s", params, query)
-
-    return tuple(query.all())
-
-
-#####################
-#   rpc.py
-#####################
+# rpc.py
 
 class RPCLog(TypedDict):
     logIndex: HexStr
@@ -310,8 +196,6 @@ def _log_to_rpc_response(log: Log) -> RPCLog:
         data=encode_hex(log.data),
         topics=[encode_hex(topic.topic) for topic in log.topics],
     )
-
-
 
 @to_tuple
 def get_or_create_topics(
@@ -441,7 +325,7 @@ def test_get_logs_finds_exact_topic_match(session, w3):
     construct_log(session, topics=(topic1, topic2, topic3, topic4, topic5))
     # TODO: assert exception for more than 4 topics?
 
-# test all filter methods
+# test all filter methods?
 #   - createFilter:
 #       event_filter = mycontract.events.myEvent.createFilter(fromBlock='latest', argument_filters={'arg1':10})
 #   - w3.eth.filter({...filter criteria...}):
@@ -457,3 +341,5 @@ def test_get_logs_finds_exact_topic_match(session, w3):
 #   - Should this log architecture be a part of eth-tester in some way?
 #   - This only applies to logs and not, for example, new blocks or pending txs?
 #   - Should this result generator middleware get passed into all integration tests to support logs?
+# todos:
+#   - test filter middleware by fuzz testing against the other implementation
