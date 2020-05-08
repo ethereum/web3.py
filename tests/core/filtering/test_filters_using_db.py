@@ -1,3 +1,4 @@
+from eth_utils import to_canonical_address
 import functools
 import pytest
 from sqlalchemy import create_engine
@@ -9,8 +10,12 @@ from web3.providers.eth_tester import EthereumTesterProvider
 from web3.tools.pytest_ethereum.factories import Hash32Factory
 from web3.tools.pytest_ethereum.models import Base
 from web3.tools.pytest_ethereum.normalizers import (
+    add_new_filter,
     construct_log,
+    get_all_logs_for_filter,
+    get_new_logs_for_filter,
     serve_filter_from_db,
+    uninstall_filter,
 )
 from web3.tools.pytest_ethereum.session import Session
 
@@ -45,9 +50,14 @@ def session(_Session, _schema):
 @pytest.fixture
 def w3(session):
     w3 = Web3(EthereumTesterProvider())
-    result_generators = { RPC.eth_getLogs: functools.partial(serve_filter_from_db, session=session) }
-    # do more methods need to be added here?
-    #   getFilterLogs? getFilterChanges?
+    filter_states = {}
+    result_generators = {
+        RPC.eth_getLogs: functools.partial(serve_filter_from_db, session=session),
+        RPC.eth_newFilter: functools.partial(add_new_filter, session=session, filter_states=filter_states),
+        RPC.eth_getFilterLogs: functools.partial(get_all_logs_for_filter, session=session, filter_states=filter_states),
+        RPC.eth_getFilterChanges: functools.partial(get_new_logs_for_filter, session=session, filter_states=filter_states),
+        RPC.eth_uninstallFilter: functools.partial(uninstall_filter, session=session, filter_states=filter_states),
+    }
     middleware = construct_result_generator_middleware(result_generators)
     w3.middleware_onion.add(middleware)
     return w3
@@ -77,31 +87,19 @@ def test_get_logs_finds_exact_topic_match(session, w3):
     logs = w3.eth.getLogs({ 'topics': (topic1,topic2) })
     assert len(logs) == 1
 
-def test_get_logs_finds_exact_topic_match(session, w3):
-    topic1 = Hash32Factory()
-    topic2 = Hash32Factory()
-    topic3 = Hash32Factory()
-    topic4 = Hash32Factory()
-    topic5 = Hash32Factory()
-    construct_log(session, topics=(topic1, topic2, topic3, topic4, topic5))
-    # TODO: assert exception for more than 4 topics?
+def test_create_filter_handles_none_args(session, w3, emitter):
+    event_filter = w3.eth.filter({ "address": None, "fromBlock": None })
+    all_logs = event_filter.get_all_entries()
+    assert len(all_logs) == 0
+    construct_log(session, address=to_canonical_address(emitter.address))
+    new_logs = event_filter.get_new_entries()
+    assert len(new_logs) == 1
 
-# test all filter methods?
-#   - createFilter:
-#       event_filter = mycontract.events.myEvent.createFilter(fromBlock='latest', argument_filters={'arg1':10})
-#   - w3.eth.filter({...filter criteria...}):
-#       #get_all_entries()
-#       #get_new_entries()
-#       #format_entry()
-#       #is_valid_entry()
-
-# test that local_filter_middleware works as expected?
-
-# Q's:
-#   - Where do local_filter_middleware tests get run?
-#   - Should this log architecture be a part of eth-tester in some way?
-#   - This only applies to logs and not, for example, new blocks or pending txs?
-#   - Should this result generator middleware get passed into all integration tests to support logs?
-# todos:
-#   - test filter middleware by fuzz testing against the other implementation
-#   - noop web3 provider (when EthereumTesterProvider is overkill)
+@pytest.mark.skip("Known issue: getLogs should accept None values")
+def test_get_logs_handles_none_args(session, w3, emitter):
+    event_filter = w3.eth.getLogs({ "address": None, "fromBlock": None })
+    all_logs = event_filter.get_all_entries()
+    assert len(all_logs) == 0
+    construct_log(session, address=to_canonical_address(emitter.address))
+    new_logs = event_filter.get_new_entries()
+    assert len(new_logs) == 1

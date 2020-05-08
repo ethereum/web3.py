@@ -25,8 +25,6 @@ BlockIdentifier = BlockNumber
 # ]
 TopicType = Union[None, Hash32, Tuple[Hash32, ...]]
 
-logger = logging.getLogger("cthaeh.filter")
-
 
 class FilterParams(NamedTuple):
     from_block: Optional[BlockIdentifier] = None

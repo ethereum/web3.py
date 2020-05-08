@@ -3,6 +3,7 @@ from eth_typing import Hash32
 from sqlalchemy import (
     BigInteger,
     Boolean,
+    CheckConstraint,
     Column,
     ForeignKey,
     Index,
@@ -208,6 +209,7 @@ class LogTopic(Base):
     __table_args__ = (
         UniqueConstraint("idx", "log_id", name="ix_idx_log_id"),
         Index("ix_idx_topic_topic_log_id", "idx", "topic_topic", "log_id"),
+        CheckConstraint("idx <= 3", name="_only_4_topics"),
     )
     id = Column(Integer, primary_key=True)
 

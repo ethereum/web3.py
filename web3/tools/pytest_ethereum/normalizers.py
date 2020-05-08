@@ -173,58 +173,95 @@ def construct_log(
     data: bytes = b"",
     is_canonical: bool = True,
 ) -> Log:
-    if block_number is not None:
-        try:
-            header = (
-                session.query(Header)  # type: ignore
-                .filter(Header.is_canonical.is_(is_canonical))  # type: ignore
-                .filter(Header.block_number == block_number)
-                .one()
+    with session.begin_nested():
+        if len(topics) > 4:
+            raise ValueError("No more than 4 topics permitted")
+        if block_number is not None:
+            try:
+                header = (
+                    session.query(Header)  # type: ignore
+                    .filter(Header.is_canonical.is_(is_canonical))  # type: ignore
+                    .filter(Header.block_number == block_number)
+                    .one()
+                )
+            except NoResultFound:
+                header = HeaderFactory(is_canonical=is_canonical, block_number=block_number)
+        else:
+            header = HeaderFactory(is_canonical=is_canonical)
+
+        if address is None:
+            address = AddressFactory()
+
+        session.add(header)
+
+        topic_objs = get_or_create_topics(session, topics)
+
+        session.add_all(topic_objs)  # type: ignore
+
+        if is_canonical:
+            log = LogFactory(
+                receipt__transaction__block__header=header, address=address, data=data
             )
-        except NoResultFound:
-            header = HeaderFactory(is_canonical=is_canonical, block_number=block_number)
-    else:
-        header = HeaderFactory(is_canonical=is_canonical)
+            block_transaction = BlockTransactionFactory(
+                idx=0,
+                block=log.receipt.transaction.block,
+                transaction=log.receipt.transaction,
+            )
+            session.add(block_transaction)
+        else:
+            log = LogFactory(receipt__transaction__block=None)
+            block = BlockFactory(header=header)
+            block_transaction = BlockTransactionFactory(
+                idx=0, block=block, transaction=log.receipt.transaction
+            )
+            session.add_all((block, block_transaction))  # type: ignore
 
-    if address is None:
-        address = AddressFactory()
-
-    session.add(header)
-
-    topic_objs = get_or_create_topics(session, topics)
-
-    session.add_all(topic_objs)  # type: ignore
-
-    if is_canonical:
-        log = LogFactory(
-            receipt__transaction__block__header=header, address=address, data=data
+        log_topics = tuple(
+            LogTopicFactory(idx=idx, log=log, topic=topic)
+            for idx, topic in enumerate(topic_objs)
         )
-        block_transaction = BlockTransactionFactory(
-            idx=0,
-            block=log.receipt.transaction.block,
-            transaction=log.receipt.transaction,
-        )
-        session.add(block_transaction)
-    else:
-        log = LogFactory(receipt__transaction__block=None)
-        block = BlockFactory(header=header)
-        block_transaction = BlockTransactionFactory(
-            idx=0, block=block, transaction=log.receipt.transaction
-        )
-        session.add_all((block, block_transaction))  # type: ignore
 
-    log_topics = tuple(
-        LogTopicFactory(idx=idx, log=log, topic=topic)
-        for idx, topic in enumerate(topic_objs)
-    )
+        session.add(log)
+        session.add_all(log_topics)  # type: ignore
 
-    session.add(log)
-    session.add_all(log_topics)  # type: ignore
+        return log
 
-    return log
-
+class FilterState:
+    def __init__(self, filter_params):
+        self.filter_params = filter_params
+        self.latest_height = None
 
 def serve_filter_from_db(method, params, session):
     filter_params = _rpc_request_to_filter_params(params[0])
     logs = filter_logs(session, filter_params)
     return [_log_to_rpc_response(log) for log in logs]
+
+
+def add_new_filter(method, params, session, filter_states):
+    if not filter_states:
+        filter_id = 0
+    else:
+        filter_id = max(filter_states.keys()) + 1
+    filter_params = _rpc_request_to_filter_params(params[0])
+    filter_states[filter_id] = FilterState(filter_params)
+    return filter_id
+
+def get_new_logs_for_filter(method, params, session, filter_states):
+    filter_id = params[0]
+    filter_state = filter_states[filter_id]
+    latest_height = filter_state.latest_height
+    if latest_height is None:
+        logs = filter_logs(session, filter_state.filter_params)
+    else:
+        filter_params = FilterParams(latest_height + 1, *filter_state.filter_params[1:])
+        logs = filter_logs(session, filter_params)
+    return [_log_to_rpc_response(log) for log in logs]
+
+def get_all_logs_for_filter(method, params, session, filter_states):
+    filter_id = params[0]
+    filter_state = filter_states[filter_id]
+    logs = filter_logs(session, filter_state.filter_params)
+    return [_log_to_rpc_response(log) for log in logs]
+
+def uninstall_filter(method, params, session, filter_states):
+    raise NotImplementedError
