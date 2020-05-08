@@ -208,8 +208,8 @@ def generate_parity_fixture(destination_dir):
                 genesis_file_path,
                 geth_ipc_path,
                 geth_port,
-                str(CHAIN_CONFIG['params']['networkID']))
-        )
+                str(CHAIN_CONFIG['params']['networkID'])
+        ))
         # set up fixtures
         common.wait_for_socket(geth_ipc_path)
         web3_geth = Web3(Web3.IPCProvider(geth_ipc_path))

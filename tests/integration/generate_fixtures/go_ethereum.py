@@ -39,6 +39,10 @@ from web3._utils.module_testing.math_contract import (
     MATH_ABI,
     MATH_BYTECODE,
 )
+from web3._utils.module_testing.revert_contract import (
+    _REVERT_CONTRACT_ABI,
+    REVERT_CONTRACT_BYTECODE,
+)
 
 COINBASE = '0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'
 COINBASE_PK = '0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d'
@@ -370,7 +374,7 @@ def setup_chain_state(web3):
         abi=_REVERT_CONTRACT_ABI,
         bytecode=REVERT_CONTRACT_BYTECODE,
     )
-    revert_deploy_receipt = deploy_contract(web3, 'revert', revert_contract_factory)
+    revert_deploy_receipt = common.deploy_contract(web3, 'revert', revert_contract_factory)
     revert_contract = revert_contract_factory(revert_deploy_receipt['contractAddress'])
 
     txn_hash_normal_function = revert_contract.functions.normalFunction().transact(
@@ -381,7 +385,7 @@ def setup_chain_state(web3):
         {'gas': 320000, 'from': web3.eth.coinbase}
     )
     print('TXN_HASH_REVERT_WITH_MSG:', txn_hash_revert_with_msg)
-    txn_receipt_revert_with_msg = mine_transaction_hash(web3, txn_hash_revert_with_msg)
+    txn_receipt_revert_with_msg = common.mine_transaction_hash(web3, txn_hash_revert_with_msg)
     block_hash_revert_with_msg = web3.eth.getBlock(txn_receipt_revert_with_msg['blockHash'])
     print('BLOCK_HASH_REVERT_WITH_MSG:', block_hash_revert_with_msg['hash'])
 
@@ -389,7 +393,7 @@ def setup_chain_state(web3):
         {'gas': 320000, 'from': web3.eth.coinbase}
     )
     print('TXN_HASH_REVERT_WITH_NO_MSG:', txn_hash_revert_with_no_msg)
-    txn_receipt_revert_with_no_msg = mine_transaction_hash(web3, txn_hash_revert_with_no_msg)
+    txn_receipt_revert_with_no_msg = common.mine_transaction_hash(web3, txn_hash_revert_with_no_msg)
     block_hash_revert_no_msg = web3.eth.getBlock(txn_receipt_revert_with_no_msg['blockHash'])
     print('BLOCK_HASH_REVERT_NO_MSG:', block_hash_revert_no_msg['hash'])
 
@@ -430,6 +434,9 @@ def setup_chain_state(web3):
         'empty_block_hash': empty_block['hash'],
         'mined_txn_hash': mined_txn_hash,
         'block_with_txn_hash': block_with_txn['hash'],
+        'revert_address': revert_deploy_receipt['contractAddress'],
+        'block_hash_revert_with_msg': block_hash_revert_with_msg['hash'],
+        'block_hash_revert_no_msg': block_hash_revert_no_msg['hash'],
     }
     return geth_fixture
 
