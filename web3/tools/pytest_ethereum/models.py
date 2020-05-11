@@ -1,5 +1,15 @@
-from typing import Optional
-from eth_typing import Hash32
+from typing import (
+    Optional,
+)
+
+from eth_typing import (
+    Hash32,
+)
+from eth_utils import (
+    big_endian_to_int,
+    humanize_hash,
+    int_to_big_endian,
+)
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -10,14 +20,24 @@ from sqlalchemy import (
     Integer,
     LargeBinary,
     UniqueConstraint,
-    orm,
 )
-from sqlalchemy.orm import backref, relationship
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import (
+    declarative_base,
+)
+from sqlalchemy.orm import (
+    backref,
+    relationship,
+)
 
-from web3.tools.pytest_ethereum.session import Session
+from web3.tools.pytest_ethereum.constants import (
+    GENESIS_PARENT_HASH,
+)
+from web3.tools.pytest_ethereum.session import (
+    Session,
+)
 
 Base = declarative_base()
+
 
 class BlockUncle(Base):
     query = Session.query_property()
@@ -81,9 +101,7 @@ class Header(Base):
     # mix_hash = Column(LargeBinary(32), nullable=False)
     nonce = Column(LargeBinary(8), nullable=False)
 
-    children = relationship(
-        "Header", backref=backref("parent", remote_side=[hash])
-    )
+    children = relationship("Header", backref=backref("parent", remote_side=[hash]))
 
     @property
     def parent_hash(self) -> Optional[Hash32]:
@@ -265,17 +283,14 @@ class Log(Base):
         else:
             pretty_data = self.data.hex()
 
-        if len(self.topics) == 0:
+        if len(self.topics) == 0:  # type: ignore
             pretty_topics = "(anonymous)"
         else:
             pretty_topics = "|".join(
-                (
-                    humanize_hash(Hash32(topic.topic))
-                    for topic in self.topics
-                )
+                (humanize_hash(Hash32(topic.topic)) for topic in self.topics)  # type: ignore
             )
 
-        return f"Log[#{self.idx} A={humanize_hash(self.address)} D={pretty_data}/T={pretty_topics}]" # noqa: E501
+        return f"Log[#{self.idx} A={humanize_hash(self.address)} D={pretty_data}/T={pretty_topics}]"  # type: ignore  # noqa: E501
 
 
 class Topic(Base):
@@ -291,5 +306,4 @@ class Topic(Base):
         return f"Topic(topic={self.topic!r})"
 
     def __str__(self) -> str:
-        return f"Topic[{humanize_hash(self.topic)}]"
-
+        return f"Topic[{humanize_hash(self.topic)}]"  # type: ignore

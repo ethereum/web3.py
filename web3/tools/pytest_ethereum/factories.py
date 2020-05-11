@@ -1,10 +1,13 @@
-import factory
 import secrets
+
 from eth_typing import (
     Address,
     Hash32,
-    HexAddress,
-    HexStr,
+)
+import factory
+
+from web3.tools.pytest_ethereum.constants import (
+    GENESIS_PARENT_HASH,
 )
 from web3.tools.pytest_ethereum.models import (
     Block,
@@ -17,11 +20,10 @@ from web3.tools.pytest_ethereum.models import (
     Topic,
     Transaction,
 )
-from web3.tools.pytest_ethereum.session import Session
+from web3.tools.pytest_ethereum.session import (
+    Session,
+)
 
-ZERO_HASH32 = Hash32(32 * b"\x00")
-
-GENESIS_PARENT_HASH = ZERO_HASH32
 
 def AddressFactory() -> Address:
     return Address(secrets.token_bytes(20))
@@ -31,7 +33,7 @@ def Hash32Factory() -> Hash32:
     return Hash32(secrets.token_bytes(32))
 
 
-class HeaderFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
+class HeaderFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Header
         sqlalchemy_session = Session
@@ -62,7 +64,7 @@ class HeaderFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
     nonce = factory.LazyFunction(lambda: secrets.token_bytes(8))
 
 
-class BlockFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
+class BlockFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Block
         sqlalchemy_session = Session
@@ -70,7 +72,7 @@ class BlockFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
     header = factory.SubFactory(HeaderFactory)
 
 
-class BlockUncleFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
+class BlockUncleFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = BlockUncle
         sqlalchemy_session = Session
@@ -79,7 +81,7 @@ class BlockUncleFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
     uncle = factory.SubFactory(HeaderFactory)
 
 
-class TransactionFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
+class TransactionFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Transaction
         sqlalchemy_session = Session
@@ -102,7 +104,7 @@ class TransactionFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignor
     sender = factory.LazyFunction(AddressFactory)
 
 
-class BlockTransactionFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
+class BlockTransactionFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = BlockTransaction
         sqlalchemy_session = Session
@@ -111,7 +113,7 @@ class BlockTransactionFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: 
     transaction = factory.SubFactory(TransactionFactory)
 
 
-class ReceiptFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
+class ReceiptFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Receipt
         sqlalchemy_session = Session
@@ -124,7 +126,7 @@ class ReceiptFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
     gas_used = 21000
 
 
-class LogFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
+class LogFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Log
         sqlalchemy_session = Session
@@ -136,7 +138,7 @@ class LogFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
     data = b""
 
 
-class TopicFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
+class TopicFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Topic
         sqlalchemy_session = Session
@@ -144,7 +146,7 @@ class TopicFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
     topic = factory.LazyFunction(Hash32Factory)
 
 
-class LogTopicFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore
+class LogTopicFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = LogTopic
         sqlalchemy_session = Session

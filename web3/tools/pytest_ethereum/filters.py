@@ -1,10 +1,30 @@
-import logging
-from typing import Iterator, NamedTuple, Optional, Tuple, Union
-from eth_typing import Address, BlockNumber, Hash32
-from eth_utils import to_tuple
-from sqlalchemy import and_, or_, orm
-from sqlalchemy.orm import aliased
-from sqlalchemy.sql import ClauseElement
+from typing import (
+    Iterator,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Union,
+)
+
+from eth_typing import (
+    Address,
+    BlockNumber,
+    Hash32,
+)
+from eth_utils import (
+    to_tuple,
+)
+from sqlalchemy import (
+    and_,
+    or_,
+    orm,
+)
+from sqlalchemy.orm import (
+    aliased,
+)
+from sqlalchemy.sql import (
+    ClauseElement,
+)
 
 from web3.tools.pytest_ethereum.models import (
     Block,
@@ -98,7 +118,5 @@ def filter_logs(session: orm.Session, params: FilterParams) -> Tuple[Log, ...]:
         .outerjoin(logtopic_3, Log.id == logtopic_3.log_id)
         .filter(*orm_filters)
     )
-
-    logger.debug("PARAMS: %s  QUERY: %s", params, query)
 
     return tuple(query.all())

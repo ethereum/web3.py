@@ -1,3 +1,14 @@
+from typing import (
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
+
 from eth_typing import (
     Address,
     BlockNumber,
@@ -15,30 +26,27 @@ from eth_utils import (
     to_int,
     to_tuple,
 )
-from sqlalchemy import orm
-from sqlalchemy.orm.exc import NoResultFound
-from typing import (
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    TypedDict,
-    Union,
+from sqlalchemy import (
+    orm,
+)
+from sqlalchemy.orm.exc import (
+    NoResultFound,
 )
 
-from web3.tools.pytest_ethereum.filters import (
-    FilterParams,
-    filter_logs,
+from web3._utils.compat import (
+    TypedDict,
 )
 from web3.tools.pytest_ethereum.factories import (
     AddressFactory,
+    BlockFactory,
     BlockTransactionFactory,
     HeaderFactory,
     LogFactory,
     LogTopicFactory,
+)
+from web3.tools.pytest_ethereum.filters import (
+    FilterParams,
+    filter_logs,
 )
 from web3.tools.pytest_ethereum.models import (
     BlockTransaction,
@@ -47,11 +55,13 @@ from web3.tools.pytest_ethereum.models import (
     Topic,
 )
 
+
 class RawFilterParams(TypedDict, total=False):
     fromBlock: Optional[HexStr]
     toBlock: Optional[HexStr]
     address: Union[None, HexAddress, List[HexAddress]]
     topics: List[Union[None, HexStr, List[HexStr]]]
+
 
 class RPCLog(TypedDict):
     logIndex: HexStr
@@ -62,6 +72,7 @@ class RPCLog(TypedDict):
     address: HexStr
     data: HexStr
     topics: List[HexStr]
+
 
 @to_tuple
 def _normalize_topics(
@@ -145,8 +156,9 @@ def _log_to_rpc_response(log: Log) -> RPCLog:
         blockNumber=to_hex(transaction.block.header.block_number),
         address=to_checksum_address(log.address),
         data=encode_hex(log.data),
-        topics=[encode_hex(topic.topic) for topic in log.topics],
+        topics=[encode_hex(topic.topic) for topic in log.topics],  # type: ignore
     )
+
 
 @to_tuple
 def get_or_create_topics(
@@ -161,6 +173,7 @@ def get_or_create_topics(
             except NoResultFound:
                 cache[topic] = Topic(topic=topic)
                 yield cache[topic]
+
 
 # generate a log in the db with minimal boilerplate
 # requires factories*
@@ -179,13 +192,15 @@ def construct_log(
         if block_number is not None:
             try:
                 header = (
-                    session.query(Header)  # type: ignore
-                    .filter(Header.is_canonical.is_(is_canonical))  # type: ignore
+                    session.query(Header)
+                    .filter(Header.is_canonical.is_(is_canonical))
                     .filter(Header.block_number == block_number)
                     .one()
                 )
             except NoResultFound:
-                header = HeaderFactory(is_canonical=is_canonical, block_number=block_number)
+                header = HeaderFactory(
+                    is_canonical=is_canonical, block_number=block_number
+                )
         else:
             header = HeaderFactory(is_canonical=is_canonical)
 
@@ -196,7 +211,7 @@ def construct_log(
 
         topic_objs = get_or_create_topics(session, topics)
 
-        session.add_all(topic_objs)  # type: ignore
+        session.add_all(topic_objs)
 
         if is_canonical:
             log = LogFactory(
@@ -214,7 +229,7 @@ def construct_log(
             block_transaction = BlockTransactionFactory(
                 idx=0, block=block, transaction=log.receipt.transaction
             )
-            session.add_all((block, block_transaction))  # type: ignore
+            session.add_all((block, block_transaction))
 
         log_topics = tuple(
             LogTopicFactory(idx=idx, log=log, topic=topic)
@@ -222,22 +237,31 @@ def construct_log(
         )
 
         session.add(log)
-        session.add_all(log_topics)  # type: ignore
+        session.add_all(log_topics)
 
         return log
 
+
 class FilterState:
-    def __init__(self, filter_params):
+    def __init__(self, filter_params: FilterParams):
         self.filter_params = filter_params
         self.latest_height = None
 
-def serve_filter_from_db(method, params, session):
+
+def serve_filter_from_db(
+    method: str, params: List[RawFilterParams], session: orm.Session
+) -> List[RPCLog]:
     filter_params = _rpc_request_to_filter_params(params[0])
     logs = filter_logs(session, filter_params)
     return [_log_to_rpc_response(log) for log in logs]
 
 
-def add_new_filter(method, params, session, filter_states):
+def add_new_filter(
+    method: str,
+    params: List[RawFilterParams],
+    session: orm.Session,
+    filter_states: Dict[int, FilterState],
+) -> int:
     if not filter_states:
         filter_id = 0
     else:
@@ -246,7 +270,13 @@ def add_new_filter(method, params, session, filter_states):
     filter_states[filter_id] = FilterState(filter_params)
     return filter_id
 
-def get_new_logs_for_filter(method, params, session, filter_states):
+
+def get_new_logs_for_filter(
+    method: str,
+    params: List[int],
+    session: orm.Session,
+    filter_states: Dict[int, FilterState],
+) -> List[RPCLog]:
     filter_id = params[0]
     filter_state = filter_states[filter_id]
     latest_height = filter_state.latest_height
@@ -257,11 +287,23 @@ def get_new_logs_for_filter(method, params, session, filter_states):
         logs = filter_logs(session, filter_params)
     return [_log_to_rpc_response(log) for log in logs]
 
-def get_all_logs_for_filter(method, params, session, filter_states):
+
+def get_all_logs_for_filter(
+    method: str,
+    params: List[int],
+    session: orm.Session,
+    filter_states: Dict[int, FilterState],
+) -> List[RPCLog]:
     filter_id = params[0]
     filter_state = filter_states[filter_id]
     logs = filter_logs(session, filter_state.filter_params)
     return [_log_to_rpc_response(log) for log in logs]
 
-def uninstall_filter(method, params, session, filter_states):
+
+def uninstall_filter(
+    method: str,
+    params: RawFilterParams,
+    session: orm.Session,
+    filter_states: RawFilterParams,
+) -> None:
     raise NotImplementedError
