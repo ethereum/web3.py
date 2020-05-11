@@ -50,7 +50,12 @@ docs: build-docs
 linux-docs: build-docs
 	xdg-open docs/_build/html/index.html
 
-notes:
+check-bump:
+ifndef bump
+	$(error bump must be set, typically: major, minor, patch, or devnum)
+endif
+
+notes: check-bump
 	# Let UPCOMING_VERSION be the version that is used for the current bump
 	$(eval UPCOMING_VERSION=$(shell bumpversion $(bump) --dry-run --list | grep new_version= | sed 's/new_version=//g'))
 	# Now generate the release notes to have them included in the release commit
@@ -59,7 +64,7 @@ notes:
 	make build-docs
 	git commit -m "Compile release notes"
 
-release: clean
+release: check-bump clean
 	# require that you be on a branch that's linked to upstream/master
 	git status -s -b | head -1 | grep "\.\.upstream/master"
 	# verify that docs build correctly
