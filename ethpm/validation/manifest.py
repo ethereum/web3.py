@@ -15,7 +15,7 @@ from jsonschema import (
     validate,
 )
 from jsonschema.validators import (
-    Draft4Validator,
+    Draft7Validator,
     validator_for,
 )
 
@@ -28,6 +28,7 @@ from ethpm.exceptions import (
 )
 
 MANIFEST_SCHEMA_PATH = SPEC_DIR / "package.spec.json"
+V3_SCHEMA_PATH = SPEC_DIR / "v3.spec.json"
 
 META_FIELDS = {
     "license": str,
@@ -63,13 +64,15 @@ def validate_meta_object(meta: Dict[str, Any], allow_extra_meta_fields: bool) ->
 
 
 def _load_schema_data() -> Dict[str, Any]:
-    with open(MANIFEST_SCHEMA_PATH) as schema:
-        return json.load(schema)
+    return json.loads(MANIFEST_SCHEMA_PATH.read_text())
 
+
+def _load_schema_data_v3():
+    return json.loads(V3_SCHEMA_PATH.read_text())
 
 def extract_contract_types_from_deployments(deployment_data: List[Any]) -> Set[str]:
     contract_types = set(
-        deployment["contract_type"]
+        deployment["contractType"]
         for chain_deployments in deployment_data
         for deployment in chain_deployments.values()
     )
@@ -79,15 +82,16 @@ def extract_contract_types_from_deployments(deployment_data: List[Any]) -> Set[s
 def validate_manifest_against_schema(manifest: Dict[str, Any]) -> None:
     """
     Load and validate manifest against schema
-    located at MANIFEST_SCHEMA_PATH.
+    located at V3_SCHEMA_PATH.
     """
-    schema_data = _load_schema_data()
+    schema_data = _load_schema_data_v3()
     try:
-        validate(manifest, schema_data, cls=validator_for(schema_data, Draft4Validator))
+        validate(manifest, schema_data, cls=validator_for(schema_data, Draft7Validator))
     except jsonValidationError as e:
         raise EthPMValidationError(
             f"Manifest invalid for schema version {schema_data['version']}. "
             f"Reason: {e.message}"
+            f"{e}"
         )
 
 
@@ -107,10 +111,10 @@ def validate_build_dependencies_are_present(manifest: Dict[str, Any]) -> None:
 
 def validate_manifest_deployments(manifest: Dict[str, Any]) -> None:
     """
-    Validate that a manifest's deployments contracts reference existing contract_types.
+    Validate that a manifest's deployments contracts reference existing contractTypes.
     """
-    if set(("contract_types", "deployments")).issubset(manifest):
-        all_contract_types = list(manifest["contract_types"].keys())
+    if set(("contractTypes", "deployments")).issubset(manifest):
+        all_contract_types = list(manifest["contractTypes"].keys())
         all_deployments = list(manifest["deployments"].values())
         all_deployment_names = extract_contract_types_from_deployments(all_deployments)
         missing_contract_types = set(all_deployment_names).difference(
@@ -121,7 +125,7 @@ def validate_manifest_deployments(manifest: Dict[str, Any]) -> None:
                 f"Manifest missing references to contracts: {missing_contract_types}."
             )
 
-
+# remove this and its tests in test_manifest.py
 def validate_manifest_exists(manifest_id: str) -> None:
     """
     Validate that manifest with manifest_id exists in ASSETS_DIR
@@ -132,6 +136,7 @@ def validate_manifest_exists(manifest_id: str) -> None:
         )
 
 
+# we should only have a single validation fn
 def validate_raw_manifest_format(raw_manifest: str) -> None:
     """
     Raise a EthPMValidationError if a manifest ...

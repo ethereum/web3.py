@@ -23,12 +23,12 @@ from ethpm.exceptions import (
 def validate_minimal_contract_factory_data(contract_data: Dict[str, str]) -> None:
     """
     Validate that contract data in a package contains at least an "abi" and
-    "deployment_bytecode" necessary to generate a deployable contract factory.
+    "deploymentBytecode" necessary to generate a deployable contract factory.
     """
-    if not all(key in contract_data.keys() for key in ("abi", "deployment_bytecode")):
+    if not all(key in contract_data.keys() for key in ("abi", "deploymentBytecode")):
         raise InsufficientAssetsError(
             "Minimum required contract data to generate a deployable "
-            "contract factory (abi & deployment_bytecode) not found."
+            "contract factory (abi & deploymentBytecode) not found."
         )
 
 
@@ -53,9 +53,9 @@ def validate_package_name(pkg_name: str) -> None:
 
 def validate_manifest_version(version: str) -> None:
     """
-    Raise an exception if the version is not "2".
+    Raise an exception if the version is not "ethpm/3".
     """
-    if not version == "2":
+    if not version == "ethpm/3":
         raise EthPMValidationError(
             f"Py-EthPM does not support the provided specification version: {version}"
         )

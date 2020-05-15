@@ -19,18 +19,17 @@ from ethpm.validation.package import (
     validate_package_name,
 )
 
-
 def test_validate_raw_manifest_configuration_validates_strict_manifests(
-    all_strict_manifests
+    all_strict_manifests_v3
 ):
-    assert validate_raw_manifest_format(all_strict_manifests) is None
+    assert validate_raw_manifest_format(all_strict_manifests_v3) is None
 
 
 def test_validate_raw_manifest_format_invalidates_pretty_manifests(
-    all_pretty_manifests
+    all_pretty_manifests_v3
 ):
     with pytest.raises(EthPMValidationError):
-        validate_raw_manifest_format(all_pretty_manifests)
+        validate_raw_manifest_format(all_pretty_manifests_v3)
 
 
 @pytest.mark.parametrize(
@@ -54,7 +53,7 @@ def test_validate_raw_manifest_format_invalidates_invalid_manifests(tmpdir, mani
     with pytest.raises(EthPMValidationError):
         validate_raw_manifest_format(invalid_manifest)
 
-
+# todo: remove this test
 def test_validate_manifest_exists_validates():
     assert (
         validate_manifest_exists(ASSETS_DIR / "safe-math-lib" / "1.0.0.json")
@@ -62,44 +61,43 @@ def test_validate_manifest_exists_validates():
     )
 
 
+# todo: remove this test
 def test_validate_manifest_exists_invalidates():
     with pytest.raises(EthPMValidationError):
         validate_manifest_exists("DNE")
 
 
-def test_validate_manifest_against_all_manifest_types(all_manifests):
-    assert validate_manifest_against_schema(all_manifests) is None
+def test_validate_manifest_against_all_manifest_types(all_manifests_v3):
+    assert validate_manifest_against_schema(all_manifests_v3) is None
 
 
 def test_validate_manifest_invalidates(invalid_manifest):
-    with pytest.raises(EthPMValidationError):
+    with pytest.raises(EthPMValidationError, match="Manifest invalid for schema"):
         validate_manifest_against_schema(invalid_manifest)
 
 
-def test_validate_deployed_contracts_present_validates(
+def test_validate_manifest_deployments_catches_missing_contract_type_references(
     manifest_with_conflicting_deployments
 ):
-    with pytest.raises(EthPMValidationError):
+    with pytest.raises(EthPMValidationError, match="Manifest missing references to contracts"):
         validate_manifest_deployments(manifest_with_conflicting_deployments)
 
 
-def test_validate_deployments(safe_math_lib_package):
-    validate = validate_manifest_deployments(safe_math_lib_package.manifest)
-    assert validate is None
+def test_validate_deployments_for_single_deployment(safe_math_lib_package_v3):
+    assert validate_manifest_deployments(safe_math_lib_package_v3.manifest) is None
 
 
-def test_validate_deployed_contracts_pr(manifest_with_no_deployments):
-    validate = validate_manifest_deployments(manifest_with_no_deployments)
-    assert validate is None
+def test_validate_deployments_without_deployment(manifest_with_no_deployments):
+    assert validate_manifest_deployments(manifest_with_no_deployments) is None
 
 
 @pytest.mark.parametrize(
     "data,expected",
     (
         ({}, set()),
-        ([{"some": {"contract_type": "one"}}], set(["one"])),
+        ([{"some": {"contractType": "one"}}], set(["one"])),
         (
-            [{"some": {"contract_type": "one"}, "other": {"contract_type": "two"}}],
+            [{"some": {"contractType": "one"}, "other": {"contractType": "two"}}],
             set(["one", "two"]),
         ),
     ),
@@ -108,14 +106,11 @@ def test_extract_contract_types_from_deployments(data, expected):
     actual = extract_contract_types_from_deployments(data)
     assert actual == expected
 
-
-@pytest.mark.parametrize("version", ("2"))
-def test_validate_manifest_version_validates_version_two_string(version):
-    validate = validate_manifest_version(version)
-    assert validate is None
+def test_validate_manifest_version_validates_version_three_string():
+    assert validate_manifest_version("ethpm/3") is None
 
 
-@pytest.mark.parametrize("version", (1, 2, "1" "3", b"3"))
+@pytest.mark.parametrize("version", (2, 3, "2" "3", b"3"))
 def test_validate_manifest_version_invalidates_incorrect_versions(version):
     with pytest.raises(EthPMValidationError):
         validate_manifest_version(version)

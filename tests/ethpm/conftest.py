@@ -35,6 +35,17 @@ PACKAGE_NAMES = [
     ("wallet", "1.0.0.json"),
 ]
 
+V3_PACKAGE_NAMES = [
+    ("escrow", "v3.json"),
+    ("owned", "v3.json"),
+    ("piper-coin", "v3.json"),
+    ("safe-math-lib", "v3.json"),
+    ("standard-token", "v3.json"),
+    ("transferable", "v3.json"),
+    ("wallet-with-send", "v3.json"),
+    ("wallet", "v3.json"),
+]
+
 
 def pytest_addoption(parser):
     parser.addoption("--integration", action="store_true", default=False)
@@ -50,6 +61,11 @@ def all_strict_manifests(request):
     return (ASSETS_DIR / request.param[0] / "1.0.0.json").read_text().rstrip("\n")
 
 
+@pytest.fixture(params=V3_PACKAGE_NAMES)
+def all_strict_manifests_v3(request):
+    return (ASSETS_DIR / request.param[0] / "v3-strict.json").read_text().rstrip("\n")
+
+
 @pytest.fixture(params=PACKAGE_NAMES)
 def all_pretty_manifests(request):
     return (
@@ -59,11 +75,22 @@ def all_pretty_manifests(request):
     )
 
 
+@pytest.fixture(params=PACKAGE_NAMES)
+def all_pretty_manifests_v3(request):
+    return (
+        (ASSETS_DIR / request.param[0] / "v3.json")
+        .read_text()
+        .rstrip("\n")
+    )
+
+
+
 def fetch_manifest(name, version):
     return get_manifest_tool(name, version)
 
 
 MANIFESTS = {name: fetch_manifest(name, version) for name, version in PACKAGE_NAMES}
+MANIFESTS_V3 = {name: fetch_manifest(name, version) for name, version in V3_PACKAGE_NAMES}
 
 
 @pytest.fixture
@@ -88,9 +115,22 @@ def get_manifest():
     return _get_manifest
 
 
+@pytest.fixture
+def get_manifest_v3():
+    def _get_manifest(name):
+        return copy.deepcopy(MANIFESTS_V3[name])
+
+    return _get_manifest
+
+
 @pytest.fixture(params=PACKAGE_NAMES)
 def all_manifests(request, get_manifest):
     return get_manifest(request.param[0])
+
+
+@pytest.fixture(params=V3_PACKAGE_NAMES)
+def all_manifests_v3(request, get_manifest_v3):
+    return get_manifest_v3(request.param[0])
 
 
 # safe-math-lib currently used as default manifest for testing
@@ -98,6 +138,13 @@ def all_manifests(request, get_manifest):
 @pytest.fixture
 def safe_math_manifest(get_manifest):
     return get_manifest("safe-math-lib")
+
+
+# safe-math-lib currently used as default manifest for testing
+# should be extended to all_manifest_types asap
+@pytest.fixture
+def safe_math_manifest_v3(get_manifest_v3):
+    return get_manifest_v3("safe-math-lib")
 
 
 @pytest.fixture
@@ -141,15 +188,16 @@ def owned_contract():
     return (ASSETS_DIR / "owned" / "contracts" / "Owned.sol").read_text()
 
 
+# this was updated to v3
 @pytest.fixture
-def invalid_manifest(safe_math_manifest):
-    safe_math_manifest["manifest_version"] = 1
-    return safe_math_manifest
+def invalid_manifest(safe_math_manifest_v3):
+    safe_math_manifest_v3["manifest"] = 1
+    return safe_math_manifest_v3
 
 
 @pytest.fixture
-def manifest_with_no_deployments(safe_math_manifest):
-    manifest = copy.deepcopy(safe_math_manifest)
+def manifest_with_no_deployments(safe_math_manifest_v3):
+    manifest = copy.deepcopy(safe_math_manifest_v3)
     manifest.pop("deployments")
     return manifest
 
@@ -180,6 +228,12 @@ def safe_math_lib_package(deployer, w3):
     safe_math_deployer = deployer(safe_math_lib_manifest)
     return safe_math_deployer.deploy("SafeMathLib")
 
+@pytest.fixture
+def safe_math_lib_package_v3(deployer, w3):
+    safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "v3-strict.json"
+    safe_math_deployer = deployer(safe_math_lib_manifest)
+    print(safe_math_deployer.package)
+    return safe_math_deployer.deploy("SafeMathLib")
 
 @pytest.fixture
 def safe_math_lib_package_with_alias(deployer, w3):
@@ -241,14 +295,15 @@ def manifest_with_multiple_matches(w3, tmpdir, safe_math_manifest):
 
 
 @pytest.fixture
-def manifest_with_conflicting_deployments(tmpdir, safe_math_manifest):
+def manifest_with_conflicting_deployments(tmpdir, safe_math_manifest_v3):
     # two different blockchain uri's representing the same chain
-    manifest = copy.deepcopy(safe_math_manifest)
+    manifest = copy.deepcopy(safe_math_manifest_v3)
+    print(manifest)
     manifest["deployments"][
         "blockchain://41941023680923e0fe4d74a34bdac8141f2540e3ae90623718e47d66d1ca4a2d/block/1e96de11320c83cca02e8b9caf3e489497e8e432befe5379f2f08599f8aecede"  # noqa: E501
     ] = {
         "WrongNameLib": {
-            "contract_type": "WrongNameLib",
+            "contractType": "WrongNameLib",
             "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
             "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
             "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",

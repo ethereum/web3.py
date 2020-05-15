@@ -148,7 +148,7 @@ class Package(object):
            >>> OwnedPackage.name
            'owned'
         """
-        return self.manifest["package_name"]
+        return self.manifest["name"]
 
     @property
     def version(self) -> str:
@@ -162,6 +162,7 @@ class Package(object):
         """
         return self.manifest["version"]
 
+    # should we update this name?
     @property
     def manifest_version(self) -> str:
         """
@@ -169,10 +170,10 @@ class Package(object):
 
         .. doctest::
 
-           >>> OwnedPackage.manifest_version
+           >>> OwnedPackage.manifest
            '2'
         """
-        return self.manifest["manifest_version"]
+        return self.manifest["manifest"]
 
     @property
     def uri(self) -> Optional[str]:
@@ -186,8 +187,8 @@ class Package(object):
         """
         All contract types included in this package.
         """
-        if 'contract_types' in self.manifest:
-            return sorted(self.manifest['contract_types'].keys())
+        if 'contractTypes' in self.manifest:
+            return sorted(self.manifest['contractTypes'].keys())
         else:
             raise ValueError("No contract types found in manifest; {self.__repr__()}.")
 
@@ -257,18 +258,18 @@ class Package(object):
         """
         validate_contract_name(name)
 
-        if "contract_types" not in self.manifest:
+        if "contractTypes" not in self.manifest:
             raise InsufficientAssetsError(
                 "This package does not contain any contract type data."
             )
 
         try:
-            contract_data = self.manifest["contract_types"][name]
+            contract_data = self.manifest["contractTypes"][name]
         except KeyError:
             raise InsufficientAssetsError(
                 "This package does not contain any package data to generate "
                 f"a contract factory for contract type: {name}. Available contract types include: "
-                f"{self.contract_types}."
+                f"{self.contractTypes}."
             )
 
         validate_minimal_contract_factory_data(contract_data)
