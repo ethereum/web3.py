@@ -32,11 +32,9 @@ class Deployments:
         self,
         deployment_data: Dict[str, Dict[str, str]],
         contract_instances: Dict[str, Contract],
-        w3: Web3,
     ) -> None:
         self.deployment_data = deployment_data
         self.contract_instances = contract_instances
-        self.w3 = w3
 
     def __getitem__(self, key: str) -> Dict[str, str]:
         return self.get(key)

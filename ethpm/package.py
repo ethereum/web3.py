@@ -162,7 +162,6 @@ class Package(object):
         """
         return self.manifest["version"]
 
-    # should we update this name?
     @property
     def manifest_version(self) -> str:
         """
@@ -170,7 +169,7 @@ class Package(object):
 
         .. doctest::
 
-           >>> OwnedPackage.manifest
+           >>> OwnedPackage.manifest_version
            '2'
         """
         return self.manifest["manifest"]
@@ -269,7 +268,7 @@ class Package(object):
             raise InsufficientAssetsError(
                 "This package does not contain any package data to generate "
                 f"a contract factory for contract type: {name}. Available contract types include: "
-                f"{self.contractTypes}."
+                f"{self.contract_types}."
             )
 
         validate_minimal_contract_factory_data(contract_data)
@@ -286,14 +285,14 @@ class Package(object):
         validate_address(address)
         validate_contract_name(name)
         try:
-            self.manifest["contract_types"][name]["abi"]
+            self.manifest["contractTypes"][name]["abi"]
         except KeyError:
             raise InsufficientAssetsError(
                 "Package does not have the ABI required to generate a contract instance "
                 f"for contract: {name} at address: {address}."
             )
         contract_kwargs = generate_contract_factory_kwargs(
-            self.manifest["contract_types"][name]
+            self.manifest["contractTypes"][name]
         )
         contract_instance = self.w3.eth.contract(
             address=address, **contract_kwargs
@@ -317,7 +316,7 @@ class Package(object):
         """
         validate_build_dependencies_are_present(self.manifest)
 
-        dependencies = self.manifest["build_dependencies"]
+        dependencies = self.manifest["buildDependencies"]
         dependency_packages = {}
         for name, uri in dependencies.items():
             try:
@@ -364,7 +363,7 @@ class Package(object):
                     deployment_data["address"]
                 )
                 unresolved_linked_refs = normalize_linked_references(
-                    deployment_data["runtime_bytecode"]["link_dependencies"]
+                    deployment_data["runtimeBytecode"]["linkDependencies"]
                 )
                 resolved_linked_refs = tuple(
                     self._resolve_linked_references(link_ref, deployments)
@@ -373,21 +372,21 @@ class Package(object):
                 for linked_ref in resolved_linked_refs:
                     validate_linked_references(linked_ref, on_chain_bytecode)
 
-        return Deployments(deployments, all_contract_instances, self.w3)
+        return Deployments(deployments, all_contract_instances)
 
     @to_dict
     def _get_all_contract_instances(
         self, deployments: Dict[str, DeploymentData]
     ) -> Iterable[Tuple[str, Contract]]:
         for deployment_name, deployment_data in deployments.items():
-            if deployment_data['contract_type'] not in self.contract_types:
+            if deployment_data['contractType'] not in self.contract_types:
                 raise EthPMValidationError(
-                    f"Contract type: {deployment_data['contract_type']} for alias: "
+                    f"Contract type: {deployment_data['contractType']} for alias: "
                     f"{deployment_name} not found. Available contract types include: "
                     f"{self.contract_types}."
                 )
             contract_instance = self.get_contract_instance(
-                ContractName(deployment_data['contract_type']),
+                ContractName(deployment_data['contractType']),
                 deployment_data['address'],
             )
             yield deployment_name, contract_instance

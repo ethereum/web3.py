@@ -16,7 +16,7 @@ from ethpm.exceptions import (
 
 @pytest.fixture
 def valid_manifest_from_path(tmpdir):
-    valid_manifest = '{"manifest_version":"2","package_name":"foo","version":"1.0.0"}'
+    valid_manifest = '{"manifest":"ethpm/3","name":"foo","version":"1.0.0"}'
     temp_manifest = tmpdir.mkdir("invalid").join("manifest.json")
     temp_manifest.write(valid_manifest)
     yield Path(str(temp_manifest))
@@ -25,7 +25,7 @@ def valid_manifest_from_path(tmpdir):
 @pytest.fixture
 def invalid_manifest_from_path(tmpdir):
     invalid_manifest = (
-        '{"manifest_version":"xx","package_name":"foo","version":"1.0.0"}'
+        '{"manifest":"xx","name":"foo","version":"1.0.0"}'
     )
     temp_manifest = tmpdir.mkdir("invalid").join("manifest.json")
     temp_manifest.write(invalid_manifest)
@@ -41,23 +41,23 @@ def non_json_manifest(tmpdir):
 
 def test_init_from_minimal_valid_manifest(w3):
     minimal_manifest = {
-        "package_name": "foo",
-        "manifest_version": "2",
+        "name": "foo",
+        "manifest": "ethpm/3",
         "version": "1.0.0",
     }
 
     Package(minimal_manifest, w3)
 
 
-def test_package_init_for_all_manifest_use_cases(all_manifests, w3):
-    package = Package(all_manifests, w3)
+def test_package_init_for_all_manifest_use_cases(all_manifests_v3, w3):
+    package = Package(all_manifests_v3, w3)
     assert isinstance(package, Package)
 
 
 def test_package_init_for_manifest_with_build_dependency(
-    dummy_ipfs_backend, piper_coin_manifest, w3
+    dummy_ipfs_backend, piper_coin_manifest_v3, w3
 ):
-    pkg = Package(piper_coin_manifest, w3)
+    pkg = Package(piper_coin_manifest_v3, w3)
     assert isinstance(pkg, Package)
 
 
@@ -102,12 +102,12 @@ def test_from_file_raises_type_error_with_invalid_param_type():
 # From URI
 #
 
-VALID_IPFS_PKG = "ipfs://QmeD2s7KaBUoGYTP1eutHBmBkMMMoycdfiyGMx2DKrWXyV"
+VALID_IPFS_PKG = "ipfs://QmdQfNxmcfGjeVwsXEBLCh5CDYsr2VyZtXoqdVm6F26JJE"
 
 
 def test_package_from_uri_with_valid_uri(dummy_ipfs_backend, w3):
     package = Package.from_uri(VALID_IPFS_PKG, w3)
-    assert package.name == "safe-math-lib"
+    assert package.name == "standard-token"
     assert isinstance(package, Package)
 
 

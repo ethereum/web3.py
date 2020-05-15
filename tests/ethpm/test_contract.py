@@ -33,15 +33,16 @@ from web3.contract import (
             "wallet",
             "Wallet",
             {
-                "SafeMathLib": "0xa66A05D6AB5c1c955F4D2c3FCC166AE6300b452B"
+                # spend some more time thinking about this change / update relevant docs
+                "safe-math-lib:SafeMathLib": "0xa66A05D6AB5c1c955F4D2c3FCC166AE6300b452B"
             },
         ),
     ),
 )
 def test_linkable_contract_class_handles_link_refs(
-    package, factory, attr_dict, get_factory, w3
+    package, factory, attr_dict, get_factory_v3, w3
 ):
-    factory = get_factory(package, factory)
+    factory = get_factory_v3(package, factory)
     assert factory.needs_bytecode_linking is True
     linked_factory = factory.link_bytecode(attr_dict)
     assert issubclass(LinkableContract, Contract)
@@ -59,8 +60,8 @@ def test_linkable_contract_class_handles_link_refs(
     assert linked_factory.bytecode[offset : offset + 20] == link_address  # noqa: E203
 
 
-def test_linkable_contract_class_handles_missing_link_refs(get_manifest, w3):
-    safe_math_manifest = get_manifest("safe-math-lib")
+def test_linkable_contract_class_handles_missing_link_refs(get_manifest_v3, w3):
+    safe_math_manifest = get_manifest_v3("safe-math-lib")
     SafeMathLib = Package(safe_math_manifest, w3)
     safe_math_lib = SafeMathLib.get_contract_factory("SafeMathLib")
     assert safe_math_lib.needs_bytecode_linking is False
@@ -167,15 +168,15 @@ def test_apply_all_link_refs_with_incorrect_args(bytecode, link_refs, attr_dict)
         },
     ),
 )
-def test_contract_factory_invalidates_incorrect_attr_dicts(get_factory, attr_dict):
-    safe_send = get_factory("escrow", "SafeSendLib")
+def test_contract_factory_invalidates_incorrect_attr_dicts(get_factory_v3, attr_dict):
+    safe_send = get_factory_v3("escrow", "SafeSendLib")
     assert safe_send.needs_bytecode_linking is False
     with pytest.raises(BytecodeLinkingError):
         safe_send.link_bytecode(attr_dict)
 
 
-def test_unlinked_factory_cannot_be_deployed(get_factory):
-    escrow = get_factory("escrow", "Escrow")
+def test_unlinked_factory_cannot_be_deployed(get_factory_v3):
+    escrow = get_factory_v3("escrow", "Escrow")
     assert escrow.needs_bytecode_linking
     with pytest.raises(BytecodeLinkingError):
         escrow.constructor("0x4F5B11c860b37b68DE6D14Fb7e7b5f18A9A1bdC0").transact()

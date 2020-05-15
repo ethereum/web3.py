@@ -25,7 +25,7 @@ from web3.eth import (
 
 DEPLOYMENT_DATA = {
     "SafeMathLib": {
-        "contract_type": "SafeMathLib",
+        "contractType": "SafeMathLib",
         "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
         "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
         "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",
@@ -34,8 +34,8 @@ DEPLOYMENT_DATA = {
 
 
 @pytest.fixture
-def contract_factory(safe_math_lib_package):
-    return safe_math_lib_package.get_contract_type("SafeMathLib")
+def contract_factory(safe_math_lib_package_v3):
+    return safe_math_lib_package_v3.get_contract_type("SafeMathLib")
 
 
 VALID_CONTRACT_TYPES = {"SafeMathLib": contract_factory}
@@ -102,42 +102,43 @@ def test_get_instance_without_reference_in_deployments_raises_exception(deployme
         deployment.get_instance("InvalidContract")
 
 
-def test_deployments_get_instance(safe_math_lib_package):
-    deps = safe_math_lib_package.deployments
+def test_deployments_get_instance(safe_math_lib_package_v3):
+    deps = safe_math_lib_package_v3.deployments
     safe_math_instance = deps.get_instance("SafeMathLib")
     assert isinstance(safe_math_instance, Contract)
     assert safe_math_instance.bytecode == to_bytes(
-        hexstr=safe_math_lib_package.manifest["contract_types"]["SafeMathLib"][
-            "deployment_bytecode"
+        hexstr=safe_math_lib_package_v3.manifest["contractTypes"]["SafeMathLib"][
+            "deploymentBytecode"
         ]["bytecode"]
     )
 
 
-def test_deployments_get_instance_with_contract_alias(safe_math_lib_package_with_alias):
-    deps = safe_math_lib_package_with_alias.deployments
+def test_deployments_get_instance_with_contract_alias(safe_math_lib_package_with_alias_v3):
+    print(safe_math_lib_package_with_alias_v3.manifest)
+    deps = safe_math_lib_package_with_alias_v3.deployments
     safe_math_instance = deps.get_instance("safe-math-lib-alias")
     assert isinstance(safe_math_instance, Contract)
     assert safe_math_instance.bytecode == to_bytes(
-        hexstr=safe_math_lib_package_with_alias.manifest["contract_types"][
+        hexstr=safe_math_lib_package_with_alias_v3.manifest["contractTypes"][
             "SafeMathLib"
-        ]["deployment_bytecode"]["bytecode"]
+        ]["deploymentBytecode"]["bytecode"]
     )
 
 
-def test_deployments_get_instance_with_link_dependency(escrow_package):
-    deployments = escrow_package.deployments
+def test_deployments_get_instance_with_link_dependency(escrow_package_v3):
+    deployments = escrow_package_v3.deployments
     escrow_deployment = deployments.get_instance("Escrow")
     assert isinstance(escrow_deployment, LinkableContract)
     assert not escrow_deployment.needs_bytecode_linking
 
 
-def test_get_linked_deployments(escrow_package):
-    escrow_manifest = escrow_package.manifest
+def test_get_linked_deployments(escrow_package_v3):
+    escrow_manifest = escrow_package_v3.manifest
     all_deployments = list(escrow_manifest["deployments"].values())[0]
     actual_linked_deployments = get_linked_deployments(all_deployments)
     assert actual_linked_deployments == {"Escrow": all_deployments["Escrow"]}
     # integration via package.deployments
-    deployments = escrow_package.deployments
+    deployments = escrow_package_v3.deployments
     assert len(deployments.contract_instances) == 2
 
 
@@ -147,12 +148,12 @@ def test_get_linked_deployments(escrow_package):
         (
             {
                 "Escrow": {
-                    "contract_type": "Escrow",
+                    "contractType": "Escrow",
                     "address": "0x8c1968deB27251A3f1F4508df32dA4dfD1b7b57f",
                     "transaction": "0xc60e32c63abf34579390ef65d83cc5eb52225de38c3eeca2e5afa961d71c16d0",  # noqa: E501
                     "block": "0x4d1a618802bb87752d95db453dddeea622820424a2f836bedf8769a67ee276b8",
-                    "runtime_bytecode": {
-                        "link_dependencies": [
+                    "runtimeBytecode": {
+                        "linkDependencies": [
                             {"offsets": [200], "type": "reference", "value": "filler"},
                             {
                                 "offsets": [301, 495],

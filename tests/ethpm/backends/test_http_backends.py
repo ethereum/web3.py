@@ -19,7 +19,7 @@ from ethpm.constants import (
 @pytest.mark.parametrize(
     "uri",
     (
-        "https://api.github.com/repos/ethpm/py-ethpm/git/blobs/a7232a93f1e9e75d606f6c1da18aa16037e03480",  # noqa: E501
+        "https://api.github.com/repos/ethpm/ethpm-spec/git/blobs/899042f95ad624d5ecf0b96b0926c96cd682522d",  # noqa: E501
     ),
 )
 @pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')

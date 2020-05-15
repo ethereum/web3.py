@@ -53,19 +53,6 @@ def test_validate_raw_manifest_format_invalidates_invalid_manifests(tmpdir, mani
     with pytest.raises(EthPMValidationError):
         validate_raw_manifest_format(invalid_manifest)
 
-# todo: remove this test
-def test_validate_manifest_exists_validates():
-    assert (
-        validate_manifest_exists(ASSETS_DIR / "safe-math-lib" / "1.0.0.json")
-        is None
-    )
-
-
-# todo: remove this test
-def test_validate_manifest_exists_invalidates():
-    with pytest.raises(EthPMValidationError):
-        validate_manifest_exists("DNE")
-
 
 def test_validate_manifest_against_all_manifest_types(all_manifests_v3):
     assert validate_manifest_against_schema(all_manifests_v3) is None

@@ -102,10 +102,10 @@ def check_for_deployments(manifest: Dict[str, Any]) -> bool:
 
 
 def validate_build_dependencies_are_present(manifest: Dict[str, Any]) -> None:
-    if "build_dependencies" not in manifest:
+    if "buildDependencies" not in manifest:
         raise EthPMValidationError("Manifest doesn't have any build dependencies.")
 
-    if not manifest["build_dependencies"]:
+    if not manifest["buildDependencies"]:
         raise EthPMValidationError("Manifest's build dependencies key is empty.")
 
 
@@ -124,16 +124,6 @@ def validate_manifest_deployments(manifest: Dict[str, Any]) -> None:
             raise EthPMValidationError(
                 f"Manifest missing references to contracts: {missing_contract_types}."
             )
-
-# remove this and its tests in test_manifest.py
-def validate_manifest_exists(manifest_id: str) -> None:
-    """
-    Validate that manifest with manifest_id exists in ASSETS_DIR
-    """
-    if not (ASSETS_DIR / manifest_id).is_file():
-        raise EthPMValidationError(
-            f"Manifest not found in ASSETS_DIR with id: {manifest_id}"
-        )
 
 
 # we should only have a single validation fn
