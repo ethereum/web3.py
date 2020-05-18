@@ -6,6 +6,22 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.10.0 (2020-05-18)
+--------------------
+
+Bugfixes
+~~~~~~~~
+
+- ``my_contract.events.MyEvent`` was incorrectly annotated so that ``MyEvent`` was marked as a ``ContractEvent`` instance. Fixed to be a class type, i.e., ``Type[ContractEvent]``. (`#1646 <https://github.com/ethereum/web3.py/issues/1646>`__)
+- IPCProvider correctly handled ``pathlib.Path`` input, but warned against its type. Fixed to permit Path objects in addition to strings. (`#1647 <https://github.com/ethereum/web3.py/issues/1647>`__)
+
+
+Misc
+~~~~
+
+- `#1636 <https://github.com/ethereum/web3.py/issues/1636>`__
+
+
 v5.9.0 (2020-04-30)
 -------------------
 
