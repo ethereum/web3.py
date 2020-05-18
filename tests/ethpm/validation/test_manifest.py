@@ -10,7 +10,6 @@ from ethpm.validation.manifest import (
     extract_contract_types_from_deployments,
     validate_manifest_against_schema,
     validate_manifest_deployments,
-    validate_manifest_exists,
     validate_meta_object,
     validate_raw_manifest_format,
 )
@@ -20,16 +19,16 @@ from ethpm.validation.package import (
 )
 
 def test_validate_raw_manifest_configuration_validates_strict_manifests(
-    all_strict_manifests_v3
+    all_strict_manifests
 ):
-    assert validate_raw_manifest_format(all_strict_manifests_v3) is None
+    assert validate_raw_manifest_format(all_strict_manifests) is None
 
 
 def test_validate_raw_manifest_format_invalidates_pretty_manifests(
-    all_pretty_manifests_v3
+    all_pretty_manifests
 ):
     with pytest.raises(EthPMValidationError):
-        validate_raw_manifest_format(all_pretty_manifests_v3)
+        validate_raw_manifest_format(all_pretty_manifests)
 
 
 @pytest.mark.parametrize(
@@ -54,8 +53,8 @@ def test_validate_raw_manifest_format_invalidates_invalid_manifests(tmpdir, mani
         validate_raw_manifest_format(invalid_manifest)
 
 
-def test_validate_manifest_against_all_manifest_types(all_manifests_v3):
-    assert validate_manifest_against_schema(all_manifests_v3) is None
+def test_validate_manifest_against_all_manifest_types(all_manifests):
+    assert validate_manifest_against_schema(all_manifests) is None
 
 
 def test_validate_manifest_invalidates(invalid_manifest):
@@ -70,8 +69,8 @@ def test_validate_manifest_deployments_catches_missing_contract_type_references(
         validate_manifest_deployments(manifest_with_conflicting_deployments)
 
 
-def test_validate_deployments_for_single_deployment(safe_math_lib_package_v3):
-    assert validate_manifest_deployments(safe_math_lib_package_v3.manifest) is None
+def test_validate_deployments_for_single_deployment(safe_math_lib_package):
+    assert validate_manifest_deployments(safe_math_lib_package.manifest) is None
 
 
 def test_validate_deployments_without_deployment(manifest_with_no_deployments):

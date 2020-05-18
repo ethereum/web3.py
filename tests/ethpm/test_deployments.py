@@ -34,8 +34,8 @@ DEPLOYMENT_DATA = {
 
 
 @pytest.fixture
-def contract_factory(safe_math_lib_package_v3):
-    return safe_math_lib_package_v3.get_contract_type("SafeMathLib")
+def contract_factory(safe_math_lib_package):
+    return safe_math_lib_package.get_contract_type("SafeMathLib")
 
 
 VALID_CONTRACT_TYPES = {"SafeMathLib": contract_factory}
@@ -43,13 +43,13 @@ INVALID_CONTRACT_TYPES = {"INVALID": contract_factory}
 
 
 @pytest.fixture
-def deployment(w3):
-    return Deployments(DEPLOYMENT_DATA, VALID_CONTRACT_TYPES, w3)
+def deployment():
+    return Deployments(DEPLOYMENT_DATA, VALID_CONTRACT_TYPES)
 
 
 @pytest.fixture
-def invalid_deployment(w3):
-    return Deployments(DEPLOYMENT_DATA, INVALID_CONTRACT_TYPES, w3)
+def invalid_deployment():
+    return Deployments(DEPLOYMENT_DATA, INVALID_CONTRACT_TYPES)
 
 
 def test_deployment_implements_getitem(deployment):
@@ -102,43 +102,42 @@ def test_get_instance_without_reference_in_deployments_raises_exception(deployme
         deployment.get_instance("InvalidContract")
 
 
-def test_deployments_get_instance(safe_math_lib_package_v3):
-    deps = safe_math_lib_package_v3.deployments
+def test_deployments_get_instance(safe_math_lib_package):
+    deps = safe_math_lib_package.deployments
     safe_math_instance = deps.get_instance("SafeMathLib")
     assert isinstance(safe_math_instance, Contract)
     assert safe_math_instance.bytecode == to_bytes(
-        hexstr=safe_math_lib_package_v3.manifest["contractTypes"]["SafeMathLib"][
+        hexstr=safe_math_lib_package.manifest["contractTypes"]["SafeMathLib"][
             "deploymentBytecode"
         ]["bytecode"]
     )
 
 
-def test_deployments_get_instance_with_contract_alias(safe_math_lib_package_with_alias_v3):
-    print(safe_math_lib_package_with_alias_v3.manifest)
-    deps = safe_math_lib_package_with_alias_v3.deployments
+def test_deployments_get_instance_with_contract_alias(safe_math_lib_package_with_alias):
+    deps = safe_math_lib_package_with_alias.deployments
     safe_math_instance = deps.get_instance("safe-math-lib-alias")
     assert isinstance(safe_math_instance, Contract)
     assert safe_math_instance.bytecode == to_bytes(
-        hexstr=safe_math_lib_package_with_alias_v3.manifest["contractTypes"][
+        hexstr=safe_math_lib_package_with_alias.manifest["contractTypes"][
             "SafeMathLib"
         ]["deploymentBytecode"]["bytecode"]
     )
 
 
-def test_deployments_get_instance_with_link_dependency(escrow_package_v3):
-    deployments = escrow_package_v3.deployments
+def test_deployments_get_instance_with_link_dependency(escrow_package):
+    deployments = escrow_package.deployments
     escrow_deployment = deployments.get_instance("Escrow")
     assert isinstance(escrow_deployment, LinkableContract)
     assert not escrow_deployment.needs_bytecode_linking
 
 
-def test_get_linked_deployments(escrow_package_v3):
-    escrow_manifest = escrow_package_v3.manifest
+def test_get_linked_deployments(escrow_package):
+    escrow_manifest = escrow_package.manifest
     all_deployments = list(escrow_manifest["deployments"].values())[0]
     actual_linked_deployments = get_linked_deployments(all_deployments)
     assert actual_linked_deployments == {"Escrow": all_deployments["Escrow"]}
     # integration via package.deployments
-    deployments = escrow_package_v3.deployments
+    deployments = escrow_package.deployments
     assert len(deployments.contract_instances) == 2
 
 

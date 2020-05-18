@@ -49,15 +49,15 @@ def test_init_from_minimal_valid_manifest(w3):
     Package(minimal_manifest, w3)
 
 
-def test_package_init_for_all_manifest_use_cases(all_manifests_v3, w3):
-    package = Package(all_manifests_v3, w3)
+def test_package_init_for_all_manifest_use_cases(all_manifests, w3):
+    package = Package(all_manifests, w3)
     assert isinstance(package, Package)
 
 
 def test_package_init_for_manifest_with_build_dependency(
-    dummy_ipfs_backend, piper_coin_manifest_v3, w3
+    dummy_ipfs_backend, piper_coin_manifest, w3
 ):
-    pkg = Package(piper_coin_manifest_v3, w3)
+    pkg = Package(piper_coin_manifest, w3)
     assert isinstance(pkg, Package)
 
 

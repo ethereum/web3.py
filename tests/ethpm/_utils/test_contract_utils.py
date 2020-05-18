@@ -19,11 +19,11 @@ from ethpm.validation.package import (
 @pytest.mark.parametrize(
     "contract_data",
     (
-        {"abi": "", "deployment_bytecode": ""},
+        {"abi": "", "deploymentBytecode": ""},
         {
             "abi": "",
-            "deployment_bytecode": {"bytecode": ""},
-            "runtime_bytecode": {"bytecode": ""},
+            "deploymentBytecode": {"bytecode": ""},
+            "runtimeBytecode": {"bytecode": ""},
         },
     ),
 )
@@ -35,8 +35,8 @@ def test_validate_minimal_contract_factory_data_validates(contract_data):
     "contract_data",
     (
         {"abi": ""},
-        {"deployment_bytecode": {"bytecode": ""}},
-        {"runtime_bytecode": {"bytecode": ""}, "other": ""},
+        {"deploymentBytecode": {"bytecode": ""}},
+        {"runtimeBytecode": {"bytecode": ""}, "other": ""},
     ),
 )
 def test_validate_minimal_contract_factory_data_invalidates(contract_data):
@@ -59,17 +59,17 @@ def test_validate_contract_name_invalidates(name):
     "contract_data,expected_kwargs",
     (
         ({"abi": ""}, ["abi"]),
-        ({"deployment_bytecode": {"bytecode": ""}}, ["bytecode"]),
+        ({"deploymentBytecode": {"bytecode": ""}}, ["bytecode"]),
         (
-            {"abi": "", "runtime_bytecode": {"bytecode": ""}},
+            {"abi": "", "runtimeBytecode": {"bytecode": ""}},
             ["abi", "bytecode_runtime"],
         ),
         (
             {
                 "abi": "",
-                "deployment_bytecode": {
+                "deploymentBytecode": {
                     "bytecode": "",
-                    "link_references": [
+                    "linkReferences": [
                         {"offsets": [402, 639], "length": 20, "name": "SafeSendLib"}
                     ],
                 },

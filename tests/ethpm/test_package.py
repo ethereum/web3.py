@@ -16,8 +16,8 @@ from web3 import Web3
 
 # is this a dupe fixture?
 @pytest.fixture()
-def safe_math_package(get_manifest_v3, w3):
-    safe_math_manifest = get_manifest_v3("safe-math-lib")
+def safe_math_package(get_manifest, w3):
+    safe_math_manifest = get_manifest("safe-math-lib")
     return Package(safe_math_manifest, w3)
 
 
@@ -29,8 +29,8 @@ def deployed_safe_math(safe_math_package, w3):
     return safe_math_package, tx_receipt.contractAddress
 
 
-def test_package_object_instantiates_with_a_web3_object(all_manifests_v3, w3):
-    package = Package(all_manifests_v3, w3)
+def test_package_object_instantiates_with_a_web3_object(all_manifests, w3):
+    package = Package(all_manifests, w3)
     assert package.w3 is w3
 
 

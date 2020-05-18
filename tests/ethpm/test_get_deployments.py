@@ -39,7 +39,7 @@ def test_get_deployments_with_multiple_matches_raises_exception(
         package.deployments
 
 
-def test_get_deployments_with_a_match_returns_deployments(w3, safe_math_lib_package_v3):
-    deployment = safe_math_lib_package_v3.deployments
+def test_get_deployments_with_a_match_returns_deployments(w3, safe_math_lib_package):
+    deployment = safe_math_lib_package.deployments
     assert isinstance(deployment, Deployments)
     assert "SafeMathLib" in deployment
