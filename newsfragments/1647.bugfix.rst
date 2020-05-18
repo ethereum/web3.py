@@ -1,0 +1,1 @@
+IPCProvider correctly handled Path input, but warned against its type. Fixed to permit Path objects in addition to strings.
