@@ -1,1 +1,1 @@
-IPCProvider correctly handled Path input, but warned against its type. Fixed to permit Path objects in addition to strings.
+IPCProvider correctly handled ``pathlib.Path`` input, but warned against its type. Fixed to permit Path objects in addition to strings.
