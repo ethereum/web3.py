@@ -15,6 +15,7 @@ from types import (
 from typing import (
     Any,
     Type,
+    Union,
 )
 
 from web3._utils.threads import (
@@ -203,7 +204,13 @@ class IPCProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.IPCProvider")
     _socket = None
 
-    def __init__(self, ipc_path: str=None, timeout: int=10, *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        ipc_path: Union[str, Path] = None,
+        timeout: int = 10,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path()
         elif isinstance(ipc_path, str) or isinstance(ipc_path, Path):
