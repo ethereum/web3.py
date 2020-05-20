@@ -8,12 +8,15 @@ from setuptools import (
 extras_require = {
     'tester': [
         "eth-tester[py-evm]==v0.4.0-beta.2",
+        "factory-boy==2.12.0",
         "py-geth>=2.2.0,<3",
+        "SQLAlchemy==1.3.16",
     ],
     'linter': [
         "flake8==3.4.1",
         "isort>=4.2.15,<4.3.5",
         "mypy==0.730",
+        "sqlalchemy-stubs==0.3",
     ],
     'docs': [
         "mock",
