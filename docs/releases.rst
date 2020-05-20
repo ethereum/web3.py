@@ -12,7 +12,7 @@ v5.10.0 (2020-05-18)
 Features
 ~~~~~~~~
 
-- An update of ``eth-tester`` includes a change of the default fork from Constantinople to Istanbul.  `#1636 <https://github.com/ethereum/web3.py/issues/1636>`__
+- An update of ``eth-tester`` includes a change of the default fork from Constantinople to Muir Glacier.  `#1636 <https://github.com/ethereum/web3.py/issues/1636>`__
 
 
 Bugfixes
