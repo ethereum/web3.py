@@ -206,7 +206,7 @@ local and remote JSON-RPC servers.
 HTTPProvider
 ~~~~~~~~~~~~
 
-.. py:class:: web3.providers.rpc.HTTPProvider(endpoint_uri[, request_kwargs])
+.. py:class:: web3.providers.rpc.HTTPProvider(endpoint_uri[, request_kwargs, session])
 
     This provider handles interactions with an HTTP or HTTPS based JSON-RPC server.
 
