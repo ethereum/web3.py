@@ -138,6 +138,10 @@ class Package(object):
         version = self.version
         return f"<Package {name}=={version}>"
 
+    # checks manifest and warns if any snakecased / outdated fields
+    # def v2_check()
+        # pass
+
     @property
     def name(self) -> str:
         """

@@ -43,9 +43,6 @@ from ethpm import (
 from ethpm._utils.chains import (
     is_BIP122_block_uri,
 )
-from ethpm._utils.mappings import (
-    deep_merge_dicts,
-)
 from ethpm.backends.ipfs import (
     BaseIPFSBackend,
 )
@@ -87,17 +84,17 @@ def build(obj: Dict[str, Any], *fns: Callable[..., Any]) -> Dict[str, Any]:
 @curry
 def package_name(name: str, manifest: Manifest) -> Manifest:
     """
-    Return a copy of manifest with `name` set to "package_name".
+    Return a copy of manifest with `name` set to "name".
     """
-    return assoc(manifest, "package_name", name)
+    return assoc(manifest, "name", name)
 
 
 @curry
 def manifest_version(manifest_version: str, manifest: Manifest) -> Manifest:
     """
-    Return a copy of manifest with `manifest_version` set to "manifest_version".
+    Return a copy of manifest with `manifest_version` set to "manifest".
     """
-    return assoc(manifest, "manifest_version", manifest_version)
+    return assoc(manifest, "manifest", manifest_version)
 
 
 @curry
@@ -260,7 +257,12 @@ def _inline_source(
         )
 
     # rstrip used here since Path.read_text() adds a newline to returned contents
-    return assoc_in(manifest, ["sources", source_path], source_data.rstrip("\n"))
+    source_data_object = {
+        "content": source_data.rstrip("\n"),
+        "installPath": source_path,
+        "type": "solidity",
+    }
+    return assoc_in(manifest, ["sources", source_path], source_data_object)
 
 
 def source_pinner(
@@ -329,7 +331,12 @@ def _pin_source(
             )
         (ipfs_data,) = ipfs_backend.pin_assets(cwd / source_path)
 
-    return assoc_in(manifest, ["sources", source_path], f"ipfs://{ipfs_data['Hash']}")
+    source_data_object = {
+        "urls": [f"ipfs://{ipfs_data['Hash']}"],
+        "type": "solidity",
+        "installPath": source_path,
+    }
+    return assoc_in(manifest, ["sources", source_path], source_data_object)
 
 
 #
@@ -342,10 +349,11 @@ def contract_type(
     compiler_output: Dict[str, Any],
     alias: Optional[str] = None,
     abi: Optional[bool] = False,
-    compiler: Optional[bool] = False,
     contract_type: Optional[bool] = False,
     deployment_bytecode: Optional[bool] = False,
-    natspec: Optional[bool] = False,
+    devdoc: Optional[bool] = False,
+    userdoc: Optional[bool] = False,
+    source_id: Optional[bool] = False,
     runtime_bytecode: Optional[bool] = False,
 ) -> Manifest:
     """
@@ -360,12 +368,13 @@ def contract_type(
     wants to include them in custom contract_type.
     """
     contract_type_fields = {
-        "contract_type": contract_type,
-        "deployment_bytecode": deployment_bytecode,
-        "runtime_bytecode": runtime_bytecode,
+        "contractType": contract_type,
+        "deploymentBytecode": deployment_bytecode,
+        "runtimeBytecode": runtime_bytecode,
         "abi": abi,
-        "natspec": natspec,
-        "compiler": compiler,
+        "userdoc": userdoc,
+        "devdoc": devdoc,
+        "sourceId": source_id,
     }
     selected_fields = [k for k, v in contract_type_fields.items() if v]
     return _contract_type(name, compiler_output, alias, selected_fields)
@@ -396,10 +405,10 @@ def _contract_type(
     if alias:
         return assoc_in(
             manifest,
-            ["contract_types", alias],
-            assoc(contract_type_data, "contract_type", name),
+            ["contractTypes", alias],
+            assoc(contract_type_data, "contractType", name),
         )
-    return assoc_in(manifest, ["contract_types", name], contract_type_data)
+    return assoc_in(manifest, ["contractTypes", name], contract_type_data)
 
 
 @to_dict
@@ -438,41 +447,39 @@ def normalize_compiler_output(compiler_output: Dict[str, Any]) -> Dict[str, Any]
             f"Duplicate contract types: {duplicates} were found in the compiler output."
         )
     return {
-        name: normalize_contract_type(compiler_output[path][name])
+        name: normalize_contract_type(compiler_output[path][name], path)
         for path, name in paths_and_names
     }
 
 
-NATSPEC_FIELDS = {"devdoc", "userdoc"}
-
-
 @to_dict
 def normalize_contract_type(
-    contract_type_data: Dict[str, Any]
+    contract_type_data: Dict[str, Any],
+    source_id: str,
 ) -> Iterable[Tuple[str, Any]]:
     """
     Serialize contract_data found in compiler output to the defined fields.
     """
     yield "abi", contract_type_data["abi"]
+    yield "sourceId", source_id
     if "evm" in contract_type_data:
         if "bytecode" in contract_type_data["evm"]:
-            yield "deployment_bytecode", normalize_bytecode_object(
+            yield "deploymentBytecode", normalize_bytecode_object(
                 contract_type_data["evm"]["bytecode"]
             )
         if "deployedBytecode" in contract_type_data["evm"]:
-            yield "runtime_bytecode", normalize_bytecode_object(
+            yield "runtimeBytecode", normalize_bytecode_object(
                 contract_type_data["evm"]["deployedBytecode"]
             )
-    if any(key in contract_type_data for key in NATSPEC_FIELDS):
-        natspec = deep_merge_dicts(
-            contract_type_data.get("userdoc", {}), contract_type_data.get("devdoc", {})
-        )
-        yield "natspec", natspec
+    if "devdoc" in contract_type_data:
+        yield "devdoc", contract_type_data['devdoc']
+    if "userdoc" in contract_type_data:
+        yield "userdoc", contract_type_data['userdoc']
     # make sure metadata isn't an empty string in solc output
-    if "metadata" in contract_type_data and contract_type_data["metadata"]:
-        yield "compiler", normalize_compiler_object(
-            json.loads(contract_type_data["metadata"])
-        )
+    # if "metadata" in contract_type_data and contract_type_data["metadata"]:
+        # yield "compiler", normalize_compiler_object(
+            # json.loads(contract_type_data["metadata"])
+        # )
 
 
 @to_dict
@@ -496,7 +503,7 @@ def normalize_bytecode_object(obj: Dict[str, Any]) -> Iterable[Tuple[str, Any]]:
             "Please make sure your solidity compiler output is valid."
         )
     if link_references:
-        yield "link_references", process_link_references(link_references, bytecode)
+        yield "linkReferences", process_link_references(link_references, bytecode)
         yield "bytecode", process_bytecode(link_references, bytecode)
     else:
         yield "bytecode", add_0x_prefix(bytecode)
@@ -705,10 +712,10 @@ def _build_deployments_object(
     """
     Returns a dict with properly formatted deployment data.
     """
-    yield "contract_type", contract_type
+    yield "contractType", contract_type
     yield "address", to_checksum_address(address)
     if deployment_bytecode:
-        yield "deployment_bytecode", deployment_bytecode
+        yield "deploymentBytecode", deployment_bytecode
     if compiler:
         yield "compiler", compiler
     if tx:
@@ -716,7 +723,7 @@ def _build_deployments_object(
     if block:
         yield "block", block
     if runtime_bytecode:
-        yield "runtime_bytecode", runtime_bytecode
+        yield "runtimeBytecode", runtime_bytecode
 
 
 #
@@ -739,7 +746,7 @@ def _build_dependency(package_name: str, uri: URI, manifest: Manifest) -> Manife
             f"{uri} is not a supported content-addressed URI. "
             "Currently only IPFS and Github blob uris are supported."
         )
-    return assoc_in(manifest, ("build_dependencies", package_name), uri)
+    return assoc_in(manifest, ("buildDependencies", package_name), uri)
 
 
 #
@@ -749,16 +756,16 @@ def _build_dependency(package_name: str, uri: URI, manifest: Manifest) -> Manife
 
 @curry
 def init_manifest(
-    package_name: str, version: str, manifest_version: Optional[str] = "2"
+    package_name: str, version: str, manifest_version: Optional[str] = "ethpm/3"
 ) -> Dict[str, Any]:
     """
     Returns an initial dict with the minimal requried fields for a valid manifest.
     Should only be used as the first fn to be piped into a `build()` pipeline.
     """
     return {
-        "package_name": package_name,
+        "name": package_name,
         "version": version,
-        "manifest_version": manifest_version,
+        "manifest": manifest_version,
     }
 
 
