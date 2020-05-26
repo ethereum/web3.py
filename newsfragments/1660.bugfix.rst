@@ -1,0 +1,1 @@
+- Added formatter rules for eth_tester middleware to allow getBalance by using integer block numbers
