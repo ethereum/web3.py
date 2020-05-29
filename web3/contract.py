@@ -243,7 +243,7 @@ class ContractEvents:
                         address=address,
                         event_name=event['name']))
 
-    def __getattr__(self, event_name: str) -> "ContractEvent":
+    def __getattr__(self, event_name: str) -> Type['ContractEvent']:
         if '_events' not in self.__dict__:
             raise NoABIEventsFound(
                 "The abi for this contract contains no event definitions. ",
@@ -257,10 +257,10 @@ class ContractEvents:
         else:
             return super().__getattribute__(event_name)
 
-    def __getitem__(self, event_name: str) -> "ContractEvent":
+    def __getitem__(self, event_name: str) -> Type['ContractEvent']:
         return getattr(self, event_name)
 
-    def __iter__(self) -> Iterable["ContractEvent"]:
+    def __iter__(self) -> Iterable[Type['ContractEvent']]:
         """Iterate over supported
 
         :return: Iterable of :class:`ContractEvent`

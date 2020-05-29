@@ -7,10 +7,7 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        # TODO - remove this eth-keys pinning once eth-tester >0.4.0-beta.1 is released
-        # and py-evm v0.3.0-alpha.15 is released
-        "eth-keys>=0.2.1,<0.3",
-        "eth-tester[py-evm] @ git+https://github.com/ethereum/eth-tester@276eaeb3739ec7acaf410a86838fe8f2b487d172",
+        "eth-tester[py-evm]@git+https://github.com/ethereum/eth-tester@276eaeb3739ec7acaf410a86838fe8f2b487d172",
         "py-geth>=2.2.0,<3",
     ],
     'linter': [
@@ -63,7 +60,7 @@ extras_require['dev'] = (
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='5.9.0',
+    version='5.10.0',
     description="""Web3.py""",
     long_description_content_type='text/markdown',
     long_description_markdown_filename='README.md',
