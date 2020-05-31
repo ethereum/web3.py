@@ -283,7 +283,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 .. py:method:: newAccount()
 
     .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.geth.personal.newAccount()`
+      :meth:`~web3.geth.personal.new_account()`
 
 
 .. py:method:: lock_account(self, account)
@@ -300,7 +300,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 .. py:method:: lockAccount()
 
     .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.geth.personal.lockAccount()`
+      :meth:`~web3.geth.personal.lock_account()`
 
 
 .. py:method:: unlock_account(self, account, passphrase, duration=None)
@@ -324,7 +324,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 .. py:method:: unlockAccount()
 
     .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.geth.personal.unlockAccount()`
+      :meth:`~web3.geth.personal.unlock_account()`
 
 
 .. py:method:: send_transaction(self, transaction, passphrase)
@@ -337,7 +337,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 .. py:method:: sendTransaction()
 
     .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.geth.personal.sendTransaction()`
+      :meth:`~web3.geth.personal.send_transaction()`
 
 
 .. py:module:: web3.geth.txpool
