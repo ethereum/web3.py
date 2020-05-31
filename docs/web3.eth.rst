@@ -559,12 +559,14 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Delegates to ``eth_getTransactionReceipt`` RPC Method
 
-    Returns the transaction receipt specified by ``transaction_hash``.  If the transaction has not yet been mined returns ``TransactionNotFound``
+    Returns the transaction receipt specified by ``transaction_hash``.  If the transaction has not yet been mined raises :class:`web3.exceptions.TransactionNotFound`.
 
     .. code-block:: python
 
         >>> web3.eth.getTransactionReceipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')  # not yet mined
-        None
+        Traceback # ... etc ...
+        TransactionNotFound: Transaction with hash: 0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060 not found.
+
         # wait for it to be mined....
         >>> web3.eth.getTransactionReceipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
         AttributeDict({
