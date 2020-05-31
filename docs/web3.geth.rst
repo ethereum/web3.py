@@ -546,7 +546,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.version()
+        >>> web3.geth.shh.version()
         6.0
 
 .. py:method:: Shh.info()
@@ -555,7 +555,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.info()
+        >>> web3.geth.shh.info()
         {'maxMessageSize': 1024, 'memory': 240, 'messages': 0, 'minPow': 0.2}
 
 .. py:method:: Shh.post(self, message)
@@ -578,7 +578,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.post({'payload': web3.toHex(text="test_payload"), 'pubKey': recipient_public, 'topic': '0x12340000', 'powTarget': 2.5, 'powTime': 2})
+        >>> web3.geth.shh.post({'payload': web3.toHex(text="test_payload"), 'pubKey': recipient_public, 'topic': '0x12340000', 'powTarget': 2.5, 'powTime': 2})
         True
 
 .. py:method:: Shh.newMessageFilter()
@@ -601,7 +601,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.new_message_filter({'topic': '0x12340000', 'privateKeyID': recipient_private})
+        >>> web3.geth.shh.new_message_filter({'topic': '0x12340000', 'privateKeyID': recipient_private})
         'b37c3106cfb683e8f01b5019342399e0d1d74e9160f69b27625faba7a6738554'
 
 .. py:method:: Shh.deleteMessageFilter()
@@ -618,7 +618,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.delete_message_filter('b37c3106cfb683e8f01b5019342399e0d1d74e9160f69b27625faba7a6738554')
+        >>> web3.geth.shh.delete_message_filter('b37c3106cfb683e8f01b5019342399e0d1d74e9160f69b27625faba7a6738554')
         True
 
 .. py:method:: Shh.getMessages()
@@ -634,7 +634,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.get_filter_messages('b37c3106cfb683e8f01b5019342399e0d1d74e9160f69b27625faba7a6738554')
+        >>> web3.geth.shh.get_filter_messages('b37c3106cfb683e8f01b5019342399e0d1d74e9160f69b27625faba7a6738554')
         [{
             'ttl': 50,
             'timestamp': 1524497850,
@@ -659,7 +659,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.set_max_message_size(1024)
+        >>> web3.geth.shh.set_max_message_size(1024)
         True
 
 .. py:method:: Shh.setMinPoW()
@@ -675,7 +675,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.set_min_pow(0.4)
+        >>> web3.geth.shh.set_min_pow(0.4)
         True
 
 .. py:method:: Shh.markTrustedPeer()
@@ -691,7 +691,7 @@ Full documentation for Geth-supported endpoints can be found `here <https://gith
 
     .. code-block:: python
 
-        >>>web3.geth.shh.mark_trusted_peer('enode://d25474361659861e9e651bc728a17e807a3359ca0d344afd544ed0f11a31faecaf4d74b55db53c6670fd624f08d5c79adfc8da5dd4a11b9213db49a3b750845e@52.178.209.125:30379')
+        >>> web3.geth.shh.mark_trusted_peer('enode://d25474361659861e9e651bc728a17e807a3359ca0d344afd544ed0f11a31faecaf4d74b55db53c6670fd624f08d5c79adfc8da5dd4a11b9213db49a3b750845e@52.178.209.125:30379')
         True
 
 ---------------
@@ -711,7 +711,7 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.new_key_pair()
+        >>> web3.geth.shh.new_key_pair()
         '86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb'
 
 .. py:method:: Shh.addPrivateKey()
@@ -727,7 +727,7 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.add_private_key('0x7b8190d96cd061a102e551ee36d08d4f3ca1f56fb0008ef5d70c56271d8c46d0')
+        >>> web3.geth.shh.add_private_key('0x7b8190d96cd061a102e551ee36d08d4f3ca1f56fb0008ef5d70c56271d8c46d0')
         '86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb'
 
 .. py:method:: Shh.deleteKeyPair()
@@ -743,7 +743,7 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.delete_key_pair('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
+        >>> web3.geth.shh.delete_key_pair('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
         True
 
 .. py:method:: Shh.hasKeyPair()
@@ -759,7 +759,7 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.has_key_pair('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
+        >>> web3.geth.shh.has_key_pair('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
         False
 
 .. py:method:: Shh.getPublicKey()
@@ -773,7 +773,7 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.get_public_key('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
+        >>> web3.geth.shh.get_public_key('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
         '0x041b0777ceb8cf8748fe0bba5e55039d650a03eb0239a909f9ee345bbbad249f2aa236a4b8f41f51bd0a97d87c08e69e67c51f154d634ba51a224195212fc31e4e'
 
 .. py:method:: Shh.getPrivateKey()
@@ -787,7 +787,7 @@ Asymmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.get_private_key('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
+        >>> web3.geth.shh.get_private_key('86e658cbc6da63120b79b5eec0c67d5dcfb6865a8f983eff08932477282b77bb')
         '0x7b8190d96cd061a102e551ee36d08d4f3ca1f56fb0008ef5d70c56271d8c46d0'
 
 ---------------
@@ -807,7 +807,7 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.new_sym_key()
+        >>> web3.geth.shh.new_sym_key()
         '6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c'
 
 .. py:method:: Shh.addSymKey()
@@ -823,7 +823,7 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.add_sym_key('0x58f6556e56a0d41b464a083161377c8a9c2e95156921f954f99ef97d41cebaa2')
+        >>> web3.geth.shh.add_sym_key('0x58f6556e56a0d41b464a083161377c8a9c2e95156921f954f99ef97d41cebaa2')
         '6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c'
 
 .. py:method:: Shh.generateSymKeyFromPassword()
@@ -839,7 +839,7 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.generate_sym_key_from_password('shh secret pwd')
+        >>> web3.geth.shh.generate_sym_key_from_password('shh secret pwd')
         '6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c'
 
 .. py:method:: Shh.hasSymKey()
@@ -855,7 +855,7 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.has_sym_key('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
+        >>> web3.geth.shh.has_sym_key('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
         False
 
 .. py:method:: Shh.getSymKey()
@@ -871,7 +871,7 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.get_sym_key('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
+        >>> web3.geth.shh.get_sym_key('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
         '0x58f6556e56a0d41b464a083161377c8a9c2e95156921f954f99ef97d41cebaa2'
 
 .. py:method:: Shh.deleteSymKey()
@@ -887,5 +887,5 @@ Symmetric Keys
 
     .. code-block:: python
 
-        >>>web3.geth.shh.delete_sym_key('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
+        >>> web3.geth.shh.delete_sym_key('6c388d63003deb378700c9dad87f67df0247e660647d6ba1d04321bbc2f6ce0c')
         True
