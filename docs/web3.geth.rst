@@ -267,7 +267,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
       :meth:`~web3.geth.personal.import_raw_key()`
 
 
-.. py:method:: new_account(self, password)
+.. py:method:: new_account(self, passphrase)
 
     * Delegates to ``personal_newAccount`` RPC Method
 
@@ -276,7 +276,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.newAccount('the-passphrase')
+        >>> web3.geth.personal.new_account('the-passphrase')
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
 
