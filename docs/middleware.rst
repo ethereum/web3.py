@@ -308,8 +308,11 @@ All of the caching middlewares accept these common arguments.
 .. py:method:: web3.middleware.construct_latest_block_based_cache_middleware(cache_class, average_block_time_sample_size, default_average_block_time, rpc_whitelist, should_cache_fn)
 
     Constructs a middleware which will cache the return values for any RPC
-    method in the ``rpc_whitelist`` for an amount of time defined by
-    ``cache_expire_seconds``.
+    method in the ``rpc_whitelist`` for the latest block.
+    It avoids re-fetching the current latest block for each
+    request by tracking the current average block time and only requesting
+    a new block when the last seen latest block is older than the average
+    block time.
 
     * ``average_block_time_sample_size`` The number of blocks which should be
       sampled to determine the average block time.
