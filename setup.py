@@ -7,7 +7,7 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        "eth-tester[py-evm]@git+https://github.com/ethereum/eth-tester@276eaeb3739ec7acaf410a86838fe8f2b487d172",
+        "eth-tester[py-evm]==v0.5.0-beta.1",
         "py-geth>=2.2.0,<3",
     ],
     'linter': [
