@@ -136,7 +136,7 @@ class FormattersDict(TypedDict, total=False):
 
 
 class FilterParams(TypedDict, total=False):
-    address: Union[Address, ChecksumAddress, List[ChecksumAddress]]
+    address: Union[Address, ChecksumAddress, List[Address], List[ChecksumAddress]]
     blockHash: HexBytes
     fromBlock: BlockIdentifier
     toBlock: BlockIdentifier
