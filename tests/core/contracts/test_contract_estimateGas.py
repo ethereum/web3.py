@@ -137,3 +137,30 @@ def test_estimateGas_sending_ether_to_nonpayable_function(
         estimateGas(contract=payable_tester_contract,
                     contract_function='doNoValueCall',
                     tx_params={'value': 1})
+
+
+def test_estimateGas_accepts_latest_block(web3, math_contract, transact):
+    gas_estimate = math_contract.functions.counter().estimateGas(block_identifier='latest')
+
+    txn_hash = transact(
+        contract=math_contract,
+        contract_function='increment')
+
+    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    gas_used = txn_receipt.get('gasUsed')
+
+    assert abs(gas_estimate - gas_used) < 21000
+
+
+def test_estimateGas_block_identifier_unique_estimates(web3, math_contract, transact):
+    txn_hash = transact(contract=math_contract, contract_function="increment")
+    web3.eth.waitForTransactionReceipt(txn_hash)
+
+    latest_gas_estimate = math_contract.functions.counter().estimateGas(
+        block_identifier="latest"
+    )
+    earliest_gas_estimate = math_contract.functions.counter().estimateGas(
+        block_identifier="earliest"
+    )
+
+    assert latest_gas_estimate != earliest_gas_estimate

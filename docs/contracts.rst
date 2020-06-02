@@ -822,7 +822,7 @@ Methods
         # You can check the state after your pending transactions (if supported by your node):
         >>> token_contract.functions.myBalance().call(block_identifier='pending')
 
-.. py:method:: ContractFunction.estimateGas(transaction)
+.. py:method:: ContractFunction.estimateGas(transaction, block_identifier=None)
 
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
@@ -844,6 +844,11 @@ Methods
 
         >>> my_contract.functions.multiply7(3).estimateGas()
         42650
+
+    .. note::
+        The parameter ``block_identifier`` is not enabled in geth nodes,
+        hence passing a value of ``block_identifier`` when connected to a geth
+        nodes would result in an error like:  ``ValueError: {'code': -32602, 'message': 'too many arguments, want at most 1'}``
 
 .. py:method:: ContractFunction.buildTransaction(transaction)
 
