@@ -1,1 +1,0 @@
-Introduce a more specific validation error, ``ExtraDataLengthError``. This enables tools to detect when someone may be connected to a POA network, for example, and provide a smoother developer experience.

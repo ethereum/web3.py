@@ -1,1 +1,0 @@
-Corrects documentation of websocket timeout configuration.

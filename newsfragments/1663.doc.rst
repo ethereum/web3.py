@@ -1,1 +1,0 @@
-Corrects the return value of ``getTransactionReceipt``, description of caching middleware, and deprecated method names.

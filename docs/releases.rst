@@ -6,6 +6,29 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.11.0 (2020-06-03)
+--------------------
+
+Features
+~~~~~~~~
+
+- Accept a block identifier in the ``Contract.estimateGas`` method. Includes a related upgrade of eth-tester to v0.5.0-beta.1. (`#1639 <https://github.com/ethereum/web3.py/issues/1639>`__)
+- Introduce a more specific validation error, ``ExtraDataLengthError``. This enables tools to detect when someone may be connected to a POA network, for example, and provide a smoother developer experience. (`#1666 <https://github.com/ethereum/web3.py/issues/1666>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Correct the type annotations of `FilterParams.address` (`#1664 <https://github.com/ethereum/web3.py/issues/1664>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Corrects the return value of ``getTransactionReceipt``, description of caching middleware, and deprecated method names. (`#1663 <https://github.com/ethereum/web3.py/issues/1663>`__)
+- Corrects documentation of websocket timeout configuration. (`#1665 <https://github.com/ethereum/web3.py/issues/1665>`__)
+
+
 v5.10.0 (2020-05-18)
 --------------------
 
