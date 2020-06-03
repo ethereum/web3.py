@@ -100,6 +100,13 @@ class ValidationError(Exception):
     pass
 
 
+class ExtraDataLengthError(ValidationError):
+    """
+    Raised when an RPC call returns >32 bytes of extraData.
+    """
+    pass
+
+
 class NoABIFunctionsFound(AttributeError):
     """
     Raised when an ABI is present, but doesn't contain any functions.
