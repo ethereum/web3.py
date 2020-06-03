@@ -24,6 +24,7 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.exceptions import (
+    ExtraDataLengthError,
     ValidationError,
 )
 from web3.middleware.formatting import (
@@ -61,10 +62,10 @@ def check_extradata_length(val: Any) -> Any:
         return val
     result = HexBytes(val)
     if len(result) > MAX_EXTRADATA_LENGTH:
-        raise ValidationError(
+        raise ExtraDataLengthError(
             "The field extraData is %d bytes, but should be %d. "
             "It is quite likely that you are connected to a POA chain. "
-            "Refer "
+            "Refer to "
             "http://web3py.readthedocs.io/en/stable/middleware.html#geth-style-proof-of-authority "
             "for more details. The full extraData is: %r" % (
                 len(result), MAX_EXTRADATA_LENGTH, result
