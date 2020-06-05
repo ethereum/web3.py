@@ -44,7 +44,7 @@ TParams = TypeVar("TParams")
 TValue = TypeVar("TValue")
 
 BlockParams = Literal["latest", "earliest", "pending"]
-BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr, HexBytes]
+BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr, HexBytes, int]
 LatestBlockParam = Literal["latest"]
 
 FunctionIdentifier = Union[str, Type[FallbackFn], Type[ReceiveFn]]
