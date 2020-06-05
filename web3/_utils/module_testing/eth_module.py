@@ -126,6 +126,17 @@ class EthModuleTest:
         assert is_integer(balance)
         assert balance >= 0
 
+    def test_eth_getBalance_with_block_identifier(self, web3: "Web3") -> None:
+        coinbase = web3.eth.coinbase
+
+        with pytest.raises(InvalidAddress):
+            web3.eth.getBalance(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
+
+        balance = web3.eth.getBalance(coinbase, 0)
+
+        assert is_integer(balance)
+        assert balance >= 0
+
     def test_eth_getStorageAt(
         self, web3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
