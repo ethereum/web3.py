@@ -1,1 +1,1 @@
-- Added formatter rules for eth_tester middleware to allow getBalance by using integer block numbers
+Added formatter rules for eth_tester middleware to allow :meth:`~web3.eth.Eth.getBalance` by using integer block numbers
