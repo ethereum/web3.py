@@ -126,6 +126,15 @@ class EthModuleTest:
         assert is_integer(balance)
         assert balance >= 0
 
+    def test_eth_getBalance_with_block_identifier(self, web3: "Web3") -> None:
+        miner_address = web3.eth.getBlock(1)['miner']
+        genesis_balance = web3.eth.getBalance(miner_address, 0)
+        later_balance = web3.eth.getBalance(miner_address, 1)
+
+        assert is_integer(genesis_balance)
+        assert is_integer(later_balance)
+        assert later_balance > genesis_balance
+
     def test_eth_getStorageAt(
         self, web3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
