@@ -153,7 +153,8 @@ class Eth(Module):
         return self.web3.manager.request_blocking(RPC.eth_chainId, [])
 
     def getBalance(
-        self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
+        self, account: Union[Address, ChecksumAddress, ENS],
+        block_identifier: Optional[BlockIdentifier] = None
     ) -> Wei:
         if block_identifier is None:
             block_identifier = self.defaultBlock
@@ -166,7 +167,7 @@ class Eth(Module):
         self,
         account: Union[Address, ChecksumAddress, ENS],
         position: int,
-        block_identifier: BlockIdentifier=None
+        block_identifier: Optional[BlockIdentifier] = None
     ) -> bytes:
         if block_identifier is None:
             block_identifier = self.defaultBlock
@@ -179,7 +180,7 @@ class Eth(Module):
         self,
         account: Union[Address, ChecksumAddress, ENS],
         positions: Sequence[int],
-        block_identifier: BlockIdentifier=None
+        block_identifier: Optional[BlockIdentifier] = None
     ) -> MerkleProof:
         if block_identifier is None:
             block_identifier = self.defaultBlock
@@ -189,7 +190,8 @@ class Eth(Module):
         )
 
     def getCode(
-        self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
+        self, account: Union[Address, ChecksumAddress, ENS],
+        block_identifier: Optional[BlockIdentifier] = None
     ) -> HexBytes:
         if block_identifier is None:
             block_identifier = self.defaultBlock
@@ -199,7 +201,7 @@ class Eth(Module):
         )
 
     def getBlock(
-        self, block_identifier: BlockIdentifier, full_transactions: bool=False
+        self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> BlockData:
         """
         `eth_getBlockByHash`
@@ -344,7 +346,8 @@ class Eth(Module):
         return result
 
     def getTransactionCount(
-        self, account: Union[Address, ChecksumAddress, ENS], block_identifier: BlockIdentifier=None
+        self, account: Union[Address, ChecksumAddress, ENS],
+        block_identifier: Optional[BlockIdentifier] = None
     ) -> Nonce:
         if block_identifier is None:
             block_identifier = self.defaultBlock
@@ -395,9 +398,9 @@ class Eth(Module):
     def sign(
         self,
         account: Union[Address, ChecksumAddress, ENS],
-        data: Union[int, bytes]=None,
-        hexstr: HexStr=None,
-        text: str=None
+        data: Optional[Union[int, bytes]] = None,
+        hexstr: Optional[HexStr] = None,
+        text: Optional[str] = None
     ) -> HexStr:
         message_hex = to_hex(data, hexstr=hexstr, text=text)
         return self.web3.manager.request_blocking(
@@ -417,7 +420,8 @@ class Eth(Module):
         )
 
     @apply_to_return_value(HexBytes)
-    def call(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> Sequence[Any]:
+    def call(self, transaction: TxParams,
+             block_identifier: Optional[BlockIdentifier] = None) -> Sequence[Any]:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
@@ -430,7 +434,8 @@ class Eth(Module):
             [transaction, block_identifier],
         )
 
-    def estimateGas(self, transaction: TxParams, block_identifier: BlockIdentifier=None) -> Wei:
+    def estimateGas(self, transaction: TxParams,
+                    block_identifier: Optional[BlockIdentifier] = None) -> Wei:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
@@ -446,7 +451,8 @@ class Eth(Module):
         )
 
     def filter(
-        self, filter_params: Union[str, FilterParams]=None, filter_id: HexStr=None
+        self, filter_params: Optional[Union[str, FilterParams]] = None,
+        filter_id: Optional[HexStr] = None
     ) -> Filter:
         if filter_id and filter_params:
             raise TypeError(
@@ -519,7 +525,7 @@ class Eth(Module):
     def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Contract: ...  # noqa: E704,E501
 
     def contract(  # noqa: F811
-        self, address: Union[Address, ChecksumAddress, ENS]=None, **kwargs: Any
+        self, address: Optional[Union[Address, ChecksumAddress, ENS]] = None, **kwargs: Any
     ) -> Union[Type[Contract], Contract]:
         ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
 
@@ -541,7 +547,7 @@ class Eth(Module):
     def getWork(self) -> List[HexBytes]:
         return self.web3.manager.request_blocking(RPC.eth_getWork, [])
 
-    def generateGasPrice(self, transaction_params: TxParams=None) -> Optional[Wei]:
+    def generateGasPrice(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
         if self.gasPriceStrategy:
             return self.gasPriceStrategy(self.web3, transaction_params)
         return None
