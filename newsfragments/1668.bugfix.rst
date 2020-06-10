@@ -1,0 +1,1 @@
+Fix type annotations within the ``eth.py`` module. Several arguments that defaulted to ``None`` were not declared ``Optional``.
