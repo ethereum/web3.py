@@ -2,6 +2,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Optional,
 )
 
 from eth_utils.toolz import (
@@ -23,9 +24,9 @@ if TYPE_CHECKING:
 
 
 def construct_formatting_middleware(
-    request_formatters: Formatters=None,
-    result_formatters: Formatters=None,
-    error_formatters: Formatters=None
+    request_formatters: Optional[Formatters] = None,
+    result_formatters: Optional[Formatters] = None,
+    error_formatters: Optional[Formatters] = None
 ) -> Middleware:
     def ignore_web3_in_standard_formatters(
         w3: "Web3",

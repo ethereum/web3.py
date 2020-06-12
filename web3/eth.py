@@ -519,7 +519,7 @@ class Eth(Module):
         )
 
     @overload
-    def contract(self, address: None=None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
+    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
 
     @overload  # noqa: F811
     def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Contract: ...  # noqa: E704,E501

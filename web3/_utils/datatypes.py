@@ -2,6 +2,7 @@ from typing import (
     Any,
     Collection,
     Dict,
+    Optional,
     Tuple,
     Type,
 )
@@ -41,7 +42,7 @@ class PropertyCheckingFactory(type):
         name: str,
         bases: Tuple[type],
         namespace: Dict[str, Any],
-        normalizers: Dict[str, Any]=None
+        normalizers: Optional[Dict[str, Any]] = None
     ) -> Type['PropertyCheckingFactory']:
         all_bases = set(concat(base.__mro__ for base in bases))
         all_keys = set(concat(base.__dict__.keys() for base in all_bases))

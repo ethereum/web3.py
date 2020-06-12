@@ -2,6 +2,7 @@ import functools
 from typing import (
     TYPE_CHECKING,
     Any,
+    Optional,
     Sequence,
     Tuple,
     Type,
@@ -73,7 +74,8 @@ if TYPE_CHECKING:
 
 
 def find_matching_event_abi(
-    abi: ABI, event_name: str=None, argument_names: Sequence[str]=None
+    abi: ABI, event_name: Optional[str] = None,
+    argument_names: Optional[Sequence[str]] = None
 ) -> ABIEvent:
 
     filters = [
@@ -101,9 +103,9 @@ def find_matching_event_abi(
 def find_matching_fn_abi(
     abi: ABI,
     abi_codec: ABICodec,
-    fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]]=None,
-    args: Sequence[Any]=None,
-    kwargs: Any=None,
+    fn_identifier: Optional[Union[str, Type[FallbackFn], Type[ReceiveFn]]] = None,
+    args: Optional[Sequence[Any]] = None,
+    kwargs: Optional[Any] = None,
 ) -> ABIFunction:
     args = args or tuple()
     kwargs = kwargs or dict()
@@ -162,7 +164,7 @@ def find_matching_fn_abi(
 
 
 def encode_abi(
-    web3: "Web3", abi: ABIFunction, arguments: Sequence[Any], data: HexStr=None
+    web3: "Web3", abi: ABIFunction, arguments: Sequence[Any], data: Optional[HexStr] = None
 ) -> HexStr:
     argument_types = get_abi_input_types(abi)
 
@@ -200,11 +202,11 @@ def prepare_transaction(
     address: ChecksumAddress,
     web3: "Web3",
     fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]],
-    contract_abi: ABI=None,
-    fn_abi: ABIFunction=None,
-    transaction: TxParams=None,
-    fn_args: Sequence[Any]=None,
-    fn_kwargs: Any=None,
+    contract_abi: Optional[ABI] = None,
+    fn_abi: Optional[ABIFunction] = None,
+    transaction: Optional[TxParams] = None,
+    fn_args: Optional[Sequence[Any]] = None,
+    fn_kwargs: Optional[Any] = None,
 ) -> TxParams:
     """
     :parameter `is_function_abi` is used to distinguish  function abi from contract abi
@@ -242,10 +244,10 @@ def prepare_transaction(
 def encode_transaction_data(
     web3: "Web3",
     fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]],
-    contract_abi: ABI=None,
-    fn_abi: ABIFunction=None,
-    args: Sequence[Any]=None,
-    kwargs: Any=None
+    contract_abi: Optional[ABI] = None,
+    fn_abi: Optional[ABIFunction] = None,
+    args: Optional[Sequence[Any]] = None,
+    kwargs: Optional[Any] = None
 ) -> HexStr:
     if fn_identifier is FallbackFn:
         fn_abi, fn_selector, fn_arguments = get_fallback_function_info(contract_abi, fn_abi)
@@ -263,7 +265,7 @@ def encode_transaction_data(
 
 
 def get_fallback_function_info(
-    contract_abi: ABI=None, fn_abi: ABIFunction=None
+    contract_abi: Optional[ABI] = None, fn_abi: Optional[ABIFunction] = None
 ) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
     if fn_abi is None:
         fn_abi = get_fallback_func_abi(contract_abi)
@@ -273,7 +275,7 @@ def get_fallback_function_info(
 
 
 def get_receive_function_info(
-    contract_abi: ABI=None, fn_abi: ABIFunction=None
+    contract_abi: Optional[ABI] = None, fn_abi: Optional[ABIFunction] = None
 ) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
     if fn_abi is None:
         fn_abi = get_receive_func_abi(contract_abi)
@@ -285,10 +287,10 @@ def get_receive_function_info(
 def get_function_info(
     fn_name: str,
     abi_codec: ABICodec,
-    contract_abi: ABI=None,
-    fn_abi: ABIFunction=None,
-    args: Sequence[Any]=None,
-    kwargs: Any=None,
+    contract_abi: Optional[ABI] = None,
+    fn_abi: Optional[ABIFunction] = None,
+    args: Optional[Sequence[Any]] = None,
+    kwargs: Optional[Any] = None,
 ) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
     if args is None:
         args = tuple()

@@ -7,6 +7,7 @@ from typing import (
     Callable,
     List,
     NoReturn,
+    Optional,
     Tuple,
     Type,
 )
@@ -57,7 +58,8 @@ def not_implemented(*args: Any, **kwargs: Any) -> NoReturn:
 
 @curry
 def call_eth_tester(
-    fn_name: str, eth_tester: "EthereumTester", fn_args: Any, fn_kwargs: Any=None
+    fn_name: str, eth_tester: "EthereumTester", fn_args: Any,
+    fn_kwargs: Optional[Any] = None
 ) -> RPCResponse:
     if fn_kwargs is None:
         fn_kwargs = {}

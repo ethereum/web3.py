@@ -68,12 +68,12 @@ if TYPE_CHECKING:
 def construct_event_filter_params(
     event_abi: ABIEvent,
     abi_codec: ABICodec,
-    contract_address: ChecksumAddress=None,
-    argument_filters: Dict[str, Any]=None,
-    topics: Sequence[HexStr]=None,
-    fromBlock: BlockIdentifier=None,
-    toBlock: BlockIdentifier=None,
-    address: ChecksumAddress=None
+    contract_address: Optional[ChecksumAddress] = None,
+    argument_filters: Optional[Dict[str, Any]] = None,
+    topics: Optional[Sequence[HexStr]] = None,
+    fromBlock: Optional[BlockIdentifier] = None,
+    toBlock: Optional[BlockIdentifier] = None,
+    address: Optional[ChecksumAddress] = None
 ) -> Tuple[List[List[Optional[HexStr]]], FilterParams]:
     filter_params: FilterParams = {}
     topic_set: Sequence[HexStr] = construct_event_topic_set(event_abi, abi_codec, argument_filters)
@@ -163,7 +163,8 @@ class Filter:
         log_entries = self._filter_valid_entries(self.web3.eth.getFilterLogs(self.filter_id))
         return self._format_log_entries(log_entries)
 
-    def _format_log_entries(self, log_entries: Iterator[LogReceipt]=None) -> List[LogReceipt]:
+    def _format_log_entries(self,
+                            log_entries: Optional[Iterator[LogReceipt]] = None) -> List[LogReceipt]:
         if log_entries is None:
             return []
 

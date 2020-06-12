@@ -87,7 +87,7 @@ class WebsocketProvider(JSONBaseProvider):
     def __init__(
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
-        websocket_kwargs: Any = None,
+        websocket_kwargs: Optional[Any] = None,
         websocket_timeout: int = DEFAULT_WEBSOCKET_TIMEOUT,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)

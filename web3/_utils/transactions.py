@@ -2,6 +2,7 @@ import math
 from typing import (
     TYPE_CHECKING,
     List,
+    Optional,
     cast,
 )
 
@@ -111,7 +112,7 @@ def wait_for_transaction_receipt(
     return txn_receipt
 
 
-def get_block_gas_limit(web3: "Web3", block_identifier: BlockIdentifier=None) -> Wei:
+def get_block_gas_limit(web3: "Web3", block_identifier: Optional[BlockIdentifier] = None) -> Wei:
     if block_identifier is None:
         block_identifier = web3.eth.blockNumber
     block = web3.eth.getBlock(block_identifier)

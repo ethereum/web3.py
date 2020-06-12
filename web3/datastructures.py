@@ -12,6 +12,7 @@ from typing import (
     List,
     Mapping,
     MutableMapping,
+    Optional,
     Sequence,
     Type,
     TypeVar,
@@ -132,7 +133,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             else:
                 self.add(*element)
 
-    def add(self, element: TValue, name: TKey=None) -> None:
+    def add(self, element: TValue, name: Optional[TKey] = None) -> None:
         if name is None:
             name = cast(TKey, element)
 
@@ -144,7 +145,8 @@ class NamedElementOnion(Mapping[TKey, TValue]):
 
         self._queue[name] = element
 
-    def inject(self, element: TValue, name: TKey=None, layer: int=None) -> None:
+    def inject(self, element: TValue, name: Optional[TKey] = None,
+               layer: Optional[int] = None) -> None:
         """
         Inject a named element to an arbitrary layer in the onion.
 

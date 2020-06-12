@@ -1,1 +1,1 @@
-Fix type annotations within the ``eth.py`` module. Several arguments that defaulted to ``None`` were not declared ``Optional``.
+Fix type annotations within the ``eth.py`` and ``contract.py`` modules. Several arguments that defaulted to ``None`` were not declared ``Optional``.

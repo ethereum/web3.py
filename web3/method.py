@@ -6,6 +6,7 @@ from typing import (
     Dict,
     Generic,
     List,
+    Optional,
     Sequence,
     Tuple,
     Type,
@@ -113,12 +114,12 @@ class Method(Generic[TFunc]):
     """
     def __init__(
             self,
-            json_rpc_method: RPCEndpoint=None,
-            mungers: Sequence[Munger]=None,
-            request_formatters: Callable[..., TReturn]=None,
-            result_formatters: Callable[..., TReturn]=None,
-            error_formatters: Callable[..., TReturn]=None,
-            web3: "Web3"=None):
+            json_rpc_method: Optional[RPCEndpoint] = None,
+            mungers: Optional[Sequence[Munger]] = None,
+            request_formatters: Optional[Callable[..., TReturn]] = None,
+            result_formatters: Optional[Callable[..., TReturn]] = None,
+            error_formatters: Optional[Callable[..., TReturn]] = None,
+            web3: Optional["Web3"] = None):
 
         self.json_rpc_method = json_rpc_method
         self.mungers = mungers or [default_munger]
@@ -126,7 +127,8 @@ class Method(Generic[TFunc]):
         self.result_formatters = result_formatters or get_result_formatters
         self.error_formatters = get_error_formatters
 
-    def __get__(self, obj: "ModuleV2"=None, obj_type: Type["ModuleV2"]=None) -> TFunc:
+    def __get__(self, obj: Optional["ModuleV2"] = None,
+                obj_type: Optional[Type["ModuleV2"]] = None) -> TFunc:
         if obj is None:
             raise TypeError(
                 "Direct calls to methods are not supported. "
@@ -181,7 +183,8 @@ class DeprecatedMethod():
         self.old_name = old_name
         self.new_name = new_name
 
-    def __get__(self, obj: "ModuleV2"=None, obj_type: Type["ModuleV2"]=None) -> Any:
+    def __get__(self, obj: Optional["ModuleV2"] = None,
+                obj_type: Optional[Type["ModuleV2"]] = None) -> Any:
         warnings.warn(
             f"{self.old_name} is deprecated in favor of {self.new_name}",
             category=DeprecationWarning,

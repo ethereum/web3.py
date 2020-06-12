@@ -1,5 +1,6 @@
 from typing import (
     List,
+    Optional,
     Union,
 )
 
@@ -135,7 +136,7 @@ class Parity(Module):
         address: Union[Address, ChecksumAddress, ENS],
         quantity: int,
         hash_: Hash32,
-        block_identifier: BlockIdentifier=None,
+        block_identifier: Optional[BlockIdentifier] = None,
     ) -> List[Hash32]:
         if block_identifier is None:
             block_identifier = self.defaultBlock
@@ -194,7 +195,7 @@ class Parity(Module):
         self,
         transaction: TxParams,
         mode: ParityTraceMode=['trace'],
-        block_identifier: BlockIdentifier=None
+        block_identifier: Optional[BlockIdentifier] = None
     ) -> ParityBlockTrace:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.web3.eth.defaultAccount):

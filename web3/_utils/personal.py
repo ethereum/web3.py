@@ -67,7 +67,8 @@ lock_account: Method[Callable[[ChecksumAddress], bool]] = Method(
 
 
 class UnlockAccountWrapper(Protocol):
-    def __call__(self, account: ChecksumAddress, passphrase: str, duration: int=None) -> bool:
+    def __call__(self, account: ChecksumAddress, passphrase: str,
+                 duration: Optional[int] = None) -> bool:
         pass
 
 
