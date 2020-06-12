@@ -389,7 +389,7 @@ class Eth(Module):
             [transaction],
         )
 
-    def sendRawTransaction(self, raw_transaction: HexStr) -> HexBytes:
+    def sendRawTransaction(self, raw_transaction: Union[HexStr, bytes]) -> HexBytes:
         return self.web3.manager.request_blocking(
             RPC.eth_sendRawTransaction,
             [raw_transaction],
