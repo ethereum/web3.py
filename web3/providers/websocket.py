@@ -10,7 +10,9 @@ from types import (
 )
 from typing import (
     Any,
+    Optional,
     Type,
+    Union,
 )
 
 from eth_typing import (
@@ -84,11 +86,11 @@ class WebsocketProvider(JSONBaseProvider):
 
     def __init__(
         self,
-        endpoint_uri: URI=None,
-        websocket_kwargs: Any=None,
-        websocket_timeout: int=DEFAULT_WEBSOCKET_TIMEOUT,
+        endpoint_uri: Optional[Union[URI, str]] = None,
+        websocket_kwargs: Any = None,
+        websocket_timeout: int = DEFAULT_WEBSOCKET_TIMEOUT,
     ) -> None:
-        self.endpoint_uri = endpoint_uri
+        self.endpoint_uri = URI(endpoint_uri)
         self.websocket_timeout = websocket_timeout
         if self.endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()

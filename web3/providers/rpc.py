@@ -4,7 +4,9 @@ from typing import (
     Any,
     Dict,
     Iterable,
+    Optional,
     Tuple,
+    Union,
 )
 
 from eth_typing import (
@@ -49,11 +51,13 @@ class HTTPProvider(JSONBaseProvider):
     # type ignored b/c conflict with _middlewares attr on BaseProvider
     _middlewares: Tuple[Middleware, ...] = NamedElementOnion([(http_retry_request_middleware, 'http_retry_request')])  # type: ignore # noqa: E501
 
-    def __init__(self, endpoint_uri: URI=None, request_kwargs: Any=None) -> None:
+    def __init__(
+        self, endpoint_uri: Optional[Union[URI, str]] = None, request_kwargs: Any = None
+    ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()
         else:
-            self.endpoint_uri = endpoint_uri
+            self.endpoint_uri = URI(endpoint_uri)
         self._request_kwargs = request_kwargs or {}
         super().__init__()
 
