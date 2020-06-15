@@ -3,6 +3,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Optional,
     Union,
 )
 
@@ -65,7 +66,7 @@ class Module:
         self.web3 = web3
 
     @classmethod
-    def attach(cls, target: "Web3", module_name: str=None) -> None:
+    def attach(cls, target: "Web3", module_name: Optional[str] = None) -> None:
         if not module_name:
             module_name = cls.__name__.lower()
 

@@ -44,7 +44,7 @@ def load_provider_from_environment() -> BaseProvider:
 
 
 def load_provider_from_uri(
-    uri_string: URI, headers: Dict[str, Tuple[str, str]]=None
+    uri_string: URI, headers: Optional[Dict[str, Tuple[str, str]]] = None
 ) -> BaseProvider:
     uri = urlparse(uri_string)
     if uri.scheme == 'file':
@@ -74,7 +74,8 @@ class AutoProvider(BaseProvider):
 
     def __init__(
         self,
-        potential_providers: Sequence[Union[Callable[..., BaseProvider], Type[BaseProvider]]]=None
+        potential_providers: Optional[Sequence[Union[Callable[..., BaseProvider],
+                                      Type[BaseProvider]]]] = None
     ) -> None:
         """
         :param iterable potential_providers: ordered series of provider classes to attempt with
@@ -98,7 +99,8 @@ class AutoProvider(BaseProvider):
         provider = self._get_active_provider(use_cache=True)
         return provider is not None and provider.isConnected()
 
-    def _proxy_request(self, method: RPCEndpoint, params: Any, use_cache: bool=True) -> RPCResponse:
+    def _proxy_request(self, method: RPCEndpoint, params: Any,
+                       use_cache: bool=True) -> RPCResponse:
         provider = self._get_active_provider(use_cache)
         if provider is None:
             raise CannotHandleRequest(

@@ -52,7 +52,8 @@ class HTTPProvider(JSONBaseProvider):
     _middlewares: Tuple[Middleware, ...] = NamedElementOnion([(http_retry_request_middleware, 'http_retry_request')])  # type: ignore # noqa: E501
 
     def __init__(
-        self, endpoint_uri: Optional[Union[URI, str]] = None, request_kwargs: Any = None
+        self, endpoint_uri: Optional[Union[URI, str]] = None,
+        request_kwargs: Optional[Any] = None
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()

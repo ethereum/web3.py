@@ -6,6 +6,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    Optional,
     Sequence,
     Type,
     Union,
@@ -56,7 +57,8 @@ from web3.datastructures import (
 )
 
 
-def hex_encode_abi_type(abi_type: TypeStr, value: Any, force_size: int=None) -> HexStr:
+def hex_encode_abi_type(abi_type: TypeStr, value: Any,
+                        force_size: Optional[int] = None) -> HexStr:
     """
     Encodes value into a hex string in format of abi_type
     """
@@ -198,7 +200,8 @@ class FriendlyJsonSerde:
             except TypeError as exc:
                 yield "%d: because (%s)" % (index, exc)
 
-    def _friendly_json_encode(self, obj: Dict[Any, Any], cls: Type[json.JSONEncoder]=None) -> str:
+    def _friendly_json_encode(self, obj: Dict[Any, Any],
+                              cls: Optional[Type[json.JSONEncoder]] = None) -> str:
         try:
             encoded = json.dumps(obj, cls=cls)
             return encoded
@@ -222,7 +225,8 @@ class FriendlyJsonSerde:
             # so we have to re-raise the same type.
             raise json.decoder.JSONDecodeError(err_msg, exc.doc, exc.pos)
 
-    def json_encode(self, obj: Dict[Any, Any], cls: Type[json.JSONEncoder]=None) -> str:
+    def json_encode(self, obj: Dict[Any, Any],
+                    cls: Optional[Type[json.JSONEncoder]] = None) -> str:
         try:
             return self._friendly_json_encode(obj, cls=cls)
         except TypeError as exc:

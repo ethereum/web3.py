@@ -69,8 +69,8 @@ class RequestManager:
     def __init__(
         self,
         web3: 'Web3',
-        provider: BaseProvider=None,
-        middlewares: Sequence[Tuple[Middleware, str]]=None
+        provider: Optional[BaseProvider] = None,
+        middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None
     ) -> None:
         self.web3 = web3
         self.pending_requests: Dict[UUID, ThreadWithReturn[RPCResponse]] = {}
@@ -141,7 +141,7 @@ class RequestManager:
         self,
         method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
         params: Any,
-        error_formatters: Callable[..., Any]=None,
+        error_formatters: Optional[Callable[..., Any]] = None,
     ) -> Any:
         """
         Make a synchronous request using the provider
@@ -158,7 +158,7 @@ class RequestManager:
         self,
         method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
         params: Any,
-        error_formatters: Callable[..., Any]=None,
+        error_formatters: Optional[Callable[..., Any]] = None,
     ) -> Any:
         """
         Couroutine for making a request using the provider
@@ -184,7 +184,7 @@ class RequestManager:
         )
         return request_id
 
-    def receive_blocking(self, request_id: UUID, timeout: float=None) -> Any:
+    def receive_blocking(self, request_id: UUID, timeout: Optional[float] = None) -> Any:
         try:
             request = self.pending_requests.pop(request_id)
         except KeyError:

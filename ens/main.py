@@ -292,7 +292,8 @@ class ENS:
             self._claim_ownership(new_owner, unowned, owned, super_owner, transact=transact)
             return new_owner
 
-    def _assert_control(self, account: ChecksumAddress, name: str, parent_owned: str=None) -> None:
+    def _assert_control(self, account: ChecksumAddress, name: str,
+                        parent_owned: Optional[str] = None) -> None:
         if not address_in(account, self.web3.eth.accounts):
             raise UnauthorizedError(
                 "in order to modify %r, you must control account %r, which owns %r" % (

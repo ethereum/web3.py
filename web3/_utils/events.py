@@ -90,7 +90,8 @@ if TYPE_CHECKING:
 
 
 def construct_event_topic_set(
-    event_abi: ABIEvent, abi_codec: ABICodec, arguments: Union[Sequence[Any], Dict[str, Any]]=None
+    event_abi: ABIEvent, abi_codec: ABICodec,
+    arguments: Optional[Union[Sequence[Any], Dict[str, Any]]] = None
 ) -> List[HexStr]:
     if arguments is None:
         arguments = {}
@@ -132,7 +133,8 @@ def construct_event_topic_set(
 
 
 def construct_event_data_set(
-    event_abi: ABIEvent, abi_codec: ABICodec, arguments: Union[Sequence[Any], Dict[str, Any]]=None
+    event_abi: ABIEvent, abi_codec: ABICodec,
+    arguments: Optional[Union[Sequence[Any], Dict[str, Any]]] = None
 ) -> List[List[Optional[HexStr]]]:
     if arguments is None:
         arguments = {}
@@ -279,7 +281,8 @@ def pop_singlets(seq: Sequence[Any]) -> Iterable[Any]:
 
 
 @curry
-def remove_trailing_from_seq(seq: Sequence[Any], remove_value: Any=None) -> Sequence[Any]:
+def remove_trailing_from_seq(seq: Sequence[Any],
+                             remove_value: Optional[Any] = None) -> Sequence[Any]:
     index = len(seq)
     while index > 0 and seq[index - 1] == remove_value:
         index -= 1
@@ -308,7 +311,8 @@ class EventFilterBuilder:
     _immutable = False
 
     def __init__(
-        self, event_abi: ABIEvent, abi_codec: ABICodec, formatter: EventData=None
+        self, event_abi: ABIEvent, abi_codec: ABICodec,
+        formatter: Optional[EventData] = None
     ) -> None:
         self.event_abi = event_abi
         self.abi_codec = abi_codec

@@ -3,6 +3,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Optional,
     Tuple,
     Type,
 )
@@ -22,7 +23,8 @@ if TYPE_CHECKING:
 
 
 def construct_exception_handler_middleware(
-    method_handlers: Dict[RPCEndpoint, Tuple[Type[BaseException], Callable[..., None]]]=None
+    method_handlers: Optional[Dict[RPCEndpoint,
+                                   Tuple[Type[BaseException], Callable[..., None]]]] = None
 ) -> Middleware:
     if method_handlers is None:
         method_handlers = {}

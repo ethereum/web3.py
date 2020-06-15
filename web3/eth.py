@@ -389,7 +389,7 @@ class Eth(Module):
             [transaction],
         )
 
-    def sendRawTransaction(self, raw_transaction: HexStr) -> HexBytes:
+    def sendRawTransaction(self, raw_transaction: Union[HexStr, bytes]) -> HexBytes:
         return self.web3.manager.request_blocking(
             RPC.eth_sendRawTransaction,
             [raw_transaction],
@@ -519,7 +519,7 @@ class Eth(Module):
         )
 
     @overload
-    def contract(self, address: None=None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
+    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
 
     @overload  # noqa: F811
     def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Contract: ...  # noqa: E704,E501

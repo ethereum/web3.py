@@ -18,7 +18,7 @@ from eth_utils import (
 from hexbytes import (
     HexBytes,
 )
-from typing import Any, cast, Dict, List, Sequence, TYPE_CHECKING
+from typing import Any, cast, Dict, List, Optional, Sequence, TYPE_CHECKING
 
 from eth_typing import HexStr, Primitives
 from eth_typing.abi import TypeStr
@@ -164,9 +164,9 @@ class Web3:
 
     def __init__(
         self,
-        provider: BaseProvider=None,
-        middlewares: Sequence[Any]=None,
-        modules: Dict[str, Sequence[Any]]=None,
+        provider: Optional[BaseProvider] = None,
+        middlewares: Optional[Sequence[Any]] = None,
+        modules: Optional[Dict[str, Sequence[Any]]] = None,
         ens: ENS=cast(ENS, empty)
     ) -> None:
         self.manager = self.RequestManager(self, provider, middlewares)
@@ -204,12 +204,14 @@ class Web3:
     @staticmethod
     @deprecated_for("keccak")
     @apply_to_return_value(HexBytes)
-    def sha3(primitive: Primitives=None, text: str=None, hexstr: HexStr=None) -> bytes:
+    def sha3(primitive: Optional[Primitives] = None, text: Optional[str] = None,
+             hexstr: Optional[HexStr] = None) -> bytes:
         return Web3.keccak(primitive, text, hexstr)
 
     @staticmethod
     @apply_to_return_value(HexBytes)
-    def keccak(primitive: Primitives=None, text: str=None, hexstr: HexStr=None) -> bytes:
+    def keccak(primitive: Optional[Primitives] = None, text: Optional[str] = None,
+               hexstr: Optional[HexStr] = None) -> bytes:
         if isinstance(primitive, (bytes, int, type(None))):
             input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
             return eth_utils_keccak(input_bytes)

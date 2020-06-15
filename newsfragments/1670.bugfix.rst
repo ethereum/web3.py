@@ -1,0 +1,1 @@
+Fix type annotations within the ``web3`` modules. Several arguments that defaulted to ``None`` were not declared ``Optional``.

@@ -116,7 +116,7 @@ def block_ranges(
 
 
 def iter_latest_block(
-    w3: "Web3", to_block: Union[BlockNumber, LatestBlockParam]=None
+    w3: "Web3", to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None
 ) -> Iterable[BlockNumber]:
     """Returns a generator that dispenses the latest block, if
     any new blocks have been mined since last iteration.
@@ -157,7 +157,7 @@ def iter_latest_block(
 def iter_latest_block_ranges(
     w3: "Web3",
     from_block: BlockNumber,
-    to_block: Union[BlockNumber, LatestBlockParam]=None,
+    to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
 ) -> Iterable[Tuple[Optional[BlockNumber], Optional[BlockNumber]]]:
     """Returns an iterator unloading ranges of available blocks
 
@@ -215,10 +215,12 @@ class RequestLogs:
     def __init__(
         self,
         w3: "Web3",
-        from_block: Union[BlockNumber, LatestBlockParam]=None,
-        to_block: Union[BlockNumber, LatestBlockParam]=None,
-        address: Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]]=None,
-        topics: List[Optional[Union[_Hash32, List[_Hash32]]]]=None
+        from_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
+        to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
+        address: Optional[Union[Address,
+                                ChecksumAddress,
+                                List[Union[Address, ChecksumAddress]]]] = None,
+        topics: Optional[List[Optional[Union[_Hash32, List[_Hash32]]]]] = None
     ) -> None:
         self.address = address
         self.topics = topics
