@@ -21,36 +21,68 @@ using ``pip`` as follows:
 
 
 .. NOTE:: If you run into problems during installation, you might have a
-    broken environment. See the troubleshooting guide to :ref:`setup_environment`.
-
-
-Installation from source can be done from the root of the project with the
-following command.
-
-.. code-block:: shell
-
-   $ pip install .
+    broken environment. See the troubleshooting guide to :ref:`setting up a
+    clean environment <setup_environment>`.
 
 
 Using Web3
 ----------
 
-To use the web3 library you will need to initialize the
-:class:`~web3.Web3` class and connect to an Ethereum node.
-There are several ways to configure this connection; the
-full details can be found in the :ref:`Providers<providers>`
-documentation.
+This library depends on a connection to an Ethereum node. We call these connections
+*Providers* and there are several ways to configure them. The full details can be found
+in the :ref:`Providers<providers>` documentation. This Quickstart guide will highlight
+a couple of the most common use cases.
 
-The quickest way to connect to a mainnet node for free is by setting up an
-account on `Infura <https://infura.io/>`_. On the Infura dashboard, create
-a project, copy the Project ID, then set the environment variable
-``WEB3_INFURA_PROJECT_ID`` before running your script or application.
 
-.. code-block:: shell
+Provider: Local Geth Node
+**************************
 
-    $ export WEB3_INFURA_PROJECT_ID=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+For locally run nodes, an IPC connection is the most secure option, but HTTP and
+websocket configurations are also available. By default, `Geth <https://geth.ethereum.org/>`_
+exposes port ``8545`` to serve HTTP requests and ``8546`` for websocket requests. Connecting
+to this local node can be done as follows:
 
-Use the ``web3.auto.infura`` module to connect to the Infura node.
+.. code-block:: python
+
+   >>> from web3 import Web3
+
+   # IPCProvider:
+   >>> w3 = Web3(Web3.IPCProvider('./path/to/geth.ipc'))
+
+   # HTTPProvider:
+   >>> w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545'))
+
+   # WebsocketProvider:
+   >>> w3 = Web3(Web3.WebsocketProvider('ws://127.0.0.1:8546'))
+
+   >>> w3.isConnected()
+   True
+
+If you stick to the default ports or IPC file locations, you can utilize a
+:ref:`convenience method <automatic_provider>` to automatically detect the provider
+and save a few keystrokes:
+
+.. code-block:: python
+
+   >>> from web3.auto import w3
+   >>> w3.isConnected()
+   True
+
+Provider: Infura
+*****************
+
+The quickest way to interact with the Ethereum blockchain is to use a remote node provider,
+like `Infura <https://infura.io/>`_. You can connect to a remote node by specifying the
+endpoint, just like the previous local node example:
+
+.. code-block:: python
+
+   >>> from web3 import Web3
+   >>> w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/<infura-project-id>'))
+
+This endpoint is provided by Infura after you create a (free) account.
+
+Again, a convenience method exists to save a few keystrokes:
 
 .. code-block:: python
 
@@ -58,19 +90,12 @@ Use the ``web3.auto.infura`` module to connect to the Infura node.
     >>> w3.eth.blockNumber
     4000000
 
-This ``w3`` instance will now allow you to interact with the Ethereum
-blockchain.
+Note that this requires your Infura Project ID to be set as the environment variable
+``WEB3_INFURA_PROJECT_ID`` before running your script or application:
 
-.. NOTE::
-    If you don't want to use Infura, the ``web3.auto`` module is
-    available and will :ref:`guess at common node connection
-    options <automatic_provider_detection>`.
+.. code-block:: shell
 
-      .. code-block:: python
-
-          >>> from web3.auto import w3
-          >>> w3.eth.blockNumber
-          4000000
+    $ export WEB3_INFURA_PROJECT_ID=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 .. NOTE:: If you get the result ``UnhandledRequest: No providers responded to the RPC request``
     then you are not connected to a node. See :ref:`why_need_connection` and
@@ -79,9 +104,10 @@ blockchain.
 .. _first_w3_use:
 
 Getting Blockchain Info
-----------------------------------------
+-----------------------
 
-It's time to start using Web3.py! Try getting all the information about the latest block.
+It's time to start using Web3.py! Once properly configured, the ``w3`` instance will allow you
+to interact with the Ethereum blockchain. Try getting all the information about the latest block:
 
 .. code-block:: python
 
@@ -106,6 +132,9 @@ It's time to start using Web3.py! Try getting all the information about the late
      'transactions': [],
      'transactionsRoot': HexBytes('0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421'),
      'uncles': []}
+
+Web3.py can help you read block data, sign and send transactions, deploy and interact with contracts,
+and a number of other features.
 
 Many of the typical things you'll want to do will be in the :class:`w3.eth <web3.eth.Eth>` API,
 so that is a good place to start.

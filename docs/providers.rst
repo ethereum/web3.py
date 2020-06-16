@@ -59,6 +59,8 @@ Then you are ready to initialize your Web3 instance, like so:
 
 Finally, you are ready to :ref:`get started with Web3.py<first_w3_use>`.
 
+.. _automatic_provider:
+
 Automatic vs Manual Providers
 -----------------------------
 
