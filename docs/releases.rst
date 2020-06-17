@@ -6,6 +6,25 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.11.1 (2020-06-17)
+--------------------
+
+Bugfixes
+~~~~~~~~
+
+- Added formatter rules for eth_tester middleware to allow :meth:`~web3.eth.Eth.getBalance` by using integer block numbers (`#1660 <https://github.com/ethereum/web3.py/issues/1660>`__)
+- Fix type annotations within the ``eth.py`` module. Several arguments that defaulted to ``None`` were not declared ``Optional``. (`#1668 <https://github.com/ethereum/web3.py/issues/1668>`__)
+- Fix type annotation warning when using string URI to instantiate an HTTP or WebsocketProvider. (`#1669 <https://github.com/ethereum/web3.py/issues/1669>`__)
+- Fix type annotations within the ``web3`` modules. Several arguments that defaulted to ``None`` were not declared ``Optional``. (`#1670 <https://github.com/ethereum/web3.py/issues/1670>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Breaks up links into three categories (Intro, Guides, and API) and adds content to the index page: a lib introduction and some "Getting Started" links. (`#1671 <https://github.com/ethereum/web3.py/issues/1671>`__)
+- Fills in some gaps in the Quickstart guide and adds provider connection details for local nodes. (`#1673 <https://github.com/ethereum/web3.py/issues/1673>`__)
+
+
 v5.11.0 (2020-06-03)
 --------------------
 

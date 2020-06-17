@@ -1,1 +1,0 @@
-Fix type annotation warning when using string URI to instantiate an HTTP or WebsocketProvider.
