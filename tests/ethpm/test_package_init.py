@@ -49,6 +49,16 @@ def test_init_from_minimal_valid_manifest(w3):
     Package(minimal_manifest, w3)
 
 
+def test_init_with_outdated_ethpm_manifest(w3):
+    v2_manifest = {
+        "package_name": "foo",
+        "manifest_version": "2",
+        "version": "1.0.0",
+    }
+    with pytest.raises(EthPMValidationError):
+        Package(v2_manifest, w3)
+
+
 def test_package_init_for_all_manifest_use_cases(all_manifests, w3):
     package = Package(all_manifests, w3)
     assert isinstance(package, Package)

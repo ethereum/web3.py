@@ -101,6 +101,12 @@ class Package(object):
                 f"Got {type(manifest)}"
             )
 
+        if "manifest" not in manifest or manifest["manifest"] != "ethpm/3":
+            raise EthPMValidationError(
+                "Py-Ethpm currently only supperts v3 ethpm manifests. "
+                "Please use the CLI to update or re-generate a v3 manifest. "
+            )
+
         validate_manifest_against_schema(manifest)
         validate_manifest_deployments(manifest)
         validate_w3_instance(w3)
@@ -137,10 +143,6 @@ class Package(object):
         name = self.name
         version = self.version
         return f"<Package {name}=={version}>"
-
-    # checks manifest and warns if any snakecased / outdated fields
-    # def v2_check()
-        # pass
 
     @property
     def name(self) -> str:
