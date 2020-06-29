@@ -349,6 +349,7 @@ def contract_type(
     compiler_output: Dict[str, Any],
     alias: Optional[str] = None,
     abi: Optional[bool] = False,
+    compiler: Optional[bool] = False,
     contract_type: Optional[bool] = False,
     deployment_bytecode: Optional[bool] = False,
     devdoc: Optional[bool] = False,
@@ -372,6 +373,7 @@ def contract_type(
         "deploymentBytecode": deployment_bytecode,
         "runtimeBytecode": runtime_bytecode,
         "abi": abi,
+        "compiler": compiler,
         "userdoc": userdoc,
         "devdoc": devdoc,
         "sourceId": source_id,
@@ -402,13 +404,49 @@ def _contract_type(
     else:
         contract_type_data = all_type_data
 
+    if "compiler" in contract_type_data:
+        compiler_info = contract_type_data.pop('compiler')
+        contract_type_ref = alias if alias else name
+        manifest_with_compilers = add_compilers_to_manifest(compiler_info, contract_type_ref, manifest)
+    else:
+        manifest_with_compilers = manifest
+
     if alias:
         return assoc_in(
-            manifest,
+            manifest_with_compilers,
             ["contractTypes", alias],
             assoc(contract_type_data, "contractType", name),
         )
-    return assoc_in(manifest, ["contractTypes", name], contract_type_data)
+    return assoc_in(manifest_with_compilers, ["contractTypes", name], contract_type_data)
+
+
+def add_compilers_to_manifest(compiler_info, contract_type, manifest):
+    if "compilers" not in manifest:
+        compiler_info['contractTypes'] = [contract_type]
+        return assoc_in(manifest, ["compilers"], [compiler_info])
+    
+    updated_compiler_info = update_compilers_object(compiler_info, contract_type, manifest["compilers"])
+    return assoc_in(manifest, ["compilers"], updated_compiler_info)
+
+
+@to_list
+def update_compilers_object(new_compiler, contract_type, previous_compilers):
+    recorded_new_contract_type = False
+    for compiler in previous_compilers:
+        contract_types = compiler.pop("contractTypes")
+        if contract_type in contract_types:
+            raise ManifestBuildingError(
+                f"Contract type: {contract_type} already referenced in `compilers`."
+            )
+        if compiler == new_compiler:
+            contract_types.append(contract_type)
+            recorded_new_contract_type = True
+        compiler["contractTypes"] = contract_types
+        yield compiler
+
+    if not recorded_new_contract_type:
+        new_compiler["contractTypes"] = [contract_type]
+        yield new_compiler
 
 
 @to_dict
@@ -476,10 +514,10 @@ def normalize_contract_type(
     if "userdoc" in contract_type_data:
         yield "userdoc", contract_type_data['userdoc']
     # make sure metadata isn't an empty string in solc output
-    # if "metadata" in contract_type_data and contract_type_data["metadata"]:
-        # yield "compiler", normalize_compiler_object(
-            # json.loads(contract_type_data["metadata"])
-        # )
+    if "metadata" in contract_type_data and contract_type_data["metadata"]:
+        yield "compiler", normalize_compiler_object(
+            json.loads(contract_type_data["metadata"])
+        )
 
 
 @to_dict
