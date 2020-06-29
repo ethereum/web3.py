@@ -48,7 +48,6 @@ from ethpm.tools.builder import (
     version,
     write_to_disk,
 )
-from ethpm.validation.manifest import validate_manifest_against_schema
 from web3.tools.pytest_ethereum.linker import (
     deploy,
     link,
@@ -61,23 +60,10 @@ BASE_MANIFEST = {"name": "package", "manifest": "ethpm/3", "version": "1.0.0"}
 @pytest.fixture
 def owned_package():
     manifest = json.loads((ETHPM_SPEC_DIR / "examples" / "owned" / "v3.json").read_text())
-    # compiler = json.loads((ASSETS_DIR / "owned" / "owned_compiler_output.json").read_text())[
     compiler = json.loads((ASSETS_DIR / "owned" / "output_v3.json").read_text())[
         "contracts"
     ]
     contracts_dir = ASSETS_DIR / "owned" / "contracts"
-    return contracts_dir, manifest, compiler
-
-
-@pytest.fixture
-def owned_package_devdoc():
-    root = ASSETS_DIR / "owned"
-    manifest = json.loads((root / "1.0.0.json").read_text())
-    # compiler = json.loads((root / "owned_compiler_output_devdoc.json").read_text())[
-    compiler = json.loads((root / "output_v3.json").read_text())[
-        "contracts"
-    ]
-    contracts_dir = root / "contracts"
     return contracts_dir, manifest, compiler
 
 
@@ -99,7 +85,6 @@ def registry_package():
     root = ASSETS_DIR / "registry"
     compiler = json.loads(Path(root / "solc_output.json").read_text())["contracts"]
     contracts_dir = root / "contracts"
-    # manifest = json.loads((root / "2.0.0.json").read_text())
     manifest = json.loads((root / "v3registry.json").read_text())
     return contracts_dir, manifest, compiler
 
@@ -115,11 +100,11 @@ def test_builder_simple_with_package(w3):
         package_name("package"),
         manifest_version("ethpm/3"),
         version("1.0.0"),
+        validate(),
         as_package(w3),
     )
     assert isinstance(package, Package)
     assert package.version == "1.0.0"
-    assert validate_manifest_against_schema(package.manifest) is None
 
 
 PRETTY_MANIFEST = """{
@@ -139,13 +124,13 @@ def test_builder_writes_manifest_to_disk(manifest_dir):
         package_name("package"),
         manifest_version("ethpm/3"),
         version("1.0.0"),
+        validate(),
         write_to_disk(
             manifest_root_dir=manifest_dir, manifest_name="1.0.0.json", prettify=True
         ),
     )
     actual_manifest = (manifest_dir / "1.0.0.json").read_text()
     assert actual_manifest == PRETTY_MANIFEST
-    assert validate_manifest_against_schema(json.loads(actual_manifest)) is None
 
 
 def test_builder_to_disk_uses_default_cwd(manifest_dir, monkeypatch):
@@ -156,10 +141,10 @@ def test_builder_to_disk_uses_default_cwd(manifest_dir, monkeypatch):
         manifest_version("ethpm/3"),
         version("1.0.0"),
         write_to_disk(),
+        validate(),
     )
     actual_manifest = (manifest_dir / "1.0.0.json").read_text()
     assert actual_manifest == MINIFIED_MANIFEST
-    assert validate_manifest_against_schema(json.loads(actual_manifest)) is None
 
 
 def test_to_disk_writes_minified_manifest_as_default(manifest_dir):
@@ -169,10 +154,10 @@ def test_to_disk_writes_minified_manifest_as_default(manifest_dir):
         manifest_version("ethpm/3"),
         version("1.0.0"),
         write_to_disk(manifest_root_dir=manifest_dir, manifest_name="1.0.0.json"),
+        validate(),
     )
     actual_manifest = (manifest_dir / "1.0.0.json").read_text()
     assert actual_manifest == MINIFIED_MANIFEST
-    assert validate_manifest_against_schema(json.loads(actual_manifest)) is None
 
 
 def test_to_disk_uses_default_manifest_name(manifest_dir):
@@ -182,10 +167,10 @@ def test_to_disk_uses_default_manifest_name(manifest_dir):
         manifest_version("ethpm/3"),
         version("1.0.0"),
         write_to_disk(manifest_root_dir=manifest_dir),
+        validate(),
     )
     actual_manifest = (manifest_dir / "1.0.0.json").read_text()
     assert actual_manifest == MINIFIED_MANIFEST
-    assert validate_manifest_against_schema(json.loads(actual_manifest)) is None
 
 
 @pytest.mark.parametrize(
@@ -234,7 +219,6 @@ def test_builder_with_simple_meta_fields(fn, value):
     manifest = build(BASE_MANIFEST, fn, validate())
     expected = assoc(BASE_MANIFEST, "meta", value)
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_simple_with_multi_meta_field():
@@ -259,7 +243,6 @@ def test_builder_simple_with_multi_meta_field():
         },
     )
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_with_inline_source(owned_package, monkeypatch):
@@ -282,7 +265,6 @@ def test_builder_with_inline_source(owned_package, monkeypatch):
         },
     )
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_with_source_inliner(owned_package, monkeypatch):
@@ -306,7 +288,6 @@ def test_builder_with_source_inliner(owned_package, monkeypatch):
         },
     )
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_with_inline_source_with_package_root_dir_arg(owned_package):
@@ -331,7 +312,6 @@ def test_builder_with_inline_source_with_package_root_dir_arg(owned_package):
         },
     )
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_with_pin_source(owned_package, dummy_ipfs_backend):
@@ -355,7 +335,6 @@ def test_builder_with_pin_source(owned_package, dummy_ipfs_backend):
     )
 
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_with_pinner(owned_package, dummy_ipfs_backend):
@@ -379,7 +358,6 @@ def test_builder_with_pinner(owned_package, dummy_ipfs_backend):
     )
 
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_with_init_manifest(owned_package, dummy_ipfs_backend):
@@ -400,7 +378,6 @@ def test_builder_with_init_manifest(owned_package, dummy_ipfs_backend):
     )
 
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_with_default_contract_types(owned_package):
@@ -414,7 +391,6 @@ def test_builder_with_default_contract_types(owned_package):
     expected_with_contract_type = assoc(BASE_MANIFEST, "contractTypes", {"Owned": contract_type_data})
     expected = assoc(expected_with_contract_type, "compilers", [compilers_data])
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_with_single_alias_kwarg(owned_package):
@@ -436,7 +412,6 @@ def test_builder_with_single_alias_kwarg(owned_package):
     )
     expected = assoc(expected_with_contract_type, "compilers", [compilers_data])
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_without_alias_and_with_select_contract_types(owned_package):
@@ -452,7 +427,6 @@ def test_builder_without_alias_and_with_select_contract_types(owned_package):
     }
     expected = assoc(BASE_MANIFEST, "contractTypes", {"Owned": selected_data})
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_with_alias_and_select_contract_types(owned_package):
@@ -483,7 +457,6 @@ def test_builder_with_alias_and_select_contract_types(owned_package):
         {"OwnedAlias": assoc(contract_type_data, "contractType", "Owned")},
     )
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_manages_duplicate_compilers(owned_package):
@@ -522,11 +495,9 @@ def test_builder_manages_duplicate_compilers(owned_package):
             "OwnedAlias": assoc(contract_type_data, "contractType", "Owned"),
         },
     )
-    # todo: we should be able to do this with kwargs
     expected_with_contract_types['contractTypes']['Owned'].pop("contractType")
     expected = assoc(expected_with_contract_types, 'compilers', [compiler_data_with_contract_types])
     assert manifest == expected
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_raises_exception_if_selected_contract_type_missing_from_solc(
@@ -558,7 +529,6 @@ def test_builder_with_standard_token_manifest(
         validate(),
     )
     assert manifest == expected_manifest
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_with_link_references(
@@ -688,7 +658,6 @@ def test_builder_with_link_references(
         validate(),
     )
     assert manifest == expected_manifest
-    assert validate_manifest_against_schema(manifest) is None
 
 
 def test_builder_deployment_simple(w3):
@@ -715,9 +684,9 @@ def test_builder_deployment_simple(w3):
             contract_type="Owned",
             address=to_canonical_address("0xd3cda913deb6f67967b99d67acdfa1712c293601"),
         ),
+        validate(),
     )
     assert manifest == json.loads(expected)
-    assert validate_manifest_against_schema(manifest) is None
 
 
 @pytest.fixture
@@ -758,7 +727,7 @@ def test_builder_deployment_type_complex(escrow_package):
         {},
         package_name("escrow"),
         version("1.0.0"),
-        manifest_version("2"),
+        manifest_version("ethpm/3"),
         escrow_dep_type(
             block_uri="blockchain://1111111111111111111111111111111111111111111111111111111111111111/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",  # noqa: E501
             address=escrow.deployments.get_instance("Escrow").address,
@@ -782,6 +751,7 @@ def test_builder_deployment_type_complex(escrow_package):
             contract_type="SafeSendLib",
             address=escrow.deployments.get_instance("SafeSendLib").address,
         ),
+        validate(),
     )
     assert len(manifest["deployments"].keys()) == 2
     assert len(list(manifest["deployments"].values())[0]) == 2
@@ -798,9 +768,9 @@ def test_builder_with_single_build_dependency():
         build_dependency(
             "package", "ipfs://QmUYcVzTfSwJoigggMxeo2g5STWAgJdisQsqcXHws7b1FW"
         ),
+        validate(),
     )
     assert actual == expected
-    assert validate_manifest_against_schema(actual) is None
 
 
 def test_builder_with_multiple_build_dependencies():
@@ -817,9 +787,9 @@ def test_builder_with_multiple_build_dependencies():
         build_dependency(
             "escrow", "ipfs://QmPDwMHk8e1aMEZg3iKsUiPSkhHkywpGB3KHKM52RtGrkv"
         ),
+        validate(),
     )
     assert actual == expected
-    assert validate_manifest_against_schema(actual) is None
 
 
 def test_builder_with_invalid_uri():
