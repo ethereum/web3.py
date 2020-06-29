@@ -41,6 +41,7 @@ representation.  Block numbers
         'transactionsRoot': '0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421',
         'uncles': [],
     }
+
     # get a block by it's hash
     >>> web3.eth.getBlock('0x767c2bfb3bdee3f78676c1285cd757bcd5d8c272cef2eb30d9733800a78c0b6d')
     {...}
@@ -67,8 +68,24 @@ If you want to know the latest block number you can use the
     4194803
 
 
-Currency conversions
---------------------
+Checking the balance of an account
+----------------------------------
+
+To find the amount of ether owned by an account, use the :meth:`~web3.eth.Eth.getBalance` method.
+At the time of writing, the account with the `most ether <https://etherscan.io/accounts/1>`_
+has a public address of 0x742d35Cc6634C0532925a3b844Bc454e4438f44e.
+
+.. code-block:: python
+
+   >>> web3.eth.getBalance('0x742d35Cc6634C0532925a3b844Bc454e4438f44e')
+   3841357360894980500000001
+
+Note that this number is not denominated in ether, but instead in the smallest unit of value in
+Ethereum, wei. Read on to learn how to convert that number to ether.
+
+
+Converting currency denominations
+---------------------------------
 
 Web3 can help you convert between denominations.  The following denominations are supported.
 
@@ -122,15 +139,36 @@ Web3 can help you convert between denominations.  The following denominations ar
 | tether       | 1000000000000000000000000000000 |
 +--------------+---------------------------------+
 
+Picking up from the previous example, the largest account contained
+3841357360894980500000001 wei. You can use the :meth:`~web3.fromWei` method
+to convert that balance to ether (or another denomination).
 
 .. code-block:: python
 
-    >>> web3.toWei('1', 'ether')
-    1000000000000000000
-    >>> web3.fromWei('1000000000000000000', 'ether')
-    Decimal('1')
-    >>> from_wei(123456789, 'ether')
-    Decimal('1.23456789E-10')
+    >>> web3.fromWei(3841357360894980500000001, 'ether')
+    Decimal('3841357.360894980500000001')
+
+To convert back to wei, you can use the inverse function, :meth:`~web3.toWei`.
+Note that Python's default floating point precision is insufficient for this
+use case, so it's necessary to cast the value to a
+`Decimal <https://docs.python.org/3/library/decimal.html>`_ if it isn't already.
+
+.. code-block:: python
+
+    >>> from decimal import Decimal
+    >>> web3.toWei(Decimal('3841357.360894980500000001'), 'ether')
+    3841357360894980500000001
+
+Best practice: If you need to work with multiple currency denominations, default
+to wei. A typical workflow may require a conversion from some denomination to
+wei, then from wei to whatever you need.
+
+.. code-block:: python
+
+    >>> web3.toWei(Decimal('0.000000005'), 'ether')
+    5000000000
+    >>> web3.fromWei(5000000000, 'gwei')
+    Decimal('5')
 
 
 Making transactions
@@ -141,7 +179,7 @@ There are a few options for making transactions:
 - :meth:`~web3.eth.Eth.sendTransaction`
 
   Use this method if:
-    - you want to send Ether from one account to another.
+    - you want to send ether from one account to another.
 
 - :meth:`~web3.eth.Eth.sendRawTransaction`
 
