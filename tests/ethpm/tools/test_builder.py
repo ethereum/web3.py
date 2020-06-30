@@ -60,11 +60,15 @@ BASE_MANIFEST = {"name": "package", "manifest": "ethpm/3", "version": "1.0.0"}
 @pytest.fixture
 def owned_package():
     manifest = json.loads((ETHPM_SPEC_DIR / "examples" / "owned" / "v3.json").read_text())
+    # source_id missing `./` prefix in ethpm-spec ("Owned.sol"/"./Owned.sol" though both are valid)
+    source_obj = manifest['sources'].pop('Owned.sol')
+    updated_manifest = assoc_in(manifest, ['sources', './Owned.sol'], source_obj)
+
     compiler = json.loads((ASSETS_DIR / "owned" / "output_v3.json").read_text())[
         "contracts"
     ]
     contracts_dir = ASSETS_DIR / "owned" / "contracts"
-    return contracts_dir, manifest, compiler
+    return contracts_dir, updated_manifest, compiler
 
 
 # todo validate no duplicate contracts in package
@@ -72,11 +76,12 @@ def owned_package():
 
 @pytest.fixture
 def standard_token_package():
-    manifest = json.loads((ETHPM_SPEC_DIR / "examples" / "standard-token" / "v3.json").read_text().rstrip("\n"))
+    standard_token_dir = ETHPM_SPEC_DIR / "examples" / "standard-token"
+    manifest = json.loads((standard_token_dir / "v3.json").read_text().rstrip("\n"))
     compiler = json.loads((ASSETS_DIR / "standard-token" / "output_v3.json").read_text())[
         "contracts"
     ]
-    contracts_dir = ASSETS_DIR / "standard-token" / "contracts"
+    contracts_dir = standard_token_dir / "contracts"
     return contracts_dir, manifest, compiler
 
 
@@ -116,6 +121,8 @@ PRETTY_MANIFEST = """{
 MINIFIED_MANIFEST = (
     '{"manifest":"ethpm/3","name":"package","version":"1.0.0"}'
 )
+
+OWNED_CONTRACT = "// SPDX-License-Identifier: MIT\npragma solidity ^0.6.8;\n\ncontract Owned {\n    address owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }\n\n    constructor() public {\n        owner = msg.sender;\n    }\n}"  # noqa: E501
 
 
 def test_builder_writes_manifest_to_disk(manifest_dir):
@@ -256,11 +263,9 @@ def test_builder_with_inline_source(owned_package, monkeypatch):
         "sources",
         {
             "./Owned.sol": {
-                "content": """pragma solidity ^0.4.24;\n\ncontract Owned {\n    address"""
-                    """ owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }\n\n    """
-                    """constructor() public {\n        owner = msg.sender;\n    }\n}""",
+                "content": OWNED_CONTRACT,
                 "installPath": "./Owned.sol",
-                "type": "solidity"
+                "type": "solidity",
             }
         },
     )
@@ -273,17 +278,14 @@ def test_builder_with_source_inliner(owned_package, monkeypatch):
     monkeypatch.chdir(root)
     inliner = source_inliner(compiler_output)
     manifest = build(BASE_MANIFEST, inliner("Owned"), validate())
-
     expected = assoc(
         BASE_MANIFEST,
         "sources",
-         {
+        {
             "./Owned.sol": {
-                "content": """pragma solidity ^0.4.24;\n\ncontract Owned {\n    address"""
-                    """ owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }\n\n    """
-                    """constructor() public {\n        owner = msg.sender;\n    }\n}""",
+                "content": OWNED_CONTRACT,
                 "installPath": "./Owned.sol",
-                "type": "solidity"
+                "type": "solidity",
             }
         },
     )
@@ -303,14 +305,15 @@ def test_builder_with_inline_source_with_package_root_dir_arg(owned_package):
         "sources",
         {
             "./Owned.sol": {
-                "content": """pragma solidity ^0.4.24;\n\ncontract Owned {\n    address"""
-                    """ owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }\n\n    """
-                    """constructor() public {\n        owner = msg.sender;\n    }\n}""",
+                "content": OWNED_CONTRACT,
                 "installPath": "./Owned.sol",
-                "type": "solidity"
+                "type": "solidity",
             }
         },
     )
+    print(manifest)
+    print('-')
+    print(expected)
     assert manifest == expected
 
 
@@ -388,7 +391,9 @@ def test_builder_with_default_contract_types(owned_package):
     contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
     compilers_data = contract_type_data.pop('compiler')
     compilers_data["contractTypes"] = ["Owned"]
-    expected_with_contract_type = assoc(BASE_MANIFEST, "contractTypes", {"Owned": contract_type_data})
+    expected_with_contract_type = assoc(
+        BASE_MANIFEST, "contractTypes", {"Owned": contract_type_data}
+    )
     expected = assoc(expected_with_contract_type, "compilers", [compilers_data])
     assert manifest == expected
 
@@ -422,8 +427,9 @@ def test_builder_without_alias_and_with_select_contract_types(owned_package):
     )
 
     contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
+    omitted_fields = ("deploymentBytecode", "userdoc", "devdoc", "compiler")
     selected_data = {
-        k: v for k, v in contract_type_data.items() if k not in ("deploymentBytecode", "userdoc", "devdoc", "compiler")
+        k: v for k, v in contract_type_data.items() if k not in omitted_fields
     }
     expected = assoc(BASE_MANIFEST, "contractTypes", {"Owned": selected_data})
     assert manifest == expected
@@ -486,7 +492,9 @@ def test_builder_manages_duplicate_compilers(owned_package):
     contract_type_data.pop('deploymentBytecode')
     contract_type_data.pop('devdoc')
     contract_type_data.pop('userdoc')
-    compiler_data_with_contract_types = assoc(compiler_data, 'contractTypes', ['Owned', 'OwnedAlias'])
+    compiler_data_with_contract_types = assoc(
+        compiler_data, 'contractTypes', ['Owned', 'OwnedAlias']
+    )
     expected_with_contract_types = assoc(
         BASE_MANIFEST,
         "contractTypes",
@@ -525,7 +533,10 @@ def test_builder_with_standard_token_manifest(
         version("1.0.0"),
         pin_source("StandardToken", compiler_output, ipfs_backend),
         pin_source("Token", compiler_output, ipfs_backend),
-        contract_type("StandardToken", compiler_output, abi=True, devdoc=True, source_id=True, compiler=True),
+        contract_type("StandardToken", compiler_output, abi=True, devdoc=True, source_id=True),
+        contract_type(
+            "Token", compiler_output, abi=True, devdoc=True, userdoc=True, source_id=True
+        ),
         validate(),
     )
     assert manifest == expected_manifest

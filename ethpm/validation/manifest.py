@@ -20,7 +20,6 @@ from jsonschema.validators import (
 )
 
 from ethpm import (
-    ASSETS_DIR,
     ETHPM_SPEC_DIR,
 )
 from ethpm.exceptions import (
@@ -62,7 +61,7 @@ def validate_meta_object(meta: Dict[str, Any], allow_extra_meta_fields: bool) ->
             )
 
 
-def _load_schema_data():
+def _load_schema_data() -> Dict[str, Any]:
     return json.loads(V3_SCHEMA_PATH.read_text())
 
 

@@ -407,7 +407,9 @@ def _contract_type(
     if "compiler" in contract_type_data:
         compiler_info = contract_type_data.pop('compiler')
         contract_type_ref = alias if alias else name
-        manifest_with_compilers = add_compilers_to_manifest(compiler_info, contract_type_ref, manifest)
+        manifest_with_compilers = add_compilers_to_manifest(
+            compiler_info, contract_type_ref, manifest
+        )
     else:
         manifest_with_compilers = manifest
 
@@ -420,17 +422,23 @@ def _contract_type(
     return assoc_in(manifest_with_compilers, ["contractTypes", name], contract_type_data)
 
 
-def add_compilers_to_manifest(compiler_info, contract_type, manifest):
+def add_compilers_to_manifest(
+    compiler_info: Dict[str, Any], contract_type: str, manifest: Manifest
+) -> Manifest:
     if "compilers" not in manifest:
         compiler_info['contractTypes'] = [contract_type]
         return assoc_in(manifest, ["compilers"], [compiler_info])
-    
-    updated_compiler_info = update_compilers_object(compiler_info, contract_type, manifest["compilers"])
+
+    updated_compiler_info = update_compilers_object(
+        compiler_info, contract_type, manifest["compilers"]
+    )
     return assoc_in(manifest, ["compilers"], updated_compiler_info)
 
 
 @to_list
-def update_compilers_object(new_compiler, contract_type, previous_compilers):
+def update_compilers_object(
+    new_compiler: Dict[str, Any], contract_type: str, previous_compilers: List[Dict[str, Any]]
+) -> Iterable[Dict[str, Any]]:
     recorded_new_contract_type = False
     for compiler in previous_compilers:
         contract_types = compiler.pop("contractTypes")

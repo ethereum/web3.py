@@ -22,7 +22,8 @@ def get_all_manifest_paths():
     all_manifests = [json for json in all_use_case_json if json.name == "v3.json"]
     if not all_manifests:
         raise InsufficientAssetsError(
-            "Error importing manifests for validation, no v3 manifests found in `ethpm/ethpm-spec` submodule"
+            "Error importing manifests for validation, "
+            "no v3 manifests found in `ethpm/ethpm-spec` submodule"
         )
     return all_manifests
 
@@ -30,6 +31,7 @@ def get_all_manifest_paths():
 @pytest.fixture(params=get_all_manifest_paths())
 def manifest(request):
     return json.loads(request.param.read_text())
+
 
 # tests all assets in assets/ some of which aren't tested in test_manifest.py
 # can we remove one or the other?

@@ -1,8 +1,5 @@
 import pytest
 
-from ethpm import (
-    ASSETS_DIR,
-)
 from ethpm.exceptions import (
     EthPMValidationError,
 )
@@ -17,6 +14,7 @@ from ethpm.validation.package import (
     validate_manifest_version,
     validate_package_name,
 )
+
 
 def test_validate_raw_manifest_configuration_validates_strict_manifests(
     all_strict_manifests
@@ -91,6 +89,7 @@ def test_validate_deployments_without_deployment(manifest_with_no_deployments):
 def test_extract_contract_types_from_deployments(data, expected):
     actual = extract_contract_types_from_deployments(data)
     assert actual == expected
+
 
 def test_validate_manifest_version_validates_version_three_string():
     assert validate_manifest_version("ethpm/3") is None

@@ -78,9 +78,11 @@ def all_pretty_manifests(request):
 def fetch_manifest(name, version):
     return get_manifest_tool(name, version)
 
+
 def fetch_manifest_path(name, version):
     # version -> fileName?
     return ETHPM_SPEC_DIR / 'examples' / name / version
+
 
 MANIFESTS_V3 = {name: fetch_manifest(name, version) for name, version in V3_PACKAGE_NAMES}
 
@@ -182,19 +184,7 @@ def manifest_with_empty_deployments(tmpdir, safe_math_manifest):
 
 @pytest.fixture
 def escrow_package(deployer, w3):
-    escrow_manifest = ASSETS_DIR / "escrow" / "1.0.3.json"
-    escrow_deployer = deployer(escrow_manifest)
-    escrow_strategy = l.linker(
-        l.deploy("SafeSendLib"),
-        l.link("Escrow", "SafeSendLib"),
-        l.deploy("Escrow", w3.eth.accounts[0]),
-    )
-    escrow_deployer.register_strategy("Escrow", escrow_strategy)
-    return escrow_deployer.deploy("Escrow")
-
-
-@pytest.fixture
-def escrow_package(deployer, w3):
+    # escrow_manifest = ASSETS_DIR / "escrow" / "1.0.3.json"
     escrow_manifest = ASSETS_DIR / "escrow" / "v3.3-strict.json"
     escrow_deployer = deployer(escrow_manifest)
     escrow_strategy = l.linker(
@@ -206,36 +196,18 @@ def escrow_package(deployer, w3):
     return escrow_deployer.deploy("Escrow")
 
 
-
 @pytest.fixture
 def safe_math_lib_package(deployer, w3):
-    safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "1.0.1.json"
-    safe_math_deployer = deployer(safe_math_lib_manifest)
-    return safe_math_deployer.deploy("SafeMathLib")
-
-@pytest.fixture
-def safe_math_lib_package(deployer, w3):
+    # safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "1.0.1.json"
     safe_math_lib_manifest = fetch_manifest_path("safe-math-lib", "v3.json")
     safe_math_deployer = deployer(safe_math_lib_manifest)
     return safe_math_deployer.deploy("SafeMathLib")
 
-@pytest.fixture
-def safe_math_lib_package_with_alias(deployer, w3):
-    safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "1.0.1.json"
-    safe_math_deployer = deployer(safe_math_lib_manifest)
-    pkg = safe_math_deployer.deploy("SafeMathLib")
-    blockchain_uri = list(pkg.manifest["deployments"].keys())[0]
-    deployment_data = pkg.manifest["deployments"][blockchain_uri]["SafeMathLib"]
-    aliased_manifest = assoc_in(
-        pkg.manifest,
-        ["deployments", blockchain_uri],
-        {"safe-math-lib-alias": deployment_data},
-    )
-    return Package(aliased_manifest, w3)
 
+# why don't we just use another package here that doesn't have deployments?
 @pytest.fixture
 def safe_math_lib_package_with_alias(deployer, w3):
-    # why don't we just use another package here that doesn't have deployments?
+    # safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "1.0.1.json"
     safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "v3-strict-no-deployments.json"
     safe_math_deployer = deployer(safe_math_lib_manifest)
     pkg = safe_math_deployer.deploy("SafeMathLib")
@@ -247,7 +219,6 @@ def safe_math_lib_package_with_alias(deployer, w3):
         {"safe-math-lib-alias": deployment_data},
     )
     return Package(aliased_manifest, w3)
-
 
 
 @pytest.fixture

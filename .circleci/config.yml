@@ -9,6 +9,10 @@ common: &common
     - restore_cache:
         keys:
           - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+    # consolidate?
+    - run:
+        name: checkout ethpm-spec submodule
+        command: git submodule update --init --recursive
     - run:
         name: install dependencies
         command: pip install --user tox
@@ -124,6 +128,9 @@ ethpm_steps: &ethpm_steps
         name: start ipfs node in background
         command: ipfs daemon
         background: true
+    - run:
+        name: checkout ethpm-spec submodule
+        command: git submodule update --init --recursive
     - run:
         name: install dependencies
         command: pip install --user tox

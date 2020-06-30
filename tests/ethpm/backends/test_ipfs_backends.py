@@ -10,6 +10,7 @@ from eth_utils import (
 
 from ethpm import (
     ASSETS_DIR,
+    ETHPM_SPEC_DIR,
 )
 from ethpm.backends.ipfs import (
     DummyIPFSBackend,
@@ -82,11 +83,10 @@ def test_base_ipfs_gateway_backend_correctly_handles_uri_schemes(uri, expected):
 
 def test_dummy_ipfs_backend():
     pkg = DummyIPFSBackend().fetch_uri_contents(
-        "ipfs://QmeD2s7KaBUoGYTP1eutHBmBkMMMoycdfiyGMx2DKrWXyV"
+        "ipfs://QmVu9zuza5mkJwwcFdh2SXBugm1oSgZVuEKkph9XLsbUwg"
     )
-    mnfst = to_text(pkg)
-    manifest = json.loads(mnfst)
-    assert manifest["package_name"] == "safe-math-lib"
+    manifest = json.loads(to_text(pkg))
+    assert manifest["package_name"] == "standard-token"
 
 
 def test_get_ipfs_backend_class_with_default_backend():
@@ -116,11 +116,11 @@ def test_pin_assets_to_dummy_backend(dummy_ipfs_backend):
     assert asset_data["Hash"] == "QmYogrz6sKuyMW8NHUdw1kEy9Tn15R3GaF9T14S4zwb4bR"
     assert asset_data["Size"] == "433"
     # Test pinning a directory
-    dir_data = backend.pin_assets(ASSETS_DIR / "standard-token" / "contracts")
+    dir_data = backend.pin_assets(ETHPM_SPEC_DIR / "examples" / "standard-token" / "contracts")
     dir_names = [result["Name"] for result in dir_data]
     dir_hashes = [result["Hash"] for result in dir_data]
     dir_sizes = [result["Size"] for result in dir_data]
     assert len(dir_data) == 2
     assert "StandardToken.sol" in dir_names
-    assert "QmRJHLmPVct2rbBpdGjP3xkXbF7romQigtmcs8TRfV1yC7" in dir_hashes
-    assert "2865" in dir_sizes
+    assert "QmUofKBtNJVaqoSAtnHfrarJyyLm1oMUTAK4yCtnmYMJVy" in dir_hashes
+    assert "2949" in dir_sizes

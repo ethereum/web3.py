@@ -48,7 +48,7 @@ def setup_w3():
 
 
 def sol_registry(w3):
-    manifest = json.loads((ASSETS_DIR / "registry" / "2.0.0a1.json").read_text())
+    manifest = json.loads((ASSETS_DIR / "simple-registry" / "v3simple.json").read_text())
     registry_package = Package(manifest, w3)
     registry_deployer = Deployer(registry_package)
     deployed_registry_package = registry_deployer.deploy("PackageRegistry")

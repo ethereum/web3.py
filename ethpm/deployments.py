@@ -13,7 +13,6 @@ from eth_typing import (
 from ethpm.validation.package import (
     validate_contract_name,
 )
-from web3 import Web3
 from web3._utils.compat import (
     TypedDict,
 )
@@ -77,4 +76,4 @@ class DeploymentData(TypedDict):
     block: HexStr
     runtime_bytecode: Dict[str, Any]
     compiler: Dict[str, str]
-    contract_type: str
+    contractType: str
