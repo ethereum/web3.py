@@ -33,11 +33,11 @@ new ``Package`` class for a given package.
 
 .. doctest::
 
-   >>> from ethpm import Package, ASSETS_DIR
+   >>> from ethpm import Package, ETHPM_SPEC_DIR
    >>> from web3 import Web3
 
    >>> w3 = Web3(Web3.EthereumTesterProvider())
-   >>> owned_manifest_path = ASSETS_DIR / 'owned' / '1.0.0.json'
+   >>> owned_manifest_path = ETHPM_SPEC_DIR / 'examples' / 'owned' / 'v3.json'
    >>> OwnedPackage = Package.from_file(owned_manifest_path, w3)
    >>> assert isinstance(OwnedPackage, Package)
 
@@ -72,14 +72,15 @@ Validation
 
 The ``Package`` class currently verifies the following things.
 
--  Manifests used to instantiate a ``Package`` object conform to the `EthPM V2 Manifest Specification <https://github.com/ethpm/ethpm-spec/blob/master/spec/package.spec.json>`__ and are tightly packed, with keys sorted alphabetically.
+-  Manifests used to instantiate a ``Package`` object conform to the `EthPM V3 Manifest Specification <https://github.com/ethpm/ethpm-spec/blob/master/spec/v3.spec.json>`__ and are tightly packed, with keys sorted alphabetically.
 
 
 LinkableContract
 ----------------
 
-`Py-EthPM` uses a custom subclass of ``Web3.contract.Contract`` to manage contract factories and instances which might require bytecode linking. To create a deployable contract factory, both the contract type's ``abi`` and ``deployment_bytecode`` must be available in the Package's manifest.
+`Py-EthPM` uses a custom subclass of ``Web3.contract.Contract`` to manage contract factories and instances which might require bytecode linking. To create a deployable contract factory, both the contract type's ``abi`` and ``deploymentBytecode`` must be available in the Package's manifest.
 
+TODO
 .. doctest::
 
    >>> from eth_utils import is_address
@@ -150,7 +151,7 @@ BaseURIBackend
 .. py:method:: BaseURIBackend.can_translate_uri(uri)
 
    Return a bool indicating whether this backend class can translate the given URI to a corresponding content-addressed URI.
-   A registry URI is said to be capable of "transalating" if it points to another content-addressed URI in its respective on-chain registry.
+   A registry URI is said to be capable of "translating" if it points to another content-addressed URI in its respective on-chain registry.
 
 .. py:method:: BaseURIBackend.fetch_uri_contents(uri)
 
@@ -196,6 +197,7 @@ A valid content-addressed Github URI *must* conform to the following scheme, as 
 
    https://api.github.com/repos/:owner/:repo/contents/:path/:to/manifest.json
 
+TODO
 .. doctest::
 
    >>> from ethpm.uri import create_content_addressed_github_uri
@@ -280,33 +282,33 @@ The builder (i.e. ``build()``) expects a dict as the first argument. This dict c
    >>> from ethpm.tools.builder import *
 
    >>> expected_manifest = {
-   ...   "package_name": "owned",
+   ...   "name": "owned",
    ...   "version": "1.0.0",
-   ...   "manifest_version": "2"
+   ...   "manifest": "ethpm/3"
    ... }
-   >>> base_manifest = {"package_name": "owned"}
+   >>> base_manifest = {"name": "owned"}
    >>> built_manifest = build(
    ...     {},
    ...     package_name("owned"),
-   ...     manifest_version("2"),
+   ...     manifest_version("ethpm/3"),
    ...     version("1.0.0"),
    ... )
    >>> extended_manifest = build(
    ...     base_manifest,
-   ...     manifest_version("2"),
+   ...     manifest_version("ethpm/3"),
    ...     version("1.0.0"),
    ... )
    >>> assert built_manifest == expected_manifest
    >>> assert extended_manifest == expected_manifest
 
-With ``init_manifest()``, which populates "version" with "2" (the only supported EthPM specification version), unless provided with an alternative "version".
+With ``init_manifest()``, which populates "manifest" with "ethpm/3" (the only supported EthPM specification version), unless provided with an alternative "version".
 
 .. doctest::
 
    >>> build(
    ...     init_manifest("owned", "1.0.0"),
    ... )
-   {'package_name': 'owned', 'version': '1.0.0', 'manifest_version': '2'}
+   {'name': 'owned', 'version': '1.0.0', 'manifest': 'ethpm/3'}
 
 
 
@@ -331,7 +333,7 @@ By default, the manifest builder returns a dict representing the manifest. To re
    >>> built_package = build(
    ...     {},
    ...     package_name("owned"),
-   ...     manifest_version("2"),
+   ...     manifest_version("ethpm/3"),
    ...     version("1.0.0"),
    ...     as_package(w3),
    ... )
@@ -357,15 +359,15 @@ By default, the manifest builder does *not* perform any validation that the gene
    >>> valid_manifest = build(
    ...     {},
    ...     package_name("owned"),
-   ...     manifest_version("2"),
+   ...     manifest_version("ethpm/3"),
    ...     version("1.0.0"),
    ...     validate(),
    ... )
-   >>> assert valid_manifest == {"package_name": "owned", "manifest_version": "2", "version": "1.0.0"}
+   >>> assert valid_manifest == {"name": "owned", "manifest": "ethpm/3", "version": "1.0.0"}
    >>> invalid_manifest = build(
    ...     {},
    ...     package_name("_InvalidPkgName"),
-   ...     manifest_version("2"),
+   ...     manifest_version("ethpm/3"),
    ...     version("1.0.0"),
    ...     validate(),
    ... )
@@ -403,17 +405,17 @@ Defaults
    >>> build(
    ...     {},
    ...     package_name("owned"),
-   ...     manifest_version("2"),
+   ...     manifest_version("ethpm/3"),
    ...     version("1.0.0"),
    ...     write_to_disk(manifest_root_dir=p, manifest_name="manifest.json", prettify=True),
    ... )
-   {'package_name': 'owned', 'manifest_version': '2', 'version': '1.0.0'}
+   {'name': 'owned', 'manifest': 'ethpm/3', 'version': '1.0.0'}
    >>> with open(str(p / "manifest.json")) as f:
    ...     actual_manifest = f.read()
    >>> print(actual_manifest)
    {
-        "manifest_version": "2",
-        "package_name": "owned",
+        "manifest": "ethpm/3",
+        "name": "owned",
         "version": "1.0.0"
    }
 
@@ -451,10 +453,10 @@ To add meta fields
 
 .. doctest::
 
-   >>> BASE_MANIFEST = {"package_name": "owned", "manifest_version": "2", "version": "1.0.0"}
+   >>> BASE_MANIFEST = {"name": "owned", "manifest": "ethpm/3", "version": "1.0.0"}
    >>> expected_manifest = {
-   ...   "package_name": "owned",
-   ...   "manifest_version": "2",
+   ...   "name": "owned",
+   ...   "manifest": "ethpm/3",
    ...   "version": "1.0.0",
    ...   "meta": {
    ...     "authors": ["Satoshi", "Nakamoto"],
@@ -463,7 +465,7 @@ To add meta fields
    ...     "license": "MIT",
    ...     "links": {
    ...       "documentation": "www.readthedocs.com/...",
-   ...       "repo": "www.github/...",
+   ...       "repo": "www.github.com/...",
    ...       "website": "www.website.com",
    ...     }
    ...   }
@@ -474,7 +476,7 @@ To add meta fields
    ...     description("An awesome package."),
    ...     keywords("auth"),
    ...     license("MIT"),
-   ...     links(documentation="www.readthedocs.com/...", repo="www.github/...", website="www.website.com"),
+   ...     links(documentation="www.readthedocs.com/...", repo="www.github.com/...", website="www.website.com"),
    ... )
    >>> assert expected_manifest == built_manifest
 
@@ -482,7 +484,7 @@ To add meta fields
 Compiler Output
 ~~~~~~~~~~~~~~~
 
-To build a more complex manifest for solidity contracts, it is required that you provide standard-json output from the solidity compiler.
+To build a more complex manifest for solidity contracts, it is required that you provide standard-json output from the solidity compiler. Or for a more convenient experience, use the `EthPM CLI <https://github.com/ethpm/ethpm-cli>`__.
 
 Here is an example of how to compile the contracts and generate the standard-json output. More information can be found in the `Solidity Compiler <https://solidity.readthedocs.io/en/v0.4.24/using-the-compiler.html>`__ docs.
 
@@ -555,6 +557,7 @@ To inline the source code directly in the manifest, use ``inline_source()`` or `
 
    ``owned_compiler_output.json`` below is expected to be the standard-json output generated by the solidity compiler as described `here <https://solidity.readthedocs.io/en/v0.4.24/using-the-compiler.html>`_. The output must contain the ``abi`` and ``bytecode`` objects from compilation.
 
+TODO
 .. doctest::
 
    >>> import json
@@ -563,9 +566,9 @@ To inline the source code directly in the manifest, use ``inline_source()`` or `
    >>> owned_contract_source = owned_dir / "Owned.sol"
    >>> compiler_output = json.loads((ASSETS_DIR / "owned" / "owned_compiler_output.json").read_text())['contracts']
    >>> expected_manifest = {
-   ...   "package_name": "owned",
+   ...   "name": "owned",
    ...   "version": "1.0.0",
-   ...   "manifest_version": "2",
+   ...   "manifest": "ethpm/3",
    ...   "sources": {
    ...     "./Owned.sol": """pragma solidity ^0.4.24;\n\ncontract Owned {\n    address"""
    ...     """ owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }\n\n    """
@@ -592,14 +595,22 @@ To include the source as a content-addressed URI, ``Py-EthPM`` can pin your sour
 
 .. doctest::
 
+   >>> import json
+   >>> from ethpm import ASSETS_DIR
    >>> from ethpm.backends.ipfs import get_ipfs_backend
+   >>> owned_dir = ASSETS_DIR / "owned" / "contracts"
+   >>> compiler_output = json.loads((ASSETS_DIR / "owned" / "owned_compiler_output.json").read_text())['contracts']
    >>> ipfs_backend = get_ipfs_backend()
    >>> expected_manifest = {
-   ...   "package_name": "owned",
+   ...   "name": "owned",
    ...   "version": "1.0.0",
-   ...   "manifest_version": "2",
+   ...   "manifest": "ethpm/3",
    ...   "sources": {
-   ...     "./Owned.sol": "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGV"
+   ...     "./Owned.sol": {
+   ...       "installPath": "./Owned.sol",
+   ...       "type": "solidity",
+   ...       "urls": ["ipfs://QmU8QUSt56ZoBDJgjjXvAZEPro9LmK1m2gjVG5Q4s9x29W"]
+   ...     }
    ...   }
    ... }
    >>> # With `pin_source()`
@@ -645,15 +656,16 @@ The default behavior of the manifest builder's ``contract_type()`` function is t
 .. doctest::
 
    >>> expected_manifest = {
-   ...   'package_name': 'owned',
-   ...   'manifest_version': '2',
+   ...   'name': 'owned',
+   ...   'manifest': 'ethpm/3',
    ...   'version': '1.0.0',
-   ...   'contract_types': {
+   ...   'contractTypes': {
    ...     'Owned': {
    ...       'abi': [{'inputs': [], 'payable': False, 'stateMutability': 'nonpayable', 'type': 'constructor'}],
-   ...       'deployment_bytecode': {
+   ...       'deploymentBytecode': {
    ...         'bytecode': '0x6080604052348015600f57600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550603580605d6000396000f3006080604052600080fd00a165627a7a72305820d6ab9e295aa1d1adb0fca69ce42c2c73e991afe290852e8247a208a78b352ff00029'
-   ...       }
+   ...       },
+   ...       'sourceId': 'Owned.sol'
    ...     }
    ...   }
    ... }
@@ -674,10 +686,10 @@ To select only certain contract type data to be included in your manifest, provi
 .. doctest::
 
    >>> expected_manifest = {
-   ...   'package_name': 'owned',
-   ...   'manifest_version': '2',
+   ...   'name': 'owned',
+   ...   'manifest': 'ethpm/3',
    ...   'version': '1.0.0',
-   ...   'contract_types': {
+   ...   'contractTypes': {
    ...     'Owned': {
    ...       'abi': [{'inputs': [], 'payable': False, 'stateMutability': 'nonpayable', 'type': 'constructor'}],
    ...     }
@@ -694,13 +706,13 @@ If you would like to alias your contract type, provide the desired alias as a kw
 .. doctest::
 
    >>> expected_manifest = {
-   ...   'package_name': 'owned',
-   ...   'manifest_version': '2',
+   ...   'name': 'owned',
+   ...   'manifest': 'ethpm/3',
    ...   'version': '1.0.0',
-   ...   'contract_types': {
+   ...   'contractTypes': {
    ...     'OwnedAlias': {
    ...       'abi': [{'inputs': [], 'payable': False, 'stateMutability': 'nonpayable', 'type': 'constructor'}],
-   ...       'contract_type': 'Owned'
+   ...       'contractType': 'Owned'
    ...     }
    ...   }
    ... }
@@ -744,13 +756,13 @@ This is the simplest builder function for adding a deployment to a manifest. All
 .. doctest::
 
    >>> expected_manifest = {
-   ...   'package_name': 'owned',
-   ...   'manifest_version': '2',
+   ...   'name': 'owned',
+   ...   'manifest': 'ethpm/3',
    ...   'version': '1.0.0',
    ...   'deployments': {
    ...     'blockchain://1234567890123456789012345678901234567890123456789012345678901234/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef': {
    ...       'Owned': {
-   ...         'contract_type': 'Owned',
+   ...         'contractType': 'Owned',
    ...         'address': '0x4F5B11C860B37B68De6d14FB7e7b5f18A9a1BD00',
    ...       }
    ...     }
@@ -796,7 +808,7 @@ This builder function simplifies adding the same contract type deployment across
    manifest = build(
        package_name("escrow"),
        version("1.0.0"),
-       manifest_version("2"),
+       manifest_version("ethpm/3"),
        owned_type(
            block_uri='blockchain://abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
            address=owned_testnet_address,
@@ -839,10 +851,10 @@ To add a build dependency to your manifest, just provide the package's name and 
 .. doctest::
 
    >>> expected_manifest = {
-   ...   'package_name': 'owned',
-   ...   'manifest_version': '2',
+   ...   'name': 'owned',
+   ...   'manifest': 'ethpm/3',
    ...   'version': '1.0.0',
-   ...   'build_dependencies': {
+   ...   'buildDependencies': {
    ...     'owned': 'ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW',
    ...   }
    ... }

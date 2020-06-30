@@ -176,7 +176,7 @@ class Package(object):
         .. doctest::
 
            >>> OwnedPackage.manifest_version
-           '2'
+           'ethpm/3'
         """
         return self.manifest["manifest"]
 
