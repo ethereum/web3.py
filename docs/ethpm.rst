@@ -571,9 +571,13 @@ To inline the source code directly in the manifest, use ``inline_source()`` or `
    ...   "version": "1.0.0",
    ...   "manifest": "ethpm/3",
    ...   "sources": {
-   ...     "./Owned.sol": """pragma solidity ^0.4.24;\n\ncontract Owned {\n    address"""
-   ...     """ owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }\n\n    """
-   ...     """constructor() public {\n        owner = msg.sender;\n    }\n}"""
+   ...     "./Owned.sol": {
+   ...       "content": """// SPDX-License-Identifier: MIT\npragma solidity ^0.6.8;\n\ncontract Owned """
+   ...       """{\n    address owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }"""
+   ...       """\n\n    constructor() public {\n        owner = msg.sender;\n    }\n}""",
+   ...       "type": "solidity",
+   ...       "installPath": "./Owned.sol"
+   ...     }
    ...   }
    ... }
    >>> # With `inline_source()`

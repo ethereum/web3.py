@@ -425,6 +425,9 @@ def _contract_type(
 def add_compilers_to_manifest(
     compiler_info: Dict[str, Any], contract_type: str, manifest: Manifest
 ) -> Manifest:
+    """
+    Adds a compiler information object to a manifest's top-level `compilers`.
+    """
     if "compilers" not in manifest:
         compiler_info['contractTypes'] = [contract_type]
         return assoc_in(manifest, ["compilers"], [compiler_info])
@@ -439,6 +442,10 @@ def add_compilers_to_manifest(
 def update_compilers_object(
     new_compiler: Dict[str, Any], contract_type: str, previous_compilers: List[Dict[str, Any]]
 ) -> Iterable[Dict[str, Any]]:
+    """
+    Updates a manifest's top-level `compilers` with a new compiler information object.
+    - If compiler version already exists, we just update the compiler's `contractTypes`
+    """
     recorded_new_contract_type = False
     for compiler in previous_compilers:
         contract_types = compiler.pop("contractTypes")

@@ -14,7 +14,6 @@ from ethpm.package import (
 from web3 import Web3
 
 
-# is this a dupe fixture?
 @pytest.fixture()
 def safe_math_package(get_manifest, w3):
     safe_math_manifest = get_manifest("safe-math-lib")

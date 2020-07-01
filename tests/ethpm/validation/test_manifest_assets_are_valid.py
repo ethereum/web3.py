@@ -33,7 +33,5 @@ def manifest(request):
     return json.loads(request.param.read_text())
 
 
-# tests all assets in assets/ some of which aren't tested in test_manifest.py
-# can we remove one or the other?
 def test_manifest_assets_are_valid(manifest):
     assert validate_manifest_against_schema(manifest) is None

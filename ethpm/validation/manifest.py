@@ -121,7 +121,6 @@ def validate_manifest_deployments(manifest: Dict[str, Any]) -> None:
             )
 
 
-# we should only have a single validation fn
 def validate_raw_manifest_format(raw_manifest: str) -> None:
     """
     Raise a EthPMValidationError if a manifest ...

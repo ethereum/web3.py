@@ -24,6 +24,10 @@ from ethpm.exceptions import (
     EthPMValidationError,
     ManifestBuildingError,
 )
+from ethpm.tools import (
+    get_ethpm_local_manifest,
+    get_ethpm_spec_manifest,
+)
 from ethpm.tools.builder import (
     as_package,
     authors,
@@ -59,14 +63,12 @@ BASE_MANIFEST = {"name": "package", "manifest": "ethpm/3", "version": "1.0.0"}
 
 @pytest.fixture
 def owned_package():
-    manifest = json.loads((ETHPM_SPEC_DIR / "examples" / "owned" / "v3.json").read_text())
+    manifest = get_ethpm_spec_manifest("owned", "v3.json")
     # source_id missing `./` prefix in ethpm-spec ("Owned.sol"/"./Owned.sol" though both are valid)
     source_obj = manifest['sources'].pop('Owned.sol')
     updated_manifest = assoc_in(manifest, ['sources', './Owned.sol'], source_obj)
 
-    compiler = json.loads((ASSETS_DIR / "owned" / "output_v3.json").read_text())[
-        "contracts"
-    ]
+    compiler = get_ethpm_local_manifest("owned", "output_v3.json")["contracts"]
     contracts_dir = ETHPM_SPEC_DIR / "examples" / "owned" / "contracts"
     return contracts_dir, updated_manifest, compiler
 
@@ -77,10 +79,8 @@ def owned_package():
 @pytest.fixture
 def standard_token_package():
     standard_token_dir = ETHPM_SPEC_DIR / "examples" / "standard-token"
-    manifest = json.loads((standard_token_dir / "v3.json").read_text().rstrip("\n"))
-    compiler = json.loads((ASSETS_DIR / "standard-token" / "output_v3.json").read_text())[
-        "contracts"
-    ]
+    manifest = get_ethpm_spec_manifest("standard-token", "v3.json")
+    compiler = get_ethpm_local_manifest("standard-token", "output_v3.json")["contracts"]
     contracts_dir = standard_token_dir / "contracts"
     return contracts_dir, manifest, compiler
 

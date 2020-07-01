@@ -1,5 +1,4 @@
 import copy
-import json
 import pytest
 
 from eth_utils.toolz import (
@@ -64,7 +63,6 @@ def fetch_manifest(name, version):
 
 
 def fetch_manifest_path(name, version):
-    # version -> fileName?
     return ETHPM_SPEC_DIR / 'examples' / name / version
 
 
@@ -107,9 +105,7 @@ def safe_math_manifest(get_manifest):
 
 @pytest.fixture
 def piper_coin_manifest():
-    return json.loads(
-        (ETHPM_SPEC_DIR / "examples" / "piper-coin" / "v3.json").read_text()
-    )
+    return get_ethpm_spec_manifest("piper-coin", "v3.json")
 
 
 ESCROW_DEPLOYMENT_BYTECODE_V3 = {
@@ -181,16 +177,13 @@ def escrow_package(deployer, w3):
 
 @pytest.fixture
 def safe_math_lib_package(deployer, w3):
-    # safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "1.0.1.json"
     safe_math_lib_manifest = fetch_manifest_path("safe-math-lib", "v3.json")
     safe_math_deployer = deployer(safe_math_lib_manifest)
     return safe_math_deployer.deploy("SafeMathLib")
 
 
-# why don't we just use another package here that doesn't have deployments?
 @pytest.fixture
 def safe_math_lib_package_with_alias(deployer, w3):
-    # safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "1.0.1.json"
     safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "v3-strict-no-deployments.json"
     safe_math_deployer = deployer(safe_math_lib_manifest)
     pkg = safe_math_deployer.deploy("SafeMathLib")

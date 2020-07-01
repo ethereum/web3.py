@@ -33,7 +33,6 @@ from web3.contract import (
             "wallet",
             "Wallet",
             {
-                # spend some more time thinking about this change / update relevant docs
                 "safe-math-lib:SafeMathLib": "0xa66A05D6AB5c1c955F4D2c3FCC166AE6300b452B"
             },
         ),
