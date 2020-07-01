@@ -23,12 +23,12 @@ from ethpm.tools.builder import (
 # todo: validate no duplicate blockchain uris in deployments, if web3 is available
 
 WARNINGS = {
-    "manifest_version_missing": "Manifest missing a required 'manifest_version' field.",
-    "manifest_version_invalid": "'manifest_version' is invalid. The only supported version is '2'.",
-    "package_name_missing": "Manifest missing a required 'package_name' field",
-    "package_name_invalid": "'package_name' is invalid. "
+    "manifest_missing": "Manifest missing a required 'manifest' field.",
+    "manifest_invalid": "'manifest' is invalid. The only supported version is 'ethpm/3'.",
+    "name_missing": "Manifest missing a suggested 'name' field",
+    "name_invalid": "'name' is invalid. "
     f"Doesn't match the regex: {PACKAGE_NAME_REGEX}",
-    "version_missing": "Manifest missing a required 'version' field.",
+    "version_missing": "Manifest missing a suggested 'version' field.",
     "meta_missing": "Manifest missing a suggested 'meta' field.",
     "authors_missing": "'meta' field missing suggested 'authors' field.",
     "description_missing": "'meta' field missing suggested 'description' field.",
@@ -38,21 +38,22 @@ WARNINGS = {
     "sources_missing": """Manifest is missing a sources field, which defines a source tree """
     """that should comprise the full source tree necessary to recompile the contracts """
     """contained in this release.""",
-    "contract_type_missing": """Manifest does not contain any 'contract_types'. Packages """
+    "contract_type_missing": """Manifest does not contain any 'contractTypes'. Packages """
     """should only include contract types that can be found in the source files for this """
     """package. Packages should not include contract types from dependencies. Packages """
     """should not include abstract contracts in the contract types section of a release.""",
     "abi_missing": """Contract type: {0} is missing an abi field, which is essential for using """
     """this package.""",
-    "deployment_bytecode_missing": """Contract type: {0} is missing a deployment_bytecode field,"""
+    "deployment_bytecode_missing": """Contract type: {0} is missing a `deploymentBytecode` field,"""
     """ which is essential for using this package.""",
-    "contract_type_subfield_missing": """Contract type: {0} is missing a contract_type field, """
+    "contract_type_subfield_missing": """Contract type: {0} is missing a `contractType` field, """
     """which is essential if an alias is being used to namespace this contract type.""",
-    "runtime_bytecode_missing": "Contract type: {0} is missing a runtime_bytecode field.",
+    "runtime_bytecode_missing": "Contract type: {0} is missing a `runtimeBytecode` field.",
     "bytecode_subfield_missing": """Contract type: {0} is missing a required bytecode subfield """
     """in its {1} bytecode object.""",
-    "natspec_missing": "Contract type: {0} is missing a natspec field.",
-    "compiler_missing": "Contract type: {0} is missing a compiler field.",
+    "devdoc_missing": "Contract type: {0} is missing a devdoc field.",
+    "userdoc_missing": "Contract type: {0} is missing a userdoc field.",
+    "compilers_missing": "Manifest is missing a suggested `compilers` field.",
 }
 
 
@@ -69,6 +70,7 @@ def check_manifest(manifest: Manifest) -> Dict[str, str]:
         check_meta(manifest),
         check_sources(manifest),
         check_contract_types(manifest),
+        check_compilers(manifest),
     )
     return build({}, *generate_warnings)
 
@@ -82,19 +84,19 @@ def check_manifest(manifest: Manifest) -> Dict[str, str]:
 def check_manifest_version(
     manifest: Manifest, warnings: Dict[str, str]
 ) -> Dict[str, str]:
-    if "manifest_version" not in manifest or not manifest["manifest_version"]:
-        return assoc(warnings, "manifest_version", WARNINGS["manifest_version_missing"])
-    if manifest["manifest_version"] != "2":
-        return assoc(warnings, "manifest_version", WARNINGS["manifest_version_invalid"])
+    if "manifest" not in manifest or not manifest["manifest"]:
+        return assoc(warnings, "manifest", WARNINGS["manifest_missing"])
+    if manifest["manifest"] != "ethpm/3":
+        return assoc(warnings, "manifest", WARNINGS["manifest_invalid"])
     return warnings
 
 
 @curry
 def check_package_name(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str]:
-    if "package_name" not in manifest or not manifest["package_name"]:
-        return assoc(warnings, "package_name", WARNINGS["package_name_missing"])
-    if not bool(re.match(PACKAGE_NAME_REGEX, manifest["package_name"])):
-        return assoc(warnings, "package_name", WARNINGS["package_name_invalid"])
+    if "name" not in manifest or not manifest["name"]:
+        return assoc(warnings, "name", WARNINGS["name_missing"])
+    if not bool(re.match(PACKAGE_NAME_REGEX, manifest["name"])):
+        return assoc(warnings, "name", WARNINGS["name_invalid"])
     return warnings
 
 
@@ -180,8 +182,8 @@ def check_sources(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str
 def check_contract_types(
     manifest: Manifest, warnings: Dict[str, str]
 ) -> Dict[str, str]:
-    if "contract_types" not in manifest or not manifest["contract_types"]:
-        return assoc(warnings, "contract_types", WARNINGS["contract_type_missing"])
+    if "contractTypes" not in manifest or not manifest["contractTypes"]:
+        return assoc(warnings, "contractTypes", WARNINGS["contract_type_missing"])
 
     all_contract_type_validations = (
         (
@@ -189,10 +191,10 @@ def check_contract_types(
             check_contract_type(contract_name, data),
             check_deployment_bytecode(contract_name, data),
             check_runtime_bytecode(contract_name, data),
-            check_natspec(contract_name, data),
-            check_compiler(contract_name, data),
+            check_devdoc(contract_name, data),
+            check_userdoc(contract_name, data),
         )
-        for contract_name, data in manifest["contract_types"].items()
+        for contract_name, data in manifest["contractTypes"].items()
     )
     return build(warnings, *sum(all_contract_type_validations, ()))
 
@@ -204,7 +206,7 @@ def check_abi(
     if "abi" not in data or not data["abi"]:
         return assoc_in(
             warnings,
-            ["contract_types", contract_name, "abi"],
+            ["contractTypes", contract_name, "abi"],
             WARNINGS["abi_missing"].format(contract_name),
         )
     return warnings
@@ -214,10 +216,10 @@ def check_abi(
 def check_contract_type(
     contract_name: str, data: Dict[str, Any], warnings: Dict[str, str]
 ) -> Dict[str, str]:
-    if "contract_type" not in data or not data["contract_type"]:
+    if "contractType" not in data or not data["contractType"]:
         return assoc_in(
             warnings,
-            ["contract_types", contract_name, "contract_type"],
+            ["contractTypes", contract_name, "contractType"],
             WARNINGS["contract_type_subfield_missing"].format(contract_name),
         )
     return warnings
@@ -227,15 +229,15 @@ def check_contract_type(
 def check_deployment_bytecode(
     contract_name: str, data: Dict[str, Any], warnings: Dict[str, str]
 ) -> Dict[str, str]:
-    if "deployment_bytecode" not in data or not data["deployment_bytecode"]:
+    if "deploymentBytecode" not in data or not data["deploymentBytecode"]:
         return assoc_in(
             warnings,
-            ["contract_types", contract_name, "deployment_bytecode"],
+            ["contractTypes", contract_name, "deploymentBytecode"],
             WARNINGS["deployment_bytecode_missing"].format(contract_name),
         )
     return build(
         warnings,
-        check_bytecode_object(contract_name, "deployment", data["deployment_bytecode"]),
+        check_bytecode_object(contract_name, "deployment", data["deploymentBytecode"]),
     )
 
 
@@ -243,15 +245,15 @@ def check_deployment_bytecode(
 def check_runtime_bytecode(
     contract_name: str, data: Dict[str, Any], warnings: Dict[str, str]
 ) -> Dict[str, str]:
-    if "runtime_bytecode" not in data or not data["runtime_bytecode"]:
+    if "runtimeBytecode" not in data or not data["runtimeBytecode"]:
         return assoc_in(
             warnings,
-            ["contract_types", contract_name, "runtime_bytecode"],
+            ["contractTypes", contract_name, "runtimeBytecode"],
             WARNINGS["runtime_bytecode_missing"].format(contract_name),
         )
     return build(
         warnings,
-        check_bytecode_object(contract_name, "runtime", data["runtime_bytecode"]),
+        check_bytecode_object(contract_name, "runtime", data["runtimeBytecode"]),
     )
 
 
@@ -266,33 +268,40 @@ def check_bytecode_object(
     if "bytecode" not in bytecode_data or not bytecode_data["bytecode"]:
         return assoc_in(
             warnings,
-            ["contract_types", contract_name, f"{bytecode_type}_bytecode"],
+            ["contractTypes", contract_name, f"{bytecode_type}Bytecode"],
             WARNINGS["bytecode_subfield_missing"].format(contract_name, bytecode_type),
         )
     return warnings
 
 
 @curry
-def check_natspec(
+def check_devdoc(
     contract_name: str, data: Dict[str, Any], warnings: Dict[str, str]
 ) -> Dict[str, str]:
-    if "natspec" not in data or not data["natspec"]:
+    if "devdoc" not in data or not data["devdoc"]:
         return assoc_in(
             warnings,
-            ["contract_types", contract_name, "natspec"],
-            WARNINGS["natspec_missing"].format(contract_name),
+            ["contractTypes", contract_name, "devdoc"],
+            WARNINGS["devdoc_missing"].format(contract_name),
         )
     return warnings
 
 
 @curry
-def check_compiler(
+def check_userdoc(
     contract_name: str, data: Dict[str, Any], warnings: Dict[str, str]
 ) -> Dict[str, str]:
-    if "compiler" not in data or not data["compiler"]:
+    if "userdoc" not in data or not data["userdoc"]:
         return assoc_in(
             warnings,
-            ["contract_types", contract_name, "compiler"],
-            WARNINGS["compiler_missing"].format(contract_name),
+            ["contractTypes", contract_name, "userdoc"],
+            WARNINGS["userdoc_missing"].format(contract_name),
         )
+    return warnings
+
+
+@curry
+def check_compilers(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str]:
+    if "compilers" not in manifest or not manifest["compilers"]:
+        return assoc(warnings, "compilers", WARNINGS["compilers_missing"])
     return warnings

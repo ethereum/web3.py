@@ -120,8 +120,8 @@ ethpm_steps: &ethpm_steps
     - run:
         name: install ipfs
         command:
-          wget https://dist.ipfs.io/go-ipfs/v0.4.19/go-ipfs_v0.4.19_linux-amd64.tar.gz &&
-          tar xvfz go-ipfs_v0.4.19_linux-amd64.tar.gz &&
+          wget https://dist.ipfs.io/go-ipfs/v0.4.22/go-ipfs_v0.4.22_linux-amd64.tar.gz &&
+          tar xvfz go-ipfs_v0.4.22_linux-amd64.tar.gz &&
           sudo cp go-ipfs/ipfs /usr/local/bin &&
           ipfs init
     - run:
