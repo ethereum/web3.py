@@ -9,7 +9,6 @@ common: &common
     - restore_cache:
         keys:
           - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
-    # consolidate?
     - run:
         name: checkout ethpm-spec submodule
         command: git submodule update --init --recursive

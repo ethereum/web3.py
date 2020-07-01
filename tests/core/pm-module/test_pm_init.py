@@ -8,7 +8,8 @@ from ethpm.exceptions import (
     InsufficientAssetsError,
 )
 from ethpm.tools import (
-    get_manifest as get_ethpm_manifest,
+    get_ethpm_local_manifest,
+    get_ethpm_spec_manifest,
 )
 from web3.exceptions import (
     PMError,
@@ -16,20 +17,20 @@ from web3.exceptions import (
 
 
 def test_pm_init_with_minimal_manifest(w3):
-    owned_manifest = get_ethpm_manifest('owned', '1.0.1.json')
+    owned_manifest = get_ethpm_spec_manifest('owned', 'v3.json')
     pm = w3.pm.get_package_from_manifest(owned_manifest)
     assert pm.name == 'owned'
 
 
 def test_get_contract_factory_raises_insufficient_assets_error(w3):
-    insufficient_owned_manifest = get_ethpm_manifest('owned', '1.0.0.json')
+    insufficient_owned_manifest = get_ethpm_spec_manifest('owned', 'v3.json')
     owned_package = w3.pm.get_package_from_manifest(insufficient_owned_manifest)
     with pytest.raises(InsufficientAssetsError):
         owned_package.get_contract_factory('Owned')
 
 
 def test_get_contract_factory_with_valid_owned_manifest(w3):
-    owned_manifest = get_ethpm_manifest('owned', '1.0.1.json')
+    owned_manifest = get_ethpm_local_manifest('owned', 'with_contract_type_v3.json')
     owned_package = w3.pm.get_package_from_manifest(owned_manifest)
     owned_factory = owned_package.get_contract_factory('Owned')
     tx_hash = owned_factory.constructor().transact()
@@ -40,7 +41,7 @@ def test_get_contract_factory_with_valid_owned_manifest(w3):
 
 
 def test_get_contract_factory_with_valid_safe_math_lib_manifest(w3):
-    safe_math_lib_manifest = get_ethpm_manifest('safe-math-lib', '1.0.1.json')
+    safe_math_lib_manifest = get_ethpm_spec_manifest('safe-math-lib', 'v3.json')
     safe_math_package = w3.pm.get_package_from_manifest(safe_math_lib_manifest)
     safe_math_factory = safe_math_package.get_contract_factory("SafeMathLib")
     tx_hash = safe_math_factory.constructor().transact()
@@ -51,7 +52,7 @@ def test_get_contract_factory_with_valid_safe_math_lib_manifest(w3):
 
 
 def test_get_contract_factory_with_valid_escrow_manifest(w3):
-    escrow_manifest = get_ethpm_manifest("escrow", "1.0.2.json")
+    escrow_manifest = get_ethpm_spec_manifest("escrow", "v3.json")
     escrow_package = w3.pm.get_package_from_manifest(escrow_manifest)
     escrow_factory = escrow_package.get_contract_factory('Escrow')
     assert escrow_factory.needs_bytecode_linking
@@ -69,7 +70,7 @@ def test_get_contract_factory_with_valid_escrow_manifest(w3):
 
 
 def test_deploy_a_standalone_package_integration(w3):
-    standard_token_manifest = get_ethpm_manifest("standard-token", "1.0.1.json")
+    standard_token_manifest = get_ethpm_local_manifest("standard-token", "with_bytecode_v3.json")
     token_package = w3.pm.get_package_from_manifest(standard_token_manifest)
     # Added deployment bytecode to manifest to be able to generate factory
     ERC20 = token_package.get_contract_factory('StandardToken')
@@ -94,7 +95,7 @@ def test_pm_init_with_manifest_uri(w3, monkeypatch):
 
 @pytest.fixture
 def tmp_ethpmdir(tmp_path):
-    owned_manifest = get_ethpm_manifest("owned", "1.0.0.json")
+    owned_manifest = get_ethpm_spec_manifest("owned", "v3.json")
     ethpmdir = tmp_path / '_ethpm_packages'
     ethpmdir.mkdir()
     owned_dir = ethpmdir / 'owned'

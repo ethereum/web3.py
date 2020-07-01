@@ -221,9 +221,12 @@ class Package(object):
         Returns a Package object instantiated by a manifest located at a content-addressed URI.
         A valid ``Web3`` instance is also required.
         URI schemes supported:
-        - IPFS          `ipfs://Qm...`
-        - HTTP          `https://api.github.com/repos/:owner/:repo/git/blobs/:file_sha`
-        - Registry      `erc1319://registry.eth:1/greeter?version=1.0.0`
+
+        - IPFS: `ipfs://Qm...`
+
+        - HTTP: `https://api.github.com/repos/:owner/:repo/git/blobs/:file_sha`
+
+        - Registry: `erc1319://registry.eth:1/greeter?version=1.0.0`
 
         .. code:: python
 

@@ -1,4 +1,3 @@
-import json
 import pytest
 
 from eth_tester import (
@@ -10,11 +9,13 @@ from eth_utils import (
 )
 
 from ethpm import (
-    ASSETS_DIR,
     Package,
 )
 from ethpm.contract import (
     LinkableContract,
+)
+from ethpm.tools import (
+    get_ethpm_local_manifest,
 )
 from web3 import Web3
 from web3.pm import (
@@ -48,7 +49,7 @@ def setup_w3():
 
 
 def sol_registry(w3):
-    manifest = json.loads((ASSETS_DIR / "simple-registry" / "v3simple.json").read_text())
+    manifest = get_ethpm_local_manifest("simple-registry", "v3.json")
     registry_package = Package(manifest, w3)
     registry_deployer = Deployer(registry_package)
     deployed_registry_package = registry_deployer.deploy("PackageRegistry")

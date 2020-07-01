@@ -4,7 +4,7 @@ from pathlib import (
 import pytest
 
 from ethpm import (
-    ASSETS_DIR,
+    ETHPM_SPEC_DIR,
 )
 from web3 import Web3
 
@@ -23,5 +23,5 @@ def w3():
 
 @pytest.fixture
 def escrow_deployer(deployer):
-    escrow_manifest_path = ASSETS_DIR / "escrow" / "1.0.2.json"
+    escrow_manifest_path = ETHPM_SPEC_DIR / "examples" / "escrow" / "v3.json"
     return deployer(escrow_manifest_path)

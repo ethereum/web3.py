@@ -67,7 +67,7 @@ def owned_package():
     compiler = json.loads((ASSETS_DIR / "owned" / "output_v3.json").read_text())[
         "contracts"
     ]
-    contracts_dir = ASSETS_DIR / "owned" / "contracts"
+    contracts_dir = ETHPM_SPEC_DIR / "examples" / "owned" / "contracts"
     return contracts_dir, updated_manifest, compiler
 
 
@@ -90,7 +90,7 @@ def registry_package():
     root = ASSETS_DIR / "registry"
     compiler = json.loads(Path(root / "solc_output.json").read_text())["contracts"]
     contracts_dir = root / "contracts"
-    manifest = json.loads((root / "v3registry.json").read_text())
+    manifest = json.loads((root / "v3.json").read_text())
     return contracts_dir, manifest, compiler
 
 
@@ -702,7 +702,7 @@ def test_builder_deployment_simple(w3):
 
 @pytest.fixture
 def escrow_package(w3, deployer):
-    manifest = ASSETS_DIR / "escrow" / "v3.3.json"
+    manifest = ETHPM_SPEC_DIR / "examples" / "escrow" / "v3.json"
     escrow_deployer = deployer(manifest)
     escrow_strategy = linker(
         deploy("SafeSendLib"),

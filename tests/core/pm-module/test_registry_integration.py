@@ -34,7 +34,7 @@ def test_pm_get_package_from_manifest(w3):
     manifest = get_simple_registry_manifest()
     package = w3.pm.get_package_from_manifest(manifest)
     assert isinstance(package, Package)
-    assert package.name == "ethpm-registry"
+    assert package.name == "simple-registry"
 
 
 def test_pm_deploy_and_set_registry(fresh_w3):
@@ -61,7 +61,7 @@ def test_pm_set_custom_registry(empty_sol_registry, fresh_w3):
 def test_pm_must_set_registry_before_all_registry_interaction_functions(fresh_w3):
     with pytest.raises(PMError):
         fresh_w3.pm.release_package(
-            "package", "1.0.0", "ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW"
+            "package", "1.0.0", "ipfs://QmcxvhkJJVpbxEAa6cgW3B6XwPJb79w9GpNUv2P2THUzZR"
         )
     with pytest.raises(PMError):
         fresh_w3.pm.get_release_id_data(b"invalid_release_id")
@@ -84,10 +84,10 @@ def test_pm_must_set_registry_before_all_registry_interaction_functions(fresh_w3
 def test_pm_release_package(empty_sol_registry, w3):
     w3.pm.registry = empty_sol_registry
     w3.pm.release_package(
-        "escrow", "1.0.0", "ipfs://QmPDwMHk8e1aMEZg3iKsUiPSkhHkywpGB3KHKM52RtGrkv"
+        "escrow", "1.0.0", "ipfs://QmTpYHEog4yfmgx5GgvNCRQyDeQyBD4FWxTkiUP64AH1QC"
     )
     w3.pm.release_package(
-        "owned", "1.0.0", "ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW"
+        "owned", "1.0.0", "ipfs://QmcxvhkJJVpbxEAa6cgW3B6XwPJb79w9GpNUv2P2THUzZR"
     )
     release_id_1 = w3.pm.get_release_id("escrow", "1.0.0")
     release_id_2 = w3.pm.get_release_id("owned", "1.0.0")
@@ -95,10 +95,10 @@ def test_pm_release_package(empty_sol_registry, w3):
     package_data_2 = w3.pm.get_release_id_data(release_id_2)
     assert package_data_1[0] == "escrow"
     assert package_data_1[1] == "1.0.0"
-    assert package_data_1[2] == "ipfs://QmPDwMHk8e1aMEZg3iKsUiPSkhHkywpGB3KHKM52RtGrkv"
+    assert package_data_1[2] == "ipfs://QmTpYHEog4yfmgx5GgvNCRQyDeQyBD4FWxTkiUP64AH1QC"
     assert package_data_2[0] == "owned"
     assert package_data_2[1] == "1.0.0"
-    assert package_data_2[2] == "ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW"
+    assert package_data_2[2] == "ipfs://QmcxvhkJJVpbxEAa6cgW3B6XwPJb79w9GpNUv2P2THUzZR"
 
 
 def test_pm_get_release_data(loaded_sol_registry, w3):
@@ -171,7 +171,7 @@ def test_pm_get_package(loaded_sol_registry, w3, monkeypatch):
     )
     w3.pm.deploy_and_set_registry()
     w3.pm.release_package(
-        "owned", "1.0.0", "ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW"
+        "owned", "1.0.0", "ipfs://QmcxvhkJJVpbxEAa6cgW3B6XwPJb79w9GpNUv2P2THUzZR"
     )
     pkg = w3.pm.get_package("owned", "1.0.0")
     assert isinstance(pkg, Package)

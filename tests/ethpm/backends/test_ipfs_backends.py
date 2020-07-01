@@ -9,7 +9,6 @@ from eth_utils import (
 )
 
 from ethpm import (
-    ASSETS_DIR,
     ETHPM_SPEC_DIR,
 )
 from ethpm.backends.ipfs import (
@@ -23,7 +22,7 @@ from ethpm.constants import (
     INFURA_GATEWAY_MULTIADDR,
 )
 
-OWNED_MANIFEST_PATH = ASSETS_DIR / "owned" / "1.0.0.json"
+OWNED_MANIFEST_PATH = ETHPM_SPEC_DIR / "examples" / "owned" / "v3.json"
 
 
 @pytest.fixture
@@ -86,7 +85,7 @@ def test_dummy_ipfs_backend():
         "ipfs://QmVu9zuza5mkJwwcFdh2SXBugm1oSgZVuEKkph9XLsbUwg"
     )
     manifest = json.loads(to_text(pkg))
-    assert manifest["package_name"] == "standard-token"
+    assert manifest["name"] == "standard-token"
 
 
 def test_get_ipfs_backend_class_with_default_backend():
@@ -112,9 +111,9 @@ def test_pin_assets_to_dummy_backend(dummy_ipfs_backend):
     backend = get_ipfs_backend()
     hashes = backend.pin_assets(OWNED_MANIFEST_PATH)
     asset_data = hashes[0]
-    assert asset_data["Name"] == "1.0.0.json"
-    assert asset_data["Hash"] == "QmYogrz6sKuyMW8NHUdw1kEy9Tn15R3GaF9T14S4zwb4bR"
-    assert asset_data["Size"] == "433"
+    assert asset_data["Name"] == "v3.json"
+    assert asset_data["Hash"] == "QmcxvhkJJVpbxEAa6cgW3B6XwPJb79w9GpNUv2P2THUzZR"
+    assert asset_data["Size"] == "478"
     # Test pinning a directory
     dir_data = backend.pin_assets(ETHPM_SPEC_DIR / "examples" / "standard-token" / "contracts")
     dir_names = [result["Name"] for result in dir_data]

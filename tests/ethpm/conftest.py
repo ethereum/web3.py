@@ -15,7 +15,7 @@ from ethpm._utils.chains import (
     create_block_uri,
 )
 from ethpm.tools import (
-    get_manifest as get_manifest_tool,
+    get_ethpm_spec_manifest,
 )
 from ethpm.uri import (
     create_latest_block_uri,
@@ -24,17 +24,6 @@ from web3 import Web3
 from web3.tools import (  # noqa: E741
     linker as l,
 )
-
-PACKAGE_NAMES = [
-    ("escrow", "1.0.3.json"),
-    ("owned", "1.0.0.json"),
-    ("piper-coin", "1.0.0.json"),
-    ("safe-math-lib", "1.0.0.json"),
-    ("standard-token", "1.0.0.json"),
-    ("transferable", "1.0.0.json"),
-    ("wallet-with-send", "1.0.0.json"),
-    ("wallet", "1.0.0.json"),
-]
 
 V3_PACKAGE_NAMES = [
     ("escrow", "v3.json"),
@@ -52,11 +41,6 @@ def pytest_addoption(parser):
     parser.addoption("--integration", action="store_true", default=False)
 
 
-@pytest.fixture
-def package_names():
-    return PACKAGE_NAMES
-
-
 @pytest.fixture(params=V3_PACKAGE_NAMES)
 def all_strict_manifests(request):
     return (
@@ -66,7 +50,7 @@ def all_strict_manifests(request):
     )
 
 
-@pytest.fixture(params=PACKAGE_NAMES)
+@pytest.fixture(params=V3_PACKAGE_NAMES)
 def all_pretty_manifests(request):
     return (
         (fetch_manifest_path(request.param[0], "v3-pretty.json"))
@@ -76,7 +60,7 @@ def all_pretty_manifests(request):
 
 
 def fetch_manifest(name, version):
-    return get_manifest_tool(name, version)
+    return get_ethpm_spec_manifest(name, version)
 
 
 def fetch_manifest_path(name, version):
@@ -124,7 +108,7 @@ def safe_math_manifest(get_manifest):
 @pytest.fixture
 def piper_coin_manifest():
     return json.loads(
-        (ASSETS_DIR / "piper-coin" / "v3-strict.json").read_text()
+        (ETHPM_SPEC_DIR / "examples" / "piper-coin" / "v3.json").read_text()
     )
 
 
@@ -159,7 +143,7 @@ def get_factory(get_manifest, escrow_manifest, w3):
 
 @pytest.fixture
 def owned_contract():
-    return (ASSETS_DIR / "owned" / "contracts" / "Owned.sol").read_text()
+    return (ETHPM_SPEC_DIR / "examples" / "owned" / "contracts" / "Owned.sol").read_text()
 
 
 @pytest.fixture
@@ -184,8 +168,7 @@ def manifest_with_empty_deployments(tmpdir, safe_math_manifest):
 
 @pytest.fixture
 def escrow_package(deployer, w3):
-    # escrow_manifest = ASSETS_DIR / "escrow" / "1.0.3.json"
-    escrow_manifest = ASSETS_DIR / "escrow" / "v3.3-strict.json"
+    escrow_manifest = ETHPM_SPEC_DIR / "examples" / "escrow" / "v3.json"
     escrow_deployer = deployer(escrow_manifest)
     escrow_strategy = l.linker(
         l.deploy("SafeSendLib"),

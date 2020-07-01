@@ -1,4 +1,3 @@
-import json
 import pytest
 
 from eth_utils import (
@@ -6,22 +5,24 @@ from eth_utils import (
 )
 
 from ethpm import (
-    ASSETS_DIR,
     Package,
 )
 from ethpm.exceptions import (
     BytecodeLinkingError,
+)
+from ethpm.tools import (
+    get_ethpm_spec_manifest,
 )
 import web3
 
 
 def test_deployed_escrow_and_safe_send(escrow_manifest, w3):
     # Deploy a SafeSendLib
-    safe_send_manifest = json.loads((ASSETS_DIR / "escrow" / "1.0.3.json").read_text())
-    safe_send_contract_type = safe_send_manifest["contract_types"]["SafeSendLib"]
+    safe_send_manifest = get_ethpm_spec_manifest("escrow", "v3.json")
+    safe_send_contract_type = safe_send_manifest["contractTypes"]["SafeSendLib"]
     SafeSend = w3.eth.contract(
         abi=safe_send_contract_type["abi"],
-        bytecode=safe_send_contract_type["deployment_bytecode"]["bytecode"],
+        bytecode=safe_send_contract_type["deploymentBytecode"]["bytecode"],
     )
     tx_hash = SafeSend.constructor().transact()
     tx_receipt = w3.eth.getTransactionReceipt(tx_hash)

@@ -17,9 +17,6 @@ from eth_utils import (
 )
 import ipfshttpclient
 
-from ethpm import (
-    ASSETS_DIR,
-)
 from ethpm._utils.ipfs import (
     dummy_ipfs_pin,
     extract_ipfs_path_from_uri,
@@ -37,6 +34,9 @@ from ethpm.constants import (
 from ethpm.exceptions import (
     CannotHandleURI,
     EthPMValidationError,
+)
+from ethpm.tools import (
+    get_ethpm_spec_manifest,
 )
 
 
@@ -154,7 +154,7 @@ class LocalIPFSBackend(IPFSOverHTTPBackend):
 MANIFEST_URIS = {
     "ipfs://QmVu9zuza5mkJwwcFdh2SXBugm1oSgZVuEKkph9XLsbUwg": "standard-token",
     "ipfs://QmeD2s7KaBUoGYTP1eutHBmBkMMMoycdfiyGMx2DKrWXyV": "safe-math-lib",
-    "ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW": "owned",
+    "ipfs://QmcxvhkJJVpbxEAa6cgW3B6XwPJb79w9GpNUv2P2THUzZR": "owned",
 }
 
 
@@ -170,7 +170,7 @@ class DummyIPFSBackend(BaseIPFSBackend):
 
     def fetch_uri_contents(self, ipfs_uri: str) -> bytes:
         pkg_name = MANIFEST_URIS[ipfs_uri]
-        pkg_contents = (ASSETS_DIR / pkg_name / "1.0.0.json").read_text()
+        pkg_contents = get_ethpm_spec_manifest(pkg_name, "v3.json")
         return to_bytes(text=pkg_contents.rstrip("\n"))
 
     def can_resolve_uri(self, uri: str) -> bool:
