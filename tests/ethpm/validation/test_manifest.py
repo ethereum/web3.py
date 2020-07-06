@@ -95,7 +95,7 @@ def test_validate_manifest_version_validates_version_three_string():
     assert validate_manifest_version("ethpm/3") is None
 
 
-@pytest.mark.parametrize("version", (2, 3, "2" "3", b"3"))
+@pytest.mark.parametrize("version", (2, 3, "2", "3", b"3"))
 def test_validate_manifest_version_invalidates_incorrect_versions(version):
     with pytest.raises(EthPMValidationError):
         validate_manifest_version(version)

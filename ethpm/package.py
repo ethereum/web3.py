@@ -103,7 +103,7 @@ class Package(object):
 
         if "manifest" not in manifest or manifest["manifest"] != "ethpm/3":
             raise EthPMValidationError(
-                "Py-Ethpm currently only supperts v3 ethpm manifests. "
+                "Py-Ethpm currently only supports v3 ethpm manifests. "
                 "Please use the CLI to update or re-generate a v3 manifest. "
             )
 

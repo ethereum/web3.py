@@ -100,7 +100,6 @@ def link(contract: ContractName, linked_type: str, package: Package) -> Package:
             "so it is not a valid contract type for link()"
         )
     linked_factory = unlinked_factory.link_bytecode({linked_type: deployment_address})
-    # ???
     # todo replace runtime_bytecode in manifest
     manifest = assoc_in(
         package.manifest,

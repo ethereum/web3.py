@@ -82,7 +82,7 @@ def test_base_ipfs_gateway_backend_correctly_handles_uri_schemes(uri, expected):
 
 def test_dummy_ipfs_backend():
     pkg = DummyIPFSBackend().fetch_uri_contents(
-        "ipfs://QmVu9zuza5mkJwwcFdh2SXBugm1oSgZVuEKkph9XLsbUwg"
+        "ipfs://QmQNffBrmbB3TuBCtYfYsJWJVLssatWXa3H6CkGeyNUySA"
     )
     manifest = json.loads(to_text(pkg))
     assert manifest["name"] == "standard-token"

@@ -87,7 +87,7 @@ def test_pm_init_with_manifest_uri(w3, monkeypatch):
     monkeypatch.setenv(
         "ETHPM_IPFS_BACKEND_CLASS", "ethpm.backends.ipfs.DummyIPFSBackend"
     )
-    dummy_standard_token_uri = "ipfs://QmVu9zuza5mkJwwcFdh2SXBugm1oSgZVuEKkph9XLsbUwg"
+    dummy_standard_token_uri = "ipfs://QmQNffBrmbB3TuBCtYfYsJWJVLssatWXa3H6CkGeyNUySA"
     pkg = w3.pm.get_package_from_uri(dummy_standard_token_uri)
     assert isinstance(pkg, Package)
     assert pkg.name == "standard-token"
