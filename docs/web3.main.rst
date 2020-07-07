@@ -1,3 +1,5 @@
+.. _web3_base:
+
 Web3 API
 ========
 

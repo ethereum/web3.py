@@ -15,6 +15,8 @@ that are in deeper layers).
 More information is available in the "Internals: :ref:`internals__middlewares`" section.
 
 
+.. _default_middleware:
+
 Default Middleware
 ------------------
 
