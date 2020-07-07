@@ -20,7 +20,7 @@ from web3.tools.pytest_ethereum.linker import (
 
 @pytest.fixture
 def escrow_deployer(deployer):
-    escrow_manifest_path = ASSETS_DIR / "escrow" / "1.0.3.json"
+    escrow_manifest_path = ASSETS_DIR / "escrow" / "with_bytecode_v3.json"
     return deployer(escrow_manifest_path)
 
 

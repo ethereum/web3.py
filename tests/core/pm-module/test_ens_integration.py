@@ -27,7 +27,7 @@ def bytes32(val):
 @pytest.fixture
 def ens_setup(deployer):
     # todo: move to module level once ethpm alpha stable
-    ENS_MANIFEST = ASSETS_DIR / 'ens' / '1.0.1.json'
+    ENS_MANIFEST = ASSETS_DIR / 'ens' / 'v3.json'
     ens_deployer = deployer(ENS_MANIFEST)
     w3 = ens_deployer.package.w3
 
@@ -136,8 +136,8 @@ def test_web3_ens(ens):
     actual_addr = ens.address('tester.eth')
     w3.pm.set_registry('tester.eth')
     assert w3.pm.registry.address == actual_addr
-    w3.pm.release_package('owned', '1.0.0', 'ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW')
+    w3.pm.release_package('owned', '1.0.0', 'ipfs://QmcxvhkJJVpbxEAa6cgW3B6XwPJb79w9GpNUv2P2THUzZR')
     pkg_name, version, manifest_uri = w3.pm.get_release_data('owned', '1.0.0')
     assert pkg_name == 'owned'
     assert version == '1.0.0'
-    assert manifest_uri == 'ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW'
+    assert manifest_uri == 'ipfs://QmcxvhkJJVpbxEAa6cgW3B6XwPJb79w9GpNUv2P2THUzZR'

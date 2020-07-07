@@ -101,6 +101,12 @@ class Package(object):
                 f"Got {type(manifest)}"
             )
 
+        if "manifest" not in manifest or manifest["manifest"] != "ethpm/3":
+            raise EthPMValidationError(
+                "Py-Ethpm currently only supports v3 ethpm manifests. "
+                "Please use the CLI to update or re-generate a v3 manifest. "
+            )
+
         validate_manifest_against_schema(manifest)
         validate_manifest_deployments(manifest)
         validate_w3_instance(w3)
@@ -148,7 +154,7 @@ class Package(object):
            >>> OwnedPackage.name
            'owned'
         """
-        return self.manifest["package_name"]
+        return self.manifest["name"]
 
     @property
     def version(self) -> str:
@@ -170,9 +176,9 @@ class Package(object):
         .. doctest::
 
            >>> OwnedPackage.manifest_version
-           '2'
+           'ethpm/3'
         """
-        return self.manifest["manifest_version"]
+        return self.manifest["manifest"]
 
     @property
     def uri(self) -> Optional[str]:
@@ -186,8 +192,8 @@ class Package(object):
         """
         All contract types included in this package.
         """
-        if 'contract_types' in self.manifest:
-            return sorted(self.manifest['contract_types'].keys())
+        if 'contractTypes' in self.manifest:
+            return sorted(self.manifest['contractTypes'].keys())
         else:
             raise ValueError("No contract types found in manifest; {self.__repr__()}.")
 
@@ -215,9 +221,12 @@ class Package(object):
         Returns a Package object instantiated by a manifest located at a content-addressed URI.
         A valid ``Web3`` instance is also required.
         URI schemes supported:
-        - IPFS          `ipfs://Qm...`
-        - HTTP          `https://api.github.com/repos/:owner/:repo/git/blobs/:file_sha`
-        - Registry      `erc1319://registry.eth:1/greeter?version=1.0.0`
+
+        - IPFS: `ipfs://Qm...`
+
+        - HTTP: `https://api.github.com/repos/:owner/:repo/git/blobs/:file_sha`
+
+        - Registry: `erc1319://registry.eth:1/greeter?version=1.0.0`
 
         .. code:: python
 
@@ -257,13 +266,13 @@ class Package(object):
         """
         validate_contract_name(name)
 
-        if "contract_types" not in self.manifest:
+        if "contractTypes" not in self.manifest:
             raise InsufficientAssetsError(
                 "This package does not contain any contract type data."
             )
 
         try:
-            contract_data = self.manifest["contract_types"][name]
+            contract_data = self.manifest["contractTypes"][name]
         except KeyError:
             raise InsufficientAssetsError(
                 "This package does not contain any package data to generate "
@@ -285,14 +294,14 @@ class Package(object):
         validate_address(address)
         validate_contract_name(name)
         try:
-            self.manifest["contract_types"][name]["abi"]
+            self.manifest["contractTypes"][name]["abi"]
         except KeyError:
             raise InsufficientAssetsError(
                 "Package does not have the ABI required to generate a contract instance "
                 f"for contract: {name} at address: {address}."
             )
         contract_kwargs = generate_contract_factory_kwargs(
-            self.manifest["contract_types"][name]
+            self.manifest["contractTypes"][name]
         )
         contract_instance = self.w3.eth.contract(
             address=address, **contract_kwargs
@@ -316,7 +325,7 @@ class Package(object):
         """
         validate_build_dependencies_are_present(self.manifest)
 
-        dependencies = self.manifest["build_dependencies"]
+        dependencies = self.manifest["buildDependencies"]
         dependency_packages = {}
         for name, uri in dependencies.items():
             try:
@@ -363,7 +372,7 @@ class Package(object):
                     deployment_data["address"]
                 )
                 unresolved_linked_refs = normalize_linked_references(
-                    deployment_data["runtime_bytecode"]["link_dependencies"]
+                    deployment_data["runtimeBytecode"]["linkDependencies"]
                 )
                 resolved_linked_refs = tuple(
                     self._resolve_linked_references(link_ref, deployments)
@@ -372,21 +381,21 @@ class Package(object):
                 for linked_ref in resolved_linked_refs:
                     validate_linked_references(linked_ref, on_chain_bytecode)
 
-        return Deployments(deployments, all_contract_instances, self.w3)
+        return Deployments(deployments, all_contract_instances)
 
     @to_dict
     def _get_all_contract_instances(
         self, deployments: Dict[str, DeploymentData]
     ) -> Iterable[Tuple[str, Contract]]:
         for deployment_name, deployment_data in deployments.items():
-            if deployment_data['contract_type'] not in self.contract_types:
+            if deployment_data['contractType'] not in self.contract_types:
                 raise EthPMValidationError(
-                    f"Contract type: {deployment_data['contract_type']} for alias: "
+                    f"Contract type: {deployment_data['contractType']} for alias: "
                     f"{deployment_name} not found. Available contract types include: "
                     f"{self.contract_types}."
                 )
             contract_instance = self.get_contract_instance(
-                ContractName(deployment_data['contract_type']),
+                ContractName(deployment_data['contractType']),
                 deployment_data['address'],
             )
             yield deployment_name, contract_instance

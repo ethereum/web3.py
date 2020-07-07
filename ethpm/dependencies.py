@@ -11,7 +11,7 @@ from ethpm.validation.package import (
 
 class Dependencies:
     """
-    Class to manage the `Package` instances of a Package's `build_dependencies`.
+    Class to manage the `Package` instances of a Package's `buildDependencies`.
     """
 
     # ignoring Package type here and below to avoid a circular dependency

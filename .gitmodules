@@ -1,0 +1,3 @@
+[submodule "ethpm/ethpm-spec"]
+	path = ethpm/ethpm-spec
+	url = https://github.com/ethpm/ethpm-spec.git

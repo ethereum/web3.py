@@ -239,7 +239,7 @@ class SimpleRegistry(ERC1319Registry):
     """
 
     def __init__(self, address: ChecksumAddress, w3: Web3) -> None:
-        abi = get_simple_registry_manifest()["contract_types"]["PackageRegistry"][
+        abi = get_simple_registry_manifest()["contractTypes"]["PackageRegistry"][
             "abi"
         ]
         self.registry = w3.eth.contract(address=address, abi=abi)
@@ -432,10 +432,10 @@ class PM(Module):
         validate_raw_manifest_format(raw_manifest)
         manifest = json.loads(raw_manifest)
         validate_manifest_against_schema(manifest)
-        if package_name != manifest["package_name"]:
+        if package_name != manifest["name"]:
             raise ManifestValidationError(
                 f"Provided package name: {package_name} does not match the package name "
-                f"found in the manifest: {manifest['package_name']}."
+                f"found in the manifest: {manifest['name']}."
             )
 
         if version != manifest["version"]:
@@ -565,7 +565,7 @@ class PM(Module):
 
 
 def get_simple_registry_manifest() -> Dict[str, Any]:
-    return json.loads((ASSETS_DIR / "simple-registry" / "2.0.0a1.json").read_text())
+    return json.loads((ASSETS_DIR / "simple-registry" / "v3.json").read_text())
 
 
 def validate_is_supported_manifest_uri(uri: URI) -> None:

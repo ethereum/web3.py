@@ -103,7 +103,7 @@ def link(contract: ContractName, linked_type: str, package: Package) -> Package:
     # todo replace runtime_bytecode in manifest
     manifest = assoc_in(
         package.manifest,
-        ("contract_types", contract, "deployment_bytecode", "bytecode"),
+        ("contractTypes", contract, "deploymentBytecode", "bytecode"),
         to_hex(linked_factory.bytecode),
     )
     logger.info(

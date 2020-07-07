@@ -18,7 +18,7 @@ from eth_utils import (
 import ipfshttpclient
 
 from ethpm import (
-    ASSETS_DIR,
+    ETHPM_SPEC_DIR,
 )
 from ethpm._utils.ipfs import (
     dummy_ipfs_pin,
@@ -152,9 +152,9 @@ class LocalIPFSBackend(IPFSOverHTTPBackend):
 
 
 MANIFEST_URIS = {
-    "ipfs://QmVu9zuza5mkJwwcFdh2SXBugm1oSgZVuEKkph9XLsbUwg": "standard-token",
-    "ipfs://QmeD2s7KaBUoGYTP1eutHBmBkMMMoycdfiyGMx2DKrWXyV": "safe-math-lib",
-    "ipfs://QmbeVyFLSuEUxiXKwSsEjef6icpdTdA4kGG9BcrJXKNKUW": "owned",
+    "ipfs://QmQNffBrmbB3TuBCtYfYsJWJVLssatWXa3H6CkGeyNUySA": "standard-token",
+    "ipfs://QmWnPsiS3Xb8GvCDEBFnnKs8Yk4HaAX6rCqJAaQXGbCoPk": "safe-math-lib",
+    "ipfs://QmcxvhkJJVpbxEAa6cgW3B6XwPJb79w9GpNUv2P2THUzZR": "owned",
 }
 
 
@@ -165,13 +165,13 @@ class DummyIPFSBackend(BaseIPFSBackend):
     ---
     `ipfs_uri` can either be:
     - Valid IPFS URI -> safe-math-lib manifest (ALWAYS)
-    - Path to manifest/contract in ASSETS_DIR -> defined manifest/contract
+    - Path to manifest/contract in ETHPM_SPEC_DIR -> defined manifest/contract
     """
 
     def fetch_uri_contents(self, ipfs_uri: str) -> bytes:
         pkg_name = MANIFEST_URIS[ipfs_uri]
-        pkg_contents = (ASSETS_DIR / pkg_name / "1.0.0.json").read_text()
-        return to_bytes(text=pkg_contents.rstrip("\n"))
+        pkg_contents = (ETHPM_SPEC_DIR / "examples" / pkg_name / "v3.json").read_text()
+        return to_bytes(text=pkg_contents)
 
     def can_resolve_uri(self, uri: str) -> bool:
         return uri in MANIFEST_URIS

@@ -16,7 +16,7 @@ from ethpm.validation.package import (
 
 @pytest.fixture
 def dependencies(dummy_ipfs_backend, piper_coin_manifest, w3):
-    deps = piper_coin_manifest["build_dependencies"]
+    deps = piper_coin_manifest["buildDependencies"]
     dep_pkgs = {dep: Package.from_uri(uri, w3) for dep, uri in deps.items()}
     return Dependencies(dep_pkgs)
 

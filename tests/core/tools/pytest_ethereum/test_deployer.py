@@ -7,6 +7,7 @@ from eth_utils import (
 
 from ethpm import (
     ASSETS_DIR,
+    ETHPM_SPEC_DIR,
 )
 import web3
 from web3.tools.pytest_ethereum.exceptions import (
@@ -42,7 +43,7 @@ def test_user_code_with_fixture(greeter):
 # SIMPLE
 @pytest.fixture
 def owned(deployer):
-    owned_manifest_path = ASSETS_DIR / "owned" / "1.0.1.json"
+    owned_manifest_path = ASSETS_DIR / "owned" / "with_contract_type_v3.json"
     owned_deployer = deployer(path=owned_manifest_path)
     return owned_deployer.deploy("Owned")
 
@@ -55,7 +56,7 @@ def test_owned_deployer(owned):
 # CONSTRUCTOR ARGS
 @pytest.fixture
 def standard_token(deployer):
-    standard_token_manifest_path = ASSETS_DIR / "standard-token" / "1.0.1.json"
+    standard_token_manifest_path = ASSETS_DIR / "standard-token" / "with_bytecode_v3.json"
     standard_token_deployer = deployer(standard_token_manifest_path)
     return standard_token_deployer.deploy("StandardToken", 100)
 
@@ -68,7 +69,7 @@ def test_standard_token_deployer(standard_token):
 # LIBRARY
 @pytest.fixture
 def safe_math(deployer):
-    safe_math_manifest_path = ASSETS_DIR / "safe-math-lib" / "1.0.1.json"
+    safe_math_manifest_path = ETHPM_SPEC_DIR / "examples" / "safe-math-lib" / "v3.json"
     safe_math_deployer = deployer(safe_math_manifest_path)
     return safe_math_deployer.deploy("SafeMathLib")
 

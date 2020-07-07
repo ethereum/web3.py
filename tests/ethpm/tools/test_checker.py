@@ -12,25 +12,26 @@ from ethpm.tools.checker import (
 def test_checker_simple():
     warnings = check_manifest({})
     assert warnings == {
-        "manifest_version": "Manifest missing a required 'manifest_version' field.",
-        "package_name": "Manifest missing a required 'package_name' field",
-        "version": "Manifest missing a required 'version' field.",
+        "manifest": "Manifest missing a required 'manifest' field.",
+        "name": "Manifest missing a suggested 'name' field",
+        "version": "Manifest missing a suggested 'version' field.",
         "meta": "Manifest missing a suggested 'meta' field.",
         "sources": """Manifest is missing a sources field, which defines a source tree that """
         """should comprise the full source tree necessary to recompile the contracts """
         """contained in this release.""",
-        "contract_types": """Manifest does not contain any 'contract_types'. Packages should """
+        "contractTypes": """Manifest does not contain any 'contractTypes'. Packages should """
         """only include contract types that can be found in the source files for this """
         """package. Packages should not include contract types from dependencies. """
         """Packages should not include abstract contracts in the contract types section """
         """of a release.""",
+        "compilers": "Manifest is missing a suggested `compilers` field.",
     }
 
 
 BASIC_MANIFEST = {
-    "package_name": "package",
+    "name": "package",
     "version": "1.0.0",
-    "manifest_version": "2",
+    "manifest": "ethpm/3",
 }
 
 
@@ -74,71 +75,71 @@ def test_check_sources(manifest, expected):
 @pytest.mark.parametrize(
     "manifest,expected",
     (
-        ({}, {"contract_types": WARNINGS["contract_type_missing"]}),
-        ({"contract_types": {}}, {"contract_types": WARNINGS["contract_type_missing"]}),
+        ({}, {"contractTypes": WARNINGS["contract_type_missing"]}),
+        ({"contractTypes": {}}, {"contractTypes": WARNINGS["contract_type_missing"]}),
         (
-            {"contract_types": {"x": {"runtime_bytecode": {"invalid": "invalid"}}}},
+            {"contractTypes": {"x": {"runtimeBytecode": {"invalid": "invalid"}}}},
             {
-                "contract_types": {
+                "contractTypes": {
                     "x": {
                         "abi": WARNINGS["abi_missing"].format("x"),
-                        "contract_type": WARNINGS[
+                        "contractType": WARNINGS[
                             "contract_type_subfield_missing"
                         ].format("x"),
-                        "deployment_bytecode": WARNINGS[
+                        "deploymentBytecode": WARNINGS[
                             "deployment_bytecode_missing"
                         ].format("x"),
-                        "runtime_bytecode": WARNINGS[
+                        "runtimeBytecode": WARNINGS[
                             "bytecode_subfield_missing"
                         ].format("x", "runtime"),
-                        "natspec": WARNINGS["natspec_missing"].format("x"),
-                        "compiler": WARNINGS["compiler_missing"].format("x"),
+                        "devdoc": WARNINGS["devdoc_missing"].format("x"),
+                        "userdoc": WARNINGS["userdoc_missing"].format("x"),
                     }
                 }
             },
         ),
         (
             {
-                "contract_types": {
+                "contractTypes": {
                     "x": {
-                        "deployment_bytecode": [],
-                        "runtime_bytecode": {"bytecode": []},
+                        "deploymentBytecode": [],
+                        "runtimeBytecode": {"bytecode": []},
                     },
                     "y": {
                         "abi": [1],
-                        "deployment_bytecode": [],
-                        "runtime_bytecode": [],
+                        "deploymentBytecode": [],
+                        "runtimeBytecode": [],
                     },
                 }
             },
             {
-                "contract_types": {
+                "contractTypes": {
                     "x": {
                         "abi": WARNINGS["abi_missing"].format("x"),
-                        "contract_type": WARNINGS[
+                        "contractType": WARNINGS[
                             "contract_type_subfield_missing"
                         ].format("x"),
-                        "deployment_bytecode": WARNINGS[
+                        "deploymentBytecode": WARNINGS[
                             "deployment_bytecode_missing"
                         ].format("x"),
-                        "runtime_bytecode": WARNINGS[
+                        "runtimeBytecode": WARNINGS[
                             "bytecode_subfield_missing"
                         ].format("x", "runtime"),
-                        "natspec": WARNINGS["natspec_missing"].format("x"),
-                        "compiler": WARNINGS["compiler_missing"].format("x"),
+                        "devdoc": WARNINGS["devdoc_missing"].format("x"),
+                        "userdoc": WARNINGS["userdoc_missing"].format("x"),
                     },
                     "y": {
-                        "contract_type": WARNINGS[
+                        "contractType": WARNINGS[
                             "contract_type_subfield_missing"
                         ].format("y"),
-                        "deployment_bytecode": WARNINGS[
+                        "deploymentBytecode": WARNINGS[
                             "deployment_bytecode_missing"
                         ].format("y"),
-                        "runtime_bytecode": WARNINGS["runtime_bytecode_missing"].format(
+                        "runtimeBytecode": WARNINGS["runtime_bytecode_missing"].format(
                             "y"
                         ),
-                        "natspec": WARNINGS["natspec_missing"].format("y"),
-                        "compiler": WARNINGS["compiler_missing"].format("y"),
+                        "devdoc": WARNINGS["devdoc_missing"].format("y"),
+                        "userdoc": WARNINGS["userdoc_missing"].format("y"),
                     },
                 }
             },

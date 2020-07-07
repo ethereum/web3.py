@@ -4,8 +4,7 @@ Package Manager API
 
 The ``web3.pm`` object exposes methods to interact with Packages as defined by `ERC 1123 <https://github.com/ethereum/EIPs/issues/1123>`_.
 
-- To learn more about the EthPM spec, visit the `documentation <http://ethpm.github.io/ethpm-spec/>`__.
-- To learn more about the Py-EthPM library used in this module, visit the `documentation <https://py-ethpm.readthedocs.io/en/latest/>`__.
+- To learn more about the EthPM spec, visit the `spec <http://ethpm.github.io/ethpm-spec/>`__ or the `documentation <http://docs.ethpm.com/>`__.
 
 
 .. WARNING::

@@ -1,5 +1,4 @@
 import copy
-import json
 import pytest
 
 from eth_utils.toolz import (
@@ -8,13 +7,14 @@ from eth_utils.toolz import (
 
 from ethpm import (
     ASSETS_DIR,
+    ETHPM_SPEC_DIR,
     Package,
 )
 from ethpm._utils.chains import (
     create_block_uri,
 )
 from ethpm.tools import (
-    get_manifest as get_manifest_tool,
+    get_ethpm_spec_manifest,
 )
 from ethpm.uri import (
     create_latest_block_uri,
@@ -24,15 +24,15 @@ from web3.tools import (  # noqa: E741
     linker as l,
 )
 
-PACKAGE_NAMES = [
-    ("escrow", "1.0.3.json"),
-    ("owned", "1.0.0.json"),
-    ("piper-coin", "1.0.0.json"),
-    ("safe-math-lib", "1.0.0.json"),
-    ("standard-token", "1.0.0.json"),
-    ("transferable", "1.0.0.json"),
-    ("wallet-with-send", "1.0.0.json"),
-    ("wallet", "1.0.0.json"),
+V3_PACKAGE_NAMES = [
+    ("escrow", "v3.json"),
+    ("owned", "v3.json"),
+    ("piper-coin", "v3.json"),
+    ("safe-math-lib", "v3.json"),
+    ("standard-token", "v3.json"),
+    ("transferable", "v3.json"),
+    ("wallet-with-send", "v3.json"),
+    ("wallet", "v3.json"),
 ]
 
 
@@ -40,30 +40,33 @@ def pytest_addoption(parser):
     parser.addoption("--integration", action="store_true", default=False)
 
 
-@pytest.fixture
-def package_names():
-    return PACKAGE_NAMES
-
-
-@pytest.fixture(params=PACKAGE_NAMES)
+@pytest.fixture(params=V3_PACKAGE_NAMES)
 def all_strict_manifests(request):
-    return (ASSETS_DIR / request.param[0] / "1.0.0.json").read_text().rstrip("\n")
+    return (
+        (fetch_manifest_path(request.param[0], "v3.json"))
+        .read_text()
+        .rstrip("\n")
+    )
 
 
-@pytest.fixture(params=PACKAGE_NAMES)
+@pytest.fixture(params=V3_PACKAGE_NAMES)
 def all_pretty_manifests(request):
     return (
-        (ASSETS_DIR / request.param[0] / "1.0.0-pretty.json")
+        (fetch_manifest_path(request.param[0], "v3-pretty.json"))
         .read_text()
         .rstrip("\n")
     )
 
 
 def fetch_manifest(name, version):
-    return get_manifest_tool(name, version)
+    return get_ethpm_spec_manifest(name, version)
 
 
-MANIFESTS = {name: fetch_manifest(name, version) for name, version in PACKAGE_NAMES}
+def fetch_manifest_path(name, version):
+    return ETHPM_SPEC_DIR / 'examples' / name / version
+
+
+MANIFESTS_V3 = {name: fetch_manifest(name, version) for name, version in V3_PACKAGE_NAMES}
 
 
 @pytest.fixture
@@ -83,12 +86,12 @@ def dummy_ipfs_backend(monkeypatch):
 @pytest.fixture
 def get_manifest():
     def _get_manifest(name):
-        return copy.deepcopy(MANIFESTS[name])
+        return copy.deepcopy(MANIFESTS_V3[name])
 
     return _get_manifest
 
 
-@pytest.fixture(params=PACKAGE_NAMES)
+@pytest.fixture(params=V3_PACKAGE_NAMES)
 def all_manifests(request, get_manifest):
     return get_manifest(request.param[0])
 
@@ -102,23 +105,21 @@ def safe_math_manifest(get_manifest):
 
 @pytest.fixture
 def piper_coin_manifest():
-    return json.loads(
-        (ASSETS_DIR / "piper-coin" / "1.0.0-pretty.json").read_text()
-    )
+    return get_ethpm_spec_manifest("piper-coin", "v3.json")
 
 
-ESCROW_DEPLOYMENT_BYTECODE = {
+ESCROW_DEPLOYMENT_BYTECODE_V3 = {
     "bytecode": "0x60806040526040516020806102a8833981016040525160008054600160a060020a0319908116331790915560018054600160a060020a0390931692909116919091179055610256806100526000396000f3006080604052600436106100565763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166366d003ac811461005b57806367e404ce1461008c57806369d89575146100a1575b600080fd5b34801561006757600080fd5b506100706100b8565b60408051600160a060020a039092168252519081900360200190f35b34801561009857600080fd5b506100706100c7565b3480156100ad57600080fd5b506100b66100d6565b005b600154600160a060020a031681565b600054600160a060020a031681565b600054600160a060020a031633141561019857600154604080517f9341231c000000000000000000000000000000000000000000000000000000008152600160a060020a039092166004830152303160248301525173000000000000000000000000000000000000000091639341231c916044808301926020929190829003018186803b15801561016657600080fd5b505af415801561017a573d6000803e3d6000fd5b505050506040513d602081101561019057600080fd5b506102289050565b600154600160a060020a031633141561005657600054604080517f9341231c000000000000000000000000000000000000000000000000000000008152600160a060020a039092166004830152303160248301525173000000000000000000000000000000000000000091639341231c916044808301926020929190829003018186803b15801561016657600080fd5b5600a165627a7a723058201766d3411ff91d047cf900369478c682a497a6e560cd1b2fe4d9f2d6fe13b4210029",  # noqa: E501
-    "link_references": [{"offsets": [383, 577], "length": 20, "name": "SafeSendLib"}],
+    "linkReferences": [{"offsets": [383, 577], "length": 20, "name": "SafeSendLib"}],
 }
 
 
 @pytest.fixture
 def escrow_manifest(get_manifest):
     escrow_manifest = get_manifest("escrow")
-    escrow_manifest["contract_types"]["Escrow"][
-        "deployment_bytecode"
-    ] = ESCROW_DEPLOYMENT_BYTECODE
+    escrow_manifest["contractTypes"]["Escrow"][
+        "deploymentBytecode"
+    ] = ESCROW_DEPLOYMENT_BYTECODE_V3
     return escrow_manifest
 
 
@@ -138,12 +139,12 @@ def get_factory(get_manifest, escrow_manifest, w3):
 
 @pytest.fixture
 def owned_contract():
-    return (ASSETS_DIR / "owned" / "contracts" / "Owned.sol").read_text()
+    return (ETHPM_SPEC_DIR / "examples" / "owned" / "contracts" / "Owned.sol").read_text()
 
 
 @pytest.fixture
 def invalid_manifest(safe_math_manifest):
-    safe_math_manifest["manifest_version"] = 1
+    safe_math_manifest["manifest"] = 1
     return safe_math_manifest
 
 
@@ -163,7 +164,7 @@ def manifest_with_empty_deployments(tmpdir, safe_math_manifest):
 
 @pytest.fixture
 def escrow_package(deployer, w3):
-    escrow_manifest = ASSETS_DIR / "escrow" / "1.0.3.json"
+    escrow_manifest = ETHPM_SPEC_DIR / "examples" / "escrow" / "v3.json"
     escrow_deployer = deployer(escrow_manifest)
     escrow_strategy = l.linker(
         l.deploy("SafeSendLib"),
@@ -176,14 +177,14 @@ def escrow_package(deployer, w3):
 
 @pytest.fixture
 def safe_math_lib_package(deployer, w3):
-    safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "1.0.1.json"
+    safe_math_lib_manifest = fetch_manifest_path("safe-math-lib", "v3.json")
     safe_math_deployer = deployer(safe_math_lib_manifest)
     return safe_math_deployer.deploy("SafeMathLib")
 
 
 @pytest.fixture
 def safe_math_lib_package_with_alias(deployer, w3):
-    safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "1.0.1.json"
+    safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "v3-strict-no-deployments.json"
     safe_math_deployer = deployer(safe_math_lib_manifest)
     pkg = safe_math_deployer.deploy("SafeMathLib")
     blockchain_uri = list(pkg.manifest["deployments"].keys())[0]
@@ -205,7 +206,7 @@ def manifest_with_no_matching_deployments(w3, tmpdir, safe_math_manifest):
     manifest = copy.deepcopy(safe_math_manifest)
     manifest["deployments"][block_uri] = {
         "SafeMathLib": {
-            "contract_type": "SafeMathLib",
+            "contractType": "SafeMathLib",
             "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
             "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
             "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",
@@ -223,7 +224,7 @@ def manifest_with_multiple_matches(w3, tmpdir, safe_math_manifest):
     manifest = copy.deepcopy(safe_math_manifest)
     manifest["deployments"][block_uri] = {
         "SafeMathLib": {
-            "contract_type": "SafeMathLib",
+            "contractType": "SafeMathLib",
             "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
             "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
             "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",
@@ -231,7 +232,7 @@ def manifest_with_multiple_matches(w3, tmpdir, safe_math_manifest):
     }
     manifest["deployments"][second_block_uri] = {
         "SafeMathLib": {
-            "contract_type": "SafeMathLib",
+            "contractType": "SafeMathLib",
             "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
             "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
             "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",
@@ -248,7 +249,7 @@ def manifest_with_conflicting_deployments(tmpdir, safe_math_manifest):
         "blockchain://41941023680923e0fe4d74a34bdac8141f2540e3ae90623718e47d66d1ca4a2d/block/1e96de11320c83cca02e8b9caf3e489497e8e432befe5379f2f08599f8aecede"  # noqa: E501
     ] = {
         "WrongNameLib": {
-            "contract_type": "WrongNameLib",
+            "contractType": "WrongNameLib",
             "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
             "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
             "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",

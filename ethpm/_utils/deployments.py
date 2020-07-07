@@ -32,12 +32,12 @@ def get_linked_deployments(deployments: Dict[str, Any]) -> Dict[str, Any]:
     linked_deployments = {
         dep: data
         for dep, data in deployments.items()
-        if get_in(("runtime_bytecode", "link_dependencies"), data)
+        if get_in(("runtimeBytecode", "linkDependencies"), data)
     }
     for deployment, data in linked_deployments.items():
         if any(
             link_dep["value"] == deployment
-            for link_dep in data["runtime_bytecode"]["link_dependencies"]
+            for link_dep in data["runtimeBytecode"]["linkDependencies"]
         ):
             raise BytecodeLinkingError(
                 f"Link dependency found in {deployment} deployment that references its "

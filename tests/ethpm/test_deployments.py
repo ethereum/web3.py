@@ -25,7 +25,7 @@ from web3.eth import (
 
 DEPLOYMENT_DATA = {
     "SafeMathLib": {
-        "contract_type": "SafeMathLib",
+        "contractType": "SafeMathLib",
         "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
         "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
         "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",
@@ -43,13 +43,13 @@ INVALID_CONTRACT_TYPES = {"INVALID": contract_factory}
 
 
 @pytest.fixture
-def deployment(w3):
-    return Deployments(DEPLOYMENT_DATA, VALID_CONTRACT_TYPES, w3)
+def deployment():
+    return Deployments(DEPLOYMENT_DATA, VALID_CONTRACT_TYPES)
 
 
 @pytest.fixture
-def invalid_deployment(w3):
-    return Deployments(DEPLOYMENT_DATA, INVALID_CONTRACT_TYPES, w3)
+def invalid_deployment():
+    return Deployments(DEPLOYMENT_DATA, INVALID_CONTRACT_TYPES)
 
 
 def test_deployment_implements_getitem(deployment):
@@ -107,8 +107,8 @@ def test_deployments_get_instance(safe_math_lib_package):
     safe_math_instance = deps.get_instance("SafeMathLib")
     assert isinstance(safe_math_instance, Contract)
     assert safe_math_instance.bytecode == to_bytes(
-        hexstr=safe_math_lib_package.manifest["contract_types"]["SafeMathLib"][
-            "deployment_bytecode"
+        hexstr=safe_math_lib_package.manifest["contractTypes"]["SafeMathLib"][
+            "deploymentBytecode"
         ]["bytecode"]
     )
 
@@ -118,9 +118,9 @@ def test_deployments_get_instance_with_contract_alias(safe_math_lib_package_with
     safe_math_instance = deps.get_instance("safe-math-lib-alias")
     assert isinstance(safe_math_instance, Contract)
     assert safe_math_instance.bytecode == to_bytes(
-        hexstr=safe_math_lib_package_with_alias.manifest["contract_types"][
+        hexstr=safe_math_lib_package_with_alias.manifest["contractTypes"][
             "SafeMathLib"
-        ]["deployment_bytecode"]["bytecode"]
+        ]["deploymentBytecode"]["bytecode"]
     )
 
 
@@ -147,12 +147,12 @@ def test_get_linked_deployments(escrow_package):
         (
             {
                 "Escrow": {
-                    "contract_type": "Escrow",
+                    "contractType": "Escrow",
                     "address": "0x8c1968deB27251A3f1F4508df32dA4dfD1b7b57f",
                     "transaction": "0xc60e32c63abf34579390ef65d83cc5eb52225de38c3eeca2e5afa961d71c16d0",  # noqa: E501
                     "block": "0x4d1a618802bb87752d95db453dddeea622820424a2f836bedf8769a67ee276b8",
-                    "runtime_bytecode": {
-                        "link_dependencies": [
+                    "runtimeBytecode": {
+                        "linkDependencies": [
                             {"offsets": [200], "type": "reference", "value": "filler"},
                             {
                                 "offsets": [301, 495],

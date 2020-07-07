@@ -20,16 +20,16 @@ def generate_contract_factory_kwargs(
     if "abi" in contract_data:
         yield "abi", contract_data["abi"]
 
-    if "deployment_bytecode" in contract_data:
-        yield "bytecode", contract_data["deployment_bytecode"]["bytecode"]
-        if "link_references" in contract_data["deployment_bytecode"]:
+    if "deploymentBytecode" in contract_data:
+        yield "bytecode", contract_data["deploymentBytecode"]["bytecode"]
+        if "linkReferences" in contract_data["deploymentBytecode"]:
             yield "unlinked_references", tuple(
-                contract_data["deployment_bytecode"]["link_references"]
+                contract_data["deploymentBytecode"]["linkReferences"]
             )
 
-    if "runtime_bytecode" in contract_data:
-        yield "bytecode_runtime", contract_data["runtime_bytecode"]["bytecode"]
-        if "link_references" in contract_data["runtime_bytecode"]:
+    if "runtimeBytecode" in contract_data:
+        yield "bytecode_runtime", contract_data["runtimeBytecode"]["bytecode"]
+        if "linkReferences" in contract_data["runtimeBytecode"]:
             yield "linked_references", tuple(
-                contract_data["runtime_bytecode"]["link_references"]
+                contract_data["runtimeBytecode"]["linkReferences"]
             )

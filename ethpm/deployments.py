@@ -13,7 +13,6 @@ from eth_typing import (
 from ethpm.validation.package import (
     validate_contract_name,
 )
-from web3 import Web3
 from web3._utils.compat import (
     TypedDict,
 )
@@ -32,11 +31,9 @@ class Deployments:
         self,
         deployment_data: Dict[str, Dict[str, str]],
         contract_instances: Dict[str, Contract],
-        w3: Web3,
     ) -> None:
         self.deployment_data = deployment_data
         self.contract_instances = contract_instances
-        self.w3 = w3
 
     def __getitem__(self, key: str) -> Dict[str, str]:
         return self.get(key)
@@ -79,4 +76,4 @@ class DeploymentData(TypedDict):
     block: HexStr
     runtime_bytecode: Dict[str, Any]
     compiler: Dict[str, str]
-    contract_type: str
+    contractType: str

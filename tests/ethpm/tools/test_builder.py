@@ -14,6 +14,7 @@ from eth_utils.toolz import (
 
 from ethpm import (
     ASSETS_DIR,
+    ETHPM_SPEC_DIR,
     Package,
 )
 from ethpm.backends.ipfs import (
@@ -22,6 +23,10 @@ from ethpm.backends.ipfs import (
 from ethpm.exceptions import (
     EthPMValidationError,
     ManifestBuildingError,
+)
+from ethpm.tools import (
+    get_ethpm_local_manifest,
+    get_ethpm_spec_manifest,
 )
 from ethpm.tools.builder import (
     as_package,
@@ -53,29 +58,19 @@ from web3.tools.pytest_ethereum.linker import (
     linker,
 )
 
-BASE_MANIFEST = {"package_name": "package", "manifest_version": "2", "version": "1.0.0"}
+BASE_MANIFEST = {"name": "package", "manifest": "ethpm/3", "version": "1.0.0"}
 
 
 @pytest.fixture
 def owned_package():
-    root = ASSETS_DIR / "owned"
-    manifest = json.loads((root / "1.0.0.json").read_text())
-    compiler = json.loads((root / "owned_compiler_output.json").read_text())[
-        "contracts"
-    ]
-    contracts_dir = root / "contracts"
-    return contracts_dir, manifest, compiler
+    manifest = get_ethpm_spec_manifest("owned", "v3.json")
+    # source_id missing `./` prefix in ethpm-spec ("Owned.sol"/"./Owned.sol" though both are valid)
+    source_obj = manifest['sources'].pop('Owned.sol')
+    updated_manifest = assoc_in(manifest, ['sources', './Owned.sol'], source_obj)
 
-
-@pytest.fixture
-def owned_package_devdoc():
-    root = ASSETS_DIR / "owned"
-    manifest = json.loads((root / "1.0.0.json").read_text())
-    compiler = json.loads((root / "owned_compiler_output_devdoc.json").read_text())[
-        "contracts"
-    ]
-    contracts_dir = root / "contracts"
-    return contracts_dir, manifest, compiler
+    compiler = get_ethpm_local_manifest("owned", "output_v3.json")["contracts"]
+    contracts_dir = ETHPM_SPEC_DIR / "examples" / "owned" / "contracts"
+    return contracts_dir, updated_manifest, compiler
 
 
 # todo validate no duplicate contracts in package
@@ -83,12 +78,10 @@ def owned_package_devdoc():
 
 @pytest.fixture
 def standard_token_package():
-    root = ASSETS_DIR / "standard-token"
-    manifest = json.loads((root / "1.0.0.json").read_text().rstrip("\n"))
-    compiler = json.loads((root / "standard_token_compiler_output.json").read_text())[
-        "contracts"
-    ]
-    contracts_dir = root / "contracts"
+    standard_token_dir = ETHPM_SPEC_DIR / "examples" / "standard-token"
+    manifest = get_ethpm_spec_manifest("standard-token", "v3.json")
+    compiler = get_ethpm_local_manifest("standard-token", "output_v3.json")["contracts"]
+    contracts_dir = standard_token_dir / "contracts"
     return contracts_dir, manifest, compiler
 
 
@@ -97,7 +90,7 @@ def registry_package():
     root = ASSETS_DIR / "registry"
     compiler = json.loads(Path(root / "solc_output.json").read_text())["contracts"]
     contracts_dir = root / "contracts"
-    manifest = json.loads((root / "2.0.0.json").read_text())
+    manifest = json.loads((root / "v3.json").read_text())
     return contracts_dir, manifest, compiler
 
 
@@ -110,8 +103,9 @@ def test_builder_simple_with_package(w3):
     package = build(
         {},
         package_name("package"),
-        manifest_version("2"),
+        manifest_version("ethpm/3"),
         version("1.0.0"),
+        validate(),
         as_package(w3),
     )
     assert isinstance(package, Package)
@@ -119,22 +113,25 @@ def test_builder_simple_with_package(w3):
 
 
 PRETTY_MANIFEST = """{
-    "manifest_version": "2",
-    "package_name": "package",
+    "manifest": "ethpm/3",
+    "name": "package",
     "version": "1.0.0"
 }"""
 
 MINIFIED_MANIFEST = (
-    '{"manifest_version":"2","package_name":"package","version":"1.0.0"}'
+    '{"manifest":"ethpm/3","name":"package","version":"1.0.0"}'
 )
+
+OWNED_CONTRACT = "// SPDX-License-Identifier: MIT\npragma solidity ^0.6.8;\n\ncontract Owned {\n    address owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }\n\n    constructor() public {\n        owner = msg.sender;\n    }\n}"  # noqa: E501
 
 
 def test_builder_writes_manifest_to_disk(manifest_dir):
     build(
         {},
         package_name("package"),
-        manifest_version("2"),
+        manifest_version("ethpm/3"),
         version("1.0.0"),
+        validate(),
         write_to_disk(
             manifest_root_dir=manifest_dir, manifest_name="1.0.0.json", prettify=True
         ),
@@ -148,9 +145,10 @@ def test_builder_to_disk_uses_default_cwd(manifest_dir, monkeypatch):
     build(
         {},
         package_name("package"),
-        manifest_version("2"),
+        manifest_version("ethpm/3"),
         version("1.0.0"),
         write_to_disk(),
+        validate(),
     )
     actual_manifest = (manifest_dir / "1.0.0.json").read_text()
     assert actual_manifest == MINIFIED_MANIFEST
@@ -160,9 +158,10 @@ def test_to_disk_writes_minified_manifest_as_default(manifest_dir):
     build(
         {},
         package_name("package"),
-        manifest_version("2"),
+        manifest_version("ethpm/3"),
         version("1.0.0"),
         write_to_disk(manifest_root_dir=manifest_dir, manifest_name="1.0.0.json"),
+        validate(),
     )
     actual_manifest = (manifest_dir / "1.0.0.json").read_text()
     assert actual_manifest == MINIFIED_MANIFEST
@@ -172,9 +171,10 @@ def test_to_disk_uses_default_manifest_name(manifest_dir):
     build(
         {},
         package_name("package"),
-        manifest_version("2"),
+        manifest_version("ethpm/3"),
         version("1.0.0"),
         write_to_disk(manifest_root_dir=manifest_dir),
+        validate(),
     )
     actual_manifest = (manifest_dir / "1.0.0.json").read_text()
     assert actual_manifest == MINIFIED_MANIFEST
@@ -192,7 +192,7 @@ def test_to_disk_with_invalid_args_raises_exception(manifest_dir, write_to_disk_
         build(
             {},
             package_name("package"),
-            manifest_version("2"),
+            manifest_version("ethpm/3"),
             version("1.0.0"),
             write_to_disk_fn,
         )
@@ -203,7 +203,7 @@ def test_builder_with_manifest_validation():
         build(
             {},
             package_name("_invalid_package_name"),
-            manifest_version("2"),
+            manifest_version("ethpm/3"),
             version("1.0.0"),
             validate(),
         )
@@ -262,9 +262,11 @@ def test_builder_with_inline_source(owned_package, monkeypatch):
         BASE_MANIFEST,
         "sources",
         {
-            "./Owned.sol": """pragma solidity ^0.4.24;\n\ncontract Owned {\n    address"""
-            """ owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }\n\n    """
-            """constructor() public {\n        owner = msg.sender;\n    }\n}"""
+            "./Owned.sol": {
+                "content": OWNED_CONTRACT,
+                "installPath": "./Owned.sol",
+                "type": "solidity",
+            }
         },
     )
     assert manifest == expected
@@ -276,14 +278,15 @@ def test_builder_with_source_inliner(owned_package, monkeypatch):
     monkeypatch.chdir(root)
     inliner = source_inliner(compiler_output)
     manifest = build(BASE_MANIFEST, inliner("Owned"), validate())
-
     expected = assoc(
         BASE_MANIFEST,
         "sources",
         {
-            "./Owned.sol": """pragma solidity ^0.4.24;\n\ncontract Owned {\n    address"""
-            """ owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }\n\n    """
-            """constructor() public {\n        owner = msg.sender;\n    }\n}"""
+            "./Owned.sol": {
+                "content": OWNED_CONTRACT,
+                "installPath": "./Owned.sol",
+                "type": "solidity",
+            }
         },
     )
     assert manifest == expected
@@ -301,22 +304,27 @@ def test_builder_with_inline_source_with_package_root_dir_arg(owned_package):
         BASE_MANIFEST,
         "sources",
         {
-            "./Owned.sol": """pragma solidity ^0.4.24;\n\ncontract Owned {\n    address"""
-            """ owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }\n\n    """
-            """constructor() public {\n        owner = msg.sender;\n    }\n}"""
+            "./Owned.sol": {
+                "content": OWNED_CONTRACT,
+                "installPath": "./Owned.sol",
+                "type": "solidity",
+            }
         },
     )
+    print(manifest)
+    print('-')
+    print(expected)
     assert manifest == expected
 
 
 def test_builder_with_pin_source(owned_package, dummy_ipfs_backend):
-    root, expected_manifest, compiler_output = owned_package
+    root, expected, compiler_output = owned_package
     ipfs_backend = get_ipfs_backend()
 
     manifest = build(
         {},
         package_name("owned"),
-        manifest_version("2"),
+        manifest_version("ethpm/3"),
         version("1.0.0"),
         authors("Piper Merriam <pipermerriam@gmail.com>"),
         description(
@@ -329,17 +337,17 @@ def test_builder_with_pin_source(owned_package, dummy_ipfs_backend):
         validate(),
     )
 
-    assert manifest == expected_manifest
+    assert manifest == expected
 
 
 def test_builder_with_pinner(owned_package, dummy_ipfs_backend):
-    root, expected_manifest, compiler_output = owned_package
+    root, expected, compiler_output = owned_package
     ipfs_backend = get_ipfs_backend()
     pinner = source_pinner(compiler_output, ipfs_backend, root)
     manifest = build(
         {},
         package_name("owned"),
-        manifest_version("2"),
+        manifest_version("ethpm/3"),
         version("1.0.0"),
         authors("Piper Merriam <pipermerriam@gmail.com>"),
         description(
@@ -352,11 +360,11 @@ def test_builder_with_pinner(owned_package, dummy_ipfs_backend):
         validate(),
     )
 
-    assert manifest == expected_manifest
+    assert manifest == expected
 
 
 def test_builder_with_init_manifest(owned_package, dummy_ipfs_backend):
-    root, expected_manifest, compiler_output = owned_package
+    root, expected, compiler_output = owned_package
     ipfs_backend = get_ipfs_backend()
 
     manifest = build(
@@ -372,7 +380,7 @@ def test_builder_with_init_manifest(owned_package, dummy_ipfs_backend):
         validate(),
     )
 
-    assert manifest == expected_manifest
+    assert manifest == expected
 
 
 def test_builder_with_default_contract_types(owned_package):
@@ -380,8 +388,13 @@ def test_builder_with_default_contract_types(owned_package):
 
     manifest = build(BASE_MANIFEST, contract_type("Owned", compiler_output), validate())
 
-    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"])
-    expected = assoc(BASE_MANIFEST, "contract_types", {"Owned": contract_type_data})
+    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
+    compilers_data = contract_type_data.pop('compiler')
+    compilers_data["contractTypes"] = ["Owned"]
+    expected_with_contract_type = assoc(
+        BASE_MANIFEST, "contractTypes", {"Owned": contract_type_data}
+    )
+    expected = assoc(expected_with_contract_type, "compilers", [compilers_data])
     assert manifest == expected
 
 
@@ -394,12 +407,15 @@ def test_builder_with_single_alias_kwarg(owned_package):
         validate(),
     )
 
-    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"])
-    expected = assoc(
+    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
+    compilers_data = contract_type_data.pop('compiler')
+    compilers_data["contractTypes"] = ["OwnedAlias"]
+    expected_with_contract_type = assoc(
         BASE_MANIFEST,
-        "contract_types",
-        {"OwnedAlias": assoc(contract_type_data, "contract_type", "Owned")},
+        "contractTypes",
+        {"OwnedAlias": assoc(contract_type_data, "contractType", "Owned")},
     )
+    expected = assoc(expected_with_contract_type, "compilers", [compilers_data])
     assert manifest == expected
 
 
@@ -407,19 +423,20 @@ def test_builder_without_alias_and_with_select_contract_types(owned_package):
     _, _, compiler_output = owned_package
 
     manifest = build(
-        BASE_MANIFEST, contract_type("Owned", compiler_output, abi=True), validate()
+        BASE_MANIFEST, contract_type("Owned", compiler_output, abi=True, source_id=True), validate()
     )
 
-    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"])
+    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
+    omitted_fields = ("deploymentBytecode", "userdoc", "devdoc", "compiler")
     selected_data = {
-        k: v for k, v in contract_type_data.items() if k != "deployment_bytecode"
+        k: v for k, v in contract_type_data.items() if k not in omitted_fields
     }
-    expected = assoc(BASE_MANIFEST, "contract_types", {"Owned": selected_data})
+    expected = assoc(BASE_MANIFEST, "contractTypes", {"Owned": selected_data})
     assert manifest == expected
 
 
-def test_builder_with_alias_and_select_contract_types(owned_package_devdoc):
-    _, _, compiler_output = owned_package_devdoc
+def test_builder_with_alias_and_select_contract_types(owned_package):
+    _, _, compiler_output = owned_package
 
     manifest = build(
         BASE_MANIFEST,
@@ -428,20 +445,66 @@ def test_builder_with_alias_and_select_contract_types(owned_package_devdoc):
             compiler_output,
             alias="OwnedAlias",
             abi=True,
-            natspec=True,
+            compiler=False,
+            devdoc=True,
+            userdoc=True,
             deployment_bytecode=True,
-            runtime_bytecode=True,
-            compiler=True,
+            runtime_bytecode=False,
+            source_id=True,
         ),
         validate(),
     )
 
-    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"])
+    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
+    contract_type_data.pop("compiler")
     expected = assoc(
         BASE_MANIFEST,
-        "contract_types",
-        {"OwnedAlias": assoc(contract_type_data, "contract_type", "Owned")},
+        "contractTypes",
+        {"OwnedAlias": assoc(contract_type_data, "contractType", "Owned")},
     )
+    assert manifest == expected
+
+
+def test_builder_manages_duplicate_compilers(owned_package):
+    _, _, compiler_output = owned_package
+
+    manifest = build(
+        BASE_MANIFEST,
+        contract_type(
+            "Owned",
+            compiler_output,
+            abi=True,
+            compiler=True,
+            source_id=True,
+        ),
+        contract_type(
+            "Owned",
+            compiler_output,
+            alias="OwnedAlias",
+            abi=True,
+            compiler=True,
+            source_id=True,
+        ),
+        validate(),
+    )
+    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
+    compiler_data = contract_type_data.pop("compiler")
+    contract_type_data.pop('deploymentBytecode')
+    contract_type_data.pop('devdoc')
+    contract_type_data.pop('userdoc')
+    compiler_data_with_contract_types = assoc(
+        compiler_data, 'contractTypes', ['Owned', 'OwnedAlias']
+    )
+    expected_with_contract_types = assoc(
+        BASE_MANIFEST,
+        "contractTypes",
+        {
+            "Owned": assoc(contract_type_data, "contractType", "Owned"),
+            "OwnedAlias": assoc(contract_type_data, "contractType", "Owned"),
+        },
+    )
+    expected_with_contract_types['contractTypes']['Owned'].pop("contractType")
+    expected = assoc(expected_with_contract_types, 'compilers', [compiler_data_with_contract_types])
     assert manifest == expected
 
 
@@ -449,10 +512,10 @@ def test_builder_raises_exception_if_selected_contract_type_missing_from_solc(
     owned_package
 ):
     _, _, compiler_output = owned_package
-    with pytest.raises(ManifestBuildingError):
+    with pytest.raises(ManifestBuildingError, match="runtimeBytecode not available"):
         build(
             BASE_MANIFEST,
-            contract_type("Owned", compiler_output, abi=True, natspec=True),
+            contract_type("Owned", compiler_output, abi=True, runtime_bytecode=True),
         )
 
 
@@ -466,11 +529,14 @@ def test_builder_with_standard_token_manifest(
     manifest = build(
         {},
         package_name("standard-token"),
-        manifest_version("2"),
+        manifest_version("ethpm/3"),
         version("1.0.0"),
         pin_source("StandardToken", compiler_output, ipfs_backend),
         pin_source("Token", compiler_output, ipfs_backend),
-        contract_type("StandardToken", compiler_output, abi=True, natspec=True),
+        contract_type("StandardToken", compiler_output, abi=True, devdoc=True, source_id=True),
+        contract_type(
+            "Token", compiler_output, abi=True, devdoc=True, userdoc=True, source_id=True
+        ),
         validate(),
     )
     assert manifest == expected_manifest
@@ -485,7 +551,7 @@ def test_builder_with_link_references(
     manifest = build(
         {},
         package_name("solidity-registry"),
-        manifest_version("2"),
+        manifest_version("ethpm/3"),
         version("2.0.0"),
         inliner("Authorized"),
         inliner("IndexedOrderedSetLib"),
@@ -500,16 +566,18 @@ def test_builder_with_link_references(
             abi=True,
             deployment_bytecode=True,
             runtime_bytecode=True,
-            natspec=True,
+            devdoc=True,
+            source_id=True,
         ),
         contract_type(
             "Authorized",
             compiler_output,
             abi=True,
+            compiler=True,
             deployment_bytecode=True,
             runtime_bytecode=True,
-            natspec=True,
-            compiler=True,
+            devdoc=True,
+            source_id=True,
         ),
         contract_type(
             "AuthorizedInterface",
@@ -517,16 +585,18 @@ def test_builder_with_link_references(
             abi=True,
             deployment_bytecode=True,
             runtime_bytecode=True,
-            natspec=True,
+            devdoc=True,
+            source_id=True,
         ),
         contract_type(
             "WhitelistAuthority",
             compiler_output,
             abi=True,
+            compiler=True,
             deployment_bytecode=True,
             runtime_bytecode=True,
-            natspec=True,
-            compiler=True,
+            devdoc=True,
+            source_id=True,
         ),
         contract_type(
             "WhitelistAuthorityInterface",
@@ -534,34 +604,38 @@ def test_builder_with_link_references(
             abi=True,
             deployment_bytecode=True,
             runtime_bytecode=True,
-            natspec=True,
+            devdoc=True,
+            source_id=True,
         ),
         contract_type(
             "IndexedOrderedSetLib",
             compiler_output,
             abi=True,
+            compiler=True,
             deployment_bytecode=True,
             runtime_bytecode=True,
-            natspec=True,
-            compiler=True,
+            devdoc=True,
+            source_id=True,
         ),
         contract_type(
             "PackageDB",
             compiler_output,
             abi=True,
+            compiler=True,
             deployment_bytecode=True,
             runtime_bytecode=True,
-            natspec=True,
-            compiler=True,
+            devdoc=True,
+            source_id=True,
         ),
         contract_type(
             "PackageRegistry",
             compiler_output,
             abi=True,
+            compiler=True,
             deployment_bytecode=True,
             runtime_bytecode=True,
-            natspec=True,
-            compiler=True,
+            devdoc=True,
+            source_id=True,
         ),
         contract_type(
             "PackageRegistryInterface",
@@ -569,55 +643,44 @@ def test_builder_with_link_references(
             abi=True,
             deployment_bytecode=True,
             runtime_bytecode=True,
-            natspec=True,
+            devdoc=True,
+            source_id=True,
         ),
         contract_type(
             "ReleaseDB",
             compiler_output,
             abi=True,
+            compiler=True,
             deployment_bytecode=True,
             runtime_bytecode=True,
-            natspec=True,
-            compiler=True,
+            devdoc=True,
+            source_id=True,
         ),
         contract_type(
             "ReleaseValidator",
             compiler_output,
             abi=True,
+            compiler=True,
             deployment_bytecode=True,
             runtime_bytecode=True,
-            natspec=True,
-            compiler=True,
+            devdoc=True,
+            source_id=True,
         ),
         validate(),
     )
     assert manifest == expected_manifest
 
 
-@pytest.fixture
-def escrow_package(w3, deployer):
-    manifest = ASSETS_DIR / "escrow" / "1.0.3.json"
-    escrow_deployer = deployer(manifest)
-    escrow_strategy = linker(
-        deploy("SafeSendLib"),
-        link("Escrow", "SafeSendLib"),
-        deploy("Escrow", w3.eth.accounts[0]),
-    )
-    escrow_deployer.register_strategy("Escrow", escrow_strategy)
-    escrow_package = escrow_deployer.deploy("Escrow")
-    return escrow_package, w3
-
-
 def test_builder_deployment_simple(w3):
     expected = json.dumps(
         {
-            "package_name": "package",
+            "name": "package",
             "version": "1.0.0",
-            "manifest_version": "2",
+            "manifest": "ethpm/3",
             "deployments": {
                 "blockchain://1234567890123456789012345678901234567890123456789012345678901234/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef": {  # noqa: E501
                     "Owned": {
-                        "contract_type": "Owned",
+                        "contractType": "Owned",
                         "address": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
                     }
                 }
@@ -632,8 +695,23 @@ def test_builder_deployment_simple(w3):
             contract_type="Owned",
             address=to_canonical_address("0xd3cda913deb6f67967b99d67acdfa1712c293601"),
         ),
+        validate(),
     )
     assert manifest == json.loads(expected)
+
+
+@pytest.fixture
+def escrow_package(w3, deployer):
+    manifest = ETHPM_SPEC_DIR / "examples" / "escrow" / "v3.json"
+    escrow_deployer = deployer(manifest)
+    escrow_strategy = linker(
+        deploy("SafeSendLib"),
+        link("Escrow", "SafeSendLib"),
+        deploy("Escrow", w3.eth.accounts[0]),
+    )
+    escrow_deployer.register_strategy("Escrow", escrow_strategy)
+    escrow_package = escrow_deployer.deploy("Escrow")
+    return escrow_package, w3
 
 
 def test_builder_deployment_type_complex(escrow_package):
@@ -660,7 +738,7 @@ def test_builder_deployment_type_complex(escrow_package):
         {},
         package_name("escrow"),
         version("1.0.0"),
-        manifest_version("2"),
+        manifest_version("ethpm/3"),
         escrow_dep_type(
             block_uri="blockchain://1111111111111111111111111111111111111111111111111111111111111111/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",  # noqa: E501
             address=escrow.deployments.get_instance("Escrow").address,
@@ -684,6 +762,7 @@ def test_builder_deployment_type_complex(escrow_package):
             contract_type="SafeSendLib",
             address=escrow.deployments.get_instance("SafeSendLib").address,
         ),
+        validate(),
     )
     assert len(manifest["deployments"].keys()) == 2
     assert len(list(manifest["deployments"].values())[0]) == 2
@@ -694,12 +773,13 @@ def test_builder_with_single_build_dependency():
     expected_build_dep = {
         "package": "ipfs://QmUYcVzTfSwJoigggMxeo2g5STWAgJdisQsqcXHws7b1FW"
     }
-    expected = assoc_in(BASE_MANIFEST, ["build_dependencies"], expected_build_dep)
+    expected = assoc_in(BASE_MANIFEST, ["buildDependencies"], expected_build_dep)
     actual = build(
         BASE_MANIFEST,
         build_dependency(
             "package", "ipfs://QmUYcVzTfSwJoigggMxeo2g5STWAgJdisQsqcXHws7b1FW"
         ),
+        validate(),
     )
     assert actual == expected
 
@@ -709,7 +789,7 @@ def test_builder_with_multiple_build_dependencies():
         "escrow": "ipfs://QmPDwMHk8e1aMEZg3iKsUiPSkhHkywpGB3KHKM52RtGrkv",
         "package": "ipfs://QmUYcVzTfSwJoigggMxeo2g5STWAgJdisQsqcXHws7b1FW",
     }
-    expected = assoc_in(BASE_MANIFEST, ["build_dependencies"], expected_build_deps)
+    expected = assoc_in(BASE_MANIFEST, ["buildDependencies"], expected_build_deps)
     actual = build(
         BASE_MANIFEST,
         build_dependency(
@@ -718,6 +798,7 @@ def test_builder_with_multiple_build_dependencies():
         build_dependency(
             "escrow", "ipfs://QmPDwMHk8e1aMEZg3iKsUiPSkhHkywpGB3KHKM52RtGrkv"
         ),
+        validate(),
     )
     assert actual == expected
 
@@ -730,6 +811,6 @@ def test_builder_with_invalid_uri():
             {},
             package_name("package"),
             version("1.0.0"),
-            manifest_version("2"),
+            manifest_version("ethpm/3"),
             build_dependency("package", "www.google.com"),
         )
