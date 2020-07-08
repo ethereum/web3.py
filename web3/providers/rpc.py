@@ -20,6 +20,7 @@ from web3._utils.http import (
     construct_user_agent,
 )
 from web3._utils.request import (
+    cache_session,
     make_post_request,
 )
 from web3.datastructures import (
@@ -53,13 +54,19 @@ class HTTPProvider(JSONBaseProvider):
 
     def __init__(
         self, endpoint_uri: Optional[Union[URI, str]] = None,
-        request_kwargs: Optional[Any] = None
+            request_kwargs: Optional[Any] = None,
+            session: Optional[Any] = None
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()
         else:
             self.endpoint_uri = URI(endpoint_uri)
+
         self._request_kwargs = request_kwargs or {}
+
+        if session:
+            cache_session(self.endpoint_uri, session)
+
         super().__init__()
 
     def __str__(self) -> str:

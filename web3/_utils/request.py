@@ -13,6 +13,11 @@ from web3._utils.caching import (
 )
 
 
+def cache_session(endpoint_uri: URI, session: requests.Session) -> None:
+    cache_key = generate_cache_key(endpoint_uri)
+    _session_cache[cache_key] = session
+
+
 def _remove_session(key: str, session: requests.Session) -> None:
     session.close()
 
@@ -20,8 +25,8 @@ def _remove_session(key: str, session: requests.Session) -> None:
 _session_cache = lru.LRU(8, callback=_remove_session)
 
 
-def _get_session(*args: Any, **kwargs: Any) -> requests.Session:
-    cache_key = generate_cache_key((args, kwargs))
+def _get_session(endpoint_uri: URI) -> requests.Session:
+    cache_key = generate_cache_key(endpoint_uri)
     if cache_key not in _session_cache:
         _session_cache[cache_key] = requests.Session()
     return _session_cache[cache_key]
