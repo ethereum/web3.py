@@ -1,3 +1,5 @@
+.. _overview:
+
 Overview
 ========
 
@@ -105,8 +107,8 @@ Address Helpers
 - :meth:`Web3.toChecksumAddress() <web3.Web3.toChecksumAddress>`
 
 
-Currency Coversions
--------------------
+Currency Conversions
+--------------------
 
 - :meth:`Web3.fromWei() <web3.Web3.fromWei>`
 - :meth:`Web3.toWei() <web3.Web3.toWei>`

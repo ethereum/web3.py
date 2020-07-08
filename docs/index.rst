@@ -16,11 +16,12 @@ Getting Started
 
 Your next steps depend on where you're standing:
 
-- Unfamiliar with Ethereum? `ethereum.org`_
-- Looking for Ethereum Python tutorials? `ethereum.org/python`_
-- Ready to code? :ref:`quickstart`
-- Need help debugging? `StackExchange`_
-- Want to chat? `Gitter`_
+- Unfamiliar with Ethereum? → `ethereum.org`_
+- Looking for Ethereum Python tutorials? → `ethereum.org/python`_
+- Ready to code? → :ref:`quickstart`
+- Interested in a quick tour? → :ref:`overview`
+- Need help debugging? → `StackExchange`_
+- Want to chat? → `Gitter`_
 
 Table of Contents
 -----------------
