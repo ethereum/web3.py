@@ -20,8 +20,8 @@ provider and any middleware you want to use beyond the defaults.
 Providers
 ---------
 
-*Providers* are how Web3.py connects to the blockchain. The Web3.py library comes
-with the following built-in providers:
+Providers are how Web3.py connects to the blockchain. The library comes with the
+following built-in providers:
 
 - ``Web3.IPCProvider`` for connecting to ipc socket based JSON-RPC servers.
 - ``Web3.HTTPProvider`` for connecting to http and https based JSON-RPC servers.
@@ -210,8 +210,8 @@ on the ``functions`` namespace:
 
 .. code-block:: python
 
-   >>> contract_instance = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
-   >>> contract_instance.functions.myFunction().transact()
+   >>> deployed_contract = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
+   >>> deployed_contract.functions.myFunction().transact()
 
 If you want to read data from a contract (or see the result of transaction locally,
 without executing it on the network), you can use the :meth:`ContractFunction.call`
@@ -219,7 +219,7 @@ method:
 
 .. code-block:: python
 
-   >>> contract_instance.functions.getMyValue().call()
+   >>> deployed_contract.functions.getMyValue().call()
    42
 
 For more, see the full :ref:`Contracts` documentation.
@@ -250,11 +250,11 @@ a contract, you can leverage Web3.py filters.
 
 .. code-block:: python
 
-   # Use case: filter for new blocks:
+   # Use case: filter for new blocks
    >>> new_filter = web3.eth.filter('latest')
 
    # Use case: filter for contract event "MyEvent"
-   >>> new_filter = contract_instance.events.MyEvent.createFilter(fromBlock='latest')
+   >>> new_filter = deployed_contract.events.MyEvent.createFilter(fromBlock='latest')
 
    # retrieve filter results:
    >>> new_filter.get_all_entries()
