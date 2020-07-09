@@ -1,3 +1,5 @@
+.. _ens_overview:
+
 Ethereum Name Service
 ================================
 
