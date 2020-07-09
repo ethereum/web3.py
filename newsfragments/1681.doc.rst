@@ -1,1 +1,0 @@
-Overhaul the Overview documentation to provide a tour of major features.

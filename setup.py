@@ -60,7 +60,7 @@ extras_require['dev'] = (
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='5.11.1',
+    version='5.12.0-beta.1',
     description="""Web3.py""",
     long_description_content_type='text/markdown',
     long_description_markdown_filename='README.md',

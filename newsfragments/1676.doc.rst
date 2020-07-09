@@ -1,1 +1,0 @@
-Add a :meth:`~web3.eth.Eth.getBalance` example and provide more context for using the `fromWei` and `toWei` utility methods.

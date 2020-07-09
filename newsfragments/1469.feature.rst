@@ -1,1 +1,0 @@
-Allow consumer to initialize `HttpProvider` with their own `requests.Session`.  This allows the `HttpAdapter` connection pool to be tuned as desired.

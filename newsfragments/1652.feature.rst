@@ -1,1 +1,0 @@
-Update `web3.pm` and `ethpm` module to EthPM v3 specification.
