@@ -3,7 +3,7 @@
 Overview
 ========
 
-The purpose of the page is to give you a sense of everything this library can do
+The purpose of this page is to give you a sense of everything Web3.py can do
 and to serve as a quick reference guide. You'll find a summary of each feature
 with links to learn more. You may also be interested in the
 :ref:`Examples <examples>` page, which demonstrates some of these features in
@@ -67,9 +67,8 @@ Several middleware are :ref:`included by default <default_middleware>`. You may 
 Your Keys
 ~~~~~~~~~
 
-Private keys are required to approve any transaction made on your behalf. The type of
-provider you use will determine how you interact with those keys and will affect the
-way you make transactions in Web3.py.
+Private keys are required to approve any transaction made on your behalf. The manner in
+which your key is secured will determine how you create and send transactions in Web3.py.
 
 A local node, like `Geth <https://geth.ethereum.org/>`_, may manage your keys for you.
 You can reference those keys using the :attr:`web3.eth.accounts <web3.eth.Eth.accounts>`
@@ -124,9 +123,9 @@ Cryptographic Hashing
 web3.eth API
 ~~~~~~~~~~~~
 
-Most of this library's functionality can be found under the ``web3.eth`` namespace.
-As a reminder, the :ref:`Examples <examples>` page will demonstrate how to use
-several of these methods.
+The most commonly used APIs for interacting with Ethereum can be found under the
+``web3.eth`` namespace.  As a reminder, the :ref:`Examples <examples>` page will
+demonstrate how to use several of these methods.
 
 
 Fetching Data
@@ -160,8 +159,12 @@ Making Transactions
 The most common use cases will be satisfied with
 :meth:`sendTransaction <web3.eth.Eth.sendTransaction>` or the combination of
 :meth:`signTransaction <web3.eth.Eth.signTransaction>` and
-:meth:`sendRawTransaction <web3.eth.Eth.sendRawTransaction>`. If interacting
-with a smart contract, see the next section, :ref:`Contracts <overview_contracts>`.
+:meth:`sendRawTransaction <web3.eth.Eth.sendRawTransaction>`.
+
+.. note::
+
+   If interacting with a smart contract, a dedicated API exists. See the next
+   section, :ref:`Contracts <overview_contracts>`.
 
 
 API
@@ -190,12 +193,13 @@ The two most common use cases involving smart contracts are deploying and execut
 functions on a deployed contract.
 
 Deployment requires that the contract already be compiled, with its bytecode and ABI
-available. This compilation step is typically done within
+available. This compilation step can done within
 `Remix <http://remix.ethereum.org/>`_ or one of the many contract development
-frameworks, such as `Brownie <https://eth-brownie.readthedocs.io/>`_. Once the
-contract object is instantiated, calling ``transact`` on the
+frameworks, such as `Brownie <https://eth-brownie.readthedocs.io/>`_.
+
+Once the contract object is instantiated, calling ``transact`` on the
 :meth:`constructor <web3.contract.Contract.constructor>` method will deploy an
-instance of the contract.
+instance of the contract:
 
 .. code-block:: python
 
@@ -211,15 +215,21 @@ on the ``functions`` namespace:
 .. code-block:: python
 
    >>> deployed_contract = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
-   >>> deployed_contract.functions.myFunction().transact()
+   >>> deployed_contract.functions.myFunction(42).transact()
 
 If you want to read data from a contract (or see the result of transaction locally,
-without executing it on the network), you can use the :meth:`ContractFunction.call`
-method:
+without executing it on the network), you can use the
+:meth:`ContractFunction.call <web3.contract.ContractFunction.call>` method, or the
+more concise :attr:`ContractCaller <web3.contract.ContractCaller>` syntax:
 
 .. code-block:: python
 
+   # Using ContractFunction.call
    >>> deployed_contract.functions.getMyValue().call()
+   42
+
+   # Using ContractCaller
+   >>> deployed_contract.caller().getMyValue()
    42
 
 For more, see the full :ref:`Contracts` documentation.
@@ -302,5 +312,6 @@ ENS
 
 `Ethereum Name Service (ENS) <https://ens.domains/>`_ provides the infrastructure
 for human-readable addresses. As an example, instead of
-``0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045``, you can send funds to ``vitalik.eth``.
-Web3.py has support for ENS, documented :ref:`here <ens_overview>`.
+``0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359``, you can send funds to
+``ethereumfoundation.eth``. Web3.py has support for ENS, documented
+:ref:`here <ens_overview>`.
