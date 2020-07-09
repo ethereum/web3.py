@@ -14,7 +14,7 @@ Read more in the [documentation on ReadTheDocs](http://web3py.readthedocs.io/). 
 ## Developer Setup
 
 ```sh
-git clone git@github.com:ethereum/web3.py.git
+git clone --recursive git@github.com:ethereum/web3.py.git
 cd web3.py
 ```
 

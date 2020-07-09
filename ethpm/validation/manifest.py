@@ -20,13 +20,11 @@ from jsonschema.validators import (
 )
 
 from ethpm import (
-    ETHPM_SPEC_DIR,
+    get_ethpm_spec_dir,
 )
 from ethpm.exceptions import (
     EthPMValidationError,
 )
-
-V3_SCHEMA_PATH = ETHPM_SPEC_DIR / "spec" / "v3.spec.json"
 
 META_FIELDS = {
     "license": str,
@@ -62,7 +60,9 @@ def validate_meta_object(meta: Dict[str, Any], allow_extra_meta_fields: bool) ->
 
 
 def _load_schema_data() -> Dict[str, Any]:
-    return json.loads(V3_SCHEMA_PATH.read_text())
+    ethpm_spec_dir = get_ethpm_spec_dir()
+    v3_schema_path = ethpm_spec_dir / "spec" / "v3.spec.json"
+    return json.loads(v3_schema_path.read_text())
 
 
 def extract_contract_types_from_deployments(deployment_data: List[Any]) -> Set[str]:
@@ -77,7 +77,7 @@ def extract_contract_types_from_deployments(deployment_data: List[Any]) -> Set[s
 def validate_manifest_against_schema(manifest: Dict[str, Any]) -> None:
     """
     Load and validate manifest against schema
-    located at V3_SCHEMA_PATH.
+    located at v3_schema_path.
     """
     schema_data = _load_schema_data()
     try:

@@ -6,12 +6,13 @@ from typing import (
 
 from ethpm import (
     ASSETS_DIR,
-    ETHPM_SPEC_DIR,
+    get_ethpm_spec_dir,
 )
 
 
 def get_ethpm_spec_manifest(use_case: str, filename: str) -> Dict[str, Any]:
-    return json.loads((ETHPM_SPEC_DIR / 'examples' / use_case / filename).read_text())
+    ethpm_spec_dir = get_ethpm_spec_dir()
+    return json.loads((ethpm_spec_dir / 'examples' / use_case / filename).read_text())
 
 
 def get_ethpm_local_manifest(use_case: str, filename: str) -> Dict[str, Any]:

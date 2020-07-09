@@ -14,7 +14,6 @@ from eth_utils.toolz import (
 
 from ethpm import (
     ASSETS_DIR,
-    ETHPM_SPEC_DIR,
     Package,
 )
 from ethpm.backends.ipfs import (
@@ -62,14 +61,14 @@ BASE_MANIFEST = {"name": "package", "manifest": "ethpm/3", "version": "1.0.0"}
 
 
 @pytest.fixture
-def owned_package():
+def owned_package(ethpm_spec_dir):
     manifest = get_ethpm_spec_manifest("owned", "v3.json")
     # source_id missing `./` prefix in ethpm-spec ("Owned.sol"/"./Owned.sol" though both are valid)
     source_obj = manifest['sources'].pop('Owned.sol')
     updated_manifest = assoc_in(manifest, ['sources', './Owned.sol'], source_obj)
 
     compiler = get_ethpm_local_manifest("owned", "output_v3.json")["contracts"]
-    contracts_dir = ETHPM_SPEC_DIR / "examples" / "owned" / "contracts"
+    contracts_dir = ethpm_spec_dir / "examples" / "owned" / "contracts"
     return contracts_dir, updated_manifest, compiler
 
 
@@ -77,8 +76,8 @@ def owned_package():
 
 
 @pytest.fixture
-def standard_token_package():
-    standard_token_dir = ETHPM_SPEC_DIR / "examples" / "standard-token"
+def standard_token_package(ethpm_spec_dir):
+    standard_token_dir = ethpm_spec_dir / "examples" / "standard-token"
     manifest = get_ethpm_spec_manifest("standard-token", "v3.json")
     compiler = get_ethpm_local_manifest("standard-token", "output_v3.json")["contracts"]
     contracts_dir = standard_token_dir / "contracts"
@@ -701,8 +700,8 @@ def test_builder_deployment_simple(w3):
 
 
 @pytest.fixture
-def escrow_package(w3, deployer):
-    manifest = ETHPM_SPEC_DIR / "examples" / "escrow" / "v3.json"
+def escrow_package(w3, deployer, ethpm_spec_dir):
+    manifest = ethpm_spec_dir / "examples" / "escrow" / "v3.json"
     escrow_deployer = deployer(manifest)
     escrow_strategy = linker(
         deploy("SafeSendLib"),

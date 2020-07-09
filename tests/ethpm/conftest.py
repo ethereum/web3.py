@@ -7,8 +7,8 @@ from eth_utils.toolz import (
 
 from ethpm import (
     ASSETS_DIR,
-    ETHPM_SPEC_DIR,
     Package,
+    get_ethpm_spec_dir,
 )
 from ethpm._utils.chains import (
     create_block_uri,
@@ -40,6 +40,11 @@ def pytest_addoption(parser):
     parser.addoption("--integration", action="store_true", default=False)
 
 
+@pytest.fixture
+def ethpm_spec_dir():
+    return get_ethpm_spec_dir()
+
+
 @pytest.fixture(params=V3_PACKAGE_NAMES)
 def all_strict_manifests(request):
     return (
@@ -63,7 +68,8 @@ def fetch_manifest(name, version):
 
 
 def fetch_manifest_path(name, version):
-    return ETHPM_SPEC_DIR / 'examples' / name / version
+    ethpm_spec_dir = get_ethpm_spec_dir()
+    return ethpm_spec_dir / 'examples' / name / version
 
 
 MANIFESTS_V3 = {name: fetch_manifest(name, version) for name, version in V3_PACKAGE_NAMES}
@@ -138,8 +144,8 @@ def get_factory(get_manifest, escrow_manifest, w3):
 
 
 @pytest.fixture
-def owned_contract():
-    return (ETHPM_SPEC_DIR / "examples" / "owned" / "contracts" / "Owned.sol").read_text()
+def owned_contract(ethpm_spec_dir):
+    return (ethpm_spec_dir / "examples" / "owned" / "contracts" / "Owned.sol").read_text()
 
 
 @pytest.fixture
@@ -163,8 +169,8 @@ def manifest_with_empty_deployments(tmpdir, safe_math_manifest):
 
 
 @pytest.fixture
-def escrow_package(deployer, w3):
-    escrow_manifest = ETHPM_SPEC_DIR / "examples" / "escrow" / "v3.json"
+def escrow_package(deployer, w3, ethpm_spec_dir):
+    escrow_manifest = ethpm_spec_dir / "examples" / "escrow" / "v3.json"
     escrow_deployer = deployer(escrow_manifest)
     escrow_strategy = l.linker(
         l.deploy("SafeSendLib"),
