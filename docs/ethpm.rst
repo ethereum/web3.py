@@ -37,11 +37,12 @@ new ``Package`` class for a given package.
 
 .. doctest::
 
-   >>> from ethpm import Package, ETHPM_SPEC_DIR
+   >>> from ethpm import Package, get_ethpm_spec_dir
    >>> from web3 import Web3
 
    >>> w3 = Web3(Web3.EthereumTesterProvider())
-   >>> owned_manifest_path = ETHPM_SPEC_DIR / 'examples' / 'owned' / 'v3.json'
+   >>> ethpm_spec_dir = get_ethpm_spec_dir()
+   >>> owned_manifest_path = ethpm_spec_dir / 'examples' / 'owned' / 'v3.json'
    >>> OwnedPackage = Package.from_file(owned_manifest_path, w3)
    >>> assert isinstance(OwnedPackage, Package)
 
@@ -565,8 +566,9 @@ To inline the source code directly in the manifest, use ``inline_source()`` or `
 .. doctest::
 
    >>> import json
-   >>> from ethpm import ASSETS_DIR, ETHPM_SPEC_DIR
-   >>> owned_dir = ETHPM_SPEC_DIR / "examples" / "owned" / "contracts"
+   >>> from ethpm import ASSETS_DIR, get_ethpm_spec_dir
+   >>> ethpm_spec_dir = get_ethpm_spec_dir()
+   >>> owned_dir = ethpm_spec_dir / "examples" / "owned" / "contracts"
    >>> compiler_output = json.loads((ASSETS_DIR / "owned" / "output_v3.json").read_text())['contracts']
    >>> expected_manifest = {
    ...   "name": "owned",
@@ -603,9 +605,10 @@ To include the source as a content-addressed URI, ``Py-EthPM`` can pin your sour
 .. doctest::
 
    >>> import json
-   >>> from ethpm import ASSETS_DIR, ETHPM_SPEC_DIR
+   >>> from ethpm import ASSETS_DIR, get_ethpm_spec_dir
    >>> from ethpm.backends.ipfs import get_ipfs_backend
-   >>> owned_dir = ETHPM_SPEC_DIR / "examples" / "owned" / "contracts"
+   >>> ethpm_spec_dir = get_ethpm_spec_dir()
+   >>> owned_dir = ethpm_spec_dir / "examples" / "owned" / "contracts"
    >>> compiler_output = json.loads((ASSETS_DIR / "owned" / "output_v3.json").read_text())['contracts']
    >>> ipfs_backend = get_ipfs_backend()
    >>> expected_manifest = {

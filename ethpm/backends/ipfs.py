@@ -18,7 +18,7 @@ from eth_utils import (
 import ipfshttpclient
 
 from ethpm import (
-    ETHPM_SPEC_DIR,
+    get_ethpm_spec_dir,
 )
 from ethpm._utils.ipfs import (
     dummy_ipfs_pin,
@@ -165,12 +165,13 @@ class DummyIPFSBackend(BaseIPFSBackend):
     ---
     `ipfs_uri` can either be:
     - Valid IPFS URI -> safe-math-lib manifest (ALWAYS)
-    - Path to manifest/contract in ETHPM_SPEC_DIR -> defined manifest/contract
+    - Path to manifest/contract in ethpm_spec_dir -> defined manifest/contract
     """
 
     def fetch_uri_contents(self, ipfs_uri: str) -> bytes:
         pkg_name = MANIFEST_URIS[ipfs_uri]
-        pkg_contents = (ETHPM_SPEC_DIR / "examples" / pkg_name / "v3.json").read_text()
+        ethpm_spec_dir = get_ethpm_spec_dir()
+        pkg_contents = (ethpm_spec_dir / "examples" / pkg_name / "v3.json").read_text()
         return to_bytes(text=pkg_contents)
 
     def can_resolve_uri(self, uri: str) -> bool:

@@ -7,7 +7,6 @@ from eth_utils import (
 
 from ethpm import (
     ASSETS_DIR,
-    ETHPM_SPEC_DIR,
 )
 import web3
 from web3.tools.pytest_ethereum.exceptions import (
@@ -68,8 +67,8 @@ def test_standard_token_deployer(standard_token):
 
 # LIBRARY
 @pytest.fixture
-def safe_math(deployer):
-    safe_math_manifest_path = ETHPM_SPEC_DIR / "examples" / "safe-math-lib" / "v3.json"
+def safe_math(deployer, ethpm_spec_dir):
+    safe_math_manifest_path = ethpm_spec_dir / "examples" / "safe-math-lib" / "v3.json"
     safe_math_deployer = deployer(safe_math_manifest_path)
     return safe_math_deployer.deploy("SafeMathLib")
 
