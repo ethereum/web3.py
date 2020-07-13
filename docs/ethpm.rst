@@ -46,6 +46,9 @@ new ``Package`` class for a given package.
    >>> OwnedPackage = Package.from_file(owned_manifest_path, w3)
    >>> assert isinstance(OwnedPackage, Package)
 
+For a closer look at how to interact with EthPM packages using web3, check out the
+:ref:`examples page <ethpm_example>`.
+
 Properties
 ~~~~~~~~~~
 
