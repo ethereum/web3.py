@@ -371,6 +371,8 @@ Output:
      'transactionHash': HexBytes('0x3ac3518cc59d1698aa03a0bab7fb8191a4ef017aeda7429b11e8c6462b20a62a'),
      'transactionIndex': 0}
 
+.. _ethpm_example:
+
 Working with Contracts via ethPM
 --------------------------------
 
@@ -378,9 +380,9 @@ Working with Contracts via ethPM
 extends Web3's native ``Contract`` module, with a few modifications for how you instantiate ``Contract`` factories and instances.
 
 All you need is the package name, version and ethPM registry address for the package you wish to use.
-An ethPM registry is essentially an on-chain datastore for the release data associated with an ethPM package. You can find some sample registries to explore in the `ethPM explorer <http://explorer.ethpm.com/>`__. Remember, you should only use packages from registries whose maintainer you trust not to inject malicious code!
+An ethPM registry is an on-chain datastore for the release data associated with an ethPM package. You can find some sample registries to explore in the `ethPM registry <https://docs.ethpm.com/public-registry-directory>`__. Remember, you should only use packages from registries whose maintainer you trust not to inject malicious code!
 
-In this example we will use the ``ethregistrar@1.0.1`` package sourced from the ``ens.snakecharmers.eth`` registry.
+In this example we will use the ``ethregistrar@3.0.0`` package sourced from the ``ens.snakecharmers.eth`` registry.
 
 ``web3.pm`` uses the ``Package`` class to represent an ethPM package. This object houses all of the contract assets
 within a package, and exposes them via an API. So, before we can interact with our package, we need to generate
@@ -402,14 +404,14 @@ it as a ``Package`` instance.
     w3.pm.set_registry("ens.snakecharmers.eth")
 
     # This generates a Package instance of the target ethPM package.
-    ens_package = w3.pm.get_package("ethregistrar", "1.0.1")
+    ens_package = w3.pm.get_package("ethregistrar", "3.0.0")
 
 
 Now that we have a ``Package`` representation of our target ethPM package, we can generate contract factories
 and instances from this ``Package``. However, it's important to note that some packages might be missing
 the necessary contract assets needed to generate an instance or a factory. You can use the
-`ethPM explorer <http://explorer.ethpm.com/>`__ to figure out the names of the contract types and deployments
-available within an ethPM package.
+`ethPM CLI <https://github.com/ethpm/ethpm-cli>`__ to figure out the available contract types and deployments
+within an ethPM package.
 
 .. code-block:: python3
 
