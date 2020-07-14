@@ -1,0 +1,1 @@
+Include ethpm-spec solidity examples in distribution.
