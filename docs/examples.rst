@@ -278,7 +278,7 @@ Given the following solidity source file stored at ``contract.sol``.
 
         function setVar(uint8 _var) public {
             _myVar = _var;
-            MyEvent(_var);
+            emit MyEvent(_var);
         }
 
         function getVar() public view returns (uint8) {
@@ -302,7 +302,8 @@ The following example demonstrates a few things:
 
     from web3.providers.eth_tester import EthereumTesterProvider
     from web3 import Web3
-    from solc import compile_source
+    from eth_tester import PyEVMBackend
+    from solcx import compile_source
 
 
     def compile_source_file(file_path):
@@ -315,13 +316,13 @@ The following example demonstrates a few things:
     def deploy_contract(w3, contract_interface):
         tx_hash = w3.eth.contract(
             abi=contract_interface['abi'],
-            bytecode=contract_interface['bin']).deploy()
+            bytecode=contract_interface['bin']).constructor().transact()
 
         address = w3.eth.getTransactionReceipt(tx_hash)['contractAddress']
         return address
 
 
-    w3 = Web3(EthereumTesterProvider())
+    w3 = Web3(EthereumTesterProvider(PyEVMBackend()))
 
     contract_source_path = 'contract.sol'
     compiled_sol = compile_source_file('contract.sol')
@@ -329,25 +330,24 @@ The following example demonstrates a few things:
     contract_id, contract_interface = compiled_sol.popitem()
 
     address = deploy_contract(w3, contract_interface)
-    print("Deployed {0} to: {1}\n".format(contract_id, address))
+    print(f'Deployed {contract_id} to: {address}\n')
 
-    store_var_contract = w3.eth.contract(
-       address=address,
-       abi=contract_interface['abi'])
+    store_var_contract = w3.eth.contract(address=address, abi=contract_interface["abi"])
 
     gas_estimate = store_var_contract.functions.setVar(255).estimateGas()
-    print("Gas estimate to transact with setVar: {0}\n".format(gas_estimate))
+    print(f'Gas estimate to transact with setVar: {gas_estimate}')
 
     if gas_estimate < 100000:
-      print("Sending transaction to setVar(255)\n")
-      tx_hash = store_var_contract.functions.setVar(255).transact()
-      receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-      print("Transaction receipt mined: \n")
-      pprint.pprint(dict(receipt))
-      print("Was transaction successful? \n")
-      pprint.pprint(receipt['status'])
+         print("Sending transaction to setVar(255)\n")
+         tx_hash = store_var_contract.functions.setVar(255).transact()
+         receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+         print("Transaction receipt mined:")
+         pprint.pprint(dict(receipt))
+         print("\nWas transaction successful?")
+         pprint.pprint(receipt["status"])
     else:
-      print("Gas cost exceeds 100000")
+         print("Gas cost exceeds 100000")
+
 
 
 Output:
@@ -356,20 +356,24 @@ Output:
 
     Deployed <stdin>:StoreVar to: 0xF2E246BB76DF876Cef8b38ae84130F4F55De395b
 
-    Gas estimate to transact with setVar: 32463
+    Gas estimate to transact with setVar: 45535
 
     Sending transaction to setVar(255)
 
     Transaction receipt mined:
-
-    {'blockHash': HexBytes('0x94e07b0b88667da284e914fa44b87d4e7fec39761be51245ef94632a3b5ab9f0'),
+    {'blockHash': HexBytes('0x837609ad0a404718c131ac5157373662944b778250a507783349d4e78bd8ac84'),
      'blockNumber': 2,
      'contractAddress': None,
-     'cumulativeGasUsed': 43106,
-     'gasUsed': 43106,
-     'logs': [AttributeDict({'type': 'mined', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x3ac3518cc59d1698aa03a0bab7fb8191a4ef017aeda7429b11e8c6462b20a62a'), 'blockHash': HexBytes('0x94e07b0b88667da284e914fa44b87d4e7fec39761be51245ef94632a3b5ab9f0'), 'blockNumber': 2, 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', 'data': '0x', 'topics': [HexBytes('0x6c2b4666ba8da5a95717621d879a77de725f3d816709b9cbe9f059b8f875e284'), HexBytes('0x00000000000000000000000000000000000000000000000000000000000000ff')]})],
-     'transactionHash': HexBytes('0x3ac3518cc59d1698aa03a0bab7fb8191a4ef017aeda7429b11e8c6462b20a62a'),
+     'cumulativeGasUsed': 43488,
+     'gasUsed': 43488,
+     'logs': [AttributeDict({'type': 'mined', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x50aa3ba0673243f1e60f546a12ab364fc2f6603b1654052ebec2b83d4524c6d0'), 'blockHash': HexBytes('0x837609ad0a404718c131ac5157373662944b778250a507783349d4e78bd8ac84'), 'blockNumber': 2, 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', 'data': '0x', 'topics': [HexBytes('0x6c2b4666ba8da5a95717621d879a77de725f3d816709b9cbe9f059b8f875e284'), HexBytes('0x00000000000000000000000000000000000000000000000000000000000000ff')]})],
+     'status': 1,
+     'transactionHash': HexBytes('0x50aa3ba0673243f1e60f546a12ab364fc2f6603b1654052ebec2b83d4524c6d0'),
      'transactionIndex': 0}
+
+     Was transaction successful?
+     1
+
 
 .. _ethpm_example:
 
