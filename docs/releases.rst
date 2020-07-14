@@ -6,6 +6,22 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.12.0-beta.2 (2020-07-14)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Support ethpm-spec submodule in distributions. (`#1682 <https://github.com/ethereum/web3.py/issues/1682>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Modernize the deploy contract example. (`#1679 <https://github.com/ethereum/web3.py/issues/1679>`__)
+- Use ethpm v3 packages in examples documentation. (`#1683 <https://github.com/ethereum/web3.py/issues/1683>`__)
+
+
 v5.12.0-beta.1 (2020-07-09)
 ---------------------------
 

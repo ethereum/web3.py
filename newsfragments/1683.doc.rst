@@ -1,1 +1,0 @@
-Use ethpm v3 packages in examples documentation.
