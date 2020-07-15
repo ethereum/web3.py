@@ -156,21 +156,30 @@ $ ipython
 >>> from web3.auto import w3
 >>> w3.isConnected()
 >>> ...
-
-# Preview the upcoming release notes
-$ towncrier --draft
 ```
 
-To release a new version:
+To preview the upcoming documentation:
 
 ```sh
-make release bump=$$VERSION_PART_TO_BUMP$$
+make docs
 ```
 
 To preview the upcoming release notes:
 
 ```sh
 towncrier --draft
+```
+
+To compile and commit the release notes:
+
+```sh
+make notes
+```
+
+When the release notes are ready, release a new version:
+
+```sh
+make release bump=$$VERSION_PART_TO_BUMP$$
 ```
 
 #### How to bumpversion
