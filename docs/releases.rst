@@ -6,6 +6,15 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.12.0-beta.3 (2020-07-15)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Include ethpm-spec solidity examples in distribution. (`#1686 <https://github.com/ethereum/web3.py/issues/1686>`__)
+
+
 v5.12.0-beta.2 (2020-07-14)
 ---------------------------
 
