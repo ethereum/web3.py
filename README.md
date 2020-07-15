@@ -173,7 +173,7 @@ towncrier --draft
 To compile and commit the release notes:
 
 ```sh
-make notes
+make notes bump=$$VERSION_PART_TO_BUMP$$
 ```
 
 When the release notes are ready, release a new version:
