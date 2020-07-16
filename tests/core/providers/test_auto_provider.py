@@ -1,9 +1,21 @@
 import importlib
+import logging
 import os
 import pytest
 
 from eth_utils import (
     ValidationError,
+)
+
+from web3.auto import   (
+    QuikNode,
+)
+
+from web3.auto.QuikNode import  (
+    kovan,
+    mainnet,
+    rinkeby,
+    ropsten,
 )
 
 from web3.exceptions import (
@@ -124,6 +136,36 @@ def test_web3_auto_infura_raises_error_with_nonexistent_scheme(monkeypatch):
     error_msg = "Cannot connect to Infura with scheme 'not-a-scheme'"
     with pytest.raises(ValidationError, match=error_msg):
         importlib.reload(infura)
+        
+def test_web3_auto_QuikNode_wrong_url(monkeypatch, caplog):
+    importlib.reload(QuikNode)
+    assert len(caplog.record_tuples) == 1
+    logger, level, msg = caplog.record_tuples[0]
+    assert 'QuikNode_Node_URL' in msg
+    assert level == logging.ERROR
+
+
+@pytest.mark.parametrize(
+    'network', [
+        (kovan, 'kovan'),
+        (mainnet, 'mainnet'),
+        (rinkeby, 'rinkeby'),
+        (ropsten, 'ropsten')
+    ])
+def test_web3_auto_QuikNode_different_networks(monkeypatch, network):
+
+    network_module = network[0]
+    network_name = network[1]
+    API_KEY = 'ns_python'
+    monkeypatch.setenv('QuikNode_Node_URL', API_KEY)
+    expected_url = 'https://%s.quiknode.pro/%s/' % \
+                   (network_name, API_KEY)
+
+    importlib.reload(network_module)
+
+    w3 = network_module.w3
+    assert isinstance(w3.provider, HTTPProvider)
+    assert getattr(w3.provider, 'endpoint_uri') == expected_url
 
 
 @pytest.mark.parametrize('environ_name', ['WEB3_INFURA_API_KEY', 'WEB3_INFURA_PROJECT_ID'])
