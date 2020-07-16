@@ -182,6 +182,27 @@ an optional secret key, set the environment variable ``WEB3_INFURA_API_SECRET``:
     # confirm that the connection succeeded
     >>> w3.isConnected()
     True
+    
+QuikNode
+~~~~~~~~~~~~~~
+
+To get your QuikNode Mainnet endpoint for free, log on to https://www.quiknode.io/ .
+
+Then set the environment variable ``QuikNode_Node_URL`` with your Node URL::
+
+    $ export QuikNode_Node_URL=yourNodeURL
+    
+The network can be selected while making a new node and the Node URL will be generated
+according to the selection, below is for Mainnet:
+
+.. code-block:: python
+
+    >>> from web3.auto.QuikNode import w3
+
+    # confirm if connected
+    >>> w3.isConnected()
+    True
+    # network ID must be added if Network other then Mainnetlike '3' for Ropsten, '4' for Rinkeby etc
 
 Geth dev Proof of Authority
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
