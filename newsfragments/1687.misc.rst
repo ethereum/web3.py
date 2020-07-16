@@ -1,1 +1,0 @@
-Unbundle the generation of release notes from the publish script.

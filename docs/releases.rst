@@ -6,6 +6,29 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.12.0 (2020-07-16)
+--------------------
+
+Features
+~~~~~~~~
+
+- Update `web3.pm` and `ethpm` module to EthPM v3 specification. (`#1652 <https://github.com/ethereum/web3.py/issues/1652>`__)
+- Allow consumer to initialize `HttpProvider` with their own `requests.Session`.  This allows the `HttpAdapter` connection pool to be tuned as desired. (`#1469 <https://github.com/ethereum/web3.py/issues/1469>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Use ethpm v3 packages in examples documentation. (`#1683 <https://github.com/ethereum/web3.py/issues/1683>`__)
+- Modernize the deploy contract example. (`#1679 <https://github.com/ethereum/web3.py/issues/1679>`__)
+
+
+Misc
+~~~~
+
+- `#1687 <https://github.com/ethereum/web3.py/issues/1687>`__
+
+
 v5.12.0-beta.3 (2020-07-15)
 ---------------------------
 
