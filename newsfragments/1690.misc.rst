@@ -1,0 +1,1 @@
+Adopt Trinity's newsfragment validation script.
