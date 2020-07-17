@@ -152,6 +152,22 @@ Valid formats for this environment variable are:
 - ``https://node.ontheweb.com``
 - ``ws://127.0.0.1:8546``
 
+QuikNode
+~~~~~~~~~~~~~~
+
+If you want to use QuikNode, grab a free Node URL from https://quiknode.io.
+
+To setup QuikNode, then set the following environment variable::
+
+    $ export WEB3_PROVIDER_URI=https://young-early-dawn.quiknode.pro/<your-token-here>/
+    
+.. code-block:: python
+
+    >>> from web3.auto import w3
+
+    # confirm that the connection succeeded
+    >>> w3.isConnected()
+    True
 
 .. _custom_auto_providers:
 
