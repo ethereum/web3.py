@@ -67,6 +67,13 @@ Table of Contents
     gas_price
     ens
 
+.. toctree::
+    :maxdepth: 1
+    :caption: Community
+
+    contributing
+    code_of_conduct
+
 Indices and tables
 ------------------
 
