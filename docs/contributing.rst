@@ -1,3 +1,5 @@
+.. _contributing:
+
 Contributing
 ------------
 
@@ -9,7 +11,7 @@ get stuck, feel free to reach for help in our
 Setting the stage
 ~~~~~~~~~~~~~~~~~
 
-First you need to clone the repository. Web3.py depends on submodules, so you
+First, you need to clone the repository. Web3.py depends on submodules, so you
 need to clone the repo with the ``--recursive`` flag. Example:
 
 .. code:: sh
@@ -58,14 +60,14 @@ You can run arbitrary commands inside the Docker container by using the
 
 .. code:: sh
 
-    docker-compose exec sandbox bash -c ''
+    $ docker-compose exec sandbox bash -c ''
 
 
-Or, if you would like to just open a session to the container, run:
+Or, if you would like to open a session to the container, run:
 
 .. code:: sh
 
-    docker-compose exec sandbox bash
+    $ docker-compose exec sandbox bash
 
 
 Running the tests
@@ -80,12 +82,27 @@ You can run all tests with:
     $ pytest
 
 
-However, running the entire test suite is generally impractical and takes
-a very long time. Typically, you'll just want to run a subset instead, like:
+However, running the entire test suite takes a very long time and is generally impractical.
+Typically, you'll just want to run a subset instead, like:
 
 .. code:: sh
 
-    pytest tests/core/eth-module/test_accounts.py
+    $ pytest tests/core/eth-module/test_accounts.py
+
+
+You can use ``tox`` to run all the tests for a given version of Python:
+
+.. code:: sh
+
+   $ tox -e py37-core
+
+
+Linting is also performed by the CI. You can save yourself some time by checking for
+linting errors locally:
+
+.. code:: sh
+
+   $ make lint
 
 
 It is important to understand that each pull request must pass the full test
@@ -95,12 +112,8 @@ pull request is opened or updated.
 Code Style
 ~~~~~~~~~~
 
-When multiple people are working on the same body of code, it is important
-that they write code that conforms to a similar style. It often doesn't matter
-as much which style, but rather that they conform to one style.
-
-To ensure your contribution conforms to the style being used in this project,
-we encourage you to read our `style guide`_.
+We value code consistency. To ensure your contribution conforms to the style
+being used in this project, we encourage you to read our `style guide`_.
 
 
 Type Hints
@@ -110,7 +123,7 @@ This code base makes use of `type hints`_. Type hints make it easy to prevent
 certain types of bugs, enable richer tooling, and enhance the documentation,
 making the code easier to follow.
 
-All new code is required to land with type hints, with the exception of tests.
+All new code is required to include type hints, with the exception of tests.
 
 All parameters, as well as the return type of defs, are expected to be typed,
 with the exception of ``self`` and ``cls`` as seen in the following example.
@@ -146,7 +159,7 @@ requested.
 
 If the pull request introduces changes that should be reflected in the release
 notes, please add a `newsfragment` file as explained
-`here <https://github.com/ethereum/trinity/blob/master/newsfragments/README.md>_`
+`here <https://github.com/ethereum/web3.py/blob/master/newsfragments/README.md>`_
 
 If possible, the change to the release notes file should be included in the
 commit that introduces the feature or bugfix.
@@ -158,18 +171,20 @@ Releasing
 Final test before each release
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Before releasing a new version, build and test the package that will be released:
+Before releasing a new version, build and test the package that will be released.
+There's a script to build and install the wheel locally, then generate a temporary
+virtualenv for smoke testing:
 
 .. code:: sh
 
-    git checkout master && git pull
+    $ git checkout master && git pull
 
-    make package
+    $ make package
 
     # in another shell, navigate to the virtualenv mentioned in output of ^
 
-    # load the virtualenv with the packaged trinity release
-    source package-smoke-test/bin/activate
+    # load the virtualenv with the packaged web3.py release
+    $ source package-smoke-test/bin/activate
 
     # smoke test the release
     $ pip install ipython
@@ -179,14 +194,22 @@ Before releasing a new version, build and test the package that will be released
     >>> ...
 
 
-Verify the latest documenation 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Verify the latest documentation 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To preview the documentation that will get published:
 
 .. code:: sh
 
-    make docs
+    $ make docs
+
+
+Preview the release notes
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: sh
+
+   $ towncrier --draft
 
 
 Compile the release notes
@@ -196,14 +219,14 @@ After confirming that the release package looks okay, compile the release notes:
 
 .. code:: sh
 
-    make notes bump=$$VERSION_PART_TO_BUMP$$
+    $ make notes bump=$$VERSION_PART_TO_BUMP$$
 
 
 You may need to fix up any broken release note fragments before committing. Keep
 running make build-docs until it passes, then commit and carry on.
 
 
-Push the release to GitHub & pypi
+Push the release to GitHub & PyPI
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 After committing the compiled release notes and pushing them to the master
@@ -211,7 +234,7 @@ branch, release a new version:
 
 .. code:: sh
 
-    make release bump=$$VERSION_PART_TO_BUMP$$
+    $ make release bump=$$VERSION_PART_TO_BUMP$$
 
 
 Which version part to bump

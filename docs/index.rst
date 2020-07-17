@@ -21,6 +21,7 @@ Your next steps depend on where you're standing:
 - Ready to code? → :ref:`quickstart`
 - Interested in a quick tour? → :ref:`overview`
 - Need help debugging? → `StackExchange`_
+- Like to give back? → :ref:`Contribute <contributing>`
 - Want to chat? → `Gitter`_
 
 Table of Contents
