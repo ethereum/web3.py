@@ -1,8 +1,8 @@
 # Web3.py
 
+[![Documentation Status](https://readthedocs.org/projects/web3py/badge/?version=latest)](https://web3py.readthedocs.io/en/latest/?badge=latest)
 [![Join the chat at https://gitter.im/ethereum/web3.py](https://badges.gitter.im/ethereum/web3.py.svg)](https://gitter.im/ethereum/web3.py?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://circleci.com/gh/ethereum/web3.py.svg?style=shield)](https://circleci.com/gh/ethereum/web3.py)
-[![Documentation Status](https://readthedocs.org/projects/web3py/badge/?version=latest)](https://web3py.readthedocs.io/en/latest/?badge=latest)
 
 A Python library for interacting with Ethereum, inspired by [web3.js](https://github.com/ethereum/web3.js).
 
@@ -11,7 +11,7 @@ A Python library for interacting with Ethereum, inspired by [web3.js](https://gi
 ## Quickstart
 
 [Get started in 5 minutes](https://web3py.readthedocs.io/en/latest/quickstart.html) or
-[take a tour](https://web3py.readthedocs.io/en/latest/quickstart.html) of the library.
+[take a tour](https://web3py.readthedocs.io/en/latest/overview.html) of the library.
 
 ## Documentation
 
