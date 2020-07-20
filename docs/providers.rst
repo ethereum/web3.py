@@ -152,6 +152,13 @@ Valid formats for this environment variable are:
 - ``https://node.ontheweb.com``
 - ``ws://127.0.0.1:8546``
 
+.. _custom_auto_providers:
+
+Auto-initialization Provider Shortcuts
+--------------------------------------
+
+There are a couple auto-initialization shortcuts for common providers.
+
 QuikNode
 ~~~~~~~~~~~~~~
 
@@ -171,12 +178,6 @@ By doing the above step we are now able to take advantage of web3.py's auto-init
     >>> w3.isConnected()
     True
 
-.. _custom_auto_providers:
-
-Auto-initialization Provider Shortcuts
---------------------------------------
-
-There are a couple auto-initialization shortcuts for common providers.
 
 Infura Mainnet
 ~~~~~~~~~~~~~~
@@ -200,6 +201,7 @@ an optional secret key, set the environment variable ``WEB3_INFURA_API_SECRET``:
     # confirm that the connection succeeded
     >>> w3.isConnected()
     True
+  
 
 Geth dev Proof of Authority
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
