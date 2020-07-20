@@ -21,12 +21,14 @@ Improved Documentation
 
 - Use ethpm v3 packages in examples documentation. (`#1683 <https://github.com/ethereum/web3.py/issues/1683>`__)
 - Modernize the deploy contract example. (`#1679 <https://github.com/ethereum/web3.py/issues/1679>`__)
+- Add contribution guidelines and a code of conduct. (`#1691 <https://github.com/ethereum/web3.py/issues/1691>`__)
 
 
 Misc
 ~~~~
 
 - `#1687 <https://github.com/ethereum/web3.py/issues/1687>`__
+- `#1690 <https://github.com/ethereum/web3.py/issues/1690>`__
 
 
 v5.12.0-beta.3 (2020-07-15)
