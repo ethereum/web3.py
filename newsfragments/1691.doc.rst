@@ -1,0 +1,1 @@
+Add contribution guidelines and a code of conduct.

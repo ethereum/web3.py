@@ -223,7 +223,7 @@ After confirming that the release package looks okay, compile the release notes:
 
 
 You may need to fix up any broken release note fragments before committing. Keep
-running make build-docs until it passes, then commit and carry on.
+running ``make build-docs`` until it passes, then commit and carry on.
 
 
 Push the release to GitHub & PyPI

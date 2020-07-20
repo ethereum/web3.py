@@ -22,7 +22,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	tox -elint
+	tox -e lint
 
 lint-roll:
 	isort --recursive web3 ens tests
