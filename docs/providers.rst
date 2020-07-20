@@ -161,9 +161,7 @@ To setup QuikNode, then set the following environment variable::
 
     $ export WEB3_PROVIDER_URI=https://young-early-dawn.quiknode.pro/<your-token-here>/
     
-Now, let's check if this actaully worked, first we'll import the web3 instance(we'll add
-.auto as we already supplied the node URL to the environment variable) and then check if we're
-connected to the node or not
+By doing the above step we are now able to take advantage of web3.py's auto-initialization.
     
 .. code-block:: python
 
