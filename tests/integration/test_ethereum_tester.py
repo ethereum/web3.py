@@ -161,7 +161,6 @@ def revert_contract_address(revert_contract, address_conversion_func):
     return address_conversion_func(revert_contract.address)
 
 
-
 UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
 
 

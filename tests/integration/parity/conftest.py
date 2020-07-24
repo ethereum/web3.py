@@ -22,8 +22,8 @@ KEYFILE_PW = 'web3py-test'
 PARITY_2_5_13_FIXTURE = {
     'zip': 'parity-2.5.13-fixture.zip',
     'coinbase': 'dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
-    'block_hash_revert_no_msg': '0x3244617196b9467687cbab23798c00077954452771d38d05d3b8d484b83c5de5',
-    'block_hash_revert_with_msg': '0x7d7917231f1a9e816f11ff93842d543c35075a7cd5d75854f28324409910836c',
+    'block_hash_revert_no_msg': '0x3244617196b9467687cbab23798c00077954452771d38d05d3b8d484b83c5de5',  # noqa: E501
+    'block_hash_revert_with_msg': '0x7d7917231f1a9e816f11ff93842d543c35075a7cd5d75854f28324409910836c',  # noqa: E501
     'block_hash_with_log': '0x19947203802e02d4659698c5684322ef67c4146fb1f420a6da371116be78047c',
     'block_with_txn_hash': '0xc26f5610ddbfd6fbe179110e09af6df06c2998ed0c9c623417480b2c795a6f01',
     'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
@@ -206,7 +206,6 @@ def txn_filter_params(coinbase):
         "toBlock": "latest",
         "fromAddress": [coinbase],
     }
-
 
 
 @pytest.fixture(scope="module")

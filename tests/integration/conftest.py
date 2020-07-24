@@ -23,13 +23,17 @@ def math_contract_factory(web3):
 
 @pytest.fixture(scope="module")
 def emitter_contract_factory(web3):
-    contract_factory = web3.eth.contract(abi=CONTRACT_EMITTER_ABI, bytecode=CONTRACT_EMITTER_CODE)
+    contract_factory = web3.eth.contract(
+        abi=CONTRACT_EMITTER_ABI, bytecode=CONTRACT_EMITTER_CODE
+    )
     return contract_factory
 
 
 @pytest.fixture(scope="module")
 def revert_contract_factory(web3):
-    contract_factory = web3.eth.contract(abi=_REVERT_CONTRACT_ABI, bytecode=REVERT_CONTRACT_BYTECODE)
+    contract_factory = web3.eth.contract(
+        abi=_REVERT_CONTRACT_ABI, bytecode=REVERT_CONTRACT_BYTECODE
+    )
     return contract_factory
 
 
