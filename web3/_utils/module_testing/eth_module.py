@@ -37,6 +37,7 @@ from web3.exceptions import (
     BlockNotFound,
     InvalidAddress,
     NameNotFound,
+    SolidityError,
     TransactionNotFound,
 )
 from web3.types import (  # noqa: F401
@@ -745,23 +746,18 @@ class EthModuleTest:
         self,
         web3: "Web3",
         revert_contract: "Contract",
-        unlocked_account_dual_type: ChecksumAddress,
+        unlocked_account: ChecksumAddress,
     ) -> None:
-        coinbase = web3.eth.coinbase
-        txn_params = revert_contract._prepare_transaction(
-            fn_name="revertWithMessage",
-            transaction={
-                "from": unlocked_account_dual_type,
-                "to": revert_contract.address,
-            },
-        )
-        revert_contract.functions.revertWithMessage().transact(
-            {"from": coinbase, "to": revert_contract.address, "gas": Wei(320000)}
-        )
-        call_result = web3.eth.call(txn_params)
-        assert is_string(call_result)
-        result = web3.codec.decode_single('bool', call_result)
-        assert result is True
+        with pytest.raises(SolidityError, match='foo'):
+            coinbase = web3.eth.coinbase
+            txn_params = revert_contract._prepare_transaction(
+                fn_name="revertWithMessage",
+                transaction={
+                    "from": unlocked_account,
+                    "to": revert_contract.address,
+                },
+            )
+            web3.eth.call(txn_params)
 
     def test_eth_estimateGas(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress

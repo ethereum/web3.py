@@ -21,9 +21,6 @@ from web3._utils.module_testing import (
 from web3._utils.module_testing.emitter_contract import (
     EMITTER_ENUM,
 )
-from web3.exceptions import (
-    SolidityError,
-)
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
@@ -335,9 +332,8 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_getTransactionReceipt_mined(self, web3, block_with_txn, mined_txn_hash):
         super().test_eth_getTransactionReceipt_mined(web3, block_with_txn, mined_txn_hash)
 
-    def test_eth_call_revert_with_msg(self, web3: "Web3", revert_contract: "Contract") -> None:
-        with pytest.raises(SolidityError, match='foo'):
-            super().test_eth_call_with_revert(web3, revert_contract)
+    def test_eth_call_revert_with_msg(self, web3, revert_contract, unlocked_account) -> None:
+            super().test_eth_call_revert_with_msg(web3, revert_contract, unlocked_account)
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
