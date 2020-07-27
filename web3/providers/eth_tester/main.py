@@ -9,6 +9,9 @@ from typing import (
 from web3._utils.compat import (
     Literal,
 )
+from web3.exceptions import (
+    SolidityError,
+)
 from web3.providers import (
     BaseProvider,
 )
@@ -84,6 +87,7 @@ class EthereumTesterProvider(BaseProvider):
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         namespace, _, endpoint = method.partition('_')
+        from eth_tester.exceptions import TransactionFailed
         try:
             delegator = self.api_endpoints[namespace][endpoint]
         except KeyError:
@@ -97,6 +101,8 @@ class EthereumTesterProvider(BaseProvider):
             return RPCResponse({
                 "error": "RPC Endpoint has not been implemented: {0}".format(method),
             })
+        except TransactionFailed as e:
+            raise SolidityError(*e.args)
         else:
             return {
                 'result': response,

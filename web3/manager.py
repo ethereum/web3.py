@@ -14,7 +14,6 @@ from typing import (  # noqa: F401
 import uuid
 from uuid import UUID
 
-import eth_tester
 from eth_utils.toolz import (
     pipe,
 )
@@ -28,9 +27,6 @@ from web3._utils.threads import (  # noqa: F401
 )
 from web3.datastructures import (
     NamedElementOnion,
-)
-from web3.exceptions import (
-    SolidityError,
 )
 from web3.middleware import (
     abi_middleware,
@@ -155,13 +151,10 @@ class RequestManager:
         """
         Make a synchronous request using the provider
         """
-        try:
-            response = self._make_request(method, params)
-        except eth_tester.exceptions.TransactionFailed as e:
-            raise SolidityError(*e.args)
+        response = self._make_request(method, params)
 
         if "error" in response:
-            response = apply_error_formatters(error_formatters, response)
+            apply_error_formatters(error_formatters, response)
             raise ValueError(response["error"])
         elif response['result'] is None:
             apply_error_formatters(error_formatters, response, params)
