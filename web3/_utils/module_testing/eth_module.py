@@ -749,7 +749,6 @@ class EthModuleTest:
         unlocked_account: ChecksumAddress,
     ) -> None:
         with pytest.raises(SolidityError, match='foo'):
-            coinbase = web3.eth.coinbase
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithMessage",
                 transaction={
