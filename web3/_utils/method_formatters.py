@@ -531,6 +531,7 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
 
 
 ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+    RPC.eth_estimateGas: raise_solidity_error_on_revert,
     RPC.eth_call: raise_solidity_error_on_revert,
 }
 
