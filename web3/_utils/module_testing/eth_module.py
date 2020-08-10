@@ -758,6 +758,22 @@ class EthModuleTest:
             )
             web3.eth.call(txn_params)
 
+    def test_eth_estimateGas_revert_with_msg(
+        self,
+        web3: "Web3",
+        revert_contract: "Contract",
+        unlocked_account: ChecksumAddress,
+    ) -> None:
+        with pytest.raises(SolidityError, match='Function has been reverted.'):
+            txn_params = revert_contract._prepare_transaction(
+                fn_name="revertWithMessage",
+                transaction={
+                    "from": unlocked_account,
+                    "to": revert_contract.address,
+                },
+            )
+            web3.eth.estimateGas(txn_params)
+
     def test_eth_estimateGas(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:

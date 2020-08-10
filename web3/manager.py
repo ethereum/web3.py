@@ -28,6 +28,9 @@ from web3._utils.threads import (  # noqa: F401
 from web3.datastructures import (
     NamedElementOnion,
 )
+from web3.exceptions import (
+    SolidityError,
+)
 from web3.middleware import (
     abi_middleware,
     attrdict_middleware,
@@ -154,6 +157,9 @@ class RequestManager:
         response = self._make_request(method, params)
 
         if "error" in response:
+            if response['error']['code'] == 3:
+                raise SolidityError(response['error']['message'])
+
             apply_error_formatters(error_formatters, response)
             raise ValueError(response["error"])
         elif response['result'] is None:
