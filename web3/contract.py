@@ -1122,13 +1122,18 @@ class ContractEvent:
         else:
             self.argument_names = argument_names
 
-        self.abi = self._get_event_abi()
+        self.abi = self._get_event_abi(argument_names)
 
     @classmethod
-    def _get_event_abi(cls) -> ABIEvent:
+    def _get_event_abi(cls, argument_names: Optional[Tuple[str]]=None) -> ABIEvent:
+        if argument_names is None:
+            return find_matching_event_abi(
+                cls.contract_abi,
+                event_name=cls.event_name)
         return find_matching_event_abi(
             cls.contract_abi,
-            event_name=cls.event_name)
+            event_name=cls.event_name,
+            argument_names=argument_names)
 
     @combomethod
     def processReceipt(
