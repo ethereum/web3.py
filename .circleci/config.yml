@@ -82,10 +82,11 @@ geth_steps: &geth_steps
           mkdir -p $HOME/.ethash
           pip install --user py-geth>=2.4.0
           export GOROOT=/usr/local/go
+          echo $GETH_VERSION
           export GETH_BINARY="$HOME/.py-geth/geth-$GETH_VERSION/bin/geth"
           if [ ! -e "$GETH_BINARY" ]; then
-            curl -O https://storage.googleapis.com/golang/go1.9.7.linux-amd64.tar.gz
-            tar xvf go1.9.7.linux-amd64.tar.gz
+            curl -O https://storage.googleapis.com/golang/go1.14.2.linux-amd64.tar.gz
+            tar xvf go1.14.2.linux-amd64.tar.gz
             sudo chown -R root:root ./go
             sudo mv go /usr/local
             sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
@@ -380,8 +381,7 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ipc
-      # TODO: Change this to v1.9.19
-      GETH_VERSION: v1.9.6
+      GETH_VERSION: v1.9.19
 
   py37-integration-goethereum-http-1.9.19:
     <<: *geth_steps
