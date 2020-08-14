@@ -121,3 +121,6 @@ fabric.properties
 
 # pip wheel metadata
 pip-wheel-metadata/
+
+# jupyter notebooks
+*.ipynb

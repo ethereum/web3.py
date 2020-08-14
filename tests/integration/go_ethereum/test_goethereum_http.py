@@ -35,9 +35,9 @@ def _geth_command_arguments(rpc_port,
     yield from base_geth_command_arguments
     if geth_version.major == 1:
         yield from (
-            '--rpc',
-            '--rpcport', rpc_port,
-            '--rpcapi', 'admin,db,eth,net,web3,personal,shh,miner',
+            '--http',
+            '--http.port', rpc_port,
+            '--http.api', 'admin,db,eth,net,web3,personal,shh,miner',
             '--ipcdisable',
         )
         if geth_version.minor == 9:
