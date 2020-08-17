@@ -43,9 +43,7 @@ def _geth_command_arguments(ws_port,
             '--ipcdisable',
             '--allow-insecure-unlock',
         )
-        # if geth_version.minor == 9:
-        #     yield '--allow-insecure-unlock'
-        if geth_version.minor not in [9, 8, 7]:
+        if geth_version.minor not in [9]:
             raise AssertionError("Unsupported Geth version")
     else:
         raise AssertionError("Unsupported Geth version")
