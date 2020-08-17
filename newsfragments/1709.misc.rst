@@ -1,0 +1,1 @@
+Remove 1.8 and 1.7 Geth tests, since the Geth team only supports the latest version.

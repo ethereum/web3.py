@@ -39,11 +39,8 @@ def _geth_command_arguments(rpc_port,
             '--http.port', rpc_port,
             '--http.api', 'admin,db,eth,net,web3,personal,shh,miner',
             '--ipcdisable',
+            '--allow-insecure-unlock'
         )
-        if geth_version.minor == 9:
-            yield '--allow-insecure-unlock'
-        elif geth_version.minor not in [9, 8, 7]:
-            raise AssertionError("Unsupported Geth version")
     else:
         raise AssertionError("Unsupported Geth version")
 
