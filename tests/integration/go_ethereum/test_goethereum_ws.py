@@ -41,10 +41,11 @@ def _geth_command_arguments(ws_port,
             '--wsapi', 'admin,db,eth,net,shh,web3,personal,miner',
             '--wsorigins', '*',
             '--ipcdisable',
+            '--allow-insecure-unlock',
         )
-        if geth_version.minor == 9:
-            yield '--allow-insecure-unlock'
-        elif geth_version.minor not in [9, 8, 7]:
+        # if geth_version.minor == 9:
+        #     yield '--allow-insecure-unlock'
+        if geth_version.minor not in [9, 8, 7]:
             raise AssertionError("Unsupported Geth version")
     else:
         raise AssertionError("Unsupported Geth version")
