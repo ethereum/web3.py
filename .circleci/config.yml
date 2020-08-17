@@ -188,54 +188,6 @@ jobs:
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
 
-  py36-integration-goethereum-ipc-1.7.2:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-integration-goethereum-ipc
-      GETH_VERSION: v1.7.2
-
-  py36-integration-goethereum-http-1.7.2:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-integration-goethereum-http
-      GETH_VERSION: v1.7.2
-
-  py36-integration-goethereum-ws-1.7.2:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-integration-goethereum-ws
-      GETH_VERSION: v1.7.2
-
-  py36-integration-goethereum-ipc-1.8.22:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-integration-goethereum-ipc
-      GETH_VERSION: v1.8.22
-
-  py36-integration-goethereum-http-1.8.22:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-integration-goethereum-http
-      GETH_VERSION: v1.8.22
-
-  py36-integration-goethereum-ws-1.8.22:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-integration-goethereum-ws
-      GETH_VERSION: v1.8.22
-
   py36-integration-goethereum-ipc-1.9.7:
     <<: *geth_steps
     docker:
@@ -325,54 +277,6 @@ jobs:
       TOXENV: py37-ethpm
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
-
-  py37-integration-goethereum-ipc-1.7.2:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.7
-    environment:
-      TOXENV: py37-integration-goethereum-ipc
-      GETH_VERSION: v1.7.2
-
-  py37-integration-goethereum-http-1.7.2:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.7
-    environment:
-      TOXENV: py37-integration-goethereum-http
-      GETH_VERSION: v1.7.2
-
-  py37-integration-goethereum-ws-1.7.2:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.7
-    environment:
-      TOXENV: py37-integration-goethereum-ws
-      GETH_VERSION: v1.7.2
-
-  py37-integration-goethereum-ipc-1.8.22:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.7
-    environment:
-      TOXENV: py37-integration-goethereum-ipc
-      GETH_VERSION: v1.8.22
-
-  py37-integration-goethereum-http-1.8.22:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.7
-    environment:
-      TOXENV: py37-integration-goethereum-http
-      GETH_VERSION: v1.8.22
-
-  py37-integration-goethereum-ws-1.8.22:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.7
-    environment:
-      TOXENV: py37-integration-goethereum-ws
-      GETH_VERSION: v1.8.22
 
   py37-integration-goethereum-ipc-1.9.7:
     <<: *geth_steps
@@ -464,54 +368,6 @@ jobs:
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
 
-  py38-integration-goethereum-ipc-1.7.2:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.8
-    environment:
-      TOXENV: py38-integration-goethereum-ipc
-      GETH_VERSION: v1.7.2
-
-  py38-integration-goethereum-http-1.7.2:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.8
-    environment:
-      TOXENV: py38-integration-goethereum-http
-      GETH_VERSION: v1.7.2
-
-  py38-integration-goethereum-ws-1.7.2:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.8
-    environment:
-      TOXENV: py38-integration-goethereum-ws
-      GETH_VERSION: v1.7.2
-
-  py38-integration-goethereum-ipc-1.8.22:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.8
-    environment:
-      TOXENV: py38-integration-goethereum-ipc
-      GETH_VERSION: v1.8.22
-
-  py38-integration-goethereum-http-1.8.22:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.8
-    environment:
-      TOXENV: py38-integration-goethereum-http
-      GETH_VERSION: v1.8.22
-
-  py38-integration-goethereum-ws-1.8.22:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.8
-    environment:
-      TOXENV: py38-integration-goethereum-ws
-      GETH_VERSION: v1.8.22
-
   py38-integration-goethereum-ipc-1.9.7:
     <<: *geth_steps
     docker:
@@ -591,12 +447,6 @@ workflows:
       - docs
       - py36-ens
       - py36-ethpm
-      - py36-integration-goethereum-ipc-1.7.2
-      - py36-integration-goethereum-http-1.7.2
-      - py36-integration-goethereum-ws-1.7.2
-      - py36-integration-goethereum-ipc-1.8.22
-      - py36-integration-goethereum-http-1.8.22
-      - py36-integration-goethereum-ws-1.8.22
       - py36-integration-goethereum-ipc-1.9.7
       - py36-integration-goethereum-http-1.9.7
       - py36-integration-goethereum-ws-1.9.7
@@ -607,12 +457,6 @@ workflows:
       - py36-wheel-cli
       - py37-ens
       - py37-ethpm
-      - py37-integration-goethereum-ipc-1.7.2
-      - py37-integration-goethereum-http-1.7.2
-      - py37-integration-goethereum-ws-1.7.2
-      - py37-integration-goethereum-ipc-1.8.22
-      - py37-integration-goethereum-http-1.8.22
-      - py37-integration-goethereum-ws-1.8.22
       - py37-integration-goethereum-ipc-1.9.7
       - py37-integration-goethereum-http-1.9.7
       - py37-integration-goethereum-ws-1.9.7
@@ -623,12 +467,6 @@ workflows:
       - py37-wheel-cli
       - py38-ens
       - py38-ethpm
-      - py38-integration-goethereum-ipc-1.7.2
-      - py38-integration-goethereum-http-1.7.2
-      - py38-integration-goethereum-ws-1.7.2
-      - py38-integration-goethereum-ipc-1.8.22
-      - py38-integration-goethereum-http-1.8.22
-      - py38-integration-goethereum-ws-1.8.22
       - py38-integration-goethereum-ipc-1.9.7
       - py38-integration-goethereum-http-1.9.7
       - py38-integration-goethereum-ws-1.9.7

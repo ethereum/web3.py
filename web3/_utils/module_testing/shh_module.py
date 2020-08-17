@@ -393,10 +393,7 @@ class GoEthereumShhModuleTest():
     #
     def test_shh_version(self, web3: "Web3") -> None:
         version = web3.geth.shh.version()
-        if '1.7' in web3.clientVersion:
-            assert version == '5.0'
-        else:
-            assert version == '6.0'
+        assert version == '6.0'
 
     def test_shh_info(self, web3: "Web3") -> None:
         pre_info = web3.geth.shh.info()
