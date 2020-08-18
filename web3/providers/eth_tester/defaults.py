@@ -286,7 +286,7 @@ API_ENDPOINTS = {
         'getLogs': get_logs,
         'getWork': not_implemented,
         'submitWork': not_implemented,
-        'submitHashrate': not_implemented,
+        'submitHashRate': not_implemented,
     },
     'db': {
         'putString': not_implemented,

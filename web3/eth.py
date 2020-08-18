@@ -503,9 +503,9 @@ class Eth(Module):
             RPC.eth_getLogs, [filter_params],
         )
 
-    def submitHashrate(self, hashrate: int, node_id: _Hash32) -> bool:
+    def submitHashRate(self, hashrate: int, node_id: _Hash32) -> bool:
         return self.web3.manager.request_blocking(
-            RPC.eth_submitHashrate, [hashrate, node_id],
+            RPC.eth_submitHashRate, [hashrate, node_id],
         )
 
     def submitWork(self, nonce: int, pow_hash: _Hash32, mix_digest: _Hash32) -> bool:

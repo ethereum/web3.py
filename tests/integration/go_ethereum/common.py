@@ -10,8 +10,6 @@ from web3._utils.module_testing import (  # noqa: F401
     Web3ModuleTest,
 )
 
-VERSIONS_WITHOUT_ETH_SUBMITHASH = ['v1.9.7']
-
 
 class GoEthereumTest(Web3ModuleTest):
     def _check_web3_clientVersion(self, client_version):
@@ -31,12 +29,6 @@ class GoEthereumEthModuleTest(EthModuleTest):
         super().test_eth_estimateGas_with_block(
             web3, unlocked_account_dual_type
         )
-
-    def test_eth_submitHashrate(self, web3):
-        if any([v in web3.clientVersion for v in VERSIONS_WITHOUT_ETH_SUBMITHASH]):
-            # https://github.com/ethereum/go-ethereum/commit/51db5975cc5fb88db6a0dba1826b534fd4df29d7
-            pytest.xfail('eth_submitHashrate deprecated in 1.8.22 for ethash_submitHashRate')
-        super().test_eth_submitHashrate(web3)
 
     @pytest.mark.xfail(reason='eth_signTypedData has not been released in geth')
     def test_eth_signTypedData(self,
