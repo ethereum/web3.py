@@ -45,19 +45,41 @@ class GoEthereumAdminModuleTest:
         result = web3.geth.admin.peers()
         assert len(result) == 1
 
-    def test_admin_start_stop_rpc(self, web3: "Web3") -> None:
-        start = web3.geth.admin.start_rpc("localhost", 8545)
-        assert start
-
+    def test_admin_start_stop_rpc_ws(self, web3: "Web3") -> None:
         stop = web3.geth.admin.stop_rpc()
-        assert stop
-
-    def test_admin_start_stop_ws(self, web3: "Web3") -> None:
-        start = web3.geth.admin.start_ws("localhost", 8546)
-        assert start
+        assert stop is True
 
         stop = web3.geth.admin.stop_ws()
-        assert stop
+        assert stop is True
+
+        start = web3.geth.admin.start_rpc()
+        assert start is True
+
+        with pytest.warns(DeprecationWarning):
+            stop = web3.geth.admin.stopRPC()
+            assert stop
+
+        with pytest.warns(DeprecationWarning):
+            start = web3.geth.admin.startRPC()
+            assert start
+
+        stop = web3.geth.admin.stop_rpc()
+        assert stop is True
+
+        # stop = web3.geth.admin.stop_ws()
+        # assert stop
+
+        # start = web3.geth.admin.start_ws('localhost', 8548)
+        # assert start
+
+#         with pytest.warns(DeprecationWarning):
+#             stop = web3.geth.admin.stopWS()
+#             assert stop
+
+#         with pytest.warns(DeprecationWarning):
+#             start = web3.geth.admin.startWS('localhost', 8548)
+#             assert start
+
 
     #
     # Deprecated
@@ -84,34 +106,26 @@ class GoEthereumAdminModuleTest:
             # Test that result gives at least the keys that are listed in `expected`
             assert not set(expected.keys()).difference(result.keys())
 
-    def test_admin_startRPC(self, web3: "Web3") -> None:
-        with pytest.warns(DeprecationWarning):
-            start = web3.geth.admin.startRPC('localhost', 8545)
-            assert start
+    # def test_admin_startRPC(self, web3: "Web3") -> None:
+    #     stop = web3.geth.admin.stop_rpc()
+    #     assert stop is True
 
-        stop = web3.geth.admin.stop_rpc()
-        assert stop
+    #     with pytest.warns(DeprecationWarning):
+    #         start = web3.geth.admin.startRPC('localhost', 8545)
+    #         assert start
 
-    def test_admin_stopRPC(self, web3: "Web3") -> None:
-        start = web3.geth.admin.start_rpc('localhost', 8545)
-        assert start
+    #     stop = web3.geth.admin.stop_rpc()
+    #     assert stop
 
-        with pytest.warns(DeprecationWarning):
-            stop = web3.geth.admin.stopRPC()
-            assert stop
+    # def test_admin_stopRPC(self, web3: "Web3") -> None:
+    #     with pytest.warns(DeprecationWarning):
+    #         stop = web3.geth.admin.stopRPC()
+    #         assert stop
 
-    def test_admin_startWS(self, web3: "Web3") -> None:
-        with pytest.warns(DeprecationWarning):
-            start = web3.geth.admin.startWS('localhost', 8546)
-            assert start
+    # def test_admin_stopWS(self, web3: "Web3") -> None:
+    #     start = web3.geth.admin.start_ws('localhost', 8546)
+    #     assert start
 
-        stop = web3.geth.admin.stop_ws()
-        assert stop
-
-    def test_admin_stopWS(self, web3: "Web3") -> None:
-        start = web3.geth.admin.start_ws('localhost', 8546)
-        assert start
-
-        with pytest.warns(DeprecationWarning):
-            stop = web3.geth.admin.stopWS()
-            assert stop
+    #     with pytest.warns(DeprecationWarning):
+    #         stop = web3.geth.admin.stopWS()
+    #         assert stop

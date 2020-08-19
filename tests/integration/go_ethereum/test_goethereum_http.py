@@ -73,17 +73,17 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
     def test_admin_peers(web3):
         super().test_admin_peers(web3)
 
-    @pytest.mark.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
-    def test_admin_start_stop_rpc(web3):
-        super().test_admin_start_stop_rpc(web3)
+    # @pytest.mark.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+    # def test_admin_start_stop_rpc(web3):
+    #     super().test_admin_start_stop_rpc(web3)
 
-    @pytest.mark.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
-    def test_admin_startRPC(web3):
-        super().test_admin_stopRPC(web3)
+    # @pytest.mark.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+    # def test_admin_startRPC(web3):
+    #     super().test_admin_stopRPC(web3)
 
-    @pytest.mark.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
-    def test_admin_stopRPC(web3):
-        super().test_admin_stopRPC(web3)
+    # @pytest.mark.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+    # def test_admin_stopRPC(web3):
+    #     super().test_admin_stopRPC(web3)
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
