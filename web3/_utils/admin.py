@@ -26,8 +26,8 @@ from web3.types import (
 
 
 def admin_start_params_munger(
-    module: Module, host: str='localhost', port: str='8546', cors: str='', apis: str='eth,net,web3'
-) -> Tuple[str, str, str, str]:
+    module: Module, host: str='localhost', port: int=8546, cors: str='', apis: str='eth,net,web3'
+) -> Tuple[str, int, str, str]:
     return (host, port, cors, apis)
 
 

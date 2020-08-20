@@ -37,9 +37,9 @@ def _geth_command_arguments(ws_port,
     if geth_version.major == 1:
         yield from (
             '--ws',
-            '--wsport', ws_port,
-            '--wsapi', 'admin,db,eth,net,shh,web3,personal,miner',
-            '--wsorigins', '*',
+            '--ws.port', ws_port,
+            '--ws.api', 'admin,eth,net,shh,web3,personal,miner',
+            '--ws.origins', '*',
             '--ipcdisable',
             '--allow-insecure-unlock',
         )
@@ -79,17 +79,9 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
     def test_admin_peers(web3):
         super().test_admin_peers(web3)
 
-    # @pytest.mark.xfail(reason='Only one WebSocket endpoint is allowed to be active at any time')
-    # def test_admin_start_stop_ws(web3):
-    #     super().test_admin_start_stop_ws(web3)
-
-    # @pytest.mark.xfail(reason='Only one WebSocket endpoint is allowed to be active at any time')
-    # def test_admin_startWS(self, web3):
-    #     super().test_admin_startWS(web3)
-
-    # @pytest.mark.xfail(reason='Only one WebSocket endpoint is allowed to be active at any time')
-    # def test_admin_stopWS(self, web3):
-    #     super().test_admin_stopWS(web3)
+    @pytest.mark.xfail(reason='Only one WebSocket endpoint is allowed to be active at any time')
+    def test_admin_start_stop_ws(web3):
+        super().test_admin_start_stop_ws(web3)
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):

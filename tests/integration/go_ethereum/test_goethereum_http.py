@@ -37,7 +37,7 @@ def _geth_command_arguments(rpc_port,
         yield from (
             '--http',
             '--http.port', rpc_port,
-            '--http.api', 'admin,db,eth,net,web3,personal,shh,miner',
+            '--http.api', 'admin,eth,net,web3,personal,shh,miner',
             '--ipcdisable',
             '--allow-insecure-unlock'
         )
@@ -73,17 +73,9 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
     def test_admin_peers(web3):
         super().test_admin_peers(web3)
 
-    # @pytest.mark.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
-    # def test_admin_start_stop_rpc(web3):
-    #     super().test_admin_start_stop_rpc(web3)
-
-    # @pytest.mark.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
-    # def test_admin_startRPC(web3):
-    #     super().test_admin_stopRPC(web3)
-
-    # @pytest.mark.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
-    # def test_admin_stopRPC(web3):
-    #     super().test_admin_stopRPC(web3)
+    @pytest.mark.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+    def test_admin_start_stop_rpc(web3):
+        super().test_admin_start_stop_rpc(web3)
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
