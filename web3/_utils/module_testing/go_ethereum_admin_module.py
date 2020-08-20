@@ -67,7 +67,6 @@ class GoEthereumAdminModuleTest:
             stop = web3.geth.admin.stopWS()
             assert stop
 
-
     #
     # Deprecated
     #
