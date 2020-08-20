@@ -1,5 +1,9 @@
 import pytest
 
+from websockets.exceptions import (
+    ConnectionClosed,
+)
+
 from web3 import Web3
 
 
@@ -9,5 +13,5 @@ class MiscWebsocketTest:
         w3 = Web3(Web3.WebsocketProvider(
             endpoint_uri=endpoint_uri, websocket_kwargs={'max_size': 1})
         )
-        with pytest.raises(OSError, match='Connect call failed'):
+        with pytest.raises((OSError, ConnectionClosed)):
             w3.eth.getBlock(0)
