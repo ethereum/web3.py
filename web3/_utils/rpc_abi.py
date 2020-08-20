@@ -79,7 +79,7 @@ class RPC:
     eth_sign = RPCEndpoint("eth_sign")
     eth_signTransaction = RPCEndpoint("eth_signTransaction")
     eth_signTypedData = RPCEndpoint("eth_signTypedData")
-    eth_submitHashRate = RPCEndpoint("eth_submitHashRate")
+    eth_submitHashrate = RPCEndpoint("eth_submitHashrate")
     eth_submitWork = RPCEndpoint("eth_submitWork")
     eth_syncing = RPCEndpoint("eth_syncing")
     eth_uninstallFilter = RPCEndpoint("eth_uninstallFilter")
@@ -214,7 +214,7 @@ RPC_ABIS = {
     'eth_signTransaction': TRANSACTION_PARAMS_ABIS,
     'eth_sign': ['address', 'bytes'],
     'eth_signTypedData': ['address', None],
-    'eth_submitHashRate': ['uint', 'bytes32'],
+    'eth_submitHashrate': ['uint', 'bytes32'],
     'eth_submitWork': ['bytes8', 'bytes32', 'bytes32'],
     # personal
     'personal_sendTransaction': TRANSACTION_PARAMS_ABIS,

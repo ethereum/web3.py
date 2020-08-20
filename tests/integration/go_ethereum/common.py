@@ -17,6 +17,11 @@ class GoEthereumTest(Web3ModuleTest):
 
 
 class GoEthereumEthModuleTest(EthModuleTest):
+    @pytest.mark.xfail(reason='eth_submitHashrate deprecated in 1.8.22 for ethash_submitHashRate')
+    def test_eth_submitHashrate(self, web3):
+        # https://github.com/ethereum/go-ethereum/commit/51db5975cc5fb88db6a0dba1826b534fd4df29d7
+        super().test_eth_submitHashrate(web3)
+
     def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account_dual_type):
         web3.geth.miner.start()
         super().test_eth_replaceTransaction_already_mined(web3, unlocked_account_dual_type)
