@@ -68,6 +68,10 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
     def test_admin_peers(web3):
         super().test_admin_peers(web3)
 
+    @pytest.mark.xfail(reason="websockets aren't enabled with our IPC flags")
+    def test_admin_start_stop_ws(web3):
+        super().test_admin_start_stop_ws(web3)
+
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
     pass
