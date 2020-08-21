@@ -126,7 +126,7 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     .. Warning:: This method has been removed from Geth
 
-.. py:method:: start_rpc(host='localhost', port='8545', cors="", apis="eth,net,web3")
+.. py:method:: start_rpc(host='localhost', port=8545, cors="", apis="eth,net,web3")
 
     * Delegates to ``admin_startRPC`` RPC Method
 
@@ -141,13 +141,13 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
         True
 
 
-.. py:method:: startRPC(host='localhost', port='8545', cors="", apis="eth,net,web3")
+.. py:method:: startRPC(host='localhost', port=8545, cors="", apis="eth,net,web3")
 
     .. warning:: Deprecated: This method is deprecated in favor of
        :meth:`~web3.geth.admin.start_rpc()`
 
 
-.. py:method:: start_ws(host='localhost', port='8546', cors="", apis="eth,net,web3")
+.. py:method:: start_ws(host='localhost', port=8546, cors="", apis="eth,net,web3")
 
     * Delegates to ``admin_startWS`` RPC Method
 
@@ -162,7 +162,7 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
         True
 
 
-.. py:method:: startWS(host='localhost', port='8546', cors="", apis="eth,net,web3")
+.. py:method:: startWS(host='localhost', port=8546, cors="", apis="eth,net,web3")
 
     .. warning:: Deprecated: This method is deprecated in favor of
        :meth:`~web3.geth.admin.start_ws()`
