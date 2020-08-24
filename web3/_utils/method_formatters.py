@@ -9,7 +9,7 @@ from typing import (
     Union,
 )
 
-from eth_utils.curried import (
+from eth_utils.curried import (  # type: ignore
     apply_formatter_at_index,
     apply_formatter_if,
     apply_formatter_to_array,
