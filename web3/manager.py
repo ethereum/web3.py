@@ -157,9 +157,6 @@ class RequestManager:
         response = self._make_request(method, params)
 
         if "error" in response:
-            if response['error']['code'] == 3:
-                raise SolidityError(response['error']['message'])
-
             apply_error_formatters(error_formatters, response)
             raise ValueError(response["error"])
         elif response['result'] is None:
