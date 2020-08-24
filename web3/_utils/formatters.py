@@ -21,7 +21,7 @@ from eth_utils import (
     to_dict,
     to_list,
 )
-from eth_utils.curried import (
+from eth_utils.curried import (  # type: ignore
     apply_formatter_at_index,
 )
 from eth_utils.toolz import (

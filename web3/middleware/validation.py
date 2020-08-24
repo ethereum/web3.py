@@ -4,7 +4,7 @@ from typing import (
     Callable,
 )
 
-from eth_utils.curried import (
+from eth_utils.curried import (  # type: ignore
     apply_formatter_at_index,
     apply_formatter_if,
     apply_formatters_to_dict,

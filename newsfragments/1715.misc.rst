@@ -1,0 +1,1 @@
+Bump the minimum version of eth-utils to 1.9.3
