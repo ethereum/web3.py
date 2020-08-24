@@ -34,6 +34,10 @@ GENESIS_DATA = {
     "config": {
         "chainId": 131277322940537,  # the string 'web3py' as an integer
         "homesteadBlock": 0,
+        "byzantiumBlock": 0,
+        "constantinopleBlock": 0,
+        "petersburgBlock": 0,
+        "istanbulBlock": 0,
         "eip150Block": 0,
         "eip155Block": 0,
         "eip158Block": 0,
@@ -213,7 +217,7 @@ def mine_block(web3):
 def mine_transaction_hash(web3, txn_hash):
     start_time = time.time()
     web3.geth.miner.start(1)
-    while time.time() < start_time + 120:
+    while time.time() < start_time + 240:
         try:
             receipt = web3.eth.getTransactionReceipt(txn_hash)
         except TransactionNotFound:
