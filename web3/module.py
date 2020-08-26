@@ -3,6 +3,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Optional,
     Sequence,
     Union,
 )
