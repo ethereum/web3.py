@@ -6,7 +6,6 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     Sequence,
-    Union,
     cast,
 )
 
@@ -630,7 +629,7 @@ class EthModuleTest:
     def test_eth_sendRawTransaction(
         self,
         web3: "Web3",
-        raw_transaction: Union[HexStr, bytes],
+        raw_transaction: HexStr,
         funded_account_for_raw_txn: ChecksumAddress,
         expected_hash: HexStr,
     ) -> None:

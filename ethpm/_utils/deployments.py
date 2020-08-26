@@ -6,6 +6,9 @@ from typing import (
     Tuple,
 )
 
+from eth_typing import (
+    HexStr,
+)
 from eth_utils import (
     is_same_address,
     to_bytes,
@@ -13,9 +16,6 @@ from eth_utils import (
 )
 from eth_utils.toolz import (
     get_in,
-)
-from hexbytes import (
-    HexBytes,
 )
 
 from ethpm.exceptions import (
@@ -47,7 +47,7 @@ def get_linked_deployments(deployments: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def validate_linked_references(
-    link_deps: Tuple[Tuple[int, bytes], ...], bytecode: HexBytes
+    link_deps: Tuple[Tuple[int, bytes], ...], bytecode: HexStr
 ) -> None:
     """
     Validates that normalized linked_references (offset, expected_bytes)
