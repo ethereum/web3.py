@@ -21,6 +21,7 @@ from eth_utils.curried import (
     apply_formatters_to_dict,
     apply_formatters_to_sequence,
     apply_one_of_formatters,
+    is_0x_prefixed,
     is_address,
     is_bytes,
     is_dict,
@@ -31,6 +32,7 @@ from eth_utils.curried import (
     text_if_str,
     to_checksum_address,
     to_list,
+    to_text,
     to_tuple,
 )
 from eth_utils.toolz import (
@@ -455,7 +457,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_hashrate: to_integer_if_hex,
     RPC.eth_protocolVersion: compose(
         apply_formatter_if(is_integer, str),
-        to_integer_if_hex,
+        apply_formatter_if(is_0x_prefixed, to_integer_if_hex),
     ),
     RPC.eth_sendRawTransaction: to_hexbytes(32),
     RPC.eth_sendTransaction: to_hexbytes(32),
