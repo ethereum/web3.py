@@ -14,7 +14,7 @@ from typing import (
 from eth_typing import (
     HexStr,
 )
-from eth_utils.curried import (
+from eth_utils.curried import (  # type: ignore
     apply_formatter_at_index,
     apply_formatter_if,
     apply_formatter_to_array,
@@ -32,7 +32,6 @@ from eth_utils.curried import (
     text_if_str,
     to_checksum_address,
     to_list,
-    to_text,
     to_tuple,
 )
 from eth_utils.toolz import (
