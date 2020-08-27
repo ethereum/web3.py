@@ -156,8 +156,8 @@ def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
 
 
 def is_ordinary_string(value: Any) -> bool:
-    return (is_string(value) and not is_bytes(value)
-        and not is_checksum_address(value) and not is_hex_address(value))
+    return (is_string(value) and not is_bytes(value) and not
+            is_checksum_address(value) and not is_hex_address(value))
 
 
 def validate_address(value: Any) -> None:
