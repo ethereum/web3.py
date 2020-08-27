@@ -91,8 +91,10 @@ def bytes_to_ascii(value: bytes) -> str:
 
 to_ascii_if_bytes = apply_formatter_if(is_bytes, bytes_to_ascii)
 to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
+# block_number_formatter and to_hex_if_integer are the same method.
+# However, to_hex_if_integer was added to be used for an arg that
+# isn't a block number
 to_hex_if_integer = apply_formatter_if(is_integer, integer_to_hex)
-# TODO - this is the same as the hex_if_int method above
 block_number_formatter = apply_formatter_if(is_integer, integer_to_hex)
 
 
