@@ -48,8 +48,8 @@ from web3._utils.abi import (
     length_of_array_type,
     sub_type_of_array_type,
 )
-from web3._utils.ens import (
-    is_theoretically_valid_domain,
+from ens.utils import (
+    is_valid_domain,
 )
 from web3.exceptions import (
     InvalidAddress,
@@ -155,24 +155,27 @@ def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
     )
 
 
+def is_ordinary_string(value: Any) -> bool:
+    return is_string(value) and not is_bytes(value) and not is_checksum_address(value) and not is_hex_address(value)
+
+
 def validate_address(value: Any) -> None:
     """
     Helper function for validating an address
     """
-    if (is_string(value) and not is_bytes(value) and
-            not is_checksum_address(value) and not is_hex_address(value)):
-
-        if not is_theoretically_valid_domain(value):
-            # TODO - better error msg
-            raise InvalidAddress("Address needs to have a TLD", value)
+    if is_ordinary_string(value):
+        if not is_valid_domain(value):
+            raise InvalidAddress("Address needs to be a full domain name including a TLD", value)
         return
-    # TODO - make sure this b'' gets validated elsewhere
+    # buildTransaction fills in the 'to' field with an empty
+    # bytestring if no address is provided.
     if value == b'':
         return
     if is_bytes(value):
         if not is_binary_address(value):
             raise InvalidAddress("Address must be 20 bytes when input type is bytes", value)
         return
+
     if not isinstance(value, str):
         raise TypeError('Address {} must be provided as a string'.format(value))
     if not is_hex_address(value):

@@ -462,7 +462,7 @@ class Eth(ModuleV2):
         mungers=[estimate_gas_munger],
     )
 
-    # TODO
+    # TODO - Change to use Method
     def filter(
         self, filter_params: Optional[Union[str, FilterParams]]=None, filter_id: HexStr=None
     ) -> Filter:
