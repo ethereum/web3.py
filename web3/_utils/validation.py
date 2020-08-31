@@ -21,7 +21,7 @@ from eth_utils import (
     is_list_like,
     is_string,
 )
-from eth_utils.curried import (  # type: ignore
+from eth_utils.curried import (
     apply_formatter_to_array,
 )
 from eth_utils.hexadecimal import (

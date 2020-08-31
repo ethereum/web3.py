@@ -15,7 +15,7 @@ from typing import (
 )
 import warnings
 
-from eth_utils.curried import (  # type: ignore
+from eth_utils.curried import (
     to_tuple,
 )
 from eth_utils.toolz import (
