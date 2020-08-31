@@ -7,7 +7,7 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        "eth-tester[py-evm]==v0.5.0-beta.1",
+        "eth-tester[py-evm]==v0.5.0-beta.2",
         "py-geth>=2.4.0,<3",
     ],
     'linter': [
@@ -70,7 +70,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "eth-abi>=2.0.0b6,<3.0.0",
-        "eth-account>=0.5.2,<0.6.0",
+        "eth-account>=0.5.3,<0.6.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
         "eth-typing>=2.0.0,<3.0.0",
         "eth-utils>=1.9.3,<2.0.0",
