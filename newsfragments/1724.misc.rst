@@ -1,2 +1,0 @@
-Upgrade eth-tester to v0.5.0-beta.2 and eth-account to v0.5.3. These both support the latest pyrlp,
-which has a performance bump.
