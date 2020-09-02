@@ -6,10 +6,11 @@ from typing import (
     Collection,
     Dict,
     Iterable,
+    Tuple,
     Union,
 )
 
-from eth_utils.curried import (  # type: ignore
+from eth_utils.curried import (
     apply_formatter_at_index,
     apply_formatter_if,
     apply_formatter_to_array,
@@ -299,7 +300,12 @@ transaction_param_formatter = compose(
 )
 
 
+estimate_gas_without_block_id: Callable[[Dict[str, Any]], Dict[str, Any]]
 estimate_gas_without_block_id = apply_formatter_at_index(transaction_param_formatter, 0)
+estimate_gas_with_block_id: Callable[
+    [Tuple[Dict[str, Any], Union[str, int]]],
+    Tuple[Dict[str, Any], int]
+]
 estimate_gas_with_block_id = apply_formatters_to_sequence([
     transaction_param_formatter,
     block_number_formatter,

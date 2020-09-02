@@ -1,4 +1,4 @@
-from eth_utils.curried import (  # type: ignore
+from eth_utils.curried import (
     apply_formatters_to_dict,
     apply_key_map,
 )

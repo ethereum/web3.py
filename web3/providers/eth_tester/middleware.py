@@ -13,7 +13,7 @@ from eth_utils import (
     is_hex,
     is_string,
 )
-from eth_utils.curried import (  # type: ignore
+from eth_utils.curried import (
     apply_formatter_if,
     apply_formatters_to_dict,
 )
