@@ -49,26 +49,31 @@ class GoEthereumAdminModuleTest:
         stop = web3.geth.admin.stop_rpc()
         assert stop is True
 
-        start = web3.geth.admin.start_rpc('localhost', 8548)
+        start = web3.geth.admin.start_rpc()
         assert start is True
 
         with pytest.warns(DeprecationWarning):
             stop = web3.geth.admin.stopRPC()
             assert stop is True
 
-        start = web3.geth.admin.startRPC()
-        assert start is True
+        with pytest.warns(DeprecationWarning):
+            start = web3.geth.admin.startRPC()
+            assert start is True
 
     def test_admin_start_stop_ws(self, web3: "Web3") -> None:
         stop = web3.geth.admin.stop_ws()
         assert stop is True
 
-        start = web3.geth.admin.start_ws('localhost', 8548)
+        start = web3.geth.admin.start_ws()
         assert start is True
 
         with pytest.warns(DeprecationWarning):
             stop = web3.geth.admin.stopWS()
             assert stop is True
+
+        with pytest.warns(DeprecationWarning):
+            start = web3.geth.admin.startWS()
+            assert start is True
 
     #
     # Deprecated

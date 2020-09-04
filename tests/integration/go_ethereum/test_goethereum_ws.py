@@ -76,11 +76,16 @@ class TestGoEthereumTest(GoEthereumTest):
 
 class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
     @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
-    def test_admin_peers(web3):
+    def test_admin_peers(self, web3: "Web3") -> None:
         super().test_admin_peers(web3)
 
-    @pytest.mark.xfail(reason='Only one WebSocket endpoint is allowed to be active at any time')
-    def test_admin_start_stop_ws(web3):
+    def test_admin_start_stop_ws(self, web3: "Web3") -> None:
+        # This test inconsistently causes all tests after it to fail on CI if it's allowed to run
+        pytest.xfail(reason='Only one WebSocket endpoint is allowed to be active at any time')
+        super().test_admin_start_stop_ws(web3)
+
+    def test_admin_start_stop_rpc(self, web3: "Web3") -> None:
+        pytest.xfail(reason="This test inconsistently causes all tests after it on CI to fail if it's allowed to run")  # noqa: E501
         super().test_admin_start_stop_ws(web3)
 
 
