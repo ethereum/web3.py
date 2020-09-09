@@ -202,17 +202,6 @@ class Eth(ModuleV2, Module):
     def chainId(self) -> int:
         return self.web3.manager.request_blocking(RPC.eth_chainId, [])
 
-    def getBalance(
-        self, account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> Wei:
-        if block_identifier is None:
-            block_identifier = self.defaultBlock
-        return self.web3.manager.request_blocking(
-            RPC.eth_getBalance,
-            [account, block_identifier],
-        )
-
     def block_identifier_munger(
         self,
         *args: Any,
@@ -221,6 +210,11 @@ class Eth(ModuleV2, Module):
         if block_identifier is None:
             block_identifier = self.defaultBlock
         return [*args, block_identifier]
+
+    getBalance: Method[Callable[..., Wei]] = Method(
+        RPC.eth_getBalance,
+        mungers=[block_identifier_munger]
+    )
 
     getStorageAt: Method[
         Callable[..., HexBytes]
@@ -239,16 +233,10 @@ class Eth(ModuleV2, Module):
         mungers=[block_identifier_munger],
     )
 
-    def getCode(
-        self, account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> HexBytes:
-        if block_identifier is None:
-            block_identifier = self.defaultBlock
-        return self.web3.manager.request_blocking(
-            RPC.eth_getCode,
-            [account, block_identifier],
-        )
+    getCode: Method[Callable[..., HexBytes]] = Method(
+        RPC.eth_getCode,
+        mungers=[block_identifier_munger]
+    )
 
     def getBlock(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
