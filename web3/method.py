@@ -39,7 +39,7 @@ if TYPE_CHECKING:
         ModuleV2,
     )
 
-Munger = Callable[[Union["Module", "ModuleV2"], Any], Any]
+Munger = Callable[..., Any]
 
 
 @to_tuple
@@ -160,7 +160,7 @@ class Method(Generic[TFunc]):
         mungers_iter = iter(self.mungers)
         root_munger = next(mungers_iter)
         munged_inputs = pipe(
-            root_munger(module, *args, **kwargs),  # type: ignore
+            root_munger(module, *args, **kwargs),
             *map(lambda m: _munger_star_apply(functools.partial(m, module)), mungers_iter))
 
         return munged_inputs

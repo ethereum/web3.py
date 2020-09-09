@@ -1,6 +1,6 @@
 from typing import (
     Any,
-    Dict,
+    Callable,
     List,
     NoReturn,
     Optional,
@@ -79,8 +79,13 @@ from web3.exceptions import (
 from web3.iban import (
     Iban,
 )
+from web3.method import (
+    Method,
+    default_root_munger,
+)
 from web3.module import (
     Module,
+    ModuleV2,
 )
 from web3.types import (
     ENS,
@@ -102,7 +107,7 @@ from web3.types import (
 )
 
 
-class Eth(Module):
+class Eth(ModuleV2, Module):
     account = Account()
     defaultAccount = empty
     defaultBlock: Literal["latest"] = "latest"  # noqa: E704
@@ -116,37 +121,82 @@ class Eth(Module):
     def icapNamereg(self) -> NoReturn:
         raise NotImplementedError()
 
+    protocol_version: Method[Callable[[], str]] = Method(
+        RPC.eth_protocolVersion,
+        mungers=None,
+    )
+
     @property
     def protocolVersion(self) -> str:
-        return self.web3.manager.request_blocking(RPC.eth_protocolVersion, [])
+        return self.protocol_version()
+
+    is_syncing: Method[Callable[[], Union[SyncStatus, bool]]] = Method(
+        RPC.eth_syncing,
+        mungers=None,
+    )
 
     @property
     def syncing(self) -> Union[SyncStatus, bool]:
-        return self.web3.manager.request_blocking(RPC.eth_syncing, [])
+        return self.is_syncing()
+
+    get_coinbase: Method[Callable[[], ChecksumAddress]] = Method(
+        RPC.eth_coinbase,
+        mungers=None,
+    )
 
     @property
     def coinbase(self) -> ChecksumAddress:
-        return self.web3.manager.request_blocking(RPC.eth_coinbase, [])
+        return self.get_coinbase()
+
+    is_mining: Method[Callable[[], bool]] = Method(
+        RPC.eth_mining,
+        mungers=None,
+    )
 
     @property
     def mining(self) -> bool:
-        return self.web3.manager.request_blocking(RPC.eth_mining, [])
+        return self.is_mining()
+
+    get_hashrate: Method[Callable[[], int]] = Method(
+        RPC.eth_hashrate,
+        mungers=None,
+    )
 
     @property
     def hashrate(self) -> int:
-        return self.web3.manager.request_blocking(RPC.eth_hashrate, [])
+        return self.get_hashrate()
+
+    gas_price: Method[Callable[[], Wei]] = Method(
+        RPC.eth_gasPrice,
+        mungers=None,
+    )
 
     @property
     def gasPrice(self) -> Wei:
-        return self.web3.manager.request_blocking(RPC.eth_gasPrice, [])
+        return self.gas_price()
+
+    get_accounts: Method[Callable[[], Tuple[ChecksumAddress]]] = Method(
+        RPC.eth_accounts,
+        mungers=None,
+    )
 
     @property
     def accounts(self) -> Tuple[ChecksumAddress]:
-        return self.web3.manager.request_blocking(RPC.eth_accounts, [])
+        return self.get_accounts()
+
+    block_number: Method[Callable[[], BlockNumber]] = Method(
+        RPC.eth_blockNumber,
+        mungers=None,
+    )
 
     @property
     def blockNumber(self) -> BlockNumber:
-        return self.web3.manager.request_blocking(RPC.eth_blockNumber, [])
+        return self.block_number()
+
+    chain_id: Method[Callable[[], int]] = Method(
+        RPC.eth_chainId,
+        mungers=None,
+    )
 
     @property
     def chainId(self) -> int:
@@ -163,31 +213,31 @@ class Eth(Module):
             [account, block_identifier],
         )
 
-    def getStorageAt(
+    def block_identifier_munger(
         self,
-        account: Union[Address, ChecksumAddress, ENS],
-        position: int,
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> bytes:
+        *args: Any,
+        block_identifier: BlockIdentifier=None
+    ) -> List[Any]:
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return self.web3.manager.request_blocking(
-            RPC.eth_getStorageAt,
-            [account, position, block_identifier]
-        )
+        return [*args, block_identifier]
 
-    def getProof(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        positions: Sequence[int],
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> MerkleProof:
-        if block_identifier is None:
-            block_identifier = self.defaultBlock
-        return self.web3.manager.request_blocking(
-            RPC.eth_getProof,
-            [account, positions, block_identifier]
-        )
+    getStorageAt: Method[
+        Callable[..., HexBytes]
+    ] = Method(
+        RPC.eth_getStorageAt,
+        mungers=[block_identifier_munger],
+    )
+
+    getProof: Method[
+        Callable[
+            [Tuple[ChecksumAddress, Sequence[int], Optional[BlockIdentifier]]],
+            MerkleProof
+        ]
+    ] = Method(
+        RPC.eth_getProof,
+        mungers=[block_identifier_munger],
+    )
 
     def getCode(
         self, account: Union[Address, ChecksumAddress, ENS],
@@ -345,16 +395,10 @@ class Eth(Module):
             raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
         return result
 
-    def getTransactionCount(
-        self, account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> Nonce:
-        if block_identifier is None:
-            block_identifier = self.defaultBlock
-        return self.web3.manager.request_blocking(
-            RPC.eth_getTransactionCount,
-            [account, block_identifier],
-        )
+    getTransactionCount: Method[Callable[..., Nonce]] = Method(
+        RPC.eth_getTransactionCount,
+        mungers=[block_identifier_munger],
+    )
 
     def replaceTransaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
         current_transaction = get_required_transaction(self.web3, transaction_hash)
@@ -389,35 +433,35 @@ class Eth(Module):
             [transaction],
         )
 
-    def sendRawTransaction(self, raw_transaction: Union[HexStr, bytes]) -> HexBytes:
-        return self.web3.manager.request_blocking(
-            RPC.eth_sendRawTransaction,
-            [raw_transaction],
-        )
+    sendRawTransaction: Method[Callable[[Union[HexStr, bytes]], HexBytes]] = Method(
+        RPC.eth_sendRawTransaction,
+        mungers=[default_root_munger],
+    )
 
-    def sign(
+    def sign_munger(
         self,
         account: Union[Address, ChecksumAddress, ENS],
-        data: Optional[Union[int, bytes]] = None,
-        hexstr: Optional[HexStr] = None,
-        text: Optional[str] = None
-    ) -> HexStr:
+        data: Union[int, bytes]=None,
+        hexstr: HexStr=None,
+        text: str=None
+    ) -> Tuple[Union[Address, ChecksumAddress, ENS], HexStr]:
         message_hex = to_hex(data, hexstr=hexstr, text=text)
-        return self.web3.manager.request_blocking(
-            RPC.eth_sign, [account, message_hex],
-        )
+        return (account, message_hex)
 
-    def signTransaction(self, transaction: TxParams) -> SignedTx:
-        return self.web3.manager.request_blocking(
-            RPC.eth_signTransaction, [transaction],
-        )
+    sign: Method[Callable[..., HexStr]] = Method(
+        RPC.eth_sign,
+        mungers=[sign_munger],
+    )
 
-    def signTypedData(
-        self, account: Union[Address, ChecksumAddress, ENS], jsonMessage: Dict[Any, Any]
-    ) -> HexStr:
-        return self.web3.manager.request_blocking(
-            RPC.eth_signTypedData, [account, jsonMessage],
-        )
+    signTransaction: Method[Callable[[TxParams], SignedTx]] = Method(
+        RPC.eth_signTransaction,
+        mungers=[default_root_munger],
+    )
+
+    signTypedData: Method[Callable[..., HexStr]] = Method(
+        RPC.eth_signTypedData,
+        mungers=[default_root_munger],
+    )
 
     @apply_to_return_value(HexBytes)
     def call(self, transaction: TxParams,
@@ -503,20 +547,20 @@ class Eth(Module):
             RPC.eth_getLogs, [filter_params],
         )
 
-    def submitHashrate(self, hashrate: int, node_id: _Hash32) -> bool:
-        return self.web3.manager.request_blocking(
-            RPC.eth_submitHashrate, [hashrate, node_id],
-        )
+    submitHashrate: Method[Callable[[int, _Hash32], bool]] = Method(
+        RPC.eth_submitHashrate,
+        mungers=[default_root_munger],
+    )
 
-    def submitWork(self, nonce: int, pow_hash: _Hash32, mix_digest: _Hash32) -> bool:
-        return self.web3.manager.request_blocking(
-            RPC.eth_submitWork, [nonce, pow_hash, mix_digest],
-        )
+    submitWork: Method[Callable[[int, _Hash32, _Hash32], bool]] = Method(
+        RPC.eth_submitWork,
+        mungers=[default_root_munger],
+    )
 
-    def uninstallFilter(self, filter_id: HexStr) -> bool:
-        return self.web3.manager.request_blocking(
-            RPC.eth_uninstallFilter, [filter_id],
-        )
+    uninstallFilter: Method[Callable[[HexStr], bool]] = Method(
+        RPC.eth_uninstallFilter,
+        mungers=[default_root_munger],
+    )
 
     @overload
     def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
@@ -544,8 +588,10 @@ class Eth(Module):
     def getCompilers(self) -> NoReturn:
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
-    def getWork(self) -> List[HexBytes]:
-        return self.web3.manager.request_blocking(RPC.eth_getWork, [])
+    getWork: Method[Callable[[], List[HexBytes]]] = Method(
+        RPC.eth_getWork,
+        mungers=None,
+    )
 
     def generateGasPrice(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
         if self.gasPriceStrategy:

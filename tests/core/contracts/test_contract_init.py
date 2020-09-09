@@ -61,12 +61,12 @@ def test_contract_with_name_address_changing(MathContract, math_addr):
     caller = mc.web3.eth.coinbase
     assert mc.address == 'thedao.eth'
 
-    # what happen when name returns no address at all
+    # what happens when name returns no address at all
     with contract_ens_addresses(mc, []):
         with pytest.raises(NameNotFound):
             mc.functions.return13().call({'from': caller})
 
-    # what happen when name returns address to different contract
+    # what happens when name returns address to different contract
     with contract_ens_addresses(mc, [('thedao.eth', '0x' + '11' * 20)]):
         with pytest.raises(BadFunctionCallOutput):
             mc.functions.return13().call({'from': caller})
