@@ -52,6 +52,9 @@ from web3._utils.filters import (
     LogFilter,
     TransactionFilter,
 )
+from web3._utils.normalizers import (
+    abi_ens_resolver,
+)
 from web3._utils.rpc_abi import (
     RPC,
 )
@@ -211,9 +214,19 @@ class Eth(ModuleV2, Module):
             block_identifier = self.defaultBlock
         return [*args, block_identifier]
 
+    def address_resolver_munger(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        block_identifier: Optional[BlockIdentifier]=None
+    ) -> Tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
+        resolved_addr = abi_ens_resolver(self.web3, 'address', account)[1]
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
+        return (resolved_addr, block_identifier)
+
     getBalance: Method[Callable[..., Wei]] = Method(
         RPC.eth_getBalance,
-        mungers=[block_identifier_munger]
+        mungers=[address_resolver_munger],
     )
 
     getStorageAt: Method[
@@ -235,7 +248,7 @@ class Eth(ModuleV2, Module):
 
     getCode: Method[Callable[..., HexBytes]] = Method(
         RPC.eth_getCode,
-        mungers=[block_identifier_munger]
+        mungers=[address_resolver_munger]
     )
 
     def getBlock(

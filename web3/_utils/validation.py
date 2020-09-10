@@ -34,9 +34,6 @@ from eth_utils.toolz import (
     valmap,
 )
 
-from ens.utils import (
-    is_valid_domain,
-)
 from web3._utils.abi import (
     abi_to_signature,
     filter_by_type,
@@ -155,19 +152,10 @@ def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
     )
 
 
-def is_non_address_string(value: str) -> bool:
-    return (is_string(value) and not is_bytes(value) and not
-            is_checksum_address(value) and not is_hex_address(value))
-
-
 def validate_address(value: Any) -> None:
     """
     Helper function for validating an address
     """
-    if is_non_address_string(value):
-        if not is_valid_domain(value):
-            raise InvalidAddress("Address needs to be a full domain name including a TLD", value)
-        return
     if is_bytes(value):
         if not is_binary_address(value):
             raise InvalidAddress("Address must be 20 bytes when input type is bytes", value)

@@ -212,13 +212,3 @@ def assert_signer_in_modifier_kwargs(modifier_kwargs: Any) -> ChecksumAddress:
 
 def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress]) -> bool:
     return not addr or addr == EMPTY_ADDR_HEX
-
-
-def is_valid_domain(domain: str) -> bool:
-    split_domain = domain.split('.')
-    if len(split_domain) == 1:
-        return False
-    for name in split_domain:
-        if not is_valid_name(name):
-            return False
-    return True
