@@ -24,7 +24,7 @@ Install all development dependencies:
 
 .. code:: sh
 
-    $ pip install -e .[dev]
+    $ pip install -e '.[dev]'
 
 
 Using Docker
