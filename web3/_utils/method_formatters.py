@@ -6,6 +6,7 @@ from typing import (
     Collection,
     Dict,
     Iterable,
+    NoReturn,
     Tuple,
     Union,
 )
@@ -71,10 +72,9 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     BlockNotFound,
-    # TimeExhausted,
-    # TransactionNotFound,
 )
 from web3.types import (
+    BlockIdentifier,
     RPCEndpoint,
     TReturn,
 )
@@ -500,7 +500,7 @@ def get_request_formatters(
     return compose(*formatters)
 
 
-def raise_block_not_found(params):
+def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
     block_identifier = params[0]
     raise BlockNotFound(f"Block with id: {block_identifier} not found.")
 
@@ -514,14 +514,13 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 def get_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Dict[str, Callable[..., Any]]:
-    formatters = combine_formatters((
-            PYTHONIC_RESULT_FORMATTERS,
-        ),
+    formatters = combine_formatters(
+        (PYTHONIC_RESULT_FORMATTERS,),
         method_name
     )
     attrdict_formatter = apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
 
-    return compose(*formatters, attrdict_formatter)
+    return compose(attrdict_formatter, *formatters)
 
 
 def get_error_formatters(

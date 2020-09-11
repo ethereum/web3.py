@@ -11,7 +11,7 @@ from eth_utils import (
     remove_0x_prefix,
 )
 from eth_utils.toolz import (
-    curry
+    curry,
 )
 
 from web3.types import (

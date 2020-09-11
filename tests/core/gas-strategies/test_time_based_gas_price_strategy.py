@@ -19,8 +19,7 @@ def _get_block_by_something(method, params):
     block_identifier = params[0]
     if (
         block_identifier == 'latest' or
-        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000005' or
-        block_identifier == 5
+        block_identifier == '0x5'
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000005',
@@ -35,12 +34,12 @@ def _get_block_by_something(method, params):
                 {'gasPrice': 5},
                 {'gasPrice': 50},
             ],
-            'miner': '0xA',
+            'miner': '0x' + 'AA' * 20,
             'timestamp': 120,
         }
     elif (
         block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000004' or
-        block_identifier == 4
+        block_identifier == '0x4'
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000004',
@@ -51,12 +50,12 @@ def _get_block_by_something(method, params):
                 {'gasPrice': 80},
                 {'gasPrice': 60},
             ],
-            'miner': '0xB',
+            'miner': '0x' + 'BB' * 20,
             'timestamp': 90,
         }
     elif (
         block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000003' or
-        block_identifier == 3
+        block_identifier == '0x3'
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000003',
@@ -65,12 +64,12 @@ def _get_block_by_something(method, params):
             'transactions': [
                 {'gasPrice': 100},
             ],
-            'miner': '0xC',
+            'miner': '0x' + 'Cc' * 20,
             'timestamp': 60,
         }
     elif (
         block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000002' or
-        block_identifier == 2
+        block_identifier == '0x2'
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000002',
@@ -78,12 +77,12 @@ def _get_block_by_something(method, params):
             'parentHash': '0x0000000000000000000000000000000000000000000000000000000000000001',
             'transactions': [
             ],
-            'miner': '0xB',
+            'miner': '0x' + 'Bb' * 20,
             'timestamp': 30,
         }
     elif (
         block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000001' or
-        block_identifier == 1
+        block_identifier == '0x1'
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -94,12 +93,11 @@ def _get_block_by_something(method, params):
                 {'gasPrice': 35},
                 {'gasPrice': 65},
             ],
-            'miner': '0xA',
+            'miner': '0x' + 'Aa' * 20,
             'timestamp': 15,
         }
     elif (
-        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000000' or
-        block_identifier == 0
+        block_identifier == '0x0'
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -119,7 +117,7 @@ def _get_block_by_something(method, params):
                 {'gasPrice': 54},
                 {'gasPrice': 10000000000000000000000},
             ],
-            'miner': '0xA',
+            'miner': '0x' + 'Aa' * 20,
             'timestamp': 0,
         }
     else:

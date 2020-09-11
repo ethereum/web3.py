@@ -61,7 +61,7 @@ def apply_error_formatters(
     if 'error' in response and error_formatters:
         formatted_response = pipe(response, error_formatters)
         return formatted_response
-    elif response['result'] is None and error_formatters:
+    elif 'result' in response.keys() and response['result'] is None and error_formatters:
         formatted_response = pipe(params, error_formatters)
         return formatted_response
     else:
