@@ -54,10 +54,15 @@ if TYPE_CHECKING:
 
 
 def apply_error_formatters(
-    error_formatters: Callable[..., Any], response: RPCResponse
+    error_formatters: Callable[..., Any],
+    response: Optional[RPCResponse]=None,
+    params: Optional[Any]=None,
 ) -> RPCResponse:
     if 'error' in response and error_formatters:
         formatted_response = pipe(response, error_formatters)
+        return formatted_response
+    elif response['result'] is None and error_formatters:
+        formatted_response = pipe(params, error_formatters)
         return formatted_response
     else:
         return response
@@ -151,6 +156,8 @@ class RequestManager:
         if "error" in response:
             apply_error_formatters(error_formatters, response)
             raise ValueError(response["error"])
+        elif response['result'] is None:
+            apply_error_formatters(error_formatters, response, params)
 
         return response['result']
 
