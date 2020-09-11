@@ -119,6 +119,7 @@ class Method(Generic[TFunc]):
             request_formatters: Optional[Callable[..., TReturn]] = None,
             result_formatters: Optional[Callable[..., TReturn]] = None,
             error_formatters: Optional[Callable[..., TReturn]] = None,
+            method_choice_depends_on_args: Optional[Callable[..., str]] = None,
             web3: Optional["Web3"] = None):
 
         self.json_rpc_method = json_rpc_method
@@ -126,6 +127,7 @@ class Method(Generic[TFunc]):
         self.request_formatters = request_formatters or get_request_formatters
         self.result_formatters = result_formatters or get_result_formatters
         self.error_formatters = get_error_formatters
+        self.method_choice_depends_on_args = method_choice_depends_on_args
 
     def __get__(self, obj: Optional["ModuleV2"] = None,
                 obj_type: Optional[Type["ModuleV2"]] = None) -> TFunc:
@@ -169,6 +171,11 @@ class Method(Generic[TFunc]):
         self, module: Union["Module", "ModuleV2"], *args: Any, **kwargs: Any
     ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., Any]], Any], Tuple[Any, Any]]:
         params = self.input_munger(module, args, kwargs)
+        # block_identifier is always the first argument passed in for methods where
+        # method_choice_depends_on_args is called.
+        if self.method_choice_depends_on_args:
+            block_identifier = args[0]
+            self.json_rpc_method = self.method_choice_depends_on_args(value=block_identifier)
         method = self.method_selector_fn()
         response_formatters = (self.result_formatters(method), self.error_formatters(method))
 

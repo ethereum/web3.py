@@ -69,6 +69,11 @@ from web3._utils.rpc_abi import (
 from web3.datastructures import (
     AttributeDict,
 )
+from web3.exceptions import (
+    BlockNotFound,
+    # TimeExhausted,
+    # TransactionNotFound,
+)
 from web3.types import (
     RPCEndpoint,
     TReturn,
@@ -495,11 +500,23 @@ def get_request_formatters(
     return compose(*formatters)
 
 
+def raise_block_not_found(params):
+    block_identifier = params[0]
+    raise BlockNotFound(f"Block with id: {block_identifier} not found.")
+
+
+NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+    RPC.eth_getBlockByNumber: raise_block_not_found,
+    RPC.eth_getBlockByHash: raise_block_not_found,
+}
+
+
 def get_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Dict[str, Callable[..., Any]]:
-    formatters = combine_formatters(
-        (PYTHONIC_RESULT_FORMATTERS,),
+    formatters = combine_formatters((
+            PYTHONIC_RESULT_FORMATTERS,
+        ),
         method_name
     )
     attrdict_formatter = apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
@@ -511,8 +528,7 @@ def get_error_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Dict[str, Callable[..., Any]]:
     #  Note error formatters work on the full response dict
-    # TODO - test this function
-    error_formatter_maps = ()
+    error_formatter_maps = (NULL_RESULT_FORMATTERS,)
     formatters = combine_formatters(error_formatter_maps, method_name)
 
     return compose(*formatters)
