@@ -251,28 +251,6 @@ class Eth(ModuleV2, Module):
         mungers=[address_resolver_munger]
     )
 
-    # def getBlock(
-    #     self, block_identifier: BlockIdentifier, full_transactions: bool = False
-    # ) -> BlockData:
-    #     """
-    #     `eth_getBlockByHash`
-    #     `eth_getBlockByNumber`
-    #     """
-    #     method = select_method_for_block_identifier(
-    #         block_identifier,
-    #         if_predefined=RPC.eth_getBlockByNumber,
-    #         if_hash=RPC.eth_getBlockByHash,
-    #         if_number=RPC.eth_getBlockByNumber,
-    #     )
-
-    #     result = self.web3.manager.request_blocking(
-    #         method,
-    #         [block_identifier, full_transactions],
-    #     )
-    #     if result is None:
-    #         raise BlockNotFound(f"Block with id: {block_identifier} not found.")
-    #     return result
-
     def get_block_munger(
         self, block_identifier: BlockIdentifier, full_transactions: bool=False
     ) -> Tuple[BlockIdentifier, bool]:

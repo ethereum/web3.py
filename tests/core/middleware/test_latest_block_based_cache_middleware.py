@@ -81,9 +81,13 @@ def construct_block_data_middleware():
                 return blocks[head_block_number + 1]
             elif block_id == 'earliest':
                 return blocks[0]
-            elif is_integer(block_id) or is_hex(block_id):
-                if is_hex(block_id):
-                    block_id = hex_to_integer(block_id)
+            elif is_integer(block_id):
+                if block_id <= head_block_number:
+                    return blocks[block_id]
+                else:
+                    return None
+            elif is_hex(block_id):
+                block_id = hex_to_integer(block_id)
                 if block_id <= head_block_number:
                     return blocks[block_id]
                 else:
