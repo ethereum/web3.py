@@ -119,12 +119,6 @@ setting the middlewares the provider should use.
     if the socket is closed.
 
 
-If a provider is unable to respond to certain RPC calls it should raise the
-``web3.exceptions.CannotHandleRequest`` exception.  When this happens, the
-request is issued to the next configured provider.  If no providers are able to
-handle the request then a ``web3.exceptions.UnhandledRequest`` error will be
-raised.
-
 .. py:attribute:: BaseProvider.middlewares
 
     This should be an iterable of middlewares.

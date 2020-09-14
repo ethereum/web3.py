@@ -97,10 +97,6 @@ Note that this requires your Infura Project ID to be set as the environment vari
 
     $ export WEB3_INFURA_PROJECT_ID=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-.. NOTE:: If you get the result ``UnhandledRequest: No providers responded to the RPC request``
-    then you are not connected to a node. See :ref:`why_need_connection` and
-    :ref:`choosing_provider`
-
 .. _first_w3_use:
 
 Getting Blockchain Info
