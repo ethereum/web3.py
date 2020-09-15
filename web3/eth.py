@@ -283,24 +283,37 @@ class Eth(ModuleV2, Module):
     )
 
 
-    def getUncleCount(self, block_identifier: BlockIdentifier) -> int:
-        """
-        `eth_getUncleCountByBlockHash`
-        `eth_getUncleCountByBlockNumber`
-        """
-        method = select_method_for_block_identifier(
-            block_identifier,
+    # def getUncleCount(self, block_identifier: BlockIdentifier) -> int:
+    #     """
+    #     `eth_getUncleCountByBlockHash`
+    #     `eth_getUncleCountByBlockNumber`
+    #     """
+    #     method = select_method_for_block_identifier(
+    #         block_identifier,
+    #         if_predefined=RPC.eth_getUncleCountByBlockNumber,
+    #         if_hash=RPC.eth_getUncleCountByBlockHash,
+    #         if_number=RPC.eth_getUncleCountByBlockNumber,
+    #     )
+    #     result = self.web3.manager.request_blocking(
+    #         method,
+    #         [block_identifier],
+    #     )
+    #     if result is None:
+    #         raise BlockNotFound(f"Block with id: {block_identifier} not found.")
+    #     return result
+
+    """
+    `eth_getUncleCountByBlockHash`
+    `eth_getUncleCountByBlockNumber`
+    """
+    getUncleCount: Method[Callable[[BlockIdentifier], int]] = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getUncleCountByBlockNumber,
             if_hash=RPC.eth_getUncleCountByBlockHash,
             if_number=RPC.eth_getUncleCountByBlockNumber,
-        )
-        result = self.web3.manager.request_blocking(
-            method,
-            [block_identifier],
-        )
-        if result is None:
-            raise BlockNotFound(f"Block with id: {block_identifier} not found.")
-        return result
+        ),
+        mungers=[default_root_munger]
+    )
 
     def getUncleByBlock(self, block_identifier: BlockIdentifier, uncle_index: int) -> Uncle:
         """

@@ -510,6 +510,8 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getBlockByNumber: raise_block_not_found,
     RPC.eth_getBlockTransactionCountByHash: raise_block_not_found,
     RPC.eth_getBlockTransactionCountByNumber: raise_block_not_found,
+    RPC.eth_getUncleCountByBlockHash: raise_block_not_found,
+    RPC.eth_getUncleCountByBlockNumber: raise_block_not_found,
 }
 
 
