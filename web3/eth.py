@@ -269,24 +269,19 @@ class Eth(ModuleV2, Module):
         mungers=[get_block_munger],
     )
 
-    def getBlockTransactionCount(self, block_identifier: BlockIdentifier) -> int:
-        """
-        `eth_getBlockTransactionCountByHash`
-        `eth_getBlockTransactionCountByNumber`
-        """
-        method = select_method_for_block_identifier(
-            block_identifier,
+    """
+    `eth_getBlockTransactionCountByHash`
+    `eth_getBlockTransactionCountByNumber`
+    """
+    getBlockTransactionCount: Method[Callable[[BlockIdentifier], int]] = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getBlockTransactionCountByNumber,
             if_hash=RPC.eth_getBlockTransactionCountByHash,
             if_number=RPC.eth_getBlockTransactionCountByNumber,
-        )
-        result = self.web3.manager.request_blocking(
-            method,
-            [block_identifier],
-        )
-        if result is None:
-            raise BlockNotFound(f"Block with id: {block_identifier} not found.")
-        return result
+        ),
+        mungers=[default_root_munger]
+    )
+
 
     def getUncleCount(self, block_identifier: BlockIdentifier) -> int:
         """
