@@ -24,11 +24,6 @@ Providers
 
     Convenience API to access :py:class:`web3.providers.ipc.IPCProvider`
 
-.. py:method:: Web3.setProviders(provider)
-
-    Updates the current web3 instance with the new list of providers. It
-    also accepts a single provider.
-
 
 Attributes
 ~~~~~~~~~~
