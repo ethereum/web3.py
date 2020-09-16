@@ -1,0 +1,1 @@
+Address the use of multiple providers in the docs

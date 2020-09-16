@@ -7,6 +7,12 @@ The provider is how web3 talks to the blockchain.  Providers take JSON-RPC
 requests and return the response.  This is normally done by submitting the
 request to an HTTP or IPC socket based server.
 
+.. note::
+
+   Web3.py supports one provider per instance. If you have an advanced use case
+   that requires multiple providers, create and configure a new web3 instance
+   per connection.
+
 If you are already happily connected to your Ethereum node, then you
 can skip the rest of the Providers section.
 
