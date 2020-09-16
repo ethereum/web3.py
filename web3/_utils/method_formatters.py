@@ -11,6 +11,9 @@ from typing import (
     Union,
 )
 
+from eth_typing import (
+    HexStr,
+)
 from eth_utils.curried import (
     apply_formatter_at_index,
     apply_formatter_if,
@@ -360,7 +363,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getUncleCountByBlockNumber: apply_formatter_at_index(block_number_formatter, 0),
     RPC.eth_getUncleByBlockNumberAndIndex: compose(
         apply_formatter_at_index(block_number_formatter, 0),
-        apply_formatter_at_index(integer_to_hex, 1),
+        apply_formatter_at_index(block_number_formatter, 1),
     ),
     RPC.eth_getUncleByBlockHashAndIndex: apply_formatter_at_index(integer_to_hex, 1),
     RPC.eth_newFilter: apply_formatter_at_index(filter_params_formatter, 0),
@@ -505,6 +508,16 @@ def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
     raise BlockNotFound(f"Block with id: {block_identifier} not found.")
 
 
+def raise_block_not_found_for_uncle_at_index(
+    params: Tuple[BlockIdentifier, Union[HexStr, int]]
+) -> NoReturn:
+    block_identifier = params[0]
+    uncle_index = to_integer_if_hex(params[1])
+    raise BlockNotFound(
+        f"Uncle at index: {uncle_index} of block with id: {block_identifier} not found."
+    )
+
+
 NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getBlockByHash: raise_block_not_found,
     RPC.eth_getBlockByNumber: raise_block_not_found,
@@ -512,6 +525,8 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getBlockTransactionCountByNumber: raise_block_not_found,
     RPC.eth_getUncleCountByBlockHash: raise_block_not_found,
     RPC.eth_getUncleCountByBlockNumber: raise_block_not_found,
+    RPC.eth_getUncleByBlockHashAndIndex: raise_block_not_found_for_uncle_at_index,
+    RPC.eth_getUncleByBlockNumberAndIndex: raise_block_not_found_for_uncle_at_index,
 }
 
 

@@ -282,26 +282,6 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger]
     )
 
-
-    # def getUncleCount(self, block_identifier: BlockIdentifier) -> int:
-    #     """
-    #     `eth_getUncleCountByBlockHash`
-    #     `eth_getUncleCountByBlockNumber`
-    #     """
-    #     method = select_method_for_block_identifier(
-    #         block_identifier,
-    #         if_predefined=RPC.eth_getUncleCountByBlockNumber,
-    #         if_hash=RPC.eth_getUncleCountByBlockHash,
-    #         if_number=RPC.eth_getUncleCountByBlockNumber,
-    #     )
-    #     result = self.web3.manager.request_blocking(
-    #         method,
-    #         [block_identifier],
-    #     )
-    #     if result is None:
-    #         raise BlockNotFound(f"Block with id: {block_identifier} not found.")
-    #     return result
-
     """
     `eth_getUncleCountByBlockHash`
     `eth_getUncleCountByBlockNumber`
@@ -315,26 +295,18 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger]
     )
 
-    def getUncleByBlock(self, block_identifier: BlockIdentifier, uncle_index: int) -> Uncle:
-        """
-        `eth_getUncleByBlockHashAndIndex`
-        `eth_getUncleByBlockNumberAndIndex`
-        """
-        method = select_method_for_block_identifier(
-            block_identifier,
+    """
+    `eth_getUncleByBlockHashAndIndex`
+    `eth_getUncleByBlockNumberAndIndex`
+    """
+    getUncleByBlock: Method[Callable[[BlockIdentifier, int], Uncle]] = Method(
+        method_choice_depends_on_args = select_method_for_block_identifier(
             if_predefined=RPC.eth_getUncleByBlockNumberAndIndex,
             if_hash=RPC.eth_getUncleByBlockHashAndIndex,
             if_number=RPC.eth_getUncleByBlockNumberAndIndex,
-        )
-        result = self.web3.manager.request_blocking(
-            method,
-            [block_identifier, uncle_index],
-        )
-        if result is None:
-            raise BlockNotFound(
-                f"Uncle at index: {uncle_index} of block with id: {block_identifier} not found."
-            )
-        return result
+        ),
+        mungers=[default_root_munger]
+    )
 
     def getTransaction(self, transaction_hash: _Hash32) -> TxData:
         result = self.web3.manager.request_blocking(
