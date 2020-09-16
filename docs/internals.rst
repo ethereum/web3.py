@@ -12,7 +12,7 @@ exposed by the web3 object and the backend or node that web3 is connecting to.
 * **Middlewares** provide hooks for monitoring and modifying requests and
   responses to and from the provider.  These can be *global* operating on all
   providers or specific to one provider.
-* **Managers** provide thread safety and primatives to allow for asyncronous usage of web3.
+* **Managers** provide thread safety and primatives to allow for asynchronous usage of web3.
 
 Here are some common things you might want to do with these APIs.
 
@@ -22,7 +22,7 @@ Here are some common things you might want to do with these APIs.
 * Transparently intercept transactions sent over ``eth_sendTransaction``, sign
   them locally, and then send them through ``eth_sendRawTransaction``.
 * Modify the response from an RPC request so that it is returned in different
-  format such as converting all integer values to their hexidecimal
+  format such as converting all integer values to their hexadecimal
   representation.
 * Validate the inputs to RPC requests
 
@@ -32,7 +32,7 @@ Request Lifecycle
 
 Each web3 RPC call passes through these layers in the following manner.
 
-.. code-block::
+.. code-block:: none
 
                    ***********    ************
                    | Request |    | Response |
@@ -87,7 +87,7 @@ a list when instantiating your ``Web3`` object.
 
 .. code-block:: python
 
-    >>> web3 = Web3([provider_a, provider_b])
+    >>> w3 = Web3([provider_a, provider_b])
 
 
 
@@ -119,13 +119,7 @@ setting the middlewares the provider should use.
     if the socket is closed.
 
 
-If a provider is unable to respond to certain RPC calls it should raise the
-``web3.exceptions.CannotHandleRequest`` exception.  When this happens, the
-request is issued to the next configured provider.  If no providers are able to
-handle the request then a ``web3.exceptions.UnhandledRequest`` error will be
-raised.
-
-.. py:property:: BaseProvider.middlewares
+.. py:attribute:: BaseProvider.middlewares
 
     This should be an iterable of middlewares.
 
@@ -145,7 +139,7 @@ business logic for web3 requests.  Writing middleware is simple.
 
 .. code-block:: python
 
-    def simple_middleware(make_request, web3):
+    def simple_middleware(make_request, w3):
         # do one-time setup operations here
 
         def middleware(method, params):
@@ -166,9 +160,9 @@ It is also possible to implement middlewares as a class.
 
 .. code-block:: python
 
-    class SimpleMiddleware(object):
-        def __init__(self, make_request, web3):
-            self.web3 = web3
+    class SimpleMiddleware:
+        def __init__(self, make_request, w3):
+            self.w3 = w3
             self.make_request = make_request
 
         def __call__(self, method, params):
@@ -193,11 +187,11 @@ responses for certain methods your middleware would likely not call the
 By default, Web3 will use the ``web3.middleware.pythonic_middleware``.  This
 middleware performs the following translations for requests and responses.
 
-* Numeric request parameters will be converted to their hexidecimal representation
-* Numeric responses will be converted from their hexidecimal representations to
+* Numeric request parameters will be converted to their hexadecimal representation
+* Numeric responses will be converted from their hexadecimal representations to
   their integer representations.
 
-The ``RequestManager`` object exposes the ``middleware_stack`` object to manage middlewares. It
+The ``RequestManager`` object exposes the ``middleware_onion`` object to manage middlewares. It
 is also exposed on the ``Web3`` object for convenience. That API is detailed in
 :ref:`Modifying_Middleware`.
 

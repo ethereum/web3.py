@@ -1,23 +1,32 @@
+from typing import (
+    Optional,
+)
+
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.module import (
     Module,
 )
 
 
 class Testing(Module):
-    def timeTravel(self, timestamp):
-        return self.web3.manager.request_blocking("testing_timeTravel", [timestamp])
+    def timeTravel(self, timestamp: int) -> None:
+        return self.web3.manager.request_blocking(RPC.testing_timeTravel, [timestamp])
 
-    def mine(self, num_blocks=1):
-        return self.web3.manager.request_blocking("evm_mine", [num_blocks])
+    def mine(self, num_blocks: int=1) -> None:
+        return self.web3.manager.request_blocking(RPC.evm_mine, [num_blocks])
 
-    def snapshot(self):
-        return self.web3.manager.request_blocking("evm_snapshot", [])
+    def snapshot(self) -> int:
+        self.last_snapshot_idx = self.web3.manager.request_blocking(RPC.evm_snapshot, [])
+        return self.last_snapshot_idx
 
-    def reset(self):
-        return self.web3.manager.request_blocking("evm_reset", [])
+    def reset(self) -> None:
+        return self.web3.manager.request_blocking(RPC.evm_reset, [])
 
-    def revert(self, snapshot_idx=None):
+    def revert(self, snapshot_idx: Optional[int] = None) -> None:
         if snapshot_idx is None:
-            return self.web3.manager.request_blocking("evm_revert", [])
+            revert_target = self.last_snapshot_idx
         else:
-            return self.web3.manager.request_blocking("evm_revert", [snapshot_idx])
+            revert_target = snapshot_idx
+        return self.web3.manager.request_blocking(RPC.evm_revert, [revert_target])

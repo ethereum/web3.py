@@ -1,7 +1,11 @@
 
 import pytest
 
-from web3.utils.formatters import (
+from eth_utils.curried import (
+    apply_formatters_to_dict,
+)
+
+from web3._utils.formatters import (
     map_collection,
     recursive_map,
 )
@@ -39,3 +43,12 @@ def test_recursive_collection_cycle():
     data.append(data)
     with pytest.raises(ValueError):
         recursive_map(square_int, data)
+
+
+def test_format_dict_error():
+    with pytest.raises(ValueError) as exc_info:
+        apply_formatters_to_dict(
+            {'myfield': int},
+            {'myfield': 'a'},
+        )
+    assert 'myfield' in str(exc_info.value)

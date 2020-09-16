@@ -7,32 +7,38 @@ import signal
 import socket
 import subprocess
 import sys
-import time
 import tempfile
+import time
 
-from cytoolz import merge
-
-from eth_utils import (
-    to_wei,
-    remove_0x_prefix,
+from eth_utils.curried import (
+    apply_formatter_if,
+    is_bytes,
+    is_checksum_address,
     is_dict,
-    is_address,
     is_same_address,
-    force_text,
+    remove_0x_prefix,
+    to_hex,
+    to_text,
+    to_wei,
+)
+from eth_utils.toolz import (
+    merge,
+    valmap,
 )
 
+from utils import (
+    get_open_port,
+)
 from web3 import Web3
-
-from web3.utils.module_testing.math_contract import (
-    MATH_BYTECODE,
-    MATH_ABI,
-)
-from web3.utils.module_testing.emitter_contract import (
-    EMITTER_BYTECODE,
-    EMITTER_ABI,
+from web3._utils.module_testing.emitter_contract import (
+    CONTRACT_EMITTER_ABI,
+    CONTRACT_EMITTER_CODE,
     EMITTER_ENUM,
 )
-
+from web3._utils.module_testing.math_contract import (
+    MATH_ABI,
+    MATH_BYTECODE,
+)
 
 COINBASE = '0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'
 COINBASE_PK = '0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d'
@@ -42,7 +48,7 @@ KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{
 KEYFILE_PW = 'web3py-test'
 KEYFILE_FILENAME = 'UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'  # noqa: E501
 
-RAW_TXN_ACCOUNT = '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6'
+RAW_TXN_ACCOUNT = '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6'
 
 UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
 UNLOCKABLE_ACCOUNT = '0x12efdc31b1a8fa1a1e756dfd8a1601055c971e13'
@@ -72,6 +78,7 @@ GENESIS_DATA = {
     "config": {
         "chainId": 131277322940537,  # the string 'web3py' as an integer
         "homesteadBlock": 0,
+        "eip150Block": 0,
         "eip155Block": 0,
         "eip158Block": 0
     },
@@ -95,14 +102,6 @@ def tempdir():
         yield dir_path
     finally:
         shutil.rmtree(dir_path)
-
-
-def get_open_port():
-    sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return str(port)
 
 
 def get_geth_binary():
@@ -161,6 +160,14 @@ def wait_for_socket(ipc_path, timeout=30):
 
 
 @contextlib.contextmanager
+def graceful_kill_on_exit(proc):
+    try:
+        yield proc
+    finally:
+        kill_proc_gracefully(proc)
+
+
+@contextlib.contextmanager
 def get_geth_process(geth_binary,
                      datadir,
                      genesis_file_path,
@@ -182,30 +189,44 @@ def get_geth_process(geth_binary,
         geth_binary,
         '--datadir', datadir,
         '--ipcpath', geth_ipc_path,
+        '--ethash.dagsondisk', '1',
+        '--gcmode', 'archive',
         '--nodiscover',
         '--port', geth_port,
         '--etherbase', COINBASE[2:],
     )
-    proc = subprocess.Popen(
+
+    popen_proc = subprocess.Popen(
         run_geth_command,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         bufsize=1,
     )
-    try:
-        yield proc
-    finally:
-        kill_proc_gracefully(proc)
+    with popen_proc as proc:
+        with graceful_kill_on_exit(proc) as graceful_proc:
+            yield graceful_proc
+
         output, errors = proc.communicate()
-        print(
-            "Geth Process Exited:\n"
-            "stdout:{0}\n\n"
-            "stderr:{1}\n\n".format(
-                force_text(output),
-                force_text(errors),
-            )
+
+    print(
+        "Geth Process Exited:\n"
+        "stdout:{0}\n\n"
+        "stderr:{1}\n\n".format(
+            to_text(output),
+            to_text(errors),
         )
+    )
+
+
+def write_config_json(config, datadir):
+    bytes_to_hex = apply_formatter_if(is_bytes, to_hex)
+    config_json_dict = valmap(bytes_to_hex, config)
+
+    config_path = os.path.join(datadir, 'config.json')
+    with open(config_path, 'w') as config_file:
+        config_file.write(json.dumps(config_json_dict))
+        config_file.write('\n')
 
 
 def generate_go_ethereum_fixture(destination_dir):
@@ -227,49 +248,67 @@ def generate_go_ethereum_fixture(destination_dir):
         geth_port = get_open_port()
         geth_binary = get_geth_binary()
 
-        geth_proc = stack.enter_context(get_geth_process(  # noqa: F841
-            geth_binary=geth_binary,
-            datadir=datadir,
-            genesis_file_path=genesis_file_path,
-            geth_ipc_path=geth_ipc_path,
-            geth_port=geth_port,
-        ))
+        with get_geth_process(
+                geth_binary=geth_binary,
+                datadir=datadir,
+                genesis_file_path=genesis_file_path,
+                geth_ipc_path=geth_ipc_path,
+                geth_port=geth_port):
 
-        wait_for_socket(geth_ipc_path)
-        web3 = Web3(Web3.IPCProvider(geth_ipc_path))
-        chain_data = setup_chain_state(web3)
+            wait_for_socket(geth_ipc_path)
+            web3 = Web3(Web3.IPCProvider(geth_ipc_path))
+            chain_data = setup_chain_state(web3)
+            # close geth by exiting context
+            # must be closed before copying data dir
+            verify_chain_state(web3, chain_data)
+
+        # verify that chain state is still valid after closing
+        # and re-opening geth
+        with get_geth_process(
+                geth_binary=geth_binary,
+                datadir=datadir,
+                genesis_file_path=genesis_file_path,
+                geth_ipc_path=geth_ipc_path,
+                geth_port=geth_port):
+
+            wait_for_socket(geth_ipc_path)
+            web3 = Web3(Web3.IPCProvider(geth_ipc_path))
+            verify_chain_state(web3, chain_data)
+
         static_data = {
             'raw_txn_account': RAW_TXN_ACCOUNT,
             'keyfile_pw': KEYFILE_PW,
         }
-        pprint.pprint(merge(chain_data, static_data))
+        config = merge(chain_data, static_data)
+        pprint.pprint(config)
+        write_config_json(config, datadir)
 
-        shutil.copytree(datadir, destination_dir)
+        shutil.make_archive(destination_dir, 'zip', datadir)
+
+
+def verify_chain_state(web3, chain_data):
+    receipt = web3.eth.waitForTransactionReceipt(chain_data['mined_txn_hash'])
+    latest = web3.eth.getBlock('latest')
+    assert receipt.blockNumber <= latest.number
 
 
 def mine_transaction_hash(web3, txn_hash):
-    start_time = time.time()
-    web3.miner.start(1)
-    while time.time() < start_time + 60:
-        receipt = web3.eth.getTransactionReceipt(txn_hash)
-        if receipt is not None:
-            web3.miner.stop()
-            return receipt
-        else:
-            time.sleep(0.1)
-    else:
-        raise ValueError("Math contract deploy transaction not mined during wait period")
+    web3.geth.miner.start(1)
+    try:
+        return web3.eth.waitForTransactionReceipt(txn_hash, timeout=60)
+    finally:
+        web3.geth.miner.stop()
 
 
 def mine_block(web3):
     origin_block_number = web3.eth.blockNumber
 
     start_time = time.time()
-    web3.miner.start(1)
+    web3.geth.miner.start(1)
     while time.time() < start_time + 60:
         block_number = web3.eth.blockNumber
         if block_number > origin_block_number:
-            web3.miner.stop()
+            web3.geth.miner.stop()
             return block_number
         else:
             time.sleep(0.1)
@@ -278,13 +317,13 @@ def mine_block(web3):
 
 
 def deploy_contract(web3, name, factory):
-    web3.personal.unlockAccount(web3.eth.coinbase, KEYFILE_PW)
-    deploy_txn_hash = factory.deploy({'from': web3.eth.coinbase})
+    web3.geth.personal.unlock_account(web3.eth.coinbase, KEYFILE_PW)
+    deploy_txn_hash = factory.constructor().transact({'from': web3.eth.coinbase})
     print('{0}_CONTRACT_DEPLOY_HASH: '.format(name.upper()), deploy_txn_hash)
     deploy_receipt = mine_transaction_hash(web3, deploy_txn_hash)
     print('{0}_CONTRACT_DEPLOY_TRANSACTION_MINED'.format(name.upper()))
     contract_address = deploy_receipt['contractAddress']
-    assert is_address(contract_address)
+    assert is_checksum_address(contract_address)
     print('{0}_CONTRACT_ADDRESS:'.format(name.upper()), contract_address)
     return deploy_receipt
 
@@ -308,15 +347,17 @@ def setup_chain_state(web3):
     # Emitter Contract
     #
     emitter_contract_factory = web3.eth.contract(
-        abi=EMITTER_ABI,
-        bytecode=EMITTER_BYTECODE,
+        abi=CONTRACT_EMITTER_ABI,
+        bytecode=CONTRACT_EMITTER_CODE,
     )
     emitter_deploy_receipt = deploy_contract(web3, 'emitter', emitter_contract_factory)
     emitter_contract = emitter_contract_factory(emitter_deploy_receipt['contractAddress'])
 
-    txn_hash_with_log = emitter_contract.transact({
+    txn_hash_with_log = emitter_contract.functions.logDouble(
+        which=EMITTER_ENUM['LogDoubleWithIndex'], arg0=12345, arg1=54321,
+    ).transact({
         'from': web3.eth.coinbase,
-    }).logDouble(which=EMITTER_ENUM['LogDoubleWithIndex'], arg0=12345, arg1=54321)
+    })
     print('TXN_HASH_WITH_LOG:', txn_hash_with_log)
     txn_receipt_with_log = mine_transaction_hash(web3, txn_hash_with_log)
     block_with_log = web3.eth.getBlock(txn_receipt_with_log['blockHash'])
@@ -335,8 +376,8 @@ def setup_chain_state(web3):
     #
     # Block with Transaction
     #
-    web3.personal.unlockAccount(coinbase, KEYFILE_PW)
-    web3.miner.start(1)
+    web3.geth.personal.unlock_account(coinbase, KEYFILE_PW)
+    web3.geth.miner.start(1)
     mined_txn_hash = web3.eth.sendTransaction({
         'from': coinbase,
         'to': coinbase,

@@ -1,8 +1,10 @@
 import random
 
-from flaky import flaky
+from flaky import (
+    flaky,
+)
 
-from web3.utils.compat import (
+from web3._utils.threads import (
     Timeout,
 )
 
@@ -12,9 +14,9 @@ def test_miner_stop(web3_empty):
     web3 = web3_empty
 
     assert web3.eth.mining
-    assert web3.miner.hashrate
+    assert web3.eth.hashrate
 
-    web3.miner.stop()
+    web3.geth.miner.stop()
 
     with Timeout(60) as timeout:
         while web3.eth.mining or web3.eth.hashrate:
@@ -22,4 +24,4 @@ def test_miner_stop(web3_empty):
             timeout.check()
 
     assert not web3.eth.mining
-    assert not web3.miner.hashrate
+    assert not web3.eth.hashrate

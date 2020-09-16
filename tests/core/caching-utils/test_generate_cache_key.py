@@ -1,17 +1,14 @@
+import random
+
+from eth_utils import (
+    to_dict,
+)
 from hypothesis import (
     given,
     strategies as st,
 )
 
-import random
-
-from eth_utils import (
-    force_bytes,
-    force_text,
-    to_dict,
-)
-
-from web3.utils.caching import (
+from web3._utils.caching import (
     generate_cache_key,
 )
 
@@ -24,17 +21,14 @@ def shuffle_dict(_dict):
         yield key, _dict[key]
 
 
-encodable_text = st.text().map(lambda v: force_text(force_bytes(v, 'utf8')))
-
-
 def extend_fn(children):
     lists_st = st.lists(children)
-    dicts_st = st.dictionaries(encodable_text, children)
+    dicts_st = st.dictionaries(st.text(), children)
     return lists_st | dicts_st
 
 
 all_st = st.recursive(
-    st.none() | st.integers() | st.booleans() | st.floats() | encodable_text | st.binary(),
+    st.none() | st.integers() | st.booleans() | st.floats() | st.text() | st.binary(),
     extend_fn,
 )
 

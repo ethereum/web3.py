@@ -1,76 +1,34 @@
-# encoding: utf-8
-
-from __future__ import unicode_literals
-
+from ast import (
+    literal_eval,
+)
+import datetime
 import pytest
-import re
-import sys
+from unittest.mock import (
+    Mock,
+)
 
 from eth_utils import (
     is_hex,
+    to_hex,
 )
-
 from hypothesis import (
     example,
     given,
     strategies as st,
 )
 
-from web3.utils.encoding import (
+from web3._utils.encoding import (
+    FriendlyJsonSerde as FriendlyJson,
     hex_encode_abi_type,
-    text_if_str,
     hexstr_if_str,
-    to_bytes,
-    to_decimal,
-    to_hex,
+    text_if_str,
 )
-
-# Several tests are split into py2 & py3 tests below, with py3 tests using Mock
-if sys.version_info.major > 2:
-    from unittest.mock import Mock
-
-only_python2 = pytest.mark.skipif(
-    sys.version_info.major > 2,
-    reason="these test values only valid for py2"
+from web3._utils.hypothesis import (
+    hexstr_strategy,
 )
-only_python3 = pytest.mark.skipif(
-    sys.version_info.major < 3,
-    reason="these test values only valid for py3"
+from web3.providers import (
+    JSONBaseProvider,
 )
-
-HEX_REGEX = re.compile('\A(0[xX])?[0-9a-fA-F]*\Z')
-
-
-@pytest.mark.parametrize(
-    "value,expected",
-    [
-        (1, '0x1'),
-        (15, '0xf'),
-        (-1, '-0x1'),
-        (-15, '-0xf'),
-        (0, '0x0'),
-        (-0, '0x0'),
-    ]
-)
-def test_to_hex(value, expected):
-    assert to_hex(value) == expected
-
-
-@given(value=st.integers(min_value=-1 * 2**255 + 1, max_value=2**256 - 1))
-def test_conversion_round_trip(value):
-    intermediate_value = to_hex(value)
-    result_value = to_decimal(hexstr=intermediate_value)
-    error_msg = "Expected: {0!r}, Result: {1!r}, Intermediate: {2!r}".format(
-        value,
-        result_value,
-        intermediate_value,
-    )
-    assert result_value == value, error_msg
-
-
-def test_bytes_that_start_with_0x():
-    sneaky_bytes = b'0x\xde\xad'
-    assert to_hex(sneaky_bytes) == '0x3078dead'
 
 
 @pytest.mark.parametrize(
@@ -86,8 +44,8 @@ def test_bytes_that_start_with_0x():
             "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd",
             "0x00360d2b7D240Ec0643B6D819ba81A09e40E5bCd"
         ),
-        ("bytes2", b"T\x02", "0x5402" if sys.version_info[0] >= 3 else TypeError),
-        ("bytes3", b"T\x02", "0x5402" if sys.version_info[0] >= 3 else TypeError),
+        ("bytes2", b"T\x02", "0x5402"),
+        ("bytes3", b"T\x02", "0x5402"),
         ("bytes", '0x5402', "0x5402"),
         ("bytes", '5402', TypeError),
         ("string", "testing a string!", "0x74657374696e67206120737472696e6721"),
@@ -108,45 +66,6 @@ def test_hex_encode_abi_type(abi_type, value, expected):
     assert actual == expected
 
 
-@only_python2
-@given(
-    st.one_of(st.integers(min_value=0), st.booleans()),
-    st.sampled_from((to_bytes, to_hex, to_decimal)),
-)
-def test_hexstr_if_str_passthrough_py2(val, converter):
-    assert hexstr_if_str(converter, val) == converter(val)
-
-
-@only_python2
-@given(
-    st.from_regex(HEX_REGEX),
-    st.sampled_from((to_bytes, to_hex, to_decimal)),
-)
-def test_hexstr_if_str_valid_hex_py2(val, converter):
-    if converter is to_decimal and to_bytes(hexstr=val) == b'':
-        with pytest.raises(ValueError):
-            hexstr_if_str(converter, val)
-    else:
-        assert hexstr_if_str(converter, val) == converter(hexstr=val)
-
-
-@only_python2
-@given(
-    st.one_of(st.text(), st.binary()),
-    st.sampled_from((to_bytes, to_hex, to_decimal)),
-)
-def test_hexstr_if_str_invalid_hex_py2(val, converter):
-    try:
-        is_hexstr = (is_hex(val) or val == '')
-    except ValueError:
-        is_hexstr = False
-
-    if not is_hexstr:
-        with pytest.raises(ValueError):
-            hexstr_if_str(converter, val)
-
-
-@only_python3
 @given(st.one_of(st.integers(), st.booleans(), st.binary()))
 @example(b'')
 def test_hexstr_if_str_passthrough(val):
@@ -160,8 +79,7 @@ def test_hexstr_if_str_curried():
     assert converter(255) == '0xff'
 
 
-@only_python3
-@given(st.from_regex(HEX_REGEX))
+@given(hexstr_strategy())
 @example('0x')
 @example('0')
 def test_hexstr_if_str_on_valid_hex(val):
@@ -170,7 +88,6 @@ def test_hexstr_if_str_on_valid_hex(val):
     assert to_type.call_args == ((None, ), {'hexstr': val})
 
 
-@only_python3
 @given(st.text())
 def test_hexstr_if_str_on_invalid_hex(val):
     try:
@@ -183,7 +100,6 @@ def test_hexstr_if_str_on_invalid_hex(val):
             hexstr_if_str(Mock(), val)
 
 
-@only_python3
 @given(st.one_of(st.integers(), st.booleans(), st.binary()))
 @example(b'')
 def test_text_if_str_passthrough(val):
@@ -192,7 +108,6 @@ def test_text_if_str_passthrough(val):
     assert to_type.call_args == ((val, ), {'text': None})
 
 
-@only_python3
 @given(st.text())
 @example('0xa1')  # valid hexadecimal is still interpreted as unicode characters
 def test_text_if_str_on_text(val):
@@ -201,32 +116,89 @@ def test_text_if_str_on_text(val):
     assert to_type.call_args == ((None, ), {'text': val})
 
 
-@only_python2
-@given(
-    st.one_of(st.integers(min_value=0), st.booleans(), st.binary()),
-    st.sampled_from((to_bytes, to_hex)),
+@pytest.mark.parametrize(
+    "py_obj, exc_type, expected",
+    (
+        (
+            {
+                'date': [
+                    datetime.datetime(2018, 5, 10, 1, 5, 10).isoformat(),
+                    datetime.datetime(2018, 5, 10, 1, 5, 10).isoformat(),
+                ],
+                'other_date': datetime.datetime(2018, 5, 10, 1, 5, 10).date().isoformat(),
+            },
+            None,
+            '{"date": ["2018-05-10T01:05:10", "2018-05-10T01:05:10"], "other_date": "2018-05-10"}',
+        ),
+        (
+            {
+                'date': [datetime.datetime.utcnow(), datetime.datetime.now()],
+                'other_date': datetime.datetime.utcnow().date(),
+            },
+            TypeError,
+            "Could not encode to JSON: .*'other_date'.*is not JSON serializable",
+        ),
+    ),
 )
-@example(b'', to_hex)
-@example(b'\xff', to_bytes)  # bytes are passed through, no matter the text
-def test_text_if_str_passthrough_py2(val, converter):
-    if converter is to_decimal and to_bytes(val) == b'':
-        with pytest.raises(ValueError):
-            text_if_str(converter, val)
+def test_friendly_json_encode(py_obj, exc_type, expected):
+    if exc_type is None:
+        assert literal_eval(FriendlyJson().json_encode(py_obj)) == literal_eval(expected)
     else:
-        assert text_if_str(converter, val) == converter(val)
+        with pytest.raises(exc_type, match=expected):
+            FriendlyJson().json_encode(py_obj)
 
 
-@only_python2
-@given(
-    st.text(),
-    st.sampled_from((to_bytes, to_hex)),
+@pytest.mark.parametrize(
+    "json_str, expected",
+    (
+        (
+            '{"date": ["2018-05-10T01:05:10", "2018-05-10T01:05:10"],"other_date": "2018-05-10"}',
+            dict,
+        ),
+    ),
 )
-@example('0xa1', to_bytes)  # valid hexadecimal is still interpreted as unicode characters
-def test_text_if_str_on_text_py2(val, converter):
-    assert text_if_str(converter, val) == converter(text=val)
+def test_friendly_json_decode(json_str, expected):
+    assert isinstance(FriendlyJson().json_decode(json_str), expected)
 
 
-@only_python2
-@given(st.from_regex('\A[0-9]+\Z'))
-def test_text_if_str_on_text_to_decimal_py2(val):
-    assert text_if_str(to_decimal, val) == to_decimal(text=val)
+@pytest.mark.parametrize(
+    "rpc_response, expected",
+    (
+        (
+            '{"jsonrpc": "2.0", "method": "test_method", "params": [], "id": 1}',
+            {"jsonrpc": "2.0", "method": "test_method", "params": [], "id": 1},
+        ),
+    ),
+)
+def test_decode_rpc_response(rpc_response, expected):
+    assert JSONBaseProvider().decode_rpc_response(rpc_response.encode('utf8')) == expected
+
+
+@pytest.mark.parametrize(
+    "rpc_kwargs, exc_type, expected",
+    (
+        (
+            {'id': 1, 'method': 'test', 'params': [], "jsonrpc": "2.0"},
+            None,
+            '{"id": 0, "method": "test", "params": [], "jsonrpc": "2.0",}',
+        ),
+        (
+            {'id': 0, 'method': 'test', 'params': [datetime.datetime(2018, 5, 10, 1, 5, 10)]},
+            TypeError,
+            r"Could not encode to JSON: .*'params'.* is not JSON serializable",
+        ),
+    ),
+)
+def test_encode_rpc_request(rpc_kwargs, exc_type, expected):
+    if exc_type is None:
+        res = JSONBaseProvider().encode_rpc_request(
+            rpc_kwargs['method'],
+            rpc_kwargs['params']
+        )
+        assert literal_eval(res.decode('utf8')) == literal_eval(expected)
+    else:
+        with pytest.raises(exc_type, match=expected):
+            JSONBaseProvider().encode_rpc_request(
+                rpc_kwargs['method'],
+                rpc_kwargs['params'],
+            )

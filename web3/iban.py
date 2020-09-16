@@ -1,25 +1,38 @@
-from __future__ import unicode_literals
-
-import re
 import functools
-
-from eth_utils import (
-    is_string,
-    coerce_args_to_text,
-    pad_left,
-    add_0x_prefix,
+import re
+from typing import (
+    Any,
+    Callable,
+    Union,
 )
 
-from web3.utils.validation import (
+from eth_typing import (
+    Address,
+    ChecksumAddress,
+)
+from eth_utils import (
+    is_string,
+    to_checksum_address,
+)
+
+from web3._utils.compat import (
+    TypedDict,
+)
+from web3._utils.validation import (
     validate_address,
 )
 
+IbanOptions = TypedDict("IbanOptions", {
+    "institution": str,
+    "identifier": str,
+})
 
-def pad_left_hex(value, num_bytes):
-    return pad_left(value, num_bytes * 2, '0')
+
+def pad_left_hex(value: str, num_bytes: int) -> str:
+    return value.rjust(num_bytes * 2, '0')
 
 
-def iso13616Prepare(iban):
+def iso13616Prepare(iban: str) -> str:
     """
     Prepare an IBAN for mod 97 computation by moving the first
     4 chars to the end and transforming the letters to numbers
@@ -35,7 +48,7 @@ def iso13616Prepare(iban):
     iban = iban.upper()
     iban = iban[4:] + iban[:4]
 
-    def charfunc(n):
+    def charfunc(n: str) -> str:
         code = ord(n)
         if code >= A and code <= Z:
             return str(code - A + 10)
@@ -45,7 +58,7 @@ def iso13616Prepare(iban):
     return "".join(map(charfunc, list(iban)))
 
 
-def mod9710(iban):
+def mod9710(iban: str) -> int:
     """
     Calculates the MOD 97 10 of the passed IBAN as specified in ISO7064.
 
@@ -63,7 +76,7 @@ def mod9710(iban):
     return int(remainder) % 97
 
 
-def baseN(num, b, numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
+def baseN(num: int, b: int, numerals: str="0123456789abcdefghijklmnopqrstuvwxyz") -> str:
     """
     This prototype should be used to create
     an iban object from iban correct string
@@ -74,7 +87,7 @@ def baseN(num, b, numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
         (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
 
 
-class IsValid(object):
+class IsValid:
     """
     Should be called to check if iban is correct
 
@@ -84,14 +97,13 @@ class IsValid(object):
     @method isValid
     @returns {Boolean} true if it is, otherwise false
     """
-    def __get__(self, instance, owner):
+    def __get__(self, instance: 'Iban', owner: str) -> Callable[[str], bool]:
         if instance is None:
             return self.validate
         return functools.partial(self.validate, instance._iban)
 
     @staticmethod
-    @coerce_args_to_text
-    def validate(iban_address):
+    def validate(iban_address: Any) -> bool:
         if not is_string(iban_address):
             return False
 
@@ -102,12 +114,12 @@ class IsValid(object):
         return False
 
 
-class Iban(object):
-    def __init__(self, iban):
+class Iban:
+    def __init__(self, iban: str) -> None:
         self._iban = iban
 
     @staticmethod
-    def fromAddress(address):
+    def fromAddress(address: Union[Address, ChecksumAddress]) -> "Iban":
         """
         This method should be used to create
         an iban object from ethereum address
@@ -123,7 +135,7 @@ class Iban(object):
         return Iban.fromBban(padded.upper())
 
     @staticmethod
-    def fromBban(bban):
+    def fromBban(bban: str) -> "Iban":
         """
         Convert the passed BBAN to an IBAN for this country specification.
         Please note that <i>"generation of the IBAN shall be the exclusive
@@ -143,7 +155,7 @@ class Iban(object):
         return Iban(countryCode + checkDigit + bban)
 
     @staticmethod
-    def createIndirect(options):
+    def createIndirect(options: IbanOptions) -> "Iban":
         """
         Should be used to create IBAN object for given institution and identifier
 
@@ -155,7 +167,7 @@ class Iban(object):
 
     isValid = IsValid()
 
-    def isDirect(self):
+    def isDirect(self) -> bool:
         """
         Should be called to check if iban number is direct
 
@@ -164,7 +176,7 @@ class Iban(object):
         """
         return len(self._iban) in [34, 35]
 
-    def isIndirect(self):
+    def isIndirect(self) -> bool:
         """
         Should be called to check if iban number if indirect
 
@@ -173,7 +185,7 @@ class Iban(object):
         """
         return len(self._iban) == 20
 
-    def checksum(self):
+    def checksum(self) -> str:
         """
         Should be called to get iban checksum
         Uses the mod-97-10 checksumming protocol (ISO/IEC 7064:2003)
@@ -183,7 +195,7 @@ class Iban(object):
         """
         return self._iban[2:4]
 
-    def institution(self):
+    def institution(self) -> str:
         """
         Should be called to get institution identifier
         eg. XREG
@@ -196,7 +208,7 @@ class Iban(object):
         else:
             return ""
 
-    def client(self):
+    def client(self) -> str:
         """
         Should be called to get client identifier within institution
         eg. GAVOFYORK
@@ -209,7 +221,7 @@ class Iban(object):
         else:
             return ""
 
-    def address(self):
+    def address(self) -> Union[str, ChecksumAddress]:
         """
         Should be called to get client direct address
 
@@ -219,9 +231,9 @@ class Iban(object):
         if self.isDirect():
             base36 = self._iban[4:]
             asInt = int(base36, 36)
-            return add_0x_prefix(pad_left_hex(baseN(asInt, 16), 20))
+            return to_checksum_address(pad_left_hex(baseN(asInt, 16), 20))
 
         return ""
 
-    def toString(self):
+    def toString(self) -> str:
         return self._iban

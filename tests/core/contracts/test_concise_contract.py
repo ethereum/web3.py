@@ -1,7 +1,11 @@
-
-import sys
-
 import pytest
+from unittest.mock import (
+    Mock,
+)
+
+from eth_utils import (
+    decode_hex,
+)
 
 from web3.contract import (
     CONCISE_NORMALIZERS,
@@ -9,58 +13,65 @@ from web3.contract import (
     ConciseMethod,
 )
 
-if sys.version_info >= (3, 3):
-    from unittest.mock import Mock
+
+def deploy(web3, Contract, args=None):
+    args = args or []
+    deploy_txn = Contract.constructor(*args).transact()
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    assert deploy_receipt is not None
+    contract = Contract(address=deploy_receipt['contractAddress'])
+    assert len(web3.eth.getCode(contract.address)) > 0
+    return contract
 
 
 @pytest.fixture()
-def EMPTY_ADDR():
-    return '0x' + '00' * 20
+def EMPTY_ADDR(address_conversion_func):
+    addr = '0x' + '00' * 20
+    return address_conversion_func(addr)
 
 
 @pytest.fixture()
 def zero_address_contract(web3, WithConstructorAddressArgumentsContract, EMPTY_ADDR):
-    deploy_txn = WithConstructorAddressArgumentsContract.deploy(args=[
+    deploy_txn = WithConstructorAddressArgumentsContract.constructor(
         EMPTY_ADDR,
-    ])
-    deploy_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+    ).transact()
+    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     _address_contract = WithConstructorAddressArgumentsContract(
         address=deploy_receipt['contractAddress'],
     )
-    return ConciseContract(_address_contract)
+    with pytest.warns(DeprecationWarning, match='deprecated in favor of contract.caller'):
+        return ConciseContract(_address_contract)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
 def test_concisecontract_call_default():
-    contract = Mock()
-    sweet_method = ConciseMethod(contract, 'grail')
+    mock = Mock()
+    sweet_method = ConciseMethod(mock.functions.grail)
     sweet_method(1, 2)
-    contract.call.assert_called_once_with({})
-    contract.call().grail.assert_called_once_with(1, 2)
+    mock.functions.grail.assert_called_once_with(1, 2)
+    # Checking in return_value, ie the function instance
+    mock.functions.grail.return_value.call.assert_called_once_with({})
 
 
-@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
 def test_concisecontract_custom_transact():
-    contract = Mock()
-    sweet_method = ConciseMethod(contract, 'grail')
+    mock = Mock()
+    sweet_method = ConciseMethod(mock.functions.grail)
     sweet_method(1, 2, transact={'holy': 3})
-    contract.transact.assert_called_once_with({'holy': 3})
-    contract.transact().grail.assert_called_once_with(1, 2)
+    mock.functions.grail.assert_called_once_with(1, 2)
+    # Checking in return_value, ie the function instance
+    mock.functions.grail.return_value.transact.assert_called_once_with({'holy': 3})
 
 
-@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
 def test_concisecontract_two_keywords_fail():
-    contract = Mock()
-    sweet_method = ConciseMethod(contract, 'grail')
+    mock = Mock()
+    sweet_method = ConciseMethod(mock)
     with pytest.raises(TypeError):
         sweet_method(1, 2, transact={'holy': 3}, call={'count_to': 4})
 
 
-@pytest.mark.skipif(sys.version_info < (3, 3), reason="needs Mock library from 3.3")
 def test_concisecontract_unknown_keyword_fails():
     contract = Mock()
-    sweet_method = ConciseMethod(contract, 'grail')
+    sweet_method = ConciseMethod(contract.functions.grail)
     with pytest.raises(TypeError):
         sweet_method(1, 2, count={'to': 5})
 
@@ -80,26 +91,54 @@ def test_class_construction_sets_class_vars(web3,
         abi=MATH_ABI,
         bytecode=MATH_CODE,
         bytecode_runtime=MATH_RUNTIME,
-        ContractFactoryClass=ConciseContract,
     )
 
-    math = MathContract(some_address)
-    classic = math._classic_contract
+    classic = MathContract(some_address)
     assert classic.web3 == web3
-    assert classic.bytecode == MATH_CODE
-    assert classic.bytecode_runtime == MATH_RUNTIME
+    assert classic.bytecode == decode_hex(MATH_CODE)
+    assert classic.bytecode_runtime == decode_hex(MATH_RUNTIME)
 
 
-def test_conciscecontract_keeps_custom_normalizers_on_base(web3):
-    base_contract = web3.eth.contract()
+def test_conciscecontract_keeps_custom_normalizers_on_base(web3, MATH_ABI):
+    base_contract = web3.eth.contract(abi=MATH_ABI)
     # give different normalizers to this base instance
     base_contract._return_data_normalizers = base_contract._return_data_normalizers + tuple([None])
 
     # create concisce contract with custom contract
     new_normalizers_size = len(base_contract._return_data_normalizers)
-    concise = ConciseContract(base_contract)
+    with pytest.warns(DeprecationWarning, match='deprecated in favor of contract.caller'):
+        concise = ConciseContract(base_contract)
 
     # check that concise contract includes the new normalizers
     concise_normalizers_size = len(concise._classic_contract._return_data_normalizers)
     assert concise_normalizers_size == new_normalizers_size + len(CONCISE_NORMALIZERS)
     assert concise._classic_contract._return_data_normalizers[0] is None
+
+
+def test_conciscecontract_function_collision(
+        web3,
+        StringContract):
+
+    contract = deploy(web3, StringContract, args=["blarg"])
+
+    def getValue():
+        assert 'getValue' in [
+            item['name'] for item
+            in StringContract.abi
+            if 'name' in item]
+
+    setattr(ConciseContract, 'getValue', getValue)
+
+    with pytest.warns(DeprecationWarning, match='deprecated in favor of contract.caller'):
+        concise_contract = ConciseContract(contract)
+
+    assert isinstance(concise_contract, ConciseContract)
+
+    with pytest.raises(AttributeError, match=r'Namespace collision .* with ConciseContract API.'):
+        concise_contract.getValue()
+
+
+def test_concisecontract_deprecation_warning(web3, StringContract):
+    contract = deploy(web3, StringContract, args=["blarg"])
+    with pytest.warns(DeprecationWarning):
+        ConciseContract(contract)

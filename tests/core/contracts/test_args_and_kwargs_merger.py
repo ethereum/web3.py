@@ -1,9 +1,8 @@
 import pytest
 
-from web3.utils.abi import (
+from web3._utils.abi import (
     merge_args_and_kwargs,
 )
-
 
 FUNCTION_ABI = {
     "constant": False,

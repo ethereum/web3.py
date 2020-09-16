@@ -1,100 +1,151 @@
-from __future__ import absolute_import
-
-import sys
-import warnings
-
+from eth_abi.codec import (
+    ABICodec,
+)
 from eth_utils import (
-    apply_to_return_value,
     add_0x_prefix,
-    decode_hex,
-    encode_hex,
-    force_text,
+    apply_to_return_value,
     from_wei,
     is_address,
     is_checksum_address,
-    keccak,
+    keccak as eth_utils_keccak,
     remove_0x_prefix,
+    to_bytes,
     to_checksum_address,
+    to_int,
+    to_text,
     to_wei,
 )
+from hexbytes import (
+    HexBytes,
+)
+from typing import Any, cast, Dict, List, Optional, Sequence, TYPE_CHECKING
 
-from web3.admin import Admin
-from web3.db import Db
-from web3.eth import Eth
-from web3.iban import Iban
-from web3.miner import Miner
-from web3.net import Net
-from web3.personal import Personal
-from web3.shh import Shh
-from web3.testing import Testing
-from web3.txpool import TxPool
-from web3.version import Version
+from eth_typing import HexStr, Primitives
+from eth_typing.abi import TypeStr
+from eth_utils import (
+    combomethod,
+)
 
+from ens import ENS
+from web3._utils.abi import (
+    build_default_registry,
+    build_strict_registry,
+    map_abi_data,
+)
+from web3._utils.decorators import (
+    deprecated_for,
+)
+from web3._utils.empty import (
+    empty,
+)
+from web3._utils.encoding import (
+    hex_encode_abi_type,
+    to_hex,
+    to_json,
+)
+from web3._utils.rpc_abi import (
+    RPC,
+)
+from web3._utils.module import (
+    attach_modules,
+)
+from web3._utils.normalizers import (
+    abi_ens_resolver,
+)
+from web3.eth import (
+    Eth,
+)
+from web3.geth import (
+    Geth,
+    GethAdmin,
+    GethMiner,
+    GethPersonal,
+    GethShh,
+    GethTxPool,
+)
+from web3.iban import (
+    Iban,
+)
+from web3.manager import (
+    RequestManager as DefaultRequestManager,
+)
+from web3.net import (
+    Net,
+)
+from web3.parity import (
+    Parity,
+    ParityPersonal,
+    ParityShh,
+)
+from web3.providers import (
+    BaseProvider,
+)
+from web3.providers.eth_tester import (
+    EthereumTesterProvider,
+)
 from web3.providers.ipc import (
     IPCProvider,
 )
 from web3.providers.rpc import (
     HTTPProvider,
-    RPCProvider,
-    KeepAliveRPCProvider,
 )
-from web3.providers.tester import (
-    TestRPCProvider,
-    EthereumTesterProvider,
+from web3.providers.websocket import (
+    WebsocketProvider,
 )
-
-from web3.manager import (
-    RequestManager,
+from web3.testing import (
+    Testing,
 )
-
-from web3.utils.decorators import (
-    deprecated_for,
+from web3.types import (  # noqa: F401
+    Middleware,
+    MiddlewareOnion,
 )
-from web3.utils.encoding import (
-    from_decimal,
-    hex_encode_abi_type,
-    to_bytes,
-    to_decimal,
-    to_hex,
-    to_text,
+from web3.version import (
+    Version,
 )
 
+if TYPE_CHECKING:
+    from web3.pm import PM  # noqa: F401
 
-def get_default_modules():
+
+def get_default_modules() -> Dict[str, Sequence[Any]]:
     return {
-        "eth": Eth,
-        "db": Db,
-        "shh": Shh,
-        "net": Net,
-        "personal": Personal,
-        "version": Version,
-        "txpool": TxPool,
-        "miner": Miner,
-        "admin": Admin,
-        "testing": Testing,
+        "eth": (Eth,),
+        "net": (Net,),
+        "version": (Version,),
+        "parity": (Parity, {
+            "personal": (ParityPersonal,),
+            "shh": (ParityShh,),
+        }),
+        "geth": (Geth, {
+            "admin": (GethAdmin,),
+            "miner": (GethMiner,),
+            "personal": (GethPersonal,),
+            "shh": (GethShh,),
+            "txpool": (GethTxPool,),
+        }),
+        "testing": (Testing,),
     }
 
 
-class Web3(object):
+class Web3:
     # Providers
     HTTPProvider = HTTPProvider
-    RPCProvider = RPCProvider
-    KeepAliveRPCProvider = KeepAliveRPCProvider
     IPCProvider = IPCProvider
-    TestRPCProvider = TestRPCProvider
     EthereumTesterProvider = EthereumTesterProvider
+    WebsocketProvider = WebsocketProvider
 
     # Managers
-    RequestManager = RequestManager
+    RequestManager = DefaultRequestManager
 
     # Iban
     Iban = Iban
 
     # Encoding and Decoding
     toBytes = staticmethod(to_bytes)
-    toDecimal = staticmethod(to_decimal)
+    toInt = staticmethod(to_int)
     toHex = staticmethod(to_hex)
     toText = staticmethod(to_text)
+    toJSON = staticmethod(to_json)
 
     # Currency Utility
     toWei = staticmethod(to_wei)
@@ -105,107 +156,84 @@ class Web3(object):
     isChecksumAddress = staticmethod(is_checksum_address)
     toChecksumAddress = staticmethod(to_checksum_address)
 
-    def __init__(self, providers, middlewares=None, modules=None):
-        self._deprecation_warn()
+    # mypy Types
+    eth: Eth
+    parity: Parity
+    geth: Geth
+    net: Net
 
-        self.manager = RequestManager(self, providers, middlewares)
+    def __init__(
+        self,
+        provider: Optional[BaseProvider] = None,
+        middlewares: Optional[Sequence[Any]] = None,
+        modules: Optional[Dict[str, Sequence[Any]]] = None,
+        ens: ENS=cast(ENS, empty)
+    ) -> None:
+        self.manager = self.RequestManager(self, provider, middlewares)
 
         if modules is None:
             modules = get_default_modules()
 
-        for module_name, module_class in modules.items():
-            module_class.attach(self, module_name)
+        attach_modules(self, modules)
 
-    def _deprecation_warn(self):
-        if sys.version_info.major < 3:
-            warnings.simplefilter('always', DeprecationWarning)
-            warnings.warn(
-                "Python 2 support is ending! Please upgrade to Python 3 promptly."
-                " Support will end at the beginning of 2018.",
-                category=DeprecationWarning,
-            )
-            warnings.simplefilter('default', DeprecationWarning)
+        self.codec = ABICodec(build_default_registry())
+
+        self.ens = ens
 
     @property
-    def middleware_stack(self):
-        return self.manager.middleware_stack
-
-    @deprecated_for("Web3.middleware_stack.add(middleware [, name])")
-    def add_middleware(self, middleware, name=None):
-        return self.middleware_stack.add(middleware, name=name)
-
-    @deprecated_for("Web3.middleware_stack.clear()")
-    def clear_middlewares(self):
-        return self.middleware_stack.clear()
+    def middleware_onion(self) -> MiddlewareOnion:
+        return self.manager.middleware_onion
 
     @property
-    def providers(self):
-        return self.manager.providers
+    def provider(self) -> BaseProvider:
+        return self.manager.provider
 
-    def setProviders(self, providers):
-        self.manager.setProvider(providers)
-
-    @deprecated_for("the `manager` attribute")
-    def setManager(self, manager):
-        self.manager = manager
+    @provider.setter
+    def provider(self, provider: BaseProvider) -> None:
+        self.manager.provider = provider
 
     @property
-    @deprecated_for("`providers`, which is now a list")
-    def currentProvider(self):
-        return self.manager.providers[0]
+    def clientVersion(self) -> str:
+        return self.manager.request_blocking(RPC.web3_clientVersion, [])
+
+    @property
+    def api(self) -> str:
+        from web3 import __version__
+        return __version__
 
     @staticmethod
-    @apply_to_return_value(encode_hex)
-    def sha3(primitive=None, text=None, hexstr=None, encoding=None):
-        if encoding is not None:
-            warnings.warn(DeprecationWarning(
-                "The encoding keyword has been deprecated.  Please update your "
-                "code to use sha3(text='txt'), sha3(hexstr='0x747874'), "
-                "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)."
-            ))
-        elif not isinstance(primitive, (bytes, int, type(None))):
-            warnings.warn(DeprecationWarning(
-                "The first argument as a string has been deprecated. Please update your "
-                "code to use sha3(text='txt'), sha3(hexstr='0x747874'), "
-                "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)."
-            ))
+    @deprecated_for("keccak")
+    @apply_to_return_value(HexBytes)
+    def sha3(primitive: Optional[Primitives] = None, text: Optional[str] = None,
+             hexstr: Optional[HexStr] = None) -> bytes:
+        return Web3.keccak(primitive, text, hexstr)
 
-        args = (arg for arg in (primitive, text, hexstr) if arg is not None)
-        if len(list(args)) != 1:
-            raise TypeError(
-                "Only supply one positional arg, or the text, or hexstr keyword args. "
-                "You supplied %r and %r" % (primitive, {'text': text, 'hexstr': hexstr})
-            )
-
-        if isinstance(primitive, bytes) and bytes == str:
-            # *shakes fist at python 2*
-            # fall back to deprecated functionality
-            pass
-        elif isinstance(primitive, (bytes, int)) or text is not None or hexstr is not None:
+    @staticmethod
+    @apply_to_return_value(HexBytes)
+    def keccak(primitive: Optional[Primitives] = None, text: Optional[str] = None,
+               hexstr: Optional[HexStr] = None) -> bytes:
+        if isinstance(primitive, (bytes, int, type(None))):
             input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
-            return keccak(input_bytes)
-
-        # handle deprecated cases
-        if encoding in ('hex', None):
-            return keccak(decode_hex(primitive))
-        elif encoding == 'bytes':
-            return keccak(primitive)
-        elif encoding == 'utf8':
-            return keccak(primitive.encode('utf8'))
+            return eth_utils_keccak(input_bytes)
 
         raise TypeError(
-            "You called sha3 with first arg %r and keywords %r. You must call it with one of "
-            "these approaches: sha3(text='txt'), sha3(hexstr='0x747874'), "
-            "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)." % (
+            "You called keccak with first arg %r and keywords %r. You must call it with one of "
+            "these approaches: keccak(text='txt'), keccak(hexstr='0x747874'), "
+            "keccak(b'\\x74\\x78\\x74'), or keccak(0x747874)." % (
                 primitive,
-                {'encoding': encoding, 'text': text, 'hexstr': hexstr}
+                {'text': text, 'hexstr': hexstr}
             )
         )
 
-    @classmethod
-    def soliditySha3(cls, abi_types, values):
+    @combomethod
+    @deprecated_for("solidityKeccak")
+    def soliditySha3(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
+        return cls.solidityKeccak(abi_types, values)
+
+    @combomethod
+    def solidityKeccak(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
         """
-        Executes sha3 (keccak256) exactly as Solidity does.
+        Executes keccak256 exactly as Solidity does.
         Takes list of abi_types as inputs -- `[uint24, int8[], bool]`
         and list of corresponding values  -- `[20, [-1, 5, 0], True]`
         """
@@ -215,41 +243,52 @@ class Web3(object):
                 "{0} types and {1} values.".format(len(abi_types), len(values))
             )
 
-        hex_string = add_0x_prefix(''.join(
+        if isinstance(cls, type):
+            w3 = None
+        else:
+            w3 = cls
+        normalized_values = map_abi_data([abi_ens_resolver(w3)], abi_types, values)
+
+        hex_string = add_0x_prefix(HexStr(''.join(
             remove_0x_prefix(hex_encode_abi_type(abi_type, value))
             for abi_type, value
-            in zip(abi_types, values)
-        ))
-        return cls.sha3(hexstr=hex_string)
+            in zip(abi_types, normalized_values)
+        )))
+        return cls.keccak(hexstr=hex_string)
 
-    def isConnected(self):
-        for provider in self.providers:
-            if provider.isConnected():
-                return True
+    def isConnected(self) -> bool:
+        return self.provider.isConnected()
+
+    def is_encodable(self, _type: TypeStr, value: Any) -> bool:
+        return self.codec.is_encodable(_type, value)
+
+    @property
+    def ens(self) -> ENS:
+        if self._ens is cast(ENS, empty):
+            return ENS.fromWeb3(self)
         else:
-            return False
+            return self._ens
 
-    @staticmethod
-    @deprecated_for("toBytes()")
-    def toAscii(val):
-        return decode_hex(val)
+    @ens.setter
+    def ens(self, new_ens: ENS) -> None:
+        self._ens = new_ens
 
-    @staticmethod
-    @deprecated_for("toHex()")
-    def fromAscii(val):
-        return encode_hex(val)
+    @property
+    def pm(self) -> "PM":
+        if hasattr(self, '_pm'):
+            # ignored b/c property is dynamically set via enable_unstable_package_management_api
+            return self._pm  # type: ignore
+        else:
+            raise AttributeError(
+                "The Package Management feature is disabled by default until "
+                "its API stabilizes. To use these features, please enable them by running "
+                "`w3.enable_unstable_package_management_api()` and try again."
+            )
 
-    @staticmethod
-    @deprecated_for("toText()")
-    def toUtf8(val):
-        return force_text(decode_hex(val))
+    def enable_unstable_package_management_api(self) -> None:
+        from web3.pm import PM  # noqa: F811
+        if not hasattr(self, '_pm'):
+            PM.attach(self, '_pm')
 
-    @staticmethod
-    @deprecated_for("toHex()")
-    def fromUtf8(string):
-        return encode_hex(string)
-
-    @staticmethod
-    @deprecated_for("toHex()")
-    def fromDecimal(decimal):
-        return from_decimal(decimal)
+    def enable_strict_bytes_type_checking(self) -> None:
+        self.codec = ABICodec(build_strict_registry())

@@ -1,14 +1,14 @@
 import pytest
 
-from web3.utils.abi import (
+from web3._utils.abi import (
     is_address_type,
     is_array_type,
     is_bool_type,
     is_bytes_type,
     is_int_type,
     is_recognized_type,
-    is_uint_type,
     is_string_type,
+    is_uint_type,
 )
 
 

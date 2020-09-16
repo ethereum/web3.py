@@ -1,5 +1,6 @@
 from web3 import Web3
 from web3.providers import (
+    AutoProvider,
     BaseProvider,
 )
 
@@ -29,3 +30,24 @@ def test_isConnected_disconnected():
     """
     web3 = Web3(DisconnectedProvider())
     assert web3.isConnected() is False
+
+
+def test_autoprovider_detection():
+    def no_provider():
+        return None
+
+    def must_not_call():
+        assert False
+
+    auto = AutoProvider([
+        no_provider,
+        DisconnectedProvider,
+        ConnectedProvider,
+        must_not_call,
+    ])
+
+    w3 = Web3(auto)
+
+    assert w3.isConnected()
+
+    assert isinstance(auto._active_provider, ConnectedProvider)

@@ -34,7 +34,11 @@ with open (os.path.join(DIR, '../setup.py'), 'r') as f:
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -50,7 +54,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Web3.py'
-copyright = u'2017, Piper Merriam'
+copyright = u'2018, Piper Merriam, Jason Carver'
 
 __version__ = setup_version
 # The version info for the project you're documenting, acts as replacement for
@@ -74,7 +78,20 @@ release = __version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = [
+    '_build',
+    'web3.rst',
+    'modules.rst',
+    'web3.auto.rst',
+    'web3.auto.infura.rst',
+    'web3.gas_strategies.rst',
+    'web3.middleware.rst',
+    'web3.providers.rst',
+    'web3.providers.eth_tester.rst',
+    'web3.scripts.*',
+    'web3.testing.rst',
+    'web3.tools.*',
+]
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -135,10 +152,14 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+html_css_files = ["css/toggle.css"]
+
+html_js_files = ["js/matomo.js", "js/toggle.js"]
+
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
 # directly to the root of the documentation.
-#html_extra_path = []
+html_extra_path = ["_static/css"]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -262,3 +283,25 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+# -- Intersphinx configuration ------------------------------------------------
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3.5', None),
+    'eth-account': ('http://eth-account.readthedocs.io/en/latest/', None),
+    # does not exist yet: 'eth-tester': ('http://eth-tester.readthedocs.io/en/latest/', None),
+    'hexbytes': ('http://hexbytes.readthedocs.io/en/latest/', None),
+}
+
+autodoc_member_order = "bysource"
+
+# -- Doctest configuration ----------------------------------------
+
+import doctest
+
+doctest_default_flags = (0
+    | doctest.DONT_ACCEPT_TRUE_FOR_1
+    | doctest.ELLIPSIS
+    | doctest.IGNORE_EXCEPTION_DETAIL
+    | doctest.NORMALIZE_WHITESPACE
+)

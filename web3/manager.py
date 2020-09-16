@@ -1,103 +1,188 @@
+import logging
+from typing import (  # noqa: F401
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    NoReturn,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 import uuid
-import warnings
+from uuid import UUID
 
-from eth_utils import (
-    is_list_like,
-)
-
-from web3.exceptions import (
-    CannotHandleRequest,
-    UnhandledRequest,
-)
-from web3.middleware import (
-    pythonic_middleware,
-    attrdict_middleware,
+from eth_utils.toolz import (
+    pipe,
 )
 
-from web3.utils.compat import (
-    spawn,
-)
-from web3.utils.datastructures import (
-    NamedElementStack,
-)
-from web3.utils.decorators import (
+from web3._utils.decorators import (
     deprecated_for,
 )
+from web3._utils.threads import (  # noqa: F401
+    ThreadWithReturn,
+    spawn,
+)
+from web3.datastructures import (
+    NamedElementOnion,
+)
+from web3.middleware import (
+    abi_middleware,
+    attrdict_middleware,
+    gas_price_strategy_middleware,
+    name_to_address_middleware,
+    normalize_errors_middleware,
+    pythonic_middleware,
+    request_parameter_normalizer,
+    validation_middleware,
+)
+from web3.providers import (
+    AutoProvider,
+    BaseProvider,
+)
+from web3.types import (  # noqa: F401
+    Middleware,
+    MiddlewareOnion,
+    RPCEndpoint,
+    RPCResponse,
+)
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
 
-class RequestManager(object):
-    def __init__(self, web3, providers, middlewares=None):
+def apply_error_formatters(
+    error_formatters: Callable[..., Any],
+    response: Optional[RPCResponse]=None,
+    params: Optional[Any]=None,
+) -> RPCResponse:
+    if 'error' in response and error_formatters:
+        formatted_response = pipe(response, error_formatters)
+        return formatted_response
+    elif 'result' in response.keys() and response['result'] is None and error_formatters:
+        formatted_response = pipe(params, error_formatters)
+        return formatted_response
+    else:
+        return response
+
+
+class RequestManager:
+    logger = logging.getLogger("web3.RequestManager")
+
+    def __init__(
+        self,
+        web3: 'Web3',
+        provider: Optional[BaseProvider] = None,
+        middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None
+    ) -> None:
         self.web3 = web3
-        self.pending_requests = {}
+        self.pending_requests: Dict[UUID, ThreadWithReturn[RPCResponse]] = {}
 
         if middlewares is None:
-            middlewares = [attrdict_middleware, pythonic_middleware]
+            middlewares = self.default_middlewares(web3)
 
-        self.middleware_stack = NamedElementStack(middlewares)
-        self.providers = providers
+        self.middleware_onion: MiddlewareOnion = NamedElementOnion(middlewares)
 
-    web3 = None
-    _providers = None
+        if provider is None:
+            self.provider = AutoProvider()
+        else:
+            self.provider = provider
 
-    @deprecated_for("manager.middleware_stack.add(middleware [, name])")
-    def add_middleware(self, middleware):
-        return self.middleware_stack.add(middleware)
-
-    @deprecated_for("manager.middleware_stack.clear()")
-    def clear_middlewares(self):
-        return self.middleware_stack.clear()
+    web3: 'Web3' = None
+    _provider = None
 
     @property
-    def providers(self):
-        return self._providers or tuple()
+    def provider(self) -> BaseProvider:
+        return self._provider
 
-    @providers.setter
-    def providers(self, value):
-        if not is_list_like(value):
-            providers = [value]
-        else:
-            providers = value
-        self._providers = providers
+    @provider.setter
+    def provider(self, provider: BaseProvider) -> None:
+        self._provider = provider
 
-    def setProvider(self, providers):
-        warnings.warn(DeprecationWarning(
-            "The `setProvider` API has been deprecated.  You should update your "
-            "code to directly set the `manager.provider` property."
-        ))
-        self.providers = providers
+    @staticmethod
+    def default_middlewares(
+        web3: 'Web3'
+    )-> List[Tuple[Middleware, str]]:
+        """
+        List the default middlewares for the request manager.
+        Leaving ens unspecified will prevent the middleware from resolving names.
+        """
+        return [
+            (request_parameter_normalizer, 'request_param_normalizer'),  # Delete
+            (gas_price_strategy_middleware, 'gas_price_strategy'),  # Add Async
+            (name_to_address_middleware(web3), 'name_to_address'),  # Add Async
+            (attrdict_middleware, 'attrdict'),  # Delete
+            (pythonic_middleware, 'pythonic'),  # Delete
+            (normalize_errors_middleware, 'normalize_errors'),  # Add async
+            (validation_middleware, 'validation'),  # Add async
+            (abi_middleware, 'abi'),  # Delete
+        ]
 
     #
     # Provider requests and response
     #
-    def _make_request(self, method, params):
-        for provider in self.providers:
-            request_func = provider.request_func(self.web3, tuple(self.middleware_stack))
-            try:
-                return request_func(method, params)
-            except CannotHandleRequest:
-                continue
-        else:
-            raise UnhandledRequest(
-                "No providers responded to the RPC request:\n"
-                "method:{0}\n"
-                "params:{1}\n".format(
-                    method,
-                    params,
-                )
-            )
+    def _make_request(
+        self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
+    ) -> RPCResponse:
+        request_func = self.provider.request_func(
+            self.web3,
+            self.middleware_onion)
+        self.logger.debug("Making request. Method: %s", method)
+        return request_func(method, params)
 
-    def request_blocking(self, method, params):
+    async def _coro_make_request(
+        self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
+    ) -> RPCResponse:
+        request_func = self.provider.request_func(
+            self.web3,
+            self.middleware_onion)
+        self.logger.debug("Making request. Method: %s", method)
+        # type ignored b/c request_func is an awaitable in async model
+        return await request_func(method, params)  # type: ignore
+
+    def request_blocking(
+        self,
+        method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+        params: Any,
+        error_formatters: Optional[Callable[..., Any]] = None,
+    ) -> Any:
         """
         Make a synchronous request using the provider
         """
         response = self._make_request(method, params)
 
         if "error" in response:
+            apply_error_formatters(error_formatters, response)
             raise ValueError(response["error"])
+        elif response['result'] is None:
+            apply_error_formatters(error_formatters, response, params)
 
         return response['result']
 
-    def request_async(self, raw_method, raw_params):
+    async def coro_request(
+        self,
+        method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+        params: Any,
+        error_formatters: Optional[Callable[..., Any]] = None,
+    ) -> Any:
+        """
+        Couroutine for making a request using the provider
+        """
+        response = await self._coro_make_request(method, params)
+
+        if "error" in response:
+            apply_error_formatters(error_formatters, response)
+            raise ValueError(response["error"])
+
+        if response['result'] is None:
+            raise ValueError(f"The call to {method} did not return a value.")
+
+        return response['result']
+
+    @deprecated_for("coro_request")
+    def request_async(self, raw_method: str, raw_params: Any) -> UUID:
         request_id = uuid.uuid4()
         self.pending_requests[request_id] = spawn(
             self.request_blocking,
@@ -106,7 +191,7 @@ class RequestManager(object):
         )
         return request_id
 
-    def receive_blocking(self, request_id, timeout=None):
+    def receive_blocking(self, request_id: UUID, timeout: Optional[float] = None) -> Any:
         try:
             request = self.pending_requests.pop(request_id)
         except KeyError:
@@ -119,5 +204,5 @@ class RequestManager(object):
 
         return response['result']
 
-    def receive_async(self, request_id, *args, **kwargs):
+    def receive_async(self, request_id: UUID, *args: Any, **kwargs: Any) -> NoReturn:
         raise NotImplementedError("Callback pattern not implemented")

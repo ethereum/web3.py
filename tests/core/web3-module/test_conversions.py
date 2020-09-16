@@ -1,11 +1,15 @@
 # coding=utf-8
 
-from __future__ import unicode_literals
-
 import pytest
-import sys
+
+from hexbytes import (
+    HexBytes,
+)
 
 from web3 import Web3
+from web3.datastructures import (
+    AttributeDict,
+)
 
 
 @pytest.mark.parametrize(
@@ -21,18 +25,10 @@ from web3 import Web3
         (256, b'\x01\x00'),
         (True, b'\x01'),
         (False, b'\x00'),
-    )
+    ),
 )
 def test_to_bytes_primitive(val, expected):
     assert Web3.toBytes(val) == expected
-
-
-@pytest.mark.skipif(sys.version_info.major > 2, reason="Python 3 doesn't have long type")
-def test_to_bytes_long():
-    minlong = sys.maxint + 1
-    assert minlong > sys.maxint  # are there any python interpreters that overflow?
-    valbytes = Web3.toBytes(minlong)
-    assert Web3.toDecimal(valbytes) == minlong
 
 
 @pytest.mark.parametrize(
@@ -47,7 +43,7 @@ def test_to_bytes_long():
         ('0x100', b'\x01\x00'),
         ('0x0000', b'\x00\x00'),
         ('0000', b'\x00\x00'),
-    )
+    ),
 )
 def test_to_bytes_hexstr(val, expected):
     assert Web3.toBytes(hexstr=val) == expected
@@ -58,18 +54,14 @@ def test_to_bytes_hexstr(val, expected):
     (
         ('cowmö', b'cowm\xc3\xb6'),
         ('', b''),
-    )
+    ),
 )
 def test_to_bytes_text(val, expected):
     assert Web3.toBytes(text=val) == expected
 
 
 def test_to_text_identity():
-    if sys.version_info.major < 3:
-        with pytest.raises(NotImplementedError):
-            Web3.toText(text='')
-    else:
-        assert Web3.toText(text='pass-through') == 'pass-through'
+    assert Web3.toText(text='pass-through') == 'pass-through'
 
 
 @pytest.mark.parametrize(
@@ -81,14 +73,10 @@ def test_to_text_identity():
         ('0x636f776dc3b6', 'cowmö'),
         (0x636f776dc3b6, 'cowmö'),
         ('0xa', '\n'),
-    )
+    ),
 )
 def test_to_text(val, expected):
-    if sys.version_info.major < 3:
-        with pytest.raises(NotImplementedError):
-            Web3.toText(val)
-    else:
-        assert Web3.toText(val) == expected
+    assert Web3.toText(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -98,14 +86,10 @@ def test_to_text(val, expected):
         ('0xa', '\n'),
         ('0x636f776dc3b6', 'cowmö'),
         ('636f776dc3b6', 'cowmö'),
-    )
+    ),
 )
 def test_to_text_hexstr(val, expected):
-    if sys.version_info.major < 3:
-        with pytest.raises(NotImplementedError):
-            Web3.toText(hexstr=val)
-    else:
-        assert Web3.toText(hexstr=val) == expected
+    assert Web3.toText(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -115,19 +99,20 @@ def test_to_text_hexstr(val, expected):
         (b'\x01', 1),
         (b'\x00\x01', 1),
         (b'\x01\x00', 256),
-        ('255', 255),
-        ('-1', -1),
         (True, 1),
         (False, 0),
-        # Deprecated:
-        ('0x0', 0),
-        ('0x1', 1),
-        ('0x01', 1),
-        ('0x10', 16),
-    )
+        ('255', TypeError),
+        ('-1', TypeError),
+        ('0x0', TypeError),
+        ('0x1', TypeError),
+    ),
 )
-def test_to_decimal(val, expected):
-    assert Web3.toDecimal(val) == expected
+def test_to_int(val, expected):
+    if isinstance(expected, type):
+        with pytest.raises(expected):
+            Web3.toInt(val)
+    else:
+        assert Web3.toInt(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -136,12 +121,18 @@ def test_to_decimal(val, expected):
         ('0', 0),
         ('-1', -1),
         ('255', 255),
-    )
+        ('0x0', ValueError),
+        ('0x1', ValueError),
+        ('1.1', ValueError),
+        ('a', ValueError),
+    ),
 )
-def test_to_decimal_text(val, expected):
-    if isinstance(val, bytes) and bytes == str:
-        pytest.skip("Python 3 is required to pass in bytes")
-    assert Web3.toDecimal(text=val) == expected
+def test_to_int_text(val, expected):
+    if isinstance(expected, type):
+        with pytest.raises(expected):
+            Web3.toInt(text=val)
+    else:
+        assert Web3.toInt(text=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -155,10 +146,10 @@ def test_to_decimal_text(val, expected):
         ('1', 1),
         ('01', 1),
         ('10', 16),
-    )
+    ),
 )
-def test_to_decimal_hexstr(val, expected):
-    assert Web3.toDecimal(hexstr=val) == expected
+def test_to_int_hexstr(val, expected):
+    assert Web3.toInt(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -178,7 +169,7 @@ def test_to_decimal_hexstr(val, expected):
         (0x0F, '0xf'),
         (False, '0x0'),
         (True, '0x1'),
-    )
+    ),
 )
 def test_to_hex(val, expected):
     assert Web3.toHex(val) == expected
@@ -189,7 +180,7 @@ def test_to_hex(val, expected):
     (
         ('', '0x'),
         ('cowmö', '0x636f776dc3b6'),
-    )
+    ),
 )
 def test_to_hex_text(val, expected):
     assert Web3.toHex(text=val) == expected
@@ -204,7 +195,56 @@ def test_to_hex_text(val, expected):
         ('0x10', '0x10'),
         ('0xF', '0xf'),
         ('F', '0xf'),
-    )
+    ),
 )
 def test_to_hex_cleanup_only(val, expected):
     assert Web3.toHex(hexstr=val) == expected
+
+
+@pytest.mark.parametrize(
+    'val, expected',
+    (
+        (AttributeDict({'one': HexBytes('0x1')}), '{"one": "0x01"}'),
+        (AttributeDict({'two': HexBytes(2)}), '{"two": "0x02"}'),
+        (AttributeDict({
+            'three': AttributeDict({
+                'four': 4
+            })
+        }), '{"three": {"four": 4}}'),
+        ({'three': 3}, '{"three": 3}'),
+    ),
+)
+def test_to_json(val, expected):
+    assert Web3.toJSON(val) == expected
+
+
+@pytest.mark.parametrize(
+    'tx, expected',
+    (
+        (
+            AttributeDict({
+                'blockHash': HexBytes(
+                    '0x849044202a39ae36888481f90d62c3826bca8269c2716d7a38696b4f45e61d83'
+                ),
+                'blockNumber': 6928809,
+                'from': '0xDEA141eF43A2fdF4e795adA55958DAf8ef5FA619',
+                'gas': 21000,
+                'gasPrice': 19110000000,
+                'hash': HexBytes(
+                    '0x1ccddd19830e998d7cf4d921b19fafd5021c9d4c4ba29680b66fb535624940fc'
+                ),
+                'input': '0x',
+                'nonce': 5522,
+                'r': HexBytes('0x71ef3eed6242230a219d9dc7737cb5a3a16059708ee322e96b8c5774105b9b00'),
+                's': HexBytes('0x48a076afe10b4e1ae82ef82b747e9be64e0bbb1cc90e173db8d53e7baba8ac46'),
+                'to': '0x3a84E09D30476305Eda6b2DA2a4e199E2Dd1bf79',
+                'transactionIndex': 8,
+                'v': 27,
+                'value': 2907000000000000
+            }),
+            '{"blockHash": "0x849044202a39ae36888481f90d62c3826bca8269c2716d7a38696b4f45e61d83", "blockNumber": 6928809, "from": "0xDEA141eF43A2fdF4e795adA55958DAf8ef5FA619", "gas": 21000, "gasPrice": 19110000000, "hash": "0x1ccddd19830e998d7cf4d921b19fafd5021c9d4c4ba29680b66fb535624940fc", "input": "0x", "nonce": 5522, "r": "0x71ef3eed6242230a219d9dc7737cb5a3a16059708ee322e96b8c5774105b9b00", "s": "0x48a076afe10b4e1ae82ef82b747e9be64e0bbb1cc90e173db8d53e7baba8ac46", "to": "0x3a84E09D30476305Eda6b2DA2a4e199E2Dd1bf79", "transactionIndex": 8, "v": 27, "value": 2907000000000000}'  # noqa: E501
+        ),
+    ),
+)
+def test_to_json_with_transaction(tx, expected):
+    assert Web3.toJSON(tx) == expected

@@ -1,13 +1,19 @@
 import pytest
-import sys
 
-from web3.utils.validation import (
+from eth_utils import (
+    to_bytes,
+)
+
+from web3._utils.validation import (
     validate_abi,
     validate_abi_type,
     validate_abi_value,
     validate_address,
-    validate_address_checksum,
 )
+from web3.exceptions import (
+    InvalidAddress,
+)
+
 ABI = [
     {
         "constant": False,
@@ -20,10 +26,54 @@ ABI = [
 
 MALFORMED_ABI_1 = "NON-LIST ABI"
 MALFORMED_ABI_2 = [5, {"test": "value"}, True]
+MALFORMED_SELECTOR_COLLISION_ABI = [
+    {
+        'constant': False,
+        'inputs': [{'name': 'input', 'type': 'uint256'}],
+        'name': 'blockHashAmphithyronVersify',
+        'outputs': [{'name': '', 'type': 'uint256'}],
+        'payable': False,
+        'stateMutability': 'nonpayable',
+        'type': 'function'
+    },
+    {
+        'constant': False,
+        'inputs': [{'name': 'input', 'type': 'uint256'}],
+        'name': 'blockHashAskewLimitary',
+        'outputs': [{'name': '', 'type': 'uint256'}],
+        'payable': False,
+        'stateMutability': 'nonpayable',
+        'type': 'function'
+    }
+]
+MALFORMED_SIGNATURE_COLLISION_ABI = [
+    {
+        'constant': False,
+        'inputs': [{'name': 'input', 'type': 'uint256'}],
+        'name': 'blockHashAmphithyronVersify',
+        'outputs': [{'name': '', 'type': 'uint256'}],
+        'payable': False,
+        'stateMutability': 'nonpayable',
+        'type': 'function'
+    },
+    {
+        'constant': False,
+        'inputs': [{'name': 'input', 'type': 'uint256'}],
+        'name': 'blockHashAmphithyronVersify',
+        'outputs': [{'name': '', 'type': 'uint256'}],
+        'payable': False,
+        'stateMutability': 'nonpayable',
+        'type': 'function'
+    }
+]
 
-ADDRESS = '0xd3cda913deb6f67967b99d67acdfa1712c293601'
+ADDRESS = '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+BYTES_ADDRESS = to_bytes(hexstr=ADDRESS)
 PADDED_ADDRESS = '0x000000000000000000000000d3cda913deb6f67967b99d67acdfa1712c293601'
 INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
+NON_CHECKSUM_ADDRESS = '0xd3cda913deb6f67967b99d67acdfa1712c293601'
+BYTES_ADDRESS_LEN_LT_20 = bytes(1) * 19
+BYTES_ADDRESS_LEN_GT_20 = bytes(1) * 21
 
 
 @pytest.mark.parametrize(
@@ -32,13 +82,17 @@ INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
         (ABI, validate_abi, None),
         (MALFORMED_ABI_1, validate_abi, ValueError),
         (MALFORMED_ABI_2, validate_abi, ValueError),
+        (MALFORMED_SELECTOR_COLLISION_ABI, validate_abi, ValueError),
+        (MALFORMED_SIGNATURE_COLLISION_ABI, validate_abi, ValueError),
         (ADDRESS, validate_address, None),
-        (PADDED_ADDRESS, validate_address, None),
-        (INVALID_CHECKSUM_ADDRESS, validate_address, ValueError),
-        ("NotAddress", validate_address, ValueError),
-        (ADDRESS, validate_address_checksum, None),
-        (PADDED_ADDRESS, validate_address_checksum, None),
-        (INVALID_CHECKSUM_ADDRESS, validate_address_checksum, ValueError),
+        (BYTES_ADDRESS, validate_address, None),
+        (PADDED_ADDRESS, validate_address, InvalidAddress),
+        (INVALID_CHECKSUM_ADDRESS, validate_address, InvalidAddress),
+        (NON_CHECKSUM_ADDRESS, validate_address, InvalidAddress),
+        (BYTES_ADDRESS_LEN_LT_20, validate_address, InvalidAddress),
+        (BYTES_ADDRESS_LEN_GT_20, validate_address, InvalidAddress),
+        ("NotAddress", validate_address, InvalidAddress),
+        (b'not string', validate_address, InvalidAddress),
         ('bool', validate_abi_type, None),
         ('bool[', validate_abi_type, ValueError),
         ('sbool', validate_abi_type, ValueError),
@@ -70,7 +124,8 @@ def test_validation(param, validation, expected):
         ('bool[0][1]', [[]], TypeError),
         ('uint8', -5, TypeError),
         ('int8', -5, None),
-        ('address', "just a string", TypeError),
+        ('address', "just a string", InvalidAddress),
+        ('address', b'not even a string', InvalidAddress),
         ('address[][]', [[4, 5], [True]], TypeError),
         ('address[][]', [[ADDRESS]], None),
         ('address[2][]', [[ADDRESS], [ADDRESS, ADDRESS]], TypeError),
@@ -79,7 +134,7 @@ def test_validation(param, validation, expected):
         ('bytes', True, TypeError),
         ('bytes', "0x5402", None),
         ('bytes', "5402", TypeError),
-        ('bytes', b'T\x02', None if sys.version_info[0] >= 3 else TypeError),
+        ('bytes', b'T\x02', None),
     )
 )
 def test_validate_abi_value(abi_type, value, expected):

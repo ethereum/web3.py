@@ -1,6 +1,11 @@
 * Version: x.x.x
 * Python: 2.7/3.4/3.5
 * OS: osx/linux/win
+* `pip freeze` output
+
+```
+<put the output from running pip freeze here>
+```
 
 
 ### What was wrong?

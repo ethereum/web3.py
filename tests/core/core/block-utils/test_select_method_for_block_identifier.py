@@ -1,13 +1,12 @@
 import pytest
 
-from cytoolz.functoolz import (
+from eth_utils.toolz import (
     partial,
 )
 
-from web3.utils.blocks import (
+from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
-
 
 selector_fn = partial(
     select_method_for_block_identifier,
