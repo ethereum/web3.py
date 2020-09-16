@@ -75,11 +75,13 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     BlockNotFound,
+    TransactionNotFound,
 )
 from web3.types import (
     BlockIdentifier,
     RPCEndpoint,
     TReturn,
+    _Hash32,
 )
 
 
@@ -518,6 +520,11 @@ def raise_block_not_found_for_uncle_at_index(
     )
 
 
+def raise_transaction_not_found(params: Tuple[_Hash32]) -> NoReturn:
+    transaction_hash = params[0]
+    raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
+
+
 NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getBlockByHash: raise_block_not_found,
     RPC.eth_getBlockByNumber: raise_block_not_found,
@@ -527,6 +534,7 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getUncleCountByBlockNumber: raise_block_not_found,
     RPC.eth_getUncleByBlockHashAndIndex: raise_block_not_found_for_uncle_at_index,
     RPC.eth_getUncleByBlockNumberAndIndex: raise_block_not_found_for_uncle_at_index,
+    RPC.eth_getTransactionByHash: raise_transaction_not_found,
 }
 
 

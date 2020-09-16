@@ -75,7 +75,6 @@ from web3.contract import (
     ContractCaller,
 )
 from web3.exceptions import (
-    BlockNotFound,
     TimeExhausted,
     TransactionNotFound,
 )
@@ -300,7 +299,7 @@ class Eth(ModuleV2, Module):
     `eth_getUncleByBlockNumberAndIndex`
     """
     getUncleByBlock: Method[Callable[[BlockIdentifier, int], Uncle]] = Method(
-        method_choice_depends_on_args = select_method_for_block_identifier(
+        method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getUncleByBlockNumberAndIndex,
             if_hash=RPC.eth_getUncleByBlockHashAndIndex,
             if_number=RPC.eth_getUncleByBlockNumberAndIndex,
@@ -308,14 +307,10 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger]
     )
 
-    def getTransaction(self, transaction_hash: _Hash32) -> TxData:
-        result = self.web3.manager.request_blocking(
-            RPC.eth_getTransactionByHash,
-            [transaction_hash],
-        )
-        if result is None:
-            raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
-        return result
+    getTransaction: Method[Callable[[_Hash32], TxData]] = Method(
+        RPC.eth_getTransactionByHash,
+        mungers=[default_root_munger]
+    )
 
     def getTransactionFromBlock(
         self, block_identifier: BlockIdentifier, transaction_index: int
