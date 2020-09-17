@@ -499,8 +499,8 @@ def get_request_formatters(
 ) -> Dict[str, Callable[..., Any]]:
     request_formatter_maps = (
         METHOD_NORMALIZERS,
-        PYTHONIC_REQUEST_FORMATTERS,
         ABI_REQUEST_FORMATTERS,
+        PYTHONIC_REQUEST_FORMATTERS,
     )
     formatters = combine_formatters(request_formatter_maps, method_name)
     return compose(*formatters)

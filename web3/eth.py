@@ -76,7 +76,6 @@ from web3.contract import (
 )
 from web3.exceptions import (
     TimeExhausted,
-    TransactionNotFound,
 )
 from web3.iban import (
     Iban,
@@ -368,7 +367,7 @@ class Eth(ModuleV2, Module):
         new_transaction = merge(current_transaction_params, transaction_params)
         return replace_transaction(self.web3, current_transaction, new_transaction)
 
-    def sendTransaction(self, transaction: TxParams) -> HexBytes:
+    def send_transaction_munger(self, transaction: TxParams) -> Tuple[TxParams]:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
@@ -380,11 +379,12 @@ class Eth(ModuleV2, Module):
                 'gas',
                 get_buffered_gas_estimate(self.web3, transaction),
             )
+        return (transaction,)
 
-        return self.web3.manager.request_blocking(
-            RPC.eth_sendTransaction,
-            [transaction],
-        )
+    sendTransaction: Method[Callable[[TxParams], HexBytes]] = Method(
+        RPC.eth_sendTransaction,
+        mungers=[send_transaction_munger]
+    )
 
     sendRawTransaction: Method[Callable[[Union[HexStr, bytes]], HexBytes]] = Method(
         RPC.eth_sendRawTransaction,
