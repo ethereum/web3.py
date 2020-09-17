@@ -92,6 +92,7 @@ def bytes_to_ascii(value: bytes) -> str:
 to_ascii_if_bytes = apply_formatter_if(is_bytes, bytes_to_ascii)
 to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
 block_number_formatter = apply_formatter_if(is_integer, integer_to_hex)
+to_hex_if_integer = apply_formatter_if(is_integer, integer_to_hex)
 
 
 is_false = partial(operator.is_, False)
@@ -365,7 +366,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getUncleCountByBlockNumber: apply_formatter_at_index(block_number_formatter, 0),
     RPC.eth_getUncleByBlockNumberAndIndex: compose(
         apply_formatter_at_index(block_number_formatter, 0),
-        apply_formatter_at_index(block_number_formatter, 1),
+        apply_formatter_at_index(to_hex_if_integer, 1),
     ),
     RPC.eth_getUncleByBlockHashAndIndex: apply_formatter_at_index(integer_to_hex, 1),
     RPC.eth_newFilter: apply_formatter_at_index(filter_params_formatter, 0),
