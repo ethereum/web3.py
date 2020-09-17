@@ -360,7 +360,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getStorageAt: apply_formatter_at_index(block_number_formatter, 2),
     RPC.eth_getTransactionByBlockNumberAndIndex: compose(
         apply_formatter_at_index(block_number_formatter, 0),
-        apply_formatter_at_index(integer_to_hex, 1),
+        apply_formatter_at_index(to_hex_if_integer, 1),
     ),
     RPC.eth_getTransactionCount: apply_formatter_at_index(block_number_formatter, 1),
     RPC.eth_getUncleCountByBlockNumber: apply_formatter_at_index(block_number_formatter, 0),
@@ -526,6 +526,15 @@ def raise_transaction_not_found(params: Tuple[_Hash32]) -> NoReturn:
     raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
 
 
+def raise_transaction_not_found_with_index(params: Tuple[BlockIdentifier, int]) -> NoReturn:
+    block_identifier = params[0]
+    transaction_index = to_integer_if_hex(params[1])
+    raise TransactionNotFound(
+        f"Transaction index: {transaction_index} "
+        f"on block id: {block_identifier} not found."
+    )
+
+
 NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getBlockByHash: raise_block_not_found,
     RPC.eth_getBlockByNumber: raise_block_not_found,
@@ -536,6 +545,8 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getUncleByBlockHashAndIndex: raise_block_not_found_for_uncle_at_index,
     RPC.eth_getUncleByBlockNumberAndIndex: raise_block_not_found_for_uncle_at_index,
     RPC.eth_getTransactionByHash: raise_transaction_not_found,
+    RPC.eth_getTransactionByBlockHashAndIndex: raise_transaction_not_found_with_index,
+    RPC.eth_getTransactionByBlockNumberAndIndex: raise_transaction_not_found_with_index,
 }
 
 

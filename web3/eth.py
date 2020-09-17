@@ -321,29 +321,14 @@ class Eth(ModuleV2, Module):
         """
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
-    def getTransactionByBlock(
-        self, block_identifier: BlockIdentifier, transaction_index: int
-    ) -> TxData:
-        """
-        `eth_getTransactionByBlockHashAndIndex`
-        `eth_getTransactionByBlockNumberAndIndex`
-        """
-        method = select_method_for_block_identifier(
-            block_identifier,
+    getTransactionByBlock: Method[Callable[[BlockIdentifier, int], TxData]] = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getTransactionByBlockNumberAndIndex,
             if_hash=RPC.eth_getTransactionByBlockHashAndIndex,
             if_number=RPC.eth_getTransactionByBlockNumberAndIndex,
-        )
-        result = self.web3.manager.request_blocking(
-            method,
-            [block_identifier, transaction_index],
-        )
-        if result is None:
-            raise TransactionNotFound(
-                f"Transaction index: {transaction_index} "
-                f"on block id: {block_identifier} not found."
-            )
-        return result
+        ),
+        mungers=[default_root_munger]
+    )
 
     def waitForTransactionReceipt(
         self, transaction_hash: _Hash32, timeout: int=120, poll_latency: float=0.1
