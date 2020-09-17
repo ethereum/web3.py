@@ -547,6 +547,7 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getTransactionByHash: raise_transaction_not_found,
     RPC.eth_getTransactionByBlockHashAndIndex: raise_transaction_not_found_with_index,
     RPC.eth_getTransactionByBlockNumberAndIndex: raise_transaction_not_found_with_index,
+    RPC.eth_getTransactionReceipt: raise_transaction_not_found,
 }
 
 

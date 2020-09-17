@@ -343,14 +343,10 @@ class Eth(ModuleV2, Module):
                 )
             )
 
-    def getTransactionReceipt(self, transaction_hash: _Hash32) -> TxReceipt:
-        result = self.web3.manager.request_blocking(
-            RPC.eth_getTransactionReceipt,
-            [transaction_hash],
-        )
-        if result is None:
-            raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
-        return result
+    getTransactionReceipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
+        RPC.eth_getTransactionReceipt,
+        mungers=[default_root_munger]
+    )
 
     getTransactionCount: Method[Callable[..., Nonce]] = Method(
         RPC.eth_getTransactionCount,
