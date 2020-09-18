@@ -1,0 +1,1 @@
+eth_getTransactionByBlock, eth_getTransactionReceipt, and eth_signTransaction now use Method class
