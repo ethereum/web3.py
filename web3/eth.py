@@ -423,9 +423,7 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger],
     )
 
-    @apply_to_return_value(HexBytes)
-    def call(self, transaction: TxParams,
-             block_identifier: Optional[BlockIdentifier] = None) -> Sequence[Any]:
+    def call_munger(self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None) -> Tuple[TxParams, BlockIdentifier]:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
@@ -433,10 +431,13 @@ class Eth(ModuleV2, Module):
         # TODO: move to middleware
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return self.web3.manager.request_blocking(
-            RPC.eth_call,
-            [transaction, block_identifier],
-        )
+
+        return (transaction, block_identifier)
+
+    call: Method[Callable[..., Union[bytes, bytearray]]] = Method(
+        RPC.eth_call,
+        mungers=[call_munger]
+    )
 
     def estimateGas(self, transaction: TxParams,
                     block_identifier: Optional[BlockIdentifier] = None) -> Wei:
