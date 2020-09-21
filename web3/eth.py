@@ -22,7 +22,6 @@ from eth_typing import (
     HexStr,
 )
 from eth_utils import (
-    apply_to_return_value,
     is_checksum_address,
     is_string,
 )
@@ -423,7 +422,11 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger],
     )
 
-    def call_munger(self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None) -> Tuple[TxParams, BlockIdentifier]:
+    def call_munger(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> Tuple[TxParams, BlockIdentifier]:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
@@ -439,9 +442,11 @@ class Eth(ModuleV2, Module):
         mungers=[call_munger]
     )
 
-    def estimateGas(self, transaction: TxParams,
-                    block_identifier: Optional[BlockIdentifier] = None) -> Wei:
-        # TODO: move to middleware
+    def estimate_gas_munger(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> Sequence[Union[TxParams, BlockIdentifier]]:
         if 'from' not in transaction and is_checksum_address(self.defaultAccount):
             transaction = assoc(transaction, 'from', self.defaultAccount)
 
@@ -450,10 +455,12 @@ class Eth(ModuleV2, Module):
         else:
             params = [transaction, block_identifier]
 
-        return self.web3.manager.request_blocking(
-            RPC.eth_estimateGas,
-            params,
-        )
+        return params
+
+    estimateGas: Method[Callable[..., Wei]] = Method(
+        RPC.eth_estimateGas,
+        mungers=[estimate_gas_munger]
+    )
 
     def filter(
         self, filter_params: Optional[Union[str, FilterParams]] = None,
