@@ -52,9 +52,6 @@ from web3._utils.filters import (
     LogFilter,
     TransactionFilter,
 )
-from web3._utils.normalizers import (
-    abi_ens_resolver,
-)
 from web3._utils.rpc_abi import (
     RPC,
 )
@@ -203,50 +200,60 @@ class Eth(ModuleV2, Module):
     def chainId(self) -> int:
         return self.web3.manager.request_blocking(RPC.eth_chainId, [])
 
-    def block_identifier_munger(
-        self,
-        *args: Any,
-        block_identifier: BlockIdentifier=None
-    ) -> List[Any]:
-        if block_identifier is None:
-            block_identifier = self.defaultBlock
-        return [*args, block_identifier]
-
-    def address_resolver_munger(
+    def block_id_munger(
         self,
         account: Union[Address, ChecksumAddress, ENS],
         block_identifier: Optional[BlockIdentifier]=None
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
-        resolved_addr = abi_ens_resolver(self.web3, 'address', account)[1]
         if block_identifier is None:
             block_identifier = self.defaultBlock
-        return (resolved_addr, block_identifier)
+        return (account, block_identifier)
 
     getBalance: Method[Callable[..., Wei]] = Method(
         RPC.eth_getBalance,
-        mungers=[address_resolver_munger],
+        mungers=[block_id_munger],
     )
+
+    def get_storage_at_munger(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        position: int,
+        block_identifier: Optional[BlockIdentifier]=None
+    ) -> Tuple[Union[Address, ChecksumAddress, ENS], int, BlockIdentifier]:
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
+        return (account, position, block_identifier)
 
     getStorageAt: Method[
         Callable[..., HexBytes]
     ] = Method(
         RPC.eth_getStorageAt,
-        mungers=[block_identifier_munger],
+        mungers=[get_storage_at_munger],
     )
+
+    def get_proof_munger(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        positions: Sequence[int],
+        block_identifier: Optional[BlockIdentifier]=None
+    ) -> Tuple[Union[Address, ChecksumAddress, ENS], Sequence[int], Optional[BlockIdentifier]]:
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
+        return (account, positions, block_identifier)
 
     getProof: Method[
         Callable[
-            [Tuple[ChecksumAddress, Sequence[int], Optional[BlockIdentifier]]],
+            [Tuple[Union[Address, ChecksumAddress, ENS], Sequence[int], Optional[BlockIdentifier]]],
             MerkleProof
         ]
     ] = Method(
         RPC.eth_getProof,
-        mungers=[block_identifier_munger],
+        mungers=[get_proof_munger],
     )
 
     getCode: Method[Callable[..., HexBytes]] = Method(
         RPC.eth_getCode,
-        mungers=[address_resolver_munger]
+        mungers=[block_id_munger]
     )
 
     def get_block_munger(
@@ -349,7 +356,7 @@ class Eth(ModuleV2, Module):
 
     getTransactionCount: Method[Callable[..., Nonce]] = Method(
         RPC.eth_getTransactionCount,
-        mungers=[block_identifier_munger],
+        mungers=[block_id_munger],
     )
 
     def replaceTransaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
