@@ -215,8 +215,14 @@ def disable_auto_mine(func):
 
 class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, ValueError)
+    test_eth_sign_ens_names = not_implemented(
+        EthModuleTest.test_eth_sign_ens_names, ValueError
+    )
     test_eth_signTypedData = not_implemented(EthModuleTest.test_eth_signTypedData, ValueError)
     test_eth_signTransaction = not_implemented(EthModuleTest.test_eth_signTransaction, ValueError)
+    test_eth_signTransaction_ens_names = not_implemented(
+        EthModuleTest.test_eth_signTransaction_ens_names, ValueError
+    )
     test_eth_submitHashrate = not_implemented(EthModuleTest.test_eth_submitHashrate, ValueError)
     test_eth_submitWork = not_implemented(EthModuleTest.test_eth_submitWork, ValueError)
 
@@ -282,6 +288,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
     @pytest.mark.xfail(reason='json-rpc method is not implemented on eth-tester')
     def test_eth_getStorageAt(self, web3, emitter_contract_address):
         super().test_eth_getStorageAt(web3, emitter_contract_address)
+
+    @pytest.mark.xfail(reason='json-rpc method is not implemented on eth-tester')
+    def test_eth_getStorageAt_ens_name(self, web3, emitter_contract_address):
+        super().test_eth_getStorageAt_ens_name(web3, emitter_contract_address)
 
     def test_eth_estimateGas_with_block(self,
                                         web3,

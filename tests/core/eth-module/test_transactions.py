@@ -1,6 +1,10 @@
 import pytest
 
+from web3._utils.ens import (
+    ens_addresses,
+)
 from web3.exceptions import (
+    NameNotFound,
     TimeExhausted,
     TransactionNotFound,
     ValidationError,
@@ -39,6 +43,49 @@ def test_send_transaction_with_valid_chain_id(web3, make_chain_id, expect_succes
             web3.eth.sendTransaction(transaction)
 
         assert 'chain ID' in str(exc_info.value)
+
+
+@pytest.mark.parametrize(
+    'to, _from',
+    (
+        (
+            'registered-name-1.eth',
+            'not-a-registered-name.eth',
+        ),
+        (
+            'not-a-registered-name.eth',
+            'registered-name-1.eth',
+        ),
+    )
+)
+def test_send_transaction_with_invalid_ens_names(web3, to, _from):
+    with ens_addresses(web3, [
+        ('registered-name-1.eth', web3.eth.accounts[1]),
+    ]):
+        transaction = {
+            'to': to,
+            'chainId': web3.eth.chainId,
+            'from': _from,
+        }
+
+        with pytest.raises(NameNotFound):
+            web3.eth.sendTransaction(transaction)
+
+
+def test_send_transaction_with_ens_names(web3):
+    with ens_addresses(web3, [
+        ('registered-name-1.eth', web3.eth.accounts[1]),
+        ('registered-name-2.eth', web3.eth.accounts[0])
+    ]):
+        transaction = {
+            'to': 'registered-name-1.eth',
+            'chainId': web3.eth.chainId,
+            'from': 'registered-name-2.eth',
+        }
+
+        txn_hash = web3.eth.sendTransaction(transaction)
+        receipt = web3.eth.waitForTransactionReceipt(txn_hash, timeout=RECEIPT_TIMEOUT)
+        assert receipt.get('blockNumber') is not None
 
 
 def test_wait_for_missing_receipt(web3):

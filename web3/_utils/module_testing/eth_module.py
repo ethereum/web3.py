@@ -30,9 +30,13 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.ens import (
+    ens_addresses,
+)
 from web3.exceptions import (
     BlockNotFound,
     InvalidAddress,
+    NameNotFound,
     TransactionNotFound,
 )
 from web3.types import (  # noqa: F401
@@ -136,11 +140,34 @@ class EthModuleTest:
         assert is_integer(later_balance)
         assert later_balance > genesis_balance
 
+    @pytest.mark.parametrize('address, expect_success', [
+        ('test-address.eth', True),
+        ('not-an-address.eth', False)
+    ])
+    def test_eth_getBalance_with_ens_name(
+        self, web3: "Web3", address: ChecksumAddress, expect_success: bool
+    ) -> None:
+        with ens_addresses(web3, {'test-address.eth': web3.eth.accounts[0]}):
+            if expect_success:
+                balance = web3.eth.getBalance(address)
+                assert is_integer(balance)
+                assert balance >= 0
+            else:
+                with pytest.raises(NameNotFound):
+                    web3.eth.getBalance(address)
+
     def test_eth_getStorageAt(
         self, web3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
         storage = web3.eth.getStorageAt(emitter_contract_address, 0)
         assert isinstance(storage, HexBytes)
+
+    def test_eth_getStorageAt_ens_name(
+        self, web3: "Web3", emitter_contract_address: ChecksumAddress
+    ) -> None:
+        with ens_addresses(web3, {'emitter.eth': emitter_contract_address}):
+            storage = web3.eth.getStorageAt('emitter.eth', 0)
+            assert isinstance(storage, HexBytes)
 
     def test_eth_getStorageAt_invalid_address(self, web3: "Web3") -> None:
         coinbase = web3.eth.coinbase
@@ -153,6 +180,14 @@ class EthModuleTest:
         transaction_count = web3.eth.getTransactionCount(unlocked_account_dual_type)
         assert is_integer(transaction_count)
         assert transaction_count >= 0
+
+    def test_eth_getTransactionCount_ens_name(
+        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        with ens_addresses(web3, {'unlocked-acct-dual-type.eth': unlocked_account_dual_type}):
+            transaction_count = web3.eth.getTransactionCount('unlocked-acct-dual-type.eth')
+            assert is_integer(transaction_count)
+            assert transaction_count >= 0
 
     def test_eth_getTransactionCount_invalid_address(self, web3: "Web3") -> None:
         coinbase = web3.eth.coinbase
@@ -208,6 +243,16 @@ class EthModuleTest:
         assert isinstance(code, HexBytes)
         assert len(code) > 0
 
+    def test_eth_getCode_ens_address(
+        self, web3: "Web3", math_contract_address: ChecksumAddress
+    ) -> None:
+        with ens_addresses(
+            web3, {'mathcontract.eth': math_contract_address}
+        ):
+            code = web3.eth.getCode('mathcontract.eth')
+            assert isinstance(code, HexBytes)
+            assert len(code) > 0
+
     def test_eth_getCode_invalid_address(self, web3: "Web3", math_contract: "Contract") -> None:
         with pytest.raises(InvalidAddress):
             web3.eth.getCode(ChecksumAddress(HexAddress(HexStr(math_contract.address.lower()))))
@@ -250,6 +295,16 @@ class EthModuleTest:
             unlocked_account_dual_type, text='different message is different'
         )
         assert new_signature != signature
+
+    def test_eth_sign_ens_names(
+        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        with ens_addresses(web3, {'unlocked-acct.eth': unlocked_account_dual_type}):
+            signature = web3.eth.sign(
+                'unlocked-acct.eth', text='Message tö sign. Longer than hash!'
+            )
+            assert is_bytes(signature)
+            assert len(signature) == 32 + 32 + 1
 
     def test_eth_signTypedData(
         self,
@@ -373,6 +428,27 @@ class EthModuleTest:
         assert result['tx']['gas'] == txn_params['gas']
         assert result['tx']['gasPrice'] == txn_params['gasPrice']
         assert result['tx']['nonce'] == txn_params['nonce']
+
+    def test_eth_signTransaction_ens_names(
+        self, web3: "Web3", unlocked_account: ChecksumAddress
+    ) -> None:
+        with ens_addresses(web3, {'unlocked-account.eth': unlocked_account}):
+            txn_params: TxParams = {
+                'from': 'unlocked-account.eth',
+                'to': 'unlocked-account.eth',
+                'value': Wei(1),
+                'gas': Wei(21000),
+                'gasPrice': web3.eth.gasPrice,
+                'nonce': Nonce(0),
+            }
+            result = web3.eth.signTransaction(txn_params)
+            signatory_account = web3.eth.account.recover_transaction(result['raw'])
+            assert unlocked_account == signatory_account
+            assert result['tx']['to'] == unlocked_account
+            assert result['tx']['value'] == txn_params['value']
+            assert result['tx']['gas'] == txn_params['gas']
+            assert result['tx']['gasPrice'] == txn_params['gasPrice']
+            assert result['tx']['nonce'] == txn_params['nonce']
 
     def test_eth_sendTransaction_addr_checksum_required(
         self, web3: "Web3", unlocked_account: ChecksumAddress
