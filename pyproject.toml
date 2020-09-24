@@ -4,6 +4,7 @@ package = "<MODULE_NAME>"
 filename = "docs/release_notes.rst"
 directory = "newsfragments"
 underlines = ["-", "~", "^"]
+title_format = "<PROJECT_NAME> v{version} ({project_date})"
 issue_format = "`#{issue} <https://github.com/ethereum/<REPO_NAME>/issues/{issue}>`__"
 
 [[tool.towncrier.type]]
