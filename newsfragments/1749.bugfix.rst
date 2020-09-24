@@ -1,0 +1,1 @@
+Allow ENS name resolution for methods that use the ``Method`` class
