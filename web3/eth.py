@@ -500,20 +500,20 @@ class Eth(ModuleV2, Module):
                             "a valid filter object, or a filter_id as a string "
                             "or hex.")
 
-    def getFilterChanges(self, filter_id: HexStr) -> List[LogReceipt]:
-        return self.web3.manager.request_blocking(
-            RPC.eth_getFilterChanges, [filter_id],
-        )
+    getFilterChanges: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
+        RPC.eth_getFilterChanges,
+        mungers=[default_root_munger]
+    )
 
-    def getFilterLogs(self, filter_id: HexStr) -> List[LogReceipt]:
-        return self.web3.manager.request_blocking(
-            RPC.eth_getFilterLogs, [filter_id],
-        )
+    getFilterLogs: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
+        RPC.eth_getFilterLogs,
+        mungers=[default_root_munger]
+    )
 
-    def getLogs(self, filter_params: FilterParams) -> List[LogReceipt]:
-        return self.web3.manager.request_blocking(
-            RPC.eth_getLogs, [filter_params],
-        )
+    getLogs: Method[Callable[[FilterParams], List[LogReceipt]]] = Method(
+        RPC.eth_getLogs,
+        mungers=[default_root_munger]
+    )
 
     submitHashrate: Method[Callable[[int, _Hash32], bool]] = Method(
         RPC.eth_submitHashrate,
