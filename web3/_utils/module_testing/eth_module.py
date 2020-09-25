@@ -748,7 +748,7 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
-        with pytest.raises(SolidityError, match='Function has been reverted.'):
+        with pytest.raises(SolidityError, match='execution reverted'):
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithMessage",
                 transaction={
@@ -764,7 +764,7 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
-        with pytest.raises(SolidityError, match='Function has been reverted.'):
+        with pytest.raises(SolidityError, match='execution reverted'):
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithMessage",
                 transaction={

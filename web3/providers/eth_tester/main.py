@@ -106,7 +106,8 @@ class EthereumTesterProvider(BaseProvider):
             })
         except TransactionFailed as e:
             revert_msg = decode_single('(string)', e.args[0].args[0][4:])
-            raise SolidityError(revert_msg)
+            # Mirroring Geth: 'execution reverted: <revert message>'
+            raise SolidityError(f'execution reverted: {revert_msg[0]}')
         else:
             return {
                 'result': response,

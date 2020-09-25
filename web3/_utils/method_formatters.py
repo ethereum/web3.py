@@ -402,13 +402,21 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 
+def check_for_parity_revert(response: Any) -> Any:
+    # Parity returns '0x' if reverted, without an exception
+    # TODO: false positives?
+    if response == '0x':
+        # Mirroring Geth: 'execution reverted: <revert message>'
+        raise SolidityError('execution reverted')
+    return HexBytes(response)
+
 PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
     RPC.eth_blockNumber: to_integer_if_hex,
     RPC.eth_chainId: to_integer_if_hex,
     RPC.eth_coinbase: to_checksum_address,
-    RPC.eth_call: HexBytes,
+    RPC.eth_call: check_for_parity_revert,
     RPC.eth_estimateGas: to_integer_if_hex,
     RPC.eth_gasPrice: to_integer_if_hex,
     RPC.eth_getBalance: to_integer_if_hex,
@@ -506,19 +514,25 @@ def get_revert_reason(response: RPCResponse) -> str:
     if not isinstance(response['error'], dict):
         return None
 
-    data = response['error'].get('data', '')
+    if 'message' in response['error']:
+        return response['error']['message']
 
-    if data == 'Reverted 0x':
-        return ''
+    # TODO: by this point, all tested client's reverts have been accounted for
+    return ''
 
-    # "Reverted", function selector and offset are always the same for revert errors
-    prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'
-    if not data.startswith(prefix):
-        return None
+    #  data = response['error'].get('data', '')
 
-    reason_length = int(data[len(prefix):len(prefix) + 64], 16)
-    reason = data[len(prefix) + 64:len(prefix) + 64 + reason_length * 2]
-    return bytes.fromhex(reason).decode('utf8')
+    #  if data == 'Reverted 0x':
+        #  return ''
+
+    #  # "Reverted", function selector and offset are always the same for revert errors
+    #  prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'
+    #  if not data.startswith(prefix):
+        #  return None
+
+    #  reason_length = int(data[len(prefix):len(prefix) + 64], 16)
+    #  reason = data[len(prefix) + 64:len(prefix) + 64 + reason_length * 2]
+    #  return bytes.fromhex(reason).decode('utf8')
 
 
 def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
@@ -622,7 +636,7 @@ def get_error_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Callable[..., Any]:
     #  Note error formatters work on the full response dict
-    error_formatter_maps = (NULL_RESULT_FORMATTERS,)
+    error_formatter_maps = (NULL_RESULT_FORMATTERS, ERROR_FORMATTERS)
     formatters = combine_formatters(error_formatter_maps, method_name)
 
     return compose(*formatters)
