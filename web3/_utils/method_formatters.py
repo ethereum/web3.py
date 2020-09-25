@@ -499,9 +499,9 @@ def get_request_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Dict[str, Callable[..., Any]]:
     request_formatter_maps = (
-        METHOD_NORMALIZERS,
         ABI_REQUEST_FORMATTERS,
         PYTHONIC_REQUEST_FORMATTERS,
+        METHOD_NORMALIZERS,
     )
     formatters = combine_formatters(request_formatter_maps, method_name)
     return compose(*formatters)
