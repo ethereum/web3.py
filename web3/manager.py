@@ -28,9 +28,6 @@ from web3._utils.threads import (  # noqa: F401
 from web3.datastructures import (
     NamedElementOnion,
 )
-from web3.exceptions import (
-    SolidityError,
-)
 from web3.middleware import (
     abi_middleware,
     attrdict_middleware,

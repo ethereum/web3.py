@@ -410,6 +410,7 @@ def check_for_parity_revert(response: Any) -> Any:
         raise SolidityError('execution reverted')
     return HexBytes(response)
 
+
 PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
@@ -523,12 +524,12 @@ def get_revert_reason(response: RPCResponse) -> str:
     #  data = response['error'].get('data', '')
 
     #  if data == 'Reverted 0x':
-        #  return ''
+    #  return ''
 
     #  # "Reverted", function selector and offset are always the same for revert errors
-    #  prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'
+    #  prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'  # noqa: 501
     #  if not data.startswith(prefix):
-        #  return None
+    #  return None
 
     #  reason_length = int(data[len(prefix):len(prefix) + 64], 16)
     #  reason = data[len(prefix) + 64:len(prefix) + 64 + reason_length * 2]

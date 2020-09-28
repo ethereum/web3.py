@@ -5,6 +5,7 @@ from typing import (
     Dict,
     Optional,
 )
+
 from eth_abi import (
     decode_single,
 )
