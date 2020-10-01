@@ -91,7 +91,6 @@ def bytes_to_ascii(value: bytes) -> str:
 
 to_ascii_if_bytes = apply_formatter_if(is_bytes, bytes_to_ascii)
 to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
-block_number_formatter = apply_formatter_if(is_integer, integer_to_hex)
 to_hex_if_integer = apply_formatter_if(is_integer, integer_to_hex)
 
 
@@ -320,7 +319,7 @@ estimate_gas_with_block_id: Callable[
 ]
 estimate_gas_with_block_id = apply_formatters_to_sequence([
     transaction_param_formatter,
-    block_number_formatter,
+    to_hex_if_integer,
 ])
 
 SIGNED_TX_FORMATTER = {
@@ -350,22 +349,22 @@ geth_wallets_formatter = apply_formatters_to_dict(GETH_WALLETS_FORMATTER)
 
 PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
-    RPC.eth_getBalance: apply_formatter_at_index(block_number_formatter, 1),
-    RPC.eth_getBlockByNumber: apply_formatter_at_index(block_number_formatter, 0),
+    RPC.eth_getBalance: apply_formatter_at_index(to_hex_if_integer, 1),
+    RPC.eth_getBlockByNumber: apply_formatter_at_index(to_hex_if_integer, 0),
     RPC.eth_getBlockTransactionCountByNumber: apply_formatter_at_index(
-        block_number_formatter,
+        to_hex_if_integer,
         0,
     ),
-    RPC.eth_getCode: apply_formatter_at_index(block_number_formatter, 1),
-    RPC.eth_getStorageAt: apply_formatter_at_index(block_number_formatter, 2),
+    RPC.eth_getCode: apply_formatter_at_index(to_hex_if_integer, 1),
+    RPC.eth_getStorageAt: apply_formatter_at_index(to_hex_if_integer, 2),
     RPC.eth_getTransactionByBlockNumberAndIndex: compose(
-        apply_formatter_at_index(block_number_formatter, 0),
+        apply_formatter_at_index(to_hex_if_integer, 0),
         apply_formatter_at_index(to_hex_if_integer, 1),
     ),
-    RPC.eth_getTransactionCount: apply_formatter_at_index(block_number_formatter, 1),
-    RPC.eth_getUncleCountByBlockNumber: apply_formatter_at_index(block_number_formatter, 0),
+    RPC.eth_getTransactionCount: apply_formatter_at_index(to_hex_if_integer, 1),
+    RPC.eth_getUncleCountByBlockNumber: apply_formatter_at_index(to_hex_if_integer, 0),
     RPC.eth_getUncleByBlockNumberAndIndex: compose(
-        apply_formatter_at_index(block_number_formatter, 0),
+        apply_formatter_at_index(to_hex_if_integer, 0),
         apply_formatter_at_index(to_hex_if_integer, 1),
     ),
     RPC.eth_getUncleByBlockHashAndIndex: apply_formatter_at_index(integer_to_hex, 1),
@@ -373,14 +372,14 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getLogs: apply_formatter_at_index(filter_params_formatter, 0),
     RPC.eth_call: apply_formatters_to_sequence([
         transaction_param_formatter,
-        block_number_formatter,
+        to_hex_if_integer,
     ]),
     RPC.eth_estimateGas: apply_one_of_formatters((
         (is_length(1), estimate_gas_without_block_id),
         (is_length(2), estimate_gas_with_block_id),
     )),
     RPC.eth_sendTransaction: apply_formatter_at_index(transaction_param_formatter, 0),
-    RPC.eth_getProof: apply_formatter_at_index(block_number_formatter, 2),
+    RPC.eth_getProof: apply_formatter_at_index(to_hex_if_integer, 2),
     # personal
     RPC.personal_importRawKey: apply_formatter_at_index(
         compose(remove_0x_prefix, hexstr_if_str(to_hex)),
@@ -391,11 +390,11 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.personal_sendTransaction: apply_formatter_at_index(transaction_param_formatter, 0),
     # Snapshot and Revert
     RPC.evm_revert: apply_formatter_at_index(integer_to_hex, 0),
-    RPC.trace_replayBlockTransactions: apply_formatter_at_index(block_number_formatter, 0),
-    RPC.trace_block: apply_formatter_at_index(block_number_formatter, 0),
+    RPC.trace_replayBlockTransactions: apply_formatter_at_index(to_hex_if_integer, 0),
+    RPC.trace_block: apply_formatter_at_index(to_hex_if_integer, 0),
     RPC.trace_call: compose(
         apply_formatter_at_index(transaction_param_formatter, 0),
-        apply_formatter_at_index(block_number_formatter, 2)
+        apply_formatter_at_index(to_hex_if_integer, 2)
     ),
 }
 
