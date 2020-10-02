@@ -55,8 +55,8 @@ if TYPE_CHECKING:
 
 def apply_error_formatters(
     error_formatters: Callable[..., Any],
-    response: Optional[RPCResponse]=None,
-    params: Optional[Any]=None,
+    response: Optional[RPCResponse] = None,
+    params: Optional[Any] = None,
 ) -> RPCResponse:
     if 'error' in response and error_formatters:
         formatted_response = pipe(response, error_formatters)
@@ -104,7 +104,7 @@ class RequestManager:
     @staticmethod
     def default_middlewares(
         web3: 'Web3'
-    )-> List[Tuple[Middleware, str]]:
+    ) -> List[Tuple[Middleware, str]]:
         """
         List the default middlewares for the request manager.
         Leaving ens unspecified will prevent the middleware from resolving names.

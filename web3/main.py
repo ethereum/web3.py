@@ -167,7 +167,7 @@ class Web3:
         provider: Optional[BaseProvider] = None,
         middlewares: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Sequence[Any]]] = None,
-        ens: ENS=cast(ENS, empty)
+        ens: ENS = cast(ENS, empty)
     ) -> None:
         self.manager = self.RequestManager(self, provider, middlewares)
 

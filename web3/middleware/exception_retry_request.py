@@ -92,7 +92,7 @@ def exception_retry_middleware(
     make_request: Callable[[RPCEndpoint, Any], RPCResponse],
     web3: "Web3",
     errors: Collection[Type[BaseException]],
-    retries: int=5,
+    retries: int = 5,
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     """
     Creates middleware that retries failed HTTP requests. Is a default

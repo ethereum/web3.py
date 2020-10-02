@@ -20,8 +20,8 @@ from ethpm.uri import (
     create_latest_block_uri,
 )
 from web3 import Web3
-from web3.tools import (  # noqa: E741
-    linker as l,
+from web3.tools import (
+    linker,
 )
 
 V3_PACKAGE_NAMES = [
@@ -172,10 +172,10 @@ def manifest_with_empty_deployments(tmpdir, safe_math_manifest):
 def escrow_package(deployer, w3, ethpm_spec_dir):
     escrow_manifest = ethpm_spec_dir / "examples" / "escrow" / "v3.json"
     escrow_deployer = deployer(escrow_manifest)
-    escrow_strategy = l.linker(
-        l.deploy("SafeSendLib"),
-        l.link("Escrow", "SafeSendLib"),
-        l.deploy("Escrow", w3.eth.accounts[0]),
+    escrow_strategy = linker.linker(
+        linker.deploy("SafeSendLib"),
+        linker.link("Escrow", "SafeSendLib"),
+        linker.deploy("Escrow", w3.eth.accounts[0]),
     )
     escrow_deployer.register_strategy("Escrow", escrow_strategy)
     return escrow_deployer.deploy("Escrow")

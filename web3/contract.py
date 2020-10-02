@@ -738,7 +738,7 @@ class ConciseContract:
     def __init__(
         self,
         classic_contract: Contract,
-        method_class: Union[Type['ConciseMethod'], Type['ImplicitMethod']]=ConciseMethod
+        method_class: Union[Type['ConciseMethod'], Type['ImplicitMethod']] = ConciseMethod
     ) -> None:
         classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
         self._classic_contract = classic_contract
@@ -818,7 +818,7 @@ class ImplicitContract(ConciseContract):
     def __init__(
         self,
         classic_contract: Contract,
-        method_class: Union[Type[ImplicitMethod], Type[ConciseMethod]]=ImplicitMethod
+        method_class: Union[Type[ImplicitMethod], Type[ConciseMethod]] = ImplicitMethod
     ) -> None:
         super().__init__(classic_contract, method_class=method_class)
 
@@ -897,7 +897,7 @@ class ContractFunction:
         self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
 
     def call(
-        self, transaction: Optional[TxParams] = None, block_identifier: BlockIdentifier='latest'
+        self, transaction: Optional[TxParams] = None, block_identifier: BlockIdentifier = 'latest'
     ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
@@ -1132,7 +1132,7 @@ class ContractEvent:
 
     @combomethod
     def processReceipt(
-        self, txn_receipt: TxReceipt, errors: EventLogErrorFlags=WARN
+        self, txn_receipt: TxReceipt, errors: EventLogErrorFlags = WARN
     ) -> Iterable[EventData]:
         return self._parse_logs(txn_receipt, errors)
 
@@ -1176,7 +1176,7 @@ class ContractEvent:
             self, *,  # PEP 3102
             argument_filters: Optional[Dict[str, Any]] = None,
             fromBlock: Optional[BlockIdentifier] = None,
-            toBlock: BlockIdentifier="latest",
+            toBlock: BlockIdentifier = "latest",
             address: Optional[ChecksumAddress] = None,
             topics: Optional[Sequence[Any]] = None) -> LogFilter:
         """
@@ -1371,7 +1371,7 @@ class ContractCaller:
                  web3: 'Web3',
                  address: ChecksumAddress,
                  transaction: Optional[TxParams] = None,
-                 block_identifier: BlockIdentifier='latest') -> None:
+                 block_identifier: BlockIdentifier = 'latest') -> None:
         self.web3 = web3
         self.address = address
         self.abi = abi
@@ -1426,7 +1426,7 @@ class ContractCaller:
             return False
 
     def __call__(
-        self, transaction: Optional[TxParams] = None, block_identifier: BlockIdentifier='latest'
+        self, transaction: Optional[TxParams] = None, block_identifier: BlockIdentifier = 'latest'
     ) -> 'ContractCaller':
         if transaction is None:
             transaction = {}
@@ -1441,7 +1441,7 @@ class ContractCaller:
         fn: ContractFunction,
         *args: Any,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier='latest',
+        block_identifier: BlockIdentifier = 'latest',
         **kwargs: Any
     ) -> Any:
         if transaction is None:
@@ -1509,9 +1509,8 @@ def call_contract_function(
         # Provide a more helpful error message than the one provided by
         # eth-abi-utils
         is_missing_code_error = (
-            return_data in ACCEPTABLE_EMPTY_STRINGS and
-            web3.eth.getCode(address) in ACCEPTABLE_EMPTY_STRINGS
-        )
+            return_data in ACCEPTABLE_EMPTY_STRINGS
+            and web3.eth.getCode(address) in ACCEPTABLE_EMPTY_STRINGS)
         if is_missing_code_error:
             msg = (
                 "Could not transact with/call contract function, is contract "

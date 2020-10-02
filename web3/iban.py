@@ -76,7 +76,7 @@ def mod9710(iban: str) -> int:
     return int(remainder) % 97
 
 
-def baseN(num: int, b: int, numerals: str="0123456789abcdefghijklmnopqrstuvwxyz") -> str:
+def baseN(num: int, b: int, numerals: str = "0123456789abcdefghijklmnopqrstuvwxyz") -> str:
     """
     This prototype should be used to create
     an iban object from iban correct string

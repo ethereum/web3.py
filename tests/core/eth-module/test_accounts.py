@@ -239,8 +239,8 @@ def test_eth_account_sign(acct,
                           signature):
     message = encode_defunct(text=message_text)
     signed_message = Web3.keccak(
-        b"\x19Ethereum Signed Message:\n" +
-        bytes(f"{len(message.body)}", encoding='utf-8') + message.body
+        b"\x19Ethereum Signed Message:\n"
+        + bytes(f"{len(message.body)}", encoding='utf-8') + message.body
     )
     assert signed_message == expected_hash
 

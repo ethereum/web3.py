@@ -120,7 +120,7 @@ def get_block_gas_limit(web3: "Web3", block_identifier: Optional[BlockIdentifier
 
 
 def get_buffered_gas_estimate(
-    web3: "Web3", transaction: TxParams, gas_buffer: Wei=Wei(100000)
+    web3: "Web3", transaction: TxParams, gas_buffer: Wei = Wei(100000)
 ) -> Wei:
     gas_estimate_transaction = cast(TxParams, dict(**transaction))
 

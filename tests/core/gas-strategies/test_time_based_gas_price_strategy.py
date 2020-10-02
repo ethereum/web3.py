@@ -18,8 +18,8 @@ from web3.providers.base import (
 def _get_block_by_something(method, params):
     block_identifier = params[0]
     if (
-        block_identifier == 'latest' or
-        block_identifier == '0x5'
+        block_identifier == 'latest'
+        or block_identifier == '0x5'
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000005',
@@ -38,8 +38,8 @@ def _get_block_by_something(method, params):
             'timestamp': 120,
         }
     elif (
-        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000004' or
-        block_identifier == '0x4'
+        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000004'
+        or block_identifier == '0x4'
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000004',
@@ -54,8 +54,8 @@ def _get_block_by_something(method, params):
             'timestamp': 90,
         }
     elif (
-        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000003' or
-        block_identifier == '0x3'
+        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000003'
+        or block_identifier == '0x3'
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000003',
@@ -68,8 +68,8 @@ def _get_block_by_something(method, params):
             'timestamp': 60,
         }
     elif (
-        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000002' or
-        block_identifier == '0x2'
+        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000002'
+        or block_identifier == '0x2'
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000002',
@@ -81,8 +81,8 @@ def _get_block_by_something(method, params):
             'timestamp': 30,
         }
     elif (
-        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000001' or
-        block_identifier == '0x1'
+        block_identifier == '0x0000000000000000000000000000000000000000000000000000000000000001'
+        or block_identifier == '0x1'
     ):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000001',

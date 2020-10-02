@@ -713,7 +713,7 @@ def test_receipt_processing_with_invalid_flag(
 
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
-    with pytest.raises(AttributeError, match=f"Error flag must be one of: "):
+    with pytest.raises(AttributeError, match="Error flag must be one of: "):
         event_instance.processReceipt(dup_txn_receipt, errors='not-a-flag')
 
 

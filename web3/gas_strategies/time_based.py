@@ -185,7 +185,7 @@ def _compute_gas_price(probabilities: Sequence[Probability], desired_probability
 
 @curry
 def construct_time_based_gas_price_strategy(
-    max_wait_seconds: int, sample_size: int=120, probability: int=98, weighted: bool=False
+    max_wait_seconds: int, sample_size: int = 120, probability: int = 98, weighted: bool = False
 ) -> GasPriceStrategy:
     """
     A gas pricing strategy that uses recently mined block data to derive a gas

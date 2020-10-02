@@ -290,7 +290,7 @@ def guess_from(web3: "Web3", transaction: TxParams) -> ChecksumAddress:
 
     try:
         return web3.eth.accounts[0]
-    except KeyError as e:
+    except KeyError:
         # no accounts available to pre-fill, carry on
         pass
 

@@ -158,7 +158,7 @@ class Parity(Module):
         )
 
     def traceReplayTransaction(
-        self, transaction_hash: _Hash32, mode: ParityTraceMode=['trace']
+        self, transaction_hash: _Hash32, mode: ParityTraceMode = ['trace']
     ) -> ParityBlockTrace:
         return self.web3.manager.request_blocking(
             RPC.trace_replayTransaction,
@@ -166,7 +166,7 @@ class Parity(Module):
         )
 
     def traceReplayBlockTransactions(
-        self, block_identifier: BlockIdentifier, mode: ParityTraceMode=['trace']
+        self, block_identifier: BlockIdentifier, mode: ParityTraceMode = ['trace']
     ) -> List[ParityBlockTrace]:
         return self.web3.manager.request_blocking(
             RPC.trace_replayBlockTransactions,
@@ -194,7 +194,7 @@ class Parity(Module):
     def traceCall(
         self,
         transaction: TxParams,
-        mode: ParityTraceMode=['trace'],
+        mode: ParityTraceMode = ['trace'],
         block_identifier: Optional[BlockIdentifier] = None
     ) -> ParityBlockTrace:
         # TODO: move to middleware
@@ -210,7 +210,7 @@ class Parity(Module):
         )
 
     def traceRawTransaction(
-        self, raw_transaction: HexStr, mode: ParityTraceMode=['trace']
+        self, raw_transaction: HexStr, mode: ParityTraceMode = ['trace']
     ) -> ParityBlockTrace:
         return self.web3.manager.request_blocking(
             RPC.trace_rawTransaction,

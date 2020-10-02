@@ -49,7 +49,7 @@ else:
     MAX_BLOCK_REQUEST = 50
 
 
-def segment_count(start: int, stop: int, step: int=5) -> Iterable[Tuple[int, int]]:
+def segment_count(start: int, stop: int, step: int = 5) -> Iterable[Tuple[int, int]]:
     """Creates a segment counting generator
 
     The generator returns tuple pairs of integers
@@ -95,7 +95,7 @@ def gen_bounded_segments(start: int, stop: int, step: int) -> Iterable[Tuple[int
 
 
 def block_ranges(
-    start_block: BlockNumber, last_block: Optional[BlockNumber], step: int=5
+    start_block: BlockNumber, last_block: Optional[BlockNumber], step: int = 5
 ) -> Iterable[Tuple[BlockNumber, BlockNumber]]:
     """Returns 2-tuple ranges describing ranges of block from start_block to last_block
 
@@ -137,8 +137,8 @@ def iter_latest_block(
     _last = None
 
     is_bounded_range = (
-        to_block is not None and
-        to_block != "latest"
+        to_block is not None
+        and to_block != "latest"
     )
 
     while True:

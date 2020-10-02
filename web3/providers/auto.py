@@ -92,7 +92,7 @@ class AutoProvider(BaseProvider):
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         try:
             return self._proxy_request(method, params)
-        except IOError as exc:
+        except IOError:
             return self._proxy_request(method, params, use_cache=False)
 
     def isConnected(self) -> bool:
@@ -100,7 +100,7 @@ class AutoProvider(BaseProvider):
         return provider is not None and provider.isConnected()
 
     def _proxy_request(self, method: RPCEndpoint, params: Any,
-                       use_cache: bool=True) -> RPCResponse:
+                       use_cache: bool = True) -> RPCResponse:
         provider = self._get_active_provider(use_cache)
         if provider is None:
             raise CannotHandleRequest(

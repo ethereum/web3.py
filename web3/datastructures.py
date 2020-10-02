@@ -124,7 +124,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
     """
 
     def __init__(
-        self, init_elements: Sequence[Any], valid_element: Callable[..., bool]=callable
+        self, init_elements: Sequence[Any], valid_element: Callable[..., bool] = callable
     ) -> None:
         self._queue: 'OrderedDict[Any, Any]' = OrderedDict()
         for element in reversed(init_elements):

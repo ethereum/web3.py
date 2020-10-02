@@ -202,7 +202,7 @@ class Eth(ModuleV2, Module):
     def block_id_munger(
         self,
         account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier]=None
+        block_identifier: Optional[BlockIdentifier] = None
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
         if block_identifier is None:
             block_identifier = self.defaultBlock
@@ -217,7 +217,7 @@ class Eth(ModuleV2, Module):
         self,
         account: Union[Address, ChecksumAddress, ENS],
         position: int,
-        block_identifier: Optional[BlockIdentifier]=None
+        block_identifier: Optional[BlockIdentifier] = None
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], int, BlockIdentifier]:
         if block_identifier is None:
             block_identifier = self.defaultBlock
@@ -234,7 +234,7 @@ class Eth(ModuleV2, Module):
         self,
         account: Union[Address, ChecksumAddress, ENS],
         positions: Sequence[int],
-        block_identifier: Optional[BlockIdentifier]=None
+        block_identifier: Optional[BlockIdentifier] = None
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], Sequence[int], Optional[BlockIdentifier]]:
         if block_identifier is None:
             block_identifier = self.defaultBlock
@@ -256,7 +256,7 @@ class Eth(ModuleV2, Module):
     )
 
     def get_block_munger(
-        self, block_identifier: BlockIdentifier, full_transactions: bool=False
+        self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> Tuple[BlockIdentifier, bool]:
         return (block_identifier, full_transactions)
 
@@ -336,7 +336,7 @@ class Eth(ModuleV2, Module):
     )
 
     def waitForTransactionReceipt(
-        self, transaction_hash: _Hash32, timeout: int=120, poll_latency: float=0.1
+        self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
         try:
             return wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
@@ -400,9 +400,9 @@ class Eth(ModuleV2, Module):
     def sign_munger(
         self,
         account: Union[Address, ChecksumAddress, ENS],
-        data: Union[int, bytes]=None,
-        hexstr: HexStr=None,
-        text: str=None
+        data: Union[int, bytes] = None,
+        hexstr: HexStr = None,
+        text: str = None
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], HexStr]:
         message_hex = to_hex(data, hexstr=hexstr, text=text)
         return (account, message_hex)

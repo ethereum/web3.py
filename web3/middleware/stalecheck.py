@@ -31,7 +31,7 @@ def _isfresh(block: BlockData, allowable_delay: int) -> bool:
 
 def make_stalecheck_middleware(
     allowable_delay: int,
-    skip_stalecheck_for_methods: Collection[str]=SKIP_STALECHECK_FOR_METHODS
+    skip_stalecheck_for_methods: Collection[str] = SKIP_STALECHECK_FOR_METHODS
 ) -> Middleware:
     """
     Use to require that a function will run only of the blockchain is recently updated.
