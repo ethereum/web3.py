@@ -11,7 +11,7 @@ extras_require = {
         "py-geth>=2.4.0,<3",
     ],
     'linter': [
-        "flake8==3.4.1",
+        "flake8==3.8.3",
         "isort>=4.2.15,<4.3.5",
         "mypy==0.730",
     ],
@@ -51,10 +51,10 @@ extras_require = {
 }
 
 extras_require['dev'] = (
-    extras_require['tester'] +
-    extras_require['linter'] +
-    extras_require['docs'] +
-    extras_require['dev']
+    extras_require['tester']
+    + extras_require['linter']
+    + extras_require['docs']
+    + extras_require['dev']
 )
 
 setup(

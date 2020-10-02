@@ -228,7 +228,7 @@ def test_shh_remove_filter_deprecated(web3, skip_if_testrpc):
         try:
             web3.shh.getMessages(shh_filter.filter_id)
             assert False
-        except:
+        except Exception:
             assert True
 
 
@@ -257,5 +257,5 @@ def test_shh_remove_filter(web3, skip_if_testrpc):
     try:
         web3.shh.get_messages(shh_filter.filter_id)
         assert False
-    except:
+    except Exception:
         assert True

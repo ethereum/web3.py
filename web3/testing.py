@@ -14,7 +14,7 @@ class Testing(Module):
     def timeTravel(self, timestamp: int) -> None:
         return self.web3.manager.request_blocking(RPC.testing_timeTravel, [timestamp])
 
-    def mine(self, num_blocks: int=1) -> None:
+    def mine(self, num_blocks: int = 1) -> None:
         return self.web3.manager.request_blocking(RPC.evm_mine, [num_blocks])
 
     def snapshot(self) -> int:

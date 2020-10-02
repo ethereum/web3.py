@@ -55,26 +55,25 @@ def test_contract_deployment_with_constructor_with_arguments(web3,
 
 
 @pytest.mark.parametrize('constructor_arg', (
-        b'1234\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',  # noqa: E501
-        '0x0000000000000000000000000000000000000000000000000000000000000000'
-    )
+    b'1234\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',  # noqa: E501
+    '0x0000000000000000000000000000000000000000000000000000000000000000')
 )
 def test_contract_deployment_with_constructor_with_arguments_strict(w3_strict_abi,
                                                                     WithConstructorArgumentsContractStrict,  # noqa: E501
                                                                     WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,  # noqa: E501
                                                                     constructor_arg):
-        deploy_txn = WithConstructorArgumentsContractStrict.constructor(
-            1234, constructor_arg
-        ).transact()
+    deploy_txn = WithConstructorArgumentsContractStrict.constructor(
+        1234, constructor_arg
+    ).transact()
 
-        txn_receipt = w3_strict_abi.eth.waitForTransactionReceipt(deploy_txn)
-        assert txn_receipt is not None
+    txn_receipt = w3_strict_abi.eth.waitForTransactionReceipt(deploy_txn)
+    assert txn_receipt is not None
 
-        assert txn_receipt['contractAddress']
-        contract_address = txn_receipt['contractAddress']
+    assert txn_receipt['contractAddress']
+    contract_address = txn_receipt['contractAddress']
 
-        blockchain_code = w3_strict_abi.eth.getCode(contract_address)
-        assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
+    blockchain_code = w3_strict_abi.eth.getCode(contract_address)
+    assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
 
 
 def test_contract_deployment_with_constructor_with_arguments_strict_error(w3_strict_abi,

@@ -76,7 +76,7 @@ class ENS:
     reverse_domain = staticmethod(address_to_reverse_domain)
 
     def __init__(
-        self, provider: 'BaseProvider'=cast('BaseProvider', default), addr: ChecksumAddress=None
+        self, provider: 'BaseProvider' = cast('BaseProvider', default), addr: ChecksumAddress = None
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum
@@ -91,7 +91,7 @@ class ENS:
         self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
 
     @classmethod
-    def fromWeb3(cls, web3: 'Web3', addr: ChecksumAddress=None) -> 'ENS':
+    def fromWeb3(cls, web3: 'Web3', addr: ChecksumAddress = None) -> 'ENS':
         """
         Generate an ENS instance with web3
 
@@ -125,8 +125,8 @@ class ENS:
     def setup_address(
         self,
         name: str,
-        address: Union[Address, ChecksumAddress, HexAddress]=cast(ChecksumAddress, default),
-        transact: "TxParams"={}
+        address: Union[Address, ChecksumAddress, HexAddress] = cast(ChecksumAddress, default),
+        transact: "TxParams" = {}
     ) -> HexBytes:
         """
         Set up the name to point to the supplied address.
@@ -165,7 +165,7 @@ class ENS:
 
     @dict_copy
     def setup_name(
-        self, name: str, address: ChecksumAddress=None, transact: "TxParams"={}
+        self, name: str, address: ChecksumAddress = None, transact: "TxParams" = {}
     ) -> HexBytes:
         """
         Set up the address for reverse lookup, aka "caller ID".
@@ -208,7 +208,7 @@ class ENS:
                 self.setup_address(name, address, transact=transact)
             return self._setup_reverse(name, address, transact=transact)
 
-    def resolve(self, name: str, get: str='addr') -> Optional[Union[ChecksumAddress, str]]:
+    def resolve(self, name: str, get: str = 'addr') -> Optional[Union[ChecksumAddress, str]]:
         normal_name = normalize_name(name)
         resolver = self.resolver(normal_name)
         if resolver:
@@ -249,8 +249,8 @@ class ENS:
     def setup_owner(
         self,
         name: str,
-        new_owner: ChecksumAddress=cast(ChecksumAddress, default),
-        transact: "TxParams"={}
+        new_owner: ChecksumAddress = cast(ChecksumAddress, default),
+        transact: "TxParams" = {}
     ) -> ChecksumAddress:
         """
         Set the owner of the supplied name to `new_owner`.
@@ -323,8 +323,8 @@ class ENS:
         owner: ChecksumAddress,
         unowned: Sequence[str],
         owned: str,
-        old_owner: ChecksumAddress=None,
-        transact: "TxParams"={}
+        old_owner: ChecksumAddress = None,
+        transact: "TxParams" = {}
     ) -> None:
         transact['from'] = old_owner or owner
         for label in reversed(unowned):
@@ -337,7 +337,7 @@ class ENS:
 
     @dict_copy
     def _set_resolver(
-        self, name: str, resolver_addr: ChecksumAddress=None, transact: "TxParams"={}
+        self, name: str, resolver_addr: ChecksumAddress = None, transact: "TxParams" = {}
     ) -> 'Contract':
         if is_none_or_zero_address(resolver_addr):
             resolver_addr = self.address('resolver.eth')
@@ -351,7 +351,7 @@ class ENS:
 
     @dict_copy
     def _setup_reverse(
-        self, name: str, address: ChecksumAddress, transact: "TxParams"={}
+        self, name: str, address: ChecksumAddress, transact: "TxParams" = {}
     ) -> HexBytes:
         if name:
             name = normalize_name(name)

@@ -103,7 +103,7 @@ is_not_null = complement(is_null)
 
 @curry
 def to_hexbytes(
-    num_bytes: int, val: Union[str, int, bytes], variable_length: bool=False
+    num_bytes: int, val: Union[str, int, bytes], variable_length: bool = False
 ) -> HexBytes:
     if isinstance(val, (str, int, bytes)):
         result = HexBytes(val)

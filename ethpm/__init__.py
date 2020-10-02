@@ -16,5 +16,5 @@ def get_ethpm_spec_dir() -> Path:
     return ethpm_spec_dir
 
 
-from .package import Package  # noqa: F401
-from .backends.registry import RegistryURI  # noqa: F401
+from .package import Package  # noqa: E402, F401
+from .backends.registry import RegistryURI  # noqa: E402, F401

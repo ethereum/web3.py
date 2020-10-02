@@ -74,7 +74,7 @@ def ensure_hex(data: HexBytes) -> HexBytes:
     return data
 
 
-def init_web3(provider: 'BaseProvider'=cast('BaseProvider', default)) -> '_Web3':
+def init_web3(provider: 'BaseProvider' = cast('BaseProvider', default)) -> '_Web3':
     from web3 import Web3 as Web3Main
 
     if provider is default:

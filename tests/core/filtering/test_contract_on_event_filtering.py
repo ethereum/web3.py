@@ -99,7 +99,7 @@ def test_on_sync_filter_with_event_name_and_single_argument(
 
     seen_logs = event_filter.get_new_entries()
     assert len(seen_logs) == 2
-    assert {l['transactionHash'] for l in seen_logs} == set(txn_hashes[1:])
+    assert {log['transactionHash'] for log in seen_logs} == set(txn_hashes[1:])
 
 
 @pytest.mark.parametrize('call_as_instance', (True, False))

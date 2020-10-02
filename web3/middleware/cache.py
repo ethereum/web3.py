@@ -97,8 +97,8 @@ def _should_cache(method: RPCEndpoint, params: Any, response: RPCResponse) -> bo
 
 def construct_simple_cache_middleware(
     cache_class: Type[Dict[Any, Any]],
-    rpc_whitelist: Collection[RPCEndpoint]=SIMPLE_CACHE_RPC_WHITELIST,
-    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool]=_should_cache
+    rpc_whitelist: Collection[RPCEndpoint] = SIMPLE_CACHE_RPC_WHITELIST,
+    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool] = _should_cache
 ) -> Middleware:
     """
     Constructs a middleware which caches responses based on the request
@@ -198,9 +198,9 @@ TIME_BASED_CACHE_RPC_WHITELIST = cast(Set[RPCEndpoint], {
 
 def construct_time_based_cache_middleware(
     cache_class: Callable[..., Dict[Any, Any]],
-    cache_expire_seconds: int=15,
-    rpc_whitelist: Collection[RPCEndpoint]=TIME_BASED_CACHE_RPC_WHITELIST,
-    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool]=_should_cache
+    cache_expire_seconds: int = 15,
+    rpc_whitelist: Collection[RPCEndpoint] = TIME_BASED_CACHE_RPC_WHITELIST,
+    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool] = _should_cache
 ) -> Middleware:
     """
     Constructs a middleware which caches responses based on the request
@@ -331,10 +331,10 @@ BlockInfoCache = TypedDict("BlockInfoCache", {
 
 def construct_latest_block_based_cache_middleware(
     cache_class: Callable[..., Dict[Any, Any]],
-    rpc_whitelist: Collection[RPCEndpoint]=BLOCK_NUMBER_RPC_WHITELIST,
-    average_block_time_sample_size: int=240,
-    default_average_block_time: int=15,
-    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool]=_should_cache
+    rpc_whitelist: Collection[RPCEndpoint] = BLOCK_NUMBER_RPC_WHITELIST,
+    average_block_time_sample_size: int = 240,
+    default_average_block_time: int = 15,
+    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool] = _should_cache
 ) -> Middleware:
     """
     Constructs a middleware which caches responses based on the request
@@ -413,9 +413,9 @@ def construct_latest_block_based_cache_middleware(
 
             try:
                 should_try_cache = (
-                    lock_acquired and
-                    method in rpc_whitelist and
-                    not _is_latest_block_number_request(method, params)
+                    lock_acquired
+                    and method in rpc_whitelist
+                    and not _is_latest_block_number_request(method, params)
                 )
                 if should_try_cache:
                     _update_block_info_cache()

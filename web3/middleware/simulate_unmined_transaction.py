@@ -1,17 +1,16 @@
 import collections
 import itertools
-from typing import (  # noqa: F401
+from typing import (
     Any,
     Callable,
-    Dict,
 )
 
-from eth_typing import (  # noqa: F401
+from eth_typing import (
     Hash32,
 )
 
 from web3 import Web3
-from web3.types import (  # noqa: F401
+from web3.types import (
     RPCEndpoint,
     RPCResponse,
     TxReceipt,
@@ -25,7 +24,7 @@ INVOCATIONS_BEFORE_RESULT = 5
 def unmined_receipt_simulator_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], web3: Web3
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-    receipt_counters: DefaultDict[Hash32, TxReceipt] = collections.defaultdict(  # type: ignore
+    receipt_counters: DefaultDict[Hash32, TxReceipt] = collections.defaultdict(  # type: ignore # noqa: F821, E501
         itertools.count
     )
 

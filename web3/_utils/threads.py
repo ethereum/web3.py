@@ -31,7 +31,8 @@ class Timeout(Exception):
     is_running = None
 
     def __init__(
-        self, seconds: float=None, exception: Type[BaseException]=None, *args: Any, **kwargs: Any
+        self, seconds: float = None, exception: Type[BaseException] = None, *args: Any,
+        **kwargs: Any
     ) -> None:
         self.seconds = seconds
         self.exception = exception
@@ -90,7 +91,7 @@ class Timeout(Exception):
 
 class ThreadWithReturn(threading.Thread, Generic[TReturn]):
     def __init__(
-        self, target: Callable[..., TReturn]=None, args: Any=None, kwargs: Any=None
+        self, target: Callable[..., TReturn] = None, args: Any = None, kwargs: Any = None
     ) -> None:
         super().__init__(
             target=target,
@@ -104,7 +105,7 @@ class ThreadWithReturn(threading.Thread, Generic[TReturn]):
     def run(self) -> None:
         self._return = self.target(*self.args, **self.kwargs)
 
-    def get(self, timeout: float=None) -> TReturn:
+    def get(self, timeout: float = None) -> TReturn:
         self.join(timeout)
         try:
             return self._return
@@ -132,7 +133,7 @@ class TimerClass(threading.Thread):
 def spawn(
     target: Callable[..., TReturn],
     *args: Any,
-    thread_class: Type[ThreadWithReturn[TReturn]]=ThreadWithReturn,
+    thread_class: Type[ThreadWithReturn[TReturn]] = ThreadWithReturn,
     **kwargs: Any,
 ) -> ThreadWithReturn[TReturn]:
     thread = thread_class(

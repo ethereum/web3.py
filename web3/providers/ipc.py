@@ -31,7 +31,7 @@ from .base import (
 )
 
 
-def get_ipc_socket(ipc_path: str, timeout: float=0.1) -> socket.socket:
+def get_ipc_socket(ipc_path: str, timeout: float = 0.1) -> socket.socket:
     if sys.platform == 'win32':
         # On Windows named pipe is used. Simulate socket with it.
         from web3._utils.windows import NamedPipe
