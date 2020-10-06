@@ -9,6 +9,7 @@ from eth_utils.curried import (
     apply_formatter_if,
     apply_formatters_to_dict,
     is_null,
+    is_string,
 )
 from eth_utils.toolz import (
     complement,
@@ -20,6 +21,9 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.formatters import (
+    hex_to_integer,
+)
 from web3._utils.rpc_abi import (
     RPC,
 )
@@ -42,10 +46,12 @@ MAX_EXTRADATA_LENGTH = 32
 
 is_not_null = complement(is_null)
 
+to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
+
 
 @curry
 def validate_chain_id(web3: "Web3", chain_id: int) -> int:
-    if int(chain_id) == web3.eth.chainId:
+    if to_integer_if_hex(chain_id) == web3.eth.chainId:
         return chain_id
     else:
         raise ValidationError(

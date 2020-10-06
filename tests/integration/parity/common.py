@@ -29,11 +29,6 @@ class ParityWeb3ModuleTest(Web3ModuleTest):
 
 
 class ParityEthModuleTest(EthModuleTest):
-    def test_eth_chainId(self, web3):
-        # Parity will return null if chainId is not available
-        chain_id = web3.eth.chainId
-        assert chain_id is None
-
     @pytest.mark.xfail(reason='Parity dropped "pending" option in 1.11.1')
     def test_eth_getBlockByNumber_pending(self, web3):
         super().test_eth_getBlockByNumber_pending(web3)
@@ -181,7 +176,17 @@ class ParityEthModuleTest(EthModuleTest):
 
 
 class ParityTraceModuleTest(ParityTraceModuleTest):
-    pass
+    def test_trace_block(self, web3):
+        pytest.xfail("TODO: tracing not working on v2.5.13")
+        super().test_trace_block(web3)
+
+    def test_trace_transaction(self, web3):
+        pytest.xfail("TODO: tracing not working on v2.5.13")
+        super().test_trace_transaction(web3)
+
+    def test_trace_filter(self, web3):
+        pytest.xfail("TODO: tracing not working on v2.5.13")
+        super().test_trace_filter(web3)
 
 
 class ParitySetModuleTest(ParitySetModuleTest):
@@ -202,3 +207,15 @@ class CommonParityShhModuleTest(ParityShhModuleTest):
         # https://github.com/paritytech/parity-ethereum/issues/10565
         pytest.xfail("Skip until parity filter bug is resolved")
         super().test_shh_async_filter(web3)
+
+    def test_shh_symmetric_key_pair(self, web3):
+        pytest.xfail("Whisper is deprecated")
+        super().test_shh_symmetric_key_pair(web3)
+
+    def test_shh_asymmetric_key_pair(self, web3):
+        pytest.xfail("Whisper is deprecated")
+        super().test_shh_asymmetric_key_pair(web3)
+
+    def test_shh_info(self, web3):
+        pytest.xfail("Whisper is deprecated")
+        super().test_shh_info(web3)
