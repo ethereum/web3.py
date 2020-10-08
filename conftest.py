@@ -64,7 +64,7 @@ def wait_for_miner_start():
     return _wait_for_miner_start
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def wait_for_block():
     def _wait_for_block(web3, block_number=1, timeout=None):
         if not timeout:
