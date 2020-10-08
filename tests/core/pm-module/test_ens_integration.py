@@ -127,6 +127,7 @@ def test_ens_must_be_set_before_ens_methods_can_be_used(ens):
         w3.pm.set_registry("tester.eth")
 
 
+@pytest.mark.xfail(reason="py-ipfs-http-client library doesn't support go-ipfs v0.7.0")
 def test_web3_ens(ens):
     w3 = ens.web3
     ns = ENS.fromWeb3(w3, ens.ens.address)

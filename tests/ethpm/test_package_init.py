@@ -65,7 +65,7 @@ def test_package_init_for_all_manifest_use_cases(all_manifests, w3):
 
 
 def test_package_init_for_manifest_with_build_dependency(
-    dummy_ipfs_backend, piper_coin_manifest, w3
+    piper_coin_manifest, w3
 ):
     pkg = Package(piper_coin_manifest, w3)
     assert isinstance(pkg, Package)
@@ -115,7 +115,8 @@ def test_from_file_raises_type_error_with_invalid_param_type():
 VALID_IPFS_PKG = "ipfs://QmdQfNxmcfGjeVwsXEBLCh5CDYsr2VyZtXoqdVm6F26JJE"
 
 
-def test_package_from_uri_with_valid_uri(dummy_ipfs_backend, w3):
+@pytest.mark.xfail(reason="py-ipfs-http-client library doesn't support go-ipfs v0.7.0")
+def test_package_from_uri_with_valid_uri(w3):
     package = Package.from_uri(VALID_IPFS_PKG, w3)
     assert package.name == "standard-token"
     assert isinstance(package, Package)
@@ -135,6 +136,7 @@ def test_package_from_uri_with_valid_uri(dummy_ipfs_backend, w3):
     ),
 )
 @pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
+@pytest.mark.xfail(reason="py-ipfs-http-client library doesn't support go-ipfs v0.7.0")
 def test_package_from_uri_rejects_invalid_ipfs_uri(uri, w3):
     with pytest.raises(CannotHandleURI):
         Package.from_uri(uri, w3)
