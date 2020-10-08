@@ -1,0 +1,1 @@
+Expect failures to tests that require the Infura IPFS http client. Infura updated their version of ``go-ipfs`` which is incompatible with the latest version of ``ipfshttpclient``.
