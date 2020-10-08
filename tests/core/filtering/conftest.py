@@ -44,17 +44,17 @@ def wait_for_mining_start(web3, wait_for_block):
     wait_for_block(web3)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def EMITTER_CODE():
     return CONTRACT_EMITTER_CODE
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def EMITTER_RUNTIME():
     return CONTRACT_EMITTER_RUNTIME
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def EMITTER_ABI():
     return CONTRACT_EMITTER_ABI
 
