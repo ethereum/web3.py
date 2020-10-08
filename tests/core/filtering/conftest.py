@@ -59,7 +59,7 @@ def EMITTER_ABI():
     return CONTRACT_EMITTER_ABI
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def EMITTER(EMITTER_CODE,
             EMITTER_RUNTIME,
             EMITTER_ABI):
@@ -70,7 +70,7 @@ def EMITTER(EMITTER_CODE,
     }
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def Emitter(web3, EMITTER):
     return web3.eth.contract(**EMITTER)
 
