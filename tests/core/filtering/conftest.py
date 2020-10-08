@@ -27,7 +27,7 @@ def tester_snapshot(web3):
 
 
 @pytest.fixture(
-    scope='function',
+    scope='session',
     params=[True, False],
     ids=["local_filter_middleware", "node_based_filter"])
 def web3(request):
