@@ -605,7 +605,7 @@ To inline the source code directly in the manifest, use ``inline_source()`` or `
 
 To include the source as a content-addressed URI, ``Py-EthPM`` can pin your source via the Infura IPFS API. As well as the contract name and compiler output, this function requires that you provide the desired IPFS backend to pin the contract sources.
 
-.. doctest::
+.. code:: python
 
    >>> import json
    >>> from ethpm import ASSETS_DIR, get_ethpm_spec_dir

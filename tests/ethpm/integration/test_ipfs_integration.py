@@ -45,6 +45,7 @@ def backend(request):
     return request.param()
 
 
+@pytest.mark.xfail(reason="py-ipfs-http-client library doesn't support go-ipfs v0.7.0")
 def test_builder_pins_manifest_to_provided_ipfs_backend(backend, request):
     if not request.config.getoption("--integration"):
         pytest.skip("Not asked to run integration tests")
