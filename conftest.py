@@ -79,7 +79,7 @@ def wait_for_block():
     return _wait_for_block
 
 
-@pytest.fixture()
+@pytest.fixture(scope = "session")
 def wait_for_transaction():
     def _wait_for_transaction(web3, txn_hash, timeout=120):
         poll_delay_counter = PollDelayCounter()
@@ -95,7 +95,7 @@ def wait_for_transaction():
     return _wait_for_transaction
 
 
-@pytest.fixture()
+@pytest.fixture(scope = "session")
 def web3():
     provider = EthereumTesterProvider()
     return Web3(provider)

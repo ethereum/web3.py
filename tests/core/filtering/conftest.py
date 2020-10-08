@@ -21,7 +21,7 @@ from web3.providers.eth_tester import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture(scope = "session")
 def tester_snapshot(web3):
     return web3.provider.ethereum_tester.take_snapshot()
 
@@ -75,7 +75,7 @@ def Emitter(web3, EMITTER):
     return web3.eth.contract(**EMITTER)
 
 
-@pytest.fixture()
+@pytest.fixture(scope = "session")
 def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
     wait_for_block(web3)
     deploy_txn_hash = Emitter.constructor().transact({
@@ -156,6 +156,6 @@ def return_filter(
     return contract.events[event_name].createFilter(**kwargs)
 
 
-@pytest.fixture()
+@pytest.fixture(scope = "session")
 def create_filter(request):
     return functools.partial(return_filter)
