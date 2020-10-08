@@ -12,7 +12,7 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module", params=[lambda x: to_bytes(hexstr=x), identity])
+@pytest.fixture(scope="session", params=[lambda x: to_bytes(hexstr=x), identity])
 def address_conversion_func(request):
     return request.param
 
