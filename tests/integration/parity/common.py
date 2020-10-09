@@ -176,16 +176,16 @@ class ParityEthModuleTest(EthModuleTest):
 
 
 class ParityTraceModuleTest(ParityTraceModuleTest):
+    @pytest.mark.xfail(reason="TODO: tracing not working on v2.5.13")
     def test_trace_block(self, web3):
-        pytest.xfail("TODO: tracing not working on v2.5.13")
         super().test_trace_block(web3)
 
+    @pytest.mark.xfail(reason="TODO: tracing not working on v2.5.13")
     def test_trace_transaction(self, web3):
-        pytest.xfail("TODO: tracing not working on v2.5.13")
         super().test_trace_transaction(web3)
 
+    @pytest.mark.xfail(reason="TODO: tracing not working on v2.5.13")
     def test_trace_filter(self, web3):
-        pytest.xfail("TODO: tracing not working on v2.5.13")
         super().test_trace_filter(web3)
 
 
@@ -198,24 +198,16 @@ class ParityModuleTest(ParityModuleTest):
 
 
 class CommonParityShhModuleTest(ParityShhModuleTest):
+    @pytest.mark.xfail(reason="Whisper is deprecated")
     def test_shh_sync_filter(self, web3):
         # https://github.com/paritytech/parity-ethereum/issues/10565
-        pytest.xfail("Skip until parity filter bug is resolved")
         super().test_shh_sync_filter(web3)
 
+    @pytest.mark.xfail(reason="Whisper is deprecated")
     def test_shh_async_filter(self, web3):
         # https://github.com/paritytech/parity-ethereum/issues/10565
-        pytest.xfail("Skip until parity filter bug is resolved")
         super().test_shh_async_filter(web3)
 
-    def test_shh_symmetric_key_pair(self, web3):
-        pytest.xfail("Whisper is deprecated")
-        super().test_shh_symmetric_key_pair(web3)
-
-    def test_shh_asymmetric_key_pair(self, web3):
-        pytest.xfail("Whisper is deprecated")
-        super().test_shh_asymmetric_key_pair(web3)
-
-    def test_shh_info(self, web3):
-        pytest.xfail("Whisper is deprecated")
-        super().test_shh_info(web3)
+    def test_shh_remove_filter(self, web3):
+        pytest.xfail('Whisper is deprecated + this test is flaky')
+        super().test_shh_remove_filter(web3)
