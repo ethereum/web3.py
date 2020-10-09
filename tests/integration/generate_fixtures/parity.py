@@ -37,15 +37,19 @@ CHAIN_CONFIG = {
     "params": {
         "gasLimitBoundDivisor": "0x0400",
         "registrar": "0x81a4b044831c4f12ba601adb9274516939e9b8a2",
+        "eip140Transition": 0,
         "eip150Transition": 0,
-        "eip155Transition": 10,
-        "eip160Transition": 10,
-        "eip161abcTransition": 10,
-        "eip161dTransition": 10,
+        "eip155Transition": 0,
+        "eip160Transition": 0,
+        "eip161abcTransition": 0,
+        "eip161dTransition": 0,
+        "eip214Transition": 0,
+        "eip1014Transition": 0,
+        "eip1052Transition": 0,
         "accountStartNonce": "0x0",
         "maximumExtraDataSize": "0x20",
         "minGasLimit": "0x1388",
-        "networkID": "0x539",
+        "networkID": "0x776562337079",  # the string 'web3py' as a hex string
         "eip98Transition": "0x7fffffffffffffff",
     },
     "genesis": {
@@ -90,6 +94,10 @@ CHAIN_CONFIG = {
 
 
 def get_parity_binary():
+    """
+    If generating a fixture from a local binary, update this value to that bin, e.g.,
+    return '/Users/xzy/Downloads/openethereum-2.5.13/target/release/parity'
+    """
     return 'parity'
 
 

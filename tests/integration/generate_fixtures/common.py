@@ -32,12 +32,12 @@ UNLOCKABLE_ACCOUNT_PW = KEYFILE_PW
 
 GENESIS_DATA = {
     "config": {
-        "chainId": 1337,
+        "chainId": 131277322940537,  # the string 'web3py' as an integer
         "homesteadBlock": 0,
         "eip150Block": 0,
-        "eip155Block": 10,
-        "eip158Block": 10,
-        "eip160Block": 10,
+        "eip155Block": 0,
+        "eip158Block": 0,
+        "eip160Block": 0,
     },
     "nonce": "0x0000000000000042",
     "alloc": {

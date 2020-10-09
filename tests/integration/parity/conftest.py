@@ -19,20 +19,20 @@ from .utils import (
 KEYFILE_PW = 'web3py-test'
 
 
-PARITY_2_3_5_FIXTURE = {
-    'zip': 'parity-235-fixture.zip',
+PARITY_2_5_13_FIXTURE = {
+    'zip': 'parity-2.5.13-fixture.zip',
     'coinbase': 'dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
-    'block_hash_with_log': '0x8633d4b5497e5a7e81356cbe3f0a49b63fb2020ddeb6c8c27bcecec541055a3b',
-    'block_with_txn_hash': '0xf474a7b80cb6cb2b728b290ce6a0893f5f85d2998c4b252d73300da56de205de',
+    'block_hash_with_log': '0xbeb77df6226309c33a8d70cb824ecda43c42a9c24bd587a500af717ba102a812',
+    'block_with_txn_hash': '0xe7bca75ebc85d0f360c76732cee48384fffa9a9e58a272d62c14f6ea146086ac',
     'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
-    'emitter_deploy_txn_hash': '0xa3e3838c01e73dafc7fc9d7e4e6c97523445006ae125ad1085abcf065feed382',
-    'empty_block_hash': '0xc46c025ae50a970408a429a5a2baa65f056a173ff1dae0cab4b490d2ee94413f',
+    'emitter_deploy_txn_hash': '0xef44cd36d86c41640c710026acf45f3b63731f72ac2a1744a005f6690bfa7613',
+    'empty_block_hash': '0xb62b8317a7a36b4f77aaad39fd95be2932e47a8e9e5c3ea49559fc747ade047a',
     'keyfile_pw': 'web3py-test',
     'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
-    'math_deploy_txn_hash': '0xb680f86c00d69484ce68b4d3932c27c4e858c91d6ba8a27f8c499006fe4ced4a',
-    'mined_txn_hash': '0x6401f455c01f9eb79fa672a4d24cc7cbbe3891e89eea8db8be39969dc9c480bc',
+    'math_deploy_txn_hash': '0x356278504f40db914545888674cedc0d8ccd4a939665eb4ab83b569db0c477cb',
+    'mined_txn_hash': '0x0846b46335384fd73273e1e402072a21ed2d52f5af6616e49c019d7abe511d2d',
     'raw_txn_account': '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6',
-    'txn_hash_with_log': '0xf6ffb7387cd0288cd1db1b1e368e7d4a21bc6e70fd2ef0e9af41f6c32b9e2cc7'
+    'txn_hash_with_log': '0x1407ae0fbc79622e60c21b59b0cb047a5f8d0219ad95969096c8c0e23f342f5c'
 }
 
 
@@ -57,7 +57,7 @@ def get_parity_version(parity_binary):
 
 @pytest.fixture(scope="module")
 def parity_fixture_data(parity_binary):
-    return PARITY_2_3_5_FIXTURE
+    return PARITY_2_5_13_FIXTURE
 
 
 @pytest.fixture(scope='module')
