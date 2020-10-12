@@ -6,6 +6,23 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.12.2 (2020-10-12)
+--------------------
+
+Bugfixes
+~~~~~~~~
+
+- Address the use of multiple providers in the docs (`#1701 <https://github.com/ethereum/web3.py/issues/1701>`__)
+- Remove stale connection errors from docs (`#1737 <https://github.com/ethereum/web3.py/issues/1737>`__)
+- Allow ENS name resolution for methods that use the ``Method`` class (`#1749 <https://github.com/ethereum/web3.py/issues/1749>`__)
+
+
+Misc
+~~~~
+
+- `#1727 <https://github.com/ethereum/web3.py/issues/1727>`__, `#1728 <https://github.com/ethereum/web3.py/issues/1728>`__, `#1733 <https://github.com/ethereum/web3.py/issues/1733>`__, `#1735 <https://github.com/ethereum/web3.py/issues/1735>`__, `#1741 <https://github.com/ethereum/web3.py/issues/1741>`__, `#1746 <https://github.com/ethereum/web3.py/issues/1746>`__, `#1748 <https://github.com/ethereum/web3.py/issues/1748>`__, `#1753 <https://github.com/ethereum/web3.py/issues/1753>`__, `#1768 <https://github.com/ethereum/web3.py/issues/1768>`__
+
+
 v5.12.1 (2020-09-02)
 --------------------
 

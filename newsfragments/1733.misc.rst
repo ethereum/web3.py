@@ -1,1 +1,0 @@
-Change eth_getBalance and eth_getCode to use Method class

@@ -1,1 +1,0 @@
-Bump Parity version in tests to v2.5.13

@@ -1,1 +1,0 @@
-eth_call and eth_estimateGas use ``Method`` class

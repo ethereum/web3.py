@@ -1,9 +1,0 @@
-A few new methods use the Method class:
-- RPC.eth_getBlockByNumber
-- RPC.eth_getBlockTransactionCountByHash
-- RPC.eth_getBlockTransactionCountByNumber
-- RPC.eth_getUncleCountByBlockHash
-- RPC.eth_getUncleCountByBlockNumber
-- RPC.eth_getUncleByBlockHashAndIndex
-- RPC.eth_getUncleByBlockNumberAndIndex
-- RPC.eth_getTransactionByHash
