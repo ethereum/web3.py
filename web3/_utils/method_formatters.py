@@ -500,8 +500,12 @@ def get_request_formatters(
 ) -> Dict[str, Callable[..., Any]]:
     request_formatter_maps = (
         ABI_REQUEST_FORMATTERS,
-        PYTHONIC_REQUEST_FORMATTERS,
+        # METHOD_NORMALIZERS needs to be after ABI_REQUEST_FORMATTERS
+        # so that eth_getLogs's apply_formatter_at_index formatter
+        # is applied to the whole address
+        # rather than on the first byte of the address
         METHOD_NORMALIZERS,
+        PYTHONIC_REQUEST_FORMATTERS,
     )
     formatters = combine_formatters(request_formatter_maps, method_name)
     return compose(*formatters)
