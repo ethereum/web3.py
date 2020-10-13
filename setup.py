@@ -85,7 +85,6 @@ setup(
          "typing-extensions>=3.7.4.1,<4;python_version<'3.8'",
         "websockets>=8.1.0,<9.0.0",
     ],
-    setup_requires=['setuptools-markdown'],
     python_requires='>=3.6,<4',
     extras_require=extras_require,
     py_modules=['web3', 'ens', 'ethpm'],
