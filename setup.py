@@ -7,7 +7,7 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        "eth-tester[py-evm]==v0.5.0-beta.3",
+        "eth-tester[py-evm]==v0.5.0-beta.4",
         "py-geth>=3.0.0,<4",
     ],
     'linter': [
@@ -85,7 +85,7 @@ setup(
         "pywin32>=223;platform_system=='Windows'",
         "requests>=2.16.0,<3.0.0",
         # remove typing_extensions after python_requires>=3.8, see web3._utils.compat
-         "typing-extensions>=3.7.4.1,<4;python_version<'3.8'",
+        "typing-extensions>=3.7.4.1,<4;python_version<'3.8'",
         "websockets>=8.1.0,<9.0.0",
     ],
     python_requires='>=3.6,<4',
@@ -106,5 +106,6 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
 )
