@@ -78,7 +78,7 @@ setup(
         "eth-typing>=2.0.0,<3.0.0",
         "eth-utils>=1.9.5,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
-        "ipfshttpclient>=0.4.13,<1",
+        "ipfshttpclient==0.7.0a1",
         "jsonschema>=3.2.0,<4.0.0",
         "lru-dict>=1.1.6,<2.0.0",
         "protobuf>=3.10.0,<4",

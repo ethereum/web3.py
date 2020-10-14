@@ -43,22 +43,15 @@ def fake_client(owned_manifest_path):
 
 
 @pytest.mark.parametrize(
-    # TODO: Change DummyIPFSBackend back to InfuraIPFSBackend once ipfshttpclient is updated
-    # "base_uri,backend", ((INFURA_GATEWAY_MULTIADDR, InfuraIPFSBackend()),)
-    "base_uri,backend", ((INFURA_GATEWAY_MULTIADDR, DummyIPFSBackend()),)
+    "base_uri,backend", ((INFURA_GATEWAY_MULTIADDR, InfuraIPFSBackend()),)
 )
 def test_ipfs_and_infura_gateway_backends_fetch_uri_contents(base_uri, backend):
-    pytest.xfail(reason="py-ipfs-http-client library doesn't support go-ipfs v0.7.0")
     uri = "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGV"
     assert backend.base_uri == base_uri
     contents = backend.fetch_uri_contents(uri)
     assert contents.startswith(b"pragma solidity")
 
 
-@pytest.mark.xfail(
-    reason="py-ipfs-http-client library doesn't support go-ipfs v0.7.0",
-    strict=False
-)
 def test_local_ipfs_backend(owned_manifest_path):
     uri = "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGV"
     backend = LocalIPFSBackend()
@@ -67,7 +60,6 @@ def test_local_ipfs_backend(owned_manifest_path):
     assert contents.startswith(b"pragma solidity")
 
 
-@pytest.mark.xfail(reason="py-ipfs-http-client library doesn't support go-ipfs v0.7.0")
 @pytest.mark.parametrize(
     "uri,expected",
     (
@@ -101,7 +93,6 @@ def test_get_ipfs_backend_class_with_default_backend():
     assert issubclass(backend, InfuraIPFSBackend)
 
 
-@pytest.mark.xfail(reason="py-ipfs-http-client library doesn't support go-ipfs v0.7.0")
 def test_get_ipfs_backend_with_default_backend():
     backend = get_ipfs_backend()
     assert isinstance(backend, InfuraIPFSBackend)

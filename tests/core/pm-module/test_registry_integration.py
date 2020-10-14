@@ -58,7 +58,6 @@ def test_pm_set_custom_registry(empty_sol_registry, fresh_w3):
     assert is_address(fresh_w3.pm.registry.address)
 
 
-@pytest.mark.xfail(reason="py-ipfs-http-client library doesn't support go-ipfs v0.7.0")
 def test_pm_must_set_registry_before_all_registry_interaction_functions(fresh_w3):
     with pytest.raises(PMError):
         fresh_w3.pm.release_package(
@@ -82,7 +81,6 @@ def test_pm_must_set_registry_before_all_registry_interaction_functions(fresh_w3
         fresh_w3.pm.get_package_count()
 
 
-@pytest.mark.xfail(reason="py-ipfs-http-client library doesn't support go-ipfs v0.7.0")
 def test_pm_release_package(empty_sol_registry, w3):
     w3.pm.registry = empty_sol_registry
     w3.pm.release_package(
