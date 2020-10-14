@@ -42,7 +42,7 @@ extras_require = {
         "pytest-pythonpath>=0.3",
         "pytest-watch>=4.2,<5",
         "pytest-xdist>=1.29,<2",
-        "setuptools>=36.2.0",
+        "setuptools>=38.6.0",
         "tox>=1.8.0",
         "tqdm>4.32,<5",
         "twine>=1.13,<2",
@@ -57,13 +57,16 @@ extras_require['dev'] = (
     + extras_require['dev']
 )
 
+with open('./README.md') as readme:
+    long_description = readme.read()
+
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
     version='5.12.2',
     description="""Web3.py""",
     long_description_content_type='text/markdown',
-    long_description_markdown_filename='README.md',
+    long_description=long_description,
     author='Piper Merriam',
     author_email='pipermerriam@gmail.com',
     url='https://github.com/ethereum/web3.py',
