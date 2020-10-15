@@ -1,0 +1,1 @@
+Update ipfshttpclient dependency so that ethpm Infura tests are passing again.
