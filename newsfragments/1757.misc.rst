@@ -1,0 +1,2 @@
+Duplicate block_number_formatter method removed and replaced with the to_hex_if_integer method.
+
