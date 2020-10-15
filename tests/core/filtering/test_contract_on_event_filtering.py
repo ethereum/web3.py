@@ -101,7 +101,7 @@ def test_on_sync_filter_with_event_name_and_single_argument(
     assert len(seen_logs) == 2
     assert {log['transactionHash'] for log in seen_logs} == set(txn_hashes[1:])
 
-
+#TODO: failure #2 associated with this method
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_on_sync_filter_with_event_name_and_non_indexed_argument(
