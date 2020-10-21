@@ -51,7 +51,7 @@ OTHER_ERROR = RPCResponse({
 
 
 def test_get_revert_reason() -> None:
-    assert get_revert_reason(REVERT_WITH_MSG) == 'not allowed to monitor'
+    assert get_revert_reason(REVERT_WITH_MSG) == 'execution reverted: not allowed to monitor'
     assert get_revert_reason(REVERT_WITHOUT_MSG) == ''
     assert get_revert_reason(OTHER_ERROR) is None
 

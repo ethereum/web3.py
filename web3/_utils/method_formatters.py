@@ -402,22 +402,13 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 
-def check_for_parity_revert(response: Any) -> Any:
-    # Parity returns '0x' if reverted, without an exception
-    # TODO: false positives?
-    if response == '0x':
-        # Mirroring Geth: 'execution reverted: <revert message>'
-        raise SolidityError('execution reverted')
-    return HexBytes(response)
-
-
 PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
     RPC.eth_blockNumber: to_integer_if_hex,
     RPC.eth_chainId: to_integer_if_hex,
     RPC.eth_coinbase: to_checksum_address,
-    RPC.eth_call: check_for_parity_revert,
+    RPC.eth_call: HexBytes,
     RPC.eth_estimateGas: to_integer_if_hex,
     RPC.eth_gasPrice: to_integer_if_hex,
     RPC.eth_getBalance: to_integer_if_hex,
@@ -515,25 +506,24 @@ def get_revert_reason(response: RPCResponse) -> str:
     if not isinstance(response['error'], dict):
         return None
 
-    if 'message' in response['error']:
+    data = response['error'].get('data', '')
+
+    # Parity/OpenEthereum case:
+    if data.startswith('Reverted '):
+        # "Reverted", function selector and offset are always the same for revert errors
+        prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'  # noqa: 501
+        if not data.startswith(prefix):
+            return ''
+
+        reason_length = int(data[len(prefix):len(prefix) + 64], 16)
+        reason = data[len(prefix) + 64:len(prefix) + 64 + reason_length * 2]
+        return f'execution reverted: {bytes.fromhex(reason).decode("utf8")}'
+
+    # Geth case:
+    if 'message' in response['error'] and response['error'].get('code', '') == 3:
         return response['error']['message']
 
-    # TODO: by this point, all tested client's reverts have been accounted for
-    return ''
-
-    #  data = response['error'].get('data', '')
-
-    #  if data == 'Reverted 0x':
-    #  return ''
-
-    #  # "Reverted", function selector and offset are always the same for revert errors
-    #  prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'  # noqa: 501
-    #  if not data.startswith(prefix):
-    #  return None
-
-    #  reason_length = int(data[len(prefix):len(prefix) + 64], 16)
-    #  reason = data[len(prefix) + 64:len(prefix) + 64 + reason_length * 2]
-    #  return bytes.fromhex(reason).decode('utf8')
+    return None
 
 
 def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:

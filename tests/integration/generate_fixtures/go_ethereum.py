@@ -3,17 +3,13 @@ import json
 import os
 import pprint
 import shutil
-import signal
-import socket
 import subprocess
 import sys
-import tempfile
 import time
 
 from eth_utils.curried import (
     apply_formatter_if,
     is_bytes,
-    is_checksum_address,
     is_dict,
     is_same_address,
     remove_0x_prefix,
@@ -26,6 +22,7 @@ from eth_utils.toolz import (
     valmap,
 )
 
+import common
 from tests.utils import (
     get_open_port,
 )
@@ -89,86 +86,12 @@ GENESIS_DATA = {
 }
 
 
-def ensure_path_exists(dir_path):
-    """
-    Make sure that a path exists
-    """
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-        return True
-    return False
-
-
-@contextlib.contextmanager
-def tempdir():
-    dir_path = tempfile.mkdtemp()
-    try:
-        yield dir_path
-    finally:
-        shutil.rmtree(dir_path)
-
-
-def get_geth_binary():
-    from geth.install import (
-        get_executable_path,
-        install_geth,
-    )
-
-    if 'GETH_BINARY' in os.environ:
-        return os.environ['GETH_BINARY']
-    elif 'GETH_VERSION' in os.environ:
-        geth_version = os.environ['GETH_VERSION']
-        _geth_binary = get_executable_path(geth_version)
-        if not os.path.exists(_geth_binary):
-            install_geth(geth_version)
-        assert os.path.exists(_geth_binary)
-        return _geth_binary
-    else:
-        return 'geth'
-
-
-def wait_for_popen(proc, timeout):
-    start = time.time()
-    while time.time() < start + timeout:
-        if proc.poll() is None:
-            time.sleep(0.01)
-        else:
-            break
-
-
-def kill_proc_gracefully(proc):
-    if proc.poll() is None:
-        proc.send_signal(signal.SIGINT)
-        wait_for_popen(proc, 13)
-
-    if proc.poll() is None:
-        proc.terminate()
-        wait_for_popen(proc, 5)
-
-    if proc.poll() is None:
-        proc.kill()
-        wait_for_popen(proc, 2)
-
-
-def wait_for_socket(ipc_path, timeout=30):
-    start = time.time()
-    while time.time() < start + timeout:
-        try:
-            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sock.connect(ipc_path)
-            sock.settimeout(timeout)
-        except (FileNotFoundError, socket.error):
-            time.sleep(0.01)
-        else:
-            break
-
-
 @contextlib.contextmanager
 def graceful_kill_on_exit(proc):
     try:
         yield proc
     finally:
-        kill_proc_gracefully(proc)
+        common.kill_proc_gracefully(proc)
 
 
 @contextlib.contextmanager
@@ -235,10 +158,10 @@ def write_config_json(config, datadir):
 
 def generate_go_ethereum_fixture(destination_dir):
     with contextlib.ExitStack() as stack:
-        datadir = stack.enter_context(tempdir())
+        datadir = stack.enter_context(common.tempdir())
 
         keystore_dir = os.path.join(datadir, 'keystore')
-        ensure_path_exists(keystore_dir)
+        common.ensure_path_exists(keystore_dir)
         keyfile_path = os.path.join(keystore_dir, KEYFILE_FILENAME)
         with open(keyfile_path, 'w') as keyfile:
             keyfile.write(KEYFILE_DATA)
@@ -246,11 +169,11 @@ def generate_go_ethereum_fixture(destination_dir):
         with open(genesis_file_path, 'w') as genesis_file:
             genesis_file.write(json.dumps(GENESIS_DATA))
 
-        geth_ipc_path_dir = stack.enter_context(tempdir())
+        geth_ipc_path_dir = stack.enter_context(common.tempdir())
         geth_ipc_path = os.path.join(geth_ipc_path_dir, 'geth.ipc')
 
         geth_port = get_open_port()
-        geth_binary = get_geth_binary()
+        geth_binary = common.get_geth_binary()
 
         with get_geth_process(
                 geth_binary=geth_binary,
@@ -259,7 +182,7 @@ def generate_go_ethereum_fixture(destination_dir):
                 geth_ipc_path=geth_ipc_path,
                 geth_port=geth_port):
 
-            wait_for_socket(geth_ipc_path)
+            common.wait_for_socket(geth_ipc_path)
             web3 = Web3(Web3.IPCProvider(geth_ipc_path))
             chain_data = setup_chain_state(web3)
             # close geth by exiting context
@@ -275,7 +198,7 @@ def generate_go_ethereum_fixture(destination_dir):
                 geth_ipc_path=geth_ipc_path,
                 geth_port=geth_port):
 
-            wait_for_socket(geth_ipc_path)
+            common.wait_for_socket(geth_ipc_path)
             web3 = Web3(Web3.IPCProvider(geth_ipc_path))
             verify_chain_state(web3, chain_data)
 
@@ -299,7 +222,7 @@ def verify_chain_state(web3, chain_data):
 def mine_transaction_hash(web3, txn_hash):
     web3.geth.miner.start(1)
     try:
-        return web3.eth.waitForTransactionReceipt(txn_hash, timeout=60)
+        return web3.eth.waitForTransactionReceipt(txn_hash, timeout=180)
     finally:
         web3.geth.miner.stop()
 
@@ -309,7 +232,7 @@ def mine_block(web3):
 
     start_time = time.time()
     web3.geth.miner.start(1)
-    while time.time() < start_time + 60:
+    while time.time() < start_time + 120:
         block_number = web3.eth.blockNumber
         if block_number > origin_block_number:
             web3.geth.miner.stop()
@@ -320,16 +243,16 @@ def mine_block(web3):
         raise ValueError("No block mined during wait period")
 
 
-def deploy_contract(web3, name, factory):
-    web3.geth.personal.unlock_account(web3.eth.coinbase, KEYFILE_PW)
-    deploy_txn_hash = factory.constructor().transact({'from': web3.eth.coinbase})
-    print('{0}_CONTRACT_DEPLOY_HASH: '.format(name.upper()), deploy_txn_hash)
-    deploy_receipt = mine_transaction_hash(web3, deploy_txn_hash)
-    print('{0}_CONTRACT_DEPLOY_TRANSACTION_MINED'.format(name.upper()))
-    contract_address = deploy_receipt['contractAddress']
-    assert is_checksum_address(contract_address)
-    print('{0}_CONTRACT_ADDRESS:'.format(name.upper()), contract_address)
-    return deploy_receipt
+#  def deploy_contract(web3, name, factory):
+    #  web3.geth.personal.unlock_account(web3.eth.coinbase, KEYFILE_PW)
+    #  deploy_txn_hash = factory.constructor().transact({'from': web3.eth.coinbase})
+    #  print('{0}_CONTRACT_DEPLOY_HASH: '.format(name.upper()), deploy_txn_hash)
+    #  deploy_receipt = mine_transaction_hash(web3, deploy_txn_hash)
+    #  print('{0}_CONTRACT_DEPLOY_TRANSACTION_MINED'.format(name.upper()))
+    #  contract_address = deploy_receipt['contractAddress']
+    #  assert is_checksum_address(contract_address)
+    #  print('{0}_CONTRACT_ADDRESS:'.format(name.upper()), contract_address)
+    #  return deploy_receipt
 
 
 def setup_chain_state(web3):
@@ -344,7 +267,7 @@ def setup_chain_state(web3):
         abi=MATH_ABI,
         bytecode=MATH_BYTECODE,
     )
-    math_deploy_receipt = deploy_contract(web3, 'math', math_contract_factory)
+    math_deploy_receipt = common.deploy_contract(web3, 'math', math_contract_factory)
     assert is_dict(math_deploy_receipt)
 
     #
@@ -354,7 +277,7 @@ def setup_chain_state(web3):
         abi=CONTRACT_EMITTER_ABI,
         bytecode=CONTRACT_EMITTER_CODE,
     )
-    emitter_deploy_receipt = deploy_contract(web3, 'emitter', emitter_contract_factory)
+    emitter_deploy_receipt = common.deploy_contract(web3, 'emitter', emitter_contract_factory)
     emitter_contract = emitter_contract_factory(emitter_deploy_receipt['contractAddress'])
 
     txn_hash_with_log = emitter_contract.functions.logDouble(

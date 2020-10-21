@@ -22,20 +22,20 @@ KEYFILE_PW = 'web3py-test'
 PARITY_2_5_13_FIXTURE = {
     'zip': 'parity-2.5.13-fixture.zip',
     'coinbase': 'dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
-    'block_hash_revert_no_msg': '0x3244617196b9467687cbab23798c00077954452771d38d05d3b8d484b83c5de5',  # noqa: E501
-    'block_hash_revert_with_msg': '0x7d7917231f1a9e816f11ff93842d543c35075a7cd5d75854f28324409910836c',  # noqa: E501
-    'block_hash_with_log': '0x19947203802e02d4659698c5684322ef67c4146fb1f420a6da371116be78047c',
-    'block_with_txn_hash': '0xc26f5610ddbfd6fbe179110e09af6df06c2998ed0c9c623417480b2c795a6f01',
+    'block_hash_revert_no_msg': '0x0496eca70b312db0d7b14753f5545e48f43ad70e8a2dd4fa5dc6c6409448c394',  # noqa: E501
+    'block_hash_revert_with_msg': '0xf117005506c338177df21519008e3805cb718c2cad5f4a4c07754bf59bfd996c',  # noqa: E501
+    'block_hash_with_log': '0xeb1cd5061f8e8c0a1a3b75dd48600fa126b6c0e753406276f2a6a544f1e41ec1',
+    'block_with_txn_hash': '0xabf9142af100741620657e5a9a46e788c776303ca4986478f892384b83d8761c',
     'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
-    'emitter_deploy_txn_hash': '0xbd4ca1b3cdb6bd711aec67dbb5a90c4d8f7910dab5bde70e5b8a9f8ad689b373',
-    'empty_block_hash': '0x7a877c858e2d5447305e0901580022553cab34fdbc78c22c33b627e2a6a9ba5a',
+    'emitter_deploy_txn_hash': '0xef44cd36d86c41640c710026acf45f3b63731f72ac2a1744a005f6690bfa7613',
+    'empty_block_hash': '0x63b0e0f16340e65662948cde20ba93c96ae311997db672b0101357f15b071fe5',
     'keyfile_pw': 'web3py-test',
     'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
-    'math_deploy_txn_hash': '0xa266faa2c729660d88e0c72994b5cd0e85ff9fe05846a6575b9095d433f51957',
-    'mined_txn_hash': '0xd9f2298f6bc02f5ede8db75eac721f2365b6d9a96e1ca1bb0724d316de8f626c',
+    'math_deploy_txn_hash': '0x356278504f40db914545888674cedc0d8ccd4a939665eb4ab83b569db0c477cb',
+    'mined_txn_hash': '0x86fbfe56cce542ff0a2a2716c31675a0c9c43701725c4a751d20ee2ddf8a733d',
     'raw_txn_account': '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6',
     'revert_address': '0x14F3674571D76Bf66cA8EBD84dC02060933400b4',
-    'txn_hash_with_log': '0x51c7e37746062cb7ff1f337d3ab725fa540c6d20fc9304b08dad5e80b3601511'}
+    'txn_hash_with_log': '0x1407ae0fbc79622e60c21b59b0cb047a5f8d0219ad95969096c8c0e23f342f5c'}
 
 
 @pytest.fixture(scope='module')

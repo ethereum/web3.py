@@ -333,10 +333,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
         super().test_eth_getTransactionReceipt_mined(web3, block_with_txn, mined_txn_hash)
 
     def test_eth_call_revert_with_msg(self, web3, revert_contract, unlocked_account) -> None:
-            super().test_eth_call_revert_with_msg(web3, revert_contract, unlocked_account)
+        super().test_eth_call_revert_with_msg(web3, revert_contract, unlocked_account)
 
     def test_eth_estimateGas_revert_with_msg(self, web3, revert_contract, unlocked_account) -> None:
-            super().test_eth_estimateGas_revert_with_msg(web3, revert_contract, unlocked_account)
+        super().test_eth_estimateGas_revert_with_msg(web3, revert_contract, unlocked_account)
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
