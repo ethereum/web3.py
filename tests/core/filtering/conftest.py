@@ -21,13 +21,13 @@ from web3.providers.eth_tester import (
 )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def tester_snapshot(web3):
     return web3.provider.ethereum_tester.take_snapshot()
 
 
 @pytest.fixture(
-    scope="module",
+    scope='function',
     params=[True, False],
     ids=["local_filter_middleware", "node_based_filter"])
 def web3(request):
@@ -44,22 +44,22 @@ def wait_for_mining_start(web3, wait_for_block):
     wait_for_block(web3)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def EMITTER_CODE():
     return CONTRACT_EMITTER_CODE
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def EMITTER_RUNTIME():
     return CONTRACT_EMITTER_RUNTIME
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def EMITTER_ABI():
     return CONTRACT_EMITTER_ABI
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def EMITTER(EMITTER_CODE,
             EMITTER_RUNTIME,
             EMITTER_ABI):
@@ -70,12 +70,12 @@ def EMITTER(EMITTER_CODE,
     }
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def Emitter(web3, EMITTER):
     return web3.eth.contract(**EMITTER)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
     wait_for_block(web3)
     deploy_txn_hash = Emitter.constructor().transact({
@@ -156,6 +156,6 @@ def return_filter(
     return contract.events[event_name].createFilter(**kwargs)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def create_filter(request):
     return functools.partial(return_filter)
