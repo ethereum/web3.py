@@ -27,6 +27,9 @@ from web3._utils.method_formatters import (
     get_request_formatters,
     get_result_formatters,
 )
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.types import (
     RPCEndpoint,
     TReturn,
@@ -171,15 +174,27 @@ class Method(Generic[TFunc]):
         self, module: Union["Module", "ModuleV2"], *args: Any, **kwargs: Any
     ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., Any]], Any], Tuple[Any, Any]]:
         params = self.input_munger(module, args, kwargs)
-        # block_identifier is always the first argument passed in for methods where
-        # method_choice_depends_on_args is called.
-        if self.method_choice_depends_on_args:
-            block_identifier = args[0]
-            self.json_rpc_method = self.method_choice_depends_on_args(value=block_identifier)
-        method = self.method_selector_fn()
-        response_formatters = (self.result_formatters(method), self.error_formatters(method))
 
-        request = (method, _apply_request_formatters(params, self.request_formatters(method)))
+        if self.method_choice_depends_on_args:
+            # If the method choice depends on the args that get passed in,
+            # the first parameter determines which method needs to be called
+            self.json_rpc_method = self.method_choice_depends_on_args(value=params[0])
+
+            pending_or_latest_filter_methods = [
+                RPC.eth_newPendingTransactionFilter,
+                RPC.eth_newBlockFilter
+            ]
+            if self.json_rpc_method in pending_or_latest_filter_methods:
+                # For pending or latest filter methods, use params to determine
+                # which method to call, but don't pass them through with the request
+                params = []
+
+        method = self.method_selector_fn()
+        response_formatters = (self.result_formatters(method, module),
+                               self.error_formatters(method))
+
+        request = (method,
+                   _apply_request_formatters(params, self.request_formatters(method)))
 
         return request, response_formatters
 

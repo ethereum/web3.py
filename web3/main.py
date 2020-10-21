@@ -166,13 +166,14 @@ class Web3:
         ens: ENS = cast(ENS, empty)
     ) -> None:
         self.manager = self.RequestManager(self, provider, middlewares)
+        # this codec gets used in the module initialization,
+        # so it needs to come before attach_modules
+        self.codec = ABICodec(build_default_registry())
 
         if modules is None:
             modules = get_default_modules()
 
         attach_modules(self, modules)
-
-        self.codec = ABICodec(build_default_registry())
 
         self.ens = ens
 

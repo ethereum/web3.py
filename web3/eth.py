@@ -23,6 +23,7 @@ from eth_typing import (
 )
 from eth_utils import (
     is_checksum_address,
+    is_hex,
     is_string,
 )
 from eth_utils.toolz import (
@@ -46,10 +47,7 @@ from web3._utils.encoding import (
     to_hex,
 )
 from web3._utils.filters import (
-    BlockFilter,
-    Filter,
-    LogFilter,
-    TransactionFilter,
+    select_filter_method,
 )
 from web3._utils.rpc_abi import (
     RPC,
@@ -462,43 +460,41 @@ class Eth(ModuleV2, Module):
         mungers=[estimate_gas_munger]
     )
 
-    def filter(
-        self, filter_params: Optional[Union[str, FilterParams]] = None,
+    def filter_munger(
+        self,
+        filter_params: Optional[Union[str, FilterParams]] = None,
         filter_id: Optional[HexStr] = None
-    ) -> Filter:
+    ) -> Union[List[FilterParams], List[HexStr], List[str]]:
         if filter_id and filter_params:
             raise TypeError(
                 "Ambiguous invocation: provide either a `filter_params` or a `filter_id` argument. "
                 "Both were supplied."
             )
-        if is_string(filter_params):
-            if filter_params == "latest":
-                filter_id = self.web3.manager.request_blocking(
-                    RPC.eth_newBlockFilter, [],
-                )
-                return BlockFilter(self.web3, filter_id)
-            elif filter_params == "pending":
-                filter_id = self.web3.manager.request_blocking(
-                    RPC.eth_newPendingTransactionFilter, [],
-                )
-                return TransactionFilter(self.web3, filter_id)
+        if isinstance(filter_params, dict):
+            return [filter_params]
+        elif is_string(filter_params):
+            if filter_params in ['latest', 'pending'] or is_hex(filter_params):
+                return [filter_params]
             else:
                 raise ValueError(
-                    "The filter API only accepts the values of `pending` or "
-                    "`latest` for string based filters"
+                    "The filter API only accepts the values of `pending`, "
+                    "`latest` or a hex-encoded `filter_id` for string based filters"
                 )
-        elif isinstance(filter_params, dict):
-            _filter_id = self.web3.manager.request_blocking(
-                RPC.eth_newFilter,
-                [filter_params],
-            )
-            return LogFilter(self.web3, _filter_id)
-        elif filter_id and not filter_params:
-            return LogFilter(self.web3, filter_id)
+        elif is_hex(filter_id):
+            return [filter_id]
         else:
             raise TypeError("Must provide either filter_params as a string or "
                             "a valid filter object, or a filter_id as a string "
                             "or hex.")
+
+    filter: Method[Callable[..., Any]] = Method(
+        method_choice_depends_on_args=select_filter_method(
+            if_new_block_filter=RPC.eth_newBlockFilter,
+            if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
+            if_new_filter=RPC.eth_newFilter,
+        ),
+        mungers=[filter_munger],
+    )
 
     getFilterChanges: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
         RPC.eth_getFilterChanges,

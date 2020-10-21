@@ -9,6 +9,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Union,
 )
 
 from eth_abi.codec import (
@@ -23,6 +24,7 @@ from eth_typing import (
     TypeStr,
 )
 from eth_utils import (
+    is_hex,
     is_list_like,
     is_string,
     is_text,
@@ -46,15 +48,24 @@ from web3._utils.events import (
 from web3._utils.validation import (
     validate_address,
 )
+from web3.exceptions import (
+    ValidationError,
+)
 from web3.types import (
     ABIEvent,
     BlockIdentifier,
     FilterParams,
     LogReceipt,
+    RPCEndpoint,
 )
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
+    from web3.module import (  # noqa: F401
+        Module,
+        ModuleV2,
+    )
+    from web3.eth import Eth  # noqa: F401
 
 
 def construct_event_filter_params(
@@ -122,14 +133,16 @@ class Filter:
     poll_interval = None
     filter_id = None
 
-    def __init__(self, web3: "Web3", filter_id: HexStr) -> None:
-        self.web3 = web3
+    def __init__(self,
+                 filter_id: HexStr,
+                 eth_module: "Eth") -> None:
+        self.eth_module = eth_module
         self.filter_id = filter_id
         self.callbacks = []
         super().__init__()
 
     def __str__(self) -> str:
-        return "Filter for {0}".format(self.filter_id)
+        return f"Filter for {self.filter_id}"
 
     def format_entry(self, entry: LogReceipt) -> LogReceipt:
         """
@@ -148,11 +161,11 @@ class Filter:
         return filter(self.is_valid_entry, entries)
 
     def get_new_entries(self) -> List[LogReceipt]:
-        log_entries = self._filter_valid_entries(self.web3.eth.getFilterChanges(self.filter_id))
+        log_entries = self._filter_valid_entries(self.eth_module.getFilterChanges(self.filter_id))
         return self._format_log_entries(log_entries)
 
     def get_all_entries(self) -> List[LogReceipt]:
-        log_entries = self._filter_valid_entries(self.web3.eth.getFilterLogs(self.filter_id))
+        log_entries = self._filter_valid_entries(self.eth_module.getFilterLogs(self.filter_id))
         return self._format_log_entries(log_entries)
 
     def _format_log_entries(self,
@@ -203,7 +216,7 @@ class LogFilter(Filter):
         """
         self.data_filter_set = data_filter_set
         if any(data_filter_set):
-            self.data_filter_set_function = match_fn(self.web3, data_filter_set)
+            self.data_filter_set_function = match_fn(self.eth_module.codec, data_filter_set)
 
     def is_valid_entry(self, entry: LogReceipt) -> bool:
         if not self.data_filter_set:
@@ -235,7 +248,7 @@ def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:
 
 
 @curry
-def match_fn(w3: "Web3", match_values_and_abi: Collection[Tuple[str, Any]], data: Any) -> bool:
+def match_fn(codec: ABICodec, match_values_and_abi: Collection[Tuple[str, Any]], data: Any) -> bool:
     """Match function used for filtering non-indexed event arguments.
 
     Values provided through the match_values_and_abi parameter are
@@ -243,13 +256,13 @@ def match_fn(w3: "Web3", match_values_and_abi: Collection[Tuple[str, Any]], data
     """
     abi_types, all_match_values = zip(*match_values_and_abi)
 
-    decoded_values = w3.codec.decode_abi(abi_types, HexBytes(data))
+    decoded_values = codec.decode_abi(abi_types, HexBytes(data))
     for data_value, match_values, abi_type in zip(decoded_values, all_match_values, abi_types):
         if match_values is None:
             continue
         normalized_data = normalize_data_values(abi_type, data_value)
         for value in match_values:
-            if not w3.is_encodable(abi_type, value):
+            if not codec.is_encodable(abi_type, value):
                 raise ValueError(
                     f"Value {value} is of the wrong abi type. "
                     f"Expected {abi_type} typed value."
@@ -260,3 +273,41 @@ def match_fn(w3: "Web3", match_values_and_abi: Collection[Tuple[str, Any]], data
             return False
 
     return True
+
+
+class _UseExistingFilter(Exception):
+    """
+    Internal exception, raised when a filter_id is passed into w3.eth.filter()
+    """
+    def __init__(
+        self,
+        filter_id: Union[str, FilterParams, HexStr]
+    ) -> None:
+        self.filter_id = filter_id
+
+
+@curry
+def select_filter_method(
+    value: Union[str, FilterParams, HexStr],
+    if_new_block_filter: RPCEndpoint,
+    if_new_pending_transaction_filter: RPCEndpoint,
+    if_new_filter: RPCEndpoint,
+) -> RPCEndpoint:
+
+    if is_string(value):
+        if value == "latest":
+            return if_new_block_filter
+        elif value == "pending":
+            return if_new_pending_transaction_filter
+        elif is_hex(value):
+            raise _UseExistingFilter(value)
+        else:
+            raise ValidationError("Filter argument needs to be either 'latest',"
+                                  " 'pending', or a hex-encoded filter_id. Filter argument"
+                                  f" is: {value}")
+    elif isinstance(value, dict):
+        return if_new_filter
+    else:
+        raise ValidationError("Filter argument needs to be either the string "
+                              "'pending' or 'latest', a filter_id, "
+                              f"or a filter params dictionary. Filter argument is: {value}")

@@ -79,8 +79,7 @@ def test_block_filter(web3):
     assert len(block_filter.get_new_entries()) == web3.eth.blockNumber
 
 
-def test_transaction_filter_with_mining(
-        web3):
+def test_transaction_filter_with_mining(web3):
 
     transaction_filter = web3.eth.filter("pending")
 
