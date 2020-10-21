@@ -1,1 +1,0 @@
-Move eth_getFilterChanges, eth_getFilterLogs, and eth_getLogs to use ``Method``
