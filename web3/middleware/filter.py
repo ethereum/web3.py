@@ -22,6 +22,8 @@ from eth_typing import (
 )
 from eth_utils import (
     apply_key_map,
+    is_hex,
+    is_string,
     to_hex,
     to_int,
     to_list,
@@ -31,6 +33,12 @@ from eth_utils.toolz import (
     valfilter,
 )
 
+from web3._utils.formatters import (
+    hex_to_integer,
+)
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.types import (  # noqa: F401
     FilterParams,
     LatestBlockParam,
@@ -102,7 +110,6 @@ def block_ranges(
        Ranges do not overlap to facilitate use as ``toBlock``, ``fromBlock``
        json-rpc arguments, which are both inclusive.
     """
-
     if last_block is not None and start_block > last_block:
         raise TypeError(
             "Incompatible start and stop arguments.",
@@ -212,6 +219,8 @@ def get_logs_multipart(
 
 
 class RequestLogs:
+    _from_block: BlockNumber
+
     def __init__(
         self,
         w3: "Web3",
@@ -227,6 +236,8 @@ class RequestLogs:
         self.w3 = w3
         if from_block is None or from_block == "latest":
             self._from_block = BlockNumber(w3.eth.blockNumber + 1)
+        elif is_string(from_block) and is_hex(from_block):
+            self._from_block = BlockNumber(hex_to_integer(from_block))  # type: ignore
         else:
             # cast b/c LatestBlockParam is handled above
             self._from_block = cast(BlockNumber, from_block)
@@ -243,6 +254,8 @@ class RequestLogs:
             to_block = self.w3.eth.blockNumber
         elif self._to_block == "latest":
             to_block = self.w3.eth.blockNumber
+        elif is_hex(self._to_block):
+            to_block = BlockNumber(hex_to_integer(self._to_block))  # type: ignore
         else:
             to_block = cast(BlockNumber, self._to_block)
 
@@ -282,11 +295,13 @@ FILTER_PARAMS_KEY_MAP = {
 
 NEW_FILTER_METHODS = set([
     "eth_newBlockFilter",
-    "eth_newFilter"])
+    "eth_newFilter",
+])
 
 FILTER_CHANGES_METHODS = set([
     "eth_getFilterChanges",
-    "eth_getFilterLogs"])
+    "eth_getFilterLogs",
+])
 
 
 class RequestBlocks:
@@ -331,10 +346,10 @@ def local_filter_middleware(
             filter_id = next(filter_id_counter)
 
             _filter: Union[RequestLogs, RequestBlocks]
-            if method == "eth_newFilter":
+            if method == RPC.eth_newFilter:
                 _filter = RequestLogs(w3, **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0]))
 
-            elif method == "eth_newBlockFilter":
+            elif method == RPC.eth_newBlockFilter:
                 _filter = RequestBlocks(w3)
 
             else:
@@ -349,9 +364,9 @@ def local_filter_middleware(
             if filter_id not in filters:
                 return make_request(method, params)
             _filter = filters[filter_id]
-            if method == "eth_getFilterChanges":
+            if method == RPC.eth_getFilterChanges:
                 return {"result": next(_filter.filter_changes)}
-            elif method == "eth_getFilterLogs":
+            elif method == RPC.eth_getFilterLogs:
                 # type ignored b/c logic prevents RequestBlocks which doesn't implement get_logs
                 return {"result": _filter.get_logs()}  # type: ignore
             else:

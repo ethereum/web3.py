@@ -4,14 +4,22 @@ from typing import (
     Callable,
     Coroutine,
     Optional,
+    TypeVar,
     Union,
 )
 
+from eth_abi.codec import (
+    ABICodec,
+)
 from eth_utils.toolz import (
     curry,
     pipe,
 )
 
+from web3._utils.filters import (
+    LogFilter,
+    _UseExistingFilter,
+)
 from web3.method import (
     Method,
 )
@@ -34,12 +42,18 @@ def apply_result_formatters(
         return result
 
 
+TReturn = TypeVar('TReturn')
+
+
 @curry
 def retrieve_blocking_method_call_fn(
-    w3: "Web3", module: Union["Module", "ModuleV2"], method: Method[Callable[..., Any]]
-) -> Callable[..., RPCResponse]:
-    def caller(*args: Any, **kwargs: Any) -> RPCResponse:
-        (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)
+    w3: "Web3", module: Union["Module", "ModuleV2"], method: Method[Callable[..., TReturn]]
+) -> Callable[..., Union[TReturn, LogFilter]]:
+    def caller(*args: Any, **kwargs: Any) -> Union[TReturn, LogFilter]:
+        try:
+            (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)  # noqa: E501
+        except _UseExistingFilter as err:
+            return LogFilter(eth_module=module, filter_id=err.filter_id)
         result_formatters, error_formatters = response_formatters
         result = w3.manager.request_blocking(method_str, params, error_formatters)
         return apply_result_formatters(result_formatters, result)
@@ -100,3 +114,4 @@ class ModuleV2(Module):
         else:
             self.retrieve_caller_fn = retrieve_blocking_method_call_fn(web3, self)
         self.web3 = web3
+        self.codec: ABICodec = web3.codec

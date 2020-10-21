@@ -23,10 +23,7 @@ from web3.providers.base import (
 
 class DummyProvider(BaseProvider):
     def make_request(self, method, params):
-        raise NotImplementedError("Cannot make request for {0}:{1}".format(
-            method,
-            params,
-        ))
+        raise NotImplementedError(f"Cannot make request for {method}:{params}")
 
 
 BLOCK_HASH = '0xfe88c94d860f01a17f961bf4bdfb6e0c6cd10d3fda5cc861e805ca1240c58553'

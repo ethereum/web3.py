@@ -1,6 +1,7 @@
 import codecs
 import operator
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Collection,
@@ -52,6 +53,11 @@ from web3._utils.encoding import (
     hexstr_if_str,
     to_hex,
 )
+from web3._utils.filters import (
+    BlockFilter,
+    LogFilter,
+    TransactionFilter,
+)
 from web3._utils.formatters import (
     hex_to_integer,
     integer_to_hex,
@@ -85,6 +91,14 @@ from web3.types import (
     TReturn,
     _Hash32,
 )
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
+    from web3.module import (  # noqa: F401
+        Module,
+        ModuleV2,
+    )
+    from web3.eth import Eth  # noqa: F401
 
 
 def bytes_to_ascii(value: bytes) -> str:
@@ -580,16 +594,49 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 
+def filter_wrapper(
+    module: "Eth",
+    method: RPCEndpoint,
+    filter_id: HexStr,
+) -> Union[BlockFilter, TransactionFilter, LogFilter]:
+    if method == RPC.eth_newBlockFilter:
+        return BlockFilter(filter_id, eth_module=module)
+    elif method == RPC.eth_newPendingTransactionFilter:
+        return TransactionFilter(filter_id, eth_module=module)
+    elif method == RPC.eth_newFilter:
+        return LogFilter(filter_id, eth_module=module)
+    else:
+        raise NotImplementedError('Filter wrapper needs to be used with either '
+                                  f'{RPC.eth_newBlockFilter}, {RPC.eth_newPendingTransactionFilter}'
+                                  f' or {RPC.eth_newFilter}')
+
+
+FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+    RPC.eth_newPendingTransactionFilter: filter_wrapper,
+    RPC.eth_newBlockFilter: filter_wrapper,
+    RPC.eth_newFilter: filter_wrapper,
+}
+
+
 def get_result_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+    module: Union["Module", "ModuleV2"],
 ) -> Dict[str, Callable[..., Any]]:
     formatters = combine_formatters(
         (PYTHONIC_RESULT_FORMATTERS,),
         method_name
     )
-    attrdict_formatter = apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
+    filter_formatters = combine_formatters(
+        (FILTER_RESULT_FORMATTERS,),
+        method_name
+    )
 
-    return compose(attrdict_formatter, *formatters)
+    attrdict_formatter = apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
+    if filter_formatters:
+        partial_filter_formatters = partial(filter_formatters[0], module, method_name)
+        return compose(partial_filter_formatters, attrdict_formatter, *formatters)
+    else:
+        return compose(attrdict_formatter, *formatters)
 
 
 def get_error_formatters(
