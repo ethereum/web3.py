@@ -21,7 +21,7 @@ from web3.providers.eth_tester import (
 )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def tester_snapshot(web3):
     return web3.provider.ethereum_tester.take_snapshot()
 
@@ -156,6 +156,6 @@ def return_filter(
     return contract.events[event_name].createFilter(**kwargs)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def create_filter(request):
     return functools.partial(return_filter)
