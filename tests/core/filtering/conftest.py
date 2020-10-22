@@ -113,7 +113,7 @@ class LogFunctions:
     LogAddressNotIndexed = 17
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def emitter_event_ids():
     return LogFunctions
 
