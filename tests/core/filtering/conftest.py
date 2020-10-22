@@ -21,7 +21,7 @@ from web3.providers.eth_tester import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def tester_snapshot(web3):
     return web3.provider.ethereum_tester.take_snapshot()
 
