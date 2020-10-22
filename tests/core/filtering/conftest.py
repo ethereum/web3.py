@@ -27,7 +27,7 @@ def tester_snapshot(web3):
 
 
 @pytest.fixture(
-    scope='function',
+    scope='module',
     params=[True, False],
     ids=["local_filter_middleware", "node_based_filter"])
 def web3(request):
@@ -44,22 +44,22 @@ def wait_for_mining_start(web3, wait_for_block):
     wait_for_block(web3)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def EMITTER_CODE():
     return CONTRACT_EMITTER_CODE
 
 
 @pytest.fixture()
-def EMITTER_RUNTIME():
+def EMITTER_RUNTIME(scope="module"):
     return CONTRACT_EMITTER_RUNTIME
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def EMITTER_ABI():
     return CONTRACT_EMITTER_ABI
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def EMITTER(EMITTER_CODE,
             EMITTER_RUNTIME,
             EMITTER_ABI):
@@ -70,12 +70,12 @@ def EMITTER(EMITTER_CODE,
     }
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def Emitter(web3, EMITTER):
     return web3.eth.contract(**EMITTER)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
     wait_for_block(web3)
     deploy_txn_hash = Emitter.constructor().transact({
