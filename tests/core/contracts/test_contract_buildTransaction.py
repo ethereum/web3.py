@@ -1,17 +1,41 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 
 from eth_utils.toolz import (
     dissoc,
 )
 
+from web3 import Web3
 from web3.exceptions import (
     ValidationError,
 )
+from web3.middleware import (
+    local_filter_middleware,
+)
+from web3.providers.eth_tester import (
+    EthereumTesterProvider,
+)
+
+# -*- coding: utf-8 -*-
+
 
 # Ignore warning in pyethereum 1.6 - will go away with the upgrade
 pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
+
+
+# Ignore warning in pyethereum 1.6 - will go away with the upgrade
+pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
+
+
+@pytest.fixture(
+    params=[True, False],
+    ids=["local_filter_middleware", "node_based_filter"])
+def web3(request):
+    use_filter_middleware = request.param
+    provider = EthereumTesterProvider()
+    w3 = Web3(provider)
+    if use_filter_middleware:
+        w3.middleware_onion.add(local_filter_middleware)
+    return w3
 
 
 @pytest.fixture()
