@@ -502,13 +502,11 @@ def get_revert_reason(response: RPCResponse) -> str:
 
     See also https://solidity.readthedocs.io/en/v0.6.3/control-structures.html#revert
     """
-    assert 'error' in response
     if not isinstance(response['error'], dict):
         return None
 
-    data = response['error'].get('data', '')
-
     # Parity/OpenEthereum case:
+    data = response['error'].get('data', '')
     if data.startswith('Reverted '):
         # "Reverted", function selector and offset are always the same for revert errors
         prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'  # noqa: 501

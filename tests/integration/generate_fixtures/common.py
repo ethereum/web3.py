@@ -219,7 +219,7 @@ def mine_block(web3):
 def mine_transaction_hash(web3, txn_hash):
     start_time = time.time()
     web3.geth.miner.start(1)
-    while time.time() < start_time + 240:
+    while time.time() < start_time + 120:
         try:
             receipt = web3.eth.getTransactionReceipt(txn_hash)
         except TransactionNotFound:

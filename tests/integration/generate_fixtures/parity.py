@@ -29,11 +29,8 @@ CHAIN_CONFIG = {
                 "minimumDifficulty": "0x020000",
                 "difficultyBoundDivisor": "0x0800",
                 "durationLimit": "0x0d",
-                #  "blockReward": "0x4563918244F40000",  # homestead
-                #  "blockReward": "0x29a2241af62c0000",  # byzantium
                 "blockReward": "0x1bc16d674ec80000",  # constantinople
                 "difficultyBombDelays": {
-                    #  "0x0": "0x2dc6c0",  # byzantium
                     "0x0": "0x1e8480",
                 },
                 "homesteadTransition": 0,

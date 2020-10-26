@@ -153,11 +153,6 @@ def revert_contract(web3, revert_contract_factory, revert_contract_deploy_txn_ha
     return revert_contract_factory(contract_address)
 
 
-@pytest.fixture(scope="module")
-def revert_contract_address(revert_contract, address_conversion_func):
-    return address_conversion_func(revert_contract.address)
-
-
 UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
 
 
@@ -331,12 +326,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
     @pytest.mark.xfail(raises=KeyError, reason="ethereum tester doesn't return 'to' key")
     def test_eth_getTransactionReceipt_mined(self, web3, block_with_txn, mined_txn_hash):
         super().test_eth_getTransactionReceipt_mined(web3, block_with_txn, mined_txn_hash)
-
-    def test_eth_call_revert_with_msg(self, web3, revert_contract, unlocked_account) -> None:
-        super().test_eth_call_revert_with_msg(web3, revert_contract, unlocked_account)
-
-    def test_eth_estimateGas_revert_with_msg(self, web3, revert_contract, unlocked_account) -> None:
-        super().test_eth_estimateGas_revert_with_msg(web3, revert_contract, unlocked_account)
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
