@@ -487,23 +487,19 @@ STANDARD_NORMALIZERS = [
 ABI_REQUEST_FORMATTERS = abi_request_formatters(STANDARD_NORMALIZERS, RPC_ABIS)
 
 
-def get_revert_reason(response: RPCResponse) -> str:
+def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
     """
-    Parse revert reason from response, return None if no revert happened.
-
-    If a revert happened, but no message has been given, return an empty string.
-
     Reverts contain a `data` attribute with the following layout:
         "Reverted "
         Function selector for Error(string): 08c379a (4 bytes)
         Data offset: 32 (32 bytes)
         String length (32 bytes)
-        Reason strong (padded, use string length from above to get meaningful part)
+        Reason string (padded, use string length from above to get meaningful part)
 
     See also https://solidity.readthedocs.io/en/v0.6.3/control-structures.html#revert
     """
     if not isinstance(response['error'], dict):
-        return None
+        raise ValueError('Error expected to be a dict')
 
     # Parity/OpenEthereum case:
     data = response['error'].get('data', '')
@@ -511,26 +507,17 @@ def get_revert_reason(response: RPCResponse) -> str:
         # "Reverted", function selector and offset are always the same for revert errors
         prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'  # noqa: 501
         if not data.startswith(prefix):
-            return ''
+            raise SolidityError('execution reverted')
 
         reason_length = int(data[len(prefix):len(prefix) + 64], 16)
         reason = data[len(prefix) + 64:len(prefix) + 64 + reason_length * 2]
-        return f'execution reverted: {bytes.fromhex(reason).decode("utf8")}'
+        raise SolidityError(f'execution reverted: {bytes.fromhex(reason).decode("utf8")}')
 
     # Geth case:
     if 'message' in response['error'] and response['error'].get('code', '') == 3:
-        return response['error']['message']
+        raise SolidityError(response['error']['message'])
 
-    return None
-
-
-def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
-    revert_reason = get_revert_reason(response)
-    if revert_reason is None:
-        return response
-    if revert_reason == '':
-        raise SolidityError()
-    raise SolidityError(revert_reason)
+    return response
 
 
 ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {

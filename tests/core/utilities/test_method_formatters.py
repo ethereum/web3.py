@@ -2,7 +2,7 @@ import pytest
 
 from web3._utils.method_formatters import (
     get_error_formatters,
-    get_revert_reason,
+    raise_solidity_error_on_revert,
 )
 from web3._utils.rpc_abi import (
     RPC,
@@ -50,10 +50,23 @@ OTHER_ERROR = RPCResponse({
 })
 
 
-def test_get_revert_reason() -> None:
-    assert get_revert_reason(REVERT_WITH_MSG) == 'execution reverted: not allowed to monitor'
-    assert get_revert_reason(REVERT_WITHOUT_MSG) == ''
-    assert get_revert_reason(OTHER_ERROR) is None
+@pytest.mark.parametrize(
+    "response,expected",
+    (
+        (REVERT_WITH_MSG, 'execution reverted: not allowed to monitor'),
+        (REVERT_WITHOUT_MSG, 'execution reverted'),
+    ),
+    ids=[
+        'test-get-revert-reason-with-msg',
+        'test-get-revert-reason-without-msg',
+    ])
+def test_get_revert_reason(response, expected) -> None:
+    with pytest.raises(SolidityError, match=expected):
+        raise_solidity_error_on_revert(response)
+
+
+def test_get_revert_reason_other_error() -> None:
+    assert raise_solidity_error_on_revert(OTHER_ERROR) is OTHER_ERROR
 
 
 def test_get_error_formatters() -> None:

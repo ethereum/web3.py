@@ -29,7 +29,7 @@ CHAIN_CONFIG = {
                 "minimumDifficulty": "0x020000",
                 "difficultyBoundDivisor": "0x0800",
                 "durationLimit": "0x0d",
-                "blockReward": "0x1bc16d674ec80000",  # constantinople
+                "blockReward": "0x1bc16d674ec80000",
                 "difficultyBombDelays": {
                     "0x0": "0x1e8480",
                 },
@@ -58,9 +58,9 @@ CHAIN_CONFIG = {
         "eip1014Transition": 0,
         "eip1052Transition": 0,
         "eip1283Transition": 0,
-        #  Petersburg
+        #  TODO: Petersburg
         #  "eip1283DisableTransition": 0,
-        #  Istanbul
+        #  TODO: Istanbul
         #  "eip1283ReenableTransition": 0,
         #  "eip1344Transition": 0,
         #  "eip1884Transition": 0,
@@ -132,9 +132,6 @@ CHAIN_CONFIG = {
                 "pricing": {"linear": {"base": 500, "word": 0}}
             }
         },
-        #  "0000000000000000000000000000000000000007": {},
-        #  "0000000000000000000000000000000000000008": {},
-        #  "0000000000000000000000000000000000000009": {},
     }
 }
 

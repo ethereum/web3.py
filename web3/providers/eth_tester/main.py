@@ -6,6 +6,10 @@ from typing import (
     Optional,
 )
 
+from eth_abi import (
+    decode_single,
+)
+
 from web3._utils.compat import (
     Literal,
 )
@@ -102,8 +106,11 @@ class EthereumTesterProvider(BaseProvider):
                 "error": "RPC Endpoint has not been implemented: {0}".format(method),
             })
         except TransactionFailed as e:
-            # Mirroring Geth: 'execution reverted: <revert message>'
-            raise SolidityError(f'execution reverted: {e.args[0]}')
+            if type(e.args[0]) == str:
+                reason = e.args[0]
+            else:
+                reason = decode_single('(string)', e.args[0].args[0][4:])[0]
+            raise SolidityError(f'execution reverted: {reason}')
         else:
             return {
                 'result': response,
