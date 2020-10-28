@@ -29,23 +29,42 @@ CHAIN_CONFIG = {
                 "minimumDifficulty": "0x020000",
                 "difficultyBoundDivisor": "0x0800",
                 "durationLimit": "0x0d",
-                "blockReward": "0x4563918244F40000",
+                "blockReward": "0x1bc16d674ec80000",
+                "difficultyBombDelays": {
+                    "0x0": "0x1e8480",
+                },
                 "homesteadTransition": 0,
+                "eip100bTransition": 0,
             }
         }
     },
     "params": {
         "gasLimitBoundDivisor": "0x0400",
         "registrar": "0x81a4b044831c4f12ba601adb9274516939e9b8a2",
-        "eip140Transition": 0,
+        #  Tangerine Whistle
         "eip150Transition": 0,
-        "eip155Transition": 0,
+        #  Spurious Dragon
         "eip160Transition": 0,
         "eip161abcTransition": 0,
         "eip161dTransition": 0,
+        "eip155Transition": 0,
+        #  Byzantium
+        "eip140Transition": 0,
+        "eip211Transition": 0,
         "eip214Transition": 0,
+        "eip658Transition": 0,
+        #  Constantinople
+        "eip145Transition": 0,
         "eip1014Transition": 0,
         "eip1052Transition": 0,
+        "eip1283Transition": 0,
+        #  TODO: Petersburg
+        #  "eip1283DisableTransition": 0,
+        #  TODO: Istanbul
+        #  "eip1283ReenableTransition": 0,
+        #  "eip1344Transition": 0,
+        #  "eip1884Transition": 0,
+        #  "eip2028Transition": 0,
         "accountStartNonce": "0x0",
         "maximumExtraDataSize": "0x20",
         "minGasLimit": "0x1388",
@@ -67,28 +86,52 @@ CHAIN_CONFIG = {
         "gasLimit": "0x1000000"
     },
     "accounts": {
-        common.COINBASE: {
-            "balance": "1000000000000000000000000000",
-            "nonce": "0",
+        common.COINBASE: {"balance": "1000000000000000000000000000", "nonce": "0"},
+        common.UNLOCKABLE_ACCOUNT: {"balance": "1000000000000000000000000000", "nonce": "0"},
+        common.RAW_TXN_ACCOUNT: {"balance": "1000000000000000000000000000", "nonce": "0"},
+        "0000000000000000000000000000000000000001": {
+            "balance": "0x1",
             "builtin": {
-                "name": "ecrecover", "pricing": {"linear": {"base": 3000, "word": 0}}
+                "name": "ecrecover",
+                "pricing": {"linear": {"base": 3000, "word": 0}}
             }
         },
-        common.UNLOCKABLE_ACCOUNT: {
-            "balance": "1000000000000000000000000000",
-            "nonce": "0",
+        "0000000000000000000000000000000000000002": {
+            "balance": "0x1",
             "builtin": {
-                "name": "sha256", "pricing": {"linear": {"base": 60, "word": 12}}
+                "name": "sha256",
+                "pricing": {"linear": {"base": 60, "word": 12}}
             }
         },
-        common.RAW_TXN_ACCOUNT: {
-            "balance": "1000000000000000000000000000",
-            "nonce": "0",
+        "0000000000000000000000000000000000000003": {
+            "balance": "0x1",
             "builtin": {
                 "name": "ripemd160",
                 "pricing": {"linear": {"base": 600, "word": 120}}
             }
-        }
+        },
+        "0000000000000000000000000000000000000004": {
+            "balance": "0x1",
+            "builtin": {
+                "name": "identity",
+                "pricing": {"linear": {"base": 15, "word": 3}}
+            }
+        },
+        "0000000000000000000000000000000000000005": {
+            "balance": "0x1",
+            "builtin": {
+                "name": "modexp",
+                "pricing": {"modexp": {"divisor": 20}}
+            }
+        },
+        "0000000000000000000000000000000000000006": {
+            "balance": "0x1",
+            "builtin": {
+                "name": "alt_bn128_add",
+                "activate_at": "0x7530",
+                "pricing": {"linear": {"base": 500, "word": 0}}
+            }
+        },
     }
 }
 
@@ -208,7 +251,8 @@ def generate_parity_fixture(destination_dir):
                 genesis_file_path,
                 geth_ipc_path,
                 geth_port,
-                str(CHAIN_CONFIG['params']['networkID']))
+                str(CHAIN_CONFIG['params']['networkID'])
+            )
         )
         # set up fixtures
         common.wait_for_socket(geth_ipc_path)

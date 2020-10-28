@@ -135,6 +135,24 @@ def txn_hash_with_log(block_with_txn_with_log):
     return block_with_txn_with_log['transactions'][0]
 
 
+#
+# Revert Contract Setup
+#
+@pytest.fixture(scope="module")
+def revert_contract_deploy_txn_hash(web3, revert_contract_factory):
+    deploy_txn_hash = revert_contract_factory.constructor().transact({'from': web3.eth.coinbase})
+    return deploy_txn_hash
+
+
+@pytest.fixture(scope="module")
+def revert_contract(web3, revert_contract_factory, revert_contract_deploy_txn_hash):
+    deploy_receipt = web3.eth.waitForTransactionReceipt(revert_contract_deploy_txn_hash)
+    assert is_dict(deploy_receipt)
+    contract_address = deploy_receipt['contractAddress']
+    assert is_checksum_address(contract_address)
+    return revert_contract_factory(contract_address)
+
+
 UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
 
 

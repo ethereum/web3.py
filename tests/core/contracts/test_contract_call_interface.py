@@ -30,6 +30,7 @@ from web3.exceptions import (
     MismatchedABI,
     NoABIFound,
     NoABIFunctionsFound,
+    SolidityError,
     ValidationError,
 )
 
@@ -118,6 +119,19 @@ def fixed_reflection_contract(web3, FixedReflectionContract, address_conversion_
 @pytest.fixture()
 def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
     return deploy(web3, PayableTesterContract, address_conversion_func)
+
+
+@pytest.fixture()
+def revert_contract(web3, RevertContract, address_conversion_func):
+    return deploy(web3, RevertContract, address_conversion_func)
+
+
+@pytest.fixture()
+def call_transaction():
+    return {
+        'data': '0x61bc221a',
+        'to': '0xc305c901078781C232A2a521C2aF7980f8385ee9'
+    }
 
 
 @pytest.fixture(params=[
@@ -855,3 +869,11 @@ def test_call_tuple_contract(tuple_contract, method_input, expected):
 def test_call_nested_tuple_contract(nested_tuple_contract, method_input, expected):
     result = nested_tuple_contract.functions.method(method_input).call()
     assert result == expected
+
+
+def test_call_revert_contract(revert_contract):
+    with pytest.raises(SolidityError, match="Function has been reverted."):
+        # eth-tester will do a gas estimation if we don't submit a gas value,
+        # which does not contain the revert reason. Avoid that by giving a gas
+        # value.
+        revert_contract.functions.revertWithMessage().call({'gas': 100000})

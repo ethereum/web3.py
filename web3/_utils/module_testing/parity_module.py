@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 class ParityTraceModuleTest:
 
     def test_trace_replay_transaction(
-        self, web3: "Web3", parity_fixture_data: Dict[str, str]
+        self, web3: "Web3", parity_fixture_data: Dict[str, str],
     ) -> None:
         trace = web3.parity.traceReplayTransaction(HexStr(parity_fixture_data['mined_txn_hash']))
 

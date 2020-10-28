@@ -29,6 +29,10 @@ class ParityWeb3ModuleTest(Web3ModuleTest):
 
 
 class ParityEthModuleTest(EthModuleTest):
+    @pytest.mark.xfail(reason='Parity returns a gas value even when a function will revert')
+    def test_eth_estimateGas_revert_with_msg(self, web3, revert_contract, unlocked_account):
+        super().test_eth_estimateGas_revert_with_msg(web3, revert_contract, unlocked_account)
+
     @pytest.mark.xfail(reason='Parity dropped "pending" option in 1.11.1')
     def test_eth_getBlockByNumber_pending(self, web3):
         super().test_eth_getBlockByNumber_pending(web3)

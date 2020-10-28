@@ -116,6 +116,7 @@ class EventData(TypedDict):
 class RPCError(TypedDict):
     code: int
     message: str
+    data: Optional[str]
 
 
 class RPCResponse(TypedDict, total=False):

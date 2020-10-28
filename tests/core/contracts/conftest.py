@@ -36,6 +36,11 @@ from web3._utils.module_testing.receive_contract import (
     CONTRACT_RECEIVE_FUNCTION_CODE,
     CONTRACT_RECEIVE_FUNCTION_RUNTIME,
 )
+from web3._utils.module_testing.revert_contract import (
+    _REVERT_CONTRACT_ABI,
+    REVERT_CONTRACT_BYTECODE,
+    REVERT_CONTRACT_RUNTIME_CODE,
+)
 
 CONTRACT_NESTED_TUPLE_SOURCE = """
 pragma solidity >=0.4.19 <0.6.0;
@@ -891,6 +896,37 @@ def CALLER_TESTER_CONTRACT(CALLER_TESTER_CODE,
 @pytest.fixture()
 def CallerTesterContract(web3, CALLER_TESTER_CONTRACT):
     return web3.eth.contract(**CALLER_TESTER_CONTRACT)
+
+
+@pytest.fixture()
+def REVERT_CONTRACT_CODE():
+    return REVERT_CONTRACT_BYTECODE
+
+
+@pytest.fixture()
+def REVERT_CONTRACT_RUNTIME():
+    return REVERT_CONTRACT_RUNTIME_CODE
+
+
+@pytest.fixture()
+def REVERT_CONTRACT_ABI():
+    return _REVERT_CONTRACT_ABI
+
+
+@pytest.fixture()
+def REVERT_FUNCTION_CONTRACT(REVERT_CONTRACT_CODE,
+                             REVERT_CONTRACT_RUNTIME,
+                             REVERT_CONTRACT_ABI):
+    return {
+        'bytecode': REVERT_CONTRACT_CODE,
+        'bytecode_runtime': REVERT_CONTRACT_RUNTIME,
+        'abi': REVERT_CONTRACT_ABI,
+    }
+
+
+@pytest.fixture()
+def RevertContract(web3, REVERT_FUNCTION_CONTRACT):
+    return web3.eth.contract(**REVERT_FUNCTION_CONTRACT)
 
 
 class LogFunctions:

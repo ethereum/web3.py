@@ -22,18 +22,20 @@ KEYFILE_PW = 'web3py-test'
 PARITY_2_5_13_FIXTURE = {
     'zip': 'parity-2.5.13-fixture.zip',
     'coinbase': 'dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
-    'block_hash_with_log': '0xbeb77df6226309c33a8d70cb824ecda43c42a9c24bd587a500af717ba102a812',
-    'block_with_txn_hash': '0xe7bca75ebc85d0f360c76732cee48384fffa9a9e58a272d62c14f6ea146086ac',
+    'block_hash_revert_no_msg': '0x0496eca70b312db0d7b14753f5545e48f43ad70e8a2dd4fa5dc6c6409448c394',  # noqa: E501
+    'block_hash_revert_with_msg': '0xf117005506c338177df21519008e3805cb718c2cad5f4a4c07754bf59bfd996c',  # noqa: E501
+    'block_hash_with_log': '0xeb1cd5061f8e8c0a1a3b75dd48600fa126b6c0e753406276f2a6a544f1e41ec1',
+    'block_with_txn_hash': '0xabf9142af100741620657e5a9a46e788c776303ca4986478f892384b83d8761c',
     'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
     'emitter_deploy_txn_hash': '0xef44cd36d86c41640c710026acf45f3b63731f72ac2a1744a005f6690bfa7613',
-    'empty_block_hash': '0xb62b8317a7a36b4f77aaad39fd95be2932e47a8e9e5c3ea49559fc747ade047a',
+    'empty_block_hash': '0x63b0e0f16340e65662948cde20ba93c96ae311997db672b0101357f15b071fe5',
     'keyfile_pw': 'web3py-test',
     'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
     'math_deploy_txn_hash': '0x356278504f40db914545888674cedc0d8ccd4a939665eb4ab83b569db0c477cb',
-    'mined_txn_hash': '0x0846b46335384fd73273e1e402072a21ed2d52f5af6616e49c019d7abe511d2d',
+    'mined_txn_hash': '0x86fbfe56cce542ff0a2a2716c31675a0c9c43701725c4a751d20ee2ddf8a733d',
     'raw_txn_account': '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6',
-    'txn_hash_with_log': '0x1407ae0fbc79622e60c21b59b0cb047a5f8d0219ad95969096c8c0e23f342f5c'
-}
+    'revert_address': '0x14F3674571D76Bf66cA8EBD84dC02060933400b4',
+    'txn_hash_with_log': '0x1407ae0fbc79622e60c21b59b0cb047a5f8d0219ad95969096c8c0e23f342f5c'}
 
 
 @pytest.fixture(scope='module')
@@ -204,3 +206,18 @@ def txn_filter_params(coinbase):
         "toBlock": "latest",
         "fromAddress": [coinbase],
     }
+
+
+@pytest.fixture(scope="module")
+def block_hash_revert_no_msg(parity_fixture_data):
+    return parity_fixture_data['block_hash_revert_no_msg']
+
+
+@pytest.fixture(scope="module")
+def block_hash_revert_with_msg(parity_fixture_data):
+    return parity_fixture_data['block_hash_revert_with_msg']
+
+
+@pytest.fixture(scope="module")
+def revert_contract(revert_contract_factory, parity_fixture_data):
+    return revert_contract_factory(address=parity_fixture_data['revert_address'])
