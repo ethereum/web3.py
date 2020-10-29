@@ -6,6 +6,27 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.13.0 (2020-10-29)
+--------------------
+
+Features
+~~~~~~~~
+
+- Raise `SolidityError` exceptions that contain the revert reason when a `call` fails. (`#941 <https://github.com/ethereum/web3.py/issues/941>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Update eth-tester dependency to fix tester environment install version conflict. (`#1782 <https://github.com/ethereum/web3.py/issues/1782>`__)
+
+
+Misc
+~~~~
+
+- `#1757 <https://github.com/ethereum/web3.py/issues/1757>`__, `#1767 <https://github.com/ethereum/web3.py/issues/1767>`__
+
+
 v5.12.3 (2020-10-21)
 --------------------
 
