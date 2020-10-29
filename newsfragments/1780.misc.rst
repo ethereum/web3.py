@@ -1,0 +1,3 @@
+Specify 'module' scope for 'wait_for_block' and 'wait_for_transaction' fixtures. Specify 'module'
+scope for emitter fixtures ('emitter', 'Emitter', 'EMITTER', 'EMITTER_ABI', 'EMITTER_RUNTIME',
+'EMITTER_CODE') and 'web3(request)'in test_contract_data_filters.py.
