@@ -63,7 +63,7 @@ with open('./README.md') as readme:
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='5.12.3',
+    version='5.13.0',
     description="""Web3.py""",
     long_description_content_type='text/markdown',
     long_description=long_description,
