@@ -1,1 +1,2 @@
-Remove duplicate block_number_formatter method in favor of to_hex_if_integer method
+Specify 'module' scope for pytest fixtures 'emitter_event_ids', 'w3_strict_abi', and
+'create_filter'.
