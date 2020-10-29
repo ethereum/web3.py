@@ -1,0 +1,1 @@
+Remove duplicate block_number_formatter method in favor of to_hex_if_integer method
