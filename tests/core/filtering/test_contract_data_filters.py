@@ -6,6 +6,80 @@ from hypothesis import (
     strategies as st,
 )
 
+from web3 import Web3
+from web3._utils.module_testing.emitter_contract import (
+    CONTRACT_EMITTER_ABI,
+    CONTRACT_EMITTER_CODE,
+    CONTRACT_EMITTER_RUNTIME,
+)
+from web3.middleware import (
+    local_filter_middleware,
+)
+from web3.providers.eth_tester import (
+    EthereumTesterProvider,
+)
+
+
+@pytest.fixture(
+    scope="module",
+    params=[True, False],
+    ids=["local_filter_middleware", "node_based_filter"])
+def web3(request):
+    use_filter_middleware = request.param
+    provider = EthereumTesterProvider()
+    w3 = Web3(provider)
+    if use_filter_middleware:
+        w3.middleware_onion.add(local_filter_middleware)
+    return w3
+
+
+@pytest.fixture(scope="module")
+def EMITTER_CODE():
+    return CONTRACT_EMITTER_CODE
+
+
+@pytest.fixture(scope="module")
+def EMITTER_RUNTIME():
+    return CONTRACT_EMITTER_RUNTIME
+
+
+@pytest.fixture(scope="module")
+def EMITTER_ABI():
+    return CONTRACT_EMITTER_ABI
+
+
+@pytest.fixture(scope="module")
+def EMITTER(EMITTER_CODE,
+            EMITTER_RUNTIME,
+            EMITTER_ABI):
+    return {
+        'bytecode': EMITTER_CODE,
+        'bytecode_runtime': EMITTER_RUNTIME,
+        'abi': EMITTER_ABI,
+    }
+
+
+@pytest.fixture(scope="module")
+def Emitter(web3, EMITTER):
+    return web3.eth.contract(**EMITTER)
+
+
+@pytest.fixture(scope="module")
+def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
+    wait_for_block(web3)
+    deploy_txn_hash = Emitter.constructor().transact({
+        'from': web3.eth.coinbase,
+        'gas': 1000000,
+        'gasPrice': 1})
+    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
+    contract_address = address_conversion_func(deploy_receipt['contractAddress'])
+
+    bytecode = web3.eth.getCode(contract_address)
+    assert bytecode == Emitter.bytecode_runtime
+    _emitter = Emitter(address=contract_address)
+    assert _emitter.address == contract_address
+    return _emitter
+
 
 def not_empty_string(x):
     return x != ''

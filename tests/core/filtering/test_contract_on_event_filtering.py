@@ -4,9 +4,6 @@ from eth_utils import (
     is_address,
 )
 
-# Ignore warning in pyethereum 1.6 - will go away with the upgrade
-pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
-
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
 def test_create_filter_address_parameter(web3, emitter, Emitter, call_as_instance):
