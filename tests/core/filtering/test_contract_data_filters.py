@@ -19,9 +19,6 @@ from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 
-# Ignore warning in pyethereum 1.6 - will go away with the upgrade
-pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
-
 
 @pytest.fixture(
     scope="module",
