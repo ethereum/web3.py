@@ -255,7 +255,74 @@ To issue an unstable version when the current version is stable, specify the new
 version explicitly, like ``make release bump="--new-version 4.0.0-alpha.1 devnum"``.
 
 
+Generating new fixtures
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Our integration tests make use of Geth and Parity/OpenEthereum private networks.
+When new versions of the client software are introduced, new fixtures should be
+generated.
+
+.. note::
+
+    A "fixture" is a pre-synced network. It's the result of configuring and running
+    a client, deploying the test contracts, and saving the resulting state for
+    testing Web3.py functionality against.
+
+
+Geth fixtures
+^^^^^^^^^^^^^
+
+1. Install the desired Geth version on your machine locally. The Geth team only
+   explicitly supports the current version of their client at any given point,
+   so older versions are best installed via `py-geth`_.
+
+2. Specify the Geth binary and run the fixture creation script:
+
+   .. code:: sh
+
+       $ GETH_BINARY=/path/to/py-geth/bin python /tests/integration/generate_fixtures/go_ethereum.py destination
+
+3. The output of this script is your fixture, a zip file. Store the fixture in the
+   ``/tests/integration/`` directory and update the ``/tests/integration/go_ethereum/conftest.py``
+   file to point to the new fixture.
+
+4. Run the tests. To ensure that the tests run with the correct Geth version,
+   you may again include the ``GETH_BINARY`` environment variable.
+
+
+Parity/OpenEthereum fixtures
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. The most reliable way to get a specific Parity/OE binary is to download
+   the source code via `GitHub releases`_.
+
+2. `Build the binary`_ from source. (This is will take a few minutes.)
+
+3. Specify the path to this binary in the ``get_parity_binary`` function
+   of the ``/tests/integration/generate_fixtures/parity.py`` file.
+
+4. Run the fixture generation script:
+
+.. code:: sh
+
+    $ python /tests/integration/generate_fixtures/parity.py destination
+ 
+5. The output of this script is your fixture, a zip file. Store the fixture in the
+   ``/tests/integration/`` directory and update the ``/tests/integration/parity/conftest.py``
+   file to point the new fixture.
+
+6. By this point, you may have noticed that Parity fixture generation relies
+   on a Geth network to sync from. In the output of the generation script are
+   the hashes of the various contracts that it mined. Update the corresponding
+   values in the ``/parity/conftest.py`` file with those hashes.
+
+7. Run the tests.
+
+
 .. _style guide: https://github.com/pipermerriam/ethereum-dev-tactical-manual/blob/master/style-guide.md
 .. _type hints: https://www.python.org/dev/peps/pep-0484/
 .. _how to create documentation: https://github.com/ethereum/snake-charmers-tactical-manual/blob/master/documentation.md
 .. _working on pull requests: https://help.github.com/articles/about-pull-requests/
+.. _py-geth: https://github.com/ethereum/py-geth
+.. _Github releases: https://github.com/openethereum/openethereum/releases
+.. _Build the binary: https://github.com/openethereum/openethereum/#3-building-
