@@ -50,6 +50,13 @@ ABI_FUNC_3 = {
     "outputs": [],
     "type": "function",
 }
+ABI_FUNC_4_NO_NAME = {
+    "constant": False,
+    "inputs": [],
+    "outputs": [],
+    "type": "function",
+}
+
 
 ABI = [
     ABI_CONSTRUCTOR,
@@ -59,6 +66,7 @@ ABI = [
     ABI_FUNC_2_SIG_A,
     ABI_FUNC_2_SIG_B,
     ABI_FUNC_3,
+    ABI_FUNC_4_NO_NAME,
 ]
 
 
