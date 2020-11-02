@@ -274,13 +274,14 @@ Geth fixtures
 
 1. Install the desired Geth version on your machine locally. The Geth team only
    explicitly supports the current version of their client at any given point,
-   so older versions are best installed via `py-geth`_.
+   so older versions are best installed via `py-geth`_. Note that ``py-geth``
+   will need updating to support each new version as well.
 
 2. Specify the Geth binary and run the fixture creation script:
 
    .. code:: sh
 
-       $ GETH_BINARY=/path/to/py-geth/bin python /tests/integration/generate_fixtures/go_ethereum.py destination
+       $ GETH_BINARY=/path/to/py-geth/bin python /tests/integration/generate_fixtures/go_ethereum.py /tests/integration/geth-X.Y.Z-fixture
 
 3. The output of this script is your fixture, a zip file. Store the fixture in the
    ``/tests/integration/`` directory and update the ``/tests/integration/go_ethereum/conftest.py``
@@ -305,7 +306,7 @@ Parity/OpenEthereum fixtures
 
 .. code:: sh
 
-    $ python /tests/integration/generate_fixtures/parity.py destination
+    $ python /tests/integration/generate_fixtures/parity.py /tests/integration/parity-X.Y.Z-fixture
  
 5. The output of this script is your fixture, a zip file. Store the fixture in the
    ``/tests/integration/`` directory and update the ``/tests/integration/parity/conftest.py``
