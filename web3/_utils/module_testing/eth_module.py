@@ -808,6 +808,12 @@ class EthModuleTest:
         with pytest.raises(BlockNotFound):
             web3.eth.getBlock(UNKNOWN_HASH)
 
+    def test_eth_getBlockByHash_pending(
+        self, web3: "Web3", empty_block: BlockData
+    ) -> None:
+        block = web3.eth.getBlock('pending')
+        assert block['hash'] is None
+
     def test_eth_getBlockByNumber_with_integer(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:

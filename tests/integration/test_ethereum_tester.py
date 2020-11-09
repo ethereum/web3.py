@@ -24,6 +24,9 @@ from web3._utils.module_testing.emitter_contract import (
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
+from web3.types import (  # noqa: F401
+    BlockData,
+)
 
 
 @pytest.fixture(scope="module")
@@ -243,6 +246,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
     )
     test_eth_submitHashrate = not_implemented(EthModuleTest.test_eth_submitHashrate, ValueError)
     test_eth_submitWork = not_implemented(EthModuleTest.test_eth_submitWork, ValueError)
+
+    def test_eth_getBlockByHash_pending(
+        self, web3: "Web3", empty_block: BlockData
+    ) -> None:
+        block = web3.eth.getBlock('pending')
+        assert block['hash'] is not None
 
     @disable_auto_mine
     def test_eth_getTransactionReceipt_unmined(self, eth_tester, web3, unlocked_account):
