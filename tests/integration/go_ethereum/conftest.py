@@ -61,7 +61,6 @@ def base_geth_command_arguments(geth_binary, datadir):
     return (
         geth_binary,
         '--datadir', str(datadir),
-        '--shh',
         '--nodiscover',
         '--fakepow',
     )

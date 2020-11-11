@@ -14,7 +14,6 @@ from web3._utils.module_testing import (
 )
 
 from .common import (
-    CommonParityShhModuleTest,
     ParityEthModuleTest,
     ParityPersonalModuleTest,
     ParityTraceModuleTest,
@@ -52,7 +51,6 @@ def parity_command_arguments(
         '--jsonrpc-experimental',
         '--no-ipc',
         '--no-ws',
-        '--whisper',
     )
 
 
@@ -101,8 +99,4 @@ class TestParityPersonalModuleTest(ParityPersonalModuleTest):
 
 
 class TestParityTraceModuleTest(ParityTraceModuleTest):
-    pass
-
-
-class TestParityShhModuleTest(CommonParityShhModuleTest):
     pass

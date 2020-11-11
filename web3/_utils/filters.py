@@ -6,7 +6,6 @@ from typing import (
     Dict,
     Iterator,
     List,
-    NoReturn,
     Optional,
     Sequence,
     Tuple,
@@ -44,12 +43,6 @@ from web3._utils.events import (
     construct_event_data_set,
     construct_event_topic_set,
 )
-from web3._utils.rpc_abi import (
-    RPC,
-)
-from web3._utils.threads import (
-    TimerClass,
-)
 from web3._utils.validation import (
     validate_address,
 )
@@ -58,7 +51,6 @@ from web3.types import (
     BlockIdentifier,
     FilterParams,
     LogReceipt,
-    ShhFilterID,
 )
 
 if TYPE_CHECKING:
@@ -268,37 +260,3 @@ def match_fn(w3: "Web3", match_values_and_abi: Collection[Tuple[str, Any]], data
             return False
 
     return True
-
-
-class ShhFilter(Filter):
-    filter_id: ShhFilterID
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.poll_interval = kwargs.pop(
-            'poll_interval',
-            self.poll_interval,
-        )
-        super().__init__(*args, **kwargs)
-
-    def get_new_entries(self) -> List[LogReceipt]:
-        all_messages = self.web3.manager.request_blocking(
-            RPC.shh_getFilterMessages,
-            [self.filter_id]
-        )
-        log_entries = self._filter_valid_entries(all_messages)
-        return self._format_log_entries(log_entries)
-
-    def get_all_entries(self) -> NoReturn:
-        raise NotImplementedError()
-
-    def watch(self, callback: Callable[..., Any]) -> TimerClass:
-        def callback_wrapper() -> None:
-            entries = self.get_new_entries()
-
-            if entries:
-                callback(entries)
-
-        timer = TimerClass(self.poll_interval, callback_wrapper)
-        timer.daemon = True
-        timer.start()
-        return timer

@@ -16,10 +16,6 @@ from .personal_module import (  # noqa: F401
     GoEthereumPersonalModuleTest,
     ParityPersonalModuleTest,
 )
-from .shh_module import (  # noqa: F401
-    GoEthereumShhModuleTest,
-    ParityShhModuleTest,
-)
 from .version_module import (  # noqa: F401
     VersionModuleTest,
 )

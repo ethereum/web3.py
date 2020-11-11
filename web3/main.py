@@ -60,7 +60,6 @@ from web3.geth import (
     GethAdmin,
     GethMiner,
     GethPersonal,
-    GethShh,
     GethTxPool,
 )
 from web3.iban import (
@@ -75,7 +74,6 @@ from web3.net import (
 from web3.parity import (
     Parity,
     ParityPersonal,
-    ParityShh,
 )
 from web3.providers import (
     BaseProvider,
@@ -114,13 +112,11 @@ def get_default_modules() -> Dict[str, Sequence[Any]]:
         "version": (Version,),
         "parity": (Parity, {
             "personal": (ParityPersonal,),
-            "shh": (ParityShh,),
         }),
         "geth": (Geth, {
             "admin": (GethAdmin,),
             "miner": (GethMiner,),
             "personal": (GethPersonal,),
-            "shh": (GethShh,),
             "txpool": (GethTxPool,),
         }),
         "testing": (Testing,),

@@ -8,7 +8,6 @@ from tests.utils import (
 from web3 import Web3
 
 from .common import (
-    CommonGoEthereumShhModuleTest,
     GoEthereumAdminModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
@@ -86,8 +85,4 @@ class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
 
 
 class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
-    pass
-
-
-class TestGoEthereumShhModuleTest(CommonGoEthereumShhModuleTest):
     pass

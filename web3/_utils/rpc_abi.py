@@ -125,32 +125,6 @@ class RPC:
     personal_signTypedData = RPCEndpoint("personal_signTypedData")
     personal_unlockAccount = RPCEndpoint("personal_unlockAccount")
 
-    # shh
-    shh_addPrivateKey = RPCEndpoint("shh_addPrivateKey")
-    shh_addSymKey = RPCEndpoint("shh_addSymKey")
-    shh_deleteKey = RPCEndpoint("shh_deleteKey")
-    shh_deleteKeyPair = RPCEndpoint("shh_deleteKeyPair")
-    shh_deleteMessageFilter = RPCEndpoint("shh_deleteMessageFilter")
-    shh_deleteSymKey = RPCEndpoint("shh_deleteSymKey")
-    shh_generateSymKeyFromPassword = RPCEndpoint("shh_generateSymKeyFromPassword")
-    shh_getFilterMessages = RPCEndpoint("shh_getFilterMessages")
-    shh_getPrivateKey = RPCEndpoint("shh_getPrivateKey")
-    shh_getPublicKey = RPCEndpoint("shh_getPublicKey")
-    shh_getSymKey = RPCEndpoint("shh_getSymKey")
-    shh_hasKeyPair = RPCEndpoint("shh_hasKeyPair")
-    shh_hasSymKey = RPCEndpoint("shh_hasSymKey")
-    shh_info = RPCEndpoint("shh_info")
-    shh_markTrustedPeer = RPCEndpoint("shh_markTrustedPeer")
-    shh_newKeyPair = RPCEndpoint("shh_newKeyPair")
-    shh_newMessageFilter = RPCEndpoint("shh_newMessageFilter")
-    shh_newSymKey = RPCEndpoint("shh_newSymKey")
-    shh_post = RPCEndpoint("shh_post")
-    shh_setMaxMessageSize = RPCEndpoint("shh_setMaxMessageSize")
-    shh_setMinPoW = RPCEndpoint("shh_setMinPoW")
-    shh_subscribe = RPCEndpoint("shh_subscribe")
-    shh_unsubscribe = RPCEndpoint("shh_unsubscribe")
-    shh_version = RPCEndpoint("shh_version")
-
     # testing
     testing_timeTravel = RPCEndpoint("testing_timeTravel")
 

@@ -4,7 +4,6 @@ from web3._utils.module_testing import (  # noqa: F401
     EthModuleTest,
     GoEthereumAdminModuleTest,
     GoEthereumPersonalModuleTest,
-    GoEthereumShhModuleTest,
     NetModuleTest,
     VersionModuleTest,
     Web3ModuleTest,
@@ -57,10 +56,6 @@ class GoEthereumVersionModuleTest(VersionModuleTest):
 
 
 class GoEthereumNetModuleTest(NetModuleTest):
-    pass
-
-
-class CommonGoEthereumShhModuleTest(GoEthereumShhModuleTest):
     pass
 
 
