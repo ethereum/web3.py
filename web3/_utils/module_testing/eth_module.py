@@ -809,7 +809,7 @@ class EthModuleTest:
             web3.eth.getBlock(UNKNOWN_HASH)
 
     def test_eth_getBlockByHash_pending(
-        self, web3: "Web3", empty_block: BlockData
+        self, web3: "Web3"
     ) -> None:
         block = web3.eth.getBlock('pending')
         assert block['hash'] is None
