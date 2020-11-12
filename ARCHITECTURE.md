@@ -4,7 +4,6 @@ methods/*
     web3.eth.*
     web3.net.*
     web3.personal.*
-    web3.shh.*
 
     Methods and properties are first defined as a dictionary
     and then are converted to real functions and attached to the

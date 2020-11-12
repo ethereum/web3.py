@@ -154,19 +154,6 @@ TRANSACTION_FORMATTERS = {
 transaction_formatter = apply_formatters_to_dict(TRANSACTION_FORMATTERS)
 
 
-WHISPER_LOG_FORMATTERS = {
-    'sig': to_hexbytes(130),
-    'topic': to_hexbytes(8),
-    'payload': HexBytes,
-    'padding': apply_formatter_if(is_not_null, HexBytes),
-    'hash': to_hexbytes(64),
-    'recipientPublicKey': apply_formatter_if(is_not_null, to_hexbytes(130)),
-}
-
-
-whisper_log_formatter = apply_formatters_to_dict(WHISPER_LOG_FORMATTERS)
-
-
 def apply_list_to_array_formatter(formatter: Any) -> Callable[..., Any]:
     return to_list(apply_formatter_to_array(formatter))
 
@@ -455,8 +442,6 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.personal_newAccount: to_checksum_address,
     RPC.personal_sendTransaction: to_hexbytes(32),
     RPC.personal_signTypedData: HexBytes,
-    # SHH
-    RPC.shh_getFilterMessages: apply_list_to_array_formatter(whisper_log_formatter),
     # Transaction Pool
     RPC.txpool_content: transaction_pool_content_formatter,
     RPC.txpool_inspect: transaction_pool_inspect_formatter,

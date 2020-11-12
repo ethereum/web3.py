@@ -6,7 +6,6 @@ from tests.utils import (
 from web3 import Web3
 
 from .common import (
-    CommonGoEthereumShhModuleTest,
     GoEthereumAdminModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
@@ -37,7 +36,7 @@ def _geth_command_arguments(rpc_port,
         yield from (
             '--http',
             '--http.port', rpc_port,
-            '--http.api', 'admin,eth,net,web3,personal,shh,miner',
+            '--http.api', 'admin,eth,net,web3,personal,miner',
             '--ipcdisable',
             '--allow-insecure-unlock'
         )
@@ -97,8 +96,4 @@ class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
 
 
 class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
-    pass
-
-
-class TestGoEthereumShhModuleTest(CommonGoEthereumShhModuleTest):
     pass

@@ -10,7 +10,6 @@ from tests.utils import (
 from web3 import Web3
 
 from .common import (
-    CommonGoEthereumShhModuleTest,
     GoEthereumAdminModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
@@ -38,7 +37,7 @@ def _geth_command_arguments(ws_port,
         yield from (
             '--ws',
             '--ws.port', ws_port,
-            '--ws.api', 'admin,eth,net,shh,web3,personal,miner',
+            '--ws.api', 'admin,eth,net,web3,personal,miner',
             '--ws.origins', '*',
             '--ipcdisable',
             '--allow-insecure-unlock',
@@ -107,13 +106,3 @@ class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
 
 class TestMiscWebsocketTest(MiscWebsocketTest):
     pass
-
-
-class TestGoEthereumShhModuleTest(CommonGoEthereumShhModuleTest):
-    def test_shh_async_filter(self, web3):
-        pytest.xfail("async filter bug in geth ws version")
-        super().test_shh_async_filter(web3)
-
-    def test_shh_async_filter_deprecated(self, web3):
-        pytest.xfail("async filter bug in geth ws version")
-        super().test_shh_async_filter(web3)

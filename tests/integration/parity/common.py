@@ -15,9 +15,6 @@ from web3._utils.module_testing import (  # noqa: F401
 from web3._utils.module_testing.eth_module import (
     UNKNOWN_ADDRESS,
 )
-from web3._utils.module_testing.shh_module import (
-    ParityShhModuleTest,
-)
 
 # some tests appear flaky with Parity v1.10.x
 MAX_FLAKY_RUNS = 3
@@ -199,19 +196,3 @@ class ParitySetModuleTest(ParitySetModuleTest):
 
 class ParityModuleTest(ParityModuleTest):
     pass
-
-
-class CommonParityShhModuleTest(ParityShhModuleTest):
-    @pytest.mark.xfail(reason="Whisper is deprecated")
-    def test_shh_sync_filter(self, web3):
-        # https://github.com/paritytech/parity-ethereum/issues/10565
-        super().test_shh_sync_filter(web3)
-
-    @pytest.mark.xfail(reason="Whisper is deprecated")
-    def test_shh_async_filter(self, web3):
-        # https://github.com/paritytech/parity-ethereum/issues/10565
-        super().test_shh_async_filter(web3)
-
-    def test_shh_remove_filter(self, web3):
-        pytest.xfail('Whisper is deprecated + this test is flaky')
-        super().test_shh_remove_filter(web3)

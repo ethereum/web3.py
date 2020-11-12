@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
 whitelist = [
     'admin',
-    'shh',
     'miner',
     'net',
     'txpool'
