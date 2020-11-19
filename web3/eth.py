@@ -23,7 +23,6 @@ from eth_typing import (
 )
 from eth_utils import (
     is_checksum_address,
-    is_hex,
     is_string,
 )
 from eth_utils.toolz import (
@@ -473,14 +472,14 @@ class Eth(ModuleV2, Module):
         if isinstance(filter_params, dict):
             return [filter_params]
         elif is_string(filter_params):
-            if filter_params in ['latest', 'pending'] or is_hex(filter_params):
+            if filter_params in ['latest', 'pending']:
                 return [filter_params]
             else:
                 raise ValueError(
-                    "The filter API only accepts the values of `pending`, "
-                    "`latest` or a hex-encoded `filter_id` for string based filters"
+                    "The filter API only accepts the values of `pending` or "
+                    "`latest` for string based filters"
                 )
-        elif is_hex(filter_id):
+        elif filter_id and not filter_params:
             return [filter_id]
         else:
             raise TypeError("Must provide either filter_params as a string or "

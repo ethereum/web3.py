@@ -618,6 +618,16 @@ FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 
+@to_tuple
+def apply_module_to_formatters(
+        formatters: Tuple[Callable[..., TReturn]],
+        module: Union["Module", "ModuleV2"],
+        method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+) -> Iterable[Callable[..., TReturn]]:
+    for f in formatters:
+        yield partial(f, module, method_name)
+
+
 def get_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
     module: Union["Module", "ModuleV2"],
@@ -626,17 +636,18 @@ def get_result_formatters(
         (PYTHONIC_RESULT_FORMATTERS,),
         method_name
     )
-    filter_formatters = combine_formatters(
+    formatters_requiring_module = combine_formatters(
         (FILTER_RESULT_FORMATTERS,),
         method_name
     )
 
+    partial_formatters = apply_module_to_formatters(
+        formatters_requiring_module,
+        module,
+        method_name
+    )
     attrdict_formatter = apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
-    if filter_formatters:
-        partial_filter_formatters = partial(filter_formatters[0], module, method_name)
-        return compose(partial_filter_formatters, attrdict_formatter, *formatters)
-    else:
-        return compose(attrdict_formatter, *formatters)
+    return compose(*partial_formatters, attrdict_formatter, *formatters)
 
 
 def get_error_formatters(
