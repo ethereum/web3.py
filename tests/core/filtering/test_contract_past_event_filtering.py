@@ -4,9 +4,6 @@ from eth_utils import (
     is_same_address,
 )
 
-# Ignore warning in pyethereum 1.6 - will go away with the upgrade
-pytestmark = pytest.mark.filterwarnings("ignore:implicit cast from 'char *'")
-
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
