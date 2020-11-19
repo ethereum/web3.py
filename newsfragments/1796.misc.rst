@@ -1,0 +1,1 @@
+Remove un-needed pytest.mark.filterwarnings("ignore:implicit cast from 'char *'") that we had in the tests.
