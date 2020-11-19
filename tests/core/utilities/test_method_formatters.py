@@ -56,12 +56,11 @@ GANACHE_RESPONSE = RPCResponse({
         'message': 'VM Exception while processing transaction: revert Custom revert message',
         'code': -32000,
         'data': {
-            'stack': 'o: VM Exception while processing transaction: revert Custom revert message\n', 
+            'stack': 'o: VM Exception while processing transaction: revert Custom revert message\n',
             'name': 'o'
         }
     }
 })
-
 
 
 @pytest.mark.parametrize(
@@ -84,7 +83,10 @@ def test_get_revert_reason_other_error() -> None:
 
 
 def test_get_revert_reason_ganache() -> None:
-    with pytest.raises(SolidityError, match='VM Exception while processing transaction: revert Custom revert message'):
+    with pytest.raises(
+        SolidityError,
+        match='VM Exception while processing transaction: revert Custom revert message'
+    ):
         raise_solidity_error_on_revert(GANACHE_RESPONSE)
 
 
