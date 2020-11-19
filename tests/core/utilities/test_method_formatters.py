@@ -49,6 +49,20 @@ OTHER_ERROR = RPCResponse({
     "id": 1,
 })
 
+GANACHE_RESPONSE = RPCResponse({
+    'id': 24,
+    'jsonrpc': '2.0',
+    'error': {
+        'message': 'VM Exception while processing transaction: revert Custom revert message',
+        'code': -32000,
+        'data': {
+            'stack': 'o: VM Exception while processing transaction: revert Custom revert message\n', 
+            'name': 'o'
+        }
+    }
+})
+
+
 
 @pytest.mark.parametrize(
     "response,expected",
@@ -67,6 +81,11 @@ def test_get_revert_reason(response, expected) -> None:
 
 def test_get_revert_reason_other_error() -> None:
     assert raise_solidity_error_on_revert(OTHER_ERROR) is OTHER_ERROR
+
+
+def test_get_revert_reason_ganache() -> None:
+    with pytest.raises(SolidityError, match='VM Exception while processing transaction: revert Custom revert message'):
+        raise_solidity_error_on_revert(GANACHE_RESPONSE)
 
 
 def test_get_error_formatters() -> None:
