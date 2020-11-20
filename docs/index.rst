@@ -46,6 +46,7 @@ Table of Contents
     web3.eth.account
     filters
     contracts
+    extending_method
     middleware
     internals
     abi_types
