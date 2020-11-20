@@ -85,7 +85,8 @@ def test_get_revert_reason_other_error() -> None:
 def test_get_revert_reason_ganache() -> None:
     with pytest.raises(
         SolidityError,
-        match='VM Exception while processing transaction: revert Custom revert message'
+        match='execution reverted: VM Exception while processing transaction: \
+revert Custom revert message'
     ):
         raise_solidity_error_on_revert(GANACHE_RESPONSE)
 

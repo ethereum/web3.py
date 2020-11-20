@@ -489,7 +489,7 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
 
     # Ganache case:
     if isinstance(data, dict) and response['error'].get('message'):
-        raise SolidityError(response['error']['message'])
+        raise SolidityError(f'execution reverted: {response["error"]["message"]}')
 
     # Parity/OpenEthereum case:
     if data.startswith('Reverted '):
