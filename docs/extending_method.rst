@@ -113,6 +113,35 @@ I pass in a method to the method_choice_depends_on_args argument.
       'transactionsRoot': HexBytes('0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421'),
       'uncles': []})
 
+We can also pass in custom request, response, and error handlers using ``Method``'s attributes
+``request_formatters``, ``result_formatters``, and ``error_formatters``. In the example above,
+the attribute dict formatter is being used as a default formatter. Passing in our own looks like:
 
+.. doctest::
 
-and the value gets passed in on munging.
+    >>> from web3.method import Method
+    >>> from web3.module import ModuleV2
+    >>> from web3.auto.infura import w3
+    >>> from eth_utils.toolz import curry
+
+    >>> class Eth(ModuleV2):
+    ...     @curry
+    ...     def make_response_nice(method_name, result):
+    ...          if method_name == 'eth_getBalance':
+    ...              print('Balance is: 8400238857870150803729 Wei')
+    ...          else:
+    ...              return result
+    ...
+    ...     def block_id_munger(self, account, block_identifier = None):
+    ...         if block_identifier is None:
+    ...             block_identifier = 'latest'
+    ...         return (account, block_identifier)
+    ...
+    ...     getBalance = Method(
+    ...         'eth_getBalance',
+    ...         mungers=[block_id_munger],
+    ...         result_formatters=make_response_nice
+    ...     )
+
+    >>> Eth(w3).getBalance('0x' + '00' * 20)
+    Balance is: 8400238857870150803729 Wei
