@@ -47,9 +47,11 @@ and make sure it inherits from ``ModuleV2``:
 
 .. doctest::
 
+    >>> from web3 import Web3
     >>> from web3.method import Method
     >>> from web3.module import ModuleV2
-    >>> from web3.auto.infura import w3
+
+    >>> w3 = Web3(Web3.EthereumTesterProvider())
 
     >>> class Eth(ModuleV2):
     ...     def block_id_munger(self, account, block_identifier = None):
@@ -73,10 +75,12 @@ I pass in a method to the method_choice_depends_on_args argument.
 
 .. doctest::
 
+    >>> from web3 import Web3
     >>> from web3.method import Method
     >>> from web3.module import ModuleV2
-    >>> from web3.auto.infura import w3
     >>> from web3._utils.blocks import select_method_for_block_identifier
+
+    >>> w3 = Web3(Web3.EthereumTesterProvider())
 
     >>> class Eth(ModuleV2):
     ...
@@ -93,36 +97,40 @@ I pass in a method to the method_choice_depends_on_args argument.
     ...   )
 
     >>> Eth(w3).getBlock(1)
-    AttributeDict({'difficulty': 17171480576,
-      'extraData': HexBytes('0x476574682f76312e302e302f6c696e75782f676f312e342e32'),
-      'gasLimit': 5000,
-      'gasUsed': 0,
-      'hash': HexBytes('0x88e96d4537bea4d9c05d12549907b32561d3bf31f45aae734cdc119f13406cb6'),
-      'logsBloom': HexBytes('0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'),
-      'miner': '0x05a56E2D52c817161883f50c441c3228CFe54d9f',
-      'mixHash': HexBytes('0x969b900de27b6ac6a67742365dd65f55a0526c41fd18e1b16f1a1215c2e66f59'),
-      'nonce': HexBytes('0x539bd4979fef1ec4'),
-      'number': 1,
-      'parentHash': HexBytes('0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3'),
-      'receiptsRoot': HexBytes('0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421'),
-      'sha3Uncles': HexBytes('0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347'),
-      'size': 537, 'stateRoot': HexBytes('0xd67e4d450343046425ae4271474353857ab860dbc0a1dde64b41b5cd3a532bf3'),
-      'timestamp': 1438269988,
-      'totalDifficulty': 34351349760,
-      'transactions': [],
-      'transactionsRoot': HexBytes('0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421'),
-      'uncles': []})
+    AttributeDict({'number': 1,
+     'hash': HexBytes('...'),
+     'parentHash': HexBytes('...'),
+     'nonce': HexBytes('...'),
+     'sha3Uncles': HexBytes('0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347'),
+     'logs_bloom': 0,
+     'transactionsRoot': HexBytes('0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421'),
+     'receipts_root': '...',
+     'stateRoot': HexBytes('0xf1588db9a9f1ed91effabdec31f93cb4212b008c8b8ba047fd55fabebf6fd727'),
+     'miner': '0x0000000000000000000000000000000000000000',
+     'difficulty': 131136,
+     'totalDifficulty': 131136,
+     'size': 511,
+     'extraData': HexBytes('0x0000000000000000000000000000000000000000000000000000000000000000'),
+     'gasLimit': 3141592,
+     'gasUsed': 0,
+     'timestamp': ...,
+     'transactions': [],
+     'uncles': []})
+
 
 We can also pass in custom request, response, and error handlers using ``Method``'s attributes
-``request_formatters``, ``result_formatters``, and ``error_formatters``. In the example above,
-the attribute dict formatter is being used as a default formatter. Passing in our own looks like:
+``request_formatters``, ``result_formatters``, and ``error_formatters``, respectively.
+In the example above, the attribute dict formatter is being used as a default formatter.
+Passing in our own looks like:
 
 .. doctest::
 
+    >>> from web3 import Web3
     >>> from web3.method import Method
     >>> from web3.module import ModuleV2
-    >>> from web3.auto.infura import w3
     >>> from eth_utils.toolz import curry
+
+    >>> w3 = Web3(Web3.EthereumTesterProvider())
 
     >>> class Eth(ModuleV2):
     ...     @curry
