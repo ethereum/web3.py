@@ -499,8 +499,13 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
     if not isinstance(response['error'], dict):
         raise ValueError('Error expected to be a dict')
 
-    # Parity/OpenEthereum case:
     data = response['error'].get('data', '')
+
+    # Ganache case:
+    if isinstance(data, dict) and response['error'].get('message'):
+        raise SolidityError(f'execution reverted: {response["error"]["message"]}')
+
+    # Parity/OpenEthereum case:
     if data.startswith('Reverted '):
         # "Reverted", function selector and offset are always the same for revert errors
         prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'  # noqa: 501
