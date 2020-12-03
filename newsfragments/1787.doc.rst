@@ -1,1 +1,0 @@
-Document Geth and Parity/OpenEthereum fixture generation

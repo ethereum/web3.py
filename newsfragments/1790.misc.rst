@@ -1,1 +1,0 @@
-Add getBlockByHash test for pending blocks

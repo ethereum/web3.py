@@ -6,6 +6,27 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.13.1 (2020-12-03)
+--------------------
+
+Bugfixes
+~~~~~~~~
+
+- Handle revert reason parsing for Ganache (`#1794 <https://github.com/ethereum/web3.py/issues/1794>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Document Geth and Parity/OpenEthereum fixture generation (`#1787 <https://github.com/ethereum/web3.py/issues/1787>`__)
+
+
+Misc
+~~~~
+
+- `#1778 <https://github.com/ethereum/web3.py/issues/1778>`__, `#1780 <https://github.com/ethereum/web3.py/issues/1780>`__, `#1790 <https://github.com/ethereum/web3.py/issues/1790>`__, `#1791 <https://github.com/ethereum/web3.py/issues/1791>`__, `#1796 <https://github.com/ethereum/web3.py/issues/1796>`__
+
+
 v5.13.0 (2020-10-29)
 --------------------
 
