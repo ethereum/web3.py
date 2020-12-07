@@ -37,10 +37,7 @@ from web3.types import (
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
-    from web3.module import (  # noqa: F401
-        Module,
-        ModuleV2,
-    )
+    from web3.module import ModuleV2  # noqa: F401
 
 Munger = Callable[..., Any]
 
@@ -62,14 +59,14 @@ def _munger_star_apply(fn: Callable[..., TReturn]) -> Callable[..., TReturn]:
     return inner
 
 
-def default_munger(module: Union["Module", "ModuleV2"], *args: Any, **kwargs: Any) -> Tuple[()]:
+def default_munger(module: "ModuleV2", *args: Any, **kwargs: Any) -> Tuple[()]:
     if not args and not kwargs:
         return ()
     else:
         raise TypeError("Parameters passed to method without parameter mungers defined.")
 
 
-def default_root_munger(module: Union["Module", "ModuleV2"], *args: Any) -> List[Any]:
+def default_root_munger(module: "ModuleV2", *args: Any) -> List[Any]:
     return [*args]
 
 
@@ -152,7 +149,7 @@ class Method(Generic[TFunc]):
         raise ValueError("``json_rpc_method`` config invalid.  May be a string or function")
 
     def input_munger(
-        self, module: Union["Module", "ModuleV2"], args: Any, kwargs: Any
+        self, module: "ModuleV2", args: Any, kwargs: Any
     ) -> List[Any]:
         # This function takes the "root_munger" - the first munger in
         # the list of mungers) and then pipes the return value of the
@@ -171,7 +168,7 @@ class Method(Generic[TFunc]):
         return munged_inputs
 
     def process_params(
-        self, module: Union["Module", "ModuleV2"], *args: Any, **kwargs: Any
+        self, module: "ModuleV2", *args: Any, **kwargs: Any
     ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., Any]], Any], Tuple[Any, Any]]:
         params = self.input_munger(module, args, kwargs)
 

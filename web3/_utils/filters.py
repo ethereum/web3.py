@@ -61,10 +61,6 @@ from web3.types import (
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
-    from web3.module import (  # noqa: F401
-        Module,
-        ModuleV2,
-    )
     from web3.eth import Eth  # noqa: F401
 
 
