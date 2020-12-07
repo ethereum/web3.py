@@ -285,7 +285,7 @@ class Web3:
     def enable_unstable_package_management_api(self) -> None:
         from web3.pm import PM  # noqa: F811
         if not hasattr(self, '_pm'):
-            PM.attach(self, '_pm')
+            attach_modules(self, {'_pm': (PM,)})
 
     def enable_strict_bytes_type_checking(self) -> None:
         self.codec = ABICodec(build_strict_registry())

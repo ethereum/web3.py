@@ -56,7 +56,6 @@ from web3._utils.txpool import (
     status,
 )
 from web3.module import (
-    Module,
     ModuleV2,
 )
 
@@ -137,6 +136,6 @@ class GethMiner(ModuleV2):
     stopAutoDag = stopAutoDag
 
 
-class Geth(Module):
+class Geth(ModuleV2):
     personal: GethPersonal
     admin: GethAdmin
