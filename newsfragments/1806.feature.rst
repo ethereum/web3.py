@@ -1,0 +1,1 @@
+Add new get_balance method on Eth class. Deprecated getBalance.
