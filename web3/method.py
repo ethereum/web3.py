@@ -87,12 +87,12 @@ class Method(Generic[TFunc]):
 
             A note about mungers: The first (root) munger should reflect the desired
         api function arguments. In other words, if the api function wants to
-        behave as: `getBalance(account, block_identifier=None)`, the root munger
+        behave as: `get_balance(account, block_identifier=None)`, the root munger
         should accept these same arguments, with the addition of the module as
         the first argument e.g.:
 
         ```
-        def getBalance_root_munger(module, account, block_identifier=None):
+        def get_balance_root_munger(module, account, block_identifier=None):
             if block_identifier is None:
                 block_identifier = DEFAULT_BLOCK
             return module, [account, block_identifier]

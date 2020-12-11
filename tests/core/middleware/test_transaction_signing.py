@@ -212,7 +212,7 @@ def fund_account(w3):
             'from': w3.eth.accounts[0],
             'gas': 21000,
             'value': tx_value})
-        assert w3.eth.getBalance(address) == tx_value
+        assert w3.eth.get_balance(address) == tx_value
 
 
 @pytest.mark.parametrize(
@@ -277,10 +277,10 @@ def test_signed_transaction(
 
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
-            start_balance = w3.eth.getBalance(_transaction.get('from', w3.eth.accounts[0]))
+            start_balance = w3.eth.get_balance(_transaction.get('from', w3.eth.accounts[0]))
             w3.eth.sendTransaction(_transaction)
     else:
-        start_balance = w3.eth.getBalance(_transaction.get('from', w3.eth.accounts[0]))
+        start_balance = w3.eth.get_balance(_transaction.get('from', w3.eth.accounts[0]))
         w3.eth.sendTransaction(_transaction)
         assert w3.eth.getBalance(_transaction.get('from')) <= start_balance + expected
 

@@ -42,7 +42,7 @@ def test_pass_name_resolver(w3):
     })
     w3.middleware_onion.inject(return_chain_on_mainnet, layer=0)
     w3.middleware_onion.inject(return_balance, layer=0)
-    assert w3.eth.getBalance(NAME) == BALANCE
+    assert w3.eth.get_balance(NAME) == BALANCE
 
 
 def test_fail_name_resolver(w3):
@@ -51,4 +51,4 @@ def test_fail_name_resolver(w3):
     })
     w3.middleware_onion.inject(return_chain_on_mainnet, layer=0)
     with pytest.raises(InvalidAddress, match=r'.*ethereum\.eth.*'):
-        w3.eth.getBalance("ethereum.eth")
+        w3.eth.get_balance("ethereum.eth")

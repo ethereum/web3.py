@@ -74,6 +74,7 @@ from web3.iban import (
     Iban,
 )
 from web3.method import (
+    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -205,7 +206,7 @@ class Eth(ModuleV2, Module):
             block_identifier = self.defaultBlock
         return (account, block_identifier)
 
-    getBalance: Method[Callable[..., Wei]] = Method(
+    get_balance: Method[Callable[..., Wei]] = Method(
         RPC.eth_getBalance,
         mungers=[block_id_munger],
     )
@@ -563,3 +564,6 @@ class Eth(ModuleV2, Module):
 
     def setGasPriceStrategy(self, gas_price_strategy: GasPriceStrategy) -> None:
         self.gasPriceStrategy = gas_price_strategy
+
+    # Deprecated Methods
+    getBalance = DeprecatedMethod(get_balance, 'getBalance', 'get_balance')

@@ -13,7 +13,7 @@ greater detail.
 Configuration
 ~~~~~~~~~~~~~
 
-After installing Web3.py (via ``pip install web3``), you'll need to specify the 
+After installing Web3.py (via ``pip install web3``), you'll need to specify the
 provider and any middleware you want to use beyond the defaults.
 
 
@@ -43,7 +43,7 @@ following built-in providers:
    >>> w3.isConnected()
    True
 
-For more information, (e.g., connecting to remote nodes, provider auto-detection, 
+For more information, (e.g., connecting to remote nodes, provider auto-detection,
 using a test provider) see the :ref:`Providers <providers>` documentation.
 
 
@@ -131,7 +131,7 @@ demonstrate how to use several of these methods.
 Fetching Data
 -------------
 
-Viewing account balances (:meth:`getBalance <web3.eth.Eth.getBalance>`), transactions
+Viewing account balances (:meth:`get_balance <web3.eth.Eth.get_balance>`), transactions
 (:meth:`getTransaction <web3.eth.Eth.getTransaction>`), and block data
 (:meth:`getBlock <web3.eth.Eth.getBlock>`) are some of the most common starting
 points in Web3.py.
@@ -140,7 +140,7 @@ points in Web3.py.
 API
 ^^^
 
-- :meth:`web3.eth.getBalance() <web3.eth.Eth.getBalance>`
+- :meth:`web3.eth.get_balance() <web3.eth.Eth.get_balance>`
 - :meth:`web3.eth.getBlock() <web3.eth.Eth.getBlock>`
 - :meth:`web3.eth.getBlockTransactionCount() <web3.eth.Eth.getBlockTransactionCount>`
 - :meth:`web3.eth.getCode() <web3.eth.Eth.getCode>`

@@ -73,13 +73,13 @@ If you want to know the latest block number you can use the
 Checking the balance of an account
 ----------------------------------
 
-To find the amount of ether owned by an account, use the :meth:`~web3.eth.Eth.getBalance` method.
+To find the amount of ether owned by an account, use the :meth:`~web3.eth.Eth.get_balance` method.
 At the time of writing, the account with the `most ether <https://etherscan.io/accounts/1>`_
 has a public address of 0x742d35Cc6634C0532925a3b844Bc454e4438f44e.
 
 .. code-block:: python
 
-   >>> web3.eth.getBalance('0x742d35Cc6634C0532925a3b844Bc454e4438f44e')
+   >>> web3.eth.get_balance('0x742d35Cc6634C0532925a3b844Bc454e4438f44e')
    3841357360894980500000001
 
 Note that this number is not denominated in ether, but instead in the smallest unit of value in
