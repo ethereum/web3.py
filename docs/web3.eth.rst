@@ -171,7 +171,7 @@ Methods
 The following methods are available on the ``web3.eth`` namespace.
 
 
-.. py:method:: Eth.getBalance(account, block_identifier=eth.defaultBlock)
+.. py:method:: Eth.get_balance(account, block_identifier=eth.defaultBlock)
 
     * Delegates to ``eth_getBalance`` RPC Method
 
@@ -182,8 +182,14 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getBalance('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.eth.get_balance('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         77320681768999138915
+
+
+.. py:method:: Eth.getBalance(account, block_identifier=eth.defaultBlock)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.get_balance()`
 
 
 .. py:method:: Eth.getStorageAt(account, position, block_identifier=eth.defaultBlock)

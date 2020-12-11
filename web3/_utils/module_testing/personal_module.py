@@ -143,7 +143,7 @@ class GoEthereumPersonalModuleTest:
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
-        assert web3.eth.getBalance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
+        assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
         txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
@@ -168,7 +168,7 @@ class GoEthereumPersonalModuleTest:
         unlockable_account_pw: str,
     ) -> None:
         with pytest.warns(DeprecationWarning):
-            assert web3.eth.getBalance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
+            assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
             txn_params: TxParams = {
                 'from': unlockable_account_dual_type,
                 'to': unlockable_account_dual_type,
@@ -459,7 +459,7 @@ class ParityPersonalModuleTest():
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
-        assert web3.eth.getBalance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
+        assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
         txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
@@ -484,7 +484,7 @@ class ParityPersonalModuleTest():
         unlockable_account_pw: str,
     ) -> None:
         with pytest.warns(DeprecationWarning):
-            assert web3.eth.getBalance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
+            assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
             txn_params: TxParams = {
                 'from': unlockable_account_dual_type,
                 'to': unlockable_account_dual_type,

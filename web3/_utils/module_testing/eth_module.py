@@ -121,21 +121,33 @@ class EthModuleTest:
         assert is_integer(block_number)
         assert block_number >= 0
 
-    def test_eth_getBalance(self, web3: "Web3") -> None:
+    def test_eth_get_balance(self, web3: "Web3") -> None:
         coinbase = web3.eth.coinbase
 
         with pytest.raises(InvalidAddress):
-            web3.eth.getBalance(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
+            web3.eth.get_balance(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
 
-        balance = web3.eth.getBalance(coinbase)
+        balance = web3.eth.get_balance(coinbase)
 
         assert is_integer(balance)
         assert balance >= 0
 
-    def test_eth_getBalance_with_block_identifier(self, web3: "Web3") -> None:
+    def test_eth_getBalance_deprecated(self, web3: "Web3") -> None:
+        coinbase = web3.eth.coinbase
+
+        with pytest.warns(DeprecationWarning):
+            with pytest.raises(InvalidAddress):
+                web3.eth.getBalance(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
+
+            balance = web3.eth.getBalance(coinbase)
+
+        assert is_integer(balance)
+        assert balance >= 0
+
+    def test_eth_get_balance_with_block_identifier(self, web3: "Web3") -> None:
         miner_address = web3.eth.getBlock(1)['miner']
-        genesis_balance = web3.eth.getBalance(miner_address, 0)
-        later_balance = web3.eth.getBalance(miner_address, 1)
+        genesis_balance = web3.eth.get_balance(miner_address, 0)
+        later_balance = web3.eth.get_balance(miner_address, 1)
 
         assert is_integer(genesis_balance)
         assert is_integer(later_balance)
@@ -145,17 +157,17 @@ class EthModuleTest:
         ('test-address.eth', True),
         ('not-an-address.eth', False)
     ])
-    def test_eth_getBalance_with_ens_name(
+    def test_eth_get_balance_with_ens_name(
         self, web3: "Web3", address: ChecksumAddress, expect_success: bool
     ) -> None:
         with ens_addresses(web3, {'test-address.eth': web3.eth.accounts[0]}):
             if expect_success:
-                balance = web3.eth.getBalance(address)
+                balance = web3.eth.get_balance(address)
                 assert is_integer(balance)
                 assert balance >= 0
             else:
                 with pytest.raises(NameNotFound):
-                    web3.eth.getBalance(address)
+                    web3.eth.get_balance(address)
 
     def test_eth_getStorageAt(
         self, web3: "Web3", emitter_contract_address: ChecksumAddress
