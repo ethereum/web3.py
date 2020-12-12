@@ -85,8 +85,20 @@ class Parity(Module):
     """
     https://paritytech.github.io/wiki/JSONRPC-parity-module
     """
-    defaultBlock: Literal["latest"] = "latest"  # noqa: E704
+    _default_block: Literal["latest"] = "latest"  # noqa: E704
     personal: ParityPersonal
+
+    @property
+    def default_block(self) -> str:
+        return self._default_block
+
+    @property
+    def defaultBlock(self) -> str:
+        warnings.warn(
+            'defaultBlock is deprecated in favor of default_block',
+            category=DeprecationWarning,
+        )
+        return self._default_block
 
     def enode(self) -> EnodeURI:
         return self.web3.manager.request_blocking(
@@ -94,7 +106,7 @@ class Parity(Module):
             [],
         )
 
-    def listStorageKeys(
+    def list_storage_keys(
         self,
         address: Union[Address, ChecksumAddress, ENS],
         quantity: int,
@@ -102,25 +114,25 @@ class Parity(Module):
         block_identifier: Optional[BlockIdentifier] = None,
     ) -> List[Hash32]:
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             RPC.parity_listStorageKeys,
             [address, quantity, hash_, block_identifier],
         )
 
-    def netPeers(self) -> ParityNetPeers:
+    def net_peers(self) -> ParityNetPeers:
         return self.web3.manager.request_blocking(
             RPC.parity_netPeers,
             [],
         )
 
-    def addReservedPeer(self, url: EnodeURI) -> bool:
+    def add_reserved_peer(self, url: EnodeURI) -> bool:
         return self.web3.manager.request_blocking(
             RPC.parity_addReservedPeer,
             [url],
         )
 
-    def traceReplayTransaction(
+    def trace_replay_transaction(
         self, transaction_hash: _Hash32, mode: ParityTraceMode = ['trace']
     ) -> ParityBlockTrace:
         return self.web3.manager.request_blocking(
@@ -128,7 +140,7 @@ class Parity(Module):
             [transaction_hash, mode],
         )
 
-    def traceReplayBlockTransactions(
+    def trace_replay_block_transactions(
         self, block_identifier: BlockIdentifier, mode: ParityTraceMode = ['trace']
     ) -> List[ParityBlockTrace]:
         return self.web3.manager.request_blocking(
@@ -136,25 +148,25 @@ class Parity(Module):
             [block_identifier, mode]
         )
 
-    def traceBlock(self, block_identifier: BlockIdentifier) -> List[ParityBlockTrace]:
+    def trace_block(self, block_identifier: BlockIdentifier) -> List[ParityBlockTrace]:
         return self.web3.manager.request_blocking(
             RPC.trace_block,
             [block_identifier]
         )
 
-    def traceFilter(self, params: ParityFilterParams) -> List[ParityFilterTrace]:
+    def trace_filter(self, params: ParityFilterParams) -> List[ParityFilterTrace]:
         return self.web3.manager.request_blocking(
             RPC.trace_filter,
             [params]
         )
 
-    def traceTransaction(self, transaction_hash: _Hash32) -> List[ParityFilterTrace]:
+    def trace_transaction(self, transaction_hash: _Hash32) -> List[ParityFilterTrace]:
         return self.web3.manager.request_blocking(
             RPC.trace_transaction,
             [transaction_hash]
         )
 
-    def traceCall(
+    def trace_call(
         self,
         transaction: TxParams,
         mode: ParityTraceMode = ['trace'],
@@ -166,13 +178,13 @@ class Parity(Module):
 
         # TODO: move to middleware
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return self.web3.manager.request_blocking(
             RPC.trace_call,
             [transaction, mode, block_identifier],
         )
 
-    def traceRawTransaction(
+    def trace_raw_transaction(
         self, raw_transaction: HexStr, mode: ParityTraceMode = ['trace']
     ) -> ParityBlockTrace:
         return self.web3.manager.request_blocking(
@@ -180,7 +192,7 @@ class Parity(Module):
             [raw_transaction, mode],
         )
 
-    def setMode(self, mode: ParityMode) -> bool:
+    def set_mode(self, mode: ParityMode) -> bool:
         return self.web3.manager.request_blocking(
             RPC.parity_setMode,
             [mode]
