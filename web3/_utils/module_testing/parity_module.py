@@ -132,7 +132,7 @@ class ParityModuleTest:
     def test_list_storage_keys_no_support(
         self, web3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
-        keys = web3.parity.listStorageKeys(emitter_contract_address, 10, None)
+        keys = web3.parity.list_storage_keys(emitter_contract_address, 10, None)
         assert keys == []
 
     def test_mode(self, web3: "Web3") -> None:
