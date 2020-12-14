@@ -1,6 +1,10 @@
 import datetime
 import time
 
+from eth_tester.exceptions import (
+    TransactionFailed,
+)
+
 from web3.types import (
     BlockData,
 )
@@ -194,7 +198,8 @@ class InvalidEventABI(ValueError):
     pass
 
 
-class SolidityError(ValueError):
+class SolidityError(ValueError, TransactionFailed):
+    # TODO - remove TransactionFailed inheritance in v6
     # Inherits from ValueError for backwards compatibility
     """
     Raised on a solidity require/revert

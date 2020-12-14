@@ -9,6 +9,9 @@ from typing import (
 from eth_abi import (
     decode_single,
 )
+from eth_abi.exceptions import (
+    InsufficientDataBytes,
+)
 
 from web3._utils.compat import (
     Literal,
@@ -106,10 +109,10 @@ class EthereumTesterProvider(BaseProvider):
                 "error": "RPC Endpoint has not been implemented: {0}".format(method),
             })
         except TransactionFailed as e:
-            if type(e.args[0]) == str:
-                reason = e.args[0]
-            else:
+            try:
                 reason = decode_single('(string)', e.args[0].args[0][4:])[0]
+            except InsufficientDataBytes:
+                reason = e.args[0]
             raise SolidityError(f'execution reverted: {reason}')
         else:
             return {
