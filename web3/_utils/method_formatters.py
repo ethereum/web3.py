@@ -520,6 +520,10 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
     if 'message' in response['error'] and response['error'].get('code', '') == 3:
         raise SolidityError(response['error']['message'])
 
+    # Revert without error message case:
+    if 'execution reverted' in response['error'].get('message'):
+        raise SolidityError('execution reverted')
+
     return response
 
 

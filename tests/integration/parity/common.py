@@ -4,6 +4,10 @@ from flaky import (
     flaky,
 )
 
+from eth_typing import (
+    ChecksumAddress,
+)
+
 from web3._utils.module_testing import (  # noqa: F401
     EthModuleTest,
     ParityModuleTest,
@@ -174,6 +178,22 @@ class ParityEthModuleTest(EthModuleTest):
         super().test_invalid_eth_signTypedData(
             web3, unlocked_account_dual_type
         )
+
+    def test_eth_estimateGas_revert_without_msg(
+        self,
+        web3: "Web3",
+        revert_contract: "Contract",
+        unlocked_account: ChecksumAddress,
+    ) -> None:
+        with pytest.raises(ValueError, match="The execution failed due to an exception."):
+            txn_params = revert_contract._prepare_transaction(
+                fn_name="revertWithoutMessage",
+                transaction={
+                    "from": unlocked_account,
+                    "to": revert_contract.address,
+                },
+            )
+            web3.eth.estimateGas(txn_params)
 
 
 class ParityTraceModuleTest(ParityTraceModuleTest):
