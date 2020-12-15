@@ -111,7 +111,7 @@ class EthereumTesterProvider(BaseProvider):
         except TransactionFailed as e:
             try:
                 reason = decode_single('(string)', e.args[0].args[0][4:])[0]
-            except InsufficientDataBytes:
+            except (InsufficientDataBytes, AttributeError):
                 reason = e.args[0]
             raise SolidityError(f'execution reverted: {reason}')
         else:
