@@ -197,7 +197,7 @@ class InvalidEventABI(ValueError):
 class SolidityError(ValueError):
     # Inherits from ValueError for backwards compatibility
     """
-    Raised on a solidity require/revert
+    Raised on assert/require/revert statement in contracts
     """
     pass
 

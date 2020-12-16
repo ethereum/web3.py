@@ -37,7 +37,7 @@ from web3.exceptions import (
     BlockNotFound,
     InvalidAddress,
     NameNotFound,
-    SolidityError,
+    TransactionError,
     TransactionNotFound,
 )
 from web3.types import (  # noqa: F401
@@ -748,7 +748,8 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
-        with pytest.raises(SolidityError, match='execution reverted: Function has been reverted'):
+        with pytest.raises(TransactionError,
+                           match='execution reverted: Function has been reverted'):
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithMessage",
                 transaction={
@@ -764,7 +765,7 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
-        with pytest.raises(SolidityError, match="execution reverted"):
+        with pytest.raises(TransactionError, match="execution reverted"):
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithoutMessage",
                 transaction={
@@ -780,7 +781,8 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
-        with pytest.raises(SolidityError, match='execution reverted: Function has been reverted'):
+        with pytest.raises(TransactionError,
+                           match='execution reverted: Function has been reverted'):
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithMessage",
                 transaction={
@@ -796,7 +798,7 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
-        with pytest.raises(SolidityError, match="execution reverted"):
+        with pytest.raises(TransactionError, match="execution reverted"):
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithoutMessage",
                 transaction={
