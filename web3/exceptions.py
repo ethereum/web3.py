@@ -200,3 +200,11 @@ class SolidityError(ValueError):
     Raised on a solidity require/revert
     """
     pass
+
+
+class TransactionError(SolidityError):
+    # Inherits from SolidityError for backwards compatibility
+    """
+    Raised on assert/require/revert statement in contracts
+    """
+    pass

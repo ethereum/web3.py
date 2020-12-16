@@ -82,6 +82,7 @@ from web3.datastructures import (
 from web3.exceptions import (
     BlockNotFound,
     SolidityError,
+    TransactionError,
     TransactionNotFound,
 )
 from web3.types import (
@@ -503,26 +504,26 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
 
     # Ganache case:
     if isinstance(data, dict) and response['error'].get('message'):
-        raise SolidityError(f'execution reverted: {response["error"]["message"]}')
+        raise TransactionError(f'execution reverted: {response["error"]["message"]}')
 
     # Parity/OpenEthereum case:
     if data.startswith('Reverted '):
         # "Reverted", function selector and offset are always the same for revert errors
         prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'  # noqa: 501
         if not data.startswith(prefix):
-            raise SolidityError('execution reverted')
+            raise TransactionError('execution reverted')
 
         reason_length = int(data[len(prefix):len(prefix) + 64], 16)
         reason = data[len(prefix) + 64:len(prefix) + 64 + reason_length * 2]
-        raise SolidityError(f'execution reverted: {bytes.fromhex(reason).decode("utf8")}')
+        raise TransactionError(f'execution reverted: {bytes.fromhex(reason).decode("utf8")}')
 
     # Geth case:
     if 'message' in response['error'] and response['error'].get('code', '') == 3:
-        raise SolidityError(response['error']['message'])
+        raise TransactionError(response['error']['message'])
 
     # Revert without error message case:
     if 'execution reverted' in response['error'].get('message'):
-        raise SolidityError('execution reverted')
+        raise TransactionError('execution reverted')
 
     return response
 
