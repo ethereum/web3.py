@@ -16,9 +16,6 @@ from eth_abi.exceptions import (
 from web3._utils.compat import (
     Literal,
 )
-from web3.exceptions import (
-    TransactionError,
-)
 from web3.providers import (
     BaseProvider,
 )
@@ -108,12 +105,12 @@ class EthereumTesterProvider(BaseProvider):
             return RPCResponse({
                 "error": "RPC Endpoint has not been implemented: {0}".format(method),
             })
-        # except TransactionFailed as e:
-        #     try:
-        #         reason = decode_single('(string)', e.args[0].args[0][4:])[0]
-        #     except (InsufficientDataBytes, AttributeError):
-        #         reason = e.args[0]
-        #     raise TransactionError(f'execution reverted: {reason}')
+        except TransactionFailed as e:
+            try:
+                reason = decode_single('(string)', e.args[0].args[0][4:])[0]
+            except (InsufficientDataBytes, AttributeError):
+                reason = e.args[0]
+            raise TransactionFailed(f'execution reverted: {reason}')
         else:
             return {
                 'result': response,

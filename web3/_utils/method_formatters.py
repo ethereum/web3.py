@@ -81,7 +81,6 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     BlockNotFound,
-    SolidityError,
     TransactionError,
     TransactionNotFound,
 )
