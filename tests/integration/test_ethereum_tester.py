@@ -4,6 +4,9 @@ import pytest
 from eth_tester import (
     EthereumTester,
 )
+from eth_tester.exceptions import (
+    TransactionFailed,
+)
 from eth_utils import (
     is_checksum_address,
     is_dict,
@@ -336,6 +339,51 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_getTransactionReceipt_mined(self, web3, block_with_txn, mined_txn_hash):
         super().test_eth_getTransactionReceipt_mined(web3, block_with_txn, mined_txn_hash)
 
+    def test_eth_call_revert_with_msg(self, web3, revert_contract, unlocked_account):
+        with pytest.raises(TransactionFailed,
+                           match='execution reverted: Function has been reverted'):
+            txn_params = revert_contract._prepare_transaction(
+                fn_name="revertWithMessage",
+                transaction={
+                    "from": unlocked_account,
+                    "to": revert_contract.address,
+                },
+            )
+            web3.eth.call(txn_params)
+
+    def test_eth_call_revert_without_msg(self, web3, revert_contract, unlocked_account):
+        with pytest.raises(TransactionFailed, match="execution reverted"):
+            txn_params = revert_contract._prepare_transaction(
+                fn_name="revertWithoutMessage",
+                transaction={
+                    "from": unlocked_account,
+                    "to": revert_contract.address,
+                },
+            )
+            web3.eth.call(txn_params)
+
+    def test_eth_estimateGas_revert_with_msg(self, web3, revert_contract, unlocked_account):
+        with pytest.raises(TransactionFailed,
+                           match='execution reverted: Function has been reverted'):
+            txn_params = revert_contract._prepare_transaction(
+                fn_name="revertWithMessage",
+                transaction={
+                    "from": unlocked_account,
+                    "to": revert_contract.address,
+                },
+            )
+            web3.eth.estimateGas(txn_params)
+
+    def test_eth_estimateGas_revert_without_msg(self, web3, revert_contract, unlocked_account):
+        with pytest.raises(TransactionFailed, match="execution reverted"):
+            txn_params = revert_contract._prepare_transaction(
+                fn_name="revertWithoutMessage",
+                transaction={
+                    "from": unlocked_account,
+                    "to": revert_contract.address,
+                },
+            )
+            web3.eth.estimateGas(txn_params)
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
     pass
