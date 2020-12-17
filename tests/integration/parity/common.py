@@ -30,6 +30,22 @@ class ParityEthModuleTest(EthModuleTest):
     def test_eth_estimateGas_revert_with_msg(self, web3, revert_contract, unlocked_account):
         super().test_eth_estimateGas_revert_with_msg(web3, revert_contract, unlocked_account)
 
+    def test_eth_estimateGas_revert_without_msg(
+        self,
+        web3,
+        revert_contract,
+        unlocked_account,
+    ) -> None:
+        with pytest.raises(ValueError, match="The execution failed due to an exception."):
+            txn_params = revert_contract._prepare_transaction(
+                fn_name="revertWithoutMessage",
+                transaction={
+                    "from": unlocked_account,
+                    "to": revert_contract.address,
+                },
+            )
+            web3.eth.estimateGas(txn_params)
+
     @pytest.mark.xfail(reason='Parity dropped "pending" option in 1.11.1')
     def test_eth_getBlockByNumber_pending(self, web3):
         super().test_eth_getBlockByNumber_pending(web3)
