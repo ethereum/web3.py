@@ -385,6 +385,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
             )
             web3.eth.estimateGas(txn_params)
 
+
 class TestEthereumTesterVersionModule(VersionModuleTest):
     pass
 
