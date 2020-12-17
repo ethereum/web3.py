@@ -9,6 +9,9 @@ import json
 import pytest
 
 import eth_abi
+from eth_tester.exceptions import (
+    TransactionFailed,
+)
 from eth_utils import (
     is_text,
 )
@@ -30,7 +33,6 @@ from web3.exceptions import (
     MismatchedABI,
     NoABIFound,
     NoABIFunctionsFound,
-    SolidityError,
     ValidationError,
 )
 
@@ -872,7 +874,7 @@ def test_call_nested_tuple_contract(nested_tuple_contract, method_input, expecte
 
 
 def test_call_revert_contract(revert_contract):
-    with pytest.raises(SolidityError, match="Function has been reverted."):
+    with pytest.raises(TransactionFailed, match="Function has been reverted."):
         # eth-tester will do a gas estimation if we don't submit a gas value,
         # which does not contain the revert reason. Avoid that by giving a gas
         # value.
