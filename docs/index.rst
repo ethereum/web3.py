@@ -60,6 +60,7 @@ Table of Contents
 
     web3.main
     web3.eth
+    web3.beacon
     web3.pm
     web3.net
     web3.miner
