@@ -190,7 +190,6 @@ def get_process(run_command):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        bufsize=1,
     )
     return proc
 

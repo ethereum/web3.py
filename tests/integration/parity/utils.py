@@ -40,7 +40,6 @@ def get_process(command_list, terminates=False):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        bufsize=1,
     )
     if terminates:
         wait_for_popen(proc, 30)
