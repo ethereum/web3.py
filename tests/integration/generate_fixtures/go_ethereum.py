@@ -82,7 +82,6 @@ def get_geth_process(geth_binary,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        bufsize=1,
     )
     with popen_proc as proc:
         with graceful_kill_on_exit(proc) as graceful_proc:

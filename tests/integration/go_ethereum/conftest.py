@@ -113,7 +113,6 @@ def geth_process(geth_binary, datadir, genesis_file, geth_command_arguments):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        bufsize=1,
     )
     try:
         yield proc
