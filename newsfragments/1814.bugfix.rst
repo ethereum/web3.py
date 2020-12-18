@@ -1,0 +1,2 @@
+Added a new ``ContractLogicError`` for when a contract reverts a transaction.
+``ContractLogicError`` will replace ``SolidityError``, in v6.
