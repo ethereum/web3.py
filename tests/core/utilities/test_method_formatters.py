@@ -8,7 +8,7 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.exceptions import (
-    SolidityError,
+    ContractLogicError,
 )
 from web3.types import (
     RPCResponse,
@@ -94,7 +94,7 @@ GANACHE_RESPONSE = RPCResponse({
         'test_get-ganache-revert-reason',
     ])
 def test_get_revert_reason(response, expected) -> None:
-    with pytest.raises(SolidityError, match=expected):
+    with pytest.raises(ContractLogicError, match=expected):
         raise_solidity_error_on_revert(response)
 
 
@@ -104,8 +104,8 @@ def test_get_revert_reason_other_error() -> None:
 
 def test_get_error_formatters() -> None:
     formatters = get_error_formatters(RPC.eth_call)
-    with pytest.raises(SolidityError, match='not allowed to monitor'):
+    with pytest.raises(ContractLogicError, match='not allowed to monitor'):
         formatters(REVERT_WITH_MSG)
-    with pytest.raises(SolidityError):
+    with pytest.raises(ContractLogicError):
         formatters(REVERT_WITHOUT_MSG)
     assert formatters(OTHER_ERROR) == OTHER_ERROR
