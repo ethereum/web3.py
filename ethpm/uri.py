@@ -1,4 +1,7 @@
 import json
+from typing import (
+    TYPE_CHECKING,
+)
 
 from eth_typing import (
     URI,
@@ -35,10 +38,12 @@ from ethpm.backends.registry import (
 from ethpm.exceptions import (
     CannotHandleURI,
 )
-from web3 import Web3
 from web3.types import (
     BlockNumber,
 )
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa F401
 
 
 def resolve_uri_contents(uri: URI, fingerprint: bool = None) -> bytes:
@@ -96,7 +101,7 @@ def is_supported_content_addressed_uri(uri: URI) -> bool:
     return True
 
 
-def create_latest_block_uri(w3: Web3, from_blocks_ago: int = 3) -> URI:
+def create_latest_block_uri(w3: "Web3", from_blocks_ago: int = 3) -> URI:
     """
     Creates a block uri for the given w3 instance.
     Defaults to 3 blocks prior to the "latest" block to accommodate for block reorgs.
@@ -115,7 +120,7 @@ def create_latest_block_uri(w3: Web3, from_blocks_ago: int = 3) -> URI:
 
 
 @curry
-def check_if_chain_matches_chain_uri(web3: Web3, blockchain_uri: URI) -> bool:
+def check_if_chain_matches_chain_uri(web3: "Web3", blockchain_uri: URI) -> bool:
     chain_id, resource_type, resource_hash = parse_BIP122_uri(blockchain_uri)
     genesis_block = web3.eth.getBlock("earliest")
 

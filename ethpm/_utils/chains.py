@@ -1,5 +1,6 @@
 import re
 from typing import (
+    TYPE_CHECKING,
     Any,
     Tuple,
 )
@@ -24,10 +25,12 @@ from hexbytes import (
 from ethpm.constants import (
     SUPPORTED_CHAIN_IDS,
 )
-from web3 import Web3
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
 
-def get_genesis_block_hash(web3: Web3) -> HexBytes:
+def get_genesis_block_hash(web3: "Web3") -> HexBytes:
     return web3.eth.getBlock(BlockNumber(0))["hash"]
 
 

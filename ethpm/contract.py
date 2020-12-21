@@ -1,4 +1,5 @@
 from typing import (  # noqa: F401
+    TYPE_CHECKING,
     Any,
     Dict,
     List,
@@ -26,7 +27,6 @@ from ethpm.exceptions import (
 from ethpm.validation.misc import (
     validate_empty_bytes,
 )
-from web3 import Web3
 from web3._utils.validation import (
     validate_address,
 )
@@ -34,6 +34,9 @@ from web3.contract import (
     Contract,
     ContractConstructor,
 )
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
 
 class LinkableContract(Contract):
@@ -57,7 +60,7 @@ class LinkableContract(Contract):
 
     @classmethod
     def factory(
-        cls, web3: Web3, class_name: str = None, **kwargs: Any
+        cls, web3: "Web3", class_name: str = None, **kwargs: Any
     ) -> Contract:
         dep_link_refs = kwargs.get("unlinked_references")
         bytecode = kwargs.get("bytecode")
