@@ -1,4 +1,5 @@
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     Generator,
@@ -22,7 +23,9 @@ from ethpm.exceptions import (
     BytecodeLinkingError,
     EthPMValidationError,
 )
-from web3 import Web3
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
 
 def get_linked_deployments(deployments: Dict[str, Any]) -> Dict[str, Any]:
@@ -85,7 +88,7 @@ def normalize_linked_references(
 
 
 def validate_deployments_tx_receipt(
-    deployments: Dict[str, Any], w3: Web3, allow_missing_data: bool = False
+    deployments: Dict[str, Any], w3: "Web3", allow_missing_data: bool = False
 ) -> None:
     """
     Validate that address and block hash found in deployment data match what is found on-chain.

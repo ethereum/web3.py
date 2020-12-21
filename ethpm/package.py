@@ -3,6 +3,7 @@ from pathlib import (
     Path,
 )
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     Generator,
@@ -78,7 +79,6 @@ from ethpm.validation.package import (
 from ethpm.validation.uri import (
     validate_single_matching_uri,
 )
-from web3 import Web3
 from web3._utils.validation import (
     validate_address,
 )
@@ -86,10 +86,13 @@ from web3.eth import (
     Contract,
 )
 
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
+
 
 class Package(object):
     def __init__(
-        self, manifest: Dict[str, Any], w3: Web3, uri: Optional[str] = None
+        self, manifest: Dict[str, Any], w3: "Web3", uri: Optional[str] = None
     ) -> None:
         """
         A package should be created using one of the available
@@ -116,7 +119,7 @@ class Package(object):
         self.manifest = manifest
         self._uri = uri
 
-    def update_w3(self, w3: Web3) -> "Package":
+    def update_w3(self, w3: "Web3") -> "Package":
         """
         Returns a new instance of `Package` containing the same manifest,
         but connected to a different web3 instance.
@@ -198,7 +201,7 @@ class Package(object):
             raise ValueError("No contract types found in manifest; {self.__repr__()}.")
 
     @classmethod
-    def from_file(cls, file_path: Path, w3: Web3) -> "Package":
+    def from_file(cls, file_path: Path, w3: "Web3") -> "Package":
         """
         Returns a ``Package`` instantiated by a manifest located at the provided Path.
         ``file_path`` arg must be a ``pathlib.Path`` instance.
@@ -216,7 +219,7 @@ class Package(object):
         return cls(manifest, w3, file_path.as_uri())
 
     @classmethod
-    def from_uri(cls, uri: URI, w3: Web3) -> "Package":
+    def from_uri(cls, uri: URI, w3: "Web3") -> "Package":
         """
         Returns a Package object instantiated by a manifest located at a content-addressed URI.
         A valid ``Web3`` instance is also required.

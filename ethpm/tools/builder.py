@@ -5,6 +5,7 @@ from pathlib import (
 )
 import tempfile
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -62,10 +63,12 @@ from ethpm.validation.manifest import (
 from ethpm.validation.package import (
     validate_package_name,
 )
-from web3 import Web3
 from web3._utils.validation import (
     validate_address,
 )
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
 
 def build(obj: Dict[str, Any], *fns: Callable[..., Any]) -> Dict[str, Any]:
@@ -837,7 +840,7 @@ def validate(manifest: Manifest) -> Manifest:
 
 
 @curry
-def as_package(w3: Web3, manifest: Manifest) -> Package:
+def as_package(w3: "Web3", manifest: Manifest) -> Package:
     """
     Return a Package object instantiated with the provided manifest and web3 instance.
     """
