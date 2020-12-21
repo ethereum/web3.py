@@ -1,0 +1,1 @@
+In ethpm module, only import Web3 if TYPE_CHECKING
