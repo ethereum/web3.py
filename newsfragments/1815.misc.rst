@@ -1,1 +1,0 @@
-Remove unused bufsize argument in integration testing setup to fix subprocess's RuntimeWarning

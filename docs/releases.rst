@@ -6,6 +6,22 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.14.0 (2020-12-21)
+--------------------
+
+Features
+~~~~~~~~
+
+- Introduce experimental Ethereum 2.0 beacon node API (`#1758 <https://github.com/ethereum/web3.py/issues/1758>`__)
+- Add new get_balance method on Eth class. Deprecated getBalance. (`#1806 <https://github.com/ethereum/web3.py/issues/1806>`__)
+
+
+Misc
+~~~~
+
+- `#1815 <https://github.com/ethereum/web3.py/issues/1815>`__
+
+
 v5.13.1 (2020-12-03)
 --------------------
 
