@@ -113,7 +113,7 @@ class Method(Generic[TFunc]):
 
     4. After the parameter processing from steps 1-3 the request is made using
     the calling function returned by the module attribute ``retrieve_caller_fn``
-    and the reponse formatters are applied to the output.
+    and the response formatters are applied to the output.
     """
     def __init__(
             self,
