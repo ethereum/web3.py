@@ -643,7 +643,7 @@ The following methods are available on the ``web3.eth`` namespace.
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
 
 
-.. py:method:: Eth.signTransaction()
+.. py:method:: Eth.signTransaction(transaction)
 
     * Delegates to ``eth_signTransaction`` RPC Method.
 
