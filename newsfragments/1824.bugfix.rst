@@ -1,0 +1,2 @@
+Remove docs/web3.* from the gitignore to allow for the beacon docs to be added to git,
+and add ``beacon`` to the default web3 modules that get loaded.
