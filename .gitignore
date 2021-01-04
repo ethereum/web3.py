@@ -43,7 +43,17 @@ output/*/index.html
 # Sphinx
 docs/_build
 docs/modules.rst
-docs/web3.*
+docs/web3.auto.infura.rst
+docs/web3.auto.rst
+docs/web3.gas_strategies.rst
+docs/web3.middleware.rst
+docs/web3.providers.eth_tester.rst
+docs/web3.providers.rst
+docs/web3.rst
+docs/web3.scripts.release.rst
+docs/web3.scripts.rst
+docs/web3.tools.pytest_ethereum.rst
+docs/web3.tools.rst
 
 # Blockchain
 chains
