@@ -6,6 +6,15 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.14.0 (2021-01-04)
+--------------------
+
+Misc
+~~~~
+
+- `#1816 <https://github.com/ethereum/web3.py/issues/1816>`__
+
+
 v5.14.0 (2020-12-21)
 --------------------
 
