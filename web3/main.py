@@ -52,6 +52,9 @@ from web3._utils.module import (
 from web3._utils.normalizers import (
     abi_ens_resolver,
 )
+from web3.beacon import (
+    Beacon,
+)
 from web3.eth import (
     Eth,
 )
@@ -120,6 +123,7 @@ def get_default_modules() -> Dict[str, Sequence[Any]]:
             "txpool": (GethTxPool,),
         }),
         "testing": (Testing,),
+        "beacon": (Beacon,),
     }
 
 
