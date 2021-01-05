@@ -6,6 +6,16 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.14.0 (2021-01-05)
+--------------------
+
+Bugfixes
+~~~~~~~~
+
+- Remove docs/web3.* from the gitignore to allow for the beacon docs to be added to git,
+  and add ``beacon`` to the default web3 modules that get loaded. (`#1824 <https://github.com/ethereum/web3.py/issues/1824>`__)
+- Remove auto-documenting from the Beacon API (`#1825 <https://github.com/ethereum/web3.py/issues/1825>`__)
+
 
 Features
 ~~~~~~~~
