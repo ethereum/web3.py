@@ -1,0 +1,1 @@
+Remove auto-documenting from the Beacon API
