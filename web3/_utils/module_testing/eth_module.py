@@ -169,23 +169,30 @@ class EthModuleTest:
                 with pytest.raises(NameNotFound):
                     web3.eth.get_balance(address)
 
-    def test_eth_getStorageAt(
+    def test_eth_get_storage_at(
         self, web3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
-        storage = web3.eth.getStorageAt(emitter_contract_address, 0)
+        storage = web3.eth.get_storage_at(emitter_contract_address, 0)
         assert isinstance(storage, HexBytes)
 
-    def test_eth_getStorageAt_ens_name(
+    def test_eth_getStorageAt_deprecated(
+        self, web3: "Web3", emitter_contract_address: ChecksumAddress
+    ) -> None:
+        with pytest.warns(DeprecationWarning):
+            storage = web3.eth.getStorageAt(emitter_contract_address, 0)
+            assert isinstance(storage, HexBytes)
+
+    def test_eth_get_storage_at_ens_name(
         self, web3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
         with ens_addresses(web3, {'emitter.eth': emitter_contract_address}):
-            storage = web3.eth.getStorageAt('emitter.eth', 0)
+            storage = web3.eth.get_storage_at('emitter.eth', 0)
             assert isinstance(storage, HexBytes)
 
-    def test_eth_getStorageAt_invalid_address(self, web3: "Web3") -> None:
+    def test_eth_get_storage_at_invalid_address(self, web3: "Web3") -> None:
         coinbase = web3.eth.coinbase
         with pytest.raises(InvalidAddress):
-            web3.eth.getStorageAt(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))), 0)
+            web3.eth.get_storage_at(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))), 0)
 
     def test_eth_getTransactionCount(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress

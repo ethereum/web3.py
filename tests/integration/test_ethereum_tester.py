@@ -316,12 +316,16 @@ class TestEthereumTesterEthModule(EthModuleTest):
             raise AssertionError("eth-tester was unexpectedly able to give the pending call result")
 
     @pytest.mark.xfail(reason='json-rpc method is not implemented on eth-tester')
-    def test_eth_getStorageAt(self, web3, emitter_contract_address):
-        super().test_eth_getStorageAt(web3, emitter_contract_address)
+    def test_eth_get_storage_at(self, web3, emitter_contract_address):
+        super().test_eth_get_storage_at(web3, emitter_contract_address)
 
     @pytest.mark.xfail(reason='json-rpc method is not implemented on eth-tester')
-    def test_eth_getStorageAt_ens_name(self, web3, emitter_contract_address):
-        super().test_eth_getStorageAt_ens_name(web3, emitter_contract_address)
+    def test_eth_getStorageAt_deprecated(self, web3, emitter_contract_address):
+        super().test_eth_getStorageAt_deprecated(web3, emitter_contract_address)
+
+    @pytest.mark.xfail(reason='json-rpc method is not implemented on eth-tester')
+    def test_eth_get_storage_at_ens_name(self, web3, emitter_contract_address):
+        super().test_eth_get_storage_at_ens_name(web3, emitter_contract_address)
 
     def test_eth_estimateGas_with_block(self,
                                         web3,
