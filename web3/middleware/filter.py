@@ -331,7 +331,7 @@ def block_hashes_in_range(
     if from_block is None or to_block is None:
         return
     for block_number in range(from_block, to_block + 1):
-        yield getattr(w3.eth.getBlock(BlockNumber(block_number)), "hash", None)
+        yield getattr(w3.eth.get_block(BlockNumber(block_number)), "hash", None)
 
 
 def local_filter_middleware(

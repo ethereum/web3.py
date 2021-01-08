@@ -108,7 +108,7 @@ class ParityEthModuleTest(EthModuleTest):
 
     @flaky(max_runs=MAX_FLAKY_RUNS)
     def test_eth_call_old_contract_state(self, web3, math_contract, unlocked_account):
-        start_block = web3.eth.getBlock('latest')
+        start_block = web3.eth.get_block('latest')
         block_num = start_block.number
         block_hash = start_block.hash
 

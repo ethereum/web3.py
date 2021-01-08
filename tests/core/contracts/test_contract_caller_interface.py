@@ -99,7 +99,7 @@ def test_caller_with_a_nonexistent_function(math_contract):
 
 
 def test_caller_with_block_identifier(web3, math_contract):
-    start_num = web3.eth.getBlock('latest').number
+    start_num = web3.eth.get_block('latest').number
     assert math_contract.caller.counter() == 0
 
     web3.provider.make_request(method='evm_mine', params=[5])
@@ -117,7 +117,7 @@ def test_caller_with_block_identifier_and_transaction_dict(web3,
                                                            caller_tester_contract,
                                                            transaction_dict,
                                                            address):
-    start_num = web3.eth.getBlock('latest').number
+    start_num = web3.eth.get_block('latest').number
     assert caller_tester_contract.caller.counter() == 0
 
     web3.provider.make_request(method='evm_mine', params=[5])

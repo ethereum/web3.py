@@ -207,7 +207,7 @@ def safe_math_lib_package_with_alias(deployer, w3):
 def manifest_with_no_matching_deployments(w3, tmpdir, safe_math_manifest):
     w3.testing.mine(5)
     incorrect_genesis_hash = b"\x00" * 31 + b"\x01"
-    block = w3.eth.getBlock("earliest")
+    block = w3.eth.get_block("earliest")
     block_uri = create_block_uri(w3.toHex(incorrect_genesis_hash), w3.toHex(block.hash))
     manifest = copy.deepcopy(safe_math_manifest)
     manifest["deployments"][block_uri] = {

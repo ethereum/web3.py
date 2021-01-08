@@ -92,6 +92,6 @@ def test_web3_auto_gethdev():
         'eth_getBlockByNumber': {'extraData': '0x' + 'ff' * 33},
     })
     w3.middleware_onion.inject(return_block_with_long_extra_data, layer=0)
-    block = w3.eth.getBlock('latest')
+    block = w3.eth.get_block('latest')
     assert 'extraData' not in block
     assert block.proofOfAuthorityData == b'\xff' * 33

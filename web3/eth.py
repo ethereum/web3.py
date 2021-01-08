@@ -260,7 +260,7 @@ class Eth(ModuleV2, Module):
     `eth_getBlockByHash`
     `eth_getBlockByNumber`
     """
-    getBlock: Method[Callable[..., BlockData]] = Method(
+    get_block: Method[Callable[..., BlockData]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getBlockByNumber,
             if_hash=RPC.eth_getBlockByHash,
@@ -566,3 +566,4 @@ class Eth(ModuleV2, Module):
     # Deprecated Methods
     getBalance = DeprecatedMethod(get_balance, 'getBalance', 'get_balance')
     getStorageAt = DeprecatedMethod(get_storage_at, 'getStorageAt', 'get_storage_at')
+    getBlock = DeprecatedMethod(get_block, 'getBlock', 'get_block')

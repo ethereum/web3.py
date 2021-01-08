@@ -11,13 +11,13 @@ Looking up blocks
 -----------------
 
 Blocks can be looked up by either their number or hash using the
-``web3.eth.getBlock`` API.  Block hashes should be in their hexadecimal
+``web3.eth.get_block`` API.  Block hashes should be in their hexadecimal
 representation.  Block numbers
 
 .. code-block:: python
 
     # get a block by number
-    >>> web3.eth.getBlock(12345)
+    >>> web3.eth.get_block(12345)
     {
         'author': '0xad5C1768e5974C231b2148169da064e61910f31a',
         'difficulty': 735512610763,
@@ -45,7 +45,7 @@ representation.  Block numbers
     }
 
     # get a block by it's hash
-    >>> web3.eth.getBlock('0x767c2bfb3bdee3f78676c1285cd757bcd5d8c272cef2eb30d9733800a78c0b6d')
+    >>> web3.eth.get_block('0x767c2bfb3bdee3f78676c1285cd757bcd5d8c272cef2eb30d9733800a78c0b6d')
     {...}
 
 
@@ -53,11 +53,11 @@ Getting the latest block
 ------------------------
 
 You can also retrieve the latest block using the string ``'latest'`` in the
-``web3.eth.getBlock`` API.
+``web3.eth.get_block`` API.
 
 .. code-block:: python
 
-    >>> web3.eth.getBlock('latest')
+    >>> web3.eth.get_block('latest')
     {...}
 
 

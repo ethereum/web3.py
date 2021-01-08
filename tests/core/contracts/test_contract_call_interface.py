@@ -588,7 +588,7 @@ def test_neg_block_indexes_from_the_end(web3, math_contract):
 
 
 def test_returns_data_from_specified_block(web3, math_contract):
-    start_num = web3.eth.getBlock('latest').number
+    start_num = web3.eth.get_block('latest').number
     web3.provider.make_request(method='evm_mine', params=[5])
     math_contract.functions.increment().transact()
     math_contract.functions.increment().transact()

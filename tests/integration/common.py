@@ -14,4 +14,4 @@ class MiscWebsocketTest:
             endpoint_uri=endpoint_uri, websocket_kwargs={'max_size': 1})
         )
         with pytest.raises((OSError, ConnectionClosed)):
-            w3.eth.getBlock(0)
+            w3.eth.get_block(0)

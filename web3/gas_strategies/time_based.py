@@ -44,29 +44,29 @@ Probability = collections.namedtuple('Probability', ['gas_price', 'prob'])
 
 
 def _get_avg_block_time(w3: Web3, sample_size: int) -> float:
-    latest = w3.eth.getBlock('latest')
+    latest = w3.eth.get_block('latest')
 
     constrained_sample_size = min(sample_size, latest['number'])
     if constrained_sample_size == 0:
         raise ValidationError('Constrained sample size is 0')
 
-    oldest = w3.eth.getBlock(BlockNumber(latest['number'] - constrained_sample_size))
+    oldest = w3.eth.get_block(BlockNumber(latest['number'] - constrained_sample_size))
     return (latest['timestamp'] - oldest['timestamp']) / constrained_sample_size
 
 
 def _get_weighted_avg_block_time(w3: Web3, sample_size: int) -> float:
-    latest_block_number = w3.eth.getBlock('latest')['number']
+    latest_block_number = w3.eth.get_block('latest')['number']
     constrained_sample_size = min(sample_size, latest_block_number)
     if constrained_sample_size == 0:
         raise ValidationError('Constrained sample size is 0')
 
-    oldest_block = w3.eth.getBlock(BlockNumber(latest_block_number - constrained_sample_size))
+    oldest_block = w3.eth.get_block(BlockNumber(latest_block_number - constrained_sample_size))
     oldest_block_number = oldest_block['number']
     prev_timestamp = oldest_block['timestamp']
     weighted_sum = 0.0
     sum_of_weights = 0.0
     for i in range(oldest_block_number + 1, latest_block_number + 1):
-        curr_timestamp = w3.eth.getBlock(BlockNumber(i))['timestamp']
+        curr_timestamp = w3.eth.get_block(BlockNumber(i))['timestamp']
         time = curr_timestamp - prev_timestamp
         weight = (i - oldest_block_number) / constrained_sample_size
         weighted_sum += (time * weight)
@@ -78,7 +78,7 @@ def _get_weighted_avg_block_time(w3: Web3, sample_size: int) -> float:
 def _get_raw_miner_data(
     w3: Web3, sample_size: int
 ) -> Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]:
-    latest = w3.eth.getBlock('latest', full_transactions=True)
+    latest = w3.eth.get_block('latest', full_transactions=True)
 
     for transaction in latest['transactions']:
         # type ignored b/c actual transaction is TxData not HexBytes
@@ -92,7 +92,7 @@ def _get_raw_miner_data(
 
         # we intentionally trace backwards using parent hashes rather than
         # block numbers to make caching the data easier to implement.
-        block = w3.eth.getBlock(block['parentHash'], full_transactions=True)
+        block = w3.eth.get_block(block['parentHash'], full_transactions=True)
         for transaction in block['transactions']:
             # type ignored b/c actual transaction is TxData not HexBytes
             yield (block['miner'], block['hash'], transaction['gasPrice'])  # type: ignore

@@ -72,7 +72,7 @@ def test_stalecheck_pass(request_middleware):
 
 def test_stalecheck_fail(request_middleware, now):
     with patch('web3.middleware.stalecheck._isfresh', return_value=False):
-        request_middleware.web3.eth.getBlock.return_value = stub_block(now)
+        request_middleware.web3.eth.get_block.return_value = stub_block(now)
         with pytest.raises(StaleBlockchain):
             request_middleware('', [])
 
@@ -84,16 +84,16 @@ def test_stalecheck_fail(request_middleware, now):
     ]
 )
 def test_stalecheck_ignores_get_by_block_methods(request_middleware, rpc_method):
-    # This is especially critical for getBlock('latest') which would cause infinite recursion
+    # This is especially critical for get_block('latest') which would cause infinite recursion
     with patch('web3.middleware.stalecheck._isfresh', side_effect=[False, True]):
         request_middleware(rpc_method, [])
-        assert not request_middleware.web3.eth.getBlock.called
+        assert not request_middleware.web3.eth.get_block.called
 
 
 def test_stalecheck_calls_isfresh_with_empty_cache(request_middleware, allowable_delay):
     with patch('web3.middleware.stalecheck._isfresh', side_effect=[False, True]) as freshspy:
         block = object()
-        request_middleware.web3.eth.getBlock.return_value = block
+        request_middleware.web3.eth.get_block.return_value = block
         request_middleware('', [])
         cache_call, live_call = freshspy.call_args_list
         assert cache_call[0] == (None, allowable_delay)
@@ -103,7 +103,7 @@ def test_stalecheck_calls_isfresh_with_empty_cache(request_middleware, allowable
 def test_stalecheck_adds_block_to_cache(request_middleware, allowable_delay):
     with patch('web3.middleware.stalecheck._isfresh', side_effect=[False, True, True]) as freshspy:
         block = object()
-        request_middleware.web3.eth.getBlock.return_value = block
+        request_middleware.web3.eth.get_block.return_value = block
 
         # cache miss
         request_middleware('', [])
