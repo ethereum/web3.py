@@ -192,7 +192,7 @@ The following methods are available on the ``web3.eth`` namespace.
       :meth:`~web3.eth.get_balance()`
 
 
-.. py:method:: Eth.getStorageAt(account, position, block_identifier=eth.defaultBlock)
+.. py:method:: Eth.get_storage_at(account, position, block_identifier=eth.defaultBlock)
 
     * Delegates to ``eth_getStorageAt`` RPC Method
 
@@ -205,6 +205,12 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> web3.eth.getStorageAt('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', 0)
         '0x00000000000000000000000000000000000000000000000000120a0b063499d4'
+
+
+.. py:method:: Eth.getStorageAt(account, position, block_identifier=eth.defaultBlock)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.get_storage_at()`
 
 
 .. py:method:: Eth.getProof(account, positions, block_identifier=eth.defaultBlock)

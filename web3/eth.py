@@ -221,9 +221,7 @@ class Eth(ModuleV2, Module):
             block_identifier = self.defaultBlock
         return (account, position, block_identifier)
 
-    getStorageAt: Method[
-        Callable[..., HexBytes]
-    ] = Method(
+    get_storage_at: Method[Callable[..., HexBytes]] = Method(
         RPC.eth_getStorageAt,
         mungers=[get_storage_at_munger],
     )
@@ -567,3 +565,4 @@ class Eth(ModuleV2, Module):
 
     # Deprecated Methods
     getBalance = DeprecatedMethod(get_balance, 'getBalance', 'get_balance')
+    getStorageAt = DeprecatedMethod(get_storage_at, 'getStorageAt', 'get_storage_at')
