@@ -1,0 +1,1 @@
+Remove ``request-mock`` dependency in beacon tests

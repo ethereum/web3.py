@@ -1,45 +1,15 @@
-import json
 import pytest
 
 import requests
 
-import requests_mock
 from web3.beacon import (
     Beacon,
 )
 
-GENESIS_RESPONSE = {
-    "data": {
-        "genesis_time": "1590832934",
-        "genesis_validators_root": (
-            "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2"
-        ),
-        "genesis_fork_version": "0x00000000",
-    }
-}
-
 
 @pytest.fixture
-def session():
-    session = requests.Session()
-    adapter = requests_mock.Adapter()
-    session.mount("mock://", adapter)
-
-    adapter.register_uri(
-        "GET",
-        "mock://example.com/api/eth/v1/beacon/genesis",
-        text=json.dumps(GENESIS_RESPONSE),
-    )
-    return session
-
-
-@pytest.fixture
-def beacon(session):
-    #  return Beacon(
-    #  beacon_url="mock://example.com/api",
-    #  session=session,
-    #  )
-    return Beacon(base_url="http://localhost:5051", session=session)
+def beacon():
+    return Beacon(base_url="http://localhost:5051", session=requests.Session())
 
 
 # Beacon endpoint tests:
