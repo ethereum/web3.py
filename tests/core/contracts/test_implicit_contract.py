@@ -38,7 +38,7 @@ def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, address_conversion_fu
 @pytest.fixture()
 def get_transaction_count(web3):
     def get_transaction_count(blocknum_or_label):
-        block = web3.eth.getBlock(blocknum_or_label)
+        block = web3.eth.get_block(blocknum_or_label)
         # Return the blocknum if we requested this via labels
         # so we can directly query the block next time (using the same API call)
         # Either way, return the number of transactions in the given block

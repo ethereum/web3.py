@@ -164,7 +164,7 @@ def test_latest_block_based_cache_middleware_pulls_from_cache(
     w3.middleware_onion.add(block_data_middleware)
     w3.middleware_onion.add(result_generator_middleware)
 
-    current_block_hash = w3.eth.getBlock('latest')['hash']
+    current_block_hash = w3.eth.get_block('latest')['hash']
 
     def cache_class():
         return {

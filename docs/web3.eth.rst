@@ -15,7 +15,7 @@ you can find the latest block number in these two ways:
 
     .. code-block:: python
 
-        >>> block = web3.eth.getBlock('latest')
+        >>> block = web3.eth.get_block('latest')
         AttributeDict({
           'hash': '0xe8ad537a261e6fff80d551d8d087ee0f2202da9b09b64d172a5f45e818eb472a',
           'number': 4022281,
@@ -309,7 +309,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
             return True
 
-        block = w3.eth.getBlock(3391)
+        block = w3.eth.get_block(3391)
         proof = w3.eth.getProof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0, 1], 3391)
         assert verify_eth_getProof(proof, block.stateRoot)
 
@@ -333,7 +333,7 @@ The following methods are available on the ``web3.eth`` namespace.
         '0x'
 
 
-.. py:method:: Eth.getBlock(block_identifier=eth.defaultBlock, full_transactions=False)
+.. py:method:: Eth.get_block(block_identifier=eth.defaultBlock, full_transactions=False)
 
     * Delegates to ``eth_getBlockByNumber`` or ``eth_getBlockByHash`` RPC Methods
 
@@ -348,7 +348,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getBlock(2000000)
+        >>> web3.eth.get_block(2000000)
         AttributeDict({
             'difficulty': 49824742724615,
             'extraData': '0xe4b883e5bda9e7a59ee4bb99e9b1bc',
@@ -371,6 +371,10 @@ The following methods are available on the ``web3.eth`` namespace.
             'uncles': [],
         })
 
+.. py:method:: Eth.getBlock(block_identifier=eth.defaultBlock, full_transactions=False)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_block`
 
 .. py:method:: Eth.getBlockTransactionCount(block_identifier)
 

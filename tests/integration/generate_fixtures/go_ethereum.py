@@ -168,7 +168,7 @@ def generate_go_ethereum_fixture(destination_dir):
 
 def verify_chain_state(web3, chain_data):
     receipt = web3.eth.waitForTransactionReceipt(chain_data['mined_txn_hash'])
-    latest = web3.eth.getBlock('latest')
+    latest = web3.eth.get_block('latest')
     assert receipt.blockNumber <= latest.number
 
 
@@ -228,7 +228,7 @@ def setup_chain_state(web3):
     })
     print('TXN_HASH_WITH_LOG:', txn_hash_with_log)
     txn_receipt_with_log = mine_transaction_hash(web3, txn_hash_with_log)
-    block_with_log = web3.eth.getBlock(txn_receipt_with_log['blockHash'])
+    block_with_log = web3.eth.get_block(txn_receipt_with_log['blockHash'])
     print('BLOCK_HASH_WITH_LOG:', block_with_log['hash'])
 
     #
@@ -250,7 +250,7 @@ def setup_chain_state(web3):
     )
     print('TXN_HASH_REVERT_WITH_MSG:', txn_hash_revert_with_msg)
     txn_receipt_revert_with_msg = common.mine_transaction_hash(web3, txn_hash_revert_with_msg)
-    block_hash_revert_with_msg = web3.eth.getBlock(txn_receipt_revert_with_msg['blockHash'])
+    block_hash_revert_with_msg = web3.eth.get_block(txn_receipt_revert_with_msg['blockHash'])
     print('BLOCK_HASH_REVERT_WITH_MSG:', block_hash_revert_with_msg['hash'])
 
     txn_hash_revert_with_no_msg = revert_contract.functions.revertWithoutMessage().transact(
@@ -258,7 +258,7 @@ def setup_chain_state(web3):
     )
     print('TXN_HASH_REVERT_WITH_NO_MSG:', txn_hash_revert_with_no_msg)
     txn_receipt_revert_with_no_msg = common.mine_transaction_hash(web3, txn_hash_revert_with_no_msg)
-    block_hash_revert_no_msg = web3.eth.getBlock(txn_receipt_revert_with_no_msg['blockHash'])
+    block_hash_revert_no_msg = web3.eth.get_block(txn_receipt_revert_with_no_msg['blockHash'])
     print('BLOCK_HASH_REVERT_NO_MSG:', block_hash_revert_no_msg['hash'])
 
     #
@@ -266,7 +266,7 @@ def setup_chain_state(web3):
     #
     empty_block_number = mine_block(web3)
     print('MINED_EMPTY_BLOCK')
-    empty_block = web3.eth.getBlock(empty_block_number)
+    empty_block = web3.eth.get_block(empty_block_number)
     assert is_dict(empty_block)
     assert not empty_block['transactions']
     print('EMPTY_BLOCK_HASH:', empty_block['hash'])
@@ -285,7 +285,7 @@ def setup_chain_state(web3):
     })
     mined_txn_receipt = mine_transaction_hash(web3, mined_txn_hash)
     print('MINED_TXN_HASH:', mined_txn_hash)
-    block_with_txn = web3.eth.getBlock(mined_txn_receipt['blockHash'])
+    block_with_txn = web3.eth.get_block(mined_txn_receipt['blockHash'])
     print('BLOCK_WITH_TXN_HASH:', block_with_txn['hash'])
 
     geth_fixture = {

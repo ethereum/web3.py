@@ -16,7 +16,7 @@ def test_long_extra_data(web3):
     })
     web3.middleware_onion.inject(return_block_with_long_extra_data, layer=0)
     with pytest.raises(ExtraDataLengthError):
-        web3.eth.getBlock('latest')
+        web3.eth.get_block('latest')
 
 
 def test_full_extra_data(web3):
@@ -24,7 +24,7 @@ def test_full_extra_data(web3):
         'eth_getBlockByNumber': {'extraData': '0x' + 'ff' * 32},
     })
     web3.middleware_onion.inject(return_block_with_long_extra_data, layer=0)
-    block = web3.eth.getBlock('latest')
+    block = web3.eth.get_block('latest')
     assert block.extraData == b'\xff' * 32
 
 
@@ -34,6 +34,6 @@ def test_geth_proof_of_authority(web3):
     })
     web3.middleware_onion.inject(geth_poa_middleware, layer=0)
     web3.middleware_onion.inject(return_block_with_long_extra_data, layer=0)
-    block = web3.eth.getBlock('latest')
+    block = web3.eth.get_block('latest')
     assert 'extraData' not in block
     assert block.proofOfAuthorityData == b'\xff' * 33

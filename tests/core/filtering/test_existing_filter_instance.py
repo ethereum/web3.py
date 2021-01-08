@@ -40,6 +40,6 @@ def test_instantiate_existing_filter(web3, sleep_interval, wait_for_block, filte
     assert len(found_block_hashes) == 3
 
     expected_block_hashes = [
-        web3.eth.getBlock(n + 1).hash for n in range(current_block, current_block + 3)
+        web3.eth.get_block(n + 1).hash for n in range(current_block, current_block + 3)
     ]
     assert found_block_hashes == expected_block_hashes

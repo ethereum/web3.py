@@ -107,7 +107,7 @@ to interact with the Ethereum blockchain. Try getting all the information about 
 
 .. code-block:: python
 
-    >>> w3.eth.getBlock('latest')
+    >>> w3.eth.get_block('latest')
     {'difficulty': 1,
      'gasLimit': 6283185,
      'gasUsed': 0,

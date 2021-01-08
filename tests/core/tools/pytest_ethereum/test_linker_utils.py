@@ -23,8 +23,8 @@ from web3.tools.pytest_ethereum.exceptions import (
 
 @pytest.fixture
 def chain_setup(w3):
-    old_chain_id = remove_0x_prefix(to_hex(w3.eth.getBlock(0)["hash"]))
-    block_hash = remove_0x_prefix(to_hex(w3.eth.getBlock("earliest").hash))
+    old_chain_id = remove_0x_prefix(to_hex(w3.eth.get_block(0)["hash"]))
+    block_hash = remove_0x_prefix(to_hex(w3.eth.get_block("earliest").hash))
     old_chain_uri = f"blockchain://{old_chain_id}/block/{block_hash}"
     match_data = {
         old_chain_uri: {"x": "x"},

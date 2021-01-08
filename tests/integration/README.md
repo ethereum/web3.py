@@ -28,12 +28,12 @@ A Web3 instance configured to connect to the backend for the integration test.
 
 #### `empty_block`
 
-A block as returned by `web3.eth.getBlock` that has no transactions.
+A block as returned by `web3.eth.get_block` that has no transactions.
 
 
 #### `block_with_txn`
 
-A block as returned by `web3.eth.getBlock` that has a single transaction.
+A block as returned by `web3.eth.get_block` that has a single transaction.
 
 
 #### `math_contract`

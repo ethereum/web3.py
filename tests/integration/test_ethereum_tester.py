@@ -100,7 +100,7 @@ def emitter_contract_address(emitter_contract, address_conversion_func):
 @pytest.fixture(scope="module")
 def empty_block(web3):
     web3.testing.mine()
-    block = web3.eth.getBlock("latest")
+    block = web3.eth.get_block("latest")
     assert not block['transactions']
     return block
 
@@ -115,7 +115,7 @@ def block_with_txn(web3):
         'gas_price': 1,
     })
     txn = web3.eth.getTransaction(txn_hash)
-    block = web3.eth.getBlock(txn['blockNumber'])
+    block = web3.eth.get_block(txn['blockNumber'])
     return block
 
 
@@ -132,7 +132,7 @@ def block_with_txn_with_log(web3, emitter_contract):
         'from': web3.eth.coinbase,
     })
     txn = web3.eth.getTransaction(txn_hash)
-    block = web3.eth.getBlock(txn['blockNumber'])
+    block = web3.eth.get_block(txn['blockNumber'])
     return block
 
 
@@ -253,7 +253,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_getBlockByHash_pending(
         self, web3: "Web3"
     ) -> None:
-        block = web3.eth.getBlock('pending')
+        block = web3.eth.get_block('pending')
         assert block['hash'] is not None
 
     @disable_auto_mine

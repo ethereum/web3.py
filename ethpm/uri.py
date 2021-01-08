@@ -108,27 +108,27 @@ def create_latest_block_uri(w3: "Web3", from_blocks_ago: int = 3) -> URI:
     If using a testnet with less than 3 mined blocks, adjust :from_blocks_ago:.
     """
     chain_id = to_hex(get_genesis_block_hash(w3))
-    latest_block_tx_receipt = w3.eth.getBlock("latest")
+    latest_block_tx_receipt = w3.eth.get_block("latest")
     target_block_number = BlockNumber(latest_block_tx_receipt["number"] - from_blocks_ago)
     if target_block_number < 0:
         raise Exception(
             f"Only {latest_block_tx_receipt['number']} blocks avaible on provided w3, "
             f"cannot create latest block uri for {from_blocks_ago} blocks ago."
         )
-    recent_block = to_hex(w3.eth.getBlock(target_block_number)["hash"])
+    recent_block = to_hex(w3.eth.get_block(target_block_number)["hash"])
     return create_block_uri(chain_id, recent_block)
 
 
 @curry
 def check_if_chain_matches_chain_uri(web3: "Web3", blockchain_uri: URI) -> bool:
     chain_id, resource_type, resource_hash = parse_BIP122_uri(blockchain_uri)
-    genesis_block = web3.eth.getBlock("earliest")
+    genesis_block = web3.eth.get_block("earliest")
 
     if encode_hex(genesis_block["hash"]) != chain_id:
         return False
 
     if resource_type == BLOCK:
-        resource = web3.eth.getBlock(resource_hash)
+        resource = web3.eth.get_block(resource_hash)
     else:
         raise ValueError(f"Unsupported resource type: {resource_type}")
 

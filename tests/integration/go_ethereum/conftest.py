@@ -197,14 +197,14 @@ def funded_account_for_raw_txn(geth_fixture_data):
 
 @pytest.fixture(scope="module")
 def empty_block(web3, geth_fixture_data):
-    block = web3.eth.getBlock(geth_fixture_data['empty_block_hash'])
+    block = web3.eth.get_block(geth_fixture_data['empty_block_hash'])
     assert is_dict(block)
     return block
 
 
 @pytest.fixture(scope="module")
 def block_with_txn(web3, geth_fixture_data):
-    block = web3.eth.getBlock(geth_fixture_data['block_with_txn_hash'])
+    block = web3.eth.get_block(geth_fixture_data['block_with_txn_hash'])
     assert is_dict(block)
     return block
 
@@ -216,7 +216,7 @@ def mined_txn_hash(geth_fixture_data):
 
 @pytest.fixture(scope="module")
 def block_with_txn_with_log(web3, geth_fixture_data):
-    block = web3.eth.getBlock(geth_fixture_data['block_hash_with_log'])
+    block = web3.eth.get_block(geth_fixture_data['block_hash_with_log'])
     assert is_dict(block)
     return block
 

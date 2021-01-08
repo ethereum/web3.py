@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 
 def get_genesis_block_hash(web3: "Web3") -> HexBytes:
-    return web3.eth.getBlock(BlockNumber(0))["hash"]
+    return web3.eth.get_block(BlockNumber(0))["hash"]
 
 
 BLOCK = "block"

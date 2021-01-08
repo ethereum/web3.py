@@ -30,8 +30,8 @@ AttributeDict
 .. py:method:: web3.middleware.attrdict_middleware
 
     This middleware converts the output of a function from a dictionary to an ``AttributeDict``
-    which enables dot-syntax access, like ``eth.getBlock('latest').number``
-    in addition to ``eth.getBlock('latest')['number']``.
+    which enables dot-syntax access, like ``eth.get_block('latest').number``
+    in addition to ``eth.get_block('latest')['number']``.
 
 .eth Name Resolution
 ~~~~~~~~~~~~~~~~~~~~~
@@ -272,7 +272,7 @@ Stalecheck
 
     If the latest block in the blockchain is older than 2 days in this example, then the
     middleware will raise a ``StaleBlockchain`` exception on every call except
-    ``web3.eth.getBlock()``.
+    ``web3.eth.get_block()``.
 
 
 Cache

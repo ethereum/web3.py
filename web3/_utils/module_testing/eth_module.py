@@ -145,7 +145,7 @@ class EthModuleTest:
         assert balance >= 0
 
     def test_eth_get_balance_with_block_identifier(self, web3: "Web3") -> None:
-        miner_address = web3.eth.getBlock(1)['miner']
+        miner_address = web3.eth.get_block(1)['miner']
         genesis_balance = web3.eth.get_balance(miner_address, 0)
         later_balance = web3.eth.get_balance(miner_address, 1)
 
@@ -849,62 +849,76 @@ class EthModuleTest:
         assert is_integer(gas_estimate)
         assert gas_estimate > 0
 
+    def test_eth_getBlock_deprecated(
+        self, web3: "Web3", empty_block: BlockData
+    ) -> None:
+        with pytest.warns(DeprecationWarning, match="getBlock is deprecated in favor of get_block"):
+            block = web3.eth.getBlock(empty_block['hash'])
+        assert block['hash'] == empty_block['hash']
+
     def test_eth_getBlockByHash(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
-        block = web3.eth.getBlock(empty_block['hash'])
+        block = web3.eth.get_block(empty_block['hash'])
         assert block['hash'] == empty_block['hash']
 
     def test_eth_getBlockByHash_not_found(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
         with pytest.raises(BlockNotFound):
-            web3.eth.getBlock(UNKNOWN_HASH)
+            web3.eth.get_block(UNKNOWN_HASH)
 
     def test_eth_getBlockByHash_pending(
         self, web3: "Web3"
     ) -> None:
-        block = web3.eth.getBlock('pending')
+        block = web3.eth.get_block('pending')
         assert block['hash'] is None
 
     def test_eth_getBlockByNumber_with_integer(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
-        block = web3.eth.getBlock(empty_block['number'])
+        block = web3.eth.get_block(empty_block['number'])
+        assert block['number'] == empty_block['number']
+
+    def test_eth_getBlockByNumber_with_integer_deprecated(
+        self, web3: "Web3", empty_block: BlockData
+    ) -> None:
+        with pytest.warns(DeprecationWarning, match="getBlock is deprecated in favor of get_block"):
+            block = web3.eth.getBlock(empty_block['number'])
         assert block['number'] == empty_block['number']
 
     def test_eth_getBlockByNumber_latest(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
         current_block_number = web3.eth.blockNumber
-        block = web3.eth.getBlock('latest')
+        block = web3.eth.get_block('latest')
         assert block['number'] == current_block_number
 
     def test_eth_getBlockByNumber_not_found(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
         with pytest.raises(BlockNotFound):
-            web3.eth.getBlock(BlockNumber(12345))
+            web3.eth.get_block(BlockNumber(12345))
 
     def test_eth_getBlockByNumber_pending(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
         current_block_number = web3.eth.blockNumber
-        block = web3.eth.getBlock('pending')
+        block = web3.eth.get_block('pending')
         assert block['number'] == current_block_number + 1
 
     def test_eth_getBlockByNumber_earliest(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
-        genesis_block = web3.eth.getBlock(BlockNumber(0))
-        block = web3.eth.getBlock('earliest')
+        genesis_block = web3.eth.get_block(BlockNumber(0))
+        block = web3.eth.get_block('earliest')
         assert block['number'] == 0
         assert block['hash'] == genesis_block['hash']
 
     def test_eth_getBlockByNumber_full_transactions(
         self, web3: "Web3", block_with_txn: BlockData
     ) -> None:
-        block = web3.eth.getBlock(block_with_txn['number'], True)
+        block = web3.eth.get_block(block_with_txn['number'], True)
         transaction = block['transactions'][0]
         assert transaction['hash'] == block_with_txn['transactions'][0]  # type: ignore
 
@@ -1174,7 +1188,7 @@ class EthModuleTest:
     def test_eth_call_old_contract_state(
         self, web3: "Web3", math_contract: "Contract", unlocked_account: ChecksumAddress
     ) -> None:
-        start_block = web3.eth.getBlock('latest')
+        start_block = web3.eth.get_block('latest')
         block_num = start_block["number"]
         block_hash = start_block["hash"]
 
