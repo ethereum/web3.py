@@ -35,7 +35,7 @@ extras_require = {
     'dev': [
         "bumpversion",
         "flaky>=3.3.0",
-        "hypothesis>=3.31.2",
+        "hypothesis>=3.31.2,<6",
         "pytest>=4.4.0,<5.0.0",
         "pytest-asyncio>=0.10.0,<0.11",
         "pytest-mock>=1.10,<2",
