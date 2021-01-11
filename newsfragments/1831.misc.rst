@@ -1,0 +1,1 @@
+Pin Hypothesis dependency to <6.0 until we fix scoping deprecation warnings
