@@ -7,6 +7,9 @@ import pytest
 from eth_utils import (
     to_text,
 )
+from ipfshttpclient.exceptions import (
+    TimeoutError,
+)
 
 from ethpm.backends.ipfs import (
     DummyIPFSBackend,
@@ -52,6 +55,7 @@ def test_ipfs_and_infura_gateway_backends_fetch_uri_contents(base_uri, backend):
     assert contents.startswith(b"pragma solidity")
 
 
+@pytest.mark.xfail(strict=False, raises=TimeoutError)
 def test_local_ipfs_backend(owned_manifest_path):
     uri = "ipfs://Qme4otpS88NV8yQi8TfTP89EsQC5bko3F5N1yhRoi6cwGV"
     backend = LocalIPFSBackend()
