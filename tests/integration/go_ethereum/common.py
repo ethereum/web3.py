@@ -1,3 +1,6 @@
+from concurrent.futures._base import (
+    TimeoutError as FuturesTimeoutError,
+)
 import pytest
 
 from web3._utils.module_testing import (  # noqa: F401
@@ -21,6 +24,11 @@ class GoEthereumEthModuleTest(EthModuleTest):
         # https://github.com/ethereum/go-ethereum/commit/51db5975cc5fb88db6a0dba1826b534fd4df29d7
         super().test_eth_submitHashrate(web3)
 
+    @pytest.mark.xfail(
+        strict=False,
+        raises=FuturesTimeoutError,
+        reason='Sometimes a TimeoutError is hit when waiting for the txn to be mined',
+    )
     def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account_dual_type):
         web3.geth.miner.start()
         super().test_eth_replaceTransaction_already_mined(web3, unlocked_account_dual_type)
