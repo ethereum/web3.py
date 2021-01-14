@@ -1,0 +1,1 @@
+Introduce Beacon API documentation
