@@ -1,9 +1,6 @@
 Release Notes
 =============
 
-v5 Breaking Changes Summary
-   See the :ref:`v5 Migration Guide<migrating_v4_to_v5>`
-
 .. towncrier release notes start
 
 v5.15.0 (2021-01-15)
