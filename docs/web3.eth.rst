@@ -376,7 +376,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. warning:: Deprecated: This method is deprecated in favor of
       :meth:`~web3.eth.Eth.get_block`
 
-.. py:method:: Eth.getBlockTransactionCount(block_identifier)
+.. py:method:: Eth.get_block_transaction_count(block_identifier)
 
     * Delegates to ``eth_getBlockTransactionCountByNumber`` or
       ``eth_getBlockTransactionCountByHash`` RPC Methods
@@ -389,10 +389,17 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getBlockTransactionCount(46147)
+        >>> web3.eth.get_block_transaction_count(46147)
         1
-        >>> web3.eth.getBlockTransactionCount('0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd')  # block 46147
+        >>> web3.eth.get_block_transaction_count('0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd')  # block 46147
         1
+
+
+.. py:method:: Eth.getBlockTransactionCount(block_identifier)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_block_transaction_count`
+
 
 
 .. py:method:: Eth.getUncle(block_identifier)

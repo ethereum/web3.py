@@ -1,0 +1,1 @@
+Added ``get_block_transaction_count``, and deprecated ``getBlockTransactionCount``
