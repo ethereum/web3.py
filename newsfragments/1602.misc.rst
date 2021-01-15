@@ -1,1 +1,0 @@
-Move Parity Module to use Method class.

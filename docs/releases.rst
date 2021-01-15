@@ -6,6 +6,37 @@ v5 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v5.15.0 (2021-01-15)
+--------------------
+
+Features
+~~~~~~~~
+
+- Add ``get_storage_at`` method and deprecate ``getStorageAt``. (`#1828 <https://github.com/ethereum/web3.py/issues/1828>`__)
+- Add ``eth.get_block`` method and deprecate ``eth.getBlock``. (`#1829 <https://github.com/ethereum/web3.py/issues/1829>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- PR #1585 changed the error that was coming back from eth-tester when the Revert opcode was called,
+  which broke some tests in downstream libraries. This PR reverts back to raising the original error. (`#1813 <https://github.com/ethereum/web3.py/issues/1813>`__)
+- Added a new ``ContractLogicError`` for when a contract reverts a transaction.
+  ``ContractLogicError`` will replace ``SolidityError``, in v6. (`#1814 <https://github.com/ethereum/web3.py/issues/1814>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Introduce Beacon API documentation (`#1836 <https://github.com/ethereum/web3.py/issues/1836>`__)
+
+
+Misc
+~~~~
+
+- `#1602 <https://github.com/ethereum/web3.py/issues/1602>`__, `#1827 <https://github.com/ethereum/web3.py/issues/1827>`__, `#1831 <https://github.com/ethereum/web3.py/issues/1831>`__, `#1833 <https://github.com/ethereum/web3.py/issues/1833>`__, `#1834 <https://github.com/ethereum/web3.py/issues/1834>`__
+
+
 v5.14.0 (2021-01-05)
 --------------------
 

@@ -1,1 +1,0 @@
-Add ``eth.get_block`` method and deprecate ``eth.getBlock``.
