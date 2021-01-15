@@ -180,7 +180,7 @@ class EthModuleTest:
     ) -> None:
         with pytest.warns(DeprecationWarning):
             storage = web3.eth.getStorageAt(emitter_contract_address, 0)
-            assert isinstance(storage, HexBytes)
+        assert isinstance(storage, HexBytes)
 
     def test_eth_get_storage_at_ens_name(
         self, web3: "Web3", emitter_contract_address: ChecksumAddress
@@ -217,7 +217,7 @@ class EthModuleTest:
     def test_eth_getBlockTransactionCountByHash_empty_block(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
-        transaction_count = web3.eth.getBlockTransactionCount(empty_block['hash'])
+        transaction_count = web3.eth.get_block_transaction_count(empty_block['hash'])
 
         assert is_integer(transaction_count)
         assert transaction_count == 0
@@ -225,7 +225,7 @@ class EthModuleTest:
     def test_eth_getBlockTransactionCountByNumber_empty_block(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
-        transaction_count = web3.eth.getBlockTransactionCount(empty_block['number'])
+        transaction_count = web3.eth.get_block_transaction_count(empty_block['number'])
 
         assert is_integer(transaction_count)
         assert transaction_count == 0
@@ -233,7 +233,7 @@ class EthModuleTest:
     def test_eth_getBlockTransactionCountByHash_block_with_txn(
         self, web3: "Web3", block_with_txn: BlockData
     ) -> None:
-        transaction_count = web3.eth.getBlockTransactionCount(block_with_txn['hash'])
+        transaction_count = web3.eth.get_block_transaction_count(block_with_txn['hash'])
 
         assert is_integer(transaction_count)
         assert transaction_count >= 1
@@ -241,7 +241,31 @@ class EthModuleTest:
     def test_eth_getBlockTransactionCountByNumber_block_with_txn(
         self, web3: "Web3", block_with_txn: BlockData
     ) -> None:
-        transaction_count = web3.eth.getBlockTransactionCount(block_with_txn['number'])
+        transaction_count = web3.eth.get_block_transaction_count(block_with_txn['number'])
+
+        assert is_integer(transaction_count)
+        assert transaction_count >= 1
+
+    def test_eth_getBlockTransactionCountByHash_block_with_txn_deprecated(
+        self, web3: "Web3", block_with_txn: BlockData
+    ) -> None:
+        with pytest.warns(
+            DeprecationWarning,
+            match="getBlockTransactionCount is deprecated in favor of get_block_transaction_count"
+        ):
+            transaction_count = web3.eth.getBlockTransactionCount(block_with_txn['hash'])
+
+        assert is_integer(transaction_count)
+        assert transaction_count >= 1
+
+    def test_eth_getBlockTransactionCountByNumber_block_with_txn_deprecated(
+        self, web3: "Web3", block_with_txn: BlockData
+    ) -> None:
+        with pytest.warns(
+            DeprecationWarning,
+            match="getBlockTransactionCount is deprecated in favor of get_block_transaction_count"
+        ):
+            transaction_count = web3.eth.getBlockTransactionCount(block_with_txn['number'])
 
         assert is_integer(transaction_count)
         assert transaction_count >= 1

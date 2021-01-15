@@ -273,7 +273,7 @@ class Eth(ModuleV2, Module):
     `eth_getBlockTransactionCountByHash`
     `eth_getBlockTransactionCountByNumber`
     """
-    getBlockTransactionCount: Method[Callable[[BlockIdentifier], int]] = Method(
+    get_block_transaction_count: Method[Callable[[BlockIdentifier], int]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getBlockTransactionCountByNumber,
             if_hash=RPC.eth_getBlockTransactionCountByHash,
@@ -567,3 +567,6 @@ class Eth(ModuleV2, Module):
     getBalance = DeprecatedMethod(get_balance, 'getBalance', 'get_balance')
     getStorageAt = DeprecatedMethod(get_storage_at, 'getStorageAt', 'get_storage_at')
     getBlock = DeprecatedMethod(get_block, 'getBlock', 'get_block')
+    getBlockTransactionCount = DeprecatedMethod(get_block_transaction_count,
+                                                'getBlockTransactionCount',
+                                                'get_block_transaction_count')
