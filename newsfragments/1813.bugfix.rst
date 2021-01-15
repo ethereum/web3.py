@@ -1,2 +1,2 @@
 PR #1585 changed the error that was coming back from eth-tester when the Revert opcode was called,
- which broke some tests in downstream libraries. This PR reverts back to raising the original error.
+which broke some tests in downstream libraries. This PR reverts back to raising the original error.
