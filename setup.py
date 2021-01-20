@@ -15,11 +15,11 @@ extras_require = {
         "flake8==3.7.9",
         "isort>=4.2.15,<5",
         "mypy==0.770",
-        "pydocstyle>=3.0.0,<4",
+        "pydocstyle>=5.0.0,<6",
     ],
     'doc': [
         "Sphinx>=1.6.5,<2",
-        "sphinx_rtd_theme>=0.1.9",
+        "sphinx_rtd_theme>=0.1.9,<1",
         "towncrier>=19.2.0, <20",
     ],
     'dev': [
@@ -70,6 +70,8 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
+        'Operating System :: MacOS',
+        'Operating System :: POSIX',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
