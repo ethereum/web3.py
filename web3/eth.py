@@ -432,7 +432,9 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger]
     )
 
-    getTransactionCount: Method[Callable[..., Nonce]] = Method(
+    get_transaction_count: Method[Callable[..., Nonce]] = Method(
+
+
         RPC.eth_getTransactionCount,
         mungers=[block_id_munger],
     )
@@ -659,5 +661,8 @@ class Eth(ModuleV2, Module):
     getTransactionByBlock = DeprecatedMethod(get_transaction_by_block,
                                              'getTransactionByBlock',
                                              'get_transaction_by_block')
+    getTransactionCount = DeprecatedMethod(get_transaction_count,
+                                           'getTransactionCount',
+                                           'get_transaction_count')
     getUncleByBlock = DeprecatedMethod(get_uncle_by_block, 'getUncleByBlock', 'get_uncle_by_block')
     getUncleCount = DeprecatedMethod(get_uncle_count, 'getUncleCount', 'get_uncle_count')

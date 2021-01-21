@@ -101,7 +101,7 @@ def test_set_address_equivalence(ens, name, equivalent, TEST_ADDRESS):
 @pytest.mark.parametrize(
     'set_address',
     [
-        # since the test uses getTransactionCount,
+        # since the test uses get_transaction_count,
         # using a same address converted to bytes and hex will error with same count,
         # use two different addresses of each type (hex, bytes)
         "0x000000000000000000000000000000000000dEaD",
@@ -115,11 +115,11 @@ def test_set_address_noop(ens, set_address):
     eth = ens.web3.eth
     owner = ens.owner('tester.eth')
     ens.setup_address('noop.tester.eth', set_address)
-    starting_transactions = eth.getTransactionCount(owner)
+    starting_transactions = eth.get_transaction_count(owner)
 
     # do not issue transaction if address is already set
     ens.setup_address('noop.tester.eth', set_address)
-    assert eth.getTransactionCount(owner) == starting_transactions
+    assert eth.get_transaction_count(owner) == starting_transactions
 
 
 def test_set_address_unauthorized(ens, TEST_ADDRESS):
@@ -153,7 +153,7 @@ def test_set_resolver_leave_default(ens, TEST_ADDRESS):
     owner = ens.owner('tester.eth')
     ens.setup_address('leave-default-resolver.tester.eth', TEST_ADDRESS)
     eth = ens.web3.eth
-    num_transactions = eth.getTransactionCount(owner)
+    num_transactions = eth.get_transaction_count(owner)
 
     ens.setup_address(
         'leave-default-resolver.tester.eth',
@@ -162,4 +162,4 @@ def test_set_resolver_leave_default(ens, TEST_ADDRESS):
 
     # should skip setting the owner and setting the default resolver, and only
     #   set the name in the default resolver to point to the new address
-    assert eth.getTransactionCount(owner) == num_transactions + 1
+    assert eth.get_transaction_count(owner) == num_transactions + 1
