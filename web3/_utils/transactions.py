@@ -67,7 +67,7 @@ def fill_nonce(web3: "Web3", transaction: TxParams) -> TxParams:
         return assoc(
             transaction,
             'nonce',
-            web3.eth.getTransactionCount(
+            web3.eth.get_transaction_count(
                 cast(ChecksumAddress, transaction['from']),
                 block_identifier='pending'))
     else:

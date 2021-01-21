@@ -185,7 +185,7 @@ def test_contract_constructor_build_transaction_no_constructor(
         {'from': address_conversion_func(web3.eth.accounts[0])}
     )
     txn = web3.eth.get_transaction(txn_hash)
-    nonce = web3.eth.getTransactionCount(web3.eth.coinbase)
+    nonce = web3.eth.get_transaction_count(web3.eth.coinbase)
     unsent_txn = MathContract.constructor().buildTransaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']
 
@@ -203,7 +203,7 @@ def test_contract_constructor_build_transaction_with_constructor_without_argumen
         {'from': address_conversion_func(web3.eth.accounts[0])}
     )
     txn = web3.eth.get_transaction(txn_hash)
-    nonce = web3.eth.getTransactionCount(web3.eth.coinbase)
+    nonce = web3.eth.get_transaction_count(web3.eth.coinbase)
     unsent_txn = MathContract.constructor().buildTransaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']
 
@@ -233,7 +233,7 @@ def test_contract_constructor_build_transaction_with_constructor_with_argument(
         {'from': address_conversion_func(web3.eth.accounts[0])}
     )
     txn = web3.eth.get_transaction(txn_hash)
-    nonce = web3.eth.getTransactionCount(web3.eth.coinbase)
+    nonce = web3.eth.get_transaction_count(web3.eth.coinbase)
     unsent_txn = WithConstructorArgumentsContract.constructor(
         *constructor_args, **constructor_kwargs).buildTransaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']

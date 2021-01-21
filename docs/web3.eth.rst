@@ -676,7 +676,7 @@ The following methods are available on the ``web3.eth`` namespace.
         })
 
 
-.. py:method:: Eth.getTransactionCount(account, block_identifier=web3.eth.default_block)
+.. py:method:: Eth.get_transaction_count(account, block_identifier=web3.eth.default_block)
 
     * Delegates to ``eth_getTransactionCount`` RPC Method
 
@@ -687,8 +687,14 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getTransactionCount('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.eth.get_transaction_count('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         340
+
+
+.. py:method:: Eth.getTransactionCount(account, block_identifier=web3.eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_transaction_count()`
 
 
 .. py:method:: Eth.sendTransaction(transaction)
@@ -739,7 +745,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> signed_txn = w3.eth.signTransaction(dict(
-            nonce=w3.eth.getTransactionCount(w3.eth.coinbase),
+            nonce=w3.eth.get_transaction_count(w3.eth.coinbase),
             gasPrice=w3.eth.gas_price,
             gas=100000,
             to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',

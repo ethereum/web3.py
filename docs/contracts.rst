@@ -879,7 +879,7 @@ Methods
 
         .. code-block:: python
 
-            >>> math_contract.functions.increment(5).buildTransaction({'nonce': web3.eth.getTransactionCount('0xF5...')})
+            >>> math_contract.functions.increment(5).buildTransaction({'nonce': web3.eth.get_transaction_count('0xF5...')})
 
     Returns a transaction dictionary. This transaction dictionary can then be sent using
     :meth:`~web3.eth.Eth.sendTransaction`.

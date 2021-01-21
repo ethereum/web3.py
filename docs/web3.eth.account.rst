@@ -282,7 +282,7 @@ To sign a transaction locally that will invoke a smart contract:
 
     >>> unicorns = w3.eth.contract(address="0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359", abi=EIP20_ABI)
 
-    >>> nonce = w3.eth.getTransactionCount('0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E')  # doctest: +SKIP
+    >>> nonce = w3.eth.get_transaction_count('0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E')  # doctest: +SKIP
 
     # Build a transaction that invokes this contract's function, called transfer
     >>> unicorn_txn = unicorns.functions.transfer(

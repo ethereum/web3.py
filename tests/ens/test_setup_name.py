@@ -119,14 +119,14 @@ def test_setup_reverse_dict_unmodified(ens):
     # setup
     owner = ens.owner('tester.eth')
     eth = ens.web3.eth
-    start_count = eth.getTransactionCount(owner)
+    start_count = eth.get_transaction_count(owner)
 
     address = ens.web3.eth.accounts[3]
     transact = {}
     ens.setup_name('tester.eth', address, transact=transact)
 
     # even though a transaction was issued, the dict argument was not modified
-    assert eth.getTransactionCount(owner) > start_count
+    assert eth.get_transaction_count(owner) > start_count
     assert transact == {}
 
     # teardown

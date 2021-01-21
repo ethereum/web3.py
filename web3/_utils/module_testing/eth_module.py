@@ -220,25 +220,33 @@ class EthModuleTest:
         with pytest.raises(InvalidAddress):
             web3.eth.get_storage_at(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))), 0)
 
-    def test_eth_getTransactionCount(
+    def test_eth_get_transaction_count(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        transaction_count = web3.eth.getTransactionCount(unlocked_account_dual_type)
+        transaction_count = web3.eth.get_transaction_count(unlocked_account_dual_type)
         assert is_integer(transaction_count)
         assert transaction_count >= 0
 
-    def test_eth_getTransactionCount_ens_name(
+    def test_eth_getTransactionCount_deprecated(
+        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        with pytest.warns(DeprecationWarning):
+            transaction_count = web3.eth.getTransactionCount(unlocked_account_dual_type)
+        assert is_integer(transaction_count)
+        assert transaction_count >= 0
+
+    def test_eth_get_transaction_count_ens_name(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         with ens_addresses(web3, {'unlocked-acct-dual-type.eth': unlocked_account_dual_type}):
-            transaction_count = web3.eth.getTransactionCount('unlocked-acct-dual-type.eth')
+            transaction_count = web3.eth.get_transaction_count('unlocked-acct-dual-type.eth')
             assert is_integer(transaction_count)
             assert transaction_count >= 0
 
-    def test_eth_getTransactionCount_invalid_address(self, web3: "Web3") -> None:
+    def test_eth_get_transaction_count_invalid_address(self, web3: "Web3") -> None:
         coinbase = web3.eth.coinbase
         with pytest.raises(InvalidAddress):
-            web3.eth.getTransactionCount(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
+            web3.eth.get_transaction_count(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
 
     def test_eth_getBlockTransactionCountByHash_empty_block(
         self, web3: "Web3", empty_block: BlockData
@@ -597,7 +605,7 @@ class EthModuleTest:
             'gas': Wei(21000),
             # Increased gas price to ensure transaction hash different from other tests
             'gasPrice': Wei(web3.eth.gas_price * 3),
-            'nonce': web3.eth.getTransactionCount(unlocked_account),
+            'nonce': web3.eth.get_transaction_count(unlocked_account),
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
         txn = web3.eth.get_transaction(txn_hash)
