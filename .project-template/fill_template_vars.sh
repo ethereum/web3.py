@@ -47,3 +47,4 @@ _replace "s/<SHORT_DESCRIPTION>/$SHORT_DESCRIPTION/g"
 
 mkdir -p "$PROJECT_ROOT/$MODULE_NAME"
 touch "$PROJECT_ROOT/$MODULE_NAME/__init__.py"
+touch "$PROJECT_ROOT/$MODULE_NAME/py.typed"
