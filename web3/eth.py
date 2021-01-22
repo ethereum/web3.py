@@ -104,7 +104,7 @@ from web3.types import (
 class Eth(ModuleV2, Module):
     account = Account()
     _default_account: Union[ChecksumAddress, Empty] = empty
-    _default_block: BlockIdentifier = "latest"  # noqa: E704
+    _default_block: BlockIdentifier = "latest"
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
     gasPriceStrategy = None
@@ -222,20 +222,6 @@ class Eth(ModuleV2, Module):
         )
         self._default_account = account
 
-    def block_id_munger(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
-        if block_identifier is None:
-            block_identifier = self.default_block
-        return (account, block_identifier)
-
-    get_balance: Method[Callable[..., Wei]] = Method(
-        RPC.eth_getBalance,
-        mungers=[block_id_munger],
-    )
-
     """ property default_block """
 
     @property
@@ -261,6 +247,20 @@ class Eth(ModuleV2, Module):
             category=DeprecationWarning,
         )
         self._default_block = value
+
+    def block_id_munger(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> Tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
+        if block_identifier is None:
+            block_identifier = self.default_block
+        return (account, block_identifier)
+
+    get_balance: Method[Callable[..., Wei]] = Method(
+        RPC.eth_getBalance,
+        mungers=[block_id_munger],
+    )
 
     def get_storage_at_munger(
         self,
