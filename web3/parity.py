@@ -88,7 +88,7 @@ class Parity(ModuleV2):
     """
     https://paritytech.github.io/wiki/JSONRPC-parity-module
     """
-    _default_block: BlockIdentifier = "latest"  # noqa: E704
+    _default_block: BlockIdentifier = "latest"
     personal: ParityPersonal
 
     enode: Method[Callable[[], str]] = Method(
@@ -130,7 +130,7 @@ class Parity(ModuleV2):
         block_identifier: Optional[BlockIdentifier] = None,
     ) -> Tuple[Union[Address, ChecksumAddress, ENS, Hash32], int, Hash32, BlockIdentifier]:
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
         return (address, quantity, hash_, block_identifier)
 
     listStorageKeys: Method[Callable[..., List[Hash32]]] = Method(
@@ -190,7 +190,7 @@ class Parity(ModuleV2):
 
         # TODO: move to middleware
         if block_identifier is None:
-            block_identifier = self.defaultBlock
+            block_identifier = self.default_block
 
         return (transaction, mode, block_identifier)
 

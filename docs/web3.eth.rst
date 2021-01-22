@@ -59,7 +59,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.defaultBlock
 
     .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.default_block`
+      :attr:`~web3.eth.Eth.default_block`
 
 
 .. py:attribute:: Eth.syncing
@@ -383,7 +383,7 @@ The following methods are available on the ``web3.eth`` namespace.
             'uncles': [],
         })
 
-.. py:method:: Eth.getBlock(block_identifier=eth.defaultBlock, full_transactions=False)
+.. py:method:: Eth.getBlock(block_identifier=eth.default_block, full_transactions=False)
 
     .. warning:: Deprecated: This method is deprecated in favor of
       :meth:`~web3.eth.Eth.get_block`
