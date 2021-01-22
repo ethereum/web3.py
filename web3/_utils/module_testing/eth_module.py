@@ -100,8 +100,14 @@ class EthModuleTest:
         # chain id value from geth fixture genesis file
         assert chain_id == 131277322940537
 
-    def test_eth_gasPrice(self, web3: "Web3") -> None:
-        gas_price = web3.eth.gasPrice
+    def test_eth_gas_price(self, web3: "Web3") -> None:
+        gas_price = web3.eth.gas_price
+        assert is_integer(gas_price)
+        assert gas_price > 0
+
+    def test_eth_gasPrice_deprecated(self, web3: "Web3") -> None:
+        with pytest.warns(DeprecationWarning):
+            gas_price = web3.eth.gasPrice
         assert is_integer(gas_price)
         assert gas_price > 0
 
@@ -461,7 +467,7 @@ class EthModuleTest:
             'to': unlocked_account,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gas_price,
             'nonce': Nonce(0),
         }
         result = web3.eth.signTransaction(txn_params)
@@ -482,7 +488,7 @@ class EthModuleTest:
                 'to': 'unlocked-account.eth',
                 'value': Wei(1),
                 'gas': Wei(21000),
-                'gasPrice': web3.eth.gasPrice,
+                'gasPrice': web3.eth.gas_price,
                 'nonce': Nonce(0),
             }
             result = web3.eth.signTransaction(txn_params)
@@ -503,7 +509,7 @@ class EthModuleTest:
             'to': unlocked_account,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gas_price,
         }
 
         with pytest.raises(InvalidAddress):
@@ -522,7 +528,7 @@ class EthModuleTest:
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gas_price,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
         txn = web3.eth.getTransaction(txn_hash)
@@ -542,7 +548,7 @@ class EthModuleTest:
             'value': Wei(1),
             'gas': Wei(21000),
             # Increased gas price to ensure transaction hash different from other tests
-            'gasPrice': Wei(web3.eth.gasPrice * 3),
+            'gasPrice': Wei(web3.eth.gas_price * 3),
             'nonce': web3.eth.getTransactionCount(unlocked_account),
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
@@ -563,11 +569,11 @@ class EthModuleTest:
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gas_price,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
 
-        txn_params['gasPrice'] = Wei(web3.eth.gasPrice * 2)
+        txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
         replace_txn = web3.eth.getTransaction(replace_txn_hash)
 
@@ -585,7 +591,7 @@ class EthModuleTest:
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gas_price,
         }
         with pytest.raises(TransactionNotFound):
             web3.eth.replaceTransaction(
@@ -601,12 +607,12 @@ class EthModuleTest:
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gas_price,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
         web3.eth.waitForTransactionReceipt(txn_hash)
 
-        txn_params['gasPrice'] = Wei(web3.eth.gasPrice * 2)
+        txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
         with pytest.raises(ValueError, match="Supplied transaction with hash"):
             web3.eth.replaceTransaction(txn_hash, txn_params)
 
@@ -618,12 +624,12 @@ class EthModuleTest:
             'to': unlocked_account,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gas_price,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
         txn = web3.eth.getTransaction(txn_hash)
 
-        txn_params['gasPrice'] = Wei(web3.eth.gasPrice * 2)
+        txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
         txn_params['nonce'] = Nonce(txn['nonce'] + 1)
         with pytest.raises(ValueError):
             web3.eth.replaceTransaction(txn_hash, txn_params)
@@ -715,7 +721,7 @@ class EthModuleTest:
             'to': unlocked_account,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gas_price,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
 
@@ -995,7 +1001,7 @@ class EthModuleTest:
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gasPrice,
+            'gasPrice': web3.eth.gas_price,
         })
         with pytest.raises(TransactionNotFound):
             web3.eth.getTransactionReceipt(txn_hash)
