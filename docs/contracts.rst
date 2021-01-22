@@ -277,7 +277,7 @@ Each Contract Factory exposes the following methods.
     .. code-block:: python
 
         >>> transaction = {
-        'gasPrice': w3.eth.gasPrice,
+        'gasPrice': w3.eth.gas_price,
         'chainId': None
         }
         >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).buildTransaction(transaction)
