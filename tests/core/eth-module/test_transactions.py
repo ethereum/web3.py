@@ -64,7 +64,7 @@ def test_send_transaction_with_invalid_ens_names(web3, to, _from):
     ]):
         transaction = {
             'to': to,
-            'chainId': web3.eth.chainId,
+            'chainId': web3.eth.chain_id,
             'from': _from,
         }
 
