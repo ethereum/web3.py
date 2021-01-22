@@ -132,7 +132,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.gasPrice
 
     .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.gas_price`
+      :attr:`~web3.eth.Eth.gas_price`
 
 
 .. py:attribute:: Eth.accounts
