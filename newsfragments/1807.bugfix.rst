@@ -1,0 +1,1 @@
+Fix event filter creation if the event ABI contains a ``values`` key.

@@ -401,7 +401,7 @@ class EventFilterBuilder:
         if not isinstance(w3, web3.Web3):
             raise ValueError("Invalid web3 argument: got: {0}".format(repr(w3)))
 
-        for arg in self.args.values():
+        for arg in AttributeDict.values(self.args):
             arg._immutable = True
         self._immutable = True
 
