@@ -1,0 +1,1 @@
+Add ``eth.chain_id``, deprecate ``eth.chainId``

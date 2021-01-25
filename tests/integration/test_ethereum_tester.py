@@ -340,7 +340,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
         assert chain_id == 61
 
     def test_eth_chainId(self, web3):
-        with pytest.raises(DeprecationWarning):
+        with pytest.warns(DeprecationWarning):
             chain_id = web3.eth.chainId
         assert is_integer(chain_id)
         assert chain_id == 61
