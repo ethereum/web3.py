@@ -68,21 +68,19 @@ and save a few keystrokes:
    >>> w3.isConnected()
    True
 
-Provider: Infura
+Provider: Remote Node
 *****************
 
 The quickest way to interact with the Ethereum blockchain is to use a remote node provider,
-like `Infura <https://infura.io/>`_. You can connect to a remote node by specifying the
-endpoint, just like the previous local node example:
+like `Alchemy <https://www.alchemyapi.io/supernode>`_ or `Infura <https://infura.io/>`_. You can connect to a remote node by specifying the
+endpoint, similar to the previous local node example:
 
 .. code-block:: python
 
    >>> from web3 import Web3
-   >>> w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/<infura-project-id>'))
+   >>> w3 = Web3(Web3.HTTPProvider('<http-remote-node-provider>')) #replace with provider (e.g. Alchemy, Infura) endpoint here
 
-This endpoint is provided by Infura after you create a (free) account.
-
-Again, a convenience method exists to save a few keystrokes:
+For Infura, a convenience method exists to save a few keystrokes:
 
 .. code-block:: python
 
