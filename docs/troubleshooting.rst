@@ -88,3 +88,28 @@ Here are some links to testnet ether instructions (in no particular order):
 - `Kovan <https://github.com/kovan-testnet/faucet>`_
 - `Rinkeby <https://www.rinkeby.io/#faucet>`_
 - `Ropsten <https://www.reddit.com/r/ethdev/comments/72ltwj/the_new_if_you_need_some_ropsten_testnet_ethers/>`_
+
+
+.. _account_troubleshooting:
+
+Why can't I create an account?
+------------------------------
+
+If you're seeing the error ``The method personal_newAccount does not exist/is not available``,
+you may be trying to create an account while connected to a remote node provider, like Infura.
+As a matter of security, remote nodes cannot create accounts.
+
+If you are in fact running a local node, make sure that it's properly configured to accept ``personal``
+methods. For Geth, that looks something like: ``--http.api personal,eth,<etc>`` or ``--ws.api personal,eth,<etc>``
+depending on your configuration. Note that the IPC configuration is most secure and includes the ``personal``
+API by default.
+
+In general, your options for accounts are:
+
+- Run a node (e.g., Geth) locally, connect to it via the local port, then use the ``personal`` API.
+- Import a keystore file for an account and :ref:`extract the private key<extract_geth_pk>`.
+- Create an account via the :ref:`eth-account <eth-account>` API, e.g., ``new_acct = w3.eth.account.create()``.
+- Use an external service (e.g., MyCrypto) to generate a new account, then securely import its private key.
+
+.. Warning:: Don't store real value in an account until you are familiar with security best practices.
+   If you lose your private key, you lose your account!

@@ -55,6 +55,8 @@ Using private keys usually involves ``w3.eth.account`` in one way or another. Re
 or see a full list of things you can do in the docs for
 :class:`eth_account.Account <eth_account.account.Account>`.
 
+.. _extract_geth_pk:
+
 Extract private key from geth keyfile
 ---------------------------------------------
 
