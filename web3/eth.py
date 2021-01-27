@@ -319,7 +319,7 @@ class Eth(ModuleV2, Module):
             block_identifier = self.default_block
         return (account, positions, block_identifier)
 
-    getProof: Method[
+    get_proof: Method[
         Callable[
             [Tuple[Union[Address, ChecksumAddress, ENS], Sequence[int], Optional[BlockIdentifier]]],
             MerkleProof
@@ -654,3 +654,4 @@ class Eth(ModuleV2, Module):
                                                 'getBlockTransactionCount',
                                                 'get_block_transaction_count')
     getCode = DeprecatedMethod(get_code, 'getCode', 'get_code')
+    getProof = DeprecatedMethod(get_proof, 'getProof', 'get_proof')
