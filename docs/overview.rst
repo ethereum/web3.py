@@ -144,7 +144,7 @@ API
 - :meth:`web3.eth.get_block() <web3.eth.Eth.get_block>`
 - :meth:`web3.eth.get_block_transaction_count() <web3.eth.Eth.get_block_transaction_count>`
 - :meth:`web3.eth.get_code() <web3.eth.Eth.get_code>`
-- :meth:`web3.eth.getProof() <web3.eth.Eth.getProof>`
+- :meth:`web3.eth.get_proof() <web3.eth.Eth.get_proof>`
 - :meth:`web3.eth.get_storage_at() <web3.eth.Eth.get_storage_at>`
 - :meth:`web3.eth.getTransaction() <web3.eth.Eth.getTransaction>`
 - :meth:`web3.eth.getTransactionByBlock() <web3.eth.Eth.getTransactionByBlock>`

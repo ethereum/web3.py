@@ -250,7 +250,7 @@ The following methods are available on the ``web3.eth`` namespace.
       :meth:`~web3.eth.Eth.get_storage_at`
 
 
-.. py:method:: Eth.getProof(account, positions, block_identifier=eth.default_block)
+.. py:method:: Eth.get_proof(account, positions, block_identifier=eth.default_block)
 
     * Delegates to ``eth_getProof`` RPC Method
 
@@ -261,7 +261,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getProof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0], 3391)
+        >>> web3.eth.get_proof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0], 3391)
         AttributeDict({
             'address': '0x4CB06C43fcdABeA22541fcF1F856A6a296448B6c',
             'accountProof': ['0xf90211a03841a7ddd65c70c94b8efa79190d00f0ab134b26f18dcad508f60a7e74559d0ba0464b07429a05039e22931492d6c6251a860c018ea390045d596b1ac11b5c7aa7a011f4b89823a03c9c4b5a8ab079ee1bc0e2a83a508bb7a5dc7d7fb4f2e95d3186a0b5f7c51c3b2d51d97f171d2b38a4df1a7c0acc5eb0de46beeff4d07f5ed20e19a0b591a2ce02367eda31cf2d16eca7c27fd44dbf0864b64ea8259ad36696eb2a04a02b646a7552b8392ae94263757f699a27d6e9176b4c06b9fc0a722f893b964795a02df05d68bceb88eebf68aafde61d10ab942097afc1c58b8435ffd3895358a742a0c2f16143c4d1db03276c433696dddb3e9f3b113bcd854b127962262e98f43147a0828820316cc02bfefd899aba41340659fd06df1e0a0796287ec2a4110239f6d2a050496598670b04df7bbff3718887fa36437d6d8c7afb4eff86f76c5c7097dcc4a0c14e9060c6b3784e35b9e6ae2ad2984142a75910ccc89eb89dc1e2f44b6c58c2a009804db571d0ce07913e1cbacc4f1dc4fb8265c936f5c612e3a47e91c64d8e9fa063d96f38b3cb51b1665c6641e25ffe24803f2941e5df79942f6a53b7169647e4a0899f71abb18c6c956118bf567fac629b75f7e9526873e429d3d8abb6dbb58021a00fd717235298742623c0b3cafb3e4bd86c0b5ab1f71097b4dd19f3d6925d758da0096437146c16097f2ccc1d3e910d65a4132803baee2249e72c8bf0bcaaeb37e580',
@@ -311,7 +311,7 @@ The following methods are available on the ``web3.eth`` namespace.
                 trie_proof.append(rlp.decode(bytes(rlp_node)))
             return trie_proof
 
-        def verify_eth_getProof(proof, root):
+        def verify_eth_get_proof(proof, root):
             trie_root = Binary.fixed_length(32, allow_empty=True)
             hash32 = Binary.fixed_length(32)
 
@@ -347,9 +347,14 @@ The following methods are available on the ``web3.eth`` namespace.
             return True
 
         block = w3.eth.get_block(3391)
-        proof = w3.eth.getProof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0, 1], 3391)
-        assert verify_eth_getProof(proof, block.stateRoot)
+        proof = w3.eth.get_proof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0, 1], 3391)
+        assert verify_eth_get_proof(proof, block.stateRoot)
 
+
+.. py:method:: Eth.getProof(account, positions, block_identifier=eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_proof`
 
 .. py:method:: Eth.get_code(account, block_identifier=eth.default_block)
 
