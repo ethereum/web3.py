@@ -391,7 +391,7 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger]
     )
 
-    getTransaction: Method[Callable[[_Hash32], TxData]] = Method(
+    get_transaction: Method[Callable[[_Hash32], TxData]] = Method(
         RPC.eth_getTransactionByHash,
         mungers=[default_root_munger]
     )
@@ -655,3 +655,4 @@ class Eth(ModuleV2, Module):
                                                 'get_block_transaction_count')
     getCode = DeprecatedMethod(get_code, 'getCode', 'get_code')
     getProof = DeprecatedMethod(get_proof, 'getProof', 'get_proof')
+    getTransaction = DeprecatedMethod(get_transaction, 'getTransaction', 'get_transaction')

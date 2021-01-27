@@ -139,7 +139,7 @@ def get_buffered_gas_estimate(
 
 
 def get_required_transaction(web3: "Web3", transaction_hash: _Hash32) -> TxData:
-    current_transaction = web3.eth.getTransaction(transaction_hash)
+    current_transaction = web3.eth.get_transaction(transaction_hash)
     if not current_transaction:
         raise ValueError('Supplied transaction with hash {} does not exist'
                          .format(transaction_hash))

@@ -153,7 +153,7 @@ class GoEthereumPersonalModuleTest:
         }
         txn_hash = web3.geth.personal.send_transaction(txn_params, unlockable_account_pw)
         assert txn_hash
-        transaction = web3.eth.getTransaction(txn_hash)
+        transaction = web3.eth.get_transaction(txn_hash)
 
         assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
@@ -178,7 +178,7 @@ class GoEthereumPersonalModuleTest:
             }
             txn_hash = web3.geth.personal.sendTransaction(txn_params, unlockable_account_pw)
             assert txn_hash
-            transaction = web3.eth.getTransaction(txn_hash)
+            transaction = web3.eth.get_transaction(txn_hash)
 
             assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
             assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
@@ -469,7 +469,7 @@ class ParityPersonalModuleTest():
         }
         txn_hash = web3.parity.personal.send_transaction(txn_params, unlockable_account_pw)
         assert txn_hash
-        transaction = web3.eth.getTransaction(txn_hash)
+        transaction = web3.eth.get_transaction(txn_hash)
 
         assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
@@ -494,7 +494,7 @@ class ParityPersonalModuleTest():
             }
             txn_hash = web3.parity.personal.sendTransaction(txn_params, unlockable_account_pw)
             assert txn_hash
-            transaction = web3.eth.getTransaction(txn_hash)
+            transaction = web3.eth.get_transaction(txn_hash)
 
             assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
             assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))

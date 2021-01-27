@@ -559,7 +559,7 @@ class EthModuleTest:
             'gasPrice': web3.eth.gas_price,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
-        txn = web3.eth.getTransaction(txn_hash)
+        txn = web3.eth.get_transaction(txn_hash)
 
         assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
@@ -580,7 +580,7 @@ class EthModuleTest:
             'nonce': web3.eth.getTransactionCount(unlocked_account),
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
-        txn = web3.eth.getTransaction(txn_hash)
+        txn = web3.eth.get_transaction(txn_hash)
 
         assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
@@ -603,7 +603,7 @@ class EthModuleTest:
 
         txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
-        replace_txn = web3.eth.getTransaction(replace_txn_hash)
+        replace_txn = web3.eth.get_transaction(replace_txn_hash)
 
         assert is_same_address(replace_txn['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(replace_txn['to'], cast(ChecksumAddress, txn_params['to']))
@@ -655,7 +655,7 @@ class EthModuleTest:
             'gasPrice': web3.eth.gas_price,
         }
         txn_hash = web3.eth.sendTransaction(txn_params)
-        txn = web3.eth.getTransaction(txn_hash)
+        txn = web3.eth.get_transaction(txn_hash)
 
         txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
         txn_params['nonce'] = Nonce(txn['nonce'] + 1)
@@ -692,7 +692,7 @@ class EthModuleTest:
 
         txn_params.pop('gasPrice')
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
-        replace_txn = web3.eth.getTransaction(replace_txn_hash)
+        replace_txn = web3.eth.get_transaction(replace_txn_hash)
 
         assert replace_txn['gasPrice'] == 12  # minimum gas price
 
@@ -715,7 +715,7 @@ class EthModuleTest:
 
         txn_params.pop('gasPrice')
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
-        replace_txn = web3.eth.getTransaction(replace_txn_hash)
+        replace_txn = web3.eth.get_transaction(replace_txn_hash)
         assert replace_txn['gasPrice'] == 20  # Strategy provides higher gas price
 
     def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(
@@ -737,7 +737,7 @@ class EthModuleTest:
 
         txn_params.pop('gasPrice')
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
-        replace_txn = web3.eth.getTransaction(replace_txn_hash)
+        replace_txn = web3.eth.get_transaction(replace_txn_hash)
         # Strategy provices lower gas price - minimum preferred
         assert replace_txn['gasPrice'] == 12
 
@@ -756,7 +756,7 @@ class EthModuleTest:
         modified_txn_hash = web3.eth.modifyTransaction(
             txn_hash, gasPrice=(cast(int, txn_params['gasPrice']) * 2), value=2
         )
-        modified_txn = web3.eth.getTransaction(modified_txn_hash)
+        modified_txn = web3.eth.get_transaction(modified_txn_hash)
 
         assert is_same_address(modified_txn['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(modified_txn['to'], cast(ChecksumAddress, txn_params['to']))
@@ -983,14 +983,23 @@ class EthModuleTest:
     def test_eth_getTransactionByHash(
         self, web3: "Web3", mined_txn_hash: HexStr
     ) -> None:
-        transaction = web3.eth.getTransaction(mined_txn_hash)
+        transaction = web3.eth.get_transaction(mined_txn_hash)
+        assert is_dict(transaction)
+        assert transaction['hash'] == HexBytes(mined_txn_hash)
+
+    def test_eth_getTransactionByHash_deprecated(
+        self, web3: "Web3", mined_txn_hash: HexStr
+    ) -> None:
+        with pytest.warns(DeprecationWarning,
+                          match='getTransaction is deprecated in favor of get_transaction'):
+            transaction = web3.eth.getTransaction(mined_txn_hash)
         assert is_dict(transaction)
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
     def test_eth_getTransactionByHash_contract_creation(
         self, web3: "Web3", math_contract_deploy_txn_hash: HexStr
     ) -> None:
-        transaction = web3.eth.getTransaction(math_contract_deploy_txn_hash)
+        transaction = web3.eth.get_transaction(math_contract_deploy_txn_hash)
         assert is_dict(transaction)
         assert transaction['to'] is None, "to field is %r" % transaction['to']
 

@@ -522,7 +522,7 @@ The following methods are available on the ``web3.eth`` namespace.
         1
 
 
-.. py:method:: Eth.getTransaction(transaction_hash)
+.. py:method:: Eth.get_transaction(transaction_hash)
 
     * Delegates to ``eth_getTransactionByHash`` RPC Method
 
@@ -530,7 +530,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getTransaction('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
+        >>> web3.eth.get_transaction('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
@@ -544,6 +544,12 @@ The following methods are available on the ``web3.eth`` namespace.
             'transactionIndex': 0,
             'value': 31337,
         })
+
+
+.. py:method:: Eth.getTransaction(transaction_hash)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_transaction`
 
 
 .. py:method:: Eth.getTransactionFromBlock(block_identifier, transaction_index)
