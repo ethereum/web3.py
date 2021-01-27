@@ -47,7 +47,7 @@ def string_contract(web3, StringContract, address_conversion_func):
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
     contract = StringContract(address=contract_address)
     assert contract.address == contract_address
-    assert len(web3.eth.getCode(contract.address)) > 0
+    assert len(web3.eth.get_code(contract.address)) > 0
     return contract
 
 

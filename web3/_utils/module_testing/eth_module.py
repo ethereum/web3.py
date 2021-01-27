@@ -308,29 +308,37 @@ class EthModuleTest:
         assert is_integer(uncle_count)
         assert uncle_count == 0
 
-    def test_eth_getCode(self, web3: "Web3", math_contract_address: ChecksumAddress) -> None:
-        code = web3.eth.getCode(math_contract_address)
+    def test_eth_get_code(self, web3: "Web3", math_contract_address: ChecksumAddress) -> None:
+        code = web3.eth.get_code(math_contract_address)
         assert isinstance(code, HexBytes)
         assert len(code) > 0
 
-    def test_eth_getCode_ens_address(
+    def test_eth_getCode_deprecated(self,
+                                    web3: "Web3",
+                                    math_contract_address: ChecksumAddress) -> None:
+        with pytest.warns(DeprecationWarning, match='getCode is deprecated in favor of get_code'):
+            code = web3.eth.getCode(math_contract_address)
+        assert isinstance(code, HexBytes)
+        assert len(code) > 0
+
+    def test_eth_get_code_ens_address(
         self, web3: "Web3", math_contract_address: ChecksumAddress
     ) -> None:
         with ens_addresses(
             web3, {'mathcontract.eth': math_contract_address}
         ):
-            code = web3.eth.getCode('mathcontract.eth')
+            code = web3.eth.get_code('mathcontract.eth')
             assert isinstance(code, HexBytes)
             assert len(code) > 0
 
-    def test_eth_getCode_invalid_address(self, web3: "Web3", math_contract: "Contract") -> None:
+    def test_eth_get_code_invalid_address(self, web3: "Web3", math_contract: "Contract") -> None:
         with pytest.raises(InvalidAddress):
-            web3.eth.getCode(ChecksumAddress(HexAddress(HexStr(math_contract.address.lower()))))
+            web3.eth.get_code(ChecksumAddress(HexAddress(HexStr(math_contract.address.lower()))))
 
-    def test_eth_getCode_with_block_identifier(
+    def test_eth_get_code_with_block_identifier(
         self, web3: "Web3", emitter_contract: "Contract"
     ) -> None:
-        code = web3.eth.getCode(emitter_contract.address, block_identifier=web3.eth.block_number)
+        code = web3.eth.get_code(emitter_contract.address, block_identifier=web3.eth.block_number)
         assert isinstance(code, HexBytes)
         assert len(code) > 0
 

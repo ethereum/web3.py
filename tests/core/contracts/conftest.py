@@ -442,7 +442,7 @@ def strict_emitter(w3_strict_abi,
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
-    bytecode = w3.eth.getCode(contract_address)
+    bytecode = w3.eth.get_code(contract_address)
     assert bytecode == StrictEmitter.bytecode_runtime
     emitter_contract = StrictEmitter(address=contract_address)
     assert emitter_contract.address == contract_address
@@ -499,7 +499,7 @@ def event_contract(
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
-    bytecode = web3.eth.getCode(contract_address)
+    bytecode = web3.eth.get_code(contract_address)
     assert bytecode == EventContract.bytecode_runtime
     event_contract = EventContract(address=contract_address)
     assert event_contract.address == contract_address
@@ -557,7 +557,7 @@ def indexed_event(
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
-    bytecode = web3.eth.getCode(contract_address)
+    bytecode = web3.eth.get_code(contract_address)
     assert bytecode == IndexedEventContract.bytecode_runtime
     indexed_event_contract = IndexedEventContract(address=contract_address)
     assert indexed_event_contract.address == contract_address

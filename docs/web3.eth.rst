@@ -351,7 +351,7 @@ The following methods are available on the ``web3.eth`` namespace.
         assert verify_eth_getProof(proof, block.stateRoot)
 
 
-.. py:method:: Eth.getCode(account, block_identifier=eth.default_block)
+.. py:method:: Eth.get_code(account, block_identifier=eth.default_block)
 
     * Delegates to ``eth_getCode`` RPC Method
 
@@ -363,12 +363,17 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         # For a contract address.
-        >>> web3.eth.getCode('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B')
+        >>> web3.eth.get_code('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B')
         '0x6060604052361561027c5760e060020a60003504630199.....'
         # For a private key address.
-        >>> web3.eth.getCode('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.eth.get_code('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         '0x'
 
+
+.. py:method:: Eth.getCode(account, block_identifier=eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_code`
 
 .. py:method:: Eth.get_block(block_identifier=eth.default_block, full_transactions=False)
 

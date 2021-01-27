@@ -329,7 +329,7 @@ class Eth(ModuleV2, Module):
         mungers=[get_proof_munger],
     )
 
-    getCode: Method[Callable[..., HexBytes]] = Method(
+    get_code: Method[Callable[..., HexBytes]] = Method(
         RPC.eth_getCode,
         mungers=[block_id_munger]
     )
@@ -653,3 +653,4 @@ class Eth(ModuleV2, Module):
     getBlockTransactionCount = DeprecatedMethod(get_block_transaction_count,
                                                 'getBlockTransactionCount',
                                                 'get_block_transaction_count')
+    getCode = DeprecatedMethod(get_code, 'getCode', 'get_code')
