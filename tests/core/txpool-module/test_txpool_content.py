@@ -19,13 +19,13 @@ def test_txpool_content(web3_empty):
         'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
         'value': 12345,
     })
-    txn_1 = web3.eth.getTransaction(txn_1_hash)
+    txn_1 = web3.eth.get_transaction(txn_1_hash)
     txn_2_hash = web3.eth.sendTransaction({
         'from': web3.eth.coinbase,
         'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
         'value': 54321,
     })
-    txn_2 = web3.eth.getTransaction(txn_2_hash)
+    txn_2 = web3.eth.get_transaction(txn_2_hash)
 
     content = web3.geth.txpool.content
 

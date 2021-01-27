@@ -114,7 +114,7 @@ def block_with_txn(web3):
         'gas': 21000,
         'gas_price': 1,
     })
-    txn = web3.eth.getTransaction(txn_hash)
+    txn = web3.eth.get_transaction(txn_hash)
     block = web3.eth.get_block(txn['blockNumber'])
     return block
 
@@ -131,7 +131,7 @@ def block_with_txn_with_log(web3, emitter_contract):
     ).transact({
         'from': web3.eth.coinbase,
     })
-    txn = web3.eth.getTransaction(txn_hash)
+    txn = web3.eth.get_transaction(txn_hash)
     block = web3.eth.get_block(txn['blockNumber'])
     return block
 

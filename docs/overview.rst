@@ -132,7 +132,7 @@ Fetching Data
 -------------
 
 Viewing account balances (:meth:`get_balance <web3.eth.Eth.get_balance>`), transactions
-(:meth:`getTransaction <web3.eth.Eth.getTransaction>`), and block data
+(:meth:`get_transaction <web3.eth.Eth.get_transaction>`), and block data
 (:meth:`get_block <web3.eth.Eth.get_block>`) are some of the most common starting
 points in Web3.py.
 
@@ -146,7 +146,7 @@ API
 - :meth:`web3.eth.get_code() <web3.eth.Eth.get_code>`
 - :meth:`web3.eth.get_proof() <web3.eth.Eth.get_proof>`
 - :meth:`web3.eth.get_storage_at() <web3.eth.Eth.get_storage_at>`
-- :meth:`web3.eth.getTransaction() <web3.eth.Eth.getTransaction>`
+- :meth:`web3.eth.get_transaction() <web3.eth.Eth.get_transaction>`
 - :meth:`web3.eth.getTransactionByBlock() <web3.eth.Eth.getTransactionByBlock>`
 - :meth:`web3.eth.getTransactionCount() <web3.eth.Eth.getTransactionCount>`
 - :meth:`web3.eth.getUncleByBlock() <web3.eth.Eth.getUncleByBlock>`

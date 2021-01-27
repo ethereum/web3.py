@@ -162,7 +162,7 @@ def test_deploy_when_default_account_is_set(web3,
 
     deploy_txn = StringContract.constructor("Caqalai").transact()
     web3.eth.waitForTransactionReceipt(deploy_txn)
-    txn_after = web3.eth.getTransaction(deploy_txn)
+    txn_after = web3.eth.get_transaction(deploy_txn)
     assert txn_after['from'] == web3.eth.default_account
 
 
@@ -176,7 +176,7 @@ def test_transact_when_default_account_is_set(web3,
     txn_hash = transact(contract=math_contract,
                         contract_function='increment')
     wait_for_transaction(web3, txn_hash)
-    txn_after = web3.eth.getTransaction(txn_hash)
+    txn_after = web3.eth.get_transaction(txn_hash)
     assert txn_after['from'] == web3.eth.default_account
 
 
@@ -259,7 +259,7 @@ def test_transacting_with_contract_respects_explicit_gas(web3,
                        contract_function='getValue')
     assert to_bytes(text=final_value) == to_bytes(text="ÄLÄMÖLÖ")
 
-    txn = web3.eth.getTransaction(txn_hash)
+    txn = web3.eth.get_transaction(txn_hash)
     assert txn['gas'] == 200000
 
 
@@ -294,7 +294,7 @@ def test_auto_gas_computation_when_transacting(web3,
                        contract_function='getValue')
     assert to_bytes(text=final_value) == to_bytes(text="ÄLÄMÖLÖ")
 
-    txn = web3.eth.getTransaction(txn_hash)
+    txn = web3.eth.get_transaction(txn_hash)
     assert txn['gas'] == gas_estimate + 100000
 
 
