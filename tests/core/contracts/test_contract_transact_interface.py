@@ -25,7 +25,7 @@ def deploy(web3, Contract, apply_func=identity, args=None):
     address = apply_func(deploy_receipt['contractAddress'])
     contract = Contract(address=address)
     assert contract.address == address
-    assert len(web3.eth.getCode(contract.address)) > 0
+    assert len(web3.eth.get_code(contract.address)) > 0
     return contract
 
 

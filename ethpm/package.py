@@ -371,7 +371,7 @@ class Package(object):
         linked_deployments = get_linked_deployments(deployments)
         if linked_deployments:
             for deployment_data in linked_deployments.values():
-                on_chain_bytecode = self.w3.eth.getCode(
+                on_chain_bytecode = self.w3.eth.get_code(
                     deployment_data["address"]
                 )
                 unresolved_linked_refs = normalize_linked_references(

@@ -20,7 +20,7 @@ def deploy(web3, Contract, args=None):
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     contract = Contract(address=deploy_receipt['contractAddress'])
-    assert len(web3.eth.getCode(contract.address)) > 0
+    assert len(web3.eth.get_code(contract.address)) > 0
     return contract
 
 

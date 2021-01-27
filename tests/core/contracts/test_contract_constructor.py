@@ -100,7 +100,7 @@ def test_contract_constructor_transact_no_constructor(
     assert txn_receipt['contractAddress']
     contract_address = address_conversion_func(txn_receipt['contractAddress'])
 
-    blockchain_code = web3.eth.getCode(contract_address)
+    blockchain_code = web3.eth.get_code(contract_address)
     assert blockchain_code == decode_hex(MATH_RUNTIME)
 
 
@@ -117,7 +117,7 @@ def test_contract_constructor_transact_with_constructor_without_arguments(
     assert txn_receipt['contractAddress']
     contract_address = address_conversion_func(txn_receipt['contractAddress'])
 
-    blockchain_code = web3.eth.getCode(contract_address)
+    blockchain_code = web3.eth.get_code(contract_address)
     assert blockchain_code == decode_hex(SIMPLE_CONSTRUCTOR_RUNTIME)
 
 
@@ -148,7 +148,7 @@ def test_contract_constructor_transact_with_constructor_with_arguments(
     assert txn_receipt['contractAddress']
     contract_address = address_conversion_func(txn_receipt['contractAddress'])
 
-    blockchain_code = web3.eth.getCode(contract_address)
+    blockchain_code = web3.eth.get_code(contract_address)
     assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
     assert expected_a == WithConstructorArgumentsContract(
         address=contract_address).functions.data_a().call()
@@ -166,7 +166,7 @@ def test_contract_constructor_transact_with_constructor_with_address_arguments(
     assert txn_receipt is not None
     assert txn_receipt['contractAddress']
     contract_address = address_conversion_func(txn_receipt['contractAddress'])
-    blockchain_code = web3.eth.getCode(contract_address)
+    blockchain_code = web3.eth.get_code(contract_address)
     assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ADDRESS_RUNTIME)
     assert TEST_ADDRESS == WithConstructorAddressArgumentsContract(
         address=contract_address).functions.testAddr().call()

@@ -1510,7 +1510,7 @@ def call_contract_function(
         # eth-abi-utils
         is_missing_code_error = (
             return_data in ACCEPTABLE_EMPTY_STRINGS
-            and web3.eth.getCode(address) in ACCEPTABLE_EMPTY_STRINGS)
+            and web3.eth.get_code(address) in ACCEPTABLE_EMPTY_STRINGS)
         if is_missing_code_error:
             msg = (
                 "Could not transact with/call contract function, is contract "
