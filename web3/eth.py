@@ -405,7 +405,7 @@ class Eth(ModuleV2, Module):
         """
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
-    getTransactionByBlock: Method[Callable[[BlockIdentifier, int], TxData]] = Method(
+    get_transaction_by_block: Method[Callable[[BlockIdentifier, int], TxData]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getTransactionByBlockNumberAndIndex,
             if_hash=RPC.eth_getTransactionByBlockHashAndIndex,
@@ -656,3 +656,6 @@ class Eth(ModuleV2, Module):
     getCode = DeprecatedMethod(get_code, 'getCode', 'get_code')
     getProof = DeprecatedMethod(get_proof, 'getProof', 'get_proof')
     getTransaction = DeprecatedMethod(get_transaction, 'getTransaction', 'get_transaction')
+    getTransactionByBlock = DeprecatedMethod(get_transaction_by_block,
+                                             'getTransactionByBlock',
+                                             'get_transaction_by_block')
