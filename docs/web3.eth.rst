@@ -557,7 +557,7 @@ The following methods are available on the ``web3.eth`` namespace.
    .. note:: This method is deprecated in EIP 1474.
 
 
-.. py:method:: Eth.getTransactionByBlock(block_identifier, transaction_index)
+.. py:method:: Eth.get_transaction_by_block(block_identifier, transaction_index)
 
     * Delegates to ``eth_getTransactionByBlockNumberAndIndex`` or
       ``eth_getTransactionByBlockHashAndIndex`` RPC Methods
@@ -571,7 +571,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getTransactionFromBlock(46147, 0)
+        >>> web3.eth.get_transaction_by_block(46147, 0)
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
@@ -585,7 +585,7 @@ The following methods are available on the ``web3.eth`` namespace.
             'transactionIndex': 0,
             'value': 31337,
         })
-        >>> web3.eth.getTransactionFromBlock('0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd', 0)
+        >>> web3.eth.get_transaction_by_block('0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd', 0)
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
@@ -600,6 +600,10 @@ The following methods are available on the ``web3.eth`` namespace.
             'value': 31337,
         })
 
+.. py:method:: Eth.getTransactionByBlock(block_identifier, transaction_index)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_transaction_by_block`
 
 .. py:method:: Eth.waitForTransactionReceipt(transaction_hash, timeout=120, poll_latency=0.1)
 

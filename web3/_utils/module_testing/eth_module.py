@@ -1006,14 +1006,36 @@ class EthModuleTest:
     def test_eth_getTransactionByBlockHashAndIndex(
         self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:
-        transaction = web3.eth.getTransactionByBlock(block_with_txn['hash'], 0)
+        transaction = web3.eth.get_transaction_by_block(block_with_txn['hash'], 0)
+        assert is_dict(transaction)
+        assert transaction['hash'] == HexBytes(mined_txn_hash)
+
+    def test_eth_getTransactionByBlockHashAndIndex_deprecated(
+        self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
+    ) -> None:
+        with pytest.warns(
+            DeprecationWarning,
+            match='getTransactionByBlock is deprecated in favor of get_transaction_by_block'
+        ):
+            transaction = web3.eth.getTransactionByBlock(block_with_txn['hash'], 0)
         assert is_dict(transaction)
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
     def test_eth_getTransactionByBlockNumberAndIndex(
         self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:
-        transaction = web3.eth.getTransactionByBlock(block_with_txn['number'], 0)
+        transaction = web3.eth.get_transaction_by_block(block_with_txn['number'], 0)
+        assert is_dict(transaction)
+        assert transaction['hash'] == HexBytes(mined_txn_hash)
+
+    def test_eth_getTransactionByBlockNumberAndIndex_deprecated(
+        self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
+    ) -> None:
+        with pytest.warns(
+            DeprecationWarning,
+            match='getTransactionByBlock is deprecated in favor of get_transaction_by_block'
+        ):
+            transaction = web3.eth.getTransactionByBlock(block_with_txn['number'], 0)
         assert is_dict(transaction)
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
