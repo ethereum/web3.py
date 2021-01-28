@@ -5,13 +5,14 @@ Contracts
 
 .. py:module:: web3.contract
 
-It is worth taking your time to understand all about contracts. To get started,
-check out this example:
+Smart contracts are programs deployed to the Ethereum network. See the
+`ethereum.org docs <https://ethereum.org/en/developers/docs/smart-contracts>`_
+for a proper introduction.
 
 .. _contract_example:
 
 Contract Deployment Example
-----------------------------------------------
+---------------------------
 
 To run this example, you will need to install a few extra features:
 
@@ -1211,3 +1212,57 @@ provides methods to interact with contract functions.
 Positional and keyword arguments supplied to the contract caller subclass
 will be used to find the contract function by signature,
 and forwarded to the contract function when applicable.
+
+
+Contract FAQs
+-------------
+
+How do I pass in a struct as a function argument?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Web3.py accepts struct arguments as dictionaries. This format also supports nested structs.
+Let's take a look at a quick example. Given the following Solidity contract:
+
+.. code-block:: none
+
+   contract Example {
+     address addr;
+
+     struct S1 {
+       address a1;
+       address a2;
+     }
+
+     struct S2 {
+       bytes32 b1;
+       bytes32 b2;
+     }
+
+     struct X {
+       S1 s1;
+       S2 s2;
+       address[] users;
+     }
+
+     function update(X memory x) public {
+       addr = x.s1.a2;
+     }
+
+     function retrieve() public view returns (address) {
+       return addr;
+     }
+   }
+
+You can interact with Web3.py contract API as follows:
+
+.. code-block:: python
+
+   # deploy or lookup the deployed contract, then:
+
+   >>> deployed_contract.functions.retrieve().call()
+   '0x0000000000000000000000000000000000000000'
+
+   >>> deployed_contract.functions.update({'s1': ['0x0000000000000000000000000000000000000001', '0x0000000000000000000000000000000000000002'], 's2': [b'0'*32, b'1'*32], 'users': []}).transact()
+
+   >>> deployed_contract.functions.retrieve().call()
+   '0x0000000000000000000000000000000000000002'
