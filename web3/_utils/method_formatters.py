@@ -371,7 +371,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         apply_formatter_at_index(to_hex_if_integer, 0),
         apply_formatter_at_index(to_hex_if_integer, 1),
     ),
-    RPC.eth_getUncleByBlockHashAndIndex: apply_formatter_at_index(integer_to_hex, 1),
+    RPC.eth_getUncleByBlockHashAndIndex: apply_formatter_at_index(to_hex_if_integer, 1),
     RPC.eth_newFilter: apply_formatter_at_index(filter_params_formatter, 0),
     RPC.eth_getLogs: apply_formatter_at_index(filter_params_formatter, 0),
     RPC.eth_call: apply_formatters_to_sequence([
