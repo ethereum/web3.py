@@ -297,13 +297,33 @@ class EthModuleTest:
         assert transaction_count >= 1
 
     def test_eth_getUncleCountByBlockHash(self, web3: "Web3", empty_block: BlockData) -> None:
-        uncle_count = web3.eth.getUncleCount(empty_block['hash'])
+        uncle_count = web3.eth.get_uncle_count(empty_block['hash'])
+
+        assert is_integer(uncle_count)
+        assert uncle_count == 0
+
+    def test_eth_getUncleCountByBlockHash_deprecated(self,
+                                                     web3: "Web3",
+                                                     empty_block: BlockData) -> None:
+        with pytest.warns(DeprecationWarning,
+                          match='getUncleCount is deprecated in favor of get_uncle_count'):
+            uncle_count = web3.eth.getUncleCount(empty_block['hash'])
 
         assert is_integer(uncle_count)
         assert uncle_count == 0
 
     def test_eth_getUncleCountByBlockNumber(self, web3: "Web3", empty_block: BlockData) -> None:
-        uncle_count = web3.eth.getUncleCount(empty_block['number'])
+        uncle_count = web3.eth.get_uncle_count(empty_block['number'])
+
+        assert is_integer(uncle_count)
+        assert uncle_count == 0
+
+    def test_eth_getUncleCountByBlockNumber_deprecated(self,
+                                                       web3: "Web3",
+                                                       empty_block: BlockData) -> None:
+        with pytest.warns(DeprecationWarning,
+                          match='getUncleCount is deprecated in favor of get_uncle_count'):
+            uncle_count = web3.eth.getUncleCount(empty_block['number'])
 
         assert is_integer(uncle_count)
         assert uncle_count == 0
