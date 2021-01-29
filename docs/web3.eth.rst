@@ -452,10 +452,10 @@ The following methods are available on the ``web3.eth`` namespace.
 .. py:method:: Eth.getUncle(block_identifier)
 
     .. note:: Method to get an Uncle from its hash is not available through
-      RPC, a possible substitute is the method ``Eth.getUncleByBlock``
+      RPC, a possible substitute is the method ``Eth.get_uncle_by_block``
 
 
-.. py:method:: Eth.getUncleByBlock(block_identifier, uncle_index)
+.. py:method:: Eth.get_uncle_by_block(block_identifier, uncle_index)
 
     * Delegates to ``eth_getUncleByBlockHashAndIndex`` or
       ``eth_getUncleByBlockNumberAndIndex`` RPC methods
@@ -469,7 +469,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getUncleByBlock(56160, 0)
+        >>> web3.eth.get_uncle_by_block(56160, 0)
         AttributeDict({
           'author': '0xbe4532e1b1db5c913cf553be76180c1777055403',
           'difficulty': '0x17dd9ca0afe',
@@ -495,11 +495,15 @@ The following methods are available on the ``web3.eth`` namespace.
         })
 
         # You can also refer to the block by hash:
-        >>> web3.eth.getUncleByBlock('0x685b2226cbf6e1f890211010aa192bf16f0a0cba9534264a033b023d7367b845', 0)
+        >>> web3.eth.get_uncle_by_block('0x685b2226cbf6e1f890211010aa192bf16f0a0cba9534264a033b023d7367b845', 0)
         AttributeDict({
             ...
         })
 
+.. py:method:: Eth.getUncleByBlock(block_identifier, uncle_index)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_uncle_by_block()`
 
 .. py:method:: Eth.getUncleCount(block_identifier)
 

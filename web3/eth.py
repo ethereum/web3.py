@@ -382,7 +382,7 @@ class Eth(ModuleV2, Module):
     `eth_getUncleByBlockHashAndIndex`
     `eth_getUncleByBlockNumberAndIndex`
     """
-    getUncleByBlock: Method[Callable[[BlockIdentifier, int], Uncle]] = Method(
+    get_uncle_by_block: Method[Callable[[BlockIdentifier, int], Uncle]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getUncleByBlockNumberAndIndex,
             if_hash=RPC.eth_getUncleByBlockHashAndIndex,
@@ -659,3 +659,4 @@ class Eth(ModuleV2, Module):
     getTransactionByBlock = DeprecatedMethod(get_transaction_by_block,
                                              'getTransactionByBlock',
                                              'get_transaction_by_block')
+    getUncleByBlock = DeprecatedMethod(get_uncle_by_block, 'getUncleByBlock', 'get_uncle_by_block')

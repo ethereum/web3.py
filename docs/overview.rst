@@ -149,7 +149,7 @@ API
 - :meth:`web3.eth.get_transaction() <web3.eth.Eth.get_transaction>`
 - :meth:`web3.eth.get_transaction_by_block() <web3.eth.Eth.get_transaction_by_block>`
 - :meth:`web3.eth.getTransactionCount() <web3.eth.Eth.getTransactionCount>`
-- :meth:`web3.eth.getUncleByBlock() <web3.eth.Eth.getUncleByBlock>`
+- :meth:`web3.eth.get_uncle_by_block() <web3.eth.Eth.get_uncle_by_block>`
 - :meth:`web3.eth.getUncleCount() <web3.eth.Eth.getUncleCount>`
 
 
