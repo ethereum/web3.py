@@ -505,7 +505,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. warning:: Deprecated: This method is deprecated in favor of
       :meth:`~web3.eth.Eth.get_uncle_by_block()`
 
-.. py:method:: Eth.getUncleCount(block_identifier)
+.. py:method:: Eth.get_uncle_count(block_identifier)
 
     * Delegates to ``eth_getUncleCountByBlockHash`` or
       ``eth_getUncleCountByBlockNumber`` RPC methods
@@ -518,13 +518,17 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getUncleCount(56160)
+        >>> web3.eth.get_uncle_count(56160)
         1
 
         # You can also refer to the block by hash:
-        >>> web3.eth.getUncleCount('0x685b2226cbf6e1f890211010aa192bf16f0a0cba9534264a033b023d7367b845')
+        >>> web3.eth.get_uncle_count('0x685b2226cbf6e1f890211010aa192bf16f0a0cba9534264a033b023d7367b845')
         1
 
+.. py:method:: Eth.getUncleCount(block_identifier)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_uncle_count()`
 
 .. py:method:: Eth.get_transaction(transaction_hash)
 
