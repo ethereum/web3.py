@@ -19,7 +19,7 @@ can skip the rest of the Providers section.
 .. _choosing_provider:
 
 Choosing How to Connect to Your Node
---------------------------------------
+------------------------------------
 
 Most nodes have a variety of ways to connect to them. If you have not
 decided what kind of node to use, head on over to :ref:`choosing_node`
@@ -190,7 +190,7 @@ an optional secret key, set the environment variable ``WEB3_INFURA_API_SECRET``:
     True
 
 Geth dev Proof of Authority
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To connect to a ``geth --dev`` Proof of Authority instance with defaults:
 

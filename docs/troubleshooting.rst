@@ -1,10 +1,10 @@
 Troubleshooting
-=============================
+===============
 
 .. _setup_environment:
 
 Set up a clean environment
-----------------------------------------------
+--------------------------
 
 Many things can cause a broken environment. You might be on an unsupported version of Python.
 Another package might be installed that has a name or version conflict.
@@ -36,10 +36,36 @@ Often, the best way to guarantee a correct environment is with ``virtualenv``, l
 .. NOTE:: Remember that each new terminal session requires you to reactivate your virtualenv, like:
     ``$ source ~/.venv-py3/bin/activate``
 
+
+.. _instance_troubleshooting:
+
+Why can't I use a particular function?
+--------------------------------------
+
+Note that a Web3.py instance must be configured before you can use most of its capabilities.
+One symptom of not configuring the instance first is an error that looks something like this:
+``AttributeError: type object 'Web3' has no attribute 'eth'``.
+
+To properly configure your Web3.py instance, specify which provider you're using to connect to the
+Ethereum network. An example configuration, if you're connecting to a locally run node, might be:
+
+.. code-block:: python
+
+    >>> from web3 import Web3
+    >>> w3 = Web3(Web3.HTTPProvider('http://localhost:8545'))
+
+    # now `w3` is available to use:
+    >>> w3.isConnected()
+    True
+    >>> w3.eth.send_transaction(...)
+
+Refer to the :ref:`providers` documentation for further help with configuration.
+
+
 .. _use_metamask_accounts:
 
 Why isn't my web3 instance connecting to the network?
---------------------------------------------------------
+-----------------------------------------------------
 You can check that your instance is connected via the ``isConnected`` method:
 
 .. code-block:: python
@@ -57,7 +83,7 @@ Provider configuration issue. There are several options for configuring
 a Provider, detailed :ref:`here<providers>`.
 
 How do I use my MetaMask accounts from Web3.py?
---------------------------------------------------------
+-----------------------------------------------
 Often you don't need to do this, just make a new account in Web3.py,
 and transfer funds from your MetaMask account into it. But if you must...
 
@@ -71,7 +97,7 @@ and :ref:`eth-account`.
 .. _faucets:
 
 How do I get ether for my test network?
---------------------------------------------------------
+---------------------------------------
 
 Test networks usually have something called a "faucet" to
 help get test ether to people who want to use it. The faucet

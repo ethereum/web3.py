@@ -4,7 +4,7 @@ Your Ethereum Node
 .. _why_need_connection:
 
 Why do I need to connect to a node?
---------------------------------------
+-----------------------------------
 
 The Ethereum protocol defines a way for people to interact with
 smart contracts and each other over a network.
@@ -19,7 +19,7 @@ not run its own node internally.
 .. _choosing_node:
 
 How do I choose which node to use?
---------------------------------------
+----------------------------------
 
 Due to the nature of Ethereum, this is largely a question of personal preference, but
 it has significant ramifications on security and usability. Further, node software is
@@ -71,7 +71,7 @@ Typically, you are choosing between the main network and one of the available te
 See :ref:`choosing_network`
 
 Can I use MetaMask as a node?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 MetaMask is not a node. It is an interface for interacting with a node.
 Roughly, it's what you get if you turn Web3.py into a browser extension.
@@ -85,7 +85,7 @@ If you are trying to use accounts that were already created in MetaMask, see
 .. _choosing_network:
 
 Which network should I connect to?
-------------------------------------
+----------------------------------
 
 Once you have answered :ref:`choosing_node` you have to pick which network
 to connect to. This is easy for some scenarios: if you have ether and you want
