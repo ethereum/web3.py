@@ -755,7 +755,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> signed_txn = w3.eth.account.signTransaction(dict(
-            nonce=w3.eth.getTransactionCount(w3.eth.coinbase),
+            nonce=w3.eth.getTransactionCount(public_address_of_senders_account),
             gasPrice=w3.eth.gas_price,
             gas=100000,
             to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
