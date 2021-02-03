@@ -1,0 +1,1 @@
+Updated docs for web3.eth methods: eth.getTransactionReceipt and eth.waitForTransactionReceipt

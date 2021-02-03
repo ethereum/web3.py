@@ -636,7 +636,8 @@ The following methods are available on the ``web3.eth`` namespace.
             'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gasUsed': 21000,
             'logs': [],
-            'root': '96a8e009d2b88b1483e6941e6812e32263b05683fac202abc622a3e31aed1957',
+            'logsBloom': '0x000000000000000000000000000000000000000000000000...0000',
+            'status': 1,
             'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
             'transactionHash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'transactionIndex': 0,
@@ -648,6 +649,8 @@ The following methods are available on the ``web3.eth`` namespace.
     * Delegates to ``eth_getTransactionReceipt`` RPC Method
 
     Returns the transaction receipt specified by ``transaction_hash``.  If the transaction has not yet been mined throws :class:`web3.exceptions.TransactionNotFound`.
+
+    If ``status`` in response equals 1 the transaction was successful. If it is equals 0 the transaction was reverted by EVM.
 
     .. code-block:: python
 
@@ -665,7 +668,8 @@ The following methods are available on the ``web3.eth`` namespace.
             'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gasUsed': 21000,
             'logs': [],
-            'root': '96a8e009d2b88b1483e6941e6812e32263b05683fac202abc622a3e31aed1957',
+            'logsBloom': '0x000000000000000000000000000000000000000000000000...0000',
+            'status': 1, # 0 or 1
             'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
             'transactionHash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'transactionIndex': 0,
