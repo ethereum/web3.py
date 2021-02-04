@@ -1,1 +1,0 @@
-Add ``eth.get_transaction_by_block``, deprecate ``eth.getTransactionByBlock``

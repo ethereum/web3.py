@@ -1,1 +1,0 @@
-Add ``eth.get_code``, deprecate ``eth.getCode``

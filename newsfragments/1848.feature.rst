@@ -1,1 +1,0 @@
-Move ``defaultAccount`` to ``default_account``. Deprecate ``defaultAccount``.

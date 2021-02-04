@@ -1,1 +1,0 @@
-Add ``eth.gas_price``, deprecate ``eth.gasPrice``

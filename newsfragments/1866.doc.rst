@@ -1,1 +1,0 @@
-Clarify nonce lookup in sendRawTransaction docs.

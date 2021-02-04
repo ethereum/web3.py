@@ -1,1 +1,0 @@
-Document passing a struct into a contract function.

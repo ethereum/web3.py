@@ -1,1 +1,0 @@
-Add ``eth.protocol_version``, deprecate ``eth.protocolVersion``

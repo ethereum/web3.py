@@ -1,1 +1,0 @@
-Deprecate ``eth.getProof``, add ``eth.get_proof``

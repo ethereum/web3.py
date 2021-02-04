@@ -1,2 +1,0 @@
-Add ``eth.default_block``, deprecate ``eth.defaultBlock``.
-Also adds ``parity.default_block``, and deprecates ``parity.defaultBlock``.

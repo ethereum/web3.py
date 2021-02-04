@@ -1,1 +1,0 @@
-Added ``eth.block_number`` property. Deprecated ``eth.blockNumber``

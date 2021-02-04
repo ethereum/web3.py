@@ -3,6 +3,45 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.16.0 (2021-02-04)
+--------------------
+
+Features
+~~~~~~~~
+
+- Added ``get_block_transaction_count``, and deprecated ``getBlockTransactionCount`` (`#1841 <https://github.com/ethereum/web3.py/issues/1841>`__)
+- Move ``defaultAccount`` to ``default_account``. Deprecate ``defaultAccount``. (`#1848 <https://github.com/ethereum/web3.py/issues/1848>`__)
+- Add ``eth.default_block``, deprecate ``eth.defaultBlock``.
+  Also adds ``parity.default_block``, and deprecates ``parity.defaultBlock``. (`#1849 <https://github.com/ethereum/web3.py/issues/1849>`__)
+- Add ``eth.gas_price``, deprecate ``eth.gasPrice`` (`#1850 <https://github.com/ethereum/web3.py/issues/1850>`__)
+- Added ``eth.block_number`` property. Deprecated ``eth.blockNumber`` (`#1851 <https://github.com/ethereum/web3.py/issues/1851>`__)
+- Add ``eth.chain_id``, deprecate ``eth.chainId`` (`#1852 <https://github.com/ethereum/web3.py/issues/1852>`__)
+- Add ``eth.protocol_version``, deprecate ``eth.protocolVersion`` (`#1853 <https://github.com/ethereum/web3.py/issues/1853>`__)
+- Add ``eth.get_code``, deprecate ``eth.getCode`` (`#1856 <https://github.com/ethereum/web3.py/issues/1856>`__)
+- Deprecate ``eth.getProof``, add ``eth.get_proof`` (`#1857 <https://github.com/ethereum/web3.py/issues/1857>`__)
+- Add ``eth.get_transaction``, deprecate ``eth.getTransaction`` (`#1858 <https://github.com/ethereum/web3.py/issues/1858>`__)
+- Add ``eth.get_transaction_by_block``, deprecate ``eth.getTransactionByBlock`` (`#1859 <https://github.com/ethereum/web3.py/issues/1859>`__)
+- Add get_uncle_by_block, deprecate getUncleByBlock (`#1862 <https://github.com/ethereum/web3.py/issues/1862>`__)
+- Add get_uncle_count, deprecate getUncleCount (`#1863 <https://github.com/ethereum/web3.py/issues/1863>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix event filter creation if the event ABI contains a ``values`` key. (`#1807 <https://github.com/ethereum/web3.py/issues/1807>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove v5 breaking changes link from the top of the release notes. (`#1837 <https://github.com/ethereum/web3.py/issues/1837>`__)
+- Add account creation troubleshooting docs. (`#1855 <https://github.com/ethereum/web3.py/issues/1855>`__)
+- Document passing a struct into a contract function. (`#1860 <https://github.com/ethereum/web3.py/issues/1860>`__)
+- Add instance configuration troubleshooting docs. (`#1865 <https://github.com/ethereum/web3.py/issues/1865>`__)
+- Clarify nonce lookup in sendRawTransaction docs. (`#1866 <https://github.com/ethereum/web3.py/issues/1866>`__)
+- Updated docs for web3.eth methods: eth.getTransactionReceipt and eth.waitForTransactionReceipt (`#1868 <https://github.com/ethereum/web3.py/issues/1868>`__)
+
+
 v5.15.0 (2021-01-15)
 --------------------
 
