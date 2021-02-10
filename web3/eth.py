@@ -468,7 +468,7 @@ class Eth(ModuleV2, Module):
             )
         return (transaction,)
 
-    sendTransaction: Method[Callable[[TxParams], HexBytes]] = Method(
+    send_transaction: Method[Callable[[TxParams], HexBytes]] = Method(
         RPC.eth_sendTransaction,
         mungers=[send_transaction_munger]
     )
@@ -666,3 +666,4 @@ class Eth(ModuleV2, Module):
                                            'get_transaction_count')
     getUncleByBlock = DeprecatedMethod(get_uncle_by_block, 'getUncleByBlock', 'get_uncle_by_block')
     getUncleCount = DeprecatedMethod(get_uncle_count, 'getUncleCount', 'get_uncle_count')
+    sendTransaction = DeprecatedMethod(send_transaction, 'sendTransaction', 'send_transaction')

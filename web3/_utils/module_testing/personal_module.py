@@ -167,24 +167,25 @@ class GoEthereumPersonalModuleTest:
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
+        assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
+        txn_params: TxParams = {
+            'from': unlockable_account_dual_type,
+            'to': unlockable_account_dual_type,
+            'gas': Wei(21000),
+            'value': Wei(1),
+            'gasPrice': web3.toWei(1, 'gwei'),
+        }
         with pytest.warns(DeprecationWarning):
-            assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
-            txn_params: TxParams = {
-                'from': unlockable_account_dual_type,
-                'to': unlockable_account_dual_type,
-                'gas': Wei(21000),
-                'value': Wei(1),
-                'gasPrice': web3.toWei(1, 'gwei'),
-            }
             txn_hash = web3.geth.personal.sendTransaction(txn_params, unlockable_account_pw)
-            assert txn_hash
-            transaction = web3.eth.get_transaction(txn_hash)
+        assert txn_hash
 
-            assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
-            assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
-            assert transaction['gas'] == txn_params['gas']
-            assert transaction['value'] == txn_params['value']
-            assert transaction['gasPrice'] == txn_params['gasPrice']
+        transaction = web3.eth.get_transaction(txn_hash)
+
+        assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
+        assert transaction['gas'] == txn_params['gas']
+        assert transaction['value'] == txn_params['value']
+        assert transaction['gasPrice'] == txn_params['gasPrice']
 
     def test_personal_sign_and_ecrecover(
         self,
@@ -483,24 +484,24 @@ class ParityPersonalModuleTest():
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
+        assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
+        txn_params: TxParams = {
+            'from': unlockable_account_dual_type,
+            'to': unlockable_account_dual_type,
+            'gas': Wei(21000),
+            'value': Wei(1),
+            'gasPrice': web3.toWei(1, 'gwei'),
+        }
         with pytest.warns(DeprecationWarning):
-            assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
-            txn_params: TxParams = {
-                'from': unlockable_account_dual_type,
-                'to': unlockable_account_dual_type,
-                'gas': Wei(21000),
-                'value': Wei(1),
-                'gasPrice': web3.toWei(1, 'gwei'),
-            }
             txn_hash = web3.parity.personal.sendTransaction(txn_params, unlockable_account_pw)
-            assert txn_hash
-            transaction = web3.eth.get_transaction(txn_hash)
+        assert txn_hash
+        transaction = web3.eth.get_transaction(txn_hash)
 
-            assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
-            assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
-            assert transaction['gas'] == txn_params['gas']
-            assert transaction['value'] == txn_params['value']
-            assert transaction['gasPrice'] == txn_params['gasPrice']
+        assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
+        assert transaction['gas'] == txn_params['gas']
+        assert transaction['value'] == txn_params['value']
+        assert transaction['gasPrice'] == txn_params['gasPrice']
 
     def test_personal_sign_and_ecrecover(
         self,

@@ -141,7 +141,7 @@ class ENS:
         :param str address: name will point to this address, in checksum format. If ``None``,
             erase the record. If not specified, name will point to the owner's address.
         :param dict transact: the transaction configuration, like in
-            :meth:`~web3.eth.Eth.sendTransaction`
+            :meth:`~web3.eth.Eth.send_transaction`
         :raises InvalidName: if ``name`` has invalid syntax
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         """
@@ -175,7 +175,7 @@ class ENS:
         :param str name: ENS name that address will point to
         :param str address: to set up, in checksum format
         :param dict transact: the transaction configuration, like in
-            :meth:`~web3.eth.sendTransaction`
+            :meth:`~web3.eth.send_transaction`
         :raises AddressMismatch: if the name does not already point to the address
         :raises InvalidName: if `name` has invalid syntax
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
@@ -270,7 +270,7 @@ class ENS:
         :param new_owner: account that will own `name`. If ``None``, set owner to empty addr.
             If not specified, name will point to the parent domain owner's address.
         :param dict transact: the transaction configuration, like in
-            :meth:`~web3.eth.Eth.sendTransaction`
+            :meth:`~web3.eth.Eth.send_transaction`
         :raises InvalidName: if `name` has invalid syntax
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         :returns: the new owner's address

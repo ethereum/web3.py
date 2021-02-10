@@ -219,7 +219,7 @@ Each Contract Factory exposes the following methods.
     Construct and deploy a contract by sending a new public transaction.
 
     If provided ``transaction`` should be a dictionary conforming to the
-    ``web3.eth.sendTransaction(transaction)`` method.  This value may not
+    ``web3.eth.send_transaction(transaction)`` method.  This value may not
     contain the keys ``data`` or ``to``.
 
     If the contract takes constructor parameters they should be provided as
@@ -273,7 +273,7 @@ Each Contract Factory exposes the following methods.
     If any of the ``args`` specified in the ABI are an ``address`` type, they
     will accept ENS names.
 
-    Returns the transaction dictionary that you can pass to sendTransaction method.
+    Returns the transaction dictionary that you can pass to send_transaction method.
 
     .. code-block:: python
 
@@ -282,7 +282,7 @@ Each Contract Factory exposes the following methods.
         'chainId': None
         }
         >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).buildTransaction(transaction)
-        >>> web3.eth.sendTransaction(contract_data)
+        >>> web3.eth.send_transaction(contract_data)
 
 .. _contract_createFilter:
 
@@ -333,7 +333,7 @@ Each Contract Factory exposes the following methods.
     Construct and send a transaction to deploy the contract.
 
     If provided ``transaction`` should be a dictionary conforming to the
-    ``web3.eth.sendTransaction(transaction)`` method.  This value may not
+    ``web3.eth.send_transaction(transaction)`` method.  This value may not
     contain the keys ``data`` or ``to``.
 
     If the contract takes constructor arguments they should be provided as a
@@ -758,7 +758,7 @@ Methods
 
     The end portion of this function call ``transact(transaction)`` takes a
     single parameter which should be a python dictionary conforming to
-    the same format as the ``web3.eth.sendTransaction(transaction)`` method.
+    the same format as the ``web3.eth.send_transaction(transaction)`` method.
     This dictionary may not contain the keys ``data``.
 
     If any of the ``args`` or ``kwargs`` specified in the ABI are an ``address`` type, they
@@ -882,7 +882,7 @@ Methods
             >>> math_contract.functions.increment(5).buildTransaction({'nonce': web3.eth.get_transaction_count('0xF5...')})
 
     Returns a transaction dictionary. This transaction dictionary can then be sent using
-    :meth:`~web3.eth.Eth.sendTransaction`.
+    :meth:`~web3.eth.Eth.send_transaction`.
 
     Additionally, the dictionary may be used for offline transaction signing using
     :meth:`~web3.eth.account.Account.signTransaction`.

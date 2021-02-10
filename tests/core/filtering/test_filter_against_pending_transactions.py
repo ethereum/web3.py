@@ -21,12 +21,12 @@ def test_sync_filter_against_pending_transactions(web3_empty,
 
     txn_filter = web3.eth.filter("pending")
 
-    txn_1_hash = web3.eth.sendTransaction({
+    txn_1_hash = web3.eth.send_transaction({
         'from': web3.eth.coinbase,
         'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
         'value': 12345,
     })
-    txn_2_hash = web3.eth.sendTransaction({
+    txn_2_hash = web3.eth.send_transaction({
         'from': web3.eth.coinbase,
         'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
         'value': 54321,
@@ -58,12 +58,12 @@ def test_async_filter_against_pending_transactions(web3_empty,
     txn_filter = web3.eth.filter("pending")
     txn_filter.watch(seen_txns.append)
 
-    txn_1_hash = web3.eth.sendTransaction({
+    txn_1_hash = web3.eth.send_transaction({
         'from': web3.eth.coinbase,
         'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
         'value': 12345,
     })
-    txn_2_hash = web3.eth.sendTransaction({
+    txn_2_hash = web3.eth.send_transaction({
         'from': web3.eth.coinbase,
         'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
         'value': 54321,

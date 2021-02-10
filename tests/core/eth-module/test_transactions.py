@@ -35,12 +35,12 @@ def test_send_transaction_with_valid_chain_id(web3, make_chain_id, expect_succes
         'chainId': make_chain_id(web3),
     }
     if expect_success:
-        txn_hash = web3.eth.sendTransaction(transaction)
+        txn_hash = web3.eth.send_transaction(transaction)
         receipt = web3.eth.waitForTransactionReceipt(txn_hash, timeout=RECEIPT_TIMEOUT)
         assert receipt.get('blockNumber') is not None
     else:
         with pytest.raises(ValidationError) as exc_info:
-            web3.eth.sendTransaction(transaction)
+            web3.eth.send_transaction(transaction)
 
         assert 'chain ID' in str(exc_info.value)
 
@@ -69,7 +69,7 @@ def test_send_transaction_with_invalid_ens_names(web3, to, _from):
         }
 
         with pytest.raises(NameNotFound):
-            web3.eth.sendTransaction(transaction)
+            web3.eth.send_transaction(transaction)
 
 
 def test_send_transaction_with_ens_names(web3):
@@ -83,7 +83,7 @@ def test_send_transaction_with_ens_names(web3):
             'from': 'registered-name-2.eth',
         }
 
-        txn_hash = web3.eth.sendTransaction(transaction)
+        txn_hash = web3.eth.send_transaction(transaction)
         receipt = web3.eth.waitForTransactionReceipt(txn_hash, timeout=RECEIPT_TIMEOUT)
         assert receipt.get('blockNumber') is not None
 
@@ -95,7 +95,7 @@ def test_wait_for_missing_receipt(web3):
 
 def test_unmined_transaction_wait_for_receipt(web3):
     web3.middleware_onion.add(unmined_receipt_simulator_middleware)
-    txn_hash = web3.eth.sendTransaction({
+    txn_hash = web3.eth.send_transaction({
         'from': web3.eth.coinbase,
         'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
         'value': 123457

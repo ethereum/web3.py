@@ -62,8 +62,8 @@ work around this issue is to use a hosted node.
 The most popular hosted node option is `Infura <infura.io>`_.
 You can connect to it as if it were a local node,
 with a few caveats. It cannot (and *should not*) host private keys for
-you, meaning that some common methods like :meth:`w3.eth.sendTransaction()
-<web3.eth.Eth.sendTransaction>` are not directly available. To send transactions
+you, meaning that some common methods like :meth:`w3.eth.send_transaction()
+<web3.eth.Eth.send_transaction>` are not directly available. To send transactions
 to a hosted node, read about :ref:`eth-account`.
 
 Once you decide what node option you want, you need to choose which network to connect to.

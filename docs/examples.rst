@@ -178,7 +178,7 @@ Making transactions
 
 There are a few options for making transactions:
 
-- :meth:`~web3.eth.Eth.sendTransaction`
+- :meth:`~web3.eth.Eth.send_transaction`
 
   Use this method if:
     - you want to send ether from one account to another.
@@ -198,7 +198,7 @@ There are a few options for making transactions:
 - :meth:`~web3.middleware.construct_sign_and_send_raw_middleware`
 
   Use this middleware if:
-    - you want to automate signing when using ``w3.eth.sendTransaction`` or ``ContractFunctions``.
+    - you want to automate signing when using ``w3.eth.send_transaction`` or ``ContractFunctions``.
 
 .. NOTE:: The location of your keys (e.g., local or hosted) will have implications on these methods. Read about the differences :ref:`here <eth-account>`.
 

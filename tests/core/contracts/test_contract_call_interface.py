@@ -535,7 +535,7 @@ def test_call_receive_fallback_function(web3,
     assert initial_value == ''
     to = {'to': contract.address}
     merged = {**to, **tx_params}
-    web3.eth.sendTransaction(merged)
+    web3.eth.send_transaction(merged)
     final_value = call(contract=contract, contract_function='getText')
     assert final_value == expected
 

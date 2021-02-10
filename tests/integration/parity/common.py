@@ -62,7 +62,7 @@ class ParityEthModuleTest(EthModuleTest):
     def test_eth_getTransactionReceipt_unmined(self, web3, unlocked_account):
         # Parity diverges from json-rpc spec and retrieves pending block
         # transactions with getTransactionReceipt.
-        txn_hash = web3.eth.sendTransaction({
+        txn_hash = web3.eth.send_transaction({
             'from': unlocked_account,
             'to': unlocked_account,
             'value': 1,

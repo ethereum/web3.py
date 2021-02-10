@@ -189,7 +189,7 @@ def test_contract_constructor_build_transaction_no_constructor(
     unsent_txn = MathContract.constructor().buildTransaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']
 
-    new_txn_hash = web3.eth.sendTransaction(unsent_txn)
+    new_txn_hash = web3.eth.send_transaction(unsent_txn)
     new_txn = web3.eth.get_transaction(new_txn_hash)
     assert new_txn['data'] == unsent_txn['data']
     assert new_txn['nonce'] == nonce
@@ -207,7 +207,7 @@ def test_contract_constructor_build_transaction_with_constructor_without_argumen
     unsent_txn = MathContract.constructor().buildTransaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']
 
-    new_txn_hash = web3.eth.sendTransaction(unsent_txn)
+    new_txn_hash = web3.eth.send_transaction(unsent_txn)
     new_txn = web3.eth.get_transaction(new_txn_hash)
     assert new_txn['data'] == unsent_txn['data']
     assert new_txn['nonce'] == nonce
@@ -238,7 +238,7 @@ def test_contract_constructor_build_transaction_with_constructor_with_argument(
         *constructor_args, **constructor_kwargs).buildTransaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']
 
-    new_txn_hash = web3.eth.sendTransaction(unsent_txn)
+    new_txn_hash = web3.eth.send_transaction(unsent_txn)
     new_txn = web3.eth.get_transaction(new_txn_hash)
     assert new_txn['data'] == unsent_txn['data']
     assert new_txn['nonce'] == nonce
