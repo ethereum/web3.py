@@ -697,7 +697,7 @@ The following methods are available on the ``web3.eth`` namespace.
       :meth:`~web3.eth.Eth.get_transaction_count()`
 
 
-.. py:method:: Eth.sendTransaction(transaction)
+.. py:method:: Eth.send_transaction(transaction)
 
     * Delegates to ``eth_sendTransaction`` RPC Method
 
@@ -731,9 +731,13 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.sendTransaction({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from': web3.eth.coinbase, 'value': 12345})
+        >>> web3.eth.send_transaction({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from': web3.eth.coinbase, 'value': 12345})
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
 
+.. py:method:: Eth.sendTransaction(transaction)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.send_transaction`
 
 .. py:method:: Eth.signTransaction(transaction)
 
@@ -787,7 +791,7 @@ The following methods are available on the ``web3.eth`` namespace.
     The ``transaction_hash`` must be the hash of a pending transaction.
 
     The ``new_transaction`` parameter should be a dictionary with transaction fields
-    as required by :meth:`~web3.eth.Eth.sendTransaction`. It will be used to entirely
+    as required by :meth:`~web3.eth.Eth.send_transaction`. It will be used to entirely
     replace the transaction of ``transaction_hash`` without using any of the pending
     transaction's values.
 
@@ -808,7 +812,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> tx = web3.eth.sendTransaction({
+        >>> tx = web3.eth.send_transaction({
                 'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
                 'from': web3.eth.coinbase,
                 'value': 1000
@@ -828,7 +832,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Sends a transaction that modifies the transaction with ``transaction_hash``.
 
     ``transaction_params`` are keyword arguments that correspond to valid transaction
-    parameters as required by :meth:`~web3.eth.Eth.sendTransaction`. The parameter values
+    parameters as required by :meth:`~web3.eth.Eth.send_transaction`. The parameter values
     will override the pending transaction's values to create the replacement transaction
     to send.
 
@@ -838,7 +842,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> tx = web3.eth.sendTransaction({
+        >>> tx = web3.eth.send_transaction({
                 'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
                 'from': web3.eth.coinbase,
                 'value': 1000
@@ -897,7 +901,7 @@ The following methods are available on the ``web3.eth`` namespace.
     on the blockchain.  Returns the return value of the executed contract.
 
     The ``transaction`` parameter is handled in the same manner as the
-    :meth:`~web3.eth.Eth.sendTransaction()` method.
+    :meth:`~web3.eth.Eth.send_transaction()` method.
 
     .. code-block:: python
 
@@ -1190,3 +1194,4 @@ Contracts
     Future calls to ``Eth.contract()`` will then default to ``contractFactoryClass``.
 
     An example of an alternative Contract Factory is ``ConciseContract``.
+

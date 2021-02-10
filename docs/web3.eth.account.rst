@@ -24,13 +24,13 @@ Local Private Key
   before sending them to your node.
   You must use :meth:`~web3.eth.Eth.sendRawTransaction`
   when working with local keys, instead of
-  :meth:`~web3.eth.Eth.sendTransaction` .
+  :meth:`~web3.eth.Eth.send_transaction` .
 
 Hosted Private Key
   This is a common way to use accounts with local nodes.
   Each account returned by :attr:`w3.eth.accounts <web3.eth.Eth.accounts>`
   has a hosted private key stored in your node.
-  This allows you to use :meth:`~web3.eth.Eth.sendTransaction`.
+  This allows you to use :meth:`~web3.eth.Eth.send_transaction`.
 
 
 .. WARNING::

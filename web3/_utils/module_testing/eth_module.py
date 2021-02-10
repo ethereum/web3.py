@@ -556,7 +556,7 @@ class EthModuleTest:
             assert result['tx']['gasPrice'] == txn_params['gasPrice']
             assert result['tx']['nonce'] == txn_params['nonce']
 
-    def test_eth_sendTransaction_addr_checksum_required(
+    def test_eth_send_transaction_addr_checksum_required(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         non_checksum_addr = unlocked_account.lower()
@@ -570,13 +570,13 @@ class EthModuleTest:
 
         with pytest.raises(InvalidAddress):
             invalid_params = cast(TxParams, dict(txn_params, **{'from': non_checksum_addr}))
-            web3.eth.sendTransaction(invalid_params)
+            web3.eth.send_transaction(invalid_params)
 
         with pytest.raises(InvalidAddress):
             invalid_params = cast(TxParams, dict(txn_params, **{'to': non_checksum_addr}))
-            web3.eth.sendTransaction(invalid_params)
+            web3.eth.send_transaction(invalid_params)
 
-    def test_eth_sendTransaction(
+    def test_eth_send_transaction(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -586,7 +586,7 @@ class EthModuleTest:
             'gas': Wei(21000),
             'gasPrice': web3.eth.gas_price,
         }
-        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn_hash = web3.eth.send_transaction(txn_params)
         txn = web3.eth.get_transaction(txn_hash)
 
         assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
@@ -595,7 +595,28 @@ class EthModuleTest:
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gasPrice']
 
-    def test_eth_sendTransaction_with_nonce(
+    def test_eth_sendTransaction_deprecated(
+        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'gasPrice': web3.eth.gas_price,
+        }
+        with pytest.warns(DeprecationWarning,
+                          match="sendTransaction is deprecated in favor of send_transaction"):
+            txn_hash = web3.eth.sendTransaction(txn_params)
+        txn = web3.eth.get_transaction(txn_hash)
+
+        assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['value'] == 1
+        assert txn['gas'] == 21000
+        assert txn['gasPrice'] == txn_params['gasPrice']
+
+    def test_eth_send_transaction_with_nonce(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -607,7 +628,7 @@ class EthModuleTest:
             'gasPrice': Wei(web3.eth.gas_price * 3),
             'nonce': web3.eth.get_transaction_count(unlocked_account),
         }
-        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn_hash = web3.eth.send_transaction(txn_params)
         txn = web3.eth.get_transaction(txn_hash)
 
         assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
@@ -627,7 +648,7 @@ class EthModuleTest:
             'gas': Wei(21000),
             'gasPrice': web3.eth.gas_price,
         }
-        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn_hash = web3.eth.send_transaction(txn_params)
 
         txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
@@ -665,7 +686,7 @@ class EthModuleTest:
             'gas': Wei(21000),
             'gasPrice': web3.eth.gas_price,
         }
-        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn_hash = web3.eth.send_transaction(txn_params)
         web3.eth.waitForTransactionReceipt(txn_hash)
 
         txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
@@ -682,7 +703,7 @@ class EthModuleTest:
             'gas': Wei(21000),
             'gasPrice': web3.eth.gas_price,
         }
-        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn_hash = web3.eth.send_transaction(txn_params)
         txn = web3.eth.get_transaction(txn_hash)
 
         txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
@@ -700,7 +721,7 @@ class EthModuleTest:
             'gas': Wei(21000),
             'gasPrice': Wei(10),
         }
-        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn_hash = web3.eth.send_transaction(txn_params)
 
         txn_params['gasPrice'] = Wei(9)
         with pytest.raises(ValueError):
@@ -716,7 +737,7 @@ class EthModuleTest:
             'gas': Wei(21000),
             'gasPrice': Wei(10),
         }
-        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn_hash = web3.eth.send_transaction(txn_params)
 
         txn_params.pop('gasPrice')
         replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
@@ -734,7 +755,7 @@ class EthModuleTest:
             'gas': Wei(21000),
             'gasPrice': Wei(10),
         }
-        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn_hash = web3.eth.send_transaction(txn_params)
 
         def higher_gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
             return Wei(20)
@@ -756,7 +777,7 @@ class EthModuleTest:
             'gas': Wei(21000),
             'gasPrice': Wei(10),
         }
-        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn_hash = web3.eth.send_transaction(txn_params)
 
         def lower_gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
             return Wei(5)
@@ -779,7 +800,7 @@ class EthModuleTest:
             'gas': Wei(21000),
             'gasPrice': web3.eth.gas_price,
         }
-        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn_hash = web3.eth.send_transaction(txn_params)
 
         modified_txn_hash = web3.eth.modifyTransaction(
             txn_hash, gasPrice=(cast(int, txn_params['gasPrice']) * 2), value=2
@@ -1083,7 +1104,7 @@ class EthModuleTest:
     def test_eth_getTransactionReceipt_unmined(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        txn_hash = web3.eth.sendTransaction({
+        txn_hash = web3.eth.send_transaction({
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),

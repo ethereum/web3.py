@@ -107,7 +107,7 @@ def empty_block(web3):
 
 @pytest.fixture(scope="module")
 def block_with_txn(web3):
-    txn_hash = web3.eth.sendTransaction({
+    txn_hash = web3.eth.send_transaction({
         'from': web3.eth.coinbase,
         'to': web3.eth.coinbase,
         'value': 1,
@@ -170,7 +170,7 @@ def unlockable_account_pw(web3):
 @pytest.fixture(scope='module')
 def unlockable_account(web3, unlockable_account_pw):
     account = web3.geth.personal.import_raw_key(UNLOCKABLE_PRIVATE_KEY, unlockable_account_pw)
-    web3.eth.sendTransaction({
+    web3.eth.send_transaction({
         'from': web3.eth.coinbase,
         'to': account,
         'value': web3.toWei(10, 'ether'),
@@ -200,7 +200,7 @@ def unlocked_account_dual_type(web3, unlockable_account_dual_type, unlockable_ac
 @pytest.fixture(scope="module")
 def funded_account_for_raw_txn(web3):
     account = '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6'
-    web3.eth.sendTransaction({
+    web3.eth.send_transaction({
         'from': web3.eth.coinbase,
         'to': account,
         'value': web3.toWei(10, 'ether'),

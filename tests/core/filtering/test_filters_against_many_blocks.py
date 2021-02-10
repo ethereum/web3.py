@@ -20,7 +20,7 @@ def pad_with_transactions(w3):
         _from = accounts[random.randint(0, len(accounts) - 1)]
         _to = accounts[random.randint(0, len(accounts) - 1)]
         value = 50 + tx_count
-        w3.eth.sendTransaction({'from': _from, 'to': _to, 'value': value})
+        w3.eth.send_transaction({'from': _from, 'to': _to, 'value': value})
 
 
 def single_transaction(w3):
@@ -28,7 +28,7 @@ def single_transaction(w3):
     _from = accounts[random.randint(0, len(accounts) - 1)]
     _to = accounts[random.randint(0, len(accounts) - 1)]
     value = 50
-    tx_hash = w3.eth.sendTransaction({'from': _from, 'to': _to, 'value': value})
+    tx_hash = w3.eth.send_transaction({'from': _from, 'to': _to, 'value': value})
     return tx_hash
 
 

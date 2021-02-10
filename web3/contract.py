@@ -659,7 +659,7 @@ class ContractConstructor:
         transact_transaction['data'] = self.data_in_transaction
 
         # TODO: handle asynchronous contract creation
-        return self.web3.eth.sendTransaction(transact_transaction)
+        return self.web3.eth.send_transaction(transact_transaction)
 
     @combomethod
     def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
@@ -1585,7 +1585,7 @@ def transact_with_contract_function(
         fn_kwargs=kwargs,
     )
 
-    txn_hash = web3.eth.sendTransaction(transact_transaction)
+    txn_hash = web3.eth.send_transaction(transact_transaction)
     return txn_hash
 
 

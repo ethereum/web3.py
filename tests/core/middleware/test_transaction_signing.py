@@ -207,7 +207,7 @@ def fund_account(w3):
     # fund local account
     tx_value = w3.toWei(10, 'ether')
     for address in (ADDRESS_1, ADDRESS_2):
-        w3.eth.sendTransaction({
+        w3.eth.send_transaction({
             'to': address,
             'from': w3.eth.accounts[0],
             'gas': 21000,
@@ -240,7 +240,7 @@ def fund_account(w3):
         ),
         (
             # Transaction with mismatched sender
-            # expect a validation error with sendTransaction + unmanaged account
+            # expect a validation error with send_transaction + unmanaged account
             {
                 'gas': 21000,
                 'value': 10
@@ -278,10 +278,10 @@ def test_signed_transaction(
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
             start_balance = w3.eth.get_balance(_transaction.get('from', w3.eth.accounts[0]))
-            w3.eth.sendTransaction(_transaction)
+            w3.eth.send_transaction(_transaction)
     else:
         start_balance = w3.eth.get_balance(_transaction.get('from', w3.eth.accounts[0]))
-        w3.eth.sendTransaction(_transaction)
+        w3.eth.send_transaction(_transaction)
         assert w3.eth.getBalance(_transaction.get('from')) <= start_balance + expected
 
 

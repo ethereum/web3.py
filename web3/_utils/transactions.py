@@ -214,4 +214,4 @@ def replace_transaction(
     new_transaction = prepare_replacement_transaction(
         web3, current_transaction, new_transaction
     )
-    return web3.eth.sendTransaction(new_transaction)
+    return web3.eth.send_transaction(new_transaction)
