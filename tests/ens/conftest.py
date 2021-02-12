@@ -122,23 +122,23 @@ def ens_setup():
         b'\0' * 32,
         eth_labelhash,
         ens_key
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     ens_contract.functions.setSubnodeOwner(
         eth_namehash,
         w3.keccak(text='resolver'),
         ens_key
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     ens_contract.functions.setResolver(
         resolver_namehash,
         public_resolver.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     public_resolver.functions.setAddr(
         resolver_namehash,
         public_resolver.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     # create .eth auction registrar
     eth_registrar = deploy(
@@ -152,12 +152,12 @@ def ens_setup():
     ens_contract.functions.setResolver(
         eth_namehash,
         public_resolver.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     public_resolver.functions.setAddr(
         eth_namehash,
         eth_registrar.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     # create reverse resolver
     reverse_resolver = deploy(w3, DefaultReverseResolver, ens_key, args=[ens_contract.address])
@@ -175,44 +175,44 @@ def ens_setup():
         b'\0' * 32,
         w3.keccak(text='reverse'),
         ens_key
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     ens_contract.functions.setSubnodeOwner(
         reverse_tld_namehash,
         w3.keccak(text='addr'),
         ens_key
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     ens_contract.functions.setResolver(
         reverser_namehash,
         public_resolver.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     public_resolver.functions.setAddr(
         reverser_namehash,
         reverse_registrar.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     # set owner of tester.eth to an account controlled by tests
     ens_contract.functions.setSubnodeOwner(
         eth_namehash,
         w3.keccak(text='tester'),
         w3.eth.accounts[2]  # note that this does not have to be the default, only in the list
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     # make the registrar the owner of the 'eth' name
     ens_contract.functions.setSubnodeOwner(
         b'\0' * 32,
         eth_labelhash,
         eth_registrar.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     # make the reverse registrar the owner of the 'addr.reverse' name
     ens_contract.functions.setSubnodeOwner(
         reverse_tld_namehash,
         w3.keccak(text='addr'),
         reverse_registrar.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     return ENS.fromWeb3(w3, ens_contract.address)
 

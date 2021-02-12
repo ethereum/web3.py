@@ -229,7 +229,7 @@ def mine_transaction_hash(web3, txn_hash):
 
 def deploy_contract(web3, name, factory):
     web3.geth.personal.unlock_account(web3.eth.coinbase, KEYFILE_PW)
-    deploy_txn_hash = factory.constructor().transact({'from': web3.eth.coinbase})
+    deploy_txn_hash = factory.constructor().transact({'from': str(web3.eth.coinbase)})
     print('{0}_CONTRACT_DEPLOY_HASH: '.format(name.upper()), deploy_txn_hash)
     deploy_receipt = mine_transaction_hash(web3, deploy_txn_hash)
     print('{0}_CONTRACT_DEPLOY_TRANSACTION_MINED'.format(name.upper()))

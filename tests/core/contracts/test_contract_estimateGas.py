@@ -22,7 +22,7 @@ def math_contract(web3,
         bytecode=MATH_CODE,
         bytecode_runtime=MATH_RUNTIME,
     )
-    deploy_txn = MathContract.constructor().transact({'from': web3.eth.coinbase})
+    deploy_txn = MathContract.constructor().transact({'from': str(web3.eth.coinbase)})
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
 
     assert deploy_receipt is not None
@@ -46,7 +46,7 @@ def fallback_function_contract(web3,
         bytecode=FALLBACK_FUNCTION_CODE,
         bytecode_runtime=FALLBACK_FUNCTION_RUNTIME
     )
-    deploy_txn = fallback_contract.constructor().transact({'from': web3.eth.coinbase})
+    deploy_txn = fallback_contract.constructor().transact({'from': str(web3.eth.coinbase)})
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
 
     assert deploy_receipt is not None
@@ -60,7 +60,7 @@ def fallback_function_contract(web3,
 
 @pytest.fixture()
 def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
-    deploy_txn = PayableTesterContract.constructor().transact({'from': web3.eth.coinbase})
+    deploy_txn = PayableTesterContract.constructor().transact({'from': str(web3.eth.coinbase)})
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
 
     assert deploy_receipt is not None

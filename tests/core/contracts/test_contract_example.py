@@ -57,7 +57,7 @@ def foo_contract(eth_tester, w3):
     FooContract = w3.eth.contract(abi=abi, bytecode=bytecode)
     # issue a transaction to deploy the contract.
     tx_hash = FooContract.constructor().transact({
-        'from': deploy_address,
+        'from': str(deploy_address),
     })
     # wait for the transaction to be mined
     tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash, 180)
@@ -75,7 +75,7 @@ def test_can_update_greeting(w3, foo_contract):
     tx_hash = foo_contract.functions.setBar(
         "testing contracts is easy",
     ).transact({
-        'from': w3.eth.accounts[1],
+        'from': str(w3.eth.accounts[1]),
     })
     w3.eth.waitForTransactionReceipt(tx_hash, 180)
 
@@ -89,7 +89,7 @@ def test_updating_greeting_emits_event(w3, foo_contract):
     tx_hash = foo_contract.functions.setBar(
         "testing contracts is easy",
     ).transact({
-        'from': w3.eth.accounts[1],
+        'from': str(w3.eth.accounts[1]),
     })
     receipt = w3.eth.waitForTransactionReceipt(tx_hash, 180)
 

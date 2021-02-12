@@ -59,30 +59,30 @@ def ens_setup(deployer):
         b'\0' * 32,
         eth_labelhash,
         ens_key
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     ens_contract.functions.setSubnodeOwner(
         eth_namehash,
         w3.keccak(text='resolver'),
         ens_key
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     ens_contract.functions.setResolver(
         resolver_namehash,
         public_resolver.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     public_resolver.functions.setAddr(
         resolver_namehash,
         public_resolver.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     # create .eth auction registrar
     eth_registrar_package = ens_deployer.deploy(
         "FIFSRegistrar",
         ens_contract.address,
         eth_namehash,
-        transaction={"from": ens_key}
+        transaction={"from": str(ens_key)}
     )
     eth_registrar = eth_registrar_package.deployments.get_instance("FIFSRegistrar")
 
@@ -90,26 +90,26 @@ def ens_setup(deployer):
     ens_contract.functions.setResolver(
         eth_namehash,
         public_resolver.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     public_resolver.functions.setAddr(
         eth_namehash,
         eth_registrar.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     # set owner of tester.eth to an account controlled by tests
     ens_contract.functions.setSubnodeOwner(
         eth_namehash,
         w3.keccak(text='tester'),
         w3.eth.accounts[2]  # note that this does not have to be the default, only in the list
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
 
     # make the registrar the owner of the 'eth' name
     ens_contract.functions.setSubnodeOwner(
         b'\0' * 32,
         eth_labelhash,
         eth_registrar.address
-    ).transact({'from': ens_key})
+    ).transact({'from': str(ens_key)})
     return ENS.fromWeb3(w3, ens_contract.address)
 
 

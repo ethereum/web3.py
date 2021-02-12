@@ -13,7 +13,7 @@ from web3.exceptions import (
 @pytest.fixture()
 def math_addr(MathContract, address_conversion_func):
     web3 = MathContract.web3
-    deploy_txn = MathContract.constructor().transact({'from': web3.eth.coinbase})
+    deploy_txn = MathContract.constructor().transact({'from': str(web3.eth.coinbase)})
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
     assert deploy_receipt is not None
     return address_conversion_func(deploy_receipt['contractAddress'])

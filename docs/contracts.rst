@@ -150,7 +150,7 @@ example in :class:`ConciseContract` for specifying an alternate factory.
 
         >>>  # which is equivalent to this transaction in the classic contract:
 
-        >>> contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
+        >>> contract.functions.withdraw(amount).transact({'from': str(eth.accounts[1]), 'gas': 100000, ...})
 
 .. py:class:: ImplicitContract(Contract())
 
@@ -953,7 +953,7 @@ For example:
 
    .. code-block:: python
 
-       >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
+       >>> tx_hash = contract.functions.myFunction(12345).transact({'to':str(contract_address)})
        >>> tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
        >>> rich_logs = contract.events.myEvent().processReceipt(tx_receipt)
        >>> rich_logs[0]['args']
@@ -970,7 +970,7 @@ For example:
 
    .. code-block:: python
 
-       >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
+       >>> tx_hash = contract.functions.myFunction(12345).transact({'to':str(contract_address)})
        >>> tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
        >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt)
        >>> processed_logs
@@ -1019,7 +1019,7 @@ For example:
 
    .. code-block:: python
 
-       >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
+       >>> tx_hash = contract.functions.myFunction(12345).transact({'to':str(contract_address)})
        >>> tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
        >>> log_to_process = tx_receipt['logs'][0]
        >>> processed_log = contract.events.myEvent().processLog(log_to_process)

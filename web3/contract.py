@@ -730,7 +730,7 @@ class ConciseContract:
 
     is equivalent to this call in the classic contract:
 
-    > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
+    > contract.functions.withdraw(amount).transact({'from': str(eth.accounts[1]), 'gas': 100000, ...})
     """
     @deprecated_for(
         "contract.caller.<method name> or contract.caller({transaction_dict}).<method name>"

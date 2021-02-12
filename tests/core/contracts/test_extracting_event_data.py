@@ -31,7 +31,7 @@ def Emitter(web3, EMITTER):
 @pytest.fixture()
 def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
     wait_for_block(web3)
-    deploy_txn_hash = Emitter.constructor().transact({'from': web3.eth.coinbase, 'gas': 1000000})
+    deploy_txn_hash = Emitter.constructor().transact({'from': str(web3.eth.coinbase), 'gas': 1000000})
     deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
@@ -57,7 +57,7 @@ def event_contract(
 
     wait_for_block(web3)
     deploy_txn_hash = EventContract.constructor().transact({
-        'from': web3.eth.coinbase, 'gas': 1000000
+        'from': str(web3.eth.coinbase), 'gas': 1000000
     })
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
@@ -84,7 +84,7 @@ def indexed_event_contract(
 
     wait_for_block(web3)
     deploy_txn_hash = IndexedEventContract.constructor().transact({
-        'from': web3.eth.coinbase, 'gas': 1000000
+        'from': str(web3.eth.coinbase), 'gas': 1000000
     })
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])

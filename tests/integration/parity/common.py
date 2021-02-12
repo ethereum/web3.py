@@ -83,7 +83,7 @@ class ParityEthModuleTest(EthModuleTest):
         block_num = start_block.number
         block_hash = start_block.hash
 
-        math_contract.functions.increment().transact({'from': unlocked_account})
+        math_contract.functions.increment().transact({'from': str(unlocked_account)})
 
         # This isn't an incredibly convincing test since we can't mine, and
         # the default resolved block is latest, So if block_identifier was ignored

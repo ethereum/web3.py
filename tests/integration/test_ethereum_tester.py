@@ -55,7 +55,7 @@ def web3(eth_tester_provider):
 #
 @pytest.fixture(scope="module")
 def math_contract_deploy_txn_hash(web3, math_contract_factory):
-    deploy_txn_hash = math_contract_factory.constructor().transact({'from': web3.eth.coinbase})
+    deploy_txn_hash = math_contract_factory.constructor().transact({'from': str(web3.eth.coinbase)})
     return deploy_txn_hash
 
 
@@ -79,7 +79,7 @@ def math_contract_address(math_contract, address_conversion_func):
 
 @pytest.fixture(scope="module")
 def emitter_contract_deploy_txn_hash(web3, emitter_contract_factory):
-    deploy_txn_hash = emitter_contract_factory.constructor().transact({'from': web3.eth.coinbase})
+    deploy_txn_hash = emitter_contract_factory.constructor().transact({'from': str(web3.eth.coinbase)})
     return deploy_txn_hash
 
 
@@ -129,7 +129,7 @@ def block_with_txn_with_log(web3, emitter_contract):
     txn_hash = emitter_contract.functions.logDouble(
         which=EMITTER_ENUM['LogDoubleWithIndex'], arg0=12345, arg1=54321,
     ).transact({
-        'from': web3.eth.coinbase,
+        'from': str(web3.eth.coinbase),
     })
     txn = web3.eth.get_transaction(txn_hash)
     block = web3.eth.get_block(txn['blockNumber'])
@@ -146,7 +146,7 @@ def txn_hash_with_log(block_with_txn_with_log):
 #
 @pytest.fixture(scope="module")
 def revert_contract_deploy_txn_hash(web3, revert_contract_factory):
-    deploy_txn_hash = revert_contract_factory.constructor().transact({'from': web3.eth.coinbase})
+    deploy_txn_hash = revert_contract_factory.constructor().transact({'from': str(web3.eth.coinbase)})
     return deploy_txn_hash
 
 
