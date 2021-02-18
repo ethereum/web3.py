@@ -744,7 +744,7 @@ The following methods are available on the ``web3.eth`` namespace.
     * Delegates to ``eth_signTransaction`` RPC Method.
 
     Returns a transaction that's been signed by the node's private key, but not yet submitted.
-    The signed tx can be submitted with ``Eth.sendRawTransaction``
+    The signed tx can be submitted with ``Eth.send_raw_transaction``
 
     .. code-block:: python
 
@@ -765,7 +765,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. warning:: Deprecated: This property is deprecated in favor of
       :attr:`~web3.eth.Eth.sign_transaction()`
 
-.. py:method:: Eth.sendRawTransaction(raw_transaction)
+.. py:method:: Eth.send_raw_transaction(raw_transaction)
 
     * Delegates to ``eth_sendRawTransaction`` RPC Method
 
@@ -773,8 +773,8 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> signed_txn = w3.eth.account.signTransaction(dict(
-            nonce=w3.eth.getTransactionCount(public_address_of_senders_account),
+        >>> signed_txn = w3.eth.account.sign_transaction(dict(
+            nonce=w3.eth.get_transaction_count(public_address_of_senders_account),
             gasPrice=w3.eth.gas_price,
             gas=100000,
             to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
@@ -783,9 +783,13 @@ The following methods are available on the ``web3.eth`` namespace.
           ),
           private_key_for_senders_account,
         )
-        >>> w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        >>> w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
 
+.. py:method:: Eth.sendRawTransaction(raw_transaction)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :meth:`~web3.eth.Eth.send_raw_transaction()`
 
 .. py:method:: Eth.replaceTransaction(transaction_hash, new_transaction)
 

@@ -22,7 +22,7 @@ Local vs Hosted Keys
 Local Private Key
   A key is 32 :class:`bytes` of data that you can use to sign transactions and messages,
   before sending them to your node.
-  You must use :meth:`~web3.eth.Eth.sendRawTransaction`
+  You must use :meth:`~web3.eth.Eth.send_raw_transaction`
   when working with local keys, instead of
   :meth:`~web3.eth.Eth.send_transaction` .
 
@@ -224,7 +224,7 @@ Sign a Transaction
 ------------------------
 
 Create a transaction, sign it locally, and then send it to your node for broadcasting,
-with :meth:`~web3.eth.Eth.sendRawTransaction`.
+with :meth:`~web3.eth.Eth.send_raw_transaction`.
 
 .. doctest::
 
@@ -249,8 +249,8 @@ with :meth:`~web3.eth.Eth.sendRawTransaction`.
     >>> signed.v
     37
 
-    # When you run sendRawTransaction, you get back the hash of the transaction:
-    >>> w3.eth.sendRawTransaction(signed.rawTransaction)  # doctest: +SKIP
+    # When you run send_raw_transaction, you get back the hash of the transaction:
+    >>> w3.eth.send_raw_transaction(signed.rawTransaction)  # doctest: +SKIP
     '0xd8f64a42b57be0d565f385378db2f6bf324ce14a594afc05de90436e9ce01f60'
 
 Sign a Contract Transaction
@@ -262,7 +262,7 @@ To sign a transaction locally that will invoke a smart contract:
 #. Build the transaction
 #. Sign the transaction, with :meth:`w3.eth.account.sign_transaction()
    <eth_account.account.Account.sign_transaction>`
-#. Broadcast the transaction with :meth:`~web3.eth.Eth.sendRawTransaction`
+#. Broadcast the transaction with :meth:`~web3.eth.Eth.send_raw_transaction`
 
 .. testsetup::
 
@@ -317,8 +317,8 @@ To sign a transaction locally that will invoke a smart contract:
     >>> signed_txn.v
     37
 
-    >>> w3.eth.sendRawTransaction(signed_txn.rawTransaction)  # doctest: +SKIP
+    >>> w3.eth.send_raw_transaction(signed_txn.rawTransaction)  # doctest: +SKIP
 
-    # When you run sendRawTransaction, you get the same result as the hash of the transaction:
+    # When you run send_raw_transaction, you get the same result as the hash of the transaction:
     >>> w3.toHex(w3.keccak(signed_txn.rawTransaction))
     '0x4795adc6a719fa64fa21822630c0218c04996e2689ded114b6553cef1ae36618'

@@ -852,14 +852,14 @@ class EthModuleTest:
             ),
         ]
     )
-    def test_eth_sendRawTransaction(
+    def test_eth_send_raw_transaction(
         self,
         web3: "Web3",
         raw_transaction: Union[HexStr, bytes],
         funded_account_for_raw_txn: ChecksumAddress,
         expected_hash: HexStr,
     ) -> None:
-        txn_hash = web3.eth.sendRawTransaction(raw_transaction)
+        txn_hash = web3.eth.send_raw_transaction(raw_transaction)
         assert txn_hash == web3.toBytes(hexstr=expected_hash)
 
     def test_eth_call(
