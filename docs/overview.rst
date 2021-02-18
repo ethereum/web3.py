@@ -158,7 +158,7 @@ Making Transactions
 
 The most common use cases will be satisfied with
 :meth:`send_transaction <web3.eth.Eth.send_transaction>` or the combination of
-:meth:`signTransaction <web3.eth.Eth.signTransaction>` and
+:meth:`sign_transaction <web3.eth.Eth.sign_transaction>` and
 :meth:`sendRawTransaction <web3.eth.Eth.sendRawTransaction>`.
 
 .. note::
@@ -171,7 +171,7 @@ API
 ^^^
 
 - :meth:`web3.eth.send_transaction() <web3.eth.Eth.send_transaction>`
-- :meth:`web3.eth.signTransaction() <web3.eth.Eth.signTransaction>`
+- :meth:`web3.eth.sign_transaction() <web3.eth.Eth.sign_transaction>`
 - :meth:`web3.eth.sendRawTransaction() <web3.eth.Eth.sendRawTransaction>`
 - :meth:`web3.eth.replaceTransaction() <web3.eth.Eth.replaceTransaction>`
 - :meth:`web3.eth.modifyTransaction() <web3.eth.Eth.modifyTransaction>`

@@ -243,9 +243,13 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_sign_ens_names, ValueError
     )
     test_eth_signTypedData = not_implemented(EthModuleTest.test_eth_signTypedData, ValueError)
-    test_eth_signTransaction = not_implemented(EthModuleTest.test_eth_signTransaction, ValueError)
-    test_eth_signTransaction_ens_names = not_implemented(
-        EthModuleTest.test_eth_signTransaction_ens_names, ValueError
+    test_eth_signTransaction_deprecated = not_implemented(
+        EthModuleTest.test_eth_signTransaction_deprecated,
+        ValueError
+    )
+    test_eth_sign_transaction = not_implemented(EthModuleTest.test_eth_sign_transaction, ValueError)
+    test_eth_sign_transaction_ens_names = not_implemented(
+        EthModuleTest.test_eth_sign_transaction_ens_names, ValueError
     )
     test_eth_submitHashrate = not_implemented(EthModuleTest.test_eth_submitHashrate, ValueError)
     test_eth_submitWork = not_implemented(EthModuleTest.test_eth_submitWork, ValueError)

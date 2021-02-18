@@ -493,7 +493,7 @@ class Eth(ModuleV2, Module):
         mungers=[sign_munger],
     )
 
-    signTransaction: Method[Callable[[TxParams], SignedTx]] = Method(
+    sign_transaction: Method[Callable[[TxParams], SignedTx]] = Method(
         RPC.eth_signTransaction,
         mungers=[default_root_munger],
     )
@@ -667,3 +667,4 @@ class Eth(ModuleV2, Module):
     getUncleByBlock = DeprecatedMethod(get_uncle_by_block, 'getUncleByBlock', 'get_uncle_by_block')
     getUncleCount = DeprecatedMethod(get_uncle_count, 'getUncleCount', 'get_uncle_count')
     sendTransaction = DeprecatedMethod(send_transaction, 'sendTransaction', 'send_transaction')
+    signTransaction = DeprecatedMethod(sign_transaction, 'signTransaction', 'sign_transaction')

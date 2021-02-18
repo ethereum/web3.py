@@ -737,9 +737,9 @@ The following methods are available on the ``web3.eth`` namespace.
 .. py:method:: Eth.sendTransaction(transaction)
 
     .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.Eth.send_transaction`
+      :attr:`~web3.eth.Eth.send_transaction()`
 
-.. py:method:: Eth.signTransaction(transaction)
+.. py:method:: Eth.sign_transaction(transaction)
 
     * Delegates to ``eth_signTransaction`` RPC Method.
 
@@ -748,7 +748,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> signed_txn = w3.eth.signTransaction(dict(
+        >>> signed_txn = w3.eth.sign_transaction(dict(
             nonce=w3.eth.get_transaction_count(w3.eth.coinbase),
             gasPrice=w3.eth.gas_price,
             gas=100000,
@@ -759,6 +759,11 @@ The following methods are available on the ``web3.eth`` namespace.
         )
         b"\xf8d\x80\x85\x040\xe24\x00\x82R\x08\x94\xdcTM\x1a\xa8\x8f\xf8\xbb\xd2\xf2\xae\xc7T\xb1\xf1\xe9\x9e\x18\x12\xfd\x01\x80\x1b\xa0\x11\r\x8f\xee\x1d\xe5=\xf0\x87\x0en\xb5\x99\xed;\xf6\x8f\xb3\xf1\xe6,\x82\xdf\xe5\x97lF|\x97%;\x15\xa04P\xb7=*\xef \t\xf0&\xbc\xbf\tz%z\xe7\xa3~\xb5\xd3\xb7=\xc0v\n\xef\xad+\x98\xe3'"  # noqa: E501
 
+
+.. py:method:: Eth.signTransaction(transaction)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.sign_transaction()`
 
 .. py:method:: Eth.sendRawTransaction(raw_transaction)
 

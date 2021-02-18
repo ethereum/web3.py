@@ -885,7 +885,7 @@ Methods
     :meth:`~web3.eth.Eth.send_transaction`.
 
     Additionally, the dictionary may be used for offline transaction signing using
-    :meth:`~web3.eth.account.Account.signTransaction`.
+    :meth:`~web3.eth.account.Account.sign_transaction`.
 
     .. code-block:: python
 

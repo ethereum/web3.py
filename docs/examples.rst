@@ -649,7 +649,7 @@ Just remember that you have to sign all transactions locally, as infura does not
     transaction = contract.functions.function_Name(params).buildTransaction()
     transaction.update({ 'gas' : appropriate_gas_amount })
     transaction.update({ 'nonce' : w3.eth.get_transaction_count('Your_Wallet_Address') })
-    signed_tx = w3.eth.account.signTransaction(transaction, private_key)
+    signed_tx = w3.eth.account.sign_transaction(transaction, private_key)
 
 P.S : the two updates are done to the transaction dictionary, since a raw transaction might not contain gas & nonce amounts, so you have to add them manually.
 
