@@ -517,7 +517,7 @@ class EthModuleTest:
                 json.loads(invalid_typed_message)
             )
 
-    def test_eth_signTransaction(self, web3: "Web3", unlocked_account: ChecksumAddress) -> None:
+    def test_eth_sign_transaction(self, web3: "Web3", unlocked_account: ChecksumAddress) -> None:
         txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
@@ -526,7 +526,7 @@ class EthModuleTest:
             'gasPrice': web3.eth.gas_price,
             'nonce': Nonce(0),
         }
-        result = web3.eth.signTransaction(txn_params)
+        result = web3.eth.sign_transaction(txn_params)
         signatory_account = web3.eth.account.recover_transaction(result['raw'])
         assert unlocked_account == signatory_account
         assert result['tx']['to'] == txn_params['to']
@@ -535,7 +535,29 @@ class EthModuleTest:
         assert result['tx']['gasPrice'] == txn_params['gasPrice']
         assert result['tx']['nonce'] == txn_params['nonce']
 
-    def test_eth_signTransaction_ens_names(
+    def test_eth_signTransaction_deprecated(self,
+                                            web3: "Web3",
+                                            unlocked_account: ChecksumAddress) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'gasPrice': web3.eth.gas_price,
+            'nonce': Nonce(0),
+        }
+        with pytest.warns(DeprecationWarning,
+                          match='signTransaction is deprecated in favor of sign_transaction'):
+            result = web3.eth.signTransaction(txn_params)
+        signatory_account = web3.eth.account.recover_transaction(result['raw'])
+        assert unlocked_account == signatory_account
+        assert result['tx']['to'] == txn_params['to']
+        assert result['tx']['value'] == txn_params['value']
+        assert result['tx']['gas'] == txn_params['gas']
+        assert result['tx']['gasPrice'] == txn_params['gasPrice']
+        assert result['tx']['nonce'] == txn_params['nonce']
+
+    def test_eth_sign_transaction_ens_names(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         with ens_addresses(web3, {'unlocked-account.eth': unlocked_account}):
@@ -547,7 +569,7 @@ class EthModuleTest:
                 'gasPrice': web3.eth.gas_price,
                 'nonce': Nonce(0),
             }
-            result = web3.eth.signTransaction(txn_params)
+            result = web3.eth.sign_transaction(txn_params)
             signatory_account = web3.eth.account.recover_transaction(result['raw'])
             assert unlocked_account == signatory_account
             assert result['tx']['to'] == unlocked_account
