@@ -473,7 +473,7 @@ class Eth(ModuleV2, Module):
         mungers=[send_transaction_munger]
     )
 
-    sendRawTransaction: Method[Callable[[Union[HexStr, bytes]], HexBytes]] = Method(
+    send_raw_transaction: Method[Callable[[Union[HexStr, bytes]], HexBytes]] = Method(
         RPC.eth_sendRawTransaction,
         mungers=[default_root_munger],
     )
@@ -668,3 +668,6 @@ class Eth(ModuleV2, Module):
     getUncleCount = DeprecatedMethod(get_uncle_count, 'getUncleCount', 'get_uncle_count')
     sendTransaction = DeprecatedMethod(send_transaction, 'sendTransaction', 'send_transaction')
     signTransaction = DeprecatedMethod(sign_transaction, 'signTransaction', 'sign_transaction')
+    sendRawTransaction = DeprecatedMethod(send_raw_transaction,
+                                          'sendRawTransaction',
+                                          'send_raw_transaction')

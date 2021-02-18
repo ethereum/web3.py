@@ -405,7 +405,7 @@ def test_eth_account_sign_and_send_EIP155_transaction_to_eth_tester(
         raw_tx,
         expected_tx_hash,
         r, s, v):
-    actual_tx_hash = w3.eth.sendRawTransaction(raw_tx)
+    actual_tx_hash = w3.eth.send_raw_transaction(raw_tx)
     assert actual_tx_hash == expected_tx_hash
     actual_txn = w3.eth.get_transaction(actual_tx_hash)
     for key in ('to', 'nonce', 'gas', 'gasPrice', 'value', ):

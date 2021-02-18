@@ -183,7 +183,7 @@ There are a few options for making transactions:
   Use this method if:
     - you want to send ether from one account to another.
 
-- :meth:`~web3.eth.Eth.sendRawTransaction`
+- :meth:`~web3.eth.Eth.send_raw_transaction`
 
   Use this method if:
     - you want to sign the transaction elsewhere, e.g., a hardware wallet.
@@ -657,7 +657,7 @@ And finally, send the transaction
 
 .. code-block:: python
 
-    txn_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    txn_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     txn_receipt = w3.eth.waitForTransactionReceipt(txn_hash)
 
 Tip : afterwards you can use the value stored in ``txn_hash``, in an explorer like `etherscan`_ to view the transaction's details
