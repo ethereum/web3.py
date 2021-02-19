@@ -55,8 +55,8 @@ class ParityEthModuleTest(EthModuleTest):
         super().test_eth_uninstallFilter(web3)
 
     @pytest.mark.xfail(reason='Parity is not setup to auto mine')
-    def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account):
-        super().test_eth_replaceTransaction_already_mined(web3, unlocked_account)
+    def test_eth_replace_transaction_already_mined(self, web3, unlocked_account):
+        super().test_eth_replace_transaction_already_mined(web3, unlocked_account)
 
     @flaky(max_runs=MAX_FLAKY_RUNS)
     def test_eth_getTransactionReceipt_unmined(self, web3, unlocked_account):

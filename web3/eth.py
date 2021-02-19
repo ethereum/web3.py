@@ -37,6 +37,9 @@ from hexbytes import (
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
+from web3._utils.decorators import (
+    deprecated_for,
+)
 from web3._utils.empty import (
     Empty,
     empty,
@@ -439,7 +442,11 @@ class Eth(ModuleV2, Module):
         mungers=[block_id_munger],
     )
 
+    @deprecated_for("replace_transaction")
     def replaceTransaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
+        return self.replace_transaction(transaction_hash, new_transaction)
+
+    def replace_transaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
         current_transaction = get_required_transaction(self.web3, transaction_hash)
         return replace_transaction(self.web3, current_transaction, new_transaction)
 

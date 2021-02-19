@@ -265,39 +265,43 @@ class TestEthereumTesterEthModule(EthModuleTest):
         super().test_eth_getTransactionReceipt_unmined(web3, unlocked_account)
 
     @disable_auto_mine
-    def test_eth_replaceTransaction(self, eth_tester, web3, unlocked_account):
-        super().test_eth_replaceTransaction(web3, unlocked_account)
+    def test_eth_replaceTransaction_deprecated(self, eth_tester, web3, unlocked_account):
+        super().test_eth_replaceTransaction_deprecated(web3, unlocked_account)
 
     @disable_auto_mine
-    def test_eth_replaceTransaction_incorrect_nonce(self, eth_tester, web3, unlocked_account):
-        super().test_eth_replaceTransaction_incorrect_nonce(web3, unlocked_account)
+    def test_eth_replace_transaction(self, eth_tester, web3, unlocked_account):
+        super().test_eth_replace_transaction(web3, unlocked_account)
 
     @disable_auto_mine
-    def test_eth_replaceTransaction_gas_price_too_low(self, eth_tester, web3, unlocked_account):
-        super().test_eth_replaceTransaction_gas_price_too_low(web3, unlocked_account)
+    def test_eth_replace_transaction_incorrect_nonce(self, eth_tester, web3, unlocked_account):
+        super().test_eth_replace_transaction_incorrect_nonce(web3, unlocked_account)
 
     @disable_auto_mine
-    def test_eth_replaceTransaction_gas_price_defaulting_minimum(self,
-                                                                 eth_tester,
-                                                                 web3,
-                                                                 unlocked_account):
-        super().test_eth_replaceTransaction_gas_price_defaulting_minimum(web3, unlocked_account)
+    def test_eth_replace_transaction_gas_price_too_low(self, eth_tester, web3, unlocked_account):
+        super().test_eth_replace_transaction_gas_price_too_low(web3, unlocked_account)
 
     @disable_auto_mine
-    def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(self,
-                                                                         eth_tester,
-                                                                         web3,
-                                                                         unlocked_account):
-        super().test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(
+    def test_eth_replace_transaction_gas_price_defaulting_minimum(self,
+                                                                  eth_tester,
+                                                                  web3,
+                                                                  unlocked_account):
+        super().test_eth_replace_transaction_gas_price_defaulting_minimum(web3, unlocked_account)
+
+    @disable_auto_mine
+    def test_eth_replace_transaction_gas_price_defaulting_strategy_higher(self,
+                                                                          eth_tester,
+                                                                          web3,
+                                                                          unlocked_account):
+        super().test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
             web3, unlocked_account
         )
 
     @disable_auto_mine
-    def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(self,
-                                                                        eth_tester,
-                                                                        web3,
-                                                                        unlocked_account):
-        super().test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(
+    def test_eth_replace_transaction_gas_price_defaulting_strategy_lower(self,
+                                                                         eth_tester,
+                                                                         web3,
+                                                                         unlocked_account):
+        super().test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
             web3, unlocked_account
         )
 
