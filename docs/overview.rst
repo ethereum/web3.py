@@ -173,7 +173,7 @@ API
 - :meth:`web3.eth.send_transaction() <web3.eth.Eth.send_transaction>`
 - :meth:`web3.eth.sign_transaction() <web3.eth.Eth.sign_transaction>`
 - :meth:`web3.eth.send_raw_transaction() <web3.eth.Eth.send_raw_transaction>`
-- :meth:`web3.eth.replaceTransaction() <web3.eth.Eth.replaceTransaction>`
+- :meth:`web3.eth.replace_transaction() <web3.eth.Eth.replace_transaction>`
 - :meth:`web3.eth.modifyTransaction() <web3.eth.Eth.modifyTransaction>`
 - :meth:`web3.eth.waitForTransactionReceipt() <web3.eth.Eth.waitForTransactionReceipt>`
 - :meth:`web3.eth.getTransactionReceipt() <web3.eth.Eth.getTransactionReceipt>`

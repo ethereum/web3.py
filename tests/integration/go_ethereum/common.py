@@ -29,9 +29,9 @@ class GoEthereumEthModuleTest(EthModuleTest):
         raises=FuturesTimeoutError,
         reason='Sometimes a TimeoutError is hit when waiting for the txn to be mined',
     )
-    def test_eth_replaceTransaction_already_mined(self, web3, unlocked_account_dual_type):
+    def test_eth_replace_transaction_already_mined(self, web3, unlocked_account_dual_type):
         web3.geth.miner.start()
-        super().test_eth_replaceTransaction_already_mined(web3, unlocked_account_dual_type)
+        super().test_eth_replace_transaction_already_mined(web3, unlocked_account_dual_type)
         web3.geth.miner.stop()
 
     @pytest.mark.xfail(reason='Block identifier has not been implemented in geth')

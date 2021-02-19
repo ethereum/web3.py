@@ -660,7 +660,7 @@ class EthModuleTest:
         assert txn['gasPrice'] == txn_params['gasPrice']
         assert txn['nonce'] == txn_params['nonce']
 
-    def test_eth_replaceTransaction(
+    def test_eth_replace_transaction(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -673,7 +673,7 @@ class EthModuleTest:
         txn_hash = web3.eth.send_transaction(txn_params)
 
         txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
-        replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
+        replace_txn_hash = web3.eth.replace_transaction(txn_hash, txn_params)
         replace_txn = web3.eth.get_transaction(replace_txn_hash)
 
         assert is_same_address(replace_txn['from'], cast(ChecksumAddress, txn_params['from']))
@@ -682,7 +682,33 @@ class EthModuleTest:
         assert replace_txn['gas'] == 21000
         assert replace_txn['gasPrice'] == txn_params['gasPrice']
 
-    def test_eth_replaceTransaction_non_existing_transaction(
+    def test_eth_replaceTransaction_deprecated(
+        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'gasPrice': web3.eth.gas_price,
+        }
+        txn_hash = web3.eth.send_transaction(txn_params)
+
+        txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
+        with pytest.warns(
+            DeprecationWarning,
+            match="replaceTransaction is deprecated in favor of replace_transaction"
+        ):
+            replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
+        replace_txn = web3.eth.get_transaction(replace_txn_hash)
+
+        assert is_same_address(replace_txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(replace_txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert replace_txn['value'] == 1
+        assert replace_txn['gas'] == 21000
+        assert replace_txn['gasPrice'] == txn_params['gasPrice']
+
+    def test_eth_replace_transaction_non_existing_transaction(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -693,12 +719,12 @@ class EthModuleTest:
             'gasPrice': web3.eth.gas_price,
         }
         with pytest.raises(TransactionNotFound):
-            web3.eth.replaceTransaction(
+            web3.eth.replace_transaction(
                 HexStr('0x98e8cc09b311583c5079fa600f6c2a3bea8611af168c52e4b60b5b243a441997'),
                 txn_params
             )
 
-    def test_eth_replaceTransaction_already_mined(
+    def test_eth_replace_transaction_already_mined(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -713,9 +739,9 @@ class EthModuleTest:
 
         txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
         with pytest.raises(ValueError, match="Supplied transaction with hash"):
-            web3.eth.replaceTransaction(txn_hash, txn_params)
+            web3.eth.replace_transaction(txn_hash, txn_params)
 
-    def test_eth_replaceTransaction_incorrect_nonce(
+    def test_eth_replace_transaction_incorrect_nonce(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -731,9 +757,9 @@ class EthModuleTest:
         txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
         txn_params['nonce'] = Nonce(txn['nonce'] + 1)
         with pytest.raises(ValueError):
-            web3.eth.replaceTransaction(txn_hash, txn_params)
+            web3.eth.replace_transaction(txn_hash, txn_params)
 
-    def test_eth_replaceTransaction_gas_price_too_low(
+    def test_eth_replace_transaction_gas_price_too_low(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -747,9 +773,9 @@ class EthModuleTest:
 
         txn_params['gasPrice'] = Wei(9)
         with pytest.raises(ValueError):
-            web3.eth.replaceTransaction(txn_hash, txn_params)
+            web3.eth.replace_transaction(txn_hash, txn_params)
 
-    def test_eth_replaceTransaction_gas_price_defaulting_minimum(
+    def test_eth_replace_transaction_gas_price_defaulting_minimum(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -762,12 +788,12 @@ class EthModuleTest:
         txn_hash = web3.eth.send_transaction(txn_params)
 
         txn_params.pop('gasPrice')
-        replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
+        replace_txn_hash = web3.eth.replace_transaction(txn_hash, txn_params)
         replace_txn = web3.eth.get_transaction(replace_txn_hash)
 
         assert replace_txn['gasPrice'] == 12  # minimum gas price
 
-    def test_eth_replaceTransaction_gas_price_defaulting_strategy_higher(
+    def test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -785,11 +811,11 @@ class EthModuleTest:
         web3.eth.setGasPriceStrategy(higher_gas_price_strategy)
 
         txn_params.pop('gasPrice')
-        replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
+        replace_txn_hash = web3.eth.replace_transaction(txn_hash, txn_params)
         replace_txn = web3.eth.get_transaction(replace_txn_hash)
         assert replace_txn['gasPrice'] == 20  # Strategy provides higher gas price
 
-    def test_eth_replaceTransaction_gas_price_defaulting_strategy_lower(
+    def test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -807,9 +833,9 @@ class EthModuleTest:
         web3.eth.setGasPriceStrategy(lower_gas_price_strategy)
 
         txn_params.pop('gasPrice')
-        replace_txn_hash = web3.eth.replaceTransaction(txn_hash, txn_params)
+        replace_txn_hash = web3.eth.replace_transaction(txn_hash, txn_params)
         replace_txn = web3.eth.get_transaction(replace_txn_hash)
-        # Strategy provices lower gas price - minimum preferred
+        # Strategy provides lower gas price - minimum preferred
         assert replace_txn['gasPrice'] == 12
 
     def test_eth_modifyTransaction(
