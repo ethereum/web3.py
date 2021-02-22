@@ -527,7 +527,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.getUncleCount(block_identifier)
 
-    .. warning:: Deprecated: This property is deprecated in favor of
+    .. warning:: Deprecated: This method is deprecated in favor of
       :attr:`~web3.eth.Eth.get_uncle_count()`
 
 .. py:method:: Eth.get_transaction(transaction_hash)
@@ -556,7 +556,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.getTransaction(transaction_hash)
 
-    .. warning:: Deprecated: This property is deprecated in favor of
+    .. warning:: Deprecated: This method is deprecated in favor of
       :attr:`~web3.eth.Eth.get_transaction`
 
 
@@ -736,7 +736,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.sendTransaction(transaction)
 
-    .. warning:: Deprecated: This property is deprecated in favor of
+    .. warning:: Deprecated: This method is deprecated in favor of
       :attr:`~web3.eth.Eth.send_transaction()`
 
 .. py:method:: Eth.sign_transaction(transaction)
@@ -762,7 +762,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.signTransaction(transaction)
 
-    .. warning:: Deprecated: This property is deprecated in favor of
+    .. warning:: Deprecated: This method is deprecated in favor of
       :attr:`~web3.eth.Eth.sign_transaction()`
 
 .. py:method:: Eth.send_raw_transaction(raw_transaction)
@@ -788,7 +788,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.sendRawTransaction(raw_transaction)
 
-    .. warning:: Deprecated: This property is deprecated in favor of
+    .. warning:: Deprecated: This method is deprecated in favor of
       :meth:`~web3.eth.Eth.send_raw_transaction()`
 
 .. py:method:: Eth.replace_transaction(transaction_hash, new_transaction)
@@ -835,7 +835,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.replaceTransaction(transaction_hash, new_transaction)
 
-    .. warning:: Deprecated: This property is deprecated in favor of
+    .. warning:: Deprecated: This method is deprecated in favor of
       :meth:`~web3.eth.Eth.replace_transaction()`
 
 .. py:method:: Eth.modifyTransaction(transaction_hash, **transaction_params)
