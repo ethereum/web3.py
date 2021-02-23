@@ -3,7 +3,7 @@ import warnings
 
 import pkg_resources
 
-from eth_account import (
+from eth_account.account import (
     Account  # noqa: E402,
 )
 from web3.main import (

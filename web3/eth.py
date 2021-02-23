@@ -13,8 +13,8 @@ from typing import (
 )
 import warnings
 
-from eth_account import (
-    Account,
+from eth_account.account import (
+    Account
 )
 from eth_typing import (
     Address,

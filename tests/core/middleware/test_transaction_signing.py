@@ -1,8 +1,10 @@
 import pytest
 
-from eth_account import (
+
+from eth_account.account import (
     Account,
 )
+
 from eth_account.signers.local import (
     LocalAccount,
 )
