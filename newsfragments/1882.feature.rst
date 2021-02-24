@@ -1,1 +1,0 @@
-Add ``w3.eth.replace_transaction`` deprecate ``w3.eth.replaceTransaction``

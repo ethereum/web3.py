@@ -1,1 +1,0 @@
-Add ``web3.eth.sign_transaction``, deprecate ``web3.eth.signTransaction``

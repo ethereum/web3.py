@@ -1,1 +1,0 @@
-Fix return type of ``send_transaction`` in docs.

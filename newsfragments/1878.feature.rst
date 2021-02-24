@@ -1,1 +1,0 @@
-Add ``w3.eth.send_transaction``, deprecate ``w3.eth.sendTransaction``

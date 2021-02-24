@@ -3,6 +3,25 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.17.0 (2021-02-24)
+--------------------
+
+Features
+~~~~~~~~
+
+- Added ``get_transaction_count``, and deprecated ``getTransactionCount`` (`#1844 <https://github.com/ethereum/web3.py/issues/1844>`__)
+- Add ``w3.eth.send_transaction``, deprecate ``w3.eth.sendTransaction`` (`#1878 <https://github.com/ethereum/web3.py/issues/1878>`__)
+- Add ``web3.eth.sign_transaction``, deprecate ``web3.eth.signTransaction`` (`#1879 <https://github.com/ethereum/web3.py/issues/1879>`__)
+- Add ``w3.eth.send_raw_transaction``, deprecate ``w3.eth.sendRawTransaction`` (`#1880 <https://github.com/ethereum/web3.py/issues/1880>`__)
+- Add ``w3.eth.replace_transaction`` deprecate ``w3.eth.replaceTransaction`` (`#1882 <https://github.com/ethereum/web3.py/issues/1882>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Fix return type of ``send_transaction`` in docs. (`#686 <https://github.com/ethereum/web3.py/issues/686>`__)
+
+
 v5.16.0 (2021-02-04)
 --------------------
 
