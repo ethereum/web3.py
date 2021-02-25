@@ -450,7 +450,17 @@ class Eth(ModuleV2, Module):
 
     # todo: Update Any to stricter kwarg checking with TxParams
     # https://github.com/python/mypy/issues/4441
+    @deprecated_for("modify_transaction")
     def modifyTransaction(
+        self, transaction_hash: _Hash32, **transaction_params: Any
+    ) -> HexBytes:
+        assert_valid_transaction_params(cast(TxParams, transaction_params))
+        current_transaction = get_required_transaction(self.web3, transaction_hash)
+        current_transaction_params = extract_valid_transaction_params(current_transaction)
+        new_transaction = merge(current_transaction_params, transaction_params)
+        return replace_transaction(self.web3, current_transaction, new_transaction)
+
+    def modify_transaction(
         self, transaction_hash: _Hash32, **transaction_params: Any
     ) -> HexBytes:
         assert_valid_transaction_params(cast(TxParams, transaction_params))

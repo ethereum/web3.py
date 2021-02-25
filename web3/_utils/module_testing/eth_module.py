@@ -838,7 +838,30 @@ class EthModuleTest:
         # Strategy provides lower gas price - minimum preferred
         assert replace_txn['gasPrice'] == 12
 
-    def test_eth_modifyTransaction(
+    def test_eth_modify_transaction(
+        self, web3: "Web3", unlocked_account: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'gasPrice': web3.eth.gas_price,
+        }
+        txn_hash = web3.eth.send_transaction(txn_params)
+
+        modified_txn_hash = web3.eth.modify_transaction(
+            txn_hash, gasPrice=(cast(int, txn_params['gasPrice']) * 2), value=2
+        )
+        modified_txn = web3.eth.get_transaction(modified_txn_hash)
+
+        assert is_same_address(modified_txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(modified_txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert modified_txn['value'] == 2
+        assert modified_txn['gas'] == 21000
+        assert modified_txn['gasPrice'] == cast(int, txn_params['gasPrice']) * 2
+
+    def test_eth_modifyTransaction_deprecated(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
