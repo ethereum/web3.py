@@ -838,7 +838,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. warning:: Deprecated: This method is deprecated in favor of
       :meth:`~web3.eth.Eth.replace_transaction()`
 
-.. py:method:: Eth.modifyTransaction(transaction_hash, **transaction_params)
+.. py:method:: Eth.modify_transaction(transaction_hash, **transaction_params)
 
     * Delegates to ``eth_sendTransaction`` RPC Method
 
@@ -861,8 +861,13 @@ The following methods are available on the ``web3.eth`` namespace.
                 'value': 1000
             })
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
-        >>> web3.eth.modifyTransaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', value=2000)
+        >>> web3.eth.modify_transaction
+        ('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', value=2000)
 
+.. py:method:: Eth.modifyTransaction(transaction_hash, **transaction_params)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.modify_transaction()`
 
 .. py:method:: Eth.sign(account, data=None, hexstr=None, text=None)
 

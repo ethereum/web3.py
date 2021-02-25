@@ -306,8 +306,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
         )
 
     @disable_auto_mine
-    def test_eth_modifyTransaction(self, eth_tester, web3, unlocked_account):
-        super().test_eth_modifyTransaction(web3, unlocked_account)
+    def test_eth_modifyTransaction_deprecated(self, eth_tester, web3, unlocked_account):
+        super().test_eth_modifyTransaction_deprecated(web3, unlocked_account)
+
+    @disable_auto_mine
+    def test_eth_modify_transaction(self, eth_tester, web3, unlocked_account):
+        super().test_eth_modify_transaction(web3, unlocked_account)
 
     @disable_auto_mine
     def test_eth_call_old_contract_state(self, eth_tester, web3, math_contract, unlocked_account):
