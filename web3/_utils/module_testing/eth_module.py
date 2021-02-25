@@ -872,12 +872,13 @@ class EthModuleTest:
             'gasPrice': web3.eth.gas_price,
         }
         txn_hash = web3.eth.send_transaction(txn_params)
-
-        modified_txn_hash = web3.eth.modifyTransaction(
-            txn_hash, gasPrice=(cast(int, txn_params['gasPrice']) * 2), value=2
-        )
+        with pytest.warns(
+                DeprecationWarning,
+                match="modifyTransaction is deprecated in favor of modify_transaction"):
+            modified_txn_hash = web3.eth.modifyTransaction(
+                txn_hash, gasPrice=(cast(int, txn_params['gasPrice']) * 2), value=2
+            )
         modified_txn = web3.eth.get_transaction(modified_txn_hash)
-
         assert is_same_address(modified_txn['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(modified_txn['to'], cast(ChecksumAddress, txn_params['to']))
         assert modified_txn['value'] == 2
