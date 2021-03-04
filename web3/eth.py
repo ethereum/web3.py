@@ -430,14 +430,12 @@ class Eth(ModuleV2, Module):
                 )
             )
 
-    getTransactionReceipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
+    get_transaction_receipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
         RPC.eth_getTransactionReceipt,
         mungers=[default_root_munger]
     )
 
     get_transaction_count: Method[Callable[..., Nonce]] = Method(
-
-
         RPC.eth_getTransactionCount,
         mungers=[block_id_munger],
     )
@@ -678,3 +676,6 @@ class Eth(ModuleV2, Module):
     sendRawTransaction = DeprecatedMethod(send_raw_transaction,
                                           'sendRawTransaction',
                                           'send_raw_transaction')
+    getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,
+                                             'getTransactionReceipt',
+                                             'get_transaction_receipt')

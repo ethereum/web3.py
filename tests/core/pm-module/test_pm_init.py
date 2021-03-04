@@ -76,7 +76,7 @@ def test_deploy_a_standalone_package_integration(w3):
     ERC20 = token_package.get_contract_factory('StandardToken')
     # totalSupply = 100
     tx_hash = ERC20.constructor(100).transact()
-    tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+    tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
     address = tx_receipt["contractAddress"]
     erc20 = w3.eth.contract(address=address, abi=ERC20.abi)
     total_supply = erc20.functions.totalSupply().call()

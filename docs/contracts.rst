@@ -237,7 +237,7 @@ Each Contract Factory exposes the following methods.
     .. code-block:: python
 
         >>> deploy_txn = token_contract.constructor(web3.eth.coinbase, 12345).transact()
-        >>> txn_receipt = web3.eth.getTransactionReceipt(deploy_txn)
+        >>> txn_receipt = web3.eth.get_transaction_receipt(deploy_txn)
         >>> txn_receipt['contractAddress']
         '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
 
@@ -937,7 +937,7 @@ For example:
 
         myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
         tx_hash = myContract.functions.myFunction().transact()
-        receipt = web3.eth.getTransactionReceipt(tx_hash)
+        receipt = web3.eth.get_transaction_receipt(tx_hash)
         myContract.events.myEvent().processReceipt(receipt)
 
 :py:class:`ContractEvent` provides methods to interact with contract events. Positional and keyword arguments supplied to the contract event subclass will be used to find the contract event by signature.
@@ -954,7 +954,7 @@ For example:
    .. code-block:: python
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
-       >>> tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+       >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
        >>> rich_logs = contract.events.myEvent().processReceipt(tx_receipt)
        >>> rich_logs[0]['args']
        {'myArg': 12345}
@@ -971,7 +971,7 @@ For example:
    .. code-block:: python
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
-       >>> tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+       >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
        >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt)
        >>> processed_logs
        (
@@ -1020,7 +1020,7 @@ For example:
    .. code-block:: python
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
-       >>> tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+       >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
        >>> log_to_process = tx_receipt['logs'][0]
        >>> processed_log = contract.events.myEvent().processLog(log_to_process)
        >>> processed_log

@@ -59,9 +59,9 @@ class ParityEthModuleTest(EthModuleTest):
         super().test_eth_replace_transaction_already_mined(web3, unlocked_account)
 
     @flaky(max_runs=MAX_FLAKY_RUNS)
-    def test_eth_getTransactionReceipt_unmined(self, web3, unlocked_account):
+    def test_eth_get_transaction_receipt_unmined(self, web3, unlocked_account):
         # Parity diverges from json-rpc spec and retrieves pending block
-        # transactions with getTransactionReceipt.
+        # transactions with get_transaction_receipt.
         txn_hash = web3.eth.send_transaction({
             'from': unlocked_account,
             'to': unlocked_account,
@@ -69,7 +69,7 @@ class ParityEthModuleTest(EthModuleTest):
             'gas': 21000,
             'gasPrice': web3.eth.gas_price,
         })
-        receipt = web3.eth.getTransactionReceipt(txn_hash)
+        receipt = web3.eth.get_transaction_receipt(txn_hash)
         assert receipt is not None
         assert receipt['blockHash'] is None
 

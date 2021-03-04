@@ -25,7 +25,7 @@ def test_deployed_escrow_and_safe_send(escrow_manifest, w3):
         bytecode=safe_send_contract_type["deploymentBytecode"]["bytecode"],
     )
     tx_hash = SafeSend.constructor().transact()
-    tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+    tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
     safe_send_address = to_canonical_address(tx_receipt["contractAddress"])
 
     EscrowPackage = Package(escrow_manifest, w3)

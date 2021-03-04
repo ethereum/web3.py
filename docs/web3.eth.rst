@@ -644,7 +644,7 @@ The following methods are available on the ``web3.eth`` namespace.
         })
 
 
-.. py:method:: Eth.getTransactionReceipt(transaction_hash)
+.. py:method:: Eth.get_transaction_receipt(transaction_hash)
 
     * Delegates to ``eth_getTransactionReceipt`` RPC Method
 
@@ -654,12 +654,12 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.getTransactionReceipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')  # not yet mined
+        >>> web3.eth.get_transaction_receipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')  # not yet mined
         Traceback # ... etc ...
         TransactionNotFound: Transaction with hash: 0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060 not found.
 
         # wait for it to be mined....
-        >>> web3.eth.getTransactionReceipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
+        >>> web3.eth.get_transaction_receipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
@@ -675,6 +675,10 @@ The following methods are available on the ``web3.eth`` namespace.
             'transactionIndex': 0,
         })
 
+.. py:method:: Eth.getTransactionReceipt(transaction_hash)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_transaction_receipt()`
 
 .. py:method:: Eth.get_transaction_count(account, block_identifier=web3.eth.default_block)
 

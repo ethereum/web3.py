@@ -11,7 +11,7 @@ def deploy_contracts(web3, contract, wait_for_transaction):
     for i in range(25):
         tx_hash = contract.constructor().transact()
         wait_for_transaction(web3, tx_hash)
-        yield web3.eth.getTransactionReceipt(tx_hash)['contractAddress']
+        yield web3.eth.get_transaction_receipt(tx_hash)['contractAddress']
 
 
 def pad_with_transactions(w3):

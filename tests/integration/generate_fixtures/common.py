@@ -215,7 +215,7 @@ def mine_transaction_hash(web3, txn_hash):
     web3.geth.miner.start(1)
     while time.time() < start_time + 120:
         try:
-            receipt = web3.eth.getTransactionReceipt(txn_hash)
+            receipt = web3.eth.get_transaction_receipt(txn_hash)
         except TransactionNotFound:
             continue
         if receipt is not None:

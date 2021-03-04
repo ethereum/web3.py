@@ -261,8 +261,8 @@ class TestEthereumTesterEthModule(EthModuleTest):
         assert block['hash'] is not None
 
     @disable_auto_mine
-    def test_eth_getTransactionReceipt_unmined(self, eth_tester, web3, unlocked_account):
-        super().test_eth_getTransactionReceipt_unmined(web3, unlocked_account)
+    def test_eth_get_transaction_receipt_unmined(self, eth_tester, web3, unlocked_account):
+        super().test_eth_get_transaction_receipt_unmined(web3, unlocked_account)
 
     @disable_auto_mine
     def test_eth_replaceTransaction_deprecated(self, eth_tester, web3, unlocked_account):
@@ -354,8 +354,14 @@ class TestEthereumTesterEthModule(EthModuleTest):
         assert chain_id == 61
 
     @pytest.mark.xfail(raises=KeyError, reason="ethereum tester doesn't return 'to' key")
-    def test_eth_getTransactionReceipt_mined(self, web3, block_with_txn, mined_txn_hash):
-        super().test_eth_getTransactionReceipt_mined(web3, block_with_txn, mined_txn_hash)
+    def test_eth_get_transaction_receipt_mined(self, web3, block_with_txn, mined_txn_hash):
+        super().test_eth_get_transaction_receipt_mined(web3, block_with_txn, mined_txn_hash)
+
+    @pytest.mark.xfail(raises=KeyError, reason="ethereum tester doesn't return 'to' key")
+    def test_eth_getTransactionReceipt_mined_deprecated(self, web3, block_with_txn, mined_txn_hash):
+        super().test_eth_getTransactionReceipt_mined_deprecated(web3,
+                                                                block_with_txn,
+                                                                mined_txn_hash)
 
     def test_eth_call_revert_with_msg(self, web3, revert_contract, unlocked_account):
         with pytest.raises(TransactionFailed,
