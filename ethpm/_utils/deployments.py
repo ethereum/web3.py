@@ -98,7 +98,7 @@ def validate_deployments_tx_receipt(
     for name, data in deployments.items():
         if "transaction" in data:
             tx_hash = data["transaction"]
-            tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+            tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
             # tx_address will be None if contract created via contract factory
             tx_address = tx_receipt["contractAddress"]
 

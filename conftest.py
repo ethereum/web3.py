@@ -85,7 +85,7 @@ def wait_for_transaction():
         poll_delay_counter = PollDelayCounter()
         with Timeout(timeout) as timeout:
             while True:
-                txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
+                txn_receipt = web3.eth.get_transaction_receipt(txn_hash)
                 if txn_receipt is not None:
                     break
                 time.sleep(poll_delay_counter())

@@ -176,7 +176,7 @@ API
 - :meth:`web3.eth.replace_transaction() <web3.eth.Eth.replace_transaction>`
 - :meth:`web3.eth.modifyTransaction() <web3.eth.Eth.modifyTransaction>`
 - :meth:`web3.eth.waitForTransactionReceipt() <web3.eth.Eth.waitForTransactionReceipt>`
-- :meth:`web3.eth.getTransactionReceipt() <web3.eth.Eth.getTransactionReceipt>`
+- :meth:`web3.eth.get_transaction_receipt() <web3.eth.Eth.get_transaction_receipt>`
 - :meth:`web3.eth.sign() <web3.eth.Eth.sign>`
 - :meth:`web3.eth.signTypedData() <web3.eth.Eth.signTypedData>`
 - :meth:`web3.eth.estimateGas() <web3.eth.Eth.estimateGas>`

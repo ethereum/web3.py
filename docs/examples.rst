@@ -241,12 +241,12 @@ instead return ``None``.
 Looking up receipts
 -------------------
 
-Transaction receipts can be retrieved using the ``web3.eth.getTransactionReceipt`` API.
+Transaction receipts can be retrieved using the ``web3.eth.get_transaction_receipt`` API.
 
 
 .. code-block:: python
 
-    >>> web3.eth.getTransactionReceipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
+    >>> web3.eth.get_transaction_receipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
     {
         'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
         'blockNumber': 46147,
@@ -317,7 +317,7 @@ The following example demonstrates a few things:
             abi=contract_interface['abi'],
             bytecode=contract_interface['bin']).constructor().transact()
 
-        address = w3.eth.getTransactionReceipt(tx_hash)['contractAddress']
+        address = w3.eth.get_transaction_receipt(tx_hash)['contractAddress']
         return address
 
 

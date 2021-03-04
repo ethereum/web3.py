@@ -1136,10 +1136,10 @@ class EthModuleTest:
         assert is_dict(transaction)
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
-    def test_eth_getTransactionReceipt_mined(
+    def test_eth_get_transaction_receipt_mined(
         self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:
-        receipt = web3.eth.getTransactionReceipt(mined_txn_hash)
+        receipt = web3.eth.get_transaction_receipt(mined_txn_hash)
         assert is_dict(receipt)
         assert receipt['blockNumber'] == block_with_txn['number']
         assert receipt['blockHash'] == block_with_txn['hash']
@@ -1149,7 +1149,23 @@ class EthModuleTest:
         assert receipt['from'] is not None
         assert is_checksum_address(receipt['from'])
 
-    def test_eth_getTransactionReceipt_unmined(
+    def test_eth_getTransactionReceipt_mined_deprecated(
+        self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
+    ) -> None:
+        with pytest.warns(
+                DeprecationWarning,
+                match="getTransactionReceipt is deprecated in favor of get_transaction_receipt"):
+            receipt = web3.eth.getTransactionReceipt(mined_txn_hash)
+        assert is_dict(receipt)
+        assert receipt['blockNumber'] == block_with_txn['number']
+        assert receipt['blockHash'] == block_with_txn['hash']
+        assert receipt['transactionIndex'] == 0
+        assert receipt['transactionHash'] == HexBytes(mined_txn_hash)
+        assert is_checksum_address(receipt['to'])
+        assert receipt['from'] is not None
+        assert is_checksum_address(receipt['from'])
+
+    def test_eth_get_transaction_receipt_unmined(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_hash = web3.eth.send_transaction({
@@ -1160,16 +1176,16 @@ class EthModuleTest:
             'gasPrice': web3.eth.gas_price,
         })
         with pytest.raises(TransactionNotFound):
-            web3.eth.getTransactionReceipt(txn_hash)
+            web3.eth.get_transaction_receipt(txn_hash)
 
-    def test_eth_getTransactionReceipt_with_log_entry(
+    def test_eth_get_transaction_receipt_with_log_entry(
         self,
         web3: "Web3",
         block_with_txn_with_log: BlockData,
         emitter_contract: "Contract",
         txn_hash_with_log: HexStr,
     ) -> None:
-        receipt = web3.eth.getTransactionReceipt(txn_hash_with_log)
+        receipt = web3.eth.get_transaction_receipt(txn_hash_with_log)
         assert is_dict(receipt)
         assert receipt['blockNumber'] == block_with_txn_with_log['number']
         assert receipt['blockHash'] == block_with_txn_with_log['hash']

@@ -99,7 +99,7 @@ def wait_for_transaction_receipt(
     with Timeout(timeout) as _timeout:
         while True:
             try:
-                txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
+                txn_receipt = web3.eth.get_transaction_receipt(txn_hash)
             except TransactionNotFound:
                 txn_receipt = None
             # FIXME: The check for a null `blockHash` is due to parity's
