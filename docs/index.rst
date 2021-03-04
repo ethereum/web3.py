@@ -46,9 +46,9 @@ Table of Contents
     web3.eth.account
     filters
     contracts
+    abi_types
     middleware
     internals
-    abi_types
     ethpm
     ens_overview
     v5_migration
