@@ -1,0 +1,1 @@
+Add ``w3.eth.get_transaction_receipt``, deprecate ``w3.eth.getTransactionReceipt``
