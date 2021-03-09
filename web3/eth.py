@@ -417,7 +417,13 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger]
     )
 
+    @deprecated_for("wait_for_transaction_receipt")
     def waitForTransactionReceipt(
+        self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
+    ) -> TxReceipt:
+        return self.wait_for_transaction_receipt(transaction_hash, timeout, poll_latency)
+
+    def wait_for_transaction_receipt(
         self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
         try:
