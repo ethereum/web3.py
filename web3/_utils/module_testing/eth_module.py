@@ -735,7 +735,7 @@ class EthModuleTest:
             'gasPrice': web3.eth.gas_price,
         }
         txn_hash = web3.eth.send_transaction(txn_params)
-        web3.eth.waitForTransactionReceipt(txn_hash)
+        web3.eth.wait_for_transaction_receipt(txn_hash)
 
         txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
         with pytest.raises(ValueError, match="Supplied transaction with hash"):

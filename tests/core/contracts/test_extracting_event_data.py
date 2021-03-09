@@ -32,7 +32,7 @@ def Emitter(web3, EMITTER):
 def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
     wait_for_block(web3)
     deploy_txn_hash = Emitter.constructor().transact({'from': web3.eth.coinbase, 'gas': 1000000})
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn_hash)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
     bytecode = web3.eth.get_code(contract_address)

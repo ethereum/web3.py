@@ -14,7 +14,7 @@ from web3.exceptions import (
 def deploy(web3, Contract, apply_func=identity, args=None):
     args = args or []
     deploy_txn = Contract.constructor(*args).transact()
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     address = apply_func(deploy_receipt['contractAddress'])
     contract = Contract(address=address)

@@ -62,7 +62,7 @@ def test_linker_with_callback(escrow_deployer, w3):
     def callback_fn(package):
         escrow_instance = package.deployments.get_instance("Escrow")
         tx_hash = escrow_instance.functions.releaseFunds().transact({"from": sender})
-        w3.eth.waitForTransactionReceipt(tx_hash)
+        w3.eth.wait_for_transaction_receipt(tx_hash)
 
     escrow_strategy = linker(
         deploy("SafeSendLib", transaction={"from": sender}),

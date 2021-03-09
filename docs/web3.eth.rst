@@ -613,18 +613,19 @@ The following methods are available on the ``web3.eth`` namespace.
     .. warning:: Deprecated: This method is deprecated in favor of
       :attr:`~web3.eth.Eth.get_transaction_by_block`
 
-.. py:method:: Eth.waitForTransactionReceipt(transaction_hash, timeout=120, poll_latency=0.1)
+.. py:method:: Eth.wait_for_transaction_receipt(transaction_hash, timeout=120, poll_latency=0.1)
 
     Waits for the transaction specified by ``transaction_hash`` to be included in a block, then
     returns its transaction receipt.
 
     Optionally, specify a ``timeout`` in seconds. If timeout elapses before the transaction
-    is added to a block, then :meth:`~Eth.waitForTransactionReceipt` raises a
+    is added to a block, then :meth:`~Eth.wait_for_transaction_receipt` raises a
     :class:`web3.exceptions.TimeExhausted` exception.
 
     .. code-block:: python
 
-        >>> web3.eth.waitForTransactionReceipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
+        >>> web3.eth.wait_for_transaction_receipt
+        ('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
         # If transaction is not yet in a block, time passes, while the thread sleeps...
         # ...
         # Then when the transaction is added to a block, its receipt is returned:
@@ -643,6 +644,11 @@ The following methods are available on the ``web3.eth`` namespace.
             'transactionIndex': 0,
         })
 
+
+.. py:method:: Eth.waitForTransactionReceipt(transaction_hash, timeout=120, poll_latency=0.1)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.wait_for_transaction_receipt()`
 
 .. py:method:: Eth.get_transaction_receipt(transaction_hash)
 

@@ -23,7 +23,7 @@ def math_contract(web3,
         bytecode_runtime=MATH_RUNTIME,
     )
     deploy_txn = MathContract.constructor().transact({'from': web3.eth.coinbase})
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
 
     assert deploy_receipt is not None
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
@@ -47,7 +47,7 @@ def fallback_function_contract(web3,
         bytecode_runtime=FALLBACK_FUNCTION_RUNTIME
     )
     deploy_txn = fallback_contract.constructor().transact({'from': web3.eth.coinbase})
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
 
     assert deploy_receipt is not None
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
@@ -61,7 +61,7 @@ def fallback_function_contract(web3,
 @pytest.fixture()
 def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
     deploy_txn = PayableTesterContract.constructor().transact({'from': web3.eth.coinbase})
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
 
     assert deploy_receipt is not None
     payable_tester_address = address_conversion_func(deploy_receipt['contractAddress'])
@@ -79,7 +79,7 @@ def test_contract_estimateGas(web3, math_contract, estimateGas, transact):
         contract=math_contract,
         contract_function='increment')
 
-    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
     gas_used = txn_receipt.get('gasUsed')
 
     assert abs(gas_estimate - gas_used) < 21000
@@ -90,7 +90,7 @@ def test_contract_fallback_estimateGas(web3, fallback_function_contract):
 
     txn_hash = fallback_function_contract.fallback.transact()
 
-    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
     gas_used = txn_receipt.get('gasUsed')
 
     assert abs(gas_estimate - gas_used) < 21000
@@ -105,7 +105,7 @@ def test_contract_estimateGas_with_arguments(web3, math_contract, estimateGas, t
         contract=math_contract,
         contract_function='add',
         func_args=[5, 6])
-    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
     gas_used = txn_receipt.get('gasUsed')
 
     assert abs(gas_estimate - gas_used) < 21000
@@ -123,7 +123,7 @@ def test_estimateGas_not_sending_ether_to_nonpayable_function(
         contract=payable_tester_contract,
         contract_function='doNoValueCall')
 
-    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
     gas_used = txn_receipt.get('gasUsed')
 
     assert abs(gas_estimate - gas_used) < 21000
@@ -146,7 +146,7 @@ def test_estimateGas_accepts_latest_block(web3, math_contract, transact):
         contract=math_contract,
         contract_function='increment')
 
-    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
     gas_used = txn_receipt.get('gasUsed')
 
     assert abs(gas_estimate - gas_used) < 21000
@@ -154,7 +154,7 @@ def test_estimateGas_accepts_latest_block(web3, math_contract, transact):
 
 def test_estimateGas_block_identifier_unique_estimates(web3, math_contract, transact):
     txn_hash = transact(contract=math_contract, contract_function="increment")
-    web3.eth.waitForTransactionReceipt(txn_hash)
+    web3.eth.wait_for_transaction_receipt(txn_hash)
 
     latest_gas_estimate = math_contract.functions.counter().estimateGas(
         block_identifier="latest"

@@ -61,7 +61,7 @@ def math_contract_deploy_txn_hash(web3, math_contract_factory):
 
 @pytest.fixture(scope="module")
 def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
-    deploy_receipt = web3.eth.waitForTransactionReceipt(math_contract_deploy_txn_hash)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(math_contract_deploy_txn_hash)
     assert is_dict(deploy_receipt)
     contract_address = deploy_receipt['contractAddress']
     assert is_checksum_address(contract_address)
@@ -85,7 +85,7 @@ def emitter_contract_deploy_txn_hash(web3, emitter_contract_factory):
 
 @pytest.fixture(scope="module")
 def emitter_contract(web3, emitter_contract_factory, emitter_contract_deploy_txn_hash):
-    deploy_receipt = web3.eth.waitForTransactionReceipt(emitter_contract_deploy_txn_hash)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(emitter_contract_deploy_txn_hash)
     assert is_dict(deploy_receipt)
     contract_address = deploy_receipt['contractAddress']
     assert is_checksum_address(contract_address)
@@ -152,7 +152,7 @@ def revert_contract_deploy_txn_hash(web3, revert_contract_factory):
 
 @pytest.fixture(scope="module")
 def revert_contract(web3, revert_contract_factory, revert_contract_deploy_txn_hash):
-    deploy_receipt = web3.eth.waitForTransactionReceipt(revert_contract_deploy_txn_hash)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(revert_contract_deploy_txn_hash)
     assert is_dict(deploy_receipt)
     contract_address = deploy_receipt['contractAddress']
     assert is_checksum_address(contract_address)

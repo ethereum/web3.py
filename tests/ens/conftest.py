@@ -45,7 +45,7 @@ def deploy(w3, Factory, from_address, args=None):
     args = args or []
     factory = Factory(w3)
     deploy_txn = factory.constructor(*args).transact({'from': from_address})
-    deploy_receipt = w3.eth.waitForTransactionReceipt(deploy_txn)
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     return factory(address=deploy_receipt['contractAddress'])
 

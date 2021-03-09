@@ -14,7 +14,7 @@ from web3.exceptions import (
 @pytest.fixture()
 def math_contract(web3, MathContract, address_conversion_func):
     deploy_txn = MathContract.constructor().transact()
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     math_contract_address = address_conversion_func(deploy_receipt['contractAddress'])
     _math_contract = MathContract(address=math_contract_address)
@@ -25,7 +25,7 @@ def math_contract(web3, MathContract, address_conversion_func):
 @pytest.fixture()
 def fallback_function_contract(web3, FallbackFunctionContract, address_conversion_func):
     deploy_txn = FallbackFunctionContract.constructor().transact()
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     fallback_contract_address = address_conversion_func(deploy_receipt['contractAddress'])
     _fallback_contract = FallbackFunctionContract(address=fallback_contract_address)
@@ -36,7 +36,7 @@ def fallback_function_contract(web3, FallbackFunctionContract, address_conversio
 @pytest.fixture()
 def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
     deploy_txn = PayableTesterContract.constructor().transact()
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     payable_tester_address = address_conversion_func(deploy_receipt['contractAddress'])
     _payable_tester = PayableTesterContract(address=payable_tester_address)

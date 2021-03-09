@@ -17,7 +17,7 @@ from web3.contract import (
 def deploy(web3, Contract, args=None):
     args = args or []
     deploy_txn = Contract.constructor(*args).transact()
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     contract = Contract(address=deploy_receipt['contractAddress'])
     assert len(web3.eth.get_code(contract.address)) > 0
@@ -35,7 +35,7 @@ def zero_address_contract(web3, WithConstructorAddressArgumentsContract, EMPTY_A
     deploy_txn = WithConstructorAddressArgumentsContract.constructor(
         EMPTY_ADDR,
     ).transact()
-    deploy_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     _address_contract = WithConstructorAddressArgumentsContract(
         address=deploy_receipt['contractAddress'],
