@@ -399,7 +399,13 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger]
     )
 
+    @deprecated_for("get_transaction_from_block")
     def getTransactionFromBlock(
+        self, block_identifier: BlockIdentifier, transaction_index: int
+    ) -> NoReturn:
+        return self.get_transaction_from_block(block_identifier, transaction_index)
+
+    def get_transaction_from_block(
         self, block_identifier: BlockIdentifier, transaction_index: int
     ) -> NoReturn:
         """
