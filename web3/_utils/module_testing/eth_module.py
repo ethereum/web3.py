@@ -1410,10 +1410,13 @@ class EthModuleTest:
         failure = web3.eth.uninstallFilter(filter.filter_id)
         assert failure is False
 
-    def test_eth_getTransactionFromBlock_deprecation(
+    def test_eth_getTransactionFromBlock_deprecated(
         self, web3: "Web3", block_with_txn: BlockData
     ) -> None:
-        with pytest.raises(DeprecationWarning):
+        with pytest.warns(
+                DeprecationWarning,
+                match="getTransactionFromBlock is deprecated in favor of "
+                      "get_transaction_from_block"):
             web3.eth.getTransactionFromBlock(block_with_txn['hash'], 0)
 
     def test_eth_getCompilers_deprecation(self, web3: "Web3") -> None:
