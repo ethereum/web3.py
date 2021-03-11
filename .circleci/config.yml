@@ -1,4 +1,4 @@
-version: 2.0
+version: 2.1
 
 # heavily inspired by https://raw.githubusercontent.com/pinax/pinax-wiki/6bd2a99ab6f702e300d708532a6d1d9aa638b9f8/.circleci/config.yml
 
@@ -116,7 +116,7 @@ ethpm_steps: &ethpm_steps
     - checkout
     - restore_cache:
         keys:
-          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - ethpm-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
         name: install ipfs
         command:
@@ -142,10 +142,34 @@ ethpm_steps: &ethpm_steps
           - .tox
           - ~/.cache/pip
           - ~/.local
-          - ./eggs
-          - ~/.ethash
-          - ~/.py-geth
-        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: ethpm-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+
+orbs:
+  win: circleci/windows@2.2.0
+
+windows_steps: &windows_steps
+  executor:
+    name: win/default
+    shell: bash.exe
+  working_directory: C:\Users\circleci\project\web3py
+  steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - windows-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+    - run:
+        name: checkout ethpm-spec submodule
+        command: git submodule update --init --recursive
+    - run:
+        name: install dependencies
+        command: pip install --user tox
+    - run:
+        name: run tox
+        command: 'C:/Users/circleci/AppData/Roaming/Python/Python37/Scripts/tox.exe -r'
+    - save_cache:
+        paths:
+          - .tox
+        key: windows-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
 
 jobs:
@@ -189,7 +213,7 @@ jobs:
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
 
-  py36-integration-goethereum-ipc-1.9.19:
+  py36-integration-goethereum-ipc:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.6
@@ -197,7 +221,7 @@ jobs:
       TOXENV: py36-integration-goethereum-ipc
       GETH_VERSION: v1.9.19
 
-  py36-integration-goethereum-http-1.9.19:
+  py36-integration-goethereum-http:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.6
@@ -205,7 +229,7 @@ jobs:
       TOXENV: py36-integration-goethereum-http
       GETH_VERSION: v1.9.19
 
-  py36-integration-goethereum-ws-1.9.19:
+  py36-integration-goethereum-ws:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.6
@@ -247,12 +271,14 @@ jobs:
     environment:
       TOXENV: py36-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+
   py36-wheel-cli:
     <<: *common
     docker:
       - image: circleci/python:3.6
-        environment:
-          TOXENV: py36-wheel-cli
+    environment:
+      TOXENV: py36-wheel-cli
+
   #
   # Python 3.7
   #
@@ -279,7 +305,7 @@ jobs:
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
 
-  py37-integration-goethereum-ipc-1.9.19:
+  py37-integration-goethereum-ipc:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.7
@@ -287,7 +313,7 @@ jobs:
       TOXENV: py37-integration-goethereum-ipc
       GETH_VERSION: v1.9.19
 
-  py37-integration-goethereum-http-1.9.19:
+  py37-integration-goethereum-http:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.7
@@ -295,7 +321,7 @@ jobs:
       TOXENV: py37-integration-goethereum-http
       GETH_VERSION: v1.9.19
 
-  py37-integration-goethereum-ws-1.9.19:
+  py37-integration-goethereum-ws:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.7
@@ -337,12 +363,19 @@ jobs:
     environment:
       TOXENV: py37-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+
   py37-wheel-cli:
     <<: *common
     docker:
       - image: circleci/python:3.7
-        environment:
-          TOXENV: py37-wheel-cli
+    environment:
+      TOXENV: py37-wheel-cli
+
+  py37-wheel-cli-windows:
+    <<: *windows_steps
+    environment:
+      TOXENV: py37-wheel-cli-windows
+
   #
   # Python 3.8
   #
@@ -369,7 +402,7 @@ jobs:
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
 
-  py38-integration-goethereum-ipc-1.9.19:
+  py38-integration-goethereum-ipc:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.8
@@ -377,7 +410,7 @@ jobs:
       TOXENV: py38-integration-goethereum-ipc
       GETH_VERSION: v1.9.19
 
-  py38-integration-goethereum-http-1.9.19:
+  py38-integration-goethereum-http:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.8
@@ -385,7 +418,7 @@ jobs:
       TOXENV: py38-integration-goethereum-http
       GETH_VERSION: v1.9.19
 
-  py38-integration-goethereum-ws-1.9.19:
+  py38-integration-goethereum-ws:
     <<: *geth_steps
     docker:
       - image: circleci/python:3.8
@@ -432,11 +465,11 @@ jobs:
     <<: *common
     docker:
       - image: circleci/python:3.8
-        environment:
-          TOXENV: py38-wheel-cli
+    environment:
+      TOXENV: py38-wheel-cli
 
 workflows:
-  version: 2
+  version: 2.1
   test:
     jobs:
       # These are the longest running tests, start them first
@@ -447,9 +480,9 @@ workflows:
       - docs
       - py36-ens
       - py36-ethpm
-      - py36-integration-goethereum-ipc-1.9.19
-      - py36-integration-goethereum-http-1.9.19
-      - py36-integration-goethereum-ws-1.9.19
+      - py36-integration-goethereum-ipc
+      - py36-integration-goethereum-http
+      - py36-integration-goethereum-ws
       # - py36-integration-parity-ipc
       # - py36-integration-parity-http
       # - py36-integration-parity-ws
@@ -457,19 +490,20 @@ workflows:
       - py36-wheel-cli
       - py37-ens
       - py37-ethpm
-      - py37-integration-goethereum-ipc-1.9.19
-      - py37-integration-goethereum-http-1.9.19
-      - py37-integration-goethereum-ws-1.9.19
+      - py37-integration-goethereum-ipc
+      - py37-integration-goethereum-http
+      - py37-integration-goethereum-ws
       # - py37-integration-parity-ipc
       # - py37-integration-parity-http
       # - py37-integration-parity-ws
       - py37-integration-ethtester-pyevm
       - py37-wheel-cli
+      - py37-wheel-cli-windows
       - py38-ens
       - py38-ethpm
-      - py38-integration-goethereum-ipc-1.9.19
-      - py38-integration-goethereum-http-1.9.19
-      - py38-integration-goethereum-ws-1.9.19
+      - py38-integration-goethereum-ipc
+      - py38-integration-goethereum-http
+      - py38-integration-goethereum-ws
       # - py38-integration-parity-ipc
       # - py38-integration-parity-http
       # - py38-integration-parity-ws
