@@ -657,7 +657,11 @@ class Eth(ModuleV2, Module):
         mungers=None,
     )
 
+    @deprecated_for("generate_gas_price")
     def generateGasPrice(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
+        return self.generate_gas_price(transaction_params)
+
+    def generate_gas_price(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
         if self.gasPriceStrategy:
             return self.gasPriceStrategy(self.web3, transaction_params)
         return None

@@ -16,11 +16,11 @@ Retrieving gas price
 --------------------
 
 To retreive the gas price using the selected strategy simply call
-:meth:`~web3.eth.Eth.generateGasPrice`
+:meth:`~web3.eth.Eth.generate_gas_price`
 
 .. code-block:: python
 
-    >>> Web3.eth.generateGasPrice()
+    >>> Web3.eth.generate_gas_price()
     20000000000
 
 Creating a gas price strategy

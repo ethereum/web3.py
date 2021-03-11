@@ -53,7 +53,7 @@ TRANSACTION_DEFAULTS = {
     'value': 0,
     'data': b'',
     'gas': lambda web3, tx: web3.eth.estimateGas(tx),
-    'gasPrice': lambda web3, tx: web3.eth.generateGasPrice(tx) or web3.eth.gas_price,
+    'gasPrice': lambda web3, tx: web3.eth.generate_gas_price(tx) or web3.eth.gas_price,
     'chainId': lambda web3, tx: web3.eth.chain_id,
 }
 
@@ -198,7 +198,7 @@ def prepare_replacement_transaction(
         if new_transaction['gasPrice'] <= current_transaction['gasPrice']:
             raise ValueError('Supplied gas price must exceed existing transaction gas price')
     else:
-        generated_gas_price = web3.eth.generateGasPrice(new_transaction)
+        generated_gas_price = web3.eth.generate_gas_price(new_transaction)
         minimum_gas_price = int(math.ceil(current_transaction['gasPrice'] * gas_multiplier))
         if generated_gas_price and generated_gas_price > minimum_gas_price:
             new_transaction = assoc(new_transaction, 'gasPrice', generated_gas_price)

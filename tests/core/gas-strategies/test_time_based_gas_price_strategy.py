@@ -164,7 +164,7 @@ def test_time_based_gas_price_strategy(strategy_params, expected):
         **strategy_params,
     )
     w3.eth.setGasPriceStrategy(time_based_gas_price_strategy)
-    actual = w3.eth.generateGasPrice()
+    actual = w3.eth.generate_gas_price()
     assert actual == expected
 
 
@@ -217,5 +217,5 @@ def test_time_based_gas_price_strategy_zero_sample(strategy_params_zero,
             **strategy_params_zero,
         )
         w3.eth.setGasPriceStrategy(time_based_gas_price_strategy_zero)
-        w3.eth.generateGasPrice()
+        w3.eth.generate_gas_price()
     assert str(excinfo.value) == expected_exception_message

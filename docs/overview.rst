@@ -180,7 +180,7 @@ API
 - :meth:`web3.eth.sign() <web3.eth.Eth.sign>`
 - :meth:`web3.eth.signTypedData() <web3.eth.Eth.signTypedData>`
 - :meth:`web3.eth.estimateGas() <web3.eth.Eth.estimateGas>`
-- :meth:`web3.eth.generateGasPrice() <web3.eth.Eth.generateGasPrice>`
+- :meth:`web3.eth.generate_gas_price() <web3.eth.Eth.generate_gas_price>`
 - :meth:`web3.eth.setGasPriceStrategy() <web3.eth.Eth.setGasPriceStrategy>`
 
 
