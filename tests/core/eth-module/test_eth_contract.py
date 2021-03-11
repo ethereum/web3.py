@@ -38,6 +38,6 @@ def test_contract_address_validation(web3, args, kwargs, expected):
 
 def test_set_contract_factory(web3):
     factoryClass = Mock()
-    web3.eth.setContractFactory(factoryClass)
+    web3.eth.set_contract_factory(factoryClass)
     web3.eth.contract(contract_name='myname')
     factoryClass.factory.assert_called_once_with(web3, contract_name='myname')
