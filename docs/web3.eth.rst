@@ -1210,10 +1210,14 @@ Contracts
 
     See :doc:`./contracts` for more information about how to use contracts.
 
-.. py:method:: Eth.setContractFactory(contractFactoryClass)
+.. py:method:: Eth.set_contract_factory(contractFactoryClass)
 
     Modify the default contract factory from ``Contract`` to ``contractFactoryClass``.
     Future calls to ``Eth.contract()`` will then default to ``contractFactoryClass``.
 
     An example of an alternative Contract Factory is ``ConciseContract``.
 
+.. py:method:: Eth.setContractFactory(contractFactoryClass)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.set_contract_factory()`

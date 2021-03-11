@@ -1,0 +1,1 @@
+Add ``w3.eth.set_contract_factory`` deprecate ``w3.eth.setContractFactory``

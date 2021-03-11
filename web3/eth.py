@@ -638,7 +638,13 @@ class Eth(ModuleV2, Module):
         else:
             return ContractFactory
 
+    @deprecated_for("set_contract_factory")
     def setContractFactory(
+        self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
+    ) -> None:
+        return self.set_contract_factory(contractFactory)
+
+    def set_contract_factory(
         self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
     ) -> None:
         self.defaultContractFactory = contractFactory
