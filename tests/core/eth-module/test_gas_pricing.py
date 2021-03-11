@@ -27,7 +27,16 @@ def test_generateGasPrice_deprecated(web3):
 def test_set_gas_price_strategy(web3):
     def my_gas_price_strategy(web3, transaction_params):
         return 5
-    web3.eth.setGasPriceStrategy(my_gas_price_strategy)
+    web3.eth.set_gas_price_strategy(my_gas_price_strategy)
+    assert web3.eth.generate_gas_price() == 5
+
+
+def test_setGasPriceStrategy_deprecated(web3):
+    my_gas_price_strategy = Mock(return_value=5)
+    with pytest.warns(DeprecationWarning,
+                      match="setGasPriceStrategy is deprecated in favor of "
+                            "set_gas_price_strategy"):
+        web3.eth.setGasPriceStrategy(my_gas_price_strategy)
     assert web3.eth.generate_gas_price() == 5
 
 
@@ -37,6 +46,6 @@ def test_gas_price_strategy_calls(web3):
         'value': 1000000000
     }
     my_gas_price_strategy = Mock(return_value=5)
-    web3.eth.setGasPriceStrategy(my_gas_price_strategy)
+    web3.eth.set_gas_price_strategy(my_gas_price_strategy)
     assert web3.eth.generate_gas_price(transaction) == 5
     my_gas_price_strategy.assert_called_once_with(web3, transaction)

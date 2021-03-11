@@ -127,7 +127,7 @@ def test_build_transaction_with_contract_default_account_is_set(
 def test_build_transaction_with_gas_price_strategy_set(web3, math_contract, buildTransaction):
     def my_gas_price_strategy(web3, transaction_params):
         return 5
-    web3.eth.setGasPriceStrategy(my_gas_price_strategy)
+    web3.eth.set_gas_price_strategy(my_gas_price_strategy)
     txn = buildTransaction(contract=math_contract, contract_function='increment')
     assert dissoc(txn, 'gas') == {
         'to': math_contract.address,

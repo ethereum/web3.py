@@ -676,7 +676,11 @@ class Eth(ModuleV2, Module):
             return self.gasPriceStrategy(self.web3, transaction_params)
         return None
 
+    @deprecated_for("set_gas_price_strategy")
     def setGasPriceStrategy(self, gas_price_strategy: GasPriceStrategy) -> None:
+        return self.set_gas_price_strategy(gas_price_strategy)
+
+    def set_gas_price_strategy(self, gas_price_strategy: GasPriceStrategy) -> None:
         self.gasPriceStrategy = gas_price_strategy
 
     # Deprecated Methods
