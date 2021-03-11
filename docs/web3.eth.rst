@@ -991,10 +991,15 @@ The following methods are available on the ``web3.eth`` namespace.
     .. warning:: Deprecated: This method is deprecated in favor of
       :meth:`~web3.eth.Eth.generate_gas_price()`
 
-.. py:method:: Eth.setGasPriceStrategy(gas_price_strategy)
+.. py:method:: Eth.set_gas_price_strategy(gas_price_strategy)
 
     Set the selected gas price strategy. It must be a method of the signature
     ``(web3, transaction_params)`` and return a gas price denominated in wei.
+
+.. py:method:: Eth.setGasPriceStrategy(gas_price_strategy)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.set_gas_price_strategy()`
 
 Filters
 -------

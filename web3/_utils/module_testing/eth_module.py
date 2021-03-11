@@ -860,7 +860,7 @@ class EthModuleTest:
         def higher_gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
             return Wei(20)
 
-        web3.eth.setGasPriceStrategy(higher_gas_price_strategy)
+        web3.eth.set_gas_price_strategy(higher_gas_price_strategy)
 
         txn_params.pop('gasPrice')
         replace_txn_hash = web3.eth.replace_transaction(txn_hash, txn_params)
@@ -882,7 +882,7 @@ class EthModuleTest:
         def lower_gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
             return Wei(5)
 
-        web3.eth.setGasPriceStrategy(lower_gas_price_strategy)
+        web3.eth.set_gas_price_strategy(lower_gas_price_strategy)
 
         txn_params.pop('gasPrice')
         replace_txn_hash = web3.eth.replace_transaction(txn_hash, txn_params)

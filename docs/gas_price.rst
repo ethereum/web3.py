@@ -53,7 +53,7 @@ returns a higher gas price when the value of the transaction is higher than
 Selecting the gas price strategy
 --------------------------------
 
-The gas price strategy can be set by calling :meth:`~web3.eth.Eth.setGasPriceStrategy`.
+The gas price strategy can be set by calling :meth:`~web3.eth.Eth.set_gas_price_strategy`.
 
 .. code-block:: python
 
@@ -63,7 +63,7 @@ The gas price strategy can be set by calling :meth:`~web3.eth.Eth.setGasPriceStr
         ...
 
     w3 = Web3(...)
-    w3.eth.setGasPriceStrategy(value_based_gas_price_strategy)
+    w3.eth.set_gas_price_strategy(value_based_gas_price_strategy)
 
 Available gas price strategies
 ------------------------------
@@ -111,7 +111,7 @@ Available gas price strategies
         from web3.gas_strategies.time_based import medium_gas_price_strategy
 
         w3 = Web3()
-        w3.eth.setGasPriceStrategy(medium_gas_price_strategy)
+        w3.eth.set_gas_price_strategy(medium_gas_price_strategy)
 
         w3.middleware_onion.add(middleware.time_based_cache_middleware)
         w3.middleware_onion.add(middleware.latest_block_based_cache_middleware)
