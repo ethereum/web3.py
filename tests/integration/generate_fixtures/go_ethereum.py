@@ -74,7 +74,7 @@ def get_geth_process(geth_binary,
         '--gcmode', 'archive',
         '--nodiscover',
         '--port', geth_port,
-        '--etherbase', common.COINBASE[2:],
+        '--miner.etherbase', common.COINBASE[2:],
     )
 
     popen_proc = subprocess.Popen(
