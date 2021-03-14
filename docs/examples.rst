@@ -706,6 +706,8 @@ The following example code is divided to reusable `EventScanner` class and then 
 
 * Disables the standard `http_retry_request_middleware` because it does not know how to handle the shrinking block range window for `eth_getLogs`
 
+* Running the script consumes around 20k JSON-RPC API calls
+
 You can run the script as:
 
 ```sh
