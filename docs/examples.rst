@@ -675,6 +675,8 @@ In this example, we show how to fetch all events of a certain event type from Et
 
 * How to deal with `eth_getLogs` JSON-RPC call query limitations
 
+* How to handle Ethereum minor chain reorganisations in real-time or almost real-time data
+
 eth_getLogs limitations
 ~~~~~~~~~~~~~~~~~~~~~~~
 
