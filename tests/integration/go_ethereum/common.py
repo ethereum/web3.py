@@ -58,9 +58,23 @@ class GoEthereumEthModuleTest(EthModuleTest):
             web3, unlocked_account_dual_type
         )
 
+    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
+    def test_eth_protocol_version(self, web3):
+        super().test_eth_protocol_version(web3)
+
+    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
+    def test_eth_protocolVersion(self, web3):
+        super().test_eth_protocolVersion(web3)
+
 
 class GoEthereumVersionModuleTest(VersionModuleTest):
-    pass
+    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
+    def test_eth_protocol_version(self, web3):
+        super().test_eth_protocol_version(web3)
+
+    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
+    def test_eth_protocolVersion(self, web3):
+        super().test_eth_protocolVersion(web3)
 
 
 class GoEthereumNetModuleTest(NetModuleTest):

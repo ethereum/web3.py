@@ -125,6 +125,10 @@ class Eth(ModuleV2, Module):
 
     @property
     def protocol_version(self) -> str:
+        warnings.warn(
+            "This method has been deprecated in some clients.",
+            category=DeprecationWarning,
+        )
         return self._protocol_version()
 
     @property
