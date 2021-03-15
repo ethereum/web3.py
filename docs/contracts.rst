@@ -229,7 +229,7 @@ Each Contract Factory exposes the following methods.
     will accept ENS names.
 
     If a ``gas`` value is not provided, then the ``gas`` value for the
-    deployment transaction will be created using the ``web3.eth.estimateGas()``
+    deployment transaction will be created using the ``web3.eth.estimate_gas()``
     method.
 
     Returns the transaction hash for the deploy transaction.
@@ -343,7 +343,7 @@ Each Contract Factory exposes the following methods.
     will accept ENS names.
 
     If a ``gas`` value is not provided, then the ``gas`` value for the
-    deployment transaction will be created using the ``web3.eth.estimateGas()``
+    deployment transaction will be created using the ``web3.eth.estimate_gas()``
     method.
 
     Returns the transaction hash for the deploy transaction.
@@ -765,7 +765,7 @@ Methods
     will accept ENS names.
 
     If a ``gas`` value is not provided, then the ``gas`` value for the
-    method transaction will be created using the ``web3.eth.estimateGas()``
+    method transaction will be created using the ``web3.eth.estimate_gas()``
     method.
 
     Returns the transaction hash.

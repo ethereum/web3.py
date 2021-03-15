@@ -639,7 +639,7 @@ class ContractConstructor:
 
         estimate_gas_transaction['data'] = self.data_in_transaction
 
-        return self.web3.eth.estimateGas(
+        return self.web3.eth.estimate_gas(
             estimate_gas_transaction, block_identifier=block_identifier
         )
 
@@ -1615,7 +1615,7 @@ def estimate_gas_for_function(
         fn_kwargs=kwargs,
     )
 
-    return web3.eth.estimateGas(estimate_transaction, block_identifier)
+    return web3.eth.estimate_gas(estimate_transaction, block_identifier)
 
 
 def build_transaction_for_function(

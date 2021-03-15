@@ -179,7 +179,7 @@ API
 - :meth:`web3.eth.get_transaction_receipt() <web3.eth.Eth.get_transaction_receipt>`
 - :meth:`web3.eth.sign() <web3.eth.Eth.sign>`
 - :meth:`web3.eth.sign_typed_data() <web3.eth.Eth.sign_typed_data>`
-- :meth:`web3.eth.estimateGas() <web3.eth.Eth.estimateGas>`
+- :meth:`web3.eth.estimate_gas() <web3.eth.Eth.estimate_gas>`
 - :meth:`web3.eth.generate_gas_price() <web3.eth.Eth.generate_gas_price>`
 - :meth:`web3.eth.set_gas_price_strategy() <web3.eth.Eth.set_gas_price_strategy>`
 

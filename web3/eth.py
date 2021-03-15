@@ -559,7 +559,7 @@ class Eth(ModuleV2, Module):
 
         return params
 
-    estimateGas: Method[Callable[..., Wei]] = Method(
+    estimate_gas: Method[Callable[..., Wei]] = Method(
         RPC.eth_estimateGas,
         mungers=[estimate_gas_munger]
     )
@@ -707,6 +707,7 @@ class Eth(ModuleV2, Module):
     submitHashrate = DeprecatedMethod(submit_hashrate, 'submitHashrate', 'submit_hashrate')
     submitWork = DeprecatedMethod(submit_work, 'submitWork', 'submit_work')
     getLogs = DeprecatedMethod(get_logs, 'getLogs', 'get_logs')
+    estimateGas = DeprecatedMethod(estimate_gas, 'estimateGas', 'estimate_gas')
     sendRawTransaction = DeprecatedMethod(send_raw_transaction,
                                           'sendRawTransaction',
                                           'send_raw_transaction')

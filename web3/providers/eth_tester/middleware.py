@@ -298,7 +298,7 @@ def guess_from(web3: "Web3", transaction: TxParams) -> ChecksumAddress:
 
 
 def guess_gas(web3: "Web3", transaction: TxParams) -> Wei:
-    return Wei(web3.eth.estimateGas(transaction) * 2)
+    return Wei(web3.eth.estimate_gas(transaction) * 2)
 
 
 @curry

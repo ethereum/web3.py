@@ -350,10 +350,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_get_storage_at_ens_name(self, web3, emitter_contract_address):
         super().test_eth_get_storage_at_ens_name(web3, emitter_contract_address)
 
-    def test_eth_estimateGas_with_block(self,
-                                        web3,
-                                        unlocked_account_dual_type):
-        super().test_eth_estimateGas_with_block(
+    def test_eth_estimate_gas_with_block(self,
+                                         web3,
+                                         unlocked_account_dual_type):
+        super().test_eth_estimate_gas_with_block(
             web3, unlocked_account_dual_type
         )
 
@@ -401,7 +401,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
             )
             web3.eth.call(txn_params)
 
-    def test_eth_estimateGas_revert_with_msg(self, web3, revert_contract, unlocked_account):
+    def test_eth_estimate_gas_revert_with_msg(self, web3, revert_contract, unlocked_account):
         with pytest.raises(TransactionFailed,
                            match='execution reverted: Function has been reverted'):
             txn_params = revert_contract._prepare_transaction(
@@ -411,9 +411,9 @@ class TestEthereumTesterEthModule(EthModuleTest):
                     "to": revert_contract.address,
                 },
             )
-            web3.eth.estimateGas(txn_params)
+            web3.eth.estimate_gas(txn_params)
 
-    def test_eth_estimateGas_revert_without_msg(self, web3, revert_contract, unlocked_account):
+    def test_eth_estimate_gas_revert_without_msg(self, web3, revert_contract, unlocked_account):
         with pytest.raises(TransactionFailed, match="execution reverted"):
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithoutMessage",
@@ -422,7 +422,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
                     "to": revert_contract.address,
                 },
             )
-            web3.eth.estimateGas(txn_params)
+            web3.eth.estimate_gas(txn_params)
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
