@@ -1,0 +1,1 @@
+Add ``w3.eth.estimate_gas`` deprecate ``w3.eth.estimateGas``

@@ -732,9 +732,9 @@ The following methods are available on the ``web3.eth`` namespace.
 
     If the ``transaction`` specifies a ``data`` value but does not specify
     ``gas`` then the ``gas`` value will be populated using the
-    :meth:`~web3.eth.Eth.estimateGas()` function with an additional buffer of ``100000``
+    :meth:`~web3.eth.Eth.estimate_gas()` function with an additional buffer of ``100000``
     gas up to the ``gasLimit`` of the latest block.  In the event that the
-    value returned by :meth:`~web3.eth.Eth.estimateGas()` method is greater than the
+    value returned by :meth:`~web3.eth.Eth.estimate_gas()` method is greater than the
     ``gasLimit`` a ``ValueError`` will be raised.
 
 
@@ -947,7 +947,7 @@ The following methods are available on the ``web3.eth`` namespace.
     In most cases it is better to make contract function call through the :py:class:`web3.contract.Contract` interface.
 
 
-.. py:method:: Eth.estimateGas(transaction, block_identifier=None)
+.. py:method:: Eth.estimate_gas(transaction, block_identifier=None)
 
     * Delegates to ``eth_estimateGas`` RPC Method
 
@@ -956,18 +956,17 @@ The following methods are available on the ``web3.eth`` namespace.
     be used as a gas estimate.
 
     The ``transaction`` and ``block_identifier`` parameters are handled in the
-    same manner as the :meth:`~web3.eth.call()` method.
+    same manner as the :meth:`~web3.eth.Eth.send_transaction()` method.
 
     .. code-block:: python
 
-        >>> web3.eth.estimateGas({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from': web3.eth.coinbase, 'value': 12345})
+        >>> web3.eth.estimate_gas({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from':web3.eth.coinbase, 'value': 12345})
         21000
 
-    .. note::
-        The parameter ``block_identifier`` is not enabled in geth nodes,
-        hence passing a value of ``block_identifier`` when connected to a geth
-        nodes would result in an error like:  ``ValueError: {'code': -32602, 'message': 'too many arguments, want at most 1'}``
+.. py:method:: Eth.estimateGas(transaction, block_identifier=None)
 
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.estimate_gas()`
 
 .. py:method:: Eth.generate_gas_price(transaction_params=None)
 

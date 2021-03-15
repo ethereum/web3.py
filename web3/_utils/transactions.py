@@ -52,7 +52,7 @@ VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
 TRANSACTION_DEFAULTS = {
     'value': 0,
     'data': b'',
-    'gas': lambda web3, tx: web3.eth.estimateGas(tx),
+    'gas': lambda web3, tx: web3.eth.estimate_gas(tx),
     'gasPrice': lambda web3, tx: web3.eth.generate_gas_price(tx) or web3.eth.gas_price,
     'chainId': lambda web3, tx: web3.eth.chain_id,
 }
@@ -124,7 +124,7 @@ def get_buffered_gas_estimate(
 ) -> Wei:
     gas_estimate_transaction = cast(TxParams, dict(**transaction))
 
-    gas_estimate = web3.eth.estimateGas(gas_estimate_transaction)
+    gas_estimate = web3.eth.estimate_gas(gas_estimate_transaction)
 
     gas_limit = get_block_gas_limit(web3)
 

@@ -1021,7 +1021,7 @@ class EthModuleTest:
             )
             web3.eth.call(txn_params)
 
-    def test_eth_estimateGas_revert_with_msg(
+    def test_eth_estimate_gas_revert_with_msg(
         self,
         web3: "Web3",
         revert_contract: "Contract",
@@ -1036,9 +1036,9 @@ class EthModuleTest:
                     "to": revert_contract.address,
                 },
             )
-            web3.eth.estimateGas(txn_params)
+            web3.eth.estimate_gas(txn_params)
 
-    def test_eth_estimateGas_revert_without_msg(
+    def test_eth_estimate_gas_revert_without_msg(
         self,
         web3: "Web3",
         revert_contract: "Contract",
@@ -1052,12 +1052,12 @@ class EthModuleTest:
                     "to": revert_contract.address,
                 },
             )
-            web3.eth.estimateGas(txn_params)
+            web3.eth.estimate_gas(txn_params)
 
-    def test_eth_estimateGas(
+    def test_eth_estimate_gas(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        gas_estimate = web3.eth.estimateGas({
+        gas_estimate = web3.eth.estimate_gas({
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
@@ -1065,10 +1065,23 @@ class EthModuleTest:
         assert is_integer(gas_estimate)
         assert gas_estimate > 0
 
-    def test_eth_estimateGas_with_block(
+    def test_eth_estimateGas_deprecated(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        gas_estimate = web3.eth.estimateGas({
+        with pytest.warns(DeprecationWarning,
+                          match="estimateGas is deprecated in favor of estimate_gas"):
+            gas_estimate = web3.eth.estimateGas({
+                'from': unlocked_account_dual_type,
+                'to': unlocked_account_dual_type,
+                'value': Wei(1),
+            })
+        assert is_integer(gas_estimate)
+        assert gas_estimate > 0
+
+    def test_eth_estimate_gas_with_block(
+        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        gas_estimate = web3.eth.estimate_gas({
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
