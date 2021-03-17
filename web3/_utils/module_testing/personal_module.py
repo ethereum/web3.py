@@ -327,7 +327,7 @@ class GoEthereumPersonalModuleTest:
                     }
                 }
             '''
-            signature = HexBytes(web3.geth.personal.signTypedData(
+            signature = HexBytes(web3.geth.personal.sign_typed_data(
                 json.loads(typed_message),
                 unlockable_account_dual_type,
                 unlockable_account_pw
@@ -639,7 +639,7 @@ class ParityPersonalModuleTest():
                     }
                 }
             '''
-            signature = HexBytes(web3.parity.personal.signTypedData(
+            signature = HexBytes(web3.parity.personal.sign_typed_data(
                 json.loads(typed_message),
                 unlockable_account_dual_type,
                 unlockable_account_pw
@@ -755,7 +755,7 @@ class ParityPersonalModuleTest():
             with pytest.raises(ValueError,
                                match=r".*Expected 2 items for array type Person\[2\], got 1 items.*"
                                ):
-                web3.parity.personal.signTypedData(
+                web3.parity.personal.sign_typed_data(
                     json.loads(invalid_typed_message),
                     unlockable_account_dual_type,
                     unlockable_account_pw

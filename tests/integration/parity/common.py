@@ -147,20 +147,12 @@ class ParityEthModuleTest(EthModuleTest):
         assert len(result) == 0
 
     @pytest.mark.xfail(reason='eth_signTypedData has not been released in Parity')
-    def test_eth_signTypedData(self,
-                               web3,
-                               unlocked_account_dual_type):
-        super().test_eth_signTypedData(
-            web3, unlocked_account_dual_type
-        )
+    def test_eth_sign_typed_data(self, web3, unlocked_account_dual_type):
+        super().test_eth_sign_typed_data(web3, unlocked_account_dual_type)
 
     @pytest.mark.xfail(reason='eth_signTypedData has not been released in Parity')
-    def test_invalid_eth_signTypedData(self,
-                                       web3,
-                                       unlocked_account_dual_type):
-        super().test_invalid_eth_signTypedData(
-            web3, unlocked_account_dual_type
-        )
+    def test_invalid_eth_sign_typed_data(self, web3, unlocked_account_dual_type):
+        super().test_invalid_eth_sign_typed_data(web3, unlocked_account_dual_type)
 
 
 class ParityTraceModuleTest(ParityTraceModuleTest):
