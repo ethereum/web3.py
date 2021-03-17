@@ -600,7 +600,7 @@ class Eth(ModuleV2, Module):
         mungers=[filter_munger],
     )
 
-    getFilterChanges: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
+    get_filter_changes: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
         RPC.eth_getFilterChanges,
         mungers=[default_root_munger]
     )
@@ -716,3 +716,6 @@ class Eth(ModuleV2, Module):
                                              'get_transaction_receipt')
     uninstallFilter = DeprecatedMethod(uninstall_filter, 'uninstallFilter', 'uninstall_filter')
     getFilterLogs = DeprecatedMethod(get_filter_logs, 'getFilterLogs', 'get_filter_logs')
+    getFilterChanges = DeprecatedMethod(get_filter_changes,
+                                        'getFilterChanges',
+                                        'get_filter_changes')

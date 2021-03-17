@@ -64,7 +64,7 @@ Filter Class
     Retrieve new entries for this filter.
 
     Logs will be retrieved using the
-    :func:`web3.eth.Eth.getFilterChanges` which returns only new entries since the last
+    :func:`web3.eth.Eth.get_filter_changes` which returns only new entries since the last
     poll.
 
 

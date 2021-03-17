@@ -1060,7 +1060,7 @@ with the filtering API.
         >>> web3.eth.filter({'fromBlock': 1000000, 'toBlock': 1000100, 'address': '0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B'})
         <LogFilter at 0x10b7803d8>
 
-.. py:method:: Eth.getFilterChanges(self, filter_id)
+.. py:method:: Eth.get_filter_changes(self, filter_id)
 
     * Delegates to ``eth_getFilterChanges`` RPC Method.
 
@@ -1070,7 +1070,7 @@ with the filtering API.
     .. code-block:: python
 
         >>> filt = web3.eth.filter()
-        >>> web3.eth.getFilterChanges(filt.filter_id)
+        >>> web3.eth.get_filter_changes(filt.filter_id)
         [
             {
                 'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24',
@@ -1086,6 +1086,12 @@ with the filtering API.
             },
             ...
         ]
+
+
+.. py:method:: Eth.getFilterChanges(self, filter_id)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_filter_changes()`
 
 
 .. py:method:: Eth.get_filter_logs(self, filter_id)

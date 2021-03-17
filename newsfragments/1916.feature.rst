@@ -1,0 +1,1 @@
+Add ``w3.eth.get_filter_changes`` deprecate ``w3.eth.getFilterChanges``
