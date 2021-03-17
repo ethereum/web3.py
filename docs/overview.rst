@@ -278,7 +278,7 @@ API
 ^^^
 
 - :meth:`web3.eth.filter() <web3.eth.Eth.filter>`
-- :meth:`web3.eth.getFilterChanges() <web3.eth.Eth.getFilterChanges>`
+- :meth:`web3.eth.get_filter_changes() <web3.eth.Eth.get_filter_changes>`
 - :meth:`web3.eth.get_filter_logs() <web3.eth.Eth.get_filter_logs>`
 - :meth:`web3.eth.uninstall_filter() <web3.eth.Eth.uninstall_filter>`
 - :meth:`web3.eth.get_logs() <web3.eth.Eth.get_logs>`

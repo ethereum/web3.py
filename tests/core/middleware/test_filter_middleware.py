@@ -149,10 +149,10 @@ def test_local_filter_middleware(w3, iter_block_number):
 
     log_filter = w3.eth.filter(filter_params={'fromBlock': 'latest'})
 
-    assert w3.eth.getFilterChanges(block_filter.filter_id) == [HexBytes(BLOCK_HASH)]
+    assert w3.eth.get_filter_changes(block_filter.filter_id) == [HexBytes(BLOCK_HASH)]
 
     iter_block_number.send(2)
-    results = w3.eth.getFilterChanges(log_filter.filter_id)
+    results = w3.eth.get_filter_changes(log_filter.filter_id)
     assert results == FILTER_LOG
 
     assert w3.eth.get_filter_logs(log_filter.filter_id) == FILTER_LOG

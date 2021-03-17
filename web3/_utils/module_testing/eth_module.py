@@ -161,10 +161,8 @@ class EthModuleTest:
     def test_eth_getBalance_deprecated(self, web3: "Web3") -> None:
         coinbase = web3.eth.coinbase
 
-        with pytest.warns(DeprecationWarning):
-            with pytest.raises(InvalidAddress):
-                web3.eth.getBalance(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
-
+        with pytest.warns(DeprecationWarning,
+                          match='getBalance is deprecated in favor of get_balance'):
             balance = web3.eth.getBalance(coinbase)
 
         assert is_integer(balance)
@@ -1298,7 +1296,7 @@ class EthModuleTest:
     def test_eth_newFilter(self, web3: "Web3") -> None:
         filter = web3.eth.filter({})
 
-        changes = web3.eth.getFilterChanges(filter.filter_id)
+        changes = web3.eth.get_filter_changes(filter.filter_id)
         assert is_list_like(changes)
         assert not changes
 
@@ -1312,7 +1310,7 @@ class EthModuleTest:
     def test_eth_newFilter_deprecated(self, web3: "Web3") -> None:
         filter = web3.eth.filter({})
 
-        changes = web3.eth.getFilterChanges(filter.filter_id)
+        changes = web3.eth.get_filter_changes(filter.filter_id)
         assert is_list_like(changes)
         assert not changes
 
@@ -1329,7 +1327,7 @@ class EthModuleTest:
         filter = web3.eth.filter('latest')
         assert is_string(filter.filter_id)
 
-        changes = web3.eth.getFilterChanges(filter.filter_id)
+        changes = web3.eth.get_filter_changes(filter.filter_id)
         assert is_list_like(changes)
         assert not changes
 
@@ -1345,7 +1343,7 @@ class EthModuleTest:
         filter = web3.eth.filter('pending')
         assert is_string(filter.filter_id)
 
-        changes = web3.eth.getFilterChanges(filter.filter_id)
+        changes = web3.eth.get_filter_changes(filter.filter_id)
         assert is_list_like(changes)
         assert not changes
 
