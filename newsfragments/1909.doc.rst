@@ -1,0 +1,1 @@
+Escape reserved characters in install script of Contributing docs.
