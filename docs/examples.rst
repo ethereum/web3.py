@@ -664,10 +664,11 @@ Tip : afterwards you can use the value stored in ``txn_hash``, in an explorer li
 
 .. _etherscan: https://rinkeby.etherscan.io
 
+
 Advanced example: Fetching all token transfer events
 ----------------------------------------------------
 
-In this example, we show how to fetch all events of a certain event type from Ethereum blockchain. There are three challenges when working with a large set of events:
+In this example, we show how to fetch all events of a certain event type from the Ethereum blockchain. There are three challenges when working with a large set of events:
 
 * How to incrementally update an existing database of fetched events
 
@@ -675,53 +676,50 @@ In this example, we show how to fetch all events of a certain event type from Et
 
 * How to deal with `eth_getLogs` JSON-RPC call query limitations
 
-* How to handle Ethereum minor chain reorganisations in real-time or almost real-time data
+* How to handle Ethereum minor chain reorganisations in (near) real-time data
+
 
 eth_getLogs limitations
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Ethereum JSON-RPC API servers like Go Ethereum do not provide easy to paginate over events, only over blocks. You neither know what was the first block with an event nor how many events a range of blocks contain. The only feedback JSON-RPC service will give you is that `eth_getLogs` call failed.
+Ethereum JSON-RPC API servers, like Geth, do not provide easy to paginate over events, only over blocks. There's no request that can find the first block with an event or how many events occur within a range of blocks. The only feedback the JSON-RPC service will give you is whether the `eth_getLogs` call failed.
 
-In this example script, we provide two kinds of heurestics to deal with this issue. The script scans events in a chunk of blocks (start block number - end block number). Then it uses two methods to tackle the issue how many events there are likely to be in a block window
+In this example script, we provide two kinds of heurestics to deal with this issue. The script scans events in a chunk of blocks (start block number - end block number). Then it uses two methods to find how many events there are likely to be in a block window:
 
-* Dynamically set the block range window size parameters and never exceed a threshold (10,000)
+* Dynamically set the block range window size, while never exceeding a threshold (e.g., 10,000 blocks).
 
-* In the case `eth_getLogs` JSON-PRC call gives a timeout error, decrease the end block number and try again with a smaller block range window
+* In the case `eth_getLogs` JSON-PRC call gives a timeout error, decrease the end block number and try again with a smaller block range window.
 
 
 Example code
 ~~~~~~~~~~~~
 
-The following example code is divided to reusable `EventScanner` class and then a demo script that
+The following example code is divided into a reusable ``EventScanner`` class and then a demo script that:
 
-* Fetches all transfer events for `RCC token <https://etherscan.io/token/0x9b6443b0fb9c241a7fdac375595cea13e6b7807a>`_
+* fetches all transfer events for `RCC token <https://etherscan.io/token/0x9b6443b0fb9c241a7fdac375595cea13e6b7807a>`_,
 
-* Can incrementally run again to check if there are new events
+* can incrementally run again to check if there are new events,
 
-* Handles interruptions like CTRL+C abort gracefully
+* handles interruptions (e.g., CTRL+C abort) gracefully,
 
-* Writes all `Transfer` events in a single file JSON database, so that other process can consume them.
+* writes all ``Transfer`` events in a single file JSON database, so that other process can consume them,
 
-* Uses `tqdm <https://pypi.org/project/tqdm/>`_ library for progress bar output in a console
+* uses the `tqdm <https://pypi.org/project/tqdm/>`_ library for progress bar output in a console,
 
-* Only `HTTPS` provider is supported, because JSON-RPC retry logic depends on the implementation details of the underlying protocol
+* only supports ``HTTPS`` providers, because JSON-RPC retry logic depends on the implementation details of the underlying protocol,
 
-* Disables the standard `http_retry_request_middleware` because it does not know how to handle the shrinking block range window for `eth_getLogs`
+* disables the standard ``http_retry_request_middleware`` because it does not know how to handle the shrinking block range window for ``eth_getLogs``, and
 
-* Running the script consumes around 20k JSON-RPC API calls
+* consumes around 20k JSON-RPC API calls.
 
-You can run the script as:
-
-```sh
-python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
-```
+The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``.
 
 .. code-block:: python
 
-    """A stateful event scanner for Ethereum-based blockchains using web3.py.
+    """A stateful event scanner for Ethereum-based blockchains using Web3.py.
 
     With the stateful mechanism, you can do one batch scan or incremental scans,
-    where events are added where the scanner left last time.
+    where events are added wherever the scanner left off.
     """
 
     import datetime
@@ -736,8 +734,8 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
     from web3.exceptions import BlockNotFound
     from eth_abi.codec import ABICodec
 
-    # Currently this handy method is not exposed over
-    # official web3 API, but we need it to construct eth_getLogs parameters
+    # Currently this method is not exposed over official web3 API,
+    # but we need it to construct eth_getLogs parameters
     from web3._utils.filters import construct_event_filter_params
     from web3._utils.events import get_event_data
 
@@ -775,7 +773,7 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
             """Process incoming events.
 
             This function takes raw events from Web3, transforms them to your application internal
-            format and then saves them in a database or some other state.
+            format, then saves them in a database or some other state.
 
             :param block_when: When this block was mined
 
@@ -793,14 +791,14 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
 
 
     class EventScanner:
-        """Scan blockchain for events and try not to abuve JSON-RPC API too much.
+        """Scan blockchain for events and try not to abuse JSON-RPC API too much.
 
         Can be used for real-time scans, as it detects minor chain reorganisation and rescans.
         Unlike the easy web3.contract.Contract, this scanner can scan events from multiple contracts at once.
-        For example, you can get all transfers from all tokens at the same scan.
+        For example, you can get all transfers from all tokens in the same scan.
 
         You *should* disable the default `http_retry_request_middleware` on your provider for Web3,
-        because it cannot correctly do throttling and decreasing eth_getLogs block number range.
+        because it cannot correctly throttle and decrease the `eth_getLogs` block number range.
         """
 
         def __init__(self, web3: Web3, contract: Contract, state: EventScannerState, events: List, filters: {},
@@ -808,8 +806,8 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
             """
             :param contract: Contract
             :param events: List of web3 Event we scan
-            :param filters: Filters passed to getLogs. As decribed in
-            :param max_chunk_scan_size: JSON-RPC API limit in the number of blocks we query. Recommended 10000 for mainnet, 500,000 for testnets
+            :param filters: Filters passed to getLogs
+            :param max_chunk_scan_size: JSON-RPC API limit in the number of blocks we query. (Recommendation: 10,000 for mainnet, 500,000 for testnets)
             :param max_request_retries: How many times we try to reattempt a failed JSON-RPC call
             :param request_retry_seconds: Delay between failed requests to let JSON-RPC server to recover
             """
@@ -852,8 +850,8 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
         def get_suggested_scan_start_block(self):
             """Get where we should start to scan for new token events.
 
-            If there are no prior scans start from block 1.
-            Otherwise start from the last end block minus ten blocks.
+            If there are no prior scans, start from block 1.
+            Otherwise, start from the last end block minus ten blocks.
             We rescan the last ten scanned blocks in the case there were forks to avoid
             misaccounting due to minor single block works (happens once in a hour in Ethereum).
             These heurestics could be made more robust, but this is for the sake of simple reference implementation.
@@ -890,7 +888,7 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
             get_block_timestamp = self.get_block_timestamp
 
             # Cache block timestamps to reduce some RPC overhead
-            # Real solution would be smarter models around block
+            # Real solution might include smarter models around block
             def get_block_when(block_num):
                 if block_num not in block_timestamps:
                     block_timestamps[block_num] = get_block_timestamp(block_num)
@@ -908,7 +906,7 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
                                                            from_block=_start_block,
                                                            to_block=_end_block)
 
-                # Do 1...retries on the eth_getLogs,
+                # Do `n` retries on `eth_getLogs`,
                 # throttle down block range if needed
                 end_block, events = _retry_web3_call(
                     _fetch_events,
@@ -918,7 +916,7 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
                     delay=self.request_retry_seconds)
 
                 for evt in events:
-                    idx = evt["logIndex"]  # nteger of the log index position in the block. null when its pending log.
+                    idx = evt["logIndex"]  # Integer of the log index position in the block, null when its pending
 
                     # We cannot avoid minor chain reorganisations, but
                     # at least we must avoid blocks that are not mined yet
@@ -949,15 +947,15 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
             * Do not overload node serving JSON-RPC API by asking data for too many events at a time
 
             Currently Ethereum JSON-API does not have an API to tell when a first event occured in a blockchain
-            and our heurestics tries to accelerate block fetching (chunk size) until we see the first event.
+            and our heuristics try to accelerate block fetching (chunk size) until we see the first event.
 
-            This heurestics exponentially increases and the scan chunk size depending on if we are seeing events or not.
-            When any transfers are encountered we are back to scan only few blocks at the time.
+            These heurestics exponentially increase the scan chunk size depending on if we are seeing events or not.
+            When any transfers are encountered, we are back to scanning only a few blocks at a time.
             It does not make sense to do a full chain scan starting from block 1, doing one JSON-RPC call per 20 blocks.
             """
 
             if event_found_count > 0:
-                # When we encounter first events then reset the chunk size window
+                # When we encounter first events, reset the chunk size window
                 current_chuck_size = self.min_scan_chunk_size
             else:
                 current_chuck_size *= self.chunk_size_increase
@@ -1018,7 +1016,7 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
                 if progress_callback:
                     progress_callback(start_block, end_block, current_block, end_block_timestamp, chunk_size, len(new_entries))
 
-                # Try to guess who many blocks we try to fetch over eth_getLogs API next time
+                # Try to guess how many blocks to fetch over `eth_getLogs` API next time
                 chunk_size = self.estimate_next_chunk_size(chunk_size, len(new_entries))
 
                 # Set where the next chunk starts
@@ -1030,15 +1028,13 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
 
 
     def _retry_web3_call(func, start_block, end_block, retries, delay) -> Tuple[int, list]:
-        """A custom retry loop to throttle down  block range.
+        """A custom retry loop to throttle down block range.
 
-        If our JSON-RPC server cannot serve all incoming eth_getLogs
-        in a single request, we retry and throttle down block range
-        for every retry.
+        If our JSON-RPC server cannot serve all incoming `eth_getLogs` in a single request,
+        we retry and throttle down block range for every retry.
 
-        For example, Go Ethereum does not indicate what is an acceptable
-        response size and how we could fit there. It just fails on the server-side
-        with "context was cancelled" warning.
+        For example, Go Ethereum does not indicate what is an acceptable response size.
+        It just fails on the server-side with a "context was cancelled" warning.
 
         :param func: A callable that triggers Ethereum JSON-RPC, as func(start_block, end_block)
         :param start_block: The initial start block of the block range
@@ -1051,12 +1047,10 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
                 return end_block, func(start_block, end_block)
             except Exception as e:
                 # Assume this is HTTPConnectionPool(host='localhost', port=8545): Read timed out. (read timeout=10)
-                # from Go Ethereum. This translates to the error
-                # "context was cancelled" on the server side:
+                # from Go Ethereum. This translates to the error "context was cancelled" on the server side:
                 # https://github.com/ethereum/go-ethereum/issues/20426
                 if i < retries - 1:
-                    # Give some more verbose info than the default
-                    # middleware
+                    # Give some more verbose info than the default middleware
                     logger.warning(
                         "Retrying events for block range %d - %d (%d) failed with %s, retrying in %s seconds",
                         start_block,
@@ -1064,7 +1058,7 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
                         end_block-start_block,
                         e,
                         delay)
-                    # Decrease the eth_getBlocks range
+                    # Decrease the `eth_getBlocks` range
                     end_block = start_block + ((end_block - start_block) // 2)
                     # Let the JSON-RPC to recover e.g. from restart
                     time.sleep(delay)
@@ -1084,8 +1078,8 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
 
         This method is detached from any contract instance.
 
-        This is a stateless method, as opposite to createFilter.
-        It can be safely called against nodes which do not provide eth_newFilter API, like Infura.
+        This is a stateless method, as opposed to createFilter.
+        It can be safely called against nodes which do not provide `eth_newFilter` API, like Infura.
         """
 
         if from_block is None:
@@ -1095,10 +1089,10 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
         # This will return raw underlying ABI JSON object for the event
         abi = event._get_event_abi()
 
-        # Depending on the used Solidity version used to compile
+        # Depending on the Solidity version used to compile
         # the contract that uses the ABI,
         # it might have Solidity ABI encoding v1 or v2.
-        # We just assume the default that you set on  Web3 object here.
+        # We just assume the default that you set on Web3 object here.
         # More information here https://eth-abi.readthedocs.io/en/latest/index.html
         codec: ABICodec = web3.codec
 
@@ -1140,8 +1134,8 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
         # Simple demo that scans all the token transfers of RCC token (11k).
         # The demo supports persistant state by using a JSON file.
         # You will need an Ethereum node for this.
-        # Running this script will consume around JSON-RPC calls.
-        # With locally geth running the script takes 10 minutes.
+        # Running this script will consume around 20k JSON-RPC calls.
+        # With locally running Geth, the script takes 10 minutes.
         # The resulting JSON state file is 2.9 MB.
         import sys
         import json
@@ -1208,7 +1202,7 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
                     self.state = json.load(open(self.fname, "rt"))
                     print(f"Restored the state, previously {self.state['last_scanned_block']} blocks have been scanned")
                 except (IOError, json.decoder.JSONDecodeError):
-                    print("State starting from the scratch")
+                    print("State starting from scratch")
                     self.reset()
 
             def save(self):
@@ -1323,8 +1317,8 @@ python dex_ohlcv/eventscanner.py <your JSON-RPC API URL>
             )
 
             # Assume we might have scanned the blocks all the way to the last Ethereum block
-            # that mined few seconds before the previous scan run ended.
-            # Because there might have been minor Ether+eum chain reorganisations
+            # that mined a few seconds before the previous scan run ended.
+            # Because there might have been a minor Etherueum chain reorganisations
             # since the last scan ended, we need to discard
             # the last few blocks from the previous scan results.
             chain_reorg_safety_blocks = 10
