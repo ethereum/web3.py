@@ -1074,7 +1074,7 @@ with the filtering API.
         ]
 
 
-.. py:method:: Eth.getFilterLogs(self, filter_id)
+.. py:method:: Eth.get_filter_logs(self, filter_id)
 
     * Delegates to ``eth_getFilterLogs`` RPC Method.
 
@@ -1083,7 +1083,7 @@ with the filtering API.
     .. code-block:: python
 
         >>> filt = web3.eth.filter()
-        >>> web3.eth.getFilterLogs(filt.filter_id)
+        >>> web3.eth.get_filter_logs(filt.filter_id)
         [
             {
                 'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24',
@@ -1099,6 +1099,12 @@ with the filtering API.
             },
             ...
         ]
+
+
+.. py:method:: Eth.getFilterLogs(self, filter_id)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_filter_logs`
 
 
 .. py:method:: Eth.uninstall_filter(self, filter_id)
@@ -1125,7 +1131,7 @@ with the filtering API.
 .. py:method:: Eth.get_logs(filter_params)
 
     This is the equivalent of: creating a new
-    filter, running :meth:`~Eth.getFilterLogs`, and then uninstalling the filter. See
+    filter, running :meth:`~Eth.get_filter_logs`, and then uninstalling the filter. See
     :meth:`~Eth.filter` for details on allowed filter parameters.
 
 .. py:method:: Eth.getLogs(filter_params)

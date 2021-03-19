@@ -1,0 +1,1 @@
+Add ``eth.get_filter_logs``, deprecate ``eth.getFilterLogs``

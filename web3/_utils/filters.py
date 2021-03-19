@@ -165,7 +165,7 @@ class Filter:
         return self._format_log_entries(log_entries)
 
     def get_all_entries(self) -> List[LogReceipt]:
-        log_entries = self._filter_valid_entries(self.eth_module.getFilterLogs(self.filter_id))
+        log_entries = self._filter_valid_entries(self.eth_module.get_filter_logs(self.filter_id))
         return self._format_log_entries(log_entries)
 
     def _format_log_entries(self,
