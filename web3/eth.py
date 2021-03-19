@@ -615,7 +615,7 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger],
     )
 
-    uninstallFilter: Method[Callable[[HexStr], bool]] = Method(
+    uninstall_filter: Method[Callable[[HexStr], bool]] = Method(
         RPC.eth_uninstallFilter,
         mungers=[default_root_munger],
     )
@@ -691,3 +691,4 @@ class Eth(ModuleV2, Module):
     getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,
                                              'getTransactionReceipt',
                                              'get_transaction_receipt')
+    uninstallFilter = DeprecatedMethod(uninstall_filter, 'uninstallFilter', 'uninstall_filter')

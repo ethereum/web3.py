@@ -1245,7 +1245,7 @@ class EthModuleTest:
         assert is_list_like(logs)
         assert not logs
 
-        result = web3.eth.uninstallFilter(filter.filter_id)
+        result = web3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
     def test_eth_newBlockFilter(self, web3: "Web3") -> None:
@@ -1261,7 +1261,7 @@ class EthModuleTest:
         # assert is_list_like(logs)
         # assert not logs
 
-        result = web3.eth.uninstallFilter(filter.filter_id)
+        result = web3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
     def test_eth_newPendingTransactionFilter(self, web3: "Web3") -> None:
@@ -1277,7 +1277,7 @@ class EthModuleTest:
         # assert is_list_like(logs)
         # assert not logs
 
-        result = web3.eth.uninstallFilter(filter.filter_id)
+        result = web3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
     def test_eth_getLogs_without_logs(
@@ -1440,14 +1440,28 @@ class EthModuleTest:
         if pending_call_result != 1:
             raise AssertionError("pending call result was %d instead of 1" % pending_call_result)
 
-    def test_eth_uninstallFilter(self, web3: "Web3") -> None:
+    def test_eth_uninstallFilter_deprecated(self, web3: "Web3") -> None:
         filter = web3.eth.filter({})
         assert is_string(filter.filter_id)
 
-        success = web3.eth.uninstallFilter(filter.filter_id)
+        with pytest.warns(DeprecationWarning,
+                          match="uninstallFilter is deprecated in favor of uninstall_filter"):
+            success = web3.eth.uninstallFilter(filter.filter_id)
         assert success is True
 
-        failure = web3.eth.uninstallFilter(filter.filter_id)
+        with pytest.warns(DeprecationWarning,
+                          match="uninstallFilter is deprecated in favor of uninstall_filter"):
+            failure = web3.eth.uninstallFilter(filter.filter_id)
+        assert failure is False
+
+    def test_eth_uninstall_filter(self, web3: "Web3") -> None:
+        filter = web3.eth.filter({})
+        assert is_string(filter.filter_id)
+
+        success = web3.eth.uninstall_filter(filter.filter_id)
+        assert success is True
+
+        failure = web3.eth.uninstall_filter(filter.filter_id)
         assert failure is False
 
     def test_eth_getTransactionFromBlock_deprecation(
