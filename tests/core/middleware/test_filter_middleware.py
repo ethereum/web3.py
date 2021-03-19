@@ -155,7 +155,7 @@ def test_local_filter_middleware(w3, iter_block_number):
     results = w3.eth.getFilterChanges(log_filter.filter_id)
     assert results == FILTER_LOG
 
-    assert w3.eth.getFilterLogs(log_filter.filter_id) == FILTER_LOG
+    assert w3.eth.get_filter_logs(log_filter.filter_id) == FILTER_LOG
 
     filter_ids = (
         block_filter.filter_id,

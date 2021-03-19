@@ -73,7 +73,7 @@ Filter Class
     Retrieve all entries for this filter.
 
     Logs will be retrieved using the
-    :func:`web3.eth.Eth.getFilterLogs` which returns all entries that match the given
+    :func:`web3.eth.Eth.get_filter_logs` which returns all entries that match the given
     filter.
 
 

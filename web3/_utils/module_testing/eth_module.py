@@ -1241,7 +1241,23 @@ class EthModuleTest:
         assert is_list_like(changes)
         assert not changes
 
-        logs = web3.eth.getFilterLogs(filter.filter_id)
+        logs = web3.eth.get_filter_logs(filter.filter_id)
+        assert is_list_like(logs)
+        assert not logs
+
+        result = web3.eth.uninstallFilter(filter.filter_id)
+        assert result is True
+
+    def test_eth_newFilter_deprecated(self, web3: "Web3") -> None:
+        filter = web3.eth.filter({})
+
+        changes = web3.eth.getFilterChanges(filter.filter_id)
+        assert is_list_like(changes)
+        assert not changes
+
+        with pytest.warns(DeprecationWarning,
+                          match="getFilterLogs is deprecated in favor of get_filter_logs"):
+            logs = web3.eth.getFilterLogs(filter.filter_id)
         assert is_list_like(logs)
         assert not logs
 
@@ -1257,7 +1273,7 @@ class EthModuleTest:
         assert not changes
 
         # TODO: figure out why this fails in go-ethereum
-        # logs = web3.eth.getFilterLogs(filter.filter_id)
+        # logs = web3.eth.get_filter_logs(filter.filter_id)
         # assert is_list_like(logs)
         # assert not logs
 
@@ -1273,7 +1289,7 @@ class EthModuleTest:
         assert not changes
 
         # TODO: figure out why this fails in go-ethereum
-        # logs = web3.eth.getFilterLogs(filter.filter_id)
+        # logs = web3.eth.get_filter_logs(filter.filter_id)
         # assert is_list_like(logs)
         # assert not logs
 
