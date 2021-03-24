@@ -615,7 +615,7 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger],
     )
 
-    uninstallFilter: Method[Callable[[HexStr], bool]] = Method(
+    uninstall_filter: Method[Callable[[HexStr], bool]] = Method(
         RPC.eth_uninstallFilter,
         mungers=[default_root_munger],
     )
@@ -685,6 +685,7 @@ class Eth(ModuleV2, Module):
     getUncleCount = DeprecatedMethod(get_uncle_count, 'getUncleCount', 'get_uncle_count')
     sendTransaction = DeprecatedMethod(send_transaction, 'sendTransaction', 'send_transaction')
     signTransaction = DeprecatedMethod(sign_transaction, 'signTransaction', 'sign_transaction')
+    uninstallFilter = DeprecatedMethod(uninstall_filter, 'uninstallFilter', 'uninstall_filter')
     sendRawTransaction = DeprecatedMethod(send_raw_transaction,
                                           'sendRawTransaction',
                                           'send_raw_transaction')
