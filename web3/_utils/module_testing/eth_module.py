@@ -1241,7 +1241,7 @@ class EthModuleTest:
         assert is_list_like(changes)
         assert not changes
 
-        logs = web3.eth.getFilterLogs(filter.filter_id)
+        logs = web3.eth.get_filter_logs(filter.filter_id)
         assert is_list_like(logs)
         assert not logs
 
