@@ -1,0 +1,1 @@
+Add ``w3.eth.generate_gas_price`` deprecate ``w3.eth.generateGasPrice``
