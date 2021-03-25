@@ -1,0 +1,1 @@
+Add ``w3.eth.submit_work`` deprecate ``w3.eth.submitWork``
