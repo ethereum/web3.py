@@ -600,7 +600,7 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger]
     )
 
-    getLogs: Method[Callable[[FilterParams], List[LogReceipt]]] = Method(
+    get_logs: Method[Callable[[FilterParams], List[LogReceipt]]] = Method(
         RPC.eth_getLogs,
         mungers=[default_root_munger]
     )
@@ -685,6 +685,7 @@ class Eth(ModuleV2, Module):
     getUncleCount = DeprecatedMethod(get_uncle_count, 'getUncleCount', 'get_uncle_count')
     sendTransaction = DeprecatedMethod(send_transaction, 'sendTransaction', 'send_transaction')
     signTransaction = DeprecatedMethod(sign_transaction, 'signTransaction', 'sign_transaction')
+    getLogs = DeprecatedMethod(get_logs, 'getLogs', 'get_logs')
     sendRawTransaction = DeprecatedMethod(send_raw_transaction,
                                           'sendRawTransaction',
                                           'send_raw_transaction')
