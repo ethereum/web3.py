@@ -1,0 +1,1 @@
+deprecate uninstallFilter in favor of uninstall_filter
