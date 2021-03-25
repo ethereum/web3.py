@@ -605,7 +605,7 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger]
     )
 
-    submitHashrate: Method[Callable[[int, _Hash32], bool]] = Method(
+    submit_hashrate: Method[Callable[[int, _Hash32], bool]] = Method(
         RPC.eth_submitHashrate,
         mungers=[default_root_munger],
     )
@@ -685,6 +685,7 @@ class Eth(ModuleV2, Module):
     getUncleCount = DeprecatedMethod(get_uncle_count, 'getUncleCount', 'get_uncle_count')
     sendTransaction = DeprecatedMethod(send_transaction, 'sendTransaction', 'send_transaction')
     signTransaction = DeprecatedMethod(sign_transaction, 'signTransaction', 'sign_transaction')
+    submitHashrate = DeprecatedMethod(submit_hashrate, 'submitHashrate', 'submit_hashrate')
     sendRawTransaction = DeprecatedMethod(send_raw_transaction,
                                           'sendRawTransaction',
                                           'send_raw_transaction')
