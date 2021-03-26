@@ -889,16 +889,12 @@ class EthModuleTest:
         'raw_transaction, expected_hash',
         [
             (
-                # address 0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6
-                '0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a',  # noqa: E501
-                '0x1f80f8ab5f12a45be218f76404bda64d37270a6f4f86ededd0eb599f80548c13',
-            ),
-            (
                 # private key 0x3c2ab4e8f17a7dea191b8c991522660126d681039509dc3bb31af7c9bdb63518
                 # This is an unfunded account, but the transaction has a 0 gas price, so is valid.
                 # It never needs to be mined, we just want the transaction hash back to confirm.
-                HexBytes('0xf85f808082c35094d898d5e829717c72e7438bad593076686d7d164a80801ba005c2e99ecee98a12fbf28ab9577423f42e9e88f2291b3acc8228de743884c874a077d6bc77a47ad41ec85c96aac2ad27f05a039c4787fca8a1e5ee2d8c7ec1bb6a'),  # noqa: E501
-                '0x98eeadb99454427f6aad7b558bac13e9d225512a6f5e5c11cf48e8d4067e51b5',
+                # tx = {'to': '0x0000000000000000000000000000000000000000', 'value': 0, 'nonce': 0, 'gas': 21000, 'gasPrice': 0, 'chainId': 131277322940537}  # noqa: E501
+                HexBytes('0xf8658080825208940000000000000000000000000000000000000000808086eecac466e115a038176e5f9f1c25ce470ce77856bacbc02dd728ad647bb8b18434ac62c3e8e14fa03279bb3ee1e5202580668ec62b66a7d01355de3d5c4ef18fcfcb88fac56d5f90'),  # noqa: E501
+                '0x6ab943e675003de610b4e94f2e289dc711688df6e150da2bc57bd03811ad0f63',
             ),
         ]
     )
