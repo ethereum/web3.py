@@ -34,14 +34,6 @@ class GoEthereumEthModuleTest(EthModuleTest):
         super().test_eth_replace_transaction_already_mined(web3, unlocked_account_dual_type)
         web3.geth.miner.stop()
 
-    @pytest.mark.xfail(reason='Block identifier has not been implemented in geth')
-    def test_eth_estimateGas_with_block(self,
-                                        web3,
-                                        unlocked_account_dual_type):
-        super().test_eth_estimateGas_with_block(
-            web3, unlocked_account_dual_type
-        )
-
     @pytest.mark.xfail(reason='eth_signTypedData has not been released in geth')
     def test_eth_signTypedData(self,
                                web3,
