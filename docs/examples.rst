@@ -668,9 +668,9 @@ Tip : afterwards you can use the value stored in ``txn_hash``, in an explorer li
 Adjusting log levels
 --------------------
 
-web3.py internally uses `Python logging subsystem <https://docs.python.org/3/library/logging.html>`_.
+Web3.py internally uses `Python logging subsystem <https://docs.python.org/3/library/logging.html>`_.
 
-If you want to run your application logging in debug mode, below is an example how to make some JSON-RPC traffic quieter.
+If you want to run your application logging in debug mode, below is an example of how to make some JSON-RPC traffic quieter.
 
 .. code-block:: python
 
@@ -684,12 +684,11 @@ If you want to run your application logging in debug mode, below is an example h
         # Set log format to dislay the logger name to hunt down verbose logging modules
         fmt = "%(name)-25s %(levelname)-8s %(message)s"
 
-        # Use colored logging output for console
-        # Using coloredlogs package
+        # Use colored logging output for console with the coloredlogs package
         # https://pypi.org/project/coloredlogs/
         coloredlogs.install(level=log_level, fmt=fmt, logger=logger)
 
-        # Disable logging of JSON-RPC requests and reploes
+        # Disable logging of JSON-RPC requests and replies
         logging.getLogger("web3.RequestManager").setLevel(logging.WARNING)
         logging.getLogger("web3.providers.HTTPProvider").setLevel(logging.WARNING)
         # logging.getLogger("web3.RequestManager").propagate = False
