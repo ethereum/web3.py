@@ -889,16 +889,12 @@ class EthModuleTest:
         'raw_transaction, expected_hash',
         [
             (
-                # address 0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6
-                '0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a',  # noqa: E501
-                '0x1f80f8ab5f12a45be218f76404bda64d37270a6f4f86ededd0eb599f80548c13',
-            ),
-            (
                 # private key 0x3c2ab4e8f17a7dea191b8c991522660126d681039509dc3bb31af7c9bdb63518
                 # This is an unfunded account, but the transaction has a 0 gas price, so is valid.
                 # It never needs to be mined, we just want the transaction hash back to confirm.
-                HexBytes('0xf85f808082c35094d898d5e829717c72e7438bad593076686d7d164a80801ba005c2e99ecee98a12fbf28ab9577423f42e9e88f2291b3acc8228de743884c874a077d6bc77a47ad41ec85c96aac2ad27f05a039c4787fca8a1e5ee2d8c7ec1bb6a'),  # noqa: E501
-                '0x98eeadb99454427f6aad7b558bac13e9d225512a6f5e5c11cf48e8d4067e51b5',
+                # tx = {'to': '0x0000000000000000000000000000000000000000', 'value': 0, 'nonce': 0, 'gas': 21000, 'gasPrice': 0, 'chainId': 131277322940537}  # noqa: E501
+                HexBytes('0xf8658080825208940000000000000000000000000000000000000000808086eecac466e115a038176e5f9f1c25ce470ce77856bacbc02dd728ad647bb8b18434ac62c3e8e14fa03279bb3ee1e5202580668ec62b66a7d01355de3d5c4ef18fcfcb88fac56d5f90'),  # noqa: E501
+                '0x6ab943e675003de610b4e94f2e289dc711688df6e150da2bc57bd03811ad0f63',
             ),
         ]
     )
@@ -1245,7 +1241,7 @@ class EthModuleTest:
         assert is_list_like(logs)
         assert not logs
 
-        result = web3.eth.uninstallFilter(filter.filter_id)
+        result = web3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
     def test_eth_newBlockFilter(self, web3: "Web3") -> None:
@@ -1261,7 +1257,7 @@ class EthModuleTest:
         # assert is_list_like(logs)
         # assert not logs
 
-        result = web3.eth.uninstallFilter(filter.filter_id)
+        result = web3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
     def test_eth_newPendingTransactionFilter(self, web3: "Web3") -> None:
@@ -1277,10 +1273,10 @@ class EthModuleTest:
         # assert is_list_like(logs)
         # assert not logs
 
-        result = web3.eth.uninstallFilter(filter.filter_id)
+        result = web3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
-    def test_eth_getLogs_without_logs(
+    def test_eth_get_logs_without_logs(
         self, web3: "Web3", block_with_txn_with_log: BlockData
     ) -> None:
         # Test with block range
@@ -1289,7 +1285,7 @@ class EthModuleTest:
             "fromBlock": BlockNumber(0),
             "toBlock": BlockNumber(block_with_txn_with_log['number'] - 1),
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
         # the range is wrong
@@ -1297,7 +1293,7 @@ class EthModuleTest:
             "fromBlock": block_with_txn_with_log['number'],
             "toBlock": BlockNumber(block_with_txn_with_log['number'] - 1),
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
         # Test with `address`
@@ -1307,7 +1303,7 @@ class EthModuleTest:
             "fromBlock": BlockNumber(0),
             "address": UNKNOWN_ADDRESS,
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
         # Test with multiple `address`
@@ -1317,10 +1313,10 @@ class EthModuleTest:
             "fromBlock": BlockNumber(0),
             "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
-    def test_eth_getLogs_with_logs(
+    def test_eth_get_logs_with_logs(
         self,
         web3: "Web3",
         block_with_txn_with_log: BlockData,
@@ -1344,14 +1340,14 @@ class EthModuleTest:
             "fromBlock": block_with_txn_with_log['number'],
             "toBlock": block_with_txn_with_log['number'],
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert_contains_log(result)
 
         # specify only `from_block`. by default `to_block` should be 'latest'
         filter_params = {
             "fromBlock": BlockNumber(0),
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert_contains_log(result)
 
         # Test with `address`
@@ -1362,7 +1358,7 @@ class EthModuleTest:
             "address": emitter_contract_address,
         }
 
-    def test_eth_getLogs_with_logs_topic_args(
+    def test_eth_get_logs_with_logs_topic_args(
         self,
         web3: "Web3",
         block_with_txn_with_log: BlockData,
@@ -1388,7 +1384,7 @@ class EthModuleTest:
                 HexStr('0x000000000000000000000000000000000000000000000000000000000000d431')],
         }
 
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert_contains_log(result)
 
         # Test with None indexed arg
@@ -1398,17 +1394,17 @@ class EthModuleTest:
                 HexStr('0x057bc32826fbe161da1c110afcdcae7c109a8b69149f727fc37a603c60ef94ca'),
                 None],
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert_contains_log(result)
 
-    def test_eth_getLogs_with_logs_none_topic_args(self, web3: "Web3") -> None:
+    def test_eth_get_logs_with_logs_none_topic_args(self, web3: "Web3") -> None:
         # Test with None overflowing
         filter_params: FilterParams = {
             "fromBlock": BlockNumber(0),
             "topics": [None, None, None],
         }
 
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
     def test_eth_call_old_contract_state(
@@ -1440,14 +1436,28 @@ class EthModuleTest:
         if pending_call_result != 1:
             raise AssertionError("pending call result was %d instead of 1" % pending_call_result)
 
-    def test_eth_uninstallFilter(self, web3: "Web3") -> None:
+    def test_eth_uninstallFilter_deprecated(self, web3: "Web3") -> None:
         filter = web3.eth.filter({})
         assert is_string(filter.filter_id)
 
-        success = web3.eth.uninstallFilter(filter.filter_id)
+        with pytest.warns(DeprecationWarning,
+                          match="uninstallFilter is deprecated in favor of uninstall_filter"):
+            success = web3.eth.uninstallFilter(filter.filter_id)
         assert success is True
 
-        failure = web3.eth.uninstallFilter(filter.filter_id)
+        with pytest.warns(DeprecationWarning,
+                          match="uninstallFilter is deprecated in favor of uninstall_filter"):
+            failure = web3.eth.uninstallFilter(filter.filter_id)
+        assert failure is False
+
+    def test_eth_uninstall_filter(self, web3: "Web3") -> None:
+        filter = web3.eth.filter({})
+        assert is_string(filter.filter_id)
+
+        success = web3.eth.uninstall_filter(filter.filter_id)
+        assert success is True
+
+        failure = web3.eth.uninstall_filter(filter.filter_id)
         assert failure is False
 
     def test_eth_getTransactionFromBlock_deprecation(

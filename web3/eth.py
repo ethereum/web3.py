@@ -125,6 +125,10 @@ class Eth(ModuleV2, Module):
 
     @property
     def protocol_version(self) -> str:
+        warnings.warn(
+            "This method has been deprecated in some clients.",
+            category=DeprecationWarning,
+        )
         return self._protocol_version()
 
     @property
@@ -600,7 +604,7 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger]
     )
 
-    getLogs: Method[Callable[[FilterParams], List[LogReceipt]]] = Method(
+    get_logs: Method[Callable[[FilterParams], List[LogReceipt]]] = Method(
         RPC.eth_getLogs,
         mungers=[default_root_munger]
     )
@@ -615,7 +619,7 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger],
     )
 
-    uninstallFilter: Method[Callable[[HexStr], bool]] = Method(
+    uninstall_filter: Method[Callable[[HexStr], bool]] = Method(
         RPC.eth_uninstallFilter,
         mungers=[default_root_munger],
     )
@@ -686,9 +690,11 @@ class Eth(ModuleV2, Module):
     sendTransaction = DeprecatedMethod(send_transaction, 'sendTransaction', 'send_transaction')
     signTransaction = DeprecatedMethod(sign_transaction, 'signTransaction', 'sign_transaction')
     submitWork = DeprecatedMethod(submit_work, 'submitWork', 'submit_work')
+    getLogs = DeprecatedMethod(get_logs, 'getLogs', 'get_logs')
     sendRawTransaction = DeprecatedMethod(send_raw_transaction,
                                           'sendRawTransaction',
                                           'send_raw_transaction')
     getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,
                                              'getTransactionReceipt',
                                              'get_transaction_receipt')
+    uninstallFilter = DeprecatedMethod(uninstall_filter, 'uninstallFilter', 'uninstall_filter')

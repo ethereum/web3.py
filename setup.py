@@ -8,7 +8,7 @@ from setuptools import (
 extras_require = {
     'tester': [
         "eth-tester[py-evm]==v0.5.0-beta.3",
-        "py-geth>=2.4.0,<3",
+        "py-geth>=3.0.0,<4",
     ],
     'linter': [
         "flake8==3.8.3",
@@ -82,7 +82,7 @@ setup(
         "jsonschema>=3.2.0,<4.0.0",
         "lru-dict>=1.1.6,<2.0.0",
         "protobuf>=3.10.0,<4",
-        "pypiwin32>=223;platform_system=='Windows'",
+        "pywin32>=223;platform_system=='Windows'",
         "requests>=2.16.0,<3.0.0",
         # remove typing_extensions after python_requires>=3.8, see web3._utils.compat
          "typing-extensions>=3.7.4.1,<4;python_version<'3.8'",

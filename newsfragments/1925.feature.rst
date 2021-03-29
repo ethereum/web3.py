@@ -1,0 +1,1 @@
+Add ``w3.eth.get_logs`` deprecate ``w3.eth.getLogs``

@@ -280,8 +280,8 @@ API
 - :meth:`web3.eth.filter() <web3.eth.Eth.filter>`
 - :meth:`web3.eth.getFilterChanges() <web3.eth.Eth.getFilterChanges>`
 - :meth:`web3.eth.getFilterLogs() <web3.eth.Eth.getFilterLogs>`
-- :meth:`web3.eth.uninstallFilter() <web3.eth.Eth.uninstallFilter>`
-- :meth:`web3.eth.getLogs() <web3.eth.Eth.getLogs>`
+- :meth:`web3.eth.uninstall_filter() <web3.eth.Eth.uninstall_filter>`
+- :meth:`web3.eth.get_logs() <web3.eth.Eth.get_logs>`
 - :meth:`Contract.events.your_event_name.createFilter() <web3.contract.Contract.events.your_event_name.createFilter>`
 - :meth:`Contract.events.your_event_name.build_filter() <web3.contract.Contract.events.your_event_name.build_filter>`
 - :meth:`Filter.get_new_entries() <web3.utils.filters.Filter.get_new_entries>`
