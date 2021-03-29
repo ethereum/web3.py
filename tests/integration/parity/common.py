@@ -50,9 +50,13 @@ class ParityEthModuleTest(EthModuleTest):
     def test_eth_getBlockByNumber_pending(self, web3):
         super().test_eth_getBlockByNumber_pending(web3)
 
-    def test_eth_uninstallFilter(self, web3):
+    def test_eth_uninstall_filter(self, web3):
         pytest.xfail('eth_uninstallFilter calls to parity always return true')
-        super().test_eth_uninstallFilter(web3)
+        super().test_eth_uninstall_filter(web3)
+
+    def test_eth_uninstallFilter_deprecated(self, web3):
+        pytest.xfail('eth_uninstallFilter calls to parity always return true')
+        super().test_eth_uninstallFilter_deprecated(web3)
 
     @pytest.mark.xfail(reason='Parity is not setup to auto mine')
     def test_eth_replace_transaction_already_mined(self, web3, unlocked_account):
@@ -74,8 +78,8 @@ class ParityEthModuleTest(EthModuleTest):
         assert receipt['blockHash'] is None
 
     @pytest.mark.xfail(reason="Parity matches None to asbent values")
-    def test_eth_getLogs_with_logs_none_topic_args(self, web3):
-        super().test_eth_getLogs_with_logs_none_topic_args(web3)
+    def test_eth_get_logs_with_logs_none_topic_args(self, web3):
+        super().test_eth_get_logs_with_logs_none_topic_args(web3)
 
     @flaky(max_runs=MAX_FLAKY_RUNS)
     def test_eth_call_old_contract_state(self, web3, math_contract, unlocked_account):
@@ -108,14 +112,14 @@ class ParityEthModuleTest(EthModuleTest):
         if pending_call_result not in range(1, MAX_FLAKY_RUNS + 1):
             raise AssertionError("pending call result was %d!" % pending_call_result)
 
-    def test_eth_getLogs_without_logs(self, web3, block_with_txn_with_log):
+    def test_eth_get_logs_without_logs(self, web3, block_with_txn_with_log):
         # Test with block range
 
         filter_params = {
             "fromBlock": 0,
             "toBlock": block_with_txn_with_log['number'] - 1,
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
         # the range is wrong, parity returns error message
@@ -124,7 +128,7 @@ class ParityEthModuleTest(EthModuleTest):
             "toBlock": block_with_txn_with_log['number'] - 1,
         }
         with pytest.raises(ValueError):
-            web3.eth.getLogs(filter_params)
+            web3.eth.get_logs(filter_params)
 
         # Test with `address`
 
@@ -133,7 +137,7 @@ class ParityEthModuleTest(EthModuleTest):
             "fromBlock": 0,
             "address": UNKNOWN_ADDRESS,
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
         # Test with multiple `address`
@@ -143,7 +147,7 @@ class ParityEthModuleTest(EthModuleTest):
             "fromBlock": 0,
             "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
     @pytest.mark.xfail(reason='eth_signTypedData has not been released in Parity')

@@ -272,22 +272,28 @@ generated.
 Geth fixtures
 ^^^^^^^^^^^^^
 
-1. Install the desired Geth version on your machine locally. The Geth team only
-   explicitly supports the current version of their client at any given point,
-   so older versions are best installed via `py-geth`_. Note that ``py-geth``
-   will need updating to support each new version as well.
+1. Install the desired Geth version on your machine locally. We recommend `py-geth`_ for
+   this purpose, because it enables you to easily manage multiple versions of Geth.
 
-2. Specify the Geth binary and run the fixture creation script:
+   Note that ``py-geth`` will need updating to support each new Geth version as well.
+   Add newer Geth version to py-geth is straightforward; see past commits for a template.
+
+   If py-geth has the Geth version you need, install that version locally. For example:
 
    .. code:: sh
 
-       $ GETH_BINARY=/path/to/py-geth/bin python /tests/integration/generate_fixtures/go_ethereum.py /tests/integration/geth-X.Y.Z-fixture
+       $ python -m geth.install v1.10.1
 
-3. The output of this script is your fixture, a zip file. Store the fixture in the
-   ``/tests/integration/`` directory and update the ``/tests/integration/go_ethereum/conftest.py``
-   file to point to the new fixture.
+2. Specify the Geth binary and run the fixture creation script (from within the web3.py directory):
 
-4. Run the tests. To ensure that the tests run with the correct Geth version,
+   .. code:: sh
+
+       $ GETH_BINARY=~/.py-geth/geth-v1.10.1/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py ./tests/integration/geth-1.10.1-fixture
+
+3. The output of this script is your fixture, a zip file, which is now stored in ``/tests/integration/``.
+   Update the ``/tests/integration/go_ethereum/conftest.py`` file to point to this new fixture. Delete the old fixture.
+
+4. Run the tests. To ensure that the tests run with the correct Geth version locally,
    you may again include the ``GETH_BINARY`` environment variable.
 
 

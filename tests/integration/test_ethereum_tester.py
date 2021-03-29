@@ -254,7 +254,9 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_submitHashrate_deprecated = not_implemented(
         EthModuleTest.test_eth_submitHashrate_deprecated, ValueError)
     test_eth_submit_hashrate = not_implemented(EthModuleTest.test_eth_submit_hashrate, ValueError)
-    test_eth_submitWork = not_implemented(EthModuleTest.test_eth_submitWork, ValueError)
+    test_eth_submitWork_deprecated = not_implemented(
+        EthModuleTest.test_eth_submitWork_deprecated, ValueError)
+    test_eth_submit_work = not_implemented(EthModuleTest.test_eth_submit_work, ValueError)
 
     def test_eth_getBlockByHash_pending(
         self, web3: "Web3"

@@ -1334,7 +1334,7 @@ class ContractEvent:
             event_filter_params['blockHash'] = blockHash
 
         # Call JSON-RPC API
-        logs = self.web3.eth.getLogs(event_filter_params)
+        logs = self.web3.eth.get_logs(event_filter_params)
 
         # Convert raw binary data to Python proxy objects as described by ABI
         return tuple(get_event_data(self.web3.codec, abi, entry) for entry in logs)
