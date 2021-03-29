@@ -252,7 +252,9 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_sign_transaction_ens_names, ValueError
     )
     test_eth_submitHashrate = not_implemented(EthModuleTest.test_eth_submitHashrate, ValueError)
-    test_eth_submitWork = not_implemented(EthModuleTest.test_eth_submitWork, ValueError)
+    test_eth_submitWork_deprecated = not_implemented(
+        EthModuleTest.test_eth_submitWork_deprecated, ValueError)
+    test_eth_submit_work = not_implemented(EthModuleTest.test_eth_submit_work, ValueError)
 
     def test_eth_getBlockByHash_pending(
         self, web3: "Web3"

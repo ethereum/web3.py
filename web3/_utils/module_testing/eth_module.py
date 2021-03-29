@@ -1476,9 +1476,18 @@ class EthModuleTest:
         result = web3.eth.submitHashrate(5000, node_id)
         assert result is True
 
-    def test_eth_submitWork(self, web3: "Web3") -> None:
+    def test_eth_submit_work(self, web3: "Web3") -> None:
         nonce = 1
         pow_hash = HexStr('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef')
         mix_digest = HexStr('0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000')
-        result = web3.eth.submitWork(nonce, pow_hash, mix_digest)
+        result = web3.eth.submit_work(nonce, pow_hash, mix_digest)
+        assert result is False
+
+    def test_eth_submitWork_deprecated(self, web3: "Web3") -> None:
+        nonce = 1
+        pow_hash = HexStr('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef')
+        mix_digest = HexStr('0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000')
+        with pytest.warns(DeprecationWarning,
+                          match="submitWork is deprecated in favor of submit_work"):
+            result = web3.eth.submitWork(nonce, pow_hash, mix_digest)
         assert result is False

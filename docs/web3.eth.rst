@@ -1140,19 +1140,23 @@ with the filtering API.
        True
 
 
-.. py:method:: Eth.submitWork(nonce, pow_hash, mix_digest)
+.. py:method:: Eth.submit_work(nonce, pow_hash, mix_digest)
 
     * Delegates to ``eth_submitWork`` RPC Method.
 
     .. code-block:: python
 
-       >>> web3.eth.submitWork(
+       >>> web3.eth.submit_work(
                1,
                '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
                '0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000',
            )
        True
 
+.. py:method:: Eth.submitWork(nonce, pow_hash, mix_digest)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.submit_work()`
 
 Contracts
 ---------
