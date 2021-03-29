@@ -1,0 +1,1 @@
+Add ``w3.eth.submit_hashrate`` deprecate ``w3.eth.submitHashrate``
