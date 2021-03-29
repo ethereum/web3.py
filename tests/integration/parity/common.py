@@ -50,9 +50,13 @@ class ParityEthModuleTest(EthModuleTest):
     def test_eth_getBlockByNumber_pending(self, web3):
         super().test_eth_getBlockByNumber_pending(web3)
 
-    def test_eth_uninstallFilter(self, web3):
+    def test_eth_uninstall_filter(self, web3):
         pytest.xfail('eth_uninstallFilter calls to parity always return true')
-        super().test_eth_uninstallFilter(web3)
+        super().test_eth_uninstall_filter(web3)
+
+    def test_eth_uninstallFilter_deprecated(self, web3):
+        pytest.xfail('eth_uninstallFilter calls to parity always return true')
+        super().test_eth_uninstallFilter_deprecated(web3)
 
     @pytest.mark.xfail(reason='Parity is not setup to auto mine')
     def test_eth_replace_transaction_already_mined(self, web3, unlocked_account):

@@ -34,14 +34,6 @@ class GoEthereumEthModuleTest(EthModuleTest):
         super().test_eth_replace_transaction_already_mined(web3, unlocked_account_dual_type)
         web3.geth.miner.stop()
 
-    @pytest.mark.xfail(reason='Block identifier has not been implemented in geth')
-    def test_eth_estimateGas_with_block(self,
-                                        web3,
-                                        unlocked_account_dual_type):
-        super().test_eth_estimateGas_with_block(
-            web3, unlocked_account_dual_type
-        )
-
     @pytest.mark.xfail(reason='eth_signTypedData has not been released in geth')
     def test_eth_signTypedData(self,
                                web3,
@@ -58,9 +50,23 @@ class GoEthereumEthModuleTest(EthModuleTest):
             web3, unlocked_account_dual_type
         )
 
+    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
+    def test_eth_protocol_version(self, web3):
+        super().test_eth_protocol_version(web3)
+
+    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
+    def test_eth_protocolVersion(self, web3):
+        super().test_eth_protocolVersion(web3)
+
 
 class GoEthereumVersionModuleTest(VersionModuleTest):
-    pass
+    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
+    def test_eth_protocol_version(self, web3):
+        super().test_eth_protocol_version(web3)
+
+    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
+    def test_eth_protocolVersion(self, web3):
+        super().test_eth_protocolVersion(web3)
 
 
 class GoEthereumNetModuleTest(NetModuleTest):

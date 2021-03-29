@@ -1097,7 +1097,7 @@ with the filtering API.
         ]
 
 
-.. py:method:: Eth.uninstallFilter(self, filter_id)
+.. py:method:: Eth.uninstall_filter(self, filter_id)
 
     * Delegates to ``eth_uninstallFilter`` RPC Method.
 
@@ -1107,10 +1107,15 @@ with the filtering API.
     .. code-block:: python
 
         >>> filt = web3.eth.filter()
-        >>> web3.eth.uninstallFilter(filt.filter_id)
+        >>> web3.eth.uninstall_filter(filt.filter_id)
         True
-        >>> web3.eth.uninstallFilter(filt.filter_id)
+        >>> web3.eth.uninstall_filter(filt.filter_id)
         False  # already uninstalled.
+
+.. py:method:: Eth.uninstallFilter(self, filter_id)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.uninstall_filter`
 
 
 .. py:method:: Eth.get_logs(filter_params)
