@@ -1,0 +1,1 @@
+Removed the unsupported pypiwin32 in favor of the supported pywin32.
