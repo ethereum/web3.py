@@ -1112,19 +1112,22 @@ with the filtering API.
         >>> web3.eth.uninstall_filter(filt.filter_id)
         False  # already uninstalled.
 
-
 .. py:method:: Eth.uninstallFilter(self, filter_id)
 
     .. warning:: Deprecated: This method is deprecated in favor of
       :meth:`~web3.eth.Eth.uninstall_filter`
 
 
-.. py:method:: Eth.getLogs(filter_params)
+.. py:method:: Eth.get_logs(filter_params)
 
     This is the equivalent of: creating a new
     filter, running :meth:`~Eth.getFilterLogs`, and then uninstalling the filter. See
     :meth:`~Eth.filter` for details on allowed filter parameters.
 
+.. py:method:: Eth.getLogs(filter_params)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_logs()`
 
 .. py:method:: Eth.submitHashrate(hashrate, nodeid)
 

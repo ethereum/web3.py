@@ -1276,7 +1276,7 @@ class EthModuleTest:
         result = web3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
-    def test_eth_getLogs_without_logs(
+    def test_eth_get_logs_without_logs(
         self, web3: "Web3", block_with_txn_with_log: BlockData
     ) -> None:
         # Test with block range
@@ -1285,7 +1285,7 @@ class EthModuleTest:
             "fromBlock": BlockNumber(0),
             "toBlock": BlockNumber(block_with_txn_with_log['number'] - 1),
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
         # the range is wrong
@@ -1293,7 +1293,7 @@ class EthModuleTest:
             "fromBlock": block_with_txn_with_log['number'],
             "toBlock": BlockNumber(block_with_txn_with_log['number'] - 1),
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
         # Test with `address`
@@ -1303,7 +1303,7 @@ class EthModuleTest:
             "fromBlock": BlockNumber(0),
             "address": UNKNOWN_ADDRESS,
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
         # Test with multiple `address`
@@ -1313,10 +1313,10 @@ class EthModuleTest:
             "fromBlock": BlockNumber(0),
             "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
-    def test_eth_getLogs_with_logs(
+    def test_eth_get_logs_with_logs(
         self,
         web3: "Web3",
         block_with_txn_with_log: BlockData,
@@ -1340,14 +1340,14 @@ class EthModuleTest:
             "fromBlock": block_with_txn_with_log['number'],
             "toBlock": block_with_txn_with_log['number'],
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert_contains_log(result)
 
         # specify only `from_block`. by default `to_block` should be 'latest'
         filter_params = {
             "fromBlock": BlockNumber(0),
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert_contains_log(result)
 
         # Test with `address`
@@ -1358,7 +1358,7 @@ class EthModuleTest:
             "address": emitter_contract_address,
         }
 
-    def test_eth_getLogs_with_logs_topic_args(
+    def test_eth_get_logs_with_logs_topic_args(
         self,
         web3: "Web3",
         block_with_txn_with_log: BlockData,
@@ -1384,7 +1384,7 @@ class EthModuleTest:
                 HexStr('0x000000000000000000000000000000000000000000000000000000000000d431')],
         }
 
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert_contains_log(result)
 
         # Test with None indexed arg
@@ -1394,17 +1394,17 @@ class EthModuleTest:
                 HexStr('0x057bc32826fbe161da1c110afcdcae7c109a8b69149f727fc37a603c60ef94ca'),
                 None],
         }
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert_contains_log(result)
 
-    def test_eth_getLogs_with_logs_none_topic_args(self, web3: "Web3") -> None:
+    def test_eth_get_logs_with_logs_none_topic_args(self, web3: "Web3") -> None:
         # Test with None overflowing
         filter_params: FilterParams = {
             "fromBlock": BlockNumber(0),
             "topics": [None, None, None],
         }
 
-        result = web3.eth.getLogs(filter_params)
+        result = web3.eth.get_logs(filter_params)
         assert len(result) == 0
 
     def test_eth_call_old_contract_state(
