@@ -917,7 +917,7 @@ The following methods are available on the ``web3.eth`` namespace.
 .. py:method:: Eth.signTypedData(account, jsonMessage)
 
     .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.Eth.sign_typed_data()`
+      :meth:`~web3.eth.Eth.sign_typed_data()`
 
 .. py:method:: Eth.call(transaction, block_identifier=web3.eth.default_block)
 
