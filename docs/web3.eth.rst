@@ -980,7 +980,7 @@ The following methods are available on the ``web3.eth`` namespace.
 .. py:method:: Eth.generateGasPrice(transaction_params=None)
 
     .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.eth.Eth.generate_gas_price_strategy()`
+      :meth:`~web3.eth.Eth.generate_gas_price()`
 
 .. py:method:: Eth.setGasPriceStrategy(gas_price_strategy)
 
