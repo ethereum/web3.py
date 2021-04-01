@@ -20,7 +20,7 @@ To retreive the gas price using the selected strategy simply call
 
 .. code-block:: python
 
-    >>> Web3.eth.generate_gas_price()
+    >>> web3.eth.generate_gas_price()
     20000000000
 
 Creating a gas price strategy
