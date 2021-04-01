@@ -624,8 +624,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.wait_for_transaction_receipt
-        ('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
+        >>> web3.eth.wait_for_transaction_receipt('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
         # If transaction is not yet in a block, time passes, while the thread sleeps...
         # ...
         # Then when the transaction is added to a block, its receipt is returned:
