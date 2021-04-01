@@ -1470,7 +1470,13 @@ class EthModuleTest:
         with pytest.raises(DeprecationWarning):
             web3.eth.getCompilers()
 
-    def test_eth_submitHashrate(self, web3: "Web3") -> None:
+    def test_eth_submit_hashrate(self, web3: "Web3") -> None:
+        # node_id from EIP 1474: https://github.com/ethereum/EIPs/pull/1474/files
+        node_id = HexStr('59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c')
+        result = web3.eth.submit_hashrate(5000, node_id)
+        assert result is True
+
+    def test_eth_submitHashrate_deprecated(self, web3: "Web3") -> None:
         # node_id from EIP 1474: https://github.com/ethereum/EIPs/pull/1474/files
         node_id = HexStr('59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c')
         result = web3.eth.submitHashrate(5000, node_id)

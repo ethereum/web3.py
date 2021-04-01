@@ -1129,16 +1129,20 @@ with the filtering API.
     .. warning:: Deprecated: This property is deprecated in favor of
       :attr:`~web3.eth.Eth.get_logs()`
 
-.. py:method:: Eth.submitHashrate(hashrate, nodeid)
+.. py:method:: Eth.submit_hashrate(hashrate, nodeid)
 
     * Delegates to ``eth_submitHashrate`` RPC Method
 
     .. code-block:: python
 
        >>> node_id = '59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c'
-       >>> web3.eth.submitHashrate(5000, node_id)
+       >>> web3.eth.submit_hashrate(5000, node_id)
        True
 
+.. py:method:: Eth.submitHashrate(hashrate, nodeid)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.submit_hashrate()`
 
 .. py:method:: Eth.submit_work(nonce, pow_hash, mix_digest)
 
