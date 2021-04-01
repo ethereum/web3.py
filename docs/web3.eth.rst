@@ -1101,7 +1101,7 @@ with the filtering API.
         ]
 
 
-.. py:method:: Eth.uninstallFilter(self, filter_id)
+.. py:method:: Eth.uninstall_filter(self, filter_id)
 
     * Delegates to ``eth_uninstallFilter`` RPC Method.
 
@@ -1111,43 +1111,60 @@ with the filtering API.
     .. code-block:: python
 
         >>> filt = web3.eth.filter()
-        >>> web3.eth.uninstallFilter(filt.filter_id)
+        >>> web3.eth.uninstall_filter(filt.filter_id)
         True
-        >>> web3.eth.uninstallFilter(filt.filter_id)
+        >>> web3.eth.uninstall_filter(filt.filter_id)
         False  # already uninstalled.
 
+.. py:method:: Eth.uninstallFilter(self, filter_id)
 
-.. py:method:: Eth.getLogs(filter_params)
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.uninstall_filter`
+
+
+.. py:method:: Eth.get_logs(filter_params)
 
     This is the equivalent of: creating a new
     filter, running :meth:`~Eth.getFilterLogs`, and then uninstalling the filter. See
     :meth:`~Eth.filter` for details on allowed filter parameters.
 
+.. py:method:: Eth.getLogs(filter_params)
 
-.. py:method:: Eth.submitHashrate(hashrate, nodeid)
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_logs()`
+
+.. py:method:: Eth.submit_hashrate(hashrate, nodeid)
 
     * Delegates to ``eth_submitHashrate`` RPC Method
 
     .. code-block:: python
 
        >>> node_id = '59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c'
-       >>> web3.eth.submitHashrate(5000, node_id)
+       >>> web3.eth.submit_hashrate(5000, node_id)
        True
 
+.. py:method:: Eth.submitHashrate(hashrate, nodeid)
 
-.. py:method:: Eth.submitWork(nonce, pow_hash, mix_digest)
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.submit_hashrate()`
+
+.. py:method:: Eth.submit_work(nonce, pow_hash, mix_digest)
 
     * Delegates to ``eth_submitWork`` RPC Method.
 
     .. code-block:: python
 
-       >>> web3.eth.submitWork(
+       >>> web3.eth.submit_work(
                1,
                '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
                '0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000',
            )
        True
 
+.. py:method:: Eth.submitWork(nonce, pow_hash, mix_digest)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.submit_work()`
 
 Contracts
 ---------

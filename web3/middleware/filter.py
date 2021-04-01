@@ -215,7 +215,7 @@ def get_logs_multipart(
             "address": address,
             "topics": topics
         }
-        yield w3.eth.getLogs(cast(FilterParams, drop_items_with_none_value(params)))
+        yield w3.eth.get_logs(cast(FilterParams, drop_items_with_none_value(params)))
 
 
 class RequestLogs:
