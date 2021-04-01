@@ -521,8 +521,9 @@ class Eth(ModuleV2, Module):
     def call_munger(
         self,
         transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> Tuple[TxParams, BlockIdentifier]:
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[TxParams] = None,
+    ) -> Tuple[TxParams, BlockIdentifier, TxParams]:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, 'from', self.default_account)
@@ -531,7 +532,7 @@ class Eth(ModuleV2, Module):
         if block_identifier is None:
             block_identifier = self.default_block
 
-        return (transaction, block_identifier)
+        return (transaction, block_identifier, state_override)
 
     call: Method[Callable[..., Union[bytes, bytearray]]] = Method(
         RPC.eth_call,
