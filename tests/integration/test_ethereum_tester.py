@@ -242,7 +242,14 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_sign_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_ens_names, ValueError
     )
-    test_eth_signTypedData = not_implemented(EthModuleTest.test_eth_signTypedData, ValueError)
+    test_eth_signTypedData_deprecated = not_implemented(
+        EthModuleTest.test_eth_signTypedData_deprecated,
+        ValueError
+    )
+    test_eth_sign_typed_data = not_implemented(
+        EthModuleTest.test_eth_sign_typed_data,
+        ValueError
+    )
     test_eth_signTransaction_deprecated = not_implemented(
         EthModuleTest.test_eth_signTransaction_deprecated,
         ValueError

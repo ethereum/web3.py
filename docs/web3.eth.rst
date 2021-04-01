@@ -902,7 +902,7 @@ The following methods are available on the ``web3.eth`` namespace.
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
 
-.. py:method:: Eth.signTypedData(account, jsonMessage)
+.. py:method:: Eth.sign_typed_data(account, jsonMessage)
 
     * Delegates to ``eth_signTypedData`` RPC Method
 
@@ -914,6 +914,10 @@ The following methods are available on the ``web3.eth`` namespace.
 
     ``account`` may be a checksum address or an ENS name
 
+.. py:method:: Eth.signTypedData(account, jsonMessage)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :meth:`~web3.eth.Eth.sign_typed_data()`
 
 .. py:method:: Eth.call(transaction, block_identifier=web3.eth.default_block)
 

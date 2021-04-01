@@ -513,7 +513,7 @@ class Eth(ModuleV2, Module):
         mungers=[default_root_munger],
     )
 
-    signTypedData: Method[Callable[..., HexStr]] = Method(
+    sign_typed_data: Method[Callable[..., HexStr]] = Method(
         RPC.eth_signTypedData,
         mungers=[default_root_munger],
     )
@@ -689,6 +689,7 @@ class Eth(ModuleV2, Module):
     getUncleCount = DeprecatedMethod(get_uncle_count, 'getUncleCount', 'get_uncle_count')
     sendTransaction = DeprecatedMethod(send_transaction, 'sendTransaction', 'send_transaction')
     signTransaction = DeprecatedMethod(sign_transaction, 'signTransaction', 'sign_transaction')
+    signTypedData = DeprecatedMethod(sign_typed_data, 'signTypedData', 'sign_typed_data')
     submitHashrate = DeprecatedMethod(submit_hashrate, 'submitHashrate', 'submit_hashrate')
     submitWork = DeprecatedMethod(submit_work, 'submitWork', 'submit_work')
     getLogs = DeprecatedMethod(get_logs, 'getLogs', 'get_logs')
