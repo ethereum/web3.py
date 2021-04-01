@@ -970,7 +970,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> Web3.eth.generate_gas_price()
+        >>> web3.eth.generate_gas_price()
         20000000000
 
     .. note::
