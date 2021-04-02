@@ -16,11 +16,13 @@ def test_get_set_gasPrice(web3):
 def test_no_gas_price_strategy_returns_none(web3):
     assert web3.eth.generate_gas_price() is None
 
+
 def test_generateGasPrice_deprecated(web3):
     with pytest.warns(DeprecationWarning,
                       match='generateGasPrice is deprecated in favor of generate_gas_price'):
         gas_price = web3.eth.generateGasPrice()
     assert gas_price is None
+
 
 def test_set_gas_price_strategy(web3):
     def my_gas_price_strategy(web3, transaction_params):
