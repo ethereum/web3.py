@@ -36,7 +36,7 @@ def test_send_transaction_with_valid_chain_id(web3, make_chain_id, expect_succes
     }
     if expect_success:
         txn_hash = web3.eth.send_transaction(transaction)
-        receipt = web3.eth.waitForTransactionReceipt(txn_hash, timeout=RECEIPT_TIMEOUT)
+        receipt = web3.eth.wait_for_transaction_receipt(txn_hash, timeout=RECEIPT_TIMEOUT)
         assert receipt.get('blockNumber') is not None
     else:
         with pytest.raises(ValidationError) as exc_info:
@@ -84,13 +84,13 @@ def test_send_transaction_with_ens_names(web3):
         }
 
         txn_hash = web3.eth.send_transaction(transaction)
-        receipt = web3.eth.waitForTransactionReceipt(txn_hash, timeout=RECEIPT_TIMEOUT)
+        receipt = web3.eth.wait_for_transaction_receipt(txn_hash, timeout=RECEIPT_TIMEOUT)
         assert receipt.get('blockNumber') is not None
 
 
 def test_wait_for_missing_receipt(web3):
     with pytest.raises(TimeExhausted):
-        web3.eth.waitForTransactionReceipt(b'\0' * 32, timeout=RECEIPT_TIMEOUT)
+        web3.eth.wait_for_transaction_receipt(b'\0' * 32, timeout=RECEIPT_TIMEOUT)
 
 
 def test_unmined_transaction_wait_for_receipt(web3):
@@ -103,6 +103,6 @@ def test_unmined_transaction_wait_for_receipt(web3):
     with pytest.raises(TransactionNotFound):
         web3.eth.get_transaction_receipt(txn_hash)
 
-    txn_receipt = web3.eth.waitForTransactionReceipt(txn_hash)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
     assert txn_receipt['transactionHash'] == txn_hash
     assert txn_receipt['blockHash'] is not None

@@ -84,7 +84,7 @@ To run this example, you will need to install a few extra features:
     >>> tx_hash = Greeter.constructor().transact()
 
     # Wait for the transaction to be mined, and get the transaction receipt
-    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
     >>> greeter = w3.eth.contract(
     ...     address=tx_receipt.contractAddress,
@@ -95,7 +95,7 @@ To run this example, you will need to install a few extra features:
     'Hello'
 
     >>> tx_hash = greeter.functions.setGreeting('Nihao').transact()
-    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     >>> greeter.functions.greet().call()
     'Nihao'
 
@@ -686,7 +686,7 @@ Taking the following contract code as an example:
     >>> ArraysContract = w3.eth.contract(abi=abi, bytecode=bytecode)
 
     >>> tx_hash = ArraysContract.constructor([b'b']).transact()
-    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
     >>> array_contract = w3.eth.contract(
     ...     address=tx_receipt.contractAddress,
@@ -1069,7 +1069,7 @@ Event Log Object
     assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
     tx_hash = my_token_contract.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': 320000})
     assert tx_hash == HexBytes('0x611aa2d5c3e51f08d0665c4529c5520ed32520d8a48ba2cf2aff3f2fce3f26e4'), tx_hash
-    txn_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    txn_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']
     contract = w3.eth.contract(contract_address, abi=ABI)
@@ -1077,7 +1077,7 @@ Event Log Object
     decimals = 10 ** 18
     assert total_supply == 1000000 * decimals, total_supply
     tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 200000})
-    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
 .. doctest:: createFilter
 
@@ -1096,7 +1096,7 @@ Event Log Object
      >>> transfer_filter.get_new_entries()
      []
      >>> tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 200000})
-     >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
      >>> transfer_filter.get_new_entries()
      [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
       'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
@@ -1173,7 +1173,7 @@ For example:
    ABI = json.loads('[{"constant":false,"inputs":[],"name":"return13","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":true,"inputs":[],"name":"counter","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"amt","type":"uint256"}],"name":"increment","outputs":[{"name":"result","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"},{"name":"b","type":"int256"}],"name":"add","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":false,"inputs":[],"name":"increment","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"}],"name":"multiply7","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"increased","type":"event"}]')
    contract = w3.eth.contract(abi=ABI, bytecode=bytecode)
    deploy_txn = contract.constructor().transact()
-   deploy_receipt = w3.eth.waitForTransactionReceipt(deploy_txn)
+   deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
    address = deploy_receipt.contractAddress
 
 .. doctest:: contractcaller

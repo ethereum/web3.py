@@ -19,7 +19,7 @@ def test_contract_constructor_gas_estimate_no_constructor(web3, MathContract):
     gas_estimate = MathContract.constructor().estimateGas()
 
     deploy_txn = MathContract.constructor().transact()
-    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get('gasUsed')
 
     assert abs(gas_estimate - gas_used) < 21000
@@ -29,7 +29,7 @@ def test_contract_constructor_gas_estimate_with_block_id(web3, MathContract):
     block_identifier = None
     gas_estimate = MathContract.constructor().estimateGas(block_identifier=block_identifier)
     deploy_txn = MathContract.constructor().transact()
-    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get('gasUsed')
 
     assert abs(gas_estimate - gas_used) < 21000
@@ -41,7 +41,7 @@ def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
     gas_estimate = SimpleConstructorContract.constructor().estimateGas()
 
     deploy_txn = SimpleConstructorContract.constructor().transact()
-    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get('gasUsed')
 
     assert abs(gas_estimate - gas_used) < 21000
@@ -66,7 +66,7 @@ def test_contract_constructor_gas_estimate_with_constructor_with_arguments(
 
     deploy_txn = WithConstructorArgumentsContract.constructor(
         *constructor_args, **constructor_kwargs).transact()
-    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get('gasUsed')
 
     assert abs(gas_estimate - gas_used) < 21000
@@ -81,7 +81,7 @@ def test_contract_constructor_gas_estimate_with_constructor_with_address_argumen
 
     deploy_txn = WithConstructorAddressArgumentsContract.constructor(
         address_conversion_func("0x16D9983245De15E7A9A73bC586E01FF6E08dE737")).transact()
-    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get('gasUsed')
 
     assert abs(gas_estimate - gas_used) < 21000
@@ -94,7 +94,7 @@ def test_contract_constructor_transact_no_constructor(
         address_conversion_func):
     deploy_txn = MathContract.constructor().transact()
 
-    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
 
     assert txn_receipt['contractAddress']
@@ -111,7 +111,7 @@ def test_contract_constructor_transact_with_constructor_without_arguments(
         address_conversion_func):
     deploy_txn = SimpleConstructorContract.constructor().transact()
 
-    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
 
     assert txn_receipt['contractAddress']
@@ -142,7 +142,7 @@ def test_contract_constructor_transact_with_constructor_with_arguments(
     deploy_txn = WithConstructorArgumentsContract.constructor(
         *constructor_args, **constructor_kwargs).transact()
 
-    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
 
     assert txn_receipt['contractAddress']
@@ -162,7 +162,7 @@ def test_contract_constructor_transact_with_constructor_with_address_arguments(
         WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
         address_conversion_func):
     deploy_txn = WithConstructorAddressArgumentsContract.constructor(TEST_ADDRESS).transact()
-    txn_receipt = web3.eth.waitForTransactionReceipt(deploy_txn)
+    txn_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
     assert txn_receipt['contractAddress']
     contract_address = address_conversion_func(txn_receipt['contractAddress'])

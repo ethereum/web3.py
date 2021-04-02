@@ -38,7 +38,7 @@ def test_deployed_escrow_and_safe_send(escrow_manifest, w3):
     escrow_tx_hash = LinkedEscrowFactory.constructor(
         "0x4F5B11c860b37b68DE6D14Fb7e7b5f18A9A1bdC0"
     ).transact()
-    escrow_tx_receipt = w3.eth.waitForTransactionReceipt(escrow_tx_hash)
+    escrow_tx_receipt = w3.eth.wait_for_transaction_receipt(escrow_tx_hash)
     escrow_address = escrow_tx_receipt.contractAddress
 
     # Cannot deploy with an unlinked factory

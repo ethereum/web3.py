@@ -339,7 +339,7 @@ The following example demonstrates a few things:
     if gas_estimate < 100000:
          print("Sending transaction to setVar(255)\n")
          tx_hash = store_var_contract.functions.setVar(255).transact()
-         receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+         receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
          print("Transaction receipt mined:")
          pprint.pprint(dict(receipt))
          print("\nWas transaction successful?")
@@ -466,7 +466,7 @@ contract which conforms to this standard.
     assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
     tx_hash = factory.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': 320000})
     assert tx_hash == HexBytes('0x611aa2d5c3e51f08d0665c4529c5520ed32520d8a48ba2cf2aff3f2fce3f26e4'), tx_hash
-    txn_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    txn_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']
     contract = w3.eth.contract(contract_address, abi=ABI)
@@ -549,7 +549,7 @@ Next we can transfer some tokens from ``alice`` to ``bob`` using the contract's
 .. doctest::
 
     >>> tx_hash = contract.functions.transfer(bob, 100).transact({'from': alice})
-    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     >>> contract.functions.balanceOf(alice).call()
     999999999999999999999900
     >>> contract.functions.balanceOf(bob).call()
@@ -568,7 +568,7 @@ spend using the ``allowance`` function.
     >>> contract.functions.allowance(alice, bob).call()
     0
     >>> tx_hash = contract.functions.approve(bob, 200).transact({'from': alice})
-    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     >>> contract.functions.allowance(alice, bob).call()
     200
 
@@ -586,7 +586,7 @@ When someone has an allowance they can transfer those tokens using the
     >>> contract.functions.balanceOf(bob).call()
     100
     >>> tx_hash = contract.functions.transferFrom(alice, bob, 75).transact({'from': bob})
-    >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     >>> contract.functions.allowance(alice, bob).call()
     125
     >>> contract.functions.balanceOf(bob).call()
@@ -658,7 +658,7 @@ And finally, send the transaction
 .. code-block:: python
 
     txn_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-    txn_receipt = w3.eth.waitForTransactionReceipt(txn_hash)
+    txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
 
 Tip : afterwards you can use the value stored in ``txn_hash``, in an explorer like `etherscan`_ to view the transaction's details
 

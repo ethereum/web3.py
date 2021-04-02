@@ -60,7 +60,7 @@ def foo_contract(eth_tester, w3):
         'from': deploy_address,
     })
     # wait for the transaction to be mined
-    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash, 180)
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     # instantiate and return an instance of our contract.
     return FooContract(tx_receipt.contractAddress)
 
@@ -77,7 +77,7 @@ def test_can_update_greeting(w3, foo_contract):
     ).transact({
         'from': w3.eth.accounts[1],
     })
-    w3.eth.waitForTransactionReceipt(tx_hash, 180)
+    w3.eth.wait_for_transaction_receipt(tx_hash, 180)
 
     # verify that the contract is now using the updated greeting
     hw = foo_contract.caller.bar()
@@ -91,7 +91,7 @@ def test_updating_greeting_emits_event(w3, foo_contract):
     ).transact({
         'from': w3.eth.accounts[1],
     })
-    receipt = w3.eth.waitForTransactionReceipt(tx_hash, 180)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
 
     # get all of the `barred` logs for the contract
     logs = foo_contract.events.barred.getLogs()

@@ -250,7 +250,7 @@ class SimpleRegistry(ERC1319Registry):
         tx_hash = self.registry.functions.release(
             package_name, version, manifest_uri
         ).transact()
-        self.w3.eth.waitForTransactionReceipt(tx_hash)
+        self.w3.eth.wait_for_transaction_receipt(tx_hash)
         return self._get_release_id(package_name, version)
 
     def _get_package_name(self, package_id: bytes) -> str:
@@ -308,7 +308,7 @@ class SimpleRegistry(ERC1319Registry):
         registry_package = Package(manifest, w3)
         registry_factory = registry_package.get_contract_factory(ContractName("PackageRegistry"))
         tx_hash = registry_factory.constructor().transact()
-        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         return cls(tx_receipt["contractAddress"], w3)
 
 

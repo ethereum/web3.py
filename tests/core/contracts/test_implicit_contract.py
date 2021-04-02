@@ -19,7 +19,7 @@ def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, address_conversion_fu
         bytecode_runtime=MATH_RUNTIME,
     )
     tx_hash = MathContract.constructor().transact()
-    tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
+    tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
     math_address = address_conversion_func(tx_receipt['contractAddress'])
     # Return interactive contract instance at deployed address
     # TODO Does parent class not implement 'deploy()' for a reason?

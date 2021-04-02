@@ -24,7 +24,7 @@ def safe_math_package(get_manifest, w3):
 def deployed_safe_math(safe_math_package, w3):
     SafeMath = safe_math_package.get_contract_factory("SafeMathLib")
     tx_hash = SafeMath.constructor().transact()
-    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     return safe_math_package, tx_receipt.contractAddress
 
 

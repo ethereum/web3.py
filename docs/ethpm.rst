@@ -109,13 +109,13 @@ LinkableContract
    >>> # Deploy SafeSendLib
    >>> SafeSendFactory = EscrowPackage.get_contract_factory("SafeSendLib")
    >>> safe_send_tx_hash = SafeSendFactory.constructor().transact()
-   >>> safe_send_tx_receipt = w3.eth.waitForTransactionReceipt(safe_send_tx_hash)
+   >>> safe_send_tx_receipt = w3.eth.wait_for_transaction_receipt(safe_send_tx_hash)
 
    >>> # Link Escrow factory to deployed SafeSendLib instance
    >>> LinkedEscrowFactory = EscrowFactory.link_bytecode({"SafeSendLib": safe_send_tx_receipt.contractAddress})
    >>> assert LinkedEscrowFactory.needs_bytecode_linking is False
    >>> escrow_tx_hash = LinkedEscrowFactory.constructor(w3.eth.accounts[0]).transact()
-   >>> escrow_tx_receipt = w3.eth.waitForTransactionReceipt(escrow_tx_hash)
+   >>> escrow_tx_receipt = w3.eth.wait_for_transaction_receipt(escrow_tx_hash)
    >>> assert is_address(escrow_tx_receipt.contractAddress)
 
 

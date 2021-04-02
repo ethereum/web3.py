@@ -175,7 +175,7 @@ API
 - :meth:`web3.eth.send_raw_transaction() <web3.eth.Eth.send_raw_transaction>`
 - :meth:`web3.eth.replace_transaction() <web3.eth.Eth.replace_transaction>`
 - :meth:`web3.eth.modify_transaction() <web3.eth.Eth.modify_transaction>`
-- :meth:`web3.eth.waitForTransactionReceipt() <web3.eth.Eth.waitForTransactionReceipt>`
+- :meth:`web3.eth.wait_for_transaction_receipt() <web3.eth.Eth.wait_for_transaction_receipt>`
 - :meth:`web3.eth.get_transaction_receipt() <web3.eth.Eth.get_transaction_receipt>`
 - :meth:`web3.eth.sign() <web3.eth.Eth.sign>`
 - :meth:`web3.eth.sign_typed_data() <web3.eth.Eth.sign_typed_data>`
@@ -205,7 +205,7 @@ instance of the contract:
 
    >>> ExampleContract = w3.eth.contract(abi=abi, bytecode=bytecode)
    >>> tx_hash = ExampleContract.constructor().transact()
-   >>> tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+   >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
    >>> tx_receipt.contractAddress
    '0x8a22225eD7eD460D7ee3842bce2402B9deaD23D3'
 

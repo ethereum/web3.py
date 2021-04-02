@@ -167,7 +167,7 @@ def generate_go_ethereum_fixture(destination_dir):
 
 
 def verify_chain_state(web3, chain_data):
-    receipt = web3.eth.waitForTransactionReceipt(chain_data['mined_txn_hash'])
+    receipt = web3.eth.wait_for_transaction_receipt(chain_data['mined_txn_hash'])
     latest = web3.eth.get_block('latest')
     assert receipt.blockNumber <= latest.number
 
@@ -175,7 +175,7 @@ def verify_chain_state(web3, chain_data):
 def mine_transaction_hash(web3, txn_hash):
     web3.geth.miner.start(1)
     try:
-        return web3.eth.waitForTransactionReceipt(txn_hash, timeout=120)
+        return web3.eth.wait_for_transaction_receipt(txn_hash, timeout=120)
     finally:
         web3.geth.miner.stop()
 

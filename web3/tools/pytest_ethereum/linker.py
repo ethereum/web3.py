@@ -70,7 +70,7 @@ def _deploy(
             "builder tool, use `contract_type(..., runtime_bytecode=True)`."
         )
     tx_hash = factory.constructor(*args).transact(transaction)
-    tx_receipt = package.w3.eth.waitForTransactionReceipt(tx_hash)
+    tx_receipt = package.w3.eth.wait_for_transaction_receipt(tx_hash)
     # Create manifest copy with new deployment instance
     latest_block_uri = create_latest_block_uri(package.w3, 0)
     deployment_data = create_deployment_data(
