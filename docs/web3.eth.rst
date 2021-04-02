@@ -969,7 +969,7 @@ The following methods are available on the ``web3.eth`` namespace.
         nodes would result in an error like:  ``ValueError: {'code': -32602, 'message': 'too many arguments, want at most 1'}``
 
 
-.. py:method:: Eth.generateGasPrice(transaction_params=None)
+.. py:method:: Eth.generate_gas_price(transaction_params=None)
 
     Uses the selected gas price strategy to calculate a gas price. This method
     returns the gas price denominated in wei.
@@ -979,12 +979,17 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> Web3.eth.generateGasPrice()
+        >>> web3.eth.generate_gas_price()
         20000000000
 
     .. note::
         For information about how gas price can be customized in web3 see
         :ref:`Gas_Price`.
+
+.. py:method:: Eth.generateGasPrice(transaction_params=None)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.generate_gas_price()`
 
 .. py:method:: Eth.setGasPriceStrategy(gas_price_strategy)
 
