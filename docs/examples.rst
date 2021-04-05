@@ -287,7 +287,7 @@ instance, you can read data and execute transactions.
     # 42
 
     # update state:
-    tx_hash = contract.functions.updateValue(43).transact()
+    tx_hash = contract_instance.functions.updateValue(43).transact()
 
 
 Deploying new contracts
