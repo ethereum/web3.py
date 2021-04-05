@@ -662,7 +662,7 @@ class Eth(ModuleV2, Module):
     def getCompilers(self) -> NoReturn:
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
-    getWork: Method[Callable[[], List[HexBytes]]] = Method(
+    get_work: Method[Callable[[], List[HexBytes]]] = Method(
         RPC.eth_getWork,
         mungers=None,
     )
@@ -719,3 +719,4 @@ class Eth(ModuleV2, Module):
     getFilterChanges = DeprecatedMethod(get_filter_changes,
                                         'getFilterChanges',
                                         'get_filter_changes')
+    getWork = DeprecatedMethod(get_work, 'getWork', 'get_work')
