@@ -143,13 +143,13 @@ In general, your options for accounts are:
 Making Ethereum JSON-RPC API access faster
 ------------------------------------------
 
-Ethereum node JSON-RPC API might be slow when fetching multiple and large requests, especially when running batch jobs. Here are some tips how to speed up your web3.py application.
+Your Ethereum node JSON-RPC API might be slow when fetching multiple and large requests, especially when running batch jobs. Here are some tips for how to speed up your web3.py application.
 
-- Run `Go Ethereum <https://github.com/ethereum/go-ethereum>`_ or `TurboGeth <https://github.com/ledgerwatch/turbo-geth>`_ locally. The network latency and speed are the major limiting factors for fast API access.
+- Run your client locally, e.g., `Go Ethereum <https://github.com/ethereum/go-ethereum>`_ or `TurboGeth <https://github.com/ledgerwatch/turbo-geth>`_. The network latency and speed are the major limiting factors for fast API access.
 
 - Use IPC communication instead of HTTP/WebSockets. See :ref:`choosing_provider`.
 
-- Use optimised JSON decoder. Below is an example how to patch your web3.py provider class to use `ujson <https://pypi.org/project/ujson/>`_.
+- Use an optimised JSON decoder. A future iteration of Web3.py may change the default decoder or provide an API to configure one, but for now, you may patch the provider class to use `ujson <https://pypi.org/project/ujson/>`_.
 
 .. code-block:: python
 
