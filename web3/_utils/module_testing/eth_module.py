@@ -60,7 +60,9 @@ if TYPE_CHECKING:
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:
-        protocol_version = web3.eth.protocol_version
+        with pytest.warns(DeprecationWarning,
+                          match="This method has been deprecated in some clients"):
+            protocol_version = web3.eth.protocol_version
 
         assert is_string(protocol_version)
         assert protocol_version.isdigit()
@@ -1558,7 +1560,9 @@ class EthModuleTest:
     def test_eth_submitHashrate_deprecated(self, web3: "Web3") -> None:
         # node_id from EIP 1474: https://github.com/ethereum/EIPs/pull/1474/files
         node_id = HexStr('59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c')
-        result = web3.eth.submitHashrate(5000, node_id)
+        with pytest.warns(DeprecationWarning,
+                          match='submitHashrate is deprecated in favor of submit_hashrate'):
+            result = web3.eth.submitHashrate(5000, node_id)
         assert result is True
 
     def test_eth_submit_work(self, web3: "Web3") -> None:
