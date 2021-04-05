@@ -139,3 +139,41 @@ In general, your options for accounts are:
 
 .. Warning:: Don't store real value in an account until you are familiar with security best practices.
    If you lose your private key, you lose your account!
+
+Making Ethereum JSON-RPC API access faster
+------------------------------------------
+
+Your Ethereum node JSON-RPC API might be slow when fetching multiple and large requests, especially when running batch jobs. Here are some tips for how to speed up your web3.py application.
+
+- Run your client locally, e.g., `Go Ethereum <https://github.com/ethereum/go-ethereum>`_ or `TurboGeth <https://github.com/ledgerwatch/turbo-geth>`_. The network latency and speed are the major limiting factors for fast API access.
+
+- Use IPC communication instead of HTTP/WebSockets. See :ref:`choosing_provider`.
+
+- Use an optimised JSON decoder. A future iteration of Web3.py may change the default decoder or provide an API to configure one, but for now, you may patch the provider class to use `ujson <https://pypi.org/project/ujson/>`_.
+
+.. code-block:: python
+
+    """JSON-RPC decoding optimised for web3.py"""
+
+    from typing import cast
+
+    import ujson
+
+    from web3.providers import JSONBaseProvider
+    from web3.types import RPCResponse
+
+
+    def _fast_decode_rpc_response(raw_response: bytes) -> RPCResponse:
+        decoded = ujson.loads(raw_response)
+        return cast(RPCResponse, decoded)
+
+
+    def patch_provider(provider: JSONBaseProvider):
+        """Monkey-patch web3.py provider for faster JSON decoding.
+
+        Call this on your provider after construction.
+
+        This greatly improves JSON-RPC API access speeds, when fetching
+        multiple and large responses.
+        """
+        provider.decode_rpc_response = _fast_decode_rpc_response
