@@ -1306,7 +1306,7 @@ class EthModuleTest:
         assert is_list_like(logs)
         assert not logs
 
-        result = web3.eth.uninstallFilter(filter.filter_id)
+        result = web3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
     def test_eth_newFilter_deprecated(self, web3: "Web3") -> None:
