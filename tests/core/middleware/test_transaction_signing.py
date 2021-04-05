@@ -282,7 +282,7 @@ def test_signed_transaction(
     else:
         start_balance = w3.eth.get_balance(_transaction.get('from', w3.eth.accounts[0]))
         w3.eth.send_transaction(_transaction)
-        assert w3.eth.getBalance(_transaction.get('from')) <= start_balance + expected
+        assert w3.eth.get_balance(_transaction.get('from')) <= start_balance + expected
 
 
 @pytest.mark.parametrize(
