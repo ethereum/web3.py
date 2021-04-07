@@ -142,6 +142,11 @@ class EthModuleTest:
         assert is_integer(block_number)
         assert block_number >= 0
 
+    def test_eth_get_block_number(self, web3: "Web3") -> None:
+        block_number = web3.eth.get_block_number()
+        assert is_integer(block_number)
+        assert block_number >= 0
+
     def test_eth_blockNumber(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             block_number = web3.eth.blockNumber

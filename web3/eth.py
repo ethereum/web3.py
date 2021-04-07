@@ -201,14 +201,14 @@ class Eth(ModuleV2, Module):
     def accounts(self) -> Tuple[ChecksumAddress]:
         return self.get_accounts()
 
-    _block_number: Method[Callable[[], BlockNumber]] = Method(
+    get_block_number: Method[Callable[[], BlockNumber]] = Method(
         RPC.eth_blockNumber,
         mungers=None,
     )
 
     @property
     def block_number(self) -> BlockNumber:
-        return self._block_number()
+        return self.get_block_number()
 
     @property
     def blockNumber(self) -> BlockNumber:
