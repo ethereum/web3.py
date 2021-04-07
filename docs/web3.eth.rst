@@ -153,6 +153,8 @@ The following properties are available on the ``web3.eth`` namespace.
 
     Returns the number of the most recent block
 
+    Alias for :meth:`~web3.eth.Eth.get_block_number`
+
     .. code-block:: python
 
         >>> web3.eth.block_number
@@ -227,6 +229,18 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. warning:: Deprecated: This method is deprecated in favor of
       :meth:`~web3.eth.get_balance()`
+
+
+.. py:method:: Eth.get_block_number()
+
+    * Delegates to ``eth_blockNumber`` RPC Method
+
+    Returns the number of the most recent block.
+
+    .. code-block:: python
+
+        >>> web3.eth.get_block_number()
+        2206939
 
 
 .. py:method:: Eth.get_storage_at(account, position, block_identifier=eth.default_block)
