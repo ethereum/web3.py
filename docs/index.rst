@@ -22,7 +22,7 @@ Your next steps depend on where you're standing:
 - Interested in a quick tour? → :ref:`overview`
 - Need help debugging? → `StackExchange`_
 - Like to give back? → :ref:`Contribute <contributing>`
-- Want to chat? → `Gitter`_
+- Want to chat? → `Discord`_
 
 Table of Contents
 -----------------
@@ -89,4 +89,4 @@ Indices and tables
 .. _ethereum.org: https://ethereum.org/what-is-ethereum/
 .. _ethereum.org/python: https://ethereum.org/python/
 .. _StackExchange: https://ethereum.stackexchange.com/questions/tagged/web3.py
-.. _Gitter: https://gitter.im/ethereum/web3.py
+.. _Discord: https://discord.gg/GHryRvPB84

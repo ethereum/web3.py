@@ -5,8 +5,16 @@ Contributing
 
 Thank you for your interest in contributing! We welcome all contributions
 no matter their size. Please read along to learn how to get started. If you
-get stuck, feel free to reach for help in our
-`Gitter channel <https://gitter.im/ethereum/web3.py>`_.
+get stuck, feel free to reach for help in the
+`Ethereum Python Discord server <https://discord.gg/GHryRvPB84>`_.
+
+
+Bug Reports
+~~~~~~~~~~~
+
+If you think you've spotted a bug, `open an issue <https://github.com/ethereum/web3.py/issues/new>`_
+on GitHub with as much detail as possible, preferably with code to reproduce the issue.
+
 
 Setting the stage
 ~~~~~~~~~~~~~~~~~
