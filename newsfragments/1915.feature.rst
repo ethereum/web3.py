@@ -1,1 +1,0 @@
-Add ``w3.eth.sign_typed_data`` deprecate ``w3.eth.signTypedData``

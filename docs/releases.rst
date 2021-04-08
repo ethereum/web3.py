@@ -3,6 +3,51 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.18.0 (2021-04-08)
+--------------------
+Web3 5.18.0 (2021-04-08)
+------------------------
+
+Features
+~~~~~~~~
+
+- Add ``w3.eth.modify_transaction`` deprecate ``w3.eth.modifyTransaction`` (`#1886 <https://github.com/ethereum/web3.py/issues/1886>`__)
+- Add ``w3.eth.get_transaction_receipt``, deprecate ``w3.eth.getTransactionReceipt`` (`#1893 <https://github.com/ethereum/web3.py/issues/1893>`__)
+- Add ``w3.eth.wait_for_transaction_receipt`` deprecate ``w3.eth.waitForTransactionReceipt`` (`#1896 <https://github.com/ethereum/web3.py/issues/1896>`__)
+- Add ``w3.eth.set_contract_factory`` deprecate ``w3.eth.setContractFactory`` (`#1900 <https://github.com/ethereum/web3.py/issues/1900>`__)
+- Add ``w3.eth.generate_gas_price`` deprecate ``w3.eth.generateGasPrice`` (`#1905 <https://github.com/ethereum/web3.py/issues/1905>`__)
+- Add ``w3.eth.set_gas_price_strategy`` deprecate ``w3.eth.setGasPriceStrategy`` (`#1906 <https://github.com/ethereum/web3.py/issues/1906>`__)
+- Add ``w3.eth.estimate_gas`` deprecate ``w3.eth.estimateGas`` (`#1913 <https://github.com/ethereum/web3.py/issues/1913>`__)
+- Add ``w3.eth.sign_typed_data`` deprecate ``w3.eth.signTypedData`` (`#1915 <https://github.com/ethereum/web3.py/issues/1915>`__)
+- Add ``w3.eth.get_filter_changes`` deprecate ``w3.eth.getFilterChanges`` (`#1916 <https://github.com/ethereum/web3.py/issues/1916>`__)
+- Add ``eth.get_filter_logs``, deprecate ``eth.getFilterLogs`` (`#1919 <https://github.com/ethereum/web3.py/issues/1919>`__)
+- Add ``eth.uninstall_filter``, deprecate ``eth.uninstallFilter`` (`#1920 <https://github.com/ethereum/web3.py/issues/1920>`__)
+- Add ``w3.eth.get_logs`` deprecate ``w3.eth.getLogs`` (`#1925 <https://github.com/ethereum/web3.py/issues/1925>`__)
+- Add ``w3.eth.submit_hashrate`` deprecate ``w3.eth.submitHashrate`` (`#1926 <https://github.com/ethereum/web3.py/issues/1926>`__)
+- Add ``w3.eth.submit_work`` deprecate ``w3.eth.submitWork`` (`#1927 <https://github.com/ethereum/web3.py/issues/1927>`__)
+- Add ``w3.eth.get_work``, deprecate ``w3.eth.getWork`` (`#1934 <https://github.com/ethereum/web3.py/issues/1934>`__)
+- Adds public get_block_number method. (`#1937 <https://github.com/ethereum/web3.py/issues/1937>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add ABI type examples to docs (`#1890 <https://github.com/ethereum/web3.py/issues/1890>`__)
+- Promote the new Ethereum Python Discord server on the README. (`#1898 <https://github.com/ethereum/web3.py/issues/1898>`__)
+- Escape reserved characters in install script of Contributing docs. (`#1909 <https://github.com/ethereum/web3.py/issues/1909>`__)
+- Add detailed event filtering examples. (`#1910 <https://github.com/ethereum/web3.py/issues/1910>`__)
+- Add docs example for tuning log levels. (`#1928 <https://github.com/ethereum/web3.py/issues/1928>`__)
+- Add some performance tips in troubleshooting docs. (`#1929 <https://github.com/ethereum/web3.py/issues/1929>`__)
+- Add existing contract interaction to docs examples. (`#1933 <https://github.com/ethereum/web3.py/issues/1933>`__)
+- Replace Gitter links with the Python Discord server. (`#1936 <https://github.com/ethereum/web3.py/issues/1936>`__)
+
+
+Misc
+~~~~
+
+- `#1887 <https://github.com/ethereum/web3.py/issues/1887>`__, `#1907 <https://github.com/ethereum/web3.py/issues/1907>`__, `#1917 <https://github.com/ethereum/web3.py/issues/1917>`__, `#1930 <https://github.com/ethereum/web3.py/issues/1930>`__, `#1935 <https://github.com/ethereum/web3.py/issues/1935>`__
+
+
 v5.17.0 (2021-02-24)
 --------------------
 

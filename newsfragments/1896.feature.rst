@@ -1,1 +1,0 @@
-Add ``w3.eth.wait_for_transaction_receipt`` deprecate ``w3.eth.waitForTransactionReceipt``

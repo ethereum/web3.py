@@ -1,1 +1,0 @@
-Add some performance tips in troubleshooting docs.

@@ -1,1 +1,0 @@
-Adds public get_block_number method.
