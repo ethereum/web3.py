@@ -114,7 +114,6 @@ class RequestManager:
             (gas_price_strategy_middleware, 'gas_price_strategy'),  # Add Async
             (name_to_address_middleware(web3), 'name_to_address'),  # Add Async
             (attrdict_middleware, 'attrdict'),  # Delete
-            (pythonic_middleware, 'pythonic'),  # Delete
             (normalize_errors_middleware, 'normalize_errors'),  # Add async
             (validation_middleware, 'validation'),  # Add async
             (abi_middleware, 'abi'),  # Delete
