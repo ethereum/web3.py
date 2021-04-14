@@ -47,15 +47,6 @@ AttributeDict
     (where the ENS contract is deployed), for all other cases will result in an
     ``InvalidAddress`` error
 
-Pythonic
-~~~~~~~~~~~~
-
-.. py:method:: web3.middleware.pythonic_middleware
-
-    This converts arguments and returned values to python primitives,
-    where appropriate. For example, it converts the raw hex string returned by the RPC call
-    ``eth_blockNumber`` into an ``int``.
-
 Gas Price Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -168,9 +159,9 @@ To add or remove items in different layers, use the following API:
     .. code-block:: python
 
         >>> w3 = Web3(...)
-        >>> w3.middleware_onion.add(web3.middleware.pythonic_middleware)
+        >>> w3.middleware_onion.add(web3.middleware.normalize_errors_middleware)
         # or
-        >>> w3.middleware_onion.add(web3.middleware.pythonic_middleware, 'pythonic')
+        >>> w3.middleware_onion.add(web3.middleware.normalize_errors_middleware, 'normalize_errors')
 
 .. py:method:: Web3.middleware_onion.inject(middleware, name=None, layer=None)
 
@@ -182,11 +173,11 @@ To add or remove items in different layers, use the following API:
 
     .. code-block:: python
 
-        # Either of these will put the pythonic middleware at the innermost layer
+        # Either of these will put the normalize errors middleware at the innermost layer
         >>> w3 = Web3(...)
-        >>> w3.middleware_onion.inject(web3.middleware.pythonic_middleware, layer=0)
+        >>> w3.middleware_onion.inject(web3.middleware.normalize_errors_middleware, layer=0)
         # or
-        >>> w3.middleware_onion.inject(web3.middleware.pythonic_middleware, 'pythonic', layer=0)
+        >>> w3.middleware_onion.inject(web3.middleware.normalize_errors_middleware, 'normalize_errors', layer=0)
 
 .. py:method:: Web3.middleware_onion.remove(middleware)
 
@@ -197,9 +188,9 @@ To add or remove items in different layers, use the following API:
     .. code-block:: python
 
         >>> w3 = Web3(...)
-        >>> w3.middleware_onion.remove(web3.middleware.pythonic_middleware)
+        >>> w3.middleware_onion.remove(web3.middleware.normalize_errors_middleware)
         # or
-        >>> w3.middleware_onion.remove('pythonic')
+        >>> w3.middleware_onion.remove('normalize_errors')
 
 .. py:method:: Web3.middleware_onion.replace(old_middleware, new_middleware)
 
@@ -209,18 +200,18 @@ To add or remove items in different layers, use the following API:
 
     .. code-block:: python
 
-        >>> from web3.middleware import pythonic_middleware, attrdict_middleware
+        >>> from web3.middleware import normalize_errors_middleware, attrdict_middleware
         >>> w3 = Web3(...)
 
-        >>> w3.middleware_onion.replace(pythonic_middleware, attrdict_middleware)
+        >>> w3.middleware_onion.replace(normalize_errors_middleware, attrdict_middleware)
         # this is now referenced by the new middleware object, so to remove it:
         >>> w3.middleware_onion.remove(attrdict_middleware)
 
         # or, if it was named
 
-        >>> w3.middleware_onion.replace('pythonic', attrdict_middleware)
+        >>> w3.middleware_onion.replace('normalize_errors', attrdict_middleware)
         # this is still referenced by the original name, so to remove it:
-        >>> w3.middleware_onion.remove('pythonic')
+        >>> w3.middleware_onion.remove('normalize_errors')
 
 .. py:method:: Web3.middleware_onion.clear()
 

@@ -34,7 +34,6 @@ from web3.middleware import (
     gas_price_strategy_middleware,
     name_to_address_middleware,
     normalize_errors_middleware,
-    pythonic_middleware,
     request_parameter_normalizer,
     validation_middleware,
 )
