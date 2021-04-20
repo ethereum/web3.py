@@ -71,9 +71,7 @@ def wait_for_block():
             timeout = (block_number - web3.eth.block_number) * 3
         poll_delay_counter = PollDelayCounter()
         with Timeout(timeout) as timeout:
-            while True:
-                if web3.eth.block_number >= block_number:
-                    break
+            while web3.eth.block_number < block_number:
                 web3.manager.request_blocking("evm_mine", [])
                 timeout.sleep(poll_delay_counter())
     return _wait_for_block
