@@ -214,7 +214,7 @@ Methods
 
 Each Contract Factory exposes the following methods.
 
-.. py:classmethod:: Contract.constructor(*args, **kwargs).transact(transaction=None)
+.. :noindex: py:classmethod:: Contract.constructor(*args, **kwargs).transact(transaction=None)
 
     Construct and deploy a contract by sending a new public transaction.
 
