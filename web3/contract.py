@@ -176,8 +176,7 @@ class ContractFunctions:
         if not hasattr(self, '_functions') or not self._functions:
             return
 
-        for func in self._functions:
-            yield func['name']
+        yield from map(lambda func: func['name'], self._functions)
 
     def __getattr__(self, function_name: str) -> "ContractFunction":
         if self.abi is None:
@@ -265,8 +264,7 @@ class ContractEvents:
 
         :return: Iterable of :class:`ContractEvent`
         """
-        for event in self._events:
-            yield self[event['name']]
+        yield from map(lambda event: self[event['name']], self._events)
 
     def __hasattr__(self, event_name: str) -> bool:
         try:
