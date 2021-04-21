@@ -20,15 +20,15 @@ KEYFILE_PW = 'web3py-test'
 
 
 PARITY_2_5_13_FIXTURE = {
-    'zip': 'parity-2.5.13-fixture.zip',
+    'zip': 'parity-3.2.3-fixture.zip',
     'coinbase': 'dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
-    'block_hash_revert_no_msg': '0x0496eca70b312db0d7b14753f5545e48f43ad70e8a2dd4fa5dc6c6409448c394',  # noqa: E501
-    'block_hash_revert_with_msg': '0xf117005506c338177df21519008e3805cb718c2cad5f4a4c07754bf59bfd996c',  # noqa: E501
-    'block_hash_with_log': '0xeb1cd5061f8e8c0a1a3b75dd48600fa126b6c0e753406276f2a6a544f1e41ec1',
-    'block_with_txn_hash': '0xabf9142af100741620657e5a9a46e788c776303ca4986478f892384b83d8761c',
+    'block_hash_revert_no_msg': '0x5af4844918cddc16776835f581a49a05fd4cbfc87137db87972988fc98f7d6f0',  # noqa: E501
+    'block_hash_revert_with_msg': '0x0c3225fcec000dd6dc22356a0f8b7b287436a70879b2deda2e6630001bd69008',  # noqa: E501
+    'block_hash_with_log': '0xb094802ac3b90491cff7da0a70e39be6020ec874c75654d2e1a84304ce35e518',
+    'block_with_txn_hash': '0xf17cb5ee3fc17fda09d5ef40d6a9788dac58359d34de205c9ba30b6632a48858',
     'emitter_address': '0x4aA591a07989b4F810E2F5cE97e769D60710f168',
     'emitter_deploy_txn_hash': '0xef44cd36d86c41640c710026acf45f3b63731f72ac2a1744a005f6690bfa7613',
-    'empty_block_hash': '0x63b0e0f16340e65662948cde20ba93c96ae311997db672b0101357f15b071fe5',
+    'empty_block_hash': '0xe9f7942ab16bede5e07ba380926a2dcc9bc3f46432723c0de84aaf18ace04af1',
     'keyfile_pw': 'web3py-test',
     'math_address': '0xd794C821fCCFF5D96F5Db44af7e29977630A9dc2',
     'math_deploy_txn_hash': '0x356278504f40db914545888674cedc0d8ccd4a939665eb4ab83b569db0c477cb',
@@ -50,7 +50,7 @@ def parity_binary():
         assert os.path.exists(_parity_binary)
         return _parity_binary
     else:
-        return 'parity'
+        return 'openethereum'
 
 
 def get_parity_version(parity_binary):

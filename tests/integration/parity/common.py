@@ -22,7 +22,7 @@ MAX_FLAKY_RUNS = 3
 
 class ParityWeb3ModuleTest(Web3ModuleTest):
     def _check_web3_clientVersion(self, client_version):
-        assert client_version.startswith('Parity-Ethereum/')
+        assert client_version.startswith('OpenEthereum/')
 
 
 class ParityEthModuleTest(EthModuleTest):
@@ -158,6 +158,10 @@ class ParityEthModuleTest(EthModuleTest):
     def test_invalid_eth_sign_typed_data(self, web3, unlocked_account_dual_type):
         super().test_invalid_eth_sign_typed_data(web3, unlocked_account_dual_type)
 
+    @pytest.mark.xfail(reason='eth_signTypedData has not been released in Parity')
+    def test_eth_signTypedData_deprecated(self, web3, unlocked_account_dual_type):
+        super().test_eth_signTypedData_deprecated(web3, unlocked_account_dual_type)
+
 
 class ParityTraceModuleTest(ParityTraceModuleTest):
     @pytest.mark.xfail(reason="TODO: tracing not working on v2.5.13")
@@ -179,3 +183,22 @@ class ParitySetModuleTest(ParitySetModuleTest):
 
 class ParityModuleTest(ParityModuleTest):
     pass
+
+class ParityPersonalModuleTest(ParityPersonalModuleTest):
+    @pytest.mark.xfail(reason="haven't switched Parity to snake case yet")
+    def test_personal_sign_typed_data_deprecated(
+        self,
+        web3,
+        unlockable_account_dual_type,
+        unlockable_account_pw,
+    ) -> None:
+        super().test_personal_sign_typed_data_deprecated(web3, unlockable_account_dual_type, unlockable_account_pw)
+
+    @pytest.mark.xfail(reason="haven't switched Parity to snake case yet")
+    def test_invalid_personal_sign_typed_data_deprecated(
+        self,
+        web3,
+        unlockable_account_dual_type,
+        unlockable_account_pw,
+    ) -> None:
+        super().test_personal_sign_typed_data_deprecated(web3, unlockable_account_dual_type, unlockable_account_pw)

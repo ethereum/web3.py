@@ -165,7 +165,7 @@ def get_geth_process(geth_binary,
         '--nodiscover',
         '--port', port,
         '--networkid', networkid,
-        '--etherbase', COINBASE[2:],
+        '--miner.etherbase', COINBASE[2:],
     )
     print(' '.join(run_geth_command))
     try:

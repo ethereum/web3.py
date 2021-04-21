@@ -141,7 +141,7 @@ def get_parity_binary():
     If generating a fixture from a local binary, update this value to that bin, e.g.,
     return '/Users/xzy/Downloads/openethereum-2.5.13/target/release/parity'
     """
-    return 'parity'
+    return 'openethereum'
 
 
 @contextlib.contextmanager
