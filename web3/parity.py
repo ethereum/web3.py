@@ -41,6 +41,7 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.method import (
+    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -143,7 +144,7 @@ class Parity(ModuleV2):
         mungers=None
     )
 
-    addReservedPeer: Method[Callable[[EnodeURI], bool]] = Method(
+    add_reserved_peer: Method[Callable[[EnodeURI], bool]] = Method(
         RPC.parity_addReservedPeer,
         mungers=[default_root_munger],
     )
@@ -218,3 +219,6 @@ class Parity(ModuleV2):
         RPC.parity_mode,
         mungers=None
     )
+
+    # Deprecated Methods
+    addReservedPeer = DeprecatedMethod(add_reserved_peer, 'addReservedPeer', 'add_reserved_peer')
