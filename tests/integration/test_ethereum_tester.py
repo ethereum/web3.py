@@ -378,6 +378,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
                                                                 block_with_txn,
                                                                 mined_txn_hash)
 
+    @pytest.mark.xfail(raises=TypeError, reason="call override param not implemented on eth-tester")
+    def test_eth_call_with_override(self, web3, revert_contract):
+        super().test_eth_call_with_override(web3, revert_contract)
+
     def test_eth_call_revert_with_msg(self, web3, revert_contract, unlocked_account):
         with pytest.raises(TransactionFailed,
                            match='execution reverted: Function has been reverted'):
