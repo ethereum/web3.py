@@ -91,9 +91,7 @@ def validate_manifest_against_schema(manifest: Dict[str, Any]) -> None:
 
 
 def check_for_deployments(manifest: Dict[str, Any]) -> bool:
-    if "deployments" not in manifest or not manifest["deployments"]:
-        return False
-    return True
+    return "deployments" in manifest and bool(manifest.get("deployments", None))
 
 
 def validate_build_dependencies_are_present(manifest: Dict[str, Any]) -> None:
