@@ -210,7 +210,7 @@ class Parity(Module):
         mungers=[trace_transactions_munger],
     )
 
-    setMode: Method[Callable[[ParityMode], bool]] = Method(
+    set_mode: Method[Callable[[ParityMode], bool]] = Method(
         RPC.parity_setMode,
         mungers=[default_root_munger],
     )
@@ -226,6 +226,7 @@ class Parity(Module):
     traceReplayTransaction = DeprecatedMethod(trace_replay_transaction, 'traceReplayTransaction',
                                               'trace_replay_transaction')
     netPeers = DeprecatedMethod(net_peers, 'netPeers', 'net_peers')
+    setMode = DeprecatedMethod(set_mode, 'setMode', 'set_mode')
     traceBlock = DeprecatedMethod(trace_block, 'traceBlock', 'trace_block')
     traceFilter = DeprecatedMethod(trace_filter, 'traceFilter', 'trace_filter')
     traceReplayBlockTransactions = DeprecatedMethod(trace_replay_block_transactions,
