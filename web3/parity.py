@@ -41,6 +41,7 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.method import (
+    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -138,7 +139,7 @@ class Parity(ModuleV2):
         mungers=[list_storage_keys_munger],
     )
 
-    netPeers: Method[Callable[[], ParityNetPeers]] = Method(
+    net_peers: Method[Callable[[], ParityNetPeers]] = Method(
         RPC.parity_netPeers,
         mungers=None
     )
@@ -218,3 +219,6 @@ class Parity(ModuleV2):
         RPC.parity_mode,
         mungers=None
     )
+
+    # Deprecated Methods
+    netPeers = DeprecatedMethod(net_peers, 'netPeers', 'net_peers')
