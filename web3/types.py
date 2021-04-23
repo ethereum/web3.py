@@ -193,6 +193,15 @@ TxParams = TypedDict("TxParams", {
     "value": Wei,
 }, total=False)
 
+
+class CallOverrideParams(TypedDict):
+    balance: Optional[Wei]
+    nonce: Optional[int]
+    code: Optional[Union[bytes, HexStr]]
+    state: Optional[Dict[str, Any]]
+    stateDiff: Optional[Dict[Address, Dict[str, Any]]]
+
+
 GasPriceStrategy = Callable[["Web3", TxParams], Wei]
 
 

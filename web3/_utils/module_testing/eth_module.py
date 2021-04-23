@@ -979,6 +979,28 @@ class EthModuleTest:
         result = web3.codec.decode_single('uint256', call_result)
         assert result == 18
 
+    def test_eth_call_with_override(
+        self, web3: "Web3", revert_contract: "Contract"
+    ) -> None:
+        coinbase = web3.eth.coinbase
+        txn_params = revert_contract._prepare_transaction(
+            fn_name='normalFunction',
+            transaction={'from': coinbase, 'to': revert_contract.address},
+        )
+        call_result = web3.eth.call(txn_params)
+        result = web3.codec.decode_single('bool', call_result)
+        assert result is True
+
+        # override runtime bytecode: `normalFunction` returns `false`
+        override_code = '0x6080604052348015600f57600080fd5b5060043610603c5760003560e01c8063185c38a4146041578063c06a97cb146049578063d67e4b84146051575b600080fd5b60476071565b005b604f60df565b005b605760e4565b604051808215151515815260200191505060405180910390f35b6040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601b8152602001807f46756e6374696f6e20686173206265656e2072657665727465642e000000000081525060200191505060405180910390fd5b600080fd5b60008090509056fea2646970667358221220bb71e9e9a2e271cd0fbe833524a3ea67df95f25ea13aef5b0a761fa52b538f1064736f6c63430006010033'  # noqa: E501
+        call_result = web3.eth.call(
+            txn_params,
+            'latest',
+            {revert_contract.address: {'code': override_code}}
+        )
+        result = web3.codec.decode_single('bool', call_result)
+        assert result is False
+
     def test_eth_call_with_0_result(
         self, web3: "Web3", math_contract: "Contract"
     ) -> None:

@@ -468,6 +468,98 @@ jobs:
     environment:
       TOXENV: py38-wheel-cli
 
+  #
+  # Python 3.9
+  #
+  py39-core:
+    <<: *common
+    docker:
+      - image: circleci/python:3.9
+    environment:
+      TOXENV: py39-core
+
+  py39-ens:
+    <<: *common
+    docker:
+      - image: circleci/python:3.9
+    environment:
+      TOXENV: py39-ens
+
+  py39-ethpm:
+    <<: *ethpm_steps
+    docker:
+      - image: circleci/python:3.9
+    environment:
+      TOXENV: py39-ethpm
+      # Please don't use this key for any shenanigans
+      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
+
+  py39-integration-goethereum-ipc:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.9
+    environment:
+      TOXENV: py39-integration-goethereum-ipc
+      GETH_VERSION: v1.10.1
+
+  py39-integration-goethereum-http:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.9
+    environment:
+      TOXENV: py39-integration-goethereum-http
+      GETH_VERSION: v1.10.1
+
+  py39-integration-goethereum-ws:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.9
+    environment:
+      TOXENV: py39-integration-goethereum-ws
+      GETH_VERSION: v1.10.1
+
+  # py39-integration-parity-ipc:
+  #   <<: *parity_steps
+  #   docker:
+  #     - image: circleci/python:3.9
+  #   environment:
+  #     TOXENV: py39-integration-parity-ipc
+  #     PARITY_VERSION: v2.3.5
+  #     PARITY_OS: linux
+
+  # py39-integration-parity-http:
+  #   <<: *parity_steps
+  #   docker:
+  #     - image: circleci/python:3.9
+  #   environment:
+  #     TOXENV: py39-integration-parity-http
+  #     PARITY_VERSION: v2.3.5
+  #     PARITY_OS: linux
+
+  # py39-integration-parity-ws:
+  #   <<: *parity_steps
+  #   docker:
+  #     - image: circleci/python:3.9
+  #   environment:
+  #     TOXENV: py39-integration-parity-ws
+  #     PARITY_VERSION: v2.3.5
+  #     PARITY_OS: linux
+
+  py39-integration-ethtester-pyevm:
+    <<: *common
+    docker:
+      - image: circleci/python:3.9
+    environment:
+      TOXENV: py39-integration-ethtester
+      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+
+  py39-wheel-cli:
+    <<: *common
+    docker:
+      - image: circleci/python:3.9
+        environment:
+          TOXENV: py39-wheel-cli
+
 workflows:
   version: 2.1
   test:
@@ -476,6 +568,7 @@ workflows:
       - py36-core
       - py37-core
       - py38-core
+      - py39-core
       - lint
       - docs
       - py36-ens
@@ -509,3 +602,13 @@ workflows:
       # - py38-integration-parity-ws
       - py38-integration-ethtester-pyevm
       - py38-wheel-cli
+      - py39-ens
+      - py39-ethpm
+      - py39-integration-goethereum-ipc
+      - py39-integration-goethereum-http
+      - py39-integration-goethereum-ws
+      # - py39-integration-parity-ipc
+      # - py39-integration-parity-http
+      # - py39-integration-parity-ws
+      - py39-integration-ethtester-pyevm
+      - py39-wheel-cli
