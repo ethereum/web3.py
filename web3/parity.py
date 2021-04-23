@@ -205,7 +205,7 @@ class Parity(Module):
     ) -> Tuple[HexStr, ParityTraceMode]:
         return (raw_transaction, mode)
 
-    traceRawTransaction: Method[Callable[..., ParityBlockTrace]] = Method(
+    trace_raw_transaction: Method[Callable[..., ParityBlockTrace]] = Method(
         RPC.trace_rawTransaction,
         mungers=[trace_transactions_munger],
     )
@@ -223,12 +223,14 @@ class Parity(Module):
     # Deprecated Methods
     addReservedPeer = DeprecatedMethod(add_reserved_peer, 'addReservedPeer', 'add_reserved_peer')
     listStorageKeys = DeprecatedMethod(list_storage_keys, 'listStorageKeys', 'list_storage_keys')
-    traceReplayTransaction = DeprecatedMethod(trace_replay_transaction, 'traceReplayTransaction',
-                                              'trace_replay_transaction')
     netPeers = DeprecatedMethod(net_peers, 'netPeers', 'net_peers')
     setMode = DeprecatedMethod(set_mode, 'setMode', 'set_mode')
     traceBlock = DeprecatedMethod(trace_block, 'traceBlock', 'trace_block')
     traceFilter = DeprecatedMethod(trace_filter, 'traceFilter', 'trace_filter')
+    traceRawTransaction = DeprecatedMethod(trace_raw_transaction, 'traceRawTransaction',
+                                           'trace_raw_transaction')
+    traceReplayTransaction = DeprecatedMethod(trace_replay_transaction, 'traceReplayTransaction',
+                                              'trace_replay_transaction')
     traceReplayBlockTransactions = DeprecatedMethod(trace_replay_block_transactions,
                                                     'traceReplayBlockTransactions',
                                                     'trace_replay_block_transactions')

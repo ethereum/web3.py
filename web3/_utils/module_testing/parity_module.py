@@ -125,22 +125,32 @@ class ParityTraceModuleTest:
         result = hex_to_integer(trace['output'])
         assert result == 0
 
-    @pytest.mark.parametrize(
-        'raw_transaction',
-        [
-            (
-                # address 0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6
-                '0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a'  # noqa: E501
-            ),
-        ]
-    )
     def test_trace_raw_transaction(
         self,
         web3: "Web3",
         raw_transaction: HexStr,
         funded_account_for_raw_txn: ChecksumAddress,
     ) -> None:
-        trace = web3.parity.traceRawTransaction(raw_transaction)
+        # address 0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6
+        raw_transaction = HexStr('0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a')  # noqa: E501
+        trace = web3.parity.trace_raw_transaction(raw_transaction)
+        assert trace['stateDiff'] is None
+        assert trace['vmTrace'] is None
+        assert trace['trace'][0]['action']['from'] == funded_account_for_raw_txn.lower()
+
+    def test_trace_raw_transaction_deprecated(
+        self,
+        web3: "Web3",
+        raw_transaction: HexStr,
+        funded_account_for_raw_txn: ChecksumAddress,
+    ) -> None:
+        # address 0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6
+        raw_transaction = HexStr('0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a')  # noqa: E501
+        with pytest.warns(
+            DeprecationWarning,
+            match="traceRawTransaction is deprecated in favor of trace_raw_transaction"
+        ):
+            trace = web3.parity.traceRawTransaction(raw_transaction)
         assert trace['stateDiff'] is None
         assert trace['vmTrace'] is None
         assert trace['trace'][0]['action']['from'] == funded_account_for_raw_txn.lower()
