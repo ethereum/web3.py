@@ -139,7 +139,7 @@ class Parity(ModuleV2):
         mungers=[list_storage_keys_munger],
     )
 
-    netPeers: Method[Callable[[], ParityNetPeers]] = Method(
+    net_peers: Method[Callable[[], ParityNetPeers]] = Method(
         RPC.parity_netPeers,
         mungers=None
     )
@@ -154,7 +154,7 @@ class Parity(ModuleV2):
     ) -> Tuple[Union[BlockIdentifier, _Hash32], ParityTraceMode]:
         return (block_identifier, mode)
 
-    traceReplayTransaction: Method[Callable[..., ParityBlockTrace]] = Method(
+    trace_replay_transaction: Method[Callable[..., ParityBlockTrace]] = Method(
         RPC.trace_replayTransaction,
         mungers=[trace_replay_transaction_munger],
     )
@@ -222,3 +222,6 @@ class Parity(ModuleV2):
 
     # Deprecated Methods
     addReservedPeer = DeprecatedMethod(add_reserved_peer, 'addReservedPeer', 'add_reserved_peer')
+    traceReplayTransaction = DeprecatedMethod(trace_replay_transaction, 'traceReplayTransaction',
+                                              'trace_replay_transaction')
+    netPeers = DeprecatedMethod(net_peers, 'netPeers', 'net_peers')

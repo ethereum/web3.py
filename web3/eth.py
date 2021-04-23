@@ -88,6 +88,7 @@ from web3.types import (
     ENS,
     BlockData,
     BlockIdentifier,
+    CallOverrideParams,
     FilterParams,
     GasPriceStrategy,
     LogReceipt,
@@ -527,8 +528,9 @@ class Eth(ModuleV2, Module):
     def call_munger(
         self,
         transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> Tuple[TxParams, BlockIdentifier]:
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverrideParams] = None,
+    ) -> Union[Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverrideParams]]:  # noqa-E501
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, 'from', self.default_account)
@@ -537,7 +539,10 @@ class Eth(ModuleV2, Module):
         if block_identifier is None:
             block_identifier = self.default_block
 
-        return (transaction, block_identifier)
+        if state_override is None:
+            return (transaction, block_identifier)
+        else:
+            return (transaction, block_identifier, state_override)
 
     call: Method[Callable[..., Union[bytes, bytearray]]] = Method(
         RPC.eth_call,

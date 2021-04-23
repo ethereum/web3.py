@@ -31,11 +31,24 @@ if TYPE_CHECKING:
 
 
 class ParityTraceModuleTest:
+    def test_traceReplayTransaction_deprecated(
+        self, web3: "Web3", parity_fixture_data: Dict[str, str],
+    ) -> None:
+        with pytest.warns(DeprecationWarning,
+                          match='traceReplayTransaction is deprecated in favor of '
+                                'trace_replay_transaction'):
+            trace = web3.parity.traceReplayTransaction(
+                HexStr(parity_fixture_data['mined_txn_hash']))
+        assert trace['stateDiff'] is None
+        assert trace['vmTrace'] is None
+        assert trace['trace'][0]['action']['from'] == add_0x_prefix(
+            HexStr(parity_fixture_data['coinbase']),
+        )
 
     def test_trace_replay_transaction(
         self, web3: "Web3", parity_fixture_data: Dict[str, str],
     ) -> None:
-        trace = web3.parity.traceReplayTransaction(HexStr(parity_fixture_data['mined_txn_hash']))
+        trace = web3.parity.trace_replay_transaction(HexStr(parity_fixture_data['mined_txn_hash']))
 
         assert trace['stateDiff'] is None
         assert trace['vmTrace'] is None

@@ -87,9 +87,11 @@ from web3.exceptions import (
 )
 from web3.types import (
     BlockIdentifier,
+    CallOverrideParams,
     RPCEndpoint,
     RPCResponse,
     TReturn,
+    TxParams,
     _Hash32,
 )
 
@@ -315,6 +317,25 @@ transaction_param_formatter = compose(
 )
 
 
+call_without_override: Callable[
+    [Tuple[TxParams, BlockIdentifier]],
+    Tuple[Dict[str, Any], int]
+]
+call_without_override = apply_formatters_to_sequence([
+    transaction_param_formatter,
+    to_hex_if_integer,
+])
+call_with_override: Callable[
+    [Tuple[TxParams, BlockIdentifier, CallOverrideParams]],
+    Tuple[Dict[str, Any], int, Dict[str, Any]],
+]
+call_with_override = apply_formatters_to_sequence([
+    transaction_param_formatter,
+    to_hex_if_integer,
+    lambda x: x,
+])
+
+
 estimate_gas_without_block_id: Callable[[Dict[str, Any]], Dict[str, Any]]
 estimate_gas_without_block_id = apply_formatter_at_index(transaction_param_formatter, 0)
 estimate_gas_with_block_id: Callable[
@@ -374,10 +395,10 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getUncleByBlockHashAndIndex: apply_formatter_at_index(to_hex_if_integer, 1),
     RPC.eth_newFilter: apply_formatter_at_index(filter_params_formatter, 0),
     RPC.eth_getLogs: apply_formatter_at_index(filter_params_formatter, 0),
-    RPC.eth_call: apply_formatters_to_sequence([
-        transaction_param_formatter,
-        to_hex_if_integer,
-    ]),
+    RPC.eth_call: apply_one_of_formatters((
+        (is_length(2), call_without_override),
+        (is_length(3), call_with_override),
+    )),
     RPC.eth_estimateGas: apply_one_of_formatters((
         (is_length(1), estimate_gas_without_block_id),
         (is_length(2), estimate_gas_with_block_id),
