@@ -216,12 +216,16 @@ class ParitySetModuleTest:
         ]
     )
     def test_set_mode(self, web3: "Web3", mode: ParityMode) -> None:
-        assert web3.parity.setMode(mode) is True
+        assert web3.parity.set_mode(mode) is True
+
+    def test_set_mode_deprecated(self, web3: "Web3", mode: ParityMode) -> None:
+        with pytest.warns(DeprecationWarning, match="setMode is deprecated in favor of set_mode"):
+            assert web3.parity.setMode(mode) is True
 
     def test_set_mode_with_bad_string(self, web3: "Web3") -> None:
         with pytest.raises(InvalidParityMode, match="Couldn't parse parameters: mode"):
             # type ignored b/c it's an invalid literal ParityMode
-            web3.parity.setMode('not a mode')  # type: ignore
+            web3.parity.set_mode('not a mode')  # type: ignore
 
     def test_set_mode_with_no_argument(self, web3: "Web3") -> None:
         with pytest.raises(
@@ -229,4 +233,4 @@ class ParitySetModuleTest:
             match='Invalid params: invalid length 0, expected a tuple of size 1.'
         ):
             # type ignored b/c setMode expects arguments
-            web3.parity.setMode()  # type: ignore
+            web3.parity.set_mode()  # type: ignore
