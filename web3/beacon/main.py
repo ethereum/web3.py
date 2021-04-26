@@ -6,11 +6,11 @@ from typing import (
 import requests
 
 from web3.module import (
-    ModuleV2,
+    Module,
 )
 
 
-class Beacon(ModuleV2):
+class Beacon(Module):
     def __init__(
         self,
         base_url: str,

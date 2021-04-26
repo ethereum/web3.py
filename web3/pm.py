@@ -60,7 +60,7 @@ from web3.exceptions import (
     PMError,
 )
 from web3.module import (
-    ModuleV2,
+    Module,
 )
 from web3.types import (
     ENS,
@@ -312,7 +312,7 @@ class SimpleRegistry(ERC1319Registry):
         return cls(tx_receipt["contractAddress"], w3)
 
 
-class PM(ModuleV2):
+class PM(Module):
     """
     The PM module will work with any subclass of ``ERC1319Registry``, tailored to a particular
     implementation of `ERC1319  <https://github.com/ethereum/EIPs/issues/1319>`__, set as

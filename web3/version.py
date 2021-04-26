@@ -10,11 +10,11 @@ from web3.method import (
     Method,
 )
 from web3.module import (
-    ModuleV2,
+    Module,
 )
 
 
-class BaseVersion(ModuleV2):
+class BaseVersion(Module):
     retrieve_caller_fn = None
 
     _get_node_version: Method[Callable[[], str]] = Method(RPC.web3_clientVersion)
@@ -49,7 +49,7 @@ class BlockingVersion(BaseVersion):
         return self._get_protocol_version()
 
 
-class Version(ModuleV2):
+class Version(Module):
     @property
     def api(self) -> NoReturn:
         raise DeprecationWarning(

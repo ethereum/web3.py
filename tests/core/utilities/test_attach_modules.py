@@ -8,28 +8,28 @@ from web3.exceptions import (
     ValidationError,
 )
 from web3.module import (
-    ModuleV2,
+    Module,
 )
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 
 
-class MockEth(ModuleV2):
+class MockEth(Module):
     def block_number(self):
         return 42
 
 
-class MockGeth(ModuleV2):
+class MockGeth(Module):
     pass
 
 
-class MockGethAdmin(ModuleV2):
+class MockGethAdmin(Module):
     def start_ws(self):
         return True
 
 
-class MockGethPersonal(ModuleV2):
+class MockGethPersonal(Module):
     def unlock_account(self):
         return True
 
