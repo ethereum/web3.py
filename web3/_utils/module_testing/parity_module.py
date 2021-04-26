@@ -145,7 +145,19 @@ class ParityTraceModuleTest:
         txn_filter_params: ParityFilterParams,
         parity_fixture_data: Dict[str, str],
     ) -> None:
-        trace = web3.parity.traceFilter(txn_filter_params)
+        trace = web3.parity.trace_filter(txn_filter_params)
+        assert isinstance(trace, list)
+        assert trace[0]['action']['from'] == add_0x_prefix(HexStr(parity_fixture_data['coinbase']))
+
+    def test_traceFilter_deprecated(
+        self,
+        web3: "Web3",
+        txn_filter_params: ParityFilterParams,
+        parity_fixture_data: Dict[str, str],
+    ) -> None:
+        with pytest.warns(DeprecationWarning,
+                          match='traceFilter is deprecated in favor of trace_filter'):
+            trace = web3.parity.traceFilter(txn_filter_params)
         assert isinstance(trace, list)
         assert trace[0]['action']['from'] == add_0x_prefix(HexStr(parity_fixture_data['coinbase']))
 
