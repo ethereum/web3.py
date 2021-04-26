@@ -1,0 +1,1 @@
+Add ``parity.trace_transaction``, deprecate ``parity.traceTransaction``
