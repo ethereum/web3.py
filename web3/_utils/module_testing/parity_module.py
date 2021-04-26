@@ -154,7 +154,13 @@ class ParityModuleTest:
 
     def test_add_reserved_peer(self, web3: "Web3") -> None:
         peer_addr = EnodeURI('enode://f1a6b0bdbf014355587c3018454d070ac57801f05d3b39fe85da574f002a32e929f683d72aa5a8318382e4d3c7a05c9b91687b0d997a39619fb8a6e7ad88e512@1.1.1.1:30300')  # noqa: E501
-        assert web3.parity.addReservedPeer(peer_addr)
+        assert web3.parity.add_reserved_peer(peer_addr)
+
+    def test_addReservedPeer_deprecated(self, web3: "Web3") -> None:
+        peer_addr = EnodeURI('enode://f1a6b0bdbf014355587c3018454d070ac57801f05d3b39fe85da574f002a32e929f683d72aa5a8318382e4d3c7a05c9b91687b0d997a39619fb8a6e7ad88e512@1.1.1.1:30300')  # noqa: E501
+        with pytest.warns(DeprecationWarning,
+                          match='addReservedPeer is deprecated in favor of add_reserved_peer'):
+            assert web3.parity.addReservedPeer(peer_addr)
 
     def test_list_storage_keys_no_support(
         self, web3: "Web3", emitter_contract_address: ChecksumAddress

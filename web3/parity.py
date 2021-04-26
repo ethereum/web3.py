@@ -144,7 +144,7 @@ class Parity(ModuleV2):
         mungers=None
     )
 
-    addReservedPeer: Method[Callable[[EnodeURI], bool]] = Method(
+    add_reserved_peer: Method[Callable[[EnodeURI], bool]] = Method(
         RPC.parity_addReservedPeer,
         mungers=[default_root_munger],
     )
@@ -221,6 +221,7 @@ class Parity(ModuleV2):
     )
 
     # Deprecated Methods
+    addReservedPeer = DeprecatedMethod(add_reserved_peer, 'addReservedPeer', 'add_reserved_peer')
     listStorageKeys = DeprecatedMethod(list_storage_keys, 'listStorageKeys', 'list_storage_keys')
     traceReplayTransaction = DeprecatedMethod(trace_replay_transaction, 'traceReplayTransaction',
                                               'trace_replay_transaction')
