@@ -92,7 +92,15 @@ class ParityTraceModuleTest:
         assert trace[0]['blockNumber'] == block_with_txn['number']
 
     def test_trace_transaction(self, web3: "Web3", parity_fixture_data: Dict[str, str]) -> None:
-        trace = web3.parity.traceTransaction(HexStr(parity_fixture_data['mined_txn_hash']))
+        trace = web3.parity.trace_transaction(HexStr(parity_fixture_data['mined_txn_hash']))
+        assert trace[0]['action']['from'] == add_0x_prefix(HexStr(parity_fixture_data['coinbase']))
+
+    def test_traceTransaction_deprecated(
+        self, web3: "Web3", parity_fixture_data: Dict[str, str]
+    ) -> None:
+        with pytest.warns(DeprecationWarning,
+                          match="traceTransaction is deprecated in favor of trace_transaction"):
+            trace = web3.parity.traceTransaction(HexStr(parity_fixture_data['mined_txn_hash']))
         assert trace[0]['action']['from'] == add_0x_prefix(HexStr(parity_fixture_data['coinbase']))
 
     def test_traceCall_deprecated(
