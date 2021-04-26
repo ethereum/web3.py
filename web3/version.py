@@ -10,7 +10,6 @@ from web3.method import (
     Method,
 )
 from web3.module import (
-    Module,
     ModuleV2,
 )
 
@@ -50,7 +49,7 @@ class BlockingVersion(BaseVersion):
         return self._get_protocol_version()
 
 
-class Version(Module):
+class Version(ModuleV2):
     @property
     def api(self) -> NoReturn:
         raise DeprecationWarning(

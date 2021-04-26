@@ -1,0 +1,1 @@
+Remove Module class in favor of ModuleV2. ModuleV2 can handle both async and sync calls.

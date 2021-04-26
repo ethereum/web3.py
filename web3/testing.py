@@ -6,11 +6,11 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.module import (
-    Module,
+    ModuleV2,
 )
 
 
-class Testing(Module):
+class Testing(ModuleV2):
     def timeTravel(self, timestamp: int) -> None:
         return self.web3.manager.request_blocking(RPC.testing_timeTravel, [timestamp])
 
