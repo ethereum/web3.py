@@ -13,13 +13,13 @@ from web3.exceptions import (
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
-    from web3.module import ModuleV2  # noqa: F401
+    from web3.module import Module  # noqa: F401
 
 
 def attach_modules(
-    parent_module: Union["Web3", "ModuleV2"],
+    parent_module: Union["Web3", "Module"],
     module_definitions: Dict[str, Sequence[Any]],
-    w3: Optional[Union["Web3", "ModuleV2"]] = None
+    w3: Optional[Union["Web3", "Module"]] = None
 ) -> None:
     for module_name, module_info in module_definitions.items():
         module_class = module_info[0]

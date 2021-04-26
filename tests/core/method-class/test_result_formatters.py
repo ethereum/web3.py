@@ -12,7 +12,7 @@ from web3.middleware.fixture import (
     construct_result_generator_middleware,
 )
 from web3.module import (
-    ModuleV2,
+    Module,
 )
 from web3.providers import (
     BaseProvider,
@@ -35,7 +35,7 @@ result_middleware = construct_result_generator_middleware({
 })
 
 
-class ModuleForTest(ModuleV2):
+class ModuleForTest(Module):
     method = Method(
         'method_for_test',
         result_formatters=result_formatter)

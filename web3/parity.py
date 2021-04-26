@@ -46,7 +46,7 @@ from web3.method import (
     default_root_munger,
 )
 from web3.module import (
-    ModuleV2,
+    Module,
 )
 from web3.types import (
     ENS,
@@ -63,7 +63,7 @@ from web3.types import (
 )
 
 
-class ParityPersonal(ModuleV2):
+class ParityPersonal(Module):
     """
     https://wiki.parity.io/JSONRPC-personal-module
     """
@@ -85,7 +85,7 @@ class ParityPersonal(ModuleV2):
     unlockAccount = unlockAccount
 
 
-class Parity(ModuleV2):
+class Parity(Module):
     """
     https://paritytech.github.io/wiki/JSONRPC-parity-module
     """

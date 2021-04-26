@@ -56,11 +56,11 @@ from web3._utils.txpool import (
     status,
 )
 from web3.module import (
-    ModuleV2,
+    Module,
 )
 
 
-class GethPersonal(ModuleV2):
+class GethPersonal(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/management-apis#personal
     """
@@ -85,7 +85,7 @@ class GethPersonal(ModuleV2):
     unlockAccount = unlockAccount
 
 
-class GethTxPool(ModuleV2):
+class GethTxPool(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#txpool
     """
@@ -94,7 +94,7 @@ class GethTxPool(ModuleV2):
     status = status
 
 
-class GethAdmin(ModuleV2):
+class GethAdmin(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#admin
     """
@@ -115,7 +115,7 @@ class GethAdmin(ModuleV2):
     stopWS = stopWS
 
 
-class GethMiner(ModuleV2):
+class GethMiner(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#miner
     """
@@ -136,6 +136,6 @@ class GethMiner(ModuleV2):
     stopAutoDag = stopAutoDag
 
 
-class Geth(ModuleV2):
+class Geth(Module):
     personal: GethPersonal
     admin: GethAdmin

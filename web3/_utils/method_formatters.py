@@ -97,7 +97,7 @@ from web3.types import (
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
-    from web3.module import ModuleV2  # noqa: F401
+    from web3.module import Module  # noqa: F401
     from web3.eth import Eth  # noqa: F401
 
 
@@ -656,7 +656,7 @@ FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 @to_tuple
 def apply_module_to_formatters(
         formatters: Tuple[Callable[..., TReturn]],
-        module: "ModuleV2",
+        module: "Module",
         method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
 ) -> Iterable[Callable[..., TReturn]]:
     for f in formatters:
@@ -665,7 +665,7 @@ def apply_module_to_formatters(
 
 def get_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
-    module: "ModuleV2",
+    module: "Module",
 ) -> Dict[str, Callable[..., Any]]:
     formatters = combine_formatters(
         (PYTHONIC_RESULT_FORMATTERS,),

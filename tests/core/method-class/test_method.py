@@ -17,7 +17,7 @@ from web3.method import (
     default_root_munger,
 )
 from web3.module import (
-    ModuleV2,
+    Module,
     apply_result_formatters,
 )
 
@@ -254,7 +254,7 @@ def return_exception_raising_formatter(method):
     return compose(formatter)
 
 
-class FakeModule(ModuleV2):
+class FakeModule(Module):
     method = Method(
         'eth_method',
         mungers=[keywords],

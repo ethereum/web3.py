@@ -9,11 +9,11 @@ from web3._utils.net import (
     version,
 )
 from web3.module import (
-    ModuleV2,
+    Module,
 )
 
 
-class Net(ModuleV2):
+class Net(Module):
     """
         https://github.com/ethereum/wiki/wiki/JSON-RPC
     """

@@ -16,7 +16,7 @@ from web3.method import (
     default_root_munger,
 )
 from web3.module import (
-    ModuleV2,
+    Module,
 )
 from web3.types import (
     EnodeURI,
@@ -26,7 +26,7 @@ from web3.types import (
 
 
 def admin_start_params_munger(
-    module: ModuleV2, host: str = 'localhost', port: int = 8546, cors: str = '',
+    module: Module, host: str = 'localhost', port: int = 8546, cors: str = '',
     apis: str = 'eth,net,web3'
 ) -> Tuple[str, int, str, str]:
     return (host, port, cors, apis)

@@ -81,7 +81,7 @@ from web3.method import (
     default_root_munger,
 )
 from web3.module import (
-    ModuleV2,
+    Module,
 )
 from web3.types import (
     ENS,
@@ -104,7 +104,7 @@ from web3.types import (
 )
 
 
-class Eth(ModuleV2):
+class Eth(Module):
     account = Account()
     _default_account: Union[ChecksumAddress, Empty] = empty
     _default_block: BlockIdentifier = "latest"

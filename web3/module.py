@@ -46,7 +46,7 @@ TReturn = TypeVar('TReturn')
 
 @curry
 def retrieve_blocking_method_call_fn(
-    w3: "Web3", module: "ModuleV2", method: Method[Callable[..., TReturn]]
+    w3: "Web3", module: "Module", method: Method[Callable[..., TReturn]]
 ) -> Callable[..., Union[TReturn, LogFilter]]:
     def caller(*args: Any, **kwargs: Any) -> Union[TReturn, LogFilter]:
         try:
@@ -61,7 +61,7 @@ def retrieve_blocking_method_call_fn(
 
 @curry
 def retrieve_async_method_call_fn(
-    w3: "Web3", module: "ModuleV2", method: Method[Callable[..., Any]]
+    w3: "Web3", module: "Module", method: Method[Callable[..., Any]]
 ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
     async def caller(*args: Any, **kwargs: Any) -> RPCResponse:
         (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)
@@ -75,7 +75,7 @@ def retrieve_async_method_call_fn(
 #  Only the calling functions need access to the request methods.
 #  Any "re-entrant" shinanigans can go in the middlewares, which do
 #  have web3 access.
-class ModuleV2:
+class Module:
     is_async = False
 
     def __init__(self, web3: "Web3") -> None:
