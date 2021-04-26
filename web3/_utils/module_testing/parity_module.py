@@ -56,10 +56,21 @@ class ParityTraceModuleTest:
             HexStr(parity_fixture_data['coinbase']),
         )
 
-    def test_trace_replay_block_with_transactions(
+    def test_trace_replay_block_transactions(
         self, web3: "Web3", block_with_txn: BlockData, parity_fixture_data: Dict[str, str]
     ) -> None:
-        trace = web3.parity.traceReplayBlockTransactions(block_with_txn['number'])
+        trace = web3.parity.trace_replay_block_transactions(block_with_txn['number'])
+        assert len(trace) > 0
+        trace_0_action = trace[0]['trace'][0]['action']
+        assert trace_0_action['from'] == add_0x_prefix(HexStr(parity_fixture_data['coinbase']))
+
+    def test_traceReplayBlockTransactions_deprecated(
+        self, web3: "Web3", block_with_txn: BlockData, parity_fixture_data: Dict[str, str]
+    ) -> None:
+        with pytest.warns(DeprecationWarning,
+                          match='traceReplayBlockTransactions is deprecated in favor of '
+                                'trace_replay_block_transactions'):
+            trace = web3.parity.traceReplayBlockTransactions(block_with_txn['number'])
         assert len(trace) > 0
         trace_0_action = trace[0]['trace'][0]['action']
         assert trace_0_action['from'] == add_0x_prefix(HexStr(parity_fixture_data['coinbase']))
@@ -67,7 +78,7 @@ class ParityTraceModuleTest:
     def test_trace_replay_block_without_transactions(
         self, web3: "Web3", empty_block: BlockData
     ) -> None:
-        trace = web3.parity.traceReplayBlockTransactions(empty_block['number'])
+        trace = web3.parity.trace_replay_block_transactions(empty_block['number'])
         assert len(trace) == 0
 
     def test_trace_block(self, web3: "Web3", block_with_txn: BlockData) -> None:
