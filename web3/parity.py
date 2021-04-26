@@ -164,7 +164,7 @@ class Parity(ModuleV2):
         mungers=[trace_replay_transaction_munger]
     )
 
-    traceBlock: Method[Callable[[BlockIdentifier], List[ParityBlockTrace]]] = Method(
+    trace_block: Method[Callable[[BlockIdentifier], List[ParityBlockTrace]]] = Method(
         RPC.trace_block,
         mungers=[default_root_munger],
     )
@@ -226,6 +226,7 @@ class Parity(ModuleV2):
     traceReplayTransaction = DeprecatedMethod(trace_replay_transaction, 'traceReplayTransaction',
                                               'trace_replay_transaction')
     netPeers = DeprecatedMethod(net_peers, 'netPeers', 'net_peers')
+    traceBlock = DeprecatedMethod(trace_block, 'traceBlock', 'trace_block')
     traceFilter = DeprecatedMethod(trace_filter, 'traceFilter', 'trace_filter')
     traceReplayBlockTransactions = DeprecatedMethod(trace_replay_block_transactions,
                                                     'traceReplayBlockTransactions',

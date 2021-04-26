@@ -82,7 +82,13 @@ class ParityTraceModuleTest:
         assert len(trace) == 0
 
     def test_trace_block(self, web3: "Web3", block_with_txn: BlockData) -> None:
-        trace = web3.parity.traceBlock(block_with_txn['number'])
+        trace = web3.parity.trace_block(block_with_txn['number'])
+        assert trace[0]['blockNumber'] == block_with_txn['number']
+
+    def test_traceBlock_deprecated(self, web3: "Web3", block_with_txn: BlockData) -> None:
+        with pytest.warns(DeprecationWarning,
+                          match='traceBlock is deprecated in favor of trace_block'):
+            trace = web3.parity.traceBlock(block_with_txn['number'])
         assert trace[0]['blockNumber'] == block_with_txn['number']
 
     def test_trace_transaction(self, web3: "Web3", parity_fixture_data: Dict[str, str]) -> None:

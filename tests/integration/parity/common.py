@@ -169,6 +169,10 @@ class ParityTraceModuleTest(ParityTraceModuleTest):
         super().test_trace_transaction(web3)
 
     @pytest.mark.xfail(reason="TODO: tracing not working on v2.5.13")
+    def test_traceBlock_deprecated(self, web3):
+        super().test_traceBlock_deprecated(web3)
+
+    @pytest.mark.xfail(reason="TODO: tracing not working on v2.5.13")
     def test_traceFilter_deprecated(self, web3):
         super().test_traceFilter_deprecated(web3)
 
