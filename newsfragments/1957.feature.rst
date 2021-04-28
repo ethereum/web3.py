@@ -1,0 +1,1 @@
+Add ``parity.trace_call``, deprecate ``parity.traceCall``

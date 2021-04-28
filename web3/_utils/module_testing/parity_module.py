@@ -95,6 +95,23 @@ class ParityTraceModuleTest:
         trace = web3.parity.traceTransaction(HexStr(parity_fixture_data['mined_txn_hash']))
         assert trace[0]['action']['from'] == add_0x_prefix(HexStr(parity_fixture_data['coinbase']))
 
+    def test_traceCall_deprecated(
+        self, web3: "Web3", math_contract: "Contract", math_contract_address: ChecksumAddress
+    ) -> None:
+        coinbase = web3.eth.coinbase
+        txn_params = math_contract._prepare_transaction(
+            fn_name='add',
+            fn_args=(7, 11),
+            transaction={'from': coinbase, 'to': math_contract_address},
+        )
+        with pytest.warns(DeprecationWarning,
+                          match="traceCall is deprecated in favor of trace_call"):
+            trace = web3.parity.traceCall(txn_params)
+        assert trace['stateDiff'] is None
+        assert trace['vmTrace'] is None
+        result = hex_to_integer(trace['output'])
+        assert result == 18
+
     def test_trace_call(
         self, web3: "Web3", math_contract: "Contract", math_contract_address: ChecksumAddress
     ) -> None:
@@ -104,13 +121,13 @@ class ParityTraceModuleTest:
             fn_args=(7, 11),
             transaction={'from': coinbase, 'to': math_contract_address},
         )
-        trace = web3.parity.traceCall(txn_params)
+        trace = web3.parity.trace_call(txn_params)
         assert trace['stateDiff'] is None
         assert trace['vmTrace'] is None
         result = hex_to_integer(trace['output'])
         assert result == 18
 
-    def test_eth_call_with_0_result(
+    def test_trace_call_with_0_result(
         self, web3: "Web3", math_contract: "Contract", math_contract_address: ChecksumAddress
     ) -> None:
         coinbase = web3.eth.coinbase
@@ -119,7 +136,7 @@ class ParityTraceModuleTest:
             fn_args=(0, 0),
             transaction={'from': coinbase, 'to': math_contract_address},
         )
-        trace = web3.parity.traceCall(txn_params)
+        trace = web3.parity.trace_call(txn_params)
         assert trace['stateDiff'] is None
         assert trace['vmTrace'] is None
         result = hex_to_integer(trace['output'])
