@@ -1,1 +1,0 @@
-Add list_storage_keys deprecate listStorageKeys

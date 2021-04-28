@@ -1,1 +1,0 @@
-Add ``parity.set_mode``, deprecate ``parity.setMode``

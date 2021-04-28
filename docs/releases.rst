@@ -3,6 +3,40 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.19.0 (2021-04-28)
+--------------------
+Web3 5.19.0 (2021-04-28)
+------------------------
+
+Features
+~~~~~~~~
+
+- Handle optional ``eth_call`` state override param. (`#1921 <https://github.com/ethereum/web3.py/issues/1921>`__)
+- Add list_storage_keys deprecate listStorageKeys (`#1944 <https://github.com/ethereum/web3.py/issues/1944>`__)
+- Add net_peers deprecate netPeers (`#1946 <https://github.com/ethereum/web3.py/issues/1946>`__)
+- Add trace_replay_transaction deprecate traceReplayTransaction (`#1949 <https://github.com/ethereum/web3.py/issues/1949>`__)
+- Add add_reserved_peer deprecate addReservedPeer (`#1951 <https://github.com/ethereum/web3.py/issues/1951>`__)
+- Add ``parity.set_mode``, deprecate ``parity.setMode`` (`#1954 <https://github.com/ethereum/web3.py/issues/1954>`__)
+- Add ``parity.trace_raw_transaction``, deprecate ``parity.traceRawTransaction`` (`#1955 <https://github.com/ethereum/web3.py/issues/1955>`__)
+- Add ``parity.trace_call``, deprecate ``parity.traceCall`` (`#1957 <https://github.com/ethereum/web3.py/issues/1957>`__)
+- Add trace_filter deprecate traceFilter (`#1960 <https://github.com/ethereum/web3.py/issues/1960>`__)
+- Add trace_block, deprecate traceBlock (`#1961 <https://github.com/ethereum/web3.py/issues/1961>`__)
+- Add trace_replay_block_transactions, deprecate traceReplayBlockTransactions (`#1962 <https://github.com/ethereum/web3.py/issues/1962>`__)
+- Add ``parity.trace_transaction``, deprecate ``parity.traceTransaction`` (`#1963 <https://github.com/ethereum/web3.py/issues/1963>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Document ``eth_call`` state overrides. (`#1965 <https://github.com/ethereum/web3.py/issues/1965>`__)
+
+
+Misc
+~~~~
+
+- `#1774 <https://github.com/ethereum/web3.py/issues/1774>`__, `#1805 <https://github.com/ethereum/web3.py/issues/1805>`__, `#1945 <https://github.com/ethereum/web3.py/issues/1945>`__, `#1964 <https://github.com/ethereum/web3.py/issues/1964>`__
+
+
 v5.18.0 (2021-04-08)
 --------------------
 Web3 5.18.0 (2021-04-08)

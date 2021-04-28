@@ -1,1 +1,0 @@
-Add net_peers deprecate netPeers
