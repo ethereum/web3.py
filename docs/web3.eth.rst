@@ -938,7 +938,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. warning:: Deprecated: This property is deprecated in favor of
       :meth:`~web3.eth.Eth.sign_typed_data()`
 
-.. py:method:: Eth.call(transaction, block_identifier=web3.eth.default_block)
+.. py:method:: Eth.call(transaction, block_identifier=web3.eth.default_block, state_override=None)
 
     * Delegates to ``eth_call`` RPC Method
 
@@ -959,6 +959,10 @@ The following methods are available on the ``web3.eth`` namespace.
         HexBytes('0x0000000000000000000000000000000000000000000000000000000000000001')
 
     In most cases it is better to make contract function call through the :py:class:`web3.contract.Contract` interface.
+
+    Overriding state is a debugging feature available in Geth clients.
+    View their `usage documentation <https://geth.ethereum.org/docs/rpc/ns-eth#3-object---state-override-set>`_
+    for a list of possible parameters.
 
 
 .. py:method:: Eth.estimate_gas(transaction, block_identifier=None)
