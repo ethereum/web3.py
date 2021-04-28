@@ -195,7 +195,7 @@ class Parity(Module):
 
         return (transaction, mode, block_identifier)
 
-    traceCall: Method[Callable[..., ParityBlockTrace]] = Method(
+    trace_call: Method[Callable[..., ParityBlockTrace]] = Method(
         RPC.trace_call,
         mungers=[trace_call_munger],
     )
@@ -234,3 +234,4 @@ class Parity(Module):
     traceReplayBlockTransactions = DeprecatedMethod(trace_replay_block_transactions,
                                                     'traceReplayBlockTransactions',
                                                     'trace_replay_block_transactions')
+    traceCall = DeprecatedMethod(trace_call, 'traceCall', 'trace_call')
