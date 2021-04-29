@@ -1,0 +1,3 @@
+Add new AsyncHTTPProvider. No middleware or session caching support yet.
+
+Also adds async ``w3.eth.gas_price``, and async ``w3.isConnected()`` methods.

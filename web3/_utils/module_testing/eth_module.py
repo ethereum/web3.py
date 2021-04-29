@@ -58,6 +58,18 @@ if TYPE_CHECKING:
     from web3.contract import Contract  # noqa: F401
 
 
+class AsyncEthModuleTest:
+    @pytest.mark.asyncio
+    async def test_eth_gas_price(self, async_w3_http: "Web3") -> None:
+        gas_price = await async_w3_http.async_eth.gas_price
+        assert gas_price > 0
+
+    @pytest.mark.asyncio
+    async def test_isConnected(self, async_w3_http: "Web3") -> None:
+        is_connected = await async_w3_http.isConnected()  # type: ignore
+        assert is_connected is True
+
+
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning,

@@ -19,34 +19,23 @@ from web3._utils.http import (
     construct_user_agent,
 )
 from web3._utils.request import (
-    cache_session,
+    async_make_post_request,
     get_default_http_endpoint,
-    make_post_request,
-)
-from web3.datastructures import (
-    NamedElementOnion,
-)
-from web3.middleware import (
-    http_retry_request_middleware,
 )
 from web3.types import (
-    Middleware,
     RPCEndpoint,
     RPCResponse,
 )
 
-from .base import (
-    JSONBaseProvider,
+from .async_base import (
+    AsyncJSONBaseProvider,
 )
 
 
-class HTTPProvider(JSONBaseProvider):
+class AsyncHTTPProvider(AsyncJSONBaseProvider):
     logger = logging.getLogger("web3.providers.HTTPProvider")
     endpoint_uri = None
-    _request_args = None
     _request_kwargs = None
-    # type ignored b/c conflict with _middlewares attr on BaseProvider
-    _middlewares: Tuple[Middleware, ...] = NamedElementOnion([(http_retry_request_middleware, 'http_retry_request')])  # type: ignore # noqa: E501
 
     def __init__(
         self, endpoint_uri: Optional[Union[URI, str]] = None,
@@ -59,9 +48,6 @@ class HTTPProvider(JSONBaseProvider):
             self.endpoint_uri = URI(endpoint_uri)
 
         self._request_kwargs = request_kwargs or {}
-
-        if session:
-            cache_session(self.endpoint_uri, session)
 
         super().__init__()
 
@@ -81,16 +67,16 @@ class HTTPProvider(JSONBaseProvider):
             'User-Agent': construct_user_agent(str(type(self))),
         }
 
-    def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
+    async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug("Making request HTTP. URI: %s, Method: %s",
                           self.endpoint_uri, method)
-        request_data = self.encode_rpc_request(method, params)
-        raw_response = make_post_request(
+        request_data = await self.encode_rpc_request(method, params)
+        raw_response = await async_make_post_request(
             self.endpoint_uri,
             request_data,
             **self.get_request_kwargs()
         )
-        response = self.decode_rpc_response(raw_response)
+        response = await self.decode_rpc_response(raw_response)
         self.logger.debug("Getting response HTTP. URI: %s, "
                           "Method: %s, Response: %s",
                           self.endpoint_uri, method, response)

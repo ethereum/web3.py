@@ -2,6 +2,7 @@ import signal
 import socket
 import time
 
+import aiohttp
 import requests
 
 
@@ -24,6 +25,18 @@ def wait_for_http(endpoint_uri, timeout=60):
         try:
             requests.get(endpoint_uri)
         except requests.ConnectionError:
+            time.sleep(0.01)
+        else:
+            break
+
+
+async def wait_for_aiohttp(endpoint_uri, timeout=60):
+    start = time.time()
+    while time.time() < start + timeout:
+        try:
+            async with aiohttp.ClientSession() as session:
+                await session.get(endpoint_uri)
+        except aiohttp.client_exceptions.ClientConnectorError:
             time.sleep(0.01)
         else:
             break

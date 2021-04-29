@@ -1,4 +1,5 @@
 from .eth_module import (  # noqa: F401
+    AsyncEthModuleTest,
     EthModuleTest,
 )
 from .go_ethereum_admin_module import (  # noqa: F401

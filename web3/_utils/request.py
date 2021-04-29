@@ -1,7 +1,12 @@
+import os
 from typing import (
     Any,
 )
 
+from aiohttp import (
+    ClientSession,
+    ClientTimeout,
+)
 from eth_typing import (
     URI,
 )
@@ -11,6 +16,10 @@ import requests
 from web3._utils.caching import (
     generate_cache_key,
 )
+
+
+def get_default_http_endpoint() -> URI:
+    return URI(os.environ.get('WEB3_HTTP_PROVIDER_URI', 'http://localhost:8545'))
 
 
 def cache_session(endpoint_uri: URI, session: requests.Session) -> None:
@@ -40,3 +49,15 @@ def make_post_request(endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any)
     response.raise_for_status()
 
     return response.content
+
+
+async def async_make_post_request(
+    endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any
+) -> bytes:
+    kwargs.setdefault('timeout', ClientTimeout(10))
+    async with ClientSession(raise_for_status=True) as session:
+        async with session.post(endpoint_uri,
+                                data=data,
+                                *args,
+                                **kwargs) as response:
+            return await response.read()

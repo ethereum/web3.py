@@ -18,6 +18,9 @@ from web3.providers.ipc import (  # noqa: E402
 from web3.providers.rpc import (  # noqa: E402
     HTTPProvider,
 )
+from web3.providers.async_rpc import (  # noqa: E402
+    AsyncHTTPProvider,
+)
 from web3.providers.websocket import (  # noqa: E402
     WebsocketProvider,
 )
@@ -45,4 +48,5 @@ __all__ = [
     "TestRPCProvider",
     "EthereumTesterProvider",
     "Account",
+    "AsyncHTTPProvider",
 ]
