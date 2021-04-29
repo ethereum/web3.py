@@ -4,6 +4,7 @@ from concurrent.futures._base import (
 import pytest
 
 from web3._utils.module_testing import (  # noqa: F401
+    AsyncEthModuleTest,
     EthModuleTest,
     GoEthereumAdminModuleTest,
     GoEthereumPersonalModuleTest,
@@ -79,4 +80,8 @@ class GoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 
 
 class GoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
+    pass
+
+
+class GoEthereumAsyncEthModuleTest(AsyncEthModuleTest):
     pass

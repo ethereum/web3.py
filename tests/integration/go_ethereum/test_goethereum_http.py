@@ -4,9 +4,16 @@ from tests.utils import (
     get_open_port,
 )
 from web3 import Web3
+from web3.eth import (
+    AsyncEth,
+)
+from web3.providers.async_rpc import (
+    AsyncHTTPProvider,
+)
 
 from .common import (
     GoEthereumAdminModuleTest,
+    GoEthereumAsyncEthModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
@@ -14,6 +21,7 @@ from .common import (
     GoEthereumVersionModuleTest,
 )
 from .utils import (
+    wait_for_aiohttp,
     wait_for_http,
 )
 
@@ -63,6 +71,18 @@ def web3(geth_process, endpoint_uri):
     return _web3
 
 
+@pytest.fixture(scope="module")
+async def async_w3_http(geth_process, endpoint_uri):
+    await wait_for_aiohttp(endpoint_uri)
+    _web3 = Web3(
+        AsyncHTTPProvider(endpoint_uri),
+        middlewares=[],
+        modules={
+            'async_eth': (AsyncEth,),
+        })
+    return _web3
+
+
 class TestGoEthereumTest(GoEthereumTest):
     pass
 
@@ -96,4 +116,8 @@ class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
 
 
 class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
+    pass
+
+
+class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
     pass

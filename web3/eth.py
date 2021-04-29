@@ -104,7 +104,23 @@ from web3.types import (
 )
 
 
-class Eth(Module):
+class BaseEth(Module):
+    _gas_price: Method[Callable[[], Wei]] = Method(
+        RPC.eth_gasPrice,
+        mungers=None,
+    )
+
+
+class AsyncEth(BaseEth):
+    is_async = True
+
+    @property
+    async def gas_price(self) -> Wei:
+        # types ignored b/c mypy conflict with BlockingEth properties
+        return await self._gas_price()  # type: ignore
+
+
+class Eth(BaseEth, Module):
     account = Account()
     _default_account: Union[ChecksumAddress, Empty] = empty
     _default_block: BlockIdentifier = "latest"
@@ -174,11 +190,6 @@ class Eth(Module):
     @property
     def hashrate(self) -> int:
         return self.get_hashrate()
-
-    _gas_price: Method[Callable[[], Wei]] = Method(
-        RPC.eth_gasPrice,
-        mungers=None,
-    )
 
     @property
     def gas_price(self) -> Wei:

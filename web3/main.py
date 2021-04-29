@@ -53,6 +53,7 @@ from web3._utils.normalizers import (
     abi_ens_resolver,
 )
 from web3.eth import (
+    AsyncEth,
     Eth,
 )
 from web3.geth import (
@@ -157,6 +158,7 @@ class Web3:
     parity: Parity
     geth: Geth
     net: Net
+    async_eth: AsyncEth
 
     def __init__(
         self,
