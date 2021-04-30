@@ -901,7 +901,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         def get_block_timestamp(self, block_num) -> datetime.datetime:
             """Get Ethereum block timestamp"""
             try:
-                block_info = self.web3.eth.getBlock(block_num)
+                block_info = self.w3.eth.getBlock(block_num)
             except BlockNotFound:
                 # Block was not mined yet,
                 # minor chain reorganisation?
@@ -929,7 +929,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
             # Do not scan all the way to the final block, as this
             # block might not be mined yet
-            return self.web3.eth.blockNumber - 1
+            return self.w3.eth.blockNumber - 1
 
         def get_last_scanned_block(self) -> int:
             return self.state.get_last_scanned_block()
@@ -962,7 +962,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
                 # Callable that takes care of the underlying web3 call
                 def _fetch_events(_start_block, _end_block):
-                    return _fetch_events_for_all_contracts(self.web3,
+                    return _fetch_events_for_all_contracts(self.w3,
                                                            event_type,
                                                            self.filters,
                                                            from_block=_start_block,

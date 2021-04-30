@@ -33,7 +33,7 @@ Attributes
     Returns the current Web3 version.
 
     .. code-block:: python
-    
+
        >>> web3.api
        "4.7.0"
 

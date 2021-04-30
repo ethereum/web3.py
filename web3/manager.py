@@ -127,7 +127,7 @@ class RequestManager:
         self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
     ) -> RPCResponse:
         request_func = self.provider.request_func(
-            self.web3,
+            self.w3,
             self.middleware_onion)
         self.logger.debug("Making request. Method: %s", method)
         return request_func(method, params)
@@ -136,7 +136,7 @@ class RequestManager:
         self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
     ) -> RPCResponse:
         request_func = self.provider.request_func(
-            self.web3,
+            self.w3,
             self.middleware_onion)
         self.logger.debug("Making request. Method: %s", method)
         # type ignored b/c request_func is an awaitable in async model

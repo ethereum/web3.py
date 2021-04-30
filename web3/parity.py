@@ -186,8 +186,8 @@ class Parity(Module):
         block_identifier: Optional[BlockIdentifier] = None
     ) -> Tuple[TxParams, ParityTraceMode, BlockIdentifier]:
         # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.web3.eth.default_account):
-            transaction = assoc(transaction, 'from', self.web3.eth.default_account)
+        if 'from' not in transaction and is_checksum_address(self.w3.eth.default_account):
+            transaction = assoc(transaction, 'from', self.w3.eth.default_account)
 
         # TODO: move to middleware
         if block_identifier is None:
