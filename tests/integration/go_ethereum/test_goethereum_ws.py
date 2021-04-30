@@ -66,7 +66,7 @@ def geth_command_arguments(geth_binary,
 def web3(geth_process, endpoint_uri, event_loop):
     event_loop.run_until_complete(wait_for_ws(endpoint_uri, event_loop))
     _w3 = Web3(Web3.WebsocketProvider(endpoint_uri))
-    return _web3
+    return _w3
 
 
 class TestGoEthereumTest(GoEthereumTest):

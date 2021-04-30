@@ -74,7 +74,7 @@ def ensure_hex(data: HexBytes) -> HexBytes:
     return data
 
 
-def init_web3(provider: 'BaseProvider' = cast('BaseProvider', default)) -> '_Web3':
+def init_w3(provider: 'BaseProvider' = cast('BaseProvider', default)) -> '_Web3':
     from web3 import Web3 as Web3Main
 
     if provider is default:
@@ -82,10 +82,10 @@ def init_web3(provider: 'BaseProvider' = cast('BaseProvider', default)) -> '_Web
     else:
         w3 = Web3Main(provider, ens=None)
 
-    return customize_web3(w3)
+    return customize_w3(w3)
 
 
-def customize_web3(w3: '_Web3') -> '_Web3':
+def customize_w3(w3: '_Web3') -> '_Web3':
     from web3.middleware import make_stalecheck_middleware
 
     w3.middleware_onion.remove('name_to_address')

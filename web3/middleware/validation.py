@@ -32,7 +32,7 @@ from web3.exceptions import (
     ValidationError,
 )
 from web3.middleware.formatting import (
-    construct_web3_formatting_middleware,
+    construct_w3_formatting_middleware,
 )
 from web3.types import (
     FormattersDict,
@@ -117,7 +117,7 @@ def chain_id_validator(web3: "Web3") -> Callable[..., Any]:
     )
 
 
-def build_validators_with_web3(w3: "Web3") -> FormattersDict:
+def build_validators_with_w3(w3: "Web3") -> FormattersDict:
     return dict(
         request_formatters={
             RPC.eth_sendTransaction: chain_id_validator(w3),
@@ -131,4 +131,4 @@ def build_validators_with_web3(w3: "Web3") -> FormattersDict:
     )
 
 
-validation_middleware = construct_web3_formatting_middleware(build_validators_with_web3)
+validation_middleware = construct_w3_formatting_middleware(build_validators_with_w3)

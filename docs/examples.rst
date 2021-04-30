@@ -970,7 +970,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
                 # Do `n` retries on `eth_getLogs`,
                 # throttle down block range if needed
-                end_block, events = _retry_web3_call(
+                end_block, events = _retry_w3_call(
                     _fetch_events,
                     start_block=start_block,
                     end_block=end_block,
@@ -1089,7 +1089,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             return all_processed, total_chunks_scanned
 
 
-    def _retry_web3_call(func, start_block, end_block, retries, delay) -> Tuple[int, list]:
+    def _retry_w3_call(func, start_block, end_block, retries, delay) -> Tuple[int, list]:
         """A custom retry loop to throttle down block range.
 
         If our JSON-RPC server cannot serve all incoming `eth_getLogs` in a single request,

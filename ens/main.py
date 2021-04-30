@@ -37,7 +37,7 @@ from ens.utils import (
     address_to_reverse_domain,
     default,
     dict_copy,
-    init_web3,
+    init_w3,
     is_none_or_zero_address,
     is_valid_name,
     label_to_hash,
@@ -84,7 +84,7 @@ class ENS:
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
         """
-        self.w3 = init_web3(provider)
+        self.w3 = init_w3(provider)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
         self.ens = self.w3.eth.contract(abi=abis.ENS, address=ens_addr)

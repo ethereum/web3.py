@@ -75,7 +75,7 @@ def parity_import_blocks_command(parity_binary, ipc_path, datadir, passwordfile)
 def web3(parity_process, ipc_path):
     wait_for_socket(ipc_path)
     _w3 = Web3(Web3.IPCProvider(ipc_path))
-    return _web3
+    return _w3
 
 
 class TestParityWeb3ModuleTest(ParityWeb3ModuleTest):

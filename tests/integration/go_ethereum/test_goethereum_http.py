@@ -60,7 +60,7 @@ def geth_command_arguments(rpc_port,
 def web3(geth_process, endpoint_uri):
     wait_for_http(endpoint_uri)
     _w3 = Web3(Web3.HTTPProvider(endpoint_uri))
-    return _web3
+    return _w3
 
 
 class TestGoEthereumTest(GoEthereumTest):
