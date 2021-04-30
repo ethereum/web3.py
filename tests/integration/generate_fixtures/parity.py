@@ -288,7 +288,7 @@ def generate_parity_fixture(destination_dir):
         ))
 
         common.wait_for_socket(parity_ipc_path)
-        web3 = Web3(Web3.IPCProvider(parity_ipc_path))
+        w3 = Web3(Web3.IPCProvider(parity_ipc_path))
 
         time.sleep(10)
         connect_nodes(web3, web3_geth)

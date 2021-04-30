@@ -12,7 +12,7 @@ from web3._utils.threads import (
 
 @flaky(max_runs=3)
 def test_miner_set_gas_price(web3_empty, wait_for_block):
-    web3 = web3_empty
+    w3 = web3_empty
 
     initial_gas_price = web3.eth.gas_price
 
@@ -31,7 +31,7 @@ def test_miner_set_gas_price(web3_empty, wait_for_block):
 
 @flaky(max_runs=3)
 def test_miner_setGasPrice(web3_empty, wait_for_block):
-    web3 = web3_empty
+    w3 = web3_empty
 
     initial_gas_price = web3.eth.gas_price
     assert web3.eth.gas_price > 1000

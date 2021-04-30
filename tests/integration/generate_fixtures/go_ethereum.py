@@ -136,7 +136,7 @@ def generate_go_ethereum_fixture(destination_dir):
                 geth_port=geth_port):
 
             common.wait_for_socket(geth_ipc_path)
-            web3 = Web3(Web3.IPCProvider(geth_ipc_path))
+            w3 = Web3(Web3.IPCProvider(geth_ipc_path))
             chain_data = setup_chain_state(web3)
             # close geth by exiting context
             # must be closed before copying data dir
@@ -152,7 +152,7 @@ def generate_go_ethereum_fixture(destination_dir):
                 geth_port=geth_port):
 
             common.wait_for_socket(geth_ipc_path)
-            web3 = Web3(Web3.IPCProvider(geth_ipc_path))
+            w3 = Web3(Web3.IPCProvider(geth_ipc_path))
             verify_chain_state(web3, chain_data)
 
         static_data = {

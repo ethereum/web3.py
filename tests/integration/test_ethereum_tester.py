@@ -46,7 +46,7 @@ def eth_tester_provider(eth_tester):
 
 @pytest.fixture(scope="module")
 def web3(eth_tester_provider):
-    _web3 = Web3(eth_tester_provider)
+    _w3 = Web3(eth_tester_provider)
     return _web3
 
 

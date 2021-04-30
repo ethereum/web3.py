@@ -30,10 +30,10 @@ def allowable_delay():
 @pytest.fixture
 def request_middleware(allowable_delay):
     middleware = make_stalecheck_middleware(allowable_delay)
-    make_request, web3 = Mock(), Mock()
+    make_request, w3 = Mock(), Mock()
     initialized = middleware(make_request, web3)
     # for easier mocking, later:
-    initialized.web3 = web3
+    initialized.w3 = web3
     initialized.make_request = make_request
     return initialized
 

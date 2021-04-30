@@ -18,7 +18,7 @@ def test_sync_filter_against_log_events(web3_empty,
                                         emitter_log_topics,
                                         emitter_event_ids
                                         ):
-    web3 = web3_empty
+    w3 = web3_empty
 
     txn_filter = web3.eth.filter({})
 
@@ -45,7 +45,7 @@ def test_async_filter_against_log_events(web3_empty,
                                          emitter_log_topics,
                                          emitter_event_ids
                                          ):
-    web3 = web3_empty
+    w3 = web3_empty
 
     seen_logs = []
     txn_filter = web3.eth.filter({})

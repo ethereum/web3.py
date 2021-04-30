@@ -156,7 +156,7 @@ class ContractFunctions:
 
     def __init__(self, abi: ABI, web3: 'Web3', address: Optional[ChecksumAddress] = None) -> None:
         self.abi = abi
-        self.web3 = web3
+        self.w3 = web3
         self.address = address
 
         if self.abi:
@@ -597,7 +597,7 @@ class ContractConstructor:
     def __init__(
         self, web3: 'Web3', abi: ABI, bytecode: HexStr, *args: Any, **kwargs: Any
     ) -> None:
-        self.web3 = web3
+        self.w3 = web3
         self.abi = abi
         self.bytecode = bytecode
         self.data_in_transaction = self._encode_data_in_transaction(*args, **kwargs)
@@ -1372,7 +1372,7 @@ class ContractCaller:
                  address: ChecksumAddress,
                  transaction: Optional[TxParams] = None,
                  block_identifier: BlockIdentifier = 'latest') -> None:
-        self.web3 = web3
+        self.w3 = web3
         self.address = address
         self.abi = abi
         self._functions = None

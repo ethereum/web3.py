@@ -15,7 +15,7 @@ from web3._utils.threads import (
 
 @flaky(max_runs=3)
 def test_miner_set_extra(web3_empty, wait_for_block):
-    web3 = web3_empty
+    w3 = web3_empty
 
     initial_extra = decode_hex(web3.eth.get_block(web3.eth.block_number)['extraData'])
 
@@ -40,7 +40,7 @@ def test_miner_set_extra(web3_empty, wait_for_block):
 
 @flaky(max_runs=3)
 def test_miner_setExtra(web3_empty, wait_for_block):
-    web3 = web3_empty
+    w3 = web3_empty
 
     initial_extra = decode_hex(web3.eth.get_block(web3.eth.block_number)['extraData'])
 

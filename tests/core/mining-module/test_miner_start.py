@@ -11,7 +11,7 @@ from web3._utils.threads import (
 
 @flaky(max_runs=3)
 def test_miner_start(web3_empty, wait_for_miner_start):
-    web3 = web3_empty
+    w3 = web3_empty
 
     # sanity
     assert web3.eth.mining

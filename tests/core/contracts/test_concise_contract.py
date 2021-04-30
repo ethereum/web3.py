@@ -94,7 +94,7 @@ def test_class_construction_sets_class_vars(web3,
     )
 
     classic = MathContract(some_address)
-    assert classic.web3 == web3
+    assert classic.w3 == web3
     assert classic.bytecode == decode_hex(MATH_CODE)
     assert classic.bytecode_runtime == decode_hex(MATH_RUNTIME)
 

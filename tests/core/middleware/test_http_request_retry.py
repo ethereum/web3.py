@@ -24,11 +24,11 @@ from web3.providers import (
 
 @pytest.fixture
 def exception_retry_request_setup():
-    web3 = Mock()
+    w3 = Mock()
     provider = HTTPProvider()
     errors = (ConnectionError, HTTPError, Timeout, TooManyRedirects)
     setup = exception_retry_middleware(provider.make_request, web3, errors, 5)
-    setup.web3 = web3
+    setup.w3 = web3
     return setup
 
 
@@ -68,10 +68,10 @@ def test_valid_method_retried(make_post_request_mock, exception_retry_request_se
 
 
 def test_is_strictly_default_http_middleware():
-    web3 = HTTPProvider()
+    w3 = HTTPProvider()
     assert 'http_retry_request' in web3.middlewares
 
-    web3 = IPCProvider()
+    w3 = IPCProvider()
     assert 'http_retry_request' not in web3.middlewares
 
 

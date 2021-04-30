@@ -79,7 +79,7 @@ def parity_import_blocks_command(parity_binary, ws_port, datadir, passwordfile):
 @pytest.fixture(scope="module")  # noqa: F811
 def web3(parity_process, endpoint_uri, event_loop):
     event_loop.run_until_complete(wait_for_ws(endpoint_uri, event_loop))
-    _web3 = Web3(Web3.WebsocketProvider(endpoint_uri))
+    _w3 = Web3(Web3.WebsocketProvider(endpoint_uri))
     return _web3
 
 

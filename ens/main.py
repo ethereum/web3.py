@@ -84,7 +84,7 @@ class ENS:
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
         """
-        self.web3 = init_web3(provider)
+        self.w3 = init_web3(provider)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
         self.ens = self.web3.eth.contract(abi=abis.ENS, address=ens_addr)

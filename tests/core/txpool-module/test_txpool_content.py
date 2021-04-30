@@ -6,7 +6,7 @@ from web3._utils.threads import (
 
 
 def test_txpool_content(web3_empty):
-    web3 = web3_empty
+    w3 = web3_empty
 
     web3.geth.miner.stop()
 

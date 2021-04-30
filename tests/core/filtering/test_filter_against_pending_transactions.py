@@ -16,7 +16,7 @@ def test_sync_filter_against_pending_transactions(web3_empty,
                                                   wait_for_transaction,
                                                   skip_if_testrpc
                                                   ):
-    web3 = web3_empty
+    w3 = web3_empty
     skip_if_testrpc(web3)
 
     txn_filter = web3.eth.filter("pending")
@@ -51,7 +51,7 @@ def test_async_filter_against_pending_transactions(web3_empty,
                                                    wait_for_transaction,
                                                    skip_if_testrpc
                                                    ):
-    web3 = web3_empty
+    w3 = web3_empty
     skip_if_testrpc(web3)
 
     seen_txns = []

@@ -876,7 +876,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
             self.logger = logger
             self.contract = contract
-            self.web3 = web3
+            self.w3 = web3
             self.state = state
             self.events = events
             self.filters = filters
@@ -1356,7 +1356,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             # throttle down.
             provider.middlewares.clear()
 
-            web3 = Web3(provider)
+            w3 = Web3(provider)
 
             # Prepare stub ERC-20 contract object
             abi = json.loads(ABI)

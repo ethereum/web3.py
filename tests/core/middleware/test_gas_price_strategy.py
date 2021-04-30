@@ -10,9 +10,9 @@ from web3.middleware import (
 
 @pytest.fixture
 def the_gas_price_strategy_middleware(web3):
-    make_request, web3 = Mock(), Mock()
+    make_request, w3 = Mock(), Mock()
     initialized = gas_price_strategy_middleware(make_request, web3)
-    initialized.web3 = web3
+    initialized.w3 = web3
     initialized.make_request = make_request
     return initialized
 

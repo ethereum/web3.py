@@ -202,7 +202,7 @@ virtualenv for smoke testing:
     >>> ...
 
 
-Verify the latest documentation 
+Verify the latest documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To preview the documentation that will get published:
@@ -321,7 +321,7 @@ Parity/OpenEthereum fixtures
 .. code:: sh
 
     $ python /tests/integration/generate_fixtures/parity.py /tests/integration/parity-X.Y.Z-fixture
- 
+
 5. The output of this script is your fixture, a zip file. Store the fixture in the
    ``/tests/integration/`` directory and update the ``/tests/integration/parity/conftest.py``
    file to point the new fixture.

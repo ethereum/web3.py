@@ -59,7 +59,7 @@ def geth_command_arguments(rpc_port,
 @pytest.fixture(scope="module")
 def web3(geth_process, endpoint_uri):
     wait_for_http(endpoint_uri)
-    _web3 = Web3(Web3.HTTPProvider(endpoint_uri))
+    _w3 = Web3(Web3.HTTPProvider(endpoint_uri))
     return _web3
 
 

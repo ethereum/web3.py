@@ -76,7 +76,7 @@ def parity_import_blocks_command(parity_binary, rpc_port, datadir, passwordfile)
 @pytest.fixture(scope="module")  # noqa: F811
 def web3(parity_process, endpoint_uri):
     wait_for_http(endpoint_uri)
-    _web3 = Web3(Web3.HTTPProvider(endpoint_uri))
+    _w3 = Web3(Web3.HTTPProvider(endpoint_uri))
     return _web3
 
 

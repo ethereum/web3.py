@@ -77,7 +77,7 @@ class RequestManager:
         provider: Optional[BaseProvider] = None,
         middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None
     ) -> None:
-        self.web3 = web3
+        self.w3 = web3
         self.pending_requests: Dict[UUID, ThreadWithReturn[RPCResponse]] = {}
 
         if middlewares is None:

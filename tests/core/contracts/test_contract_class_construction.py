@@ -23,7 +23,7 @@ def test_class_construction_sets_class_vars(web3,
         bytecode_runtime=MATH_RUNTIME,
     )
 
-    assert MathContract.web3 == web3
+    assert MathContract.w3 == web3
     assert MathContract.bytecode == decode_hex(MATH_CODE)
     assert MathContract.bytecode_runtime == decode_hex(MATH_RUNTIME)
 

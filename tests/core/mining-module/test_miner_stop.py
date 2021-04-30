@@ -11,7 +11,7 @@ from web3._utils.threads import (
 
 @flaky(max_runs=3)
 def test_miner_stop(web3_empty):
-    web3 = web3_empty
+    w3 = web3_empty
 
     assert web3.eth.mining
     assert web3.eth.hashrate

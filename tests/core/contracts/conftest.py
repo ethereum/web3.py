@@ -478,7 +478,7 @@ def EVENT_CONTRACT(
 
 @pytest.fixture()
 def EventContract(web3_empty, EVENT_CONTRACT):
-    web3 = web3_empty
+    w3 = web3_empty
     return web3.eth.contract(**EVENT_CONTRACT)
 
 
@@ -490,7 +490,7 @@ def event_contract(
         wait_for_block,
         address_conversion_func):
 
-    web3 = web3_empty
+    w3 = web3_empty
 
     wait_for_block(web3)
     deploy_txn_hash = EventContract.constructor().transact({
@@ -535,7 +535,7 @@ def INDEXED_EVENT_CONTRACT(
 
 @pytest.fixture()
 def IndexedEventContract(web3_empty, INDEXED_EVENT_CONTRACT):
-    web3 = web3_empty
+    w3 = web3_empty
     return web3.eth.contract(**INDEXED_EVENT_CONTRACT)
 
 
@@ -547,7 +547,7 @@ def indexed_event(
         wait_for_block,
         address_conversion_func):
 
-    web3 = web3_empty
+    w3 = web3_empty
 
     wait_for_block(web3)
     deploy_txn_hash = IndexedEventContract.constructor().transact({
