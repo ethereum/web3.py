@@ -28,12 +28,12 @@ def deployed_safe_math(safe_math_package, w3):
     return safe_math_package, tx_receipt.contractAddress
 
 
-def test_package_object_instantiates_with_a_w3_object(all_manifests, w3):
+def test_package_object_instantiates_with_a_web3_object(all_manifests, w3):
     package = Package(all_manifests, w3)
     assert package.w3 is w3
 
 
-def test_update_w3(deployed_safe_math, w3):
+def test_update_web3(deployed_safe_math, w3):
     new_w3 = Web3(Web3.EthereumTesterProvider())
     original_package, _ = deployed_safe_math
     assert original_package.w3 is w3
@@ -45,7 +45,7 @@ def test_update_w3(deployed_safe_math, w3):
         new_package.deployments
 
 
-def test_get_contract_factory_with_default_w3(safe_math_package, w3):
+def test_get_contract_factory_with_default_web3(safe_math_package, w3):
     contract_factory = safe_math_package.get_contract_factory("SafeMathLib")
     assert hasattr(contract_factory, "address")
     assert hasattr(contract_factory, "abi")

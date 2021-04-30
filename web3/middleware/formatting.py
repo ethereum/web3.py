@@ -28,7 +28,7 @@ def construct_formatting_middleware(
     result_formatters: Optional[Formatters] = None,
     error_formatters: Optional[Formatters] = None
 ) -> Middleware:
-    def ignore_w3_in_standard_formatters(
+    def ignore_web3_in_standard_formatters(
         w3: "Web3",
     ) -> FormattersDict:
         return dict(
@@ -37,10 +37,10 @@ def construct_formatting_middleware(
             error_formatters=error_formatters or {},
         )
 
-    return construct_w3_formatting_middleware(ignore_w3_in_standard_formatters)
+    return construct_web3_formatting_middleware(ignore_web3_in_standard_formatters)
 
 
-def construct_w3_formatting_middleware(
+def construct_web3_formatting_middleware(
     web3_formatters_builder: Callable[["Web3"], FormattersDict]
 ) -> Middleware:
     def formatter_middleware(

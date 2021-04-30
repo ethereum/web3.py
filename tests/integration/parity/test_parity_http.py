@@ -77,7 +77,7 @@ def parity_import_blocks_command(parity_binary, rpc_port, datadir, passwordfile)
 def web3(parity_process, endpoint_uri):
     wait_for_http(endpoint_uri)
     _w3 = Web3(Web3.HTTPProvider(endpoint_uri))
-    return _w3
+    return _web3
 
 
 class TestParityWeb3ModuleTest(ParityWeb3ModuleTest):

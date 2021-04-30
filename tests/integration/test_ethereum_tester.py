@@ -47,7 +47,7 @@ def eth_tester_provider(eth_tester):
 @pytest.fixture(scope="module")
 def web3(eth_tester_provider):
     _w3 = Web3(eth_tester_provider)
-    return _w3
+    return _web3
 
 
 #
@@ -211,7 +211,7 @@ def funded_account_for_raw_txn(web3):
 
 
 class TestEthereumTesterWeb3Module(Web3ModuleTest):
-    def _check_w3_clientVersion(self, client_version):
+    def _check_web3_clientVersion(self, client_version):
         assert client_version.startswith('EthereumTester/')
 
 

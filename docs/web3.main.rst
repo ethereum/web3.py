@@ -1,4 +1,4 @@
-.. _w3_base:
+.. _web3_base:
 
 Web3 API
 ========

@@ -55,7 +55,7 @@ def geth_ipc_path(datadir):
 def web3(geth_process, geth_ipc_path):
     wait_for_socket(geth_ipc_path)
     _w3 = Web3(Web3.IPCProvider(geth_ipc_path))
-    return _w3
+    return _web3
 
 
 class TestGoEthereumTest(GoEthereumTest):
