@@ -48,7 +48,7 @@ Creating your own Registry class
 If you want to implement your own registry and use it with ``web3.pm``, you must create a subclass that inherits from ``ERC1319Registry``, and implements all the `ERC 1319 standard methods <https://github.com/ethereum/EIPs/issues/1319>`_ prefixed with an underscore in ``ERC1319Registry``. Then, you have to manually set it as the ``registry`` attribute on ``web3.pm``.
 
 .. code-block:: python
-
+    
     custom_registry = CustomRegistryClass(address, w3)
     w3.pm.registry = custom_registry
 
