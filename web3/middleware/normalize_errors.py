@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 def normalize_errors_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         result = make_request(method, params)

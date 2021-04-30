@@ -91,11 +91,11 @@ class ENS:
         self._resolverContract = self.w3.eth.contract(abi=abis.RESOLVER)
 
     @classmethod
-    def fromWeb3(cls, web3: 'Web3', addr: ChecksumAddress = None) -> 'ENS':
+    def fromWeb3(cls, w3: 'Web3', addr: ChecksumAddress = None) -> 'ENS':
         """
         Generate an ENS instance with web3
 
-        :param `web3.Web3` web3: to infer connection information
+        :param `web3.Web3` w3: to infer connection information
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
         """

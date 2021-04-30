@@ -62,7 +62,7 @@ if TYPE_CHECKING:
 
 
 @curry
-def fill_nonce(web3: "Web3", transaction: TxParams) -> TxParams:
+def fill_nonce(w3: "Web3", transaction: TxParams) -> TxParams:
     if 'from' in transaction and 'nonce' not in transaction:
         return assoc(
             transaction,
@@ -75,7 +75,7 @@ def fill_nonce(web3: "Web3", transaction: TxParams) -> TxParams:
 
 
 @curry
-def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
+def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxParams:
     """
     if web3 is None, fill as much as possible while offline
     """
@@ -94,7 +94,7 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
 
 
 def wait_for_transaction_receipt(
-    web3: "Web3", txn_hash: _Hash32, timeout: float, poll_latency: float
+    w3: "Web3", txn_hash: _Hash32, timeout: float, poll_latency: float
 ) -> TxReceipt:
     with Timeout(timeout) as _timeout:
         while True:
@@ -112,7 +112,7 @@ def wait_for_transaction_receipt(
     return txn_receipt
 
 
-def get_block_gas_limit(web3: "Web3", block_identifier: Optional[BlockIdentifier] = None) -> Wei:
+def get_block_gas_limit(w3: "Web3", block_identifier: Optional[BlockIdentifier] = None) -> Wei:
     if block_identifier is None:
         block_identifier = web3.eth.block_number
     block = web3.eth.get_block(block_identifier)
@@ -120,7 +120,7 @@ def get_block_gas_limit(web3: "Web3", block_identifier: Optional[BlockIdentifier
 
 
 def get_buffered_gas_estimate(
-    web3: "Web3", transaction: TxParams, gas_buffer: Wei = Wei(100000)
+    w3: "Web3", transaction: TxParams, gas_buffer: Wei = Wei(100000)
 ) -> Wei:
     gas_estimate_transaction = cast(TxParams, dict(**transaction))
 
@@ -138,7 +138,7 @@ def get_buffered_gas_estimate(
     return Wei(min(gas_limit, gas_estimate + gas_buffer))
 
 
-def get_required_transaction(web3: "Web3", transaction_hash: _Hash32) -> TxData:
+def get_required_transaction(w3: "Web3", transaction_hash: _Hash32) -> TxData:
     current_transaction = web3.eth.get_transaction(transaction_hash)
     if not current_transaction:
         raise ValueError('Supplied transaction with hash {} does not exist'
@@ -180,7 +180,7 @@ def assert_valid_transaction_params(transaction_params: TxParams) -> None:
 
 
 def prepare_replacement_transaction(
-    web3: "Web3",
+    w3: "Web3",
     current_transaction: TxData,
     new_transaction: TxParams,
     gas_multiplier: float = 1.125
@@ -209,7 +209,7 @@ def prepare_replacement_transaction(
 
 
 def replace_transaction(
-    web3: "Web3", current_transaction: TxData, new_transaction: TxParams
+    w3: "Web3", current_transaction: TxData, new_transaction: TxParams
 ) -> HexBytes:
     new_transaction = prepare_replacement_transaction(
         web3, current_transaction, new_transaction

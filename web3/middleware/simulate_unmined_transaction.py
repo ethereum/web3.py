@@ -22,7 +22,7 @@ INVOCATIONS_BEFORE_RESULT = 5
 
 
 def unmined_receipt_simulator_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: Web3
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: Web3
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     receipt_counters: DefaultDict[Hash32, TxReceipt] = collections.defaultdict(  # type: ignore # noqa: F821, E501
         itertools.count

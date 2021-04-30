@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 def gas_price_strategy_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     """
     Includes a gas price using the gas price strategy

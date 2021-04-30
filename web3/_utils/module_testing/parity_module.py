@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 class ParityTraceModuleTest:
     def test_traceReplayTransaction_deprecated(
-        self, web3: "Web3", parity_fixture_data: Dict[str, str],
+        self, w3: "Web3", parity_fixture_data: Dict[str, str],
     ) -> None:
         with pytest.warns(DeprecationWarning,
                           match='traceReplayTransaction is deprecated in favor of '
@@ -46,7 +46,7 @@ class ParityTraceModuleTest:
         )
 
     def test_trace_replay_transaction(
-        self, web3: "Web3", parity_fixture_data: Dict[str, str],
+        self, w3: "Web3", parity_fixture_data: Dict[str, str],
     ) -> None:
         trace = web3.parity.trace_replay_transaction(HexStr(parity_fixture_data['mined_txn_hash']))
 
@@ -57,7 +57,7 @@ class ParityTraceModuleTest:
         )
 
     def test_trace_replay_block_transactions(
-        self, web3: "Web3", block_with_txn: BlockData, parity_fixture_data: Dict[str, str]
+        self, w3: "Web3", block_with_txn: BlockData, parity_fixture_data: Dict[str, str]
     ) -> None:
         trace = web3.parity.trace_replay_block_transactions(block_with_txn['number'])
         assert len(trace) > 0
@@ -65,7 +65,7 @@ class ParityTraceModuleTest:
         assert trace_0_action['from'] == add_0x_prefix(HexStr(parity_fixture_data['coinbase']))
 
     def test_traceReplayBlockTransactions_deprecated(
-        self, web3: "Web3", block_with_txn: BlockData, parity_fixture_data: Dict[str, str]
+        self, w3: "Web3", block_with_txn: BlockData, parity_fixture_data: Dict[str, str]
     ) -> None:
         with pytest.warns(DeprecationWarning,
                           match='traceReplayBlockTransactions is deprecated in favor of '
@@ -76,27 +76,27 @@ class ParityTraceModuleTest:
         assert trace_0_action['from'] == add_0x_prefix(HexStr(parity_fixture_data['coinbase']))
 
     def test_trace_replay_block_without_transactions(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         trace = web3.parity.trace_replay_block_transactions(empty_block['number'])
         assert len(trace) == 0
 
-    def test_trace_block(self, web3: "Web3", block_with_txn: BlockData) -> None:
+    def test_trace_block(self, w3: "Web3", block_with_txn: BlockData) -> None:
         trace = web3.parity.trace_block(block_with_txn['number'])
         assert trace[0]['blockNumber'] == block_with_txn['number']
 
-    def test_traceBlock_deprecated(self, web3: "Web3", block_with_txn: BlockData) -> None:
+    def test_traceBlock_deprecated(self, w3: "Web3", block_with_txn: BlockData) -> None:
         with pytest.warns(DeprecationWarning,
                           match='traceBlock is deprecated in favor of trace_block'):
             trace = web3.parity.traceBlock(block_with_txn['number'])
         assert trace[0]['blockNumber'] == block_with_txn['number']
 
-    def test_trace_transaction(self, web3: "Web3", parity_fixture_data: Dict[str, str]) -> None:
+    def test_trace_transaction(self, w3: "Web3", parity_fixture_data: Dict[str, str]) -> None:
         trace = web3.parity.trace_transaction(HexStr(parity_fixture_data['mined_txn_hash']))
         assert trace[0]['action']['from'] == add_0x_prefix(HexStr(parity_fixture_data['coinbase']))
 
     def test_traceTransaction_deprecated(
-        self, web3: "Web3", parity_fixture_data: Dict[str, str]
+        self, w3: "Web3", parity_fixture_data: Dict[str, str]
     ) -> None:
         with pytest.warns(DeprecationWarning,
                           match="traceTransaction is deprecated in favor of trace_transaction"):
@@ -104,7 +104,7 @@ class ParityTraceModuleTest:
         assert trace[0]['action']['from'] == add_0x_prefix(HexStr(parity_fixture_data['coinbase']))
 
     def test_traceCall_deprecated(
-        self, web3: "Web3", math_contract: "Contract", math_contract_address: ChecksumAddress
+        self, w3: "Web3", math_contract: "Contract", math_contract_address: ChecksumAddress
     ) -> None:
         coinbase = web3.eth.coinbase
         txn_params = math_contract._prepare_transaction(
@@ -121,7 +121,7 @@ class ParityTraceModuleTest:
         assert result == 18
 
     def test_trace_call(
-        self, web3: "Web3", math_contract: "Contract", math_contract_address: ChecksumAddress
+        self, w3: "Web3", math_contract: "Contract", math_contract_address: ChecksumAddress
     ) -> None:
         coinbase = web3.eth.coinbase
         txn_params = math_contract._prepare_transaction(
@@ -136,7 +136,7 @@ class ParityTraceModuleTest:
         assert result == 18
 
     def test_trace_call_with_0_result(
-        self, web3: "Web3", math_contract: "Contract", math_contract_address: ChecksumAddress
+        self, w3: "Web3", math_contract: "Contract", math_contract_address: ChecksumAddress
     ) -> None:
         coinbase = web3.eth.coinbase
         txn_params = math_contract._prepare_transaction(
@@ -152,7 +152,7 @@ class ParityTraceModuleTest:
 
     def test_trace_raw_transaction(
         self,
-        web3: "Web3",
+        w3: "Web3",
         raw_transaction: HexStr,
         funded_account_for_raw_txn: ChecksumAddress,
     ) -> None:
@@ -165,7 +165,7 @@ class ParityTraceModuleTest:
 
     def test_trace_raw_transaction_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         raw_transaction: HexStr,
         funded_account_for_raw_txn: ChecksumAddress,
     ) -> None:
@@ -182,7 +182,7 @@ class ParityTraceModuleTest:
 
     def test_trace_filter(
         self,
-        web3: "Web3",
+        w3: "Web3",
         txn_filter_params: ParityFilterParams,
         parity_fixture_data: Dict[str, str],
     ) -> None:
@@ -192,7 +192,7 @@ class ParityTraceModuleTest:
 
     def test_traceFilter_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         txn_filter_params: ParityFilterParams,
         parity_fixture_data: Dict[str, str],
     ) -> None:
@@ -205,37 +205,37 @@ class ParityTraceModuleTest:
 
 class ParityModuleTest:
 
-    def test_add_reserved_peer(self, web3: "Web3") -> None:
+    def test_add_reserved_peer(self, w3: "Web3") -> None:
         peer_addr = EnodeURI('enode://f1a6b0bdbf014355587c3018454d070ac57801f05d3b39fe85da574f002a32e929f683d72aa5a8318382e4d3c7a05c9b91687b0d997a39619fb8a6e7ad88e512@1.1.1.1:30300')  # noqa: E501
         assert web3.parity.add_reserved_peer(peer_addr)
 
-    def test_addReservedPeer_deprecated(self, web3: "Web3") -> None:
+    def test_addReservedPeer_deprecated(self, w3: "Web3") -> None:
         peer_addr = EnodeURI('enode://f1a6b0bdbf014355587c3018454d070ac57801f05d3b39fe85da574f002a32e929f683d72aa5a8318382e4d3c7a05c9b91687b0d997a39619fb8a6e7ad88e512@1.1.1.1:30300')  # noqa: E501
         with pytest.warns(DeprecationWarning,
                           match='addReservedPeer is deprecated in favor of add_reserved_peer'):
             assert web3.parity.addReservedPeer(peer_addr)
 
     def test_list_storage_keys_no_support(
-        self, web3: "Web3", emitter_contract_address: ChecksumAddress
+        self, w3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
         keys = web3.parity.list_storage_keys(emitter_contract_address, 10, None)
         assert keys == []
 
     def test_list_storage_keys(
-        self, web3: "Web3", emitter_contract_address: ChecksumAddress
+        self, w3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
         keys = web3.parity.list_storage_keys(emitter_contract_address, 10, None)
         assert keys == []
 
     def test_listStorageKeys_deprecated(
-        self, web3: "Web3", emitter_contract_address: ChecksumAddress
+        self, w3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
         with pytest.warns(DeprecationWarning,
                           match='listStorageKeys is deprecated in favor of list_storage_keys'):
             keys = web3.parity.listStorageKeys(emitter_contract_address, 10, None)
         assert keys == []
 
-    def test_mode(self, web3: "Web3") -> None:
+    def test_mode(self, w3: "Web3") -> None:
         assert web3.parity.mode() is not None
 
 
@@ -250,19 +250,19 @@ class ParitySetModuleTest:
             ('passive'),
         ]
     )
-    def test_set_mode(self, web3: "Web3", mode: ParityMode) -> None:
+    def test_set_mode(self, w3: "Web3", mode: ParityMode) -> None:
         assert web3.parity.set_mode(mode) is True
 
-    def test_set_mode_deprecated(self, web3: "Web3", mode: ParityMode) -> None:
+    def test_set_mode_deprecated(self, w3: "Web3", mode: ParityMode) -> None:
         with pytest.warns(DeprecationWarning, match="setMode is deprecated in favor of set_mode"):
             assert web3.parity.setMode(mode) is True
 
-    def test_set_mode_with_bad_string(self, web3: "Web3") -> None:
+    def test_set_mode_with_bad_string(self, w3: "Web3") -> None:
         with pytest.raises(InvalidParityMode, match="Couldn't parse parameters: mode"):
             # type ignored b/c it's an invalid literal ParityMode
             web3.parity.set_mode('not a mode')  # type: ignore
 
-    def test_set_mode_with_no_argument(self, web3: "Web3") -> None:
+    def test_set_mode_with_no_argument(self, w3: "Web3") -> None:
         with pytest.raises(
             InvalidParityMode,
             match='Invalid params: invalid length 0, expected a tuple of size 1.'

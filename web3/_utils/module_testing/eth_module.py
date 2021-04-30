@@ -59,7 +59,7 @@ if TYPE_CHECKING:
 
 
 class EthModuleTest:
-    def test_eth_protocol_version(self, web3: "Web3") -> None:
+    def test_eth_protocol_version(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning,
                           match="This method has been deprecated in some clients"):
             protocol_version = web3.eth.protocol_version
@@ -67,14 +67,14 @@ class EthModuleTest:
         assert is_string(protocol_version)
         assert protocol_version.isdigit()
 
-    def test_eth_protocolVersion(self, web3: "Web3") -> None:
+    def test_eth_protocolVersion(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             protocol_version = web3.eth.protocolVersion
 
         assert is_string(protocol_version)
         assert protocol_version.isdigit()
 
-    def test_eth_syncing(self, web3: "Web3") -> None:
+    def test_eth_syncing(self, w3: "Web3") -> None:
         syncing = web3.eth.syncing
 
         assert is_boolean(syncing) or is_dict(syncing)
@@ -91,42 +91,42 @@ class EthModuleTest:
             assert is_integer(sync_dict['currentBlock'])
             assert is_integer(sync_dict['highestBlock'])
 
-    def test_eth_coinbase(self, web3: "Web3") -> None:
+    def test_eth_coinbase(self, w3: "Web3") -> None:
         coinbase = web3.eth.coinbase
         assert is_checksum_address(coinbase)
 
-    def test_eth_mining(self, web3: "Web3") -> None:
+    def test_eth_mining(self, w3: "Web3") -> None:
         mining = web3.eth.mining
         assert is_boolean(mining)
 
-    def test_eth_hashrate(self, web3: "Web3") -> None:
+    def test_eth_hashrate(self, w3: "Web3") -> None:
         hashrate = web3.eth.hashrate
         assert is_integer(hashrate)
         assert hashrate >= 0
 
-    def test_eth_chain_id(self, web3: "Web3") -> None:
+    def test_eth_chain_id(self, w3: "Web3") -> None:
         chain_id = web3.eth.chain_id
         # chain id value from geth fixture genesis file
         assert chain_id == 131277322940537
 
-    def test_eth_chainId(self, web3: "Web3") -> None:
+    def test_eth_chainId(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             chain_id = web3.eth.chainId
         # chain id value from geth fixture genesis file
         assert chain_id == 131277322940537
 
-    def test_eth_gas_price(self, web3: "Web3") -> None:
+    def test_eth_gas_price(self, w3: "Web3") -> None:
         gas_price = web3.eth.gas_price
         assert is_integer(gas_price)
         assert gas_price > 0
 
-    def test_eth_gasPrice_deprecated(self, web3: "Web3") -> None:
+    def test_eth_gasPrice_deprecated(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             gas_price = web3.eth.gasPrice
         assert is_integer(gas_price)
         assert gas_price > 0
 
-    def test_eth_accounts(self, web3: "Web3") -> None:
+    def test_eth_accounts(self, w3: "Web3") -> None:
         accounts = web3.eth.accounts
         assert is_list_like(accounts)
         assert len(accounts) != 0
@@ -137,24 +137,24 @@ class EthModuleTest:
         ))
         assert web3.eth.coinbase in accounts
 
-    def test_eth_block_number(self, web3: "Web3") -> None:
+    def test_eth_block_number(self, w3: "Web3") -> None:
         block_number = web3.eth.block_number
         assert is_integer(block_number)
         assert block_number >= 0
 
-    def test_eth_get_block_number(self, web3: "Web3") -> None:
+    def test_eth_get_block_number(self, w3: "Web3") -> None:
         block_number = web3.eth.get_block_number()
         assert is_integer(block_number)
         assert block_number >= 0
 
-    def test_eth_blockNumber(self, web3: "Web3") -> None:
+    def test_eth_blockNumber(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             block_number = web3.eth.blockNumber
 
         assert is_integer(block_number)
         assert block_number >= 0
 
-    def test_eth_get_balance(self, web3: "Web3") -> None:
+    def test_eth_get_balance(self, w3: "Web3") -> None:
         coinbase = web3.eth.coinbase
 
         with pytest.raises(InvalidAddress):
@@ -165,7 +165,7 @@ class EthModuleTest:
         assert is_integer(balance)
         assert balance >= 0
 
-    def test_eth_getBalance_deprecated(self, web3: "Web3") -> None:
+    def test_eth_getBalance_deprecated(self, w3: "Web3") -> None:
         coinbase = web3.eth.coinbase
 
         with pytest.warns(DeprecationWarning,
@@ -175,7 +175,7 @@ class EthModuleTest:
         assert is_integer(balance)
         assert balance >= 0
 
-    def test_eth_get_balance_with_block_identifier(self, web3: "Web3") -> None:
+    def test_eth_get_balance_with_block_identifier(self, w3: "Web3") -> None:
         miner_address = web3.eth.get_block(1)['miner']
         genesis_balance = web3.eth.get_balance(miner_address, 0)
         later_balance = web3.eth.get_balance(miner_address, 1)
@@ -189,7 +189,7 @@ class EthModuleTest:
         ('not-an-address.eth', False)
     ])
     def test_eth_get_balance_with_ens_name(
-        self, web3: "Web3", address: ChecksumAddress, expect_success: bool
+        self, w3: "Web3", address: ChecksumAddress, expect_success: bool
     ) -> None:
         with ens_addresses(web3, {'test-address.eth': web3.eth.accounts[0]}):
             if expect_success:
@@ -201,39 +201,39 @@ class EthModuleTest:
                     web3.eth.get_balance(address)
 
     def test_eth_get_storage_at(
-        self, web3: "Web3", emitter_contract_address: ChecksumAddress
+        self, w3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
         storage = web3.eth.get_storage_at(emitter_contract_address, 0)
         assert isinstance(storage, HexBytes)
 
     def test_eth_getStorageAt_deprecated(
-        self, web3: "Web3", emitter_contract_address: ChecksumAddress
+        self, w3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
         with pytest.warns(DeprecationWarning):
             storage = web3.eth.getStorageAt(emitter_contract_address, 0)
         assert isinstance(storage, HexBytes)
 
     def test_eth_get_storage_at_ens_name(
-        self, web3: "Web3", emitter_contract_address: ChecksumAddress
+        self, w3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
         with ens_addresses(web3, {'emitter.eth': emitter_contract_address}):
             storage = web3.eth.get_storage_at('emitter.eth', 0)
             assert isinstance(storage, HexBytes)
 
-    def test_eth_get_storage_at_invalid_address(self, web3: "Web3") -> None:
+    def test_eth_get_storage_at_invalid_address(self, w3: "Web3") -> None:
         coinbase = web3.eth.coinbase
         with pytest.raises(InvalidAddress):
             web3.eth.get_storage_at(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))), 0)
 
     def test_eth_get_transaction_count(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         transaction_count = web3.eth.get_transaction_count(unlocked_account_dual_type)
         assert is_integer(transaction_count)
         assert transaction_count >= 0
 
     def test_eth_getTransactionCount_deprecated(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         with pytest.warns(DeprecationWarning):
             transaction_count = web3.eth.getTransactionCount(unlocked_account_dual_type)
@@ -241,20 +241,20 @@ class EthModuleTest:
         assert transaction_count >= 0
 
     def test_eth_get_transaction_count_ens_name(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         with ens_addresses(web3, {'unlocked-acct-dual-type.eth': unlocked_account_dual_type}):
             transaction_count = web3.eth.get_transaction_count('unlocked-acct-dual-type.eth')
             assert is_integer(transaction_count)
             assert transaction_count >= 0
 
-    def test_eth_get_transaction_count_invalid_address(self, web3: "Web3") -> None:
+    def test_eth_get_transaction_count_invalid_address(self, w3: "Web3") -> None:
         coinbase = web3.eth.coinbase
         with pytest.raises(InvalidAddress):
             web3.eth.get_transaction_count(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
 
     def test_eth_getBlockTransactionCountByHash_empty_block(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         transaction_count = web3.eth.get_block_transaction_count(empty_block['hash'])
 
@@ -262,7 +262,7 @@ class EthModuleTest:
         assert transaction_count == 0
 
     def test_eth_getBlockTransactionCountByNumber_empty_block(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         transaction_count = web3.eth.get_block_transaction_count(empty_block['number'])
 
@@ -270,7 +270,7 @@ class EthModuleTest:
         assert transaction_count == 0
 
     def test_eth_getBlockTransactionCountByHash_block_with_txn(
-        self, web3: "Web3", block_with_txn: BlockData
+        self, w3: "Web3", block_with_txn: BlockData
     ) -> None:
         transaction_count = web3.eth.get_block_transaction_count(block_with_txn['hash'])
 
@@ -278,7 +278,7 @@ class EthModuleTest:
         assert transaction_count >= 1
 
     def test_eth_getBlockTransactionCountByNumber_block_with_txn(
-        self, web3: "Web3", block_with_txn: BlockData
+        self, w3: "Web3", block_with_txn: BlockData
     ) -> None:
         transaction_count = web3.eth.get_block_transaction_count(block_with_txn['number'])
 
@@ -286,7 +286,7 @@ class EthModuleTest:
         assert transaction_count >= 1
 
     def test_eth_getBlockTransactionCountByHash_block_with_txn_deprecated(
-        self, web3: "Web3", block_with_txn: BlockData
+        self, w3: "Web3", block_with_txn: BlockData
     ) -> None:
         with pytest.warns(
             DeprecationWarning,
@@ -298,7 +298,7 @@ class EthModuleTest:
         assert transaction_count >= 1
 
     def test_eth_getBlockTransactionCountByNumber_block_with_txn_deprecated(
-        self, web3: "Web3", block_with_txn: BlockData
+        self, w3: "Web3", block_with_txn: BlockData
     ) -> None:
         with pytest.warns(
             DeprecationWarning,
@@ -309,14 +309,14 @@ class EthModuleTest:
         assert is_integer(transaction_count)
         assert transaction_count >= 1
 
-    def test_eth_getUncleCountByBlockHash(self, web3: "Web3", empty_block: BlockData) -> None:
+    def test_eth_getUncleCountByBlockHash(self, w3: "Web3", empty_block: BlockData) -> None:
         uncle_count = web3.eth.get_uncle_count(empty_block['hash'])
 
         assert is_integer(uncle_count)
         assert uncle_count == 0
 
     def test_eth_getUncleCountByBlockHash_deprecated(self,
-                                                     web3: "Web3",
+                                                     w3: "Web3",
                                                      empty_block: BlockData) -> None:
         with pytest.warns(DeprecationWarning,
                           match='getUncleCount is deprecated in favor of get_uncle_count'):
@@ -325,14 +325,14 @@ class EthModuleTest:
         assert is_integer(uncle_count)
         assert uncle_count == 0
 
-    def test_eth_getUncleCountByBlockNumber(self, web3: "Web3", empty_block: BlockData) -> None:
+    def test_eth_getUncleCountByBlockNumber(self, w3: "Web3", empty_block: BlockData) -> None:
         uncle_count = web3.eth.get_uncle_count(empty_block['number'])
 
         assert is_integer(uncle_count)
         assert uncle_count == 0
 
     def test_eth_getUncleCountByBlockNumber_deprecated(self,
-                                                       web3: "Web3",
+                                                       w3: "Web3",
                                                        empty_block: BlockData) -> None:
         with pytest.warns(DeprecationWarning,
                           match='getUncleCount is deprecated in favor of get_uncle_count'):
@@ -341,13 +341,13 @@ class EthModuleTest:
         assert is_integer(uncle_count)
         assert uncle_count == 0
 
-    def test_eth_get_code(self, web3: "Web3", math_contract_address: ChecksumAddress) -> None:
+    def test_eth_get_code(self, w3: "Web3", math_contract_address: ChecksumAddress) -> None:
         code = web3.eth.get_code(math_contract_address)
         assert isinstance(code, HexBytes)
         assert len(code) > 0
 
     def test_eth_getCode_deprecated(self,
-                                    web3: "Web3",
+                                    w3: "Web3",
                                     math_contract_address: ChecksumAddress) -> None:
         with pytest.warns(DeprecationWarning, match='getCode is deprecated in favor of get_code'):
             code = web3.eth.getCode(math_contract_address)
@@ -355,7 +355,7 @@ class EthModuleTest:
         assert len(code) > 0
 
     def test_eth_get_code_ens_address(
-        self, web3: "Web3", math_contract_address: ChecksumAddress
+        self, w3: "Web3", math_contract_address: ChecksumAddress
     ) -> None:
         with ens_addresses(
             web3, {'mathcontract.eth': math_contract_address}
@@ -364,18 +364,18 @@ class EthModuleTest:
             assert isinstance(code, HexBytes)
             assert len(code) > 0
 
-    def test_eth_get_code_invalid_address(self, web3: "Web3", math_contract: "Contract") -> None:
+    def test_eth_get_code_invalid_address(self, w3: "Web3", math_contract: "Contract") -> None:
         with pytest.raises(InvalidAddress):
             web3.eth.get_code(ChecksumAddress(HexAddress(HexStr(math_contract.address.lower()))))
 
     def test_eth_get_code_with_block_identifier(
-        self, web3: "Web3", emitter_contract: "Contract"
+        self, w3: "Web3", emitter_contract: "Contract"
     ) -> None:
         code = web3.eth.get_code(emitter_contract.address, block_identifier=web3.eth.block_number)
         assert isinstance(code, HexBytes)
         assert len(code) > 0
 
-    def test_eth_sign(self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress) -> None:
+    def test_eth_sign(self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress) -> None:
         signature = web3.eth.sign(
             unlocked_account_dual_type, text='Message tö sign. Longer than hash!'
         )
@@ -408,7 +408,7 @@ class EthModuleTest:
         assert new_signature != signature
 
     def test_eth_sign_ens_names(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         with ens_addresses(web3, {'unlocked-acct.eth': unlocked_account_dual_type}):
             signature = web3.eth.sign(
@@ -419,7 +419,7 @@ class EthModuleTest:
 
     def test_eth_sign_typed_data(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlocked_account_dual_type: ChecksumAddress,
         skip_if_testrpc: Callable[["Web3"], None],
     ) -> None:
@@ -471,7 +471,7 @@ class EthModuleTest:
 
     def test_eth_signTypedData_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlocked_account_dual_type: ChecksumAddress,
         skip_if_testrpc: Callable[["Web3"], None],
     ) -> None:
@@ -523,7 +523,7 @@ class EthModuleTest:
 
     def test_invalid_eth_sign_typed_data(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlocked_account_dual_type: ChecksumAddress,
         skip_if_testrpc: Callable[["Web3"], None]
     ) -> None:
@@ -574,7 +574,7 @@ class EthModuleTest:
                 json.loads(invalid_typed_message)
             )
 
-    def test_eth_sign_transaction(self, web3: "Web3", unlocked_account: ChecksumAddress) -> None:
+    def test_eth_sign_transaction(self, w3: "Web3", unlocked_account: ChecksumAddress) -> None:
         txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
@@ -593,7 +593,7 @@ class EthModuleTest:
         assert result['tx']['nonce'] == txn_params['nonce']
 
     def test_eth_signTransaction_deprecated(self,
-                                            web3: "Web3",
+                                            w3: "Web3",
                                             unlocked_account: ChecksumAddress) -> None:
         txn_params: TxParams = {
             'from': unlocked_account,
@@ -615,7 +615,7 @@ class EthModuleTest:
         assert result['tx']['nonce'] == txn_params['nonce']
 
     def test_eth_sign_transaction_ens_names(
-        self, web3: "Web3", unlocked_account: ChecksumAddress
+        self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         with ens_addresses(web3, {'unlocked-account.eth': unlocked_account}):
             txn_params: TxParams = {
@@ -636,7 +636,7 @@ class EthModuleTest:
             assert result['tx']['nonce'] == txn_params['nonce']
 
     def test_eth_send_transaction_addr_checksum_required(
-        self, web3: "Web3", unlocked_account: ChecksumAddress
+        self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         non_checksum_addr = unlocked_account.lower()
         txn_params: TxParams = {
@@ -656,7 +656,7 @@ class EthModuleTest:
             web3.eth.send_transaction(invalid_params)
 
     def test_eth_send_transaction(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account_dual_type,
@@ -675,7 +675,7 @@ class EthModuleTest:
         assert txn['gasPrice'] == txn_params['gasPrice']
 
     def test_eth_sendTransaction_deprecated(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account_dual_type,
@@ -696,7 +696,7 @@ class EthModuleTest:
         assert txn['gasPrice'] == txn_params['gasPrice']
 
     def test_eth_send_transaction_with_nonce(
-        self, web3: "Web3", unlocked_account: ChecksumAddress
+        self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account,
@@ -718,7 +718,7 @@ class EthModuleTest:
         assert txn['nonce'] == txn_params['nonce']
 
     def test_eth_replace_transaction(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account_dual_type,
@@ -740,7 +740,7 @@ class EthModuleTest:
         assert replace_txn['gasPrice'] == txn_params['gasPrice']
 
     def test_eth_replaceTransaction_deprecated(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account_dual_type,
@@ -766,7 +766,7 @@ class EthModuleTest:
         assert replace_txn['gasPrice'] == txn_params['gasPrice']
 
     def test_eth_replace_transaction_non_existing_transaction(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account_dual_type,
@@ -782,7 +782,7 @@ class EthModuleTest:
             )
 
     def test_eth_replace_transaction_already_mined(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account_dual_type,
@@ -799,7 +799,7 @@ class EthModuleTest:
             web3.eth.replace_transaction(txn_hash, txn_params)
 
     def test_eth_replace_transaction_incorrect_nonce(
-        self, web3: "Web3", unlocked_account: ChecksumAddress
+        self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account,
@@ -817,7 +817,7 @@ class EthModuleTest:
             web3.eth.replace_transaction(txn_hash, txn_params)
 
     def test_eth_replace_transaction_gas_price_too_low(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account_dual_type,
@@ -833,7 +833,7 @@ class EthModuleTest:
             web3.eth.replace_transaction(txn_hash, txn_params)
 
     def test_eth_replace_transaction_gas_price_defaulting_minimum(
-        self, web3: "Web3", unlocked_account: ChecksumAddress
+        self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account,
@@ -851,7 +851,7 @@ class EthModuleTest:
         assert replace_txn['gasPrice'] == 12  # minimum gas price
 
     def test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
-        self, web3: "Web3", unlocked_account: ChecksumAddress
+        self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account,
@@ -862,7 +862,7 @@ class EthModuleTest:
         }
         txn_hash = web3.eth.send_transaction(txn_params)
 
-        def higher_gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
+        def higher_gas_price_strategy(w3: "Web3", txn: TxParams) -> Wei:
             return Wei(20)
 
         web3.eth.set_gas_price_strategy(higher_gas_price_strategy)
@@ -873,7 +873,7 @@ class EthModuleTest:
         assert replace_txn['gasPrice'] == 20  # Strategy provides higher gas price
 
     def test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
-        self, web3: "Web3", unlocked_account: ChecksumAddress
+        self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account,
@@ -884,7 +884,7 @@ class EthModuleTest:
         }
         txn_hash = web3.eth.send_transaction(txn_params)
 
-        def lower_gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
+        def lower_gas_price_strategy(w3: "Web3", txn: TxParams) -> Wei:
             return Wei(5)
 
         web3.eth.set_gas_price_strategy(lower_gas_price_strategy)
@@ -896,7 +896,7 @@ class EthModuleTest:
         assert replace_txn['gasPrice'] == 12
 
     def test_eth_modify_transaction(
-        self, web3: "Web3", unlocked_account: ChecksumAddress
+        self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account,
@@ -919,7 +919,7 @@ class EthModuleTest:
         assert modified_txn['gasPrice'] == cast(int, txn_params['gasPrice']) * 2
 
     def test_eth_modifyTransaction_deprecated(
-        self, web3: "Web3", unlocked_account: ChecksumAddress
+        self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account,
@@ -957,7 +957,7 @@ class EthModuleTest:
     )
     def test_eth_send_raw_transaction(
         self,
-        web3: "Web3",
+        w3: "Web3",
         raw_transaction: Union[HexStr, bytes],
         funded_account_for_raw_txn: ChecksumAddress,
         expected_hash: HexStr,
@@ -966,7 +966,7 @@ class EthModuleTest:
         assert txn_hash == web3.toBytes(hexstr=expected_hash)
 
     def test_eth_call(
-        self, web3: "Web3", math_contract: "Contract"
+        self, w3: "Web3", math_contract: "Contract"
     ) -> None:
         coinbase = web3.eth.coinbase
         txn_params = math_contract._prepare_transaction(
@@ -980,7 +980,7 @@ class EthModuleTest:
         assert result == 18
 
     def test_eth_call_with_override(
-        self, web3: "Web3", revert_contract: "Contract"
+        self, w3: "Web3", revert_contract: "Contract"
     ) -> None:
         coinbase = web3.eth.coinbase
         txn_params = revert_contract._prepare_transaction(
@@ -1002,7 +1002,7 @@ class EthModuleTest:
         assert result is False
 
     def test_eth_call_with_0_result(
-        self, web3: "Web3", math_contract: "Contract"
+        self, w3: "Web3", math_contract: "Contract"
     ) -> None:
         coinbase = web3.eth.coinbase
         txn_params = math_contract._prepare_transaction(
@@ -1017,7 +1017,7 @@ class EthModuleTest:
 
     def test_eth_call_revert_with_msg(
         self,
-        web3: "Web3",
+        w3: "Web3",
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
@@ -1034,7 +1034,7 @@ class EthModuleTest:
 
     def test_eth_call_revert_without_msg(
         self,
-        web3: "Web3",
+        w3: "Web3",
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
@@ -1050,7 +1050,7 @@ class EthModuleTest:
 
     def test_eth_estimate_gas_revert_with_msg(
         self,
-        web3: "Web3",
+        w3: "Web3",
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
@@ -1067,7 +1067,7 @@ class EthModuleTest:
 
     def test_eth_estimate_gas_revert_without_msg(
         self,
-        web3: "Web3",
+        w3: "Web3",
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
@@ -1082,7 +1082,7 @@ class EthModuleTest:
             web3.eth.estimate_gas(txn_params)
 
     def test_eth_estimate_gas(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         gas_estimate = web3.eth.estimate_gas({
             'from': unlocked_account_dual_type,
@@ -1093,7 +1093,7 @@ class EthModuleTest:
         assert gas_estimate > 0
 
     def test_eth_estimateGas_deprecated(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         with pytest.warns(DeprecationWarning,
                           match="estimateGas is deprecated in favor of estimate_gas"):
@@ -1106,7 +1106,7 @@ class EthModuleTest:
         assert gas_estimate > 0
 
     def test_eth_estimate_gas_with_block(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         gas_estimate = web3.eth.estimate_gas({
             'from': unlocked_account_dual_type,
@@ -1117,65 +1117,65 @@ class EthModuleTest:
         assert gas_estimate > 0
 
     def test_eth_getBlock_deprecated(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         with pytest.warns(DeprecationWarning, match="getBlock is deprecated in favor of get_block"):
             block = web3.eth.getBlock(empty_block['hash'])
         assert block['hash'] == empty_block['hash']
 
     def test_eth_getBlockByHash(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         block = web3.eth.get_block(empty_block['hash'])
         assert block['hash'] == empty_block['hash']
 
     def test_eth_getBlockByHash_not_found(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         with pytest.raises(BlockNotFound):
             web3.eth.get_block(UNKNOWN_HASH)
 
     def test_eth_getBlockByHash_pending(
-        self, web3: "Web3"
+        self, w3: "Web3"
     ) -> None:
         block = web3.eth.get_block('pending')
         assert block['hash'] is None
 
     def test_eth_getBlockByNumber_with_integer(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         block = web3.eth.get_block(empty_block['number'])
         assert block['number'] == empty_block['number']
 
     def test_eth_getBlockByNumber_with_integer_deprecated(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         with pytest.warns(DeprecationWarning, match="getBlock is deprecated in favor of get_block"):
             block = web3.eth.getBlock(empty_block['number'])
         assert block['number'] == empty_block['number']
 
     def test_eth_getBlockByNumber_latest(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         current_block_number = web3.eth.block_number
         block = web3.eth.get_block('latest')
         assert block['number'] == current_block_number
 
     def test_eth_getBlockByNumber_not_found(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         with pytest.raises(BlockNotFound):
             web3.eth.get_block(BlockNumber(12345))
 
     def test_eth_getBlockByNumber_pending(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         current_block_number = web3.eth.block_number
         block = web3.eth.get_block('pending')
         assert block['number'] == current_block_number + 1
 
     def test_eth_getBlockByNumber_earliest(
-        self, web3: "Web3", empty_block: BlockData
+        self, w3: "Web3", empty_block: BlockData
     ) -> None:
         genesis_block = web3.eth.get_block(BlockNumber(0))
         block = web3.eth.get_block('earliest')
@@ -1183,21 +1183,21 @@ class EthModuleTest:
         assert block['hash'] == genesis_block['hash']
 
     def test_eth_getBlockByNumber_full_transactions(
-        self, web3: "Web3", block_with_txn: BlockData
+        self, w3: "Web3", block_with_txn: BlockData
     ) -> None:
         block = web3.eth.get_block(block_with_txn['number'], True)
         transaction = block['transactions'][0]
         assert transaction['hash'] == block_with_txn['transactions'][0]  # type: ignore
 
     def test_eth_getTransactionByHash(
-        self, web3: "Web3", mined_txn_hash: HexStr
+        self, w3: "Web3", mined_txn_hash: HexStr
     ) -> None:
         transaction = web3.eth.get_transaction(mined_txn_hash)
         assert is_dict(transaction)
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
     def test_eth_getTransactionByHash_deprecated(
-        self, web3: "Web3", mined_txn_hash: HexStr
+        self, w3: "Web3", mined_txn_hash: HexStr
     ) -> None:
         with pytest.warns(DeprecationWarning,
                           match='getTransaction is deprecated in favor of get_transaction'):
@@ -1206,21 +1206,21 @@ class EthModuleTest:
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
     def test_eth_getTransactionByHash_contract_creation(
-        self, web3: "Web3", math_contract_deploy_txn_hash: HexStr
+        self, w3: "Web3", math_contract_deploy_txn_hash: HexStr
     ) -> None:
         transaction = web3.eth.get_transaction(math_contract_deploy_txn_hash)
         assert is_dict(transaction)
         assert transaction['to'] is None, "to field is %r" % transaction['to']
 
     def test_eth_getTransactionByBlockHashAndIndex(
-        self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
+        self, w3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:
         transaction = web3.eth.get_transaction_by_block(block_with_txn['hash'], 0)
         assert is_dict(transaction)
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
     def test_eth_getTransactionByBlockHashAndIndex_deprecated(
-        self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
+        self, w3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:
         with pytest.warns(
             DeprecationWarning,
@@ -1231,14 +1231,14 @@ class EthModuleTest:
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
     def test_eth_getTransactionByBlockNumberAndIndex(
-        self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
+        self, w3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:
         transaction = web3.eth.get_transaction_by_block(block_with_txn['number'], 0)
         assert is_dict(transaction)
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
     def test_eth_getTransactionByBlockNumberAndIndex_deprecated(
-        self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
+        self, w3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:
         with pytest.warns(
             DeprecationWarning,
@@ -1249,7 +1249,7 @@ class EthModuleTest:
         assert transaction['hash'] == HexBytes(mined_txn_hash)
 
     def test_eth_get_transaction_receipt_mined(
-        self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
+        self, w3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:
         receipt = web3.eth.get_transaction_receipt(mined_txn_hash)
         assert is_dict(receipt)
@@ -1262,7 +1262,7 @@ class EthModuleTest:
         assert is_checksum_address(receipt['from'])
 
     def test_eth_getTransactionReceipt_mined_deprecated(
-        self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
+        self, w3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:
         with pytest.warns(
                 DeprecationWarning,
@@ -1278,7 +1278,7 @@ class EthModuleTest:
         assert is_checksum_address(receipt['from'])
 
     def test_eth_get_transaction_receipt_unmined(
-        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_hash = web3.eth.send_transaction({
             'from': unlocked_account_dual_type,
@@ -1292,7 +1292,7 @@ class EthModuleTest:
 
     def test_eth_get_transaction_receipt_with_log_entry(
         self,
-        web3: "Web3",
+        w3: "Web3",
         block_with_txn_with_log: BlockData,
         emitter_contract: "Contract",
         txn_hash_with_log: HexStr,
@@ -1314,15 +1314,15 @@ class EthModuleTest:
         assert log_entry['transactionIndex'] == 0
         assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
 
-    def test_eth_getUncleByBlockHashAndIndex(self, web3: "Web3") -> None:
+    def test_eth_getUncleByBlockHashAndIndex(self, w3: "Web3") -> None:
         # TODO: how do we make uncles....
         pass
 
-    def test_eth_getUncleByBlockNumberAndIndex(self, web3: "Web3") -> None:
+    def test_eth_getUncleByBlockNumberAndIndex(self, w3: "Web3") -> None:
         # TODO: how do we make uncles....
         pass
 
-    def test_eth_newFilter(self, web3: "Web3") -> None:
+    def test_eth_newFilter(self, w3: "Web3") -> None:
         filter = web3.eth.filter({})
 
         changes = web3.eth.get_filter_changes(filter.filter_id)
@@ -1336,7 +1336,7 @@ class EthModuleTest:
         result = web3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
-    def test_eth_newFilter_deprecated(self, web3: "Web3") -> None:
+    def test_eth_newFilter_deprecated(self, w3: "Web3") -> None:
         filter = web3.eth.filter({})
 
         changes = web3.eth.get_filter_changes(filter.filter_id)
@@ -1352,7 +1352,7 @@ class EthModuleTest:
         result = web3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
-    def test_eth_newBlockFilter(self, web3: "Web3") -> None:
+    def test_eth_newBlockFilter(self, w3: "Web3") -> None:
         filter = web3.eth.filter('latest')
         assert is_string(filter.filter_id)
 
@@ -1368,7 +1368,7 @@ class EthModuleTest:
         result = web3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
-    def test_eth_newPendingTransactionFilter(self, web3: "Web3") -> None:
+    def test_eth_newPendingTransactionFilter(self, w3: "Web3") -> None:
         filter = web3.eth.filter('pending')
         assert is_string(filter.filter_id)
 
@@ -1385,7 +1385,7 @@ class EthModuleTest:
         assert result is True
 
     def test_eth_get_logs_without_logs(
-        self, web3: "Web3", block_with_txn_with_log: BlockData
+        self, w3: "Web3", block_with_txn_with_log: BlockData
     ) -> None:
         # Test with block range
 
@@ -1426,7 +1426,7 @@ class EthModuleTest:
 
     def test_eth_get_logs_with_logs(
         self,
-        web3: "Web3",
+        w3: "Web3",
         block_with_txn_with_log: BlockData,
         emitter_contract_address: ChecksumAddress,
         txn_hash_with_log: HexStr,
@@ -1468,7 +1468,7 @@ class EthModuleTest:
 
     def test_eth_get_logs_with_logs_topic_args(
         self,
-        web3: "Web3",
+        w3: "Web3",
         block_with_txn_with_log: BlockData,
         emitter_contract_address: ChecksumAddress,
         txn_hash_with_log: HexStr,
@@ -1505,7 +1505,7 @@ class EthModuleTest:
         result = web3.eth.get_logs(filter_params)
         assert_contains_log(result)
 
-    def test_eth_get_logs_with_logs_none_topic_args(self, web3: "Web3") -> None:
+    def test_eth_get_logs_with_logs_none_topic_args(self, w3: "Web3") -> None:
         # Test with None overflowing
         filter_params: FilterParams = {
             "fromBlock": BlockNumber(0),
@@ -1516,7 +1516,7 @@ class EthModuleTest:
         assert len(result) == 0
 
     def test_eth_call_old_contract_state(
-        self, web3: "Web3", math_contract: "Contract", unlocked_account: ChecksumAddress
+        self, w3: "Web3", math_contract: "Contract", unlocked_account: ChecksumAddress
     ) -> None:
         start_block = web3.eth.get_block('latest')
         block_num = start_block["number"]
@@ -1544,7 +1544,7 @@ class EthModuleTest:
         if pending_call_result != 1:
             raise AssertionError("pending call result was %d instead of 1" % pending_call_result)
 
-    def test_eth_uninstallFilter_deprecated(self, web3: "Web3") -> None:
+    def test_eth_uninstallFilter_deprecated(self, w3: "Web3") -> None:
         filter = web3.eth.filter({})
         assert is_string(filter.filter_id)
 
@@ -1558,7 +1558,7 @@ class EthModuleTest:
             failure = web3.eth.uninstallFilter(filter.filter_id)
         assert failure is False
 
-    def test_eth_uninstall_filter(self, web3: "Web3") -> None:
+    def test_eth_uninstall_filter(self, w3: "Web3") -> None:
         filter = web3.eth.filter({})
         assert is_string(filter.filter_id)
 
@@ -1569,22 +1569,22 @@ class EthModuleTest:
         assert failure is False
 
     def test_eth_getTransactionFromBlock_deprecation(
-        self, web3: "Web3", block_with_txn: BlockData
+        self, w3: "Web3", block_with_txn: BlockData
     ) -> None:
         with pytest.raises(DeprecationWarning):
             web3.eth.getTransactionFromBlock(block_with_txn['hash'], 0)
 
-    def test_eth_getCompilers_deprecation(self, web3: "Web3") -> None:
+    def test_eth_getCompilers_deprecation(self, w3: "Web3") -> None:
         with pytest.raises(DeprecationWarning):
             web3.eth.getCompilers()
 
-    def test_eth_submit_hashrate(self, web3: "Web3") -> None:
+    def test_eth_submit_hashrate(self, w3: "Web3") -> None:
         # node_id from EIP 1474: https://github.com/ethereum/EIPs/pull/1474/files
         node_id = HexStr('59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c')
         result = web3.eth.submit_hashrate(5000, node_id)
         assert result is True
 
-    def test_eth_submitHashrate_deprecated(self, web3: "Web3") -> None:
+    def test_eth_submitHashrate_deprecated(self, w3: "Web3") -> None:
         # node_id from EIP 1474: https://github.com/ethereum/EIPs/pull/1474/files
         node_id = HexStr('59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c')
         with pytest.warns(DeprecationWarning,
@@ -1592,14 +1592,14 @@ class EthModuleTest:
             result = web3.eth.submitHashrate(5000, node_id)
         assert result is True
 
-    def test_eth_submit_work(self, web3: "Web3") -> None:
+    def test_eth_submit_work(self, w3: "Web3") -> None:
         nonce = 1
         pow_hash = HexStr('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef')
         mix_digest = HexStr('0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000')
         result = web3.eth.submit_work(nonce, pow_hash, mix_digest)
         assert result is False
 
-    def test_eth_submitWork_deprecated(self, web3: "Web3") -> None:
+    def test_eth_submitWork_deprecated(self, w3: "Web3") -> None:
         nonce = 1
         pow_hash = HexStr('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef')
         mix_digest = HexStr('0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000')

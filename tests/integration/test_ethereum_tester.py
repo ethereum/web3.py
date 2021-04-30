@@ -266,7 +266,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_submit_work = not_implemented(EthModuleTest.test_eth_submit_work, ValueError)
 
     def test_eth_getBlockByHash_pending(
-        self, web3: "Web3"
+        self, w3: "Web3"
     ) -> None:
         block = web3.eth.get_block('pending')
         assert block['hash'] is not None
@@ -464,5 +464,5 @@ class TestEthereumTesterPersonalModule(GoEthereumPersonalModuleTest):
             assert result is False
 
     @pytest.mark.xfail(raises=ValueError, reason="list_wallets not implemented in eth-tester")
-    def test_personal_list_wallets(self, web3: "Web3") -> None:
+    def test_personal_list_wallets(self, w3: "Web3") -> None:
         super().test_personal_list_wallets(web3)

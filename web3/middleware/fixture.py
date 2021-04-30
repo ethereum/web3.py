@@ -21,7 +21,7 @@ def construct_fixture_middleware(fixtures: Dict[RPCEndpoint, Any]) -> Middleware
     which is found in the provided fixtures.
     """
     def fixture_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in fixtures:
@@ -43,7 +43,7 @@ def construct_result_generator_middleware(
     functions with the signature `fn(method, params)`.
     """
     def result_generator_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in result_generators:
@@ -65,7 +65,7 @@ def construct_error_generator_middleware(
     functions with the signature `fn(method, params)`.
     """
     def error_generator_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in error_generators:

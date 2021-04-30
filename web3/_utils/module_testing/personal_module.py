@@ -38,16 +38,16 @@ ACCOUNT_FOR_UNLOCK = '0x12efDc31B1a8FA1A1e756DFD8A1601055C971E13'
 
 
 class GoEthereumPersonalModuleTest:
-    def test_personal_import_raw_key(self, web3: "Web3") -> None:
+    def test_personal_import_raw_key(self, w3: "Web3") -> None:
         actual = web3.geth.personal.import_raw_key(PRIVATE_KEY_HEX, PASSWORD)
         assert actual == ADDRESS
 
-    def test_personal_importRawKey_deprecated(self, web3: "Web3") -> None:
+    def test_personal_importRawKey_deprecated(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             actual = web3.geth.personal.importRawKey(SECOND_PRIVATE_KEY_HEX, PASSWORD)
             assert actual == SECOND_ADDRESS
 
-    def test_personal_list_accounts(self, web3: "Web3") -> None:
+    def test_personal_list_accounts(self, w3: "Web3") -> None:
         accounts = web3.geth.personal.list_accounts()
         assert is_list_like(accounts)
         assert len(accounts) > 0
@@ -57,7 +57,7 @@ class GoEthereumPersonalModuleTest:
             in accounts
         ))
 
-    def test_personal_listAccounts_deprecated(self, web3: "Web3") -> None:
+    def test_personal_listAccounts_deprecated(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             accounts = web3.geth.personal.listAccounts()
             assert is_list_like(accounts)
@@ -68,7 +68,7 @@ class GoEthereumPersonalModuleTest:
                 in accounts
             ))
 
-    def test_personal_list_wallets(self, web3: "Web3") -> None:
+    def test_personal_list_wallets(self, w3: "Web3") -> None:
         wallets = web3.geth.personal.list_wallets()
         assert is_list_like(wallets)
         assert len(wallets) > 0
@@ -78,13 +78,13 @@ class GoEthereumPersonalModuleTest:
         assert is_string(wallets[0]['url'])
 
     def test_personal_lock_account(
-        self, web3: "Web3", unlockable_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlockable_account_dual_type: ChecksumAddress
     ) -> None:
         # TODO: how do we test this better?
         web3.geth.personal.lock_account(unlockable_account_dual_type)
 
     def test_personal_lockAccount_deprecated(
-        self, web3: "Web3", unlockable_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlockable_account_dual_type: ChecksumAddress
     ) -> None:
         with pytest.warns(DeprecationWarning):
             # TODO: how do we test this better?
@@ -92,7 +92,7 @@ class GoEthereumPersonalModuleTest:
 
     def test_personal_unlock_account_success(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -104,7 +104,7 @@ class GoEthereumPersonalModuleTest:
 
     def test_personal_unlockAccount_success_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -116,30 +116,30 @@ class GoEthereumPersonalModuleTest:
             assert result is True
 
     def test_personal_unlock_account_failure(
-        self, web3: "Web3", unlockable_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlockable_account_dual_type: ChecksumAddress
     ) -> None:
         with pytest.raises(ValueError):
             web3.geth.personal.unlock_account(unlockable_account_dual_type, 'bad-password')
 
     def test_personal_unlockAccount_failure_deprecated(
-        self, web3: "Web3", unlockable_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlockable_account_dual_type: ChecksumAddress
     ) -> None:
         with pytest.warns(DeprecationWarning):
             with pytest.raises(ValueError):
                 web3.geth.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
 
-    def test_personal_new_account(self, web3: "Web3") -> None:
+    def test_personal_new_account(self, w3: "Web3") -> None:
         new_account = web3.geth.personal.new_account(PASSWORD)
         assert is_checksum_address(new_account)
 
-    def test_personal_newAccount_deprecated(self, web3: "Web3") -> None:
+    def test_personal_newAccount_deprecated(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             new_account = web3.geth.personal.newAccount(PASSWORD)
             assert is_checksum_address(new_account)
 
     def test_personal_send_transaction(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -163,7 +163,7 @@ class GoEthereumPersonalModuleTest:
 
     def test_personal_sendTransaction_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -189,7 +189,7 @@ class GoEthereumPersonalModuleTest:
 
     def test_personal_sign_and_ecrecover(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -204,7 +204,7 @@ class GoEthereumPersonalModuleTest:
 
     def test_personal_sign_and_ecrecover_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -223,7 +223,7 @@ class GoEthereumPersonalModuleTest:
     )
     def test_personal_sign_typed_data(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -283,7 +283,7 @@ class GoEthereumPersonalModuleTest:
     @pytest.mark.xfail(reason="personal_signTypedData JSON RPC call has not been released in geth")
     def test_personal_sign_typed_data_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -344,7 +344,7 @@ class GoEthereumPersonalModuleTest:
 
 class ParityPersonalModuleTest():
 
-    def test_personal_list_accounts(self, web3: "Web3") -> None:
+    def test_personal_list_accounts(self, w3: "Web3") -> None:
         accounts = web3.parity.personal.list_accounts()
         assert is_list_like(accounts)
         assert len(accounts) > 0
@@ -354,7 +354,7 @@ class ParityPersonalModuleTest():
             in accounts
         ))
 
-    def test_personal_listAccounts_deprecated(self, web3: "Web3") -> None:
+    def test_personal_listAccounts_deprecated(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             accounts = web3.parity.personal.listAccounts()
             assert is_list_like(accounts)
@@ -367,7 +367,7 @@ class ParityPersonalModuleTest():
 
     def test_personal_unlock_account_success(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -380,7 +380,7 @@ class ParityPersonalModuleTest():
 
     def test_personal_unlockAccount_success_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -395,7 +395,7 @@ class ParityPersonalModuleTest():
     # Seems to be an issue with Parity since this should return False
     def test_personal_unlock_account_failure(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
     ) -> None:
         result = web3.parity.personal.unlock_account(
@@ -408,7 +408,7 @@ class ParityPersonalModuleTest():
     # Seems to be an issue with Parity since this should return False
     def test_personal_unlockAccount_failure_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
     ) -> None:
         with pytest.warns(DeprecationWarning):
@@ -419,44 +419,44 @@ class ParityPersonalModuleTest():
             )
             assert result is True
 
-    def test_personal_new_account(self, web3: "Web3") -> None:
+    def test_personal_new_account(self, w3: "Web3") -> None:
         new_account = web3.parity.personal.new_account(PASSWORD)
         assert is_checksum_address(new_account)
 
-    def test_personal_newAccount_deprecated(self, web3: "Web3") -> None:
+    def test_personal_newAccount_deprecated(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             new_account = web3.parity.personal.newAccount(PASSWORD)
             assert is_checksum_address(new_account)
 
     @pytest.mark.xfail(reason='this non-standard json-rpc method is not implemented on parity')
     def test_personal_lock_account(
-        self, web3: "Web3", unlocked_account: ChecksumAddress
+        self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         # method undefined in superclass
         super().test_personal_lock_account(web3, unlocked_account)  # type: ignore
 
     @pytest.mark.xfail(reason='this non-standard json-rpc method is not implemented on parity')
     def test_personal_lockAccount_deprecated(
-        self, web3: "Web3", unlocked_account: ChecksumAddress
+        self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         with pytest.warns(DeprecationWarning):
             # method undefined in superclass
             super().test_personal_lockAccount(web3, unlocked_account)  # type: ignore
 
     @pytest.mark.xfail(reason='this non-standard json-rpc method is not implemented on parity')
-    def test_personal_import_raw_key(self, web3: "Web3") -> None:
+    def test_personal_import_raw_key(self, w3: "Web3") -> None:
         # method undefined in superclass
         super().test_personal_import_raw_key(web3)  # type: ignore
 
     @pytest.mark.xfail(reason='this non-standard json-rpc method is not implemented on parity')
-    def test_personal_importRawKey_deprecated(self, web3: "Web3") -> None:
+    def test_personal_importRawKey_deprecated(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
             # method undefined in superclass
             super().test_personal_importRawKey_deprecated(web3)  # type: ignore
 
     def test_personal_send_transaction(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -480,7 +480,7 @@ class ParityPersonalModuleTest():
 
     def test_personal_sendTransaction_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -505,7 +505,7 @@ class ParityPersonalModuleTest():
 
     def test_personal_sign_and_ecrecover(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -520,7 +520,7 @@ class ParityPersonalModuleTest():
 
     def test_personal_sign_and_ecrecover_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -536,7 +536,7 @@ class ParityPersonalModuleTest():
 
     def test_personal_sign_typed_data(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -595,7 +595,7 @@ class ParityPersonalModuleTest():
 
     def test_personal_sign_typed_data_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -655,7 +655,7 @@ class ParityPersonalModuleTest():
 
     def test_invalid_personal_sign_typed_data(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -708,7 +708,7 @@ class ParityPersonalModuleTest():
 
     def test_invalid_personal_sign_typed_data_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:

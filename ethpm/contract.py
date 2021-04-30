@@ -60,7 +60,7 @@ class LinkableContract(Contract):
 
     @classmethod
     def factory(
-        cls, web3: "Web3", class_name: str = None, **kwargs: Any
+        cls, w3: "Web3", class_name: str = None, **kwargs: Any
     ) -> Contract:
         dep_link_refs = kwargs.get("unlinked_references")
         bytecode = kwargs.get("bytecode")

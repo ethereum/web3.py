@@ -154,7 +154,7 @@ class ContractFunctions:
     """Class containing contract function objects
     """
 
-    def __init__(self, abi: ABI, web3: 'Web3', address: Optional[ChecksumAddress] = None) -> None:
+    def __init__(self, abi: ABI, w3: 'Web3', address: Optional[ChecksumAddress] = None) -> None:
         self.abi = abi
         self.w3 = web3
         self.address = address
@@ -228,7 +228,7 @@ class ContractEvents:
 
     """
 
-    def __init__(self, abi: ABI, web3: 'Web3', address: Optional[ChecksumAddress] = None) -> None:
+    def __init__(self, abi: ABI, w3: 'Web3', address: Optional[ChecksumAddress] = None) -> None:
         if abi:
             self.abi = abi
             self._events = filter_by_type('event', self.abi)
@@ -293,7 +293,7 @@ class Contract:
     """
 
     # set during class construction
-    web3: 'Web3' = None
+    w3: 'Web3' = None
 
     # instance level properties
     address: ChecksumAddress = None
@@ -346,7 +346,7 @@ class Contract:
         self.receive = Contract.get_receive_function(self.abi, self.w3, self.address)
 
     @classmethod
-    def factory(cls, web3: 'Web3', class_name: Optional[str] = None, **kwargs: Any) -> 'Contract':
+    def factory(cls, w3: 'Web3', class_name: Optional[str] = None, **kwargs: Any) -> 'Contract':
 
         kwargs['web3'] = web3
 
@@ -530,7 +530,7 @@ class Contract:
 
     @staticmethod
     def get_fallback_function(
-        abi: ABI, web3: 'Web3', address: Optional[ChecksumAddress] = None
+        abi: ABI, w3: 'Web3', address: Optional[ChecksumAddress] = None
     ) -> 'ContractFunction':
         if abi and fallback_func_abi_exists(abi):
             return ContractFunction.factory(
@@ -544,7 +544,7 @@ class Contract:
 
     @staticmethod
     def get_receive_function(
-        abi: ABI, web3: 'Web3', address: Optional[ChecksumAddress] = None
+        abi: ABI, w3: 'Web3', address: Optional[ChecksumAddress] = None
     ) -> 'ContractFunction':
         if abi and receive_func_abi_exists(abi):
             return ContractFunction.factory(
@@ -595,7 +595,7 @@ class ContractConstructor:
     Class for contract constructor API.
     """
     def __init__(
-        self, web3: 'Web3', abi: ABI, bytecode: HexStr, *args: Any, **kwargs: Any
+        self, w3: 'Web3', abi: ABI, bytecode: HexStr, *args: Any, **kwargs: Any
     ) -> None:
         self.w3 = web3
         self.abi = abi
@@ -849,7 +849,7 @@ class ContractFunction:
     """
     address: ChecksumAddress = None
     function_identifier: FunctionIdentifier = None
-    web3: 'Web3' = None
+    w3: 'Web3' = None
     contract_abi: ABI = None
     abi: ABIFunction = None
     transaction: TxParams = None
@@ -1110,7 +1110,7 @@ class ContractEvent:
     """
     address: ChecksumAddress = None
     event_name: str = None
-    web3: 'Web3' = None
+    w3: 'Web3' = None
     contract_abi: ABI = None
     abi: ABIEvent = None
 
@@ -1368,7 +1368,7 @@ class ContractCaller:
     """
     def __init__(self,
                  abi: ABI,
-                 web3: 'Web3',
+                 w3: 'Web3',
                  address: ChecksumAddress,
                  transaction: Optional[TxParams] = None,
                  block_identifier: BlockIdentifier = 'latest') -> None:
@@ -1468,7 +1468,7 @@ def check_for_forbidden_api_filter_arguments(
 
 
 def call_contract_function(
-        web3: 'Web3',
+        w3: 'Web3',
         address: ChecksumAddress,
         normalizers: Tuple[Callable[..., Any], ...],
         function_identifier: FunctionIdentifier,
@@ -1539,7 +1539,7 @@ def call_contract_function(
         return normalized_data
 
 
-def parse_block_identifier(web3: 'Web3', block_identifier: BlockIdentifier) -> BlockIdentifier:
+def parse_block_identifier(w3: 'Web3', block_identifier: BlockIdentifier) -> BlockIdentifier:
     if isinstance(block_identifier, int):
         return parse_block_identifier_int(web3, block_identifier)
     elif block_identifier in ['latest', 'earliest', 'pending']:
@@ -1550,7 +1550,7 @@ def parse_block_identifier(web3: 'Web3', block_identifier: BlockIdentifier) -> B
         raise BlockNumberOutofRange
 
 
-def parse_block_identifier_int(web3: 'Web3', block_identifier_int: int) -> BlockNumber:
+def parse_block_identifier_int(w3: 'Web3', block_identifier_int: int) -> BlockNumber:
     if block_identifier_int >= 0:
         block_num = block_identifier_int
     else:
@@ -1563,7 +1563,7 @@ def parse_block_identifier_int(web3: 'Web3', block_identifier_int: int) -> Block
 
 def transact_with_contract_function(
         address: ChecksumAddress,
-        web3: 'Web3',
+        w3: 'Web3',
         function_name: Optional[FunctionIdentifier] = None,
         transaction: Optional[TxParams] = None,
         contract_abi: Optional[ABI] = None,
@@ -1591,7 +1591,7 @@ def transact_with_contract_function(
 
 def estimate_gas_for_function(
         address: ChecksumAddress,
-        web3: 'Web3',
+        w3: 'Web3',
         fn_identifier: Optional[FunctionIdentifier] = None,
         transaction: Optional[TxParams] = None,
         contract_abi: Optional[ABI] = None,
@@ -1620,7 +1620,7 @@ def estimate_gas_for_function(
 
 def build_transaction_for_function(
         address: ChecksumAddress,
-        web3: 'Web3',
+        w3: 'Web3',
         function_name: Optional[FunctionIdentifier] = None,
         transaction: Optional[TxParams] = None,
         contract_abi: Optional[ABI] = None,
@@ -1649,7 +1649,7 @@ def build_transaction_for_function(
 
 
 def find_functions_by_identifier(
-    contract_abi: ABI, web3: 'Web3', address: ChecksumAddress, callable_check: Callable[..., Any]
+    contract_abi: ABI, w3: 'Web3', address: ChecksumAddress, callable_check: Callable[..., Any]
 ) -> List[ContractFunction]:
     fns_abi = filter_by_type('function', contract_abi)
     return [

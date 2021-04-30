@@ -73,7 +73,7 @@ class RequestManager:
 
     def __init__(
         self,
-        web3: 'Web3',
+        w3: 'Web3',
         provider: Optional[BaseProvider] = None,
         middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None
     ) -> None:
@@ -90,7 +90,7 @@ class RequestManager:
         else:
             self.provider = provider
 
-    web3: 'Web3' = None
+    w3: 'Web3' = None
     _provider = None
 
     @property
@@ -103,7 +103,7 @@ class RequestManager:
 
     @staticmethod
     def default_middlewares(
-        web3: 'Web3'
+        w3: 'Web3'
     ) -> List[Tuple[Middleware, str]]:
         """
         List the default middlewares for the request manager.

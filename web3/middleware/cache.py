@@ -111,7 +111,7 @@ def construct_simple_cache_middleware(
         cached.
     """
     def simple_cache_middleware(
-        make_request: Callable[[RPCEndpoint, Any], RPCResponse], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], RPCResponse], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
         lock = threading.Lock()
@@ -215,7 +215,7 @@ def construct_time_based_cache_middleware(
         cached.
     """
     def time_based_cache_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
         lock = threading.Lock()
@@ -355,7 +355,7 @@ def construct_latest_block_based_cache_middleware(
         block time.
     """
     def latest_block_based_cache_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
         block_info: BlockInfoCache = {}

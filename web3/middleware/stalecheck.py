@@ -47,7 +47,7 @@ def make_stalecheck_middleware(
         raise ValueError("You must set a positive allowable_delay in seconds for this middleware")
 
     def stalecheck_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache: Dict[str, BlockData] = {'latest': None}
 

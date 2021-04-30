@@ -863,7 +863,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         because it cannot correctly throttle and decrease the `eth_getLogs` block number range.
         """
 
-        def __init__(self, web3: Web3, contract: Contract, state: EventScannerState, events: List, filters: {},
+        def __init__(self, w3: Web3, contract: Contract, state: EventScannerState, events: List, filters: {},
                      max_chunk_scan_size: int = 10000, max_request_retries: int = 30, request_retry_seconds: float = 3.0):
             """
             :param contract: Contract
@@ -1366,7 +1366,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             state = JSONifiedState()
             state.restore()
 
-            # chain_id: int, web3: Web3, abi: dict, state: EventScannerState, events: List, filters: {}, max_chunk_scan_size: int=10000
+            # chain_id: int, w3: Web3, abi: dict, state: EventScannerState, events: List, filters: {}, max_chunk_scan_size: int=10000
             scanner = EventScanner(
                 web3=web3,
                 contract=ERC20,

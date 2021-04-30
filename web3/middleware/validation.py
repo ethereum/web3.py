@@ -50,7 +50,7 @@ to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
 
 
 @curry
-def validate_chain_id(web3: "Web3", chain_id: int) -> int:
+def validate_chain_id(w3: "Web3", chain_id: int) -> int:
     if to_integer_if_hex(chain_id) == web3.eth.chain_id:
         return chain_id
     else:
@@ -84,7 +84,7 @@ def transaction_normalizer(transaction: TxParams) -> TxParams:
     return dissoc(transaction, 'chainId')
 
 
-def transaction_param_validator(web3: "Web3") -> Callable[..., Any]:
+def transaction_param_validator(w3: "Web3") -> Callable[..., Any]:
     transactions_params_validators = {
         "chainId": apply_formatter_if(
             # Bypass `validate_chain_id` if chainId can't be determined
@@ -110,7 +110,7 @@ block_validator = apply_formatter_if(
 
 
 @curry
-def chain_id_validator(web3: "Web3") -> Callable[..., Any]:
+def chain_id_validator(w3: "Web3") -> Callable[..., Any]:
     return compose(
         apply_formatter_at_index(transaction_normalizer, 0),
         transaction_param_validator(web3)

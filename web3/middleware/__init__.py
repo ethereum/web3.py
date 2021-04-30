@@ -76,7 +76,7 @@ if TYPE_CHECKING:
 
 def combine_middlewares(
     middlewares: Sequence[Middleware],
-    web3: 'Web3',
+    w3: 'Web3',
     provider_request_fn: Callable[[RPCEndpoint, Any], Any]
 ) -> Callable[..., RPCResponse]:
     """
