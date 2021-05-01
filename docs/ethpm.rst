@@ -72,6 +72,7 @@ Methods
 Each ``Package`` exposes the following methods.
 
 .. autoclass:: ethpm.Package
+   :noindex:
    :members: from_file, from_uri, update_w3, get_contract_factory, get_contract_instance
 
 

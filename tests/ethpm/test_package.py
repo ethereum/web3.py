@@ -87,3 +87,27 @@ def test_package_object_properties(safe_math_package):
     assert safe_math_package.uri is None
     assert safe_math_package.__repr__() == "<Package safe-math-lib==1.0.0>"
     assert safe_math_package.contract_types == ["SafeMathLib"]
+
+
+def test_cached_properties(piper_coin_manifest, safe_math_lib_package,
+                           safe_math_lib_package_with_alias, w3):
+    package1 = Package(piper_coin_manifest, w3)
+    package2 = Package(piper_coin_manifest, w3)
+    first_build_dependencies_package1 = package1.build_dependencies.items()
+    second_build_dependencies_package1 = package1.build_dependencies.items()
+    assert first_build_dependencies_package1 == second_build_dependencies_package1
+    first_build_dependencies_package2 = package2.build_dependencies.items()
+    second_build_dependencies_package2 = package2.build_dependencies.items()
+    assert first_build_dependencies_package2 == first_build_dependencies_package2
+    assert not first_build_dependencies_package1 == first_build_dependencies_package2
+    assert not second_build_dependencies_package1 == second_build_dependencies_package2
+    package1 = safe_math_lib_package
+    first_deployments_package1 = package1.deployments
+    second_deployments_package1 = package1.deployments
+    assert first_deployments_package1 == second_deployments_package1
+    package2 = safe_math_lib_package_with_alias
+    first_deployments_package2 = package2.deployments
+    second_deployments_package2 = package2.deployments
+    assert first_deployments_package2 == second_deployments_package2
+    assert not first_deployments_package1 == first_deployments_package2
+    assert not second_deployments_package1 == second_deployments_package2
