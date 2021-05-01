@@ -1,4 +1,3 @@
-import functools
 from typing import (
     Any,
     Callable,
@@ -15,10 +14,9 @@ class cached_property:
     """
 
     def __init__(self, func: Callable[..., Any], name: str = None) -> None:
-        self.func = func
-        self.name = name or func.__name__
-        # type ignored b/c self is 'cached_property' but expects 'Callable[..., Any]'
-        functools.update_wrapper(self, func)  # type: ignore
+        self.wrapped_func = func
+        self.name = name
+        self.__doc__ = getattr(func, '__doc__')
 
     def __get__(self, instance: Any, cls: Any = None) -> Any:
         """
@@ -30,3 +28,17 @@ class cached_property:
             return self
         res = instance.__dict__[self.name] = self.func(instance)
         return res
+
+    def __set_name__(self, cls: Any = None, name: str = None) -> None:
+        """
+        The function is called at the time the cls class is created.
+        The descriptor would be assigned to name.
+        """
+        if self.name is None:
+            self.name = name
+            self.func = self.wrapped_func
+        if name != self.name:
+            raise TypeError(
+                "Unable to assign cached_property for two different names "
+                f"(%{self.name} and {name})."
+            )

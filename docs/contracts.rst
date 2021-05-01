@@ -242,6 +242,7 @@ Each Contract Factory exposes the following methods.
         '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
 
 .. py:classmethod:: Contract.constructor(*args, **kwargs).estimateGas(transaction=None, block_identifier=None)
+    :noindex:
 
     Estimate gas for constructing and deploying the contract.
 
@@ -264,6 +265,7 @@ Each Contract Factory exposes the following methods.
         12563
 
 .. py:classmethod:: Contract.constructor(*args, **kwargs).buildTransaction(transaction=None)
+    :noindex:
 
     Construct the contract deploy transaction bytecode data.
 
@@ -945,6 +947,7 @@ For example:
 .. _processReceipt:
 
 .. py:method:: ContractEvents.myEvent(*args, **kwargs).processReceipt(transaction_receipt, errors=WARN)
+   :noindex:
 
    Extracts the pertinent logs from a transaction receipt.
 
