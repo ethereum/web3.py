@@ -18,6 +18,7 @@
 #sys.path.insert(0, os.path.abspath('.'))
 
 import os
+import sys 
 
 DIR = os.path.dirname('__file__')
 with open (os.path.join(DIR, '../setup.py'), 'r') as f:
