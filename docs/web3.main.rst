@@ -294,7 +294,7 @@ Cryptographic Hashing
         HexBytes("0x913c99ea930c78868f1535d34cd705ab85929b2eaaf70fcd09677ecd6e5d75e9")
 
 
-    These produce equivalent values to the solidity like so.
+    Comparable solidity usage:
 
     .. code-block:: solidity
 
