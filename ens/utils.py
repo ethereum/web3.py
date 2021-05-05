@@ -68,12 +68,6 @@ def dict_copy(func: TFunc) -> TFunc:
     return cast(TFunc, wrapper)
 
 
-def ensure_hex(data: HexBytes) -> HexBytes:
-    if not isinstance(data, str):
-        return Web3().toHex(data)
-    return data
-
-
 def init_web3(provider: 'BaseProvider' = cast('BaseProvider', default)) -> '_Web3':
     from web3 import Web3 as Web3Main
 
