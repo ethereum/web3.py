@@ -1,3 +1,4 @@
+import decimal
 from eth_abi.codec import (
     ABICodec,
 )
@@ -18,9 +19,23 @@ from eth_utils import (
 from hexbytes import (
     HexBytes,
 )
-from typing import Any, cast, Dict, List, Optional, Sequence, TYPE_CHECKING
+from typing import (
+    Any,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    TYPE_CHECKING,
+    Union,
+    cast,
+)
 
-from eth_typing import HexStr, Primitives
+from eth_typing import (
+    AnyAddress,
+    ChecksumAddress,
+    HexStr,
+    Primitives,
+)
 from eth_typing.abi import TypeStr
 from eth_utils import (
     combomethod,
@@ -97,6 +112,7 @@ from web3.testing import (
 from web3.types import (  # noqa: F401
     Middleware,
     MiddlewareOnion,
+    Wei,
 )
 from web3.version import (
     Version,
@@ -138,20 +154,55 @@ class Web3:
     Iban = Iban
 
     # Encoding and Decoding
-    toBytes = staticmethod(to_bytes)
-    toInt = staticmethod(to_int)
-    toHex = staticmethod(to_hex)
-    toText = staticmethod(to_text)
-    toJSON = staticmethod(to_json)
+    @staticmethod
+    def toBytes(
+        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+    ) -> bytes:
+        return to_bytes(primitive, hexstr, text)
+
+    @staticmethod
+    def toInt(
+        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+    ) -> int:
+        return to_int(primitive, hexstr, text)
+
+    @staticmethod
+    def toHex(
+        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+    ) -> HexStr:
+        return to_hex(primitive, hexstr, text)
+
+    @staticmethod
+    def toText(
+        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+    ) -> str:
+        return to_text(primitive, hexstr, text)
+
+    @staticmethod
+    def toJSON(obj: Dict[Any, Any]) -> str:
+        return to_json(obj)
 
     # Currency Utility
-    toWei = staticmethod(to_wei)
-    fromWei = staticmethod(from_wei)
+    @staticmethod
+    def toWei(number: Union[int, float, str, decimal.Decimal], unit: str) -> Wei:
+        return cast(Wei, to_wei(number, unit))
+
+    @staticmethod
+    def fromWei(number: int, unit: str) -> Union[int, decimal.Decimal]:
+        return from_wei(number, unit)
 
     # Address Utility
-    isAddress = staticmethod(is_address)
-    isChecksumAddress = staticmethod(is_checksum_address)
-    toChecksumAddress = staticmethod(to_checksum_address)
+    @staticmethod
+    def isAddress(value: Any) -> bool:
+        return is_address(value)
+
+    @staticmethod
+    def isChecksumAddress(value: Any) -> bool:
+        return is_checksum_address(value)
+
+    @staticmethod
+    def toChecksumAddress(value: Union[AnyAddress, str, bytes]) -> ChecksumAddress:
+        return to_checksum_address(value)
 
     # mypy Types
     eth: Eth

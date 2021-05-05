@@ -69,11 +69,25 @@ class ENS:
     like: ``"0x314159265dD8dbb310642f98f50C066173C1259b"``
     """
 
-    labelhash = staticmethod(label_to_hash)
-    namehash = staticmethod(raw_name_to_hash)
-    nameprep = staticmethod(normalize_name)
-    is_valid_name = staticmethod(is_valid_name)
-    reverse_domain = staticmethod(address_to_reverse_domain)
+    @staticmethod
+    def labelhash(label: str) -> HexBytes:
+        return label_to_hash(label)
+
+    @staticmethod
+    def namehash(name: str) -> HexBytes:
+        return raw_name_to_hash(name)
+
+    @staticmethod
+    def nameprep(name: str) -> str:
+        return normalize_name(name)
+
+    @staticmethod
+    def is_valid_name(name: str) -> bool:
+        return is_valid_name(name)
+
+    @staticmethod
+    def reverse_domain(address: ChecksumAddress) -> str:
+        return address_to_reverse_domain(address)
 
     def __init__(
         self, provider: 'BaseProvider' = cast('BaseProvider', default), addr: ChecksumAddress = None
