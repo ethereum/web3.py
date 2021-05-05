@@ -33,7 +33,7 @@ Attributes
     Returns the current Web3 version.
 
     .. code-block:: python
-     
+
        >>> web3.api
        "4.7.0"
 
@@ -271,8 +271,8 @@ Cryptographic Hashing
 .. py:classmethod:: Web3.solidityKeccak(abi_types, value)
 
     Returns the Keccak-256 as it would be computed by the solidity ``keccak``
-    function on the provided ``value`` and ``abi_types``.  The ``abi_types``
-    value should be a list of solidity type strings which correspond to each
+    function on a *packed* ABI encoding of the ``value`` list contents.  The ``abi_types``
+    argument should be a list of solidity type strings which correspond to each
     of the provided values.
 
 
@@ -292,6 +292,17 @@ Cryptographic Hashing
 
         >>> Web3.solidityKeccak(['address'], ["ethereumfoundation.eth"])
         HexBytes("0x913c99ea930c78868f1535d34cd705ab85929b2eaaf70fcd09677ecd6e5d75e9")
+
+
+    Comparable solidity usage:
+
+    .. code-block:: solidity
+
+        bytes32 data1 = keccak256(abi.encodePacked(true));
+        assert(data1 == hex"5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2");
+        bytes32 data2 = keccak256(abi.encodePacked(uint8(97), uint8(98), uint8(99)));
+        assert(data2 == hex"4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45");
+
 
 .. py:classmethod:: Web3.sha3(primitive=None, hexstr=None, text=None)
 
