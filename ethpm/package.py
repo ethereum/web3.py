@@ -301,7 +301,7 @@ class Package(object):
         except KeyError:
             raise InsufficientAssetsError(
                 "Package does not have the ABI required to generate a contract instance "
-                f"for contract: {name} at address: {address}."
+                f"for contract: {name} at address: {address!r}."
             )
         contract_kwargs = generate_contract_factory_kwargs(
             self.manifest["contractTypes"][name]

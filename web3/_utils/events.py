@@ -332,8 +332,8 @@ class EventFilterBuilder:
             self._fromBlock = value
         else:
             raise ValueError(
-                "fromBlock is already set to {0}. "
-                "Resetting filter parameters is not permitted".format(self._fromBlock))
+                f"fromBlock is already set to {self._fromBlock!r}. "
+                "Resetting filter parameters is not permitted")
 
     @property
     def toBlock(self) -> BlockIdentifier:
@@ -345,8 +345,8 @@ class EventFilterBuilder:
             self._toBlock = value
         else:
             raise ValueError(
-                "toBlock is already set to {0}. "
-                "Resetting filter parameters is not permitted".format(self._toBlock))
+                f"toBlock is already set to {self._toBlock!r}. "
+                "Resetting filter parameters is not permitted")
 
     @property
     def address(self) -> ChecksumAddress:
@@ -358,8 +358,8 @@ class EventFilterBuilder:
             self._address = value
         else:
             raise ValueError(
-                "address is already set to {0}. "
-                "Resetting filter parameters is not permitted".format(self.address))
+                f"address is already set to {self.address!r}. "
+                "Resetting filter parameters is not permitted")
 
     @property
     def ordered_args(self) -> Tuple[Any, ...]:

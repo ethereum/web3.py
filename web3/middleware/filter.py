@@ -240,7 +240,7 @@ class RequestLogs:
             self._from_block = BlockNumber(hex_to_integer(from_block))  # type: ignore
         else:
             # cast b/c LatestBlockParam is handled above
-            self._from_block = cast(BlockNumber, from_block)
+            self._from_block = from_block
         self._to_block = to_block
         self.filter_changes = self._get_filter_changes()
 
@@ -257,7 +257,7 @@ class RequestLogs:
         elif is_hex(self._to_block):
             to_block = BlockNumber(hex_to_integer(self._to_block))  # type: ignore
         else:
-            to_block = cast(BlockNumber, self._to_block)
+            to_block = self._to_block
 
         return to_block
 

@@ -22,8 +22,8 @@ def validate_empty_bytes(offset: int, length: int, bytecode: bytes) -> None:
     slot = bytecode[offset:slot_length]
     if slot != bytearray(length):
         raise EthPMValidationError(
-            f"Bytecode segment: [{offset}:{slot_length}] is not comprised of empty bytes, "
-            f"rather: {slot}."
+            f"Bytecode segment: [{offset}:{slot_length}] "
+            f"is not comprised of empty bytes, rather: {slot!r}."
         )
 
 

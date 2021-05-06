@@ -26,7 +26,10 @@ SKIP_STALECHECK_FOR_METHODS = set([
 
 
 def _isfresh(block: BlockData, allowable_delay: int) -> bool:
-    return block and time.time() - block['timestamp'] <= allowable_delay
+    if block and (time.time() - block['timestamp'] <= allowable_delay):
+        return True
+    else:
+        return False
 
 
 def make_stalecheck_middleware(

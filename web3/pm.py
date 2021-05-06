@@ -389,13 +389,13 @@ class PM(Module):
             addr_lookup = self.web3.ens.address(str(address))
             if not addr_lookup:
                 raise NameNotFound(
-                    "No address found after ENS lookup for name: {0}.".format(address)
+                    f"No address found after ENS lookup for name: {address!r}."
                 )
             self.registry = SimpleRegistry(addr_lookup, self.web3)
         else:
             raise PMError(
                 "Expected a canonical/checksummed address or ENS name for the address, "
-                "instead received {0}.".format(type(address))
+                f"instead received {type(address)}."
             )
 
     def deploy_and_set_registry(self) -> ChecksumAddress:
