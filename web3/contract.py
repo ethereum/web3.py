@@ -1160,9 +1160,9 @@ class ContractEvent:
                     raise e
                 else:
                     warnings.warn(
-                        f"The log with transaction hash: {log['transactionHash']} and "
+                        f"The log with transaction hash: {log['transactionHash']!r} and "
                         f"logIndex: {log['logIndex']} encountered the following error "
-                        f'during processing: {type(e).__name__}({e}). It has been discarded.'
+                        f"during processing: {type(e).__name__}({e}). It has been discarded."
                     )
                     continue
             yield rich_log
@@ -1518,12 +1518,8 @@ def call_contract_function(
             )
         else:
             msg = (
-                "Could not decode contract function call {} return data {} for "
-                "output_types {}".format(
-                    function_identifier,
-                    return_data,
-                    output_types
-                )
+                "Could not decode contract function call {function_identifier} "
+                "return data {return_data!r} for output_types {output_types}"
             )
         raise BadFunctionCallOutput(msg) from e
 

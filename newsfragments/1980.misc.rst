@@ -1,0 +1,1 @@
+Update mypy from 0.730 to 0.812

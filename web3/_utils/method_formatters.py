@@ -586,7 +586,7 @@ def get_request_formatters(
 
 def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
     block_identifier = params[0]
-    raise BlockNotFound(f"Block with id: {block_identifier} not found.")
+    raise BlockNotFound(f"Block with id: {block_identifier!r} not found.")
 
 
 def raise_block_not_found_for_uncle_at_index(
@@ -595,13 +595,14 @@ def raise_block_not_found_for_uncle_at_index(
     block_identifier = params[0]
     uncle_index = to_integer_if_hex(params[1])
     raise BlockNotFound(
-        f"Uncle at index: {uncle_index} of block with id: {block_identifier} not found."
+        f"Uncle at index: {uncle_index} of block with id: "
+        f"{block_identifier!r} not found."
     )
 
 
 def raise_transaction_not_found(params: Tuple[_Hash32]) -> NoReturn:
     transaction_hash = params[0]
-    raise TransactionNotFound(f"Transaction with hash: {transaction_hash} not found.")
+    raise TransactionNotFound(f"Transaction with hash: {transaction_hash!r} not found.")
 
 
 def raise_transaction_not_found_with_index(params: Tuple[BlockIdentifier, int]) -> NoReturn:
@@ -609,7 +610,7 @@ def raise_transaction_not_found_with_index(params: Tuple[BlockIdentifier, int]) 
     transaction_index = to_integer_if_hex(params[1])
     raise TransactionNotFound(
         f"Transaction index: {transaction_index} "
-        f"on block id: {block_identifier} not found."
+        f"on block id: {block_identifier!r} not found."
     )
 
 

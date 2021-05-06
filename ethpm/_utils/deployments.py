@@ -70,7 +70,7 @@ def validate_linked_references(
                 "Error validating linked reference. "
                 f"Offset: {offset} "
                 f"Value: {values[idx]} "
-                f"Bytecode: {bytecode} ."
+                f"Bytecode: {bytecode!r} ."
             )
 
 
@@ -122,8 +122,8 @@ def validate_deployments_tx_receipt(
                 if tx_receipt["blockHash"] != to_bytes(hexstr=data["block"]):
                     raise EthPMValidationError(
                         f"Error validating tx_receipt for {name} deployment. "
-                        f"Block found in manifest's deployment data: {data['block']} does not "
-                        f"Does not match block found on tx_receipt: {tx_receipt['blockHash']}."
+                        f"Block found in manifest's deployment data: {data['block']!r} does not "
+                        f"Does not match block found on tx_receipt: {tx_receipt['blockHash']!r}."
                     )
             elif allow_missing_data is False:
                 raise EthPMValidationError(

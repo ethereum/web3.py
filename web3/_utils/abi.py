@@ -580,7 +580,7 @@ def get_constructor_abi(contract_abi: ABI) -> ABIFunction:
         abi for abi in contract_abi if abi['type'] == 'constructor'
     ]
     if len(candidates) == 1:
-        return cast(ABIFunction, candidates[0])
+        return candidates[0]
     elif len(candidates) == 0:
         return None
     elif len(candidates) > 1:

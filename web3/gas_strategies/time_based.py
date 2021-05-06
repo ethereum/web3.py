@@ -113,7 +113,7 @@ def _aggregate_miner_data(
         yield MinerData(
             miner,
             len(set(block_hashes)),
-            min(gas_prices),
+            min(gas_prices),  # type: ignore
             price_percentile)
 
 
