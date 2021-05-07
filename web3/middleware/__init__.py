@@ -44,6 +44,7 @@ from .formatting import (  # noqa: F401
 )
 from .gas_price_strategy import (  # noqa: F401
     gas_price_strategy_middleware,
+    async_gas_price_strategy_middleware,
 )
 from .geth_poa import (  # noqa: F401
     geth_poa_middleware,

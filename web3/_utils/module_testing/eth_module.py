@@ -89,6 +89,21 @@ class AsyncEthModuleTest:
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gasPrice']
 
+    @pytest.mark.asyncio
+    async def test_gas_price_strategy_middleware(
+        self, aw3_gp: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+        }
+        txn_hash = await aw3_gp.async_eth.send_transaction(txn_params)
+        txn = await aw3_gp.async_eth.get_transaction(txn_hash)
+
+        assert txn['gasPrice'] == 1000000000
+
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:
