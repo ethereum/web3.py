@@ -7,6 +7,9 @@ from web3 import Web3
 from web3.eth import (
     AsyncEth,
 )
+from web3.middleware import (
+    async_gas_price_strategy_middleware,
+)
 from web3.providers.async_rpc import (
     AsyncHTTPProvider,
 )
@@ -77,6 +80,18 @@ async def async_w3_http(geth_process, endpoint_uri):
     _web3 = Web3(
         AsyncHTTPProvider(endpoint_uri),
         middlewares=[],
+        modules={
+            'async_eth': (AsyncEth,),
+        })
+    return _web3
+
+
+@pytest.fixture(scope="module")
+async def aw3_gp(geth_process, endpoint_uri):
+    await wait_for_aiohttp(endpoint_uri)
+    _web3 = Web3(
+        AsyncHTTPProvider(endpoint_uri),
+        middlewares=[async_gas_price_strategy_middleware],
         modules={
             'async_eth': (AsyncEth,),
         })
