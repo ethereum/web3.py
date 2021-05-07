@@ -69,6 +69,26 @@ class AsyncEthModuleTest:
         is_connected = await async_w3_http.isConnected()  # type: ignore
         assert is_connected is True
 
+    @pytest.mark.asyncio
+    async def test_eth_send_transaction(
+        self, async_w3_http: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'gasPrice': await async_w3_http.async_eth.gas_price,
+        }
+        txn_hash = await async_w3_http.async_eth.send_transaction(txn_params)
+        txn = await async_w3_http.async_eth.get_transaction(txn_hash)
+
+        assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['value'] == 1
+        assert txn['gas'] == 21000
+        assert txn['gasPrice'] == txn_params['gasPrice']
+
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:

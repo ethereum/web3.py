@@ -105,9 +105,39 @@ from web3.types import (
 
 
 class BaseEth(Module):
+    _default_account: Union[ChecksumAddress, Empty] = empty
+
     _gas_price: Method[Callable[[], Wei]] = Method(
         RPC.eth_gasPrice,
         mungers=None,
+    )
+
+    @property
+    def default_account(self) -> Union[ChecksumAddress, Empty]:
+        return self._default_account
+
+    def send_transaction_munger(self, transaction: TxParams) -> Tuple[TxParams]:
+        # TODO: move to middleware
+        if 'from' not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, 'from', self.default_account)
+
+        # TODO: move gas estimation in middleware
+        if 'gas' not in transaction:
+            transaction = assoc(
+                transaction,
+                'gas',
+                get_buffered_gas_estimate(self.web3, transaction),
+            )
+        return (transaction,)
+
+    _send_transaction: Method[Callable[[TxParams], HexBytes]] = Method(
+        RPC.eth_sendTransaction,
+        mungers=[send_transaction_munger]
+    )
+
+    _get_transaction: Method[Callable[[_Hash32], TxData]] = Method(
+        RPC.eth_getTransactionByHash,
+        mungers=[default_root_munger]
     )
 
 
@@ -119,10 +149,15 @@ class AsyncEth(BaseEth):
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._gas_price()  # type: ignore
 
+    async def send_transaction(self, transaction) -> HexBytes:
+        return await self._send_transaction(transaction)  # type: ignore
+
+    async def get_transaction(self, transaction_hash):
+        return await self._get_transaction(transaction_hash)
+
 
 class Eth(BaseEth, Module):
     account = Account()
-    _default_account: Union[ChecksumAddress, Empty] = empty
     _default_block: BlockIdentifier = "latest"
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
@@ -247,7 +282,6 @@ class Eth(BaseEth, Module):
         return self.chain_id
 
     """ property default_account """
-
     @property
     def default_account(self) -> Union[ChecksumAddress, Empty]:
         return self._default_account
@@ -409,10 +443,8 @@ class Eth(BaseEth, Module):
         mungers=[default_root_munger]
     )
 
-    get_transaction: Method[Callable[[_Hash32], TxData]] = Method(
-        RPC.eth_getTransactionByHash,
-        mungers=[default_root_munger]
-    )
+    def get_transaction(self, transaction_hash):
+        return self._get_transaction(transaction_hash)
 
     def getTransactionFromBlock(
         self, block_identifier: BlockIdentifier, transaction_index: int
@@ -486,24 +518,9 @@ class Eth(BaseEth, Module):
         new_transaction = merge(current_transaction_params, transaction_params)
         return replace_transaction(self.web3, current_transaction, new_transaction)
 
-    def send_transaction_munger(self, transaction: TxParams) -> Tuple[TxParams]:
-        # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.default_account):
-            transaction = assoc(transaction, 'from', self.default_account)
 
-        # TODO: move gas estimation in middleware
-        if 'gas' not in transaction:
-            transaction = assoc(
-                transaction,
-                'gas',
-                get_buffered_gas_estimate(self.web3, transaction),
-            )
-        return (transaction,)
-
-    send_transaction: Method[Callable[[TxParams], HexBytes]] = Method(
-        RPC.eth_sendTransaction,
-        mungers=[send_transaction_munger]
-    )
+    def send_transaction(self, transaction: TxParams) -> HexBytes:
+        return self._send_transaction(transaction)
 
     send_raw_transaction: Method[Callable[[Union[HexStr, bytes]], HexBytes]] = Method(
         RPC.eth_sendRawTransaction,
