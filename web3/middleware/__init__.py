@@ -89,3 +89,26 @@ def combine_middlewares(
         reversed(middlewares),
         provider_request_fn,
     )
+
+
+async def async_combine_middlewares(
+    middlewares: Sequence[Middleware],
+    web3: 'Web3',
+    provider_request_fn: Callable[[RPCEndpoint, Any], Any]
+) -> Callable[..., RPCResponse]:
+    """
+    Returns a callable function which will call the provider.provider_request
+    function wrapped with all of the middlewares.
+    """
+    accumulator_fn = provider_request_fn
+    for middleware in reversed(middlewares):
+        accumulator_fn = await construct_middleware(middleware, accumulator_fn, web3)
+    return accumulator_fn
+
+
+async def construct_middleware(
+    middleware: Middleware,
+    fn: Callable[..., RPCResponse],
+    w3: 'Web3'
+) -> Callable[[RPCEndpoint, Any], Any]:
+    return await middleware(fn, w3)

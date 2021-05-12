@@ -60,28 +60,28 @@ if TYPE_CHECKING:
 
 class AsyncEthModuleTest:
     @pytest.mark.asyncio
-    async def test_eth_gas_price(self, async_w3_http: "Web3") -> None:
-        gas_price = await async_w3_http.async_eth.gas_price
+    async def test_eth_gas_price(self, async_w3: "Web3") -> None:
+        gas_price = await async_w3.async_eth.gas_price
         assert gas_price > 0
 
     @pytest.mark.asyncio
-    async def test_isConnected(self, async_w3_http: "Web3") -> None:
-        is_connected = await async_w3_http.isConnected()  # type: ignore
+    async def test_isConnected(self, async_w3: "Web3") -> None:
+        is_connected = await async_w3.isConnected()  # type: ignore
         assert is_connected is True
 
     @pytest.mark.asyncio
     async def test_eth_send_transaction(
-        self, async_w3_http: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': await async_w3_http.async_eth.gas_price,
+            'gasPrice': await async_w3.async_eth.gas_price,
         }
-        txn_hash = await async_w3_http.async_eth.send_transaction(txn_params)
-        txn = await async_w3_http.async_eth.get_transaction(txn_hash)
+        txn_hash = await async_w3.async_eth.send_transaction(txn_params)
+        txn = await async_w3.async_eth.get_transaction(txn_hash)
 
         assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
@@ -91,7 +91,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_gas_price_strategy_middleware(
-        self, aw3_gp: "Web3", unlocked_account_dual_type: ChecksumAddress
+        self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account_dual_type,
@@ -99,10 +99,16 @@ class AsyncEthModuleTest:
             'value': Wei(1),
             'gas': Wei(21000),
         }
-        txn_hash = await aw3_gp.async_eth.send_transaction(txn_params)
-        txn = await aw3_gp.async_eth.get_transaction(txn_hash)
 
-        assert txn['gasPrice'] == 1000000000
+        def higher_gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
+            return Wei(20)
+
+        async_w3.async_eth.set_gas_price_strategy(higher_gas_price_strategy)
+
+        txn_hash = await async_w3.async_eth.send_transaction(txn_params)
+        txn = await async_w3.async_eth.get_transaction(txn_hash)
+
+        assert txn['gasPrice'] == 20
 
 
 class EthModuleTest:

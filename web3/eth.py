@@ -106,6 +106,7 @@ from web3.types import (
 
 class BaseEth(Module):
     _default_account: Union[ChecksumAddress, Empty] = empty
+    gasPriceStrategy = None
 
     _gas_price: Method[Callable[[], Wei]] = Method(
         RPC.eth_gasPrice,
@@ -117,7 +118,6 @@ class BaseEth(Module):
         return self._default_account
 
     def send_transaction_munger(self, transaction: TxParams) -> Tuple[TxParams]:
-        # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, 'from', self.default_account)
 
@@ -140,6 +140,14 @@ class BaseEth(Module):
         mungers=[default_root_munger]
     )
 
+    def _generate_gas_price(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
+        if self.gasPriceStrategy:
+            return self.gasPriceStrategy(self.web3, transaction_params)
+        return None
+
+    def set_gas_price_strategy(self, gas_price_strategy: GasPriceStrategy) -> None:
+        self.gasPriceStrategy = gas_price_strategy
+
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -149,11 +157,16 @@ class AsyncEth(BaseEth):
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._gas_price()  # type: ignore
 
-    async def send_transaction(self, transaction) -> HexBytes:
+    async def send_transaction(self, transaction: TxParams) -> HexBytes:
         return await self._send_transaction(transaction)  # type: ignore
 
-    async def get_transaction(self, transaction_hash):
-        return await self._get_transaction(transaction_hash)
+    async def get_transaction(self, transaction_hash: _Hash32) -> TxData:
+        return await self._get_transaction(transaction_hash)  # type: ignore
+
+    async def generate_gas_price(
+        self, transaction_params: Optional[TxParams] = None
+    ) -> Optional[Wei]:
+        return self._generate_gas_price(transaction_params)
 
 
 class Eth(BaseEth, Module):
@@ -161,7 +174,6 @@ class Eth(BaseEth, Module):
     _default_block: BlockIdentifier = "latest"
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
-    gasPriceStrategy = None
 
     def namereg(self) -> NoReturn:
         raise NotImplementedError()
@@ -443,7 +455,7 @@ class Eth(BaseEth, Module):
         mungers=[default_root_munger]
     )
 
-    def get_transaction(self, transaction_hash):
+    def get_transaction(self, transaction_hash: _Hash32) -> TxData:
         return self._get_transaction(transaction_hash)
 
     def getTransactionFromBlock(
@@ -517,7 +529,6 @@ class Eth(BaseEth, Module):
         current_transaction_params = extract_valid_transaction_params(current_transaction)
         new_transaction = merge(current_transaction_params, transaction_params)
         return replace_transaction(self.web3, current_transaction, new_transaction)
-
 
     def send_transaction(self, transaction: TxParams) -> HexBytes:
         return self._send_transaction(transaction)
@@ -701,19 +712,14 @@ class Eth(BaseEth, Module):
 
     @deprecated_for("generate_gas_price")
     def generateGasPrice(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
-        return self.generate_gas_price(transaction_params)
+        return self._generate_gas_price(transaction_params)
 
     def generate_gas_price(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
-        if self.gasPriceStrategy:
-            return self.gasPriceStrategy(self.web3, transaction_params)
-        return None
+        return self._generate_gas_price(transaction_params)
 
     @deprecated_for("set_gas_price_strategy")
     def setGasPriceStrategy(self, gas_price_strategy: GasPriceStrategy) -> None:
         return self.set_gas_price_strategy(gas_price_strategy)
-
-    def set_gas_price_strategy(self, gas_price_strategy: GasPriceStrategy) -> None:
-        self.gasPriceStrategy = gas_price_strategy
 
     # Deprecated Methods
     getBalance = DeprecatedMethod(get_balance, 'getBalance', 'get_balance')
@@ -724,7 +730,9 @@ class Eth(BaseEth, Module):
                                                 'get_block_transaction_count')
     getCode = DeprecatedMethod(get_code, 'getCode', 'get_code')
     getProof = DeprecatedMethod(get_proof, 'getProof', 'get_proof')
-    getTransaction = DeprecatedMethod(get_transaction, 'getTransaction', 'get_transaction')
+    getTransaction = DeprecatedMethod(get_transaction,   # type: ignore
+                                      'getTransaction',
+                                      'get_transaction')
     getTransactionByBlock = DeprecatedMethod(get_transaction_by_block,
                                              'getTransactionByBlock',
                                              'get_transaction_by_block')
@@ -733,7 +741,9 @@ class Eth(BaseEth, Module):
                                            'get_transaction_count')
     getUncleByBlock = DeprecatedMethod(get_uncle_by_block, 'getUncleByBlock', 'get_uncle_by_block')
     getUncleCount = DeprecatedMethod(get_uncle_count, 'getUncleCount', 'get_uncle_count')
-    sendTransaction = DeprecatedMethod(send_transaction, 'sendTransaction', 'send_transaction')
+    sendTransaction = DeprecatedMethod(send_transaction,  # type: ignore
+                                       'sendTransaction',
+                                       'send_transaction')
     signTransaction = DeprecatedMethod(sign_transaction, 'signTransaction', 'sign_transaction')
     signTypedData = DeprecatedMethod(sign_typed_data, 'signTypedData', 'sign_typed_data')
     submitHashrate = DeprecatedMethod(submit_hashrate, 'submitHashrate', 'submit_hashrate')

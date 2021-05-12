@@ -75,19 +75,7 @@ def web3(geth_process, endpoint_uri):
 
 
 @pytest.fixture(scope="module")
-async def async_w3_http(geth_process, endpoint_uri):
-    await wait_for_aiohttp(endpoint_uri)
-    _web3 = Web3(
-        AsyncHTTPProvider(endpoint_uri),
-        middlewares=[],
-        modules={
-            'async_eth': (AsyncEth,),
-        })
-    return _web3
-
-
-@pytest.fixture(scope="module")
-async def aw3_gp(geth_process, endpoint_uri):
+async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
     _web3 = Web3(
         AsyncHTTPProvider(endpoint_uri),
