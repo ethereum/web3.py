@@ -19,6 +19,9 @@ from web3._utils.compat import (
 from web3.providers import (
     BaseProvider,
 )
+from web3.providers.async_base import (
+    AsyncBaseProvider,
+)
 from web3.types import (
     RPCEndpoint,
     RPCResponse,
@@ -35,7 +38,7 @@ if TYPE_CHECKING:
     )
 
 
-class AsyncEthereumTesterProvider(BaseProvider):
+class AsyncEthereumTesterProvider(AsyncBaseProvider):
     """This is a placeholder.
 
     For now its purpose is to provide an awaitable request function
@@ -44,8 +47,7 @@ class AsyncEthereumTesterProvider(BaseProvider):
     def __init__(self) -> None:
         self.eth_tester = EthereumTesterProvider()
 
-    # type ignore b/c conflict w/ def in BaseProvider
-    async def make_request(  # type: ignore
+    async def make_request(
         self, method: RPCEndpoint, params: Any
     ) -> RPCResponse:
         return self.eth_tester.make_request(method, params)

@@ -135,12 +135,12 @@ class RequestManager:
     async def _coro_make_request(
         self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
     ) -> RPCResponse:
-        request_func = self.provider.request_func(
+        # type ignored b/c request_func is an awaitable in async model
+        request_func = await self.provider.request_func(  # type: ignore
             self.web3,
             self.middleware_onion)
         self.logger.debug("Making request. Method: %s", method)
-        # type ignored b/c request_func is an awaitable in async model
-        return await request_func(method, params)  # type: ignore
+        return await request_func(method, params)
 
     def request_blocking(
         self,

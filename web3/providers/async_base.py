@@ -3,7 +3,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Coroutine,
+    Sequence,
+    Tuple,
     cast,
 )
 
@@ -15,7 +16,11 @@ from eth_utils import (
 from web3._utils.encoding import (
     FriendlyJsonSerde,
 )
+from web3.middleware import (
+    async_combine_middlewares,
+)
 from web3.types import (
+    Middleware,
     MiddlewareOnion,
     RPCEndpoint,
     RPCResponse,
@@ -26,13 +31,42 @@ if TYPE_CHECKING:
 
 
 class AsyncBaseProvider:
-    def request_func(
+    _middlewares: Tuple[Middleware, ...] = ()
+    # a tuple of (all_middlewares, request_func)
+    _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (None, None)
+
+    @property
+    def middlewares(self) -> Tuple[Middleware, ...]:
+        return self._middlewares
+
+    @middlewares.setter
+    def middlewares(
+        self, values: MiddlewareOnion
+    ) -> None:
+        # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
+        self._middlewares = tuple(values)  # type: ignore
+
+    async def request_func(
         self, web3: "Web3", outer_middlewares: MiddlewareOnion
-    ) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
-        # Placeholder - manager calls self.provider.request_func
-        # Eventually this will handle caching and return make_request
-        # along with all the middleware
-        return self.make_request
+    ) -> Callable[[RPCEndpoint], Any]:
+        all_middlewares: Tuple[Middleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore # noqa: E501
+
+        cache_key = self._request_func_cache[0]
+        if cache_key is None or cache_key != all_middlewares:
+            self._request_func_cache = (
+                all_middlewares,
+                await self._generate_request_func(web3, all_middlewares)
+            )
+        return self._request_func_cache[-1]
+
+    async def _generate_request_func(
+        self, web3: "Web3", middlewares: Sequence[Middleware]
+    ) -> Callable[..., RPCResponse]:
+        return await async_combine_middlewares(
+            middlewares=middlewares,
+            web3=web3,
+            provider_request_fn=self.make_request,
+        )
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
