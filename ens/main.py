@@ -1,6 +1,8 @@
 from functools import (
     wraps,
 )
+from copy import deepcopy
+
 from typing import (
     TYPE_CHECKING,
     Optional,
@@ -39,7 +41,6 @@ from ens.utils import (
     address_in,
     address_to_reverse_domain,
     default,
-    dict_copy,
     init_web3,
     is_none_or_zero_address,
     is_valid_name,
@@ -149,12 +150,11 @@ class ENS:
         reversed_domain = address_to_reverse_domain(address)
         return self.resolve(reversed_domain, get='name')
 
-    @dict_copy
     def setup_address(
         self,
         name: str,
         address: Union[Address, ChecksumAddress, HexAddress] = cast(ChecksumAddress, default),
-        transact: "TxParams" = {}
+        transact: Optional["TxParams"] = None
     ) -> HexBytes:
         """
         Set up the name to point to the supplied address.
@@ -173,6 +173,9 @@ class ENS:
         :raises InvalidName: if ``name`` has invalid syntax
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         """
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
         owner = self.setup_owner(name, transact=transact)
         self._assert_control(owner, name)
         if is_none_or_zero_address(address):
@@ -191,9 +194,11 @@ class ENS:
         resolver: 'Contract' = self._set_resolver(name, transact=transact)
         return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
 
-    @dict_copy
     def setup_name(
-        self, name: str, address: ChecksumAddress = None, transact: "TxParams" = {}
+        self,
+        name: str,
+        address: Optional[ChecksumAddress] = None,
+        transact: Optional["TxParams"] = None
     ) -> HexBytes:
         """
         Set up the address for reverse lookup, aka "caller ID".
@@ -209,6 +214,9 @@ class ENS:
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         :raises UnownedName: if no one owns `name`
         """
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
         if not name:
             self._assert_control(address, 'the reverse record')
             return self._setup_reverse(None, address, transact=transact)
@@ -273,12 +281,11 @@ class ENS:
         node = raw_name_to_hash(name)
         return self.ens.caller.owner(node)
 
-    @dict_copy
     def setup_owner(
         self,
         name: str,
         new_owner: ChecksumAddress = cast(ChecksumAddress, default),
-        transact: "TxParams" = {}
+        transact: Optional["TxParams"] = None
     ) -> ChecksumAddress:
         """
         Set the owner of the supplied name to `new_owner`.
@@ -303,6 +310,9 @@ class ENS:
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         :returns: the new owner's address
         """
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
         (super_owner, unowned, owned) = self._first_owner(name)
         if new_owner is default:
             new_owner = super_owner
@@ -345,15 +355,17 @@ class ENS:
                 unowned.append(pieces.pop(0))
         return (owner, unowned, name)
 
-    @dict_copy
     def _claim_ownership(
         self,
         owner: ChecksumAddress,
         unowned: Sequence[str],
         owned: str,
-        old_owner: ChecksumAddress = None,
-        transact: "TxParams" = {}
+        old_owner: Optional[ChecksumAddress] = None,
+        transact: Optional["TxParams"] = None
     ) -> None:
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
         transact['from'] = old_owner or owner
         for label in reversed(unowned):
             self.ens.functions.setSubnodeOwner(
@@ -363,10 +375,15 @@ class ENS:
             ).transact(transact)
             owned = "%s.%s" % (label, owned)
 
-    @dict_copy
     def _set_resolver(
-        self, name: str, resolver_addr: ChecksumAddress = None, transact: "TxParams" = {}
+        self,
+        name: str,
+        resolver_addr: Optional[ChecksumAddress] = None,
+        transact: Optional["TxParams"] = None
     ) -> 'Contract':
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
         if is_none_or_zero_address(resolver_addr):
             resolver_addr = self.address('resolver.eth')
         namehash = raw_name_to_hash(name)
@@ -377,10 +394,12 @@ class ENS:
             ).transact(transact)
         return self._resolverContract(address=resolver_addr)
 
-    @dict_copy
     def _setup_reverse(
-        self, name: str, address: ChecksumAddress, transact: "TxParams" = {}
+        self, name: str, address: ChecksumAddress, transact: Optional["TxParams"] = None
     ) -> HexBytes:
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
         if name:
             name = normalize_name(name)
         else:
