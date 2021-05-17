@@ -16,6 +16,9 @@ from eth_utils import (
     to_text,
     to_wei,
 )
+from functools import (
+    wraps,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -155,52 +158,62 @@ class Web3:
 
     # Encoding and Decoding
     @staticmethod
+    @wraps(to_bytes)
     def toBytes(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> bytes:
         return to_bytes(primitive, hexstr, text)
 
     @staticmethod
+    @wraps(to_int)
     def toInt(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> int:
         return to_int(primitive, hexstr, text)
 
     @staticmethod
+    @wraps(to_hex)
     def toHex(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> HexStr:
         return to_hex(primitive, hexstr, text)
 
     @staticmethod
+    @wraps(to_text)
     def toText(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> str:
         return to_text(primitive, hexstr, text)
 
     @staticmethod
+    @wraps(to_json)
     def toJSON(obj: Dict[Any, Any]) -> str:
         return to_json(obj)
 
     # Currency Utility
     @staticmethod
+    @wraps(to_wei)
     def toWei(number: Union[int, float, str, decimal.Decimal], unit: str) -> Wei:
         return cast(Wei, to_wei(number, unit))
 
     @staticmethod
+    @wraps(from_wei)
     def fromWei(number: int, unit: str) -> Union[int, decimal.Decimal]:
         return from_wei(number, unit)
 
     # Address Utility
     @staticmethod
+    @wraps(is_address)
     def isAddress(value: Any) -> bool:
         return is_address(value)
 
     @staticmethod
+    @wraps(is_checksum_address)
     def isChecksumAddress(value: Any) -> bool:
         return is_checksum_address(value)
 
     @staticmethod
+    @wraps(to_checksum_address)
     def toChecksumAddress(value: Union[AnyAddress, str, bytes]) -> ChecksumAddress:
         return to_checksum_address(value)
 
