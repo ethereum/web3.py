@@ -1,8 +1,10 @@
 from functools import (
     wraps,
 )
-from copy import deepcopy
 
+from copy import (
+    deepcopy,
+)
 from typing import (
     TYPE_CHECKING,
     Optional,
