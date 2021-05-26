@@ -137,6 +137,7 @@ from web3.types import (  # noqa: F401
     ABIEvent,
     ABIFunction,
     BlockIdentifier,
+    CallOverrideParams,
     EventData,
     FunctionIdentifier,
     LogReceipt,
@@ -897,7 +898,9 @@ class ContractFunction:
         self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
 
     def call(
-        self, transaction: Optional[TxParams] = None, block_identifier: BlockIdentifier = 'latest'
+        self, transaction: Optional[TxParams] = None,
+        block_identifier: BlockIdentifier = 'latest',
+        state_override: Optional[CallOverrideParams] = None,
     ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
@@ -960,6 +963,7 @@ class ContractFunction:
             block_id,
             self.contract_abi,
             self.abi,
+            state_override,
             *self.args,
             **self.kwargs
         )
@@ -1476,6 +1480,7 @@ def call_contract_function(
         block_id: Optional[BlockIdentifier] = None,
         contract_abi: Optional[ABI] = None,
         fn_abi: Optional[ABIFunction] = None,
+        state_override: Optional[CallOverrideParams] = None,
         *args: Any,
         **kwargs: Any) -> Any:
     """
@@ -1493,10 +1498,11 @@ def call_contract_function(
         fn_kwargs=kwargs,
     )
 
-    if block_id is None:
-        return_data = web3.eth.call(call_transaction)
-    else:
-        return_data = web3.eth.call(call_transaction, block_identifier=block_id)
+    return_data = web3.eth.call(
+        call_transaction,
+        block_identifier=block_id,
+        state_override=state_override,
+    )
 
     if fn_abi is None:
         fn_abi = find_matching_fn_abi(contract_abi, web3.codec, function_identifier, args, kwargs)
