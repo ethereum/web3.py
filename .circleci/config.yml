@@ -560,6 +560,14 @@ jobs:
         environment:
           TOXENV: py39-wheel-cli
 
+  benchmark:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.9
+    environment:
+      TOXENV: benchmark
+      GETH_VERSION: v1.10.1
+
 workflows:
   version: 2.1
   test:
@@ -571,6 +579,7 @@ workflows:
       - py39-core
       - lint
       - docs
+      - benchmark
       - py36-ens
       - py36-ethpm
       - py36-integration-goethereum-ipc
