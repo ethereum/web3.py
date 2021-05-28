@@ -56,9 +56,6 @@ from .geth_poa import (  # noqa: F401
 from .names import (  # noqa: F401
     name_to_address_middleware,
 )
-from .normalize_errors import (  # noqa: F401
-    normalize_errors_middleware,
-)
 from .normalize_request_parameters import (  # noqa: F401
     request_parameter_normalizer,
 )
