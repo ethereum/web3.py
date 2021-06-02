@@ -163,7 +163,7 @@ class AsyncEthModuleTest:
         self, async_w3: "Web3", empty_block: BlockData
     ) -> None:
         with pytest.raises(BlockNotFound):
-           await async_w3.async_eth.get_block(BlockNumber(12345))
+            await async_w3.async_eth.get_block(BlockNumber(12345))
 
     @pytest.mark.asyncio
     async def test_eth_getBlockByNumber_pending(

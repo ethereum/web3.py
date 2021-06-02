@@ -13,6 +13,10 @@ from typing import (
     Union,
 )
 
+from eth_typing import (
+    ChecksumAddress,
+)
+
 from web3 import (
     AsyncHTTPProvider,
     HTTPProvider,
@@ -39,6 +43,11 @@ from web3.tools.benchmark.utils import (
     wait_for_aiohttp,
     wait_for_http,
 )
+from web3.types import (
+    Wei,
+)
+
+KEYFILE_PW = 'web3py-test'
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -53,7 +62,10 @@ parser.add_argument(
 
 def build_web3_http(endpoint_uri: str) -> Web3:
     wait_for_http(endpoint_uri)
-    _web3 = Web3(HTTPProvider(endpoint_uri), middlewares=[gas_price_strategy_middleware, buffered_gas_estimate_middleware])
+    _web3 = Web3(
+        HTTPProvider(endpoint_uri),
+        middlewares=[gas_price_strategy_middleware, buffered_gas_estimate_middleware]
+    )
     return _web3
 
 
@@ -90,6 +102,17 @@ async def async_benchmark(func: Callable[..., Any], n: int) -> Union[float, str]
         return "N/A"
 
 
+def unlocked_account(w3: "Web3") -> ChecksumAddress:
+    w3.geth.personal.unlock_account(w3.eth.coinbase, KEYFILE_PW)
+    return w3.eth.coinbase
+
+
+async def async_unlocked_account(w3: Web3, w3_eth: AsyncEth) -> ChecksumAddress:
+    coinbase = await w3_eth.coinbase
+    w3.geth.personal.unlock_account(coinbase, KEYFILE_PW)
+    return coinbase
+
+
 def main(logger: logging.Logger, num_calls: int) -> None:
     fixture = GethBenchmarkFixture()
     for built_fixture in fixture.build():
@@ -97,6 +120,10 @@ def main(logger: logging.Logger, num_calls: int) -> None:
             w3_http = build_web3_http(fixture.endpoint_uri)
             loop = asyncio.get_event_loop()
             async_w3_http = loop.run_until_complete(build_async_w3_http(fixture.endpoint_uri))
+            # TODO: swap out w3_http for the async_w3_http once GethPersonal module is async
+            async_unlocked_acct = loop.run_until_complete(
+                async_unlocked_account(w3_http, async_w3_http.async_eth)
+            )
 
             methods = [
                 {
@@ -106,16 +133,30 @@ def main(logger: logging.Logger, num_calls: int) -> None:
                     "async_exec": lambda: async_w3_http.async_eth.gas_price,
                 },
                 {
+                    "name": "eth_sendTransaction",
+                    "params": {},
+                    "exec": lambda: w3_http.eth.send_transaction({
+                        'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                        'from': unlocked_account(w3_http),
+                        'value': Wei(12345),
+                    }),
+                    "async_exec": lambda: async_w3_http.async_eth.send_transaction({
+                        'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                        'from': async_unlocked_acct,
+                        'value': Wei(12345)
+                    }),
+                },
+                {
                     "name": "eth_blockNumber",
                     "params": {},
                     "exec": lambda: w3_http.eth.block_number,
-                    "async_exec": lambda: (_ for _ in ()).throw(Exception("not implemented yet")),
+                    "async_exec": lambda: async_w3_http.async_eth.block_number,
                 },
                 {
                     "name": "eth_getBlock",
                     "params": {},
-                    "exec": lambda: w3_http.eth.get_block("1"),
-                    "async_exec": lambda: (_ for _ in ()).throw(Exception("not implemented yet")),
+                    "exec": lambda: w3_http.eth.get_block(1),
+                    "async_exec": lambda: async_w3_http.async_eth.get_block(1),
                 },
             ]
 
