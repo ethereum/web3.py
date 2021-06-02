@@ -122,12 +122,12 @@ class BaseEth(Module):
             transaction = assoc(transaction, 'from', self.default_account)
 
         # TODO: move gas estimation in middleware
-        if 'gas' not in transaction:
-            transaction = assoc(
-                transaction,
-                'gas',
-                get_buffered_gas_estimate(self.web3, transaction),
-            )
+        # if 'gas' not in transaction:
+        #     transaction = assoc(
+        #         transaction,
+        #         'gas',
+        #         get_buffered_gas_estimate(self.web3, transaction),
+        #     )
         return (transaction,)
 
     _send_transaction: Method[Callable[[TxParams], HexBytes]] = Method(
@@ -148,6 +148,49 @@ class BaseEth(Module):
     def set_gas_price_strategy(self, gas_price_strategy: GasPriceStrategy) -> None:
         self.gasPriceStrategy = gas_price_strategy
 
+    def estimate_gas_munger(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> Sequence[Union[TxParams, BlockIdentifier]]:
+        if 'from' not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, 'from', self.default_account)
+
+        if block_identifier is None:
+            params: Sequence[Union[TxParams, BlockIdentifier]] = [transaction]
+        else:
+            params = [transaction, block_identifier]
+
+        return params
+
+    _estimate_gas: Method[Callable[..., Wei]] = Method(
+        RPC.eth_estimateGas,
+        mungers=[estimate_gas_munger]
+    )
+
+    def get_block_munger(
+        self, block_identifier: BlockIdentifier, full_transactions: bool = False
+    ) -> Tuple[BlockIdentifier, bool]:
+        return (block_identifier, full_transactions)
+
+    """
+    `eth_getBlockByHash`
+    `eth_getBlockByNumber`
+    """
+    _get_block: Method[Callable[..., BlockData]] = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
+            if_predefined=RPC.eth_getBlockByNumber,
+            if_hash=RPC.eth_getBlockByHash,
+            if_number=RPC.eth_getBlockByNumber,
+        ),
+        mungers=[get_block_munger],
+    )
+
+    _get_block_number: Method[Callable[[], BlockNumber]] = Method(
+        RPC.eth_blockNumber,
+        mungers=None,
+    )
+
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -167,6 +210,22 @@ class AsyncEth(BaseEth):
         self, transaction_params: Optional[TxParams] = None
     ) -> Optional[Wei]:
         return self._generate_gas_price(transaction_params)
+
+    async def estimate_gas(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> Wei:
+        return await self._estimate_gas(transaction, block_identifier)
+
+    async def get_block(
+        self, block_identifier: BlockIdentifier, full_transactions: bool = False
+    ) -> BlockData:
+        return await self._get_block(block_identifier, full_transactions)
+
+    @property
+    async def block_number(self) -> BlockNumber:
+        return await self._get_block_number()
 
 
 class Eth(BaseEth, Module):
@@ -259,14 +318,14 @@ class Eth(BaseEth, Module):
     def accounts(self) -> Tuple[ChecksumAddress]:
         return self.get_accounts()
 
-    get_block_number: Method[Callable[[], BlockNumber]] = Method(
-        RPC.eth_blockNumber,
-        mungers=None,
-    )
+    # get_block_number: Method[Callable[[], BlockNumber]] = Method(
+    #     RPC.eth_blockNumber,
+    #     mungers=None,
+    # )
 
     @property
     def block_number(self) -> BlockNumber:
-        return self.get_block_number()
+        return self._get_block_number()
 
     @property
     def blockNumber(self) -> BlockNumber:
@@ -398,23 +457,10 @@ class Eth(BaseEth, Module):
         mungers=[block_id_munger]
     )
 
-    def get_block_munger(
+    def get_block(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
-    ) -> Tuple[BlockIdentifier, bool]:
-        return (block_identifier, full_transactions)
-
-    """
-    `eth_getBlockByHash`
-    `eth_getBlockByNumber`
-    """
-    get_block: Method[Callable[..., BlockData]] = Method(
-        method_choice_depends_on_args=select_method_for_block_identifier(
-            if_predefined=RPC.eth_getBlockByNumber,
-            if_hash=RPC.eth_getBlockByHash,
-            if_number=RPC.eth_getBlockByNumber,
-        ),
-        mungers=[get_block_munger],
-    )
+    ) -> BlockData:
+        return self._get_block(block_identifier, full_transactions)
 
     """
     `eth_getBlockTransactionCountByHash`
@@ -587,25 +633,18 @@ class Eth(BaseEth, Module):
         mungers=[call_munger]
     )
 
-    def estimate_gas_munger(
+
+    # estimate_gas: Method[Callable[..., Wei]] = Method(
+    #     RPC.eth_estimateGas,
+    #     mungers=[estimate_gas_munger]
+    # )
+
+    def estimate_gas(
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None
-    ) -> Sequence[Union[TxParams, BlockIdentifier]]:
-        if 'from' not in transaction and is_checksum_address(self.default_account):
-            transaction = assoc(transaction, 'from', self.default_account)
-
-        if block_identifier is None:
-            params: Sequence[Union[TxParams, BlockIdentifier]] = [transaction]
-        else:
-            params = [transaction, block_identifier]
-
-        return params
-
-    estimate_gas: Method[Callable[..., Wei]] = Method(
-        RPC.eth_estimateGas,
-        mungers=[estimate_gas_munger]
-    )
+    ) -> Wei:
+        return self._estimate_gas(transaction, block_identifier)
 
     def filter_munger(
         self,

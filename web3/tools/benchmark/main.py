@@ -21,6 +21,12 @@ from web3 import (
 from web3.eth import (
     AsyncEth,
 )
+from web3.middleware import (
+    async_buffered_gas_estimate_middleware,
+    async_gas_price_strategy_middleware,
+    buffered_gas_estimate_middleware,
+    gas_price_strategy_middleware,
+)
 from web3.tools.benchmark.node import (
     GethBenchmarkFixture,
 )
@@ -47,7 +53,7 @@ parser.add_argument(
 
 def build_web3_http(endpoint_uri: str) -> Web3:
     wait_for_http(endpoint_uri)
-    _web3 = Web3(HTTPProvider(endpoint_uri), middlewares=[])
+    _web3 = Web3(HTTPProvider(endpoint_uri), middlewares=[gas_price_strategy_middleware, buffered_gas_estimate_middleware])
     return _web3
 
 
@@ -55,7 +61,7 @@ async def build_async_w3_http(endpoint_uri: str) -> Web3:
     await wait_for_aiohttp(endpoint_uri)
     _web3 = Web3(
         AsyncHTTPProvider(endpoint_uri),  # type: ignore
-        middlewares=[],
+        middlewares=[async_gas_price_strategy_middleware, async_buffered_gas_estimate_middleware],
         modules={"async_eth": (AsyncEth,)},
     )
     return _web3

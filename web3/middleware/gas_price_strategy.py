@@ -9,6 +9,10 @@ from eth_utils.toolz import (
     assoc,
 )
 
+from web3._utils.transactions import (
+    get_buffered_gas_estimate,
+    async_get_buffered_gas_estimate,
+)
 from web3.types import (
     RPCEndpoint,
     RPCResponse,
@@ -51,4 +55,36 @@ async def async_gas_price_strategy_middleware(
                     transaction = assoc(transaction, 'gasPrice', hex(generated_gas_price))
                     return await make_request(method, [transaction])
         return await make_request(method, params)
+    return middleware
+
+def buffered_gas_estimate_middleware(
+    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+):
+    def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+        if method == 'eth_sendTransaction':
+            transaction = params[0]
+            if 'gas' not in transaction:
+                transaction = assoc(
+                    transaction,
+                    'gas',
+                    get_buffered_gas_estimate(web3.eth, transaction),
+                )
+                return make_request(method, [transaction])
+        return make_request(method, params)
+    return middleware
+
+async def async_buffered_gas_estimate_middleware(
+    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+):
+    def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+        if method == 'eth_sendTransaction':
+            transaction = params[0]
+            if 'gas' not in transaction:
+                transaction = assoc(
+                    transaction,
+                    'gas',
+                    async_get_buffered_gas_estimate(web3.async_eth, transaction),
+                )
+                return make_request(method, [transaction])
+        return make_request(method, params)
     return middleware

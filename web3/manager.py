@@ -31,6 +31,7 @@ from web3.datastructures import (
 from web3.middleware import (
     abi_middleware,
     attrdict_middleware,
+    buffered_gas_estimate_middleware,
     gas_price_strategy_middleware,
     name_to_address_middleware,
     normalize_errors_middleware,
@@ -118,6 +119,7 @@ class RequestManager:
             (normalize_errors_middleware, 'normalize_errors'),  # Add async
             (validation_middleware, 'validation'),  # Add async
             (abi_middleware, 'abi'),  # Delete
+            (buffered_gas_estimate_middleware, 'gas_estimate'),
         ]
 
     #
@@ -175,9 +177,8 @@ class RequestManager:
         if "error" in response:
             apply_error_formatters(error_formatters, response)
             raise ValueError(response["error"])
-
-        if response['result'] is None:
-            raise ValueError(f"The call to {method} did not return a value.")
+        elif response['result'] is None:
+            apply_error_formatters(error_formatters, response, params)
 
         return response['result']
 
