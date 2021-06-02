@@ -17,6 +17,10 @@ from .abi import (  # noqa: F401
 from .attrdict import (  # noqa: F401
     attrdict_middleware,
 )
+from .buffered_gas_estimate import (  # noqa: F401
+    async_buffered_gas_estimate_middleware,
+    buffered_gas_estimate_middleware,
+)
 from .cache import (  # noqa: F401
     _latest_block_based_cache_middleware as latest_block_based_cache_middleware,
     _simple_cache_middleware as simple_cache_middleware,
@@ -44,8 +48,6 @@ from .formatting import (  # noqa: F401
 )
 from .gas_price_strategy import (  # noqa: F401
     async_gas_price_strategy_middleware,
-    async_buffered_gas_estimate_middleware,
-    buffered_gas_estimate_middleware,
     gas_price_strategy_middleware,
 )
 from .geth_poa import (  # noqa: F401

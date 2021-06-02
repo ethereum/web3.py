@@ -59,7 +59,6 @@ from web3._utils.threads import (
 from web3._utils.transactions import (
     assert_valid_transaction_params,
     extract_valid_transaction_params,
-    get_buffered_gas_estimate,
     get_required_transaction,
     replace_transaction,
     wait_for_transaction_receipt,
@@ -121,13 +120,6 @@ class BaseEth(Module):
         if 'from' not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, 'from', self.default_account)
 
-        # TODO: move gas estimation in middleware
-        # if 'gas' not in transaction:
-        #     transaction = assoc(
-        #         transaction,
-        #         'gas',
-        #         get_buffered_gas_estimate(self.web3, transaction),
-        #     )
         return (transaction,)
 
     _send_transaction: Method[Callable[[TxParams], HexBytes]] = Method(
@@ -186,8 +178,13 @@ class BaseEth(Module):
         mungers=[get_block_munger],
     )
 
-    _get_block_number: Method[Callable[[], BlockNumber]] = Method(
+    get_block_number: Method[Callable[[], BlockNumber]] = Method(
         RPC.eth_blockNumber,
+        mungers=None,
+    )
+
+    get_coinbase: Method[Callable[[], ChecksumAddress]] = Method(
+        RPC.eth_coinbase,
         mungers=None,
     )
 
@@ -201,9 +198,11 @@ class AsyncEth(BaseEth):
         return await self._gas_price()  # type: ignore
 
     async def send_transaction(self, transaction: TxParams) -> HexBytes:
+        # types ignored b/c mypy conflict with BlockingEth properties
         return await self._send_transaction(transaction)  # type: ignore
 
     async def get_transaction(self, transaction_hash: _Hash32) -> TxData:
+        # types ignored b/c mypy conflict with BlockingEth properties
         return await self._get_transaction(transaction_hash)  # type: ignore
 
     async def generate_gas_price(
@@ -216,16 +215,24 @@ class AsyncEth(BaseEth):
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None
     ) -> Wei:
-        return await self._estimate_gas(transaction, block_identifier)
+        # types ignored b/c mypy conflict with BlockingEth properties
+        return await self._estimate_gas(transaction, block_identifier)  # type: ignore
 
     async def get_block(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> BlockData:
-        return await self._get_block(block_identifier, full_transactions)
+        # types ignored b/c mypy conflict with BlockingEth properties
+        return await self._get_block(block_identifier, full_transactions)  # type: ignore
 
     @property
     async def block_number(self) -> BlockNumber:
-        return await self._get_block_number()
+        # types ignored b/c mypy conflict with BlockingEth properties
+        return await self.get_block_number()  # type: ignore
+
+    @property
+    async def coinbase(self) -> ChecksumAddress:
+        # types ignored b/c mypy conflict with BlockingEth properties
+        return await self.get_coinbase()  # type: ignore
 
 
 class Eth(BaseEth, Module):
@@ -270,11 +277,6 @@ class Eth(BaseEth, Module):
     def syncing(self) -> Union[SyncStatus, bool]:
         return self.is_syncing()
 
-    get_coinbase: Method[Callable[[], ChecksumAddress]] = Method(
-        RPC.eth_coinbase,
-        mungers=None,
-    )
-
     @property
     def coinbase(self) -> ChecksumAddress:
         return self.get_coinbase()
@@ -318,14 +320,9 @@ class Eth(BaseEth, Module):
     def accounts(self) -> Tuple[ChecksumAddress]:
         return self.get_accounts()
 
-    # get_block_number: Method[Callable[[], BlockNumber]] = Method(
-    #     RPC.eth_blockNumber,
-    #     mungers=None,
-    # )
-
     @property
     def block_number(self) -> BlockNumber:
-        return self._get_block_number()
+        return self.get_block_number()
 
     @property
     def blockNumber(self) -> BlockNumber:
@@ -633,12 +630,6 @@ class Eth(BaseEth, Module):
         mungers=[call_munger]
     )
 
-
-    # estimate_gas: Method[Callable[..., Wei]] = Method(
-    #     RPC.eth_estimateGas,
-    #     mungers=[estimate_gas_munger]
-    # )
-
     def estimate_gas(
         self,
         transaction: TxParams,
@@ -763,7 +754,7 @@ class Eth(BaseEth, Module):
     # Deprecated Methods
     getBalance = DeprecatedMethod(get_balance, 'getBalance', 'get_balance')
     getStorageAt = DeprecatedMethod(get_storage_at, 'getStorageAt', 'get_storage_at')
-    getBlock = DeprecatedMethod(get_block, 'getBlock', 'get_block')
+    getBlock = DeprecatedMethod(get_block, 'getBlock', 'get_block')  # type: ignore
     getBlockTransactionCount = DeprecatedMethod(get_block_transaction_count,
                                                 'getBlockTransactionCount',
                                                 'get_block_transaction_count')
@@ -788,7 +779,7 @@ class Eth(BaseEth, Module):
     submitHashrate = DeprecatedMethod(submit_hashrate, 'submitHashrate', 'submit_hashrate')
     submitWork = DeprecatedMethod(submit_work, 'submitWork', 'submit_work')
     getLogs = DeprecatedMethod(get_logs, 'getLogs', 'get_logs')
-    estimateGas = DeprecatedMethod(estimate_gas, 'estimateGas', 'estimate_gas')
+    estimateGas = DeprecatedMethod(estimate_gas, 'estimateGas', 'estimate_gas')  # type: ignore
     sendRawTransaction = DeprecatedMethod(send_raw_transaction,
                                           'sendRawTransaction',
                                           'send_raw_transaction')
