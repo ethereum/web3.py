@@ -110,6 +110,86 @@ class AsyncEthModuleTest:
 
         assert txn['gasPrice'] == 20
 
+    @pytest.mark.asyncio
+    async def test_eth_estimate_gas(
+        self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        gas_estimate = await async_w3.async_eth.estimate_gas({
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+        })
+        assert is_integer(gas_estimate)
+        assert gas_estimate > 0
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockByHash(
+        self, async_w3: "Web3", empty_block: BlockData
+    ) -> None:
+        block = await async_w3.async_eth.get_block(empty_block['hash'])
+        assert block['hash'] == empty_block['hash']
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockByHash_not_found(
+        self, async_w3: "Web3", empty_block: BlockData
+    ) -> None:
+        with pytest.raises(BlockNotFound):
+            await async_w3.async_eth.get_block(UNKNOWN_HASH)
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockByHash_pending(
+        self, async_w3: "Web3"
+    ) -> None:
+        block = await async_w3.async_eth.get_block('pending')
+        assert block['hash'] is None
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockByNumber_with_integer(
+        self, async_w3: "Web3", empty_block: BlockData
+    ) -> None:
+        block = await async_w3.async_eth.get_block(empty_block['number'])
+        assert block['number'] == empty_block['number']
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockByNumber_latest(
+        self, async_w3: "Web3", empty_block: BlockData
+    ) -> None:
+        current_block_number = await async_w3.async_eth.block_number
+        block = await async_w3.async_eth.get_block('latest')
+        assert block['number'] == current_block_number
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockByNumber_not_found(
+        self, async_w3: "Web3", empty_block: BlockData
+    ) -> None:
+        with pytest.raises(BlockNotFound):
+           await async_w3.async_eth.get_block(BlockNumber(12345))
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockByNumber_pending(
+        self, async_w3: "Web3", empty_block: BlockData
+    ) -> None:
+        current_block_number = await async_w3.async_eth.block_number
+        block = await async_w3.async_eth.get_block('pending')
+        assert block['number'] == current_block_number + 1
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockByNumber_earliest(
+        self, async_w3: "Web3", empty_block: BlockData
+    ) -> None:
+        genesis_block = await async_w3.async_eth.get_block(BlockNumber(0))
+        block = await async_w3.async_eth.get_block('earliest')
+        assert block['number'] == 0
+        assert block['hash'] == genesis_block['hash']
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockByNumber_full_transactions(
+        self, async_w3: "Web3", block_with_txn: BlockData
+    ) -> None:
+        block = await async_w3.async_eth.get_block(block_with_txn['number'], True)
+        transaction = block['transactions'][0]
+        assert transaction['hash'] == block_with_txn['transactions'][0]  # type: ignore
+
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:

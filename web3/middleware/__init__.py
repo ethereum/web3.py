@@ -43,8 +43,10 @@ from .formatting import (  # noqa: F401
     construct_formatting_middleware,
 )
 from .gas_price_strategy import (  # noqa: F401
-    gas_price_strategy_middleware,
     async_gas_price_strategy_middleware,
+    async_buffered_gas_estimate_middleware,
+    buffered_gas_estimate_middleware,
+    gas_price_strategy_middleware,
 )
 from .geth_poa import (  # noqa: F401
     geth_poa_middleware,
