@@ -39,11 +39,6 @@ if TYPE_CHECKING:
 
 
 class AsyncEthereumTesterProvider(AsyncBaseProvider):
-    """This is a placeholder.
-
-    For now its purpose is to provide an awaitable request function
-    for testing the async api execution.
-    """
     def __init__(self) -> None:
         self.eth_tester = EthereumTesterProvider()
 

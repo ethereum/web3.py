@@ -34,7 +34,7 @@ def buffered_gas_estimate_middleware(
                 transaction = assoc(
                     transaction,
                     'gas',
-                    hex(get_buffered_gas_estimate(web3.eth, transaction)),
+                    hex(get_buffered_gas_estimate(web3, transaction)),
                 )
                 return make_request(method, [transaction])
         return make_request(method, params)
@@ -48,7 +48,7 @@ async def async_buffered_gas_estimate_middleware(
         if method == 'eth_sendTransaction':
             transaction = params[0]
             if 'gas' not in transaction:
-                gas_estimate = await async_get_buffered_gas_estimate(web3.eth, transaction)
+                gas_estimate = await async_get_buffered_gas_estimate(web3, transaction)
                 transaction = assoc(
                     transaction,
                     'gas',

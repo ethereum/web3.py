@@ -109,6 +109,7 @@ def unlocked_account(w3: "Web3") -> ChecksumAddress:
 
 
 async def async_unlocked_account(w3: Web3, w3_eth: Eth) -> ChecksumAddress:
+    # change w3_eth type to w3_eth: AsyncEth once AsyncEth reflects Eth
     coinbase = await w3_eth.coinbase  # type: ignore
     w3.geth.personal.unlock_account(coinbase, KEYFILE_PW)
     return coinbase

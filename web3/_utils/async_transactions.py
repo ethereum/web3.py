@@ -12,7 +12,7 @@ from web3.types import (
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
-    from web3.eth import AsyncEth, Eth  # noqa: F401
+    from web3.eth import AsyncEth  # noqa: F401
 
 
 async def get_block_gas_limit(
@@ -25,13 +25,13 @@ async def get_block_gas_limit(
 
 
 async def get_buffered_gas_estimate(
-    web3_eth: "Eth", transaction: TxParams, gas_buffer: Wei = Wei(100000)
+    web3: "Web3", transaction: TxParams, gas_buffer: Wei = Wei(100000)
 ) -> Wei:
     gas_estimate_transaction = cast(TxParams, dict(**transaction))
 
-    gas_estimate = await web3_eth.estimate_gas(gas_estimate_transaction)  # type: ignore
+    gas_estimate = await web3.eth.estimate_gas(gas_estimate_transaction)  # type: ignore
 
-    gas_limit = await get_block_gas_limit(web3_eth)  # type: ignore
+    gas_limit = await get_block_gas_limit(web3.eth)  # type: ignore
 
     if gas_estimate > gas_limit:
         raise ValueError(

@@ -59,7 +59,6 @@ TRANSACTION_DEFAULTS = {
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
-    from web3.eth import Eth  # noqa: F401
 
 
 @curry
@@ -113,21 +112,21 @@ def wait_for_transaction_receipt(
     return txn_receipt
 
 
-def get_block_gas_limit(web3_eth: "Eth", block_identifier: Optional[BlockIdentifier] = None) -> Wei:
+def get_block_gas_limit(web3: "Web3", block_identifier: Optional[BlockIdentifier] = None) -> Wei:
     if block_identifier is None:
-        block_identifier = web3_eth.block_number
-    block = web3_eth.get_block(block_identifier)
+        block_identifier = web3.eth.block_number
+    block = web3.eth.get_block(block_identifier)
     return block['gasLimit']
 
 
 def get_buffered_gas_estimate(
-    web3_eth: "Eth", transaction: TxParams, gas_buffer: Wei = Wei(100000)
+    web3: "Web3", transaction: TxParams, gas_buffer: Wei = Wei(100000)
 ) -> Wei:
     gas_estimate_transaction = cast(TxParams, dict(**transaction))
 
-    gas_estimate = web3_eth.estimate_gas(gas_estimate_transaction)
+    gas_estimate = web3.eth.estimate_gas(gas_estimate_transaction)
 
-    gas_limit = get_block_gas_limit(web3_eth)
+    gas_limit = get_block_gas_limit(web3)
 
     if gas_estimate > gas_limit:
         raise ValueError(
