@@ -46,7 +46,7 @@ async def async_gas_price_strategy_middleware(
         if method == 'eth_sendTransaction':
             transaction = params[0]
             if 'gasPrice' not in transaction:
-                generated_gas_price = await web3.async_eth.generate_gas_price(transaction)
+                generated_gas_price = await web3.eth.generate_gas_price(transaction)  # type: ignore
                 if generated_gas_price is not None:
                     transaction = assoc(transaction, 'gasPrice', hex(generated_gas_price))
                     return await make_request(method, [transaction])

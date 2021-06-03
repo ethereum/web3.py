@@ -9,8 +9,10 @@ from eth_utils.toolz import (
     assoc,
 )
 
+from web3._utils.async_transactions import (
+    get_buffered_gas_estimate as async_get_buffered_gas_estimate,
+)
 from web3._utils.transactions import (
-    async_get_buffered_gas_estimate,
     get_buffered_gas_estimate,
 )
 from web3.types import (
@@ -46,7 +48,7 @@ async def async_buffered_gas_estimate_middleware(
         if method == 'eth_sendTransaction':
             transaction = params[0]
             if 'gas' not in transaction:
-                gas_estimate = await async_get_buffered_gas_estimate(web3.async_eth, transaction)
+                gas_estimate = await async_get_buffered_gas_estimate(web3.eth, transaction)
                 transaction = assoc(
                     transaction,
                     'gas',
