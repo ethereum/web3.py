@@ -59,7 +59,7 @@ TRANSACTION_DEFAULTS = {
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
-    from web3.eth import AsyncEth, Eth  # noqa: F401
+    from web3.eth import Eth  # noqa: F401
 
 
 @curry
@@ -128,34 +128,6 @@ def get_buffered_gas_estimate(
     gas_estimate = web3_eth.estimate_gas(gas_estimate_transaction)
 
     gas_limit = get_block_gas_limit(web3_eth)
-
-    if gas_estimate > gas_limit:
-        raise ValueError(
-            "Contract does not appear to be deployable within the "
-            "current network gas limits.  Estimated: {0}. Current gas "
-            "limit: {1}".format(gas_estimate, gas_limit)
-        )
-
-    return Wei(min(gas_limit, gas_estimate + gas_buffer))
-
-
-async def async_get_block_gas_limit(
-    web3_eth: "AsyncEth", block_identifier: Optional[BlockIdentifier] = None
-) -> Wei:
-    if block_identifier is None:
-        block_identifier = await web3_eth.block_number
-    block = await web3_eth.get_block(block_identifier)
-    return block['gasLimit']
-
-
-async def async_get_buffered_gas_estimate(
-    web3_eth: "AsyncEth", transaction: TxParams, gas_buffer: Wei = Wei(100000)
-) -> Wei:
-    gas_estimate_transaction = cast(TxParams, dict(**transaction))
-
-    gas_estimate = await web3_eth.estimate_gas(gas_estimate_transaction)
-
-    gas_limit = await async_get_block_gas_limit(web3_eth)
 
     if gas_estimate > gas_limit:
         raise ValueError(

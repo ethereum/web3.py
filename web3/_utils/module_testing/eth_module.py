@@ -61,7 +61,7 @@ if TYPE_CHECKING:
 class AsyncEthModuleTest:
     @pytest.mark.asyncio
     async def test_eth_gas_price(self, async_w3: "Web3") -> None:
-        gas_price = await async_w3.async_eth.gas_price
+        gas_price = await async_w3.eth.gas_price  # type: ignore
         assert gas_price > 0
 
     @pytest.mark.asyncio
@@ -78,10 +78,10 @@ class AsyncEthModuleTest:
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': await async_w3.async_eth.gas_price,
+            'gasPrice': await async_w3.eth.gas_price,  # type: ignore
         }
-        txn_hash = await async_w3.async_eth.send_transaction(txn_params)
-        txn = await async_w3.async_eth.get_transaction(txn_hash)
+        txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
+        txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
 
         assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
@@ -103,10 +103,10 @@ class AsyncEthModuleTest:
         def higher_gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
             return Wei(20)
 
-        async_w3.async_eth.set_gas_price_strategy(higher_gas_price_strategy)
+        async_w3.eth.set_gas_price_strategy(higher_gas_price_strategy)
 
-        txn_hash = await async_w3.async_eth.send_transaction(txn_params)
-        txn = await async_w3.async_eth.get_transaction(txn_hash)
+        txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
+        txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
 
         assert txn['gasPrice'] == 20
 
@@ -114,7 +114,7 @@ class AsyncEthModuleTest:
     async def test_eth_estimate_gas(
         self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        gas_estimate = await async_w3.async_eth.estimate_gas({
+        gas_estimate = await async_w3.eth.estimate_gas({  # type: ignore
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
@@ -126,7 +126,7 @@ class AsyncEthModuleTest:
     async def test_eth_getBlockByHash(
         self, async_w3: "Web3", empty_block: BlockData
     ) -> None:
-        block = await async_w3.async_eth.get_block(empty_block['hash'])
+        block = await async_w3.eth.get_block(empty_block['hash'])  # type: ignore
         assert block['hash'] == empty_block['hash']
 
     @pytest.mark.asyncio
@@ -134,28 +134,28 @@ class AsyncEthModuleTest:
         self, async_w3: "Web3", empty_block: BlockData
     ) -> None:
         with pytest.raises(BlockNotFound):
-            await async_w3.async_eth.get_block(UNKNOWN_HASH)
+            await async_w3.eth.get_block(UNKNOWN_HASH)  # type: ignore
 
     @pytest.mark.asyncio
     async def test_eth_getBlockByHash_pending(
         self, async_w3: "Web3"
     ) -> None:
-        block = await async_w3.async_eth.get_block('pending')
+        block = await async_w3.eth.get_block('pending')  # type: ignore
         assert block['hash'] is None
 
     @pytest.mark.asyncio
     async def test_eth_getBlockByNumber_with_integer(
         self, async_w3: "Web3", empty_block: BlockData
     ) -> None:
-        block = await async_w3.async_eth.get_block(empty_block['number'])
+        block = await async_w3.eth.get_block(empty_block['number'])  # type: ignore
         assert block['number'] == empty_block['number']
 
     @pytest.mark.asyncio
     async def test_eth_getBlockByNumber_latest(
         self, async_w3: "Web3", empty_block: BlockData
     ) -> None:
-        current_block_number = await async_w3.async_eth.block_number
-        block = await async_w3.async_eth.get_block('latest')
+        current_block_number = await async_w3.eth.block_number  # type: ignore
+        block = await async_w3.eth.get_block('latest')  # type: ignore
         assert block['number'] == current_block_number
 
     @pytest.mark.asyncio
@@ -163,22 +163,22 @@ class AsyncEthModuleTest:
         self, async_w3: "Web3", empty_block: BlockData
     ) -> None:
         with pytest.raises(BlockNotFound):
-            await async_w3.async_eth.get_block(BlockNumber(12345))
+            await async_w3.eth.get_block(BlockNumber(12345))  # type: ignore
 
     @pytest.mark.asyncio
     async def test_eth_getBlockByNumber_pending(
         self, async_w3: "Web3", empty_block: BlockData
     ) -> None:
-        current_block_number = await async_w3.async_eth.block_number
-        block = await async_w3.async_eth.get_block('pending')
+        current_block_number = await async_w3.eth.block_number  # type: ignore
+        block = await async_w3.eth.get_block('pending')  # type: ignore
         assert block['number'] == current_block_number + 1
 
     @pytest.mark.asyncio
     async def test_eth_getBlockByNumber_earliest(
         self, async_w3: "Web3", empty_block: BlockData
     ) -> None:
-        genesis_block = await async_w3.async_eth.get_block(BlockNumber(0))
-        block = await async_w3.async_eth.get_block('earliest')
+        genesis_block = await async_w3.eth.get_block(BlockNumber(0))  # type: ignore
+        block = await async_w3.eth.get_block('earliest')  # type: ignore
         assert block['number'] == 0
         assert block['hash'] == genesis_block['hash']
 
@@ -186,9 +186,9 @@ class AsyncEthModuleTest:
     async def test_eth_getBlockByNumber_full_transactions(
         self, async_w3: "Web3", block_with_txn: BlockData
     ) -> None:
-        block = await async_w3.async_eth.get_block(block_with_txn['number'], True)
+        block = await async_w3.eth.get_block(block_with_txn['number'], True)  # type: ignore
         transaction = block['transactions'][0]
-        assert transaction['hash'] == block_with_txn['transactions'][0]  # type: ignore
+        assert transaction['hash'] == block_with_txn['transactions'][0]
 
 
 class EthModuleTest:

@@ -24,6 +24,7 @@ from web3 import (
 )
 from web3.eth import (
     AsyncEth,
+    Eth,
 )
 from web3.middleware import (
     async_buffered_gas_estimate_middleware,
@@ -74,7 +75,7 @@ async def build_async_w3_http(endpoint_uri: str) -> Web3:
     _web3 = Web3(
         AsyncHTTPProvider(endpoint_uri),  # type: ignore
         middlewares=[async_gas_price_strategy_middleware, async_buffered_gas_estimate_middleware],
-        modules={"async_eth": (AsyncEth,)},
+        modules={"eth": (AsyncEth,)},
     )
     return _web3
 
@@ -107,8 +108,8 @@ def unlocked_account(w3: "Web3") -> ChecksumAddress:
     return w3.eth.coinbase
 
 
-async def async_unlocked_account(w3: Web3, w3_eth: AsyncEth) -> ChecksumAddress:
-    coinbase = await w3_eth.coinbase
+async def async_unlocked_account(w3: Web3, w3_eth: Eth) -> ChecksumAddress:
+    coinbase = await w3_eth.coinbase  # type: ignore
     w3.geth.personal.unlock_account(coinbase, KEYFILE_PW)
     return coinbase
 
@@ -122,7 +123,7 @@ def main(logger: logging.Logger, num_calls: int) -> None:
             async_w3_http = loop.run_until_complete(build_async_w3_http(fixture.endpoint_uri))
             # TODO: swap out w3_http for the async_w3_http once GethPersonal module is async
             async_unlocked_acct = loop.run_until_complete(
-                async_unlocked_account(w3_http, async_w3_http.async_eth)
+                async_unlocked_account(w3_http, async_w3_http.eth)
             )
 
             methods = [
@@ -130,7 +131,7 @@ def main(logger: logging.Logger, num_calls: int) -> None:
                     "name": "eth_gasPrice",
                     "params": {},
                     "exec": lambda: w3_http.eth.gas_price,
-                    "async_exec": lambda: async_w3_http.async_eth.gas_price,
+                    "async_exec": lambda: async_w3_http.eth.gas_price,
                 },
                 {
                     "name": "eth_sendTransaction",
@@ -140,7 +141,7 @@ def main(logger: logging.Logger, num_calls: int) -> None:
                         'from': unlocked_account(w3_http),
                         'value': Wei(12345),
                     }),
-                    "async_exec": lambda: async_w3_http.async_eth.send_transaction({
+                    "async_exec": lambda: async_w3_http.eth.send_transaction({
                         'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
                         'from': async_unlocked_acct,
                         'value': Wei(12345)
@@ -150,13 +151,13 @@ def main(logger: logging.Logger, num_calls: int) -> None:
                     "name": "eth_blockNumber",
                     "params": {},
                     "exec": lambda: w3_http.eth.block_number,
-                    "async_exec": lambda: async_w3_http.async_eth.block_number,
+                    "async_exec": lambda: async_w3_http.eth.block_number,
                 },
                 {
                     "name": "eth_getBlock",
                     "params": {},
                     "exec": lambda: w3_http.eth.get_block(1),
-                    "async_exec": lambda: async_w3_http.async_eth.get_block(1),
+                    "async_exec": lambda: async_w3_http.eth.get_block(1),
                 },
             ]
 

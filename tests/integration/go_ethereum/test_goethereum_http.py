@@ -8,6 +8,7 @@ from web3.eth import (
     AsyncEth,
 )
 from web3.middleware import (
+    async_buffered_gas_estimate_middleware,
     async_gas_price_strategy_middleware,
 )
 from web3.providers.async_rpc import (
@@ -79,9 +80,12 @@ async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
     _web3 = Web3(
         AsyncHTTPProvider(endpoint_uri),
-        middlewares=[async_gas_price_strategy_middleware],
+        middlewares=[
+            async_gas_price_strategy_middleware,
+            async_buffered_gas_estimate_middleware
+        ],
         modules={
-            'async_eth': (AsyncEth,),
+            'eth': (AsyncEth,),
         })
     return _web3
 
