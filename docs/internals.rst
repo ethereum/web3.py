@@ -80,16 +80,6 @@ HTTP or an IPC socket.  There is however nothing which requires providers to be
 RPC based, allowing for providers designed for testing purposes which use an
 in-memory EVM to fulfill requests.
 
-In most simple cases you will be using a single provider.  However, if you
-would like to use Web3 with multiple providers, you can simply pass them in as
-a list when instantiating your ``Web3`` object.
-
-
-.. code-block:: python
-
-    >>> w3 = Web3([provider_a, provider_b])
-
-
 
 Writing your own Provider
 ~~~~~~~~~~~~~~~~~~~~~~~~~
