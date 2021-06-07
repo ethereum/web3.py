@@ -39,8 +39,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
 
     def __init__(
         self, endpoint_uri: Optional[Union[URI, str]] = None,
-            request_kwargs: Optional[Any] = None,
-            session: Optional[Any] = None
+            request_kwargs: Optional[Any] = None
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()

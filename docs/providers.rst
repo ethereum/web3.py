@@ -360,3 +360,46 @@ AutoProvider
 :class:`~web3.providers.auto.AutoProvider` is the default used when initializing
 :class:`web3.Web3` without any providers. There's rarely a reason to use it
 explicitly.
+
+
+
+AsyncHTTPProvider
+~~~~~~~~~~~~~~~~~
+
+.. warning:: This provider is unstable and there are still gaps in
+    functionality. However, it is being actively developed.
+
+.. py:class:: web3.providers.async_rpc.AsyncHTTPProvider(endpoint_uri[, request_kwargs])
+
+    This provider handles interactions with an HTTP or HTTPS based JSON-RPC server asynchronously.
+
+    * ``endpoint_uri`` should be the full URI to the RPC endpoint such as
+      ``'https://localhost:8545'``.  For RPC servers behind HTTP connections
+      running on port 80 and HTTPS connections running on port 443 the port can
+      be omitted from the URI.
+    * ``request_kwargs`` should be a dictionary of keyword arguments which
+      will be passed onto each http/https POST request made to your node.
+
+    .. code-block:: python
+
+        >>> from web3 import Web3
+        >>> w3 = Web3(Web3.AsyncHTTPProvider("http://127.0.0.1:8545"))
+
+    Under the hood, the ``AsyncHTTPProvider`` uses the python
+    `aiohttp <https://docs.aiohttp.org/en/stable/>`_ library for making requests.
+
+Supported Methods
+^^^^^^^^^^^^^^^^^
+
+- :meth:`web3.eth.block_number <web3.eth.Eth.block_number>`
+- :meth:`web3.eth.coinbase <web3.eth.Eth.coinbase>`
+- :meth:`web3.eth.gas_price <web3.eth.Eth.gas_price>`
+- :meth:`web3.eth.estimate_gas() <web3.eth.Eth.estimate_gas>`
+- :meth:`web3.eth.generate_gas_price() <web3.eth.Eth.generate_gas_price>`
+- :meth:`web3.eth.get_block() <web3.eth.Eth.get_block>`
+- :meth:`web3.eth.get_transaction() <web3.eth.Eth.get_transaction>`
+- :meth:`web3.eth.send_transaction() <web3.eth.Eth.send_transaction>`
+
+Supported Middleware
+^^^^^^^^^^^^^^^^^^^^
+- :meth:`Gas Price Strategy <web3.middleware.gas_price_strategy_middleware>`
