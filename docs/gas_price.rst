@@ -15,7 +15,7 @@ dictionary and returns a gas price (denominated in wei).
 Retrieving gas price
 --------------------
 
-To retreive the gas price using the selected strategy simply call
+To retrieve the gas price using the selected strategy simply call
 :meth:`~web3.eth.Eth.generate_gas_price`
 
 .. code-block:: python

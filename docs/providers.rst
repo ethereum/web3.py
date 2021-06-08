@@ -100,7 +100,7 @@ How Automated Detection Works
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Web3 attempts to connect to nodes in the following order, using the first
-succesful connection it can make:
+successful connection it can make:
 
 1. The connection specified by an environment variable, see :ref:`provider_uri`
 2. :class:`~web3.providers.ipc.IPCProvider`, which looks for several IPC file locations.

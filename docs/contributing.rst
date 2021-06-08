@@ -131,6 +131,13 @@ Running the tests
 
 A great way to explore the code base is to run the tests.
 
+
+First, install the test dependencies:
+
+.. code:: sh
+
+    $ pip install -e ".[test]"
+
 You can run all tests with:
 
 .. code:: sh
@@ -217,6 +224,12 @@ Our integration tests make use of Geth and Parity/OpenEthereum private networks.
 When new versions of the client software are introduced, new fixtures should be
 generated.
 
+Before generating new fixtures, make sure you have the test dependencies installed:
+
+.. code:: sh
+
+    $ pip install -e ".[test]"
+
 .. note::
 
     A "fixture" is a pre-synced network. It's the result of configuring and running
@@ -231,19 +244,19 @@ Geth fixtures
    this purpose, because it enables you to easily manage multiple versions of Geth.
 
    Note that ``py-geth`` will need updating to support each new Geth version as well.
-   Add newer Geth version to py-geth is straightforward; see past commits for a template.
+   Adding newer Geth versions to py-geth is straightforward; see past commits for a template.
 
    If py-geth has the Geth version you need, install that version locally. For example:
 
    .. code:: sh
 
-       $ python -m geth.install v1.10.1
+       $ python -m geth.install v1.10.3
 
 2. Specify the Geth binary and run the fixture creation script (from within the web3.py directory):
 
    .. code:: sh
 
-       $ GETH_BINARY=~/.py-geth/geth-v1.10.1/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py ./tests/integration/geth-1.10.1-fixture
+       $ GETH_BINARY=~/.py-geth/geth-v1.10.3/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py ./tests/integration/geth-1.10.3-fixture
 
 3. The output of this script is your fixture, a zip file, which is now stored in ``/tests/integration/``.
    Update the ``/tests/integration/go_ethereum/conftest.py`` file to point to this new fixture. Delete the old fixture.
