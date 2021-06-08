@@ -17,6 +17,7 @@ def the_gas_price_strategy_middleware(web3):
     return initialized
 
 
+@pytest.mark.skip(reason="London TODO: generate_gas_price updates")
 def test_gas_price_generated(the_gas_price_strategy_middleware):
     the_gas_price_strategy_middleware.web3.eth.generate_gas_price.return_value = 5
     method = 'eth_sendTransaction'

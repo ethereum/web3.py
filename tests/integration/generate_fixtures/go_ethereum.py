@@ -20,7 +20,7 @@ from eth_utils.toolz import (
     valmap,
 )
 
-import common
+import common_1559 as common
 from tests.utils import (
     get_open_port,
 )
