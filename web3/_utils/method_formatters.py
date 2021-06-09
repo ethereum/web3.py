@@ -595,33 +595,53 @@ def get_request_formatters(
 
 
 def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
-    block_identifier = params[0]
-    raise BlockNotFound(f"Block with id: {block_identifier!r} not found.")
+    try:
+        block_identifier = params[0]
+        message = f"Block with id: {block_identifier!r} not found."
+    except IndexError:
+        message = "Unknown block identifier"
+
+    raise BlockNotFound(message)
 
 
 def raise_block_not_found_for_uncle_at_index(
     params: Tuple[BlockIdentifier, Union[HexStr, int]]
 ) -> NoReturn:
-    block_identifier = params[0]
-    uncle_index = to_integer_if_hex(params[1])
-    raise BlockNotFound(
-        f"Uncle at index: {uncle_index} of block with id: "
-        f"{block_identifier!r} not found."
-    )
+    try:
+        block_identifier = params[0]
+        uncle_index = to_integer_if_hex(params[1])
+        message = (
+            f"Uncle at index: {uncle_index} of block with id: "
+            f"{block_identifier!r} not found."
+        )
+    except IndexError:
+        message = "Unknown block identifier or uncle index"
+
+    raise BlockNotFound(message)
 
 
 def raise_transaction_not_found(params: Tuple[_Hash32]) -> NoReturn:
-    transaction_hash = params[0]
-    raise TransactionNotFound(f"Transaction with hash: {transaction_hash!r} not found.")
+    try:
+        transaction_hash = params[0]
+        message = f"Transaction with hash: {transaction_hash!r} not found."
+    except IndexError:
+        message = "Unknown transaction hash"
+
+    raise TransactionNotFound(message)
 
 
 def raise_transaction_not_found_with_index(params: Tuple[BlockIdentifier, int]) -> NoReturn:
-    block_identifier = params[0]
-    transaction_index = to_integer_if_hex(params[1])
-    raise TransactionNotFound(
-        f"Transaction index: {transaction_index} "
-        f"on block id: {block_identifier!r} not found."
-    )
+    try:
+        block_identifier = params[0]
+        transaction_index = to_integer_if_hex(params[1])
+        message = (
+            f"Transaction index: {transaction_index} "
+            f"on block id: {block_identifier!r} not found."
+        )
+    except IndexError:
+        message = "Unknown transaction index or block identifier"
+
+    raise TransactionNotFound(message)
 
 
 NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
@@ -700,7 +720,15 @@ def get_error_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Callable[..., Any]:
     #  Note error formatters work on the full response dict
-    error_formatter_maps = (NULL_RESULT_FORMATTERS, ERROR_FORMATTERS)
+    error_formatter_maps = (ERROR_FORMATTERS,)
     formatters = combine_formatters(error_formatter_maps, method_name)
+
+    return compose(*formatters)
+
+
+def get_null_result_formatters(
+    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+) -> Callable[..., Any]:
+    formatters = combine_formatters((NULL_RESULT_FORMATTERS,), method_name)
 
     return compose(*formatters)

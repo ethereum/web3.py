@@ -55,15 +55,23 @@ if TYPE_CHECKING:
 
 def apply_error_formatters(
     error_formatters: Callable[..., Any],
-    response: Optional[RPCResponse] = None,
+    response: RPCResponse,
+) -> RPCResponse:
+    if error_formatters:
+        formatted_resp = pipe(response, error_formatters)
+        return formatted_resp
+    else:
+        return response
+
+
+def apply_null_result_formatters(
+    null_result_formatters: Callable[..., Any],
+    response: RPCResponse,
     params: Optional[Any] = None,
 ) -> RPCResponse:
-    if 'error' in response and error_formatters:
-        formatted_response = pipe(response, error_formatters)
-        return formatted_response
-    elif 'result' in response.keys() and response['result'] is None and error_formatters:
-        formatted_response = pipe(params, error_formatters)
-        return formatted_response
+    if null_result_formatters:
+        formatted_resp = pipe(params, null_result_formatters)
+        return formatted_resp
     else:
         return response
 
@@ -142,43 +150,54 @@ class RequestManager:
         self.logger.debug("Making request. Method: %s", method)
         return await request_func(method, params)
 
+    def formatted_response(
+        self,
+        response: RPCResponse,
+        params: Any,
+        error_formatters: Optional[Callable[..., Any]] = None,
+        null_result_formatters: Optional[Callable[..., Any]] = None,
+    ) -> Any:
+        if "error" in response:
+            apply_error_formatters(error_formatters, response)
+            raise ValueError(response["error"])
+        elif response['result'] is None:
+            # null_result_formatters raise either a BlockNotFound
+            # or a TransactionNotFound error, depending on the method called
+            apply_null_result_formatters(null_result_formatters, response, params)
+
+        return response['result']
+
     def request_blocking(
         self,
         method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
         params: Any,
         error_formatters: Optional[Callable[..., Any]] = None,
+        null_result_formatters: Optional[Callable[..., Any]] = None,
     ) -> Any:
         """
         Make a synchronous request using the provider
         """
         response = self._make_request(method, params)
-
-        if "error" in response:
-            apply_error_formatters(error_formatters, response)
-            raise ValueError(response["error"])
-        elif response['result'] is None:
-            apply_error_formatters(error_formatters, response, params)
-
-        return response['result']
+        return self.formatted_response(response,
+                                       params,
+                                       error_formatters,
+                                       null_result_formatters)
 
     async def coro_request(
         self,
         method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
         params: Any,
         error_formatters: Optional[Callable[..., Any]] = None,
+        null_result_formatters: Optional[Callable[..., Any]] = None,
     ) -> Any:
         """
         Couroutine for making a request using the provider
         """
         response = await self._coro_make_request(method, params)
-
-        if "error" in response:
-            apply_error_formatters(error_formatters, response)
-            raise ValueError(response["error"])
-        elif response['result'] is None:
-            apply_error_formatters(error_formatters, response, params)
-
-        return response['result']
+        return self.formatted_response(response,
+                                       params,
+                                       error_formatters,
+                                       null_result_formatters)
 
     @deprecated_for("coro_request")
     def request_async(self, raw_method: str, raw_params: Any) -> UUID:

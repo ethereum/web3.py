@@ -53,8 +53,11 @@ def retrieve_blocking_method_call_fn(
             (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)  # noqa: E501
         except _UseExistingFilter as err:
             return LogFilter(eth_module=module, filter_id=err.filter_id)
-        result_formatters, error_formatters = response_formatters
-        result = w3.manager.request_blocking(method_str, params, error_formatters)
+        result_formatters, error_formatters, null_result_formatters = response_formatters
+        result = w3.manager.request_blocking(method_str,
+                                             params,
+                                             error_formatters,
+                                             null_result_formatters)
         return apply_result_formatters(result_formatters, result)
     return caller
 
@@ -65,8 +68,11 @@ def retrieve_async_method_call_fn(
 ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
     async def caller(*args: Any, **kwargs: Any) -> RPCResponse:
         (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)
-        result_formatters, error_formatters = response_formatters
-        result = await w3.manager.coro_request(method_str, params, error_formatters)
+        result_formatters, error_formatters, null_result_formatters = response_formatters
+        result = await w3.manager.coro_request(method_str,
+                                               params,
+                                               error_formatters,
+                                               null_result_formatters)
         return apply_result_formatters(result_formatters, result)
     return caller
 
