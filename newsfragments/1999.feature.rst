@@ -1,5 +1,0 @@
-Add ability for AsyncHTTPProvider to accept middleware
-
-Also adds async gas_price_strategy middleware, and moves gas estimate to middleware.
-
-AsyncEthereumTesterProvider now inherits from AsyncBase

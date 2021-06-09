@@ -1,3 +1,0 @@
-Convert staticmethod calls to use decorator.
-
-This was preventing the correct call signature to be displayed in pylance/pyright.

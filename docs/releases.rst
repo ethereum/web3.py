@@ -3,6 +3,45 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.20.0 (2021-06-09)
+--------------------
+Web3 5.20.0 (2021-06-09)
+------------------------
+
+Features
+~~~~~~~~
+
+- Add new AsyncHTTPProvider. No middleware or session caching support yet.
+
+  Also adds async ``w3.eth.gas_price``, and async ``w3.isConnected()`` methods. (`#1978 <https://github.com/ethereum/web3.py/issues/1978>`__)
+- Add ability for AsyncHTTPProvider to accept middleware
+
+  Also adds async gas_price_strategy middleware, and moves gas estimate to middleware.
+
+  AsyncEthereumTesterProvider now inherits from AsyncBase (`#1999 <https://github.com/ethereum/web3.py/issues/1999>`__)
+- Support state_override in contract function call. (`#2005 <https://github.com/ethereum/web3.py/issues/2005>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Test ethpm caching + bump Sphinx version. (`#1977 <https://github.com/ethereum/web3.py/issues/1977>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Clarify solidityKeccak documentation. (`#1971 <https://github.com/ethereum/web3.py/issues/1971>`__)
+- Improve contributor documentation context and ordering. (`#2008 <https://github.com/ethereum/web3.py/issues/2008>`__)
+- Add docs for unstable AsyncHTTPProvider (`#2017 <https://github.com/ethereum/web3.py/issues/2017>`__)
+
+
+Misc
+~~~~
+
+- `#1979 <https://github.com/ethereum/web3.py/issues/1979>`__, `#1980 <https://github.com/ethereum/web3.py/issues/1980>`__, `#1993 <https://github.com/ethereum/web3.py/issues/1993>`__, `#2002 <https://github.com/ethereum/web3.py/issues/2002>`__
+
+
 v5.19.0 (2021-04-28)
 --------------------
 Web3 5.19.0 (2021-04-28)

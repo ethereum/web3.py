@@ -1,1 +1,0 @@
-Improve contributor documentation context and ordering.
