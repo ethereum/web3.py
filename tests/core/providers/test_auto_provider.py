@@ -17,6 +17,9 @@ from web3.providers import (
 from web3.providers.auto import (
     load_provider_from_environment,
 )
+from web3.providers.ipc import (
+    get_dev_ipc_path,
+)
 
 # Ugly hack to import infura now that API KEY is required
 os.environ['WEB3_INFURA_API_KEY'] = 'test'
@@ -49,6 +52,13 @@ def test_load_provider_from_env(monkeypatch, uri, expected_type, expected_attrs)
     assert isinstance(provider, expected_type)
     for attr, val in expected_attrs.items():
         assert getattr(provider, attr) == val
+
+
+def test_get_dev_ipc_path(monkeypatch, tmp_path):
+    uri = str(tmp_path)
+    monkeypatch.setenv('WEB3_PROVIDER_URI', uri)
+    path = get_dev_ipc_path()
+    assert path == uri
 
 
 @pytest.mark.parametrize('environ_name', ['WEB3_INFURA_API_KEY', 'WEB3_INFURA_PROJECT_ID'])

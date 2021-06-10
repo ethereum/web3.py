@@ -157,7 +157,11 @@ def get_default_ipc_path() -> str:  # type: ignore
 
 # type ignored b/c missing return statement is by design here
 def get_dev_ipc_path() -> str:  # type: ignore
-    if sys.platform == 'darwin':
+    if os.environ.get('WEB3_PROVIDER_URI', ''):
+        ipc_path = os.environ.get('WEB3_PROVIDER_URI')
+        if os.path.exists(ipc_path):
+            return ipc_path
+    elif sys.platform == 'darwin':
         tmpdir = os.environ.get('TMPDIR', '')
         ipc_path = os.path.expanduser(os.path.join(
             tmpdir,
