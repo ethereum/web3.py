@@ -20,16 +20,6 @@ class GoEthereumTest(Web3ModuleTest):
 
 
 class GoEthereumEthModuleTest(EthModuleTest):
-    @pytest.mark.xfail(reason='eth_submitHashrate deprecated in 1.8.22 for ethash_submitHashRate')
-    def test_eth_submit_hashrate(self, web3):
-        # https://github.com/ethereum/go-ethereum/commit/51db5975cc5fb88db6a0dba1826b534fd4df29d7
-        super().test_eth_submit_hashrate(web3)
-
-    @pytest.mark.xfail(reason='eth_submitHashrate deprecated in 1.8.22 for ethash_submitHashRate')
-    def test_eth_submitHashrate_deprecated(self, web3):
-        # https://github.com/ethereum/go-ethereum/commit/51db5975cc5fb88db6a0dba1826b534fd4df29d7
-        super().test_eth_submitHashrate_deprecated(web3)
-
     @pytest.mark.xfail(
         strict=False,
         raises=FuturesTimeoutError,
