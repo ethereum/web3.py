@@ -1,0 +1,1 @@
+Add ``web3/tools`` to sphinx-apidoc exclude pattern.
