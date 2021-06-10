@@ -85,7 +85,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
     def __init__(self) -> None:
         self.request_counter = itertools.count()
 
-    async def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
+    def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
         rpc_dict = {
             "jsonrpc": "2.0",
             "method": method,
@@ -95,7 +95,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
         return to_bytes(text=encoded)
 
-    async def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
+    def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
         text_response = to_text(raw_response)
         return cast(RPCResponse, FriendlyJsonSerde().json_decode(text_response))
 
