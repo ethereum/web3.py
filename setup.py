@@ -29,7 +29,6 @@ extras_require = {
         "toposort>=1.4",
         "towncrier>=19.2.0,<20",
         "urllib3",
-        "web3>=2.1.0",
         "wheel"
     ],
     'dev': [
@@ -87,7 +86,7 @@ setup(
         "requests>=2.16.0,<3.0.0",
         # remove typing_extensions after python_requires>=3.8, see web3._utils.compat
         "typing-extensions>=3.7.4.1,<4;python_version<'3.8'",
-        "websockets>=8.1.0,<9.0.0",
+        "websockets>=9.1,<10",
     ],
     python_requires='>=3.6,<4',
     extras_require=extras_require,

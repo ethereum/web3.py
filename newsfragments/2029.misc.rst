@@ -1,0 +1,1 @@
+Upgraded websockets dependency to >=9.1.0,<10
