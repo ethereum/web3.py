@@ -16,67 +16,69 @@ Contract Deployment Example
 
 To run this example, you will need to install a few extra features:
 
-- The sandbox node provided by eth-tester. You can install it with ``pip install -U web3[tester]``.
-- The ``solc`` solidity compiler. See `Installing the Solidity Compiler
-  <http://solidity.readthedocs.io/en/latest/installing-solidity.html#binary-packages>`_
+- The sandbox node provided by eth-tester. You can install it with:
+
+.. code-block:: bash
+
+    $ pip install -U "web3[tester]"
+
+- ``py-solc-x``. This is the supported route to installing the solidity compiler ``solc``. You can install it with:
+
+.. code-block:: bash
+
+    $ pip install py-solc-x
+
+After ``py-solc-x`` is installed, you will need to install a version of ``solc``. You can install the latest version via a new REPL with:
 
 .. code-block:: python
 
-    >>> import json
+    >>> from solcx import install_solc
+    >>> install_solc(version='latest')
+
+You should now be set up to run the contract deployment example below:
+
+.. code-block:: python
 
     >>> from web3 import Web3
-    >>> from solc import compile_standard
+    >>> from solcx import compile_source
 
     # Solidity source code
-    >>> compiled_sol = compile_standard({
-    ...     "language": "Solidity",
-    ...     "sources": {
-    ...         "Greeter.sol": {
-    ...             "content": '''
-    ...                 pragma solidity ^0.5.0;
+    >>> compiled_sol = compile_source(
+    ...     '''
+    ...     pragma solidity >0.5.0;
     ...
-    ...                 contract Greeter {
-    ...                   string public greeting;
+    ...     contract Greeter {
+    ...         string public greeting;
     ...
-    ...                   constructor() public {
-    ...                       greeting = 'Hello';
-    ...                   }
-    ...
-    ...                   function setGreeting(string memory _greeting) public {
-    ...                       greeting = _greeting;
-    ...                   }
-    ...
-    ...                   function greet() view public returns (string memory) {
-    ...                       return greeting;
-    ...                   }
-    ...                 }
-    ...               '''
+    ...         constructor() public {
+    ...             greeting = 'Hello';
     ...         }
-    ...     },
-    ...     "settings":
-    ...         {
-    ...             "outputSelection": {
-    ...                 "*": {
-    ...                     "*": [
-    ...                         "metadata", "evm.bytecode"
-    ...                         , "evm.bytecode.sourceMap"
-    ...                     ]
-    ...                 }
-    ...             }
+    ...
+    ...         function setGreeting(string memory _greeting) public {
+    ...             greeting = _greeting;
     ...         }
-    ... })
+    ...
+    .. .        function greet() view public returns (string memory) {
+    ...             return greeting;
+    ...         }
+    ...     }
+    ...     '''
+    ... )
+
+    # retrieve the contract interface
+    >>> contract_id, contract_interface = compiled_sol.popitem()
+
+    # get bytecode / bin
+    >>> bytecode = contract_interface['bin']
+
+    # get abi
+    >>> abi = contract_interface['abi']
 
     # web3.py instance
     >>> w3 = Web3(Web3.EthereumTesterProvider())
 
     # set pre-funded account as sender
     >>> w3.eth.default_account = w3.eth.accounts[0]
-
-    # get bytecode
-    >>> bytecode = compiled_sol['contracts']['Greeter.sol']['Greeter']['evm']['bytecode']['object']
-
-    # get abi
-    >>> abi = json.loads(compiled_sol['contracts']['Greeter.sol']['Greeter']['metadata'])['output']['abi']
 
     >>> Greeter = w3.eth.contract(abi=abi, bytecode=bytecode)
 
