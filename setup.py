@@ -8,7 +8,7 @@ from setuptools import (
 extras_require = {
     'tester': [
         "eth-tester[py-evm]==v0.5.0-beta.4",
-        "py-geth>=3.0.0,<4",
+        "py-geth>=3.2.0,<4",
     ],
     'linter': [
         "flake8==3.8.3",
@@ -21,7 +21,7 @@ extras_require = {
         "click>=5.1",
         "configparser==3.5.0",
         "contextlib2>=0.5.4",
-        "py-geth>=3.0.0,<4",
+        "py-geth>=3.2.0,<4",
         "py-solc>=0.4.0",
         "pytest>=4.4.0,<5.0.0",
         "sphinx>=3.0,<4",

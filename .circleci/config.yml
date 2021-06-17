@@ -80,7 +80,7 @@ geth_steps: &geth_steps
         name: build geth if missing
         command: |
           mkdir -p $HOME/.ethash
-          pip install --user py-geth>=2.4.0
+          pip install --user py-geth>=3.2.0
           export GOROOT=/usr/local/go
           echo $GETH_VERSION
           export GETH_BINARY="$HOME/.py-geth/geth-$GETH_VERSION/bin/geth"
@@ -219,7 +219,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-goethereum-ipc
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   py36-integration-goethereum-http:
     <<: *geth_steps
@@ -227,7 +227,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-goethereum-http
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   py36-integration-goethereum-ws:
     <<: *geth_steps
@@ -235,7 +235,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-goethereum-ws
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   # py36-integration-parity-ipc:
     # <<: *parity_steps
@@ -311,7 +311,7 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ipc
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   py37-integration-goethereum-http:
     <<: *geth_steps
@@ -319,7 +319,7 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-http
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   py37-integration-goethereum-ws:
     <<: *geth_steps
@@ -327,7 +327,7 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ws
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   # py37-integration-parity-ipc:
     # <<: *parity_steps
@@ -408,7 +408,7 @@ jobs:
       - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ipc
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   py38-integration-goethereum-http:
     <<: *geth_steps
@@ -416,7 +416,7 @@ jobs:
       - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-http
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   py38-integration-goethereum-ws:
     <<: *geth_steps
@@ -424,7 +424,7 @@ jobs:
       - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ws
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   # py38-integration-parity-ipc:
     # <<: *parity_steps
@@ -500,7 +500,7 @@ jobs:
       - image: circleci/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ipc
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   py39-integration-goethereum-http:
     <<: *geth_steps
@@ -508,7 +508,7 @@ jobs:
       - image: circleci/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-http
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   py39-integration-goethereum-ws:
     <<: *geth_steps
@@ -516,7 +516,7 @@ jobs:
       - image: circleci/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ws
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
   # py39-integration-parity-ipc:
   #   <<: *parity_steps
@@ -566,7 +566,7 @@ jobs:
       - image: circleci/python:3.9
     environment:
       TOXENV: benchmark
-      GETH_VERSION: v1.10.3
+      GETH_VERSION: v1.10.4
 
 workflows:
   version: 2.1
