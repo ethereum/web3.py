@@ -29,7 +29,6 @@ extras_require = {
         "toposort>=1.4",
         "towncrier>=19.2.0,<20",
         "urllib3",
-        "web3>=5.20",
         "wheel"
     ],
     'dev': [

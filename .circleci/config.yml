@@ -16,6 +16,9 @@ common: &common
         name: install dependencies
         command: pip install --user tox
     - run:
+        name: install web3
+        command: pip install -U web3
+    - run:
         name: run tox
         command: ~/.local/bin/tox -r
     - save_cache:
