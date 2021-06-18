@@ -110,6 +110,45 @@ geth_steps: &geth_steps
           - ~/.py-geth
         key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
+geth_custom_steps: &geth_custom_steps
+  working_directory: ~/repo
+  steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+    - run:
+        name: install dependencies
+        command: pip install --user tox
+    - run:
+        name: use a pre-built geth binary
+        command: |
+          mkdir -p $HOME/.ethash
+          export GOROOT=/usr/local/go
+          echo $GETH_VERSION
+          export GETH_BINARY="./custom_geth"
+          echo 'export GETH_BINARY="./custom_geth"' >> $BASH_ENV
+          curl -O https://storage.googleapis.com/golang/go1.14.2.linux-amd64.tar.gz
+          tar xvf go1.14.2.linux-amd64.tar.gz
+          sudo chown -R root:root ./go
+          sudo mv go /usr/local
+          sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
+          sudo apt-get update;
+          sudo apt-get install -y build-essential;
+          ./custom_geth version
+          ./custom_geth makedag 0 $HOME/.ethash
+    - run:
+        name: run tox
+        command: ~/.local/bin/tox -r
+    - save_cache:
+        paths:
+          - .tox
+          - ~/.cache/pip
+          - ~/.local
+          - ./eggs
+          - ~/.ethash
+        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+
 ethpm_steps: &ethpm_steps
   working_directory: ~/repo
   steps:
