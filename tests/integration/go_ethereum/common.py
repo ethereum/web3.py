@@ -2,6 +2,7 @@ import pytest
 
 from web3._utils.module_testing import (  # noqa: F401
     AsyncEthModuleTest,
+    AsyncNetModuleTest,
     EthModuleTest,
     GoEthereumAdminModuleTest,
     GoEthereumPersonalModuleTest,
@@ -49,6 +50,10 @@ class GoEthereumVersionModuleTest(VersionModuleTest):
 
 
 class GoEthereumNetModuleTest(NetModuleTest):
+    pass
+
+
+class GoEthereumAsyncNetModuleTest(AsyncNetModuleTest):
     pass
 
 

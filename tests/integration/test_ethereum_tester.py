@@ -25,6 +25,7 @@ from web3._utils.module_testing.emitter_contract import (
     EMITTER_ENUM,
 )
 from web3.providers.eth_tester import (
+    AsyncEthereumTesterProvider,
     EthereumTesterProvider,
 )
 from web3.types import (  # noqa: F401
@@ -45,10 +46,21 @@ def eth_tester_provider(eth_tester):
 
 
 @pytest.fixture(scope="module")
+def async_eth_tester_provider(eth_tester):
+    provider = AsyncEthereumTesterProvider(eth_tester)
+    return provider
+
+
+@pytest.fixture(scope="module")
 def web3(eth_tester_provider):
     _web3 = Web3(eth_tester_provider)
     return _web3
 
+
+@pytest.fixture(scope="module")
+def async_w3(eth_tester_provider):
+    _web3 = Web3(async_eth_tester_provider)
+    return _web3
 
 #
 # Math Contract Setup
