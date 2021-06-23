@@ -428,6 +428,26 @@ class TestEthereumTesterEthModule(EthModuleTest):
             )
             web3.eth.estimate_gas(txn_params)
 
+    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
+    def test_1559_default_fees(self, web3, emitter_contract_address):
+        super().test_1559_default_fees(web3, emitter_contract_address)
+
+    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
+    def test_1559_canonical(self, web3, emitter_contract_address):
+        super().test_1559_canonical(web3, emitter_contract_address)
+
+    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
+    def test_1559_hex_fees(self, web3, emitter_contract_address):
+        super().test_1559_hex_fees(web3, emitter_contract_address)
+
+    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
+    def test_1559_no_gas(self, web3, emitter_contract_address):
+        super().test_1559_no_gas(web3, emitter_contract_address)
+
+    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
+    def test_1559_no_max_fee(self, web3, emitter_contract_address):
+        super().test_1559_no_max_fee(web3, emitter_contract_address)
+
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
     pass
