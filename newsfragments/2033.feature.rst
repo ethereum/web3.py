@@ -1,0 +1,1 @@
+Adds support for EIP 1559 transaction keys: `maxFeePerGas` and `maxPriorityFeePerGas`

@@ -145,13 +145,15 @@ def is_attrdict(val: Any) -> bool:
 not_attrdict = complement(is_attrdict)
 
 
-TRANSACTION_FORMATTERS = {
+TRANSACTION_RESULT_FORMATTERS = {
     'blockHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
     'blockNumber': apply_formatter_if(is_not_null, to_integer_if_hex),
     'transactionIndex': apply_formatter_if(is_not_null, to_integer_if_hex),
     'nonce': to_integer_if_hex,
     'gas': to_integer_if_hex,
     'gasPrice': to_integer_if_hex,
+    'maxFeePerGas': to_integer_if_hex,
+    'maxPriorityFeePerGas': to_integer_if_hex,
     'value': to_integer_if_hex,
     'from': to_checksum_address,
     'publicKey': apply_formatter_if(is_not_null, to_hexbytes(64)),
@@ -165,7 +167,7 @@ TRANSACTION_FORMATTERS = {
 }
 
 
-transaction_formatter = apply_formatters_to_dict(TRANSACTION_FORMATTERS)
+transaction_result_formatter = apply_formatters_to_dict(TRANSACTION_RESULT_FORMATTERS)
 
 
 def apply_list_to_array_formatter(formatter: Any) -> Callable[..., Any]:
@@ -206,6 +208,7 @@ RECEIPT_FORMATTERS = {
 receipt_formatter = apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
 BLOCK_FORMATTERS = {
+    'baseFeePerGas': to_integer_if_hex,
     'extraData': to_hexbytes(32, variable_length=True),
     'gasLimit': to_integer_if_hex,
     'gasUsed': to_integer_if_hex,
@@ -225,7 +228,7 @@ BLOCK_FORMATTERS = {
     'stateRoot': to_hexbytes(32),
     'totalDifficulty': to_integer_if_hex,
     'transactions': apply_one_of_formatters((
-        (is_array_of_dicts, apply_list_to_array_formatter(transaction_formatter)),
+        (is_array_of_dicts, apply_list_to_array_formatter(transaction_result_formatter)),
         (is_array_of_strings, apply_list_to_array_formatter(to_hexbytes(32))),
     )),
     'transactionsRoot': to_hexbytes(32),
@@ -250,11 +253,11 @@ syncing_formatter = apply_formatters_to_dict(SYNCING_FORMATTERS)
 TRANSACTION_POOL_CONTENT_FORMATTERS = {
     'pending': compose(
         curried.keymap(to_ascii_if_bytes),
-        curried.valmap(transaction_formatter),
+        curried.valmap(transaction_result_formatter),
     ),
     'queued': compose(
         curried.keymap(to_ascii_if_bytes),
-        curried.valmap(transaction_formatter),
+        curried.valmap(transaction_result_formatter),
     ),
 }
 
@@ -308,9 +311,15 @@ filter_result_formatter = apply_one_of_formatters((
     (is_array_of_strings, apply_list_to_array_formatter(to_hexbytes(32))),
 ))
 
+TRANSACTION_REQUEST_FORMATTERS = {
+    'maxFeePerGas': to_hex_if_integer,
+    'maxPriorityFeePerGas': to_hex_if_integer,
+}
 
+transaction_request_formatter = apply_formatters_to_dict(TRANSACTION_REQUEST_FORMATTERS)
 transaction_param_formatter = compose(
     remove_key_if('to', lambda txn: txn['to'] in {'', b'', None}),
+    transaction_request_formatter,
 )
 
 
@@ -346,7 +355,7 @@ estimate_gas_with_block_id = apply_formatters_to_sequence([
 
 SIGNED_TX_FORMATTER = {
     'raw': HexBytes,
-    'tx': transaction_formatter,
+    'tx': transaction_result_formatter,
 }
 
 signed_tx_formatter = apply_formatters_to_dict(SIGNED_TX_FORMATTER)
@@ -443,13 +452,13 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getStorageAt: HexBytes,
     RPC.eth_getTransactionByBlockHashAndIndex: apply_formatter_if(
         is_not_null,
-        transaction_formatter,
+        transaction_result_formatter,
     ),
     RPC.eth_getTransactionByBlockNumberAndIndex: apply_formatter_if(
         is_not_null,
-        transaction_formatter,
+        transaction_result_formatter,
     ),
-    RPC.eth_getTransactionByHash: apply_formatter_if(is_not_null, transaction_formatter),
+    RPC.eth_getTransactionByHash: apply_formatter_if(is_not_null, transaction_result_formatter),
     RPC.eth_getTransactionCount: to_integer_if_hex,
     RPC.eth_getTransactionReceipt: apply_formatter_if(
         is_not_null,
