@@ -167,6 +167,8 @@ TxData = TypedDict("TxData", {
     "from": ChecksumAddress,
     "gas": Wei,
     "gasPrice": Wei,
+    "maxFeePerGas": Wei,
+    "maxPriorityFeePerGas": Wei,
     "hash": HexBytes,
     "input": HexStr,
     "nonce": Nonce,
@@ -186,7 +188,11 @@ TxParams = TypedDict("TxParams", {
     # addr or ens
     "from": Union[Address, ChecksumAddress, str],
     "gas": Wei,
+    # legacy pricing
     "gasPrice": Wei,
+    # 1559 pricing
+    "maxFeePerGas": Union[str, Wei],
+    "maxPriorityFeePerGas": Union[str, Wei],
     "nonce": Nonce,
     # addr or ens
     "to": Union[Address, ChecksumAddress, str],
@@ -278,6 +284,7 @@ class SyncStatus(TypedDict):
 
 
 class BlockData(TypedDict, total=False):
+    baseFeePerGas: Wei
     difficulty: int
     extraData: HexBytes
     gasLimit: Wei

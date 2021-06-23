@@ -729,13 +729,20 @@ The following methods are available on the ``web3.eth`` namespace.
     The ``transaction`` parameter should be a dictionary with the following fields.
 
     * ``from``: ``bytes or text``, checksum address or ENS name - (optional, default:
-      ``web3.eth.defaultAccount``) The address the transaction is send from.
+      ``web3.eth.defaultAccount``) The address the transaction is sent from.
     * ``to``: ``bytes or text``, checksum address or ENS name - (optional when creating new
       contract) The address the transaction is directed to.
-    * ``gas``: ``integer`` - (optional, default: 90000) Integer of the gas
+    * ``gas``: ``integer`` - (optional) Integer of the gas
       provided for the transaction execution. It will return unused gas.
-    * ``gasPrice``: ``integer`` - (optional, default: To-Be-Determined) Integer
-      of the gasPrice used for each paid gas
+    * ``maxFeePerGas``: ``integer or hex`` - (optional) maximum amount you're willing
+      to pay, inclusive of ``baseFeePerGas`` and ``maxPriorityFeePerGas``. The difference
+      between ``maxFeePerGas`` and ``baseFeePerGas + maxPriorityFeePerGas`` is refunded
+      to the user.
+    * ``maxPriorityFeePerGas``: ``integer or hex`` - (optional) the part of the fee
+      that goes to the miner
+    * ``gasPrice``: ``integer`` - Integer of the gasPrice used for each paid gas
+      **LEGACY** - unless you have good reason to, use ``maxFeePerGas``
+      and ``maxPriorityFeePerGas`` instead. 
     * ``value``: ``integer`` - (optional) Integer of the value send with this
       transaction
     * ``data``: ``bytes or text`` - The compiled code of a contract OR the hash
@@ -754,7 +761,34 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.send_transaction({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from': web3.eth.coinbase, 'value': 12345})
+        # simple example (Web3.py determines gas and fee)
+        >>> web3.eth.send_transaction({
+          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'from': web3.eth.coinbase,
+          'value': 12345
+        })
+
+        # EIP 1559-style transaction
+        HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
+        >>> web3.eth.send_transaction({
+          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'from': web3.eth.coinbase,
+          'value': 12345,
+          'gas': 21000,
+          'maxFeePerGas': web3.toWei(250, 'gwei'),
+          'maxPriorityFeePerGas': web3.toWei(2, 'gwei'),
+        })
+        HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
+
+        # Legacy transaction (less efficient)
+        HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
+        >>> web3.eth.send_transaction({
+          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'from': web3.eth.coinbase,
+          'value': 12345,
+          'gas': 21000,
+          'gasPrice': web3.toWei(50, 'gwei'),
+        })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
 
 .. py:method:: Eth.sendTransaction(transaction)
