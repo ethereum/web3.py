@@ -576,6 +576,20 @@ The following methods are available on the ``web3.eth`` namespace.
       :attr:`~web3.eth.Eth.get_transaction`
 
 
+.. py:method:: Eth.get_raw_transaction(transaction_hash)
+
+    * Delegates to ``eth_getRawTransactionByHash`` RPC Method
+
+    Returns the raw form of transaction specified by ``transaction_hash``.
+
+    If no transaction is found, ``TransactionNotFound`` is raised.
+
+    .. code-block:: python
+
+        >>> web3.eth.get_raw_transaction('0x86fbfe56cce542ff0a2a2716c31675a0c9c43701725c4a751d20ee2ddf8a733d')
+        HexBytes('0xf86907843b9aca0082520894dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd018086eecac466e115a0f9db4e25484b28f486b247a372708d4cd0643fc63e604133afac577f4cc1eab8a044841d84e799d4dc18ba146816a937e8a0be8bc296bd8bb8aea126de5e627e06')
+
+
 .. py:method:: Eth.getTransactionFromBlock(block_identifier, transaction_index)
 
    .. note:: This method is deprecated in EIP 1474.
@@ -748,7 +762,7 @@ The following methods are available on the ``web3.eth`` namespace.
       that goes to the miner
     * ``gasPrice``: ``integer`` - Integer of the gasPrice used for each paid gas
       **LEGACY** - unless you have good reason to, use ``maxFeePerGas``
-      and ``maxPriorityFeePerGas`` instead. 
+      and ``maxPriorityFeePerGas`` instead.
     * ``value``: ``integer`` - (optional) Integer of the value send with this
       transaction
     * ``data``: ``bytes or text`` - The compiled code of a contract OR the hash

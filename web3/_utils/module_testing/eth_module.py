@@ -360,6 +360,20 @@ class AsyncEthModuleTest:
         transaction = block['transactions'][0]
         assert transaction['hash'] == block_with_txn['transactions'][0]
 
+    @pytest.mark.asyncio
+    async def test_eth_get_raw_transaction(
+        self, async_w3: "Web3", mined_txn_hash: HexStr
+    ) -> None:
+        raw_transaction = await async_w3.eth.get_raw_transaction(mined_txn_hash)  # type: ignore
+        assert is_bytes(raw_transaction)
+
+    @pytest.mark.asyncio
+    async def test_eth_get_raw_transaction_raises_error(
+        self, web3: "Web3", mined_txn_hash: HexStr
+    ) -> None:
+        with pytest.raises(TransactionNotFound, match=f"Transaction with hash: '{UNKNOWN_HASH}'"):
+            web3.eth.get_raw_transaction(UNKNOWN_HASH)
+
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:
@@ -2168,3 +2182,15 @@ class EthModuleTest:
                           match="submitWork is deprecated in favor of submit_work"):
             result = web3.eth.submitWork(nonce, pow_hash, mix_digest)
         assert result is False
+
+    def test_eth_get_raw_transaction(
+        self, web3: "Web3", mined_txn_hash: HexStr
+    ) -> None:
+        raw_transaction = web3.eth.get_raw_transaction(mined_txn_hash)
+        assert is_bytes(raw_transaction)
+
+    def test_eth_get_raw_transaction_raises_error(
+        self, web3: "Web3", mined_txn_hash: HexStr
+    ) -> None:
+        with pytest.raises(TransactionNotFound, match=f"Transaction with hash: '{UNKNOWN_HASH}'"):
+            web3.eth.get_raw_transaction(UNKNOWN_HASH)

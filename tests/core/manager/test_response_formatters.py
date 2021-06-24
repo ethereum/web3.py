@@ -7,10 +7,12 @@ from eth_utils.toolz import (
 from web3._utils.method_formatters import (
     raise_block_not_found,
     raise_block_not_found_for_uncle_at_index,
+    raise_transaction_not_found,
 )
 from web3.exceptions import (
     BlockNotFound,
     ContractLogicError,
+    TransactionNotFound,
 )
 
 ERROR_RESPONSE = {
@@ -24,6 +26,7 @@ ERROR_RESPONSE = {
 
 
 NONE_RESPONSE = {"jsonrpc": "2.0", "id": 1, "result": None}
+ZERO_X_RESPONSE = {"jsonrpc": "2.0", "id": 1, "result": '0x'}
 
 
 def raise_contract_logic_error(response):
@@ -89,6 +92,14 @@ def raise_contract_logic_error(response):
             raise_block_not_found_for_uncle_at_index,
             BlockNotFound,
         ),
+        (
+            # 0x response gets handled the same as a None response
+            ZERO_X_RESPONSE,
+            ('0x03'),
+            identity,
+            raise_transaction_not_found,
+            TransactionNotFound,
+        ),
     ],
 )
 def test_formatted_response_raises_errors(web3,
@@ -123,6 +134,14 @@ def test_formatted_response_raises_errors(web3,
             BlockNotFound,
             "Uncle at index: 0 of block with id: '0x01' not found."
         ),
+        (
+            ZERO_X_RESPONSE,
+            ('0x01',),
+            identity,
+            raise_transaction_not_found,
+            TransactionNotFound,
+            "Transaction with hash: '0x01' not found."
+        ),
     ],
 )
 def test_formatted_response_raises_correct_error_message(response,
@@ -147,6 +166,14 @@ def test_formatted_response_raises_correct_error_message(response,
             identity,
             identity,
             NONE_RESPONSE['result'],
+        ),
+        (
+            # Response with a result of 0x doesn't raise if there is no null result formatter
+            ZERO_X_RESPONSE,
+            ('0x03'),
+            identity,
+            identity,
+            ZERO_X_RESPONSE['result'],
         ),
     ],
 )
