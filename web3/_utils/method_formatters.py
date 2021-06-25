@@ -384,6 +384,10 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         apply_formatter_at_index(to_hex_if_integer, 1),
     ),
     RPC.eth_getTransactionCount: apply_formatter_at_index(to_hex_if_integer, 1),
+    RPC.eth_getRawTransactionByBlockNumberAndIndex: compose(
+        apply_formatter_at_index(to_hex_if_integer, 0),
+        apply_formatter_at_index(to_hex_if_integer, 1),
+    ),
     RPC.eth_getUncleCountByBlockNumber: apply_formatter_at_index(to_hex_if_integer, 0),
     RPC.eth_getUncleByBlockNumberAndIndex: compose(
         apply_formatter_at_index(to_hex_if_integer, 0),
@@ -440,6 +444,14 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getFilterLogs: filter_result_formatter,
     RPC.eth_getLogs: filter_result_formatter,
     RPC.eth_getProof: apply_formatter_if(is_not_null, proof_formatter),
+    RPC.eth_getRawTransactionByBlockHashAndIndex: apply_formatter_if(
+        is_not_null,
+        transaction_formatter,
+    ),
+    RPC.eth_getRawTransactionByBlockNumberAndIndex: apply_formatter_if(
+        is_not_null,
+        transaction_formatter,
+    ),
     RPC.eth_getStorageAt: HexBytes,
     RPC.eth_getTransactionByBlockHashAndIndex: apply_formatter_if(
         is_not_null,
@@ -614,6 +626,15 @@ def raise_transaction_not_found_with_index(params: Tuple[BlockIdentifier, int]) 
     )
 
 
+def raise_raw_transaction_not_found_with_index(params: Tuple[BlockIdentifier, int]) -> NoReturn:
+    block_identifier = params[0]
+    raw_transaction_index = to_integer_if_hex(params[1])
+    raise TransactionNotFound(
+        f"Transaction index: {raw_transaction_index} "
+        f"on block id: {block_identifier!r} not found."
+    )
+
+
 NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getBlockByHash: raise_block_not_found,
     RPC.eth_getBlockByNumber: raise_block_not_found,
@@ -627,6 +648,8 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getTransactionByBlockHashAndIndex: raise_transaction_not_found_with_index,
     RPC.eth_getTransactionByBlockNumberAndIndex: raise_transaction_not_found_with_index,
     RPC.eth_getTransactionReceipt: raise_transaction_not_found,
+    RPC.eth_getRawTransactionByBlockHashAndIndex: raise_raw_transaction_not_found_with_index,
+    RPC.eth_getRawTransactionByBlockNumberAndIndex: raise_raw_transaction_not_found_with_index,
 }
 
 
