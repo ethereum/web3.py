@@ -1,0 +1,2 @@
+Clarify that a missing trie node error could occur when using ``block_identifier`` with ``.call()``
+on a node that isn't running in archive mode
