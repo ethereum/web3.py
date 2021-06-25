@@ -193,9 +193,14 @@ def prepare_replacement_transaction(
     if 'nonce' not in new_transaction:
         new_transaction = assoc(new_transaction, 'nonce', current_transaction['nonce'])
 
-    if 'gasPrice' in new_transaction:
+    if 'maxFeePerGas' in new_transaction or 'maxPriorityFeePerGas' in new_transaction:
+        # for now, the client decides if a 1559 txn can replace the existing txn or not
+        pass
+
+    elif 'gasPrice' in new_transaction and current_transaction['gasPrice'] is not None:
         if new_transaction['gasPrice'] <= current_transaction['gasPrice']:
             raise ValueError('Supplied gas price must exceed existing transaction gas price')
+
     else:
         generated_gas_price = web3.eth.generate_gas_price(new_transaction)
         minimum_gas_price = int(math.ceil(current_transaction['gasPrice'] * gas_multiplier))

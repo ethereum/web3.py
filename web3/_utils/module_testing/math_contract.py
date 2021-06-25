@@ -95,11 +95,12 @@ MATH_ABI = [
 contract Contract {
     function main() {
         memory[0x40:0x60] = 0x60;
-    
+
         if (!msg.data.length) { stop(); }
-    
-        var var0 = msg.data[0x00:0x20] / 0x0100000000000000000000000000000000000000000000000000000000;
-    
+
+        var var0 =
+            msg.data[0x00:0x20] / 0x0100000000000000000000000000000000000000000000000000000000;
+
         if (var0 == 0x16216f39) {
             // Dispatch table entry for return13()
             var var1 = 0x0083;
@@ -154,36 +155,36 @@ contract Contract {
             return memory[temp11:temp11 + (temp10 + 0x20) - temp11];
         } else { stop(); }
     }
-    
+
     function return13() returns (var r0) {
         var var0 = 0x0d;
         return var0;
     }
-    
+
     function counter() returns (var r0) { return storage[0x00]; }
-    
+
     function increment(var arg0) returns (var r0) {
         storage[0x00] = storage[0x00] + arg0;
         var temp0 = memory[0x40:0x60];
         memory[temp0:temp0 + 0x20] = storage[0x00];
         var temp1 = memory[0x40:0x60];
-        log(memory[temp1:temp1 + (temp0 + 0x20) - temp1], [0x3496c3ede4ec3ab3686712aa1c238593ea6a42df83f98a5ec7df9834cfa577c5]);
+        log(memory[temp1:temp1 + (temp0 + 0x20) - temp1],
+            [0x3496c3ede4ec3ab3686712aa1c238593ea6a42df83f98a5ec7df9834cfa577c5]);
         var var0 = storage[0x00];
-        return var0;
-    }
-    
+        return var0;}
+
     function add(var arg0, var arg1) returns (var r0) {
         var var0 = arg0 + arg1;
         return var0;
     }
-    
+
     function increment() returns (var r0) {
         var var0 = 0x00;
         var var1 = 0x020d;
         var var2 = 0x01;
         return increment(var2);
     }
-    
+
     function multiply7(var arg0) returns (var r0) {
         var var0 = arg0 * 0x07;
         return var0;
