@@ -19,6 +19,7 @@ develop-eggs
 lib
 lib64
 venv*
+.python-version
 
 # Installer logs
 pip-log.txt
