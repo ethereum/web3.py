@@ -126,7 +126,7 @@ with the exception of ``self`` and ``cls`` as seen in the following example.
         self.reset()
 
 
-Running the tests
+Running The Tests
 ~~~~~~~~~~~~~~~~~
 
 A great way to explore the code base is to run the tests.
@@ -136,7 +136,7 @@ First, install the test dependencies:
 
 .. code:: sh
 
-    $ pip install -e ".[test]"
+    $ pip install -e ".[tester]"
 
 You can run all tests with:
 
@@ -171,6 +171,73 @@ linting errors locally:
 It is important to understand that each pull request must pass the full test
 suite as part of the CI check. This test suite will run in the CI anytime a
 pull request is opened or updated.
+
+
+Writing Tests
+~~~~~~~~~~~~~
+
+We strongly encourage contributors to write good tests for their code as
+part of the code review process. This helps ensure that your code is doing
+what it should be doing.
+
+We strongly encourage you to use our existing tests for both guidance and
+homogeneity / consistency across our tests. We use ``pytest`` for our tests.
+For more specific pytest guidance, please refer to the `pytest documentation`_.
+
+Within the ``pytest`` scope, :file:`conftest.py` files are used for common code
+shared between modules that exist within the same directory as that particular
+:file:`conftest.py` file.
+
+Unit Testing
+^^^^^^^^^^^^
+
+Unit tests are meant to test the logic of smaller chunks (or units) of the
+codebase without having to be wired up to a client. Most of the time this
+means testing selected methods on their own. They are meant to test the logic
+of your code and make sure that you get expected outputs out of selected inputs.
+
+Our unit tests live under appropriately named child directories within the
+``/tests`` directory. The core of the unit tests live under ``/tests/core``.
+Do your best to follow the existing structure when choosing where to add
+your unit test.
+
+Integration Testing
+^^^^^^^^^^^^^^^^^^^
+
+Our integration test suite setup lives under the ``/tests/integration`` directory.
+The integration test suite is dependent on what we call "fixtures" (not to be
+confused with pytest fixtures). These zip file fixtures, which also live in the
+``/tests/integration`` directory, are configured to run the specific client we are
+testing against along with a genesis configuration that gives our tests some
+pre-determined useful objects (like unlocked, pre-loaded accounts) to be able to
+interact with the client and run our tests.
+
+Though the setup lives in ``/tests/integration``, our integration module tests are
+written across different files within ``/web3/_utils/module_testing``. The tests
+are written there but run configurations exist across the different files within
+``/tests/integration/``. The parent ``/integration`` directory houses some common
+configuration shared across all client tests, whereas the ``/go_ethereum`` and
+``/parity`` directories house common code to be shared among each respective client
+tests.
+
+* :file:`common.py` files within the client directories contain code that is shared across
+  all provider tests (http, ipc, and ws). This is mostly used to override tests that span
+  across all providers.
+* :file:`conftest.py` files within each of these directories contain mostly code that can
+  be *used* by all test files that exist within the same directory as the :file:`conftest.py`
+  file. This is mostly used to house pytest fixtures to be shared among our tests. Refer to
+  the `pytest documentation on fixtures`_ for more information.
+* :file:`test_{client}_{provider}.py` (e.g. :file:`test_goethereum_http.py`) files are where
+  client-and-provider-specific test configurations exist. This is mostly used to override tests
+  specific to the provider type for the respective client.
+
+Sometimes the client may be bogged down with pending transactions or anything else that may
+interfere with your particular test. In this case, it may be useful to run your test at the
+front of the test suite. If you feel it makes sense to run a particular test at a specific
+position in the test suite, there is a handy ``pytest`` hook that allows us to somewhat
+customize the order of our integration tests. This ``pytest_collection_modifyitems`` hook
+can be defined within the appropriate ``conftest.py`` file, depending on the scope of the
+test suite you want it to affect.
 
 
 Manual Testing
@@ -217,7 +284,7 @@ If possible, the change to the release notes file should be included in the
 commit that introduces the feature or bugfix.
 
 
-Generating new fixtures
+Generating New Fixtures
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Our integration tests make use of Geth and Parity/OpenEthereum private networks.
@@ -228,7 +295,7 @@ Before generating new fixtures, make sure you have the test dependencies install
 
 .. code:: sh
 
-    $ pip install -e ".[test]"
+    $ pip install -e ".[tester]"
 
 .. note::
 
@@ -237,7 +304,7 @@ Before generating new fixtures, make sure you have the test dependencies install
     testing Web3.py functionality against.
 
 
-Geth fixtures
+Geth Fixtures
 ^^^^^^^^^^^^^
 
 1. Install the desired Geth version on your machine locally. We recommend `py-geth`_ for
@@ -265,7 +332,7 @@ Geth fixtures
    you may again include the ``GETH_BINARY`` environment variable.
 
 
-CI testing with a nightly Geth build
+CI Testing With a Nightly Geth Build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Occasionally you'll want to have CI run the test suite against an unreleased version of Geth,
@@ -291,7 +358,7 @@ an unstable client.
 6. Create a PR and let CI do its thing.
 
 
-Parity/OpenEthereum fixtures
+Parity/OpenEthereum Fixtures
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. The most reliable way to get a specific Parity/OE binary is to download
@@ -323,7 +390,7 @@ Parity/OpenEthereum fixtures
 Releasing
 ~~~~~~~~~
 
-Final test before each release
+Final Test Before Each Release
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Before releasing a new version, build and test the package that will be released.
@@ -349,7 +416,7 @@ virtualenv for smoke testing:
     >>> ...
 
 
-Verify the latest documentation 
+Verify The Latest Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To preview the documentation that will get published:
@@ -359,7 +426,7 @@ To preview the documentation that will get published:
     $ make docs
 
 
-Preview the release notes
+Preview The Release Notes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: sh
@@ -367,7 +434,7 @@ Preview the release notes
    $ towncrier --draft
 
 
-Compile the release notes
+Compile The Release Notes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 After confirming that the release package looks okay, compile the release notes:
@@ -381,7 +448,7 @@ You may need to fix up any broken release note fragments before committing. Keep
 running ``make build-docs`` until it passes, then commit and carry on.
 
 
-Push the release to GitHub & PyPI
+Push The Release to GitHub & PyPI
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 After committing the compiled release notes and pushing them to the master
@@ -392,7 +459,7 @@ branch, release a new version:
     $ make release bump=$$VERSION_PART_TO_BUMP$$
 
 
-Which version part to bump
+Which Version Part to Bump
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The version format for this repo is ``{major}.{minor}.{patch}`` for
@@ -418,3 +485,5 @@ version explicitly, like ``make release bump="--new-version 4.0.0-alpha.1 devnum
 .. _py-geth: https://github.com/ethereum/py-geth
 .. _Github releases: https://github.com/openethereum/openethereum/releases
 .. _Build the binary: https://github.com/openethereum/openethereum/#3-building-
+.. _pytest documentation: https://docs.pytest.org/en/latest
+.. _pytest documentation on fixtures: https://docs.pytest.org/en/latest/how-to/fixtures.html
