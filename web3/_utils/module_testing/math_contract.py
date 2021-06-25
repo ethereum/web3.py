@@ -89,3 +89,104 @@ MATH_ABI = [
         "type": "event",
     },
 ]
+
+# The de-compiled math contract, for reference:
+'''
+contract Contract {
+    function main() {
+        memory[0x40:0x60] = 0x60;
+    
+        if (!msg.data.length) { stop(); }
+    
+        var var0 = msg.data[0x00:0x20] / 0x0100000000000000000000000000000000000000000000000000000000;
+    
+        if (var0 == 0x16216f39) {
+            // Dispatch table entry for return13()
+            var var1 = 0x0083;
+            var1 = return13();
+            var temp0 = memory[0x40:0x60];
+            memory[temp0:temp0 + 0x20] = var1;
+            var temp1 = memory[0x40:0x60];
+            return memory[temp1:temp1 + (temp0 + 0x20) - temp1];
+        } else if (var0 == 0x61bc221a) {
+            // Dispatch table entry for counter()
+            var1 = 0x00a6;
+            var var2 = counter();
+            var temp2 = memory[0x40:0x60];
+            memory[temp2:temp2 + 0x20] = var2;
+            var temp3 = memory[0x40:0x60];
+            return memory[temp3:temp3 + (temp2 + 0x20) - temp3];
+        } else if (var0 == 0x7cf5dab0) {
+            // Dispatch table entry for increment(uint256)
+            var1 = 0x00d2;
+            var2 = msg.data[0x04:0x24];
+            var1 = increment(var2);
+            var temp4 = memory[0x40:0x60];
+            memory[temp4:temp4 + 0x20] = var1;
+            var temp5 = memory[0x40:0x60];
+            return memory[temp5:temp5 + (temp4 + 0x20) - temp5];
+        } else if (var0 == 0xa5f3c23b) {
+            // Dispatch table entry for add(int256,int256)
+            var1 = 0x0107;
+            var2 = msg.data[0x04:0x24];
+            var var3 = msg.data[0x24:0x44];
+            var1 = add(var2, var3);
+            var temp6 = memory[0x40:0x60];
+            memory[temp6:temp6 + 0x20] = var1;
+            var temp7 = memory[0x40:0x60];
+            return memory[temp7:temp7 + (temp6 + 0x20) - temp7];
+        } else if (var0 == 0xd09de08a) {
+            // Dispatch table entry for increment()
+            var1 = 0x012a;
+            var1 = increment();
+            var temp8 = memory[0x40:0x60];
+            memory[temp8:temp8 + 0x20] = var1;
+            var temp9 = memory[0x40:0x60];
+            return memory[temp9:temp9 + (temp8 + 0x20) - temp9];
+        } else if (var0 == 0xdcf537b1) {
+            // Dispatch table entry for multiply7(int256)
+            var1 = 0x0156;
+            var2 = msg.data[0x04:0x24];
+            var1 = multiply7(var2);
+            var temp10 = memory[0x40:0x60];
+            memory[temp10:temp10 + 0x20] = var1;
+            var temp11 = memory[0x40:0x60];
+            return memory[temp11:temp11 + (temp10 + 0x20) - temp11];
+        } else { stop(); }
+    }
+    
+    function return13() returns (var r0) {
+        var var0 = 0x0d;
+        return var0;
+    }
+    
+    function counter() returns (var r0) { return storage[0x00]; }
+    
+    function increment(var arg0) returns (var r0) {
+        storage[0x00] = storage[0x00] + arg0;
+        var temp0 = memory[0x40:0x60];
+        memory[temp0:temp0 + 0x20] = storage[0x00];
+        var temp1 = memory[0x40:0x60];
+        log(memory[temp1:temp1 + (temp0 + 0x20) - temp1], [0x3496c3ede4ec3ab3686712aa1c238593ea6a42df83f98a5ec7df9834cfa577c5]);
+        var var0 = storage[0x00];
+        return var0;
+    }
+    
+    function add(var arg0, var arg1) returns (var r0) {
+        var var0 = arg0 + arg1;
+        return var0;
+    }
+    
+    function increment() returns (var r0) {
+        var var0 = 0x00;
+        var var1 = 0x020d;
+        var var2 = 0x01;
+        return increment(var2);
+    }
+    
+    function multiply7(var arg0) returns (var r0) {
+        var var0 = arg0 * 0x07;
+        return var0;
+    }
+}
+'''
