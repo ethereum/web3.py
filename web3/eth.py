@@ -637,6 +637,19 @@ class Eth(BaseEth, Module):
         mungers=[default_root_munger]
     )
 
+    """
+    `eth_getRawTransactionByBlockHashAndIndex`
+    `eth_getRawTransactionByBlockNumberAndIndex`
+    """
+    get_raw_transaction_by_block: Method[Callable[[BlockIdentifier], int]] = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
+            if_predefined=RPC.eth_getRawTransactionByBlockNumberAndIndex,
+            if_hash=RPC.eth_getRawTransactionByBlockHashAndIndex,
+            if_number=RPC.eth_getRawTransactionByBlockNumberAndIndex,
+        ),
+        mungers=[default_root_munger]
+    )
+
     @deprecated_for("wait_for_transaction_receipt")
     def waitForTransactionReceipt(
         self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
