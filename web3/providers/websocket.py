@@ -18,7 +18,12 @@ from typing import (
 from eth_typing import (
     URI,
 )
-import websockets
+from websockets.client import (
+    connect,
+)
+from websockets.legacy.client import (
+    WebSocketClientProtocol,
+)
 
 from web3.exceptions import (
     ValidationError,
@@ -57,14 +62,14 @@ class PersistentWebSocket:
     def __init__(
         self, endpoint_uri: URI, loop: asyncio.AbstractEventLoop, websocket_kwargs: Any
     ) -> None:
-        self.ws: websockets.WebSocketClientProtocol = None
+        self.ws: WebSocketClientProtocol = None
         self.endpoint_uri = endpoint_uri
         self.loop = loop
         self.websocket_kwargs = websocket_kwargs
 
-    async def __aenter__(self) -> websockets.WebSocketClientProtocol:
+    async def __aenter__(self) -> WebSocketClientProtocol:
         if self.ws is None:
-            self.ws = await websockets.connect(
+            self.ws = await connect(
                 uri=self.endpoint_uri, loop=self.loop, **self.websocket_kwargs
             )
         return self.ws

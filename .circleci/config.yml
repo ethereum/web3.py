@@ -28,6 +28,35 @@ common: &common
           - ~/.py-geth
         key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
+docs_steps: &docs_steps
+  working_directory: ~/repo
+  steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+    - run:
+        name: checkout ethpm-spec submodule
+        command: git submodule update --init --recursive
+    - run:
+        name: install dependencies
+        command: pip install --user tox
+    - run:
+        name: install web3
+        command: pip install -U web3
+    - run:
+        name: run tox
+        command: ~/.local/bin/tox -r
+    - save_cache:
+        paths:
+          - .tox
+          - ~/.cache/pip
+          - ~/.local
+          - ./eggs
+          - ~/.ethash
+          - ~/.py-geth
+        key: cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+
 # parity_steps: &parity_steps
   # working_directory: ~/repo
   # steps:
@@ -223,7 +252,7 @@ jobs:
       TOXENV: lint
 
   docs:
-    <<: *common
+    <<: *docs_steps
     docker:
       - image: circleci/python:3.6
     environment:
