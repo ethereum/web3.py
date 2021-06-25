@@ -827,6 +827,11 @@ Methods
         # You can check the state after your pending transactions (if supported by your node):
         >>> token_contract.functions.myBalance().call(block_identifier='pending')
 
+    Passing the ``block_identifier`` parameter for past block numbers requires that your Ethereum API node
+    is running in the more expensive archive node mode. Normally synced Ethereum nodes will fail with
+    a "missing trie node" error, because Ethereum node may have purged the past state from its database.
+    `More information about archival nodes here <https://ethereum.stackexchange.com/a/84200/620>`_.
+
 .. py:method:: ContractFunction.estimateGas(transaction, block_identifier=None)
 
     Call a contract function, executing the transaction locally using the
