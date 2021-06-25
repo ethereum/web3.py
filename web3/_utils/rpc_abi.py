@@ -63,6 +63,10 @@ class RPC:
     eth_getStorageAt = RPCEndpoint("eth_getStorageAt")
     eth_getTransactionByBlockHashAndIndex = RPCEndpoint("eth_getTransactionByBlockHashAndIndex")
     eth_getTransactionByBlockNumberAndIndex = RPCEndpoint("eth_getTransactionByBlockNumberAndIndex")
+    eth_getRawTransactionByBlockHashAndIndex = \
+        RPCEndpoint("eth_getRawTransactionByBlockHashAndIndex")
+    eth_getRawTransactionByBlockNumberAndIndex = \
+        RPCEndpoint("eth_getRawTransactionByBlockNumberAndIndex")
     eth_getTransactionByHash = RPCEndpoint("eth_getTransactionByHash")
     eth_getTransactionCount = RPCEndpoint("eth_getTransactionCount")
     eth_getTransactionReceipt = RPCEndpoint("eth_getTransactionReceipt")
@@ -185,6 +189,7 @@ RPC_ABIS = {
     'eth_getTransactionByHash': ['bytes32'],
     'eth_getTransactionCount': ['address', None],
     'eth_getTransactionReceipt': ['bytes32'],
+    'eth_getRawTransactionByBlockHashAndIndex': ['bytes32', 'uint'],
     'eth_getUncleCountByBlockHash': ['bytes32'],
     'eth_newFilter': FILTER_PARAMS_ABIS,
     'eth_sendRawTransaction': ['bytes'],
