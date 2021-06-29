@@ -942,12 +942,13 @@ class EthModuleTest:
     def test_1559_no_max_fee(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
+        maxPriorityFeePerGas = web3.toWei(2, 'gwei')
         txn_params: TxParams = {
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'maxPriorityFeePerGas': Wei(2 * 10**9),
+            'maxPriorityFeePerGas': maxPriorityFeePerGas,
         }
         txn_hash = web3.eth.send_transaction(txn_params)
         txn = web3.eth.get_transaction(txn_hash)
@@ -958,9 +959,7 @@ class EthModuleTest:
         assert txn['gas'] == 21000
 
         block = web3.eth.get_block('latest')
-        # TODO: what if base_fee < tip?
-        assert txn['maxFeePerGas'] >= block['baseFeePerGas']
-        #  assert txn['maxFeePerGas'] == base_fee * 2
+        assert txn['maxFeePerGas'] == maxPriorityFeePerGas + 2 * block['baseFeePerGas']
 
     def test_1559_max_fee_less_than_tip(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress

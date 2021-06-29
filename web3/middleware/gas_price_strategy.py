@@ -16,7 +16,6 @@ from web3.exceptions import (
 from web3.types import (
     RPCEndpoint,
     RPCResponse,
-    Wei,
 )
 
 if TYPE_CHECKING:
@@ -44,18 +43,19 @@ def gas_price_strategy_middleware(
                     transaction["maxPriorityFeePerGas"], 16
                 ):
                     raise InvalidTransaction("maxFeePerGas must be >= maxPriorityFeePerGas")
-            # 1559 - no feecap:
+            # 1559 - no max fee:
             elif 'maxFeePerGas' not in transaction and 'maxPriorityFeePerGas' in transaction:
-                block = web3.eth.get_block('latest')
-                base_fee = block['baseFeePerGas']
-                tip = Wei(int(transaction['maxPriorityFeePerGas'], 16))
-                if base_fee < tip:
-                    # TODO: throw or just set feecap to max prio?
-                    base_fee = tip
-                    #  raise InvalidTransaction('maxFeePerGas must be >= maxPriorityFeePerGas')
-                transaction = assoc(transaction, 'maxFeePerGas', hex(base_fee * 2))
-                return make_request(method, [transaction])
-            # 1559 - no tip:
+                try:
+                    block = web3.eth.get_block('latest')
+                    base_fee = block['baseFeePerGas']
+                    priority_fee = int(transaction['maxPriorityFeePerGas'], 16)
+                    max_fee_per_gas = priority_fee + 2 * base_fee
+                    transaction = assoc(transaction, 'maxFeePerGas', hex(max_fee_per_gas))
+                    return make_request(method, [transaction])
+                except Exception:
+                    # If unable to calculate maxFeePerGas, allow the client to decide
+                    pass
+            # 1559 - no priority fee:
             elif 'maxFeePerGas' in transaction and 'maxPriorityFeePerGas' not in transaction:
                 raise InvalidTransaction(
                     "maxPriorityFeePerGas must be defined in a 1559 transaction."
