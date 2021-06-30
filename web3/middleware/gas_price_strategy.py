@@ -45,16 +45,12 @@ def gas_price_strategy_middleware(
                     raise InvalidTransaction("maxFeePerGas must be >= maxPriorityFeePerGas")
             # 1559 - no max fee:
             elif 'maxFeePerGas' not in transaction and 'maxPriorityFeePerGas' in transaction:
-                try:
-                    block = web3.eth.get_block('latest')
-                    base_fee = block['baseFeePerGas']
-                    priority_fee = int(transaction['maxPriorityFeePerGas'], 16)
-                    max_fee_per_gas = priority_fee + 2 * base_fee
-                    transaction = assoc(transaction, 'maxFeePerGas', hex(max_fee_per_gas))
-                    return make_request(method, [transaction])
-                except Exception:
-                    # If unable to calculate maxFeePerGas, allow the client to decide
-                    pass
+                latest_block = web3.eth.get_block('latest')
+                base_fee = latest_block['baseFeePerGas']
+                priority_fee = int(transaction['maxPriorityFeePerGas'], 16)
+                max_fee_per_gas = priority_fee + 2 * base_fee
+                transaction = assoc(transaction, 'maxFeePerGas', hex(max_fee_per_gas))
+                return make_request(method, [transaction])
             # 1559 - no priority fee:
             elif 'maxFeePerGas' in transaction and 'maxPriorityFeePerGas' not in transaction:
                 raise InvalidTransaction(
