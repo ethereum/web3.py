@@ -17,17 +17,6 @@ class GoEthereumTest(Web3ModuleTest):
 
 
 class GoEthereumEthModuleTest(EthModuleTest):
-    @pytest.mark.xfail(
-        strict=False,
-        reason='Sometimes a TimeoutError is hit when waiting for the txn to be mined',
-    )
-    def test_eth_replace_transaction_already_mined(self, web3, unlocked_account_dual_type):
-        try:
-            web3.geth.miner.start()
-            super().test_eth_replace_transaction_already_mined(web3, unlocked_account_dual_type)
-        finally:
-            web3.geth.miner.stop()
-
     @pytest.mark.xfail(reason='eth_signTypedData has not been released in geth')
     def test_eth_sign_typed_data(self, web3, unlocked_account_dual_type):
         super().test_eth_sign_typed_data(web3, unlocked_account_dual_type)

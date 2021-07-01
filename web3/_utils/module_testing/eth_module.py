@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import json
+import math
 import pytest
+import time
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -60,6 +62,17 @@ if TYPE_CHECKING:
     from web3.contract import Contract  # noqa: F401
 
 
+def mine_pending_block(web3: "Web3") -> None:
+    timeout = 10
+
+    web3.geth.miner.start()  # type: ignore
+    start = time.time()
+    while time.time() < start + timeout:
+        if len(web3.eth.get_block('pending')['transactions']) == 0:
+            break
+    web3.geth.miner.stop()  # type: ignore
+
+
 class AsyncEthModuleTest:
     @pytest.mark.asyncio
     async def test_eth_gas_price(self, async_w3: "Web3") -> None:
@@ -103,14 +116,14 @@ class AsyncEthModuleTest:
         }
 
         def higher_gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
-            return Wei(20)
+            return async_w3.toWei(2, 'gwei')
 
         async_w3.eth.set_gas_price_strategy(higher_gas_price_strategy)
 
         txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
         txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
 
-        assert txn['gasPrice'] == 20
+        assert txn['gasPrice'] == async_w3.toWei(2, 'gwei')
 
     @pytest.mark.asyncio
     async def test_eth_estimate_gas(
@@ -859,12 +872,14 @@ class EthModuleTest:
     def test_eth_send_transaction_with_nonce(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
+        mine_pending_block(web3)  # gives an accurate transaction count after mining
+
         txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
             'gas': Wei(21000),
-            # unique gas price to ensure transaction hash different from other tests
+            # unique maxFeePerGas to ensure transaction hash different from other tests
             'maxFeePerGas': web3.toWei(4.321, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
             'nonce': web3.eth.get_transaction_count(unlocked_account),
@@ -1031,7 +1046,6 @@ class EthModuleTest:
     def test_eth_replace_transaction(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        one_gwei_in_wei = web3.toWei(1, 'gwei')
         two_gwei_in_wei = web3.toWei(2, 'gwei')
         three_gwei_in_wei = web3.toWei(3, 'gwei')
 
@@ -1041,7 +1055,7 @@ class EthModuleTest:
             'value': Wei(1),
             'gas': Wei(21000),
             'maxFeePerGas': two_gwei_in_wei,
-            'maxPriorityFeePerGas': one_gwei_in_wei,
+            'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
         }
         txn_hash = web3.eth.send_transaction(txn_params)
 
@@ -1081,7 +1095,6 @@ class EthModuleTest:
     def test_eth_replaceTransaction_deprecated(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        one_gwei_in_wei = web3.toWei(1, 'gwei')
         two_gwei_in_wei = web3.toWei(2, 'gwei')
         three_gwei_in_wei = web3.toWei(3, 'gwei')
 
@@ -1091,7 +1104,7 @@ class EthModuleTest:
             'value': Wei(1),
             'gas': Wei(21000),
             'maxFeePerGas': two_gwei_in_wei,
-            'maxPriorityFeePerGas': one_gwei_in_wei,
+            'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
         }
         txn_hash = web3.eth.send_transaction(txn_params)
 
@@ -1140,7 +1153,11 @@ class EthModuleTest:
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
         }
         txn_hash = web3.eth.send_transaction(txn_params)
-        web3.eth.wait_for_transaction_receipt(txn_hash, timeout=10)
+        try:
+            web3.geth.miner.start()  # type: ignore
+            web3.eth.wait_for_transaction_receipt(txn_hash, timeout=10)
+        finally:
+            web3.geth.miner.stop()  # type: ignore
 
         txn_params['maxFeePerGas'] = web3.toWei(3, 'gwei')
         txn_params['maxPriorityFeePerGas'] = web3.toWei(2, 'gwei')
@@ -1175,23 +1192,25 @@ class EthModuleTest:
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': Wei(10),
+            'gasPrice': web3.toWei(2, 'gwei'),
         }
         txn_hash = web3.eth.send_transaction(txn_params)
 
-        txn_params['gasPrice'] = Wei(9)
+        txn_params['gasPrice'] = web3.toWei(1, 'gwei')
         with pytest.raises(ValueError):
             web3.eth.replace_transaction(txn_hash, txn_params)
 
     def test_eth_replace_transaction_gas_price_defaulting_minimum(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
+        gas_price = web3.toWei(1, 'gwei')
+
         txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': Wei(10),
+            'gasPrice': gas_price,
         }
         txn_hash = web3.eth.send_transaction(txn_params)
 
@@ -1199,7 +1218,7 @@ class EthModuleTest:
         replace_txn_hash = web3.eth.replace_transaction(txn_hash, txn_params)
         replace_txn = web3.eth.get_transaction(replace_txn_hash)
 
-        assert replace_txn['gasPrice'] == 12  # minimum gas price
+        assert replace_txn['gasPrice'] == math.ceil(gas_price * 1.125)  # minimum gas price
 
     def test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
         self, web3: "Web3", unlocked_account: ChecksumAddress
@@ -1209,34 +1228,38 @@ class EthModuleTest:
             'to': unlocked_account,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': Wei(10),
+            'gasPrice': web3.toWei(1, 'gwei'),
         }
         txn_hash = web3.eth.send_transaction(txn_params)
 
+        two_gwei_in_wei = web3.toWei(2, 'gwei')
+
         def higher_gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
-            return Wei(20)
+            return two_gwei_in_wei
 
         web3.eth.set_gas_price_strategy(higher_gas_price_strategy)
 
         txn_params.pop('gasPrice')
         replace_txn_hash = web3.eth.replace_transaction(txn_hash, txn_params)
         replace_txn = web3.eth.get_transaction(replace_txn_hash)
-        assert replace_txn['gasPrice'] == 20  # Strategy provides higher gas price
+        assert replace_txn['gasPrice'] == two_gwei_in_wei  # Strategy provides higher gas price
 
     def test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
+        gas_price = web3.toWei(2, 'gwei')
+
         txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': Wei(10),
+            'gasPrice': gas_price,
         }
         txn_hash = web3.eth.send_transaction(txn_params)
 
         def lower_gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
-            return Wei(5)
+            return web3.toWei(1, 'gwei')
 
         web3.eth.set_gas_price_strategy(lower_gas_price_strategy)
 
@@ -1244,7 +1267,7 @@ class EthModuleTest:
         replace_txn_hash = web3.eth.replace_transaction(txn_hash, txn_params)
         replace_txn = web3.eth.get_transaction(replace_txn_hash)
         # Strategy provides lower gas price - minimum preferred
-        assert replace_txn['gasPrice'] == 12
+        assert replace_txn['gasPrice'] == math.ceil(gas_price * 1.125)
 
     def test_eth_modify_transaction(
         self, web3: "Web3", unlocked_account: ChecksumAddress
