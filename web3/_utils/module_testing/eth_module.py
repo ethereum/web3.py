@@ -376,33 +376,41 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_eth_get_balance(self, async_w3: "Web3") -> None:
-        coinbase = await async_w3.eth.coinbase
+        coinbase = await async_w3.eth.coinbase  # type: ignore
 
         with pytest.raises(InvalidAddress):
-            await async_w3.eth.get_balance(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
+            await async_w3.eth.get_balance(  # type: ignore
+                ChecksumAddress(HexAddress(HexStr(coinbase.lower())))
+            )
 
-        balance = await async_w3.eth.get_balance(coinbase)
+        balance = await async_w3.eth.get_balance(coinbase)  # type: ignore
 
         assert is_integer(balance)
         assert balance >= 0
 
     @pytest.mark.asyncio
-    async def test_eth_get_code(self, async_w3: "Web3", math_contract_address: ChecksumAddress) -> None:
-        code = await async_w3.eth.get_code(math_contract_address)
+    async def test_eth_get_code(
+        self, async_w3: "Web3", math_contract_address: ChecksumAddress
+    ) -> None:
+        code = await async_w3.eth.get_code(math_contract_address)  # type: ignore
         assert isinstance(code, HexBytes)
         assert len(code) > 0
 
     @pytest.mark.asyncio
-    async def test_eth_get_code_invalid_address(self, async_w3: "Web3", math_contract: "Contract") -> None:
+    async def test_eth_get_code_invalid_address(
+        self, async_w3: "Web3", math_contract: "Contract"
+    ) -> None:
         with pytest.raises(InvalidAddress):
-            await async_w3.eth.get_code(ChecksumAddress(HexAddress(HexStr(math_contract.address.lower()))))
+            await async_w3.eth.get_code(  # type: ignore
+                ChecksumAddress(HexAddress(HexStr(math_contract.address.lower())))
+            )
 
     @pytest.mark.asyncio
     async def test_eth_get_code_with_block_identifier(
         self, async_w3: "Web3", emitter_contract: "Contract"
     ) -> None:
-        block_id = await async_w3.eth.block_number
-        code = await async_w3.eth.get_code(emitter_contract.address, block_id)
+        block_id = await async_w3.eth.block_number  # type: ignore
+        code = await async_w3.eth.get_code(emitter_contract.address, block_id)  # type: ignore
         assert isinstance(code, HexBytes)
         assert len(code) > 0
 
@@ -410,7 +418,7 @@ class AsyncEthModuleTest:
     async def test_eth_get_transaction_count(
         self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        transaction_count = await async_w3.eth.get_transaction_count(unlocked_account_dual_type)
+        transaction_count = await async_w3.eth.get_transaction_count(unlocked_account_dual_type)  # type: ignore # noqa E501
         assert is_integer(transaction_count)
         assert transaction_count >= 0
 
