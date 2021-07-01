@@ -3,6 +3,33 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.20.1 (2021-07-01)
+--------------------
+Web3 5.20.1 (2021-07-01)
+------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Have the geth dev IPC auto connection check for the ``WEB3_PROVIDER_URI`` environment variable. (`#2023 <https://github.com/ethereum/web3.py/issues/2023>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove reference to allowing multiple providers in docs (`#2018 <https://github.com/ethereum/web3.py/issues/2018>`__)
+- Update "Contract Deployment Example" docs to use ``py-solc-x`` as ``solc`` is no longer maintained. (`#2020 <https://github.com/ethereum/web3.py/issues/2020>`__)
+- Detail using unreleased Geth builds in CI (`#2037 <https://github.com/ethereum/web3.py/issues/2037>`__)
+- Clarify that a missing trie node error could occur when using ``block_identifier`` with ``.call()``
+  on a node that isn't running in archive mode (`#2048 <https://github.com/ethereum/web3.py/issues/2048>`__)
+
+
+Misc
+~~~~
+
+- `#1938 <https://github.com/ethereum/web3.py/issues/1938>`__, `#2015 <https://github.com/ethereum/web3.py/issues/2015>`__, `#2021 <https://github.com/ethereum/web3.py/issues/2021>`__, `#2025 <https://github.com/ethereum/web3.py/issues/2025>`__, `#2028 <https://github.com/ethereum/web3.py/issues/2028>`__, `#2029 <https://github.com/ethereum/web3.py/issues/2029>`__, `#2035 <https://github.com/ethereum/web3.py/issues/2035>`__
+
+
 v5.20.0 (2021-06-09)
 --------------------
 Web3 5.20.0 (2021-06-09)

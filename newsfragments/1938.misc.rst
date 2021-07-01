@@ -1,1 +1,0 @@
-Generate Geth test fixture for v1.10.3.

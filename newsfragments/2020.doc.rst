@@ -1,1 +1,0 @@
-Update "Contract Deployment Example" docs to use ``py-solc-x`` as ``solc`` is no longer maintained.

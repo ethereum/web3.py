@@ -1,1 +1,0 @@
-Have the geth dev IPC auto connection check for the ``WEB3_PROVIDER_URI`` environment variable.

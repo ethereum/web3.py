@@ -1,1 +1,0 @@
-Remove redundant async/await in AsyncJSONBaseProvider serde methods
