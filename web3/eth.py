@@ -285,6 +285,13 @@ class AsyncEth(BaseEth):
     ) -> Wei:
         return await self._get_balance(account, block_identifier)
 
+    async def get_code(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> HexBytes:
+        return await self._get_code(account, block_identifier)
+
     async def get_transaction_count(
         self,
         account: Union[Address, ChecksumAddress, ENS],

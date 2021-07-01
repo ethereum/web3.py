@@ -386,6 +386,45 @@ class AsyncEthModuleTest:
         assert is_integer(balance)
         assert balance >= 0
 
+    @pytest.mark.asyncio
+    async def test_eth_get_code(self, async_w3: "Web3", math_contract_address: ChecksumAddress) -> None:
+        code = await async_w3.eth.get_code(math_contract_address)
+        assert isinstance(code, HexBytes)
+        assert len(code) > 0
+
+    # @pytest.mark.asyncio
+    # def test_eth_get_code_ens_address(
+    #     self, async_w3: "Web3", math_contract_address: ChecksumAddress
+    # ) -> None:
+    #     with ens_addresses(
+    #         async_w3, {'mathcontract.eth': math_contract_address}
+    #     ):
+    #         code = await async_w3.eth.get_code('mathcontract.eth')
+    #         assert isinstance(code, HexBytes)
+    #         assert len(code) > 0
+
+    @pytest.mark.asyncio
+    async def test_eth_get_code_invalid_address(self, async_w3: "Web3", math_contract: "Contract") -> None:
+        with pytest.raises(InvalidAddress):
+            await async_w3.eth.get_code(ChecksumAddress(HexAddress(HexStr(math_contract.address.lower()))))
+
+    @pytest.mark.asyncio
+    async def test_eth_get_code_with_block_identifier(
+        self, async_w3: "Web3", emitter_contract: "Contract"
+    ) -> None:
+        block_id = await async_w3.eth.block_number
+        code = await async_w3.eth.get_code(emitter_contract.address, block_id)
+        assert isinstance(code, HexBytes)
+        assert len(code) > 0
+
+    @pytest.mark.asyncio
+    async def test_eth_get_transaction_count(
+        self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        transaction_count = await async_w3.eth.get_transaction_count(unlocked_account_dual_type)
+        assert is_integer(transaction_count)
+        assert transaction_count >= 0
+
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:
