@@ -105,12 +105,23 @@ from web3.types import (
 
 class BaseEth(Module):
     _default_account: Union[ChecksumAddress, Empty] = empty
+    _default_block: BlockIdentifier = "latest"
     gasPriceStrategy = None
 
     _gas_price: Method[Callable[[], Wei]] = Method(
         RPC.eth_gasPrice,
         mungers=None,
     )
+
+    """ property default_block """
+    @property
+    def default_block(self) -> BlockIdentifier:
+        return self._default_block
+
+    @default_block.setter
+    def default_block(self, value: BlockIdentifier) -> None:
+        self._default_block = value
+
 
     @property
     def default_account(self) -> Union[ChecksumAddress, Empty]:
@@ -284,7 +295,6 @@ class AsyncEth(BaseEth):
 
 class Eth(BaseEth, Module):
     account = Account()
-    _default_block: BlockIdentifier = "latest"
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
 
@@ -420,16 +430,6 @@ class Eth(BaseEth, Module):
             category=DeprecationWarning,
         )
         self._default_account = account
-
-    """ property default_block """
-
-    @property
-    def default_block(self) -> BlockIdentifier:
-        return self._default_block
-
-    @default_block.setter
-    def default_block(self, value: BlockIdentifier) -> None:
-        self._default_block = value
 
     @property
     def defaultBlock(self) -> BlockIdentifier:

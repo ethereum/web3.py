@@ -374,6 +374,18 @@ class AsyncEthModuleTest:
         with pytest.raises(TransactionNotFound, match=f"Transaction with hash: '{UNKNOWN_HASH}'"):
             web3.eth.get_raw_transaction(UNKNOWN_HASH)
 
+    @pytest.mark.asyncio
+    async def test_eth_get_balance(self, async_w3: "Web3") -> None:
+        coinbase = await async_w3.eth.coinbase
+
+        with pytest.raises(InvalidAddress):
+            await async_w3.eth.get_balance(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
+
+        balance = await async_w3.eth.get_balance(coinbase)
+
+        assert is_integer(balance)
+        assert balance >= 0
+
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:
