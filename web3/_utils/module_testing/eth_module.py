@@ -392,17 +392,6 @@ class AsyncEthModuleTest:
         assert isinstance(code, HexBytes)
         assert len(code) > 0
 
-    # @pytest.mark.asyncio
-    # def test_eth_get_code_ens_address(
-    #     self, async_w3: "Web3", math_contract_address: ChecksumAddress
-    # ) -> None:
-    #     with ens_addresses(
-    #         async_w3, {'mathcontract.eth': math_contract_address}
-    #     ):
-    #         code = await async_w3.eth.get_code('mathcontract.eth')
-    #         assert isinstance(code, HexBytes)
-    #         assert len(code) > 0
-
     @pytest.mark.asyncio
     async def test_eth_get_code_invalid_address(self, async_w3: "Web3", math_contract: "Contract") -> None:
         with pytest.raises(InvalidAddress):
