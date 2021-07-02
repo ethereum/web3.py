@@ -231,14 +231,6 @@ tests.
   client-and-provider-specific test configurations exist. This is mostly used to override tests
   specific to the provider type for the respective client.
 
-Sometimes the client may be bogged down with pending transactions or anything else that may
-interfere with your particular test. In this case, it may be useful to run your test at the
-front of the test suite. If you feel it makes sense to run a particular test at a specific
-position in the test suite, there is a handy ``pytest`` hook that allows us to somewhat
-customize the order of our integration tests. This ``pytest_collection_modifyitems`` hook
-can be defined within the appropriate ``conftest.py`` file, depending on the scope of the
-test suite you want it to affect.
-
 
 Manual Testing
 ~~~~~~~~~~~~~~

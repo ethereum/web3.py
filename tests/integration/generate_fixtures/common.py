@@ -39,6 +39,10 @@ GENESIS_DATA = {
         "eip150Block": 0,
         "eip155Block": 0,
         "eip158Block": 0,
+        "istanbulBlock": 0,
+        "petersburgBlock": 0,
+        "berlinBlock": 0,
+        "londonBlock": 0,
     },
     "nonce": "0x0000000000000042",
     "alloc": {
@@ -55,7 +59,7 @@ GENESIS_DATA = {
     "timestamp": "0x00",
     "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
     "extraData": "0x3535353535353535353535353535353535353535353535353535353535353535",
-    "gasLimit": "0x1000000",
+    "gasLimit": "0x3b9aca00",  # 1,000,000,000
     "difficulty": "0x10000",
     "mixhash": "0x0000000000000000000000000000000000000000000000000000000000000000",
     "coinbase": COINBASE
