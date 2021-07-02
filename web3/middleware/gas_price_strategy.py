@@ -28,12 +28,6 @@ if TYPE_CHECKING:
 def validate_transaction_params(
     transaction: TxParams, latest_block: BlockData, generated_gas_price: Wei
 ) -> TxParams:
-    """
-    - Uses a gas price strategy if one was set. This is only supported for legacy transactions.
-      It is recommended to send 1559 transactions whenever possible.
-
-    - Validates transaction params against legacy and 1559 values.
-    """
     # gas price strategy explicitly set:
     if generated_gas_price is not None and 'gasPrice' not in transaction:
         transaction = assoc(transaction, 'gasPrice', hex(generated_gas_price))
@@ -68,6 +62,12 @@ def validate_transaction_params(
 def gas_price_strategy_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
+    """
+    - Uses a gas price strategy if one is set. This is only supported for legacy transactions.
+      It is recommended to send 1559 transactions whenever possible.
+
+    - Validates transaction params against legacy and 1559 values.
+    """
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == 'eth_sendTransaction':
             transaction = params[0]
@@ -85,6 +85,12 @@ def gas_price_strategy_middleware(
 async def async_gas_price_strategy_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
+    """
+    - Uses a gas price strategy if one is set. This is only supported for legacy transactions.
+      It is recommended to send 1559 transactions whenever possible.
+
+    - Validates transaction params against legacy and 1559 values.
+    """
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == 'eth_sendTransaction':
             transaction = params[0]
@@ -94,7 +100,6 @@ async def async_gas_price_strategy_middleware(
                 transaction, latest_block, generated_gas_price
             )
             return await make_request(method, (transaction,))
-
         return await make_request(method, params)
 
     return middleware
