@@ -40,26 +40,26 @@ def test_gas_price_generated(the_gas_price_strategy_middleware):
 def test_gas_price_not_overridden(the_gas_price_strategy_middleware):
     the_gas_price_strategy_middleware.web3.eth.generate_gas_price.return_value = 5
     method = 'eth_sendTransaction'
-    params = [{
+    params = ({
         'to': '0x0',
         'value': 1,
         'gasPrice': 10,
-    }]
+    },)
     the_gas_price_strategy_middleware(method, params)
-    the_gas_price_strategy_middleware.make_request.assert_called_once_with(method, [{
+    the_gas_price_strategy_middleware.make_request.assert_called_once_with(method, ({
         'to': '0x0',
         'value': 1,
         'gasPrice': 10,
-    }])
+    },))
 
 
 def test_gas_price_not_set_without_gas_price_strategy(the_gas_price_strategy_middleware):
     the_gas_price_strategy_middleware.web3.eth.generate_gas_price.return_value = None
     method = 'eth_sendTransaction'
-    params = [{
+    params = ({
         'to': '0x0',
         'value': 1,
-    }]
+    },)
     the_gas_price_strategy_middleware(method, params)
     the_gas_price_strategy_middleware.make_request.assert_called_once_with(method, params)
 
