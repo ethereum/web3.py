@@ -840,7 +840,7 @@ The following methods are available on the ``web3.eth`` namespace.
       ``gasPrice`` increase a node requires before it accepts a replacement transaction.
     * The ``gasPrice`` as calculated by the current gas price strategy(See :ref:`Gas_Price`).
 
-    This method returns the transaction hash of the replacement transaction.
+    This method returns the transaction hash of the replacement transaction as a HexBytes object.
 
     .. code-block:: python
 
@@ -849,12 +849,13 @@ The following methods are available on the ``web3.eth`` namespace.
                 'from': web3.eth.coinbase,
                 'value': 1000
             })
-        '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
+        HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.replace_transaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', {
                 'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
                 'from': web3.eth.coinbase,
                 'value': 2000
             })
+        HexBytes('0xdeadbeef')
 
 .. py:method:: Eth.replaceTransaction(transaction_hash, new_transaction)
 
@@ -874,7 +875,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     The same validation and defaulting rules of :meth:`~web3.eth.Eth.replace_transaction` apply.
 
-    This method returns the transaction hash of the newly modified transaction.
+    This method returns the transaction hash of the newly modified transaction as a HexBytes object.
 
     .. code-block:: python
 
@@ -883,9 +884,9 @@ The following methods are available on the ``web3.eth`` namespace.
                 'from': web3.eth.coinbase,
                 'value': 1000
             })
-        '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
+        HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.modify_transaction
-        ('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', value=2000)
+        HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
 
 .. py:method:: Eth.modifyTransaction(transaction_hash, **transaction_params)
 
