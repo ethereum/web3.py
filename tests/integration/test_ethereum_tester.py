@@ -271,7 +271,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
         block = web3.eth.get_block('pending')
         assert block['hash'] is not None
 
-    @disable_auto_mine
     @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
     def test_eth_get_transaction_receipt_unmined(self, eth_tester, web3, unlocked_account):
         super().test_eth_get_transaction_receipt_unmined(web3, unlocked_account)
@@ -280,7 +279,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_replace_transaction_legacy(self, eth_tester, web3, unlocked_account):
         super().test_eth_replace_transaction_legacy(web3, unlocked_account)
 
-    @disable_auto_mine
     @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
     def test_eth_replace_transaction(self, eth_tester, web3, unlocked_account):
         super().test_eth_replace_transaction(web3, unlocked_account)
@@ -289,7 +287,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_replace_transaction_underpriced(self, web3, emitter_contract_address):
         super().test_eth_replace_transaction_underpriced(web3, emitter_contract_address)
 
-    @disable_auto_mine
     @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
     def test_eth_replaceTransaction_deprecated(self, eth_tester, web3, unlocked_account):
         super().test_eth_replaceTransaction_deprecated(web3, unlocked_account)
@@ -298,7 +295,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_replace_transaction_already_mined(self, web3, emitter_contract_address):
         super().test_eth_replace_transaction_already_mined(web3, emitter_contract_address)
 
-    @disable_auto_mine
     @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
     def test_eth_replace_transaction_incorrect_nonce(self, eth_tester, web3, unlocked_account):
         super().test_eth_replace_transaction_incorrect_nonce(web3, unlocked_account)
@@ -337,6 +333,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
         super().test_eth_modifyTransaction_deprecated(web3, unlocked_account)
 
     @disable_auto_mine
+    def test_eth_modify_transaction_legacy(self, eth_tester, web3, unlocked_account):
+        super().test_eth_modify_transaction_legacy(web3, unlocked_account)
+
+    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
     def test_eth_modify_transaction(self, eth_tester, web3, unlocked_account):
         super().test_eth_modify_transaction(web3, unlocked_account)
 

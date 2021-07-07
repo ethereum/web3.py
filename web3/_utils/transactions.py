@@ -36,12 +36,15 @@ from web3.types import (
     _Hash32,
 )
 
-TX_PARAM_LITERALS = Literal['from', 'to', 'gas', 'gasPrice', 'value', 'data', 'nonce', 'chainId']
+TX_PARAM_LITERALS = Literal['from', 'to', 'gas', 'maxFeePerGas', 'maxPriorityFeePerGas',
+                            'gasPrice', 'value', 'data', 'nonce', 'chainId']
 
 VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
     'from',
     'to',
     'gas',
+    'maxFeePerGas',
+    'maxPriorityFeePerGas',
     'gasPrice',
     'value',
     'data',

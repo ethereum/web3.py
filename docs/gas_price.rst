@@ -3,14 +3,17 @@
 Gas Price API
 ===============
 
-For Ethereum transactions, gas price is a delicate property. For this reason,
+.. warning::
+    Gas price strategy is only supported for legacy transactions. The London fork
+    introduced ``maxFeePerGas`` and ``maxPriorityFeePerGas`` transaction parameters
+    which should be used over ``gasPrice`` whenever possible.
+
+For Ethereum (legacy) transactions, gas price is a delicate property. For this reason,
 Web3 includes an API for configuring it.
 
-By default, Web3 will not include a ``gasPrice`` in the transaction as to relay
-this responsibility to the connected node. The Gas Price API allows you to
-define Web3's behaviour for populating the gas price. This is done using a
-"Gas Price Strategy" - a method which takes the Web3 object and a transaction
-dictionary and returns a gas price (denominated in wei).
+The Gas Price API allows you to define Web3's behaviour for populating the gas price.
+This is done using a "Gas Price Strategy" - a method which takes the Web3 object and a
+transaction dictionary and returns a gas price (denominated in wei).
 
 Retrieving gas price
 --------------------
