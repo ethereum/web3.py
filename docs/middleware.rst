@@ -58,6 +58,11 @@ Pythonic
 
 Gas Price Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~
+.. warning::
+    Gas price strategy is only supported for legacy transactions. The London fork
+    introduced ``maxFeePerGas`` and ``maxPriorityFeePerGas`` transaction parameters
+    which should be used over ``gasPrice`` whenever possible.
+
 
 .. py:method:: web3.middleware.gas_price_strategy_middleware
 

@@ -1428,7 +1428,7 @@ class EthModuleTest:
         assert replace_txn['gasPrice'] == math.ceil(gas_price * 1.125)
         web3.eth.set_gas_price_strategy(None)  # reset strategy
 
-    def test_eth_modify_transaction(
+    def test_eth_modify_transaction_legacy(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -1450,6 +1450,35 @@ class EthModuleTest:
         assert modified_txn['value'] == 2
         assert modified_txn['gas'] == 21000
         assert modified_txn['gasPrice'] == cast(int, txn_params['gasPrice']) * 2
+
+    def test_eth_modify_transaction(
+        self, web3: "Web3", unlocked_account: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
+            'maxFeePerGas': web3.toWei(2, 'gwei'),
+        }
+        txn_hash = web3.eth.send_transaction(txn_params)
+
+        modified_txn_hash = web3.eth.modify_transaction(
+            txn_hash,
+            value=2,
+            maxPriorityFeePerGas=(cast(Wei, txn_params['maxPriorityFeePerGas']) * 2),
+            maxFeePerGas=(cast(Wei, txn_params['maxFeePerGas']) * 2),
+        )
+        modified_txn = web3.eth.get_transaction(modified_txn_hash)
+
+        assert is_same_address(modified_txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(modified_txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert modified_txn['value'] == 2
+        assert modified_txn['gas'] == 21000
+        assert modified_txn['maxPriorityFeePerGas'] == cast(Wei, txn_params[
+            'maxPriorityFeePerGas']) * 2
+        assert modified_txn['maxFeePerGas'] == cast(Wei, txn_params['maxFeePerGas']) * 2
 
     def test_eth_modifyTransaction_deprecated(
         self, web3: "Web3", unlocked_account: ChecksumAddress

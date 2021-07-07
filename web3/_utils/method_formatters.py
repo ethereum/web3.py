@@ -319,6 +319,7 @@ TRANSACTION_REQUEST_FORMATTERS = {
 transaction_request_formatter = apply_formatters_to_dict(TRANSACTION_REQUEST_FORMATTERS)
 transaction_param_formatter = compose(
     remove_key_if('to', lambda txn: txn['to'] in {'', b'', None}),
+    remove_key_if('gasPrice', lambda txn: txn['gasPrice'] in {'', b'', None}),
     transaction_request_formatter,
 )
 

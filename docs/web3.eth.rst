@@ -558,9 +558,11 @@ The following methods are available on the ``web3.eth`` namespace.
             'blockNumber': 46147,
             'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gas': 21000,
-            'gasPrice': 50000000000000,
+            'gasPrice': None,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'input': '0x',
+            'maxFeePerGas': 2000000000,
+            'maxPriorityFeePerGas': 1000000000,
             'nonce': 0,
             'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
             'transactionIndex': 0,
@@ -599,9 +601,11 @@ The following methods are available on the ``web3.eth`` namespace.
             'blockNumber': 46147,
             'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gas': 21000,
-            'gasPrice': 50000000000000,
+            'gasPrice': None,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'input': '0x',
+            'maxFeePerGas': 2000000000,
+            'maxPriorityFeePerGas': 1000000000,
             'nonce': 0,
             'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
             'transactionIndex': 0,
@@ -613,9 +617,11 @@ The following methods are available on the ``web3.eth`` namespace.
             'blockNumber': 46147,
             'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gas': 21000,
-            'gasPrice': 50000000000000,
+            'gasPrice': None,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'input': '0x',
+            'maxFeePerGas': 2000000000,
+            'maxPriorityFeePerGas': 1000000000,
             'nonce': 0,
             'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
             'transactionIndex': 0,
@@ -832,7 +838,8 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> signed_txn = w3.eth.account.sign_transaction(dict(
             nonce=w3.eth.get_transaction_count(public_address_of_senders_account),
-            gasPrice=w3.eth.gas_price,
+            maxFeePerGas=3000000000,
+            maxPriorityFeePerGas=2000000000,
             gas=100000,
             to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
             value=12345,
@@ -864,15 +871,27 @@ The following methods are available on the ``web3.eth`` namespace.
     If the ``new_transaction`` specifies a ``nonce`` value, it must match the pending
     transaction's nonce.
 
-    If the ``new_transaction`` specifies a ``gasPrice`` value, it must be greater than
-    the pending transaction's ``gasPrice``.
+    If the ``new_transaction`` specifies ``maxFeePerGas`` and ``maxPriorityFeePerGas``
+    values, they must be greater than the pending transaction's values for each field,
+    respectively.
 
-    If the ``new_transaction`` does not specify a ``gasPrice`` value, the highest of the
-    following 2 values will be used:
+    * Legacy Transaction Support (Less Efficient - Not Recommended)
 
-    * The pending transaction's ``gasPrice`` * 1.125 - This is typically the minimum
-      ``gasPrice`` increase a node requires before it accepts a replacement transaction.
-    * The ``gasPrice`` as calculated by the current gas price strategy(See :ref:`Gas_Price`).
+    If the pending transaction specified a ``gasPrice`` value (legacy transaction), the
+    ``gasPrice`` value for the ``new_transaction`` must be greater than the pending
+    transaction's ``gasPrice``.
+
+    If the ``new_transaction`` does not specify any of ``gasPrice``, ``maxFeePerGas``, or
+    ``maxPriorityFeePerGas`` values, one of the following will happen:
+
+    * If the pending transaction has a ``gasPrice`` value, this value will be used with a
+      multiplier of 1.125 - This is typically the minimum ``gasPrice`` increase a node requires
+      before it accepts a replacement transaction.
+    * If a gas price strategy is set, the ``gasPrice`` value from the gas price
+      strategy(See :ref:`Gas_Price`) will be used.
+    * If none of the above, the client will ultimately decide appropriate values for ``maxFeePerGas``
+      and ``maxPriorityFeePerGas``. These will likely be default values and may result in an
+      unsuccessful replacement of the pending transaction.
 
     This method returns the transaction hash of the replacement transaction.
 
@@ -989,7 +1008,7 @@ The following methods are available on the ``web3.eth`` namespace.
         >>> myContract.functions.getVar().call()
         1
         # The above call equivalent to the raw call:
-        >>> we3.eth.call({'value': 0, 'gas': 21736, 'gasPrice': 1, 'to': '0xc305c901078781C232A2a521C2aF7980f8385ee9', 'data': '0x477a5c98'})
+        >>> we3.eth.call({'value': 0, 'gas': 21736, 'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000, 'to': '0xc305c901078781C232A2a521C2aF7980f8385ee9', 'data': '0x477a5c98'})
         HexBytes('0x0000000000000000000000000000000000000000000000000000000000000001')
 
     In most cases it is better to make contract function call through the :py:class:`web3.contract.Contract` interface.

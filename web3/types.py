@@ -343,6 +343,8 @@ PendingTx = TypedDict("PendingTx", {
     "blockNumber": None,
     "from": ChecksumAddress,
     "gas": HexBytes,
+    'maxFeePerGas': HexBytes,
+    'maxPriorityFeePerGas': HexBytes,
     "gasPrice": HexBytes,
     "hash": HexBytes,
     "input": HexBytes,
