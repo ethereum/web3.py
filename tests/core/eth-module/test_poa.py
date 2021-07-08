@@ -1,6 +1,7 @@
 import pytest
 
 from web3.exceptions import (
+    BlockNotFound,
     ExtraDataLengthError,
 )
 from web3.middleware import (
@@ -37,3 +38,13 @@ def test_geth_proof_of_authority(web3):
     block = web3.eth.get_block('latest')
     assert 'extraData' not in block
     assert block.proofOfAuthorityData == b'\xff' * 33
+
+
+def test_returns_none_response(web3):
+    return_none_response = construct_fixture_middleware({
+        'eth_getBlockByNumber': None,
+    })
+    web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    web3.middleware_onion.inject(return_none_response, layer=0)
+    with pytest.raises(BlockNotFound):
+        web3.eth.get_block(100000000000)
