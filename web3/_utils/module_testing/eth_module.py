@@ -302,9 +302,7 @@ class AsyncEthModuleTest:
         assert block['hash'] == empty_block['hash']
 
     @pytest.mark.asyncio
-    async def test_eth_getBlockByHash_not_found(
-        self, async_w3: "Web3", empty_block: BlockData
-    ) -> None:
+    async def test_eth_getBlockByHash_not_found(self, async_w3: "Web3") -> None:
         with pytest.raises(BlockNotFound):
             await async_w3.eth.get_block(UNKNOWN_HASH)  # type: ignore
 

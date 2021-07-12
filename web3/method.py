@@ -24,6 +24,7 @@ from eth_utils.toolz import (
 
 from web3._utils.method_formatters import (
     get_error_formatters,
+    get_null_result_formatters,
     get_request_formatters,
     get_result_formatters,
 )
@@ -45,7 +46,7 @@ Munger = Callable[..., Any]
 @to_tuple
 def _apply_request_formatters(
     params: Any, request_formatters: Dict[RPCEndpoint, Callable[..., TReturn]]
-) -> Any:
+) -> Tuple[Any, ...]:
     if request_formatters:
         formatted_params = pipe(params, request_formatters)
         return formatted_params
@@ -119,6 +120,7 @@ class Method(Generic[TFunc]):
             request_formatters: Optional[Callable[..., TReturn]] = None,
             result_formatters: Optional[Callable[..., TReturn]] = None,
             error_formatters: Optional[Callable[..., TReturn]] = None,
+            null_result_formatters: Optional[Callable[..., TReturn]] = None,
             method_choice_depends_on_args: Optional[Callable[..., RPCEndpoint]] = None,
             web3: Optional["Web3"] = None):
 
@@ -127,6 +129,7 @@ class Method(Generic[TFunc]):
         self.request_formatters = request_formatters or get_request_formatters
         self.result_formatters = result_formatters or get_result_formatters
         self.error_formatters = get_error_formatters
+        self.null_result_formatters = null_result_formatters or get_null_result_formatters
         self.method_choice_depends_on_args = method_choice_depends_on_args
 
     def __get__(self, obj: Optional["Module"] = None,
@@ -169,7 +172,10 @@ class Method(Generic[TFunc]):
 
     def process_params(
         self, module: "Module", *args: Any, **kwargs: Any
-    ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., Any]], Any], Tuple[Any, Any]]:
+    ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Tuple[Any, ...]],
+               Tuple[Union[TReturn, Dict[str, Callable[..., Any]]],
+                     Callable[..., Any],
+                     Union[TReturn, Callable[..., Any]]]]:
         params = self.input_munger(module, args, kwargs)
 
         if self.method_choice_depends_on_args:
@@ -188,7 +194,8 @@ class Method(Generic[TFunc]):
 
         method = self.method_selector_fn()
         response_formatters = (self.result_formatters(method, module),
-                               self.error_formatters(method))
+                               self.error_formatters(method),
+                               self.null_result_formatters(method),)
 
         request = (method,
                    _apply_request_formatters(params, self.request_formatters(method)))
