@@ -1,1 +1,0 @@
-Fix bug in geth PoA middleware where a ``None`` response should throw a ``BlockNotFound`` error, but was instead throwing an ``AttributeError``

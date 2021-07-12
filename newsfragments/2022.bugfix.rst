@@ -1,3 +1,0 @@
-Bugfix where an error response got passed to a function expecting a block identifier.
-
-Split out null result formatters from the error formatters and added some tests.

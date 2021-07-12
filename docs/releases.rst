@@ -3,6 +3,34 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.21.0 (2021-07-12)
+--------------------
+Web3 5.21.0 (2021-07-12)
+------------------------
+
+Features
+~~~~~~~~
+
+- Adds support for EIP 1559 transaction keys: `maxFeePerGas` and `maxPriorityFeePerGas` (`#2060 <https://github.com/ethereum/web3.py/issues/2060>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Bugfix where an error response got passed to a function expecting a block identifier.
+
+  Split out null result formatters from the error formatters and added some tests. (`#2022 <https://github.com/ethereum/web3.py/issues/2022>`__)
+- Fix broken tests and use the new 1559 params for most of our test transactions. (`#2053 <https://github.com/ethereum/web3.py/issues/2053>`__)
+- Set a default maxFeePerGas value consistent with Geth (`#2055 <https://github.com/ethereum/web3.py/issues/2055>`__)
+- Fix bug in geth PoA middleware where a ``None`` response should throw a ``BlockNotFound`` error, but was instead throwing an ``AttributeError`` (`#2064 <https://github.com/ethereum/web3.py/issues/2064>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Added general documentation on unit and integration testing and how to contribute to our test suite. (`#2053 <https://github.com/ethereum/web3.py/issues/2053>`__)
+
+
 v5.20.1 (2021-07-01)
 --------------------
 Web3 5.20.1 (2021-07-01)

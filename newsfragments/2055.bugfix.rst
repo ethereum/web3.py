@@ -1,1 +1,0 @@
-Set a default maxFeePerGas value consistent with Geth
