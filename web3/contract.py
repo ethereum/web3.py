@@ -1524,8 +1524,8 @@ def call_contract_function(
             )
         else:
             msg = (
-                "Could not decode contract function call {function_identifier} "
-                "return data {return_data!r} for output_types {output_types}"
+                f"Could not decode contract function call {function_identifier} "
+                f"return data {return_data!r} for output_types {output_types}"
             )
         raise BadFunctionCallOutput(msg) from e
 
