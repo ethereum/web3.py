@@ -885,7 +885,7 @@ The following methods are available on the ``web3.eth`` namespace.
                 'value': 1000
             })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
-        >>> web3.eth.modify_transaction(('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', value=2000)
+        >>> web3.eth.modify_transaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', value=2000)
         HexBytes('0xec6434e6701771606e55d6b4ca35a1a6b75ee3d73315145a921026d15299d05')
 
 .. py:method:: Eth.modifyTransaction(transaction_hash, **transaction_params)
