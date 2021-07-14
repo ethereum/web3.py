@@ -1,0 +1,1 @@
+Clarify that ``send_transaction``, ``modify_transaction``, and ``replace_transaction`` return HexByte objects instead of strings.
