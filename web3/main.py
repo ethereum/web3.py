@@ -226,7 +226,7 @@ class Web3:
     parity: Parity
     geth: Geth
     net: Net
-    # async_net: AsyncNet
+    async_net: AsyncNet
 
     def __init__(
         self,
