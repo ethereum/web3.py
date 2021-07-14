@@ -17,6 +17,9 @@ from uuid import UUID
 from eth_utils.toolz import (
     pipe,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3._utils.decorators import (
     deprecated_for,
@@ -51,6 +54,9 @@ from web3.types import (  # noqa: F401
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
+
+
+NULL_RESPONSES = [None, HexBytes('0x'), '0x']
 
 
 def apply_error_formatters(
@@ -160,7 +166,7 @@ class RequestManager:
         if "error" in response:
             apply_error_formatters(error_formatters, response)
             raise ValueError(response["error"])
-        elif response['result'] is None:
+        elif response['result'] in NULL_RESPONSES:
             # null_result_formatters raise either a BlockNotFound
             # or a TransactionNotFound error, depending on the method called
             apply_null_result_formatters(null_result_formatters, response, params)

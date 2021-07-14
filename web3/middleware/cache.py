@@ -65,6 +65,7 @@ SIMPLE_CACHE_RPC_WHITELIST = cast(Set[RPCEndpoint], {
     'eth_getTransactionByBlockHashAndIndex',
     # 'eth_getTransactionByBlockNumberAndIndex',
     # 'eth_getTransactionReceipt',
+    'eth_getRawTransactionByHash',
     'eth_getUncleByBlockHashAndIndex',
     # 'eth_getUncleByBlockNumberAndIndex',
     # 'eth_getCompilers',

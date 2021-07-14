@@ -132,6 +132,11 @@ class BaseEth(Module):
         mungers=[default_root_munger]
     )
 
+    _get_raw_transaction: Method[Callable[[_Hash32], HexBytes]] = Method(
+        RPC.eth_getRawTransactionByHash,
+        mungers=[default_root_munger]
+    )
+
     def _generate_gas_price(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
         if self.gasPriceStrategy:
             return self.gasPriceStrategy(self.web3, transaction_params)
@@ -204,6 +209,10 @@ class AsyncEth(BaseEth):
     async def get_transaction(self, transaction_hash: _Hash32) -> TxData:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._get_transaction(transaction_hash)  # type: ignore
+
+    async def get_raw_transaction(self, transaction_hash: _Hash32) -> TxData:
+        # types ignored b/c mypy conflict with BlockingEth properties
+        return await self._get_raw_transaction(transaction_hash)  # type: ignore
 
     async def generate_gas_price(
         self, transaction_params: Optional[TxParams] = None
@@ -500,6 +509,9 @@ class Eth(BaseEth, Module):
 
     def get_transaction(self, transaction_hash: _Hash32) -> TxData:
         return self._get_transaction(transaction_hash)
+
+    def get_raw_transaction(self, transaction_hash: _Hash32) -> _Hash32:
+        return self._get_raw_transaction(transaction_hash)
 
     def getTransactionFromBlock(
         self, block_identifier: BlockIdentifier, transaction_index: int

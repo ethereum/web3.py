@@ -264,6 +264,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_submitWork_deprecated = not_implemented(
         EthModuleTest.test_eth_submitWork_deprecated, ValueError)
     test_eth_submit_work = not_implemented(EthModuleTest.test_eth_submit_work, ValueError)
+    test_eth_get_raw_transaction = not_implemented(
+        EthModuleTest.test_eth_get_raw_transaction, ValueError)
+    test_eth_get_raw_transaction_raises_error = not_implemented(
+        EthModuleTest.test_eth_get_raw_transaction, ValueError)
 
     def test_eth_getBlockByHash_pending(
         self, web3: "Web3"

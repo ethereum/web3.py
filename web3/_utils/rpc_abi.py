@@ -57,6 +57,7 @@ class RPC:
     eth_getFilterLogs = RPCEndpoint("eth_getFilterLogs")
     eth_getLogs = RPCEndpoint("eth_getLogs")
     eth_getProof = RPCEndpoint("eth_getProof")
+    eth_getRawTransactionByHash = RPCEndpoint("eth_getRawTransactionByHash")
     eth_getStorageAt = RPCEndpoint("eth_getStorageAt")
     eth_getTransactionByBlockHashAndIndex = RPCEndpoint("eth_getTransactionByBlockHashAndIndex")
     eth_getTransactionByBlockNumberAndIndex = RPCEndpoint("eth_getTransactionByBlockNumberAndIndex")
@@ -175,6 +176,7 @@ RPC_ABIS = {
     'eth_getBlockTransactionCountByHash': ['bytes32'],
     'eth_getCode': ['address', None],
     'eth_getLogs': FILTER_PARAMS_ABIS,
+    'eth_getRawTransactionByHash': ['bytes32'],
     'eth_getStorageAt': ['address', 'uint', None],
     'eth_getProof': ['address', 'uint[]', None],
     'eth_getTransactionByBlockHashAndIndex': ['bytes32', 'uint'],
