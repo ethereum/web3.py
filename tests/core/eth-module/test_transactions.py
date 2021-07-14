@@ -93,6 +93,12 @@ def test_wait_for_missing_receipt(web3):
         web3.eth.wait_for_transaction_receipt(b'\0' * 32, timeout=RECEIPT_TIMEOUT)
 
 
+def test_passing_string_to_to_hex(web3):
+    with pytest.raises(TimeExhausted):
+        transaction_hash = '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'
+        web3.eth.wait_for_transaction_receipt(transaction_hash, timeout=RECEIPT_TIMEOUT)
+
+
 def test_unmined_transaction_wait_for_receipt(web3):
     web3.middleware_onion.add(unmined_receipt_simulator_middleware)
     txn_hash = web3.eth.send_transaction({

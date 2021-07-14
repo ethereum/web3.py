@@ -544,8 +544,8 @@ class Eth(BaseEth, Module):
             return wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
         except Timeout:
             raise TimeExhausted(
-                "Transaction {} is not in the chain, after {} seconds".format(
-                    to_hex(transaction_hash),
+                "Transaction {!r} is not in the chain, after {} seconds".format(
+                    HexBytes(transaction_hash),
                     timeout,
                 )
             )
