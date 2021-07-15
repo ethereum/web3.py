@@ -39,3 +39,24 @@ class NetModuleTest:
     def test_net_chainId_deprecation(self, web3: "Web3") -> None:
         with pytest.raises(DeprecationWarning):
             web3.net.chainId
+
+
+class AsyncNetModuleTest:
+    @pytest.mark.asyncio
+    async def test_net_version(self, async_w3: "Web3") -> None:
+        version = await async_w3.async_net.version
+
+        assert is_string(version)
+        assert version.isdigit()
+
+    @pytest.mark.asyncio
+    async def test_net_listening(self, async_w3: "Web3") -> None:
+        listening = await async_w3.async_net.listening
+
+        assert is_boolean(listening)
+
+    @pytest.mark.asyncio
+    async def test_net_peer_count(self, async_w3: "Web3") -> None:
+        peer_count = await async_w3.async_net.peer_count
+
+        assert is_integer(peer_count)

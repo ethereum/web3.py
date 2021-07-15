@@ -11,6 +11,9 @@ from web3.middleware import (
     async_buffered_gas_estimate_middleware,
     async_gas_price_strategy_middleware,
 )
+from web3.net import (
+    AsyncNet,
+)
 from web3.providers.async_rpc import (
     AsyncHTTPProvider,
 )
@@ -18,6 +21,7 @@ from web3.providers.async_rpc import (
 from .common import (
     GoEthereumAdminModuleTest,
     GoEthereumAsyncEthModuleTest,
+    GoEthereumAsyncNetModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
@@ -84,7 +88,7 @@ async def async_w3(geth_process, endpoint_uri):
             async_gas_price_strategy_middleware,
             async_buffered_gas_estimate_middleware
         ],
-        modules={'eth': (AsyncEth,)})
+        modules={'eth': (AsyncEth,), 'async_net': (AsyncNet,)})
     return _web3
 
 
@@ -117,6 +121,10 @@ class TestGoEthereumVersionModuleTest(GoEthereumVersionModuleTest):
 
 
 class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
+    pass
+
+
+class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
     pass
 
 

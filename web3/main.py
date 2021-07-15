@@ -87,6 +87,7 @@ from web3.manager import (
     RequestManager as DefaultRequestManager,
 )
 from web3.net import (
+    AsyncNet,
     Net,
 )
 from web3.parity import (
@@ -225,6 +226,7 @@ class Web3:
     parity: Parity
     geth: Geth
     net: Net
+    async_net: AsyncNet
 
     def __init__(
         self,

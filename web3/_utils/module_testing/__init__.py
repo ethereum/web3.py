@@ -6,6 +6,7 @@ from .go_ethereum_admin_module import (  # noqa: F401
     GoEthereumAdminModuleTest,
 )
 from .net_module import (  # noqa: F401
+    AsyncNetModuleTest,
     NetModuleTest,
 )
 from .parity_module import (  # noqa: F401
