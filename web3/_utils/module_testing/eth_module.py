@@ -939,7 +939,11 @@ class EthModuleTest:
                 json.loads(invalid_typed_message)
             )
 
-    def test_eth_sign_transaction(self, web3: "Web3", unlocked_account: ChecksumAddress) -> None:
+    def test_eth_sign_transaction_legacy(
+        self,
+        web3: "Web3",
+        unlocked_account: ChecksumAddress
+    ) -> None:
         txn_params: TxParams = {
             'from': unlocked_account,
             'to': unlocked_account,
@@ -955,6 +959,56 @@ class EthModuleTest:
         assert result['tx']['value'] == txn_params['value']
         assert result['tx']['gas'] == txn_params['gas']
         assert result['tx']['gasPrice'] == txn_params['gasPrice']
+        assert result['tx']['nonce'] == txn_params['nonce']
+
+    def test_eth_sign_transaction(
+        self,
+        web3: "Web3",
+        unlocked_account: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxFeePerGas': web3.toWei(2, 'gwei'),
+            'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
+            'nonce': Nonce(0),
+        }
+        result = web3.eth.sign_transaction(txn_params)
+        signatory_account = web3.eth.account.recover_transaction(result['raw'])
+        assert unlocked_account == signatory_account
+        assert result['tx']['to'] == txn_params['to']
+        assert result['tx']['value'] == txn_params['value']
+        assert result['tx']['gas'] == txn_params['gas']
+        assert result['tx']['maxFeePerGas'] == txn_params['maxFeePerGas']
+        assert result['tx']['maxPriorityFeePerGas'] == txn_params['maxPriorityFeePerGas']
+        assert result['tx']['nonce'] == txn_params['nonce']
+
+    def test_eth_sign_transaction_hex_fees(
+        self,
+        web3: "Web3",
+        unlocked_account: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxFeePerGas': hex(web3.toWei(2, 'gwei')),
+            'maxPriorityFeePerGas': hex(web3.toWei(1, 'gwei')),
+            'nonce': Nonce(0),
+        }
+        result = web3.eth.sign_transaction(txn_params)
+        signatory_account = web3.eth.account.recover_transaction(result['raw'])
+        assert unlocked_account == signatory_account
+        assert result['tx']['to'] == txn_params['to']
+        assert result['tx']['value'] == txn_params['value']
+        assert result['tx']['gas'] == txn_params['gas']
+        assert result['tx']['maxFeePerGas'] == int(str(txn_params['maxFeePerGas']), 16)
+        assert result['tx']['maxPriorityFeePerGas'] == int(
+            str(txn_params['maxPriorityFeePerGas']), 16
+        )
         assert result['tx']['nonce'] == txn_params['nonce']
 
     def test_eth_signTransaction_deprecated(self,
@@ -988,7 +1042,8 @@ class EthModuleTest:
                 'to': 'unlocked-account.eth',
                 'value': Wei(1),
                 'gas': Wei(21000),
-                'gasPrice': web3.eth.gas_price,
+                'maxFeePerGas': web3.toWei(2, 'gwei'),
+                'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
                 'nonce': Nonce(0),
             }
             result = web3.eth.sign_transaction(txn_params)
@@ -997,7 +1052,8 @@ class EthModuleTest:
             assert result['tx']['to'] == unlocked_account
             assert result['tx']['value'] == txn_params['value']
             assert result['tx']['gas'] == txn_params['gas']
-            assert result['tx']['gasPrice'] == txn_params['gasPrice']
+            assert result['tx']['maxFeePerGas'] == txn_params['maxFeePerGas']
+            assert result['tx']['maxPriorityFeePerGas'] == txn_params['maxPriorityFeePerGas']
             assert result['tx']['nonce'] == txn_params['nonce']
 
     def test_eth_send_transaction_addr_checksum_required(

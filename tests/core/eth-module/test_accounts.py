@@ -290,8 +290,54 @@ def test_eth_account_sign(acct,
             232940010090391255679819602567388136081614408698362277324138554019997613600,
             38,
         ),
+        (
+            {
+                "gas": 100000,
+                "maxFeePerGas": 2000000000,
+                "maxPriorityFeePerGas": 2000000000,
+                "data": "0x5544",
+                "nonce": "0x2",
+                "to": "0x96216849c49358B10257cb55b28eA603c874b05E",
+                "value": "0x5af3107a4000",
+                "type": "0x2",
+                "accessList": (
+                    (
+                        "0x0000000000000000000000000000000000000001",
+                        (
+                            "0x0100000000000000000000000000000000000000000000000000000000000000",
+                        ),
+                    ),
+                ),
+                "chainId": 1,
+            },
+            '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
+            HexBytes('0x02f8ac010284773594008477359400830186a09496216849c49358b10257cb55b28ea603c874b05e865af3107a4000825544f838f7940000000000000000000000000000000000000001e1a0010000000000000000000000000000000000000000000000000000000000000001a0c5217aec4d576a1b5097c5054ed0157f762dd018f5c2195f0d0190ddca9445c5a0230a35968164ab4318a7042ca0ad4b4178a0d24c2cc000e13dfa24c206317935'),  # noqa: 501
+            HexBytes('0xd42048e2a34957ab81f093d757be86453197bec95780d509fb3545d295227a34'),
+            89164785507787893778245375805371571349289793451450966346444410690555998389701,
+            15848988021237185855591648888808312289463551127752258139478457465342262343989,
+            1,
+        ),
+        (
+            {
+                "gas": '0x186a0',
+                "maxFeePerGas": '0x77359400',
+                "maxPriorityFeePerGas": '0x77359400',
+                "data": "0x5544",
+                "nonce": "0x2",
+                "to": "0x96216849c49358B10257cb55b28eA603c874b05E",
+                "value": "0x5af3107a4000",
+                "type": "0x2",
+                "chainId": 1,
+            },
+            '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
+            HexBytes('0x02f873010284773594008477359400830186a09496216849c49358b10257cb55b28ea603c874b05e865af3107a4000825544c080a07cfcd6472c4a29c566df07851c4708cb02523f71075221cc8e668908db58fde0a03b9185c7a719a99f2822dda5ed94c9f90641bd75578f093f15ceb71fc6ba85fc'),  # noqa: 501
+            HexBytes('0x20a46a15e0b39815b44f01f3261a8741b095ed2bb4235339fa0e461251f9dc95'),
+            56533517577187861348991333001994723803575055479068550930552639362970253065696,
+            26943574205696802233481851589848298424411617815775925360566652975894417278460,
+            0,
+        )
     ),
-    ids=['web3js_example', '31byte_r_and_s'],
+    ids=['web3js_example', '31byte_r_and_s', 'eip_1559_example', 'eip_1559_hex_fees'],
 )
 def test_eth_account_sign_transaction(acct, txn, private_key, expected_raw_tx, tx_hash, r, s, v):
     signed = acct.sign_transaction(txn, private_key)
@@ -303,6 +349,9 @@ def test_eth_account_sign_transaction(acct, txn, private_key, expected_raw_tx, t
 
     account = acct.from_key(private_key)
     assert account.sign_transaction(txn) == signed
+
+    expected_sender = acct.from_key(private_key).address
+    assert acct.recover_transaction(signed.rawTransaction) == expected_sender
 
 
 @pytest.mark.parametrize(

@@ -411,6 +411,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         (is_length(2), estimate_gas_with_block_id),
     )),
     RPC.eth_sendTransaction: apply_formatter_at_index(transaction_param_formatter, 0),
+    RPC.eth_signTransaction: apply_formatter_at_index(transaction_param_formatter, 0),
     RPC.eth_getProof: apply_formatter_at_index(to_hex_if_integer, 2),
     # personal
     RPC.personal_importRawKey: apply_formatter_at_index(

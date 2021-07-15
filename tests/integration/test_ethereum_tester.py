@@ -254,7 +254,15 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_signTransaction_deprecated,
         ValueError
     )
+    test_eth_sign_transaction_legacy = not_implemented(
+        EthModuleTest.test_eth_sign_transaction_legacy,
+        ValueError
+    )
     test_eth_sign_transaction = not_implemented(EthModuleTest.test_eth_sign_transaction, ValueError)
+    test_eth_sign_transaction_hex_fees = not_implemented(
+        EthModuleTest.test_eth_sign_transaction_hex_fees,
+        ValueError
+    )
     test_eth_sign_transaction_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_transaction_ens_names, ValueError
     )
