@@ -2,6 +2,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
 )
 
 from eth_utils.curried import (
@@ -32,10 +33,14 @@ from web3.exceptions import (
     ValidationError,
 )
 from web3.middleware.formatting import (
+    async_construct_web3_formatting_middleware,
     construct_web3_formatting_middleware,
 )
 from web3.types import (
+    AsyncMiddleware,
+    Formatters,
     FormattersDict,
+    RPCEndpoint,
     TxParams,
 )
 
@@ -45,25 +50,24 @@ if TYPE_CHECKING:
 MAX_EXTRADATA_LENGTH = 32
 
 is_not_null = complement(is_null)
-
 to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
 
 
 @curry
-def validate_chain_id(web3: "Web3", chain_id: int) -> int:
-    if to_integer_if_hex(chain_id) == web3.eth.chain_id:
+def _validate_chain_id(web3_chain_id: int, chain_id: int) -> int:
+    if to_integer_if_hex(chain_id) == web3_chain_id:
         return chain_id
     else:
         raise ValidationError(
             "The transaction declared chain ID %r, "
             "but the connected node is on %r" % (
                 chain_id,
-                web3.eth.chain_id,
+                web3_chain_id,
             )
         )
 
 
-def check_extradata_length(val: Any) -> Any:
+def _check_extradata_length(val: Any) -> Any:
     if not isinstance(val, (str, int, bytes)):
         return val
     result = HexBytes(val)
@@ -80,16 +84,16 @@ def check_extradata_length(val: Any) -> Any:
     return val
 
 
-def transaction_normalizer(transaction: TxParams) -> TxParams:
+def _transaction_normalizer(transaction: TxParams) -> TxParams:
     return dissoc(transaction, 'chainId')
 
 
-def transaction_param_validator(web3: "Web3") -> Callable[..., Any]:
+def _transaction_param_validator(web3_chain_id: int) -> Callable[..., Any]:
     transactions_params_validators = {
         "chainId": apply_formatter_if(
             # Bypass `validate_chain_id` if chainId can't be determined
-            lambda _: is_not_null(web3.eth.chain_id),
-            validate_chain_id(web3),
+            lambda _: is_not_null(web3_chain_id),
+            _validate_chain_id(web3_chain_id),
         ),
     }
     return apply_formatter_at_index(
@@ -99,36 +103,70 @@ def transaction_param_validator(web3: "Web3") -> Callable[..., Any]:
 
 
 BLOCK_VALIDATORS = {
-    'extraData': check_extradata_length,
+    'extraData': _check_extradata_length,
 }
-
-
 block_validator = apply_formatter_if(
     is_not_null,
     apply_formatters_to_dict(BLOCK_VALIDATORS)
 )
 
+METHODS_TO_VALIDATE = [
+    RPC.eth_sendTransaction,
+    RPC.eth_estimateGas,
+    RPC.eth_call
+]
 
-@curry
-def chain_id_validator(web3: "Web3") -> Callable[..., Any]:
+
+def _chain_id_validator(web3_chain_id: int) -> Callable[..., Any]:
     return compose(
-        apply_formatter_at_index(transaction_normalizer, 0),
-        transaction_param_validator(web3)
+        apply_formatter_at_index(_transaction_normalizer, 0),
+        _transaction_param_validator(web3_chain_id)
     )
 
 
-def build_validators_with_web3(w3: "Web3") -> FormattersDict:
+def _build_formatters_dict(request_formatters: Dict[RPCEndpoint, Any]) -> FormattersDict:
     return dict(
-        request_formatters={
-            RPC.eth_sendTransaction: chain_id_validator(w3),
-            RPC.eth_estimateGas: chain_id_validator(w3),
-            RPC.eth_call: chain_id_validator(w3),
-        },
+        request_formatters=request_formatters,
         result_formatters={
             RPC.eth_getBlockByHash: block_validator,
             RPC.eth_getBlockByNumber: block_validator,
-        },
+        }
     )
 
+# -- sync -- #
 
-validation_middleware = construct_web3_formatting_middleware(build_validators_with_web3)
+
+def build_method_validators(w3: "Web3", method: RPCEndpoint) -> FormattersDict:
+    request_formatters = {}
+    if RPCEndpoint(method) in METHODS_TO_VALIDATE:
+        w3_chain_id = w3.eth.chain_id
+        for method in METHODS_TO_VALIDATE:
+            request_formatters[method] = _chain_id_validator(w3_chain_id)
+
+    return _build_formatters_dict(request_formatters)
+
+
+validation_middleware = construct_web3_formatting_middleware(
+    build_method_validators
+)
+
+
+# -- async --- #
+
+async def async_build_method_validators(async_w3: "Web3", method: RPCEndpoint) -> FormattersDict:
+    request_formatters: Formatters = {}
+    if RPCEndpoint(method) in METHODS_TO_VALIDATE:
+        w3_chain_id = await async_w3.eth.chain_id  # type: ignore
+        for method in METHODS_TO_VALIDATE:
+            request_formatters[method] = _chain_id_validator(w3_chain_id)
+
+    return _build_formatters_dict(request_formatters)
+
+
+async def async_validation_middleware(
+    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+) -> AsyncMiddleware:
+    middleware = await async_construct_web3_formatting_middleware(
+        async_build_method_validators
+    )
+    return await middleware(make_request, web3)

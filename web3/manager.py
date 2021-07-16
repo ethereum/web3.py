@@ -128,11 +128,11 @@ class RequestManager:
         """
         return [
             (request_parameter_normalizer, 'request_param_normalizer'),  # Delete
-            (gas_price_strategy_middleware, 'gas_price_strategy'),  # Add Async
+            (gas_price_strategy_middleware, 'gas_price_strategy'),
             (name_to_address_middleware(web3), 'name_to_address'),  # Add Async
             (attrdict_middleware, 'attrdict'),  # Delete
             (pythonic_middleware, 'pythonic'),  # Delete
-            (validation_middleware, 'validation'),  # Add async
+            (validation_middleware, 'validation'),
             (abi_middleware, 'abi'),  # Delete
             (buffered_gas_estimate_middleware, 'gas_estimate'),
         ]
@@ -159,8 +159,8 @@ class RequestManager:
         self.logger.debug("Making request. Method: %s", method)
         return await request_func(method, params)
 
+    @staticmethod
     def formatted_response(
-        self,
         response: RPCResponse,
         params: Any,
         error_formatters: Optional[Callable[..., Any]] = None,

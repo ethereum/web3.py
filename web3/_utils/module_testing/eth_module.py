@@ -53,9 +53,14 @@ from web3.exceptions import (
     TimeExhausted,
     TransactionNotFound,
     TransactionTypeMismatch,
+    ValidationError,
+)
+from web3.middleware import (
+    async_geth_poa_middleware,
 )
 from web3.middleware.fixture import (
     async_construct_error_generator_middleware,
+    async_construct_result_generator_middleware,
     construct_error_generator_middleware,
 )
 from web3.types import (  # noqa: F401
@@ -289,6 +294,47 @@ class AsyncEthModuleTest:
             InvalidTransaction, match="maxFeePerGas must be >= maxPriorityFeePerGas"
         ):
             await async_w3.eth.send_transaction(txn_params)  # type: ignore
+
+    @pytest.mark.asyncio
+    async def test_validation_middleware_chain_id_mismatch(
+        self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        wrong_chain_id = 1234567890
+        actual_chain_id = await async_w3.eth.chain_id  # type: ignore
+
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxFeePerGas': async_w3.toWei(2, 'gwei'),
+            'maxPriorityFeePerGas': async_w3.toWei(1, 'gwei'),
+            'chainId': wrong_chain_id,
+
+        }
+        with pytest.raises(
+            ValidationError,
+            match=f'The transaction declared chain ID {wrong_chain_id}, '
+                  f'but the connected node is on {actual_chain_id}'
+        ):
+            await async_w3.eth.send_transaction(txn_params)  # type: ignore
+
+    @pytest.mark.asyncio
+    async def test_geth_poa_middleware(self, async_w3: "Web3") -> None:
+        return_block_with_long_extra_data = await async_construct_result_generator_middleware(
+            {
+                RPCEndpoint('eth_getBlockByNumber'): lambda *_: {'extraData': '0x' + 'ff' * 33},
+            }
+        )
+        async_w3.middleware_onion.inject(async_geth_poa_middleware, 'poa', layer=0)
+        async_w3.middleware_onion.inject(return_block_with_long_extra_data, 'extradata', layer=0)
+        block = await async_w3.eth.get_block('latest')  # type: ignore
+        assert 'extraData' not in block
+        assert block.proofOfAuthorityData == b'\xff' * 33
+
+        # clean up
+        async_w3.middleware_onion.remove('poa')
+        async_w3.middleware_onion.remove('extradata')
 
     @pytest.mark.asyncio
     async def test_eth_send_raw_transaction(self, async_w3: "Web3") -> None:
@@ -1994,6 +2040,29 @@ class EthModuleTest:
         }
         with pytest.raises(
             InvalidTransaction, match="maxFeePerGas must be >= maxPriorityFeePerGas"
+        ):
+            web3.eth.send_transaction(txn_params)
+
+    def test_validation_middleware_chain_id_mismatch(
+        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        wrong_chain_id = 1234567890
+        actual_chain_id = web3.eth.chain_id
+
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxFeePerGas': web3.toWei(2, 'gwei'),
+            'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
+            'chainId': wrong_chain_id,
+
+        }
+        with pytest.raises(
+            ValidationError,
+            match=f'The transaction declared chain ID {wrong_chain_id}, '
+                  f'but the connected node is on {actual_chain_id}'
         ):
             web3.eth.send_transaction(txn_params)
 
