@@ -2,11 +2,11 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Coroutine,
     Dict,
 )
 
 from web3.types import (
+    AsyncMiddleware,
     Middleware,
     RPCEndpoint,
     RPCResponse,
@@ -78,6 +78,28 @@ def construct_error_generator_middleware(
     return error_generator_middleware
 
 
+# --- async --- #
+
+async def async_construct_result_generator_middleware(
+    result_generators: Dict[RPCEndpoint, Any]
+) -> Middleware:
+    """
+    Constructs a middleware which returns a static response for any method
+    which is found in the provided fixtures.
+    """
+    async def result_generator_middleware(
+        make_request: Callable[[RPCEndpoint, Any], Any], _: "Web3"
+    ) -> AsyncMiddleware:
+        async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+            if method in result_generators:
+                result = result_generators[method](method, params)
+                return {'result': result}
+            else:
+                return await make_request(method, params)
+        return middleware
+    return result_generator_middleware
+
+
 async def async_construct_error_generator_middleware(
     error_generators: Dict[RPCEndpoint, Any]
 ) -> Middleware:
@@ -89,7 +111,7 @@ async def async_construct_error_generator_middleware(
     """
     async def error_generator_middleware(
         make_request: Callable[[RPCEndpoint, Any], Any], _: "Web3"
-    ) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
+    ) -> AsyncMiddleware:
         async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in error_generators:
                 error_msg = error_generators[method](method, params)

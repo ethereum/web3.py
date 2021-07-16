@@ -2,7 +2,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Coroutine,
 )
 
 from eth_utils.toolz import (
@@ -16,6 +15,7 @@ from web3._utils.transactions import (
     get_buffered_gas_estimate,
 )
 from web3.types import (
+    AsyncMiddleware,
     RPCEndpoint,
     RPCResponse,
 )
@@ -43,7 +43,7 @@ def buffered_gas_estimate_middleware(
 
 async def async_buffered_gas_estimate_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
-) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
+) -> AsyncMiddleware:
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == 'eth_sendTransaction':
             transaction = params[0]

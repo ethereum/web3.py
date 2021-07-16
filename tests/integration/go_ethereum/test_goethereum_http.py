@@ -18,6 +18,7 @@ from web3.geth import (
 from web3.middleware import (
     async_buffered_gas_estimate_middleware,
     async_gas_price_strategy_middleware,
+    async_validation_middleware,
 )
 from web3.net import (
     AsyncNet,
@@ -95,8 +96,9 @@ async def async_w3(geth_process, endpoint_uri):
     _web3 = Web3(
         AsyncHTTPProvider(endpoint_uri),
         middlewares=[
+            async_buffered_gas_estimate_middleware,
             async_gas_price_strategy_middleware,
-            async_buffered_gas_estimate_middleware
+            async_validation_middleware,
         ],
         modules={'eth': AsyncEth,
                  'async_net': AsyncNet,

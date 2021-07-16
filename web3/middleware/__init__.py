@@ -51,6 +51,7 @@ from .gas_price_strategy import (  # noqa: F401
     gas_price_strategy_middleware,
 )
 from .geth_poa import (  # noqa: F401
+    async_geth_poa_middleware,
     geth_poa_middleware,
 )
 from .names import (  # noqa: F401
@@ -69,6 +70,7 @@ from .stalecheck import (  # noqa: F401
     make_stalecheck_middleware,
 )
 from .validation import (  # noqa: F401
+    async_validation_middleware,
     validation_middleware,
 )
 
