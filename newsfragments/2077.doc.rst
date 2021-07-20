@@ -1,0 +1,1 @@
+Added troubleshooting section for Microsoft Visual C++ error on Windows machines

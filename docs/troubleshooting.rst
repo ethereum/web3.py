@@ -178,10 +178,11 @@ Your Ethereum node JSON-RPC API might be slow when fetching multiple and large r
         """
         provider.decode_rpc_response = _fast_decode_rpc_response
         
-Why I am getting Visual C++ or Cython not installed error?
+Why am I getting Visual C++ or Cython not installed error?
 ----------------------------------------------------------
 
-Web3.py requires Microsoft Visual C++ 14.0 + installed for working. In case Microsoft Visual C++ 14.0 + is not installed, error message as shown below may be shown.
+Some Windows users that do not have Microsoft Visual C++ version 14.0 or greater installed may see an error message
+when installing Web3.py as shown below:
 
 .. code-block:: shell
 
@@ -190,11 +191,10 @@ Web3.py requires Microsoft Visual C++ 14.0 + installed for working. In case Micr
 
 To fix this error, download and install Microsoft Visual C++ from here : 
 
-`Microsoft Visual Studio Home <https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019>`_
+`Microsoft Visual C++ Redistributable for Visual Studio <https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019>`_
 
 - `x64 Visual C++ <https://aka.ms/vs/16/release/VC_redist.x64.exe>`_  
 
-- `x86 Visual C++ <https://aka.ms/vs/16/release/VC_redist.arm64.exe>`_  
+- `x86 Visual C++ <https://aka.ms/vs/16/release/VC_redist.x86.exe>`_
 
-- `ARM64 Visual C++ <https://aka.ms/vs/16/release/VC_redist.x86.exe>`_
-
+- `ARM64 Visual C++ <https://aka.ms/vs/16/release/VC_redist.arm64.exe>`_
