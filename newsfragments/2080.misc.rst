@@ -1,0 +1,1 @@
+Pluggy version updated to avoid pytest errors with certain python versions
