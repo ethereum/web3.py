@@ -45,6 +45,7 @@ extras_require = {
         "tox>=1.8.0",
         "tqdm>4.32,<5",
         "twine>=1.13,<2",
+        "pluggy==0.13.1",
         "when-changed>=0.3.0,<0.4"
     ]
 }
