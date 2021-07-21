@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
     from web3.module import Module  # noqa: F401
 
+
 Munger = Callable[..., Any]
 
 
@@ -154,7 +155,7 @@ class Method(Generic[TFunc]):
     def input_munger(
         self, module: "Module", args: Any, kwargs: Any
     ) -> List[Any]:
-        # This function takes the "root_munger" - the first munger in
+        # This function takes the "root_munger" - (the first munger in
         # the list of mungers) and then pipes the return value of the
         # previous munger as an argument to the next munger to return
         # an array of arguments that have been formatted.

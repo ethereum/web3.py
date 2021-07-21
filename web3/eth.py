@@ -1,5 +1,6 @@
 from typing import (
     Any,
+    Awaitable,
     Callable,
     List,
     NoReturn,
@@ -105,12 +106,22 @@ from web3.types import (
 
 class BaseEth(Module):
     _default_account: Union[ChecksumAddress, Empty] = empty
+    _default_block: BlockIdentifier = "latest"
     gasPriceStrategy = None
 
     _gas_price: Method[Callable[[], Wei]] = Method(
         RPC.eth_gasPrice,
         mungers=None,
     )
+
+    """ property default_block """
+    @property
+    def default_block(self) -> BlockIdentifier:
+        return self._default_block
+
+    @default_block.setter
+    def default_block(self, value: BlockIdentifier) -> None:
+        self._default_block = value
 
     @property
     def default_account(self) -> Union[ChecksumAddress, Empty]:
@@ -193,6 +204,15 @@ class BaseEth(Module):
         mungers=None,
     )
 
+    def block_id_munger(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> Tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
+        if block_identifier is None:
+            block_identifier = self.default_block
+        return (account, block_identifier)
+
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -243,10 +263,45 @@ class AsyncEth(BaseEth):
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self.get_coinbase()  # type: ignore
 
+    _get_balance: Method[Callable[..., Awaitable[Wei]]] = Method(
+        RPC.eth_getBalance,
+        mungers=[BaseEth.block_id_munger],
+    )
+
+    async def get_balance(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> Wei:
+        return await self._get_balance(account, block_identifier)
+
+    _get_code: Method[Callable[..., Awaitable[HexBytes]]] = Method(
+        RPC.eth_getCode,
+        mungers=[BaseEth.block_id_munger]
+    )
+
+    async def get_code(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> HexBytes:
+        return await self._get_code(account, block_identifier)
+
+    _get_transaction_count: Method[Callable[..., Awaitable[Nonce]]] = Method(
+        RPC.eth_getTransactionCount,
+        mungers=[BaseEth.block_id_munger],
+    )
+
+    async def get_transaction_count(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> Nonce:
+        return await self._get_transaction_count(account, block_identifier)
+
 
 class Eth(BaseEth, Module):
     account = Account()
-    _default_block: BlockIdentifier = "latest"
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
 
@@ -383,15 +438,10 @@ class Eth(BaseEth, Module):
         )
         self._default_account = account
 
-    """ property default_block """
-
-    @property
-    def default_block(self) -> BlockIdentifier:
-        return self._default_block
-
-    @default_block.setter
-    def default_block(self, value: BlockIdentifier) -> None:
-        self._default_block = value
+    get_balance: Method[Callable[..., Wei]] = Method(
+        RPC.eth_getBalance,
+        mungers=[BaseEth.block_id_munger],
+    )
 
     @property
     def defaultBlock(self) -> BlockIdentifier:
@@ -408,20 +458,6 @@ class Eth(BaseEth, Module):
             category=DeprecationWarning,
         )
         self._default_block = value
-
-    def block_id_munger(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
-        if block_identifier is None:
-            block_identifier = self.default_block
-        return (account, block_identifier)
-
-    get_balance: Method[Callable[..., Wei]] = Method(
-        RPC.eth_getBalance,
-        mungers=[block_id_munger],
-    )
 
     def get_storage_at_munger(
         self,
@@ -458,15 +494,15 @@ class Eth(BaseEth, Module):
         mungers=[get_proof_munger],
     )
 
-    get_code: Method[Callable[..., HexBytes]] = Method(
-        RPC.eth_getCode,
-        mungers=[block_id_munger]
-    )
-
     def get_block(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> BlockData:
         return self._get_block(block_identifier, full_transactions)
+
+    get_code: Method[Callable[..., HexBytes]] = Method(
+        RPC.eth_getCode,
+        mungers=[BaseEth.block_id_munger]
+    )
 
     """
     `eth_getBlockTransactionCountByHash`
@@ -557,7 +593,7 @@ class Eth(BaseEth, Module):
 
     get_transaction_count: Method[Callable[..., Nonce]] = Method(
         RPC.eth_getTransactionCount,
-        mungers=[block_id_munger],
+        mungers=[BaseEth.block_id_munger],
     )
 
     @deprecated_for("replace_transaction")
