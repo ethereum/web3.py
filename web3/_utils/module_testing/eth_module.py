@@ -511,7 +511,6 @@ class AsyncEthModuleTest:
             await async_w3.eth.call(txn_params)  # type: ignore
 
 
-
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:
         with pytest.warns(DeprecationWarning,

@@ -331,6 +331,7 @@ class AsyncEth(BaseEth):
     ) -> Union[bytes, bytearray]:
         return await self._call(transaction, block_identifier, state_override)
 
+
 class Eth(BaseEth, Module):
     account = Account()
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501

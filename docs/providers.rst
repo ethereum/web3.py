@@ -391,15 +391,31 @@ AsyncHTTPProvider
 Supported Methods
 ^^^^^^^^^^^^^^^^^
 
+Eth
+***
 - :meth:`web3.eth.block_number <web3.eth.Eth.block_number>`
 - :meth:`web3.eth.coinbase <web3.eth.Eth.coinbase>`
 - :meth:`web3.eth.gas_price <web3.eth.Eth.gas_price>`
+- :meth:`web3.eth.call() <web3.eth.Eth.call>`
 - :meth:`web3.eth.estimate_gas() <web3.eth.Eth.estimate_gas>`
 - :meth:`web3.eth.generate_gas_price() <web3.eth.Eth.generate_gas_price>`
+- :meth:`web3.eth.get_balance() <web3.eth.Eth.get_balance>`
 - :meth:`web3.eth.get_block() <web3.eth.Eth.get_block>`
+- :meth:`web3.eth.get_code() <web3.eth.Eth.get_code>`
+- :meth:`web3.eth.get_raw_transaction() <web3.eth.Eth.get_raw_transaction>`
 - :meth:`web3.eth.get_transaction() <web3.eth.Eth.get_transaction>`
+- :meth:`web3.eth.get_transaction_count() <web3.eth.Eth.get_transaction_count>`
 - :meth:`web3.eth.send_transaction() <web3.eth.Eth.send_transaction>`
+
+Net
+***
+- :meth:`web3.net.listening() <web3.net.listening>`
+- :meth:`web3.net.peer_count() <web3.net.peer_count>`
+- :meth:`web3.net.version() <web3.net.version>`
+
+
 
 Supported Middleware
 ^^^^^^^^^^^^^^^^^^^^
 - :meth:`Gas Price Strategy <web3.middleware.gas_price_strategy_middleware>`
+- :meth:`Buffered Gas Estimate Middleware <web3.middleware.buffered_gas_estimate_middleware>`
