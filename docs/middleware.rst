@@ -58,16 +58,27 @@ Pythonic
 
 Gas Price Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~
-.. warning::
-    Gas price strategy is only supported for legacy transactions. The London fork
-    introduced ``maxFeePerGas`` and ``maxPriorityFeePerGas`` transaction parameters
-    which should be used over ``gasPrice`` whenever possible.
-
 
 .. py:method:: web3.middleware.gas_price_strategy_middleware
 
-    This adds a gasPrice to transactions if applicable and when a gas price strategy has
-    been set. See :ref:`Gas_Price` for information about how gas price is derived.
+  .. warning::
+
+      Gas price strategy is only supported for legacy transactions. The London fork
+      introduced ``maxFeePerGas`` and ``maxPriorityFeePerGas`` transaction parameters
+      which should be used over ``gasPrice`` whenever possible.
+
+  This adds a gasPrice to transactions if applicable and when a gas price strategy has
+  been set. See :ref:`Gas_Price` for information about how gas price is derived.
+
+Buffered Gas Estimate
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. py:method:: web3.middleware.buffered_gas_estimate_middleware
+
+    This adds a gas estimate to transactions if ``gas`` is not present in the transaction
+    parameters. Sets gas to:
+    ``min(w3.eth.estimate_gas + gas_buffer, gas_limit)``
+    where the gas_buffer default is 100,000 Wei
 
 HTTPRequestRetry
 ~~~~~~~~~~~~~~~~~~

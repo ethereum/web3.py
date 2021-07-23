@@ -213,6 +213,25 @@ class BaseEth(Module):
             block_identifier = self.default_block
         return (account, block_identifier)
 
+    def call_munger(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverrideParams] = None,
+    ) -> Union[Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverrideParams]]:  # noqa-E501
+        # TODO: move to middleware
+        if 'from' not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, 'from', self.default_account)
+
+        # TODO: move to middleware
+        if block_identifier is None:
+            block_identifier = self.default_block
+
+        if state_override is None:
+            return (transaction, block_identifier)
+        else:
+            return (transaction, block_identifier, state_override)
+
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -298,6 +317,19 @@ class AsyncEth(BaseEth):
         block_identifier: Optional[BlockIdentifier] = None
     ) -> Nonce:
         return await self._get_transaction_count(account, block_identifier)
+
+    _call: Method[Callable[..., Awaitable[Union[bytes, bytearray]]]] = Method(
+        RPC.eth_call,
+        mungers=[BaseEth.call_munger]
+    )
+
+    async def call(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverrideParams] = None,
+    ) -> Union[bytes, bytearray]:
+        return await self._call(transaction, block_identifier, state_override)
 
 
 class Eth(BaseEth, Module):
@@ -654,28 +686,9 @@ class Eth(BaseEth, Module):
         mungers=[default_root_munger],
     )
 
-    def call_munger(
-        self,
-        transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverrideParams] = None,
-    ) -> Union[Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverrideParams]]:  # noqa-E501
-        # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.default_account):
-            transaction = assoc(transaction, 'from', self.default_account)
-
-        # TODO: move to middleware
-        if block_identifier is None:
-            block_identifier = self.default_block
-
-        if state_override is None:
-            return (transaction, block_identifier)
-        else:
-            return (transaction, block_identifier, state_override)
-
     call: Method[Callable[..., Union[bytes, bytearray]]] = Method(
         RPC.eth_call,
-        mungers=[call_munger]
+        mungers=[BaseEth.call_munger]
     )
 
     def estimate_gas(

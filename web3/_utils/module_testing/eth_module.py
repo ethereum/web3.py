@@ -422,6 +422,94 @@ class AsyncEthModuleTest:
         assert is_integer(transaction_count)
         assert transaction_count >= 0
 
+    @pytest.mark.asyncio
+    async def test_eth_call(
+        self, async_w3: "Web3", math_contract: "Contract"
+    ) -> None:
+        coinbase = await async_w3.eth.coinbase  # type: ignore
+        txn_params = math_contract._prepare_transaction(
+            fn_name='add',
+            fn_args=(7, 11),
+            transaction={'from': coinbase, 'to': math_contract.address},
+        )
+        call_result = await async_w3.eth.call(txn_params)  # type: ignore
+        assert is_string(call_result)
+        result = async_w3.codec.decode_single('uint256', call_result)
+        assert result == 18
+
+    @pytest.mark.asyncio
+    async def test_eth_call_with_override(
+        self, async_w3: "Web3", revert_contract: "Contract"
+    ) -> None:
+        coinbase = await async_w3.eth.coinbase  # type: ignore
+        txn_params = revert_contract._prepare_transaction(
+            fn_name='normalFunction',
+            transaction={'from': coinbase, 'to': revert_contract.address},
+        )
+        call_result = await async_w3.eth.call(txn_params)  # type: ignore
+        result = async_w3.codec.decode_single('bool', call_result)
+        assert result is True
+
+        # override runtime bytecode: `normalFunction` returns `false`
+        override_code = '0x6080604052348015600f57600080fd5b5060043610603c5760003560e01c8063185c38a4146041578063c06a97cb146049578063d67e4b84146051575b600080fd5b60476071565b005b604f60df565b005b605760e4565b604051808215151515815260200191505060405180910390f35b6040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601b8152602001807f46756e6374696f6e20686173206265656e2072657665727465642e000000000081525060200191505060405180910390fd5b600080fd5b60008090509056fea2646970667358221220bb71e9e9a2e271cd0fbe833524a3ea67df95f25ea13aef5b0a761fa52b538f1064736f6c63430006010033'  # noqa: E501
+        call_result = await async_w3.eth.call(  # type: ignore
+            txn_params,
+            'latest',
+            {revert_contract.address: {'code': override_code}}
+        )
+        result = async_w3.codec.decode_single('bool', call_result)
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_eth_call_with_0_result(
+        self, async_w3: "Web3", math_contract: "Contract"
+    ) -> None:
+        coinbase = await async_w3.eth.coinbase  # type: ignore
+        txn_params = math_contract._prepare_transaction(
+            fn_name='add',
+            fn_args=(0, 0),
+            transaction={'from': coinbase, 'to': math_contract.address},
+        )
+        call_result = await async_w3.eth.call(txn_params)  # type: ignore
+        assert is_string(call_result)
+        result = async_w3.codec.decode_single('uint256', call_result)
+        assert result == 0
+
+    @pytest.mark.asyncio
+    async def test_eth_call_revert_with_msg(
+        self,
+        async_w3: "Web3",
+        revert_contract: "Contract",
+        unlocked_account: ChecksumAddress,
+    ) -> None:
+        with pytest.raises(ContractLogicError,
+                           match='execution reverted: Function has been reverted'):
+            txn_params = revert_contract._prepare_transaction(
+                fn_name="revertWithMessage",
+                transaction={
+                    "from": unlocked_account,
+                    "to": revert_contract.address,
+                },
+            )
+            await async_w3.eth.call(txn_params)  # type: ignore
+
+    @pytest.mark.asyncio
+    async def test_eth_call_revert_without_msg(
+        self,
+        async_w3: "Web3",
+        revert_contract: "Contract",
+        unlocked_account: ChecksumAddress,
+    ) -> None:
+        with pytest.raises(ContractLogicError, match="execution reverted"):
+            txn_params = revert_contract._prepare_transaction(
+                fn_name="revertWithoutMessage",
+                transaction={
+                    "from": unlocked_account,
+                    "to": revert_contract.address,
+                },
+            )
+            await async_w3.eth.call(txn_params)  # type: ignore
+
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:
