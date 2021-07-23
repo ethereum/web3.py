@@ -7,9 +7,8 @@ from typing import (
     Any,
     Callable,
     Collection,
-    Dict,
     Iterable,
-    NoReturn,
+    Tuple,
     TypeVar,
     Union,
 )
@@ -77,10 +76,10 @@ _PrivateKey = Union[LocalAccount, PrivateKey, HexStr, bytes]
 @to_dict
 def gen_normalized_accounts(
     val: Union[_PrivateKey, Collection[_PrivateKey]]
-) -> Iterable[Dict[ChecksumAddress, Account]]:
+) -> Iterable[Tuple[ChecksumAddress, LocalAccount]]:
     if isinstance(val, (list, tuple, set,)):
         for i in val:
-            account: Account = to_account(i)
+            account: LocalAccount = to_account(i)
             yield account.address, account
     else:
         account = to_account(val)
@@ -89,7 +88,7 @@ def gen_normalized_accounts(
 
 
 @singledispatch
-def to_account(val: Any) -> NoReturn:
+def to_account(val: Any) -> LocalAccount:
     raise TypeError(
         "key must be one of the types: "
         "eth_keys.datatype.PrivateKey, eth_account.signers.local.LocalAccount, "
@@ -102,7 +101,7 @@ def _(val: T) -> T:
     return val
 
 
-def private_key_to_account(val: _PrivateKey) -> Account:
+def private_key_to_account(val: _PrivateKey) -> LocalAccount:
     normalized_key = key_normalizer(val)
     return Account.from_key(normalized_key)
 
