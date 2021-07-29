@@ -36,10 +36,11 @@ from web3.types import (
     _Hash32,
 )
 
-TX_PARAM_LITERALS = Literal['from', 'to', 'gas', 'maxFeePerGas', 'maxPriorityFeePerGas',
+TX_PARAM_LITERALS = Literal['type', 'from', 'to', 'gas', 'maxFeePerGas', 'maxPriorityFeePerGas',
                             'gasPrice', 'value', 'data', 'nonce', 'chainId']
 
 VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
+    'type',
     'from',
     'to',
     'gas',
@@ -85,14 +86,27 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
     defaults = {}
     for key, default_getter in TRANSACTION_DEFAULTS.items():
         if key not in transaction:
+            if key == 'gasPrice' and any(_ in transaction for _ in (
+                'maxFeePerGas', 'maxPriorityFeePerGas'
+            )):  # if EIP-1559 params in transaction, do not set a default gasPrice if missing
+                continue
+
             if callable(default_getter):
                 if web3 is not None:
                     default_val = default_getter(web3, transaction)
                 else:
                     raise ValueError("You must specify %s in the transaction" % key)
+
             else:
                 default_val = default_getter
             defaults[key] = default_val
+
+    if 'type' not in transaction and any(_ in transaction for _ in (
+        'maxFeePerGas', 'maxPriorityFeePerGas'
+    )):
+        # default transaction type to '2' if 1559 transaction params are present
+        defaults['type'] = '0x2'
+
     return merge(defaults, transaction)
 
 

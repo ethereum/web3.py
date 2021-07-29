@@ -418,7 +418,9 @@ Signing
 
 .. py:method:: web3.middleware.construct_sign_and_send_raw_middleware(private_key_or_account)
 
-This middleware automatically captures transactions, signs them, and sends them as raw transactions. The from field on the transaction, or ``w3.eth.default_account`` must be set to the address of the private key for this middleware to have any effect.
+This middleware automatically captures transactions, signs them, and sends them as raw transactions.
+The ``from`` field on the transaction, or ``w3.eth.default_account`` must be set to the address of the private key for
+this middleware to have any effect.
 
    * ``private_key_or_account`` A single private key or a tuple, list or set of private keys.
 
@@ -437,4 +439,35 @@ This middleware automatically captures transactions, signs them, and sends them 
    >>> acct = Account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
    >>> w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
    >>> w3.eth.default_account = acct.address
-   # Now you can send a tx from acct.address without having to build and sign each raw transaction
+
+Now you can send a transaction from acct.address without having to build and sign each raw transaction.
+
+When making use of this signing middleware, when sending EIP-1559 transactions (recommended over legacy transactions),
+the transaction ``type`` of ``2`` (or ``'0x2'``) is necessary. This is because transaction signing is validated based
+on the transaction ``type`` parameter. This value defaults to ``'0x2'`` when ``maxFeePerGas`` and / or
+``maxPriorityFeePerGas`` are present as parameters in the transaction as these params imply a 1559-style transaction.
+Since these values effectively replace the legacy ``gasPrice`` value, do not set a ``gasPrice`` for 1559 transactions.
+Doing so will lead to validation issues.
+
+.. code-block:: python
+
+   >>> transaction_1559 = {
+   ...     'type': '0x2',  # optional - defaults to '0x2' when 1559 fee params are present
+   ...     'from': acct.address,  # optional if w3.eth.default_account was set with acct.address
+   ...     'to': receiving_account_address,
+   ...     'value': 22,
+   ...     'maxFeePerGas': 2000000000,  # required for 1559 transaction (1559 fee param)
+   ...     'maxPriorityFeePerGas': 1000000000,  # required for 1559 transaction (1559 fee param)
+   ... }
+   >>> w3.eth.send_transaction(transaction_1559)
+
+A legacy transaction still works in the same way as it did before EIP-1559 was introduced:
+
+.. code-block:: python
+
+   >>> legacy_transaction = {
+   ...     'to': receiving_account_address,
+   ...     'value': 22,
+   ...     'gasPrice': 123456,  # optional - if not provided, gas_price_strategy (if exists) or eth_gasPrice is used
+   ... }
+   >>> w3.eth.send_transaction(legacy_transaction)
