@@ -176,6 +176,7 @@ TxData = TypedDict("TxData", {
     "s": HexBytes,
     "to": ChecksumAddress,
     "transactionIndex": int,
+    "type": Union[int, HexStr],
     "v": int,
     "value": Wei,
 }, total=False)
@@ -196,6 +197,7 @@ TxParams = TypedDict("TxParams", {
     "nonce": Nonce,
     # addr or ens
     "to": Union[Address, ChecksumAddress, str],
+    "type": Union[int, HexStr],
     "value": Wei,
 }, total=False)
 

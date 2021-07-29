@@ -1,0 +1,1 @@
+Updated the sign-and-send middleware docs to include EIP-1559 as well as legacy transaction examples

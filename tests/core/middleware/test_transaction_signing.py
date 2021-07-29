@@ -15,6 +15,8 @@ from eth_utils import (
     to_hex,
 )
 from eth_utils.toolz import (
+    assoc,
+    dissoc,
     identity,
     merge,
     valfilter,
@@ -136,7 +138,6 @@ def hex_to_bytes(s):
 )
 def test_sign_and_send_raw_middleware(
         w3_dummy,
-        w3,
         method,
         from_,
         expected,
@@ -144,33 +145,43 @@ def test_sign_and_send_raw_middleware(
     w3_dummy.middleware_onion.add(
         construct_sign_and_send_raw_middleware(key_object))
 
+    legacy_transaction = {
+        'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+        'from': from_,
+        'gas': 21000,
+        'gasPrice': 0,
+        'value': 1,
+        'nonce': 0
+    }
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
-            w3_dummy.manager.request_blocking(
-                method,
-                [{
-                    'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-                    'from': from_,
-                    'gas': 21000,
-                    'gasPrice': 0,
-                    'value': 1,
-                    'nonce': 0
-                }])
+            w3_dummy.manager.request_blocking(method, [legacy_transaction])
     else:
-        actual = w3_dummy.manager.request_blocking(
-            method,
-            [{
-                'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-                'from': from_,
-                'gas': 21000,
-                'gasPrice': 0,
-                'value': 1,
-                'nonce': 0
-            }])
-        raw_txn = actual[1][0]
-        actual_method = actual[0]
-        assert actual_method == expected
-        assert isinstance(raw_txn, bytes)
+        # assert with legacy txn params
+        actual = w3_dummy.manager.request_blocking(method, [legacy_transaction])
+        assert_method_and_txn_signed(actual, expected)
+
+        # assert with 1559 transaction params and explicit type
+        transaction_1559 = dissoc(legacy_transaction, 'gasPrice')
+        transaction_1559 = assoc(transaction_1559, 'maxFeePerGas', 2000000000)
+        transaction_1559 = assoc(transaction_1559, 'maxPriorityFeePerGas', 1000000000)
+        transaction_1559 = assoc(transaction_1559, 'type', '0x2')
+
+        actual_1559 = w3_dummy.manager.request_blocking(method, [transaction_1559])
+        assert_method_and_txn_signed(actual_1559, expected)
+
+        # assert with 1559 transaction params and no explicit type
+        transaction_1559_no_type = dissoc(transaction_1559, 'type')
+
+        actual_1559_no_type = w3_dummy.manager.request_blocking(method, [transaction_1559_no_type])
+        assert_method_and_txn_signed(actual_1559_no_type, expected)
+
+
+def assert_method_and_txn_signed(actual, expected):
+    raw_txn = actual[1][0]
+    actual_method = actual[0]
+    assert actual_method == expected
+    assert isinstance(raw_txn, bytes)
 
 
 @pytest.fixture()
@@ -219,7 +230,6 @@ def fund_account(w3):
     'transaction,expected,key_object,from_',
     (
         (
-            #  Transaction with set gas
             {
                 'gas': 21000,
                 'gasPrice': 0,
@@ -230,7 +240,6 @@ def fund_account(w3):
             ADDRESS_1,
         ),
         (
-            #  Transaction with no set gas
             {
                 'value': 1
             },
@@ -238,9 +247,8 @@ def fund_account(w3):
             MIXED_KEY_MIXED_TYPE,
             ADDRESS_1,
         ),
+        # expect validation error + unmanaged account
         (
-            # Transaction with mismatched sender
-            # expect a validation error with send_transaction + unmanaged account
             {
                 'gas': 21000,
                 'value': 10
@@ -250,7 +258,6 @@ def fund_account(w3):
             ADDRESS_2,
         ),
         (
-            #  Transaction with invalid sender
             {
                 'gas': 21000,
                 'value': 10
@@ -258,8 +265,42 @@ def fund_account(w3):
             InvalidAddress,
             SAME_KEY_MIXED_TYPE,
             '0x0000',
+        ),
+        (
+            # TODO: Once eth-tester supports 1559 params, this test should fail and we will need to
+            #  update this to appropriately test 'maxFeePerGas' and 'maxPriorityFeePerGas' as
+            #  well as the transaction 'type'
+            {
+                'type': '0x2',
+                'value': 22,
+                'maxFeePerGas': 2000000000,
+                'maxPriorityFeePerGas': 1000000000,
+            },
+            ValidationError,
+            SAME_KEY_MIXED_TYPE,
+            ADDRESS_2,
+        ),
+        (
+            # TODO: eth-tester support for 1559 message above applies to this test as well.
+            # type should default to '0x2` and send successfully based on 1559 fields being present
+            {
+                'value': 22,
+                'maxFeePerGas': 2000000000,
+                'maxPriorityFeePerGas': 1000000000,
+            },
+            ValidationError,
+            SAME_KEY_MIXED_TYPE,
+            ADDRESS_2,
         )
-    )
+    ),
+    ids=[
+        'with set gas',
+        'with no set gas',
+        'with mismatched sender',
+        'with invalid sender',
+        'with txn type and 1559 fees',
+        'with 1559 fees and no type',
+    ]
 )
 def test_signed_transaction(
         w3,
@@ -277,7 +318,6 @@ def test_signed_transaction(
 
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
-            start_balance = w3.eth.get_balance(_transaction.get('from', w3.eth.accounts[0]))
             w3.eth.send_transaction(_transaction)
     else:
         start_balance = w3.eth.get_balance(_transaction.get('from', w3.eth.accounts[0]))
