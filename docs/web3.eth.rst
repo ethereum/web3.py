@@ -858,6 +858,8 @@ The following methods are available on the ``web3.eth`` namespace.
             to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
             value=12345,
             data=b'',
+            type=2,
+            chainId=1,
           ),
           private_key_for_senders_account,
         )
