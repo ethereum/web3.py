@@ -87,7 +87,9 @@ from web3.types import (
     ENS,
     BlockData,
     BlockIdentifier,
+    BlockParams,
     CallOverrideParams,
+    FeeHistory,
     FilterParams,
     GasPriceStrategy,
     LogReceipt,
@@ -174,6 +176,11 @@ class BaseEth(Module):
     _estimate_gas: Method[Callable[..., Wei]] = Method(
         RPC.eth_estimateGas,
         mungers=[estimate_gas_munger]
+    )
+
+    _fee_history: Method[Callable[..., FeeHistory]] = Method(
+        RPC.eth_feeHistory,
+        mungers=[default_root_munger]
     )
 
     def get_block_munger(
@@ -697,6 +704,14 @@ class Eth(BaseEth, Module):
         block_identifier: Optional[BlockIdentifier] = None
     ) -> Wei:
         return self._estimate_gas(transaction, block_identifier)
+
+    def fee_history(
+        self,
+        block_count: int,
+        newest_block: Union[BlockParams, BlockNumber],
+        reward_percentiles: List[float]
+    ) -> FeeHistory:
+        return self._fee_history(block_count, newest_block, reward_percentiles)
 
     def filter_munger(
         self,
