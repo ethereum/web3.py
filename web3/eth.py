@@ -248,6 +248,15 @@ class AsyncEth(BaseEth):
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._gas_price()  # type: ignore
 
+    async def fee_history(
+            self,
+            block_count: int,
+            newest_block: Union[BlockParams, BlockNumber],
+            reward_percentiles: Optional[List[float]] = None
+    ) -> FeeHistory:
+        return await self._fee_history(  # type: ignore
+            block_count, newest_block, reward_percentiles)
+
     async def send_transaction(self, transaction: TxParams) -> HexBytes:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._send_transaction(transaction)  # type: ignore
@@ -709,7 +718,7 @@ class Eth(BaseEth, Module):
         self,
         block_count: int,
         newest_block: Union[BlockParams, BlockNumber],
-        reward_percentiles: List[float]
+        reward_percentiles: Optional[List[float]] = None
     ) -> FeeHistory:
         return self._fee_history(block_count, newest_block, reward_percentiles)
 
