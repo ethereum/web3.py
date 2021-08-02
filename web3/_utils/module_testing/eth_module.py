@@ -2027,6 +2027,10 @@ class EthModuleTest:
         assert receipt['from'] is not None
         assert is_checksum_address(receipt['from'])
 
+        effective_gas_price = receipt['effectiveGasPrice']
+        assert isinstance(effective_gas_price, int)
+        assert effective_gas_price > 0
+
     def test_eth_getTransactionReceipt_mined_deprecated(
         self, web3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:

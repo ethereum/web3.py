@@ -219,6 +219,7 @@ TxReceipt = TypedDict("TxReceipt", {
     "blockNumber": BlockNumber,
     "contractAddress": Optional[ChecksumAddress],
     "cumulativeGasUsed": int,
+    "effectiveGasPrice": int,
     "gasUsed": Wei,
     "from": ChecksumAddress,
     "logs": List[LogReceipt],

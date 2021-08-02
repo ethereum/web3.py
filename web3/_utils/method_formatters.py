@@ -202,6 +202,7 @@ RECEIPT_FORMATTERS = {
     'logsBloom': to_hexbytes(256),
     'from': apply_formatter_if(is_not_null, to_checksum_address),
     'to': apply_formatter_if(is_address, to_checksum_address),
+    'effectiveGasPrice': to_integer_if_hex,
 }
 
 
