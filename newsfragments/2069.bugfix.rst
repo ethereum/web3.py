@@ -1,1 +1,0 @@
-Hot fix for a string interpolation issue in message when BadFunctionCallOutput is raised for call_contract_function()

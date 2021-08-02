@@ -1,1 +1,0 @@
-eth_signTransaction support for eip-1559 params 'maxFeePerGas' and 'maxPriorityFeePerGas'

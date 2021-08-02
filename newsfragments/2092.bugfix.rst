@@ -1,1 +1,0 @@
-``fill_transaction_defaults()`` no longer sets a default ``gasPrice`` if 1559 fees are present in the transaction parameters. This fixes sign-and-send middleware issues with 1559 fees.

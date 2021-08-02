@@ -3,6 +3,43 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.22.0 (2021-08-02)
+--------------------
+Web3 5.22.0 (2021-08-02)
+------------------------
+
+Features
+~~~~~~~~
+
+- Add support for eth_getRawTransactionByHash RPC method (`#2039 <https://github.com/ethereum/web3.py/issues/2039>`__)
+- Add AsyncNet module (`#2044 <https://github.com/ethereum/web3.py/issues/2044>`__)
+- Add async ``eth.get_balance``, ``eth.get_code``, ``eth.get_transaction_count`` methods. (`#2056 <https://github.com/ethereum/web3.py/issues/2056>`__)
+- eth_signTransaction support for eip-1559 params 'maxFeePerGas' and 'maxPriorityFeePerGas' (`#2082 <https://github.com/ethereum/web3.py/issues/2082>`__)
+- Add support for async ``w3.eth.call``. (`#2083 <https://github.com/ethereum/web3.py/issues/2083>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- If a transaction hash was passed as a string rather than a HexByte to ``w3.eth.wait_for_transaction_receipt``, and the time was exhausted before the transaction is in the chain, the error being raised was a TypeError instead of the correct TimeExhausted error. This is because the ``to_hex`` method in the TimeExhausted error message expects a primitive as the first argument, and a string doesn't qualify as a primitive. Fixed by converting the transaction_hash to HexBytes instead. (`#2068 <https://github.com/ethereum/web3.py/issues/2068>`__)
+- Hot fix for a string interpolation issue in message when BadFunctionCallOutput is raised for call_contract_function() (`#2069 <https://github.com/ethereum/web3.py/issues/2069>`__)
+- ``fill_transaction_defaults()`` no longer sets a default ``gasPrice`` if 1559 fees are present in the transaction parameters. This fixes sign-and-send middleware issues with 1559 fees. (`#2092 <https://github.com/ethereum/web3.py/issues/2092>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Clarify that ``send_transaction``, ``modify_transaction``, and ``replace_transaction`` return HexByte objects instead of strings. (`#2058 <https://github.com/ethereum/web3.py/issues/2058>`__)
+- Added troubleshooting section for Microsoft Visual C++ error on Windows machines (`#2077 <https://github.com/ethereum/web3.py/issues/2077>`__)
+- Updated the sign-and-send middleware docs to include EIP-1559 as well as legacy transaction examples (`#2092 <https://github.com/ethereum/web3.py/issues/2092>`__)
+
+
+Misc
+~~~~
+
+- `#2073 <https://github.com/ethereum/web3.py/issues/2073>`__, `#2080 <https://github.com/ethereum/web3.py/issues/2080>`__, `#2085 <https://github.com/ethereum/web3.py/issues/2085>`__
+
+
 v5.21.0 (2021-07-12)
 --------------------
 Web3 5.21.0 (2021-07-12)
