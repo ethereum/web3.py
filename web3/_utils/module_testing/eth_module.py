@@ -295,7 +295,7 @@ class AsyncEthModuleTest:
         assert gas_estimate > 0
 
     @pytest.mark.asyncio
-    async def test_eth_feeHistory(self, async_w3: "Web3") -> None:
+    async def test_eth_fee_history(self, async_w3: "Web3") -> None:
         fee_history = await async_w3.eth.fee_history(1, 'latest', [50])  # type: ignore
         assert is_list_like(fee_history['baseFeePerGas'])
         assert is_list_like(fee_history['gasUsedRatio'])

@@ -278,11 +278,11 @@ transaction_pool_inspect_formatter = apply_formatters_to_dict(
 )
 
 FEE_HISTORY_FORMATTERS = {
-    'baseFeePerGas': apply_list_to_array_formatter(to_integer_if_hex),
-    'gasUsedRatio': apply_formatter_if(is_not_null, apply_list_to_array_formatter(float)),
+    'baseFeePerGas': apply_formatter_to_array(to_integer_if_hex),
+    'gasUsedRatio': apply_formatter_if(is_not_null, apply_formatter_to_array(float)),
     'oldestBlock': to_integer_if_hex,
-    "reward": apply_formatter_if(is_not_null, apply_list_to_array_formatter(
-        apply_list_to_array_formatter(to_integer_if_hex))),
+    'reward': apply_formatter_if(is_not_null, apply_formatter_to_array(
+        apply_formatter_to_array(to_integer_if_hex))),
 }
 
 fee_history_formatter = apply_formatters_to_dict(FEE_HISTORY_FORMATTERS)
