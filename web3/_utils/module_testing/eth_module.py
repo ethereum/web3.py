@@ -295,6 +295,36 @@ class AsyncEthModuleTest:
         assert gas_estimate > 0
 
     @pytest.mark.asyncio
+    async def test_eth_fee_history(self, async_w3: "Web3") -> None:
+        fee_history = await async_w3.eth.fee_history(1, 'latest', [50])  # type: ignore
+        assert is_list_like(fee_history['baseFeePerGas'])
+        assert is_list_like(fee_history['gasUsedRatio'])
+        assert is_integer(fee_history['oldestBlock'])
+        assert fee_history['oldestBlock'] >= 0
+        assert is_list_like(fee_history['reward'])
+        assert is_list_like(fee_history['reward'][0])
+
+    @pytest.mark.asyncio
+    async def test_eth_fee_history_with_integer(
+        self, async_w3: "Web3", empty_block: BlockData
+    ) -> None:
+        fee_history = await async_w3.eth.fee_history(1, empty_block['number'], [50])  # type: ignore
+        assert is_list_like(fee_history['baseFeePerGas'])
+        assert is_list_like(fee_history['gasUsedRatio'])
+        assert is_integer(fee_history['oldestBlock'])
+        assert fee_history['oldestBlock'] >= 0
+        assert is_list_like(fee_history['reward'])
+        assert is_list_like(fee_history['reward'][0])
+
+    @pytest.mark.asyncio
+    async def test_eth_fee_history_no_reward_percentiles(self, async_w3: "Web3") -> None:
+        fee_history = await async_w3.eth.fee_history(1, 'latest')  # type: ignore
+        assert is_list_like(fee_history['baseFeePerGas'])
+        assert is_list_like(fee_history['gasUsedRatio'])
+        assert is_integer(fee_history['oldestBlock'])
+        assert fee_history['oldestBlock'] >= 0
+
+    @pytest.mark.asyncio
     async def test_eth_getBlockByHash(
         self, async_w3: "Web3", empty_block: BlockData
     ) -> None:
@@ -567,6 +597,33 @@ class EthModuleTest:
             chain_id = web3.eth.chainId
         # chain id value from geth fixture genesis file
         assert chain_id == 131277322940537
+
+    def test_eth_fee_history(self, web3: "Web3") -> None:
+        fee_history = web3.eth.fee_history(1, 'latest', [50])
+        assert is_list_like(fee_history['baseFeePerGas'])
+        assert is_list_like(fee_history['gasUsedRatio'])
+        assert is_integer(fee_history['oldestBlock'])
+        assert fee_history['oldestBlock'] >= 0
+        assert is_list_like(fee_history['reward'])
+        assert is_list_like(fee_history['reward'][0])
+
+    def test_eth_fee_history_with_integer(self,
+                                          web3: "Web3",
+                                          empty_block: BlockData) -> None:
+        fee_history = web3.eth.fee_history(1, empty_block['number'], [50])
+        assert is_list_like(fee_history['baseFeePerGas'])
+        assert is_list_like(fee_history['gasUsedRatio'])
+        assert is_integer(fee_history['oldestBlock'])
+        assert fee_history['oldestBlock'] >= 0
+        assert is_list_like(fee_history['reward'])
+        assert is_list_like(fee_history['reward'][0])
+
+    def test_eth_fee_history_no_reward_percentiles(self, web3: "Web3") -> None:
+        fee_history = web3.eth.fee_history(1, 'latest')
+        assert is_list_like(fee_history['baseFeePerGas'])
+        assert is_list_like(fee_history['gasUsedRatio'])
+        assert is_integer(fee_history['oldestBlock'])
+        assert fee_history['oldestBlock'] >= 0
 
     def test_eth_gas_price(self, web3: "Web3") -> None:
         gas_price = web3.eth.gas_price

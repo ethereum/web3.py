@@ -144,6 +144,13 @@ class FilterParams(TypedDict, total=False):
     topics: Sequence[Optional[Union[_Hash32, Sequence[_Hash32]]]]
 
 
+class FeeHistory(TypedDict):
+    baseFeePerGas: List[Wei]
+    gasUsedRatio: List[float]
+    oldestBlock: BlockNumber
+    reward: List[List[Wei]]
+
+
 class LogReceipt(TypedDict):
     address: ChecksumAddress
     blockHash: HexBytes

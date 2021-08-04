@@ -87,7 +87,9 @@ from web3.types import (
     ENS,
     BlockData,
     BlockIdentifier,
+    BlockParams,
     CallOverrideParams,
+    FeeHistory,
     FilterParams,
     GasPriceStrategy,
     LogReceipt,
@@ -176,6 +178,11 @@ class BaseEth(Module):
         mungers=[estimate_gas_munger]
     )
 
+    _fee_history: Method[Callable[..., FeeHistory]] = Method(
+        RPC.eth_feeHistory,
+        mungers=[default_root_munger]
+    )
+
     def get_block_munger(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> Tuple[BlockIdentifier, bool]:
@@ -240,6 +247,15 @@ class AsyncEth(BaseEth):
     async def gas_price(self) -> Wei:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._gas_price()  # type: ignore
+
+    async def fee_history(
+            self,
+            block_count: int,
+            newest_block: Union[BlockParams, BlockNumber],
+            reward_percentiles: Optional[List[float]] = None
+    ) -> FeeHistory:
+        return await self._fee_history(  # type: ignore
+            block_count, newest_block, reward_percentiles)
 
     async def send_transaction(self, transaction: TxParams) -> HexBytes:
         # types ignored b/c mypy conflict with BlockingEth properties
@@ -697,6 +713,14 @@ class Eth(BaseEth, Module):
         block_identifier: Optional[BlockIdentifier] = None
     ) -> Wei:
         return self._estimate_gas(transaction, block_identifier)
+
+    def fee_history(
+        self,
+        block_count: int,
+        newest_block: Union[BlockParams, BlockNumber],
+        reward_percentiles: Optional[List[float]] = None
+    ) -> FeeHistory:
+        return self._fee_history(block_count, newest_block, reward_percentiles)
 
     def filter_munger(
         self,

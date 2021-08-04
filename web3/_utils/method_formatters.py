@@ -278,6 +278,16 @@ transaction_pool_inspect_formatter = apply_formatters_to_dict(
     TRANSACTION_POOL_INSPECT_FORMATTERS
 )
 
+FEE_HISTORY_FORMATTERS = {
+    'baseFeePerGas': apply_formatter_to_array(to_integer_if_hex),
+    'gasUsedRatio': apply_formatter_if(is_not_null, apply_formatter_to_array(float)),
+    'oldestBlock': to_integer_if_hex,
+    'reward': apply_formatter_if(is_not_null, apply_formatter_to_array(
+        apply_formatter_to_array(to_integer_if_hex))),
+}
+
+fee_history_formatter = apply_formatters_to_dict(FEE_HISTORY_FORMATTERS)
+
 STORAGE_PROOF_FORMATTERS = {
     'key': HexBytes,
     'value': HexBytes,
@@ -382,6 +392,7 @@ geth_wallets_formatter = apply_formatters_to_dict(GETH_WALLETS_FORMATTER)
 
 PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
+    RPC.eth_feeHistory: apply_formatter_at_index(to_hex_if_integer, 1),
     RPC.eth_getBalance: apply_formatter_at_index(to_hex_if_integer, 1),
     RPC.eth_getBlockByNumber: apply_formatter_at_index(to_hex_if_integer, 0),
     RPC.eth_getBlockTransactionCountByNumber: apply_formatter_at_index(
@@ -441,6 +452,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_coinbase: to_checksum_address,
     RPC.eth_call: HexBytes,
     RPC.eth_estimateGas: to_integer_if_hex,
+    RPC.eth_feeHistory: fee_history_formatter,
     RPC.eth_gasPrice: to_integer_if_hex,
     RPC.eth_getBalance: to_integer_if_hex,
     RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, block_formatter),

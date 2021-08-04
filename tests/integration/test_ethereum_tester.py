@@ -283,6 +283,18 @@ class TestEthereumTesterEthModule(EthModuleTest):
         block = web3.eth.get_block('pending')
         assert block['hash'] is not None
 
+    @pytest.mark.xfail(reason='eth_feeHistory is not implemented on eth-tester')
+    def test_eth_fee_history(self, web3: "Web3"):
+        super().test_eth_fee_history(web3)
+
+    @pytest.mark.xfail(reason='eth_feeHistory is not implemented on eth-tester')
+    def test_eth_fee_history_with_integer(self, web3: "Web3"):
+        super().test_eth_fee_history_with_integer(web3)
+
+    @pytest.mark.xfail(reason='eth_feeHistory is not implemented on eth-tester')
+    def test_eth_fee_history_no_reward_percentiles(self, web3: "Web3"):
+        super().test_eth_fee_history_no_reward_percentiles(web3)
+
     @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
     def test_eth_get_transaction_receipt_unmined(self, eth_tester, web3, unlocked_account):
         super().test_eth_get_transaction_receipt_unmined(web3, unlocked_account)
