@@ -28,6 +28,9 @@ from eth_utils import (
     is_same_address,
     is_string,
 )
+from eth_utils.toolz import (
+    assoc,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -280,6 +283,62 @@ class AsyncEthModuleTest:
         txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
 
         assert txn['gasPrice'] == two_gwei_in_wei
+        async_w3.eth.set_gas_price_strategy(None)  # reset strategy
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "max_fee",
+        (1000000000, None),
+        ids=["with_max_fee", "without_max_fee"]
+    )
+    async def test_gas_price_from_strategy_bypassed_for_eip_1559_txn(
+        self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress, max_fee: Wei,
+    ) -> None:
+        max_priority_fee = async_w3.toWei(1, 'gwei')
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxPriorityFeePerGas': max_priority_fee,
+        }
+        if max_fee is not None:
+            txn_params = assoc(txn_params, "maxFeePerGas", max_fee)
+
+        def gas_price_strategy(web3: "Web3", txn: TxParams) -> Wei:
+            return async_w3.toWei(2, 'gwei')
+        async_w3.eth.set_gas_price_strategy(gas_price_strategy)
+
+        txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
+        txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
+
+        latest_block = await async_w3.eth.get_block('latest')  # type: ignore
+        assert txn['gasPrice'] is None
+        assert txn['maxFeePerGas'] == max_fee if max_fee is not None \
+            else 2 * latest_block['baseFeePerGas'] + max_priority_fee
+        assert txn['maxPriorityFeePerGas'] == max_priority_fee
+
+        async_w3.eth.set_gas_price_strategy(None)  # reset strategy
+
+    @pytest.mark.asyncio
+    async def test_gas_price_from_strategy_bypassed_for_1559_txn_no_tip(
+        self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress,
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxFeePerGas': Wei(1000000000),
+        }
+
+        def gas_price_strategy(_web3: "Web3", _txn: TxParams) -> Wei:
+            return async_w3.toWei(2, 'gwei')
+        async_w3.eth.set_gas_price_strategy(gas_price_strategy)
+
+        with pytest.raises(InvalidTransaction, match="maxPriorityFeePerGas must be defined"):
+            await async_w3.eth.send_transaction(txn_params)  # type: ignore
+
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
 
     @pytest.mark.asyncio
@@ -1447,6 +1506,60 @@ class EthModuleTest:
             InvalidTransaction, match="maxFeePerGas must be >= maxPriorityFeePerGas"
         ):
             web3.eth.send_transaction(txn_params)
+
+    @pytest.mark.parametrize(
+        "max_fee",
+        (1000000000, None),
+        ids=["with_max_fee", "without_max_fee"]
+    )
+    def test_gas_price_from_strategy_bypassed_for_1559_txn(
+        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress, max_fee: Wei
+    ) -> None:
+        max_priority_fee = web3.toWei(1, 'gwei')
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxPriorityFeePerGas': max_priority_fee,
+        }
+        if max_fee is not None:
+            txn_params = assoc(txn_params, "maxFeePerGas", max_fee)
+
+        def gas_price_strategy(_web3: "Web3", _txn: TxParams) -> Wei:
+            return web3.toWei(2, 'gwei')
+        web3.eth.set_gas_price_strategy(gas_price_strategy)
+
+        txn_hash = web3.eth.send_transaction(txn_params)
+        txn = web3.eth.get_transaction(txn_hash)
+
+        latest_block = web3.eth.get_block('latest')
+        assert txn['gasPrice'] is None
+        assert txn['maxFeePerGas'] == max_fee if max_fee is not None \
+            else 2 * latest_block['baseFeePerGas'] + max_priority_fee
+        assert txn['maxPriorityFeePerGas'] == max_priority_fee
+
+        web3.eth.set_gas_price_strategy(None)  # reset strategy
+
+    def test_gas_price_from_strategy_bypassed_for_1559_txn_no_tip(
+        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress,
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxFeePerGas': Wei(1000000000),
+        }
+
+        def gas_price_strategy(_web3: "Web3", _txn: TxParams) -> Wei:
+            return web3.toWei(2, 'gwei')
+        web3.eth.set_gas_price_strategy(gas_price_strategy)
+
+        with pytest.raises(InvalidTransaction, match="maxPriorityFeePerGas must be defined"):
+            web3.eth.send_transaction(txn_params)
+
+        web3.eth.set_gas_price_strategy(None)  # reset strategy
 
     def test_eth_replace_transaction_legacy(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
