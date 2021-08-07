@@ -29,7 +29,11 @@ def validate_transaction_params(
     transaction: TxParams, latest_block: BlockData, generated_gas_price: Wei
 ) -> TxParams:
     # gas price strategy explicitly set:
-    if generated_gas_price is not None and 'gasPrice' not in transaction:
+    if (
+        generated_gas_price is not None
+        and 'gasPrice' not in transaction
+        and all(_ not in transaction for _ in ('maxFeePerGas', 'maxPriorityFeePerGas'))
+    ):
         transaction = assoc(transaction, 'gasPrice', hex(generated_gas_price))
 
     # legacy and 1559 tx variables used:

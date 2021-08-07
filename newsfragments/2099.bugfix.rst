@@ -1,0 +1,1 @@
+Bypass adding a ``gasPrice`` via the gas price strategy, if one is set, when EIP-1559 transaction params are used for ``send_transaction``
