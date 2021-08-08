@@ -47,6 +47,7 @@ class RPC:
     eth_coinbase = RPCEndpoint("eth_coinbase")
     eth_estimateGas = RPCEndpoint("eth_estimateGas")
     eth_feeHistory = RPCEndpoint("eth_feeHistory")
+    eth_maxPriorityFeePerGas = RPCEndpoint("eth_maxPriorityFeePerGas")
     eth_gasPrice = RPCEndpoint("eth_gasPrice")
     eth_getBalance = RPCEndpoint("eth_getBalance")
     eth_getBlockByHash = RPCEndpoint("eth_getBlockByHash")

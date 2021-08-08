@@ -183,6 +183,11 @@ class BaseEth(Module):
         mungers=[default_root_munger]
     )
 
+    _max_priority_fee: Method[Callable[..., Wei]] = Method(
+        RPC.eth_maxPriorityFeePerGas,
+        mungers=None,
+    )
+
     def get_block_munger(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> Tuple[BlockIdentifier, bool]:
@@ -256,6 +261,10 @@ class AsyncEth(BaseEth):
     ) -> FeeHistory:
         return await self._fee_history(  # type: ignore
             block_count, newest_block, reward_percentiles)
+
+    @property
+    async def max_priority_fee(self) -> Wei:
+        return await self._max_priority_fee()  # type: ignore
 
     async def send_transaction(self, transaction: TxParams) -> HexBytes:
         # types ignored b/c mypy conflict with BlockingEth properties
@@ -721,6 +730,10 @@ class Eth(BaseEth, Module):
         reward_percentiles: Optional[List[float]] = None
     ) -> FeeHistory:
         return self._fee_history(block_count, newest_block, reward_percentiles)
+
+    @property
+    def max_priority_fee(self) -> Wei:
+        return self._max_priority_fee()
 
     def filter_munger(
         self,

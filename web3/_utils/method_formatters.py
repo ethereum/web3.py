@@ -453,6 +453,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_call: HexBytes,
     RPC.eth_estimateGas: to_integer_if_hex,
     RPC.eth_feeHistory: fee_history_formatter,
+    RPC.eth_maxPriorityFeePerGas: to_integer_if_hex,
     RPC.eth_gasPrice: to_integer_if_hex,
     RPC.eth_getBalance: to_integer_if_hex,
     RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, block_formatter),

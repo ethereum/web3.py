@@ -214,6 +214,7 @@ API_ENDPOINTS = {
         'hashrate': static_return(0),
         'chainId': static_return('0x3d'),
         'feeHistory': not_implemented,
+        'maxPriorityFeePerGas': not_implemented,
         'gasPrice': static_return(1),
         'accounts': call_eth_tester('get_accounts'),
         'blockNumber': compose(
