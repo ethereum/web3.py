@@ -183,6 +183,11 @@ class BaseEth(Module):
         mungers=[default_root_munger]
     )
 
+    _max_priority_fee: Method[Callable[..., Wei]] = Method(
+        RPC.eth_maxPriorityFeePerGas,
+        mungers=None,
+    )
+
     def get_block_munger(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> Tuple[BlockIdentifier, bool]:
@@ -247,6 +252,10 @@ class AsyncEth(BaseEth):
     async def gas_price(self) -> Wei:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._gas_price()  # type: ignore
+
+    @property
+    async def max_priority_fee(self) -> Wei:
+        return await self._max_priority_fee()  # type: ignore
 
     async def fee_history(
             self,
@@ -506,6 +515,10 @@ class Eth(BaseEth, Module):
             category=DeprecationWarning,
         )
         self._default_block = value
+
+    @property
+    def max_priority_fee(self) -> Wei:
+        return self._max_priority_fee()
 
     def get_storage_at_munger(
         self,
