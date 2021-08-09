@@ -276,6 +276,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_get_raw_transaction, ValueError)
     test_eth_get_raw_transaction_raises_error = not_implemented(
         EthModuleTest.test_eth_get_raw_transaction, ValueError)
+    test_eth_max_priority_fee = not_implemented(EthModuleTest.test_eth_max_priority_fee, ValueError)
 
     def test_eth_getBlockByHash_pending(
         self, web3: "Web3"
