@@ -120,8 +120,8 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.max_priority_fee
 
     * Delegates to ``eth_maxPriorityFeePerGas`` RPC Method
-    
-    Returns a suggestion for a max priority fee for dynamic fee transactions.
+
+    Returns a suggestion for a max priority fee for dynamic fee transactions in Wei.
 
     .. code-block:: python
 
@@ -129,7 +129,7 @@ The following properties are available on the ``web3.eth`` namespace.
         2000000000
 
 
-.. py:attribute:: Eth.gas_price             
+.. py:attribute:: Eth.gas_price
 
     * Delegates to ``eth_gasPrice`` RPC Method
 

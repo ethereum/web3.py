@@ -253,6 +253,10 @@ class AsyncEth(BaseEth):
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._gas_price()  # type: ignore
 
+    @property
+    async def max_priority_fee(self) -> Wei:
+        return await self._max_priority_fee()  # type: ignore
+
     async def fee_history(
             self,
             block_count: int,
@@ -261,10 +265,6 @@ class AsyncEth(BaseEth):
     ) -> FeeHistory:
         return await self._fee_history(  # type: ignore
             block_count, newest_block, reward_percentiles)
-
-    @property
-    async def max_priority_fee(self) -> Wei:
-        return await self._max_priority_fee()  # type: ignore
 
     async def send_transaction(self, transaction: TxParams) -> HexBytes:
         # types ignored b/c mypy conflict with BlockingEth properties
@@ -516,6 +516,10 @@ class Eth(BaseEth, Module):
         )
         self._default_block = value
 
+    @property
+    def max_priority_fee(self) -> Wei:
+        return self._max_priority_fee()
+
     def get_storage_at_munger(
         self,
         account: Union[Address, ChecksumAddress, ENS],
@@ -730,10 +734,6 @@ class Eth(BaseEth, Module):
         reward_percentiles: Optional[List[float]] = None
     ) -> FeeHistory:
         return self._fee_history(block_count, newest_block, reward_percentiles)
-
-    @property
-    def max_priority_fee(self) -> Wei:
-        return self._max_priority_fee()
 
     def filter_munger(
         self,

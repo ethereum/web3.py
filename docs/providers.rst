@@ -396,6 +396,7 @@ Eth
 - :meth:`web3.eth.block_number <web3.eth.Eth.block_number>`
 - :meth:`web3.eth.coinbase <web3.eth.Eth.coinbase>`
 - :meth:`web3.eth.gas_price <web3.eth.Eth.gas_price>`
+- :meth:`web3.eth.max_priority_fee <web3.eth.Eth.max_priority_fee>`
 - :meth:`web3.eth.call() <web3.eth.Eth.call>`
 - :meth:`web3.eth.estimate_gas() <web3.eth.Eth.estimate_gas>`
 - :meth:`web3.eth.generate_gas_price() <web3.eth.Eth.generate_gas_price>`

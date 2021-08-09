@@ -325,6 +325,11 @@ class AsyncEthModuleTest:
         assert fee_history['oldestBlock'] >= 0
 
     @pytest.mark.asyncio
+    async def test_eth_max_priority_fee(self, async_w3: "Web3") -> None:
+        max_priority_fee = await async_w3.eth.max_priority_fee  # type: ignore
+        assert is_integer(max_priority_fee)
+
+    @pytest.mark.asyncio
     async def test_eth_getBlockByHash(
         self, async_w3: "Web3", empty_block: BlockData
     ) -> None:
@@ -635,6 +640,10 @@ class EthModuleTest:
             gas_price = web3.eth.gasPrice
         assert is_integer(gas_price)
         assert gas_price > 0
+
+    def test_eth_max_priority_fee(self, web3: "Web3") -> None:
+        max_priority_fee = web3.eth.max_priority_fee
+        assert is_integer(max_priority_fee)
 
     def test_eth_accounts(self, web3: "Web3") -> None:
         accounts = web3.eth.accounts
