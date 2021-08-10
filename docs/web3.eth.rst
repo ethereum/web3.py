@@ -1081,6 +1081,41 @@ The following methods are available on the ``web3.eth`` namespace.
     for a list of possible parameters.
 
 
+.. py:method:: Eth.fee_history(block_count, newest_block, reward_percentiles=None)
+
+    * Delegates to ``eth_feeHistory`` RPC Method
+
+    Returns transaction fee data for up to 1024 blocks.
+
+    Parameters:
+
+    * ``block_count``: The number of blocks in the requested range. This value is a number between 1 and 1024.
+      Less than requested may be returned if not all blocks are available.
+    * ``newest_block``: The newest, highest-numbered, block in the requested range.
+    * ``reward_percentiles`` (optional): A monotonically increasing list of percentile values to sample from each
+      block's effective priority fees per gas in ascending order, weighted by gas used.
+
+    Return data:
+
+    * ``oldestBlock``: The oldest, lowest-numbered, block in the range requested.
+    * ``baseFeePerGas``: An array of block base fees per gas. This includes the next block after the newest of the
+      returned range, because this value can be derived from the newest block. Zeroes are returned for pre-EIP-1559
+      blocks.
+    * ``gasUsedRatio``: An array of ``gasUsed``/``gasLimit`` values for the requested blocks.
+    * ``reward`` (optional): An array of effective priority fee per gas data points from a single block.
+      All zeroes are returned if the block is empty.
+
+    .. code-block:: python
+
+        >>> w3.eth.fee_history(4, 'latest', [10, 90])
+        AttributeDict({
+            'oldestBlock': 3,
+            'reward': [[220, 7145389], [1000000, 6000213], [550, 550], [125, 12345678]],
+            'baseFeePerGas': [202583058, 177634473, 155594425, 136217133, 119442408],
+            'gasUsedRatio': [0.007390479689642084, 0.0036988514889990873, 0.0018512333048507866, 0.00741217041320997]
+        })
+
+
 .. py:method:: Eth.estimate_gas(transaction, block_identifier=None)
 
     * Delegates to ``eth_estimateGas`` RPC Method
