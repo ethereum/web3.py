@@ -1051,25 +1051,27 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Delegates to ``eth_feeHistory`` RPC Method
 
-    Returns transaction fee data for up to 1024 blocks.
+    Returns transaction fee data for up to 1,024 blocks.
 
-    Parameters:
+    :param block_count: The number of blocks in the requested range. This value should be an :py:class:`int` between 1
+        and 1024. Less than requested may be returned if not all blocks are available.
+    :type block_count: int
+    :param newest_block: The newest, highest-numbered, block in the requested range. This value may be an
+        :py:class:`int` or one of the predefined block parameters ``'latest'``, ``'earliest'``, or ``'pending'``.
+    :type newest_block: int or BlockParams
+    :param reward_percentiles: *(optional)* A monotonically increasing list of percentile :py:class:`float` values to
+        sample from each block's effective priority fees per gas in ascending order, weighted by gas used.
+    :type reward_percentiles: List[float] or None
+    :return: An ``AttributeDict`` containing the following keys:
 
-    * ``block_count``: The number of blocks in the requested range. This value is a number between 1 and 1024.
-      Less than requested may be returned if not all blocks are available.
-    * ``newest_block``: The newest, highest-numbered, block in the requested range.
-    * ``reward_percentiles`` (optional): A monotonically increasing list of percentile values to sample from each
-      block's effective priority fees per gas in ascending order, weighted by gas used.
-
-    Return data:
-
-    * ``oldestBlock``: The oldest, lowest-numbered, block in the range requested.
-    * ``baseFeePerGas``: An array of block base fees per gas. This includes the next block after the newest of the
-      returned range, because this value can be derived from the newest block. Zeroes are returned for pre-EIP-1559
-      blocks.
-    * ``gasUsedRatio``: An array of ``gasUsed``/``gasLimit`` values for the requested blocks.
-    * ``reward`` (optional): An array of effective priority fee per gas data points from a single block.
-      All zeroes are returned if the block is empty.
+    * **oldestBlock** *(int)* -- The oldest, lowest-numbered, block in the range requested as a ``BlockNumber`` type
+      with :py:class:`int` value.
+    * **baseFeePerGas** *(List[Wei])* -- An array of block base fees per gas. This includes the next block after the
+      newest of the returned range, because this value can be derived from the newest block. Zeroes are returned for
+      pre-EIP-1559 blocks.
+    * **gasUsedRatio** *(List[float])* -- An array of ``gasUsed``/``gasLimit`` float values for the requested blocks.
+    * **reward** *(List[List[Wei]])* -- *(optional)* A two-dimensional array of effective priority fees per gas at the
+      requested block percentiles.
 
     .. code-block:: python
 
