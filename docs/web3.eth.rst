@@ -1053,9 +1053,10 @@ The following methods are available on the ``web3.eth`` namespace.
 
     Returns transaction fee data for up to 1,024 blocks.
 
-    :param block_count: The number of blocks in the requested range. This value should be an :py:class:`int` between 1
-        and 1024. Less than requested may be returned if not all blocks are available.
-    :type block_count: int
+    :param block_count: The number of blocks in the requested range. Depending on the client, this
+        value should be either a :py:class:`int` between 1 and 1024 or a hexstring.
+        Less than requested may be returned if not all blocks are available.
+    :type block_count: int or hexstring
     :param newest_block: The newest, highest-numbered, block in the requested range. This value may be an
         :py:class:`int` or one of the predefined block parameters ``'latest'``, ``'earliest'``, or ``'pending'``.
     :type newest_block: int or BlockParams
