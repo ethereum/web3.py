@@ -3,6 +3,31 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.23.0 (2021-08-12)
+--------------------
+Web3 5.23.0 (2021-08-12)
+------------------------
+
+Features
+~~~~~~~~
+
+- Add support for eth_feeHistory RPC method (`#2038 <https://github.com/ethereum/web3.py/issues/2038>`__)
+- Add support for eth_maxPriorityFeePerGas RPC method (`#2100 <https://github.com/ethereum/web3.py/issues/2100>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Hot fix for string interpolation issue with contract function call decoding exception to facilitate extracting a meaningful message from the eth_call response (`#2096 <https://github.com/ethereum/web3.py/issues/2096>`__)
+- Bypass adding a ``gasPrice`` via the gas price strategy, if one is set, when EIP-1559 transaction params are used for ``send_transaction`` (`#2099 <https://github.com/ethereum/web3.py/issues/2099>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update feeHistory docs (`#2104 <https://github.com/ethereum/web3.py/issues/2104>`__)
+
+
 v5.22.0 (2021-08-02)
 --------------------
 Web3 5.22.0 (2021-08-02)

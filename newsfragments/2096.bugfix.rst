@@ -1,1 +1,0 @@
-Hot fix for string interpolation issue with contract function call decoding exception to facilitate extracting a meaningful message from the eth_call response
