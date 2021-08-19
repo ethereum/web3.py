@@ -19,6 +19,7 @@ from tests.utils import (
     get_open_port,
 )
 from web3 import Web3
+from web3 import constants
 
 CHAIN_CONFIG = {
     "name": "CrossClient",
@@ -75,13 +76,13 @@ CHAIN_CONFIG = {
         "seal": {
             "ethereum": {
                 "nonce": "0x0000000000000042",
-                "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                "mixHash": constants.HASH_ZERO
             }
         },
         "difficulty": "0x10000",
         "author": common.COINBASE,
         "timestamp": "0x00",
-        "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "parentHash": constants.HASH_ZERO,
         "extraData": "0x3535353535353535353535353535353535353535353535353535353535353535",
         "gasLimit": "0x1000000"
     },

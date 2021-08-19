@@ -23,6 +23,8 @@ from web3.types import (  # noqa: F401
     Wei,
 )
 
+from web3 import constants
+
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
@@ -143,7 +145,7 @@ class GoEthereumPersonalModuleTest:
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
-        assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
+        assert web3.eth.get_balance(unlockable_account_dual_type) > constants.WEI_PER_ETHER
         txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
@@ -167,7 +169,7 @@ class GoEthereumPersonalModuleTest:
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
-        assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
+        assert web3.eth.get_balance(unlockable_account_dual_type) > constants.WEI_PER_ETHER
         txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
@@ -460,7 +462,7 @@ class ParityPersonalModuleTest():
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
-        assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
+        assert web3.eth.get_balance(unlockable_account_dual_type) > constants.WEI_PER_ETHER
         txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
@@ -484,7 +486,7 @@ class ParityPersonalModuleTest():
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
-        assert web3.eth.get_balance(unlockable_account_dual_type) > web3.toWei(1, 'ether')
+        assert web3.eth.get_balance(unlockable_account_dual_type) > constants.WEI_PER_ETHER
         txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
