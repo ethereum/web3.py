@@ -34,7 +34,7 @@ Hosted Private Key
 
 
 .. WARNING::
-  It is unnacceptable for a hosted node to offer hosted private keys. It
+  It is unacceptable for a hosted node to offer hosted private keys. It
   gives other people complete control over your account. "Not your keys,
   not your Ether" in the wise words of Andreas Antonopoulos.
 
