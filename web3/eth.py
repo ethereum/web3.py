@@ -628,6 +628,15 @@ class Eth(BaseEth, Module):
         mungers=[default_root_munger]
     )
 
+    get_raw_transaction_by_block: Method[Callable[[BlockIdentifier, int], TxData]] = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
+            if_predefined=RPC.eth_getRawTransactionByBlockNumberAndIndex,
+            if_hash=RPC.eth_getRawTransactionByBlockHashAndIndex,
+            if_number=RPC.eth_getRawTransactionByBlockNumberAndIndex,
+        ),
+        mungers=[default_root_munger]
+    )
+
     @deprecated_for("wait_for_transaction_receipt")
     def waitForTransactionReceipt(
         self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
@@ -864,6 +873,9 @@ class Eth(BaseEth, Module):
     getTransactionByBlock = DeprecatedMethod(get_transaction_by_block,
                                              'getTransactionByBlock',
                                              'get_transaction_by_block')
+    getRawTransactionByBlock = DeprecatedMethod(get_raw_transaction_by_block,
+                                             'getRawTransactionByBlock',
+                                             'get_raw_transaction_by_block')
     getTransactionCount = DeprecatedMethod(get_transaction_count,
                                            'getTransactionCount',
                                            'get_transaction_count')

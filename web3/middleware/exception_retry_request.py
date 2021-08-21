@@ -49,6 +49,8 @@ whitelist = [
     'eth_getTransactionByHash',
     'eth_getTransactionByBlockHashAndIndex',
     'eth_getTransactionByBlockNumberAndIndex',
+    'eth_getRawTransactionByBlockHashAndIndex',
+    'eth_getRawTransactionByBlockNumberAndIndex',
     'eth_getTransactionReceipt',
     'eth_getTransactionCount',
     'eth_getRawTransactionByHash',

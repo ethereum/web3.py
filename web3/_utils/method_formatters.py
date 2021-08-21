@@ -475,6 +475,14 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         is_not_null,
         transaction_result_formatter,
     ),
+    RPC.eth_getRawTransactionByBlockHashAndIndex: apply_formatter_if(
+        is_not_null,
+        transaction_result_formatter,
+    ),
+    RPC.eth_getRawTransactionByBlockNumberAndIndex: apply_formatter_if(
+        is_not_null,
+        transaction_result_formatter,
+    ),
     RPC.eth_getTransactionByHash: apply_formatter_if(is_not_null, transaction_result_formatter),
     RPC.eth_getTransactionCount: to_integer_if_hex,
     RPC.eth_getTransactionReceipt: apply_formatter_if(
@@ -672,6 +680,8 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getTransactionByHash: raise_transaction_not_found,
     RPC.eth_getTransactionByBlockHashAndIndex: raise_transaction_not_found_with_index,
     RPC.eth_getTransactionByBlockNumberAndIndex: raise_transaction_not_found_with_index,
+    RPC.eth_getRawTransactionByBlockHashAndIndex: raise_transaction_not_found_with_index,
+    RPC.eth_getRawTransactionByBlockNumberAndIndex: raise_transaction_not_found_with_index,
     RPC.eth_getTransactionReceipt: raise_transaction_not_found,
     RPC.eth_getRawTransactionByHash: raise_transaction_not_found,
 }
