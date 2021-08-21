@@ -53,6 +53,7 @@ Table of Contents
     ens_overview
     v5_migration
     v4_migration
+    constants
 
 .. toctree::
     :maxdepth: 1
