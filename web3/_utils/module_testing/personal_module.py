@@ -18,13 +18,13 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3 import (
+    constants,
+)
+
 from web3.types import (  # noqa: F401
     TxParams,
     Wei,
-)
-
-from web3 import (
-    constants,
 )
 
 if TYPE_CHECKING:

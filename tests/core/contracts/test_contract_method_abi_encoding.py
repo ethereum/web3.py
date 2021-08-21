@@ -1,12 +1,12 @@
 import json
 import pytest
 
-from web3 import (
-    constants,
-)
-
 from web3.exceptions import (
     ValidationError,
+)
+
+from web3 import (
+    constants,
 )
 
 ABI_A = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"}]')

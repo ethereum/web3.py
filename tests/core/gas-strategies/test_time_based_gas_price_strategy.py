@@ -4,7 +4,6 @@ from web3 import (
     Web3,
     constants,
 )
-
 from web3.exceptions import (
     ValidationError,
 )
