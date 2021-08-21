@@ -1,5 +1,5 @@
 Constants
-========
+==========
 
 The web3.contants module contains commonly used values.
 

@@ -1,6 +1,10 @@
 import pytest
 
-from web3 import Web3
+from web3 import (
+    Web3,
+    constants,
+)
+
 from web3.exceptions import (
     ValidationError,
 )
@@ -87,7 +91,7 @@ def _get_block_by_something(method, params):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000001',
             'number': 1,
-            'parentHash': '0x0000000000000000000000000000000000000000000000000000000000000000',
+            'parentHash': constants.ADDRESS_ZERO,
             'transactions': [
                 {'gasPrice': 30},
                 {'gasPrice': 35},
@@ -100,7 +104,7 @@ def _get_block_by_something(method, params):
         block_identifier == '0x0'
     ):
         return {
-            'hash': '0x0000000000000000000000000000000000000000000000000000000000000000',
+            'hash': constants.ADDRESS_ZERO,
             'number': 0,
             'parentHash': None,
             'transactions': [

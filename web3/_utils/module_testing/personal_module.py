@@ -23,7 +23,9 @@ from web3.types import (  # noqa: F401
     Wei,
 )
 
-from web3 import constants
+from web3 import (
+    constants,
+)
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401

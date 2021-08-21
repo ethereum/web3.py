@@ -7,7 +7,9 @@ import subprocess
 import tempfile
 import time
 
-from web3 import constants
+from web3 import (
+    constants,
+)
 
 from eth_utils import (
     is_checksum_address,

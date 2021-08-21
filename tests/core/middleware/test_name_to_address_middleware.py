@@ -1,7 +1,10 @@
 import pytest
 
-from web3 import Web3
-from web3 import constants
+from web3 import (
+    Web3,
+    constants,
+)
+
 from web3.exceptions import (
     InvalidAddress,
 )
