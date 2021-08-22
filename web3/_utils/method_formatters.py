@@ -407,7 +407,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     ),
     RPC.eth_getTransactionCount: apply_formatter_at_index(to_hex_if_integer, 1),
     RPC.eth_getRawTransactionByBlockNumberAndIndex: HexBytes,
-     RPC.eth_getRawTransactionByBlockHashAndIndex: HexBytes,
+    RPC.eth_getRawTransactionByBlockHashAndIndex: HexBytes,
     RPC.eth_getUncleCountByBlockNumber: apply_formatter_at_index(to_hex_if_integer, 0),
     RPC.eth_getUncleByBlockNumberAndIndex: compose(
         apply_formatter_at_index(to_hex_if_integer, 0),
@@ -647,6 +647,7 @@ def raise_transaction_not_found(params: Tuple[_Hash32]) -> NoReturn:
 
     raise TransactionNotFound(message)
 
+
 def raise_raw_transaction_not_found_with_index(params: Tuple[BlockIdentifier, int]) -> NoReturn:
     try:
         transaction_hash = params[0]
@@ -655,7 +656,6 @@ def raise_raw_transaction_not_found_with_index(params: Tuple[BlockIdentifier, in
         message = "Unknown transaction hash"
 
     raise TransactionNotFound(message)
-
 
 
 def raise_transaction_not_found_with_index(params: Tuple[BlockIdentifier, int]) -> NoReturn:
