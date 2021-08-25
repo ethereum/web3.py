@@ -90,7 +90,7 @@ def _get_block_by_something(method, params):
         return {
             'hash': '0x0000000000000000000000000000000000000000000000000000000000000001',
             'number': 1,
-            'parentHash': constants.ADDRESS_ZERO,
+            'parentHash': constants.HASH_ZERO,
             'transactions': [
                 {'gasPrice': 30},
                 {'gasPrice': 35},
@@ -103,7 +103,7 @@ def _get_block_by_something(method, params):
         block_identifier == '0x0'
     ):
         return {
-            'hash': constants.ADDRESS_ZERO,
+            'hash': constants.HASH_ZERO,
             'number': 0,
             'parentHash': None,
             'transactions': [
