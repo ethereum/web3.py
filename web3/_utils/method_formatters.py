@@ -392,7 +392,10 @@ geth_wallets_formatter = apply_formatters_to_dict(GETH_WALLETS_FORMATTER)
 
 PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
-    RPC.eth_feeHistory: apply_formatter_at_index(to_hex_if_integer, 1),
+    RPC.eth_feeHistory: compose(
+        apply_formatter_at_index(to_hex_if_integer, 0),
+        apply_formatter_at_index(to_hex_if_integer, 1)
+    ),
     RPC.eth_getBalance: apply_formatter_at_index(to_hex_if_integer, 1),
     RPC.eth_getBlockByNumber: apply_formatter_at_index(to_hex_if_integer, 0),
     RPC.eth_getBlockTransactionCountByNumber: apply_formatter_at_index(
