@@ -168,6 +168,15 @@ def extract_valid_transaction_params(transaction_params: TxData) -> TxParams:
         for key in VALID_TRANSACTION_PARAMS
         if key in transaction_params
     })
+    # There is always a gasPrice now on eth_getTransaction call, even for dynamic fee transactions.
+    # We need to pull the gasPrice value back out of the extracted params if it is equal to the
+    # expected value (maxFeePerGas). If we don't, the modified transaction will include a gasPrice
+    # as well as dynamic fee values in the eth_sendTransaction call. This would cause a conflict.
+    if all(_ is not None for _ in (
+        extracted_params.get('maxFeePerGas'), extracted_params.get('maxPriorityFeePerGas'))
+    ):
+        if extracted_params['gasPrice'] == extracted_params['maxFeePerGas']:
+            extracted_params.pop('gasPrice')
 
     if extracted_params.get('data') is not None:
         if transaction_params.get('input') is not None:
