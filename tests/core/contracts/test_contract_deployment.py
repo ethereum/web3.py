@@ -60,7 +60,7 @@ def test_contract_deployment_with_constructor_with_arguments(web3,
 
 @pytest.mark.parametrize('constructor_arg', (
     b'1234\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',  # noqa: E501
-    constants.ADDRESS_ZERO)
+    constants.HASH_ZERO)
 )
 def test_contract_deployment_with_constructor_with_arguments_strict(w3_strict_abi,
                                                                     WithConstructorArgumentsContractStrict,  # noqa: E501
