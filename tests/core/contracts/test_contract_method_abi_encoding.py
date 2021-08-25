@@ -128,7 +128,7 @@ def test_contract_abi_encoding_strict_with_error(w3_strict_abi, arguments):
         ),
         pytest.param(
             ABI_C,
-            [constants.ADDRESS_ZERO],
+            [constants.HASH_ZERO],
             None,
             '0x9f3fab580000000000000000000000000000000000000000000000000000000000000000',
             id='ABI_C, valid hexstring args, no data'
