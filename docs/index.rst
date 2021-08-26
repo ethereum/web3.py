@@ -53,7 +53,6 @@ Table of Contents
     ens_overview
     v5_migration
     v4_migration
-    constants
 
 .. toctree::
     :maxdepth: 1
@@ -69,6 +68,7 @@ Table of Contents
     web3.parity
     gas_price
     ens
+    constants
 
 .. toctree::
     :maxdepth: 1
