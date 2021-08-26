@@ -291,7 +291,7 @@ class AsyncEthModuleTest:
         (1000000000, None),
         ids=["with_max_fee", "without_max_fee"]
     )
-    async def test_gas_price_from_strategy_bypassed_for_eip_1559_txn(
+    async def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(
         self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress, max_fee: Wei,
     ) -> None:
         max_priority_fee = async_w3.toWei(1, 'gwei')
@@ -321,7 +321,7 @@ class AsyncEthModuleTest:
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
 
     @pytest.mark.asyncio
-    async def test_gas_price_from_strategy_bypassed_for_1559_txn_no_tip(
+    async def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
         self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
@@ -1512,7 +1512,7 @@ class EthModuleTest:
         (1000000000, None),
         ids=["with_max_fee", "without_max_fee"]
     )
-    def test_gas_price_from_strategy_bypassed_for_1559_txn(
+    def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress, max_fee: Wei
     ) -> None:
         max_priority_fee = web3.toWei(1, 'gwei')
@@ -1541,7 +1541,7 @@ class EthModuleTest:
 
         web3.eth.set_gas_price_strategy(None)  # reset strategy
 
-    def test_gas_price_from_strategy_bypassed_for_1559_txn_no_tip(
+    def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {

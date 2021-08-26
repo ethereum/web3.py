@@ -1,1 +1,5 @@
 Updated geth test fixture to use geth version 1.10.8
+
+Internal utility methods added for validating values within a dict-like object
+
+Readability improvements to some of the codebase and renaming of "EIP-1559 transaction" to "dynamic fee transaction" for consistency across code base
