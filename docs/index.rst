@@ -68,6 +68,7 @@ Table of Contents
     web3.parity
     gas_price
     ens
+    constants
 
 .. toctree::
     :maxdepth: 1

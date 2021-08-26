@@ -12,6 +12,9 @@ from eth_utils import (
     to_text,
 )
 
+from web3 import (
+    constants,
+)
 from web3.exceptions import (
     TransactionNotFound,
 )
@@ -57,11 +60,11 @@ GENESIS_DATA = {
         "0000000000000000000000000000000000000006": {"balance": "1"},
     },
     "timestamp": "0x00",
-    "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "parentHash": constants.HASH_ZERO,
     "extraData": "0x3535353535353535353535353535353535353535353535353535353535353535",
     "gasLimit": "0x3b9aca00",  # 1,000,000,000
     "difficulty": "0x10000",
-    "mixhash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "mixhash": constants.HASH_ZERO,
     "coinbase": COINBASE
 }
 

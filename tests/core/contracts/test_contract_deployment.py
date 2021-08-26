@@ -5,6 +5,10 @@ from eth_utils import (
     decode_hex,
 )
 
+from web3 import (
+    constants,
+)
+
 
 def test_contract_deployment_no_constructor(web3, MathContract,
                                             MATH_RUNTIME):
@@ -56,7 +60,7 @@ def test_contract_deployment_with_constructor_with_arguments(web3,
 
 @pytest.mark.parametrize('constructor_arg', (
     b'1234\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',  # noqa: E501
-    '0x0000000000000000000000000000000000000000000000000000000000000000')
+    constants.HASH_ZERO)
 )
 def test_contract_deployment_with_constructor_with_arguments_strict(w3_strict_abi,
                                                                     WithConstructorArgumentsContractStrict,  # noqa: E501
