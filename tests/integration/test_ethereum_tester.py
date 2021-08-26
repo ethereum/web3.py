@@ -474,14 +474,16 @@ class TestEthereumTesterEthModule(EthModuleTest):
         super().test_eth_send_transaction(web3, emitter_contract_address)
 
     @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_gas_price_from_strategy_bypassed_for_1559_txn(self, emitter_contract_address):
-        super().test_gas_price_from_strategy_bypassed_for_eip_1559_txn(
+    def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(self, emitter_contract_address):
+        super().test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(
             self, web3, emitter_contract_address, None, None, None
         )
 
     @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_gas_price_from_strategy_bypassed_for_1559_txn_no_tip(self, emitter_contract_address):
-        super().test_gas_price_from_strategy_bypassed_for_1559_txn_no_tip(
+    def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
+        self, emitter_contract_address
+    ):
+        super().test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
             self, web3, emitter_contract_address, None, None, None
         )
 

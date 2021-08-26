@@ -337,7 +337,7 @@ def test_eth_account_sign(acct,
             0,
         )
     ),
-    ids=['web3js_example', '31byte_r_and_s', 'eip_1559_example', 'eip_1559_hex_fees'],
+    ids=['web3js_example', '31byte_r_and_s', 'dynamic_fee_txn_example', 'dynamic_fee_txn_hex_fees'],
 )
 def test_eth_account_sign_transaction(acct, txn, private_key, expected_raw_tx, tx_hash, r, s, v):
     signed = acct.sign_transaction(txn, private_key)

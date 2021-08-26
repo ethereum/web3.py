@@ -9,6 +9,14 @@ from eth_utils.toolz import (
     assoc,
 )
 
+from web3._utils.utility_methods import (
+    all_in_dict,
+    any_in_dict,
+    none_in_dict,
+)
+from web3.constants import (
+    DYNAMIC_FEE_TXN_PARAMS,
+)
 from web3.exceptions import (
     InvalidTransaction,
     TransactionTypeMismatch,
@@ -26,40 +34,38 @@ if TYPE_CHECKING:
 
 
 def validate_transaction_params(
-    transaction: TxParams, latest_block: BlockData, generated_gas_price: Wei
+    transaction: TxParams, latest_block: BlockData, strategy_based_gas_price: Wei
 ) -> TxParams:
     # gas price strategy explicitly set:
     if (
-        generated_gas_price is not None
+        strategy_based_gas_price is not None
         and 'gasPrice' not in transaction
-        and all(_ not in transaction for _ in ('maxFeePerGas', 'maxPriorityFeePerGas'))
+        and none_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction)
     ):
-        transaction = assoc(transaction, 'gasPrice', hex(generated_gas_price))
+        transaction = assoc(transaction, 'gasPrice', hex(strategy_based_gas_price))
 
-    # legacy and 1559 tx variables used:
-    if "gasPrice" in transaction and (
-        "maxFeePerGas" in transaction or "maxPriorityFeePerGas" in transaction
-    ):
+    # legacy and dynamic fee tx variables used:
+    if "gasPrice" in transaction and any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction):
         raise TransactionTypeMismatch()
-    # 1559 - canonical tx:
-    elif 'maxFeePerGas' in transaction and 'maxPriorityFeePerGas' in transaction:
+    # dynamic fee transaction - canonical case:
+    elif all_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction):
         if int(str(transaction["maxFeePerGas"]), 16) < int(
             str(transaction["maxPriorityFeePerGas"]), 16
         ):
             raise InvalidTransaction("maxFeePerGas must be >= maxPriorityFeePerGas")
-    # 1559 - no max fee:
+    # dynamic fee txn - no max fee:
     elif 'maxFeePerGas' not in transaction and 'maxPriorityFeePerGas' in transaction:
         base_fee = latest_block['baseFeePerGas']
         priority_fee = int(str(transaction['maxPriorityFeePerGas']), 16)
         max_fee_per_gas = priority_fee + 2 * base_fee
         transaction = assoc(transaction, 'maxFeePerGas', hex(max_fee_per_gas))
-    # 1559 - no priority fee:
+    # dynamic fee transaction - no priority fee:
     elif 'maxFeePerGas' in transaction and 'maxPriorityFeePerGas' not in transaction:
         raise InvalidTransaction(
             "maxPriorityFeePerGas must be defined in a 1559 transaction."
         )
 
-    # should be a fully formed (legacy or 1559) tx or no fee values were specified
+    # should be a fully formed (legacy or dynamic fee) tx or no fee values were specified
     return transaction
 
 
@@ -68,9 +74,9 @@ def gas_price_strategy_middleware(
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     """
     - Uses a gas price strategy if one is set. This is only supported for legacy transactions.
-      It is recommended to send 1559 transactions whenever possible.
+      It is recommended to send dynamic fee transactions (EIP-1559) whenever possible.
 
-    - Validates transaction params against legacy and 1559 values.
+    - Validates transaction params against legacy and dynamic fee txn values.
     """
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == 'eth_sendTransaction':
@@ -91,9 +97,9 @@ async def async_gas_price_strategy_middleware(
 ) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
     """
     - Uses a gas price strategy if one is set. This is only supported for legacy transactions.
-      It is recommended to send 1559 transactions whenever possible.
+      It is recommended to send dynamic fee transactions (EIP-1559) whenever possible.
 
-    - Validates transaction params against legacy and 1559 values.
+    - Validates transaction params against legacy and dynamic fee txn values.
     """
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == 'eth_sendTransaction':

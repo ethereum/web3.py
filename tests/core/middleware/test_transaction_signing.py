@@ -161,20 +161,26 @@ def test_sign_and_send_raw_middleware(
         actual = w3_dummy.manager.request_blocking(method, [legacy_transaction])
         assert_method_and_txn_signed(actual, expected)
 
-        # assert with 1559 transaction params and explicit type
-        transaction_1559 = dissoc(legacy_transaction, 'gasPrice')
-        transaction_1559 = assoc(transaction_1559, 'maxFeePerGas', 2000000000)
-        transaction_1559 = assoc(transaction_1559, 'maxPriorityFeePerGas', 1000000000)
-        transaction_1559 = assoc(transaction_1559, 'type', '0x2')
+        # assert with dynamic fee transaction params and explicit type
+        dynamic_fee_transaction = dissoc(legacy_transaction, 'gasPrice')
+        dynamic_fee_transaction = assoc(dynamic_fee_transaction, 'maxFeePerGas', 2000000000)
+        dynamic_fee_transaction = assoc(dynamic_fee_transaction, 'maxPriorityFeePerGas', 1000000000)
+        dynamic_fee_transaction = assoc(dynamic_fee_transaction, 'type', '0x2')
 
-        actual_1559 = w3_dummy.manager.request_blocking(method, [transaction_1559])
-        assert_method_and_txn_signed(actual_1559, expected)
+        actual_dynamic_fee_call = w3_dummy.manager.request_blocking(
+            method,
+            [dynamic_fee_transaction]
+        )
+        assert_method_and_txn_signed(actual_dynamic_fee_call, expected)
 
-        # assert with 1559 transaction params and no explicit type
-        transaction_1559_no_type = dissoc(transaction_1559, 'type')
+        # assert with dynamic fee transaction params and no explicit type
+        dynamic_fee_transaction_no_type = dissoc(dynamic_fee_transaction, 'type')
 
-        actual_1559_no_type = w3_dummy.manager.request_blocking(method, [transaction_1559_no_type])
-        assert_method_and_txn_signed(actual_1559_no_type, expected)
+        actual_dynamic_fee_call_no_type = w3_dummy.manager.request_blocking(
+            method,
+            [dynamic_fee_transaction_no_type]
+        )
+        assert_method_and_txn_signed(actual_dynamic_fee_call_no_type, expected)
 
 
 def assert_method_and_txn_signed(actual, expected):
@@ -267,9 +273,9 @@ def fund_account(w3):
             '0x0000',
         ),
         (
-            # TODO: Once eth-tester supports 1559 params, this test should fail and we will need to
-            #  update this to appropriately test 'maxFeePerGas' and 'maxPriorityFeePerGas' as
-            #  well as the transaction 'type'
+            # TODO: Once eth-tester supports dynamic fee txn params, this test should fail
+            #  and we will need to update this to appropriately test 'maxFeePerGas' and
+            #  'maxPriorityFeePerGas' as well as the transaction 'type'
             {
                 'type': '0x2',
                 'value': 22,
@@ -281,8 +287,9 @@ def fund_account(w3):
             ADDRESS_2,
         ),
         (
-            # TODO: eth-tester support for 1559 message above applies to this test as well.
-            # type should default to '0x2` and send successfully based on 1559 fields being present
+            # TODO: eth-tester support for dynamic fees message above applies to this test as well.
+            # type should default to '0x2` and send successfully based on dynamic fee transaction
+            # params being present
             {
                 'value': 22,
                 'maxFeePerGas': 2000000000,
@@ -298,8 +305,8 @@ def fund_account(w3):
         'with no set gas',
         'with mismatched sender',
         'with invalid sender',
-        'with txn type and 1559 fees',
-        'with 1559 fees and no type',
+        'with txn type and dynamic fee txn params',
+        'with dynamic fee txn params and no type',
     ]
 )
 def test_signed_transaction(

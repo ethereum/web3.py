@@ -122,8 +122,8 @@ def test_fill_transaction_defaults_for_all_params(web3):
     }
 
 
-def test_fill_transaction_defaults_sets_type_from_1559_params_and_no_gas_price(web3):
-    transaction_1559 = {
+def test_fill_transaction_defaults_sets_type_with_dynamic_fee_txn_params_and_no_gas_price(web3):
+    dynamic_fee_transaction = {
         'chainId': 1,
         'data': b'123',
         'gas': 21000,
@@ -131,14 +131,14 @@ def test_fill_transaction_defaults_sets_type_from_1559_params_and_no_gas_price(w
         'maxPriorityFeePerGas': 1000000000,
         'value': 2,
     }
-    transaction_1559_type_added = fill_transaction_defaults(web3, transaction_1559)
+    dynamic_fee_transaction_type_added = fill_transaction_defaults(web3, dynamic_fee_transaction)
 
-    assert transaction_1559_type_added == {
+    assert dynamic_fee_transaction_type_added == {
         'chainId': 1,
         'data': b'123',
         'gas': 21000,
         'maxFeePerGas': 2000000000,
         'maxPriorityFeePerGas': 1000000000,
-        'type': '0x2',  # type is added and defaults to '0x2' when 1559 params are present
+        'type': '0x2',  # type is added and defaults to '0x2' when dynamic fee txn params present
         'value': 2,
     }

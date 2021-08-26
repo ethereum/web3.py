@@ -24,6 +24,13 @@ from web3._utils.compat import (
 from web3._utils.threads import (
     Timeout,
 )
+from web3._utils.utility_methods import (
+    all_in_dict,
+    any_in_dict,
+)
+from web3.constants import (
+    DYNAMIC_FEE_TXN_PARAMS,
+)
 from web3.exceptions import (
     TransactionNotFound,
 )
@@ -86,9 +93,8 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
     defaults = {}
     for key, default_getter in TRANSACTION_DEFAULTS.items():
         if key not in transaction:
-            if key == 'gasPrice' and any(_ in transaction for _ in (
-                'maxFeePerGas', 'maxPriorityFeePerGas'
-            )):  # if EIP-1559 params in transaction, do not set a default gasPrice if missing
+            if key == 'gasPrice' and any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction):
+                # if dynamic fee txn params present, do not set a default 'gasPrice' if missing
                 continue
 
             if callable(default_getter):
@@ -101,10 +107,8 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
                 default_val = default_getter
             defaults[key] = default_val
 
-    if 'type' not in transaction and any(_ in transaction for _ in (
-        'maxFeePerGas', 'maxPriorityFeePerGas'
-    )):
-        # default transaction type to '2' if 1559 transaction params are present
+    if 'type' not in transaction and any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction):
+        # default transaction type to '2' if dynamic fee txn params are present
         defaults['type'] = '0x2'
 
     return merge(defaults, transaction)
@@ -169,12 +173,11 @@ def extract_valid_transaction_params(transaction_params: TxData) -> TxParams:
         if key in transaction_params
     })
     # There is always a gasPrice now on eth_getTransaction call, even for dynamic fee transactions.
-    # We need to pull the gasPrice value back out of the extracted params if it is equal to the
-    # expected value (maxFeePerGas). If we don't, the modified transaction will include a gasPrice
-    # as well as dynamic fee values in the eth_sendTransaction call. This would cause a conflict.
-    if all(_ is not None for _ in (
-        extracted_params.get('maxFeePerGas'), extracted_params.get('maxPriorityFeePerGas'))
-    ):
+    # For dynamic fee transactions, we need to pull the gasPrice value back out of the extracted
+    # params if it is equal to the expected value (maxFeePerGas). If we don't, the modified
+    # transaction will include a gasPrice as well as dynamic fee values in the
+    # eth_sendTransaction call and cause a conflict.
+    if all_in_dict(DYNAMIC_FEE_TXN_PARAMS, extracted_params):
         if extracted_params['gasPrice'] == extracted_params['maxFeePerGas']:
             extracted_params.pop('gasPrice')
 
@@ -206,36 +209,42 @@ def assert_valid_transaction_params(transaction_params: TxParams) -> None:
 
 def prepare_replacement_transaction(
     web3: "Web3",
-    current_transaction: TxData,
-    new_transaction: TxParams,
+    original_transaction: TxData,
+    replacement_transaction: TxParams,
     gas_multiplier: float = 1.125
 ) -> TxParams:
-    if current_transaction['blockHash'] is not None:
-        raise ValueError(f'Supplied transaction with hash {current_transaction["hash"]!r} '
+    if original_transaction['blockHash'] is not None:
+        raise ValueError(f'Supplied transaction with hash {original_transaction["hash"]!r} '
                          'has already been mined')
-    if 'nonce' in new_transaction and new_transaction['nonce'] != current_transaction['nonce']:
+    if 'nonce' in replacement_transaction and (
+        replacement_transaction['nonce'] != original_transaction['nonce']
+    ):
         raise ValueError('Supplied nonce in new_transaction must match the pending transaction')
 
-    if 'nonce' not in new_transaction:
-        new_transaction = assoc(new_transaction, 'nonce', current_transaction['nonce'])
+    if 'nonce' not in replacement_transaction:
+        replacement_transaction = assoc(
+            replacement_transaction, 'nonce', original_transaction['nonce']
+        )
 
-    if 'maxFeePerGas' in new_transaction or 'maxPriorityFeePerGas' in new_transaction:
-        # for now, the client decides if a 1559 txn can replace the existing txn or not
+    if any_in_dict(DYNAMIC_FEE_TXN_PARAMS, replacement_transaction):
+        # for now, the client decides if a dynamic fee txn can replace the existing txn or not
         pass
 
-    elif 'gasPrice' in new_transaction and current_transaction['gasPrice'] is not None:
-        if new_transaction['gasPrice'] <= current_transaction['gasPrice']:
+    elif 'gasPrice' in replacement_transaction and original_transaction['gasPrice'] is not None:
+        if replacement_transaction['gasPrice'] <= original_transaction['gasPrice']:
             raise ValueError('Supplied gas price must exceed existing transaction gas price')
 
     else:
-        generated_gas_price = web3.eth.generate_gas_price(new_transaction)
-        minimum_gas_price = int(math.ceil(current_transaction['gasPrice'] * gas_multiplier))
+        generated_gas_price = web3.eth.generate_gas_price(replacement_transaction)
+        minimum_gas_price = int(math.ceil(original_transaction['gasPrice'] * gas_multiplier))
         if generated_gas_price and generated_gas_price > minimum_gas_price:
-            new_transaction = assoc(new_transaction, 'gasPrice', generated_gas_price)
+            replacement_transaction = assoc(
+                replacement_transaction, 'gasPrice', generated_gas_price
+            )
         else:
-            new_transaction = assoc(new_transaction, 'gasPrice', minimum_gas_price)
+            replacement_transaction = assoc(replacement_transaction, 'gasPrice', minimum_gas_price)
 
-    return new_transaction
+    return replacement_transaction
 
 
 def replace_transaction(
