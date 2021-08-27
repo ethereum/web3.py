@@ -1,0 +1,1 @@
+Update AsyncHTTPProvider doc example to include modules and middlewares keyword arguments
