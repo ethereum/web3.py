@@ -27,7 +27,7 @@ extras_require = {
         "sphinx>=3.0,<4",
         "sphinx_rtd_theme>=0.1.9",
         "toposort>=1.4",
-        "towncrier>=19.2.0,<20",
+        "towncrier==18.5.0",
         "urllib3",
         "wheel"
     ],
