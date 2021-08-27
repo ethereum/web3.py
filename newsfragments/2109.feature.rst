@@ -1,1 +1,0 @@
-Add constants for the zero address, zero hash, max int, and wei per ether.

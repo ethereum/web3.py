@@ -1,1 +1,0 @@
-Renamed "1559 transaction" to "dynamic fee transaction" where appropriate to keep consistency among the general code base for 1559 transaction (type=2) naming
