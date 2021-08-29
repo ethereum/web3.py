@@ -1,5 +1,4 @@
 """Interaction with smart contracts over Web3 connector.
-
 """
 import copy
 import itertools
@@ -210,23 +209,16 @@ class ContractFunctions:
 
 class ContractEvents:
     """Class containing contract event objects
-
     This is available via:
-
     .. code-block:: python
-
         >>> mycontract.events
         <web3.contract.ContractEvents object at 0x108afde10>
-
     To get list of all supported events in the contract ABI.
     This allows you to iterate over :class:`ContractEvent` proxy classes.
-
     .. code-block:: python
-
         >>> for e in mycontract.events: print(e)
         <class 'web3._utils.datatypes.LogAnonymous'>
         ...
-
     """
 
     def __init__(self, abi: ABI, web3: 'Web3', address: Optional[ChecksumAddress] = None) -> None:
@@ -263,7 +255,6 @@ class ContractEvents:
 
     def __iter__(self) -> Iterable[Type['ContractEvent']]:
         """Iterate over supported
-
         :return: Iterable of :class:`ContractEvent`
         """
         for event in self._events:
@@ -278,18 +269,14 @@ class ContractEvents:
 
 class Contract:
     """Base class for Contract proxy classes.
-
     First you need to create your Contract classes using
     :meth:`web3.eth.Eth.contract` that takes compiled Solidity contract
     ABI definitions as input.  The created class object will be a subclass of
     this base class.
-
     After you have your Contract proxy class created you can interact with
     smart contracts
-
     * Create a Contract proxy object for an existing deployed smart contract by
       its address using :meth:`__init__`
-
     * Deploy a new smart contract using :py:meth:`Contract.constructor.transact()`
     """
 
@@ -325,7 +312,6 @@ class Contract:
 
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
         """Create a new smart contract proxy object.
-
         :param address: Contract address as 0x hex string
         """
         if self.web3 is None:
@@ -402,7 +388,6 @@ class Contract:
         """
         Encodes the arguments using the Ethereum ABI for the contract function
         that matches the given name and arguments..
-
         :param data: defaults to function selector
         """
         fn_abi, fn_selector, fn_arguments = get_function_info(
@@ -724,13 +709,9 @@ class ConciseContract:
     """
     An alternative Contract Factory which invokes all methods as `call()`,
     unless you add a keyword argument. The keyword argument assigns the prep method.
-
     This call
-
     > contract.withdraw(amount, transact={'from': eth.accounts[1], 'gas': 100000, ...})
-
     is equivalent to this call in the classic contract:
-
     > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
     """
     @deprecated_for(
@@ -805,15 +786,10 @@ class ImplicitContract(ConciseContract):
     ImplicitContract class is similar to the ConciseContract class
     however it performs a transaction instead of a call if no modifier
     is given and the method is not marked 'constant' in the ABI.
-
     The transaction will use the default account to send the transaction.
-
     This call
-
     > contract.withdraw(amount)
-
     is equivalent to this call in the classic contract:
-
     > contract.functions.withdraw(amount).transact({})
     """
     def __init__(
@@ -844,7 +820,6 @@ class NonExistentReceiveFunction:
 
 class ContractFunction:
     """Base class for contract functions
-
     A function accessed via the api contract.functions.myMethod(*args, **kwargs)
     is a subclass of this class.
     """
@@ -904,24 +879,17 @@ class ContractFunction:
     ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
-
         This method prepares a ``Caller`` object that exposes the contract
         functions and public variables as callable Python functions.
-
         Reading a public ``owner`` address variable example:
-
         .. code-block:: python
-
             ContractFactory = w3.eth.contract(
                 abi=wallet_contract_definition["abi"]
             )
-
             # Not a real contract address
             contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
-
             # Read "owner" public variable
             addr = contract.functions.owner().call()
-
         :param transaction: Dictionary of transaction info for web3 interface
         :return: ``Caller`` object that has contract public functions
             and variables exposed as Python methods
@@ -1108,7 +1076,6 @@ class ContractFunction:
 
 class ContractEvent:
     """Base class for contract events
-
     An event accessed via the api contract.events.myEvents(*args, **kwargs)
     is a subclass of this class.
     """
@@ -1151,7 +1118,7 @@ class ContractEvent:
 
         for log in txn_receipt['logs']:
             try:
-                rich_log = get_event_data(self.web3.codec, self.abi, log)
+                rich_log = get_event_data(self.web3.codec, self._get_event_abi(), log)
             except (MismatchedABI, LogTopicError, InvalidEventABI, TypeError) as e:
                 if errors == DISCARD:
                     continue
@@ -1173,7 +1140,7 @@ class ContractEvent:
 
     @combomethod
     def processLog(self, log: HexStr) -> EventData:
-        return get_event_data(self.web3.codec, self.abi, log)
+        return get_event_data(self.web3.codec, self._get_event_abi(), log)
 
     @combomethod
     def createFilter(
@@ -1250,35 +1217,25 @@ class ContractEvent:
                 toBlock: Optional[BlockIdentifier] = None,
                 blockHash: Optional[HexBytes] = None) -> Iterable[EventData]:
         """Get events for this contract instance using eth_getLogs API.
-
         This is a stateless method, as opposed to createFilter.
         It can be safely called against nodes which do not provide
         eth_newFilter API, like Infura nodes.
-
         If there are many events,
         like ``Transfer`` events for a popular token,
         the Ethereum node might be overloaded and timeout
         on the underlying JSON-RPC call.
-
         Example - how to get all ERC-20 token transactions
         for the latest 10 blocks:
-
         .. code-block:: python
-
             from = max(mycontract.web3.eth.block_number - 10, 1)
             to = mycontract.web3.eth.block_number
-
             events = mycontract.events.Transfer.getLogs(fromBlock=from, toBlock=to)
-
             for e in events:
                 print(e["args"]["from"],
                     e["args"]["to"],
                     e["args"]["value"])
-
         The returned processed log values will look like:
-
         .. code-block:: python
-
             (
                 AttributeDict({
                  'args': AttributeDict({}),
@@ -1293,9 +1250,7 @@ class ContractEvent:
                 AttributeDict(...),
                 ...
             )
-
         See also: :func:`web3.middleware.filter.local_filter_middleware`.
-
         :param argument_filters:
         :param fromBlock: block number or "latest", defaults to "latest"
         :param toBlock: block number or "latest". Defaults to "latest"
@@ -1351,23 +1306,15 @@ class ContractEvent:
 class ContractCaller:
     """
     An alternative Contract API.
-
     This call:
-
     > contract.caller({'from': eth.accounts[1], 'gas': 100000, ...}).add(2, 3)
     is equivalent to this call in the classic contract:
     > contract.functions.add(2, 3).call({'from': eth.accounts[1], 'gas': 100000, ...})
-
     Other options for invoking this class include:
-
     > contract.caller.add(2, 3)
-
     or
-
     > contract.caller().add(2, 3)
-
     or
-
     > contract.caller(transaction={'from': eth.accounts[1], 'gas': 100000, ...}).add(2, 3)
     """
     def __init__(self,
@@ -1602,7 +1549,6 @@ def estimate_gas_for_function(
         *args: Any,
         **kwargs: Any) -> int:
     """Estimates gas cost a function call would take.
-
     Don't call this directly, instead use :meth:`Contract.estimateGas`
     on your contract instance.
     """
@@ -1630,7 +1576,6 @@ def build_transaction_for_function(
         *args: Any,
         **kwargs: Any) -> TxParams:
     """Builds a dictionary with the fields required to make the given transaction
-
     Don't call this directly, instead use :meth:`Contract.buildTransaction`
     on your contract instance.
     """
