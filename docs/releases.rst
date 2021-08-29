@@ -3,10 +3,30 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.23.1 (2021-08-27)
+--------------------
+
+Features
+~~~~~~~~
+
+- Add constants for the zero address, zero hash, max int, and wei per ether. (`#2109 <https://github.com/ethereum/web3.py/issues/2109>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Renamed "1559 transaction" to "dynamic fee transaction" where appropriate to keep consistency among the general code base for 1559 transaction (type=2) naming (`#2118 <https://github.com/ethereum/web3.py/issues/2118>`__)
+- Update AsyncHTTPProvider doc example to include modules and middlewares keyword arguments (`#2123 <https://github.com/ethereum/web3.py/issues/2123>`__)
+
+
+Misc
+~~~~
+
+- `#2110 <https://github.com/ethereum/web3.py/issues/2110>`__, `#2118 <https://github.com/ethereum/web3.py/issues/2118>`__, `#2122 <https://github.com/ethereum/web3.py/issues/2122>`__
+
+
 v5.23.0 (2021-08-12)
 --------------------
-Web3 5.23.0 (2021-08-12)
-------------------------
 
 Features
 ~~~~~~~~
@@ -30,8 +50,6 @@ Improved Documentation
 
 v5.22.0 (2021-08-02)
 --------------------
-Web3 5.22.0 (2021-08-02)
-------------------------
 
 Features
 ~~~~~~~~
@@ -67,8 +85,6 @@ Misc
 
 v5.21.0 (2021-07-12)
 --------------------
-Web3 5.21.0 (2021-07-12)
-------------------------
 
 Features
 ~~~~~~~~
@@ -95,8 +111,6 @@ Improved Documentation
 
 v5.20.1 (2021-07-01)
 --------------------
-Web3 5.20.1 (2021-07-01)
-------------------------
 
 Bugfixes
 ~~~~~~~~
@@ -122,8 +136,6 @@ Misc
 
 v5.20.0 (2021-06-09)
 --------------------
-Web3 5.20.0 (2021-06-09)
-------------------------
 
 Features
 ~~~~~~~~
@@ -161,8 +173,6 @@ Misc
 
 v5.19.0 (2021-04-28)
 --------------------
-Web3 5.19.0 (2021-04-28)
-------------------------
 
 Features
 ~~~~~~~~
@@ -195,8 +205,6 @@ Misc
 
 v5.18.0 (2021-04-08)
 --------------------
-Web3 5.18.0 (2021-04-08)
-------------------------
 
 Features
 ~~~~~~~~

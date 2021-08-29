@@ -198,7 +198,7 @@ TxParams = TypedDict("TxParams", {
     "gas": Wei,
     # legacy pricing
     "gasPrice": Wei,
-    # 1559 pricing
+    # dynamic fee pricing
     "maxFeePerGas": Union[str, Wei],
     "maxPriorityFeePerGas": Union[str, Wei],
     "nonce": Nonce,

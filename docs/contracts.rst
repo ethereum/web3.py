@@ -58,7 +58,7 @@ You should now be set up to run the contract deployment example below:
     ...             greeting = _greeting;
     ...         }
     ...
-    .. .        function greet() view public returns (string memory) {
+    ...         function greet() view public returns (string memory) {
     ...             return greeting;
     ...         }
     ...     }

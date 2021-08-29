@@ -228,7 +228,8 @@ class InvalidTransaction(Exception):
 
 class TransactionTypeMismatch(InvalidTransaction):
     """
-    Raised when legacy transaction variables are used alongside EIP 1559 variables.
+    Raised when legacy transaction values are used alongside dynamic fee (EIP-1559) transaction
+    values.
     """
     def __init__(self) -> None:
         message = "Found legacy and EIP 1559 transaction values."

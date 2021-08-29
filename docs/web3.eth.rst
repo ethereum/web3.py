@@ -773,7 +773,7 @@ The following methods are available on the ``web3.eth`` namespace.
     * ``maxPriorityFeePerGas``: ``integer or hex`` - (optional) the part of the fee
       that goes to the miner
     * ``gasPrice``: ``integer`` - Integer of the gasPrice used for each paid gas
-      **LEGACY** - unless you have good reason to, use ``maxFeePerGas``
+      **LEGACY** - unless you have a good reason to use ``gasPrice``, use ``maxFeePerGas``
       and ``maxPriorityFeePerGas`` instead.
     * ``value``: ``integer`` - (optional) Integer of the value send with this
       transaction
@@ -793,14 +793,14 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        # simple example (Web3.py determines gas and fee)
+        # simple example (Web3.py and / or client determines gas and fees, typically defaults to a dynamic fee transaction post London fork)
         >>> web3.eth.send_transaction({
           'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
           'from': web3.eth.coinbase,
           'value': 12345
         })
 
-        # EIP 1559-style transaction
+        # Dynamic fee transaction, introduced by EIP-1559:
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.send_transaction({
           'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
