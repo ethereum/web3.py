@@ -159,6 +159,7 @@ def is_not_address_string(value: Any) -> bool:
     return (is_string(value) and not is_bytes(value) and not
             is_checksum_address(value) and not is_hex_address(value))
 
+
 def is_hex_integer(value: Any) -> bool:
     return (is_integer(value) and not is_string(value) and not is_bytes(value) and not
             is_checksum_address(value) and not is_hex_address(value))
