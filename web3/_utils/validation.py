@@ -159,22 +159,30 @@ def is_not_address_string(value: Any) -> bool:
     return (is_string(value) and not is_bytes(value) and not
             is_checksum_address(value) and not is_hex_address(value))
 
+def is_hex_integer(value: Any) -> bool:
+    return (is_integer(value) and not is_string(value) and not is_bytes(value) and not
+            is_checksum_address(value) and not is_hex_address(value))
+
 
 def validate_address(value: Any) -> None:
     """
     Helper function for validating an address
     """
+    if is_hex_integer(value):
+        value = str(value)
+
     if is_not_address_string(value):
         if not is_valid_ens_name(value):
             raise InvalidAddress(f"ENS name: '{value}' is invalid.")
         return
+
     if is_bytes(value):
         if not is_binary_address(value):
             raise InvalidAddress("Address must be 20 bytes when input type is bytes", value)
         return
 
-    if not isinstance(value, str):
-        raise TypeError('Address {} must be provided as a string'.format(value))
+    if not (isinstance(value, str) or isinstance(value, int)):
+        raise TypeError('Address {} must be provided as a string or a hex'.format(value))
     if not is_hex_address(value):
         raise InvalidAddress("Address must be 20 bytes, as a hex string with a 0x prefix", value)
     if not is_checksum_address(value):
