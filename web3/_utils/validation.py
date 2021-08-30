@@ -182,7 +182,7 @@ def validate_address(value: Any) -> None:
             raise InvalidAddress("Address must be 20 bytes when input type is bytes", value)
         return
 
-    if not (isinstance(value, str) or isinstance(value, int)):
+    if not isinstance(value, str):
         raise TypeError('Address {} must be provided as a string or a hex'.format(value))
     if not is_hex_address(value):
         raise InvalidAddress("Address must be 20 bytes, as a hex string with a 0x prefix", value)
