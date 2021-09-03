@@ -387,7 +387,7 @@ AsyncHTTPProvider
         >>> from web3.net import AsyncNet
 
         >>> w3 = Web3(AsyncHTTPProvider("http://127.0.0.1:8545"),
-        ...           modules={'eth', (AsyncEth,), 'net': (AsyncNet,)},
+        ...           modules={'eth': (AsyncEth,), 'net': (AsyncNet,)},
         ...           middlewares=[])  # See supported middleware section below for middleware options
 
     Under the hood, the ``AsyncHTTPProvider`` uses the python
