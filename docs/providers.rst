@@ -412,6 +412,7 @@ Eth
 - :meth:`web3.eth.get_transaction() <web3.eth.Eth.get_transaction>`
 - :meth:`web3.eth.get_transaction_count() <web3.eth.Eth.get_transaction_count>`
 - :meth:`web3.eth.send_transaction() <web3.eth.Eth.send_transaction>`
+- :meth:`web3.eth.send_raw_transaction() <web3.eth.Eth.send_raw_transaction>`
 
 Net
 ***
