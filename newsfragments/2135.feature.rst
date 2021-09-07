@@ -1,0 +1,1 @@
+Add async ``eth.send_raw_transaction`` method

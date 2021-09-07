@@ -8,7 +8,6 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     Sequence,
-    Union,
     cast,
 )
 
@@ -261,6 +260,18 @@ class AsyncEthModuleTest:
             InvalidTransaction, match="maxFeePerGas must be >= maxPriorityFeePerGas"
         ):
             await async_w3.eth.send_transaction(txn_params)  # type: ignore
+
+    @pytest.mark.asyncio
+    async def test_eth_send_raw_transaction(self, async_w3: "Web3") -> None:
+        # private key 0x3c2ab4e8f17a7dea191b8c991522660126d681039509dc3bb31af7c9bdb63518
+        # This is an unfunded account, but the transaction has a 0 gas price, so is valid.
+        # It never needs to be mined, we just want the transaction hash back to confirm.
+        # tx = {'to': '0x0000000000000000000000000000000000000000', 'value': 0,  'nonce': 1, 'gas': 21000, 'gasPrice': 0, 'chainId': 131277322940537}  # noqa: E501
+        # NOTE: nonce=1 to make txn unique from the non-async version of this test
+        raw_txn = HexBytes('0xf8650180825208940000000000000000000000000000000000000000808086eecac466e115a0ffdd42d7dee4ac85427468bc616812e49432e285e4e8f5cd9381163ac3b28108a04ec6b0d89ecbd5e89b0399f336ad50f283fafd70e86593250bf5a2adfb93d17e')  # noqa: E501
+        expected_hash = HexStr('0x52b0ff9cb472f25872fa8ec6a62fa59454fc2ae7901cfcc6cc89d096f49b8fc1')
+        txn_hash = await async_w3.eth.send_raw_transaction(raw_txn)  # type: ignore
+        assert txn_hash == async_w3.toBytes(hexstr=expected_hash)
 
     @pytest.mark.asyncio
     async def test_gas_price_strategy_middleware(
@@ -1887,27 +1898,14 @@ class EthModuleTest:
         assert modified_txn['gas'] == 21000
         assert modified_txn['gasPrice'] == cast(int, txn_params['gasPrice']) * 2
 
-    @pytest.mark.parametrize(
-        'raw_transaction, expected_hash',
-        [
-            (
-                # private key 0x3c2ab4e8f17a7dea191b8c991522660126d681039509dc3bb31af7c9bdb63518
-                # This is an unfunded account, but the transaction has a 0 gas price, so is valid.
-                # It never needs to be mined, we just want the transaction hash back to confirm.
-                # tx = {'to': '0x0000000000000000000000000000000000000000', 'value': 0, 'nonce': 0, 'gas': 21000, 'gasPrice': 0, 'chainId': 131277322940537}  # noqa: E501
-                HexBytes('0xf8658080825208940000000000000000000000000000000000000000808086eecac466e115a038176e5f9f1c25ce470ce77856bacbc02dd728ad647bb8b18434ac62c3e8e14fa03279bb3ee1e5202580668ec62b66a7d01355de3d5c4ef18fcfcb88fac56d5f90'),  # noqa: E501
-                '0x6ab943e675003de610b4e94f2e289dc711688df6e150da2bc57bd03811ad0f63',
-            ),
-        ]
-    )
-    def test_eth_send_raw_transaction(
-        self,
-        web3: "Web3",
-        raw_transaction: Union[HexStr, bytes],
-        funded_account_for_raw_txn: ChecksumAddress,
-        expected_hash: HexStr,
-    ) -> None:
-        txn_hash = web3.eth.send_raw_transaction(raw_transaction)
+    def test_eth_send_raw_transaction(self, web3: "Web3") -> None:
+        # private key 0x3c2ab4e8f17a7dea191b8c991522660126d681039509dc3bb31af7c9bdb63518
+        # This is an unfunded account, but the transaction has a 0 gas price, so is valid.
+        # It never needs to be mined, we just want the transaction hash back to confirm.
+        # tx = {'to': '0x0000000000000000000000000000000000000000', 'value': 0, 'nonce': 0, 'gas': 21000, 'gasPrice': 0, 'chainId': 131277322940537}  # noqa: E501
+        raw_txn = HexBytes('0xf8658080825208940000000000000000000000000000000000000000808086eecac466e115a038176e5f9f1c25ce470ce77856bacbc02dd728ad647bb8b18434ac62c3e8e14fa03279bb3ee1e5202580668ec62b66a7d01355de3d5c4ef18fcfcb88fac56d5f90')  # noqa: E501
+        expected_hash = HexStr('0x6ab943e675003de610b4e94f2e289dc711688df6e150da2bc57bd03811ad0f63')
+        txn_hash = web3.eth.send_raw_transaction(raw_txn)
         assert txn_hash == web3.toBytes(hexstr=expected_hash)
 
     def test_eth_call(
