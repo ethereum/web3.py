@@ -140,6 +140,11 @@ class BaseEth(Module):
         mungers=[send_transaction_munger]
     )
 
+    _send_raw_transaction: Method[Callable[[Union[HexStr, bytes]], HexBytes]] = Method(
+        RPC.eth_sendRawTransaction,
+        mungers=[default_root_munger],
+    )
+
     _get_transaction: Method[Callable[[_Hash32], TxData]] = Method(
         RPC.eth_getTransactionByHash,
         mungers=[default_root_munger]
@@ -269,6 +274,10 @@ class AsyncEth(BaseEth):
     async def send_transaction(self, transaction: TxParams) -> HexBytes:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._send_transaction(transaction)  # type: ignore
+
+    async def send_raw_transaction(self, transaction: Union[HexStr, bytes]) -> HexBytes:
+        # types ignored b/c mypy conflict with BlockingEth properties
+        return await self._send_raw_transaction(transaction)  # type: ignore
 
     async def get_transaction(self, transaction_hash: _Hash32) -> TxData:
         # types ignored b/c mypy conflict with BlockingEth properties
@@ -685,10 +694,8 @@ class Eth(BaseEth, Module):
     def send_transaction(self, transaction: TxParams) -> HexBytes:
         return self._send_transaction(transaction)
 
-    send_raw_transaction: Method[Callable[[Union[HexStr, bytes]], HexBytes]] = Method(
-        RPC.eth_sendRawTransaction,
-        mungers=[default_root_munger],
-    )
+    def send_raw_transaction(self, transaction: Union[HexStr, bytes]) -> HexBytes:
+        return self._send_raw_transaction(transaction)
 
     def sign_munger(
         self,
@@ -878,7 +885,7 @@ class Eth(BaseEth, Module):
     submitWork = DeprecatedMethod(submit_work, 'submitWork', 'submit_work')
     getLogs = DeprecatedMethod(get_logs, 'getLogs', 'get_logs')
     estimateGas = DeprecatedMethod(estimate_gas, 'estimateGas', 'estimate_gas')  # type: ignore
-    sendRawTransaction = DeprecatedMethod(send_raw_transaction,
+    sendRawTransaction = DeprecatedMethod(send_raw_transaction,  # type: ignore
                                           'sendRawTransaction',
                                           'send_raw_transaction')
     getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,
