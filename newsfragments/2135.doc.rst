@@ -1,0 +1,2 @@
+- Add async ``eth.send_raw_transaction`` methods.
+- Update AsyncHTTPProvider doc Supported Methods to include ``web3.eth.send_raw_transaction()``.
