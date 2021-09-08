@@ -8,6 +8,8 @@ A Python library for interacting with Ethereum, inspired by [web3.js](https://gi
 
 * Python 3.6+ support
 
+---
+
 ## Quickstart
 
 [Get started in 5 minutes](https://web3py.readthedocs.io/en/latest/quickstart.html) or
@@ -23,3 +25,6 @@ Want to file a bug, contribute some code, or improve documentation? Excellent! R
 guidelines for [contributing](https://web3py.readthedocs.io/en/latest/contributing.html),
 then check out issues that are labeled
 [Good First Issue](https://github.com/ethereum/web3.py/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22).
+
+---
+#### Questions on implementation or usage? Join the conversation on [discord](https://discord.gg/GHryRvPB84).

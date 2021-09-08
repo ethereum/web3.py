@@ -20,3 +20,9 @@ Please include any of the following that are applicable:
 ### How can it be fixed?
 
 Fill this section in if you know how this could or should be fixed.
+
+---
+**Note:** We prefer to use issues to track our work. If you think you've encountered a bug in web3py or 
+have a feature request, you're in the right place. If you have implementation or usage questions, 
+please refer to our [documentation](https://web3py.readthedocs.io/en/latest/) and/or join the conversation 
+on [discord](https://discord.gg/GHryRvPB84).
