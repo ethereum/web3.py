@@ -6,6 +6,9 @@ from setuptools import (
 )
 
 extras_require = {
+    'async': [
+        "aiohttp>=3.7.4.post0,<4"
+    ],
     'tester': [
         "eth-tester[py-evm]==v0.5.0-beta.4",
         "py-geth>=3.5.0,<4",
@@ -72,7 +75,6 @@ setup(
     url='https://github.com/ethereum/web3.py',
     include_package_data=True,
     install_requires=[
-        "aiohttp>=3.7.4.post0,<4",
         "eth-abi>=2.0.0b6,<3.0.0",
         "eth-account>=0.5.5,<0.6.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
