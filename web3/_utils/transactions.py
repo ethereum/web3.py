@@ -44,7 +44,7 @@ from web3.types import (
 )
 
 TX_PARAM_LITERALS = Literal['type', 'from', 'to', 'gas', 'maxFeePerGas', 'maxPriorityFeePerGas',
-                            'gasPrice', 'value', 'data', 'nonce', 'chainId']
+                            'gasPrice', 'value', 'data', 'nonce', 'chainId', 'accessList']
 
 VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
     'type',
@@ -58,6 +58,7 @@ VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
     'data',
     'nonce',
     'chainId',
+    'accessList',
 ]
 
 TRANSACTION_DEFAULTS = {
@@ -107,9 +108,11 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
                 default_val = default_getter
             defaults[key] = default_val
 
-    if 'type' not in transaction and any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction):
-        # default transaction type to '2' if dynamic fee txn params are present
-        defaults['type'] = '0x2'
+    if 'type' not in transaction:
+        if all_in_dict(['accessList', 'gasPrice'], transaction):
+            defaults['type'] = '0x1'
+        elif any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction):
+            defaults['type'] = '0x2'
 
     return merge(defaults, transaction)
 

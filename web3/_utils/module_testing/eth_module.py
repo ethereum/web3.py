@@ -8,6 +8,7 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     Sequence,
+    Union,
     cast,
 )
 
@@ -107,6 +108,76 @@ class AsyncEthModuleTest:
         assert txn['gasPrice'] == txn_params['gasPrice']
 
     @pytest.mark.asyncio
+    async def test_eth_send_transaction_type_1(
+        self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(32000),
+            'gasPrice': await async_w3.eth.gas_price,  # type: ignore
+            'accessList': [
+                {
+                    'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                    'storageKeys': [
+                        '0x0000000000000000000000000000000000000000000000000000000000000003',
+                        '0x0000000000000000000000000000000000000000000000000000000000000007',
+                    ]
+                }
+            ],
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
+        txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
+
+        assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['type'] == '0x1'
+        assert txn['value'] == 1
+        assert txn['gas'] == 32000
+        assert txn['gasPrice'] == txn_params['gasPrice']
+        assert txn['accessList'] == txn_params['accessList']
+
+    @pytest.mark.parametrize(
+        "txn_type",
+        (1, '0x1')
+    )
+    @pytest.mark.asyncio
+    async def test_eth_send_transaction_explicit_type_1(
+        self,
+        async_w3: "Web3",
+        unlocked_account_dual_type: ChecksumAddress,
+        txn_type: Union[int, HexStr],
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(32000),
+            'gasPrice': await async_w3.eth.gas_price,  # type: ignore
+            'accessList': [
+                {
+                    'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                    'storageKeys': [
+                        '0x0000000000000000000000000000000000000000000000000000000000000003',
+                        '0x0000000000000000000000000000000000000000000000000000000000000007',
+                    ]
+                }
+            ],
+            'type': txn_type,
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
+        txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
+
+        assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['type'] == '0x1'
+        assert txn['value'] == 1
+        assert txn['gas'] == 32000
+        assert txn['gasPrice'] == txn_params['gasPrice']
+        assert txn['accessList'] == txn_params['accessList']
+
+    @pytest.mark.asyncio
     async def test_eth_send_transaction(
         self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -123,6 +194,39 @@ class AsyncEthModuleTest:
 
         assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['type'] == '0x2'
+        assert txn['value'] == 1
+        assert txn['gas'] == 21000
+        assert txn['maxFeePerGas'] == txn_params['maxFeePerGas']
+        assert txn['maxPriorityFeePerGas'] == txn_params['maxPriorityFeePerGas']
+        assert txn['gasPrice'] == txn_params['maxFeePerGas']
+
+    @pytest.mark.parametrize(
+        "txn_type",
+        (2, '0x2')
+    )
+    @pytest.mark.asyncio
+    async def test_eth_send_transaction_explicit_type_2(
+        self,
+        async_w3: "Web3",
+        unlocked_account_dual_type: ChecksumAddress,
+        txn_type: Union[int, HexStr],
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxFeePerGas': async_w3.toWei(3, 'gwei'),
+            'maxPriorityFeePerGas': async_w3.toWei(1, 'gwei'),
+            'type': txn_type,
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
+        txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
+
+        assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['type'] == '0x2'
         assert txn['value'] == 1
         assert txn['gas'] == 21000
         assert txn['maxFeePerGas'] == txn_params['maxFeePerGas']
@@ -225,13 +329,13 @@ class AsyncEthModuleTest:
     async def test_eth_send_transaction_no_max_fee(
         self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        maxPriorityFeePerGas = async_w3.toWei(2, 'gwei')
+        max_priority_fee_per_gas = async_w3.toWei(2, 'gwei')
         txn_params: TxParams = {
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'maxPriorityFeePerGas': maxPriorityFeePerGas,
+            'maxPriorityFeePerGas': max_priority_fee_per_gas,
         }
         txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
         txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
@@ -242,7 +346,7 @@ class AsyncEthModuleTest:
         assert txn['gas'] == 21000
 
         block = await async_w3.eth.get_block('latest')  # type: ignore
-        assert txn['maxFeePerGas'] == maxPriorityFeePerGas + 2 * block['baseFeePerGas']
+        assert txn['maxFeePerGas'] == max_priority_fee_per_gas + 2 * block['baseFeePerGas']
 
     @pytest.mark.asyncio
     async def test_eth_send_transaction_max_fee_less_than_tip(
@@ -260,6 +364,29 @@ class AsyncEthModuleTest:
             InvalidTransaction, match="maxFeePerGas must be >= maxPriorityFeePerGas"
         ):
             await async_w3.eth.send_transaction(txn_params)  # type: ignore
+
+    @pytest.mark.asyncio
+    async def test_eth_send_transaction_with_access_list(
+        self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        max_priority_fee_per_gas = async_w3.toWei(2, 'gwei')
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxPriorityFeePerGas': max_priority_fee_per_gas,
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
+        txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
+
+        assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['value'] == 1
+        assert txn['gas'] == 21000
+
+        block = await async_w3.eth.get_block('latest')  # type: ignore
+        assert txn['maxFeePerGas'] == max_priority_fee_per_gas + 2 * block['baseFeePerGas']
 
     @pytest.mark.asyncio
     async def test_eth_send_raw_transaction(self, async_w3: "Web3") -> None:
@@ -1185,6 +1312,39 @@ class EthModuleTest:
         assert result['tx']['gasPrice'] == txn_params['gasPrice']
         assert result['tx']['nonce'] == txn_params['nonce']
 
+    def test_eth_sign_transaction_type_1(
+        self,
+        web3: "Web3",
+        unlocked_account: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'gasPrice': web3.eth.gas_price,
+            'nonce': Nonce(0),
+            'accessList': [
+                {
+                    'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                    'storageKeys': [
+                        '0x0000000000000000000000000000000000000000000000000000000000000003',
+                        '0x0000000000000000000000000000000000000000000000000000000000000007',
+                    ]
+                }
+            ],
+        }
+        result = web3.eth.sign_transaction(txn_params)
+        signatory_account = web3.eth.account.recover_transaction(result['raw'])
+        assert unlocked_account == signatory_account
+        assert result['tx']['to'] == txn_params['to']
+        assert result['tx']['value'] == txn_params['value']
+        assert result['tx']['gas'] == txn_params['gas']
+        assert result['tx']['gasPrice'] == txn_params['gasPrice']
+        assert result['tx']['nonce'] == txn_params['nonce']
+        assert result['tx']['accessList'] == txn_params['accessList']
+        assert result['tx']['type'] == '0x1'
+
     def test_eth_sign_transaction(
         self,
         web3: "Web3",
@@ -1198,6 +1358,15 @@ class EthModuleTest:
             'maxFeePerGas': web3.toWei(2, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
             'nonce': Nonce(0),
+            'accessList': [
+                {
+                    'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                    'storageKeys': [
+                        '0x0000000000000000000000000000000000000000000000000000000000000003',
+                        '0x0000000000000000000000000000000000000000000000000000000000000007',
+                    ]
+                }
+            ],
         }
         result = web3.eth.sign_transaction(txn_params)
         signatory_account = web3.eth.account.recover_transaction(result['raw'])
@@ -1208,6 +1377,8 @@ class EthModuleTest:
         assert result['tx']['maxFeePerGas'] == txn_params['maxFeePerGas']
         assert result['tx']['maxPriorityFeePerGas'] == txn_params['maxPriorityFeePerGas']
         assert result['tx']['nonce'] == txn_params['nonce']
+        assert result['tx']['accessList'] == txn_params['accessList']
+        assert result['tx']['type'] == '0x2'
 
     def test_eth_sign_transaction_hex_fees(
         self,
@@ -1301,6 +1472,94 @@ class EthModuleTest:
             invalid_params = cast(TxParams, dict(txn_params, **{'to': non_checksum_addr}))
             web3.eth.send_transaction(invalid_params)
 
+    @pytest.mark.parametrize(
+        "txn, expected_raw_tx, tx_hash, r, s, v",
+        (
+            (
+                {
+                    "to": "0xF0109fC8DF283027b6285cc889F5aA624EaC1F55",
+                    "value": Wei(1),
+                    "gas": Wei(21000),
+                    "gasPrice": Wei(234567897654321),
+                    "nonce": "0x0",
+                    "data": b"123",
+                    "accessList": [
+                        {
+                            "address": "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae",
+                            "storageKeys": [
+                                "0x0000000000000000000000000000000000000000000000000000000000000003",  # noqa: 501
+                                "0x0000000000000000000000000000000000000000000000000000000000000007",  # noqa: 501
+                            ]
+                        }
+                    ],
+                },
+                HexBytes("0x01f8cc867765623370798086d5569837243182520894f0109fc8df283027b6285cc889f5aa624eac1f550183313233f85bf85994de0b295669a9fd93d5f28d9ec85e40f4cb697baef842a00000000000000000000000000000000000000000000000000000000000000003a0000000000000000000000000000000000000000000000000000000000000000701a08d0c6bcd736b7d07c57f9ceebc7a4e3ea8de3c93d5e4f8312da175dd9243af1ca06932ee81462e56bd4d43ecec7f4fe7edba9bc941eb36a103e4a865fedb67e3f3"),  # noqa: E501
+                HexBytes("0x27ec5a482bf8ef5461a186cba2b5d018b8dfe2d39df5712371596fd7c3598bd3"),
+                63798057840821206433630431679427785529576007701888227604818557466438487224092,
+                47582837555336469316438916353680651013598645761769205010062113344361054331891,
+                1,
+            ),
+            (
+                {
+                    "to": "0xF0109fC8DF283027b6285cc889F5aA624EaC1F55",
+                    "value": Wei(1),
+                    "gas": Wei(32000),
+                    "maxFeePerGas": Wei(2000000000),
+                    "maxPriorityFeePerGas": Wei(2000000000),
+                    "nonce": "0x1",
+                    "data": b"123",
+                    "accessList": [
+                        {
+                            "address": "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae",
+                            "storageKeys": [
+                                "0x0000000000000000000000000000000000000000000000000000000000000003", # noqa: 501
+                                "0x0000000000000000000000000000000000000000000000000000000000000007", # noqa: 501
+                            ]
+                        }
+                    ],
+                },
+                HexBytes("0x02f8cf867765623370790184773594008477359400827d0094f0109fc8df283027b6285cc889f5aa624eac1f550183313233f85bf85994de0b295669a9fd93d5f28d9ec85e40f4cb697baef842a00000000000000000000000000000000000000000000000000000000000000003a0000000000000000000000000000000000000000000000000000000000000000780a01af168dfbb5a2eb5ac6d08741a4e1179634ee6f558303c491e092b27a01bd48fa07e6e2ef585a6f77879f5687ebfd127037f4055bc217c4d6231a82eac45f44375"),  # noqa: 501
+                HexBytes("0x93a73c8011f4fa0043caab25c55598930d69b183bb5ab6647786dbc9ae0e30fc"),
+                12186668019195187168455812372153794318180484056567300622694715297839672185999,
+                57186096198211293930120471501155691020309932866978774291296069410790720160629,
+                0,
+            ),
+        ),
+        ids=["access_list_txn", "dynamic_fee_txn"],
+    )
+    def test_eth_account_sign_transaction(
+        self,
+        web3: "Web3",
+        txn: TxParams,
+        expected_raw_tx: HexBytes,
+        tx_hash: HexBytes,
+        r: int,
+        s: int,
+        v: int,
+    ) -> None:
+        # Similar tests are done in core/eth-module/test_accounts.py but sometimes there are
+        # discrepancies in some rlp and RPC object structures. Ensuring that we can set up a
+        # transaction in only one way and have it work for rlp encoding and RPC endpoints is
+        # sometimes necessary for these cases.
+        # see: https://github.com/ethereum/web3.py/issues/2142
+        private_key = "0x3c2ab4e8f17a7dea191b8c991522660126d681039509dc3bb31af7c9bdb63518"
+
+        signed = web3.eth.account.sign_transaction(txn, private_key)
+
+        assert signed.r == r
+        assert signed.s == s
+        assert signed.v == v
+        assert signed.rawTransaction == expected_raw_tx
+        assert signed.hash == tx_hash
+
+        acct = web3.eth.account
+
+        account = acct.from_key(private_key)
+        assert account.sign_transaction(txn) == signed
+
+        expected_sender = acct.from_key(private_key).address
+        assert acct.recover_transaction(signed.rawTransaction) == expected_sender
+
     def test_eth_send_transaction_legacy(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -1316,9 +1575,76 @@ class EthModuleTest:
 
         assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['type'] == '0x0'
         assert txn['value'] == 1
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gasPrice']
+
+    def test_eth_send_transaction_type_1(
+        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(32000),
+            'gasPrice': web3.eth.gas_price,
+            'accessList': [
+                {
+                    'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                    'storageKeys': [
+                        '0x0000000000000000000000000000000000000000000000000000000000000003',
+                        '0x0000000000000000000000000000000000000000000000000000000000000007',
+                    ]
+                }
+            ],
+        }
+        txn_hash = web3.eth.send_transaction(txn_params)
+        txn = web3.eth.get_transaction(txn_hash)
+
+        assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['type'] == '0x1'
+        assert txn['value'] == 1
+        assert txn['gas'] == 32000
+        assert txn['gasPrice'] == txn_params['gasPrice']
+        assert txn['accessList'] == txn_params['accessList']
+
+    @pytest.mark.parametrize(
+        'txn_type', (1, '0x1')
+    )
+    def test_eth_send_transaction_explicit_type_1(
+        self, web3: "Web3",
+        unlocked_account_dual_type: ChecksumAddress,
+        txn_type: Union[int, HexStr]
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(32000),
+            'gasPrice': web3.eth.gas_price,
+            'accessList': [
+                {
+                    'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                    'storageKeys': [
+                        '0x0000000000000000000000000000000000000000000000000000000000000003',
+                        '0x0000000000000000000000000000000000000000000000000000000000000007',
+                    ]
+                }
+            ],
+            'type': txn_type,
+        }
+        txn_hash = web3.eth.send_transaction(txn_params)
+        txn = web3.eth.get_transaction(txn_hash)
+
+        assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['type'] == '0x1'
+        assert txn['value'] == 1
+        assert txn['gas'] == 32000
+        assert txn['gasPrice'] == txn_params['gasPrice']
+        assert txn['accessList'] == txn_params['accessList']
 
     def test_eth_send_transaction(
         self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
@@ -1327,17 +1653,66 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': Wei(32000),
             'maxFeePerGas': web3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
+            'accessList': [
+                {
+                    'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                    'storageKeys': [
+                        '0x0000000000000000000000000000000000000000000000000000000000000003',
+                        '0x0000000000000000000000000000000000000000000000000000000000000007',
+                    ]
+                }
+            ],
         }
         txn_hash = web3.eth.send_transaction(txn_params)
         txn = web3.eth.get_transaction(txn_hash)
 
         assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['type'] == '0x2'
         assert txn['value'] == 1
-        assert txn['gas'] == 21000
+        assert txn['gas'] == 32000
+        assert txn['maxFeePerGas'] == txn_params['maxFeePerGas']
+        assert txn['maxPriorityFeePerGas'] == txn_params['maxPriorityFeePerGas']
+        assert txn['gasPrice'] == txn_params['maxFeePerGas']
+
+    @pytest.mark.parametrize(
+        'txn_type',
+        (2, '0x2')
+    )
+    def test_eth_send_transaction_explicit_type_2(
+        self, web3: "Web3",
+        unlocked_account_dual_type: ChecksumAddress,
+        txn_type: Union[int, HexStr]
+    ) -> None:
+        txn_params: TxParams = {
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(32000),
+            'maxFeePerGas': web3.toWei(3, 'gwei'),
+            'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
+            'accessList': [
+                {
+                    'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                    'storageKeys': [
+                        '0x0000000000000000000000000000000000000000000000000000000000000003',
+                        '0x0000000000000000000000000000000000000000000000000000000000000007',
+                    ]
+                }
+            ],
+            'type': txn_type,
+        }
+        txn_hash = web3.eth.send_transaction(txn_params)
+        txn = web3.eth.get_transaction(txn_hash)
+
+        assert is_same_address(txn['from'], cast(ChecksumAddress, txn_params['from']))
+        assert is_same_address(txn['to'], cast(ChecksumAddress, txn_params['to']))
+        assert txn['type'] == '0x2'
+        assert txn['value'] == 1
+        assert txn['gas'] == 32000
         assert txn['maxFeePerGas'] == txn_params['maxFeePerGas']
         assert txn['maxPriorityFeePerGas'] == txn_params['maxPriorityFeePerGas']
         assert txn['gasPrice'] == txn_params['maxFeePerGas']

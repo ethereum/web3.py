@@ -167,6 +167,7 @@ class LogReceipt(TypedDict):
 
 # syntax b/c "from" keyword not allowed w/ class construction
 TxData = TypedDict("TxData", {
+    "accessList": List[Dict[str, Sequence[str]]],
     "blockHash": HexBytes,
     "blockNumber": BlockNumber,
     "chainId": int,
@@ -191,6 +192,7 @@ TxData = TypedDict("TxData", {
 
 # syntax b/c "from" keyword not allowed w/ class construction
 TxParams = TypedDict("TxParams", {
+    "accessList": List[Dict[str, Sequence[str]]],
     "chainId": int,
     "data": Union[bytes, HexStr],
     # addr or ens
@@ -222,6 +224,7 @@ GasPriceStrategy = Callable[["Web3", TxParams], Wei]
 
 # syntax b/c "from" keyword not allowed w/ class construction
 TxReceipt = TypedDict("TxReceipt", {
+    "accessList": List[Dict[str, Sequence[str]]],
     "blockHash": HexBytes,
     "blockNumber": BlockNumber,
     "contractAddress": Optional[ChecksumAddress],

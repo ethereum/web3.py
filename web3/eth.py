@@ -14,9 +14,6 @@ from typing import (
 )
 import warnings
 
-from eth_account import (
-    Account,
-)
 from eth_typing import (
     Address,
     BlockNumber,
@@ -63,6 +60,9 @@ from web3._utils.transactions import (
     get_required_transaction,
     replace_transaction,
     wait_for_transaction_receipt,
+)
+from web3.account import (
+    AccountWrapper,
 )
 from web3.contract import (
     ConciseContract,
@@ -367,7 +367,6 @@ class AsyncEth(BaseEth):
 
 
 class Eth(BaseEth, Module):
-    account = Account()
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
 
@@ -381,6 +380,10 @@ class Eth(BaseEth, Module):
         RPC.eth_protocolVersion,
         mungers=None,
     )
+
+    @property
+    def account(self) -> AccountWrapper:
+        return AccountWrapper(self.web3)
 
     @property
     def protocol_version(self) -> str:

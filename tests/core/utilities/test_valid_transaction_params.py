@@ -54,6 +54,15 @@ FULL_TXN_DICT = {
     'value': 3,
     'nonce': 2,
     'chainId': 1,
+    'accessList': [
+        {
+            'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+            "storageKeys": [
+                "0x0000000000000000000000000000000000000000000000000000000000000003",
+                "0x0000000000000000000000000000000000000000000000000000000000000007",
+            ]
+        }
+    ],
 }
 
 
@@ -122,8 +131,55 @@ def test_fill_transaction_defaults_for_all_params(web3):
     }
 
 
-def test_fill_transaction_defaults_sets_type_with_dynamic_fee_txn_params_and_no_gas_price(web3):
+def test_fill_transaction_defaults_sets_type_1_with_access_list_and_gas_price(web3):
+    access_list_transaction = {
+        'accessList': [
+            {
+                'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                "storageKeys": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000003",
+                    "0x0000000000000000000000000000000000000000000000000000000000000007",
+                ]
+            }
+        ],
+        'chainId': 1,
+        'data': b'123',
+        'gas': 21000,
+        'gasPrice': 1000000000,
+        'value': 2,
+    }
+    access_list_transaction_type_added = fill_transaction_defaults(web3, access_list_transaction)
+
+    assert access_list_transaction_type_added == {
+        'accessList': [
+            {
+                'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                "storageKeys": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000003",
+                    "0x0000000000000000000000000000000000000000000000000000000000000007",
+                ]
+            }
+        ],
+        'chainId': 1,
+        'data': b'123',
+        'gas': 21000,
+        'gasPrice': 1000000000,
+        'type': '0x1',  # type is added and defaults to '0x1' when accessList and gasPrice present
+        'value': 2,
+    }
+
+
+def test_fill_transaction_defaults_sets_type_2_with_dynamic_fee_txn_params_and_no_gas_price(web3):
     dynamic_fee_transaction = {
+        'accessList': [
+            {
+                'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                "storageKeys": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000003",
+                    "0x0000000000000000000000000000000000000000000000000000000000000007",
+                ]
+            }
+        ],
         'chainId': 1,
         'data': b'123',
         'gas': 21000,
@@ -134,6 +190,15 @@ def test_fill_transaction_defaults_sets_type_with_dynamic_fee_txn_params_and_no_
     dynamic_fee_transaction_type_added = fill_transaction_defaults(web3, dynamic_fee_transaction)
 
     assert dynamic_fee_transaction_type_added == {
+        'accessList': [
+            {
+                'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                "storageKeys": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000003",
+                    "0x0000000000000000000000000000000000000000000000000000000000000007",
+                ]
+            }
+        ],
         'chainId': 1,
         'data': b'123',
         'gas': 21000,

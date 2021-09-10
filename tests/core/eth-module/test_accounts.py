@@ -292,6 +292,31 @@ def test_eth_account_sign(acct,
         ),
         (
             {
+                'to': '0xF0109fC8DF283027b6285cc889F5aA624EaC1F55',
+                'value': 0,
+                'gas': 31853,
+                'gasPrice': 0,
+                'nonce': 0,
+                'chainId': 1,
+                "type": "0x1",
+                "accessList": (
+                    (
+                        "0x0000000000000000000000000000000000000001",
+                        (
+                            "0x0100000000000000000000000000000000000000000000000000000000000000",
+                        ),
+                    ),
+                ),
+            },
+            '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
+            HexBytes('0x01f89a018080827c6d94f0109fc8df283027b6285cc889f5aa624eac1f558080f838f7940000000000000000000000000000000000000001e1a0010000000000000000000000000000000000000000000000000000000000000001a0d8cd89ed2182cadf9fe6d7d2d7478fe80efec6da238d47edb7d9ab0d68973031a050738ffcb252ffcbacd216d5c9faeffefb4dc118f31335a41b3c029da9d50005'),  # noqa: E501
+            HexBytes('0x699ebebf377726c3dc71bbab956247aebcd231b24b2590ab897d962980628eb5'),
+            98062730874551089626517837179592489191845889099558689805320239410231790481457,
+            36389209061524708248469596012153522798421228130074474556174436641350626902021,
+            1,
+        ),
+        (
+            {
                 "gas": 100000,
                 "maxFeePerGas": 2000000000,
                 "maxPriorityFeePerGas": 2000000000,
@@ -337,7 +362,13 @@ def test_eth_account_sign(acct,
             0,
         )
     ),
-    ids=['web3js_example', '31byte_r_and_s', 'dynamic_fee_txn_example', 'dynamic_fee_txn_hex_fees'],
+    ids=[
+        'web3js_example',
+        '31byte_r_and_s',
+        'access_list_txn',
+        'dynamic_fee_txn',
+        'dynamic_fee_txn_hex_fees'
+    ],
 )
 def test_eth_account_sign_transaction(acct, txn, private_key, expected_raw_tx, tx_hash, r, s, v):
     signed = acct.sign_transaction(txn, private_key)
