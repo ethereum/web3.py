@@ -689,7 +689,9 @@ class ContractConstructor:
     ) -> None:
         keys_found = set(transaction.keys()) & set(forbidden_keys)
         if keys_found:
-            raise ValueError("Cannot set {} in transaction".format(', '.join(keys_found)))
+            raise ValueError(
+                "Cannot set '{}' field(s) in transaction".format(', '.join(keys_found))
+            )
 
 
 class ConciseMethod:
@@ -932,7 +934,7 @@ class ContractFunction:
             call_transaction = cast(TxParams, dict(**transaction))
 
         if 'data' in call_transaction:
-            raise ValueError("Cannot set data in call transaction")
+            raise ValueError("Cannot set 'data' field in call transaction")
 
         if self.address:
             call_transaction.setdefault('to', self.address)
@@ -975,7 +977,7 @@ class ContractFunction:
             transact_transaction = cast(TxParams, dict(**transaction))
 
         if 'data' in transact_transaction:
-            raise ValueError("Cannot set data in transact transaction")
+            raise ValueError("Cannot set 'data' field in transact transaction")
 
         if self.address is not None:
             transact_transaction.setdefault('to', self.address)
@@ -1015,7 +1017,7 @@ class ContractFunction:
             estimate_gas_transaction = cast(TxParams, dict(**transaction))
 
         if 'data' in estimate_gas_transaction:
-            raise ValueError("Cannot set data in estimateGas transaction")
+            raise ValueError("Cannot set 'data' field in estimateGas transaction")
         if 'to' in estimate_gas_transaction:
             raise ValueError("Cannot set to in estimateGas transaction")
 
@@ -1058,7 +1060,7 @@ class ContractFunction:
             built_transaction = cast(TxParams, dict(**transaction))
 
         if 'data' in built_transaction:
-            raise ValueError("Cannot set data in build transaction")
+            raise ValueError("Cannot set 'data' field in build transaction")
 
         if not self.address and 'to' not in built_transaction:
             raise ValueError(
@@ -1066,7 +1068,7 @@ class ContractFunction:
                 "you must provide a `to` address with the transaction"
             )
         if self.address and 'to' in built_transaction:
-            raise ValueError("Cannot set to in contract call build transaction")
+            raise ValueError("Cannot set 'to' field in contract call build transaction")
 
         if self.address:
             built_transaction.setdefault('to', self.address)
