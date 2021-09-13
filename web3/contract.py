@@ -689,7 +689,9 @@ class ContractConstructor:
     ) -> None:
         keys_found = set(transaction.keys()) & set(forbidden_keys)
         if keys_found:
-            raise ValueError("Cannot set '{}' field in transaction".format(', '.join(keys_found)))
+            raise ValueError(
+                "Cannot set '{}' field(s) in transaction".format(', '.join(keys_found))
+            )
 
 
 class ConciseMethod:
