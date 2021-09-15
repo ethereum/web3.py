@@ -82,7 +82,7 @@ class BaseProvider:
 
 class JSONBaseProvider(BaseProvider):
     def __init__(self) -> None:
-        self.request_counter = itertools.count()
+        self.request_counter = itertools.count(start=1)
 
     def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
         text_response = to_text(raw_response)
