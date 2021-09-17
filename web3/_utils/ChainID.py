@@ -16,5 +16,6 @@ class ChainID(IntEnum):
     MATIC = 137
 
     BINANCE = 56
-    TOMO = 88
     RSK = 30
+    TOMO = 88
+
