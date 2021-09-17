@@ -18,4 +18,3 @@ class ChainID(IntEnum):
     BINANCE = 56
     RSK = 30
     TOMO = 88
-
