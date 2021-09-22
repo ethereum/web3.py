@@ -898,13 +898,14 @@ Methods
 
     .. code-block:: python
 
-        >>> math_contract.functions.increment(5).buildTransaction({'gasPrice': 21000000000})
+        >>> math_contract.functions.increment(5).buildTransaction({'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000})
         {
             'to': '0x6Bc272FCFcf89C14cebFC57B8f1543F5137F97dE',
             'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',
             'value': 0,
             'gas': 43242,
-            'gasPrice': 21000000000,
+            'maxFeePerGas': 2000000000,
+            'maxPriorityFeePerGas': 1000000000,
             'chainId': 1
         }
 

@@ -839,7 +839,8 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> signed_txn = w3.eth.sign_transaction(dict(
             nonce=w3.eth.get_transaction_count(w3.eth.coinbase),
-            gasPrice=w3.eth.gas_price,
+            maxFeePerGas=2000000000,
+            maxPriorityFeePerGas=1000000000,
             gas=100000,
             to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
             value=1,
@@ -870,7 +871,7 @@ The following methods are available on the ``web3.eth`` namespace.
             to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
             value=12345,
             data=b'',
-            type=2,
+            type=2,  # (optional) the type is now implicitly set based on appropriate transaction params
             chainId=1,
           ),
           private_key_for_senders_account,

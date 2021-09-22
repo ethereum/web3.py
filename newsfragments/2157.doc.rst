@@ -1,0 +1,1 @@
+Updated docs for w3.eth.account.sign_transaction to reflect that transaction type is no longer needed to successfully sign typed transactions and to illustrate how to structure an optional accessList parameter in a typed transaction
