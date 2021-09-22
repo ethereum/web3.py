@@ -232,26 +232,41 @@ with :meth:`~web3.eth.Eth.send_raw_transaction`.
     ...     'to': '0xF0109fC8DF283027b6285cc889F5aA624EaC1F55',
     ...     'value': 1000000000,
     ...     'gas': 2000000,
-    ...     'gasPrice': 234567897654321,
+    ...     'maxFeePerGas': 2000000000,
+    ...     'maxPriorityFeePerGas': 1000000000,
     ...     'nonce': 0,
-    ...     'chainId': 1
+    ...     'chainId': 1,
+    ...     'type': '0x2',  # the type is optional and, if omitted, will be interpreted based on the provided transaction parameters
+    ...     'accessList': (  # accessList is optional for dynamic fee transactions
+    ...         {
+    ...             'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+    ...             'storageKeys': (
+    ...                 '0x0000000000000000000000000000000000000000000000000000000000000003',
+    ...                 '0x0000000000000000000000000000000000000000000000000000000000000007',
+    ...             )
+    ...         },
+    ...         {
+    ...             'address': '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
+    ...             'storageKeys': ()
+    ...         },
+    ...     )
     ... }
     >>> key = '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
     >>> signed = w3.eth.account.sign_transaction(transaction, key)
     >>> signed.rawTransaction
-    HexBytes('0xf86a8086d55698372431831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca008025a009ebb6ca057a0535d6186462bc0b465b561c94a295bdb0621fc19208ab149a9ca0440ffd775ce91a833ab410777204d5341a6f9fa91216a6f3ee2c051fea6a0428')
+    HexBytes('0x02f8e20180843b9aca008477359400831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca0080f872f85994de0b295669a9fd93d5f28d9ec85e40f4cb697baef842a00000000000000000000000000000000000000000000000000000000000000003a00000000000000000000000000000000000000000000000000000000000000007d694bb9bc244d798123fde783fcc1c72d3bb8c189413c001a0b9ec671ccee417ff79e06e9e52bfa82b37cf1145affde486006072ca7a11cf8da0484a9beea46ff6a90ac76e7bbf3718db16a8b4b09cef477fb86cf4e123d98fde')
     >>> signed.hash
-    HexBytes('0xd8f64a42b57be0d565f385378db2f6bf324ce14a594afc05de90436e9ce01f60')
+    HexBytes('0xe85ce7efa52c16cb5c469c7bde54fbd4911639fdfde08003f65525a85076d915')
     >>> signed.r
-    4487286261793418179817841024889747115779324305375823110249149479905075174044
+    84095564551732371065849105252408326384410939276686534847013731510862163857293
     >>> signed.s
-    30785525769477805655994251009256770582792548537338581640010273753578382951464
+    32698347985257114675470251181312399332782188326270244072370350491677872459742
     >>> signed.v
-    37
+    1
 
     # When you run send_raw_transaction, you get back the hash of the transaction:
     >>> w3.eth.send_raw_transaction(signed.rawTransaction)  # doctest: +SKIP
-    '0xd8f64a42b57be0d565f385378db2f6bf324ce14a594afc05de90436e9ce01f60'
+    '0xe85ce7efa52c16cb5c469c7bde54fbd4911639fdfde08003f65525a85076d915'
 
 Sign a Contract Transaction
 -----------------------------------
@@ -291,15 +306,18 @@ To sign a transaction locally that will invoke a smart contract:
     ... ).buildTransaction({
     ...     'chainId': 1,
     ...     'gas': 70000,
-    ...     'gasPrice': w3.toWei('1', 'gwei'),
+    ...     'maxFeePerGas': w3.toWei('2', 'gwei'),
+    ...     'maxPriorityFeePerGas': w3.toWei('1', 'gwei'),
     ...     'nonce': nonce,
     ... })
 
     >>> unicorn_txn
     {'value': 0,
+     'type': '0x2',
      'chainId': 1,
      'gas': 70000,
-     'gasPrice': 1000000000,
+     'maxFeePerGas': 2000000000,
+     'maxPriorityFeePerGas': 1000000000,
      'nonce': 0,
      'to': '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
      'data': '0xa9059cbb000000000000000000000000fb6916095ca1df60bb79ce92ce3ea74c37c5d3590000000000000000000000000000000000000000000000000000000000000001'}
@@ -307,18 +325,18 @@ To sign a transaction locally that will invoke a smart contract:
     >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
     >>> signed_txn = w3.eth.account.sign_transaction(unicorn_txn, private_key=private_key)
     >>> signed_txn.hash
-    HexBytes('0x4795adc6a719fa64fa21822630c0218c04996e2689ded114b6553cef1ae36618')
+    HexBytes('0x748db062639a45e519dba934fce09c367c92043867409160c9989673439dc817')
     >>> signed_txn.rawTransaction
-    HexBytes('0xf8a980843b9aca008301117094fb6916095ca1df60bb79ce92ce3ea74c37c5d35980b844a9059cbb000000000000000000000000fb6916095ca1df60bb79ce92ce3ea74c37c5d359000000000000000000000000000000000000000000000000000000000000000125a00fb532eea06b8f17d858d82ad61986efd0647124406be65d359e96cac3e004f0a02e5d7ffcfb7a6073a723be38e6733f353cf9367743ae94e2ccd6f1eba37116f4')
+    HexBytes('0x02f8b00180843b9aca0084773594008301117094fb6916095ca1df60bb79ce92ce3ea74c37c5d35980b844a9059cbb000000000000000000000000fb6916095ca1df60bb79ce92ce3ea74c37c5d3590000000000000000000000000000000000000000000000000000000000000001c001a0cec4150e52898cf1295cc4020ac0316cbf186071e7cdc5ec44eeb7cdda05afa2a06b0b3a09c7fb0112123c0bef1fd6334853a9dcf3cb5bab3ccd1f5baae926d449')
     >>> signed_txn.r
-    7104843568152743554992057394334744036860247658813231830421570918634460546288
+    93522894155654168208483453926995743737629589441154283159505514235904280342434
     >>> signed_txn.s
-    20971591154030974221209741174186570949918731455961098911091818811306894497524
+    48417310681110102814014302147799665717176259465062324746227758019974374282313
     >>> signed_txn.v
-    37
+    1
 
     >>> w3.eth.send_raw_transaction(signed_txn.rawTransaction)  # doctest: +SKIP
 
     # When you run send_raw_transaction, you get the same result as the hash of the transaction:
     >>> w3.toHex(w3.keccak(signed_txn.rawTransaction))
-    '0x4795adc6a719fa64fa21822630c0218c04996e2689ded114b6553cef1ae36618'
+    '0x748db062639a45e519dba934fce09c367c92043867409160c9989673439dc817'
