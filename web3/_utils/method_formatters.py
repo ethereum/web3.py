@@ -210,7 +210,7 @@ receipt_formatter = apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
 BLOCK_FORMATTERS = {
     'baseFeePerGas': to_integer_if_hex,
-    'extraData': to_hexbytes(32, variable_length=True),
+    'extraData': to_hexbytes(80, variable_length=True),
     'gasLimit': to_integer_if_hex,
     'gasUsed': to_integer_if_hex,
     'size': to_integer_if_hex,

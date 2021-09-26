@@ -42,7 +42,7 @@ from web3.types import (
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
-MAX_EXTRADATA_LENGTH = 32
+MAX_EXTRADATA_LENGTH = 256
 
 is_not_null = complement(is_null)
 
