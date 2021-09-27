@@ -58,6 +58,7 @@ extras_require['dev'] = (
     + extras_require['linter']
     + extras_require['docs']
     + extras_require['dev']
+    + extras_require['async']
 )
 
 with open('./README.md') as readme:
