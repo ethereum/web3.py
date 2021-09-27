@@ -1,1 +1,0 @@
-Update towncrier, remove double version headers

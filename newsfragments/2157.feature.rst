@@ -1,1 +1,0 @@
-Updated eth-account version to v0.5.6 - adds support for signing typed transactions without needing to explicitly set the transaction type and now accepts correct JSON-RPC structure for accessList for typed transactions

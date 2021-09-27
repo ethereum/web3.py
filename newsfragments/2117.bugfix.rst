@@ -1,1 +1,0 @@
-Encode block_count as hex before making eth_feeHistory RPC call

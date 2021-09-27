@@ -3,6 +3,52 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.24.0 (2021-09-27)
+--------------------
+
+Features
+~~~~~~~~
+
+- Add async ``eth.send_raw_transaction`` method (`#2135
+  <https://github.com/ethereum/web3.py/issues/2135>`__)
+- Updated eth-account version to v0.5.6 - adds support for signing typed
+  transactions without needing to explicitly set the transaction type and now
+  accepts correct JSON-RPC structure for accessList for typed transactions
+  (`#2157 <https://github.com/ethereum/web3.py/issues/2157>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Encode block_count as hex before making eth_feeHistory RPC call (`#2117
+  <https://github.com/ethereum/web3.py/issues/2117>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Fix typo in AsyncHTTPProvider docs (`#2131
+  <https://github.com/ethereum/web3.py/issues/2131>`__)
+- Update AsyncHTTPProvider doc Supported Methods to include
+  ``web3.eth.send_raw_transaction()``. (`#2135
+  <https://github.com/ethereum/web3.py/issues/2135>`__)
+- Improve messaging around usage and implementation questions, directing users
+  to the appropriate channel (`#2138
+  <https://github.com/ethereum/web3.py/issues/2138>`__)
+- Clarify some contract ``ValueError`` error messages. (`#2146
+  <https://github.com/ethereum/web3.py/issues/2146>`__)
+- Updated docs for w3.eth.account.sign_transaction to reflect that transaction
+  type is no longer needed to successfully sign typed transactions and to
+  illustrate how to structure an optional accessList parameter in a typed
+  transaction (`#2157 <https://github.com/ethereum/web3.py/issues/2157>`__)
+
+
+Misc
+~~~~
+
+- `#2105 <https://github.com/ethereum/web3.py/issues/2105>`__
+
+
 v5.23.1 (2021-08-27)
 --------------------
 
