@@ -1,6 +1,8 @@
 Parity API
 ==========
 
+    .. note:: Parity is no longer being maintained, so this API will no longer be receiving active updates. It will be removed in v6.
+
 .. py:module:: web3.parity
 
 The ``web3.parity`` object exposes modules that enable you to interact with the JSON-RPC endpoints supported by `Parity <https://wiki.parity.io/JSONRPC>`_ that are not defined in the standard set of Ethereum JSONRPC endpoints according to `EIP 1474 <https://github.com/ethereum/EIPs/pull/1474>`_.
