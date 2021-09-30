@@ -216,9 +216,8 @@ Though the setup lives in ``/tests/integration``, our integration module tests a
 written across different files within ``/web3/_utils/module_testing``. The tests
 are written there but run configurations exist across the different files within
 ``/tests/integration/``. The parent ``/integration`` directory houses some common
-configuration shared across all client tests, whereas the ``/go_ethereum`` and
-``/parity`` directories house common code to be shared among each respective client
-tests.
+configuration shared across all client tests, whereas the ``/go_ethereum`` directory
+houses common code to be shared among respective client tests.
 
 * :file:`common.py` files within the client directories contain code that is shared across
   all provider tests (http, ipc, and ws). This is mostly used to override tests that span
@@ -279,7 +278,7 @@ commit that introduces the feature or bugfix.
 Generating New Fixtures
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Our integration tests make use of Geth and Parity/OpenEthereum private networks.
+Our integration tests make use of Geth private networks.
 When new versions of the client software are introduced, new fixtures should be
 generated.
 
@@ -348,35 +347,6 @@ an unstable client.
 5. In ``.circleci/config.yml``, update jobs relying on ``geth_steps``, to instead use ``custom_geth_steps``.
 
 6. Create a PR and let CI do its thing.
-
-
-Parity/OpenEthereum Fixtures
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-1. The most reliable way to get a specific Parity/OE binary is to download
-   the source code via `GitHub releases`_.
-
-2. `Build the binary`_ from source. (This is will take a few minutes.)
-
-3. Specify the path to this binary in the ``get_parity_binary`` function
-   of the ``/tests/integration/generate_fixtures/parity.py`` file.
-
-4. Run the fixture generation script:
-
-.. code:: sh
-
-    $ python /tests/integration/generate_fixtures/parity.py /tests/integration/parity-X.Y.Z-fixture
- 
-5. The output of this script is your fixture, a zip file. Store the fixture in the
-   ``/tests/integration/`` directory and update the ``/tests/integration/parity/conftest.py``
-   file to point the new fixture.
-
-6. By this point, you may have noticed that Parity fixture generation relies
-   on a Geth network to sync from. In the output of the generation script are
-   the hashes of the various contracts that it mined. Update the corresponding
-   values in the ``/parity/conftest.py`` file with those hashes.
-
-7. Run the tests.
 
 
 Releasing

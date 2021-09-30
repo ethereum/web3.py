@@ -9,14 +9,8 @@ from .net_module import (  # noqa: F401
     AsyncNetModuleTest,
     NetModuleTest,
 )
-from .parity_module import (  # noqa: F401
-    ParityModuleTest,
-    ParitySetModuleTest,
-    ParityTraceModuleTest,
-)
 from .personal_module import (  # noqa: F401
     GoEthereumPersonalModuleTest,
-    ParityPersonalModuleTest,
 )
 from .version_module import (  # noqa: F401
     VersionModuleTest,
