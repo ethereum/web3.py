@@ -1309,7 +1309,7 @@ class EthModuleTest:
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gas_price,
+            'gasPrice': web3.toWei(1, 'gwei'),  # post-london needs to be more than the base fee
         }
         txn_hash = web3.eth.send_transaction(txn_params)
         txn = web3.eth.get_transaction(txn_hash)
@@ -1580,11 +1580,11 @@ class EthModuleTest:
             'to': unlocked_account_dual_type,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gas_price,
+            'gasPrice': web3.toWei(1, 'gwei'),  # must be greater than base_fee post London
         }
         txn_hash = web3.eth.send_transaction(txn_params)
 
-        txn_params['gasPrice'] = Wei(web3.eth.gas_price * 2)
+        txn_params['gasPrice'] = web3.toWei(2, 'gwei')
         replace_txn_hash = web3.eth.replace_transaction(txn_hash, txn_params)
         replace_txn = web3.eth.get_transaction(replace_txn_hash)
 
@@ -1830,7 +1830,7 @@ class EthModuleTest:
             'to': unlocked_account,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gas_price,
+            'gasPrice': web3.toWei(1, 'gwei'),  # must be greater than base_fee post London
         }
         txn_hash = web3.eth.send_transaction(txn_params)
 
@@ -1882,7 +1882,7 @@ class EthModuleTest:
             'to': unlocked_account,
             'value': Wei(1),
             'gas': Wei(21000),
-            'gasPrice': web3.eth.gas_price,
+            'gasPrice': web3.toWei(1, 'gwei'),
         }
         txn_hash = web3.eth.send_transaction(txn_params)
         with pytest.warns(
@@ -1898,15 +1898,23 @@ class EthModuleTest:
         assert modified_txn['gas'] == 21000
         assert modified_txn['gasPrice'] == cast(int, txn_params['gasPrice']) * 2
 
-    def test_eth_send_raw_transaction(self, web3: "Web3") -> None:
-        # private key 0x3c2ab4e8f17a7dea191b8c991522660126d681039509dc3bb31af7c9bdb63518
-        # This is an unfunded account, but the transaction has a 0 gas price, so is valid.
-        # It never needs to be mined, we just want the transaction hash back to confirm.
-        # tx = {'to': '0x0000000000000000000000000000000000000000', 'value': 0, 'nonce': 0, 'gas': 21000, 'gasPrice': 0, 'chainId': 131277322940537}  # noqa: E501
-        raw_txn = HexBytes('0xf8658080825208940000000000000000000000000000000000000000808086eecac466e115a038176e5f9f1c25ce470ce77856bacbc02dd728ad647bb8b18434ac62c3e8e14fa03279bb3ee1e5202580668ec62b66a7d01355de3d5c4ef18fcfcb88fac56d5f90')  # noqa: E501
-        expected_hash = HexStr('0x6ab943e675003de610b4e94f2e289dc711688df6e150da2bc57bd03811ad0f63')
-        txn_hash = web3.eth.send_raw_transaction(raw_txn)
-        assert txn_hash == web3.toBytes(hexstr=expected_hash)
+    def test_eth_send_raw_transaction(
+        self, web3: "Web3", unlocked_account: ChecksumAddress
+    ) -> None:
+        signed_tx = web3.eth.account.sign_transaction({
+                'to': '0x0000000000000000000000000000000000000000',
+                'value': 0,
+                'nonce': web3.eth.get_transaction_count(unlocked_account),
+                'gas': 21000,
+                'maxFeePerGas': 1000000000,
+                'maxPriorityFeePerGas': 1000000000,
+                'chainId': 131277322940537
+            },
+            # unlocked_account private key:
+            '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
+        )
+        txn_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
+        assert txn_hash == signed_tx.hash
 
     def test_eth_call(
         self, web3: "Web3", math_contract: "Contract"
