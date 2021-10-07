@@ -34,7 +34,6 @@ from web3._utils.formatters import (
     hex_to_integer,
     integer_to_hex,
     is_array_of_dicts,
-    remove_key_if,
     static_return,
 )
 from web3.middleware import (
@@ -44,7 +43,6 @@ from web3.types import (
     RPCEndpoint,
     RPCResponse,
     TxParams,
-    Wei,
 )
 
 if TYPE_CHECKING:
@@ -63,18 +61,19 @@ def is_hexstr(value: Any) -> bool:
 
 to_integer_if_hex = apply_formatter_if(is_hexstr, hex_to_integer)
 
-
 is_not_named_block = complement(is_named_block)
 
 
 TRANSACTION_KEY_MAPPINGS = {
+    'access_list': 'accessList',
     'block_hash': 'blockHash',
     'block_number': 'blockNumber',
     'gas_price': 'gasPrice',
+    'max_fee_per_gas': 'maxFeePerGas',
+    'max_priority_fee_per_gas': 'maxPriorityFeePerGas',
     'transaction_hash': 'transactionHash',
     'transaction_index': 'transactionIndex',
 }
-
 transaction_key_remapper = apply_key_map(TRANSACTION_KEY_MAPPINGS)
 
 
@@ -85,8 +84,6 @@ LOG_KEY_MAPPINGS = {
     'block_hash': 'blockHash',
     'block_number': 'blockNumber',
 }
-
-
 log_key_remapper = apply_key_map(LOG_KEY_MAPPINGS)
 
 
@@ -96,11 +93,10 @@ RECEIPT_KEY_MAPPINGS = {
     'contract_address': 'contractAddress',
     'gas_used': 'gasUsed',
     'cumulative_gas_used': 'cumulativeGasUsed',
+    'effective_gas_price': 'effectiveGasPrice',
     'transaction_hash': 'transactionHash',
     'transaction_index': 'transactionIndex',
 }
-
-
 receipt_key_remapper = apply_key_map(RECEIPT_KEY_MAPPINGS)
 
 
@@ -115,68 +111,58 @@ BLOCK_KEY_MAPPINGS = {
     'total_difficulty': 'totalDifficulty',
     'extra_data': 'extraData',
     'gas_used': 'gasUsed',
+    'base_fee_per_gas': 'baseFeePerGas',
 }
-
-
 block_key_remapper = apply_key_map(BLOCK_KEY_MAPPINGS)
 
 
 TRANSACTION_PARAMS_MAPPING = {
     'gasPrice': 'gas_price',
+    'maxFeePerGas': 'max_fee_per_gas',
+    'maxPriorityFeePerGas': 'max_priority_fee_per_gas',
+    'accessList': 'access_list',
 }
-
-
 transaction_params_remapper = apply_key_map(TRANSACTION_PARAMS_MAPPING)
 
 
-TRANSACTION_PARAMS_FORMATTERS = {
+REQUEST_TRANSACTION_FORMATTERS = {
     'gas': to_integer_if_hex,
     'gasPrice': to_integer_if_hex,
     'value': to_integer_if_hex,
     'nonce': to_integer_if_hex,
+    'maxFeePerGas': to_integer_if_hex,
+    'maxPriorityFeePerGas': to_integer_if_hex,
 }
-
-
-transaction_params_formatter = compose(
-    # remove nonce for now due to issue https://github.com/ethereum/eth-tester/issues/80
-    remove_key_if('nonce', lambda _: True),
-    apply_formatters_to_dict(TRANSACTION_PARAMS_FORMATTERS),
-)
+request_transaction_formatter = apply_formatters_to_dict(REQUEST_TRANSACTION_FORMATTERS)
 
 
 FILTER_PARAMS_MAPPINGS = {
     'fromBlock': 'from_block',
     'toBlock': 'to_block',
 }
-
 filter_params_remapper = apply_key_map(FILTER_PARAMS_MAPPINGS)
+
 
 FILTER_PARAMS_FORMATTERS = {
     'fromBlock': to_integer_if_hex,
     'toBlock': to_integer_if_hex,
 }
-
 filter_params_formatter = apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
-
 filter_params_transformer = compose(filter_params_remapper, filter_params_formatter)
 
 
-TRANSACTION_FORMATTERS = {
+RESPONSE_TRANSACTION_FORMATTERS = {
     'to': apply_formatter_if(partial(operator.eq, ''), static_return(None)),
 }
-
-
-transaction_formatter = apply_formatters_to_dict(TRANSACTION_FORMATTERS)
+response_transaction_formatter = apply_formatters_to_dict(RESPONSE_TRANSACTION_FORMATTERS)
 
 
 RECEIPT_FORMATTERS = {
     'logs': apply_formatter_to_array(log_key_remapper),
 }
-
-
 receipt_formatter = apply_formatters_to_dict(RECEIPT_FORMATTERS)
+transaction_params_transformer = compose(transaction_params_remapper, request_transaction_formatter)
 
-transaction_params_transformer = compose(transaction_params_remapper, transaction_params_formatter)
 
 ethereum_tester_middleware = construct_formatting_middleware(
     request_formatters={
@@ -256,7 +242,7 @@ ethereum_tester_middleware = construct_formatting_middleware(
         ),
         RPCEndpoint('eth_getTransactionByHash'): apply_formatter_if(
             is_dict,
-            compose(transaction_key_remapper, transaction_formatter),
+            compose(transaction_key_remapper, response_transaction_formatter),
         ),
         RPCEndpoint('eth_getTransactionReceipt'): apply_formatter_if(
             is_dict,
@@ -283,7 +269,7 @@ ethereum_tester_middleware = construct_formatting_middleware(
 )
 
 
-def guess_from(web3: "Web3", transaction: TxParams) -> ChecksumAddress:
+def guess_from(web3: "Web3", _: TxParams) -> ChecksumAddress:
     coinbase = web3.eth.coinbase
     if coinbase is not None:
         return coinbase
@@ -295,10 +281,6 @@ def guess_from(web3: "Web3", transaction: TxParams) -> ChecksumAddress:
         pass
 
     return None
-
-
-def guess_gas(web3: "Web3", transaction: TxParams) -> Wei:
-    return Wei(web3.eth.estimate_gas(transaction) * 2)
 
 
 @curry
@@ -317,18 +299,10 @@ def default_transaction_fields_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     fill_default_from = fill_default('from', guess_from, web3)
-    fill_default_gas = fill_default('gas', guess_gas, web3)
 
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-        # TODO send call to eth-tester without gas, and remove guess_gas entirely
-        if method == 'eth_call':
-            filled_transaction = pipe(
-                params[0],
-                fill_default_from,
-                fill_default_gas,
-            )
-            return make_request(method, [filled_transaction] + list(params)[1:])
-        elif method in (
+        if method in (
+            'eth_call',
             'eth_estimateGas',
             'eth_sendTransaction',
         ):

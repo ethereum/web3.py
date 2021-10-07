@@ -7,7 +7,7 @@ from setuptools import (
 
 extras_require = {
     'tester': [
-        "eth-tester[py-evm]==v0.5.0-beta.4",
+        "eth-tester[py-evm]==v0.6.0-beta.1",
         "py-geth>=3.6.0,<4",
     ],
     'linter': [

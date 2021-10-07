@@ -12,6 +12,9 @@ from eth_utils import (
     is_dict,
     is_integer,
 )
+from eth_utils.exceptions import (
+    ValidationError,
+)
 
 from web3 import Web3
 from web3._utils.module_testing import (
@@ -112,7 +115,7 @@ def block_with_txn(web3):
         'to': web3.eth.coinbase,
         'value': 1,
         'gas': 21000,
-        'gas_price': 1,
+        'gas_price': 1000000000,  # needs to be greater than base_fee post London
     })
     txn = web3.eth.get_transaction(txn_hash)
     block = web3.eth.get_block(txn['blockNumber'])
@@ -174,6 +177,7 @@ def unlockable_account(web3, unlockable_account_pw):
         'from': web3.eth.coinbase,
         'to': account,
         'value': web3.toWei(10, 'ether'),
+        'gas': 21000,
     })
     yield account
 
@@ -260,8 +264,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
     )
     test_eth_sign_transaction = not_implemented(EthModuleTest.test_eth_sign_transaction, ValueError)
     test_eth_sign_transaction_hex_fees = not_implemented(
-        EthModuleTest.test_eth_sign_transaction_hex_fees,
-        ValueError
+        EthModuleTest.test_eth_sign_transaction_hex_fees, ValueError
     )
     test_eth_sign_transaction_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_transaction_ens_names, ValueError
@@ -277,6 +280,9 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_get_raw_transaction_raises_error = not_implemented(
         EthModuleTest.test_eth_get_raw_transaction, ValueError)
     test_eth_max_priority_fee = not_implemented(EthModuleTest.test_eth_max_priority_fee, ValueError)
+    test_eth_replace_transaction_already_mined = not_implemented(
+        EthModuleTest.test_eth_replace_transaction_already_mined, ValueError
+    )
 
     def test_eth_getBlockByHash_pending(
         self, web3: "Web3"
@@ -296,7 +302,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_fee_history_no_reward_percentiles(self, web3: "Web3"):
         super().test_eth_fee_history_no_reward_percentiles(web3)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
+    @disable_auto_mine
     def test_eth_get_transaction_receipt_unmined(self, eth_tester, web3, unlocked_account):
         super().test_eth_get_transaction_receipt_unmined(web3, unlocked_account)
 
@@ -304,23 +310,21 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_replace_transaction_legacy(self, eth_tester, web3, unlocked_account):
         super().test_eth_replace_transaction_legacy(web3, unlocked_account)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
+    @disable_auto_mine
     def test_eth_replace_transaction(self, eth_tester, web3, unlocked_account):
         super().test_eth_replace_transaction(web3, unlocked_account)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_eth_replace_transaction_underpriced(self, web3, emitter_contract_address):
-        super().test_eth_replace_transaction_underpriced(web3, emitter_contract_address)
+    @disable_auto_mine
+    @pytest.mark.xfail(reason='py-evm does not raise on EIP-1559 transaction underpriced')
+    # TODO: This might also be an issue in py-evm worth looking into. See reason above.
+    def test_eth_replace_transaction_underpriced(self, eth_tester, web3, unlocked_account):
+        super().test_eth_replace_transaction_underpriced(web3, unlocked_account)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
+    @disable_auto_mine
     def test_eth_replaceTransaction_deprecated(self, eth_tester, web3, unlocked_account):
         super().test_eth_replaceTransaction_deprecated(web3, unlocked_account)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_eth_replace_transaction_already_mined(self, web3, emitter_contract_address):
-        super().test_eth_replace_transaction_already_mined(web3, emitter_contract_address)
-
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
+    @disable_auto_mine
     def test_eth_replace_transaction_incorrect_nonce(self, eth_tester, web3, unlocked_account):
         super().test_eth_replace_transaction_incorrect_nonce(web3, unlocked_account)
 
@@ -361,7 +365,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_modify_transaction_legacy(self, eth_tester, web3, unlocked_account):
         super().test_eth_modify_transaction_legacy(web3, unlocked_account)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
+    @disable_auto_mine
     def test_eth_modify_transaction(self, eth_tester, web3, unlocked_account):
         super().test_eth_modify_transaction(web3, unlocked_account)
 
@@ -469,47 +473,58 @@ class TestEthereumTesterEthModule(EthModuleTest):
             )
             web3.eth.estimate_gas(txn_params)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_eth_send_transaction(self, web3, emitter_contract_address):
-        super().test_eth_send_transaction(web3, emitter_contract_address)
+    @disable_auto_mine
+    def test_eth_send_transaction(self, eth_tester, web3, unlocked_account):
+        super().test_eth_send_transaction(web3, unlocked_account)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(self, emitter_contract_address):
+    @disable_auto_mine
+    def test_eth_send_transaction_legacy(self, eth_tester, web3, unlocked_account):
+        super().test_eth_send_transaction_legacy(web3, unlocked_account)
+
+    @disable_auto_mine
+    def test_eth_send_raw_transaction(self, eth_tester, web3, unlocked_account):
+        super().test_eth_send_raw_transaction(web3, unlocked_account)
+
+    @disable_auto_mine
+    @pytest.mark.parametrize("max_fee", (1000000000, None), ids=["with_max_fee", "without_max_fee"])
+    def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(
+        self, eth_tester, web3, unlocked_account, max_fee,
+    ):
         super().test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(
-            self, web3, emitter_contract_address, None, None, None
+            web3, unlocked_account, max_fee
         )
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
+    @disable_auto_mine
     def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
-        self, emitter_contract_address
+        self, eth_tester, web3, unlocked_account
     ):
         super().test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
-            self, web3, emitter_contract_address, None, None, None
+            web3, unlocked_account,
         )
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_eth_sendTransaction_deprecated(self, web3, emitter_contract_address):
-        super().test_eth_sendTransaction_deprecated(web3, emitter_contract_address)
+    @disable_auto_mine
+    def test_eth_sendTransaction_deprecated(self, eth_tester, web3, unlocked_account):
+        super().test_eth_sendTransaction_deprecated(web3, unlocked_account)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_eth_send_transaction_with_nonce(self, web3, emitter_contract_address):
-        super().test_eth_send_transaction_with_nonce(web3, emitter_contract_address)
+    @pytest.mark.xfail(raises=ValueError, reason="eth-tester does not have miner_start support")
+    def test_eth_send_transaction_with_nonce(self, eth_tester, web3, unlocked_account):
+        super().test_eth_send_transaction_with_nonce(web3, unlocked_account)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_eth_send_transaction_default_fees(self, web3, emitter_contract_address):
-        super().test_eth_send_transaction_default_fees(web3, emitter_contract_address)
+    @disable_auto_mine
+    def test_eth_send_transaction_default_fees(self, eth_tester, web3, unlocked_account):
+        super().test_eth_send_transaction_default_fees(web3, unlocked_account)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_eth_send_transaction_hex_fees(self, web3, emitter_contract_address):
-        super().test_eth_send_transaction_hex_fees(web3, emitter_contract_address)
+    @disable_auto_mine
+    def test_eth_send_transaction_hex_fees(self, eth_tester, web3, unlocked_account):
+        super().test_eth_send_transaction_hex_fees(web3, unlocked_account)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_eth_send_transaction_no_gas(self, web3, emitter_contract_address):
-        super().test_eth_send_transaction_no_gas(web3, emitter_contract_address)
+    @disable_auto_mine
+    def test_eth_send_transaction_no_gas(self, eth_tester, web3, unlocked_account):
+        super().test_eth_send_transaction_no_gas(web3, unlocked_account)
 
-    @pytest.mark.xfail(reason='EIP 1559 is not implemented on eth-tester')
-    def test_eth_send_transaction_no_max_fee(self, web3, emitter_contract_address):
-        super().test_eth_send_transaction_no_max_fee(web3, emitter_contract_address)
+    @disable_auto_mine
+    def test_eth_send_transaction_no_max_fee(self, eth_tester, web3, unlocked_account):
+        super().test_eth_send_transaction_no_max_fee(web3, unlocked_account)
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):
