@@ -534,9 +534,5 @@ workflows:
       - py310-integration-goethereum-ipc
       - py310-integration-goethereum-http
       - py310-integration-goethereum-ws
-      # - py310-integration-parity-ipc
-      # - py310-integration-parity-http
-      # - py310-integration-parity-ws
       - py310-integration-ethtester-pyevm
       - py310-wheel-cli
-
