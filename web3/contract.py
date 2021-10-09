@@ -887,9 +887,7 @@ class ContractFunction:
                 self.args,
                 self.kwargs
             )
-        if self.function_identifier is FallbackFn:
-            self.selector = encode_hex(b'')
-        elif self.function_identifier is ReceiveFn:
+        if self.function_identifier in [FallbackFn, ReceiveFn]:
             self.selector = encode_hex(b'')
         elif is_text(self.function_identifier):
             # https://github.com/python/mypy/issues/4976
