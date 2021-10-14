@@ -316,7 +316,7 @@ WebsocketProvider
     use the ``websocket_kwargs`` to do so.  See the `websockets documentation`_ for
     available arguments.
 
-    .. _`websockets documentation`: https://websockets.readthedocs.io/en/stable/api.html#websockets.protocol.WebSocketCommonProtocol
+    .. _`websockets documentation`: https://websockets.readthedocs.io/en/stable/reference/client.html#websockets.client.WebSocketClientProtocol
 
     Unlike HTTP connections, the timeout for WS connections is controlled by a
     separate ``websocket_timeout`` argument, as shown below.
