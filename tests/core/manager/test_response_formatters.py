@@ -10,6 +10,7 @@ from web3._utils.method_formatters import (
     raise_transaction_not_found,
 )
 from web3.exceptions import (
+    BadResponseFormat,
     BlockNotFound,
     ContractLogicError,
     TransactionNotFound,
@@ -23,10 +24,14 @@ ERROR_RESPONSE = {
                    'because the ancient block sync is still in progress.'
     }
 }
-
-
 NONE_RESPONSE = {"jsonrpc": "2.0", "id": 1, "result": None}
 ZERO_X_RESPONSE = {"jsonrpc": "2.0", "id": 1, "result": '0x'}
+UNEXPECTED_RESPONSE_FORMAT = {"jsonrpc": "2.0", "id": 1}
+ANOTHER_UNEXPECTED_RESP_FORMAT = {
+    'name': 'LimitError',
+    'message': 'You cannot query logs for more than 10000 blocks at once.',
+    'method': 'eth_getLogs'
+}
 
 
 def raise_contract_logic_error(response):
@@ -141,6 +146,22 @@ def test_formatted_response_raises_errors(web3,
             raise_transaction_not_found,
             TransactionNotFound,
             "Transaction with hash: '0x01' not found."
+        ),
+        (
+            UNEXPECTED_RESPONSE_FORMAT,
+            (),
+            identity,
+            identity,
+            BadResponseFormat,
+            f"The response was in an unexpected format and unable to be parsed. The raw response is: {UNEXPECTED_RESPONSE_FORMAT}",  # noqa: E501
+        ),
+        (
+            ANOTHER_UNEXPECTED_RESP_FORMAT,
+            (),
+            identity,
+            identity,
+            BadResponseFormat,
+            f"The response was in an unexpected format and unable to be parsed. The raw response is: {ANOTHER_UNEXPECTED_RESP_FORMAT}",  # noqa: E501
         ),
     ],
 )
