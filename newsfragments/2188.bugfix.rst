@@ -1,0 +1,1 @@
+BadResponseFormat error thrown instead of KeyError when a response gets sent back without a ``result`` key.
