@@ -236,7 +236,8 @@ class TransactionTypeMismatch(InvalidTransaction):
         super().__init__(message)
 
 
-class BadResponseFormat(ValueError):
+class BadResponseFormat(ValueError, KeyError):
+    # Inherits from KeyError and ValueError for backwards compatibility
     """
     Raised when a JSON-RPC response comes back in an unexpected format
     """
