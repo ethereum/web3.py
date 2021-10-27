@@ -31,6 +31,9 @@ from web3._utils.threads import (  # noqa: F401
 from web3.datastructures import (
     NamedElementOnion,
 )
+from web3.exceptions import (
+    BadResponseFormat,
+)
 from web3.middleware import (
     abi_middleware,
     attrdict_middleware,
@@ -166,12 +169,20 @@ class RequestManager:
         if "error" in response:
             apply_error_formatters(error_formatters, response)
             raise ValueError(response["error"])
-        elif response['result'] in NULL_RESPONSES:
+        # NULL_RESPONSES includes None, so return False here as the default
+        # so we don't apply the null_result_formatters if there is no 'result' key
+        elif response.get('result', False) in NULL_RESPONSES:
             # null_result_formatters raise either a BlockNotFound
             # or a TransactionNotFound error, depending on the method called
             apply_null_result_formatters(null_result_formatters, response, params)
-
-        return response['result']
+            return response['result']
+        elif response.get('result') is not None:
+            return response['result']
+        else:
+            raise BadResponseFormat(
+                "The response was in an unexpected format and unable to be parsed. "
+                f"The raw response is: {response}"
+            )
 
     def request_blocking(
         self,

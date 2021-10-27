@@ -234,3 +234,11 @@ class TransactionTypeMismatch(InvalidTransaction):
     def __init__(self) -> None:
         message = "Found legacy and EIP 1559 transaction values."
         super().__init__(message)
+
+
+class BadResponseFormat(ValueError, KeyError):
+    # Inherits from KeyError and ValueError for backwards compatibility
+    """
+    Raised when a JSON-RPC response comes back in an unexpected format
+    """
+    pass
