@@ -263,7 +263,7 @@ Transaction receipts can be retrieved using the ``web3.eth.get_transaction_recei
     }
 
 
-If the transaction has not yet been mined then this method will return ``None``.
+If the transaction has not yet been mined then this method will raise a ``TransactionNotFound`` error.
 
 
 Working with Contracts
