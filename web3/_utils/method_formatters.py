@@ -109,7 +109,6 @@ to_ascii_if_bytes = apply_formatter_if(is_bytes, bytes_to_ascii)
 to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
 to_hex_if_integer = apply_formatter_if(is_integer, integer_to_hex)
 
-
 is_false = partial(operator.is_, False)
 
 is_not_false = complement(is_false)
@@ -118,7 +117,7 @@ is_not_null = complement(is_null)
 
 @curry
 def to_hexbytes(
-    num_bytes: int, val: Union[str, int, bytes], variable_length: bool = False
+        num_bytes: int, val: Union[str, int, bytes], variable_length: bool = False
 ) -> HexBytes:
     if isinstance(val, (str, int, bytes)):
         result = HexBytes(val)
@@ -144,7 +143,6 @@ def is_attrdict(val: Any) -> bool:
 
 not_attrdict = complement(is_attrdict)
 
-
 TRANSACTION_RESULT_FORMATTERS = {
     'blockHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
     'blockNumber': apply_formatter_if(is_not_null, to_integer_if_hex),
@@ -166,7 +164,6 @@ TRANSACTION_RESULT_FORMATTERS = {
     'standardV': apply_formatter_if(is_not_null, to_integer_if_hex),
 }
 
-
 transaction_result_formatter = apply_formatters_to_dict(TRANSACTION_RESULT_FORMATTERS)
 
 
@@ -185,9 +182,7 @@ LOG_ENTRY_FORMATTERS = {
     'data': to_ascii_if_bytes,
 }
 
-
 log_entry_formatter = apply_formatters_to_dict(LOG_ENTRY_FORMATTERS)
-
 
 RECEIPT_FORMATTERS = {
     'blockHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
@@ -204,7 +199,6 @@ RECEIPT_FORMATTERS = {
     'to': apply_formatter_if(is_address, to_checksum_address),
     'effectiveGasPrice': to_integer_if_hex,
 }
-
 
 receipt_formatter = apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
@@ -235,9 +229,7 @@ BLOCK_FORMATTERS = {
     'transactionsRoot': to_hexbytes(32),
 }
 
-
 block_formatter = apply_formatters_to_dict(BLOCK_FORMATTERS)
-
 
 SYNCING_FORMATTERS = {
     'startingBlock': to_integer_if_hex,
@@ -247,9 +239,7 @@ SYNCING_FORMATTERS = {
     'pulledStates': to_integer_if_hex,
 }
 
-
 syncing_formatter = apply_formatters_to_dict(SYNCING_FORMATTERS)
-
 
 TRANSACTION_POOL_CONTENT_FORMATTERS = {
     'pending': compose(
@@ -262,17 +252,14 @@ TRANSACTION_POOL_CONTENT_FORMATTERS = {
     ),
 }
 
-
 transaction_pool_content_formatter = apply_formatters_to_dict(
     TRANSACTION_POOL_CONTENT_FORMATTERS
 )
-
 
 TRANSACTION_POOL_INSPECT_FORMATTERS = {
     'pending': curried.keymap(to_ascii_if_bytes),
     'queued': curried.keymap(to_ascii_if_bytes),
 }
-
 
 transaction_pool_inspect_formatter = apply_formatters_to_dict(
     TRANSACTION_POOL_INSPECT_FORMATTERS
@@ -313,9 +300,7 @@ FILTER_PARAMS_FORMATTERS = {
     'toBlock': apply_formatter_if(is_integer, integer_to_hex),
 }
 
-
 filter_params_formatter = apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
-
 
 filter_result_formatter = apply_one_of_formatters((
     (is_array_of_dicts, apply_list_to_array_formatter(log_entry_formatter)),
@@ -334,7 +319,6 @@ transaction_param_formatter = compose(
     transaction_request_formatter,
 )
 
-
 call_without_override: Callable[
     [Tuple[TxParams, BlockIdentifier]],
     Tuple[Dict[str, Any], int]
@@ -352,7 +336,6 @@ call_with_override = apply_formatters_to_sequence([
     to_hex_if_integer,
     lambda x: x,
 ])
-
 
 estimate_gas_without_block_id: Callable[[Dict[str, Any]], Dict[str, Any]]
 estimate_gas_without_block_id = apply_formatter_at_index(transaction_param_formatter, 0)
@@ -376,7 +359,6 @@ FILTER_PARAM_NORMALIZERS = apply_formatters_to_dict({
     'address': apply_formatter_if(is_string, lambda x: [x])
 })
 
-
 GETH_WALLET_FORMATTER = {
     'address': to_checksum_address
 }
@@ -389,7 +371,6 @@ GETH_WALLETS_FORMATTER = {
 
 geth_wallets_formatter = apply_formatters_to_dict(GETH_WALLETS_FORMATTER)
 
-
 PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_feeHistory: compose(
@@ -397,6 +378,10 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         apply_formatter_at_index(to_hex_if_integer, 1)
     ),
     RPC.eth_getBalance: apply_formatter_at_index(to_hex_if_integer, 1),
+    RPC.eth_getRawTransactionByBlockNumberAndIndex: compose(
+        apply_formatter_at_index(to_hex_if_integer, 0),
+        apply_formatter_at_index(to_hex_if_integer, 1),
+    ),
     RPC.eth_getBlockByNumber: apply_formatter_at_index(to_hex_if_integer, 0),
     RPC.eth_getBlockTransactionCountByNumber: apply_formatter_at_index(
         to_hex_if_integer,
@@ -446,7 +431,6 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     ),
 }
 
-
 PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
@@ -468,6 +452,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getFilterLogs: filter_result_formatter,
     RPC.eth_getLogs: filter_result_formatter,
     RPC.eth_getProof: apply_formatter_if(is_not_null, proof_formatter),
+    RPC.eth_getRawTransactionByBlockNumberAndIndex: HexBytes,
     RPC.eth_getRawTransactionByHash: HexBytes,
     RPC.eth_getStorageAt: HexBytes,
     RPC.eth_getTransactionByBlockHashAndIndex: apply_formatter_if(
@@ -529,7 +514,6 @@ STANDARD_NORMALIZERS = [
     abi_address_to_hex,
 ]
 
-
 ABI_REQUEST_FORMATTERS = abi_request_formatters(STANDARD_NORMALIZERS, RPC_ABIS)
 
 
@@ -590,7 +574,7 @@ ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 
 @to_tuple
 def combine_formatters(
-    formatter_maps: Collection[Dict[RPCEndpoint, Callable[..., TReturn]]], method_name: RPCEndpoint
+        formatter_maps: Collection[Dict[RPCEndpoint, Callable[..., TReturn]]], method_name: RPCEndpoint
 ) -> Iterable[Callable[..., TReturn]]:
     for formatter_map in formatter_maps:
         if method_name in formatter_map:
@@ -598,7 +582,7 @@ def combine_formatters(
 
 
 def get_request_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+        method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Dict[str, Callable[..., Any]]:
     request_formatter_maps = (
         ABI_REQUEST_FORMATTERS,
@@ -624,7 +608,7 @@ def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
 
 
 def raise_block_not_found_for_uncle_at_index(
-    params: Tuple[BlockIdentifier, Union[HexStr, int]]
+        params: Tuple[BlockIdentifier, Union[HexStr, int]]
 ) -> NoReturn:
     try:
         block_identifier = params[0]
@@ -676,14 +660,16 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getTransactionByBlockHashAndIndex: raise_transaction_not_found_with_index,
     RPC.eth_getTransactionByBlockNumberAndIndex: raise_transaction_not_found_with_index,
     RPC.eth_getTransactionReceipt: raise_transaction_not_found,
+    RPC.eth_getRawTransactionByBlockHashAndIndex: raise_transaction_not_found_with_index,
+    RPC.eth_getRawTransactionByBlockNumberAndIndex: raise_transaction_not_found_with_index,
     RPC.eth_getRawTransactionByHash: raise_transaction_not_found,
 }
 
 
 def filter_wrapper(
-    module: "Eth",
-    method: RPCEndpoint,
-    filter_id: HexStr,
+        module: "Eth",
+        method: RPCEndpoint,
+        filter_id: HexStr,
 ) -> Union[BlockFilter, TransactionFilter, LogFilter]:
     if method == RPC.eth_newBlockFilter:
         return BlockFilter(filter_id, eth_module=module)
@@ -715,8 +701,8 @@ def apply_module_to_formatters(
 
 
 def get_result_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
-    module: "Module",
+        method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+        module: "Module",
 ) -> Dict[str, Callable[..., Any]]:
     formatters = combine_formatters(
         (PYTHONIC_RESULT_FORMATTERS,),
@@ -737,7 +723,7 @@ def get_result_formatters(
 
 
 def get_error_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+        method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Callable[..., Any]:
     #  Note error formatters work on the full response dict
     error_formatter_maps = (ERROR_FORMATTERS,)
@@ -747,7 +733,7 @@ def get_error_formatters(
 
 
 def get_null_result_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+        method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Callable[..., Any]:
     formatters = combine_formatters((NULL_RESULT_FORMATTERS,), method_name)
 
