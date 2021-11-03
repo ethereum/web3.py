@@ -40,6 +40,8 @@ class RPC:
     admin_stopWS = RPCEndpoint("admin_stopWS")
 
     # eth
+    eth_getRawTransactionByBlockHashAndIndex = RPCEndpoint("eth_getRawTransactionByBlockHashAndIndex")
+    eth_getRawTransactionByBlockNumberAndIndex = RPCEndpoint("eth_getRawTransactionByBlockNumberAndIndex")
     eth_accounts = RPCEndpoint("eth_accounts")
     eth_blockNumber = RPCEndpoint("eth_blockNumber")
     eth_call = RPCEndpoint("eth_call")
@@ -185,6 +187,7 @@ RPC_ABIS = {
     'eth_getTransactionByHash': ['bytes32'],
     'eth_getTransactionCount': ['address', None],
     'eth_getTransactionReceipt': ['bytes32'],
+    'eth_getRawTransactionByBlockHashAndIndex': ['bytes32', 'uint'],
     'eth_getUncleCountByBlockHash': ['bytes32'],
     'eth_newFilter': FILTER_PARAMS_ABIS,
     'eth_sendRawTransaction': ['bytes'],
@@ -208,9 +211,9 @@ RPC_ABIS = {
 
 @curry
 def apply_abi_formatters_to_dict(
-    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
-    abi_dict: Dict[str, Any],
-    data: Dict[Any, Any]
+        normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
+        abi_dict: Dict[str, Any],
+        data: Dict[Any, Any]
 ) -> Dict[Any, Any]:
     fields = list(set(abi_dict.keys()) & set(data.keys()))
     formatted_values = map_abi_data(
@@ -224,8 +227,8 @@ def apply_abi_formatters_to_dict(
 
 @to_dict
 def abi_request_formatters(
-    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
-    abis: Dict[RPCEndpoint, Any],
+        normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
+        abis: Dict[RPCEndpoint, Any],
 ) -> Iterable[Tuple[RPCEndpoint, Callable[..., Any]]]:
     for method, abi_types in abis.items():
         if isinstance(abi_types, list):
