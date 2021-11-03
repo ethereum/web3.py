@@ -117,6 +117,7 @@ class BaseEth(Module):
     )
 
     """ property default_block """
+
     @property
     def default_block(self) -> BlockIdentifier:
         return self._default_block
@@ -164,9 +165,9 @@ class BaseEth(Module):
         self.gasPriceStrategy = gas_price_strategy
 
     def estimate_gas_munger(
-        self,
-        transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None
+            self,
+            transaction: TxParams,
+            block_identifier: Optional[BlockIdentifier] = None
     ) -> Sequence[Union[TxParams, BlockIdentifier]]:
         if 'from' not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, 'from', self.default_account)
@@ -194,7 +195,7 @@ class BaseEth(Module):
     )
 
     def get_block_munger(
-        self, block_identifier: BlockIdentifier, full_transactions: bool = False
+            self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> Tuple[BlockIdentifier, bool]:
         return (block_identifier, full_transactions)
 
@@ -222,19 +223,19 @@ class BaseEth(Module):
     )
 
     def block_id_munger(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
+            self,
+            account: Union[Address, ChecksumAddress, ENS],
+            block_identifier: Optional[BlockIdentifier] = None
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
         if block_identifier is None:
             block_identifier = self.default_block
         return (account, block_identifier)
 
     def call_munger(
-        self,
-        transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverrideParams] = None,
+            self,
+            transaction: TxParams,
+            block_identifier: Optional[BlockIdentifier] = None,
+            state_override: Optional[CallOverrideParams] = None,
     ) -> Union[Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverrideParams]]:  # noqa-E501
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.default_account):
@@ -288,20 +289,20 @@ class AsyncEth(BaseEth):
         return await self._get_raw_transaction(transaction_hash)  # type: ignore
 
     async def generate_gas_price(
-        self, transaction_params: Optional[TxParams] = None
+            self, transaction_params: Optional[TxParams] = None
     ) -> Optional[Wei]:
         return self._generate_gas_price(transaction_params)
 
     async def estimate_gas(
-        self,
-        transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None
+            self,
+            transaction: TxParams,
+            block_identifier: Optional[BlockIdentifier] = None
     ) -> Wei:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._estimate_gas(transaction, block_identifier)  # type: ignore
 
     async def get_block(
-        self, block_identifier: BlockIdentifier, full_transactions: bool = False
+            self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> BlockData:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._get_block(block_identifier, full_transactions)  # type: ignore
@@ -322,9 +323,9 @@ class AsyncEth(BaseEth):
     )
 
     async def get_balance(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
+            self,
+            account: Union[Address, ChecksumAddress, ENS],
+            block_identifier: Optional[BlockIdentifier] = None
     ) -> Wei:
         return await self._get_balance(account, block_identifier)
 
@@ -334,9 +335,9 @@ class AsyncEth(BaseEth):
     )
 
     async def get_code(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
+            self,
+            account: Union[Address, ChecksumAddress, ENS],
+            block_identifier: Optional[BlockIdentifier] = None
     ) -> HexBytes:
         return await self._get_code(account, block_identifier)
 
@@ -346,9 +347,9 @@ class AsyncEth(BaseEth):
     )
 
     async def get_transaction_count(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
+            self,
+            account: Union[Address, ChecksumAddress, ENS],
+            block_identifier: Optional[BlockIdentifier] = None
     ) -> Nonce:
         return await self._get_transaction_count(account, block_identifier)
 
@@ -358,10 +359,10 @@ class AsyncEth(BaseEth):
     )
 
     async def call(
-        self,
-        transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverrideParams] = None,
+            self,
+            transaction: TxParams,
+            block_identifier: Optional[BlockIdentifier] = None,
+            state_override: Optional[CallOverrideParams] = None,
     ) -> Union[bytes, bytearray]:
         return await self._call(transaction, block_identifier, state_override)
 
@@ -480,6 +481,7 @@ class Eth(BaseEth, Module):
         return self.chain_id
 
     """ property default_account """
+
     @property
     def default_account(self) -> Union[ChecksumAddress, Empty]:
         return self._default_account
@@ -530,10 +532,10 @@ class Eth(BaseEth, Module):
         return self._max_priority_fee()
 
     def get_storage_at_munger(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        position: int,
-        block_identifier: Optional[BlockIdentifier] = None
+            self,
+            account: Union[Address, ChecksumAddress, ENS],
+            position: int,
+            block_identifier: Optional[BlockIdentifier] = None
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], int, BlockIdentifier]:
         if block_identifier is None:
             block_identifier = self.default_block
@@ -545,10 +547,10 @@ class Eth(BaseEth, Module):
     )
 
     def get_proof_munger(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        positions: Sequence[int],
-        block_identifier: Optional[BlockIdentifier] = None
+            self,
+            account: Union[Address, ChecksumAddress, ENS],
+            positions: Sequence[int],
+            block_identifier: Optional[BlockIdentifier] = None
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], Sequence[int], Optional[BlockIdentifier]]:
         if block_identifier is None:
             block_identifier = self.default_block
@@ -565,7 +567,7 @@ class Eth(BaseEth, Module):
     )
 
     def get_block(
-        self, block_identifier: BlockIdentifier, full_transactions: bool = False
+            self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> BlockData:
         return self._get_block(block_identifier, full_transactions)
 
@@ -583,6 +585,18 @@ class Eth(BaseEth, Module):
             if_predefined=RPC.eth_getBlockTransactionCountByNumber,
             if_hash=RPC.eth_getBlockTransactionCountByHash,
             if_number=RPC.eth_getBlockTransactionCountByNumber,
+        ),
+        mungers=[default_root_munger]
+    )
+    """
+    `eth_getRawTransactionByBlockHashAndIndex`
+    `eth_getRawTransactionByBlockNumberAndIndex`
+    """
+    get_raw_transaction_by_block: Method[Callable[[BlockIdentifier], int]] = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
+            if_predefined=RPC.eth_getRawTransactionByBlockNumberAndIndex,
+            if_hash=RPC.eth_getRawTransactionByBlockHashAndIndex,
+            if_number=RPC.eth_getRawTransactionByBlockNumberAndIndex,
         ),
         mungers=[default_root_munger]
     )
@@ -620,7 +634,7 @@ class Eth(BaseEth, Module):
         return self._get_raw_transaction(transaction_hash)
 
     def getTransactionFromBlock(
-        self, block_identifier: BlockIdentifier, transaction_index: int
+            self, block_identifier: BlockIdentifier, transaction_index: int
     ) -> NoReturn:
         """
         Alias for the method getTransactionByBlock
@@ -639,12 +653,12 @@ class Eth(BaseEth, Module):
 
     @deprecated_for("wait_for_transaction_receipt")
     def waitForTransactionReceipt(
-        self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
+            self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
         return self.wait_for_transaction_receipt(transaction_hash, timeout, poll_latency)
 
     def wait_for_transaction_receipt(
-        self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
+            self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
         try:
             return wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
@@ -678,12 +692,12 @@ class Eth(BaseEth, Module):
     # https://github.com/python/mypy/issues/4441
     @deprecated_for("modify_transaction")
     def modifyTransaction(
-        self, transaction_hash: _Hash32, **transaction_params: Any
+            self, transaction_hash: _Hash32, **transaction_params: Any
     ) -> HexBytes:
         return self.modify_transaction(transaction_hash, **transaction_params)
 
     def modify_transaction(
-        self, transaction_hash: _Hash32, **transaction_params: Any
+            self, transaction_hash: _Hash32, **transaction_params: Any
     ) -> HexBytes:
         assert_valid_transaction_params(cast(TxParams, transaction_params))
         current_transaction = get_required_transaction(self.web3, transaction_hash)
@@ -698,11 +712,11 @@ class Eth(BaseEth, Module):
         return self._send_raw_transaction(transaction)
 
     def sign_munger(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        data: Union[int, bytes] = None,
-        hexstr: HexStr = None,
-        text: str = None
+            self,
+            account: Union[Address, ChecksumAddress, ENS],
+            data: Union[int, bytes] = None,
+            hexstr: HexStr = None,
+            text: str = None
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], HexStr]:
         message_hex = to_hex(data, hexstr=hexstr, text=text)
         return (account, message_hex)
@@ -728,24 +742,24 @@ class Eth(BaseEth, Module):
     )
 
     def estimate_gas(
-        self,
-        transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None
+            self,
+            transaction: TxParams,
+            block_identifier: Optional[BlockIdentifier] = None
     ) -> Wei:
         return self._estimate_gas(transaction, block_identifier)
 
     def fee_history(
-        self,
-        block_count: int,
-        newest_block: Union[BlockParams, BlockNumber],
-        reward_percentiles: Optional[List[float]] = None
+            self,
+            block_count: int,
+            newest_block: Union[BlockParams, BlockNumber],
+            reward_percentiles: Optional[List[float]] = None
     ) -> FeeHistory:
         return self._fee_history(block_count, newest_block, reward_percentiles)
 
     def filter_munger(
-        self,
-        filter_params: Optional[Union[str, FilterParams]] = None,
-        filter_id: Optional[HexStr] = None
+            self,
+            filter_params: Optional[Union[str, FilterParams]] = None,
+            filter_id: Optional[HexStr] = None
     ) -> Union[List[FilterParams], List[HexStr], List[str]]:
         if filter_id and filter_params:
             raise TypeError(
@@ -809,13 +823,15 @@ class Eth(BaseEth, Module):
     )
 
     @overload
-    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
+    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]:
+        ...  # noqa: E704,E501
 
     @overload  # noqa: F811
-    def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Contract: ...  # noqa: E704,E501
+    def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Contract:
+        ...  # noqa: E704,E501
 
     def contract(  # noqa: F811
-        self, address: Optional[Union[Address, ChecksumAddress, ENS]] = None, **kwargs: Any
+            self, address: Optional[Union[Address, ChecksumAddress, ENS]] = None, **kwargs: Any
     ) -> Union[Type[Contract], Contract]:
         ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
 
@@ -828,12 +844,12 @@ class Eth(BaseEth, Module):
 
     @deprecated_for("set_contract_factory")
     def setContractFactory(
-        self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
+            self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
     ) -> None:
         return self.set_contract_factory(contractFactory)
 
     def set_contract_factory(
-        self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
+            self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
     ) -> None:
         self.defaultContractFactory = contractFactory
 
@@ -865,7 +881,7 @@ class Eth(BaseEth, Module):
                                                 'get_block_transaction_count')
     getCode = DeprecatedMethod(get_code, 'getCode', 'get_code')
     getProof = DeprecatedMethod(get_proof, 'getProof', 'get_proof')
-    getTransaction = DeprecatedMethod(get_transaction,   # type: ignore
+    getTransaction = DeprecatedMethod(get_transaction,  # type: ignore
                                       'getTransaction',
                                       'get_transaction')
     getTransactionByBlock = DeprecatedMethod(get_transaction_by_block,
