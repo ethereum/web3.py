@@ -40,8 +40,6 @@ class RPC:
     admin_stopWS = RPCEndpoint("admin_stopWS")
 
     # eth
-    eth_getRawTransactionByBlockHashAndIndex = RPCEndpoint("eth_getRawTransactionByBlockHashAndIndex")
-    eth_getRawTransactionByBlockNumberAndIndex = RPCEndpoint("eth_getRawTransactionByBlockNumberAndIndex")
     eth_accounts = RPCEndpoint("eth_accounts")
     eth_blockNumber = RPCEndpoint("eth_blockNumber")
     eth_call = RPCEndpoint("eth_call")
@@ -65,6 +63,8 @@ class RPC:
     eth_getStorageAt = RPCEndpoint("eth_getStorageAt")
     eth_getTransactionByBlockHashAndIndex = RPCEndpoint("eth_getTransactionByBlockHashAndIndex")
     eth_getTransactionByBlockNumberAndIndex = RPCEndpoint("eth_getTransactionByBlockNumberAndIndex")
+    eth_getRawTransactionByBlockHashAndIndex = RPCEndpoint("eth_getRawTransactionByBlockHashAndIndex")
+    eth_getRawTransactionByBlockNumberAndIndex = RPCEndpoint("eth_getRawTransactionByBlockNumberAndIndex")
     eth_getTransactionByHash = RPCEndpoint("eth_getTransactionByHash")
     eth_getTransactionCount = RPCEndpoint("eth_getTransactionCount")
     eth_getTransactionReceipt = RPCEndpoint("eth_getTransactionReceipt")
@@ -211,9 +211,9 @@ RPC_ABIS = {
 
 @curry
 def apply_abi_formatters_to_dict(
-        normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
-        abi_dict: Dict[str, Any],
-        data: Dict[Any, Any]
+    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
+    abi_dict: Dict[str, Any],
+    data: Dict[Any, Any]
 ) -> Dict[Any, Any]:
     fields = list(set(abi_dict.keys()) & set(data.keys()))
     formatted_values = map_abi_data(
@@ -227,8 +227,8 @@ def apply_abi_formatters_to_dict(
 
 @to_dict
 def abi_request_formatters(
-        normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
-        abis: Dict[RPCEndpoint, Any],
+    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
+    abis: Dict[RPCEndpoint, Any],
 ) -> Iterable[Tuple[RPCEndpoint, Callable[..., Any]]]:
     for method, abi_types in abis.items():
         if isinstance(abi_types, list):
