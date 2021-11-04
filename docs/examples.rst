@@ -492,8 +492,8 @@ contract which conforms to this standard.
     alice, bob = w3.eth.accounts[0], w3.eth.accounts[1]
     assert alice == '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf', alice
     assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
-    tx_hash = factory.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': 320000})
-    assert tx_hash == HexBytes('0x611aa2d5c3e51f08d0665c4529c5520ed32520d8a48ba2cf2aff3f2fce3f26e4'), tx_hash
+    tx_hash = factory.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': Web3.toWei(1, 'gwei')})
+    assert tx_hash == HexBytes('0x49e3da72a95e4074a9eaea7b438c73ca154627d317e58abeae914e3769a15044'), tx_hash
     txn_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']
