@@ -378,10 +378,6 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         apply_formatter_at_index(to_hex_if_integer, 1)
     ),
     RPC.eth_getBalance: apply_formatter_at_index(to_hex_if_integer, 1),
-    RPC.eth_getRawTransactionByBlockNumberAndIndex: compose(
-        apply_formatter_at_index(to_hex_if_integer, 0),
-        apply_formatter_at_index(to_hex_if_integer, 1),
-    ),
     RPC.eth_getBlockByNumber: apply_formatter_at_index(to_hex_if_integer, 0),
     RPC.eth_getBlockTransactionCountByNumber: apply_formatter_at_index(
         to_hex_if_integer,
@@ -390,6 +386,10 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getCode: apply_formatter_at_index(to_hex_if_integer, 1),
     RPC.eth_getStorageAt: apply_formatter_at_index(to_hex_if_integer, 2),
     RPC.eth_getTransactionByBlockNumberAndIndex: compose(
+        apply_formatter_at_index(to_hex_if_integer, 0),
+        apply_formatter_at_index(to_hex_if_integer, 1),
+    ),
+    RPC.eth_getRawTransactionByBlockNumberAndIndex: compose(
         apply_formatter_at_index(to_hex_if_integer, 0),
         apply_formatter_at_index(to_hex_if_integer, 1),
     ),
@@ -433,6 +433,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 
 PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
+    RPC.eth_getRawTransactionByBlockNumberAndIndex: HexBytes,
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
     RPC.eth_blockNumber: to_integer_if_hex,
     RPC.eth_chainId: to_integer_if_hex,
@@ -452,7 +453,6 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getFilterLogs: filter_result_formatter,
     RPC.eth_getLogs: filter_result_formatter,
     RPC.eth_getProof: apply_formatter_if(is_not_null, proof_formatter),
-    RPC.eth_getRawTransactionByBlockNumberAndIndex: HexBytes,
     RPC.eth_getRawTransactionByHash: HexBytes,
     RPC.eth_getStorageAt: HexBytes,
     RPC.eth_getTransactionByBlockHashAndIndex: apply_formatter_if(
@@ -525,7 +525,6 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
         Data offset: 32 (32 bytes)
         String length (32 bytes)
         Reason string (padded, use string length from above to get meaningful part)
-
     See also https://solidity.readthedocs.io/en/v0.6.3/control-structures.html#revert
     """
     if not isinstance(response['error'], dict):
