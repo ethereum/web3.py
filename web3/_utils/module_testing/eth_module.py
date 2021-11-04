@@ -1901,7 +1901,8 @@ class EthModuleTest:
     def test_eth_send_raw_transaction(
         self, web3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
-        signed_tx = web3.eth.account.sign_transaction({
+        signed_tx = web3.eth.account.sign_transaction(
+            {
                 'to': '0x0000000000000000000000000000000000000000',
                 'value': 0,
                 'nonce': web3.eth.get_transaction_count(unlocked_account),

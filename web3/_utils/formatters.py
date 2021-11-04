@@ -14,8 +14,6 @@ from typing import (
 from eth_typing import (
     HexStr,
 )
-from toolz import assoc
-
 from eth_utils import (
     is_dict,
     is_list_like,
@@ -35,8 +33,6 @@ from eth_utils.toolz import (
 from web3._utils.decorators import (
     reject_recursive_repeats,
 )
-from web3.constants import DYNAMIC_FEE_TXN_PARAMS
-
 
 TReturn = TypeVar("TReturn")
 TValue = TypeVar("TValue")
@@ -126,17 +122,6 @@ def is_array_of_dicts(value: Any) -> bool:
     if not is_list_like(value):
         return False
     return all((is_dict(item) for item in value))
-
-
-@curry
-def add_param_if_missing(
-    key: Any, value: Any, input_dict: Dict[Any, Any]
-) -> Dict[Any, Any]:
-    if key not in input_dict:
-        return assoc(input_dict, key, value)
-    else:
-        return input_dict
-
 
 
 @curry

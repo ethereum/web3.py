@@ -699,8 +699,8 @@ Taking the following contract code as an example:
 
     >>> array_contract.functions.getBytes2Value().call()
     [b'b\x00']
-    >>> array_contract.functions.setBytes2Value([b'a']).transact({'gas': 420000, 'gasPrice': 21000})
-    HexBytes('0x89f9b3a00651e406c568e85c1d2336c66b4ec40ba82c5e72726fbd072230a41c')
+    >>> array_contract.functions.setBytes2Value([b'a']).transact({'gas': 420000, 'gasPrice': Web3.toWei(1, 'gwei')})
+    HexBytes('0xc5377ba25224bd763ceedc0ee455cc14fc57b23dbc6b6409f40a557a009ff5f4')
     >>> array_contract.functions.getBytes2Value().call()
     [b'a\x00']
     >>> w3.enable_strict_bytes_type_checking()
@@ -1078,8 +1078,8 @@ Event Log Object
     alice, bob = w3.eth.accounts[0], w3.eth.accounts[1]
     assert alice == '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf', alice
     assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
-    tx_hash = my_token_contract.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': 320000})
-    assert tx_hash == HexBytes('0x611aa2d5c3e51f08d0665c4529c5520ed32520d8a48ba2cf2aff3f2fce3f26e4'), tx_hash
+    tx_hash = my_token_contract.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': Web3.toWei(1, 'gwei')})
+    assert tx_hash == HexBytes('0x49e3da72a95e4074a9eaea7b438c73ca154627d317e58abeae914e3769a15044'), tx_hash
     txn_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']
@@ -1087,7 +1087,7 @@ Event Log Object
     total_supply = contract.functions.totalSupply().call()
     decimals = 10 ** 18
     assert total_supply == 1000000 * decimals, total_supply
-    tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 200000})
+    tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': Web3.toWei(1, 'gwei')})
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
 .. doctest:: createFilter
@@ -1120,15 +1120,15 @@ Event Log Object
       'blockHash': HexBytes('...'),
       'blockNumber': 3})]
      >>> transfer_filter.get_all_entries()
-     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+    [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
       'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
       'value': 10}),
       'event': 'Transfer',
       'logIndex': 0,
       'transactionIndex': 0,
-      'transactionHash': HexBytes('0x0005643c2425552308b4a28814a4dedafb5d340a811b3d2b1c019b290ffd7410'),
+      'transactionHash': HexBytes('0x9da859237e7259832b913d51cb128c8d73d1866056f7a41b52003c953e749678'),
       'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
-      'blockHash': HexBytes('...'),
+      'blockHash': HexBytes('0xc9c32c3250f77aa3fba2fea1cdeeb0397e7dc68b444747e6eb3db65708aaacd8'),
       'blockNumber': 2}),
       AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
       'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
