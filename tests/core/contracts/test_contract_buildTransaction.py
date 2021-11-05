@@ -54,7 +54,7 @@ def test_build_transaction_not_paying_to_nonpayable_function(
         'to': payable_tester_contract.address,
         'data': '0xe4cb8f5c',
         'value': 0,
-        'gasPrice': 1,
+        'gasPrice': 10 ** 9,
         'chainId': 61,
     }
 
@@ -75,7 +75,7 @@ def test_build_transaction_with_contract_no_arguments(web3, math_contract, build
         'to': math_contract.address,
         'data': '0xd09de08a',
         'value': 0,
-        'gasPrice': 1,
+        'gasPrice': 10 ** 9,
         'chainId': 61,
     }
 
@@ -86,7 +86,7 @@ def test_build_transaction_with_contract_fallback_function(web3, fallback_functi
         'to': fallback_function_contract.address,
         'data': '0x',
         'value': 0,
-        'gasPrice': 1,
+        'gasPrice': 10 ** 9,
         'chainId': 61,
     }
 
@@ -105,7 +105,7 @@ def test_build_transaction_with_contract_class_method(
         'to': math_contract.address,
         'data': '0xd09de08a',
         'value': 0,
-        'gasPrice': 1,
+        'gasPrice': 10 ** 9,
         'chainId': 61,
     }
 
@@ -119,7 +119,7 @@ def test_build_transaction_with_contract_default_account_is_set(
         'to': math_contract.address,
         'data': '0xd09de08a',
         'value': 0,
-        'gasPrice': 1,
+        'gasPrice': 10 ** 9,
         'chainId': 61,
     }
 
@@ -162,31 +162,31 @@ def test_build_transaction_with_contract_to_address_supplied_errors(web3,
         (
             {}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 0, 'gasPrice': 1, 'chainId': 61,
+                'value': 0, 'gasPrice': 10 ** 9, 'chainId': 61,
             }, False
         ),
         (
             {'gas': 800000}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 0, 'gasPrice': 1, 'chainId': 61,
+                'value': 0, 'gasPrice': 10 ** 9, 'chainId': 61,
             }, False
         ),
         (
-            {'gasPrice': 21000000000}, (5,), {}, {
+            {'gasPrice': 10 ** 9}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 0, 'gasPrice': 21000000000, 'chainId': 61,
+                'value': 0, 'gasPrice': 10 ** 9, 'chainId': 61,
             }, False
         ),
         (
             {'nonce': 7}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 0, 'gasPrice': 1, 'nonce': 7, 'chainId': 61,
+                'value': 0, 'gasPrice': 10 ** 9, 'nonce': 7, 'chainId': 61,
             }, True
         ),
         (
             {'value': 20000}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 20000, 'gasPrice': 1, 'chainId': 61,
+                'value': 20000, 'gasPrice': 10 ** 9, 'chainId': 61,
             }, False
         ),
     ),

@@ -14,6 +14,9 @@ from eth_utils import (
     to_bytes,
     to_hex,
 )
+from eth_utils.exceptions import (
+    ValidationError as EthUtilsValidationError,
+)
 from eth_utils.toolz import (
     assoc,
     dissoc,
@@ -149,7 +152,7 @@ def test_sign_and_send_raw_middleware(
         'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
         'from': from_,
         'gas': 21000,
-        'gasPrice': 0,
+        'gasPrice': 10 ** 9,
         'value': 1,
         'nonce': 0
     }
@@ -238,7 +241,7 @@ def fund_account(w3):
         (
             {
                 'gas': 21000,
-                'gasPrice': 0,
+                'gasPrice': 10 ** 9,
                 'value': 1
             },
             -1,
@@ -273,31 +276,35 @@ def fund_account(w3):
             '0x0000',
         ),
         (
-            # TODO: Once eth-tester supports dynamic fee txn params, this test should fail
-            #  and we will need to update this to appropriately test 'maxFeePerGas' and
-            #  'maxPriorityFeePerGas' as well as the transaction 'type'
+            {
+                'gas': 21000,
+                'gasPrice': 0,
+                'value': 1
+            },
+            EthUtilsValidationError,
+            MIXED_KEY_MIXED_TYPE,
+            ADDRESS_1,
+        ),
+        (
             {
                 'type': '0x2',
                 'value': 22,
                 'maxFeePerGas': 2000000000,
-                'maxPriorityFeePerGas': 1000000000,
+                'maxPriorityFeePerGas': 10 ** 9,
             },
-            ValidationError,
+            -1,
             SAME_KEY_MIXED_TYPE,
-            ADDRESS_2,
+            ADDRESS_1,
         ),
         (
-            # TODO: eth-tester support for dynamic fees message above applies to this test as well.
-            # type should default to '0x2` and send successfully based on dynamic fee transaction
-            # params being present
             {
                 'value': 22,
-                'maxFeePerGas': 2000000000,
-                'maxPriorityFeePerGas': 1000000000,
+                'maxFeePerGas': 20 ** 9,
+                'maxPriorityFeePerGas': 10 ** 9,
             },
-            ValidationError,
+            -1,
             SAME_KEY_MIXED_TYPE,
-            ADDRESS_2,
+            ADDRESS_1,
         )
     ),
     ids=[
@@ -305,6 +312,7 @@ def fund_account(w3):
         'with no set gas',
         'with mismatched sender',
         'with invalid sender',
+        'with gasPrice lower than base fee',
         'with txn type and dynamic fee txn params',
         'with dynamic fee txn params and no type',
     ]

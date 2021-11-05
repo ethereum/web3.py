@@ -58,14 +58,6 @@ def array_values(draw):
     return (matching, non_matching)
 
 
-def clear_chain_state(web3, snapshot):
-    """Clear chain state
-    Hypothesis doesn't allow function scoped fixtures to re-run between test runs
-    so chain state needs to be explicitly cleared
-    """
-    web3.provider.ethereum_tester.revert_to_snapshot(snapshot)
-
-
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 @given(vals=dynamic_values())
 @settings(max_examples=5, deadline=None)
@@ -73,13 +65,9 @@ def test_topic_filters_with_dynamic_arguments(
         web3,
         emitter,
         wait_for_transaction,
-        emitter_event_ids,
         create_filter,
         api_style,
-        tester_snapshot,
         vals):
-    clear_chain_state(web3, tester_snapshot)
-
     if api_style == 'build_filter':
         filter_builder = emitter.events.LogDynamicArgs.build_filter()
         filter_builder.args['arg0'].match_single(vals['matching'])
@@ -93,10 +81,10 @@ def test_topic_filters_with_dynamic_arguments(
     txn_hashes = [
         emitter.functions.logDynamicArgs(
             arg0=vals['matching'],
-            arg1=vals['matching']).transact({'gasPrice': 1, 'gas': 60000, 'nonce': 0}),
+            arg1=vals['matching']).transact({'gasPrice': 10 ** 9, 'gas': 60000}),
         emitter.functions.logDynamicArgs(
             arg0=vals['non_matching'][0],
-            arg1=vals['non_matching'][0]).transact({'gasPrice': 1, 'gas': 60000, 'nonce': 1})
+            arg1=vals['non_matching'][0]).transact({'gasPrice': 10 ** 9, 'gas': 60000})
     ]
 
     for txn_hash in txn_hashes:
@@ -116,14 +104,10 @@ def test_topic_filters_with_fixed_arguments(
         emitter,
         Emitter,
         wait_for_transaction,
-        emitter_event_ids,
         call_as_instance,
         create_filter,
         api_style,
-        tester_snapshot,
         vals):
-    clear_chain_state(web3, tester_snapshot)
-
     if api_style == 'build_filter':
         filter_builder = emitter.events.LogQuadrupleWithIndex.build_filter()
         filter_builder.args['arg0'].match_single(vals['matching'][0])
@@ -146,13 +130,13 @@ def test_topic_filters_with_fixed_arguments(
         arg0=vals['matching'][0],
         arg1=vals['matching'][1],
         arg2=vals['matching'][2],
-        arg3=vals['matching'][3]).transact({'gasPrice': 1, 'gas': 60000, 'nonce': 0}))
+        arg3=vals['matching'][3]).transact({'gasPrice': 10 ** 9, 'gas': 60000}))
     txn_hashes.append(emitter.functions.logQuadruple(
         which=11,
         arg0=vals['non_matching'][0],
         arg1=vals['non_matching'][1],
         arg2=vals['non_matching'][2],
-        arg3=vals['non_matching'][3]).transact({'gasPrice': 1, 'gas': 60000, 'nonce': 1}))
+        arg3=vals['non_matching'][3]).transact({'gasPrice': 10 ** 9, 'gas': 60000}))
 
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
@@ -170,14 +154,10 @@ def test_topic_filters_with_list_arguments(
         web3,
         emitter,
         wait_for_transaction,
-        emitter_event_ids,
         call_as_instance,
         create_filter,
         api_style,
-        tester_snapshot,
         vals):
-    clear_chain_state(web3, tester_snapshot)
-
     matching, non_matching = vals
 
     if api_style == 'build_filter':
@@ -187,10 +167,10 @@ def test_topic_filters_with_list_arguments(
         txn_hashes = []
         txn_hashes.append(emitter.functions.logListArgs(
             arg0=matching,
-            arg1=matching).transact({'gasPrice': 1, 'nonce': 0}))
+            arg1=matching).transact({'gasPrice': 10 ** 9}))
         txn_hashes.append(emitter.functions.logListArgs(
             arg0=non_matching,
-            arg1=non_matching).transact({'gasPrice': 1, 'nonce': 1}))
+            arg1=non_matching).transact({'gasPrice': 10 ** 9}))
 
         for txn_hash in txn_hashes:
             wait_for_transaction(web3, txn_hash)
@@ -200,6 +180,6 @@ def test_topic_filters_with_list_arguments(
         assert log_entries[0]['transactionHash'] == txn_hashes[0]
     else:
         with pytest.raises(TypeError):
-            event_filter = create_filter(emitter, [
+            create_filter(emitter, [
                 'LogListArgs', {
                     'filter': {"arg0": matching}}])
