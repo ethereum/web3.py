@@ -214,7 +214,7 @@ API_ENDPOINTS = {
         'hashrate': static_return(0),
         'chainId': static_return('0x3d'),
         'feeHistory': not_implemented,
-        'maxPriorityFeePerGas': not_implemented,
+        'maxPriorityFeePerGas': static_return(10 ** 9),
         'gasPrice': static_return(10 ** 9),  # must be >= base fee post-London
         'accounts': call_eth_tester('get_accounts'),
         'blockNumber': compose(
