@@ -71,6 +71,8 @@ TRANSACTION_KEY_MAPPINGS = {
     'block_hash': 'blockHash',
     'block_number': 'blockNumber',
     'gas_price': 'gasPrice',
+    'max_fee_per_gas': 'maxFeePerGas',
+    'max_priority_fee_per_gas': 'maxPriorityFeePerGas',
     'transaction_hash': 'transactionHash',
     'transaction_index': 'transactionIndex',
 }
@@ -115,6 +117,7 @@ BLOCK_KEY_MAPPINGS = {
     'total_difficulty': 'totalDifficulty',
     'extra_data': 'extraData',
     'gas_used': 'gasUsed',
+    'base_fee_per_gas': 'baseFeePerGas'
 }
 
 
@@ -123,6 +126,8 @@ block_key_remapper = apply_key_map(BLOCK_KEY_MAPPINGS)
 
 TRANSACTION_PARAMS_MAPPING = {
     'gasPrice': 'gas_price',
+    'maxFeePerGas': 'max_fee_per_gas',
+    'maxPriorityFeePerGas': 'max_priority_fee_per_gas',
 }
 
 
@@ -132,6 +137,8 @@ transaction_params_remapper = apply_key_map(TRANSACTION_PARAMS_MAPPING)
 TRANSACTION_PARAMS_FORMATTERS = {
     'gas': to_integer_if_hex,
     'gasPrice': to_integer_if_hex,
+    'maxFeePerGas': to_integer_if_hex,
+    'maxPriorityFeePerGas': to_integer_if_hex,
     'value': to_integer_if_hex,
     'nonce': to_integer_if_hex,
 }
