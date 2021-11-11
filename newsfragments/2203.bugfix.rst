@@ -1,0 +1,1 @@
+Issue when trying to use the latest eth-tester middleware where it did include the new transaction properties in the mapping.
