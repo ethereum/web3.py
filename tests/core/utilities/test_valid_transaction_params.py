@@ -17,6 +17,19 @@ def test_assert_valid_transaction_params_all_params():
         'gasPrice': 5000000,
         'maxFeePerGas': 2000000000,
         'maxPriorityFeePerGas': 1000000000,
+        'accessList': (
+            {
+                'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                'storageKeys': (
+                    '0x0000000000000000000000000000000000000000000000000000000000000003',
+                    '0x0000000000000000000000000000000000000000000000000000000000000007',
+                )
+            },
+            {
+                'address': '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
+                'storageKeys': ()
+            },
+        ),
         'value': 1,
         'data': '0x0',
         'nonce': 2,
@@ -54,6 +67,19 @@ FULL_TXN_DICT = {
     'value': 3,
     'nonce': 2,
     'chainId': 1,
+    'accessList': (
+        {
+            'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+            'storageKeys': (
+                '0x0000000000000000000000000000000000000000000000000000000000000003',
+                '0x0000000000000000000000000000000000000000000000000000000000000007',
+            )
+        },
+        {
+            'address': '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
+            'storageKeys': ()
+        },
+    ),
 }
 
 
@@ -117,28 +143,9 @@ def test_fill_transaction_defaults_for_all_params(web3):
         'chainId': web3.eth.chain_id,
         'data': b'',
         'gas': web3.eth.estimate_gas({}),
-        'gasPrice': web3.eth.gas_price,
+        'maxFeePerGas': (
+            web3.eth.max_priority_fee + (2 * web3.eth.get_block('latest')['baseFeePerGas'])
+        ),
+        'maxPriorityFeePerGas': web3.eth.max_priority_fee,
         'value': 0,
-    }
-
-
-def test_fill_transaction_defaults_sets_type_with_dynamic_fee_txn_params_and_no_gas_price(web3):
-    dynamic_fee_transaction = {
-        'chainId': 1,
-        'data': b'123',
-        'gas': 21000,
-        'maxFeePerGas': 2000000000,
-        'maxPriorityFeePerGas': 1000000000,
-        'value': 2,
-    }
-    dynamic_fee_transaction_type_added = fill_transaction_defaults(web3, dynamic_fee_transaction)
-
-    assert dynamic_fee_transaction_type_added == {
-        'chainId': 1,
-        'data': b'123',
-        'gas': 21000,
-        'maxFeePerGas': 2000000000,
-        'maxPriorityFeePerGas': 1000000000,
-        'type': '0x2',  # type is added and defaults to '0x2' when dynamic fee txn params present
-        'value': 2,
     }

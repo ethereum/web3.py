@@ -1,0 +1,1 @@
+Updates to core tests and contract buildTransaction() method to default to dynamic fee transactions

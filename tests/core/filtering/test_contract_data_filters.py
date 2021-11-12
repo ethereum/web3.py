@@ -70,7 +70,9 @@ def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_convers
     deploy_txn_hash = Emitter.constructor().transact({
         'from': web3.eth.coinbase,
         'gas': 1000000,
-        'gasPrice': 10 ** 9})
+        'maxFeePerGas': 10 ** 9,
+        'maxPriorityFeePerGas': 10 ** 9,
+    })
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
@@ -153,10 +155,10 @@ def test_data_filters_with_dynamic_arguments(
     txn_hashes = [
         emitter.functions.logDynamicArgs(
             arg0=vals['matching'], arg1=vals['matching']).transact(
-                {'gasPrice': 10 ** 9, 'gas': 400000}),
+                {'maxFeePerGas': 10 ** 9, 'maxPriorityFeePerGas': 10 ** 9, 'gas': 400000}),
         emitter.functions.logDynamicArgs(
             arg0=vals['non_matching'][0], arg1=vals['non_matching'][0]).transact(
-                {'gasPrice': 10 ** 9, 'gas': 400000}),
+                {'maxFeePerGas': 10 ** 9, 'maxPriorityFeePerGas': 10 ** 9, 'gas': 400000}),
     ]
 
     for txn_hash in txn_hashes:
@@ -200,13 +202,17 @@ def test_data_filters_with_fixed_arguments(
         arg0=vals['matching'][0],
         arg1=vals['matching'][1],
         arg2=vals['matching'][2],
-        arg3=vals['matching'][3]).transact({'gasPrice': 10 ** 9, 'gas': 100000}))
+        arg3=vals['matching'][3]).transact({
+            'maxFeePerGas': 10 ** 9, 'maxPriorityFeePerGas': 10 ** 9, 'gas': 100000
+        }))
     txn_hashes.append(emitter.functions.logQuadruple(
         which=5,
         arg0=vals['non_matching'][0],
         arg1=vals['non_matching'][1],
         arg2=vals['non_matching'][2],
-        arg3=vals['non_matching'][3]).transact({'gasPrice': 10 ** 9, 'gas': 100000}))
+        arg3=vals['non_matching'][3]).transact({
+            'maxFeePerGas': 10 ** 9, 'maxPriorityFeePerGas': 10 ** 9, 'gas': 100000
+        }))
 
     for txn_hash in txn_hashes:
         wait_for_transaction(web3, txn_hash)
@@ -239,16 +245,16 @@ def test_data_filters_with_list_arguments(
         txn_hashes = []
         txn_hashes.append(emitter.functions.logListArgs(
             arg0=matching,
-            arg1=matching).transact({'gasPrice': 10 ** 9}))
+            arg1=matching).transact({'maxFeePerGas': 10 ** 9, 'maxPriorityFeePerGas': 10 ** 9}))
         txn_hashes.append(emitter.functions.logListArgs(
             arg0=non_matching,
-            arg1=non_matching).transact({'gasPrice': 10 ** 9}))
+            arg1=non_matching).transact({'maxFeePerGas': 10 ** 9, 'maxPriorityFeePerGas': 10 ** 9}))
         txn_hashes.append(emitter.functions.logListArgs(
             arg0=non_matching,
-            arg1=matching).transact({'gasPrice': 10 ** 9}))
+            arg1=matching).transact({'maxFeePerGas': 10 ** 9, 'maxPriorityFeePerGas': 10 ** 9}))
         txn_hashes.append(emitter.functions.logListArgs(
             arg0=matching,
-            arg1=non_matching).transact({'gasPrice': 10 ** 9}))
+            arg1=non_matching).transact({'maxFeePerGas': 10 ** 9, 'maxPriorityFeePerGas': 10 ** 9}))
 
         for txn_hash in txn_hashes:
             wait_for_transaction(web3, txn_hash)

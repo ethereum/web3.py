@@ -60,6 +60,14 @@ Wei = NewType('Wei', int)
 Formatters = Dict[RPCEndpoint, Callable[..., Any]]
 
 
+class AccessListEntry(TypedDict):
+    address: HexStr
+    storageKeys: Sequence[HexStr]
+
+
+AccessList = NewType("AccessList", Sequence[AccessListEntry])
+
+
 # todo: move these to eth_typing once web3 is type hinted
 class ABIEventParams(TypedDict, total=False):
     indexed: bool
@@ -167,6 +175,7 @@ class LogReceipt(TypedDict):
 
 # syntax b/c "from" keyword not allowed w/ class construction
 TxData = TypedDict("TxData", {
+    "accessList": AccessList,
     "blockHash": HexBytes,
     "blockNumber": BlockNumber,
     "chainId": int,
