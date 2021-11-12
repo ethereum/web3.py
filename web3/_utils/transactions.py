@@ -44,13 +44,14 @@ from web3.types import (
 )
 
 TX_PARAM_LITERALS = Literal['type', 'from', 'to', 'gas', 'maxFeePerGas', 'maxPriorityFeePerGas',
-                            'gasPrice', 'value', 'data', 'nonce', 'chainId']
+                            'gasPrice', 'value', 'data', 'nonce', 'chainId', 'accessList']
 
 VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
     'type',
     'from',
     'to',
     'gas',
+    'accessList',
     'maxFeePerGas',
     'maxPriorityFeePerGas',
     'gasPrice',
@@ -65,6 +66,11 @@ TRANSACTION_DEFAULTS = {
     'data': b'',
     'gas': lambda web3, tx: web3.eth.estimate_gas(tx),
     'gasPrice': lambda web3, tx: web3.eth.generate_gas_price(tx) or web3.eth.gas_price,
+    'maxFeePerGas': (
+        lambda web3, tx:
+        web3.eth.max_priority_fee + (2 * web3.eth.get_block('latest')['baseFeePerGas'])
+    ),
+    'maxPriorityFeePerGas': lambda web3, tx: web3.eth.max_priority_fee,
     'chainId': lambda web3, tx: web3.eth.chain_id,
 }
 
@@ -90,27 +96,33 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
     """
     if web3 is None, fill as much as possible while offline
     """
+    strategy_based_gas_price = web3.eth.generate_gas_price(transaction)
+    is_dynamic_fee_transaction = (
+        not strategy_based_gas_price
+        and (
+            'gasPrice' not in transaction  # default to dynamic fee transaction
+            or any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction)
+        )
+    )
+
     defaults = {}
     for key, default_getter in TRANSACTION_DEFAULTS.items():
         if key not in transaction:
-            if key == 'gasPrice' and any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction):
-                # if dynamic fee txn params present, do not set a default 'gasPrice' if missing
+            if (
+                is_dynamic_fee_transaction and key == 'gasPrice'
+                or not is_dynamic_fee_transaction and key in DYNAMIC_FEE_TXN_PARAMS
+            ):
+                # do not set default max fees if legacy txn or gas price if dynamic fee txn
                 continue
 
             if callable(default_getter):
-                if web3 is not None:
-                    default_val = default_getter(web3, transaction)
-                else:
-                    raise ValueError("You must specify %s in the transaction" % key)
-
+                if web3 is None:
+                    raise ValueError("You must specify a '%s' value in the transaction" % key)
+                default_val = default_getter(web3, transaction)
             else:
                 default_val = default_getter
+
             defaults[key] = default_val
-
-    if 'type' not in transaction and any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction):
-        # default transaction type to '2' if dynamic fee txn params are present
-        defaults['type'] = '0x2'
-
     return merge(defaults, transaction)
 
 
@@ -172,11 +184,11 @@ def extract_valid_transaction_params(transaction_params: TxData) -> TxParams:
         for key in VALID_TRANSACTION_PARAMS
         if key in transaction_params
     })
-    # There is always a gasPrice now on eth_getTransaction call, even for dynamic fee transactions.
-    # For dynamic fee transactions, we need to pull the gasPrice value back out of the extracted
-    # params if it is equal to the expected value (maxFeePerGas). If we don't, the modified
-    # transaction will include a gasPrice as well as dynamic fee values in the
-    # eth_sendTransaction call and cause a conflict.
+    # There is always a gasPrice now on eth_getTransaction call for pending transactions, including
+    # dynamic fee transactions. For dynamic fee transactions, we need to pull the gasPrice value
+    # back out of the extracted params if it is equal to the expected value (maxFeePerGas). If
+    # we don't, the modified transaction will include a gasPrice as well as dynamic fee values in
+    # the eth_sendTransaction call and cause a conflict.
     if all_in_dict(DYNAMIC_FEE_TXN_PARAMS, extracted_params):
         if extracted_params['gasPrice'] == extracted_params['maxFeePerGas']:
             extracted_params.pop('gasPrice')

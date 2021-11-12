@@ -76,7 +76,9 @@ def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_convers
     deploy_txn_hash = Emitter.constructor().transact({
         'from': web3.eth.coinbase,
         'gas': 1000000,
-        'gasPrice': 10 ** 9})
+        'maxFeePerGas': 10 ** 9,
+        'maxPriorityFeePerGas': 10 ** 9,
+    })
     deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 

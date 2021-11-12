@@ -293,6 +293,32 @@ def test_eth_account_sign(acct,
         (
             {
                 "gas": 100000,
+                "gasPrice": 1000000000,
+                "data": "0x5544",
+                "nonce": "0x2",
+                "to": "0x96216849c49358B10257cb55b28eA603c874b05E",
+                "value": "0x5af3107a4000",
+                "type": "0x1",
+                "accessList": (
+                    {
+                        "address": "0x0000000000000000000000000000000000000001",
+                        "storageKeys": (
+                            "0x0100000000000000000000000000000000000000000000000000000000000000",
+                        ),
+                    },
+                ),
+                "chainId": 1,
+            },
+            '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
+            HexBytes('0x01f8a70102843b9aca00830186a09496216849c49358b10257cb55b28ea603c874b05e865af3107a4000825544f838f7940000000000000000000000000000000000000001e1a0010000000000000000000000000000000000000000000000000000000000000080a059a827f04246489aca139510f2f82896fd5bd1d34f05228b3fe0c60141db4246a07a28a925eae2e3ee173cf691de2737cbff9160fc527ca4305740a31f154758c5'),  # noqa: 501
+            HexBytes('0x5daf67cf0dd95f338e98b7b8ee7635f3667b7127be8f42011536c239f8ed4f50'),
+            40552949476267726331782755436085615371483644858950895384477411974599262552646,
+            55254008827136682571969715431199989606887296450225146219777298167488873715909,
+            0,
+        ),
+        (
+            {
+                "gas": 100000,
                 "maxFeePerGas": 2000000000,
                 "maxPriorityFeePerGas": 2000000000,
                 "data": "0x5544",
@@ -337,7 +363,13 @@ def test_eth_account_sign(acct,
             0,
         )
     ),
-    ids=['web3js_example', '31byte_r_and_s', 'dynamic_fee_txn_example', 'dynamic_fee_txn_hex_fees'],
+    ids=[
+        'web3js_example',
+        '31byte_r_and_s',
+        'access_list_txn',
+        'dynamic_fee_txn',
+        'dynamic_fee_txn_hex_fees',
+    ],
 )
 def test_eth_account_sign_transaction(acct, txn, private_key, expected_raw_tx, tx_hash, r, s, v):
     signed = acct.sign_transaction(txn, private_key)
