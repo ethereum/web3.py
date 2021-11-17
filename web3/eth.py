@@ -641,7 +641,7 @@ class Eth(BaseEth, Module):
     `eth_getRawTransactionByBlockHashAndIndex`
     `eth_getRawTransactionByBlockNumberAndIndex`
     """
-    get_raw_transaction_by_block: Method[Callable[[BlockIdentifier], int]] = Method(
+    get_raw_transaction_by_block: Method[Callable[[BlockIdentifier, int], HexBytes]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getRawTransactionByBlockNumberAndIndex,
             if_hash=RPC.eth_getRawTransactionByBlockHashAndIndex,

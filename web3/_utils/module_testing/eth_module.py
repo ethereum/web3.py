@@ -2576,3 +2576,24 @@ class EthModuleTest:
     ) -> None:
         with pytest.raises(TransactionNotFound, match=f"Transaction with hash: '{UNKNOWN_HASH}'"):
             web3.eth.get_raw_transaction(UNKNOWN_HASH)
+
+    def test_eth_get_raw_transaction_by_block(
+        self, web3: "Web3", mined_txn_hash: HexStr
+    ) -> None:
+        # eth_getRawTransactionByBlockNumberAndIndex: block identifier
+        raw_transaction = web3.eth.get_raw_transaction_by_block('latest', 0)
+        assert is_bytes(raw_transaction)
+
+        latest_block = web3.eth.get_block('latest')
+
+        # eth_getRawTransactionByBlockNumberAndIndex: block number
+        latest_block_number = latest_block['number']
+        assert is_integer(latest_block_number)
+        raw_transaction = web3.eth.get_raw_transaction_by_block(latest_block_number, 0)
+        assert is_bytes(raw_transaction)
+
+        # eth_getRawTransactionByBlockHashAndIndex: block hash
+        latest_block_hash = latest_block['hash']
+        assert is_bytes(latest_block_hash)
+        raw_transaction = web3.eth.get_raw_transaction_by_block(latest_block_hash, 0)
+        assert is_bytes(raw_transaction)

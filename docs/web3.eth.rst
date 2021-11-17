@@ -617,7 +617,8 @@ The following methods are available on the ``web3.eth`` namespace.
     ``eth_getTransactionByBlockNumberAndIndex`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
     'pending'``, otherwise delegates to
-    ``eth_getTransactionByBlockHashAndIndex``. If the transaction has not yet been mined throws :class:`web3.exceptions.TransactionNotFound`.
+    ``eth_getTransactionByBlockHashAndIndex``.
+    If a transaction is not found at specified arguments, throws :class:`web3.exceptions.TransactionNotFound`.
 
     .. code-block:: python
 
@@ -658,6 +659,28 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. warning:: Deprecated: This method is deprecated in favor of
       :attr:`~web3.eth.Eth.get_transaction_by_block`
+
+.. py:method:: Eth.get_raw_transaction_by_block(block_identifier, transaction_index)
+
+    * Delegates to ``eth_getRawTransactionByBlockNumberAndIndex`` or
+      ``eth_getRawTransactionByBlockHashAndIndex`` RPC Methods
+
+    Returns the raw transaction at the index specified by ``transaction_index``
+    from the block specified by ``block_identifier``.  Delegates to
+    ``eth_getRawTransactionByBlockNumberAndIndex`` if ``block_identifier`` is an
+    integer or one of the predefined block parameters ``'latest', 'earliest',
+    'pending'``, otherwise delegates to
+    ``eth_getRawTransactionByBlockHashAndIndex``.
+    If a transaction is not found at specified arguments, throws :class:`web3.exceptions.TransactionNotFound`.
+
+    .. code-block:: python
+
+        >>> web3.eth.get_raw_transaction_by_block('latest', 0)
+        HexBytes('0x02f87582053901843b9aca00843b9aca008301d8a894e2dfcfa89a45abdc3de91f7a2844b276b8451d2e888ac7230489e8000080c001a028dcd2e11682288c00237f377280bc6a478a6b27e9c2d745262152add1b1dfcba04e7a33b7ce2a37fc3cd3af7bdc7d7beff721664d56508defa188df35afd77c2c')
+        >>> web3.eth.get_raw_transaction_by_block(2, 0)
+        HexBytes('0x02f87582053901843b9aca00843b9aca008301d8a894e2dfcfa89a45abdc3de91f7a2844b276b8451d2e888ac7230489e8000080c001a028dcd2e11682288c00237f377280bc6a478a6b27e9c2d745262152add1b1dfcba04e7a33b7ce2a37fc3cd3af7bdc7d7beff721664d56508defa188df35afd77c2c')
+        >>> web3.eth.get_raw_transaction_by_block('0xca609fb606a04ce6aaec76415cd0b9d8c2bc83ad2a4d17db7fd403ee7d97bf40', 0)
+        HexBytes('0x02f87582053901843b9aca00843b9aca008301d8a894e2dfcfa89a45abdc3de91f7a2844b276b8451d2e888ac7230489e8000080c001a028dcd2e11682288c00237f377280bc6a478a6b27e9c2d745262152add1b1dfcba04e7a33b7ce2a37fc3cd3af7bdc7d7beff721664d56508defa188df35afd77c2c')
 
 .. py:method:: Eth.wait_for_transaction_receipt(transaction_hash, timeout=120, poll_latency=0.1)
 

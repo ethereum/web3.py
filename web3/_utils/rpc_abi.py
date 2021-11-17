@@ -63,10 +63,12 @@ class RPC:
     eth_getStorageAt = RPCEndpoint("eth_getStorageAt")
     eth_getTransactionByBlockHashAndIndex = RPCEndpoint("eth_getTransactionByBlockHashAndIndex")
     eth_getTransactionByBlockNumberAndIndex = RPCEndpoint("eth_getTransactionByBlockNumberAndIndex")
-    eth_getRawTransactionByBlockHashAndIndex = \
-        RPCEndpoint("eth_getRawTransactionByBlockHashAndIndex")
-    eth_getRawTransactionByBlockNumberAndIndex = \
-        RPCEndpoint("eth_getRawTransactionByBlockNumberAndIndex")
+    eth_getRawTransactionByBlockHashAndIndex = RPCEndpoint(
+        "eth_getRawTransactionByBlockHashAndIndex"
+    )
+    eth_getRawTransactionByBlockNumberAndIndex = RPCEndpoint(
+        "eth_getRawTransactionByBlockNumberAndIndex"
+    )
     eth_getTransactionByHash = RPCEndpoint("eth_getTransactionByHash")
     eth_getTransactionCount = RPCEndpoint("eth_getTransactionCount")
     eth_getTransactionReceipt = RPCEndpoint("eth_getTransactionReceipt")
