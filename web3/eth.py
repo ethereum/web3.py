@@ -155,6 +155,19 @@ class BaseEth(Module):
         mungers=[default_root_munger]
     )
 
+    """
+    `eth_getRawTransactionByBlockHashAndIndex`
+    `eth_getRawTransactionByBlockNumberAndIndex`
+    """
+    _get_raw_transaction_by_block: Method[Callable[[BlockIdentifier, int], HexBytes]] = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
+            if_predefined=RPC.eth_getRawTransactionByBlockNumberAndIndex,
+            if_hash=RPC.eth_getRawTransactionByBlockHashAndIndex,
+            if_number=RPC.eth_getRawTransactionByBlockNumberAndIndex,
+        ),
+        mungers=[default_root_munger]
+    )
+
     def _generate_gas_price(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
         if self.gasPriceStrategy:
             return self.gasPriceStrategy(self.web3, transaction_params)
@@ -286,6 +299,12 @@ class AsyncEth(BaseEth):
     async def get_raw_transaction(self, transaction_hash: _Hash32) -> TxData:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._get_raw_transaction(transaction_hash)  # type: ignore
+
+    async def get_raw_transaction_by_block(
+        self, block_identifier: BlockIdentifier, index: int
+    ) -> HexBytes:
+        # types ignored b/c mypy conflict with BlockingEth properties
+        return await self._get_raw_transaction_by_block(block_identifier, index)  # type: ignore
 
     async def generate_gas_price(
         self, transaction_params: Optional[TxParams] = None
@@ -619,6 +638,11 @@ class Eth(BaseEth, Module):
     def get_raw_transaction(self, transaction_hash: _Hash32) -> _Hash32:
         return self._get_raw_transaction(transaction_hash)
 
+    def get_raw_transaction_by_block(
+        self, block_identifier: BlockIdentifier, index: int
+    ) -> HexBytes:
+        return self._get_raw_transaction_by_block(block_identifier, index)
+
     def getTransactionFromBlock(
         self, block_identifier: BlockIdentifier, transaction_index: int
     ) -> NoReturn:
@@ -633,19 +657,6 @@ class Eth(BaseEth, Module):
             if_predefined=RPC.eth_getTransactionByBlockNumberAndIndex,
             if_hash=RPC.eth_getTransactionByBlockHashAndIndex,
             if_number=RPC.eth_getTransactionByBlockNumberAndIndex,
-        ),
-        mungers=[default_root_munger]
-    )
-
-    """
-    `eth_getRawTransactionByBlockHashAndIndex`
-    `eth_getRawTransactionByBlockNumberAndIndex`
-    """
-    get_raw_transaction_by_block: Method[Callable[[BlockIdentifier, int], HexBytes]] = Method(
-        method_choice_depends_on_args=select_method_for_block_identifier(
-            if_predefined=RPC.eth_getRawTransactionByBlockNumberAndIndex,
-            if_hash=RPC.eth_getRawTransactionByBlockHashAndIndex,
-            if_number=RPC.eth_getRawTransactionByBlockNumberAndIndex,
         ),
         mungers=[default_root_munger]
     )

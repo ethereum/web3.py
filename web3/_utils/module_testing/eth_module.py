@@ -8,6 +8,7 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     Sequence,
+    Union,
     cast,
 )
 
@@ -36,6 +37,9 @@ from hexbytes import (
 
 from web3._utils.ens import (
     ens_addresses,
+)
+from web3._utils.method_formatters import (
+    to_hex_if_integer,
 )
 from web3.exceptions import (
     BlockNotFound,
@@ -473,11 +477,71 @@ class AsyncEthModuleTest:
         assert is_bytes(raw_transaction)
 
     @pytest.mark.asyncio
-    async def test_eth_get_raw_transaction_raises_error(
-        self, web3: "Web3", mined_txn_hash: HexStr
-    ) -> None:
+    async def test_eth_get_raw_transaction_raises_error(self, async_w3: "Web3") -> None:
         with pytest.raises(TransactionNotFound, match=f"Transaction with hash: '{UNKNOWN_HASH}'"):
-            web3.eth.get_raw_transaction(UNKNOWN_HASH)
+            await async_w3.eth.get_raw_transaction(UNKNOWN_HASH)  # type: ignore
+
+    @pytest.mark.asyncio
+    async def test_eth_get_raw_transaction_by_block(
+        self,
+        async_w3: "Web3",
+        block_with_txn: BlockData,
+        unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        # eth_getRawTransactionByBlockNumberAndIndex: block identifier
+        # send a txn to make sure pending block has at least one txn
+        await async_w3.eth.send_transaction(  # type: ignore
+            {
+                'from': unlocked_account_dual_type,
+                'to': unlocked_account_dual_type,
+                'value': Wei(1),
+            }
+        )
+        pending_block = await async_w3.eth.get_block('pending')  # type: ignore
+        last_pending_txn_index = len(pending_block['transactions']) - 1
+        raw_txn = await async_w3.eth.get_raw_transaction_by_block(  # type: ignore
+            'pending', last_pending_txn_index
+        )
+        assert is_bytes(raw_txn)
+
+        # eth_getRawTransactionByBlockNumberAndIndex: block number
+        block_with_txn_number = block_with_txn['number']
+        raw_transaction = await async_w3.eth.get_raw_transaction_by_block(  # type: ignore
+            block_with_txn_number, 0
+        )
+        assert is_bytes(raw_transaction)
+
+        # eth_getRawTransactionByBlockHashAndIndex: block hash
+        block_with_txn_hash = block_with_txn['hash']
+        raw_transaction = await async_w3.eth.get_raw_transaction_by_block(  # type: ignore
+            block_with_txn_hash, 0
+        )
+        assert is_bytes(raw_transaction)
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('unknown_block_num_or_hash', (1234567899999, UNKNOWN_HASH))
+    async def test_eth_get_raw_transaction_by_block_raises_error(
+        self, async_w3: "Web3", unknown_block_num_or_hash: Union[int, HexBytes]
+    ) -> None:
+        with pytest.raises(TransactionNotFound, match=(
+            f"Transaction index: 0 on block id: {to_hex_if_integer(unknown_block_num_or_hash)!r} "
+            f"not found."
+        )):
+            await async_w3.eth.get_raw_transaction_by_block(    # type: ignore
+                unknown_block_num_or_hash, 0
+            )
+
+    @pytest.mark.asyncio
+    async def test_eth_get_raw_transaction_by_block_raises_error_block_identifier(
+        self, async_w3: "Web3"
+    ) -> None:
+        unknown_identifier = "unknown"
+        with pytest.raises(
+            ValueError, match=(
+                f"Value did not match any of the recognized block identifiers: {unknown_identifier}"
+            )
+        ):
+            await async_w3.eth.get_raw_transaction_by_block(unknown_identifier, 0)  # type: ignore
 
     @pytest.mark.asyncio
     async def test_eth_get_balance(self, async_w3: "Web3") -> None:
@@ -2571,29 +2635,59 @@ class EthModuleTest:
         raw_transaction = web3.eth.get_raw_transaction(mined_txn_hash)
         assert is_bytes(raw_transaction)
 
-    def test_eth_get_raw_transaction_raises_error(
-        self, web3: "Web3", mined_txn_hash: HexStr
-    ) -> None:
+    def test_eth_get_raw_transaction_raises_error(self, web3: "Web3") -> None:
         with pytest.raises(TransactionNotFound, match=f"Transaction with hash: '{UNKNOWN_HASH}'"):
             web3.eth.get_raw_transaction(UNKNOWN_HASH)
 
     def test_eth_get_raw_transaction_by_block(
-        self, web3: "Web3", mined_txn_hash: HexStr
+        self, web3: "Web3",
+        unlocked_account_dual_type: ChecksumAddress,
+        block_with_txn: BlockData,
     ) -> None:
         # eth_getRawTransactionByBlockNumberAndIndex: block identifier
-        raw_transaction = web3.eth.get_raw_transaction_by_block('latest', 0)
+        # send a txn to make sure pending block has at least one txn
+        web3.eth.send_transaction(
+            {
+                'from': unlocked_account_dual_type,
+                'to': unlocked_account_dual_type,
+                'value': Wei(1),
+            }
+        )
+        last_pending_txn_index = len(web3.eth.get_block('pending')['transactions']) - 1
+        raw_transaction = web3.eth.get_raw_transaction_by_block('pending', last_pending_txn_index)
         assert is_bytes(raw_transaction)
 
-        latest_block = web3.eth.get_block('latest')
-
         # eth_getRawTransactionByBlockNumberAndIndex: block number
-        latest_block_number = latest_block['number']
-        assert is_integer(latest_block_number)
-        raw_transaction = web3.eth.get_raw_transaction_by_block(latest_block_number, 0)
+        block_with_txn_number = block_with_txn['number']
+        assert is_integer(block_with_txn_number)
+        raw_transaction = web3.eth.get_raw_transaction_by_block(block_with_txn_number, 0)
         assert is_bytes(raw_transaction)
 
         # eth_getRawTransactionByBlockHashAndIndex: block hash
-        latest_block_hash = latest_block['hash']
-        assert is_bytes(latest_block_hash)
-        raw_transaction = web3.eth.get_raw_transaction_by_block(latest_block_hash, 0)
+        block_with_txn_hash = block_with_txn['hash']
+        assert is_bytes(block_with_txn_hash)
+        raw_transaction = web3.eth.get_raw_transaction_by_block(block_with_txn_hash, 0)
         assert is_bytes(raw_transaction)
+
+    @pytest.mark.parametrize('unknown_block_num_or_hash', (1234567899999, UNKNOWN_HASH))
+    def test_eth_get_raw_transaction_by_block_raises_error(
+        self, web3: "Web3", unknown_block_num_or_hash: Union[int, HexBytes]
+    ) -> None:
+        with pytest.raises(
+            TransactionNotFound, match=(
+                f"Transaction index: 0 on block id: "
+                f"{to_hex_if_integer(unknown_block_num_or_hash)!r} not found."
+            )
+        ):
+            web3.eth.get_raw_transaction_by_block(unknown_block_num_or_hash, 0)
+
+    def test_eth_get_raw_transaction_by_block_raises_error_block_identifier(
+        self, web3: "Web3"
+    ) -> None:
+        unknown_identifier = "unknown"
+        with pytest.raises(
+            ValueError, match=(
+                f"Value did not match any of the recognized block identifiers: {unknown_identifier}"
+            )
+        ):
+            web3.eth.get_raw_transaction_by_block(unknown_identifier, 0)  # type: ignore
