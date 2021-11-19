@@ -149,219 +149,155 @@ CONTRACT_EMITTER_RUNTIME = (
 
 CONTRACT_EMITTER_ABI = [
     {
-        "constant": False,
+        "anonymous": False,
         "inputs": [
             {
-                "name": "v",
-                "type": "string"
-            }
-        ],
-        "name": "logString",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": False,
-        "inputs": [
-            {
-                "name": "which",
-                "type": "uint8"
-            }
-        ],
-        "name": "logNoArgs",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": False,
-        "inputs": [
-            {
-                "name": "which",
-                "type": "uint8"
-            },
-            {
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "name": "arg1",
-                "type": "uint256"
-            },
-            {
-                "name": "arg2",
-                "type": "uint256"
-            },
-            {
-                "name": "arg3",
-                "type": "uint256"
-            }
-        ],
-        "name": "logQuadruple",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": False,
-        "inputs": [
-            {
-                "name": "which",
-                "type": "uint8"
-            },
-            {
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "name": "arg1",
-                "type": "uint256"
-            }
-        ],
-        "name": "logDouble",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": False,
-        "inputs": [
-            {
-                "name": "arg0",
-                "type": "bytes2[]"
-            },
-            {
-                "name": "arg1",
-                "type": "bytes2[]"
-            }
-        ],
-        "name": "logListArgs",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": False,
-        "inputs": [
-            {
-                "name": "which",
-                "type": "uint8"
-            },
-            {
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "name": "arg1",
-                "type": "uint256"
-            },
-            {
-                "name": "arg2",
-                "type": "uint256"
-            }
-        ],
-        "name": "logTriple",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": False,
-        "inputs": [
-            {
-                "name": "which",
-                "type": "uint8"
-            },
-            {
-                "name": "arg0",
-                "type": "uint256"
-            }
-        ],
-        "name": "logSingle",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": False,
-        "inputs": [
-            {
-                "name": "arg0",
-                "type": "string"
-            },
-            {
-                "name": "arg1",
-                "type": "string"
-            }
-        ],
-        "name": "logDynamicArgs",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": False,
-        "inputs": [
-            {
+                "indexed": True,
+                "internalType": "address",
                 "name": "arg0",
                 "type": "address"
             },
             {
+                "indexed": False,
+                "internalType": "address",
                 "name": "arg1",
                 "type": "address"
             }
         ],
-        "name": "logAddressIndexedArgs",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
+        "name": "LogAddressIndexed",
+        "type": "event"
     },
     {
-        "constant": False,
+        "anonymous": False,
         "inputs": [
             {
-                "name": "v",
-                "type": "bytes"
-            }
-        ],
-        "name": "logBytes",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": False,
-        "inputs": [
-            {
+                "indexed": False,
+                "internalType": "address",
                 "name": "arg0",
                 "type": "address"
             },
             {
+                "indexed": False,
+                "internalType": "address",
                 "name": "arg1",
                 "type": "address"
             }
         ],
-        "name": "logAddressNotIndexedArgs",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
+        "name": "LogAddressNotIndexed",
+        "type": "event"
     },
     {
         "anonymous": True,
         "inputs": [],
         "name": "LogAnonymous",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": False,
+                "internalType": "bytes",
+                "name": "v",
+                "type": "bytes"
+            }
+        ],
+        "name": "LogBytes",
+        "type": "event"
+    },
+    {
+        "anonymous": True,
+        "inputs": [
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "arg0",
+                "type": "uint256"
+            },
+            {
+                "indexed": True,
+                "internalType": "uint256",
+                "name": "arg1",
+                "type": "uint256"
+            }
+        ],
+        "name": "LogDoubleAnonymous",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "arg0",
+                "type": "uint256"
+            },
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "arg1",
+                "type": "uint256"
+            }
+        ],
+        "name": "LogDoubleArg",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "arg0",
+                "type": "uint256"
+            },
+            {
+                "indexed": True,
+                "internalType": "uint256",
+                "name": "arg1",
+                "type": "uint256"
+            }
+        ],
+        "name": "LogDoubleWithIndex",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": True,
+                "internalType": "string",
+                "name": "arg0",
+                "type": "string"
+            },
+            {
+                "indexed": False,
+                "internalType": "string",
+                "name": "arg1",
+                "type": "string"
+            }
+        ],
+        "name": "LogDynamicArgs",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": True,
+                "internalType": "bytes2[]",
+                "name": "arg0",
+                "type": "bytes2[]"
+            },
+            {
+                "indexed": False,
+                "internalType": "bytes2[]",
+                "name": "arg1",
+                "type": "bytes2[]"
+            }
+        ],
+        "name": "LogListArgs",
         "type": "event"
     },
     {
@@ -375,72 +311,25 @@ CONTRACT_EMITTER_ABI = [
         "inputs": [
             {
                 "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            }
-        ],
-        "name": "LogSingleArg",
-        "type": "event"
-    },
-    {
-        "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
+                "internalType": "uint256",
                 "name": "arg0",
                 "type": "uint256"
             },
             {
                 "indexed": False,
-                "name": "arg1",
-                "type": "uint256"
-            }
-        ],
-        "name": "LogDoubleArg",
-        "type": "event"
-    },
-    {
-        "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "indexed": False,
+                "internalType": "uint256",
                 "name": "arg1",
                 "type": "uint256"
             },
             {
                 "indexed": False,
-                "name": "arg2",
-                "type": "uint256"
-            }
-        ],
-        "name": "LogTripleArg",
-        "type": "event"
-    },
-    {
-        "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "uint256"
-            },
-            {
-                "indexed": False,
+                "internalType": "uint256",
                 "name": "arg2",
                 "type": "uint256"
             },
             {
                 "indexed": False,
+                "internalType": "uint256",
                 "name": "arg3",
                 "type": "uint256"
             }
@@ -453,35 +342,30 @@ CONTRACT_EMITTER_ABI = [
         "inputs": [
             {
                 "indexed": False,
-                "name": "v",
-                "type": "string"
-            }
-        ],
-        "name": "LogString",
-        "type": "event"
-    },
-    {
-        "anonymous": False,
-        "inputs": [
+                "internalType": "uint256",
+                "name": "arg0",
+                "type": "uint256"
+            },
             {
                 "indexed": False,
-                "name": "v",
-                "type": "bytes"
-            }
-        ],
-        "name": "LogBytes",
-        "type": "event"
-    },
-    {
-        "anonymous": False,
-        "inputs": [
+                "internalType": "uint256",
+                "name": "arg1",
+                "type": "uint256"
+            },
             {
                 "indexed": True,
-                "name": "arg0",
+                "internalType": "uint256",
+                "name": "arg2",
+                "type": "uint256"
+            },
+            {
+                "indexed": True,
+                "internalType": "uint256",
+                "name": "arg3",
                 "type": "uint256"
             }
         ],
-        "name": "LogSingleWithIndex",
+        "name": "LogQuadrupleWithIndex",
         "type": "event"
     },
     {
@@ -489,6 +373,7 @@ CONTRACT_EMITTER_ABI = [
         "inputs": [
             {
                 "indexed": True,
+                "internalType": "uint256",
                 "name": "arg0",
                 "type": "uint256"
             }
@@ -501,33 +386,25 @@ CONTRACT_EMITTER_ABI = [
         "inputs": [
             {
                 "indexed": False,
+                "internalType": "uint256",
                 "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "indexed": True,
-                "name": "arg1",
                 "type": "uint256"
             }
         ],
-        "name": "LogDoubleWithIndex",
+        "name": "LogSingleArg",
         "type": "event"
     },
     {
-        "anonymous": True,
+        "anonymous": False,
         "inputs": [
             {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
                 "indexed": True,
-                "name": "arg1",
+                "internalType": "uint256",
+                "name": "arg0",
                 "type": "uint256"
             }
         ],
-        "name": "LogDoubleAnonymous",
+        "name": "LogSingleWithIndex",
         "type": "event"
     },
     {
@@ -535,16 +412,88 @@ CONTRACT_EMITTER_ABI = [
         "inputs": [
             {
                 "indexed": False,
+                "internalType": "string",
+                "name": "v",
+                "type": "string"
+            }
+        ],
+        "name": "LogString",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "arg0",
+                "type": "uint256"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "a",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "b",
+                        "type": "uint256"
+                    }
+                ],
+                "indexed": False,
+                "internalType": "struct Emitter.TestTuple",
+                "name": "arg1",
+                "type": "tuple"
+            }
+        ],
+        "name": "LogStructArgs",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "arg0",
+                "type": "uint256"
+            },
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "arg1",
+                "type": "uint256"
+            },
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "arg2",
+                "type": "uint256"
+            }
+        ],
+        "name": "LogTripleArg",
+        "type": "event"
+    },
+    {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": False,
+                "internalType": "uint256",
                 "name": "arg0",
                 "type": "uint256"
             },
             {
                 "indexed": True,
+                "internalType": "uint256",
                 "name": "arg1",
                 "type": "uint256"
             },
             {
                 "indexed": True,
+                "internalType": "uint256",
                 "name": "arg2",
                 "type": "uint256"
             }
@@ -553,102 +502,161 @@ CONTRACT_EMITTER_ABI = [
         "type": "event"
     },
     {
-        "anonymous": False,
         "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "uint256"
-            },
-            {
-                "indexed": True,
-                "name": "arg2",
-                "type": "uint256"
-            },
-            {
-                "indexed": True,
-                "name": "arg3",
-                "type": "uint256"
-            }
+            { "internalType": "address", "name": "arg0", "type": "address" },
+            { "internalType": "address", "name": "arg1", "type": "address" }
         ],
-        "name": "LogQuadrupleWithIndex",
-        "type": "event"
+        "name": "logAddressIndexedArgs",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        "anonymous": False,
         "inputs": [
-            {
-                "indexed": True,
-                "name": "arg0",
-                "type": "string"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "string"
-            }
+            { "internalType": "address", "name": "arg0", "type": "address" },
+            { "internalType": "address", "name": "arg1", "type": "address" }
         ],
-        "name": "LogDynamicArgs",
-        "type": "event"
+        "name": "logAddressNotIndexedArgs",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        "anonymous": False,
-        "inputs": [
-            {
-                "indexed": True,
-                "name": "arg0",
-                "type": "bytes2[]"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "bytes2[]"
-            }
-        ],
-        "name": "LogListArgs",
-        "type": "event"
+        "inputs": [{ "internalType": "bytes", "name": "v", "type": "bytes" }],
+        "name": "logBytes",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        "anonymous": False,
         "inputs": [
             {
-                "indexed": True,
-                "name": "arg0",
-                "type": "address"
+                "internalType": "enum Emitter.WhichEvent",
+                "name": "which",
+                "type": "uint8"
             },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "address"
-            }
+            { "internalType": "uint256", "name": "arg0", "type": "uint256" },
+            { "internalType": "uint256", "name": "arg1", "type": "uint256" }
         ],
-        "name": "LogAddressIndexed",
-        "type": "event"
+        "name": "logDouble",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
-        "anonymous": False,
+        "inputs": [
+            { "internalType": "string", "name": "arg0", "type": "string" },
+            { "internalType": "string", "name": "arg1", "type": "string" }
+        ],
+        "name": "logDynamicArgs",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "bytes2[]", "name": "arg0", "type": "bytes2[]" },
+            { "internalType": "bytes2[]", "name": "arg1", "type": "bytes2[]" }
+        ],
+        "name": "logListArgs",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
-                "indexed": False,
-                "name": "arg0",
-                "type": "address"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "address"
+                "internalType": "enum Emitter.WhichEvent",
+                "name": "which",
+                "type": "uint8"
             }
         ],
-        "name": "LogAddressNotIndexed",
-        "type": "event"
+        "name": "logNoArgs",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "enum Emitter.WhichEvent",
+                "name": "which",
+                "type": "uint8"
+            },
+            { "internalType": "uint256", "name": "arg0", "type": "uint256" },
+            { "internalType": "uint256", "name": "arg1", "type": "uint256" },
+            { "internalType": "uint256", "name": "arg2", "type": "uint256" },
+            { "internalType": "uint256", "name": "arg3", "type": "uint256" }
+        ],
+        "name": "logQuadruple",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "enum Emitter.WhichEvent",
+                "name": "which",
+                "type": "uint8"
+            },
+            { "internalType": "uint256", "name": "arg0", "type": "uint256" }
+        ],
+        "name": "logSingle",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "string", "name": "v", "type": "string" }],
+        "name": "logString",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "uint256", "name": "arg0", "type": "uint256" },
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "a",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "b",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct Emitter.TestTuple",
+                "name": "arg1",
+                "type": "tuple"
+            }
+        ],
+        "name": "logStruct",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "enum Emitter.WhichEvent",
+                "name": "which",
+                "type": "uint8"
+            },
+            { "internalType": "uint256", "name": "arg0", "type": "uint256" },
+            { "internalType": "uint256", "name": "arg1", "type": "uint256" },
+            { "internalType": "uint256", "name": "arg2", "type": "uint256" }
+        ],
+        "name": "logTriple",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     }
 ]
-
 
 EMITTER_ENUM = {
     'LogAnonymous': 0,
@@ -662,5 +670,6 @@ EMITTER_ENUM = {
     'LogDoubleAnonymous': 8,
     'LogDoubleWithIndex': 9,
     'LogTripleWithIndex': 10,
-    'LogQuadrupleWithInde': 11,
+    'LogQuadrupleWithIndex': 11,
+    'LogStructArg': 12
 }

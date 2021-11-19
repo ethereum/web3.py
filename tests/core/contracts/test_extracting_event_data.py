@@ -148,6 +148,12 @@ def dup_txn_receipt(
             [12345, 54321, 98765, 56789],
             {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789},
         ),
+        (
+            'logStruct',
+            'LogStructArgs',
+            [12345, {'a': 0, 'b': 1}],
+            {'arg0': 12345, 'arg1': {'a': 0, 'b': 1}},
+        )
     )
 )
 def test_event_data_extraction(web3,
@@ -555,6 +561,22 @@ def test_argument_extraction_strict_bytes_types(w3_strict_abi,
             'LogQuadrupleWithIndex',
             [12345, 54321, 98765, 56789],
             {'arg0': 12345, 'arg1': 54321, 'arg2': 98765, 'arg3': 56789},
+            'The event signature did not match the provided ABI',
+            False,
+        ),
+        (
+            'logStruct',
+            'logStructArgs',
+            [12345, {'a': 0, 'b': 1}],
+            {'arg0': 12345, 'arg1': {'a': 0, 'b': 1}},
+            'The event signature did not match the provided ABI',
+            True,
+        ),
+        (
+            'logStruct',
+            'logStructArgs',
+            [12345, {'a': 0, 'b': 1}],
+            {'arg0': 12345, 'arg1': {'a': 0, 'b': 1}},
             'The event signature did not match the provided ABI',
             False,
         ),

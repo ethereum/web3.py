@@ -943,6 +943,7 @@ class LogFunctions:
     LogTripleWithIndex = 10
     LogQuadrupleWithIndex = 11
     LogBytes = 12
+    LogStructArgs = 13
 
 
 @pytest.fixture()
@@ -975,6 +976,7 @@ class LogTopics:
     LogListArgs = _encode_to_topic("LogListArgs(bytes2[],bytes2[])")
     LogAddressIndexed = _encode_to_topic("LogAddressIndexed(address,address)")
     LogAddressNotIndexed = _encode_to_topic("LogAddressNotIndexed(address,address)")
+    LogStructArgs = _encode_to_topic("LogStructArgs(uint256,tuple)")
 
 
 @pytest.fixture()
