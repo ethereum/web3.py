@@ -1,1 +1,0 @@
-Doc update to make it clearer that enable_unstable_package_management()  method is on the web3 instance

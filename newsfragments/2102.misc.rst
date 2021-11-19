@@ -1,1 +1,0 @@
-Remove Parity integration tests & references, update Parity API docs to note it will be removed in v6

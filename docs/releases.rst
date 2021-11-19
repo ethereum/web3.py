@@ -3,6 +3,46 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.25.0 (2021-11-19)
+--------------------
+
+Features
+~~~~~~~~
+
+- Support for ``w3.eth.get_raw_transaction_by_block``, and async support for
+  ``w3.eth.get_raw_transaction_by_block`` (`#2209
+  <https://github.com/ethereum/web3.py/issues/2209>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- BadResponseFormat error thrown instead of KeyError when a response gets sent
+  back without a ``result`` key. (`#2188
+  <https://github.com/ethereum/web3.py/issues/2188>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Correct link to Websocket library documentation (`#2173
+  <https://github.com/ethereum/web3.py/issues/2173>`__)
+- Doc update to make it clearer that enable_unstable_package_management()
+  method is on the web3 instance (`#2208
+  <https://github.com/ethereum/web3.py/issues/2208>`__)
+
+
+Misc
+~~~~
+
+- `#2102 <https://github.com/ethereum/web3.py/issues/2102>`__, `#2179
+  <https://github.com/ethereum/web3.py/issues/2179>`__, `#2191
+  <https://github.com/ethereum/web3.py/issues/2191>`__, `#2201
+  <https://github.com/ethereum/web3.py/issues/2201>`__, `#2205
+  <https://github.com/ethereum/web3.py/issues/2205>`__, `#2212
+  <https://github.com/ethereum/web3.py/issues/2212>`__
+
+
 v5.24.0 (2021-09-27)
 --------------------
 
