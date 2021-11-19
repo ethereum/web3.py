@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.8.7;
 
 
 contract Emitter {
@@ -23,6 +23,13 @@ contract Emitter {
     event LogAddressIndexed(address indexed arg0, address arg1);
     event LogAddressNotIndexed(address arg0, address arg1);
 
+    // Nested type functionality
+    struct TestTuple {
+        uint a;
+        uint b;
+    }
+    event LogStructArgs(uint arg0, TestTuple arg1);
+
     enum WhichEvent {
         LogAnonymous,
         LogNoArguments,
@@ -41,7 +48,8 @@ contract Emitter {
         LogDynamicArgs,
         LogListArgs,
         LogAddressIndexed,
-        LogAddressNotIndexed
+        LogAddressNotIndexed,
+        LogStructArgs
     }
 
     function logNoArgs(WhichEvent which) public {
@@ -76,11 +84,11 @@ contract Emitter {
         else revert("Didn't match any allowable event index");
     }
 
-    function logDynamicArgs(string arg0, string arg1) public {
+    function logDynamicArgs(string memory arg0, string memory arg1) public {
         emit LogDynamicArgs(arg0, arg1);
     }
 
-    function logListArgs(bytes2[] arg0, bytes2[] arg1) public {
+    function logListArgs(bytes2[] memory arg0, bytes2[] memory arg1) public {
         emit LogListArgs(arg0, arg1);
     }
 
@@ -92,11 +100,16 @@ contract Emitter {
         emit LogAddressNotIndexed(arg0, arg1);
     }
 
-    function logBytes(bytes v) public {
+    function logBytes(bytes memory v) public {
         emit LogBytes(v);
     }
 
-    function logString(string v) public {
+    function logString(string memory v) public {
         emit LogString(v);
     }
+
+    function logStruct(uint arg0, TestTuple memory arg1) public {
+        emit LogStructArgs(arg0, arg1);
+    }
 }
+
