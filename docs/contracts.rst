@@ -1092,54 +1092,54 @@ Event Log Object
 
 .. doctest:: createFilter
 
-     >>> transfer_filter = my_token_contract.events.Transfer.createFilter(fromBlock="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
-     >>> transfer_filter.get_new_entries()
-     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-      'value': 10}),
-      'event': 'Transfer',
-      'logIndex': 0,
-      'transactionIndex': 0,
-      'transactionHash': HexBytes('0x0005643c2425552308b4a28814a4dedafb5d340a811b3d2b1c019b290ffd7410'),
-      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
-      'blockHash': HexBytes('...'),
-      'blockNumber': 2})]
-     >>> transfer_filter.get_new_entries()
-     []
-     >>> tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 200000})
-     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-     >>> transfer_filter.get_new_entries()
-     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-      'value': 10}),
-      'event': 'Transfer',
-      'logIndex': 0,
-      'transactionIndex': 0,
-      'transactionHash': HexBytes('0xea111a49b82b0a0729d49f9ad924d8f87405d01e3fa87463cf2903848aacf7d9'),
-      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
-      'blockHash': HexBytes('...'),
-      'blockNumber': 3})]
-     >>> transfer_filter.get_all_entries()
+    >>> transfer_filter = my_token_contract.events.Transfer.createFilter(fromBlock="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
+    >>> transfer_filter.get_new_entries()
     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-      'value': 10}),
-      'event': 'Transfer',
-      'logIndex': 0,
-      'transactionIndex': 0,
-      'transactionHash': HexBytes('0x9da859237e7259832b913d51cb128c8d73d1866056f7a41b52003c953e749678'),
-      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
-      'blockHash': HexBytes('0xc9c32c3250f77aa3fba2fea1cdeeb0397e7dc68b444747e6eb3db65708aaacd8'),
-      'blockNumber': 2}),
-      AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-      'value': 10}),
-      'event': 'Transfer',
-      'logIndex': 0,
-      'transactionIndex': 0,
-      'transactionHash': HexBytes('0xea111a49b82b0a0729d49f9ad924d8f87405d01e3fa87463cf2903848aacf7d9'),
-      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
-      'blockHash': HexBytes('...'),
-      'blockNumber': 3})]
+     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+     'value': 10}),
+     'event': 'Transfer',
+     'logIndex': 0,
+     'transactionIndex': 0,
+     'transactionHash': HexBytes('0x9da859237e7259832b913d51cb128c8d73d1866056f7a41b52003c953e749678'),
+     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+     'blockHash': HexBytes('...'),
+     'blockNumber': 2})]
+    >>> transfer_filter.get_new_entries()
+    []
+    >>> tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 674302241})
+    >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    >>> transfer_filter.get_new_entries()
+    [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+     'value': 10}),
+     'event': 'Transfer',
+     'logIndex': 0,
+     'transactionIndex': 0,
+     'transactionHash': HexBytes('0xa23e7ef4d2692c5cf34ee99123c9c73099e9c3b68c7850f91c1cbcb91ac327e0'),
+     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+     'blockHash': HexBytes('...'),
+     'blockNumber': 3})]
+    >>> transfer_filter.get_all_entries()
+    [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+     'value': 10}),
+     'event': 'Transfer',
+     'logIndex': 0,
+     'transactionIndex': 0,
+     'transactionHash': HexBytes('0x9da859237e7259832b913d51cb128c8d73d1866056f7a41b52003c953e749678'),
+     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+     'blockHash': HexBytes('...'),
+     'blockNumber': 2}),
+     AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+     'value': 10}),
+     'event': 'Transfer',
+     'logIndex': 0,
+     'transactionIndex': 0,
+     'transactionHash': HexBytes('0xa23e7ef4d2692c5cf34ee99123c9c73099e9c3b68c7850f91c1cbcb91ac327e0'),
+     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+     'blockHash': HexBytes('...'),
+     'blockNumber': 3})]
 
 Utils
 -----
