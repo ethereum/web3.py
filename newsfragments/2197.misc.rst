@@ -1,1 +1,0 @@
-Bump eth-tester version to v0.6.0-beta.2 which includes London support
