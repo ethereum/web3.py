@@ -313,7 +313,6 @@ To sign a transaction locally that will invoke a smart contract:
 
     >>> unicorn_txn
     {'value': 0,
-     'type': '0x2',
      'chainId': 1,
      'gas': 70000,
      'maxFeePerGas': 2000000000,
