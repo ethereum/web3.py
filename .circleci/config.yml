@@ -66,6 +66,12 @@ jobs:
       - image: circleci/python:3.8
         environment:
           TOXENV: py38-core
+  py39-core:
+    <<: *common
+    docker:
+      - image: circleci/python:3.9
+        environment:
+          TOXENV: py39-core
   pypy3-core:
     <<: *common
     docker:
