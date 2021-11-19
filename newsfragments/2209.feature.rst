@@ -1,2 +1,1 @@
-- Support for ``w3.eth.get_raw_transaction_by_block``
-- Async support for ``w3.eth.get_raw_transaction_by_block``
+Support for ``w3.eth.get_raw_transaction_by_block``, and async support for ``w3.eth.get_raw_transaction_by_block``
