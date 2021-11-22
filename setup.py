@@ -7,8 +7,8 @@ from setuptools import (
 
 extras_require = {
     'test': [
-        "pytest==5.4.1",
-        "pytest-xdist",
+        "pytest>=6.2.5,<7",
+        "pytest-xdist>=2.4.0,<3",
         "tox==3.14.6",
     ],
     'lint': [
@@ -55,7 +55,7 @@ setup(
     url='https://github.com/ethereum/<REPO_NAME>',
     include_package_data=True,
     install_requires=[
-        "eth-utils>=1,<2",
+        "eth-utils>=2,<3",
     ],
     python_requires='>=3.6, <4',
     extras_require=extras_require,
@@ -75,6 +75,9 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
 )
