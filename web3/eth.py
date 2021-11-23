@@ -668,7 +668,7 @@ class Eth(BaseEth, Module):
         return self.wait_for_transaction_receipt(transaction_hash, timeout, poll_latency)
 
     def wait_for_transaction_receipt(
-        self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
+        self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
         try:
             return wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
