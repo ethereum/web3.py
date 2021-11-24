@@ -17,6 +17,57 @@ RECEIPT_TIMEOUT = 0.2
 
 
 @pytest.mark.parametrize(
+    'transaction',
+    (
+        {
+            'gasPrice': 10 ** 9,
+            'accessList': (
+                {
+                    'address': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                    'storageKeys': (
+                        '0x0000000000000000000000000000000000000000000000000000000000000003',
+                        '0x0000000000000000000000000000000000000000000000000000000000000007',
+                    )
+                },
+                {
+                    'address': '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
+                    'storageKeys': ()
+                },
+            ),
+        },
+        {
+            'maxFeePerGas': 10 ** 9,
+            'maxPriorityFeePerGas': 10 ** 9,
+            'accessList': (
+                {
+                    'address': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                    'storageKeys': (
+                        '0x0000000000000000000000000000000000000000000000000000000000000003',
+                        '0x0000000000000000000000000000000000000000000000000000000000000007',
+                    )
+                },
+                {
+                    'address': '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
+                    'storageKeys': ()
+                },
+            ),
+        },
+    ),
+    ids=[
+        'storage_keys_access_list_txn',
+        'storage_keys_dynamic_fee_txn',
+    ],
+)
+def test_eth_tester_send_transaction_validation(web3, transaction):
+    # Test that eth-tester transaction param validation does not throw for properly formatted
+    # transactions. This is especially important because we have key mapping differences
+    # (camelCase to snake_case) mitigated by providers/eth-tester/middleware.
+    txn_hash = web3.eth.send_transaction(transaction)
+    receipt = web3.eth.wait_for_transaction_receipt(txn_hash, timeout=RECEIPT_TIMEOUT)
+    assert receipt.get('blockNumber') is not None
+
+
+@pytest.mark.parametrize(
     'make_chain_id, expect_success',
     (
         (
