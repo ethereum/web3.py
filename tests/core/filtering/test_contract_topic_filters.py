@@ -87,8 +87,6 @@ def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_convers
     return _emitter
 
 
-
-
 def not_empty_string(x):
     return x != ''
 
