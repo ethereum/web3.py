@@ -81,26 +81,20 @@ async def build_async_w3_http(endpoint_uri: str) -> Web3:
 
 
 def sync_benchmark(func: Callable[..., Any], n: int) -> Union[float, str]:
-    try:
-        starttime = timeit.default_timer()
-        for _ in range(n):
-            func()
-        endtime = timeit.default_timer()
-        execution_time = endtime - starttime
-        return execution_time
-    except Exception:
-        return "N/A"
+    starttime = timeit.default_timer()
+    for _ in range(n):
+        func()
+    endtime = timeit.default_timer()
+    execution_time = endtime - starttime
+    return execution_time
 
 
 async def async_benchmark(func: Callable[..., Any], n: int) -> Union[float, str]:
-    try:
-        starttime = timeit.default_timer()
-        for result in asyncio.as_completed([func() for _ in range(n)]):
-            await result
-        execution_time = timeit.default_timer() - starttime
-        return execution_time
-    except Exception:
-        return "N/A"
+    starttime = timeit.default_timer()
+    for result in asyncio.as_completed([func() for _ in range(n)]):
+        await result
+    execution_time = timeit.default_timer() - starttime
+    return execution_time
 
 
 def unlocked_account(w3: "Web3") -> ChecksumAddress:
