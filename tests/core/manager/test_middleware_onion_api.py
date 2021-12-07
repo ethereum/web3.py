@@ -66,7 +66,7 @@ def test_add_named_duplicate_middleware(middleware_factory):
 def test_add_duplicate_middleware(middleware_factory):
     mw = middleware_factory()
     with pytest.raises(ValueError):
-        manager = RequestManager(None, BaseProvider(), middlewares=[mw, mw])
+        RequestManager(None, BaseProvider(), middlewares=[mw, mw])
 
     manager = RequestManager(None, BaseProvider(), middlewares=[])
     manager.middleware_onion.add(mw)
@@ -168,3 +168,13 @@ def test_remove_middleware(middleware_factory):
     manager.middleware_onion.remove(mw2)
 
     assert tuple(manager.middleware_onion) == (mw1, mw3)
+
+
+def test_export_middlewares(middleware_factory):
+    mw1 = middleware_factory()
+    mw2 = middleware_factory()
+    manager = RequestManager(None, BaseProvider(), middlewares=[(mw1, 'name1'), (mw2, 'name2')])
+    assert tuple(manager.middleware_onion) == (mw1, mw2)
+
+    middlewares = manager.middleware_onion.middlewares
+    assert middlewares == [(mw1, 'name1'), (mw2, 'name2')]

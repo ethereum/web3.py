@@ -196,6 +196,14 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             raise ValueError("You can only remove something that has been added")
         del self._queue[old]
 
+    @property
+    def middlewares(self) -> Sequence[Any]:
+        """
+        Returns middlewares in the appropriate order to be imported into a new Web3 instance
+        (reversed _queue order) as a list of (middleware, name) tuples.
+        """
+        return [(val, key) for key, val in reversed(self._queue.items())]
+
     def _replace_with_new_name(self, old: TKey, new: TKey) -> None:
         self._queue[new] = new
         found_old = False
