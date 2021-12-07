@@ -1,0 +1,1 @@
+Inherit ``Web3`` instance middlewares when instantiating ``ENS`` with ``ENS.fromWeb3()`` method

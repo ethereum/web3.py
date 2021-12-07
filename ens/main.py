@@ -58,6 +58,7 @@ if TYPE_CHECKING:
         BaseProvider,
     )
     from web3.types import (  # noqa: F401
+        Middleware,
         TxParams,
     )
 
@@ -98,7 +99,10 @@ class ENS:
         return address_to_reverse_domain(address)
 
     def __init__(
-        self, provider: 'BaseProvider' = cast('BaseProvider', default), addr: ChecksumAddress = None
+        self,
+        provider: 'BaseProvider' = cast('BaseProvider', default),
+        middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None,
+        addr: ChecksumAddress = None,
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum
@@ -106,7 +110,7 @@ class ENS:
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
         """
-        self.web3 = init_web3(provider)
+        self.web3 = init_web3(provider, middlewares)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
         self.ens = self.web3.eth.contract(abi=abis.ENS, address=ens_addr)
@@ -121,7 +125,9 @@ class ENS:
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
         """
-        return cls(web3.manager.provider, addr=addr)
+        provider = web3.manager.provider
+        middlewares = web3.middleware_onion.middlewares
+        return cls(provider, middlewares, addr=addr)
 
     def address(self, name: str) -> Optional[ChecksumAddress]:
         """

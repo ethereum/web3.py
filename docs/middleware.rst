@@ -165,7 +165,7 @@ below for the API.
 
 When specifying middlewares in a list, or retrieving the list of middlewares, they will
 be returned in the order of outermost layer first and innermost layer last. In the above
-example, that means that ``list(w3.middleware_onion)`` would return the middlewares in
+example, that means that ``w3.middleware_onion.middlewares`` would return the middlewares in
 the order of: ``[2, 1, 0]``.
 
 See "Internals: :ref:`internals__middlewares`" for a deeper dive to how middlewares work.
@@ -247,6 +247,24 @@ To add or remove items in different layers, use the following API:
         >>> w3 = Web3(...)
         >>> w3.middleware_onion.clear()
         >>> assert len(w3.middleware_onion) == 0
+
+.. py:attribute:: Web3.middleware_onion.middlewares
+
+    Return all the current middlewares for the ``Web3`` instance in the appropriate order for importing into a new
+    ``Web3`` instance.
+
+    .. code-block:: python
+
+        >>> w3_1 = Web3(...)
+        # add uniquely named middleware:
+        >>> w3_1.middleware_onion.add(web3.middleware.pythonic_middleware, 'test_middleware')
+        # export middlewares from first w3 instance
+        >>> middlewares = w3_1.middleware_onion.middlewares
+
+        # import into second instance
+        >>> w3_2 = Web3(..., middlewares=middlewares)
+        >>> assert w3_1.middleware_onion.middlewares == w3_2.middleware_onion.middlewares
+        >>> assert w3_2.middleware_onion.get('test_middleware')
 
 
 Optional Middleware

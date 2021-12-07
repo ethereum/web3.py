@@ -34,6 +34,7 @@ Create an :class:`~ens.main.ENS` object (named ``ns`` below) in one of three way
 
 
     # or, with a w3 instance
+    # Note: This inherits the w3 middlewares from the w3 instance and adds a stalecheck middleware to the middleware onion
     from ens import ENS
 
     w3 = Web3(...)
