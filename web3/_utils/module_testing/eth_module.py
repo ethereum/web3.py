@@ -684,7 +684,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "Web3"
     ) -> None:
-        hashrate  = await async_w3.eth.hashrate
+        hashrate = await async_w3.eth.hashrate  # type: ignore
         assert is_integer(hashrate)
 
 

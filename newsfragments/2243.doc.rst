@@ -1,0 +1,1 @@
+Update AsyncHTTPProvider doc Supported Methods to include ``web3.eth.hashrate``.
