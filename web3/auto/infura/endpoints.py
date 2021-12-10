@@ -21,6 +21,9 @@ INFURA_ROPSTEN_DOMAIN = 'ropsten.infura.io'
 INFURA_GOERLI_DOMAIN = 'goerli.infura.io'
 INFURA_RINKEBY_DOMAIN = 'rinkeby.infura.io'
 INFURA_KOVAN_DOMAIN = 'kovan.infura.io'
+# Polygon is available as network add-on
+INFURA_POLYGON_DOMAIN = 'polygon-mainnet.infura.io'
+INFURA_POLYGON_MUMBAI_DOMAIN = 'polygon-mumbai.infura.io'
 
 WEBSOCKET_SCHEME = 'wss'
 HTTP_SCHEME = 'https'
