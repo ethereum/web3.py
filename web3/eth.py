@@ -262,6 +262,11 @@ class BaseEth(Module):
         else:
             return (transaction, block_identifier, state_override)
 
+    _get_hashrate: Method[Callable[[], int]] = Method(
+        RPC.eth_hashrate,
+        mungers=None,
+    )
+
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -334,6 +339,10 @@ class AsyncEth(BaseEth):
     async def coinbase(self) -> ChecksumAddress:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self.get_coinbase()  # type: ignore
+
+    @property
+    async def hashrate(self) -> int:
+        return await self._get_hashrate()  # type: ignore
 
     _get_balance: Method[Callable[..., Awaitable[Wei]]] = Method(
         RPC.eth_getBalance,
@@ -439,14 +448,9 @@ class Eth(BaseEth, Module):
     def mining(self) -> bool:
         return self.is_mining()
 
-    get_hashrate: Method[Callable[[], int]] = Method(
-        RPC.eth_hashrate,
-        mungers=None,
-    )
-
     @property
     def hashrate(self) -> int:
-        return self.get_hashrate()
+        return self._get_hashrate()
 
     @property
     def gas_price(self) -> Wei:
