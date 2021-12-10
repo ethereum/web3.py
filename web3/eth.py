@@ -340,6 +340,10 @@ class AsyncEth(BaseEth):
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self.get_coinbase()  # type: ignore
 
+    @property
+    async def hashrate(self) -> int:
+        return await self._get_hashrate()  # type: ignore
+
     _get_balance: Method[Callable[..., Awaitable[Wei]]] = Method(
         RPC.eth_getBalance,
         mungers=[BaseEth.block_id_munger],
@@ -388,10 +392,6 @@ class AsyncEth(BaseEth):
         state_override: Optional[CallOverrideParams] = None,
     ) -> Union[bytes, bytearray]:
         return await self._call(transaction, block_identifier, state_override)
-
-    @property
-    async def hashrate(self) -> int:
-        return await self._get_hashrate()  # type: ignore
 
 
 class Eth(BaseEth, Module):
