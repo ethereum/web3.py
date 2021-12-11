@@ -43,6 +43,7 @@ def _remove_async_session(key: str, session: ClientSession) -> None:
 _session_cache = lru.LRU(8, callback=_remove_session)
 _async_session_cache = lru.LRU(8, callback=_remove_async_session)
 
+
 def _get_session(endpoint_uri: URI) -> requests.Session:
     cache_key = generate_cache_key(endpoint_uri)
     if cache_key not in _session_cache:
@@ -55,7 +56,7 @@ def _get_async_session(endpoint_uri: URI) -> ClientSession:
     if cache_key not in _async_session_cache:
         _async_session_cache[cache_key] = ClientSession(raise_for_status=True)
     return _async_session_cache[cache_key]
-    
+
 
 def make_post_request(endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any) -> bytes:
     kwargs.setdefault('timeout', 10)
@@ -71,7 +72,7 @@ async def async_make_post_request(
     endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any
 ) -> bytes:
     kwargs.setdefault('timeout', ClientTimeout(10))
-    #https://github.com/ethereum/go-ethereum/issues/17069
+    # https://github.com/ethereum/go-ethereum/issues/17069
     session = _get_async_session(endpoint_uri)
     async with session.post(endpoint_uri,
                             data=data,
