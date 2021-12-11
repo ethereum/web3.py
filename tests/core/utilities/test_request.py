@@ -1,3 +1,9 @@
+import pytest
+
+from aiohttp import (
+    ClientSession,
+    ClientTimeout
+)
 from requests import (
     Session,
     adapters,
@@ -80,3 +86,18 @@ def test_precached_session(mocker):
     assert isinstance(adapter, HTTPAdapter)
     assert adapter._pool_connections == 100
     assert adapter._pool_maxsize == 100
+
+
+@pytest.mark.asyncio
+async def test_async_precached_session(mocker):
+    mocker.patch("aiohttp.ClientSession.post")
+
+    session = ClientSession(raise_for_status=True)
+    request.cache_async_session(URI, session)
+    assert len(request._async_session_cache) == 1
+
+    await request.async_make_post_request(URI, b'request', ClientTimeout(60))
+    assert len(request._async_session_cache) == 1
+
+    await request.async_make_post_request("{0}/test".format(URI), b'request')
+    assert len(request._async_session_cache) == 2

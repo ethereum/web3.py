@@ -20,6 +20,7 @@ from web3._utils.http import (
 )
 from web3._utils.request import (
     async_make_post_request,
+    cache_async_session,
     get_default_http_endpoint,
 )
 from web3.types import (
@@ -39,7 +40,8 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
 
     def __init__(
         self, endpoint_uri: Optional[Union[URI, str]] = None,
-            request_kwargs: Optional[Any] = None
+            request_kwargs: Optional[Any] = None,
+            session: Optional[Any] = None
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
@@ -47,6 +49,9 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
             self.endpoint_uri = URI(endpoint_uri)
 
         self._request_kwargs = request_kwargs or {}
+
+        if session is not None:
+            cache_async_session(self.endpoint_uri, session)
 
         super().__init__()
 
