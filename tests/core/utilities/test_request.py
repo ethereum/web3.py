@@ -2,7 +2,7 @@ import pytest
 
 from aiohttp import (
     ClientSession,
-    ClientTimeout
+    ClientTimeout,
 )
 from requests import (
     Session,
