@@ -399,8 +399,10 @@ Supported Methods
 Eth
 ***
 - :meth:`web3.eth.block_number <web3.eth.Eth.block_number>`
+- :meth:`web3.eth.chain_id <web3.eth.Eth.chain_id>`
 - :meth:`web3.eth.coinbase <web3.eth.Eth.coinbase>`
 - :meth:`web3.eth.gas_price <web3.eth.Eth.gas_price>`
+- :meth:`web3.eth.hashrate <web3.eth.Eth.hashrate>`
 - :meth:`web3.eth.max_priority_fee <web3.eth.Eth.max_priority_fee>`
 - :meth:`web3.eth.call() <web3.eth.Eth.call>`
 - :meth:`web3.eth.estimate_gas() <web3.eth.Eth.estimate_gas>`
@@ -414,7 +416,6 @@ Eth
 - :meth:`web3.eth.get_transaction_count() <web3.eth.Eth.get_transaction_count>`
 - :meth:`web3.eth.send_transaction() <web3.eth.Eth.send_transaction>`
 - :meth:`web3.eth.send_raw_transaction() <web3.eth.Eth.send_raw_transaction>`
-- :meth:`web3.eth.hashrate <web3.eth.Eth.hashrate>`
 
 Net
 ***

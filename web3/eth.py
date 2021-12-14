@@ -267,6 +267,11 @@ class BaseEth(Module):
         mungers=None,
     )
 
+    _chain_id: Method[Callable[[], int]] = Method(
+        RPC.eth_chainId,
+        mungers=None,
+    )
+
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -343,6 +348,10 @@ class AsyncEth(BaseEth):
     @property
     async def hashrate(self) -> int:
         return await self._get_hashrate()  # type: ignore
+
+    @property
+    async def chain_id(self) -> int:
+        return await self._chain_id()  # type: ignore
 
     _get_balance: Method[Callable[..., Awaitable[Wei]]] = Method(
         RPC.eth_getBalance,
@@ -484,11 +493,6 @@ class Eth(BaseEth, Module):
             category=DeprecationWarning,
         )
         return self.block_number
-
-    _chain_id: Method[Callable[[], int]] = Method(
-        RPC.eth_chainId,
-        mungers=None,
-    )
 
     @property
     def chain_id(self) -> int:
