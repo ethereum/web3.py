@@ -697,6 +697,14 @@ class AsyncEthModuleTest:
         # chain id value from geth fixture genesis file
         assert chain_id == 131277322940537
 
+    @pytest.mark.asyncio
+    async def test_async_eth_mining(
+        self,
+        async_w3: "Web3"
+    ) -> None:
+        mining = await async_w3.eth.mining  # type: ignore
+        assert is_boolean(mining)
+
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:
