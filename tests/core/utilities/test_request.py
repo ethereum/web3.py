@@ -1,3 +1,8 @@
+import pytest
+
+from aiohttp import (
+    ClientSession,
+)
 from requests import (
     Session,
     adapters,
@@ -80,3 +85,19 @@ def test_precached_session(mocker):
     assert isinstance(adapter, HTTPAdapter)
     assert adapter._pool_connections == 100
     assert adapter._pool_maxsize == 100
+
+
+@pytest.mark.asyncio
+async def test_async_precached_session(mocker):
+    # Add a session
+    session = ClientSession()
+    request.cache_async_session(URI, session)
+    assert len(request._async_session_cache) == 1
+
+    # Make sure the session isn't duplicated
+    request.cache_async_session(URI, session)
+    assert len(request._async_session_cache) == 1
+
+    # Make sure a request with a different URI addes another cached session
+    request.cache_async_session("{0}/test".format(URI), session)
+    assert len(request._async_session_cache) == 2
