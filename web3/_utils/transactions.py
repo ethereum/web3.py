@@ -64,7 +64,7 @@ TRANSACTION_DEFAULTS = {
         web3.eth.max_priority_fee + (2 * web3.eth.get_block('latest')['baseFeePerGas'])
     ),
     'maxPriorityFeePerGas': lambda web3, tx: web3.eth.max_priority_fee,
-    'chainId': lambda web3, tx: web3.eth.chain_id,
+    'chainId': lambda web3, tx: web3.provider.internal_chain_id,
 }
 
 if TYPE_CHECKING:

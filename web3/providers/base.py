@@ -16,6 +16,9 @@ from eth_utils import (
 from web3._utils.encoding import (
     FriendlyJsonSerde,
 )
+from web3._utils.method_formatters import (
+    to_integer_if_hex,
+)
 from web3.middleware import (
     combine_middlewares,
 )
@@ -34,6 +37,7 @@ class BaseProvider:
     _middlewares: Tuple[Middleware, ...] = ()
     # a tuple of (all_middlewares, request_func)
     _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (None, None)
+    internal_chain_id: int = None
 
     @property
     def middlewares(self) -> Tuple[Middleware, ...]:
@@ -83,6 +87,16 @@ class BaseProvider:
 class JSONBaseProvider(BaseProvider):
     def __init__(self) -> None:
         self.request_counter = itertools.count()
+
+        # Set an `internal_chain_id` since the `chain_id` value should not change after a provider
+        # is instantiated.
+        try:
+            self.internal_chain_id = to_integer_if_hex(
+                self.make_request(RPCEndpoint('eth_chainId'), [])
+                ['result']
+            )
+        except Exception:
+            self.internal_chain_id = None
 
     def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
         text_response = to_text(raw_response)
