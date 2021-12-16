@@ -8,7 +8,7 @@ from setuptools import (
 extras_require = {
     'tester': [
         "eth-tester[py-evm]==v0.6.0-beta.4",
-        "py-geth>=3.6.0,<4",
+        "py-geth>=3.7.0,<4",
     ],
     'linter': [
         "flake8==3.8.3",
