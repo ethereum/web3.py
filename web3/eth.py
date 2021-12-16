@@ -62,7 +62,6 @@ from web3._utils.transactions import (
     extract_valid_transaction_params,
     get_required_transaction,
     replace_transaction,
-    wait_for_transaction_receipt as utils_wait_for_transaction_receipt,
 )
 from web3.contract import (
     ConciseContract,
@@ -71,6 +70,7 @@ from web3.contract import (
 )
 from web3.exceptions import (
     TimeExhausted,
+    TransactionNotFound,
 )
 from web3.iban import (
     Iban,
@@ -282,6 +282,12 @@ class BaseEth(Module):
         mungers=[default_root_munger]
     )
 
+    # _get_transaction_receipt_awaitable: Method[Callable[[_Hash32],
+    # Awaitable[TxReceipt]]] = Method(
+    #     RPC.eth_getTransactionReceipt,
+    #     mungers=[default_root_munger]
+    # )
+
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -411,13 +417,30 @@ class AsyncEth(BaseEth):
     async def get_transaction_receipt(
         self, transaction_hash: _Hash32
     ) -> TxReceipt:
-        return await self._get_transaction_receipt(transaction_hash)
+        return await self._get_transaction_receipt(transaction_hash)  # type: ignore
 
     async def wait_for_transaction_receipt(
         self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
         try:
-            return await utils_wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
+            with Timeout(timeout) as _timeout:
+                while True:
+                    try:
+                        tx_receipt = await self._get_transaction_receipt(  # type: ignore
+                            transaction_hash
+                        )
+                    except TransactionNotFound:
+                        tx_receipt = None
+                    # FIXME: The check for a null `blockHash` is due to parity's
+                    # non-standard implementation of the JSON-RPC API and should
+                    # be removed once the formal spec for the JSON-RPC endpoints
+                    # has been finalized.
+                    # if txn_receipt is not None and txn_receipt['blockHash'] is not None:
+                    if tx_receipt is not None:
+                        break
+                    _timeout.sleep(poll_latency)
+            return tx_receipt
+
         except Timeout:
             raise TimeExhausted(
                 "Transaction {!r} is not in the chain, after {} seconds".format(
@@ -706,7 +729,22 @@ class Eth(BaseEth, Module):
         self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
         try:
-            return utils_wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
+            with Timeout(timeout) as _timeout:
+                while True:
+                    try:
+                        tx_receipt = self._get_transaction_receipt(transaction_hash)
+                    except TransactionNotFound:
+                        tx_receipt = None
+                    # FIXME: The check for a null `blockHash` is due to parity's
+                    # non-standard implementation of the JSON-RPC API and should
+                    # be removed once the formal spec for the JSON-RPC endpoints
+                    # has been finalized.
+                    # if txn_receipt is not None and txn_receipt['blockHash'] is not None:
+                    if tx_receipt is not None:
+                        break
+                    _timeout.sleep(poll_latency)
+            return tx_receipt
+
         except Timeout:
             raise TimeExhausted(
                 "Transaction {!r} is not in the chain, after {} seconds".format(
@@ -719,11 +757,6 @@ class Eth(BaseEth, Module):
         self, transaction_hash: _Hash32
     ) -> TxReceipt:
         return self._get_transaction_receipt(transaction_hash)
-
-    # get_transaction_receipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
-    #     RPC.eth_getTransactionReceipt,
-    #     mungers=[default_root_munger]
-    # )
 
     get_transaction_count: Method[Callable[..., Nonce]] = Method(
         RPC.eth_getTransactionCount,
@@ -952,7 +985,7 @@ class Eth(BaseEth, Module):
     sendRawTransaction = DeprecatedMethod(send_raw_transaction,  # type: ignore
                                           'sendRawTransaction',
                                           'send_raw_transaction')
-    getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,
+    getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,  # type: ignore
                                              'getTransactionReceipt',
                                              'get_transaction_receipt')
     uninstallFilter = DeprecatedMethod(uninstall_filter, 'uninstallFilter', 'uninstall_filter')

@@ -1,0 +1,1 @@
+Add async ``eth.get_transaction_receipt`` and ``eth.wait_for_transaction_receipt`` methods
