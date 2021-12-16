@@ -679,6 +679,32 @@ class AsyncEthModuleTest:
             )
             await async_w3.eth.call(txn_params)  # type: ignore
 
+    @pytest.mark.asyncio
+    async def test_async_eth_hashrate(
+        self,
+        async_w3: "Web3"
+    ) -> None:
+        hashrate = await async_w3.eth.hashrate  # type: ignore
+        assert is_integer(hashrate)
+        assert hashrate >= 0
+
+    @pytest.mark.asyncio
+    async def test_async_eth_chain_id(
+        self,
+        async_w3: "Web3"
+    ) -> None:
+        chain_id = await async_w3.eth.chain_id  # type: ignore
+        # chain id value from geth fixture genesis file
+        assert chain_id == 131277322940537
+
+    @pytest.mark.asyncio
+    async def test_async_eth_mining(
+        self,
+        async_w3: "Web3"
+    ) -> None:
+        mining = await async_w3.eth.mining  # type: ignore
+        assert is_boolean(mining)
+
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:

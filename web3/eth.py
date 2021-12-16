@@ -262,9 +262,38 @@ class BaseEth(Module):
         else:
             return (transaction, block_identifier, state_override)
 
+    _get_hashrate: Method[Callable[[], int]] = Method(
+        RPC.eth_hashrate,
+        mungers=None,
+    )
+
+    _chain_id: Method[Callable[[], int]] = Method(
+        RPC.eth_chainId,
+        mungers=None,
+    )
+
+    _is_mining: Method[Callable[[], bool]] = Method(
+        RPC.eth_mining,
+        mungers=None,
+    )
+
 
 class AsyncEth(BaseEth):
     is_async = True
+
+    @property
+    async def block_number(self) -> BlockNumber:
+        # types ignored b/c mypy conflict with BlockingEth properties
+        return await self.get_block_number()  # type: ignore
+
+    @property
+    async def chain_id(self) -> int:
+        return await self._chain_id()  # type: ignore
+
+    @property
+    async def coinbase(self) -> ChecksumAddress:
+        # types ignored b/c mypy conflict with BlockingEth properties
+        return await self.get_coinbase()  # type: ignore
 
     @property
     async def gas_price(self) -> Wei:
@@ -272,8 +301,16 @@ class AsyncEth(BaseEth):
         return await self._gas_price()  # type: ignore
 
     @property
+    async def hashrate(self) -> int:
+        return await self._get_hashrate()  # type: ignore
+
+    @property
     async def max_priority_fee(self) -> Wei:
         return await self._max_priority_fee()  # type: ignore
+
+    @property
+    async def mining(self) -> bool:
+        return await self._is_mining()  # type: ignore
 
     async def fee_history(
             self,
@@ -324,16 +361,6 @@ class AsyncEth(BaseEth):
     ) -> BlockData:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._get_block(block_identifier, full_transactions)  # type: ignore
-
-    @property
-    async def block_number(self) -> BlockNumber:
-        # types ignored b/c mypy conflict with BlockingEth properties
-        return await self.get_block_number()  # type: ignore
-
-    @property
-    async def coinbase(self) -> ChecksumAddress:
-        # types ignored b/c mypy conflict with BlockingEth properties
-        return await self.get_coinbase()  # type: ignore
 
     _get_balance: Method[Callable[..., Awaitable[Wei]]] = Method(
         RPC.eth_getBalance,
@@ -430,23 +457,13 @@ class Eth(BaseEth, Module):
     def coinbase(self) -> ChecksumAddress:
         return self.get_coinbase()
 
-    is_mining: Method[Callable[[], bool]] = Method(
-        RPC.eth_mining,
-        mungers=None,
-    )
-
     @property
     def mining(self) -> bool:
-        return self.is_mining()
-
-    get_hashrate: Method[Callable[[], int]] = Method(
-        RPC.eth_hashrate,
-        mungers=None,
-    )
+        return self._is_mining()
 
     @property
     def hashrate(self) -> int:
-        return self.get_hashrate()
+        return self._get_hashrate()
 
     @property
     def gas_price(self) -> Wei:
@@ -480,11 +497,6 @@ class Eth(BaseEth, Module):
             category=DeprecationWarning,
         )
         return self.block_number
-
-    _chain_id: Method[Callable[[], int]] = Method(
-        RPC.eth_chainId,
-        mungers=None,
-    )
 
     @property
     def chain_id(self) -> int:

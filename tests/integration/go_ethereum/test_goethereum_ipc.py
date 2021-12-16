@@ -54,7 +54,7 @@ def geth_ipc_path(datadir):
 @pytest.fixture(scope="module")
 def web3(geth_process, geth_ipc_path):
     wait_for_socket(geth_ipc_path)
-    _web3 = Web3(Web3.IPCProvider(geth_ipc_path))
+    _web3 = Web3(Web3.IPCProvider(geth_ipc_path, timeout=30))
     return _web3
 
 
