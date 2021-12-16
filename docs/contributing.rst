@@ -308,13 +308,13 @@ Geth Fixtures
 
    .. code:: sh
 
-       $ python -m geth.install v1.10.11
+       $ python -m geth.install v1.10.13
 
 2. Specify the Geth binary and run the fixture creation script (from within the web3.py directory):
 
    .. code:: sh
 
-       $ GETH_BINARY=~/.py-geth/geth-v1.10.11/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py ./tests/integration/geth-1.10.11-fixture
+       $ GETH_BINARY=~/.py-geth/geth-v1.10.13/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py ./tests/integration/geth-1.10.13-fixture
 
 3. The output of this script is your fixture, a zip file, which is now stored in ``/tests/integration/``.
    Update the ``/tests/integration/go_ethereum/conftest.py`` file to point to this new fixture. Delete the old fixture.
