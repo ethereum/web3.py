@@ -101,8 +101,8 @@ class ENS:
     def __init__(
         self,
         provider: 'BaseProvider' = cast('BaseProvider', default),
-        middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None,
         addr: ChecksumAddress = None,
+        middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None,
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum
@@ -127,7 +127,7 @@ class ENS:
         """
         provider = web3.manager.provider
         middlewares = web3.middleware_onion.middlewares
-        return cls(provider, middlewares, addr=addr)
+        return cls(provider, addr=addr, middlewares=middlewares)
 
     def address(self, name: str) -> Optional[ChecksumAddress]:
         """
