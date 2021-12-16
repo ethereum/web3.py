@@ -1,2 +1,1 @@
 Added session caching to the AsyncHTTPProvider
-Upgraded pytest-mock to >3.2.0<3.3.0
