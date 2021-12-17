@@ -62,7 +62,6 @@ from web3._utils.transactions import (
     extract_valid_transaction_params,
     get_required_transaction,
     replace_transaction,
-    wait_for_transaction_receipt,
 )
 from web3.contract import (
     ConciseContract,
@@ -71,6 +70,7 @@ from web3.contract import (
 )
 from web3.exceptions import (
     TimeExhausted,
+    TransactionNotFound,
 )
 from web3.iban import (
     Iban,
@@ -277,6 +277,17 @@ class BaseEth(Module):
         mungers=None,
     )
 
+    _get_transaction_receipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
+        RPC.eth_getTransactionReceipt,
+        mungers=[default_root_munger]
+    )
+
+    # _get_transaction_receipt_awaitable: Method[Callable[[_Hash32],
+    # Awaitable[TxReceipt]]] = Method(
+    #     RPC.eth_getTransactionReceipt,
+    #     mungers=[default_root_munger]
+    # )
+
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -402,6 +413,36 @@ class AsyncEth(BaseEth):
         RPC.eth_call,
         mungers=[BaseEth.call_munger]
     )
+
+    async def get_transaction_receipt(
+        self, transaction_hash: _Hash32
+    ) -> TxReceipt:
+        return await self._get_transaction_receipt(transaction_hash)  # type: ignore
+
+    async def wait_for_transaction_receipt(
+        self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
+    ) -> TxReceipt:
+        try:
+            with Timeout(timeout) as _timeout:
+                while True:
+                    try:
+                        tx_receipt = await self._get_transaction_receipt(  # type: ignore
+                            transaction_hash
+                        )
+                    except TransactionNotFound:
+                        tx_receipt = None
+                    if tx_receipt is not None:
+                        break
+                    _timeout.sleep(poll_latency)
+            return tx_receipt
+
+        except Timeout:
+            raise TimeExhausted(
+                "Transaction {!r} is not in the chain, after {} seconds".format(
+                    HexBytes(transaction_hash),
+                    timeout,
+                )
+            )
 
     async def call(
         self,
@@ -683,7 +724,17 @@ class Eth(BaseEth, Module):
         self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
         try:
-            return wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
+            with Timeout(timeout) as _timeout:
+                while True:
+                    try:
+                        tx_receipt = self._get_transaction_receipt(transaction_hash)
+                    except TransactionNotFound:
+                        tx_receipt = None
+                    if tx_receipt is not None:
+                        break
+                    _timeout.sleep(poll_latency)
+            return tx_receipt
+
         except Timeout:
             raise TimeExhausted(
                 "Transaction {!r} is not in the chain, after {} seconds".format(
@@ -692,10 +743,10 @@ class Eth(BaseEth, Module):
                 )
             )
 
-    get_transaction_receipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
-        RPC.eth_getTransactionReceipt,
-        mungers=[default_root_munger]
-    )
+    def get_transaction_receipt(
+        self, transaction_hash: _Hash32
+    ) -> TxReceipt:
+        return self._get_transaction_receipt(transaction_hash)
 
     get_transaction_count: Method[Callable[..., Nonce]] = Method(
         RPC.eth_getTransactionCount,
@@ -924,7 +975,7 @@ class Eth(BaseEth, Module):
     sendRawTransaction = DeprecatedMethod(send_raw_transaction,  # type: ignore
                                           'sendRawTransaction',
                                           'send_raw_transaction')
-    getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,
+    getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,  # type: ignore
                                              'getTransactionReceipt',
                                              'get_transaction_receipt')
     uninstallFilter = DeprecatedMethod(uninstall_filter, 'uninstallFilter', 'uninstall_filter')
