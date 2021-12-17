@@ -1,3 +1,4 @@
+import asyncio
 from typing import (
     Any,
     Awaitable,
@@ -282,12 +283,6 @@ class BaseEth(Module):
         mungers=[default_root_munger]
     )
 
-    # _get_transaction_receipt_awaitable: Method[Callable[[_Hash32],
-    # Awaitable[TxReceipt]]] = Method(
-    #     RPC.eth_getTransactionReceipt,
-    #     mungers=[default_root_munger]
-    # )
-
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -423,17 +418,16 @@ class AsyncEth(BaseEth):
         self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
         try:
-            with Timeout(timeout) as _timeout:
-                while True:
-                    try:
-                        tx_receipt = await self._get_transaction_receipt(  # type: ignore
-                            transaction_hash
-                        )
-                    except TransactionNotFound:
-                        tx_receipt = None
-                    if tx_receipt is not None:
-                        break
-                    _timeout.sleep(poll_latency)
+            while True:
+                try:
+                    tx_receipt = await self._get_transaction_receipt(  # type: ignore
+                        transaction_hash
+                    )
+                except TransactionNotFound:
+                    tx_receipt = None
+                if tx_receipt is not None:
+                    break
+                await asyncio.sleep(poll_latency)
             return tx_receipt
 
         except Timeout:
