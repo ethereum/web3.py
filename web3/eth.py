@@ -431,11 +431,6 @@ class AsyncEth(BaseEth):
                         )
                     except TransactionNotFound:
                         tx_receipt = None
-                    # FIXME: The check for a null `blockHash` is due to parity's
-                    # non-standard implementation of the JSON-RPC API and should
-                    # be removed once the formal spec for the JSON-RPC endpoints
-                    # has been finalized.
-                    # if txn_receipt is not None and txn_receipt['blockHash'] is not None:
                     if tx_receipt is not None:
                         break
                     _timeout.sleep(poll_latency)
@@ -735,11 +730,6 @@ class Eth(BaseEth, Module):
                         tx_receipt = self._get_transaction_receipt(transaction_hash)
                     except TransactionNotFound:
                         tx_receipt = None
-                    # FIXME: The check for a null `blockHash` is due to parity's
-                    # non-standard implementation of the JSON-RPC API and should
-                    # be removed once the formal spec for the JSON-RPC endpoints
-                    # has been finalized.
-                    # if txn_receipt is not None and txn_receipt['blockHash'] is not None:
                     if tx_receipt is not None:
                         break
                     _timeout.sleep(poll_latency)
