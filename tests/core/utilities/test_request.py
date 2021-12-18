@@ -98,6 +98,6 @@ async def test_async_precached_session(mocker):
     request.cache_async_session(URI, session)
     assert len(request._async_session_cache) == 1
 
-    # Make sure a request with a different URI addes another cached session
-    request.cache_async_session("{0}/test".format(URI), session)
+    # Make sure a request with a different URI adds another cached session
+    request.cache_async_session("{URI}/test", session)
     assert len(request._async_session_cache) == 2
