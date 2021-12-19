@@ -21,9 +21,6 @@ from hexbytes import (
 from web3._utils.compat import (
     Literal,
 )
-from web3._utils.threads import (
-    Timeout,
-)
 from web3._utils.utility_methods import (
     all_in_dict,
     any_in_dict,
@@ -31,14 +28,10 @@ from web3._utils.utility_methods import (
 from web3.constants import (
     DYNAMIC_FEE_TXN_PARAMS,
 )
-from web3.exceptions import (
-    TransactionNotFound,
-)
 from web3.types import (
     BlockIdentifier,
     TxData,
     TxParams,
-    TxReceipt,
     Wei,
     _Hash32,
 )
@@ -124,25 +117,6 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
 
             defaults[key] = default_val
     return merge(defaults, transaction)
-
-
-def wait_for_transaction_receipt(
-    web3: "Web3", txn_hash: _Hash32, timeout: float, poll_latency: float
-) -> TxReceipt:
-    with Timeout(timeout) as _timeout:
-        while True:
-            try:
-                txn_receipt = web3.eth.get_transaction_receipt(txn_hash)
-            except TransactionNotFound:
-                txn_receipt = None
-            # FIXME: The check for a null `blockHash` is due to parity's
-            # non-standard implementation of the JSON-RPC API and should
-            # be removed once the formal spec for the JSON-RPC endpoints
-            # has been finalized.
-            if txn_receipt is not None and txn_receipt['blockHash'] is not None:
-                break
-            _timeout.sleep(poll_latency)
-    return txn_receipt
 
 
 def get_block_gas_limit(web3: "Web3", block_identifier: Optional[BlockIdentifier] = None) -> Wei:
