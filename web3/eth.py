@@ -201,11 +201,6 @@ class BaseEth(Module):
         mungers=[default_root_munger]
     )
 
-    _max_priority_fee: Method[Callable[..., Wei]] = Method(
-        RPC.eth_maxPriorityFeePerGas,
-        mungers=None,
-    )
-
     def get_block_munger(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> Tuple[BlockIdentifier, bool]:
@@ -306,7 +301,10 @@ class AsyncEth(BaseEth):
 
     @property
     async def max_priority_fee(self) -> Wei:
-        return await self._max_priority_fee()  # type: ignore
+        gas_price = await self.gas_price
+        latest_block = await self.get_block('latest')
+        latest_base_fee = latest_block['baseFeePerGas']
+        return Wei(gas_price - latest_base_fee)
 
     @property
     async def mining(self) -> bool:
@@ -558,7 +556,10 @@ class Eth(BaseEth, Module):
 
     @property
     def max_priority_fee(self) -> Wei:
-        return self._max_priority_fee()
+        gas_price = self.gas_price
+        latest_block = self.get_block('latest')
+        latest_base_fee = latest_block['baseFeePerGas']
+        return Wei(gas_price - latest_base_fee)
 
     def get_storage_at_munger(
         self,
