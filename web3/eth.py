@@ -1,4 +1,3 @@
-import asyncio
 from typing import (
     Any,
     Awaitable,
@@ -418,21 +417,22 @@ class AsyncEth(BaseEth):
         self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
         try:
-            while True:
-                try:
-                    tx_receipt = await self._get_transaction_receipt(  # type: ignore
-                        transaction_hash
-                    )
-                except TransactionNotFound:
-                    tx_receipt = None
-                if tx_receipt is not None:
-                    break
-                await asyncio.sleep(poll_latency)
+            with Timeout(timeout) as _timeout:
+                while True:
+                    try:
+                        tx_receipt = await self._get_transaction_receipt(  # type: ignore
+                            transaction_hash
+                        )
+                    except TransactionNotFound:
+                        tx_receipt = None
+                    if tx_receipt is not None:
+                        break
+                    _timeout.sleep(poll_latency)
             return tx_receipt
 
         except Timeout:
             raise TimeExhausted(
-                "Transaction {!r} is not in the chain, after {} seconds".format(
+                "Transaction {!r} is not in the chain after {} seconds".format(
                     HexBytes(transaction_hash),
                     timeout,
                 )
@@ -731,7 +731,7 @@ class Eth(BaseEth, Module):
 
         except Timeout:
             raise TimeExhausted(
-                "Transaction {!r} is not in the chain, after {} seconds".format(
+                "Transaction {!r} is not in the chain after {} seconds".format(
                     HexBytes(transaction_hash),
                     timeout,
                 )
