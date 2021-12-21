@@ -800,8 +800,22 @@ class AsyncEthModuleTest:
             'maxFeePerGas': async_w3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': async_w3.toWei(1, 'gwei')
         })
-        with pytest.raises(TimeExhausted):
-            await async_w3.eth.wait_for_transaction_receipt(txn_hash, timeout=2)  # type: ignore
+
+        timeout = 2
+        with pytest.raises(TimeExhausted) as exc_info:
+<<<<<<< HEAD
+            await async_w3.eth.wait_for_transaction_receipt(txn_hash,  # type: ignore
+                                                            timeout=timeout)
+
+        assert (_ in str(exc_info) for _ in [repr(txn_hash), timeout])
+=======
+            await async_w3.eth.wait_for_transaction_receipt(txn_hash,
+                                                            timeout=timeout)  # type: ignore
+
+        assert (_ in str(exc_info) for _ in ['web3.exceptions.TimeExhausted',
+                                             repr(txn_hash),
+                                             timeout])
+>>>>>>> 84882dbd (add specific error message checking)
 
     @pytest.mark.asyncio
     async def test_async_eth_wait_for_transaction_receipt_with_log_entry(
@@ -2515,8 +2529,18 @@ class EthModuleTest:
             'maxFeePerGas': web3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei')
         })
-        with pytest.raises(TimeExhausted):
-            web3.eth.wait_for_transaction_receipt(txn_hash, timeout=2)
+
+        timeout = 2
+        with pytest.raises(TimeExhausted) as exc_info:
+            web3.eth.wait_for_transaction_receipt(txn_hash, timeout=timeout)
+
+<<<<<<< HEAD
+        assert (_ in str(exc_info) for _ in [repr(txn_hash), timeout])
+=======
+        assert (_ in str(exc_info) for _ in ['web3.exceptions.TimeExhausted',
+                                             repr(txn_hash),
+                                             timeout])
+>>>>>>> 84882dbd (add specific error message checking)
 
     def test_eth_wait_for_transaction_receipt_with_log_entry(
         self,
