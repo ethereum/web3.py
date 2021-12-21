@@ -1,5 +1,4 @@
 import functools
-from _pytest.outcomes import Failed
 import pytest
 
 from eth_tester import (
@@ -25,7 +24,6 @@ from web3._utils.module_testing import (
 from web3._utils.module_testing.emitter_contract import (
     EMITTER_ENUM,
 )
-from web3.exceptions import TransactionNotFound
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
