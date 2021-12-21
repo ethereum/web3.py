@@ -1,3 +1,4 @@
+import asyncio
 from typing import (
     Any,
     Awaitable,
@@ -282,12 +283,6 @@ class BaseEth(Module):
         mungers=[default_root_munger]
     )
 
-    # _get_transaction_receipt_awaitable: Method[Callable[[_Hash32],
-    # Awaitable[TxReceipt]]] = Method(
-    #     RPC.eth_getTransactionReceipt,
-    #     mungers=[default_root_munger]
-    # )
-
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -422,26 +417,27 @@ class AsyncEth(BaseEth):
     async def wait_for_transaction_receipt(
         self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
-        try:
-            with Timeout(timeout) as _timeout:
-                while True:
-                    try:
-                        tx_receipt = await self._get_transaction_receipt(  # type: ignore
-                            transaction_hash
-                        )
-                    except TransactionNotFound:
-                        tx_receipt = None
-                    if tx_receipt is not None:
-                        break
-                    _timeout.sleep(poll_latency)
+        async def _wait_for_tx_receipt_with_timeout(
+            _tx_hash: _Hash32, _poll_latence: float
+        ) -> TxReceipt:
+            while True:
+                try:
+                    tx_receipt = await self._get_transaction_receipt(_tx_hash)  # type: ignore
+                except TransactionNotFound:
+                    tx_receipt = None
+                if tx_receipt is not None:
+                    break
+                await asyncio.sleep(poll_latency)
             return tx_receipt
-
-        except Timeout:
+        try:
+            return await asyncio.wait_for(
+                _wait_for_tx_receipt_with_timeout(transaction_hash, poll_latency),
+                timeout=timeout,
+            )
+        except asyncio.TimeoutError:
             raise TimeExhausted(
-                "Transaction {!r} is not in the chain, after {} seconds".format(
-                    HexBytes(transaction_hash),
-                    timeout,
-                )
+                f"Transaction {HexBytes(transaction_hash) !r} is not in the chain "
+                f"after {timeout} seconds"
             )
 
     async def call(
@@ -737,10 +733,8 @@ class Eth(BaseEth, Module):
 
         except Timeout:
             raise TimeExhausted(
-                "Transaction {!r} is not in the chain, after {} seconds".format(
-                    HexBytes(transaction_hash),
-                    timeout,
-                )
+                f"Transaction {HexBytes(transaction_hash) !r} is not in the chain "
+                f"after {timeout} seconds"
             )
 
     def get_transaction_receipt(
