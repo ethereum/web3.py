@@ -800,8 +800,13 @@ class AsyncEthModuleTest:
             'maxFeePerGas': async_w3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': async_w3.toWei(1, 'gwei')
         })
-        with pytest.raises(TimeExhausted):
-            await async_w3.eth.wait_for_transaction_receipt(txn_hash, timeout=2)  # type: ignore
+
+        timeout = 2
+        with pytest.raises(TimeExhausted) as exc_info:
+            await async_w3.eth.wait_for_transaction_receipt(txn_hash,  # type: ignore
+                                                            timeout=timeout)
+
+        assert (_ in str(exc_info) for _ in [repr(txn_hash), timeout])
 
     @pytest.mark.asyncio
     async def test_async_eth_wait_for_transaction_receipt_with_log_entry(
@@ -2468,6 +2473,68 @@ class EthModuleTest:
         txn_hash_with_log: HexStr,
     ) -> None:
         receipt = web3.eth.get_transaction_receipt(txn_hash_with_log)
+        assert is_dict(receipt)
+        assert receipt['blockNumber'] == block_with_txn_with_log['number']
+        assert receipt['blockHash'] == block_with_txn_with_log['hash']
+        assert receipt['transactionIndex'] == 0
+        assert receipt['transactionHash'] == HexBytes(txn_hash_with_log)
+
+        assert len(receipt['logs']) == 1
+        log_entry = receipt['logs'][0]
+
+        assert log_entry['blockNumber'] == block_with_txn_with_log['number']
+        assert log_entry['blockHash'] == block_with_txn_with_log['hash']
+        assert log_entry['logIndex'] == 0
+        assert is_same_address(log_entry['address'], emitter_contract.address)
+        assert log_entry['transactionIndex'] == 0
+        assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
+
+    def test_eth_wait_for_transaction_receipt_mined(
+        self,
+        web3: "Web3",
+        block_with_txn: BlockData,
+        mined_txn_hash: HexStr
+    ) -> None:
+        receipt = web3.eth.wait_for_transaction_receipt(mined_txn_hash)
+        assert is_dict(receipt)
+        assert receipt['blockNumber'] == block_with_txn['number']
+        assert receipt['blockHash'] == block_with_txn['hash']
+        assert receipt['transactionIndex'] == 0
+        assert receipt['transactionHash'] == HexBytes(mined_txn_hash)
+        assert is_checksum_address(receipt['to'])
+        assert receipt['from'] is not None
+        assert is_checksum_address(receipt['from'])
+
+        effective_gas_price = receipt['effectiveGasPrice']
+        assert isinstance(effective_gas_price, int)
+        assert effective_gas_price > 0
+
+    def test_eth_wait_for_transaction_receipt_unmined(
+        self, web3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_hash = web3.eth.send_transaction({
+            'from': unlocked_account_dual_type,
+            'to': unlocked_account_dual_type,
+            'value': Wei(1),
+            'gas': Wei(21000),
+            'maxFeePerGas': web3.toWei(3, 'gwei'),
+            'maxPriorityFeePerGas': web3.toWei(1, 'gwei')
+        })
+
+        timeout = 2
+        with pytest.raises(TimeExhausted) as exc_info:
+            web3.eth.wait_for_transaction_receipt(txn_hash, timeout=timeout)
+
+        assert (_ in str(exc_info) for _ in [repr(txn_hash), timeout])
+
+    def test_eth_wait_for_transaction_receipt_with_log_entry(
+        self,
+        web3: "Web3",
+        block_with_txn_with_log: BlockData,
+        emitter_contract: "Contract",
+        txn_hash_with_log: HexStr,
+    ) -> None:
+        receipt = web3.eth.wait_for_transaction_receipt(txn_hash_with_log)
         assert is_dict(receipt)
         assert receipt['blockNumber'] == block_with_txn_with_log['number']
         assert receipt['blockHash'] == block_with_txn_with_log['hash']

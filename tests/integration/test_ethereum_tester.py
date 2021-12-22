@@ -425,6 +425,17 @@ class TestEthereumTesterEthModule(EthModuleTest):
                                                                 block_with_txn,
                                                                 mined_txn_hash)
 
+    @pytest.mark.xfail(raises=KeyError, reason="ethereum tester doesn't return 'to' key")
+    def test_eth_wait_for_transaction_receipt_mined(self, web3, block_with_txn, mined_txn_hash):
+        super().test_eth_wait_for_transaction_receipt_mined(web3, block_with_txn, mined_txn_hash)
+
+    @disable_auto_mine
+    def test_eth_wait_for_transaction_receipt_unmined(self,
+                                                      eth_tester,
+                                                      web3,
+                                                      unlocked_account_dual_type):
+        super().test_eth_wait_for_transaction_receipt_unmined(web3, unlocked_account_dual_type)
+
     @pytest.mark.xfail(raises=TypeError, reason="call override param not implemented on eth-tester")
     def test_eth_call_with_override(self, web3, revert_contract):
         super().test_eth_call_with_override(web3, revert_contract)
