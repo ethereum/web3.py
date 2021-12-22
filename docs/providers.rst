@@ -386,9 +386,14 @@ AsyncHTTPProvider
         >>> from web3.eth import AsyncEth
         >>> from web3.net import AsyncNet
 
-        >>> w3 = Web3(AsyncHTTPProvider("http://127.0.0.1:8545"),
-        ...           modules={'eth': AsyncEth, 'net': AsyncNet},
-        ...           middlewares=[])  # See supported middleware section below for middleware options
+        >>> w3 = Web3(
+        ...     AsyncHTTPProvider(endpoint_uri),
+        ...     modules={'eth': (AsyncEth,),
+        ...         'net': (AsyncNet,),
+        ...         'geth': (Geth,
+        ...             {'txpool': (AsyncGethTxPool,)})
+        ...         },
+        ...     middlewares=[])  # See supported middleware section below for middleware options
 
     Under the hood, the ``AsyncHTTPProvider`` uses the python
     `aiohttp <https://docs.aiohttp.org/en/stable/>`_ library for making requests.
@@ -427,7 +432,11 @@ Net
 - :meth:`web3.net.peer_count() <web3.net.peer_count>`
 - :meth:`web3.net.version() <web3.net.version>`
 
-
+Geth
+****
+- :meth:`web3.geth.txpool.inspect() <web3.geth.txpool.TxPool.inspect()>`
+- :meth:`web3.geth.txpool.content() <web3.geth.txpool.TxPool.content()>`
+- :meth:`web3.geth.txpool.status() <web3.geth.txpool.TxPool.status()>`
 
 Supported Middleware
 ^^^^^^^^^^^^^^^^^^^^

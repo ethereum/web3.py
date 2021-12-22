@@ -1,3 +1,8 @@
+from typing import (
+    Any,
+    Awaitable,
+)
+
 from web3._utils.admin import (
     add_peer,
     addPeer,
@@ -58,6 +63,11 @@ from web3._utils.txpool import (
 from web3.module import (
     Module,
 )
+from web3.types import (
+    TxPoolContent,
+    TxPoolInspect,
+    TxPoolStatus,
+)
 
 
 class GethPersonal(Module):
@@ -85,13 +95,39 @@ class GethPersonal(Module):
     unlockAccount = unlockAccount
 
 
-class GethTxPool(Module):
+class BaseTxPool(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#txpool
     """
-    content = content
-    inspect = inspect
-    status = status
+    _content = content
+    _inspect = inspect
+    _status = status
+
+
+class GethTxPool(BaseTxPool):
+    is_async = False
+
+    def content(self) -> TxPoolContent:
+        return self._content()
+
+    def inspect(self) -> TxPoolInspect:
+        return self._inspect()
+
+    def status(self) -> TxPoolStatus:
+        return self._status()
+
+
+class AsyncGethTxPool(BaseTxPool):
+    is_async = True
+
+    async def content(self) -> Awaitable[Any]:
+        return await self._content()  # type: ignore
+
+    async def inspect(self) -> Awaitable[Any]:
+        return await self._inspect()  # type: ignore
+
+    async def status(self) -> Awaitable[Any]:
+        return await self._status()  # type: ignore
 
 
 class GethAdmin(Module):
