@@ -7,6 +7,9 @@ from eth_tester import (
 from eth_tester.exceptions import (
     TransactionFailed,
 )
+from eth_typing import (
+    BlockNumber,
+)
 from eth_utils import (
     is_checksum_address,
     is_dict,
@@ -292,15 +295,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
         block = web3.eth.get_block('pending')
         assert block['hash'] is not None
 
-    @pytest.mark.xfail(reason='eth_feeHistory is not implemented on eth-tester')
     def test_eth_fee_history(self, web3: "Web3"):
         super().test_eth_fee_history(web3)
 
-    @pytest.mark.xfail(reason='eth_feeHistory is not implemented on eth-tester')
     def test_eth_fee_history_with_integer(self, web3: "Web3"):
-        super().test_eth_fee_history_with_integer(web3)
+        super().test_eth_fee_history_with_integer(web3, BlockData(number=BlockNumber(1)))
 
-    @pytest.mark.xfail(reason='eth_feeHistory is not implemented on eth-tester')
     def test_eth_fee_history_no_reward_percentiles(self, web3: "Web3"):
         super().test_eth_fee_history_no_reward_percentiles(web3)
 
