@@ -724,7 +724,7 @@ To select only certain contract type data to be included in your manifest, provi
    ... )
    >>> assert expected_manifest == built_manifest
 
-If you would like to alias your contract type, provide the desired alias as a kwarg. This will automatically include the original contract type in a ``contractType`` field. Unless specific contract type fields are provided as kwargs, ``contractType`` will stil default to including all availabe contract type data found in the compiler output.
+If you would like to alias your contract type, provide the desired alias as a kwarg. This will automatically include the original contract type in a ``contractType`` field. Unless specific contract type fields are provided as kwargs, ``contractType`` will stil default to including all available contract type data found in the compiler output.
 
 .. doctest::
 
