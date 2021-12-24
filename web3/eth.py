@@ -359,7 +359,7 @@ class AsyncEth(BaseEth):
         fee_history = await self.fee_history(20, 'pending', [float(1)])
         priority_fees_per_gas = fee_history['reward']
         fees_sum = sum([fee[0] for fee in priority_fees_per_gas])
-        max_priority_fee_estimate = round(fees_sum/len(priority_fees_per_gas))
+        max_priority_fee_estimate = round(fees_sum / len(priority_fees_per_gas))
         return Wei(max_priority_fee_estimate)
 
     @property
@@ -611,7 +611,7 @@ class Eth(BaseEth):
         fee_history = self.fee_history(20, 'pending', [float(1)])
         priority_fees_per_gas = fee_history['reward']
         fees_sum = sum([fee[0] for fee in priority_fees_per_gas])
-        max_priority_fee_estimate = round(fees_sum/len(priority_fees_per_gas))
+        max_priority_fee_estimate = round(fees_sum / len(priority_fees_per_gas))
         return Wei(max_priority_fee_estimate)
 
     def get_storage_at_munger(

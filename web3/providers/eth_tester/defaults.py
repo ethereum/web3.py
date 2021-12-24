@@ -214,8 +214,11 @@ API_ENDPOINTS = {
         'hashrate': static_return(0),
         'chainId': static_return('0x3d'),
         'feeHistory': static_return(
-            {'baseFeePerGas': [134919017071, 134775902021, 117928914269], 'gasUsedRatio': [0.4957570088140204, 0.0],
-             'oldestBlock': 13865084, 'reward': [[2500000000], [1500000000]]}),
+            {'baseFeePerGas': [134919017071, 134775902021, 117928914269],
+             'gasUsedRatio': [0.4957570088140204, 0.0],
+             'oldestBlock': 13865084,
+             'reward': [[2500000000], [1500000000]]}
+        ),
         'maxPriorityFeePerGas': static_return(10 ** 9),
         'gasPrice': static_return(10 ** 9),  # must be >= base fee post-London
         'accounts': call_eth_tester('get_accounts'),
