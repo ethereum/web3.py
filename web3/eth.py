@@ -263,6 +263,11 @@ class BaseEth(Module):
         else:
             return (transaction, block_identifier, state_override)
 
+    _get_accounts: Method[Callable[[], Tuple[ChecksumAddress]]] = Method(
+        RPC.eth_accounts,
+        mungers=None,
+    )
+
     _get_hashrate: Method[Callable[[], int]] = Method(
         RPC.eth_hashrate,
         mungers=None,
@@ -286,6 +291,10 @@ class BaseEth(Module):
 
 class AsyncEth(BaseEth):
     is_async = True
+
+    @property
+    async def accounts(self) -> Tuple[ChecksumAddress]:
+        return await self._get_accounts()  # type: ignore
 
     @property
     async def block_number(self) -> BlockNumber:
@@ -514,14 +523,9 @@ class Eth(BaseEth, Module):
         )
         return self.gas_price
 
-    get_accounts: Method[Callable[[], Tuple[ChecksumAddress]]] = Method(
-        RPC.eth_accounts,
-        mungers=None,
-    )
-
     @property
     def accounts(self) -> Tuple[ChecksumAddress]:
-        return self.get_accounts()
+        return self._get_accounts()
 
     @property
     def block_number(self) -> BlockNumber:

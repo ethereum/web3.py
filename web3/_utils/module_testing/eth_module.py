@@ -833,6 +833,18 @@ class AsyncEthModuleTest:
         assert log_entry['transactionIndex'] == 0
         assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
 
+    @pytest.mark.asyncio
+    async def test_async_eth_accounts(self, async_w3: "Web3") -> None:
+        accounts = await async_w3.eth.accounts  # type: ignore
+        assert is_list_like(accounts)
+        assert len(accounts) != 0
+        assert all((
+            is_checksum_address(account)
+            for account
+            in accounts
+        ))
+        assert await async_w3.eth.coinbase in accounts  # type: ignore
+
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:
