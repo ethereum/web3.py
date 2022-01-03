@@ -79,7 +79,7 @@ def retrieve_async_method_call_fn(
 
 #  Module should no longer have access to the full web3 api.
 #  Only the calling functions need access to the request methods.
-#  Any "re-entrant" shinanigans can go in the middlewares, which do
+#  Any "re-entrant" shenanigans can go in the middlewares, which do
 #  have web3 access.
 class Module:
     is_async = False

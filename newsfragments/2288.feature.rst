@@ -1,0 +1,1 @@
+Support for attaching external modules to the ``Web3`` instance when instantiating the ``Web3`` instance, via the ``external_modules`` argument, or via the new ``attach_module()`` method

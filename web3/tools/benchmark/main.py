@@ -75,7 +75,7 @@ async def build_async_w3_http(endpoint_uri: str) -> Web3:
     _web3 = Web3(
         AsyncHTTPProvider(endpoint_uri),  # type: ignore
         middlewares=[async_gas_price_strategy_middleware, async_buffered_gas_estimate_middleware],
-        modules={"eth": (AsyncEth,)},
+        modules={"eth": AsyncEth},
     )
     return _web3
 
