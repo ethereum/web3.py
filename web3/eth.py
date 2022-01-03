@@ -458,7 +458,7 @@ class AsyncEth(BaseEth):
         return await self._call(transaction, block_identifier, state_override)
 
 
-class Eth(BaseEth, Module):
+class Eth(BaseEth):
     account = Account()
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban

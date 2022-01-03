@@ -11,7 +11,7 @@ Web3 API
 
 .. py:class:: Web3(provider)
 
-Each ``web3`` instance exposes the following APIs.
+Each ``Web3`` instance exposes the following APIs.
 
 Providers
 ~~~~~~~~~
@@ -388,7 +388,7 @@ Check Encodability
 RPC APIS
 ~~~~~~~~
 
-Each ``web3`` instance also exposes these namespaced APIs.
+Each ``Web3`` instance also exposes these namespaced APIs.
 
 
 .. py:attribute:: Web3.eth
@@ -410,3 +410,68 @@ Each ``web3`` instance also exposes these namespaced APIs.
 .. py:attribute:: Web3.parity
 
     See :doc:`./web3.parity`
+
+
+Attaching Modules
+~~~~~~~~~~~~~~~~~
+
+Modules that inherit from the ``web3.module.Module`` class may be attached to the ``Web3`` instance either at
+instantiation or by making use of the ``attach_module()`` method.
+
+To instantiate the ``Web3`` instance with external modules:
+
+.. code-block:: python
+
+    >>> from web3 import Web3, EthereumTesterProvider
+    >>> w3 = Web3(
+    ...     EthereumTesterProvider(),
+    ...     external_modules={
+    ...         # ModuleClass objects in this example inherit from the `web3.module.Module` class
+    ...         'module1': ModuleClass1,
+    ...         'module2': (ModuleClass2, {
+    ...             'submodule1': ModuleClass3,
+    ...             'submodule2': (ModuleClass4, {
+    ...                 'submodule2a': ModuleClass5,  # submodule children may be nested further if necessary
+    ...             })
+    ...         })
+    ...     }
+    ... )
+
+    # `return_zero`, in this case, is an example attribute of the `ModuleClass1` object
+    >>> w3.module1.return_zero
+    0
+    >>> w3.module2.submodule1.return_one
+    1
+    >>> w3.module2.submodule2.submodule2a.return_two
+    2
+
+
+.. py:method:: w3.attach_module(module_name, module)
+
+    The ``attach_module()`` method can be used to attach an external module after the ``Web3`` instance has been
+    instantiated.
+
+    .. code-block:: python
+
+        >>> from web3 import Web3, EthereumTesterProvider
+        >>> w3 = Web3(EthereumTesterProvider())
+
+        # attaching a single module - in this case, one with the attribute `return_zero`
+        >>> w3.attach_module('module1', ModuleClass1)
+        >>> w3.module1.return_zero
+        0
+
+        # attaching a module with submodules
+        >>> w3.attach_module(
+        ...     'module2',
+        ...     (ModuleClass2, {
+        ...         'submodule1': ModuleClass3,
+        ...         'submodule2': (ModuleClass4, {
+        ...             'submodule2a': ModuleClass5,
+        ...         })
+        ...     })
+        ... )
+        >>> w3.module2.submodule1.return_one
+        1
+        >>> w3.module2.submodule2.submodule2a.return_two
+        2

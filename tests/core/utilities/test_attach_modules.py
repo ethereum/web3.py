@@ -1,5 +1,9 @@
 import pytest
 
+from eth_utils import (
+    is_integer,
+)
+
 from web3 import Web3
 from web3._utils.module import (
     attach_modules,
@@ -37,10 +41,10 @@ class MockGethPersonal(Module):
 def test_attach_modules():
     mods = {
         "geth": (MockGeth, {
-            "personal": (MockGethPersonal,),
-            "admin": (MockGethAdmin,),
+            "personal": MockGethPersonal,
+            "admin": MockGethAdmin,
         }),
-        "eth": (MockEth,),
+        "eth": MockEth,
     }
     w3 = Web3(EthereumTesterProvider(), modules={})
     attach_modules(w3, mods)
@@ -51,10 +55,10 @@ def test_attach_modules():
 
 def test_attach_modules_multiple_levels_deep():
     mods = {
-        "eth": (MockEth,),
+        "eth": MockEth,
         "geth": (MockGeth, {
             "personal": (MockGethPersonal, {
-                "admin": (MockGethAdmin,),
+                "admin": MockGethAdmin,
             }),
         }),
     }
@@ -76,9 +80,45 @@ def test_attach_modules_with_wrong_module_format():
 
 def test_attach_modules_with_existing_modules():
     mods = {
-        "eth": (MockEth,),
+        "eth": MockEth,
     }
     w3 = Web3(EthereumTesterProvider, modules=mods)
     with pytest.raises(AttributeError,
                        match="The web3 object already has an attribute with that name"):
         attach_modules(w3, mods)
+
+
+def test_attach_external_modules_multiple_levels_deep(module1, module2, module3, module4):
+    w3 = Web3(
+        EthereumTesterProvider(),
+        external_modules={
+            'module1': module1,
+            'module2': (module2, {
+                'submodule1': (module3, {
+                    'submodule2': module4,
+                }),
+            })
+        }
+    )
+
+    assert w3.isConnected()
+
+    # assert instantiated with default modules
+    assert hasattr(w3, 'geth')
+    assert hasattr(w3, 'eth')
+    assert is_integer(w3.eth.chain_id)
+
+    # assert instantiated with module1
+    assert hasattr(w3, 'module1')
+    assert w3.module1.a == 'a'
+    assert w3.module1.b == 'b'
+
+    # assert instantiated with module2 + submodules
+    assert hasattr(w3, 'module2')
+    assert w3.module2.c == 'c'
+    assert w3.module2.d() == 'd'
+
+    assert hasattr(w3.module2, 'submodule1')
+    assert w3.module2.submodule1.e == 'e'
+    assert hasattr(w3.module2.submodule1, 'submodule2')
+    assert w3.module2.submodule1.submodule2.f == 'f'
