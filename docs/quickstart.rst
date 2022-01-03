@@ -34,11 +34,29 @@ in the :ref:`Providers<providers>` documentation. This Quickstart guide will hig
 a couple of the most common use cases.
 
 
-Provider: Local Geth Node
-**************************
+Test Provider
+*************
 
+If you're just learning the ropes or doing some quick prototyping, you can use a test
+provider, `eth-tester <https://github.com/ethereum/eth-tester>`_. This provider includes
+some accounts prepopulated with test ether and automines each transaction into a block.
+Web3.py makes this test provider available via ``EthereumTesterProvider``:
+
+.. code-block:: python
+
+   >>> from web3 import Web3, EthereumTesterProvider
+   >>> w3 = Web3(EthereumTesterProvider())
+   >>> w3.isConnected()
+   True
+
+
+Local Providers
+***************
+
+The hardware requirements are `steep <https://ethereum.org/en/developers/docs/nodes-and-clients/run-a-node/#top>`_,
+but the safest way to interact with Ethereum is to run an Ethereum client on your own hardware. 
 For locally run nodes, an IPC connection is the most secure option, but HTTP and
-websocket configurations are also available. By default, `Geth <https://geth.ethereum.org/>`_
+websocket configurations are also available. By default, the popular `Geth client <https://geth.ethereum.org/>`_
 exposes port ``8545`` to serve HTTP requests and ``8546`` for websocket requests. Connecting
 to this local node can be done as follows:
 
@@ -53,7 +71,7 @@ to this local node can be done as follows:
    >>> w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545'))
 
    # WebsocketProvider:
-   >>> w3 = Web3(Web3.WebsocketProvider('ws://127.0.0.1:8546'))
+   >>> w3 = Web3(Web3.WebsocketProvider('wss://127.0.0.1:8546'))
 
    >>> w3.isConnected()
    True
@@ -68,36 +86,26 @@ and save a few keystrokes:
    >>> w3.isConnected()
    True
 
-Provider: Infura
-*****************
+
+Remote Providers
+****************
 
 The quickest way to interact with the Ethereum blockchain is to use a remote node provider,
-like `Infura <https://infura.io/>`_. You can connect to a remote node by specifying the
-endpoint, just like the previous local node example:
+like `Infura <https://infura.io/>`_, `Alchemy <https://www.alchemy.com/>`_, or `QuickNode <https://www.quicknode.com/>`_.
+You can connect to a remote node by specifying the endpoint, just like the previous local node example:
 
 .. code-block:: python
 
    >>> from web3 import Web3
-   >>> w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/<infura-project-id>'))
 
-This endpoint is provided by Infura after you create a (free) account.
+   >>> w3 = Web3(Web3.HTTPProvider('https://<your-provider-url>'))
 
-Again, a convenience method exists to save a few keystrokes:
+   >>> w3 = Web3(Web3.WebsocketProvider('wss://<your-provider-url>'))
 
-.. code-block:: python
-
-    >>> from web3.auto.infura import w3
-    >>> w3.eth.block_number
-    4000000
-
-Note that this requires your Infura Project ID to be set as the environment variable
-``WEB3_INFURA_PROJECT_ID`` before running your script or application:
-
-.. code-block:: shell
-
-    $ export WEB3_INFURA_PROJECT_ID=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+This endpoint is provided by the remote node service after you create an account.
 
 .. _first_w3_use:
+
 
 Getting Blockchain Info
 -----------------------
