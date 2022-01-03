@@ -273,6 +273,21 @@ class ENS:
         node = raw_name_to_hash(name)
         return self.ens.caller.owner(node)
 
+    def get_text(self, name: str, key: str) -> str:
+        """
+        Get the value of a text record by key from an ENS name.
+
+        :param str name: ENS name to look up
+        :param str key: ENS name's text record key
+        :return:  ENS name's text record value
+        :rtype: str
+        """
+        node = normal_name_to_hash(name)
+        r = self.resolver(name)
+        if r:
+            return r.caller.text(node, key)
+        return f"{name} does not exist!"
+
     @dict_copy
     def setup_owner(
         self,

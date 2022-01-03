@@ -1173,6 +1173,28 @@ RESOLVER = [
     "type": "function"
   },
   {
+    "constant": True,
+    "inputs": [
+      {
+        "name": "node",
+        "type": "bytes32"
+      },
+      {
+        "name": "key",
+        "type": "string"
+      }
+    ],
+    "name": "text",
+    "outputs": [
+      {
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "payable": False,
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "name": "ensAddr",
