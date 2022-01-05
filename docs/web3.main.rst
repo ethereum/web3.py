@@ -416,7 +416,7 @@ Attaching Modules
 ~~~~~~~~~~~~~~~~~
 
 Modules that inherit from the ``web3.module.Module`` class may be attached to the ``Web3`` instance either at
-instantiation or by making use of the ``attach_module()`` method.
+instantiation or by making use of the ``attach_modules()`` method.
 
 To instantiate the ``Web3`` instance with external modules:
 
@@ -446,31 +446,33 @@ To instantiate the ``Web3`` instance with external modules:
     2
 
 
-.. py:method:: w3.attach_module(module_name, module)
+.. py:method:: w3.attach_modules(modules)
 
-    The ``attach_module()`` method can be used to attach an external module after the ``Web3`` instance has been
+    The ``attach_modules()`` method can be used to attach external modules after the ``Web3`` instance has been
     instantiated.
+
+    Modules are attached via a `dict` with module names as the keys. The values can either be the module classes
+    themselves, if there are no submodules, or two-item tuples with the module class as the 0th index and a similarly
+    built `dict` containing the submodule information as the 1st index. This pattern may be repeated as necessary.
+
+    .. note:: Module classes must inherit from the ``web3.module.Module`` class.
 
     .. code-block:: python
 
         >>> from web3 import Web3, EthereumTesterProvider
         >>> w3 = Web3(EthereumTesterProvider())
 
-        # attaching a single module - in this case, one with the attribute `return_zero`
-        >>> w3.attach_module('module1', ModuleClass1)
-        >>> w3.module1.return_zero
-        0
-
-        # attaching a module with submodules
-        >>> w3.attach_module(
-        ...     'module2',
-        ...     (ModuleClass2, {
+        >>> w3.attach_modules({
+        ...     'module1': ModuleClass1,  # the module class itself may be used for a single module with no submodules
+        ...     'module2': (ModuleClass2, {  # a tuple with module class and corresponding submodule dict may be used for modules with submodules
         ...         'submodule1': ModuleClass3,
-        ...         'submodule2': (ModuleClass4, {
+        ...         'submodule2': (ModuleClass4, {  # this pattern may be repeated as necessary
         ...             'submodule2a': ModuleClass5,
         ...         })
         ...     })
-        ... )
+        ... })
+        >>> w3.module1.return_zero
+        0
         >>> w3.module2.submodule1.return_one
         1
         >>> w3.module2.submodule2.submodule2a.return_two

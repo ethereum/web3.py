@@ -3,16 +3,15 @@ from eth_utils import (
 )
 
 
-def test_attach_module(web3, module1, module2, module3, module4):
-    web3.attach_module('module1', module1)
-    web3.attach_module(
-        'module2',
-        (module2, {
+def test_attach_modules(web3, module1, module2, module3, module4):
+    web3.attach_modules({
+        'module1': module1,
+        'module2': (module2, {
             'submodule1': (module3, {
                 'submodule2': module4,
-            })
+            }),
         })
-    )
+    })
 
     # assert module1 attached
     assert hasattr(web3, 'module1')
