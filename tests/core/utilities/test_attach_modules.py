@@ -53,6 +53,11 @@ def test_attach_modules():
     assert w3.geth.admin.start_ws() is True
 
 
+def test_attach_single_module_as_tuple():
+    w3 = Web3(EthereumTesterProvider(), modules={'eth': (MockEth,)})
+    assert w3.eth.block_number() == 42
+
+
 def test_attach_modules_multiple_levels_deep():
     mods = {
         "eth": MockEth,

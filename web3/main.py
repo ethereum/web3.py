@@ -66,7 +66,7 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3._utils.module import (
-    attach_modules,
+    attach_modules as _attach_modules,
 )
 from web3._utils.normalizers import (
     abi_ens_resolver,
@@ -248,10 +248,10 @@ class Web3:
         if modules is None:
             modules = get_default_modules()
 
-        attach_modules(self, modules)
+        self.attach_modules(modules)
 
         if external_modules is not None:
-            attach_modules(self, external_modules)
+            self.attach_modules(external_modules)
 
         self.ens = ens
 
@@ -331,38 +331,14 @@ class Web3:
         )))
         return cls.keccak(hexstr=hex_string)
 
-    def attach_module(
-        self,
-        module_name: str,
-        module: Union[Type[Module], Sequence[Any]]
+    def attach_modules(
+        self, modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]]
     ) -> None:
         """
-        Attach a module to the `Web3` instance. Modules should inherit from the `web3.module.Module`
+        Attach modules to the `Web3` instance. Modules should inherit from the `web3.module.Module`
         class.
-
-        Attaching a simple module:
-
-            >>> w3.attach_module('module1', ModuleClass1)
-            >>> w3.module1.return_zero
-            0
-
-        Attaching a module with submodules:
-
-            >>> w3.attach_module(
-            ...     'module2',
-            ...     (ModuleClass2, {
-            ...         'submodule1': ModuleClass3,
-            ...         'submodule2': (ModuleClass4, {
-            ...             'submodule2a': ModuleClass5,
-            ...         })
-            ...     })
-            ... )
-            >>> w3.module2.submodule1.return_one
-            1
-            >>> w3.module2.submodule2.submodule2a.return_two
-            2
         """
-        attach_modules(self, {module_name: module})
+        _attach_modules(self, modules)
 
     def isConnected(self) -> bool:
         return self.provider.isConnected()
@@ -396,7 +372,7 @@ class Web3:
     def enable_unstable_package_management_api(self) -> None:
         from web3.pm import PM  # noqa: F811
         if not hasattr(self, '_pm'):
-            attach_modules(self, {'_pm': (PM,)})
+            self.attach_modules({'_pm': PM})
 
     def enable_strict_bytes_type_checking(self) -> None:
         self.codec = ABICodec(build_strict_registry())
