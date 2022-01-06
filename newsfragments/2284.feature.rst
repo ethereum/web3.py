@@ -1,1 +1,0 @@
-Add async `eth.accounts` method

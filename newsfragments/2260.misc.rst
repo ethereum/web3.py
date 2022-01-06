@@ -1,1 +1,0 @@
-Bump timeout for WebsocketProvider in Geth integration tests
