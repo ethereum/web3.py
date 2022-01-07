@@ -62,7 +62,8 @@ You should now be set up to run the contract deployment example below:
     ...             return greeting;
     ...         }
     ...     }
-    ...     '''
+    ...     ''',
+    ...     output_values=['abi', 'bin']
     ... )
 
     # retrieve the contract interface
