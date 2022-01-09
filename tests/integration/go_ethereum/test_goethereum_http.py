@@ -4,10 +4,14 @@ from tests.utils import (
     get_open_port,
 )
 from web3 import Web3
+from web3._utils.module_testing.go_ethereum_personal_module import (
+    GoEthereumAsyncPersonalModuleTest,
+)
 from web3.eth import (
     AsyncEth,
 )
 from web3.geth import (
+    AsyncGethPersonal,
     AsyncGethTxPool,
     Geth,
 )
@@ -94,10 +98,11 @@ async def async_w3(geth_process, endpoint_uri):
             async_gas_price_strategy_middleware,
             async_buffered_gas_estimate_middleware
         ],
-        modules={'eth': (AsyncEth,),
-                 'async_net': (AsyncNet,),
+        modules={'eth': AsyncEth,
+                 'async_net': AsyncNet,
                  'geth': (Geth,
-                          {'txpool': (AsyncGethTxPool,)}
+                          {'txpool': (AsyncGethTxPool,),
+                           'personal': (AsyncGethPersonal,)}
                           )
                  }
     )
@@ -141,6 +146,10 @@ class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
 
 
 class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
+    pass
+
+
+class TestGoEthereumAsyncPersonalModuleTest(GoEthereumAsyncPersonalModuleTest):
     pass
 
 
