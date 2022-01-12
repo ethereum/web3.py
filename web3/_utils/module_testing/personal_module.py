@@ -21,6 +21,9 @@ from hexbytes import (
 from web3 import (
     constants,
 )
+from web3.datastructures import (
+    AttributeDict,
+)
 from web3.types import (  # noqa: F401
     TxParams,
     Wei,
@@ -343,3 +346,59 @@ class GoEthereumPersonalModuleTest:
             )
             assert signature == expected_signature
             assert len(signature) == 32 + 32 + 1
+
+
+class GoEthereumAsyncPersonalModuleTest:
+
+    @pytest.mark.asyncio
+    async def test_async_sign_and_ec_recover(self,
+                                             async_w3: "Web3",
+                                             unlockable_account_dual_type: ChecksumAddress,
+                                             unlockable_account_pw: str) -> None:
+        message = "This is a test"
+        signiture = await async_w3.geth.personal.sign(message,
+                                                      unlockable_account_dual_type,
+                                                      unlockable_account_pw)
+        address = await async_w3.geth.personal.ec_recover(message, signiture)
+        assert is_same_address(unlockable_account_dual_type, address)
+
+    @pytest.mark.asyncio
+    async def test_import_raw_key_list_accounts(self, async_w3: "Web3") -> None:
+        account = await async_w3.geth.personal.import_raw_key(PRIVATE_KEY_HEX, PASSWORD)
+        assert account == ADDRESS
+        accounts = await async_w3.geth.personal.list_accounts()
+        assert account in accounts
+
+    @pytest.mark.asyncio
+    async def test_list_wallets(self, async_w3: "Web3") -> None:
+        wallets = await async_w3.geth.personal.list_wallets()
+        assert isinstance(wallets[0], AttributeDict)
+
+    @pytest.mark.asyncio
+    async def test_new_account(self, async_w3: "Web3") -> None:
+        paraphrase = "Create New Account"
+        account = await async_w3.geth.personal.new_account(paraphrase)
+        assert is_checksum_address(account)
+
+    @pytest.mark.asyncio
+    async def test_unlock_lock_account(self,
+                                       async_w3: "Web3",
+                                       unlockable_account_dual_type: ChecksumAddress,
+                                       unlockable_account_pw: str) -> None:
+        unlocked = await async_w3.geth.personal.unlock_account(unlockable_account_dual_type,
+                                                               unlockable_account_pw)
+        assert unlocked is True
+        locked = await async_w3.geth.personal.lock_account(unlockable_account_dual_type)
+        assert locked is True
+
+    @pytest.mark.asyncio
+    async def test_send_transaction(self,
+                                    async_w3: "Web3",
+                                    unlockable_account_dual_type: ChecksumAddress,
+                                    unlockable_account_pw: str) -> None:
+        tx_params = TxParams()
+        tx_params["to"] = unlockable_account_dual_type
+        tx_params["from"] = unlockable_account_dual_type
+        tx_params["value"] = Wei(123)
+        response = await async_w3.geth.personal.send_transaction(tx_params, unlockable_account_pw)
+        assert response is not None

@@ -180,6 +180,49 @@ class GethPersonal(BaseGethPersonal):
         return self._unlockAccount(account, passphrase, duration)
 
 
+class AsyncGethPersonal(BaseGethPersonal):
+    is_async = True
+
+    async def ec_recover(self, message: str, signiture: HexStr) -> Awaitable[ChecksumAddress]:
+        return await self._ec_recover(message, signiture)
+
+    async def import_raw_key(self, private_key: str, passphrase: str) -> Awaitable[ChecksumAddress]:
+        return await self._import_raw_key(private_key, passphrase)
+
+    async def list_accounts(self) -> Awaitable[List[ChecksumAddress]]:
+        return await self._list_accounts()
+
+    async def list_wallets(self) -> Awaitable[List[GethWallet]]:
+        return await self._list_wallets()
+
+    async def lock_account(self, account: ChecksumAddress) -> Awaitable[bool]:
+        return await self._lock_account(account)
+
+    async def new_account(self, passphrase: str) -> Awaitable[ChecksumAddress]:
+        return await self._new_account(passphrase)
+
+    async def send_transaction(self, transaction: TxParams, passphrase: str) -> Awaitable[HexBytes]:
+        return await self._send_transaction(transaction, passphrase)
+
+    async def sign(self,
+                   message: str,
+                   account: ChecksumAddress,
+                   password: Optional[str]) -> Awaitable[HexStr]:
+        return await self._sign(message, account, password)
+
+    async def sign_typed_data(self,
+                              message: Dict[str, Any],
+                              account: ChecksumAddress,
+                              password: Optional[str]) -> Awaitable[HexStr]:
+        return await self._sign_typed_data(message, account, password)
+
+    async def unlock_account(self,
+                             account: ChecksumAddress,
+                             passphrase: str,
+                             duration: Optional[int] = None) -> Awaitable[bool]:
+        return await self._unlock_account(account, passphrase, duration)
+
+
 class BaseTxPool(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#txpool
