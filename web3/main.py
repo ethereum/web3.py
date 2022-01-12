@@ -335,8 +335,7 @@ class Web3:
         self, modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]]
     ) -> None:
         """
-        Attach modules to the `Web3` instance. Modules should inherit from the `web3.module.Module`
-        class.
+        Attach modules to the `Web3` instance.
         """
         _attach_modules(self, modules)
 

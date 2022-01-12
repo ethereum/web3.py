@@ -385,10 +385,10 @@ Check Encodability
         False
 
 
-RPC APIS
-~~~~~~~~
+RPC API Modules
+~~~~~~~~~~~~~~~
 
-Each ``Web3`` instance also exposes these namespaced APIs.
+Each ``Web3`` instance also exposes these namespaced API modules.
 
 
 .. py:attribute:: Web3.eth
@@ -412,21 +412,34 @@ Each ``Web3`` instance also exposes these namespaced APIs.
     See :doc:`./web3.parity`
 
 
+These internal modules inherit from the ``web3.module.Module`` class which give them some configurations internal to the
+web3.py library.
+
+
 Attaching Modules
 ~~~~~~~~~~~~~~~~~
 
-Modules that inherit from the ``web3.module.Module`` class may be attached to the ``Web3`` instance either at
-instantiation or by making use of the ``attach_modules()`` method.
+External modules may be attached to the ``Web3`` instance either at instantiation or by making use of the
+``attach_modules()`` method. External modules need not inherit from the ``web3.module.Module`` class. This allows for a
+good deal of flexibility even in defining what a module means to the user. An external module could technically provide
+any bit of functionality that the user desires. Consequently, external modules need not be RPC APIs - though this does
+provide the ability to attach an RPC API library, specific to your chain of choice, to the ``Web3`` instance.
 
 To instantiate the ``Web3`` instance with external modules:
 
 .. code-block:: python
 
-    >>> from web3 import Web3, EthereumTesterProvider
+    >>> from web3 import Web3, HTTPProvider
+    >>> from external_module_library import (
+    ...     ModuleClass1,
+    ...     ModuleClass2,
+    ...     ModuleClass3,
+    ...     ModuleClass4,
+    ...     ModuleClass5,
+    ... )
     >>> w3 = Web3(
-    ...     EthereumTesterProvider(),
+    ...     HTTPProvider(provider_uri),
     ...     external_modules={
-    ...         # ModuleClass objects in this example inherit from the `web3.module.Module` class
     ...         'module1': ModuleClass1,
     ...         'module2': (ModuleClass2, {
     ...             'submodule1': ModuleClass3,
@@ -455,12 +468,17 @@ To instantiate the ``Web3`` instance with external modules:
     themselves, if there are no submodules, or two-item tuples with the module class as the 0th index and a similarly
     built `dict` containing the submodule information as the 1st index. This pattern may be repeated as necessary.
 
-    .. note:: Module classes must inherit from the ``web3.module.Module`` class.
-
     .. code-block:: python
 
-        >>> from web3 import Web3, EthereumTesterProvider
-        >>> w3 = Web3(EthereumTesterProvider())
+        >>> from web3 import Web3, HTTPProvider
+        >>> from external_module_library import (
+        ...     ModuleClass1,
+        ...     ModuleClass2,
+        ...     ModuleClass3,
+        ...     ModuleClass4,
+        ...     ModuleClass5,
+        ... )
+        >>> w3 = Web3(HTTPProvider(provider_uri))
 
         >>> w3.attach_modules({
         ...     'module1': ModuleClass1,  # the module class itself may be used for a single module with no submodules
