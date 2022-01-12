@@ -356,9 +356,9 @@ class GoEthereumAsyncPersonalModuleTest:
                                              unlockable_account_dual_type: ChecksumAddress,
                                              unlockable_account_pw: str) -> None:
         message = "This is a test"
-        signiture = await async_w3.geth.personal.sign(message,
+        signiture = await async_w3.geth.personal.sign(message,  # type: ignore
                                                       unlockable_account_dual_type,
-                                                      unlockable_account_pw)  # type: ignore
+                                                      unlockable_account_pw)
         address = await async_w3.geth.personal.ec_recover(message, signiture)  # type: ignore
         assert is_same_address(unlockable_account_dual_type, address)
 
@@ -383,12 +383,12 @@ class GoEthereumAsyncPersonalModuleTest:
                                        async_w3: "Web3",
                                        unlockable_account_dual_type: ChecksumAddress,
                                        unlockable_account_pw: str) -> None:
-        unlocked = await async_w3.geth.personal.unlock_account(
+        unlocked = await async_w3.geth.personal.unlock_account(  # type: ignore
             unlockable_account_dual_type,
-            unlockable_account_pw)  # type: ignore
+            unlockable_account_pw)
         assert unlocked is True
-        locked = await async_w3.geth.personal.lock_account(
-            unlockable_account_dual_type)  # type: ignore
+        locked = await async_w3.geth.personal.lock_account(  # type: ignore
+            unlockable_account_dual_type)
         assert locked is True
 
     @pytest.mark.asyncio
@@ -400,7 +400,7 @@ class GoEthereumAsyncPersonalModuleTest:
         tx_params["to"] = unlockable_account_dual_type
         tx_params["from"] = unlockable_account_dual_type
         tx_params["value"] = Wei(123)
-        response = await async_w3.geth.personal.send_transaction(
+        response = await async_w3.geth.personal.send_transaction(  # type; ignore
             tx_params,
-            unlockable_account_pw)  # type: ignore
+            unlockable_account_pw)
         assert response is not None
