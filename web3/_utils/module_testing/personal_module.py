@@ -363,12 +363,9 @@ class GoEthereumAsyncPersonalModuleTest:
         assert is_same_address(unlockable_account_dual_type, address)
 
     @pytest.mark.asyncio
-    async def test_import_raw_key_list_accounts(self, async_w3: "Web3") -> None:
-        account = await async_w3.geth.personal.import_raw_key(PRIVATE_KEY_HEX,
-                                                              PASSWORD)  # type: ignore
-        assert account == ADDRESS
+    async def test_list_accounts(self, async_w3: "Web3") -> None:
         accounts = await async_w3.geth.personal.list_accounts()  # type: ignore
-        assert account in accounts
+        assert len(accounts) > 0
 
     @pytest.mark.asyncio
     async def test_list_wallets(self, async_w3: "Web3") -> None:
