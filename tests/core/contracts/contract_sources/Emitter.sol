@@ -1,4 +1,4 @@
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.11;
 
 
 contract Emitter {
@@ -11,7 +11,6 @@ contract Emitter {
     event LogString(string v);
     event LogBytes(bytes v);
 
-    // Indexed
     event LogSingleWithIndex(uint indexed arg0);
     event LogSingleAnonymous(uint indexed arg0) anonymous;
     event LogDoubleWithIndex(uint arg0, uint indexed arg1);
@@ -23,10 +22,13 @@ contract Emitter {
     event LogAddressIndexed(address indexed arg0, address arg1);
     event LogAddressNotIndexed(address arg0, address arg1);
 
-    // Nested type functionality
+    struct NestedTestTuple {
+        uint c;
+    }
     struct TestTuple {
         uint a;
         uint b;
+        NestedTestTuple nested;
     }
     event LogStructArgs(uint arg0, TestTuple arg1);
 
