@@ -1,1 +1,0 @@
-Add ``middlewares`` property to ``NamedElementOnion`` / ``web3.middleware_onion``. Returns current middlewares in proper order for importing into a new ``Web3`` instance

@@ -28,6 +28,7 @@ from typing import (
     List,
     Optional,
     Sequence,
+    Type,
     TYPE_CHECKING,
     Union,
     cast,
@@ -65,7 +66,7 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3._utils.module import (
-    attach_modules,
+    attach_modules as _attach_modules,
 )
 from web3._utils.normalizers import (
     abi_ens_resolver,
@@ -85,6 +86,9 @@ from web3.iban import (
 )
 from web3.manager import (
     RequestManager as DefaultRequestManager,
+)
+from web3.module import (
+    Module,
 )
 from web3.net import (
     AsyncNet,
@@ -128,21 +132,21 @@ if TYPE_CHECKING:
     from web3.pm import PM  # noqa: F401
 
 
-def get_default_modules() -> Dict[str, Sequence[Any]]:
+def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
     return {
-        "eth": (Eth,),
-        "net": (Net,),
-        "version": (Version,),
+        "eth": Eth,
+        "net": Net,
+        "version": Version,
         "parity": (Parity, {
-            "personal": (ParityPersonal,),
+            "personal": ParityPersonal,
         }),
         "geth": (Geth, {
-            "admin": (GethAdmin,),
-            "miner": (GethMiner,),
-            "personal": (GethPersonal,),
-            "txpool": (GethTxPool,),
+            "admin": GethAdmin,
+            "miner": GethMiner,
+            "personal": GethPersonal,
+            "txpool": GethTxPool,
         }),
-        "testing": (Testing,),
+        "testing": Testing,
     }
 
 
@@ -232,7 +236,8 @@ class Web3:
         self,
         provider: Optional[BaseProvider] = None,
         middlewares: Optional[Sequence[Any]] = None,
-        modules: Optional[Dict[str, Sequence[Any]]] = None,
+        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
+        external_modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
         ens: ENS = cast(ENS, empty)
     ) -> None:
         self.manager = self.RequestManager(self, provider, middlewares)
@@ -243,7 +248,10 @@ class Web3:
         if modules is None:
             modules = get_default_modules()
 
-        attach_modules(self, modules)
+        self.attach_modules(modules)
+
+        if external_modules is not None:
+            self.attach_modules(external_modules)
 
         self.ens = ens
 
@@ -323,6 +331,15 @@ class Web3:
         )))
         return cls.keccak(hexstr=hex_string)
 
+    def attach_modules(
+        self, modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]]
+    ) -> None:
+        """
+        Attach modules to the `Web3` instance. Modules should inherit from the `web3.module.Module`
+        class.
+        """
+        _attach_modules(self, modules)
+
     def isConnected(self) -> bool:
         return self.provider.isConnected()
 
@@ -355,7 +372,7 @@ class Web3:
     def enable_unstable_package_management_api(self) -> None:
         from web3.pm import PM  # noqa: F811
         if not hasattr(self, '_pm'):
-            attach_modules(self, {'_pm': (PM,)})
+            self.attach_modules({'_pm': PM})
 
     def enable_strict_bytes_type_checking(self) -> None:
         self.codec = ABICodec(build_strict_registry())

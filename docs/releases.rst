@@ -3,6 +3,69 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.26.0 (2022-01-06)
+--------------------
+
+Features
+~~~~~~~~
+
+- Add ``middlewares`` property to ``NamedElementOnion`` /
+  ``web3.middleware_onion``. Returns current middlewares in proper order for
+  importing into a new ``Web3`` instance (`#2239
+  <https://github.com/ethereum/web3.py/issues/2239>`__)
+- Add async ``eth.hashrate`` method (`#2243
+  <https://github.com/ethereum/web3.py/issues/2243>`__)
+- Add async ``eth.chain_id`` method (`#2251
+  <https://github.com/ethereum/web3.py/issues/2251>`__)
+- Add async ``eth.mining`` method (`#2252
+  <https://github.com/ethereum/web3.py/issues/2252>`__)
+- Add async ``eth.get_transaction_receipt`` and
+  ``eth.wait_for_transaction_receipt`` methods (`#2265
+  <https://github.com/ethereum/web3.py/issues/2265>`__)
+- Add async `eth.accounts` method (`#2284
+  <https://github.com/ethereum/web3.py/issues/2284>`__)
+- Support for attaching external modules to the ``Web3`` instance when
+  instantiating the ``Web3`` instance, via the ``external_modules`` argument,
+  or via the new ``attach_modules()`` method (`#2288
+  <https://github.com/ethereum/web3.py/issues/2288>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fixed doctest that wasn't running in ``docs/contracts.rst`` (`#2213
+  <https://github.com/ethereum/web3.py/issues/2213>`__)
+- Key mapping fix to eth-tester middleware for access list storage keys (`#2224
+  <https://github.com/ethereum/web3.py/issues/2224>`__)
+- Inherit ``Web3`` instance middlewares when instantiating ``ENS`` with
+  ``ENS.fromWeb3()`` method (`#2239
+  <https://github.com/ethereum/web3.py/issues/2239>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Fix example docs to show a TransactionNotFound error, instead of None (`#2199
+  <https://github.com/ethereum/web3.py/issues/2199>`__)
+- fix typo in ethpm.rst (`#2277
+  <https://github.com/ethereum/web3.py/issues/2277>`__)
+- Clarify provider usage in Quickstart docs (`#2287
+  <https://github.com/ethereum/web3.py/issues/2287>`__)
+- Address common BSC usage question (`#2289
+  <https://github.com/ethereum/web3.py/issues/2289>`__)
+
+
+Misc
+~~~~
+
+- `#1729 <https://github.com/ethereum/web3.py/issues/1729>`__, `#2233
+  <https://github.com/ethereum/web3.py/issues/2233>`__, `#2242
+  <https://github.com/ethereum/web3.py/issues/2242>`__, `#2260
+  <https://github.com/ethereum/web3.py/issues/2260>`__, `#2261
+  <https://github.com/ethereum/web3.py/issues/2261>`__, `#2283
+  <https://github.com/ethereum/web3.py/issues/2283>`__
+
+
 v5.25.0 (2021-11-19)
 --------------------
 

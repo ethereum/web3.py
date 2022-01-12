@@ -3,6 +3,14 @@ web3.eth API
 
 .. py:module:: web3.eth
 
+.. warning:: Whoa there, Binance Smart Chain user! Web3.py is an Ethereum-specific library,
+  which now defaults to "type 2" transactions as of the London network upgrade. BSC apparently
+  does not support these newer transaction types.
+
+  From issues opened, it seems BSC transactions must include ``gasPrice``, but not ``type``,
+  ``maxFeePerGas``, or ``maxPriorityFeePerGas``. If you have trouble beyond that, please find an
+  appropriate BSC forum to raise your question.
+
 .. py:class:: Eth
 
 The ``web3.eth`` object exposes the following properties and methods to

@@ -1,1 +1,0 @@
-Fix example docs to show a TransactionNotFound error, instead of None

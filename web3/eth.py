@@ -1,3 +1,4 @@
+import asyncio
 from typing import (
     Any,
     Awaitable,
@@ -62,7 +63,6 @@ from web3._utils.transactions import (
     extract_valid_transaction_params,
     get_required_transaction,
     replace_transaction,
-    wait_for_transaction_receipt,
 )
 from web3.contract import (
     ConciseContract,
@@ -71,6 +71,7 @@ from web3.contract import (
 )
 from web3.exceptions import (
     TimeExhausted,
+    TransactionNotFound,
 )
 from web3.iban import (
     Iban,
@@ -262,6 +263,11 @@ class BaseEth(Module):
         else:
             return (transaction, block_identifier, state_override)
 
+    _get_accounts: Method[Callable[[], Tuple[ChecksumAddress]]] = Method(
+        RPC.eth_accounts,
+        mungers=None,
+    )
+
     _get_hashrate: Method[Callable[[], int]] = Method(
         RPC.eth_hashrate,
         mungers=None,
@@ -277,9 +283,18 @@ class BaseEth(Module):
         mungers=None,
     )
 
+    _get_transaction_receipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
+        RPC.eth_getTransactionReceipt,
+        mungers=[default_root_munger]
+    )
+
 
 class AsyncEth(BaseEth):
     is_async = True
+
+    @property
+    async def accounts(self) -> Tuple[ChecksumAddress]:
+        return await self._get_accounts()  # type: ignore
 
     @property
     async def block_number(self) -> BlockNumber:
@@ -403,6 +418,37 @@ class AsyncEth(BaseEth):
         mungers=[BaseEth.call_munger]
     )
 
+    async def get_transaction_receipt(
+        self, transaction_hash: _Hash32
+    ) -> TxReceipt:
+        return await self._get_transaction_receipt(transaction_hash)  # type: ignore
+
+    async def wait_for_transaction_receipt(
+        self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
+    ) -> TxReceipt:
+        async def _wait_for_tx_receipt_with_timeout(
+            _tx_hash: _Hash32, _poll_latence: float
+        ) -> TxReceipt:
+            while True:
+                try:
+                    tx_receipt = await self._get_transaction_receipt(_tx_hash)  # type: ignore
+                except TransactionNotFound:
+                    tx_receipt = None
+                if tx_receipt is not None:
+                    break
+                await asyncio.sleep(poll_latency)
+            return tx_receipt
+        try:
+            return await asyncio.wait_for(
+                _wait_for_tx_receipt_with_timeout(transaction_hash, poll_latency),
+                timeout=timeout,
+            )
+        except asyncio.TimeoutError:
+            raise TimeExhausted(
+                f"Transaction {HexBytes(transaction_hash) !r} is not in the chain "
+                f"after {timeout} seconds"
+            )
+
     async def call(
         self,
         transaction: TxParams,
@@ -412,7 +458,7 @@ class AsyncEth(BaseEth):
         return await self._call(transaction, block_identifier, state_override)
 
 
-class Eth(BaseEth, Module):
+class Eth(BaseEth):
     account = Account()
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
@@ -477,14 +523,9 @@ class Eth(BaseEth, Module):
         )
         return self.gas_price
 
-    get_accounts: Method[Callable[[], Tuple[ChecksumAddress]]] = Method(
-        RPC.eth_accounts,
-        mungers=None,
-    )
-
     @property
     def accounts(self) -> Tuple[ChecksumAddress]:
-        return self.get_accounts()
+        return self._get_accounts()
 
     @property
     def block_number(self) -> BlockNumber:
@@ -683,19 +724,27 @@ class Eth(BaseEth, Module):
         self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
         try:
-            return wait_for_transaction_receipt(self.web3, transaction_hash, timeout, poll_latency)
+            with Timeout(timeout) as _timeout:
+                while True:
+                    try:
+                        tx_receipt = self._get_transaction_receipt(transaction_hash)
+                    except TransactionNotFound:
+                        tx_receipt = None
+                    if tx_receipt is not None:
+                        break
+                    _timeout.sleep(poll_latency)
+            return tx_receipt
+
         except Timeout:
             raise TimeExhausted(
-                "Transaction {!r} is not in the chain, after {} seconds".format(
-                    HexBytes(transaction_hash),
-                    timeout,
-                )
+                f"Transaction {HexBytes(transaction_hash) !r} is not in the chain "
+                f"after {timeout} seconds"
             )
 
-    get_transaction_receipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
-        RPC.eth_getTransactionReceipt,
-        mungers=[default_root_munger]
-    )
+    def get_transaction_receipt(
+        self, transaction_hash: _Hash32
+    ) -> TxReceipt:
+        return self._get_transaction_receipt(transaction_hash)
 
     get_transaction_count: Method[Callable[..., Nonce]] = Method(
         RPC.eth_getTransactionCount,
@@ -924,7 +973,7 @@ class Eth(BaseEth, Module):
     sendRawTransaction = DeprecatedMethod(send_raw_transaction,  # type: ignore
                                           'sendRawTransaction',
                                           'send_raw_transaction')
-    getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,
+    getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,  # type: ignore
                                              'getTransactionReceipt',
                                              'get_transaction_receipt')
     uninstallFilter = DeprecatedMethod(uninstall_filter, 'uninstallFilter', 'uninstall_filter')

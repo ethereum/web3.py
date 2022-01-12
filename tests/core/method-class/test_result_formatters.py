@@ -46,7 +46,7 @@ def dummy_w3():
     w3 = Web3(
         DummyProvider(),
         middlewares=[result_middleware],
-        modules={"module": (ModuleForTest,)})
+        modules={"module": ModuleForTest})
     return w3
 
 

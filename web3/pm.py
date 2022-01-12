@@ -167,7 +167,7 @@ class ERC1319Registry(ABC):
     @abstractmethod
     def _get_all_release_ids(self, package_name: str) -> Iterable[bytes]:
         """
-        Returns a tuple containg all of the release ids belonging to the given package name,
+        Returns a tuple containing all of the release ids belonging to the given package name,
         if the package has releases on the connected registry.
 
         * Parameters:

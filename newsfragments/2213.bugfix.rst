@@ -1,1 +1,0 @@
-Fixed doctest that wasn't running in ``docs/contracts.rst``

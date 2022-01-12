@@ -287,7 +287,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-goethereum-ipc
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   py36-integration-goethereum-http:
     <<: *geth_steps
@@ -295,7 +295,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-goethereum-http
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   py36-integration-goethereum-ws:
     <<: *geth_steps
@@ -303,7 +303,7 @@ jobs:
       - image: circleci/python:3.6
     environment:
       TOXENV: py36-integration-goethereum-ws
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   # py36-integration-parity-ipc:
     # <<: *parity_steps
@@ -379,7 +379,7 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ipc
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   py37-integration-goethereum-http:
     <<: *geth_steps
@@ -387,7 +387,7 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-http
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   py37-integration-goethereum-ws:
     <<: *geth_steps
@@ -395,7 +395,7 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ws
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   # py37-integration-parity-ipc:
     # <<: *parity_steps
@@ -476,7 +476,7 @@ jobs:
       - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ipc
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   py38-integration-goethereum-http:
     <<: *geth_steps
@@ -484,7 +484,7 @@ jobs:
       - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-http
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   py38-integration-goethereum-ws:
     <<: *geth_steps
@@ -492,7 +492,7 @@ jobs:
       - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ws
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   # py38-integration-parity-ipc:
     # <<: *parity_steps
@@ -568,7 +568,7 @@ jobs:
       - image: circleci/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ipc
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   py39-integration-goethereum-http:
     <<: *geth_steps
@@ -576,7 +576,7 @@ jobs:
       - image: circleci/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-http
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   py39-integration-goethereum-ws:
     <<: *geth_steps
@@ -584,7 +584,7 @@ jobs:
       - image: circleci/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ws
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
   # py39-integration-parity-ipc:
   #   <<: *parity_steps
@@ -634,7 +634,7 @@ jobs:
       - image: circleci/python:3.9
     environment:
       TOXENV: benchmark
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.13
 
 workflows:
   version: 2.1
