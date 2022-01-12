@@ -436,9 +436,7 @@ def strict_emitter(w3_strict_abi,
     w3 = w3_strict_abi
 
     wait_for_block(w3)
-    deploy_txn_hash = StrictEmitter.constructor().transact(
-        {'from': w3.eth.coinbase, 'gas': 1000000}
-    )
+    deploy_txn_hash = StrictEmitter.constructor().transact({'gas': 10000000})
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
@@ -943,7 +941,6 @@ class LogFunctions:
     LogTripleWithIndex = 10
     LogQuadrupleWithIndex = 11
     LogBytes = 12
-    LogStructArgs = 13
 
 
 @pytest.fixture()

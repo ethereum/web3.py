@@ -39,7 +39,9 @@ from eth_utils import (
     to_hex,
     to_tuple,
 )
-from eth_utils.abi import collapse_if_tuple
+from eth_utils.abi import (
+    collapse_if_tuple,
+)
 from eth_utils.curried import (
     apply_formatter_if,
 )
@@ -194,7 +196,7 @@ def get_event_abi_types_for_decoding(event_inputs: Sequence[ABIEventParams]) -> 
         if input_abi['indexed'] and is_dynamic_sized_type(input_abi['type']):
             yield 'bytes32'
         else:
-            yield collapse_if_tuple(input_abi)
+            yield collapse_if_tuple(dict(input_abi))
 
 
 @curry
@@ -431,9 +433,9 @@ def _build_argument_filters_from_event_abi(
         key = item['name']
         value: 'BaseArgumentFilter'
         if item['indexed'] is True:
-            value = TopicArgumentFilter(abi_codec=abi_codec, arg_type=item['type'])
+            value = TopicArgumentFilter(abi_codec=abi_codec, arg_type=collapse_if_tuple(dict(item)))
         else:
-            value = DataArgumentFilter(arg_type=item['type'])
+            value = DataArgumentFilter(arg_type=collapse_if_tuple(dict(item)))
         yield key, value
 
 
@@ -479,7 +481,7 @@ class DataArgumentFilter(BaseArgumentFilter):
     # type ignore b/c conflict with BaseArgumentFilter.match_values type
     @property
     def match_values(self) -> Tuple[TypeStr, Tuple[Any, ...]]:  # type: ignore
-        return (self.arg_type, self._match_values)
+        return self.arg_type, self._match_values
 
 
 class TopicArgumentFilter(BaseArgumentFilter):
