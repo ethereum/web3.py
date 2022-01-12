@@ -400,7 +400,7 @@ class GoEthereumAsyncPersonalModuleTest:
         tx_params["to"] = unlockable_account_dual_type
         tx_params["from"] = unlockable_account_dual_type
         tx_params["value"] = Wei(123)
-        response = await async_w3.geth.personal.send_transaction(  # type; ignore
+        response = await async_w3.geth.personal.send_transaction(  # type: ignore
             tx_params,
             unlockable_account_pw)
         assert response is not None
