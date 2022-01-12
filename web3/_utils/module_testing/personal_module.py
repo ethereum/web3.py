@@ -358,26 +358,27 @@ class GoEthereumAsyncPersonalModuleTest:
         message = "This is a test"
         signiture = await async_w3.geth.personal.sign(message,
                                                       unlockable_account_dual_type,
-                                                      unlockable_account_pw)
-        address = await async_w3.geth.personal.ec_recover(message, signiture)
+                                                      unlockable_account_pw)  # type: ignore
+        address = await async_w3.geth.personal.ec_recover(message, signiture)  # type: ignore
         assert is_same_address(unlockable_account_dual_type, address)
 
     @pytest.mark.asyncio
     async def test_import_raw_key_list_accounts(self, async_w3: "Web3") -> None:
-        account = await async_w3.geth.personal.import_raw_key(PRIVATE_KEY_HEX, PASSWORD)
+        account = await async_w3.geth.personal.import_raw_key(PRIVATE_KEY_HEX,
+                                                              PASSWORD)  # type: ignore
         assert account == ADDRESS
-        accounts = await async_w3.geth.personal.list_accounts()
+        accounts = await async_w3.geth.personal.list_accounts()  # type: ignore
         assert account in accounts
 
     @pytest.mark.asyncio
     async def test_list_wallets(self, async_w3: "Web3") -> None:
-        wallets = await async_w3.geth.personal.list_wallets()
+        wallets = await async_w3.geth.personal.list_wallets()  # type: ignore
         assert isinstance(wallets[0], AttributeDict)
 
     @pytest.mark.asyncio
     async def test_new_account(self, async_w3: "Web3") -> None:
         paraphrase = "Create New Account"
-        account = await async_w3.geth.personal.new_account(paraphrase)
+        account = await async_w3.geth.personal.new_account(paraphrase)  # type: ignore
         assert is_checksum_address(account)
 
     @pytest.mark.asyncio
@@ -385,10 +386,12 @@ class GoEthereumAsyncPersonalModuleTest:
                                        async_w3: "Web3",
                                        unlockable_account_dual_type: ChecksumAddress,
                                        unlockable_account_pw: str) -> None:
-        unlocked = await async_w3.geth.personal.unlock_account(unlockable_account_dual_type,
-                                                               unlockable_account_pw)
+        unlocked = await async_w3.geth.personal.unlock_account(
+            unlockable_account_dual_type,
+            unlockable_account_pw)  # type: ignore
         assert unlocked is True
-        locked = await async_w3.geth.personal.lock_account(unlockable_account_dual_type)
+        locked = await async_w3.geth.personal.lock_account(
+            unlockable_account_dual_type)  # type: ignore
         assert locked is True
 
     @pytest.mark.asyncio
@@ -400,5 +403,7 @@ class GoEthereumAsyncPersonalModuleTest:
         tx_params["to"] = unlockable_account_dual_type
         tx_params["from"] = unlockable_account_dual_type
         tx_params["value"] = Wei(123)
-        response = await async_w3.geth.personal.send_transaction(tx_params, unlockable_account_pw)
+        response = await async_w3.geth.personal.send_transaction(
+            tx_params,
+            unlockable_account_pw)  # type: ignore
         assert response is not None

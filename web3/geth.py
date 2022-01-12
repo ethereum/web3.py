@@ -184,43 +184,43 @@ class AsyncGethPersonal(BaseGethPersonal):
     is_async = True
 
     async def ec_recover(self, message: str, signiture: HexStr) -> Awaitable[ChecksumAddress]:
-        return await self._ec_recover(message, signiture)
+        return await self._ec_recover(message, signiture)  # type: ignore
 
     async def import_raw_key(self, private_key: str, passphrase: str) -> Awaitable[ChecksumAddress]:
-        return await self._import_raw_key(private_key, passphrase)
+        return await self._import_raw_key(private_key, passphrase)  # type: ignore
 
     async def list_accounts(self) -> Awaitable[List[ChecksumAddress]]:
-        return await self._list_accounts()
+        return await self._list_accounts()  # type: ignore
 
     async def list_wallets(self) -> Awaitable[List[GethWallet]]:
-        return await self._list_wallets()
+        return await self._list_wallets()  # type: ignore
 
     async def lock_account(self, account: ChecksumAddress) -> Awaitable[bool]:
-        return await self._lock_account(account)
+        return await self._lock_account(account)  # type: ignore
 
     async def new_account(self, passphrase: str) -> Awaitable[ChecksumAddress]:
-        return await self._new_account(passphrase)
+        return await self._new_account(passphrase)  # type: ignore
 
     async def send_transaction(self, transaction: TxParams, passphrase: str) -> Awaitable[HexBytes]:
-        return await self._send_transaction(transaction, passphrase)
+        return await self._send_transaction(transaction, passphrase)  # type: ignore
 
     async def sign(self,
                    message: str,
                    account: ChecksumAddress,
                    password: Optional[str]) -> Awaitable[HexStr]:
-        return await self._sign(message, account, password)
+        return await self._sign(message, account, password)  # type: ignore
 
     async def sign_typed_data(self,
                               message: Dict[str, Any],
                               account: ChecksumAddress,
                               password: Optional[str]) -> Awaitable[HexStr]:
-        return await self._sign_typed_data(message, account, password)
+        return await self._sign_typed_data(message, account, password)  # type: ignore
 
     async def unlock_account(self,
                              account: ChecksumAddress,
                              passphrase: str,
                              duration: Optional[int] = None) -> Awaitable[bool]:
-        return await self._unlock_account(account, passphrase, duration)
+        return await self._unlock_account(account, passphrase, duration)  # type: ignore
 
 
 class BaseTxPool(Module):
