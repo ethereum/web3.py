@@ -39,9 +39,6 @@ from eth_utils import (
     to_hex,
     to_tuple,
 )
-from eth_utils.abi import (
-    collapse_if_tuple,
-)
 from eth_utils.curried import (
     apply_formatter_if,
 )
@@ -58,6 +55,7 @@ from web3._utils.abi import (
     exclude_indexed_event_inputs,
     get_abi_input_names,
     get_indexed_event_inputs,
+    get_normalized_abi_arg_type,
     map_abi_data,
     normalize_event_input_types,
 )
@@ -196,7 +194,7 @@ def get_event_abi_types_for_decoding(event_inputs: Sequence[ABIEventParams]) -> 
         if input_abi['indexed'] and is_dynamic_sized_type(input_abi['type']):
             yield 'bytes32'
         else:
-            yield collapse_if_tuple(dict(input_abi))
+            yield get_normalized_abi_arg_type(input_abi)
 
 
 @curry
@@ -433,9 +431,12 @@ def _build_argument_filters_from_event_abi(
         key = item['name']
         value: 'BaseArgumentFilter'
         if item['indexed'] is True:
-            value = TopicArgumentFilter(abi_codec=abi_codec, arg_type=collapse_if_tuple(dict(item)))
+            value = TopicArgumentFilter(
+                abi_codec=abi_codec,
+                arg_type=get_normalized_abi_arg_type(item)
+            )
         else:
-            value = DataArgumentFilter(arg_type=collapse_if_tuple(dict(item)))
+            value = DataArgumentFilter(arg_type=get_normalized_abi_arg_type(item))
         yield key, value
 
 
