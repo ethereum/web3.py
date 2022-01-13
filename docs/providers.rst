@@ -385,6 +385,7 @@ AsyncHTTPProvider
         >>> from web3 import Web3, AsyncHTTPProvider
         >>> from web3.eth import AsyncEth
         >>> from web3.net import AsyncNet
+        >>> from web3.geth import Geth, AsyncGethTxPool
 
         >>> w3 = Web3(
         ...     AsyncHTTPProvider(endpoint_uri),
