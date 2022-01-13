@@ -330,7 +330,7 @@ def test_argument_extraction_strict_bytes_types(w3_strict_abi,
                                                 emitter_log_topics):
     arg_0 = [b'12']
     arg_1 = [b'12']
-    txn_hash = strict_emitter.functions.logListArgs(arg_0, arg_1).transact({'gas': 25000})
+    txn_hash = strict_emitter.functions.logListArgs(arg_0, arg_1).transact()
     txn_receipt = wait_for_transaction(w3_strict_abi, txn_hash)
 
     assert len(txn_receipt['logs']) == 1

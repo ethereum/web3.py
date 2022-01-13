@@ -816,6 +816,7 @@ CONTRACT_EMITTER_ABI = [
     }
 ]
 
+
 EMITTER_ENUM = {
     'LogAnonymous': 0,
     'LogNoArguments': 1,
@@ -828,5 +829,6 @@ EMITTER_ENUM = {
     'LogDoubleAnonymous': 8,
     'LogDoubleWithIndex': 9,
     'LogTripleWithIndex': 10,
-    'LogQuadrupleWithInde': 11,
+    'LogQuadrupleWithIndex': 11,
+    'LogStructArg': 12
 }
