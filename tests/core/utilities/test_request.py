@@ -105,35 +105,3 @@ async def test_async_precached_session(mocker):
     # Make sure a request with a different URI adds another cached session
     request.cache_async_session(f"{URI}/test", session)
     assert len(request._async_session_cache) == 2
-
-def test_async_session_cache_threads(mocker):
-    thread1_exception = False
-    thread2_exception = False
-    def test_request_cache():
-        for client_seesion in range(10000):
-            try:
-                request.cache_async_session(f"{client_seesion}", MockSession())
-            except Exception as e:
-                thread1_exception = True
-                raise Exception("Test Failed")
-        return True
-    def test_request_cache2():
-        for client_seesion in range(10000):
-            try:
-                request.cache_async_session(f"{client_seesion}", MockSession())
-            except Exception as e:
-                thread2_exception = True
-                raise Exception("Test Failed")
-        return True
-
-    class MockSession:
-        def close(test=None):
-            pass
-    thread1 = Thread(target=test_request_cache)
-    thread2 = Thread(target=test_request_cache2)
-    hey = thread1.start()
-    hey2 = thread2.start()
-    hey3 = thread1.join()
-    hey4 = thread2.join()
-    assert thread1_exception == False
-    assert thread2_exception == False
