@@ -33,14 +33,12 @@ def cache_async_session(endpoint_uri: URI, session: ClientSession) -> None:
     with _async_session_cache_lock:
         _async_session_cache[cache_key] = session
 
-
 def _remove_session(key: str, session: requests.Session) -> None:
     session.close()
 
 
 def _remove_async_session(key: str, session: ClientSession) -> None:
-    with _async_session_cache_lock:
-        session.close()
+    session.close()
 
 
 _session_cache = lru.LRU(8, callback=_remove_session)
