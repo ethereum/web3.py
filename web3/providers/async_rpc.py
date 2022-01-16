@@ -8,6 +8,9 @@ from typing import (
     Union,
 )
 
+from aiohttp import (
+    ClientSession,
+)
 from eth_typing import (
     URI,
 )
@@ -40,8 +43,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
 
     def __init__(
         self, endpoint_uri: Optional[Union[URI, str]] = None,
-            request_kwargs: Optional[Any] = None,
-            session: Optional[Any] = None
+            request_kwargs: Optional[Any] = None
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
@@ -50,10 +52,10 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
 
         self._request_kwargs = request_kwargs or {}
 
-        if session is not None:
-            cache_async_session(self.endpoint_uri, session)
-
         super().__init__()
+
+    async def cache_async_session(self, session: ClientSession) -> None:
+        await cache_async_session(self.endpoint_uri, session)
 
     def __str__(self) -> str:
         return "RPC connection {0}".format(self.endpoint_uri)

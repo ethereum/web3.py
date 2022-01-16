@@ -379,7 +379,7 @@ AsyncHTTPProvider
       be omitted from the URI.
     * ``request_kwargs`` should be a dictionary of keyword arguments which
       will be passed onto each http/https POST request made to your node.
-    * ``session`` allows you to pass in your own ``aiohttp.ClientSession`` object.
+    * the ``cache_async_session()`` method allows you to use your own ``aiohttp.ClientSession`` object. This is and async method and not part of the consturctor
 
     .. code-block:: python
 
@@ -388,7 +388,6 @@ AsyncHTTPProvider
         >>> from web3.eth import AsyncEth
         >>> from web3.net import AsyncNet
 
-        >>> custom_session = ClientSession()  # If you want to pass in your own session
         >>> w3 = Web3(
         ...     AsyncHTTPProvider(endpoint_uri),
         ...     modules={'eth': (AsyncEth,),
@@ -396,9 +395,10 @@ AsyncHTTPProvider
         ...         'geth': (Geth,
         ...             {'txpool': (AsyncGethTxPool,)})
         ...         },
-        ...     middlewares=[],   # See supported middleware section below for middleware options
-        ...     session = custom_session
-        ) 
+        ...     middlewares=[]   # See supported middleware section below for middleware options
+        ...     ) 
+        >>> custom_session = ClientSession()  # If you want to pass in your own session
+        >>> await w3.provider.cache_async_session(custom_session) # This method is an async method so it needs to be handled accordingly
 
     Under the hood, the ``AsyncHTTPProvider`` uses the python
     `aiohttp <https://docs.aiohttp.org/en/stable/>`_ library for making requests.
