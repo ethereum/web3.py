@@ -1,9 +1,11 @@
+from collections import (
+    OrderedDict,
+)
 import os
 import threading
 from typing import (
     Any,
     Dict,
-    OrderedDict,
 )
 
 from aiohttp import (
