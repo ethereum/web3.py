@@ -1,6 +1,3 @@
-import asyncio
-from threading import Thread
-from typing import List
 import pytest
 
 from aiohttp import (
@@ -120,7 +117,7 @@ def test_cache_session_class():
     assert cache.get_cache_entry("2") == "Hello2"
     assert evicted_items is None
 
-    # Changing what is stored at a given cache key should not cause the 
+    # Changing what is stored at a given cache key should not cause the
     # anything to be evicted
     evicted_items = cache.cache("1", "HelloChanged")
     assert cache.get_cache_entry("1") == "HelloChanged"
