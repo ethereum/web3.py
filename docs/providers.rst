@@ -379,6 +379,7 @@ AsyncHTTPProvider
       be omitted from the URI.
     * ``request_kwargs`` should be a dictionary of keyword arguments which
       will be passed onto each http/https POST request made to your node.
+    * ``session`` allows you to pass in your own `aiohttp.ClientSession` object.
 
     .. code-block:: python
 
