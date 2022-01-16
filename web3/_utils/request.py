@@ -83,10 +83,9 @@ def _get_session(endpoint_uri: URI) -> requests.Session:
 
 async def _get_async_session(endpoint_uri: URI) -> ClientSession:
     cache_key = generate_cache_key(endpoint_uri)
-    with _async_session_cache_lock:
-        if cache_key not in _async_session_cache:
-            _async_session_cache.cache(cache_key, ClientSession(raise_for_status=True))
-        return await _async_session_cache.get_cache_entry(cache_key)
+    if cache_key not in _async_session_cache:
+        await cache_async_session(endpoint_uri, ClientSession(raise_for_status=True))
+    return _async_session_cache.get_cache_entry(cache_key)
 
 
 def make_post_request(endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any) -> bytes:
