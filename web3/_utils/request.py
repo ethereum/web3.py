@@ -31,11 +31,16 @@ class SessionCache:
 
     def cache(self, key: str, value: Any) -> Dict[str, Any]:
         evicted_items = None
-        while len(self._data) >= self._size:
-            if evicted_items is None:
-                evicted_items = {}
-            k, v = self._data.popitem(last=False)
-            evicted_items[k] = v
+        # If the key is already in the OrderedDict just update it
+        # and don't evict any values. Ideally, we could still check to see
+        # if there are too many items in the OrderDict but that may rearange 
+        # the order it should be unlikely that the size could grow over the limit
+        if key not in self._data:
+            while len(self._data) >= self._size:
+                if evicted_items is None:
+                    evicted_items = {}
+                k, v = self._data.popitem(last=False)
+                evicted_items[k] = v
         self._data[key] = value
         return evicted_items
 
