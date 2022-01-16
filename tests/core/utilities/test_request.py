@@ -1,11 +1,7 @@
-import asyncio
-import threading
-from threading import Thread
 import pytest
 
 from aiohttp import (
     ClientSession,
-    client,
 )
 from requests import (
     Session,
@@ -18,6 +14,9 @@ from requests.adapters import (
 
 from web3._utils import (
     request,
+)
+from web3._utils.request import (
+    SessionCache,
 )
 
 
@@ -95,13 +94,35 @@ def test_precached_session(mocker):
 async def test_async_precached_session(mocker):
     # Add a session
     session = ClientSession()
-    request.cache_async_session(URI, session)
+    await request.cache_async_session(URI, session)
     assert len(request._async_session_cache) == 1
 
     # Make sure the session isn't duplicated
-    request.cache_async_session(URI, session)
+    await request.cache_async_session(URI, session)
     assert len(request._async_session_cache) == 1
 
     # Make sure a request with a different URI adds another cached session
-    request.cache_async_session(f"{URI}/test", session)
+    await request.cache_async_session(f"{URI}/test", session)
     assert len(request._async_session_cache) == 2
+
+
+def test_cache_session_class():
+
+    cache = SessionCache(2)
+    evicted_items = cache.cache("1", "Hello1")
+    assert cache.get_cache_entry("1") == "Hello1"
+    assert evicted_items is None
+
+    evicted_items = cache.cache("2", "Hello2")
+    assert cache.get_cache_entry("2") == "Hello2"
+    assert evicted_items is None
+
+    evicted_items = cache.cache("3", "Hello3")
+    assert "2" in cache
+    assert "3" in cache
+    assert "1" not in cache
+
+    with pytest.raises(KeyError):
+        # This should throw a KeyError since the cache size was 2 and 3 were inserted
+        # the first inserted cached item was removed and returned in evicted items
+        cache.get_cache_entry("1")

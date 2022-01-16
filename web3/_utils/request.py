@@ -2,6 +2,8 @@ import os
 import threading
 from typing import (
     Any,
+    Dict,
+    OrderedDict,
 )
 
 from aiohttp import (
@@ -19,6 +21,32 @@ from web3._utils.caching import (
 )
 
 
+class SessionCache:
+
+    def __init__(self, size: int):
+        self._size = size
+        self._data: OrderedDict[str, Any] = OrderedDict()
+
+    def cache(self, key: str, value: Any) -> Dict[str, Any]:
+        evicted_items = None
+        while len(self._data) >= self._size:
+            if evicted_items is None:
+                evicted_items = {}
+            k, v = self._data.popitem(last=False)
+            evicted_items[k] = v
+        self._data[key] = value
+        return evicted_items
+
+    def get_cache_entry(self, key: str) -> Any:
+        return self._data[key]
+
+    def __contains__(self, item: str) -> bool:
+        return item in self._data
+
+    def __len__(self) -> int:
+        return len(self._data)
+
+
 def get_default_http_endpoint() -> URI:
     return URI(os.environ.get('WEB3_HTTP_PROVIDER_URI', 'http://localhost:8545'))
 
@@ -28,22 +56,22 @@ def cache_session(endpoint_uri: URI, session: requests.Session) -> None:
     _session_cache[cache_key] = session
 
 
-def cache_async_session(endpoint_uri: URI, session: ClientSession) -> None:
+async def cache_async_session(endpoint_uri: URI, session: ClientSession) -> None:
     cache_key = generate_cache_key(endpoint_uri)
     with _async_session_cache_lock:
-        _async_session_cache[cache_key] = session
+        evicted_items = _async_session_cache.cache(cache_key, session)
+        if evicted_items is not None:
+            for key, session in evicted_items.items():
+                await session.close()
+
 
 def _remove_session(key: str, session: requests.Session) -> None:
     session.close()
 
 
-def _remove_async_session(key: str, session: ClientSession) -> None:
-    session.close()
-
-
 _session_cache = lru.LRU(8, callback=_remove_session)
 _async_session_cache_lock = threading.Lock()
-_async_session_cache = lru.LRU(8, callback=_remove_async_session)
+_async_session_cache = SessionCache(size=8)
 
 
 def _get_session(endpoint_uri: URI) -> requests.Session:
@@ -53,12 +81,12 @@ def _get_session(endpoint_uri: URI) -> requests.Session:
     return _session_cache[cache_key]
 
 
-def _get_async_session(endpoint_uri: URI) -> ClientSession:
+async def _get_async_session(endpoint_uri: URI) -> ClientSession:
     cache_key = generate_cache_key(endpoint_uri)
     with _async_session_cache_lock:
         if cache_key not in _async_session_cache:
-            _async_session_cache[cache_key] = ClientSession(raise_for_status=True)
-        return _async_session_cache[cache_key]
+            _async_session_cache.cache(cache_key, ClientSession(raise_for_status=True))
+        return await _async_session_cache.get_cache_entry(cache_key)
 
 
 def make_post_request(endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any) -> bytes:
@@ -76,7 +104,7 @@ async def async_make_post_request(
 ) -> bytes:
     kwargs.setdefault('timeout', ClientTimeout(10))
     # https://github.com/ethereum/go-ethereum/issues/17069
-    session = _get_async_session(endpoint_uri)
+    session = await _get_async_session(endpoint_uri)
     async with session.post(endpoint_uri,
                             data=data,
                             *args,
