@@ -845,6 +845,141 @@ class AsyncEthModuleTest:
         ))
         assert await async_w3.eth.coinbase in accounts  # type: ignore
 
+    @pytest.mark.asyncio
+    async def test_async_eth_get_logs_without_logs(
+        self, async_w3: "Web3", block_with_txn_with_log: BlockData
+    ) -> None:
+        # Test with block range
+
+        filter_params: FilterParams = {
+            "fromBlock": BlockNumber(0),
+            "toBlock": BlockNumber(block_with_txn_with_log['number'] - 1),
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert len(result) == 0
+
+        # the range is wrong
+        filter_params = {
+            "fromBlock": block_with_txn_with_log['number'],
+            "toBlock": BlockNumber(block_with_txn_with_log['number'] - 1),
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert len(result) == 0
+
+        # Test with `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": BlockNumber(0),
+            "address": UNKNOWN_ADDRESS,
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert len(result) == 0
+
+        # Test with multiple `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": BlockNumber(0),
+            "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert len(result) == 0
+
+    @pytest.mark.asyncio
+    async def test_async_eth_get_logs_with_logs(
+        self,
+        async_w3: "Web3",
+        block_with_txn_with_log: BlockData,
+        emitter_contract_address: ChecksumAddress,
+        txn_hash_with_log: HexStr,
+    ) -> None:
+        def assert_contains_log(result: Sequence[LogReceipt]) -> None:
+            assert len(result) == 1
+            log_entry = result[0]
+            assert log_entry['blockNumber'] == block_with_txn_with_log['number']
+            assert log_entry['blockHash'] == block_with_txn_with_log['hash']
+            assert log_entry['logIndex'] == 0
+            assert is_same_address(log_entry['address'], emitter_contract_address)
+            assert log_entry['transactionIndex'] == 0
+            assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
+
+        # Test with block range
+
+        # the range includes the block where the log resides in
+        filter_params: FilterParams = {
+            "fromBlock": block_with_txn_with_log['number'],
+            "toBlock": block_with_txn_with_log['number'],
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert_contains_log(result)
+
+        # specify only `from_block`. by default `to_block` should be 'latest'
+        filter_params = {
+            "fromBlock": BlockNumber(0),
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert_contains_log(result)
+
+        # Test with `address`
+
+        # filter with emitter_contract.address
+        filter_params = {
+            "fromBlock": BlockNumber(0),
+            "address": emitter_contract_address,
+        }
+
+    @pytest.mark.asyncio
+    async def test_async_eth_get_logs_with_logs_topic_args(
+        self,
+        async_w3: "Web3",
+        block_with_txn_with_log: BlockData,
+        emitter_contract_address: ChecksumAddress,
+        txn_hash_with_log: HexStr,
+    ) -> None:
+        def assert_contains_log(result: Sequence[LogReceipt]) -> None:
+            assert len(result) == 1
+            log_entry = result[0]
+            assert log_entry['blockNumber'] == block_with_txn_with_log['number']
+            assert log_entry['blockHash'] == block_with_txn_with_log['hash']
+            assert log_entry['logIndex'] == 0
+            assert is_same_address(log_entry['address'], emitter_contract_address)
+            assert log_entry['transactionIndex'] == 0
+            assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
+
+        # Test with None event sig
+
+        filter_params: FilterParams = {
+            "fromBlock": BlockNumber(0),
+            "topics": [
+                None,
+                HexStr('0x000000000000000000000000000000000000000000000000000000000000d431')],
+        }
+
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert_contains_log(result)
+
+        # Test with None indexed arg
+        filter_params = {
+            "fromBlock": BlockNumber(0),
+            "topics": [
+                HexStr('0x057bc32826fbe161da1c110afcdcae7c109a8b69149f727fc37a603c60ef94ca'),
+                None],
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert_contains_log(result)
+
+    @pytest.mark.asyncio
+    async def test_async_eth_get_logs_with_logs_none_topic_args(self, async_w3: "Web3") -> None:
+        # Test with None overflowing
+        filter_params: FilterParams = {
+            "fromBlock": BlockNumber(0),
+            "topics": [None, None, None],
+        }
+
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert len(result) == 0
+
 
 class EthModuleTest:
     def test_eth_protocol_version(self, web3: "Web3") -> None:
