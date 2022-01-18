@@ -416,14 +416,29 @@ These internal modules inherit from the ``web3.module.Module`` class which give 
 web3.py library.
 
 
-Attaching Modules
-~~~~~~~~~~~~~~~~~
+External Modules
+~~~~~~~~~~~~~~~~
 
-External modules may be attached to the ``Web3`` instance either at instantiation or by making use of the
-``attach_modules()`` method. External modules need not inherit from the ``web3.module.Module`` class. This allows for a
-good deal of flexibility even in defining what a module means to the user. An external module could technically provide
-any bit of functionality that the user desires. Consequently, external modules need not be RPC APIs - though this does
-provide the ability to attach an RPC API library, specific to your chain of choice, to the ``Web3`` instance.
+External modules can be used to introduce custom or third-party APIs to your ``Web3`` instance. Adding external modules
+can occur either at instantiation of the ``Web3`` instance or by making use of the ``attach_modules()`` method.
+
+Unlike the native modules, external modules need not inherit from the ``web3.module.Module`` class. The only requirement
+is that a Module must be a class and, if you'd like to make use of the parent ``Web3`` instance, it must be passed into
+the ``__init__`` function. For example:
+
+.. code-block:: python
+
+    >>> class ExampleModule():
+    ...
+    ...     def __init__(self, w3):
+    ...         self.w3 = w3
+    ...
+    ...     def print_balance_of_shaq(self):
+    ...         print(self.w3.eth.get_balance('shaq.eth'))
+
+
+.. warning:: Given the flexibility of external modules, use caution and only import modules from trusted third parties
+   and open source code you've vetted!
 
 To instantiate the ``Web3`` instance with external modules:
 
