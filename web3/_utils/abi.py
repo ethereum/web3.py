@@ -550,8 +550,11 @@ def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
                 aligned_arg,
             ),
         )
+    
+    # convert NamedTuple to regular tuple
+    typing = tuple if isinstance(aligned_arg, tuple) else type(aligned_arg)
 
-    return type(aligned_arg)(
+    return typing(
         _align_abi_input(sub_abi, sub_arg)
         for sub_abi, sub_arg in zip(sub_abis, aligned_arg)
     )
