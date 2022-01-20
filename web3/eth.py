@@ -117,7 +117,6 @@ class BaseEth(Module):
         mungers=None,
     )
 
-    """ property default_block """
     @property
     def default_block(self) -> BlockIdentifier:
         return self._default_block
@@ -127,8 +126,44 @@ class BaseEth(Module):
         self._default_block = value
 
     @property
+    def defaultBlock(self) -> BlockIdentifier:
+        warnings.warn(
+            'defaultBlock is deprecated in favor of default_block',
+            category=DeprecationWarning,
+        )
+        return self._default_block
+
+    @defaultBlock.setter
+    def defaultBlock(self, value: BlockIdentifier) -> None:
+        warnings.warn(
+            'defaultBlock is deprecated in favor of default_block',
+            category=DeprecationWarning,
+        )
+        self._default_block = value
+
+    @property
     def default_account(self) -> Union[ChecksumAddress, Empty]:
         return self._default_account
+
+    @default_account.setter
+    def default_account(self, account: Union[ChecksumAddress, Empty]) -> None:
+        self._default_account = account
+
+    @property
+    def defaultAccount(self) -> Union[ChecksumAddress, Empty]:
+        warnings.warn(
+            'defaultAccount is deprecated in favor of default_account',
+            category=DeprecationWarning,
+        )
+        return self._default_account
+
+    @defaultAccount.setter
+    def defaultAccount(self, account: Union[ChecksumAddress, Empty]) -> None:
+        warnings.warn(
+            'defaultAccount is deprecated in favor of default_account',
+            category=DeprecationWarning,
+        )
+        self._default_account = account
 
     def send_transaction_munger(self, transaction: TxParams) -> Tuple[TxParams]:
         if 'from' not in transaction and is_checksum_address(self.default_account):
@@ -551,51 +586,10 @@ class Eth(BaseEth):
         )
         return self.chain_id
 
-    """ property default_account """
-    @property
-    def default_account(self) -> Union[ChecksumAddress, Empty]:
-        return self._default_account
-
-    @default_account.setter
-    def default_account(self, account: Union[ChecksumAddress, Empty]) -> None:
-        self._default_account = account
-
-    @property
-    def defaultAccount(self) -> Union[ChecksumAddress, Empty]:
-        warnings.warn(
-            'defaultAccount is deprecated in favor of default_account',
-            category=DeprecationWarning,
-        )
-        return self._default_account
-
-    @defaultAccount.setter
-    def defaultAccount(self, account: Union[ChecksumAddress, Empty]) -> None:
-        warnings.warn(
-            'defaultAccount is deprecated in favor of default_account',
-            category=DeprecationWarning,
-        )
-        self._default_account = account
-
     get_balance: Method[Callable[..., Wei]] = Method(
         RPC.eth_getBalance,
         mungers=[BaseEth.block_id_munger],
     )
-
-    @property
-    def defaultBlock(self) -> BlockIdentifier:
-        warnings.warn(
-            'defaultBlock is deprecated in favor of default_block',
-            category=DeprecationWarning,
-        )
-        return self._default_block
-
-    @defaultBlock.setter
-    def defaultBlock(self, value: BlockIdentifier) -> None:
-        warnings.warn(
-            'defaultBlock is deprecated in favor of default_block',
-            category=DeprecationWarning,
-        )
-        self._default_block = value
 
     @property
     def max_priority_fee(self) -> Wei:

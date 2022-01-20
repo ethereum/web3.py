@@ -35,6 +35,9 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.empty import (
+    empty,
+)
 from web3._utils.ens import (
     ens_addresses,
 )
@@ -844,6 +847,41 @@ class AsyncEthModuleTest:
             in accounts
         ))
         assert await async_w3.eth.coinbase in accounts  # type: ignore
+
+    def test_async_provider_default_account(
+        self,
+        async_w3: "Web3",
+        unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+
+        # check defaults to empty
+        default_account = async_w3.eth.default_account
+        assert default_account is empty
+
+        # check setter
+        async_w3.eth.default_account = unlocked_account_dual_type
+        default_account = async_w3.eth.default_account
+        assert default_account == unlocked_account_dual_type
+
+        # reset to default
+        async_w3.eth.default_account = empty
+
+    def test_async_provider_default_block(
+        self,
+        async_w3: "Web3",
+    ) -> None:
+
+        # check defaults to 'latest'
+        default_block = async_w3.eth.default_block
+        assert default_block == 'latest'
+
+        # check setter
+        async_w3.eth.default_block = BlockNumber(12345)
+        default_block = async_w3.eth.default_block
+        assert default_block == BlockNumber(12345)
+
+        # reset to default
+        async_w3.eth.default_block = 'latest'
 
 
 class EthModuleTest:
@@ -2919,3 +2957,38 @@ class EthModuleTest:
             )
         ):
             web3.eth.get_raw_transaction_by_block(unknown_identifier, 0)  # type: ignore
+
+    def test_default_account(
+        self,
+        web3: "Web3",
+        unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+
+        # check defaults to empty
+        default_account = web3.eth.default_account
+        assert default_account is empty
+
+        # check setter
+        web3.eth.default_account = unlocked_account_dual_type
+        default_account = web3.eth.default_account
+        assert default_account == unlocked_account_dual_type
+
+        # reset to default
+        web3.eth.default_account = empty
+
+    def test_default_block(
+        self,
+        web3: "Web3",
+    ) -> None:
+
+        # check defaults to 'latest'
+        default_block = web3.eth.default_block
+        assert default_block == 'latest'
+
+        # check setter
+        web3.eth.default_block = BlockNumber(12345)
+        default_block = web3.eth.default_block
+        assert default_block == BlockNumber(12345)
+
+        # reset to default
+        web3.eth.default_block = 'latest'
