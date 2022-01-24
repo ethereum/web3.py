@@ -143,7 +143,7 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
 
-        print(
+        self.logger.debug(
             "Making request Async HTTP. URI: %s, Method: %s"
             % (self.endpoint_uri, method),
         )
