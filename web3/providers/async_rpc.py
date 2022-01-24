@@ -133,7 +133,8 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
             self.endpoint_uri, request_data, **self.get_request_kwargs()
         )
 
-        self.response_data_batch = self.decode_rpc_response(raw_response)
+        async with self.response_lock:
+            self.response_data_batch = self.decode_rpc_response(raw_response)
 
         self.request_data_batch = []
 
