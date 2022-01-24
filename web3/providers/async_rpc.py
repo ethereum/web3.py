@@ -160,6 +160,10 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
             request_data = self.encode_rpc_request(method, params)
 
             request_id = self.request_count
+            if self.request_count < 1:
+                # We've started a new batch
+                # Make sure everyone waits until all responses are processed
+                self.responses_processed_event.clear()
 
             self.request_count += 1
 
