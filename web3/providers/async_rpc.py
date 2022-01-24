@@ -116,6 +116,8 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
             async with self.batch_update_lock:
                 await self.dispatch_requests(self.request_data_batch)
 
+            self.batch_response_event.clear()
+
     async def dispatch_requests(self, request_batch=None) -> None:
         if request_batch is None:
             request_batch = self.request_data_batch
