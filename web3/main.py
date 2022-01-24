@@ -109,6 +109,7 @@ from web3.providers.ipc import (
 )
 from web3.providers.async_rpc import (
     AsyncHTTPProvider,
+    BatchedAsyncHTTPProvider
 )
 from web3.providers.rpc import (
     HTTPProvider,
@@ -157,6 +158,7 @@ class Web3:
     EthereumTesterProvider = EthereumTesterProvider
     WebsocketProvider = WebsocketProvider
     AsyncHTTPProvider = AsyncHTTPProvider
+    BatchedAsyncHTTPProvider = BatchedAsyncHTTPProvider
 
     # Managers
     RequestManager = DefaultRequestManager
