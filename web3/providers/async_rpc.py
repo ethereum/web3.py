@@ -149,10 +149,12 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
             % (self.endpoint_uri, method),
         )
 
-        async with self.batch_update_lock:
-            if len(self.request_data_batch) >= self.batch_size:
+        if len(self.request_data_batch) >= self.batch_size:
+            # batch is too big, wait for response recieval and processing to be done.
                 await self.batch_response_event.wait()
+                await self.responses_processed_event.wait()
 
+        async with self.batch_update_lock:
             assert len(self.request_data_batch) < self.batch_size
 
             request_data = self.encode_rpc_request(method, params)
