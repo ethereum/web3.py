@@ -102,7 +102,7 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
         self.batch_update_lock = asyncio.Lock()
         self.batch_response_event = asyncio.Event()
 
-        self.response_read_lock = asyncio.Lock()
+        self.response_lock = asyncio.Lock()
         self.responses_processed_event = asyncio.Event()
 
         # Start the request loop
@@ -166,7 +166,7 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
 
         response = None
 
-        async with self.response_read_lock:
+        async with self.response_lock:
             response = self.response_data_batch[request_id]
             self.request_count -= 1
 
