@@ -178,6 +178,8 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
             self.request_count -= 1
 
             if self.request_count < 1:
+                # We're done processing all the requests.
+                # Clear the response batch and tell everyone that we're done.
                 self.response_data_batch = []
                 self.responses_processed_event.set()
 
