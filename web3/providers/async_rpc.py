@@ -35,6 +35,8 @@ from .async_base import (
     AsyncJSONBaseProvider,
 )
 
+import asyncio
+
 
 class AsyncHTTPProvider(AsyncJSONBaseProvider):
     logger = logging.getLogger("web3.providers.HTTPProvider")
@@ -84,4 +86,100 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         response = self.decode_rpc_response(raw_response)
         self.logger.debug(f"Getting response HTTP. URI: {self.endpoint_uri}, "
                           f"Method: {method}, Response: {response}")
+        return response
+
+
+class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
+    def __init__(self, *args, batch_size=1000, sleep_time=1.0, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.batch_size = batch_size
+        self.request_data_batch = []
+        self.response_data_batch = []
+
+        self.sleep_time = sleep_time
+
+        self.request_count = 0
+        self.batch_update_lock = asyncio.Lock()
+        self.batch_response_event = asyncio.Event()
+
+        self.response_read_lock = asyncio.Lock()
+        self.responses_processed_event = asyncio.Event()
+
+        # Start the request loop
+        asyncio.get_running_loop().create_task(self.start_request_loop())
+
+    async def start_request_loop(self):
+        self.logger.debug("Starting request loop...")
+        while True:
+            await asyncio.sleep(self.sleep_time)
+            self.logger.debug(f"Making {len(self.request_data_batch)} requests.")
+            async with self.batch_update_lock:
+                await self.dispatch_requests(self.request_data_batch)
+
+    async def dispatch_requests(self, request_batch=None) -> None:
+        if request_batch is None:
+            request_batch = self.request_data_batch
+
+        if len(request_batch) < 1:
+            return
+
+        request_data = b",".join(request for request in request_batch)
+
+        request_data = b"[" + request_data + b"]"
+
+        raw_response = await async_make_post_request(
+            self.endpoint_uri, request_data, **self.get_request_kwargs()
+        )
+
+        self.response_data_batch = self.decode_rpc_response(raw_response)
+
+        self.request_data_batch = []
+
+        self.batch_response_event.set()
+
+        await self.responses_processed_event.wait()
+
+    async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
+
+        print(
+            "Making request Async HTTP. URI: %s, Method: %s"
+            % (self.endpoint_uri, method),
+        )
+
+        async with self.batch_update_lock:
+            if len(self.request_data_batch) >= self.batch_size:
+                await self.batch_response_event.wait()
+
+            assert len(self.request_data_batch) < self.batch_size
+
+            request_data = self.encode_rpc_request(method, params)
+
+            request_id = self.request_count
+
+            self.request_count += 1
+
+            self.request_data_batch.append(request_data)
+
+        await self.batch_response_event.wait()
+
+        response = None
+
+        async with self.response_read_lock:
+            response = self.response_data_batch[request_id]
+            self.request_count -= 1
+
+            if self.request_count < 1:
+                self.response_data_batch = []
+                self.responses_processed_event.set()
+
+        if response is None:
+            raise RuntimeError("Something went terribly wrong.")
+
+        self.logger.debug(
+            "Getting batched response HTTP. URI: %s, " "Method: %s, Response: %s",
+            self.endpoint_uri,
+            method,
+            response,
+        )
+
         return response
