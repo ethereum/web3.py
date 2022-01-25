@@ -1,0 +1,1 @@
+In ENS the contract function to resolve an ENS address was being called twice in error. One of those calls was removed.
