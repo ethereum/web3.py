@@ -420,6 +420,7 @@ Eth
 - :meth:`web3.eth.get_balance() <web3.eth.Eth.get_balance>`
 - :meth:`web3.eth.get_block() <web3.eth.Eth.get_block>`
 - :meth:`web3.eth.get_code() <web3.eth.Eth.get_code>`
+- :meth:`web3.eth.get_logs() <web3.eth.Eth.get_logs>`
 - :meth:`web3.eth.get_raw_transaction() <web3.eth.Eth.get_raw_transaction>`
 - :meth:`web3.eth.get_raw_transaction_by_block() <web3.eth.Eth.get_raw_transaction_by_block>`
 - :meth:`web3.eth.get_transaction() <web3.eth.Eth.get_transaction>`
