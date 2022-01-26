@@ -11,6 +11,11 @@ from web3._utils.module_testing.emitter_contract import (
     CONTRACT_EMITTER_CODE,
     CONTRACT_EMITTER_RUNTIME,
 )
+from web3._utils.module_testing.emitter_contract_old import (
+    CONTRACT_EMITTER_ABI_OLD,
+    CONTRACT_EMITTER_CODE_OLD,
+    CONTRACT_EMITTER_RUNTIME_OLD,
+)
 from web3._utils.module_testing.event_contract import (
     EVNT_CONTRACT_ABI,
     EVNT_CONTRACT_CODE,
@@ -422,9 +427,20 @@ def EMITTER(EMITTER_CODE,
 
 
 @pytest.fixture()
-def StrictEmitter(w3_strict_abi, EMITTER):
+def STRICT_EMITTER():
+    # Uses an older version of solidity to compile for strict bytes checking.
+    # See: https://github.com/ethereum/web3.py/issues/2301
+    return {
+        'bytecode': CONTRACT_EMITTER_CODE_OLD,
+        'bytecode_runtime': CONTRACT_EMITTER_RUNTIME_OLD,
+        'abi': CONTRACT_EMITTER_ABI_OLD,
+    }
+
+
+@pytest.fixture()
+def StrictEmitter(w3_strict_abi, STRICT_EMITTER):
     w3 = w3_strict_abi
-    return w3.eth.contract(**EMITTER)
+    return w3.eth.contract(**STRICT_EMITTER)
 
 
 @pytest.fixture()
@@ -436,9 +452,7 @@ def strict_emitter(w3_strict_abi,
     w3 = w3_strict_abi
 
     wait_for_block(w3)
-    deploy_txn_hash = StrictEmitter.constructor().transact(
-        {'from': w3.eth.coinbase, 'gas': 1000000}
-    )
+    deploy_txn_hash = StrictEmitter.constructor().transact({'gas': 10000000})
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
@@ -975,6 +989,7 @@ class LogTopics:
     LogListArgs = _encode_to_topic("LogListArgs(bytes2[],bytes2[])")
     LogAddressIndexed = _encode_to_topic("LogAddressIndexed(address,address)")
     LogAddressNotIndexed = _encode_to_topic("LogAddressNotIndexed(address,address)")
+    LogStructArgs = _encode_to_topic("LogStructArgs(uint256,tuple)")
 
 
 @pytest.fixture()

@@ -6,7 +6,7 @@ def test_contract_get_available_events(
     """We can iterate over available contract events"""
     contract = emitter
     events = list(contract.events)
-    assert len(events) == 18
+    assert len(events) == 19
 
 
 def test_contract_getLogs_all(

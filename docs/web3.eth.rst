@@ -49,7 +49,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.default_account
 
     The ethereum address that will be used as the default ``from`` address for
-    all transactions.
+    all transactions. Defaults to empty.
 
 
 .. py:attribute:: Eth.defaultAccount
@@ -61,7 +61,7 @@ The following properties are available on the ``web3.eth`` namespace.
 .. py:attribute:: Eth.default_block
 
     The default block number that will be used for any RPC methods that accept
-    a block identifier.  Defaults to ``'latest'``.
+    a block identifier. Defaults to ``'latest'``.
 
 
 .. py:attribute:: Eth.defaultBlock

@@ -387,6 +387,7 @@ AsyncHTTPProvider
         >>> from web3 import Web3, AsyncHTTPProvider
         >>> from web3.eth import AsyncEth
         >>> from web3.net import AsyncNet
+        >>> from web3.geth import Geth, AsyncGethTxPool
 
         >>> w3 = Web3(
         ...     AsyncHTTPProvider(endpoint_uri),
@@ -412,6 +413,8 @@ Eth
 - :meth:`web3.eth.block_number <web3.eth.Eth.block_number>`
 - :meth:`web3.eth.chain_id <web3.eth.Eth.chain_id>`
 - :meth:`web3.eth.coinbase <web3.eth.Eth.coinbase>`
+- :meth:`web3.eth.default_account <web3.eth.Eth.default_account>`
+- :meth:`web3.eth.default_block <web3.eth.Eth.default_block>`
 - :meth:`web3.eth.gas_price <web3.eth.Eth.gas_price>`
 - :meth:`web3.eth.hashrate <web3.eth.Eth.hashrate>`
 - :meth:`web3.eth.max_priority_fee <web3.eth.Eth.max_priority_fee>`
