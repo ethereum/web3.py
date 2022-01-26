@@ -154,6 +154,15 @@ def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
     return [arg for arg in event_abi['inputs'] if arg['indexed'] is False]
 
 
+def get_normalized_abi_arg_type(abi_arg: ABIEventParams) -> str:
+    """
+    Return the normalized type for the abi argument provided. In order to account for tuple argument
+    types, this abstraction makes use of `collapse_if_tuple()` to collapse the appropriate component
+    types within a tuple type, if present.
+    """
+    return collapse_if_tuple(dict(abi_arg))
+
+
 def filter_by_argument_count(
     num_arguments: int, contract_abi: ABI
 ) -> List[Union[ABIFunction, ABIEvent]]:
