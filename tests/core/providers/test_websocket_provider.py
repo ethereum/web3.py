@@ -37,7 +37,9 @@ def start_websocket_server(open_port):
             data = await websocket.recv()
             await asyncio.sleep(0.02)
             await websocket.send(data)
-        server = websockets.serve(empty_server, '127.0.0.1', open_port, loop=event_loop)
+
+        asyncio.set_event_loop(event_loop)
+        server = websockets.serve(empty_server, '127.0.0.1', open_port)
         event_loop.run_until_complete(server)
         event_loop.run_forever()
 
@@ -54,7 +56,7 @@ def w3(open_port, start_websocket_server):
     # need new event loop as the one used by server is already running
     event_loop = asyncio.new_event_loop()
     endpoint_uri = 'ws://127.0.0.1:{}'.format(open_port)
-    event_loop.run_until_complete(wait_for_ws(endpoint_uri, event_loop))
+    event_loop.run_until_complete(wait_for_ws(endpoint_uri))
     provider = WebsocketProvider(endpoint_uri, websocket_timeout=0.01)
     return Web3(provider)
 
