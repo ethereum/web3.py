@@ -7,6 +7,9 @@ from typing import (
     Tuple,
     Union,
 )
+from dataclasses import (
+    dataclass,
+)
 
 from aiohttp import (
     ClientSession,
@@ -36,6 +39,9 @@ from .async_base import (
 )
 
 import asyncio
+from aiohttp.client_exceptions import (
+    ClientResponseError,
+)
 
 
 class AsyncHTTPProvider(AsyncJSONBaseProvider):
