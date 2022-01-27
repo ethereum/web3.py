@@ -102,9 +102,6 @@ class QueueItem:
     response_ready_event: asyncio.Event
 
 
-from aiohttp.client_exceptions import ClientResponseError
-
-
 class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
     def __init__(self, *args, batch_size=1000, sleep_time=1.0, **kwargs):
         super().__init__(*args, **kwargs)
@@ -136,19 +133,17 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
             await asyncio.sleep(self.sleep_time)
             await self.dispatch_requests()
 
-    async def dispatch_requests(self) -> None:
-
-        if self.request_queue.qsize() < 1:
-            return
-
+    async def _build_request_batch(self):
         request_batch = []
-
         num_requests = min(self.batch_size, self.request_queue.qsize())
-
+        self.logger.debug(f"{self.request_queue.qsize()} requests in queue.")
         for _ in range(num_requests):
             item: QueueItem = await self.request_queue.get()
             request_batch.append(item)
 
+        return request_batch
+
+    async def _make_batch_request(self, request_batch:Iterable[QueueItem]):
         request_data = (
             b"[" + b",".join(item.request_data for item in request_batch) + b"]"
         )
@@ -157,23 +152,25 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
             raw_response = await async_make_post_request(
                 self.endpoint_uri, request_data, **self.get_request_kwargs()
             )
-
             response_batch = self.decode_rpc_response(raw_response)
 
             for item, response in zip(request_batch, response_batch):
                 self.response_dict[item.idx] = response
                 item.response_ready_event.set()
-
-            self.batch_size = int(1.1 * self.batch_size)
-
         except ClientResponseError as e:
-            print(f"Something went wrong: {e}")
-            print("Trying again.")
-            # await asyncio.sleep(self.sleep_time)
+            self.logger.exception("Batch request failed")
             for item in request_batch:
                 await self.request_queue.put(item)
 
-            self.batch_size = int(0.9 * self.batch_size) + 1
+    async def dispatch_requests(self) -> None:
+
+        if self.request_queue.qsize() < 1:
+            return
+
+        request_batch = await self._build_request_batch()
+        self.logger.debug(f"Making {len(request_batch)} requests.")
+
+        await self._make_batch_request(request_batch)
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
 
@@ -214,8 +211,9 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
 
 
 class BatchedAsyncHTTPMulticallProvider(BatchedAsyncHTTPProvider):
-    def __init__(*args, multicall_contract_address, **kwargs):
+    def __init__(*args, multicall_contract, **kwargs):
         super().__init__(*args, **kwargs)
+        self.multicall_contract = multicall_contract
 
     def dispatch_requests(self) -> None:
         raise NotImplementedError
