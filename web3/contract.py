@@ -844,7 +844,7 @@ class NonExistentReceiveFunction:
         return self._raise_exception
 
 
-class ContractFunction:
+class BaseContractFunction:
     """Base class for contract functions
 
     A function accessed via the api contract.functions.myMethod(*args, **kwargs)
@@ -897,35 +897,8 @@ class ContractFunction:
 
         self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
 
-    def call(
-        self, transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = 'latest',
-        state_override: Optional[CallOverrideParams] = None,
-    ) -> Any:
-        """
-        Execute a contract function call using the `eth_call` interface.
+    def _get_call_txparams(self, transaction: Optional[TxParams] = None) -> TxParams:
 
-        This method prepares a ``Caller`` object that exposes the contract
-        functions and public variables as callable Python functions.
-
-        Reading a public ``owner`` address variable example:
-
-        .. code-block:: python
-
-            ContractFactory = w3.eth.contract(
-                abi=wallet_contract_definition["abi"]
-            )
-
-            # Not a real contract address
-            contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
-
-            # Read "owner" public variable
-            addr = contract.functions.owner().call()
-
-        :param transaction: Dictionary of transaction info for web3 interface
-        :return: ``Caller`` object that has contract public functions
-            and variables exposed as Python methods
-        """
         if transaction is None:
             call_transaction: TxParams = {}
         else:
@@ -952,21 +925,7 @@ class ContractFunction:
                     "Please ensure that this contract instance has an address."
                 )
 
-        block_id = parse_block_identifier(self.web3, block_identifier)
-
-        return call_contract_function(
-            self.web3,
-            self.address,
-            self._return_data_normalizers,
-            self.function_identifier,
-            call_transaction,
-            block_id,
-            self.contract_abi,
-            self.abi,
-            state_override,
-            *self.args,
-            **self.kwargs
-        )
+        return call_transaction
 
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         if transaction is None:
@@ -1104,6 +1063,106 @@ class ContractFunction:
                 _repr += ' bound to %r' % (self.arguments,)
             return _repr + '>'
         return '<Function %s>' % self.fn_name
+
+
+class ContractFunction(BaseContractFunction):
+    is_async = False
+
+    def call(self, transaction: Optional[TxParams] = None,
+             block_identifier: BlockIdentifier = 'latest',
+             state_override: Optional[CallOverrideParams] = None,
+             ) -> Any:
+        """
+        Execute a contract function call using the `eth_call` interface.
+
+        This method prepares a ``Caller`` object that exposes the contract
+        functions and public variables as callable Python functions.
+
+        Reading a public ``owner`` address variable example:
+
+        .. code-block:: python
+
+            ContractFactory = w3.eth.contract(
+                abi=wallet_contract_definition["abi"]
+            )
+
+            # Not a real contract address
+            contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
+
+            # Read "owner" public variable
+            addr = contract.functions.owner().call()
+
+        :param transaction: Dictionary of transaction info for web3 interface
+        :return: ``Caller`` object that has contract public functions
+            and variables exposed as Python methods
+        """
+        call_transaction = self._get_call_txparams(transaction)
+
+        block_id = parse_block_identifier(self.web3, block_identifier)
+
+        return call_contract_function(self.web3,
+                                      self.address,
+                                      self._return_data_normalizers,
+                                      self.function_identifier,
+                                      call_transaction,
+                                      block_id,
+                                      self.contract_abi,
+                                      self.abi,
+                                      state_override,
+                                      *self.args,
+                                      **self.kwargs
+                                      )
+
+
+class AsyncContractFuntion(BaseContractFunction):
+    is_async = True
+
+    async def async_call(
+        self, transaction: Optional[TxParams] = None,
+        block_identifier: BlockIdentifier = 'latest',
+        state_override: Optional[CallOverrideParams] = None,
+    ) -> Any:
+        """
+        Execute a contract function call using the `eth_call` interface.
+
+        This method prepares a ``Caller`` object that exposes the contract
+        functions and public variables as callable Python functions.
+
+        Reading a public ``owner`` address variable example:
+
+        .. code-block:: python
+
+            ContractFactory = w3.eth.contract(
+                abi=wallet_contract_definition["abi"]
+            )
+
+            # Not a real contract address
+            contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
+
+            # Read "owner" public variable
+            addr = contract.functions.owner().call()
+
+        :param transaction: Dictionary of transaction info for web3 interface
+        :return: ``Caller`` object that has contract public functions
+            and variables exposed as Python methods
+        """
+        call_transaction = self._get_call_txparams(transaction)
+
+        block_id = await parse_block_identifier(self.web3, block_identifier)
+
+        return await call_contract_function(
+            self.web3,
+            self.address,
+            self._return_data_normalizers,
+            self.function_identifier,
+            call_transaction,
+            block_id,
+            self.contract_abi,
+            self.abi,
+            state_override,
+            *self.args,
+            **self.kwargs
+        )
 
 
 class ContractEvent:
@@ -1471,39 +1530,19 @@ def check_for_forbidden_api_filter_arguments(
                 "method.")
 
 
-def call_contract_function(
-        web3: 'Web3',
-        address: ChecksumAddress,
-        normalizers: Tuple[Callable[..., Any], ...],
-        function_identifier: FunctionIdentifier,
-        transaction: TxParams,
-        block_id: Optional[BlockIdentifier] = None,
-        contract_abi: Optional[ABI] = None,
-        fn_abi: Optional[ABIFunction] = None,
-        state_override: Optional[CallOverrideParams] = None,
-        *args: Any,
-        **kwargs: Any) -> Any:
+def _call_contract_function(web3: 'Web3',
+                            address: ChecksumAddress,
+                            normalizers: Tuple[Callable[..., Any], ...],
+                            function_identifier: FunctionIdentifier,
+                            return_data: Union[bytes, bytearray],
+                            contract_abi: Optional[ABI] = None,
+                            fn_abi: Optional[ABIFunction] = None,
+                            *args: Any,
+                            **kwargs: Any) -> Any:
     """
     Helper function for interacting with a contract function using the
     `eth_call` API.
     """
-    call_transaction = prepare_transaction(
-        address,
-        web3,
-        fn_identifier=function_identifier,
-        contract_abi=contract_abi,
-        fn_abi=fn_abi,
-        transaction=transaction,
-        fn_args=args,
-        fn_kwargs=kwargs,
-    )
-
-    return_data = web3.eth.call(
-        call_transaction,
-        block_identifier=block_id,
-        state_override=state_override,
-    )
-
     if fn_abi is None:
         fn_abi = find_matching_fn_abi(contract_abi, web3.codec, function_identifier, args, kwargs)
 
@@ -1541,6 +1580,94 @@ def call_contract_function(
         return normalized_data
 
 
+def call_contract_function(
+        web3: 'Web3',
+        address: ChecksumAddress,
+        normalizers: Tuple[Callable[..., Any], ...],
+        function_identifier: FunctionIdentifier,
+        transaction: TxParams,
+        block_id: Optional[BlockIdentifier] = None,
+        contract_abi: Optional[ABI] = None,
+        fn_abi: Optional[ABIFunction] = None,
+        state_override: Optional[CallOverrideParams] = None,
+        *args: Any,
+        **kwargs: Any) -> Any:
+    """
+    Helper function for interacting with a contract function using the
+    `eth_call` API.
+    """
+    call_transaction = prepare_transaction(
+        address,
+        web3,
+        fn_identifier=function_identifier,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    return_data = web3.eth.call(
+        call_transaction,
+        block_identifier=block_id,
+        state_override=state_override,
+    )
+
+    return _call_contract_function(web3,
+                                   address,
+                                   normalizers,
+                                   function_identifier,
+                                   return_data,
+                                   contract_abi,
+                                   fn_abi,
+                                   args,
+                                   kwargs)
+
+
+async def async_call_contract_function(
+        web3: 'Web3',
+        address: ChecksumAddress,
+        normalizers: Tuple[Callable[..., Any], ...],
+        function_identifier: FunctionIdentifier,
+        transaction: TxParams,
+        block_id: Optional[BlockIdentifier] = None,
+        contract_abi: Optional[ABI] = None,
+        fn_abi: Optional[ABIFunction] = None,
+        state_override: Optional[CallOverrideParams] = None,
+        *args: Any,
+        **kwargs: Any) -> Any:
+    """
+    Helper function for interacting with a contract function using the
+    `eth_call` API.
+    """
+    call_transaction = prepare_transaction(
+        address,
+        web3,
+        fn_identifier=function_identifier,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    return_data = await web3.eth.call(
+        call_transaction,
+        block_identifier=block_id,
+        state_override=state_override,
+    )
+
+    return _call_contract_function(web3,
+                                   address,
+                                   normalizers,
+                                   function_identifier,
+                                   return_data,
+                                   contract_abi,
+                                   fn_abi,
+                                   args,
+                                   kwargs)
+
+
 def parse_block_identifier(web3: 'Web3', block_identifier: BlockIdentifier) -> BlockIdentifier:
     if isinstance(block_identifier, int):
         return parse_block_identifier_int(web3, block_identifier)
@@ -1548,6 +1675,19 @@ def parse_block_identifier(web3: 'Web3', block_identifier: BlockIdentifier) -> B
         return block_identifier
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
         return web3.eth.get_block(block_identifier)['number']
+    else:
+        raise BlockNumberOutofRange
+
+
+async def async_parse_block_identifier(web3: 'Web3',
+                                       block_identifier: BlockIdentifier
+                                       ) -> BlockIdentifier:
+    if isinstance(block_identifier, int):
+        return parse_block_identifier_int(web3, block_identifier)
+    elif block_identifier in ['latest', 'earliest', 'pending']:
+        return block_identifier
+    elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
+        return await web3.eth.get_block(block_identifier)['number']
     else:
         raise BlockNumberOutofRange
 
