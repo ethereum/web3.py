@@ -363,26 +363,26 @@ class GoEthereumAsyncPersonalModuleTest:
         assert is_same_address(unlockable_account_dual_type, address)
 
     @pytest.mark.asyncio
-    async def test_list_accounts(self, async_w3: "Web3") -> None:
+    async def test_async_list_accounts(self, async_w3: "Web3") -> None:
         accounts = await async_w3.geth.personal.list_accounts()  # type: ignore
         assert len(accounts) > 0
 
     @pytest.mark.asyncio
-    async def test_list_wallets(self, async_w3: "Web3") -> None:
+    async def test_async_list_wallets(self, async_w3: "Web3") -> None:
         wallets = await async_w3.geth.personal.list_wallets()  # type: ignore
         assert isinstance(wallets[0], AttributeDict)
 
     @pytest.mark.asyncio
-    async def test_new_account(self, async_w3: "Web3") -> None:
+    async def test_async_new_account(self, async_w3: "Web3") -> None:
         paraphrase = "Create New Account"
         account = await async_w3.geth.personal.new_account(paraphrase)  # type: ignore
         assert is_checksum_address(account)
 
     @pytest.mark.asyncio
-    async def test_unlock_lock_account(self,
-                                       async_w3: "Web3",
-                                       unlockable_account_dual_type: ChecksumAddress,
-                                       unlockable_account_pw: str) -> None:
+    async def test_async_unlock_lock_account(self,
+                                             async_w3: "Web3",
+                                             unlockable_account_dual_type: ChecksumAddress,
+                                             unlockable_account_pw: str) -> None:
         unlocked = await async_w3.geth.personal.unlock_account(  # type: ignore
             unlockable_account_dual_type,
             unlockable_account_pw)
@@ -392,10 +392,10 @@ class GoEthereumAsyncPersonalModuleTest:
         assert locked is True
 
     @pytest.mark.asyncio
-    async def test_send_transaction(self,
-                                    async_w3: "Web3",
-                                    unlockable_account_dual_type: ChecksumAddress,
-                                    unlockable_account_pw: str) -> None:
+    async def test_async_send_transaction(self,
+                                          async_w3: "Web3",
+                                          unlockable_account_dual_type: ChecksumAddress,
+                                          unlockable_account_pw: str) -> None:
         tx_params = TxParams()
         tx_params["to"] = unlockable_account_dual_type
         tx_params["from"] = unlockable_account_dual_type

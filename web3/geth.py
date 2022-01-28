@@ -113,8 +113,8 @@ class BaseGethPersonal(Module):
 class GethPersonal(BaseGethPersonal):
     is_async = False
 
-    def ec_recover(self, message: str, signiture: HexStr) -> ChecksumAddress:
-        return self._ec_recover(message, signiture)
+    def ec_recover(self, message: str, signature: HexStr) -> ChecksumAddress:
+        return self._ec_recover(message, signature)
 
     def import_raw_key(self, private_key: str, passphrase: str) -> ChecksumAddress:
         return self._import_raw_key(private_key, passphrase)
@@ -161,8 +161,8 @@ class GethPersonal(BaseGethPersonal):
     def lockAccount(self, account: ChecksumAddress) -> bool:
         return self._lockAccount(account)
 
-    def newAccount(self, passhphrase: str) -> ChecksumAddress:
-        return self._newAccount(passhphrase)
+    def newAccount(self, passphrase: str) -> ChecksumAddress:
+        return self._newAccount(passphrase)
 
     def sendTransaction(self, transaction: TxParams, passphrase: str) -> HexBytes:
         return self._sendTransaction(transaction, passphrase)
@@ -183,8 +183,8 @@ class GethPersonal(BaseGethPersonal):
 class AsyncGethPersonal(BaseGethPersonal):
     is_async = True
 
-    async def ec_recover(self, message: str, signiture: HexStr) -> Awaitable[ChecksumAddress]:
-        return await self._ec_recover(message, signiture)  # type: ignore
+    async def ec_recover(self, message: str, signature: HexStr) -> Awaitable[ChecksumAddress]:
+        return await self._ec_recover(message, signature)  # type: ignore
 
     async def import_raw_key(self, private_key: str, passphrase: str) -> Awaitable[ChecksumAddress]:
         return await self._import_raw_key(private_key, passphrase)  # type: ignore
