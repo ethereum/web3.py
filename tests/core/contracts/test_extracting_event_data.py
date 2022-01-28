@@ -31,8 +31,8 @@ def Emitter(web3, EMITTER):
 @pytest.fixture()
 def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
     wait_for_block(web3)
-    deploy_txn_hash = Emitter.constructor().transact({'from': web3.eth.coinbase, 'gas': 1000000})
-    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn_hash)
+    deploy_txn_hash = Emitter.constructor().transact({'gas': 10000000})
+    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
     bytecode = web3.eth.get_code(contract_address)
@@ -209,7 +209,6 @@ def test_event_data_extraction_bytes(web3,
                                      emitter,
                                      wait_for_transaction,
                                      emitter_log_topics,
-                                     emitter_event_ids,
                                      call_args,
                                      expected_args):
     emitter_fn = emitter.functions.logListArgs
@@ -558,6 +557,22 @@ def test_argument_extraction_strict_bytes_types(w3_strict_abi,
             'The event signature did not match the provided ABI',
             False,
         ),
+        (  # nested tuples
+            'logStruct',
+            'LogStructArgs',
+            [1, (2, 3, (4,))],
+            {'arg0': 1, 'arg1': (2, 3, (4,))},
+            'The event signature did not match the provided ABI',
+            True,
+        ),
+        (  # nested tuples
+            'logStruct',
+            'LogStructArgs',
+            [1, (2, 3, (4,))],
+            {'arg0': 1, 'arg1': (2, 3, (4,))},
+            'The event signature did not match the provided ABI',
+            False,
+        ),
     )
 )
 def test_event_rich_log(
@@ -573,8 +588,13 @@ def test_event_rich_log(
         expected_args):
 
     emitter_fn = emitter.functions[contract_fn]
-    event_id = getattr(emitter_event_ids, event_name)
-    txn_hash = emitter_fn(event_id, *call_args).transact()
+    if hasattr(emitter_event_ids, event_name):
+        event_id = getattr(emitter_event_ids, event_name)
+        txn_hash = emitter_fn(event_id, *call_args).transact()
+    else:
+        # Some tests do not rely on the event_id. Rather than changing this test too much,
+        # bypass this here and just call the function with the provided args.
+        txn_hash = emitter_fn(*call_args).transact()
     txn_receipt = wait_for_transaction(web3, txn_hash)
 
     event_instance = emitter.events[event_name]()
@@ -737,3 +757,25 @@ def test_single_log_processing_with_errors(
 
     with pytest.raises(LogTopicError, match="Expected 1 log topics.  Got 0"):
         event_instance.processLog(dup_txn_receipt['logs'][0])
+
+
+def test_get_all_entries_with_nested_tuple_event(web3, emitter):
+    struct_args_filter = emitter.events.LogStructArgs.createFilter(fromBlock=0)
+
+    tx_hash = emitter.functions.logStruct(1, (2, 3, (4, ))).transact({'gas': 100000})
+    web3.eth.wait_for_transaction_receipt(tx_hash)
+    txn_receipt = web3.eth.get_transaction_receipt(tx_hash)
+
+    entries = struct_args_filter.get_all_entries()
+
+    assert entries != []
+    assert len(entries) == 1
+
+    log_entry = entries[0]
+
+    assert log_entry.args == {'arg0': 1, 'arg1': (2, 3, (4,))}
+    assert log_entry.event == 'LogStructArgs'
+    assert log_entry.blockHash == txn_receipt['blockHash']
+    assert log_entry.blockNumber == txn_receipt['blockNumber']
+    assert log_entry.transactionIndex == txn_receipt['transactionIndex']
+    assert is_same_address(log_entry.address, emitter.address)
