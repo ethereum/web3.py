@@ -1,0 +1,1 @@
+Update eth-tester and eth-account dependencies to pull in bugfix from eth-keys
