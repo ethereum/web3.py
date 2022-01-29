@@ -34,6 +34,7 @@ if TYPE_CHECKING:
 
 PRIVATE_KEY_HEX = '0x56ebb41875ceedd42e395f730e03b5c44989393c9f0484ee6bc05f933673458f'
 SECOND_PRIVATE_KEY_HEX = '0x56ebb41875ceedd42e395f730e03b5c44989393c9f0484ee6bc05f9336712345'
+THIRD_PRIVATE_KEY_HEX = '0x56ebb41875ceedd42e395f730e03b5c44989393c9f0484ee6bc05f9336754321'
 PASSWORD = 'web3-testing'
 ADDRESS = '0x844B417c0C58B02c2224306047B9fb0D3264fE8c'
 SECOND_ADDRESS = '0xB96b6B21053e67BA59907E252D990C71742c41B8'
@@ -363,6 +364,12 @@ class GoEthereumAsyncPersonalModuleTest:
         assert is_same_address(unlockable_account_dual_type, address)
 
     @pytest.mark.asyncio
+    async def test_async_import_key(self, async_w3: "Web3") -> None:
+        address = await async_w3.geth.personal.import_raw_key(THIRD_PRIVATE_KEY_HEX,  # type: ignore
+                                                              "Testing")
+        assert address is not None
+
+    @pytest.mark.asyncio
     async def test_async_list_accounts(self, async_w3: "Web3") -> None:
         accounts = await async_w3.geth.personal.list_accounts()  # type: ignore
         assert len(accounts) > 0
@@ -374,8 +381,8 @@ class GoEthereumAsyncPersonalModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_new_account(self, async_w3: "Web3") -> None:
-        paraphrase = "Create New Account"
-        account = await async_w3.geth.personal.new_account(paraphrase)  # type: ignore
+        passphrase = "Create New Account"
+        account = await async_w3.geth.personal.new_account(passphrase)  # type: ignore
         assert is_checksum_address(account)
 
     @pytest.mark.asyncio
@@ -404,3 +411,16 @@ class GoEthereumAsyncPersonalModuleTest:
             tx_params,
             unlockable_account_pw)
         assert response is not None
+
+    @pytest.mark.xfail(reason="personal_signTypedData JSON RPC call has not been released in geth")
+    @pytest.mark.asyncio
+    async def test_async_sign_typed_data(self,
+                                         async_w3: "Web3",
+                                         unlockable_account_dual_type: ChecksumAddress,
+                                         unlockable_account_pw: str) -> None:
+        message = {"message": "This is a test"}
+        signiture = await async_w3.geth.personal.sign_typed_data(message,  # type: ignore
+                                                                 unlockable_account_dual_type,
+                                                                 unlockable_account_pw)
+        address = await async_w3.geth.personal.ec_recover(message, signiture)  # type: ignore
+        assert is_same_address(unlockable_account_dual_type, address)

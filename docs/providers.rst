@@ -446,7 +446,6 @@ Geth
 - :meth:`web3.geth.personal.new_account() <web3.geth.personal.new_account>`
 - :meth:`web3.geth.personal.send_transaction() <web3.geth.personal.send_transaction>`
 - :meth:`web3.geth.personal.sign()`
-- :meth:`web3.geth.personal.sign_typed_data()`
 - :meth:`web3.geth.personal.unlock_account() <web3.geth.personal.unlock_account>`
 - :meth:`web3.geth.txpool.inspect() <web3.geth.txpool.TxPool.inspect()>`
 - :meth:`web3.geth.txpool.content() <web3.geth.txpool.TxPool.content()>`
