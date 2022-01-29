@@ -25,7 +25,7 @@ whitelist = [
     'admin',
     'miner',
     'net',
-    'txpool'
+    'txpool',
     'testing',
     'evm',
     'eth_protocolVersion',
