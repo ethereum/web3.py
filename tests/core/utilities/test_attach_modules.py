@@ -127,3 +127,38 @@ def test_attach_external_modules_multiple_levels_deep(module1, module2, module3,
     assert w3.module2.submodule1.e == 'e'
     assert hasattr(w3.module2.submodule1, 'submodule2')
     assert w3.module2.submodule1.submodule2.f == 'f'
+
+
+def test_attach_external_modules_that_do_not_inherit_from_module_class(
+    module1_unique, module2_unique, module3_unique, module4_unique,
+):
+    w3 = Web3(
+        EthereumTesterProvider(),
+        external_modules={
+            'module1': module1_unique,
+            'module2': (module2_unique, {
+                'submodule1': (module3_unique, {
+                    'submodule2': module4_unique,
+                }),
+            })
+        }
+    )
+
+    # assert module1 attached
+    assert hasattr(w3, 'module1')
+    assert w3.module1.a == 'a'
+
+    # assert module2 + submodules attached
+    assert hasattr(w3, 'module2')
+    assert w3.module2.b == 'b'
+    assert w3.module2.c() == 'c'
+
+    assert hasattr(w3.module2, 'submodule1')
+    assert w3.module2.submodule1.d == 'd'
+    assert hasattr(w3.module2.submodule1, 'submodule2')
+    assert w3.module2.submodule1.submodule2.e == 'e'
+
+    # assert default modules intact
+    assert hasattr(w3, 'geth')
+    assert hasattr(w3, 'eth')
+    assert is_integer(w3.eth.chain_id)
