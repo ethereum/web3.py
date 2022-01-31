@@ -152,8 +152,8 @@ class GethPersonal(BaseGethPersonal):
                        duration: Optional[int] = None) -> bool:
         return self._unlock_account(account, passphrase, duration)
 
-    def ecRecover(self, message: str, signiture: HexStr) -> ChecksumAddress:
-        return self._ecRecover(message, signiture)
+    def ecRecover(self, message: str, signature: HexStr) -> ChecksumAddress:
+        return self._ecRecover(message, signature)
 
     def importRawKey(self, private_key: str, passphrase: str) -> ChecksumAddress:
         return self._importRawKey(private_key, passphrase)
