@@ -357,10 +357,10 @@ class GoEthereumAsyncPersonalModuleTest:
                                              unlockable_account_dual_type: ChecksumAddress,
                                              unlockable_account_pw: str) -> None:
         message = "This is a test"
-        signiture = await async_w3.geth.personal.sign(message,  # type: ignore
+        signature = await async_w3.geth.personal.sign(message,  # type: ignore
                                                       unlockable_account_dual_type,
                                                       unlockable_account_pw)
-        address = await async_w3.geth.personal.ec_recover(message, signiture)  # type: ignore
+        address = await async_w3.geth.personal.ec_recover(message, signature)  # type: ignore
         assert is_same_address(unlockable_account_dual_type, address)
 
     @pytest.mark.asyncio
@@ -419,8 +419,8 @@ class GoEthereumAsyncPersonalModuleTest:
                                          unlockable_account_dual_type: ChecksumAddress,
                                          unlockable_account_pw: str) -> None:
         message = {"message": "This is a test"}
-        signiture = await async_w3.geth.personal.sign_typed_data(message,  # type: ignore
+        signature = await async_w3.geth.personal.sign_typed_data(message,  # type: ignore
                                                                  unlockable_account_dual_type,
                                                                  unlockable_account_pw)
-        address = await async_w3.geth.personal.ec_recover(message, signiture)  # type: ignore
+        address = await async_w3.geth.personal.ec_recover(message, signature)  # type: ignore
         assert is_same_address(unlockable_account_dual_type, address)
