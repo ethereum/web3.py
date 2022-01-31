@@ -1,0 +1,1 @@
+Calculate a default ``maxPriorityFeePerGas`` using ``eth_feeHistory`` when ``eth_maxPriorityFeePerGas`` is not available, since the latter is not a part of the Ethereum JSON-RPC specs and only supported by certain clients.
