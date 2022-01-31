@@ -392,7 +392,8 @@ AsyncHTTPProvider
         ...     modules={'eth': (AsyncEth,),
         ...         'net': (AsyncNet,),
         ...         'geth': (Geth,
-        ...             {'txpool': (AsyncGethTxPool,)})
+        ...             {'txpool': (AsyncGethTxPool,),
+        ...              'personal': (AsyncGethPersonal,)})
         ...         },
         ...     middlewares=[])  # See supported middleware section below for middleware options
 
@@ -438,6 +439,15 @@ Net
 
 Geth
 ****
+- :meth:`web3.geth.personal.ec_recover()`
+- :meth:`web3.geth.personal.import_raw_key() <web3.geth.personal.import_raw_key>`
+- :meth:`web3.geth.personal.list_accounts() <web3.geth.personal.list_accounts>`
+- :meth:`web3.geth.personal.list_wallets() <web3.geth.personal.list_wallets()>`
+- :meth:`web3.geth.personal.lock_account() <web3.geth.personal.lock_account>`
+- :meth:`web3.geth.personal.new_account() <web3.geth.personal.new_account>`
+- :meth:`web3.geth.personal.send_transaction() <web3.geth.personal.send_transaction>`
+- :meth:`web3.geth.personal.sign()`
+- :meth:`web3.geth.personal.unlock_account() <web3.geth.personal.unlock_account>`
 - :meth:`web3.geth.txpool.inspect() <web3.geth.txpool.TxPool.inspect()>`
 - :meth:`web3.geth.txpool.content() <web3.geth.txpool.TxPool.content()>`
 - :meth:`web3.geth.txpool.status() <web3.geth.txpool.TxPool.status()>`
