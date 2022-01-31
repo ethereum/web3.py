@@ -1,1 +1,0 @@
-fix typos and update referenced `geth` version

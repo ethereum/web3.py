@@ -1,1 +1,0 @@
-add github link to the main docs landing page

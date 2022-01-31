@@ -1,1 +1,0 @@
-fix typo in `eth.account` docs
