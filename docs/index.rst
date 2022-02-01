@@ -23,6 +23,7 @@ Your next steps depend on where you're standing:
 - Need help debugging? → `StackExchange`_
 - Like to give back? → :ref:`Contribute <contributing>`
 - Want to chat? → `Discord`_
+- Read the source? → `Github`_
 
 Table of Contents
 -----------------
@@ -91,3 +92,4 @@ Indices and tables
 .. _ethereum.org/python: https://ethereum.org/python/
 .. _StackExchange: https://ethereum.stackexchange.com/questions/tagged/web3.py
 .. _Discord: https://discord.gg/GHryRvPB84
+.. _Github: https://github.com/ethereum/web3.py

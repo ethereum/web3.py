@@ -245,7 +245,7 @@ class ENS:
             address = lookup_function(namehash).call()
             if is_none_or_zero_address(address):
                 return None
-            return lookup_function(namehash).call()
+            return address
         else:
             return None
 
