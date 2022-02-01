@@ -2,6 +2,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Coroutine,
     Dict,
 )
 
@@ -21,7 +22,7 @@ def construct_fixture_middleware(fixtures: Dict[RPCEndpoint, Any]) -> Middleware
     which is found in the provided fixtures.
     """
     def fixture_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], _: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in fixtures:
@@ -43,7 +44,7 @@ def construct_result_generator_middleware(
     functions with the signature `fn(method, params)`.
     """
     def result_generator_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], _: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in result_generators:
@@ -65,7 +66,7 @@ def construct_error_generator_middleware(
     functions with the signature `fn(method, params)`.
     """
     def error_generator_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], _: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in error_generators:
@@ -73,5 +74,27 @@ def construct_error_generator_middleware(
                 return {'error': error_msg}
             else:
                 return make_request(method, params)
+        return middleware
+    return error_generator_middleware
+
+
+async def async_construct_error_generator_middleware(
+    error_generators: Dict[RPCEndpoint, Any]
+) -> Middleware:
+    """
+    Constructs a middleware which intercepts requests for any method found in
+    the provided mapping of endpoints to generator functions, returning
+    whatever error message the generator function returns.  Callbacks must be
+    functions with the signature `fn(method, params)`.
+    """
+    async def error_generator_middleware(
+        make_request: Callable[[RPCEndpoint, Any], Any], _: "Web3"
+    ) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
+        async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+            if method in error_generators:
+                error_msg = error_generators[method](method, params)
+                return {'error': error_msg}
+            else:
+                return await make_request(method, params)
         return middleware
     return error_generator_middleware

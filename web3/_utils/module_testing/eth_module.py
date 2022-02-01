@@ -54,11 +54,16 @@ from web3.exceptions import (
     TransactionNotFound,
     TransactionTypeMismatch,
 )
+from web3.middleware.fixture import (
+    async_construct_error_generator_middleware,
+    construct_error_generator_middleware,
+)
 from web3.types import (  # noqa: F401
     BlockData,
     FilterParams,
     LogReceipt,
     Nonce,
+    RPCEndpoint,
     SyncStatus,
     TxParams,
     Wei,
@@ -422,6 +427,25 @@ class AsyncEthModuleTest:
     async def test_eth_max_priority_fee(self, async_w3: "Web3") -> None:
         max_priority_fee = await async_w3.eth.max_priority_fee  # type: ignore
         assert is_integer(max_priority_fee)
+
+    @pytest.mark.asyncio
+    async def test_eth_max_priority_fee_with_fee_history_calculation(
+        self, async_w3: "Web3"
+    ) -> None:
+        fail_max_prio_middleware = await async_construct_error_generator_middleware(
+            {RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: ''}
+        )
+        async_w3.middleware_onion.add(fail_max_prio_middleware, name='fail_max_prio_middleware')
+
+        with pytest.warns(
+            UserWarning,
+            match="There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
+                  "eth_feeHistory."
+        ):
+            max_priority_fee = await async_w3.eth.max_priority_fee  # type: ignore
+            assert is_integer(max_priority_fee)
+
+        async_w3.middleware_onion.remove('fail_max_prio_middleware')  # clean up
 
     @pytest.mark.asyncio
     async def test_eth_getBlockByHash(
@@ -1135,6 +1159,22 @@ class EthModuleTest:
     def test_eth_max_priority_fee(self, web3: "Web3") -> None:
         max_priority_fee = web3.eth.max_priority_fee
         assert is_integer(max_priority_fee)
+
+    def test_eth_max_priority_fee_with_fee_history_calculation(self, web3: "Web3") -> None:
+        fail_max_prio_middleware = construct_error_generator_middleware(
+            {RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: ''}
+        )
+        web3.middleware_onion.add(fail_max_prio_middleware, name='fail_max_prio_middleware')
+
+        with pytest.warns(
+            UserWarning,
+            match="There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
+                  "eth_feeHistory."
+        ):
+            max_priority_fee = web3.eth.max_priority_fee
+            assert is_integer(max_priority_fee)
+
+        web3.middleware_onion.remove('fail_max_prio_middleware')  # clean up
 
     def test_eth_accounts(self, web3: "Web3") -> None:
         accounts = web3.eth.accounts
