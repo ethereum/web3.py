@@ -440,7 +440,6 @@ Net
 
 Geth
 ****
-<<<<<<< HEAD
 - :meth:`web3.geth.admin.add_peer() <web3.geth.admin.add_peer>`
 - :meth:`web3.geth.admin.datadir() <web3.geth.admin.datadir>`
 - :meth:`web3.geth.admin.node_info() <web3.geth.admin.node_info>`
@@ -449,8 +448,6 @@ Geth
 - :meth:`web3.geth.admin.start_ws() <web3.geth.admin.start_ws>`
 - :meth:`web3.geth.admin.stop_rpc() <web3.geth.admin.stop_rpc>`
 - :meth:`web3.geth.admin.stop_ws() <web3.geth.admin.stop_ws>`
-=======
->>>>>>> master
 - :meth:`web3.geth.personal.ec_recover()`
 - :meth:`web3.geth.personal.import_raw_key() <web3.geth.personal.import_raw_key>`
 - :meth:`web3.geth.personal.list_accounts() <web3.geth.personal.list_accounts>`
