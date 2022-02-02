@@ -1,0 +1,1 @@
+The exception retry middleware whitelist was missing a comma between ``txpool`` and ``testing``

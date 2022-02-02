@@ -54,11 +54,16 @@ from web3.exceptions import (
     TransactionNotFound,
     TransactionTypeMismatch,
 )
+from web3.middleware.fixture import (
+    async_construct_error_generator_middleware,
+    construct_error_generator_middleware,
+)
 from web3.types import (  # noqa: F401
     BlockData,
     FilterParams,
     LogReceipt,
     Nonce,
+    RPCEndpoint,
     SyncStatus,
     TxParams,
     Wei,
@@ -81,6 +86,22 @@ def mine_pending_block(web3: "Web3") -> None:
         if len(web3.eth.get_block('pending')['transactions']) == 0:
             break
     web3.geth.miner.stop()  # type: ignore
+
+
+def _assert_contains_log(
+    result: Sequence[LogReceipt],
+    block_with_txn_with_log: BlockData,
+    emitter_contract_address: ChecksumAddress,
+    txn_hash_with_log: HexStr,
+) -> None:
+    assert len(result) == 1
+    log_entry = result[0]
+    assert log_entry['blockNumber'] == block_with_txn_with_log['number']
+    assert log_entry['blockHash'] == block_with_txn_with_log['hash']
+    assert log_entry['logIndex'] == 0
+    assert is_same_address(log_entry['address'], emitter_contract_address)
+    assert log_entry['transactionIndex'] == 0
+    assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
 
 
 class AsyncEthModuleTest:
@@ -406,6 +427,25 @@ class AsyncEthModuleTest:
     async def test_eth_max_priority_fee(self, async_w3: "Web3") -> None:
         max_priority_fee = await async_w3.eth.max_priority_fee  # type: ignore
         assert is_integer(max_priority_fee)
+
+    @pytest.mark.asyncio
+    async def test_eth_max_priority_fee_with_fee_history_calculation(
+        self, async_w3: "Web3"
+    ) -> None:
+        fail_max_prio_middleware = await async_construct_error_generator_middleware(
+            {RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: ''}
+        )
+        async_w3.middleware_onion.add(fail_max_prio_middleware, name='fail_max_prio_middleware')
+
+        with pytest.warns(
+            UserWarning,
+            match="There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
+                  "eth_feeHistory."
+        ):
+            max_priority_fee = await async_w3.eth.max_priority_fee  # type: ignore
+            assert is_integer(max_priority_fee)
+
+        async_w3.middleware_onion.remove('fail_max_prio_middleware')  # clean up
 
     @pytest.mark.asyncio
     async def test_eth_getBlockByHash(
@@ -848,6 +888,143 @@ class AsyncEthModuleTest:
         ))
         assert await async_w3.eth.coinbase in accounts  # type: ignore
 
+    @pytest.mark.asyncio
+    async def test_async_eth_get_logs_without_logs(
+        self, async_w3: "Web3", block_with_txn_with_log: BlockData
+    ) -> None:
+        # Test with block range
+
+        filter_params: FilterParams = {
+            "fromBlock": BlockNumber(0),
+            "toBlock": BlockNumber(block_with_txn_with_log['number'] - 1),
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert len(result) == 0
+
+        # the range is wrong
+        filter_params = {
+            "fromBlock": block_with_txn_with_log['number'],
+            "toBlock": BlockNumber(block_with_txn_with_log['number'] - 1),
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert len(result) == 0
+
+        # Test with `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": BlockNumber(0),
+            "address": UNKNOWN_ADDRESS,
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert len(result) == 0
+
+        # Test with multiple `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": BlockNumber(0),
+            "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert len(result) == 0
+
+    @pytest.mark.asyncio
+    async def test_async_eth_get_logs_with_logs(
+        self,
+        async_w3: "Web3",
+        block_with_txn_with_log: BlockData,
+        emitter_contract_address: ChecksumAddress,
+        txn_hash_with_log: HexStr,
+    ) -> None:
+
+        # Test with block range
+
+        # the range includes the block where the log resides in
+        filter_params: FilterParams = {
+            "fromBlock": block_with_txn_with_log['number'],
+            "toBlock": block_with_txn_with_log['number'],
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        _assert_contains_log(
+            result,
+            block_with_txn_with_log,
+            emitter_contract_address,
+            txn_hash_with_log
+        )
+
+        # specify only `from_block`. by default `to_block` should be 'latest'
+        filter_params = {
+            "fromBlock": BlockNumber(0),
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        _assert_contains_log(
+            result,
+            block_with_txn_with_log,
+            emitter_contract_address,
+            txn_hash_with_log
+        )
+
+        # Test with `address`
+
+        # filter with emitter_contract.address
+        filter_params = {
+            "fromBlock": BlockNumber(0),
+            "address": emitter_contract_address,
+        }
+
+    @pytest.mark.asyncio
+    async def test_async_eth_get_logs_with_logs_topic_args(
+        self,
+        async_w3: "Web3",
+        block_with_txn_with_log: BlockData,
+        emitter_contract_address: ChecksumAddress,
+        txn_hash_with_log: HexStr,
+    ) -> None:
+
+        # Test with None event sig
+
+        filter_params: FilterParams = {
+            "fromBlock": BlockNumber(0),
+            "topics": [
+                None,
+                HexStr('0x000000000000000000000000000000000000000000000000000000000000d431')],
+        }
+
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        _assert_contains_log(
+            result,
+            block_with_txn_with_log,
+            emitter_contract_address,
+            txn_hash_with_log
+        )
+
+        # Test with None indexed arg
+        filter_params = {
+            "fromBlock": BlockNumber(0),
+            "topics": [
+                HexStr('0x057bc32826fbe161da1c110afcdcae7c109a8b69149f727fc37a603c60ef94ca'),
+                None],
+        }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        _assert_contains_log(
+            result,
+            block_with_txn_with_log,
+            emitter_contract_address,
+            txn_hash_with_log
+        )
+
+    @pytest.mark.asyncio
+    async def test_async_eth_get_logs_with_logs_none_topic_args(self, async_w3: "Web3") -> None:
+        # Test with None overflowing
+        filter_params: FilterParams = {
+            "fromBlock": BlockNumber(0),
+            "topics": [None, None, None],
+        }
+
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        assert len(result) == 0
+
     def test_async_provider_default_account(
         self,
         async_w3: "Web3",
@@ -982,6 +1159,22 @@ class EthModuleTest:
     def test_eth_max_priority_fee(self, web3: "Web3") -> None:
         max_priority_fee = web3.eth.max_priority_fee
         assert is_integer(max_priority_fee)
+
+    def test_eth_max_priority_fee_with_fee_history_calculation(self, web3: "Web3") -> None:
+        fail_max_prio_middleware = construct_error_generator_middleware(
+            {RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: ''}
+        )
+        web3.middleware_onion.add(fail_max_prio_middleware, name='fail_max_prio_middleware')
+
+        with pytest.warns(
+            UserWarning,
+            match="There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
+                  "eth_feeHistory."
+        ):
+            max_priority_fee = web3.eth.max_priority_fee
+            assert is_integer(max_priority_fee)
+
+        web3.middleware_onion.remove('fail_max_prio_middleware')  # clean up
 
     def test_eth_accounts(self, web3: "Web3") -> None:
         accounts = web3.eth.accounts
@@ -2718,15 +2911,6 @@ class EthModuleTest:
         emitter_contract_address: ChecksumAddress,
         txn_hash_with_log: HexStr,
     ) -> None:
-        def assert_contains_log(result: Sequence[LogReceipt]) -> None:
-            assert len(result) == 1
-            log_entry = result[0]
-            assert log_entry['blockNumber'] == block_with_txn_with_log['number']
-            assert log_entry['blockHash'] == block_with_txn_with_log['hash']
-            assert log_entry['logIndex'] == 0
-            assert is_same_address(log_entry['address'], emitter_contract_address)
-            assert log_entry['transactionIndex'] == 0
-            assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
 
         # Test with block range
 
@@ -2736,14 +2920,24 @@ class EthModuleTest:
             "toBlock": block_with_txn_with_log['number'],
         }
         result = web3.eth.get_logs(filter_params)
-        assert_contains_log(result)
+        _assert_contains_log(
+            result,
+            block_with_txn_with_log,
+            emitter_contract_address,
+            txn_hash_with_log
+        )
 
         # specify only `from_block`. by default `to_block` should be 'latest'
         filter_params = {
             "fromBlock": BlockNumber(0),
         }
         result = web3.eth.get_logs(filter_params)
-        assert_contains_log(result)
+        _assert_contains_log(
+            result,
+            block_with_txn_with_log,
+            emitter_contract_address,
+            txn_hash_with_log
+        )
 
         # Test with `address`
 
@@ -2760,15 +2954,6 @@ class EthModuleTest:
         emitter_contract_address: ChecksumAddress,
         txn_hash_with_log: HexStr,
     ) -> None:
-        def assert_contains_log(result: Sequence[LogReceipt]) -> None:
-            assert len(result) == 1
-            log_entry = result[0]
-            assert log_entry['blockNumber'] == block_with_txn_with_log['number']
-            assert log_entry['blockHash'] == block_with_txn_with_log['hash']
-            assert log_entry['logIndex'] == 0
-            assert is_same_address(log_entry['address'], emitter_contract_address)
-            assert log_entry['transactionIndex'] == 0
-            assert log_entry['transactionHash'] == HexBytes(txn_hash_with_log)
 
         # Test with None event sig
 
@@ -2780,7 +2965,12 @@ class EthModuleTest:
         }
 
         result = web3.eth.get_logs(filter_params)
-        assert_contains_log(result)
+        _assert_contains_log(
+            result,
+            block_with_txn_with_log,
+            emitter_contract_address,
+            txn_hash_with_log
+        )
 
         # Test with None indexed arg
         filter_params = {
@@ -2790,7 +2980,12 @@ class EthModuleTest:
                 None],
         }
         result = web3.eth.get_logs(filter_params)
-        assert_contains_log(result)
+        _assert_contains_log(
+            result,
+            block_with_txn_with_log,
+            emitter_contract_address,
+            txn_hash_with_log
+        )
 
     def test_eth_get_logs_with_logs_none_topic_args(self, web3: "Web3") -> None:
         # Test with None overflowing

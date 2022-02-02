@@ -49,6 +49,10 @@ from web3._utils.empty import (
 from web3._utils.encoding import (
     to_hex,
 )
+from web3._utils.fee_utils import (
+    async_fee_history_priority_fee,
+    fee_history_priority_fee,
+)
 from web3._utils.filters import (
     select_filter_method,
 )
@@ -356,7 +360,18 @@ class AsyncEth(BaseEth):
 
     @property
     async def max_priority_fee(self) -> Wei:
-        return await self._max_priority_fee()  # type: ignore
+        """
+        Try to use eth_maxPriorityFeePerGas but, since this is not part of the spec and is only
+        supported by some clients, fall back to an eth_feeHistory calculation with min and max caps.
+        """
+        try:
+            return await self._max_priority_fee()  # type: ignore
+        except ValueError:
+            warnings.warn(
+                "There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
+                "eth_feeHistory."
+            )
+            return await async_fee_history_priority_fee(self)
 
     @property
     async def mining(self) -> bool:
@@ -435,6 +450,17 @@ class AsyncEth(BaseEth):
         block_identifier: Optional[BlockIdentifier] = None
     ) -> HexBytes:
         return await self._get_code(account, block_identifier)
+
+    _get_logs: Method[Callable[[FilterParams], Awaitable[List[LogReceipt]]]] = Method(
+        RPC.eth_getLogs,
+        mungers=[default_root_munger]
+    )
+
+    async def get_logs(
+        self,
+        filter_params: FilterParams,
+    ) -> List[LogReceipt]:
+        return await self._get_logs(filter_params)
 
     _get_transaction_count: Method[Callable[..., Awaitable[Nonce]]] = Method(
         RPC.eth_getTransactionCount,
@@ -593,7 +619,18 @@ class Eth(BaseEth):
 
     @property
     def max_priority_fee(self) -> Wei:
-        return self._max_priority_fee()
+        """
+        Try to use eth_maxPriorityFeePerGas but, since this is not part of the spec and is only
+        supported by some clients, fall back to an eth_feeHistory calculation with min and max caps.
+        """
+        try:
+            return self._max_priority_fee()
+        except ValueError:
+            warnings.warn(
+                "There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
+                "eth_feeHistory."
+            )
+            return fee_history_priority_fee(self)
 
     def get_storage_at_munger(
         self,

@@ -309,7 +309,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     Unlocks the given ``account`` for ``duration`` seconds.
     If ``duration`` is ``None``, then the account will remain unlocked
-    for 300 seconds (which is current default by Geth v1.9.5);
+    for 300 seconds (which is current default by Geth v1.10.15);
     if ``duration`` is set to ``0``, the account will remain unlocked indefinitely.
     Returns boolean as to whether the account was successfully unlocked.
 
@@ -356,7 +356,7 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
     * Delegates to ``txpool_inspect`` RPC Method
 
     Returns a textual summary of all transactions currently pending for
-    inclusing in the next block(s) as will as ones that are scheduled for
+    inclusion in the next block(s) as well as ones that are scheduled for
     future execution.
 
     .. code-block:: python
@@ -418,7 +418,7 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
     * Delegates to ``txpool_status`` RPC Method
 
     Returns a textual summary of all transactions currently pending for
-    inclusing in the next block(s) as will as ones that are scheduled for
+    inclusion in the next block(s) as well as ones that are scheduled for
     future execution.
 
     .. code-block:: python

@@ -422,6 +422,7 @@ Eth
 - :meth:`web3.eth.get_balance() <web3.eth.Eth.get_balance>`
 - :meth:`web3.eth.get_block() <web3.eth.Eth.get_block>`
 - :meth:`web3.eth.get_code() <web3.eth.Eth.get_code>`
+- :meth:`web3.eth.get_logs() <web3.eth.Eth.get_logs>`
 - :meth:`web3.eth.get_raw_transaction() <web3.eth.Eth.get_raw_transaction>`
 - :meth:`web3.eth.get_raw_transaction_by_block() <web3.eth.Eth.get_raw_transaction_by_block>`
 - :meth:`web3.eth.get_transaction() <web3.eth.Eth.get_transaction>`
@@ -439,6 +440,7 @@ Net
 
 Geth
 ****
+<<<<<<< HEAD
 - :meth:`web3.geth.admin.add_peer() <web3.geth.admin.add_peer>`
 - :meth:`web3.geth.admin.datadir() <web3.geth.admin.datadir>`
 - :meth:`web3.geth.admin.node_info() <web3.geth.admin.node_info>`
@@ -447,6 +449,8 @@ Geth
 - :meth:`web3.geth.admin.start_ws() <web3.geth.admin.start_ws>`
 - :meth:`web3.geth.admin.stop_rpc() <web3.geth.admin.stop_rpc>`
 - :meth:`web3.geth.admin.stop_ws() <web3.geth.admin.stop_ws>`
+=======
+>>>>>>> master
 - :meth:`web3.geth.personal.ec_recover()`
 - :meth:`web3.geth.personal.import_raw_key() <web3.geth.personal.import_raw_key>`
 - :meth:`web3.geth.personal.list_accounts() <web3.geth.personal.list_accounts>`
