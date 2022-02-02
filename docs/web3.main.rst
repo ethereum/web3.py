@@ -419,17 +419,15 @@ web3.py library.
 External Modules
 ~~~~~~~~~~~~~~~~
 
-External modules can be used to introduce custom or third-party APIs to your ``Web3`` instance. Adding external modules
-can occur either at instantiation of the ``Web3`` instance or by making use of the ``attach_modules()`` method.
-
-Unlike the native modules, external modules need not inherit from the ``web3.module.Module`` class. The only requirement
-is that a Module must be a class and, if you'd like to make use of the parent ``Web3`` instance, it must be passed into
-the ``__init__`` function. For example:
+External modules can be used to introduce custom or third-party APIs to your ``Web3`` instance. They are not required to
+utilize the parent ``Web3`` instance; if no reference is required, the external module need only be a standard class.
+If, however, you do want to reference the parent ``Web3`` object, the external module must inherit from the
+``web3.module.Module`` class and handle the instance as an argument within the ``__init__`` function:
 
 .. code-block:: python
 
-    >>> class ExampleModule():
-    ...
+    >>> from web3.module import Module
+    >>> class ExampleModule(Module):
     ...     def __init__(self, w3):
     ...         self.w3 = w3
     ...
@@ -440,7 +438,8 @@ the ``__init__`` function. For example:
 .. warning:: Given the flexibility of external modules, use caution and only import modules from trusted third parties
    and open source code you've vetted!
 
-To instantiate the ``Web3`` instance with external modules:
+Configuring external modules can occur either at instantiation of the ``Web3`` instance or by making use of the
+``attach_modules()`` method. To instantiate the ``Web3`` instance with external modules:
 
 .. code-block:: python
 
@@ -466,11 +465,11 @@ To instantiate the ``Web3`` instance with external modules:
     ... )
 
     # `return_zero`, in this case, is an example attribute of the `ModuleClass1` object
-    >>> w3.module1.return_zero
+    >>> w3.module1.return_zero()
     0
-    >>> w3.module2.submodule1.return_one
+    >>> w3.module2.submodule1.return_one()
     1
-    >>> w3.module2.submodule2.submodule2a.return_two
+    >>> w3.module2.submodule2.submodule2a.return_two()
     2
 
 
@@ -504,9 +503,9 @@ To instantiate the ``Web3`` instance with external modules:
         ...         })
         ...     })
         ... })
-        >>> w3.module1.return_zero
+        >>> w3.module1.return_zero()
         0
-        >>> w3.module2.submodule1.return_one
+        >>> w3.module2.submodule1.return_one()
         1
-        >>> w3.module2.submodule2.submodule2a.return_two
+        >>> w3.module2.submodule2.submodule2a.return_two()
         2
