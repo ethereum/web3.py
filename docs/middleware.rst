@@ -78,7 +78,7 @@ Buffered Gas Estimate
     This adds a gas estimate to transactions if ``gas`` is not present in the transaction
     parameters. Sets gas to:
     ``min(w3.eth.estimate_gas + gas_buffer, gas_limit)``
-    where the gas_buffer default is 100,000 Wei
+    where the gas_buffer default is 100,000
 
 HTTPRequestRetry
 ~~~~~~~~~~~~~~~~~~
