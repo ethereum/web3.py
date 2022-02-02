@@ -4,6 +4,9 @@ from tests.utils import (
     get_open_port,
 )
 from web3 import Web3
+from web3._utils.module_testing.go_ethereum_admin_module import (
+    GoEthereumAsyncAdminModuleTest,
+)
 from web3._utils.module_testing.go_ethereum_personal_module import (
     GoEthereumAsyncPersonalModuleTest,
 )
@@ -11,6 +14,7 @@ from web3.eth import (
     AsyncEth,
 )
 from web3.geth import (
+    AsyncGethAdmin,
     AsyncGethPersonal,
     AsyncGethTxPool,
     Geth,
@@ -102,7 +106,8 @@ async def async_w3(geth_process, endpoint_uri):
                  'async_net': AsyncNet,
                  'geth': (Geth,
                           {'txpool': (AsyncGethTxPool,),
-                           'personal': (AsyncGethPersonal,)}
+                           'personal': (AsyncGethPersonal,),
+                           'admin': (AsyncGethAdmin,)}
                           )
                  }
     )
@@ -127,6 +132,10 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
         # This test causes all tests after it to fail on CI if it's allowed to run
         pytest.xfail(reason='Only one WS endpoint is allowed to be active at any time')
         super().test_admin_start_stop_ws(web3)
+
+
+class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
+    pass
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):

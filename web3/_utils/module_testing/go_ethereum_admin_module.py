@@ -1,6 +1,7 @@
 import pytest
 from typing import (
     TYPE_CHECKING,
+    List,
 )
 
 from web3.datastructures import (
@@ -98,3 +99,21 @@ class GoEthereumAdminModuleTest:
             })
             # Test that result gives at least the keys that are listed in `expected`
             assert not set(expected.keys()).difference(result.keys())
+
+
+class GoEthereumAsyncAdminModuleTest:
+
+    @pytest.mark.asyncio
+    async def test_async_datadir(self, async_w3: "Web3") -> None:
+        datadir = await async_w3.geth.admin.datadir()  # type: ignore
+        assert isinstance(datadir, str)
+
+    @pytest.mark.asyncio
+    async def test_async_nodeinfo(self, async_w3: "Web3") -> None:
+        node_info = await async_w3.geth.admin.node_info()  # type: ignore
+        assert "Geth" in node_info["name"]
+
+    @pytest.mark.asyncio
+    async def test_async_nodes(self, async_w3: "Web3") -> None:
+        nodes = await async_w3.geth.admin.peers()  # type: ignore
+        assert isinstance(nodes, List)

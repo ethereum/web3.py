@@ -78,9 +78,9 @@ from web3.module import (
 )
 from web3.types import (
     EnodeURI,
+    GethWallet,
     NodeInfo,
     Peer,
-    GethWallet,
     TxParams,
     TxPoolContent,
     TxPoolInspect,
