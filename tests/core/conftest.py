@@ -50,29 +50,35 @@ def module4():
 def module1_unique():
     class Module1:
         a = 'a'
+
+        def __init__(self):
+            self._b = "b"
+
+        def b(self):
+            return self._b
     return Module1
 
 
 @pytest.fixture(scope='module')
 def module2_unique():
     class Module2:
-        b = 'b'
+        c = 'c'
 
         @staticmethod
-        def c():
-            return 'c'
+        def d():
+            return 'd'
     return Module2
 
 
 @pytest.fixture(scope='module')
 def module3_unique():
     class Module3:
-        d = 'd'
+        e = 'e'
     return Module3
 
 
 @pytest.fixture(scope='module')
 def module4_unique():
     class Module4:
-        e = 'e'
+        f = 'f'
     return Module4

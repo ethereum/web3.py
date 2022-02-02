@@ -51,16 +51,17 @@ def test_attach_modules_that_do_not_inherit_from_module_class(
     # assert module1 attached
     assert hasattr(web3, 'module1')
     assert web3.module1.a == 'a'
+    assert web3.module1.b() == 'b'
 
     # assert module2 + submodules attached
     assert hasattr(web3, 'module2')
-    assert web3.module2.b == 'b'
-    assert web3.module2.c() == 'c'
+    assert web3.module2.c == 'c'
+    assert web3.module2.d() == 'd'
 
     assert hasattr(web3.module2, 'submodule1')
-    assert web3.module2.submodule1.d == 'd'
+    assert web3.module2.submodule1.e == 'e'
     assert hasattr(web3.module2.submodule1, 'submodule2')
-    assert web3.module2.submodule1.submodule2.e == 'e'
+    assert web3.module2.submodule1.submodule2.f == 'f'
 
     # assert default modules intact
     assert hasattr(web3, 'geth')
