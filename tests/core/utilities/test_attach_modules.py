@@ -1,3 +1,6 @@
+from io import (
+    UnsupportedOperation,
+)
 import pytest
 
 from eth_utils import (
@@ -148,6 +151,7 @@ def test_attach_external_modules_that_do_not_inherit_from_module_class(
     assert hasattr(w3, 'module1')
     assert w3.module1.a == 'a'
     assert w3.module1.b() == 'b'
+    assert w3.module1.return_eth_chain_id == w3.eth.chain_id
 
     # assert module2 + submodules attached
     assert hasattr(w3, 'module2')
@@ -163,3 +167,17 @@ def test_attach_external_modules_that_do_not_inherit_from_module_class(
     assert hasattr(w3, 'geth')
     assert hasattr(w3, 'eth')
     assert is_integer(w3.eth.chain_id)
+
+
+def test_attach_modules_for_module_with_more_than_one_init_argument(web3, module_many_init_args):
+    with pytest.raises(
+        UnsupportedOperation,
+        match=(
+            "A module class may accept a single `Web3` instance as the first argument of its "
+            "__init__\\(\\) method. More than one argument found for ModuleManyArgs: \\['a', 'b']"
+        )
+    ):
+        Web3(
+            EthereumTesterProvider(),
+            external_modules={'module_should_fail': module_many_init_args}
+        )

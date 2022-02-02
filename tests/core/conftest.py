@@ -48,14 +48,20 @@ def module4():
 
 @pytest.fixture(scope='module')
 def module1_unique():
+    # uses ``Web3`` instance by accepting it as first arg in the ``__init__()`` method
     class Module1:
         a = 'a'
 
-        def __init__(self):
+        def __init__(self, w3):
             self._b = "b"
+            self.w3 = w3
 
         def b(self):
             return self._b
+
+        @property
+        def return_eth_chain_id(self):
+            return self.w3.eth.chain_id
     return Module1
 
 
@@ -82,3 +88,12 @@ def module4_unique():
     class Module4:
         f = 'f'
     return Module4
+
+
+@pytest.fixture(scope='module')
+def module_many_init_args():
+    class ModuleManyArgs:
+        def __init__(self, a, b):
+            self.a = a
+            self.b = b
+    return ModuleManyArgs
