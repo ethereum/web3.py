@@ -1025,6 +1025,24 @@ class AsyncEthModuleTest:
         result = await async_w3.eth.get_logs(filter_params)  # type: ignore
         assert len(result) == 0
 
+    @pytest.mark.asyncio
+    async def test_async_eth_syncing(self, async_w3: "Web3") -> None:
+        syncing = await async_w3.eth.syncing  # type: ignore
+
+        assert is_boolean(syncing) or is_dict(syncing)
+
+        if is_boolean(syncing):
+            assert syncing is False
+        elif is_dict(syncing):
+            sync_dict = cast(SyncStatus, syncing)
+            assert 'startingBlock' in sync_dict
+            assert 'currentBlock' in sync_dict
+            assert 'highestBlock' in sync_dict
+
+            assert is_integer(sync_dict['startingBlock'])
+            assert is_integer(sync_dict['currentBlock'])
+            assert is_integer(sync_dict['highestBlock'])
+
     def test_async_provider_default_account(
         self,
         async_w3: "Web3",
