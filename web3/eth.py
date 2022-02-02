@@ -322,6 +322,11 @@ class BaseEth(Module):
         mungers=None,
     )
 
+    _is_syncing: Method[Callable[[], Union[SyncStatus, bool]]] = Method(
+        RPC.eth_syncing,
+        mungers=None,
+    )
+
     _get_transaction_receipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
         RPC.eth_getTransactionReceipt,
         mungers=[default_root_munger]
@@ -376,6 +381,10 @@ class AsyncEth(BaseEth):
     @property
     async def mining(self) -> bool:
         return await self._is_mining()  # type: ignore
+
+    @property
+    async def syncing(self) -> Union[SyncStatus, bool]:
+        return await self._is_syncing()  # type: ignore
 
     async def fee_history(
             self,
@@ -551,14 +560,9 @@ class Eth(BaseEth):
         )
         return self.protocol_version
 
-    is_syncing: Method[Callable[[], Union[SyncStatus, bool]]] = Method(
-        RPC.eth_syncing,
-        mungers=None,
-    )
-
     @property
     def syncing(self) -> Union[SyncStatus, bool]:
-        return self.is_syncing()
+        return self._is_syncing()
 
     @property
     def coinbase(self) -> ChecksumAddress:
