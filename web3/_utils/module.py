@@ -45,7 +45,7 @@ def attach_modules(
                 setattr(parent_module, module_name, module_class(w3))
         else:
             # An external `module_class` need not inherit from the `web3.module.Module` class.
-            setattr(parent_module, module_name, module_class)
+            setattr(parent_module, module_name, module_class())
 
         if module_info_is_list_like:
             if len(module_info) == 2:
