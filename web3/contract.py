@@ -899,7 +899,7 @@ class ContractFunction:
 
     def call(
         self, transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = 'latest',
+        block_identifier: BlockIdentifier = None,
         state_override: Optional[CallOverrideParams] = None,
     ) -> Any:
         """
@@ -1542,6 +1542,8 @@ def call_contract_function(
 
 
 def parse_block_identifier(web3: 'Web3', block_identifier: BlockIdentifier) -> BlockIdentifier:
+    if block_identifier is None:
+        return web3.eth.default_block
     if isinstance(block_identifier, int):
         return parse_block_identifier_int(web3, block_identifier)
     elif block_identifier in ['latest', 'earliest', 'pending']:
