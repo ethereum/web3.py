@@ -1018,6 +1018,13 @@ class AsyncEthModuleTest:
             "fromBlock": BlockNumber(0),
             "address": emitter_contract_address,
         }
+        result = await async_w3.eth.get_logs(filter_params)  # type: ignore
+        _assert_contains_log(
+            result,
+            block_with_txn_with_log,
+            emitter_contract_address,
+            txn_hash_with_log
+        )
 
     @pytest.mark.asyncio
     async def test_async_eth_get_logs_with_logs_topic_args(
