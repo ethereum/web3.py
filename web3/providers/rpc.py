@@ -78,6 +78,7 @@ class HTTPProvider(JSONBaseProvider):
     def get_request_headers(self) -> Dict[str, str]:
         return {
             'Content-Type': 'application/json',
+            'Accept-Encoding': 'gzip, deflate',
             'User-Agent': construct_user_agent(str(type(self))),
         }
 
