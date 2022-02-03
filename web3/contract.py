@@ -1197,7 +1197,7 @@ class ContractFunction(BaseContractFunction):
     def call(
         self,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = "latest",
+        block_identifier: BlockIdentifier = None,
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
@@ -1308,7 +1308,7 @@ class AsyncContractFunction(BaseContractFunction):
     async def call(
         self,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = "latest",
+        block_identifier: BlockIdentifier = None,
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
@@ -1346,8 +1346,7 @@ class AsyncContractFunction(BaseContractFunction):
             self._return_data_normalizers,
             self.function_identifier,
             call_transaction,
-            # BlockIdentifier does have an Awaitable type in types.py
-            block_id,  # type: ignore
+            block_id,
             self.contract_abi,
             self.abi,
             state_override,
@@ -2177,6 +2176,8 @@ async def async_call_contract_function(
 def parse_block_identifier(
     w3: "Web3", block_identifier: BlockIdentifier
 ) -> BlockIdentifier:
+    if block_identifier is None:
+        return w3.eth.default_block
     if isinstance(block_identifier, int):
         return parse_block_identifier_int(w3, block_identifier)
     elif block_identifier in {"latest", "earliest", "pending", "safe", "finalized"}:
@@ -2191,11 +2192,13 @@ def parse_block_identifier(
 
 async def async_parse_block_identifier(
     w3: "Web3", block_identifier: BlockIdentifier
-) -> Awaitable[BlockIdentifier]:
+) -> BlockIdentifier:
+    if block_identifier is None:
+        return w3.eth.default_block
     if isinstance(block_identifier, int):
         return await async_parse_block_identifier_int(w3, block_identifier)
     elif block_identifier in {"latest", "earliest", "pending", "safe", "finalized"}:
-        return block_identifier  # type: ignore
+        return block_identifier
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(
         block_identifier
     ):
@@ -2218,7 +2221,7 @@ def parse_block_identifier_int(w3: "Web3", block_identifier_int: int) -> BlockNu
 
 async def async_parse_block_identifier_int(
     w3: "Web3", block_identifier_int: int
-) -> Awaitable[BlockNumber]:
+) -> BlockNumber:
     if block_identifier_int >= 0:
         block_num = block_identifier_int
     else:
@@ -2227,7 +2230,7 @@ async def async_parse_block_identifier_int(
         block_num = last_block_num + block_identifier_int + 1
         if block_num < 0:
             raise BlockNumberOutofRange
-    return BlockNumber(block_num)  # type: ignore
+    return BlockNumber(block_num)
 
 
 def transact_with_contract_function(

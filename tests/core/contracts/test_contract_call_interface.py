@@ -1021,6 +1021,20 @@ def test_call_revert_contract(revert_contract):
         revert_contract.functions.revertWithMessage().call({"gas": 100000})
 
 
+def test_changing_default_block_identifier(w3, math_contract):
+    assert math_contract.caller.counter() == 0
+    assert w3.eth.default_block == "latest"
+
+    math_contract.functions.increment(7).transact()
+    assert math_contract.caller.counter() == 7
+
+    assert math_contract.functions.counter().call(block_identifier=1) == 0
+    w3.eth.default_block = 1
+    assert math_contract.functions.counter().call(block_identifier=None) == 0
+    w3.eth.default_block = 0x2
+    assert math_contract.functions.counter().call(block_identifier=None) == 7
+
+
 @pytest.mark.asyncio
 async def test_async_invalid_address_in_deploy_arg(
     AsyncWithConstructorAddressArgumentsContract,
@@ -1885,3 +1899,22 @@ async def test_async_returns_data_from_specified_block(async_w3, async_math_cont
 
     assert output1 == 1
     assert output2 == 2
+
+
+@pytest.mark.asyncio
+async def test_async_changing_default_block_identifier(async_w3, async_math_contract):
+    assert await async_math_contract.caller.counter() == 0
+    assert async_w3.eth.default_block == "latest"
+
+    await async_math_contract.functions.increment(7).transact()
+    assert await async_math_contract.caller.counter() == 7
+
+    assert await async_math_contract.functions.counter().call(block_identifier=1) == 0
+    async_w3.eth.default_block = 1
+    assert (
+        await async_math_contract.functions.counter().call(block_identifier=None) == 0
+    )
+    async_w3.eth.default_block = 0x2
+    assert (
+        await async_math_contract.functions.counter().call(block_identifier=None) == 7
+    )
