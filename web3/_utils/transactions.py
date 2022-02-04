@@ -32,7 +32,6 @@ from web3.types import (
     BlockIdentifier,
     TxData,
     TxParams,
-    Wei,
     _Hash32,
 )
 

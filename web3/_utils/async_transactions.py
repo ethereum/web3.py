@@ -7,7 +7,6 @@ from typing import (
 from web3.types import (
     BlockIdentifier,
     TxParams,
-    Wei,
 )
 
 if TYPE_CHECKING:
