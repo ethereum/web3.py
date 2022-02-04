@@ -1,6 +1,8 @@
 import json
 import pytest
-from typing import NamedTuple
+from typing import (
+    NamedTuple,
+)
 
 from web3._utils.abi import (
     abi_data_tree,
