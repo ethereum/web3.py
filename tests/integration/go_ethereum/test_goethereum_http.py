@@ -138,7 +138,7 @@ class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
     @pytest.mark.asyncio
     @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
     async def test_admin_peers(self, web3: "Web3") -> None:
-       await super().test_admin_peers(web3)
+        await super().test_admin_peers(web3)
 
     @pytest.mark.asyncio
     async def test_admin_start_stop_rpc(self, web3: "Web3") -> None:
