@@ -117,3 +117,27 @@ class GoEthereumAsyncAdminModuleTest:
     async def test_async_nodes(self, async_w3: "Web3") -> None:
         nodes = await async_w3.geth.admin.peers()  # type: ignore
         assert isinstance(nodes, List)
+    
+    @pytest.mark.asyncio
+    async def test_admin_peers(self, web3: "Web3") -> None:
+        enode = await web3.geth.admin.node_info()['enode']
+        web3.geth.admin.add_peer(enode)
+        result = await web3.geth.admin.peers()
+        assert len(result) == 1
+
+    @pytest.mark.asyncio
+    async def test_admin_start_stop_rpc(self, web3: "Web3") -> None:
+        stop = await web3.geth.admin.stop_rpc()
+        assert stop is True
+
+        start = await web3.geth.admin.start_rpc()
+        assert start is True
+
+    @pytest.mark.asyncio   
+    async def test_admin_start_stop_ws(self, web3: "Web3") -> None:
+        stop = await web3.geth.admin.stop_ws()
+        assert stop is True
+
+        start = await web3.geth.admin.start_ws()
+        assert start is True
+

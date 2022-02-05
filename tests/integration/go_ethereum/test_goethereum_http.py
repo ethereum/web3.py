@@ -135,7 +135,22 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 
 
 class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
-    pass
+    @pytest.mark.asyncio
+    @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
+    async def test_admin_peers(self, web3: "Web3") -> None:
+       await super().test_admin_peers(web3)
+
+    @pytest.mark.asyncio
+    async def test_admin_start_stop_rpc(self, web3: "Web3") -> None:
+        # This test causes all tests after it to fail on CI if it's allowed to run
+        pytest.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+        await super().test_admin_start_stop_rpc(web3)
+
+    @pytest.mark.asyncio
+    async def test_admin_start_stop_ws(self, web3: "Web3") -> None:
+        # This test causes all tests after it to fail on CI if it's allowed to run
+        pytest.xfail(reason='Only one WS endpoint is allowed to be active at any time')
+        await super().test_admin_start_stop_ws(web3)
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
