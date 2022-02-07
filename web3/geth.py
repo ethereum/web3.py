@@ -77,7 +77,10 @@ from web3.module import (
     Module,
 )
 from web3.types import (
+    EnodeURI,
     GethWallet,
+    NodeInfo,
+    Peer,
     TxParams,
     TxPoolContent,
     TxPoolInspect,
@@ -258,25 +261,123 @@ class AsyncGethTxPool(BaseTxPool):
         return await self._status()  # type: ignore
 
 
-class GethAdmin(Module):
+class BaseGethAdmin(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#admin
     """
-    add_peer = add_peer
-    node_info = node_info
-    start_rpc = start_rpc
-    start_ws = start_ws
-    stop_ws = stop_ws
-    stop_rpc = stop_rpc
+    _add_peer = add_peer
+    _datadir = datadir
+    _node_info = node_info
+    _peers = peers
+    _start_rpc = start_rpc
+    _start_ws = start_ws
+    _stop_ws = stop_ws
+    _stop_rpc = stop_rpc
     # deprecated
-    addPeer = addPeer
-    datadir = datadir
-    nodeInfo = nodeInfo
-    peers = peers
-    startRPC = startRPC
-    startWS = startWS
-    stopRPC = stopRPC
-    stopWS = stopWS
+    _addPeer = addPeer
+    _nodeInfo = nodeInfo
+    _startRPC = startRPC
+    _startWS = startWS
+    _stopRPC = stopRPC
+    _stopWS = stopWS
+
+
+class GethAdmin(BaseGethAdmin):
+    is_async = False
+
+    def add_peer(self, node_url: EnodeURI) -> bool:
+        return self._add_peer(node_url)
+
+    def datadir(self) -> str:
+        return self._datadir()
+
+    def node_info(self) -> NodeInfo:
+        return self._node_info()
+
+    def peers(self) -> List[Peer]:
+        return self._peers()
+
+    def start_rpc(self,
+                  host: str = "localhost",
+                  port: int = 8546,
+                  cors: str = "",
+                  apis: str = "eth,net,web3") -> bool:
+        return self._start_rpc(host, port, cors, apis)
+
+    def start_ws(self,
+                 host: str = "localhost",
+                 port: int = 8546,
+                 cors: str = "",
+                 apis: str = "eth,net,web3") -> bool:
+        return self._start_ws(host, port, cors, apis)
+
+    def stop_rpc(self) -> bool:
+        return self._stop_rpc()
+
+    def stop_ws(self) -> bool:
+        return self._stop_ws()
+
+    def addPeer(self, node_url: EnodeURI) -> bool:
+        return self._addPeer(node_url)
+
+    def nodeInfo(self) -> NodeInfo:
+        return self._nodeInfo()
+
+    def startRPC(self,
+                 host: str = "localhost",
+                 port: int = 8546,
+                 cors: str = "",
+                 apis: str = "eth,net,web3") -> bool:
+        return self._startRPC(host, port, cors, apis)
+
+    def startWS(self,
+                host: str = "localhost",
+                port: int = 8546,
+                cors: str = "",
+                apis: str = "eth,net,web3") -> bool:
+        return self._startWS(host, port, cors, apis)
+
+    def stopRPC(self) -> bool:
+        return self._stopRPC()
+
+    def stopWS(self) -> bool:
+        return self._stopWS()
+
+
+class AsyncGethAdmin(BaseGethAdmin):
+    is_async = True
+
+    async def add_peer(self, node_url: EnodeURI) -> Awaitable[bool]:
+        return await self._add_peer(node_url)  # type: ignore
+
+    async def datadir(self) -> Awaitable[str]:
+        return await self._datadir()  # type: ignore
+
+    async def node_info(self) -> Awaitable[NodeInfo]:
+        return await self._node_info()  # type: ignore
+
+    async def peers(self) -> Awaitable[List[Peer]]:
+        return await self._peers()  # type: ignore
+
+    async def start_rpc(self,
+                        host: str = "localhost",
+                        port: int = 8546,
+                        cors: str = "",
+                        apis: str = "eth,net,web3") -> Awaitable[bool]:
+        return await self._start_rpc(host, port, cors, apis)  # type: ignore
+
+    async def start_ws(self,
+                       host: str = "localhost",
+                       port: int = 8546,
+                       cors: str = "",
+                       apis: str = "eth,net,web3") -> Awaitable[bool]:
+        return await self._start_ws(host, port, cors, apis)  # type: ignore
+
+    async def stop_rpc(self) -> Awaitable[bool]:
+        return await self._stop_rpc()  # type: ignore
+
+    async def stop_ws(self) -> Awaitable[bool]:
+        return await self._stop_ws()  # type: ignore
 
 
 class GethMiner(Module):
