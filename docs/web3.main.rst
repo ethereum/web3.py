@@ -419,15 +419,13 @@ web3.py library.
 External Modules
 ~~~~~~~~~~~~~~~~
 
-External modules can be used to introduce custom or third-party APIs to your ``Web3`` instance. They are not required to
-utilize the parent ``Web3`` instance; if no reference is required, the external module need only be a standard class.
-If, however, you do want to reference the parent ``Web3`` object, the external module must inherit from the
-``web3.module.Module`` class and handle the instance as an argument within the ``__init__`` function:
+External modules can be used to introduce custom or third-party APIs to your ``Web3`` instance. External modules are simply
+classes whose methods and properties can be made available within the ``Web3`` instance. Optionally, the external module may
+make use of the parent ``Web3`` instance by accepting it as the first argument within the ``__init__`` function:
 
 .. code-block:: python
 
-    >>> from web3.module import Module
-    >>> class ExampleModule(Module):
+    >>> class ExampleModule:
     ...     def __init__(self, w3):
     ...         self.w3 = w3
     ...
@@ -439,7 +437,8 @@ If, however, you do want to reference the parent ``Web3`` object, the external m
    and open source code you've vetted!
 
 Configuring external modules can occur either at instantiation of the ``Web3`` instance or by making use of the
-``attach_modules()`` method. To instantiate the ``Web3`` instance with external modules:
+``attach_modules()`` method. To instantiate the ``Web3`` instance with external modules use the ``external_modules``
+keyword argument:
 
 .. code-block:: python
 
