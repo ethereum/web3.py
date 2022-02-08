@@ -395,7 +395,8 @@ AsyncHTTPProvider
         ...         'net': (AsyncNet,),
         ...         'geth': (Geth,
         ...             {'txpool': (AsyncGethTxPool,),
-        ...              'personal': (AsyncGethPersonal,)})
+        ...              'personal': (AsyncGethPersonal,),
+        ...              'admin' : (AsyncGethAdmin,)})
         ...         },
         ...     middlewares=[]   # See supported middleware section below for middleware options
         ...     ) 
@@ -420,6 +421,7 @@ Eth
 - :meth:`web3.eth.hashrate <web3.eth.Eth.hashrate>`
 - :meth:`web3.eth.max_priority_fee <web3.eth.Eth.max_priority_fee>`
 - :meth:`web3.eth.mining <web3.eth.Eth.mining>`
+- :meth:`web3.eth.syncing <web3.eth.Eth.syncing>`
 - :meth:`web3.eth.call() <web3.eth.Eth.call>`
 - :meth:`web3.eth.estimate_gas() <web3.eth.Eth.estimate_gas>`
 - :meth:`web3.eth.generate_gas_price() <web3.eth.Eth.generate_gas_price>`
@@ -444,6 +446,14 @@ Net
 
 Geth
 ****
+- :meth:`web3.geth.admin.add_peer() <web3.geth.admin.add_peer>`
+- :meth:`web3.geth.admin.datadir() <web3.geth.admin.datadir>`
+- :meth:`web3.geth.admin.node_info() <web3.geth.admin.node_info>`
+- :meth:`web3.geth.admin.peers() <web3.geth.admin.peers>`
+- :meth:`web3.geth.admin.start_rpc() <web3.geth.admin.start_rpc>`
+- :meth:`web3.geth.admin.start_ws() <web3.geth.admin.start_ws>`
+- :meth:`web3.geth.admin.stop_rpc() <web3.geth.admin.stop_rpc>`
+- :meth:`web3.geth.admin.stop_ws() <web3.geth.admin.stop_ws>`
 - :meth:`web3.geth.personal.ec_recover()`
 - :meth:`web3.geth.personal.import_raw_key() <web3.geth.personal.import_raw_key>`
 - :meth:`web3.geth.personal.list_accounts() <web3.geth.personal.list_accounts>`

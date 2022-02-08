@@ -122,10 +122,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     .. warning:: Deprecated: This method is deprecated in favor of :meth:`~web3.geth.admin.add_peer()`
 
-.. py:method:: setSolc(solc_path)
-
-    .. Warning:: This method has been removed from Geth
-
 .. py:method:: start_rpc(host='localhost', port=8545, cors="", apis="eth,net,web3")
 
     * Delegates to ``admin_startRPC`` RPC Method
