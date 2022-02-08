@@ -1,0 +1,1 @@
+Moved test for `geth.txpool.content` and `geth.txpool.inspect` from core to goethereum http integration test.
