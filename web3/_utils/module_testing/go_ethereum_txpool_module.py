@@ -51,7 +51,6 @@ class GoEthereumTxPoolModuleTest:
         assert pending_txns[str(txn_1['nonce'])]['value'] == Web3.toHex(12345)
         assert pending_txns[str(txn_2['nonce'])]['hash'] == Web3.toHex(txn_2_hash)
         assert pending_txns[str(txn_2['nonce'])]['value'] == Web3.toHex(54321)
-        
 
     def test_txpool_inspect(self, web3: "Web3", unlocked_account: ChecksumAddress) -> None:
 
