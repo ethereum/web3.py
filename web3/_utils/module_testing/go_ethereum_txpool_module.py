@@ -1,5 +1,4 @@
 import pytest
-import random
 
 from eth_typing import (
     ChecksumAddress,
@@ -23,8 +22,8 @@ class GoEthereumTxPoolModuleTest:
         web3.geth.miner.stop()  # type: ignore
 
         with Timeout(60) as timeout:
-            while web3.eth.hashrate or web3.eth.mining:
-                timeout.sleep(random.random())
+            while web3.eth.hashrate > 0 or web3.eth.mining:
+                timeout.sleep(1)
 
         txn_1_hash = web3.eth.send_transaction({
             'from': unlocked_account,
@@ -52,14 +51,15 @@ class GoEthereumTxPoolModuleTest:
         assert pending_txns[str(txn_1['nonce'])]['value'] == Web3.toHex(12345)
         assert pending_txns[str(txn_2['nonce'])]['hash'] == Web3.toHex(txn_2_hash)
         assert pending_txns[str(txn_2['nonce'])]['value'] == Web3.toHex(54321)
+        
 
     def test_txpool_inspect(self, web3: "Web3", unlocked_account: ChecksumAddress) -> None:
 
         web3.geth.miner.stop()  # type: ignore
 
         with Timeout(60) as timeout:
-            while web3.eth.hashrate or web3.eth.mining:
-                timeout.sleep(random.random())
+            while web3.eth.hashrate > 0 or web3.eth.mining:
+                timeout.sleep(1)
 
         txn_1_hash = web3.eth.send_transaction({
             'from': unlocked_account,
