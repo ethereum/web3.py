@@ -4,16 +4,25 @@ from tests.utils import (
     get_open_port,
 )
 from web3 import Web3
+from web3._utils.module_testing.go_ethereum_admin_module import (
+    GoEthereumAsyncAdminModuleTest,
+)
+from web3._utils.module_testing.go_ethereum_personal_module import (
+    GoEthereumAsyncPersonalModuleTest,
+)
 from web3.eth import (
     AsyncEth,
 )
 from web3.geth import (
+    AsyncGethAdmin,
+    AsyncGethPersonal,
     AsyncGethTxPool,
     Geth,
 )
 from web3.middleware import (
     async_buffered_gas_estimate_middleware,
     async_gas_price_strategy_middleware,
+    async_validation_middleware,
 )
 from web3.net import (
     AsyncNet,
@@ -91,13 +100,16 @@ async def async_w3(geth_process, endpoint_uri):
     _web3 = Web3(
         AsyncHTTPProvider(endpoint_uri),
         middlewares=[
+            async_buffered_gas_estimate_middleware,
             async_gas_price_strategy_middleware,
-            async_buffered_gas_estimate_middleware
+            async_validation_middleware,
         ],
-        modules={'eth': (AsyncEth,),
-                 'async_net': (AsyncNet,),
+        modules={'eth': AsyncEth,
+                 'async_net': AsyncNet,
                  'geth': (Geth,
-                          {'txpool': (AsyncGethTxPool,)}
+                          {'txpool': (AsyncGethTxPool,),
+                           'personal': (AsyncGethPersonal,),
+                           'admin': (AsyncGethAdmin,)}
                           )
                  }
     )
@@ -124,6 +136,25 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
         super().test_admin_start_stop_ws(web3)
 
 
+class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
+    @pytest.mark.asyncio
+    @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
+    async def test_admin_peers(self, web3: "Web3") -> None:
+        await super().test_admin_peers(web3)
+
+    @pytest.mark.asyncio
+    async def test_admin_start_stop_rpc(self, web3: "Web3") -> None:
+        # This test causes all tests after it to fail on CI if it's allowed to run
+        pytest.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+        await super().test_admin_start_stop_rpc(web3)
+
+    @pytest.mark.asyncio
+    async def test_admin_start_stop_ws(self, web3: "Web3") -> None:
+        # This test causes all tests after it to fail on CI if it's allowed to run
+        pytest.xfail(reason='Only one WS endpoint is allowed to be active at any time')
+        await super().test_admin_start_stop_ws(web3)
+
+
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
     pass
 
@@ -141,6 +172,10 @@ class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
 
 
 class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
+    pass
+
+
+class TestGoEthereumAsyncPersonalModuleTest(GoEthereumAsyncPersonalModuleTest):
     pass
 
 

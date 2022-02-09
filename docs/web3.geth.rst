@@ -122,10 +122,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     .. warning:: Deprecated: This method is deprecated in favor of :meth:`~web3.geth.admin.add_peer()`
 
-.. py:method:: setSolc(solc_path)
-
-    .. Warning:: This method has been removed from Geth
-
 .. py:method:: start_rpc(host='localhost', port=8545, cors="", apis="eth,net,web3")
 
     * Delegates to ``admin_startRPC`` RPC Method
@@ -309,7 +305,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     Unlocks the given ``account`` for ``duration`` seconds.
     If ``duration`` is ``None``, then the account will remain unlocked
-    for 300 seconds (which is current default by Geth v1.9.5);
+    for 300 seconds (which is current default by Geth v1.10.15);
     if ``duration`` is set to ``0``, the account will remain unlocked indefinitely.
     Returns boolean as to whether the account was successfully unlocked.
 
@@ -356,7 +352,7 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
     * Delegates to ``txpool_inspect`` RPC Method
 
     Returns a textual summary of all transactions currently pending for
-    inclusing in the next block(s) as will as ones that are scheduled for
+    inclusion in the next block(s) as well as ones that are scheduled for
     future execution.
 
     .. code-block:: python
@@ -418,7 +414,7 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
     * Delegates to ``txpool_status`` RPC Method
 
     Returns a textual summary of all transactions currently pending for
-    inclusing in the next block(s) as will as ones that are scheduled for
+    inclusion in the next block(s) as well as ones that are scheduled for
     future execution.
 
     .. code-block:: python

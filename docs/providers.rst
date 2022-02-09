@@ -392,7 +392,9 @@ AsyncHTTPProvider
         ...     modules={'eth': (AsyncEth,),
         ...         'net': (AsyncNet,),
         ...         'geth': (Geth,
-        ...             {'txpool': (AsyncGethTxPool,)})
+        ...             {'txpool': (AsyncGethTxPool,),
+        ...              'personal': (AsyncGethPersonal,),
+        ...              'admin' : (AsyncGethAdmin,)})
         ...         },
         ...     middlewares=[])  # See supported middleware section below for middleware options
 
@@ -414,12 +416,14 @@ Eth
 - :meth:`web3.eth.hashrate <web3.eth.Eth.hashrate>`
 - :meth:`web3.eth.max_priority_fee <web3.eth.Eth.max_priority_fee>`
 - :meth:`web3.eth.mining <web3.eth.Eth.mining>`
+- :meth:`web3.eth.syncing <web3.eth.Eth.syncing>`
 - :meth:`web3.eth.call() <web3.eth.Eth.call>`
 - :meth:`web3.eth.estimate_gas() <web3.eth.Eth.estimate_gas>`
 - :meth:`web3.eth.generate_gas_price() <web3.eth.Eth.generate_gas_price>`
 - :meth:`web3.eth.get_balance() <web3.eth.Eth.get_balance>`
 - :meth:`web3.eth.get_block() <web3.eth.Eth.get_block>`
 - :meth:`web3.eth.get_code() <web3.eth.Eth.get_code>`
+- :meth:`web3.eth.get_logs() <web3.eth.Eth.get_logs>`
 - :meth:`web3.eth.get_raw_transaction() <web3.eth.Eth.get_raw_transaction>`
 - :meth:`web3.eth.get_raw_transaction_by_block() <web3.eth.Eth.get_raw_transaction_by_block>`
 - :meth:`web3.eth.get_transaction() <web3.eth.Eth.get_transaction>`
@@ -437,6 +441,23 @@ Net
 
 Geth
 ****
+- :meth:`web3.geth.admin.add_peer() <web3.geth.admin.add_peer>`
+- :meth:`web3.geth.admin.datadir() <web3.geth.admin.datadir>`
+- :meth:`web3.geth.admin.node_info() <web3.geth.admin.node_info>`
+- :meth:`web3.geth.admin.peers() <web3.geth.admin.peers>`
+- :meth:`web3.geth.admin.start_rpc() <web3.geth.admin.start_rpc>`
+- :meth:`web3.geth.admin.start_ws() <web3.geth.admin.start_ws>`
+- :meth:`web3.geth.admin.stop_rpc() <web3.geth.admin.stop_rpc>`
+- :meth:`web3.geth.admin.stop_ws() <web3.geth.admin.stop_ws>`
+- :meth:`web3.geth.personal.ec_recover()`
+- :meth:`web3.geth.personal.import_raw_key() <web3.geth.personal.import_raw_key>`
+- :meth:`web3.geth.personal.list_accounts() <web3.geth.personal.list_accounts>`
+- :meth:`web3.geth.personal.list_wallets() <web3.geth.personal.list_wallets()>`
+- :meth:`web3.geth.personal.lock_account() <web3.geth.personal.lock_account>`
+- :meth:`web3.geth.personal.new_account() <web3.geth.personal.new_account>`
+- :meth:`web3.geth.personal.send_transaction() <web3.geth.personal.send_transaction>`
+- :meth:`web3.geth.personal.sign()`
+- :meth:`web3.geth.personal.unlock_account() <web3.geth.personal.unlock_account>`
 - :meth:`web3.geth.txpool.inspect() <web3.geth.txpool.TxPool.inspect()>`
 - :meth:`web3.geth.txpool.content() <web3.geth.txpool.TxPool.content()>`
 - :meth:`web3.geth.txpool.status() <web3.geth.txpool.TxPool.status()>`

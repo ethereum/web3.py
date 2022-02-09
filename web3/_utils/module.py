@@ -1,7 +1,12 @@
+import inspect
+from io import (
+    UnsupportedOperation,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    List,
     Optional,
     Sequence,
     Union,
@@ -16,6 +21,22 @@ from web3.module import (
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
+
+
+def _validate_init_params_and_return_if_found(module_class: Any) -> List[str]:
+    init_params_raw = list(inspect.signature(module_class.__init__).parameters)
+    module_init_params = [
+        param for param in init_params_raw if param not in ['self', 'args', 'kwargs']
+    ]
+
+    if len(module_init_params) > 1:
+        raise UnsupportedOperation(
+            "A module class may accept a single `Web3` instance as the first argument of its "
+            f"__init__() method. More than one argument found for {module_class.__name__}: "
+            f"{module_init_params}"
+        )
+
+    return module_init_params
 
 
 def attach_modules(
@@ -34,18 +55,20 @@ def attach_modules(
                 "already has an attribute with that name"
             )
 
-        if issubclass(module_class, Module):
-            # If the `module_class` inherits from the `web3.module.Module` class, it has access to
-            # caller functions internal to the web3.py library and sets up a proper codec. This
-            # is likely important for all modules internal to the library.
-            if w3 is None:
-                setattr(parent_module, module_name, module_class(parent_module))
-                w3 = parent_module
-            else:
-                setattr(parent_module, module_name, module_class(w3))
+        # The parent module is the ``Web3`` instance on first run of the loop
+        if type(parent_module).__name__ == 'Web3':
+            w3 = parent_module
+
+        module_init_params = _validate_init_params_and_return_if_found(module_class)
+        if len(module_init_params) == 1:
+            # Modules that need access to the ``Web3`` instance may accept the instance as the first
+            # arg in their ``__init__()`` method. This is the case for any module that inherits from
+            # ``web3.module.Module``.
+            # e.g. def __init__(self, w3):
+            setattr(parent_module, module_name, module_class(w3))
         else:
-            # An external `module_class` need not inherit from the `web3.module.Module` class.
-            setattr(parent_module, module_name, module_class)
+            # Modules need not take in a ``Web3`` instance in their ``__init__()`` if not needed
+            setattr(parent_module, module_name, module_class())
 
         if module_info_is_list_like:
             if len(module_info) == 2:

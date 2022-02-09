@@ -1,5 +1,8 @@
 import json
 import pytest
+from typing import (
+    NamedTuple,
+)
 
 from web3._utils.abi import (
     abi_data_tree,
@@ -39,6 +42,15 @@ from web3._utils.normalizers import (
 )
 def test_get_tuple_type_str_parts(input, expected):
     assert get_tuple_type_str_parts(input) == expected
+
+
+MyXYTuple = NamedTuple(
+    "MyXYTuple",
+    [
+        ("x", int),
+        ("y", int),
+    ]
+)
 
 
 TEST_FUNCTION_ABI_JSON = """
@@ -163,6 +175,15 @@ GET_ABI_INPUTS_TESTS = (
             (11, 12),
             13,
         ),
+        GET_ABI_INPUTS_OUTPUT,
+    ),
+    (
+        TEST_FUNCTION_ABI,
+        {
+            's': {'a': 1, 'b': [2, 3, 4], 'c': [(5, 6), (7, 8), MyXYTuple(x=9, y=10)]},
+            't': MyXYTuple(x=11, y=12),
+            'a': 13,
+        },
         GET_ABI_INPUTS_OUTPUT,
     ),
     (

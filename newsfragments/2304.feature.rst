@@ -1,1 +1,0 @@
-external modules are no longer required to inherit from the ``web3.module.Module`` class
