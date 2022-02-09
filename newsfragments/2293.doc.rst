@@ -1,1 +1,0 @@
-explicitly add `output_values` to contracts example

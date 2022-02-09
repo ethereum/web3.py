@@ -2,7 +2,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Coroutine,
 )
 
 from eth_utils.toolz import (
@@ -22,6 +21,7 @@ from web3.exceptions import (
     TransactionTypeMismatch,
 )
 from web3.types import (
+    AsyncMiddleware,
     BlockData,
     RPCEndpoint,
     RPCResponse,
@@ -94,7 +94,7 @@ def gas_price_strategy_middleware(
 
 async def async_gas_price_strategy_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
-) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
+) -> AsyncMiddleware:
     """
     - Uses a gas price strategy if one is set. This is only supported for legacy transactions.
       It is recommended to send dynamic fee transactions (EIP-1559) whenever possible.

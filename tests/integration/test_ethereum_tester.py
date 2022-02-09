@@ -239,6 +239,10 @@ def disable_auto_mine(func):
 
 
 class TestEthereumTesterEthModule(EthModuleTest):
+    test_eth_max_priority_fee_with_fee_history_calculation = not_implemented(
+        EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation,
+        ValueError
+    )
     test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, ValueError)
     test_eth_sign_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_ens_names, ValueError
@@ -414,20 +418,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
             chain_id = web3.eth.chainId
         assert is_integer(chain_id)
         assert chain_id == 61
-
-    @pytest.mark.xfail(raises=KeyError, reason="ethereum tester doesn't return 'to' key")
-    def test_eth_get_transaction_receipt_mined(self, web3, block_with_txn, mined_txn_hash):
-        super().test_eth_get_transaction_receipt_mined(web3, block_with_txn, mined_txn_hash)
-
-    @pytest.mark.xfail(raises=KeyError, reason="ethereum tester doesn't return 'to' key")
-    def test_eth_getTransactionReceipt_mined_deprecated(self, web3, block_with_txn, mined_txn_hash):
-        super().test_eth_getTransactionReceipt_mined_deprecated(web3,
-                                                                block_with_txn,
-                                                                mined_txn_hash)
-
-    @pytest.mark.xfail(raises=KeyError, reason="ethereum tester doesn't return 'to' key")
-    def test_eth_wait_for_transaction_receipt_mined(self, web3, block_with_txn, mined_txn_hash):
-        super().test_eth_wait_for_transaction_receipt_mined(web3, block_with_txn, mined_txn_hash)
 
     @disable_auto_mine
     def test_eth_wait_for_transaction_receipt_unmined(self,

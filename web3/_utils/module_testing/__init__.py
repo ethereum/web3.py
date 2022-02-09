@@ -13,7 +13,7 @@ from .net_module import (  # noqa: F401
     AsyncNetModuleTest,
     NetModuleTest,
 )
-from .personal_module import (  # noqa: F401
+from .go_ethereum_personal_module import (  # noqa: F401
     GoEthereumPersonalModuleTest,
 )
 from .version_module import (  # noqa: F401

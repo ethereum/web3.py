@@ -210,7 +210,7 @@ receipt_formatter = apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
 BLOCK_FORMATTERS = {
     'baseFeePerGas': to_integer_if_hex,
-    'extraData': to_hexbytes(32, variable_length=True),
+    'extraData': apply_formatter_if(is_not_null, to_hexbytes(32, variable_length=True)),
     'gasLimit': to_integer_if_hex,
     'gasUsed': to_integer_if_hex,
     'size': to_integer_if_hex,
@@ -218,21 +218,21 @@ BLOCK_FORMATTERS = {
     'hash': apply_formatter_if(is_not_null, to_hexbytes(32)),
     'logsBloom': apply_formatter_if(is_not_null, to_hexbytes(256)),
     'miner': apply_formatter_if(is_not_null, to_checksum_address),
-    'mixHash': to_hexbytes(32),
+    'mixHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
     'nonce': apply_formatter_if(is_not_null, to_hexbytes(8, variable_length=True)),
     'number': apply_formatter_if(is_not_null, to_integer_if_hex),
     'parentHash': apply_formatter_if(is_not_null, to_hexbytes(32)),
     'sha3Uncles': apply_formatter_if(is_not_null, to_hexbytes(32)),
     'uncles': apply_list_to_array_formatter(to_hexbytes(32)),
     'difficulty': to_integer_if_hex,
-    'receiptsRoot': to_hexbytes(32),
-    'stateRoot': to_hexbytes(32),
+    'receiptsRoot': apply_formatter_if(is_not_null, to_hexbytes(32)),
+    'stateRoot': apply_formatter_if(is_not_null, to_hexbytes(32)),
     'totalDifficulty': to_integer_if_hex,
     'transactions': apply_one_of_formatters((
         (is_array_of_dicts, apply_list_to_array_formatter(transaction_result_formatter)),
         (is_array_of_strings, apply_list_to_array_formatter(to_hexbytes(32))),
     )),
-    'transactionsRoot': to_hexbytes(32),
+    'transactionsRoot': apply_formatter_if(is_not_null, to_hexbytes(32)),
 }
 
 
