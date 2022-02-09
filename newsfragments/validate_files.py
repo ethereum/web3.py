@@ -12,6 +12,8 @@ ALLOWED_EXTENSIONS = {
     '.feature.rst',
     '.misc.rst',
     '.removal.rst',
+    '.breaking-change.rst',
+    '.deprecation.rst',
 }
 
 ALLOWED_FILES = {
