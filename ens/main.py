@@ -131,16 +131,16 @@ class ENS:
         middlewares = web3.middleware_onion.middlewares
         return cls(provider, addr=addr, middlewares=middlewares)
 
-    def address(self, name: str) -> Optional[ChecksumAddress]:
+    def address(self, name: str, block: Optional[int] = None) -> Optional[ChecksumAddress]:
         """
         Look up the Ethereum address that `name` currently points to.
 
         :param str name: an ENS name to look up
         :raises InvalidName: if `name` has invalid syntax
         """
-        return cast(ChecksumAddress, self.resolve(name, 'addr'))
+        return cast(ChecksumAddress, self.resolve(name, 'addr', block=block))
 
-    def name(self, address: ChecksumAddress) -> Optional[str]:
+    def name(self, address: ChecksumAddress, block: Optional[int] = None) -> Optional[str]:
         """
         Look up the name that the address points to, using a
         reverse lookup. Reverse lookup is opt-in for name owners.
@@ -149,7 +149,7 @@ class ENS:
         :type address: hex-string
         """
         reversed_domain = address_to_reverse_domain(address)
-        return self.resolve(reversed_domain, get='name')
+        return self.resolve(reversed_domain, get='name', block=block)
 
     def setup_address(
         self,
@@ -245,13 +245,13 @@ class ENS:
                 self.setup_address(name, address, transact=transact)
             return self._setup_reverse(name, address, transact=transact)
 
-    def resolve(self, name: str, get: str = 'addr') -> Optional[Union[ChecksumAddress, str]]:
+    def resolve(self, name: str, get: str = 'addr', block: Optional[int] = None) -> Optional[Union[ChecksumAddress, str]]:
         normal_name = normalize_name(name)
         resolver = self.resolver(normal_name)
         if resolver:
             lookup_function = getattr(resolver.functions, get)
             namehash = normal_name_to_hash(normal_name)
-            address = lookup_function(namehash).call()
+            address = lookup_function(namehash).call(block_identifier=block)
             if is_none_or_zero_address(address):
                 return None
             return address
