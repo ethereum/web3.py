@@ -3,6 +3,39 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.28.0 (2022-02-09)
+--------------------
+
+Features
+~~~~~~~~
+
+- Added Async functions for Geth Personal and Admin modules (`#1413
+  <https://github.com/ethereum/web3.py/issues/1413>`__)
+- async support for formatting, validation, and geth poa middlewares (`#2098
+  <https://github.com/ethereum/web3.py/issues/2098>`__)
+- Calculate a default ``maxPriorityFeePerGas`` using ``eth_feeHistory`` when
+  ``eth_maxPriorityFeePerGas`` is not available, since the latter is not a part
+  of the Ethereum JSON-RPC specs and only supported by certain clients. (`#2259
+  <https://github.com/ethereum/web3.py/issues/2259>`__)
+- Allow NamedTuples in ABI inputs (`#2312
+  <https://github.com/ethereum/web3.py/issues/2312>`__)
+- Add async `eth.syncing` method (`#2331
+  <https://github.com/ethereum/web3.py/issues/2331>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- remove `ens.utils.dict_copy` decorator (`#1423
+  <https://github.com/ethereum/web3.py/issues/1423>`__)
+- The exception retry middleware whitelist was missing a comma between
+  ``txpool`` and ``testing`` (`#2327
+  <https://github.com/ethereum/web3.py/issues/2327>`__)
+- Properly initialize external modules that do not inherit from the
+  ``web3.module.Module`` class (`#2328
+  <https://github.com/ethereum/web3.py/issues/2328>`__)
+
+
 v5.27.0 (2022-01-31)
 --------------------
 
