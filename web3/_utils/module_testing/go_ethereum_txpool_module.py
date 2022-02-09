@@ -28,8 +28,8 @@ class GoEthereumTxPoolModuleTest:
         logger = logging.getLogger("testing")
 
         with Timeout(60) as timeout:
-            logger.info(web3.eth.hashrate)
-            logger.info(web3.eth.mining)
+            logger.warning(web3.eth.hashrate)
+            logger.warning(web3.eth.mining)
             while web3.eth.hashrate or web3.eth.mining:
                 timeout.sleep(random.random())
 
