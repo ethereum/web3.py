@@ -1,0 +1,1 @@
+Added 'Breaking Changes' and 'Deprecations' categories to our release notes
