@@ -1,3 +1,4 @@
+import logging
 import pytest
 import random
 
@@ -21,12 +22,14 @@ from web3.types import (
 
 class GoEthereumTxPoolModuleTest:
 
-    @flaky(max_runs=3)
     def test_txpool_content(self, web3: "Web3", unlocked_account: ChecksumAddress) -> None:
 
         web3.geth.miner.stop()  # type: ignore
+        logger = logging.getLogger("testing")
 
         with Timeout(60) as timeout:
+            logger.info(web3.eth.hashrate)
+            logger.info(web3.eth.mining)
             while web3.eth.hashrate or web3.eth.mining:
                 timeout.sleep(random.random())
 
@@ -57,7 +60,6 @@ class GoEthereumTxPoolModuleTest:
         assert pending_txns[str(txn_2['nonce'])]['hash'] == Web3.toHex(txn_2_hash)
         assert pending_txns[str(txn_2['nonce'])]['value'] == Web3.toHex(54321)
 
-    @flaky(max_runs=3)
     def test_txpool_inspect(self, web3: "Web3", unlocked_account: ChecksumAddress) -> None:
 
         web3.geth.miner.stop()  # type: ignore
