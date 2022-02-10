@@ -1,0 +1,2 @@
+Remove support for the unsupported Python 3.6
+Also removes outdated Parity tests
