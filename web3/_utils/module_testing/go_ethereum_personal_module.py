@@ -154,7 +154,7 @@ class GoEthereumPersonalModuleTest:
         txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
-            'gas': Wei(21000),
+            'gas': 21000,
             'value': Wei(1),
             'gasPrice': web3.toWei(1, 'gwei'),
         }
@@ -178,7 +178,7 @@ class GoEthereumPersonalModuleTest:
         txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
-            'gas': Wei(21000),
+            'gas': 21000,
             'value': Wei(1),
             'gasPrice': web3.toWei(1, 'gwei'),
         }

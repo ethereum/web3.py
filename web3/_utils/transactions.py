@@ -32,7 +32,6 @@ from web3.types import (
     BlockIdentifier,
     TxData,
     TxParams,
-    Wei,
     _Hash32,
 )
 
@@ -119,7 +118,7 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
     return merge(defaults, transaction)
 
 
-def get_block_gas_limit(web3: "Web3", block_identifier: Optional[BlockIdentifier] = None) -> Wei:
+def get_block_gas_limit(web3: "Web3", block_identifier: Optional[BlockIdentifier] = None) -> int:
     if block_identifier is None:
         block_identifier = web3.eth.block_number
     block = web3.eth.get_block(block_identifier)
@@ -127,8 +126,8 @@ def get_block_gas_limit(web3: "Web3", block_identifier: Optional[BlockIdentifier
 
 
 def get_buffered_gas_estimate(
-    web3: "Web3", transaction: TxParams, gas_buffer: Wei = Wei(100000)
-) -> Wei:
+    web3: "Web3", transaction: TxParams, gas_buffer: int = 100000
+) -> int:
     gas_estimate_transaction = cast(TxParams, dict(**transaction))
 
     gas_estimate = web3.eth.estimate_gas(gas_estimate_transaction)
@@ -142,7 +141,7 @@ def get_buffered_gas_estimate(
             "limit: {1}".format(gas_estimate, gas_limit)
         )
 
-    return Wei(min(gas_limit, gas_estimate + gas_buffer))
+    return min(gas_limit, gas_estimate + gas_buffer)
 
 
 def get_required_transaction(web3: "Web3", transaction_hash: _Hash32) -> TxData:

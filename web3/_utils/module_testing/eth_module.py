@@ -128,7 +128,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': await async_w3.eth.gas_price,  # type: ignore
         }
         txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
@@ -148,7 +148,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': async_w3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': async_w3.toWei(1, 'gwei'),
         }
@@ -171,7 +171,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
         }
         txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
         txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
@@ -192,7 +192,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': hex(250 * 10**9),
             'maxPriorityFeePerGas': hex(2 * 10**9),
         }
@@ -233,7 +233,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': Wei(1),
             'maxFeePerGas': Wei(250 * 10**9),
             'maxPriorityFeePerGas': Wei(2 * 10**9),
@@ -249,7 +249,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': Wei(250 * 10**9),
         }
         with pytest.raises(InvalidTransaction, match='maxPriorityFeePerGas must be defined'):
@@ -264,7 +264,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxPriorityFeePerGas': maxPriorityFeePerGas,
         }
         txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
@@ -286,7 +286,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': Wei(1 * 10**9),
             'maxPriorityFeePerGas': Wei(2 * 10**9),
         }
@@ -356,7 +356,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
         }
         two_gwei_in_wei = async_w3.toWei(2, 'gwei')
 
@@ -385,7 +385,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxPriorityFeePerGas': max_priority_fee,
         }
         if max_fee is not None:
@@ -414,7 +414,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': Wei(1000000000),
         }
 
@@ -824,7 +824,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': async_w3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': async_w3.toWei(1, 'gwei')
         })
@@ -885,7 +885,7 @@ class AsyncEthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': async_w3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': async_w3.toWei(1, 'gwei')
         })
@@ -1704,7 +1704,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': web3.eth.gas_price,
             'nonce': Nonce(0),
         }
@@ -1726,7 +1726,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': web3.toWei(2, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
             'nonce': Nonce(0),
@@ -1750,7 +1750,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': hex(web3.toWei(2, 'gwei')),
             'maxPriorityFeePerGas': hex(web3.toWei(1, 'gwei')),
             'nonce': Nonce(0),
@@ -1774,7 +1774,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': web3.eth.gas_price,
             'nonce': Nonce(0),
         }
@@ -1797,7 +1797,7 @@ class EthModuleTest:
                 'from': 'unlocked-account.eth',
                 'to': 'unlocked-account.eth',
                 'value': Wei(1),
-                'gas': Wei(21000),
+                'gas': 21000,
                 'maxFeePerGas': web3.toWei(2, 'gwei'),
                 'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
                 'nonce': Nonce(0),
@@ -1820,7 +1820,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': web3.toWei(2, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
         }
@@ -1840,7 +1840,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': web3.toWei(1, 'gwei'),  # post-london needs to be more than the base fee
         }
         txn_hash = web3.eth.send_transaction(txn_params)
@@ -1859,7 +1859,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': web3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
         }
@@ -1881,7 +1881,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': web3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
         }
@@ -1907,7 +1907,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             # unique maxFeePerGas to ensure transaction hash different from other tests
             'maxFeePerGas': web3.toWei(4.321, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
@@ -1932,7 +1932,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
         }
         txn_hash = web3.eth.send_transaction(txn_params)
         txn = web3.eth.get_transaction(txn_hash)
@@ -1952,7 +1952,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': hex(250 * 10**9),
             'maxPriorityFeePerGas': hex(2 * 10**9),
         }
@@ -1991,7 +1991,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': Wei(1),
             'maxFeePerGas': Wei(250 * 10**9),
             'maxPriorityFeePerGas': Wei(2 * 10**9),
@@ -2006,7 +2006,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': Wei(250 * 10**9),
         }
         with pytest.raises(InvalidTransaction, match='maxPriorityFeePerGas must be defined'):
@@ -2020,7 +2020,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxPriorityFeePerGas': maxPriorityFeePerGas,
         }
         txn_hash = web3.eth.send_transaction(txn_params)
@@ -2041,7 +2041,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': Wei(1 * 10**9),
             'maxPriorityFeePerGas': Wei(2 * 10**9),
         }
@@ -2086,7 +2086,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxPriorityFeePerGas': max_priority_fee,
         }
         if max_fee is not None:
@@ -2114,7 +2114,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': Wei(1000000000),
         }
 
@@ -2134,7 +2134,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': web3.toWei(1, 'gwei'),  # must be greater than base_fee post London
         }
         txn_hash = web3.eth.send_transaction(txn_params)
@@ -2159,7 +2159,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': two_gwei_in_wei,
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
         }
@@ -2185,7 +2185,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': web3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(2, 'gwei'),
         }
@@ -2208,7 +2208,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': two_gwei_in_wei,
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
         }
@@ -2237,7 +2237,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': web3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
         }
@@ -2254,7 +2254,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': web3.toWei(2, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
         }
@@ -2277,7 +2277,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': web3.toWei(2, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
         }
@@ -2297,7 +2297,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': web3.toWei(2, 'gwei'),
         }
         txn_hash = web3.eth.send_transaction(txn_params)
@@ -2315,7 +2315,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': gas_price,
         }
         txn_hash = web3.eth.send_transaction(txn_params)
@@ -2333,7 +2333,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': web3.toWei(1, 'gwei'),
         }
         txn_hash = web3.eth.send_transaction(txn_params)
@@ -2360,7 +2360,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': gas_price,
         }
         txn_hash = web3.eth.send_transaction(txn_params)
@@ -2384,7 +2384,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': web3.toWei(1, 'gwei'),  # must be greater than base_fee post London
         }
         txn_hash = web3.eth.send_transaction(txn_params)
@@ -2407,7 +2407,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
             'maxFeePerGas': web3.toWei(2, 'gwei'),
         }
@@ -2436,7 +2436,7 @@ class EthModuleTest:
             'from': unlocked_account,
             'to': unlocked_account,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'gasPrice': web3.toWei(1, 'gwei'),
         }
         txn_hash = web3.eth.send_transaction(txn_params)
@@ -2795,7 +2795,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': web3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei')
         })
@@ -2853,7 +2853,7 @@ class EthModuleTest:
             'from': unlocked_account_dual_type,
             'to': unlocked_account_dual_type,
             'value': Wei(1),
-            'gas': Wei(21000),
+            'gas': 21000,
             'maxFeePerGas': web3.toWei(3, 'gwei'),
             'maxPriorityFeePerGas': web3.toWei(1, 'gwei')
         })

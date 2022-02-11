@@ -1,0 +1,2 @@
+- Fix types for ``gas``, and ``gasLimit`` (``Wei`` to ``int``)
+- Fix types for ``effectiveGasPrice``, (``int`` to ``Wei``)

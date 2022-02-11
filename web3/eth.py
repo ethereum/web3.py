@@ -231,7 +231,7 @@ class BaseEth(Module):
 
         return params
 
-    _estimate_gas: Method[Callable[..., Wei]] = Method(
+    _estimate_gas: Method[Callable[..., int]] = Method(
         RPC.eth_estimateGas,
         mungers=[estimate_gas_munger]
     )
@@ -426,7 +426,7 @@ class AsyncEth(BaseEth):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None
-    ) -> Wei:
+    ) -> int:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._estimate_gas(transaction, block_identifier)  # type: ignore
 
@@ -851,7 +851,7 @@ class Eth(BaseEth):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None
-    ) -> Wei:
+    ) -> int:
         return self._estimate_gas(transaction, block_identifier)
 
     def fee_history(
