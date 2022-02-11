@@ -60,17 +60,16 @@ def get_default_endpoint() -> URI:
 class PersistentWebSocket:
 
     def __init__(
-        self, endpoint_uri: URI, loop: asyncio.AbstractEventLoop, websocket_kwargs: Any
+        self, endpoint_uri: URI, websocket_kwargs: Any
     ) -> None:
         self.ws: WebSocketClientProtocol = None
         self.endpoint_uri = endpoint_uri
-        self.loop = loop
         self.websocket_kwargs = websocket_kwargs
 
     async def __aenter__(self) -> WebSocketClientProtocol:
         if self.ws is None:
             self.ws = await connect(
-                uri=self.endpoint_uri, loop=self.loop, **self.websocket_kwargs
+                uri=self.endpoint_uri, **self.websocket_kwargs
             )
         return self.ws
 
@@ -113,7 +112,7 @@ class WebsocketProvider(JSONBaseProvider):
                     'found: {1}'.format(RESTRICTED_WEBSOCKET_KWARGS, found_restricted_keys)
                 )
         self.conn = PersistentWebSocket(
-            self.endpoint_uri, WebsocketProvider._loop, websocket_kwargs
+            self.endpoint_uri, websocket_kwargs
         )
         super().__init__()
 

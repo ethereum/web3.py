@@ -13,11 +13,11 @@ def get_open_port():
     return str(port)
 
 
-async def wait_for_ws(endpoint_uri, event_loop, timeout=60):
+async def wait_for_ws(endpoint_uri, timeout=10):
     start = time.time()
     while time.time() < start + timeout:
         try:
-            async with websockets.connect(uri=endpoint_uri, loop=event_loop):
+            async with websockets.connect(uri=endpoint_uri):
                 pass
         except (ConnectionRefusedError, OSError):
             await asyncio.sleep(0.01)

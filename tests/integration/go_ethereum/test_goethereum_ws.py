@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 
 from tests.integration.common import (
@@ -63,8 +64,9 @@ def geth_command_arguments(geth_binary,
 
 
 @pytest.fixture(scope="module")
-def web3(geth_process, endpoint_uri, event_loop):
-    event_loop.run_until_complete(wait_for_ws(endpoint_uri, event_loop))
+def web3(geth_process, endpoint_uri):
+    event_loop = asyncio.new_event_loop()
+    event_loop.run_until_complete(wait_for_ws(endpoint_uri))
     _web3 = Web3(Web3.WebsocketProvider(endpoint_uri, websocket_timeout=30))
     return _web3
 
