@@ -27,10 +27,10 @@ extras_require = {
         "py-geth>=3.6.0,<4",
         "py-solc>=0.4.0",
         "pytest>=6.2.5,<7",
-        "sphinx>=3.0,<=4",
+        "sphinx>=3.0,<4",
         "sphinx_rtd_theme>=0.1.9",
         "toposort>=1.4",
-        "towncrier>=18.5.0",
+        "towncrier==18.5.0",
         "urllib3",
         "wheel"
     ],
