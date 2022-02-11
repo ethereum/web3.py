@@ -176,6 +176,8 @@ def apply_link_ref(offset: int, length: int, value: bytes, bytecode: bytes) -> b
     address = value if is_canonical_address(value) else to_canonical_address(value)
     new_bytes = (
         # Ignore linting error b/c conflict b/w black & flake8
-        bytecode[:offset] + address + bytecode[offset + length:]  # noqa: E201, E203
+        bytecode[:offset]
+        + address
+        + bytecode[offset + length :]  # noqa: E201, E203
     )
     return new_bytes

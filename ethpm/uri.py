@@ -109,7 +109,9 @@ def create_latest_block_uri(w3: "Web3", from_blocks_ago: int = 3) -> URI:
     """
     chain_id = to_hex(get_genesis_block_hash(w3))
     latest_block_tx_receipt = w3.eth.get_block("latest")
-    target_block_number = BlockNumber(latest_block_tx_receipt["number"] - from_blocks_ago)
+    target_block_number = BlockNumber(
+        latest_block_tx_receipt["number"] - from_blocks_ago
+    )
     if target_block_number < 0:
         raise Exception(
             f"Only {latest_block_tx_receipt['number']} blocks avaible on provided w3, "

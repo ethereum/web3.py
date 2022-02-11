@@ -34,8 +34,7 @@ from ethpm.validation.uri import (
 # TODO: Update registry ABI once ERC is finalized.
 REGISTRY_ABI = fetch_standard_registry_abi()
 RegistryURI = namedtuple(
-    "RegistryURI",
-    ["address", "chain_id", "name", "version", "namespaced_asset", "ens"]
+    "RegistryURI", ["address", "chain_id", "name", "version", "namespaced_asset", "ens"]
 )
 
 
@@ -48,6 +47,7 @@ class RegistryURIBackend(BaseURIBackend):
 
     def __init__(self) -> None:
         from web3.auto.infura import w3
+
         self.w3 = w3
 
     def can_translate_uri(self, uri: str) -> bool:
@@ -61,11 +61,9 @@ class RegistryURIBackend(BaseURIBackend):
         Return content-addressed URI stored at registry URI.
         """
         address, chain_id, pkg_name, pkg_version, _, _ = parse_registry_uri(uri)
-        if chain_id != '1':
+        if chain_id != "1":
             # todo: support all testnets
-            raise CannotHandleURI(
-                "Currently only mainnet registry uris are supported."
-            )
+            raise CannotHandleURI("Currently only mainnet registry uris are supported.")
         self.w3.enable_unstable_package_management_api()
         self.w3.pm.set_registry(address)
         _, _, manifest_uri = self.w3.pm.get_release_data(pkg_name, pkg_version)
@@ -90,6 +88,7 @@ def parse_registry_uri(uri: str) -> RegistryURI:
     Validate and return (authority, chain_id, pkg_name, version) from a valid registry URI.
     """
     from web3.auto.infura import w3
+
     validate_registry_uri(uri)
     parsed_uri = parse.urlparse(uri)
     if ":" in parsed_uri.netloc:
@@ -104,14 +103,14 @@ def parse_registry_uri(uri: str) -> RegistryURI:
         address = ns.address(address_or_ens)
         ens = address_or_ens
     else:
-        raise CannotHandleURI(
-            f"Invalid address or ENS domain found in uri: {uri}."
-        )
+        raise CannotHandleURI(f"Invalid address or ENS domain found in uri: {uri}.")
     pkg_name, pkg_version, namespaced_asset = _process_pkg_path(parsed_uri.path)
     return RegistryURI(address, chain_id, pkg_name, pkg_version, namespaced_asset, ens)
 
 
-def _process_pkg_path(raw_pkg_path: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+def _process_pkg_path(
+    raw_pkg_path: str,
+) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     pkg_path = raw_pkg_path.strip("/")
     if not pkg_path:
         return None, None, None

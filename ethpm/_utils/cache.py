@@ -16,7 +16,7 @@ class cached_property:
     def __init__(self, func: Callable[..., Any], name: str = None) -> None:
         self.wrapped_func = func
         self.name = name
-        self.__doc__ = getattr(func, '__doc__')
+        self.__doc__ = getattr(func, "__doc__")
 
     def __get__(self, instance: Any, cls: Any = None) -> Any:
         """
