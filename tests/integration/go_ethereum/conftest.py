@@ -181,7 +181,7 @@ def unlockable_account_dual_type(unlockable_account, address_conversion_func):
     return address_conversion_func(unlockable_account)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def unlocked_account_dual_type(web3, unlockable_account_dual_type, unlockable_account_pw):
     web3.geth.personal.unlock_account(unlockable_account_dual_type, unlockable_account_pw)
     yield unlockable_account_dual_type
