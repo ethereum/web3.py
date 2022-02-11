@@ -10,6 +10,7 @@ extras_require = {
         "py-geth>=3.8.0,<4",
     ],
     'linter': [
+        "black>=22.1.0,<23.0",
         "flake8==3.8.3",
         "isort>=4.2.15,<4.3.5",
         "mypy==0.910",

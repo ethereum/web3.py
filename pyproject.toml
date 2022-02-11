@@ -35,3 +35,10 @@ showcontent=true
 directory = "misc"
 name="Misc"
 showcontent=false
+
+[tool.isort]
+profile = "black"
+
+[flake8]
+max-line-length=88
+extend-ignore="E203"

@@ -57,7 +57,11 @@ def parse_BIP122_uri(blockchain_uri: URI) -> Tuple[HexStr, str, HexStr]:
     if match is None:
         raise ValueError(f"Invalid URI format: '{blockchain_uri}'")
     chain_id, resource_type, resource_hash = match.groups()
-    return (add_0x_prefix(HexStr(chain_id)), resource_type, add_0x_prefix(HexStr(resource_hash)))
+    return (
+        add_0x_prefix(HexStr(chain_id)),
+        resource_type,
+        add_0x_prefix(HexStr(resource_hash)),
+    )
 
 
 def is_BIP122_block_uri(value: URI) -> bool:
