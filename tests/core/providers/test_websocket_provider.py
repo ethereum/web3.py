@@ -28,7 +28,7 @@ else:
     )
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def start_websocket_server(open_port):
     event_loop = asyncio.new_event_loop()
 
@@ -51,7 +51,7 @@ def start_websocket_server(open_port):
         event_loop.call_soon_threadsafe(event_loop.stop)
 
 
-@pytest.fixture()
+@pytest.fixture
 def w3(open_port, start_websocket_server):
     # need new event loop as the one used by server is already running
     event_loop = asyncio.new_event_loop()

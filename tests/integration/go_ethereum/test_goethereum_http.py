@@ -1,5 +1,7 @@
 import pytest
 
+import pytest_asyncio
+
 from tests.utils import (
     get_open_port,
 )
@@ -94,7 +96,7 @@ def web3(geth_process, endpoint_uri):
     return _web3
 
 
-@pytest.fixture(scope="module")
+@pytest_asyncio.fixture(scope="module")
 async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
     _web3 = Web3(
