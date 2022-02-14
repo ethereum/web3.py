@@ -528,8 +528,6 @@ workflows:
       - py39-integration-goethereum-ws
       - py39-integration-ethtester-pyevm
       - py39-wheel-cli
-      - py310-integration-ethtester-pyevm
-      - py310-wheel-cli
       - py310-ens
       - py310-ethpm
       - py310-integration-goethereum-ipc
