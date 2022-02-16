@@ -7,7 +7,7 @@ import websockets
 
 def get_open_port():
     sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
+    sock.bind(("127.0.0.1", 0))
     port = sock.getsockname()[1]
     sock.close()
     return str(port)
@@ -15,7 +15,8 @@ def get_open_port():
 
 async def wait_for_ws(endpoint_uri, timeout=10):
     start = time.time()
-    while time.time() < start + timeout:
+    stop = start + timeout
+    while time.time() < stop:
         try:
             async with websockets.connect(uri=endpoint_uri):
                 pass

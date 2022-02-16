@@ -15,6 +15,7 @@ from web3.exceptions import (
     ValidationError,
 )
 from web3.providers.websocket import (
+    PersistentWebSocket,
     WebsocketProvider,
 )
 
@@ -39,7 +40,7 @@ def start_websocket_server(open_port):
             await websocket.send(data)
 
         asyncio.set_event_loop(event_loop)
-        server = websockets.serve(empty_server, '127.0.0.1', open_port)
+        server = websockets.serve(empty_server, "127.0.0.1", open_port)
         event_loop.run_until_complete(server)
         event_loop.run_forever()
 
@@ -55,7 +56,7 @@ def start_websocket_server(open_port):
 def w3(open_port, start_websocket_server):
     # need new event loop as the one used by server is already running
     event_loop = asyncio.new_event_loop()
-    endpoint_uri = 'ws://127.0.0.1:{}'.format(open_port)
+    endpoint_uri = "ws://127.0.0.1:{}".format(open_port)
     event_loop.run_until_complete(wait_for_ws(endpoint_uri))
     provider = WebsocketProvider(endpoint_uri, websocket_timeout=0.01)
     return Web3(provider)
@@ -67,7 +68,29 @@ def test_websocket_provider_timeout(w3):
 
 
 def test_restricted_websocket_kwargs():
-    invalid_kwargs = {'uri': 'ws://127.0.0.1:8546'}
-    re_exc_message = r'.*found: {0}*'.format(set(invalid_kwargs.keys()))
+    invalid_kwargs = {"uri": "ws://127.0.0.1:8546"}
+    re_exc_message = r".*found: {0}*".format(set(invalid_kwargs.keys()))
     with pytest.raises(ValidationError, match=re_exc_message):
         WebsocketProvider(websocket_kwargs=invalid_kwargs)
+
+
+def test_event_loop_argument_deprecated():
+    event_loop = asyncio.new_event_loop()
+    endpoint_uri = "ws://127.0.0.1:8546"
+    websocket_kwargs = {}
+    match = (
+        "The loop parameter is deprecated and was removed from websocket "
+        "provider as of web3 v5. Consider instantiating this class without "
+        "passing this argument instead."
+    )
+    with pytest.warns(
+        expected_warning=DeprecationWarning,
+        match=match,
+    ):
+        WebsocketProvider(endpoint_uri, websocket_timeout=0.01, loop=event_loop)
+    with pytest.warns(
+        expected_warning=DeprecationWarning,
+        match=match,
+    ):
+        PersistentWebSocket(endpoint_uri, websocket_kwargs, loop=event_loop)
+    event_loop.close()

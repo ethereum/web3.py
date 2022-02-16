@@ -1,0 +1,1 @@
+Adds a depreaction warning for the optional ``loop`` parameter of ``web3.providers.websocket``.

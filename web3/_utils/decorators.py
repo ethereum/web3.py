@@ -51,3 +51,22 @@ def deprecated_for(replace_message: str) -> Callable[..., Any]:
             return to_wrap(*args, **kwargs)
         return cast(TFunc, wrapper)
     return decorator
+
+
+class DeprecationMetaClass(type):
+    """ A custom class that intercepts the __call__ method to decide whether
+    or not to raize a warning against the loop argument.
+    """
+    def __call__(cls, *args: Any, **kwargs: Any) -> Callable[..., Any]:
+        new_kwargs = {key: val for key, val in kwargs.items() if key != 'loop'}
+        if 'loop' in kwargs:
+            warnings.warn(
+                "The loop parameter is deprecated and was removed from "
+                "websocket provider as of web3 v5. Consider instantiating "
+                "this class without passing this argument instead.",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+        obj = cls.__new__(cls, *args, **new_kwargs)  # type: ignore
+        obj.__init__(*args, **new_kwargs)
+        return obj
