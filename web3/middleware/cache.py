@@ -14,7 +14,7 @@ from typing import (
 
 import lru
 
-from eth_utils import (
+from eth_utils import (  # noqa: F401
     is_list_like,
 )
 
