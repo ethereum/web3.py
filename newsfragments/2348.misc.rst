@@ -1,0 +1,1 @@
+Add `AsyncEth` as valid type for the `eth` module.
