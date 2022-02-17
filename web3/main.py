@@ -72,7 +72,8 @@ from web3._utils.normalizers import (
     abi_ens_resolver,
 )
 from web3.eth import (
-    Eth,
+    Eth, 
+    AsyncEth,
 )
 from web3.geth import (
     Geth,
@@ -226,7 +227,7 @@ class Web3:
         return to_checksum_address(value)
 
     # mypy Types
-    eth: Eth
+    eth: Union[Eth, AsyncEth]
     parity: Parity
     geth: Geth
     net: Net
