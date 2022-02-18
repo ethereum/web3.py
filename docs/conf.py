@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Web3.py documentation build configuration file, created by
 # sphinx-quickstart on Thu Oct 16 20:43:24 2014.
