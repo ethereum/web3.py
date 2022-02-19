@@ -17,14 +17,15 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
+import configparser
 import os
 
 DIR = os.path.dirname('__file__')
-with open (os.path.join(DIR, '../setup.py'), 'r') as f:
-    for line in f:
-        if 'version=' in line:
-            setup_version = line.split('\'')[1]
-            break
+conf_parser = configparser.ConfigParser()
+conf_parser.read("../setup.cfg")
+setup_version = (
+    conf_parser.get("metadata", "version")
+)
 
 # -- General configuration ------------------------------------------------
 
