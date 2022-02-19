@@ -1,0 +1,1 @@
+Adapt a declarative approach for configurations.
