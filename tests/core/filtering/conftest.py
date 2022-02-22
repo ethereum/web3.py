@@ -25,7 +25,7 @@ from web3.providers.eth_tester import (
     scope='function',
     params=[True, False],
     ids=["local_filter_middleware", "node_based_filter"])
-def web3(request):
+def w3(request):
     use_filter_middleware = request.param
     provider = EthereumTesterProvider()
     w3 = Web3(provider)
@@ -35,8 +35,8 @@ def web3(request):
 
 
 @pytest.fixture(autouse=True)
-def wait_for_mining_start(web3, wait_for_block):
-    wait_for_block(web3)
+def wait_for_mining_start(w3, wait_for_block):
+    wait_for_block(w3)
 
 
 @pytest.fixture()
@@ -66,18 +66,18 @@ def EMITTER(EMITTER_CODE,
 
 
 @pytest.fixture()
-def Emitter(web3, EMITTER):
-    return web3.eth.contract(**EMITTER)
+def Emitter(w3, EMITTER):
+    return w3.eth.contract(**EMITTER)
 
 
 @pytest.fixture()
-def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
-    wait_for_block(web3)
+def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
+    wait_for_block(w3)
     deploy_txn_hash = Emitter.constructor().transact({'gas': 10000000})
-    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
+    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
-    bytecode = web3.eth.get_code(contract_address)
+    bytecode = w3.eth.get_code(contract_address)
     assert bytecode == Emitter.bytecode_runtime
     _emitter = Emitter(address=contract_address)
     assert _emitter.address == contract_address

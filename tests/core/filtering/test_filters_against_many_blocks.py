@@ -7,11 +7,11 @@ from eth_utils import (
 
 
 @to_tuple
-def deploy_contracts(web3, contract, wait_for_transaction):
+def deploy_contracts(w3, contract, wait_for_transaction):
     for i in range(25):
         tx_hash = contract.constructor().transact()
-        wait_for_transaction(web3, tx_hash)
-        yield web3.eth.get_transaction_receipt(tx_hash)['contractAddress']
+        wait_for_transaction(w3, tx_hash)
+        yield w3.eth.get_transaction_receipt(tx_hash)['contractAddress']
 
 
 def pad_with_transactions(w3):
@@ -34,7 +34,7 @@ def single_transaction(w3):
 
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_event_filter_new_events(
-        web3,
+        w3,
         emitter,
         Emitter,
         wait_for_transaction,
@@ -50,43 +50,43 @@ def test_event_filter_new_events(
     if api_style == 'build_filter':
         builder = emitter.events.LogNoArguments.build_filter()
         builder.fromBlock = 'latest'
-        event_filter = builder.deploy(web3)
+        event_filter = builder.deploy(w3)
     else:
         event_filter = emitter.events.LogNoArguments().createFilter(fromBlock='latest')
 
     expected_match_counter = 0
 
-    while web3.eth.block_number < 50:
+    while w3.eth.block_number < 50:
         is_match = bool(random.randint(0, 1))
         if is_match:
             expected_match_counter += 1
-            wait_for_transaction(web3, matching_transact())
-            pad_with_transactions(web3)
+            wait_for_transaction(w3, matching_transact())
+            pad_with_transactions(w3)
             continue
         non_matching_transact()
-        pad_with_transactions(web3)
+        pad_with_transactions(w3)
 
     assert len(event_filter.get_new_entries()) == expected_match_counter
 
 
 @pytest.mark.xfail(reason="Suspected eth-tester bug")
-def test_block_filter(web3):
-    block_filter = web3.eth.filter("latest")
+def test_block_filter(w3):
+    block_filter = w3.eth.filter("latest")
 
-    while web3.eth.block_number < 50:
-        pad_with_transactions(web3)
+    while w3.eth.block_number < 50:
+        pad_with_transactions(w3)
 
-    assert len(block_filter.get_new_entries()) == web3.eth.block_number
+    assert len(block_filter.get_new_entries()) == w3.eth.block_number
 
 
-def test_transaction_filter_with_mining(web3):
+def test_transaction_filter_with_mining(w3):
 
-    transaction_filter = web3.eth.filter("pending")
+    transaction_filter = w3.eth.filter("pending")
 
     transaction_counter = 0
 
     while transaction_counter < 100:
-        single_transaction(web3)
+        single_transaction(w3)
         transaction_counter += 1
 
     assert len(transaction_filter.get_new_entries()) == transaction_counter
@@ -94,14 +94,14 @@ def test_transaction_filter_with_mining(web3):
 
 @pytest.mark.xfail(reason="Suspected eth-tester bug")
 def test_transaction_filter_without_mining(
-        web3):
+        w3):
 
-    web3.providers[0].ethereum_tester.auto_mine_transactions = False
-    transaction_filter = web3.eth.filter("pending")
+    w3.providers[0].ethereum_tester.auto_mine_transactions = False
+    transaction_filter = w3.eth.filter("pending")
 
     transaction_counter = 0
 
-    transact_once = single_transaction(web3)
+    transact_once = single_transaction(w3)
     while transaction_counter < 100:
         next(transact_once)
         transaction_counter += 1
@@ -111,7 +111,7 @@ def test_transaction_filter_without_mining(
 
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_event_filter_new_events_many_deployed_contracts(
-        web3,
+        w3,
         emitter,
         Emitter,
         wait_for_transaction,
@@ -122,13 +122,13 @@ def test_event_filter_new_events_many_deployed_contracts(
     matching_transact = emitter.functions.logNoArgs(
         which=1).transact
 
-    deployed_contract_addresses = deploy_contracts(web3, Emitter, wait_for_transaction)
+    deployed_contract_addresses = deploy_contracts(w3, Emitter, wait_for_transaction)
 
     def gen_non_matching_transact():
         while True:
             contract_address = deployed_contract_addresses[
                 random.randint(0, len(deployed_contract_addresses) - 1)]
-            yield web3.eth.contract(
+            yield w3.eth.contract(
                 address=contract_address, abi=Emitter.abi).functions.logNoArgs(which=1).transact
 
     non_matching_transact = gen_non_matching_transact()
@@ -136,20 +136,20 @@ def test_event_filter_new_events_many_deployed_contracts(
     if api_style == 'build_filter':
         builder = emitter.events.LogNoArguments.build_filter()
         builder.fromBlock = "latest"
-        event_filter = builder.deploy(web3)
+        event_filter = builder.deploy(w3)
     else:
         event_filter = emitter.events.LogNoArguments().createFilter(fromBlock='latest')
 
     expected_match_counter = 0
 
-    while web3.eth.block_number < 50:
+    while w3.eth.block_number < 50:
         is_match = bool(random.randint(0, 1))
         if is_match:
             expected_match_counter += 1
             matching_transact()
-            pad_with_transactions(web3)
+            pad_with_transactions(w3)
             continue
         next(non_matching_transact)()
-        pad_with_transactions(web3)
+        pad_with_transactions(w3)
 
     assert len(event_filter.get_new_entries()) == expected_match_counter

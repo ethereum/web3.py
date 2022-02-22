@@ -112,7 +112,7 @@ def construct_simple_cache_middleware(
         cached.
     """
     def simple_cache_middleware(
-        make_request: Callable[[RPCEndpoint, Any], RPCResponse], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], RPCResponse], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
         lock = threading.Lock()
@@ -216,7 +216,7 @@ def construct_time_based_cache_middleware(
         cached.
     """
     def time_based_cache_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
         lock = threading.Lock()
@@ -356,7 +356,7 @@ def construct_latest_block_based_cache_middleware(
         block time.
     """
     def latest_block_based_cache_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
         block_info: BlockInfoCache = {}
@@ -379,12 +379,12 @@ def construct_latest_block_based_cache_middleware(
                 # measured by blocks is greater than or equal to the number of
                 # blocks sampled then we need to recompute the average block
                 # time.
-                latest_block = web3.eth.get_block('latest')
+                latest_block = w3.eth.get_block('latest')
                 ancestor_block_number = BlockNumber(max(
                     0,
                     latest_block['number'] - average_block_time_sample_size,
                 ))
-                ancestor_block = web3.eth.get_block(ancestor_block_number)
+                ancestor_block = w3.eth.get_block(ancestor_block_number)
                 sample_size = latest_block['number'] - ancestor_block_number
 
                 block_info[AVG_BLOCK_SAMPLE_SIZE_KEY] = sample_size
@@ -402,10 +402,10 @@ def construct_latest_block_based_cache_middleware(
 
                 # latest block is too old so update cache
                 if time_since_latest_block > avg_block_time:
-                    block_info['latest_block'] = web3.eth.get_block('latest')
+                    block_info['latest_block'] = w3.eth.get_block('latest')
             else:
                 # latest block has not been fetched so we fetch it.
-                block_info['latest_block'] = web3.eth.get_block('latest')
+                block_info['latest_block'] = w3.eth.get_block('latest')
 
         lock = threading.Lock()
 

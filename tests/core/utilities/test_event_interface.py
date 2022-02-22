@@ -16,19 +16,19 @@ EVENT_1_ABI = {
 }
 
 
-def test_access_event_with_no_abi(web3):
-    contract = web3.eth.contract()
+def test_access_event_with_no_abi(w3):
+    contract = w3.eth.contract()
     with pytest.raises(NoABIEventsFound):
         contract.events.thisEventDoesNotExist()
 
 
-def test_access_event_abi_with_no_events(web3):
-    contract = web3.eth.contract(abi=[])
+def test_access_event_abi_with_no_events(w3):
+    contract = w3.eth.contract(abi=[])
     with pytest.raises(NoABIEventsFound):
         contract.events.thisEventDoesNotExist()
 
 
-def test_access_nonexistent_event(web3):
-    contract = web3.eth.contract(abi=[EVENT_1_ABI])
+def test_access_nonexistent_event(w3):
+    contract = w3.eth.contract(abi=[EVENT_1_ABI])
     with pytest.raises(MismatchedABI):
         contract.events.thisEventDoesNotExist()

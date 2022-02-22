@@ -8,7 +8,7 @@ from eth_utils import (
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_on_filter_using_get_all_entries_interface(
-    web3,
+    w3,
     emitter,
     Emitter,
     wait_for_transaction,
@@ -25,13 +25,13 @@ def test_on_filter_using_get_all_entries_interface(
     if api_style == 'build_filter':
         builder = contract.events.LogNoArguments.build_filter()
         builder.fromBlock = "latest"
-        event_filter = builder.deploy(web3)
+        event_filter = builder.deploy(w3)
     else:
         event_filter = create_filter(
             contract, ["LogNoArguments", {"fromBlock": "latest"}])
 
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
-    wait_for_transaction(web3, txn_hash)
+    wait_for_transaction(w3, txn_hash)
 
     log_entries = event_filter.get_all_entries()
 
@@ -48,7 +48,7 @@ def test_on_filter_using_get_all_entries_interface(
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_get_all_entries_returned_block_data(
-    web3,
+    w3,
     emitter,
     Emitter,
     wait_for_transaction,
@@ -58,7 +58,7 @@ def test_get_all_entries_returned_block_data(
     create_filter,
 ):
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
-    txn_receipt = wait_for_transaction(web3, txn_hash)
+    txn_receipt = wait_for_transaction(w3, txn_hash)
 
     if call_as_instance:
         contract = emitter
@@ -68,7 +68,7 @@ def test_get_all_entries_returned_block_data(
     if api_style == 'build_filter':
         builder = contract.events.LogNoArguments.build_filter()
         builder.fromBlock = txn_receipt["blockNumber"]
-        event_filter = builder.deploy(web3)
+        event_filter = builder.deploy(w3)
     else:
         event_filter = create_filter(contract, [
             "LogNoArguments", {"fromBlock": txn_receipt["blockNumber"]}])

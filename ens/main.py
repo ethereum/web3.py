@@ -112,23 +112,23 @@ class ENS:
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
         """
-        self.web3 = init_web3(provider, middlewares)
+        self.w3 = init_web3(provider, middlewares)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
-        self.ens = self.web3.eth.contract(abi=abis.ENS, address=ens_addr)
-        self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
+        self.ens = self.w3.eth.contract(abi=abis.ENS, address=ens_addr)
+        self._resolverContract = self.w3.eth.contract(abi=abis.RESOLVER)
 
     @classmethod
-    def fromWeb3(cls, web3: 'Web3', addr: ChecksumAddress = None) -> 'ENS':
+    def fromWeb3(cls, w3: 'Web3', addr: ChecksumAddress = None) -> 'ENS':
         """
         Generate an ENS instance with web3
 
-        :param `web3.Web3` web3: to infer connection information
+        :param `web3.Web3` w3: to infer connection information
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
         """
-        provider = web3.manager.provider
-        middlewares = web3.middleware_onion.middlewares
+        provider = w3.manager.provider
+        middlewares = w3.middleware_onion.middlewares
         return cls(provider, addr=addr, middlewares=middlewares)
 
     def address(self, name: str) -> Optional[ChecksumAddress]:
@@ -333,7 +333,7 @@ class ENS:
 
     def _assert_control(self, account: ChecksumAddress, name: str,
                         parent_owned: Optional[str] = None) -> None:
-        if not address_in(account, self.web3.eth.accounts):
+        if not address_in(account, self.w3.eth.accounts):
             raise UnauthorizedError(
                 "in order to modify %r, you must control account %r, which owns %r" % (
                     name, account, parent_owned or name
@@ -410,4 +410,4 @@ class ENS:
 
     def _reverse_registrar(self) -> 'Contract':
         addr = self.ens.caller.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
-        return self.web3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
+        return self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)

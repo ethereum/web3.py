@@ -123,7 +123,7 @@ class Method(Generic[TFunc]):
             error_formatters: Optional[Callable[..., TReturn]] = None,
             null_result_formatters: Optional[Callable[..., TReturn]] = None,
             method_choice_depends_on_args: Optional[Callable[..., RPCEndpoint]] = None,
-            web3: Optional["Web3"] = None):
+            w3: Optional["Web3"] = None):
 
         self.json_rpc_method = json_rpc_method
         self.mungers = mungers or [default_munger]

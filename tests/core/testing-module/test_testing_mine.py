@@ -1,22 +1,22 @@
-def test_testing_mine_single_block(web3):
-    web3.testing.mine()
+def test_testing_mine_single_block(w3):
+    w3.testing.mine()
 
-    before_mining_block = web3.eth.get_block("latest")
+    before_mining_block = w3.eth.get_block("latest")
 
-    web3.testing.mine()
+    w3.testing.mine()
 
-    after_mining_block = web3.eth.get_block("latest")
+    after_mining_block = w3.eth.get_block("latest")
 
     assert after_mining_block['number'] - before_mining_block['number'] == 1
 
 
-def test_testing_mine_multiple_blocks(web3):
-    web3.testing.mine()
+def test_testing_mine_multiple_blocks(w3):
+    w3.testing.mine()
 
-    before_mining_block = web3.eth.get_block("latest")
+    before_mining_block = w3.eth.get_block("latest")
 
-    web3.testing.mine(5)
+    w3.testing.mine(5)
 
-    after_mining_block = web3.eth.get_block("latest")
+    after_mining_block = w3.eth.get_block("latest")
 
     assert after_mining_block['number'] - before_mining_block['number'] == 5

@@ -1,0 +1,1 @@
+Audit ``.rst`` and ``.py`` files and convert all Web3 instance variable names to ``w3`` to avoid confusion with the ``web3`` module.

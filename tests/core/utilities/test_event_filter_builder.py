@@ -43,21 +43,21 @@ def test_match_single_string_type_properties_data_arg(value):
 
 
 @given(st.text())
-def test_match_single_string_type_properties_topic_arg(web3, value):
-    topic_filter = TopicArgumentFilter(arg_type="string", abi_codec=web3.codec)
+def test_match_single_string_type_properties_topic_arg(w3, value):
+    topic_filter = TopicArgumentFilter(arg_type="string", abi_codec=w3.codec)
     topic_filter.match_single(value)
 
 
 @given(st.lists(elements=st.text(), max_size=10, min_size=0))
-def test_match_any_string_type_properties(web3, values):
-    topic_filter = TopicArgumentFilter(arg_type="string", abi_codec=web3.codec)
+def test_match_any_string_type_properties(w3, values):
+    topic_filter = TopicArgumentFilter(arg_type="string", abi_codec=w3.codec)
     topic_filter.match_any(*values)
     assert len(topic_filter.match_values) == len(values)
 
 
 @given(st.lists(elements=st.binary(), max_size=10, min_size=0))
-def test_match_any_bytes_type_properties(web3, values):
-    topic_filter = TopicArgumentFilter(arg_type="bytes", abi_codec=web3.codec)
+def test_match_any_bytes_type_properties(w3, values):
+    topic_filter = TopicArgumentFilter(arg_type="bytes", abi_codec=w3.codec)
     topic_filter.match_any(*values)
     assert len(topic_filter.match_values) == len(values)
 

@@ -164,9 +164,9 @@ async def async_build_method_validators(async_w3: "Web3", method: RPCEndpoint) -
 
 
 async def async_validation_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> AsyncMiddleware:
     middleware = await async_construct_web3_formatting_middleware(
         async_build_method_validators
     )
-    return await middleware(make_request, web3)
+    return await middleware(make_request, w3)

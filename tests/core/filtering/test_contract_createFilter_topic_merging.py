@@ -2,7 +2,7 @@ import pytest
 
 
 def test_merged_topic_list_event(
-        web3,
+        w3,
         emitter,
         emitter_event_ids,
         wait_for_transaction):

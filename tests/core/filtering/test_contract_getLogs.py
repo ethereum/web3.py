@@ -10,7 +10,7 @@ def test_contract_get_available_events(
 
 
 def test_contract_getLogs_all(
-    web3,
+    w3,
     emitter,
     wait_for_transaction,
     emitter_event_ids,
@@ -19,7 +19,7 @@ def test_contract_getLogs_all(
     event_id = emitter_event_ids.LogNoArguments
 
     txn_hash = contract.functions.logNoArgs(event_id).transact()
-    wait_for_transaction(web3, txn_hash)
+    wait_for_transaction(w3, txn_hash)
 
     log_entries = list(contract.events.LogNoArguments.getLogs())
     assert len(log_entries) == 1
@@ -27,7 +27,7 @@ def test_contract_getLogs_all(
 
 
 def test_contract_getLogs_range(
-    web3,
+    w3,
     emitter,
     wait_for_transaction,
     emitter_event_ids,
@@ -35,11 +35,11 @@ def test_contract_getLogs_range(
     contract = emitter
     event_id = emitter_event_ids.LogNoArguments
 
-    assert web3.eth.block_number == 2
+    assert w3.eth.block_number == 2
     txn_hash = contract.functions.logNoArgs(event_id).transact()
     # Mined as block 3
-    wait_for_transaction(web3, txn_hash)
-    assert web3.eth.block_number == 3
+    wait_for_transaction(w3, txn_hash)
+    assert w3.eth.block_number == 3
 
     log_entries = list(contract.events.LogNoArguments.getLogs())
     assert len(log_entries) == 1
@@ -52,7 +52,7 @@ def test_contract_getLogs_range(
 
 
 def test_contract_getLogs_argument_filter(
-        web3,
+        w3,
         emitter,
         wait_for_transaction,
         emitter_event_ids):
@@ -77,7 +77,7 @@ def test_contract_getLogs_argument_filter(
         emitter.functions.logTriple(event_id, 1, 3, 1).transact()
     )
     for txn_hash in txn_hashes:
-        wait_for_transaction(web3, txn_hash)
+        wait_for_transaction(w3, txn_hash)
 
     all_logs = contract.events.LogTripleWithIndex.getLogs(fromBlock=1)
     assert len(all_logs) == 4

@@ -45,17 +45,17 @@ ACCOUNT_FOR_UNLOCK = '0x12efDc31B1a8FA1A1e756DFD8A1601055C971E13'
 
 
 class GoEthereumPersonalModuleTest:
-    def test_personal_import_raw_key(self, web3: "Web3") -> None:
-        actual = web3.geth.personal.import_raw_key(PRIVATE_KEY_HEX, PASSWORD)
+    def test_personal_import_raw_key(self, w3: "Web3") -> None:
+        actual = w3.geth.personal.import_raw_key(PRIVATE_KEY_HEX, PASSWORD)
         assert actual == ADDRESS
 
-    def test_personal_importRawKey_deprecated(self, web3: "Web3") -> None:
+    def test_personal_importRawKey_deprecated(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
-            actual = web3.geth.personal.importRawKey(SECOND_PRIVATE_KEY_HEX, PASSWORD)
+            actual = w3.geth.personal.importRawKey(SECOND_PRIVATE_KEY_HEX, PASSWORD)
             assert actual == SECOND_ADDRESS
 
-    def test_personal_list_accounts(self, web3: "Web3") -> None:
-        accounts = web3.geth.personal.list_accounts()
+    def test_personal_list_accounts(self, w3: "Web3") -> None:
+        accounts = w3.geth.personal.list_accounts()
         assert is_list_like(accounts)
         assert len(accounts) > 0
         assert all((
@@ -64,9 +64,9 @@ class GoEthereumPersonalModuleTest:
             in accounts
         ))
 
-    def test_personal_listAccounts_deprecated(self, web3: "Web3") -> None:
+    def test_personal_listAccounts_deprecated(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
-            accounts = web3.geth.personal.listAccounts()
+            accounts = w3.geth.personal.listAccounts()
             assert is_list_like(accounts)
             assert len(accounts) > 0
             assert all((
@@ -75,8 +75,8 @@ class GoEthereumPersonalModuleTest:
                 in accounts
             ))
 
-    def test_personal_list_wallets(self, web3: "Web3") -> None:
-        wallets = web3.geth.personal.list_wallets()
+    def test_personal_list_wallets(self, w3: "Web3") -> None:
+        wallets = w3.geth.personal.list_wallets()
         assert is_list_like(wallets)
         assert len(wallets) > 0
         assert is_checksum_address(wallets[0]['accounts'][0]['address'])
@@ -85,25 +85,25 @@ class GoEthereumPersonalModuleTest:
         assert is_string(wallets[0]['url'])
 
     def test_personal_lock_account(
-        self, web3: "Web3", unlockable_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlockable_account_dual_type: ChecksumAddress
     ) -> None:
         # TODO: how do we test this better?
-        web3.geth.personal.lock_account(unlockable_account_dual_type)
+        w3.geth.personal.lock_account(unlockable_account_dual_type)
 
     def test_personal_lockAccount_deprecated(
-        self, web3: "Web3", unlockable_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlockable_account_dual_type: ChecksumAddress
     ) -> None:
         with pytest.warns(DeprecationWarning):
             # TODO: how do we test this better?
-            web3.geth.personal.lockAccount(unlockable_account_dual_type)
+            w3.geth.personal.lockAccount(unlockable_account_dual_type)
 
     def test_personal_unlock_account_success(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
-        result = web3.geth.personal.unlock_account(
+        result = w3.geth.personal.unlock_account(
             unlockable_account_dual_type,
             unlockable_account_pw
         )
@@ -111,56 +111,56 @@ class GoEthereumPersonalModuleTest:
 
     def test_personal_unlockAccount_success_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
         with pytest.warns(DeprecationWarning):
-            result = web3.geth.personal.unlockAccount(
+            result = w3.geth.personal.unlockAccount(
                 unlockable_account_dual_type,
                 unlockable_account_pw
             )
             assert result is True
 
     def test_personal_unlock_account_failure(
-        self, web3: "Web3", unlockable_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlockable_account_dual_type: ChecksumAddress
     ) -> None:
         with pytest.raises(ValueError):
-            web3.geth.personal.unlock_account(unlockable_account_dual_type, 'bad-password')
+            w3.geth.personal.unlock_account(unlockable_account_dual_type, 'bad-password')
 
     def test_personal_unlockAccount_failure_deprecated(
-        self, web3: "Web3", unlockable_account_dual_type: ChecksumAddress
+        self, w3: "Web3", unlockable_account_dual_type: ChecksumAddress
     ) -> None:
         with pytest.warns(DeprecationWarning):
             with pytest.raises(ValueError):
-                web3.geth.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
+                w3.geth.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
 
-    def test_personal_new_account(self, web3: "Web3") -> None:
-        new_account = web3.geth.personal.new_account(PASSWORD)
+    def test_personal_new_account(self, w3: "Web3") -> None:
+        new_account = w3.geth.personal.new_account(PASSWORD)
         assert is_checksum_address(new_account)
 
-    def test_personal_newAccount_deprecated(self, web3: "Web3") -> None:
+    def test_personal_newAccount_deprecated(self, w3: "Web3") -> None:
         with pytest.warns(DeprecationWarning):
-            new_account = web3.geth.personal.newAccount(PASSWORD)
+            new_account = w3.geth.personal.newAccount(PASSWORD)
             assert is_checksum_address(new_account)
 
     def test_personal_send_transaction(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
-        assert web3.eth.get_balance(unlockable_account_dual_type) > constants.WEI_PER_ETHER
+        assert w3.eth.get_balance(unlockable_account_dual_type) > constants.WEI_PER_ETHER
         txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
             'gas': 21000,
             'value': Wei(1),
-            'gasPrice': web3.toWei(1, 'gwei'),
+            'gasPrice': w3.toWei(1, 'gwei'),
         }
-        txn_hash = web3.geth.personal.send_transaction(txn_params, unlockable_account_pw)
+        txn_hash = w3.geth.personal.send_transaction(txn_params, unlockable_account_pw)
         assert txn_hash
-        transaction = web3.eth.get_transaction(txn_hash)
+        transaction = w3.eth.get_transaction(txn_hash)
 
         assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
@@ -170,23 +170,23 @@ class GoEthereumPersonalModuleTest:
 
     def test_personal_sendTransaction_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
-        assert web3.eth.get_balance(unlockable_account_dual_type) > constants.WEI_PER_ETHER
+        assert w3.eth.get_balance(unlockable_account_dual_type) > constants.WEI_PER_ETHER
         txn_params: TxParams = {
             'from': unlockable_account_dual_type,
             'to': unlockable_account_dual_type,
             'gas': 21000,
             'value': Wei(1),
-            'gasPrice': web3.toWei(1, 'gwei'),
+            'gasPrice': w3.toWei(1, 'gwei'),
         }
         with pytest.warns(DeprecationWarning):
-            txn_hash = web3.geth.personal.sendTransaction(txn_params, unlockable_account_pw)
+            txn_hash = w3.geth.personal.sendTransaction(txn_params, unlockable_account_pw)
         assert txn_hash
 
-        transaction = web3.eth.get_transaction(txn_hash)
+        transaction = w3.eth.get_transaction(txn_hash)
 
         assert is_same_address(transaction['from'], cast(ChecksumAddress, txn_params['from']))
         assert is_same_address(transaction['to'], cast(ChecksumAddress, txn_params['to']))
@@ -196,33 +196,33 @@ class GoEthereumPersonalModuleTest:
 
     def test_personal_sign_and_ecrecover(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
         message = 'test-web3-geth-personal-sign'
-        signature = web3.geth.personal.sign(
+        signature = w3.geth.personal.sign(
             message,
             unlockable_account_dual_type,
             unlockable_account_pw
         )
-        signer = web3.geth.personal.ec_recover(message, signature)
+        signer = w3.geth.personal.ec_recover(message, signature)
         assert is_same_address(signer, unlockable_account_dual_type)
 
     def test_personal_sign_and_ecrecover_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
         with pytest.warns(DeprecationWarning):
             message = 'test-web3-geth-personal-sign'
-            signature = web3.geth.personal.sign(
+            signature = w3.geth.personal.sign(
                 message,
                 unlockable_account_dual_type,
                 unlockable_account_pw
             )
-            signer = web3.geth.personal.ecRecover(message, signature)
+            signer = w3.geth.personal.ecRecover(message, signature)
             assert is_same_address(signer, unlockable_account_dual_type)
 
     @pytest.mark.xfail(
@@ -230,7 +230,7 @@ class GoEthereumPersonalModuleTest:
     )
     def test_personal_sign_typed_data(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -273,7 +273,7 @@ class GoEthereumPersonalModuleTest:
                 }
             }
         '''
-        signature = HexBytes(web3.geth.personal.sign_typed_data(
+        signature = HexBytes(w3.geth.personal.sign_typed_data(
             json.loads(typed_message),
             unlockable_account_dual_type,
             unlockable_account_pw
@@ -290,7 +290,7 @@ class GoEthereumPersonalModuleTest:
     @pytest.mark.xfail(reason="personal_signTypedData JSON RPC call has not been released in geth")
     def test_personal_sign_typed_data_deprecated(
         self,
-        web3: "Web3",
+        w3: "Web3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -334,7 +334,7 @@ class GoEthereumPersonalModuleTest:
                     }
                 }
             '''
-            signature = HexBytes(web3.geth.personal.sign_typed_data(
+            signature = HexBytes(w3.geth.personal.sign_typed_data(
                 json.loads(typed_message),
                 unlockable_account_dual_type,
                 unlockable_account_pw
