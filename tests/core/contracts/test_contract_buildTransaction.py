@@ -8,8 +8,6 @@ from web3.exceptions import (
     ValidationError,
 )
 
-# -*- coding: utf-8 -*-
-
 
 @pytest.fixture()
 def math_contract(web3, MathContract, address_conversion_func):
