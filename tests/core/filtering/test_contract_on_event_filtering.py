@@ -6,7 +6,7 @@ from eth_utils import (
 
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
-def test_create_filter_address_parameter(w3, emitter, Emitter, call_as_instance):
+def test_create_filter_address_parameter(emitter, Emitter, call_as_instance):
     if call_as_instance:
         event_filter = emitter.events.LogNoArguments.createFilter(fromBlock="latest")
     else:

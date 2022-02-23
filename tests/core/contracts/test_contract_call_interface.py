@@ -150,7 +150,7 @@ def bytes32_contract(w3, Bytes32Contract, request, address_conversion_func):
 
 
 @pytest.fixture()
-def undeployed_math_contract(w3, MathContract, address_conversion_func):
+def undeployed_math_contract(MathContract, address_conversion_func):
     empty_address = address_conversion_func("0x000000000000000000000000000000000000dEaD")
     _undeployed_math_contract = MathContract(address=empty_address)
     return _undeployed_math_contract
@@ -191,7 +191,7 @@ def nested_tuple_contract(w3, NestedTupleContract, address_conversion_func):
     return deploy(w3, NestedTupleContract, address_conversion_func)
 
 
-def test_invalid_address_in_deploy_arg(w3, WithConstructorAddressArgumentsContract):
+def test_invalid_address_in_deploy_arg(WithConstructorAddressArgumentsContract):
     with pytest.raises(InvalidAddress):
         WithConstructorAddressArgumentsContract.constructor(
             "0xd3cda913deb6f67967b99d67acdfa1712c293601",
@@ -704,7 +704,7 @@ def test_call_sending_ether_to_nonpayable_function(payable_tester_contract, call
         ('reflect_short_u', Decimal('25.5')),
     ),
 )
-def test_reflect_fixed_value(w3, fixed_reflection_contract, function, value):
+def test_reflect_fixed_value(fixed_reflection_contract, function, value):
     contract_func = fixed_reflection_contract.functions[function]
     reflected = contract_func(value).call({'gas': 420000})
     assert reflected == value
@@ -741,7 +741,7 @@ DEFAULT_DECIMALS = getcontext().prec
         ('reflect', 0, "Ambiguous argument encoding"),
     ),
 )
-def test_invalid_fixed_value_reflections(w3, fixed_reflection_contract, function, value, error):
+def test_invalid_fixed_value_reflections(fixed_reflection_contract, function, value, error):
     contract_func = fixed_reflection_contract.functions[function]
     with pytest.raises(ValidationError, match=error):
         contract_func(value).call({'gas': 420000})

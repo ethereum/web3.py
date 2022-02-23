@@ -163,7 +163,7 @@ UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f155
 
 
 @pytest.fixture(scope='module')
-def unlockable_account_pw(w3):
+def unlockable_account_pw():
     return 'web3-testing'
 
 

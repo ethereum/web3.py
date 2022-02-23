@@ -140,7 +140,7 @@ def math_contract_deploy_txn_hash(geth_fixture_data):
 
 
 @pytest.fixture(scope="module")
-def math_contract(w3, math_contract_factory, geth_fixture_data):
+def math_contract(math_contract_factory, geth_fixture_data):
     return math_contract_factory(address=geth_fixture_data['math_address'])
 
 
@@ -150,7 +150,7 @@ def math_contract_address(math_contract, address_conversion_func):
 
 
 @pytest.fixture(scope="module")
-def emitter_contract(w3, emitter_contract_factory, geth_fixture_data):
+def emitter_contract(emitter_contract_factory, geth_fixture_data):
     return emitter_contract_factory(address=geth_fixture_data['emitter_address'])
 
 
@@ -172,7 +172,7 @@ def unlockable_account_pw(geth_fixture_data):
 
 
 @pytest.fixture(scope="module")
-def unlockable_account(w3, coinbase):
+def unlockable_account(coinbase):
     yield coinbase
 
 
@@ -237,5 +237,5 @@ def block_hash_revert_with_msg(geth_fixture_data):
 
 
 @pytest.fixture(scope="module")
-def revert_contract(w3, revert_contract_factory, geth_fixture_data):
+def revert_contract(revert_contract_factory, geth_fixture_data):
     return revert_contract_factory(address=geth_fixture_data['revert_address'])

@@ -662,7 +662,6 @@ def test_event_rich_log_with_byte_args(
 
 
 def test_receipt_processing_with_discard_flag(
-        w3,
         event_contract,
         indexed_event_contract,
         dup_txn_receipt,
@@ -675,7 +674,6 @@ def test_receipt_processing_with_discard_flag(
 
 
 def test_receipt_processing_with_ignore_flag(
-        w3,
         event_contract,
         indexed_event_contract,
         dup_txn_receipt,
@@ -704,7 +702,6 @@ def test_receipt_processing_with_ignore_flag(
 
 
 def test_receipt_processing_with_warn_flag(
-        w3,
         indexed_event_contract,
         dup_txn_receipt):
 
@@ -716,7 +713,6 @@ def test_receipt_processing_with_warn_flag(
 
 
 def test_receipt_processing_with_strict_flag(
-        w3,
         indexed_event_contract,
         dup_txn_receipt):
 
@@ -727,7 +723,6 @@ def test_receipt_processing_with_strict_flag(
 
 
 def test_receipt_processing_with_invalid_flag(
-        w3,
         indexed_event_contract,
         dup_txn_receipt):
 
@@ -738,7 +733,6 @@ def test_receipt_processing_with_invalid_flag(
 
 
 def test_receipt_processing_with_no_flag(
-        w3,
         indexed_event_contract,
         dup_txn_receipt):
 
@@ -750,7 +744,6 @@ def test_receipt_processing_with_no_flag(
 
 
 def test_single_log_processing_with_errors(
-        w3,
         indexed_event_contract,
         dup_txn_receipt):
     event_instance = indexed_event_contract.events.LogSingleWithIndex()

@@ -6,7 +6,7 @@ from web3.providers import (
 )
 
 
-def stateful_middleware(make_request, web3):
+def stateful_middleware(make_request, w3):
     state = []
 
     def middleware(method, params):

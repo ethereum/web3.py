@@ -62,7 +62,7 @@ def test_implicitcontract_call_default(math_contract, get_transaction_count):
     assert get_transaction_count("pending") == (blocknum, 0)
 
 
-def test_implicitcontract_transact_default(w3, math_contract, get_transaction_count):
+def test_implicitcontract_transact_default(math_contract, get_transaction_count):
     # Use to verify correct operation later on
     with pytest.warns(DeprecationWarning, match='deprecated in favor of classic contract syntax'):
         start_count = math_contract.counter()
