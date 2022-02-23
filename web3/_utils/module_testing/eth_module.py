@@ -1094,6 +1094,30 @@ class AsyncEthModuleTest:
             assert is_integer(sync_dict['currentBlock'])
             assert is_integer(sync_dict['highestBlock'])
 
+    @pytest.mark.asyncio
+    async def test_async_eth_get_storage_at(
+        self, async_w3: "Web3", emitter_contract_address: ChecksumAddress
+    ) -> None:
+        storage = await async_w3.eth.get_storage_at(emitter_contract_address, 0)  # type: ignore
+        assert isinstance(storage, HexBytes)
+
+    @pytest.mark.asyncio
+    @pytest.mark.xfail
+    async def test_async_eth_get_storage_at_ens_name(
+        self, async_w3: "Web3", emitter_contract_address: ChecksumAddress
+    ) -> None:
+        with ens_addresses(async_w3, {'emitter.eth': emitter_contract_address}):
+            storage = await async_w3.eth.get_storage_at('emitter.eth', 0)  # type: ignore
+            assert isinstance(storage, HexBytes)
+
+    @pytest.mark.asyncio
+    async def test_async_eth_get_storage_at_invalid_address(self, async_w3: "Web3") -> None:
+        coinbase = await async_w3.eth.coinbase  # type: ignore
+        with pytest.raises(InvalidAddress):
+            await async_w3.eth.get_storage_at(
+                ChecksumAddress(HexAddress(HexStr(coinbase.lower()))),
+                0)  # type: ignore
+
     def test_async_provider_default_account(
         self,
         async_w3: "Web3",
