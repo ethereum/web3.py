@@ -8,6 +8,9 @@ from typing import (
     Union,
 )
 
+from aiohttp import (
+    ClientSession,
+)
 from eth_typing import (
     URI,
 )
@@ -20,6 +23,7 @@ from web3._utils.http import (
 )
 from web3._utils.request import (
     async_make_post_request,
+    cache_async_session as _cache_async_session,
     get_default_http_endpoint,
 )
 from web3.types import (
@@ -49,6 +53,9 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         self._request_kwargs = request_kwargs or {}
 
         super().__init__()
+
+    async def cache_async_session(self, session: ClientSession) -> None:
+        await _cache_async_session(self.endpoint_uri, session)
 
     def __str__(self) -> str:
         return "RPC connection {0}".format(self.endpoint_uri)
