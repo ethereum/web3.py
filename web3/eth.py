@@ -283,6 +283,16 @@ class BaseEth(Module):
             block_identifier = self.default_block
         return (account, block_identifier)
 
+    def get_storage_at_munger(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        position: int,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> Tuple[Union[Address, ChecksumAddress, ENS], int, BlockIdentifier]:
+        if block_identifier is None:
+            block_identifier = self.default_block
+        return (account, position, block_identifier)
+
     def call_munger(
         self,
         transaction: TxParams,
@@ -519,6 +529,19 @@ class AsyncEth(BaseEth):
                 f"after {timeout} seconds"
             )
 
+    _get_storage_at: Method[Callable[..., Awaitable[HexBytes]]] = Method(
+        RPC.eth_getStorageAt,
+        mungers=[BaseEth.get_storage_at_munger],
+    )
+
+    async def get_storage_at(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        position: int,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> HexBytes:
+        return await self._get_storage_at(account, position, block_identifier)
+
     async def call(
         self,
         transaction: TxParams,
@@ -636,19 +659,9 @@ class Eth(BaseEth):
             )
             return fee_history_priority_fee(self)
 
-    def get_storage_at_munger(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        position: int,
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], int, BlockIdentifier]:
-        if block_identifier is None:
-            block_identifier = self.default_block
-        return (account, position, block_identifier)
-
     get_storage_at: Method[Callable[..., HexBytes]] = Method(
         RPC.eth_getStorageAt,
-        mungers=[get_storage_at_munger],
+        mungers=[BaseEth.get_storage_at_munger],
     )
 
     def get_proof_munger(

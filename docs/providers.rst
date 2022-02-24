@@ -429,6 +429,7 @@ Eth
 - :meth:`web3.eth.get_transaction() <web3.eth.Eth.get_transaction>`
 - :meth:`web3.eth.get_transaction_count() <web3.eth.Eth.get_transaction_count>`
 - :meth:`web3.eth.get_transaction_receipt() <web3.eth.Eth.get_transaction_receipt>`
+- :meth:`web3.eth.get_storage_at() <web3.eth.Eth.get_storage_at>`
 - :meth:`web3.eth.send_transaction() <web3.eth.Eth.send_transaction>`
 - :meth:`web3.eth.send_raw_transaction() <web3.eth.Eth.send_raw_transaction>`
 - :meth:`web3.eth.wait_for_transaction_receipt() <web3.eth.Eth.wait_for_transaction_receipt>`
