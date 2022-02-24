@@ -158,7 +158,7 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
                 self.response_dict[item.idx] = response
                 item.response_ready_event.set()
         except HTTPError as e:
-            self.logger.exception("Batch request failed.")
+            self.logger.exception("Batch request failed. Trying again...")
             for item in request_batch:
                 await self.request_queue.put(item)
 
