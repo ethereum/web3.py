@@ -379,7 +379,7 @@ AsyncHTTPProvider
       be omitted from the URI.
     * ``request_kwargs`` should be a dictionary of keyword arguments which
       will be passed onto each http/https POST request made to your node.
-    * the ``cache_async_session()`` method allows you to use your own ``aiohttp.ClientSession`` object. This is and async method and not part of the consturctor
+    * the ``cache_async_session()`` method allows you to use your own ``aiohttp.ClientSession`` object. This is an async method and not part of the constructor
 
     .. code-block:: python
 
