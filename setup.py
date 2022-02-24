@@ -82,7 +82,7 @@ setup(
         "eth-utils>=1.9.5,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
         "ipfshttpclient==0.8.0a2",
-        "jsonschema>=3.2.0,<4.0.0",
+        "jsonschema>=4.0.0,<5",
         "lru-dict>=1.1.6,<2.0.0",
         "protobuf>=3.10.0,<4",
         "pywin32>=223;platform_system=='Windows'",
