@@ -33,7 +33,7 @@ class SessionCache:
         evicted_items = None
         # If the key is already in the OrderedDict just update it
         # and don't evict any values. Ideally, we could still check to see
-        # if there are too many items in the OrderDict but that may rearange
+        # if there are too many items in the OrderedDict but that may rearrange
         # the order it should be unlikely that the size could grow over the limit
         if key not in self._data:
             while len(self._data) >= self._size:
