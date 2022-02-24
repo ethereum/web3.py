@@ -61,14 +61,14 @@ def _munger_star_apply(fn: Callable[..., TReturn]) -> Callable[..., TReturn]:
     return inner
 
 
-def default_munger(module: "Module", *args: Any, **kwargs: Any) -> Tuple[()]:
+def default_munger(_module: "Module", *args: Any, **kwargs: Any) -> Tuple[()]:
     if not args and not kwargs:
         return ()
     else:
         raise TypeError("Parameters passed to method without parameter mungers defined.")
 
 
-def default_root_munger(module: "Module", *args: Any) -> List[Any]:
+def default_root_munger(_module: "Module", *args: Any) -> List[Any]:
     return [*args]
 
 
@@ -115,15 +115,14 @@ class Method(Generic[TFunc]):
     and the response formatters are applied to the output.
     """
     def __init__(
-            self,
-            json_rpc_method: Optional[RPCEndpoint] = None,
-            mungers: Optional[Sequence[Munger]] = None,
-            request_formatters: Optional[Callable[..., TReturn]] = None,
-            result_formatters: Optional[Callable[..., TReturn]] = None,
-            error_formatters: Optional[Callable[..., TReturn]] = None,
-            null_result_formatters: Optional[Callable[..., TReturn]] = None,
-            method_choice_depends_on_args: Optional[Callable[..., RPCEndpoint]] = None,
-            w3: Optional["Web3"] = None):
+        self,
+        json_rpc_method: Optional[RPCEndpoint] = None,
+        mungers: Optional[Sequence[Munger]] = None,
+        request_formatters: Optional[Callable[..., TReturn]] = None,
+        result_formatters: Optional[Callable[..., TReturn]] = None,
+        null_result_formatters: Optional[Callable[..., TReturn]] = None,
+        method_choice_depends_on_args: Optional[Callable[..., RPCEndpoint]] = None,
+    ):
 
         self.json_rpc_method = json_rpc_method
         self.mungers = mungers or [default_munger]
@@ -133,8 +132,9 @@ class Method(Generic[TFunc]):
         self.null_result_formatters = null_result_formatters or get_null_result_formatters
         self.method_choice_depends_on_args = method_choice_depends_on_args
 
-    def __get__(self, obj: Optional["Module"] = None,
-                obj_type: Optional[Type["Module"]] = None) -> TFunc:
+    def __get__(
+        self, obj: Optional["Module"] = None, obj_type: Optional[Type["Module"]] = None
+    ) -> TFunc:
         if obj is None:
             raise TypeError(
                 "Direct calls to methods are not supported. "
@@ -204,7 +204,7 @@ class Method(Generic[TFunc]):
         return request, response_formatters
 
 
-class DeprecatedMethod():
+class DeprecatedMethod:
     def __init__(self, method: Method[Callable[..., Any]], old_name: str, new_name: str) -> None:
         self.method = method
         self.old_name = old_name
