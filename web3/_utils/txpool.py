@@ -16,17 +16,17 @@ from web3.types import (
 
 content: Method[Callable[[], TxPoolContent]] = Method(
     RPC.txpool_content,
-    mungers=None,
+    is_property=True,
 )
 
 
 inspect: Method[Callable[[], TxPoolInspect]] = Method(
     RPC.txpool_inspect,
-    mungers=None,
+    is_property=True,
 )
 
 
 status: Method[Callable[[], TxPoolStatus]] = Method(
     RPC.txpool_status,
-    mungers=None,
+    is_property=True,
 )
