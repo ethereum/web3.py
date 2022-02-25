@@ -15,3 +15,23 @@ showcontent=true
 directory = "deprecation"
 name = "Deprecations"
 showcontent = true
+
+[[tool.towncrier.type]]
+directory = "bugfix"
+name="Bugfixes"
+showcontent=true
+
+[[tool.towncrier.type]]
+directory = "doc"
+name="Documentation Updates"
+showcontent=true
+
+[[tool.towncrier.type]]
+directory = "feature"
+name="Features"
+showcontent=true
+
+[[tool.towncrier.type]]
+directory = "misc"
+name="Misc"
+showcontent=false
