@@ -3,6 +3,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Dict,
     TypeVar,
     Union,
 )
@@ -91,3 +92,14 @@ class Module:
             self.retrieve_caller_fn = retrieve_blocking_method_call_fn(w3, self)
         self.w3 = w3
         self.codec: ABICodec = w3.codec
+
+    def attach_methods(
+        self,
+        methods: Dict[str, Method[Callable[..., Any]]],
+    ) -> None:
+        for method_name, method_class in methods.items():
+            klass = (
+                method_class.__get__(obj=self)() if method_class.is_property else
+                method_class.__get__(obj=self)
+            )
+            setattr(self, method_name, klass)

@@ -51,19 +51,19 @@ start: Method[Callable[[int], bool]] = Method(
 
 stop: Method[Callable[[], bool]] = Method(
     RPC.miner_stop,
-    mungers=None,
+    is_property=True,
 )
 
 
 start_auto_dag: Method[Callable[[], bool]] = Method(
     RPC.miner_startAutoDag,
-    mungers=None,
+    is_property=True,
 )
 
 
 stop_auto_dag: Method[Callable[[], bool]] = Method(
     RPC.miner_stopAutoDag,
-    mungers=None,
+    is_property=True,
 )
 
 

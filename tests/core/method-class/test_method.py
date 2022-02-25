@@ -32,7 +32,7 @@ def test_method_accepts_callable_for_selector():
 
 def test_method_selector_fn_accepts_str():
     method = Method(
-        mungers=None,
+        is_property=True,
         json_rpc_method='eth_method',
     )
     assert method.method_selector_fn() == 'eth_method'
@@ -77,7 +77,7 @@ def test_input_munger_parameter_passthrough_matching_arity():
         mungers=[lambda m, z, y: ['success']],
         json_rpc_method='eth_method',
     )
-    method.input_munger(object(), ['first', 'second'], {}) == 'success'
+    assert method.input_munger(object(), ['first', 'second'], {}) == ['success']
 
 
 def test_input_munger_parameter_passthrough_mismatch_arity():
@@ -94,16 +94,15 @@ def test_input_munger_falsy_config_result_in_default_munger():
         mungers=[],
         json_rpc_method='eth_method',
     )
-    method.input_munger(object(), [], {}) == []
+    assert method.input_munger(object(), [], {}) == []
 
 
-def test_default_input_munger_with_input_parameters_exception():
+def test_default_input_munger_with_input_parameters():
     method = Method(
         mungers=[],
         json_rpc_method='eth_method',
     )
-    with pytest.raises(TypeError):
-        method.input_munger(object(), [1], {})
+    assert method.input_munger(object(), [1], {}) == [1]
 
 
 @pytest.mark.parametrize(
@@ -125,7 +124,7 @@ def test_default_input_munger_with_input_parameters_exception():
             },
             ['unexpected_argument'],
             {},
-            TypeError,
+            IndexError,
             2
         ),
         (
@@ -186,6 +185,15 @@ def test_default_input_munger_with_input_parameters_exception():
         ),
         (
             {
+                'json_rpc_method': 'eth_getBalance',
+            },
+            ('0x0000000000000000000000000000000000000000', 3),
+            {},
+            ('eth_getBalance', ('0x0000000000000000000000000000000000000000', '0x3')),
+            2,
+        ),
+        (
+            {
                 'mungers': [
                     lambda m, addr, x, y, z: [addr, x, y],
                     lambda m, addr, x, y: [addr, x],
@@ -206,7 +214,17 @@ def test_default_input_munger_with_input_parameters_exception():
             {},
             ('eth_chainId', ()),
             2,
-        )
+        ),
+        (
+            {
+                'is_property': True,
+                'json_rpc_method': 'eth_chainId',
+            },
+            [],
+            {},
+            ('eth_chainId', ()),
+            2,
+        ),
     ),
     ids=[
         'raises-error-no-rpc-method',
@@ -215,9 +233,11 @@ def test_default_input_munger_with_input_parameters_exception():
         'test-rpc-method-as-callable',
         'test-arg-munger',
         'test-munger-wrong-length-arg',
-        'test-request-formatters',
+        'test-request-formatters-default-root-munger-explicit',
+        'test-request-formatters-default-root-munger-implicit',
         'test-mungers-and-request-formatters',
         'test-response-formatters',
+        'test-set-as-property-default-munger-implicit',
     ]
 )
 def test_process_params(
@@ -230,7 +250,7 @@ def test_process_params(
     if isclass(expected_request_result) and issubclass(expected_request_result, Exception):
         with pytest.raises(expected_request_result):
             method = Method(**method_config)
-            request_params, output_formatter = method.process_params(object(), *args, **kwargs)
+            method.process_params(object(), *args, **kwargs)
     else:
         method = Method(**method_config)
         request_params, output_formatter = method.process_params(object(), *args, **kwargs)
@@ -248,8 +268,8 @@ class Success(Exception):
     pass
 
 
-def return_exception_raising_formatter(method):
-    def formatter(params):
+def return_exception_raising_formatter(_method):
+    def formatter(_params):
         raise Success()
     return compose(formatter)
 
