@@ -1151,7 +1151,7 @@ class ContractEvent:
 
         for log in txn_receipt['logs']:
             try:
-                rich_log = get_event_data(self.web3.codec, self.abi, log)
+                rich_log = get_event_data(self.web3.codec, self._get_event_abi(), log)
             except (MismatchedABI, LogTopicError, InvalidEventABI, TypeError) as e:
                 if errors == DISCARD:
                     continue
@@ -1173,7 +1173,7 @@ class ContractEvent:
 
     @combomethod
     def processLog(self, log: HexStr) -> EventData:
-        return get_event_data(self.web3.codec, self.abi, log)
+        return get_event_data(self.web3.codec, self._get_event_abi(), log)
 
     @combomethod
     def createFilter(
