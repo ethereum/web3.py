@@ -1,0 +1,1 @@
+Use ``web3[async]`` extra keyword to install ``AsyncHTTPProvider`` dependencies.

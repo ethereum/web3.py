@@ -5,6 +5,9 @@ from setuptools import (
 )
 
 extras_require = {
+    'async': [
+        "aiohttp>=3.7.4.post0,<4"
+    ],
     'tester': [
         "eth-tester[py-evm]==v0.6.0-beta.6",
         "py-geth>=3.7.0,<4",
@@ -57,6 +60,7 @@ extras_require['dev'] = (
     + extras_require['linter']
     + extras_require['docs']
     + extras_require['dev']
+    + extras_require['async']
 )
 
 with open('./README.md') as readme:
@@ -74,7 +78,6 @@ setup(
     url='https://github.com/ethereum/web3.py',
     include_package_data=True,
     install_requires=[
-        "aiohttp>=3.7.4.post0,<4",
         "eth-abi>=2.0.0b6,<3.0.0",
         "eth-account>=0.5.7,<0.6.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",

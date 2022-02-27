@@ -369,6 +369,14 @@ AsyncHTTPProvider
 .. warning:: This provider is unstable and there are still gaps in
     functionality. However, it is being actively developed.
 
+.. NOTE:: To install the needed dependencies to use ``AsyncHTTPProvider``, you can install the
+    pip extras package that has the correct interoperable version of the ``aiohttp``
+    library needed for asynchronous HTTP client.
+
+    .. code-block:: shell
+
+      $ pip install web3[async]
+
 .. py:class:: web3.providers.async_rpc.AsyncHTTPProvider(endpoint_uri[, request_kwargs])
 
     This provider handles interactions with an HTTP or HTTPS based JSON-RPC server asynchronously.
