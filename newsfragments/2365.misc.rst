@@ -1,1 +1,0 @@
-Towncrier stopped printing original types of newsfragments when the ``breaking-change`` and ``deprecation`` were added. Added them back.

@@ -1,1 +1,0 @@
-Update Sphinx requirement to ``>=4.2.0,<5``

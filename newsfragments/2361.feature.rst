@@ -1,1 +1,0 @@
-Upgrade ``jsonschema`` version to ``>=4.0.0<5``

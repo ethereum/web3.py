@@ -3,6 +3,50 @@ Release Notes
 
 .. towncrier release notes start
 
+v6.0.0-beta.1 (2022-02-28)
+--------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Update ``websockets`` dependency to v10+ (`#2324
+  <https://github.com/ethereum/web3.py/issues/2324>`__)
+- Remove support for the unsupported Python 3.6 Also removes outdated Parity
+  tests (`#2343 <https://github.com/ethereum/web3.py/issues/2343>`__)
+- Update Sphinx requirement to ``>=4.2.0,<5`` (`#2362
+  <https://github.com/ethereum/web3.py/issues/2362>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix types for ``gas``, and ``gasLimit``: ``Wei -> int``. Also fix types for
+  ``effectiveGasPrice``: (``int -> Wei``) (`#2330
+  <https://github.com/ethereum/web3.py/issues/2330>`__)
+
+
+Features
+~~~~~~~~
+
+- Added session caching to the AsyncHTTPProvider (`#2016
+  <https://github.com/ethereum/web3.py/issues/2016>`__)
+- Add support for Python 3.10 (`#2175
+  <https://github.com/ethereum/web3.py/issues/2175>`__)
+- Added 'Breaking Changes' and 'Deprecations' categories to our release notes
+  (`#2340 <https://github.com/ethereum/web3.py/issues/2340>`__)
+- Add async `eth.get_storage_at` method (`#2350
+  <https://github.com/ethereum/web3.py/issues/2350>`__)
+- Upgrade ``jsonschema`` version to ``>=4.0.0<5`` (`#2361
+  <https://github.com/ethereum/web3.py/issues/2361>`__)
+
+
+Misc
+~~~~
+
+- `#2353 <https://github.com/ethereum/web3.py/issues/2353>`__, `#2365
+  <https://github.com/ethereum/web3.py/issues/2365>`__
+
+
 v5.28.0 (2022-02-09)
 --------------------
 
