@@ -1,0 +1,6 @@
+Update dependency requirements:
+- eth-utils
+- eth-abi
+- eth-tester
+- eth-account
+- eth-typing
