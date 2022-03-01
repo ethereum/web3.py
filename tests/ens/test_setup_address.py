@@ -112,7 +112,7 @@ def test_set_address_equivalence(ens, name, equivalent, TEST_ADDRESS):
     ],
 )
 def test_set_address_noop(ens, set_address):
-    eth = ens.web3.eth
+    eth = ens.w3.eth
     owner = ens.owner('tester.eth')
     ens.setup_address('noop.tester.eth', set_address)
     starting_transactions = eth.get_transaction_count(owner)
@@ -152,7 +152,7 @@ def test_first_owner_upchain_identify(ens):
 def test_set_resolver_leave_default(ens, TEST_ADDRESS):
     owner = ens.owner('tester.eth')
     ens.setup_address('leave-default-resolver.tester.eth', TEST_ADDRESS)
-    eth = ens.web3.eth
+    eth = ens.w3.eth
     num_transactions = eth.get_transaction_count(owner)
 
     ens.setup_address(

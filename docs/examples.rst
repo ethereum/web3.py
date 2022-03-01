@@ -865,7 +865,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         because it cannot correctly throttle and decrease the `eth_getLogs` block number range.
         """
 
-        def __init__(self, web3: Web3, contract: Contract, state: EventScannerState, events: List, filters: {},
+        def __init__(self, w3: Web3, contract: Contract, state: EventScannerState, events: List, filters: {},
                      max_chunk_scan_size: int = 10000, max_request_retries: int = 30, request_retry_seconds: float = 3.0):
             """
             :param contract: Contract
@@ -878,7 +878,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
             self.logger = logger
             self.contract = contract
-            self.web3 = web3
+            self.w3 = w3
             self.state = state
             self.events = events
             self.filters = filters
@@ -903,7 +903,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         def get_block_timestamp(self, block_num) -> datetime.datetime:
             """Get Ethereum block timestamp"""
             try:
-                block_info = self.web3.eth.getBlock(block_num)
+                block_info = self.w3.eth.getBlock(block_num)
             except BlockNotFound:
                 # Block was not mined yet,
                 # minor chain reorganisation?
@@ -931,7 +931,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
             # Do not scan all the way to the final block, as this
             # block might not be mined yet
-            return self.web3.eth.blockNumber - 1
+            return self.w3.eth.blockNumber - 1
 
         def get_last_scanned_block(self) -> int:
             return self.state.get_last_scanned_block()
@@ -964,7 +964,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
                 # Callable that takes care of the underlying web3 call
                 def _fetch_events(_start_block, _end_block):
-                    return _fetch_events_for_all_contracts(self.web3,
+                    return _fetch_events_for_all_contracts(self.w3,
                                                            event_type,
                                                            self.filters,
                                                            from_block=_start_block,
@@ -1133,7 +1133,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
 
     def _fetch_events_for_all_contracts(
-            web3,
+            w3,
             event,
             argument_filters: dict,
             from_block: int,
@@ -1158,7 +1158,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         # it might have Solidity ABI encoding v1 or v2.
         # We just assume the default that you set on Web3 object here.
         # More information here https://eth-abi.readthedocs.io/en/latest/index.html
-        codec: ABICodec = web3.codec
+        codec: ABICodec = w3.codec
 
         # Here we need to poke a bit into Web3 internals, as this
         # functionality is not exposed by default.
@@ -1179,7 +1179,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
         # Call JSON-RPC API on your Ethereum node.
         # get_logs() returns raw AttributedDict entries
-        logs = web3.eth.get_logs(event_filter_params)
+        logs = w3.eth.get_logs(event_filter_params)
 
         # Convert raw binary data to Python proxy objects as described by ABI
         all_events = []
@@ -1358,19 +1358,19 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             # throttle down.
             provider.middlewares.clear()
 
-            web3 = Web3(provider)
+            w3 = Web3(provider)
 
             # Prepare stub ERC-20 contract object
             abi = json.loads(ABI)
-            ERC20 = web3.eth.contract(abi=abi)
+            ERC20 = w3.eth.contract(abi=abi)
 
             # Restore/create our persistent state
             state = JSONifiedState()
             state.restore()
 
-            # chain_id: int, web3: Web3, abi: dict, state: EventScannerState, events: List, filters: {}, max_chunk_scan_size: int=10000
+            # chain_id: int, w3: Web3, abi: dict, state: EventScannerState, events: List, filters: {}, max_chunk_scan_size: int=10000
             scanner = EventScanner(
-                web3=web3,
+                w3=w3,
                 contract=ERC20,
                 state=state,
                 events=[ERC20.events.Transfer],

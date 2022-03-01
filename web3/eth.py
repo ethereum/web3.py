@@ -210,7 +210,7 @@ class BaseEth(Module):
 
     def _generate_gas_price(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
         if self.gasPriceStrategy:
-            return self.gasPriceStrategy(self.web3, transaction_params)
+            return self.gasPriceStrategy(self.w3, transaction_params)
         return None
 
     def set_gas_price_strategy(self, gas_price_strategy: GasPriceStrategy) -> None:
@@ -804,8 +804,8 @@ class Eth(BaseEth):
         return self.replace_transaction(transaction_hash, new_transaction)
 
     def replace_transaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
-        current_transaction = get_required_transaction(self.web3, transaction_hash)
-        return replace_transaction(self.web3, current_transaction, new_transaction)
+        current_transaction = get_required_transaction(self.w3, transaction_hash)
+        return replace_transaction(self.w3, current_transaction, new_transaction)
 
     # todo: Update Any to stricter kwarg checking with TxParams
     # https://github.com/python/mypy/issues/4441
@@ -819,10 +819,10 @@ class Eth(BaseEth):
         self, transaction_hash: _Hash32, **transaction_params: Any
     ) -> HexBytes:
         assert_valid_transaction_params(cast(TxParams, transaction_params))
-        current_transaction = get_required_transaction(self.web3, transaction_hash)
+        current_transaction = get_required_transaction(self.w3, transaction_hash)
         current_transaction_params = extract_valid_transaction_params(current_transaction)
         new_transaction = merge(current_transaction_params, transaction_params)
-        return replace_transaction(self.web3, current_transaction, new_transaction)
+        return replace_transaction(self.w3, current_transaction, new_transaction)
 
     def send_transaction(self, transaction: TxParams) -> HexBytes:
         return self._send_transaction(transaction)
@@ -952,7 +952,7 @@ class Eth(BaseEth):
     ) -> Union[Type[Contract], Contract]:
         ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
 
-        ContractFactory = ContractFactoryClass.factory(self.web3, **kwargs)
+        ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
 
         if address:
             return ContractFactory(address)

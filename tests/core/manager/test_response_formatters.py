@@ -107,17 +107,17 @@ def raise_contract_logic_error(response):
         ),
     ],
 )
-def test_formatted_response_raises_errors(web3,
+def test_formatted_response_raises_errors(w3,
                                           response,
                                           params,
                                           error_formatters,
                                           null_result_formatters,
                                           error):
     with pytest.raises(error):
-        web3.manager.formatted_response(response,
-                                        params,
-                                        error_formatters,
-                                        null_result_formatters)
+        w3.manager.formatted_response(response,
+                                      params,
+                                      error_formatters,
+                                      null_result_formatters)
 
 
 @pytest.mark.parametrize(
@@ -166,7 +166,7 @@ def test_formatted_response_raises_errors(web3,
     ],
 )
 def test_formatted_response_raises_correct_error_message(response,
-                                                         web3,
+                                                         w3,
                                                          params,
                                                          error_formatters,
                                                          null_result_formatters,
@@ -174,7 +174,7 @@ def test_formatted_response_raises_correct_error_message(response,
                                                          error_message):
 
     with pytest.raises(error, match=error_message):
-        web3.manager.formatted_response(response, params, error_formatters, null_result_formatters)
+        w3.manager.formatted_response(response, params, error_formatters, null_result_formatters)
 
 
 @pytest.mark.parametrize(
@@ -199,14 +199,14 @@ def test_formatted_response_raises_correct_error_message(response,
     ],
 )
 def test_formatted_response(response,
-                            web3,
+                            w3,
                             params,
                             error_formatters,
                             null_result_formatters,
                             expected):
 
-    formatted_resp = web3.manager.formatted_response(response,
-                                                     params,
-                                                     error_formatters,
-                                                     null_result_formatters)
+    formatted_resp = w3.manager.formatted_response(response,
+                                                   params,
+                                                   error_formatters,
+                                                   null_result_formatters)
     assert formatted_resp == expected

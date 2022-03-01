@@ -80,7 +80,7 @@ if TYPE_CHECKING:
 
 def combine_middlewares(
     middlewares: Sequence[Middleware],
-    web3: 'Web3',
+    w3: 'Web3',
     provider_request_fn: Callable[[RPCEndpoint, Any], Any]
 ) -> Callable[..., RPCResponse]:
     """
@@ -88,7 +88,7 @@ def combine_middlewares(
     function wrapped with all of the middlewares.
     """
     return functools.reduce(
-        lambda request_fn, middleware: middleware(request_fn, web3),
+        lambda request_fn, middleware: middleware(request_fn, w3),
         reversed(middlewares),
         provider_request_fn,
     )
@@ -96,7 +96,7 @@ def combine_middlewares(
 
 async def async_combine_middlewares(
     middlewares: Sequence[Middleware],
-    web3: 'Web3',
+    w3: 'Web3',
     provider_request_fn: Callable[[RPCEndpoint, Any], Any]
 ) -> Callable[..., RPCResponse]:
     """
@@ -105,7 +105,7 @@ async def async_combine_middlewares(
     """
     accumulator_fn = provider_request_fn
     for middleware in reversed(middlewares):
-        accumulator_fn = await construct_middleware(middleware, accumulator_fn, web3)
+        accumulator_fn = await construct_middleware(middleware, accumulator_fn, w3)
     return accumulator_fn
 
 

@@ -56,14 +56,14 @@ ABI_D = json.loads('[{ "constant": false, "inputs": [ { "name": "b", "type": "by
         ),
     ),
 )
-def test_contract_abi_encoding(web3, abi, arguments, data, expected):
-    contract = web3.eth.contract(abi=abi)
+def test_contract_abi_encoding(w3, abi, arguments, data, expected):
+    contract = w3.eth.contract(abi=abi)
     actual = contract.encodeABI('a', arguments, data=data)
     assert actual == expected
 
 
-def test_contract_abi_encoding_warning(web3):
-    contract = web3.eth.contract(abi=ABI_C)
+def test_contract_abi_encoding_warning(w3):
+    contract = w3.eth.contract(abi=ABI_C)
 
     with pytest.warns(
         DeprecationWarning,
@@ -74,8 +74,8 @@ def test_contract_abi_encoding_warning(web3):
         assert actual == '0x9f3fab586100000000000000000000000000000000000000000000000000000000000000'  # noqa: E501
 
 
-def test_contract_abi_encoding_kwargs(web3):
-    contract = web3.eth.contract(abi=ABI_D)
+def test_contract_abi_encoding_kwargs(w3):
+    contract = w3.eth.contract(abi=ABI_D)
     kwargs = {
         'b': [
             '0x5595c210956e7721f9b692e702708556aa9aabb14ea163e96afa56ffbe9fa809',

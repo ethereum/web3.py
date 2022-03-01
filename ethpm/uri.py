@@ -120,15 +120,15 @@ def create_latest_block_uri(w3: "Web3", from_blocks_ago: int = 3) -> URI:
 
 
 @curry
-def check_if_chain_matches_chain_uri(web3: "Web3", blockchain_uri: URI) -> bool:
+def check_if_chain_matches_chain_uri(w3: "Web3", blockchain_uri: URI) -> bool:
     chain_id, resource_type, resource_hash = parse_BIP122_uri(blockchain_uri)
-    genesis_block = web3.eth.get_block("earliest")
+    genesis_block = w3.eth.get_block("earliest")
 
     if encode_hex(genesis_block["hash"]) != chain_id:
         return False
 
     if resource_type == BLOCK:
-        resource = web3.eth.get_block(resource_hash)
+        resource = w3.eth.get_block(resource_hash)
     else:
         raise ValueError(f"Unsupported resource type: {resource_type}")
 

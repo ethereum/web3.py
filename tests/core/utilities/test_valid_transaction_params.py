@@ -136,16 +136,16 @@ def test_extract_valid_transaction_params_includes_invalid():
     }
 
 
-def test_fill_transaction_defaults_for_all_params(web3):
-    default_transaction = fill_transaction_defaults(web3, {})
+def test_fill_transaction_defaults_for_all_params(w3):
+    default_transaction = fill_transaction_defaults(w3, {})
 
     assert default_transaction == {
-        'chainId': web3.eth.chain_id,
+        'chainId': w3.eth.chain_id,
         'data': b'',
-        'gas': web3.eth.estimate_gas({}),
+        'gas': w3.eth.estimate_gas({}),
         'maxFeePerGas': (
-            web3.eth.max_priority_fee + (2 * web3.eth.get_block('latest')['baseFeePerGas'])
+            w3.eth.max_priority_fee + (2 * w3.eth.get_block('latest')['baseFeePerGas'])
         ),
-        'maxPriorityFeePerGas': web3.eth.max_priority_fee,
+        'maxPriorityFeePerGas': w3.eth.max_priority_fee,
         'value': 0,
     }

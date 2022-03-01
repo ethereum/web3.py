@@ -15,8 +15,8 @@ def abi():
     'attribute',
     ('functions', 'events', 'caller')
 )
-def test_getattr(web3, abi, attribute):
-    contract = web3.eth.contract(abi=abi)
+def test_getattr(w3, abi, attribute):
+    contract = w3.eth.contract(abi=abi)
     contract_attribute = getattr(contract, attribute)
     assert getattr(contract_attribute, "Increased")
 
@@ -28,8 +28,8 @@ def test_getattr(web3, abi, attribute):
         ('caller', ABIFunctionNotFound),
     )
 )
-def test_getattr_raises_error(web3, abi, attribute, error):
-    contract = web3.eth.contract(abi=abi)
+def test_getattr_raises_error(w3, abi, attribute, error):
+    contract = w3.eth.contract(abi=abi)
     contract_attribute = getattr(contract, attribute)
 
     with pytest.raises(error):
@@ -40,8 +40,8 @@ def test_getattr_raises_error(web3, abi, attribute, error):
     'attribute',
     ('functions', 'events', 'caller')
 )
-def test_hasattr(web3, abi, attribute):
-    contract = web3.eth.contract(abi=abi)
+def test_hasattr(w3, abi, attribute):
+    contract = w3.eth.contract(abi=abi)
     contract_attribute = getattr(contract, attribute)
 
     assert hasattr(contract_attribute, "Increased") is True

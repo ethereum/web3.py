@@ -130,8 +130,8 @@ def geth_process(geth_binary, datadir, genesis_file, geth_command_arguments):
 
 
 @pytest.fixture(scope='module')
-def coinbase(web3):
-    return web3.eth.coinbase
+def coinbase(w3):
+    return w3.eth.coinbase
 
 
 @pytest.fixture(scope="module")
@@ -140,7 +140,7 @@ def math_contract_deploy_txn_hash(geth_fixture_data):
 
 
 @pytest.fixture(scope="module")
-def math_contract(web3, math_contract_factory, geth_fixture_data):
+def math_contract(math_contract_factory, geth_fixture_data):
     return math_contract_factory(address=geth_fixture_data['math_address'])
 
 
@@ -150,7 +150,7 @@ def math_contract_address(math_contract, address_conversion_func):
 
 
 @pytest.fixture(scope="module")
-def emitter_contract(web3, emitter_contract_factory, geth_fixture_data):
+def emitter_contract(emitter_contract_factory, geth_fixture_data):
     return emitter_contract_factory(address=geth_fixture_data['emitter_address'])
 
 
@@ -160,10 +160,10 @@ def emitter_contract_address(emitter_contract, address_conversion_func):
 
 
 @pytest.fixture
-def unlocked_account(web3, unlockable_account, unlockable_account_pw):
-    web3.geth.personal.unlock_account(unlockable_account, unlockable_account_pw)
+def unlocked_account(w3, unlockable_account, unlockable_account_pw):
+    w3.geth.personal.unlock_account(unlockable_account, unlockable_account_pw)
     yield unlockable_account
-    web3.geth.personal.lock_account(unlockable_account)
+    w3.geth.personal.lock_account(unlockable_account)
 
 
 @pytest.fixture(scope='module')
@@ -172,7 +172,7 @@ def unlockable_account_pw(geth_fixture_data):
 
 
 @pytest.fixture(scope="module")
-def unlockable_account(web3, coinbase):
+def unlockable_account(coinbase):
     yield coinbase
 
 
@@ -182,10 +182,10 @@ def unlockable_account_dual_type(unlockable_account, address_conversion_func):
 
 
 @pytest.fixture
-def unlocked_account_dual_type(web3, unlockable_account_dual_type, unlockable_account_pw):
-    web3.geth.personal.unlock_account(unlockable_account_dual_type, unlockable_account_pw)
+def unlocked_account_dual_type(w3, unlockable_account_dual_type, unlockable_account_pw):
+    w3.geth.personal.unlock_account(unlockable_account_dual_type, unlockable_account_pw)
     yield unlockable_account_dual_type
-    web3.geth.personal.lock_account(unlockable_account_dual_type)
+    w3.geth.personal.lock_account(unlockable_account_dual_type)
 
 
 @pytest.fixture(scope="module")
@@ -196,15 +196,15 @@ def funded_account_for_raw_txn(geth_fixture_data):
 
 
 @pytest.fixture(scope="module")
-def empty_block(web3, geth_fixture_data):
-    block = web3.eth.get_block(geth_fixture_data['empty_block_hash'])
+def empty_block(w3, geth_fixture_data):
+    block = w3.eth.get_block(geth_fixture_data['empty_block_hash'])
     assert is_dict(block)
     return block
 
 
 @pytest.fixture(scope="module")
-def block_with_txn(web3, geth_fixture_data):
-    block = web3.eth.get_block(geth_fixture_data['block_with_txn_hash'])
+def block_with_txn(w3, geth_fixture_data):
+    block = w3.eth.get_block(geth_fixture_data['block_with_txn_hash'])
     assert is_dict(block)
     return block
 
@@ -215,8 +215,8 @@ def mined_txn_hash(geth_fixture_data):
 
 
 @pytest.fixture(scope="module")
-def block_with_txn_with_log(web3, geth_fixture_data):
-    block = web3.eth.get_block(geth_fixture_data['block_hash_with_log'])
+def block_with_txn_with_log(w3, geth_fixture_data):
+    block = w3.eth.get_block(geth_fixture_data['block_hash_with_log'])
     assert is_dict(block)
     return block
 
@@ -237,5 +237,5 @@ def block_hash_revert_with_msg(geth_fixture_data):
 
 
 @pytest.fixture(scope="module")
-def revert_contract(web3, revert_contract_factory, geth_fixture_data):
+def revert_contract(revert_contract_factory, geth_fixture_data):
     return revert_contract_factory(address=geth_fixture_data['revert_address'])

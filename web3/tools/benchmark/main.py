@@ -63,21 +63,21 @@ parser.add_argument(
 
 def build_web3_http(endpoint_uri: str) -> Web3:
     wait_for_http(endpoint_uri)
-    _web3 = Web3(
+    _w3 = Web3(
         HTTPProvider(endpoint_uri),
         middlewares=[gas_price_strategy_middleware, buffered_gas_estimate_middleware]
     )
-    return _web3
+    return _w3
 
 
 async def build_async_w3_http(endpoint_uri: str) -> Web3:
     await wait_for_aiohttp(endpoint_uri)
-    _web3 = Web3(
+    _w3 = Web3(
         AsyncHTTPProvider(endpoint_uri),  # type: ignore
         middlewares=[async_gas_price_strategy_middleware, async_buffered_gas_estimate_middleware],
         modules={"eth": AsyncEth},
     )
-    return _web3
+    return _w3
 
 
 def sync_benchmark(func: Callable[..., Any], n: int) -> Union[float, str]:

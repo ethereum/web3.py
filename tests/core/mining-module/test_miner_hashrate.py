@@ -4,8 +4,8 @@ from flaky import (
 
 
 @flaky(max_runs=3)
-def test_miner_hashrate(web3_empty, wait_for_miner_start):
-    web3 = web3_empty
+def test_miner_hashrate(w3_empty, wait_for_miner_start):
+    w3 = w3_empty
 
-    hashrate = web3.eth.hashrate
+    hashrate = w3.eth.hashrate
     assert hashrate > 0

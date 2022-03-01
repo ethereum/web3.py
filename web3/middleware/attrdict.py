@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 
 def attrdict_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     """
     Converts any result which is a dictionary into an a

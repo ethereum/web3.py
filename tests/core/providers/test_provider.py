@@ -19,8 +19,8 @@ def test_isConnected_connected():
     """
     Web3.isConnected() returns True when connected to a node.
     """
-    web3 = Web3(ConnectedProvider())
-    assert web3.isConnected() is True
+    w3 = Web3(ConnectedProvider())
+    assert w3.isConnected() is True
 
 
 def test_isConnected_disconnected():
@@ -28,8 +28,8 @@ def test_isConnected_disconnected():
     Web3.isConnected() returns False when configured with a provider
     that's not connected to a node.
     """
-    web3 = Web3(DisconnectedProvider())
-    assert web3.isConnected() is False
+    w3 = Web3(DisconnectedProvider())
+    assert w3.isConnected() is False
 
 
 def test_autoprovider_detection():

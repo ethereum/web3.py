@@ -24,7 +24,7 @@ from web3.providers.eth_tester import (
     scope="module",
     params=[True, False],
     ids=["local_filter_middleware", "node_based_filter"])
-def web3(request):
+def w3(request):
     use_filter_middleware = request.param
     provider = EthereumTesterProvider()
     w3 = Web3(provider)
@@ -60,18 +60,18 @@ def EMITTER(EMITTER_CODE,
 
 
 @pytest.fixture(scope="module")
-def Emitter(web3, EMITTER):
-    return web3.eth.contract(**EMITTER)
+def Emitter(w3, EMITTER):
+    return w3.eth.contract(**EMITTER)
 
 
 @pytest.fixture(scope="module")
-def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
-    wait_for_block(web3)
+def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
+    wait_for_block(w3)
     deploy_txn_hash = Emitter.constructor().transact({'gas': 10000000})
-    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
+    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
-    bytecode = web3.eth.get_code(contract_address)
+    bytecode = w3.eth.get_code(contract_address)
     assert bytecode == Emitter.bytecode_runtime
     _emitter = Emitter(address=contract_address)
     assert _emitter.address == contract_address
@@ -131,7 +131,7 @@ def array_values(draw):
 @given(vals=dynamic_values())
 @settings(max_examples=5, deadline=None)
 def test_data_filters_with_dynamic_arguments(
-        web3,
+        w3,
         wait_for_transaction,
         create_filter,
         emitter,
@@ -140,7 +140,7 @@ def test_data_filters_with_dynamic_arguments(
     if api_style == 'build_filter':
         filter_builder = emitter.events.LogDynamicArgs.build_filter()
         filter_builder.args['arg1'].match_single(vals['matching'])
-        event_filter = filter_builder.deploy(web3)
+        event_filter = filter_builder.deploy(w3)
     else:
         event_filter = create_filter(emitter, [
             'LogDynamicArgs', {
@@ -157,7 +157,7 @@ def test_data_filters_with_dynamic_arguments(
     ]
 
     for txn_hash in txn_hashes:
-        wait_for_transaction(web3, txn_hash)
+        wait_for_transaction(w3, txn_hash)
 
     log_entries = event_filter.get_new_entries()
     assert len(log_entries) == 1
@@ -168,7 +168,7 @@ def test_data_filters_with_dynamic_arguments(
 @given(vals=fixed_values())
 @settings(max_examples=5, deadline=None)
 def test_data_filters_with_fixed_arguments(
-        web3,
+        w3,
         emitter,
         wait_for_transaction,
         create_filter,
@@ -181,7 +181,7 @@ def test_data_filters_with_fixed_arguments(
         filter_builder.args['arg1'].match_single(vals['matching'][1])
         filter_builder.args['arg2'].match_single(vals['matching'][2])
         filter_builder.args['arg3'].match_single(vals['matching'][3])
-        event_filter = filter_builder.deploy(web3)
+        event_filter = filter_builder.deploy(w3)
     else:
         event_filter = create_filter(emitter, [
             'LogQuadrupleArg', {
@@ -210,7 +210,7 @@ def test_data_filters_with_fixed_arguments(
         }))
 
     for txn_hash in txn_hashes:
-        wait_for_transaction(web3, txn_hash)
+        wait_for_transaction(w3, txn_hash)
 
     log_entries = event_filter.get_new_entries()
     assert len(log_entries) == 1
@@ -222,7 +222,7 @@ def test_data_filters_with_fixed_arguments(
 @given(vals=array_values())
 @settings(max_examples=5, deadline=None)
 def test_data_filters_with_list_arguments(
-        web3,
+        w3,
         emitter,
         wait_for_transaction,
         call_as_instance,
@@ -235,7 +235,7 @@ def test_data_filters_with_list_arguments(
     if api_style == 'build_filter':
         filter_builder = emitter.events.LogListArgs.build_filter()
         filter_builder.args['arg1'].match_single(matching)
-        event_filter = filter_builder.deploy(web3)
+        event_filter = filter_builder.deploy(w3)
 
         txn_hashes = []
         txn_hashes.append(emitter.functions.logListArgs(
@@ -252,7 +252,7 @@ def test_data_filters_with_list_arguments(
             arg1=non_matching).transact({'maxFeePerGas': 10 ** 9, 'maxPriorityFeePerGas': 10 ** 9}))
 
         for txn_hash in txn_hashes:
-            wait_for_transaction(web3, txn_hash)
+            wait_for_transaction(w3, txn_hash)
 
         log_entries = event_filter.get_new_entries()
         assert len(log_entries) == 2

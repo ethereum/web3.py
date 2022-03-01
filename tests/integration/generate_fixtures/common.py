@@ -201,15 +201,15 @@ def get_process(run_command):
     return proc
 
 
-def mine_block(web3):
-    origin_block_number = web3.eth.block_number
+def mine_block(w3):
+    origin_block_number = w3.eth.block_number
 
     start_time = time.time()
-    web3.geth.miner.start(1)
+    w3.geth.miner.start(1)
     while time.time() < start_time + 120:
-        block_number = web3.eth.block_number
+        block_number = w3.eth.block_number
         if block_number > origin_block_number:
-            web3.geth.miner.stop()
+            w3.geth.miner.stop()
             return block_number
         else:
             time.sleep(0.1)
@@ -217,16 +217,16 @@ def mine_block(web3):
         raise ValueError("No block mined during wait period")
 
 
-def mine_transaction_hash(web3, txn_hash):
+def mine_transaction_hash(w3, txn_hash):
     start_time = time.time()
-    web3.geth.miner.start(1)
+    w3.geth.miner.start(1)
     while time.time() < start_time + 120:
         try:
-            receipt = web3.eth.get_transaction_receipt(txn_hash)
+            receipt = w3.eth.get_transaction_receipt(txn_hash)
         except TransactionNotFound:
             continue
         if receipt is not None:
-            web3.geth.miner.stop()
+            w3.geth.miner.stop()
             return receipt
         else:
             time.sleep(0.1)
@@ -234,11 +234,11 @@ def mine_transaction_hash(web3, txn_hash):
         raise ValueError("Math contract deploy transaction not mined during wait period")
 
 
-def deploy_contract(web3, name, factory):
-    web3.geth.personal.unlock_account(web3.eth.coinbase, KEYFILE_PW)
-    deploy_txn_hash = factory.constructor().transact({'from': web3.eth.coinbase})
+def deploy_contract(w3, name, factory):
+    w3.geth.personal.unlock_account(w3.eth.coinbase, KEYFILE_PW)
+    deploy_txn_hash = factory.constructor().transact({'from': w3.eth.coinbase})
     print('{0}_CONTRACT_DEPLOY_HASH: '.format(name.upper()), deploy_txn_hash)
-    deploy_receipt = mine_transaction_hash(web3, deploy_txn_hash)
+    deploy_receipt = mine_transaction_hash(w3, deploy_txn_hash)
     print('{0}_CONTRACT_DEPLOY_TRANSACTION_MINED'.format(name.upper()))
     contract_address = deploy_receipt['contractAddress']
     assert is_checksum_address(contract_address)

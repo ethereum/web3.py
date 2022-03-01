@@ -327,7 +327,7 @@ class PM(Module):
         * Parameters:
             * ``manifest``: A dict representing a valid manifest
         """
-        return Package(manifest, self.web3)
+        return Package(manifest, self.w3)
 
     def get_package_from_uri(self, manifest_uri: URI) -> Package:
         """
@@ -339,7 +339,7 @@ class PM(Module):
         * Parameters:
             * ``uri``: Must be a valid content-addressed URI
         """
-        return Package.from_uri(manifest_uri, self.web3)
+        return Package.from_uri(manifest_uri, self.w3)
 
     def get_local_package(self, package_name: str, ethpm_dir: Path = None) -> Package:
         """
@@ -381,17 +381,17 @@ class PM(Module):
         """
         if is_canonical_address(address):
             addr_string = to_text(address)
-            self.registry = SimpleRegistry(to_checksum_address(addr_string), self.web3)
+            self.registry = SimpleRegistry(to_checksum_address(addr_string), self.w3)
         elif is_checksum_address(address):
-            self.registry = SimpleRegistry(cast(ChecksumAddress, address), self.web3)
+            self.registry = SimpleRegistry(cast(ChecksumAddress, address), self.w3)
         elif is_ens_name(address):
             self._validate_set_ens()
-            addr_lookup = self.web3.ens.address(str(address))
+            addr_lookup = self.w3.ens.address(str(address))
             if not addr_lookup:
                 raise NameNotFound(
                     f"No address found after ENS lookup for name: {address!r}."
                 )
-            self.registry = SimpleRegistry(addr_lookup, self.web3)
+            self.registry = SimpleRegistry(addr_lookup, self.w3)
         else:
             raise PMError(
                 "Expected a canonical/checksummed address or ENS name for the address, "
@@ -409,7 +409,7 @@ class PM(Module):
 
            w3.ens.setup_address(ens_name, w3.pm.registry.address)
         """
-        self.registry = SimpleRegistry.deploy_new_instance(self.web3)
+        self.registry = SimpleRegistry.deploy_new_instance(self.w3)
         return to_checksum_address(self.registry.address)
 
     def release_package(
@@ -554,11 +554,11 @@ class PM(Module):
             )
 
     def _validate_set_ens(self) -> None:
-        if not self.web3:
+        if not self.w3:
             raise InvalidAddress(
                 "Could not look up ENS address because no web3 " "connection available"
             )
-        elif not self.web3.ens:
+        elif not self.w3.ens:
             raise InvalidAddress(
                 "Could not look up ENS address because web3.ens is " "set to None"
             )

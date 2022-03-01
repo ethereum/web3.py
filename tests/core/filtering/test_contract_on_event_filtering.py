@@ -6,7 +6,7 @@ from eth_utils import (
 
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
-def test_create_filter_address_parameter(web3, emitter, Emitter, call_as_instance):
+def test_create_filter_address_parameter(emitter, Emitter, call_as_instance):
     if call_as_instance:
         event_filter = emitter.events.LogNoArguments.createFilter(fromBlock="latest")
     else:
@@ -23,7 +23,7 @@ def test_create_filter_address_parameter(web3, emitter, Emitter, call_as_instanc
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_on_filter_using_get_entries_interface(
-        web3,
+        w3,
         emitter,
         Emitter,
         wait_for_transaction,
@@ -38,12 +38,12 @@ def test_on_filter_using_get_entries_interface(
         contract = Emitter
 
     if api_style == 'build_filter':
-        event_filter = contract.events.LogNoArguments.build_filter().deploy(web3)
+        event_filter = contract.events.LogNoArguments.build_filter().deploy(w3)
     else:
         event_filter = create_filter(emitter, ['LogNoArguments', {}])
 
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
-    wait_for_transaction(web3, txn_hash)
+    wait_for_transaction(w3, txn_hash)
 
     log_entries = event_filter.get_new_entries()
     assert len(log_entries) == 1
@@ -57,7 +57,7 @@ def test_on_filter_using_get_entries_interface(
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_on_sync_filter_with_event_name_and_single_argument(
-        web3,
+        w3,
         emitter,
         Emitter,
         wait_for_transaction,
@@ -74,7 +74,7 @@ def test_on_sync_filter_with_event_name_and_single_argument(
     if api_style == 'build_filter':
         builder = contract.events.LogTripleWithIndex.build_filter()
         builder.args['arg1'].match_single(2)
-        event_filter = builder.deploy(web3)
+        event_filter = builder.deploy(w3)
     else:
         event_filter = create_filter(contract, ['LogTripleWithIndex', {'filter': {
             'arg1': 2,
@@ -92,7 +92,7 @@ def test_on_sync_filter_with_event_name_and_single_argument(
         emitter.functions.logTriple(event_id, 12345, 2, 54321).transact()
     )
     for txn_hash in txn_hashes:
-        wait_for_transaction(web3, txn_hash)
+        wait_for_transaction(w3, txn_hash)
 
     seen_logs = event_filter.get_new_entries()
     assert len(seen_logs) == 2
@@ -102,7 +102,7 @@ def test_on_sync_filter_with_event_name_and_single_argument(
 @pytest.mark.parametrize('call_as_instance', (True, False))
 @pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
 def test_on_sync_filter_with_event_name_and_non_indexed_argument(
-        web3,
+        w3,
         emitter,
         Emitter,
         wait_for_transaction,
@@ -120,7 +120,7 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
         builder = contract.events.LogTripleWithIndex.build_filter()
         builder.args['arg0'].match_single(1)
         builder.args['arg1'].match_single(2)
-        event_filter = builder.deploy(web3)
+        event_filter = builder.deploy(w3)
     else:
         event_filter = create_filter(contract, ['LogTripleWithIndex', {'filter': {
             'arg0': 1,
@@ -139,7 +139,7 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
         emitter.functions.logTriple(event_id, 12345, 2, 54321).transact()
     )
     for txn_hash in txn_hashes:
-        wait_for_transaction(web3, txn_hash)
+        wait_for_transaction(w3, txn_hash)
 
     seen_logs = event_filter.get_new_entries()
     assert len(seen_logs) == 1
@@ -155,10 +155,10 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
     assert old_logs[0]['transactionHash'] == txn_hashes[1]
 
 
-def test_filter_with_contract_address(web3, emitter, emitter_event_ids, wait_for_transaction):
-    event_filter = web3.eth.filter(filter_params={'address': emitter.address})
+def test_filter_with_contract_address(w3, emitter, emitter_event_ids, wait_for_transaction):
+    event_filter = w3.eth.filter(filter_params={'address': emitter.address})
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
-    wait_for_transaction(web3, txn_hash)
+    wait_for_transaction(w3, txn_hash)
     seen_logs = event_filter.get_new_entries()
     assert len(seen_logs) == 1
     assert seen_logs[0]['transactionHash'] == txn_hash
@@ -166,7 +166,7 @@ def test_filter_with_contract_address(web3, emitter, emitter_event_ids, wait_for
 
 @pytest.mark.parametrize('call_as_instance', (True, False))
 def test_on_sync_filter_with_topic_filter_options_on_old_apis(
-        web3,
+        w3,
         emitter,
         Emitter,
         wait_for_transaction,
@@ -199,7 +199,7 @@ def test_on_sync_filter_with_topic_filter_options_on_old_apis(
         emitter.functions.logTriple(event_id, 1, 2, 1).transact()
     )
     for txn_hash in txn_hashes:
-        wait_for_transaction(web3, txn_hash)
+        wait_for_transaction(w3, txn_hash)
 
     seen_logs = event_filter.get_new_entries()
     assert len(seen_logs) == 4

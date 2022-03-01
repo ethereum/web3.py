@@ -52,10 +52,10 @@ def geth_ipc_path(datadir):
 
 
 @pytest.fixture(scope="module")
-def web3(geth_process, geth_ipc_path):
+def w3(geth_process, geth_ipc_path):
     wait_for_socket(geth_ipc_path)
-    _web3 = Web3(Web3.IPCProvider(geth_ipc_path, timeout=30))
-    return _web3
+    _w3 = Web3(Web3.IPCProvider(geth_ipc_path, timeout=30))
+    return _w3
 
 
 class TestGoEthereumTest(GoEthereumTest):
@@ -64,12 +64,12 @@ class TestGoEthereumTest(GoEthereumTest):
 
 class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
     @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
-    def test_admin_peers(web3):
-        super().test_admin_peers(web3)
+    def test_admin_peers(w3):
+        super().test_admin_peers(w3)
 
     @pytest.mark.xfail(reason="websockets aren't enabled with our IPC flags")
-    def test_admin_start_stop_ws(web3):
-        super().test_admin_start_stop_ws(web3)
+    def test_admin_start_stop_ws(w3):
+        super().test_admin_start_stop_ws(w3)
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):

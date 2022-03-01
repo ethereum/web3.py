@@ -24,13 +24,13 @@ async def get_block_gas_limit(
 
 
 async def get_buffered_gas_estimate(
-    web3: "Web3", transaction: TxParams, gas_buffer: int = 100000
+    w3: "Web3", transaction: TxParams, gas_buffer: int = 100000
 ) -> int:
     gas_estimate_transaction = cast(TxParams, dict(**transaction))
 
-    gas_estimate = await web3.eth.estimate_gas(gas_estimate_transaction)  # type: ignore
+    gas_estimate = await w3.eth.estimate_gas(gas_estimate_transaction)  # type: ignore
 
-    gas_limit = await get_block_gas_limit(web3.eth)  # type: ignore
+    gas_limit = await get_block_gas_limit(w3.eth)  # type: ignore
 
     if gas_estimate > gas_limit:
         raise ValueError(
