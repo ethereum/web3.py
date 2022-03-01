@@ -2,6 +2,7 @@ from decimal import (
     Decimal,
     getcontext,
 )
+from dis import Bytecode
 from distutils.version import (
     LooseVersion,
 )
@@ -21,10 +22,13 @@ from eth_utils.toolz import (
 from hexbytes import (
     HexBytes,
 )
+from ens.main import AsyncENS
 
 from web3._utils.ens import (
     contract_ens_addresses,
 )
+from web3.contract import AsyncContract, Contract
+from web3.eth import AsyncEth
 from web3.exceptions import (
     BadFunctionCallOutput,
     BlockNumberOutofRange,
@@ -35,6 +39,9 @@ from web3.exceptions import (
     NoABIFunctionsFound,
     ValidationError,
 )
+from web3.main import Web3
+from web3.middleware.buffered_gas_estimate import async_buffered_gas_estimate_middleware
+from web3.providers.eth_tester.main import AsyncEthereumTesterProvider
 
 
 def deploy(web3, Contract, apply_func=identity, args=None):
@@ -57,7 +64,6 @@ def address_reflector_contract(web3, AddressReflectorContract, address_conversio
 @pytest.fixture()
 def math_contract(web3, MathContract, address_conversion_func):
     return deploy(web3, MathContract, address_conversion_func)
-
 
 @pytest.fixture()
 def string_contract(web3, StringContract, address_conversion_func):
@@ -879,3 +885,40 @@ def test_call_revert_contract(revert_contract):
         # which does not contain the revert reason. Avoid that by giving a gas
         # value.
         revert_contract.functions.revertWithMessage().call({'gas': 100000})
+
+async def async_deploy(web3, Contract, apply_func=identity, args=None):
+    args = args or []
+    deploy_txn = await Contract.constructor(*args).transact()
+    deploy_receipt = await web3.eth.wait_for_transaction_receipt(deploy_txn)
+    assert deploy_receipt is not None
+    address = apply_func(deploy_receipt['contractAddress'])
+    contract = Contract(address=address)
+    assert contract.address == address
+    assert len(await web3.eth.get_code(contract.address)) > 0
+    return contract
+
+@pytest.fixture()
+def AsyncMathContract(async_w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
+    contract = AsyncContract.factory(async_w3, 
+                                abi=MATH_ABI,
+                                bytecode=MATH_CODE,
+                                bytecode_runtime=MATH_RUNTIME)
+    return contract
+
+@pytest.fixture()
+async def async_w3():
+    provider = AsyncEthereumTesterProvider()
+    w3 = Web3(provider, modules={'eth': [AsyncEth]}, 
+                middlewares=provider.middlewares)
+    w3.ens = AsyncENS.fromWeb3(w3)
+    w3.eth.default_account = await w3.eth.coinbase
+    return w3
+
+@pytest.fixture()
+async def async_math_contract(async_w3, AsyncMathContract, address_conversion_func):
+    return await async_deploy(async_w3, AsyncMathContract, address_conversion_func)
+
+@pytest.mark.asyncio
+async def test_async_call_no_args(async_math_contract):
+    result = await async_math_contract.functions.return13().call()
+    assert result == 13
