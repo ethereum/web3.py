@@ -1,7 +1,6 @@
-FROM python:3.6
+FROM python:3.9
 
 # Set up code directory
-RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 # Install Linux dependencies
