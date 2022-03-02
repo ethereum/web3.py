@@ -1010,7 +1010,7 @@ def invoke_contract(api_call_desig='call',
                     tx_params={}):
     allowable_call_desig = ['call', 'transact', 'estimateGas', 'buildTransaction']
     if api_call_desig not in allowable_call_desig:
-        raise ValueError("allowable_invoke_method must be one of: %s" % allowable_call_desig)
+        raise ValueError(f"allowable_invoke_method must be one of: {allowable_call_desig}")
 
     function = contract.functions[contract_function]
     result = getattr(function(*func_args, **func_kwargs), api_call_desig)(tx_params)

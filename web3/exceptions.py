@@ -52,9 +52,11 @@ class StaleBlockchain(Exception):
     def __init__(self, block: BlockData, allowable_delay: int) -> None:
         last_block_date = datetime.datetime.fromtimestamp(block["timestamp"]).strftime('%c')
         message = (
-            "The latest block, #%d, is %d seconds old, but is only allowed to be %d s old. "
-            "The date of the most recent block is %s. Continue syncing and try again..." %
-            (block["number"], time.time() - block["timestamp"], allowable_delay, last_block_date)
+            f"The latest block, #{block['number']}, is "
+            f"{time.time() - block['timestamp']} seconds old, but is only "
+            f"allowed to be {allowable_delay} s old. "
+            f"The date of the most recent block is {last_block_date}. Continue "
+            "syncing and try again..."
         )
         super().__init__(message, block, allowable_delay)
 

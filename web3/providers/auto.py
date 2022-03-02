@@ -55,10 +55,8 @@ def load_provider_from_uri(
         return WebsocketProvider(uri_string)
     else:
         raise NotImplementedError(
-            'Web3 does not know how to connect to scheme %r in %r' % (
-                uri.scheme,
-                uri_string,
-            )
+            f'Web3 does not know how to connect to scheme {uri.scheme!r} '
+            f'in {uri_string!r}'
         )
 
 

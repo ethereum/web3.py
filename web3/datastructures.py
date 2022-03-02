@@ -57,7 +57,7 @@ class ReadableAttributeDict(Mapping[TKey, TValue]):
         return len(self.__dict__)
 
     def __repr__(self) -> str:
-        return self.__class__.__name__ + "(%r)" % self.__dict__
+        return self.__class__.__name__ + f"({self.__dict__!r})"
 
     def _repr_pretty_(self, builder: Any, cycle: bool) -> None:
         """
@@ -158,12 +158,8 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             raise TypeError("The layer for insertion must be an int.")
         elif layer != 0 and layer != len(self._queue):
             raise NotImplementedError(
-                "You can only insert to the beginning or end of a %s, currently. "
-                "You tried to insert to %d, but only 0 and %d are permitted. " % (
-                    type(self),
-                    layer,
-                    len(self._queue),
-                )
+                f"You can only insert to the beginning or end of a {type(self)}, currently. "
+                f"You tried to insert to {layer}, but only 0 and {len(self._queue)} are permitted. "
             )
 
         self.add(element, name=name)

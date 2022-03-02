@@ -425,7 +425,7 @@ class Contract:
         if ' ' in signature:
             raise ValueError(
                 'Function signature should not contain any spaces. '
-                'Found spaces in input: %s' % signature
+                f'Found spaces in input: {signature}'
             )
 
         def callable_check(fn_abi: ABIFunction) -> bool:
@@ -715,9 +715,9 @@ class ConciseMethod:
             modifier, modifier_dict = kwargs.popitem()
             if modifier not in self.ALLOWED_MODIFIERS:
                 raise TypeError(
-                    "The only allowed keyword arguments are: %s" % self.ALLOWED_MODIFIERS)
+                    f"The only allowed keyword arguments are: {self.ALLOWED_MODIFIERS}")
         else:
-            raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
+            raise TypeError(f"Use up to one keyword argument, one of: {self.ALLOWED_MODIFIERS}")
 
         return getattr(self._function(*args), modifier)(modifier_dict)
 
@@ -1099,11 +1099,11 @@ class ContractFunction:
 
     def __repr__(self) -> str:
         if self.abi:
-            _repr = '<Function %s' % abi_to_signature(self.abi)
+            _repr = f'<Function {abi_to_signature(self.abi)}'
             if self.arguments is not None:
-                _repr += ' bound to %r' % (self.arguments,)
+                _repr += f' bound to {self.arguments!r}'
             return _repr + '>'
-        return '<Function %s>' % self.fn_name
+        return f'<Function {self.fn_name}>'
 
 
 class ContractEvent:

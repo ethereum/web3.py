@@ -205,5 +205,5 @@ def assert_one_val(*args: Any, **kwargs: Any) -> None:
     if not has_one_val(*args, **kwargs):
         raise TypeError(
             "Exactly one of the passed values can be specified. "
-            "Instead, values were: %r, %r" % (args, kwargs)
+            f"Instead, values were: {args!r}, {kwargs!r}"
         )

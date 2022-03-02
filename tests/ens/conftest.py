@@ -34,7 +34,7 @@ def bytes32(val):
     if isinstance(val, int):
         result = Web3.toBytes(val)
     else:
-        raise TypeError('val %r could not be converted to bytes')
+        raise TypeError(f'{val!r} could not be converted to bytes')
     if len(result) < 32:
         return result.rjust(32, b'\0')
     else:

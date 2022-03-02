@@ -133,8 +133,8 @@ class WebsocketProvider(JSONBaseProvider):
             )
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        self.logger.debug("Making request WebSocket. URI: %s, "
-                          "Method: %s", self.endpoint_uri, method)
+        self.logger.debug(f"Making request WebSocket. URI: {self.endpoint_uri}, "
+                          f"Method: {method}")
         request_data = self.encode_rpc_request(method, params)
         future = asyncio.run_coroutine_threadsafe(
             self.coro_make_request(request_data),

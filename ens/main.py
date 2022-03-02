@@ -227,10 +227,10 @@ class ENS:
                 address = resolved
             elif resolved and address != resolved and resolved != EMPTY_ADDR_HEX:
                 raise AddressMismatch(
-                    "Could not set address %r to point to name, because the name resolves to %r. "
-                    "To change the name for an existing address, call setup_address() first." % (
-                        address, resolved
-                    )
+                    f"Could not set address {address!r} to point to name, "
+                    f"because the name resolves to {resolved!r}. "
+                    "To change the name for an existing address, call "
+                    "setup_address() first."
                 )
             if is_none_or_zero_address(address):
                 address = self.owner(name)
@@ -335,9 +335,8 @@ class ENS:
                         parent_owned: Optional[str] = None) -> None:
         if not address_in(account, self.w3.eth.accounts):
             raise UnauthorizedError(
-                "in order to modify %r, you must control account %r, which owns %r" % (
-                    name, account, parent_owned or name
-                )
+                f"in order to modify {name!r}, you must control account"
+                f" {account!r}, which owns {parent_owned or name!r}"
             )
 
     def _first_owner(self, name: str) -> Tuple[Optional[ChecksumAddress], Sequence[str], str]:
@@ -374,7 +373,7 @@ class ENS:
                 label_to_hash(label),
                 owner
             ).transact(transact)
-            owned = "%s.%s" % (label, owned)
+            owned = f"{label}.{owned}"
 
     def _set_resolver(
         self,
