@@ -21,34 +21,34 @@ class GoEthereumTest(Web3ModuleTest):
 
 class GoEthereumEthModuleTest(EthModuleTest):
     @pytest.mark.xfail(reason='eth_signTypedData has not been released in geth')
-    def test_eth_sign_typed_data(self, web3, unlocked_account_dual_type):
-        super().test_eth_sign_typed_data(web3, unlocked_account_dual_type)
+    def test_eth_sign_typed_data(self, w3, unlocked_account_dual_type):
+        super().test_eth_sign_typed_data(w3, unlocked_account_dual_type)
 
     @pytest.mark.xfail(reason='eth_signTypedData has not been released in geth')
-    def test_eth_signTypedData_deprecated(self, web3, unlocked_account_dual_type):
-        super().test_eth_signTypedData_deprecated(web3, unlocked_account_dual_type)
+    def test_eth_signTypedData_deprecated(self, w3, unlocked_account_dual_type):
+        super().test_eth_signTypedData_deprecated(w3, unlocked_account_dual_type)
 
     @pytest.mark.xfail(reason='eth_signTypedData has not been released in geth')
-    def test_invalid_eth_sign_typed_data(self, web3, unlocked_account_dual_type):
-        super().test_invalid_eth_sign_typed_data(web3, unlocked_account_dual_type)
+    def test_invalid_eth_sign_typed_data(self, w3, unlocked_account_dual_type):
+        super().test_invalid_eth_sign_typed_data(w3, unlocked_account_dual_type)
 
     @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
-    def test_eth_protocol_version(self, web3):
-        super().test_eth_protocol_version(web3)
+    def test_eth_protocol_version(self, w3):
+        super().test_eth_protocol_version(w3)
 
     @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
-    def test_eth_protocolVersion(self, web3):
-        super().test_eth_protocolVersion(web3)
+    def test_eth_protocolVersion(self, w3):
+        super().test_eth_protocolVersion(w3)
 
 
 class GoEthereumVersionModuleTest(VersionModuleTest):
     @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
-    def test_eth_protocol_version(self, web3):
-        super().test_eth_protocol_version(web3)
+    def test_eth_protocol_version(self, w3):
+        super().test_eth_protocol_version(w3)
 
     @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
-    def test_eth_protocolVersion(self, web3):
-        super().test_eth_protocolVersion(web3)
+    def test_eth_protocolVersion(self, w3):
+        super().test_eth_protocolVersion(w3)
 
 
 class GoEthereumNetModuleTest(NetModuleTest):

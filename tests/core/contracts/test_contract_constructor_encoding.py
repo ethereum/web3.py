@@ -53,15 +53,15 @@ def test_error_if_invalid_arguments_supplied(WithConstructorArgumentsContract, a
         '0x61626364',
     ),
 )
-def test_contract_constructor_encoding_encoding(web3, WithConstructorArgumentsContract, bytes_arg):
+def test_contract_constructor_encoding_encoding(w3, WithConstructorArgumentsContract, bytes_arg):
     deploy_data = WithConstructorArgumentsContract._encode_constructor_data([1234, bytes_arg])
     encoded_args = '0x00000000000000000000000000000000000000000000000000000000000004d26162636400000000000000000000000000000000000000000000000000000000'  # noqa: E501
-    expected_ending = encode_hex(web3.codec.encode_abi(['uint256', 'bytes32'], [1234, b'abcd']))
+    expected_ending = encode_hex(w3.codec.encode_abi(['uint256', 'bytes32'], [1234, b'abcd']))
     assert expected_ending == encoded_args
     assert deploy_data.endswith(remove_0x_prefix(expected_ending))
 
 
-def test_contract_constructor_encoding_encoding_warning(web3, WithConstructorArgumentsContract):
+def test_contract_constructor_encoding_encoding_warning(w3, WithConstructorArgumentsContract):
     with pytest.warns(
         DeprecationWarning,
         match='in v6 it will be invalid to pass a hex string without the \"0x\" prefix'
@@ -70,7 +70,7 @@ def test_contract_constructor_encoding_encoding_warning(web3, WithConstructorArg
         encoded_args = '0x00000000000000000000000000000000000000000000000000000000000004d26162636400000000000000000000000000000000000000000000000000000000'  # noqa: E501
 
         expected_ending = encode_hex(
-            web3.codec.encode_abi(['uint256', 'bytes32'], [1234, b'abcd'])
+            w3.codec.encode_abi(['uint256', 'bytes32'], [1234, b'abcd'])
         )
         assert expected_ending == encoded_args
         assert deploy_data.endswith(remove_0x_prefix(expected_ending))

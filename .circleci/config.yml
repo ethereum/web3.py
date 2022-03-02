@@ -57,44 +57,6 @@ docs_steps: &docs_steps
           - ~/.py-geth
         key: cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
-# parity_steps: &parity_steps
-  # working_directory: ~/repo
-  # steps:
-    # - checkout
-    # - restore_cache:
-        # keys:
-          # - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
-    # - run:
-        # name: install dependencies
-        # command: pip install --user tox
-    # - run:
-        # name: install parity if needed
-        # command: |
-          # pip install --user requests eth_utils tqdm eth-hash[pycryptodome]
-          # echo "Job specifies Parity version $PARITY_VERSION"
-          # python tests/integration/parity/install_parity.py $PARITY_VERSION
-    # - run:
-        # name: update parity deps from testing repo if needed
-        # command: |
-          # [ "`cat /etc/*release | grep jessie`" != "" ] && echo "On Jessie - installing missing deps..." || echo "Not on Jessie - doing nothing."
-          # [ "`cat /etc/*release | grep jessie`" != "" ] || exit 0
-          # echo "deb http://ftp.debian.org/debian testing main" > testing.list && sudo mv testing.list /etc/apt/sources.list.d/
-          # sudo apt update
-          # sudo apt-get -t testing install libstdc++6
-    # - run:
-        # name: run tox
-        # command: ~/.local/bin/tox -r
-    # - save_cache:
-        # paths:
-          # - .tox
-          # - ~/.cache/pip
-          # - ~/.local
-          # - ./eggs
-          # - ~/.ethash
-          # - ~/.py-geth
-          # - ~/.parity-bin
-        # key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
-
 geth_steps: &geth_steps
   working_directory: ~/repo
   steps:
@@ -247,105 +209,17 @@ jobs:
   lint:
     <<: *common
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.9
     environment:
       TOXENV: lint
 
   docs:
     <<: *docs_steps
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.9
     environment:
       TOXENV: docs
 
-  py36-core:
-    <<: *common
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-core
-
-  py36-ens:
-    <<: *common
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-ens
-
-  py36-ethpm:
-    <<: *ethpm_steps
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-ethpm
-      # Please don't use this key for any shenanigans
-      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
-
-  py36-integration-goethereum-ipc:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-integration-goethereum-ipc
-      GETH_VERSION: v1.10.13
-
-  py36-integration-goethereum-http:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-integration-goethereum-http
-      GETH_VERSION: v1.10.13
-
-  py36-integration-goethereum-ws:
-    <<: *geth_steps
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-integration-goethereum-ws
-      GETH_VERSION: v1.10.13
-
-  # py36-integration-parity-ipc:
-    # <<: *parity_steps
-    # docker:
-      # - image: circleci/python:3.6-stretch
-    # environment:
-      # TOXENV: py36-integration-parity-ipc
-      # PARITY_VERSION: v2.3.5
-      # PARITY_OS: linux
-
-  # py36-integration-parity-http:
-    # <<: *parity_steps
-    # docker:
-      # - image: circleci/python:3.6-stretch
-    # environment:
-      # TOXENV: py36-integration-parity-http
-      # PARITY_VERSION: v2.3.5
-      # PARITY_OS: linux
-
-  # py36-integration-parity-ws:
-    # <<: *parity_steps
-    # docker:
-      # - image: circleci/python:3.6-stretch
-    # environment:
-      # TOXENV: py36-integration-parity-ws
-      # PARITY_VERSION: v2.3.5
-      # PARITY_OS: linux
-
-  py36-integration-ethtester-pyevm:
-    <<: *common
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-integration-ethtester
-      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
-
-  py36-wheel-cli:
-    <<: *common
-    docker:
-      - image: circleci/python:3.6
-    environment:
-      TOXENV: py36-wheel-cli
 
   #
   # Python 3.7
@@ -396,33 +270,6 @@ jobs:
     environment:
       TOXENV: py37-integration-goethereum-ws
       GETH_VERSION: v1.10.13
-
-  # py37-integration-parity-ipc:
-    # <<: *parity_steps
-    # docker:
-      # - image: circleci/python:3.7-stretch
-    # environment:
-      # TOXENV: py37-integration-parity-ipc
-      # PARITY_VERSION: v2.3.5
-      # PARITY_OS: linux
-
-  # py37-integration-parity-http:
-    # <<: *parity_steps
-    # docker:
-      # - image: circleci/python:3.7-stretch
-    # environment:
-      # TOXENV: py37-integration-parity-http
-      # PARITY_VERSION: v2.3.5
-      # PARITY_OS: linux
-
-  # py37-integration-parity-ws:
-    # <<: *parity_steps
-    # docker:
-      # - image: circleci/python:3.7-stretch
-    # environment:
-      # TOXENV: py37-integration-parity-ws
-      # PARITY_VERSION: v2.3.5
-      # PARITY_OS: linux
 
   py37-integration-ethtester-pyevm:
     <<: *common
@@ -494,33 +341,6 @@ jobs:
       TOXENV: py38-integration-goethereum-ws
       GETH_VERSION: v1.10.13
 
-  # py38-integration-parity-ipc:
-    # <<: *parity_steps
-    # docker:
-      # - image: circleci/python:3.8
-    # environment:
-      # TOXENV: py38-integration-parity-ipc
-      # PARITY_VERSION: v2.3.5
-      # PARITY_OS: linux
-
-  # py38-integration-parity-http:
-    # <<: *parity_steps
-    # docker:
-      # - image: circleci/python:3.8
-    # environment:
-      # TOXENV: py38-integration-parity-http
-      # PARITY_VERSION: v2.3.5
-      # PARITY_OS: linux
-
-  # py38-integration-parity-ws:
-    # <<: *parity_steps
-    # docker:
-      # - image: circleci/python:3.8
-    # environment:
-      # TOXENV: py38-integration-parity-ws
-      # PARITY_VERSION: v2.3.5
-      # PARITY_OS: linux
-
   py38-integration-ethtester-pyevm:
     <<: *common
     docker:
@@ -586,33 +406,6 @@ jobs:
       TOXENV: py39-integration-goethereum-ws
       GETH_VERSION: v1.10.13
 
-  # py39-integration-parity-ipc:
-  #   <<: *parity_steps
-  #   docker:
-  #     - image: circleci/python:3.9
-  #   environment:
-  #     TOXENV: py39-integration-parity-ipc
-  #     PARITY_VERSION: v2.3.5
-  #     PARITY_OS: linux
-
-  # py39-integration-parity-http:
-  #   <<: *parity_steps
-  #   docker:
-  #     - image: circleci/python:3.9
-  #   environment:
-  #     TOXENV: py39-integration-parity-http
-  #     PARITY_VERSION: v2.3.5
-  #     PARITY_OS: linux
-
-  # py39-integration-parity-ws:
-  #   <<: *parity_steps
-  #   docker:
-  #     - image: circleci/python:3.9
-  #   environment:
-  #     TOXENV: py39-integration-parity-ws
-  #     PARITY_VERSION: v2.3.5
-  #     PARITY_OS: linux
-
   py39-integration-ethtester-pyevm:
     <<: *common
     docker:
@@ -628,10 +421,75 @@ jobs:
         environment:
           TOXENV: py39-wheel-cli
 
+  #
+  # Python 3.10
+  #
+  py310-core:
+    <<: *common
+    docker:
+      - image: circleci/python:3.10
+    environment:
+      TOXENV: py310-core
+
+  py310-ens:
+    <<: *common
+    docker:
+      - image: circleci/python:3.10
+    environment:
+      TOXENV: py310-ens
+
+  py310-ethpm:
+    <<: *ethpm_steps
+    docker:
+      - image: circleci/python:3.10
+    environment:
+      TOXENV: py310-ethpm
+      # Please don't use this key for any shenanigans
+      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
+
+  py310-integration-goethereum-ipc:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.10
+    environment:
+      TOXENV: py310-integration-goethereum-ipc
+      GETH_VERSION: v1.10.11
+
+  py310-integration-goethereum-http:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.10
+    environment:
+      TOXENV: py310-integration-goethereum-http
+      GETH_VERSION: v1.10.11
+
+  py310-integration-goethereum-ws:
+    <<: *geth_steps
+    docker:
+      - image: circleci/python:3.10
+    environment:
+      TOXENV: py310-integration-goethereum-ws
+      GETH_VERSION: v1.10.11
+
+  py310-integration-ethtester-pyevm:
+    <<: *common
+    docker:
+      - image: circleci/python:3.10
+    environment:
+      TOXENV: py310-integration-ethtester
+      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+
+  py310-wheel-cli:
+    <<: *common
+    docker:
+      - image: circleci/python:3.10
+        environment:
+          TOXENV: py310-wheel-cli
+
   benchmark:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.9
+      - image: circleci/python:3.10
     environment:
       TOXENV: benchmark
       GETH_VERSION: v1.10.13
@@ -641,31 +499,18 @@ workflows:
   test:
     jobs:
       # These are the longest running tests, start them first
-      - py36-core
       - py37-core
       - py38-core
       - py39-core
+      - py310-core
       - lint
       - docs
       - benchmark
-      - py36-ens
-      - py36-ethpm
-      - py36-integration-goethereum-ipc
-      - py36-integration-goethereum-http
-      - py36-integration-goethereum-ws
-      # - py36-integration-parity-ipc
-      # - py36-integration-parity-http
-      # - py36-integration-parity-ws
-      - py36-integration-ethtester-pyevm
-      - py36-wheel-cli
       - py37-ens
       - py37-ethpm
       - py37-integration-goethereum-ipc
       - py37-integration-goethereum-http
       - py37-integration-goethereum-ws
-      # - py37-integration-parity-ipc
-      # - py37-integration-parity-http
-      # - py37-integration-parity-ws
       - py37-integration-ethtester-pyevm
       - py37-wheel-cli
       - py37-wheel-cli-windows
@@ -674,9 +519,6 @@ workflows:
       - py38-integration-goethereum-ipc
       - py38-integration-goethereum-http
       - py38-integration-goethereum-ws
-      # - py38-integration-parity-ipc
-      # - py38-integration-parity-http
-      # - py38-integration-parity-ws
       - py38-integration-ethtester-pyevm
       - py38-wheel-cli
       - py39-ens
@@ -684,8 +526,12 @@ workflows:
       - py39-integration-goethereum-ipc
       - py39-integration-goethereum-http
       - py39-integration-goethereum-ws
-      # - py39-integration-parity-ipc
-      # - py39-integration-parity-http
-      # - py39-integration-parity-ws
       - py39-integration-ethtester-pyevm
       - py39-wheel-cli
+      - py310-ens
+      - py310-ethpm
+      - py310-integration-goethereum-ipc
+      - py310-integration-goethereum-http
+      - py310-integration-goethereum-ws
+      - py310-integration-ethtester-pyevm
+      - py310-wheel-cli

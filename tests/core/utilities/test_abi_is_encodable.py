@@ -64,8 +64,8 @@ import pytest
         ((b'\x80', 0), '(string,int128)', False),
     ),
 )
-def test_is_encodable(web3, value, _type, expected):
-    actual = web3.is_encodable(_type, value)
+def test_is_encodable(w3, value, _type, expected):
+    actual = w3.is_encodable(_type, value)
     assert actual is expected
 
 
@@ -78,12 +78,12 @@ def test_is_encodable(web3, value, _type, expected):
         ('12', 'bytes', True),  # no 0x prefix, can be decoded as hex
     )
 )
-def test_is_encodable_warnings(web3, value, _type, expected):
+def test_is_encodable_warnings(w3, value, _type, expected):
     with pytest.warns(
         DeprecationWarning,
         match='in v6 it will be invalid to pass a hex string without the "0x" prefix'
     ):
-        actual = web3.is_encodable(_type, value)
+        actual = w3.is_encodable(_type, value)
         assert actual is expected
 
 

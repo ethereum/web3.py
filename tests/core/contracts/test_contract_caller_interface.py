@@ -11,40 +11,40 @@ from web3.exceptions import (
 )
 
 
-def deploy(web3, Contract, apply_func=identity, args=None):
+def deploy(w3, Contract, apply_func=identity, args=None):
     args = args or []
     deploy_txn = Contract.constructor(*args).transact()
-    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     address = apply_func(deploy_receipt['contractAddress'])
     contract = Contract(address=address)
     assert contract.address == address
-    assert len(web3.eth.get_code(contract.address)) > 0
+    assert len(w3.eth.get_code(contract.address)) > 0
     return contract
 
 
 @pytest.fixture()
-def address(web3):
-    return web3.eth.accounts[1]
+def address(w3):
+    return w3.eth.accounts[1]
 
 
 @pytest.fixture()
-def math_contract(web3, MathContract, address_conversion_func):
-    return deploy(web3, MathContract, address_conversion_func)
+def math_contract(w3, MathContract, address_conversion_func):
+    return deploy(w3, MathContract, address_conversion_func)
 
 
 @pytest.fixture()
-def caller_tester_contract(web3, CallerTesterContract, address_conversion_func):
-    return deploy(web3, CallerTesterContract, address_conversion_func)
+def caller_tester_contract(w3, CallerTesterContract, address_conversion_func):
+    return deploy(w3, CallerTesterContract, address_conversion_func)
 
 
 @pytest.fixture()
-def transaction_dict(web3, address):
+def transaction_dict(w3, address):
     return {
         'from': address,
         'gas': 210000,
-        'maxFeePerGas': web3.toWei(1, 'gwei'),
-        'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
+        'maxFeePerGas': w3.toWei(1, 'gwei'),
+        'maxPriorityFeePerGas': w3.toWei(1, 'gwei'),
         'value': 12345,
     }
 
@@ -59,26 +59,26 @@ def test_caller_with_parens(math_contract):
     assert result == 8
 
 
-def test_caller_with_no_abi(web3):
-    contract = web3.eth.contract()
+def test_caller_with_no_abi(w3):
+    contract = w3.eth.contract()
     with pytest.raises(NoABIFound):
         contract.caller.thisFunctionDoesNotExist()
 
 
-def test_caller_with_no_abi_and_parens(web3):
-    contract = web3.eth.contract()
+def test_caller_with_no_abi_and_parens(w3):
+    contract = w3.eth.contract()
     with pytest.raises(NoABIFound):
         contract.caller().thisFunctionDoesNotExist()
 
 
-def test_caller_with_empty_abi_and_parens(web3):
-    contract = web3.eth.contract(abi=[])
+def test_caller_with_empty_abi_and_parens(w3):
+    contract = w3.eth.contract(abi=[])
     with pytest.raises(NoABIFunctionsFound):
         contract.caller().thisFunctionDoesNotExist()
 
 
-def test_caller_with_empty_abi(web3):
-    contract = web3.eth.contract(abi=[])
+def test_caller_with_empty_abi(w3):
+    contract = w3.eth.contract(abi=[])
     with pytest.raises(NoABIFunctionsFound):
         contract.caller.thisFunctionDoesNotExist()
 
@@ -99,11 +99,11 @@ def test_caller_with_a_nonexistent_function(math_contract):
         contract.caller.thisFunctionDoesNotExist()
 
 
-def test_caller_with_block_identifier(web3, math_contract):
-    start_num = web3.eth.get_block('latest').number
+def test_caller_with_block_identifier(w3, math_contract):
+    start_num = w3.eth.get_block('latest').number
     assert math_contract.caller.counter() == 0
 
-    web3.provider.make_request(method='evm_mine', params=[5])
+    w3.provider.make_request(method='evm_mine', params=[5])
     math_contract.functions.increment().transact()
     math_contract.functions.increment().transact()
 
@@ -114,14 +114,14 @@ def test_caller_with_block_identifier(web3, math_contract):
     assert output2 == 2
 
 
-def test_caller_with_block_identifier_and_transaction_dict(web3,
+def test_caller_with_block_identifier_and_transaction_dict(w3,
                                                            caller_tester_contract,
                                                            transaction_dict,
                                                            address):
-    start_num = web3.eth.get_block('latest').number
+    start_num = w3.eth.get_block('latest').number
     assert caller_tester_contract.caller.counter() == 0
 
-    web3.provider.make_request(method='evm_mine', params=[5])
+    w3.provider.make_request(method='evm_mine', params=[5])
     caller_tester_contract.functions.increment().transact()
 
     block_id = start_num + 6
@@ -140,7 +140,7 @@ def test_caller_with_block_identifier_and_transaction_dict(web3,
     assert counter == 1
 
 
-def test_caller_with_transaction_keyword(web3,
+def test_caller_with_transaction_keyword(w3,
                                          caller_tester_contract,
                                          transaction_dict,
                                          address):
@@ -153,7 +153,7 @@ def test_caller_with_transaction_keyword(web3,
     assert value == transaction_dict['value']
 
 
-def test_caller_with_dict_but_no_transaction_keyword(web3,
+def test_caller_with_dict_but_no_transaction_keyword(w3,
                                                      caller_tester_contract,
                                                      transaction_dict,
                                                      address):
@@ -166,7 +166,7 @@ def test_caller_with_dict_but_no_transaction_keyword(web3,
     assert value == transaction_dict['value']
 
 
-def test_caller_with_args_and_no_transaction_keyword(web3,
+def test_caller_with_args_and_no_transaction_keyword(w3,
                                                      caller_tester_contract,
                                                      transaction_dict,
                                                      address):

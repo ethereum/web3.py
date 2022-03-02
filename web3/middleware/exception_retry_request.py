@@ -90,7 +90,7 @@ def check_if_retry_on_failure(method: RPCEndpoint) -> bool:
 
 def exception_retry_middleware(
     make_request: Callable[[RPCEndpoint, Any], RPCResponse],
-    web3: "Web3",
+    w3: "Web3",
     errors: Collection[Type[BaseException]],
     retries: int = 5,
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
@@ -116,10 +116,10 @@ def exception_retry_middleware(
 
 
 def http_retry_request_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], Any]:
     return exception_retry_middleware(
         make_request,
-        web3,
+        w3,
         (ConnectionError, HTTPError, Timeout, TooManyRedirects)
     )

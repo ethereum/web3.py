@@ -55,7 +55,7 @@ def TEST_ADDRESS(address_conversion_func):
     ],
 )
 def test_setup_name(ens, name, normalized_name, namehash_hex):
-    address = ens.web3.eth.accounts[3]
+    address = ens.w3.eth.accounts[3]
     assert not ens.name(address)
     owner = ens.owner('tester.eth')
 
@@ -84,7 +84,7 @@ def test_cannot_set_name_on_mismatch_address(ens, TEST_ADDRESS):
 def test_setup_name_default_address(ens):
     name = 'reverse-defaults-to-forward.tester.eth'
     owner = ens.owner('tester.eth')
-    new_resolution = ens.web3.eth.accounts[-1]
+    new_resolution = ens.w3.eth.accounts[-1]
     ens.setup_address(name, new_resolution)
     assert not ens.name(new_resolution)
     assert ens.owner(name) == owner
@@ -96,7 +96,7 @@ def test_setup_name_default_address(ens):
 
 def test_setup_name_default_to_owner(ens):
     name = 'reverse-defaults-to-owner.tester.eth'
-    new_owner = ens.web3.eth.accounts[-1]
+    new_owner = ens.w3.eth.accounts[-1]
     ens.setup_owner(name, new_owner)
     assert not ens.name(new_owner)
     assert ens.owner(name) == new_owner
@@ -118,10 +118,10 @@ def test_setup_name_unauthorized(ens, TEST_ADDRESS):
 def test_setup_reverse_dict_unmodified(ens):
     # setup
     owner = ens.owner('tester.eth')
-    eth = ens.web3.eth
+    eth = ens.w3.eth
     start_count = eth.get_transaction_count(owner)
 
-    address = ens.web3.eth.accounts[3]
+    address = ens.w3.eth.accounts[3]
     transact = {}
     ens.setup_name('tester.eth', address, transact=transact)
 

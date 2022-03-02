@@ -15,7 +15,7 @@ def middleware_factory():
             def __repr__(self):
                 return 'middleware-' + key
 
-            def __call__(self, make_request, web3):
+            def __call__(self, make_request, w3):
                 def middleware_fn(method, params):
                     params.append(key)
                     method = "|".join((method, key))

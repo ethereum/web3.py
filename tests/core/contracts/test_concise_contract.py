@@ -14,13 +14,13 @@ from web3.contract import (
 )
 
 
-def deploy(web3, Contract, args=None):
+def deploy(w3, Contract, args=None):
     args = args or []
     deploy_txn = Contract.constructor(*args).transact()
-    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     contract = Contract(address=deploy_receipt['contractAddress'])
-    assert len(web3.eth.get_code(contract.address)) > 0
+    assert len(w3.eth.get_code(contract.address)) > 0
     return contract
 
 
@@ -31,11 +31,11 @@ def EMPTY_ADDR(address_conversion_func):
 
 
 @pytest.fixture()
-def zero_address_contract(web3, WithConstructorAddressArgumentsContract, EMPTY_ADDR):
+def zero_address_contract(w3, WithConstructorAddressArgumentsContract, EMPTY_ADDR):
     deploy_txn = WithConstructorAddressArgumentsContract.constructor(
         EMPTY_ADDR,
     ).transact()
-    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     _address_contract = WithConstructorAddressArgumentsContract(
         address=deploy_receipt['contractAddress'],
@@ -81,26 +81,26 @@ def test_concisecontract_returns_none_for_0addr(zero_address_contract):
     assert result is None
 
 
-def test_class_construction_sets_class_vars(web3,
+def test_class_construction_sets_class_vars(w3,
                                             MATH_ABI,
                                             MATH_CODE,
                                             MATH_RUNTIME,
                                             some_address,
                                             ):
-    MathContract = web3.eth.contract(
+    MathContract = w3.eth.contract(
         abi=MATH_ABI,
         bytecode=MATH_CODE,
         bytecode_runtime=MATH_RUNTIME,
     )
 
     classic = MathContract(some_address)
-    assert classic.web3 == web3
+    assert classic.w3 == w3
     assert classic.bytecode == decode_hex(MATH_CODE)
     assert classic.bytecode_runtime == decode_hex(MATH_RUNTIME)
 
 
-def test_conciscecontract_keeps_custom_normalizers_on_base(web3, MATH_ABI):
-    base_contract = web3.eth.contract(abi=MATH_ABI)
+def test_conciscecontract_keeps_custom_normalizers_on_base(w3, MATH_ABI):
+    base_contract = w3.eth.contract(abi=MATH_ABI)
     # give different normalizers to this base instance
     base_contract._return_data_normalizers = base_contract._return_data_normalizers + tuple([None])
 
@@ -116,10 +116,10 @@ def test_conciscecontract_keeps_custom_normalizers_on_base(web3, MATH_ABI):
 
 
 def test_conciscecontract_function_collision(
-        web3,
+        w3,
         StringContract):
 
-    contract = deploy(web3, StringContract, args=["blarg"])
+    contract = deploy(w3, StringContract, args=["blarg"])
 
     def getValue():
         assert 'getValue' in [
@@ -138,7 +138,7 @@ def test_conciscecontract_function_collision(
         concise_contract.getValue()
 
 
-def test_concisecontract_deprecation_warning(web3, StringContract):
-    contract = deploy(web3, StringContract, args=["blarg"])
+def test_concisecontract_deprecation_warning(w3, StringContract):
+    contract = deploy(w3, StringContract, args=["blarg"])
     with pytest.warns(DeprecationWarning):
         ConciseContract(contract)

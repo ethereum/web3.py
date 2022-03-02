@@ -30,8 +30,8 @@ if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
 
-def get_genesis_block_hash(web3: "Web3") -> HexBytes:
-    return web3.eth.get_block(BlockNumber(0))["hash"]
+def get_genesis_block_hash(w3: "Web3") -> HexBytes:
+    return w3.eth.get_block(BlockNumber(0))["hash"]
 
 
 BLOCK = "block"

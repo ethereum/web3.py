@@ -75,9 +75,9 @@ def web3js_password():
 
 
 @pytest.fixture(params=['instance', 'class'])
-def acct(request, web3):
+def acct(request, w3):
     if request.param == 'instance':
-        return web3.eth.account
+        return w3.eth.account
     elif request.param == 'class':
         return Account
     raise Exception('Unreachable!')

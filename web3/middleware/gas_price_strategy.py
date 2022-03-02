@@ -70,7 +70,7 @@ def validate_transaction_params(
 
 
 def gas_price_strategy_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     """
     - Uses a gas price strategy if one is set. This is only supported for legacy transactions.
@@ -81,8 +81,8 @@ def gas_price_strategy_middleware(
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == 'eth_sendTransaction':
             transaction = params[0]
-            generated_gas_price = web3.eth.generate_gas_price(transaction)
-            latest_block = web3.eth.get_block('latest')
+            generated_gas_price = w3.eth.generate_gas_price(transaction)
+            latest_block = w3.eth.get_block('latest')
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price
             )
@@ -93,7 +93,7 @@ def gas_price_strategy_middleware(
 
 
 async def async_gas_price_strategy_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> AsyncMiddleware:
     """
     - Uses a gas price strategy if one is set. This is only supported for legacy transactions.
@@ -104,8 +104,8 @@ async def async_gas_price_strategy_middleware(
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == 'eth_sendTransaction':
             transaction = params[0]
-            generated_gas_price = await web3.eth.generate_gas_price(transaction)  # type: ignore
-            latest_block = await web3.eth.get_block('latest')  # type: ignore
+            generated_gas_price = await w3.eth.generate_gas_price(transaction)  # type: ignore
+            latest_block = await w3.eth.get_block('latest')  # type: ignore
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price
             )

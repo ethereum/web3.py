@@ -1,3 +1,8 @@
+import pytest
+
+from aiohttp import (
+    ClientSession,
+)
 from requests import (
     Session,
     adapters,
@@ -9,6 +14,9 @@ from requests.adapters import (
 
 from web3._utils import (
     request,
+)
+from web3._utils.request import (
+    SessionCache,
 )
 
 
@@ -80,3 +88,47 @@ def test_precached_session(mocker):
     assert isinstance(adapter, HTTPAdapter)
     assert adapter._pool_connections == 100
     assert adapter._pool_maxsize == 100
+
+
+@pytest.mark.asyncio
+async def test_async_precached_session(mocker):
+    # Add a session
+    session = ClientSession()
+    await request.cache_async_session(URI, session)
+    assert len(request._async_session_cache) == 1
+
+    # Make sure the session isn't duplicated
+    await request.cache_async_session(URI, session)
+    assert len(request._async_session_cache) == 1
+
+    # Make sure a request with a different URI adds another cached session
+    await request.cache_async_session(f"{URI}/test", session)
+    assert len(request._async_session_cache) == 2
+
+
+def test_cache_session_class():
+
+    cache = SessionCache(2)
+    evicted_items = cache.cache("1", "Hello1")
+    assert cache.get_cache_entry("1") == "Hello1"
+    assert evicted_items is None
+
+    evicted_items = cache.cache("2", "Hello2")
+    assert cache.get_cache_entry("2") == "Hello2"
+    assert evicted_items is None
+
+    # Changing what is stored at a given cache key should not cause the
+    # anything to be evicted
+    evicted_items = cache.cache("1", "HelloChanged")
+    assert cache.get_cache_entry("1") == "HelloChanged"
+    assert evicted_items is None
+
+    evicted_items = cache.cache("3", "Hello3")
+    assert "2" in cache
+    assert "3" in cache
+    assert "1" not in cache
+
+    with pytest.raises(KeyError):
+        # This should throw a KeyError since the cache size was 2 and 3 were inserted
+        # the first inserted cached item was removed and returned in evicted items
+        cache.get_cache_entry("1")

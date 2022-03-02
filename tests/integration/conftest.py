@@ -16,28 +16,28 @@ from web3._utils.module_testing.revert_contract import (
 
 
 @pytest.fixture(scope="module")
-def math_contract_factory(web3):
-    contract_factory = web3.eth.contract(abi=MATH_ABI, bytecode=MATH_BYTECODE)
+def math_contract_factory(w3):
+    contract_factory = w3.eth.contract(abi=MATH_ABI, bytecode=MATH_BYTECODE)
     return contract_factory
 
 
 @pytest.fixture(scope="module")
-def emitter_contract_factory(web3):
-    contract_factory = web3.eth.contract(
+def emitter_contract_factory(w3):
+    contract_factory = w3.eth.contract(
         abi=CONTRACT_EMITTER_ABI, bytecode=CONTRACT_EMITTER_CODE
     )
     return contract_factory
 
 
 @pytest.fixture(scope="module")
-def revert_contract_factory(web3):
-    contract_factory = web3.eth.contract(
+def revert_contract_factory(w3):
+    contract_factory = w3.eth.contract(
         abi=_REVERT_CONTRACT_ABI, bytecode=REVERT_CONTRACT_BYTECODE
     )
     return contract_factory
 
 
-@pytest.yield_fixture(scope="module")
+@pytest.fixture(scope="module")
 def event_loop(request):
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop

@@ -53,7 +53,7 @@ class AsyncBaseProvider:
         self._middlewares = tuple(values)  # type: ignore
 
     async def request_func(
-        self, web3: "Web3", outer_middlewares: MiddlewareOnion
+        self, w3: "Web3", outer_middlewares: MiddlewareOnion
     ) -> Callable[[RPCEndpoint], Any]:
         all_middlewares: Tuple[Middleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore # noqa: E501
 
@@ -61,16 +61,16 @@ class AsyncBaseProvider:
         if cache_key is None or cache_key != all_middlewares:
             self._request_func_cache = (
                 all_middlewares,
-                await self._generate_request_func(web3, all_middlewares)
+                await self._generate_request_func(w3, all_middlewares)
             )
         return self._request_func_cache[-1]
 
     async def _generate_request_func(
-        self, web3: "Web3", middlewares: Sequence[Middleware]
+        self, w3: "Web3", middlewares: Sequence[Middleware]
     ) -> Callable[..., RPCResponse]:
         return await async_combine_middlewares(
             middlewares=middlewares,
-            web3=web3,
+            w3=w3,
             provider_request_fn=self.make_request,
         )
 

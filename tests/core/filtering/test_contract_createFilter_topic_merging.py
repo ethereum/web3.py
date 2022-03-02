@@ -1,11 +1,7 @@
 import pytest
 
 
-def test_merged_topic_list_event(
-        web3,
-        emitter,
-        emitter_event_ids,
-        wait_for_transaction):
+def test_merged_topic_list_event(emitter):
     manual_topics = [
         '0xf16c999b533366ca5138d78e85da51611089cd05749f098d6c225d4cd42ee6ec',  # event sig
         '0x0000000000000000000000000000000000000000000000000000000000000457',  # 1111

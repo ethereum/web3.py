@@ -1,1 +1,0 @@
-Properly initialize external modules that do not inherit from the ``web3.module.Module`` class

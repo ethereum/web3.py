@@ -169,7 +169,7 @@ def test_attach_external_modules_that_do_not_inherit_from_module_class(
     assert is_integer(w3.eth.chain_id)
 
 
-def test_attach_modules_for_module_with_more_than_one_init_argument(web3, module_many_init_args):
+def test_attach_modules_for_module_with_more_than_one_init_argument(module_many_init_args):
     with pytest.raises(
         UnsupportedOperation,
         match=(

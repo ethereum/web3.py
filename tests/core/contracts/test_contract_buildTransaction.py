@@ -8,13 +8,11 @@ from web3.exceptions import (
     ValidationError,
 )
 
-# -*- coding: utf-8 -*-
-
 
 @pytest.fixture()
-def math_contract(web3, MathContract, address_conversion_func):
+def math_contract(w3, MathContract, address_conversion_func):
     deploy_txn = MathContract.constructor().transact()
-    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     math_contract_address = address_conversion_func(deploy_receipt['contractAddress'])
     _math_contract = MathContract(address=math_contract_address)
@@ -23,9 +21,9 @@ def math_contract(web3, MathContract, address_conversion_func):
 
 
 @pytest.fixture()
-def fallback_function_contract(web3, FallbackFunctionContract, address_conversion_func):
+def fallback_function_contract(w3, FallbackFunctionContract, address_conversion_func):
     deploy_txn = FallbackFunctionContract.constructor().transact()
-    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     fallback_contract_address = address_conversion_func(deploy_receipt['contractAddress'])
     _fallback_contract = FallbackFunctionContract(address=fallback_contract_address)
@@ -34,9 +32,9 @@ def fallback_function_contract(web3, FallbackFunctionContract, address_conversio
 
 
 @pytest.fixture()
-def payable_tester_contract(web3, PayableTesterContract, address_conversion_func):
+def payable_tester_contract(w3, PayableTesterContract, address_conversion_func):
     deploy_txn = PayableTesterContract.constructor().transact()
-    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     payable_tester_address = address_conversion_func(deploy_receipt['contractAddress'])
     _payable_tester = PayableTesterContract(address=payable_tester_address)
@@ -45,7 +43,7 @@ def payable_tester_contract(web3, PayableTesterContract, address_conversion_func
 
 
 def test_build_transaction_not_paying_to_nonpayable_function(
-        web3,
+        w3,
         payable_tester_contract,
         buildTransaction):
     txn = buildTransaction(contract=payable_tester_contract,
@@ -61,7 +59,7 @@ def test_build_transaction_not_paying_to_nonpayable_function(
 
 
 def test_build_transaction_paying_to_nonpayable_function(
-        web3,
+        w3,
         payable_tester_contract,
         buildTransaction):
     with pytest.raises(ValidationError):
@@ -70,7 +68,7 @@ def test_build_transaction_paying_to_nonpayable_function(
                          tx_params={'value': 1})
 
 
-def test_build_transaction_with_contract_no_arguments(web3, math_contract, buildTransaction):
+def test_build_transaction_with_contract_no_arguments(w3, math_contract, buildTransaction):
     txn = buildTransaction(contract=math_contract, contract_function='increment')
     assert dissoc(txn, 'gas') == {
         'to': math_contract.address,
@@ -82,7 +80,7 @@ def test_build_transaction_with_contract_no_arguments(web3, math_contract, build
     }
 
 
-def test_build_transaction_with_contract_fallback_function(web3, fallback_function_contract):
+def test_build_transaction_with_contract_fallback_function(w3, fallback_function_contract):
     txn = fallback_function_contract.fallback.buildTransaction()
     assert dissoc(txn, 'gas') == {
         'to': fallback_function_contract.address,
@@ -95,7 +93,7 @@ def test_build_transaction_with_contract_fallback_function(web3, fallback_functi
 
 
 def test_build_transaction_with_contract_class_method(
-        web3,
+        w3,
         MathContract,
         math_contract,
         buildTransaction):
@@ -115,7 +113,7 @@ def test_build_transaction_with_contract_class_method(
 
 
 def test_build_transaction_with_contract_default_account_is_set(
-        web3,
+        w3,
         math_contract,
         buildTransaction):
     txn = buildTransaction(contract=math_contract, contract_function='increment')
@@ -129,10 +127,10 @@ def test_build_transaction_with_contract_default_account_is_set(
     }
 
 
-def test_build_transaction_with_gas_price_strategy_set(web3, math_contract, buildTransaction):
-    def my_gas_price_strategy(web3, transaction_params):
+def test_build_transaction_with_gas_price_strategy_set(w3, math_contract, buildTransaction):
+    def my_gas_price_strategy(w3, transaction_params):
         return 5
-    web3.eth.set_gas_price_strategy(my_gas_price_strategy)
+    w3.eth.set_gas_price_strategy(my_gas_price_strategy)
     txn = buildTransaction(contract=math_contract, contract_function='increment')
     assert dissoc(txn, 'gas') == {
         'to': math_contract.address,
@@ -143,7 +141,7 @@ def test_build_transaction_with_gas_price_strategy_set(web3, math_contract, buil
     }
 
 
-def test_build_transaction_with_contract_data_supplied_errors(web3,
+def test_build_transaction_with_contract_data_supplied_errors(w3,
                                                               math_contract,
                                                               buildTransaction):
     with pytest.raises(ValueError):
@@ -152,7 +150,7 @@ def test_build_transaction_with_contract_data_supplied_errors(web3,
                          tx_params={'data': '0x000'})
 
 
-def test_build_transaction_with_contract_to_address_supplied_errors(web3,
+def test_build_transaction_with_contract_to_address_supplied_errors(w3,
                                                                     math_contract,
                                                                     buildTransaction):
     with pytest.raises(ValueError):
@@ -215,7 +213,7 @@ def test_build_transaction_with_contract_to_address_supplied_errors(web3,
         'With Value',
     ]
 )
-def test_build_transaction_with_contract_with_arguments(web3, skip_if_testrpc, math_contract,
+def test_build_transaction_with_contract_with_arguments(w3, skip_if_testrpc, math_contract,
                                                         transaction_args,
                                                         method_args,
                                                         method_kwargs,
@@ -223,7 +221,7 @@ def test_build_transaction_with_contract_with_arguments(web3, skip_if_testrpc, m
                                                         skip_testrpc,
                                                         buildTransaction):
     if skip_testrpc:
-        skip_if_testrpc(web3)
+        skip_if_testrpc(w3)
 
     txn = buildTransaction(contract=math_contract,
                            contract_function='increment',

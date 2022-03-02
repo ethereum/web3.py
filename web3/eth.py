@@ -210,7 +210,7 @@ class BaseEth(Module):
 
     def _generate_gas_price(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
         if self.gasPriceStrategy:
-            return self.gasPriceStrategy(self.web3, transaction_params)
+            return self.gasPriceStrategy(self.w3, transaction_params)
         return None
 
     def set_gas_price_strategy(self, gas_price_strategy: GasPriceStrategy) -> None:
@@ -231,7 +231,7 @@ class BaseEth(Module):
 
         return params
 
-    _estimate_gas: Method[Callable[..., Wei]] = Method(
+    _estimate_gas: Method[Callable[..., int]] = Method(
         RPC.eth_estimateGas,
         mungers=[estimate_gas_munger]
     )
@@ -282,6 +282,16 @@ class BaseEth(Module):
         if block_identifier is None:
             block_identifier = self.default_block
         return (account, block_identifier)
+
+    def get_storage_at_munger(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        position: int,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> Tuple[Union[Address, ChecksumAddress, ENS], int, BlockIdentifier]:
+        if block_identifier is None:
+            block_identifier = self.default_block
+        return (account, position, block_identifier)
 
     def call_munger(
         self,
@@ -426,7 +436,7 @@ class AsyncEth(BaseEth):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None
-    ) -> Wei:
+    ) -> int:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._estimate_gas(transaction, block_identifier)  # type: ignore
 
@@ -518,6 +528,19 @@ class AsyncEth(BaseEth):
                 f"Transaction {HexBytes(transaction_hash) !r} is not in the chain "
                 f"after {timeout} seconds"
             )
+
+    _get_storage_at: Method[Callable[..., Awaitable[HexBytes]]] = Method(
+        RPC.eth_getStorageAt,
+        mungers=[BaseEth.get_storage_at_munger],
+    )
+
+    async def get_storage_at(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        position: int,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> HexBytes:
+        return await self._get_storage_at(account, position, block_identifier)
 
     async def call(
         self,
@@ -636,19 +659,9 @@ class Eth(BaseEth):
             )
             return fee_history_priority_fee(self)
 
-    def get_storage_at_munger(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        position: int,
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], int, BlockIdentifier]:
-        if block_identifier is None:
-            block_identifier = self.default_block
-        return (account, position, block_identifier)
-
     get_storage_at: Method[Callable[..., HexBytes]] = Method(
         RPC.eth_getStorageAt,
-        mungers=[get_storage_at_munger],
+        mungers=[BaseEth.get_storage_at_munger],
     )
 
     def get_proof_munger(
@@ -791,8 +804,8 @@ class Eth(BaseEth):
         return self.replace_transaction(transaction_hash, new_transaction)
 
     def replace_transaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
-        current_transaction = get_required_transaction(self.web3, transaction_hash)
-        return replace_transaction(self.web3, current_transaction, new_transaction)
+        current_transaction = get_required_transaction(self.w3, transaction_hash)
+        return replace_transaction(self.w3, current_transaction, new_transaction)
 
     # todo: Update Any to stricter kwarg checking with TxParams
     # https://github.com/python/mypy/issues/4441
@@ -806,10 +819,10 @@ class Eth(BaseEth):
         self, transaction_hash: _Hash32, **transaction_params: Any
     ) -> HexBytes:
         assert_valid_transaction_params(cast(TxParams, transaction_params))
-        current_transaction = get_required_transaction(self.web3, transaction_hash)
+        current_transaction = get_required_transaction(self.w3, transaction_hash)
         current_transaction_params = extract_valid_transaction_params(current_transaction)
         new_transaction = merge(current_transaction_params, transaction_params)
-        return replace_transaction(self.web3, current_transaction, new_transaction)
+        return replace_transaction(self.w3, current_transaction, new_transaction)
 
     def send_transaction(self, transaction: TxParams) -> HexBytes:
         return self._send_transaction(transaction)
@@ -851,7 +864,7 @@ class Eth(BaseEth):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None
-    ) -> Wei:
+    ) -> int:
         return self._estimate_gas(transaction, block_identifier)
 
     def fee_history(
@@ -939,7 +952,7 @@ class Eth(BaseEth):
     ) -> Union[Type[Contract], Contract]:
         ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
 
-        ContractFactory = ContractFactoryClass.factory(self.web3, **kwargs)
+        ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
 
         if address:
             return ContractFactory(address)

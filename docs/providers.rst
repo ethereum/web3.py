@@ -379,9 +379,11 @@ AsyncHTTPProvider
       be omitted from the URI.
     * ``request_kwargs`` should be a dictionary of keyword arguments which
       will be passed onto each http/https POST request made to your node.
+    * the ``cache_async_session()`` method allows you to use your own ``aiohttp.ClientSession`` object. This is an async method and not part of the constructor
 
     .. code-block:: python
 
+        >>> from aiohttp import ClientSession
         >>> from web3 import Web3, AsyncHTTPProvider
         >>> from web3.eth import AsyncEth
         >>> from web3.net import AsyncNet
@@ -396,7 +398,10 @@ AsyncHTTPProvider
         ...              'personal': (AsyncGethPersonal,),
         ...              'admin' : (AsyncGethAdmin,)})
         ...         },
-        ...     middlewares=[])  # See supported middleware section below for middleware options
+        ...     middlewares=[]   # See supported middleware section below for middleware options
+        ...     ) 
+        >>> custom_session = ClientSession()  # If you want to pass in your own session
+        >>> await w3.provider.cache_async_session(custom_session) # This method is an async method so it needs to be handled accordingly
 
     Under the hood, the ``AsyncHTTPProvider`` uses the python
     `aiohttp <https://docs.aiohttp.org/en/stable/>`_ library for making requests.
@@ -429,6 +434,7 @@ Eth
 - :meth:`web3.eth.get_transaction() <web3.eth.Eth.get_transaction>`
 - :meth:`web3.eth.get_transaction_count() <web3.eth.Eth.get_transaction_count>`
 - :meth:`web3.eth.get_transaction_receipt() <web3.eth.Eth.get_transaction_receipt>`
+- :meth:`web3.eth.get_storage_at() <web3.eth.Eth.get_storage_at>`
 - :meth:`web3.eth.send_transaction() <web3.eth.Eth.send_transaction>`
 - :meth:`web3.eth.send_raw_transaction() <web3.eth.Eth.send_raw_transaction>`
 - :meth:`web3.eth.wait_for_transaction_receipt() <web3.eth.Eth.wait_for_transaction_receipt>`

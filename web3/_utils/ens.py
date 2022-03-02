@@ -76,5 +76,5 @@ def contract_ens_addresses(
     with contract_ens_addresses(mycontract, [('resolve-as-1s.eth', '0x111...111')]):
         # any contract call or transaction in here would only resolve the above ENS pair
     """
-    with ens_addresses(contract.web3, name_addr_pairs):
+    with ens_addresses(contract.w3, name_addr_pairs):
         yield
