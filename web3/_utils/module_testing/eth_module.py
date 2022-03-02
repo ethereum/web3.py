@@ -2739,7 +2739,7 @@ class EthModuleTest:
     ) -> None:
         transaction = w3.eth.get_transaction(math_contract_deploy_txn_hash)
         assert is_dict(transaction)
-        assert transaction['to'] is None, "to field is %r" % transaction['to']
+        assert transaction['to'] is None, f"to field is {transaction['to']!r}"
 
     def test_eth_getTransactionByBlockHashAndIndex(
         self, w3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
@@ -3140,7 +3140,7 @@ class EthModuleTest:
         assert default_call_result == 0
 
         if pending_call_result != 1:
-            raise AssertionError("pending call result was %d instead of 1" % pending_call_result)
+            raise AssertionError(f"pending call result was {pending_call_result} instead of 1")
 
     def test_eth_uninstallFilter_deprecated(self, w3: "Web3") -> None:
         filter = w3.eth.filter({})

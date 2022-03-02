@@ -726,7 +726,7 @@ DEFAULT_DECIMALS = getcontext().prec
         ('reflect_short_u', Decimal('0.01'), "no matching argument types"),
         (
             'reflect_short_u',
-            Decimal('1e-%d' % (DEFAULT_DECIMALS + 1)),
+            Decimal(f'1e-{DEFAULT_DECIMALS + 1}'),
             "no matching argument types",
         ),
         ('reflect_short_u', Decimal('25.4' + '9' * DEFAULT_DECIMALS), "no matching argument types"),

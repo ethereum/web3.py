@@ -146,9 +146,8 @@ def abi_bytes_to_hex(
     num_bytes = abi_type.sub
     if len(bytes_data) > num_bytes:
         raise ValueError(
-            "This value was expected to be at most %d bytes, but instead was %d: %r" % (
-                (num_bytes, len(bytes_data), data)
-            )
+            f"This value was expected to be at most {num_bytes} bytes, "
+            f"but instead was {len(bytes_data)}: {data!r}"
         )
 
     padded = bytes_data.ljust(num_bytes, b'\0')
@@ -204,18 +203,18 @@ def abi_ens_resolver(w3: "Web3", type_str: TypeStr, val: Any) -> Tuple[TypeStr, 
     if type_str == 'address' and is_ens_name(val):
         if w3 is None:
             raise InvalidAddress(
-                "Could not look up name %r because no web3"
-                " connection available" % (val)
+                f"Could not look up name {val!r} because no web3"
+                " connection available"
             )
         elif w3.ens is None:
             raise InvalidAddress(
-                "Could not look up name %r because ENS is"
-                " set to None" % (val)
+                f"Could not look up name {val!r} because ENS is"
+                " set to None"
             )
         elif int(w3.net.version) != 1 and not isinstance(w3.ens, StaticENS):
             raise InvalidAddress(
-                "Could not look up name %r because web3 is"
-                " not connected to mainnet" % (val)
+                f"Could not look up name {val!r} because web3 is"
+                " not connected to mainnet"
             )
         else:
             return type_str, validate_name_has_address(w3.ens, val)

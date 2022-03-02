@@ -59,11 +59,8 @@ def _validate_chain_id(web3_chain_id: int, chain_id: int) -> int:
         return chain_id
     else:
         raise ValidationError(
-            "The transaction declared chain ID %r, "
-            "but the connected node is on %r" % (
-                chain_id,
-                web3_chain_id,
-            )
+            f"The transaction declared chain ID {chain_id!r}, "
+            f"but the connected node is on {web3_chain_id!r}"
         )
 
 
@@ -73,13 +70,11 @@ def _check_extradata_length(val: Any) -> Any:
     result = HexBytes(val)
     if len(result) > MAX_EXTRADATA_LENGTH:
         raise ExtraDataLengthError(
-            "The field extraData is %d bytes, but should be %d. "
-            "It is quite likely that you are connected to a POA chain. "
-            "Refer to "
+            f"The field extraData is {len(result)} bytes, but should be "
+            f"{MAX_EXTRADATA_LENGTH}. It is quite likely that you are "
+            "connected to a POA chain. Refer to "
             "http://web3py.readthedocs.io/en/stable/middleware.html#geth-style-proof-of-authority "
-            "for more details. The full extraData is: %r" % (
-                len(result), MAX_EXTRADATA_LENGTH, result
-            )
+            f"for more details. The full extraData is: {result!r}"
         )
     return val
 

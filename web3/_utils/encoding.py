@@ -191,14 +191,14 @@ class FriendlyJsonSerde:
             try:
                 self._friendly_json_encode(val)
             except TypeError as exc:
-                yield "%r: because (%s)" % (key, exc)
+                yield f"{key!r}: because ({exc})"
 
     def _json_list_errors(self, iterable: Iterable[Any]) -> Iterable[str]:
         for index, element in enumerate(iterable):
             try:
                 self._friendly_json_encode(element)
             except TypeError as exc:
-                yield "%d: because (%s)" % (index, exc)
+                yield f"{index}: because ({exc})"
 
     def _friendly_json_encode(self, obj: Dict[Any, Any],
                               cls: Optional[Type[json.JSONEncoder]] = None) -> str:
@@ -238,7 +238,7 @@ def to_4byte_hex(hex_or_str_or_bytes: Union[HexStr, str, bytes, int]) -> HexStr:
     byte_str = hexstr_if_str(to_bytes, hex_or_str_or_bytes)
     if len(byte_str) > 4:
         raise ValueError(
-            'expected value of size 4 bytes. Got: %d bytes' % len(byte_str)
+            f'expected value of size 4 bytes. Got: {len(byte_str)} bytes'
         )
     hex_str = encode_hex(byte_str)
     return pad_hex(hex_str, size_of_4bytes)

@@ -109,7 +109,7 @@ def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxParams:
 
             if callable(default_getter):
                 if w3 is None:
-                    raise ValueError("You must specify a '%s' value in the transaction" % key)
+                    raise ValueError(f"You must specify a '{key}' value in the transaction")
                 default_val = default_getter(w3, transaction)
             else:
                 default_val = default_getter

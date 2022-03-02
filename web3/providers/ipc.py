@@ -52,7 +52,10 @@ class PersistantSocket:
 
     def __enter__(self) -> socket.socket:
         if not self.ipc_path:
-            raise FileNotFoundError("cannot connect to IPC socket at path: %r" % self.ipc_path)
+            raise FileNotFoundError(
+                "cannot connect to IPC socket at path: "
+                f"{self.ipc_path!r}"
+            )
 
         if not self.sock:
             self.sock = self._open()
@@ -231,8 +234,7 @@ class IPCProvider(JSONBaseProvider):
         return f"<{self.__class__.__name__} {self.ipc_path}>"
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        self.logger.debug("Making request IPC. Path: %s, Method: %s",
-                          self.ipc_path, method)
+        self.logger.debug(f"Making request IPC. Path: {self.ipc_path}, Method: {method}")
         request = self.encode_rpc_request(method, params)
 
         with self._lock, self._socket as sock:
