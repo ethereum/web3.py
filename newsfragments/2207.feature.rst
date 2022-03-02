@@ -1,0 +1,1 @@
+Add setter for the Eth.chain_id property

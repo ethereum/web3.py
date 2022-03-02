@@ -114,6 +114,7 @@ from web3.types import (
 class BaseEth(Module):
     _default_account: Union[ChecksumAddress, Empty] = empty
     _default_block: BlockIdentifier = "latest"
+    _default_chain_id: Optional[int] = None
     gasPriceStrategy = None
 
     _gas_price: Method[Callable[[], Wei]] = Method(
@@ -629,7 +630,14 @@ class Eth(BaseEth):
 
     @property
     def chain_id(self) -> int:
-        return self._chain_id()
+        if self._default_chain_id is None:
+            return self._chain_id()
+        else:
+            return self._default_chain_id
+
+    @chain_id.setter
+    def chain_id(self, value: int) -> None:
+        self._default_chain_id = value
 
     @property
     def chainId(self) -> int:
