@@ -3,8 +3,6 @@ services:
   sandbox:
     build:
       context: .
-    environment:
-      PARITY_VERSION: v2.5.13
     volumes:
       - .:/code
     command: tail -f /dev/null
