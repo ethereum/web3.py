@@ -17,11 +17,17 @@ from eth_abi.exceptions import (
 from web3._utils.compat import (
     Literal,
 )
+from web3.middleware.buffered_gas_estimate import (
+    async_buffered_gas_estimate_middleware,
+)
 from web3.providers import (
     BaseProvider,
 )
 from web3.providers.async_base import (
     AsyncBaseProvider,
+)
+from web3.providers.eth_tester.defaults import (
+    API_ENDPOINTS,
 )
 from web3.types import (
     RPCEndpoint,
@@ -29,6 +35,8 @@ from web3.types import (
 )
 
 from .middleware import (
+    async_default_transaction_fields_middleware,
+    async_ethereum_tester_middleware,
     default_transaction_fields_middleware,
     ethereum_tester_middleware,
 )
@@ -43,13 +51,45 @@ if TYPE_CHECKING:
 
 
 class AsyncEthereumTesterProvider(AsyncBaseProvider):
-    def __init__(self) -> None:
-        self.eth_tester = EthereumTesterProvider()
+    middlewares = (
+        async_buffered_gas_estimate_middleware,
+        async_default_transaction_fields_middleware,
+        async_ethereum_tester_middleware
+    )
 
-    async def make_request(
-        self, method: RPCEndpoint, params: Any
-    ) -> RPCResponse:
-        return self.eth_tester.make_request(method, params)
+    def __init__(self) -> None:
+        from eth_tester import EthereumTester
+        self.ethereum_tester = EthereumTester()
+        self.api_endpoints = API_ENDPOINTS
+
+    async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
+        namespace, _, endpoint = method.partition('_')
+        from eth_tester.exceptions import TransactionFailed
+        try:
+            delegator = self.api_endpoints[namespace][endpoint]
+        except KeyError:
+            return RPCResponse(
+                {"error": f"Unknown RPC Endpoint: {method}"}
+            )
+        try:
+            response = delegator(self.ethereum_tester, params)
+        except NotImplementedError:
+            return RPCResponse(
+                {"error": f"RPC Endpoint has not been implemented: {method}"}
+            )
+        except TransactionFailed as e:
+            try:
+                reason = decode_single('(string)', e.args[0].args[0][4:])[0]
+            except (InsufficientDataBytes, AttributeError):
+                reason = e.args[0]
+            raise TransactionFailed(f'execution reverted: {reason}')
+        else:
+            return {
+                'result': response,
+            }
+
+    async def isConnected(self) -> Literal[True]:
+        return True
 
 
 class EthereumTesterProvider(BaseProvider):
