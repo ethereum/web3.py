@@ -151,27 +151,33 @@ if TYPE_CHECKING:
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 
-class ContractFunctions:
+class BaseContractFunctions:
     """Class containing contract function objects
     """
 
-    def __init__(self, abi: ABI, w3: 'Web3', address: Optional[ChecksumAddress] = None) -> None:
+    def __init__(self,
+                 abi: ABI,
+                 w3: 'Web3',
+                 contract_function_class: Union[Type['ContractFunction'],
+                                                Type['AsyncContractFunction']],
+                 address: Optional[ChecksumAddress] = None) -> None:
+
         self.abi = abi
         self.w3 = w3
         self.address = address
 
         if self.abi:
             self._functions = filter_by_type('function', self.abi)
-            for func in self._functions:
-                setattr(
-                    self,
+        for func in self._functions:
+            setattr(
+                self,
+                func['name'],
+                contract_function_class.factory(
                     func['name'],
-                    ContractFunction.factory(
-                        func['name'],
-                        w3=self.w3,
-                        contract_abi=self.abi,
-                        address=self.address,
-                        function_identifier=func['name']))
+                    w3=self.w3,
+                    contract_abi=self.abi,
+                    address=self.address,
+                    function_identifier=func['name']))
 
     def __iter__(self) -> Generator[str, None, None]:
         if not hasattr(self, '_functions') or not self._functions:
@@ -206,6 +212,24 @@ class ContractFunctions:
             return event_name in self.__dict__['_events']
         except ABIFunctionNotFound:
             return False
+
+
+class ContractFunctions(BaseContractFunctions):
+    def __init__(self,
+                 abi: ABI,
+                 w3: 'Web3',
+                 address: Optional[ChecksumAddress] = None,
+                 ) -> None:
+        super().__init__(abi, w3, ContractFunction, address)
+
+
+class AsyncContractFunctions(BaseContractFunctions):
+    def __init__(self,
+                 abi: ABI,
+                 w3: 'Web3',
+                 address: Optional[ChecksumAddress] = None,
+                 ) -> None:
+        super().__init__(abi, w3, AsyncContractFunction, address)
 
 
 class ContractEvents:
@@ -276,7 +300,7 @@ class ContractEvents:
             return False
 
 
-class Contract:
+class BaseContract:
     """Base class for Contract proxy classes.
 
     First you need to create your Contract classes using
@@ -326,45 +350,18 @@ class Contract:
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
         """Create a new smart contract proxy object.
 
-        :param address: Contract address as 0x hex string
-        """
-        if self.w3 is None:
-            raise AttributeError(
-                'The `Contract` class has not been initialized.  Please use the '
-                '`web3.contract` interface to create your contract class.'
-            )
+        :param address: Contract address as 0x hex string"""
 
-        if address:
-            self.address = normalize_address(self.w3.ens, address)
-
-        if not self.address:
-            raise TypeError("The address argument is required to instantiate a contract.")
-
-        self.functions = ContractFunctions(self.abi, self.w3, self.address)
         self.caller = ContractCaller(self.abi, self.w3, self.address)
         self.events = ContractEvents(self.abi, self.w3, self.address)
         self.fallback = Contract.get_fallback_function(self.abi, self.w3, self.address)
         self.receive = Contract.get_receive_function(self.abi, self.w3, self.address)
 
     @classmethod
-    def factory(cls, w3: 'Web3', class_name: Optional[str] = None, **kwargs: Any) -> 'Contract':
+    def factory(cls,
+                contract: Union['Contract', 'AsyncContract']
+                ) -> Union['Contract', 'AsyncContract']:
 
-        kwargs['w3'] = w3
-
-        normalizers = {
-            'abi': normalize_abi,
-            'address': partial(normalize_address, kwargs['w3'].ens),
-            'bytecode': normalize_bytecode,
-            'bytecode_runtime': normalize_bytecode,
-        }
-
-        contract = cast(Contract, PropertyCheckingFactory(
-            class_name or cls.__name__,
-            (cls,),
-            kwargs,
-            normalizers=normalizers,
-        ))
-        contract.functions = ContractFunctions(contract.abi, contract.w3)
         contract.caller = ContractCaller(contract.abi, contract.w3, contract.address)
         contract.events = ContractEvents(contract.abi, contract.w3)
         contract.fallback = Contract.get_fallback_function(contract.abi, contract.w3)
@@ -583,6 +580,87 @@ class Contract:
         return deploy_data
 
 
+class Contract(BaseContract):
+
+    def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
+        if self.w3 is None:
+            raise AttributeError(
+                'The `Contract` class has not been initialized.  Please use the '
+                '`web3.contract` interface to create your contract class.'
+            )
+
+        if address:
+            self.address = normalize_address(self.w3.ens, address)
+
+        if not self.address:
+            raise TypeError("The address argument is required to instantiate a contract.")
+
+        self.functions = ContractFunctions(self.abi, self.w3, self.address)
+        super().__init__(address)
+
+    @classmethod
+    def factory(cls, w3: 'Web3', class_name: Optional[str] = None, **kwargs: Any) -> 'Contract':
+        kwargs['w3'] = w3
+
+        normalizers = {
+            'abi': normalize_abi,
+            'address': partial(normalize_address, kwargs['w3'].ens),
+            'bytecode': normalize_bytecode,
+            'bytecode_runtime': normalize_bytecode,
+        }
+
+        contract = cast(Contract, PropertyCheckingFactory(
+            class_name or cls.__name__,
+            (cls,),
+            kwargs,
+            normalizers=normalizers,
+        ))
+        contract.functions = ContractFunctions(contract.abi, contract.w3)
+        contract = BaseContract.factory(contract)
+        return contract
+
+
+class AsyncContract(BaseContract):
+
+    def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
+        if self.w3 is None:
+            raise AttributeError(
+                'The `Contract` class has not been initialized.  Please use the '
+                '`web3.contract` interface to create your contract class.'
+            )
+
+        if address:
+            self.address = normalize_address(self.w3.ens, address)
+
+        if not self.address:
+            raise TypeError("The address argument is required to instantiate a contract.")
+        self.functions = AsyncContractFunctions(self.abi, self.w3, self.address)
+        super().__init__(address)
+
+    @classmethod
+    def factory(cls, w3: 'Web3',
+                class_name: Optional[str] = None,
+                **kwargs: Any) -> 'AsyncContract':
+        kwargs['w3'] = w3
+
+        normalizers = {
+            'abi': normalize_abi,
+            'address': partial(normalize_address, kwargs['w3'].ens),
+            'bytecode': normalize_bytecode,
+            'bytecode_runtime': normalize_bytecode,
+        }
+
+        contract = cast(AsyncContract, PropertyCheckingFactory(
+            class_name or cls.__name__,
+            (cls,),
+            kwargs,
+            normalizers=normalizers,
+        ))
+        contract.functions = AsyncContractFunctions(contract.abi, contract.w3)
+        contract = BaseContract.factory(contract)
+        return contract
+
+
 def mk_collision_prop(fn_name: str) -> Callable[[], None]:
     def collision_fn() -> NoReturn:
         msg = "Namespace collision for function name {0} with ConciseContract API.".format(fn_name)
@@ -591,7 +669,7 @@ def mk_collision_prop(fn_name: str) -> Callable[[], None]:
     return collision_fn
 
 
-class ContractConstructor:
+class BaseContractConstructor:
     """
     Class for contract constructor API.
     """
@@ -644,8 +722,7 @@ class ContractConstructor:
             estimate_gas_transaction, block_identifier=block_identifier
         )
 
-    @combomethod
-    def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+    def _get_transaction(self, transaction: Optional[TxParams] = None) -> HexBytes:
         if transaction is None:
             transact_transaction: TxParams = {}
         else:
@@ -659,8 +736,7 @@ class ContractConstructor:
 
         transact_transaction['data'] = self.data_in_transaction
 
-        # TODO: handle asynchronous contract creation
-        return self.w3.eth.send_transaction(transact_transaction)
+        return transact_transaction
 
     @combomethod
     def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
@@ -692,6 +768,20 @@ class ContractConstructor:
             raise ValueError(
                 "Cannot set '{}' field(s) in transaction".format(', '.join(keys_found))
             )
+
+
+class ContractConstructor(BaseContractConstructor):
+
+    @combomethod
+    def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+        return self.w3.eth.send_transaction(self._get_transaction(transaction))
+
+
+class AsyncContractConstructor(BaseContractConstructor):
+
+    @combomethod
+    async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+        return await self.w3.eth.send_transaction(self._get_transaction(transaction))
 
 
 class ConciseMethod:
@@ -844,7 +934,7 @@ class NonExistentReceiveFunction:
         return self._raise_exception
 
 
-class ContractFunction:
+class BaseContractFunction:
     """Base class for contract functions
 
     A function accessed via the api contract.functions.myMethod(*args, **kwargs)
@@ -897,35 +987,8 @@ class ContractFunction:
 
         self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
 
-    def call(
-        self, transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = 'latest',
-        state_override: Optional[CallOverrideParams] = None,
-    ) -> Any:
-        """
-        Execute a contract function call using the `eth_call` interface.
+    def _get_call_txparams(self, transaction: Optional[TxParams] = None) -> TxParams:
 
-        This method prepares a ``Caller`` object that exposes the contract
-        functions and public variables as callable Python functions.
-
-        Reading a public ``owner`` address variable example:
-
-        .. code-block:: python
-
-            ContractFactory = w3.eth.contract(
-                abi=wallet_contract_definition["abi"]
-            )
-
-            # Not a real contract address
-            contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
-
-            # Read "owner" public variable
-            addr = contract.functions.owner().call()
-
-        :param transaction: Dictionary of transaction info for web3 interface
-        :return: ``Caller`` object that has contract public functions
-            and variables exposed as Python methods
-        """
         if transaction is None:
             call_transaction: TxParams = {}
         else:
@@ -952,21 +1015,7 @@ class ContractFunction:
                     "Please ensure that this contract instance has an address."
                 )
 
-        block_id = parse_block_identifier(self.w3, block_identifier)
-
-        return call_contract_function(
-            self.w3,
-            self.address,
-            self._return_data_normalizers,
-            self.function_identifier,
-            call_transaction,
-            block_id,
-            self.contract_abi,
-            self.abi,
-            state_override,
-            *self.args,
-            **self.kwargs
-        )
+        return call_transaction
 
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         if transaction is None:
@@ -1104,6 +1153,104 @@ class ContractFunction:
                 _repr += ' bound to %r' % (self.arguments,)
             return _repr + '>'
         return '<Function %s>' % self.fn_name
+
+
+class ContractFunction(BaseContractFunction):
+
+    def call(self, transaction: Optional[TxParams] = None,
+             block_identifier: BlockIdentifier = 'latest',
+             state_override: Optional[CallOverrideParams] = None,
+             ) -> Any:
+        """
+        Execute a contract function call using the `eth_call` interface.
+
+        This method prepares a ``Caller`` object that exposes the contract
+        functions and public variables as callable Python functions.
+
+        Reading a public ``owner`` address variable example:
+
+        .. code-block:: python
+
+            ContractFactory = w3.eth.contract(
+                abi=wallet_contract_definition["abi"]
+            )
+
+            # Not a real contract address
+            contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
+
+            # Read "owner" public variable
+            addr = contract.functions.owner().call()
+
+        :param transaction: Dictionary of transaction info for web3 interface
+        :return: ``Caller`` object that has contract public functions
+            and variables exposed as Python methods
+        """
+        call_transaction = self._get_call_txparams(transaction)
+
+        block_id = parse_block_identifier(self.w3, block_identifier)
+
+        return call_contract_function(self.w3,
+                                      self.address,
+                                      self._return_data_normalizers,
+                                      self.function_identifier,
+                                      call_transaction,
+                                      block_id,
+                                      self.contract_abi,
+                                      self.abi,
+                                      state_override,
+                                      *self.args,
+                                      **self.kwargs
+                                      )
+
+
+class AsyncContractFunction(BaseContractFunction):
+
+    async def call(
+        self, transaction: Optional[TxParams] = None,
+        block_identifier: BlockIdentifier = 'latest',
+        state_override: Optional[CallOverrideParams] = None,
+    ) -> Any:
+        """
+        Execute a contract function call using the `eth_call` interface.
+
+        This method prepares a ``Caller`` object that exposes the contract
+        functions and public variables as callable Python functions.
+
+        Reading a public ``owner`` address variable example:
+
+        .. code-block:: python
+
+            ContractFactory = w3.eth.contract(
+                abi=wallet_contract_definition["abi"]
+            )
+
+            # Not a real contract address
+            contract = ContractFactory("0x2f70d3d26829e412A602E83FE8EeBF80255AEeA5")
+
+            # Read "owner" public variable
+            addr = contract.functions.owner().call()
+
+        :param transaction: Dictionary of transaction info for web3 interface
+        :return: ``Caller`` object that has contract public functions
+            and variables exposed as Python methods
+        """
+        call_transaction = self._get_call_txparams(transaction)
+
+        block_id = await async_parse_block_identifier(self.w3, block_identifier)
+
+        return await async_call_contract_function(
+            self.w3,
+            self.address,
+            self._return_data_normalizers,
+            self.function_identifier,
+            call_transaction,
+            block_id,
+            self.contract_abi,
+            self.abi,
+            state_override,
+            *self.args,
+            **self.kwargs
+        )
 
 
 class ContractEvent:
@@ -1348,7 +1495,7 @@ class ContractEvent:
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
 
 
-class ContractCaller:
+class BaseContractCaller:
     """
     An alternative Contract API.
 
@@ -1375,7 +1522,9 @@ class ContractCaller:
                  w3: 'Web3',
                  address: ChecksumAddress,
                  transaction: Optional[TxParams] = None,
-                 block_identifier: BlockIdentifier = 'latest') -> None:
+                 block_identifier: BlockIdentifier = 'latest',
+                 contract_function_class: Optional[BaseContractFunction] = ContractFunction
+                 ) -> None:
         self.w3 = w3
         self.address = address
         self.abi = abi
@@ -1387,7 +1536,7 @@ class ContractCaller:
 
             self._functions = filter_by_type('function', self.abi)
             for func in self._functions:
-                fn: ContractFunction = ContractFunction.factory(
+                fn: BaseContractFunction = contract_function_class.factory(
                     func['name'],
                     w3=self.w3,
                     contract_abi=self.abi,
@@ -1453,6 +1602,29 @@ class ContractCaller:
         return fn(*args, **kwargs).call(transaction, block_identifier)
 
 
+class ContractCaller(BaseContractCaller):
+    def __init__(self,
+                 abi: ABI,
+                 w3: 'Web3',
+                 address: ChecksumAddress,
+                 transaction: Optional[TxParams] = None,
+                 block_identifier: BlockIdentifier = 'latest') -> None:
+        super().__init__(abi, w3, address,
+                         transaction, block_identifier, ContractFunction)
+
+
+class AsyncContractCaller(BaseContractCaller):
+
+    def __init__(self,
+                 abi: ABI,
+                 w3: 'Web3',
+                 address: ChecksumAddress,
+                 transaction: Optional[TxParams] = None,
+                 block_identifier: BlockIdentifier = 'latest') -> None:
+        super().__init__(abi, w3, address,
+                         transaction, block_identifier, AsyncContractFunction)
+
+
 def check_for_forbidden_api_filter_arguments(
     event_abi: ABIEvent, _filters: Dict[str, Any]
 ) -> None:
@@ -1471,39 +1643,19 @@ def check_for_forbidden_api_filter_arguments(
                 "method.")
 
 
-def call_contract_function(
-        w3: 'Web3',
-        address: ChecksumAddress,
-        normalizers: Tuple[Callable[..., Any], ...],
-        function_identifier: FunctionIdentifier,
-        transaction: TxParams,
-        block_id: Optional[BlockIdentifier] = None,
-        contract_abi: Optional[ABI] = None,
-        fn_abi: Optional[ABIFunction] = None,
-        state_override: Optional[CallOverrideParams] = None,
-        *args: Any,
-        **kwargs: Any) -> Any:
+def _call_contract_function(w3: 'Web3',
+                            address: ChecksumAddress,
+                            normalizers: Tuple[Callable[..., Any], ...],
+                            function_identifier: FunctionIdentifier,
+                            return_data: Union[bytes, bytearray],
+                            contract_abi: Optional[ABI] = None,
+                            fn_abi: Optional[ABIFunction] = None,
+                            *args: Any,
+                            **kwargs: Any) -> Any:
     """
     Helper function for interacting with a contract function using the
     `eth_call` API.
     """
-    call_transaction = prepare_transaction(
-        address,
-        w3,
-        fn_identifier=function_identifier,
-        contract_abi=contract_abi,
-        fn_abi=fn_abi,
-        transaction=transaction,
-        fn_args=args,
-        fn_kwargs=kwargs,
-    )
-
-    return_data = w3.eth.call(
-        call_transaction,
-        block_identifier=block_id,
-        state_override=state_override,
-    )
-
     if fn_abi is None:
         fn_abi = find_matching_fn_abi(contract_abi, w3.codec, function_identifier, args, kwargs)
 
@@ -1541,6 +1693,94 @@ def call_contract_function(
         return normalized_data
 
 
+def call_contract_function(
+        w3: 'Web3',
+        address: ChecksumAddress,
+        normalizers: Tuple[Callable[..., Any], ...],
+        function_identifier: FunctionIdentifier,
+        transaction: TxParams,
+        block_id: Optional[BlockIdentifier] = None,
+        contract_abi: Optional[ABI] = None,
+        fn_abi: Optional[ABIFunction] = None,
+        state_override: Optional[CallOverrideParams] = None,
+        *args: Any,
+        **kwargs: Any) -> Any:
+    """
+    Helper function for interacting with a contract function using the
+    `eth_call` API.
+    """
+    call_transaction = prepare_transaction(
+        address,
+        w3,
+        fn_identifier=function_identifier,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    return_data = w3.eth.call(
+        call_transaction,
+        block_identifier=block_id,
+        state_override=state_override,
+    )
+
+    return _call_contract_function(w3,
+                                   address,
+                                   normalizers,
+                                   function_identifier,
+                                   return_data,
+                                   contract_abi,
+                                   fn_abi,
+                                   args,
+                                   kwargs)
+
+
+async def async_call_contract_function(
+        w3: 'Web3',
+        address: ChecksumAddress,
+        normalizers: Tuple[Callable[..., Any], ...],
+        function_identifier: FunctionIdentifier,
+        transaction: TxParams,
+        block_id: Optional[BlockIdentifier] = None,
+        contract_abi: Optional[ABI] = None,
+        fn_abi: Optional[ABIFunction] = None,
+        state_override: Optional[CallOverrideParams] = None,
+        *args: Any,
+        **kwargs: Any) -> Any:
+    """
+    Helper function for interacting with a contract function using the
+    `eth_call` API.
+    """
+    call_transaction = prepare_transaction(
+        address,
+        w3,
+        fn_identifier=function_identifier,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    return_data = await w3.eth.call(
+        call_transaction,
+        block_identifier=block_id,
+        state_override=state_override,
+    )
+
+    return _call_contract_function(w3,
+                                   address,
+                                   normalizers,
+                                   function_identifier,
+                                   return_data,
+                                   contract_abi,
+                                   fn_abi,
+                                   args,
+                                   kwargs)
+
+
 def parse_block_identifier(w3: 'Web3', block_identifier: BlockIdentifier) -> BlockIdentifier:
     if isinstance(block_identifier, int):
         return parse_block_identifier_int(w3, block_identifier)
@@ -1548,6 +1788,19 @@ def parse_block_identifier(w3: 'Web3', block_identifier: BlockIdentifier) -> Blo
         return block_identifier
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
         return w3.eth.get_block(block_identifier)['number']
+    else:
+        raise BlockNumberOutofRange
+
+
+async def async_parse_block_identifier(w3: 'Web3',
+                                       block_identifier: BlockIdentifier
+                                       ) -> BlockIdentifier:
+    if isinstance(block_identifier, int):
+        return parse_block_identifier_int(w3, block_identifier)
+    elif block_identifier in ['latest', 'earliest', 'pending']:
+        return block_identifier
+    elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
+        return await w3.eth.get_block(block_identifier)['number']
     else:
         raise BlockNumberOutofRange
 
