@@ -333,7 +333,7 @@ class BaseContract:
     bytecode_runtime = None
     clone_bin = None
 
-    functions: ContractFunctions = None
+    functions: Union[ContractFunctions, AsyncContractFunctions] = None
     caller: 'ContractCaller' = None
 
     #: Instance of :class:`ContractEvents` presenting available Event ABIs
@@ -722,7 +722,7 @@ class BaseContractConstructor:
             estimate_gas_transaction, block_identifier=block_identifier
         )
 
-    def _get_transaction(self, transaction: Optional[TxParams] = None) -> HexBytes:
+    def _get_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
         if transaction is None:
             transact_transaction: TxParams = {}
         else:
@@ -781,7 +781,8 @@ class AsyncContractConstructor(BaseContractConstructor):
 
     @combomethod
     async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
-        return await self.w3.eth.send_transaction(self._get_transaction(transaction))
+        return await self.w3.eth.send_transaction(   # type: ignore
+            self._get_transaction(transaction))
 
 
 class ConciseMethod:
@@ -954,7 +955,7 @@ class BaseContractFunction:
         self.abi = abi
         self.fn_name = type(self).__name__
 
-    def __call__(self, *args: Any, **kwargs: Any) -> 'ContractFunction':
+    def __call__(self, *args: Any, **kwargs: Any) -> 'BaseContractFunction':
         clone = copy.copy(self)
         if args is None:
             clone.args = tuple()
@@ -1523,7 +1524,8 @@ class BaseContractCaller:
                  address: ChecksumAddress,
                  transaction: Optional[TxParams] = None,
                  block_identifier: BlockIdentifier = 'latest',
-                 contract_function_class: Optional[BaseContractFunction] = ContractFunction
+                 contract_function_class:
+                 Optional[Union[ContractFunction, AsyncContractFunction]] = ContractFunction
                  ) -> None:
         self.w3 = w3
         self.address = address
