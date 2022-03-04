@@ -955,20 +955,6 @@ class BaseContractFunction:
         self.abi = abi
         self.fn_name = type(self).__name__
 
-    def __call__(self, *args: Any, **kwargs: Any) -> 'BaseContractFunction':
-        clone = copy.copy(self)
-        if args is None:
-            clone.args = tuple()
-        else:
-            clone.args = args
-
-        if kwargs is None:
-            clone.kwargs = {}
-        else:
-            clone.kwargs = kwargs
-        clone._set_function_info()
-        return clone
-
     def _set_function_info(self) -> None:
         if not self.abi:
             self.abi = find_matching_fn_abi(
@@ -1158,6 +1144,22 @@ class BaseContractFunction:
 
 class ContractFunction(BaseContractFunction):
 
+    def __call__(self,
+                 *args: Any,
+                 **kwargs: Any) -> 'ContractFunction':
+        clone = copy.copy(self)
+        if args is None:
+            clone.args = tuple()
+        else:
+            clone.args = args
+
+        if kwargs is None:
+            clone.kwargs = {}
+        else:
+            clone.kwargs = kwargs
+        clone._set_function_info()
+        return clone
+
     def call(self, transaction: Optional[TxParams] = None,
              block_identifier: BlockIdentifier = 'latest',
              state_override: Optional[CallOverrideParams] = None,
@@ -1205,6 +1207,22 @@ class ContractFunction(BaseContractFunction):
 
 
 class AsyncContractFunction(BaseContractFunction):
+
+    def __call__(self,
+                 *args: Any,
+                 **kwargs: Any) -> 'AsyncContractFunction':
+        clone = copy.copy(self)
+        if args is None:
+            clone.args = tuple()
+        else:
+            clone.args = args
+
+        if kwargs is None:
+            clone.kwargs = {}
+        else:
+            clone.kwargs = kwargs
+        clone._set_function_info()
+        return clone
 
     async def call(
         self, transaction: Optional[TxParams] = None,
@@ -1525,7 +1543,8 @@ class BaseContractCaller:
                  transaction: Optional[TxParams] = None,
                  block_identifier: BlockIdentifier = 'latest',
                  contract_function_class:
-                 Optional[Union[ContractFunction, AsyncContractFunction]] = ContractFunction
+                 Optional[Union[Type[ContractFunction],
+                                Type[AsyncContractFunction]]] = ContractFunction
                  ) -> None:
         self.w3 = w3
         self.address = address
@@ -1580,17 +1599,6 @@ class BaseContractCaller:
         except ABIFunctionNotFound:
             return False
 
-    def __call__(
-        self, transaction: Optional[TxParams] = None, block_identifier: BlockIdentifier = 'latest'
-    ) -> 'ContractCaller':
-        if transaction is None:
-            transaction = {}
-        return type(self)(self.abi,
-                          self.w3,
-                          self.address,
-                          transaction=transaction,
-                          block_identifier=block_identifier)
-
     @staticmethod
     def call_function(
         fn: ContractFunction,
@@ -1614,6 +1622,17 @@ class ContractCaller(BaseContractCaller):
         super().__init__(abi, w3, address,
                          transaction, block_identifier, ContractFunction)
 
+    def __call__(
+        self, transaction: Optional[TxParams] = None, block_identifier: BlockIdentifier = 'latest'
+    ) -> 'ContractCaller':
+        if transaction is None:
+            transaction = {}
+        return type(self)(self.abi,
+                          self.w3,
+                          self.address,
+                          transaction=transaction,
+                          block_identifier=block_identifier)
+
 
 class AsyncContractCaller(BaseContractCaller):
 
@@ -1625,6 +1644,17 @@ class AsyncContractCaller(BaseContractCaller):
                  block_identifier: BlockIdentifier = 'latest') -> None:
         super().__init__(abi, w3, address,
                          transaction, block_identifier, AsyncContractFunction)
+
+    def __call__(
+        self, transaction: Optional[TxParams] = None, block_identifier: BlockIdentifier = 'latest'
+    ) -> 'AsyncContractCaller':
+        if transaction is None:
+            transaction = {}
+        return type(self)(self.abi,
+                          self.w3,
+                          self.address,
+                          transaction=transaction,
+                          block_identifier=block_identifier)
 
 
 def check_for_forbidden_api_filter_arguments(
@@ -1766,7 +1796,7 @@ async def async_call_contract_function(
         fn_kwargs=kwargs,
     )
 
-    return_data = await w3.eth.call(
+    return_data = await w3.eth.call(  # type: ignore
         call_transaction,
         block_identifier=block_id,
         state_override=state_override,
@@ -1802,7 +1832,7 @@ async def async_parse_block_identifier(w3: 'Web3',
     elif block_identifier in ['latest', 'earliest', 'pending']:
         return block_identifier
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
-        return await w3.eth.get_block(block_identifier)['number']
+        return await w3.eth.get_block(block_identifier)['number']  # type: ignore
     else:
         raise BlockNumberOutofRange
 

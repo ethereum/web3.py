@@ -370,7 +370,7 @@ async def async_default_transaction_fields_middleware(
             'eth_sendTransaction',
         ):
             filled_transaction = await async_fill_default('from', guess_from, web3, params[0])
-            return await make_request(method,  # type: ignore
+            return await make_request(method,
                                       [filled_transaction] + list(params)[1:])
         else:
             return await make_request(method, params)

@@ -9,9 +9,6 @@ from eth_utils.toolz import (
     identity,
 )
 
-from ens import (
-    AsyncENS,
-)
 from web3 import Web3
 from web3._utils.module_testing.emitter_contract import (
     CONTRACT_EMITTER_ABI,
@@ -1071,7 +1068,6 @@ async def async_w3():
     provider = AsyncEthereumTesterProvider()
     w3 = Web3(provider, modules={'eth': [AsyncEth]},
               middlewares=provider.middlewares)
-    w3.ens = AsyncENS.fromWeb3(w3)
     w3.eth.default_account = await w3.eth.coinbase
     return w3
 
