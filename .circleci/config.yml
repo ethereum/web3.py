@@ -18,7 +18,7 @@ common: &common
         command: pip install --user tox
     - run:
         name: split tests
-        command: circleci tests glob "tests/**/test_*.py" | circleci tests split --split-by=filesize
+        command: circleci tests glob "tests/**/test_*.py" | circleci tests split --split-by=filesize > /tmp/tests-to-run
     - run:
         name: run tox
         command: ~/.local/bin/tox -r
