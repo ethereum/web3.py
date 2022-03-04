@@ -2,6 +2,7 @@
 
 from .main import (
     ENS,
+    AsyncENS
 )
 
 from .exceptions import (

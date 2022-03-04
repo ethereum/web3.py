@@ -155,11 +155,11 @@ class BaseContractFunctions:
     """Class containing contract function objects
     """
 
-    def __init__(self, 
-                 abi: ABI, 
-                 w3: 'Web3', 
-                 #TODO: Typing isn't working here
-                 contract_function_class,
+    def __init__(self,
+                 abi: ABI,
+                 w3: 'Web3',
+                 contract_function_class: Union[Type['ContractFunction'],
+                                                Type['AsyncContractFunction']],
                  address: Optional[ChecksumAddress] = None) -> None:
 
         self.abi = abi
@@ -168,16 +168,16 @@ class BaseContractFunctions:
 
         if self.abi:
             self._functions = filter_by_type('function', self.abi)
-            for func in self._functions:
-                setattr(
-                    self,
+        for func in self._functions:
+            setattr(
+                self,
+                func['name'],
+                contract_function_class.factory(
                     func['name'],
-                    contract_function_class.factory(
-                        func['name'],
-                        w3=self.w3,
-                        contract_abi=self.abi,
-                        address=self.address,
-                        function_identifier=func['name']))
+                    w3=self.w3,
+                    contract_abi=self.abi,
+                    address=self.address,
+                    function_identifier=func['name']))
 
     def __iter__(self) -> Generator[str, None, None]:
         if not hasattr(self, '_functions') or not self._functions:
@@ -213,18 +213,20 @@ class BaseContractFunctions:
         except ABIFunctionNotFound:
             return False
 
+
 class ContractFunctions(BaseContractFunctions):
-    def __init__(self, 
-                abi: ABI, 
-                w3: 'Web3', 
-                address: Optional[ChecksumAddress] = None,
-                ) -> None:
+    def __init__(self,
+                 abi: ABI,
+                 w3: 'Web3',
+                 address: Optional[ChecksumAddress] = None,
+                 ) -> None:
         super().__init__(abi, w3, ContractFunction, address)
 
+
 class AsyncContractFunctions(BaseContractFunctions):
-    def __init__(self, 
-                 abi: ABI, 
-                 w3: 'Web3', 
+    def __init__(self,
+                 abi: ABI,
+                 w3: 'Web3',
                  address: Optional[ChecksumAddress] = None,
                  ) -> None:
         super().__init__(abi, w3, AsyncContractFunction, address)
@@ -356,7 +358,9 @@ class BaseContract:
         self.receive = Contract.get_receive_function(self.abi, self.w3, self.address)
 
     @classmethod
-    def factory(cls, contract) -> 'BaseContract':
+    def factory(cls,
+                contract: Union['Contract', 'AsyncContract']
+                ) -> Union['Contract', 'AsyncContract']:
 
         contract.caller = ContractCaller(contract.abi, contract.w3, contract.address)
         contract.events = ContractEvents(contract.abi, contract.w3)
@@ -577,7 +581,7 @@ class BaseContract:
 
 
 class Contract(BaseContract):
-    
+
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
         if self.w3 is None:
             raise AttributeError(
@@ -593,7 +597,7 @@ class Contract(BaseContract):
 
         self.functions = ContractFunctions(self.abi, self.w3, self.address)
         super().__init__(address)
-    
+
     @classmethod
     def factory(cls, w3: 'Web3', class_name: Optional[str] = None, **kwargs: Any) -> 'Contract':
         kwargs['w3'] = w3
@@ -612,8 +616,9 @@ class Contract(BaseContract):
             normalizers=normalizers,
         ))
         contract.functions = ContractFunctions(contract.abi, contract.w3)
-        contract = super().factory(contract)  
+        contract = BaseContract.factory(contract)
         return contract
+
 
 class AsyncContract(BaseContract):
 
@@ -633,7 +638,9 @@ class AsyncContract(BaseContract):
         super().__init__(address)
 
     @classmethod
-    def factory(cls, w3: 'Web3', class_name: Optional[str] = None, **kwargs: Any) -> 'Contract':
+    def factory(cls, w3: 'Web3',
+                class_name: Optional[str] = None,
+                **kwargs: Any) -> 'AsyncContract':
         kwargs['w3'] = w3
 
         normalizers = {
@@ -650,9 +657,8 @@ class AsyncContract(BaseContract):
             normalizers=normalizers,
         ))
         contract.functions = AsyncContractFunctions(contract.abi, contract.w3)
-        contract = BaseContract.factory(contract)  
+        contract = BaseContract.factory(contract)
         return contract
-
 
 
 def mk_collision_prop(fn_name: str) -> Callable[[], None]:
@@ -769,6 +775,7 @@ class ContractConstructor(BaseContractConstructor):
     @combomethod
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         return self.w3.eth.send_transaction(self._get_transaction(transaction))
+
 
 class AsyncContractConstructor(BaseContractConstructor):
 
@@ -1516,7 +1523,8 @@ class BaseContractCaller:
                  address: ChecksumAddress,
                  transaction: Optional[TxParams] = None,
                  block_identifier: BlockIdentifier = 'latest',
-                 contract_function_class: Optional[BaseContractFunction] = ContractFunction) -> None:
+                 contract_function_class: Optional[BaseContractFunction] = ContractFunction
+                 ) -> None:
         self.w3 = w3
         self.address = address
         self.abi = abi
@@ -1593,26 +1601,29 @@ class BaseContractCaller:
             transaction = {}
         return fn(*args, **kwargs).call(transaction, block_identifier)
 
+
 class ContractCaller(BaseContractCaller):
     def __init__(self,
-                abi: ABI,
-                w3: 'Web3',
-                address: ChecksumAddress,
-                transaction: Optional[TxParams] = None,
-                block_identifier: BlockIdentifier = 'latest') -> None:
-        super().__init__(abi, w3,  address, 
-                       transaction, block_identifier, ContractFunction) 
+                 abi: ABI,
+                 w3: 'Web3',
+                 address: ChecksumAddress,
+                 transaction: Optional[TxParams] = None,
+                 block_identifier: BlockIdentifier = 'latest') -> None:
+        super().__init__(abi, w3, address,
+                         transaction, block_identifier, ContractFunction)
+
 
 class AsyncContractCaller(BaseContractCaller):
 
     def __init__(self,
-                abi: ABI,
-                w3: 'Web3',
-                address: ChecksumAddress,
-                transaction: Optional[TxParams] = None,
-                block_identifier: BlockIdentifier = 'latest') -> None:
-        super().__init__(abi, w3,  address, 
-                       transaction, block_identifier, AsyncContractFunction) 
+                 abi: ABI,
+                 w3: 'Web3',
+                 address: ChecksumAddress,
+                 transaction: Optional[TxParams] = None,
+                 block_identifier: BlockIdentifier = 'latest') -> None:
+        super().__init__(abi, w3, address,
+                         transaction, block_identifier, AsyncContractFunction)
+
 
 def check_for_forbidden_api_filter_arguments(
     event_abi: ABIEvent, _filters: Dict[str, Any]

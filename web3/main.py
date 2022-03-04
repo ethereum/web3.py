@@ -46,7 +46,7 @@ from eth_utils import (
 )
 
 from ens import ENS
-from ens.main import BaseENS
+from ens.main import AsyncENS, BaseENS
 from web3._utils.abi import (
     build_default_registry,
     build_strict_registry,
@@ -239,7 +239,7 @@ class Web3:
         middlewares: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
-        ens: ENS = cast(ENS, empty)
+        ens: Union[ENS, AsyncENS] = cast(ENS, empty)
     ) -> None:
         self.manager = self.RequestManager(self, provider, middlewares)
         # this codec gets used in the module initialization,
@@ -347,14 +347,14 @@ class Web3:
         return self.codec.is_encodable(_type, value)
 
     @property
-    def ens(self) -> BaseENS:
+    def ens(self) -> Union['ENS', 'AsyncENS']:
         if self._ens is cast(ENS, empty):
             return ENS.fromWeb3(self)
         else:
             return self._ens
 
     @ens.setter
-    def ens(self, new_ens: BaseENS) -> None:
+    def ens(self, new_ens: Union['ENS', 'AsyncENS']) -> None:
         self._ens = new_ens
 
     @property

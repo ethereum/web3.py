@@ -1,4 +1,3 @@
-import asyncio
 import operator
 from typing import (
     TYPE_CHECKING,
@@ -27,7 +26,6 @@ from eth_utils.toolz import (
     partial,
     pipe,
 )
-from web3 import middleware
 
 from web3._utils.formatters import (
     apply_formatter_to_array,
@@ -41,8 +39,11 @@ from web3._utils.formatters import (
 from web3.middleware import (
     construct_formatting_middleware,
 )
-from web3.middleware.formatting import async_construct_formatting_middleware
+from web3.middleware.formatting import (
+    async_construct_formatting_middleware,
+)
 from web3.types import (
+    Middleware,
     RPCEndpoint,
     RPCResponse,
     TxParams,
@@ -286,12 +287,15 @@ result_formatters = {
     RPCEndpoint('evm_snapshot'): integer_to_hex,
 }
 
-async def async_ethereum_tester_middleware(make_request, web3):
+
+async def async_ethereum_tester_middleware(make_request, web3: "Web3") -> Middleware:
     middleware = await async_construct_formatting_middleware(
         request_formatters=request_formatters,
         result_formatters=result_formatters
     )
     return await middleware(make_request, web3)
+
+
 ethereum_tester_middleware = construct_formatting_middleware(
     request_formatters=request_formatters,
     result_formatters=result_formatters
@@ -366,7 +370,7 @@ async def async_default_transaction_fields_middleware(
             'eth_sendTransaction',
         ):
             filled_transaction = await async_fill_default('from', guess_from, web3, params[0])
-            return await make_request(method, [filled_transaction] + list(params)[1:])
+            return await make_request(method, [filled_transaction] + list(params)[1:])  # type: ignore
         else:
             return await make_request(method, params)
     return middleware

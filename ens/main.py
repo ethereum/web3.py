@@ -6,6 +6,7 @@ from functools import (
 )
 from typing import (
     TYPE_CHECKING,
+    Awaitable,
     Optional,
     Sequence,
     Tuple,
@@ -54,6 +55,7 @@ from ens.utils import (
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
     from web3.contract import (  # noqa: F401
+        AsyncContract,
         Contract,
     )
     from web3.providers import (  # noqa: F401
@@ -118,6 +120,7 @@ class BaseENS:
                 )
             )
 
+
 class ENS(BaseENS):
     """
     Quick access to common Ethereum Name Service functions,
@@ -134,7 +137,7 @@ class ENS(BaseENS):
         addr: ChecksumAddress = None,
         middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None,
     ) -> None:
-       super().__init__(provider, addr, middlewares)
+        super().__init__(provider, addr, middlewares)
 
     @classmethod
     def fromWeb3(cls, w3: 'Web3', addr: ChecksumAddress = None) -> 'ENS':
@@ -420,7 +423,7 @@ class ENS(BaseENS):
     def _reverse_registrar(self) -> 'Contract':
         addr = self.ens.caller.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
         return self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
-        
+
 
 class AsyncENS(BaseENS):
     """
@@ -438,10 +441,10 @@ class AsyncENS(BaseENS):
         addr: ChecksumAddress = None,
         middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None,
     ) -> None:
-       super().__init__(provider, addr, middlewares)
+        super().__init__(provider, addr, middlewares)
 
     @classmethod
-    def fromWeb3(cls, w3: 'Web3', addr: ChecksumAddress = None) -> 'ENS':
+    def fromWeb3(cls, w3: 'Web3', addr: ChecksumAddress = None) -> Awaitable['AsyncENS']:
         """
         Generate an ENS instance with web3
 
@@ -453,7 +456,7 @@ class AsyncENS(BaseENS):
         middlewares = w3.middleware_onion.middlewares
         return cls(provider, addr=addr, middlewares=middlewares)
 
-    async def address(self, name: str) -> Optional[ChecksumAddress]:
+    async def address(self, name: str) -> Awaitable[Optional[ChecksumAddress]]:
         """
         Look up the Ethereum address that `name` currently points to.
 
@@ -462,7 +465,7 @@ class AsyncENS(BaseENS):
         """
         return cast(ChecksumAddress, await self.resolve(name, 'addr'))
 
-    async def name(self, address: ChecksumAddress) -> Optional[str]:
+    async def name(self, address: ChecksumAddress) -> Awaitable[Optional[str]]:
         """
         Look up the name that the address points to, using a
         reverse lookup. Reverse lookup is opt-in for name owners.
@@ -478,7 +481,7 @@ class AsyncENS(BaseENS):
         name: str,
         address: Union[Address, ChecksumAddress, HexAddress] = cast(ChecksumAddress, default),
         transact: Optional["TxParams"] = None
-    ) -> HexBytes:
+    ) -> Awaitable[HexBytes]:
         """
         Set up the name to point to the supplied address.
         The sender of the transaction must own the name, or
@@ -509,7 +512,7 @@ class AsyncENS(BaseENS):
             address = to_checksum_address(cast(str, address))
         elif not is_checksum_address(address):
             raise ValueError("You must supply the address in checksum format")
-        if await self.address(name) == address:
+        if await self.address(name) == address:  # type: ignore
             return None
         if address is None:
             address = EMPTY_ADDR_HEX
@@ -522,7 +525,7 @@ class AsyncENS(BaseENS):
         name: str,
         address: Optional[ChecksumAddress] = None,
         transact: Optional["TxParams"] = None
-    ) -> HexBytes:
+    ) -> Awaitable[HexBytes]:
         """
         Set up the address for reverse lookup, aka "caller ID".
         After successful setup, the method :meth:`~ens.main.ENS.name` will return
@@ -567,7 +570,8 @@ class AsyncENS(BaseENS):
                 await self.setup_address(name, address, transact=transact)
             return await self._setup_reverse(name, address, transact=transact)
 
-    async def resolve(self, name: str, get: str = 'addr') -> Optional[Union[ChecksumAddress, str]]:
+    async def resolve(self, name: str,
+                      get: str = 'addr') -> Awaitable[Optional[Union[ChecksumAddress, str]]]:
         normal_name = normalize_name(name)
         resolver = self.resolver(normal_name)
         if resolver:
@@ -580,13 +584,14 @@ class AsyncENS(BaseENS):
         else:
             return None
 
-    async def resolver(self, normal_name: str) -> Optional['Contract']:
+    async def resolver(self, normal_name: str) -> Awaitable[Optional['AsyncContract']]:
         resolver_addr = await self.ens.caller.resolver(normal_name_to_hash(normal_name))
         if is_none_or_zero_address(resolver_addr):
             return None
         return self._resolverContract(address=resolver_addr)
 
-    async def reverser(self, target_address: ChecksumAddress) -> Optional['Contract']:
+    async def reverser(self,
+                       target_address: ChecksumAddress) -> Awaitable[Optional['AsyncContract']]:
         reversed_domain = address_to_reverse_domain(target_address)
         return await self.resolver(reversed_domain)
 
