@@ -4,6 +4,7 @@ version: 2.1
 
 common: &common
   working_directory: ~/repo
+  parallelism: 4
   steps:
     - checkout
     - restore_cache:
@@ -18,6 +19,9 @@ common: &common
     - run:
         name: run tox
         command: ~/.local/bin/tox -r
+    - run:
+        name: split tests
+        command: circleci tests glob "tests/**/test_*.py" | circleci tests split --split-by=filesize
     - save_cache:
         paths:
           - .tox
