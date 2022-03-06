@@ -168,16 +168,16 @@ class BaseContractFunctions:
 
         if self.abi:
             self._functions = filter_by_type('function', self.abi)
-        for func in self._functions:
-            setattr(
-                self,
-                func['name'],
-                contract_function_class.factory(
+            for func in self._functions:
+                setattr(
+                    self,
                     func['name'],
-                    w3=self.w3,
-                    contract_abi=self.abi,
-                    address=self.address,
-                    function_identifier=func['name']))
+                    contract_function_class.factory(
+                        func['name'],
+                        w3=self.w3,
+                        contract_abi=self.abi,
+                        address=self.address,
+                        function_identifier=func['name']))
 
     def __iter__(self) -> Generator[str, None, None]:
         if not hasattr(self, '_functions') or not self._functions:
