@@ -211,6 +211,7 @@ BLOCK_NUMBER_RPC_WHITELIST = cast(
         "eth_getUncleCountByBlockNumber",
         "eth_getCode",
         "eth_call",
+        "eth_createAccessList",
         "eth_estimateGas",
         "eth_getBlockByNumber",
         "eth_getTransactionByBlockNumberAndIndex",
