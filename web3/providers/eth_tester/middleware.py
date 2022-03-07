@@ -3,6 +3,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
+    Optional,
 )
 
 from eth_typing import (
@@ -243,7 +245,7 @@ request_formatters = {
         identity,
     ),
 }
-result_formatters = {
+result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPCEndpoint('eth_getBlockByHash'): apply_formatter_if(
         is_dict,
         block_result_remapper,
@@ -288,7 +290,8 @@ result_formatters = {
 }
 
 
-async def async_ethereum_tester_middleware(make_request, web3: "Web3") -> Middleware:
+async def async_ethereum_tester_middleware(make_request, web3: "Web3"  # type: ignore
+                                           ) -> Middleware:
     middleware = await async_construct_formatting_middleware(
         request_formatters=request_formatters,
         result_formatters=result_formatters
