@@ -1,6 +1,7 @@
 import functools
 import json
 import pytest
+import pytest_asyncio
 
 from eth_utils import (
     event_signature_to_log_topic,
@@ -1051,6 +1052,7 @@ def buildTransaction(request):
     return functools.partial(invoke_contract, api_call_desig='buildTransaction')
 
 
+@pytest_asyncio.fixture()
 async def async_deploy(web3, Contract, apply_func=identity, args=None):
     args = args or []
     deploy_txn = await Contract.constructor(*args).transact()
@@ -1063,7 +1065,7 @@ async def async_deploy(web3, Contract, apply_func=identity, args=None):
     return contract
 
 
-@pytest.fixture()
+@pytest_asyncio.fixture()
 async def async_w3():
     provider = AsyncEthereumTesterProvider()
     w3 = Web3(provider, modules={'eth': [AsyncEth]},
@@ -1072,7 +1074,7 @@ async def async_w3():
     return w3
 
 
-@pytest.fixture()
+@pytest_asyncio.fixture()
 def AsyncMathContract(async_w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
     contract = AsyncContract.factory(async_w3,
                                      abi=MATH_ABI,
@@ -1081,6 +1083,6 @@ def AsyncMathContract(async_w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
     return contract
 
 
-@pytest.fixture()
+@pytest_asyncio.fixture()
 async def async_math_contract(async_w3, AsyncMathContract, address_conversion_func):
     return await async_deploy(async_w3, AsyncMathContract, address_conversion_func)
