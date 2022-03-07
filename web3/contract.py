@@ -569,7 +569,6 @@ class Contract(BaseContract):
         self.fallback = Contract.get_fallback_function(self.abi, self.w3, self.address)
         self.receive = Contract.get_receive_function(self.abi, self.w3, self.address)
         self.events = ContractEvents(self.abi, self.w3, self.address)
-        super().__init__(address)
 
     @classmethod
     def factory(cls, w3: 'Web3', class_name: Optional[str] = None, **kwargs: Any) -> 'Contract':
@@ -650,7 +649,6 @@ class AsyncContract(BaseContract):
         self.fallback = AsyncContract.get_fallback_function(self.abi, self.w3, self.address)
         self.receive = AsyncContract.get_receive_function(self.abi, self.w3, self.address)
         self.events = AsyncContractEvents(self.abi, self.w3, self.address)
-        super().__init__(address)
 
     @classmethod
     def factory(cls, w3: 'Web3',

@@ -2,7 +2,6 @@ import functools
 import json
 import pytest
 
-
 from eth_utils import (
     event_signature_to_log_topic,
 )
