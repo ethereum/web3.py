@@ -232,7 +232,7 @@ class AsyncContractFunctions(BaseContractFunctions):
         super().__init__(abi, w3, AsyncContractFunction, address)
 
 
-class ContractEvents:
+class BaseContractEvents:
     """Class containing contract event objects
 
     This is available via:
@@ -253,7 +253,9 @@ class ContractEvents:
 
     """
 
-    def __init__(self, abi: ABI, w3: 'Web3', address: Optional[ChecksumAddress] = None) -> None:
+    def __init__(self, abi: ABI, w3: 'Web3',
+                 contract_event_type: Union[Type['ContractEvent'], Type['AsyncContractEvent']],
+                 address: Optional[ChecksumAddress] = None) -> None:
         if abi:
             self.abi = abi
             self._events = filter_by_type('event', self.abi)
@@ -261,7 +263,7 @@ class ContractEvents:
                 setattr(
                     self,
                     event['name'],
-                    ContractEvent.factory(
+                    contract_event_type.factory(
                         event['name'],
                         w3=w3,
                         contract_abi=self.abi,
@@ -298,6 +300,20 @@ class ContractEvents:
             return event_name in self.__dict__['_events']
         except ABIEventFunctionNotFound:
             return False
+
+
+class ContractEvents(BaseContractEvents):
+
+    def __init__(self, abi: ABI, w3: 'Web3',
+                 address: Optional[ChecksumAddress] = None) -> None:
+        super().__init__(abi, w3, ContractEvent, address)
+
+
+class AsyncContractEvents(BaseContractEvents):
+
+    def __init__(self, abi: ABI, w3: 'Web3',
+                 address: Optional[ChecksumAddress] = None) -> None:
+        super().__init__(abi, w3, AsyncContractEvent, address)
 
 
 class BaseContract:
@@ -343,13 +359,6 @@ class BaseContract:
     src_map = None
     src_map_runtime = None
     user_doc = None
-
-    def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
-        """Create a new smart contract proxy object.
-
-        :param address: Contract address as 0x hex string"""
-
-        self.events = ContractEvents(self.abi, self.w3, self.address)
 
     #
     # Contract Methods
@@ -540,6 +549,9 @@ class Contract(BaseContract):
     caller: 'ContractCaller' = None
 
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
+        """Create a new smart contract proxy object.
+
+        :param address: Contract address as 0x hex string"""
         if self.w3 is None:
             raise AttributeError(
                 'The `Contract` class has not been initialized.  Please use the '
@@ -556,6 +568,7 @@ class Contract(BaseContract):
         self.caller = ContractCaller(self.abi, self.w3, self.address)
         self.fallback = Contract.get_fallback_function(self.abi, self.w3, self.address)
         self.receive = Contract.get_receive_function(self.abi, self.w3, self.address)
+        self.events = ContractEvents(self.abi, self.w3, self.address)
         super().__init__(address)
 
     @classmethod
@@ -618,6 +631,9 @@ class AsyncContract(BaseContract):
     caller: 'AsyncContractCaller' = None
 
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
+        """Create a new smart contract proxy object.
+
+        :param address: Contract address as 0x hex string"""
         if self.w3 is None:
             raise AttributeError(
                 'The `Contract` class has not been initialized.  Please use the '
@@ -633,6 +649,7 @@ class AsyncContract(BaseContract):
         self.caller = AsyncContractCaller(self.abi, self.w3, self.address)
         self.fallback = AsyncContract.get_fallback_function(self.abi, self.w3, self.address)
         self.receive = AsyncContract.get_receive_function(self.abi, self.w3, self.address)
+        self.events = AsyncContractEvents(self.abi, self.w3, self.address)
         super().__init__(address)
 
     @classmethod
@@ -1305,7 +1322,7 @@ class AsyncContractFunction(BaseContractFunction):
         return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get('abi'))
 
 
-class ContractEvent:
+class BaseContractEvent:
     """Base class for contract events
 
     An event accessed via the api contract.events.myEvents(*args, **kwargs)
@@ -1443,6 +1460,54 @@ class ContractEvent:
         return builder
 
     @combomethod
+    def _get_event_filter_params(self,
+                                 abi: ABIEvent,
+                                 argument_filters: Optional[Dict[str, Any]] = None,
+                                 fromBlock: Optional[BlockIdentifier] = None,
+                                 toBlock: Optional[BlockIdentifier] = None,
+                                 blockHash: Optional[HexBytes] = None) -> Iterable[EventData]:
+
+        if not self.address:
+            raise TypeError("This method can be only called on "
+                            "an instated contract with an address")
+
+        if argument_filters is None:
+            argument_filters = dict()
+
+        _filters = dict(**argument_filters)
+
+        blkhash_set = blockHash is not None
+        blknum_set = fromBlock is not None or toBlock is not None
+        if blkhash_set and blknum_set:
+            raise ValidationError(
+                'blockHash cannot be set at the same'
+                ' time as fromBlock or toBlock')
+
+        # Construct JSON-RPC raw filter presentation based on human readable Python descriptions
+        # Namely, convert event names to their keccak signatures
+        data_filter_set, event_filter_params = construct_event_filter_params(
+            abi,
+            self.w3.codec,
+            contract_address=self.address,
+            argument_filters=_filters,
+            fromBlock=fromBlock,
+            toBlock=toBlock,
+            address=self.address,
+        )
+
+        if blockHash is not None:
+            event_filter_params['blockHash'] = blockHash
+
+        return event_filter_params
+
+    @classmethod
+    def factory(cls, class_name: str, **kwargs: Any) -> PropertyCheckingFactory:
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)
+
+
+class ContractEvent(BaseContractEvent):
+
+    @combomethod
     def getLogs(self,
                 argument_filters: Optional[Dict[str, Any]] = None,
                 fromBlock: Optional[BlockIdentifier] = None,
@@ -1502,49 +1567,90 @@ class ContractEvent:
           same time as fromBlock or toBlock
         :yield: Tuple of :class:`AttributeDict` instances
         """
-
-        if not self.address:
-            raise TypeError("This method can be only called on "
-                            "an instated contract with an address")
-
         abi = self._get_event_abi()
-
-        if argument_filters is None:
-            argument_filters = dict()
-
-        _filters = dict(**argument_filters)
-
-        blkhash_set = blockHash is not None
-        blknum_set = fromBlock is not None or toBlock is not None
-        if blkhash_set and blknum_set:
-            raise ValidationError(
-                'blockHash cannot be set at the same'
-                ' time as fromBlock or toBlock')
-
-        # Construct JSON-RPC raw filter presentation based on human readable Python descriptions
-        # Namely, convert event names to their keccak signatures
-        data_filter_set, event_filter_params = construct_event_filter_params(
-            abi,
-            self.w3.codec,
-            contract_address=self.address,
-            argument_filters=_filters,
-            fromBlock=fromBlock,
-            toBlock=toBlock,
-            address=self.address,
-        )
-
-        if blockHash is not None:
-            event_filter_params['blockHash'] = blockHash
-
         # Call JSON-RPC API
-        logs = self.w3.eth.get_logs(event_filter_params)
+        logs = self.w3.eth.get_logs(self._get_event_filter_params(abi,
+                                                                  argument_filters,
+                                                                  fromBlock,
+                                                                  toBlock,
+                                                                  blockHash))
 
         # Convert raw binary data to Python proxy objects as described by ABI
         return tuple(get_event_data(self.w3.codec, abi, entry) for entry in logs)
 
-    @classmethod
-    def factory(cls, class_name: str, **kwargs: Any) -> PropertyCheckingFactory:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)
+
+class AsyncContractEvent(BaseContractEvent):
+
+    @combomethod
+    async def getLogs(self,
+                      argument_filters: Optional[Dict[str, Any]] = None,
+                      fromBlock: Optional[BlockIdentifier] = None,
+                      toBlock: Optional[BlockIdentifier] = None,
+                      blockHash: Optional[HexBytes] = None) -> Iterable[EventData]:
+        """Get events for this contract instance using eth_getLogs API.
+
+        This is a stateless method, as opposed to createFilter.
+        It can be safely called against nodes which do not provide
+        eth_newFilter API, like Infura nodes.
+
+        If there are many events,
+        like ``Transfer`` events for a popular token,
+        the Ethereum node might be overloaded and timeout
+        on the underlying JSON-RPC call.
+
+        Example - how to get all ERC-20 token transactions
+        for the latest 10 blocks:
+
+        .. code-block:: python
+
+            from = max(mycontract.web3.eth.block_number - 10, 1)
+            to = mycontract.web3.eth.block_number
+
+            events = mycontract.events.Transfer.getLogs(fromBlock=from, toBlock=to)
+
+            for e in events:
+                print(e["args"]["from"],
+                    e["args"]["to"],
+                    e["args"]["value"])
+
+        The returned processed log values will look like:
+
+        .. code-block:: python
+
+            (
+                AttributeDict({
+                 'args': AttributeDict({}),
+                 'event': 'LogNoArguments',
+                 'logIndex': 0,
+                 'transactionIndex': 0,
+                 'transactionHash': HexBytes('...'),
+                 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+                 'blockHash': HexBytes('...'),
+                 'blockNumber': 3
+                }),
+                AttributeDict(...),
+                ...
+            )
+
+        See also: :func:`web3.middleware.filter.local_filter_middleware`.
+
+        :param argument_filters:
+        :param fromBlock: block number or "latest", defaults to "latest"
+        :param toBlock: block number or "latest". Defaults to "latest"
+        :param blockHash: block hash. blockHash cannot be set at the
+          same time as fromBlock or toBlock
+        :yield: Tuple of :class:`AttributeDict` instances
+        """
+        abi = self._get_event_abi()
+        # Call JSON-RPC API
+        logs = await self.w3.eth.get_logs(self._get_event_filter_params(abi,
+                                                                        argument_filters,
+                                                                        fromBlock,
+                                                                        toBlock,
+                                                                        blockHash))
+
+        # Convert raw binary data to Python proxy objects as described by ABI
+        return tuple(get_event_data(self.w3.codec, abi, entry) for entry in logs)
 
 
 class BaseContractCaller:
