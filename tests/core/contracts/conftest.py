@@ -1,7 +1,7 @@
 import functools
 import json
 import pytest
-import pytest_asyncio
+
 
 from eth_utils import (
     event_signature_to_log_topic,
@@ -9,6 +9,7 @@ from eth_utils import (
 from eth_utils.toolz import (
     identity,
 )
+import pytest_asyncio
 
 from web3 import Web3
 from web3._utils.module_testing.emitter_contract import (
