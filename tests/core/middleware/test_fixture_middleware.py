@@ -13,10 +13,7 @@ from web3.providers.base import (
 
 class DummyProvider(BaseProvider):
     def make_request(self, method, params):
-        raise NotImplementedError("Cannot make request for {0}:{1}".format(
-            method,
-            params,
-        ))
+        raise NotImplementedError(f"Cannot make request for {method}:{params}")
 
 
 @pytest.fixture

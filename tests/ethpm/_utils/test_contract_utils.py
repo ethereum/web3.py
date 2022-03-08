@@ -58,11 +58,11 @@ def test_validate_contract_name_invalidates(name):
 @pytest.mark.parametrize(
     "contract_data,expected_kwargs",
     (
-        ({"abi": ""}, ["abi"]),
-        ({"deploymentBytecode": {"bytecode": ""}}, ["bytecode"]),
+        ({"abi": ""}, {"abi"}),
+        ({"deploymentBytecode": {"bytecode": ""}}, {"bytecode"}),
         (
             {"abi": "", "runtimeBytecode": {"bytecode": ""}},
-            ["abi", "bytecode_runtime"],
+            {"abi", "bytecode_runtime"},
         ),
         (
             {
@@ -74,13 +74,13 @@ def test_validate_contract_name_invalidates(name):
                     ],
                 },
             },
-            ["abi", "bytecode", "unlinked_references"],
+            {"abi", "bytecode", "unlinked_references"},
         ),
     ),
 )
 def test_generate_contract_factory_kwargs(contract_data, expected_kwargs):
     contract_factory = generate_contract_factory_kwargs(contract_data)
-    assert set(contract_factory.keys()) == set(expected_kwargs)
+    assert contract_factory.keys() == expected_kwargs
 
 
 def test_validate_w3_instance_validates(w3):

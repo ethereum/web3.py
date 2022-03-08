@@ -88,7 +88,7 @@ def hex_encode_abi_type(abi_type: TypeStr, value: Any,
         return to_hex(text=value)
     else:
         raise ValueError(
-            "Unsupported ABI type: {0}".format(abi_type)
+            f"Unsupported ABI type: {abi_type}"
         )
 
 
@@ -169,9 +169,8 @@ def hexstr_if_str(
         (primitive, hexstr) = (None, hexstr_or_primitive)
         if remove_0x_prefix(HexStr(hexstr)) and not is_hex(hexstr):
             raise ValueError(
-                "when sending a str, it must be a hex string. Got: {0!r}".format(
-                    hexstr_or_primitive,
-                )
+                "when sending a str, it must be a hex string. Got: "
+                f"{hexstr_or_primitive!r}"
             )
     else:
         (primitive, hexstr) = (hexstr_or_primitive, None)
@@ -208,10 +207,15 @@ class FriendlyJsonSerde:
         except TypeError as full_exception:
             if hasattr(obj, 'items'):
                 item_errors = '; '.join(self._json_mapping_errors(obj))
-                raise TypeError("dict had unencodable value at keys: {{{}}}".format(item_errors))
+                raise TypeError(
+                    "dict had unencodable value at keys: "
+                    f"{{{item_errors}}}"
+                )
             elif is_list_like(obj):
                 element_errors = '; '.join(self._json_list_errors(obj))
-                raise TypeError("list had unencodable value at index: [{}]".format(element_errors))
+                raise TypeError(
+                    f"list had unencodable value at index: [{element_errors}]"
+                )
             else:
                 raise full_exception
 
@@ -220,7 +224,7 @@ class FriendlyJsonSerde:
             decoded = json.loads(json_str)
             return decoded
         except json.decoder.JSONDecodeError as exc:
-            err_msg = 'Could not decode {} because of {}.'.format(repr(json_str), exc)
+            err_msg = f'Could not decode {json_str!r} because of {exc}.'
             # Calling code may rely on catching JSONDecodeError to recognize bad json
             # so we have to re-raise the same type.
             raise json.decoder.JSONDecodeError(err_msg, exc.doc, exc.pos)
@@ -230,7 +234,7 @@ class FriendlyJsonSerde:
         try:
             return self._friendly_json_encode(obj, cls=cls)
         except TypeError as exc:
-            raise TypeError("Could not encode to JSON: {}".format(exc))
+            raise TypeError(f"Could not encode to JSON: {exc}")
 
 
 def to_4byte_hex(hex_or_str_or_bytes: Union[HexStr, str, bytes, int]) -> HexStr:

@@ -192,7 +192,7 @@ class ContractFunctions:
             )
         elif function_name not in self.__dict__['_functions']:
             raise ABIFunctionNotFound(
-                "The function '{}' was not found in this contract's abi. ".format(function_name),
+                f"The function '{function_name}' was not found in this contract's abi. ",
                 "Are you sure you provided the correct contract abi?"
             )
         else:
@@ -252,7 +252,7 @@ class ContractEvents:
             )
         elif event_name not in self.__dict__['_events']:
             raise ABIEventFunctionNotFound(
-                "The event '{}' was not found in this contract's abi. ".format(event_name),
+                f"The event '{event_name}' was not found in this contract's abi. ",
                 "Are you sure you provided the correct contract abi?"
             )
         else:
@@ -585,7 +585,7 @@ class Contract:
 
 def mk_collision_prop(fn_name: str) -> Callable[[], None]:
     def collision_fn() -> NoReturn:
-        msg = "Namespace collision for function name {0} with ConciseContract API.".format(fn_name)
+        msg = f"Namespace collision for function name {fn_name} with ConciseContract API."
         raise AttributeError(msg)
     collision_fn.__name__ = fn_name
     return collision_fn
@@ -687,10 +687,11 @@ class ContractConstructor:
     def check_forbidden_keys_in_transaction(
         transaction: TxParams, forbidden_keys: Optional[Collection[str]] = None
     ) -> None:
-        keys_found = set(transaction.keys()) & set(forbidden_keys)
+        keys_found = transaction.keys() & forbidden_keys
         if keys_found:
             raise ValueError(
-                "Cannot set '{}' field(s) in transaction".format(', '.join(keys_found))
+                f"Cannot set '{', '.join(keys_found)}'"
+                f"field{'s' if len(keys_found) > 1 else ''} in transaction"
             )
 
 
@@ -1412,12 +1413,12 @@ class ContractCaller:
                 "The ABI for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract ABI?"
             )
-        elif function_name not in set(fn['name'] for fn in self._functions):
+        elif function_name not in {fn['name'] for fn in self._functions}:
             functions_available = ', '.join([fn['name'] for fn in self._functions])
             raise ABIFunctionNotFound(
-                "The function '{}' was not found in this contract's ABI. ".format(function_name),
+                f"The function '{function_name}' was not found in this contract's ABI. ",
                 "Here is a list of all of the function names found: ",
-                "{}. ".format(functions_available),
+                f"{functions_available}. ",
                 "Did you mean to call one of those functions?"
             )
         else:
@@ -1673,11 +1674,11 @@ def get_function_by_identifier(
 ) -> ContractFunction:
     if len(fns) > 1:
         raise ValueError(
-            'Found multiple functions with matching {0}. '
-            'Found: {1!r}'.format(identifier, fns)
+            f'Found multiple functions with matching {identifier}. '
+            f'Found: {fns!r}'
         )
     elif len(fns) == 0:
         raise ValueError(
-            'Could not find any function with matching {0}'.format(identifier)
+            f'Could not find any function with matching {identifier}'
         )
     return fns[0]

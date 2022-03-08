@@ -103,10 +103,9 @@ class AutoProvider(BaseProvider):
         if provider is None:
             raise CannotHandleRequest(
                 "Could not discover provider while making request: "
-                "method:{0}\n"
-                "params:{1}\n".format(
-                    method,
-                    params))
+                f"method:{method}\n"
+                f"params:{params}\n"
+            )
 
         return provider.make_request(method, params)
 

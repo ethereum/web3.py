@@ -230,7 +230,7 @@ class RequestManager:
         try:
             request = self.pending_requests.pop(request_id)
         except KeyError:
-            raise KeyError("Request for id:{0} not found".format(request_id))
+            raise KeyError(f"Request for id:{request_id} not found")
         else:
             response = request.get(timeout=timeout)
 

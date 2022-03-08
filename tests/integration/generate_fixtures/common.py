@@ -183,11 +183,8 @@ def get_geth_process(geth_binary,
         output, errors = proc.communicate()
         print(
             "Geth Process Exited:\n"
-            "stdout:{0}\n\n"
-            "stderr:{1}\n\n".format(
-                to_text(output),
-                to_text(errors),
-            )
+            f"stdout:{to_text(output)}\n\n"
+            f"stderr:{to_text(errors)}\n\n"
         )
 
 
@@ -235,12 +232,13 @@ def mine_transaction_hash(w3, txn_hash):
 
 
 def deploy_contract(w3, name, factory):
+    name = name.upper()
     w3.geth.personal.unlock_account(w3.eth.coinbase, KEYFILE_PW)
     deploy_txn_hash = factory.constructor().transact({'from': w3.eth.coinbase})
-    print('{0}_CONTRACT_DEPLOY_HASH: '.format(name.upper()), deploy_txn_hash)
+    print(f'{name}_CONTRACT_DEPLOY_HASH: {deploy_txn_hash}')
     deploy_receipt = mine_transaction_hash(w3, deploy_txn_hash)
-    print('{0}_CONTRACT_DEPLOY_TRANSACTION_MINED'.format(name.upper()))
+    print(f'{name}_CONTRACT_DEPLOY_TRANSACTION_MINED')
     contract_address = deploy_receipt['contractAddress']
     assert is_checksum_address(contract_address)
-    print('{0}_CONTRACT_ADDRESS:'.format(name.upper()), contract_address)
+    print(f'{name}_CONTRACT_ADDRESS: {contract_address}')
     return deploy_receipt
