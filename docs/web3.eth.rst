@@ -988,18 +988,18 @@ The following methods are available on the ``web3.eth`` namespace.
     can be accessed via the ``data`` attribute on ``ContractLogicError``.
 
 
-.. py:method:: Eth.createAccessList(transaction, block_identifier=web3.eth.default_block)
+.. py:method:: Eth.create_access_list(transaction, block_identifier=web3.eth.default_block)
 
     * Delegates to ``eth_createAccessList`` RPC Method
 
     This method creates an `EIP2930 <https://eips.ethereum.org/EIPS/eip-2930>`_ type ``accessList`` based on a given ``Transaction``. The ``accessList`` contains all storage slots and addresses read and written by the transaction, except for the sender account and the precompiles. This method uses the same ``transaction`` call object and ``block_identifier`` object as :meth:`~web3.eth.Eth.call()`. An ``accessList`` can be used to unstuck contracts that became inaccessible due to gas cost increases.
 
     :param transaction: ``TransactionCall`` object.
-    :param block_identifier: Optional, blocknumber or ``latest`` or ``pending``
+    :param block_identifier: Optional, a block_number or ``latest`` or ``pending``
 
     .. code-block:: python
 
-        >>> we3.eth.createAccessList({'from': '0x0', 'data': '0x0'})
+        >>> w3.eth.create_access_list({'from': '0x0', 'data': '0x0', 'type': '0x1'})
         {
             'accessList': (
                 {

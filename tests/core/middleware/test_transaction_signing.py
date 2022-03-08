@@ -197,7 +197,6 @@ TEST_SIGN_AND_SEND_RAW_MIDDLEWARE_PARAMS = (
     ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[3], ADDRESS_2, NotImplementedError),
     ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[4], ADDRESS_2, NotImplementedError),
     ("eth_call", MIXED_KEY_MIXED_TYPE, ADDRESS_1, NotImplementedError),
-    ('eth_createAccessList', SAME_KEY_SAME_TYPE, hex_to_bytes(ADDRESS_1), 'eth_createAccessList'),
     (
         "eth_sendTransaction",
         SAME_KEY_SAME_TYPE,

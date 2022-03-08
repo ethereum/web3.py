@@ -350,7 +350,7 @@ def default_transaction_fields_middleware(
             'eth_call',
             'eth_estimateGas',
             'eth_sendTransaction',
-            'eth_createAccessList',
+            'eth_create_access_list',
         ):
             fill_default_from = fill_default("from", guess_from, w3)
             filled_transaction = pipe(

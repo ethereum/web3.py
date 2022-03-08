@@ -47,7 +47,7 @@ class RPC:
     eth_accounts = RPCEndpoint("eth_accounts")
     eth_blockNumber = RPCEndpoint("eth_blockNumber")
     eth_call = RPCEndpoint("eth_call")
-    eth_createAccessList = RPCEndpoint("eth_createAccessList")
+    eth_create_access_list = RPCEndpoint("eth_create_access_list")
     eth_chainId = RPCEndpoint("eth_chainId")
     eth_coinbase = RPCEndpoint("eth_coinbase")
     eth_estimateGas = RPCEndpoint("eth_estimateGas")

@@ -692,7 +692,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_chainId: to_integer_if_hex,
     RPC.eth_coinbase: to_checksum_address,
     RPC.eth_call: HexBytes,
-    RPC.eth_createAccessList: ACCESS_LIST_RESPONCE_FORMATTER,
+    RPC.eth_create_access_list: ACCESS_LIST_RESPONCE_FORMATTER,
     RPC.eth_estimateGas: to_integer_if_hex,
     RPC.eth_feeHistory: fee_history_formatter,
     RPC.eth_maxPriorityFeePerGas: to_integer_if_hex,
