@@ -252,6 +252,12 @@ def normalize_address(ens: ENS, address: ChecksumAddress) -> ChecksumAddress:
     return address
 
 
+def normalize_address_no_ens(address: ChecksumAddress) -> ChecksumAddress:
+    if address:
+        validate_address(address)
+    return address
+
+
 def normalize_bytecode(bytecode: bytes) -> HexBytes:
     if bytecode:
         bytecode = HexBytes(bytecode)
