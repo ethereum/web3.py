@@ -6,6 +6,7 @@ import itertools
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
     Callable,
     Collection,
     Dict,
@@ -139,6 +140,7 @@ from web3.types import (  # noqa: F401
     BlockIdentifier,
     CallOverrideParams,
     EventData,
+    FilterParams,
     FunctionIdentifier,
     LogReceipt,
     TxParams,
@@ -349,9 +351,6 @@ class BaseContract:
     bytecode_runtime = None
     clone_bin = None
 
-    #: Instance of :class:`ContractEvents` presenting available Event ABIs
-    events: ContractEvents = None
-
     dev_doc = None
     interface = None
     metadata = None
@@ -403,13 +402,14 @@ class BaseContract:
         return encode_abi(cls.w3, fn_abi, fn_arguments, data)
 
     @combomethod
-    def all_functions(self) -> List['ContractFunction']:
-        return find_functions_by_identifier(
+    def all_functions(self) -> Union[List['ContractFunction'], List['AsyncContractFunction']]:
+        return self.find_functions_by_identifier(
             self.abi, self.w3, self.address, lambda _: True
         )
 
     @combomethod
-    def get_function_by_signature(self, signature: str) -> 'ContractFunction':
+    def get_function_by_signature(self, signature: str
+                                  ) -> Union['ContractFunction', 'AsyncContractFunction']:
         if ' ' in signature:
             raise ValueError(
                 'Function signature should not contain any spaces. '
@@ -419,15 +419,16 @@ class BaseContract:
         def callable_check(fn_abi: ABIFunction) -> bool:
             return abi_to_signature(fn_abi) == signature
 
-        fns = find_functions_by_identifier(self.abi, self.w3, self.address, callable_check)
+        fns = self.find_functions_by_identifier(self.abi, self.w3, self.address, callable_check)
         return get_function_by_identifier(fns, 'signature')
 
     @combomethod
-    def find_functions_by_name(self, fn_name: str) -> List['ContractFunction']:
+    def find_functions_by_name(self, fn_name: str
+                               ) -> Union[List['ContractFunction'], List['AsyncContractFunction']]:
         def callable_check(fn_abi: ABIFunction) -> bool:
             return fn_abi['name'] == fn_name
 
-        return find_functions_by_identifier(
+        return self.find_functions_by_identifier(
             self.abi, self.w3, self.address, callable_check
         )
 
@@ -437,13 +438,14 @@ class BaseContract:
         return get_function_by_identifier(fns, 'name')
 
     @combomethod
-    def get_function_by_selector(self, selector: Union[bytes, int, HexStr]) -> 'ContractFunction':
+    def get_function_by_selector(self, selector: Union[bytes, int, HexStr]
+                                 ) -> Union['ContractFunction', 'AsyncContractFunction']:
         def callable_check(fn_abi: ABIFunction) -> bool:
             # typed dict cannot be used w/ a normal Dict
             # https://github.com/python/mypy/issues/4976
             return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(selector)  # type: ignore # noqa: E501
 
-        fns = find_functions_by_identifier(self.abi, self.w3, self.address, callable_check)
+        fns = self.find_functions_by_identifier(self.abi, self.w3, self.address, callable_check)
         return get_function_by_identifier(fns, 'selector')
 
     @combomethod
@@ -462,18 +464,19 @@ class BaseContract:
         return func, dict(zip(names, normalized))
 
     @combomethod
-    def find_functions_by_args(self, *args: Any) -> List['ContractFunction']:
+    def find_functions_by_args(self, *args: Any
+                               ) -> Union[List['ContractFunction'], List['AsyncContractFunction']]:
         def callable_check(fn_abi: ABIFunction) -> bool:
             return check_if_arguments_can_be_encoded(fn_abi, self.w3.codec, args=args, kwargs={})
 
-        return find_functions_by_identifier(
+        return self.find_functions_by_identifier(
             self.abi, self.w3, self.address, callable_check
         )
 
     @combomethod
     def get_function_by_args(self, *args: Any) -> 'ContractFunction':
         fns = self.find_functions_by_args(*args)
-        return get_function_by_identifier(fns, 'args')
+        return self.get_function_by_identifier(fns, 'args')
 
     #
     # Private Helpers
@@ -542,11 +545,23 @@ class BaseContract:
 
         return deploy_data
 
+    @classmethod
+    def find_functions_by_identifier(cls,
+                                     contract_abi: ABI,
+                                     w3: 'Web3',
+                                     address: ChecksumAddress,
+                                     callable_check: Callable[..., Any]
+                                     ) -> List[Any]:
+        pass
+
 
 class Contract(BaseContract):
 
     functions: ContractFunctions = None
     caller: 'ContractCaller' = None
+
+    #: Instance of :class:`ContractEvents` presenting available Event ABIs
+    events: ContractEvents = None
 
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
         """Create a new smart contract proxy object.
@@ -566,9 +581,9 @@ class Contract(BaseContract):
 
         self.functions = ContractFunctions(self.abi, self.w3, self.address)
         self.caller = ContractCaller(self.abi, self.w3, self.address)
+        self.events = ContractEvents(self.abi, self.w3, self.address)
         self.fallback = Contract.get_fallback_function(self.abi, self.w3, self.address)
         self.receive = Contract.get_receive_function(self.abi, self.w3, self.address)
-        self.events = ContractEvents(self.abi, self.w3, self.address)
 
     @classmethod
     def factory(cls, w3: 'Web3', class_name: Optional[str] = None, **kwargs: Any) -> 'Contract':
@@ -623,11 +638,22 @@ class Contract(BaseContract):
 
         return cast('ContractFunction', NonExistentReceiveFunction())
 
+    def find_functions_by_identifier(cls,
+                                     contract_abi: ABI,
+                                     w3: 'Web3',
+                                     address: ChecksumAddress,
+                                     callable_check: Callable[..., Any]
+                                     ) -> List['ContractFunction']:
+        return find_functions_by_identifier(contract_abi, w3, address, callable_check)
+
 
 class AsyncContract(BaseContract):
 
     functions: AsyncContractFunctions = None
     caller: 'AsyncContractCaller' = None
+
+    #: Instance of :class:`ContractEvents` presenting available Event ABIs
+    events: AsyncContractEvents = None
 
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
         """Create a new smart contract proxy object.
@@ -646,9 +672,9 @@ class AsyncContract(BaseContract):
             raise TypeError("The address argument is required to instantiate a contract.")
         self.functions = AsyncContractFunctions(self.abi, self.w3, self.address)
         self.caller = AsyncContractCaller(self.abi, self.w3, self.address)
+        self.events = AsyncContractEvents(self.abi, self.w3, self.address)
         self.fallback = AsyncContract.get_fallback_function(self.abi, self.w3, self.address)
         self.receive = AsyncContract.get_receive_function(self.abi, self.w3, self.address)
-        self.events = AsyncContractEvents(self.abi, self.w3, self.address)
 
     @classmethod
     def factory(cls, w3: 'Web3',
@@ -703,6 +729,14 @@ class AsyncContract(BaseContract):
                 function_identifier=ReceiveFn)()
 
         return cast('AsyncContractFunction', NonExistentReceiveFunction())
+
+    def find_functions_by_identifier(cls,
+                                     contract_abi: ABI,
+                                     w3: 'Web3',
+                                     address: ChecksumAddress,
+                                     callable_check: Callable[..., Any]
+                                     ) -> List['ContractFunction']:
+        return async_find_functions_by_identifier(contract_abi, w3, address, callable_check)
 
 
 def mk_collision_prop(fn_name: str) -> Callable[[], None]:
@@ -1463,7 +1497,7 @@ class BaseContractEvent:
                                  argument_filters: Optional[Dict[str, Any]] = None,
                                  fromBlock: Optional[BlockIdentifier] = None,
                                  toBlock: Optional[BlockIdentifier] = None,
-                                 blockHash: Optional[HexBytes] = None) -> Iterable[EventData]:
+                                 blockHash: Optional[HexBytes] = None) -> FilterParams:
 
         if not self.address:
             raise TypeError("This method can be only called on "
@@ -1584,7 +1618,7 @@ class AsyncContractEvent(BaseContractEvent):
                       argument_filters: Optional[Dict[str, Any]] = None,
                       fromBlock: Optional[BlockIdentifier] = None,
                       toBlock: Optional[BlockIdentifier] = None,
-                      blockHash: Optional[HexBytes] = None) -> Iterable[EventData]:
+                      blockHash: Optional[HexBytes] = None) -> Awaitable[Iterable[EventData]]:
         """Get events for this contract instance using eth_getLogs API.
 
         This is a stateless method, as opposed to createFilter.
@@ -2078,6 +2112,24 @@ def find_functions_by_identifier(
     fns_abi = filter_by_type('function', contract_abi)
     return [
         ContractFunction.factory(
+            fn_abi['name'],
+            w3=w3,
+            contract_abi=contract_abi,
+            address=address,
+            function_identifier=fn_abi['name'],
+            abi=fn_abi
+        )
+        for fn_abi in fns_abi
+        if callable_check(fn_abi)
+    ]
+
+
+def async_find_functions_by_identifier(
+    contract_abi: ABI, w3: 'Web3', address: ChecksumAddress, callable_check: Callable[..., Any]
+) -> List[AsyncContractFunction]:
+    fns_abi = filter_by_type('function', contract_abi)
+    return [
+        AsyncContractFunction.factory(
             fn_abi['name'],
             w3=w3,
             contract_abi=contract_abi,
