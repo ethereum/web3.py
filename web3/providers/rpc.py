@@ -66,7 +66,7 @@ class HTTPProvider(JSONBaseProvider):
         super().__init__()
 
     def __str__(self) -> str:
-        return "RPC connection {0}".format(self.endpoint_uri)
+        return f"RPC connection {self.endpoint_uri}"
 
     @to_dict
     def get_request_kwargs(self) -> Iterable[Tuple[str, Any]]:

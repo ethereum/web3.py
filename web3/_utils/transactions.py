@@ -137,8 +137,8 @@ def get_buffered_gas_estimate(
     if gas_estimate > gas_limit:
         raise ValueError(
             "Contract does not appear to be deployable within the "
-            "current network gas limits.  Estimated: {0}. Current gas "
-            "limit: {1}".format(gas_estimate, gas_limit)
+            f"current network gas limits.  Estimated: {gas_estimate}. "
+            f"Current gas limit: {gas_limit}"
         )
 
     return min(gas_limit, gas_estimate + gas_buffer)
@@ -189,7 +189,7 @@ def extract_valid_transaction_params(transaction_params: TxData) -> TxParams:
 def assert_valid_transaction_params(transaction_params: TxParams) -> None:
     for param in transaction_params:
         if param not in VALID_TRANSACTION_PARAMS:
-            raise ValueError('{} is not a valid transaction parameter'.format(param))
+            raise ValueError(f'{param} is not a valid transaction parameter')
 
 
 def prepare_replacement_transaction(

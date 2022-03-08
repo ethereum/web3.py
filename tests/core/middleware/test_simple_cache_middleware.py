@@ -87,7 +87,7 @@ def test_simple_cache_middleware_does_not_cache_none_responses(w3_base):
 def test_simple_cache_middleware_does_not_cache_error_responses(w3_base):
     w3 = w3_base
     w3.middleware_onion.add(construct_error_generator_middleware({
-        'fake_endpoint': lambda *_: 'msg-{0}'.format(str(uuid.uuid4())),
+        'fake_endpoint': lambda *_: f'msg-{uuid.uuid4()}',
     }))
 
     w3.middleware_onion.add(construct_simple_cache_middleware(

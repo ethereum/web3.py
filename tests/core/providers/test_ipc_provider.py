@@ -23,7 +23,7 @@ from web3.providers.ipc import (
 @pytest.fixture
 def jsonrpc_ipc_pipe_path():
     with tempfile.TemporaryDirectory() as temp_dir:
-        ipc_path = os.path.join(temp_dir, '{0}.ipc'.format(uuid.uuid4()))
+        ipc_path = os.path.join(temp_dir, f'{uuid.uuid4()}.ipc')
         try:
             yield ipc_path
         finally:

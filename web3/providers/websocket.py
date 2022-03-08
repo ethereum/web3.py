@@ -103,13 +103,13 @@ class WebsocketProvider(JSONBaseProvider):
         if websocket_kwargs is None:
             websocket_kwargs = {}
         else:
-            found_restricted_keys = set(websocket_kwargs.keys()).intersection(
+            found_restricted_keys = set(websocket_kwargs).intersection(
                 RESTRICTED_WEBSOCKET_KWARGS
             )
             if found_restricted_keys:
                 raise ValidationError(
-                    '{0} are not allowed in websocket_kwargs, '
-                    'found: {1}'.format(RESTRICTED_WEBSOCKET_KWARGS, found_restricted_keys)
+                    f'{RESTRICTED_WEBSOCKET_KWARGS} are not allowed '
+                    f'in websocket_kwargs, found: {found_restricted_keys}'
                 )
         self.conn = PersistentWebSocket(
             self.endpoint_uri, websocket_kwargs
@@ -117,7 +117,7 @@ class WebsocketProvider(JSONBaseProvider):
         super().__init__()
 
     def __str__(self) -> str:
-        return "WS connection {0}".format(self.endpoint_uri)
+        return f"WS connection {self.endpoint_uri}"
 
     async def coro_make_request(self, request_data: bytes) -> RPCResponse:
         async with self.conn as conn:

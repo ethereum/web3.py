@@ -364,7 +364,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
             assert rlp_account == HexaryTrie.get_from_proof(
                 root, trie_key, format_proof_nodes(proof.accountProof)
-            ), "Failed to verify account proof {}".format(proof.address)
+            ), f"Failed to verify account proof {proof.address}"
 
             for storage_proof in proof.storageProof:
                 trie_key = keccak(pad_bytes(b'\x00', 32, storage_proof.key))
@@ -376,7 +376,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
                 assert rlp_value == HexaryTrie.get_from_proof(
                     root, trie_key, format_proof_nodes(storage_proof.proof)
-                ), "Failed to verify storage proof {}".format(storage_proof.key)
+                ), f"Failed to verify storage proof {storage_proof.key}"
 
             return True
 

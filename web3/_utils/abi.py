@@ -290,9 +290,8 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
 
         if self.value_bit_size % 8 != 0:
             raise ValueError(
-                "Invalid value bit size: {0}.  Must be a multiple of 8".format(
-                    self.value_bit_size,
-                )
+                f"Invalid value bit size: {self.value_bit_size}. "
+                "Must be a multiple of 8"
             )
 
         if self.value_bit_size > self.data_byte_size * 8:
@@ -328,13 +327,13 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
             self.invalidate_value(
                 value,
                 exc=ValueOutOfBounds,
-                msg="exceeds total byte size for bytes{} encoding".format(byte_size),
+                msg=f"exceeds total byte size for bytes{byte_size} encoding",
             )
         elif len(value) < byte_size:
             self.invalidate_value(
                 value,
                 exc=ValueOutOfBounds,
-                msg="less than total byte size for bytes{} encoding".format(byte_size),
+                msg=f"less than total byte size for bytes{byte_size} encoding",
             )
         return value
 
@@ -438,10 +437,8 @@ def merge_args_and_kwargs(
     # Ensure the function is being applied to the correct number of args
     if len(args) + len(kwargs) != len(function_abi.get('inputs', [])):
         raise TypeError(
-            "Incorrect argument count.  Expected '{0}'.  Got '{1}'".format(
-                len(function_abi['inputs']),
-                len(args) + len(kwargs),
-            )
+            f"Incorrect argument count. Expected '{len(function_abi['inputs'])}"
+            f". Got '{len(args) + len(kwargs)}'"
         )
 
     # If no keyword args were given, we don't need to align them
@@ -456,10 +453,9 @@ def merge_args_and_kwargs(
     duplicate_args = kwarg_names.intersection(args_as_kwargs.keys())
     if duplicate_args:
         raise TypeError(
-            "{fn_name}() got multiple values for argument(s) '{dups}'".format(
-                fn_name=function_abi['name'],
-                dups=', '.join(duplicate_args),
-            )
+            f"{function_abi.get('name')}() got multiple values for "
+            f"argument{'s' if len(duplicate_args) > 1 else ''} "
+            f"'{', '.join(duplicate_args)}'"
         )
 
     # Check for unknown args
@@ -467,16 +463,14 @@ def merge_args_and_kwargs(
     if unknown_args:
         if function_abi.get('name'):
             raise TypeError(
-                "{fn_name}() got unexpected keyword argument(s) '{dups}'".format(
-                    fn_name=function_abi.get('name'),
-                    dups=', '.join(unknown_args),
-                )
+                f"{function_abi.get('name')}() got unexpected keyword argument"
+                f"{'s' if len(unknown_args) > 1 else ''} "
+                f"{', '.join(unknown_args)}'"
             )
         raise TypeError(
-            "Type: '{_type}' got unexpected keyword argument(s) '{dups}'".format(
-                _type=function_abi.get('type'),
-                dups=', '.join(unknown_args),
-            )
+            f"Type: '{function_abi.get('type')}' got unexpected keyword "
+            f"argument{'s' if len(unknown_args) > 1 else ''} "
+            f"{', '.join(unknown_args)}'"
         )
 
     # Sort args according to their position in the ABI and unzip them from their
@@ -545,10 +539,8 @@ def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
 
     if not is_list_like(aligned_arg):
         raise TypeError(
-            'Expected non-string sequence for "{}" component type: got {}'.format(
-                arg_abi['type'],
-                aligned_arg,
-            ),
+            f'Expected non-string sequence for "{arg_abi.get("type")}" '
+            f'component type: got {aligned_arg}'
         )
 
     # convert NamedTuple to regular tuple
@@ -604,9 +596,9 @@ DYNAMIC_TYPES = ['bytes', 'string']
 
 INT_SIZES = range(8, 257, 8)
 BYTES_SIZES = range(1, 33)
-UINT_TYPES = ['uint{0}'.format(i) for i in INT_SIZES]
-INT_TYPES = ['int{0}'.format(i) for i in INT_SIZES]
-BYTES_TYPES = ['bytes{0}'.format(i) for i in BYTES_SIZES] + ['bytes32.byte']
+UINT_TYPES = [f'uint{i}' for i in INT_SIZES]
+INT_TYPES = [f'int{i}' for i in INT_SIZES]
+BYTES_TYPES = [f'bytes{i}' for i in BYTES_SIZES] + ['bytes32.byte']
 
 STATIC_TYPES = list(itertools.chain(
     ['address', 'bool'],
@@ -694,7 +686,7 @@ END_BRACKETS_OF_ARRAY_TYPE_REGEX = r"\[[^]]*\]$"
 def sub_type_of_array_type(abi_type: TypeStr) -> str:
     if not is_array_type(abi_type):
         raise ValueError(
-            "Cannot parse subtype of nonarray abi-type: {0}".format(abi_type)
+            f"Cannot parse subtype of nonarray abi-type: {abi_type}"
         )
 
     return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, '', abi_type, 1)
@@ -703,7 +695,7 @@ def sub_type_of_array_type(abi_type: TypeStr) -> str:
 def length_of_array_type(abi_type: TypeStr) -> int:
     if not is_array_type(abi_type):
         raise ValueError(
-            "Cannot parse length of nonarray abi-type: {0}".format(abi_type)
+            f"Cannot parse length of nonarray abi-type: {abi_type}"
         )
 
     inner_brackets = re.search(END_BRACKETS_OF_ARRAY_TYPE_REGEX, abi_type).group(0).strip("[]")

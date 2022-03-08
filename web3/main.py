@@ -314,7 +314,7 @@ class Web3:
         if len(abi_types) != len(values):
             raise ValueError(
                 "Length mismatch between provided abi types and values.  Got "
-                "{0} types and {1} values.".format(len(abi_types), len(values))
+                f"{len(abi_types)} types and {len(values)} values."
             )
 
         if isinstance(cls, type):

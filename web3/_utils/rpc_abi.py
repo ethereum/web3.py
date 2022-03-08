@@ -219,7 +219,7 @@ def apply_abi_formatters_to_dict(
     abi_dict: Dict[str, Any],
     data: Dict[Any, Any]
 ) -> Dict[Any, Any]:
-    fields = list(set(abi_dict.keys()) & set(data.keys()))
+    fields = list(abi_dict.keys() & data.keys())
     formatted_values = map_abi_data(
         normalizers,
         [abi_dict[field] for field in fields],

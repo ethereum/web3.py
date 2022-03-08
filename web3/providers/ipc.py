@@ -153,8 +153,8 @@ def get_default_ipc_path() -> str:  # type: ignore
 
     else:
         raise ValueError(
-            "Unsupported platform '{0}'.  Only darwin/linux/win32/freebsd are "
-            "supported.  You must specify the ipc_path".format(sys.platform)
+            f"Unsupported platform '{sys.platform}'.  Only darwin/linux/win32/"
+            "freebsd are supported.  You must specify the ipc_path"
         )
 
 
@@ -202,8 +202,8 @@ def get_dev_ipc_path() -> str:  # type: ignore
 
     else:
         raise ValueError(
-            "Unsupported platform '{0}'.  Only darwin/linux/win32/freebsd are "
-            "supported.  You must specify the ipc_path".format(sys.platform)
+            f"Unsupported platform '{sys.platform}'.  Only darwin/linux/win32/"
+            "freebsd are supported.  You must specify the ipc_path"
         )
 
 
