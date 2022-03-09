@@ -309,7 +309,8 @@ class Package(object):
         contract_instance = self.w3.eth.contract(
             address=address, **contract_kwargs
         )
-        return contract_instance
+        # TODO: type ignore may be able to be removed after more of AsynContract is finished
+        return contract_instance  # type: ignore
 
     #
     # Build Dependencies

@@ -1,7 +1,16 @@
 import pytest
 
+import pytest_asyncio
+
+from web3 import Web3
+from web3.eth import (
+    AsyncEth,
+)
 from web3.module import (
     Module,
+)
+from web3.providers.eth_tester.main import (
+    AsyncEthereumTesterProvider,
 )
 
 # --- inherit from `web3.module.Module` class --- #
@@ -97,3 +106,12 @@ def module_many_init_args():
             self.a = a
             self.b = b
     return ModuleManyArgs
+
+
+@pytest_asyncio.fixture()
+async def async_w3():
+    provider = AsyncEthereumTesterProvider()
+    w3 = Web3(provider, modules={'eth': [AsyncEth]},
+              middlewares=provider.middlewares)
+    w3.eth.default_account = await w3.eth.coinbase
+    return w3

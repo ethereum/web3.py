@@ -331,17 +331,6 @@ def fill_default(
         return assoc(transaction, field, guess_val)
 
 
-async def async_fill_default(
-    field: str, guess_func: Callable[..., Any], web3: "Web3", transaction: TxParams
-) -> TxParams:
-    # type ignored b/c TxParams keys must be string literal types
-    if field in transaction and transaction[field] is not None:  # type: ignore
-        return transaction
-    else:
-        guess_val = guess_func(web3, transaction)
-        return assoc(transaction, field, guess_val)
-
-
 def default_transaction_fields_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
@@ -372,9 +361,9 @@ async def async_default_transaction_fields_middleware(
             'eth_estimateGas',
             'eth_sendTransaction',
         ):
-            filled_transaction = await async_fill_default('from', guess_from, web3, params[0])
+            filled_transaction = fill_default('from', guess_from, web3, params[0])
             return await make_request(method,
                                       [filled_transaction] + list(params)[1:])
         else:
             return await make_request(method, params)
-    return middleware
+    return middleware  # type: ignore
