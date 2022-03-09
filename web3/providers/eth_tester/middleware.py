@@ -377,4 +377,4 @@ async def async_default_transaction_fields_middleware(
                                       [filled_transaction] + list(params)[1:])
         else:
             return await make_request(method, params)
-    return middleware
+    return middleware  # type: ignore

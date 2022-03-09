@@ -103,6 +103,7 @@ from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
     normalize_abi,
     normalize_address,
+    normalize_address_no_ens,
     normalize_bytecode,
 )
 from web3._utils.transactions import (
@@ -359,28 +360,6 @@ class BaseContract:
     src_map_runtime = None
     user_doc = None
 
-    #
-    # Contract Methods
-    #
-    @classmethod
-    def constructor(cls, *args: Any, **kwargs: Any) -> 'ContractConstructor':
-        """
-        :param args: The contract constructor arguments as positional arguments
-        :param kwargs: The contract constructor arguments as keyword arguments
-        :return: a contract constructor object
-        """
-        if cls.bytecode is None:
-            raise ValueError(
-                "Cannot call constructor on a contract that does not have 'bytecode' associated "
-                "with it"
-            )
-
-        return ContractConstructor(cls.w3,
-                                   cls.abi,
-                                   cls.bytecode,
-                                   *args,
-                                   **kwargs)
-
     #  Public API
     #
     @combomethod
@@ -433,7 +412,8 @@ class BaseContract:
         )
 
     @combomethod
-    def get_function_by_name(self, fn_name: str) -> 'ContractFunction':
+    def get_function_by_name(self, fn_name: str
+                             ) -> Union['ContractFunction', 'AsyncContractFunction']:
         fns = self.find_functions_by_name(fn_name)
         return get_function_by_identifier(fns, 'name')
 
@@ -449,7 +429,9 @@ class BaseContract:
         return get_function_by_identifier(fns, 'selector')
 
     @combomethod
-    def decode_function_input(self, data: HexStr) -> Tuple['ContractFunction', Dict[str, Any]]:
+    def decode_function_input(self, data: HexStr
+                              ) -> Union[Tuple['ContractFunction', Dict[str, Any]],
+                                         Tuple['AsyncContractFunction', Dict[str, Any]]]:
         # type ignored b/c expects data arg to be HexBytes
         data = HexBytes(data)  # type: ignore
         selector, params = data[:4], data[4:]
@@ -474,9 +456,10 @@ class BaseContract:
         )
 
     @combomethod
-    def get_function_by_args(self, *args: Any) -> 'ContractFunction':
+    def get_function_by_args(self, *args: Any
+                             ) -> Union['ContractFunction', 'AsyncContractFunction']:
         fns = self.find_functions_by_args(*args)
-        return self.get_function_by_identifier(fns, 'args')
+        return get_function_by_identifier(fns, 'args')
 
     #
     # Private Helpers
@@ -552,7 +535,7 @@ class BaseContract:
                                      address: ChecksumAddress,
                                      callable_check: Callable[..., Any]
                                      ) -> List[Any]:
-        pass
+        raise NotImplementedError("This method should be implemented in the inherited class")
 
 
 class Contract(BaseContract):
@@ -610,6 +593,25 @@ class Contract(BaseContract):
 
         return contract
 
+    @classmethod
+    def constructor(cls, *args: Any, **kwargs: Any) -> 'ContractConstructor':
+        """
+        :param args: The contract constructor arguments as positional arguments
+        :param kwargs: The contract constructor arguments as keyword arguments
+        :return: a contract constructor object
+        """
+        if cls.bytecode is None:
+            raise ValueError(
+                "Cannot call constructor on a contract that does not have 'bytecode' associated "
+                "with it"
+            )
+
+        return ContractConstructor(cls.w3,
+                                   cls.abi,
+                                   cls.bytecode,
+                                   *args,
+                                   **kwargs)
+
     @staticmethod
     def get_fallback_function(
         abi: ABI, w3: 'Web3', address: Optional[ChecksumAddress] = None
@@ -638,7 +640,7 @@ class Contract(BaseContract):
 
         return cast('ContractFunction', NonExistentReceiveFunction())
 
-    def find_functions_by_identifier(cls,
+    def find_functions_by_identifier(cls,  # type: ignore
                                      contract_abi: ABI,
                                      w3: 'Web3',
                                      address: ChecksumAddress,
@@ -666,7 +668,7 @@ class AsyncContract(BaseContract):
             )
 
         if address:
-            self.address = normalize_address(self.w3.ens, address)
+            self.address = normalize_address_no_ens(address)
 
         if not self.address:
             raise TypeError("The address argument is required to instantiate a contract.")
@@ -684,7 +686,7 @@ class AsyncContract(BaseContract):
 
         normalizers = {
             'abi': normalize_abi,
-            'address': partial(normalize_address, kwargs['w3'].ens),
+            'address': normalize_address_no_ens,
             'bytecode': normalize_bytecode,
             'bytecode_runtime': normalize_bytecode,
         }
@@ -697,10 +699,29 @@ class AsyncContract(BaseContract):
         ))
         contract.functions = AsyncContractFunctions(contract.abi, contract.w3)
         contract.caller = AsyncContractCaller(contract.abi, contract.w3, contract.address)
-        contract.events = ContractEvents(contract.abi, contract.w3)
+        contract.events = AsyncContractEvents(contract.abi, contract.w3)
         contract.fallback = AsyncContract.get_fallback_function(contract.abi, contract.w3)
         contract.receive = AsyncContract.get_receive_function(contract.abi, contract.w3)
         return contract
+
+    @classmethod
+    def constructor(cls, *args: Any, **kwargs: Any) -> 'ContractConstructor':
+        """
+        :param args: The contract constructor arguments as positional arguments
+        :param kwargs: The contract constructor arguments as keyword arguments
+        :return: a contract constructor object
+        """
+        if cls.bytecode is None:
+            raise ValueError(
+                "Cannot call constructor on a contract that does not have 'bytecode' associated "
+                "with it"
+            )
+
+        return AsyncContractConstructor(cls.w3,
+                                        cls.abi,
+                                        cls.bytecode,
+                                        *args,
+                                        **kwargs)
 
     @staticmethod
     def get_fallback_function(
@@ -730,12 +751,12 @@ class AsyncContract(BaseContract):
 
         return cast('AsyncContractFunction', NonExistentReceiveFunction())
 
-    def find_functions_by_identifier(cls,
+    def find_functions_by_identifier(cls,  # type: ignore
                                      contract_abi: ABI,
                                      w3: 'Web3',
                                      address: ChecksumAddress,
                                      callable_check: Callable[..., Any]
-                                     ) -> List['ContractFunction']:
+                                     ) -> List['AsyncContractFunction']:
         return async_find_functions_by_identifier(contract_abi, w3, address, callable_check)
 
 
@@ -1675,14 +1696,14 @@ class AsyncContractEvent(BaseContractEvent):
         """
         abi = self._get_event_abi()
         # Call JSON-RPC API
-        logs = await self.w3.eth.get_logs(self._get_event_filter_params(abi,
+        logs = await self.w3.eth.get_logs(self._get_event_filter_params(abi,  # type: ignore
                                                                         argument_filters,
                                                                         fromBlock,
                                                                         toBlock,
                                                                         blockHash))
 
         # Convert raw binary data to Python proxy objects as described by ABI
-        return tuple(get_event_data(self.w3.codec, abi, entry) for entry in logs)
+        return tuple(get_event_data(self.w3.codec, abi, entry) for entry in logs)  # type: ignore
 
 
 class BaseContractCaller:
