@@ -468,6 +468,12 @@ Geth
 - :meth:`web3.geth.txpool.content() <web3.geth.txpool.TxPool.content()>`
 - :meth:`web3.geth.txpool.status() <web3.geth.txpool.TxPool.status()>`
 
+Contract
+^^^^^^^^
+Contract is fully implemented for the Async provider. The only documented exception to this at 
+the moment is where :class:`ENS` is needed for address lookup. All addresses that are passed to Async
+contract should not be :class:`ENS` addresses. 
+
 Supported Middleware
 ^^^^^^^^^^^^^^^^^^^^
 - :meth:`Gas Price Strategy <web3.middleware.gas_price_strategy_middleware>`

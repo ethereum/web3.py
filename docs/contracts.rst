@@ -247,6 +247,11 @@ Each Contract Factory exposes the following methods.
 .. py:classmethod:: Contract.constructor(*args, **kwargs).estimateGas(transaction=None, block_identifier=None)
     :noindex:
 
+    .. warning:: Deprecated: This method is deprecated in favor of :py:meth:`Contract.constructor(*args, **kwargs).estimate_gas`
+
+.. py:classmethod:: Contract.constructor(*args, **kwargs).estimate_gas(transaction=None, block_identifier=None)
+    :noindex:
+
     Estimate gas for constructing and deploying the contract.
 
     This method behaves the same as the
@@ -264,12 +269,17 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >>> token_contract.constructor(web3.eth.coinbase, 12345).estimateGas()
+        >>> token_contract.constructor(web3.eth.coinbase, 12345).estimate_gas()
         12563
 
 .. py:classmethod:: Contract.constructor(*args, **kwargs).buildTransaction(transaction=None)
     :noindex:
 
+    .. warning:: Deprecated: This method is deprecated in favor of :py:meth:`Contract.constructor(*args, **kwargs).build_transaction`
+
+.. py:classmethod:: Contract.constructor(*args, **kwargs).build_transaction(transaction=None)
+    :noindex:
+    
     Construct the contract deploy transaction bytecode data.
 
     If the contract takes constructor parameters they should be provided as
@@ -286,7 +296,7 @@ Each Contract Factory exposes the following methods.
         'gasPrice': w3.eth.gas_price,
         'chainId': None
         }
-        >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).buildTransaction(transaction)
+        >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).build_transaction(transaction)
         >>> web3.eth.send_transaction(contract_data)
 
 .. _contract_createFilter:
@@ -835,6 +845,10 @@ Methods
 
 .. py:method:: ContractFunction.estimateGas(transaction, block_identifier=None)
 
+    .. warning:: Deprecated: This method is deprecated in favor of :class:`~estimate_gas`
+
+.. py:method:: ContractFunction.estimate_gas(transaction, block_identifier=None)
+
     Call a contract function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
 
@@ -842,7 +856,7 @@ Methods
 
     .. code-block:: python
 
-        myContract.functions.myMethod(*args, **kwargs).estimateGas(transaction)
+        myContract.functions.myMethod(*args, **kwargs).estimate_gas(transaction)
 
     This method behaves the same as the :py:meth:`ContractFunction.transact` method,
     with transaction details being passed into the end portion of the
@@ -853,7 +867,7 @@ Methods
 
     .. code-block:: python
 
-        >>> my_contract.functions.multiply7(3).estimateGas()
+        >>> my_contract.functions.multiply7(3).estimate_gas()
         42650
 
     .. note::
@@ -863,13 +877,17 @@ Methods
 
 .. py:method:: ContractFunction.buildTransaction(transaction)
 
+    .. warning:: Deprecated: This method is deprecated in favor of :class:`~build_transaction`
+  
+.. py:method:: ContractFunction.build_transaction(transaction)
+
     Builds a transaction dictionary based on the contract function call specified.
 
     Refer to the following invocation:
 
     .. code-block:: python
 
-        myContract.functions.myMethod(*args, **kwargs).buildTransaction(transaction)
+        myContract.functions.myMethod(*args, **kwargs).build_transaction(transaction)
 
     This method behaves the same as the :py:meth:`Contract.transact` method,
     with transaction details being passed into the end portion of the
@@ -881,7 +899,7 @@ Methods
 
         .. code-block:: python
 
-            >>> math_contract.functions.increment(5).buildTransaction({'nonce': 10})
+            >>> math_contract.functions.increment(5).build_transaction({'nonce': 10})
 
         You may use :meth:`~web3.eth.Eth.getTransactionCount` to get the current nonce
         for an account. Therefore a shortcut for producing a transaction dictionary with
@@ -889,7 +907,7 @@ Methods
 
         .. code-block:: python
 
-            >>> math_contract.functions.increment(5).buildTransaction({'nonce': web3.eth.get_transaction_count('0xF5...')})
+            >>> math_contract.functions.increment(5).build_transaction({'nonce': web3.eth.get_transaction_count('0xF5...')})
 
     Returns a transaction dictionary. This transaction dictionary can then be sent using
     :meth:`~web3.eth.Eth.send_transaction`.
@@ -899,7 +917,7 @@ Methods
 
     .. code-block:: python
 
-        >>> math_contract.functions.increment(5).buildTransaction({'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000})
+        >>> math_contract.functions.increment(5).build_transaction({'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000})
         {
             'to': '0x6Bc272FCFcf89C14cebFC57B8f1543F5137F97dE',
             'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',
