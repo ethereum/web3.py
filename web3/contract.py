@@ -528,7 +528,8 @@ class BaseContract:
 
         return deploy_data
 
-    def find_functions_by_identifier(self,
+    @combomethod
+    def find_functions_by_identifier(cls,
                                      contract_abi: ABI,
                                      w3: 'Web3',
                                      address: ChecksumAddress,
@@ -639,7 +640,8 @@ class Contract(BaseContract):
 
         return cast('ContractFunction', NonExistentReceiveFunction())
 
-    def find_functions_by_identifier(self,
+    @combomethod
+    def find_functions_by_identifier(cls,
                                      contract_abi: ABI,
                                      w3: 'Web3',
                                      address: ChecksumAddress,
@@ -750,7 +752,8 @@ class AsyncContract(BaseContract):
 
         return cast('AsyncContractFunction', NonExistentReceiveFunction())
 
-    def find_functions_by_identifier(self,
+    @combomethod
+    def find_functions_by_identifier(cls,
                                      contract_abi: ABI,
                                      w3: 'Web3',
                                      address: ChecksumAddress,
