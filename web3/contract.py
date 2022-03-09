@@ -639,7 +639,7 @@ class Contract(BaseContract):
 
         return cast('ContractFunction', NonExistentReceiveFunction())
 
-    def find_functions_by_identifier(self,  # type: ignore
+    def find_functions_by_identifier(self,
                                      contract_abi: ABI,
                                      w3: 'Web3',
                                      address: ChecksumAddress,
@@ -750,7 +750,7 @@ class AsyncContract(BaseContract):
 
         return cast('AsyncContractFunction', NonExistentReceiveFunction())
 
-    def find_functions_by_identifier(self,  # type: ignore
+    def find_functions_by_identifier(self,
                                      contract_abi: ABI,
                                      w3: 'Web3',
                                      address: ChecksumAddress,
