@@ -39,7 +39,7 @@ Hosted Private Key
   not your Ether" in the wise words of Andreas Antonopoulos.
 
 Some Common Uses for Local Private Keys
--------------------------------------------
+---------------------------------------
 
 A very common reason to work with local private keys is to interact
 with a hosted node.
@@ -56,21 +56,22 @@ or see a full list of things you can do in the docs for
 :class:`eth_account.Account <eth_account.account.Account>`.
 
 Read a private key from an environment variable
-------------------------------------------------
+-----------------------------------------------
 
 In this example we pass the private key to our Python application in an 
 `environment variable <https://en.wikipedia.org/wiki/Environment_variable>`_.
 This private key is then added to the transaction signing keychain 
-with Signing middleware.
+with ``Signing`` middleware.
 
-You can also `export your private keys from Metamask and other wallets <https://metamask.zendesk.com/hc/en-us/articles/360015289632-How-to-Export-an-Account-Private-Key>`_.
+If unfamiliar, note that you can `export your private keys from Metamask and other wallets <https://metamask.zendesk.com/hc/en-us/articles/360015289632-How-to-Export-an-Account-Private-Key>`_.
 
 .. warning ::
 
-  Never share your private key. Never put your private keys in Python source code.
-  Never commit private keys to a Git repository. Always keep private keys separate from your source code.
+  - **Never** share your private keys.
+  - **Never** put your private keys in source code.
+  - **Never** commit private keys to a Git repository.
 
-Example `account_test_script.py`
+Example ``account_test_script.py``
 
 .. code-block:: python
 
@@ -81,7 +82,7 @@ Example `account_test_script.py`
     from web3.middleware import construct_sign_and_send_raw_middleware
     
     private_key = os.environ.get("PRIVATE_KEY")
-    assert private_key is None, "You must set PRIVATE_KEY environment variable"        
+    assert private_key is not None, "You must set PRIVATE_KEY environment variable"
     assert private_key.startswith("0x"), "Private key must start with 0x hex prefix"
     
     account: LocalAccount = Account.from_key(private_key)
@@ -94,8 +95,8 @@ Example how to run this in UNIX shell:
 .. code-block:: shell
  
     # Generate a new 256-bit random integer using openssl UNIX command that acts as a private key.
-    # You can as well do:
-    # python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.toHex(acc.privateKey)}, account={acc.address}')"
+    # You can also do:
+    # python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.toHex(acc.key)}, account={acc.address}')"
     # Store this in a safe place, like in your password manager.
     export PRIVATE_KEY=0x`openssl rand -hex 32` 
     
@@ -104,7 +105,7 @@ Example how to run this in UNIX shell:
     
 This will print::
 
-    Your hot wallet account is 0x27C8F899bb69E1501BBB96d09d7477a2a7518918
+    Your hot wallet address is 0x27C8F899bb69E1501BBB96d09d7477a2a7518918
 
   
 .. _extract_geth_pk:
