@@ -5,7 +5,12 @@ import pytest
 from eth_utils import (
     event_signature_to_log_topic,
 )
+from eth_utils.toolz import (
+    identity,
+)
+import pytest_asyncio
 
+from web3 import Web3
 from web3._utils.module_testing.emitter_contract import (
     CONTRACT_EMITTER_ABI,
     CONTRACT_EMITTER_CODE,
@@ -45,6 +50,15 @@ from web3._utils.module_testing.revert_contract import (
     _REVERT_CONTRACT_ABI,
     REVERT_CONTRACT_BYTECODE,
     REVERT_CONTRACT_RUNTIME_CODE,
+)
+from web3.contract import (
+    AsyncContract,
+)
+from web3.eth import (
+    AsyncEth,
+)
+from web3.providers.eth_tester.main import (
+    AsyncEthereumTesterProvider,
 )
 
 CONTRACT_NESTED_TUPLE_SOURCE = """
@@ -1036,3 +1050,39 @@ def estimateGas(request):
 @pytest.fixture
 def buildTransaction(request):
     return functools.partial(invoke_contract, api_call_desig='buildTransaction')
+
+
+@pytest_asyncio.fixture()
+async def async_deploy(web3, Contract, apply_func=identity, args=None):
+    args = args or []
+    deploy_txn = await Contract.constructor(*args).transact()
+    deploy_receipt = await web3.eth.wait_for_transaction_receipt(deploy_txn)
+    assert deploy_receipt is not None
+    address = apply_func(deploy_receipt['contractAddress'])
+    contract = Contract(address=address)
+    assert contract.address == address
+    assert len(await web3.eth.get_code(contract.address)) > 0
+    return contract
+
+
+@pytest_asyncio.fixture()
+async def async_w3():
+    provider = AsyncEthereumTesterProvider()
+    w3 = Web3(provider, modules={'eth': [AsyncEth]},
+              middlewares=provider.middlewares)
+    w3.eth.default_account = await w3.eth.coinbase
+    return w3
+
+
+@pytest_asyncio.fixture()
+def AsyncMathContract(async_w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
+    contract = AsyncContract.factory(async_w3,
+                                     abi=MATH_ABI,
+                                     bytecode=MATH_CODE,
+                                     bytecode_runtime=MATH_RUNTIME)
+    return contract
+
+
+@pytest_asyncio.fixture()
+async def async_math_contract(async_w3, AsyncMathContract, address_conversion_func):
+    return await async_deploy(async_w3, AsyncMathContract, address_conversion_func)
