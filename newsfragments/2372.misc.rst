@@ -1,1 +1,6 @@
-remove python 2 syntax.
+improve the code base by:
+- using `f-strings`.
+- removing redundant `set()` calls.
+- making error messages more readable in the code.
+- removing python2 `u` prefix.
+- other cleanups.
