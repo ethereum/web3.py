@@ -53,8 +53,7 @@ class PersistantSocket:
     def __enter__(self) -> socket.socket:
         if not self.ipc_path:
             raise FileNotFoundError(
-                "cannot connect to IPC socket at path: "
-                f"{self.ipc_path!r}"
+                f"cannot connect to IPC socket at path: {self.ipc_path!r}"
             )
 
         if not self.sock:

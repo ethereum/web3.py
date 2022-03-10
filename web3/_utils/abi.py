@@ -290,8 +290,7 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
 
         if self.value_bit_size % 8 != 0:
             raise ValueError(
-                f"Invalid value bit size: {self.value_bit_size}. "
-                "Must be a multiple of 8"
+                f"Invalid value bit size: {self.value_bit_size}. Must be a multiple of 8"
             )
 
         if self.value_bit_size > self.data_byte_size * 8:
@@ -452,25 +451,22 @@ def merge_args_and_kwargs(
     # Check for duplicate args
     duplicate_args = kwarg_names.intersection(args_as_kwargs.keys())
     if duplicate_args:
+        s = 's' if len(duplicate_args) > 1 else ''
         raise TypeError(
-            f"{function_abi.get('name')}() got multiple values for "
-            f"argument{'s' if len(duplicate_args) > 1 else ''} "
-            f"'{', '.join(duplicate_args)}'"
+            f"{function_abi.get('name')}() got multiple values for argument{s} '{', '.join(duplicate_args)}'"
         )
 
     # Check for unknown args
     unknown_args = kwarg_names.difference(sorted_arg_names)
     if unknown_args:
+        s = 's' if len(unknown_args) > 1 else ''
+        unknown_args = ', '.join(unknown_args)
         if function_abi.get('name'):
             raise TypeError(
-                f"{function_abi.get('name')}() got unexpected keyword argument"
-                f"{'s' if len(unknown_args) > 1 else ''} "
-                f"{', '.join(unknown_args)}'"
+                f"{function_abi.get('name')}() got unexpected keyword argument{s} '{unknown_args}'"
             )
         raise TypeError(
-            f"Type: '{function_abi.get('type')}' got unexpected keyword "
-            f"argument{'s' if len(unknown_args) > 1 else ''} "
-            f"{', '.join(unknown_args)}'"
+            f"Type: '{function_abi.get('type')}' got unexpected keyword argument{s} '{unknown_args}'"
         )
 
     # Sort args according to their position in the ABI and unzip them from their

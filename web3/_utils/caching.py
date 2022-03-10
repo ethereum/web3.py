@@ -40,6 +40,5 @@ def generate_cache_key(value: Any) -> str:
         )))
     else:
         raise TypeError(
-            f"Cannot generate cache key for value {value} of type "
-            f"{type(value)}"
+            f"Cannot generate cache key for value {value} of type {type(value)}"
         )

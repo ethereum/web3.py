@@ -292,11 +292,10 @@ class Web3:
             return eth_utils_keccak(input_bytes)
 
         raise TypeError(
-            f"You called keccak with first arg {primitive!r} and keywords "
-            f"{{'text': {text!r}, 'hexstr': {hexstr!r}}}. You must call it "
-            "with one of these approaches: keccak(text='txt'), keccak "
-            "(hexstr='0x747874'), keccak(b'\\x74\\x78\\x74'), or kecca "
-            "(0x747874)."
+            f"You called keccak with first arg {primitive!r} and keywords {{'text': {text!r}, "
+            f"'hexstr': {hexstr!r}}}. You must call it with one of these approaches: "
+            "keccak(text='txt'), keccak(hexstr='0x747874'), keccak(b'\\x74\\x78\\x74'), "
+            "or keccak(0x747874)."
         )
 
     @combomethod

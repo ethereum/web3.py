@@ -78,7 +78,7 @@ def test_validate_deployments_without_deployment(manifest_with_no_deployments):
 @pytest.mark.parametrize(
     "data,expected",
     (
-        ([], {}),
+        ([], set()),
         ([{"some": {"contractType": "one"}}], {"one"}),
         (
             [{"some": {"contractType": "one"}, "other": {"contractType": "two"}}],
@@ -88,7 +88,7 @@ def test_validate_deployments_without_deployment(manifest_with_no_deployments):
 )
 def test_extract_contract_types_from_deployments(data, expected):
     actual = extract_contract_types_from_deployments(data)
-    assert actual == set(expected)
+    assert actual == expected
 
 
 def test_validate_manifest_version_validates_version_three_string():

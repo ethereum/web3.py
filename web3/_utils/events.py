@@ -220,8 +220,7 @@ def get_event_data(abi_codec: ABICodec, event_abi: ABIEvent, log_entry: LogRecei
 
     if len(log_topics) != len(log_topic_types):
         raise LogTopicError(
-            f"Expected {len(log_topic_types)} log topics.  Got "
-            f"{len(log_topics)}"
+            f"Expected {len(log_topic_types)} log topics.  Got {len(log_topics)}"
         )
 
     log_data = hexstr_if_str(to_bytes, log_entry['data'])

@@ -689,9 +689,9 @@ class ContractConstructor:
     ) -> None:
         keys_found = transaction.keys() & forbidden_keys
         if keys_found:
+            s = 's' if len(keys_found) > 1 else ''
             raise ValueError(
-                f"Cannot set '{', '.join(keys_found)}'"
-                f"field{'s' if len(keys_found) > 1 else ''} in transaction"
+                f"Cannot set '{', '.join(keys_found)}' field{s} in transaction"
             )
 
 
