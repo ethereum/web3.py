@@ -55,8 +55,7 @@ def load_provider_from_uri(
         return WebsocketProvider(uri_string)
     else:
         raise NotImplementedError(
-            f'Web3 does not know how to connect to scheme {uri.scheme!r} '
-            f'in {uri_string!r}'
+            f'Web3 does not know how to connect to scheme {uri.scheme!r} in {uri_string!r}'
         )
 
 
@@ -103,8 +102,7 @@ class AutoProvider(BaseProvider):
         if provider is None:
             raise CannotHandleRequest(
                 "Could not discover provider while making request: "
-                f"method:{method}\n"
-                f"params:{params}\n"
+                f"method:{method}\nparams:{params}\n"
             )
 
         return provider.make_request(method, params)

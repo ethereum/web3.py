@@ -169,8 +169,7 @@ def hexstr_if_str(
         (primitive, hexstr) = (None, hexstr_or_primitive)
         if remove_0x_prefix(HexStr(hexstr)) and not is_hex(hexstr):
             raise ValueError(
-                "when sending a str, it must be a hex string. Got: "
-                f"{hexstr_or_primitive!r}"
+                f"when sending a str, it must be a hex string. Got: {hexstr_or_primitive!r}"
             )
     else:
         (primitive, hexstr) = (hexstr_or_primitive, None)
@@ -208,8 +207,7 @@ class FriendlyJsonSerde:
             if hasattr(obj, 'items'):
                 item_errors = '; '.join(self._json_mapping_errors(obj))
                 raise TypeError(
-                    "dict had unencodable value at keys: "
-                    f"{{{item_errors}}}"
+                    f"dict had unencodable value at keys: {{{item_errors}}}"
                 )
             elif is_list_like(obj):
                 element_errors = '; '.join(self._json_list_errors(obj))

@@ -70,6 +70,5 @@ def select_method_for_block_identifier(
         return if_number
     else:
         raise ValueError(
-            "Value did not match any of the recognized block identifiers: "
-            f"{value}"
+            f"Value did not match any of the recognized block identifiers: {value}"
         )
