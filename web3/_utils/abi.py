@@ -452,21 +452,22 @@ def merge_args_and_kwargs(
     duplicate_args = kwarg_names.intersection(args_as_kwargs.keys())
     if duplicate_args:
         s = 's' if len(duplicate_args) > 1 else ''
+        duplicate_arg = ', '.join(duplicate_args)
         raise TypeError(
-            f"{function_abi.get('name')}() got multiple values for argument{s} '{', '.join(duplicate_args)}'"
+            f"{function_abi.get('name')}() got multiple values for argument{s} '{duplicate_arg}'"
         )
 
     # Check for unknown args
     unknown_args = kwarg_names.difference(sorted_arg_names)
     if unknown_args:
         s = 's' if len(unknown_args) > 1 else ''
-        unknown_args = ', '.join(unknown_args)
+        unknown_arg = ', '.join(unknown_args)
         if function_abi.get('name'):
             raise TypeError(
-                f"{function_abi.get('name')}() got unexpected keyword argument{s} '{unknown_args}'"
+                f"{function_abi.get('name')}() got unexpected keyword argument{s} '{unknown_arg}'"
             )
         raise TypeError(
-            f"Type: '{function_abi.get('type')}' got unexpected keyword argument{s} '{unknown_args}'"
+            f"Type: '{function_abi.get('type')}' got unexpected keyword argument{s} '{unknown_arg}'"
         )
 
     # Sort args according to their position in the ABI and unzip them from their
