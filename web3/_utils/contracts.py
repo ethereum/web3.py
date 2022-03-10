@@ -148,8 +148,8 @@ def find_matching_fn_abi(
         s_k = 's' if len(kwargs) > 1 else ''
         s_m = 's' if len(matching_identifiers) > 1 else ''
         message = (
-            f"\nCould not identify the intended function with name `{fn_identifier}`, positional argument"
-            f"{s_a} of type `{tuple(map(type, args))}` and keyword argument{s_k} of type "
+            f"\nCould not identify the intended function with name `{fn_identifier}`, positional "
+            f"argument {s_a} of type `{tuple(map(type, args))}` and keyword argument{s_k} of type "
             f"`{valmap(type, kwargs)}`.\nFound {len(matching_identifiers)} function{s_m} with "
             f"the name `{fn_identifier}` {matching_function_signatures}{diagnosis}"
         )
