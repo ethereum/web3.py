@@ -59,17 +59,20 @@ def test_attach_methods_to_module(web3_with_external_modules):
 def test_attach_methods_with_mungers(web3_with_external_modules):
     w3 = web3_with_external_modules
 
+    # `method1` uses `eth_getBlockByNumber` but makes use of unique mungers
     w3.module1.attach_methods({
         'method1': Method('eth_getBlockByNumber', mungers=[
-            lambda _method, block_id, f, _z: (block_id, f),
-            lambda _m, block_id, _f: (block_id - 1,),
+            lambda _method, block_id, full_transactions: (block_id, full_transactions),
+            # take the user-provided `block_id` and subtract 1
+            lambda _method, block_id, full_transactions: (block_id - 1, full_transactions),
         ]),
     })
 
-    assert w3.eth.get_block(0)['baseFeePerGas'] == 1000000000
-    assert w3.eth.get_block(1)['baseFeePerGas'] == 875000000
+    assert w3.eth.get_block(0, False)['baseFeePerGas'] == 1000000000
+    assert w3.eth.get_block(1, False)['baseFeePerGas'] == 875000000
 
-    # `method1` should take a higher block number than `eth_getBlockByNumber` due to mungers and no
-    # other params should matter
-    assert w3.module1.method1(1, False, '_is_never_used_')['baseFeePerGas'] == 1000000000
-    assert w3.module1.method1(2, '_will_be_overridden_', None)['baseFeePerGas'] == 875000000
+    # Testing the mungers work:
+    # `method1` also calls 'eth_getBlockByNumber' but subtracts 1 from the user-provided `block_id`
+    # due to the second munger. So, `0` from above is a `1` here and `1` is `2`.
+    assert w3.module1.method1(1, False)['baseFeePerGas'] == 1000000000
+    assert w3.module1.method1(2, False)['baseFeePerGas'] == 875000000
