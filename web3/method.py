@@ -15,6 +15,9 @@ from typing import (
 )
 import warnings
 
+from eth_utils import (
+    ValidationError,
+)
 from eth_utils.curried import (
     to_tuple,
 )
@@ -62,6 +65,9 @@ def _munger_star_apply(fn: Callable[..., TReturn]) -> Callable[..., TReturn]:
 
 
 def _set_mungers(mungers: Optional[Sequence[Munger]], is_property: bool) -> Sequence[Any]:
+    if is_property and mungers:
+        raise ValidationError("Mungers cannot be used with a property.")
+
     return (
         mungers if mungers
         else [default_munger] if is_property
@@ -70,10 +76,9 @@ def _set_mungers(mungers: Optional[Sequence[Munger]], is_property: bool) -> Sequ
 
 
 def default_munger(_module: "Module", *args: Any, **kwargs: Any) -> Tuple[()]:
-    if not args and not kwargs:
-        return ()
-    else:
-        raise TypeError("Parameters passed to method without parameter mungers defined.")
+    if args or kwargs:
+        raise ValidationError("Parameters cannot be passed to a property.")
+    return ()
 
 
 def default_root_munger(_module: "Module", *args: Any) -> List[Any]:
@@ -136,7 +141,6 @@ class Method(Generic[TFunc]):
         self.mungers = _set_mungers(mungers, is_property)
         self.request_formatters = request_formatters or get_request_formatters
         self.result_formatters = result_formatters or get_result_formatters
-        self.error_formatters = get_error_formatters
         self.null_result_formatters = null_result_formatters or get_null_result_formatters
         self.method_choice_depends_on_args = method_choice_depends_on_args
         self.is_property = is_property
@@ -205,7 +209,7 @@ class Method(Generic[TFunc]):
         method = self.method_selector_fn()
         response_formatters = (
             self.result_formatters(method, module),
-            self.error_formatters(method),
+            get_error_formatters(method),
             self.null_result_formatters(method),
         )
         request = (
