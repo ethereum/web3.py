@@ -602,9 +602,9 @@ def test_returns_data_from_specified_block(w3, math_contract):
 
 message_regex = (
     r"\nCould not identify the intended function with name `.*`, "
-    r"positional arguments? of type `.*` and "
-    r"keyword arguments? of type `.*`."
-    r"\nFound .* functions? with the name `.*`: .*"
+    r"positional argument\(s\) of type `.*` and "
+    r"keyword argument\(s\) of type `.*`."
+    r"\nFound .* function\(s\) with the name `.*`: .*"
 )
 diagnosis_arg_regex = (
     r"\nFunction invocation failed due to improper number of arguments."
