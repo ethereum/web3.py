@@ -840,25 +840,11 @@ class BaseContractConstructor:
         return transact_transaction
 
     @combomethod
-    def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
-        """
-        Build the transaction dictionary without sending
-        """
-
-        if transaction is None:
-            built_transaction: TxParams = {}
-        else:
-            built_transaction = cast(TxParams, dict(**transaction))
-            self.check_forbidden_keys_in_transaction(built_transaction,
-                                                     ["data", "to"])
-
-        if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            built_transaction.setdefault('from', self.w3.eth.default_account)  # type: ignore
-
-        built_transaction['data'] = self.data_in_transaction
+    def _build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+        built_transaction = self._get_transaction(transaction)
         built_transaction['to'] = Address(b'')
-        return fill_transaction_defaults(self.w3, built_transaction)
+        return built_transaction
+
 
     @staticmethod
     def check_forbidden_keys_in_transaction(
@@ -877,6 +863,22 @@ class ContractConstructor(BaseContractConstructor):
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         return self.w3.eth.send_transaction(self._get_transaction(transaction))
 
+    @combomethod
+    def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+        """
+        Build the transaction dictionary without sending
+        """
+        built_transaction = self._build_transaction(transaction)
+        return fill_transaction_defaults(self.w3, built_transaction)
+
+    @combomethod
+    @deprecated_for("build_transaction")
+    def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+        """
+        Build the transaction dictionary without sending
+        """
+        return self.build_transaction(transaction)
+
 
 class AsyncContractConstructor(BaseContractConstructor):
 
@@ -884,7 +886,14 @@ class AsyncContractConstructor(BaseContractConstructor):
     async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         return await self.w3.eth.send_transaction(   # type: ignore
             self._get_transaction(transaction))
-
+    
+    @combomethod
+    async def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+        """
+        Build the transaction dictionary without sending
+        """
+        built_transaction = self._build_transaction(transaction)
+        return fill_transaction_defaults(self.w3, built_transaction)
 
 class ConciseMethod:
     ALLOWED_MODIFIERS = {'call', 'estimateGas', 'transact', 'buildTransaction'}
