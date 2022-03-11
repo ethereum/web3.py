@@ -269,7 +269,8 @@ class ENS:
         resolver_addr = self.ens.caller.resolver(normal_name_to_hash(normal_name))
         if is_none_or_zero_address(resolver_addr):
             return None
-        return self._resolverContract(address=resolver_addr)
+        # TODO: look at possibly removing type ignore when AsyncENS is written
+        return self._resolverContract(address=resolver_addr)  # type: ignore
 
     def reverser(self, target_address: ChecksumAddress) -> Optional['Contract']:
         reversed_domain = address_to_reverse_domain(target_address)
@@ -449,7 +450,8 @@ class ENS:
                 namehash,
                 resolver_addr
             ).transact(transact)
-        return self._resolverContract(address=resolver_addr)
+        # TODO: look at possibly removing type ignore when AsyncENS is written
+        return self._resolverContract(address=resolver_addr)  # type: ignore
 
     def _setup_reverse(
         self, name: str, address: ChecksumAddress, transact: Optional["TxParams"] = None
