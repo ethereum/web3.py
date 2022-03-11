@@ -845,7 +845,6 @@ class BaseContractConstructor:
         built_transaction['to'] = Address(b'')
         return built_transaction
 
-
     @staticmethod
     def check_forbidden_keys_in_transaction(
         transaction: TxParams, forbidden_keys: Optional[Collection[str]] = None
@@ -886,7 +885,7 @@ class AsyncContractConstructor(BaseContractConstructor):
     async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         return await self.w3.eth.send_transaction(   # type: ignore
             self._get_transaction(transaction))
-    
+
     @combomethod
     async def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
         """
@@ -894,6 +893,7 @@ class AsyncContractConstructor(BaseContractConstructor):
         """
         built_transaction = self._build_transaction(transaction)
         return fill_transaction_defaults(self.w3, built_transaction)
+
 
 class ConciseMethod:
     ALLOWED_MODIFIERS = {'call', 'estimateGas', 'transact', 'buildTransaction'}

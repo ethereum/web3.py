@@ -880,15 +880,18 @@ def test_call_revert_contract(revert_contract):
         # value.
         revert_contract.functions.revertWithMessage().call({'gas': 100000})
 
+
 @pytest.mark.asyncio
 async def test_async_call_with_no_arguments(async_math_contract, call):
     result = await async_math_contract.functions.return13().call()
     assert result == 13
 
+
 @pytest.mark.asyncio
 async def test_async_call_with_one_argument(async_math_contract, call):
     result = await async_math_contract.functions.multiply7(3).call()
     assert result == 21
+
 
 @pytest.mark.asyncio
 async def test_async_returns_data_from_specified_block(aync_w3, math_contract):
