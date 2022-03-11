@@ -69,6 +69,8 @@ from web3._utils.transactions import (
     replace_transaction,
 )
 from web3.contract import (
+    AsyncContract,
+    AsyncContractCaller,
     ConciseContract,
     Contract,
     ContractCaller,
@@ -116,6 +118,8 @@ class BaseEth(Module):
     _default_block: BlockIdentifier = "latest"
     _default_chain_id: Optional[int] = None
     gasPriceStrategy = None
+    defaultContractFactory: Type[Union[Contract, AsyncContract,
+                                 ConciseContract, ContractCaller, AsyncContractCaller]] = Contract
 
     _gas_price: Method[Callable[[], Wei]] = Method(
         RPC.eth_gasPrice,
@@ -343,6 +347,30 @@ class BaseEth(Module):
         mungers=[default_root_munger]
     )
 
+    @overload
+    def contract(self, address: None = None, **kwargs: Any) -> Union[Type[Contract], Type[AsyncContract]]: ...  # noqa: E704,E501
+
+    @overload  # noqa: F811
+    def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Union[Contract, AsyncContract]: ...  # noqa: E704,E501
+
+    def contract(  # noqa: F811
+        self, address: Optional[Union[Address, ChecksumAddress, ENS]] = None, **kwargs: Any
+    ) -> Union[Type[Contract], Contract, Type[AsyncContract], AsyncContract]:
+        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
+
+        ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
+
+        if address:
+            return ContractFactory(address)
+        else:
+            return ContractFactory
+
+    def set_contract_factory(
+        self, contractFactory: Type[Union[Contract, AsyncContract,
+                                    ConciseContract, ContractCaller, AsyncContractCaller]]
+    ) -> None:
+        self.defaultContractFactory = contractFactory
+
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -554,7 +582,6 @@ class AsyncEth(BaseEth):
 
 class Eth(BaseEth):
     account = Account()
-    defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
 
     def namereg(self) -> NoReturn:
@@ -949,34 +976,11 @@ class Eth(BaseEth):
         mungers=[default_root_munger],
     )
 
-    @overload
-    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
-
-    @overload  # noqa: F811
-    def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Contract: ...  # noqa: E704,E501
-
-    def contract(  # noqa: F811
-        self, address: Optional[Union[Address, ChecksumAddress, ENS]] = None, **kwargs: Any
-    ) -> Union[Type[Contract], Contract]:
-        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
-
-        ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
-
-        if address:
-            return ContractFactory(address)
-        else:
-            return ContractFactory
-
     @deprecated_for("set_contract_factory")
     def setContractFactory(
         self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
     ) -> None:
         return self.set_contract_factory(contractFactory)
-
-    def set_contract_factory(
-        self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
-    ) -> None:
-        self.defaultContractFactory = contractFactory
 
     def getCompilers(self) -> NoReturn:
         raise DeprecationWarning("This method has been deprecated as of EIP 1474.")

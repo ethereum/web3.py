@@ -894,14 +894,16 @@ async def test_async_call_with_one_argument(async_math_contract, call):
 
 
 @pytest.mark.asyncio
-async def test_async_returns_data_from_specified_block(aync_w3, math_contract):
-    start_num = aync_w3.eth.get_block('latest').number
-    aync_w3.provider.make_request(method='evm_mine', params=[5])
-    math_contract.functions.increment().transact()
-    math_contract.functions.increment().transact()
+async def test_async_returns_data_from_specified_block(async_w3, async_math_contract):
+    start_num = await async_w3.eth.get_block('latest')
+    await async_w3.provider.make_request(method='evm_mine', params=[5])
+    await async_math_contract.functions.increment().transact()
+    await async_math_contract.functions.increment().transact()
 
-    output1 = math_contract.functions.counter().call(block_identifier=start_num + 6)
-    output2 = math_contract.functions.counter().call(block_identifier=start_num + 7)
+    output1 = await async_math_contract.functions.counter().call(
+        block_identifier=start_num.number + 6)
+    output2 = await async_math_contract.functions.counter().call(
+        block_identifier=start_num.number + 7)
 
     assert output1 == 1
     assert output2 == 2
