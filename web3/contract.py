@@ -1373,7 +1373,7 @@ class AsyncContractFunction(BaseContractFunction):
             self._return_data_normalizers,
             self.function_identifier,
             call_transaction,
-            block_id,
+            block_id,  # type: ignore
             self.contract_abi,
             self.abi,
             state_override,
@@ -2029,11 +2029,11 @@ def parse_block_identifier(w3: 'Web3', block_identifier: BlockIdentifier) -> Blo
 
 async def async_parse_block_identifier(w3: 'Web3',
                                        block_identifier: BlockIdentifier
-                                       ) -> BlockIdentifier:
+                                       ) -> Awaitable[BlockIdentifier]:
     if isinstance(block_identifier, int):
-        return parse_block_identifier_int(w3, block_identifier)
+        return await async_parse_block_identifier_int(w3, block_identifier)
     elif block_identifier in ['latest', 'earliest', 'pending']:
-        return block_identifier
+        return block_identifier  # type: ignore
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
         return await w3.eth.get_block(block_identifier)['number']  # type: ignore
     else:
@@ -2049,6 +2049,18 @@ def parse_block_identifier_int(w3: 'Web3', block_identifier_int: int) -> BlockNu
         if block_num < 0:
             raise BlockNumberOutofRange
     return BlockNumber(block_num)
+
+
+async def async_parse_block_identifier_int(w3: 'Web3', block_identifier_int: int
+                                           ) -> Awaitable[BlockNumber]:
+    if block_identifier_int >= 0:
+        block_num = block_identifier_int
+    else:
+        last_block = await w3.eth.get_block('latest')['number']  # type: ignore
+        block_num = last_block + block_identifier_int + 1
+        if block_num < 0:
+            raise BlockNumberOutofRange
+    return BlockNumber(block_num)  # type: ignore
 
 
 def transact_with_contract_function(
@@ -2176,7 +2188,7 @@ def async_find_functions_by_identifier(
 
 def get_function_by_identifier(
     fns: Sequence[ContractFunction], identifier: str
-) -> ContractFunction:
+) -> Union[ContractFunction, AsyncContractFunction]:
     if len(fns) > 1:
         raise ValueError(
             'Found multiple functions with matching {0}. '
