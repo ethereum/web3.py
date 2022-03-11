@@ -840,25 +840,10 @@ class BaseContractConstructor:
         return transact_transaction
 
     @combomethod
-    def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
-        """
-        Build the transaction dictionary without sending
-        """
-
-        if transaction is None:
-            built_transaction: TxParams = {}
-        else:
-            built_transaction = cast(TxParams, dict(**transaction))
-            self.check_forbidden_keys_in_transaction(built_transaction,
-                                                     ["data", "to"])
-
-        if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            built_transaction.setdefault('from', self.w3.eth.default_account)  # type: ignore
-
-        built_transaction['data'] = self.data_in_transaction
+    def _build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+        built_transaction = self._get_transaction(transaction)
         built_transaction['to'] = Address(b'')
-        return fill_transaction_defaults(self.w3, built_transaction)
+        return built_transaction
 
     @staticmethod
     def check_forbidden_keys_in_transaction(
@@ -877,6 +862,22 @@ class ContractConstructor(BaseContractConstructor):
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         return self.w3.eth.send_transaction(self._get_transaction(transaction))
 
+    @combomethod
+    def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+        """
+        Build the transaction dictionary without sending
+        """
+        built_transaction = self._build_transaction(transaction)
+        return fill_transaction_defaults(self.w3, built_transaction)
+
+    @combomethod
+    @deprecated_for("build_transaction")
+    def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+        """
+        Build the transaction dictionary without sending
+        """
+        return self.build_transaction(transaction)
+
 
 class AsyncContractConstructor(BaseContractConstructor):
 
@@ -884,6 +885,14 @@ class AsyncContractConstructor(BaseContractConstructor):
     async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         return await self.w3.eth.send_transaction(   # type: ignore
             self._get_transaction(transaction))
+
+    @combomethod
+    async def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+        """
+        Build the transaction dictionary without sending
+        """
+        built_transaction = self._build_transaction(transaction)
+        return fill_transaction_defaults(self.w3, built_transaction)
 
 
 class ConciseMethod:
@@ -1364,7 +1373,7 @@ class AsyncContractFunction(BaseContractFunction):
             self._return_data_normalizers,
             self.function_identifier,
             call_transaction,
-            block_id,
+            block_id,  # type: ignore
             self.contract_abi,
             self.abi,
             state_override,
@@ -2020,11 +2029,11 @@ def parse_block_identifier(w3: 'Web3', block_identifier: BlockIdentifier) -> Blo
 
 async def async_parse_block_identifier(w3: 'Web3',
                                        block_identifier: BlockIdentifier
-                                       ) -> BlockIdentifier:
+                                       ) -> Awaitable[BlockIdentifier]:
     if isinstance(block_identifier, int):
-        return parse_block_identifier_int(w3, block_identifier)
+        return await async_parse_block_identifier_int(w3, block_identifier)
     elif block_identifier in ['latest', 'earliest', 'pending']:
-        return block_identifier
+        return block_identifier  # type: ignore
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
         return await w3.eth.get_block(block_identifier)['number']  # type: ignore
     else:
@@ -2040,6 +2049,18 @@ def parse_block_identifier_int(w3: 'Web3', block_identifier_int: int) -> BlockNu
         if block_num < 0:
             raise BlockNumberOutofRange
     return BlockNumber(block_num)
+
+
+async def async_parse_block_identifier_int(w3: 'Web3', block_identifier_int: int
+                                           ) -> Awaitable[BlockNumber]:
+    if block_identifier_int >= 0:
+        block_num = block_identifier_int
+    else:
+        last_block = await w3.eth.get_block('latest')['number']  # type: ignore
+        block_num = last_block + block_identifier_int + 1
+        if block_num < 0:
+            raise BlockNumberOutofRange
+    return BlockNumber(block_num)  # type: ignore
 
 
 def transact_with_contract_function(
@@ -2167,7 +2188,7 @@ def async_find_functions_by_identifier(
 
 def get_function_by_identifier(
     fns: Sequence[ContractFunction], identifier: str
-) -> ContractFunction:
+) -> Union[ContractFunction, AsyncContractFunction]:
     if len(fns) > 1:
         raise ValueError(
             'Found multiple functions with matching {0}. '
