@@ -879,3 +879,31 @@ def test_call_revert_contract(revert_contract):
         # which does not contain the revert reason. Avoid that by giving a gas
         # value.
         revert_contract.functions.revertWithMessage().call({'gas': 100000})
+
+
+@pytest.mark.asyncio
+async def test_async_call_with_no_arguments(async_math_contract, call):
+    result = await async_math_contract.functions.return13().call()
+    assert result == 13
+
+
+@pytest.mark.asyncio
+async def test_async_call_with_one_argument(async_math_contract, call):
+    result = await async_math_contract.functions.multiply7(3).call()
+    assert result == 21
+
+
+@pytest.mark.asyncio
+async def test_async_returns_data_from_specified_block(async_w3, async_math_contract):
+    start_num = await async_w3.eth.get_block('latest')
+    await async_w3.provider.make_request(method='evm_mine', params=[5])
+    await async_math_contract.functions.increment().transact()
+    await async_math_contract.functions.increment().transact()
+
+    output1 = await async_math_contract.functions.counter().call(
+        block_identifier=start_num.number + 6)
+    output2 = await async_math_contract.functions.counter().call(
+        block_identifier=start_num.number + 7)
+
+    assert output1 == 1
+    assert output2 == 2
