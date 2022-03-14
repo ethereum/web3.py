@@ -201,7 +201,7 @@ class BaseContractFunctions:
             )
         elif function_name not in self.__dict__['_functions']:
             raise ABIFunctionNotFound(
-                "The function '{}' was not found in this contract's abi. ".format(function_name),
+                f"The function '{function_name}' was not found in this contract's abi. ",
                 "Are you sure you provided the correct contract abi?"
             )
         else:
@@ -281,7 +281,7 @@ class BaseContractEvents:
             )
         elif event_name not in self.__dict__['_events']:
             raise ABIEventFunctionNotFound(
-                "The event '{}' was not found in this contract's abi. ".format(event_name),
+                f"The event '{event_name}' was not found in this contract's abi. ",
                 "Are you sure you provided the correct contract abi?"
             )
         else:
@@ -392,7 +392,7 @@ class BaseContract:
         if ' ' in signature:
             raise ValueError(
                 'Function signature should not contain any spaces. '
-                'Found spaces in input: %s' % signature
+                f'Found spaces in input: {signature}'
             )
 
         def callable_check(fn_abi: ABIFunction) -> bool:
@@ -849,10 +849,10 @@ class BaseContractConstructor:
     def check_forbidden_keys_in_transaction(
         transaction: TxParams, forbidden_keys: Optional[Collection[str]] = None
     ) -> None:
-        keys_found = set(transaction.keys()) & set(forbidden_keys)
+        keys_found = transaction.keys() & forbidden_keys
         if keys_found:
             raise ValueError(
-                "Cannot set '{}' field(s) in transaction".format(', '.join(keys_found))
+                f"Cannot set '{', '.join(keys_found)}' field(s) in transaction"
             )
 
 
@@ -916,9 +916,9 @@ class ConciseMethod:
             modifier, modifier_dict = kwargs.popitem()
             if modifier not in self.ALLOWED_MODIFIERS:
                 raise TypeError(
-                    "The only allowed keyword arguments are: %s" % self.ALLOWED_MODIFIERS)
+                    f"The only allowed keyword arguments are: {self.ALLOWED_MODIFIERS}")
         else:
-            raise TypeError("Use up to one keyword argument, one of: %s" % self.ALLOWED_MODIFIERS)
+            raise TypeError(f"Use up to one keyword argument, one of: {self.ALLOWED_MODIFIERS}")
 
         return getattr(self._function(*args), modifier)(modifier_dict)
 
@@ -1241,11 +1241,11 @@ class BaseContractFunction:
 
     def __repr__(self) -> str:
         if self.abi:
-            _repr = '<Function %s' % abi_to_signature(self.abi)
+            _repr = f'<Function {abi_to_signature(self.abi)}'
             if self.arguments is not None:
-                _repr += ' bound to %r' % (self.arguments,)
+                _repr += f' bound to {self.arguments!r}'
             return _repr + '>'
-        return '<Function %s>' % self.fn_name
+        return f'<Function {self.fn_name}>'
 
 
 class ContractFunction(BaseContractFunction):
@@ -1785,12 +1785,12 @@ class BaseContractCaller:
                 "The ABI for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract ABI?"
             )
-        elif function_name not in set(fn['name'] for fn in self._functions):
+        elif function_name not in {fn['name'] for fn in self._functions}:
             functions_available = ', '.join([fn['name'] for fn in self._functions])
             raise ABIFunctionNotFound(
-                "The function '{}' was not found in this contract's ABI. ".format(function_name),
+                f"The function '{function_name}' was not found in this contract's ABI. ",
                 "Here is a list of all of the function names found: ",
-                "{}. ".format(functions_available),
+                f"{functions_available}. ",
                 "Did you mean to call one of those functions?"
             )
         else:
@@ -2191,11 +2191,11 @@ def get_function_by_identifier(
 ) -> Union[ContractFunction, AsyncContractFunction]:
     if len(fns) > 1:
         raise ValueError(
-            'Found multiple functions with matching {0}. '
-            'Found: {1!r}'.format(identifier, fns)
+            f'Found multiple functions with matching {identifier}. '
+            f'Found: {fns!r}'
         )
     elif len(fns) == 0:
         raise ValueError(
-            'Could not find any function with matching {0}'.format(identifier)
+            f'Could not find any function with matching {identifier}'
         )
     return fns[0]

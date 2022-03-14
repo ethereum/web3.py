@@ -130,7 +130,7 @@ def test_time_based_cache_middleware_does_not_cache_error_response(
     counter = itertools.count()
 
     def mk_error(method, params):
-        return "error-number-{0}".format(next(counter))
+        return f"error-number-{next(counter)}"
 
     w3.middleware_onion.add(construct_error_generator_middleware({
         'fake_endpoint': mk_error,

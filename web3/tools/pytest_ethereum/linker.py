@@ -82,7 +82,7 @@ def _deploy(
     manifest = insert_deployment(
         package, contract_name, deployment_data, latest_block_uri
     )
-    logger.info("%s deployed." % contract_name)
+    logger.info(f"{contract_name} deployed.")
     return Package(manifest, package.w3)
 
 
@@ -107,8 +107,7 @@ def link(contract: ContractName, linked_type: str, package: Package) -> Package:
         to_hex(linked_factory.bytecode),
     )
     logger.info(
-        "%s linked to %s at address %s."
-        % (contract, linked_type, to_checksum_address(deployment_address))
+        f"{contract} linked to {linked_type} at address {to_checksum_address(deployment_address)}."
     )
     return Package(manifest, package.w3)
 
@@ -120,5 +119,5 @@ def run_python(callback_fn: Callable[..., None], package: Package) -> Package:
     the contracts in the package.
     """
     callback_fn(package)
-    logger.info("%s python function ran." % callback_fn.__name__)
+    logger.info(f"{callback_fn.__name__} python function ran.")
     return package

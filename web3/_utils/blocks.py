@@ -31,7 +31,7 @@ def is_predefined_block_number(value: Any) -> bool:
     elif is_integer(value):
         return False
     else:
-        raise TypeError("unrecognized block reference: %r" % value)
+        raise TypeError(f"unrecognized block reference: {value!r}")
 
     return value_text in {"latest", "pending", "earliest"}
 
@@ -70,5 +70,5 @@ def select_method_for_block_identifier(
         return if_number
     else:
         raise ValueError(
-            "Value did not match any of the recognized block identifiers: {0}".format(value)
+            f"Value did not match any of the recognized block identifiers: {value}"
         )

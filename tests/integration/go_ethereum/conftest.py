@@ -121,11 +121,8 @@ def geth_process(geth_binary, datadir, genesis_file, geth_command_arguments):
         output, errors = proc.communicate()
         print(
             "Geth Process Exited:\n"
-            "stdout:{0}\n\n"
-            "stderr:{1}\n\n".format(
-                to_text(output),
-                to_text(errors),
-            )
+            f"stdout:{to_text(output)}\n\n"
+            f"stderr:{to_text(errors)}\n\n"
         )
 
 
