@@ -59,7 +59,7 @@ class GethBenchmarkFixture:
         return str(port)
 
     def _endpoint_uri(self) -> str:
-        return "http://localhost:{0}".format(self.rpc_port)
+        return f"http://localhost:{self.rpc_port}"
 
     def _geth_binary(self) -> str:
         if "GETH_BINARY" in os.environ:

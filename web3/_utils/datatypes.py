@@ -18,9 +18,9 @@ from eth_utils.toolz import (
 def verify_attr(class_name: str, key: str, namespace: Collection[str]) -> None:
     if key not in namespace:
         raise AttributeError(
-            "Property {0} not found on {1} class. "
-            "`{1}.factory` only accepts keyword arguments which are "
-            "present on the {1} class".format(key, class_name)
+            f"Property {key} not found on {class_name} class. "
+            f"`{class_name}.factory` only accepts keyword arguments which are "
+            f"present on the {class_name} class"
         )
 
 

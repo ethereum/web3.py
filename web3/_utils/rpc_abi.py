@@ -219,7 +219,7 @@ def apply_abi_formatters_to_dict(
     abi_dict: Dict[str, Any],
     data: Dict[Any, Any]
 ) -> Dict[Any, Any]:
-    fields = list(set(abi_dict.keys()) & set(data.keys()))
+    fields = list(abi_dict.keys() & data.keys())
     formatted_values = map_abi_data(
         normalizers,
         [abi_dict[field] for field in fields],
@@ -241,4 +241,4 @@ def abi_request_formatters(
             single_dict_formatter = apply_abi_formatters_to_dict(normalizers, abi_types)
             yield method, apply_formatter_at_index(single_dict_formatter, 0)
         else:
-            raise TypeError("ABI definitions must be a list or dictionary, got %r" % abi_types)
+            raise TypeError(f"ABI definitions must be a list or dictionary, got {abi_types!r}")

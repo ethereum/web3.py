@@ -123,7 +123,7 @@ class BaseEth(Module):
 
     _gas_price: Method[Callable[[], Wei]] = Method(
         RPC.eth_gasPrice,
-        mungers=None,
+        is_property=True,
     )
 
     @property
@@ -248,7 +248,7 @@ class BaseEth(Module):
 
     _max_priority_fee: Method[Callable[..., Wei]] = Method(
         RPC.eth_maxPriorityFeePerGas,
-        mungers=None,
+        is_property=True,
     )
 
     def get_block_munger(
@@ -271,12 +271,12 @@ class BaseEth(Module):
 
     get_block_number: Method[Callable[[], BlockNumber]] = Method(
         RPC.eth_blockNumber,
-        mungers=None,
+        is_property=True,
     )
 
     get_coinbase: Method[Callable[[], ChecksumAddress]] = Method(
         RPC.eth_coinbase,
-        mungers=None,
+        is_property=True,
     )
 
     def block_id_munger(
@@ -319,27 +319,27 @@ class BaseEth(Module):
 
     _get_accounts: Method[Callable[[], Tuple[ChecksumAddress]]] = Method(
         RPC.eth_accounts,
-        mungers=None,
+        is_property=True,
     )
 
     _get_hashrate: Method[Callable[[], int]] = Method(
         RPC.eth_hashrate,
-        mungers=None,
+        is_property=True,
     )
 
     _chain_id: Method[Callable[[], int]] = Method(
         RPC.eth_chainId,
-        mungers=None,
+        is_property=True,
     )
 
     _is_mining: Method[Callable[[], bool]] = Method(
         RPC.eth_mining,
-        mungers=None,
+        is_property=True,
     )
 
     _is_syncing: Method[Callable[[], Union[SyncStatus, bool]]] = Method(
         RPC.eth_syncing,
-        mungers=None,
+        is_property=True,
     )
 
     _get_transaction_receipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
@@ -386,7 +386,14 @@ class AsyncEth(BaseEth):
 
     @property
     async def chain_id(self) -> int:
-        return await self._chain_id()  # type: ignore
+        if self._default_chain_id is None:
+            return await self._chain_id()  # type: ignore
+        else:
+            return self._default_chain_id
+
+    @chain_id.setter
+    def chain_id(self, value: int) -> None:
+        self._default_chain_id = value
 
     @property
     async def coinbase(self) -> ChecksumAddress:
@@ -592,7 +599,7 @@ class Eth(BaseEth):
 
     _protocol_version: Method[Callable[[], str]] = Method(
         RPC.eth_protocolVersion,
-        mungers=None,
+        is_property=True,
     )
 
     @property
@@ -987,7 +994,7 @@ class Eth(BaseEth):
 
     get_work: Method[Callable[[], List[HexBytes]]] = Method(
         RPC.eth_getWork,
-        mungers=None,
+        is_property=True,
     )
 
     @deprecated_for("generate_gas_price")

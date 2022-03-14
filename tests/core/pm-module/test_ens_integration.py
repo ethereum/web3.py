@@ -20,7 +20,7 @@ def bytes32(val):
     if isinstance(val, int):
         result = to_bytes(val)
     else:
-        raise TypeError('val %r could not be converted to bytes')
+        raise TypeError(f'{val!r} could not be converted to bytes')
     return result.rjust(32, b'\0')
 
 

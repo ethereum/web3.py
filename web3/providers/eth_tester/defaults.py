@@ -102,11 +102,8 @@ def static_return(value: TValue) -> Callable[..., TValue]:
 def client_version(eth_tester: "EthereumTester", params: Any) -> str:
     # TODO: account for the backend that is in use.
     from eth_tester import __version__
-    return "EthereumTester/{version}/{platform}/python{v.major}.{v.minor}.{v.micro}".format(
-        version=__version__,
-        v=sys.version_info,
-        platform=sys.platform,
-    )
+    v = sys.version_info
+    return f"EthereumTester/{__version__}/{sys.platform}/python{v.major}.{v.minor}.{v.micro}"
 
 
 @curry

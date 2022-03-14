@@ -146,7 +146,7 @@ class RequestManager:
         request_func = self.provider.request_func(
             self.w3,
             self.middleware_onion)
-        self.logger.debug("Making request. Method: %s", method)
+        self.logger.debug(f"Making request. Method: {method}")
         return request_func(method, params)
 
     async def _coro_make_request(
@@ -156,7 +156,7 @@ class RequestManager:
         request_func = await self.provider.request_func(  # type: ignore
             self.w3,
             self.middleware_onion)
-        self.logger.debug("Making request. Method: %s", method)
+        self.logger.debug(f"Making request. Method: {method}")
         return await request_func(method, params)
 
     @staticmethod
@@ -230,7 +230,7 @@ class RequestManager:
         try:
             request = self.pending_requests.pop(request_id)
         except KeyError:
-            raise KeyError("Request for id:{0} not found".format(request_id))
+            raise KeyError(f"Request for id:{request_id} not found")
         else:
             response = request.get(timeout=timeout)
 

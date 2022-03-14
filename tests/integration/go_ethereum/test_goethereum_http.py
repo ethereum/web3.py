@@ -58,7 +58,7 @@ def rpc_port():
 
 @pytest.fixture(scope="module")
 def endpoint_uri(rpc_port):
-    return 'http://localhost:{0}'.format(rpc_port)
+    return f'http://localhost:{rpc_port}'
 
 
 def _geth_command_arguments(rpc_port,

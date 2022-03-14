@@ -108,7 +108,7 @@ def test_web3_auto_infura(monkeypatch, caplog, environ_name):
 
     w3 = infura.w3
     assert isinstance(w3.provider, HTTPProvider)
-    expected_url = 'https://%s/v3/%s' % (infura.INFURA_MAINNET_DOMAIN, API_KEY)
+    expected_url = f'https://{infura.INFURA_MAINNET_DOMAIN}/v3/{API_KEY}'
     assert getattr(w3.provider, 'endpoint_uri') == expected_url
 
 
@@ -117,7 +117,7 @@ def test_web3_auto_infura_websocket_default(monkeypatch, caplog, environ_name):
     monkeypatch.setenv('WEB3_INFURA_SCHEME', 'wss')
     API_KEY = 'aoeuhtns'
     monkeypatch.setenv(environ_name, API_KEY)
-    expected_url = 'wss://%s/ws/v3/%s' % (infura.INFURA_MAINNET_DOMAIN, API_KEY)
+    expected_url = f'wss://{infura.INFURA_MAINNET_DOMAIN}/ws/v3/{API_KEY}'
 
     importlib.reload(infura)
     assert len(caplog.record_tuples) == 0
@@ -145,7 +145,7 @@ def test_web3_auto_infura_websocket_with_secret(monkeypatch, caplog, environ_nam
 
     w3 = infura.w3
     assert isinstance(w3.provider, WebsocketProvider)
-    expected_url = 'wss://:secret@%s/ws/v3/test' % (infura.INFURA_MAINNET_DOMAIN)
+    expected_url = f'wss://:secret@{infura.INFURA_MAINNET_DOMAIN}/ws/v3/test'
     assert getattr(w3.provider, 'endpoint_uri') == expected_url
 
 
@@ -159,7 +159,7 @@ def test_web3_auto_infura_with_secret(monkeypatch, caplog, environ_name):
 
     w3 = infura.w3
     assert isinstance(w3.provider, HTTPProvider)
-    expected_url = 'https://%s/v3/test' % (infura.INFURA_MAINNET_DOMAIN)
+    expected_url = f'https://{infura.INFURA_MAINNET_DOMAIN}/v3/test'
     expected_auth_value = ('', 'secret')
     assert getattr(w3.provider, 'endpoint_uri') == expected_url
     assert w3.provider.get_request_kwargs()['auth'] == expected_auth_value

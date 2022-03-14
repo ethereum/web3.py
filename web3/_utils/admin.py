@@ -40,19 +40,19 @@ add_peer: Method[Callable[[EnodeURI], bool]] = Method(
 
 datadir: Method[Callable[[], str]] = Method(
     RPC.admin_datadir,
-    mungers=None,
+    is_property=True,
 )
 
 
 node_info: Method[Callable[[], NodeInfo]] = Method(
     RPC.admin_nodeInfo,
-    mungers=None,
+    is_property=True,
 )
 
 
 peers: Method[Callable[[], List[Peer]]] = Method(
     RPC.admin_peers,
-    mungers=None,
+    is_property=True,
 )
 
 
@@ -77,13 +77,13 @@ start_ws: Method[ServerConnection] = Method(
 
 stop_rpc: Method[Callable[[], bool]] = Method(
     RPC.admin_stopRPC,
-    mungers=None,
+    is_property=True,
 )
 
 
 stop_ws: Method[Callable[[], bool]] = Method(
     RPC.admin_stopWS,
-    mungers=None,
+    is_property=True,
 )
 
 #

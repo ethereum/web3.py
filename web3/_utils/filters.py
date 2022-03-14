@@ -97,7 +97,7 @@ def construct_event_filter_params(
             filter_params['address'] = [address, contract_address]
         else:
             raise ValueError(
-                "Unsupported type for `address` parameter: {0}".format(type(address))
+                f"Unsupported type for `address` parameter: {type(address)}"
             )
     elif address:
         filter_params['address'] = address

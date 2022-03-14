@@ -123,7 +123,7 @@ def to_hexbytes(
     if isinstance(val, (str, int, bytes)):
         result = HexBytes(val)
     else:
-        raise TypeError("Cannot convert %r to HexBytes" % val)
+        raise TypeError(f"Cannot convert {val!r} to HexBytes")
 
     extra_bytes = len(result) - num_bytes
     if extra_bytes == 0 or (variable_length and extra_bytes < 0):
@@ -132,9 +132,7 @@ def to_hexbytes(
         return HexBytes(result[extra_bytes:])
     else:
         raise ValueError(
-            "The value %r is %d bytes, but should be %d" % (
-                result, len(result), num_bytes
-            )
+            f"The value {result!r} is {len(result)} bytes, but should be {num_bytes}"
         )
 
 

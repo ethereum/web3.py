@@ -140,7 +140,7 @@ def sha3_text(val: Union[str, bytes]) -> HexBytes:
 def label_to_hash(label: str) -> HexBytes:
     label = normalize_name(label)
     if '.' in label:
-        raise ValueError("Cannot generate hash for label %r with a '.'" % label)
+        raise ValueError(f"Cannot generate hash for label {label!r} with a '.'")
     return Web3().keccak(text=label)
 
 

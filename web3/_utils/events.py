@@ -219,10 +219,9 @@ def get_event_data(abi_codec: ABICodec, event_abi: ABIEvent, log_entry: LogRecei
     log_topic_names = get_abi_input_names(ABIEvent({'inputs': log_topics_abi}))
 
     if len(log_topics) != len(log_topic_types):
-        raise LogTopicError("Expected {0} log topics.  Got {1}".format(
-            len(log_topic_types),
-            len(log_topics),
-        ))
+        raise LogTopicError(
+            f"Expected {len(log_topic_types)} log topics.  Got {len(log_topics)}"
+        )
 
     log_data = hexstr_if_str(to_bytes, log_entry['data'])
     log_data_abi = exclude_indexed_event_inputs(event_abi)
@@ -400,7 +399,7 @@ class EventFilterBuilder:
 
     def deploy(self, w3: "Web3") -> "LogFilter":
         if not isinstance(w3, web3.Web3):
-            raise ValueError("Invalid web3 argument: got: {0}".format(repr(w3)))
+            raise ValueError(f"Invalid web3 argument: got: {w3!r}")
 
         for arg in AttributeDict.values(self.args):
             arg._immutable = True

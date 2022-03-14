@@ -27,7 +27,7 @@ def ws_port():
 
 @pytest.fixture(scope="module")
 def endpoint_uri(ws_port):
-    return 'ws://localhost:{0}'.format(ws_port)
+    return f'ws://localhost:{ws_port}'
 
 
 def _geth_command_arguments(ws_port,

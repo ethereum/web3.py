@@ -66,11 +66,11 @@ def _load_schema_data() -> Dict[str, Any]:
 
 
 def extract_contract_types_from_deployments(deployment_data: List[Any]) -> Set[str]:
-    contract_types = set(
+    contract_types = {
         deployment["contractType"]
         for chain_deployments in deployment_data
         for deployment in chain_deployments.values()
-    )
+    }
     return contract_types
 
 
@@ -108,11 +108,11 @@ def validate_manifest_deployments(manifest: Dict[str, Any]) -> None:
     """
     Validate that a manifest's deployments contracts reference existing contractTypes.
     """
-    if set(("contractTypes", "deployments")).issubset(manifest):
-        all_contract_types = list(manifest["contractTypes"].keys())
-        all_deployments = list(manifest["deployments"].values())
+    if {"contractTypes", "deployments"}.issubset(manifest):
+        all_contract_types = manifest["contractTypes"].keys()
+        all_deployments = manifest["deployments"].values()
         all_deployment_names = extract_contract_types_from_deployments(all_deployments)
-        missing_contract_types = set(all_deployment_names).difference(
+        missing_contract_types = all_deployment_names.difference(
             all_contract_types
         )
         if missing_contract_types:

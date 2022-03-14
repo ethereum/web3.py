@@ -94,7 +94,7 @@ class Parity(Module):
 
     enode: Method[Callable[[], str]] = Method(
         RPC.parity_enode,
-        mungers=None,
+        is_property=True,
     )
 
     """ property default_block """
@@ -141,7 +141,7 @@ class Parity(Module):
 
     net_peers: Method[Callable[[], ParityNetPeers]] = Method(
         RPC.parity_netPeers,
-        mungers=None
+        is_property=True
     )
 
     add_reserved_peer: Method[Callable[[EnodeURI], bool]] = Method(
@@ -217,7 +217,7 @@ class Parity(Module):
 
     mode: Method[Callable[[], ParityMode]] = Method(
         RPC.parity_mode,
-        mungers=None
+        is_property=True
     )
 
     # Deprecated Methods
