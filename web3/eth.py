@@ -358,7 +358,14 @@ class AsyncEth(BaseEth):
 
     @property
     async def chain_id(self) -> int:
-        return await self._chain_id()  # type: ignore
+        if self._default_chain_id is None:
+            return await self._chain_id()  # type: ignore
+        else:
+            return self._default_chain_id
+
+    @chain_id.setter
+    def chain_id(self, value: int) -> None:
+        self._default_chain_id = value
 
     @property
     async def coinbase(self) -> ChecksumAddress:
