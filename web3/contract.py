@@ -1114,7 +1114,7 @@ class BaseContractFunction:
 
         return call_transaction
 
-    def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+    def _transact(self, transaction: Optional[TxParams] = None) -> TxParams:
         if transaction is None:
             transact_transaction: TxParams = {}
         else:
@@ -1139,22 +1139,11 @@ class BaseContractFunction:
                 raise ValueError(
                     "Please ensure that this contract instance has an address."
                 )
+        return transact_transaction
 
-        return transact_with_contract_function(
-            self.address,
-            self.w3,
-            self.function_identifier,
-            transact_transaction,
-            self.contract_abi,
-            self.abi,
-            *self.args,
-            **self.kwargs
-        )
-
-    def estimateGas(
-        self, transaction: Optional[TxParams] = None,
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> int:
+    def _estimate_gas(
+        self, transaction: Optional[TxParams] = None
+    ) -> TxParams:
         if transaction is None:
             estimate_gas_transaction: TxParams = {}
         else:
@@ -1181,18 +1170,7 @@ class BaseContractFunction:
                 raise ValueError(
                     "Please ensure that this contract instance has an address."
                 )
-
-        return estimate_gas_for_function(
-            self.address,
-            self.w3,
-            self.function_identifier,
-            estimate_gas_transaction,
-            self.contract_abi,
-            self.abi,
-            block_identifier,
-            *self.args,
-            **self.kwargs
-        )
+        return estimate_gas_transaction
 
     def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
         """
@@ -1315,6 +1293,43 @@ class ContractFunction(BaseContractFunction):
     def factory(cls, class_name: str, **kwargs: Any) -> 'ContractFunction':
         return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get('abi'))
 
+    def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+        setup_transaction = self._transact(transaction)
+        return transact_with_contract_function(
+            self.address,
+            self.w3,
+            self.function_identifier,
+            setup_transaction,
+            self.contract_abi,
+            self.abi,
+            *self.args,
+            **self.kwargs
+        )
+
+    def estimate_gas(
+        self, transaction: Optional[TxParams] = None,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> int:
+        setup_transaction = self._estimate_gas(transaction)
+        return estimate_gas_for_function(
+            self.address,
+            self.w3,
+            self.function_identifier,
+            setup_transaction,
+            self.contract_abi,
+            self.abi,
+            block_identifier,
+            *self.args,
+            **self.kwargs
+        )
+
+    @deprecated_for("estimate_gas")
+    def estimateGas(
+        self, transaction: Optional[TxParams] = None,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> int:
+        return self.estimate_gas(transaction, block_identifier)
+
 
 class AsyncContractFunction(BaseContractFunction):
 
@@ -1384,6 +1399,36 @@ class AsyncContractFunction(BaseContractFunction):
     @classmethod
     def factory(cls, class_name: str, **kwargs: Any) -> 'AsyncContractFunction':
         return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get('abi'))
+
+    async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+        setup_transaction = self._transact(transaction)
+        return await async_transact_with_contract_function(
+            self.address,
+            self.w3,
+            self.function_identifier,
+            setup_transaction,
+            self.contract_abi,
+            self.abi,
+            *self.args,
+            **self.kwargs
+        )
+
+    async def estimate_gas(
+        self, transaction: Optional[TxParams] = None,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> int:
+        setup_transaction = self._estimate_gas(transaction)
+        return await async_estimate_gas_for_function(
+            self.address,
+            self.w3,
+            self.function_identifier,
+            setup_transaction,
+            self.contract_abi,
+            self.abi,
+            block_identifier,
+            *self.args,
+            **self.kwargs
+        )
 
 
 class BaseContractEvent:
@@ -2091,6 +2136,34 @@ def transact_with_contract_function(
     return txn_hash
 
 
+async def async_transact_with_contract_function(
+        address: ChecksumAddress,
+        w3: 'Web3',
+        function_name: Optional[FunctionIdentifier] = None,
+        transaction: Optional[TxParams] = None,
+        contract_abi: Optional[ABI] = None,
+        fn_abi: Optional[ABIFunction] = None,
+        *args: Any,
+        **kwargs: Any) -> HexBytes:
+    """
+    Helper function for interacting with a contract function by sending a
+    transaction.
+    """
+    transact_transaction = prepare_transaction(
+        address,
+        w3,
+        fn_identifier=function_name,
+        contract_abi=contract_abi,
+        transaction=transaction,
+        fn_abi=fn_abi,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    txn_hash = await w3.eth.send_transaction(transact_transaction)  # type: ignore
+    return txn_hash
+
+
 def estimate_gas_for_function(
         address: ChecksumAddress,
         w3: 'Web3',
@@ -2118,6 +2191,35 @@ def estimate_gas_for_function(
     )
 
     return w3.eth.estimate_gas(estimate_transaction, block_identifier)
+
+
+async def async_estimate_gas_for_function(
+        address: ChecksumAddress,
+        w3: 'Web3',
+        fn_identifier: Optional[FunctionIdentifier] = None,
+        transaction: Optional[TxParams] = None,
+        contract_abi: Optional[ABI] = None,
+        fn_abi: Optional[ABIFunction] = None,
+        block_identifier: Optional[BlockIdentifier] = None,
+        *args: Any,
+        **kwargs: Any) -> int:
+    """Estimates gas cost a function call would take.
+
+    Don't call this directly, instead use :meth:`Contract.estimateGas`
+    on your contract instance.
+    """
+    estimate_transaction = prepare_transaction(
+        address,
+        w3,
+        fn_identifier=fn_identifier,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    return await w3.eth.estimate_gas(estimate_transaction, block_identifier)  # type: ignore
 
 
 def build_transaction_for_function(
