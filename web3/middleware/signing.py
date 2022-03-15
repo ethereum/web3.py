@@ -93,7 +93,7 @@ def to_account(val: Any) -> LocalAccount:
         "key must be one of the types: "
         "eth_keys.datatype.PrivateKey, eth_account.signers.local.LocalAccount, "
         "or raw private key as a hex string or byte string. "
-        "Was of type {0}".format(type(val)))
+        f"Was of type {type(val)}")
 
 
 @to_account.register(LocalAccount)

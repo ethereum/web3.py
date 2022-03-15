@@ -18,7 +18,7 @@ def square_int(x):
         return x
 
 
-@pytest.mark.parametrize('non_collection', [1, 'abc', u'def', True, None])
+@pytest.mark.parametrize('non_collection', [1, 'abc', 'def', True, None])
 def test_map_collection_on_non_collection(non_collection):
     assert map_collection(lambda x: x + 2, non_collection) == non_collection
 

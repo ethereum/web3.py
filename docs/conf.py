@@ -52,8 +52,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Web3.py'
-copyright = u'2018, Piper Merriam, Jason Carver'
+project = 'Web3.py'
+copyright = '2018, Piper Merriam, Jason Carver'
 
 __version__ = setup_version
 # The version info for the project you're documenting, acts as replacement for
@@ -222,8 +222,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'Populus.tex', u'Populus Documentation',
-   u'Piper Merriam', 'manual'),
+  ('index', 'Populus.tex', 'Populus Documentation',
+   'Piper Merriam', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -252,8 +252,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'web3', u'Web3.py Documentation',
-     [u'Piper Merriam'], 1)
+    ('index', 'web3', 'Web3.py Documentation',
+     ['Piper Merriam'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -266,8 +266,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Web3.py', u'Web3.py Documentation',
-   u'Piper Merriam', 'Web3.py', 'Backend agnostic Ethereum client interactions.',
+  ('index', 'Web3.py', 'Web3.py Documentation',
+   'Piper Merriam', 'Web3.py', 'Backend agnostic Ethereum client interactions.',
    'Miscellaneous'),
 ]
 

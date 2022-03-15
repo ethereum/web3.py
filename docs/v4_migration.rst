@@ -68,7 +68,7 @@ printing out new block hashes as they appear:
 .. code-block:: python
 
     >>> def new_block_callback(block_hash):
-    ...     print "New Block: {0}".format(block_hash)
+    ...     print(f"New Block: {block_hash}")
     ...
     >>> new_block_filter = web3.eth.filter('latest')
     >>> new_block_filter.watch(new_block_callback)
@@ -79,7 +79,7 @@ In v4, that same logic:
 
     >>> new_block_filter = web3.eth.filter('latest')
     >>> for block_hash in new_block_filter.get_new_entries():
-    ...     print("New Block: {}".format(block_hash))
+    ...     print(f"New Block: {block_hash}")
 
 The caller is responsible for polling the results from ``get_new_entries()``.
 See :ref:`asynchronous_filters` for examples of filter-event handling with web3 v4.

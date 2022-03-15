@@ -91,11 +91,8 @@ def get_geth_process(geth_binary,
 
     print(
         "Geth Process Exited:\n"
-        "stdout:{0}\n\n"
-        "stderr:{1}\n\n".format(
-            to_text(output),
-            to_text(errors),
-        )
+        f"stdout:{to_text(output)}\n\n"
+        f"stderr:{to_text(errors)}\n\n"
     )
 
 

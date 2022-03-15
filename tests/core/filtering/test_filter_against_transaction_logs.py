@@ -22,8 +22,8 @@ def test_sync_filter_against_log_events(w3_empty,
 
     txn_filter = w3.eth.filter({})
 
-    txn_hashes = []
-    txn_hashes.append(emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact())
+    txn_hashes = set()
+    txn_hashes.add(emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact())
 
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
@@ -34,7 +34,7 @@ def test_sync_filter_against_log_events(w3_empty,
 
     seen_logs = txn_filter.get_new_entries()
 
-    assert set(txn_hashes) == set(log['transactionHash'] for log in seen_logs)
+    assert txn_hashes == {log['transactionHash'] for log in seen_logs}
 
 
 @pytest.mark.skip(reason="fixture 'w3_empty' not found")
@@ -51,9 +51,9 @@ def test_async_filter_against_log_events(w3_empty,
     txn_filter = w3.eth.filter({})
     txn_filter.watch(seen_logs.append)
 
-    txn_hashes = []
+    txn_hashes = set()
 
-    txn_hashes.append(emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact())
+    txn_hashes.add(emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact())
 
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
@@ -64,4 +64,4 @@ def test_async_filter_against_log_events(w3_empty,
 
     txn_filter.stop_watching(30)
 
-    assert set(txn_hashes) == set(log['transactionHash'] for log in seen_logs)
+    assert txn_hashes == {log['transactionHash'] for log in seen_logs}

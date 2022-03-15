@@ -1,0 +1,1 @@
+Add async default_chain_id and chain_id setter

@@ -20,9 +20,9 @@ from web3.types import (
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
-SKIP_STALECHECK_FOR_METHODS = set([
+SKIP_STALECHECK_FOR_METHODS = {
     'eth_getBlockByNumber',
-])
+}
 
 
 def _isfresh(block: BlockData, allowable_delay: int) -> bool:

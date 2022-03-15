@@ -56,10 +56,10 @@ def build_infura_url(domain: str) -> URI:
     secret = load_secret()
 
     if scheme == WEBSOCKET_SCHEME and secret != '':
-        return URI("%s://:%s@%s/ws/v3/%s" % (scheme, secret, domain, key))
+        return URI(f"{scheme}://:{secret}@{domain}/ws/v3/{key}")
     elif scheme == WEBSOCKET_SCHEME and secret == '':
-        return URI("%s://%s/ws/v3/%s" % (scheme, domain, key))
+        return URI(f"{scheme}://{domain}/ws/v3/{key}")
     elif scheme == HTTP_SCHEME:
-        return URI("%s://%s/v3/%s" % (scheme, domain, key))
+        return URI(f"{scheme}://{domain}/v3/{key}")
     else:
-        raise ValidationError("Cannot connect to Infura with scheme %r" % scheme)
+        raise ValidationError(f"Cannot connect to Infura with scheme {scheme!r}")

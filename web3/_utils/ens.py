@@ -46,7 +46,7 @@ def validate_name_has_address(ens: ENS, name: str) -> ChecksumAddress:
     if addr:
         return addr
     else:
-        raise NameNotFound("Could not find address for name %r" % name)
+        raise NameNotFound(f"Could not find address for name {name!r}")
 
 
 class StaticENS:

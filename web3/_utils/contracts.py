@@ -144,20 +144,11 @@ def find_matching_fn_abi(
                 "\nAmbiguous argument encoding. "
                 "Provided arguments can be encoded to multiple functions matching this call."
             )
-
         message = (
-            "\nCould not identify the intended function with name `{name}`, "
-            "positional argument(s) of type `{arg_types}` and "
-            "keyword argument(s) of type `{kwarg_types}`."
-            "\nFound {num_candidates} function(s) with the name `{name}`: {candidates}"
-            "{diagnosis}"
-        ).format(
-            name=fn_identifier,
-            arg_types=tuple(map(type, args)),
-            kwarg_types=valmap(type, kwargs),
-            num_candidates=len(matching_identifiers),
-            candidates=matching_function_signatures,
-            diagnosis=diagnosis,
+            f"\nCould not identify the intended function with name `{fn_identifier}`, positional "
+            f"argument(s) of type `{tuple(map(type, args))}` and keyword argument(s) of type "
+            f"`{valmap(type, kwargs)}`.\nFound {len(matching_identifiers)} function(s) with "
+            f"the name `{fn_identifier}`: {matching_function_signatures}{diagnosis}"
         )
 
         raise ValidationError(message)
@@ -171,9 +162,7 @@ def encode_abi(
     if not check_if_arguments_can_be_encoded(abi, w3.codec, arguments, {}):
         raise TypeError(
             "One or more arguments could not be encoded to the necessary "
-            "ABI type.  Expected types are: {0}".format(
-                ', '.join(argument_types),
-            )
+            f"ABI type.  Expected types are: {', '.join(argument_types)}"
         )
 
     normalizers = [

@@ -150,7 +150,7 @@ def test_finds_function_with_matching_args(w3, arguments, expected_types):
     abi = Contract._find_matching_fn_abi('a', arguments)
     assert abi['name'] == 'a'
     assert len(abi['inputs']) == len(expected_types)
-    assert set(get_abi_input_types(abi)) == set(expected_types)
+    assert get_abi_input_types(abi) == expected_types
 
 
 def test_finds_function_with_matching_args_deprecation_warning(w3):
@@ -160,7 +160,7 @@ def test_finds_function_with_matching_args_deprecation_warning(w3):
         abi = Contract._find_matching_fn_abi('a', [''])
         assert abi['name'] == 'a'
         assert len(abi['inputs']) == len(['bytes32'])
-        assert set(get_abi_input_types(abi)) == set(['bytes32'])
+        assert get_abi_input_types(abi) == ['bytes32']
 
 
 def test_error_when_duplicate_match(w3):
@@ -193,4 +193,4 @@ def test_strict_finds_function_with_matching_args(w3_strict_abi, arguments, expe
     abi = Contract._find_matching_fn_abi('a', arguments)
     assert abi['name'] == 'a'
     assert len(abi['inputs']) == len(expected_types)
-    assert set(get_abi_input_types(abi)) == set(expected_types)
+    assert get_abi_input_types(abi) == expected_types

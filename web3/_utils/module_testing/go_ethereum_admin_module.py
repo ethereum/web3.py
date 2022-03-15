@@ -98,7 +98,7 @@ class GoEthereumAdminModuleTest:
                 'protocols': AttributeDict({})
             })
             # Test that result gives at least the keys that are listed in `expected`
-            assert not set(expected.keys()).difference(result.keys())
+            assert not set(expected).difference(result)
 
 
 class GoEthereumAsyncAdminModuleTest:

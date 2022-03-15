@@ -35,8 +35,8 @@ async def get_buffered_gas_estimate(
     if gas_estimate > gas_limit:
         raise ValueError(
             "Contract does not appear to be deployable within the "
-            "current network gas limits.  Estimated: {0}. Current gas "
-            "limit: {1}".format(gas_estimate, gas_limit)
+            f"current network gas limits.  Estimated: {gas_estimate}. "
+            f"Current gas limit: {gas_limit}"
         )
 
     return min(gas_limit, gas_estimate + gas_buffer)

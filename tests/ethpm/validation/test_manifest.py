@@ -78,11 +78,11 @@ def test_validate_deployments_without_deployment(manifest_with_no_deployments):
 @pytest.mark.parametrize(
     "data,expected",
     (
-        ({}, set()),
-        ([{"some": {"contractType": "one"}}], set(["one"])),
+        ([], set()),
+        ([{"some": {"contractType": "one"}}], {"one"}),
         (
             [{"some": {"contractType": "one"}, "other": {"contractType": "two"}}],
-            set(["one", "two"]),
+            {"one", "two"},
         ),
     ),
 )

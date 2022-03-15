@@ -87,7 +87,7 @@ def validate_abi(abi: ABI) -> None:
     if duplicates:
         raise ValueError(
             'Abi contains functions with colliding selectors. '
-            'Functions {0}'.format(_prepare_selector_collision_msg(duplicates))
+            f'Functions {_prepare_selector_collision_msg(duplicates)}'
         )
 
 
@@ -96,7 +96,7 @@ def validate_abi_type(abi_type: TypeStr) -> None:
     Helper function for validating an abi_type
     """
     if not is_recognized_type(abi_type):
-        raise ValueError("Unrecognized abi_type: {abi_type}".format(abi_type=abi_type))
+        raise ValueError(f"Unrecognized abi_type: {abi_type}")
 
 
 def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
@@ -110,15 +110,13 @@ def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
         if specified_length is not None:
             if specified_length < 1:
                 raise TypeError(
-                    "Invalid abi-type: {abi_type}. Length of fixed sized arrays"
-                    "must be greater than 0."
-                    .format(abi_type=abi_type)
+                    f"Invalid abi-type: {abi_type}. Length of fixed sized "
+                    "arrays must be greater than 0."
                 )
             if specified_length != len(value):
                 raise TypeError(
                     "The following array length does not the length specified"
-                    "by the abi-type, {abi_type}: {value}"
-                    .format(abi_type=abi_type, value=value)
+                    f"by the abi-type, {abi_type}: {value}"
                 )
 
         # validate sub_types
@@ -150,8 +148,7 @@ def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
         return
 
     raise TypeError(
-        "The following abi value is not a '{abi_type}': {value}"
-        .format(abi_type=abi_type, value=value)
+        f"The following abi value is not a '{abi_type}': {value}"
     )
 
 
@@ -174,7 +171,7 @@ def validate_address(value: Any) -> None:
         return
 
     if not isinstance(value, str):
-        raise TypeError('Address {} must be provided as a string'.format(value))
+        raise TypeError(f'Address {value} must be provided as a string')
     if not is_hex_address(value):
         raise InvalidAddress("Address must be 20 bytes, as a hex string with a 0x prefix", value)
     if not is_checksum_address(value):
@@ -205,5 +202,5 @@ def assert_one_val(*args: Any, **kwargs: Any) -> None:
     if not has_one_val(*args, **kwargs):
         raise TypeError(
             "Exactly one of the passed values can be specified. "
-            "Instead, values were: %r, %r" % (args, kwargs)
+            f"Instead, values were: {args!r}, {kwargs!r}"
         )

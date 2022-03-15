@@ -153,7 +153,7 @@ def test_find_or_get_functions_by_type(w3, method, args, repr_func, expected):
         (
             'get_function_by_selector',
             (b'\x00' * (4 + 1), ),
-            r'expected value of size 4 bytes. Got: %s bytes' % (4 + 1),
+            f'expected value of size 4 bytes. Got: {(4 + 1)} bytes',
             ValueError
         ),
         (

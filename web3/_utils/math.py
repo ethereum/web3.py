@@ -14,9 +14,10 @@ def percentile(values: Optional[Sequence[int]] = None,
     """
     if values in [None, tuple(), []] or len(values) < 1:
         raise InsufficientData(
-            "Expected a sequence of at least 1 integers, got {0!r}".format(values))
+            f"Expected a sequence of at least 1 integers, got {values!r}"
+        )
     if percentile is None:
-        raise ValueError("Expected a percentile choice, got {0}".format(percentile))
+        raise ValueError(f"Expected a percentile choice, got {percentile}")
 
     sorted_values = sorted(values)
 
