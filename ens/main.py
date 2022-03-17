@@ -23,6 +23,9 @@ from eth_utils import (
     is_checksum_address,
     to_checksum_address,
 )
+from eth_utils.toolz import (
+    merge,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -291,11 +294,43 @@ class ENS:
         :return:  ENS name's text record value
         :rtype: str
         """
-        node = normal_name_to_hash(name)
+        node = raw_name_to_hash(name)
+
         r = self.resolver(name)
         if r:
             return r.caller.text(node, key)
-        return f"{name} does not exist!"
+        else:
+            raise UnownedName("claim domain using setup_address() first")
+
+    def set_text(
+        self,
+        name: str,
+        key: str,
+        value: str,
+        transact: "TxParams" = {}
+    ) -> HexBytes:
+        """
+        Set the value of a text record of an ENS name.
+
+        :param str name: ENS name
+        :param str key: Name of the attribute to set
+        :param str value: Value to set the attribute to
+        :param dict transact: the transaction configuration, like in
+            :meth:`~web3.eth.Eth.send_transaction`
+        :return: Transaction hash
+        :rtype: HexBytes
+        :raises UnownedName: if no one owns `name`
+        """
+        owner = self.owner(name)
+        node = raw_name_to_hash(name)
+
+        transaction_dict = merge({'from': owner}, transact)
+
+        r = self.resolver(name)
+        if r:
+            return r.functions.setText(node, key, value).transact(transaction_dict)
+        else:
+            raise UnownedName("claim domain using setup_address() first")
 
     def setup_owner(
         self,
