@@ -2,6 +2,37 @@ version: 2.1
 
 # heavily inspired by https://raw.githubusercontent.com/pinax/pinax-wiki/6bd2a99ab6f702e300d708532a6d1d9aa638b9f8/.circleci/config.yml
 
+parallel_common_core: &parallel_common_core
+  parallelism: 4
+  resource_class: large
+  working_directory: ~/repo
+  steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+    - run:
+        name: checkout ethpm-spec submodule
+        command: git submodule update --init --recursive
+    - run:
+        name: install dependencies
+        command: pip install --user tox
+    - run:
+        name: split tests
+        command: TEST_FILES=$(circleci tests glob "tests/core/**/test_*.py" | circleci tests split --split-by=filesize)
+    - run:
+        name: run tox
+        command: ~/.local/bin/tox -- $TEST_FILES
+    - save_cache:
+        paths:
+          - .tox
+          - ~/.cache/pip
+          - ~/.local
+          - ./eggs
+          - ~/.ethash
+          - ~/.py-geth
+        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+
 common: &common
   working_directory: ~/repo
   steps:
@@ -17,7 +48,7 @@ common: &common
         command: pip install --user tox
     - run:
         name: run tox
-        command: ~/.local/bin/tox -r
+        command: ~/.local/bin/tox
     - save_cache:
         paths:
           - .tox
@@ -90,7 +121,7 @@ geth_steps: &geth_steps
           geth makedag 0 $HOME/.ethash
     - run:
         name: run tox
-        command: ~/.local/bin/tox -r
+        command: ~/.local/bin/tox
     - save_cache:
         paths:
           - .tox
@@ -130,7 +161,7 @@ geth_custom_steps: &geth_custom_steps
           ./custom_geth makedag 0 $HOME/.ethash
     - run:
         name: run tox
-        command: ~/.local/bin/tox -r
+        command: ~/.local/bin/tox
     - save_cache:
         paths:
           - .tox
@@ -166,7 +197,7 @@ ethpm_steps: &ethpm_steps
         command: pip install --user tox
     - run:
         name: run tox
-        command: ~/.local/bin/tox -r
+        command: ~/.local/bin/tox
     - save_cache:
         paths:
           - .tox
@@ -225,7 +256,7 @@ jobs:
   # Python 3.7
   #
   py37-core:
-    <<: *common
+    <<: *parallel_common_core
     docker:
       - image: circleci/python:3.7
     environment:
@@ -295,7 +326,7 @@ jobs:
   # Python 3.8
   #
   py38-core:
-    <<: *common
+    <<: *parallel_common_core
     docker:
       - image: circleci/python:3.8
     environment:
@@ -360,7 +391,7 @@ jobs:
   # Python 3.9
   #
   py39-core:
-    <<: *common
+    <<: *parallel_common_core
     docker:
       - image: circleci/python:3.9
     environment:
@@ -425,7 +456,7 @@ jobs:
   # Python 3.10
   #
   py310-core:
-    <<: *common
+    <<: *parallel_common_core
     docker:
       - image: circleci/python:3.10
     environment:
