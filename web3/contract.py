@@ -49,6 +49,10 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils import (
+    async_transactions,
+    transactions,
+)
 from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
@@ -105,9 +109,6 @@ from web3._utils.normalizers import (
     normalize_address,
     normalize_address_no_ens,
     normalize_bytecode,
-)
-from web3._utils.transactions import (
-    fill_transaction_defaults,
 )
 from web3.datastructures import (
     AttributeDict,
@@ -868,7 +869,7 @@ class ContractConstructor(BaseContractConstructor):
         Build the transaction dictionary without sending
         """
         built_transaction = self._build_transaction(transaction)
-        return fill_transaction_defaults(self.w3, built_transaction)
+        return transactions.fill_transaction_defaults(self.w3, built_transaction)
 
     @combomethod
     @deprecated_for("build_transaction")
@@ -892,7 +893,7 @@ class AsyncContractConstructor(BaseContractConstructor):
         Build the transaction dictionary without sending
         """
         built_transaction = self._build_transaction(transaction)
-        return fill_transaction_defaults(self.w3, built_transaction)
+        return async_transactions.fill_transaction_defaults(self.w3, built_transaction)
 
 
 class ConciseMethod:
@@ -1172,10 +1173,7 @@ class BaseContractFunction:
                 )
         return estimate_gas_transaction
 
-    def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
-        """
-        Build the transaction dictionary without sending
-        """
+    def _build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
         if transaction is None:
             built_transaction: TxParams = {}
         else:
@@ -1200,16 +1198,7 @@ class BaseContractFunction:
                 "Please ensure that this contract instance has an address."
             )
 
-        return build_transaction_for_function(
-            self.address,
-            self.w3,
-            self.function_identifier,
-            built_transaction,
-            self.contract_abi,
-            self.abi,
-            *self.args,
-            **self.kwargs
-        )
+        return built_transaction
 
     @combomethod
     def _encode_transaction_data(cls) -> HexStr:
@@ -1330,6 +1319,24 @@ class ContractFunction(BaseContractFunction):
     ) -> int:
         return self.estimate_gas(transaction, block_identifier)
 
+    def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+
+        built_transaction = self._build_transaction(transaction)
+        return build_transaction_for_function(
+            self.address,
+            self.w3,
+            self.function_identifier,
+            built_transaction,
+            self.contract_abi,
+            self.abi,
+            *self.args,
+            **self.kwargs
+        )
+
+    @deprecated_for("build_transaction")
+    def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+        return self.build_transaction(transaction)
+
 
 class AsyncContractFunction(BaseContractFunction):
 
@@ -1426,6 +1433,20 @@ class AsyncContractFunction(BaseContractFunction):
             self.contract_abi,
             self.abi,
             block_identifier,
+            *self.args,
+            **self.kwargs
+        )
+
+    async def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+
+        built_transaction = self._build_transaction(transaction)
+        return await async_build_transaction_for_function(
+            self.address,
+            self.w3,
+            self.function_identifier,
+            built_transaction,
+            self.contract_abi,
+            self.abi,
             *self.args,
             **self.kwargs
         )
@@ -2247,7 +2268,38 @@ def build_transaction_for_function(
         fn_kwargs=kwargs,
     )
 
-    prepared_transaction = fill_transaction_defaults(w3, prepared_transaction)
+    prepared_transaction = transactions.fill_transaction_defaults(w3, prepared_transaction)
+
+    return prepared_transaction
+
+
+async def async_build_transaction_for_function(
+        address: ChecksumAddress,
+        w3: 'Web3',
+        function_name: Optional[FunctionIdentifier] = None,
+        transaction: Optional[TxParams] = None,
+        contract_abi: Optional[ABI] = None,
+        fn_abi: Optional[ABIFunction] = None,
+        *args: Any,
+        **kwargs: Any) -> TxParams:
+    """Builds a dictionary with the fields required to make the given transaction
+
+    Don't call this directly, instead use :meth:`Contract.buildTransaction`
+    on your contract instance.
+    """
+    prepared_transaction = prepare_transaction(
+        address,
+        w3,
+        fn_identifier=function_name,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    prepared_transaction = await async_transactions.fill_transaction_defaults(
+        w3, prepared_transaction)
 
     return prepared_transaction
 
