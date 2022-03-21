@@ -175,7 +175,7 @@ ethpm_steps: &ethpm_steps
         key: ethpm-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
 orbs:
-  win: circleci/windows@2.2.0
+  win: cimg/windows@2.2.0
 
 windows_steps: &windows_steps
   executor:
@@ -209,14 +209,14 @@ jobs:
   lint:
     <<: *common
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: lint
 
   docs:
     <<: *docs_steps
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: docs
 
@@ -227,21 +227,21 @@ jobs:
   py37-core:
     <<: *common
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-core
 
   py37-ens:
     <<: *common
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-ens
 
   py37-ethpm:
     <<: *ethpm_steps
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-ethpm
       # Please don't use this key for any shenanigans
@@ -250,7 +250,7 @@ jobs:
   py37-integration-goethereum-ipc:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ipc
       GETH_VERSION: v1.10.13
@@ -258,7 +258,7 @@ jobs:
   py37-integration-goethereum-http:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-http
       GETH_VERSION: v1.10.13
@@ -266,7 +266,7 @@ jobs:
   py37-integration-goethereum-ws:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ws
       GETH_VERSION: v1.10.13
@@ -274,7 +274,7 @@ jobs:
   py37-integration-ethtester-pyevm:
     <<: *common
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
@@ -282,7 +282,7 @@ jobs:
   py37-wheel-cli:
     <<: *common
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-wheel-cli
 
@@ -297,21 +297,21 @@ jobs:
   py38-core:
     <<: *common
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-core
 
   py38-ens:
     <<: *common
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-ens
 
   py38-ethpm:
     <<: *ethpm_steps
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-ethpm
       # Please don't use this key for any shenanigans
@@ -320,7 +320,7 @@ jobs:
   py38-integration-goethereum-ipc:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ipc
       GETH_VERSION: v1.10.13
@@ -328,7 +328,7 @@ jobs:
   py38-integration-goethereum-http:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-http
       GETH_VERSION: v1.10.13
@@ -336,7 +336,7 @@ jobs:
   py38-integration-goethereum-ws:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ws
       GETH_VERSION: v1.10.13
@@ -344,7 +344,7 @@ jobs:
   py38-integration-ethtester-pyevm:
     <<: *common
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
@@ -352,7 +352,7 @@ jobs:
   py38-wheel-cli:
     <<: *common
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-wheel-cli
 
@@ -362,21 +362,21 @@ jobs:
   py39-core:
     <<: *common
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-core
 
   py39-ens:
     <<: *common
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-ens
 
   py39-ethpm:
     <<: *ethpm_steps
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-ethpm
       # Please don't use this key for any shenanigans
@@ -385,7 +385,7 @@ jobs:
   py39-integration-goethereum-ipc:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ipc
       GETH_VERSION: v1.10.13
@@ -393,7 +393,7 @@ jobs:
   py39-integration-goethereum-http:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-http
       GETH_VERSION: v1.10.13
@@ -401,7 +401,7 @@ jobs:
   py39-integration-goethereum-ws:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ws
       GETH_VERSION: v1.10.13
@@ -409,7 +409,7 @@ jobs:
   py39-integration-ethtester-pyevm:
     <<: *common
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
@@ -417,7 +417,7 @@ jobs:
   py39-wheel-cli:
     <<: *common
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
         environment:
           TOXENV: py39-wheel-cli
 
@@ -427,21 +427,21 @@ jobs:
   py310-core:
     <<: *common
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-core
 
   py310-ens:
     <<: *common
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-ens
 
   py310-ethpm:
     <<: *ethpm_steps
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-ethpm
       # Please don't use this key for any shenanigans
@@ -450,7 +450,7 @@ jobs:
   py310-integration-goethereum-ipc:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ipc
       GETH_VERSION: v1.10.11
@@ -458,7 +458,7 @@ jobs:
   py310-integration-goethereum-http:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-http
       GETH_VERSION: v1.10.11
@@ -466,7 +466,7 @@ jobs:
   py310-integration-goethereum-ws:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ws
       GETH_VERSION: v1.10.11
@@ -474,7 +474,7 @@ jobs:
   py310-integration-ethtester-pyevm:
     <<: *common
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
@@ -482,14 +482,14 @@ jobs:
   py310-wheel-cli:
     <<: *common
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
         environment:
           TOXENV: py310-wheel-cli
 
   benchmark:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: benchmark
       GETH_VERSION: v1.10.13
