@@ -175,7 +175,7 @@ ethpm_steps: &ethpm_steps
         key: ethpm-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
 orbs:
-  win: cimg/windows@2.2.0
+  win: circleci/windows@2.2.0
 
 windows_steps: &windows_steps
   executor:
