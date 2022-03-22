@@ -803,10 +803,9 @@ class BaseContractConstructor:
         return data
 
     @combomethod
-    def estimateGas(
-        self, transaction: Optional[TxParams] = None,
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> int:
+    def _estimate_gas(
+        self, transaction: Optional[TxParams] = None
+    ) -> TxParams:
         if transaction is None:
             estimate_gas_transaction: TxParams = {}
         else:
@@ -820,9 +819,7 @@ class BaseContractConstructor:
 
         estimate_gas_transaction['data'] = self.data_in_transaction
 
-        return self.w3.eth.estimate_gas(
-            estimate_gas_transaction, block_identifier=block_identifier
-        )
+        return estimate_gas_transaction
 
     def _get_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
         if transaction is None:
@@ -879,6 +876,25 @@ class ContractConstructor(BaseContractConstructor):
         """
         return self.build_transaction(transaction)
 
+    @combomethod
+    @deprecated_for("estimate_gas")
+    def estimateGas(
+        self, transaction: Optional[TxParams] = None,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> int:
+        return self.estimate_gas(transaction, block_identifier)
+
+    @combomethod
+    def estimate_gas(
+        self, transaction: Optional[TxParams] = None,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> int:
+        transaction = self._estimate_gas(transaction)
+         
+        return self.w3.eth.estimate_gas(
+            transaction, block_identifier=block_identifier
+        )
+
 
 class AsyncContractConstructor(BaseContractConstructor):
 
@@ -894,6 +910,17 @@ class AsyncContractConstructor(BaseContractConstructor):
         """
         built_transaction = self._build_transaction(transaction)
         return async_transactions.fill_transaction_defaults(self.w3, built_transaction)
+
+    @combomethod
+    async def estimate_gas(
+        self, transaction: Optional[TxParams] = None,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> int:
+        transaction = self._estimate_gas(transaction)
+
+        return await self.w3.eth.estimate_gas(
+            transaction, block_identifier=block_identifier
+        )
 
 
 class ConciseMethod:
