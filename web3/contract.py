@@ -890,7 +890,7 @@ class ContractConstructor(BaseContractConstructor):
         block_identifier: Optional[BlockIdentifier] = None
     ) -> int:
         transaction = self._estimate_gas(transaction)
-         
+
         return self.w3.eth.estimate_gas(
             transaction, block_identifier=block_identifier
         )
@@ -918,7 +918,7 @@ class AsyncContractConstructor(BaseContractConstructor):
     ) -> int:
         transaction = self._estimate_gas(transaction)
 
-        return await self.w3.eth.estimate_gas(
+        return await self.w3.eth.estimate_gas(  # type: ignore
             transaction, block_identifier=block_identifier
         )
 
