@@ -10,7 +10,6 @@ from eth_utils.toolz import (
 )
 import pytest_asyncio
 
-from web3 import Web3
 from web3._utils.module_testing.emitter_contract import (
     CONTRACT_EMITTER_ABI,
     CONTRACT_EMITTER_CODE,
@@ -53,12 +52,6 @@ from web3._utils.module_testing.revert_contract import (
 )
 from web3.contract import (
     AsyncContract,
-)
-from web3.eth import (
-    AsyncEth,
-)
-from web3.providers.eth_tester.main import (
-    AsyncEthereumTesterProvider,
 )
 
 CONTRACT_NESTED_TUPLE_SOURCE = """
@@ -1062,15 +1055,6 @@ async def async_deploy(async_web3, Contract, apply_func=identity, args=None):
     assert contract.address == address
     assert len(await async_web3.eth.get_code(contract.address)) > 0
     return contract
-
-
-@pytest_asyncio.fixture()
-async def async_w3():
-    provider = AsyncEthereumTesterProvider()
-    w3 = Web3(provider, modules={'eth': [AsyncEth]},
-              middlewares=provider.middlewares)
-    w3.eth.default_account = await w3.eth.coinbase
-    return w3
 
 
 @pytest_asyncio.fixture()
