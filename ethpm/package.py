@@ -310,7 +310,7 @@ class Package(object):
             address=address, **contract_kwargs
         )
         # TODO: type ignore may be able to be removed after more of AsynContract is finished
-        return contract_instance  # type: ignore
+        return contract_instance
 
     #
     # Build Dependencies
