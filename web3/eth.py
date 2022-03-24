@@ -118,8 +118,6 @@ class BaseEth(Module):
     _default_block: BlockIdentifier = "latest"
     _default_chain_id: Optional[int] = None
     gasPriceStrategy = None
-    defaultContractFactory: Type[Union[Contract, AsyncContract,
-                                 ConciseContract, ContractCaller, AsyncContractCaller]] = Contract
 
     _gas_price: Method[Callable[[], Wei]] = Method(
         RPC.eth_gasPrice,
@@ -374,6 +372,7 @@ class BaseEth(Module):
 
 class AsyncEth(BaseEth):
     is_async = True
+    defaultContractFactory: Type[Union[AsyncContract, AsyncContractCaller]] = AsyncContract
 
     @property
     async def accounts(self) -> Tuple[ChecksumAddress]:
@@ -586,10 +585,29 @@ class AsyncEth(BaseEth):
     ) -> Union[bytes, bytearray]:
         return await self._call(transaction, block_identifier, state_override)
 
+    @overload
+    def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]: ...  # noqa: E704,E501
+
+    @overload  # noqa: F811
+    def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> AsyncContract: ...  # noqa: E704,E501
+
+    def contract(  # noqa: F811
+        self, address: Optional[Union[Address, ChecksumAddress, ENS]] = None, **kwargs: Any
+    ) -> Union[Type[AsyncContract], AsyncContract]:
+        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
+
+        ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
+
+        if address:
+            return ContractFactory(address)
+        else:
+            return ContractFactory
+
 
 class Eth(BaseEth):
     account = Account()
     iban = Iban
+    defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract
 
     def namereg(self) -> NoReturn:
         raise NotImplementedError()
@@ -996,6 +1014,24 @@ class Eth(BaseEth):
         RPC.eth_getWork,
         is_property=True,
     )
+
+    @overload
+    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
+
+    @overload  # noqa: F811
+    def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Contract: ...  # noqa: E704,E501
+
+    def contract(  # noqa: F811
+        self, address: Optional[Union[Address, ChecksumAddress, ENS]] = None, **kwargs: Any
+    ) -> Union[Type[Contract], Contract]:
+        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
+
+        ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
+
+        if address:
+            return ContractFactory(address)
+        else:
+            return ContractFactory
 
     @deprecated_for("generate_gas_price")
     def generateGasPrice(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
