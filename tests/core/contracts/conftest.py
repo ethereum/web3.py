@@ -1015,7 +1015,7 @@ def invoke_contract(api_call_desig='call',
                     func_args=[],
                     func_kwargs={},
                     tx_params={}):
-    allowable_call_desig = ['call', 'transact', 'estimateGas', 'buildTransaction']
+    allowable_call_desig = ['call', 'transact', 'estimate_gas', 'build_transaction']
     if api_call_desig not in allowable_call_desig:
         raise ValueError(f"allowable_invoke_method must be one of: {allowable_call_desig}")
 
@@ -1036,13 +1036,13 @@ def call(request):
 
 
 @pytest.fixture
-def estimateGas(request):
-    return functools.partial(invoke_contract, api_call_desig='estimateGas')
+def estimate_gas(request):
+    return functools.partial(invoke_contract, api_call_desig='estimate_gas')
 
 
 @pytest.fixture
-def buildTransaction(request):
-    return functools.partial(invoke_contract, api_call_desig='buildTransaction')
+def build_transaction(request):
+    return functools.partial(invoke_contract, api_call_desig='build_transaction')
 
 
 async def async_deploy(async_web3, Contract, apply_func=identity, args=None):
