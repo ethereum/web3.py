@@ -278,7 +278,7 @@ def test_auto_gas_computation_when_transacting(w3,
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt['contractAddress'])
 
-    gas_estimate = string_contract.functions.setValue(to_bytes(text="ÄLÄMÖLÖ")).estimateGas()
+    gas_estimate = string_contract.functions.setValue(to_bytes(text="ÄLÄMÖLÖ")).estimate_gas()
 
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
