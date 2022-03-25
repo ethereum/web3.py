@@ -45,9 +45,9 @@ def payable_tester_contract(w3, PayableTesterContract, address_conversion_func):
 def test_build_transaction_not_paying_to_nonpayable_function(
         w3,
         payable_tester_contract,
-        buildTransaction):
-    txn = buildTransaction(contract=payable_tester_contract,
-                           contract_function='doNoValueCall')
+        build_transaction):
+    txn = build_transaction(contract=payable_tester_contract,
+                            contract_function='doNoValueCall')
     assert dissoc(txn, 'gas') == {
         'to': payable_tester_contract.address,
         'data': '0xe4cb8f5c',
@@ -61,15 +61,15 @@ def test_build_transaction_not_paying_to_nonpayable_function(
 def test_build_transaction_paying_to_nonpayable_function(
         w3,
         payable_tester_contract,
-        buildTransaction):
+        build_transaction):
     with pytest.raises(ValidationError):
-        buildTransaction(contract=payable_tester_contract,
-                         contract_function='doNoValueCall',
-                         tx_params={'value': 1})
+        build_transaction(contract=payable_tester_contract,
+                          contract_function='doNoValueCall',
+                          tx_params={'value': 1})
 
 
-def test_build_transaction_with_contract_no_arguments(w3, math_contract, buildTransaction):
-    txn = buildTransaction(contract=math_contract, contract_function='increment')
+def test_build_transaction_with_contract_no_arguments(w3, math_contract, build_transaction):
+    txn = build_transaction(contract=math_contract, contract_function='increment')
     assert dissoc(txn, 'gas') == {
         'to': math_contract.address,
         'data': '0xd09de08a',
@@ -81,7 +81,7 @@ def test_build_transaction_with_contract_no_arguments(w3, math_contract, buildTr
 
 
 def test_build_transaction_with_contract_fallback_function(w3, fallback_function_contract):
-    txn = fallback_function_contract.fallback.buildTransaction()
+    txn = fallback_function_contract.fallback.build_transaction()
     assert dissoc(txn, 'gas') == {
         'to': fallback_function_contract.address,
         'data': '0x',
@@ -96,8 +96,8 @@ def test_build_transaction_with_contract_class_method(
         w3,
         MathContract,
         math_contract,
-        buildTransaction):
-    txn = buildTransaction(
+        build_transaction):
+    txn = build_transaction(
         contract=MathContract,
         contract_function='increment',
         tx_params={'to': math_contract.address},
@@ -115,8 +115,8 @@ def test_build_transaction_with_contract_class_method(
 def test_build_transaction_with_contract_default_account_is_set(
         w3,
         math_contract,
-        buildTransaction):
-    txn = buildTransaction(contract=math_contract, contract_function='increment')
+        build_transaction):
+    txn = build_transaction(contract=math_contract, contract_function='increment')
     assert dissoc(txn, 'gas') == {
         'to': math_contract.address,
         'data': '0xd09de08a',
@@ -127,11 +127,11 @@ def test_build_transaction_with_contract_default_account_is_set(
     }
 
 
-def test_build_transaction_with_gas_price_strategy_set(w3, math_contract, buildTransaction):
+def test_build_transaction_with_gas_price_strategy_set(w3, math_contract, build_transaction):
     def my_gas_price_strategy(w3, transaction_params):
         return 5
     w3.eth.set_gas_price_strategy(my_gas_price_strategy)
-    txn = buildTransaction(contract=math_contract, contract_function='increment')
+    txn = build_transaction(contract=math_contract, contract_function='increment')
     assert dissoc(txn, 'gas') == {
         'to': math_contract.address,
         'data': '0xd09de08a',
@@ -143,20 +143,20 @@ def test_build_transaction_with_gas_price_strategy_set(w3, math_contract, buildT
 
 def test_build_transaction_with_contract_data_supplied_errors(w3,
                                                               math_contract,
-                                                              buildTransaction):
+                                                              build_transaction):
     with pytest.raises(ValueError):
-        buildTransaction(contract=math_contract,
-                         contract_function='increment',
-                         tx_params={'data': '0x000'})
+        build_transaction(contract=math_contract,
+                          contract_function='increment',
+                          tx_params={'data': '0x000'})
 
 
 def test_build_transaction_with_contract_to_address_supplied_errors(w3,
                                                                     math_contract,
-                                                                    buildTransaction):
+                                                                    build_transaction):
     with pytest.raises(ValueError):
-        buildTransaction(contract=math_contract,
-                         contract_function='increment',
-                         tx_params={'to': '0xb2930B35844a230f00E51431aCAe96Fe543a0347'})
+        build_transaction(contract=math_contract,
+                          contract_function='increment',
+                          tx_params={'to': '0xb2930B35844a230f00E51431aCAe96Fe543a0347'})
 
 
 @pytest.mark.parametrize(
@@ -219,15 +219,15 @@ def test_build_transaction_with_contract_with_arguments(w3, skip_if_testrpc, mat
                                                         method_kwargs,
                                                         expected,
                                                         skip_testrpc,
-                                                        buildTransaction):
+                                                        build_transaction):
     if skip_testrpc:
         skip_if_testrpc(w3)
 
-    txn = buildTransaction(contract=math_contract,
-                           contract_function='increment',
-                           func_args=method_args,
-                           func_kwargs=method_kwargs,
-                           tx_params=transaction_args)
+    txn = build_transaction(contract=math_contract,
+                            contract_function='increment',
+                            func_args=method_args,
+                            func_kwargs=method_kwargs,
+                            tx_params=transaction_args)
     expected['to'] = math_contract.address
     assert txn is not None
     if 'gas' in transaction_args:
