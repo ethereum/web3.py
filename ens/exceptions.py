@@ -40,6 +40,20 @@ class UnownedName(Exception):
     pass
 
 
+class ResolverNotFound(Exception):
+    """
+    Raised if no resolver was found for the name you are trying to resolve.
+    """
+    pass
+
+
+class UnsupportedFunction(Exception):
+    """
+    Raised if a resolver does not support a particular method.
+    """
+    pass
+
+
 class BidTooLow(ValueError):
     """
     Raised if you bid less than the minimum amount

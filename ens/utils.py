@@ -1,8 +1,13 @@
-import datetime
+from datetime import (
+    datetime,
+    timezone,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
+    Dict,
+    List,
     Optional,
     Sequence,
     Tuple,
@@ -18,9 +23,14 @@ from eth_typing import (
     HexStr,
 )
 from eth_utils import (
+    ValidationError,
     is_same_address,
     remove_0x_prefix,
+    to_bytes,
     to_normalized_address,
+)
+from eth_utils.abi import (
+    collapse_if_tuple,
 )
 from hexbytes import (
     HexBytes,
@@ -48,6 +58,7 @@ if TYPE_CHECKING:
         BaseProvider,
     )
     from web3.types import (  # noqa: F401
+        ABIFunction,
         Middleware,
     )
 
@@ -102,9 +113,39 @@ def normalize_name(name: str) -> str:
         name = name.decode('utf-8')
 
     try:
-        return idna.uts46_remap(name, std3_rules=True)
+        return idna.uts46_remap(name, std3_rules=True, transitional=False)
     except idna.IDNAError as exc:
         raise InvalidName(f"{name} is an invalid name, because {exc}") from exc
+
+
+def ens_encode_name(name: str) -> bytes:
+    """
+    Encode a name according to DNS standards specified in section 3.1 of RFC1035 with the
+    following validations:
+
+        - There is no limit on the total length of the encoded name and the limit on labels is the
+        ENS standard of 255.
+
+        - Return a single 0-octet, b'\x00', if empty name.
+    """
+    if is_empty_name(name):
+        return b'\x00'
+
+    normalized_name = normalize_name(name)
+
+    labels = normalized_name.split('.')
+    labels_as_bytes = [to_bytes(text=label) for label in labels]
+
+    # raises if len(label) > 255:
+    for index, label in enumerate(labels):
+        if len(label) > 255:
+            raise ValidationError(f"Label at position {index} too long after encoding.")
+
+    # concat label size in bytes to each label:
+    dns_prepped_labels = [to_bytes(len(label)) + label for label in labels_as_bytes]
+
+    # return the joined prepped labels in order and append the zero byte at the end:
+    return b''.join(dns_prepped_labels) + b'\x00'
 
 
 def is_valid_name(name: str) -> bool:
@@ -124,11 +165,8 @@ def is_valid_name(name: str) -> bool:
         return False
 
 
-def to_utc_datetime(timestamp: float) -> Optional[datetime.datetime]:
-    if timestamp:
-        return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)
-    else:
-        return None
+def to_utc_datetime(timestamp: float) -> Optional[datetime]:
+    return datetime.fromtimestamp(timestamp, timezone.utc) if timestamp else None
 
 
 def sha3_text(val: Union[str, bytes]) -> HexBytes:
@@ -204,6 +242,10 @@ def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress]) -
     return not addr or addr == EMPTY_ADDR_HEX
 
 
+def is_empty_name(name: str) -> bool:
+    return name in {None, '.', ''}
+
+
 def is_valid_ens_name(ens_name: str) -> bool:
     split_domain = ens_name.split('.')
     if len(split_domain) == 1:
@@ -212,3 +254,11 @@ def is_valid_ens_name(ens_name: str) -> bool:
         if not is_valid_name(name):
             return False
     return True
+
+
+# borrowed from similar method at `web._utils.abi` due to circular dependency
+def get_abi_output_types(abi: 'ABIFunction') -> List[str]:
+    return (
+        [] if abi['type'] == 'fallback'
+        else [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi['outputs']]
+    )

@@ -1,5 +1,9 @@
 import pytest
 
+from eth_typing import (
+    HexStr,
+)
+
 from ens.main import (
     AddressMismatch,
     UnauthorizedError,
@@ -13,7 +17,7 @@ API at: https://github.com/carver/ens.py/issues/2
 """
 
 
-@pytest.fixture()
+@pytest.fixture
 def TEST_ADDRESS(address_conversion_func):
     return address_conversion_func("0x000000000000000000000000000000000000dEaD")
 
@@ -63,7 +67,7 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
     assert ens.name(address) == normalized_name
 
     # check that the correct namehash is set:
-    node = Web3.toBytes(hexstr=namehash_hex)
+    node = Web3.toBytes(hexstr=HexStr(namehash_hex))
     assert ens.resolver(normalized_name).caller.addr(node) == address
 
     # check that the correct owner is set:
