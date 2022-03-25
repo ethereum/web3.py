@@ -16,7 +16,7 @@ def test_contract_constructor_abi_encoding_with_no_constructor_fn(MathContract, 
 
 
 def test_contract_constructor_gas_estimate_no_constructor(w3, MathContract):
-    gas_estimate = MathContract.constructor().estimateGas()
+    gas_estimate = MathContract.constructor().estimate_gas()
 
     deploy_txn = MathContract.constructor().transact()
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -27,7 +27,7 @@ def test_contract_constructor_gas_estimate_no_constructor(w3, MathContract):
 
 def test_contract_constructor_gas_estimate_with_block_id(w3, MathContract):
     block_identifier = None
-    gas_estimate = MathContract.constructor().estimateGas(block_identifier=block_identifier)
+    gas_estimate = MathContract.constructor().estimate_gas(block_identifier=block_identifier)
     deploy_txn = MathContract.constructor().transact()
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get('gasUsed')
@@ -38,7 +38,7 @@ def test_contract_constructor_gas_estimate_with_block_id(w3, MathContract):
 def test_contract_constructor_gas_estimate_with_constructor_without_arguments(
         w3,
         SimpleConstructorContract):
-    gas_estimate = SimpleConstructorContract.constructor().estimateGas()
+    gas_estimate = SimpleConstructorContract.constructor().estimate_gas()
 
     deploy_txn = SimpleConstructorContract.constructor().transact()
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -62,7 +62,7 @@ def test_contract_constructor_gas_estimate_with_constructor_with_arguments(
         constructor_args,
         constructor_kwargs):
     gas_estimate = WithConstructorArgumentsContract.constructor(
-        *constructor_args, **constructor_kwargs).estimateGas()
+        *constructor_args, **constructor_kwargs).estimate_gas()
 
     deploy_txn = WithConstructorArgumentsContract.constructor(
         *constructor_args, **constructor_kwargs).transact()
@@ -77,7 +77,7 @@ def test_contract_constructor_gas_estimate_with_constructor_with_address_argumen
         WithConstructorAddressArgumentsContract,
         address_conversion_func):
     gas_estimate = WithConstructorAddressArgumentsContract.constructor(
-        address_conversion_func("0x16D9983245De15E7A9A73bC586E01FF6E08dE737")).estimateGas()
+        address_conversion_func("0x16D9983245De15E7A9A73bC586E01FF6E08dE737")).estimate_gas()
 
     deploy_txn = WithConstructorAddressArgumentsContract.constructor(
         address_conversion_func("0x16D9983245De15E7A9A73bC586E01FF6E08dE737")).transact()
@@ -174,7 +174,7 @@ def test_contract_constructor_transact_with_constructor_with_address_arguments(
 
 def test_contract_constructor_build_transaction_to_field_error(MathContract):
     with pytest.raises(ValueError):
-        MathContract.constructor().buildTransaction({'to': '123'})
+        MathContract.constructor().build_transaction({'to': '123'})
 
 
 def test_contract_constructor_build_transaction_no_constructor(
@@ -186,7 +186,7 @@ def test_contract_constructor_build_transaction_no_constructor(
     )
     txn = w3.eth.get_transaction(txn_hash)
     nonce = w3.eth.get_transaction_count(w3.eth.coinbase)
-    unsent_txn = MathContract.constructor().buildTransaction({'nonce': nonce})
+    unsent_txn = MathContract.constructor().build_transaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']
 
     new_txn_hash = w3.eth.send_transaction(unsent_txn)
@@ -204,7 +204,7 @@ def test_contract_constructor_build_transaction_with_constructor_without_argumen
     )
     txn = w3.eth.get_transaction(txn_hash)
     nonce = w3.eth.get_transaction_count(w3.eth.coinbase)
-    unsent_txn = MathContract.constructor().buildTransaction({'nonce': nonce})
+    unsent_txn = MathContract.constructor().build_transaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']
 
     new_txn_hash = w3.eth.send_transaction(unsent_txn)
@@ -235,7 +235,7 @@ def test_contract_constructor_build_transaction_with_constructor_with_argument(
     txn = w3.eth.get_transaction(txn_hash)
     nonce = w3.eth.get_transaction_count(w3.eth.coinbase)
     unsent_txn = WithConstructorArgumentsContract.constructor(
-        *constructor_args, **constructor_kwargs).buildTransaction({'nonce': nonce})
+        *constructor_args, **constructor_kwargs).build_transaction({'nonce': nonce})
     assert txn['data'] == unsent_txn['data']
 
     new_txn_hash = w3.eth.send_transaction(unsent_txn)
