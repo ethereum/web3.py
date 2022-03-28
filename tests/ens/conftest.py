@@ -8,6 +8,9 @@ from eth_tester import (
 
 from ens import ENS
 from ens.contract_data import (
+    extended_resolver_abi,
+    extended_resolver_bytecode,
+    extended_resolver_bytecode_runtime,
     registrar_abi,
     registrar_bytecode,
     registrar_bytecode_runtime,
@@ -85,6 +88,15 @@ def SimpleResolver(w3):
         bytecode=simple_resolver_bytecode,
         bytecode_runtime=simple_resolver_bytecode_runtime,
         abi=simple_resolver_abi,
+        ContractFactoryClass=Contract,
+    )
+
+
+def ExtendedResolver(w3):
+    return w3.eth.contract(
+        bytecode=extended_resolver_bytecode,
+        bytecode_runtime=extended_resolver_bytecode_runtime,
+        abi=extended_resolver_abi,
         ContractFactoryClass=Contract,
     )
 
@@ -226,11 +238,36 @@ def ens_setup():
         second_account
     ).transact({'from': ens_key})
 
-    simple_resolver_namehash = bytes32(0x65db4c1c4f4ab9e6917fa7896ce546b1fe03e9341e98187e3917afb60aa9835a)  # noqa: E501
+    # ns.namehash('simple-resolver.eth')
+    simple_resolver_namehash = bytes32(
+        0x65db4c1c4f4ab9e6917fa7896ce546b1fe03e9341e98187e3917afb60aa9835a
+    )
 
     ens_contract.functions.setResolver(
         simple_resolver_namehash,
         simple_resolver.address
+    ).transact({'from': second_account})
+
+    # --- setup extended resolver example --- #
+
+    # create extended resolver
+    extended_resolver = deploy(w3, ExtendedResolver, ens_key, args=[ens_contract.address])
+
+    # set owner of extended-resolver.eth to an account controlled by tests
+    ens_contract.functions.setSubnodeOwner(
+        eth_namehash,
+        w3.keccak(text='extended-resolver'),
+        second_account
+    ).transact({'from': ens_key})
+
+    # ns.namehash('extended-resolver.eth')
+    extended_resolver_namehash = bytes32(
+        0xf0a378cc2afe91730d0105e67d6bb037cc5b8b6bfec5b5962d9b637ff6497e55
+    )
+
+    ens_contract.functions.setResolver(
+        extended_resolver_namehash,
+        extended_resolver.address
     ).transact({'from': second_account})
 
     # --- finish setup --- #

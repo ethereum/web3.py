@@ -73,5 +73,5 @@ def test_get_text_resolver_not_found(ens):
 
 
 def test_get_text_for_resolver_with_unsupported_function(ens):
-    with pytest.raises(UnsupportedFunction):
+    with pytest.raises(UnsupportedFunction, match="does not support `text` function"):
         ens.get_text('simple-resolver.eth', 'any_key')
