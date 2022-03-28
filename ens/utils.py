@@ -256,7 +256,7 @@ def is_valid_ens_name(ens_name: str) -> bool:
     return True
 
 
-# borrowed from similar method at `web._utils.abi` due to circular dependency
+# borrowed from similar method at `web3._utils.abi` due to circular dependency
 def get_abi_output_types(abi: 'ABIFunction') -> List[str]:
     return (
         [] if abi['type'] == 'fallback'
