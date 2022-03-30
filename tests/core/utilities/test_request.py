@@ -15,6 +15,9 @@ from requests.adapters import (
 from web3._utils import (
     request,
 )
+from web3._utils.caching import (
+    generate_cache_key,
+)
 from web3._utils.request import (
     SessionCache,
 )
@@ -51,7 +54,8 @@ def test_make_post_request_no_args(mocker):
     response = request.make_post_request(URI, data=b"request")
     assert response == "content"
     assert len(request._session_cache) == 1
-    session = request._session_cache.values()[0]
+    cache_key = generate_cache_key(URI)
+    session = request._session_cache.get_cache_entry(cache_key)
     session.post.assert_called_once_with(URI, data=b"request", timeout=10)
 
     # Ensure the adapter was created with default values
