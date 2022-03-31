@@ -458,7 +458,7 @@ this middleware to have any effect.
    >>> w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
    >>> w3.eth.default_account = acct.address
 
-The Infura Ethereum API only supports signed transactions. This often results in ``send_raw_transaction`` being used repeatedly, instead we can automate this process with ``construct_sign_and_send_raw_middleware(private_key_or_account)``.
+:ref:`Hosted nodes<local_vs_hosted>` (like Infura or Alchemy) only support signed transactions. This often results in ``send_raw_transaction`` being used repeatedly. Instead, we can automate this process with ``construct_sign_and_send_raw_middleware(private_key_or_account)``.
 
 .. code-block:: python
 
