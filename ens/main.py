@@ -293,10 +293,12 @@ class ENS:
         :param str key: ENS name's text record key
         :return:  ENS name's text record value
         :rtype: str
+        :raises UnownedName: if no one owns `name`
         """
         node = raw_name_to_hash(name)
+        normal_name = normalize_name(name)
 
-        r = self.resolver(name)
+        r = self.resolver(normal_name)
         if r:
             return r.caller.text(node, key)
         else:
@@ -323,10 +325,11 @@ class ENS:
         """
         owner = self.owner(name)
         node = raw_name_to_hash(name)
+        normal_name = normalize_name(name)
 
         transaction_dict = merge({'from': owner}, transact)
 
-        r = self.resolver(name)
+        r = self.resolver(normal_name)
         if r:
             return r.functions.setText(node, key, value).transact(transaction_dict)
         else:

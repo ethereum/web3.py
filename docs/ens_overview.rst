@@ -162,3 +162,37 @@ Wait for the transaction to be mined, then:
 ::
 
     assert ns.name('0x5B2063246F2191f18F2675ceDB8b28102e957458') == 'jasoncarver.eth'
+
+Set Text Metadata for an ENS Record
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As the owner of an ENS record, you can add text metadata.
+A list of supported fields can be found in the
+`ENS documentation <https://docs.ens.domains/contract-api-reference/publicresolver#get-text-data>`_.
+You'll need to setup the address first, and then the text can be set:
+
+::
+
+    ns.setup_address('jasoncarver.eth', 0x5B2063246F2191f18F2675ceDB8b28102e957458)
+    ns.set_text('jasoncarver.eth', 'url', 'https://example.com')
+
+A transaction dictionary can be passed as the last argument if desired:
+
+::
+
+    transaction_dict = {'from': '0x123...'}
+    ns.set_text('jasoncarver.eth', 'url', 'https://example.com', transaction_dict)
+
+If the transaction dictionary is not passed, sensible defaults will be used, and if
+a transaction dictionary is passed but does not have a ``from`` value,
+the default will be the ``owner``.
+
+Read Text Metadata for an ENS Record
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Anyone can read the data from an ENS Record:
+
+::
+
+    url = ns.get_text('jasoncarver.eth', 'url')
+    assert url == 'https://example.com'
