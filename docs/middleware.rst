@@ -458,6 +458,19 @@ this middleware to have any effect.
    >>> w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
    >>> w3.eth.default_account = acct.address
 
+The Infura Ethereum API only supports signed transactions. This often results in ``send_raw_transaction`` being used repeatedly, instead we can automate this process with ``construct_sign_and_send_raw_middleware(private_key_or_account)``.
+
+.. code-block:: python
+
+    >>> from web3 import Web3
+    >>> w3 = Web3(Web3.HTTPProvider('INFURA_ENDPOINT'))
+    >>> from web3.middleware import construct_sign_and_send_raw_middleware
+    >>> from eth_account import Account
+    >>> import os
+    >>> acct = Account.from_key(os.environ.get('PRIVATE_KEY'))
+    >>> w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
+    >>> w3.eth.default_account = acct.address
+
 Now you can send a transaction from acct.address without having to build and sign each raw transaction.
 
 When making use of this signing middleware, when sending dynamic fee transactions (recommended over legacy transactions),
