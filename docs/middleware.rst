@@ -467,7 +467,7 @@ The Infura Ethereum API only supports signed transactions. This often results in
     >>> from web3.middleware import construct_sign_and_send_raw_middleware
     >>> from eth_account import Account
     >>> import os
-    >>> acct = Account.from_key(os.environ.get('PRIVATE_KEY'))
+    >>> acct = w3.eth.account.from_key(os.environ.get('PRIVATE_KEY'))
     >>> w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
     >>> w3.eth.default_account = acct.address
 
