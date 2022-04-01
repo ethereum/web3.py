@@ -463,7 +463,7 @@ this middleware to have any effect.
 .. code-block:: python
 
     >>> from web3 import Web3
-    >>> w3 = Web3(Web3.HTTPProvider('INFURA_ENDPOINT'))
+    >>> w3 = Web3(Web3.HTTPProvider('HTTP_ENDPOINT'))
     >>> from web3.middleware import construct_sign_and_send_raw_middleware
     >>> from eth_account import Account
     >>> import os
