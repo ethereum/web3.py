@@ -30,7 +30,7 @@ def test_set_text_unowned_name(ens, key, expected):
     ('notice', 'this contract is a test contract'),
 ),)
 def test_get_text(ens, key, expected):
-    address = ens.w3.eth.accounts[2]
+    address = ens.web3.eth.accounts[2]
     ens.setup_address('tester.eth', address)
     owner = ens.owner('tester.eth')
     assert address == owner
@@ -42,7 +42,7 @@ def test_get_text(ens, key, expected):
 
 
 def test_set_text_fails_with_bad_address(ens):
-    address = ens.w3.eth.accounts[2]
+    address = ens.web3.eth.accounts[2]
     ens.setup_address('tester.eth', address)
     zero_address = '0x' + '00' * 20
     with pytest.raises(TransactionFailed):
@@ -50,7 +50,7 @@ def test_set_text_fails_with_bad_address(ens):
 
 
 def test_set_text_pass_in_transaction_dict(ens):
-    address = ens.w3.eth.accounts[2]
+    address = ens.web3.eth.accounts[2]
     ens.setup_address('tester.eth', address)
     ens.set_text('tester.eth', 'url', 'http://example.com', transact={'from': address})
     ens.set_text(
