@@ -15,7 +15,7 @@ extras_require = {
         "mypy==0.910",
         "types-setuptools>=57.4.4,<58",
         "types-requests>=2.26.1,<3",
-        "types-protobuf>=3.18.2,<4",
+        "types-protobuf==3.19.13",
     ],
     'docs': [
         "mock",
