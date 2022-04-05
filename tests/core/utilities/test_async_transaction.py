@@ -40,7 +40,7 @@ async def test_get_block_gas_limit_without_block_number(async_w3):
 async def test_get_buffered_gas_estimate(async_w3):
 
     txn_params = {
-        'gas': 1,
+        'data': b'0x1',
     }
 
     gas_estimate = await get_buffered_gas_estimate(async_w3, txn_params)
