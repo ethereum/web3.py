@@ -76,15 +76,27 @@ You should now be set up to run the contract deployment example below:
     >>> abi = contract_interface['abi']
 
     # web3.py instance
+    >>> provider = Web3.EthereumTesterProvider()
     >>> w3 = Web3(Web3.EthereumTesterProvider())
 
-    # set pre-funded account as sender
-    >>> w3.eth.default_account = w3.eth.accounts[0]
+    # Obtain the pre-funded private key and public address as signer
+    >>> my_private_key = provider.ethereum_tester.backend.account_keys[0]
+    >>> my_account = w3.eth.account.from_key(private_key)
 
+    # Get nonce for the account
+    >>> nonce = w3.eth.get_transaction_count(my_account.address)
+
+    # Create web3 contract
     >>> Greeter = w3.eth.contract(abi=abi, bytecode=bytecode)
 
-    # Submit the transaction that deploys the contract
-    >>> tx_hash = Greeter.constructor().transact()
+    # Build the transaction parameters that deploys the contract to be signed
+    >>> tx_params = Greeter.constructor().buildTransaction({
+        'nonce': nonce
+    })
+
+    # Sign and send the raw signed transaction
+    >>> signed_transaction = my_account.signTransaction(tx_params)
+    >>> tx_hash = w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
 
     # Wait for the transaction to be mined, and get the transaction receipt
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -97,7 +109,12 @@ You should now be set up to run the contract deployment example below:
     >>> greeter.functions.greet().call()
     'Hello'
 
-    >>> tx_hash = greeter.functions.setGreeting('Nihao').transact()
+    >>> nonce = w3.eth.get_transaction_count(my_account.address)
+    >>> tx_params = greeter.functions.setGreeting('Nihao').buildTransaction({
+        'nonce': nonce
+    })
+    >>> signed_transaction = my_account.signTransaction(tx_params)
+    >>> tx_hash = w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     >>> greeter.functions.greet().call()
     'Nihao'
