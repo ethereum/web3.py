@@ -83,7 +83,9 @@ You should now be set up to run the contract deployment example below :
     >>> my_private_key = provider.ethereum_tester.backend.account_keys[0]
     >>> my_account = w3.eth.account.from_key(private_key)
 
+
 Using we can use ``send_raw_transaction`` to create the contract :
+
 .. code-block:: python
 
     # Get nonce for the account
@@ -94,8 +96,8 @@ Using we can use ``send_raw_transaction`` to create the contract :
 
     # Build the transaction parameters that deploys the contract to be signed
     >>> tx_params = Greeter.constructor().buildTransaction({
-        'nonce': nonce
-    })
+    ...     'nonce': nonce
+    ... })
 
     # Sign and send the raw signed transaction
     >>> signed_transaction = my_account.signTransaction(tx_params)
@@ -125,6 +127,7 @@ Using we can use ``send_raw_transaction`` to create the contract :
 or we can set up ``construct_and_sign_middleware`` and let the middleware signs the transaction:
 
 .. code-block:: python
+
     # Get nonce for the account
     >>> w3.middleware_onion.add(construct_sign_and_send_raw_middleware(my_account))
     >>> w3.eth.default_account = my_account.address
@@ -656,7 +659,9 @@ Taking the following contract code as an example:
 .. testsetup:: arrayscontract
 
     from web3 import Web3
-    w3 = Web3(Web3.EthereumTesterProvider())
+    provider = Web3.EthereumTesterProvider()
+    my_private_key = provider.ethereum_tester.backend.account_keys[0]
+    w3 = Web3(provider)
     bytecode = "608060405234801561001057600080fd5b506040516106103803806106108339810180604052602081101561003357600080fd5b81019080805164010000000081111561004b57600080fd5b8281019050602081018481111561006157600080fd5b815185602082028301116401000000008211171561007e57600080fd5b5050929190505050806000908051906020019061009c9291906100a3565b505061019c565b82805482825590600052602060002090600f0160109004810192821561015a5791602002820160005b8382111561012a57835183826101000a81548161ffff02191690837e010000000000000000000000000000000000000000000000000000000000009004021790555092602001926002016020816001010492830192600103026100cc565b80156101585782816101000a81549061ffff021916905560020160208160010104928301926001030261012a565b505b509050610167919061016b565b5090565b61019991905b8082111561019557600081816101000a81549061ffff021916905550600101610171565b5090565b90565b610465806101ab6000396000f3fe608060405260043610610051576000357c0100000000000000000000000000000000000000000000000000000000900480633b3230ee14610056578063d7c8a410146100e7578063dfe3136814610153575b600080fd5b34801561006257600080fd5b5061008f6004803603602081101561007957600080fd5b8101908080359060200190929190505050610218565b60405180827dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff19167dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1916815260200191505060405180910390f35b3480156100f357600080fd5b506100fc61026c565b6040518080602001828103825283818151815260200191508051906020019060200280838360005b8381101561013f578082015181840152602081019050610124565b505050509050019250505060405180910390f35b34801561015f57600080fd5b506102166004803603602081101561017657600080fd5b810190808035906020019064010000000081111561019357600080fd5b8201836020820111156101a557600080fd5b803590602001918460208302840111640100000000831117156101c757600080fd5b919080806020026020016040519081016040528093929190818152602001838360200280828437600081840152601f19601f820116905080830192505050505050509192919290505050610326565b005b60008181548110151561022757fe5b9060005260206000209060109182820401919006600202915054906101000a90047e010000000000000000000000000000000000000000000000000000000000000281565b6060600080548060200260200160405190810160405280929190818152602001828054801561031c57602002820191906000526020600020906000905b82829054906101000a90047e01000000000000000000000000000000000000000000000000000000000000027dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1916815260200190600201906020826001010492830192600103820291508084116102a95790505b5050505050905090565b806000908051906020019061033c929190610340565b5050565b82805482825590600052602060002090600f016010900481019282156103f75791602002820160005b838211156103c757835183826101000a81548161ffff02191690837e01000000000000000000000000000000000000000000000000000000000000900402179055509260200192600201602081600101049283019260010302610369565b80156103f55782816101000a81549061ffff02191690556002016020816001010492830192600103026103c7565b505b5090506104049190610408565b5090565b61043691905b8082111561043257600081816101000a81549061ffff02191690555060010161040e565b5090565b9056fea165627a7a72305820a8f9f1f4815c1eedfb8df31298a5cd13b198895de878871328b5d96296b69b4e0029"
     abi = '''
       [
@@ -747,11 +752,11 @@ Taking the following contract code as an example:
 .. doctest:: arrayscontract
 
     >>> ArraysContract = w3.eth.contract(abi=abi, bytecode=bytecode)
-    >>> my_account = web3.eth.account.from_key(PRIVATE_KEY)
+    >>> my_account = w3.eth.account.from_key(my_private_key)
     >>> nonce = w3.eth.get_transaction_count(my_account.address)
     >>> tx_params = ArraysContract.constructor([b'b']).buildTransaction({
-        'nonce': nonce
-    })
+    ...    'nonce': nonce
+    ... })
     >>> signed_transaction = my_account.signTransaction(tx_params)
     >>> tx_hash = w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -778,9 +783,8 @@ Taking the following contract code as an example:
     >>> w3.enable_strict_bytes_type_checking()
     >>> nonce = w3.eth.get_transaction_count(my_account.address)
     >>> tx_params = array_contract.functions.setBytes2Value([b'a']).buildTransaction({
-        'nonce': nonce
-    })
-    >>> w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
+    ...     'nonce': nonce
+    ... })
     Traceback (most recent call last):
        ...
     ValidationError:
@@ -1028,7 +1032,7 @@ For example:
         tx_params = myContract.functions.myFunction().buildTransaction({
             'nonce': nonce
         })
-        signed_transaction = my_account.signTransaction(tx_params)
+        signed_transaction = my_account.sign_transaction(tx_params)
         tx_hash = w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
         receipt = web3.eth.get_transaction_receipt(tx_hash)
         myContract.events.myEvent().processReceipt(receipt)
@@ -1053,7 +1057,7 @@ For example:
            'to':contract_address,
            'nonce': nonce,
        })
-       >>> signed_transaction = my_account.signTransaction(tx_params)
+       >>> signed_transaction = my_account.sign_transaction(tx_params)
        >>> tx_hash = w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
        >>> rich_logs = contract.events.myEvent().processReceipt(tx_receipt)
@@ -1207,7 +1211,7 @@ Event Log Object
     tx_params = contract.functions.transfer(alice, 10).buildTransaction({
         'gas': 899000,
         'gasPrice': Web3.toWei(1, 'gwei'),
-        'nonce: alice_nonce,
+        'nonce': alice_nonce,
     })
     signed_transaction = alice_account.signTransaction(tx_params)
     tx_hash = w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
@@ -1218,59 +1222,63 @@ Event Log Object
     >>> transfer_filter = my_token_contract.events.Transfer.createFilter(fromBlock="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
     >>> transfer_filter.get_new_entries()
     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-     'value': 10}),
-     'event': 'Transfer',
-     'logIndex': 0,
-     'transactionIndex': 0,
-     'transactionHash': HexBytes('0x9da859237e7259832b913d51cb128c8d73d1866056f7a41b52003c953e749678'),
-     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
-     'blockHash': HexBytes('...'),
-     'blockNumber': 2})]
+    'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+    'value': 10}),
+    'event': 'Transfer',
+    'logIndex': 0,
+    'transactionIndex': 0,
+    'transactionHash':
+    HexBytes('0xb262ed26953df1b0246dc322657cc7ab9bacd67804b4d6f773c5dba1867e643c'),
+    'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+    'blockHash': HexBytes('...'),
+    'blockNumber': 2})]
     >>> transfer_filter.get_new_entries()
     []
     >>> private_key = provider.ethereum_tester.backend.account_keys[0]
     >>> alice_nonce = w3.eth.get_transaction_count(alice_account.address)
     >>> tx_params = contract.functions.transfer(alice, 10).buildTransaction({
-        'gas': 899000,
-        'gasPrice': 674302241,
-        'nonce: alice_nonce,
-    })
+    ...     'gas': 899000,
+    ...     'gasPrice': 674302241,
+    ...     'nonce': alice_nonce,
+    ... })
     >>> signed_transaction = alice_account.signTransaction(tx_params)
     >>> tx_hash = w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     >>> transfer_filter.get_new_entries()
     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-     'value': 10}),
-     'event': 'Transfer',
-     'logIndex': 0,
-     'transactionIndex': 0,
-     'transactionHash': HexBytes('0xa23e7ef4d2692c5cf34ee99123c9c73099e9c3b68c7850f91c1cbcb91ac327e0'),
-     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
-     'blockHash': HexBytes('...'),
-     'blockNumber': 3})]
+    'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+    'value': 10}),
+    'event': 'Transfer',
+    'logIndex': 0,
+    'transactionIndex': 0,
+    'transactionHash':
+    HexBytes('0x27ce29e52f61f611b68d238eabab579a6f1750283ce5df9ac5734a1c9e078d21'),
+    'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+    'blockHash': HexBytes('...'),
+    'blockNumber': 3})]
     >>> transfer_filter.get_all_entries()
     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-     'value': 10}),
-     'event': 'Transfer',
-     'logIndex': 0,
-     'transactionIndex': 0,
-     'transactionHash': HexBytes('0x9da859237e7259832b913d51cb128c8d73d1866056f7a41b52003c953e749678'),
-     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
-     'blockHash': HexBytes('...'),
-     'blockNumber': 2}),
-     AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
-     'value': 10}),
-     'event': 'Transfer',
-     'logIndex': 0,
-     'transactionIndex': 0,
-     'transactionHash': HexBytes('0xa23e7ef4d2692c5cf34ee99123c9c73099e9c3b68c7850f91c1cbcb91ac327e0'),
-     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
-     'blockHash': HexBytes('...'),
-     'blockNumber': 3})]
+    'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+    'value': 10}),
+    'event': 'Transfer',
+    'logIndex': 0,
+    'transactionIndex': 0,
+    'transactionHash':
+    HexBytes('0xb262ed26953df1b0246dc322657cc7ab9bacd67804b4d6f773c5dba1867e643c'),
+    'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+    'blockHash': HexBytes('...'),
+    'blockNumber': 2}),
+    AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+    'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+    'value': 10}),
+    'event': 'Transfer',
+    'logIndex': 0,
+    'transactionIndex': 0,
+    'transactionHash':
+    HexBytes('0x27ce29e52f61f611b68d238eabab579a6f1750283ce5df9ac5734a1c9e078d21'),
+    'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+    'blockHash': HexBytes('...'),
+    'blockNumber': 3})]
 
 Utils
 -----
@@ -1310,12 +1318,14 @@ For example:
 
    import json
    from web3 import Web3
-   w3 = Web3(Web3.EthereumTesterProvider())
+   provider = Web3.EthereumTesterProvider()
+   w3 = Web3(provider)
+   my_private_key = provider.ethereum_tester.backend.account_keys[0]
    bytecode = "0x606060405261022e806100126000396000f360606040523615610074576000357c01000000000000000000000000000000000000000000000000000000009004806316216f391461007657806361bc221a146100995780637cf5dab0146100bc578063a5f3c23b146100e8578063d09de08a1461011d578063dcf537b11461014057610074565b005b610083600480505061016c565b6040518082815260200191505060405180910390f35b6100a6600480505061017f565b6040518082815260200191505060405180910390f35b6100d26004808035906020019091905050610188565b6040518082815260200191505060405180910390f35b61010760048080359060200190919080359060200190919050506101ea565b6040518082815260200191505060405180910390f35b61012a6004805050610201565b6040518082815260200191505060405180910390f35b6101566004808035906020019091905050610217565b6040518082815260200191505060405180910390f35b6000600d9050805080905061017c565b90565b60006000505481565b6000816000600082828250540192505081905550600060005054905080507f3496c3ede4ec3ab3686712aa1c238593ea6a42df83f98a5ec7df9834cfa577c5816040518082815260200191505060405180910390a18090506101e5565b919050565b6000818301905080508090506101fb565b92915050565b600061020d6001610188565b9050610214565b90565b60006007820290508050809050610229565b91905056"
    ABI = json.loads('[{"constant":false,"inputs":[],"name":"return13","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":true,"inputs":[],"name":"counter","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"amt","type":"uint256"}],"name":"increment","outputs":[{"name":"result","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"},{"name":"b","type":"int256"}],"name":"add","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"constant":false,"inputs":[],"name":"increment","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"a","type":"int256"}],"name":"multiply7","outputs":[{"name":"result","type":"int256"}],"type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"increased","type":"event"}]')
    contract = w3.eth.contract(abi=ABI, bytecode=bytecode)
 
-   my_account = w3.eth.account.from_key(PRIVATE_KEY)
+   my_account = w3.eth.account.from_key(my_private_key)
    nonce = w3.eth.get_transaction_count(my_account.address)
    tx_params = contract.constructor().buildTransaction({
       'nonce': nonce
