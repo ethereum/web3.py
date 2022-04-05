@@ -42,9 +42,13 @@ async def test_get_buffered_gas_estimate(async_w3):
     txn_params = {
         'data': b'0x1',
     }
+    gas_estimate = await async_w3.eth.estimate_gas(txn_params)
+    gas_buffer = 100000
+    gas_limit = await get_block_gas_limit(async_w3.eth)  # type: ignore
 
-    gas_estimate = await get_buffered_gas_estimate(async_w3, txn_params)
-    assert isinstance(gas_estimate, int)
+    buffered_gas_estimate = await get_buffered_gas_estimate(async_w3, txn_params)
+    assert isinstance(buffered_gas_estimate, int)
+    assert buffered_gas_estimate == min(gas_estimate + gas_buffer, gas_limit)
 
 
 @pytest.mark.asyncio()
