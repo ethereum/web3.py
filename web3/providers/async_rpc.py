@@ -61,7 +61,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
 
         super().__init__()
 
-    async def cache_async_session(self, session: ClientSession) -> None:
+    async def cache_async_session(self, session) -> None:
         await _cache_async_session(self.endpoint_uri, session)
 
     def __str__(self) -> str:
