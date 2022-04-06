@@ -11,15 +11,13 @@ from dataclasses import (
     dataclass,
 )
 
-from aiohttp import (
-    ClientSession,
-)
 from eth_typing import (
     URI,
 )
 from eth_utils import (
     to_dict,
 )
+from requests.models import HTTPError
 
 from web3._utils.http import (
     construct_user_agent,
@@ -27,6 +25,7 @@ from web3._utils.http import (
 from web3._utils.request import (
     async_make_post_request,
     cache_async_session as _cache_async_session,
+    make_post_request,
     get_default_http_endpoint,
 )
 from web3.types import (
@@ -149,16 +148,17 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
         )
 
         try:
-            raw_response = await async_make_post_request(
+            raw_response = make_post_request(
                 self.endpoint_uri, request_data, **self.get_request_kwargs()
             )
+
             response_batch = self.decode_rpc_response(raw_response)
 
             for item, response in zip(request_batch, response_batch):
                 self.response_dict[item.idx] = response
                 item.response_ready_event.set()
-        except ClientResponseError as e:
-            self.logger.exception("Batch request failed")
+        except HTTPError as e:
+            self.logger.exception("Batch request failed.")
             for item in request_batch:
                 await self.request_queue.put(item)
 
