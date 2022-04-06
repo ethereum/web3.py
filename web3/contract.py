@@ -984,9 +984,9 @@ class ContractFunction:
 
         if self.address:
             call_transaction.setdefault("to", self.address)
-        if self.web3.eth.default_account is not empty:
+        if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            call_transaction.setdefault("from", self.web3.eth.default_account)  # type: ignore
+            call_transaction.setdefault("from", self.w3.eth.default_account)  # type: ignore
 
         if "to" not in call_transaction:
             if isinstance(self, type):
@@ -1000,10 +1000,10 @@ class ContractFunction:
                     "Please ensure that this contract instance has an address."
                 )
 
-        block_id = parse_block_identifier(self.web3, block_identifier)
+        block_id = parse_block_identifier(self.w3, block_identifier)
 
         return await async_call_contract_function(
-            self.web3,
+            self.w3,
             self.address,
             self._return_data_normalizers,
             self.function_identifier,
