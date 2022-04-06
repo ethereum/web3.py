@@ -574,7 +574,7 @@ class AsyncEth(BaseEth):
             "ContractFactoryClass", self.defaultContractFactory
         )
 
-        ContractFactory = ContractFactoryClass.factory(self.web3, **kwargs)
+        ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
 
         if address:
             return ContractFactory(address)
