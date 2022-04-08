@@ -1069,3 +1069,51 @@ def AsyncMathContract(async_w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
 @pytest_asyncio.fixture()
 async def async_math_contract(async_w3, AsyncMathContract, address_conversion_func):
     return await async_deploy(async_w3, AsyncMathContract, address_conversion_func)
+
+
+@pytest.fixture()
+def AsyncSimpleConstructorContract(async_w3,
+                                   SIMPLE_CONSTRUCTOR_CODE,
+                                   SIMPLE_CONSTRUCTOR_RUNTIME,
+                                   SIMPLE_CONSTRUCTOR_ABI):
+    return async_w3.eth.contract(
+        abi=SIMPLE_CONSTRUCTOR_ABI,
+        bytecode=SIMPLE_CONSTRUCTOR_CODE,
+        bytecode_runtime=SIMPLE_CONSTRUCTOR_RUNTIME,
+    )
+    
+
+@pytest.fixture()
+def AsyncWithConstructorArgumentsContract(async_w3,
+                                          WITH_CONSTRUCTOR_ARGUMENTS_CODE,
+                                          WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+                                          WITH_CONSTRUCTOR_ARGUMENTS_ABI):
+    return async_w3.eth.contract(
+        abi=WITH_CONSTRUCTOR_ARGUMENTS_ABI,
+        bytecode=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
+        bytecode_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+    )
+    
+
+@pytest.fixture()
+def AsyncWithConstructorArgumentsContractStrict(async_w3_strict_abi,
+                                                WITH_CONSTRUCTOR_ARGUMENTS_CODE,
+                                                WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+                                                WITH_CONSTRUCTOR_ARGUMENTS_ABI):
+    return async_w3_strict_abi.eth.contract(
+        abi=WITH_CONSTRUCTOR_ARGUMENTS_ABI,
+        bytecode=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
+        bytecode_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+    )
+
+
+@pytest.fixture()
+def AsyncWithConstructorAddressArgumentsContract(async_w3,
+                                                 WITH_CONSTRUCTOR_ADDRESS_CODE,
+                                                 WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
+                                                 WITH_CONSTRUCTOR_ADDRESS_ABI):
+    return async_w3.eth.contract(
+        abi=WITH_CONSTRUCTOR_ADDRESS_ABI,
+        bytecode=WITH_CONSTRUCTOR_ADDRESS_CODE,
+        bytecode_runtime=WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
+    )
