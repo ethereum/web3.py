@@ -1,9 +1,18 @@
 import pytest
 
 import pytest_asyncio
+from flaky import (
+    flaky,
+)
 
+from eth_typing import (
+    ChecksumAddress,
+)
 from tests.utils import (
     get_open_port,
+)
+from typing import (
+    TYPE_CHECKING,
 )
 from web3 import Web3
 from web3._utils.module_testing.go_ethereum_admin_module import (
@@ -49,6 +58,10 @@ from .utils import (
     wait_for_aiohttp,
     wait_for_http,
 )
+
+
+if TYPE_CHECKING:
+    from web3 import Web3  # noqa: F401
 
 
 @pytest.fixture(scope="module")
@@ -158,8 +171,11 @@ class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
-
+    @flaky(max_runs=3)
+    def test_eth_estimate_gas(
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        pass
 
 class TestGoEthereumVersionModuleTest(GoEthereumVersionModuleTest):
     pass
