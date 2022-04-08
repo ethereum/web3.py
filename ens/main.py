@@ -152,7 +152,11 @@ class ENS:
         :type address: hex-string
         """
         reversed_domain = address_to_reverse_domain(address)
-        return self.resolve(reversed_domain, get='name')
+        name = self.resolve(reversed_domain, get='name')
+
+        # To be absolutely certain of the name, via reverse resolution, the address must match in
+        # the forward resolution
+        return name if to_checksum_address(address) == self.address(name) else None
 
     def setup_address(
         self,

@@ -69,6 +69,17 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
     # check that the correct owner is set:
     assert ens.owner(name) == owner
 
+    # setup name to point to new address
+    new_address = ens.w3.eth.accounts[4]
+    ens.setup_address(name, None)
+    ens.setup_name(name, new_address)
+
+    # validate that ens.name() only returns a name if the forward resolution also returns the
+    # address
+    assert ens.name(new_address) == normalized_name  # reverse resolution
+    assert ens.address(name) == new_address  # forward resolution
+    assert not ens.name(address)
+
     ens.setup_name(None, address)
     ens.setup_address(name, None)
     assert not ens.name(address)
