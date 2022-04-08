@@ -69,6 +69,17 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
     # check that the correct owner is set:
     assert ens.owner(name) == owner
 
+    # check that strict mode works when name resolution is changed
+    new_address = ens.web3.eth.accounts[4]
+    ens.setup_address(name, None)
+    ens.setup_name(name, new_address)
+
+    assert ens.name(address) == normalized_name
+    assert ens.name(new_address) == normalized_name
+
+    assert not ens.name(address, strict=True)
+    assert ens.name(new_address, strict=True) == normalized_name
+
     ens.setup_name(None, address)
     ens.setup_address(name, None)
     assert not ens.name(address)
