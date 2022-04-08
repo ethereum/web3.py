@@ -1,0 +1,1 @@
+For ``ENS.name()``, validate that the forward resolution returns the same address as provided by the user as per the ENS documentation recommendation for Reverse Resolution.
