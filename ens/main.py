@@ -142,17 +142,25 @@ class ENS:
         :raises InvalidName: if `name` has invalid syntax
         """
         return cast(ChecksumAddress, self.resolve(name, 'addr'))
-
-    def name(self, address: ChecksumAddress) -> Optional[str]:
+        
+    def name(
+        self, address: ChecksumAddress, strict: Optional[bool] = False
+    ) -> Optional[str]:
         """
         Look up the name that the address points to, using a
         reverse lookup. Reverse lookup is opt-in for name owners.
 
-        :param address:
-        :type address: hex-string
+        :param hex-string address: the address to look up
+        :param strict bool: perform a strict check which will confirm that forward and 
+            reverse resolution matches
         """
         reversed_domain = address_to_reverse_domain(address)
-        return self.resolve(reversed_domain, get='name')
+        name = self.resolve(reversed_domain, get="name")
+
+        if strict:
+            return name if address == self.address(name) else None
+
+        return name
 
     def setup_address(
         self,
