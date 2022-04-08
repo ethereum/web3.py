@@ -144,21 +144,23 @@ class ENS:
         return cast(ChecksumAddress, self.resolve(name, 'addr'))
 
     def name(
-        self, address: ChecksumAddress, strict: Optional[bool] = False
+        self,
+        address: ChecksumAddress,
+        strict: bool = False
     ) -> Optional[str]:
         """
         Look up the name that the address points to, using a
         reverse lookup. Reverse lookup is opt-in for name owners.
 
         :param hex-string address: the address to look up
-        :param strict bool: perform a strict check which will confirm that forward and
+        :param bool strict: perform a strict check which will confirm that forward and
             reverse resolution matches
         """
         reversed_domain = address_to_reverse_domain(address)
         name = self.resolve(reversed_domain, get="name")
 
         if strict:
-            return name if address == self.address(name) else None
+            return name if to_checksum_address(address) == self.address(name) else None
 
         return name
 
