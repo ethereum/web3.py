@@ -67,6 +67,12 @@ class GoEthereumEthModuleTest(EthModuleTest):
     ) -> None:
         super().test_eth_estimateGas_deprecated(w3, unlocked_account_dual_type)
 
+    @flaky(max_runs=3)
+    def test_eth_estimate_gas_with_block(
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        super().test_eth_estimate_gas_with_block(w3, unlocked_account_dual_type)
+
 
 class GoEthereumVersionModuleTest(VersionModuleTest):
     @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
