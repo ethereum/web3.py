@@ -123,9 +123,10 @@ async def test_async_contract_deployment_no_constructor(async_w3, AsyncMathContr
 
 
 @pytest.mark.asyncio
-async def test_async_contract_deployment_with_constructor_without_args(async_w3,
-                                                           AsyncSimpleConstructorContract,
-                                                           SIMPLE_CONSTRUCTOR_RUNTIME):
+async def test_async_contract_deployment_with_constructor_without_args(
+        async_w3,
+        AsyncSimpleConstructorContract,
+        SIMPLE_CONSTRUCTOR_RUNTIME):
     deploy_txn = await AsyncSimpleConstructorContract.constructor().transact()
 
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -149,7 +150,6 @@ async def test_async_contract_deployment_with_constructor_with_arguments(
     ):
         deploy_txn = await AsyncWithConstructorArgumentsContract.constructor(1234, 'abcd').transact()  # noqa: E501
 
-
         txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
         assert txn_receipt is not None
 
@@ -158,7 +158,6 @@ async def test_async_contract_deployment_with_constructor_with_arguments(
 
         blockchain_code = await async_w3.eth.get_code(contract_address)
         assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
-
 
 
 @pytest.mark.asyncio
@@ -171,7 +170,7 @@ async def test_async_contract_deployment_with_constructor_with_arguments_strict(
         AsyncWithConstructorArgumentsContractStrict,
         WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
         constructor_arg):
-    
+
     deploy_txn = await AsyncWithConstructorArgumentsContractStrict.constructor(
         1234, constructor_arg
     ).transact()
