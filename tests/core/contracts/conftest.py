@@ -1081,7 +1081,7 @@ def AsyncSimpleConstructorContract(async_w3,
         bytecode=SIMPLE_CONSTRUCTOR_CODE,
         bytecode_runtime=SIMPLE_CONSTRUCTOR_RUNTIME,
     )
-    
+
 
 @pytest.fixture()
 def AsyncWithConstructorArgumentsContract(async_w3,
@@ -1093,7 +1093,7 @@ def AsyncWithConstructorArgumentsContract(async_w3,
         bytecode=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
         bytecode_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
     )
-    
+
 
 @pytest.fixture()
 def AsyncWithConstructorArgumentsContractStrict(async_w3_strict_abi,
