@@ -114,7 +114,6 @@ from web3.types import (
 class BaseEth(Module):
     _default_account: Union[ChecksumAddress, Empty] = empty
     _default_block: BlockIdentifier = "latest"
-    _default_chain_id: Optional[int] = None
     gasPriceStrategy = None
 
     _gas_price: Method[Callable[[], Wei]] = Method(
@@ -358,14 +357,7 @@ class AsyncEth(BaseEth):
 
     @property
     async def chain_id(self) -> int:
-        if self._default_chain_id is None:
-            return await self._chain_id()  # type: ignore
-        else:
-            return self._default_chain_id
-
-    @chain_id.setter
-    def chain_id(self, value: int) -> None:
-        self._default_chain_id = value
+        return await self._chain_id()  # type: ignore
 
     @property
     async def coinbase(self) -> ChecksumAddress:
@@ -637,14 +629,7 @@ class Eth(BaseEth):
 
     @property
     def chain_id(self) -> int:
-        if self._default_chain_id is None:
-            return self._chain_id()
-        else:
-            return self._default_chain_id
-
-    @chain_id.setter
-    def chain_id(self, value: int) -> None:
-        self._default_chain_id = value
+        return self._chain_id()
 
     @property
     def chainId(self) -> int:
