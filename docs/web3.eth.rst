@@ -216,6 +216,18 @@ The following properties are available on the ``web3.eth`` namespace.
        >>> web3.eth.chain_id
        61
 
+   .. note::
+
+      This property gets called frequently in validation middleware,
+      but `chain_id` is added to the ``simple_cache_middleware`` by default.
+      Add the :meth:`simple_cache_middleware<web3.middleware.construct_simple_cache_middleware>`
+      to the ``middleware_onion`` to increase performance:
+
+       .. code-block:: python
+
+          >>> from web3.middleware import simple_cache_middleware
+          >>> w3.middleware_onion.add(simple_cache_middleare)
+
 
 .. py:attribute:: Eth.chainId
 
