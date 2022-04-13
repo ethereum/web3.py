@@ -1,1 +1,0 @@
-Add sync chain_id to ``simple_middleware_cache``

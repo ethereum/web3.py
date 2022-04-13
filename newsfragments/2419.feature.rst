@@ -1,1 +1,0 @@
-Add an optional ``strict`` flag for ``ENS.name()`` that will perform a validation, recommended by ENS, against the forward resolution to make sure the address matches. This will be default behavior in v6.

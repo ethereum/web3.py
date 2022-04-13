@@ -3,6 +3,34 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.29.0 (2022-04-13)
+--------------------
+
+Features
+~~~~~~~~
+
+- Added session caching to the AsyncHTTPProvider (`#2016
+  <https://github.com/ethereum/web3.py/issues/2016>`__)
+- Add 'get_text' method to look up ENS text record values (`#2286
+  <https://github.com/ethereum/web3.py/issues/2286>`__)
+- Add async `eth.get_storage_at` method (`#2350
+  <https://github.com/ethereum/web3.py/issues/2350>`__)
+- Upgrade ``jsonschema`` version range to >=3.2.0<5 (`#2360
+  <https://github.com/ethereum/web3.py/issues/2360>`__)
+- Add an optional ``strict`` flag for ``ENS.name()`` that will perform a
+  validation, recommended by ENS, against the forward resolution to make sure
+  the address matches. This will be default behavior in v6. (`#2419
+  <https://github.com/ethereum/web3.py/issues/2419>`__)
+- Add sync chain_id to ``simple_middleware_cache`` (`#2425
+  <https://github.com/ethereum/web3.py/issues/2425>`__)
+
+
+Misc
+~~~~
+
+- `#2353 <https://github.com/ethereum/web3.py/issues/2353>`__
+
+
 v5.28.0 (2022-02-09)
 --------------------
 
