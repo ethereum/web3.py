@@ -8,8 +8,8 @@ from eth_utils import (
 import pytest_asyncio
 
 from utils import (
-    deploy,
     async_deploy,
+    deploy,
 )
 from web3._utils.module_testing.emitter_contract import (
     CONTRACT_EMITTER_ABI,
@@ -181,7 +181,7 @@ def MathContract(w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
         bytecode=MATH_CODE,
         bytecode_runtime=MATH_RUNTIME,
     )
-    
+
 
 @pytest.fixture()
 def math_contract(w3, MathContract, address_conversion_func):
