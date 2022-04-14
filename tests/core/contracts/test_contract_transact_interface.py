@@ -16,11 +16,6 @@ from web3.exceptions import (
 
 
 @pytest.fixture()
-def math_contract(w3, MathContract, address_conversion_func):
-    return deploy(w3, MathContract, address_conversion_func)
-
-
-@pytest.fixture()
 def string_contract(w3, StringContract, address_conversion_func):
     return deploy(w3, StringContract, address_conversion_func, args=["Caqalai"])
 

@@ -43,11 +43,6 @@ def address_reflector_contract(w3, AddressReflectorContract, address_conversion_
 
 
 @pytest.fixture()
-def math_contract(w3, MathContract, address_conversion_func):
-    return deploy(w3, MathContract, address_conversion_func)
-
-
-@pytest.fixture()
 def string_contract(w3, StringContract, address_conversion_func):
     return deploy(w3, StringContract, address_conversion_func, args=["Caqalai"])
 

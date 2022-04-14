@@ -16,11 +16,6 @@ def address(w3):
 
 
 @pytest.fixture()
-def math_contract(w3, MathContract, address_conversion_func):
-    return deploy(w3, MathContract, address_conversion_func)
-
-
-@pytest.fixture()
 def caller_tester_contract(w3, CallerTesterContract, address_conversion_func):
     return deploy(w3, CallerTesterContract, address_conversion_func)
 

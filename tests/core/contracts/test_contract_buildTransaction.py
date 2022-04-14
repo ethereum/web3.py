@@ -10,17 +10,6 @@ from web3.exceptions import (
 
 
 @pytest.fixture()
-def math_contract(w3, MathContract, address_conversion_func):
-    deploy_txn = MathContract.constructor().transact()
-    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
-    assert deploy_receipt is not None
-    math_contract_address = address_conversion_func(deploy_receipt['contractAddress'])
-    _math_contract = MathContract(address=math_contract_address)
-    assert _math_contract.address == math_contract_address
-    return _math_contract
-
-
-@pytest.fixture()
 def fallback_function_contract(w3, FallbackFunctionContract, address_conversion_func):
     deploy_txn = FallbackFunctionContract.constructor().transact()
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)

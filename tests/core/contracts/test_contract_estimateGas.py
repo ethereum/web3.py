@@ -11,30 +11,6 @@ def wait_for_first_block(w3, wait_for_block):
 
 
 @pytest.fixture()
-def math_contract(w3,
-                  MATH_ABI,
-                  MATH_CODE,
-                  MATH_RUNTIME,
-                  wait_for_transaction,
-                  address_conversion_func):
-    MathContract = w3.eth.contract(
-        abi=MATH_ABI,
-        bytecode=MATH_CODE,
-        bytecode_runtime=MATH_RUNTIME,
-    )
-    deploy_txn = MathContract.constructor().transact({'from': w3.eth.coinbase})
-    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
-
-    assert deploy_receipt is not None
-    contract_address = address_conversion_func(deploy_receipt['contractAddress'])
-    w3.isAddress(contract_address)
-
-    _math_contract = MathContract(address=contract_address)
-    assert _math_contract.address == contract_address
-    return _math_contract
-
-
-@pytest.fixture()
 def fallback_function_contract(w3,
                                FALLBACK_FUNCTION_ABI,
                                FALLBACK_FUNCTION_CODE,

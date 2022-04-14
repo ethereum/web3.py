@@ -8,6 +8,7 @@ from eth_utils import (
 import pytest_asyncio
 
 from utils import (
+    deploy,
     async_deploy,
 )
 from web3._utils.module_testing.emitter_contract import (
@@ -180,6 +181,11 @@ def MathContract(w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
         bytecode=MATH_CODE,
         bytecode_runtime=MATH_RUNTIME,
     )
+    
+
+@pytest.fixture()
+def math_contract(w3, MathContract, address_conversion_func):
+    return deploy(w3, MathContract, address_conversion_func)
 
 
 CONTRACT_SIMPLE_CONSTRUCTOR_CODE = '0x60606040526003600055602c8060156000396000f3606060405260e060020a600035046373d4a13a8114601a575b005b602260005481565b6060908152602090f3'  # noqa: E501
