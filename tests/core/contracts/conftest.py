@@ -5,11 +5,11 @@ import pytest
 from eth_utils import (
     event_signature_to_log_topic,
 )
-from eth_utils.toolz import (
-    identity,
-)
 import pytest_asyncio
 
+from utils import (
+    async_deploy,
+)
 from web3._utils.module_testing.emitter_contract import (
     CONTRACT_EMITTER_ABI,
     CONTRACT_EMITTER_CODE,
@@ -1043,18 +1043,6 @@ def estimate_gas(request):
 @pytest.fixture
 def build_transaction(request):
     return functools.partial(invoke_contract, api_call_desig='build_transaction')
-
-
-async def async_deploy(async_web3, Contract, apply_func=identity, args=None):
-    args = args or []
-    deploy_txn = await Contract.constructor(*args).transact()
-    deploy_receipt = await async_web3.eth.wait_for_transaction_receipt(deploy_txn)
-    assert deploy_receipt is not None
-    address = apply_func(deploy_receipt['contractAddress'])
-    contract = Contract(address=address)
-    assert contract.address == address
-    assert len(await async_web3.eth.get_code(contract.address)) > 0
-    return contract
 
 
 @pytest_asyncio.fixture()

@@ -15,13 +15,13 @@ from eth_tester.exceptions import (
 from eth_utils import (
     is_text,
 )
-from eth_utils.toolz import (
-    identity,
-)
 from hexbytes import (
     HexBytes,
 )
 
+from utils import (
+    deploy,
+)
 from web3._utils.ens import (
     contract_ens_addresses,
 )
@@ -35,18 +35,6 @@ from web3.exceptions import (
     NoABIFunctionsFound,
     ValidationError,
 )
-
-
-def deploy(w3, Contract, apply_func=identity, args=None):
-    args = args or []
-    deploy_txn = Contract.constructor(*args).transact()
-    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
-    assert deploy_receipt is not None
-    address = apply_func(deploy_receipt['contractAddress'])
-    contract = Contract(address=address)
-    assert contract.address == address
-    assert len(w3.eth.get_code(contract.address)) > 0
-    return contract
 
 
 @pytest.fixture()

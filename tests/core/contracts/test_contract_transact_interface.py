@@ -3,28 +3,16 @@ import pytest
 from eth_utils import (
     to_bytes,
 )
-from eth_utils.toolz import (
-    identity,
-)
 
+from utils import (
+    deploy,
+)
 from web3._utils.empty import (
     empty,
 )
 from web3.exceptions import (
     ValidationError,
 )
-
-
-def deploy(w3, Contract, apply_func=identity, args=None):
-    args = args or []
-    deploy_txn = Contract.constructor(*args).transact()
-    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
-    assert deploy_receipt is not None
-    address = apply_func(deploy_receipt['contractAddress'])
-    contract = Contract(address=address)
-    assert contract.address == address
-    assert len(w3.eth.get_code(contract.address)) > 0
-    return contract
 
 
 @pytest.fixture()
