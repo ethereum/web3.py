@@ -154,7 +154,7 @@ TRANSACTION_RESULT_FORMATTERS = {
     'maxPriorityFeePerGas': to_integer_if_hex,
     'value': to_integer_if_hex,
     'from': to_checksum_address,
-    'publicKey': apply_formatter_if(is_not_null, to_hexbytes(64)),
+    'publicKey': apply_formatter_if(is_not_null, to_hexbytes(65, variable_length=True)),
     'r': apply_formatter_if(is_not_null, to_hexbytes(32, variable_length=True)),
     'raw': HexBytes,
     's': apply_formatter_if(is_not_null, to_hexbytes(32, variable_length=True)),
