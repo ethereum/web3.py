@@ -16,7 +16,6 @@ from .common import (
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
     GoEthereumTest,
-    GoEthereumVersionModuleTest,
 )
 
 
@@ -91,10 +90,6 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
-
-
-class TestGoEthereumVersionModuleTest(GoEthereumVersionModuleTest):
     pass
 
 

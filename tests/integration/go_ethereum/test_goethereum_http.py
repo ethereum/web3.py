@@ -43,7 +43,6 @@ from .common import (
     GoEthereumPersonalModuleTest,
     GoEthereumTest,
     GoEthereumTxPoolModuleTest,
-    GoEthereumVersionModuleTest,
 )
 from .utils import (
     wait_for_aiohttp,
@@ -158,10 +157,6 @@ class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
-
-
-class TestGoEthereumVersionModuleTest(GoEthereumVersionModuleTest):
     pass
 
 

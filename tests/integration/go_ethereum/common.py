@@ -19,7 +19,6 @@ from web3._utils.module_testing import (  # noqa: F401
     GoEthereumPersonalModuleTest,
     GoEthereumTxPoolModuleTest,
     NetModuleTest,
-    VersionModuleTest,
     Web3ModuleTest,
 )
 
@@ -72,16 +71,6 @@ class GoEthereumEthModuleTest(EthModuleTest):
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         super().test_eth_estimate_gas_with_block(w3, unlocked_account_dual_type)
-
-
-class GoEthereumVersionModuleTest(VersionModuleTest):
-    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
-    def test_eth_protocol_version(self, w3):
-        super().test_eth_protocol_version(w3)
-
-    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
-    def test_eth_protocolVersion(self, w3):
-        super().test_eth_protocolVersion(w3)
 
 
 class GoEthereumNetModuleTest(NetModuleTest):

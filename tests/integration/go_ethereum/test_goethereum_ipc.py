@@ -13,7 +13,6 @@ from .common import (
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
     GoEthereumTest,
-    GoEthereumVersionModuleTest,
 )
 from .utils import (
     wait_for_socket,
@@ -73,10 +72,6 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
-
-
-class TestGoEthereumVersionModuleTest(GoEthereumVersionModuleTest):
     pass
 
 

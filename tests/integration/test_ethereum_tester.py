@@ -18,7 +18,6 @@ from web3._utils.module_testing import (
     EthModuleTest,
     GoEthereumPersonalModuleTest,
     NetModuleTest,
-    VersionModuleTest,
     Web3ModuleTest,
 )
 from web3._utils.module_testing.emitter_contract import (
@@ -524,10 +523,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
     @disable_auto_mine
     def test_eth_send_transaction_no_max_fee(self, eth_tester, w3, unlocked_account):
         super().test_eth_send_transaction_no_max_fee(w3, unlocked_account)
-
-
-class TestEthereumTesterVersionModule(VersionModuleTest):
-    pass
 
 
 class TestEthereumTesterNetModule(NetModuleTest):
