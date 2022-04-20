@@ -18,19 +18,13 @@ from hexbytes.main import (
 
 from web3._utils.admin import (
     add_peer,
-    addPeer,
     datadir,
     node_info,
-    nodeInfo,
     peers,
     start_rpc,
     start_ws,
-    startRPC,
-    startWS,
     stop_rpc,
     stop_ws,
-    stopRPC,
-    stopWS,
 )
 from web3._utils.miner import (
     make_dag,
@@ -273,13 +267,6 @@ class BaseGethAdmin(Module):
     _start_ws = start_ws
     _stop_ws = stop_ws
     _stop_rpc = stop_rpc
-    # deprecated
-    _addPeer = addPeer
-    _nodeInfo = nodeInfo
-    _startRPC = startRPC
-    _startWS = startWS
-    _stopRPC = stopRPC
-    _stopWS = stopWS
 
 
 class GethAdmin(BaseGethAdmin):
@@ -316,32 +303,6 @@ class GethAdmin(BaseGethAdmin):
 
     def stop_ws(self) -> bool:
         return self._stop_ws()
-
-    def addPeer(self, node_url: EnodeURI) -> bool:
-        return self._addPeer(node_url)
-
-    def nodeInfo(self) -> NodeInfo:
-        return self._nodeInfo()
-
-    def startRPC(self,
-                 host: str = "localhost",
-                 port: int = 8546,
-                 cors: str = "",
-                 apis: str = "eth,net,web3") -> bool:
-        return self._startRPC(host, port, cors, apis)
-
-    def startWS(self,
-                host: str = "localhost",
-                port: int = 8546,
-                cors: str = "",
-                apis: str = "eth,net,web3") -> bool:
-        return self._startWS(host, port, cors, apis)
-
-    def stopRPC(self) -> bool:
-        return self._stopRPC()
-
-    def stopWS(self) -> bool:
-        return self._stopWS()
 
 
 class AsyncGethAdmin(BaseGethAdmin):

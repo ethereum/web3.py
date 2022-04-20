@@ -255,10 +255,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_sign_typed_data,
         ValueError
     )
-    test_eth_signTransaction_deprecated = not_implemented(
-        EthModuleTest.test_eth_signTransaction_deprecated,
-        ValueError
-    )
     test_eth_sign_transaction_legacy = not_implemented(
         EthModuleTest.test_eth_sign_transaction_legacy,
         ValueError
