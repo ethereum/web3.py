@@ -451,17 +451,14 @@ class Contract:
     @combomethod
     def get_function_by_selector(self, selector: Union[bytes, int, HexStr]) -> 'ContractFunction':
         def callable_check(fn_abi: ABIFunction) -> bool:
-            # typed dict cannot be used w/ a normal Dict
-            # https://github.com/python/mypy/issues/4976
-            return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(selector)  # type: ignore # noqa: E501
+            return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(selector)
 
         fns = find_functions_by_identifier(self.abi, self.w3, self.address, callable_check)
         return get_function_by_identifier(fns, 'selector')
 
     @combomethod
-    def decode_function_input(self, data: HexStr) -> Tuple['ContractFunction', Dict[str, Any]]:
-        # type ignored b/c expects data arg to be HexBytes
-        data = HexBytes(data)  # type: ignore
+    def decode_function_input(self, data_str: HexStr) -> Tuple['ContractFunction', Dict[str, Any]]:
+        data = HexBytes(data_str)
         selector, params = data[:4], data[4:]
         func = self.get_function_by_selector(selector)
 
@@ -635,8 +632,7 @@ class ContractConstructor:
                                                      ["data", "to"])
 
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault('from', self.w3.eth.default_account)  # type: ignore # noqa: E501
+            estimate_gas_transaction.setdefault('from', self.w3.eth.default_account)
 
         estimate_gas_transaction['data'] = self.data_in_transaction
 
@@ -654,8 +650,7 @@ class ContractConstructor:
                                                      ["data", "to"])
 
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault('from', self.w3.eth.default_account)  # type: ignore
+            transact_transaction.setdefault('from', self.w3.eth.default_account)
 
         transact_transaction['data'] = self.data_in_transaction
 
@@ -676,8 +671,7 @@ class ContractConstructor:
                                                      ["data", "to"])
 
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            built_transaction.setdefault('from', self.w3.eth.default_account)  # type: ignore
+            built_transaction.setdefault('from', self.w3.eth.default_account)
 
         built_transaction['data'] = self.data_in_transaction
         built_transaction['to'] = Address(b'')
@@ -890,8 +884,7 @@ class ContractFunction:
         if self.function_identifier in [FallbackFn, ReceiveFn]:
             self.selector = encode_hex(b'')
         elif is_text(self.function_identifier):
-            # https://github.com/python/mypy/issues/4976
-            self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))  # type: ignore
+            self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
         else:
             raise TypeError("Unsupported function identifier")
 
@@ -937,8 +930,7 @@ class ContractFunction:
         if self.address:
             call_transaction.setdefault('to', self.address)
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            call_transaction.setdefault('from', self.w3.eth.default_account)  # type: ignore
+            call_transaction.setdefault('from', self.w3.eth.default_account)
 
         if 'to' not in call_transaction:
             if isinstance(self, type):
@@ -980,8 +972,7 @@ class ContractFunction:
         if self.address is not None:
             transact_transaction.setdefault('to', self.address)
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault('from', self.w3.eth.default_account)  # type: ignore
+            transact_transaction.setdefault('from', self.w3.eth.default_account)
 
         if 'to' not in transact_transaction:
             if isinstance(self, type):
@@ -1022,8 +1013,7 @@ class ContractFunction:
         if self.address:
             estimate_gas_transaction.setdefault('to', self.address)
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault('from', self.w3.eth.default_account)  # type: ignore # noqa: E501
+            estimate_gas_transaction.setdefault('from', self.w3.eth.default_account)  # noqa: E501
 
         if 'to' not in estimate_gas_transaction:
             if isinstance(self, type):

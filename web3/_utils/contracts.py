@@ -289,10 +289,7 @@ def get_function_info(
     if fn_abi is None:
         fn_abi = find_matching_fn_abi(contract_abi, abi_codec, fn_name, args, kwargs)
 
-    # typed dict cannot be used w/ a normal Dict
-    # https://github.com/python/mypy/issues/4976
-    fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))  # type: ignore
-
+    fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
     fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
 
     _, aligned_fn_arguments = get_aligned_abi_inputs(fn_abi, fn_arguments)

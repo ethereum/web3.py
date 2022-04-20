@@ -114,9 +114,7 @@ def construct_event_topic_set(
         for key, value in arguments.items()  # type: ignore
     }
 
-    # typed dict cannot be used w/ a normal Dict
-    # https://github.com/python/mypy/issues/4976
-    event_topic = encode_hex(event_abi_to_log_topic(event_abi))  # type: ignore
+    event_topic = encode_hex(event_abi_to_log_topic(event_abi))
     indexed_args = get_indexed_event_inputs(event_abi)
     zipped_abi_and_args = [
         (arg, normalized_args.get(arg['name'], [None]))
@@ -129,8 +127,7 @@ def construct_event_topic_set(
         for arg, arg_options in zipped_abi_and_args
     ]
 
-    topics = list(normalize_topic_list([event_topic] + encoded_args))  # type: ignore
-    return topics
+    return list(normalize_topic_list([event_topic] + encoded_args))
 
 
 def construct_event_data_set(
@@ -207,8 +204,7 @@ def get_event_data(abi_codec: ABICodec, event_abi: ABIEvent, log_entry: LogRecei
         log_topics = log_entry['topics']
     elif not log_entry['topics']:
         raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
-    # type ignored b/c event_abi_to_log_topic(event_abi: Dict[str, Any])
-    elif event_abi_to_log_topic(event_abi) != log_entry['topics'][0]:  # type: ignore
+    elif event_abi_to_log_topic(event_abi) != log_entry['topics'][0]:
         raise MismatchedABI("The event signature did not match the provided ABI")
     else:
         log_topics = log_entry['topics'][1:]
@@ -416,8 +412,7 @@ class EventFilterBuilder:
 
 def initialize_event_topics(event_abi: ABIEvent) -> Union[bytes, List[Any]]:
     if event_abi['anonymous'] is False:
-        # https://github.com/python/mypy/issues/4976
-        return event_abi_to_log_topic(event_abi)  # type: ignore
+        return event_abi_to_log_topic(event_abi)
     else:
         return list()
 

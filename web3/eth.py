@@ -353,8 +353,7 @@ class AsyncEth(BaseEth):
 
     @property
     async def block_number(self) -> BlockNumber:
-        # types ignored b/c mypy conflict with BlockingEth properties
-        return await self.get_block_number()  # type: ignore
+        return await self.get_block_number()
 
     @property
     async def chain_id(self) -> int:
@@ -369,8 +368,7 @@ class AsyncEth(BaseEth):
 
     @property
     async def coinbase(self) -> ChecksumAddress:
-        # types ignored b/c mypy conflict with BlockingEth properties
-        return await self.get_coinbase()  # type: ignore
+        return await self.get_coinbase()
 
     @property
     async def gas_price(self) -> Wei:
@@ -414,26 +412,22 @@ class AsyncEth(BaseEth):
             block_count, newest_block, reward_percentiles)
 
     async def send_transaction(self, transaction: TxParams) -> HexBytes:
-        # types ignored b/c mypy conflict with BlockingEth properties
-        return await self._send_transaction(transaction)  # type: ignore
+        return await self._send_transaction(transaction)
 
     async def send_raw_transaction(self, transaction: Union[HexStr, bytes]) -> HexBytes:
-        # types ignored b/c mypy conflict with BlockingEth properties
-        return await self._send_raw_transaction(transaction)  # type: ignore
+        return await self._send_raw_transaction(transaction)
 
     async def get_transaction(self, transaction_hash: _Hash32) -> TxData:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._get_transaction(transaction_hash)  # type: ignore
 
     async def get_raw_transaction(self, transaction_hash: _Hash32) -> TxData:
-        # types ignored b/c mypy conflict with BlockingEth properties
-        return await self._get_raw_transaction(transaction_hash)  # type: ignore
+        return await self._get_raw_transaction(transaction_hash)
 
     async def get_raw_transaction_by_block(
         self, block_identifier: BlockIdentifier, index: int
     ) -> HexBytes:
-        # types ignored b/c mypy conflict with BlockingEth properties
-        return await self._get_raw_transaction_by_block(block_identifier, index)  # type: ignore
+        return await self._get_raw_transaction_by_block(block_identifier, index)
 
     async def generate_gas_price(
         self, transaction_params: Optional[TxParams] = None

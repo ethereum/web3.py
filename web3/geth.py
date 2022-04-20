@@ -187,10 +187,10 @@ class AsyncGethPersonal(BaseGethPersonal):
     is_async = True
 
     async def ec_recover(self, message: str, signature: HexStr) -> Awaitable[ChecksumAddress]:
-        return await self._ec_recover(message, signature)  # type: ignore
+        return await self._ec_recover(message, signature)
 
     async def import_raw_key(self, private_key: str, passphrase: str) -> Awaitable[ChecksumAddress]:
-        return await self._import_raw_key(private_key, passphrase)  # type: ignore
+        return await self._import_raw_key(private_key, passphrase)
 
     async def list_accounts(self) -> Awaitable[List[ChecksumAddress]]:
         return await self._list_accounts()  # type: ignore
@@ -202,22 +202,22 @@ class AsyncGethPersonal(BaseGethPersonal):
         return await self._lock_account(account)  # type: ignore
 
     async def new_account(self, passphrase: str) -> Awaitable[ChecksumAddress]:
-        return await self._new_account(passphrase)  # type: ignore
+        return await self._new_account(passphrase)
 
     async def send_transaction(self, transaction: TxParams, passphrase: str) -> Awaitable[HexBytes]:
-        return await self._send_transaction(transaction, passphrase)  # type: ignore
+        return await self._send_transaction(transaction, passphrase)
 
     async def sign(self,
                    message: str,
                    account: ChecksumAddress,
                    password: Optional[str]) -> Awaitable[HexStr]:
-        return await self._sign(message, account, password)  # type: ignore
+        return await self._sign(message, account, password)
 
     async def sign_typed_data(self,
                               message: Dict[str, Any],
                               account: ChecksumAddress,
                               password: Optional[str]) -> Awaitable[HexStr]:
-        return await self._sign_typed_data(message, account, password)  # type: ignore
+        return await self._sign_typed_data(message, account, password)
 
     async def unlock_account(self,
                              account: ChecksumAddress,

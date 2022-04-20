@@ -85,8 +85,7 @@ def construct_event_filter_params(
         topic_set = topics
 
     if len(topic_set) == 1 and is_list_like(topic_set[0]):
-        # type ignored b/c list-like check on line 88
-        filter_params['topics'] = topic_set[0]  # type: ignore
+        filter_params['topics'] = topic_set[0]
     else:
         filter_params['topics'] = topic_set
 

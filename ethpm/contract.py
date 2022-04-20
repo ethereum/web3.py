@@ -55,8 +55,7 @@ class LinkableContract(Contract):
                 "Contract cannot be instantiated until its bytecode is linked."
             )
         validate_address(address)
-        # type ignored to allow for undefined **kwargs on `Contract` base class __init__
-        super().__init__(address=address, **kwargs)  # type: ignore
+        super().__init__(address=address, **kwargs)
 
     @classmethod
     def factory(

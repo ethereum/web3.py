@@ -202,9 +202,8 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
     def __init__(self, subencoder: encoding.BaseEncoder) -> None:
         self.subencoder = subencoder
 
-    # type ignored b/c conflict w/ defined BaseEncoder.is_dynamic = False
     @property
-    def is_dynamic(self) -> bool:  # type: ignore
+    def is_dynamic(self) -> bool:
         return self.subencoder.is_dynamic
 
     @classmethod
@@ -220,9 +219,8 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
             raise AttributeError(f'No subencoder class is set. {cls.__name__}')
         return cls.subencoder_cls
 
-    # type ignored b/c combomethod makes signature conflict w/ defined BaseEncoder.validate_value()
     @combomethod
-    def validate_value(self, value: Any) -> None:  # type: ignore
+    def validate_value(self, value: Any) -> None:
         normalized_value = self.validate_and_normalize(value)
         return self.subencoder.validate_value(normalized_value)
 
@@ -300,8 +298,7 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
         normalized_value = self.validate_value(value)
         return self.encode_fn(normalized_value)
 
-    # type ignored b/c conflict with defined BaseEncoder.validate_value() -> None
-    def validate_value(self, value: Any) -> bytes:  # type: ignore
+    def validate_value(self, value: Any) -> bytes:
         if not is_bytes(value) and not is_text(value):
             self.invalidate_value(value)
 
@@ -342,9 +339,7 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
 
     @parse_type_str('bytes')
     def from_type_str(cls, abi_type: BasicType, registry: ABIRegistry) -> bytes:
-        # type ignored b/c kwargs are set in superclass init
-        # Unexpected keyword argument "value_bit_size" for "__call__" of "BaseEncoder"
-        return cls(  # type: ignore
+        return cls(
             value_bit_size=abi_type.sub * 8,
             data_byte_size=abi_type.sub,
         )
@@ -352,18 +347,16 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
 
 class BytesDecoder(decoding.FixedByteSizeDecoder):
     # FixedByteSizeDecoder.is_big_endian is defined as None
-    is_big_endian = False  # type: ignore
+    is_big_endian = False
 
     # FixedByteSizeDecoder.decoder_fn is defined as None
     @staticmethod
-    def decoder_fn(data: bytes) -> bytes:  # type: ignore
+    def decoder_fn(data: bytes) -> bytes:
         return data
 
     @parse_type_str('bytes')
     def from_type_str(cls, abi_type: BasicType, registry: ABIRegistry) -> bytes:
-        # type ignored b/c kwargs are set in superclass init
-        # Unexpected keyword argument "value_bit_size" for "__call__" of "BaseDecoder"
-        return cls(  # type: ignore
+        return cls(
             value_bit_size=abi_type.sub * 8,
             data_byte_size=abi_type.sub,
         )
@@ -565,9 +558,7 @@ def get_aligned_abi_inputs(
         args = tuple(args[abi['name']] for abi in input_abis)
 
     return (
-        # typed dict cannot be used w/ a normal Dict
-        # https://github.com/python/mypy/issues/4976
-        tuple(collapse_if_tuple(abi) for abi in input_abis),  # type: ignore
+        tuple(collapse_if_tuple(abi) for abi in input_abis),
         type(args)(
             _align_abi_input(abi, arg)
             for abi, arg in zip(input_abis, args)

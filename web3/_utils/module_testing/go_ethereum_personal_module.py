@@ -357,16 +357,15 @@ class GoEthereumAsyncPersonalModuleTest:
                                              unlockable_account_dual_type: ChecksumAddress,
                                              unlockable_account_pw: str) -> None:
         message = "This is a test"
-        signature = await async_w3.geth.personal.sign(message,  # type: ignore
+        signature = await async_w3.geth.personal.sign(message,
                                                       unlockable_account_dual_type,
                                                       unlockable_account_pw)
-        address = await async_w3.geth.personal.ec_recover(message, signature)  # type: ignore
+        address = await async_w3.geth.personal.ec_recover(message, signature)
         assert is_same_address(unlockable_account_dual_type, address)
 
     @pytest.mark.asyncio
     async def test_async_import_key(self, async_w3: "Web3") -> None:
-        address = await async_w3.geth.personal.import_raw_key(THIRD_PRIVATE_KEY_HEX,  # type: ignore
-                                                              "Testing")
+        address = await async_w3.geth.personal.import_raw_key(THIRD_PRIVATE_KEY_HEX, "Testing")
         assert address is not None
 
     @pytest.mark.asyncio
@@ -382,7 +381,7 @@ class GoEthereumAsyncPersonalModuleTest:
     @pytest.mark.asyncio
     async def test_async_new_account(self, async_w3: "Web3") -> None:
         passphrase = "Create New Account"
-        account = await async_w3.geth.personal.new_account(passphrase)  # type: ignore
+        account = await async_w3.geth.personal.new_account(passphrase)
         assert is_checksum_address(account)
 
     @pytest.mark.asyncio
@@ -407,7 +406,7 @@ class GoEthereumAsyncPersonalModuleTest:
         tx_params["to"] = unlockable_account_dual_type
         tx_params["from"] = unlockable_account_dual_type
         tx_params["value"] = Wei(123)
-        response = await async_w3.geth.personal.send_transaction(  # type: ignore
+        response = await async_w3.geth.personal.send_transaction(
             tx_params,
             unlockable_account_pw)
         assert response is not None
@@ -419,7 +418,7 @@ class GoEthereumAsyncPersonalModuleTest:
                                          unlockable_account_dual_type: ChecksumAddress,
                                          unlockable_account_pw: str) -> None:
         message = {"message": "This is a test"}
-        signature = await async_w3.geth.personal.sign_typed_data(message,  # type: ignore
+        signature = await async_w3.geth.personal.sign_typed_data(message,
                                                                  unlockable_account_dual_type,
                                                                  unlockable_account_pw)
         address = await async_w3.geth.personal.ec_recover(message, signature)  # type: ignore

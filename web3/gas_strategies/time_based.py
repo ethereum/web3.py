@@ -81,8 +81,7 @@ def _get_raw_miner_data(
     latest = w3.eth.get_block('latest', full_transactions=True)
 
     for transaction in latest['transactions']:
-        # type ignored b/c actual transaction is TxData not HexBytes
-        yield (latest['miner'], latest['hash'], transaction['gasPrice'])  # type: ignore
+        yield (latest['miner'], latest['hash'], transaction['gasPrice'])
 
     block = latest
 
@@ -95,7 +94,7 @@ def _get_raw_miner_data(
         block = w3.eth.get_block(block['parentHash'], full_transactions=True)
         for transaction in block['transactions']:
             # type ignored b/c actual transaction is TxData not HexBytes
-            yield (block['miner'], block['hash'], transaction['gasPrice'])  # type: ignore
+            yield (block['miner'], block['hash'], transaction['gasPrice'])
 
 
 def _aggregate_miner_data(
