@@ -1155,20 +1155,6 @@ class AsyncEthModuleTest:
 
 
 class EthModuleTest:
-    def test_eth_protocol_version(self, w3: "Web3") -> None:
-        with pytest.warns(DeprecationWarning,
-                          match="This method has been deprecated in some clients"):
-            protocol_version = w3.eth.protocol_version
-
-        assert is_string(protocol_version)
-        assert protocol_version.isdigit()
-
-    def test_eth_protocolVersion(self, w3: "Web3") -> None:
-        with pytest.warns(DeprecationWarning):
-            protocol_version = w3.eth.protocolVersion
-
-        assert is_string(protocol_version)
-        assert protocol_version.isdigit()
 
     def test_eth_syncing(self, w3: "Web3") -> None:
         syncing = w3.eth.syncing
@@ -1511,58 +1497,6 @@ class EthModuleTest:
         '''
         skip_if_testrpc(w3)
         signature = HexBytes(w3.eth.sign_typed_data(
-            unlocked_account_dual_type,
-            json.loads(validJSONMessage)
-        ))
-        assert len(signature) == 32 + 32 + 1
-
-    def test_eth_signTypedData_deprecated(
-        self,
-        w3: "Web3",
-        unlocked_account_dual_type: ChecksumAddress,
-        skip_if_testrpc: Callable[["Web3"], None],
-    ) -> None:
-        validJSONMessage = '''
-            {
-                "types": {
-                    "EIP712Domain": [
-                        {"name": "name", "type": "string"},
-                        {"name": "version", "type": "string"},
-                        {"name": "chainId", "type": "uint256"},
-                        {"name": "verifyingContract", "type": "address"}
-                    ],
-                    "Person": [
-                        {"name": "name", "type": "string"},
-                        {"name": "wallet", "type": "address"}
-                    ],
-                    "Mail": [
-                        {"name": "from", "type": "Person"},
-                        {"name": "to", "type": "Person"},
-                        {"name": "contents", "type": "string"}
-                    ]
-                },
-                "primaryType": "Mail",
-                "domain": {
-                    "name": "Ether Mail",
-                    "version": "1",
-                    "chainId": "0x01",
-                    "verifyingContract": "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC"
-                },
-                "message": {
-                    "from": {
-                        "name": "Cow",
-                        "wallet": "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"
-                    },
-                    "to": {
-                        "name": "Bob",
-                        "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"
-                    },
-                    "contents": "Hello, Bob!"
-                }
-            }
-        '''
-        skip_if_testrpc(w3)
-        signature = HexBytes(w3.eth.signTypedData(
             unlocked_account_dual_type,
             json.loads(validJSONMessage)
         ))
@@ -2420,19 +2354,6 @@ class EthModuleTest:
             'to': unlocked_account_dual_type,
             'value': Wei(1),
         })
-        assert is_integer(gas_estimate)
-        assert gas_estimate > 0
-
-    def test_eth_estimateGas_deprecated(
-        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
-    ) -> None:
-        with pytest.warns(DeprecationWarning,
-                          match="estimateGas is deprecated in favor of estimate_gas"):
-            gas_estimate = w3.eth.estimateGas({
-                'from': unlocked_account_dual_type,
-                'to': unlocked_account_dual_type,
-                'value': Wei(1),
-            })
         assert is_integer(gas_estimate)
         assert gas_estimate > 0
 
