@@ -16,9 +16,6 @@ from .net_module import (  # noqa: F401
 from .go_ethereum_personal_module import (  # noqa: F401
     GoEthereumPersonalModuleTest,
 )
-from .version_module import (  # noqa: F401
-    VersionModuleTest,
-)
 from .web3_module import (  # noqa: F401
     Web3ModuleTest,
 )
