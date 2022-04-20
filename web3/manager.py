@@ -67,8 +67,7 @@ def apply_error_formatters(
     response: RPCResponse,
 ) -> RPCResponse:
     if error_formatters:
-        formatted_resp = pipe(response, error_formatters)
-        return formatted_resp
+        return pipe(response, error_formatters)
     else:
         return response
 
@@ -79,8 +78,7 @@ def apply_null_result_formatters(
     params: Optional[Any] = None,
 ) -> RPCResponse:
     if null_result_formatters:
-        formatted_resp = pipe(params, null_result_formatters)
-        return formatted_resp
+        return pipe(params, null_result_formatters)
     else:
         return response
 

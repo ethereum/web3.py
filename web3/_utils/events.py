@@ -129,8 +129,7 @@ def construct_event_topic_set(
         for arg, arg_options in zipped_abi_and_args
     ]
 
-    topics = list(normalize_topic_list([event_topic] + encoded_args))  # type: ignore
-    return topics
+    return list(normalize_topic_list([event_topic] + encoded_args))  # type: ignore
 
 
 def construct_event_data_set(
@@ -169,13 +168,12 @@ def construct_event_data_set(
         for arg, arg_options in zipped_abi_and_args
     ]
 
-    data = [
+    return [
         list(permutation)
         if any(value is not None for value in permutation)
         else []
         for permutation in itertools.product(*encoded_args)
     ]
-    return data
 
 
 def is_dynamic_sized_type(type_str: TypeStr) -> bool:
@@ -295,9 +293,7 @@ normalize_topic_list = compose(
 
 
 def is_indexed(arg: Any) -> bool:
-    if isinstance(arg, TopicArgumentFilter) is True:
-        return True
-    return False
+    return isinstance(arg, TopicArgumentFilter)
 
 
 is_not_indexed = complement(is_indexed)
@@ -515,5 +511,5 @@ class EventLogErrorFlags(Enum):
     Warn = 'warn'
 
     @classmethod
-    def flag_options(self) -> List[str]:
-        return [key.upper() for key in self.__members__.keys()]
+    def flag_options(cls) -> List[str]:
+        return [key.upper() for key in cls.__members__.keys()]

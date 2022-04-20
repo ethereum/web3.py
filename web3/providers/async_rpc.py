@@ -64,8 +64,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
     def get_request_kwargs(self) -> Iterable[Tuple[str, Any]]:
         if 'headers' not in self._request_kwargs:
             yield 'headers', self.get_request_headers()
-        for key, value in self._request_kwargs.items():
-            yield key, value
+        yield from self._request_kwargs.items()
 
     def get_request_headers(self) -> Dict[str, str]:
         return {

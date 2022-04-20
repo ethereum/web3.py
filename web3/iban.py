@@ -149,8 +149,8 @@ class Iban:
         """
         countryCode = "XE"
 
-        remainder = mod9710(iso13616Prepare(countryCode + "00" + bban))
-        checkDigit = ("0" + str(98 - remainder))[-2:]
+        remainder = mod9710(iso13616Prepare(f'{countryCode}00{bban}'))
+        checkDigit = f"0{str(98 - remainder)}"[-2:]
 
         return Iban(countryCode + checkDigit + bban)
 
@@ -174,7 +174,7 @@ class Iban:
         @method isDirect
         @returns {Boolean} true if it is, otherwise false
         """
-        return len(self._iban) in [34, 35]
+        return len(self._iban) in {34, 35}
 
     def isIndirect(self) -> bool:
         """

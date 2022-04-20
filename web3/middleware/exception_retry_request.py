@@ -80,12 +80,7 @@ whitelist = [
 
 def check_if_retry_on_failure(method: RPCEndpoint) -> bool:
     root = method.split('_')[0]
-    if root in whitelist:
-        return True
-    elif method in whitelist:
-        return True
-    else:
-        return False
+    return root in whitelist or method in whitelist
 
 
 def exception_retry_middleware(

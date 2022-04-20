@@ -91,10 +91,9 @@ def gen_bounded_segments(start: int, stop: int, step: int) -> Iterable[Tuple[int
     if start + step >= stop:
         yield (start, stop)
         return
-    for segment in zip(
-            range(start, stop - step + 1, step),
-            range(start + step, stop + 1, step)):
-        yield segment
+    yield from zip(
+        range(start, stop - step + 1, step),
+        range(start + step, stop + 1, step))
 
     remainder = (stop - start) % step
     #  Handle the remainder

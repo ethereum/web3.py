@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import json
 import logging
 import os
@@ -77,10 +78,8 @@ class PersistentWebSocket:
         self, exc_type: Type[BaseException], exc_val: BaseException, exc_tb: TracebackType
     ) -> None:
         if exc_val is not None:
-            try:
+            with contextlib.suppress(Exception):
                 await self.ws.close()
-            except Exception:
-                pass
             self.ws = None
 
 

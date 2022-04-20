@@ -26,7 +26,7 @@ def _fee_history_priority_fee_estimate(fee_history: FeeHistory) -> Wei:
 
     # prevent division by zero in the extremely unlikely case that all fees within the polled fee
     # history range for the specified percentile are 0
-    divisor = len(non_empty_block_fees) if len(non_empty_block_fees) != 0 else 1
+    divisor = len(non_empty_block_fees) or 1
 
     priority_fee_average_for_percentile = Wei(
         round(sum(non_empty_block_fees) / divisor)

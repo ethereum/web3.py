@@ -254,8 +254,7 @@ class SimpleRegistry(ERC1319Registry):
         return self._get_release_id(package_name, version)
 
     def _get_package_name(self, package_id: bytes) -> str:
-        package_name = self.registry.functions.getPackageName(package_id).call()
-        return package_name
+        return self.registry.functions.getPackageName(package_id).call()
 
     @to_tuple
     def _get_all_package_ids(self) -> Iterable[bytes]:
@@ -266,7 +265,7 @@ class SimpleRegistry(ERC1319Registry):
                 pointer,
                 (pointer + BATCH_SIZE)
             ).call()
-            if not new_pointer > pointer:
+            if new_pointer <= pointer:
                 break
             yield from reversed(new_ids)
             pointer = new_pointer
@@ -284,7 +283,7 @@ class SimpleRegistry(ERC1319Registry):
                 pointer,
                 (pointer + BATCH_SIZE)
             ).call()
-            if not new_pointer > pointer:
+            if new_pointer <= pointer:
                 break
             yield from reversed(new_ids)
             pointer = new_pointer
@@ -353,7 +352,7 @@ class PM(Module):
         if not ethpm_dir:
             ethpm_dir = Path.cwd() / '_ethpm_packages'
 
-        if not ethpm_dir.name == "_ethpm_packages" or not ethpm_dir.is_dir():
+        if ethpm_dir.name != "_ethpm_packages" or not ethpm_dir.is_dir():
             raise PMError(f"{ethpm_dir} is not a valid ethPM packages directory.")
 
         local_packages = [pkg.name for pkg in ethpm_dir.iterdir() if pkg.is_dir()]

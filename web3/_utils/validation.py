@@ -64,7 +64,7 @@ from web3.types import (  # noqa: F401
 def _prepare_selector_collision_msg(duplicates: Dict[HexStr, ABIFunction]) -> str:
     dup_sel = valmap(apply_formatter_to_array(abi_to_signature), duplicates)
     joined_funcs = valmap(lambda funcs: ', '.join(funcs), dup_sel)
-    func_sel_msg_list = [funcs + ' have selector ' + sel for sel, funcs in joined_funcs.items()]
+    func_sel_msg_list = [f'{funcs} have selector {sel}' for sel, funcs in joined_funcs.items()]
     return ' and\n'.join(func_sel_msg_list)
 
 

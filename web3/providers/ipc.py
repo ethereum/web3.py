@@ -1,3 +1,4 @@
+import contextlib
 from json import (
     JSONDecodeError,
 )
@@ -65,10 +66,8 @@ class PersistantSocket:
     ) -> None:
         # only close the socket if there was an error
         if exc_value is not None:
-            try:
+            with contextlib.suppress(Exception):
                 self.sock.close()
-            except Exception:
-                pass
             self.sock = None
 
     def _open(self) -> socket.socket:
@@ -83,52 +82,33 @@ class PersistantSocket:
 # type ignored b/c missing return statement is by design here
 def get_default_ipc_path() -> str:  # type: ignore
     if sys.platform == 'darwin':
-        ipc_path = os.path.expanduser(os.path.join(
-            "~",
-            "Library",
-            "Ethereum",
-            "geth.ipc"
-        ))
-        if os.path.exists(ipc_path):
-            return ipc_path
+        home = Path('~').expanduser()
+        ipc_path = home / 'Library' / 'Ethereum' / 'geth.ipc'
+        if ipc_path.exists():
+            return str(ipc_path)
 
-        ipc_path = os.path.expanduser(os.path.join(
-            "~",
-            "Library",
-            "Application Support",
-            "io.parity.ethereum",
-            "jsonrpc.ipc"
-        ))
-        if os.path.exists(ipc_path):
-            return ipc_path
+        ipc_path = home / 'Library' / 'Application Support' / 'io.parity.ethereum' / 'jsonrpc.ipc'
+        if ipc_path.exists():
+            return str(ipc_path)
 
         base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
-        ipc_path = str(base_trinity_path / 'mainnet' / 'ipcs-eth1' / 'jsonrpc.ipc')
-        if Path(ipc_path).exists():
+        ipc_path = base_trinity_path / 'mainnet' / 'ipcs-eth1' / 'jsonrpc.ipc'
+        if ipc_path.exists():
             return str(ipc_path)
 
     elif sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
-        ipc_path = os.path.expanduser(os.path.join(
-            "~",
-            ".ethereum",
-            "geth.ipc"
-        ))
-        if os.path.exists(ipc_path):
-            return ipc_path
+        home = Path('~').expanduser()
+        ipc_path = home / '.ethereum' / 'geth.ipc'
+        if ipc_path.exists():
+            return str(ipc_path)
 
-        ipc_path = os.path.expanduser(os.path.join(
-            "~",
-            ".local",
-            "share",
-            "io.parity.ethereum",
-            "jsonrpc.ipc"
-        ))
-        if os.path.exists(ipc_path):
-            return ipc_path
+        ipc_path = home / '.local' / 'share' / 'io.parity.ethereum' / 'jsonrpc.ipc'
+        if ipc_path.exists():
+            return str(ipc_path)
 
-        base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
-        ipc_path = str(base_trinity_path / 'mainnet' / 'ipcs-eth1' / 'jsonrpc.ipc')
-        if Path(ipc_path).exists():
+        base_trinity_path = home / '.local' / 'share' / 'trinity'
+        ipc_path = base_trinity_path / 'mainnet' / 'ipcs-eth1' / 'jsonrpc.ipc'
+        if ipc_path.exists():
             return str(ipc_path)
 
     elif sys.platform == 'win32':
@@ -152,7 +132,7 @@ def get_default_ipc_path() -> str:  # type: ignore
 
     else:
         raise ValueError(
-            f"Unsupported platform '{sys.platform}'.  Only darwin/linux/win32/"
+            f"Unsupported platform {sys.platform!r}.  Only darwin/linux/win32/"
             "freebsd are supported.  You must specify the ipc_path"
         )
 
@@ -219,7 +199,7 @@ class IPCProvider(JSONBaseProvider):
     ) -> None:
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path()
-        elif isinstance(ipc_path, str) or isinstance(ipc_path, Path):
+        elif isinstance(ipc_path, (str, Path)):
             self.ipc_path = str(Path(ipc_path).expanduser().resolve())
         else:
             raise TypeError("ipc_path must be of type string or pathlib.Path")

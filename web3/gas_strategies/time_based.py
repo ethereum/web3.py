@@ -217,8 +217,7 @@ def construct_time_based_gas_price_strategy(
             sample_size=sample_size,
         )
 
-        gas_price = _compute_gas_price(probabilities, probability / 100)
-        return gas_price
+        return _compute_gas_price(probabilities, probability / 100)
     return time_based_gas_price_strategy
 
 

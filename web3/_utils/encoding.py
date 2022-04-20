@@ -117,7 +117,7 @@ def pad_hex(value: Any, bit_size: int) -> HexStr:
     Pads a hex string up to the given bit_size
     """
     value = remove_0x_prefix(value)
-    return add_0x_prefix(value.zfill(int(bit_size / 4)))
+    return add_0x_prefix(value.zfill(bit_size // 4))
 
 
 def trim_hex(hexstr: HexStr) -> HexStr:
@@ -201,8 +201,7 @@ class FriendlyJsonSerde:
     def _friendly_json_encode(self, obj: Dict[Any, Any],
                               cls: Optional[Type[json.JSONEncoder]] = None) -> str:
         try:
-            encoded = json.dumps(obj, cls=cls)
-            return encoded
+            return json.dumps(obj, cls=cls)
         except TypeError as full_exception:
             if hasattr(obj, 'items'):
                 item_errors = '; '.join(self._json_mapping_errors(obj))
@@ -219,8 +218,7 @@ class FriendlyJsonSerde:
 
     def json_decode(self, json_str: str) -> Dict[Any, Any]:
         try:
-            decoded = json.loads(json_str)
-            return decoded
+            return json.loads(json_str)
         except json.decoder.JSONDecodeError as exc:
             err_msg = f'Could not decode {json_str!r} because of {exc}.'
             # Calling code may rely on catching JSONDecodeError to recognize bad json
@@ -250,10 +248,7 @@ class DynamicArrayPackedEncoder(BaseArrayEncoder):
     is_dynamic = True
 
     def encode(self, value: Sequence[Any]) -> bytes:
-        encoded_elements = self.encode_elements(value)
-        encoded_value = encoded_elements
-
-        return encoded_value
+        return self.encode_elements(value)
 
 
 #  TODO: Replace with eth-abi packed encoder once web3 requires eth-abi>=2
@@ -281,7 +276,7 @@ def encode_single_packed(_type: TypeStr, value: Any) -> bytes:
 class Web3JsonEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Union[Dict[Any, Any], HexStr]:
         if isinstance(obj, AttributeDict):
-            return {k: v for k, v in obj.items()}
+            return dict(obj.items())
         if isinstance(obj, HexBytes):
             return HexStr(obj.hex())
         return json.JSONEncoder.default(self, obj)

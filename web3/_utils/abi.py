@@ -102,7 +102,7 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIE
 
 
 def get_abi_input_types(abi: ABIFunction) -> List[str]:
-    if 'inputs' not in abi and (abi['type'] == 'fallback' or abi['type'] == 'receive'):
+    if 'inputs' not in abi and abi['type'] in {'fallback', 'receive'}:
         return []
     else:
         return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi['inputs']]
@@ -247,7 +247,7 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
                             raw_value,
                             msg='hex string must be prefixed with 0x'
                         )
-                    elif raw_value[:2] != '0x':
+                    else:
                         warnings.warn(
                             'in v6 it will be invalid to pass a hex string without the "0x" prefix',
                             category=DeprecationWarning
@@ -581,7 +581,7 @@ def get_constructor_abi(contract_abi: ABI) -> ABIFunction:
     ]
     if len(candidates) == 1:
         return candidates[0]
-    elif len(candidates) == 0:
+    elif not candidates:
         return None
     elif len(candidates) > 1:
         raise ValueError("Found multiple constructors.")
@@ -604,7 +604,7 @@ STATIC_TYPES = list(itertools.chain(
 ))
 
 BASE_TYPE_REGEX = '|'.join((
-    _type + '(?![a-z0-9])'
+    f'{_type}(?![a-z0-9])'
     for _type
     in itertools.chain(STATIC_TYPES, DYNAMIC_TYPES)
 ))

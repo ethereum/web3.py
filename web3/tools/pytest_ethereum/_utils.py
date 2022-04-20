@@ -43,7 +43,7 @@ def pluck_matching_uri(deployment_data: Dict[URI, Dict[str, str]], w3: Web3) -> 
     Return any blockchain uri that matches w3-connected chain, if one
     is present in the deployment data keys.
     """
-    for uri in deployment_data.keys():
+    for uri in deployment_data:
         if check_if_chain_matches_chain_uri(w3, uri):
             return uri
     raise LinkerError(
@@ -57,10 +57,10 @@ def contains_matching_uri(deployment_data: Dict[str, Dict[str, str]], w3: Web3) 
     Returns true if any blockchain uri in deployment data matches
     w3-connected chain.
     """
-    for uri in deployment_data.keys():
-        if check_if_chain_matches_chain_uri(w3, uri):
-            return True
-    return False
+    return any(
+        check_if_chain_matches_chain_uri(w3, uri)
+        for uri in deployment_data
+    )
 
 
 def insert_deployment(

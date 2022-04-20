@@ -169,10 +169,9 @@ class Filter:
         if log_entries is None:
             return []
 
-        formatted_log_entries = [
+        return [
             self.format_entry(log_entry) for log_entry in log_entries
         ]
-        return formatted_log_entries
 
 
 class BlockFilter(Filter):
