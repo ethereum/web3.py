@@ -39,32 +39,14 @@ class GoEthereumEthModuleTest(EthModuleTest):
         super().test_eth_sign_typed_data(w3, unlocked_account_dual_type)
 
     @pytest.mark.xfail(reason='eth_signTypedData has not been released in geth')
-    def test_eth_signTypedData_deprecated(self, w3, unlocked_account_dual_type):
-        super().test_eth_signTypedData_deprecated(w3, unlocked_account_dual_type)
-
-    @pytest.mark.xfail(reason='eth_signTypedData has not been released in geth')
     def test_invalid_eth_sign_typed_data(self, w3, unlocked_account_dual_type):
         super().test_invalid_eth_sign_typed_data(w3, unlocked_account_dual_type)
-
-    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
-    def test_eth_protocol_version(self, w3):
-        super().test_eth_protocol_version(w3)
-
-    @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
-    def test_eth_protocolVersion(self, w3):
-        super().test_eth_protocolVersion(w3)
 
     @flaky(max_runs=3)
     def test_eth_estimate_gas(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         super().test_eth_estimate_gas(w3, unlocked_account_dual_type)
-
-    @flaky(max_runs=3)
-    def test_eth_estimateGas_deprecated(
-        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
-    ) -> None:
-        super().test_eth_estimateGas_deprecated(w3, unlocked_account_dual_type)
 
     @flaky(max_runs=3)
     def test_eth_estimate_gas_with_block(
