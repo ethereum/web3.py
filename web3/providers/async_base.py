@@ -102,7 +102,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
     async def isConnected(self) -> bool:
         try:
             response = await self.make_request(RPCEndpoint('web3_clientVersion'), [])
-        except IOError:
+        except OSError:
             return False
 
         assert response['jsonrpc'] == '2.0'
