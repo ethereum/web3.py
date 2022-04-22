@@ -9,6 +9,7 @@ import pytest_asyncio
 
 from utils import (
     async_deploy,
+    async_partial,
     deploy,
 )
 from web3._utils.module_testing.emitter_contract import (
@@ -724,6 +725,24 @@ def PayableTesterContract(w3, PAYABLE_TESTER_CONTRACT):
     return w3.eth.contract(**PAYABLE_TESTER_CONTRACT)
 
 
+@pytest.fixture()
+def AsyncPayableTesterContract(async_w3, PAYABLE_TESTER_CONTRACT):
+    return async_w3.eth.contract(**PAYABLE_TESTER_CONTRACT)
+
+
+@pytest.fixture()
+def payable_tester_contract(w3, PayableTesterContract, address_conversion_func):
+    return deploy(w3, PayableTesterContract, address_conversion_func)
+
+
+@pytest_asyncio.fixture()
+async def async_payable_tester_contract(
+        async_w3,
+        AsyncPayableTesterContract,
+        address_conversion_func):
+    return await async_deploy(async_w3, AsyncPayableTesterContract, address_conversion_func)
+
+
 # no matter the function selector, this will return back the 32 bytes of data supplied
 CONTRACT_REFLECTION_CODE = (
     "0x610011566020600460003760206000f3005b61000461001103610004600039610004610011036000f3"
@@ -798,6 +817,24 @@ def FALLBACK_FUNCTION_CONTRACT(FALLBACK_FUNCTION_CODE,
 @pytest.fixture()
 def FallbackFunctionContract(w3, FALLBACK_FUNCTION_CONTRACT):
     return w3.eth.contract(**FALLBACK_FUNCTION_CONTRACT)
+
+
+@pytest.fixture()
+def AsyncFallbackFunctionContract(async_w3, FALLBACK_FUNCTION_CONTRACT):
+    return async_w3.eth.contract(**FALLBACK_FUNCTION_CONTRACT)
+
+
+@pytest.fixture()
+def fallback_function_contract(w3, FallbackFunctionContract, address_conversion_func):
+    return deploy(w3, FallbackFunctionContract, address_conversion_func)
+
+
+@pytest_asyncio.fixture()
+async def async_fallback_function_contract(
+        async_w3,
+        AsyncFallbackFunctionContract,
+        address_conversion_func):
+    return await async_deploy(async_w3, AsyncFallbackFunctionContract, address_conversion_func)
 
 
 @pytest.fixture()
@@ -1031,9 +1068,31 @@ def invoke_contract(api_call_desig='call',
     return result
 
 
+async def async_invoke_contract(
+        api_call_desig='call',
+        contract=None,
+        contract_function=None,
+        func_args=[],
+        func_kwargs={},
+        tx_params={}):
+    allowable_call_desig = ['call', 'transact', 'estimate_gas', 'build_transaction']
+    if api_call_desig not in allowable_call_desig:
+        raise ValueError(f"allowable_invoke_method must be one of: {allowable_call_desig}")
+
+    function = contract.functions[contract_function]
+    result = await getattr(function(*func_args, **func_kwargs), api_call_desig)(tx_params)
+
+    return result
+
+
 @pytest.fixture
 def transact(request):
     return functools.partial(invoke_contract, api_call_desig='transact')
+
+
+@pytest.fixture()
+def async_transact(request):
+    return async_partial(async_invoke_contract, api_call_desig='transact')
 
 
 @pytest.fixture
@@ -1041,14 +1100,29 @@ def call(request):
     return functools.partial(invoke_contract, api_call_desig='call')
 
 
+@pytest.fixture()
+def async_call(request):
+    return async_partial(async_invoke_contract, api_call_desig='call')
+
+
 @pytest.fixture
 def estimate_gas(request):
     return functools.partial(invoke_contract, api_call_desig='estimate_gas')
 
 
+@pytest.fixture()
+def async_estimate_gas(request):
+    return async_partial(async_invoke_contract, api_call_desig='estimate_gas')
+
+
 @pytest.fixture
 def build_transaction(request):
     return functools.partial(invoke_contract, api_call_desig='build_transaction')
+
+
+@pytest.fixture()
+def async_build_transaction(request):
+    return async_partial(async_invoke_contract, api_call_desig='build_transaction')
 
 
 @pytest_asyncio.fixture()
