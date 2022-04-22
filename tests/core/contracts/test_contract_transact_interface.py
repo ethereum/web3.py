@@ -4,46 +4,12 @@ from eth_utils import (
     to_bytes,
 )
 
-from utils import (
-    deploy,
-)
 from web3._utils.empty import (
     empty,
 )
 from web3.exceptions import (
     ValidationError,
 )
-
-
-# @pytest.fixture()
-# def string_contract(w3, StringContract, address_conversion_func):
-#     return deploy(w3, StringContract, address_conversion_func, args=["Caqalai"])
-
-
-# @pytest.fixture()
-# def fallback_function_contract(w3, FallbackFunctionContract, address_conversion_func):
-#     return deploy(w3, FallbackFunctionContract, address_conversion_func)
-
-
-# @pytest.fixture()
-# def arrays_contract(w3, ArraysContract, address_conversion_func):
-#     # bytes_32 = [keccak('0'), keccak('1')]
-#     bytes32_array = [
-#         b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',  # noqa: E501
-#         b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6',  # noqa: E501
-#     ]
-#     byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
-#     return deploy(w3, ArraysContract, address_conversion_func, args=[bytes32_array, byte_arr])
-
-
-# @pytest.fixture()
-# def payable_tester_contract(w3, PayableTesterContract, address_conversion_func):
-#     return deploy(w3, PayableTesterContract, address_conversion_func)
-
-
-# @pytest.fixture()
-# def receive_function_contract(w3, ReceiveFunctionContract, address_conversion_func):
-#     return deploy(w3, ReceiveFunctionContract, address_conversion_func)
 
 
 def test_transacting_with_contract_no_arguments(w3, math_contract, transact, call):

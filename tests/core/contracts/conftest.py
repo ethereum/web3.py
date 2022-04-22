@@ -720,8 +720,7 @@ async def async_arrays_contract(async_w3, AsyncArraysContract, address_conversio
     return await async_deploy(async_w3,
                               AsyncArraysContract,
                               address_conversion_func,
-                              args=[bytes32_array,
-                              byte_arr])
+                              args=[bytes32_array, byte_arr])
 
 
 @pytest.fixture()
