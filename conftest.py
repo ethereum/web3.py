@@ -9,6 +9,7 @@ from web3.main import (
     Web3,
 )
 from web3.providers.eth_tester import (
+    AsyncEthereumTesterProvider,
     EthereumTesterProvider,
 )
 
@@ -44,11 +45,24 @@ def is_testrpc_provider(provider):
     return isinstance(provider, EthereumTesterProvider)
 
 
+def is_async_testrpc_provider(provider):
+    return isinstance(provider, AsyncEthereumTesterProvider)
+
+
 @pytest.fixture()
 def skip_if_testrpc():
 
     def _skip_if_testrpc(w3):
         if is_testrpc_provider(w3.provider):
+            pytest.skip()
+    return _skip_if_testrpc
+
+
+@pytest.fixture()
+def async_skip_if_testrpc():
+
+    def _skip_if_testrpc(async_w3):
+        if is_async_testrpc_provider(async_w3.provider):
             pytest.skip()
     return _skip_if_testrpc
 
