@@ -765,7 +765,7 @@ class AsyncContract(BaseContract):
 
 def mk_collision_prop(fn_name: str) -> Callable[[], None]:
     def collision_fn() -> NoReturn:
-        msg = "Namespace collision for function name {0} with ConciseContract API.".format(fn_name)
+        msg = f"Namespace collision for function name {fn_name} with ConciseContract API."
         raise AttributeError(msg)
     collision_fn.__name__ = fn_name
     return collision_fn

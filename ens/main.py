@@ -23,6 +23,9 @@ from eth_utils import (
     is_checksum_address,
     to_checksum_address,
 )
+from eth_utils.toolz import (
+    merge,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -149,7 +152,11 @@ class ENS:
         :type address: hex-string
         """
         reversed_domain = address_to_reverse_domain(address)
-        return self.resolve(reversed_domain, get='name')
+        name = self.resolve(reversed_domain, get='name')
+
+        # To be absolutely certain of the name, via reverse resolution, the address must match in
+        # the forward resolution
+        return name if to_checksum_address(address) == self.address(name) else None
 
     def setup_address(
         self,
@@ -282,6 +289,56 @@ class ENS:
         """
         node = raw_name_to_hash(name)
         return self.ens.caller.owner(node)
+
+    def get_text(self, name: str, key: str) -> str:
+        """
+        Get the value of a text record by key from an ENS name.
+
+        :param str name: ENS name to look up
+        :param str key: ENS name's text record key
+        :return:  ENS name's text record value
+        :rtype: str
+        :raises UnownedName: if no one owns `name`
+        """
+        node = raw_name_to_hash(name)
+        normal_name = normalize_name(name)
+
+        r = self.resolver(normal_name)
+        if r:
+            return r.caller.text(node, key)
+        else:
+            raise UnownedName("claim domain using setup_address() first")
+
+    def set_text(
+        self,
+        name: str,
+        key: str,
+        value: str,
+        transact: "TxParams" = {}
+    ) -> HexBytes:
+        """
+        Set the value of a text record of an ENS name.
+
+        :param str name: ENS name
+        :param str key: Name of the attribute to set
+        :param str value: Value to set the attribute to
+        :param dict transact: the transaction configuration, like in
+            :meth:`~web3.eth.Eth.send_transaction`
+        :return: Transaction hash
+        :rtype: HexBytes
+        :raises UnownedName: if no one owns `name`
+        """
+        owner = self.owner(name)
+        node = raw_name_to_hash(name)
+        normal_name = normalize_name(name)
+
+        transaction_dict = merge({'from': owner}, transact)
+
+        r = self.resolver(normal_name)
+        if r:
+            return r.functions.setText(node, key, value).transact(transaction_dict)
+        else:
+            raise UnownedName("claim domain using setup_address() first")
 
     def setup_owner(
         self,

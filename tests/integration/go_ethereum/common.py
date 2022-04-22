@@ -1,4 +1,14 @@
 import pytest
+from typing import (
+    TYPE_CHECKING,
+)
+
+from eth_typing import (
+    ChecksumAddress,
+)
+from flaky import (
+    flaky,
+)
 
 from web3._utils.module_testing import (  # noqa: F401
     AsyncEthModuleTest,
@@ -12,6 +22,11 @@ from web3._utils.module_testing import (  # noqa: F401
     VersionModuleTest,
     Web3ModuleTest,
 )
+
+if TYPE_CHECKING:
+    from web3 import (  # noqa: F401
+        Web3,
+    )
 
 
 class GoEthereumTest(Web3ModuleTest):
@@ -39,6 +54,24 @@ class GoEthereumEthModuleTest(EthModuleTest):
     @pytest.mark.xfail(reason='eth_protocolVersion was removed in Geth 1.10.0')
     def test_eth_protocolVersion(self, w3):
         super().test_eth_protocolVersion(w3)
+
+    @flaky(max_runs=3)
+    def test_eth_estimate_gas(
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        super().test_eth_estimate_gas(w3, unlocked_account_dual_type)
+
+    @flaky(max_runs=3)
+    def test_eth_estimateGas_deprecated(
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        super().test_eth_estimateGas_deprecated(w3, unlocked_account_dual_type)
+
+    @flaky(max_runs=3)
+    def test_eth_estimate_gas_with_block(
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        super().test_eth_estimate_gas_with_block(w3, unlocked_account_dual_type)
 
 
 class GoEthereumVersionModuleTest(VersionModuleTest):
