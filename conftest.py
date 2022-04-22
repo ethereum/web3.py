@@ -107,6 +107,22 @@ def wait_for_transaction():
     return _wait_for_transaction
 
 
+@pytest.fixture(scope="module")
+def async_wait_for_transaction():
+    async def _wait_for_transaction(w3, txn_hash, timeout=120):
+        poll_delay_counter = PollDelayCounter()
+        with Timeout(timeout) as timeout:
+            while True:
+                txn_receipt = await w3.eth.get_transaction_receipt(txn_hash)
+                if txn_receipt is not None:
+                    break
+                time.sleep(poll_delay_counter())
+                timeout.check()
+
+        return txn_receipt
+    return _wait_for_transaction
+
+
 @pytest.fixture()
 def w3():
     provider = EthereumTesterProvider()
