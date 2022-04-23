@@ -12,8 +12,14 @@ from typing import (
     Union,
 )
 
+from eth_abi import (
+    decode_abi,
+)
 from eth_typing import (
     HexStr,
+)
+from eth_utils import (
+    to_bytes,
 )
 from eth_utils.curried import (
     apply_formatter_at_index,
@@ -83,6 +89,7 @@ from web3.exceptions import (
     BlockNotFound,
     ContractLogicError,
     InvalidParityMode,
+    OffchainLookup,
     TransactionNotFound,
 )
 from web3.types import (
@@ -537,6 +544,16 @@ STANDARD_NORMALIZERS = [
 
 ABI_REQUEST_FORMATTERS = abi_request_formatters(STANDARD_NORMALIZERS, RPC_ABIS)
 
+# the first 4 bytes of keccak hash for: "OffchainLookup(address,string[],bytes,bytes4,bytes)"
+OFFCHAIN_LOOKUP_FUNC_SELECTOR = '0x556f1830'
+OFFCHAIN_LOOKUP_FIELDS = {
+    'sender': 'address',
+    'urls': 'string[]',
+    'callData': 'bytes',
+    'callbackFunction': 'bytes4',
+    'extraData': 'bytes',
+}
+
 
 def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
     """
@@ -568,6 +585,14 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
         reason_length = int(data[len(prefix):len(prefix) + 64], 16)
         reason = data[len(prefix) + 64:len(prefix) + 64 + reason_length * 2]
         raise ContractLogicError(f'execution reverted: {bytes.fromhex(reason).decode("utf8")}')
+
+    # --- EIP-3668 | CCIP Read --- #
+    # 0x556f1830 is the function selector for OffchainLookup(address,string[],bytes,bytes4,bytes)
+    if data[:10] == '0x556f1830':
+        parsed_data_as_bytes = to_bytes(hexstr=data[10:])
+        abi_decoded_data = decode_abi(OFFCHAIN_LOOKUP_FIELDS.values(), parsed_data_as_bytes)
+        offchain_lookup_payload = dict(zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data))
+        raise OffchainLookup(offchain_lookup_payload)
 
     # Geth case:
     if 'message' in response['error'] and response['error'].get('code', '') == 3:

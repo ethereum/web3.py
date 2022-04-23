@@ -443,17 +443,16 @@ class ENS:
 
         node = self.namehash(normal_name)
 
+        # handle extended resolver case
         if _resolver_supports_interface(resolver, EXTENDED_RESOLVER_INTERFACE_ID):
-            # update the resolver abi to the extended resolver abi
-            extended_resolver = self.w3.eth.contract(abi=abis.EXTENDED_RESOLVER)(resolver.address)
             contract_func_with_args = (fn_name, [node])
 
-            calldata = extended_resolver.encodeABI(*contract_func_with_args)
-            contract_call_result = extended_resolver.caller.resolve(
+            calldata = resolver.encodeABI(*contract_func_with_args)
+            contract_call_result = resolver.caller.resolve(
                 ens_encode_name(normal_name), calldata
             )
             result = self._decode_ensip10_resolve_data(
-                contract_call_result, extended_resolver, fn_name
+                contract_call_result, resolver, fn_name
             )
             return to_checksum_address(result) if is_address(result) else result
         elif normal_name == current_name:

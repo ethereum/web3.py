@@ -36,6 +36,9 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.async_transactions import (
+    async_handle_offchain_lookup,
+)
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
@@ -63,6 +66,7 @@ from web3._utils.transactions import (
     assert_valid_transaction_params,
     extract_valid_transaction_params,
     get_required_transaction,
+    handle_offchain_lookup,
     replace_transaction,
 )
 from web3.contract import (
@@ -73,7 +77,9 @@ from web3.contract import (
     ContractCaller,
 )
 from web3.exceptions import (
+    OffchainLookup,
     TimeExhausted,
+    TooManyRequests,
     TransactionNotFound,
 )
 from web3.iban import (
@@ -91,7 +97,7 @@ from web3.types import (
     BlockData,
     BlockIdentifier,
     BlockParams,
-    CallOverrideParams,
+    CallOverride,
     FeeHistory,
     FilterParams,
     GasPriceStrategy,
@@ -264,8 +270,8 @@ class BaseEth(Module):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverrideParams] = None,
-    ) -> Union[Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverrideParams]]:  # noqa-E501
+        state_override: Optional[CallOverride] = None,
+    ) -> Union[Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverride]]:
         # TODO: move to middleware
         if 'from' not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, 'from', self.default_account)
@@ -397,6 +403,41 @@ class AsyncEth(BaseEth):
         return await self._fee_history(  # type: ignore
             block_count, newest_block, reward_percentiles)
 
+    _call: Method[Callable[..., Awaitable[Union[bytes, bytearray]]]] = Method(
+        RPC.eth_call,
+        mungers=[BaseEth.call_munger]
+    )
+
+    async def call(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverride] = None,
+    ) -> Union[bytes, bytearray]:
+        if self.w3.provider.ccip_read_enabled:
+            # if ccip_read_enabled, handle OffchainLookup reverts appropriately via durin call
+            return await self.durin_call(transaction, block_identifier, state_override)
+
+        return await self._call(transaction, block_identifier, state_override)
+
+    async def durin_call(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverride] = None,
+    ) -> Union[bytes, bytearray]:
+        for _ in range(4):
+            try:
+                return await self._call(transaction, block_identifier, state_override)
+            except OffchainLookup as offchain_lookup:
+                durin_calldata = await async_handle_offchain_lookup(
+                    offchain_lookup.payload,
+                    transaction,
+                )
+                transaction['data'] = durin_calldata
+
+        raise TooManyRequests("Too many CCIP read redirects")
+
     async def send_transaction(self, transaction: TxParams) -> HexBytes:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._send_transaction(transaction)  # type: ignore
@@ -485,11 +526,6 @@ class AsyncEth(BaseEth):
     ) -> Nonce:
         return await self._get_transaction_count(account, block_identifier)
 
-    _call: Method[Callable[..., Awaitable[Union[bytes, bytearray]]]] = Method(
-        RPC.eth_call,
-        mungers=[BaseEth.call_munger]
-    )
-
     async def get_transaction_receipt(
         self, transaction_hash: _Hash32
     ) -> TxReceipt:
@@ -533,14 +569,6 @@ class AsyncEth(BaseEth):
         block_identifier: Optional[BlockIdentifier] = None
     ) -> HexBytes:
         return await self._get_storage_at(account, position, block_identifier)
-
-    async def call(
-        self,
-        transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverrideParams] = None,
-    ) -> Union[bytes, bytearray]:
-        return await self._call(transaction, block_identifier, state_override)
 
 
 class Eth(BaseEth):
@@ -777,10 +805,37 @@ class Eth(BaseEth):
         mungers=[default_root_munger],
     )
 
-    call: Method[Callable[..., Union[bytes, bytearray]]] = Method(
+    _call: Method[Callable[..., Union[bytes, bytearray]]] = Method(
         RPC.eth_call,
         mungers=[BaseEth.call_munger]
     )
+
+    def call(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverride] = None,
+    ) -> Union[bytes, bytearray]:
+        if self.w3.provider.ccip_read_enabled:
+            # if ccip_read_enabled, handle OffchainLookup reverts appropriately
+            self.durin_call(transaction, block_identifier, state_override)
+
+        return self._call(transaction, block_identifier, state_override)
+
+    def durin_call(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverride] = None,
+    ) -> Union[bytes, bytearray]:
+        for _ in range(4):
+            try:
+                return self._call(transaction, block_identifier, state_override)
+            except OffchainLookup as offchain_lookup:
+                durin_calldata = handle_offchain_lookup(offchain_lookup.payload, transaction)
+                transaction['data'] = durin_calldata
+
+        raise TooManyRequests("Too many CCIP read redirects")
 
     def estimate_gas(
         self,

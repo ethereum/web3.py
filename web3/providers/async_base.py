@@ -36,6 +36,8 @@ class AsyncBaseProvider:
     # a tuple of (all_middlewares, request_func)
     _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (None, None)
 
+    ccip_read_enabled: bool = False
+
     def __init__(self) -> None:
         warnings.warn(
             "Async providers are still being developed and refined. "

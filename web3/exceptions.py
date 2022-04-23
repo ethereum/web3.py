@@ -1,5 +1,9 @@
 import datetime
 import time
+from typing import (
+    Any,
+    Dict,
+)
 
 from web3.types import (
     BlockData,
@@ -26,6 +30,13 @@ class CannotHandleRequest(Exception):
     """
     Raised by a provider to signal that it cannot handle an RPC request and
     that the manager should proceed to the next provider.
+    """
+    pass
+
+
+class TooManyRequests(Exception):
+    """
+    Raised by a provider to signal that too many requests have been made consecutively.
     """
     pass
 
@@ -202,6 +213,15 @@ class SolidityError(ValueError):
     Raised on a contract revert error
     """
     pass
+
+
+class OffchainLookup(ValueError):
+    """
+    Raised when a contract reverts with OffchainLookup as described in EIP-3668
+    """
+    def __init__(self, payload: Dict[str, Any]) -> None:
+        self.payload = payload
+        super().__init__()
 
 
 class ContractLogicError(SolidityError, ValueError):

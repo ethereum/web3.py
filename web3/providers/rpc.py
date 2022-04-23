@@ -86,7 +86,7 @@ class HTTPProvider(JSONBaseProvider):
         request_data = self.encode_rpc_request(method, params)
         raw_response = make_post_request(
             self.endpoint_uri,
-            request_data,
+            data=request_data,
             **self.get_request_kwargs()
         )
         response = self.decode_rpc_response(raw_response)
