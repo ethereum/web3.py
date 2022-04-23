@@ -142,7 +142,7 @@ from web3.types import (  # noqa: F401
     ABIEvent,
     ABIFunction,
     BlockIdentifier,
-    CallOverrideParams,
+    CallOverride,
     EventData,
     FilterParams,
     FunctionIdentifier,
@@ -1800,16 +1800,16 @@ class BaseContractCaller:
 
     > contract.caller(transaction={'from': eth.accounts[1], 'gas': 100000, ...}).add(2, 3)
     """
-    def __init__(self,
-                 abi: ABI,
-                 w3: 'Web3',
-                 address: ChecksumAddress,
-                 transaction: Optional[TxParams] = None,
-                 block_identifier: BlockIdentifier = 'latest',
-                 contract_function_class:
-                 Optional[Union[Type[ContractFunction],
-                                Type[AsyncContractFunction]]] = ContractFunction
-                 ) -> None:
+    def __init__(
+        self,
+        abi: ABI,
+        w3: 'Web3',
+        address: ChecksumAddress,
+        transaction: Optional[TxParams] = None,
+        block_identifier: BlockIdentifier = 'latest',
+        ccip_read_enabled: bool = False,
+        contract_function_class: Optional[Union[Type[ContractFunction], Type[AsyncContractFunction]]] = ContractFunction,  # noqa: E501
+    ) -> None:
         self.w3 = w3
         self.address = address
         self.abi = abi
@@ -1829,10 +1829,13 @@ class BaseContractCaller:
                     function_identifier=func['name'])
 
                 block_id = parse_block_identifier(self.w3, block_identifier)
-                caller_method = partial(self.call_function,
-                                        fn,
-                                        transaction=transaction,
-                                        block_identifier=block_id)
+                caller_method = partial(
+                    self.call_function,
+                    fn,
+                    transaction=transaction,
+                    block_identifier=block_id,
+                    ccip_read_enabled=ccip_read_enabled,
+                )
 
                 setattr(self, func['name'], caller_method)
 
@@ -1887,15 +1890,21 @@ class ContractCaller(BaseContractCaller):
                          transaction, block_identifier, ContractFunction)
 
     def __call__(
-        self, transaction: Optional[TxParams] = None, block_identifier: BlockIdentifier = 'latest'
+        self,
+        transaction: Optional[TxParams] = None,
+        block_identifier: BlockIdentifier = 'latest',
+        ccip_read_enabled: bool = False,
     ) -> 'ContractCaller':
         if transaction is None:
             transaction = {}
-        return type(self)(self.abi,
-                          self.w3,
-                          self.address,
-                          transaction=transaction,
-                          block_identifier=block_identifier)
+        return type(self)(
+            self.abi,
+            self.w3,
+            self.address,
+            transaction=transaction,
+            block_identifier=block_identifier,
+            ccip_read_enabled=ccip_read_enabled,
+        )
 
 
 class AsyncContractCaller(BaseContractCaller):
@@ -1910,15 +1919,21 @@ class AsyncContractCaller(BaseContractCaller):
                          transaction, block_identifier, AsyncContractFunction)
 
     def __call__(
-        self, transaction: Optional[TxParams] = None, block_identifier: BlockIdentifier = 'latest'
+        self,
+        transaction: Optional[TxParams] = None,
+        block_identifier: BlockIdentifier = 'latest',
+        ccip_read_enabled: bool = False,
     ) -> 'AsyncContractCaller':
         if transaction is None:
             transaction = {}
-        return type(self)(self.abi,
-                          self.w3,
-                          self.address,
-                          transaction=transaction,
-                          block_identifier=block_identifier)
+        return type(self)(
+            self.abi,
+            self.w3,
+            self.address,
+            transaction=transaction,
+            block_identifier=block_identifier,
+            ccip_read_enabled=ccip_read_enabled,
+        )
 
 
 def check_for_forbidden_api_filter_arguments(
@@ -1948,7 +1963,8 @@ def call_contract_function(
         block_id: Optional[BlockIdentifier] = None,
         contract_abi: Optional[ABI] = None,
         fn_abi: Optional[ABIFunction] = None,
-        state_override: Optional[CallOverrideParams] = None,
+        state_override: Optional[CallOverride] = None,
+        ccip_read_enabled: bool = False,
         *args: Any,
         **kwargs: Any) -> Any:
     """
@@ -1966,11 +1982,18 @@ def call_contract_function(
         fn_kwargs=kwargs,
     )
 
-    return_data = w3.eth.call(
-        call_transaction,
-        block_identifier=block_id,
-        state_override=state_override,
-    )
+    if ccip_read_enabled:
+        return_data = w3.eth.durin_call(
+            call_transaction,
+            block_identifier=block_id,
+            state_override=state_override,
+        )
+    else:
+        return_data = w3.eth.call(
+            call_transaction,
+            block_identifier=block_id,
+            state_override=state_override,
+        )
 
     if fn_abi is None:
         fn_abi = find_matching_fn_abi(contract_abi, w3.codec, function_identifier, args, kwargs)

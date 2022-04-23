@@ -1228,6 +1228,56 @@ RESOLVER = [
         "stateMutability": "nonpayable",
         "type": "function"
     },
+{
+        "constant": False,
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "name",
+                "type": "bytes"
+            },
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            }
+        ],
+        "name": "resolve",
+        "outputs": [
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": False,
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "response",
+                "type": "bytes"
+            },
+            {
+                "internalType": "bytes",
+                "name": "extraData",
+                "type": "bytes"
+            }
+        ],
+        "name": "resolveWithProof",
+        "outputs": [
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
     {
         "inputs": [
             {
@@ -1352,58 +1402,6 @@ RESOLVER = [
         "type": "event"
     }
 ]
-
-EXTENDED_RESOLVER = [
-    {
-        "constant": False,
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "name",
-                "type": "bytes"
-            },
-            {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-            }
-        ],
-        "name": "resolve",
-        "outputs": [
-            {
-                "internalType": "bytes",
-                "name": "",
-                "type": "bytes"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "constant": False,
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "response",
-                "type": "bytes"
-            },
-            {
-                "internalType": "bytes",
-                "name": "extraData",
-                "type": "bytes"
-            }
-        ],
-        "name": "resolveWithProof",
-        "outputs": [
-            {
-                "internalType": "bytes",
-                "name": "",
-                "type": "bytes"
-            }
-        ],
-        "stateMutability": "view", "type": "function"
-    }
-] + RESOLVER
 
 REVERSE_RESOLVER = [
     {

@@ -35,6 +35,8 @@ class BaseProvider:
     # a tuple of (all_middlewares, request_func)
     _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (None, None)
 
+    ccip_read_enabled: bool = False
+
     @property
     def middlewares(self) -> Tuple[Middleware, ...]:
         return self._middlewares

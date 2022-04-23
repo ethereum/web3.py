@@ -9,6 +9,7 @@ from typing import (
 )
 
 from aiohttp import (
+    ClientResponse,
     ClientSession,
     ClientTimeout,
 )
@@ -63,6 +64,50 @@ def cache_session(endpoint_uri: URI, session: requests.Session) -> None:
     _session_cache[cache_key] = session
 
 
+def _remove_session(_key: str, session: requests.Session) -> None:
+    session.close()
+
+
+_session_cache = lru.LRU(8, callback=_remove_session)
+
+
+def get_session(endpoint_uri: URI) -> requests.Session:
+    cache_key = generate_cache_key(endpoint_uri)
+    if cache_key not in _session_cache:
+        _session_cache[cache_key] = requests.Session()
+    return _session_cache[cache_key]
+
+
+def get_response_from_get_request(
+    endpoint_uri: URI, *args: Any, **kwargs: Any
+) -> requests.Response:
+    kwargs.setdefault('timeout', 10)
+    session = get_session(endpoint_uri)
+    response = session.get(endpoint_uri, *args, **kwargs)
+    return response
+
+
+def get_response_from_post_request(
+    endpoint_uri: URI, *args: Any, **kwargs: Any
+) -> requests.Response:
+    kwargs.setdefault('timeout', 10)
+    session = get_session(endpoint_uri)
+    response = session.post(endpoint_uri, *args, **kwargs)
+    return response
+
+
+def make_post_request(endpoint_uri: URI, *args: Any, **kwargs: Any) -> bytes:
+    response = get_response_from_post_request(endpoint_uri, *args, **kwargs)
+    response.raise_for_status()
+    return response.content
+
+
+# --- async --- #
+
+_async_session_cache_lock = threading.Lock()
+_async_session_cache = SessionCache(size=20)
+
+
 async def cache_async_session(endpoint_uri: URI, session: ClientSession) -> None:
     cache_key = generate_cache_key(endpoint_uri)
     with _async_session_cache_lock:
@@ -72,47 +117,35 @@ async def cache_async_session(endpoint_uri: URI, session: ClientSession) -> None
                 await session.close()
 
 
-def _remove_session(key: str, session: requests.Session) -> None:
-    session.close()
-
-
-_session_cache = lru.LRU(8, callback=_remove_session)
-_async_session_cache_lock = threading.Lock()
-_async_session_cache = SessionCache(size=20)
-
-
-def _get_session(endpoint_uri: URI) -> requests.Session:
-    cache_key = generate_cache_key(endpoint_uri)
-    if cache_key not in _session_cache:
-        _session_cache[cache_key] = requests.Session()
-    return _session_cache[cache_key]
-
-
-async def _get_async_session(endpoint_uri: URI) -> ClientSession:
+async def get_async_session(endpoint_uri: URI) -> ClientSession:
     cache_key = generate_cache_key(endpoint_uri)
     if cache_key not in _async_session_cache:
         await cache_async_session(endpoint_uri, ClientSession(raise_for_status=True))
     return _async_session_cache.get_cache_entry(cache_key)
 
 
-def make_post_request(endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any) -> bytes:
-    kwargs.setdefault('timeout', 10)
-    session = _get_session(endpoint_uri)
-    # https://github.com/python/mypy/issues/2582
-    response = session.post(endpoint_uri, data=data, *args, **kwargs)  # type: ignore
-    response.raise_for_status()
-
-    return response.content
-
-
-async def async_make_post_request(
-    endpoint_uri: URI, data: bytes, *args: Any, **kwargs: Any
-) -> bytes:
+async def async_get_response_from_get_request(
+    endpoint_uri: URI, *args: Any, **kwargs: Any
+) -> ClientResponse:
     kwargs.setdefault('timeout', ClientTimeout(10))
-    # https://github.com/ethereum/go-ethereum/issues/17069
-    session = await _get_async_session(endpoint_uri)
-    async with session.post(endpoint_uri,
-                            data=data,
-                            *args,
-                            **kwargs) as response:
-        return await response.read()
+    session = await get_async_session(endpoint_uri)
+    response = await session.get(endpoint_uri, *args, **kwargs)
+    return response
+
+
+async def async_get_response_from_post_request(
+    endpoint_uri: URI, *args: Any, **kwargs: Any
+) -> ClientResponse:
+    kwargs.setdefault('timeout', ClientTimeout(10))
+    session = await get_async_session(endpoint_uri)
+    response = await session.post(endpoint_uri, *args, **kwargs)
+    return response
+
+
+async def async_make_post_request(endpoint_uri: URI, *args: Any, **kwargs: Any) -> bytes:
+    response = await async_get_response_from_post_request(endpoint_uri, *args, **kwargs)
+    return await response.read()
+
+
+async def async_get_json_from_client_response(response: ClientResponse) -> Dict[str, Any]:
+    return await response.json()

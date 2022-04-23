@@ -1,13 +1,22 @@
 import math
 from typing import (
     TYPE_CHECKING,
+    Any,
+    Dict,
     List,
     Optional,
     cast,
 )
 
+from eth_abi import (
+    encode_abi,
+)
 from eth_typing import (
+    URI,
     ChecksumAddress,
+)
+from eth_utils import (
+    ValidationError,
 )
 from eth_utils.toolz import (
     assoc,
@@ -20,6 +29,14 @@ from hexbytes import (
 
 from web3._utils.compat import (
     Literal,
+)
+from web3._utils.request import (
+    get_response_from_get_request,
+    get_response_from_post_request,
+)
+from web3._utils.type_conversion_utils import (
+    to_bytes_if_hex,
+    to_hex_if_bytes,
 )
 from web3._utils.utility_methods import (
     all_in_dict,
@@ -239,3 +256,65 @@ def replace_transaction(
         w3, current_transaction, new_transaction
     )
     return w3.eth.send_transaction(new_transaction)
+
+
+def handle_offchain_lookup(
+    offchain_lookup_payload: Dict[str, Any],
+    transaction: TxParams,
+) -> bytes:
+    formatted_sender = to_hex_if_bytes(offchain_lookup_payload['sender']).lower()
+    formatted_data = to_hex_if_bytes(offchain_lookup_payload['callData']).lower()
+
+    if formatted_sender != to_hex_if_bytes(transaction['to']).lower():
+        raise ValidationError(
+            'Cannot handle OffchainLookup raised inside nested call. Returned `sender` '
+            'value does not equal `to` address in transaction.'
+        )
+
+    for url in offchain_lookup_payload['urls']:
+        formatted_url = URI(
+            str(url)
+            .replace('{sender}', str(formatted_sender))
+            .replace('{data}', str(formatted_data))
+        )
+
+        try:
+            if '{data}' in url:
+                response = get_response_from_get_request(formatted_url)
+            else:
+                response = get_response_from_post_request(formatted_url, data={
+                    "data": formatted_data,
+                    "sender": formatted_sender
+                })
+        except Exception:
+            continue  # try next url if timeout or issues making the request
+
+        if 400 <= response.status_code <= 499:  # if request returns 400 error, raise exception
+            response.raise_for_status()
+        if not 200 <= response.status_code <= 299:  # if not 400 error, try next url
+            continue
+
+        result = response.json()
+
+        if 'data' not in result.keys():
+            raise Exception(
+                "Improperly formatted response for offchain lookup HTTP request - missing 'data' "
+                "field."
+            )
+
+        encoded_data_with_function_selector = b''.join([
+            # 4-byte callback function selector
+            to_bytes_if_hex(offchain_lookup_payload['callbackFunction']),
+
+            # encode the `data` from the result and the `extraData` as bytes
+            encode_abi(
+                ['bytes', 'bytes'],
+                [
+                    to_bytes_if_hex(result['data']),
+                    to_bytes_if_hex(offchain_lookup_payload['extraData']),
+                ]
+            )
+        ])
+
+        return encoded_data_with_function_selector
+    raise Exception("Offchain lookup failed for supplied urls.")

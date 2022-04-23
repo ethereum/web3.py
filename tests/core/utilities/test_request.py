@@ -48,7 +48,7 @@ def test_make_post_request_no_args(mocker):
 
     # Submit a first request to create a session with default parameters
     assert len(request._session_cache) == 0
-    response = request.make_post_request(URI, b'request')
+    response = request.make_post_request(URI, data=b'request')
     assert response == "content"
     assert len(request._session_cache) == 1
     session = request._session_cache.values()[0]
@@ -74,7 +74,7 @@ def test_precached_session(mocker):
 
     # Submit a second request with different arguments
     assert len(request._session_cache) == 1
-    response = request.make_post_request(URI, b'request', timeout=60)
+    response = request.make_post_request(URI, data=b'request', timeout=60)
     assert response == "content"
     assert len(request._session_cache) == 1
 
