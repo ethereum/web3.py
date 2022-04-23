@@ -2300,10 +2300,12 @@ async def async_build_transaction_for_function(
         fn_kwargs=kwargs,
     )
 
-    prepared_transaction = await async_transactions.fill_transaction_defaults(
+    # prepared_transaction = await async_transactions.fill_transaction_defaults(
+    #     w3, prepared_transaction)
+    return await async_transactions.fill_transaction_defaults(
         w3, prepared_transaction)
 
-    return prepared_transaction
+    # return prepared_transaction
 
 
 def find_functions_by_identifier(

@@ -184,6 +184,25 @@ def MathContract(w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
     )
 
 
+@pytest_asyncio.fixture()
+def AsyncMathContract(async_w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
+    return async_w3.eth.contract(
+        abi=MATH_ABI,
+        bytecode=MATH_CODE,
+        bytecode_runtime=MATH_RUNTIME)
+# def AsyncMathContract(async_w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
+#     contract = AsyncContract.factory(async_w3,
+#                                      abi=MATH_ABI,
+#                                      bytecode=MATH_CODE,
+#                                      bytecode_runtime=MATH_RUNTIME)
+#     return contract
+
+
+@pytest_asyncio.fixture()
+async def async_math_contract(async_w3, AsyncMathContract, address_conversion_func):
+    return await async_deploy(async_w3, AsyncMathContract, address_conversion_func)
+
+
 @pytest.fixture()
 def math_contract(w3, MathContract, address_conversion_func):
     return deploy(w3, MathContract, address_conversion_func)
@@ -1192,20 +1211,6 @@ def build_transaction(request):
 @pytest.fixture()
 def async_build_transaction(request):
     return async_partial(async_invoke_contract, api_call_desig='build_transaction')
-
-
-@pytest_asyncio.fixture()
-def AsyncMathContract(async_w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
-    contract = AsyncContract.factory(async_w3,
-                                     abi=MATH_ABI,
-                                     bytecode=MATH_CODE,
-                                     bytecode_runtime=MATH_RUNTIME)
-    return contract
-
-
-@pytest_asyncio.fixture()
-async def async_math_contract(async_w3, AsyncMathContract, address_conversion_func):
-    return await async_deploy(async_w3, AsyncMathContract, address_conversion_func)
 
 
 @pytest.fixture()
