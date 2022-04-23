@@ -361,7 +361,7 @@ The following example demonstrates a few things:
 
     store_var_contract = w3.eth.contract(address=address, abi=contract_interface["abi"])
 
-    gas_estimate = store_var_contract.functions.setVar(255).estimateGas()
+    gas_estimate = store_var_contract.functions.setVar(255).estimate_gas()
     print(f'Gas estimate to transact with setVar: {gas_estimate}')
 
     if gas_estimate < 100000:
@@ -674,7 +674,7 @@ Just remember that you have to sign all transactions locally, as infura does not
 
 .. code-block:: python
 
-    transaction = contract.functions.function_Name(params).buildTransaction()
+    transaction = contract.functions.function_Name(params).build_transaction()
     transaction.update({ 'gas' : appropriate_gas_amount })
     transaction.update({ 'nonce' : w3.eth.get_transaction_count('Your_Wallet_Address') })
     signed_tx = w3.eth.account.sign_transaction(transaction, private_key)
