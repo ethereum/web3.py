@@ -52,9 +52,6 @@ from web3._utils.module_testing.revert_contract import (
     REVERT_CONTRACT_BYTECODE,
     REVERT_CONTRACT_RUNTIME_CODE,
 )
-from web3.contract import (
-    AsyncContract,
-)
 
 CONTRACT_NESTED_TUPLE_SOURCE = """
 pragma solidity >=0.4.19 <0.6.0;
@@ -396,6 +393,7 @@ CONTRACT_ADDRESS_REFLECTOR_CODE = "6060604052341561000f57600080fd5b6101ca8061001
 CONTRACT_ADDRESS_REFLECTOR_RUNTIME = "60606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680630b816c1614610048578063c04d11fc146100c157600080fd5b341561005357600080fd5b61007f600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610170565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34156100cc57600080fd5b61011960048080359060200190820180359060200190808060200260200160405190810160405280939291908181526020018383602002808284378201915050505050509190505061017a565b6040518080602001828103825283818151815260200191508051906020019060200280838360005b8381101561015c578082015181840152602081019050610141565b505050509050019250505060405180910390f35b6000819050919050565b61018261018a565b819050919050565b6020604051908101604052806000815250905600a165627a7a723058206b15d98a803b91327d94f943e9712291539701b2f7370e10f5873633941484930029"  # noqa: 501
 
 CONTRACT_ADDRESS_REFLECTOR_ABI = json.loads('[{"constant":true,"inputs":[{"name":"arg","type":"address"}],"name":"reflect","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":true,"inputs":[{"name":"arg","type":"address[]"}],"name":"reflect","outputs":[{"name":"","type":"address[]"}],"payable":false,"stateMutability":"pure","type":"function"}]')  # noqa: 501
+
 
 @pytest.fixture()
 def AddressReflectorContract(w3):
@@ -863,7 +861,7 @@ def StrictArraysContract(w3_strict_abi, ARRAYS_CONTRACT):
 @pytest.fixture()
 def AsyncStrictArraysContract(async_w3_strict_abi, ARRAYS_CONTRACT):
     return async_w3_strict_abi.eth.contract(**ARRAYS_CONTRACT)
-    
+
 
 @pytest.fixture()
 def strict_arrays_contract(w3_strict_abi, StrictArraysContract, address_conversion_func):

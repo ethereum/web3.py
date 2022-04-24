@@ -7,7 +7,6 @@ from distutils.version import (
 )
 import json
 import pytest
-import pytest_asyncio
 
 import eth_abi
 from eth_tester.exceptions import (
@@ -19,6 +18,7 @@ from eth_utils import (
 from hexbytes import (
     HexBytes,
 )
+import pytest_asyncio
 
 from utils import (
     async_deploy,
@@ -149,9 +149,11 @@ def mismatched_math_contract(w3, StringContract, MathContract, address_conversio
     _mismatched_math_contract = MathContract(address=address)
     return _mismatched_math_contract
 
+
 @pytest_asyncio.fixture()
 async def async_mismatched_math_contract(
-        async_w3,AsyncStringContract,
+        async_w3,
+        AsyncStringContract,
         AsyncMathContract,
         address_conversion_func):
     deploy_txn = await AsyncStringContract.constructor("Caqalai").transact()
@@ -977,7 +979,7 @@ async def test_async_call_get_bytes32_const_array(async_arrays_contract, async_c
 @pytest.mark.asyncio
 async def test_async_call_get_byte_array(async_arrays_contract, async_call):
     result = await async_call(contract=async_arrays_contract,
-                  contract_function='getByteValue')
+                              contract_function='getByteValue')
     expected_byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
     assert result == expected_byte_arr
 
@@ -1020,7 +1022,7 @@ async def test_async_set_strict_byte_array(
         func_args=[args]
     )
     result = await async_call(contract=async_strict_arrays_contract,
-                  contract_function='getByteValue')
+                              contract_function='getByteValue')
 
     assert result == expected
 
@@ -1042,7 +1044,7 @@ async def test_async_set_strict_byte_array_with_invalid_args(
 @pytest.mark.asyncio
 async def test_async_call_get_byte_const_array(async_arrays_contract, async_call):
     result = await async_call(contract=async_arrays_contract,
-                        contract_function='getByteConstValue')
+                              contract_function='getByteConstValue')
     expected_byte_arr = [b'\x00', b'\x01']
     assert result == expected_byte_arr
 
@@ -1050,7 +1052,7 @@ async def test_async_call_get_byte_const_array(async_arrays_contract, async_call
 @pytest.mark.asyncio
 async def test_async_call_read_address_variable(async_address_contract, async_call):
     result = await async_call(contract=async_address_contract,
-                  contract_function='testAddr')
+                              contract_function='testAddr')
     assert result == "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"
 
 
@@ -1090,7 +1092,7 @@ async def test_async_call_read_bytes32_variable(async_bytes32_contract, async_ca
     result = await async_call(contract=async_bytes32_contract, contract_function='constValue')
     assert result == b"\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23"  # noqa
 
- 
+
 @pytest.mark.asyncio
 async def test_async_call_get_bytes32_value(async_bytes32_contract, async_call):
     result = await async_call(contract=async_bytes32_contract, contract_function='getValue')
@@ -1253,13 +1255,13 @@ async def test_async_call_fallback_function(async_fallback_function_contract):
     ({'value': 2}, 'receive', 'receive'),
 ))
 async def test_async_call_receive_fallback_function(
-    async_w3,
-    tx_params,
-    expected,
-    async_call,
-    async_receive_function_contract,
-    async_no_receive_function_contract,
-    contract_name):
+        async_w3,
+        tx_params,
+        expected,
+        async_call,
+        async_receive_function_contract,
+        async_no_receive_function_contract,
+        contract_name):
     if contract_name == 'receive':
         contract = async_receive_function_contract
     elif contract_name == 'no_receive':
@@ -1308,7 +1310,7 @@ async def test_async_accepts_block_hash_as_identifier(async_w3, async_math_contr
     more_blocks = await async_w3.provider.make_request(method='evm_mine', params=[5])
 
     old = await async_math_contract.functions.counter().call(block_identifier=blocks['result'][2])
-    new = await async_math_contract.functions.counter().call(block_identifier=more_blocks['result'][2])
+    new = await async_math_contract.functions.counter().call(block_identifier=more_blocks['result'][2])  # noqa: E501
 
     assert old == 0
     assert new == 1
@@ -1428,7 +1430,7 @@ async def test_async_call_sending_ether_to_nonpayable_function(
                          contract_function='doNoValueCall',
                          tx_params={'value': 1})
 
-  
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     'function, value',
