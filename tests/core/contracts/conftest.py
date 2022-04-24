@@ -104,6 +104,11 @@ def NestedTupleContract(w3, NESTED_TUPLE_CONTRACT):
     return w3.eth.contract(**NESTED_TUPLE_CONTRACT)
 
 
+@pytest.fixture()
+def AsyncNestedTupleContract(async_w3, NESTED_TUPLE_CONTRACT):
+    return async_w3.eth.contract(**NESTED_TUPLE_CONTRACT)
+
+
 CONTRACT_TUPLE_SOURCE = """
 pragma solidity >=0.4.19 <0.6.0;
 pragma experimental ABIEncoderV2;
@@ -151,6 +156,11 @@ def TupleContract(w3, TUPLE_CONTRACT):
     return w3.eth.contract(**TUPLE_CONTRACT)
 
 
+@pytest.fixture()
+def AsyncTupleContract(async_w3, TUPLE_CONTRACT):
+    return async_w3.eth.contract(**TUPLE_CONTRACT)
+
+
 CONTRACT_CODE = "0x606060405261022e806100126000396000f360606040523615610074576000357c01000000000000000000000000000000000000000000000000000000009004806316216f391461007657806361bc221a146100995780637cf5dab0146100bc578063a5f3c23b146100e8578063d09de08a1461011d578063dcf537b11461014057610074565b005b610083600480505061016c565b6040518082815260200191505060405180910390f35b6100a6600480505061017f565b6040518082815260200191505060405180910390f35b6100d26004808035906020019091905050610188565b6040518082815260200191505060405180910390f35b61010760048080359060200190919080359060200190919050506101ea565b6040518082815260200191505060405180910390f35b61012a6004805050610201565b6040518082815260200191505060405180910390f35b6101566004808035906020019091905050610217565b6040518082815260200191505060405180910390f35b6000600d9050805080905061017c565b90565b60006000505481565b6000816000600082828250540192505081905550600060005054905080507f3496c3ede4ec3ab3686712aa1c238593ea6a42df83f98a5ec7df9834cfa577c5816040518082815260200191505060405180910390a18090506101e5565b919050565b6000818301905080508090506101fb565b92915050565b600061020d6001610188565b9050610214565b90565b60006007820290508050809050610229565b91905056"  # noqa: E501
 
 
@@ -190,22 +200,16 @@ def AsyncMathContract(async_w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
         abi=MATH_ABI,
         bytecode=MATH_CODE,
         bytecode_runtime=MATH_RUNTIME)
-# def AsyncMathContract(async_w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
-#     contract = AsyncContract.factory(async_w3,
-#                                      abi=MATH_ABI,
-#                                      bytecode=MATH_CODE,
-#                                      bytecode_runtime=MATH_RUNTIME)
-#     return contract
-
-
-@pytest_asyncio.fixture()
-async def async_math_contract(async_w3, AsyncMathContract, address_conversion_func):
-    return await async_deploy(async_w3, AsyncMathContract, address_conversion_func)
 
 
 @pytest.fixture()
 def math_contract(w3, MathContract, address_conversion_func):
     return deploy(w3, MathContract, address_conversion_func)
+
+
+@pytest_asyncio.fixture()
+async def async_math_contract(async_w3, AsyncMathContract, address_conversion_func):
+    return await async_deploy(async_w3, AsyncMathContract, address_conversion_func)
 
 
 CONTRACT_SIMPLE_CONSTRUCTOR_CODE = '0x60606040526003600055602c8060156000396000f3606060405260e060020a600035046373d4a13a8114601a575b005b602260005481565b6060908152602090f3'  # noqa: E501
@@ -284,6 +288,42 @@ def WithConstructorArgumentsContractStrict(w3_strict_abi,
     )
 
 
+@pytest.fixture()
+def AsyncSimpleConstructorContract(async_w3,
+                                   SIMPLE_CONSTRUCTOR_CODE,
+                                   SIMPLE_CONSTRUCTOR_RUNTIME,
+                                   SIMPLE_CONSTRUCTOR_ABI):
+    return async_w3.eth.contract(
+        abi=SIMPLE_CONSTRUCTOR_ABI,
+        bytecode=SIMPLE_CONSTRUCTOR_CODE,
+        bytecode_runtime=SIMPLE_CONSTRUCTOR_RUNTIME,
+    )
+
+
+@pytest.fixture()
+def AsyncWithConstructorArgumentsContract(async_w3,
+                                          WITH_CONSTRUCTOR_ARGUMENTS_CODE,
+                                          WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+                                          WITH_CONSTRUCTOR_ARGUMENTS_ABI):
+    return async_w3.eth.contract(
+        abi=WITH_CONSTRUCTOR_ARGUMENTS_ABI,
+        bytecode=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
+        bytecode_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+    )
+
+
+@pytest.fixture()
+def AsyncWithConstructorArgumentsContractStrict(async_w3_strict_abi,
+                                                WITH_CONSTRUCTOR_ARGUMENTS_CODE,
+                                                WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+                                                WITH_CONSTRUCTOR_ARGUMENTS_ABI):
+    return async_w3_strict_abi.eth.contract(
+        abi=WITH_CONSTRUCTOR_ARGUMENTS_ABI,
+        bytecode=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
+        bytecode_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+    )
+
+
 CONTRACT_WITH_CONSTRUCTOR_ADDRESS_CODE = "0x6060604052604051602080607683395060806040525160008054600160a060020a031916821790555060428060346000396000f3606060405260e060020a600035046334664e3a8114601a575b005b603860005473ffffffffffffffffffffffffffffffffffffffff1681565b6060908152602090f3"  # noqa: E501
 CONTRACT_WITH_CONSTRUCTOR_ADDRESS_RUNTIME = "0x606060405260e060020a600035046334664e3a8114601a575b005b603860005473ffffffffffffffffffffffffffffffffffffffff1681565b6060908152602090f3"  # noqa: E501
 CONTRACT_WITH_CONSTRUCTOR_ADDRESS_ABI = json.loads('[{"constant":true,"inputs":[],"name":"testAddr","outputs":[{"name":"","type":"address"}],"type":"function"},{"inputs":[{"name":"_testAddr","type":"address"}],"type":"constructor"}]')  # noqa: E501
@@ -317,12 +357,75 @@ def WithConstructorAddressArgumentsContract(w3,
 
 
 @pytest.fixture()
+def AsyncWithConstructorAddressArgumentsContract(async_w3,
+                                                 WITH_CONSTRUCTOR_ADDRESS_CODE,
+                                                 WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
+                                                 WITH_CONSTRUCTOR_ADDRESS_ABI):
+    return async_w3.eth.contract(
+        abi=WITH_CONSTRUCTOR_ADDRESS_ABI,
+        bytecode=WITH_CONSTRUCTOR_ADDRESS_CODE,
+        bytecode_runtime=WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
+    )
+
+
+@pytest.fixture()
+def address_contract(w3, WithConstructorAddressArgumentsContract, address_conversion_func):
+    return deploy(
+        w3,
+        WithConstructorAddressArgumentsContract,
+        address_conversion_func,
+        args=["0xd3CdA913deB6f67967B99D67aCDFa1712C293601"]
+    )
+
+
+@pytest_asyncio.fixture()
+async def async_address_contract(
+        async_w3,
+        AsyncWithConstructorAddressArgumentsContract,
+        address_conversion_func):
+    return await async_deploy(
+        async_w3,
+        AsyncWithConstructorAddressArgumentsContract,
+        address_conversion_func,
+        args=["0xd3CdA913deB6f67967B99D67aCDFa1712C293601"]
+    )
+
+
+CONTRACT_ADDRESS_REFLECTOR_CODE = "6060604052341561000f57600080fd5b6101ca8061001e6000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680630b816c1614610048578063c04d11fc146100c157600080fd5b341561005357600080fd5b61007f600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610170565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34156100cc57600080fd5b61011960048080359060200190820180359060200190808060200260200160405190810160405280939291908181526020018383602002808284378201915050505050509190505061017a565b6040518080602001828103825283818151815260200191508051906020019060200280838360005b8381101561015c578082015181840152602081019050610141565b505050509050019250505060405180910390f35b6000819050919050565b61018261018a565b819050919050565b6020604051908101604052806000815250905600a165627a7a723058206b15d98a803b91327d94f943e9712291539701b2f7370e10f5873633941484930029"  # noqa: 501
+
+CONTRACT_ADDRESS_REFLECTOR_RUNTIME = "60606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680630b816c1614610048578063c04d11fc146100c157600080fd5b341561005357600080fd5b61007f600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610170565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34156100cc57600080fd5b61011960048080359060200190820180359060200190808060200260200160405190810160405280939291908181526020018383602002808284378201915050505050509190505061017a565b6040518080602001828103825283818151815260200191508051906020019060200280838360005b8381101561015c578082015181840152602081019050610141565b505050509050019250505060405180910390f35b6000819050919050565b61018261018a565b819050919050565b6020604051908101604052806000815250905600a165627a7a723058206b15d98a803b91327d94f943e9712291539701b2f7370e10f5873633941484930029"  # noqa: 501
+
+CONTRACT_ADDRESS_REFLECTOR_ABI = json.loads('[{"constant":true,"inputs":[{"name":"arg","type":"address"}],"name":"reflect","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":true,"inputs":[{"name":"arg","type":"address[]"}],"name":"reflect","outputs":[{"name":"","type":"address[]"}],"payable":false,"stateMutability":"pure","type":"function"}]')  # noqa: 501
+
+@pytest.fixture()
 def AddressReflectorContract(w3):
     return w3.eth.contract(
-        abi=json.loads('[{"constant":true,"inputs":[{"name":"arg","type":"address"}],"name":"reflect","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":true,"inputs":[{"name":"arg","type":"address[]"}],"name":"reflect","outputs":[{"name":"","type":"address[]"}],"payable":false,"stateMutability":"pure","type":"function"}]'),  # noqa: 501
-        bytecode="6060604052341561000f57600080fd5b6101ca8061001e6000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680630b816c1614610048578063c04d11fc146100c157600080fd5b341561005357600080fd5b61007f600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610170565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34156100cc57600080fd5b61011960048080359060200190820180359060200190808060200260200160405190810160405280939291908181526020018383602002808284378201915050505050509190505061017a565b6040518080602001828103825283818151815260200191508051906020019060200280838360005b8381101561015c578082015181840152602081019050610141565b505050509050019250505060405180910390f35b6000819050919050565b61018261018a565b819050919050565b6020604051908101604052806000815250905600a165627a7a723058206b15d98a803b91327d94f943e9712291539701b2f7370e10f5873633941484930029",  # noqa: 501
-        bytecode_runtime="60606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680630b816c1614610048578063c04d11fc146100c157600080fd5b341561005357600080fd5b61007f600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610170565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34156100cc57600080fd5b61011960048080359060200190820180359060200190808060200260200160405190810160405280939291908181526020018383602002808284378201915050505050509190505061017a565b6040518080602001828103825283818151815260200191508051906020019060200280838360005b8381101561015c578082015181840152602081019050610141565b505050509050019250505060405180910390f35b6000819050919050565b61018261018a565b819050919050565b6020604051908101604052806000815250905600a165627a7a723058206b15d98a803b91327d94f943e9712291539701b2f7370e10f5873633941484930029",  # noqa: 501
+        abi=CONTRACT_ADDRESS_REFLECTOR_ABI,
+        bytecode=CONTRACT_ADDRESS_REFLECTOR_CODE,
+        bytecode_runtime=CONTRACT_ADDRESS_REFLECTOR_RUNTIME
     )
+
+
+@pytest.fixture()
+def address_reflector_contract(w3, AddressReflectorContract, address_conversion_func):
+    return deploy(w3, AddressReflectorContract, address_conversion_func)
+
+
+@pytest.fixture()
+def AsyncAddressReflectorContract(async_w3):
+    return async_w3.eth.contract(
+        abi=CONTRACT_ADDRESS_REFLECTOR_ABI,
+        bytecode=CONTRACT_ADDRESS_REFLECTOR_CODE,
+        bytecode_runtime=CONTRACT_ADDRESS_REFLECTOR_RUNTIME
+    )
+
+
+@pytest_asyncio.fixture()
+async def async_address_reflector_contract(
+        async_w3,
+        AsyncAddressReflectorContract,
+        address_conversion_func):
+    return await async_deploy(async_w3, AsyncAddressReflectorContract, address_conversion_func)
 
 
 CONTRACT_STRING_CODE = "0x6060604052604051610496380380610496833981016040528051018060006000509080519060200190828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f10608d57805160ff19168380011785555b50607c9291505b8082111560ba57838155600101606b565b5050506103d8806100be6000396000f35b828001600101855582156064579182015b828111156064578251826000505591602001919060010190609e565b509056606060405260e060020a600035046320965255811461003c57806330de3cee1461009f5780633fa4f245146100c457806393a0935214610121575b005b6101c7600060608181528154602060026001831615610100026000190190921691909104601f810182900490910260a0908101604052608082815292939190828280156102605780601f1061023557610100808354040283529160200191610260565b6101c7600060609081526101a06040526101006080818152906102d860a03990505b90565b6101c760008054602060026001831615610100026000190190921691909104601f810182900490910260809081016040526060828152929190828280156102975780601f1061026c57610100808354040283529160200191610297565b60206004803580820135601f81018490049093026080908101604052606084815261003a946024939192918401918190838280828437509496505050505050508060006000509080519060200190828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061029f57805160ff19168380011785555b506102cf9291505b808211156102d4578381556001016101b4565b60405180806020018281038252838181518152602001915080519060200190808383829060006004602084601f0104600f02600301f150905090810190601f1680156102275780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b820191906000526020600020905b81548152906001019060200180831161024357829003601f168201915b505050505090506100c1565b820191906000526020600020905b81548152906001019060200180831161027a57829003601f168201915b505050505081565b828001600101855582156101ac579182015b828111156101ac5782518260005055916020019190600101906102b1565b505050565b509056000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"  # noqa: E501
@@ -418,6 +521,11 @@ def BytesContract(w3, BYTES_CONTRACT):
     return w3.eth.contract(**BYTES_CONTRACT)
 
 
+@pytest.fixture()
+def AsyncBytesContract(async_w3, BYTES_CONTRACT):
+    return async_w3.eth.contract(**BYTES_CONTRACT)
+
+
 CONTRACT_BYTES32_CODE = "60606040527f0123012301230123012301230123012301230123012301230123012301230123600090600019169055341561003957600080fd5b6040516020806101e2833981016040528080519060200190919050505b80600181600019169055505b505b61016f806100736000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063209652551461005f57806330de3cee146100905780633fa4f245146100c157806358825b10146100f2575b600080fd5b341561006a57600080fd5b610072610119565b60405180826000191660001916815260200191505060405180910390f35b341561009b57600080fd5b6100a3610124565b60405180826000191660001916815260200191505060405180910390f35b34156100cc57600080fd5b6100d461012e565b60405180826000191660001916815260200191505060405180910390f35b34156100fd57600080fd5b610117600480803560001916906020019091905050610134565b005b600060015490505b90565b6000805490505b90565b60015481565b80600181600019169055505b505600a165627a7a7230582043b15c20378b1603d330561258ccf291d08923a4c25fa8af0d590a010a6322180029"  # noqa: E501
 
 CONTRACT_BYTES32_RUNTIME = "60606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063209652551461005f57806330de3cee146100905780633fa4f245146100c157806358825b10146100f2575b600080fd5b341561006a57600080fd5b610072610119565b60405180826000191660001916815260200191505060405180910390f35b341561009b57600080fd5b6100a3610124565b60405180826000191660001916815260200191505060405180910390f35b34156100cc57600080fd5b6100d461012e565b60405180826000191660001916815260200191505060405180910390f35b34156100fd57600080fd5b610117600480803560001916906020019091905050610134565b005b600060015490505b90565b6000805490505b90565b60015481565b80600181600019169055505b505600a165627a7a7230582043b15c20378b1603d330561258ccf291d08923a4c25fa8af0d590a010a6322180029"  # noqa: E501
@@ -452,6 +560,11 @@ def BYTES32_CONTRACT(BYTES32_CODE, BYTES32_RUNTIME, BYTES32_ABI):
 @pytest.fixture()
 def Bytes32Contract(w3, BYTES32_CONTRACT):
     return w3.eth.contract(**BYTES32_CONTRACT)
+
+
+@pytest.fixture()
+def AsyncBytes32Contract(async_w3, BYTES32_CONTRACT):
+    return async_w3.eth.contract(**BYTES32_CONTRACT)
 
 
 @pytest.fixture()
@@ -747,6 +860,46 @@ def StrictArraysContract(w3_strict_abi, ARRAYS_CONTRACT):
     return w3_strict_abi.eth.contract(**ARRAYS_CONTRACT)
 
 
+@pytest.fixture()
+def AsyncStrictArraysContract(async_w3_strict_abi, ARRAYS_CONTRACT):
+    return async_w3_strict_abi.eth.contract(**ARRAYS_CONTRACT)
+    
+
+@pytest.fixture()
+def strict_arrays_contract(w3_strict_abi, StrictArraysContract, address_conversion_func):
+    # bytes_32 = [keccak('0'), keccak('1')]
+    bytes32_array = [
+        b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',  # noqa: E501
+        b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6',  # noqa: E501
+    ]
+    byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
+    return deploy(
+        w3_strict_abi,
+        StrictArraysContract,
+        address_conversion_func,
+        args=[bytes32_array, byte_arr]
+    )
+
+
+@pytest_asyncio.fixture()
+async def async_strict_arrays_contract(
+        async_w3_strict_abi,
+        AsyncStrictArraysContract,
+        address_conversion_func):
+    # bytes_32 = [keccak('0'), keccak('1')]
+    bytes32_array = [
+        b'\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m',  # noqa: E501
+        b'\xc8\x9e\xfd\xaaT\xc0\xf2\x0cz\xdfa(\x82\xdf\tP\xf5\xa9Qc~\x03\x07\xcd\xcbLg/)\x8b\x8b\xc6',  # noqa: E501
+    ]
+    byte_arr = [b'\xff', b'\xff', b'\xff', b'\xff']
+    return await async_deploy(
+        async_w3_strict_abi,
+        AsyncStrictArraysContract,
+        address_conversion_func,
+        args=[bytes32_array, byte_arr]
+    )
+
+
 CONTRACT_PAYABLE_TESTER_SOURCE = """
 contract PayableTester {
   bool public wasCalled;
@@ -858,6 +1011,11 @@ def FixedReflectionContract(w3):
     return w3.eth.contract(abi=CONTRACT_FIXED_ABI, bytecode=CONTRACT_REFLECTION_CODE)
 
 
+@pytest.fixture
+def AsyncFixedReflectionContract(async_w3):
+    return async_w3.eth.contract(abi=CONTRACT_FIXED_ABI, bytecode=CONTRACT_REFLECTION_CODE)
+
+
 @pytest.fixture()
 def FALLBACK_FUNCTION_CODE():
     return CONTRACT_FALLBACK_FUNCTION_CODE
@@ -934,11 +1092,6 @@ def RECEIVE_FUNCTION_CONTRACT(RECEIVE_FUNCTION_CODE,
 
 
 @pytest.fixture()
-def NoReceiveFunctionContract(w3, NO_RECEIVE_FUNCTION_CONTRACT):
-    return w3.eth.contract(**NO_RECEIVE_FUNCTION_CONTRACT)
-
-
-@pytest.fixture()
 def NO_RECEIVE_FUNCTION_CODE():
     return CONTRACT_NO_RECEIVE_FUNCTION_CODE
 
@@ -962,6 +1115,29 @@ def NO_RECEIVE_FUNCTION_CONTRACT(NO_RECEIVE_FUNCTION_CODE,
         'bytecode_runtime': NO_RECEIVE_FUNCTION_RUNTIME,
         'abi': NO_RECEIVE_FUNCTION_ABI,
     }
+
+
+@pytest.fixture()
+def NoReceiveFunctionContract(w3, NO_RECEIVE_FUNCTION_CONTRACT):
+    return w3.eth.contract(**NO_RECEIVE_FUNCTION_CONTRACT)
+
+
+@pytest.fixture()
+def AsyncNoReceiveFunctionContract(async_w3, NO_RECEIVE_FUNCTION_CONTRACT):
+    return async_w3.eth.contract(**NO_RECEIVE_FUNCTION_CONTRACT)
+
+
+@pytest.fixture()
+def no_receive_function_contract(w3, NoReceiveFunctionContract, address_conversion_func):
+    return deploy(w3, NoReceiveFunctionContract, address_conversion_func)
+
+
+@pytest_asyncio.fixture()
+async def async_no_receive_function_contract(
+        async_w3,
+        AsyncNoReceiveFunctionContract,
+        address_conversion_func):
+    return await async_deploy(async_w3, AsyncNoReceiveFunctionContract, address_conversion_func)
 
 
 @pytest.fixture()
@@ -1079,6 +1255,21 @@ def REVERT_FUNCTION_CONTRACT(REVERT_CONTRACT_CODE,
 @pytest.fixture()
 def RevertContract(w3, REVERT_FUNCTION_CONTRACT):
     return w3.eth.contract(**REVERT_FUNCTION_CONTRACT)
+
+
+@pytest.fixture()
+def revert_contract(w3, RevertContract, address_conversion_func):
+    return deploy(w3, RevertContract, address_conversion_func)
+
+
+@pytest.fixture()
+def AsyncRevertContract(async_w3, REVERT_FUNCTION_CONTRACT):
+    return async_w3.eth.contract(**REVERT_FUNCTION_CONTRACT)
+
+
+@pytest_asyncio.fixture()
+async def async_revert_contract(async_w3, AsyncRevertContract, address_conversion_func):
+    return await async_deploy(async_w3, AsyncRevertContract, address_conversion_func)
 
 
 class LogFunctions:
@@ -1211,51 +1402,3 @@ def build_transaction(request):
 @pytest.fixture()
 def async_build_transaction(request):
     return async_partial(async_invoke_contract, api_call_desig='build_transaction')
-
-
-@pytest.fixture()
-def AsyncSimpleConstructorContract(async_w3,
-                                   SIMPLE_CONSTRUCTOR_CODE,
-                                   SIMPLE_CONSTRUCTOR_RUNTIME,
-                                   SIMPLE_CONSTRUCTOR_ABI):
-    return async_w3.eth.contract(
-        abi=SIMPLE_CONSTRUCTOR_ABI,
-        bytecode=SIMPLE_CONSTRUCTOR_CODE,
-        bytecode_runtime=SIMPLE_CONSTRUCTOR_RUNTIME,
-    )
-
-
-@pytest.fixture()
-def AsyncWithConstructorArgumentsContract(async_w3,
-                                          WITH_CONSTRUCTOR_ARGUMENTS_CODE,
-                                          WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
-                                          WITH_CONSTRUCTOR_ARGUMENTS_ABI):
-    return async_w3.eth.contract(
-        abi=WITH_CONSTRUCTOR_ARGUMENTS_ABI,
-        bytecode=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
-        bytecode_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
-    )
-
-
-@pytest.fixture()
-def AsyncWithConstructorArgumentsContractStrict(async_w3_strict_abi,
-                                                WITH_CONSTRUCTOR_ARGUMENTS_CODE,
-                                                WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
-                                                WITH_CONSTRUCTOR_ARGUMENTS_ABI):
-    return async_w3_strict_abi.eth.contract(
-        abi=WITH_CONSTRUCTOR_ARGUMENTS_ABI,
-        bytecode=WITH_CONSTRUCTOR_ARGUMENTS_CODE,
-        bytecode_runtime=WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
-    )
-
-
-@pytest.fixture()
-def AsyncWithConstructorAddressArgumentsContract(async_w3,
-                                                 WITH_CONSTRUCTOR_ADDRESS_CODE,
-                                                 WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
-                                                 WITH_CONSTRUCTOR_ADDRESS_ABI):
-    return async_w3.eth.contract(
-        abi=WITH_CONSTRUCTOR_ADDRESS_ABI,
-        bytecode=WITH_CONSTRUCTOR_ADDRESS_CODE,
-        bytecode_runtime=WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
-    )
