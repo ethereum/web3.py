@@ -1225,6 +1225,11 @@ def CallerTesterContract(w3, CALLER_TESTER_CONTRACT):
 
 
 @pytest.fixture()
+def AsyncCallerTesterContract(async_w3, CALLER_TESTER_CONTRACT):
+    return async_w3.eth.contract(**CALLER_TESTER_CONTRACT)
+
+
+@pytest.fixture()
 def REVERT_CONTRACT_CODE():
     return REVERT_CONTRACT_BYTECODE
 
