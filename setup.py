@@ -91,7 +91,7 @@ setup(
         "typing-extensions>=3.7.4.1,<5;python_version<'3.8'",
         "websockets>=10.0.0,<11",
     ],
-    python_requires='>=3.7,<3.11',
+    python_requires='>=3.7.2,<3.11',
     extras_require=extras_require,
     py_modules=['web3', 'ens', 'ethpm'],
     entry_points={"pytest11": ["pytest_ethereum = web3.tools.pytest_ethereum.plugins"]},
