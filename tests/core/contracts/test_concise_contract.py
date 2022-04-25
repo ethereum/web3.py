@@ -7,21 +7,14 @@ from eth_utils import (
     decode_hex,
 )
 
+from utils import (
+    deploy,
+)
 from web3.contract import (
     CONCISE_NORMALIZERS,
     ConciseContract,
     ConciseMethod,
 )
-
-
-def deploy(w3, Contract, args=None):
-    args = args or []
-    deploy_txn = Contract.constructor(*args).transact()
-    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
-    assert deploy_receipt is not None
-    contract = Contract(address=deploy_receipt['contractAddress'])
-    assert len(w3.eth.get_code(contract.address)) > 0
-    return contract
 
 
 @pytest.fixture()
