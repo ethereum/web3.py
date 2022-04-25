@@ -2244,7 +2244,8 @@ async def async_parse_block_identifier(w3: 'Web3',
     elif block_identifier in ['latest', 'earliest', 'pending']:
         return block_identifier  # type: ignore
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
-        return await w3.eth.get_block(block_identifier)['number']  # type: ignore
+        requested_block = await w3.eth.get_block(block_identifier)  # type: ignore
+        return requested_block['number']
     else:
         raise BlockNumberOutofRange
 
@@ -2265,8 +2266,9 @@ async def async_parse_block_identifier_int(w3: 'Web3', block_identifier_int: int
     if block_identifier_int >= 0:
         block_num = block_identifier_int
     else:
-        last_block = await w3.eth.get_block('latest')['number']  # type: ignore
-        block_num = last_block + block_identifier_int + 1
+        last_block = await w3.eth.get_block('latest')  # type: ignore
+        last_block_num = last_block.number
+        block_num = last_block_num + block_identifier_int + 1
         if block_num < 0:
             raise BlockNumberOutofRange
     return BlockNumber(block_num)  # type: ignore
