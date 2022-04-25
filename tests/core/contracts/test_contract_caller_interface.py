@@ -1,5 +1,7 @@
 import pytest
 
+import pytest_asyncio
+
 from utils import (
     async_deploy,
     deploy,
@@ -9,7 +11,6 @@ from web3.exceptions import (
     NoABIFound,
     NoABIFunctionsFound,
 )
-import pytest_asyncio
 
 
 @pytest.fixture()
