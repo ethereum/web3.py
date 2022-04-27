@@ -112,7 +112,7 @@ will return a new :class:`BlockFilter` object.
 ``TransactionFilter`` is a subclass of :class:`Filter`.
 
 You can setup a filter for new blocks using ``web3.eth.filter('pending')`` which
-will return a new :class:`BlockFilter` object.
+will return a new :class:`TransactionFilter` object.
 
     .. code-block:: python
 
