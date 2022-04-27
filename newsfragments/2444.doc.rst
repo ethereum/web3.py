@@ -1,0 +1,1 @@
+Doc fix: Pending transaction filter returns a ``TransactionFilter`` not a ``BlockFilter``
