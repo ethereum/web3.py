@@ -1,1 +1,0 @@
-Add example for the ``construct_sign_and_send_raw_middleware`` when connected to a hosted node
