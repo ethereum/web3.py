@@ -226,7 +226,7 @@ The following properties are available on the ``web3.eth`` namespace.
        .. code-block:: python
 
           >>> from web3.middleware import simple_cache_middleware
-          >>> w3.middleware_onion.add(simple_cache_middleare)
+          >>> w3.middleware_onion.add(simple_cache_middleware)
 
 
 .. py:attribute:: Eth.chainId
