@@ -12,6 +12,7 @@ from typing import (
     Union,
     cast,
 )
+import warnings
 
 from eth_typing import (
     Address,
@@ -259,6 +260,12 @@ class ENS:
             return self._setup_reverse(name, address, transact=transact)
 
     def resolve(self, name: str, get: str = 'addr') -> Optional[Union[ChecksumAddress, str]]:
+        warnings.warn(
+            "In v6, the resolve() method will be made internal and renamed to _resolve(). The "
+            "'get' param name will also change to 'fn_name'.",
+            category=DeprecationWarning,
+        )
+
         normal_name = normalize_name(name)
         resolver = self.resolver(normal_name)
         if resolver:
@@ -272,6 +279,12 @@ class ENS:
             return None
 
     def resolver(self, normal_name: str) -> Optional['Contract']:
+        warnings.warn(
+            "The function signature for resolver() will change in v6 to accept 'name' as a param, "
+            "over 'normalized_name', and the method will normalize the name internally.",
+            category=FutureWarning,
+        )
+
         resolver_addr = self.ens.caller.resolver(normal_name_to_hash(normal_name))
         if is_none_or_zero_address(resolver_addr):
             return None
