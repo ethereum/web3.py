@@ -152,7 +152,7 @@ class ENS:
         :param str name: an ENS name to look up
         :raises InvalidName: if `name` has invalid syntax
         """
-        return cast(ChecksumAddress, self.resolve(name, 'addr'))
+        return cast(ChecksumAddress, self._resolve(name, 'addr'))
 
     def name(self, address: ChecksumAddress) -> Optional[str]:
         """
@@ -163,7 +163,7 @@ class ENS:
         :type address: hex-string
         """
         reversed_domain = address_to_reverse_domain(address)
-        name = self.resolve(reversed_domain, fn_name='name')
+        name = self._resolve(reversed_domain, fn_name='name')
 
         # To be absolutely certain of the name, via reverse resolution, the address must match in
         # the forward resolution
@@ -285,38 +285,14 @@ class ENS:
                 self.setup_address(name, address, transact=transact)
             return self._setup_reverse(name, address, transact=transact)
 
-    def resolver(self, normal_name: str) -> Optional['Contract']:
-        return self._get_resolver(normal_name)[0]
+    def resolver(self, name: str) -> Optional['Contract']:
+        """
+        Get the resolver for an ENS name.
 
-    def resolve(self, name: str, fn_name: str = 'addr') -> Optional[Union[ChecksumAddress, str]]:
+        :param str name: The ENS name
+        """
         normal_name = normalize_name(name)
-
-        resolver, current_name = self._get_resolver(normal_name, fn_name)
-        if not resolver:
-            return None
-
-        node = self.namehash(normal_name)
-
-        if _resolver_supports_interface(resolver, EXTENDED_RESOLVER_INTERFACE_ID):
-            # update the resolver abi to the extended resolver abi
-            extended_resolver = self.w3.eth.contract(abi=abis.EXTENDED_RESOLVER)(resolver.address)
-            contract_func_with_args = (fn_name, [node])
-
-            calldata = extended_resolver.encodeABI(*contract_func_with_args)
-            contract_call_result = extended_resolver.caller.resolve(
-                ens_encode_name(normal_name), calldata
-            )
-            result = self._decode_ensip10_resolve_data(
-                contract_call_result, extended_resolver, fn_name
-            )
-            return to_checksum_address(result) if is_address(result) else result
-        elif normal_name == current_name:
-            lookup_function = getattr(resolver.functions, fn_name)
-            result = lookup_function(node).call()
-            if is_none_or_zero_address(result):
-                return None
-            return to_checksum_address(result) if is_address(result) else result
-        return None
+        return self._get_resolver(normal_name)[0]
 
     def reverser(self, target_address: ChecksumAddress) -> Optional['Contract']:
         reversed_domain = address_to_reverse_domain(target_address)
@@ -455,6 +431,36 @@ class ENS:
             self._assert_control(super_owner, name, owned)
             self._claim_ownership(new_owner, unowned, owned, super_owner, transact=transact)
             return new_owner
+
+    def _resolve(self, name: str, fn_name: str = 'addr') -> Optional[Union[ChecksumAddress, str]]:
+        normal_name = normalize_name(name)
+
+        resolver, current_name = self._get_resolver(normal_name, fn_name)
+        if not resolver:
+            return None
+
+        node = self.namehash(normal_name)
+
+        if _resolver_supports_interface(resolver, EXTENDED_RESOLVER_INTERFACE_ID):
+            # update the resolver abi to the extended resolver abi
+            extended_resolver = self.w3.eth.contract(abi=abis.EXTENDED_RESOLVER)(resolver.address)
+            contract_func_with_args = (fn_name, [node])
+
+            calldata = extended_resolver.encodeABI(*contract_func_with_args)
+            contract_call_result = extended_resolver.caller.resolve(
+                ens_encode_name(normal_name), calldata
+            )
+            result = self._decode_ensip10_resolve_data(
+                contract_call_result, extended_resolver, fn_name
+            )
+            return to_checksum_address(result) if is_address(result) else result
+        elif normal_name == current_name:
+            lookup_function = getattr(resolver.functions, fn_name)
+            result = lookup_function(node).call()
+            if is_none_or_zero_address(result):
+                return None
+            return to_checksum_address(result) if is_address(result) else result
+        return None
 
     def _assert_control(self, account: ChecksumAddress, name: str,
                         parent_owned: Optional[str] = None) -> None:
