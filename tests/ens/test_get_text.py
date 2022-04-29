@@ -66,6 +66,9 @@ def test_get_text(ens, key, expected):
     ens.set_text('tester.eth', key, expected)
     assert ens.get_text('tester.eth', key) == expected
 
+    # teardown
+    ens.setup_address('tester.eth', None)
+
 
 def test_get_text_resolver_not_found(ens):
     with pytest.raises(ResolverNotFound):

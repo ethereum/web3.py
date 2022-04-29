@@ -522,7 +522,7 @@ class ENS:
     def _get_resolver(
         self,
         normal_name: str,
-        func: str = 'addr'
+        fn_name: str = 'addr'
     ) -> Tuple[Optional['Contract'], str]:
         current_name = normal_name
 
@@ -537,7 +537,7 @@ class ENS:
             resolver_addr = self.ens.caller.resolver(normal_name_to_hash(current_name))
             if not is_none_or_zero_address(resolver_addr):
                 # if resolver found, return it
-                return self._type_aware_resolver(resolver_addr, func), current_name
+                return self._type_aware_resolver(resolver_addr, fn_name), current_name
 
             # set current_name to parent and try again
             current_name = self.parent(current_name)
@@ -548,6 +548,8 @@ class ENS:
         func = extended_resolver.get_function_by_name(fn_name)
         output_types = get_abi_output_types(func.abi)
         decoded = self.w3.codec.decode_abi(output_types, contract_call_result)
+
+        # if decoding a single value, return that value - else, return the tuple
         return decoded[0] if len(decoded) == 1 else decoded
 
     def _setup_reverse(
