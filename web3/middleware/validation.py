@@ -55,11 +55,12 @@ to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
 
 @curry
 def _validate_chain_id(web3_chain_id: int, chain_id: int) -> int:
-    if to_integer_if_hex(chain_id) == web3_chain_id:
+    chain_id_int = to_integer_if_hex(chain_id)
+    if chain_id_int == web3_chain_id:
         return chain_id
     else:
         raise ValidationError(
-            f"The transaction declared chain ID {chain_id!r}, "
+            f"The transaction declared chain ID {chain_id_int!r}, "
             f"but the connected node is on {web3_chain_id!r}"
         )
 
