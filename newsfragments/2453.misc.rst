@@ -1,1 +1,1 @@
-Update geth fixture to use geth version ``v1.10.17``
+Update geth fixture to use geth version ``v1.10.17``. Add pytest xfail with strict=False for flaky eth estimage_gas tests.
