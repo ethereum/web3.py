@@ -163,6 +163,7 @@ TRANSACTION_PARAMS_ABIS = {
     'nonce': 'uint',
     'to': 'address',
     'value': 'uint',
+    'chainId': 'uint',
 }
 
 FILTER_PARAMS_ABIS = {
