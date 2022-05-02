@@ -19,6 +19,9 @@ from web3._utils.module_testing import (  # noqa: F401
     VersionModuleTest,
     Web3ModuleTest,
 )
+from web3.types import (
+    BlockData,
+)
 
 if TYPE_CHECKING:
     from web3 import (  # noqa: F401
@@ -81,6 +84,16 @@ class GoEthereumEthModuleTest(EthModuleTest):
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         super().test_eth_wait_for_transaction_receipt_unmined(w3, unlocked_account_dual_type)
+
+    @pytest.mark.xfail(reason='Inconsistently creating timeout issues.', strict=False)
+    def test_eth_get_raw_transaction_by_block(
+        self, w3: "Web3",
+        unlocked_account_dual_type: ChecksumAddress,
+        block_with_txn: BlockData,
+    ) -> None:
+        super().test_eth_get_raw_transaction_by_block(
+            w3, unlocked_account_dual_type, block_with_txn
+        )
 
 
 class GoEthereumVersionModuleTest(VersionModuleTest):
