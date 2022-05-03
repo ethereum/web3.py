@@ -36,9 +36,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.async_transactions import (
-    async_handle_offchain_lookup,
-)
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
@@ -66,7 +63,6 @@ from web3._utils.transactions import (
     assert_valid_transaction_params,
     extract_valid_transaction_params,
     get_required_transaction,
-    handle_offchain_lookup,
     replace_transaction,
 )
 from web3.contract import (
@@ -112,6 +108,10 @@ from web3.types import (
     Uncle,
     Wei,
     _Hash32,
+)
+from web3.utils import (
+    async_handle_offchain_lookup,
+    handle_offchain_lookup,
 )
 
 
@@ -413,20 +413,26 @@ class AsyncEth(BaseEth):
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[CallOverride] = None,
+        ccip_read_enabled: bool = True,
     ) -> Union[bytes, bytearray]:
-        if self.w3.provider.ccip_read_enabled:
-            # if ccip_read_enabled, handle OffchainLookup reverts appropriately via durin call
-            return await self.durin_call(transaction, block_identifier, state_override)
+        if ccip_read_enabled:
+            # if ccip read is enabled, handle OffchainLookup reverts via durin call
+            return await self._durin_call(transaction, block_identifier, state_override)
 
         return await self._call(transaction, block_identifier, state_override)
 
-    async def durin_call(
+    async def _durin_call(
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[CallOverride] = None,
     ) -> Union[bytes, bytearray]:
-        for _ in range(4):
+        max_redirects = self.w3.provider.ccip_read_max_redirects
+
+        if not max_redirects or max_redirects < 4:
+            raise ValueError("ccip_read_max_redirects property on provider must be at least 4.")
+
+        for _ in range(max_redirects):
             try:
                 return await self._call(transaction, block_identifier, state_override)
             except OffchainLookup as offchain_lookup:
@@ -815,20 +821,26 @@ class Eth(BaseEth):
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[CallOverride] = None,
+        ccip_read_enabled: bool = True,
     ) -> Union[bytes, bytearray]:
-        if self.w3.provider.ccip_read_enabled:
-            # if ccip_read_enabled, handle OffchainLookup reverts appropriately
-            self.durin_call(transaction, block_identifier, state_override)
+        if ccip_read_enabled:
+            # if ccip read is enabled, handle OffchainLookup reverts via durin call
+            self._durin_call(transaction, block_identifier, state_override)
 
         return self._call(transaction, block_identifier, state_override)
 
-    def durin_call(
+    def _durin_call(
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[CallOverride] = None,
     ) -> Union[bytes, bytearray]:
-        for _ in range(4):
+        max_redirects = self.w3.provider.ccip_read_max_redirects
+
+        if not max_redirects or max_redirects < 4:
+            raise ValueError("ccip_read_max_redirects property on provider must be at least 4.")
+
+        for _ in range(max_redirects):
             try:
                 return self._call(transaction, block_identifier, state_override)
             except OffchainLookup as offchain_lookup:

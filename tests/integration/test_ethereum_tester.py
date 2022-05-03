@@ -158,6 +158,21 @@ def revert_contract(w3, revert_contract_factory, revert_contract_deploy_txn_hash
     return revert_contract_factory(contract_address)
 
 
+#
+# Offchain Lookup Contract Setup
+#
+@pytest.fixture(scope="module")
+def offchain_lookup_contract(w3, offchain_lookup_contract_factory):
+    deploy_txn_hash = offchain_lookup_contract_factory.constructor().transact(
+        {'from': w3.eth.coinbase}
+    )
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn_hash)
+    assert is_dict(deploy_receipt)
+    contract_address = deploy_receipt['contractAddress']
+    assert is_checksum_address(contract_address)
+    return offchain_lookup_contract_factory(contract_address)
+
+
 UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
 
 

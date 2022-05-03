@@ -1064,7 +1064,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. warning:: Deprecated: This property is deprecated in favor of
       :meth:`~web3.eth.Eth.sign_typed_data()`
 
-.. py:method:: Eth.call(transaction, block_identifier=web3.eth.default_block, state_override=None)
+.. py:method:: Eth.call(transaction, block_identifier=web3.eth.default_block, state_override=None, ccip_read_enabled=True)
 
     * Delegates to ``eth_call`` RPC Method
 
@@ -1089,6 +1089,15 @@ The following methods are available on the ``web3.eth`` namespace.
     Overriding state is a debugging feature available in Geth clients.
     View their `usage documentation <https://geth.ethereum.org/docs/rpc/ns-eth#3-object---state-override-set>`_
     for a list of possible parameters.
+
+    `EIP-3668 <https://eips.ethereum.org/EIPS/eip-3668>`_ introduced support for the ``OffchainLookup`` revert / CCIP
+    Read support. In order to properly handle a call to a contract function that reverts with an ``OffchainLookup``
+    error for offchain data retrieval, the ``ccip_read_enabled`` flag has been added to the ``eth_call`` method.
+    ``ccip_read_enabled`` is set to ``True`` by default for calls, as recommended in EIP-3668. Therefore, calls to
+    contract functions that revert with an ``OffchainLookup`` will be handled appropriately by default. If the
+    ``ccip_read_enabled`` flag is set to ``False``, the call will raise the ``OffchainLookup`` instead of properly
+    handling the exception according to EIP-3668. This may be useful for "preflighting" a transaction call (see
+    :ref:`ccip-read-example` within the examples section).
 
 
 .. py:method:: Eth.fee_history(block_count, newest_block, reward_percentiles=None)

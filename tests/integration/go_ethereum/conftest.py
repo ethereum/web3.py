@@ -236,3 +236,15 @@ def block_hash_revert_with_msg(geth_fixture_data):
 @pytest.fixture(scope="module")
 def revert_contract(revert_contract_factory, geth_fixture_data):
     return revert_contract_factory(address=geth_fixture_data['revert_address'])
+
+
+@pytest.fixture(scope="module")
+def offchain_lookup_contract(offchain_lookup_contract_factory, geth_fixture_data):
+    return offchain_lookup_contract_factory(address=geth_fixture_data['offchain_lookup_address'])
+
+
+@pytest.fixture(scope="module")
+def async_offchain_lookup_contract(async_offchain_lookup_contract_factory, geth_fixture_data):
+    return async_offchain_lookup_contract_factory(
+        address=geth_fixture_data['offchain_lookup_address']
+    )

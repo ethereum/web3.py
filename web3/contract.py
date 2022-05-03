@@ -1247,10 +1247,13 @@ class ContractFunction(BaseContractFunction):
         clone._set_function_info()
         return clone
 
-    def call(self, transaction: Optional[TxParams] = None,
-             block_identifier: BlockIdentifier = 'latest',
-             state_override: Optional[CallOverrideParams] = None,
-             ) -> Any:
+    def call(
+        self,
+        transaction: Optional[TxParams] = None,
+        block_identifier: BlockIdentifier = 'latest',
+        state_override: Optional[CallOverride] = None,
+        ccip_read_enabled: bool = True,
+    ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
 
@@ -1279,18 +1282,20 @@ class ContractFunction(BaseContractFunction):
 
         block_id = parse_block_identifier(self.w3, block_identifier)
 
-        return call_contract_function(self.w3,
-                                      self.address,
-                                      self._return_data_normalizers,
-                                      self.function_identifier,
-                                      call_transaction,
-                                      block_id,
-                                      self.contract_abi,
-                                      self.abi,
-                                      state_override,
-                                      *self.args,
-                                      **self.kwargs
-                                      )
+        return call_contract_function(
+            self.w3,
+            self.address,
+            self._return_data_normalizers,
+            self.function_identifier,
+            call_transaction,
+            block_id,
+            self.contract_abi,
+            self.abi,
+            state_override,
+            ccip_read_enabled,
+            *self.args,
+            **self.kwargs
+        )
 
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         setup_transaction = self._transact(transaction)
@@ -1358,7 +1363,8 @@ class AsyncContractFunction(BaseContractFunction):
     async def call(
         self, transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
-        state_override: Optional[CallOverrideParams] = None,
+        state_override: Optional[CallOverride] = None,
+        ccip_read_enabled: bool = True,
     ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
@@ -1398,6 +1404,7 @@ class AsyncContractFunction(BaseContractFunction):
             self.contract_abi,
             self.abi,
             state_override,
+            ccip_read_enabled,
             *self.args,
             **self.kwargs
         )
@@ -1807,7 +1814,7 @@ class BaseContractCaller:
         address: ChecksumAddress,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
-        ccip_read_enabled: bool = False,
+        ccip_read_enabled: bool = True,
         contract_function_class: Optional[Union[Type[ContractFunction], Type[AsyncContractFunction]]] = ContractFunction,  # noqa: E501
     ) -> None:
         self.w3 = w3
@@ -1872,28 +1879,44 @@ class BaseContractCaller:
         *args: Any,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
+        ccip_read_enabled: bool = True,
         **kwargs: Any
     ) -> Any:
         if transaction is None:
             transaction = {}
-        return fn(*args, **kwargs).call(transaction, block_identifier)
+        return fn(*args, **kwargs).call(
+            transaction=transaction,
+            block_identifier=block_identifier,
+            ccip_read_enabled=ccip_read_enabled,
+        )
 
 
 class ContractCaller(BaseContractCaller):
-    def __init__(self,
-                 abi: ABI,
-                 w3: 'Web3',
-                 address: ChecksumAddress,
-                 transaction: Optional[TxParams] = None,
-                 block_identifier: BlockIdentifier = 'latest') -> None:
-        super().__init__(abi, w3, address,
-                         transaction, block_identifier, ContractFunction)
+    def __init__(
+        self,
+        abi: ABI,
+        w3: 'Web3',
+        address: ChecksumAddress,
+        transaction: Optional[TxParams] = None,
+        block_identifier: BlockIdentifier = 'latest',
+        ccip_read_enabled: bool = True,
+    ) -> None:
+        super().__init__(
+            abi=abi,
+            w3=w3,
+            address=address,
+            transaction=transaction,
+            block_identifier=block_identifier,
+            ccip_read_enabled=ccip_read_enabled,
+            contract_function_class=ContractFunction,
+        )
 
     def __call__(
         self,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
-        ccip_read_enabled: bool = False,
+        state_override: Optional[CallOverride] = None,
+        ccip_read_enabled: bool = True,
     ) -> 'ContractCaller':
         if transaction is None:
             transaction = {}
@@ -1909,20 +1932,30 @@ class ContractCaller(BaseContractCaller):
 
 class AsyncContractCaller(BaseContractCaller):
 
-    def __init__(self,
-                 abi: ABI,
-                 w3: 'Web3',
-                 address: ChecksumAddress,
-                 transaction: Optional[TxParams] = None,
-                 block_identifier: BlockIdentifier = 'latest') -> None:
-        super().__init__(abi, w3, address,
-                         transaction, block_identifier, AsyncContractFunction)
+    def __init__(
+        self,
+        abi: ABI,
+        w3: 'Web3',
+        address: ChecksumAddress,
+        transaction: Optional[TxParams] = None,
+        block_identifier: BlockIdentifier = 'latest',
+        ccip_read_enabled: bool = True,
+    ) -> None:
+        super().__init__(
+            abi=abi,
+            w3=w3,
+            address=address,
+            transaction=transaction,
+            block_identifier=block_identifier,
+            ccip_read_enabled=ccip_read_enabled,
+            contract_function_class=AsyncContractFunction,
+        )
 
     def __call__(
         self,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
-        ccip_read_enabled: bool = False,
+        ccip_read_enabled: bool = True,
     ) -> 'AsyncContractCaller':
         if transaction is None:
             transaction = {}
@@ -1964,7 +1997,7 @@ def call_contract_function(
         contract_abi: Optional[ABI] = None,
         fn_abi: Optional[ABIFunction] = None,
         state_override: Optional[CallOverride] = None,
-        ccip_read_enabled: bool = False,
+        ccip_read_enabled: bool = True,
         *args: Any,
         **kwargs: Any) -> Any:
     """
@@ -1982,18 +2015,12 @@ def call_contract_function(
         fn_kwargs=kwargs,
     )
 
-    if ccip_read_enabled:
-        return_data = w3.eth.durin_call(
-            call_transaction,
-            block_identifier=block_id,
-            state_override=state_override,
-        )
-    else:
-        return_data = w3.eth.call(
-            call_transaction,
-            block_identifier=block_id,
-            state_override=state_override,
-        )
+    return_data = w3.eth.call(
+        call_transaction,
+        block_identifier=block_id,
+        state_override=state_override,
+        ccip_read_enabled=ccip_read_enabled,
+    )
 
     if fn_abi is None:
         fn_abi = find_matching_fn_abi(contract_abi, w3.codec, function_identifier, args, kwargs)
@@ -2041,7 +2068,8 @@ async def async_call_contract_function(
         block_id: Optional[BlockIdentifier] = None,
         contract_abi: Optional[ABI] = None,
         fn_abi: Optional[ABIFunction] = None,
-        state_override: Optional[CallOverrideParams] = None,
+        state_override: Optional[CallOverride] = None,
+        ccip_read_enabled: bool = True,
         *args: Any,
         **kwargs: Any) -> Any:
     """
@@ -2063,6 +2091,7 @@ async def async_call_contract_function(
         call_transaction,
         block_identifier=block_id,
         state_override=state_override,
+        ccip_read_enabled=ccip_read_enabled,
     )
 
     if fn_abi is None:

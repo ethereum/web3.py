@@ -6,6 +6,7 @@ import threading
 from typing import (
     Any,
     Dict,
+    Union,
 )
 
 from aiohttp import (
@@ -96,8 +97,10 @@ def get_response_from_post_request(
     return response
 
 
-def make_post_request(endpoint_uri: URI, *args: Any, **kwargs: Any) -> bytes:
-    response = get_response_from_post_request(endpoint_uri, *args, **kwargs)
+def make_post_request(
+    endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], *args: Any, **kwargs: Any
+) -> bytes:
+    response = get_response_from_post_request(endpoint_uri, data=data, *args, **kwargs)
     response.raise_for_status()
     return response.content
 
@@ -142,8 +145,10 @@ async def async_get_response_from_post_request(
     return response
 
 
-async def async_make_post_request(endpoint_uri: URI, *args: Any, **kwargs: Any) -> bytes:
-    response = await async_get_response_from_post_request(endpoint_uri, *args, **kwargs)
+async def async_make_post_request(
+    endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], *args: Any, **kwargs: Any
+) -> bytes:
+    response = await async_get_response_from_post_request(endpoint_uri, data=data, *args, **kwargs)
     return await response.read()
 
 

@@ -1,3 +1,4 @@
+import ast
 import operator
 import random
 import sys
@@ -12,9 +13,13 @@ from typing import (
     Type,
 )
 
+from eth_abi.abi import (
+    decode_abi,
+)
 from eth_tester.exceptions import (
     BlockNotFound,
     FilterNotFound,
+    TransactionFailed,
     TransactionNotFound,
     ValidationError,
 )
@@ -37,6 +42,12 @@ from eth_utils.toolz import (
     excepts,
 )
 
+from web3._utils.method_formatters import (
+    OFFCHAIN_LOOKUP_FIELDS,
+)
+from web3.exceptions import (
+    OffchainLookup,
+)
 from web3.types import (
     LogReceipt,
     RPCResponse,
@@ -63,7 +74,21 @@ def call_eth_tester(
 ) -> RPCResponse:
     if fn_kwargs is None:
         fn_kwargs = {}
-    return getattr(eth_tester, fn_name)(*fn_args, **fn_kwargs)
+
+    try:
+        return getattr(eth_tester, fn_name)(*fn_args, **fn_kwargs)
+    except TransactionFailed as e:
+        possible_data = e.args[0]
+        if isinstance(possible_data, str) and possible_data[2:10] == 'Uo\\x180\\':
+            # EIP-3668 | CCIP Read
+            # b"Uo\x180" is the first 4 bytes of the keccak hash for:
+            # OffchainLookup(address,string[],bytes,bytes4,bytes)
+            parsed_data_as_bytes = ast.literal_eval(possible_data)
+            data_payload = parsed_data_as_bytes[4:]  # everything but the function selector
+            abi_decoded_data = decode_abi(OFFCHAIN_LOOKUP_FIELDS.values(), data_payload)
+            offchain_lookup_payload = dict(zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data))
+            raise OffchainLookup(offchain_lookup_payload)
+        raise e
 
 
 def without_eth_tester(
