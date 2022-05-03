@@ -261,8 +261,10 @@ class ENS:
 
     def resolve(self, name: str, get: str = 'addr') -> Optional[Union[ChecksumAddress, str]]:
         warnings.warn(
-            "In v6, the resolve() method will be made internal and renamed to _resolve(). The "
-            "'get' param name will also change to 'fn_name'.",
+            "In v6, the `ENS.resolve()` method will be made internal and renamed to "
+            "`_resolve()`. It is recommended to use the abstracted resolve functionality of "
+            "`ENS.address()` for forward resolution, and `ENS.name()` for reverse resolution "
+            "instead.",
             category=DeprecationWarning,
         )
 
@@ -278,12 +280,15 @@ class ENS:
         else:
             return None
 
-    def resolver(self, normal_name: str) -> Optional['Contract']:
-        warnings.warn(
-            "The function signature for resolver() will change in v6 to accept 'name' as a param, "
-            "over 'normalized_name', and the method will normalize the name internally.",
-            category=FutureWarning,
-        )
+    def resolver(self, normal_name: str, name: str = None) -> Optional['Contract']:
+        if not name:
+            warnings.warn(
+                "The function signature for resolver() will change in v6 to accept `name` as a "
+                "the positional argument, over `normal_name`, and the method will instead "
+                "normalize the name internally. To suppress warnings for now, `name` may be passed "
+                "in as a keyword argument.",
+                category=FutureWarning,
+            )
 
         resolver_addr = self.ens.caller.resolver(normal_name_to_hash(normal_name))
         if is_none_or_zero_address(resolver_addr):
