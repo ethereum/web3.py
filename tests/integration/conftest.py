@@ -9,6 +9,10 @@ from web3._utils.module_testing.math_contract import (
     MATH_ABI,
     MATH_BYTECODE,
 )
+from web3._utils.module_testing.offchain_lookup_contract import (
+    OFFCHAIN_LOOKUP_ABI,
+    OFFCHAIN_LOOKUP_BYTECODE,
+)
 from web3._utils.module_testing.revert_contract import (
     _REVERT_CONTRACT_ABI,
     REVERT_CONTRACT_BYTECODE,
@@ -33,6 +37,22 @@ def emitter_contract_factory(w3):
 def revert_contract_factory(w3):
     contract_factory = w3.eth.contract(
         abi=_REVERT_CONTRACT_ABI, bytecode=REVERT_CONTRACT_BYTECODE
+    )
+    return contract_factory
+
+
+@pytest.fixture(scope="module")
+def offchain_lookup_contract_factory(w3):
+    contract_factory = w3.eth.contract(
+        abi=OFFCHAIN_LOOKUP_ABI, bytecode=OFFCHAIN_LOOKUP_BYTECODE
+    )
+    return contract_factory
+
+
+@pytest.fixture(scope="module")
+def async_offchain_lookup_contract_factory(async_w3):
+    contract_factory = async_w3.eth.contract(
+        abi=OFFCHAIN_LOOKUP_ABI, bytecode=OFFCHAIN_LOOKUP_BYTECODE
     )
     return contract_factory
 

@@ -743,6 +743,20 @@ Positional and keyword arguments supplied to the contract function subclass
 will be used to find the contract function by signature,
 and forwarded to the contract function when applicable.
 
+`EIP-3668 <https://eips.ethereum.org/EIPS/eip-3668>`_ introduced support for the ``OffchainLookup`` revert /
+CCIP Read support. The ``ccip_read_enabled`` flag is set to ``True`` for calls by default, as recommended in EIP-3668.
+If raising the ``OffchainLookup`` revert is preferred, the flag may be set to ``False`` on a per-call basis.
+
+.. code-block:: python
+
+        >>> myContract.functions.revertsWithOffchainLookup(myData).call(ccip_read_enabled=False)
+        *** web3.exceptions.OffchainLookup
+
+Disabling CCIP Read support can be useful if a transaction needs to be sent to the callback function. In such cases,
+"preflighting" with an ``eth_call``, handling the ``OffchainLookup``, and sending the data via a transaction may be
+necessary. See :ref:`ccip-read-example` in the examples section for how to preflight a transaction with a contract call.
+
+
 Methods
 ~~~~~~~~~~
 

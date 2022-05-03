@@ -79,7 +79,7 @@ def test_precached_session(mocker):
     assert len(request._session_cache) == 1
 
     # Ensure the timeout was passed to the request
-    session = request._get_session(URI)
+    session = request.get_session(URI)
     session.post.assert_called_once_with(URI, data=b'request', timeout=60)
 
     # Ensure the adapter parameters match those we specified

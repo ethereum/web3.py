@@ -41,6 +41,14 @@ class TooManyRequests(Exception):
     pass
 
 
+class MultipleFailedRequests(Exception):
+    """
+    Raised by a provider to signal that multiple requests to retrieve the same (or similar) data
+    have failed.
+    """
+    pass
+
+
 class InvalidAddress(ValueError):
     """
     The supplied address does not have a valid checksum, as defined in EIP-55
@@ -215,21 +223,21 @@ class SolidityError(ValueError):
     pass
 
 
-class OffchainLookup(ValueError):
-    """
-    Raised when a contract reverts with OffchainLookup as described in EIP-3668
-    """
-    def __init__(self, payload: Dict[str, Any]) -> None:
-        self.payload = payload
-        super().__init__()
-
-
 class ContractLogicError(SolidityError, ValueError):
     # Inherits from ValueError for backwards compatibility
     # TODO: Remove SolidityError inheritance in v6
     """
     Raised on a contract revert error
     """
+
+
+class OffchainLookup(ContractLogicError):
+    """
+    Raised when a contract reverts with OffchainLookup as described in EIP-3668
+    """
+    def __init__(self, payload: Dict[str, Any]) -> None:
+        self.payload = payload
+        super().__init__()
 
 
 class InvalidParityMode(TypeError, ValueError):

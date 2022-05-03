@@ -4,6 +4,8 @@
 # compiled with `0.8.11`.
 # See: https://github.com/ethereum/web3.py/issues/2301
 
+# contract source at web3/_utils/contract_sources/Emitter_old.sol
+
 CONTRACT_EMITTER_CODE_OLD = (
     "608060405234801561001057600080fd5b50610aed806100206000396000f300608060405260043"
     "6106100ae5763ffffffff7c01000000000000000000000000000000000000000000000000000000"

@@ -97,7 +97,7 @@ class EthereumTesterProvider(BaseProvider):
         ethereum_tester_middleware,
     )
     ethereum_tester = None
-    api_endpoints = None
+    api_endpoints: Optional[Dict[str, Dict[str, Callable[..., RPCResponse]]]] = None
 
     def __init__(
         self,

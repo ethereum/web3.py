@@ -624,6 +624,44 @@ When someone has an allowance they can transfer those tokens using the
 .. _ERC20: https://github.com/ethereum/EIPs/blob/7f4f0377730f5fc266824084188cc17cf246932e/EIPS/eip-20.md
 
 
+.. _ccip-read-example:
+
+CCIP Read support for offchain lookup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Contract calls support CCIP Read by default via a ``ccip_read_enabled`` flag that is set to a default value of ``True``.
+The following should work by default without raising the ``OffchainLookup`` and instead handling it appropriately as
+per the specification outlined in `EIP-3668 <https://eips.ethereum.org/EIPS/eip-3668>`_.
+
+.. code-block:: python
+
+    myContract.functions.revertsWithOffchainLookup(myData).call()
+
+If the offchain lookup requires the user to send a transaction rather than make a call, this may be handled
+appropriately in the following way:
+
+.. code-block:: python
+
+    from web3 import Web3, WebsocketProvider
+    from web3.utils import handle_offchain_lookup
+
+    w3 = Web3(WebsocketProvider(...))
+
+    myContract = w3.eth.contract(address=...)
+    myData = b'data for offchain lookup function call'
+
+    # preflight with an `eth_call` and handle the exception
+    try:
+        myContract.functions.revertsWithOffchainLookup(myData).call(ccip_read_enabled=False)
+    except OffchainLookup as ocl:
+        tx = {'to': myContract.address, 'from': my_account}
+        data_for_callback_function = handle_offchain_lookup(ocl.payload)
+        tx['data'] = data_for_callback_function
+
+        # send the built transaction with `eth_sendTransaction` or sign and send with `eth_sendRawTransaction`
+        tx_hash = w3.eth.send_transaction(tx)
+
+
 Contract Unit Tests in Python
 -----------------------------
 

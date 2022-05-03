@@ -1,0 +1,135 @@
+import pytest
+
+from eth_abi import (
+    decode_abi,
+)
+
+from web3._utils.module_testing.module_testing_utils import (
+    mock_offchain_lookup_request_response,
+)
+from web3._utils.module_testing.offchain_lookup_contract import (
+    OFFCHAIN_LOOKUP_ABI,
+    OFFCHAIN_LOOKUP_BYTECODE,
+    OFFCHAIN_LOOKUP_BYTECODE_RUNTIME,
+)
+from web3._utils.type_conversion import (
+    to_hex_if_bytes,
+)
+from web3.exceptions import (
+    TooManyRequests,
+    ValidationError,
+)
+
+# "test offchain lookup" as an abi-encoded string
+OFFCHAIN_LOOKUP_TEST_DATA = '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001474657374206f6666636861696e206c6f6f6b7570000000000000000000000000'  # noqa: E501
+# "web3py" as an abi-encoded string
+WEB3PY_AS_HEXBYTES = '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000067765623370790000000000000000000000000000000000000000000000000000'  # noqa: E501
+
+
+@pytest.fixture
+def OffchainLookup(w3):
+    # compiled from `web3/_utils/module_testing/contract_sources/OffchainLookup.sol`
+    return w3.eth.contract(
+        abi=OFFCHAIN_LOOKUP_ABI,
+        bytecode=OFFCHAIN_LOOKUP_BYTECODE,
+        bytecode_runtime=OFFCHAIN_LOOKUP_BYTECODE_RUNTIME,
+    )
+
+
+@pytest.fixture
+def offchain_lookup_contract(
+    w3, wait_for_block, OffchainLookup, wait_for_transaction, address_conversion_func,
+):
+    wait_for_block(w3)
+    deploy_txn_hash = OffchainLookup.constructor().transact({'gas': 10000000})
+    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
+    contract_address = address_conversion_func(deploy_receipt['contractAddress'])
+
+    bytecode = w3.eth.get_code(contract_address)
+    assert bytecode == OffchainLookup.bytecode_runtime
+    deployed_offchain_lookup = OffchainLookup(address=contract_address)
+    assert deployed_offchain_lookup.address == contract_address
+    return deployed_offchain_lookup
+
+
+def test_offchain_lookup_functionality(
+    offchain_lookup_contract, monkeypatch,
+):
+    normalized_address = to_hex_if_bytes(offchain_lookup_contract.address)
+    mock_offchain_lookup_request_response(
+        monkeypatch,
+        mocked_request_url=f'https://web3.py/gateway/{normalized_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json',  # noqa: E501
+        mocked_json_data=WEB3PY_AS_HEXBYTES,
+    )
+    response = offchain_lookup_contract.caller.testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA)
+    assert decode_abi(['string'], response)[0] == 'web3py'
+
+
+def test_offchain_lookup_raises_for_improperly_formatted_rest_request_response(
+    offchain_lookup_contract, monkeypatch,
+):
+    normalized_address = to_hex_if_bytes(offchain_lookup_contract.address)
+    mock_offchain_lookup_request_response(
+        monkeypatch,
+        mocked_request_url=f'https://web3.py/gateway/{normalized_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json',  # noqa: E501
+        mocked_json_data=WEB3PY_AS_HEXBYTES,
+        json_data_field='not_data',
+    )
+    with pytest.raises(ValidationError, match="missing 'data' field"):
+        offchain_lookup_contract.caller.testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA)
+
+
+@pytest.mark.parametrize('status_code_non_4xx_error', [100, 300, 500, 600])
+def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_tests_POST(
+    offchain_lookup_contract, monkeypatch, status_code_non_4xx_error,
+) -> None:
+    normalized_contract_address = to_hex_if_bytes(offchain_lookup_contract.address).lower()
+
+    # The next url in our test contract doesn't contain '{data}', triggering the POST request
+    # logic. The idea here is to return a bad status for the first url (GET) and a success
+    # status from the second call (POST) to test both that we move on to the next url with
+    # non 4xx status and that the POST logic is also working as expected.
+    mock_offchain_lookup_request_response(
+        monkeypatch,
+        mocked_request_url=f'https://web3.py/gateway/{normalized_contract_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json',  # noqa: E501
+        mocked_status_code=status_code_non_4xx_error,
+        mocked_json_data=WEB3PY_AS_HEXBYTES,
+    )
+    mock_offchain_lookup_request_response(
+        monkeypatch,
+        http_method='POST',
+        mocked_request_url=f'https://web3.py/gateway/{normalized_contract_address}.json',
+        mocked_status_code=200,
+        mocked_json_data=WEB3PY_AS_HEXBYTES,
+        sender=normalized_contract_address,
+        calldata=OFFCHAIN_LOOKUP_TEST_DATA,
+    )
+    response = offchain_lookup_contract.caller.testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA)
+    assert decode_abi(['string'], response)[0] == 'web3py'
+
+
+@pytest.mark.parametrize('status_code_4xx_error', [400, 410, 450, 499])
+def test_eth_call_offchain_lookup_calls_raise_for_status_for_4xx_status_code(
+    offchain_lookup_contract, monkeypatch, status_code_4xx_error,
+) -> None:
+    normalized_contract_address = to_hex_if_bytes(offchain_lookup_contract.address).lower()
+    mock_offchain_lookup_request_response(
+        monkeypatch,
+        mocked_request_url=f'https://web3.py/gateway/{normalized_contract_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json',  # noqa: E501
+        mocked_status_code=status_code_4xx_error,
+        mocked_json_data=WEB3PY_AS_HEXBYTES,
+    )
+    with pytest.raises(Exception, match="called raise_for_status\\(\\)"):
+        offchain_lookup_contract.caller.testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA)
+
+
+def test_offchain_lookup_raises_on_continuous_redirect(
+    offchain_lookup_contract, monkeypatch,
+):
+    normalized_address = to_hex_if_bytes(offchain_lookup_contract.address)
+    mock_offchain_lookup_request_response(
+        monkeypatch,
+        mocked_request_url=f'https://web3.py/gateway/{normalized_address}/0x.json',
+    )
+    with pytest.raises(TooManyRequests, match="Too many CCIP read redirects"):
+        offchain_lookup_contract.caller.continuousOffchainLookup()

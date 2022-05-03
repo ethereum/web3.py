@@ -13,8 +13,9 @@ from eth_abi import (
 from eth_typing import (
     URI,
 )
-from eth_utils import (
-    ValidationError,
+from eth_utils.toolz import (
+    curry,
+    merge,
 )
 
 from web3._utils.request import (
@@ -22,20 +23,18 @@ from web3._utils.request import (
     async_get_response_from_get_request,
     async_get_response_from_post_request,
 )
-from web3._utils.type_conversion_utils import (
+from web3._utils.type_conversion import (
     to_bytes_if_hex,
     to_hex_if_bytes,
 )
-from eth_utils.toolz import (
-    curry,
-    merge,
-)
-
 from web3._utils.utility_methods import (
     any_in_dict,
 )
 from web3.constants import (
     DYNAMIC_FEE_TXN_PARAMS,
+)
+from web3.exceptions import (
+    ValidationError,
 )
 from web3.types import (
     BlockIdentifier,
@@ -163,13 +162,15 @@ async def async_handle_offchain_lookup(
         )
 
         try:
-            if '{data}' in url:
+            if '{data}' in url and '{sender}' in url:
                 response = await async_get_response_from_get_request(formatted_url)
-            else:
+            elif '{sender}' in url:
                 response = await async_get_response_from_post_request(formatted_url, data={
                     "data": formatted_data,
                     "sender": formatted_sender
                 })
+            else:
+                raise ValidationError('url not formatted properly.')
         except Exception:
             continue  # try next url if timeout or issues making the request
 
@@ -181,7 +182,7 @@ async def async_handle_offchain_lookup(
         result = await async_get_json_from_client_response(response)
 
         if 'data' not in result.keys():
-            raise Exception(
+            raise ValidationError(
                 "Improperly formatted response for offchain lookup HTTP request - missing 'data' "
                 "field."
             )

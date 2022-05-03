@@ -3,6 +3,7 @@ import json
 import os
 import pprint
 import shutil
+import socket
 import subprocess
 import sys
 import time
@@ -21,9 +22,6 @@ from eth_utils.toolz import (
 )
 
 import common
-from tests.utils import (
-    get_open_port,
-)
 from web3 import Web3
 from web3._utils.module_testing.emitter_contract import (
     CONTRACT_EMITTER_ABI,
@@ -34,10 +32,22 @@ from web3._utils.module_testing.math_contract import (
     MATH_ABI,
     MATH_BYTECODE,
 )
+from web3._utils.module_testing.offchain_lookup_contract import (
+    OFFCHAIN_LOOKUP_ABI,
+    OFFCHAIN_LOOKUP_BYTECODE,
+)
 from web3._utils.module_testing.revert_contract import (
     _REVERT_CONTRACT_ABI,
     REVERT_CONTRACT_BYTECODE,
 )
+
+
+def get_open_port():
+    sock = socket.socket()
+    sock.bind(('127.0.0.1', 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return str(port)
 
 
 @contextlib.contextmanager
@@ -259,6 +269,18 @@ def setup_chain_state(w3):
     print('BLOCK_HASH_REVERT_NO_MSG:', block_hash_revert_no_msg['hash'])
 
     #
+    # Offchain Lookup Contract
+    #
+    offchain_lookup_factory = w3.eth.contract(
+        abi=OFFCHAIN_LOOKUP_ABI,
+        bytecode=OFFCHAIN_LOOKUP_BYTECODE,
+    )
+    offchain_lookup_deploy_receipt = common.deploy_contract(
+        w3, 'offchain_lookup', offchain_lookup_factory
+    )
+    assert is_dict(offchain_lookup_deploy_receipt)
+
+    #
     # Empty Block
     #
     empty_block_number = mine_block(w3)
@@ -290,6 +312,7 @@ def setup_chain_state(w3):
         'math_address': math_deploy_receipt['contractAddress'],
         'emitter_deploy_txn_hash': emitter_deploy_receipt['transactionHash'],
         'emitter_address': emitter_deploy_receipt['contractAddress'],
+        'offchain_lookup_address': offchain_lookup_deploy_receipt['contractAddress'],
         'txn_hash_with_log': txn_hash_with_log,
         'block_hash_with_log': block_with_log['hash'],
         'empty_block_hash': empty_block['hash'],

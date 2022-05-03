@@ -23,3 +23,7 @@ def test_auto_provider_none():
     w3.toHex(0) == '0x0'
 
     type(w3.provider) == AutoProvider
+
+
+def test_provider_default_value_for_ccip_read_redirect(w3):
+    assert w3.provider.ccip_read_max_redirects == 4

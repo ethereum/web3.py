@@ -5,12 +5,18 @@ import pytest
 from eth_tester import (
     EthereumTester,
 )
+from eth_utils import (
+    to_checksum_address,
+)
 
 from ens import ENS
 from ens.contract_data import (
     extended_resolver_abi,
     extended_resolver_bytecode,
     extended_resolver_bytecode_runtime,
+    offchain_resolver_abi,
+    offchain_resolver_bytecode,
+    offchain_resolver_bytecode_runtime,
     registrar_abi,
     registrar_bytecode,
     registrar_bytecode_runtime,
@@ -97,6 +103,15 @@ def ExtendedResolver(w3):
         bytecode=extended_resolver_bytecode,
         bytecode_runtime=extended_resolver_bytecode_runtime,
         abi=extended_resolver_abi,
+        ContractFactoryClass=Contract,
+    )
+
+
+def OffchainResolver(w3):
+    return w3.eth.contract(
+        bytecode=offchain_resolver_bytecode,
+        bytecode_runtime=offchain_resolver_bytecode_runtime,
+        abi=offchain_resolver_abi,
         ContractFactoryClass=Contract,
     )
 
@@ -268,6 +283,39 @@ def ens_setup():
     ens_contract.functions.setResolver(
         extended_resolver_namehash,
         extended_resolver.address
+    ).transact({'from': second_account})
+
+    # --- setup offchain resolver example --- #
+
+    # create offchain resolver
+    offchain_resolver = deploy(
+        w3, OffchainResolver, ens_key,
+
+        # use a made up url and mock the call to this endpoint in tests
+        args=[
+            [
+                "https://web3.py/gateway/{sender}/{data}.json",  # for GET request testing
+                "https://web3.py/gateway/{sender}.json",  # for POST request testing
+            ],
+            [to_checksum_address('0x4c40caf7f24a545095299972c381862469b080fb')]
+        ]
+    )
+
+    # set owner of offchainexample.eth to an account controlled by tests
+    ens_contract.functions.setSubnodeOwner(
+        eth_namehash,
+        w3.keccak(text='offchainexample'),
+        second_account
+    ).transact({'from': ens_key})
+
+    # ns.namehash('offchainexample.eth')
+    offchain_example_namehash = bytes32(
+        0x42041b0018edd29d7c17154b0c671acc0502ea0b3693cafbeadf58e6beaaa16c
+    )
+
+    ens_contract.functions.setResolver(
+        offchain_example_namehash,
+        offchain_resolver.address
     ).transact({'from': second_account})
 
     # --- finish setup --- #
