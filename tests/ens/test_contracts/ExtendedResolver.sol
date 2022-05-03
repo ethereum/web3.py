@@ -1,5 +1,5 @@
 /**
- * The SimpleExtendedResolver is really only meant to test the validation of the parent ens domain
+ * The ExtendedResolver is really only meant to test the validation of the parent ens domain
  * `extended-resolver.eth` and, separately, the subdomains of this parent domain. We then "resolve"
  * to arbitrary addresses 0x000000000000000000000000000000000000dEaD for subdomain validations and
  * 0x000000000000000000000000000000000000bEEF for the parent domain validation so that we can be
