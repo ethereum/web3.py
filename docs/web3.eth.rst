@@ -51,10 +51,24 @@ The following properties are available on the ``web3.eth`` namespace.
     The ethereum address that will be used as the default ``from`` address for
     all transactions. Defaults to empty.
 
+
+.. py:attribute:: Eth.defaultAccount
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.default_account`
+
+
 .. py:attribute:: Eth.default_block
 
     The default block number that will be used for any RPC methods that accept
     a block identifier. Defaults to ``'latest'``.
+
+
+.. py:attribute:: Eth.defaultBlock
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.default_block`
+
 
 .. py:attribute:: Eth.syncing
 
@@ -134,6 +148,13 @@ The following properties are available on the ``web3.eth`` namespace.
         >>> web3.eth.gas_price
         20000000000
 
+
+.. py:attribute:: Eth.gasPrice
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.gas_price`
+
+
 .. py:attribute:: Eth.accounts
 
     * Delegates to ``eth_accounts`` RPC Method
@@ -159,6 +180,31 @@ The following properties are available on the ``web3.eth`` namespace.
         >>> web3.eth.block_number
         2206939
 
+
+.. py:attribute:: Eth.blockNumber
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.block_number`
+
+
+.. py:attribute:: Eth.protocol_version
+
+    * Delegates to ``eth_protocolVersion`` RPC Method
+
+    Returns the id of the current Ethereum protocol version.
+
+    .. code-block:: python
+
+       >>> web3.eth.protocol_version
+       '63'
+
+
+.. py:attribute:: Eth.protocolVersion
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.protocol_version`
+
+
 .. py:attribute:: Eth.chain_id
 
     * Delegates to ``eth_chainId`` RPC Method
@@ -169,6 +215,25 @@ The following properties are available on the ``web3.eth`` namespace.
 
        >>> web3.eth.chain_id
        61
+
+   .. note::
+
+      This property gets called frequently in validation middleware,
+      but `chain_id` is added to the ``simple_cache_middleware`` by default.
+      Add the :meth:`simple_cache_middleware<web3.middleware.construct_simple_cache_middleware>`
+      to the ``middleware_onion`` to increase performance:
+
+       .. code-block:: python
+
+          >>> from web3.middleware import simple_cache_middleware
+          >>> w3.middleware_onion.add(simple_cache_middleware)
+
+
+.. py:attribute:: Eth.chainId
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.chain_id`
+
 
 
 Methods
@@ -190,6 +255,13 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> web3.eth.get_balance('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         77320681768999138915
+
+
+.. py:method:: Eth.getBalance(account, block_identifier=eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.get_balance()`
+
 
 .. py:method:: Eth.get_block_number()
 
@@ -216,6 +288,13 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> web3.eth.get_storage_at('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', 0)
         '0x00000000000000000000000000000000000000000000000000120a0b063499d4'
+
+
+.. py:method:: Eth.getStorageAt(account, position, block_identifier=eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_storage_at`
+
 
 .. py:method:: Eth.get_proof(account, positions, block_identifier=eth.default_block)
 
@@ -297,7 +376,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
             assert rlp_account == HexaryTrie.get_from_proof(
                 root, trie_key, format_proof_nodes(proof.accountProof)
-            ), "Failed to verify account proof {}".format(proof.address)
+            ), f"Failed to verify account proof {proof.address}"
 
             for storage_proof in proof.storageProof:
                 trie_key = keccak(pad_bytes(b'\x00', 32, storage_proof.key))
@@ -309,13 +388,19 @@ The following methods are available on the ``web3.eth`` namespace.
 
                 assert rlp_value == HexaryTrie.get_from_proof(
                     root, trie_key, format_proof_nodes(storage_proof.proof)
-                ), "Failed to verify storage proof {}".format(storage_proof.key)
+                ), f"Failed to verify storage proof {storage_proof.key}"
 
             return True
 
         block = w3.eth.get_block(3391)
         proof = w3.eth.get_proof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0, 1], 3391)
         assert verify_eth_get_proof(proof, block.stateRoot)
+
+
+.. py:method:: Eth.getProof(account, positions, block_identifier=eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_proof`
 
 .. py:method:: Eth.get_code(account, block_identifier=eth.default_block)
 
@@ -334,6 +419,12 @@ The following methods are available on the ``web3.eth`` namespace.
         # For a private key address.
         >>> web3.eth.get_code('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         '0x'
+
+
+.. py:method:: Eth.getCode(account, block_identifier=eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_code`
 
 .. py:method:: Eth.get_block(block_identifier=eth.default_block, full_transactions=False)
 
@@ -373,6 +464,11 @@ The following methods are available on the ``web3.eth`` namespace.
             'uncles': [],
         })
 
+.. py:method:: Eth.getBlock(block_identifier=eth.default_block, full_transactions=False)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_block`
+
 .. py:method:: Eth.get_block_transaction_count(block_identifier)
 
     * Delegates to ``eth_getBlockTransactionCountByNumber`` or
@@ -390,6 +486,20 @@ The following methods are available on the ``web3.eth`` namespace.
         1
         >>> web3.eth.get_block_transaction_count('0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd')  # block 46147
         1
+
+
+.. py:method:: Eth.getBlockTransactionCount(block_identifier)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_block_transaction_count`
+
+
+
+.. py:method:: Eth.getUncle(block_identifier)
+
+    .. note:: Method to get an Uncle from its hash is not available through
+      RPC, a possible substitute is the method ``Eth.get_uncle_by_block``
+
 
 .. py:method:: Eth.get_uncle_by_block(block_identifier, uncle_index)
 
@@ -436,6 +546,11 @@ The following methods are available on the ``web3.eth`` namespace.
             ...
         })
 
+.. py:method:: Eth.getUncleByBlock(block_identifier, uncle_index)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_uncle_by_block()`
+
 .. py:method:: Eth.get_uncle_count(block_identifier)
 
     * Delegates to ``eth_getUncleCountByBlockHash`` or
@@ -455,6 +570,11 @@ The following methods are available on the ``web3.eth`` namespace.
         # You can also refer to the block by hash:
         >>> web3.eth.get_uncle_count('0x685b2226cbf6e1f890211010aa192bf16f0a0cba9534264a033b023d7367b845')
         1
+
+.. py:method:: Eth.getUncleCount(block_identifier)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_uncle_count()`
 
 .. py:method:: Eth.get_transaction(transaction_hash)
 
@@ -480,6 +600,12 @@ The following methods are available on the ``web3.eth`` namespace.
             'transactionIndex': 0,
             'value': 31337,
         })
+
+
+.. py:method:: Eth.getTransaction(transaction_hash)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_transaction`
 
 
 .. py:method:: Eth.get_raw_transaction(transaction_hash)
@@ -549,6 +675,11 @@ The following methods are available on the ``web3.eth`` namespace.
             'value': 31337,
         })
 
+.. py:method:: Eth.getTransactionByBlock(block_identifier, transaction_index)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_transaction_by_block`
+
 .. py:method:: Eth.get_raw_transaction_by_block(block_identifier, transaction_index)
 
     * Delegates to ``eth_getRawTransactionByBlockNumberAndIndex`` or
@@ -601,6 +732,12 @@ The following methods are available on the ``web3.eth`` namespace.
             'transactionIndex': 0,
         })
 
+
+.. py:method:: Eth.waitForTransactionReceipt(transaction_hash, timeout=120, poll_latency=0.1)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.wait_for_transaction_receipt()`
+
 .. py:method:: Eth.get_transaction_receipt(transaction_hash)
 
     * Delegates to ``eth_getTransactionReceipt`` RPC Method
@@ -632,6 +769,11 @@ The following methods are available on the ``web3.eth`` namespace.
             'transactionIndex': 0,
         })
 
+.. py:method:: Eth.getTransactionReceipt(transaction_hash)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_transaction_receipt()`
+
 .. py:method:: Eth.get_transaction_count(account, block_identifier=web3.eth.default_block)
 
     * Delegates to ``eth_getTransactionCount`` RPC Method
@@ -645,6 +787,13 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> web3.eth.get_transaction_count('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         340
+
+
+.. py:method:: Eth.getTransactionCount(account, block_identifier=web3.eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_transaction_count()`
+
 
 .. py:method:: Eth.send_transaction(transaction)
 
@@ -717,6 +866,11 @@ The following methods are available on the ``web3.eth`` namespace.
         })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
 
+.. py:method:: Eth.sendTransaction(transaction)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :attr:`~web3.eth.Eth.send_transaction()`
+
 .. py:method:: Eth.sign_transaction(transaction)
 
     * Delegates to ``eth_signTransaction`` RPC Method.
@@ -737,6 +891,12 @@ The following methods are available on the ``web3.eth`` namespace.
             )
         )
         b"\xf8d\x80\x85\x040\xe24\x00\x82R\x08\x94\xdcTM\x1a\xa8\x8f\xf8\xbb\xd2\xf2\xae\xc7T\xb1\xf1\xe9\x9e\x18\x12\xfd\x01\x80\x1b\xa0\x11\r\x8f\xee\x1d\xe5=\xf0\x87\x0en\xb5\x99\xed;\xf6\x8f\xb3\xf1\xe6,\x82\xdf\xe5\x97lF|\x97%;\x15\xa04P\xb7=*\xef \t\xf0&\xbc\xbf\tz%z\xe7\xa3~\xb5\xd3\xb7=\xc0v\n\xef\xad+\x98\xe3'"  # noqa: E501
+
+
+.. py:method:: Eth.signTransaction(transaction)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :attr:`~web3.eth.Eth.sign_transaction()`
 
 .. py:method:: Eth.send_raw_transaction(raw_transaction)
 
@@ -761,6 +921,11 @@ The following methods are available on the ``web3.eth`` namespace.
         )
         >>> w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
+
+.. py:method:: Eth.sendRawTransaction(raw_transaction)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.send_raw_transaction()`
 
 .. py:method:: Eth.replace_transaction(transaction_hash, new_transaction)
 
@@ -817,6 +982,11 @@ The following methods are available on the ``web3.eth`` namespace.
             })
         HexBytes('0x4177e670ec6431606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1528989')
 
+.. py:method:: Eth.replaceTransaction(transaction_hash, new_transaction)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.replace_transaction()`
+
 .. py:method:: Eth.modify_transaction(transaction_hash, **transaction_params)
 
     * Delegates to ``eth_sendTransaction`` RPC Method
@@ -842,6 +1012,11 @@ The following methods are available on the ``web3.eth`` namespace.
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.modify_transaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', value=2000)
         HexBytes('0xec6434e6701771606e55d6b4ca35a1a6b75ee3d73315145a921026d15299d05')
+
+.. py:method:: Eth.modifyTransaction(transaction_hash, **transaction_params)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.modify_transaction()`
 
 .. py:method:: Eth.sign(account, data=None, hexstr=None, text=None)
 
@@ -883,6 +1058,11 @@ The following methods are available on the ``web3.eth`` namespace.
     The account must be unlocked.
 
     ``account`` may be a checksum address or an ENS name
+
+.. py:method:: Eth.signTypedData(account, jsonMessage)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :meth:`~web3.eth.Eth.sign_typed_data()`
 
 .. py:method:: Eth.call(transaction, block_identifier=web3.eth.default_block, state_override=None)
 
@@ -965,6 +1145,11 @@ The following methods are available on the ``web3.eth`` namespace.
         >>> web3.eth.estimate_gas({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from':web3.eth.coinbase, 'value': 12345})
         21000
 
+.. py:method:: Eth.estimateGas(transaction, block_identifier=None)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.estimate_gas()`
+
 .. py:method:: Eth.generate_gas_price(transaction_params=None)
 
     Uses the selected gas price strategy to calculate a gas price. This method
@@ -982,10 +1167,20 @@ The following methods are available on the ``web3.eth`` namespace.
         For information about how gas price can be customized in web3 see
         :ref:`Gas_Price`.
 
+.. py:method:: Eth.generateGasPrice(transaction_params=None)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.generate_gas_price()`
+
 .. py:method:: Eth.set_gas_price_strategy(gas_price_strategy)
 
     Set the selected gas price strategy. It must be a method of the signature
     ``(web3, transaction_params)`` and return a gas price denominated in wei.
+
+.. py:method:: Eth.setGasPriceStrategy(gas_price_strategy)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.set_gas_price_strategy()`
 
 Filters
 -------
@@ -1075,6 +1270,12 @@ with the filtering API.
         ]
 
 
+.. py:method:: Eth.getFilterChanges(self, filter_id)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_filter_changes()`
+
+
 .. py:method:: Eth.get_filter_logs(self, filter_id)
 
     * Delegates to ``eth_getFilterLogs`` RPC Method.
@@ -1101,6 +1302,13 @@ with the filtering API.
             ...
         ]
 
+
+.. py:method:: Eth.getFilterLogs(self, filter_id)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_filter_logs`
+
+
 .. py:method:: Eth.uninstall_filter(self, filter_id)
 
     * Delegates to ``eth_uninstallFilter`` RPC Method.
@@ -1116,12 +1324,22 @@ with the filtering API.
         >>> web3.eth.uninstall_filter(filt.filter_id)
         False  # already uninstalled.
 
+.. py:method:: Eth.uninstallFilter(self, filter_id)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.uninstall_filter`
+
 
 .. py:method:: Eth.get_logs(filter_params)
 
     This is the equivalent of: creating a new
     filter, running :meth:`~Eth.get_filter_logs`, and then uninstalling the filter. See
     :meth:`~Eth.filter` for details on allowed filter parameters.
+
+.. py:method:: Eth.getLogs(filter_params)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_logs()`
 
 .. py:method:: Eth.submit_hashrate(hashrate, nodeid)
 
@@ -1132,6 +1350,11 @@ with the filtering API.
        >>> node_id = '59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c'
        >>> web3.eth.submit_hashrate(5000, node_id)
        True
+
+.. py:method:: Eth.submitHashrate(hashrate, nodeid)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.submit_hashrate()`
 
 .. py:method:: Eth.submit_work(nonce, pow_hash, mix_digest)
 
@@ -1145,6 +1368,11 @@ with the filtering API.
                '0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000',
            )
        True
+
+.. py:method:: Eth.submitWork(nonce, pow_hash, mix_digest)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.submit_work()`
 
 Contracts
 ---------
@@ -1217,3 +1445,8 @@ Contracts
     Future calls to ``Eth.contract()`` will then default to ``contractFactoryClass``.
 
     An example of an alternative Contract Factory is ``ConciseContract``.
+
+.. py:method:: Eth.setContractFactory(contractFactoryClass)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.set_contract_factory()`
