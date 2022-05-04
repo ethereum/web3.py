@@ -89,7 +89,7 @@ class AutoProvider(BaseProvider):
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         try:
             return self._proxy_request(method, params)
-        except IOError:
+        except OSError:
             return self._proxy_request(method, params, use_cache=False)
 
     def isConnected(self) -> bool:

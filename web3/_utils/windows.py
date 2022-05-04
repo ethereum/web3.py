@@ -17,12 +17,12 @@ class NamedPipe:
                 ipc_path, win32file.GENERIC_READ | win32file.GENERIC_WRITE,
                 0, None, win32file.OPEN_EXISTING, 0, None)
         except pywintypes.error as err:
-            raise IOError(err)
+            raise OSError(err)
 
     def recv(self, max_length: int) -> str:
         (err, data) = win32file.ReadFile(self.handle, max_length)
         if err:
-            raise IOError(err)
+            raise OSError(err)
         return data
 
     def sendall(self, data: str) -> Tuple[int, int]:
