@@ -623,7 +623,7 @@ class ContractConstructor:
         return data
 
     @combomethod
-    def estimateGas(
+    def estimate_gas(
         self, transaction: Optional[TxParams] = None,
         block_identifier: Optional[BlockIdentifier] = None
     ) -> int:
@@ -644,6 +644,14 @@ class ContractConstructor:
             estimate_gas_transaction, block_identifier=block_identifier
         )
 
+    @deprecated_for("estimate_gas")
+    @combomethod
+    def estimateGas(
+        self, transaction: Optional[TxParams] = None,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> int:
+        return self.estimate_gas(transaction, block_identifier)
+
     @combomethod
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         if transaction is None:
@@ -663,7 +671,7 @@ class ContractConstructor:
         return self.web3.eth.send_transaction(transact_transaction)
 
     @combomethod
-    def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+    def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
         """
         Build the transaction dictionary without sending
         """
@@ -682,6 +690,11 @@ class ContractConstructor:
         built_transaction['data'] = self.data_in_transaction
         built_transaction['to'] = Address(b'')
         return fill_transaction_defaults(self.web3, built_transaction)
+
+    @deprecated_for("build_transaction")
+    @combomethod
+    def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+        return self.build_transaction(transaction)
 
     @staticmethod
     def check_forbidden_keys_in_transaction(
@@ -1005,7 +1018,7 @@ class ContractFunction:
             **self.kwargs
         )
 
-    def estimateGas(
+    def estimate_gas(
         self, transaction: Optional[TxParams] = None,
         block_identifier: Optional[BlockIdentifier] = None
     ) -> int:
@@ -1015,9 +1028,9 @@ class ContractFunction:
             estimate_gas_transaction = cast(TxParams, dict(**transaction))
 
         if 'data' in estimate_gas_transaction:
-            raise ValueError("Cannot set 'data' field in estimateGas transaction")
+            raise ValueError("Cannot set 'data' field in estimate_gas transaction")
         if 'to' in estimate_gas_transaction:
-            raise ValueError("Cannot set to in estimateGas transaction")
+            raise ValueError("Cannot set to in estimate_gas transaction")
 
         if self.address:
             estimate_gas_transaction.setdefault('to', self.address)
@@ -1028,7 +1041,7 @@ class ContractFunction:
         if 'to' not in estimate_gas_transaction:
             if isinstance(self, type):
                 raise ValueError(
-                    "When using `Contract.estimateGas` from a contract factory "
+                    "When using `Contract.estimate_gas` from a contract factory "
                     "you must provide a `to` address with the transaction"
                 )
             else:
@@ -1048,7 +1061,14 @@ class ContractFunction:
             **self.kwargs
         )
 
-    def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+    @deprecated_for("estimate_gas")
+    def estimateGas(
+        self, transaction: Optional[TxParams] = None,
+        block_identifier: Optional[BlockIdentifier] = None
+    ) -> int:
+        return self.estimate_gas(transaction, block_identifier)
+
+    def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
         """
         Build the transaction dictionary without sending
         """
@@ -1062,7 +1082,7 @@ class ContractFunction:
 
         if not self.address and 'to' not in built_transaction:
             raise ValueError(
-                "When using `ContractFunction.buildTransaction` from a contract factory "
+                "When using `ContractFunction.build_transaction` from a contract factory "
                 "you must provide a `to` address with the transaction"
             )
         if self.address and 'to' in built_transaction:
@@ -1086,6 +1106,10 @@ class ContractFunction:
             *self.args,
             **self.kwargs
         )
+
+    @deprecated_for("build_transaction")
+    def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+        return self.build_transaction(transaction)
 
     @combomethod
     def _encode_transaction_data(cls) -> HexStr:
@@ -1603,7 +1627,7 @@ def estimate_gas_for_function(
         **kwargs: Any) -> int:
     """Estimates gas cost a function call would take.
 
-    Don't call this directly, instead use :meth:`Contract.estimateGas`
+    Don't call this directly, instead use :meth:`Contract.estimate_gas`
     on your contract instance.
     """
     estimate_transaction = prepare_transaction(
@@ -1631,7 +1655,7 @@ def build_transaction_for_function(
         **kwargs: Any) -> TxParams:
     """Builds a dictionary with the fields required to make the given transaction
 
-    Don't call this directly, instead use :meth:`Contract.buildTransaction`
+    Don't call this directly, instead use :meth:`Contract.build_transaction`
     on your contract instance.
     """
     prepared_transaction = prepare_transaction(
