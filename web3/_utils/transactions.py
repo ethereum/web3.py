@@ -32,7 +32,6 @@ from web3.types import (
     BlockIdentifier,
     TxData,
     TxParams,
-    Wei,
     _Hash32,
 )
 
@@ -57,14 +56,14 @@ VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
 TRANSACTION_DEFAULTS = {
     'value': 0,
     'data': b'',
-    'gas': lambda web3, tx: web3.eth.estimate_gas(tx),
-    'gasPrice': lambda web3, tx: web3.eth.generate_gas_price(tx) or web3.eth.gas_price,
+    'gas': lambda w3, tx: w3.eth.estimate_gas(tx),
+    'gasPrice': lambda w3, tx: w3.eth.generate_gas_price(tx) or w3.eth.gas_price,
     'maxFeePerGas': (
-        lambda web3, tx:
-        web3.eth.max_priority_fee + (2 * web3.eth.get_block('latest')['baseFeePerGas'])
+        lambda w3, tx:
+        w3.eth.max_priority_fee + (2 * w3.eth.get_block('latest')['baseFeePerGas'])
     ),
-    'maxPriorityFeePerGas': lambda web3, tx: web3.eth.max_priority_fee,
-    'chainId': lambda web3, tx: web3.eth.chain_id,
+    'maxPriorityFeePerGas': lambda w3, tx: w3.eth.max_priority_fee,
+    'chainId': lambda w3, tx: w3.eth.chain_id,
 }
 
 if TYPE_CHECKING:
@@ -72,12 +71,12 @@ if TYPE_CHECKING:
 
 
 @curry
-def fill_nonce(web3: "Web3", transaction: TxParams) -> TxParams:
+def fill_nonce(w3: "Web3", transaction: TxParams) -> TxParams:
     if 'from' in transaction and 'nonce' not in transaction:
         return assoc(
             transaction,
             'nonce',
-            web3.eth.get_transaction_count(
+            w3.eth.get_transaction_count(
                 cast(ChecksumAddress, transaction['from']),
                 block_identifier='pending'))
     else:
@@ -85,11 +84,11 @@ def fill_nonce(web3: "Web3", transaction: TxParams) -> TxParams:
 
 
 @curry
-def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
+def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxParams:
     """
-    if web3 is None, fill as much as possible while offline
+    if w3 is None, fill as much as possible while offline
     """
-    strategy_based_gas_price = web3.eth.generate_gas_price(transaction)
+    strategy_based_gas_price = w3.eth.generate_gas_price(transaction)
     is_dynamic_fee_transaction = (
         not strategy_based_gas_price
         and (
@@ -109,9 +108,9 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
                 continue
 
             if callable(default_getter):
-                if web3 is None:
-                    raise ValueError("You must specify a '%s' value in the transaction" % key)
-                default_val = default_getter(web3, transaction)
+                if w3 is None:
+                    raise ValueError(f"You must specify a '{key}' value in the transaction")
+                default_val = default_getter(w3, transaction)
             else:
                 default_val = default_getter
 
@@ -119,34 +118,34 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
     return merge(defaults, transaction)
 
 
-def get_block_gas_limit(web3: "Web3", block_identifier: Optional[BlockIdentifier] = None) -> Wei:
+def get_block_gas_limit(w3: "Web3", block_identifier: Optional[BlockIdentifier] = None) -> int:
     if block_identifier is None:
-        block_identifier = web3.eth.block_number
-    block = web3.eth.get_block(block_identifier)
+        block_identifier = w3.eth.block_number
+    block = w3.eth.get_block(block_identifier)
     return block['gasLimit']
 
 
 def get_buffered_gas_estimate(
-    web3: "Web3", transaction: TxParams, gas_buffer: Wei = Wei(100000)
-) -> Wei:
+    w3: "Web3", transaction: TxParams, gas_buffer: int = 100000
+) -> int:
     gas_estimate_transaction = cast(TxParams, dict(**transaction))
 
-    gas_estimate = web3.eth.estimate_gas(gas_estimate_transaction)
+    gas_estimate = w3.eth.estimate_gas(gas_estimate_transaction)
 
-    gas_limit = get_block_gas_limit(web3)
+    gas_limit = get_block_gas_limit(w3)
 
     if gas_estimate > gas_limit:
         raise ValueError(
             "Contract does not appear to be deployable within the "
-            "current network gas limits.  Estimated: {0}. Current gas "
-            "limit: {1}".format(gas_estimate, gas_limit)
+            f"current network gas limits.  Estimated: {gas_estimate}. "
+            f"Current gas limit: {gas_limit}"
         )
 
-    return Wei(min(gas_limit, gas_estimate + gas_buffer))
+    return min(gas_limit, gas_estimate + gas_buffer)
 
 
-def get_required_transaction(web3: "Web3", transaction_hash: _Hash32) -> TxData:
-    current_transaction = web3.eth.get_transaction(transaction_hash)
+def get_required_transaction(w3: "Web3", transaction_hash: _Hash32) -> TxData:
+    current_transaction = w3.eth.get_transaction(transaction_hash)
     if not current_transaction:
         raise ValueError(f'Supplied transaction with hash {transaction_hash!r} does not exist')
     return current_transaction
@@ -190,11 +189,11 @@ def extract_valid_transaction_params(transaction_params: TxData) -> TxParams:
 def assert_valid_transaction_params(transaction_params: TxParams) -> None:
     for param in transaction_params:
         if param not in VALID_TRANSACTION_PARAMS:
-            raise ValueError('{} is not a valid transaction parameter'.format(param))
+            raise ValueError(f'{param} is not a valid transaction parameter')
 
 
 def prepare_replacement_transaction(
-    web3: "Web3",
+    w3: "Web3",
     original_transaction: TxData,
     replacement_transaction: TxParams,
     gas_multiplier: float = 1.125
@@ -221,7 +220,7 @@ def prepare_replacement_transaction(
             raise ValueError('Supplied gas price must exceed existing transaction gas price')
 
     else:
-        generated_gas_price = web3.eth.generate_gas_price(replacement_transaction)
+        generated_gas_price = w3.eth.generate_gas_price(replacement_transaction)
         minimum_gas_price = int(math.ceil(original_transaction['gasPrice'] * gas_multiplier))
         if generated_gas_price and generated_gas_price > minimum_gas_price:
             replacement_transaction = assoc(
@@ -234,9 +233,9 @@ def prepare_replacement_transaction(
 
 
 def replace_transaction(
-    web3: "Web3", current_transaction: TxData, new_transaction: TxParams
+    w3: "Web3", current_transaction: TxData, new_transaction: TxParams
 ) -> HexBytes:
     new_transaction = prepare_replacement_transaction(
-        web3, current_transaction, new_transaction
+        w3, current_transaction, new_transaction
     )
-    return web3.eth.send_transaction(new_transaction)
+    return w3.eth.send_transaction(new_transaction)

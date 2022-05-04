@@ -55,10 +55,7 @@ def load_provider_from_uri(
         return WebsocketProvider(uri_string)
     else:
         raise NotImplementedError(
-            'Web3 does not know how to connect to scheme %r in %r' % (
-                uri.scheme,
-                uri_string,
-            )
+            f'Web3 does not know how to connect to scheme {uri.scheme!r} in {uri_string!r}'
         )
 
 
@@ -92,7 +89,7 @@ class AutoProvider(BaseProvider):
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         try:
             return self._proxy_request(method, params)
-        except IOError:
+        except OSError:
             return self._proxy_request(method, params, use_cache=False)
 
     def isConnected(self) -> bool:
@@ -105,10 +102,8 @@ class AutoProvider(BaseProvider):
         if provider is None:
             raise CannotHandleRequest(
                 "Could not discover provider while making request: "
-                "method:{0}\n"
-                "params:{1}\n".format(
-                    method,
-                    params))
+                f"method:{method}\nparams:{params}\n"
+            )
 
         return provider.make_request(method, params)
 

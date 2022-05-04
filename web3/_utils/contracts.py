@@ -144,40 +144,29 @@ def find_matching_fn_abi(
                 "\nAmbiguous argument encoding. "
                 "Provided arguments can be encoded to multiple functions matching this call."
             )
-
         message = (
-            "\nCould not identify the intended function with name `{name}`, "
-            "positional argument(s) of type `{arg_types}` and "
-            "keyword argument(s) of type `{kwarg_types}`."
-            "\nFound {num_candidates} function(s) with the name `{name}`: {candidates}"
-            "{diagnosis}"
-        ).format(
-            name=fn_identifier,
-            arg_types=tuple(map(type, args)),
-            kwarg_types=valmap(type, kwargs),
-            num_candidates=len(matching_identifiers),
-            candidates=matching_function_signatures,
-            diagnosis=diagnosis,
+            f"\nCould not identify the intended function with name `{fn_identifier}`, positional "
+            f"argument(s) of type `{tuple(map(type, args))}` and keyword argument(s) of type "
+            f"`{valmap(type, kwargs)}`.\nFound {len(matching_identifiers)} function(s) with "
+            f"the name `{fn_identifier}`: {matching_function_signatures}{diagnosis}"
         )
 
         raise ValidationError(message)
 
 
 def encode_abi(
-    web3: "Web3", abi: ABIFunction, arguments: Sequence[Any], data: Optional[HexStr] = None
+    w3: "Web3", abi: ABIFunction, arguments: Sequence[Any], data: Optional[HexStr] = None
 ) -> HexStr:
     argument_types = get_abi_input_types(abi)
 
-    if not check_if_arguments_can_be_encoded(abi, web3.codec, arguments, {}):
+    if not check_if_arguments_can_be_encoded(abi, w3.codec, arguments, {}):
         raise TypeError(
             "One or more arguments could not be encoded to the necessary "
-            "ABI type.  Expected types are: {0}".format(
-                ', '.join(argument_types),
-            )
+            f"ABI type.  Expected types are: {', '.join(argument_types)}"
         )
 
     normalizers = [
-        abi_ens_resolver(web3),
+        abi_ens_resolver(w3),
         abi_address_to_hex,
         abi_bytes_to_bytes,
         abi_string_to_text,
@@ -187,7 +176,7 @@ def encode_abi(
         argument_types,
         arguments,
     )
-    encoded_arguments = web3.codec.encode_abi(
+    encoded_arguments = w3.codec.encode_abi(
         argument_types,
         normalized_arguments,
     )
@@ -200,7 +189,7 @@ def encode_abi(
 
 def prepare_transaction(
     address: ChecksumAddress,
-    web3: "Web3",
+    w3: "Web3",
     fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]],
     contract_abi: Optional[ABI] = None,
     fn_abi: Optional[ABIFunction] = None,
@@ -215,7 +204,7 @@ def prepare_transaction(
     TODO: add new prepare_deploy_transaction API
     """
     if fn_abi is None:
-        fn_abi = find_matching_fn_abi(contract_abi, web3.codec, fn_identifier, fn_args, fn_kwargs)
+        fn_abi = find_matching_fn_abi(contract_abi, w3.codec, fn_identifier, fn_args, fn_kwargs)
 
     validate_payable(transaction, fn_abi)
 
@@ -231,7 +220,7 @@ def prepare_transaction(
         prepared_transaction.setdefault('to', address)
 
     prepared_transaction['data'] = encode_transaction_data(
-        web3,
+        w3,
         fn_identifier,
         contract_abi,
         fn_abi,
@@ -242,7 +231,7 @@ def prepare_transaction(
 
 
 def encode_transaction_data(
-    web3: "Web3",
+    w3: "Web3",
     fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]],
     contract_abi: Optional[ABI] = None,
     fn_abi: Optional[ABIFunction] = None,
@@ -256,12 +245,12 @@ def encode_transaction_data(
     elif is_text(fn_identifier):
         fn_abi, fn_selector, fn_arguments = get_function_info(
             # type ignored b/c fn_id here is always str b/c FallbackFn is handled above
-            fn_identifier, web3.codec, contract_abi, fn_abi, args, kwargs,  # type: ignore
+            fn_identifier, w3.codec, contract_abi, fn_abi, args, kwargs,  # type: ignore
         )
     else:
         raise TypeError("Unsupported function identifier")
 
-    return add_0x_prefix(encode_abi(web3, fn_abi, fn_arguments, fn_selector))
+    return add_0x_prefix(encode_abi(w3, fn_abi, fn_arguments, fn_selector))
 
 
 def get_fallback_function_info(

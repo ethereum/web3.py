@@ -15,6 +15,9 @@ from typing import (
 )
 import warnings
 
+from eth_utils import (
+    ValidationError,
+)
 from eth_utils.curried import (
     to_tuple,
 )
@@ -61,14 +64,24 @@ def _munger_star_apply(fn: Callable[..., TReturn]) -> Callable[..., TReturn]:
     return inner
 
 
-def default_munger(module: "Module", *args: Any, **kwargs: Any) -> Tuple[()]:
-    if not args and not kwargs:
-        return ()
-    else:
-        raise TypeError("Parameters passed to method without parameter mungers defined.")
+def _set_mungers(mungers: Optional[Sequence[Munger]], is_property: bool) -> Sequence[Any]:
+    if is_property and mungers:
+        raise ValidationError("Mungers cannot be used with a property.")
+
+    return (
+        mungers if mungers
+        else [default_munger] if is_property
+        else [default_root_munger]
+    )
 
 
-def default_root_munger(module: "Module", *args: Any) -> List[Any]:
+def default_munger(_module: "Module", *args: Any, **kwargs: Any) -> Tuple[()]:
+    if args or kwargs:
+        raise ValidationError("Parameters cannot be passed to a property.")
+    return ()
+
+
+def default_root_munger(_module: "Module", *args: Any) -> List[Any]:
     return [*args]
 
 
@@ -81,7 +94,7 @@ class Method(Generic[TFunc]):
     Calls to the Method go through these steps:
 
     1. input munging - includes normalization, parameter checking, early parameter
-    formatting.  Any processing on the input parameters that need to happen before
+    formatting. Any processing on the input parameters that need to happen before
     json_rpc method string selection occurs.
 
             A note about mungers: The first (root) munger should reflect the desired
@@ -115,26 +128,26 @@ class Method(Generic[TFunc]):
     and the response formatters are applied to the output.
     """
     def __init__(
-            self,
-            json_rpc_method: Optional[RPCEndpoint] = None,
-            mungers: Optional[Sequence[Munger]] = None,
-            request_formatters: Optional[Callable[..., TReturn]] = None,
-            result_formatters: Optional[Callable[..., TReturn]] = None,
-            error_formatters: Optional[Callable[..., TReturn]] = None,
-            null_result_formatters: Optional[Callable[..., TReturn]] = None,
-            method_choice_depends_on_args: Optional[Callable[..., RPCEndpoint]] = None,
-            web3: Optional["Web3"] = None):
-
+        self,
+        json_rpc_method: Optional[RPCEndpoint] = None,
+        mungers: Optional[Sequence[Munger]] = None,
+        request_formatters: Optional[Callable[..., TReturn]] = None,
+        result_formatters: Optional[Callable[..., TReturn]] = None,
+        null_result_formatters: Optional[Callable[..., TReturn]] = None,
+        method_choice_depends_on_args: Optional[Callable[..., RPCEndpoint]] = None,
+        is_property: bool = False,
+    ):
         self.json_rpc_method = json_rpc_method
-        self.mungers = mungers or [default_munger]
+        self.mungers = _set_mungers(mungers, is_property)
         self.request_formatters = request_formatters or get_request_formatters
         self.result_formatters = result_formatters or get_result_formatters
-        self.error_formatters = get_error_formatters
         self.null_result_formatters = null_result_formatters or get_null_result_formatters
         self.method_choice_depends_on_args = method_choice_depends_on_args
+        self.is_property = is_property
 
-    def __get__(self, obj: Optional["Module"] = None,
-                obj_type: Optional[Type["Module"]] = None) -> TFunc:
+    def __get__(
+        self, obj: Optional["Module"] = None, obj_type: Optional[Type["Module"]] = None
+    ) -> TFunc:
         if obj is None:
             raise TypeError(
                 "Direct calls to methods are not supported. "
@@ -167,8 +180,8 @@ class Method(Generic[TFunc]):
         root_munger = next(mungers_iter)
         munged_inputs = pipe(
             root_munger(module, *args, **kwargs),
-            *map(lambda m: _munger_star_apply(functools.partial(m, module)), mungers_iter))
-
+            *map(lambda m: _munger_star_apply(functools.partial(m, module)), mungers_iter)
+        )
         return munged_inputs
 
     def process_params(
@@ -194,17 +207,19 @@ class Method(Generic[TFunc]):
                 params = []
 
         method = self.method_selector_fn()
-        response_formatters = (self.result_formatters(method, module),
-                               self.error_formatters(method),
-                               self.null_result_formatters(method),)
-
-        request = (method,
-                   _apply_request_formatters(params, self.request_formatters(method)))
-
+        response_formatters = (
+            self.result_formatters(method, module),
+            get_error_formatters(method),
+            self.null_result_formatters(method),
+        )
+        request = (
+            method,
+            _apply_request_formatters(params, self.request_formatters(method))
+        )
         return request, response_formatters
 
 
-class DeprecatedMethod():
+class DeprecatedMethod:
     def __init__(self, method: Method[Callable[..., Any]], old_name: str, new_name: str) -> None:
         self.method = method
         self.old_name = old_name

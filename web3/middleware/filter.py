@@ -293,15 +293,15 @@ FILTER_PARAMS_KEY_MAP = {
     "fromBlock": "from_block"
 }
 
-NEW_FILTER_METHODS = set([
+NEW_FILTER_METHODS = {
     "eth_newBlockFilter",
     "eth_newFilter",
-])
+}
 
-FILTER_CHANGES_METHODS = set([
+FILTER_CHANGES_METHODS = {
     "eth_getFilterChanges",
     "eth_getFilterLogs",
-])
+}
 
 
 class RequestBlocks:

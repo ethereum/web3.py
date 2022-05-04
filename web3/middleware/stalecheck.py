@@ -20,9 +20,9 @@ from web3.types import (
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
-SKIP_STALECHECK_FOR_METHODS = set([
+SKIP_STALECHECK_FOR_METHODS = {
     'eth_getBlockByNumber',
-])
+}
 
 
 def _isfresh(block: BlockData, allowable_delay: int) -> bool:
@@ -50,7 +50,7 @@ def make_stalecheck_middleware(
         raise ValueError("You must set a positive allowable_delay in seconds for this middleware")
 
     def stalecheck_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache: Dict[str, BlockData] = {'latest': None}
 
@@ -59,7 +59,7 @@ def make_stalecheck_middleware(
                 if _isfresh(cache['latest'], allowable_delay):
                     pass
                 else:
-                    latest = web3.eth.get_block('latest')
+                    latest = w3.eth.get_block('latest')
                     if _isfresh(latest, allowable_delay):
                         cache['latest'] = latest
                     else:

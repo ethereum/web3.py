@@ -201,14 +201,14 @@ def construct_time_based_gas_price_strategy(
         and 100 means 100%.
     """
 
-    def time_based_gas_price_strategy(web3: Web3, transaction_params: TxParams) -> Wei:
+    def time_based_gas_price_strategy(w3: Web3, transaction_params: TxParams) -> Wei:
         if weighted:
-            avg_block_time = _get_weighted_avg_block_time(web3, sample_size=sample_size)
+            avg_block_time = _get_weighted_avg_block_time(w3, sample_size=sample_size)
         else:
-            avg_block_time = _get_avg_block_time(web3, sample_size=sample_size)
+            avg_block_time = _get_avg_block_time(w3, sample_size=sample_size)
 
         wait_blocks = int(math.ceil(max_wait_seconds / avg_block_time))
-        raw_miner_data = _get_raw_miner_data(web3, sample_size=sample_size)
+        raw_miner_data = _get_raw_miner_data(w3, sample_size=sample_size)
         miner_data = _aggregate_miner_data(raw_miner_data)
 
         probabilities = _compute_probabilities(

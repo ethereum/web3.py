@@ -183,7 +183,7 @@ TxData = TypedDict("TxData", {
     "chainId": int,
     "data": Union[bytes, HexStr],
     "from": ChecksumAddress,
-    "gas": Wei,
+    "gas": int,
     "gasPrice": Wei,
     "maxFeePerGas": Wei,
     "maxPriorityFeePerGas": Wei,
@@ -206,7 +206,7 @@ TxParams = TypedDict("TxParams", {
     "data": Union[bytes, HexStr],
     # addr or ens
     "from": Union[Address, ChecksumAddress, str],
-    "gas": Wei,
+    "gas": int,
     # legacy pricing
     "gasPrice": Wei,
     # dynamic fee pricing
@@ -237,8 +237,8 @@ TxReceipt = TypedDict("TxReceipt", {
     "blockNumber": BlockNumber,
     "contractAddress": Optional[ChecksumAddress],
     "cumulativeGasUsed": int,
-    "effectiveGasPrice": int,
-    "gasUsed": Wei,
+    "effectiveGasPrice": Wei,
+    "gasUsed": int,
     "from": ChecksumAddress,
     "logs": List[LogReceipt],
     "logsBloom": HexBytes,
@@ -308,8 +308,8 @@ class BlockData(TypedDict, total=False):
     baseFeePerGas: Wei
     difficulty: int
     extraData: HexBytes
-    gasLimit: Wei
-    gasUsed: Wei
+    gasLimit: int
+    gasUsed: int
     hash: HexBytes
     logsBloom: HexBytes
     miner: ChecksumAddress

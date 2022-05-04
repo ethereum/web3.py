@@ -90,15 +90,15 @@ class RequestManager:
 
     def __init__(
         self,
-        web3: 'Web3',
+        w3: 'Web3',
         provider: Optional[BaseProvider] = None,
         middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None
     ) -> None:
-        self.web3 = web3
+        self.w3 = w3
         self.pending_requests: Dict[UUID, ThreadWithReturn[RPCResponse]] = {}
 
         if middlewares is None:
-            middlewares = self.default_middlewares(web3)
+            middlewares = self.default_middlewares(w3)
 
         self.middleware_onion: MiddlewareOnion = NamedElementOnion(middlewares)
 
@@ -107,7 +107,7 @@ class RequestManager:
         else:
             self.provider = provider
 
-    web3: 'Web3' = None
+    w3: 'Web3' = None
     _provider = None
 
     @property
@@ -120,7 +120,7 @@ class RequestManager:
 
     @staticmethod
     def default_middlewares(
-        web3: 'Web3'
+        w3: 'Web3'
     ) -> List[Tuple[Middleware, str]]:
         """
         List the default middlewares for the request manager.
@@ -129,7 +129,7 @@ class RequestManager:
         return [
             (request_parameter_normalizer, 'request_param_normalizer'),  # Delete
             (gas_price_strategy_middleware, 'gas_price_strategy'),
-            (name_to_address_middleware(web3), 'name_to_address'),  # Add Async
+            (name_to_address_middleware(w3), 'name_to_address'),  # Add Async
             (attrdict_middleware, 'attrdict'),  # Delete
             (pythonic_middleware, 'pythonic'),  # Delete
             (validation_middleware, 'validation'),
@@ -144,9 +144,9 @@ class RequestManager:
         self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
     ) -> RPCResponse:
         request_func = self.provider.request_func(
-            self.web3,
+            self.w3,
             self.middleware_onion)
-        self.logger.debug("Making request. Method: %s", method)
+        self.logger.debug(f"Making request. Method: {method}")
         return request_func(method, params)
 
     async def _coro_make_request(
@@ -154,9 +154,9 @@ class RequestManager:
     ) -> RPCResponse:
         # type ignored b/c request_func is an awaitable in async model
         request_func = await self.provider.request_func(  # type: ignore
-            self.web3,
+            self.w3,
             self.middleware_onion)
-        self.logger.debug("Making request. Method: %s", method)
+        self.logger.debug(f"Making request. Method: {method}")
         return await request_func(method, params)
 
     @staticmethod
@@ -230,7 +230,7 @@ class RequestManager:
         try:
             request = self.pending_requests.pop(request_id)
         except KeyError:
-            raise KeyError("Request for id:{0} not found".format(request_id))
+            raise KeyError(f"Request for id:{request_id} not found")
         else:
             response = request.get(timeout=timeout)
 

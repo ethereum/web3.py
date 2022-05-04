@@ -39,7 +39,7 @@ from web3.types import (
 )
 # Test fee_utils indirectly by mocking eth_feeHistory results and checking against expected output
 def test_fee_utils_indirectly(
-    web3, fee_history_rewards, expected_max_prio_calc
+    w3, fee_history_rewards, expected_max_prio_calc
 ) -> None:
     fail_max_prio_middleware = construct_error_generator_middleware(
         {RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: ''}
@@ -48,18 +48,18 @@ def test_fee_utils_indirectly(
         {RPCEndpoint('eth_feeHistory'): lambda *_: {'reward': fee_history_rewards}}
     )
 
-    web3.middleware_onion.add(fail_max_prio_middleware, 'fail_max_prio')
-    web3.middleware_onion.inject(fee_history_result_middleware, 'fee_history_result', layer=0)
+    w3.middleware_onion.add(fail_max_prio_middleware, 'fail_max_prio')
+    w3.middleware_onion.inject(fee_history_result_middleware, 'fee_history_result', layer=0)
 
     with pytest.warns(
         UserWarning,
         match="There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
               "eth_feeHistory."
     ):
-        max_priority_fee = web3.eth.max_priority_fee
+        max_priority_fee = w3.eth.max_priority_fee
         assert is_integer(max_priority_fee)
         assert max_priority_fee == expected_max_prio_calc
 
     # clean up
-    web3.middleware_onion.remove('fail_max_prio')
-    web3.middleware_onion.remove('fee_history_result')
+    w3.middleware_onion.remove('fail_max_prio')
+    w3.middleware_onion.remove('fee_history_result')

@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 
 from tests.integration.common import (
@@ -26,7 +27,7 @@ def ws_port():
 
 @pytest.fixture(scope="module")
 def endpoint_uri(ws_port):
-    return 'ws://localhost:{0}'.format(ws_port)
+    return f'ws://localhost:{ws_port}'
 
 
 def _geth_command_arguments(ws_port,
@@ -63,10 +64,11 @@ def geth_command_arguments(geth_binary,
 
 
 @pytest.fixture(scope="module")
-def web3(geth_process, endpoint_uri, event_loop):
-    event_loop.run_until_complete(wait_for_ws(endpoint_uri, event_loop))
-    _web3 = Web3(Web3.WebsocketProvider(endpoint_uri, websocket_timeout=30))
-    return _web3
+def w3(geth_process, endpoint_uri):
+    event_loop = asyncio.new_event_loop()
+    event_loop.run_until_complete(wait_for_ws(endpoint_uri))
+    _w3 = Web3(Web3.WebsocketProvider(endpoint_uri, websocket_timeout=30))
+    return _w3
 
 
 class TestGoEthereumTest(GoEthereumTest):
@@ -75,17 +77,17 @@ class TestGoEthereumTest(GoEthereumTest):
 
 class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
     @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
-    def test_admin_peers(self, web3: "Web3") -> None:
-        super().test_admin_peers(web3)
+    def test_admin_peers(self, w3: "Web3") -> None:
+        super().test_admin_peers(w3)
 
-    def test_admin_start_stop_ws(self, web3: "Web3") -> None:
+    def test_admin_start_stop_ws(self, w3: "Web3") -> None:
         # This test inconsistently causes all tests after it to fail on CI if it's allowed to run
         pytest.xfail(reason='Only one WebSocket endpoint is allowed to be active at any time')
-        super().test_admin_start_stop_ws(web3)
+        super().test_admin_start_stop_ws(w3)
 
-    def test_admin_start_stop_rpc(self, web3: "Web3") -> None:
+    def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
         pytest.xfail(reason="This test inconsistently causes all tests after it on CI to fail if it's allowed to run")  # noqa: E501
-        super().test_admin_start_stop_ws(web3)
+        super().test_admin_start_stop_ws(w3)
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):

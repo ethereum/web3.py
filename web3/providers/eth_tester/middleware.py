@@ -287,13 +287,13 @@ ethereum_tester_middleware = construct_formatting_middleware(
 )
 
 
-def guess_from(web3: "Web3", _: TxParams) -> ChecksumAddress:
-    coinbase = web3.eth.coinbase
+def guess_from(w3: "Web3", _: TxParams) -> ChecksumAddress:
+    coinbase = w3.eth.coinbase
     if coinbase is not None:
         return coinbase
 
     try:
-        return web3.eth.accounts[0]
+        return w3.eth.accounts[0]
     except KeyError:
         # no accounts available to pre-fill, carry on
         pass
@@ -303,20 +303,20 @@ def guess_from(web3: "Web3", _: TxParams) -> ChecksumAddress:
 
 @curry
 def fill_default(
-    field: str, guess_func: Callable[..., Any], web3: "Web3", transaction: TxParams
+    field: str, guess_func: Callable[..., Any], w3: "Web3", transaction: TxParams
 ) -> TxParams:
     # type ignored b/c TxParams keys must be string literal types
     if field in transaction and transaction[field] is not None:  # type: ignore
         return transaction
     else:
-        guess_val = guess_func(web3, transaction)
+        guess_val = guess_func(w3, transaction)
         return assoc(transaction, field, guess_val)
 
 
 def default_transaction_fields_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-    fill_default_from = fill_default('from', guess_from, web3)
+    fill_default_from = fill_default('from', guess_from, w3)
 
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method in (

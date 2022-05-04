@@ -91,11 +91,8 @@ def get_geth_process(geth_binary,
 
     print(
         "Geth Process Exited:\n"
-        "stdout:{0}\n\n"
-        "stderr:{1}\n\n".format(
-            to_text(output),
-            to_text(errors),
-        )
+        f"stdout:{to_text(output)}\n\n"
+        f"stderr:{to_text(errors)}\n\n"
     )
 
 
@@ -136,11 +133,11 @@ def generate_go_ethereum_fixture(destination_dir):
                 geth_port=geth_port):
 
             common.wait_for_socket(geth_ipc_path)
-            web3 = Web3(Web3.IPCProvider(geth_ipc_path))
-            chain_data = setup_chain_state(web3)
+            w3 = Web3(Web3.IPCProvider(geth_ipc_path))
+            chain_data = setup_chain_state(w3)
             # close geth by exiting context
             # must be closed before copying data dir
-            verify_chain_state(web3, chain_data)
+            verify_chain_state(w3, chain_data)
 
         # verify that chain state is still valid after closing
         # and re-opening geth
@@ -152,8 +149,8 @@ def generate_go_ethereum_fixture(destination_dir):
                 geth_port=geth_port):
 
             common.wait_for_socket(geth_ipc_path)
-            web3 = Web3(Web3.IPCProvider(geth_ipc_path))
-            verify_chain_state(web3, chain_data)
+            w3 = Web3(Web3.IPCProvider(geth_ipc_path))
+            verify_chain_state(w3, chain_data)
 
         static_data = {
             'raw_txn_account': common.RAW_TXN_ACCOUNT,
@@ -166,29 +163,29 @@ def generate_go_ethereum_fixture(destination_dir):
         shutil.make_archive(destination_dir, 'zip', datadir)
 
 
-def verify_chain_state(web3, chain_data):
-    receipt = web3.eth.wait_for_transaction_receipt(chain_data['mined_txn_hash'])
-    latest = web3.eth.get_block('latest')
+def verify_chain_state(w3, chain_data):
+    receipt = w3.eth.wait_for_transaction_receipt(chain_data['mined_txn_hash'])
+    latest = w3.eth.get_block('latest')
     assert receipt.blockNumber <= latest.number
 
 
-def mine_transaction_hash(web3, txn_hash):
-    web3.geth.miner.start(1)
+def mine_transaction_hash(w3, txn_hash):
+    w3.geth.miner.start(1)
     try:
-        return web3.eth.wait_for_transaction_receipt(txn_hash, timeout=120)
+        return w3.eth.wait_for_transaction_receipt(txn_hash, timeout=120)
     finally:
-        web3.geth.miner.stop()
+        w3.geth.miner.stop()
 
 
-def mine_block(web3):
-    origin_block_number = web3.eth.block_number
+def mine_block(w3):
+    origin_block_number = w3.eth.block_number
 
     start_time = time.time()
-    web3.geth.miner.start(1)
+    w3.geth.miner.start(1)
     while time.time() < start_time + 120:
-        block_number = web3.eth.block_number
+        block_number = w3.eth.block_number
         if block_number > origin_block_number:
-            web3.geth.miner.stop()
+            w3.geth.miner.stop()
             return block_number
         else:
             time.sleep(0.1)
@@ -196,77 +193,77 @@ def mine_block(web3):
         raise ValueError("No block mined during wait period")
 
 
-def setup_chain_state(web3):
-    coinbase = web3.eth.coinbase
+def setup_chain_state(w3):
+    coinbase = w3.eth.coinbase
 
     assert is_same_address(coinbase, common.COINBASE)
 
     #
     # Math Contract
     #
-    math_contract_factory = web3.eth.contract(
+    math_contract_factory = w3.eth.contract(
         abi=MATH_ABI,
         bytecode=MATH_BYTECODE,
     )
-    math_deploy_receipt = common.deploy_contract(web3, 'math', math_contract_factory)
+    math_deploy_receipt = common.deploy_contract(w3, 'math', math_contract_factory)
     assert is_dict(math_deploy_receipt)
 
     #
     # Emitter Contract
     #
-    emitter_contract_factory = web3.eth.contract(
+    emitter_contract_factory = w3.eth.contract(
         abi=CONTRACT_EMITTER_ABI,
         bytecode=CONTRACT_EMITTER_CODE,
     )
-    emitter_deploy_receipt = common.deploy_contract(web3, 'emitter', emitter_contract_factory)
+    emitter_deploy_receipt = common.deploy_contract(w3, 'emitter', emitter_contract_factory)
     emitter_contract = emitter_contract_factory(emitter_deploy_receipt['contractAddress'])
 
     txn_hash_with_log = emitter_contract.functions.logDouble(
         which=EMITTER_ENUM['LogDoubleWithIndex'], arg0=12345, arg1=54321,
     ).transact({
-        'from': web3.eth.coinbase,
+        'from': w3.eth.coinbase,
     })
     print('TXN_HASH_WITH_LOG:', txn_hash_with_log)
-    txn_receipt_with_log = mine_transaction_hash(web3, txn_hash_with_log)
-    block_with_log = web3.eth.get_block(txn_receipt_with_log['blockHash'])
+    txn_receipt_with_log = mine_transaction_hash(w3, txn_hash_with_log)
+    block_with_log = w3.eth.get_block(txn_receipt_with_log['blockHash'])
     print('BLOCK_HASH_WITH_LOG:', block_with_log['hash'])
 
     #
     # Revert Contract
     #
-    revert_contract_factory = web3.eth.contract(
+    revert_contract_factory = w3.eth.contract(
         abi=_REVERT_CONTRACT_ABI,
         bytecode=REVERT_CONTRACT_BYTECODE,
     )
-    revert_deploy_receipt = common.deploy_contract(web3, 'revert', revert_contract_factory)
+    revert_deploy_receipt = common.deploy_contract(w3, 'revert', revert_contract_factory)
     revert_contract = revert_contract_factory(revert_deploy_receipt['contractAddress'])
 
     txn_hash_normal_function = revert_contract.functions.normalFunction().transact(
-        {'gas': 320000, 'from': web3.eth.coinbase}
+        {'gas': 320000, 'from': w3.eth.coinbase}
     )
     print('TXN_HASH_REVERT_NORMAL:', txn_hash_normal_function)
     txn_hash_revert_with_msg = revert_contract.functions.revertWithMessage().transact(
-        {'gas': 320000, 'from': web3.eth.coinbase}
+        {'gas': 320000, 'from': w3.eth.coinbase}
     )
     print('TXN_HASH_REVERT_WITH_MSG:', txn_hash_revert_with_msg)
-    txn_receipt_revert_with_msg = common.mine_transaction_hash(web3, txn_hash_revert_with_msg)
-    block_hash_revert_with_msg = web3.eth.get_block(txn_receipt_revert_with_msg['blockHash'])
+    txn_receipt_revert_with_msg = common.mine_transaction_hash(w3, txn_hash_revert_with_msg)
+    block_hash_revert_with_msg = w3.eth.get_block(txn_receipt_revert_with_msg['blockHash'])
     print('BLOCK_HASH_REVERT_WITH_MSG:', block_hash_revert_with_msg['hash'])
 
     txn_hash_revert_with_no_msg = revert_contract.functions.revertWithoutMessage().transact(
-        {'gas': 320000, 'from': web3.eth.coinbase}
+        {'gas': 320000, 'from': w3.eth.coinbase}
     )
     print('TXN_HASH_REVERT_WITH_NO_MSG:', txn_hash_revert_with_no_msg)
-    txn_receipt_revert_with_no_msg = common.mine_transaction_hash(web3, txn_hash_revert_with_no_msg)
-    block_hash_revert_no_msg = web3.eth.get_block(txn_receipt_revert_with_no_msg['blockHash'])
+    txn_receipt_revert_with_no_msg = common.mine_transaction_hash(w3, txn_hash_revert_with_no_msg)
+    block_hash_revert_no_msg = w3.eth.get_block(txn_receipt_revert_with_no_msg['blockHash'])
     print('BLOCK_HASH_REVERT_NO_MSG:', block_hash_revert_no_msg['hash'])
 
     #
     # Empty Block
     #
-    empty_block_number = mine_block(web3)
+    empty_block_number = mine_block(w3)
     print('MINED_EMPTY_BLOCK')
-    empty_block = web3.eth.get_block(empty_block_number)
+    empty_block = w3.eth.get_block(empty_block_number)
     assert is_dict(empty_block)
     assert not empty_block['transactions']
     print('EMPTY_BLOCK_HASH:', empty_block['hash'])
@@ -274,18 +271,18 @@ def setup_chain_state(web3):
     #
     # Block with Transaction
     #
-    web3.geth.personal.unlock_account(coinbase, common.KEYFILE_PW)
-    web3.geth.miner.start(1)
-    mined_txn_hash = web3.eth.send_transaction({
+    w3.geth.personal.unlock_account(coinbase, common.KEYFILE_PW)
+    w3.geth.miner.start(1)
+    mined_txn_hash = w3.eth.send_transaction({
         'from': coinbase,
         'to': coinbase,
         'value': 1,
         'gas': 21000,
-        'gas_price': web3.eth.gas_price,
+        'gas_price': w3.eth.gas_price,
     })
-    mined_txn_receipt = mine_transaction_hash(web3, mined_txn_hash)
+    mined_txn_receipt = mine_transaction_hash(w3, mined_txn_hash)
     print('MINED_TXN_HASH:', mined_txn_hash)
-    block_with_txn = web3.eth.get_block(mined_txn_receipt['blockHash'])
+    block_with_txn = w3.eth.get_block(mined_txn_receipt['blockHash'])
     print('BLOCK_WITH_TXN_HASH:', block_with_txn['hash'])
 
     geth_fixture = {

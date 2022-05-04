@@ -26,18 +26,18 @@ INVALID_CHECKSUM_ADDRESS = '0xd3CDA913deB6f67967B99D67aCDFa1712C293601'
         ((), {'address': NON_CHECKSUM_ADDRESS}, ValueError),
     )
 )
-def test_contract_address_validation(web3, args, kwargs, expected):
+def test_contract_address_validation(w3, args, kwargs, expected):
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
-            web3.eth.contract(*args, **kwargs)
+            w3.eth.contract(*args, **kwargs)
         return
 
     # run without errors
-    web3.eth.contract(*args, **kwargs)
+    w3.eth.contract(*args, **kwargs)
 
 
-def test_set_contract_factory(web3):
+def test_set_contract_factory(w3):
     factoryClass = Mock()
-    web3.eth.set_contract_factory(factoryClass)
-    web3.eth.contract(contract_name='myname')
-    factoryClass.factory.assert_called_once_with(web3, contract_name='myname')
+    w3.eth.set_contract_factory(factoryClass)
+    w3.eth.contract(contract_name='myname')
+    factoryClass.factory.assert_called_once_with(w3, contract_name='myname')

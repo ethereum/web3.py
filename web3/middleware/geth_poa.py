@@ -55,7 +55,7 @@ geth_poa_middleware = construct_formatting_middleware(
 
 
 async def async_geth_poa_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> AsyncMiddleware:
     middleware = await async_construct_formatting_middleware(
         result_formatters={
@@ -63,4 +63,4 @@ async def async_geth_poa_middleware(
             RPC.eth_getBlockByNumber: apply_formatter_if(is_not_null, geth_poa_cleanup),
         },
     )
-    return await middleware(make_request, web3)
+    return await middleware(make_request, w3)

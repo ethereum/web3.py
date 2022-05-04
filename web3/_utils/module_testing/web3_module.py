@@ -25,8 +25,8 @@ from web3.exceptions import (
 
 
 class Web3ModuleTest:
-    def test_web3_clientVersion(self, web3: Web3) -> None:
-        client_version = web3.clientVersion
+    def test_web3_clientVersion(self, w3: Web3) -> None:
+        client_version = w3.clientVersion
         self._check_web3_clientVersion(client_version)
 
     def _check_web3_clientVersion(self, client_version: str) -> NoReturn:
@@ -176,14 +176,14 @@ class Web3ModuleTest:
         ),
     )
     def test_solidityKeccak(
-        self, web3: "Web3", types: Sequence[TypeStr], values: Sequence[Any], expected: HexBytes
+        self, w3: "Web3", types: Sequence[TypeStr], values: Sequence[Any], expected: HexBytes
     ) -> None:
         if isinstance(expected, type) and issubclass(expected, Exception):
-            with pytest.raises(expected):
-                web3.solidityKeccak(types, values)
+            with pytest.raises(expected):  # type: ignore
+                w3.solidityKeccak(types, values)
             return
 
-        actual = web3.solidityKeccak(types, values)
+        actual = w3.solidityKeccak(types, values)
         assert actual == expected
 
     @pytest.mark.parametrize(
@@ -202,9 +202,9 @@ class Web3ModuleTest:
         ),
     )
     def test_solidityKeccak_ens(
-        self, web3: "Web3", types: Sequence[TypeStr], values: Sequence[str], expected: HexBytes
+        self, w3: "Web3", types: Sequence[TypeStr], values: Sequence[str], expected: HexBytes
     ) -> None:
-        with ens_addresses(web3, {
+        with ens_addresses(w3, {
             'one.eth': ChecksumAddress(
                 HexAddress(HexStr("0x49EdDD3769c0712032808D86597B84ac5c2F5614"))
             ),
@@ -217,7 +217,7 @@ class Web3ModuleTest:
                 Web3.solidityKeccak(types, values)
 
             # when called as instance method, ens lookups can succeed
-            actual = web3.solidityKeccak(types, values)
+            actual = w3.solidityKeccak(types, values)
             assert actual == expected
 
     @pytest.mark.parametrize(
@@ -229,10 +229,10 @@ class Web3ModuleTest:
         )
     )
     def test_solidityKeccak_same_number_of_types_and_values(
-        self, web3: "Web3", types: Sequence[TypeStr], values: Sequence[Any]
+        self, w3: "Web3", types: Sequence[TypeStr], values: Sequence[Any]
     ) -> None:
         with pytest.raises(ValueError):
-            web3.solidityKeccak(types, values)
+            w3.solidityKeccak(types, values)
 
-    def test_is_connected(self, web3: "Web3") -> None:
-        assert web3.isConnected()
+    def test_is_connected(self, w3: "Web3") -> None:
+        assert w3.isConnected()

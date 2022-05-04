@@ -9,6 +9,6 @@ from web3.providers.eth_tester import (
 
 
 @pytest.fixture(scope="module")
-def web3():
+def w3():
     provider = EthereumTesterProvider()
     return Web3(provider)

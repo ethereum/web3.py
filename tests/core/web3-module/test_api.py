@@ -1,2 +1,2 @@
-def test_web3_api(web3):
-    assert web3.api.startswith("5")
+def test_web3_api(w3):
+    assert w3.api.startswith("6")

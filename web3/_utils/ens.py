@@ -46,7 +46,7 @@ def validate_name_has_address(ens: ENS, name: str) -> ChecksumAddress:
     if addr:
         return addr
     else:
-        raise NameNotFound("Could not find address for name %r" % name)
+        raise NameNotFound(f"Could not find address for name {name!r}")
 
 
 class StaticENS:
@@ -76,5 +76,5 @@ def contract_ens_addresses(
     with contract_ens_addresses(mycontract, [('resolve-as-1s.eth', '0x111...111')]):
         # any contract call or transaction in here would only resolve the above ENS pair
     """
-    with ens_addresses(contract.web3, name_addr_pairs):
+    with ens_addresses(contract.w3, name_addr_pairs):
         yield

@@ -93,16 +93,16 @@ MULTIPLE_FUNCTIONS = json.loads('''
 ''')
 
 
-def test_finds_single_function_without_args(web3):
-    Contract = web3.eth.contract(abi=SINGLE_FN_NO_ARGS)
+def test_finds_single_function_without_args(w3):
+    Contract = w3.eth.contract(abi=SINGLE_FN_NO_ARGS)
 
     abi = Contract._find_matching_fn_abi('a', [])
     assert abi['name'] == 'a'
     assert abi['inputs'] == []
 
 
-def test_finds_single_function_with_args(web3):
-    Contract = web3.eth.contract(abi=SINGLE_FN_ONE_ARG)
+def test_finds_single_function_with_args(w3):
+    Contract = w3.eth.contract(abi=SINGLE_FN_ONE_ARG)
 
     abi = Contract._find_matching_fn_abi('a', [1234])
     assert abi['name'] == 'a'
@@ -110,22 +110,22 @@ def test_finds_single_function_with_args(web3):
     assert abi['inputs'][0]['type'] == 'uint256'
 
 
-def test_finds_fallback_function(web3):
-    Contract = web3.eth.contract(abi=FALLBACK_FUNCTION)
+def test_finds_fallback_function(w3):
+    Contract = w3.eth.contract(abi=FALLBACK_FUNCTION)
 
     abi = Contract._find_matching_fn_abi(FallbackFn, [])
     assert abi['type'] == 'fallback'
 
 
-def test_finds_receive_function(web3):
-    Contract = web3.eth.contract(abi=RECEIVE_FUNCTION)
+def test_finds_receive_function(w3):
+    Contract = w3.eth.contract(abi=RECEIVE_FUNCTION)
 
     abi = Contract._find_matching_fn_abi(ReceiveFn, [])
     assert abi['type'] == 'receive'
 
 
-def test_error_when_no_function_name_match(web3):
-    Contract = web3.eth.contract(abi=SINGLE_FN_NO_ARGS)
+def test_error_when_no_function_name_match(w3):
+    Contract = w3.eth.contract(abi=SINGLE_FN_NO_ARGS)
 
     with pytest.raises(ValidationError):
         Contract._find_matching_fn_abi('no_function_name', [1234])
@@ -144,27 +144,27 @@ def test_error_when_no_function_name_match(web3):
         ([[(-1, True), (2, False)]], ['(int256,bool)[]']),
     )
 )
-def test_finds_function_with_matching_args(web3, arguments, expected_types):
-    Contract = web3.eth.contract(abi=MULTIPLE_FUNCTIONS)
+def test_finds_function_with_matching_args(w3, arguments, expected_types):
+    Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
     abi = Contract._find_matching_fn_abi('a', arguments)
     assert abi['name'] == 'a'
     assert len(abi['inputs']) == len(expected_types)
-    assert set(get_abi_input_types(abi)) == set(expected_types)
+    assert get_abi_input_types(abi) == expected_types
 
 
-def test_finds_function_with_matching_args_deprecation_warning(web3):
-    Contract = web3.eth.contract(abi=MULTIPLE_FUNCTIONS)
+def test_finds_function_with_matching_args_deprecation_warning(w3):
+    Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
     with pytest.warns(DeprecationWarning):
         abi = Contract._find_matching_fn_abi('a', [''])
         assert abi['name'] == 'a'
         assert len(abi['inputs']) == len(['bytes32'])
-        assert set(get_abi_input_types(abi)) == set(['bytes32'])
+        assert get_abi_input_types(abi) == ['bytes32']
 
 
-def test_error_when_duplicate_match(web3):
-    Contract = web3.eth.contract(abi=MULTIPLE_FUNCTIONS)
+def test_error_when_duplicate_match(w3):
+    Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
     with pytest.raises(ValidationError):
         Contract._find_matching_fn_abi('a', [100])
@@ -193,4 +193,4 @@ def test_strict_finds_function_with_matching_args(w3_strict_abi, arguments, expe
     abi = Contract._find_matching_fn_abi('a', arguments)
     assert abi['name'] == 'a'
     assert len(abi['inputs']) == len(expected_types)
-    assert set(get_abi_input_types(abi)) == set(expected_types)
+    assert get_abi_input_types(abi) == expected_types

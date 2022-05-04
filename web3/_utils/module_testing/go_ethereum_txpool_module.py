@@ -23,14 +23,14 @@ class GoEthereumAsyncTxPoolModuleTest:
 
 class GoEthereumTxPoolModuleTest:
 
-    def test_geth_txpool_inspect(self, web3: "Web3") -> None:
-        test_data = web3.geth.txpool.inspect()  # type: ignore
+    def test_geth_txpool_inspect(self, w3: "Web3") -> None:
+        test_data = w3.geth.txpool.inspect()  # type: ignore
         assert "pending" in test_data
 
-    def test_geth_txpool_content(self, web3: "Web3") -> None:
-        test_data = web3.geth.txpool.content()  # type: ignore
+    def test_geth_txpool_content(self, w3: "Web3") -> None:
+        test_data = w3.geth.txpool.content()  # type: ignore
         assert "pending" in test_data
 
-    def test_geth_txpool_status(self, web3: "Web3") -> None:
-        test_data = web3.geth.txpool.status()  # type: ignore
+    def test_geth_txpool_status(self, w3: "Web3") -> None:
+        test_data = w3.geth.txpool.status()  # type: ignore
         assert "pending" in test_data

@@ -44,8 +44,9 @@ The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 .. note ::
 
     Creating event filters requires that your Ethereum node has an API support enabled for filters.
-    It does not work with Infura nodes. To get event logs on Infura or other
-    stateless nodes please see :class:`web3.contract.ContractEvents`.
+    Note that Infura support for filters does not offer access to `pending` filters.
+    To get event logs on other stateless nodes please see :class:`web3.contract.ContractEvents`.
+    
 
 
 Filter Class
@@ -111,7 +112,7 @@ will return a new :class:`BlockFilter` object.
 ``TransactionFilter`` is a subclass of :class:`Filter`.
 
 You can setup a filter for new blocks using ``web3.eth.filter('pending')`` which
-will return a new :class:`BlockFilter` object.
+will return a new :class:`TransactionFilter` object.
 
     .. code-block:: python
 
@@ -179,7 +180,7 @@ Getting events without setting up a filter
 ------------------------------------------
 
 You can query an Ethereum node for direct fetch of events, without creating a filter first.
-This works on all node types, including Infura.
+This works on all node types.
 
 For examples see :meth:`web3.contract.ContractEvents.getLogs`.
 

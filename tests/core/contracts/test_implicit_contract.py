@@ -10,20 +10,20 @@ from web3.contract import (
 
 
 @pytest.fixture()
-def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, address_conversion_func):
+def math_contract(w3, MATH_ABI, MATH_CODE, MATH_RUNTIME, address_conversion_func):
     # Deploy math contract
     # NOTE Must use non-specialized contract factory or else deploy() doesn't work
-    MathContract = web3.eth.contract(
+    MathContract = w3.eth.contract(
         abi=MATH_ABI,
         bytecode=MATH_CODE,
         bytecode_runtime=MATH_RUNTIME,
     )
     tx_hash = MathContract.constructor().transact()
-    tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     math_address = address_conversion_func(tx_receipt['contractAddress'])
     # Return interactive contract instance at deployed address
     # TODO Does parent class not implement 'deploy()' for a reason?
-    MathContract = web3.eth.contract(
+    MathContract = w3.eth.contract(
         abi=MATH_ABI,
         bytecode=MATH_CODE,
         bytecode_runtime=MATH_RUNTIME,
@@ -36,9 +36,9 @@ def math_contract(web3, MATH_ABI, MATH_CODE, MATH_RUNTIME, address_conversion_fu
 
 
 @pytest.fixture()
-def get_transaction_count(web3):
+def get_transaction_count(w3):
     def get_transaction_count(blocknum_or_label):
-        block = web3.eth.get_block(blocknum_or_label)
+        block = w3.eth.get_block(blocknum_or_label)
         # Return the blocknum if we requested this via labels
         # so we can directly query the block next time (using the same API call)
         # Either way, return the number of transactions in the given block
@@ -62,7 +62,7 @@ def test_implicitcontract_call_default(math_contract, get_transaction_count):
     assert get_transaction_count("pending") == (blocknum, 0)
 
 
-def test_implicitcontract_transact_default(web3, math_contract, get_transaction_count):
+def test_implicitcontract_transact_default(math_contract, get_transaction_count):
     # Use to verify correct operation later on
     with pytest.warns(DeprecationWarning, match='deprecated in favor of classic contract syntax'):
         start_count = math_contract.counter()

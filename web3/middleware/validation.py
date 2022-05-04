@@ -55,15 +55,13 @@ to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
 
 @curry
 def _validate_chain_id(web3_chain_id: int, chain_id: int) -> int:
-    if to_integer_if_hex(chain_id) == web3_chain_id:
+    chain_id_int = to_integer_if_hex(chain_id)
+    if chain_id_int == web3_chain_id:
         return chain_id
     else:
         raise ValidationError(
-            "The transaction declared chain ID %r, "
-            "but the connected node is on %r" % (
-                chain_id,
-                web3_chain_id,
-            )
+            f"The transaction declared chain ID {chain_id_int!r}, "
+            f"but the connected node is on {web3_chain_id!r}"
         )
 
 
@@ -73,13 +71,11 @@ def _check_extradata_length(val: Any) -> Any:
     result = HexBytes(val)
     if len(result) > MAX_EXTRADATA_LENGTH:
         raise ExtraDataLengthError(
-            "The field extraData is %d bytes, but should be %d. "
-            "It is quite likely that you are connected to a POA chain. "
-            "Refer to "
+            f"The field extraData is {len(result)} bytes, but should be "
+            f"{MAX_EXTRADATA_LENGTH}. It is quite likely that you are "
+            "connected to a POA chain. Refer to "
             "http://web3py.readthedocs.io/en/stable/middleware.html#geth-style-proof-of-authority "
-            "for more details. The full extraData is: %r" % (
-                len(result), MAX_EXTRADATA_LENGTH, result
-            )
+            f"for more details. The full extraData is: {result!r}"
         )
     return val
 
@@ -164,9 +160,9 @@ async def async_build_method_validators(async_w3: "Web3", method: RPCEndpoint) -
 
 
 async def async_validation_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> AsyncMiddleware:
     middleware = await async_construct_web3_formatting_middleware(
         async_build_method_validators
     )
-    return await middleware(make_request, web3)
+    return await middleware(make_request, w3)

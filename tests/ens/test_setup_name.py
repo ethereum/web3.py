@@ -1,5 +1,9 @@
 import pytest
 
+from eth_typing import (
+    HexStr,
+)
+
 from ens.main import (
     AddressMismatch,
     UnauthorizedError,
@@ -13,7 +17,7 @@ API at: https://github.com/carver/ens.py/issues/2
 """
 
 
-@pytest.fixture()
+@pytest.fixture
 def TEST_ADDRESS(address_conversion_func):
     return address_conversion_func("0x000000000000000000000000000000000000dEaD")
 
@@ -55,7 +59,7 @@ def TEST_ADDRESS(address_conversion_func):
     ],
 )
 def test_setup_name(ens, name, normalized_name, namehash_hex):
-    address = ens.web3.eth.accounts[3]
+    address = ens.w3.eth.accounts[3]
     assert not ens.name(address)
     owner = ens.owner('tester.eth')
 
@@ -63,11 +67,22 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
     assert ens.name(address) == normalized_name
 
     # check that the correct namehash is set:
-    node = Web3.toBytes(hexstr=namehash_hex)
+    node = Web3.toBytes(hexstr=HexStr(namehash_hex))
     assert ens.resolver(normalized_name).caller.addr(node) == address
 
     # check that the correct owner is set:
     assert ens.owner(name) == owner
+
+    # setup name to point to new address
+    new_address = ens.w3.eth.accounts[4]
+    ens.setup_address(name, None)
+    ens.setup_name(name, new_address)
+
+    # validate that ens.name() only returns a name if the forward resolution also returns the
+    # address
+    assert ens.name(new_address) == normalized_name  # reverse resolution
+    assert ens.address(name) == new_address  # forward resolution
+    assert not ens.name(address)
 
     ens.setup_name(None, address)
     ens.setup_address(name, None)
@@ -84,7 +99,7 @@ def test_cannot_set_name_on_mismatch_address(ens, TEST_ADDRESS):
 def test_setup_name_default_address(ens):
     name = 'reverse-defaults-to-forward.tester.eth'
     owner = ens.owner('tester.eth')
-    new_resolution = ens.web3.eth.accounts[-1]
+    new_resolution = ens.w3.eth.accounts[-1]
     ens.setup_address(name, new_resolution)
     assert not ens.name(new_resolution)
     assert ens.owner(name) == owner
@@ -96,7 +111,7 @@ def test_setup_name_default_address(ens):
 
 def test_setup_name_default_to_owner(ens):
     name = 'reverse-defaults-to-owner.tester.eth'
-    new_owner = ens.web3.eth.accounts[-1]
+    new_owner = ens.w3.eth.accounts[-1]
     ens.setup_owner(name, new_owner)
     assert not ens.name(new_owner)
     assert ens.owner(name) == new_owner
@@ -118,10 +133,10 @@ def test_setup_name_unauthorized(ens, TEST_ADDRESS):
 def test_setup_reverse_dict_unmodified(ens):
     # setup
     owner = ens.owner('tester.eth')
-    eth = ens.web3.eth
+    eth = ens.w3.eth
     start_count = eth.get_transaction_count(owner)
 
-    address = ens.web3.eth.accounts[3]
+    address = ens.w3.eth.accounts[3]
     transact = {}
     ens.setup_name('tester.eth', address, transact=transact)
 

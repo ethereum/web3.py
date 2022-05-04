@@ -28,7 +28,7 @@ else:
     )
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def start_websocket_server(open_port):
     event_loop = asyncio.new_event_loop()
 
@@ -37,7 +37,9 @@ def start_websocket_server(open_port):
             data = await websocket.recv()
             await asyncio.sleep(0.02)
             await websocket.send(data)
-        server = websockets.serve(empty_server, '127.0.0.1', open_port, loop=event_loop)
+
+        asyncio.set_event_loop(event_loop)
+        server = websockets.serve(empty_server, '127.0.0.1', open_port)
         event_loop.run_until_complete(server)
         event_loop.run_forever()
 
@@ -49,12 +51,12 @@ def start_websocket_server(open_port):
         event_loop.call_soon_threadsafe(event_loop.stop)
 
 
-@pytest.fixture()
+@pytest.fixture
 def w3(open_port, start_websocket_server):
     # need new event loop as the one used by server is already running
     event_loop = asyncio.new_event_loop()
-    endpoint_uri = 'ws://127.0.0.1:{}'.format(open_port)
-    event_loop.run_until_complete(wait_for_ws(endpoint_uri, event_loop))
+    endpoint_uri = f'ws://127.0.0.1:{open_port}'
+    event_loop.run_until_complete(wait_for_ws(endpoint_uri))
     provider = WebsocketProvider(endpoint_uri, websocket_timeout=0.01)
     return Web3(provider)
 
@@ -66,6 +68,6 @@ def test_websocket_provider_timeout(w3):
 
 def test_restricted_websocket_kwargs():
     invalid_kwargs = {'uri': 'ws://127.0.0.1:8546'}
-    re_exc_message = r'.*found: {0}*'.format(set(invalid_kwargs.keys()))
+    re_exc_message = f'.*found: {set(invalid_kwargs)!r}*'
     with pytest.raises(ValidationError, match=re_exc_message):
         WebsocketProvider(websocket_kwargs=invalid_kwargs)

@@ -56,11 +56,11 @@ class LinkableContract(Contract):
             )
         validate_address(address)
         # type ignored to allow for undefined **kwargs on `Contract` base class __init__
-        super(LinkableContract, self).__init__(address=address, **kwargs)  # type: ignore
+        super().__init__(address=address, **kwargs)  # type: ignore
 
     @classmethod
     def factory(
-        cls, web3: "Web3", class_name: str = None, **kwargs: Any
+        cls, w3: "Web3", class_name: str = None, **kwargs: Any
     ) -> Contract:
         dep_link_refs = kwargs.get("unlinked_references")
         bytecode = kwargs.get("bytecode")
@@ -69,7 +69,7 @@ class LinkableContract(Contract):
             if not is_prelinked_bytecode(to_bytes(hexstr=bytecode), dep_link_refs):
                 needs_bytecode_linking = True
         kwargs = assoc(kwargs, "needs_bytecode_linking", needs_bytecode_linking)
-        return super(LinkableContract, cls).factory(web3, class_name, **kwargs)
+        return super().factory(w3, class_name, **kwargs)
 
     @classmethod
     def constructor(cls, *args: Any, **kwargs: Any) -> ContractConstructor:
@@ -77,7 +77,7 @@ class LinkableContract(Contract):
             raise BytecodeLinkingError(
                 "Contract cannot be deployed until its bytecode is linked."
             )
-        return super(LinkableContract, cls).constructor(*args, **kwargs)
+        return super().constructor(*args, **kwargs)
 
     @classmethod
     def link_bytecode(cls, attr_dict: Dict[str, str]) -> Type["LinkableContract"]:
@@ -98,7 +98,7 @@ class LinkableContract(Contract):
             cls.bytecode_runtime, cls.linked_references, attr_dict
         )
         linked_class = cls.factory(
-            cls.web3, bytecode_runtime=runtime, bytecode=bytecode
+            cls.w3, bytecode_runtime=runtime, bytecode=bytecode
         )
         if linked_class.needs_bytecode_linking:
             raise BytecodeLinkingError(
@@ -111,7 +111,7 @@ class LinkableContract(Contract):
         """
         Validates that ContractType keys in attr_dict reference existing manifest ContractTypes.
         """
-        attr_dict_names = list(attr_dict.keys())
+        attr_dict_names = attr_dict.keys()
 
         if not self.unlinked_references and not self.linked_references:
             raise BytecodeLinkingError(
@@ -122,8 +122,8 @@ class LinkableContract(Contract):
         linked_refs = self.linked_references or ({},)
         all_link_refs = unlinked_refs + linked_refs
 
-        all_link_names = [ref["name"] for ref in all_link_refs if ref]
-        if set(attr_dict_names) != set(all_link_names):
+        all_link_names = {ref["name"] for ref in all_link_refs if ref}
+        if attr_dict_names != all_link_names:
             raise BytecodeLinkingError(
                 "All link references must be defined when calling "
                 "`link_bytecode` on a contract factory."

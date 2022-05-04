@@ -44,13 +44,13 @@ new_account: Method[Callable[[str], ChecksumAddress]] = Method(
 
 list_accounts: Method[Callable[[], List[ChecksumAddress]]] = Method(
     RPC.personal_listAccounts,
-    mungers=None,
+    is_property=True,
 )
 
 
 list_wallets: Method[Callable[[], List[GethWallet]]] = Method(
     RPC.personal_listWallets,
-    mungers=None,
+    is_property=True,
 )
 
 

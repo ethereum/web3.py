@@ -81,8 +81,8 @@ a32bytes = b'a'.ljust(32, b'\x00')
         ),
     ),
 )
-def test_contract_abi_decoding(web3, abi, data, method, expected):
-    contract = web3.eth.contract(abi=abi)
+def test_contract_abi_decoding(w3, abi, data, method, expected):
+    contract = w3.eth.contract(abi=abi)
     func, params = contract.decode_function_input(data)
     assert func.fn_name == method
     assert params == expected
@@ -108,8 +108,8 @@ def test_contract_abi_decoding(web3, abi, data, method, expected):
         ),
     ),
 )
-def test_contract_abi_encoding_kwargs(web3, abi, method, expected, data):
-    contract = web3.eth.contract(abi=abi)
+def test_contract_abi_encoding_kwargs(w3, abi, method, expected, data):
+    contract = w3.eth.contract(abi=abi)
     func, params = contract.decode_function_input(data)
     assert func.fn_name == method
     assert params == expected

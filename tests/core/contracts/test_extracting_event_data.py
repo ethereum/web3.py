@@ -24,18 +24,18 @@ from web3.logs import (
 
 
 @pytest.fixture()
-def Emitter(web3, EMITTER):
-    return web3.eth.contract(**EMITTER)
+def Emitter(w3, EMITTER):
+    return w3.eth.contract(**EMITTER)
 
 
 @pytest.fixture()
-def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
-    wait_for_block(web3)
+def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
+    wait_for_block(w3)
     deploy_txn_hash = Emitter.constructor().transact({'gas': 10000000})
-    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
+    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
-    bytecode = web3.eth.get_code(contract_address)
+    bytecode = w3.eth.get_code(contract_address)
     assert bytecode == Emitter.bytecode_runtime
     _emitter = Emitter(address=contract_address)
     assert _emitter.address == contract_address
@@ -43,26 +43,26 @@ def emitter(web3, Emitter, wait_for_transaction, wait_for_block, address_convers
 
 
 @pytest.fixture()
-def EventContract(web3, EVENT_CONTRACT):
-    return web3.eth.contract(**EVENT_CONTRACT)
+def EventContract(w3, EVENT_CONTRACT):
+    return w3.eth.contract(**EVENT_CONTRACT)
 
 
 @pytest.fixture()
 def event_contract(
-        web3,
+        w3,
         EventContract,
         wait_for_transaction,
         wait_for_block,
         address_conversion_func):
 
-    wait_for_block(web3)
+    wait_for_block(w3)
     deploy_txn_hash = EventContract.constructor().transact({
-        'from': web3.eth.coinbase, 'gas': 1000000
+        'from': w3.eth.coinbase, 'gas': 1000000
     })
-    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
+    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
-    bytecode = web3.eth.get_code(contract_address)
+    bytecode = w3.eth.get_code(contract_address)
     assert bytecode == EventContract.bytecode_runtime
     event_contract = EventContract(address=contract_address)
     assert event_contract.address == contract_address
@@ -70,26 +70,26 @@ def event_contract(
 
 
 @pytest.fixture()
-def IndexedEventContract(web3, INDEXED_EVENT_CONTRACT):
-    return web3.eth.contract(**INDEXED_EVENT_CONTRACT)
+def IndexedEventContract(w3, INDEXED_EVENT_CONTRACT):
+    return w3.eth.contract(**INDEXED_EVENT_CONTRACT)
 
 
 @pytest.fixture()
 def indexed_event_contract(
-        web3,
+        w3,
         IndexedEventContract,
         wait_for_transaction,
         wait_for_block,
         address_conversion_func):
 
-    wait_for_block(web3)
+    wait_for_block(w3)
     deploy_txn_hash = IndexedEventContract.constructor().transact({
-        'from': web3.eth.coinbase, 'gas': 1000000
+        'from': w3.eth.coinbase, 'gas': 1000000
     })
-    deploy_receipt = wait_for_transaction(web3, deploy_txn_hash)
+    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
-    bytecode = web3.eth.get_code(contract_address)
+    bytecode = w3.eth.get_code(contract_address)
     assert bytecode == IndexedEventContract.bytecode_runtime
     indexed_event_contract = IndexedEventContract(address=contract_address)
     assert indexed_event_contract.address == contract_address
@@ -98,7 +98,7 @@ def indexed_event_contract(
 
 @pytest.fixture()
 def dup_txn_receipt(
-        web3,
+        w3,
         indexed_event_contract,
         wait_for_transaction,
         event_contract):
@@ -106,11 +106,11 @@ def dup_txn_receipt(
     emitter_fn = indexed_event_contract.functions.logTwoEvents
 
     txn_hash = emitter_fn(12345).transact()
-    wait_for_transaction(web3, txn_hash)
+    wait_for_transaction(w3, txn_hash)
 
     event_contract_fn = event_contract.functions.logTwoEvents
     dup_txn_hash = event_contract_fn(12345).transact()
-    return wait_for_transaction(web3, dup_txn_hash)
+    return wait_for_transaction(w3, dup_txn_hash)
 
 
 @pytest.mark.parametrize(
@@ -150,7 +150,7 @@ def dup_txn_receipt(
         ),
     )
 )
-def test_event_data_extraction(web3,
+def test_event_data_extraction(w3,
                                emitter,
                                wait_for_transaction,
                                emitter_log_topics,
@@ -162,7 +162,7 @@ def test_event_data_extraction(web3,
     emitter_fn = emitter.functions[contract_fn]
     event_id = getattr(emitter_event_ids, event_name)
     txn_hash = emitter_fn(event_id, *call_args).transact()
-    txn_receipt = wait_for_transaction(web3, txn_hash)
+    txn_receipt = wait_for_transaction(w3, txn_hash)
 
     assert len(txn_receipt['logs']) == 1
     log_entry = txn_receipt['logs'][0]
@@ -177,7 +177,7 @@ def test_event_data_extraction(web3,
     else:
         assert event_topic in log_entry['topics']
 
-    event_data = get_event_data(web3.codec, event_abi, log_entry)
+    event_data = get_event_data(w3.codec, event_abi, log_entry)
 
     assert event_data['args'] == expected_args
     assert event_data['blockHash'] == txn_receipt['blockHash']
@@ -205,7 +205,7 @@ def test_event_data_extraction(web3,
         ),
     )
 )
-def test_event_data_extraction_bytes(web3,
+def test_event_data_extraction_bytes(w3,
                                      emitter,
                                      wait_for_transaction,
                                      emitter_log_topics,
@@ -213,7 +213,7 @@ def test_event_data_extraction_bytes(web3,
                                      expected_args):
     emitter_fn = emitter.functions.logListArgs
     txn_hash = emitter_fn(*call_args).transact()
-    txn_receipt = wait_for_transaction(web3, txn_hash)
+    txn_receipt = wait_for_transaction(w3, txn_hash)
 
     assert len(txn_receipt['logs']) == 1
     log_entry = txn_receipt['logs'][0]
@@ -225,7 +225,7 @@ def test_event_data_extraction_bytes(web3,
 
     assert event_topic in log_entry['topics']
 
-    event_data = get_event_data(web3.codec, event_abi, log_entry)
+    event_data = get_event_data(w3.codec, event_abi, log_entry)
 
     assert event_data['args'] == expected_args
     assert event_data['blockHash'] == txn_receipt['blockHash']
@@ -235,7 +235,7 @@ def test_event_data_extraction_bytes(web3,
     assert event_data['event'] == event_name
 
 
-def test_event_data_extraction_bytes_with_warning(web3,
+def test_event_data_extraction_bytes_with_warning(w3,
                                                   emitter,
                                                   wait_for_transaction,
                                                   emitter_log_topics):
@@ -244,7 +244,7 @@ def test_event_data_extraction_bytes_with_warning(web3,
         match='in v6 it will be invalid to pass a hex string without the "0x" prefix'
     ):
         txn_hash = emitter.functions.logListArgs(['13'], ['54']).transact()
-        txn_receipt = wait_for_transaction(web3, txn_hash)
+        txn_receipt = wait_for_transaction(w3, txn_hash)
 
         assert len(txn_receipt['logs']) == 1
         log_entry = txn_receipt['logs'][0]
@@ -256,7 +256,7 @@ def test_event_data_extraction_bytes_with_warning(web3,
 
         assert event_topic in log_entry['topics']
 
-        event_data = get_event_data(web3.codec, event_abi, log_entry)
+        event_data = get_event_data(w3.codec, event_abi, log_entry)
         expected_args = {
             'arg0': b']\x0b\xf6sp\xbe\xa2L\xa9is\xe4\xab\xb7\xfa+nVJpgt\xa7\x8f:\xa4\x9f\xdb\x93\xf0\x8f\xae',  # noqa: E501
             'arg1': [b'T\x00']
@@ -288,7 +288,7 @@ def test_event_data_extraction_bytes_strict_with_errors(strict_emitter,
         emitter_fn(*call_args).transact()
 
 
-def test_dynamic_length_argument_extraction(web3,
+def test_dynamic_length_argument_extraction(w3,
                                             emitter,
                                             wait_for_transaction,
                                             emitter_log_topics,
@@ -296,7 +296,7 @@ def test_dynamic_length_argument_extraction(web3,
     string_0 = "this-is-the-first-string-which-exceeds-32-bytes-in-length"
     string_1 = "this-is-the-second-string-which-exceeds-32-bytes-in-length"
     txn_hash = emitter.functions.logDynamicArgs(string_0, string_1).transact()
-    txn_receipt = wait_for_transaction(web3, txn_hash)
+    txn_receipt = wait_for_transaction(w3, txn_hash)
 
     assert len(txn_receipt['logs']) == 1
     log_entry = txn_receipt['logs'][0]
@@ -306,10 +306,10 @@ def test_dynamic_length_argument_extraction(web3,
     event_topic = emitter_log_topics.LogDynamicArgs
     assert event_topic in log_entry['topics']
 
-    string_0_topic = web3.keccak(text=string_0)
+    string_0_topic = w3.keccak(text=string_0)
     assert string_0_topic in log_entry['topics']
 
-    event_data = get_event_data(web3.codec, event_abi, log_entry)
+    event_data = get_event_data(w3.codec, event_abi, log_entry)
 
     expected_args = {
         "arg0": string_0_topic,
@@ -576,7 +576,7 @@ def test_argument_extraction_strict_bytes_types(w3_strict_abi,
     )
 )
 def test_event_rich_log(
-        web3,
+        w3,
         emitter,
         emitter_event_ids,
         wait_for_transaction,
@@ -595,7 +595,7 @@ def test_event_rich_log(
         # Some tests do not rely on the event_id. Rather than changing this test too much,
         # bypass this here and just call the function with the provided args.
         txn_hash = emitter_fn(*call_args).transact()
-    txn_receipt = wait_for_transaction(web3, txn_hash)
+    txn_receipt = wait_for_transaction(w3, txn_hash)
 
     event_instance = emitter.events[event_name]()
 
@@ -626,14 +626,14 @@ def test_event_rich_log(
 
 @pytest.mark.parametrize('process_receipt', (True, False))
 def test_event_rich_log_with_byte_args(
-        web3,
+        w3,
         emitter,
         emitter_event_ids,
         wait_for_transaction,
         process_receipt):
 
     txn_hash = emitter.functions.logListArgs([b'13'], [b'54']).transact()
-    txn_receipt = wait_for_transaction(web3, txn_hash)
+    txn_receipt = wait_for_transaction(w3, txn_hash)
 
     event_instance = emitter.events.LogListArgs()
 
@@ -662,7 +662,6 @@ def test_event_rich_log_with_byte_args(
 
 
 def test_receipt_processing_with_discard_flag(
-        web3,
         event_contract,
         indexed_event_contract,
         dup_txn_receipt,
@@ -675,7 +674,6 @@ def test_receipt_processing_with_discard_flag(
 
 
 def test_receipt_processing_with_ignore_flag(
-        web3,
         event_contract,
         indexed_event_contract,
         dup_txn_receipt,
@@ -704,7 +702,6 @@ def test_receipt_processing_with_ignore_flag(
 
 
 def test_receipt_processing_with_warn_flag(
-        web3,
         indexed_event_contract,
         dup_txn_receipt):
 
@@ -716,7 +713,6 @@ def test_receipt_processing_with_warn_flag(
 
 
 def test_receipt_processing_with_strict_flag(
-        web3,
         indexed_event_contract,
         dup_txn_receipt):
 
@@ -727,7 +723,6 @@ def test_receipt_processing_with_strict_flag(
 
 
 def test_receipt_processing_with_invalid_flag(
-        web3,
         indexed_event_contract,
         dup_txn_receipt):
 
@@ -738,7 +733,6 @@ def test_receipt_processing_with_invalid_flag(
 
 
 def test_receipt_processing_with_no_flag(
-        web3,
         indexed_event_contract,
         dup_txn_receipt):
 
@@ -750,7 +744,6 @@ def test_receipt_processing_with_no_flag(
 
 
 def test_single_log_processing_with_errors(
-        web3,
         indexed_event_contract,
         dup_txn_receipt):
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
@@ -759,12 +752,12 @@ def test_single_log_processing_with_errors(
         event_instance.processLog(dup_txn_receipt['logs'][0])
 
 
-def test_get_all_entries_with_nested_tuple_event(web3, emitter):
+def test_get_all_entries_with_nested_tuple_event(w3, emitter):
     struct_args_filter = emitter.events.LogStructArgs.createFilter(fromBlock=0)
 
     tx_hash = emitter.functions.logStruct(1, (2, 3, (4, ))).transact({'gas': 100000})
-    web3.eth.wait_for_transaction_receipt(tx_hash)
-    txn_receipt = web3.eth.get_transaction_receipt(tx_hash)
+    w3.eth.wait_for_transaction_receipt(tx_hash)
+    txn_receipt = w3.eth.get_transaction_receipt(tx_hash)
 
     entries = struct_args_filter.get_all_entries()
 

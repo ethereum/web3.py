@@ -40,14 +40,14 @@ AMBIGUOUS_CONTRACT_ABI = [
 
 
 @pytest.fixture()
-def string_contract(web3, StringContract, address_conversion_func):
+def string_contract(w3, StringContract, address_conversion_func):
     deploy_txn = StringContract.constructor("Caqalai").transact()
-    deploy_receipt = web3.eth.wait_for_transaction_receipt(deploy_txn)
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
     contract = StringContract(address=contract_address)
     assert contract.address == contract_address
-    assert len(web3.eth.get_code(contract.address)) > 0
+    assert len(w3.eth.get_code(contract.address)) > 0
     return contract
 
 
@@ -123,8 +123,8 @@ map_repr = compose(list, curry(map, repr))
         ),
     ),
 )
-def test_find_or_get_functions_by_type(web3, method, args, repr_func, expected):
-    contract = web3.eth.contract(abi=AMBIGUOUS_CONTRACT_ABI)
+def test_find_or_get_functions_by_type(w3, method, args, repr_func, expected):
+    contract = w3.eth.contract(abi=AMBIGUOUS_CONTRACT_ABI)
     function = getattr(contract, method)(*args)
     assert repr_func(function) == expected
 
@@ -153,7 +153,7 @@ def test_find_or_get_functions_by_type(web3, method, args, repr_func, expected):
         (
             'get_function_by_selector',
             (b'\x00' * (4 + 1), ),
-            r'expected value of size 4 bytes. Got: %s bytes' % (4 + 1),
+            f'expected value of size 4 bytes. Got: {(4 + 1)} bytes',
             ValueError
         ),
         (
@@ -170,8 +170,8 @@ def test_find_or_get_functions_by_type(web3, method, args, repr_func, expected):
         ),
     )
 )
-def test_functions_error_messages(web3, method, args, expected_message, expected_error):
-    contract = web3.eth.contract(abi=AMBIGUOUS_CONTRACT_ABI)
+def test_functions_error_messages(w3, method, args, expected_message, expected_error):
+    contract = w3.eth.contract(abi=AMBIGUOUS_CONTRACT_ABI)
     with pytest.raises(expected_error, match=expected_message):
         getattr(contract, method)(*args)
 

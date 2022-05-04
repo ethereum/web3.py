@@ -24,7 +24,7 @@ from web3.tools.benchmark.utils import (
     kill_proc_gracefully,
 )
 
-GETH_FIXTURE_ZIP = "geth-1.10.13-fixture.zip"
+GETH_FIXTURE_ZIP = "geth-1.10.17-fixture.zip"
 
 
 class GethBenchmarkFixture:
@@ -59,7 +59,7 @@ class GethBenchmarkFixture:
         return str(port)
 
     def _endpoint_uri(self) -> str:
-        return "http://localhost:{0}".format(self.rpc_port)
+        return f"http://localhost:{self.rpc_port}"
 
     def _geth_binary(self) -> str:
         if "GETH_BINARY" in os.environ:

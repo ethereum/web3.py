@@ -46,8 +46,8 @@ EVENT_1_ABI = {
         }),
     ),
 )
-def test_construct_event_filter_params(web3, event_abi, fn_kwargs, expected):
-    _, actual = construct_event_filter_params(event_abi, web3.codec, **fn_kwargs)
+def test_construct_event_filter_params(w3, event_abi, fn_kwargs, expected):
+    _, actual = construct_event_filter_params(event_abi, w3.codec, **fn_kwargs)
     assert actual == expected
 
 
@@ -68,7 +68,7 @@ def hex_and_pad(i):
         ]),
     ),
 )
-def test_construct_event_filter_params_for_data_filters(event_abi, web3, fn_kwargs,
+def test_construct_event_filter_params_for_data_filters(event_abi, w3, fn_kwargs,
                                                         expected):
-    actual, _ = construct_event_filter_params(event_abi, web3.codec, **fn_kwargs)
+    actual, _ = construct_event_filter_params(event_abi, w3.codec, **fn_kwargs)
     assert actual == expected

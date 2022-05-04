@@ -30,7 +30,7 @@ def construct_exception_handler_middleware(
         method_handlers = {}
 
     def exception_handler_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in method_handlers:

@@ -7,7 +7,6 @@ from typing import (
 from web3.types import (
     BlockIdentifier,
     TxParams,
-    Wei,
 )
 
 if TYPE_CHECKING:
@@ -17,7 +16,7 @@ if TYPE_CHECKING:
 
 async def get_block_gas_limit(
     web3_eth: "AsyncEth", block_identifier: Optional[BlockIdentifier] = None
-) -> Wei:
+) -> int:
     if block_identifier is None:
         block_identifier = await web3_eth.block_number
     block = await web3_eth.get_block(block_identifier)
@@ -25,19 +24,19 @@ async def get_block_gas_limit(
 
 
 async def get_buffered_gas_estimate(
-    web3: "Web3", transaction: TxParams, gas_buffer: Wei = Wei(100000)
-) -> Wei:
+    w3: "Web3", transaction: TxParams, gas_buffer: int = 100000
+) -> int:
     gas_estimate_transaction = cast(TxParams, dict(**transaction))
 
-    gas_estimate = await web3.eth.estimate_gas(gas_estimate_transaction)  # type: ignore
+    gas_estimate = await w3.eth.estimate_gas(gas_estimate_transaction)  # type: ignore
 
-    gas_limit = await get_block_gas_limit(web3.eth)  # type: ignore
+    gas_limit = await get_block_gas_limit(w3.eth)  # type: ignore
 
     if gas_estimate > gas_limit:
         raise ValueError(
             "Contract does not appear to be deployable within the "
-            "current network gas limits.  Estimated: {0}. Current gas "
-            "limit: {1}".format(gas_estimate, gas_limit)
+            f"current network gas limits.  Estimated: {gas_estimate}. "
+            f"Current gas limit: {gas_limit}"
         )
 
-    return Wei(min(gas_limit, gas_estimate + gas_buffer))
+    return min(gas_limit, gas_estimate + gas_buffer)
