@@ -244,7 +244,7 @@ Each Contract Factory exposes the following methods.
         >>> txn_receipt['contractAddress']
         '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
 
-  .. py:classmethod:: Contract.constructor(*args, **kwargs).estimateGas(transaction=None, block_identifier=None)
+.. py:classmethod:: Contract.constructor(*args, **kwargs).estimateGas(transaction=None, block_identifier=None)
     :noindex:
 
     .. warning:: Deprecated: This method is deprecated in favor of :py:meth:`Contract.constructor(*args, **kwargs).estimate_gas`
