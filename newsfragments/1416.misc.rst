@@ -1,0 +1,1 @@
+Deprectated buildTransaction and estimateGas in contract.py v5
