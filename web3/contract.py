@@ -644,8 +644,8 @@ class ContractConstructor:
             estimate_gas_transaction, block_identifier=block_identifier
         )
 
-    @deprecated_for("estimate_gas")
     @combomethod
+    @deprecated_for("estimate_gas")
     def estimateGas(
         self, transaction: Optional[TxParams] = None,
         block_identifier: Optional[BlockIdentifier] = None
@@ -691,8 +691,8 @@ class ContractConstructor:
         built_transaction['to'] = Address(b'')
         return fill_transaction_defaults(self.web3, built_transaction)
 
-    @deprecated_for("build_transaction")
     @combomethod
+    @deprecated_for("build_transaction")
     def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
         return self.build_transaction(transaction)
 
