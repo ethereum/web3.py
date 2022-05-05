@@ -6,7 +6,7 @@
 
 A Python library for interacting with Ethereum, inspired by [web3.js](https://github.com/ethereum/web3.js).
 
-* Python 3.6+ support
+* Python 3.7.2+ support
 
 ---
 
