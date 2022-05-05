@@ -76,8 +76,8 @@ geth_steps: &geth_steps
           echo $GETH_VERSION
           export GETH_BINARY="$HOME/.py-geth/geth-$GETH_VERSION/bin/geth"
           if [ ! -e "$GETH_BINARY" ]; then
-            curl -O https://storage.googleapis.com/golang/go1.14.2.linux-amd64.tar.gz
-            tar xvf go1.14.2.linux-amd64.tar.gz
+            curl -O https://storage.googleapis.com/golang/go1.18.1.linux-amd64.tar.gz
+            tar xvf go1.18.1.linux-amd64.tar.gz
             sudo chown -R root:root ./go
             sudo mv go /usr/local
             sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
@@ -119,8 +119,8 @@ geth_custom_steps: &geth_custom_steps
           echo $GETH_VERSION
           export GETH_BINARY="./custom_geth"
           echo 'export GETH_BINARY="./custom_geth"' >> $BASH_ENV
-          curl -O https://storage.googleapis.com/golang/go1.14.2.linux-amd64.tar.gz
-          tar xvf go1.14.2.linux-amd64.tar.gz
+          curl -O https://storage.googleapis.com/golang/go1.18.1.linux-amd64.tar.gz
+          tar xvf go1.18.1.linux-amd64.tar.gz
           sudo chown -R root:root ./go
           sudo mv go /usr/local
           sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
@@ -253,7 +253,7 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ipc
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py37-integration-goethereum-http:
     <<: *geth_steps
@@ -261,7 +261,7 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-http
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py37-integration-goethereum-ws:
     <<: *geth_steps
@@ -269,7 +269,7 @@ jobs:
       - image: circleci/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ws
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py37-integration-ethtester-pyevm:
     <<: *common
@@ -323,7 +323,7 @@ jobs:
       - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ipc
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py38-integration-goethereum-http:
     <<: *geth_steps
@@ -331,7 +331,7 @@ jobs:
       - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-http
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py38-integration-goethereum-ws:
     <<: *geth_steps
@@ -339,7 +339,7 @@ jobs:
       - image: circleci/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ws
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py38-integration-ethtester-pyevm:
     <<: *common
@@ -388,7 +388,7 @@ jobs:
       - image: circleci/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ipc
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py39-integration-goethereum-http:
     <<: *geth_steps
@@ -396,7 +396,7 @@ jobs:
       - image: circleci/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-http
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py39-integration-goethereum-ws:
     <<: *geth_steps
@@ -404,7 +404,7 @@ jobs:
       - image: circleci/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ws
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py39-integration-ethtester-pyevm:
     <<: *common
@@ -453,7 +453,7 @@ jobs:
       - image: circleci/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ipc
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.17
 
   py310-integration-goethereum-http:
     <<: *geth_steps
@@ -461,7 +461,7 @@ jobs:
       - image: circleci/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-http
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.17
 
   py310-integration-goethereum-ws:
     <<: *geth_steps
@@ -469,7 +469,7 @@ jobs:
       - image: circleci/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ws
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.17
 
   py310-integration-ethtester-pyevm:
     <<: *common
@@ -492,7 +492,7 @@ jobs:
       - image: circleci/python:3.10
     environment:
       TOXENV: benchmark
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
 workflows:
   version: 2.1

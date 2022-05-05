@@ -3,6 +3,59 @@ Release Notes
 
 .. towncrier release notes start
 
+v6.0.0-beta.2 (2022-04-27)
+--------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Audit ``.rst`` and ``.py`` files and convert all Web3 instance variable names
+  to ``w3`` to avoid confusion with the ``web3`` module. (`#1183
+  <https://github.com/ethereum/web3.py/issues/1183>`__)
+- Update dependency requirements: - eth-utils - eth-abi - eth-tester -
+  eth-account - eth-typing (`#2342
+  <https://github.com/ethereum/web3.py/issues/2342>`__)
+- Add ``attach_methods()`` to ``Module`` class to facilitate attaching methods
+  to modules. (`#2383 <https://github.com/ethereum/web3.py/issues/2383>`__)
+- Move IOError -> OSError (`#2434
+  <https://github.com/ethereum/web3.py/issues/2434>`__)
+
+
+Documentation Updates
+~~~~~~~~~~~~~~~~~~~~~
+
+- Clarify info about Infura filters over HTTP (`#2322
+  <https://github.com/ethereum/web3.py/issues/2322>`__)
+- Document reading private keys from environment variables (`#2380
+  <https://github.com/ethereum/web3.py/issues/2380>`__)
+- Add example for the ``construct_sign_and_send_raw_middleware`` when connected
+  to a hosted node (`#2410
+  <https://github.com/ethereum/web3.py/issues/2410>`__)
+- Doc fix: Pending transaction filter returns a ``TransactionFilter`` not a
+  ``BlockFilter`` (`#2444 <https://github.com/ethereum/web3.py/issues/2444>`__)
+
+
+Features
+~~~~~~~~
+
+- Add 'get_text' method to look up ENS text record values (`#2286
+  <https://github.com/ethereum/web3.py/issues/2286>`__)
+- For ``ENS.name()``, validate that the forward resolution returns the same
+  address as provided by the user as per the ENS documentation recommendation
+  for Reverse Resolution. (`#2420
+  <https://github.com/ethereum/web3.py/issues/2420>`__)
+- Add sync chain_id to ``simple_middleware_cache`` (`#2425
+  <https://github.com/ethereum/web3.py/issues/2425>`__)
+
+
+Misc
+~~~~
+
+- `#2369 <https://github.com/ethereum/web3.py/issues/2369>`__, `#2372
+  <https://github.com/ethereum/web3.py/issues/2372>`__, `#2418
+  <https://github.com/ethereum/web3.py/issues/2418>`__
+
+
 v6.0.0-beta.1 (2022-02-28)
 --------------------------
 

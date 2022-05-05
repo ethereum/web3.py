@@ -1,1 +1,0 @@
-bump docker base image to ``3.9`` and remove parity tests from docker.

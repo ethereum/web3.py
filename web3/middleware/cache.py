@@ -82,6 +82,7 @@ SIMPLE_CACHE_RPC_WHITELIST = cast(Set[RPCEndpoint], {
     # 'eth_getWork',
     # 'eth_submitWork',
     # 'eth_submitHashrate',
+    'eth_chainId',
 })
 
 
