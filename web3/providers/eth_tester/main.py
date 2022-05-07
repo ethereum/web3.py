@@ -55,6 +55,7 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
     )
 
     def __init__(self) -> None:
+        # do not import eth_tester until runtime, it is not a default dependency
         from eth_tester import EthereumTester
         from web3.providers.eth_tester.defaults import API_ENDPOINTS
         self.ethereum_tester = EthereumTester()
