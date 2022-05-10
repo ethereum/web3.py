@@ -416,6 +416,26 @@ These internal modules inherit from the ``web3.module.Module`` class which give 
 web3.py library.
 
 
+Custom Methods
+~~~~~~~~~~~~~~
+
+You may add or overwrite methods within any module using the ``attach_methods`` function.
+To create a property instead, set ``is_property`` to ``True``.
+
+.. code-block:: python
+
+   >>> w3.eth.attach_methods({
+   ...    'example_method': Method(
+   ...      'eth_example',
+   ...       mungers=[...],
+   ...       request_formatters=[...],
+   ...       result_formatters=[...],
+   ...       is_property=False,
+   ...    ),
+   ... })
+   >>> w3.eth.example_method()
+
+
 External Modules
 ~~~~~~~~~~~~~~~~
 
