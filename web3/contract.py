@@ -49,10 +49,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils import (
-    async_transactions,
-    transactions,
-)
 from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
@@ -66,6 +62,9 @@ from web3._utils.abi import (
     map_abi_data,
     merge_args_and_kwargs,
     receive_func_abi_exists,
+)
+from web3._utils.async_transactions import (
+    fill_transaction_defaults as async_fill_transaction_defaults,
 )
 from web3._utils.blocks import (
     is_hex_encoded_block_hash,
@@ -109,6 +108,9 @@ from web3._utils.normalizers import (
     normalize_address,
     normalize_address_no_ens,
     normalize_bytecode,
+)
+from web3._utils.transactions import (
+    fill_transaction_defaults,
 )
 from web3.datastructures import (
     AttributeDict,
@@ -866,7 +868,7 @@ class ContractConstructor(BaseContractConstructor):
         Build the transaction dictionary without sending
         """
         built_transaction = self._build_transaction(transaction)
-        return transactions.fill_transaction_defaults(self.w3, built_transaction)
+        return fill_transaction_defaults(self.w3, built_transaction)
 
     @combomethod
     def estimate_gas(
@@ -893,7 +895,7 @@ class AsyncContractConstructor(BaseContractConstructor):
         Build the transaction dictionary without sending
         """
         built_transaction = self._build_transaction(transaction)
-        return async_transactions.fill_transaction_defaults(self.w3, built_transaction)
+        return async_fill_transaction_defaults(self.w3, built_transaction)
 
     @combomethod
     async def estimate_gas(
@@ -2272,7 +2274,7 @@ def build_transaction_for_function(
         fn_kwargs=kwargs,
     )
 
-    prepared_transaction = transactions.fill_transaction_defaults(w3, prepared_transaction)
+    prepared_transaction = fill_transaction_defaults(w3, prepared_transaction)
 
     return prepared_transaction
 
@@ -2302,12 +2304,8 @@ async def async_build_transaction_for_function(
         fn_kwargs=kwargs,
     )
 
-    # prepared_transaction = await async_transactions.fill_transaction_defaults(
-    #     w3, prepared_transaction)
-    return await async_transactions.fill_transaction_defaults(
+    return await async_fill_transaction_defaults(
         w3, prepared_transaction)
-
-    # return prepared_transaction
 
 
 def find_functions_by_identifier(
