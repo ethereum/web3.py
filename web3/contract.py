@@ -49,10 +49,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils import (
-    async_transactions,
-    transactions,
-)
 from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
@@ -66,6 +62,9 @@ from web3._utils.abi import (
     map_abi_data,
     merge_args_and_kwargs,
     receive_func_abi_exists,
+)
+from web3._utils.async_transactions import (
+    fill_transaction_defaults as async_fill_transaction_defaults,
 )
 from web3._utils.blocks import (
     is_hex_encoded_block_hash,
@@ -109,6 +108,9 @@ from web3._utils.normalizers import (
     normalize_address,
     normalize_address_no_ens,
     normalize_bytecode,
+)
+from web3._utils.transactions import (
+    fill_transaction_defaults,
 )
 from web3.datastructures import (
     AttributeDict,
@@ -866,7 +868,7 @@ class ContractConstructor(BaseContractConstructor):
         Build the transaction dictionary without sending
         """
         built_transaction = self._build_transaction(transaction)
-        return transactions.fill_transaction_defaults(self.w3, built_transaction)
+        return fill_transaction_defaults(self.w3, built_transaction)
 
     @combomethod
     def estimate_gas(
@@ -893,7 +895,7 @@ class AsyncContractConstructor(BaseContractConstructor):
         Build the transaction dictionary without sending
         """
         built_transaction = self._build_transaction(transaction)
-        return async_transactions.fill_transaction_defaults(self.w3, built_transaction)
+        return async_fill_transaction_defaults(self.w3, built_transaction)
 
     @combomethod
     async def estimate_gas(
@@ -1944,19 +1946,39 @@ def check_for_forbidden_api_filter_arguments(
                 "method.")
 
 
-def _call_contract_function(w3: 'Web3',
-                            address: ChecksumAddress,
-                            normalizers: Tuple[Callable[..., Any], ...],
-                            function_identifier: FunctionIdentifier,
-                            return_data: Union[bytes, bytearray],
-                            contract_abi: Optional[ABI] = None,
-                            fn_abi: Optional[ABIFunction] = None,
-                            *args: Any,
-                            **kwargs: Any) -> Any:
+def call_contract_function(
+        w3: 'Web3',
+        address: ChecksumAddress,
+        normalizers: Tuple[Callable[..., Any], ...],
+        function_identifier: FunctionIdentifier,
+        transaction: TxParams,
+        block_id: Optional[BlockIdentifier] = None,
+        contract_abi: Optional[ABI] = None,
+        fn_abi: Optional[ABIFunction] = None,
+        state_override: Optional[CallOverrideParams] = None,
+        *args: Any,
+        **kwargs: Any) -> Any:
     """
     Helper function for interacting with a contract function using the
     `eth_call` API.
     """
+    call_transaction = prepare_transaction(
+        address,
+        w3,
+        fn_identifier=function_identifier,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    return_data = w3.eth.call(
+        call_transaction,
+        block_identifier=block_id,
+        state_override=state_override,
+    )
+
     if fn_abi is None:
         fn_abi = find_matching_fn_abi(contract_abi, w3.codec, function_identifier, args, kwargs)
 
@@ -1994,50 +2016,6 @@ def _call_contract_function(w3: 'Web3',
         return normalized_data
 
 
-def call_contract_function(
-        w3: 'Web3',
-        address: ChecksumAddress,
-        normalizers: Tuple[Callable[..., Any], ...],
-        function_identifier: FunctionIdentifier,
-        transaction: TxParams,
-        block_id: Optional[BlockIdentifier] = None,
-        contract_abi: Optional[ABI] = None,
-        fn_abi: Optional[ABIFunction] = None,
-        state_override: Optional[CallOverrideParams] = None,
-        *args: Any,
-        **kwargs: Any) -> Any:
-    """
-    Helper function for interacting with a contract function using the
-    `eth_call` API.
-    """
-    call_transaction = prepare_transaction(
-        address,
-        w3,
-        fn_identifier=function_identifier,
-        contract_abi=contract_abi,
-        fn_abi=fn_abi,
-        transaction=transaction,
-        fn_args=args,
-        fn_kwargs=kwargs,
-    )
-
-    return_data = w3.eth.call(
-        call_transaction,
-        block_identifier=block_id,
-        state_override=state_override,
-    )
-
-    return _call_contract_function(w3,
-                                   address,
-                                   normalizers,
-                                   function_identifier,
-                                   return_data,
-                                   contract_abi,
-                                   fn_abi,
-                                   args,
-                                   kwargs)
-
-
 async def async_call_contract_function(
         w3: 'Web3',
         address: ChecksumAddress,
@@ -2071,15 +2049,41 @@ async def async_call_contract_function(
         state_override=state_override,
     )
 
-    return _call_contract_function(w3,
-                                   address,
-                                   normalizers,
-                                   function_identifier,
-                                   return_data,
-                                   contract_abi,
-                                   fn_abi,
-                                   args,
-                                   kwargs)
+    if fn_abi is None:
+        fn_abi = find_matching_fn_abi(contract_abi, w3.codec, function_identifier, args, kwargs)
+
+    output_types = get_abi_output_types(fn_abi)
+
+    try:
+        output_data = w3.codec.decode_abi(output_types, return_data)
+    except DecodingError as e:
+        # Provide a more helpful error message than the one provided by
+        # eth-abi-utils
+        is_missing_code_error = (
+            return_data in ACCEPTABLE_EMPTY_STRINGS
+            and await w3.eth.get_code(address) in ACCEPTABLE_EMPTY_STRINGS)  # type: ignore
+        if is_missing_code_error:
+            msg = (
+                "Could not transact with/call contract function, is contract "
+                "deployed correctly and chain synced?"
+            )
+        else:
+            msg = (
+                f"Could not decode contract function call to {function_identifier} with "
+                f"return data: {str(return_data)}, output_types: {output_types}"
+            )
+        raise BadFunctionCallOutput(msg) from e
+
+    _normalizers = itertools.chain(
+        BASE_RETURN_NORMALIZERS,
+        normalizers,
+    )
+    normalized_data = map_abi_data(_normalizers, output_types, output_data)
+
+    if len(normalized_data) == 1:
+        return normalized_data[0]
+    else:
+        return normalized_data
 
 
 def parse_block_identifier(w3: 'Web3', block_identifier: BlockIdentifier) -> BlockIdentifier:
@@ -2270,7 +2274,7 @@ def build_transaction_for_function(
         fn_kwargs=kwargs,
     )
 
-    prepared_transaction = transactions.fill_transaction_defaults(w3, prepared_transaction)
+    prepared_transaction = fill_transaction_defaults(w3, prepared_transaction)
 
     return prepared_transaction
 
@@ -2300,12 +2304,8 @@ async def async_build_transaction_for_function(
         fn_kwargs=kwargs,
     )
 
-    # prepared_transaction = await async_transactions.fill_transaction_defaults(
-    #     w3, prepared_transaction)
-    return await async_transactions.fill_transaction_defaults(
+    return await async_fill_transaction_defaults(
         w3, prepared_transaction)
-
-    # return prepared_transaction
 
 
 def find_functions_by_identifier(
