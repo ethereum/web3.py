@@ -100,7 +100,6 @@ def test_transacting_with_contract_with_arguments(w3,
 
 
 def test_deploy_when_default_account_is_set(w3,
-                                            wait_for_transaction,
                                             STRING_CONTRACT):
     w3.eth.default_account = w3.eth.accounts[1]
     assert w3.eth.default_account is not empty
@@ -114,7 +113,6 @@ def test_deploy_when_default_account_is_set(w3,
 
 
 def test_transact_when_default_account_is_set(w3,
-                                              wait_for_transaction,
                                               math_contract,
                                               transact):
     w3.eth.default_account = w3.eth.accounts[1]
@@ -122,7 +120,6 @@ def test_transact_when_default_account_is_set(w3,
 
     txn_hash = transact(contract=math_contract,
                         contract_function='increment')
-    wait_for_transaction(w3, txn_hash)
     txn_after = w3.eth.get_transaction(txn_hash)
     assert txn_after['from'] == w3.eth.default_account
 
@@ -178,13 +175,9 @@ def test_transacting_with_contract_with_byte_array_argument(w3, arrays_contract,
 
 def test_transacting_with_contract_respects_explicit_gas(w3,
                                                          STRING_CONTRACT,
-                                                         skip_if_testrpc,
                                                          wait_for_block,
                                                          call,
                                                          transact):
-    skip_if_testrpc(w3)
-
-    wait_for_block(w3)
 
     StringContract = w3.eth.contract(**STRING_CONTRACT)
 
@@ -198,7 +191,7 @@ def test_transacting_with_contract_respects_explicit_gas(w3,
     txn_hash = transact(contract=string_contract,
                         contract_function='setValue',
                         func_args=[to_bytes(text="ÄLÄMÖLÖ")],
-                        tx_kwargs={'gas': 200000})
+                        tx_params={'gas': 200000})
     txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash, 30)
     assert txn_receipt is not None
 
@@ -212,13 +205,9 @@ def test_transacting_with_contract_respects_explicit_gas(w3,
 
 def test_auto_gas_computation_when_transacting(w3,
                                                STRING_CONTRACT,
-                                               skip_if_testrpc,
                                                wait_for_block,
                                                call,
                                                transact):
-    skip_if_testrpc(w3)
-
-    wait_for_block(w3)
 
     StringContract = w3.eth.contract(**STRING_CONTRACT)
 
@@ -377,7 +366,6 @@ async def test_async_transacting_with_contract_with_arguments(
 @pytest.mark.asyncio
 async def test_async_deploy_when_default_account_is_set(
         async_w3,
-        wait_for_transaction,
         STRING_CONTRACT):
     async_w3_accounts = await async_w3.eth.accounts
     async_w3.eth.default_account = async_w3_accounts[1]
@@ -394,7 +382,6 @@ async def test_async_deploy_when_default_account_is_set(
 @pytest.mark.asyncio
 async def test_async_transact_when_default_account_is_set(
         async_w3,
-        async_wait_for_transaction,
         async_math_contract,
         async_transact):
     async_w3_accounts = await async_w3.eth.accounts
@@ -403,7 +390,6 @@ async def test_async_transact_when_default_account_is_set(
 
     txn_hash = await async_transact(contract=async_math_contract,
                                     contract_function='increment')
-    await async_wait_for_transaction(async_w3, txn_hash)
     txn_after = await async_w3.eth.get_transaction(txn_hash)
     assert txn_after['from'] == async_w3.eth.default_account
 
@@ -473,17 +459,12 @@ async def test_async_transacting_with_contract_with_byte_array_argument(
 async def test_async_transacting_with_contract_respects_explicit_gas(
         async_w3,
         STRING_CONTRACT,
-        async_skip_if_testrpc,
-        async_wait_for_block,
         async_call,
         async_transact):
-    await async_skip_if_testrpc(async_w3)
-
-    await async_wait_for_block(async_w3)
 
     StringContract = async_w3.eth.contract(**STRING_CONTRACT)
 
-    deploy_txn = StringContract.constructor("Caqalai").transact()
+    deploy_txn = await StringContract.constructor("Caqalai").transact()
     deploy_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn, 30)
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt['contractAddress'])
@@ -493,7 +474,7 @@ async def test_async_transacting_with_contract_respects_explicit_gas(
     txn_hash = await async_transact(contract=string_contract,
                                     contract_function='setValue',
                                     func_args=[to_bytes(text="ÄLÄMÖLÖ")],
-                                    tx_kwargs={'gas': 200000})
+                                    tx_params={'gas': 200000})
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash, 30)
     assert txn_receipt is not None
 
@@ -509,13 +490,8 @@ async def test_async_transacting_with_contract_respects_explicit_gas(
 async def test_async_auto_gas_computation_when_transacting(
         async_w3,
         STRING_CONTRACT,
-        async_skip_if_testrpc,
-        async_wait_for_block,
         async_call,
         async_transact):
-    await async_skip_if_testrpc(async_w3)
-
-    await async_wait_for_block(async_w3)
 
     StringContract = async_w3.eth.contract(**STRING_CONTRACT)
 
